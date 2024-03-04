@@ -1,4 +1,3 @@
-import React from 'react';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 

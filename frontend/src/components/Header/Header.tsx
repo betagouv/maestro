@@ -1,6 +1,4 @@
-import React from 'react';
 import { Header as DSFRHeader } from '@codegouvfr/react-dsfr/Header';
-import { Brand } from 'shared/constants';
 
 const Header = () => {
   return (

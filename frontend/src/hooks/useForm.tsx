@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import * as yup from 'yup';
 import { ObjectShape } from 'yup/lib/object';
-import { isDate } from 'date-fns';
 
 export const emailValidator = yup
   .string()
@@ -38,7 +37,7 @@ export const fileValidator = (supportedFormats: string[]) =>
     .test(
       'fileType',
       'Format de fichier invalide',
-      (value) => value && supportedFormats.includes(value.type)
+      (value) => value && supportedFormats.includes(value.type),
     );
 
 type MessageType = 'error' | 'valid' | '';
@@ -50,7 +49,7 @@ interface Message {
 
 export function useForm<
   T extends ObjectShape,
-  U extends Record<keyof T, unknown>
+  U extends Record<keyof T, unknown>,
 >(schema: yup.ObjectSchema<T>, input: U) {
   const [errors, setErrors] = useState<yup.ValidationError>();
   const [isTouched, setIsTouched] = useState(false);
@@ -66,7 +65,7 @@ export function useForm<
    * @param key
    */
   function errorList<K extends keyof U>(
-    key?: K
+    key?: K,
   ): yup.ValidationError[] | undefined {
     return isTouched && key
       ? errors?.inner.filter((error) => error.path === key)
@@ -84,7 +83,7 @@ export function useForm<
   function labels<K extends keyof U>(key?: K): string[] {
     if (key) {
       return (schema.fields[key] as any).tests.map(
-        (test: any) => test.OPTIONS.message
+        (test: any) => test.OPTIONS.message,
       );
     }
     return Object.values(schema.fields)
@@ -94,7 +93,7 @@ export function useForm<
 
   function message<K extends keyof U>(
     key: K,
-    whenValid?: string
+    whenValid?: string,
   ): string | undefined {
     return messageType(key) === 'valid' && whenValid
       ? whenValid
