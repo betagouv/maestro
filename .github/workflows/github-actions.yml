@@ -30,7 +30,7 @@ jobs:
         uses: creyD/prettier_action@v4.3
         with:
           prettier_options: --write **/*.{ts,js,md}
-      #          only_changed: True
+          only_changed: True
       - name: build
         run: npm run build
         env:
