@@ -28,7 +28,7 @@ function AppWrapper() {
 }
 
 function App() {
-  const { isAuthenticated, availableRoutes } = useAuthentication();
+  const { , availableRoutes } = useAuthentication();
   const isSomeQueryPending = useAppSelector((state) =>
     Object.values(state.api.queries).some(
       (query) => query?.status === 'pending'
@@ -55,7 +55,6 @@ function App() {
                 key={route.key}
               />
             )),
-            ,
             <Route path="/*" element={<Navigate replace to="/" />} />,
           ]}
         </Routes>

@@ -21,7 +21,7 @@ export const useAuthentication = () => {
         component: HomeView,
       },
     ];
-  }, [isAuthenticated]);
+  }, [isAuthenticated]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
     userId: authUser?.userId,
