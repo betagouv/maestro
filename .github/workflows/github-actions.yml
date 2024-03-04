@@ -1,0 +1,53 @@
+name: Node.js CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x]
+    services:
+      postgres:
+        image: postgis/postgis
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: pspc
+        ports:
+          - 5432:5432
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+      - name: Server install
+        run: npm ci
+      - name: build
+        run: npm run build
+        env:
+          AUTH_SECRET: abcd1234
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/pspc
+          DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/pspc
+          NODE_ENV: production
+      - name: Frontend linter
+        run: npm --prefix frontend run lint
+      - name: Server linter
+        run: npm run lint
+      - name: Frontend tests
+        run: npm --prefix frontend test -- --test-timeout=30000
+      - name: Migration tests
+        run: npm run test:database
+        env:
+          AUTH_SECRET: abcd1234
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/pspc
+          DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/pspc
+      - name: Server tests
+        run: npm run test -- --test-timeout=30000
+        env:
+          AUTH_SECRET: abcd1234
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/pspc
+          DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/pspc

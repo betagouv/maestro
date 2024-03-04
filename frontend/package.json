@@ -1,0 +1,75 @@
+{
+  "name": "PSPC frontend",
+  "version": "0.0.1",
+  "private": false,
+  "scripts": {
+    "start": "craco start",
+    "build": "craco build",
+    "test": "craco test",
+    "lint": "node_modules/.bin/eslint . --ext .ts,.tsx",
+    "eject": "craco eject",
+    "postinstall": "copy-dsfr-to-public",
+    "prestart": "only-include-used-icons",
+    "prebuild": "only-include-used-icons"
+  },
+  "license": "AGPL-3.0",
+  "engines": {
+    "node": ">=16",
+    "npm": ">=8"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "dependencies": {
+    "@codegouvfr/react-dsfr": "^1.7.4",
+    "@craco/craco": "^7.0.0",
+    "@emotion/react": "^11.10.6",
+    "@emotion/styled": "^11.10.6",
+    "@reduxjs/toolkit": "^1.9.3",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^14.4.3",
+    "@types/jest": "^28.1.8",
+    "@types/node": "^16.11.43",
+    "@types/react": "^18.0.26",
+    "@types/react-dom": "^18.0.9",
+    "@types/react-router-dom": "^5.3.3",
+    "@types/react-scroll": "^1.8.7",
+    "date-fns": "^2.28.0",
+    "dompurify": "^3.0.1",
+    "fetch-intercept": "^2.4.0",
+    "jest-fetch-mock": "^3.0.3",
+    "jest-watch-typeahead": "^2.2.1",
+    "lodash": "^4.17.21",
+    "react": "^18.2.0",
+    "react-app-alias-ex": "^2.1.0",
+    "react-dom": "^18.2.0",
+    "react-map-gl": "^7.0.21",
+    "react-redux": "^8.0.5",
+    "react-router-dom": "^6.9.0",
+    "react-scripts": "^5.0.1",
+    "react-scroll": "^1.8.9",
+    "sass": "^1.51.0",
+    "typescript": "^4.1.2",
+    "uuid": "^9.0.0",
+    "yup": "^0.32.11"
+  },
+  "devDependencies": {
+    "@types/dompurify": "^3.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.54.0",
+    "@typescript-eslint/parser": "^5.54.0",
+    "eslint": "^8.35.0",
+    "eslint-plugin-react": "^7.32.2",
+    "jest": "^29.3.1",
+    "randomstring": "^1.2.1"
+  }
+}
