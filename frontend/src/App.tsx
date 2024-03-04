@@ -1,15 +1,15 @@
-import React from 'react';
-import './App.scss';
-import { Link, Navigate, Route, Routes } from 'react-router-dom';
-import { store } from './store/store';
-import { Provider } from 'react-redux';
-import { useAuthentication } from 'src/hooks/useAuthentication';
-import FetchInterceptor from 'src/components/FetchInterceptor/FetchInterceptor';
-import { useAppSelector } from 'src/hooks/useStore';
-import { startReactDsfr } from '@codegouvfr/react-dsfr/spa';
-import Header from 'src/components/Header/Header';
-import Footer from 'src/components/Footer/Footer';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import { startReactDsfr } from '@codegouvfr/react-dsfr/spa';
+import React from 'react';
+import { Provider } from 'react-redux';
+import { Link, Navigate, Route, Routes } from 'react-router-dom';
+import FetchInterceptor from 'src/components/FetchInterceptor/FetchInterceptor';
+import Footer from 'src/components/Footer/Footer';
+import Header from 'src/components/Header/Header';
+import { useAuthentication } from 'src/hooks/useAuthentication';
+import { useAppSelector } from 'src/hooks/useStore';
+import './App.scss';
+import { store } from './store/store';
 
 declare module '@codegouvfr/react-dsfr/spa' {
   interface RegisterLink {
@@ -28,7 +28,7 @@ function AppWrapper() {
 }
 
 function App() {
-  const { , availableRoutes } = useAuthentication();
+  const { availableRoutes } = useAuthentication();
   const isSomeQueryPending = useAppSelector((state) =>
     Object.values(state.api.queries).some(
       (query) => query?.status === 'pending'
