@@ -29,7 +29,6 @@ jobs:
         with:
           prettier_options: --write **/*.{js,md}
 #          only_changed: True
-          same_commit: True
       - name: Server install
         run: npm ci
       - name: build
