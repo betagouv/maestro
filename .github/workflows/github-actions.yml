@@ -24,13 +24,15 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
-      - name: Server install
+      - name: Server install for prettier
         run: npm ci
-#      - name: Prettify code
-#        uses: creyD/prettier_action@v4.3
-#        with:
-#          prettier_options: --write **/*.{ts,js,md}
-#          only_changed: True
+      - name: Prettify code
+        uses: creyD/prettier_action@v4.3
+        with:
+          prettier_options: --write **/*.{ts,js,md}
+          only_changed: True
+      - name: Server reinstall
+        run: npm ci
       - name: build
         run: npm run build
         env:
