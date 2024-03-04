@@ -1,5 +1,5 @@
-import { HttpError } from '../../server/errors/httpError';
 import { constants } from 'http2';
+import { HttpError } from '../../server/errors/httpError';
 
 export default class AccountTokenInvalidError
   extends HttpError

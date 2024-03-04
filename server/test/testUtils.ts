@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
-import { TokenPayload, UserApi } from '../models/UserApi';
 import { Test } from 'supertest';
+import { TokenPayload, UserApi } from '../models/UserApi';
 import config from '../utils/config';
 
 export const accessTokenTest = (payload: TokenPayload) =>
@@ -11,5 +11,5 @@ export const withAccessToken = (test: Test, user: UserApi) =>
     'x-access-token',
     accessTokenTest({
       userId: user.id,
-    })
+    }),
   );

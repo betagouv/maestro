@@ -1,6 +1,6 @@
+import { enableFetchMocks } from 'jest-fetch-mock';
 import knex from 'knex';
 import knexConfig from '../knex';
-import { enableFetchMocks } from 'jest-fetch-mock';
 import db from '../repositories/db';
 
 enableFetchMocks();

@@ -22,7 +22,7 @@ function aliasJest(options) {
         path.relative(
           // This was modified from react-app-alias-ex to use path.relative() instead of path.resolve()
           expanded.rootDir,
-          path.resolve(paths.appPath, 'node_modules')
+          path.resolve(paths.appPath, 'node_modules'),
         ),
       ],
     };

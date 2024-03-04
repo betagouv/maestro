@@ -4,9 +4,9 @@
 
 ### Prérequis
 
-* node
-* npm
-* serveur Postgres (sur macOS, possible d'utiliser [postgresapp](https://postgresapp.com>))
+- node
+- npm
+- serveur Postgres (sur macOS, possible d'utiliser [postgresapp](https://postgresapp.com>))
 
 ### Base de données
 
@@ -29,7 +29,6 @@ npm i
 ### Variables d'environnement
 
 //TODO
-
 
 ### Lancement de l'application en local
 

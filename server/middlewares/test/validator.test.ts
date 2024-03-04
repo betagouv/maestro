@@ -1,10 +1,10 @@
-import validator from '../validator';
-import { v4 as uuidv4 } from 'uuid';
+import bodyParser from 'body-parser';
 import express, { Request, Response } from 'express';
 import { body, header, param, query } from 'express-validator';
 import { constants } from 'http2';
-import bodyParser from 'body-parser';
 import request from 'supertest';
+import { v4 as uuidv4 } from 'uuid';
+import validator from '../validator';
 
 describe('Validator middleware', () => {
   describe('Integration test', () => {
@@ -21,7 +21,7 @@ describe('Validator middleware', () => {
       validator.validate,
       (request: Request, response: Response) => {
         response.status(201).json(request.body);
-      }
+      },
     );
 
     it('should validate body', () => {

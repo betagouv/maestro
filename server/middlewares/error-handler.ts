@@ -1,13 +1,13 @@
+import { ErrorHandler, errors as compose, Next } from 'compose-middleware';
 import { Request, Response } from 'express';
-import { isClientError, isHttpError } from '../errors/httpError';
-import { errors as compose, ErrorHandler, Next } from 'compose-middleware';
 import { constants } from 'http2';
+import { isClientError, isHttpError } from '../errors/httpError';
 
 function log(
   error: Error,
   request: Request,
   response: Response,
-  next: Next
+  next: Next,
 ): void {
   // Should later be enhanced with relevant info like Request ID, user ID, etc.
   if (error.name !== 'UnauthorizedError') {
@@ -22,7 +22,7 @@ function respond(
   response: Response,
   // Needed because express bases itself on the number of arguments
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  next: Next
+  next: Next,
 ): void {
   if (response.headersSent) {
     next(error);

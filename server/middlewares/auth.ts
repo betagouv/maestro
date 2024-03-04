@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
 import { expressjwt } from 'express-jwt';
 
-import config from '../utils/config';
-import userRepository from '../repositories/userRepository';
 import AuthenticationMissingError from '../../shared/errors/authenticationMissingError';
 import UserMissingError from '../../shared/errors/userMissingError';
+import userRepository from '../repositories/userRepository';
+import config from '../utils/config';
 
 export const jwtCheck = (credentialsRequired: boolean) =>
   expressjwt({

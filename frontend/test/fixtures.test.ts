@@ -1,6 +1,6 @@
-import { AuthUser, UserInfos } from 'src/models/User';
-import { PhaseKinds } from 'shared/types/PhaseKind';
 import { DepartmentList } from 'shared/types/Department';
+import { PhaseKinds } from 'shared/types/PhaseKind';
+import { AuthUser, UserInfos } from 'src/models/User';
 
 const randomstring = require('randomstring');
 

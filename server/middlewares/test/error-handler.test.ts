@@ -1,6 +1,6 @@
 import express, { NextFunction, Request, Response } from 'express';
-import request from 'supertest';
 import { constants } from 'http2';
+import request from 'supertest';
 import errorHandler from '../error-handler';
 
 describe('Error handler', () => {
@@ -14,7 +14,7 @@ describe('Error handler', () => {
       async (request: Request, response: Response, next: NextFunction) => {
         const error = new Error('Unexpected error');
         next(error);
-      }
+      },
     );
     app.use(errorHandler());
 

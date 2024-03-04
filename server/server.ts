@@ -1,17 +1,17 @@
 import express, { Application } from 'express';
 // Allows to throw an error or reject a promise in controllers
 // instead of having to call the next(err) function.
-import 'express-async-errors';
-import path from 'path';
-import unprotectedRouter from './routers/unprotected';
-import config from './utils/config';
 import cors from 'cors';
+import 'express-async-errors';
+import fileUpload from 'express-fileupload';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
-import fileUpload from 'express-fileupload';
-import errorHandler from './middlewares/error-handler';
+import path from 'path';
 import RouteNotFoundError from './errors/routeNotFoundError';
+import errorHandler from './middlewares/error-handler';
 import protectedRouter from './routers/protected';
+import unprotectedRouter from './routers/unprotected';
+import config from './utils/config';
 
 const PORT = config.serverPort;
 
@@ -32,32 +32,19 @@ export function createServer(): Server {
           scriptSrc: [
             "'self'",
             "'unsafe-inline'",
-            'https://stats.beta.gouv.fr'
+            'https://stats.beta.gouv.fr',
           ],
           frameSrc: [],
-          styleSrc: [
-            "'self'",
-            "'unsafe-inline'"
-          ],
-          imgSrc: [
-            "'self'",
-            'https://stats.beta.gouv.fr',
-            'data:',
-          ],
-          fontSrc: [
-            "'self'",
-            'data:',
-          ],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          imgSrc: ["'self'", 'https://stats.beta.gouv.fr', 'data:'],
+          fontSrc: ["'self'", 'data:'],
           objectSrc: ["'self'"],
           mediaSrc: ["'self'"],
-          connectSrc: [
-            "'self'",
-            'https://stats.beta.gouv.fr',
-          ],
+          connectSrc: ["'self'", 'https://stats.beta.gouv.fr'],
           workerSrc: ["'self'", 'blob:'],
         },
       },
-    })
+    }),
   );
 
   if (config.environment === 'development') {

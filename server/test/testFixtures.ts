@@ -24,7 +24,7 @@ export const genNumber = (length = 10) => {
     randomstring.generate({
       length,
       charset: 'numeric',
-    })
+    }),
   );
 };
 

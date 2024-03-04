@@ -1,5 +1,5 @@
-import db from './db';
 import { UserApi } from '../models/UserApi';
+import db from './db';
 
 export const usersTable = 'users';
 
