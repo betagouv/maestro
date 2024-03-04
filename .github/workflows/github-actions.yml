@@ -22,7 +22,7 @@ jobs:
         with:
           prettier_options: --write **/*.{ts,js,md}
           only_changed: True
-  build and test:
+  build_test:
     needs: prettier
     runs-on: ubuntu-latest
     strategy:
