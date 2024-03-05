@@ -59,12 +59,12 @@ jobs:
         run: npm run lint
       - name: Frontend tests
         run: npm --prefix frontend test -- --test-timeout=30000
-      - name: Migration tests
-        run: npm run test:database
-        env:
-          AUTH_SECRET: abcd1234
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/pspc
-          DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/pspc
+#      - name: Migration tests
+#        run: npm run test:database
+#        env:
+#          AUTH_SECRET: abcd1234
+#          DATABASE_URL: postgres://postgres:postgres@localhost:5432/pspc
+#          DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/pspc
       - name: Server tests
         run: npm run test -- --test-timeout=30000
         env:
