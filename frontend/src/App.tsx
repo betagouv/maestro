@@ -31,8 +31,8 @@ function App() {
   const { availableRoutes } = useAuthentication();
   const isSomeQueryPending = useAppSelector((state) =>
     Object.values(state.api.queries).some(
-      (query) => query?.status === 'pending',
-    ),
+      (query) => query?.status === 'pending'
+    )
   );
 
   FetchInterceptor();
