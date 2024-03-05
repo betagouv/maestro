@@ -18,7 +18,7 @@ const Header = () => {
         to: '/',
         title: 'Accueil',
       }}
-      id="fr-header-simple-header-with-service-title-and-tagline"
+      id="header"
       // serviceTagline="baseline - précisions sur l'organisation"
       serviceTitle={
         <>
