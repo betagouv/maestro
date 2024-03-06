@@ -25,4 +25,4 @@ yarn-error.log*
 /dist/
 
 # specific files
-/server/routers
+

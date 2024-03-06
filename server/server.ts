@@ -44,7 +44,7 @@ export function createServer(): Server {
           workerSrc: ["'self'", 'blob:'],
         },
       },
-    }),
+    })
   );
 
   if (config.environment === 'development') {

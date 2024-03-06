@@ -1,4 +1,6 @@
 import randomstring from 'randomstring';
+import { v4 as uuidv4 } from 'uuid';
+import { UserApi } from '../models/UserApi';
 
 export const genEmail = () => {
   return (
@@ -24,7 +26,7 @@ export const genNumber = (length = 10) => {
     randomstring.generate({
       length,
       charset: 'numeric',
-    }),
+    })
   );
 };
 
@@ -33,3 +35,11 @@ export const genBoolean = () => Math.random() < 0.5;
 export function oneOf<T>(array: Array<T>): T {
   return array[Math.floor(Math.random() * array.length)];
 }
+
+export const genValidPassword = () => '123Valid';
+
+export const genUserApi = (): UserApi => ({
+  id: uuidv4(),
+  email: genEmail(),
+  password: randomstring.generate(),
+});

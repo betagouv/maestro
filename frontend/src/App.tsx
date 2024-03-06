@@ -55,7 +55,11 @@ function App() {
                 key={route.key}
               />
             )),
-            <Route path="/*" element={<Navigate replace to="/" />} />,
+            <Route
+              path="/*"
+              element={<Navigate replace to="/" />}
+              key="redirection_route"
+            />,
           ]}
         </Routes>
       </main>

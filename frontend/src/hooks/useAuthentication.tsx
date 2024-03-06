@@ -1,6 +1,7 @@
 import { ReactElement, useMemo } from 'react';
 import { useAppSelector } from 'src/hooks/useStore';
 import HomeView from 'src/views/HomeView/HomeView';
+import SigninView from 'src/views/SigninView/SigninView';
 
 export const useAuthentication = () => {
   const { authUser } = useAppSelector((state) => state.auth);
@@ -20,6 +21,16 @@ export const useAuthentication = () => {
         key: 'home_route',
         component: HomeView,
       },
+      ...(isAuthenticated
+        ? []
+        : [
+            {
+              path: '/connexion',
+              label: 'Connexion',
+              key: 'signin_route',
+              component: SigninView,
+            },
+          ]),
     ];
   }, [isAuthenticated]); // eslint-disable-line react-hooks/exhaustive-deps
 
