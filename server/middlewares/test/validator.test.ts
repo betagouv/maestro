@@ -1,9 +1,9 @@
 import bodyParser from 'body-parser';
 import express, { Request, Response } from 'express';
-import { body, header, param, query } from 'express-validator';
 import { constants } from 'http2';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
+import { z } from 'zod';
 import validator from '../validator';
 
 describe('Validator middleware', () => {
@@ -14,14 +14,33 @@ describe('Validator middleware', () => {
     app.use(bodyParser.urlencoded({ extended: true }));
     app.post(
       '/validate/:id',
-      body('name').isString().isLength({ min: 5 }),
-      header('Custom-Header').isString().isLowercase().optional(),
-      param('id').isUUID(),
-      query('establishmentId').isString().optional(),
-      validator.validate,
+      validator.validate(
+        z.object({
+          body: z
+            .object({
+              name: z.string().min(5),
+            })
+            .optional(),
+          header: z
+            .object({
+              'custom-header': z.string().min(10).optional(),
+            })
+            .optional(),
+          params: z
+            .object({
+              id: z.string().uuid(),
+            })
+            .optional(),
+          query: z
+            .object({
+              q: z.string().optional(),
+            })
+            .optional(),
+        })
+      ),
       (request: Request, response: Response) => {
         response.status(201).json(request.body);
-      },
+      }
     );
 
     it('should validate body', () => {
@@ -34,7 +53,7 @@ describe('Validator middleware', () => {
     it('should validate header', () => {
       return request(app)
         .post(testRoute)
-        .set('Custom-Header', 'SHOULD BE LOWERCASE')
+        .set('Custom-Header', '123456789')
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
@@ -48,7 +67,7 @@ describe('Validator middleware', () => {
       return request(app)
         .post(testRoute)
         .query({
-          establishmentId: '1234',
+          q: 1234,
         })
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });

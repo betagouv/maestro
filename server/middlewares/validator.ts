@@ -5,12 +5,16 @@ import { AnyZodObject } from 'zod';
 const validate =
   (schema: AnyZodObject) =>
   async (req: Request, res: Response, next: NextFunction) => {
-    console.log('req.body', req.body);
     try {
-      await schema.parseAsync({
+      const parsedReq = await schema.parseAsync({
         body: req.body,
         query: req.query,
         params: req.params,
+      });
+      ['body', 'cookies', 'headers', 'params', 'query'].forEach((location) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        req[location] = parsedReq[location];
       });
       return next();
     } catch (error) {
