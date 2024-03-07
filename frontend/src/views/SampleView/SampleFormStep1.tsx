@@ -45,9 +45,7 @@ const SampleFormStep1 = ({ onValid }: Props) => {
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     await form.validate();
-    console.log('formISVALID', form.isValid());
     if (form.isValid()) {
-      console.log('valid');
       onValid();
     }
   };

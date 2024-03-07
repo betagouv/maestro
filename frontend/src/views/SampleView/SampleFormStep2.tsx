@@ -18,7 +18,6 @@ const SampleFormStep2 = ({ onValid }: Props) => {
     e.preventDefault();
     await form.validate();
     if (form.isValid()) {
-      console.log('valid');
       onValid();
     }
   };

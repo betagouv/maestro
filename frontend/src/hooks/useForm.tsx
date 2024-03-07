@@ -22,7 +22,6 @@ export function useForm<
   }
 
   function isValid(): boolean {
-    console.log('IS VALID', isTouched);
     return isTouched && !hasIssue();
   }
 
@@ -46,7 +45,6 @@ export function useForm<
   }
 
   const validate = async () => {
-    console.log('VALIDTE');
     try {
       setIsTouched(true);
       await schema.parseAsync(input);
@@ -57,7 +55,6 @@ export function useForm<
   };
 
   useEffect(() => {
-    console.log('USE EFFECT');
     (async () => {
       if (isTouched) {
         if (hasIssue()) {
