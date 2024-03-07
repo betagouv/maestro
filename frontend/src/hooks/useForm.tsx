@@ -22,6 +22,7 @@ export function useForm<
   }
 
   function isValid(): boolean {
+    console.log('IS VALID', isTouched);
     return isTouched && !hasIssue();
   }
 
@@ -44,10 +45,11 @@ export function useForm<
     return 'default';
   }
 
-  const validate = () => {
+  const validate = async () => {
+    console.log('VALIDTE');
     try {
       setIsTouched(true);
-      schema.parse(input);
+      await schema.parseAsync(input);
       setError(undefined);
     } catch (error) {
       setError(error as z.ZodError);
@@ -55,18 +57,21 @@ export function useForm<
   };
 
   useEffect(() => {
-    if (isTouched) {
-      if (hasIssue()) {
-        validate();
-      }
-    } else {
-      if (Object.values(input).some((value) => !!value)) {
+    console.log('USE EFFECT');
+    (async () => {
+      if (isTouched) {
         if (hasIssue()) {
-          setIsTouched(true);
-          validate();
+          await validate();
+        }
+      } else {
+        if (Object.values(input).some((value) => !!value)) {
+          if (hasIssue()) {
+            setIsTouched(true);
+            await validate();
+          }
         }
       }
-    }
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [...Object.values(input)]);
 

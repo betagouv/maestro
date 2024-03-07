@@ -10,7 +10,7 @@ import { useAppDispatch } from 'src/hooks/useStore';
 import { useSignInMutation } from 'src/services/account.service';
 import authSlice from 'src/store/reducers/authSlice';
 
-const SigninView = () => {
+const SignInView = () => {
   useDocumentTitle('Connexion');
   const dispatch = useAppDispatch();
   const [email, setEmail] = useState('');
@@ -76,4 +76,4 @@ const SigninView = () => {
   );
 };
 
-export default SigninView;
+export default SignInView;

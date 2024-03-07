@@ -1,7 +1,8 @@
 import { ReactElement, useMemo } from 'react';
 import { useAppSelector } from 'src/hooks/useStore';
 import HomeView from 'src/views/HomeView/HomeView';
-import SigninView from 'src/views/SigninView/SigninView';
+import SampleView from 'src/views/SampleView/SampleView';
+import SignInView from 'src/views/SignInView/SignInView';
 
 export const useAuthentication = () => {
   const { authUser } = useAppSelector((state) => state.auth);
@@ -21,6 +22,12 @@ export const useAuthentication = () => {
         key: 'home_route',
         component: HomeView,
       },
+      {
+        path: '/prelevement',
+        label: 'Prélèvement',
+        key: 'sample_route',
+        component: SampleView,
+      },
       ...(isAuthenticated
         ? []
         : [
@@ -28,7 +35,7 @@ export const useAuthentication = () => {
               path: '/connexion',
               label: 'Connexion',
               key: 'signin_route',
-              component: SigninView,
+              component: SignInView,
             },
           ]),
     ];

@@ -18,7 +18,6 @@ type AppTextInputProps<T extends ZodRawShape> = Partial<
     inputForm: ReturnType<typeof useForm>;
     inputKey: keyof T;
     whenValid?: string;
-    dataTestId?: string;
   };
 
 function AppTextInput<T extends ZodRawShape>(props: AppTextInputProps<T>) {
@@ -28,7 +27,6 @@ function AppTextInput<T extends ZodRawShape>(props: AppTextInputProps<T>) {
     inputForm,
     whenValid,
     placeholder,
-    dataTestId,
     state,
     stateRelatedMessage,
     ...textInputProps
