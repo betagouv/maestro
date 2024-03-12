@@ -1,4 +1,4 @@
-import config from './config';
+import config from '../config';
 
 describe('Config', () => {
   it('should validate the configuration', () => {

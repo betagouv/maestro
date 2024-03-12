@@ -7,4 +7,10 @@ import { enableFetchMocks } from 'jest-fetch-mock';
 
 enableFetchMocks();
 
+const mockGeolocation = {
+  getCurrentPosition: jest.fn(),
+};
+
+global.navigator.geolocation = mockGeolocation;
+
 global.URL.createObjectURL = jest.fn();

@@ -12,8 +12,4 @@ export const SignIn = z.object({
     .regex(/[0-9]/g, 'Au moins un chiffre.'),
 });
 
-export const SignInBody = z.object({
-  body: SignIn,
-});
-
 export type SignIn = z.infer<typeof SignIn>;

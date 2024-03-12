@@ -44,11 +44,12 @@ export function useForm<
     return 'default';
   }
 
-  const validate = async () => {
+  const validate = async (onValid?: () => void) => {
     try {
       setIsTouched(true);
       await schema.parseAsync(input);
       setError(undefined);
+      onValid?.();
     } catch (error) {
       setError(error as z.ZodError);
     }
@@ -57,9 +58,7 @@ export function useForm<
   useEffect(() => {
     (async () => {
       if (isTouched) {
-        if (hasIssue()) {
-          await validate();
-        }
+        await validate();
       } else {
         if (Object.values(input).some((value) => !!value)) {
           if (hasIssue()) {

@@ -1,6 +1,11 @@
 import { NextFunction, Request, Response } from 'express';
 import { constants } from 'http2';
-import { AnyZodObject } from 'zod';
+import { AnyZodObject, z } from 'zod';
+
+export const body = (o: AnyZodObject) =>
+  z.object({
+    body: o,
+  });
 
 const validate =
   (schema: AnyZodObject) =>

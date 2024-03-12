@@ -42,5 +42,5 @@ const productionConfig = {
 export default config.databaseEnvironment === 'production'
   ? productionConfig
   : config.databaseEnvironment === 'test'
-    ? testConfig
-    : dummyConfig;
+  ? testConfig
+  : dummyConfig;

@@ -3,7 +3,6 @@ import { SampleContext } from './SampleContext';
 export const Sample = z.object({
   id: z.string().uuid(),
   reference: z.string(),
-  region: z.string(),
   department: z.string(),
   resytalId: z.coerce
     .string({
@@ -13,10 +12,18 @@ export const Sample = z.object({
       /^22[0-9]{6}$/g,
       "L'identifiant Resytal doit être au format 22XXXXXX."
     ),
-  createdAt: z.date(),
+  createdAt: z.coerce.date(),
   createdBy: z.string(),
   context: SampleContext,
-  location: z.string(),
+  userLocation: z.object(
+    {
+      latitude: z.number(),
+      longitude: z.number(),
+    },
+    {
+      required_error: 'Veuillez renseigner la localisation.',
+    }
+  ),
   locationSiret: z.string(),
   locationName: z.string(),
   locationAddress: z.string(),
@@ -36,21 +43,11 @@ export const Sample = z.object({
   sealId: z.number().optional(),
 });
 
-export const DraftSample = Sample.omit({
-  reference: true,
-  region: true,
-  createdBy: true,
-  location: true,
-});
-
-export const DraftSampleStep1 = DraftSample.pick({
-  id: true,
-  createdAt: true,
-  location: true,
+export const SampleToCreate = Sample.pick({
+  userLocation: true,
   resytalId: true,
   context: true,
 });
 
 export type Sample = z.infer<typeof Sample>;
-export type DraftSample = z.infer<typeof DraftSample>;
-export type DraftSampleStep1 = z.infer<typeof DraftSampleStep1>;
+export type SampleToCreate = z.infer<typeof SampleToCreate>;

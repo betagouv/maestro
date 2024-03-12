@@ -1,6 +1,4 @@
-import { DepartmentList } from 'shared/types/Department';
-import { PhaseKinds } from 'shared/types/PhaseKind';
-import { AuthUser, UserInfos } from 'src/models/User';
+import { AuthUser } from '../src/models/User';
 
 const randomstring = require('randomstring');
 
@@ -40,52 +38,9 @@ export function genAuthUser(): AuthUser {
   };
 }
 
-export function genUserInfos(): UserInfos {
-  return {
-    email: genEmail(),
-    firstName: randomstring.generate(),
-    lastName: randomstring.generate(),
-    role: oneOf(['Admin', 'Employee']),
-    department: oneOf(DepartmentList),
-  };
-}
-
-export function genUser() {
-  return {
-    ...genUserInfos(),
-    id: randomstring.generate(),
-    manager: genBoolean(),
-    hourlyRate: genNumber(),
-  };
-}
-
-export function genProject() {
-  return {
-    id: randomstring.generate(),
-    reference: randomstring.generate(),
-    title: randomstring.generate(),
-  };
-}
-
-export function genPhase() {
-  return {
-    id: randomstring.generate(),
-    project: genProject(),
-    kind: oneOf(PhaseKinds),
-    initialAmount: genNumber(),
-    additionalAmount: genNumber(),
-  };
-}
-
-export function genHour() {
-  return {
-    phaseId: randomstring.generate(),
-    userId: randomstring.generate(),
-    date: new Date(),
-    hours: Math.floor(Math.random() * 10),
-    project: genProject(),
-    phaseKind: oneOf(PhaseKinds),
-    cost: genNumber(),
-    department: oneOf(DepartmentList),
-  };
-}
+export const genCoords = () => ({
+  coords: {
+    latitude: Math.random() * 180 - 90,
+    longitude: Math.random() * 360 - 180,
+  },
+});

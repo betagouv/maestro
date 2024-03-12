@@ -1,6 +1,7 @@
 import { act, render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import SampleFormStep1 from 'src/views/SampleView/SampleFormStep1';
+import { genCoords } from '../../../../test/fixtures.test';
 
 describe('SampleFormStep1', () => {
   const user = userEvent.setup();
@@ -40,10 +41,13 @@ describe('SampleFormStep1', () => {
 
   test('should handle valid form', async () => {
     const onValid = jest.fn();
-
     render(<SampleFormStep1 onValid={onValid} />);
+
     const resytalIdInput = screen.getAllByTestId('resytalId-input')[1];
     const contextSelect = screen.getAllByTestId('context-select')[1];
+    (
+      navigator.geolocation.getCurrentPosition as jest.Mock<any, any>
+    ).mock.calls[0][0](genCoords());
 
     await act(async () => {
       await user.click(screen.getByTestId('submit-button'));

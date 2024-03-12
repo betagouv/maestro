@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { SignIn } from 'shared/schema/SignIn';
@@ -15,6 +16,7 @@ const SignInView = () => {
   const dispatch = useAppDispatch();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [signInError, setSignInError] = useState(false);
 
   const [signIn] = useSignInMutation();
 
@@ -28,9 +30,7 @@ const SignInView = () => {
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
 
-    form.validate();
-
-    if (form.isValid()) {
+    await form.validate(async () => {
       signIn({
         email,
         password,
@@ -38,12 +38,15 @@ const SignInView = () => {
         .unwrap()
         .then((authUser) => {
           dispatch(authSlice.actions.signinUser({ authUser }));
+        })
+        .catch(() => {
+          setSignInError(true);
         });
-    }
+    });
   };
 
   return (
-    <section className={cx('fr-py-3w', 'fr-px-16w')}>
+    <section className={cx('fr-py-3w', 'fr-px-0', 'fr-px-md-16w')}>
       <h1>Connexion</h1>
       <form id="login_form">
         <AppTextInput<SignInShape>
@@ -68,6 +71,15 @@ const SignInView = () => {
           label="Mot de passe (obligatoire)"
           required
         />
+        {signInError && (
+          <div data-testid="alert-error" className="fr-my-2w">
+            <Alert
+              title="Erreur"
+              description="Echec de la connexion"
+              severity="error"
+            />
+          </div>
+        )}
         <Button data-testid="login-button" onClick={submit}>
           Se connecter
         </Button>

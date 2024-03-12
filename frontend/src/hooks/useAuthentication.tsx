@@ -1,6 +1,7 @@
 import { ReactElement, useMemo } from 'react';
 import { useAppSelector } from 'src/hooks/useStore';
 import HomeView from 'src/views/HomeView/HomeView';
+import SampleListView from 'src/views/SampleListView/SampleListView';
 import SampleView from 'src/views/SampleView/SampleView';
 import SignInView from 'src/views/SignInView/SignInView';
 
@@ -22,14 +23,21 @@ export const useAuthentication = () => {
         key: 'home_route',
         component: HomeView,
       },
-      {
-        path: '/prelevement',
-        label: 'Prélèvement',
-        key: 'sample_route',
-        component: SampleView,
-      },
       ...(isAuthenticated
-        ? []
+        ? [
+            {
+              path: '/prelevements',
+              label: 'Prélèvements',
+              key: 'sample_route',
+              component: SampleListView,
+            },
+            {
+              path: '/prelevements/nouveau',
+              label: 'Prélèvement',
+              key: 'sample_route',
+              component: SampleView,
+            },
+          ]
         : [
             {
               path: '/connexion',

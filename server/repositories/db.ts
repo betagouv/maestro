@@ -1,4 +1,6 @@
 import knex from 'knex';
 import knexConfig from '../knex';
+const knexStringcase = require('knex-stringcase');
 
-export default knex(knexConfig);
+const options = knexStringcase(knexConfig);
+export default knex(options);
