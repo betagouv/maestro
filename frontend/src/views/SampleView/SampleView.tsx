@@ -21,8 +21,12 @@ const SampleView = () => {
   ];
 
   const validStep1 = async (draftSample: SampleToCreate) => {
-    await createSample(draftSample);
-    setStep(2);
+    await createSample(draftSample)
+      .unwrap()
+      .then(() => setStep(2))
+      .catch(() => {
+        //TODO handle error
+      });
   };
 
   return (

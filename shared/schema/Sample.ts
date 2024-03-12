@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { Department } from './Department';
 import { SampleContext } from './SampleContext';
 
 export const UserLocation = z.object(
@@ -14,7 +15,7 @@ export const UserLocation = z.object(
 export const Sample = z.object({
   id: z.string().uuid(),
   reference: z.string(),
-  department: z.string(),
+  department: Department,
   resytalId: z.coerce
     .string({
       required_error: "Veuillez renseigner l'identifiant Resytal.",
@@ -50,7 +51,25 @@ export const SampleToCreate = Sample.pick({
   userLocation: true,
   resytalId: true,
   context: true,
+  department: true,
 });
+
+export const SampleToUpdate = Sample.pick({
+  matrix: true,
+  matrixKind: true,
+  matrixPart: true,
+  quantity: true,
+  quantityUnit: true,
+  cultureKind: true,
+  compliance200263: true,
+  storageCondition: true,
+  pooling: true,
+  releaseControl: true,
+  sampleCount: true,
+  temperatureMaintenance: true,
+  expiryDate: true,
+  sealId: true,
+}).partial();
 
 export type Sample = z.infer<typeof Sample>;
 export type SampleToCreate = z.infer<typeof SampleToCreate>;

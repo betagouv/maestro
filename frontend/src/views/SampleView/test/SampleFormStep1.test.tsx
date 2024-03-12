@@ -10,6 +10,7 @@ describe('SampleFormStep1', () => {
     render(<SampleFormStep1 onValid={() => {}} />);
 
     expect(screen.getByTestId('draft_sample_1_form')).toBeInTheDocument();
+    expect(screen.getAllByTestId('department-select')).toHaveLength(2);
     expect(screen.getAllByTestId('resytalId-input')).toHaveLength(2);
     expect(screen.getAllByTestId('context-select')).toHaveLength(2);
 
@@ -23,6 +24,9 @@ describe('SampleFormStep1', () => {
     await act(async () => {
       await user.click(screen.getByTestId('submit-button'));
     });
+    expect(
+      screen.getByText('Veuillez renseigner le département.')
+    ).toBeInTheDocument();
     expect(
       screen.getByText("L'identifiant Resytal doit être au format 22XXXXXX.")
     ).toBeInTheDocument();
@@ -43,6 +47,7 @@ describe('SampleFormStep1', () => {
     const onValid = jest.fn();
     render(<SampleFormStep1 onValid={onValid} />);
 
+    const departmentSelect = screen.getAllByTestId('department-select')[1];
     const resytalIdInput = screen.getAllByTestId('resytalId-input')[1];
     const contextSelect = screen.getAllByTestId('context-select')[1];
 
@@ -53,10 +58,14 @@ describe('SampleFormStep1', () => {
     });
 
     await act(async () => {
+      await user.selectOptions(departmentSelect, '08');
       await user.type(resytalIdInput, '22123456');
       await user.selectOptions(contextSelect, 'Surveillance');
       await user.click(screen.getByTestId('submit-button'));
     });
+    expect(
+      screen.queryByText('Veuillez renseigner le département.')
+    ).not.toBeInTheDocument();
     expect(
       screen.queryByText("L'identifiant Resytal doit être au format 22XXXXXX.")
     ).not.toBeInTheDocument();

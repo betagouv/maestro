@@ -25,6 +25,7 @@ describe('SampleView', () => {
       </Provider>
     );
 
+    const departmentSelect = screen.getAllByTestId('department-select')[1];
     const resytalIdInput = screen.getAllByTestId('resytalId-input')[1];
     const contextSelect = screen.getAllByTestId('context-select')[1];
 
@@ -35,6 +36,7 @@ describe('SampleView', () => {
     });
 
     await act(async () => {
+      await user.selectOptions(departmentSelect, '08');
       await user.type(resytalIdInput, '22123456');
       await user.selectOptions(contextSelect, 'Surveillance');
       await user.click(screen.getByTestId('submit-button'));

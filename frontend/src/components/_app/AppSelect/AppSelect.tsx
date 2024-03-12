@@ -2,20 +2,14 @@ import Select from '@codegouvfr/react-dsfr/Select';
 import { ComponentPropsWithoutRef, InputHTMLAttributes } from 'react';
 import { useForm } from 'src/hooks/useForm';
 import { ZodRawShape } from 'zod';
+import { AppSelectOption } from 'src/components/_app/AppSelect/AppSelectOption';
 
-export interface SelectOptions {
-  label: string;
-  value: string;
-  disabled?: boolean;
-  selected?: boolean;
-  hidden?: boolean;
-}
 
 type AppSelectProps<T extends ZodRawShape> = Partial<
   Pick<ComponentPropsWithoutRef<typeof Select>, 'label'>
 > &
   InputHTMLAttributes<HTMLSelectElement> & {
-    options: SelectOptions[];
+    options: AppSelectOption[];
     inputForm: ReturnType<typeof useForm>;
     inputKey: keyof T;
     whenValid?: string;

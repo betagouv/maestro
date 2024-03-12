@@ -40,6 +40,10 @@ describe('Sample controller', () => {
       });
       await badRequestTest({ ...genSampleToCreate(), context: undefined });
       await badRequestTest({ ...genSampleToCreate(), context: '123' });
+      await badRequestTest({ ...genSampleToCreate(), department: undefined });
+      await badRequestTest({ ...genSampleToCreate(), department: '123' });
+      await badRequestTest({ ...genSampleToCreate(), department: '' });
+      await badRequestTest({ ...genSampleToCreate(), department: 123 });
     });
 
     it('should create a sample', async () => {
@@ -54,6 +58,7 @@ describe('Sample controller', () => {
           id: expect.any(String),
           createdAt: expect.any(String),
           createdBy: User1.id,
+          reference: expect.stringMatching(/^GES-[0-9]{2}-2024-1$/),
         })
       );
 

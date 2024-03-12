@@ -1,5 +1,6 @@
 import randomstring from 'randomstring';
 import { v4 as uuidv4 } from 'uuid';
+import { DepartmentList } from '../../shared/schema/Department';
 import { SampleToCreate } from '../../shared/schema/Sample';
 import { SampleContextList } from '../../shared/schema/SampleContext';
 import { UserApi } from '../models/UserApi';
@@ -53,4 +54,5 @@ export const genSampleToCreate = (): SampleToCreate => ({
   },
   resytalId: '22' + genNumber(6),
   context: oneOf(SampleContextList),
+  department: oneOf(DepartmentList),
 });

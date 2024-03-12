@@ -9,6 +9,6 @@ export type SampleContext = z.infer<typeof SampleContext>;
 export const SampleContextList: SampleContext[] = ['Surveillance', 'Control'];
 
 export const SampleContextLabels: Record<SampleContext, string> = {
-  Surveillance: 'Surveillance',
-  Control: 'Contrôle',
+  Surveillance: 'Plan de surveillance',
+  Control: 'Plan de contrôle',
 };

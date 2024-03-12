@@ -1,3 +1,4 @@
+import { getYear } from 'date-fns';
 import { Request, Response } from 'express';
 import { AuthenticatedRequest } from 'express-jwt';
 import { constants } from 'http2';
@@ -11,9 +12,13 @@ const createSample = async (request: Request, response: Response) => {
 
   console.info('Create sample', sampleToCreate);
 
+  const serial = await sampleRepository.getSerial();
+
   const sample = {
     id: uuidv4(),
-    reference: '1231', //TODO
+    reference: `GES-${sampleToCreate.department}-${getYear(
+      new Date()
+    )}-${serial}`,
     createdBy: userId,
     createdAt: new Date(),
     ...sampleToCreate,

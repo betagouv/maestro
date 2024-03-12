@@ -30,8 +30,10 @@ exports.up = async (knex: Knex) => {
     table.datetime('expiry_date');
     table.integer('seal_id');
   });
+  await knex.raw(`CREATE SEQUENCE samples_serial;`);
 };
 
 exports.down = async (knex: Knex) => {
   await knex.schema.dropTable('samples');
+  await knex.raw(`DROP SEQUENCE samples_serial;`);
 };

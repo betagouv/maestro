@@ -3,6 +3,7 @@ import { Sample, SampleToCreate } from '../../shared/schema/Sample';
 import db from './db';
 
 export const samplesTable = 'samples';
+const samplesSerial = 'samples_serial';
 
 export const Samples = () => db<Sample>(samplesTable);
 
@@ -28,6 +29,12 @@ const insert = async (
   });
 };
 
+const getSerial = async (): Promise<number> => {
+  const result = await db.select(db.raw(`nextval('${samplesSerial}')`)).first();
+  return result.nextval;
+};
+
 export default {
   insert,
+  getSerial,
 };
