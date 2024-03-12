@@ -1,5 +1,16 @@
 import { z } from 'zod';
 import { SampleContext } from './SampleContext';
+
+export const UserLocation = z.object(
+  {
+    x: z.number(),
+    y: z.number(),
+  },
+  {
+    required_error: 'Veuillez renseigner la localisation.',
+  }
+);
+
 export const Sample = z.object({
   id: z.string().uuid(),
   reference: z.string(),
@@ -15,15 +26,7 @@ export const Sample = z.object({
   createdAt: z.coerce.date(),
   createdBy: z.string(),
   context: SampleContext,
-  userLocation: z.object(
-    {
-      x: z.number(),
-      y: z.number(),
-    },
-    {
-      required_error: 'Veuillez renseigner la localisation.',
-    }
-  ),
+  userLocation: UserLocation,
   locationSiret: z.string(),
   locationName: z.string(),
   locationAddress: z.string(),
@@ -51,3 +54,4 @@ export const SampleToCreate = Sample.pick({
 
 export type Sample = z.infer<typeof Sample>;
 export type SampleToCreate = z.infer<typeof SampleToCreate>;
+export type UserLocation = z.infer<typeof UserLocation>;

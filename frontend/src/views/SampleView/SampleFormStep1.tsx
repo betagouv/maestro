@@ -2,7 +2,7 @@ import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { useEffect, useState } from 'react';
-import { SampleToCreate } from 'shared/schema/Sample';
+import { SampleToCreate, UserLocation } from 'shared/schema/Sample';
 import {
   SampleContext,
   SampleContextLabels,
@@ -19,7 +19,7 @@ interface Props {
 const SampleFormStep1 = ({ onValid }: Props) => {
   const [resytalId, setResytalId] = useState('');
   const [context, setContext] = useState<SampleContext>();
-  const [userLocation, setUserLocation] = useState<GeolocationCoordinates>();
+  const [userLocation, setUserLocation] = useState<UserLocation>();
 
   const Form = SampleToCreate.pick({
     userLocation: true,
@@ -48,13 +48,9 @@ const SampleFormStep1 = ({ onValid }: Props) => {
   ];
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
-    e.preventDefault();
     await form.validate(() => {
       onValid({
-        userLocation: {
-          x: (userLocation as GeolocationCoordinates).latitude,
-          y: (userLocation as GeolocationCoordinates).longitude,
-        },
+        userLocation: userLocation as UserLocation,
         resytalId,
         context: context as SampleContext,
       });
@@ -64,7 +60,10 @@ const SampleFormStep1 = ({ onValid }: Props) => {
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) => {
-        setUserLocation(position.coords);
+        setUserLocation({
+          x: (position.coords as GeolocationCoordinates).latitude,
+          y: (position.coords as GeolocationCoordinates).longitude,
+        });
       });
     }
   }, []);

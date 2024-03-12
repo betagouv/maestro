@@ -27,12 +27,14 @@ describe('SampleView', () => {
 
     const resytalIdInput = screen.getAllByTestId('resytalId-input')[1];
     const contextSelect = screen.getAllByTestId('context-select')[1];
-    (
-      navigator.geolocation.getCurrentPosition as jest.Mock<any, any>
-    ).mock.calls[0][0](genCoords());
 
     await act(async () => {
-      await user.click(screen.getByTestId('submit-button'));
+      (
+        navigator.geolocation.getCurrentPosition as jest.Mock<any, any>
+      ).mock.calls[0][0](genCoords());
+    });
+
+    await act(async () => {
       await user.type(resytalIdInput, '22123456');
       await user.selectOptions(contextSelect, 'Surveillance');
       await user.click(screen.getByTestId('submit-button'));
