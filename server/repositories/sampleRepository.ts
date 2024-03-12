@@ -1,4 +1,3 @@
-import { logger } from 'bs-logger';
 import { z } from 'zod';
 import { Sample, SampleToCreate } from '../../shared/schema/Sample';
 import db from './db';
@@ -19,7 +18,7 @@ const SampleToInsert = SampleToCreate.merge(
 const insert = async (
   sampleToInsert: z.infer<typeof SampleToInsert>
 ): Promise<void> => {
-  logger.info('Insert sample', sampleToInsert);
+  console.info('Insert sample', sampleToInsert);
   await Samples().insert({
     ...sampleToInsert,
     userLocation: db.raw('Point(?, ?)', [

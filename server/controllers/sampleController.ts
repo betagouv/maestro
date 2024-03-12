@@ -1,4 +1,3 @@
-import { logger } from 'bs-logger';
 import { Request, Response } from 'express';
 import { AuthenticatedRequest } from 'express-jwt';
 import { constants } from 'http2';
@@ -10,7 +9,7 @@ const createSample = async (request: Request, response: Response) => {
   const { userId } = (request as AuthenticatedRequest).auth;
   const sampleToCreate = request.body as SampleToCreate;
 
-  logger.info('Create sample', sampleToCreate);
+  console.info('Create sample', sampleToCreate);
 
   const sample = {
     id: uuidv4(),
