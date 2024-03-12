@@ -62,7 +62,6 @@ export function createServer(): Server {
   });
   app.use(rateLimiter);
   app.set('trust proxy', 1);
-  app.get('/ip', (request, response) => response.send(request.ip));
 
   app.use('/api', unprotectedRouter);
   app.use('/api', protectedRouter);
