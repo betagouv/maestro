@@ -1,9 +1,9 @@
 import { constants } from 'http2';
 import randomstring from 'randomstring';
 import request from 'supertest';
-import { User1 } from '../../database/seeds/test/001-users';
-import { createServer } from '../server';
-import { genEmail, genValidPassword } from '../test/testFixtures';
+import { User1 } from '../../../database/seeds/test/001-users';
+import { createServer } from '../../server';
+import { genEmail, genValidPassword } from '../../test/testFixtures';
 
 const { app } = createServer();
 

@@ -52,8 +52,8 @@ const SampleFormStep1 = ({ onValid }: Props) => {
     await form.validate(() => {
       onValid({
         userLocation: {
-          latitude: (userLocation as GeolocationCoordinates).latitude,
-          longitude: (userLocation as GeolocationCoordinates).longitude,
+          x: (userLocation as GeolocationCoordinates).latitude,
+          y: (userLocation as GeolocationCoordinates).longitude,
         },
         resytalId,
         context: context as SampleContext,

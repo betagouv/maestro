@@ -5,7 +5,7 @@ import db from './db';
 
 export const samplesTable = 'samples';
 
-const Samples = () => db<Sample>(samplesTable);
+export const Samples = () => db<Sample>(samplesTable);
 
 const SampleToInsert = SampleToCreate.merge(
   Sample.pick({
@@ -23,8 +23,8 @@ const insert = async (
   await Samples().insert({
     ...sampleToInsert,
     userLocation: db.raw('Point(?, ?)', [
-      sampleToInsert.userLocation.latitude,
-      sampleToInsert.userLocation.longitude,
+      sampleToInsert.userLocation.x,
+      sampleToInsert.userLocation.y,
     ]),
   });
 };

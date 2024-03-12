@@ -1,5 +1,7 @@
 import randomstring from 'randomstring';
 import { v4 as uuidv4 } from 'uuid';
+import { SampleToCreate } from '../../shared/schema/Sample';
+import { SampleContextList } from '../../shared/schema/SampleContext';
 import { UserApi } from '../models/UserApi';
 
 export const genEmail = () => {
@@ -42,4 +44,13 @@ export const genUserApi = (): UserApi => ({
   id: uuidv4(),
   email: genEmail(),
   password: randomstring.generate(),
+});
+
+export const genSampleToCreate = (): SampleToCreate => ({
+  userLocation: {
+    x: 48.8566,
+    y: 2.3522,
+  },
+  resytalId: '22' + genNumber(6),
+  context: oneOf(SampleContextList),
 });

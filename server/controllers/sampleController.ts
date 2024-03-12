@@ -8,19 +8,20 @@ import sampleRepository from '../repositories/sampleRepository';
 
 const createSample = async (request: Request, response: Response) => {
   const { userId } = (request as AuthenticatedRequest).auth;
-  const draft = request.body as SampleToCreate;
+  const sampleToCreate = request.body as SampleToCreate;
 
-  logger.info('Create sample', draft);
+  logger.info('Create sample', sampleToCreate);
 
-  await sampleRepository.insert({
+  const sample = {
     id: uuidv4(),
     reference: '1231', //TODO
     createdBy: userId,
     createdAt: new Date(),
-    ...draft,
-  });
+    ...sampleToCreate,
+  };
+  await sampleRepository.insert(sample);
 
-  response.status(constants.HTTP_STATUS_CREATED).send();
+  response.status(constants.HTTP_STATUS_CREATED).send(sample);
 };
 
 export default {

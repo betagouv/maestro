@@ -17,8 +17,8 @@ export const Sample = z.object({
   context: SampleContext,
   userLocation: z.object(
     {
-      latitude: z.number(),
-      longitude: z.number(),
+      x: z.number(),
+      y: z.number(),
     },
     {
       required_error: 'Veuillez renseigner la localisation.',
