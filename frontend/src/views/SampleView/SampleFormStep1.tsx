@@ -21,9 +21,7 @@ import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useForm } from 'src/hooks/useForm';
 import { useCreateSampleMutation } from 'src/services/sample.service';
 
-interface Props {}
-
-const SampleFormStep1 = ({}: Props) => {
+const SampleFormStep1 = () => {
   const navigate = useNavigate();
 
   const [resytalId, setResytalId] = useState('');

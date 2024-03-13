@@ -6,8 +6,6 @@ interface Props {
 }
 
 const SampleFormStep3 = ({ sample }: Props) => {
-  const submit = async (e: React.MouseEvent<HTMLElement>) => {};
-
   return (
     <div>
       <p>
