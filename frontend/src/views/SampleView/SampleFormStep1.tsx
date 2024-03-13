@@ -152,6 +152,7 @@ const SampleFormStep1 = ({}: Props) => {
             />
           </div>
         )}
+        <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
 
         <div className={cx('fr-col-12')}>
           <Button data-testid="submit-button" onClick={submit}>

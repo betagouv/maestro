@@ -30,7 +30,11 @@ export const Sample = z.object({
   createdBy: z.string(),
   context: SampleContext,
   userLocation: UserLocation,
-  locationSiret: z.string().optional().nullable(),
+  locationSiret: z
+    .string({
+      required_error: 'Veuillez renseigner le SIRET du lieu de prélèvement.',
+    })
+    .regex(/^[0-9]{14}$/g, 'SIRET invalide.'),
   locationName: z.string().optional().nullable(),
   locationAddress: z.string().optional().nullable(),
   matrixKind: z.string({
@@ -97,6 +101,7 @@ export const SampleUpdate = Sample.pick({
   sampleCount: true,
   temperatureMaintenance: true,
   expiryDate: true,
+  locationSiret: true,
   sealId: true,
 });
 

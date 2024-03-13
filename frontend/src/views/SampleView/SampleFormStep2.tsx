@@ -41,6 +41,7 @@ const SampleFormStep2 = ({ sample }: Props) => {
     sample.temperatureMaintenance
   );
   const [expiryDate, setExpiryDate] = useState(sample.expiryDate);
+  const [locationSiret, setLocationSiret] = useState(sample.locationSiret);
   const [sealId, setSealId] = useState(sample.sealId);
 
   const [updateSample] = useUpdateSampleMutation();
@@ -62,6 +63,7 @@ const SampleFormStep2 = ({ sample }: Props) => {
     sampleCount,
     temperatureMaintenance,
     expiryDate,
+    locationSiret,
     sealId,
   });
 
@@ -93,6 +95,7 @@ const SampleFormStep2 = ({ sample }: Props) => {
         sampleCount,
         temperatureMaintenance,
         expiryDate,
+        locationSiret,
         sealId,
       },
     });
@@ -281,6 +284,18 @@ const SampleFormStep2 = ({ sample }: Props) => {
       </div>
       <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+        <div className={cx('fr-col-12', 'fr-col-sm-4')}>
+          <AppTextInput<FormShape>
+            defaultValue={locationSiret ?? ''}
+            onChange={(e) => setLocationSiret(e.target.value)}
+            inputForm={form}
+            inputKey="locationSiret"
+            whenValid="SIRET valide"
+            data-testid="locationSiret-input"
+            label="SIRET (obligatoire)"
+            required
+          />
+        </div>
         <div className={cx('fr-col-12', 'fr-col-sm-4')}>
           <AppTextInput<FormShape>
             type="number"
