@@ -2,7 +2,6 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Stepper from '@codegouvfr/react-dsfr/Stepper';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { SampleUpdate } from 'shared/schema/Sample';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useGetSampleQuery } from 'src/services/sample.service';
 import SampleFormStep1 from 'src/views/SampleView/SampleFormStep1';
@@ -27,11 +26,10 @@ const SampleView = () => {
 
   useEffect(() => {
     if (sample) {
-      const sampleParse = SampleUpdate.safeParse(sample);
-      if (sampleParse.success) {
-        setStep(3);
-      } else {
+      if (sample.status === 'Draft') {
         setStep(2);
+      } else {
+        setStep(3);
       }
     }
   }, [sample]);

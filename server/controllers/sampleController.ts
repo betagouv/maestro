@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { AuthenticatedRequest } from 'express-jwt';
 import { constants } from 'http2';
 import { v4 as uuidv4 } from 'uuid';
-import { SampleToCreate } from '../../shared/schema/Sample';
+import { CreatedSample, SampleToCreate } from '../../shared/schema/Sample';
 import sampleRepository from '../repositories/sampleRepository';
 
 const getSample = async (request: Request, response: Response) => {
@@ -42,13 +42,14 @@ const createSample = async (request: Request, response: Response) => {
 
   const serial = await sampleRepository.getSerial();
 
-  const sample = {
+  const sample: CreatedSample = {
     id: uuidv4(),
     reference: `GES-${sampleToCreate.department}-${getYear(
       new Date()
     )}-${serial}`,
     createdBy: userId,
     createdAt: new Date(),
+    status: 'Draft',
     ...sampleToCreate,
   };
   await sampleRepository.insert(sample);

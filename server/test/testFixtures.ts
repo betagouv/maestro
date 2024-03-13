@@ -4,6 +4,7 @@ import { DepartmentList } from '../../shared/schema/Department';
 import { Sample, SampleToCreate } from '../../shared/schema/Sample';
 import { SampleContextList } from '../../shared/schema/SampleContext';
 import { SampleStageList } from '../../shared/schema/SampleStage';
+import { SampleStatusList } from '../../shared/schema/SampleStatus';
 import { SampleStorageConditionList } from '../../shared/schema/SampleStorageCondition';
 import { UserApi } from '../models/UserApi';
 
@@ -66,6 +67,7 @@ export const genSample = (userId?: string): Sample => ({
   reference: `GES-${oneOf(DepartmentList)}-${genNumber(4)}`,
   createdAt: new Date(),
   createdBy: userId ?? uuidv4(),
+  status: oneOf(SampleStatusList),
   ...genSampleToCreate(),
   locationSiret: String(genSiret()),
   locationName: randomstring.generate(),

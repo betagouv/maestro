@@ -15,6 +15,7 @@ export const sampleApi = api.injectEndpoints({
         body: { ...draft },
       }),
       transformResponse: (response: any) => response.id,
+      invalidatesTags: [{ type: 'Sample', id: 'LIST' }],
     }),
     getSample: builder.query<PartialSample, string>({
       query: (sampleId) => `samples/${sampleId}`,
@@ -27,8 +28,12 @@ export const sampleApi = api.injectEndpoints({
       query: () => 'samples',
       transformResponse: (response: any[]) =>
         response.map((_) => PartialSample.parse(fp.omitBy(_, fp.isNil))),
-      providesTags: (result) =>
-        result ? result.map(({ id }) => ({ type: 'Sample', id })) : [],
+      providesTags: (result) => [
+        { type: 'Sample', id: 'LIST' },
+        ...(result
+          ? [...result.map(({ id }) => ({ type: 'Sample' as const, id }))]
+          : []),
+      ],
     }),
     updateSample: builder.mutation<
       void,
@@ -40,7 +45,12 @@ export const sampleApi = api.injectEndpoints({
         body: sampleUpdate,
       }),
       invalidatesTags: (result, error, { sampleId }) =>
-        result ? [{ type: 'Sample', id: sampleId }] : [],
+        result
+          ? [
+              { type: 'Sample', id: 'LIST' },
+              { type: 'Sample', id: sampleId },
+            ]
+          : [{ type: 'Sample', id: 'LIST' }],
     }),
   }),
 });

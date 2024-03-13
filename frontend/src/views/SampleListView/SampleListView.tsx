@@ -4,6 +4,7 @@ import Table from '@codegouvfr/react-dsfr/Table';
 import { format } from 'date-fns';
 import { t } from 'i18next';
 import { Link } from 'react-router-dom';
+import { SampleStatusLabels } from 'shared/schema/SampleStatus';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useFindSamplesQuery } from 'src/services/sample.service';
 
@@ -21,10 +22,11 @@ const SampleListView = () => {
       {samples && samples.length > 0 && (
         <Table
           noCaption
-          headers={['Identifiant', 'Date de création']}
+          headers={['Identifiant', 'Date de création', 'Statut']}
           data={samples.map((sample) => [
             <Link to={`/prelevements/${sample.id}`}>{sample.reference}</Link>,
             format(sample.createdAt, 'dd/MM/yyyy'),
+            SampleStatusLabels[sample.status],
           ])}
         />
       )}

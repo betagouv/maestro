@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { Department } from './Department';
 import { SampleContext } from './SampleContext';
 import { SampleStage } from './SampleStage';
+import { SampleStatus } from './SampleStatus';
 import { SampleStorageCondition } from './SampleStorageCondition';
 
 export const UserLocation = z.object(
@@ -28,6 +29,7 @@ export const Sample = z.object({
     ),
   createdAt: z.coerce.date(),
   createdBy: z.string(),
+  status: SampleStatus,
   context: SampleContext,
   userLocation: UserLocation,
   locationSiret: z
@@ -81,6 +83,7 @@ export const CreatedSample = SampleToCreate.merge(
     reference: true,
     createdAt: true,
     createdBy: true,
+    status: true,
   })
 );
 
@@ -103,6 +106,7 @@ export const SampleUpdate = Sample.pick({
   expiryDate: true,
   locationSiret: true,
   sealId: true,
+  status: true,
 });
 
 export const PartialSampleUpdate = SampleUpdate.partial();

@@ -1,11 +1,23 @@
-import Button from '@codegouvfr/react-dsfr/Button';
+import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { PartialSample } from 'shared/schema/Sample';
+import { useUpdateSampleMutation } from 'src/services/sample.service';
 
 interface Props {
   sample: PartialSample;
 }
 
 const SampleFormStep3 = ({ sample }: Props) => {
+  const [updateSample] = useUpdateSampleMutation();
+
+  const modifiy = () => {
+    updateSample({
+      sampleId: sample.id,
+      sampleUpdate: {
+        status: 'Draft',
+      },
+    });
+  };
+
   return (
     <div>
       <p>
@@ -41,7 +53,20 @@ const SampleFormStep3 = ({ sample }: Props) => {
           <strong>Numéro de scellé :</strong> {sample.sealId}
         </li>
       </ul>
-      <Button data-testid="submit-button">Envoyer le prélèvement</Button>
+      <ButtonsGroup
+        inlineLayoutWhen="md and up"
+        buttons={[
+          {
+            children: 'Modifier le prélèvement',
+            onClick: modifiy,
+            priority: 'secondary',
+            type: 'button',
+          },
+          {
+            children: 'Envoyer le prélèvement',
+          },
+        ]}
+      />
     </div>
   );
 };

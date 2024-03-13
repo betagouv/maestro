@@ -65,6 +65,7 @@ const SampleFormStep2 = ({ sample }: Props) => {
     expiryDate,
     locationSiret,
     sealId,
+    status: sample.status,
   });
 
   type FormShape = typeof Form.shape;
@@ -73,11 +74,11 @@ const SampleFormStep2 = ({ sample }: Props) => {
     e.preventDefault();
     await form.validate();
     if (form.isValid()) {
-      await save();
+      await save(true);
     }
   };
 
-  const save = async () => {
+  const save = async (isSubmitted: boolean) => {
     await updateSample({
       sampleId: sample.id,
       sampleUpdate: {
@@ -97,6 +98,7 @@ const SampleFormStep2 = ({ sample }: Props) => {
         expiryDate,
         locationSiret,
         sealId,
+        status: isSubmitted ? 'Submitted' : sample.status,
       },
     });
   };
@@ -317,7 +319,7 @@ const SampleFormStep2 = ({ sample }: Props) => {
           buttons={[
             {
               children: 'Enregistrer',
-              onClick: save,
+              onClick: () => save(false),
               priority: 'secondary',
               type: 'button',
             },

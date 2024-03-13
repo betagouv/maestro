@@ -128,6 +128,7 @@ describe('Sample controller', () => {
           createdAt: expect.any(String),
           createdBy: User1.id,
           reference: expect.stringMatching(/^GES-[0-9]{2}-2024-1$/),
+          status: 'Draft',
         })
       );
 
