@@ -1,13 +1,27 @@
 import { act, render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
+import { Provider } from 'react-redux';
+import { BrowserRouter } from 'react-router-dom';
+import { store } from 'src/store/store';
+import config from 'src/utils/config';
 import SampleFormStep1 from 'src/views/SampleView/SampleFormStep1';
 import { genCoords } from '../../../../test/fixtures.test';
+import {
+  getRequestCalls,
+  mockRequests,
+} from '../../../../test/requestUtils.test';
 
 describe('SampleFormStep1', () => {
   const user = userEvent.setup();
 
   test('should display form', () => {
-    render(<SampleFormStep1 />);
+    render(
+      <Provider store={store}>
+        <BrowserRouter>
+          <SampleFormStep1 />
+        </BrowserRouter>
+      </Provider>
+    );
 
     expect(screen.getByTestId('draft_sample_1_form')).toBeInTheDocument();
     expect(screen.getAllByTestId('department-select')).toHaveLength(2);
@@ -18,7 +32,13 @@ describe('SampleFormStep1', () => {
   });
 
   test('should handle errors on submitting', async () => {
-    render(<SampleFormStep1 />);
+    render(
+      <Provider store={store}>
+        <BrowserRouter>
+          <SampleFormStep1 />
+        </BrowserRouter>
+      </Provider>
+    );
     const resytalIdInput = screen.getAllByTestId('resytalId-input')[1];
 
     await act(async () => {
@@ -43,9 +63,22 @@ describe('SampleFormStep1', () => {
     ).toBeInTheDocument();
   });
 
-  test('should handle valid form', async () => {
-    const onValid = jest.fn();
-    render(<SampleFormStep1 />);
+  test('should call the sample creating API on submitting', async () => {
+    mockRequests([
+      {
+        pathname: `/api/samples`,
+        response: { body: JSON.stringify({}) },
+      },
+    ]);
+    const coords = genCoords();
+
+    render(
+      <Provider store={store}>
+        <BrowserRouter>
+          <SampleFormStep1 />
+        </BrowserRouter>
+      </Provider>
+    );
 
     const departmentSelect = screen.getAllByTestId('department-select')[1];
     const resytalIdInput = screen.getAllByTestId('resytalId-input')[1];
@@ -54,7 +87,7 @@ describe('SampleFormStep1', () => {
     await act(async () => {
       (
         navigator.geolocation.getCurrentPosition as jest.Mock<any, any>
-      ).mock.calls[0][0](genCoords());
+      ).mock.calls[0][0](coords);
     });
 
     await act(async () => {
@@ -72,6 +105,21 @@ describe('SampleFormStep1', () => {
     expect(
       screen.queryByText('Veuillez renseigner le contexte.')
     ).not.toBeInTheDocument();
-    expect(onValid).toHaveBeenCalled();
+
+    const requests = await getRequestCalls(fetchMock);
+
+    expect(requests).toContainEqual({
+      url: `${config.apiEndpoint}/api/samples`,
+      method: 'POST',
+      body: {
+        department: '08',
+        resytalId: '22123456',
+        context: 'Surveillance',
+        userLocation: {
+          x: coords.coords.latitude,
+          y: coords.coords.longitude,
+        },
+      },
+    });
   });
 });
