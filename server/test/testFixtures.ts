@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { DepartmentList } from '../../shared/schema/Department';
 import { Sample, SampleToCreate } from '../../shared/schema/Sample';
 import { SampleContextList } from '../../shared/schema/SampleContext';
+import { SampleStageList } from '../../shared/schema/SampleStage';
 import { SampleStorageConditionList } from '../../shared/schema/SampleStorageCondition';
 import { UserApi } from '../models/UserApi';
 
@@ -69,9 +70,10 @@ export const genSample = (userId?: string): Sample => ({
   locationSiret: String(genSiret()),
   locationName: randomstring.generate(),
   locationAddress: randomstring.generate(),
-  matrix: randomstring.generate(),
   matrixKind: randomstring.generate(),
+  matrix: randomstring.generate(),
   matrixPart: randomstring.generate(),
+  stage: oneOf(SampleStageList),
   quantity: genNumber(),
   quantityUnit: randomstring.generate(),
   cultureKind: randomstring.generate(),
