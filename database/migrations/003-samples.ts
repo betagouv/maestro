@@ -18,10 +18,11 @@ exports.up = async (knex: Knex) => {
     table.string('matrix');
     table.string('matrix_kind');
     table.string('matrix_part');
+    table.string('stage');
     table.double('quantity');
     table.string('quantity_unit');
     table.string('culture_kind');
-    table.boolean('compliance_2002_63');
+    table.boolean('compliance200263');
     table.string('storage_condition');
     table.boolean('pooling');
     table.boolean('release_control');

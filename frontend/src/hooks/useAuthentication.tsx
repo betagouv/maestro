@@ -37,6 +37,12 @@ export const useAuthentication = () => {
               key: 'sample_route',
               component: SampleView,
             },
+            {
+              path: '/prelevements/:sampleId',
+              label: 'Prélèvement',
+              key: 'sample_route',
+              component: SampleView,
+            },
           ]
         : [
             {

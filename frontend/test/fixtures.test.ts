@@ -4,7 +4,7 @@ const randomstring = require('randomstring');
 
 export const genBoolean = () => Math.random() < 0.5;
 
-export const genSiren = () => genNumber(9);
+export const genSiret = () => genNumber(14);
 
 export function oneOf<T>(array: Array<T>): T {
   return array[Math.floor(Math.random() * array.length)];

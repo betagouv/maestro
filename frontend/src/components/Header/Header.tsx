@@ -44,7 +44,7 @@ const Header = () => {
                   to: '/prelevements',
                   target: '_self',
                 },
-                text: 'Prélèvements',
+                text: 'Mes prélèvements',
                 isActive: location.pathname.startsWith('/prelevements'),
               },
             ]

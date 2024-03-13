@@ -1,5 +1,8 @@
-import { z } from 'zod';
-import { Sample, SampleToCreate } from '../../shared/schema/Sample';
+import {
+  CreatedSample,
+  PartialSample,
+  Sample,
+} from '../../shared/schema/Sample';
 import db from './db';
 
 export const samplesTable = 'samples';
@@ -7,26 +10,14 @@ const samplesSerial = 'samples_serial';
 
 export const Samples = () => db<Sample>(samplesTable);
 
-const SampleToInsert = SampleToCreate.merge(
-  Sample.pick({
-    id: true,
-    reference: true,
-    createdAt: true,
-    createdBy: true,
-  })
-);
+const findUnique = async (id: string): Promise<Sample | undefined> => {
+  console.info('Find sample', id);
+  return Samples().where({ id }).first();
+};
 
-const insert = async (
-  sampleToInsert: z.infer<typeof SampleToInsert>
-): Promise<void> => {
-  console.info('Insert sample', sampleToInsert);
-  await Samples().insert({
-    ...sampleToInsert,
-    userLocation: db.raw('Point(?, ?)', [
-      sampleToInsert.userLocation.x,
-      sampleToInsert.userLocation.y,
-    ]),
-  });
+const findMany = async (userId: string): Promise<Sample[]> => {
+  console.info('Find samples for user', userId);
+  return Samples().where({ createdBy: userId });
 };
 
 const getSerial = async (): Promise<number> => {
@@ -34,7 +25,36 @@ const getSerial = async (): Promise<number> => {
   return result.nextval;
 };
 
+const insert = async (createdSample: CreatedSample): Promise<void> => {
+  console.info('Insert sample', createdSample);
+  await Samples().insert({
+    ...createdSample,
+    userLocation: db.raw('Point(?, ?)', [
+      createdSample.userLocation.x,
+      createdSample.userLocation.y,
+    ]),
+  });
+};
+
+const update = async (partialSample: PartialSample): Promise<void> => {
+  console.info('Update sample', partialSample.id);
+  if (Object.keys(partialSample).length > 0) {
+    await Samples()
+      .where({ id: partialSample.id })
+      .update({
+        ...partialSample,
+        userLocation: db.raw('Point(?, ?)', [
+          partialSample.userLocation.x,
+          partialSample.userLocation.y,
+        ]),
+      });
+  }
+};
+
 export default {
   insert,
+  update,
+  findUnique,
+  findMany,
   getSerial,
 };

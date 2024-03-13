@@ -6,7 +6,11 @@ i18n.use(initReactI18next).init({
   fallbackLng: 'fr',
   resources: {
     fr: {
-      translation: {},
+      translation: {
+        sample_zero: 'Aucun prélèvement',
+        sample_one: 'Un prélèvement',
+        sample_other: '{{count}} prélèvements',
+      },
     },
   },
 });

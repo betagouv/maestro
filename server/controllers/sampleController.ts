@@ -6,6 +6,34 @@ import { v4 as uuidv4 } from 'uuid';
 import { SampleToCreate } from '../../shared/schema/Sample';
 import sampleRepository from '../repositories/sampleRepository';
 
+const getSample = async (request: Request, response: Response) => {
+  const { sampleId } = request.params;
+
+  console.info('Get sample', sampleId);
+
+  const sample = await sampleRepository.findUnique(sampleId);
+
+  if (!sample) {
+    return response.sendStatus(constants.HTTP_STATUS_NOT_FOUND);
+  }
+
+  if (sample.createdBy !== (request as AuthenticatedRequest).auth.userId) {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
+
+  response.status(constants.HTTP_STATUS_OK).send(sample);
+};
+
+const findSamples = async (request: Request, response: Response) => {
+  const { userId } = (request as AuthenticatedRequest).auth;
+
+  console.info('Find samples for user', userId);
+
+  const samples = await sampleRepository.findMany(userId);
+
+  response.status(constants.HTTP_STATUS_OK).send(samples);
+};
+
 const createSample = async (request: Request, response: Response) => {
   const { userId } = (request as AuthenticatedRequest).auth;
   const sampleToCreate = request.body as SampleToCreate;
@@ -28,6 +56,35 @@ const createSample = async (request: Request, response: Response) => {
   response.status(constants.HTTP_STATUS_CREATED).send(sample);
 };
 
+const updateSample = async (request: Request, response: Response) => {
+  const { sampleId } = request.params;
+  const sampleUpdate = request.body;
+
+  console.info('Update sample', sampleId, sampleUpdate);
+
+  const sample = await sampleRepository.findUnique(sampleId);
+
+  if (!sample) {
+    return response.sendStatus(constants.HTTP_STATUS_NOT_FOUND);
+  }
+
+  if (sample.createdBy !== (request as AuthenticatedRequest).auth.userId) {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
+
+  const updatedSample = {
+    ...sample,
+    ...sampleUpdate,
+  };
+
+  await sampleRepository.update(updatedSample);
+
+  response.status(constants.HTTP_STATUS_OK).send(updatedSample);
+};
+
 export default {
+  getSample,
+  findSamples,
   createSample,
+  updateSample,
 };

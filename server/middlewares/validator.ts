@@ -7,6 +7,13 @@ export const body = (o: AnyZodObject) =>
     body: o,
   });
 
+export const uuidParam = (paramName: string) =>
+  z.object({
+    params: z.object({
+      [paramName]: z.string().uuid(),
+    }),
+  });
+
 const validate =
   (schema: AnyZodObject) =>
   async (req: Request, res: Response, next: NextFunction) => {

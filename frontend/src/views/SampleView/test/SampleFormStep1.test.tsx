@@ -7,7 +7,7 @@ describe('SampleFormStep1', () => {
   const user = userEvent.setup();
 
   test('should display form', () => {
-    render(<SampleFormStep1 onValid={() => {}} />);
+    render(<SampleFormStep1 />);
 
     expect(screen.getByTestId('draft_sample_1_form')).toBeInTheDocument();
     expect(screen.getAllByTestId('department-select')).toHaveLength(2);
@@ -18,7 +18,7 @@ describe('SampleFormStep1', () => {
   });
 
   test('should handle errors on submitting', async () => {
-    render(<SampleFormStep1 onValid={() => {}} />);
+    render(<SampleFormStep1 />);
     const resytalIdInput = screen.getAllByTestId('resytalId-input')[1];
 
     await act(async () => {
@@ -45,7 +45,7 @@ describe('SampleFormStep1', () => {
 
   test('should handle valid form', async () => {
     const onValid = jest.fn();
-    render(<SampleFormStep1 onValid={onValid} />);
+    render(<SampleFormStep1 />);
 
     const departmentSelect = screen.getAllByTestId('department-select')[1];
     const resytalIdInput = screen.getAllByTestId('resytalId-input')[1];

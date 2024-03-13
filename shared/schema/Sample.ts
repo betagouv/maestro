@@ -1,6 +1,8 @@
 import { z } from 'zod';
 import { Department } from './Department';
 import { SampleContext } from './SampleContext';
+import { SampleStage } from './SampleStage';
+import { SampleStorageCondition } from './SampleStorageCondition';
 
 export const UserLocation = z.object(
   {
@@ -28,23 +30,38 @@ export const Sample = z.object({
   createdBy: z.string(),
   context: SampleContext,
   userLocation: UserLocation,
-  locationSiret: z.string(),
-  locationName: z.string(),
-  locationAddress: z.string(),
-  matrix: z.string(),
-  matrixKind: z.string(),
-  matrixPart: z.string(),
-  quantity: z.number(),
-  quantityUnit: z.string(),
-  cultureKind: z.string().optional(),
-  compliance200263: z.boolean().optional(),
-  storageCondition: z.string().optional(),
-  pooling: z.boolean().optional(),
-  releaseControl: z.boolean().optional(),
-  sampleCount: z.number().optional(),
-  temperatureMaintenance: z.boolean().optional(),
-  expiryDate: z.date().optional(),
-  sealId: z.number().optional(),
+  locationSiret: z.string().optional().nullable(),
+  locationName: z.string().optional().nullable(),
+  locationAddress: z.string().optional().nullable(),
+  matrixKind: z.string({
+    required_error: 'Veuillez renseigner la catégorie de matrice.',
+  }),
+  matrix: z.string({
+    required_error: 'Veuillez renseigner la matrice.',
+  }),
+  matrixPart: z.string({
+    required_error: 'Veuillez renseigner la partie du végétal.',
+  }),
+  stage: SampleStage,
+  quantity: z.number({
+    required_error: 'Veuillez renseigner la quantité.',
+  }),
+  quantityUnit: z.string({
+    required_error: 'Veuillez renseigner l’unité de quantité.',
+  }),
+  cultureKind: z.string().optional().nullable(),
+  compliance200263: z.boolean().optional().nullable(),
+  storageCondition: SampleStorageCondition.optional().nullable(),
+  pooling: z.boolean().optional().nullable(),
+  releaseControl: z.boolean().optional().nullable(),
+  sampleCount: z.number({
+    required_error: 'Veuillez renseigner le nombre de prélèvements.',
+  }),
+  temperatureMaintenance: z.boolean().optional().nullable(),
+  expiryDate: z.coerce.date().optional().nullable(),
+  sealId: z.number({
+    required_error: 'Veuillez renseigner le numéro de scellé.',
+  }),
 });
 
 export const SampleToCreate = Sample.pick({
@@ -54,10 +71,22 @@ export const SampleToCreate = Sample.pick({
   department: true,
 });
 
-export const SampleToUpdate = Sample.pick({
-  matrix: true,
+export const CreatedSample = SampleToCreate.merge(
+  Sample.pick({
+    id: true,
+    reference: true,
+    createdAt: true,
+    createdBy: true,
+  })
+);
+
+export const PartialSample = Sample.partial().merge(CreatedSample);
+
+export const SampleUpdate = Sample.pick({
   matrixKind: true,
+  matrix: true,
   matrixPart: true,
+  stage: true,
   quantity: true,
   quantityUnit: true,
   cultureKind: true,
@@ -69,8 +98,14 @@ export const SampleToUpdate = Sample.pick({
   temperatureMaintenance: true,
   expiryDate: true,
   sealId: true,
-}).partial();
+});
 
+export const PartialSampleUpdate = SampleUpdate.partial();
+
+export type UserLocation = z.infer<typeof UserLocation>;
 export type Sample = z.infer<typeof Sample>;
 export type SampleToCreate = z.infer<typeof SampleToCreate>;
-export type UserLocation = z.infer<typeof UserLocation>;
+export type CreatedSample = z.infer<typeof CreatedSample>;
+export type PartialSample = z.infer<typeof PartialSample>;
+export type SampleUpdate = z.infer<typeof SampleUpdate>;
+export type PartialSampleUpdate = z.infer<typeof PartialSampleUpdate>;

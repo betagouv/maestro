@@ -3,6 +3,7 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Department,
   DepartmentLabels,
@@ -18,16 +19,19 @@ import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useForm } from 'src/hooks/useForm';
+import { useCreateSampleMutation } from 'src/services/sample.service';
 
-interface Props {
-  onValid: (draftSample: SampleToCreate) => void;
-}
+interface Props {}
 
-const SampleFormStep1 = ({ onValid }: Props) => {
+const SampleFormStep1 = ({}: Props) => {
+  const navigate = useNavigate();
+
   const [resytalId, setResytalId] = useState('');
   const [context, setContext] = useState<SampleContext>();
   const [userLocation, setUserLocation] = useState<UserLocation>();
   const [department, setDepartment] = useState<Department>();
+
+  const [createSample] = useCreateSampleMutation();
 
   const Form = SampleToCreate;
 
@@ -52,13 +56,20 @@ const SampleFormStep1 = ({ onValid }: Props) => {
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
-    await form.validate(() => {
-      onValid({
+    await form.validate(async () => {
+      await createSample({
         userLocation: userLocation as UserLocation,
         resytalId,
         context: context as SampleContext,
         department: department as Department,
-      });
+      })
+        .unwrap()
+        .then((result) => {
+          navigate(`/prelevements/${result}`, { replace: true });
+        })
+        .catch(() => {
+          //TODO handle error
+        });
     });
   };
 
@@ -127,7 +138,7 @@ const SampleFormStep1 = ({ onValid }: Props) => {
             nativeSelectProps={{ defaultValue: '' }}
             disabled={true}
           >
-            <option value="" disabled selected>
+            <option value="" disabled defaultValue="">
               TODO ?
             </option>
           </Select>
