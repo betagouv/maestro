@@ -26,7 +26,7 @@ const getSerial = async (): Promise<number> => {
 };
 
 const insert = async (createdSample: CreatedSample): Promise<void> => {
-  console.info('Insert sample', createdSample);
+  console.info('Insert sample', createdSample.id);
   await Samples().insert({
     ...createdSample,
     userLocation: db.raw('Point(?, ?)', [
