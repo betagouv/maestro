@@ -28,7 +28,29 @@ npm i
 
 ### Variables d'environnement
 
-//TODO
+L'application utilise les variables d'environnement suivantes :
+
+```
+AUTH_SECRET
+DATABASE_ENV
+DATABASE_URL
+DATABASE_URL_TEST
+
+REACT_APP_API_URL
+```
+
+En local, elles peuvent être définies dans des fichiers `.env` :
+- un fichier dans le dossier `frontend` pour les variables d'environnement `REACT_APP...` nécessaires au frontend (voir `frontend/.env.example` pour un exemple)
+- un fichier à la racine du projet pour les autres variables d'environnement (voir `.env.example` pour un exemple)
+
+
+### Chargement des données
+
+Le chargement se fait via Knex et les fichiers de chargement de données dans le répertoire `/database/seeds` en fonction de l'environnement visé via `DATABASE_ENV`.
+
+```bash
+npm run seed
+```
 
 ### Lancement de l'application en local
 
@@ -54,6 +76,6 @@ npm run test
 
 ## Démo
 
-La version de démo de l'application est accessible à l'adresse <https://pspc.incubateur.net>
+La version de démo de l'application est accessible à l'adresse <https://pspc-staging.incubateur.net>
 
 ## Production
