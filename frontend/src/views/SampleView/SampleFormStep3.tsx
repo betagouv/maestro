@@ -1,23 +1,11 @@
-import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
-import { PartialSample } from 'shared/schema/Sample';
-import { useUpdateSampleMutation } from 'src/services/sample.service';
+import Button from '@codegouvfr/react-dsfr/Button';
+import { PartialSample } from 'shared/schema/Sample/Sample';
 
 interface Props {
-  sample: PartialSample;
+  partialSample: PartialSample;
 }
 
-const SampleFormStep3 = ({ sample }: Props) => {
-  const [updateSample] = useUpdateSampleMutation();
-
-  const modifiy = () => {
-    updateSample({
-      sampleId: sample.id,
-      sampleUpdate: {
-        status: 'Draft',
-      },
-    });
-  };
-
+const SampleFormStep3 = ({ partialSample }: Props) => {
   return (
     <div>
       <p>
@@ -26,47 +14,36 @@ const SampleFormStep3 = ({ sample }: Props) => {
       </p>
       <ul>
         <li>
-          <strong>Numéro de résytal :</strong> {sample.resytalId}
+          <strong>Numéro de résytal :</strong> {partialSample.resytalId}
         </li>
         <li>
-          <strong>Contexte du prélèvement :</strong> {sample.context}
+          <strong>Contexte du prélèvement :</strong>{' '}
+          {partialSample.planningContext}
         </li>
         <li>
-          <strong>Département :</strong> {sample.department}
+          <strong>Département :</strong> {partialSample.department}
         </li>
         <li>
-          <strong>Matrice :</strong> {sample.matrix}
+          <strong>Matrice :</strong> {partialSample.matrix}
         </li>
         <li>
-          <strong>Partie du végétal :</strong> {sample.matrixPart}
+          <strong>Partie du végétal :</strong> {partialSample.matrixPart}
         </li>
         <li>
-          <strong>Stade du végétal :</strong> {sample.stage}
+          <strong>Stade du végétal :</strong> {partialSample.stage}
         </li>
         <li>
-          <strong>Quantité :</strong> {sample.quantity} {sample.quantityUnit}
+          <strong>Quantité :</strong> {partialSample.quantity}{' '}
+          {partialSample.quantityUnit}
         </li>
         <li>
-          <strong>Nombre de prélèvements :</strong> {sample.sampleCount}
+          <strong>Nombre de prélèvements :</strong> {partialSample.sampleCount}
         </li>
         <li>
-          <strong>Numéro de scellé :</strong> {sample.sealId}
+          <strong>Numéro de scellé :</strong> {partialSample.sealId}
         </li>
       </ul>
-      <ButtonsGroup
-        inlineLayoutWhen="md and up"
-        buttons={[
-          {
-            children: 'Modifier le prélèvement',
-            onClick: modifiy,
-            priority: 'secondary',
-            type: 'button',
-          },
-          {
-            children: 'Envoyer le prélèvement',
-          },
-        ]}
-      />
+      <Button children="Envoyer le prélèvement" />
     </div>
   );
 };

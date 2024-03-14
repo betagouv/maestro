@@ -10,8 +10,10 @@ exports.up = async (knex: Knex) => {
       .specificType('created_at', 'timestamptz')
       .defaultTo(knex.raw('current_timestamp'));
     table.uuid('created_by').references('id').inTable('users');
+    table.specificType('sampled_at', 'timestamptz').notNullable();
     table.string('status').notNullable();
-    table.string('context').notNullable();
+    table.string('planning_context').notNullable();
+    table.string('legal_context').notNullable();
     table.point('user_location').notNullable();
     table.string('location_siret');
     table.string('location_name');

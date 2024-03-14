@@ -30,6 +30,7 @@ const validate =
       });
       return next();
     } catch (error) {
+      console.error(error);
       return res.status(constants.HTTP_STATUS_BAD_REQUEST).json(error);
     }
   };

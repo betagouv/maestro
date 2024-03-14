@@ -1,6 +1,6 @@
 import sampleRepository from '../../../server/repositories/sampleRepository';
 import { genSample } from '../../../server/test/testFixtures';
-import { Sample } from '../../../shared/schema/Sample';
+import { Sample } from '../../../shared/schema/Sample/Sample';
 import { User1, User2 } from './001-users';
 
 export const Sample1: Sample = genSample(User1.id);

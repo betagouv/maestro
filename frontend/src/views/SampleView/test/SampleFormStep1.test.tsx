@@ -26,7 +26,8 @@ describe('SampleFormStep1', () => {
     expect(screen.getByTestId('draft_sample_1_form')).toBeInTheDocument();
     expect(screen.getAllByTestId('department-select')).toHaveLength(2);
     expect(screen.getAllByTestId('resytalId-input')).toHaveLength(2);
-    expect(screen.getAllByTestId('context-select')).toHaveLength(2);
+    expect(screen.getAllByTestId('planning-context-select')).toHaveLength(2);
+    expect(screen.getAllByTestId('legal-context-select')).toHaveLength(2);
 
     expect(screen.getByTestId('submit-button')).toBeInTheDocument();
   });
@@ -52,6 +53,9 @@ describe('SampleFormStep1', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByText('Veuillez renseigner le contexte.')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Veuillez renseigner le cadre juridique.')
     ).toBeInTheDocument();
 
     await act(async () => {
@@ -82,7 +86,10 @@ describe('SampleFormStep1', () => {
 
     const departmentSelect = screen.getAllByTestId('department-select')[1];
     const resytalIdInput = screen.getAllByTestId('resytalId-input')[1];
-    const contextSelect = screen.getAllByTestId('context-select')[1];
+    const planningContextSelect = screen.getAllByTestId(
+      'planning-context-select'
+    )[1];
+    const legalContextSelect = screen.getAllByTestId('legal-context-select')[1];
 
     await act(async () => {
       (
@@ -93,7 +100,8 @@ describe('SampleFormStep1', () => {
     await act(async () => {
       await user.selectOptions(departmentSelect, '08');
       await user.type(resytalIdInput, '22123456');
-      await user.selectOptions(contextSelect, 'Surveillance');
+      await user.selectOptions(planningContextSelect, 'Surveillance');
+      await user.selectOptions(legalContextSelect, 'Judicial');
       await user.click(screen.getByTestId('submit-button'));
     });
     expect(
@@ -105,6 +113,9 @@ describe('SampleFormStep1', () => {
     expect(
       screen.queryByText('Veuillez renseigner le contexte.')
     ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('Veuillez renseigner le cadre juridique.')
+    ).not.toBeInTheDocument();
 
     const requests = await getRequestCalls(fetchMock);
 
@@ -114,7 +125,8 @@ describe('SampleFormStep1', () => {
       body: {
         department: '08',
         resytalId: '22123456',
-        context: 'Surveillance',
+        planningContext: 'Surveillance',
+        legalContext: 'Judicial',
         userLocation: {
           x: coords.coords.latitude,
           y: coords.coords.longitude,

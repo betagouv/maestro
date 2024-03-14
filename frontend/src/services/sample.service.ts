@@ -1,22 +1,9 @@
 import fp from 'lodash';
-import {
-  PartialSample,
-  PartialSampleUpdate,
-  SampleToCreate,
-} from 'shared/schema/Sample';
+import { PartialSample, SampleToCreate } from 'shared/schema/Sample/Sample';
 import { api } from 'src/services/api.service';
 
 export const sampleApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    createSample: builder.mutation<string, SampleToCreate>({
-      query: (draft) => ({
-        url: 'samples',
-        method: 'POST',
-        body: { ...draft },
-      }),
-      transformResponse: (response: any) => response.id,
-      invalidatesTags: [{ type: 'Sample', id: 'LIST' }],
-    }),
     getSample: builder.query<PartialSample, string>({
       query: (sampleId) => `samples/${sampleId}`,
       transformResponse: (response: any) =>
@@ -35,20 +22,29 @@ export const sampleApi = api.injectEndpoints({
           : []),
       ],
     }),
-    updateSample: builder.mutation<
-      void,
-      { sampleId: string; sampleUpdate: PartialSampleUpdate }
-    >({
-      query: ({ sampleId, sampleUpdate }) => ({
-        url: `samples/${sampleId}`,
-        method: 'PUT',
-        body: sampleUpdate,
+    createSample: builder.mutation<PartialSample, SampleToCreate>({
+      query: (draft) => ({
+        url: 'samples',
+        method: 'POST',
+        body: { ...draft },
       }),
-      invalidatesTags: (result, error, { sampleId }) =>
+      transformResponse: (response: any) =>
+        PartialSample.parse(fp.omitBy(response, fp.isNil)),
+      invalidatesTags: [{ type: 'Sample', id: 'LIST' }],
+    }),
+    updateSample: builder.mutation<PartialSample, PartialSample>({
+      query: (partialSample) => ({
+        url: `samples/${partialSample.id}`,
+        method: 'PUT',
+        body: partialSample,
+      }),
+      transformResponse: (response: any) =>
+        PartialSample.parse(fp.omitBy(response, fp.isNil)),
+      invalidatesTags: (result, error, { id }) =>
         result
           ? [
               { type: 'Sample', id: 'LIST' },
-              { type: 'Sample', id: sampleId },
+              { type: 'Sample', id },
             ]
           : [{ type: 'Sample', id: 'LIST' }],
     }),

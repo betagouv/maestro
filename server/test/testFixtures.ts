@@ -1,11 +1,16 @@
 import randomstring from 'randomstring';
 import { v4 as uuidv4 } from 'uuid';
 import { DepartmentList } from '../../shared/schema/Department';
-import { Sample, SampleToCreate } from '../../shared/schema/Sample';
-import { SampleContextList } from '../../shared/schema/SampleContext';
-import { SampleStageList } from '../../shared/schema/SampleStage';
-import { SampleStatusList } from '../../shared/schema/SampleStatus';
-import { SampleStorageConditionList } from '../../shared/schema/SampleStorageCondition';
+import {
+  CreatedSample,
+  Sample,
+  SampleToCreate,
+} from '../../shared/schema/Sample/Sample';
+import { SampleLegalContextList } from '../../shared/schema/Sample/SampleLegalContext';
+import { SamplePlanningContextList } from '../../shared/schema/Sample/SamplePlanningContext';
+import { SampleStageList } from '../../shared/schema/Sample/SampleStage';
+import { SampleStatusList } from '../../shared/schema/Sample/SampleStatus';
+import { SampleStorageConditionList } from '../../shared/schema/Sample/SampleStorageCondition';
 import { UserApi } from '../models/UserApi';
 
 export const genEmail = () => {
@@ -57,18 +62,24 @@ export const genSampleToCreate = (): SampleToCreate => ({
     x: 48.8566,
     y: 2.3522,
   },
+  sampledAt: new Date(),
   resytalId: '22' + genNumber(6),
-  context: oneOf(SampleContextList),
+  planningContext: oneOf(SamplePlanningContextList),
+  legalContext: oneOf(SampleLegalContextList),
   department: oneOf(DepartmentList),
 });
 
-export const genSample = (userId?: string): Sample => ({
+export const genCreatedSample = (userId?: string): CreatedSample => ({
   id: uuidv4(),
   reference: `GES-${oneOf(DepartmentList)}-${genNumber(4)}`,
-  createdAt: new Date(),
   createdBy: userId ?? uuidv4(),
+  createdAt: new Date(),
   status: oneOf(SampleStatusList),
   ...genSampleToCreate(),
+});
+
+export const genSample = (userId?: string): Sample => ({
+  ...genCreatedSample(userId),
   locationSiret: String(genSiret()),
   locationName: randomstring.generate(),
   locationAddress: randomstring.generate(),

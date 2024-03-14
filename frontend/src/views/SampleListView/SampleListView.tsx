@@ -4,7 +4,7 @@ import Table from '@codegouvfr/react-dsfr/Table';
 import { format } from 'date-fns';
 import { t } from 'i18next';
 import { Link } from 'react-router-dom';
-import { SampleStatusLabels } from 'shared/schema/SampleStatus';
+import { SampleStatusLabels } from 'shared/schema/Sample/SampleStatus';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useFindSamplesQuery } from 'src/services/sample.service';
 

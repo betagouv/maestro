@@ -27,6 +27,7 @@ function AppTextInput<T extends ZodRawShape>(props: AppTextInputProps<T>) {
     inputForm,
     whenValid,
     placeholder,
+    hintText,
     state,
     stateRelatedMessage,
     ...textInputProps
@@ -57,6 +58,7 @@ function AppTextInput<T extends ZodRawShape>(props: AppTextInputProps<T>) {
             ...textInputProps,
             placeholder,
           }}
+          hintText={hintText}
           state={state ?? inputForm.messageType(String(inputKey))}
           stateRelatedMessage={
             stateRelatedMessage ??

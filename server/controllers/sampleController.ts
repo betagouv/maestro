@@ -3,7 +3,10 @@ import { Request, Response } from 'express';
 import { AuthenticatedRequest } from 'express-jwt';
 import { constants } from 'http2';
 import { v4 as uuidv4 } from 'uuid';
-import { CreatedSample, SampleToCreate } from '../../shared/schema/Sample';
+import {
+  CreatedSample,
+  SampleToCreate,
+} from '../../shared/schema/Sample/Sample';
 import sampleRepository from '../repositories/sampleRepository';
 
 const getSample = async (request: Request, response: Response) => {

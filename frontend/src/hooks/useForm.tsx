@@ -44,13 +44,14 @@ export function useForm<
     return 'default';
   }
 
-  const validate = async (onValid?: () => void) => {
+  const validate = async (onValid?: () => Promise<void>) => {
     try {
-      setIsTouched(true);
       await schema.parseAsync(input);
+      await onValid?.();
+      setIsTouched(true);
       setError(undefined);
-      onValid?.();
     } catch (error) {
+      setIsTouched(true);
       setError(error as z.ZodError);
     }
   };

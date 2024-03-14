@@ -2,7 +2,7 @@ import {
   CreatedSample,
   PartialSample,
   Sample,
-} from '../../shared/schema/Sample';
+} from '../../shared/schema/Sample/Sample';
 import db from './db';
 
 export const samplesTable = 'samples';

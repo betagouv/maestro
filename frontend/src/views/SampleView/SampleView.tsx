@@ -1,7 +1,7 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Stepper from '@codegouvfr/react-dsfr/Stepper';
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useGetSampleQuery } from 'src/services/sample.service';
 import SampleFormStep1 from 'src/views/SampleView/SampleFormStep1';
@@ -10,12 +10,14 @@ import SampleFormStep3 from 'src/views/SampleView/SampleFormStep3';
 
 const SampleView = () => {
   useDocumentTitle("Saisie d'un prélèvement");
+
   const { sampleId } = useParams<{ sampleId?: string }>();
 
   const { data: sample } = useGetSampleQuery(sampleId as string, {
     skip: !sampleId,
   });
 
+  const [searchParams, setSearchParams] = useSearchParams();
   const [step, setStep] = useState(1);
 
   const StepTitles = [
@@ -26,13 +28,17 @@ const SampleView = () => {
 
   useEffect(() => {
     if (sample) {
-      if (sample.status === 'Draft') {
-        setStep(2);
+      if (searchParams.get('etape')) {
+        setStep(Number(searchParams.get('etape')));
       } else {
-        setStep(3);
+        if (sample?.status === 'Submitted' || sample?.status === 'Sent') {
+          setStep(3);
+        } else {
+          setStep(2);
+        }
       }
     }
-  }, [sample]);
+  }, [sample, searchParams]);
 
   if (sampleId && !sample) {
     return <></>;
@@ -41,15 +47,25 @@ const SampleView = () => {
   return (
     <section className={cx('fr-py-3w')}>
       <h1>Prélévement {sample?.reference}</h1>
+
       <Stepper
         currentStep={step}
         nextTitle={StepTitles[step]}
         stepCount={3}
         title={StepTitles[step - 1]}
+        className={cx(sample && step > 1 && 'fr-mb-1w')}
       />
-      {step === 1 && <SampleFormStep1 />}
-      {step === 2 && sample && <SampleFormStep2 sample={sample} />}
-      {step === 3 && sample && <SampleFormStep3 sample={sample} />}
+
+      {sample && step > 1 && (
+        <div className={cx('fr-pb-1w', 'fr-text--sm')}>
+          <Link to={`/prelevements/${sample.id}?etape=${step - 1}`}>
+            Retour à l'étape précédente
+          </Link>
+        </div>
+      )}
+      {step === 1 && <SampleFormStep1 partialSample={sample} />}
+      {step === 2 && sample && <SampleFormStep2 partialSample={sample} />}
+      {step === 3 && sample && <SampleFormStep3 partialSample={sample} />}
     </section>
   );
 };

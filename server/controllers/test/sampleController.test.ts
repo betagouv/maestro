@@ -7,7 +7,11 @@ import { Sample1 } from '../../../database/seeds/test/002-samples';
 import { MatrixList } from '../../../shared/foodex2/Matrix';
 import { Samples } from '../../repositories/sampleRepository';
 import { createServer } from '../../server';
-import { genSampleToCreate, oneOf } from '../../test/testFixtures';
+import {
+  genCreatedSample,
+  genSampleToCreate,
+  oneOf,
+} from '../../test/testFixtures';
 import { withAccessToken } from '../../test/testUtils';
 
 const { app } = createServer();
@@ -50,6 +54,7 @@ describe('Sample controller', () => {
       expect(res.body).toMatchObject({
         ...Sample1,
         createdAt: Sample1.createdAt.toISOString(),
+        sampledAt: Sample1.sampledAt.toISOString(),
         expiryDate: Sample1.expiryDate?.toISOString(),
       });
     });
@@ -73,6 +78,7 @@ describe('Sample controller', () => {
         {
           ...Sample1,
           createdAt: Sample1.createdAt.toISOString(),
+          sampledAt: Sample1.sampledAt.toISOString(),
           expiryDate: Sample1.expiryDate?.toISOString(),
         },
       ]);
@@ -107,8 +113,17 @@ describe('Sample controller', () => {
           latitude: undefined,
         },
       });
-      await badRequestTest({ ...genSampleToCreate(), context: undefined });
-      await badRequestTest({ ...genSampleToCreate(), context: '123' });
+      await badRequestTest({
+        ...genSampleToCreate(),
+        sampledAt: undefined,
+      });
+      await badRequestTest({
+        ...genSampleToCreate(),
+        planningContext: undefined,
+      });
+      await badRequestTest({ ...genSampleToCreate(), planningContext: '123' });
+      await badRequestTest({ ...genSampleToCreate(), legalContext: undefined });
+      await badRequestTest({ ...genSampleToCreate(), legalContext: '123' });
       await badRequestTest({ ...genSampleToCreate(), department: undefined });
       await badRequestTest({ ...genSampleToCreate(), department: '123' });
       await badRequestTest({ ...genSampleToCreate(), department: '' });
@@ -127,6 +142,7 @@ describe('Sample controller', () => {
           id: expect.any(String),
           createdAt: expect.any(String),
           createdBy: User1.id,
+          sampledAt: sample.sampledAt.toISOString(),
           reference: expect.stringMatching(/^GES-[0-9]{2}-2024-1$/),
           status: 'Draft',
         })
@@ -160,7 +176,7 @@ describe('Sample controller', () => {
       await withAccessToken(
         request(app)
           .put(`${testRoute(uuidv4())}`)
-          .send({}),
+          .send(genCreatedSample(User1.id)),
         User1
       ).expect(constants.HTTP_STATUS_NOT_FOUND);
     });
@@ -169,7 +185,7 @@ describe('Sample controller', () => {
       await withAccessToken(
         request(app)
           .put(`${testRoute(Sample1.id)}`)
-          .send({}),
+          .send(Sample1),
         User2
       ).expect(constants.HTTP_STATUS_FORBIDDEN);
     });
@@ -187,6 +203,7 @@ describe('Sample controller', () => {
     });
 
     const validBody = {
+      ...Sample1,
       matrix: oneOf(MatrixList),
     };
 
@@ -201,6 +218,7 @@ describe('Sample controller', () => {
       expect(res.body).toMatchObject({
         ...Sample1,
         createdAt: Sample1.createdAt.toISOString(),
+        sampledAt: Sample1.sampledAt.toISOString(),
         expiryDate: Sample1.expiryDate?.toISOString(),
         matrix: validBody.matrix,
       });

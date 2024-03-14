@@ -4,12 +4,12 @@ import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import { format, parse } from 'date-fns';
 import { useState } from 'react';
 import { MatrixList, MatrixPartList } from 'shared/foodex2/Matrix';
-import { PartialSample, SampleUpdate } from 'shared/schema/Sample';
-import { SampleStage, SampleStageList } from 'shared/schema/SampleStage';
+import { PartialSample, Sample } from 'shared/schema/Sample/Sample';
+import { SampleStage, SampleStageList } from 'shared/schema/Sample/SampleStage';
 import {
   SampleStorageCondition,
   SampleStorageConditionList,
-} from 'shared/schema/SampleStorageCondition';
+} from 'shared/schema/Sample/SampleStorageCondition';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
@@ -17,36 +17,58 @@ import { useForm } from 'src/hooks/useForm';
 import { useUpdateSampleMutation } from 'src/services/sample.service';
 
 interface Props {
-  sample: PartialSample;
+  partialSample: PartialSample;
 }
 
-const SampleFormStep2 = ({ sample }: Props) => {
-  const [matrixKind, setMatrixKind] = useState(sample.matrixKind);
-  const [matrix, setMatrix] = useState(sample.matrix);
-  const [matrixPart, setMatrixPart] = useState(sample.matrixPart);
-  const [stage, setStage] = useState(sample.stage);
-  const [quantity, setQuantity] = useState(sample.quantity);
-  const [quantityUnit, setQuantityUnit] = useState(sample.quantityUnit);
-  const [cultureKind, setCultureKind] = useState(sample.cultureKind);
+const SampleFormStep2 = ({ partialSample }: Props) => {
+  const [matrixKind, setMatrixKind] = useState(partialSample.matrixKind);
+  const [matrix, setMatrix] = useState(partialSample.matrix);
+  const [matrixPart, setMatrixPart] = useState(partialSample.matrixPart);
+  const [stage, setStage] = useState(partialSample.stage);
+  const [quantity, setQuantity] = useState(partialSample.quantity);
+  const [quantityUnit, setQuantityUnit] = useState(partialSample.quantityUnit);
+  const [cultureKind, setCultureKind] = useState(partialSample.cultureKind);
   const [compliance200263, setCompliance200263] = useState(
-    sample.compliance200263
+    partialSample.compliance200263
   );
   const [storageCondition, setStorageCondition] = useState(
-    sample.storageCondition
+    partialSample.storageCondition
   );
-  const [pooling, setPooling] = useState(sample.pooling);
-  const [releaseControl, setReleaseControl] = useState(sample.releaseControl);
-  const [sampleCount, setSampleCount] = useState(sample.sampleCount);
+  const [pooling, setPooling] = useState(partialSample.pooling);
+  const [releaseControl, setReleaseControl] = useState(
+    partialSample.releaseControl
+  );
+  const [sampleCount, setSampleCount] = useState(partialSample.sampleCount);
   const [temperatureMaintenance, setTemperatureMaintenance] = useState(
-    sample.temperatureMaintenance
+    partialSample.temperatureMaintenance
   );
-  const [expiryDate, setExpiryDate] = useState(sample.expiryDate);
-  const [locationSiret, setLocationSiret] = useState(sample.locationSiret);
-  const [sealId, setSealId] = useState(sample.sealId);
+  const [expiryDate, setExpiryDate] = useState(partialSample.expiryDate);
+  const [locationSiret, setLocationSiret] = useState(
+    partialSample.locationSiret
+  );
+  const [sealId, setSealId] = useState(partialSample.sealId);
 
   const [updateSample] = useUpdateSampleMutation();
 
-  const Form = SampleUpdate;
+  const Form = Sample.pick({
+    matrixKind: true,
+    matrix: true,
+    matrixPart: true,
+    stage: true,
+    quantity: true,
+    quantityUnit: true,
+    cultureKind: true,
+    compliance200263: true,
+    storageCondition: true,
+    pooling: true,
+    releaseControl: true,
+    sampleCount: true,
+    temperatureMaintenance: true,
+    expiryDate: true,
+    locationSiret: true,
+    sealId: true,
+    status: true,
+  });
 
   const form = useForm(Form, {
     matrixKind,
@@ -65,41 +87,38 @@ const SampleFormStep2 = ({ sample }: Props) => {
     expiryDate,
     locationSiret,
     sealId,
-    status: sample.status,
+    status: partialSample.status,
   });
 
   type FormShape = typeof Form.shape;
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
-    await form.validate();
-    if (form.isValid()) {
+    await form.validate(async () => {
       await save(true);
-    }
+    });
   };
 
   const save = async (isSubmitted: boolean) => {
     await updateSample({
-      sampleId: sample.id,
-      sampleUpdate: {
-        matrixKind,
-        matrix,
-        matrixPart,
-        stage,
-        quantity,
-        quantityUnit,
-        cultureKind,
-        compliance200263,
-        storageCondition,
-        pooling,
-        releaseControl,
-        sampleCount,
-        temperatureMaintenance,
-        expiryDate,
-        locationSiret,
-        sealId,
-        status: isSubmitted ? 'Submitted' : sample.status,
-      },
+      ...partialSample,
+      matrixKind,
+      matrix,
+      matrixPart,
+      stage,
+      quantity,
+      quantityUnit,
+      cultureKind,
+      compliance200263,
+      storageCondition,
+      pooling,
+      releaseControl,
+      sampleCount,
+      temperatureMaintenance,
+      expiryDate,
+      locationSiret,
+      sealId,
+      status: isSubmitted ? 'Submitted' : partialSample.status,
     });
   };
 
@@ -295,6 +314,7 @@ const SampleFormStep2 = ({ sample }: Props) => {
             whenValid="SIRET valide"
             data-testid="locationSiret-input"
             label="SIRET (obligatoire)"
+            hintText="Format 12345678901234"
             required
           />
         </div>

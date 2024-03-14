@@ -1,6 +1,7 @@
 import { z } from 'zod';
-import { Department } from './Department';
-import { SampleContext } from './SampleContext';
+import { Department } from '../Department';
+import { SampleLegalContext } from './SampleLegalContext';
+import { SamplePlanningContext } from './SamplePlanningContext';
 import { SampleStage } from './SampleStage';
 import { SampleStatus } from './SampleStatus';
 import { SampleStorageCondition } from './SampleStorageCondition';
@@ -29,8 +30,14 @@ export const Sample = z.object({
     ),
   createdAt: z.coerce.date(),
   createdBy: z.string(),
+  sampledAt: z.coerce.date({
+    errorMap: (error) => ({
+      message: 'La date de prélèvement est invalide.',
+    }),
+  }),
   status: SampleStatus,
-  context: SampleContext,
+  planningContext: SamplePlanningContext,
+  legalContext: SampleLegalContext,
   userLocation: UserLocation,
   locationSiret: z
     .string({
@@ -72,8 +79,10 @@ export const Sample = z.object({
 
 export const SampleToCreate = Sample.pick({
   userLocation: true,
+  sampledAt: true,
   resytalId: true,
-  context: true,
+  planningContext: true,
+  legalContext: true,
   department: true,
 });
 
@@ -89,32 +98,8 @@ export const CreatedSample = SampleToCreate.merge(
 
 export const PartialSample = Sample.partial().merge(CreatedSample);
 
-export const SampleUpdate = Sample.pick({
-  matrixKind: true,
-  matrix: true,
-  matrixPart: true,
-  stage: true,
-  quantity: true,
-  quantityUnit: true,
-  cultureKind: true,
-  compliance200263: true,
-  storageCondition: true,
-  pooling: true,
-  releaseControl: true,
-  sampleCount: true,
-  temperatureMaintenance: true,
-  expiryDate: true,
-  locationSiret: true,
-  sealId: true,
-  status: true,
-});
-
-export const PartialSampleUpdate = SampleUpdate.partial();
-
 export type UserLocation = z.infer<typeof UserLocation>;
 export type Sample = z.infer<typeof Sample>;
 export type SampleToCreate = z.infer<typeof SampleToCreate>;
 export type CreatedSample = z.infer<typeof CreatedSample>;
 export type PartialSample = z.infer<typeof PartialSample>;
-export type SampleUpdate = z.infer<typeof SampleUpdate>;
-export type PartialSampleUpdate = z.infer<typeof PartialSampleUpdate>;
