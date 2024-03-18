@@ -17,7 +17,7 @@ const SampleView = () => {
     skip: !sampleId,
   });
 
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [step, setStep] = useState(1);
 
   const StepTitles = [

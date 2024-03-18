@@ -1,13 +1,10 @@
 import { render, screen } from '@testing-library/react';
-import { userEvent } from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { store } from 'src/store/store';
 import SampleView from 'src/views/SampleView/SampleView';
 
 describe('SampleView', () => {
-  const user = userEvent.setup();
-
   test('should render the first step', () => {
     render(
       <Provider store={store}>

@@ -1,3 +1,4 @@
+import { fr } from '@codegouvfr/react-dsfr';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { format, parse } from 'date-fns';
@@ -47,8 +48,10 @@ const SampleFormStep1 = ({ partialSample }: Props) => {
   const [userLocationY, setUserLocationY] = useState(
     partialSample?.userLocation.y
   );
+  const [isUserLocationFromGeolocation, setIsUserLocationFromGeolocation] =
+    useState(false);
   const [sampledAt, setSampledAt] = useState(
-    partialSample?.sampledAt ?? new Date()
+    format(partialSample?.sampledAt ?? new Date(), 'yyyy-MM-dd')
   );
   const [department, setDepartment] = useState(partialSample?.department);
 
@@ -105,7 +108,7 @@ const SampleFormStep1 = ({ partialSample }: Props) => {
               x: userLocationX as number,
               y: userLocationY as number,
             },
-            sampledAt: sampledAt as Date,
+            sampledAt: parse(sampledAt, 'yyyy-MM-dd', new Date()),
             resytalId: resytalId as string,
             planningContext: planningContext as SamplePlanningContext,
             legalContext: legalContext as SampleLegalContext,
@@ -116,7 +119,7 @@ const SampleFormStep1 = ({ partialSample }: Props) => {
               x: userLocationX as number,
               y: userLocationY as number,
             },
-            sampledAt: sampledAt as Date,
+            sampledAt: parse(sampledAt, 'yyyy-MM-dd', new Date()),
             resytalId: resytalId as string,
             planningContext: planningContext as SamplePlanningContext,
             legalContext: legalContext as SampleLegalContext,
@@ -138,21 +141,31 @@ const SampleFormStep1 = ({ partialSample }: Props) => {
       navigator.geolocation.getCurrentPosition((position) => {
         setUserLocationX(position.coords.latitude);
         setUserLocationY(position.coords.longitude);
+        setIsUserLocationFromGeolocation(true);
       });
-      //TODO how to force input updates
+    } else {
+      setIsUserLocationFromGeolocation(false);
     }
   }, []);
 
   return (
     <form data-testid="draft_sample_1_form">
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+      <div
+        className={cx(
+          'fr-grid-row',
+          'fr-grid-row--gutters',
+          'fr-pb-1w',
+          'fr-mb-2w'
+        )}
+        style={{
+          backgroundColor: fr.colors.decisions.background.disabled.grey.default,
+        }}
+      >
         <div className={cx('fr-col-12', 'fr-col-sm-4')}>
           <AppTextInput<FormShape>
             type="date"
-            defaultValue={format(sampledAt, 'yyyy-MM-dd')}
-            onChange={(e) =>
-              setSampledAt(parse(e.target.value, 'yyyy-MM-dd', new Date()))
-            }
+            defaultValue={sampledAt}
+            onChange={(e) => setSampledAt(e.target.value)}
             inputForm={form}
             inputKey="sampledAt"
             whenValid="Date de prélèvement correctement renseignée."
@@ -161,34 +174,46 @@ const SampleFormStep1 = ({ partialSample }: Props) => {
             required
           />
         </div>
-        <div className={cx('fr-col-6', 'fr-col-sm-2')}>
+        <div className={cx('fr-col-5', 'fr-col-sm-2')}>
           <AppTextInput<FormShape>
             type="text"
-            defaultValue={userLocationX ?? ''}
+            value={userLocationX ?? ''}
             onChange={(e) => setUserLocationX(parseFloat(e.target.value))}
             inputForm={form}
             inputKey="userLocationX"
             whenValid="Latitude correctement renseignée."
             data-testid="userLocationX-input"
-            label="Latitude (Obligatoire)"
+            label="Latitude (obligatoire)"
             required
           />
         </div>
-        <div className={cx('fr-col-6', 'fr-col-sm-2')}>
+        <div className={cx('fr-col-5', 'fr-col-sm-2')}>
           <AppTextInput<FormShape>
             type="text"
-            defaultValue={userLocationY ?? ''}
+            value={userLocationY ?? ''}
             onChange={(e) => setUserLocationY(parseFloat(e.target.value))}
             inputForm={form}
             inputKey="userLocationY"
             whenValid="Longitude correctement renseignée."
             data-testid="userLocationY-input"
-            label="Longitude (Obligatoire)"
+            label="Longitude (obligatoire)"
             required
           />
         </div>
+        {!isUserLocationFromGeolocation && (
+          <div className={cx('fr-col-12', 'fr-col-sm-4', 'fr-hint-text')}>
+            <span
+              className={cx(
+                'fr-icon--sm',
+                'fr-icon-information-fill',
+                'fr-mr-1w'
+              )}
+            />
+            Pour pouvoir renseigner automatiquement la latitude et la longitude,
+            veuillez autoriser le navigateur à accéder à votre position.
+          </div>
+        )}
       </div>
-      <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12', 'fr-col-sm-4')}>
           <AppSelect<FormShape>

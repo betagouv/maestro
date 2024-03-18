@@ -1,5 +1,6 @@
 import { act, render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
+import { format, startOfDay } from 'date-fns';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { store } from 'src/store/store';
@@ -24,12 +25,29 @@ describe('SampleFormStep1', () => {
     );
 
     expect(screen.getByTestId('draft_sample_1_form')).toBeInTheDocument();
+    expect(screen.getAllByTestId('sampledAt-input')).toHaveLength(2);
+    expect(screen.getAllByTestId('userLocationX-input')).toHaveLength(2);
+    expect(screen.getAllByTestId('userLocationY-input')).toHaveLength(2);
     expect(screen.getAllByTestId('department-select')).toHaveLength(2);
     expect(screen.getAllByTestId('resytalId-input')).toHaveLength(2);
     expect(screen.getAllByTestId('planning-context-select')).toHaveLength(2);
     expect(screen.getAllByTestId('legal-context-select')).toHaveLength(2);
 
     expect(screen.getByTestId('submit-button')).toBeInTheDocument();
+  });
+
+  test('should set inputs with default values', () => {
+    render(
+      <Provider store={store}>
+        <BrowserRouter>
+          <SampleFormStep1 />
+        </BrowserRouter>
+      </Provider>
+    );
+
+    expect(
+      screen.getByDisplayValue(format(new Date(), 'yyyy-MM-dd'))
+    ).toBeInTheDocument();
   });
 
   test('should handle errors on submitting', async () => {
@@ -45,6 +63,12 @@ describe('SampleFormStep1', () => {
     await act(async () => {
       await user.click(screen.getByTestId('submit-button'));
     });
+    expect(
+      screen.getByText('Veuillez renseigner la latitude.')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Veuillez renseigner la longitude.')
+    ).toBeInTheDocument();
     expect(
       screen.getByText('Veuillez renseigner le département.')
     ).toBeInTheDocument();
@@ -123,6 +147,7 @@ describe('SampleFormStep1', () => {
       url: `${config.apiEndpoint}/api/samples`,
       method: 'POST',
       body: {
+        sampledAt: startOfDay(new Date()).toISOString(),
         department: '08',
         resytalId: '22123456',
         planningContext: 'Surveillance',

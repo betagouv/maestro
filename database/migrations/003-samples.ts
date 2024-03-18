@@ -33,6 +33,7 @@ exports.up = async (knex: Knex) => {
     table.boolean('temperature_maintenance');
     table.datetime('expiry_date');
     table.integer('seal_id');
+    table.text('comment');
   });
   await knex.raw(`CREATE SEQUENCE samples_serial;`);
 };

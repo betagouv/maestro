@@ -31,7 +31,7 @@ export const Sample = z.object({
   createdAt: z.coerce.date(),
   createdBy: z.string(),
   sampledAt: z.coerce.date({
-    errorMap: (error) => ({
+    errorMap: () => ({
       message: 'La date de prélèvement est invalide.',
     }),
   }),
@@ -44,7 +44,9 @@ export const Sample = z.object({
       required_error: 'Veuillez renseigner le SIRET du lieu de prélèvement.',
     })
     .regex(/^[0-9]{14}$/g, 'SIRET invalide.'),
-  locationName: z.string().optional().nullable(),
+  locationName: z.string({
+    required_error: 'Veuillez renseigner le nom du lieu de prélèvement.',
+  }),
   locationAddress: z.string().optional().nullable(),
   matrixKind: z.string({
     required_error: 'Veuillez renseigner la catégorie de matrice.',
@@ -56,9 +58,11 @@ export const Sample = z.object({
     required_error: 'Veuillez renseigner la partie du végétal.',
   }),
   stage: SampleStage,
-  quantity: z.number({
-    required_error: 'Veuillez renseigner la quantité.',
-  }),
+  quantity: z
+    .number({
+      required_error: 'Veuillez renseigner la quantité.',
+    })
+    .nonnegative('La quantité doit être positive.'),
   quantityUnit: z.string({
     required_error: 'Veuillez renseigner l’unité de quantité.',
   }),
@@ -67,14 +71,18 @@ export const Sample = z.object({
   storageCondition: SampleStorageCondition.optional().nullable(),
   pooling: z.boolean().optional().nullable(),
   releaseControl: z.boolean().optional().nullable(),
-  sampleCount: z.number({
-    required_error: 'Veuillez renseigner le nombre de prélèvements.',
-  }),
+  sampleCount: z
+    .number({
+      required_error: 'Veuillez renseigner le nombre de prélèvements.',
+    })
+    .nonnegative('Le nombre de prélèvements doit être positif.'),
   temperatureMaintenance: z.boolean().optional().nullable(),
   expiryDate: z.coerce.date().optional().nullable(),
-  sealId: z.number({
+  sealId: z.coerce.number({
     required_error: 'Veuillez renseigner le numéro de scellé.',
+    invalid_type_error: 'Le numéro de scellé doit être un nombre.',
   }),
+  comment: z.string().optional().nullable(),
 });
 
 export const SampleToCreate = Sample.pick({

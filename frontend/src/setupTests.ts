@@ -7,7 +7,7 @@ import { enableFetchMocks } from 'jest-fetch-mock';
 
 enableFetchMocks();
 
-const mockGeolocation = {
+export const mockGeolocation = {
   getCurrentPosition: jest.fn(),
 };
 

@@ -22,10 +22,18 @@ const SampleListView = () => {
       {samples && samples.length > 0 && (
         <Table
           noCaption
-          headers={['Identifiant', 'Date de création', 'Statut']}
+          headers={[
+            'Identifiant',
+            'Date de création',
+            'Département',
+            "Site d'intervention",
+            'Statut',
+          ]}
           data={samples.map((sample) => [
             <Link to={`/prelevements/${sample.id}`}>{sample.reference}</Link>,
             format(sample.createdAt, 'dd/MM/yyyy'),
+            sample.department,
+            sample.locationName,
             SampleStatusLabels[sample.status],
           ])}
         />

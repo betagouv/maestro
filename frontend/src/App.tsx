@@ -6,6 +6,7 @@ import { Link, Navigate, Route, Routes } from 'react-router-dom';
 import FetchInterceptor from 'src/components/FetchInterceptor/FetchInterceptor';
 import Footer from 'src/components/Footer/Footer';
 import Header from 'src/components/Header/Header';
+import ScrollToTop from 'src/components/ScrollToTop/ScrollToTop';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppSelector } from 'src/hooks/useStore';
 import './App.scss';
@@ -22,6 +23,7 @@ function AppWrapper() {
 
   return (
     <Provider store={store}>
+      <ScrollToTop />
       <App />
     </Provider>
   );

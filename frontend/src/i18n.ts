@@ -7,6 +7,8 @@ i18n.use(initReactI18next).init({
   resources: {
     fr: {
       translation: {
+        boolean_zero: 'Non',
+        boolean_one: 'Oui',
         sample_zero: 'Aucun prélèvement',
         sample_one: 'Un prélèvement',
         sample_other: '{{count}} prélèvements',
