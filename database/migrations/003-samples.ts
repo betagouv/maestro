@@ -11,6 +11,7 @@ exports.up = async (knex: Knex) => {
       .defaultTo(knex.raw('current_timestamp'));
     table.uuid('created_by').references('id').inTable('users');
     table.specificType('sampled_at', 'timestamptz').notNullable();
+    table.specificType('sent_at', 'timestamptz');
     table.string('status').notNullable();
     table.string('planning_context').notNullable();
     table.string('legal_context').notNullable();

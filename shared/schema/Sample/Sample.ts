@@ -35,6 +35,7 @@ export const Sample = z.object({
       message: 'La date de prélèvement est invalide.',
     }),
   }),
+  sentAt: z.coerce.date().optional().nullable(),
   status: SampleStatus,
   planningContext: SamplePlanningContext,
   legalContext: SampleLegalContext,

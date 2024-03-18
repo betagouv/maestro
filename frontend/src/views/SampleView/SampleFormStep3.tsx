@@ -1,21 +1,36 @@
+import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { format } from 'date-fns';
 import { t } from 'i18next';
 import { DepartmentLabels } from 'shared/schema/Department';
 import { PartialSample } from 'shared/schema/Sample/Sample';
+import { useUpdateSampleMutation } from 'src/services/sample.service';
 
 interface Props {
   partialSample: PartialSample;
 }
 
 const SampleFormStep3 = ({ partialSample }: Props) => {
+  const [updateSample, { isSuccess: isUpdateSuccess }] =
+    useUpdateSampleMutation();
+
+  const submit = async () => {
+    await updateSample({
+      ...partialSample,
+      status: 'Sent',
+      sentAt: new Date(),
+    });
+  };
+
   return (
     <div>
-      <p>
-        Vérifiez que les informations saisies sont correctes avant de valider
-        l'envoi de votre prélèvement.
-      </p>
+      {partialSample.status !== 'Sent' && (
+        <p>
+          Vérifiez que les informations saisies sont correctes avant de valider
+          l'envoi de votre prélèvement.
+        </p>
+      )}
       <ul>
         <li>
           <strong>Date de prélèvement :</strong>
@@ -110,7 +125,21 @@ const SampleFormStep3 = ({ partialSample }: Props) => {
           <strong>Commentaire :</strong> {partialSample.comment}
         </li>
       </ul>
-      <Button children="Envoyer le prélèvement" />
+      {isUpdateSuccess && (
+        <Alert severity="success" title="Le prélèvement a bien été envoyé." />
+      )}
+      {partialSample.status !== 'Sent' ? (
+        <Button children="Envoyer le prélèvement" onClick={submit} />
+      ) : (
+        <Alert
+          severity="info"
+          title={`Le prélevement a été envoyé ${
+            partialSample.sentAt
+              ? 'le' + format(partialSample.sentAt, 'dd/MM/yyyy')
+              : ''
+          }`}
+        />
+      )}
     </div>
   );
 };

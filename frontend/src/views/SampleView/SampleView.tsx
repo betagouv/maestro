@@ -48,20 +48,24 @@ const SampleView = () => {
     <section className={cx('fr-py-3w')}>
       <h1>Prélévement {sample?.reference}</h1>
 
-      <Stepper
-        currentStep={step}
-        nextTitle={StepTitles[step]}
-        stepCount={3}
-        title={StepTitles[step - 1]}
-        className={cx(sample && step > 1 && 'fr-mb-1w')}
-      />
+      {sample?.status !== 'Sent' && (
+        <>
+          <Stepper
+            currentStep={step}
+            nextTitle={StepTitles[step]}
+            stepCount={3}
+            title={StepTitles[step - 1]}
+            className={cx(sample && step > 1 && 'fr-mb-1w')}
+          />
 
-      {sample && step > 1 && (
-        <div className={cx('fr-pb-1w', 'fr-text--sm')}>
-          <Link to={`/prelevements/${sample.id}?etape=${step - 1}`}>
-            Retour à l'étape précédente
-          </Link>
-        </div>
+          {sample && step > 1 && (
+            <div className={cx('fr-pb-1w', 'fr-text--sm')}>
+              <Link to={`/prelevements/${sample.id}?etape=${step - 1}`}>
+                Retour à l'étape précédente
+              </Link>
+            </div>
+          )}
+        </>
       )}
       {step === 1 && <SampleFormStep1 partialSample={sample} />}
       {step === 2 && sample && <SampleFormStep2 partialSample={sample} />}
