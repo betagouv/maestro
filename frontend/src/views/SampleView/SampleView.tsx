@@ -4,18 +4,22 @@ import { useEffect, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useGetSampleQuery } from 'src/services/sample.service';
-import SampleFormStep1 from 'src/views/SampleView/SampleFormStep1';
-import SampleFormStep2 from 'src/views/SampleView/SampleFormStep2';
-import SampleFormStep3 from 'src/views/SampleView/SampleFormStep3';
+import SampleStep1 from 'src/views/SampleView/SampleStep1';
+import SampleStep2 from 'src/views/SampleView/SampleStep2';
+import SampleStep3 from 'src/views/SampleView/SampleStep3';
 
 const SampleView = () => {
   useDocumentTitle("Saisie d'un prélèvement");
 
   const { sampleId } = useParams<{ sampleId?: string }>();
 
+  console.log('sampleId', sampleId);
+
   const { data: sample } = useGetSampleQuery(sampleId as string, {
     skip: !sampleId,
   });
+
+  console.log('sample', sample);
 
   const [searchParams] = useSearchParams();
   const [step, setStep] = useState(1);
@@ -67,9 +71,9 @@ const SampleView = () => {
           )}
         </>
       )}
-      {step === 1 && <SampleFormStep1 partialSample={sample} />}
-      {step === 2 && sample && <SampleFormStep2 partialSample={sample} />}
-      {step === 3 && sample && <SampleFormStep3 partialSample={sample} />}
+      {step === 1 && <SampleStep1 partialSample={sample} />}
+      {step === 2 && sample && <SampleStep2 partialSample={sample} />}
+      {step === 3 && sample && <SampleStep3 partialSample={sample} />}
     </section>
   );
 };

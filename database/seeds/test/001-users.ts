@@ -2,10 +2,17 @@ import bcrypt from 'bcryptjs';
 import { Knex } from 'knex';
 import { UserApi } from '../../../server/models/UserApi';
 import { usersTable } from '../../../server/repositories/userRepository';
-import { genUserApi } from '../../../server/test/testFixtures';
 
-export const User1: UserApi = genUserApi();
-export const User2: UserApi = genUserApi();
+export const User1: UserApi = {
+  id: 'a3b3b3e3-3b3b-3b3b-3b3b-3b3b3b3b3b3b',
+  email: 'user1@mail.fr',
+  password: 'User1Valid',
+};
+export const User2: UserApi = {
+  id: 'b3b3b3e3-3b3b-3b3b-3b3b-3b3b3b3b3b3b',
+  email: 'user2@mail.fr',
+  password: 'User2Valid',
+};
 
 exports.seed = async function (knex: Knex) {
   const hash1 = await bcrypt.hash(User1.password, 10);

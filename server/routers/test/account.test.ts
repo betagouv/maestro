@@ -3,12 +3,13 @@ import randomstring from 'randomstring';
 import request from 'supertest';
 import { User1 } from '../../../database/seeds/test/001-users';
 import { createServer } from '../../server';
-import { genEmail, genValidPassword } from '../../test/testFixtures';
+import { genEmail, genValidPassword } from '../../../shared/test/testFixtures';
 
 const { app } = createServer();
 
-describe('Account controller', () => {
-  describe('Sign in', () => {
+describe('Account routes', () => {
+
+  describe('POST /accounts/sign-in', () => {
     const testRoute = '/api/accounts/sign-in';
 
     it('should receive valid email and password', async () => {

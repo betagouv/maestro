@@ -76,6 +76,10 @@ const updateSample = async (request: Request, response: Response) => {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
   }
 
+  if (sample.status === 'Sent') {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
+
   const updatedSample = {
     ...sample,
     ...sampleUpdate,

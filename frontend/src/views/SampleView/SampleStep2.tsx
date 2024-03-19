@@ -22,7 +22,7 @@ interface Props {
   partialSample: PartialSample;
 }
 
-const SampleFormStep2 = ({ partialSample }: Props) => {
+const SampleStep2 = ({ partialSample }: Props) => {
   const navigate = useNavigate();
 
   const [matrixKind, setMatrixKind] = useState(partialSample.matrixKind);
@@ -349,10 +349,10 @@ const SampleFormStep2 = ({ partialSample }: Props) => {
               onChange={(e) => setLocationName(e.target.value)}
               inputForm={form}
               inputKey="locationName"
-              whenValid="Site d'intervention correctement renseigné."
+              whenValid="Nom du lieu de prélèvement correctement renseigné."
               data-testid="location-name-input"
               hintText="Sera alimenté automatiquement avec le SIRET."
-              label="Site d'intervention (obligatoire)"
+              label="Nom du lieu de prélèvement (obligatoire)"
               required
             />
           </div>
@@ -400,10 +400,16 @@ const SampleFormStep2 = ({ partialSample }: Props) => {
                 onClick: () => save(false),
                 priority: 'secondary',
                 type: 'button',
+                nativeButtonProps: {
+                  'data-testid': 'save-button',
+                },
               },
               {
                 children: 'Valider le prélèvement',
                 onClick: submit,
+                nativeButtonProps: {
+                  'data-testid': 'submit-button',
+                },
               },
             ]}
           />
@@ -413,4 +419,4 @@ const SampleFormStep2 = ({ partialSample }: Props) => {
   );
 };
 
-export default SampleFormStep2;
+export default SampleStep2;

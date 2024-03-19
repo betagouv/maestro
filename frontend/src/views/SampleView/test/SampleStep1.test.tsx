@@ -3,10 +3,10 @@ import { userEvent } from '@testing-library/user-event';
 import { format, startOfDay } from 'date-fns';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
+import { genCoords } from 'shared/test/testFixtures';
 import { store } from 'src/store/store';
 import config from 'src/utils/config';
-import SampleFormStep1 from 'src/views/SampleView/SampleFormStep1';
-import { genCoords } from '../../../../test/fixtures.test';
+import SampleStep1 from 'src/views/SampleView/SampleStep1';
 import {
   getRequestCalls,
   mockRequests,
@@ -15,11 +15,11 @@ import {
 describe('SampleFormStep1', () => {
   const user = userEvent.setup();
 
-  test('should display form', () => {
+  test('should render form successfully', () => {
     render(
       <Provider store={store}>
         <BrowserRouter>
-          <SampleFormStep1 />
+          <SampleStep1 />
         </BrowserRouter>
       </Provider>
     );
@@ -40,7 +40,7 @@ describe('SampleFormStep1', () => {
     render(
       <Provider store={store}>
         <BrowserRouter>
-          <SampleFormStep1 />
+          <SampleStep1 />
         </BrowserRouter>
       </Provider>
     );
@@ -54,7 +54,7 @@ describe('SampleFormStep1', () => {
     render(
       <Provider store={store}>
         <BrowserRouter>
-          <SampleFormStep1 />
+          <SampleStep1 />
         </BrowserRouter>
       </Provider>
     );
@@ -103,7 +103,7 @@ describe('SampleFormStep1', () => {
     render(
       <Provider store={store}>
         <BrowserRouter>
-          <SampleFormStep1 />
+          <SampleStep1 />
         </BrowserRouter>
       </Provider>
     );
@@ -141,9 +141,10 @@ describe('SampleFormStep1', () => {
       screen.queryByText('Veuillez renseigner le cadre juridique.')
     ).not.toBeInTheDocument();
 
-    const requests = await getRequestCalls(fetchMock);
+    const calls = await getRequestCalls(fetchMock);
+    expect(calls).toHaveLength(1);
 
-    expect(requests).toContainEqual({
+    expect(calls).toContainEqual({
       url: `${config.apiEndpoint}/api/samples`,
       method: 'POST',
       body: {

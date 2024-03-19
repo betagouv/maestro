@@ -34,7 +34,7 @@ interface Props {
   partialSample?: PartialSample;
 }
 
-const SampleFormStep1 = ({ partialSample }: Props) => {
+const SampleStep1 = ({ partialSample }: Props) => {
   const navigate = useNavigate();
 
   const [resytalId, setResytalId] = useState(partialSample?.resytalId);
@@ -295,4 +295,4 @@ const SampleFormStep1 = ({ partialSample }: Props) => {
   );
 };
 
-export default SampleFormStep1;
+export default SampleStep1;

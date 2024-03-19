@@ -5,7 +5,7 @@ import {
 } from '../../shared/schema/Sample/Sample';
 import db from './db';
 
-export const samplesTable = 'samples';
+const samplesTable = 'samples';
 const samplesSerial = 'samples_serial';
 
 export const Samples = () => db<Sample>(samplesTable);
@@ -27,13 +27,7 @@ const getSerial = async (): Promise<number> => {
 
 const insert = async (createdSample: CreatedSample): Promise<void> => {
   console.info('Insert sample', createdSample.id);
-  await Samples().insert({
-    ...createdSample,
-    userLocation: db.raw('Point(?, ?)', [
-      createdSample.userLocation.x,
-      createdSample.userLocation.y,
-    ]),
-  });
+  await Samples().insert(formatPartialSample(createdSample));
 };
 
 const update = async (partialSample: PartialSample): Promise<void> => {
@@ -41,15 +35,17 @@ const update = async (partialSample: PartialSample): Promise<void> => {
   if (Object.keys(partialSample).length > 0) {
     await Samples()
       .where({ id: partialSample.id })
-      .update({
-        ...partialSample,
-        userLocation: db.raw('Point(?, ?)', [
-          partialSample.userLocation.x,
-          partialSample.userLocation.y,
-        ]),
-      });
+      .update(formatPartialSample(partialSample));
   }
 };
+
+export const formatPartialSample = (partialSample: PartialSample) => ({
+  ...partialSample,
+  userLocation: db.raw('Point(?, ?)', [
+    partialSample.userLocation.x,
+    partialSample.userLocation.y,
+  ]),
+});
 
 export default {
   insert,

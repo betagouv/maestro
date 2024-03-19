@@ -1,17 +1,12 @@
 import randomstring from 'randomstring';
 import { v4 as uuidv4 } from 'uuid';
-import { DepartmentList } from '../../shared/schema/Department';
-import {
-  CreatedSample,
-  Sample,
-  SampleToCreate,
-} from '../../shared/schema/Sample/Sample';
-import { SampleLegalContextList } from '../../shared/schema/Sample/SampleLegalContext';
-import { SamplePlanningContextList } from '../../shared/schema/Sample/SamplePlanningContext';
-import { SampleStageList } from '../../shared/schema/Sample/SampleStage';
-import { SampleStatusList } from '../../shared/schema/Sample/SampleStatus';
-import { SampleStorageConditionList } from '../../shared/schema/Sample/SampleStorageCondition';
-import { UserApi } from '../models/UserApi';
+import { UserApi } from '../../server/models/UserApi';
+import { DepartmentList } from '../schema/Department';
+import { CreatedSample, Sample, SampleToCreate } from '../schema/Sample/Sample';
+import { SampleLegalContextList } from '../schema/Sample/SampleLegalContext';
+import { SamplePlanningContextList } from '../schema/Sample/SamplePlanningContext';
+import { SampleStageList } from '../schema/Sample/SampleStage';
+import { SampleStorageConditionList } from '../schema/Sample/SampleStorageCondition';
 
 export const genEmail = () => {
   return (
@@ -43,7 +38,11 @@ export const genNumber = (length = 10) => {
 
 export const genBoolean = () => Math.random() < 0.5;
 
-export const genSiret = () => genNumber(14);
+export const genSiret = () =>
+  randomstring.generate({
+    length: 14,
+    charset: '123456789',
+  });
 
 export function oneOf<T>(array: Array<T>): T {
   return array[Math.floor(Math.random() * array.length)];
@@ -63,7 +62,12 @@ export const genSampleToCreate = (): SampleToCreate => ({
     y: 2.3522,
   },
   sampledAt: new Date(),
-  resytalId: '22' + genNumber(6),
+  resytalId:
+    '22' +
+    randomstring.generate({
+      length: 6,
+      charset: '123456789',
+    }),
   planningContext: oneOf(SamplePlanningContextList),
   legalContext: oneOf(SampleLegalContextList),
   department: oneOf(DepartmentList),
@@ -74,7 +78,7 @@ export const genCreatedSample = (userId?: string): CreatedSample => ({
   reference: `GES-${oneOf(DepartmentList)}-${genNumber(4)}`,
   createdBy: userId ?? uuidv4(),
   createdAt: new Date(),
-  status: oneOf(SampleStatusList),
+  status: 'Draft',
   ...genSampleToCreate(),
 });
 
@@ -98,4 +102,11 @@ export const genSample = (userId?: string): Sample => ({
   temperatureMaintenance: genBoolean(),
   expiryDate: new Date(),
   sealId: genNumber(4),
+});
+
+export const genCoords = () => ({
+  coords: {
+    latitude: Math.random() * 180 - 90,
+    longitude: Math.random() * 360 - 180,
+  },
 });

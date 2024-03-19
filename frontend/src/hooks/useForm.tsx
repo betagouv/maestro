@@ -51,6 +51,7 @@ export function useForm<
       setIsTouched(true);
       setError(undefined);
     } catch (error) {
+      console.error(error);
       setIsTouched(true);
       setError(error as z.ZodError);
     }

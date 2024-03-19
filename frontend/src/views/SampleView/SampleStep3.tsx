@@ -11,7 +11,7 @@ interface Props {
   partialSample: PartialSample;
 }
 
-const SampleFormStep3 = ({ partialSample }: Props) => {
+const SampleStep3 = ({ partialSample }: Props) => {
   const [updateSample, { isSuccess: isUpdateSuccess }] =
     useUpdateSampleMutation();
 
@@ -125,23 +125,26 @@ const SampleFormStep3 = ({ partialSample }: Props) => {
           <strong>Commentaire :</strong> {partialSample.comment}
         </li>
       </ul>
-      {isUpdateSuccess && (
+      {isUpdateSuccess ? (
         <Alert severity="success" title="Le prélèvement a bien été envoyé." />
-      )}
-      {partialSample.status !== 'Sent' ? (
-        <Button children="Envoyer le prélèvement" onClick={submit} />
       ) : (
-        <Alert
-          severity="info"
-          title={`Le prélevement a été envoyé ${
-            partialSample.sentAt
-              ? 'le' + format(partialSample.sentAt, 'dd/MM/yyyy')
-              : ''
-          }`}
-        />
+        <>
+          {partialSample.status !== 'Sent' ? (
+            <Button children="Envoyer le prélèvement" onClick={submit} />
+          ) : (
+            <Alert
+              severity="info"
+              title={`Le prélevement a été envoyé ${
+                partialSample.sentAt
+                  ? 'le' + format(partialSample.sentAt, 'dd/MM/yyyy')
+                  : ''
+              }`}
+            />
+          )}
+        </>
       )}
     </div>
   );
 };
 
-export default SampleFormStep3;
+export default SampleStep3;

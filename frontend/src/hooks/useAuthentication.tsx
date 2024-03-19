@@ -28,13 +28,13 @@ export const useAuthentication = () => {
             {
               path: '/prelevements',
               label: 'Prélèvements',
-              key: 'sample_route',
+              key: 'samples_route',
               component: SampleListView,
             },
             {
               path: '/prelevements/nouveau',
               label: 'Prélèvement',
-              key: 'sample_route',
+              key: 'new_sample_route',
               component: SampleView,
             },
             {

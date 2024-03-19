@@ -65,7 +65,7 @@ export const Sample = z.object({
     })
     .nonnegative('La quantité doit être positive.'),
   quantityUnit: z.string({
-    required_error: 'Veuillez renseigner l’unité de quantité.',
+    required_error: "Veuillez renseigner l'unité de quantité.",
   }),
   cultureKind: z.string().optional().nullable(),
   compliance200263: z.boolean().optional().nullable(),
