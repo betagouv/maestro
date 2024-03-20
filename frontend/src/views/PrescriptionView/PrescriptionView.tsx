@@ -4,7 +4,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
 import clsx from 'clsx';
 import _ from 'lodash';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { genPrescriptionByMatrix } from 'shared/schema/Prescription/PrescriptionsByMatrix';
 import { RegionList } from 'shared/schema/Region';
@@ -22,8 +22,6 @@ const PrescriptionView = () => {
   useDocumentTitle('Prescription');
 
   const { programmingPlanId } = useParams<{ programmingPlanId: string }>();
-
-  const [expanded, setExpanded] = useState(false);
 
   const { data: prescriptions } = useFindPrescriptionsQuery(
     { programmingPlanId: programmingPlanId as string },
@@ -65,7 +63,7 @@ const PrescriptionView = () => {
   };
 
   return (
-    <section className={clsx(cx('fr-py-6w'), { 'full-width': expanded })}>
+    <section className={clsx(cx('fr-py-6w'), 'full-width')}>
       {isUpdateSuccess && (
         <AutoClose>
           <div className="toast">
@@ -78,31 +76,19 @@ const PrescriptionView = () => {
           </div>
         </AutoClose>
       )}
-      <h1 className={cx({ 'fr-container': expanded })}>
-        Prescription
-        <div className="float-right">
-          <Button
-            iconId="ri-fullscreen-exit-fill"
-            title="réduire"
-            priority={expanded ? 'tertiary' : 'primary'}
-            onClick={() => setExpanded(false)}
-            disabled={!expanded}
-            className={cx('fr-ml-3w')}
-          />
-          <Button
-            iconId="ri-fullscreen-fill"
-            title="agrandir"
-            priority={expanded ? 'primary' : 'tertiary'}
-            onClick={() => setExpanded(true)}
-            disabled={expanded}
-          />
-        </div>
-      </h1>
+      <h1 className={cx('fr-container')}>Prescription</h1>
       <Table
         bordered
         noCaption
         headers={[
-          'Matrice',
+          <>
+            Matrice{' '}
+            <Button
+              title="Ajouter"
+              iconId="fr-icon-add-circle-line"
+              priority="tertiary no outline"
+            />
+          </>,
           'Stade de prélèvement',
           'Total national',
           ...RegionList.map((region) => (
