@@ -40,13 +40,10 @@ export const sampleApi = api.injectEndpoints({
       }),
       transformResponse: (response: any) =>
         PartialSample.parse(fp.omitBy(response, fp.isNil)),
-      invalidatesTags: (result, error, { id }) =>
-        result
-          ? [
-              { type: 'Sample', id: 'LIST' },
-              { type: 'Sample', id },
-            ]
-          : [{ type: 'Sample', id: 'LIST' }],
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'Sample', id: 'LIST' },
+        { type: 'Sample', id },
+      ],
     }),
   }),
 });

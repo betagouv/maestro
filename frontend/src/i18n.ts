@@ -9,6 +9,9 @@ i18n.use(initReactI18next).init({
       translation: {
         boolean_zero: 'Non',
         boolean_one: 'Oui',
+        programmingPlan_zero: 'Aucun plan',
+        programmingPlan_one: 'Un plan',
+        programmingPlan_other: '{{count}} plans',
         sample_zero: 'Aucun prélèvement',
         sample_one: 'Un prélèvement',
         sample_other: '{{count}} prélèvements',

@@ -7,6 +7,11 @@ export const body = (o: AnyZodObject) =>
     body: o,
   });
 
+export const params = (o: AnyZodObject) =>
+  z.object({
+    params: o,
+  });
+
 export const uuidParam = (paramName: string) =>
   z.object({
     params: z.object({

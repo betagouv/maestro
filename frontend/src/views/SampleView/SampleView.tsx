@@ -13,13 +13,9 @@ const SampleView = () => {
 
   const { sampleId } = useParams<{ sampleId?: string }>();
 
-  console.log('sampleId', sampleId);
-
   const { data: sample } = useGetSampleQuery(sampleId as string, {
     skip: !sampleId,
   });
-
-  console.log('sample', sample);
 
   const [searchParams] = useSearchParams();
   const [step, setStep] = useState(1);

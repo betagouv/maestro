@@ -7,6 +7,6 @@ export const api = createApi({
     baseUrl: `${config.apiEndpoint}/api`,
     prepareHeaders: withAuthHeader,
   }),
-  tagTypes: ['Sample', 'User'],
+  tagTypes: ['Prescription', 'ProgrammingPlan', 'Sample', 'User'],
   endpoints: () => ({}),
 });

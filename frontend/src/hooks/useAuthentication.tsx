@@ -1,6 +1,8 @@
 import { ReactElement, useMemo } from 'react';
 import { useAppSelector } from 'src/hooks/useStore';
 import HomeView from 'src/views/HomeView/HomeView';
+import PrescriptionView from 'src/views/PrescriptionView/PrescriptionView';
+import ProgrammingPlanListView from 'src/views/ProgrammingPlanListView/ProgrammingPlanListView';
 import SampleListView from 'src/views/SampleListView/SampleListView';
 import SampleView from 'src/views/SampleView/SampleView';
 import SignInView from 'src/views/SignInView/SignInView';
@@ -25,6 +27,18 @@ export const useAuthentication = () => {
       },
       ...(isAuthenticated
         ? [
+            {
+              path: '/plans',
+              label: 'Plans',
+              key: 'programming_plans_route',
+              component: ProgrammingPlanListView,
+            },
+            {
+              path: '/plans/:programmingPlanId/prescription',
+              label: 'Plans',
+              key: 'prescription_route',
+              component: PrescriptionView,
+            },
             {
               path: '/prelevements',
               label: 'Prélèvements',

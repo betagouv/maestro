@@ -42,7 +42,7 @@ function App() {
   return (
     <React.Suspense fallback={<></>}>
       <Header />
-      {isSomeQueryPending && <div>Loading...</div>}
+      {/*{isSomeQueryPending && <div>Loading...</div>}*/}
 
       <main
         className={cx('fr-container', 'fr-pt-2w')}

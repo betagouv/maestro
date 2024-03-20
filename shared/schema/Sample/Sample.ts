@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { Department } from '../Department';
+import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { SampleLegalContext } from './SampleLegalContext';
-import { SamplePlanningContext } from './SamplePlanningContext';
 import { SampleStage } from './SampleStage';
 import { SampleStatus } from './SampleStatus';
 import { SampleStorageCondition } from './SampleStorageCondition';
@@ -37,7 +37,7 @@ export const Sample = z.object({
   }),
   sentAt: z.coerce.date().optional().nullable(),
   status: SampleStatus,
-  planningContext: SamplePlanningContext,
+  planningContext: ProgrammingPlanKind,
   legalContext: SampleLegalContext,
   userLocation: UserLocation,
   locationSiret: z

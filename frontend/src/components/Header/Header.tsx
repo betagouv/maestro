@@ -41,6 +41,14 @@ const Header = () => {
           ? [
               {
                 linkProps: {
+                  to: '/plans',
+                  target: '_self',
+                },
+                text: 'Mes plans',
+                isActive: location.pathname.startsWith('/plans'),
+              },
+              {
+                linkProps: {
                   to: '/prelevements',
                   target: '_self',
                 },

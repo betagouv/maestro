@@ -9,17 +9,17 @@ import {
   DepartmentLabels,
   DepartmentList,
 } from 'shared/schema/Department';
+import {
+  ProgrammingPlanKind,
+  ProgrammingPlanKindLabels,
+  ProgrammingPlanKindList,
+} from 'shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { PartialSample, SampleToCreate } from 'shared/schema/Sample/Sample';
 import {
   SampleLegalContext,
   SampleLegalContextLabels,
   SampleLegalContextList,
 } from 'shared/schema/Sample/SampleLegalContext';
-import {
-  SamplePlanningContext,
-  SamplePlanningContextLabels,
-  SamplePlanningContextList,
-} from 'shared/schema/Sample/SamplePlanningContext';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
@@ -84,8 +84,8 @@ const SampleStep1 = ({ partialSample }: Props) => {
   type FormShape = typeof Form.shape;
 
   const planningContextOptions = selectOptionsFromList(
-    SamplePlanningContextList,
-    SamplePlanningContextLabels
+    ProgrammingPlanKindList,
+    ProgrammingPlanKindLabels
   );
 
   const legalContextOptions = selectOptionsFromList(
@@ -110,7 +110,7 @@ const SampleStep1 = ({ partialSample }: Props) => {
             },
             sampledAt: parse(sampledAt, 'yyyy-MM-dd', new Date()),
             resytalId: resytalId as string,
-            planningContext: planningContext as SamplePlanningContext,
+            planningContext: planningContext as ProgrammingPlanKind,
             legalContext: legalContext as SampleLegalContext,
             department: department as Department,
           })
@@ -121,7 +121,7 @@ const SampleStep1 = ({ partialSample }: Props) => {
             },
             sampledAt: parse(sampledAt, 'yyyy-MM-dd', new Date()),
             resytalId: resytalId as string,
-            planningContext: planningContext as SamplePlanningContext,
+            planningContext: planningContext as ProgrammingPlanKind,
             legalContext: legalContext as SampleLegalContext,
             department: department as Department,
           })
@@ -233,7 +233,7 @@ const SampleStep1 = ({ partialSample }: Props) => {
             defaultValue={partialSample?.planningContext || ''}
             options={planningContextOptions}
             onChange={(e) =>
-              setPlanningContext(e.target.value as SamplePlanningContext)
+              setPlanningContext(e.target.value as ProgrammingPlanKind)
             }
             inputForm={form}
             inputKey="planningContext"

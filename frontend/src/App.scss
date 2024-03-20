@@ -1,3 +1,34 @@
-.contrasted-bg {
-  background-color: var( --background-contrast-blue-france);
+.fr-table td:has(.fr-input-group) {
+  padding: 0;
+
+  .fr-label + .fr-input {
+    margin: 0;
+    padding-right: 0;
+    max-width: 56px;
+  }
+}
+
+.fr-container:has(.full-width) {
+  max-width: inherit;
+  align-content: center;
+
+  .fr-table__shadow::before {
+    content: none;
+  }
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+.float-right {
+  float: right;
+}
+
+.toast {
+  position: fixed;
+  top: 2px;
+  z-index: 100000;
+  background: white;
+  left: calc(50% - 140px);
 }

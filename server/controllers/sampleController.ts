@@ -5,6 +5,7 @@ import { constants } from 'http2';
 import { v4 as uuidv4 } from 'uuid';
 import {
   CreatedSample,
+  PartialSample,
   SampleToCreate,
 } from '../../shared/schema/Sample/Sample';
 import sampleRepository from '../repositories/sampleRepository';
@@ -62,7 +63,7 @@ const createSample = async (request: Request, response: Response) => {
 
 const updateSample = async (request: Request, response: Response) => {
   const { sampleId } = request.params;
-  const sampleUpdate = request.body;
+  const sampleUpdate = request.body as PartialSample;
 
   console.info('Update sample', sampleId, sampleUpdate);
 

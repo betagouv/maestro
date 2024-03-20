@@ -2,10 +2,12 @@ import randomstring from 'randomstring';
 import { v4 as uuidv4 } from 'uuid';
 import { UserApi } from '../../server/models/UserApi';
 import { DepartmentList } from '../schema/Department';
+import { Prescription } from '../schema/Prescription/Prescription';
+import { ProgrammingPlanKindList } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
+import { RegionList } from '../schema/Region';
 import { CreatedSample, Sample, SampleToCreate } from '../schema/Sample/Sample';
 import { SampleLegalContextList } from '../schema/Sample/SampleLegalContext';
-import { SamplePlanningContextList } from '../schema/Sample/SamplePlanningContext';
-import { SampleStageList } from '../schema/Sample/SampleStage';
+import { SampleStage, SampleStageList } from '../schema/Sample/SampleStage';
 import { SampleStorageConditionList } from '../schema/Sample/SampleStorageCondition';
 
 export const genEmail = () => {
@@ -68,7 +70,7 @@ export const genSampleToCreate = (): SampleToCreate => ({
       length: 6,
       charset: '123456789',
     }),
-  planningContext: oneOf(SamplePlanningContextList),
+  planningContext: oneOf(ProgrammingPlanKindList),
   legalContext: oneOf(SampleLegalContextList),
   department: oneOf(DepartmentList),
 });
@@ -110,3 +112,26 @@ export const genCoords = () => ({
     longitude: Math.random() * 360 - 180,
   },
 });
+
+export const genProgrammingPlan = (userId?: string) => ({
+  id: uuidv4(),
+  title: randomstring.generate(),
+  createdAt: new Date(),
+  createdBy: userId ?? uuidv4(),
+  kind: oneOf(ProgrammingPlanKindList),
+});
+
+export const genPrescriptions = (
+  programmingPlanId: string,
+  matrix?: string,
+  stage?: string,
+  countArray?: number[]
+): Prescription[] =>
+  (countArray ?? new Array(18).fill(genNumber(1))).map((count, index) => ({
+    id: uuidv4(),
+    programmingPlanId,
+    region: RegionList[index],
+    sampleMatrix: matrix ?? randomstring.generate(),
+    sampleStage: (stage as SampleStage) ?? oneOf(SampleStageList),
+    sampleCount: count,
+  }));
