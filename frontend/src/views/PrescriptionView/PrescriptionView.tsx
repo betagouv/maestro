@@ -3,6 +3,7 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
 import clsx from 'clsx';
+import _ from 'lodash';
 import { useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { genPrescriptionByMatrix } from 'shared/schema/Prescription/PrescriptionsByMatrix';
@@ -103,27 +104,51 @@ const PrescriptionView = () => {
         headers={[
           'Matrice',
           'Stade de prélèvement',
+          'Total national',
           ...RegionList.map((region) => (
             <RegionHeaderCell region={region} key={region} />
           )),
         ]}
-        data={prescriptionsByMatrix.map((p) => [
-          p.sampleMatrix,
-          p.sampleStage,
-          ...p.regionSampleCounts.map((count, regionIndex) => (
-            <EditableNumberCell
-              initialValue={count}
-              onChange={(value) =>
-                changePrescriptionCount(
-                  p.sampleMatrix,
-                  p.sampleStage,
-                  regionIndex,
-                  value
-                )
-              }
-            />
-          )),
-        ])}
+        data={[
+          ...prescriptionsByMatrix.map((p) => [
+            <b>{p.sampleMatrix}</b>,
+            <b>{p.sampleStage}</b>,
+            <b>
+              {p.regionSampleCounts.reduce((acc, count) => acc + count, 0)}
+            </b>,
+            ...p.regionSampleCounts.map((count, regionIndex) => (
+              <EditableNumberCell
+                initialValue={count}
+                onChange={(value) =>
+                  changePrescriptionCount(
+                    p.sampleMatrix,
+                    p.sampleStage,
+                    regionIndex,
+                    value
+                  )
+                }
+              />
+            )),
+          ]),
+          [
+            <b>Total</b>,
+            '',
+            <b>
+              {_.sum(
+                prescriptionsByMatrix.flatMap((p) => p.regionSampleCounts)
+              )}
+            </b>,
+            ...RegionList.map((region, regionIndex) => (
+              <b>
+                {_.sum(
+                  prescriptionsByMatrix.map(
+                    (p) => p.regionSampleCounts[regionIndex]
+                  )
+                )}
+              </b>
+            )),
+          ],
+        ]}
       />
     </section>
   );

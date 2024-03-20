@@ -10,6 +10,13 @@ const EditableNumberCell = ({ initialValue, onChange }: EditableCellProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(initialValue);
 
+  const submitEdition = () => {
+    if (value !== initialValue) {
+      onChange(value);
+    }
+    setIsEditing(false);
+  };
+
   return (
     <>
       {isEditing ? (
@@ -21,10 +28,12 @@ const EditableNumberCell = ({ initialValue, onChange }: EditableCellProps) => {
             autoFocus: true,
             min: 0,
             onChange: (e) => setValue(Number(e.target.value)),
-            onBlur: () => {
-              onChange(value);
-              setIsEditing(false);
+            onKeyDown: (e) => {
+              if (e.key === 'Enter') {
+                submitEdition();
+              }
             },
+            onBlur: submitEdition,
           }}
         />
       ) : (
