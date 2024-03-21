@@ -97,6 +97,7 @@ const PrescriptionView = () => {
             matrix={p.sampleMatrix}
             stage={p.sampleStage}
             onRemoveMatrix={removeMatrix}
+            key={`remove-${p.sampleMatrix}-${p.sampleStage}`}
           />
         </div>,
         <div className="fr-pl-0">
@@ -115,6 +116,7 @@ const PrescriptionView = () => {
                 value
               )
             }
+            key={`editable-${p.sampleMatrix}-${p.sampleStage}-${regionIndex}`}
           />
         )),
       ]),
@@ -130,11 +132,15 @@ const PrescriptionView = () => {
         {_.sum(prescriptionsByMatrix.flatMap((p) => p.regionSampleCounts))}
       </b>,
       ...RegionList.map((region, regionIndex) => (
-        <b>
-          {_.sum(
-            prescriptionsByMatrix.map((p) => p.regionSampleCounts[regionIndex])
-          )}
-        </b>
+        <div key={`total-${region}`}>
+          <b>
+            {_.sum(
+              prescriptionsByMatrix.map(
+                (p) => p.regionSampleCounts[regionIndex]
+              )
+            )}
+          </b>
+        </div>
       )),
     ],
     [prescriptionsByMatrix] // eslint-disable-line react-hooks/exhaustive-deps
