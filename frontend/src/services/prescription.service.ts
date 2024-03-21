@@ -1,6 +1,7 @@
 import fp from 'lodash';
 import {
   Prescription,
+  PrescriptionToCreate,
   PrescriptionUpdate,
 } from 'shared/schema/Prescription/Prescription';
 import { api } from 'src/services/api.service';
@@ -27,6 +28,19 @@ export const prescriptionApi = api.injectEndpoints({
           : []),
       ],
     }),
+    addPrescriptions: builder.mutation<
+      Prescription[],
+      { programmingPlanId: string; prescriptions: PrescriptionToCreate[] }
+    >({
+      query: ({ programmingPlanId, prescriptions }) => ({
+        url: `programming-plans/${programmingPlanId}/prescriptions`,
+        method: 'POST',
+        body: prescriptions,
+      }),
+      invalidatesTags: [{ type: 'Prescription', id: 'LIST' }],
+      transformResponse: (response: any[]) =>
+        response.map((_) => Prescription.parse(fp.omitBy(_, fp.isNil))),
+    }),
     updatePrescription: builder.mutation<
       Prescription,
       {
@@ -46,8 +60,23 @@ export const prescriptionApi = api.injectEndpoints({
       ],
       transformResponse: (response) => Prescription.parse(response),
     }),
+    deletePrescriptions: builder.mutation<
+      void,
+      { programmingPlanId: string; prescriptionIds: string[] }
+    >({
+      query: ({ programmingPlanId, prescriptionIds }) => ({
+        url: `programming-plans/${programmingPlanId}/prescriptions`,
+        method: 'DELETE',
+        body: prescriptionIds,
+      }),
+      invalidatesTags: [{ type: 'Prescription', id: 'LIST' }],
+    }),
   }),
 });
 
-export const { useFindPrescriptionsQuery, useUpdatePrescriptionMutation } =
-  prescriptionApi;
+export const {
+  useFindPrescriptionsQuery,
+  useUpdatePrescriptionMutation,
+  useAddPrescriptionsMutation,
+  useDeletePrescriptionsMutation,
+} = prescriptionApi;

@@ -1,13 +1,13 @@
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
-import { z, ZodObject, ZodRawShape } from 'zod';
+import { z, ZodEffects, ZodObject, ZodRawShape } from 'zod';
 
 type MessageType = 'error' | 'success' | 'default';
 
 export function useForm<
   T extends ZodRawShape,
   U extends Record<keyof T, unknown>
->(schema: ZodObject<T>, input: U) {
+>(schema: ZodObject<T> | ZodEffects<ZodObject<any>>, input: U) {
   const [error, setError] = useState<z.ZodError>();
   const [isTouched, setIsTouched] = useState(false);
 
@@ -57,6 +57,11 @@ export function useForm<
     }
   };
 
+  const reset = () => {
+    setIsTouched(false);
+    setError(undefined);
+  };
+
   useEffect(() => {
     (async () => {
       if (isTouched) {
@@ -79,6 +84,7 @@ export function useForm<
     hasIssue,
     message,
     messageType,
+    reset,
     validate,
   };
 }

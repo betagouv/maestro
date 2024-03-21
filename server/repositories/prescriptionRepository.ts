@@ -20,14 +20,26 @@ const insert = async (prescription: Prescription): Promise<void> => {
   await Prescriptions().insert(prescription);
 };
 
+const insertMany = async (prescriptions: Prescription[]): Promise<void> => {
+  console.info('Insert multiple prescriptions', prescriptions.length);
+  await Prescriptions().insert(prescriptions);
+};
+
 const update = async (prescription: Prescription): Promise<void> => {
   console.info('Update prescription with id', prescription.id);
   await Prescriptions().where({ id: prescription.id }).update(prescription);
+};
+
+const deleteMany = async (ids: string[]): Promise<void> => {
+  console.info('Delete prescriptions with ids', ids);
+  await Prescriptions().whereIn('id', ids).delete();
 };
 
 export default {
   findUnique,
   findMany,
   insert,
+  insertMany,
   update,
+  deleteMany,
 };

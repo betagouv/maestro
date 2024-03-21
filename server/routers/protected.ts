@@ -1,6 +1,9 @@
 import express from 'express';
 import { z } from 'zod';
-import { PrescriptionUpdate } from '../../shared/schema/Prescription/Prescription';
+import {
+  PrescriptionToCreate,
+  PrescriptionUpdate,
+} from '../../shared/schema/Prescription/Prescription';
 import {
   PartialSample,
   SampleToCreate,
@@ -47,6 +50,13 @@ router.get(
   validator.validate(uuidParam('programmingPlanId')),
   prescriptionController.findPrescriptions
 );
+router.post(
+  '/programming-plans/:programmingPlanId/prescriptions',
+  validator.validate(
+    uuidParam('programmingPlanId').merge(body(z.array(PrescriptionToCreate)))
+  ),
+  prescriptionController.createPrescriptions
+);
 router.put(
   '/programming-plans/:programmingPlanId/prescriptions/:prescriptionId',
   validator.validate(
@@ -58,6 +68,13 @@ router.put(
     ).merge(body(PrescriptionUpdate))
   ),
   prescriptionController.updatePrescription
+);
+router.delete(
+  '/programming-plans/:programmingPlanId/prescriptions',
+  validator.validate(
+    uuidParam('programmingPlanId').merge(body(z.array(z.string().uuid())))
+  ),
+  prescriptionController.deletePrescriptions
 );
 
 export default router;

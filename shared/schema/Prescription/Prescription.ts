@@ -11,9 +11,17 @@ export const Prescription = z.object({
   sampleCount: z.number(),
 });
 
+export const PrescriptionToCreate = Prescription.pick({
+  region: true,
+  sampleMatrix: true,
+  sampleStage: true,
+  sampleCount: true,
+});
+
 export const PrescriptionUpdate = Prescription.pick({
   sampleCount: true,
 });
 
 export type Prescription = z.infer<typeof Prescription>;
+export type PrescriptionToCreate = z.infer<typeof PrescriptionToCreate>;
 export type PrescriptionUpdate = z.infer<typeof PrescriptionUpdate>;

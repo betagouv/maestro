@@ -1,4 +1,5 @@
 import { constants } from 'http2';
+import fp from 'lodash/fp';
 import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
@@ -60,6 +61,50 @@ describe('Prescriptions routes', () => {
     });
   });
 
+  describe('POST /programming-plans/{programmingPlanId}/prescriptions', () => {
+    const prescriptionsToCreate = genPrescriptions(programmingPlan1.id).map(
+      (prescription) => fp.omit(['id', 'programmingPlanId'])(prescription)
+    );
+    const testRoute = (programmingPlanId: string) =>
+      `/api/programming-plans/${programmingPlanId}/prescriptions`;
+
+    it('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .post(testRoute(programmingPlan1.id))
+        .send(prescriptionsToCreate)
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    it('should receive a valid programmingPlanId', async () => {
+      await request(app)
+        .post(testRoute(randomstring.generate()))
+        .send(prescriptionsToCreate)
+        .use(tokenProvider(user))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    it('sould receive valid prescriptions', async () => {
+      await request(app)
+        .post(testRoute(programmingPlan1.id))
+        .send([
+          ...prescriptionsToCreate,
+          { ...prescriptionsToCreate[0], sampleCount: 'invalid' },
+        ])
+        .use(tokenProvider(user))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    it('should create the prescriptions', async () => {
+      const res = await request(app)
+        .post(testRoute(programmingPlan1.id))
+        .send(prescriptionsToCreate)
+        .use(tokenProvider(user))
+        .expect(constants.HTTP_STATUS_CREATED);
+
+      expect(res.body).toMatchObject(prescriptionsToCreate);
+    });
+  });
+
   describe('PUT /programming-plans/{programmingPlanId}/prescriptions/{prescriptionId}', () => {
     const prescriptionUpdate = {
       sampleCount: genNumber(4),
@@ -115,6 +160,55 @@ describe('Prescriptions routes', () => {
         ...prescriptions1[0],
         sampleCount: prescriptionUpdate.sampleCount,
       });
+    });
+  });
+
+  describe('DELETE /programming-plans/{programmingPlanId}/prescriptions', () => {
+    const testRoute = (programmingPlanId: string) =>
+      `/api/programming-plans/${programmingPlanId}/prescriptions`;
+
+    it('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .delete(testRoute(programmingPlan1.id))
+        .send([prescriptions1[0].id])
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    it('should receive a valid programmingPlanId', async () => {
+      await request(app)
+        .delete(testRoute(randomstring.generate()))
+        .send([prescriptions1[0].id])
+        .use(tokenProvider(user))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    it('should receive valid prescriptionIds', async () => {
+      await request(app)
+        .delete(testRoute(programmingPlan1.id))
+        .send([randomstring.generate()])
+        .use(tokenProvider(user))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    it('should delete the prescriptions of the programmingPlan', async () => {
+      await request(app)
+        .delete(testRoute(programmingPlan1.id))
+        .send([...prescriptions1, ...prescriptions2].map(({ id }) => id))
+        .use(tokenProvider(user))
+        .expect(constants.HTTP_STATUS_NO_CONTENT);
+
+      await expect(
+        Prescriptions()
+          .where({ programmingPlanId: programmingPlan1.id })
+          .count()
+          .first()
+      ).resolves.toMatchObject({ count: '18' });
+      await expect(
+        Prescriptions()
+          .where({ programmingPlanId: programmingPlan2.id })
+          .count()
+          .first()
+      ).resolves.toMatchObject({ count: '18' });
     });
   });
 });
