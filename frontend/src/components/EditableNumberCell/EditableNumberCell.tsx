@@ -37,7 +37,7 @@ const EditableNumberCell = ({ initialValue, onChange }: EditableCellProps) => {
           }}
         />
       ) : (
-        <div className="pointer" onDoubleClick={() => setIsEditing(true)}>
+        <div className="editable-cell" onClick={() => setIsEditing(true)}>
           {value}
         </div>
       )}

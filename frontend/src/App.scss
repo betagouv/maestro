@@ -1,23 +1,62 @@
 .fr-table {
-  th:has(button), td:has(button) {
-    display: inline-flex;
-    align-items: center;
+
+  table {
+    max-height: calc(100vh - 100px);
+    overflow: auto;
   }
-}
 
-.fr-table td:has(.fr-input-group) {
-  padding: 0;
+  th {
+    position: sticky;
+    top: 0;
+    background-size: 100% 2px;
+    background-position: bottom;
+    background-repeat: no-repeat;
+    background-image: linear-gradient(0deg, var(--border-plain-grey), var(--border-plain-grey));
+    background-color: var(--background-contrast-grey);
+    z-index: 1
+  }
 
-  .fr-label + .fr-input {
-    margin: 0;
+  th:has(.fr-pl-0), td:has(.fr-pl-0) {
+    padding-left: 0;
+  }
+
+  th:has(.fr-pl-1w), td:has(.fr-pl-1w) {
+    padding-left: 0.5rem;
+  }
+
+  th:has(.fr-pr-0), td:has(.fr-pr-0) {
     padding-right: 0;
-    max-width: 56px;
+  }
+
+  td:has(.fr-input-group) {
+    padding: 0;
+
+    .fr-label + .fr-input {
+      margin: 0;
+      padding-right: 0;
+      max-width: 56px;
+    }
+  }
+
+  td:has(.editable-cell) {
+    padding: 0;
+
+    &:hover {
+      background-color: var(--background-contrast-grey);
+    }
+  }
+
+  .editable-cell {
+    padding: 1rem;
+    cursor: pointer;
   }
 }
 
 .fr-container:has(.full-width) {
   max-width: inherit;
   align-content: center;
+  padding-left: 1rem;
+  padding-right: 1rem;
 }
 
 .pointer {

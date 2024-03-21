@@ -76,7 +76,7 @@ const SampleStep3 = ({ partialSample }: Props) => {
           {partialSample.quantityUnit}
         </li>
         <li>
-          <strong>Nombre d'écchantillons :</strong> {partialSample.sampleCount}
+          <strong>Nombre d'échantillons :</strong> {partialSample.sampleCount}
         </li>
         <li>
           <strong>Conformité 2002/63 :</strong>{' '}

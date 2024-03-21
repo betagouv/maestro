@@ -62,6 +62,8 @@ const PrescriptionView = () => {
     }
   };
 
+  const EmptyCell = '';
+
   return (
     <section className={clsx(cx('fr-py-6w'), 'full-width')}>
       {isUpdateSuccess && (
@@ -85,8 +87,9 @@ const PrescriptionView = () => {
             title="Ajouter"
             iconId="fr-icon-add-circle-line"
             priority="tertiary no outline"
+            className={cx('fr-pl-1w', 'fr-pr-0')}
           />,
-          'Matrice',
+          <div className="fr-pl-0">Matrice</div>,
           'Stade de prélèvement',
           'Total national',
           ...RegionList.map((region) => (
@@ -100,8 +103,11 @@ const PrescriptionView = () => {
               iconId="fr-icon-delete-line"
               priority="tertiary no outline"
               size="small"
+              className={cx('fr-pl-1w', 'fr-pr-0')}
             />,
-            <b>{p.sampleMatrix}</b>,
+            <div className="fr-pl-0">
+              <b>{p.sampleMatrix}</b>
+            </div>,
             <b>{p.sampleStage}</b>,
             <b>
               {p.regionSampleCounts.reduce((acc, count) => acc + count, 0)}
@@ -121,9 +127,9 @@ const PrescriptionView = () => {
             )),
           ]),
           [
-            '',
+            EmptyCell,
             <b>Total</b>,
-            '',
+            EmptyCell,
             <b>
               {_.sum(
                 prescriptionsByMatrix.flatMap((p) => p.regionSampleCounts)
