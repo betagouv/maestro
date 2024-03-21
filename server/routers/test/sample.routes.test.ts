@@ -2,21 +2,33 @@ import { constants } from 'http2';
 import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
-import { User1, User2 } from '../../../database/seeds/test/001-users';
 import { MatrixList } from '../../../shared/foodex2/Matrix';
-import { formatPartialSample, Samples } from '../../repositories/sampleRepository';
+import {
+  genCreatedSample,
+  genSample,
+  genSampleToCreate,
+  genUserApi,
+  oneOf,
+} from '../../../shared/test/testFixtures';
+import {
+  formatPartialSample,
+  Samples,
+} from '../../repositories/sampleRepository';
+import { Users } from '../../repositories/userRepository';
 import { createServer } from '../../server';
-import { genCreatedSample, genSample, genSampleToCreate, oneOf } from '../../../shared/test/testFixtures';
-import { withAccessToken } from '../../test/testUtils';
-
+import { tokenProvider } from '../../test/testUtils';
 
 describe('Sample routes', () => {
   const { app } = createServer();
 
-  const sample1 = genSample(User1.id);
-  const sample2 = genSample(User2.id);
+  const user1 = genUserApi();
+  const user2 = genUserApi();
+  const sample1 = genSample(user1.id);
+  const sample2 = genSample(user2.id);
 
   beforeAll(async () => {
+    await Users().insert(user1);
+    await Users().insert(user2);
     await Samples().insert(formatPartialSample(sample1));
     await Samples().insert(formatPartialSample(sample2));
   });
@@ -31,29 +43,31 @@ describe('Sample routes', () => {
     });
 
     it('should get a valid sample id', async () => {
-      await withAccessToken(
-        request(app).get(`${testRoute(randomstring.generate())}`)
-      ).expect(constants.HTTP_STATUS_BAD_REQUEST);
+      await request(app)
+        .get(`${testRoute(randomstring.generate())}`)
+        .use(tokenProvider(user1))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
     it('should fail if the sample does not exist', async () => {
-      await withAccessToken(
-        request(app).get(`${testRoute(uuidv4())}`),
-        User1
-      ).expect(constants.HTTP_STATUS_NOT_FOUND);
+      await request(app)
+        .get(`${testRoute(uuidv4())}`)
+        .use(tokenProvider(user1))
+        .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
     it('should fail if the sample does not belong to the user', async () => {
-      await withAccessToken(
-        request(app).get(`${testRoute(sample1.id)}`),
-        User2
-      ).expect(constants.HTTP_STATUS_FORBIDDEN);
+      await request(app)
+        .get(`${testRoute(sample1.id)}`)
+        .use(tokenProvider(user2))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     it('should get the sample', async () => {
-      const res = await withAccessToken(
-        request(app).get(testRoute(sample1.id)),
-      ).expect(constants.HTTP_STATUS_OK);
+      const res = await request(app)
+        .get(testRoute(sample1.id))
+        .use(tokenProvider(user1))
+        .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject({
         ...sample1,
@@ -74,9 +88,10 @@ describe('Sample routes', () => {
     });
 
     it('should find the samples of the authenticated user', async () => {
-      const res = await withAccessToken(request(app).get(testRoute)).expect(
-        constants.HTTP_STATUS_OK
-      );
+      const res = await request(app)
+        .get(testRoute)
+        .use(tokenProvider(user1))
+        .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject([
         {
@@ -101,9 +116,11 @@ describe('Sample routes', () => {
 
     it('should get a valid body', async () => {
       const badRequestTest = async (payload?: Record<string, unknown>) =>
-        withAccessToken(request(app).post(testRoute).send(payload)).expect(
-          constants.HTTP_STATUS_BAD_REQUEST
-        );
+        request(app)
+          .post(testRoute)
+          .send(payload)
+          .use(tokenProvider(user1))
+          .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await badRequestTest();
       await badRequestTest({ ...genSampleToCreate(), resytalId: undefined });
@@ -139,16 +156,18 @@ describe('Sample routes', () => {
       const sample = genSampleToCreate();
 
       console.log('sample', sample);
-      const res = await withAccessToken(
-        request(app).post(testRoute).send(sample)
-      ).expect(constants.HTTP_STATUS_CREATED);
+      const res = await request(app)
+        .post(testRoute)
+        .send(sample)
+        .use(tokenProvider(user1))
+        .expect(constants.HTTP_STATUS_CREATED);
 
       expect(res.body).toMatchObject(
         expect.objectContaining({
           ...sample,
           id: expect.any(String),
           createdAt: expect.any(String),
-          createdBy: User1.id,
+          createdBy: user1.id,
           sampledAt: sample.sampledAt.toISOString(),
           reference: expect.stringMatching(/^GES-[0-9]{2}-2024-1$/),
           status: 'Draft',
@@ -172,39 +191,36 @@ describe('Sample routes', () => {
     });
 
     it('should get a valid sample id', async () => {
-      await withAccessToken(
-        request(app)
-          .put(`${testRoute(randomstring.generate())}`)
-          .send({})
-      ).expect(constants.HTTP_STATUS_BAD_REQUEST);
+      await request(app)
+        .put(`${testRoute(randomstring.generate())}`)
+        .send({})
+        .use(tokenProvider(user1))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
     it('should fail if the sample does not exist', async () => {
-      await withAccessToken(
-        request(app)
-          .put(`${testRoute(uuidv4())}`)
-          .send(genCreatedSample(User1.id)),
-        User1
-      ).expect(constants.HTTP_STATUS_NOT_FOUND);
+      await request(app)
+        .put(`${testRoute(uuidv4())}`)
+        .send(genCreatedSample(user1.id))
+        .use(tokenProvider(user1))
+        .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
     it('should fail if the sample does not belong to the user', async () => {
-      await withAccessToken(
-        request(app)
-          .put(`${testRoute(sample1.id)}`)
-          .send(sample1),
-        User2
-      ).expect(constants.HTTP_STATUS_FORBIDDEN);
+      await request(app)
+        .put(`${testRoute(sample1.id)}`)
+        .send(sample1)
+        .use(tokenProvider(user2))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     it('should get a valid body', async () => {
       const badRequestTest = async (payload?: Record<string, unknown>) =>
-        withAccessToken(
-          request(app)
-            .put(`${testRoute(sample1.id)}`)
-            .send(payload),
-          User1
-        ).expect(constants.HTTP_STATUS_BAD_REQUEST);
+        request(app)
+          .put(`${testRoute(sample1.id)}`)
+          .send(payload)
+          .use(tokenProvider(user1))
+          .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await badRequestTest({ matrix: 123 });
     });
@@ -215,12 +231,11 @@ describe('Sample routes', () => {
     };
 
     it('should update the sample', async () => {
-      const res = await withAccessToken(
-        request(app)
-          .put(`${testRoute(sample1.id)}`)
-          .send(validBody),
-        User1
-      ).expect(constants.HTTP_STATUS_OK);
+      const res = await request(app)
+        .put(`${testRoute(sample1.id)}`)
+        .send(validBody)
+        .use(tokenProvider(user1))
+        .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject({
         ...sample1,
@@ -238,7 +253,7 @@ describe('Sample routes', () => {
     });
 
     it('should be forbidden to update a sample that is already sent', async () => {
-      const sample = genSample(User1.id);
+      const sample = genSample(user1.id);
       await Samples().insert(
         formatPartialSample({
           ...sample,
@@ -247,12 +262,11 @@ describe('Sample routes', () => {
         })
       );
 
-      await withAccessToken(
-        request(app)
-          .put(`${testRoute(sample.id)}`)
-          .send(sample),
-        User1
-      ).expect(constants.HTTP_STATUS_FORBIDDEN);
+      await request(app)
+        .put(`${testRoute(sample.id)}`)
+        .send(sample)
+        .use(tokenProvider(user1))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
   });
 });

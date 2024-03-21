@@ -2,26 +2,29 @@ import { constants } from 'http2';
 import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
-import { User1 } from '../../../database/seeds/test/001-users';
 import {
   genNumber,
   genPrescriptions,
   genProgrammingPlan,
+  genUserApi,
 } from '../../../shared/test/testFixtures';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import { ProgrammingPlans } from '../../repositories/programmingPlanRepository';
+import { Users } from '../../repositories/userRepository';
 import { createServer } from '../../server';
-import { withAccessToken } from '../../test/testUtils';
+import { tokenProvider } from '../../test/testUtils';
 
 describe('Prescriptions routes', () => {
   const { app } = createServer();
 
-  const programmingPlan1 = genProgrammingPlan(User1.id);
-  const programmingPlan2 = genProgrammingPlan(User1.id);
+  const user = genUserApi();
+  const programmingPlan1 = genProgrammingPlan(user.id);
+  const programmingPlan2 = genProgrammingPlan(user.id);
   const prescriptions1 = genPrescriptions(programmingPlan1.id);
   const prescriptions2 = genPrescriptions(programmingPlan2.id);
 
   beforeAll(async () => {
+    await Users().insert(user);
     await ProgrammingPlans().insert([programmingPlan1, programmingPlan2]);
     await Prescriptions().insert(prescriptions1);
     await Prescriptions().insert(prescriptions2);
@@ -38,15 +41,17 @@ describe('Prescriptions routes', () => {
     });
 
     it('should get a valid programmingPlan id', async () => {
-      await withAccessToken(
-        request(app).get(`${testRoute(randomstring.generate())}`)
-      ).expect(constants.HTTP_STATUS_BAD_REQUEST);
+      await request(app)
+        .get(`${testRoute(randomstring.generate())}`)
+        .use(tokenProvider(user))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
     it('should find the prescriptions of the programmingPlan', async () => {
-      const res = await withAccessToken(
-        request(app).get(testRoute(programmingPlan1.id))
-      ).expect(constants.HTTP_STATUS_OK);
+      const res = await request(app)
+        .get(testRoute(programmingPlan1.id))
+        .use(tokenProvider(user))
+        .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject(expect.arrayContaining(prescriptions1));
       expect(res.body).not.toMatchObject(
@@ -70,41 +75,41 @@ describe('Prescriptions routes', () => {
     });
 
     it('should receive valid programmingPlanId and prescriptionId', async () => {
-      await withAccessToken(
-        request(app)
-          .put(testRoute(randomstring.generate(), prescriptions1[0].id))
-          .send(prescriptionUpdate)
-      ).expect(constants.HTTP_STATUS_BAD_REQUEST);
+      await request(app)
+        .put(testRoute(randomstring.generate(), prescriptions1[0].id))
+        .send(prescriptionUpdate)
+        .use(tokenProvider(user))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
-      await withAccessToken(
-        request(app)
-          .put(testRoute(programmingPlan1.id, randomstring.generate()))
-          .send(prescriptionUpdate)
-      ).expect(constants.HTTP_STATUS_BAD_REQUEST);
+      await request(app)
+        .put(testRoute(programmingPlan1.id, randomstring.generate()))
+        .send(prescriptionUpdate)
+        .use(tokenProvider(user))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
     it('should fail if the prescription does not exist', async () => {
-      await withAccessToken(
-        request(app)
-          .put(testRoute(programmingPlan1.id, uuidv4()))
-          .send(prescriptionUpdate)
-      ).expect(constants.HTTP_STATUS_NOT_FOUND);
+      await request(app)
+        .put(testRoute(programmingPlan1.id, uuidv4()))
+        .send(prescriptionUpdate)
+        .use(tokenProvider(user))
+        .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
     it('should fail if the prescription does not belong to the programmingPlan', async () => {
-      await withAccessToken(
-        request(app)
-          .put(testRoute(programmingPlan1.id, prescriptions2[0].id))
-          .send(prescriptions2[0])
-      ).expect(constants.HTTP_STATUS_FORBIDDEN);
+      await request(app)
+        .put(testRoute(programmingPlan1.id, prescriptions2[0].id))
+        .send(prescriptions2[0])
+        .use(tokenProvider(user))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     it('should update the sample count of the prescription', async () => {
-      const res = await withAccessToken(
-        request(app)
-          .put(testRoute(programmingPlan1.id, prescriptions1[0].id))
-          .send(prescriptionUpdate)
-      ).expect(constants.HTTP_STATUS_OK);
+      const res = await request(app)
+        .put(testRoute(programmingPlan1.id, prescriptions1[0].id))
+        .send(prescriptionUpdate)
+        .use(tokenProvider(user))
+        .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject({
         ...prescriptions1[0],

@@ -3,7 +3,7 @@ import db from './db';
 
 export const usersTable = 'users';
 
-const Users = () => db<UserDbo>(usersTable);
+export const Users = () => db<UserDbo>(usersTable);
 const get = async (userId: string): Promise<UserApi | null> => {
   console.log('Get UserApi with id', userId);
   const user = await Users().where('id', userId).first();

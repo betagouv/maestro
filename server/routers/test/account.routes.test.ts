@@ -1,13 +1,27 @@
+import bcrypt from 'bcryptjs';
 import { constants } from 'http2';
 import randomstring from 'randomstring';
 import request from 'supertest';
-import { User1 } from '../../../database/seeds/test/001-users';
+import {
+  genEmail,
+  genUserApi,
+  genValidPassword,
+} from '../../../shared/test/testFixtures';
+import { Users } from '../../repositories/userRepository';
 import { createServer } from '../../server';
-import { genEmail, genValidPassword } from '../../../shared/test/testFixtures';
 
 const { app } = createServer();
 
 describe('Account routes', () => {
+  const user = genUserApi();
+
+  beforeAll(async () => {
+    const hash = await bcrypt.hash(user.password, 10);
+    await Users().insert({
+      ...user,
+      password: hash,
+    });
+  });
 
   describe('POST /accounts/sign-in', () => {
     const testRoute = '/api/accounts/sign-in';
@@ -44,7 +58,7 @@ describe('Account routes', () => {
       await request(app)
         .post(testRoute)
         .send({
-          email: User1.email,
+          email: user.email,
           password: genValidPassword(),
         })
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
@@ -54,14 +68,14 @@ describe('Account routes', () => {
       const res = await request(app)
         .post(testRoute)
         .send({
-          email: User1.email,
-          password: User1.password,
+          email: user.email,
+          password: user.password,
         })
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject(
         expect.objectContaining({
-          userId: User1.id,
+          userId: user.id,
           accessToken: expect.any(String),
         })
       );
