@@ -81,14 +81,12 @@ const PrescriptionView = () => {
         bordered
         noCaption
         headers={[
-          <>
-            Matrice{' '}
-            <Button
-              title="Ajouter"
-              iconId="fr-icon-add-circle-line"
-              priority="tertiary no outline"
-            />
-          </>,
+          <Button
+            title="Ajouter"
+            iconId="fr-icon-add-circle-line"
+            priority="tertiary no outline"
+          />,
+          'Matrice',
           'Stade de prélèvement',
           'Total national',
           ...RegionList.map((region) => (
@@ -97,6 +95,12 @@ const PrescriptionView = () => {
         ]}
         data={[
           ...prescriptionsByMatrix.map((p) => [
+            <Button
+              title="Supprimer"
+              iconId="fr-icon-delete-line"
+              priority="tertiary no outline"
+              size="small"
+            />,
             <b>{p.sampleMatrix}</b>,
             <b>{p.sampleStage}</b>,
             <b>
@@ -117,6 +121,7 @@ const PrescriptionView = () => {
             )),
           ]),
           [
+            '',
             <b>Total</b>,
             '',
             <b>

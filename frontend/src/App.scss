@@ -1,5 +1,5 @@
 .fr-table {
-  th:has(button) {
+  th:has(button), td:has(button) {
     display: inline-flex;
     align-items: center;
   }
@@ -18,10 +18,6 @@
 .fr-container:has(.full-width) {
   max-width: inherit;
   align-content: center;
-
-  .fr-table__shadow::before {
-    content: none;
-  }
 }
 
 .pointer {
