@@ -1,17 +1,33 @@
 import bcrypt from 'bcryptjs';
 import { Knex } from 'knex';
 import { v4 as uuidv4 } from 'uuid';
-import { UserApi } from '../../../server/models/UserApi';
-import userRepository, {
-  usersTable,
-} from '../../../server/repositories/userRepository';
+import { Users } from '../../../server/repositories/userRepository';
 
 exports.seed = async function (knex: Knex) {
-  await knex.table(usersTable).insert(
-    userRepository.formatUserApi(<UserApi>{
+  await Users().insert([
+    {
       id: uuidv4(),
-      email: 'test@pspc.fr',
+      email: 'admin@pspc.fr',
       password: bcrypt.hashSync('Test2024'),
-    })
-  );
+      role: 'Administrator',
+    },
+    {
+      id: uuidv4(),
+      email: 'coordinateur.national@pspc.fr',
+      password: bcrypt.hashSync('Test2024'),
+      role: 'NationalCoordinator',
+    },
+    {
+      id: uuidv4(),
+      email: 'coordinateur.regional@pspc.fr',
+      password: bcrypt.hashSync('Test2024'),
+      role: 'RegionalCoordinator',
+    },
+    {
+      id: uuidv4(),
+      email: 'preleveur@pspc.fr',
+      password: bcrypt.hashSync('Test2024'),
+      role: 'Sampler',
+    },
+  ]);
 };

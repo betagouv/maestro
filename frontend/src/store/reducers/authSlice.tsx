@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { AuthUser } from 'src/models/User';
+import { AuthUser } from 'shared/schema/User/AuthUser';
 
 const authUser = JSON.parse(localStorage.getItem('authUser') ?? '{}');
 

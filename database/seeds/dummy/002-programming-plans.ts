@@ -4,7 +4,7 @@ import { ProgrammingPlans } from '../../../server/repositories/programmingPlanRe
 import userRepository from '../../../server/repositories/userRepository';
 
 exports.seed = async function (knex: Knex) {
-  const user = await userRepository.findOne('test@pspc.fr');
+  const user = await userRepository.findOne('coordinateur.national@pspc.fr');
 
   if (!user) {
     return;

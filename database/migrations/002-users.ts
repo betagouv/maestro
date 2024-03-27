@@ -5,6 +5,14 @@ exports.up = async (knex: Knex) => {
     table.uuid('id').primary().defaultTo(knex.raw('uuid_generate_v4()'));
     table.string('email').notNullable();
     table.string('password').notNullable();
+    table
+      .enum('role', [
+        'Administrator',
+        'NationalCoordinator',
+        'RegionalCoordinator',
+        'Sampler',
+      ])
+      .notNullable();
   });
 };
 

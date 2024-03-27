@@ -1,6 +1,5 @@
 import randomstring from 'randomstring';
 import { v4 as uuidv4 } from 'uuid';
-import { UserApi } from '../../server/models/UserApi';
 import { DepartmentList } from '../schema/Department';
 import { Prescription } from '../schema/Prescription/Prescription';
 import { ProgrammingPlanKindList } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
@@ -9,6 +8,9 @@ import { CreatedSample, Sample, SampleToCreate } from '../schema/Sample/Sample';
 import { SampleLegalContextList } from '../schema/Sample/SampleLegalContext';
 import { SampleStage, SampleStageList } from '../schema/Sample/SampleStage';
 import { SampleStorageConditionList } from '../schema/Sample/SampleStorageCondition';
+import { AuthUser } from '../schema/User/AuthUser';
+import { User } from '../schema/User/User';
+import { UserRole, UserRoleList } from '../schema/User/UserRole';
 
 export const genEmail = () => {
   return (
@@ -52,11 +54,20 @@ export function oneOf<T>(array: Array<T>): T {
 
 export const genValidPassword = () => '123Valid';
 
-export const genUserApi = (): UserApi => ({
+export const genUserApi = (role?: UserRole): User => ({
   id: uuidv4(),
   email: genEmail(),
   password: randomstring.generate(),
+  role: role ?? oneOf(UserRoleList),
 });
+
+export function genAuthUser(role?: UserRole): AuthUser {
+  return {
+    accessToken: randomstring.generate(),
+    userId: uuidv4(),
+    userRole: role ?? oneOf(UserRoleList),
+  };
+}
 
 export const genSampleToCreate = (): SampleToCreate => ({
   userLocation: {

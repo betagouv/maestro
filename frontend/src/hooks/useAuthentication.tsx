@@ -1,4 +1,7 @@
 import { ReactElement, useMemo } from 'react';
+import { UserPermission } from 'shared/schema/User/UserPermission';
+import { UserRolePermissions } from 'shared/schema/User/UserRole';
+import { isDefined } from 'shared/utils/utils';
 import { useAppSelector } from 'src/hooks/useStore';
 import HomeView from 'src/views/HomeView/HomeView';
 import PrescriptionView from 'src/views/PrescriptionView/PrescriptionView';
@@ -11,6 +14,16 @@ export const useAuthentication = () => {
   const { authUser } = useAppSelector((state) => state.auth);
 
   const isAuthenticated = useMemo(() => !!authUser?.userId, [authUser]);
+
+  const hasPermission = useMemo(
+    () => (permission: UserPermission) => {
+      return (
+        authUser?.userRole &&
+        UserRolePermissions[authUser.userRole ?? '']?.includes(permission)
+      );
+    },
+    [authUser]
+  );
 
   const availableRoutes: {
     path: string;
@@ -27,36 +40,46 @@ export const useAuthentication = () => {
       },
       ...(isAuthenticated
         ? [
-            {
-              path: '/plans',
-              label: 'Plans',
-              key: 'programming_plans_route',
-              component: ProgrammingPlanListView,
-            },
-            {
-              path: '/plans/:programmingPlanId/prescription',
-              label: 'Plans',
-              key: 'prescription_route',
-              component: PrescriptionView,
-            },
-            {
-              path: '/prelevements',
-              label: 'Prélèvements',
-              key: 'samples_route',
-              component: SampleListView,
-            },
-            {
-              path: '/prelevements/nouveau',
-              label: 'Prélèvement',
-              key: 'new_sample_route',
-              component: SampleView,
-            },
-            {
-              path: '/prelevements/:sampleId',
-              label: 'Prélèvement',
-              key: 'sample_route',
-              component: SampleView,
-            },
+            hasPermission('readPrescriptions')
+              ? {
+                  path: '/plans',
+                  label: 'Plans',
+                  key: 'programming_plans_route',
+                  component: ProgrammingPlanListView,
+                }
+              : undefined,
+            hasPermission('readPrescriptions')
+              ? {
+                  path: '/plans/:programmingPlanId/prescription',
+                  label: 'Plans',
+                  key: 'prescription_route',
+                  component: PrescriptionView,
+                }
+              : undefined,
+            hasPermission('readSamples')
+              ? {
+                  path: '/prelevements',
+                  label: 'Prélèvements',
+                  key: 'samples_route',
+                  component: SampleListView,
+                }
+              : undefined,
+            hasPermission('createSample')
+              ? {
+                  path: '/prelevements/nouveau',
+                  label: 'Prélèvement',
+                  key: 'new_sample_route',
+                  component: SampleView,
+                }
+              : undefined,
+            hasPermission('updateSample')
+              ? {
+                  path: '/prelevements/:sampleId',
+                  label: 'Prélèvement',
+                  key: 'sample_route',
+                  component: SampleView,
+                }
+              : undefined,
           ]
         : [
             {
@@ -66,12 +89,14 @@ export const useAuthentication = () => {
               component: SignInView,
             },
           ]),
-    ];
+    ].filter(isDefined);
   }, [isAuthenticated]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
     userId: authUser?.userId,
+    userRole: authUser?.userRole,
     isAuthenticated,
+    hasPermission,
     availableRoutes,
   };
 };

@@ -1,5 +1,8 @@
+import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Header as DSFRHeader } from '@codegouvfr/react-dsfr/Header';
 import { useLocation } from 'react-router-dom';
+import { UserRole, UserRoleLabels } from 'shared/schema/User/UserRole';
+import { isDefined } from 'shared/utils/utils';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch } from 'src/hooks/useStore';
 import authSlice from 'src/store/reducers/authSlice';
@@ -8,7 +11,7 @@ const Header = () => {
   const dispatch = useAppDispatch();
   const location = useLocation();
 
-  const { isAuthenticated } = useAuthentication();
+  const { isAuthenticated, hasPermission, userRole } = useAuthentication();
 
   return (
     <DSFRHeader
@@ -36,47 +39,58 @@ const Header = () => {
           Plan de Contrôle
         </>
       }
-      navigation={
+      navigation={(isAuthenticated
+        ? [
+            hasPermission('readPrescriptions')
+              ? {
+                  linkProps: {
+                    to: '/plans',
+                    target: '_self',
+                  },
+                  text: 'Mes plans',
+                  isActive: location.pathname.startsWith('/plans'),
+                }
+              : undefined,
+            hasPermission('readSamples')
+              ? {
+                  linkProps: {
+                    to: '/prelevements',
+                    target: '_self',
+                  },
+                  text: 'Mes prélèvements',
+                  isActive: location.pathname.startsWith('/prelevements'),
+                }
+              : undefined,
+            ,
+          ]
+        : []
+      ).filter(isDefined)}
+      quickAccessItems={
         isAuthenticated
           ? [
+              <span className={cx('fr-text--sm', 'fr-mt-1v')}>
+                {UserRoleLabels[userRole as UserRole]}
+              </span>,
               {
-                linkProps: {
-                  to: '/plans',
-                  target: '_self',
+                buttonProps: {
+                  onClick: () => {
+                    dispatch(authSlice.actions.signoutUser());
+                  },
                 },
-                text: 'Mes plans',
-                isActive: location.pathname.startsWith('/plans'),
-              },
-              {
-                linkProps: {
-                  to: '/prelevements',
-                  target: '_self',
-                },
-                text: 'Mes prélèvements',
-                isActive: location.pathname.startsWith('/prelevements'),
+                iconId: 'fr-icon-logout-box-r-line',
+                text: 'Se déconnecter',
               },
             ]
-          : []
-      }
-      quickAccessItems={[
-        isAuthenticated
-          ? {
-              buttonProps: {
-                onClick: () => {
-                  dispatch(authSlice.actions.signoutUser());
+          : [
+              {
+                linkProps: {
+                  to: '/connexion',
                 },
+                iconId: 'fr-icon-user-fill',
+                text: 'Se connecter',
               },
-              iconId: 'fr-icon-logout-box-r-line',
-              text: 'Se déconnecter',
-            }
-          : {
-              linkProps: {
-                to: '/connexion',
-              },
-              iconId: 'fr-icon-user-fill',
-              text: 'Se connecter',
-            },
-      ]}
+            ]
+      }
     />
   );
 };

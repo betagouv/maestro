@@ -11,7 +11,7 @@ import {
 import prescriptionController from '../controllers/prescriptionController';
 import programmingPlanController from '../controllers/programmingPlanController';
 import sampleController from '../controllers/sampleController';
-import { jwtCheck, userCheck } from '../middlewares/auth';
+import { jwtCheck, permissionsCheck, userCheck } from '../middlewares/auth';
 import validator, { body, params, uuidParam } from '../middlewares/validator';
 const router = express.Router();
 
@@ -48,6 +48,7 @@ router.get(
 router.get(
   '/programming-plans/:programmingPlanId/prescriptions',
   validator.validate(uuidParam('programmingPlanId')),
+  permissionsCheck(['readPrescriptions']),
   prescriptionController.findPrescriptions
 );
 router.post(
@@ -55,6 +56,7 @@ router.post(
   validator.validate(
     uuidParam('programmingPlanId').merge(body(z.array(PrescriptionToCreate)))
   ),
+  permissionsCheck(['createPrescription']),
   prescriptionController.createPrescriptions
 );
 router.put(
@@ -67,6 +69,7 @@ router.put(
       })
     ).merge(body(PrescriptionUpdate))
   ),
+  permissionsCheck(['updatePrescription']),
   prescriptionController.updatePrescription
 );
 router.delete(
@@ -74,6 +77,7 @@ router.delete(
   validator.validate(
     uuidParam('programmingPlanId').merge(body(z.array(z.string().uuid())))
   ),
+  permissionsCheck(['deletePrescription']),
   prescriptionController.deletePrescriptions
 );
 

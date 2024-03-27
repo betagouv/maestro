@@ -1,4 +1,4 @@
-import { AuthUser } from 'src/models/User';
+import { AuthUser } from 'shared/schema/User/AuthUser';
 import { api } from 'src/services/api.service';
 
 export const accountApi = api.injectEndpoints({
@@ -9,10 +9,7 @@ export const accountApi = api.injectEndpoints({
         method: 'POST',
         body: { email, password },
       }),
-      transformResponse: (result: any) => ({
-        userId: result.userId,
-        accessToken: result.accessToken,
-      }),
+      transformResponse: (result: any) => AuthUser.parse(result),
       invalidatesTags: ['User'],
     }),
   }),

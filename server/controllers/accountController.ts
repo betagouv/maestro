@@ -4,7 +4,7 @@ import { constants } from 'http2';
 import jwt from 'jsonwebtoken';
 import AuthenticationFailedError from '../../shared/errors/authenticationFailedError';
 import { SignIn } from '../../shared/schema/SignIn';
-import { TokenPayload } from '../models/UserApi';
+import { TokenPayload } from '../../shared/schema/User/TokenPayload';
 import userRepository from '../repositories/userRepository';
 import config from '../utils/config';
 
@@ -32,6 +32,7 @@ const signIn = async (request: Request, response: Response) => {
   return response.status(constants.HTTP_STATUS_OK).json({
     userId: user.id,
     accessToken,
+    userRole: user.role,
   });
 };
 
