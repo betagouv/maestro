@@ -1,9 +1,8 @@
 import bcrypt from 'bcryptjs';
-import { Knex } from 'knex';
 import { v4 as uuidv4 } from 'uuid';
 import { Users } from '../../../server/repositories/userRepository';
 
-exports.seed = async function (knex: Knex) {
+exports.seed = async function () {
   await Users().insert([
     {
       id: uuidv4(),

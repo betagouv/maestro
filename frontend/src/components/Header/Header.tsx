@@ -61,7 +61,6 @@ const Header = () => {
                   isActive: location.pathname.startsWith('/prelevements'),
                 }
               : undefined,
-            ,
           ]
         : []
       ).filter(isDefined)}

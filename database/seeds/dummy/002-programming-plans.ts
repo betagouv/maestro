@@ -1,9 +1,8 @@
-import { Knex } from 'knex';
 import { v4 as uuidv4 } from 'uuid';
 import { ProgrammingPlans } from '../../../server/repositories/programmingPlanRepository';
 import userRepository from '../../../server/repositories/userRepository';
 
-exports.seed = async function (knex: Knex) {
+exports.seed = async function () {
   const user = await userRepository.findOne('coordinateur.national@pspc.fr');
 
   if (!user) {
