@@ -59,18 +59,18 @@ describe('PrescriptionsByMatrix', () => {
         },
         {
           programmingPlanId: '1',
-          sampleMatrix: 'B',
-          sampleStage: 'Avant récolte',
-          regionSampleCounts: [
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0,
-          ],
-        },
-        {
-          programmingPlanId: '1',
           sampleMatrix: 'A',
           sampleStage: 'Stockage',
           regionSampleCounts: [
             0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          ],
+        },
+        {
+          programmingPlanId: '1',
+          sampleMatrix: 'B',
+          sampleStage: 'Avant récolte',
+          regionSampleCounts: [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0,
           ],
         },
         {

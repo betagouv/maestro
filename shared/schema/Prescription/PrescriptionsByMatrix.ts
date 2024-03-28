@@ -38,9 +38,17 @@ export const genPrescriptionByMatrix = (
       return acc;
     }, [] as PrescriptionByMatrix[])
     .sort((a, b) =>
-      `${a.sampleMatrix}-${SampleStageList.indexOf(
-        a.sampleStage
-      )}`.localeCompare(
-        `${b.sampleMatrix}-${SampleStageList.indexOf(b.sampleStage)}`
-      )
+      [
+        a.programmingPlanId,
+        a.sampleMatrix,
+        SampleStageList.indexOf(a.sampleStage),
+      ]
+        .join()
+        .localeCompare(
+          [
+            b.programmingPlanId,
+            b.sampleMatrix,
+            SampleStageList.indexOf(b.sampleStage),
+          ].join()
+        )
     );
