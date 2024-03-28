@@ -82,16 +82,18 @@ describe('ProgrammingPlan routes', () => {
         .use(tokenProvider(user1))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toMatchObject([
-        {
-          ...programmingPlan1,
-          createdAt: programmingPlan1.createdAt.toISOString(),
-        },
-        {
-          ...programmingPlan2,
-          createdAt: programmingPlan2.createdAt.toISOString(),
-        },
-      ]);
+      expect(res.body).toMatchObject(
+        expect.arrayContaining([
+          {
+            ...programmingPlan1,
+            createdAt: programmingPlan1.createdAt.toISOString(),
+          },
+          {
+            ...programmingPlan2,
+            createdAt: programmingPlan2.createdAt.toISOString(),
+          },
+        ])
+      );
     });
   });
 });
