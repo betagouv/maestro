@@ -2,10 +2,7 @@ import { constants } from 'http2';
 import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  genProgrammingPlan,
-  genUserApi,
-} from '../../../shared/test/testFixtures';
+import { genProgrammingPlan, genUser } from '../../../shared/test/testFixtures';
 import { ProgrammingPlans } from '../../repositories/programmingPlanRepository';
 import { Users } from '../../repositories/userRepository';
 import { createServer } from '../../server';
@@ -14,8 +11,8 @@ import { tokenProvider } from '../../test/testUtils';
 describe('ProgrammingPlan routes', () => {
   const { app } = createServer();
 
-  const user1 = genUserApi();
-  const user2 = genUserApi();
+  const user1 = genUser();
+  const user2 = genUser();
   const programmingPlan1 = genProgrammingPlan(user1.id);
   const programmingPlan2 = genProgrammingPlan(user2.id);
 
@@ -79,7 +76,7 @@ describe('ProgrammingPlan routes', () => {
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    it('should find the programmingPlans of the authenticated user', async () => {
+    it('should find all the programmingPlans', async () => {
       const res = await request(app)
         .get(testRoute)
         .use(tokenProvider(user1))
@@ -89,6 +86,10 @@ describe('ProgrammingPlan routes', () => {
         {
           ...programmingPlan1,
           createdAt: programmingPlan1.createdAt.toISOString(),
+        },
+        {
+          ...programmingPlan2,
+          createdAt: programmingPlan2.createdAt.toISOString(),
         },
       ]);
     });

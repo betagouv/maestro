@@ -7,7 +7,7 @@ import {
   genNumber,
   genPrescriptions,
   genProgrammingPlan,
-  genUserApi,
+  genUser,
 } from '../../../shared/test/testFixtures';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import { ProgrammingPlans } from '../../repositories/programmingPlanRepository';
@@ -18,7 +18,7 @@ import { tokenProvider } from '../../test/testUtils';
 describe('Prescriptions routes', () => {
   const { app } = createServer();
 
-  const user = genUserApi();
+  const user = genUser('NationalCoordinator');
   const programmingPlan1 = genProgrammingPlan(user.id);
   const programmingPlan2 = genProgrammingPlan(user.id);
   const prescriptions1 = genPrescriptions(programmingPlan1.id);

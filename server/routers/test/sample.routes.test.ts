@@ -7,7 +7,7 @@ import {
   genCreatedSample,
   genSample,
   genSampleToCreate,
-  genUserApi,
+  genUser,
   oneOf,
 } from '../../../shared/test/testFixtures';
 import {
@@ -21,8 +21,8 @@ import { tokenProvider } from '../../test/testUtils';
 describe('Sample routes', () => {
   const { app } = createServer();
 
-  const user1 = genUserApi();
-  const user2 = genUserApi();
+  const user1 = genUser();
+  const user2 = genUser();
   const sample1 = genSample(user1.id);
   const sample2 = genSample(user2.id);
 

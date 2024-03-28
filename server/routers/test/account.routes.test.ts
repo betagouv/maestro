@@ -4,7 +4,7 @@ import randomstring from 'randomstring';
 import request from 'supertest';
 import {
   genEmail,
-  genUserApi,
+  genUser,
   genValidPassword,
 } from '../../../shared/test/testFixtures';
 import { Users } from '../../repositories/userRepository';
@@ -13,7 +13,7 @@ import { createServer } from '../../server';
 const { app } = createServer();
 
 describe('Account routes', () => {
-  const user = genUserApi();
+  const user = genUser();
 
   beforeAll(async () => {
     const hash = await bcrypt.hash(user.password, 10);

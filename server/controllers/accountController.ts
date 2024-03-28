@@ -12,7 +12,7 @@ const signIn = async (request: Request, response: Response) => {
   const { email, password } = request.body as SignIn;
 
   const user = await userRepository.findOne(email);
-  if (!user) {
+  if (!user || !user.password) {
     throw new AuthenticationFailedError();
   }
 

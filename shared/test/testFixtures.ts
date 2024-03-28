@@ -56,8 +56,8 @@ export const genValidPassword = () => '123Valid';
 
 export const genUser = (role?: UserRole): User => ({
   id: uuidv4(),
+  password: randomstring.generate(),
   email: genEmail(),
-  // password: randomstring.generate(),
   role: role ?? oneOf(UserRoleList),
 });
 
