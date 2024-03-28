@@ -59,7 +59,10 @@ export const genUser = (role?: UserRole): User => ({
   password: randomstring.generate(),
   email: genEmail(),
   role: role ?? oneOf(UserRoleList),
-  region: oneOf(RegionList),
+  region:
+    role === 'NationalCoordinator' || role === 'Administrator'
+      ? null
+      : oneOf(RegionList),
 });
 
 export function genAuthUser(): AuthUser {

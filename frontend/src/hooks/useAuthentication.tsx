@@ -1,5 +1,4 @@
 import { ReactElement, useMemo } from 'react';
-import { UserInfos } from 'shared/schema/User/User';
 import { UserPermission } from 'shared/schema/User/UserPermission';
 import { UserRole, UserRolePermissions } from 'shared/schema/User/UserRole';
 import { isDefined } from 'shared/utils/utils';
@@ -111,7 +110,7 @@ export const useAuthentication = () => {
   }, [isAuthenticated, hasPermission]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
-    userInfos: userInfos as UserInfos,
+    userInfos,
     isAuthenticated,
     hasPermission,
     hasRole,

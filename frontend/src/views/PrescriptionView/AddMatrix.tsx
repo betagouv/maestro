@@ -74,6 +74,7 @@ const AddMatrix = ({ excludedList, onAddMatrix }: AddMatrixProps) => {
         priority="tertiary no outline"
         className={cx('fr-pl-1w', 'fr-pr-0')}
         onClick={addModal.open}
+        data-testid="add-matrix-button"
       />
       <addModal.Component
         title="Ajouter une matrice"
