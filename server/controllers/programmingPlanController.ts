@@ -16,12 +16,6 @@ const getProgrammingPlan = async (request: Request, response: Response) => {
     return response.sendStatus(constants.HTTP_STATUS_NOT_FOUND);
   }
 
-  if (
-    programmingPlan.createdBy !== (request as AuthenticatedRequest).auth.userId
-  ) {
-    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
-  }
-
   response.status(constants.HTTP_STATUS_OK).send(programmingPlan);
 };
 

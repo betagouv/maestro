@@ -11,16 +11,15 @@ import { tokenProvider } from '../../test/testUtils';
 describe('ProgrammingPlan router', () => {
   const { app } = createServer();
 
-  const user1 = genUser();
-  const user2 = genUser();
-  const programmingPlan1 = genProgrammingPlan(user1.id);
-  const programmingPlan2 = genProgrammingPlan(user2.id);
+  const nationalCoordinator = genUser('NationalCoordinator');
+  const regionalCoordinator = genUser('RegionalCoordinator');
+  const sampler = genUser('Sampler');
+  const programmingPlan1 = genProgrammingPlan(nationalCoordinator.id);
+  const programmingPlan2 = genProgrammingPlan(nationalCoordinator.id);
 
   beforeAll(async () => {
-    await Users().insert(user1);
-    await Users().insert(user2);
-    await ProgrammingPlans().insert(programmingPlan1);
-    await ProgrammingPlans().insert(programmingPlan2);
+    await Users().insert([nationalCoordinator, regionalCoordinator, sampler]);
+    await ProgrammingPlans().insert([programmingPlan1, programmingPlan2]);
   });
 
   describe('GET /programming-plans/{programmingPlanId}', () => {
@@ -36,28 +35,28 @@ describe('ProgrammingPlan router', () => {
     it('should get a valid programmingPlan id', async () => {
       await request(app)
         .get(`${testRoute(randomstring.generate())}`)
-        .use(tokenProvider(user1))
+        .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
     it('should fail if the programmingPlan does not exist', async () => {
       await request(app)
         .get(`${testRoute(uuidv4())}`)
-        .use(tokenProvider(user1))
+        .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
-    it('should fail if the programmingPlan does not belong to the user', async () => {
+    it('should fail if the user does not have the permission to read programmingPlans', async () => {
       await request(app)
-        .get(`${testRoute(programmingPlan1.id)}`)
-        .use(tokenProvider(user2))
+        .get(testRoute(programmingPlan1.id))
+        .use(tokenProvider(sampler))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     it('should get the programmingPlan', async () => {
       const res = await request(app)
         .get(testRoute(programmingPlan1.id))
-        .use(tokenProvider(user1))
+        .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject({
@@ -76,10 +75,17 @@ describe('ProgrammingPlan router', () => {
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
+    it('should fail if the user does not have the permission to read programmingPlans', async () => {
+      await request(app)
+        .get(testRoute)
+        .use(tokenProvider(sampler))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
     it('should find all the programmingPlans', async () => {
       const res = await request(app)
         .get(testRoute)
-        .use(tokenProvider(user1))
+        .use(tokenProvider(regionalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject(

@@ -58,7 +58,7 @@ export const useAuthentication = () => {
       },
       ...(isAuthenticated
         ? [
-            hasPermission('readPrescriptions')
+            hasPermission('readProgrammingPlans')
               ? {
                   path: '/plans',
                   label: 'Plans',

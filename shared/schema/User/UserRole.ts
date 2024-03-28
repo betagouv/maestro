@@ -19,12 +19,13 @@ export const UserRoleList: UserRole[] = [
 
 export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
   NationalCoordinator: [
+    'readProgrammingPlans',
     'createPrescription',
     'readPrescriptions',
     'updatePrescription',
     'deletePrescription',
   ],
-  RegionalCoordinator: ['readPrescriptions'],
+  RegionalCoordinator: ['readProgrammingPlans', 'readPrescriptions'],
   Sampler: ['createSample', 'readSamples', 'updateSample'],
   Administrator: UserPermissionList,
 };

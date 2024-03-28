@@ -41,7 +41,7 @@ const Header = () => {
       }
       navigation={(isAuthenticated
         ? [
-            hasPermission('readPrescriptions')
+            hasPermission('readProgrammingPlans')
               ? {
                   linkProps: {
                     to: '/plans',

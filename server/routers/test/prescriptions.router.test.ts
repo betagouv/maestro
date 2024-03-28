@@ -3,6 +3,7 @@ import fp from 'lodash/fp';
 import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
+import { Prescription } from '../../../shared/schema/Prescription/Prescription';
 import {
   genNumber,
   genPrescriptions,
@@ -18,17 +19,18 @@ import { tokenProvider } from '../../test/testUtils';
 describe('Prescriptions router', () => {
   const { app } = createServer();
 
-  const user = genUser('NationalCoordinator');
-  const programmingPlan1 = genProgrammingPlan(user.id);
-  const programmingPlan2 = genProgrammingPlan(user.id);
+  const nationalCoordinator = genUser('NationalCoordinator');
+  const regionalCoordinator = genUser('RegionalCoordinator');
+  const sampler = genUser('Sampler');
+  const programmingPlan1 = genProgrammingPlan(nationalCoordinator.id);
+  const programmingPlan2 = genProgrammingPlan(nationalCoordinator.id);
   const prescriptions1 = genPrescriptions(programmingPlan1.id);
   const prescriptions2 = genPrescriptions(programmingPlan2.id);
 
   beforeAll(async () => {
-    await Users().insert(user);
+    await Users().insert([nationalCoordinator, regionalCoordinator, sampler]);
     await ProgrammingPlans().insert([programmingPlan1, programmingPlan2]);
-    await Prescriptions().insert(prescriptions1);
-    await Prescriptions().insert(prescriptions2);
+    await Prescriptions().insert([...prescriptions1, ...prescriptions2]);
   });
 
   describe('GET /programming-plans/{programmingPlanId}/prescriptions', () => {
@@ -44,14 +46,21 @@ describe('Prescriptions router', () => {
     it('should get a valid programmingPlan id', async () => {
       await request(app)
         .get(`${testRoute(randomstring.generate())}`)
-        .use(tokenProvider(user))
+        .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    it('should fail if the user does not have the permission to read prescriptions', async () => {
+      await request(app)
+        .get(testRoute(programmingPlan1.id))
+        .use(tokenProvider(sampler))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     it('should find the prescriptions of the programmingPlan', async () => {
       const res = await request(app)
         .get(testRoute(programmingPlan1.id))
-        .use(tokenProvider(user))
+        .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject(expect.arrayContaining(prescriptions1));
@@ -79,7 +88,7 @@ describe('Prescriptions router', () => {
       await request(app)
         .post(testRoute(randomstring.generate()))
         .send(prescriptionsToCreate)
-        .use(tokenProvider(user))
+        .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
@@ -90,18 +99,34 @@ describe('Prescriptions router', () => {
           ...prescriptionsToCreate,
           { ...prescriptionsToCreate[0], sampleCount: 'invalid' },
         ])
-        .use(tokenProvider(user))
+        .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    it('should fail if the user does not have the permission to create prescriptions', async () => {
+      await request(app)
+        .post(testRoute(programmingPlan1.id))
+        .send(prescriptionsToCreate)
+        .use(tokenProvider(regionalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     it('should create the prescriptions', async () => {
       const res = await request(app)
         .post(testRoute(programmingPlan1.id))
         .send(prescriptionsToCreate)
-        .use(tokenProvider(user))
+        .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_CREATED);
 
       expect(res.body).toMatchObject(prescriptionsToCreate);
+
+      //Cleanup
+      await Prescriptions()
+        .whereIn(
+          'id',
+          (res.body as Prescription[]).map(({ id }) => id)
+        )
+        .delete();
     });
   });
 
@@ -123,13 +148,13 @@ describe('Prescriptions router', () => {
       await request(app)
         .put(testRoute(randomstring.generate(), prescriptions1[0].id))
         .send(prescriptionUpdate)
-        .use(tokenProvider(user))
+        .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await request(app)
         .put(testRoute(programmingPlan1.id, randomstring.generate()))
         .send(prescriptionUpdate)
-        .use(tokenProvider(user))
+        .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
@@ -137,7 +162,7 @@ describe('Prescriptions router', () => {
       await request(app)
         .put(testRoute(programmingPlan1.id, uuidv4()))
         .send(prescriptionUpdate)
-        .use(tokenProvider(user))
+        .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
@@ -145,7 +170,15 @@ describe('Prescriptions router', () => {
       await request(app)
         .put(testRoute(programmingPlan1.id, prescriptions2[0].id))
         .send(prescriptions2[0])
-        .use(tokenProvider(user))
+        .use(tokenProvider(nationalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    it('should fail if the user does not have the permission to update prescriptions', async () => {
+      await request(app)
+        .put(testRoute(programmingPlan1.id, prescriptions1[0].id))
+        .send(prescriptionUpdate)
+        .use(tokenProvider(regionalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
@@ -153,7 +186,7 @@ describe('Prescriptions router', () => {
       const res = await request(app)
         .put(testRoute(programmingPlan1.id, prescriptions1[0].id))
         .send(prescriptionUpdate)
-        .use(tokenProvider(user))
+        .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject({
@@ -178,7 +211,7 @@ describe('Prescriptions router', () => {
       await request(app)
         .delete(testRoute(randomstring.generate()))
         .send([prescriptions1[0].id])
-        .use(tokenProvider(user))
+        .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
@@ -186,15 +219,23 @@ describe('Prescriptions router', () => {
       await request(app)
         .delete(testRoute(programmingPlan1.id))
         .send([randomstring.generate()])
-        .use(tokenProvider(user))
+        .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    it('should fail if the user does not have the permission to delete prescriptions', async () => {
+      await request(app)
+        .delete(testRoute(programmingPlan1.id))
+        .send([prescriptions1[0].id])
+        .use(tokenProvider(regionalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     it('should delete the prescriptions of the programmingPlan', async () => {
       await request(app)
         .delete(testRoute(programmingPlan1.id))
         .send([...prescriptions1, ...prescriptions2].map(({ id }) => id))
-        .use(tokenProvider(user))
+        .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_NO_CONTENT);
 
       await expect(
@@ -202,7 +243,7 @@ describe('Prescriptions router', () => {
           .where({ programmingPlanId: programmingPlan1.id })
           .count()
           .first()
-      ).resolves.toMatchObject({ count: '18' });
+      ).resolves.toMatchObject({ count: '0' });
       await expect(
         Prescriptions()
           .where({ programmingPlanId: programmingPlan2.id })
