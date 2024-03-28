@@ -68,7 +68,7 @@ describe('Header', () => {
     test('should display only authorized items', async () => {
       mockRequests([
         {
-          pathname: `/api/users/${user.id}`,
+          pathname: `/api/users/${user.id}/infos`,
           response: { body: JSON.stringify(user) },
         },
       ]);
@@ -95,7 +95,7 @@ describe('Header', () => {
     beforeEach(() => {
       mockRequests([
         {
-          pathname: `/api/users/${user.id}`,
+          pathname: `/api/users/${user.id}/infos`,
           response: { body: JSON.stringify(user) },
         },
       ]);
@@ -123,7 +123,7 @@ describe('Header', () => {
     beforeEach(() => {
       mockRequests([
         {
-          pathname: `/api/users/${user.id}`,
+          pathname: `/api/users/${user.id}/infos`,
           response: { body: JSON.stringify(user) },
         },
       ]);
@@ -152,7 +152,7 @@ describe('Header', () => {
     beforeEach(() => {
       mockRequests([
         {
-          pathname: `/api/users/${user.id}`,
+          pathname: `/api/users/${user.id}/infos`,
           response: { body: JSON.stringify(user) },
         },
       ]);
