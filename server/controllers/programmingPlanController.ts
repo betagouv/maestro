@@ -30,7 +30,7 @@ const findProgrammingPlans = async (request: Request, response: Response) => {
 
   console.info('Find programmingPlans for user', userId);
 
-  const programmingPlans = await programmingPlanRepository.findMany(userId);
+  const programmingPlans = await programmingPlanRepository.findMany();
 
   response.status(constants.HTTP_STATUS_OK).send(programmingPlans);
 };

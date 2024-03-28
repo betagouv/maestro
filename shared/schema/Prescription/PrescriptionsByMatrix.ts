@@ -13,7 +13,8 @@ export const PrescriptionByMatrix = z.object({
 export type PrescriptionByMatrix = z.infer<typeof PrescriptionByMatrix>;
 
 export const genPrescriptionByMatrix = (
-  prescriptions?: Prescription[]
+  prescriptions?: Prescription[],
+  includedRegions = RegionList
 ): PrescriptionByMatrix[] =>
   (prescriptions ?? []).reduce((acc, prescription) => {
     const index = acc.findIndex(
@@ -27,11 +28,11 @@ export const genPrescriptionByMatrix = (
         programmingPlanId: prescription.programmingPlanId,
         sampleMatrix: prescription.sampleMatrix,
         sampleStage: prescription.sampleStage,
-        regionSampleCounts: new Array(18).fill(0),
+        regionSampleCounts: new Array(includedRegions.length).fill(0),
       });
     }
     acc[index === -1 ? acc.length - 1 : index].regionSampleCounts[
-      RegionList.indexOf(prescription.region)
+      includedRegions.indexOf(prescription.region)
     ] = prescription.sampleCount;
     return acc;
   }, [] as PrescriptionByMatrix[]);

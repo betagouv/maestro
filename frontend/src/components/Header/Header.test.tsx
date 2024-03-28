@@ -1,12 +1,27 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore, Store } from '@reduxjs/toolkit';
 import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
-import { genAuthUser } from 'shared/test/testFixtures';
-import { applicationReducer, store } from 'src/store/store';
+import { genAuthUser, genUser } from 'shared/test/testFixtures';
+import { applicationMiddleware, applicationReducer } from 'src/store/store';
+import { mockRequests } from '../../../test/requestUtils.test';
 import Header from './Header';
 
 describe('Header', () => {
+  const authUser = genAuthUser();
+  let store: Store;
+
+  beforeEach(() => {
+    fetchMock.resetMocks();
+    store = configureStore({
+      reducer: applicationReducer,
+      middleware: applicationMiddleware,
+      preloadedState: {
+        auth: { authUser },
+      },
+    });
+  });
+
   test('should display brand', () => {
     render(
       <Provider store={store}>
@@ -45,13 +60,18 @@ describe('Header', () => {
   });
 
   describe('when user is authenticated with role "NationalCoordinator"', () => {
-    test('should display only authorized items', () => {
-      const store = configureStore({
-        reducer: applicationReducer,
-        preloadedState: {
-          auth: { authUser: genAuthUser('NationalCoordinator') },
+    const user = {
+      ...genUser('NationalCoordinator'),
+      id: authUser.userId,
+    };
+
+    test('should display only authorized items', async () => {
+      mockRequests([
+        {
+          pathname: `/api/users/${user.id}`,
+          response: { body: JSON.stringify(user) },
         },
-      });
+      ]);
 
       render(
         <Provider store={store}>
@@ -61,20 +81,27 @@ describe('Header', () => {
         </Provider>
       );
 
-      expect(screen.getByText('Mes plans')).toBeInTheDocument();
+      expect(await screen.findByText('Mes plans')).toBeInTheDocument();
       expect(screen.queryByText('Mes prélèvements')).not.toBeInTheDocument();
     });
   });
 
   describe('when user is authenticated with role "RegionalCoordinator"', () => {
-    test('should display only authorized items', () => {
-      const store = configureStore({
-        reducer: applicationReducer,
-        preloadedState: {
-          auth: { authUser: genAuthUser('RegionalCoordinator') },
-        },
-      });
+    const user = {
+      ...genUser('RegionalCoordinator'),
+      id: authUser.userId,
+    };
 
+    beforeEach(() => {
+      mockRequests([
+        {
+          pathname: `/api/users/${user.id}`,
+          response: { body: JSON.stringify(user) },
+        },
+      ]);
+    });
+
+    test('should display only authorized items', async () => {
       render(
         <Provider store={store}>
           <MemoryRouter>
@@ -82,21 +109,27 @@ describe('Header', () => {
           </MemoryRouter>
         </Provider>
       );
-
-      expect(screen.getByText('Mes plans')).toBeInTheDocument();
+      expect(await screen.findByText('Mes plans')).toBeInTheDocument();
       expect(screen.queryByText('Mes prélèvements')).not.toBeInTheDocument();
     });
   });
 
   describe('when user is authenticated with role "Sampler"', () => {
-    test('should display only authorized items', () => {
-      const store = configureStore({
-        reducer: applicationReducer,
-        preloadedState: {
-          auth: { authUser: genAuthUser('Sampler') },
-        },
-      });
+    const user = {
+      ...genUser('Sampler'),
+      id: authUser.userId,
+    };
 
+    beforeEach(() => {
+      mockRequests([
+        {
+          pathname: `/api/users/${user.id}`,
+          response: { body: JSON.stringify(user) },
+        },
+      ]);
+    });
+
+    test('should display only authorized items', async () => {
       render(
         <Provider store={store}>
           <MemoryRouter>
@@ -105,20 +138,27 @@ describe('Header', () => {
         </Provider>
       );
 
+      expect(await screen.findByText('Mes prélèvements')).toBeInTheDocument();
       expect(screen.queryByText('Mes plans')).not.toBeInTheDocument();
-      expect(screen.getByText('Mes prélèvements')).toBeInTheDocument();
     });
   });
 
   describe('when user is authenticated with role "Administrator"', () => {
-    test('should display all items', () => {
-      const store = configureStore({
-        reducer: applicationReducer,
-        preloadedState: {
-          auth: { authUser: genAuthUser('Administrator') },
-        },
-      });
+    const user = {
+      ...genUser('Administrator'),
+      id: authUser.userId,
+    };
 
+    beforeEach(() => {
+      mockRequests([
+        {
+          pathname: `/api/users/${user.id}`,
+          response: { body: JSON.stringify(user) },
+        },
+      ]);
+    });
+
+    test('should display all items', async () => {
       render(
         <Provider store={store}>
           <MemoryRouter>
@@ -127,8 +167,8 @@ describe('Header', () => {
         </Provider>
       );
 
-      expect(screen.getByText('Mes plans')).toBeInTheDocument();
-      expect(screen.getByText('Mes prélèvements')).toBeInTheDocument();
+      expect(await screen.findByText('Mes plans')).toBeInTheDocument();
+      expect(await screen.findByText('Mes prélèvements')).toBeInTheDocument();
     });
   });
 });

@@ -1,8 +1,10 @@
 import { ReactElement, useMemo } from 'react';
+import { User } from 'shared/schema/User/User';
 import { UserPermission } from 'shared/schema/User/UserPermission';
-import { UserRolePermissions } from 'shared/schema/User/UserRole';
+import { UserRole, UserRolePermissions } from 'shared/schema/User/UserRole';
 import { isDefined } from 'shared/utils/utils';
 import { useAppSelector } from 'src/hooks/useStore';
+import { useGetUserQuery } from 'src/services/user.service';
 import HomeView from 'src/views/HomeView/HomeView';
 import PrescriptionView from 'src/views/PrescriptionView/PrescriptionView';
 import ProgrammingPlanListView from 'src/views/ProgrammingPlanListView/ProgrammingPlanListView';
@@ -13,17 +15,33 @@ import SignInView from 'src/views/SignInView/SignInView';
 export const useAuthentication = () => {
   const { authUser } = useAppSelector((state) => state.auth);
 
+  const { data: user } = useGetUserQuery(authUser?.userId!, {
+    skip: !authUser?.userId,
+  });
+
   const isAuthenticated = useMemo(() => !!authUser?.userId, [authUser]);
 
   const hasPermission = useMemo(
     () => (permission: UserPermission) => {
       return (
-        authUser?.userRole &&
-        UserRolePermissions[authUser.userRole ?? '']?.includes(permission)
+        authUser?.userId &&
+        user?.role &&
+        UserRolePermissions[user.role ?? '']?.includes(permission)
       );
     },
-    [authUser]
+    [authUser, user]
   );
+
+  const hasRole = useMemo(
+    () => (role: UserRole) => {
+      return isAuthenticated && user && user?.role === role;
+    },
+    [user, isAuthenticated]
+  );
+
+  const hasNationalView = useMemo(() => {
+    return isAuthenticated && user && user.region === null;
+  }, [user, isAuthenticated]);
 
   const availableRoutes: {
     path: string;
@@ -90,13 +108,14 @@ export const useAuthentication = () => {
             },
           ]),
     ].filter(isDefined);
-  }, [isAuthenticated]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, hasPermission]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
-    userId: authUser?.userId,
-    userRole: authUser?.userRole,
+    user: user as User,
     isAuthenticated,
     hasPermission,
+    hasRole,
+    hasNationalView,
     availableRoutes,
   };
 };

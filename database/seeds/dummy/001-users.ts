@@ -21,12 +21,14 @@ exports.seed = async function () {
       email: 'coordinateur.regional@pspc.fr',
       password: bcrypt.hashSync('Test2024'),
       role: 'RegionalCoordinator',
+      region: 'GES',
     },
     {
       id: uuidv4(),
       email: 'preleveur@pspc.fr',
       password: bcrypt.hashSync('Test2024'),
       role: 'Sampler',
+      region: 'GES',
     },
   ]);
 };

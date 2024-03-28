@@ -11,6 +11,7 @@ import {
 import prescriptionController from '../controllers/prescriptionController';
 import programmingPlanController from '../controllers/programmingPlanController';
 import sampleController from '../controllers/sampleController';
+import userController from '../controllers/userController';
 import { jwtCheck, permissionsCheck, userCheck } from '../middlewares/auth';
 import validator, { body, params, uuidParam } from '../middlewares/validator';
 const router = express.Router();
@@ -33,6 +34,12 @@ router.put(
   '/samples/:sampleId',
   validator.validate(uuidParam('sampleId').merge(body(PartialSample))),
   sampleController.updateSample
+);
+
+router.get(
+  '/users/:userId',
+  validator.validate(uuidParam('userId')),
+  userController.getUser
 );
 
 router.get(

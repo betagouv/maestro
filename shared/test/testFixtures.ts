@@ -54,18 +54,17 @@ export function oneOf<T>(array: Array<T>): T {
 
 export const genValidPassword = () => '123Valid';
 
-export const genUserApi = (role?: UserRole): User => ({
+export const genUser = (role?: UserRole): User => ({
   id: uuidv4(),
   email: genEmail(),
-  password: randomstring.generate(),
+  // password: randomstring.generate(),
   role: role ?? oneOf(UserRoleList),
 });
 
-export function genAuthUser(role?: UserRole): AuthUser {
+export function genAuthUser(): AuthUser {
   return {
     accessToken: randomstring.generate(),
     userId: uuidv4(),
-    userRole: role ?? oneOf(UserRoleList),
   };
 }
 

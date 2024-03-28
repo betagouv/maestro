@@ -6,11 +6,13 @@ import _ from 'lodash';
 import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { genPrescriptionByMatrix } from 'shared/schema/Prescription/PrescriptionsByMatrix';
-import { RegionList } from 'shared/schema/Region';
+import { Region, RegionList } from 'shared/schema/Region';
 import { SampleStage } from 'shared/schema/Sample/SampleStage';
+import { User } from 'shared/schema/User/User';
 import AutoClose from 'src/components/AutoClose/AutoClose';
 import EditableNumberCell from 'src/components/EditableNumberCell/EditableNumberCell';
 import RegionHeaderCell from 'src/components/RegionHeaderCell/RegionHeaderCell';
+import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import {
   useAddPrescriptionsMutation,
@@ -25,6 +27,7 @@ const PrescriptionView = () => {
   useDocumentTitle('Prescription');
 
   const { programmingPlanId } = useParams<{ programmingPlanId: string }>();
+  const { hasPermission, hasNationalView, user } = useAuthentication();
 
   const { data: prescriptions } = useFindPrescriptionsQuery(
     { programmingPlanId: programmingPlanId as string },
@@ -40,8 +43,11 @@ const PrescriptionView = () => {
     useDeletePrescriptionsMutation();
 
   const prescriptionsByMatrix = useMemo(() => {
-    return genPrescriptionByMatrix(prescriptions);
-  }, [prescriptions]); // eslint-disable-line react-hooks/exhaustive-deps
+    return genPrescriptionByMatrix(
+      prescriptions,
+      hasNationalView ? RegionList : [user.region as Region]
+    );
+  }, [prescriptions, user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const EmptyCell = <div></div>;
 
@@ -72,19 +78,23 @@ const PrescriptionView = () => {
 
   const headers = useMemo(
     () => [
-      <AddMatrix
-        excludedList={prescriptionsByMatrix.map((p) => ({
-          matrix: p.sampleMatrix,
-          stage: p.sampleStage,
-        }))}
-        onAddMatrix={addMatrix}
-      />,
+      <div>
+        {hasPermission('createPrescription') && (
+          <AddMatrix
+            excludedList={prescriptionsByMatrix.map((p) => ({
+              matrix: p.sampleMatrix,
+              stage: p.sampleStage,
+            }))}
+            onAddMatrix={addMatrix}
+          />
+        )}
+      </div>,
       <div className="fr-pl-0">Matrice</div>,
       'Stade de prélèvement',
-      'Total national',
-      ...RegionList.map((region) => (
-        <RegionHeaderCell region={region} key={region} />
-      )),
+      hasNationalView ? 'Total national' : undefined,
+      ...(hasNationalView ? RegionList : [(user as User).region as Region]).map(
+        (region) => <RegionHeaderCell region={region} key={region} />
+      ),
     ],
     [prescriptionsByMatrix] // eslint-disable-line react-hooks/exhaustive-deps
   );
@@ -93,18 +103,22 @@ const PrescriptionView = () => {
     () =>
       prescriptionsByMatrix.map((p) => [
         <div>
-          <RemoveMatrix
-            matrix={p.sampleMatrix}
-            stage={p.sampleStage}
-            onRemoveMatrix={removeMatrix}
-            key={`remove-${p.sampleMatrix}-${p.sampleStage}`}
-          />
+          {hasPermission('deletePrescription') && (
+            <RemoveMatrix
+              matrix={p.sampleMatrix}
+              stage={p.sampleStage}
+              onRemoveMatrix={removeMatrix}
+              key={`remove-${p.sampleMatrix}-${p.sampleStage}`}
+            />
+          )}
         </div>,
         <div className="fr-pl-0">
           <b>{p.sampleMatrix}</b>
         </div>,
         <b>{p.sampleStage}</b>,
-        <b>{p.regionSampleCounts.reduce((acc, count) => acc + count, 0)}</b>,
+        hasNationalView ? (
+          <b>{p.regionSampleCounts.reduce((acc, count) => acc + count, 0)}</b>
+        ) : undefined,
         ...p.regionSampleCounts.map((count, regionIndex) => (
           <EditableNumberCell
             initialValue={count}
@@ -128,20 +142,24 @@ const PrescriptionView = () => {
       EmptyCell,
       <b>Total</b>,
       EmptyCell,
-      <b>
-        {_.sum(prescriptionsByMatrix.flatMap((p) => p.regionSampleCounts))}
-      </b>,
-      ...RegionList.map((region, regionIndex) => (
-        <div key={`total-${region}`}>
-          <b>
-            {_.sum(
-              prescriptionsByMatrix.map(
-                (p) => p.regionSampleCounts[regionIndex]
-              )
-            )}
-          </b>
-        </div>
-      )),
+      hasNationalView ? (
+        <b>
+          {_.sum(prescriptionsByMatrix.flatMap((p) => p.regionSampleCounts))}
+        </b>
+      ) : undefined,
+      ...(hasNationalView ? RegionList : [user.region]).map(
+        (region, regionIndex) => (
+          <div key={`total-${region}`}>
+            <b>
+              {_.sum(
+                prescriptionsByMatrix.map(
+                  (p) => p.regionSampleCounts[regionIndex]
+                )
+              )}
+            </b>
+          </div>
+        )
+      ),
     ],
     [prescriptionsByMatrix] // eslint-disable-line react-hooks/exhaustive-deps
   );
@@ -173,7 +191,9 @@ const PrescriptionView = () => {
   };
 
   return (
-    <section className={clsx(cx('fr-py-6w'), 'full-width')}>
+    <section
+      className={clsx(cx('fr-py-6w'), { 'full-width': hasNationalView })}
+    >
       {isUpdateSuccess && (
         <AutoClose>
           <div className="toast">
@@ -216,6 +236,7 @@ const PrescriptionView = () => {
         noCaption
         headers={headers}
         data={[...prescriptionsData, totalData]}
+        fixed={!hasNationalView}
       />
     </section>
   );

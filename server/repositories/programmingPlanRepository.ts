@@ -11,9 +11,9 @@ const findUnique = async (id: string): Promise<ProgrammingPlan | undefined> => {
   return ProgrammingPlans().where({ id }).first();
 };
 
-const findMany = async (userId: string): Promise<ProgrammingPlan[]> => {
-  console.info('Find programming plans for user', userId);
-  return ProgrammingPlans().where({ createdBy: userId });
+const findMany = async (): Promise<ProgrammingPlan[]> => {
+  console.info('Find programming plans');
+  return ProgrammingPlans();
 };
 
 const insert = async (programmingPlan: ProgrammingPlan): Promise<void> => {
