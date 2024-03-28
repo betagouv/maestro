@@ -3,6 +3,7 @@
   table {
     max-height: calc(100vh - 100px);
     overflow: auto;
+    width: fit-content !important;
   }
 
   th {
@@ -38,6 +39,10 @@
       margin: 0;
       padding-right: 0;
       max-width: 56px;
+    }
+
+    .fr-input-group {
+      position: inherit;
     }
   }
 

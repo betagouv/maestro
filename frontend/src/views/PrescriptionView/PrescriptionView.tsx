@@ -120,18 +120,25 @@ const PrescriptionView = () => {
           <b>{p.regionSampleCounts.reduce((acc, count) => acc + count, 0)}</b>
         ) : undefined,
         ...p.regionSampleCounts.map((count, regionIndex) => (
-          <EditableNumberCell
-            initialValue={count}
-            onChange={(value) =>
-              changePrescriptionCount(
-                p.sampleMatrix,
-                p.sampleStage,
-                regionIndex,
-                value
-              )
-            }
+          <div
             key={`editable-${p.sampleMatrix}-${p.sampleStage}-${regionIndex}`}
-          />
+          >
+            {hasPermission('updatePrescription') ? (
+              <EditableNumberCell
+                initialValue={count}
+                onChange={(value) =>
+                  changePrescriptionCount(
+                    p.sampleMatrix,
+                    p.sampleStage,
+                    regionIndex,
+                    value
+                  )
+                }
+              />
+            ) : (
+              count
+            )}
+          </div>
         )),
       ]),
     [prescriptionsByMatrix] // eslint-disable-line react-hooks/exhaustive-deps
@@ -236,7 +243,7 @@ const PrescriptionView = () => {
         noCaption
         headers={headers}
         data={[...prescriptionsData, totalData]}
-        fixed={!hasNationalView}
+        // fixed={!hasNationalView}
       />
     </section>
   );
