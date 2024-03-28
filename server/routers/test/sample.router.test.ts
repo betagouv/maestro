@@ -18,7 +18,7 @@ import { Users } from '../../repositories/userRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
-describe('Sample routes', () => {
+describe('Sample router', () => {
   const { app } = createServer();
 
   const user1 = genUser();

@@ -1,10 +1,10 @@
 import { ReactElement, useMemo } from 'react';
-import { User } from 'shared/schema/User/User';
+import { UserInfos } from 'shared/schema/User/User';
 import { UserPermission } from 'shared/schema/User/UserPermission';
 import { UserRole, UserRolePermissions } from 'shared/schema/User/UserRole';
 import { isDefined } from 'shared/utils/utils';
 import { useAppSelector } from 'src/hooks/useStore';
-import { useGetUserQuery } from 'src/services/user.service';
+import { useGetUserInfosQuery } from 'src/services/user.service';
 import HomeView from 'src/views/HomeView/HomeView';
 import PrescriptionView from 'src/views/PrescriptionView/PrescriptionView';
 import ProgrammingPlanListView from 'src/views/ProgrammingPlanListView/ProgrammingPlanListView';
@@ -15,7 +15,7 @@ import SignInView from 'src/views/SignInView/SignInView';
 export const useAuthentication = () => {
   const { authUser } = useAppSelector((state) => state.auth);
 
-  const { data: user } = useGetUserQuery(authUser?.userId!, {
+  const { data: userInfos } = useGetUserInfosQuery(authUser?.userId!, {
     skip: !authUser?.userId,
   });
 
@@ -25,23 +25,23 @@ export const useAuthentication = () => {
     () => (permission: UserPermission) => {
       return (
         authUser?.userId &&
-        user?.role &&
-        UserRolePermissions[user.role ?? '']?.includes(permission)
+        userInfos?.role &&
+        UserRolePermissions[userInfos.role ?? '']?.includes(permission)
       );
     },
-    [authUser, user]
+    [authUser, userInfos]
   );
 
   const hasRole = useMemo(
     () => (role: UserRole) => {
-      return isAuthenticated && user && user?.role === role;
+      return isAuthenticated && userInfos && userInfos?.role === role;
     },
-    [user, isAuthenticated]
+    [userInfos, isAuthenticated]
   );
 
   const hasNationalView = useMemo(() => {
-    return isAuthenticated && user && user.region === null;
-  }, [user, isAuthenticated]);
+    return isAuthenticated && userInfos && userInfos.region === null;
+  }, [userInfos, isAuthenticated]);
 
   const availableRoutes: {
     path: string;
@@ -111,7 +111,7 @@ export const useAuthentication = () => {
   }, [isAuthenticated, hasPermission]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
-    user: user as User,
+    userInfos: userInfos as UserInfos,
     isAuthenticated,
     hasPermission,
     hasRole,

@@ -27,7 +27,7 @@ const PrescriptionView = () => {
   useDocumentTitle('Prescription');
 
   const { programmingPlanId } = useParams<{ programmingPlanId: string }>();
-  const { hasPermission, hasNationalView, user } = useAuthentication();
+  const { hasPermission, hasNationalView, userInfos } = useAuthentication();
 
   const { data: prescriptions } = useFindPrescriptionsQuery(
     { programmingPlanId: programmingPlanId as string },
@@ -45,9 +45,9 @@ const PrescriptionView = () => {
   const prescriptionsByMatrix = useMemo(() => {
     return genPrescriptionByMatrix(
       prescriptions,
-      hasNationalView ? RegionList : [user.region as Region]
+      hasNationalView ? RegionList : [userInfos.region as Region]
     );
-  }, [prescriptions, user]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [prescriptions, userInfos]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const EmptyCell = <div></div>;
 
@@ -92,9 +92,10 @@ const PrescriptionView = () => {
       <div className="fr-pl-0">Matrice</div>,
       'Stade de prélèvement',
       hasNationalView ? 'Total national' : undefined,
-      ...(hasNationalView ? RegionList : [(user as User).region as Region]).map(
-        (region) => <RegionHeaderCell region={region} key={region} />
-      ),
+      ...(hasNationalView
+        ? RegionList
+        : [(userInfos as User).region as Region]
+      ).map((region) => <RegionHeaderCell region={region} key={region} />),
     ],
     [prescriptionsByMatrix] // eslint-disable-line react-hooks/exhaustive-deps
   );
@@ -154,7 +155,7 @@ const PrescriptionView = () => {
           {_.sum(prescriptionsByMatrix.flatMap((p) => p.regionSampleCounts))}
         </b>
       ) : undefined,
-      ...(hasNationalView ? RegionList : [user.region]).map(
+      ...(hasNationalView ? RegionList : [userInfos.region]).map(
         (region, regionIndex) => (
           <div key={`total-${region}`}>
             <b>

@@ -11,7 +11,7 @@ const Header = () => {
   const dispatch = useAppDispatch();
   const location = useLocation();
 
-  const { isAuthenticated, hasPermission, user } = useAuthentication();
+  const { isAuthenticated, hasPermission, userInfos } = useAuthentication();
 
   return (
     <DSFRHeader
@@ -68,7 +68,7 @@ const Header = () => {
         isAuthenticated
           ? [
               <span className={cx('fr-text--sm', 'fr-mt-1v')}>
-                {UserRoleLabels[user?.role as UserRole]}
+                {UserRoleLabels[userInfos?.role as UserRole]}
               </span>,
               {
                 buttonProps: {

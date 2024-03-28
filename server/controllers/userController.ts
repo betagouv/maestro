@@ -1,9 +1,13 @@
 import { Request, Response } from 'express';
+import { AuthenticatedRequest } from 'express-jwt';
 import { constants } from 'http2';
+import fp from 'lodash';
+import { UserInfos } from '../../shared/schema/User/User';
 import userRepository from '../repositories/userRepository';
 
-const getUser = async (request: Request, response: Response) => {
+const getUserInfos = async (request: Request, response: Response) => {
   const { userId } = request.params;
+  const { userId: authUserId } = (request as AuthenticatedRequest).auth;
 
   console.info('Get user', userId);
 
@@ -13,9 +17,15 @@ const getUser = async (request: Request, response: Response) => {
     return response.sendStatus(constants.HTTP_STATUS_NOT_FOUND);
   }
 
-  response.status(constants.HTTP_STATUS_OK).send(user);
+  if (user.id !== authUserId) {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
+
+  const userInfos: UserInfos = fp.pick(user, ['email', 'role', 'region']);
+
+  response.status(constants.HTTP_STATUS_OK).send(userInfos);
 };
 
 export default {
-  getUser,
+  getUserInfos,
 };

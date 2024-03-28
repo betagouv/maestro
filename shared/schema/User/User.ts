@@ -17,3 +17,4 @@ export const UserInfos = User.pick({
 });
 
 export type User = z.infer<typeof User>;
+export type UserInfos = z.infer<typeof UserInfos>;

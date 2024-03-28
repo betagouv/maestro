@@ -10,7 +10,7 @@ export const accountApi = api.injectEndpoints({
         body: { email, password },
       }),
       transformResponse: (result: any) => AuthUser.parse(result),
-      invalidatesTags: ['User'],
+      invalidatesTags: ['AuthUser'],
     }),
   }),
 });

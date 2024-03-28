@@ -15,7 +15,7 @@ import { Users } from '../../repositories/userRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
-describe('Prescriptions routes', () => {
+describe('Prescriptions router', () => {
   const { app } = createServer();
 
   const user = genUser('NationalCoordinator');
