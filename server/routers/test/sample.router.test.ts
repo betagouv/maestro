@@ -1,4 +1,5 @@
 import { constants } from 'http2';
+import fp from 'lodash';
 import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
@@ -6,10 +7,12 @@ import { MatrixList } from '../../../shared/foodex2/Matrix';
 import {
   genCreatedSample,
   genSample,
+  genSampleItem,
   genSampleToCreate,
   genUser,
   oneOf,
 } from '../../../shared/test/testFixtures';
+import { SampleItems } from '../../repositories/sampleItemRepository';
 import {
   formatPartialSample,
   Samples,
@@ -24,7 +27,14 @@ describe('Sample router', () => {
   const sampler1 = genUser('Sampler');
   const sampler2 = genUser('Sampler');
   const nationalCoordinator = genUser('NationalCoordinator');
-  const sample1 = genSample(sampler1.id);
+  const sample1Id = uuidv4();
+  const sampleItem1 = genSampleItem(sample1Id, 1);
+  console.log('sampleItem1', sampleItem1);
+  const sample1 = {
+    ...genSample(sampler1.id),
+    id: sample1Id,
+    items: [sampleItem1],
+  };
   const sample2 = genSample(sampler2.id);
 
   beforeAll(async () => {
@@ -33,6 +43,7 @@ describe('Sample router', () => {
       formatPartialSample(sample1),
       formatPartialSample(sample2),
     ]);
+    await SampleItems().insert(sampleItem1);
   });
 
   describe('GET /samples/{sampleId}', () => {
@@ -111,7 +122,7 @@ describe('Sample router', () => {
 
       expect(res.body).toMatchObject([
         {
-          ...sample1,
+          ...fp.omit(sample1, ['items']),
           createdAt: sample1.createdAt.toISOString(),
           sampledAt: sample1.sampledAt.toISOString(),
           expiryDate: sample1.expiryDate?.toISOString(),
@@ -139,7 +150,6 @@ describe('Sample router', () => {
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await badRequestTest();
-      await badRequestTest({ ...genSampleToCreate(), resytalId: undefined });
       await badRequestTest({ ...genSampleToCreate(), resytalId: '123' });
       await badRequestTest({ ...genSampleToCreate(), resytalId: '' });
       await badRequestTest({ ...genSampleToCreate(), resytalId: 123 });
@@ -194,7 +204,7 @@ describe('Sample router', () => {
           createdBy: sampler1.id,
           sampledAt: sample.sampledAt.toISOString(),
           reference: expect.stringMatching(/^GES-[0-9]{2}-2024-1$/),
-          status: 'Draft',
+          status: 'DraftInfos',
         })
       );
 
@@ -254,28 +264,6 @@ describe('Sample router', () => {
       matrix: oneOf(MatrixList),
     };
 
-    it('should update the sample', async () => {
-      const res = await request(app)
-        .put(`${testRoute(sample1.id)}`)
-        .send(validBody)
-        .use(tokenProvider(sampler1))
-        .expect(constants.HTTP_STATUS_OK);
-
-      expect(res.body).toMatchObject({
-        ...sample1,
-        createdAt: sample1.createdAt.toISOString(),
-        sampledAt: sample1.sampledAt.toISOString(),
-        expiryDate: sample1.expiryDate?.toISOString(),
-        matrix: validBody.matrix,
-      });
-
-      await expect(
-        Samples()
-          .where({ id: sample1.id, matrix: validBody.matrix as string })
-          .first()
-      ).resolves.toBeDefined();
-    });
-
     it('should fail if the user does not have the permission to update samples', async () => {
       await request(app)
         .put(`${testRoute(sample1.id)}`)
@@ -299,6 +287,128 @@ describe('Sample router', () => {
         .send(sample)
         .use(tokenProvider(sampler1))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    it('should update the sample', async () => {
+      const res = await request(app)
+        .put(`${testRoute(sample1.id)}`)
+        .send(validBody)
+        .use(tokenProvider(sampler1))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toMatchObject({
+        ...sample1,
+        createdAt: sample1.createdAt.toISOString(),
+        sampledAt: sample1.sampledAt.toISOString(),
+        expiryDate: sample1.expiryDate?.toISOString(),
+        matrix: validBody.matrix,
+      });
+
+      await expect(
+        Samples()
+          .where({ id: sample1.id, matrix: validBody.matrix as string })
+          .first()
+      ).resolves.toBeDefined();
+    });
+  });
+
+  describe('PUT /samples/{sampleId}/items', () => {
+    const testRoute = (sampleId: string) => `/api/samples/${sampleId}/items`;
+
+    it('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .put(testRoute(sample1.id))
+        .send([genSampleItem(sample1.id)])
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    it('should get a valid sample id', async () => {
+      await request(app)
+        .put(testRoute(randomstring.generate()))
+        .send([genSampleItem(sample1.id)])
+        .use(tokenProvider(sampler1))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    it('should fail if the sample does not exist', async () => {
+      await request(app)
+        .put(testRoute(uuidv4()))
+        .send([genSampleItem(sample1.id)])
+        .use(tokenProvider(sampler1))
+        .expect(constants.HTTP_STATUS_NOT_FOUND);
+    });
+
+    it('should fail if the sample does not belong to the user', async () => {
+      await request(app)
+        .put(testRoute(sample1.id))
+        .send([genSampleItem(sample1.id)])
+        .use(tokenProvider(sampler2))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    it('should fail if the user does not have the permission to update samples', async () => {
+      await request(app)
+        .put(testRoute(sample1.id))
+        .send([genSampleItem(sample1.id)])
+        .use(tokenProvider(nationalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    it('should get a valid body', async () => {
+      const badRequestTest = async (payload?: any[]) =>
+        request(app)
+          .put(testRoute(sample1.id))
+          .send(payload)
+          .use(tokenProvider(sampler1))
+          .expect(constants.HTTP_STATUS_BAD_REQUEST);
+
+      await badRequestTest();
+      await badRequestTest([
+        {
+          ...genSampleItem(sample1.id),
+          quantity: '123',
+        },
+      ]);
+      await badRequestTest([
+        {
+          ...genSampleItem(sample1.id),
+          quantityUnit: 123,
+        },
+      ]);
+    });
+
+    it('should be forbidden to update a sample that is already sent', async () => {
+      const sample = genSample(sampler1.id);
+      await Samples().insert(
+        formatPartialSample({
+          ...sample,
+          status: 'Sent',
+          sentAt: new Date(),
+        })
+      );
+
+      await request(app)
+        .put(testRoute(sample.id))
+        .send([genSampleItem(sample.id)])
+        .use(tokenProvider(sampler1))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    it('should update the sample items', async () => {
+      const sampleItems = [
+        genSampleItem(sample1.id, 1),
+        genSampleItem(sample1.id, 2),
+      ];
+
+      await request(app)
+        .put(testRoute(sample1.id))
+        .send(sampleItems)
+        .use(tokenProvider(sampler1))
+        .expect(constants.HTTP_STATUS_OK);
+
+      await expect(
+        SampleItems().where({ sampleId: sample1.id })
+      ).resolves.toMatchObject(sampleItems);
     });
   });
 });

@@ -267,9 +267,8 @@ const SampleStep1 = ({ partialSample }: Props) => {
             inputKey="resytalId"
             whenValid="Identifiant Resytal correctement renseigné."
             data-testid="resytalId-input"
-            label="Identifiant Resytal (obligatoire)"
+            label="Identifiant Resytal"
             hintText="Format 22XXXXXX"
-            required
           />
         </div>
         {/*{form.hasIssue('userLocation') && (*/}

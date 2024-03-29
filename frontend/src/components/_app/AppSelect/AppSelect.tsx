@@ -1,9 +1,8 @@
 import Select from '@codegouvfr/react-dsfr/Select';
 import { ComponentPropsWithoutRef, InputHTMLAttributes } from 'react';
+import { AppSelectOption } from 'src/components/_app/AppSelect/AppSelectOption';
 import { useForm } from 'src/hooks/useForm';
 import { ZodRawShape } from 'zod';
-import { AppSelectOption } from 'src/components/_app/AppSelect/AppSelectOption';
-
 
 type AppSelectProps<T extends ZodRawShape> = Partial<
   Pick<ComponentPropsWithoutRef<typeof Select>, 'label'>
@@ -12,11 +11,19 @@ type AppSelectProps<T extends ZodRawShape> = Partial<
     options: AppSelectOption[];
     inputForm: ReturnType<typeof useForm>;
     inputKey: keyof T;
+    inputPathFromKey?: (string | number)[];
     whenValid?: string;
   };
 
 function AppSelect<T extends ZodRawShape>(props: AppSelectProps<T>) {
-  const { options, inputKey, inputForm, whenValid, ...selectProps } = props;
+  const {
+    options,
+    inputKey,
+    inputPathFromKey,
+    inputForm,
+    whenValid,
+    ...selectProps
+  } = props;
 
   return (
     <Select
@@ -25,8 +32,12 @@ function AppSelect<T extends ZodRawShape>(props: AppSelectProps<T>) {
       nativeSelectProps={{
         ...selectProps,
       }}
-      state={inputForm.messageType(String(inputKey))}
-      stateRelatedMessage={inputForm.message(String(inputKey), whenValid)}
+      state={inputForm.messageType(String(inputKey), inputPathFromKey)}
+      stateRelatedMessage={inputForm.message(
+        String(inputKey),
+        inputPathFromKey,
+        whenValid
+      )}
     >
       {options.map((option) => (
         <option

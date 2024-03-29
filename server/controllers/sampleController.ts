@@ -2,12 +2,15 @@ import { getYear } from 'date-fns';
 import { Request, Response } from 'express';
 import { AuthenticatedRequest } from 'express-jwt';
 import { constants } from 'http2';
+import fp from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import {
   CreatedSample,
   PartialSample,
   SampleToCreate,
 } from '../../shared/schema/Sample/Sample';
+import { SampleItem } from '../../shared/schema/Sample/SampleItem';
+import sampleItemRepository from '../repositories/sampleItemRepository';
 import sampleRepository from '../repositories/sampleRepository';
 
 const getSample = async (request: Request, response: Response) => {
@@ -25,7 +28,12 @@ const getSample = async (request: Request, response: Response) => {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
   }
 
-  response.status(constants.HTTP_STATUS_OK).send(sample);
+  const sampleItems = await sampleItemRepository.findMany(sampleId);
+
+  response.status(constants.HTTP_STATUS_OK).send({
+    ...sample,
+    items: sampleItems.map((item) => fp.omitBy(item, fp.isNil)),
+  });
 };
 
 const findSamples = async (request: Request, response: Response) => {
@@ -53,7 +61,7 @@ const createSample = async (request: Request, response: Response) => {
     )}-${serial}`,
     createdBy: userId,
     createdAt: new Date(),
-    status: 'Draft',
+    status: 'DraftInfos',
     ...sampleToCreate,
   };
   await sampleRepository.insert(sample);
@@ -91,9 +99,36 @@ const updateSample = async (request: Request, response: Response) => {
   response.status(constants.HTTP_STATUS_OK).send(updatedSample);
 };
 
+const updateSampleItems = async (request: Request, response: Response) => {
+  const { sampleId } = request.params;
+  const sampleItems = request.body as SampleItem[];
+
+  console.info('Update sample items', sampleId, sampleItems);
+
+  const sample = await sampleRepository.findUnique(sampleId);
+
+  if (!sample) {
+    return response.sendStatus(constants.HTTP_STATUS_NOT_FOUND);
+  }
+
+  if (sample.createdBy !== (request as AuthenticatedRequest).auth.userId) {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
+
+  if (sample.status === 'Sent') {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
+
+  await sampleItemRepository.deleteMany(sampleId);
+  await sampleItemRepository.insertMany(sampleItems);
+
+  response.status(constants.HTTP_STATUS_OK).send(sampleItems);
+};
+
 export default {
   getSample,
   findSamples,
   createSample,
   updateSample,
+  updateSampleItems,
 };

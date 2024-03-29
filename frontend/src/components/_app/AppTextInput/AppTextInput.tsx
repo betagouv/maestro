@@ -17,6 +17,7 @@ type AppTextInputProps<T extends ZodRawShape> = Partial<
   TextareaHTMLAttributes<HTMLTextAreaElement> & {
     inputForm: ReturnType<typeof useForm>;
     inputKey: keyof T;
+    inputPathFromKey?: (string | number)[];
     whenValid?: string;
   };
 
@@ -24,6 +25,7 @@ function AppTextInput<T extends ZodRawShape>(props: AppTextInputProps<T>) {
   const {
     textArea,
     inputKey,
+    inputPathFromKey,
     inputForm,
     whenValid,
     placeholder,
@@ -44,10 +46,12 @@ function AppTextInput<T extends ZodRawShape>(props: AppTextInputProps<T>) {
             ...textInputProps,
             placeholder,
           }}
-          state={state ?? inputForm.messageType(String(inputKey))}
+          state={
+            state ?? inputForm.messageType(String(inputKey), inputPathFromKey)
+          }
           stateRelatedMessage={
             stateRelatedMessage ??
-            inputForm.message(String(inputKey), whenValid)
+            inputForm.message(String(inputKey), inputPathFromKey, whenValid)
           }
         />
       ) : (
@@ -59,10 +63,12 @@ function AppTextInput<T extends ZodRawShape>(props: AppTextInputProps<T>) {
             placeholder,
           }}
           hintText={hintText}
-          state={state ?? inputForm.messageType(String(inputKey))}
+          state={
+            state ?? inputForm.messageType(String(inputKey), inputPathFromKey)
+          }
           stateRelatedMessage={
             stateRelatedMessage ??
-            inputForm.message(String(inputKey), whenValid)
+            inputForm.message(String(inputKey), inputPathFromKey, whenValid)
           }
         />
       )}

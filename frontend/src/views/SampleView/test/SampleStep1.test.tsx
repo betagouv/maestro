@@ -73,9 +73,6 @@ describe('SampleFormStep1', () => {
       screen.getByText('Veuillez renseigner le département.')
     ).toBeInTheDocument();
     expect(
-      screen.getByText("L'identifiant Resytal doit être au format 22XXXXXX.")
-    ).toBeInTheDocument();
-    expect(
       screen.getByText('Veuillez renseigner le contexte.')
     ).toBeInTheDocument();
     expect(
@@ -125,7 +122,7 @@ describe('SampleFormStep1', () => {
       await user.selectOptions(departmentSelect, '08');
       await user.type(resytalIdInput, '22123456');
       await user.selectOptions(planningContextSelect, 'Surveillance');
-      await user.selectOptions(legalContextSelect, 'Judicial');
+      await user.selectOptions(legalContextSelect, 'B');
       await user.click(screen.getByTestId('submit-button'));
     });
     expect(
@@ -152,7 +149,7 @@ describe('SampleFormStep1', () => {
         department: '08',
         resytalId: '22123456',
         planningContext: 'Surveillance',
-        legalContext: 'Judicial',
+        legalContext: 'B',
         userLocation: {
           x: coords.coords.latitude,
           y: coords.coords.longitude,

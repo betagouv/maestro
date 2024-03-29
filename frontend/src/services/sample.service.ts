@@ -45,6 +45,14 @@ export const sampleApi = api.injectEndpoints({
         { type: 'Sample', id },
       ],
     }),
+    updateSampleItems: builder.mutation<void, { id: string; items: any[] }>({
+      query: ({ id, items }) => ({
+        url: `samples/${id}/items`,
+        method: 'PUT',
+        body: items,
+      }),
+      invalidatesTags: (result, error, { id }) => [{ type: 'Sample', id }],
+    }),
   }),
 });
 
@@ -53,4 +61,5 @@ export const {
   useFindSamplesQuery,
   useGetSampleQuery,
   useUpdateSampleMutation,
+  useUpdateSampleItemsMutation,
 } = sampleApi;

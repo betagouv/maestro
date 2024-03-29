@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { Department } from '../Department';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
+import { PartialSampleItem, SampleItem } from './SampleItem';
 import { SampleLegalContext } from './SampleLegalContext';
 import { SampleStage } from './SampleStage';
 import { SampleStatus } from './SampleStatus';
@@ -21,13 +22,13 @@ export const Sample = z.object({
   reference: z.string(),
   department: Department,
   resytalId: z.coerce
-    .string({
-      required_error: "Veuillez renseigner l'identifiant Resytal.",
-    })
+    .string()
     .regex(
       /^22[0-9]{6}$/g,
       "L'identifiant Resytal doit être au format 22XXXXXX."
-    ),
+    )
+    .optional()
+    .nullable(),
   createdAt: z.coerce.date(),
   createdBy: z.string(),
   sampledAt: z.coerce.date({
@@ -59,30 +60,14 @@ export const Sample = z.object({
     required_error: 'Veuillez renseigner la partie du végétal.',
   }),
   stage: SampleStage,
-  quantity: z
-    .number({
-      required_error: 'Veuillez renseigner la quantité.',
-    })
-    .nonnegative('La quantité doit être positive.'),
-  quantityUnit: z.string({
-    required_error: "Veuillez renseigner l'unité de quantité.",
-  }),
   cultureKind: z.string().optional().nullable(),
-  compliance200263: z.boolean().optional().nullable(),
   storageCondition: SampleStorageCondition.optional().nullable(),
-  pooling: z.boolean().optional().nullable(),
   releaseControl: z.boolean().optional().nullable(),
-  sampleCount: z
-    .number({
-      required_error: 'Veuillez renseigner le nombre de prélèvements.',
-    })
-    .nonnegative('Le nombre de prélèvements doit être positif.'),
+  items: z.array(SampleItem).min(1, {
+    message: 'Veuillez renseigner au moins un échantillon.',
+  }),
   temperatureMaintenance: z.boolean().optional().nullable(),
   expiryDate: z.coerce.date().optional().nullable(),
-  sealId: z.coerce.number({
-    required_error: 'Veuillez renseigner le numéro de scellé.',
-    invalid_type_error: 'Le numéro de scellé doit être un nombre.',
-  }),
   comment: z.string().optional().nullable(),
 });
 
@@ -105,7 +90,13 @@ export const CreatedSample = SampleToCreate.merge(
   })
 );
 
-export const PartialSample = Sample.partial().merge(CreatedSample);
+export const PartialSample = Sample.partial()
+  .merge(CreatedSample)
+  .merge(
+    z.object({
+      items: z.array(PartialSampleItem).optional().nullable(),
+    })
+  );
 
 export type UserLocation = z.infer<typeof UserLocation>;
 export type Sample = z.infer<typeof Sample>;

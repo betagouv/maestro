@@ -1,3 +1,4 @@
+import fp from 'lodash';
 import {
   CreatedSample,
   PartialSample,
@@ -40,7 +41,7 @@ const update = async (partialSample: PartialSample): Promise<void> => {
 };
 
 export const formatPartialSample = (partialSample: PartialSample) => ({
-  ...partialSample,
+  ...fp.omit(partialSample, ['items']),
   userLocation: db.raw('Point(?, ?)', [
     partialSample.userLocation.x,
     partialSample.userLocation.y,

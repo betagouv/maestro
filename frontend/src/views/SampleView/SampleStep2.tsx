@@ -29,20 +29,13 @@ const SampleStep2 = ({ partialSample }: Props) => {
   const [matrix, setMatrix] = useState(partialSample.matrix);
   const [matrixPart, setMatrixPart] = useState(partialSample.matrixPart);
   const [stage, setStage] = useState(partialSample.stage);
-  const [quantity, setQuantity] = useState(partialSample.quantity);
-  const [quantityUnit, setQuantityUnit] = useState(partialSample.quantityUnit);
   const [cultureKind, setCultureKind] = useState(partialSample.cultureKind);
-  const [compliance200263, setCompliance200263] = useState(
-    partialSample.compliance200263
-  );
   const [storageCondition, setStorageCondition] = useState(
     partialSample.storageCondition
   );
-  const [pooling, setPooling] = useState(partialSample.pooling);
   const [releaseControl, setReleaseControl] = useState(
     partialSample.releaseControl
   );
-  const [sampleCount, setSampleCount] = useState(partialSample.sampleCount);
   const [temperatureMaintenance, setTemperatureMaintenance] = useState(
     partialSample.temperatureMaintenance
   );
@@ -51,7 +44,6 @@ const SampleStep2 = ({ partialSample }: Props) => {
     partialSample.locationSiret
   );
   const [locationName, setLocationName] = useState(partialSample.locationName);
-  const [sealId, setSealId] = useState(partialSample.sealId);
   const [comment, setComment] = useState(partialSample.comment);
 
   const [updateSample, { isSuccess: isUpdateSuccess }] =
@@ -62,21 +54,15 @@ const SampleStep2 = ({ partialSample }: Props) => {
     matrix: true,
     matrixPart: true,
     stage: true,
-    quantity: true,
-    quantityUnit: true,
     cultureKind: true,
-    compliance200263: true,
     storageCondition: true,
-    pooling: true,
     releaseControl: true,
-    sampleCount: true,
     temperatureMaintenance: true,
     expiryDate: true,
     locationSiret: true,
     locationName: true,
-    sealId: true,
-    status: true,
     comment: true,
+    status: true,
   });
 
   const form = useForm(Form, {
@@ -84,19 +70,13 @@ const SampleStep2 = ({ partialSample }: Props) => {
     matrix,
     matrixPart,
     stage,
-    quantity,
-    quantityUnit,
     cultureKind,
-    compliance200263,
     storageCondition,
-    pooling,
     releaseControl,
-    sampleCount,
     temperatureMaintenance,
     expiryDate,
     locationSiret,
     locationName,
-    sealId,
     comment,
     status: partialSample.status,
   });
@@ -117,26 +97,20 @@ const SampleStep2 = ({ partialSample }: Props) => {
       matrix,
       matrixPart,
       stage,
-      quantity,
-      quantityUnit,
       cultureKind,
-      compliance200263,
       storageCondition,
-      pooling,
       releaseControl,
-      sampleCount,
       temperatureMaintenance,
       expiryDate,
       locationSiret,
       locationName,
-      sealId,
       comment,
-      status: isSubmitted ? 'Submitted' : partialSample.status,
+      status: isSubmitted ? 'DraftItems' : partialSample.status,
     })
       .unwrap()
       .then((result) => {
         if (isSubmitted) {
-          navigate(`/prelevements/${result.id}`, { replace: true });
+          navigate(`/prelevements/${result.id}?etape=3`, { replace: true });
         }
       })
       .catch(() => {
@@ -216,66 +190,6 @@ const SampleStep2 = ({ partialSample }: Props) => {
         <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12', 'fr-col-sm-4')}>
-            <AppTextInput<FormShape>
-              type="number"
-              defaultValue={quantity ?? ''}
-              onChange={(e) => setQuantity(Number(e.target.value))}
-              inputForm={form}
-              inputKey="quantity"
-              whenValid="Quantité correctement renseignée."
-              data-testid="quantity-input"
-              label="Quantité (obligatoire)"
-              min={0}
-              required
-            />
-          </div>
-          <div className={cx('fr-col-12', 'fr-col-sm-4')}>
-            <AppSelect<FormShape>
-              defaultValue={quantityUnit ?? ''}
-              options={selectOptionsFromList(['kg', 'g', 'mg', 'µg'])}
-              onChange={(e) => setQuantityUnit(e.target.value)}
-              inputForm={form}
-              inputKey="quantityUnit"
-              whenValid="Unité de quantité correctement renseignée."
-              data-testid="quantityunit-select"
-              label="Unité de quantité (obligatoire)"
-              required
-            />
-          </div>
-          <div className={cx('fr-col-12', 'fr-col-sm-4')}>
-            <AppTextInput<FormShape>
-              type="number"
-              defaultValue={sampleCount ?? ''}
-              onChange={(e) => setSampleCount(Number(e.target.value))}
-              inputForm={form}
-              inputKey="sampleCount"
-              whenValid="Nombre d'échantillons correctement renseigné."
-              data-testid="samplecount-input"
-              label="Nombre d'échantillons (obligatoire)"
-              min={0}
-              required
-            />
-          </div>
-        </div>
-        <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
-        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={cx('fr-col-12', 'fr-col-sm-4')}>
-            <ToggleSwitch
-              label="Conformité 2002/63"
-              checked={compliance200263 ?? false}
-              onChange={(checked) => setCompliance200263(checked)}
-              showCheckedHint={false}
-            />
-          </div>
-          <div className={cx('fr-col-12', 'fr-col-sm-4')}>
-            <ToggleSwitch
-              label="Recours au poolage"
-              checked={pooling ?? false}
-              onChange={(checked) => setPooling(checked)}
-              showCheckedHint={false}
-            />
-          </div>
-          <div className={cx('fr-col-12', 'fr-col-sm-4')}>
             <ToggleSwitch
               label="Contrôle libératoire"
               checked={releaseControl ?? false}
@@ -287,7 +201,7 @@ const SampleStep2 = ({ partialSample }: Props) => {
             className={cx(
               'fr-col-12',
               'fr-col-sm-4',
-              'fr-col-offset-md-8--right'
+              'fr-col-offset-md-4--right'
             )}
           >
             <ToggleSwitch
@@ -356,19 +270,6 @@ const SampleStep2 = ({ partialSample }: Props) => {
               required
             />
           </div>
-          <div className={cx('fr-col-12', 'fr-col-sm-4')}>
-            <AppTextInput<FormShape>
-              defaultValue={sealId ?? ''}
-              onChange={(e) => setSealId(Number(e.target.value))}
-              inputForm={form}
-              inputKey="sealId"
-              whenValid="Numéro de scellé correctement renseigné."
-              data-testid="sealid-input"
-              label="Numéro de scellé (obligatoire)"
-              hintText="Format numérique"
-              required
-            />
-          </div>
           <div className={cx('fr-col-12')}>
             <AppTextInput<FormShape>
               textArea
@@ -405,7 +306,7 @@ const SampleStep2 = ({ partialSample }: Props) => {
                 },
               },
               {
-                children: 'Valider le prélèvement',
+                children: 'Etape suivante',
                 onClick: submit,
                 nativeButtonProps: {
                   'data-testid': 'submit-button',

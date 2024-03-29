@@ -294,11 +294,6 @@ describe('SampleFormStep2', () => {
     expect(screen.getAllByTestId('matrixpart-select')).toHaveLength(2);
     expect(screen.getAllByTestId('culturekind-select')).toHaveLength(2);
     expect(screen.getAllByTestId('stage-select')).toHaveLength(2);
-    expect(screen.getAllByTestId('quantity-input')).toHaveLength(2);
-    expect(screen.getAllByTestId('quantityunit-select')).toHaveLength(2);
-    expect(screen.getAllByTestId('samplecount-input')).toHaveLength(2);
-    expect(screen.getByLabelText('Conformité 2002/63')).toBeInTheDocument();
-    expect(screen.getByLabelText('Recours au poolage')).toBeInTheDocument();
     expect(screen.getByLabelText('Contrôle libératoire')).toBeInTheDocument();
     expect(
       screen.getByLabelText('Maintenance de température')
@@ -307,7 +302,6 @@ describe('SampleFormStep2', () => {
     expect(screen.getAllByTestId('storagecondition-select')).toHaveLength(2);
     expect(screen.getAllByTestId('locationSiret-input')).toHaveLength(2);
     expect(screen.getAllByTestId('location-name-input')).toHaveLength(2);
-    expect(screen.getAllByTestId('sealid-input')).toHaveLength(2);
     expect(screen.getAllByTestId('comment-input')).toHaveLength(2);
 
     expect(screen.getByTestId('save-button')).toBeInTheDocument();
@@ -339,22 +333,10 @@ describe('SampleFormStep2', () => {
       screen.getByText('Veuillez renseigner le stade de prélèvement.')
     ).toBeInTheDocument();
     expect(
-      screen.getByText('Veuillez renseigner la quantité.')
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText("Veuillez renseigner l'unité de quantité.")
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText('Veuillez renseigner le nombre de prélèvements.')
-    ).toBeInTheDocument();
-    expect(
       screen.getByText('Veuillez renseigner le SIRET du lieu de prélèvement.')
     ).toBeInTheDocument();
     expect(
       screen.getByText('Veuillez renseigner le nom du lieu de prélèvement.')
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText('Le numéro de scellé doit être un nombre.')
     ).toBeInTheDocument();
   });
 
@@ -383,22 +365,10 @@ describe('SampleFormStep2', () => {
       screen.queryByText('Veuillez renseigner le stade de prélèvement.')
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByText('Veuillez renseigner la quantité.')
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByText("Veuillez renseigner l'unité de quantité.")
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByText('Veuillez renseigner le nombre de prélèvements.')
-    ).not.toBeInTheDocument();
-    expect(
       screen.queryByText('Veuillez renseigner le SIRET du lieu de prélèvement.')
     ).not.toBeInTheDocument();
     expect(
       screen.queryByText('Veuillez renseigner le nom du lieu de prélèvement.')
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByText('Le numéro de scellé doit être un nombre.')
     ).not.toBeInTheDocument();
   });
 
@@ -426,16 +396,12 @@ describe('SampleFormStep2', () => {
     const matrixPartSelect = screen.getAllByTestId('matrixpart-select')[1];
     const cultureKindSelect = screen.getAllByTestId('culturekind-select')[1];
     const stageSelect = screen.getAllByTestId('stage-select')[1];
-    const quantityInput = screen.getAllByTestId('quantity-input')[1];
-    const quantityUnitSelect = screen.getAllByTestId('quantityunit-select')[1];
-    const sampleCountInput = screen.getAllByTestId('samplecount-input')[1];
     const expiryDateInput = screen.getAllByTestId('expirydate-input')[1];
     const storageConditionSelect = screen.getAllByTestId(
       'storagecondition-select'
     )[1];
     const locationSiretInput = screen.getAllByTestId('locationSiret-input')[1];
     const locationNameInput = screen.getAllByTestId('location-name-input')[1];
-    const sealIdInput = screen.getAllByTestId('sealid-input')[1];
     const commentInput = screen.getAllByTestId('comment-input')[1];
     const submitButton = screen.getByTestId('submit-button');
 
@@ -445,9 +411,6 @@ describe('SampleFormStep2', () => {
       await user.selectOptions(matrixPartSelect, MatrixPartList[0]);
       await user.selectOptions(cultureKindSelect, 'Bio');
       await user.selectOptions(stageSelect, SampleStageList[0]);
-      await user.type(quantityInput, '10');
-      await user.selectOptions(quantityUnitSelect, 'kg');
-      await user.type(sampleCountInput, '5');
       await user.type(expiryDateInput, '2023-12-31');
       await user.selectOptions(
         storageConditionSelect,
@@ -455,7 +418,6 @@ describe('SampleFormStep2', () => {
       );
       await user.type(locationSiretInput, '12345678901234');
       await user.type(locationNameInput, 'Test');
-      await user.type(sealIdInput, '123456');
       await user.type(commentInput, 'Test');
       await user.click(submitButton);
     });
@@ -470,22 +432,18 @@ describe('SampleFormStep2', () => {
         ...createdSample,
         createdAt: createdSample.createdAt.toISOString(),
         sampledAt: createdSample.sampledAt.toISOString(),
-        status: 'Submitted',
+        status: 'DraftItems',
         matrixKind: 'Fruits',
         matrix: MatrixList[0],
         matrixPart: MatrixPartList[0],
         cultureKind: 'Bio',
         stage: SampleStageList[0],
-        quantity: 10,
-        quantityUnit: 'kg',
-        sampleCount: 5,
         expiryDate: startOfDay(
           parse('2023-12-31', 'yyyy-MM-dd', new Date())
         ).toISOString(),
         storageCondition: SampleStorageConditionList[0],
         locationSiret: '12345678901234',
         locationName: 'Test',
-        sealId: 123456,
         comment: 'Test',
       },
     });

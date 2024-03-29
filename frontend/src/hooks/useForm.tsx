@@ -11,14 +11,22 @@ export function useForm<
   const [error, setError] = useState<z.ZodError>();
   const [isTouched, setIsTouched] = useState(false);
 
-  function issue<K extends keyof U>(key?: K): z.ZodIssue | undefined {
+  function issue<K extends keyof U>(
+    key?: K,
+    pathFromKey?: (string | number)[]
+  ): z.ZodIssue | undefined {
     return isTouched && key
-      ? error?.issues.find((issue) => _.isEqual(issue.path, [key]))
+      ? error?.issues.find((issue) =>
+          _.isEqual(issue.path, [key, ...(pathFromKey ?? [])])
+        )
       : error?.issues[0];
   }
 
-  function hasIssue<K extends keyof U>(key?: K): boolean {
-    return issue(key) !== undefined;
+  function hasIssue<K extends keyof U>(
+    key?: K,
+    pathFromKey?: (string | number)[]
+  ): boolean {
+    return issue(key, pathFromKey) !== undefined;
   }
 
   function isValid(): boolean {
@@ -27,16 +35,20 @@ export function useForm<
 
   function message<K extends keyof U>(
     key: K,
+    pathFromKey?: (string | number)[],
     whenValid?: string
   ): string | undefined {
-    return messageType(key) === 'success' && whenValid
+    return messageType(key, pathFromKey) === 'success' && whenValid
       ? whenValid
-      : issue(key)?.message;
+      : issue(key, pathFromKey)?.message;
   }
 
-  function messageType<K extends keyof U>(key: K): MessageType {
+  function messageType<K extends keyof U>(
+    key: K,
+    pathFromKey?: (string | number)[]
+  ): MessageType {
     if (isTouched) {
-      if (hasIssue(key)) {
+      if (hasIssue(key, pathFromKey)) {
         return 'error';
       }
       return 'success';

@@ -5,6 +5,7 @@ import { Prescription } from '../schema/Prescription/Prescription';
 import { ProgrammingPlanKindList } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 import { RegionList } from '../schema/Region';
 import { CreatedSample, Sample, SampleToCreate } from '../schema/Sample/Sample';
+import { SampleItem } from '../schema/Sample/SampleItem';
 import { SampleLegalContextList } from '../schema/Sample/SampleLegalContext';
 import { SampleStage, SampleStageList } from '../schema/Sample/SampleStage';
 import { SampleStorageConditionList } from '../schema/Sample/SampleStorageCondition';
@@ -94,7 +95,7 @@ export const genCreatedSample = (userId?: string): CreatedSample => ({
   reference: `GES-${oneOf(DepartmentList)}-${genNumber(4)}`,
   createdBy: userId ?? uuidv4(),
   createdAt: new Date(),
-  status: 'Draft',
+  status: 'DraftInfos',
   ...genSampleToCreate(),
 });
 
@@ -107,17 +108,26 @@ export const genSample = (userId?: string): Sample => ({
   matrix: randomstring.generate(),
   matrixPart: randomstring.generate(),
   stage: oneOf(SampleStageList),
-  quantity: genNumber(),
-  quantityUnit: randomstring.generate(),
   cultureKind: randomstring.generate(),
-  compliance200263: genBoolean(),
   storageCondition: oneOf(SampleStorageConditionList),
-  pooling: genBoolean(),
   releaseControl: genBoolean(),
-  sampleCount: genNumber(1),
   temperatureMaintenance: genBoolean(),
   expiryDate: new Date(),
-  sealId: genNumber(4),
+  items: [],
+});
+
+export const genSampleItem = (
+  sampleId: string,
+  itemNumber?: number
+): SampleItem => ({
+  sampleId,
+  itemNumber: itemNumber ?? genNumber(2),
+  quantity: genNumber(),
+  quantityUnit: randomstring.generate(),
+  compliance200263: genBoolean(),
+  pooling: genBoolean(),
+  poolingCount: genNumber(6),
+  sealId: genNumber(6),
 });
 
 export const genCoords = () => ({

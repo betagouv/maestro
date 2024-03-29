@@ -5,7 +5,7 @@ exports.up = async (knex: Knex) => {
     table.uuid('id').primary().defaultTo(knex.raw('uuid_generate_v4()'));
     table.string('reference').notNullable();
     table.string('department');
-    table.string('resytal_id').notNullable();
+    table.string('resytal_id');
     table
       .specificType('created_at', 'timestamptz')
       .defaultTo(knex.raw('current_timestamp'));
@@ -23,17 +23,11 @@ exports.up = async (knex: Knex) => {
     table.string('matrix_kind');
     table.string('matrix_part');
     table.string('stage');
-    table.double('quantity');
-    table.string('quantity_unit');
     table.string('culture_kind');
-    table.boolean('compliance200263');
     table.string('storage_condition');
-    table.boolean('pooling');
     table.boolean('release_control');
-    table.integer('sample_count');
     table.boolean('temperature_maintenance');
     table.datetime('expiry_date');
-    table.integer('seal_id');
     table.text('comment');
   });
   await knex.raw(`CREATE SEQUENCE samples_serial;`);

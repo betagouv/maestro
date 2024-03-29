@@ -1,12 +1,13 @@
 import express from 'express';
+import { z } from 'zod';
 import {
   PartialSample,
   SampleToCreate,
 } from '../../shared/schema/Sample/Sample';
+import { PartialSampleItem } from '../../shared/schema/Sample/SampleItem';
 import sampleController from '../controllers/sampleController';
 import { permissionsCheck } from '../middlewares/auth';
 import validator, { body, uuidParam } from '../middlewares/validator';
-
 const router = express.Router();
 
 router.get('', permissionsCheck(['readSamples']), sampleController.findSamples);
@@ -27,6 +28,14 @@ router.put(
   validator.validate(uuidParam('sampleId').merge(body(PartialSample))),
   permissionsCheck(['updateSample']),
   sampleController.updateSample
+);
+router.put(
+  '/:sampleId/items',
+  validator.validate(
+    uuidParam('sampleId').merge(body(z.array(PartialSampleItem)))
+  ),
+  permissionsCheck(['updateSample']),
+  sampleController.updateSampleItems
 );
 
 export default router;
