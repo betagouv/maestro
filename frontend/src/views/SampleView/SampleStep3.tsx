@@ -58,7 +58,7 @@ const SampleStep3 = ({ partialSample }: Props) => {
       items,
     })
       .unwrap()
-      .then((result) => {
+      .then(() => {
         if (isSubmitted) {
           navigate(`/prelevements/${partialSample.id}?etape=4`, {
             replace: true,
