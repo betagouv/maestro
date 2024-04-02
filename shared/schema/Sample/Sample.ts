@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { Department } from '../Department';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
-import { PartialSampleItem, SampleItem } from './SampleItem';
+import { PartialSampleItem, SampleItemRefinement } from './SampleItem';
 import { SampleLegalContext } from './SampleLegalContext';
 import { SampleStage } from './SampleStage';
 import { SampleStatus } from './SampleStatus';
@@ -63,7 +63,7 @@ export const Sample = z.object({
   cultureKind: z.string().optional().nullable(),
   storageCondition: SampleStorageCondition.optional().nullable(),
   releaseControl: z.boolean().optional().nullable(),
-  items: z.array(SampleItem).min(1, {
+  items: z.array(SampleItemRefinement).min(1, {
     message: 'Veuillez renseigner au moins un échantillon.',
   }),
   temperatureMaintenance: z.boolean().optional().nullable(),

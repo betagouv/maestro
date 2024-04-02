@@ -1,11 +1,51 @@
-import { render, screen } from '@testing-library/react';
+import { configureStore, Store } from '@reduxjs/toolkit';
+import { render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
-import { BrowserRouter } from 'react-router-dom';
-import { store } from 'src/store/store';
+import Router, { BrowserRouter } from 'react-router-dom';
+import {
+  genAuthUser,
+  genCreatedSample,
+  genSample,
+  genUser,
+} from 'shared/test/testFixtures';
+import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import SampleView from 'src/views/SampleView/SampleView';
+import {
+  getRequestCalls,
+  mockRequests,
+} from '../../../../test/requestUtils.test';
+
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useParams: jest.fn(),
+}));
+
+let store: Store;
+const authUser = genAuthUser();
+const sampler = {
+  ...genUser('NationalCoordinator'),
+  id: authUser.userId,
+};
+const userRequest = {
+  pathname: `/api/users/${sampler.id}/infos`,
+  response: { body: JSON.stringify(sampler) },
+};
 
 describe('SampleView', () => {
+  beforeEach(() => {
+    fetchMock.resetMocks();
+    store = configureStore({
+      reducer: applicationReducer,
+      middleware: applicationMiddleware,
+      preloadedState: {
+        auth: { authUser },
+      },
+    });
+  });
+
   test('should render the first step for a new sample', () => {
+    jest.spyOn(Router, 'useParams').mockReturnValue({ sampleId: undefined });
+
     render(
       <Provider store={store}>
         <BrowserRouter>
@@ -17,37 +57,96 @@ describe('SampleView', () => {
     expect(screen.getByTestId('draft_sample_1_form')).toBeInTheDocument();
   });
 
-  // test('should render the second step for a draft sample', async () => {
-  //   const createdSample = genCreatedSample();
-  //   mockRequests([
-  //     {
-  //       pathname: `/api/samples/${createdSample.id}`,
-  //       method: 'GET',
-  //       response: { body: JSON.stringify(createdSample) },
-  //     },
-  //   ]);
-  //
-  //   act(() => {
-  //     render(
-  //       <Provider store={store}>
-  //         <MemoryRouter initialEntries={[`/prelevements/${createdSample.id}`]}>
-  //           <Routes>
-  //             <Route
-  //               path="/prelevements/:sampleId"
-  //               element={<SampleView />}
-  //             ></Route>
-  //           </Routes>
-  //         </MemoryRouter>
-  //       </Provider>
-  //     );
-  //   });
-  //
-  //
-  //   await waitFor(async () => {
-  //     const calls = await getRequestCalls(fetchMock);
-  //     expect(calls).toHaveLength(1);
-  //
-  //     expect(screen.getByTestId('draft_sample_2_form')).toBeInTheDocument();
-  //   });
-  // });
+  test('should render the second step for a draft sample', async () => {
+    const createdSample = genCreatedSample();
+    mockRequests([
+      userRequest,
+      {
+        pathname: `/api/samples/${createdSample.id}`,
+        response: { body: JSON.stringify(createdSample) },
+      },
+    ]);
+    jest
+      .spyOn(Router, 'useParams')
+      .mockReturnValue({ sampleId: createdSample.id });
+
+    render(
+      <Provider store={store}>
+        <BrowserRouter>
+          <SampleView />
+        </BrowserRouter>
+      </Provider>
+    );
+
+    await waitFor(async () => {
+      expect(screen.getByTestId('draft_sample_2_form')).toBeInTheDocument();
+    });
+
+    const calls = await getRequestCalls(fetchMock);
+    expect(calls).toHaveLength(1);
+  });
+
+  test('should render the third step for a draft sample with status DraftItems', async () => {
+    const draftSample = {
+      ...genSample(),
+      status: 'DraftItems',
+    };
+    mockRequests([
+      userRequest,
+      {
+        pathname: `/api/samples/${draftSample.id}`,
+        response: { body: JSON.stringify(draftSample) },
+      },
+    ]);
+    jest
+      .spyOn(Router, 'useParams')
+      .mockReturnValue({ sampleId: draftSample.id });
+
+    render(
+      <Provider store={store}>
+        <BrowserRouter>
+          <SampleView />
+        </BrowserRouter>
+      </Provider>
+    );
+
+    await waitFor(async () => {
+      expect(screen.getByTestId('draft_sample_3_form')).toBeInTheDocument();
+    });
+
+    const calls = await getRequestCalls(fetchMock);
+    expect(calls).toHaveLength(1);
+  });
+
+  test('should render the fourth step for a draft sample with status Sent', async () => {
+    const draftSample = {
+      ...genSample(),
+      status: 'Sent',
+    };
+    mockRequests([
+      userRequest,
+      {
+        pathname: `/api/samples/${draftSample.id}`,
+        response: { body: JSON.stringify(draftSample) },
+      },
+    ]);
+    jest
+      .spyOn(Router, 'useParams')
+      .mockReturnValue({ sampleId: draftSample.id });
+
+    render(
+      <Provider store={store}>
+        <BrowserRouter>
+          <SampleView />
+        </BrowserRouter>
+      </Provider>
+    );
+
+    await waitFor(async () => {
+      expect(screen.getByTestId('sample_data')).toBeInTheDocument();
+    });
+
+    const calls = await getRequestCalls(fetchMock);
+    expect(calls).toHaveLength(1);
+  });
 });

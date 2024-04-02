@@ -13,6 +13,9 @@ import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOp
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useForm } from 'src/hooks/useForm';
 import { useUpdateSampleItemsMutation } from 'src/services/sample.service';
+
+export const MaxItemCount = 3;
+
 interface Props {
   partialSample: PartialSample;
 }
@@ -53,6 +56,7 @@ const SampleStep3 = ({ partialSample }: Props) => {
   };
 
   const save = async (isSubmitted: boolean) => {
+    form.reset();
     await updateSampleItems({
       id: partialSample.id,
       items,
@@ -78,7 +82,7 @@ const SampleStep3 = ({ partialSample }: Props) => {
 
   return (
     <>
-      <form data-testid="draft_sample_2_form">
+      <form data-testid="draft_sample_3_form">
         {items?.map((item, index) => (
           <div
             key={`item_${index}`}
@@ -109,6 +113,7 @@ const SampleStep3 = ({ partialSample }: Props) => {
                   newItems.splice(index, 1);
                   setItems(newItems);
                 }}
+                data-testid={`remove-item-button-${index}`}
               />
             </h3>
             <div className={cx('fr-col-12', 'fr-col-sm-4')}>
@@ -141,7 +146,7 @@ const SampleStep3 = ({ partialSample }: Props) => {
                 inputKey="items"
                 inputPathFromKey={[index, 'quantityUnit']}
                 whenValid="Unité de quantité correctement renseignée."
-                data-testid="quantityunit-select"
+                data-testid={`item-unit-select-${index}`}
                 label="Unité de quantité (obligatoire)"
                 required
               />
@@ -164,7 +169,7 @@ const SampleStep3 = ({ partialSample }: Props) => {
                 inputKey="items"
                 inputPathFromKey={[index, 'sealId']}
                 whenValid="Numéro de scellé correctement renseigné."
-                data-testid="sealid-input"
+                data-testid={`item-sealid-input-${index}`}
                 label="Numéro de scellé (obligatoire)"
                 required
               />
@@ -184,7 +189,10 @@ const SampleStep3 = ({ partialSample }: Props) => {
                 label="Recours au poolage"
                 checked={item.pooling ?? false}
                 onChange={(checked) =>
-                  changeItems({ ...item, pooling: checked }, index)
+                  changeItems(
+                    { ...item, pooling: checked, poolingCount: undefined },
+                    index
+                  )
                 }
                 showCheckedHint={false}
               />
@@ -207,7 +215,7 @@ const SampleStep3 = ({ partialSample }: Props) => {
                   inputKey="items"
                   inputPathFromKey={[index, 'poolingCount']}
                   whenValid="Nombre d'unités correctement renseigné."
-                  data-testid="poolingcount-input"
+                  data-testid={`item-poolingcount-input-${index}`}
                   label="Nombre d'unités (obligatoire)"
                   required
                 />
@@ -215,23 +223,26 @@ const SampleStep3 = ({ partialSample }: Props) => {
             )}
           </div>
         ))}
-        <Button
-          iconId="fr-icon-add-line"
-          priority="tertiary no outline"
-          onClick={(e) => {
-            e.preventDefault();
-            setItems([
-              ...items,
-              {
-                sampleId: partialSample.id,
-                itemNumber: items.length + 1,
-              },
-            ]);
-          }}
-          className={cx('fr-mb-2w')}
-        >
-          Ajouter un échantillon
-        </Button>
+        {items.length < MaxItemCount && (
+          <Button
+            iconId="fr-icon-add-line"
+            priority="tertiary no outline"
+            onClick={(e) => {
+              e.preventDefault();
+              setItems([
+                ...items,
+                {
+                  sampleId: partialSample.id,
+                  itemNumber: items.length + 1,
+                },
+              ]);
+            }}
+            className={cx('fr-mb-2w')}
+            data-testid="add-item-button"
+          >
+            Ajouter un échantillon
+          </Button>
+        )}
         {isUpdateSuccess && (
           <Alert
             severity="success"

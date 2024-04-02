@@ -11,7 +11,7 @@ interface Props {
   sample: Sample;
 }
 
-const SampleStep3 = ({ sample }: Props) => {
+const SampleStep4 = ({ sample }: Props) => {
   const [updateSample, { isSuccess: isUpdateSuccess }] =
     useUpdateSampleMutation();
 
@@ -24,7 +24,7 @@ const SampleStep3 = ({ sample }: Props) => {
   };
 
   return (
-    <div>
+    <div data-testid="sample_data">
       {sample.status !== 'Sent' && (
         <p>
           Vérifiez que les informations saisies sont correctes avant de valider
@@ -77,7 +77,9 @@ const SampleStep3 = ({ sample }: Props) => {
           {t('boolean', { count: Number(sample.releaseControl ?? 0) })}
         </li>
         <li>
-          <strong>Maintenance de la température :</strong>{' '}
+          <strong>
+            Condition de maintien du prélèvement sous température dirigée :
+          </strong>{' '}
           {t('boolean', {
             count: Number(sample.temperatureMaintenance ?? 0),
           })}
@@ -149,4 +151,4 @@ const SampleStep3 = ({ sample }: Props) => {
   );
 };
 
-export default SampleStep3;
+export default SampleStep4;

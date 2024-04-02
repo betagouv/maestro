@@ -91,6 +91,7 @@ const SampleStep2 = ({ partialSample }: Props) => {
   };
 
   const save = async (isSubmitted: boolean) => {
+    form.reset();
     await updateSample({
       ...partialSample,
       matrixKind,
@@ -197,15 +198,9 @@ const SampleStep2 = ({ partialSample }: Props) => {
               showCheckedHint={false}
             />
           </div>
-          <div
-            className={cx(
-              'fr-col-12',
-              'fr-col-sm-4',
-              'fr-col-offset-md-4--right'
-            )}
-          >
+          <div className={cx('fr-col-12', 'fr-col-sm-8')}>
             <ToggleSwitch
-              label="Maintenance de température"
+              label="Condition de maintien du prélèvement sous température dirigée"
               checked={temperatureMaintenance ?? false}
               onChange={(checked) => setTemperatureMaintenance(checked)}
               showCheckedHint={false}

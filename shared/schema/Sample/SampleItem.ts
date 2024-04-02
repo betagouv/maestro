@@ -20,6 +20,14 @@ export const SampleItem = z.object({
   }),
 });
 
+export const SampleItemRefinement = SampleItem.refine(
+  ({ pooling, poolingCount }) => (pooling ? poolingCount !== undefined : true),
+  {
+    path: ['poolingCount'],
+    message: "Veillez à renseigner le nombre d'unités.",
+  }
+);
+
 export const PartialSampleItem = SampleItem.partial().merge(
   SampleItem.pick({
     id: true,
