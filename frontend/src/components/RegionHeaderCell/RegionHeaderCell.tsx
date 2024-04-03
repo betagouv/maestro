@@ -1,4 +1,4 @@
-import { Region, RegionLabels } from 'shared/schema/Region';
+import { Region, Regions } from 'shared/schema/Region';
 
 interface RegionHeaderCellProps {
   region: Region;
@@ -8,7 +8,7 @@ const RegionHeaderCell = ({ region }: RegionHeaderCellProps) => {
   return (
     <>
       <span className="pointer" aria-describedby={`tooltip-${region}`}>
-        {region}
+        {Regions[region].shortName}
       </span>
       <span
         className="fr-tooltip fr-placement"
@@ -16,7 +16,7 @@ const RegionHeaderCell = ({ region }: RegionHeaderCellProps) => {
         role="tooltip"
         aria-hidden="true"
       >
-        {RegionLabels[region]}
+        {Regions[region].name}
       </span>
     </>
   );
