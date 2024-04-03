@@ -10,7 +10,7 @@ describe('PrescriptionsByMatrix', () => {
           programmingPlanId: '1',
           sampleMatrix: 'A',
           sampleStage: 'Avant récolte',
-          region: 'ARA',
+          region: '84',
           sampleCount: 1,
         },
         {
@@ -18,7 +18,7 @@ describe('PrescriptionsByMatrix', () => {
           programmingPlanId: '1',
           sampleMatrix: 'A',
           sampleStage: 'Avant récolte',
-          region: 'BRE',
+          region: '53',
           sampleCount: 2,
         },
         {
@@ -26,7 +26,7 @@ describe('PrescriptionsByMatrix', () => {
           programmingPlanId: '1',
           sampleMatrix: 'B',
           sampleStage: 'Avant récolte',
-          region: 'GUA',
+          region: '01',
           sampleCount: 3,
         },
         {
@@ -34,7 +34,7 @@ describe('PrescriptionsByMatrix', () => {
           programmingPlanId: '1',
           sampleMatrix: 'A',
           sampleStage: 'Stockage',
-          region: 'COR',
+          region: '94',
           sampleCount: 4,
         },
         {
@@ -42,7 +42,7 @@ describe('PrescriptionsByMatrix', () => {
           programmingPlanId: '2',
           sampleMatrix: 'A',
           sampleStage: 'Avant récolte',
-          region: 'BFC',
+          region: '27',
           sampleCount: 5,
         },
       ];
