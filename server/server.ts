@@ -35,13 +35,12 @@ export function createServer(): Server {
             'https://stats.beta.gouv.fr',
           ],
           frameSrc: [],
-          styleSrc: ["'self'", "'unsafe-inline'"],
-          imgSrc: [
+          styleSrc: [
             "'self'",
-            'https://stats.beta.gouv.fr',
-            'https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css',
-            'data:',
+            "'unsafe-inline'",
+            'https://unpkg.com/maplibre-gl@4.1.2/dist/maplibre-gl.css',
           ],
+          imgSrc: ["'self'", 'https://stats.beta.gouv.fr', 'data:'],
           fontSrc: ["'self'", 'data:'],
           objectSrc: ["'self'"],
           mediaSrc: ["'self'"],
