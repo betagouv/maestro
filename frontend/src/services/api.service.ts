@@ -11,6 +11,7 @@ export const api = createApi({
     'AuthUser',
     'Prescription',
     'ProgrammingPlan',
+    'Regions',
     'Sample',
     'UserInfos',
   ],

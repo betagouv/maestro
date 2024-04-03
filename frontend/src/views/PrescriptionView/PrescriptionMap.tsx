@@ -1,7 +1,6 @@
 import type { FeatureCollection } from 'geojson';
 import _ from 'lodash';
 import maplibregl, { StyleSpecification } from 'maplibre-gl';
-import { useEffect, useState } from 'react';
 import Map, {
   CircleLayer,
   FillLayer,
@@ -14,20 +13,14 @@ import Map, {
 } from 'react-map-gl/maplibre';
 import { Prescription } from 'shared/schema/Prescription/Prescription';
 import { RegionList, Regions } from 'shared/schema/Region';
+import { useGetRegionsGeoJsonQuery } from 'src/services/region.service';
 
 interface Props {
   prescriptions: Prescription[];
 }
 
 const PrescriptionMap = ({ prescriptions }: Props) => {
-  const [regionAreas, setRegionAreas] = useState(null);
-
-  useEffect(() => {
-    fetch('https://france-geojson.gregoiredavid.fr/repo/regions.geojson')
-      .then((resp) => resp.json())
-      .then((json) => setRegionAreas(json))
-      .catch((err) => console.error('Could not load data', err));
-  }, []);
+  const { data: regionsSource } = useGetRegionsGeoJsonQuery();
 
   const regionsData: FeatureCollection = {
     type: 'FeatureCollection',
@@ -145,9 +138,9 @@ const PrescriptionMap = ({ prescriptions }: Props) => {
         <GeolocateControl position="top-left" />
         <NavigationControl position="top-left" />
         <ScaleControl />
-        {regionAreas && (
+        {regionsSource && (
           <>
-            <Source type="geojson" data={regionAreas}>
+            <Source type="geojson" data={regionsSource}>
               <Layer {...regionsLayer} />
             </Source>
             <Source id="centers" type="geojson" data={regionsData}>

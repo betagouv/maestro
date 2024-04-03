@@ -62,7 +62,7 @@ describe('PrescriptionView', () => {
       response: { body: JSON.stringify(nationalCoordinator) },
     };
     const regionsRequest = {
-      pathname: 'https://france-geojson.gregoiredavid.fr/repo/regions.geojson',
+      pathname: '/api/regions.geojson',
       response: { body: JSON.stringify({}) },
     };
 
