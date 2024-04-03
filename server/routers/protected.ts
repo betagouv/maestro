@@ -18,7 +18,7 @@ router.use('/programming-plans', prescriptionRouter);
 
 router.get('/regions.geojson', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
-  fs.createReadStream(__dirname + '/../../data/regions.geojson').pipe(res);
+  fs.createReadStream(__dirname + '/../data/regions.geojson').pipe(res);
 });
 
 export default router;
