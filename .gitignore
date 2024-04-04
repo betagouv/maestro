@@ -28,3 +28,4 @@ yarn-error.log*
 /.idea/
 /frontend/.env
 /dist/
+/local/

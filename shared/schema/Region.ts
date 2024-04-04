@@ -78,8 +78,8 @@ export const Regions: Record<
     name: 'Auvergne-Rhône-Alpes',
     shortName: 'ARA',
     center: {
-      latitude: 45.75,
-      longitude: 4.85,
+      latitude: 45.4,
+      longitude: 4.7,
     },
   },
   '27': {
@@ -102,31 +102,31 @@ export const Regions: Record<
     name: 'Centre-Val de Loire',
     shortName: 'CVL',
     center: {
-      latitude: 47.55,
-      longitude: 1.33,
+      latitude: 47.5,
+      longitude: 1.75,
     },
   },
   '94': {
     name: 'Corse',
     shortName: 'COR',
     center: {
-      latitude: 42.25,
-      longitude: 9,
+      latitude: 42.15,
+      longitude: 9.1,
     },
   },
   '44': {
     name: 'Grand Est',
     shortName: 'GES',
     center: {
-      latitude: 48.98,
-      longitude: 5.37,
+      latitude: 48.7,
+      longitude: 5.6,
     },
   },
   '32': {
     name: 'Hauts-de-France',
     shortName: 'HDF',
     center: {
-      latitude: 50.5,
+      latitude: 50,
       longitude: 2.88,
     },
   },
@@ -134,8 +134,8 @@ export const Regions: Record<
     name: 'Île-de-France',
     shortName: 'IDF',
     center: {
-      latitude: 48.85,
-      longitude: 2.35,
+      latitude: 48.7,
+      longitude: 2.5,
     },
   },
   '28': {
@@ -143,7 +143,7 @@ export const Regions: Record<
     shortName: 'NOR',
     center: {
       latitude: 49.1,
-      longitude: 0.4,
+      longitude: 0,
     },
   },
   '75': {
@@ -158,8 +158,8 @@ export const Regions: Record<
     name: 'Occitanie',
     shortName: 'OCC',
     center: {
-      latitude: 43.6,
-      longitude: 1.44,
+      latitude: 43.7,
+      longitude: 2.1,
     },
   },
   '52': {
@@ -167,55 +167,55 @@ export const Regions: Record<
     shortName: 'PDL',
     center: {
       latitude: 47.6,
-      longitude: -0.83,
+      longitude: -0.6,
     },
   },
   '93': {
     name: "Provence-Alpes-Côte d'Azur",
     shortName: 'PAC',
     center: {
-      latitude: 43.88,
-      longitude: 5.39,
+      latitude: 43.8,
+      longitude: 6.1,
     },
   },
   '01': {
     name: 'Guadeloupe',
     shortName: 'GUA',
     center: {
-      latitude: 16.25,
-      longitude: -61.5,
+      latitude: 45.6,
+      longitude: -2.8,
     },
   },
   '02': {
     name: 'Martinique',
     shortName: 'MAR',
     center: {
-      latitude: 14.6,
-      longitude: -61,
+      latitude: 45.6,
+      longitude: -5.8,
     },
   },
   '03': {
     name: 'Guyane',
     shortName: 'GUY',
     center: {
-      latitude: 4,
-      longitude: -53,
+      latitude: 47.1,
+      longitude: -5.8,
     },
   },
   '04': {
     name: 'La Réunion',
     shortName: 'REU',
     center: {
-      latitude: -21.1,
-      longitude: 55.6,
+      latitude: 44.25,
+      longitude: -2.45,
     },
   },
   '06': {
     name: 'Mayotte',
     shortName: 'MYT',
     center: {
-      latitude: -12.8,
-      longitude: 45.2,
+      latitude: 44.3,
+      longitude: -3.9,
     },
   },
 };

@@ -3,7 +3,7 @@ import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import clsx from 'clsx';
 import { t } from 'i18next';
 import _ from 'lodash';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
@@ -18,7 +18,7 @@ const PrescriptionView = () => {
   const { programmingPlanId } = useParams<{ programmingPlanId: string }>();
   const { hasNationalView } = useAuthentication();
 
-  const [view, setView] = useState<'table' | 'map'>();
+  const [view, setView] = useState<'table' | 'map'>('map');
 
   const { data: programmingPlan } = useGetProgrammingPlanQuery(
     programmingPlanId as string,
@@ -33,53 +33,50 @@ const PrescriptionView = () => {
     }
   );
 
-  useEffect(() => {
-    if (hasNationalView !== undefined) {
-      setView(hasNationalView ? 'map' : 'table');
-    }
-  }, [hasNationalView]);
-
-  if (!programmingPlan || !view) {
+  if (!programmingPlan) {
     return <></>;
   }
 
   return (
     <section className={clsx(cx('fr-py-6w'))}>
-      <h1 className={cx('fr-mb-0', { 'fr-container': view === 'table' })}>
+      <h1
+        className={cx('fr-mb-0', {
+          'fr-container': hasNationalView && view === 'table',
+        })}
+      >
         {programmingPlan.title}
         <div className={cx('fr-text--lead')}>
           {t('sample', { count: _.sumBy(prescriptions, 'sampleCount') })}
         </div>
       </h1>
-      {hasNationalView && (
-        <SegmentedControl
-          segments={[
-            {
-              label: 'Carte',
-              nativeInputProps: {
-                checked: view === 'map',
-                onChange: () => setView('map'),
-              },
+      <SegmentedControl
+        segments={[
+          {
+            label: 'Carte',
+            nativeInputProps: {
+              checked: view === 'map',
+              onChange: () => setView('map'),
             },
-            {
-              label: 'Tableau',
-              nativeInputProps: {
-                checked: view === 'table',
-                onChange: () => setView('table'),
-              },
+          },
+          {
+            label: 'Tableau',
+            nativeInputProps: {
+              checked: view === 'table',
+              onChange: () => setView('table'),
             },
-          ]}
-          hideLegend={true}
-          legend={'Vue'}
-          className={cx('fr-pb-1w', { 'fr-container': view === 'table' })}
-          style={{
-            display: 'flex',
-            margin: 'auto',
-            flexDirection: 'row-reverse',
-          }}
-          data-testid="prescription-view-segmented-control"
-        />
-      )}
+          },
+        ]}
+        hideLegend={true}
+        legend={'Vue'}
+        className={cx('fr-pb-1w', {
+          'fr-container': hasNationalView && view === 'table',
+        })}
+        style={{
+          display: 'flex',
+          margin: 'auto',
+        }}
+        data-testid="prescription-view-segmented-control"
+      />
       {view === 'table' ? (
         <PrescriptionTable
           programmingPlanId={programmingPlan.id}
