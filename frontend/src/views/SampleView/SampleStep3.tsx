@@ -8,7 +8,6 @@ import { useNavigate } from 'react-router-dom';
 import { PartialSample, Sample } from 'shared/schema/Sample/Sample';
 import { PartialSampleItem } from 'shared/schema/Sample/SampleItem';
 import { isDefinedAndNotNull } from 'shared/utils/utils';
-import AutoClose from 'src/components/AutoClose/AutoClose';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
@@ -68,7 +67,6 @@ const SampleStep3 = ({ partialSample }: Props) => {
   };
 
   const save = async () => {
-    form.reset();
     await updateSampleItems({
       id: partialSample.id,
       items,
@@ -83,18 +81,6 @@ const SampleStep3 = ({ partialSample }: Props) => {
 
   return (
     <>
-      {isUpdateSuccess && (
-        <AutoClose>
-          <div className="toast">
-            <Alert
-              severity="success"
-              small={true}
-              description="Modification enregistrée"
-              closable
-            />
-          </div>
-        </AutoClose>
-      )}
       <form
         data-testid="draft_sample_3_form"
         onBlur={async (e) => {
@@ -144,6 +130,7 @@ const SampleStep3 = ({ partialSample }: Props) => {
                     index
                   )
                 }
+                type="number"
                 inputForm={form}
                 inputKey="items"
                 inputPathFromKey={[index, 'quantity']}

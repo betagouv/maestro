@@ -101,7 +101,7 @@ describe('SampleFormStep3', () => {
   test('should save the items on blur without handling errors', async () => {
     mockRequests([
       {
-        pathname: `/api/samples/${draftSample.id}`,
+        pathname: `/api/samples/${draftSample.id}/items`,
         method: 'PUT',
         response: { body: JSON.stringify({}) },
       },

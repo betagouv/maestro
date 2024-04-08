@@ -1,4 +1,3 @@
-import Alert from '@codegouvfr/react-dsfr/Alert';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
@@ -12,7 +11,6 @@ import {
   SampleStorageCondition,
   SampleStorageConditionList,
 } from 'shared/schema/Sample/SampleStorageCondition';
-import AutoClose from 'src/components/AutoClose/AutoClose';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
@@ -95,7 +93,6 @@ const SampleStep2 = ({ partialSample }: Props) => {
   };
 
   const save = async (status = partialSample.status) => {
-    form.reset();
     await updateSample({
       ...partialSample,
       matrixKind,
@@ -116,18 +113,6 @@ const SampleStep2 = ({ partialSample }: Props) => {
 
   return (
     <>
-      {isUpdateSuccess && (
-        <AutoClose>
-          <div className="toast">
-            <Alert
-              severity="success"
-              small={true}
-              description="Modification enregistrée"
-              closable
-            />
-          </div>
-        </AutoClose>
-      )}
       <form
         data-testid="draft_sample_2_form"
         onBlur={async (e) => {
