@@ -45,8 +45,7 @@ const SampleStep2 = ({ partialSample }: Props) => {
   const [locationName, setLocationName] = useState(partialSample.locationName);
   const [comment, setComment] = useState(partialSample.comment);
 
-  const [updateSample, { isSuccess: isUpdateSuccess }] =
-    useUpdateSampleMutation();
+  const [updateSample] = useUpdateSampleMutation();
 
   const Form = Sample.pick({
     matrixKind: true,

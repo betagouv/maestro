@@ -38,8 +38,7 @@ const SampleStep3 = ({ partialSample }: Props) => {
       : partialSample.items
   );
 
-  const [updateSampleItems, { isSuccess: isUpdateSuccess }] =
-    useUpdateSampleItemsMutation();
+  const [updateSampleItems] = useUpdateSampleItemsMutation();
   const [updateSample] = useUpdateSampleMutation();
 
   const Form = Sample.pick({
