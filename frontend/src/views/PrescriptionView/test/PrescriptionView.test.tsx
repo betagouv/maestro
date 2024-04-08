@@ -153,7 +153,7 @@ describe('PrescriptionView', () => {
       response: { body: JSON.stringify(regionalCoordinator) },
     };
 
-    test('should not display a segmented control to switch between table and map view', async () => {
+    test('should display a segmented control to switch between table and map view which defaults to table view', async () => {
       mockRequests([programmingPlanRequest, prescriptionRequest, userRequest]);
       jest
         .spyOn(Router, 'useParams')
@@ -168,7 +168,12 @@ describe('PrescriptionView', () => {
       );
 
       expect(
-        screen.queryByTestId('prescription-view-segmented-control')
+        await screen.findByTestId('prescription-view-segmented-control')
+      ).toBeInTheDocument();
+
+      expect(await screen.findByTestId('prescription-map')).toBeInTheDocument();
+      expect(
+        screen.queryByTestId('prescription-table')
       ).not.toBeInTheDocument();
     });
 
@@ -186,6 +191,12 @@ describe('PrescriptionView', () => {
           </BrowserRouter>
         </Provider>
       );
+
+      const segmentedControl = await screen.findByTestId(
+        'prescription-view-segmented-control'
+      );
+
+      await user.click(within(segmentedControl).getByLabelText('Tableau'));
 
       expect(
         await screen.findByTestId('prescription-table')
