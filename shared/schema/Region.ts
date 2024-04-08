@@ -49,20 +49,6 @@ export const RegionList: Region[] = [
   '06',
 ];
 
-// 84       |   45.75      |    4.85     |  Auvergne-Rhône-Alpes
-// |    27       |   47.09      |    4.81     |  Bourgogne-Franche-Comté
-// |    53       |   48.12      |   -2.92     |  Bretagne
-// |    24       |   47.55      |    1.33     |  Centre-Val de Loire
-// |    94       |   42.25      |    9.00     |  Corse
-// |    44       |   48.98      |    5.37     |  Grand Est
-// |    32       |   50.50      |    2.88     |  Hauts-de-France
-// |    11       |   48.85      |    2.35     |  Île-de-France
-// |    28       |   49.10      |    0.40     |  Normandie
-// |    75       |   45.50      |    0.50     |  Nouvelle-Aquitaine
-// |    76       |   43.60      |    1.44     |  Occitanie
-// |    52       |   47.60      |   -0.83     |  Pays de la Loire
-// |    93       |   43.88      |    5.39     |  Provence-Alpes-Côte d'Azur
-
 export const Regions: Record<
   Region,
   {
