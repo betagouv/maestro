@@ -1,7 +1,7 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Stepper from '@codegouvfr/react-dsfr/Stepper';
 import { useEffect, useState } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { Sample } from 'shared/schema/Sample/Sample';
 import { SampleStatus } from 'shared/schema/Sample/SampleStatus';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
@@ -62,16 +62,7 @@ const SampleView = () => {
             nextTitle={StepTitles[step]}
             stepCount={4}
             title={StepTitles[step - 1]}
-            className={cx(sample && step > 1 && 'fr-mb-1w')}
           />
-
-          {sample && step > 1 && (
-            <div className={cx('fr-pb-1w', 'fr-text--sm')}>
-              <Link to={`/prelevements/${sample.id}?etape=${step - 1}`}>
-                Retour à l'étape précédente
-              </Link>
-            </div>
-          )}
         </>
       )}
       {step === 1 && <SampleStep1 partialSample={sample} />}

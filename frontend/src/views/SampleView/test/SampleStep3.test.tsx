@@ -35,7 +35,7 @@ describe('SampleFormStep3', () => {
       screen.queryByTestId('item-quantity-input-1')
     ).not.toBeInTheDocument();
 
-    expect(screen.getByTestId('save-button')).toBeInTheDocument();
+    expect(screen.getByTestId('previous-button')).toBeInTheDocument();
     expect(screen.getByTestId('submit-button')).toBeInTheDocument();
   });
 
@@ -98,7 +98,15 @@ describe('SampleFormStep3', () => {
     ).toBeInTheDocument();
   });
 
-  test('should not handle errors on saving', async () => {
+  test('should save the items on blur without handling errors', async () => {
+    mockRequests([
+      {
+        pathname: `/api/samples/${draftSample.id}`,
+        method: 'PUT',
+        response: { body: JSON.stringify({}) },
+      },
+    ]);
+
     render(
       <Provider store={store}>
         <BrowserRouter>
@@ -107,8 +115,12 @@ describe('SampleFormStep3', () => {
       </Provider>
     );
 
+    const quantityInput = screen.getAllByTestId('item-quantity-input-0')[1];
+    const unitSelect = screen.getAllByTestId('item-unit-select-0')[1];
+
     await act(async () => {
-      await user.click(screen.getByTestId('save-button'));
+      await user.type(quantityInput, '10');
+      await user.click(unitSelect);
     });
 
     expect(
@@ -120,12 +132,20 @@ describe('SampleFormStep3', () => {
     expect(
       screen.queryByText('Le numéro de scellé doit être un nombre.')
     ).not.toBeInTheDocument();
+
+    const calls = await getRequestCalls(fetchMock);
+    expect(calls).toHaveLength(1);
   });
 
-  test('should call the sample updating API on submitting', async () => {
+  test('should submit the items and update sample status', async () => {
     mockRequests([
       {
         pathname: `/api/samples/${draftSample.id}`,
+        method: 'PUT',
+        response: { body: JSON.stringify({}) },
+      },
+      {
+        pathname: `/api/samples/${draftSample.id}/items`,
         method: 'PUT',
         response: { body: JSON.stringify({}) },
       },
@@ -151,7 +171,7 @@ describe('SampleFormStep3', () => {
     });
 
     const calls = await getRequestCalls(fetchMock);
-    expect(calls).toHaveLength(1);
+    expect(calls).toHaveLength(5);
 
     expect(calls).toContainEqual({
       method: 'PUT',
@@ -165,6 +185,16 @@ describe('SampleFormStep3', () => {
           sealId: 123,
         },
       ],
+    });
+    expect(calls).toContainEqual({
+      method: 'PUT',
+      url: `${config.apiEndpoint}/api/samples/${draftSample.id}`,
+      body: {
+        ...draftSample,
+        createdAt: draftSample.createdAt.toISOString(),
+        sampledAt: draftSample.sampledAt.toISOString(),
+        status: 'Submitted',
+      },
     });
   });
 });

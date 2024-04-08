@@ -42,7 +42,7 @@ describe('SampleFormStep2', () => {
     expect(screen.getAllByTestId('location-name-input')).toHaveLength(2);
     expect(screen.getAllByTestId('comment-input')).toHaveLength(2);
 
-    expect(screen.getByTestId('save-button')).toBeInTheDocument();
+    expect(screen.getByTestId('previous-button')).toBeInTheDocument();
     expect(screen.getByTestId('submit-button')).toBeInTheDocument();
   });
 
@@ -78,7 +78,16 @@ describe('SampleFormStep2', () => {
     ).toBeInTheDocument();
   });
 
-  test('should not handle errors on saving', async () => {
+  test('should save on blur without handling errors', async () => {
+    const createdSample = genCreatedSample();
+    mockRequests([
+      {
+        pathname: `/api/samples/${createdSample.id}`,
+        method: 'PUT',
+        response: { body: JSON.stringify({}) },
+      },
+    ]);
+
     render(
       <Provider store={store}>
         <BrowserRouter>
@@ -86,9 +95,12 @@ describe('SampleFormStep2', () => {
         </BrowserRouter>
       </Provider>
     );
+    const matrixKindSelect = screen.getAllByTestId('matrixkind-select')[1];
+    const matrixSelect = screen.getAllByTestId('matrix-select')[1];
 
     await act(async () => {
-      await user.click(screen.getByTestId('save-button'));
+      await user.selectOptions(matrixKindSelect, 'Fruits');
+      await user.click(matrixSelect);
     });
     expect(
       screen.queryByText('Veuillez renseigner la catégorie de matrice.')
@@ -108,9 +120,12 @@ describe('SampleFormStep2', () => {
     expect(
       screen.queryByText('Veuillez renseigner le nom du lieu de prélèvement.')
     ).not.toBeInTheDocument();
+
+    const calls = await getRequestCalls(fetchMock);
+    expect(calls).toHaveLength(1);
   });
 
-  test('should call the sample updating API on submitting', async () => {
+  test('should submit the sample with updating it status', async () => {
     const createdSample = genCreatedSample();
 
     mockRequests([
@@ -161,7 +176,7 @@ describe('SampleFormStep2', () => {
     });
 
     const calls = await getRequestCalls(fetchMock);
-    expect(calls).toHaveLength(1);
+    expect(calls).toHaveLength(11);
 
     expect(calls).toContainEqual({
       url: `${config.apiEndpoint}/api/samples/${createdSample.id}`,

@@ -1,8 +1,9 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
-import Button from '@codegouvfr/react-dsfr/Button';
+import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { format } from 'date-fns';
 import { t } from 'i18next';
+import { useNavigate } from 'react-router-dom';
 import { DepartmentLabels } from 'shared/schema/Department';
 import { Sample } from 'shared/schema/Sample/Sample';
 import { useUpdateSampleMutation } from 'src/services/sample.service';
@@ -12,6 +13,7 @@ interface Props {
 }
 
 const SampleStep4 = ({ sample }: Props) => {
+  const navigate = useNavigate();
   const [updateSample, { isSuccess: isUpdateSuccess }] =
     useUpdateSampleMutation();
 
@@ -136,7 +138,35 @@ const SampleStep4 = ({ sample }: Props) => {
       ) : (
         <>
           {sample.status !== 'Sent' ? (
-            <Button children="Envoyer le prélèvement" onClick={submit} />
+            <ButtonsGroup
+              inlineLayoutWhen="md and up"
+              buttons={[
+                {
+                  children: 'Etape précédente',
+                  priority: 'secondary',
+                  onClick: async (e) => {
+                    e.preventDefault();
+                    await updateSample({
+                      ...sample,
+                      status: 'DraftItems',
+                    });
+                    navigate(`/prelevements/${sample.id}?etape=3`, {
+                      replace: true,
+                    });
+                  },
+                  nativeButtonProps: {
+                    'data-testid': 'previous-button',
+                  },
+                },
+                {
+                  children: 'Envoyer le prélèvement',
+                  onClick: submit,
+                  nativeButtonProps: {
+                    'data-testid': 'submit-button',
+                  },
+                },
+              ]}
+            />
           ) : (
             <Alert
               severity="info"

@@ -12,6 +12,7 @@ import {
   SampleStorageCondition,
   SampleStorageConditionList,
 } from 'shared/schema/Sample/SampleStorageCondition';
+import AutoClose from 'src/components/AutoClose/AutoClose';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
@@ -86,11 +87,14 @@ const SampleStep2 = ({ partialSample }: Props) => {
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     await form.validate(async () => {
-      await save(true);
+      await save('DraftItems');
+      navigate(`/prelevements/${partialSample.id}?etape=3`, {
+        replace: true,
+      });
     });
   };
 
-  const save = async (isSubmitted: boolean) => {
+  const save = async (status = partialSample.status) => {
     form.reset();
     await updateSample({
       ...partialSample,
@@ -106,22 +110,31 @@ const SampleStep2 = ({ partialSample }: Props) => {
       locationSiret,
       locationName,
       comment,
-      status: isSubmitted ? 'DraftItems' : partialSample.status,
-    })
-      .unwrap()
-      .then((result) => {
-        if (isSubmitted) {
-          navigate(`/prelevements/${result.id}?etape=3`, { replace: true });
-        }
-      })
-      .catch(() => {
-        //TODO handle error
-      });
+      status,
+    });
   };
 
   return (
     <>
-      <form data-testid="draft_sample_2_form">
+      {isUpdateSuccess && (
+        <AutoClose>
+          <div className="toast">
+            <Alert
+              severity="success"
+              small={true}
+              description="Modification enregistrée"
+              closable
+            />
+          </div>
+        </AutoClose>
+      )}
+      <form
+        data-testid="draft_sample_2_form"
+        onBlur={async (e) => {
+          e.preventDefault();
+          await save();
+        }}
+      >
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12', 'fr-col-sm-4')}>
             <AppSelect<FormShape>
@@ -280,24 +293,22 @@ const SampleStep2 = ({ partialSample }: Props) => {
           </div>
         </div>
         <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
-        {isUpdateSuccess && (
-          <Alert
-            severity="success"
-            title="Les données ont bien été enregistrées."
-            className={cx('fr-mb-2w')}
-          />
-        )}
         <div className={cx('fr-col-12')}>
           <ButtonsGroup
             inlineLayoutWhen="md and up"
             buttons={[
               {
-                children: 'Enregistrer',
-                onClick: () => save(false),
+                children: 'Etape précédente',
                 priority: 'secondary',
-                type: 'button',
+                onClick: async (e) => {
+                  e.preventDefault();
+                  await save('DraftInfos');
+                  navigate(`/prelevements/${partialSample.id}?etape=1`, {
+                    replace: true,
+                  });
+                },
                 nativeButtonProps: {
-                  'data-testid': 'save-button',
+                  'data-testid': 'previous-button',
                 },
               },
               {

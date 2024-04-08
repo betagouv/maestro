@@ -8,11 +8,15 @@ import { useNavigate } from 'react-router-dom';
 import { PartialSample, Sample } from 'shared/schema/Sample/Sample';
 import { PartialSampleItem } from 'shared/schema/Sample/SampleItem';
 import { isDefinedAndNotNull } from 'shared/utils/utils';
+import AutoClose from 'src/components/AutoClose/AutoClose';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useForm } from 'src/hooks/useForm';
-import { useUpdateSampleItemsMutation } from 'src/services/sample.service';
+import {
+  useUpdateSampleItemsMutation,
+  useUpdateSampleMutation,
+} from 'src/services/sample.service';
 
 export const MaxItemCount = 3;
 
@@ -37,6 +41,7 @@ const SampleStep3 = ({ partialSample }: Props) => {
 
   const [updateSampleItems, { isSuccess: isUpdateSuccess }] =
     useUpdateSampleItemsMutation();
+  const [updateSample] = useUpdateSampleMutation();
 
   const Form = Sample.pick({
     items: true,
@@ -51,27 +56,23 @@ const SampleStep3 = ({ partialSample }: Props) => {
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     await form.validate(async () => {
-      await save(true);
+      await save();
+      await updateSample({
+        ...partialSample,
+        status: 'Submitted',
+      });
+      navigate(`/prelevements/${partialSample.id}?etape=4`, {
+        replace: true,
+      });
     });
   };
 
-  const save = async (isSubmitted: boolean) => {
+  const save = async () => {
     form.reset();
     await updateSampleItems({
       id: partialSample.id,
       items,
-    })
-      .unwrap()
-      .then(() => {
-        if (isSubmitted) {
-          navigate(`/prelevements/${partialSample.id}?etape=4`, {
-            replace: true,
-          });
-        }
-      })
-      .catch(() => {
-        //TODO handle error
-      });
+    });
   };
 
   const changeItems = (item: PartialSampleItem, index: number) => {
@@ -82,7 +83,25 @@ const SampleStep3 = ({ partialSample }: Props) => {
 
   return (
     <>
-      <form data-testid="draft_sample_3_form">
+      {isUpdateSuccess && (
+        <AutoClose>
+          <div className="toast">
+            <Alert
+              severity="success"
+              small={true}
+              description="Modification enregistrée"
+              closable
+            />
+          </div>
+        </AutoClose>
+      )}
+      <form
+        data-testid="draft_sample_3_form"
+        onBlur={async (e) => {
+          e.preventDefault();
+          await save();
+        }}
+      >
         {items?.map((item, index) => (
           <div
             key={`item_${index}`}
@@ -243,13 +262,6 @@ const SampleStep3 = ({ partialSample }: Props) => {
             Ajouter un échantillon
           </Button>
         )}
-        {isUpdateSuccess && (
-          <Alert
-            severity="success"
-            title="Les données ont bien été enregistrées."
-            className={cx('fr-mb-2w')}
-          />
-        )}
         {form.hasIssue('items') && (
           <Alert
             severity="error"
@@ -263,12 +275,20 @@ const SampleStep3 = ({ partialSample }: Props) => {
             inlineLayoutWhen="md and up"
             buttons={[
               {
-                children: 'Enregistrer',
-                onClick: () => save(false),
+                children: 'Etape précédente',
                 priority: 'secondary',
-                type: 'button',
+                onClick: async (e) => {
+                  e.preventDefault();
+                  await updateSample({
+                    ...partialSample,
+                    status: 'DraftInfos',
+                  });
+                  navigate(`/prelevements/${partialSample.id}?etape=2`, {
+                    replace: true,
+                  });
+                },
                 nativeButtonProps: {
-                  'data-testid': 'save-button',
+                  'data-testid': 'previous-button',
                 },
               },
               {
