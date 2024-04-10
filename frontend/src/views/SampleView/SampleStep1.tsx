@@ -1,6 +1,7 @@
 import { fr } from '@codegouvfr/react-dsfr';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import Notice from '@codegouvfr/react-dsfr/Notice';
 import { format, parse } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -28,6 +29,7 @@ import {
   useCreateSampleMutation,
   useUpdateSampleMutation,
 } from 'src/services/sample.service';
+import SampleGeolocation from 'src/views/SampleView/SampleGeolocation';
 import { z } from 'zod';
 
 interface Props {
@@ -150,6 +152,18 @@ const SampleStep1 = ({ partialSample }: Props) => {
 
   return (
     <form data-testid="draft_sample_1_form">
+      {!isUserLocationFromGeolocation && (
+        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+          <div className={cx('fr-col-12', 'fr-p-0', 'fr-mb-2w')}>
+            <Notice
+              isClosable
+              title="Vous pouvez renseigner automatiquement la latitude et la longitude en
+          autorisant le navigateur à accéder à votre position."
+              className={cx('fr-py-1w')}
+            />
+          </div>
+        </div>
+      )}
       <div
         className={cx(
           'fr-grid-row',
@@ -178,7 +192,13 @@ const SampleStep1 = ({ partialSample }: Props) => {
           <AppTextInput<FormShape>
             type="text"
             value={userLocationX ?? ''}
-            onChange={(e) => setUserLocationX(parseFloat(e.target.value))}
+            onChange={(e) =>
+              setUserLocationX(
+                isNaN(parseFloat(e.target.value))
+                  ? undefined
+                  : parseFloat(e.target.value)
+              )
+            }
             inputForm={form}
             inputKey="userLocationX"
             whenValid="Latitude correctement renseignée."
@@ -191,7 +211,13 @@ const SampleStep1 = ({ partialSample }: Props) => {
           <AppTextInput<FormShape>
             type="text"
             value={userLocationY ?? ''}
-            onChange={(e) => setUserLocationY(parseFloat(e.target.value))}
+            onChange={(e) =>
+              setUserLocationY(
+                isNaN(parseFloat(e.target.value))
+                  ? undefined
+                  : parseFloat(e.target.value)
+              )
+            }
             inputForm={form}
             inputKey="userLocationY"
             whenValid="Longitude correctement renseignée."
@@ -200,19 +226,27 @@ const SampleStep1 = ({ partialSample }: Props) => {
             required
           />
         </div>
-        {!isUserLocationFromGeolocation && (
-          <div className={cx('fr-col-12', 'fr-col-sm-4', 'fr-hint-text')}>
-            <span
-              className={cx(
-                'fr-icon--sm',
-                'fr-icon-information-fill',
-                'fr-mr-1w'
-              )}
-            />
-            Pour pouvoir renseigner automatiquement la latitude et la longitude,
-            veuillez autoriser le navigateur à accéder à votre position.
-          </div>
-        )}
+        <div
+          className={cx('fr-col-12', 'fr-col-sm-4')}
+          style={{
+            display: 'flex',
+            justifyContent: 'end',
+            flexDirection: 'column',
+          }}
+        >
+          <SampleGeolocation
+            sampleId={partialSample?.id}
+            location={
+              userLocationX && userLocationY
+                ? { x: userLocationX, y: userLocationY }
+                : undefined
+            }
+            onLocationChange={(location) => {
+              setUserLocationX(location.x);
+              setUserLocationY(location.y);
+            }}
+          />
+        </div>
       </div>
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12', 'fr-col-sm-4')}>
