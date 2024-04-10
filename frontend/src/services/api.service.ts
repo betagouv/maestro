@@ -9,6 +9,7 @@ export const api = createApi({
   }),
   tagTypes: [
     'AuthUser',
+    'Document',
     'Prescription',
     'ProgrammingPlan',
     'Regions',

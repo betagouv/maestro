@@ -25,6 +25,8 @@
     "npm": ">=10"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.550.0",
+    "@aws-sdk/s3-request-presigner": "^3.550.0",
     "@jest-mock/express": "^1.4.5",
     "bcryptjs": "^2.4.3",
     "compose-middleware": "^5.0.1",

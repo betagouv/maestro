@@ -47,7 +47,7 @@ const Header = () => {
                     to: '/plans',
                     target: '_self',
                   },
-                  text: 'Mes plans',
+                  text: 'Plans de programmation',
                   isActive: location.pathname.startsWith('/plans'),
                 }
               : undefined,
@@ -57,10 +57,18 @@ const Header = () => {
                     to: '/prelevements',
                     target: '_self',
                   },
-                  text: 'Mes prélèvements',
+                  text: 'Prélèvements',
                   isActive: location.pathname.startsWith('/prelevements'),
                 }
               : undefined,
+            {
+              linkProps: {
+                to: '/documents',
+                target: '_self',
+              },
+              text: 'Documents',
+              isActive: location.pathname.startsWith('/documents'),
+            },
           ]
         : []
       ).filter(isDefined)}

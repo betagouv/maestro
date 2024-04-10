@@ -1,6 +1,7 @@
 import randomstring from 'randomstring';
 import { v4 as uuidv4 } from 'uuid';
 import { DepartmentList } from '../schema/Department';
+import { Document } from '../schema/Document/Document';
 import { Prescription } from '../schema/Prescription/Prescription';
 import { ProgrammingPlanKindList } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 import { RegionList } from '../schema/Region';
@@ -159,3 +160,10 @@ export const genPrescriptions = (
     sampleStage: (stage as SampleStage) ?? oneOf(SampleStageList),
     sampleCount: count,
   }));
+
+export const genDocument = (userId: string): Document => ({
+  id: uuidv4(),
+  filename: randomstring.generate(),
+  createdAt: new Date(),
+  createdBy: userId,
+});

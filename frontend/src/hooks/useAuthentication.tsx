@@ -4,6 +4,7 @@ import { UserRole, UserRolePermissions } from 'shared/schema/User/UserRole';
 import { isDefined } from 'shared/utils/utils';
 import { useAppSelector } from 'src/hooks/useStore';
 import { useGetUserInfosQuery } from 'src/services/user.service';
+import DocumentListView from 'src/views/DocumentListView/DocumentListView';
 import HomeView from 'src/views/HomeView/HomeView';
 import PrescriptionView from 'src/views/PrescriptionView/PrescriptionView';
 import ProgrammingPlanListView from 'src/views/ProgrammingPlanListView/ProgrammingPlanListView';
@@ -97,6 +98,12 @@ export const useAuthentication = () => {
                   component: SampleView,
                 }
               : undefined,
+            {
+              path: '/documents',
+              label: 'Documents',
+              key: 'documents_route',
+              component: DocumentListView,
+            },
           ]
         : [
             {
