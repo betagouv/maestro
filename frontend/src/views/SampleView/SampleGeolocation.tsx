@@ -50,7 +50,8 @@ const SampleGeolocation = ({ sampleId, location, onLocationChange }: Props) => {
       <Button
         iconId="fr-icon-map-pin-user-fill"
         priority="tertiary no outline"
-        onClick={() => {
+        onClick={(event) => {
+          event.preventDefault();
           geolocationModal.open();
           setMarker(
             location ?? {
@@ -68,9 +69,10 @@ const SampleGeolocation = ({ sampleId, location, onLocationChange }: Props) => {
           {
             children: 'Annuler',
             priority: 'secondary',
+            onClick: (e) => e.preventDefault(),
           },
           {
-            children: 'Enregistrer',
+            children: 'Valider',
             onClick: submit,
             doClosesModal: false,
           },
