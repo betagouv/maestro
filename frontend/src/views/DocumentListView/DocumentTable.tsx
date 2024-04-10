@@ -28,7 +28,7 @@ const DocumentTable = ({ documents }: Props) => {
   };
 
   return (
-    <>
+    <div data-testid="document-table">
       {isDeleteSuccess && (
         <AutoClose>
           <div className="toast">
@@ -67,7 +67,7 @@ const DocumentTable = ({ documents }: Props) => {
           />,
         ])}
       />
-    </>
+    </div>
   );
 };
 

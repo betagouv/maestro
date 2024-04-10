@@ -23,7 +23,7 @@ jest.mock('react-router-dom', () => ({
 let store: Store;
 const authUser = genAuthUser();
 const sampler = {
-  ...genUser('NationalCoordinator'),
+  ...genUser('Sampler'),
   id: authUser.userId,
 };
 const userRequest = {

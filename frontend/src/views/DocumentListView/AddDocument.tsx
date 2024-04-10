@@ -72,6 +72,7 @@ const AddDocument = () => {
         }`,
         height: 'fit-content',
       }}
+      data-testid="add-document"
     >
       <Upload
         label="Déposer un nouveau document"
