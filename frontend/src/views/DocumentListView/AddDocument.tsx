@@ -8,8 +8,14 @@ import { useForm } from 'src/hooks/useForm';
 import { useCreateDocumentMutation } from 'src/services/document.service';
 import { z } from 'zod';
 
-const MAX_FILE_SIZE = 5 * 1000 * 1000;
-const ACCEPTED_FILE_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
+const MAX_FILE_SIZE = 20 * 1000 * 1000;
+const ACCEPTED_FILE_TYPES = [
+  'application/pdf',
+  'image/jpeg',
+  'image/png',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/vnd.ms-excel',
+];
 
 const AddDocument = () => {
   const [
@@ -69,7 +75,7 @@ const AddDocument = () => {
     >
       <Upload
         label="Déposer un nouveau document"
-        hint="Formats acceptés : PDF, JPEG, PNG"
+        hint="Formats acceptés : PDF, JPEG, PNG, XLS, XLSX. Taille maximale : 20 Mo"
         nativeInputProps={{
           onChange: (event: any) => selectFile(event),
           accept: ACCEPTED_FILE_TYPES.join(','),
