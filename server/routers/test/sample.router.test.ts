@@ -29,7 +29,6 @@ describe('Sample router', () => {
   const nationalCoordinator = genUser('NationalCoordinator');
   const sample1Id = uuidv4();
   const sampleItem1 = genSampleItem(sample1Id, 1);
-  console.log('sampleItem1', sampleItem1);
   const sample1 = {
     ...genSample(sampler1.id),
     id: sample1Id,

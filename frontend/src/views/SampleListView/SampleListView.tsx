@@ -9,13 +9,13 @@ import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useFindSamplesQuery } from 'src/services/sample.service';
 
 const SampleListView = () => {
-  useDocumentTitle('Liste de mes prélèvements');
+  useDocumentTitle('Liste des prélèvements');
 
   const { data: samples } = useFindSamplesQuery();
 
   return (
     <section className={cx('fr-py-6w')}>
-      <h1>Mes prélèvements</h1>
+      <h1>Liste des prélèvements</h1>
       <div className={cx('fr-mb-4w')}>
         {t('sample', { count: samples?.length || 0 })}
       </div>

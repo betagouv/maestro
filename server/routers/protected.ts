@@ -1,6 +1,7 @@
 import express from 'express';
 import fs from 'fs';
 import { jwtCheck, userCheck } from '../middlewares/auth';
+import documentRouter from './document.router';
 import prescriptionRouter from './prescription.router';
 import programmingPlanRouter from './programmingPlan.router';
 import sampleRouter from './sample.router';
@@ -15,6 +16,7 @@ router.use('/users', userRouter);
 router.use('/samples', sampleRouter);
 router.use('/programming-plans', programmingPlanRouter);
 router.use('/programming-plans', prescriptionRouter);
+router.use('/documents', documentRouter);
 
 router.get('/regions.geojson', (req, res) => {
   res.setHeader('Content-Type', 'application/json');

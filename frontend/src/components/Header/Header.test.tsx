@@ -81,8 +81,11 @@ describe('Header', () => {
         </Provider>
       );
 
-      expect(await screen.findByText('Mes plans')).toBeInTheDocument();
-      expect(screen.queryByText('Mes prélèvements')).not.toBeInTheDocument();
+      expect(
+        await screen.findByText('Plans de programmation')
+      ).toBeInTheDocument();
+      expect(screen.queryByText('Prélèvements')).not.toBeInTheDocument();
+      expect(await screen.findByText('Documents')).toBeInTheDocument();
     });
   });
 
@@ -109,8 +112,11 @@ describe('Header', () => {
           </MemoryRouter>
         </Provider>
       );
-      expect(await screen.findByText('Mes plans')).toBeInTheDocument();
+      expect(
+        await screen.findByText('Plans de programmation')
+      ).toBeInTheDocument();
       expect(screen.queryByText('Mes prélèvements')).not.toBeInTheDocument();
+      expect(await screen.findByText('Documents')).toBeInTheDocument();
     });
   });
 
@@ -138,8 +144,11 @@ describe('Header', () => {
         </Provider>
       );
 
-      expect(await screen.findByText('Mes prélèvements')).toBeInTheDocument();
-      expect(screen.queryByText('Mes plans')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Plans de programmation')
+      ).not.toBeInTheDocument();
+      expect(await screen.findByText('Prélèvements')).toBeInTheDocument();
+      expect(await screen.findByText('Documents')).toBeInTheDocument();
     });
   });
 
@@ -167,8 +176,11 @@ describe('Header', () => {
         </Provider>
       );
 
-      expect(await screen.findByText('Mes plans')).toBeInTheDocument();
-      expect(await screen.findByText('Mes prélèvements')).toBeInTheDocument();
+      expect(
+        await screen.findByText('Plans de programmation')
+      ).toBeInTheDocument();
+      expect(await screen.findByText('Prélèvements')).toBeInTheDocument();
+      expect(await screen.findByText('Documents')).toBeInTheDocument();
     });
   });
 });

@@ -8,6 +8,7 @@ convict.addFormats(formats);
 if (!process.env.API_PORT) {
   dotenv.config({ path: path.join(__dirname, '../../.env') });
 }
+export const isProduction = process.env.NODE_ENV === 'production';
 
 interface Config {
   environment: string;
@@ -22,6 +23,17 @@ interface Config {
   maxRate: number;
   application: {
     host: string;
+  };
+  s3: {
+    client: {
+      endpoint: string;
+      region: string;
+      credentials: {
+        accessKeyId: string;
+        secretAccessKey: string;
+      };
+    };
+    bucket: string;
   };
 }
 
@@ -74,6 +86,37 @@ const config = convict<Config>({
       env: 'APPLICATION_HOST',
       format: 'url',
       default: 'http://localhost:3000',
+    },
+  },
+  s3: {
+    client: {
+      endpoint: {
+        env: 'S3_ENDPOINT',
+        format: 'url',
+        default: isProduction ? null : 'http://localhost:9090',
+      },
+      region: {
+        env: 'S3_REGION',
+        format: String,
+        default: isProduction ? null : 'whatever',
+      },
+      credentials: {
+        accessKeyId: {
+          env: 'S3_ACCESS_KEY_ID',
+          format: String,
+          default: isProduction ? null : 'key',
+        },
+        secretAccessKey: {
+          env: 'S3_SECRET_ACCESS_KEY',
+          format: String,
+          default: isProduction ? null : 'secret',
+        },
+      },
+    },
+    bucket: {
+      env: 'S3_BUCKET',
+      format: String,
+      default: 'pspc',
     },
   },
 })

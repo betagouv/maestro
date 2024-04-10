@@ -7,12 +7,19 @@
 - node
 - npm
 - serveur Postgres (sur macOS, possible d'utiliser [postgresapp](https://postgresapp.com>))
+- service de stockage S3
 
 ### Base de données
 
 Créer une base de données vide pour l'application (par exemple `pspc`) et une autre pour les tests (par exemple `test_pspc`).
 
 La création des tables et autres structures SQL se fera automatiquement lors du lancement de l'application via les migrations [KnexJS](http://knexjs.org/#Migrations) contenues dans le répertoire `/database/migrations`
+
+### Stockage S3
+
+Pour le stockage des fichiers, l'application utilise un service S3. 
+En local et pour les tests, il est possible d'utiliser https://github.com/adobe/S3Mock
+
 
 ### Installation de l'application
 
@@ -35,6 +42,13 @@ AUTH_SECRET
 DATABASE_ENV
 DATABASE_URL
 DATABASE_URL_TEST
+
+S3_ENDPOINT
+S3_REGION
+S3_ACCESS_KEY_ID
+S3_SECRET_ACCESS_KEY
+S3_BUCKET
+S3_FILE_PATH
 
 REACT_APP_API_URL
 ```
