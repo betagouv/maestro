@@ -49,6 +49,7 @@ export function createServer(): Server {
             'https://stats.beta.gouv.fr',
             'https://openmaptiles.geo.data.gouv.fr',
             'https://openmaptiles.github.io',
+            config.s3.client.endpoint,
           ],
           workerSrc: ["'self'", 'blob:'],
         },
