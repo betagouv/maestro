@@ -59,7 +59,7 @@ const getDownloadSignedUrl = async (request: Request, response: Response) => {
 
 const createDocument = async (request: Request, response: Response) => {
   const { userId } = (request as AuthenticatedRequest).auth;
-  const documentToCreate = request.body as DocumentToCreate;
+  const documentToCreate = DocumentToCreate.parse(request.body);
 
   console.log('Create document', documentToCreate);
 
