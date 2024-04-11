@@ -4,7 +4,11 @@ import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import maplibregl from 'maplibre-gl';
 import React, { useMemo, useState } from 'react';
-import Map, { Marker, MarkerDragEvent } from 'react-map-gl/maplibre';
+import Map, {
+  Marker,
+  MarkerDragEvent,
+  NavigationControl,
+} from 'react-map-gl/maplibre';
 import { UserLocation } from 'shared/schema/Sample/Sample';
 interface Props {
   sampleId?: string;
@@ -98,6 +102,7 @@ const SampleGeolocation = ({ sampleId, location, onLocationChange }: Props) => {
               mapLib={maplibregl}
               mapStyle="https://openmaptiles.geo.data.gouv.fr/styles/osm-bright/style.json"
             >
+              <NavigationControl position="top-left" showCompass={false} />
               <Marker
                 longitude={marker.y}
                 latitude={marker.x}

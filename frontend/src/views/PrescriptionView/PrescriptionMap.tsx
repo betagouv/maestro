@@ -10,7 +10,6 @@ import Map, {
   CircleLayer,
   FillLayer,
   Layer,
-  NavigationControl,
   Source,
   SymbolLayer,
 } from 'react-map-gl/maplibre';
@@ -193,7 +192,6 @@ const PrescriptionMap = ({ prescriptions }: Props) => {
         onMouseMove={onHover}
         cursor="pointer"
       >
-        <NavigationControl position="top-left" showCompass={false} />
         {regions && (
           <>
             <Source id="regions" type="geojson" data={regions}>
