@@ -158,7 +158,7 @@ const SampleStep1 = ({ partialSample }: Props) => {
     } else {
       setIsUserLocationFromGeolocation(false);
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <form
