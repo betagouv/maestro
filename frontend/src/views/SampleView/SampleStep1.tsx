@@ -103,46 +103,56 @@ const SampleStep1 = ({ partialSample }: Props) => {
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     await form.validate(async () => {
-      await (partialSample
-        ? updateSample({
-            ...partialSample,
-            userLocation: {
-              x: userLocationX as number,
-              y: userLocationY as number,
-            },
-            sampledAt: parse(sampledAt, 'yyyy-MM-dd', new Date()),
-            resytalId: resytalId as string,
-            planningContext: planningContext as ProgrammingPlanKind,
-            legalContext: legalContext as SampleLegalContext,
-            department: department as Department,
-          })
-        : createSample({
-            userLocation: {
-              x: userLocationX as number,
-              y: userLocationY as number,
-            },
-            sampledAt: parse(sampledAt, 'yyyy-MM-dd', new Date()),
-            resytalId: resytalId as string,
-            planningContext: planningContext as ProgrammingPlanKind,
-            legalContext: legalContext as SampleLegalContext,
-            department: department as Department,
-          })
-      )
-        .unwrap()
-        .then((result) => {
-          navigate(`/prelevements/${result.id}`, { replace: true });
-        })
-        .catch(() => {
-          //TODO handle error
+      if (partialSample) {
+        await save({
+          status: 'DraftInfos',
         });
+        navigate(`/prelevements/${partialSample.id}`, { replace: true });
+      } else {
+        await createSample({
+          userLocation: {
+            x: userLocationX as number,
+            y: userLocationY as number,
+          },
+          sampledAt: parse(sampledAt, 'yyyy-MM-dd', new Date()),
+          resytalId: resytalId as string,
+          planningContext: planningContext as ProgrammingPlanKind,
+          legalContext: legalContext as SampleLegalContext,
+          department: department as Department,
+        })
+          .unwrap()
+          .then((result) => {
+            navigate(`/prelevements/${result.id}`, { replace: true });
+          });
+      }
     });
+  };
+
+  const save = async (data?: Partial<PartialSample>) => {
+    if (partialSample) {
+      await updateSample({
+        ...partialSample,
+        userLocation: {
+          x: userLocationX as number,
+          y: userLocationY as number,
+        },
+        sampledAt: parse(sampledAt, 'yyyy-MM-dd', new Date()),
+        resytalId: resytalId as string,
+        planningContext: planningContext as ProgrammingPlanKind,
+        legalContext: legalContext as SampleLegalContext,
+        department: department as Department,
+        ...data,
+      });
+    }
   };
 
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) => {
-        setUserLocationX(position.coords.latitude);
-        setUserLocationY(position.coords.longitude);
+        if (!userLocationX && !userLocationY) {
+          setUserLocationX(position.coords.latitude);
+          setUserLocationY(position.coords.longitude);
+        }
         setIsUserLocationFromGeolocation(true);
       });
     } else {
@@ -151,7 +161,13 @@ const SampleStep1 = ({ partialSample }: Props) => {
   }, []);
 
   return (
-    <form data-testid="draft_sample_1_form">
+    <form
+      data-testid="draft_sample_1_form"
+      onChange={async (e) => {
+        e.preventDefault();
+        await save();
+      }}
+    >
       {!isUserLocationFromGeolocation && (
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12', 'fr-p-0', 'fr-mb-2w')}>
@@ -241,9 +257,15 @@ const SampleStep1 = ({ partialSample }: Props) => {
                 ? { x: userLocationX, y: userLocationY }
                 : undefined
             }
-            onLocationChange={(location) => {
+            onLocationChange={async (location) => {
               setUserLocationX(location.x);
               setUserLocationY(location.y);
+              await save({
+                userLocation: {
+                  x: location.x,
+                  y: location.y,
+                },
+              });
             }}
             key={`geolocation-${isUserLocationFromGeolocation}`}
           />
@@ -306,23 +328,12 @@ const SampleStep1 = ({ partialSample }: Props) => {
             hintText="Format 22XXXXXX"
           />
         </div>
-        {/*{form.hasIssue('userLocation') && (*/}
-        {/*  <div className={cx('fr-col-12')}>*/}
-        {/*    <Alert*/}
-        {/*      description="Pour pouvoir continuer, veuillez autoriser le navigateur à accéder à votre position."*/}
-        {/*      severity="error"*/}
-        {/*      title="Géolocalisation non disponible."*/}
-        {/*    />*/}
-        {/*  </div>*/}
-        {/*)}*/}
       </div>
       <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
 
       <div className={cx('fr-col-12')}>
         <Button data-testid="submit-button" onClick={submit}>
-          {partialSample
-            ? 'Enregistrer les modifications'
-            : ' Créer le prélèvement'}
+          Etape suivante
         </Button>
       </div>
     </form>

@@ -82,7 +82,7 @@ const SampleStep3 = ({ partialSample }: Props) => {
     <>
       <form
         data-testid="draft_sample_3_form"
-        onBlur={async (e) => {
+        onChange={async (e) => {
           e.preventDefault();
           await save();
         }}

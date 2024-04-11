@@ -114,7 +114,7 @@ const SampleStep2 = ({ partialSample }: Props) => {
     <>
       <form
         data-testid="draft_sample_2_form"
-        onBlur={async (e) => {
+        onChange={async (e) => {
           e.preventDefault();
           await save();
         }}
@@ -286,7 +286,7 @@ const SampleStep2 = ({ partialSample }: Props) => {
                 priority: 'secondary',
                 onClick: async (e) => {
                   e.preventDefault();
-                  await save('DraftInfos');
+                  await save('Draft');
                   navigate(`/prelevements/${partialSample.id}?etape=1`, {
                     replace: true,
                   });

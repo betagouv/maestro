@@ -1,11 +1,18 @@
+import { fr } from '@codegouvfr/react-dsfr';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Stepper from '@codegouvfr/react-dsfr/Stepper';
+import { format } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { Sample } from 'shared/schema/Sample/Sample';
 import { SampleStatus } from 'shared/schema/Sample/SampleStatus';
+import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
-import { useGetSampleQuery } from 'src/services/sample.service';
+import { useAppSelector } from 'src/hooks/useStore';
+import {
+  SampleMutationEndpoints,
+  useGetSampleQuery,
+} from 'src/services/sample.service';
 import SampleStep1 from 'src/views/SampleView/SampleStep1';
 import SampleStep2 from 'src/views/SampleView/SampleStep2';
 import SampleStep3 from 'src/views/SampleView/SampleStep3';
@@ -20,6 +27,16 @@ const SampleView = () => {
     skip: !sampleId,
   });
 
+  const isSomeMutationPending = useAppSelector((state) =>
+    Object.values(state.api.mutations).some(
+      (mutation) =>
+        mutation?.endpointName !== undefined &&
+        Object.values(SampleMutationEndpoints).includes(
+          mutation?.endpointName as SampleMutationEndpoints
+        ) &&
+        mutation?.status === 'pending'
+    )
+  );
   const [searchParams] = useSearchParams();
   const [step, setStep] = useState(1);
 
@@ -31,6 +48,7 @@ const SampleView = () => {
   ];
 
   const SampleStatusSteps: Record<SampleStatus, number> = {
+    Draft: 1,
     DraftInfos: 2,
     DraftItems: 3,
     Submitted: 4,
@@ -53,8 +71,37 @@ const SampleView = () => {
 
   return (
     <section className={cx('fr-py-3w')}>
-      <h1>Prélévement {sample?.reference}</h1>
+      <h1>
+        Prélévement {sample?.reference}
+        <div
+          className={cx('fr-text--sm', 'fr-text--light')}
+          style={{
+            color: fr.colors.decisions.text.mention.grey.default,
+          }}
+        >
+          <SampleStatusBadge
+            status={sample?.status as SampleStatus}
+            className={cx('fr-mr-1w')}
+          />
 
+          {isSomeMutationPending ? (
+            'Enregistrement en cours...'
+          ) : (
+            <>
+              {sample?.status &&
+                sample?.lastUpdatedAt &&
+                ['Draft', 'DraftInfos', 'DraftItems'].includes(
+                  sample?.status
+                ) && (
+                  <>
+                    Enregistré le{' '}
+                    {format(sample.lastUpdatedAt, 'dd/MM/yyyy à HH:mm:ss')}
+                  </>
+                )}
+            </>
+          )}
+        </div>
+      </h1>
       {sample?.status !== 'Sent' && (
         <>
           <Stepper

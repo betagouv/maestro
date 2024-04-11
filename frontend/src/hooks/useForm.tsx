@@ -16,7 +16,7 @@ export function useForm<
     pathFromKey?: (string | number)[]
   ): z.ZodIssue | undefined {
     return isTouched && key
-      ? error?.issues.find((issue) =>
+      ? error?.issues?.find((issue) =>
           _.isEqual(issue.path, [key, ...(pathFromKey ?? [])])
         )
       : error?.issues[0];

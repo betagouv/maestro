@@ -159,24 +159,24 @@ describe('SampleFormStep2', () => {
     const submitButton = screen.getByTestId('submit-button');
 
     await act(async () => {
-      await user.selectOptions(matrixKindSelect, 'Fruits');
-      await user.selectOptions(matrixSelect, MatrixList[0]);
-      await user.selectOptions(matrixPartSelect, MatrixPartList[0]);
-      await user.selectOptions(cultureKindSelect, 'Bio');
-      await user.selectOptions(stageSelect, SampleStageList[0]);
-      await user.type(expiryDateInput, '2023-12-31');
+      await user.selectOptions(matrixKindSelect, 'Fruits'); //1 call
+      await user.selectOptions(matrixSelect, MatrixList[0]); //1 call
+      await user.selectOptions(matrixPartSelect, MatrixPartList[0]); //1 call
+      await user.selectOptions(cultureKindSelect, 'Bio'); //1 call
+      await user.selectOptions(stageSelect, SampleStageList[0]); //1 call
+      await user.type(expiryDateInput, '2023-12-31'); //1 call
       await user.selectOptions(
         storageConditionSelect,
         SampleStorageConditionList[0]
-      );
-      await user.type(locationSiretInput, '12345678901234');
-      await user.type(locationNameInput, 'Test');
-      await user.type(commentInput, 'Test');
-      await user.click(submitButton);
+      ); //1 call
+      await user.type(locationSiretInput, '12345678901234'); //14 calls
+      await user.type(locationNameInput, 'Location'); //8 calls
+      await user.type(commentInput, 'Comment'); //7 calls
+      await user.click(submitButton); //1 call
     });
 
     const calls = await getRequestCalls(fetchMock);
-    expect(calls).toHaveLength(11);
+    expect(calls).toHaveLength(37);
 
     expect(calls).toContainEqual({
       url: `${config.apiEndpoint}/api/samples/${createdSample.id}`,
@@ -184,6 +184,7 @@ describe('SampleFormStep2', () => {
       body: {
         ...createdSample,
         createdAt: createdSample.createdAt.toISOString(),
+        lastUpdatedAt: createdSample.lastUpdatedAt.toISOString(),
         sampledAt: createdSample.sampledAt.toISOString(),
         status: 'DraftItems',
         matrixKind: 'Fruits',
@@ -196,8 +197,8 @@ describe('SampleFormStep2', () => {
         ).toISOString(),
         storageCondition: SampleStorageConditionList[0],
         locationSiret: '12345678901234',
-        locationName: 'Test',
-        comment: 'Test',
+        locationName: 'Location',
+        comment: 'Comment',
       },
     });
   });

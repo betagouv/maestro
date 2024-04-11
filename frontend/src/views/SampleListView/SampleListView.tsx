@@ -4,7 +4,8 @@ import Table from '@codegouvfr/react-dsfr/Table';
 import { format } from 'date-fns';
 import { t } from 'i18next';
 import { Link } from 'react-router-dom';
-import { SampleStatusLabels } from 'shared/schema/Sample/SampleStatus';
+import { SampleStatus } from 'shared/schema/Sample/SampleStatus';
+import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useFindSamplesQuery } from 'src/services/sample.service';
 
@@ -34,7 +35,7 @@ const SampleListView = () => {
             format(sample.createdAt, 'dd/MM/yyyy'),
             sample.department,
             sample.locationName,
-            SampleStatusLabels[sample.status],
+            <SampleStatusBadge status={sample?.status as SampleStatus} />,
           ])}
         />
       )}

@@ -61,6 +61,7 @@ const createSample = async (request: Request, response: Response) => {
     )}-${serial}`,
     createdBy: userId,
     createdAt: new Date(),
+    lastUpdatedAt: new Date(),
     status: 'DraftInfos',
     ...sampleToCreate,
   };
@@ -92,6 +93,7 @@ const updateSample = async (request: Request, response: Response) => {
   const updatedSample = {
     ...sample,
     ...sampleUpdate,
+    lastUpdatedAt: new Date(),
   };
 
   await sampleRepository.update(updatedSample);
@@ -121,6 +123,11 @@ const updateSampleItems = async (request: Request, response: Response) => {
 
   await sampleItemRepository.deleteMany(sampleId);
   await sampleItemRepository.insertMany(sampleItems);
+
+  await sampleRepository.update({
+    ...sample,
+    lastUpdatedAt: new Date(),
+  });
 
   response.status(constants.HTTP_STATUS_OK).send(sampleItems);
 };

@@ -31,6 +31,7 @@ export const Sample = z.object({
     .nullable(),
   createdAt: z.coerce.date(),
   createdBy: z.string(),
+  lastUpdatedAt: z.coerce.date(),
   sampledAt: z.coerce.date({
     errorMap: () => ({
       message: 'La date de prélèvement est invalide.',
@@ -86,6 +87,7 @@ export const CreatedSample = SampleToCreate.merge(
     reference: true,
     createdAt: true,
     createdBy: true,
+    lastUpdatedAt: true,
     status: true,
   })
 );

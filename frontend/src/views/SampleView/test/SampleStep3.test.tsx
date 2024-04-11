@@ -116,11 +116,9 @@ describe('SampleFormStep3', () => {
     );
 
     const quantityInput = screen.getAllByTestId('item-quantity-input-0')[1];
-    const unitSelect = screen.getAllByTestId('item-unit-select-0')[1];
 
     await act(async () => {
       await user.type(quantityInput, '10');
-      await user.click(unitSelect);
     });
 
     expect(
@@ -134,7 +132,7 @@ describe('SampleFormStep3', () => {
     ).not.toBeInTheDocument();
 
     const calls = await getRequestCalls(fetchMock);
-    expect(calls).toHaveLength(1);
+    expect(calls).toHaveLength(2);
   });
 
   test('should submit the items and update sample status', async () => {
@@ -164,14 +162,14 @@ describe('SampleFormStep3', () => {
     const sealidInput = screen.getAllByTestId('item-sealid-input-0')[1];
 
     await act(async () => {
-      await user.type(quantityInput, '10');
-      await user.selectOptions(unitSelect, 'kg');
-      await user.type(sealidInput, '123');
-      await user.click(screen.getByTestId('submit-button'));
+      await user.type(quantityInput, '10'); //2 calls
+      await user.selectOptions(unitSelect, 'kg'); //2 calls
+      await user.type(sealidInput, '123'); //3 calls
+      await user.click(screen.getByTestId('submit-button')); //2 calls (1 for items, 1 for sample)
     });
 
     const calls = await getRequestCalls(fetchMock);
-    expect(calls).toHaveLength(5);
+    expect(calls).toHaveLength(8);
 
     expect(calls).toContainEqual({
       method: 'PUT',
@@ -192,6 +190,7 @@ describe('SampleFormStep3', () => {
       body: {
         ...draftSample,
         createdAt: draftSample.createdAt.toISOString(),
+        lastUpdatedAt: draftSample.lastUpdatedAt.toISOString(),
         sampledAt: draftSample.sampledAt.toISOString(),
         status: 'Submitted',
       },

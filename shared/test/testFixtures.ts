@@ -96,6 +96,7 @@ export const genCreatedSample = (userId?: string): CreatedSample => ({
   reference: `GES-${oneOf(DepartmentList)}-${genNumber(4)}`,
   createdBy: userId ?? uuidv4(),
   createdAt: new Date(),
+  lastUpdatedAt: new Date(),
   status: 'DraftInfos',
   ...genSampleToCreate(),
 });

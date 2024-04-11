@@ -2,6 +2,12 @@ import fp from 'lodash';
 import { PartialSample, SampleToCreate } from 'shared/schema/Sample/Sample';
 import { api } from 'src/services/api.service';
 
+export enum SampleMutationEndpoints {
+  CREATE_SAMPLE = 'createSample',
+  UPDATE_SAMPLE = 'updateSample',
+  UPDATE_SAMPLE_ITEMS = 'updateSampleItems',
+}
+
 export const sampleApi = api.injectEndpoints({
   endpoints: (builder) => ({
     getSample: builder.query<PartialSample, string>({
@@ -22,7 +28,10 @@ export const sampleApi = api.injectEndpoints({
           : []),
       ],
     }),
-    createSample: builder.mutation<PartialSample, SampleToCreate>({
+    [SampleMutationEndpoints.CREATE_SAMPLE]: builder.mutation<
+      PartialSample,
+      SampleToCreate
+    >({
       query: (draft) => ({
         url: 'samples',
         method: 'POST',
@@ -32,7 +41,10 @@ export const sampleApi = api.injectEndpoints({
         PartialSample.parse(fp.omitBy(response, fp.isNil)),
       invalidatesTags: [{ type: 'Sample', id: 'LIST' }],
     }),
-    updateSample: builder.mutation<PartialSample, PartialSample>({
+    [SampleMutationEndpoints.UPDATE_SAMPLE]: builder.mutation<
+      PartialSample,
+      PartialSample
+    >({
       query: (partialSample) => ({
         url: `samples/${partialSample.id}`,
         method: 'PUT',
@@ -45,7 +57,10 @@ export const sampleApi = api.injectEndpoints({
         { type: 'Sample', id },
       ],
     }),
-    updateSampleItems: builder.mutation<void, { id: string; items: any[] }>({
+    [SampleMutationEndpoints.UPDATE_SAMPLE_ITEMS]: builder.mutation<
+      void,
+      { id: string; items: any[] }
+    >({
       query: ({ id, items }) => ({
         url: `samples/${id}/items`,
         method: 'PUT',

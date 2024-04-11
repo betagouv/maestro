@@ -91,6 +91,7 @@ describe('Sample router', () => {
       expect(res.body).toMatchObject({
         ...sample1,
         createdAt: sample1.createdAt.toISOString(),
+        lastUpdatedAt: sample1.lastUpdatedAt.toISOString(),
         sampledAt: sample1.sampledAt.toISOString(),
         expiryDate: sample1.expiryDate?.toISOString(),
       });
@@ -123,6 +124,7 @@ describe('Sample router', () => {
         {
           ...fp.omit(sample1, ['items']),
           createdAt: sample1.createdAt.toISOString(),
+          lastUpdatedAt: sample1.lastUpdatedAt.toISOString(),
           sampledAt: sample1.sampledAt.toISOString(),
           expiryDate: sample1.expiryDate?.toISOString(),
         },
@@ -298,6 +300,7 @@ describe('Sample router', () => {
       expect(res.body).toMatchObject({
         ...sample1,
         createdAt: sample1.createdAt.toISOString(),
+        lastUpdatedAt: expect.any(String),
         sampledAt: sample1.sampledAt.toISOString(),
         expiryDate: sample1.expiryDate?.toISOString(),
         matrix: validBody.matrix,

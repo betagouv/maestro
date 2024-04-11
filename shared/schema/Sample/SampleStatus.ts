@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const SampleStatus = z.enum(
-  ['DraftInfos', 'DraftItems', 'Submitted', 'Sent'],
+  ['Draft', 'DraftInfos', 'DraftItems', 'Submitted', 'Sent'],
   {
     errorMap: () => ({ message: 'Statut non renseigné.' }),
   }
@@ -10,6 +10,7 @@ export const SampleStatus = z.enum(
 export type SampleStatus = z.infer<typeof SampleStatus>;
 
 export const SampleStatusList: SampleStatus[] = [
+  'Draft',
   'DraftInfos',
   'DraftItems',
   'Submitted',
@@ -17,6 +18,7 @@ export const SampleStatusList: SampleStatus[] = [
 ];
 
 export const SampleStatusLabels: Record<SampleStatus, string> = {
+  Draft: 'Brouillon',
   DraftInfos: 'Brouillon',
   DraftItems: 'Brouillon',
   Submitted: 'A envoyer',
