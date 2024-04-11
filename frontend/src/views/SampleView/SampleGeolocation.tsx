@@ -97,7 +97,6 @@ const SampleGeolocation = ({ sampleId, location, onLocationChange }: Props) => {
               }}
               mapLib={maplibregl}
               mapStyle="https://openmaptiles.geo.data.gouv.fr/styles/osm-bright/style.json"
-              reuseMaps
             >
               <Marker
                 longitude={marker.y}

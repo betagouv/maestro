@@ -189,7 +189,6 @@ const PrescriptionMap = ({ prescriptions }: Props) => {
         }}
         mapLib={maplibregl}
         mapStyle={mapStyle}
-        reuseMaps
         interactiveLayerIds={['regions']}
         onMouseMove={onHover}
         cursor="pointer"

@@ -245,6 +245,7 @@ const SampleStep1 = ({ partialSample }: Props) => {
               setUserLocationX(location.x);
               setUserLocationY(location.y);
             }}
+            key={`geolocation-${isUserLocationFromGeolocation}`}
           />
         </div>
       </div>
