@@ -94,11 +94,11 @@ describe('SampleFormStep3', () => {
       screen.getByText("Veuillez renseigner l'unité de quantité.")
     ).toBeInTheDocument();
     expect(
-      screen.getByText('Le numéro de scellé doit être un nombre.')
+      screen.getByText('Veuillez renseigner le numéro de scellé.')
     ).toBeInTheDocument();
   });
 
-  test('should save the items on blur without handling errors', async () => {
+  test('should save the items on change without handling errors', async () => {
     mockRequests([
       {
         pathname: `/api/samples/${draftSample.id}/items`,
@@ -128,7 +128,7 @@ describe('SampleFormStep3', () => {
       screen.queryByText("Veuillez renseigner l'unité de quantité.")
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByText('Le numéro de scellé doit être un nombre.')
+      screen.queryByText('Veuillez renseigner le numéro de scellé.')
     ).not.toBeInTheDocument();
 
     const calls = await getRequestCalls(fetchMock);
@@ -164,7 +164,7 @@ describe('SampleFormStep3', () => {
     await act(async () => {
       await user.type(quantityInput, '10'); //2 calls
       await user.selectOptions(unitSelect, 'kg'); //2 calls
-      await user.type(sealidInput, '123'); //3 calls
+      await user.type(sealidInput, '12a'); //3 calls
       await user.click(screen.getByTestId('submit-button')); //2 calls (1 for items, 1 for sample)
     });
 
@@ -180,7 +180,7 @@ describe('SampleFormStep3', () => {
           quantity: 10,
           quantityUnit: 'kg',
           sampleId: draftSample.id,
-          sealId: 123,
+          sealId: '12a',
         },
       ],
     });
