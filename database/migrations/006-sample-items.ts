@@ -11,7 +11,7 @@ exports.up = async (knex: Knex) => {
     table.integer('item_number').notNullable();
     table.double('quantity');
     table.string('quantity_unit');
-    table.integer('seal_id');
+    table.string('seal_id');
     table.boolean('compliance200263');
     table.boolean('pooling');
     table.integer('pooling_count');

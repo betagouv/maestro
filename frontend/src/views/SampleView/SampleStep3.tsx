@@ -163,9 +163,7 @@ const SampleStep3 = ({ partialSample }: Props) => {
                   changeItems(
                     {
                       ...item,
-                      sealId: isNaN(Number(e.target.value))
-                        ? items[index].sealId
-                        : Number(e.target.value),
+                      sealId: e.target.value,
                     },
                     index
                   )

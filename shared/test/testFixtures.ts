@@ -129,7 +129,7 @@ export const genSampleItem = (
   compliance200263: genBoolean(),
   pooling: genBoolean(),
   poolingCount: genNumber(6),
-  sealId: genNumber(6),
+  sealId: randomstring.generate(),
 });
 
 export const genCoords = () => ({

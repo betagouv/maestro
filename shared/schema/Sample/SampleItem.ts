@@ -14,9 +14,8 @@ export const SampleItem = z.object({
   compliance200263: z.boolean().optional().nullable(),
   pooling: z.boolean().optional().nullable(),
   poolingCount: z.number().optional().nullable(),
-  sealId: z.coerce.number({
+  sealId: z.string({
     required_error: 'Veuillez renseigner le numéro de scellé.',
-    invalid_type_error: 'Le numéro de scellé doit être un nombre.',
   }),
 });
 
