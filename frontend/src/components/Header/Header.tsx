@@ -47,7 +47,7 @@ const Header = () => {
                     to: '/plans',
                     target: '_self',
                   },
-                  text: 'Plans de programmation',
+                  text: 'Plans programmés',
                   isActive: location.pathname.startsWith('/plans'),
                 }
               : undefined,
@@ -66,7 +66,7 @@ const Header = () => {
                 to: '/documents',
                 target: '_self',
               },
-              text: 'Documents',
+              text: 'Documents ressources',
               isActive: location.pathname.startsWith('/documents'),
             },
           ]

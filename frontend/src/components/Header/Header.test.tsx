@@ -54,8 +54,11 @@ describe('Header', () => {
         </Provider>
       );
 
-      expect(screen.queryByText('Mes plans')).not.toBeInTheDocument();
-      expect(screen.queryByText('Mes prélèvements')).not.toBeInTheDocument();
+      expect(screen.queryByText('Plans programmés')).not.toBeInTheDocument();
+      expect(screen.queryByText('Prélèvements')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Documents ressources')
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -81,11 +84,11 @@ describe('Header', () => {
         </Provider>
       );
 
-      expect(
-        await screen.findByText('Plans de programmation')
-      ).toBeInTheDocument();
+      expect(await screen.findByText('Plans programmés')).toBeInTheDocument();
       expect(screen.queryByText('Prélèvements')).not.toBeInTheDocument();
-      expect(await screen.findByText('Documents')).toBeInTheDocument();
+      expect(
+        await screen.findByText('Documents ressources')
+      ).toBeInTheDocument();
     });
   });
 
@@ -112,11 +115,11 @@ describe('Header', () => {
           </MemoryRouter>
         </Provider>
       );
+      expect(await screen.findByText('Plans programmés')).toBeInTheDocument();
+      expect(screen.queryByText('Prélèvements')).not.toBeInTheDocument();
       expect(
-        await screen.findByText('Plans de programmation')
+        await screen.findByText('Documents ressources')
       ).toBeInTheDocument();
-      expect(screen.queryByText('Mes prélèvements')).not.toBeInTheDocument();
-      expect(await screen.findByText('Documents')).toBeInTheDocument();
     });
   });
 
@@ -144,11 +147,11 @@ describe('Header', () => {
         </Provider>
       );
 
-      expect(
-        screen.queryByText('Plans de programmation')
-      ).not.toBeInTheDocument();
+      expect(screen.queryByText('Plans programmés')).not.toBeInTheDocument();
       expect(await screen.findByText('Prélèvements')).toBeInTheDocument();
-      expect(await screen.findByText('Documents')).toBeInTheDocument();
+      expect(
+        await screen.findByText('Documents ressources')
+      ).toBeInTheDocument();
     });
   });
 
@@ -176,11 +179,11 @@ describe('Header', () => {
         </Provider>
       );
 
-      expect(
-        await screen.findByText('Plans de programmation')
-      ).toBeInTheDocument();
+      expect(await screen.findByText('Plans programmés')).toBeInTheDocument();
       expect(await screen.findByText('Prélèvements')).toBeInTheDocument();
-      expect(await screen.findByText('Documents')).toBeInTheDocument();
+      expect(
+        await screen.findByText('Documents ressources')
+      ).toBeInTheDocument();
     });
   });
 });

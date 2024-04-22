@@ -17,7 +17,7 @@ i18n.use(initReactI18next).init({
         sample_other: '{{count}} prélèvements',
         document_zero: 'Aucun document',
         document_one: 'Un document',
-        document_other: '{{count}} documents',
+        document_other: '{{count}} documents ressources',
       },
     },
   },

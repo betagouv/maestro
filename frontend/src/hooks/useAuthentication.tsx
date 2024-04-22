@@ -102,7 +102,7 @@ export const useAuthentication = () => {
               : undefined,
             {
               path: '/documents',
-              label: 'Documents',
+              label: 'Documents ressources',
               key: 'documents_route',
               component: DocumentListView,
             },

@@ -7,13 +7,13 @@ import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.service';
 
 const ProgrammingPlanListView = () => {
-  useDocumentTitle('Liste des plans de programmation');
+  useDocumentTitle('Liste des plans programmés');
 
   const { data: programmingPlans } = useFindProgrammingPlansQuery();
 
   return (
     <section className={cx('fr-py-6w')}>
-      <h1>Liste des plans de programmation</h1>
+      <h1>Liste des plans programmés</h1>
       <div className={cx('fr-mb-4w')}>
         {t('programmingPlan', { count: programmingPlans?.length || 0 })}
       </div>

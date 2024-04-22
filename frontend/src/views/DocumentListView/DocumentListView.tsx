@@ -12,7 +12,7 @@ import AddDocument from 'src/views/DocumentListView/AddDocument';
 import DocumentTable from 'src/views/DocumentListView/DocumentTable';
 
 const DocumentListView = () => {
-  useDocumentTitle('Liste des documents');
+  useDocumentTitle('Liste des documents ressources');
 
   const { hasPermission } = useAuthentication();
 
@@ -35,7 +35,7 @@ const DocumentListView = () => {
           </div>
         </AutoClose>
       )}
-      <h1>Liste des documents</h1>
+      <h1>Liste des documents ressources</h1>
       <div className={cx('fr-mb-4w')}>
         {t('document', { count: documents?.length || 0 })}
       </div>

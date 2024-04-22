@@ -51,7 +51,9 @@ describe('DocumentListView', () => {
       </Provider>
     );
 
-    expect(screen.getByText('Liste des documents')).toBeInTheDocument();
+    expect(
+      screen.getByText('Liste des documents ressources')
+    ).toBeInTheDocument();
     await waitFor(async () => {
       expect(screen.getByTestId('document-table')).toBeInTheDocument();
     });
