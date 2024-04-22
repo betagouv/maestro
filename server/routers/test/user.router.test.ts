@@ -18,7 +18,7 @@ describe('User router', () => {
     await Users().insert(user2);
   });
 
-  it('sould fail if the user is not authenticated', async () => {
+  it('should fail if the user is not authenticated', async () => {
     await request(app)
       .get(`/api/users/${user1.id}/infos`)
       .expect(constants.HTTP_STATUS_UNAUTHORIZED);
@@ -53,7 +53,7 @@ describe('User router', () => {
 
     expect(res.body).toEqual({
       email: user1.email,
-      role: user1.role,
+      roles: user1.roles,
       region: user1.region,
     });
   });

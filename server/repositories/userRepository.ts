@@ -10,7 +10,7 @@ const findUnique = async (userId: string): Promise<User | undefined> => {
 };
 
 const findOne = async (email: string): Promise<User | undefined> => {
-  console.log('Find userApi with email', email);
+  console.log('Find user with email', email);
   return Users()
     .where({
       email,

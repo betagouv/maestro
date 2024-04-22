@@ -32,7 +32,7 @@ const signIn = async (request: Request, response: Response) => {
   return response.status(constants.HTTP_STATUS_OK).json({
     userId: user.id,
     accessToken,
-    userRole: user.role,
+    userRoles: user.roles,
   });
 };
 

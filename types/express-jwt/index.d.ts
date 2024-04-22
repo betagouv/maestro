@@ -1,14 +1,14 @@
 import express from 'express';
 import * as jwt from 'jsonwebtoken';
 import { MarkRequired } from 'ts-essentials';
-
-import { TokenPayload, UserApi } from '../../server/models/UserApi';
+import { TokenPayload } from '../../shared/schema/User/TokenPayload';
+import { User } from '../../shared/schema/User/User';
 
 declare global {
   namespace Express {
     interface Request {
       auth?: jwt.JwtPayload & TokenPayload;
-      user?: UserApi;
+      user?: User;
     }
   }
 }

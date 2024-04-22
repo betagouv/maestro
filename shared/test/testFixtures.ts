@@ -56,13 +56,13 @@ export function oneOf<T>(array: Array<T>): T {
 
 export const genValidPassword = () => '123Valid';
 
-export const genUser = (role?: UserRole): User => ({
+export const genUser = (...roles: UserRole[]): User => ({
   id: uuidv4(),
   password: randomstring.generate(),
   email: genEmail(),
-  role: role ?? oneOf(UserRoleList),
+  roles: roles ?? [oneOf(UserRoleList)],
   region:
-    role === 'NationalCoordinator' || role === 'Administrator'
+    roles?.includes('NationalCoordinator') || roles?.includes('Administrator')
       ? null
       : oneOf(RegionList),
 });

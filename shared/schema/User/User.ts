@@ -6,13 +6,13 @@ export const User = z.object({
   id: z.string().uuid(),
   email: z.string().email(),
   password: z.string(),
-  role: UserRole,
+  roles: z.array(UserRole),
   region: Region.optional().nullable(),
 });
 
 export const UserInfos = User.pick({
   email: true,
-  role: true,
+  roles: true,
   region: true,
 });
 

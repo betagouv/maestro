@@ -1,7 +1,7 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Header as DSFRHeader } from '@codegouvfr/react-dsfr/Header';
 import { useLocation } from 'react-router-dom';
-import { UserRole, UserRoleLabels } from 'shared/schema/User/UserRole';
+import { UserRoleLabels } from 'shared/schema/User/UserRole';
 import { isDefined } from 'shared/utils/utils';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch } from 'src/hooks/useStore';
@@ -75,9 +75,11 @@ const Header = () => {
       quickAccessItems={
         isAuthenticated
           ? [
-              <span className={cx('fr-text--sm', 'fr-mt-1v')}>
-                {UserRoleLabels[userInfos?.role as UserRole]}
-              </span>,
+              <div className={cx('fr-text--sm', 'fr-mt-1v')}>
+                {userInfos?.roles.map((role) => (
+                  <div key={role}>{UserRoleLabels[role]}</div>
+                ))}
+              </div>,
               {
                 buttonProps: {
                   onClick: () => {

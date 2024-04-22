@@ -25,8 +25,10 @@ export const useAuthentication = () => {
     () => (permission: UserPermission) => {
       return (
         authUser?.userId &&
-        userInfos?.role &&
-        UserRolePermissions[userInfos.role ?? '']?.includes(permission)
+        userInfos?.roles
+          .map((role) => UserRolePermissions[role])
+          .flat()
+          .includes(permission)
       );
     },
     [authUser, userInfos]
@@ -34,7 +36,7 @@ export const useAuthentication = () => {
 
   const hasRole = useMemo(
     () => (role: UserRole) => {
-      return isAuthenticated && userInfos && userInfos?.role === role;
+      return isAuthenticated && userInfos && userInfos?.roles.includes(role);
     },
     [userInfos, isAuthenticated]
   );

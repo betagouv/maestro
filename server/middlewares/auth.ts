@@ -47,12 +47,12 @@ export const userCheck = (credentialsRequired: boolean) =>
   };
 
 export const rolesCheck = (roles: UserRole[]) =>
-  async function (request: Request, response: Response, next: NextFunction) {
+  async function (request: Request, _response: Response, next: NextFunction) {
     if (!request.user) {
       throw new AuthenticationMissingError();
     }
 
-    if (!roles.includes(request.user.role)) {
+    if (_.intersection(roles, request.user.roles).length === 0) {
       throw new UserRoleMissingError();
     }
 
@@ -60,17 +60,16 @@ export const rolesCheck = (roles: UserRole[]) =>
   };
 
 export const permissionsCheck = (permissions: UserPermission[]) =>
-  async function (request: Request, response: Response, next: NextFunction) {
+  async function (request: Request, _response: Response, next: NextFunction) {
     if (!request.user) {
       throw new AuthenticationMissingError();
     }
 
-    if (
-      _.intersection(
-        permissions,
-        UserRolePermissions[request.user.role as UserRole]
-      ).length === 0
-    ) {
+    const userPermissions = request.user.roles
+      .map((role) => UserRolePermissions[role])
+      .flat();
+
+    if (_.intersection(permissions, userPermissions).length === 0) {
       throw new UserPermissionMissingError();
     }
 
