@@ -70,6 +70,38 @@ describe('Prescriptions router', () => {
     });
   });
 
+  describe('GET /programming-plans/{programmingPlanId}/prescriptions/export', () => {
+    const testRoute = (programmingPlanId: string) =>
+      `/api/programming-plans/${programmingPlanId}/prescriptions/export`;
+
+    it('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .get(testRoute(programmingPlan1.id))
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    it('should get a valid programmingPlan id', async () => {
+      await request(app)
+        .get(`${testRoute(randomstring.generate())}`)
+        .use(tokenProvider(nationalCoordinator))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    it('should fail if the user does not have the permission to read prescriptions', async () => {
+      await request(app)
+        .get(testRoute(programmingPlan1.id))
+        .use(tokenProvider(sampler))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    it('should export the prescriptions of the programmingPlan', async () => {
+      await request(app)
+        .get(testRoute(programmingPlan1.id))
+        .use(tokenProvider(nationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+    });
+  });
+
   describe('POST /programming-plans/{programmingPlanId}/prescriptions', () => {
     const prescriptionsToCreate = genPrescriptions(programmingPlan1.id).map(
       (prescription) => fp.omit(['id', 'programmingPlanId'])(prescription)

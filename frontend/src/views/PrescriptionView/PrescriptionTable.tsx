@@ -1,4 +1,5 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
+import Button from '@codegouvfr/react-dsfr/Button';
 import Table from '@codegouvfr/react-dsfr/Table';
 import clsx from 'clsx';
 import _ from 'lodash';
@@ -13,6 +14,7 @@ import EditableNumberCell from 'src/components/EditableNumberCell/EditableNumber
 import RegionHeaderCell from 'src/components/RegionHeaderCell/RegionHeaderCell';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import {
+  getPrescriptionsExportURL,
   useAddPrescriptionsMutation,
   useDeletePrescriptionsMutation,
   useUpdatePrescriptionMutation,
@@ -110,9 +112,7 @@ const PrescriptionTable = ({ programmingPlanId, prescriptions }: Props) => {
           <b>{p.sampleMatrix}</b>
         </div>,
         <b>{p.sampleStage}</b>,
-        hasNationalView ? (
-          <b>{p.regionSampleCounts.reduce((acc, count) => acc + count, 0)}</b>
-        ) : undefined,
+        hasNationalView ? <b>{_.sum(p.regionSampleCounts)}</b> : undefined,
         ...p.regionSampleCounts.map((count, regionIndex) => (
           <div
             data-testid={`cell-${p.sampleMatrix}`}
@@ -230,6 +230,15 @@ const PrescriptionTable = ({ programmingPlanId, prescriptions }: Props) => {
           </div>
         </AutoClose>
       )}
+      <Button
+        priority="tertiary no outline"
+        iconId="fr-icon-download-line"
+        onClick={() =>
+          window.open(getPrescriptionsExportURL(programmingPlanId))
+        }
+      >
+        Télécharger
+      </Button>
       <Table
         bordered
         noCaption

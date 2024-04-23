@@ -8,3 +8,12 @@ export const withAuthHeader = (headers: Headers) => {
     return headers;
   }
 };
+
+export const withAuthParams = (url: string) => {
+  const authUser = JSON.parse(localStorage.getItem('authUser') ?? '{}');
+  if (authUser?.accessToken) {
+    return `${url}?x-access-token=${authUser.accessToken}`;
+  } else {
+    return url;
+  }
+};

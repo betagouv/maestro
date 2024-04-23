@@ -14,6 +14,6 @@ export const getURLQuery = (params: object): string => {
       );
     }),
     (params: Record<string, string>) => new URLSearchParams(params),
-    (params) => (params.toString().length > 0 ? `?${params}` : ''),
+    (params) => (params.toString().length > 0 ? `?${params}` : '')
   )(params);
 };

@@ -16,6 +16,12 @@ router.get(
   permissionsCheck(['readPrescriptions']),
   prescriptionController.findPrescriptions
 );
+router.get(
+  '/:programmingPlanId/prescriptions/export',
+  validator.validate(uuidParam('programmingPlanId')),
+  permissionsCheck(['readPrescriptions']),
+  prescriptionController.exportPrescriptions
+);
 router.post(
   '/:programmingPlanId/prescriptions',
   validator.validate(
