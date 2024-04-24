@@ -3,13 +3,18 @@ import fp from 'lodash/fp';
 import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
-import { Prescription } from '../../../shared/schema/Prescription/Prescription';
 import {
+  Prescription,
+  PrescriptionUpdate,
+} from '../../../shared/schema/Prescription/Prescription';
+import {
+  genLaboratory,
   genNumber,
   genPrescriptions,
   genProgrammingPlan,
   genUser,
 } from '../../../shared/test/testFixtures';
+import { Laboratories } from '../../repositories/laboratoryRepository';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import { ProgrammingPlans } from '../../repositories/programmingPlanRepository';
 import { Users } from '../../repositories/userRepository';
@@ -26,11 +31,13 @@ describe('Prescriptions router', () => {
   const programmingPlan2 = genProgrammingPlan(nationalCoordinator.id);
   const prescriptions1 = genPrescriptions(programmingPlan1.id);
   const prescriptions2 = genPrescriptions(programmingPlan2.id);
+  const laboratory = genLaboratory();
 
   beforeAll(async () => {
     await Users().insert([nationalCoordinator, regionalCoordinator, sampler]);
     await ProgrammingPlans().insert([programmingPlan1, programmingPlan2]);
     await Prescriptions().insert([...prescriptions1, ...prescriptions2]);
+    await Laboratories().insert(laboratory);
   });
 
   describe('GET /programming-plans/{programmingPlanId}/prescriptions', () => {
@@ -163,8 +170,9 @@ describe('Prescriptions router', () => {
   });
 
   describe('PUT /programming-plans/{programmingPlanId}/prescriptions/{prescriptionId}', () => {
-    const prescriptionUpdate = {
+    const prescriptionUpdate: PrescriptionUpdate = {
       sampleCount: genNumber(4),
+      laboratoryId: laboratory.id,
     };
     const testRoute = (programmingPlanId: string, prescriptionId: string) =>
       `/api/programming-plans/${programmingPlanId}/prescriptions/${prescriptionId}`;
@@ -210,20 +218,33 @@ describe('Prescriptions router', () => {
       await request(app)
         .put(testRoute(programmingPlan1.id, prescriptions1[0].id))
         .send(prescriptionUpdate)
-        .use(tokenProvider(regionalCoordinator))
+        .use(tokenProvider(sampler))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should update the sample count of the prescription', async () => {
+    it('should update the sample count of the prescription for a national coordinator', async () => {
       const res = await request(app)
-        .put(testRoute(programmingPlan1.id, prescriptions1[0].id))
+        .put(testRoute(programmingPlan1.id, prescriptions1[1].id))
         .send(prescriptionUpdate)
         .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject({
-        ...prescriptions1[0],
+        ...prescriptions1[1],
         sampleCount: prescriptionUpdate.sampleCount,
+      });
+    });
+
+    it('should update the laboratory of the prescription for a regional coordinator', async () => {
+      const res = await request(app)
+        .put(testRoute(programmingPlan1.id, prescriptions1[0].id))
+        .send(prescriptionUpdate)
+        .use(tokenProvider(regionalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toMatchObject({
+        ...prescriptions1[0],
+        laboratoryId: prescriptionUpdate.laboratoryId,
       });
     });
   });

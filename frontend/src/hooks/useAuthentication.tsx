@@ -1,6 +1,9 @@
 import { ReactElement, useMemo } from 'react';
-import { UserPermission } from 'shared/schema/User/UserPermission';
-import { UserRole, UserRolePermissions } from 'shared/schema/User/UserRole';
+import {
+  hasPermission as hasUserPermission,
+  UserPermission,
+} from 'shared/schema/User/UserPermission';
+import { UserRole } from 'shared/schema/User/UserRole';
 import { isDefined } from 'shared/utils/utils';
 import { useAppSelector } from 'src/hooks/useStore';
 import { useGetUserInfosQuery } from 'src/services/user.service';
@@ -25,10 +28,8 @@ export const useAuthentication = () => {
     () => (permission: UserPermission) => {
       return (
         authUser?.userId &&
-        userInfos?.roles
-          .map((role) => UserRolePermissions[role])
-          .flat()
-          .includes(permission)
+        userInfos &&
+        hasUserPermission(userInfos, permission)
       );
     },
     [authUser, userInfos]
@@ -42,7 +43,7 @@ export const useAuthentication = () => {
   );
 
   const hasNationalView = useMemo(() => {
-    return isAuthenticated && userInfos && userInfos.region === null;
+    return isAuthenticated && !userInfos?.region;
   }, [userInfos, isAuthenticated]);
 
   const availableRoutes: {

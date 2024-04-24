@@ -5,6 +5,7 @@ import { UserRoleLabels } from 'shared/schema/User/UserRole';
 import { isDefined } from 'shared/utils/utils';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch } from 'src/hooks/useStore';
+import { api } from 'src/services/api.service';
 import authSlice from 'src/store/reducers/authSlice';
 
 const Header = () => {
@@ -84,6 +85,7 @@ const Header = () => {
                 buttonProps: {
                   onClick: () => {
                     dispatch(authSlice.actions.signoutUser());
+                    dispatch(api.util.resetApiState());
                   },
                 },
                 iconId: 'fr-icon-logout-box-r-line',

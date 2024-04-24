@@ -9,6 +9,7 @@ export const Prescription = z.object({
   sampleMatrix: z.string(),
   sampleStage: SampleStage,
   sampleCount: z.number(),
+  laboratoryId: z.string().optional().nullable(),
 });
 
 export const PrescriptionToCreate = Prescription.pick({
@@ -20,7 +21,8 @@ export const PrescriptionToCreate = Prescription.pick({
 
 export const PrescriptionUpdate = Prescription.pick({
   sampleCount: true,
-});
+  laboratoryId: true,
+}).partial();
 
 export type Prescription = z.infer<typeof Prescription>;
 export type PrescriptionToCreate = z.infer<typeof PrescriptionToCreate>;

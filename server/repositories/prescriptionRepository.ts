@@ -1,3 +1,4 @@
+import fp from 'lodash';
 import { Prescription } from '../../shared/schema/Prescription/Prescription';
 import db from './db';
 
@@ -7,12 +8,19 @@ export const Prescriptions = () => db<Prescription>(prescriptionsTable);
 
 const findUnique = async (id: string): Promise<Prescription | undefined> => {
   console.info('Find prescription by id', id);
-  return Prescriptions().where({ id }).first();
+  return Prescriptions()
+    .where({ id })
+    .first()
+    .then((_) => _ && Prescription.parse(fp.omitBy(_, fp.isNil)));
 };
 
 const findMany = async (programmingPlanId: string): Promise<Prescription[]> => {
   console.info('Find prescriptions by programming plan id', programmingPlanId);
-  return Prescriptions().where({ programmingPlanId });
+  return Prescriptions()
+    .where({ programmingPlanId })
+    .then((prescriptions) =>
+      prescriptions.map((_) => Prescription.parse(fp.omitBy(_, fp.isNil)))
+    );
 };
 
 const insert = async (prescription: Prescription): Promise<void> => {

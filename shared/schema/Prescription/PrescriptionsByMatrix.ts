@@ -7,7 +7,12 @@ export const PrescriptionByMatrix = z.object({
   programmingPlanId: z.string().uuid(),
   sampleMatrix: z.string(),
   sampleStage: SampleStage,
-  regionSampleCounts: z.array(z.number()),
+  regionalData: z.array(
+    Prescription.pick({
+      sampleCount: true,
+      laboratoryId: true,
+    })
+  ),
 });
 
 export type PrescriptionByMatrix = z.infer<typeof PrescriptionByMatrix>;
@@ -29,12 +34,20 @@ export const genPrescriptionByMatrix = (
           programmingPlanId: prescription.programmingPlanId,
           sampleMatrix: prescription.sampleMatrix,
           sampleStage: prescription.sampleStage,
-          regionSampleCounts: new Array(includedRegions.length).fill(0),
+          regionalData: new Array(includedRegions.length).fill({
+            sampleCount: 0,
+          }),
         });
       }
-      acc[index === -1 ? acc.length - 1 : index].regionSampleCounts[
+      acc[index === -1 ? acc.length - 1 : index].regionalData[
         includedRegions.indexOf(prescription.region)
-      ] = prescription.sampleCount;
+      ] = {
+        sampleCount: prescription.sampleCount,
+        ...(prescription.laboratoryId
+          ? { laboratoryId: prescription.laboratoryId }
+          : {}),
+      };
+
       return acc;
     }, [] as PrescriptionByMatrix[])
     .sort((a, b) =>

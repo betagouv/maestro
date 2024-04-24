@@ -6,11 +6,11 @@ import AuthenticationMissingError from '../../shared/errors/authenticationMissin
 import UserMissingError from '../../shared/errors/userMissingError';
 import UserPermissionMissingError from '../../shared/errors/userPermissionMissingError';
 import UserRoleMissingError from '../../shared/errors/userRoleMissingError';
-import { UserPermission } from '../../shared/schema/User/UserPermission';
 import {
-  UserRole,
-  UserRolePermissions,
-} from '../../shared/schema/User/UserRole';
+  hasPermission,
+  UserPermission,
+} from '../../shared/schema/User/UserPermission';
+import { UserRole } from '../../shared/schema/User/UserRole';
 import userRepository from '../repositories/userRepository';
 import config from '../utils/config';
 
@@ -65,11 +65,7 @@ export const permissionsCheck = (permissions: UserPermission[]) =>
       throw new AuthenticationMissingError();
     }
 
-    const userPermissions = request.user.roles
-      .map((role) => UserRolePermissions[role])
-      .flat();
-
-    if (_.intersection(permissions, userPermissions).length === 0) {
+    if (!hasPermission(request.user, ...permissions)) {
       throw new UserPermissionMissingError();
     }
 

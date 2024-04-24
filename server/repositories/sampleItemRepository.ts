@@ -1,3 +1,4 @@
+import fp from 'lodash';
 import {
   PartialSampleItem,
   SampleItem,
@@ -10,7 +11,11 @@ export const SampleItems = () => db<SampleItem>(sampleItemsTable);
 
 const findMany = async (sampleId: string): Promise<SampleItem[]> => {
   console.info('Find sampleItems for sample', sampleId);
-  return SampleItems().where({ sampleId });
+  return SampleItems()
+    .where({ sampleId })
+    .then((sampleItems) =>
+      sampleItems.map((_) => SampleItem.parse(fp.omitBy(_, fp.isNil)))
+    );
 };
 
 const insertMany = async (

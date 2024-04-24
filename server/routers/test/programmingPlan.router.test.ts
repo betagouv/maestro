@@ -85,7 +85,7 @@ describe('ProgrammingPlan router', () => {
     it('should find all the programmingPlans', async () => {
       const res = await request(app)
         .get(testRoute)
-        .use(tokenProvider(regionalCoordinator))
+        .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject(

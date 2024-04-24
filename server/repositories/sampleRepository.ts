@@ -2,23 +2,29 @@ import fp from 'lodash';
 import {
   CreatedSample,
   PartialSample,
-  Sample,
 } from '../../shared/schema/Sample/Sample';
 import db from './db';
 
 const samplesTable = 'samples';
 const samplesSerial = 'samples_serial';
 
-export const Samples = () => db<Sample>(samplesTable);
+export const Samples = () => db<PartialSample>(samplesTable);
 
-const findUnique = async (id: string): Promise<Sample | undefined> => {
+const findUnique = async (id: string): Promise<PartialSample | undefined> => {
   console.info('Find sample', id);
-  return Samples().where({ id }).first();
+  return Samples()
+    .where({ id })
+    .first()
+    .then((_) => _ && PartialSample.parse(fp.omitBy(_, fp.isNil)));
 };
 
-const findMany = async (userId: string): Promise<Sample[]> => {
+const findMany = async (userId: string): Promise<PartialSample[]> => {
   console.info('Find samples for user', userId);
-  return Samples().where({ createdBy: userId });
+  return Samples()
+    .where({ createdBy: userId })
+    .then((samples) =>
+      samples.map((_) => PartialSample.parse(fp.omitBy(_, fp.isNil)))
+    );
 };
 
 const getSerial = async (): Promise<number> => {

@@ -20,11 +20,13 @@ const getProgrammingPlan = async (request: Request, response: Response) => {
 };
 
 const findProgrammingPlans = async (request: Request, response: Response) => {
-  const { userId } = (request as AuthenticatedRequest).auth;
+  const user = (request as AuthenticatedRequest).user;
 
-  console.info('Find programmingPlans for user', userId);
+  console.info('Find programmingPlans for user', user.id);
 
-  const programmingPlans = await programmingPlanRepository.findMany();
+  const programmingPlans = await programmingPlanRepository.findMany(
+    user.region ?? undefined
+  );
 
   response.status(constants.HTTP_STATUS_OK).send(programmingPlans);
 };

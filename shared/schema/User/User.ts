@@ -19,5 +19,5 @@ export const UserInfos = User.pick({
 export type User = z.infer<typeof User>;
 export type UserInfos = z.infer<typeof UserInfos>;
 
-export const userRegions = (user: User) =>
-  user.region ? [user.region] : RegionList;
+export const userRegions = (user?: User | UserInfos) =>
+  user ? (user.region ? [user.region] : RegionList) : [];

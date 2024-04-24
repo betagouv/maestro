@@ -2,6 +2,7 @@ import randomstring from 'randomstring';
 import { v4 as uuidv4 } from 'uuid';
 import { DepartmentList } from '../schema/Department';
 import { Document } from '../schema/Document/Document';
+import { Laboratory } from '../schema/Laboratory/Laboratory';
 import { Prescription } from '../schema/Prescription/Prescription';
 import { ProgrammingPlanKindList } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 import { RegionList } from '../schema/Region';
@@ -167,4 +168,9 @@ export const genDocument = (userId: string): Document => ({
   filename: randomstring.generate(),
   createdAt: new Date(),
   createdBy: userId,
+});
+
+export const genLaboratory = (): Laboratory => ({
+  id: uuidv4(),
+  name: randomstring.generate(),
 });

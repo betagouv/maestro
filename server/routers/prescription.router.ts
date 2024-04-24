@@ -40,7 +40,10 @@ router.put(
       })
     ).merge(body(PrescriptionUpdate))
   ),
-  permissionsCheck(['updatePrescription']),
+  permissionsCheck([
+    'updatePrescriptionSampleCount',
+    'updatePrescriptionLaboratory',
+  ]),
   prescriptionController.updatePrescription
 );
 router.delete(

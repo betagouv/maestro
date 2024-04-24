@@ -22,7 +22,7 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'readProgrammingPlans',
     'createPrescription',
     'readPrescriptions',
-    'updatePrescription',
+    'updatePrescriptionSampleCount',
     'deletePrescription',
     'createDocument',
     'readDocuments',
@@ -31,6 +31,7 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
   RegionalCoordinator: [
     'readProgrammingPlans',
     'readPrescriptions',
+    'updatePrescriptionLaboratory',
     'readDocuments',
   ],
   Sampler: ['createSample', 'readSamples', 'updateSample', 'readDocuments'],

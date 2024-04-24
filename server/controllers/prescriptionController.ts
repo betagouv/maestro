@@ -11,6 +11,7 @@ import {
 import { genPrescriptionByMatrix } from '../../shared/schema/Prescription/PrescriptionsByMatrix';
 import { Regions } from '../../shared/schema/Region';
 import { userRegions } from '../../shared/schema/User/User';
+import { hasPermission } from '../../shared/schema/User/UserPermission';
 import { isDefined } from '../../shared/utils/utils';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
@@ -77,11 +78,14 @@ const exportPrescriptions = async (request: Request, response: Response) => {
         .addRow({
           sampleMatrix: prescription.sampleMatrix,
           sampleStage: prescription.sampleStage,
-          sampleTotalCount: _.sum(prescription.regionSampleCounts),
-          ...prescription.regionSampleCounts.reduce(
-            (acc, count, index) => ({
+          sampleTotalCount: _.sumBy(
+            prescription.regionalData,
+            ({ sampleCount }) => sampleCount
+          ),
+          ...prescription.regionalData.reduce(
+            (acc, { sampleCount }, index) => ({
               ...acc,
-              [`sampleCount-${index}`]: count,
+              [`sampleCount-${index}`]: sampleCount,
             }),
             {}
           ),
@@ -92,13 +96,15 @@ const exportPrescriptions = async (request: Request, response: Response) => {
       worksheet.addRow({
         sampleMatrix: 'Total',
         sampleTotalCount: _.sum(
-          prescriptionByMatrix.flatMap((p) => p.regionSampleCounts)
+          prescriptionByMatrix
+            .flatMap((p) => p.regionalData)
+            .map((p) => p.sampleCount)
         ),
         ...userRegions(user).reduce(
           (acc, _region, index) => ({
             ...acc,
             [`sampleCount-${index}`]: _.sum(
-              prescriptionByMatrix.map((p) => p.regionSampleCounts[index])
+              prescriptionByMatrix.map((p) => p.regionalData[index].sampleCount)
             ),
           }),
           {}
@@ -130,6 +136,7 @@ const createPrescriptions = async (request: Request, response: Response) => {
 };
 
 const updatePrescription = async (request: Request, response: Response) => {
+  const user = (request as AuthenticatedRequest).user;
   const { programmingPlanId, prescriptionId } = request.params;
   const prescriptionUpdate = request.body as PrescriptionUpdate;
 
@@ -150,7 +157,14 @@ const updatePrescription = async (request: Request, response: Response) => {
 
   const updatedPrescription = {
     ...prescription,
-    sampleCount: prescriptionUpdate.sampleCount,
+    sampleCount:
+      hasPermission(user, 'updatePrescriptionSampleCount') &&
+      prescriptionUpdate.sampleCount
+        ? prescriptionUpdate.sampleCount
+        : prescription.sampleCount,
+    laboratoryId: hasPermission(user, 'updatePrescriptionLaboratory')
+      ? prescriptionUpdate.laboratoryId
+      : prescription.laboratoryId,
   };
 
   await prescriptionRepository.update(updatedPrescription);

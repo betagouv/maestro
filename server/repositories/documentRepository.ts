@@ -1,3 +1,4 @@
+import fp from 'lodash';
 import { Document } from '../../shared/schema/Document/Document';
 import db from './db';
 
@@ -7,12 +8,17 @@ export const Documents = () => db<Document>(documentsTable);
 
 const findUnique = async (id: string): Promise<Document | undefined> => {
   console.info('Find document', id);
-  return Documents().where({ id }).first();
+  return Documents()
+    .where({ id })
+    .first()
+    .then((_) => _ && Document.parse(fp.omitBy(_, fp.isNil)));
 };
 
 const findMany = async (): Promise<Document[]> => {
   console.info('Find documents');
-  return Documents();
+  return Documents().then((documents) =>
+    documents.map((_) => Document.parse(fp.omitBy(_, fp.isNil)))
+  );
 };
 
 const insert = async (document: Document): Promise<void> => {
