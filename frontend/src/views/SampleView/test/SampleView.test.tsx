@@ -157,6 +157,6 @@ describe('SampleView', () => {
     });
 
     const calls = await getRequestCalls(fetchMock);
-    expect(calls).toHaveLength(2);
+    expect(calls).toHaveLength(1);
   });
 });
