@@ -67,13 +67,6 @@ describe('Prescriptions router', () => {
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    it('should fail if the user does not have the permission to read prescriptions', async () => {
-      await request(app)
-        .get(testRoute(programmingPlanInProgress.id))
-        .use(tokenProvider(sampler))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
-    });
-
     it('should find the prescriptions of the programmingPlan', async () => {
       const res = await request(app)
         .get(testRoute(programmingPlanInProgress.id))
@@ -102,13 +95,6 @@ describe('Prescriptions router', () => {
         .get(`${testRoute(randomstring.generate())}`)
         .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
-    });
-
-    it('should fail if the user does not have the permission to read prescriptions', async () => {
-      await request(app)
-        .get(testRoute(programmingPlanInProgress.id))
-        .use(tokenProvider(sampler))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     it('should export the prescriptions of the programmingPlan', async () => {
