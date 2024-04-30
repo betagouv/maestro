@@ -1,18 +1,27 @@
+import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Header as DSFRHeader } from '@codegouvfr/react-dsfr/Header';
-import { useLocation } from 'react-router-dom';
+import Select from '@codegouvfr/react-dsfr/Select';
+import { useLocation, useNavigate } from 'react-router-dom';
+import {
+  ProgrammingPlanStatus,
+  ProgrammingPlanStatusLabels,
+} from 'shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { UserRoleLabels } from 'shared/schema/User/UserRole';
 import { isDefined } from 'shared/utils/utils';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import { useAppDispatch } from 'src/hooks/useStore';
+import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import { api } from 'src/services/api.service';
 import authSlice from 'src/store/reducers/authSlice';
+import settingsSlice from 'src/store/reducers/settingsSlice';
 
 const Header = () => {
   const dispatch = useAppDispatch();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const { isAuthenticated, hasPermission, userInfos } = useAuthentication();
+  const { programmingPlanStatus } = useAppSelector((state) => state.settings);
 
   return (
     <DSFRHeader
@@ -32,6 +41,7 @@ const Header = () => {
         title: 'Accueil',
       }}
       id="header"
+      data-testid="header"
       // serviceTagline="baseline - précisions sur l'organisation"
       serviceTitle={
         <>
@@ -42,16 +52,16 @@ const Header = () => {
       }
       navigation={(isAuthenticated
         ? [
-            hasPermission('readProgrammingPlans')
-              ? {
-                  linkProps: {
-                    to: '/plans',
-                    target: '_self',
-                  },
-                  text: 'Plans programmés',
-                  isActive: location.pathname.startsWith('/plans'),
-                }
-              : undefined,
+            {
+              linkProps: {
+                to: '/',
+                target: '_self',
+              },
+              text: ProgrammingPlanStatusLabels[programmingPlanStatus],
+              isActive:
+                location.pathname === '/' ||
+                location.pathname.startsWith('/plans'),
+            },
             hasPermission('readSamples')
               ? {
                   linkProps: {
@@ -76,21 +86,44 @@ const Header = () => {
       quickAccessItems={
         isAuthenticated
           ? [
-              <div className={cx('fr-text--sm', 'fr-mt-1v')}>
+              <Select
+                label={undefined}
+                nativeSelectProps={{
+                  onChange: (e) => {
+                    dispatch(
+                      settingsSlice.actions.changeProgrammingPlanStatus({
+                        programmingPlanStatus: e.target
+                          .value as ProgrammingPlanStatus,
+                      })
+                    );
+                    navigate('/', { replace: true });
+                  },
+                }}
+                className="fr-mr-2w"
+              >
+                <option value="Validated">
+                  {ProgrammingPlanStatusLabels['Validated']}
+                </option>
+                <option value="InProgress">
+                  {ProgrammingPlanStatusLabels['InProgress']}
+                </option>
+              </Select>,
+              <div>
                 {userInfos?.roles.map((role) => (
-                  <div key={role}>{UserRoleLabels[role]}</div>
+                  <div key={role} className={cx('fr-text--sm', 'fr-mr-2w')}>
+                    {UserRoleLabels[role]}
+                  </div>
                 ))}
-              </div>,
-              {
-                buttonProps: {
-                  onClick: () => {
+                <Button
+                  iconId="fr-icon-logout-box-r-line"
+                  onClick={() => {
                     dispatch(authSlice.actions.signoutUser());
                     dispatch(api.util.resetApiState());
-                  },
-                },
-                iconId: 'fr-icon-logout-box-r-line',
-                text: 'Se déconnecter',
-              },
+                  }}
+                >
+                  Se déconnecter
+                </Button>
+              </div>,
             ]
           : [
               {

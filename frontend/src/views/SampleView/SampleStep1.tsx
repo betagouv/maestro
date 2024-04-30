@@ -10,11 +10,8 @@ import {
   DepartmentLabels,
   DepartmentList,
 } from 'shared/schema/Department';
-import {
-  ProgrammingPlanKind,
-  ProgrammingPlanKindLabels,
-  ProgrammingPlanKindList,
-} from 'shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import { ProgrammingPlanKindLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import { Regions } from 'shared/schema/Region';
 import { PartialSample, SampleToCreate } from 'shared/schema/Sample/Sample';
 import {
   SampleLegalContext,
@@ -22,9 +19,14 @@ import {
   SampleLegalContextList,
 } from 'shared/schema/Sample/SampleLegalContext';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
-import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
+import {
+  DefaultAppSelectOption,
+  selectOptionsFromList,
+} from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
+import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
+import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.service';
 import {
   useCreateSampleMutation,
   useUpdateSampleMutation,
@@ -38,10 +40,11 @@ interface Props {
 
 const SampleStep1 = ({ partialSample }: Props) => {
   const navigate = useNavigate();
+  const { userInfos } = useAuthentication();
 
   const [resytalId, setResytalId] = useState(partialSample?.resytalId);
-  const [planningContext, setPlanningContext] = useState(
-    partialSample?.planningContext
+  const [programmingPlanId, setProgrammingPlanId] = useState(
+    partialSample?.programmingPlanId
   );
   const [legalContext, setLegalContext] = useState(partialSample?.legalContext);
   const [userLocationX, setUserLocationX] = useState(
@@ -57,6 +60,9 @@ const SampleStep1 = ({ partialSample }: Props) => {
   );
   const [department, setDepartment] = useState(partialSample?.department);
 
+  const { data: programmingPlans } = useFindProgrammingPlansQuery({
+    status: 'Validated',
+  });
   const [createSample] = useCreateSampleMutation();
   const [updateSample] = useUpdateSampleMutation();
 
@@ -78,17 +84,20 @@ const SampleStep1 = ({ partialSample }: Props) => {
     userLocationY,
     sampledAt,
     resytalId,
-    planningContext,
+    programmingPlanId,
     legalContext,
     department,
   });
 
   type FormShape = typeof Form.shape;
 
-  const planningContextOptions = selectOptionsFromList(
-    ProgrammingPlanKindList,
-    ProgrammingPlanKindLabels
-  );
+  const programmingPlanOptions = [
+    DefaultAppSelectOption,
+    ...(programmingPlans ?? []).map(({ id, kind }) => ({
+      label: ProgrammingPlanKindLabels[kind],
+      value: id,
+    })),
+  ];
 
   const legalContextOptions = selectOptionsFromList(
     SampleLegalContextList,
@@ -96,7 +105,7 @@ const SampleStep1 = ({ partialSample }: Props) => {
   );
 
   const departmentOptions = selectOptionsFromList(
-    DepartmentList,
+    userInfos?.region ? Regions[userInfos.region].departments : DepartmentList,
     DepartmentLabels
   );
 
@@ -116,7 +125,7 @@ const SampleStep1 = ({ partialSample }: Props) => {
           },
           sampledAt: parse(sampledAt, 'yyyy-MM-dd', new Date()),
           resytalId: resytalId as string,
-          planningContext: planningContext as ProgrammingPlanKind,
+          programmingPlanId: programmingPlanId as string,
           legalContext: legalContext as SampleLegalContext,
           department: department as Department,
         })
@@ -138,7 +147,7 @@ const SampleStep1 = ({ partialSample }: Props) => {
         },
         sampledAt: parse(sampledAt, 'yyyy-MM-dd', new Date()),
         resytalId: resytalId as string,
-        planningContext: planningContext as ProgrammingPlanKind,
+        programmingPlanId: programmingPlanId as string,
         legalContext: legalContext as SampleLegalContext,
         department: department as Department,
         ...data,
@@ -287,15 +296,13 @@ const SampleStep1 = ({ partialSample }: Props) => {
         </div>
         <div className={cx('fr-col-12', 'fr-col-sm-4')}>
           <AppSelect<FormShape>
-            defaultValue={partialSample?.planningContext || ''}
-            options={planningContextOptions}
-            onChange={(e) =>
-              setPlanningContext(e.target.value as ProgrammingPlanKind)
-            }
+            defaultValue={partialSample?.programmingPlanId || ''}
+            options={programmingPlanOptions}
+            onChange={(e) => setProgrammingPlanId(e.target.value)}
             inputForm={form}
-            inputKey="planningContext"
+            inputKey="programmingPlanId"
             whenValid="Contexte correctement renseigné."
-            data-testid="planning-context-select"
+            data-testid="programming-plan-id-select"
             label="Contexte (obligatoire)"
             required
           />

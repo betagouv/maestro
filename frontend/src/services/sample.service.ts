@@ -1,4 +1,5 @@
 import fp from 'lodash';
+import { FindSampleOptions } from 'shared/schema/Sample/FindSampleOptions';
 import { PartialSample, SampleToCreate } from 'shared/schema/Sample/Sample';
 import { api } from 'src/services/api.service';
 
@@ -17,8 +18,11 @@ export const sampleApi = api.injectEndpoints({
       providesTags: (result, error, sampleId) =>
         result ? [{ type: 'Sample', id: sampleId }] : [],
     }),
-    findSamples: builder.query<PartialSample[], void>({
-      query: () => 'samples',
+    findSamples: builder.query<PartialSample[], FindSampleOptions>({
+      query: (findOptions) => ({
+        url: 'samples',
+        params: findOptions,
+      }),
       transformResponse: (response: any[]) =>
         response.map((_) => PartialSample.parse(fp.omitBy(_, fp.isNil))),
       providesTags: (result) => [

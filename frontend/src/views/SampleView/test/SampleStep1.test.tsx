@@ -3,7 +3,7 @@ import { userEvent } from '@testing-library/user-event';
 import { format, startOfDay } from 'date-fns';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
-import { genCoords } from 'shared/test/testFixtures';
+import { genCoords, genProgrammingPlan } from 'shared/test/testFixtures';
 import { store } from 'src/store/store';
 import config from 'src/utils/config';
 import SampleStep1 from 'src/views/SampleView/SampleStep1';
@@ -12,10 +12,25 @@ import {
   mockRequests,
 } from '../../../../test/requestUtils.test';
 
+const programmingPlan1 = genProgrammingPlan();
+const programmingPlan2 = genProgrammingPlan();
+const programmingPlanRequest = {
+  pathname: `/api/programming-plans?status=Validated`,
+  response: {
+    body: JSON.stringify([programmingPlan1, programmingPlan2]),
+  },
+};
+
 describe('SampleFormStep1', () => {
   const user = userEvent.setup();
 
+  beforeEach(() => {
+    fetchMock.resetMocks();
+  });
+
   test('should render form successfully', () => {
+    mockRequests([programmingPlanRequest]);
+
     render(
       <Provider store={store}>
         <BrowserRouter>
@@ -30,7 +45,7 @@ describe('SampleFormStep1', () => {
     expect(screen.getAllByTestId('userLocationY-input')).toHaveLength(2);
     expect(screen.getAllByTestId('department-select')).toHaveLength(2);
     expect(screen.getAllByTestId('resytalId-input')).toHaveLength(2);
-    expect(screen.getAllByTestId('planning-context-select')).toHaveLength(2);
+    expect(screen.getAllByTestId('programming-plan-id-select')).toHaveLength(2);
     expect(screen.getAllByTestId('legal-context-select')).toHaveLength(2);
 
     expect(screen.getByTestId('submit-button')).toBeInTheDocument();
@@ -90,6 +105,7 @@ describe('SampleFormStep1', () => {
 
   test('should call the sample creating API on submitting', async () => {
     mockRequests([
+      programmingPlanRequest,
       {
         pathname: `/api/samples`,
         response: { body: JSON.stringify({}) },
@@ -107,8 +123,8 @@ describe('SampleFormStep1', () => {
 
     const departmentSelect = screen.getAllByTestId('department-select')[1];
     const resytalIdInput = screen.getAllByTestId('resytalId-input')[1];
-    const planningContextSelect = screen.getAllByTestId(
-      'planning-context-select'
+    const programmingPlanIdSelect = screen.getAllByTestId(
+      'programming-plan-id-select'
     )[1];
     const legalContextSelect = screen.getAllByTestId('legal-context-select')[1];
 
@@ -121,7 +137,7 @@ describe('SampleFormStep1', () => {
     await act(async () => {
       await user.selectOptions(departmentSelect, '08');
       await user.type(resytalIdInput, '22123456');
-      await user.selectOptions(planningContextSelect, 'Surveillance');
+      await user.selectOptions(programmingPlanIdSelect, programmingPlan1.id);
       await user.selectOptions(legalContextSelect, 'B');
       await user.click(screen.getByTestId('submit-button'));
     });
@@ -148,7 +164,7 @@ describe('SampleFormStep1', () => {
         sampledAt: startOfDay(new Date()).toISOString(),
         department: '08',
         resytalId: '22123456',
-        planningContext: 'Surveillance',
+        programmingPlanId: programmingPlan1.id,
         legalContext: 'B',
         userLocation: {
           x: coords.coords.latitude,

@@ -35,6 +35,16 @@
     padding-right: 0;
   }
 
+  th, td {
+    &:has(.border-left) {
+      border-left: 1px solid  var(--border-default-grey);
+    }
+
+    &:has(.border-right) {
+      border-right: 1px solid  var(--border-default-grey);
+    }
+  }
+
   td:has(.fr-input-group) {
     padding: 0;
 
@@ -90,4 +100,15 @@
   text-align: initial;
   font-weight: initial;
   font-size: initial;
+}
+
+.fr-card--xs {
+
+  .fr-card__content {
+    padding: 0.75rem;
+  }
+
+  .fr-card__end:empty {
+    display: none;
+  }
 }

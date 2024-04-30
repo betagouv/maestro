@@ -26,8 +26,6 @@ const EditableSelectCell = ({
     setIsEditing(false);
   };
 
-  console.log('initialValue', initialValue);
-
   return (
     <>
       {isEditing ? (

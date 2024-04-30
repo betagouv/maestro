@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { Department } from './Department';
 
 export const Region = z.enum(
   [
@@ -58,6 +59,7 @@ export const Regions: Record<
       latitude: number;
       longitude: number;
     };
+    departments: Department[];
   }
 > = {
   '84': {
@@ -67,6 +69,7 @@ export const Regions: Record<
       latitude: 45.4,
       longitude: 4.7,
     },
+    departments: [],
   },
   '27': {
     name: 'Bourgogne-Franche-Comté',
@@ -75,6 +78,7 @@ export const Regions: Record<
       latitude: 47.09,
       longitude: 4.81,
     },
+    departments: [],
   },
   '53': {
     name: 'Bretagne',
@@ -83,6 +87,7 @@ export const Regions: Record<
       latitude: 48.12,
       longitude: -2.92,
     },
+    departments: [],
   },
   '24': {
     name: 'Centre-Val de Loire',
@@ -91,6 +96,7 @@ export const Regions: Record<
       latitude: 47.5,
       longitude: 1.75,
     },
+    departments: [],
   },
   '94': {
     name: 'Corse',
@@ -99,6 +105,7 @@ export const Regions: Record<
       latitude: 42.15,
       longitude: 9.1,
     },
+    departments: [],
   },
   '44': {
     name: 'Grand Est',
@@ -107,6 +114,7 @@ export const Regions: Record<
       latitude: 48.7,
       longitude: 5.6,
     },
+    departments: ['08', '10', '51', '52', '54', '55', '57', '67', '68', '88'],
   },
   '32': {
     name: 'Hauts-de-France',
@@ -115,6 +123,7 @@ export const Regions: Record<
       latitude: 50,
       longitude: 2.88,
     },
+    departments: [],
   },
   '11': {
     name: 'Île-de-France',
@@ -123,6 +132,7 @@ export const Regions: Record<
       latitude: 48.7,
       longitude: 2.5,
     },
+    departments: [],
   },
   '28': {
     name: 'Normandie',
@@ -131,6 +141,7 @@ export const Regions: Record<
       latitude: 49.1,
       longitude: 0,
     },
+    departments: [],
   },
   '75': {
     name: 'Nouvelle-Aquitaine',
@@ -139,6 +150,7 @@ export const Regions: Record<
       latitude: 45.5,
       longitude: 0.5,
     },
+    departments: [],
   },
   '76': {
     name: 'Occitanie',
@@ -147,6 +159,7 @@ export const Regions: Record<
       latitude: 43.7,
       longitude: 2.1,
     },
+    departments: [],
   },
   '52': {
     name: 'Pays de la Loire',
@@ -155,6 +168,7 @@ export const Regions: Record<
       latitude: 47.6,
       longitude: -0.6,
     },
+    departments: [],
   },
   '93': {
     name: "Provence-Alpes-Côte d'Azur",
@@ -163,6 +177,7 @@ export const Regions: Record<
       latitude: 43.8,
       longitude: 6.1,
     },
+    departments: [],
   },
   '01': {
     name: 'Guadeloupe',
@@ -171,6 +186,7 @@ export const Regions: Record<
       latitude: 45.6,
       longitude: -2.8,
     },
+    departments: [],
   },
   '02': {
     name: 'Martinique',
@@ -179,6 +195,7 @@ export const Regions: Record<
       latitude: 45.6,
       longitude: -5.8,
     },
+    departments: [],
   },
   '03': {
     name: 'Guyane',
@@ -187,6 +204,7 @@ export const Regions: Record<
       latitude: 47.1,
       longitude: -5.8,
     },
+    departments: [],
   },
   '04': {
     name: 'La Réunion',
@@ -195,6 +213,7 @@ export const Regions: Record<
       latitude: 44.25,
       longitude: -2.45,
     },
+    departments: [],
   },
   '06': {
     name: 'Mayotte',
@@ -203,5 +222,6 @@ export const Regions: Record<
       latitude: 44.3,
       longitude: -3.9,
     },
+    departments: [],
   },
 };

@@ -16,7 +16,11 @@ exports.up = async (knex: Knex) => {
     table.specificType('sampled_at', 'timestamptz').notNullable();
     table.specificType('sent_at', 'timestamptz');
     table.string('status').notNullable();
-    table.string('planning_context').notNullable();
+    table
+      .uuid('programming_plan_id')
+      .references('id')
+      .inTable('programming_plans')
+      .notNullable();
     table.string('legal_context').notNullable();
     table.point('user_location').notNullable();
     table.string('location_siret');

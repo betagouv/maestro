@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { Department } from '../Department';
-import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { PartialSampleItem, SampleItemRefinement } from './SampleItem';
 import { SampleLegalContext } from './SampleLegalContext';
 import { SampleStage } from './SampleStage';
@@ -39,7 +38,11 @@ export const Sample = z.object({
   }),
   sentAt: z.coerce.date().optional().nullable(),
   status: SampleStatus,
-  planningContext: ProgrammingPlanKind,
+  programmingPlanId: z
+    .string({
+      required_error: 'Veuillez renseigner le contexte.',
+    })
+    .uuid(),
   legalContext: SampleLegalContext,
   userLocation: UserLocation,
   locationSiret: z
@@ -76,7 +79,7 @@ export const SampleToCreate = Sample.pick({
   userLocation: true,
   sampledAt: true,
   resytalId: true,
-  planningContext: true,
+  programmingPlanId: true,
   legalContext: true,
   department: true,
 });

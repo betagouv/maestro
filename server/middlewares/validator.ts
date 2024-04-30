@@ -12,6 +12,11 @@ export const params = (o: AnyZodObject) =>
     params: o,
   });
 
+export const query = (o: AnyZodObject) =>
+  z.object({
+    query: o,
+  });
+
 export const uuidParam = (paramName: string) =>
   z.object({
     params: z.object({

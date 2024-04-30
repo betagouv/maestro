@@ -15,7 +15,6 @@ import Map, {
 } from 'react-map-gl/maplibre';
 import { Prescription } from 'shared/schema/Prescription/Prescription';
 import { Region, RegionList, Regions } from 'shared/schema/Region';
-import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useGetRegionsGeoJsonQuery } from 'src/services/region.service';
 
 interface Props {
@@ -24,13 +23,43 @@ interface Props {
 
 const PrescriptionMap = ({ prescriptions }: Props) => {
   const ref = useRef<any>();
-  const userRegion = useAuthentication().userInfos?.region;
+
   const [hoverInfo, setHoverInfo] = useState<{
     feature: MapGeoJSONFeature;
     position: Point;
   }>();
 
   const { data: regions } = useGetRegionsGeoJsonQuery();
+
+  const mapStyle: StyleSpecification = useMemo(
+    () => ({
+      version: 8,
+      sources: {
+        openmaptiles: {
+          type: 'vector',
+          url: 'https://openmaptiles.geo.data.gouv.fr/data/france-vector.json',
+        },
+      },
+      glyphs:
+        'https://openmaptiles.geo.data.gouv.fr/fonts/{fontstack}/{range}.pbf',
+      layers: [
+        {
+          id: 'background',
+          type: 'background',
+          paint: { 'background-color': '#f8f4f0' },
+        },
+      ],
+    }),
+    []
+  );
+
+  const hoveredRegion = useMemo(() => {
+    return String(hoverInfo?.feature.id).padStart(2, '0') as Region;
+  }, [hoverInfo]);
+
+  if (!regions || !prescriptions) {
+    return <></>;
+  }
 
   const getSampleCount = (region: Region) =>
     _.sumBy(
@@ -105,36 +134,10 @@ const PrescriptionMap = ({ prescriptions }: Props) => {
         'case',
         ['boolean', ['feature-state', 'hover'], false],
         1,
-        ['case', ['==', ['get', 'code'], userRegion ?? ''], 0.8, 0.5],
+        0.5,
       ],
     },
   };
-
-  const mapStyle: StyleSpecification = useMemo(
-    () => ({
-      version: 8,
-      sources: {
-        openmaptiles: {
-          type: 'vector',
-          url: 'https://openmaptiles.geo.data.gouv.fr/data/france-vector.json',
-        },
-      },
-      glyphs:
-        'https://openmaptiles.geo.data.gouv.fr/fonts/{fontstack}/{range}.pbf',
-      layers: [
-        {
-          id: 'background',
-          type: 'background',
-          paint: { 'background-color': '#f8f4f0' },
-        },
-      ],
-    }),
-    []
-  );
-
-  const hoveredRegion = useMemo(() => {
-    return String(hoverInfo?.feature.id).padStart(2, '0') as Region;
-  }, [hoverInfo]);
 
   const onHover = (e: maplibregl.MapLayerMouseEvent) => {
     if (hoverInfo?.feature) {
@@ -174,16 +177,12 @@ const PrescriptionMap = ({ prescriptions }: Props) => {
         initialViewState={{
           latitude: 46,
           longitude: 2,
-          zoom: 4.5,
+          zoom: 4,
         }}
-        maxZoom={5}
-        minZoom={4.5}
         scrollZoom={false}
         dragPan={false}
         style={{
-          minHeight: 520,
-          minWidth: 600,
-          maxWidth: '50%',
+          minHeight: 400,
           fontFamily: 'Marianne, sans-serif',
         }}
         mapLib={maplibregl}

@@ -4,6 +4,7 @@ import { AuthenticatedRequest } from 'express-jwt';
 import { constants } from 'http2';
 import fp from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
+import { FindSampleOptions } from '../../shared/schema/Sample/FindSampleOptions';
 import {
   CreatedSample,
   PartialSample,
@@ -38,10 +39,11 @@ const getSample = async (request: Request, response: Response) => {
 
 const findSamples = async (request: Request, response: Response) => {
   const { userId } = (request as AuthenticatedRequest).auth;
+  const findOptions = request.query as FindSampleOptions;
 
-  console.info('Find samples for user', userId);
+  console.info('Find samples for user', userId, findOptions);
 
-  const samples = await sampleRepository.findMany(userId);
+  const samples = await sampleRepository.findMany(findOptions);
 
   response.status(constants.HTTP_STATUS_OK).send(samples);
 };

@@ -1,5 +1,6 @@
 import express from 'express';
 import { z } from 'zod';
+import { FindSampleOptions } from '../../shared/schema/Sample/FindSampleOptions';
 import {
   PartialSample,
   SampleToCreate,
@@ -7,10 +8,15 @@ import {
 import { PartialSampleItem } from '../../shared/schema/Sample/SampleItem';
 import sampleController from '../controllers/sampleController';
 import { permissionsCheck } from '../middlewares/auth';
-import validator, { body, uuidParam } from '../middlewares/validator';
+import validator, { body, query, uuidParam } from '../middlewares/validator';
 const router = express.Router();
 
-router.get('', permissionsCheck(['readSamples']), sampleController.findSamples);
+router.get(
+  '',
+  validator.validate(query(FindSampleOptions)),
+  permissionsCheck(['readSamples']),
+  sampleController.findSamples
+);
 router.get(
   '/:sampleId',
   validator.validate(uuidParam('sampleId')),

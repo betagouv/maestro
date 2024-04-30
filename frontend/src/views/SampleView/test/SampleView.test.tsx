@@ -5,6 +5,7 @@ import Router, { BrowserRouter } from 'react-router-dom';
 import {
   genAuthUser,
   genCreatedSample,
+  genProgrammingPlan,
   genSample,
   genUser,
 } from 'shared/test/testFixtures';
@@ -29,6 +30,14 @@ const sampler = {
 const userRequest = {
   pathname: `/api/users/${sampler.id}/infos`,
   response: { body: JSON.stringify(sampler) },
+};
+const programmingPlan1 = genProgrammingPlan();
+const programmingPlan2 = genProgrammingPlan();
+const programmingPlanRequest = {
+  pathname: `/api/programming-plans?status=Validated`,
+  response: {
+    body: JSON.stringify([programmingPlan1, programmingPlan2]),
+  },
 };
 
 describe('SampleView', () => {
@@ -125,6 +134,7 @@ describe('SampleView', () => {
     };
     mockRequests([
       userRequest,
+      programmingPlanRequest,
       {
         pathname: `/api/samples/${draftSample.id}`,
         response: { body: JSON.stringify(draftSample) },
@@ -147,6 +157,6 @@ describe('SampleView', () => {
     });
 
     const calls = await getRequestCalls(fetchMock);
-    expect(calls).toHaveLength(1);
+    expect(calls).toHaveLength(2);
   });
 });

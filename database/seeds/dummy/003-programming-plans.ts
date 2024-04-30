@@ -1,11 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
-import {
-  ProgrammingPlans,
-  ProgrammingPlansRegions,
-} from '../../../server/repositories/programmingPlanRepository';
+import { ProgrammingPlans } from '../../../server/repositories/programmingPlanRepository';
 import userRepository from '../../../server/repositories/userRepository';
-import { ProgrammingPlanStatus } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { RegionList } from '../../../shared/schema/Region';
 
 exports.seed = async function () {
   const user = await userRepository.findOne('coordinateur.national@pspc.fr');
@@ -14,36 +9,43 @@ exports.seed = async function () {
     return;
   }
 
-  const surveyPlanId = uuidv4();
-  const controlPlanId = uuidv4();
+  const validatedSurveyPlanId = uuidv4();
+  const validatedControlPlanId = uuidv4();
+  const inProgressSurveyPlanId = uuidv4();
+  const inProgressControlPlanId = uuidv4();
 
   await ProgrammingPlans().insert([
     {
-      id: surveyPlanId,
+      id: validatedSurveyPlanId,
       title: 'Plan de surveillance',
       createdAt: new Date(),
       createdBy: user.id,
       kind: 'Surveillance',
+      status: 'Validated',
     },
     {
-      id: controlPlanId,
+      id: validatedControlPlanId,
       title: 'Plan de contrôle',
       createdAt: new Date(),
       createdBy: user.id,
       kind: 'Control',
+      status: 'Validated',
     },
-  ]);
-
-  await ProgrammingPlansRegions().insert([
-    ...RegionList.map((region) => ({
-      programmingPlanId: surveyPlanId,
-      region,
-      status: 'ToValidate' as ProgrammingPlanStatus,
-    })),
-    ...RegionList.map((region) => ({
-      programmingPlanId: controlPlanId,
-      region,
-      status: 'ToValidate' as ProgrammingPlanStatus,
-    })),
+    {
+      id: inProgressSurveyPlanId,
+      title: 'Plan de surveillance',
+      createdAt: new Date(),
+      createdBy: user.id,
+      kind: 'Surveillance',
+      status: 'InProgress',
+    },
+    {
+      id: inProgressControlPlanId,
+      title: 'Plan de contrôle',
+      createdAt: new Date(),
+      createdBy: user.id,
+      kind: 'Control',
+      status: 'InProgress',
+    },
   ]);
 };

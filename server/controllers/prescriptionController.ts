@@ -8,13 +8,16 @@ import {
   PrescriptionToCreate,
   PrescriptionUpdate,
 } from '../../shared/schema/Prescription/Prescription';
-import { genPrescriptionByMatrix } from '../../shared/schema/Prescription/PrescriptionsByMatrix';
+import {
+  completionRate,
+  genPrescriptionByMatrix,
+} from '../../shared/schema/Prescription/PrescriptionsByMatrix';
 import { Regions } from '../../shared/schema/Region';
-import { userRegions } from '../../shared/schema/User/User';
-import { hasPermission } from '../../shared/schema/User/UserPermission';
+import { hasPermission, userRegions } from '../../shared/schema/User/User';
 import { isDefined } from '../../shared/utils/utils';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
+import sampleRepository from '../repositories/sampleRepository';
 import workbookUtils from '../utils/workbookUtils';
 const findPrescriptions = async (request: Request, response: Response) => {
   const programmingPlanId = request.params.programmingPlanId;
@@ -49,8 +52,14 @@ const exportPrescriptions = async (request: Request, response: Response) => {
     programmingPlanId
   );
 
+  const samples = await sampleRepository.findMany({
+    programmingPlanId,
+    status: 'Sent',
+  });
+
   const prescriptionByMatrix = genPrescriptionByMatrix(
     prescriptions,
+    samples,
     userRegions(user)
   );
 
@@ -61,16 +70,53 @@ const exportPrescriptions = async (request: Request, response: Response) => {
   const workbook = workbookUtils.init(fileName, response);
   const worksheet = workbook.addWorksheet('Prescriptions');
   worksheet.columns = [
-    { header: 'Matrice', key: 'sampleMatrix' },
-    { header: 'Stade de prélèvement', key: 'sampleStage' },
+    { header: 'Matrice', key: 'sampleMatrix', width: 30 },
+    { header: 'Stade de prélèvement', key: 'sampleStage', width: 20 },
     !user.region
-      ? { header: 'Total national', key: 'sampleTotalCount' }
+      ? {
+          header: 'Total national\nProgrammés',
+          key: 'sampleTotalCount',
+          width: 15,
+        }
       : undefined,
-    ...userRegions(user).map((region, index) => ({
-      header: Regions[region].name,
-      key: `sampleCount-${index}`,
-    })),
-  ].filter(isDefined);
+    !user.region && programmingPlan.status === 'Validated'
+      ? {
+          header: 'Total national\nRéalisés',
+          key: 'sentSampleTotalCount',
+          width: 15,
+        }
+      : undefined,
+    !user.region && programmingPlan.status === 'Validated'
+      ? {
+          header: 'Total national\nTaux de réalisation',
+          key: 'completionRate',
+          width: 15,
+        }
+      : undefined,
+    ...userRegions(user).map((region) => [
+      {
+        header: `${Regions[region].shortName}\nProgrammés`,
+        key: `sampleCount-${region}`,
+        width: 10,
+      },
+      programmingPlan.status === 'Validated'
+        ? {
+            header: `${Regions[region].shortName}\nRéalisés`,
+            key: `sentSampleCount-${region}`,
+            width: 10,
+          }
+        : undefined,
+      programmingPlan.status === 'Validated'
+        ? {
+            header: `${Regions[region].shortName}\nTaux de réalisation`,
+            key: `completionRate-${region}`,
+            width: 10,
+          }
+        : undefined,
+    ]),
+  ]
+    .flat()
+    .filter(isDefined);
 
   highland(prescriptionByMatrix)
     .each((prescription) => {
@@ -82,10 +128,20 @@ const exportPrescriptions = async (request: Request, response: Response) => {
             prescription.regionalData,
             ({ sampleCount }) => sampleCount
           ),
+          sentSampleTotalCount: _.sumBy(
+            prescription.regionalData,
+            ({ sentSampleCount }) => sentSampleCount
+          ),
+          completionRate: completionRate(prescription),
           ...prescription.regionalData.reduce(
-            (acc, { sampleCount }, index) => ({
+            (acc, { sampleCount, sentSampleCount, region }) => ({
               ...acc,
-              [`sampleCount-${index}`]: sampleCount,
+              [`sampleCount-${region}`]: sampleCount,
+              [`sentSampleCount-${region}`]: sentSampleCount,
+              [`completionRate-${region}`]: completionRate(
+                prescription,
+                region
+              ),
             }),
             {}
           ),
@@ -100,11 +156,32 @@ const exportPrescriptions = async (request: Request, response: Response) => {
             .flatMap((p) => p.regionalData)
             .map((p) => p.sampleCount)
         ),
+        sentSampleTotalCount: _.sum(
+          prescriptionByMatrix
+            .flatMap((p) => p.regionalData)
+            .map((p) => p.sentSampleCount)
+        ),
+        completionRate: completionRate(prescriptionByMatrix),
         ...userRegions(user).reduce(
-          (acc, _region, index) => ({
+          (acc, region) => ({
             ...acc,
-            [`sampleCount-${index}`]: _.sum(
-              prescriptionByMatrix.map((p) => p.regionalData[index].sampleCount)
+            [`sampleCount-${region}`]: _.sum(
+              prescriptionByMatrix.map(
+                (p) =>
+                  p.regionalData.find((r) => r.region === region)
+                    ?.sampleCount ?? 0
+              )
+            ),
+            [`sentSampleCount-${region}`]: _.sum(
+              prescriptionByMatrix.map(
+                (p) =>
+                  p.regionalData.find((r) => r.region === region)
+                    ?.sentSampleCount ?? 0
+              )
+            ),
+            [`completionRate-${region}`]: completionRate(
+              prescriptionByMatrix,
+              region
             ),
           }),
           {}

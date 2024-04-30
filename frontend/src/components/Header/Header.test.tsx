@@ -1,7 +1,8 @@
 import { configureStore, Store } from '@reduxjs/toolkit';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
+import { ProgrammingPlanStatusLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { genAuthUser, genUser } from 'shared/test/testFixtures';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import { mockRequests } from '../../../test/requestUtils.test';
@@ -54,7 +55,9 @@ describe('Header', () => {
         </Provider>
       );
 
-      expect(screen.queryByText('Plans programmés')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(ProgrammingPlanStatusLabels['Validated'])
+      ).not.toBeInTheDocument();
       expect(screen.queryByText('Prélèvements')).not.toBeInTheDocument();
       expect(
         screen.queryByText('Documents ressources')
@@ -84,10 +87,18 @@ describe('Header', () => {
         </Provider>
       );
 
-      expect(await screen.findByText('Plans programmés')).toBeInTheDocument();
-      expect(screen.queryByText('Prélèvements')).not.toBeInTheDocument();
+      const navigation = screen.getByRole('navigation');
+
       expect(
-        await screen.findByText('Documents ressources')
+        await within(navigation).findByText(
+          ProgrammingPlanStatusLabels['Validated']
+        )
+      ).toBeInTheDocument();
+      expect(
+        within(navigation).queryByText('Prélèvements')
+      ).not.toBeInTheDocument();
+      expect(
+        await within(navigation).findByText('Documents ressources')
       ).toBeInTheDocument();
     });
   });
@@ -115,10 +126,19 @@ describe('Header', () => {
           </MemoryRouter>
         </Provider>
       );
-      expect(await screen.findByText('Plans programmés')).toBeInTheDocument();
-      expect(screen.queryByText('Prélèvements')).not.toBeInTheDocument();
+
+      const navigation = screen.getByRole('navigation');
+
       expect(
-        await screen.findByText('Documents ressources')
+        await within(navigation).findByText(
+          ProgrammingPlanStatusLabels['Validated']
+        )
+      ).toBeInTheDocument();
+      expect(
+        within(navigation).queryByText('Prélèvements')
+      ).not.toBeInTheDocument();
+      expect(
+        await within(navigation).findByText('Documents ressources')
       ).toBeInTheDocument();
     });
   });
@@ -147,10 +167,18 @@ describe('Header', () => {
         </Provider>
       );
 
-      expect(screen.queryByText('Plans programmés')).not.toBeInTheDocument();
-      expect(await screen.findByText('Prélèvements')).toBeInTheDocument();
+      const navigation = screen.getByRole('navigation');
+
       expect(
-        await screen.findByText('Documents ressources')
+        await within(navigation).findByText(
+          ProgrammingPlanStatusLabels['Validated']
+        )
+      ).toBeInTheDocument();
+      expect(
+        await within(navigation).findByText('Prélèvements')
+      ).toBeInTheDocument();
+      expect(
+        await within(navigation).findByText('Documents ressources')
       ).toBeInTheDocument();
     });
   });
@@ -179,10 +207,18 @@ describe('Header', () => {
         </Provider>
       );
 
-      expect(await screen.findByText('Plans programmés')).toBeInTheDocument();
-      expect(await screen.findByText('Prélèvements')).toBeInTheDocument();
+      const navigation = screen.getByRole('navigation');
+
       expect(
-        await screen.findByText('Documents ressources')
+        await within(navigation).findByText(
+          ProgrammingPlanStatusLabels['Validated']
+        )
+      ).toBeInTheDocument();
+      expect(
+        await within(navigation).findByText('Prélèvements')
+      ).toBeInTheDocument();
+      expect(
+        await within(navigation).findByText('Documents ressources')
       ).toBeInTheDocument();
     });
   });

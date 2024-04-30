@@ -5,6 +5,8 @@ import { Document } from '../schema/Document/Document';
 import { Laboratory } from '../schema/Laboratory/Laboratory';
 import { Prescription } from '../schema/Prescription/Prescription';
 import { ProgrammingPlanKindList } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
+import { ProgrammingPlan } from '../schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanStatusList } from '../schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { RegionList } from '../schema/Region';
 import { CreatedSample, Sample, SampleToCreate } from '../schema/Sample/Sample';
 import { SampleItem } from '../schema/Sample/SampleItem';
@@ -75,7 +77,9 @@ export function genAuthUser(): AuthUser {
   };
 }
 
-export const genSampleToCreate = (): SampleToCreate => ({
+export const genSampleToCreate = (
+  programmingPlanId?: string
+): SampleToCreate => ({
   userLocation: {
     x: 48.8566,
     y: 2.3522,
@@ -87,23 +91,29 @@ export const genSampleToCreate = (): SampleToCreate => ({
       length: 6,
       charset: '123456789',
     }),
-  planningContext: oneOf(ProgrammingPlanKindList),
+  programmingPlanId: programmingPlanId ?? uuidv4(),
   legalContext: oneOf(SampleLegalContextList),
   department: oneOf(DepartmentList),
 });
 
-export const genCreatedSample = (userId?: string): CreatedSample => ({
+export const genCreatedSample = (
+  userId?: string,
+  programmingPlanId?: string
+): CreatedSample => ({
   id: uuidv4(),
   reference: `GES-${oneOf(DepartmentList)}-${genNumber(4)}`,
   createdBy: userId ?? uuidv4(),
   createdAt: new Date(),
   lastUpdatedAt: new Date(),
   status: 'DraftInfos',
-  ...genSampleToCreate(),
+  ...genSampleToCreate(programmingPlanId),
 });
 
-export const genSample = (userId?: string): Sample => ({
-  ...genCreatedSample(userId),
+export const genSample = (
+  userId?: string,
+  programmingPlanId?: string
+): Sample => ({
+  ...genCreatedSample(userId, programmingPlanId),
   locationSiret: String(genSiret()),
   locationName: randomstring.generate(),
   locationAddress: randomstring.generate(),
@@ -140,12 +150,13 @@ export const genCoords = () => ({
   },
 });
 
-export const genProgrammingPlan = (userId?: string) => ({
+export const genProgrammingPlan = (userId?: string): ProgrammingPlan => ({
   id: uuidv4(),
   title: randomstring.generate(),
   createdAt: new Date(),
   createdBy: userId ?? uuidv4(),
   kind: oneOf(ProgrammingPlanKindList),
+  status: oneOf(ProgrammingPlanStatusList),
 });
 
 export const genPrescriptions = (

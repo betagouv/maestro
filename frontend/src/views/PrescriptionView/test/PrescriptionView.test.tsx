@@ -1,6 +1,5 @@
 import { configureStore, Store } from '@reduxjs/toolkit';
-import { render, screen, within } from '@testing-library/react';
-import { userEvent } from '@testing-library/user-event';
+import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import Router, { BrowserRouter } from 'react-router-dom';
 import { RegionList } from 'shared/schema/Region';
@@ -8,10 +7,12 @@ import {
   genAuthUser,
   genPrescriptions,
   genProgrammingPlan,
+  genSample,
   genUser,
 } from 'shared/test/testFixtures';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import PrescriptionView from 'src/views/PrescriptionView/PrescriptionView';
+import { v4 as uuidv4 } from 'uuid';
 import { mockRequests } from '../../../../test/requestUtils.test';
 
 jest.mock('react-router-dom', () => ({
@@ -19,9 +20,13 @@ jest.mock('react-router-dom', () => ({
   useParams: jest.fn(),
 }));
 
-const programmingPlan = genProgrammingPlan();
+const programmingPlan = {
+  ...genProgrammingPlan(),
+  status: 'InProgress',
+};
 const prescriptions1 = genPrescriptions(programmingPlan.id);
 const prescriptions2 = genPrescriptions(programmingPlan.id);
+const sample = genSample(uuidv4(), programmingPlan.id);
 
 const prescriptionRequest = {
   pathname: `/api/programming-plans/${programmingPlan.id}/prescriptions`,
@@ -35,9 +40,14 @@ const programmingPlanRequest = {
     body: JSON.stringify(programmingPlan),
   },
 };
+const sampleRequest = {
+  pathname: `/api/samples?programmingPlanId=${programmingPlan.id}&status=Sent`,
+  response: {
+    body: JSON.stringify([sample]),
+  },
+};
 
 describe('PrescriptionView', () => {
-  const user = userEvent.setup();
   const authUser = genAuthUser();
   let store: Store;
 
@@ -66,41 +76,13 @@ describe('PrescriptionView', () => {
       response: { body: JSON.stringify({}) },
     };
 
-    test('should display a segmented control to switch between table and map view which defaults to map view', async () => {
-      mockRequests([
-        programmingPlanRequest,
-        prescriptionRequest,
-        userRequest,
-        regionsRequest,
-      ]);
-      jest
-        .spyOn(Router, 'useParams')
-        .mockReturnValue({ programmingPlanId: programmingPlan.id });
-
-      render(
-        <Provider store={store}>
-          <BrowserRouter>
-            <PrescriptionView />
-          </BrowserRouter>
-        </Provider>
-      );
-
-      expect(
-        await screen.findByTestId('prescription-view-segmented-control')
-      ).toBeInTheDocument();
-
-      expect(await screen.findByTestId('prescription-map')).toBeInTheDocument();
-      expect(
-        screen.queryByTestId('prescription-table')
-      ).not.toBeInTheDocument();
-    });
-
     test('should render a table with prescriptions with editable cells for all matrix and region when in table view', async () => {
       mockRequests([
         programmingPlanRequest,
         prescriptionRequest,
         userRequest,
         regionsRequest,
+        sampleRequest,
       ]);
       jest
         .spyOn(Router, 'useParams')
@@ -114,16 +96,9 @@ describe('PrescriptionView', () => {
         </Provider>
       );
 
-      const segmentedControl = await screen.findByTestId(
-        'prescription-view-segmented-control'
-      );
-
-      await user.click(within(segmentedControl).getByLabelText('Tableau'));
-
       expect(
         await screen.findByTestId('prescription-table')
       ).toBeInTheDocument();
-      expect(screen.queryByTestId('prescription-map')).not.toBeInTheDocument();
 
       const p1 = prescriptions1[0];
       const p2 = prescriptions2[0];
@@ -153,32 +128,13 @@ describe('PrescriptionView', () => {
       response: { body: JSON.stringify(regionalCoordinator) },
     };
 
-    test('should display a segmented control to switch between table and map view which defaults to table view', async () => {
-      mockRequests([programmingPlanRequest, prescriptionRequest, userRequest]);
-      jest
-        .spyOn(Router, 'useParams')
-        .mockReturnValue({ programmingPlanId: programmingPlan.id });
-
-      render(
-        <Provider store={store}>
-          <BrowserRouter>
-            <PrescriptionView />
-          </BrowserRouter>
-        </Provider>
-      );
-
-      expect(
-        await screen.findByTestId('prescription-view-segmented-control')
-      ).toBeInTheDocument();
-
-      expect(await screen.findByTestId('prescription-map')).toBeInTheDocument();
-      expect(
-        screen.queryByTestId('prescription-table')
-      ).not.toBeInTheDocument();
-    });
-
     test('should render a table with prescriptions with non editable cells for regional coordinator', async () => {
-      mockRequests([programmingPlanRequest, prescriptionRequest, userRequest]);
+      mockRequests([
+        programmingPlanRequest,
+        prescriptionRequest,
+        userRequest,
+        sampleRequest,
+      ]);
 
       jest
         .spyOn(Router, 'useParams')
@@ -191,17 +147,10 @@ describe('PrescriptionView', () => {
           </BrowserRouter>
         </Provider>
       );
-
-      const segmentedControl = await screen.findByTestId(
-        'prescription-view-segmented-control'
-      );
-
-      await user.click(within(segmentedControl).getByLabelText('Tableau'));
 
       expect(
         await screen.findByTestId('prescription-table')
       ).toBeInTheDocument();
-      expect(screen.queryByTestId('prescription-map')).not.toBeInTheDocument();
 
       const p1 = prescriptions1[0];
       const p2 = prescriptions2[0];

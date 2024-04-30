@@ -1,16 +1,13 @@
 import { ReactElement, useMemo } from 'react';
-import {
-  hasPermission as hasUserPermission,
-  UserPermission,
-} from 'shared/schema/User/UserPermission';
+import { hasPermission as hasUserPermission } from 'shared/schema/User/User';
+import { UserPermission } from 'shared/schema/User/UserPermission';
 import { UserRole } from 'shared/schema/User/UserRole';
 import { isDefined } from 'shared/utils/utils';
 import { useAppSelector } from 'src/hooks/useStore';
 import { useGetUserInfosQuery } from 'src/services/user.service';
+import DashboardView from 'src/views/DashboardView/DashboardView';
 import DocumentListView from 'src/views/DocumentListView/DocumentListView';
-import HomeView from 'src/views/HomeView/HomeView';
 import PrescriptionView from 'src/views/PrescriptionView/PrescriptionView';
-import ProgrammingPlanListView from 'src/views/ProgrammingPlanListView/ProgrammingPlanListView';
 import SampleListView from 'src/views/SampleListView/SampleListView';
 import SampleView from 'src/views/SampleView/SampleView';
 import SignInView from 'src/views/SignInView/SignInView';
@@ -53,26 +50,18 @@ export const useAuthentication = () => {
     component: () => ReactElement;
   }[] = useMemo(() => {
     return [
-      {
-        path: '/',
-        label: 'Accueil',
-        key: 'home_route',
-        component: HomeView,
-      },
       ...(isAuthenticated
         ? [
-            hasPermission('readProgrammingPlans')
-              ? {
-                  path: '/plans',
-                  label: 'Plans',
-                  key: 'programming_plans_route',
-                  component: ProgrammingPlanListView,
-                }
-              : undefined,
+            {
+              path: '/',
+              label: 'Tableau de bord',
+              key: 'dashboard_route',
+              component: DashboardView,
+            },
             hasPermission('readPrescriptions')
               ? {
                   path: '/plans/:programmingPlanId/prescription',
-                  label: 'Plans',
+                  label: 'Prescriptions',
                   key: 'prescription_route',
                   component: PrescriptionView,
                 }
@@ -110,7 +99,7 @@ export const useAuthentication = () => {
           ]
         : [
             {
-              path: '/connexion',
+              path: '/',
               label: 'Connexion',
               key: 'signin_route',
               component: SignInView,

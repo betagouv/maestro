@@ -11,6 +11,7 @@ exports.up = async (knex: Knex) => {
     table.string('sample_matrix');
     table.string(' sample_stage');
     table.integer('sample_count');
+    table.uuid('laboratory_id').references('id').inTable('laboratories');
   });
   await knex.schema.alterTable('prescriptions', (table) => {
     table.unique([

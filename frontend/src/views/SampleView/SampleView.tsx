@@ -38,7 +38,7 @@ const SampleView = () => {
     )
   );
   const [searchParams] = useSearchParams();
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState<number>();
 
   const StepTitles = [
     'Création du prélèvement',
@@ -62,6 +62,8 @@ const SampleView = () => {
       } else {
         setStep(SampleStatusSteps[sample.status]);
       }
+    } else if (!sampleId) {
+      setStep(1);
     }
   }, [sample, searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -102,7 +104,7 @@ const SampleView = () => {
           )}
         </div>
       </h1>
-      {sample?.status !== 'Sent' && (
+      {sample?.status !== 'Sent' && step && (
         <>
           <Stepper
             currentStep={step}

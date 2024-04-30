@@ -3,9 +3,12 @@ import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { format } from 'date-fns';
 import { t } from 'i18next';
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DepartmentLabels } from 'shared/schema/Department';
+import { ProgrammingPlanKindLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { Sample } from 'shared/schema/Sample/Sample';
+import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.service';
 import { useUpdateSampleMutation } from 'src/services/sample.service';
 
 interface Props {
@@ -16,6 +19,16 @@ const SampleStep4 = ({ sample }: Props) => {
   const navigate = useNavigate();
   const [updateSample, { isSuccess: isUpdateSuccess }] =
     useUpdateSampleMutation();
+
+  const { data: programmingPlans } = useFindProgrammingPlansQuery({
+    status: 'Validated',
+  });
+
+  const sampleProgrammingPlan = useMemo(
+    () =>
+      programmingPlans?.find((plan) => plan.id === sample.programmingPlanId),
+    [programmingPlans, sample.programmingPlanId]
+  );
 
   const submit = async () => {
     await updateSample({
@@ -49,9 +62,12 @@ const SampleStep4 = ({ sample }: Props) => {
         <li>
           <strong>Identifiant résytal :</strong> {sample.resytalId}
         </li>
-        <li>
-          <strong>Contexte :</strong> {sample.planningContext}
-        </li>
+        {sampleProgrammingPlan && (
+          <li>
+            <strong>Contexte :</strong>{' '}
+            {ProgrammingPlanKindLabels[sampleProgrammingPlan.kind]}
+          </li>
+        )}
         <li>
           <strong>Cadre juridique :</strong> {sample.legalContext}
         </li>

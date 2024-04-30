@@ -7,6 +7,7 @@ import {
   Prescription,
   PrescriptionUpdate,
 } from '../../../shared/schema/Prescription/Prescription';
+import { ProgrammingPlanStatus } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import {
   genLaboratory,
   genNumber,
@@ -27,15 +28,24 @@ describe('Prescriptions router', () => {
   const nationalCoordinator = genUser('NationalCoordinator');
   const regionalCoordinator = genUser('RegionalCoordinator');
   const sampler = genUser('Sampler');
-  const programmingPlan1 = genProgrammingPlan(nationalCoordinator.id);
-  const programmingPlan2 = genProgrammingPlan(nationalCoordinator.id);
-  const prescriptions1 = genPrescriptions(programmingPlan1.id);
-  const prescriptions2 = genPrescriptions(programmingPlan2.id);
+  const programmingPlanInProgress = {
+    ...genProgrammingPlan(nationalCoordinator.id),
+    status: 'InProgress' as ProgrammingPlanStatus,
+  };
+  const programmingPlanValidated = {
+    ...genProgrammingPlan(nationalCoordinator.id),
+    status: 'Validated' as ProgrammingPlanStatus,
+  };
+  const prescriptions1 = genPrescriptions(programmingPlanInProgress.id);
+  const prescriptions2 = genPrescriptions(programmingPlanValidated.id);
   const laboratory = genLaboratory();
 
   beforeAll(async () => {
     await Users().insert([nationalCoordinator, regionalCoordinator, sampler]);
-    await ProgrammingPlans().insert([programmingPlan1, programmingPlan2]);
+    await ProgrammingPlans().insert([
+      programmingPlanInProgress,
+      programmingPlanValidated,
+    ]);
     await Prescriptions().insert([...prescriptions1, ...prescriptions2]);
     await Laboratories().insert(laboratory);
   });
@@ -46,7 +56,7 @@ describe('Prescriptions router', () => {
 
     it('should fail if the user is not authenticated', async () => {
       await request(app)
-        .get(testRoute(programmingPlan1.id))
+        .get(testRoute(programmingPlanInProgress.id))
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
@@ -59,14 +69,14 @@ describe('Prescriptions router', () => {
 
     it('should fail if the user does not have the permission to read prescriptions', async () => {
       await request(app)
-        .get(testRoute(programmingPlan1.id))
+        .get(testRoute(programmingPlanInProgress.id))
         .use(tokenProvider(sampler))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     it('should find the prescriptions of the programmingPlan', async () => {
       const res = await request(app)
-        .get(testRoute(programmingPlan1.id))
+        .get(testRoute(programmingPlanInProgress.id))
         .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
@@ -83,7 +93,7 @@ describe('Prescriptions router', () => {
 
     it('should fail if the user is not authenticated', async () => {
       await request(app)
-        .get(testRoute(programmingPlan1.id))
+        .get(testRoute(programmingPlanInProgress.id))
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
@@ -96,29 +106,29 @@ describe('Prescriptions router', () => {
 
     it('should fail if the user does not have the permission to read prescriptions', async () => {
       await request(app)
-        .get(testRoute(programmingPlan1.id))
+        .get(testRoute(programmingPlanInProgress.id))
         .use(tokenProvider(sampler))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     it('should export the prescriptions of the programmingPlan', async () => {
       await request(app)
-        .get(testRoute(programmingPlan1.id))
+        .get(testRoute(programmingPlanInProgress.id))
         .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
     });
   });
 
   describe('POST /programming-plans/{programmingPlanId}/prescriptions', () => {
-    const prescriptionsToCreate = genPrescriptions(programmingPlan1.id).map(
-      (prescription) => fp.omit(['id', 'programmingPlanId'])(prescription)
-    );
+    const prescriptionsToCreate = genPrescriptions(
+      programmingPlanInProgress.id
+    ).map((prescription) => fp.omit(['id', 'programmingPlanId'])(prescription));
     const testRoute = (programmingPlanId: string) =>
       `/api/programming-plans/${programmingPlanId}/prescriptions`;
 
     it('should fail if the user is not authenticated', async () => {
       await request(app)
-        .post(testRoute(programmingPlan1.id))
+        .post(testRoute(programmingPlanInProgress.id))
         .send(prescriptionsToCreate)
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
@@ -133,7 +143,7 @@ describe('Prescriptions router', () => {
 
     it('sould receive valid prescriptions', async () => {
       await request(app)
-        .post(testRoute(programmingPlan1.id))
+        .post(testRoute(programmingPlanInProgress.id))
         .send([
           ...prescriptionsToCreate,
           { ...prescriptionsToCreate[0], sampleCount: 'invalid' },
@@ -144,15 +154,23 @@ describe('Prescriptions router', () => {
 
     it('should fail if the user does not have the permission to create prescriptions', async () => {
       await request(app)
-        .post(testRoute(programmingPlan1.id))
+        .post(testRoute(programmingPlanInProgress.id))
         .send(prescriptionsToCreate)
         .use(tokenProvider(regionalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
+    it('should fail if the programming plan is validated', async () => {
+      await request(app)
+        .post(testRoute(programmingPlanValidated.id))
+        .send(prescriptionsToCreate)
+        .use(tokenProvider(nationalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
     it('should create the prescriptions', async () => {
       const res = await request(app)
-        .post(testRoute(programmingPlan1.id))
+        .post(testRoute(programmingPlanInProgress.id))
         .send(prescriptionsToCreate)
         .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_CREATED);
@@ -179,7 +197,7 @@ describe('Prescriptions router', () => {
 
     it('should fail if the user is not authenticated', async () => {
       await request(app)
-        .put(testRoute(programmingPlan1.id, prescriptions1[0].id))
+        .put(testRoute(programmingPlanInProgress.id, prescriptions1[0].id))
         .send(prescriptionUpdate)
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
@@ -192,7 +210,7 @@ describe('Prescriptions router', () => {
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await request(app)
-        .put(testRoute(programmingPlan1.id, randomstring.generate()))
+        .put(testRoute(programmingPlanInProgress.id, randomstring.generate()))
         .send(prescriptionUpdate)
         .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
@@ -200,7 +218,7 @@ describe('Prescriptions router', () => {
 
     it('should fail if the prescription does not exist', async () => {
       await request(app)
-        .put(testRoute(programmingPlan1.id, uuidv4()))
+        .put(testRoute(programmingPlanInProgress.id, uuidv4()))
         .send(prescriptionUpdate)
         .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
@@ -208,7 +226,7 @@ describe('Prescriptions router', () => {
 
     it('should fail if the prescription does not belong to the programmingPlan', async () => {
       await request(app)
-        .put(testRoute(programmingPlan1.id, prescriptions2[0].id))
+        .put(testRoute(programmingPlanInProgress.id, prescriptions2[0].id))
         .send(prescriptions2[0])
         .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
@@ -216,15 +234,23 @@ describe('Prescriptions router', () => {
 
     it('should fail if the user does not have the permission to update prescriptions', async () => {
       await request(app)
-        .put(testRoute(programmingPlan1.id, prescriptions1[0].id))
+        .put(testRoute(programmingPlanInProgress.id, prescriptions1[0].id))
         .send(prescriptionUpdate)
         .use(tokenProvider(sampler))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
+    it('should fail if the programming plan is validated', async () => {
+      await request(app)
+        .put(testRoute(programmingPlanValidated.id, prescriptions2[0].id))
+        .send(prescriptionUpdate)
+        .use(tokenProvider(nationalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
     it('should update the sample count of the prescription for a national coordinator', async () => {
       const res = await request(app)
-        .put(testRoute(programmingPlan1.id, prescriptions1[1].id))
+        .put(testRoute(programmingPlanInProgress.id, prescriptions1[1].id))
         .send(prescriptionUpdate)
         .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
@@ -237,7 +263,7 @@ describe('Prescriptions router', () => {
 
     it('should update the laboratory of the prescription for a regional coordinator', async () => {
       const res = await request(app)
-        .put(testRoute(programmingPlan1.id, prescriptions1[0].id))
+        .put(testRoute(programmingPlanInProgress.id, prescriptions1[0].id))
         .send(prescriptionUpdate)
         .use(tokenProvider(regionalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
@@ -255,7 +281,7 @@ describe('Prescriptions router', () => {
 
     it('should fail if the user is not authenticated', async () => {
       await request(app)
-        .delete(testRoute(programmingPlan1.id))
+        .delete(testRoute(programmingPlanInProgress.id))
         .send([prescriptions1[0].id])
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
@@ -270,7 +296,7 @@ describe('Prescriptions router', () => {
 
     it('should receive valid prescriptionIds', async () => {
       await request(app)
-        .delete(testRoute(programmingPlan1.id))
+        .delete(testRoute(programmingPlanInProgress.id))
         .send([randomstring.generate()])
         .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
@@ -278,28 +304,36 @@ describe('Prescriptions router', () => {
 
     it('should fail if the user does not have the permission to delete prescriptions', async () => {
       await request(app)
-        .delete(testRoute(programmingPlan1.id))
+        .delete(testRoute(programmingPlanInProgress.id))
         .send([prescriptions1[0].id])
         .use(tokenProvider(regionalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
+    it('should fail if the programming plan is validated', async () => {
+      await request(app)
+        .delete(testRoute(programmingPlanValidated.id))
+        .send([prescriptions2[0].id])
+        .use(tokenProvider(nationalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
     it('should delete the prescriptions of the programmingPlan', async () => {
       await request(app)
-        .delete(testRoute(programmingPlan1.id))
+        .delete(testRoute(programmingPlanInProgress.id))
         .send([...prescriptions1, ...prescriptions2].map(({ id }) => id))
         .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_NO_CONTENT);
 
       await expect(
         Prescriptions()
-          .where({ programmingPlanId: programmingPlan1.id })
+          .where({ programmingPlanId: programmingPlanInProgress.id })
           .count()
           .first()
       ).resolves.toMatchObject({ count: '0' });
       await expect(
         Prescriptions()
-          .where({ programmingPlanId: programmingPlan2.id })
+          .where({ programmingPlanId: programmingPlanValidated.id })
           .count()
           .first()
       ).resolves.toMatchObject({ count: '18' });

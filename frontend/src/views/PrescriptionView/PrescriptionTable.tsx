@@ -1,5 +1,6 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
+import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
 import clsx from 'clsx';
 import _ from 'lodash';
@@ -8,10 +9,16 @@ import {
   Prescription,
   PrescriptionUpdate,
 } from 'shared/schema/Prescription/Prescription';
-import { genPrescriptionByMatrix } from 'shared/schema/Prescription/PrescriptionsByMatrix';
-import { RegionList } from 'shared/schema/Region';
+import {
+  completionRate,
+  genPrescriptionByMatrix,
+} from 'shared/schema/Prescription/PrescriptionsByMatrix';
+import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { Region, RegionList } from 'shared/schema/Region';
+import { PartialSample } from 'shared/schema/Sample/Sample';
 import { SampleStage } from 'shared/schema/Sample/SampleStage';
 import { userRegions } from 'shared/schema/User/User';
+import { isNotEmpty } from 'shared/utils/utils';
 import AutoClose from 'src/components/AutoClose/AutoClose';
 import EditableNumberCell from 'src/components/EditableCell/EditableNumberCell';
 import EditableSelectCell from 'src/components/EditableCell/EditableSelectCell';
@@ -29,11 +36,16 @@ import AddMatrix from 'src/views/PrescriptionView/AddMatrix';
 import RemoveMatrix from 'src/views/PrescriptionView/RemoveMatrix';
 
 interface Props {
-  programmingPlanId: string;
+  programmingPlan: ProgrammingPlan;
   prescriptions: Prescription[];
+  samples: PartialSample[];
 }
 
-const PrescriptionTable = ({ programmingPlanId, prescriptions }: Props) => {
+const PrescriptionTable = ({
+  programmingPlan,
+  prescriptions,
+  samples,
+}: Props) => {
   const { hasPermission, hasNationalView, userInfos } = useAuthentication();
 
   const [addPrescriptions, { isSuccess: isAddSuccess }] =
@@ -46,167 +58,246 @@ const PrescriptionTable = ({ programmingPlanId, prescriptions }: Props) => {
 
   const prescriptionsByMatrix = useMemo(() => {
     if (!prescriptions || !userInfos) return [];
-    return genPrescriptionByMatrix(prescriptions, userRegions(userInfos));
+    return genPrescriptionByMatrix(
+      prescriptions,
+      samples,
+      userRegions(userInfos)
+    );
   }, [prescriptions, userInfos]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const EmptyCell = <div></div>;
 
   const addMatrix = async (matrix: string, stage: SampleStage) => {
-    if (programmingPlanId) {
-      await addPrescriptions({
-        programmingPlanId,
-        prescriptions: RegionList.map((region) => ({
-          sampleMatrix: matrix,
-          sampleStage: stage,
-          region,
-          sampleCount: 0,
-        })),
-      });
-    }
+    await addPrescriptions({
+      programmingPlanId: programmingPlan.id,
+      prescriptions: RegionList.map((region) => ({
+        sampleMatrix: matrix,
+        sampleStage: stage,
+        region,
+        sampleCount: 0,
+      })),
+    });
   };
 
   const removeMatrix = async (matrix: string, stage: SampleStage) => {
-    if (programmingPlanId) {
-      await deletePrescription({
-        programmingPlanId,
-        prescriptionIds: (prescriptions ?? [])
-          .filter((p) => p.sampleMatrix === matrix && p.sampleStage === stage)
-          .map((p) => p.id),
-      });
-    }
+    await deletePrescription({
+      programmingPlanId: programmingPlan.id,
+      prescriptionIds: (prescriptions ?? [])
+        .filter((p) => p.sampleMatrix === matrix && p.sampleStage === stage)
+        .map((p) => p.id),
+    });
   };
 
   const headers = useMemo(
-    () => [
-      <div>
-        {hasPermission('createPrescription') && (
-          <AddMatrix
-            excludedList={prescriptionsByMatrix.map((p) => ({
-              matrix: p.sampleMatrix,
-              stage: p.sampleStage,
-            }))}
-            onAddMatrix={addMatrix}
-          />
-        )}
-      </div>,
-      <div className="fr-pl-0">Matrice</div>,
-      'Stade de prélèvement',
-      hasNationalView ? 'Total national' : undefined,
-      ...userRegions(userInfos).map((region) => (
-        <RegionHeaderCell region={region} key={region} />
-      )),
-      hasNationalView ? undefined : 'Laboratoire',
-    ],
+    () =>
+      [
+        <div>
+          {hasPermission('createPrescription') &&
+            programmingPlan.status === 'InProgress' && (
+              <AddMatrix
+                excludedList={prescriptionsByMatrix.map((p) => ({
+                  matrix: p.sampleMatrix,
+                  stage: p.sampleStage,
+                }))}
+                onAddMatrix={addMatrix}
+              />
+            )}
+        </div>,
+        <div className="fr-pl-0">Matrice</div>,
+        'Stade de prélèvement',
+        hasNationalView && <div className="border-left">Total</div>,
+        ...userRegions(userInfos).map((region) => (
+          <div className="border-left" key={`header-${region}`}>
+            <RegionHeaderCell region={region} />
+          </div>
+        )),
+        !hasNationalView && 'Laboratoire',
+      ].filter(isNotEmpty),
     [prescriptionsByMatrix] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const prescriptionsData = useMemo(
     () =>
-      prescriptionsByMatrix.map((p) => [
-        <div>
-          {hasPermission('deletePrescription') && (
-            <RemoveMatrix
-              matrix={p.sampleMatrix}
-              stage={p.sampleStage}
-              onRemoveMatrix={removeMatrix}
-              key={`remove-${p.sampleMatrix}-${p.sampleStage}`}
-            />
-          )}
-        </div>,
-        <div className="fr-pl-0" data-testid={`sampleMatrix-${p.sampleMatrix}`}>
-          <b>{p.sampleMatrix}</b>
-        </div>,
-        <b>{p.sampleStage}</b>,
-        hasNationalView ? (
-          <b>{_.sumBy(p.regionalData, ({ sampleCount }) => sampleCount)}</b>
-        ) : undefined,
-        ...p.regionalData.map(({ sampleCount }, regionIndex) => (
+      prescriptionsByMatrix.map((p) =>
+        [
+          <div key={`remove-${p.sampleMatrix}-${p.sampleStage}`}>
+            {hasPermission('deletePrescription') &&
+              programmingPlan.status === 'InProgress' && (
+                <RemoveMatrix
+                  matrix={p.sampleMatrix}
+                  stage={p.sampleStage}
+                  onRemoveMatrix={removeMatrix}
+                />
+              )}
+          </div>,
           <div
-            data-testid={`cell-${p.sampleMatrix}`}
-            key={`cell-${p.sampleMatrix}-${p.sampleStage}-${regionIndex}`}
+            className={cx('fr-pl-0', 'fr-text--bold')}
+            data-testid={`sampleMatrix-${p.sampleMatrix}`}
+            key={`sampleMatrix-${p.sampleMatrix}-${p.sampleStage}`}
           >
-            {hasPermission('updatePrescriptionSampleCount') ? (
-              <EditableNumberCell
-                initialValue={sampleCount}
-                onChange={(value) =>
-                  changePrescription(
-                    p.sampleMatrix,
-                    p.sampleStage,
-                    regionIndex,
-                    { sampleCount: value }
-                  )
-                }
-              />
-            ) : (
-              sampleCount
-            )}
-          </div>
-        )),
-        hasNationalView ? undefined : (
-          <EditableSelectCell
-            options={laboratoriesOptions(laboratories)}
-            initialValue={p.regionalData[0].laboratoryId ?? ''}
-            onChange={(value) =>
-              changePrescription(p.sampleMatrix, p.sampleStage, 0, {
-                laboratoryId: value,
-              })
-            }
-          />
-        ),
-      ]),
+            {p.sampleMatrix}
+          </div>,
+          <div
+            className={cx('fr-pl-0', 'fr-text--bold')}
+            key={`sampleStage-${p.sampleMatrix}-${p.sampleStage}`}
+          >
+            {p.sampleStage}
+          </div>,
+          hasNationalView && (
+            <div
+              className="border-left fr-text--bold"
+              key={`total-${p.sampleMatrix}-${p.sampleStage}`}
+            >
+              <div>
+                {_.sumBy(p.regionalData, ({ sampleCount }) => sampleCount)}
+              </div>
+              {programmingPlan.status === 'Validated' && [
+                <div>
+                  {_.sumBy(
+                    p.regionalData,
+                    ({ sentSampleCount }) => sentSampleCount
+                  )}
+                </div>,
+                <div>{completionRate(p)}%</div>,
+              ]}
+            </div>
+          ),
+          ...p.regionalData.map(({ sampleCount, sentSampleCount, region }) => (
+            <div
+              className="border-left"
+              data-testid={`cell-${p.sampleMatrix}`}
+              key={`cell-${p.sampleMatrix}-${p.sampleStage}-${region}`}
+            >
+              {hasPermission('updatePrescriptionSampleCount') &&
+              programmingPlan.status === 'InProgress' ? (
+                <EditableNumberCell
+                  initialValue={sampleCount}
+                  onChange={(value) =>
+                    changePrescription(p.sampleMatrix, p.sampleStage, region, {
+                      sampleCount: value,
+                    })
+                  }
+                />
+              ) : (
+                [
+                  <div>{sampleCount}</div>,
+                  programmingPlan.status === 'Validated' && [
+                    <div>{sentSampleCount}</div>,
+                    <div>{completionRate(p, region)}%</div>,
+                  ],
+                ]
+              )}
+            </div>
+          )),
+          !hasNationalView && (
+            <div key={`laboratory-${p.sampleMatrix}-${p.sampleStage}`}>
+              {programmingPlan.status === 'InProgress' ? (
+                <EditableSelectCell
+                  options={laboratoriesOptions(laboratories)}
+                  initialValue={p.regionalData[0].laboratoryId ?? ''}
+                  onChange={(value) =>
+                    changePrescription(
+                      p.sampleMatrix,
+                      p.sampleStage,
+                      userInfos?.region as Region,
+                      {
+                        laboratoryId: value,
+                      }
+                    )
+                  }
+                />
+              ) : (
+                <div>
+                  {
+                    laboratories?.find(
+                      (l) => l.id === p.regionalData[0].laboratoryId
+                    )?.name
+                  }
+                </div>
+              )}
+            </div>
+          ),
+        ].filter(isNotEmpty)
+      ),
     [prescriptionsByMatrix, laboratories] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const totalData = useMemo(
-    () => [
-      EmptyCell,
-      <b>Total</b>,
-      EmptyCell,
-      hasNationalView ? (
-        <b>
-          {_.sum(
-            prescriptionsByMatrix
-              .flatMap((p) => p.regionalData)
-              .map((p) => p.sampleCount)
-          )}
-        </b>
-      ) : undefined,
-      ...userRegions(userInfos).map((region, regionIndex) => (
-        <div key={`total-${region}`}>
-          <b>
-            {_.sum(
-              prescriptionsByMatrix.map(
-                (p) => p.regionalData[regionIndex].sampleCount
-              )
-            )}
-          </b>
-        </div>
-      )),
-      hasNationalView ? undefined : '',
-    ],
+    () =>
+      [
+        EmptyCell,
+        <b>Total</b>,
+        EmptyCell,
+        hasNationalView && (
+          <div className="border-left fr-text--bold">
+            <div>
+              {_.sum(
+                prescriptionsByMatrix
+                  .flatMap((p) => p.regionalData)
+                  .map((p) => p.sampleCount)
+              )}
+            </div>
+            {programmingPlan.status === 'Validated' && [
+              <div>
+                {_.sum(
+                  prescriptionsByMatrix
+                    .flatMap((p) => p.regionalData)
+                    .map((p) => p.sentSampleCount)
+                )}
+              </div>,
+              <div>{completionRate(prescriptionsByMatrix)}%</div>,
+            ]}
+          </div>
+        ),
+        ...userRegions(userInfos).map((region) => [
+          <div key={`total-${region}`} className="border-left fr-text--bold">
+            <div>
+              {_.sum(
+                prescriptionsByMatrix.map(
+                  (p) =>
+                    p.regionalData.find((r) => r.region === region)?.sampleCount
+                )
+              )}
+            </div>
+            {programmingPlan.status === 'Validated' && [
+              <div>
+                {_.sum(
+                  prescriptionsByMatrix.map(
+                    (p) =>
+                      p.regionalData.find((r) => r.region === region)
+                        ?.sentSampleCount
+                  )
+                )}
+              </div>,
+              <div>{completionRate(prescriptionsByMatrix, region)}%</div>,
+            ]}
+          </div>,
+        ]),
+        !hasNationalView && EmptyCell,
+      ].filter(isNotEmpty),
     [prescriptionsByMatrix] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
-  if (!programmingPlanId || !prescriptions) {
+  if (!prescriptions) {
     return <></>;
   }
 
   const changePrescription = async (
     matrix: string,
     stage: SampleStage,
-    regionIndex: number,
+    region: Region,
     prescriptionUpdate: PrescriptionUpdate
   ) => {
     const prescriptionId = prescriptions.find(
       (p) =>
         p.sampleMatrix === matrix &&
         p.sampleStage === stage &&
-        p.region === userRegions(userInfos)[regionIndex]
+        p.region === region
     )?.id;
 
     if (prescriptionId) {
       await updatePrescription({
-        programmingPlanId,
+        programmingPlanId: programmingPlan.id,
         prescriptionId,
         prescriptionUpdate,
       });
@@ -255,7 +346,7 @@ const PrescriptionTable = ({ programmingPlanId, prescriptions }: Props) => {
         priority="tertiary no outline"
         iconId="fr-icon-download-line"
         onClick={() =>
-          window.open(getPrescriptionsExportURL(programmingPlanId))
+          window.open(getPrescriptionsExportURL(programmingPlan.id))
         }
       >
         Télécharger

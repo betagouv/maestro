@@ -12,7 +12,7 @@ import { useFindSamplesQuery } from 'src/services/sample.service';
 const SampleListView = () => {
   useDocumentTitle('Liste des prélèvements');
 
-  const { data: samples } = useFindSamplesQuery();
+  const { data: samples } = useFindSamplesQuery({});
 
   return (
     <section className={cx('fr-py-6w')}>

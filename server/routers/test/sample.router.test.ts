@@ -4,14 +4,17 @@ import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { MatrixList } from '../../../shared/foodex2/Matrix';
+import { SampleStatus } from '../../../shared/schema/Sample/SampleStatus';
 import {
   genCreatedSample,
+  genProgrammingPlan,
   genSample,
   genSampleItem,
   genSampleToCreate,
   genUser,
   oneOf,
 } from '../../../shared/test/testFixtures';
+import { ProgrammingPlans } from '../../repositories/programmingPlanRepository';
 import { SampleItems } from '../../repositories/sampleItemRepository';
 import {
   formatPartialSample,
@@ -27,17 +30,23 @@ describe('Sample router', () => {
   const sampler1 = genUser('Sampler');
   const sampler2 = genUser('Sampler');
   const nationalCoordinator = genUser('NationalCoordinator');
+  const programmingPlan = genProgrammingPlan(nationalCoordinator.id);
   const sample1Id = uuidv4();
   const sampleItem1 = genSampleItem(sample1Id, 1);
   const sample1 = {
-    ...genSample(sampler1.id),
+    ...genSample(sampler1.id, programmingPlan.id),
     id: sample1Id,
     items: [sampleItem1],
+    status: 'DraftInfos' as SampleStatus,
   };
-  const sample2 = genSample(sampler2.id);
+  const sample2 = {
+    ...genSample(sampler2.id, programmingPlan.id),
+    status: 'Sent' as SampleStatus,
+  };
 
   beforeAll(async () => {
     await Users().insert([sampler1, sampler2, nationalCoordinator]);
+    await ProgrammingPlans().insert(programmingPlan);
     await Samples().insert([
       formatPartialSample(sample1),
       formatPartialSample(sample2),
@@ -99,24 +108,18 @@ describe('Sample router', () => {
   });
 
   describe('GET /samples', () => {
-    const testRoute = '/api/samples';
+    const testRoute = (params: Record<string, string>) =>
+      `/api/samples?${new URLSearchParams(params).toString()}`;
 
     it('should fail if the user is not authenticated', async () => {
       await request(app)
-        .get(testRoute)
+        .get(testRoute({}))
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    it('should fail if the user does not have the permission to read samples', async () => {
-      await request(app)
-        .get(testRoute)
-        .use(tokenProvider(nationalCoordinator))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
-    });
-
-    it('should find the samples of the authenticated user', async () => {
+    it('should find the samples with query parameters', async () => {
       const res = await request(app)
-        .get(testRoute)
+        .get(testRoute({ status: 'DraftInfos' }))
         .use(tokenProvider(sampler1))
         .expect(constants.HTTP_STATUS_OK);
 
@@ -168,9 +171,12 @@ describe('Sample router', () => {
       });
       await badRequestTest({
         ...genSampleToCreate(),
-        planningContext: undefined,
+        programmingPlanId: undefined,
       });
-      await badRequestTest({ ...genSampleToCreate(), planningContext: '123' });
+      await badRequestTest({
+        ...genSampleToCreate(),
+        programmingPlanId: '123',
+      });
       await badRequestTest({ ...genSampleToCreate(), legalContext: undefined });
       await badRequestTest({ ...genSampleToCreate(), legalContext: '123' });
       await badRequestTest({ ...genSampleToCreate(), department: undefined });
@@ -188,9 +194,8 @@ describe('Sample router', () => {
     });
 
     it('should create a sample', async () => {
-      const sample = genSampleToCreate();
+      const sample = genSampleToCreate(programmingPlan.id);
 
-      console.log('sample', sample);
       const res = await request(app)
         .post(testRoute)
         .send(sample)
@@ -274,7 +279,7 @@ describe('Sample router', () => {
     });
 
     it('should be forbidden to update a sample that is already sent', async () => {
-      const sample = genSample(sampler1.id);
+      const sample = genSample(sampler1.id, programmingPlan.id);
       await Samples().insert(
         formatPartialSample({
           ...sample,
@@ -380,7 +385,7 @@ describe('Sample router', () => {
     });
 
     it('should be forbidden to update a sample that is already sent', async () => {
-      const sample = genSample(sampler1.id);
+      const sample = genSample(sampler1.id, programmingPlan.id);
       await Samples().insert(
         formatPartialSample({
           ...sample,

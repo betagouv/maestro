@@ -1,7 +1,4 @@
-import _ from 'lodash';
 import { z } from 'zod';
-import { User, UserInfos } from './User';
-import { UserRolePermissions } from './UserRole';
 
 export const UserPermission = z.enum([
   'createSample',
@@ -34,14 +31,3 @@ export const UserPermissionList: UserPermission[] = [
   'readDocuments',
   'deleteDocument',
 ];
-
-export const hasPermission = (
-  user: User | UserInfos,
-  ...permissions: UserPermission[]
-) => {
-  const userPermissions = user.roles
-    .map((role) => UserRolePermissions[role])
-    .flat();
-
-  return _.intersection(permissions, userPermissions).length > 0;
-};

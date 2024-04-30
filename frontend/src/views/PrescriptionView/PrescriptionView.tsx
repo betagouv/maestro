@@ -1,15 +1,13 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import clsx from 'clsx';
 import { t } from 'i18next';
 import _ from 'lodash';
-import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useFindPrescriptionsQuery } from 'src/services/prescription.service';
 import { useGetProgrammingPlanQuery } from 'src/services/programming-plan.service';
-import PrescriptionMap from 'src/views/PrescriptionView/PrescriptionMap';
+import { useFindSamplesQuery } from 'src/services/sample.service';
 import PrescriptionTable from 'src/views/PrescriptionView/PrescriptionTable';
 
 const PrescriptionView = () => {
@@ -17,8 +15,6 @@ const PrescriptionView = () => {
 
   const { programmingPlanId } = useParams<{ programmingPlanId: string }>();
   const { hasNationalView } = useAuthentication();
-
-  const [view, setView] = useState<'table' | 'map'>('map');
 
   const { data: programmingPlan } = useGetProgrammingPlanQuery(
     programmingPlanId as string,
@@ -32,8 +28,17 @@ const PrescriptionView = () => {
       skip: !programmingPlanId,
     }
   );
+  const { data: samples } = useFindSamplesQuery(
+    {
+      programmingPlanId: programmingPlanId as string,
+      status: 'Sent',
+    },
+    {
+      skip: !programmingPlanId,
+    }
+  );
 
-  if (!programmingPlan) {
+  if (!programmingPlan || !prescriptions || !samples) {
     return <></>;
   }
 
@@ -41,7 +46,7 @@ const PrescriptionView = () => {
     <section className={clsx(cx('fr-py-6w'))}>
       <h1
         className={cx('fr-mb-0', {
-          'fr-container': hasNationalView && view === 'table',
+          'fr-container': hasNationalView,
         })}
       >
         {programmingPlan.title}
@@ -49,42 +54,11 @@ const PrescriptionView = () => {
           {t('sample', { count: _.sumBy(prescriptions, 'sampleCount') })}
         </div>
       </h1>
-      <SegmentedControl
-        segments={[
-          {
-            label: 'Carte',
-            nativeInputProps: {
-              checked: view === 'map',
-              onChange: () => setView('map'),
-            },
-          },
-          {
-            label: 'Tableau',
-            nativeInputProps: {
-              checked: view === 'table',
-              onChange: () => setView('table'),
-            },
-          },
-        ]}
-        hideLegend={true}
-        legend={'Vue'}
-        className={cx('fr-pb-1w', {
-          'fr-container': hasNationalView && view === 'table',
-        })}
-        style={{
-          display: 'flex',
-          margin: 'auto',
-        }}
-        data-testid="prescription-view-segmented-control"
+      <PrescriptionTable
+        programmingPlan={programmingPlan}
+        prescriptions={prescriptions}
+        samples={samples}
       />
-      {view === 'table' ? (
-        <PrescriptionTable
-          programmingPlanId={programmingPlan.id}
-          prescriptions={prescriptions || []}
-        />
-      ) : (
-        <PrescriptionMap prescriptions={prescriptions || []} />
-      )}
     </section>
   );
 };

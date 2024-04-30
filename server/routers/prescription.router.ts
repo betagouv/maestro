@@ -6,6 +6,7 @@ import {
 } from '../../shared/schema/Prescription/Prescription';
 import prescriptionController from '../controllers/prescriptionController';
 import { permissionsCheck } from '../middlewares/auth';
+import { programmingPlanCheck } from '../middlewares/plan';
 import validator, { body, params, uuidParam } from '../middlewares/validator';
 
 const router = express.Router();
@@ -14,12 +15,14 @@ router.get(
   '/:programmingPlanId/prescriptions',
   validator.validate(uuidParam('programmingPlanId')),
   permissionsCheck(['readPrescriptions']),
+  programmingPlanCheck(),
   prescriptionController.findPrescriptions
 );
 router.get(
   '/:programmingPlanId/prescriptions/export',
   validator.validate(uuidParam('programmingPlanId')),
   permissionsCheck(['readPrescriptions']),
+  programmingPlanCheck(),
   prescriptionController.exportPrescriptions
 );
 router.post(
@@ -28,6 +31,7 @@ router.post(
     uuidParam('programmingPlanId').merge(body(z.array(PrescriptionToCreate)))
   ),
   permissionsCheck(['createPrescription']),
+  programmingPlanCheck('InProgress'),
   prescriptionController.createPrescriptions
 );
 router.put(
@@ -44,6 +48,7 @@ router.put(
     'updatePrescriptionSampleCount',
     'updatePrescriptionLaboratory',
   ]),
+  programmingPlanCheck('InProgress'),
   prescriptionController.updatePrescription
 );
 router.delete(
@@ -52,6 +57,7 @@ router.delete(
     uuidParam('programmingPlanId').merge(body(z.array(z.string().uuid())))
   ),
   permissionsCheck(['deletePrescription']),
+  programmingPlanCheck('InProgress'),
   prescriptionController.deletePrescriptions
 );
 export default router;

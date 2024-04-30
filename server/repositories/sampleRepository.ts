@@ -1,4 +1,5 @@
 import fp from 'lodash';
+import { FindSampleOptions } from '../../shared/schema/Sample/FindSampleOptions';
 import {
   CreatedSample,
   PartialSample,
@@ -18,10 +19,12 @@ const findUnique = async (id: string): Promise<PartialSample | undefined> => {
     .then((_) => _ && PartialSample.parse(fp.omitBy(_, fp.isNil)));
 };
 
-const findMany = async (userId: string): Promise<PartialSample[]> => {
-  console.info('Find samples for user', userId);
+const findMany = async (
+  findOptions: FindSampleOptions
+): Promise<PartialSample[]> => {
+  console.info('Find samples', fp.omitBy(findOptions, fp.isNil));
   return Samples()
-    .where({ createdBy: userId })
+    .where(fp.omitBy(findOptions, fp.isNil))
     .then((samples) =>
       samples.map((_) => PartialSample.parse(fp.omitBy(_, fp.isNil)))
     );
