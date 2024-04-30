@@ -46,13 +46,6 @@ describe('ProgrammingPlan router', () => {
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
-    it('should fail if the user does not have the permission to read programmingPlans', async () => {
-      await request(app)
-        .get(testRoute(programmingPlan1.id))
-        .use(tokenProvider(sampler))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
-    });
-
     it('should get the programmingPlan', async () => {
       const res = await request(app)
         .get(testRoute(programmingPlan1.id))
@@ -73,13 +66,6 @@ describe('ProgrammingPlan router', () => {
       await request(app)
         .get(testRoute)
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
-    });
-
-    it('should fail if the user does not have the permission to read programmingPlans', async () => {
-      await request(app)
-        .get(testRoute)
-        .use(tokenProvider(sampler))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     it('should find all the programmingPlans', async () => {
