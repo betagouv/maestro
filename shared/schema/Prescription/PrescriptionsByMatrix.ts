@@ -39,27 +39,31 @@ export const genPrescriptionByMatrix = (
           programmingPlanId: prescription.programmingPlanId,
           sampleMatrix: prescription.sampleMatrix,
           sampleStage: prescription.sampleStage,
-          regionalData: includedRegions.map((region) => ({
-            sampleCount:
-              prescriptions.find(
-                (_) =>
-                  _.programmingPlanId === prescription.programmingPlanId &&
-                  _.sampleMatrix === prescription.sampleMatrix &&
-                  _.sampleStage === prescription.sampleStage &&
-                  _.region === region
-              )?.sampleCount ?? 0,
-            sentSampleCount:
-              samples.filter(
-                (sample) =>
-                  sample.programmingPlanId === prescription.programmingPlanId &&
-                  sample.matrix === prescription.sampleMatrix &&
-                  sample.stage === prescription.sampleStage &&
-                  RegionList.find((region) =>
-                    Regions[region].departments.includes(sample.department)
-                  ) === region
-              )?.length ?? 0,
-            region,
-          })),
+          regionalData: includedRegions.map((region) => {
+            const regionalPrescription = prescriptions.find(
+              (_) =>
+                _.programmingPlanId === prescription.programmingPlanId &&
+                _.sampleMatrix === prescription.sampleMatrix &&
+                _.sampleStage === prescription.sampleStage &&
+                _.region === region
+            );
+            const regionalSamples = samples.filter(
+              (sample) =>
+                sample.programmingPlanId === prescription.programmingPlanId &&
+                sample.matrix === prescription.sampleMatrix &&
+                sample.stage === prescription.sampleStage &&
+                RegionList.find((region) =>
+                  Regions[region].departments.includes(sample.department)
+                ) === region
+            );
+
+            return {
+              sampleCount: regionalPrescription?.sampleCount ?? 0,
+              sentSampleCount: regionalSamples?.length ?? 0,
+              region,
+              laboratoryId: regionalPrescription?.laboratoryId,
+            };
+          }),
         });
       }
       return acc;

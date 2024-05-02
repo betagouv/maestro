@@ -194,7 +194,10 @@ const PrescriptionTable = ({
               {programmingPlan.status === 'InProgress' ? (
                 <EditableSelectCell
                   options={laboratoriesOptions(laboratories)}
-                  initialValue={p.regionalData[0].laboratoryId ?? ''}
+                  initialValue={
+                    p.regionalData.find((r) => r.region === userInfos?.region)
+                      ?.laboratoryId ?? ''
+                  }
                   onChange={(value) =>
                     changePrescription(
                       p.sampleMatrix,
@@ -210,7 +213,11 @@ const PrescriptionTable = ({
                 <div>
                   {
                     laboratories?.find(
-                      (l) => l.id === p.regionalData[0].laboratoryId
+                      (l) =>
+                        l.id ===
+                        p.regionalData.find(
+                          (r) => r.region === userInfos?.region
+                        )?.laboratoryId
                     )?.name
                   }
                 </div>

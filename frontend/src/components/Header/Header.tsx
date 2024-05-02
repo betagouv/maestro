@@ -89,6 +89,7 @@ const Header = () => {
               <Select
                 label={undefined}
                 nativeSelectProps={{
+                  defaultValue: programmingPlanStatus,
                   onChange: (e) => {
                     dispatch(
                       settingsSlice.actions.changeProgrammingPlanStatus({
