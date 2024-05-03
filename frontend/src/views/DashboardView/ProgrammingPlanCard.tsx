@@ -89,7 +89,7 @@ const ProgrammingPlanCard = ({ programmingPlan }: ProgrammingPlanCardProps) => {
               />
             </div>
           )}
-          {hasNationalView ?? (
+          {hasNationalView && (
             <div className={cx('fr-col-12')}>
               <PrescriptionMap
                 programmingPlan={programmingPlan}
