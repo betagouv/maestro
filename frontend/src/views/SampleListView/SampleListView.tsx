@@ -6,6 +6,7 @@ import { t } from 'i18next';
 import { Link } from 'react-router-dom';
 import { SampleStatus } from 'shared/schema/Sample/SampleStatus';
 import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
+import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useFindSamplesQuery } from 'src/services/sample.service';
 
@@ -13,6 +14,8 @@ const SampleListView = () => {
   useDocumentTitle('Liste des prélèvements');
 
   const { data: samples } = useFindSamplesQuery({});
+
+  const { hasPermission } = useAuthentication();
 
   return (
     <section className={cx('fr-py-6w')}>
@@ -39,15 +42,17 @@ const SampleListView = () => {
           ])}
         />
       )}
-      <Button
-        linkProps={{
-          to: '/prelevements/nouveau',
-          target: '_self',
-        }}
-        className={cx('fr-mt-4w')}
-      >
-        Créer un prélèvement
-      </Button>
+      {hasPermission('createSample') && (
+        <Button
+          linkProps={{
+            to: '/prelevements/nouveau',
+            target: '_self',
+          }}
+          className={cx('fr-mt-4w')}
+        >
+          Créer un prélèvement
+        </Button>
+      )}
     </section>
   );
 };

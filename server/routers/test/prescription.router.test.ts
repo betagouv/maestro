@@ -8,12 +8,14 @@ import {
   PrescriptionUpdate,
 } from '../../../shared/schema/Prescription/Prescription';
 import { ProgrammingPlanStatus } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import { RegionList } from '../../../shared/schema/Region';
 import {
   genLaboratory,
   genNumber,
   genPrescriptions,
   genProgrammingPlan,
   genUser,
+  oneOf,
 } from '../../../shared/test/testFixtures';
 import { Laboratories } from '../../repositories/laboratoryRepository';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
@@ -25,9 +27,13 @@ import { tokenProvider } from '../../test/testUtils';
 describe('Prescriptions router', () => {
   const { app } = createServer();
 
+  const region = oneOf(RegionList);
   const nationalCoordinator = genUser('NationalCoordinator');
-  const regionalCoordinator = genUser('RegionalCoordinator');
-  const sampler = genUser('Sampler');
+  const regionalCoordinator = {
+    ...genUser('RegionalCoordinator'),
+    region,
+  };
+  const sampler = { ...genUser('Sampler'), region };
   const programmingPlanInProgress = {
     ...genProgrammingPlan(nationalCoordinator.id),
     status: 'InProgress' as ProgrammingPlanStatus,
@@ -67,7 +73,7 @@ describe('Prescriptions router', () => {
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    it('should find the prescriptions of the programmingPlan', async () => {
+    it('should find all the prescriptions of the programmingPlan for a national role', async () => {
       const res = await request(app)
         .get(testRoute(programmingPlanInProgress.id))
         .use(tokenProvider(nationalCoordinator))
@@ -76,6 +82,21 @@ describe('Prescriptions router', () => {
       expect(res.body).toMatchObject(expect.arrayContaining(prescriptions1));
       expect(res.body).not.toMatchObject(
         expect.arrayContaining(prescriptions2)
+      );
+    });
+
+    it('should find the regional prescriptions of the programmingPlan for a regional role', async () => {
+      const res = await request(app)
+        .get(testRoute(programmingPlanInProgress.id))
+        .use(tokenProvider(regionalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toMatchObject(
+        expect.arrayContaining(
+          prescriptions1.filter(
+            ({ region }) => region === regionalCoordinator.region
+          )
+        )
       );
     });
   });

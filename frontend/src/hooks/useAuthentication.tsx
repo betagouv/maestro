@@ -82,7 +82,7 @@ export const useAuthentication = () => {
                   component: SampleView,
                 }
               : undefined,
-            hasPermission('updateSample')
+            hasPermission('updateSample') || hasPermission('readSamples')
               ? {
                   path: '/prelevements/:sampleId',
                   label: 'Prélèvement',

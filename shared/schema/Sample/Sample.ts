@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { Department } from '../Department';
+import { Region, RegionList, Regions } from '../Region';
 import { PartialSampleItem, SampleItemRefinement } from './SampleItem';
 import { SampleLegalContext } from './SampleLegalContext';
 import { SampleStage } from './SampleStage';
@@ -108,3 +109,8 @@ export type Sample = z.infer<typeof Sample>;
 export type SampleToCreate = z.infer<typeof SampleToCreate>;
 export type CreatedSample = z.infer<typeof CreatedSample>;
 export type PartialSample = z.infer<typeof PartialSample>;
+
+export const getSampleRegion = (sample: PartialSample): Region | undefined =>
+  RegionList.find((region) =>
+    Regions[region].departments.includes(sample.department)
+  );

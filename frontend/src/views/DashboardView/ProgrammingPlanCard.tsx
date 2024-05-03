@@ -5,8 +5,8 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { sumBy } from 'lodash';
 import { useMemo } from 'react';
 import {
-  completionRate,
   genPrescriptionByMatrix,
+  matrixCompletionRate,
 } from 'shared/schema/Prescription/PrescriptionsByMatrix';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -31,7 +31,9 @@ const ProgrammingPlanCard = ({ programmingPlan }: ProgrammingPlanCardProps) => {
 
   const planCompletionRate = useMemo(() => {
     if (prescriptions && samples) {
-      return completionRate(genPrescriptionByMatrix(prescriptions, samples));
+      return matrixCompletionRate(
+        genPrescriptionByMatrix(prescriptions, samples)
+      );
     }
   }, [prescriptions, samples]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -80,7 +82,11 @@ const ProgrammingPlanCard = ({ programmingPlan }: ProgrammingPlanCardProps) => {
           )}
           {hasNationalView && (
             <div className={cx('fr-col-12')}>
-              <PrescriptionMap prescriptions={prescriptions ?? []} />
+              <PrescriptionMap
+                programmingPlan={programmingPlan}
+                prescriptions={prescriptions ?? []}
+                samples={samples ?? []}
+              />
             </div>
           )}
         </div>

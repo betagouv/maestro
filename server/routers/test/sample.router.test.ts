@@ -1,9 +1,10 @@
 import { constants } from 'http2';
-import fp from 'lodash';
+import { default as fp, default as _ } from 'lodash';
 import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { MatrixList } from '../../../shared/foodex2/Matrix';
+import { Region, RegionList, Regions } from '../../../shared/schema/Region';
 import { SampleStatus } from '../../../shared/schema/Sample/SampleStatus';
 import {
   genCreatedSample,
@@ -27,28 +28,39 @@ import { tokenProvider } from '../../test/testUtils';
 describe('Sample router', () => {
   const { app } = createServer();
 
-  const sampler1 = genUser('Sampler');
-  const sampler2 = genUser('Sampler');
+  const region1 = oneOf(RegionList);
+  const region2 = oneOf(_.difference(RegionList, region1)) as Region;
+  const sampler1 = { ...genUser('Sampler'), region: region1 };
+  const sampler2 = { ...genUser('Sampler'), region: region2 };
   const nationalCoordinator = genUser('NationalCoordinator');
   const programmingPlan = genProgrammingPlan(nationalCoordinator.id);
-  const sample1Id = uuidv4();
-  const sampleItem1 = genSampleItem(sample1Id, 1);
-  const sample1 = {
+  const sample11Id = uuidv4();
+  const sampleItem1 = genSampleItem(sample11Id, 1);
+  const sample11 = {
     ...genSample(sampler1.id, programmingPlan.id),
-    id: sample1Id,
+    id: sample11Id,
     items: [sampleItem1],
     status: 'DraftInfos' as SampleStatus,
+    department: oneOf(Regions[region1].departments),
+  };
+  const sample12 = {
+    ...genSample(sampler1.id, programmingPlan.id),
+    id: uuidv4(),
+    status: 'Sent' as SampleStatus,
+    department: oneOf(Regions[region1].departments),
   };
   const sample2 = {
     ...genSample(sampler2.id, programmingPlan.id),
-    status: 'Sent' as SampleStatus,
+    status: 'DraftInfos' as SampleStatus,
+    department: oneOf(Regions[region2].departments),
   };
 
   beforeAll(async () => {
     await Users().insert([sampler1, sampler2, nationalCoordinator]);
     await ProgrammingPlans().insert(programmingPlan);
     await Samples().insert([
-      formatPartialSample(sample1),
+      formatPartialSample(sample11),
+      formatPartialSample(sample12),
       formatPartialSample(sample2),
     ]);
     await SampleItems().insert(sampleItem1);
@@ -59,7 +71,7 @@ describe('Sample router', () => {
 
     it('should fail if the user is not authenticated', async () => {
       await request(app)
-        .get(testRoute(sample1.id))
+        .get(testRoute(sample11.id))
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
@@ -77,32 +89,32 @@ describe('Sample router', () => {
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
-    it('should fail if the sample does not belong to the user', async () => {
+    it('should fail if the sample does not belong to the user region', async () => {
       await request(app)
-        .get(`${testRoute(sample1.id)}`)
+        .get(`${testRoute(sample11.id)}`)
         .use(tokenProvider(sampler2))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     it('should fail if the user does not have the permission to read samples', async () => {
       await request(app)
-        .get(testRoute(sample1.id))
+        .get(testRoute(sample11.id))
         .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     it('should get the sample', async () => {
       const res = await request(app)
-        .get(testRoute(sample1.id))
+        .get(testRoute(sample11.id))
         .use(tokenProvider(sampler1))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject({
-        ...sample1,
-        createdAt: sample1.createdAt.toISOString(),
-        lastUpdatedAt: sample1.lastUpdatedAt.toISOString(),
-        sampledAt: sample1.sampledAt.toISOString(),
-        expiryDate: sample1.expiryDate?.toISOString(),
+        ...sample11,
+        createdAt: sample11.createdAt.toISOString(),
+        lastUpdatedAt: sample11.lastUpdatedAt.toISOString(),
+        sampledAt: sample11.sampledAt.toISOString(),
+        expiryDate: sample11.expiryDate?.toISOString(),
       });
     });
   });
@@ -117,7 +129,7 @@ describe('Sample router', () => {
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    it('should find the samples with query parameters', async () => {
+    it('should find the samples with query parameters restricted to the user region', async () => {
       const res = await request(app)
         .get(testRoute({ status: 'DraftInfos' }))
         .use(tokenProvider(sampler1))
@@ -125,11 +137,11 @@ describe('Sample router', () => {
 
       expect(res.body).toMatchObject([
         {
-          ...fp.omit(sample1, ['items']),
-          createdAt: sample1.createdAt.toISOString(),
-          lastUpdatedAt: sample1.lastUpdatedAt.toISOString(),
-          sampledAt: sample1.sampledAt.toISOString(),
-          expiryDate: sample1.expiryDate?.toISOString(),
+          ...fp.omit(sample11, ['items']),
+          createdAt: sample11.createdAt.toISOString(),
+          lastUpdatedAt: sample11.lastUpdatedAt.toISOString(),
+          sampledAt: sample11.sampledAt.toISOString(),
+          expiryDate: sample11.expiryDate?.toISOString(),
         },
       ]);
     });
@@ -225,7 +237,7 @@ describe('Sample router', () => {
 
     it('should fail if the user is not authenticated', async () => {
       await request(app)
-        .put(`${testRoute(sample1.id)}`)
+        .put(`${testRoute(sample11.id)}`)
         .send({})
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
@@ -248,8 +260,8 @@ describe('Sample router', () => {
 
     it('should fail if the sample does not belong to the user', async () => {
       await request(app)
-        .put(`${testRoute(sample1.id)}`)
-        .send(sample1)
+        .put(`${testRoute(sample11.id)}`)
+        .send(sample11)
         .use(tokenProvider(sampler2))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
@@ -257,7 +269,7 @@ describe('Sample router', () => {
     it('should get a valid body', async () => {
       const badRequestTest = async (payload?: Record<string, unknown>) =>
         request(app)
-          .put(`${testRoute(sample1.id)}`)
+          .put(`${testRoute(sample11.id)}`)
           .send(payload)
           .use(tokenProvider(sampler1))
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
@@ -266,13 +278,13 @@ describe('Sample router', () => {
     });
 
     const validBody = {
-      ...sample1,
+      ...sample11,
       matrix: oneOf(MatrixList),
     };
 
     it('should fail if the user does not have the permission to update samples', async () => {
       await request(app)
-        .put(`${testRoute(sample1.id)}`)
+        .put(`${testRoute(sample11.id)}`)
         .send(validBody)
         .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
@@ -297,23 +309,23 @@ describe('Sample router', () => {
 
     it('should update the sample', async () => {
       const res = await request(app)
-        .put(`${testRoute(sample1.id)}`)
+        .put(`${testRoute(sample11.id)}`)
         .send(validBody)
         .use(tokenProvider(sampler1))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject({
-        ...sample1,
-        createdAt: sample1.createdAt.toISOString(),
+        ...sample11,
+        createdAt: sample11.createdAt.toISOString(),
         lastUpdatedAt: expect.any(String),
-        sampledAt: sample1.sampledAt.toISOString(),
-        expiryDate: sample1.expiryDate?.toISOString(),
+        sampledAt: sample11.sampledAt.toISOString(),
+        expiryDate: sample11.expiryDate?.toISOString(),
         matrix: validBody.matrix,
       });
 
       await expect(
         Samples()
-          .where({ id: sample1.id, matrix: validBody.matrix as string })
+          .where({ id: sample11.id, matrix: validBody.matrix as string })
           .first()
       ).resolves.toBeDefined();
     });
@@ -324,15 +336,15 @@ describe('Sample router', () => {
 
     it('should fail if the user is not authenticated', async () => {
       await request(app)
-        .put(testRoute(sample1.id))
-        .send([genSampleItem(sample1.id)])
+        .put(testRoute(sample11.id))
+        .send([genSampleItem(sample11.id)])
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
     it('should get a valid sample id', async () => {
       await request(app)
         .put(testRoute(randomstring.generate()))
-        .send([genSampleItem(sample1.id)])
+        .send([genSampleItem(sample11.id)])
         .use(tokenProvider(sampler1))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
@@ -340,23 +352,23 @@ describe('Sample router', () => {
     it('should fail if the sample does not exist', async () => {
       await request(app)
         .put(testRoute(uuidv4()))
-        .send([genSampleItem(sample1.id)])
+        .send([genSampleItem(sample11.id)])
         .use(tokenProvider(sampler1))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
     it('should fail if the sample does not belong to the user', async () => {
       await request(app)
-        .put(testRoute(sample1.id))
-        .send([genSampleItem(sample1.id)])
+        .put(testRoute(sample11.id))
+        .send([genSampleItem(sample11.id)])
         .use(tokenProvider(sampler2))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     it('should fail if the user does not have the permission to update samples', async () => {
       await request(app)
-        .put(testRoute(sample1.id))
-        .send([genSampleItem(sample1.id)])
+        .put(testRoute(sample11.id))
+        .send([genSampleItem(sample11.id)])
         .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
@@ -364,7 +376,7 @@ describe('Sample router', () => {
     it('should get a valid body', async () => {
       const badRequestTest = async (payload?: any[]) =>
         request(app)
-          .put(testRoute(sample1.id))
+          .put(testRoute(sample11.id))
           .send(payload)
           .use(tokenProvider(sampler1))
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
@@ -372,13 +384,13 @@ describe('Sample router', () => {
       await badRequestTest();
       await badRequestTest([
         {
-          ...genSampleItem(sample1.id),
+          ...genSampleItem(sample11.id),
           quantity: '123',
         },
       ]);
       await badRequestTest([
         {
-          ...genSampleItem(sample1.id),
+          ...genSampleItem(sample11.id),
           quantityUnit: 123,
         },
       ]);
@@ -403,18 +415,18 @@ describe('Sample router', () => {
 
     it('should update the sample items', async () => {
       const sampleItems = [
-        genSampleItem(sample1.id, 1),
-        genSampleItem(sample1.id, 2),
+        genSampleItem(sample11.id, 1),
+        genSampleItem(sample11.id, 2),
       ];
 
       await request(app)
-        .put(testRoute(sample1.id))
+        .put(testRoute(sample11.id))
         .send(sampleItems)
         .use(tokenProvider(sampler1))
         .expect(constants.HTTP_STATUS_OK);
 
       await expect(
-        SampleItems().where({ sampleId: sample1.id })
+        SampleItems().where({ sampleId: sample11.id })
       ).resolves.toMatchObject(sampleItems);
     });
   });

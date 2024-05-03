@@ -1,5 +1,6 @@
 import express from 'express';
 import { z } from 'zod';
+import { FindPrescriptionOptions } from '../../shared/schema/Prescription/FindPrescriptionOptions';
 import {
   PrescriptionToCreate,
   PrescriptionUpdate,
@@ -7,20 +8,33 @@ import {
 import prescriptionController from '../controllers/prescriptionController';
 import { permissionsCheck } from '../middlewares/auth';
 import { programmingPlanCheck } from '../middlewares/plan';
-import validator, { body, params, uuidParam } from '../middlewares/validator';
+import validator, {
+  body,
+  params,
+  query,
+  uuidParam,
+} from '../middlewares/validator';
 
 const router = express.Router();
 
 router.get(
   '/:programmingPlanId/prescriptions',
-  validator.validate(uuidParam('programmingPlanId')),
+  validator.validate(
+    uuidParam('programmingPlanId').merge(
+      query(FindPrescriptionOptions.omit({ programmingPlanId: true }))
+    )
+  ),
   permissionsCheck(['readPrescriptions']),
   programmingPlanCheck(),
   prescriptionController.findPrescriptions
 );
 router.get(
   '/:programmingPlanId/prescriptions/export',
-  validator.validate(uuidParam('programmingPlanId')),
+  validator.validate(
+    uuidParam('programmingPlanId').merge(
+      query(FindPrescriptionOptions.omit({ programmingPlanId: true }))
+    )
+  ),
   permissionsCheck(['readPrescriptions']),
   programmingPlanCheck(),
   prescriptionController.exportPrescriptions

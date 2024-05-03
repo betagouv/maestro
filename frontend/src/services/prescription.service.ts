@@ -1,4 +1,5 @@
 import fp from 'lodash';
+import { FindPrescriptionOptions } from 'shared/schema/Prescription/FindPrescriptionOptions';
 import {
   Prescription,
   PrescriptionToCreate,
@@ -10,12 +11,11 @@ import config from 'src/utils/config';
 
 export const prescriptionApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    findPrescriptions: builder.query<
-      Prescription[],
-      { programmingPlanId: string }
-    >({
-      query: ({ programmingPlanId }) =>
-        `programming-plans/${programmingPlanId}/prescriptions`,
+    findPrescriptions: builder.query<Prescription[], FindPrescriptionOptions>({
+      query: ({ programmingPlanId, ...findOptions }) => ({
+        url: `programming-plans/${programmingPlanId}/prescriptions`,
+        params: findOptions,
+      }),
       transformResponse: (response: any[]) =>
         response.map((_) => Prescription.parse(fp.omitBy(_, fp.isNil))),
       providesTags: (result) => [

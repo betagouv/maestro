@@ -19,7 +19,7 @@ const findUnique = async (id: string): Promise<ProgrammingPlan | undefined> => {
 const findMany = async (
   findOptions: FindProgrammingPlanOptions
 ): Promise<ProgrammingPlan[]> => {
-  console.info('Find programming plans');
+  console.info('Find programming plans', fp.omitBy(findOptions, fp.isNil));
   return ProgrammingPlans()
     .where(fp.omitBy(findOptions, fp.isNil))
     .then((programmingPlans) =>

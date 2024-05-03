@@ -1,4 +1,5 @@
 import fp from 'lodash';
+import { Regions } from '../../shared/schema/Region';
 import { FindSampleOptions } from '../../shared/schema/Sample/FindSampleOptions';
 import {
   CreatedSample,
@@ -24,9 +25,14 @@ const findMany = async (
 ): Promise<PartialSample[]> => {
   console.info('Find samples', fp.omitBy(findOptions, fp.isNil));
   return Samples()
-    .where(fp.omitBy(findOptions, fp.isNil))
+    .where(fp.omitBy(fp.omit(findOptions, 'region'), fp.isNil))
+    .modify((builder) => {
+      if (findOptions.region) {
+        builder.whereIn('department', Regions[findOptions.region].departments);
+      }
+    })
     .then((samples) =>
-      samples.map((_) => PartialSample.parse(fp.omitBy(_, fp.isNil)))
+      samples.map((_: any) => PartialSample.parse(fp.omitBy(_, fp.isNil)))
     );
 };
 

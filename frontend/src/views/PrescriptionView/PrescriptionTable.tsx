@@ -10,14 +10,13 @@ import {
   PrescriptionUpdate,
 } from 'shared/schema/Prescription/Prescription';
 import {
-  completionRate,
   genPrescriptionByMatrix,
+  matrixCompletionRate,
 } from 'shared/schema/Prescription/PrescriptionsByMatrix';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { Region, RegionList } from 'shared/schema/Region';
 import { PartialSample } from 'shared/schema/Sample/Sample';
 import { SampleStage } from 'shared/schema/Sample/SampleStage';
-import { userRegions } from 'shared/schema/User/User';
 import { isNotEmpty } from 'shared/utils/utils';
 import AutoClose from 'src/components/AutoClose/AutoClose';
 import EditableNumberCell from 'src/components/EditableCell/EditableNumberCell';
@@ -39,14 +38,16 @@ interface Props {
   programmingPlan: ProgrammingPlan;
   prescriptions: Prescription[];
   samples: PartialSample[];
+  regions: Region[];
 }
 
 const PrescriptionTable = ({
   programmingPlan,
   prescriptions,
   samples,
+  regions,
 }: Props) => {
-  const { hasPermission, hasNationalView, userInfos } = useAuthentication();
+  const { hasPermission } = useAuthentication();
 
   const [addPrescriptions, { isSuccess: isAddSuccess }] =
     useAddPrescriptionsMutation();
@@ -54,16 +55,16 @@ const PrescriptionTable = ({
     useUpdatePrescriptionMutation();
   const [deletePrescription, { isSuccess: isDeleteSuccess }] =
     useDeletePrescriptionsMutation();
-  const { data: laboratories } = useFindLaboratoriesQuery();
+
+  // @ts-ignore
+  const { data: laboratories } = useFindLaboratoriesQuery(_, {
+    skip: regions.length > 1,
+  });
 
   const prescriptionsByMatrix = useMemo(() => {
-    if (!prescriptions || !userInfos) return [];
-    return genPrescriptionByMatrix(
-      prescriptions,
-      samples,
-      userRegions(userInfos)
-    );
-  }, [prescriptions, userInfos]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!prescriptions) return [];
+    return genPrescriptionByMatrix(prescriptions, samples, regions);
+  }, [prescriptions]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const EmptyCell = <div></div>;
 
@@ -105,13 +106,13 @@ const PrescriptionTable = ({
         </div>,
         <div className="fr-pl-0">Matrice</div>,
         'Stade de prélèvement',
-        hasNationalView && <div className="border-left">Total</div>,
-        ...userRegions(userInfos).map((region) => (
+        regions.length > 1 && <div className="border-left">Total</div>,
+        ...regions.map((region) => (
           <div className="border-left" key={`header-${region}`}>
             <RegionHeaderCell region={region} />
           </div>
         )),
-        !hasNationalView && 'Laboratoire',
+        regions.length === 1 && 'Laboratoire',
       ].filter(isNotEmpty),
     [prescriptionsByMatrix] // eslint-disable-line react-hooks/exhaustive-deps
   );
@@ -143,7 +144,7 @@ const PrescriptionTable = ({
           >
             {p.sampleStage}
           </div>,
-          hasNationalView && (
+          regions.length > 1 && (
             <div
               className="border-left fr-text--bold"
               key={`total-${p.sampleMatrix}-${p.sampleStage}`}
@@ -158,7 +159,7 @@ const PrescriptionTable = ({
                     ({ sentSampleCount }) => sentSampleCount
                   )}
                 </div>,
-                <div>{completionRate(p)}%</div>,
+                <div>{matrixCompletionRate(p)}%</div>,
               ]}
             </div>
           ),
@@ -183,26 +184,26 @@ const PrescriptionTable = ({
                   <div>{sampleCount}</div>,
                   programmingPlan.status === 'Validated' && [
                     <div>{sentSampleCount}</div>,
-                    <div>{completionRate(p, region)}%</div>,
+                    <div>{matrixCompletionRate(p, region)}%</div>,
                   ],
                 ]
               )}
             </div>
           )),
-          !hasNationalView && (
+          regions.length === 1 && (
             <div key={`laboratory-${p.sampleMatrix}-${p.sampleStage}`}>
               {programmingPlan.status === 'InProgress' ? (
                 <EditableSelectCell
                   options={laboratoriesOptions(laboratories)}
                   initialValue={
-                    p.regionalData.find((r) => r.region === userInfos?.region)
+                    p.regionalData.find((r) => r.region === regions[0])
                       ?.laboratoryId ?? ''
                   }
                   onChange={(value) =>
                     changePrescription(
                       p.sampleMatrix,
                       p.sampleStage,
-                      userInfos?.region as Region,
+                      regions[0],
                       {
                         laboratoryId: value,
                       }
@@ -215,9 +216,8 @@ const PrescriptionTable = ({
                     laboratories?.find(
                       (l) =>
                         l.id ===
-                        p.regionalData.find(
-                          (r) => r.region === userInfos?.region
-                        )?.laboratoryId
+                        p.regionalData.find((r) => r.region === regions[0])
+                          ?.laboratoryId
                     )?.name
                   }
                 </div>
@@ -235,7 +235,7 @@ const PrescriptionTable = ({
         EmptyCell,
         <b>Total</b>,
         EmptyCell,
-        hasNationalView && (
+        regions.length > 1 && (
           <div className="border-left fr-text--bold">
             <div>
               {_.sum(
@@ -252,11 +252,11 @@ const PrescriptionTable = ({
                     .map((p) => p.sentSampleCount)
                 )}
               </div>,
-              <div>{completionRate(prescriptionsByMatrix)}%</div>,
+              <div>{matrixCompletionRate(prescriptionsByMatrix)}%</div>,
             ]}
           </div>
         ),
-        ...userRegions(userInfos).map((region) => [
+        ...regions.map((region) => [
           <div key={`total-${region}`} className="border-left fr-text--bold">
             <div>
               {_.sum(
@@ -276,11 +276,11 @@ const PrescriptionTable = ({
                   )
                 )}
               </div>,
-              <div>{completionRate(prescriptionsByMatrix, region)}%</div>,
+              <div>{matrixCompletionRate(prescriptionsByMatrix, region)}%</div>,
             ]}
           </div>,
         ]),
-        !hasNationalView && EmptyCell,
+        regions.length === 1 && EmptyCell,
       ].filter(isNotEmpty),
     [prescriptionsByMatrix] // eslint-disable-line react-hooks/exhaustive-deps
   );
@@ -363,7 +363,7 @@ const PrescriptionTable = ({
         noCaption
         headers={headers}
         data={[...prescriptionsData, totalData]}
-        className={clsx({ 'full-width': hasNationalView })}
+        className={clsx({ 'full-width': regions.length > 1 })}
       />
     </div>
   );

@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { z } from 'zod';
-import { Region, RegionList, Regions } from '../Region';
-import { PartialSample } from '../Sample/Sample';
+import { Region, RegionList } from '../Region';
+import { getSampleRegion, PartialSample } from '../Sample/Sample';
 import { SampleStage, SampleStageList } from '../Sample/SampleStage';
 import { Prescription } from './Prescription';
 
@@ -52,9 +52,7 @@ export const genPrescriptionByMatrix = (
                 sample.programmingPlanId === prescription.programmingPlanId &&
                 sample.matrix === prescription.sampleMatrix &&
                 sample.stage === prescription.sampleStage &&
-                RegionList.find((region) =>
-                  Regions[region].departments.includes(sample.department)
-                ) === region
+                getSampleRegion(sample) === region
             );
 
             return {
@@ -84,7 +82,7 @@ export const genPrescriptionByMatrix = (
         )
     );
 
-export const completionRate = (
+export const matrixCompletionRate = (
   prescriptionMatrix: PrescriptionByMatrix | PrescriptionByMatrix[],
   region?: Region
 ) => {
@@ -121,4 +119,17 @@ export const completionRate = (
   return totalSampleCount
     ? Number(((totalSentSampleCount / totalSampleCount) * 100).toFixed(2))
     : 100;
+};
+
+export const completionRate = (
+  prescriptions: Prescription[],
+  samples: PartialSample[],
+  region?: Region
+): number => {
+  const prescriptionsByMatrix = genPrescriptionByMatrix(
+    prescriptions,
+    samples,
+    region ? [region] : undefined
+  );
+  return matrixCompletionRate(prescriptionsByMatrix, region);
 };

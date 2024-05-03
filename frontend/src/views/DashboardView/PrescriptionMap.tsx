@@ -13,16 +13,27 @@ import Map, {
   Source,
   SymbolLayer,
 } from 'react-map-gl/maplibre';
+import { useNavigate } from 'react-router-dom';
 import { Prescription } from 'shared/schema/Prescription/Prescription';
+import { completionRate } from 'shared/schema/Prescription/PrescriptionsByMatrix';
+import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { Region, RegionList, Regions } from 'shared/schema/Region';
+import { getSampleRegion, PartialSample } from 'shared/schema/Sample/Sample';
 import { useGetRegionsGeoJsonQuery } from 'src/services/region.service';
 
 interface Props {
+  programmingPlan: ProgrammingPlan;
   prescriptions: Prescription[];
+  samples: PartialSample[];
 }
 
-const PrescriptionMap = ({ prescriptions }: Props) => {
+const PrescriptionMap = ({
+  programmingPlan,
+  prescriptions,
+  samples,
+}: Props) => {
   const ref = useRef<any>();
+  const navigate = useNavigate();
 
   const [hoverInfo, setHoverInfo] = useState<{
     feature: MapGeoJSONFeature;
@@ -67,6 +78,14 @@ const PrescriptionMap = ({ prescriptions }: Props) => {
       'sampleCount'
     );
 
+  const getSentSampleCount = (region: Region) =>
+    samples.filter(
+      (sample) => getSampleRegion(sample) === region && sample.status === 'Sent'
+    ).length;
+
+  const getCompletionRate = (region: Region) =>
+    completionRate(prescriptions, samples, region);
+
   const regionCenters: FeatureCollection = {
     type: 'FeatureCollection',
     features: RegionList.map((region) => ({
@@ -82,6 +101,7 @@ const PrescriptionMap = ({ prescriptions }: Props) => {
       properties: {
         title: Regions[region].name,
         sampleCount: getSampleCount(region),
+        sentSampleCount: getSentSampleCount(region),
       },
     })),
   };
@@ -168,6 +188,14 @@ const PrescriptionMap = ({ prescriptions }: Props) => {
     }
   };
 
+  const onClick = (e: maplibregl.MapLayerMouseEvent) => {
+    if (e.features && e.features.length > 0) {
+      navigate(
+        `/plans/${programmingPlan.id}/prescription?region=${hoveredRegion}`
+      );
+    }
+  };
+
   return (
     <div data-testid="prescription-map">
       <Map
@@ -189,6 +217,7 @@ const PrescriptionMap = ({ prescriptions }: Props) => {
         mapStyle={mapStyle}
         interactiveLayerIds={['regions']}
         onMouseMove={onHover}
+        onClick={onClick}
         cursor="pointer"
       >
         {regions && (
@@ -217,6 +246,8 @@ const PrescriptionMap = ({ prescriptions }: Props) => {
           >
             <div>{Regions[hoveredRegion].name}</div>
             <div>{getSampleCount(hoveredRegion)} prélevements</div>
+            <div>{getSentSampleCount(hoveredRegion)} réalisés</div>
+            <div>Taux de réalisation : {getCompletionRate(hoveredRegion)}%</div>
           </div>
         )}
       </Map>

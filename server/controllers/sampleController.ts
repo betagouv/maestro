@@ -4,6 +4,7 @@ import { AuthenticatedRequest } from 'express-jwt';
 import { constants } from 'http2';
 import fp from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
+import { Regions } from '../../shared/schema/Region';
 import { FindSampleOptions } from '../../shared/schema/Sample/FindSampleOptions';
 import {
   CreatedSample,
@@ -15,6 +16,7 @@ import sampleItemRepository from '../repositories/sampleItemRepository';
 import sampleRepository from '../repositories/sampleRepository';
 
 const getSample = async (request: Request, response: Response) => {
+  const { user } = request as AuthenticatedRequest;
   const { sampleId } = request.params;
 
   console.info('Get sample', sampleId);
@@ -25,7 +27,10 @@ const getSample = async (request: Request, response: Response) => {
     return response.sendStatus(constants.HTTP_STATUS_NOT_FOUND);
   }
 
-  if (sample.createdBy !== (request as AuthenticatedRequest).auth.userId) {
+  if (
+    user.region &&
+    !Regions[user.region].departments.includes(sample.department)
+  ) {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
   }
 
@@ -38,10 +43,15 @@ const getSample = async (request: Request, response: Response) => {
 };
 
 const findSamples = async (request: Request, response: Response) => {
-  const { userId } = (request as AuthenticatedRequest).auth;
-  const findOptions = request.query as FindSampleOptions;
+  const { user } = request as AuthenticatedRequest;
+  const queryFindOptions = request.query as FindSampleOptions;
 
-  console.info('Find samples for user', userId, findOptions);
+  const findOptions = {
+    ...queryFindOptions,
+    region: user.region ?? queryFindOptions.region,
+  };
+
+  console.info('Find samples for user', user.id, findOptions);
 
   const samples = await sampleRepository.findMany(findOptions);
 

@@ -4,13 +4,14 @@ import highland from 'highland';
 import { constants } from 'http2';
 import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
+import { FindPrescriptionOptions } from '../../shared/schema/Prescription/FindPrescriptionOptions';
 import {
   PrescriptionToCreate,
   PrescriptionUpdate,
 } from '../../shared/schema/Prescription/Prescription';
 import {
-  completionRate,
   genPrescriptionByMatrix,
+  matrixCompletionRate,
 } from '../../shared/schema/Prescription/PrescriptionsByMatrix';
 import { Regions } from '../../shared/schema/Region';
 import { hasPermission, userRegions } from '../../shared/schema/User/User';
@@ -21,19 +22,32 @@ import sampleRepository from '../repositories/sampleRepository';
 import workbookUtils from '../utils/workbookUtils';
 const findPrescriptions = async (request: Request, response: Response) => {
   const programmingPlanId = request.params.programmingPlanId;
+  const user = (request as AuthenticatedRequest).user;
+  const queryFindOptions = request.query as FindPrescriptionOptions;
 
-  console.info('Find prescriptions by programming plan id', programmingPlanId);
+  const findOptions = {
+    ...queryFindOptions,
+    programmingPlanId,
+    region: user.region ?? queryFindOptions.region,
+  };
 
-  const prescriptions = await prescriptionRepository.findMany(
-    programmingPlanId
-  );
+  console.info('Find prescriptions for user', user.id, findOptions);
+
+  const prescriptions = await prescriptionRepository.findMany(findOptions);
 
   response.status(constants.HTTP_STATUS_OK).send(prescriptions);
 };
 
 const exportPrescriptions = async (request: Request, response: Response) => {
-  const user = (request as AuthenticatedRequest).user;
   const programmingPlanId = request.params.programmingPlanId;
+  const user = (request as AuthenticatedRequest).user;
+  const queryFindOptions = request.query as FindPrescriptionOptions;
+
+  const findOptions = {
+    ...queryFindOptions,
+    programmingPlanId,
+    region: user.region ?? queryFindOptions.region,
+  };
 
   console.info(
     'Export prescriptions by programming plan id',
@@ -48,9 +62,7 @@ const exportPrescriptions = async (request: Request, response: Response) => {
     return response.sendStatus(constants.HTTP_STATUS_NOT_FOUND);
   }
 
-  const prescriptions = await prescriptionRepository.findMany(
-    programmingPlanId
-  );
+  const prescriptions = await prescriptionRepository.findMany(findOptions);
 
   const samples = await sampleRepository.findMany({
     programmingPlanId,
@@ -132,13 +144,13 @@ const exportPrescriptions = async (request: Request, response: Response) => {
             prescription.regionalData,
             ({ sentSampleCount }) => sentSampleCount
           ),
-          completionRate: completionRate(prescription),
+          completionRate: matrixCompletionRate(prescription),
           ...prescription.regionalData.reduce(
             (acc, { sampleCount, sentSampleCount, region }) => ({
               ...acc,
               [`sampleCount-${region}`]: sampleCount,
               [`sentSampleCount-${region}`]: sentSampleCount,
-              [`completionRate-${region}`]: completionRate(
+              [`completionRate-${region}`]: matrixCompletionRate(
                 prescription,
                 region
               ),
@@ -161,7 +173,7 @@ const exportPrescriptions = async (request: Request, response: Response) => {
             .flatMap((p) => p.regionalData)
             .map((p) => p.sentSampleCount)
         ),
-        completionRate: completionRate(prescriptionByMatrix),
+        completionRate: matrixCompletionRate(prescriptionByMatrix),
         ...userRegions(user).reduce(
           (acc, region) => ({
             ...acc,
@@ -179,7 +191,7 @@ const exportPrescriptions = async (request: Request, response: Response) => {
                     ?.sentSampleCount ?? 0
               )
             ),
-            [`completionRate-${region}`]: completionRate(
+            [`completionRate-${region}`]: matrixCompletionRate(
               prescriptionByMatrix,
               region
             ),
@@ -260,9 +272,9 @@ const deletePrescriptions = async (request: Request, response: Response) => {
     programmingPlanId
   );
 
-  const prescriptions = await prescriptionRepository.findMany(
-    programmingPlanId
-  );
+  const prescriptions = await prescriptionRepository.findMany({
+    programmingPlanId,
+  });
   const existingPrescriptionIds = prescriptions.map((p) => p.id);
 
   await prescriptionRepository.deleteMany(

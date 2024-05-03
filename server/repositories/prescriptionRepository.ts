@@ -1,4 +1,5 @@
 import fp from 'lodash';
+import { FindPrescriptionOptions } from '../../shared/schema/Prescription/FindPrescriptionOptions';
 import { Prescription } from '../../shared/schema/Prescription/Prescription';
 import db from './db';
 
@@ -14,10 +15,12 @@ const findUnique = async (id: string): Promise<Prescription | undefined> => {
     .then((_) => _ && Prescription.parse(fp.omitBy(_, fp.isNil)));
 };
 
-const findMany = async (programmingPlanId: string): Promise<Prescription[]> => {
-  console.info('Find prescriptions by programming plan id', programmingPlanId);
+const findMany = async (
+  findOptions: FindPrescriptionOptions
+): Promise<Prescription[]> => {
+  console.info('Find prescriptions', fp.omitBy(findOptions, fp.isNil));
   return Prescriptions()
-    .where({ programmingPlanId })
+    .where(fp.omitBy(findOptions, fp.isNil))
     .then((prescriptions) =>
       prescriptions.map((_) => Prescription.parse(fp.omitBy(_, fp.isNil)))
     );

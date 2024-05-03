@@ -3,8 +3,8 @@ import { genSample } from '../../../test/testFixtures';
 import { Sample } from '../../Sample/Sample';
 import { Prescription } from '../Prescription';
 import {
-  completionRate,
   genPrescriptionByMatrix,
+  matrixCompletionRate,
   PrescriptionByMatrix,
 } from '../PrescriptionsByMatrix';
 
@@ -179,7 +179,7 @@ describe('PrescriptionsByMatrix', () => {
         regionalData: [{ sampleCount: 5, sentSampleCount: 3, region: '84' }],
       };
 
-      const result = completionRate(prescriptionMatrix, '84');
+      const result = matrixCompletionRate(prescriptionMatrix, '84');
       expect(result).toEqual(60);
     });
 
@@ -191,7 +191,7 @@ describe('PrescriptionsByMatrix', () => {
         regionalData: [{ sampleCount: 5, sentSampleCount: 6, region: '84' }],
       };
 
-      const result = completionRate(prescriptionMatrix, '84');
+      const result = matrixCompletionRate(prescriptionMatrix, '84');
       expect(result).toEqual(100);
     });
 
@@ -203,7 +203,7 @@ describe('PrescriptionsByMatrix', () => {
         regionalData: [{ sampleCount: 0, sentSampleCount: 0, region: '84' }],
       };
 
-      const result = completionRate(prescriptionMatrix, '84');
+      const result = matrixCompletionRate(prescriptionMatrix, '84');
       expect(result).toEqual(100);
     });
   });
@@ -220,7 +220,7 @@ describe('PrescriptionsByMatrix', () => {
       ],
     };
 
-    const result = completionRate(prescriptionMatrix);
+    const result = matrixCompletionRate(prescriptionMatrix);
     expect(result).toEqual(80);
   });
 
@@ -248,7 +248,7 @@ describe('PrescriptionsByMatrix', () => {
       },
     ];
 
-    const result = completionRate(prescriptionMatrix);
+    const result = matrixCompletionRate(prescriptionMatrix);
     expect(result).toEqual(57.69);
   });
 });
