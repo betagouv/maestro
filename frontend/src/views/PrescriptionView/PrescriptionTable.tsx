@@ -192,7 +192,8 @@ const PrescriptionTable = ({
           )),
           regions.length === 1 && (
             <div key={`laboratory-${p.sampleMatrix}-${p.sampleStage}`}>
-              {programmingPlan.status === 'InProgress' ? (
+              {programmingPlan.status === 'InProgress' &&
+              hasPermission('updatePrescriptionLaboratory') ? (
                 <EditableSelectCell
                   options={laboratoriesOptions(laboratories)}
                   initialValue={
@@ -212,14 +213,12 @@ const PrescriptionTable = ({
                 />
               ) : (
                 <div>
-                  {
-                    laboratories?.find(
-                      (l) =>
-                        l.id ===
-                        p.regionalData.find((r) => r.region === regions[0])
-                          ?.laboratoryId
-                    )?.name
-                  }
+                  {laboratories?.find(
+                    (l) =>
+                      l.id ===
+                      p.regionalData.find((r) => r.region === regions[0])
+                        ?.laboratoryId
+                  )?.name ?? '-'}
                 </div>
               )}
             </div>
@@ -353,7 +352,12 @@ const PrescriptionTable = ({
         priority="tertiary no outline"
         iconId="fr-icon-download-line"
         onClick={() =>
-          window.open(getPrescriptionsExportURL(programmingPlan.id))
+          window.open(
+            getPrescriptionsExportURL({
+              programmingPlanId: programmingPlan.id,
+              region: regions.length > 1 ? undefined : regions[0],
+            })
+          )
         }
       >
         Télécharger

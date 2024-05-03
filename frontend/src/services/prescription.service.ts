@@ -6,8 +6,9 @@ import {
   PrescriptionUpdate,
 } from 'shared/schema/Prescription/Prescription';
 import { api } from 'src/services/api.service';
-import { withAuthParams } from 'src/services/auth-headers';
+import { authParams } from 'src/services/auth-headers';
 import config from 'src/utils/config';
+import { getURLQuery } from 'src/utils/fetchUtils';
 
 export const prescriptionApi = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -76,10 +77,14 @@ export const prescriptionApi = api.injectEndpoints({
   }),
 });
 
-const prescriptionsExportURL = (programmingPlanId: string) =>
-  withAuthParams(
-    `${config.apiEndpoint}/api/programming-plans/${programmingPlanId}/prescriptions/export`
-  );
+const prescriptionsExportURL = (findOptions: FindPrescriptionOptions) => {
+  const { programmingPlanId, ...queryFindOptions } = findOptions;
+  const params = getURLQuery({
+    ...queryFindOptions,
+    ...authParams,
+  });
+  return `${config.apiEndpoint}/api/programming-plans/${programmingPlanId}/prescriptions/export${params}`;
+};
 
 export const {
   useFindPrescriptionsQuery,
