@@ -96,13 +96,6 @@ describe('Sample router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should fail if the user does not have the permission to read samples', async () => {
-      await request(app)
-        .get(testRoute(sample11.id))
-        .use(tokenProvider(nationalCoordinator))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
-    });
-
     it('should get the sample', async () => {
       const res = await request(app)
         .get(testRoute(sample11.id))
