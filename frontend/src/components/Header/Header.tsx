@@ -86,29 +86,31 @@ const Header = () => {
       quickAccessItems={
         isAuthenticated
           ? [
-              <Select
-                label={undefined}
-                nativeSelectProps={{
-                  defaultValue: programmingPlanStatus,
-                  onChange: (e) => {
-                    dispatch(
-                      settingsSlice.actions.changeProgrammingPlanStatus({
-                        programmingPlanStatus: e.target
-                          .value as ProgrammingPlanStatus,
-                      })
-                    );
-                    navigate('/', { replace: true });
-                  },
-                }}
-                className="fr-mr-2w"
-              >
-                <option value="Validated">
-                  {ProgrammingPlanStatusLabels['Validated']}
-                </option>
-                <option value="InProgress">
-                  {ProgrammingPlanStatusLabels['InProgress']}
-                </option>
-              </Select>,
+              hasPermission('readProgrammingPlansInProgress') && (
+                <Select
+                  label={undefined}
+                  nativeSelectProps={{
+                    defaultValue: programmingPlanStatus,
+                    onChange: (e) => {
+                      dispatch(
+                        settingsSlice.actions.changeProgrammingPlanStatus({
+                          programmingPlanStatus: e.target
+                            .value as ProgrammingPlanStatus,
+                        })
+                      );
+                      navigate('/', { replace: true });
+                    },
+                  }}
+                  className="fr-mr-2w"
+                >
+                  <option value="Validated">
+                    {ProgrammingPlanStatusLabels['Validated']}
+                  </option>
+                  <option value="InProgress">
+                    {ProgrammingPlanStatusLabels['InProgress']}
+                  </option>
+                </Select>
+              ),
               <div>
                 {userInfos?.roles.map((role) => (
                   <div key={role} className={cx('fr-text--sm', 'fr-mr-2w')}>

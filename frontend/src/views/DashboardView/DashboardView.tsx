@@ -1,11 +1,15 @@
+import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { ProgrammingPlanStatusLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useAppSelector } from 'src/hooks/useStore';
 import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.service';
 import ProgrammingPlanCard from 'src/views/DashboardView/ProgrammingPlanCard';
 
 const DashboardView = () => {
+  const { hasPermission } = useAuthentication();
+
   const { programmingPlanStatus } = useAppSelector((state) => state.settings);
   const { data: programmingPlans } = useFindProgrammingPlansQuery(
     {
@@ -24,6 +28,19 @@ const DashboardView = () => {
 
   return (
     <>
+      {hasPermission('createSample') && (
+        <div className={cx('fr-pt-6w')} style={{ textAlign: 'center' }}>
+          <Button
+            size="large"
+            linkProps={{
+              to: '/prelevements/nouveau',
+              target: '_self',
+            }}
+          >
+            Ajouter un prélèvement
+          </Button>
+        </div>
+      )}
       <section className={cx('fr-py-6w')}>
         <h1>{ProgrammingPlanStatusLabels[programmingPlanStatus]}</h1>
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>

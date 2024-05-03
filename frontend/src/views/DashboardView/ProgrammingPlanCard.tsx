@@ -1,7 +1,9 @@
+import Alert from '@codegouvfr/react-dsfr/Alert';
 import Badge from '@codegouvfr/react-dsfr/Badge';
 import Button from '@codegouvfr/react-dsfr/Button';
 import Card from '@codegouvfr/react-dsfr/Card';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import { t } from 'i18next';
 import { sumBy } from 'lodash';
 import { useMemo } from 'react';
 import {
@@ -28,6 +30,13 @@ const ProgrammingPlanCard = ({ programmingPlan }: ProgrammingPlanCardProps) => {
     programmingPlanId: programmingPlan.id,
     status: 'Sent',
   });
+  const { data: samplesToSent } = useFindSamplesQuery(
+    {
+      programmingPlanId: programmingPlan.id,
+      status: 'Submitted',
+    },
+    { skip: hasNationalView }
+  );
 
   const planCompletionRate = useMemo(() => {
     if (prescriptions && samples) {
@@ -80,12 +89,28 @@ const ProgrammingPlanCard = ({ programmingPlan }: ProgrammingPlanCardProps) => {
               />
             </div>
           )}
-          {hasNationalView && (
+          {hasNationalView ?? (
             <div className={cx('fr-col-12')}>
               <PrescriptionMap
                 programmingPlan={programmingPlan}
                 prescriptions={prescriptions ?? []}
                 samples={samples ?? []}
+              />
+            </div>
+          )}
+          {!hasNationalView && samplesToSent && samplesToSent.length > 0 && (
+            <div className={cx('fr-col-12')}>
+              <Alert
+                severity="warning"
+                small
+                description={
+                  <>
+                    {t('sample', {
+                      count: samplesToSent.length,
+                    })}
+                     en attente d'envoi
+                  </>
+                }
               />
             </div>
           )}
