@@ -2,7 +2,7 @@ import { configureStore, Store } from '@reduxjs/toolkit';
 import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import Router, { BrowserRouter } from 'react-router-dom';
-import { RegionList } from 'shared/schema/Region';
+import { Region, RegionList } from 'shared/schema/Region';
 import {
   genAuthUser,
   genPrescriptions,
@@ -28,24 +28,28 @@ const prescriptions1 = genPrescriptions(programmingPlan.id);
 const prescriptions2 = genPrescriptions(programmingPlan.id);
 const sample = genSample(uuidv4(), programmingPlan.id);
 
-const prescriptionRequest = {
-  pathname: `/api/programming-plans/${programmingPlan.id}/prescriptions`,
+const prescriptionRequest = (region?: Region) => ({
+  pathname: `/api/programming-plans/${programmingPlan.id}/prescriptions?${
+    region ? `region=${region}` : ''
+  }`,
   response: {
     body: JSON.stringify([...prescriptions1, ...prescriptions2]),
   },
-};
+});
 const programmingPlanRequest = {
   pathname: `/api/programming-plans/${programmingPlan.id}`,
   response: {
     body: JSON.stringify(programmingPlan),
   },
 };
-const sampleRequest = {
-  pathname: `/api/samples?programmingPlanId=${programmingPlan.id}&status=Sent`,
+const sampleRequest = (region?: Region) => ({
+  pathname: `/api/samples?programmingPlanId=${programmingPlan.id}&status=Sent${
+    region ? `&region=${region}` : ''
+  }`,
   response: {
     body: JSON.stringify([sample]),
   },
-};
+});
 
 describe('PrescriptionView', () => {
   const authUser = genAuthUser();
@@ -79,10 +83,10 @@ describe('PrescriptionView', () => {
     test('should render a table with prescriptions with editable cells for all matrix and region when in table view', async () => {
       mockRequests([
         programmingPlanRequest,
-        prescriptionRequest,
+        prescriptionRequest(),
         userRequest,
         regionsRequest,
-        sampleRequest,
+        sampleRequest(),
       ]);
       jest
         .spyOn(Router, 'useParams')
@@ -131,9 +135,9 @@ describe('PrescriptionView', () => {
     test('should render a table with prescriptions with non editable cells for regional coordinator', async () => {
       mockRequests([
         programmingPlanRequest,
-        prescriptionRequest,
+        prescriptionRequest(regionalCoordinator.region as Region),
         userRequest,
-        sampleRequest,
+        sampleRequest(regionalCoordinator.region as Region),
       ]);
 
       jest
@@ -166,7 +170,11 @@ describe('PrescriptionView', () => {
     });
 
     test('should not display the addMatrix button', async () => {
-      mockRequests([programmingPlanRequest, prescriptionRequest, userRequest]);
+      mockRequests([
+        programmingPlanRequest,
+        prescriptionRequest(regionalCoordinator.region as Region),
+        userRequest,
+      ]);
       jest
         .spyOn(Router, 'useParams')
         .mockReturnValue({ programmingPlanId: programmingPlan.id });
