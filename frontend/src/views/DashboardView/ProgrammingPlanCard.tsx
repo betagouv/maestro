@@ -14,7 +14,7 @@ import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans'
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useFindPrescriptionsQuery } from 'src/services/prescription.service';
 import { useFindSamplesQuery } from 'src/services/sample.service';
-import PrescriptionMap from 'src/views/DashboardView/PrescriptionMap';
+import ProgrammingPlanMap from 'src/views/DashboardView/ProgrammingPlanMap';
 
 interface ProgrammingPlanCardProps {
   programmingPlan: ProgrammingPlan;
@@ -91,7 +91,7 @@ const ProgrammingPlanCard = ({ programmingPlan }: ProgrammingPlanCardProps) => {
           )}
           {hasNationalView && (
             <div className={cx('fr-col-12')}>
-              <PrescriptionMap
+              <ProgrammingPlanMap
                 programmingPlan={programmingPlan}
                 prescriptions={prescriptions ?? []}
                 samples={samples ?? []}

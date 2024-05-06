@@ -10,6 +10,7 @@ import Map, {
   CircleLayer,
   FillLayer,
   Layer,
+  LineLayer,
   Source,
   SymbolLayer,
 } from 'react-map-gl/maplibre';
@@ -27,7 +28,7 @@ interface Props {
   samples: PartialSample[];
 }
 
-const PrescriptionMap = ({
+const ProgrammingPlanMap = ({
   programmingPlan,
   prescriptions,
   samples,
@@ -86,7 +87,27 @@ const PrescriptionMap = ({
   const getCompletionRate = (region: Region) =>
     completionRate(prescriptions, samples, region);
 
-  const regionCenters: FeatureCollection = {
+  const addRegionProperties = (featureCollection: any) => ({
+    ...featureCollection,
+    features: featureCollection.features.map((feature: any) => {
+      const region = feature.id as Region;
+
+      return region
+        ? {
+            ...feature,
+            properties: {
+              ...feature.properties,
+              title: Regions[region].name,
+              sampleCount: getSampleCount(region),
+              sentSampleCount: getSentSampleCount(region),
+              completionRate: getCompletionRate(region),
+            },
+          }
+        : feature;
+    }),
+  });
+
+  const regionCenters: FeatureCollection = addRegionProperties({
     type: 'FeatureCollection',
     features: RegionList.map((region) => ({
       type: 'Feature',
@@ -99,12 +120,10 @@ const PrescriptionMap = ({
         ],
       },
       properties: {
-        title: Regions[region].name,
-        sampleCount: getSampleCount(region),
-        sentSampleCount: getSentSampleCount(region),
+        id: region,
       },
     })),
-  };
+  });
 
   const centerCircleLayer: CircleLayer = {
     id: 'center-circle',
@@ -121,12 +140,6 @@ const PrescriptionMap = ({
         20,
       ],
       'circle-color': '#000091',
-      'circle-opacity': [
-        'case',
-        ['boolean', ['feature-state', 'hover'], false],
-        0,
-        1,
-      ],
     },
   };
 
@@ -144,18 +157,33 @@ const PrescriptionMap = ({
     },
   };
 
-  const regionsLayer: FillLayer = {
-    id: 'regions',
+  const regionsFillLayer: FillLayer = {
+    id: 'regions-fill',
     type: 'fill',
     source: 'mapbox',
     paint: {
-      'fill-color': '#6a6af4',
+      'fill-color': [
+        'case',
+        ['boolean', ['feature-state', 'hover'], false],
+        '#000091',
+        '#6a6af4',
+      ],
       'fill-opacity': [
         'case',
         ['boolean', ['feature-state', 'hover'], false],
         1,
-        0.5,
+        ['interpolate', ['linear'], ['get', 'completionRate'], 5, 0.1, 95, 1],
       ],
+    },
+  };
+
+  const regionsLineLayer: LineLayer = {
+    id: 'regions-line',
+    type: 'line',
+    source: 'mapbox',
+    paint: {
+      'line-color': '#000091',
+      'line-width': 0.1,
     },
   };
 
@@ -215,15 +243,20 @@ const PrescriptionMap = ({
         }}
         mapLib={maplibregl}
         mapStyle={mapStyle}
-        interactiveLayerIds={['regions']}
+        interactiveLayerIds={['regions-fill']}
         onMouseMove={onHover}
         onClick={onClick}
         cursor="pointer"
       >
         {regions && (
           <>
-            <Source id="regions" type="geojson" data={regions}>
-              <Layer {...regionsLayer} />
+            <Source
+              id="regions"
+              type="geojson"
+              data={addRegionProperties(regions)}
+            >
+              <Layer {...regionsFillLayer} />
+              <Layer {...regionsLineLayer} />
             </Source>
             <Source id="centers" type="geojson" data={regionCenters}>
               <Layer {...centerCircleLayer} />
@@ -250,9 +283,28 @@ const PrescriptionMap = ({
             <div>Taux de réalisation : {getCompletionRate(hoveredRegion)}%</div>
           </div>
         )}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 5,
+            left: 15,
+          }}
+        >
+          Taux de réalisation
+          <div
+            style={{
+              height: 15,
+              width: 110,
+              color: 'white',
+              background: 'linear-gradient(90deg, #ebe7f0, #6a6af4)',
+            }}
+          ></div>
+          <span>1</span>
+          <span style={{ float: 'right' }}>100</span>
+        </div>
       </Map>
     </div>
   );
 };
 
-export default PrescriptionMap;
+export default ProgrammingPlanMap;

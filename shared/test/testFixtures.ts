@@ -1,5 +1,7 @@
+import { fakerFR as faker } from '@faker-js/faker';
 import randomstring from 'randomstring';
 import { v4 as uuidv4 } from 'uuid';
+import { MatrixKindList, MatrixList, MatrixPartList } from '../foodex2/Matrix';
 import { DepartmentList } from '../schema/Department';
 import { Document } from '../schema/Document/Document';
 import { Laboratory } from '../schema/Laboratory/Laboratory';
@@ -115,13 +117,13 @@ export const genSample = (
 ): Sample => ({
   ...genCreatedSample(userId, programmingPlanId),
   locationSiret: String(genSiret()),
-  locationName: randomstring.generate(),
-  locationAddress: randomstring.generate(),
-  matrixKind: randomstring.generate(),
-  matrix: randomstring.generate(),
-  matrixPart: randomstring.generate(),
+  locationName: faker.company.name(),
+  locationAddress: faker.location.streetAddress({ useFullAddress: true }),
+  matrixKind: oneOf(MatrixKindList),
+  matrix: oneOf(MatrixList),
+  matrixPart: oneOf(MatrixPartList),
   stage: oneOf(SampleStageList),
-  cultureKind: randomstring.generate(),
+  cultureKind: oneOf(['Bio', 'Conventionnel']),
   storageCondition: oneOf(SampleStorageConditionList),
   releaseControl: genBoolean(),
   temperatureMaintenance: genBoolean(),
