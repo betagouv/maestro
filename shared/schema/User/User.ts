@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { z } from 'zod';
-import { Region, RegionList } from '../Region';
+import { Region, RegionList, Regions } from '../Region';
 import { UserPermission } from './UserPermission';
 import { UserRole, UserRolePermissions } from './UserRole';
 
@@ -23,6 +23,11 @@ export type UserInfos = z.infer<typeof UserInfos>;
 
 export const userRegions = (user?: User | UserInfos) =>
   user ? (user.region ? [user.region] : RegionList) : [];
+
+export const userDepartments = (user?: User | UserInfos) =>
+  user
+    ? userRegions(user).flatMap((region) => Regions[region].departments)
+    : [];
 
 export const hasPermission = (
   user: User | UserInfos,

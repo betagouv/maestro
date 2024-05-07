@@ -7,6 +7,7 @@ export enum SampleMutationEndpoints {
   CREATE_SAMPLE = 'createSample',
   UPDATE_SAMPLE = 'updateSample',
   UPDATE_SAMPLE_ITEMS = 'updateSampleItems',
+  DELETE_SAMPLE = 'deleteSample',
 }
 
 export const sampleApi = api.injectEndpoints({
@@ -82,6 +83,17 @@ export const sampleApi = api.injectEndpoints({
       }),
       invalidatesTags: (result, error, { id }) => [{ type: 'Sample', id }],
     }),
+    [SampleMutationEndpoints.DELETE_SAMPLE]: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `samples/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: (result, error, id) => [
+        { type: 'Sample', id: 'LIST' },
+        { type: 'Sample', id },
+        'SampleCount',
+      ],
+    }),
   }),
 });
 
@@ -92,4 +104,5 @@ export const {
   useGetSampleQuery,
   useUpdateSampleMutation,
   useUpdateSampleItemsMutation,
+  useDeleteSampleMutation,
 } = sampleApi;

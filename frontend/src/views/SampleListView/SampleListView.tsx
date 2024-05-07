@@ -21,6 +21,7 @@ import {
   SampleStatus,
   SampleStatusLabels,
 } from 'shared/schema/Sample/SampleStatus';
+import { isDefined } from 'shared/utils/utils';
 import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
@@ -31,6 +32,7 @@ import {
 } from 'src/services/sample.service';
 import samplesSlice from 'src/store/reducers/samplesSlice';
 import { getURLQuery } from 'src/utils/fetchUtils';
+import RemoveSample from 'src/views/SampleListView/RemoveSample';
 
 const SampleListView = () => {
   useDocumentTitle('Liste des prélèvements');
@@ -187,19 +189,33 @@ const SampleListView = () => {
             noCaption
             fixed
             headers={[
+              hasPermission('deleteSample') ? (
+                <div className="cell-icon"></div>
+              ) : undefined,
               'Identifiant',
               'Date de création',
               'Département',
               "Site d'intervention",
               'Statut',
-            ]}
-            data={samples.map((sample) => [
-              <Link to={`/prelevements/${sample.id}`}>{sample.reference}</Link>,
-              format(sample.createdAt, 'dd/MM/yyyy'),
-              `${sample.department} - ${DepartmentLabels[sample.department]}`,
-              sample.locationName,
-              <SampleStatusBadge status={sample?.status as SampleStatus} />,
-            ])}
+            ].filter(isDefined)}
+            data={samples.map((sample) =>
+              [
+                hasPermission('deleteSample') ? (
+                  <div className="cell-icon">
+                    {DraftStatusList.includes(sample.status) && (
+                      <RemoveSample sample={sample} />
+                    )}
+                  </div>
+                ) : undefined,
+                <Link to={`/prelevements/${sample.id}`}>
+                  {sample.reference}
+                </Link>,
+                format(sample.createdAt, 'dd/MM/yyyy'),
+                `${sample.department} - ${DepartmentLabels[sample.department]}`,
+                sample.locationName || '',
+                <SampleStatusBadge status={sample?.status as SampleStatus} />,
+              ].filter(isDefined)
+            )}
             className={cx('fr-mb-2w')}
           />
           {samplesCount > defaultPerPage && (

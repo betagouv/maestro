@@ -44,6 +44,7 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'createSample',
     'readSamples',
     'updateSample',
+    'deleteSample',
     'readDocuments',
   ],
   Administrator: UserPermissionList,
