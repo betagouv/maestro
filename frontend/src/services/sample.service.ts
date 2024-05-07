@@ -39,6 +39,7 @@ export const sampleApi = api.injectEndpoints({
       }),
       transformResponse: (response: { count: number }) =>
         Number(response.count),
+      providesTags: ['SampleCount'],
     }),
     [SampleMutationEndpoints.CREATE_SAMPLE]: builder.mutation<
       PartialSample,
@@ -51,7 +52,7 @@ export const sampleApi = api.injectEndpoints({
       }),
       transformResponse: (response: any) =>
         PartialSample.parse(fp.omitBy(response, fp.isNil)),
-      invalidatesTags: [{ type: 'Sample', id: 'LIST' }],
+      invalidatesTags: [{ type: 'Sample', id: 'LIST' }, 'SampleCount'],
     }),
     [SampleMutationEndpoints.UPDATE_SAMPLE]: builder.mutation<
       PartialSample,
@@ -67,6 +68,7 @@ export const sampleApi = api.injectEndpoints({
       invalidatesTags: (result, error, { id }) => [
         { type: 'Sample', id: 'LIST' },
         { type: 'Sample', id },
+        'SampleCount',
       ],
     }),
     [SampleMutationEndpoints.UPDATE_SAMPLE_ITEMS]: builder.mutation<

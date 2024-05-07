@@ -1,9 +1,7 @@
-import Alert from '@codegouvfr/react-dsfr/Alert';
 import Badge from '@codegouvfr/react-dsfr/Badge';
 import Button from '@codegouvfr/react-dsfr/Button';
 import Card from '@codegouvfr/react-dsfr/Card';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { t } from 'i18next';
 import { sumBy } from 'lodash';
 import { useMemo } from 'react';
 import {
@@ -13,7 +11,11 @@ import {
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useFindPrescriptionsQuery } from 'src/services/prescription.service';
-import { useFindSamplesQuery } from 'src/services/sample.service';
+import {
+  useCountSamplesQuery,
+  useFindSamplesQuery,
+} from 'src/services/sample.service';
+import { pluralize } from 'src/utils/stringUtils';
 import ProgrammingPlanMap from 'src/views/DashboardView/ProgrammingPlanMap';
 
 interface ProgrammingPlanCardProps {
@@ -30,7 +32,7 @@ const ProgrammingPlanCard = ({ programmingPlan }: ProgrammingPlanCardProps) => {
     programmingPlanId: programmingPlan.id,
     status: 'Sent',
   });
-  const { data: samplesToSent } = useFindSamplesQuery(
+  const { data: samplesToSentCount } = useCountSamplesQuery(
     {
       programmingPlanId: programmingPlan.id,
       status: 'Submitted',
@@ -73,7 +75,9 @@ const ProgrammingPlanCard = ({ programmingPlan }: ProgrammingPlanCardProps) => {
               border
               size="small"
               title={sumBy(prescriptions, 'sampleCount')}
-              desc="prélèvements programmés"
+              desc={pluralize(sumBy(prescriptions, 'sampleCount'))(
+                'prélèvement programmé'
+              )}
               className={'fr-card--xs'}
             />
           </div>
@@ -84,7 +88,7 @@ const ProgrammingPlanCard = ({ programmingPlan }: ProgrammingPlanCardProps) => {
                 border
                 size="small"
                 title={samples?.length ?? 0}
-                desc="prélèvements réalisés"
+                desc={pluralize(samples?.length ?? 0)('prélèvement réalisé')}
                 className={'fr-card--xs'}
                 enlargeLink
                 linkProps={{
@@ -102,19 +106,21 @@ const ProgrammingPlanCard = ({ programmingPlan }: ProgrammingPlanCardProps) => {
               />
             </div>
           )}
-          {!hasNationalView && samplesToSent && samplesToSent.length > 0 && (
-            <div className={cx('fr-col-12')}>
-              <Alert
-                severity="warning"
-                small
-                description={
-                  <>
-                    {t('sample', {
-                      count: samplesToSent.length,
-                    })}
-                     en attente d'envoi
-                  </>
-                }
+          {!hasNationalView && (samplesToSentCount ?? 0) > 0 && (
+            <div className={cx('fr-col-12', 'fr-col-md-6')}>
+              <Card
+                background
+                border
+                size="small"
+                title={samplesToSentCount}
+                desc={`${pluralize(samplesToSentCount ?? 0)(
+                  'prélèvement'
+                )}  à envoyer`}
+                className={'fr-card--xs'}
+                enlargeLink
+                linkProps={{
+                  to: `/prelevements?status=Submitted&programmingPlanId=${programmingPlan.id}`,
+                }}
               />
             </div>
           )}
