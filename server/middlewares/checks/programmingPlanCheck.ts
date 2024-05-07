@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { constants } from 'http2';
-import { ProgrammingPlanStatus } from '../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import programmingPlanRepository from '../repositories/programmingPlanRepository';
+import { ProgrammingPlanStatus } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import programmingPlanRepository from '../../repositories/programmingPlanRepository';
 
 export const programmingPlanCheck =
   (status?: ProgrammingPlanStatus) =>

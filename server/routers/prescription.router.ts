@@ -6,8 +6,8 @@ import {
   PrescriptionUpdate,
 } from '../../shared/schema/Prescription/Prescription';
 import prescriptionController from '../controllers/prescriptionController';
-import { permissionsCheck } from '../middlewares/auth';
-import { programmingPlanCheck } from '../middlewares/plan';
+import { permissionsCheck } from '../middlewares/checks/authCheck';
+import { programmingPlanCheck } from '../middlewares/checks/programmingPlanCheck';
 import validator, {
   body,
   params,

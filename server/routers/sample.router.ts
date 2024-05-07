@@ -7,7 +7,8 @@ import {
 } from '../../shared/schema/Sample/Sample';
 import { PartialSampleItem } from '../../shared/schema/Sample/SampleItem';
 import sampleController from '../controllers/sampleController';
-import { permissionsCheck } from '../middlewares/auth';
+import { permissionsCheck } from '../middlewares/checks/authCheck';
+import { sampleCheck } from '../middlewares/checks/sampleCheck';
 import validator, { body, query, uuidParam } from '../middlewares/validator';
 const router = express.Router();
 
@@ -27,6 +28,7 @@ router.get(
   '/:sampleId',
   validator.validate(uuidParam('sampleId')),
   permissionsCheck(['readSamples']),
+  sampleCheck(),
   sampleController.getSample
 );
 router.post(
@@ -39,6 +41,7 @@ router.put(
   '/:sampleId',
   validator.validate(uuidParam('sampleId').merge(body(PartialSample))),
   permissionsCheck(['updateSample']),
+  sampleCheck(),
   sampleController.updateSample
 );
 router.put(
@@ -47,7 +50,15 @@ router.put(
     uuidParam('sampleId').merge(body(z.array(PartialSampleItem)))
   ),
   permissionsCheck(['updateSample']),
+  sampleCheck(),
   sampleController.updateSampleItems
+);
+router.delete(
+  '/:sampleId',
+  validator.validate(uuidParam('sampleId')),
+  permissionsCheck(['deleteSample']),
+  sampleCheck(),
+  sampleController.deleteSample
 );
 
 export default router;

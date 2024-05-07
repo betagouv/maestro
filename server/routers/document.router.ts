@@ -2,7 +2,7 @@ import express from 'express';
 import { z } from 'zod';
 import { DocumentToCreate } from '../../shared/schema/Document/Document';
 import documentController from '../controllers/documentController';
-import { permissionsCheck } from '../middlewares/auth';
+import { permissionsCheck } from '../middlewares/checks/authCheck';
 import validator, { body, uuidParam } from '../middlewares/validator';
 
 const router = express.Router();

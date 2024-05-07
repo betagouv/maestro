@@ -1,6 +1,6 @@
 import express from 'express';
 import fs from 'fs';
-import { jwtCheck, userCheck } from '../middlewares/auth';
+import { jwtCheck, userCheck } from '../middlewares/checks/authCheck';
 import documentRouter from './document.router';
 import laboratoryRouter from './laboratory.router';
 import prescriptionRouter from './prescription.router';

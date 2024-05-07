@@ -9,10 +9,12 @@ declare global {
     interface Request {
       auth?: jwt.JwtPayload & TokenPayload;
       user?: User;
+      sample?: Sample;
     }
   }
 }
 
 declare module 'express-jwt' {
   type AuthenticatedRequest = MarkRequired<express.Request, 'auth' | 'user'>;
+  type SampleRequest = MarkRequired<express.Request, 'sample'>;
 }

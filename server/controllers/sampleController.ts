@@ -1,10 +1,9 @@
 import { getYear } from 'date-fns';
 import { Request, Response } from 'express';
-import { AuthenticatedRequest } from 'express-jwt';
+import { AuthenticatedRequest, SampleRequest } from 'express-jwt';
 import { constants } from 'http2';
 import fp from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
-import { Regions } from '../../shared/schema/Region';
 import { FindSampleOptions } from '../../shared/schema/Sample/FindSampleOptions';
 import {
   CreatedSample,
@@ -12,29 +11,16 @@ import {
   SampleToCreate,
 } from '../../shared/schema/Sample/Sample';
 import { SampleItem } from '../../shared/schema/Sample/SampleItem';
+import { DraftStatusList } from '../../shared/schema/Sample/SampleStatus';
 import sampleItemRepository from '../repositories/sampleItemRepository';
 import sampleRepository from '../repositories/sampleRepository';
 
 const getSample = async (request: Request, response: Response) => {
-  const { user } = request as AuthenticatedRequest;
-  const { sampleId } = request.params;
+  const sample = (request as SampleRequest).sample;
 
-  console.info('Get sample', sampleId);
+  console.info('Get sample', sample.id);
 
-  const sample = await sampleRepository.findUnique(sampleId);
-
-  if (!sample) {
-    return response.sendStatus(constants.HTTP_STATUS_NOT_FOUND);
-  }
-
-  if (
-    user.region &&
-    !Regions[user.region].departments.includes(sample.department)
-  ) {
-    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
-  }
-
-  const sampleItems = await sampleItemRepository.findMany(sampleId);
+  const sampleItems = await sampleItemRepository.findMany(sample.id);
 
   response.status(constants.HTTP_STATUS_OK).send({
     ...sample,
@@ -99,20 +85,10 @@ const createSample = async (request: Request, response: Response) => {
 };
 
 const updateSample = async (request: Request, response: Response) => {
-  const { sampleId } = request.params;
+  const sample = (request as SampleRequest).sample;
   const sampleUpdate = request.body as PartialSample;
 
-  console.info('Update sample', sampleId, sampleUpdate);
-
-  const sample = await sampleRepository.findUnique(sampleId);
-
-  if (!sample) {
-    return response.sendStatus(constants.HTTP_STATUS_NOT_FOUND);
-  }
-
-  if (sample.createdBy !== (request as AuthenticatedRequest).auth.userId) {
-    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
-  }
+  console.info('Update sample', sample.id, sampleUpdate);
 
   if (sample.status === 'Sent') {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
@@ -130,26 +106,16 @@ const updateSample = async (request: Request, response: Response) => {
 };
 
 const updateSampleItems = async (request: Request, response: Response) => {
-  const { sampleId } = request.params;
+  const sample = (request as SampleRequest).sample;
   const sampleItems = request.body as SampleItem[];
 
-  console.info('Update sample items', sampleId, sampleItems);
-
-  const sample = await sampleRepository.findUnique(sampleId);
-
-  if (!sample) {
-    return response.sendStatus(constants.HTTP_STATUS_NOT_FOUND);
-  }
-
-  if (sample.createdBy !== (request as AuthenticatedRequest).auth.userId) {
-    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
-  }
+  console.info('Update sample items', sample.id, sampleItems);
 
   if (sample.status === 'Sent') {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
   }
 
-  await sampleItemRepository.deleteMany(sampleId);
+  await sampleItemRepository.deleteMany(sample.id);
   await sampleItemRepository.insertMany(sampleItems);
 
   await sampleRepository.update({
@@ -160,6 +126,20 @@ const updateSampleItems = async (request: Request, response: Response) => {
   response.status(constants.HTTP_STATUS_OK).send(sampleItems);
 };
 
+const deleteSample = async (request: Request, response: Response) => {
+  const sample = (request as SampleRequest).sample;
+
+  console.info('Delete sample', sample.id);
+
+  if (!DraftStatusList.includes(sample.status)) {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
+
+  await sampleRepository.deleteOne(sample.id);
+
+  response.sendStatus(constants.HTTP_STATUS_NO_CONTENT);
+};
+
 export default {
   getSample,
   findSamples,
@@ -167,4 +147,5 @@ export default {
   createSample,
   updateSample,
   updateSampleItems,
+  deleteSample,
 };

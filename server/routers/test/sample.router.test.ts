@@ -490,4 +490,60 @@ describe('Sample router', () => {
       ).resolves.toMatchObject(sampleItems);
     });
   });
+
+  describe('DELETE /samples/{sampleId}', () => {
+    const testRoute = (sampleId: string) => `/api/samples/${sampleId}`;
+
+    it('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .delete(testRoute(sample11.id))
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    it('should get a valid sample id', async () => {
+      await request(app)
+        .delete(testRoute(randomstring.generate()))
+        .use(tokenProvider(sampler1))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    it('should fail if the sample does not exist', async () => {
+      await request(app)
+        .delete(testRoute(uuidv4()))
+        .use(tokenProvider(sampler1))
+        .expect(constants.HTTP_STATUS_NOT_FOUND);
+    });
+
+    it('should fail if the sample does not belong to the user', async () => {
+      await request(app)
+        .delete(testRoute(sample11.id))
+        .use(tokenProvider(sampler2))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    it('should fail if the user does not have the permission to delete samples', async () => {
+      await request(app)
+        .delete(testRoute(sample11.id))
+        .use(tokenProvider(nationalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    it('should be forbidden to delete a sample that is not in draft status', async () => {
+      await request(app)
+        .delete(testRoute(sample13.id))
+        .use(tokenProvider(sampler1))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    it('should delete the sample', async () => {
+      await request(app)
+        .delete(testRoute(sample11.id))
+        .use(tokenProvider(sampler1))
+        .expect(constants.HTTP_STATUS_NO_CONTENT);
+
+      await expect(
+        Samples().where({ id: sample11.id }).first()
+      ).resolves.toBeUndefined();
+    });
+  });
 });

@@ -2,15 +2,15 @@ import { NextFunction, Request, Response } from 'express';
 import { expressjwt } from 'express-jwt';
 
 import _ from 'lodash';
-import AuthenticationMissingError from '../../shared/errors/authenticationMissingError';
-import UserMissingError from '../../shared/errors/userMissingError';
-import UserPermissionMissingError from '../../shared/errors/userPermissionMissingError';
-import UserRoleMissingError from '../../shared/errors/userRoleMissingError';
-import { hasPermission } from '../../shared/schema/User/User';
-import { UserPermission } from '../../shared/schema/User/UserPermission';
-import { UserRole } from '../../shared/schema/User/UserRole';
-import userRepository from '../repositories/userRepository';
-import config from '../utils/config';
+import AuthenticationMissingError from '../../../shared/errors/authenticationMissingError';
+import UserMissingError from '../../../shared/errors/userMissingError';
+import UserPermissionMissingError from '../../../shared/errors/userPermissionMissingError';
+import UserRoleMissingError from '../../../shared/errors/userRoleMissingError';
+import { hasPermission } from '../../../shared/schema/User/User';
+import { UserPermission } from '../../../shared/schema/User/UserPermission';
+import { UserRole } from '../../../shared/schema/User/UserRole';
+import userRepository from '../../repositories/userRepository';
+import config from '../../utils/config';
 
 export const jwtCheck = (credentialsRequired: boolean) =>
   expressjwt({

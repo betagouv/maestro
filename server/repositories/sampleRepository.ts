@@ -83,6 +83,11 @@ const update = async (partialSample: PartialSample): Promise<void> => {
   }
 };
 
+const deleteOne = async (id: string): Promise<void> => {
+  console.info('Delete sample', id);
+  await Samples().where({ id }).delete();
+};
+
 export const formatPartialSample = (partialSample: PartialSample) => ({
   ...fp.omit(partialSample, ['items']),
   userLocation: db.raw('Point(?, ?)', [
@@ -98,4 +103,5 @@ export default {
   findMany,
   count,
   getSerial,
+  deleteOne,
 };
