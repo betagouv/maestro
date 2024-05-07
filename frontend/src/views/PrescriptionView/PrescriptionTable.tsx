@@ -92,7 +92,7 @@ const PrescriptionTable = ({
   const headers = useMemo(
     () =>
       [
-        <div>
+        <div className="cell-icon">
           {hasPermission('createPrescription') &&
             programmingPlan.status === 'InProgress' && (
               <AddMatrix
@@ -104,8 +104,8 @@ const PrescriptionTable = ({
               />
             )}
         </div>,
-        <div className="fr-pl-0">Matrice</div>,
-        'Stade de prélèvement',
+        <div>Matrice</div>,
+        <div>Stade de prélèvement</div>,
         regions.length > 1 && <div className="border-left">Total</div>,
         ...regions.map((region) => (
           <div className="border-left" key={`header-${region}`}>
@@ -180,13 +180,15 @@ const PrescriptionTable = ({
                   }
                 />
               ) : (
-                [
-                  <div>{sampleCount}</div>,
-                  programmingPlan.status === 'Validated' && [
-                    <div>{sentSampleCount}</div>,
-                    <div>{matrixCompletionRate(p, region)}%</div>,
-                  ],
-                ]
+                <>
+                  <div>{sampleCount}</div>
+                  {programmingPlan.status === 'Validated' && (
+                    <>
+                      <div>{sentSampleCount}</div>
+                      <div>{matrixCompletionRate(p, region)}%</div>
+                    </>
+                  )}
+                </>
               )}
             </div>
           )),
@@ -265,18 +267,22 @@ const PrescriptionTable = ({
                 )
               )}
             </div>
-            {programmingPlan.status === 'Validated' && [
-              <div>
-                {_.sum(
-                  prescriptionsByMatrix.map(
-                    (p) =>
-                      p.regionalData.find((r) => r.region === region)
-                        ?.sentSampleCount
-                  )
-                )}
-              </div>,
-              <div>{matrixCompletionRate(prescriptionsByMatrix, region)}%</div>,
-            ]}
+            {programmingPlan.status === 'Validated' && (
+              <>
+                <div>
+                  {_.sum(
+                    prescriptionsByMatrix.map(
+                      (p) =>
+                        p.regionalData.find((r) => r.region === region)
+                          ?.sentSampleCount
+                    )
+                  )}
+                </div>
+                <div>
+                  {matrixCompletionRate(prescriptionsByMatrix, region)}%
+                </div>
+              </>
+            )}
           </div>,
         ]),
         regions.length === 1 && EmptyCell,

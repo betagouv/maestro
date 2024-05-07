@@ -18,6 +18,12 @@ router.get(
   sampleController.findSamples
 );
 router.get(
+  '/count',
+  validator.validate(query(FindSampleOptions)),
+  permissionsCheck(['readSamples']),
+  sampleController.countSamples
+);
+router.get(
   '/:sampleId',
   validator.validate(uuidParam('sampleId')),
   permissionsCheck(['readSamples']),

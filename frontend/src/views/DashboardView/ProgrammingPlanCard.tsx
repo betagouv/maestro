@@ -86,6 +86,10 @@ const ProgrammingPlanCard = ({ programmingPlan }: ProgrammingPlanCardProps) => {
                 title={samples?.length ?? 0}
                 desc="prélèvements réalisés"
                 className={'fr-card--xs'}
+                enlargeLink
+                linkProps={{
+                  to: `/prelevements?status=Sent&programmingPlanId=${programmingPlan.id}`,
+                }}
               />
             </div>
           )}

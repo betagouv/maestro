@@ -72,7 +72,7 @@ const AddMatrix = ({ excludedList, onAddMatrix }: AddMatrixProps) => {
         title="Ajouter"
         iconId="fr-icon-add-circle-line"
         priority="tertiary no outline"
-        className={cx('fr-pl-1w', 'fr-pr-0')}
+        className="cell-icon"
         onClick={addModal.open}
         data-testid="add-matrix-button"
       />

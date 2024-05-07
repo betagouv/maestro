@@ -17,6 +17,12 @@ export const SampleStatusList: SampleStatus[] = [
   'Sent',
 ];
 
+export const DraftStatusList: SampleStatus[] = [
+  'Draft',
+  'DraftInfos',
+  'DraftItems',
+];
+
 export const SampleStatusLabels: Record<SampleStatus, string> = {
   Draft: 'Brouillon',
   DraftInfos: 'Brouillon',

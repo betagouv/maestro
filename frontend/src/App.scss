@@ -1,6 +1,6 @@
 .fr-table {
 
-  table {
+  &:not(.fr-table--layout-fixed) table {
     max-height: calc(100vh - 100px);
     overflow: auto;
     width: fit-content !important;
@@ -33,6 +33,11 @@
 
   th:has(.fr-pr-0), td:has(.fr-pr-0) {
     padding-right: 0;
+  }
+
+  th:has(.cell-icon), td:has(.cell-icon) {
+    width: 40px !important;
+    padding: 0;
   }
 
   th, td {
@@ -105,7 +110,7 @@
 .fr-card--xs {
 
   .fr-card__content {
-    padding: 0.75rem;
+    padding: 0.75rem !important;
   }
 
   .fr-card__end:empty {

@@ -46,6 +46,12 @@ describe('Sample router', () => {
   const sample12 = {
     ...genSample(sampler1.id, programmingPlan.id),
     id: uuidv4(),
+    status: 'Draft' as SampleStatus,
+    department: oneOf(Regions[region1].departments),
+  };
+  const sample13 = {
+    ...genSample(sampler1.id, programmingPlan.id),
+    id: uuidv4(),
     status: 'Sent' as SampleStatus,
     department: oneOf(Regions[region1].departments),
   };
@@ -61,6 +67,7 @@ describe('Sample router', () => {
     await Samples().insert([
       formatPartialSample(sample11),
       formatPartialSample(sample12),
+      formatPartialSample(sample13),
       formatPartialSample(sample2),
     ]);
     await SampleItems().insert(sampleItem1);
@@ -137,6 +144,66 @@ describe('Sample router', () => {
           expiryDate: sample11.expiryDate?.toISOString(),
         },
       ]);
+    });
+
+    it('should find national samples with a list of statuses', async () => {
+      const res = await request(app)
+        .get(testRoute({ status: 'DraftInfos,Draft' }))
+        .use(tokenProvider(nationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toMatchObject([
+        {
+          ...fp.omit(sample11, ['items']),
+          createdAt: sample11.createdAt.toISOString(),
+          lastUpdatedAt: sample11.lastUpdatedAt.toISOString(),
+          sampledAt: sample11.sampledAt.toISOString(),
+          expiryDate: sample11.expiryDate?.toISOString(),
+        },
+        {
+          ...fp.omit(sample12, ['items']),
+          createdAt: sample12.createdAt.toISOString(),
+          lastUpdatedAt: sample12.lastUpdatedAt.toISOString(),
+          sampledAt: sample12.sampledAt.toISOString(),
+          expiryDate: sample12.expiryDate?.toISOString(),
+        },
+        {
+          ...fp.omit(sample2, ['items']),
+          createdAt: sample2.createdAt.toISOString(),
+          lastUpdatedAt: sample2.lastUpdatedAt.toISOString(),
+          sampledAt: sample2.sampledAt.toISOString(),
+          expiryDate: sample2.expiryDate?.toISOString(),
+        },
+      ]);
+    });
+  });
+
+  describe('GET /samples/count', () => {
+    const testRoute = (params: Record<string, string>) =>
+      `/api/samples/count?${new URLSearchParams(params).toString()}`;
+
+    it('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .get(testRoute({}))
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    it('should count the samples with query parameters restricted to the user region', async () => {
+      const res = await request(app)
+        .get(testRoute({ status: 'DraftInfos' }))
+        .use(tokenProvider(sampler1))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toMatchObject({ count: 1 });
+    });
+
+    it('should count national samples with a list of statuses', async () => {
+      const res = await request(app)
+        .get(testRoute({ status: 'DraftInfos,Draft' }))
+        .use(tokenProvider(nationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toMatchObject({ count: 3 });
     });
   });
 

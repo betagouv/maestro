@@ -1,4 +1,5 @@
 import fp from 'lodash';
+import { defaultPerPage } from '../../shared/schema/commons/Pagination';
 import { Regions } from '../../shared/schema/Region';
 import { FindSampleOptions } from '../../shared/schema/Sample/FindSampleOptions';
 import {
@@ -20,20 +21,47 @@ const findUnique = async (id: string): Promise<PartialSample | undefined> => {
     .then((_) => _ && PartialSample.parse(fp.omitBy(_, fp.isNil)));
 };
 
+const findRequest = (findOptions: FindSampleOptions) =>
+  Samples()
+    .where(
+      fp.omitBy(
+        fp.omit(findOptions, 'region', 'page', 'perPage', 'statusList'),
+        (_) => fp.isNil(_) || fp.isArray(_)
+      )
+    )
+    .modify((builder) => {
+      if (findOptions.region) {
+        builder.whereIn('department', Regions[findOptions.region].departments);
+      }
+      if (fp.isArray(findOptions.status)) {
+        builder.whereIn('status', findOptions.status);
+      }
+    });
+
 const findMany = async (
   findOptions: FindSampleOptions
 ): Promise<PartialSample[]> => {
   console.info('Find samples', fp.omitBy(findOptions, fp.isNil));
-  return Samples()
-    .where(fp.omitBy(fp.omit(findOptions, 'region'), fp.isNil))
+  return findRequest(findOptions)
     .modify((builder) => {
-      if (findOptions.region) {
-        builder.whereIn('department', Regions[findOptions.region].departments);
+      if (findOptions.page) {
+        builder
+          .limit(findOptions.perPage ?? defaultPerPage)
+          .offset(
+            (findOptions.page - 1) * (findOptions.perPage ?? defaultPerPage)
+          );
       }
     })
     .then((samples) =>
       samples.map((_: any) => PartialSample.parse(fp.omitBy(_, fp.isNil)))
     );
+};
+
+const count = async (findOptions: FindSampleOptions): Promise<number> => {
+  console.info('Count samples', fp.omitBy(findOptions, fp.isNil));
+  return findRequest(findOptions)
+    .count()
+    .then(([{ count }]) => Number(count));
 };
 
 const getSerial = async (): Promise<number> => {
@@ -68,5 +96,6 @@ export default {
   update,
   findUnique,
   findMany,
+  count,
   getSerial,
 };

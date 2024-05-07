@@ -32,6 +32,14 @@ export const sampleApi = api.injectEndpoints({
           : []),
       ],
     }),
+    countSamples: builder.query<number, FindSampleOptions>({
+      query: (findOptions) => ({
+        url: 'samples/count',
+        params: findOptions,
+      }),
+      transformResponse: (response: { count: number }) =>
+        Number(response.count),
+    }),
     [SampleMutationEndpoints.CREATE_SAMPLE]: builder.mutation<
       PartialSample,
       SampleToCreate
@@ -78,6 +86,7 @@ export const sampleApi = api.injectEndpoints({
 export const {
   useCreateSampleMutation,
   useFindSamplesQuery,
+  useCountSamplesQuery,
   useGetSampleQuery,
   useUpdateSampleMutation,
   useUpdateSampleItemsMutation,

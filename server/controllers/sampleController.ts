@@ -58,6 +58,22 @@ const findSamples = async (request: Request, response: Response) => {
   response.status(constants.HTTP_STATUS_OK).send(samples);
 };
 
+const countSamples = async (request: Request, response: Response) => {
+  const { user } = request as AuthenticatedRequest;
+  const queryFindOptions = request.query as FindSampleOptions;
+
+  const findOptions = {
+    ...queryFindOptions,
+    region: user.region ?? queryFindOptions.region,
+  };
+
+  console.info('Count samples for user', user.id, findOptions);
+
+  const count = await sampleRepository.count(findOptions);
+
+  response.status(constants.HTTP_STATUS_OK).send({ count });
+};
+
 const createSample = async (request: Request, response: Response) => {
   const { userId } = (request as AuthenticatedRequest).auth;
   const sampleToCreate = request.body as SampleToCreate;
@@ -147,6 +163,7 @@ const updateSampleItems = async (request: Request, response: Response) => {
 export default {
   getSample,
   findSamples,
+  countSamples,
   createSample,
   updateSample,
   updateSampleItems,

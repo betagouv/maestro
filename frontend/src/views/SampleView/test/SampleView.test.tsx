@@ -95,7 +95,7 @@ describe('SampleView', () => {
     expect(calls).toHaveLength(1);
   });
 
-  test('should render the third step for a draft sample with status DraftItems', async () => {
+  test('should render the third step for a sample with status DraftItems', async () => {
     const draftSample = {
       ...genSample(),
       status: 'DraftItems',
@@ -127,7 +127,7 @@ describe('SampleView', () => {
     expect(calls).toHaveLength(1);
   });
 
-  test('should render the fourth step for a draft sample with status Sent', async () => {
+  test('should render the fourth step for a sample with status Sent', async () => {
     const draftSample = {
       ...genSample(),
       status: 'Sent',
