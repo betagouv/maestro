@@ -52,7 +52,8 @@ describe('SampleView', () => {
     });
   });
 
-  test('should render the first step for a new sample', () => {
+  test('should render the first step for a new sample', async () => {
+    mockRequests([userRequest]);
     jest.spyOn(Router, 'useParams').mockReturnValue({ sampleId: undefined });
 
     render(
@@ -63,7 +64,9 @@ describe('SampleView', () => {
       </Provider>
     );
 
-    expect(screen.getByTestId('draft_sample_1_form')).toBeInTheDocument();
+    await waitFor(async () => {
+      expect(screen.getByTestId('draft_sample_1_form')).toBeInTheDocument();
+    });
   });
 
   test('should render the second step for a draft sample', async () => {
@@ -92,7 +95,11 @@ describe('SampleView', () => {
     });
 
     const calls = await getRequestCalls(fetchMock);
-    expect(calls).toHaveLength(1);
+    expect(
+      calls.filter((call) =>
+        call?.url.endsWith(`/api/samples/${createdSample.id}`)
+      )
+    ).toHaveLength(1);
   });
 
   test('should render the third step for a sample with status DraftItems', async () => {
@@ -124,7 +131,11 @@ describe('SampleView', () => {
     });
 
     const calls = await getRequestCalls(fetchMock);
-    expect(calls).toHaveLength(1);
+    expect(
+      calls.filter((call) =>
+        call?.url.endsWith(`/api/samples/${draftSample.id}`)
+      )
+    ).toHaveLength(1);
   });
 
   test('should render the fourth step for a sample with status Sent', async () => {
@@ -157,6 +168,10 @@ describe('SampleView', () => {
     });
 
     const calls = await getRequestCalls(fetchMock);
-    expect(calls).toHaveLength(1);
+    expect(
+      calls.filter((call) =>
+        call?.url.endsWith(`/api/samples/${draftSample.id}`)
+      )
+    ).toHaveLength(1);
   });
 });

@@ -70,7 +70,7 @@ const SampleView = () => {
     } else {
       setStep(4);
     }
-  }, [sample, searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [sample, searchParams, hasPermission('updateSample')]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (sampleId && !sample) {
     return <></>;

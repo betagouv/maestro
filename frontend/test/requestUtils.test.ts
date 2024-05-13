@@ -13,8 +13,8 @@ export const getRequestCalls = (fetchMock: FetchMock) =>
   Promise.all(
     fetchMock.mock.calls.map(async (call) => {
       const request = call[0] as Request;
-      if (request.url && request.body) {
-        const body = await request.json();
+      if (request.url) {
+        const body = request.body ? await request.json() : null;
         return {
           url: request.url,
           method: request.method,
