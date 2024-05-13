@@ -18,5 +18,8 @@ export const programmingPlanCheck =
     if (status && programmingPlan.status !== status) {
       return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
     }
+
+    request.programmingPlan = programmingPlan;
+
     next();
   };

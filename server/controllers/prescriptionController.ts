@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { AuthenticatedRequest } from 'express-jwt';
+import { AuthenticatedRequest, ProgrammingPlanRequest } from 'express-jwt';
 import highland from 'highland';
 import { constants } from 'http2';
 import _ from 'lodash';
@@ -18,21 +18,20 @@ import { hasPermission } from '../../shared/schema/User/User';
 import { isDefined } from '../../shared/utils/utils';
 import laboratoryRepository from '../repositories/laboratoryRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
-import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import sampleRepository from '../repositories/sampleRepository';
 import workbookUtils from '../utils/workbookUtils';
 const findPrescriptions = async (request: Request, response: Response) => {
-  const programmingPlanId = request.params.programmingPlanId;
+  const programmingPlan = (request as ProgrammingPlanRequest).programmingPlan;
   const user = (request as AuthenticatedRequest).user;
   const queryFindOptions = request.query as FindPrescriptionOptions;
 
   const findOptions = {
     ...queryFindOptions,
-    programmingPlanId,
+    programmingPlanId: programmingPlan.id,
     region: user.region ?? queryFindOptions.region,
   };
 
-  console.info('Find prescriptions for user', user.id, findOptions);
+  console.info('Find prescriptions', user.id, findOptions);
 
   const prescriptions = await prescriptionRepository.findMany(findOptions);
 
@@ -40,7 +39,7 @@ const findPrescriptions = async (request: Request, response: Response) => {
 };
 
 const exportPrescriptions = async (request: Request, response: Response) => {
-  const programmingPlanId = request.params.programmingPlanId;
+  const programmingPlan = (request as ProgrammingPlanRequest).programmingPlan;
   const user = (request as AuthenticatedRequest).user;
   const queryFindOptions = request.query as FindPrescriptionOptions;
 
@@ -51,27 +50,16 @@ const exportPrescriptions = async (request: Request, response: Response) => {
 
   const findOptions = {
     ...queryFindOptions,
-    programmingPlanId,
+    programmingPlanId: programmingPlan.id,
     region: uniqueExportedRegion,
   };
 
-  console.info(
-    'Export prescriptions by programming plan id',
-    programmingPlanId
-  );
-
-  const programmingPlan = await programmingPlanRepository.findUnique(
-    programmingPlanId
-  );
-
-  if (!programmingPlan) {
-    return response.sendStatus(constants.HTTP_STATUS_NOT_FOUND);
-  }
+  console.info('Export prescriptions', user.id, findOptions);
 
   const prescriptions = await prescriptionRepository.findMany(findOptions);
 
   const samples = await sampleRepository.findMany({
-    programmingPlanId,
+    programmingPlanId: programmingPlan.id,
     status: 'Sent',
   });
 
@@ -225,19 +213,19 @@ const exportPrescriptions = async (request: Request, response: Response) => {
 };
 
 const createPrescriptions = async (request: Request, response: Response) => {
-  const programmingPlanId = request.params.programmingPlanId;
+  const programmingPlan = (request as ProgrammingPlanRequest).programmingPlan;
   const prescriptionsToCreate = request.body as PrescriptionToCreate[];
 
   console.info(
     'Create prescriptions for programming plan with id',
-    programmingPlanId,
+    programmingPlan.id,
     prescriptionsToCreate.length
   );
 
   const prescriptions = prescriptionsToCreate.map((prescription) => ({
     ...prescription,
     id: uuidv4(),
-    programmingPlanId,
+    programmingPlanId: programmingPlan.id,
   }));
 
   await prescriptionRepository.insertMany(prescriptions);
@@ -247,7 +235,8 @@ const createPrescriptions = async (request: Request, response: Response) => {
 
 const updatePrescription = async (request: Request, response: Response) => {
   const user = (request as AuthenticatedRequest).user;
-  const { programmingPlanId, prescriptionId } = request.params;
+  const programmingPlan = (request as ProgrammingPlanRequest).programmingPlan;
+  const { prescriptionId } = request.params;
   const prescriptionUpdate = request.body as PrescriptionUpdate;
 
   console.info('Update prescription with id', prescriptionId);
@@ -259,7 +248,7 @@ const updatePrescription = async (request: Request, response: Response) => {
   }
 
   if (
-    prescription.programmingPlanId !== programmingPlanId ||
+    prescription.programmingPlanId !== programmingPlan.id ||
     prescription.id !== prescriptionId
   ) {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
@@ -283,18 +272,18 @@ const updatePrescription = async (request: Request, response: Response) => {
 };
 
 const deletePrescriptions = async (request: Request, response: Response) => {
-  const programmingPlanId = request.params.programmingPlanId;
+  const programmingPlan = (request as ProgrammingPlanRequest).programmingPlan;
   const prescriptionIds = request.body as string[];
 
   console.info(
     'Delete prescriptions with ids',
     prescriptionIds,
     'for programming plan with id',
-    programmingPlanId
+    programmingPlan.id
   );
 
   const prescriptions = await prescriptionRepository.findMany({
-    programmingPlanId,
+    programmingPlanId: programmingPlan.id,
   });
   const existingPrescriptionIds = prescriptions.map((p) => p.id);
 

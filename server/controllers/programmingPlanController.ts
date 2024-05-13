@@ -1,21 +1,11 @@
 import { Request, Response } from 'express';
-import { AuthenticatedRequest } from 'express-jwt';
+import { AuthenticatedRequest, ProgrammingPlanRequest } from 'express-jwt';
 import { constants } from 'http2';
 import { FindProgrammingPlanOptions } from '../../shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
 
 const getProgrammingPlan = async (request: Request, response: Response) => {
-  const { programmingPlanId } = request.params;
-
-  console.info('Get programmingPlan', programmingPlanId);
-
-  const programmingPlan = await programmingPlanRepository.findUnique(
-    programmingPlanId
-  );
-
-  if (!programmingPlan) {
-    return response.sendStatus(constants.HTTP_STATUS_NOT_FOUND);
-  }
+  const programmingPlan = (request as ProgrammingPlanRequest).programmingPlan;
 
   response.status(constants.HTTP_STATUS_OK).send(programmingPlan);
 };
