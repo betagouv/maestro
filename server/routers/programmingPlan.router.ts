@@ -11,13 +11,13 @@ router.get(
   '',
   validator.validate(query(FindProgrammingPlanOptions)),
   permissionsCheck(['readProgrammingPlans']),
-  programmingPlanCheck(),
   programmingPlanController.findProgrammingPlans
 );
 router.get(
   '/:programmingPlanId',
   validator.validate(uuidParam('programmingPlanId')),
   permissionsCheck(['readProgrammingPlans']),
+  programmingPlanCheck(),
   programmingPlanController.getProgrammingPlan
 );
 
