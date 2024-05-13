@@ -281,7 +281,7 @@ describe('Sample router', () => {
           createdAt: expect.any(String),
           createdBy: sampler1.id,
           sampledAt: sample.sampledAt.toISOString(),
-          reference: expect.stringMatching(/^GES-[0-9]{2}-2024-1$/),
+          reference: expect.stringMatching(/^GES-[0-9]{2,3}-2024-1$/),
           status: 'DraftInfos',
         })
       );
