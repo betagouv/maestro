@@ -216,6 +216,7 @@ const SampleListView = () => {
               'Date de création',
               'Département',
               "Site d'intervention",
+              'Contexte',
               'Statut',
             ].filter(isDefined)}
             data={samples.map((sample) =>
@@ -233,6 +234,9 @@ const SampleListView = () => {
                 format(sample.createdAt, 'dd/MM/yyyy'),
                 `${sample.department} - ${DepartmentLabels[sample.department]}`,
                 sample.locationName || '',
+                programmingPlans?.find(
+                  (plan) => plan.id === sample.programmingPlanId
+                )?.title,
                 <SampleStatusBadge status={sample?.status as SampleStatus} />,
               ].filter(isDefined)
             )}
