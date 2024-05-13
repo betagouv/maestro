@@ -26,6 +26,7 @@ import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadg
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
+import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.service';
 import {
   useCountSamplesQuery,
   useFindSamplesQuery,
@@ -62,9 +63,14 @@ const SampleListView = () => {
     }
   }, [searchParams, userInfos?.region]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const { programmingPlanStatus } = useAppSelector((state) => state.settings);
   const { data: samples } = useFindSamplesQuery(findSampleOptions);
   const { data: samplesCount } = useCountSamplesQuery(
     fp.omit(findSampleOptions, 'page', 'perPage')
+  );
+  const { data: programmingPlans } = useFindProgrammingPlansQuery(
+    { status: programmingPlanStatus },
+    { skip: !programmingPlanStatus }
   );
 
   const changeFilter = (findFilter: Partial<FindSampleOptions>) => {
@@ -86,13 +92,9 @@ const SampleListView = () => {
   const initFilter = () => {
     setSearchParams();
     dispatch(
-      samplesSlice.actions.changeFindOptions({
-        region: userInfos?.region,
-        department: undefined,
-        status: undefined,
-        page: 1,
-        perPage: defaultPerPage,
-      })
+      samplesSlice.actions.changeFindOptions(
+        samplesSlice.getInitialState().findSampleOptions
+      )
     );
   };
 
@@ -165,6 +167,24 @@ const SampleListView = () => {
             {(['Submitted', 'Sent'] as SampleStatus[]).map((status) => (
               <option key={`status-${status}`} value={status}>
                 {SampleStatusLabels[status]}
+              </option>
+            ))}
+          </Select>
+        </div>
+        <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
+          <Select
+            label="Contexte"
+            nativeSelectProps={{
+              value: findSampleOptions.programmingPlanId || '',
+              onChange: (e) => {
+                changeFilter({ programmingPlanId: e.target.value });
+              },
+            }}
+          >
+            <option value="">Tous les contextes</option>
+            {programmingPlans?.map((plan) => (
+              <option key={plan.id} value={plan.id}>
+                {plan.title}
               </option>
             ))}
           </Select>

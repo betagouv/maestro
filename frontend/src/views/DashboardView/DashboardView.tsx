@@ -12,12 +12,8 @@ const DashboardView = () => {
 
   const { programmingPlanStatus } = useAppSelector((state) => state.settings);
   const { data: programmingPlans } = useFindProgrammingPlansQuery(
-    {
-      status: programmingPlanStatus,
-    },
-    {
-      skip: !programmingPlanStatus,
-    }
+    { status: programmingPlanStatus },
+    { skip: !programmingPlanStatus }
   );
 
   useDocumentTitle(ProgrammingPlanStatusLabels[programmingPlanStatus]);

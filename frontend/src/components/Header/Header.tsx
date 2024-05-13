@@ -62,6 +62,7 @@ const Header = () => {
                 location.pathname === '/' ||
                 location.pathname.startsWith('/plans'),
             },
+            programmingPlanStatus === 'Validated' &&
             hasPermission('readSamples')
               ? {
                   linkProps: {

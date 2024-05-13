@@ -7,10 +7,17 @@ type SamplesState = {
   findSampleOptions: FindSampleOptions;
 };
 
-const settingsSlice = createSlice({
+const samplesSlice = createSlice({
   name: 'samples',
   initialState: {
-    findSampleOptions: { page: 1, perPage: defaultPerPage },
+    findSampleOptions: {
+      page: 1,
+      perPage: defaultPerPage,
+      region: undefined,
+      department: undefined,
+      status: undefined,
+      programmingPlanId: undefined,
+    },
   } as SamplesState,
   reducers: {
     changeFindOptions: (
@@ -28,4 +35,4 @@ const settingsSlice = createSlice({
   },
 });
 
-export default settingsSlice;
+export default samplesSlice;
