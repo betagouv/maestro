@@ -7,16 +7,18 @@ import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DepartmentLabels } from 'shared/schema/Department';
 import { ProgrammingPlanKindLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { Sample } from 'shared/schema/Sample/Sample';
+import { PartialSample } from 'shared/schema/Sample/Sample';
+import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.service';
 import { useUpdateSampleMutation } from 'src/services/sample.service';
 
 interface Props {
-  sample: Sample;
+  sample: PartialSample;
 }
 
 const SampleStep4 = ({ sample }: Props) => {
   const navigate = useNavigate();
+  const { hasPermission } = useAuthentication();
   const [updateSample, { isSuccess: isUpdateSuccess }] =
     useUpdateSampleMutation();
 
@@ -40,7 +42,7 @@ const SampleStep4 = ({ sample }: Props) => {
 
   return (
     <div data-testid="sample_data">
-      {sample.status !== 'Sent' && (
+      {hasPermission('updateSample') && sample.status !== 'Sent' && (
         <p>
           Vérifiez que les informations saisies sont correctes avant de valider
           l'envoi de votre prélèvement.
@@ -115,7 +117,7 @@ const SampleStep4 = ({ sample }: Props) => {
       <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
       <h3>Échantillons</h3>
       <ul>
-        {sample.items.map((item, index) => (
+        {(sample.items ?? []).map((item, index) => (
           <li key={index}>
             <strong>Échantillon {index + 1}</strong>
             <ul>
@@ -153,7 +155,7 @@ const SampleStep4 = ({ sample }: Props) => {
         <Alert severity="success" title="Le prélèvement a bien été envoyé." />
       ) : (
         <>
-          {sample.status !== 'Sent' ? (
+          {hasPermission('updateSample') && sample.status !== 'Sent' && (
             <ButtonsGroup
               inlineLayoutWhen="md and up"
               buttons={[
@@ -183,7 +185,8 @@ const SampleStep4 = ({ sample }: Props) => {
                 },
               ]}
             />
-          ) : (
+          )}
+          {sample.status === 'Sent' && (
             <Alert
               severity="info"
               title={`Le prélevement a été envoyé ${

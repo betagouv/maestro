@@ -4,9 +4,9 @@ import Stepper from '@codegouvfr/react-dsfr/Stepper';
 import { format } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { Sample } from 'shared/schema/Sample/Sample';
 import { SampleStatus } from 'shared/schema/Sample/SampleStatus';
 import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
+import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useAppSelector } from 'src/hooks/useStore';
 import {
@@ -21,6 +21,7 @@ import SampleStep4 from 'src/views/SampleView/SampleStep4';
 const SampleView = () => {
   useDocumentTitle("Saisie d'un prélèvement");
 
+  const { hasPermission } = useAuthentication();
   const { sampleId } = useParams<{ sampleId?: string }>();
 
   const { data: sample } = useGetSampleQuery(sampleId as string, {
@@ -56,14 +57,18 @@ const SampleView = () => {
   };
 
   useEffect(() => {
-    if (sample) {
-      if (searchParams.get('etape')) {
-        setStep(Number(searchParams.get('etape')));
-      } else {
-        setStep(SampleStatusSteps[sample.status]);
+    if (hasPermission('updateSample')) {
+      if (sample) {
+        if (searchParams.get('etape')) {
+          setStep(Number(searchParams.get('etape')));
+        } else {
+          setStep(SampleStatusSteps[sample.status]);
+        }
+      } else if (!sampleId) {
+        setStep(1);
       }
-    } else if (!sampleId) {
-      setStep(1);
+    } else {
+      setStep(4);
     }
   }, [sample, searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -104,7 +109,7 @@ const SampleView = () => {
           )}
         </div>
       </h1>
-      {sample?.status !== 'Sent' && step && (
+      {hasPermission('updateSample') && sample?.status !== 'Sent' && step && (
         <>
           <Stepper
             currentStep={step}
@@ -117,7 +122,7 @@ const SampleView = () => {
       {step === 1 && <SampleStep1 partialSample={sample} />}
       {step === 2 && sample && <SampleStep2 partialSample={sample} />}
       {step === 3 && sample && <SampleStep3 partialSample={sample} />}
-      {step === 4 && sample && <SampleStep4 sample={sample as Sample} />}
+      {step === 4 && sample && <SampleStep4 sample={sample} />}
     </section>
   );
 };
