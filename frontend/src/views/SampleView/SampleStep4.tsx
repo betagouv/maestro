@@ -1,4 +1,5 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
+import Button from '@codegouvfr/react-dsfr/Button';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { format } from 'date-fns';
@@ -10,7 +11,10 @@ import { ProgrammingPlanKindLabels } from 'shared/schema/ProgrammingPlan/Program
 import { PartialSample } from 'shared/schema/Sample/Sample';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.service';
-import { useUpdateSampleMutation } from 'src/services/sample.service';
+import {
+  getsampleDocumentURL,
+  useUpdateSampleMutation,
+} from 'src/services/sample.service';
 
 interface Props {
   sample: PartialSample;
@@ -48,6 +52,16 @@ const SampleStep4 = ({ sample }: Props) => {
           l'envoi de votre prélèvement.
         </p>
       )}
+      {hasPermission('downloadSampleDocument') && sample.status === 'Sent' && (
+        <Button
+          priority="primary"
+          iconId="fr-icon-download-line"
+          onClick={() => window.open(getsampleDocumentURL(sample.id))}
+          className={cx('fr-mb-3w')}
+        >
+          Document d'accompagnement
+        </Button>
+      )}
       <h3>Informations générales</h3>
       <ul>
         <li>
@@ -73,15 +87,15 @@ const SampleStep4 = ({ sample }: Props) => {
         <li>
           <strong>Cadre juridique :</strong> {sample.legalContext}
         </li>
-        <li>
-          <strong> Catégorie de matrice :</strong> {sample.matrixKind}
-        </li>
       </ul>
       <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
       <h3>Informations spécifiques</h3>
       <ul>
         <li>
           <strong>Matrice :</strong> {sample.matrix}
+        </li>
+        <li>
+          <strong>Catégorie de matrice :</strong> {sample.matrixKind}
         </li>
         <li>
           <strong>Partie du végétal :</strong> {sample.matrixPart}

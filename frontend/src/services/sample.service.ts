@@ -2,6 +2,9 @@ import fp from 'lodash';
 import { FindSampleOptions } from 'shared/schema/Sample/FindSampleOptions';
 import { PartialSample, SampleToCreate } from 'shared/schema/Sample/Sample';
 import { api } from 'src/services/api.service';
+import { authParams } from 'src/services/auth-headers';
+import config from 'src/utils/config';
+import { getURLQuery } from 'src/utils/fetchUtils';
 
 export enum SampleMutationEndpoints {
   CREATE_SAMPLE = 'createSample',
@@ -97,6 +100,11 @@ export const sampleApi = api.injectEndpoints({
   }),
 });
 
+const sampleDocumentURL = (sampleId: string) => {
+  const params = getURLQuery(authParams);
+  return `${config.apiEndpoint}/api/samples/${sampleId}/document${params}`;
+};
+
 export const {
   useCreateSampleMutation,
   useFindSamplesQuery,
@@ -105,4 +113,8 @@ export const {
   useUpdateSampleMutation,
   useUpdateSampleItemsMutation,
   useDeleteSampleMutation,
-} = sampleApi;
+  getsampleDocumentURL,
+} = {
+  ...sampleApi,
+  getsampleDocumentURL: sampleDocumentURL,
+};

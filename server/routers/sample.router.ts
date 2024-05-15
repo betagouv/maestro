@@ -31,6 +31,13 @@ router.get(
   sampleCheck(),
   sampleController.getSample
 );
+router.get(
+  '/:sampleId/document',
+  validator.validate(uuidParam('sampleId')),
+  permissionsCheck(['downloadSampleDocument']),
+  sampleCheck(),
+  sampleController.getSampleDocument
+);
 router.post(
   '',
   validator.validate(body(SampleToCreate)),

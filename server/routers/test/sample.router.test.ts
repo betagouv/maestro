@@ -119,6 +119,51 @@ describe('Sample router', () => {
     });
   });
 
+  describe('GET /samples/{sampleId}/document', () => {
+    const testRoute = (sampleId: string) => `/api/samples/${sampleId}/document`;
+
+    it('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .get(testRoute(sample11.id))
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    it('should get a valid sample id', async () => {
+      await request(app)
+        .get(`${testRoute(randomstring.generate())}`)
+        .use(tokenProvider(sampler1))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    it('should fail if the sample does not exist', async () => {
+      await request(app)
+        .get(`${testRoute(uuidv4())}`)
+        .use(tokenProvider(sampler1))
+        .expect(constants.HTTP_STATUS_NOT_FOUND);
+    });
+
+    it('should fail if the sample does not belong to the user region', async () => {
+      await request(app)
+        .get(`${testRoute(sample11.id)}`)
+        .use(tokenProvider(sampler2))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    it('should fail if the user does not have the permission to download the sample document', async () => {
+      await request(app)
+        .get(`${testRoute(sample11.id)}`)
+        .use(tokenProvider(nationalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    it('should get the sample document', async () => {
+      await request(app)
+        .get(`${testRoute(sample11.id)}`)
+        .use(tokenProvider(sampler1))
+        .expect(constants.HTTP_STATUS_OK);
+    });
+  });
+
   describe('GET /samples', () => {
     const testRoute = (params: Record<string, string>) =>
       `/api/samples?${new URLSearchParams(params).toString()}`;

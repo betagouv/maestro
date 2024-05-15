@@ -1,8 +1,11 @@
-import { getYear } from 'date-fns';
+import { format, getYear } from 'date-fns';
 import { Request, Response } from 'express';
 import { AuthenticatedRequest, SampleRequest } from 'express-jwt';
+import * as handlebars from 'handlebars';
 import { constants } from 'http2';
 import fp from 'lodash';
+import path from 'node:path';
+import puppeteer from 'puppeteer';
 import { v4 as uuidv4 } from 'uuid';
 import { FindSampleOptions } from '../../shared/schema/Sample/FindSampleOptions';
 import {
@@ -14,6 +17,8 @@ import { SampleItem } from '../../shared/schema/Sample/SampleItem';
 import { DraftStatusList } from '../../shared/schema/Sample/SampleStatus';
 import sampleItemRepository from '../repositories/sampleItemRepository';
 import sampleRepository from '../repositories/sampleRepository';
+import SampleDocumentFileContent from '../templates/sampleDocument';
+import config from '../utils/config';
 
 const getSample = async (request: Request, response: Response) => {
   const sample = (request as SampleRequest).sample;
@@ -26,6 +31,64 @@ const getSample = async (request: Request, response: Response) => {
     ...sample,
     items: sampleItems.map((item) => fp.omitBy(item, fp.isNil)),
   });
+};
+
+const getSampleDocument = async (request: Request, response: Response) => {
+  const sample = (request as SampleRequest).sample;
+
+  console.info('Get sample document', sample.id);
+
+  const compiledTemplate = handlebars.compile(SampleDocumentFileContent);
+  const htmlContent = compiledTemplate({
+    ...sample,
+    sampledAt: format(sample.sampledAt, 'dd/MM/yyyy'),
+    expiryDate: sample.expiryDate
+      ? format(sample.expiryDate, 'dd/MM/yyyy')
+      : '',
+    releaseControl: sample.releaseControl ? 'Oui' : 'Non',
+    temperatureMaintenance: sample.temperatureMaintenance ? 'Oui' : 'Non',
+    dsfrLink: `${config.application.host}/dsfr/dsfr.min.css`,
+  });
+
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  await page.emulateMediaType('screen');
+  await page.setContent(htmlContent);
+
+  const dsfrStyles = await fetch(
+    `${config.application.host}/dsfr/dsfr.min.css`
+  ).then((response) => response.text());
+
+  if (dsfrStyles) {
+    await page.addStyleTag({
+      content: dsfrStyles.replaceAll(
+        '@media (min-width: 62em)',
+        '@media (min-width: 48em)'
+      ),
+    });
+  }
+
+  await page.addStyleTag({
+    path: path.join(
+      __dirname,
+      '..',
+      'templates',
+      'sampleDocument',
+      'sampleDocument.css'
+    ),
+  });
+
+  const pdfBuffer = await page.pdf({
+    printBackground: true,
+  });
+  await browser.close();
+
+  response.setHeader('Content-Type', 'application/pdf');
+  response.setHeader(
+    'Content-Disposition',
+    'inline; filename="generated-pdf.pdf"'
+  );
+  response.send(pdfBuffer);
 };
 
 const findSamples = async (request: Request, response: Response) => {
@@ -142,6 +205,7 @@ const deleteSample = async (request: Request, response: Response) => {
 
 export default {
   getSample,
+  getSampleDocument,
   findSamples,
   countSamples,
   createSample,
