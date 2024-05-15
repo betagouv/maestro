@@ -50,7 +50,9 @@ const getSampleDocument = async (request: Request, response: Response) => {
     dsfrLink: `${config.application.host}/dsfr/dsfr.min.css`,
   });
 
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    args: ['--no-sandbox'],
+  });
   const page = await browser.newPage();
   await page.emulateMediaType('screen');
   await page.setContent(htmlContent);
