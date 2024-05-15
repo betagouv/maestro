@@ -50,9 +50,7 @@ const getSampleDocument = async (request: Request, response: Response) => {
     dsfrLink: `${config.application.host}/dsfr/dsfr.min.css`,
   });
 
-  const browser = await puppeteer.launch({
-    args: ['--no-sandbox'],
-  });
+  const browser = await puppeteer.launch();
   const page = await browser.newPage();
   await page.emulateMediaType('screen');
   await page.setContent(htmlContent);
@@ -61,14 +59,12 @@ const getSampleDocument = async (request: Request, response: Response) => {
     `${config.application.host}/dsfr/dsfr.min.css`
   ).then((response) => response.text());
 
-  if (dsfrStyles) {
-    await page.addStyleTag({
-      content: dsfrStyles.replaceAll(
-        '@media (min-width: 62em)',
-        '@media (min-width: 48em)'
-      ),
-    });
-  }
+  await page.addStyleTag({
+    content: dsfrStyles.replaceAll(
+      '@media (min-width: 62em)',
+      '@media (min-width: 48em)'
+    ),
+  });
 
   await page.addStyleTag({
     path: path.join(

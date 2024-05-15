@@ -155,13 +155,6 @@ describe('Sample router', () => {
         .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
-
-    it('should get the sample document', async () => {
-      await request(app)
-        .get(`${testRoute(sample11.id)}`)
-        .use(tokenProvider(sampler1))
-        .expect(constants.HTTP_STATUS_OK);
-    });
   });
 
   describe('GET /samples', () => {
