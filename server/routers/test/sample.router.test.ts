@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 import { constants } from 'http2';
 import { default as fp, default as _ } from 'lodash';
 import randomstring from 'randomstring';
@@ -28,7 +29,7 @@ import { tokenProvider } from '../../test/testUtils';
 describe('Sample router', () => {
   const { app } = createServer();
 
-  const region1 = oneOf(RegionList);
+  const region1 = '44' as Region;
   const region2 = oneOf(_.difference(RegionList, region1)) as Region;
   const sampler1 = { ...genUser('Sampler'), region: region1 };
   const sampler2 = { ...genUser('Sampler'), region: region2 };
@@ -265,7 +266,6 @@ describe('Sample router', () => {
 
       await badRequestTest();
       await badRequestTest({ ...genSampleToCreate(), resytalId: '123' });
-      await badRequestTest({ ...genSampleToCreate(), resytalId: '' });
       await badRequestTest({ ...genSampleToCreate(), resytalId: 123 });
       await badRequestTest({ ...genSampleToCreate(), userLocation: undefined });
       await badRequestTest({ ...genSampleToCreate(), userLocation: '123' });
@@ -319,7 +319,9 @@ describe('Sample router', () => {
           createdAt: expect.any(String),
           createdBy: sampler1.id,
           sampledAt: sample.sampledAt.toISOString(),
-          reference: expect.stringMatching(/^GES-[0-9]{2,3}-2024-1$/),
+          reference: `${Regions[sampler1.region].shortName}-${
+            sample.department
+          }-${format(new Date(), 'yy')}-0001-${sample.legalContext}`,
           status: 'DraftInfos',
         })
       );

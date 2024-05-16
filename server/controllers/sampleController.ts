@@ -1,4 +1,4 @@
-import { format, getYear } from 'date-fns';
+import { format } from 'date-fns';
 import { Request, Response } from 'express';
 import { AuthenticatedRequest, SampleRequest } from 'express-jwt';
 import * as handlebars from 'handlebars';
@@ -7,6 +7,7 @@ import fp from 'lodash';
 import path from 'node:path';
 import puppeteer from 'puppeteer';
 import { v4 as uuidv4 } from 'uuid';
+import { Regions } from '../../shared/schema/Region';
 import { FindSampleOptions } from '../../shared/schema/Sample/FindSampleOptions';
 import {
   CreatedSample,
@@ -124,19 +125,25 @@ const countSamples = async (request: Request, response: Response) => {
 };
 
 const createSample = async (request: Request, response: Response) => {
-  const { userId } = (request as AuthenticatedRequest).auth;
+  const { user } = request as AuthenticatedRequest;
   const sampleToCreate = request.body as SampleToCreate;
 
   console.info('Create sample', sampleToCreate);
 
   const serial = await sampleRepository.getSerial();
 
+  if (!user.region) {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
+
   const sample: CreatedSample = {
     id: uuidv4(),
-    reference: `GES-${sampleToCreate.department}-${getYear(
-      new Date()
-    )}-${serial}`,
-    createdBy: userId,
+    reference: `${Regions[user.region].shortName}-${
+      sampleToCreate.department
+    }-${format(new Date(), 'yy')}-${String(serial).padStart(4, '0')}-${
+      sampleToCreate.legalContext
+    }`,
+    createdBy: user.id,
     createdAt: new Date(),
     lastUpdatedAt: new Date(),
     status: 'DraftInfos',
