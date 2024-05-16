@@ -99,14 +99,15 @@ const SampleStep1 = ({ partialSample }: Props) => {
     })),
   ];
 
-  const legalContextOptions = selectOptionsFromList(
-    SampleLegalContextList,
-    SampleLegalContextLabels
-  );
+  const legalContextOptions = selectOptionsFromList(SampleLegalContextList, {
+    labels: SampleLegalContextLabels,
+  });
 
   const departmentOptions = selectOptionsFromList(
     userInfos?.region ? Regions[userInfos.region].departments : DepartmentList,
-    DepartmentLabels
+    {
+      labels: DepartmentLabels,
+    }
   );
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {

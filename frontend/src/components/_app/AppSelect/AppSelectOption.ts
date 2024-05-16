@@ -14,14 +14,27 @@ export const DefaultAppSelectOption: AppSelectOption = {
   disabled: true,
 };
 
+const DefaultSelectOptionsFromListConfig = {
+  withDefault: true,
+};
+
 export const selectOptionsFromList = (
   list: string[],
-  labels?: Record<string, string>
+  config: {
+    labels?: Record<string, string>;
+    withDefault?: boolean;
+  } = {
+    withDefault: true,
+  }
 ): AppSelectOption[] => {
+  const selectConfig = {
+    ...DefaultSelectOptionsFromListConfig,
+    ...config,
+  };
   return [
-    DefaultAppSelectOption,
+    ...(selectConfig.withDefault ? [DefaultAppSelectOption] : []),
     ...list.map((item) => ({
-      label: labels?.[item] ?? item,
+      label: selectConfig.labels ? selectConfig.labels[item] : item,
       value: item,
     })),
   ];

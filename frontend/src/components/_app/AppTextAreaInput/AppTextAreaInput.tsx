@@ -1,5 +1,5 @@
 import Input from '@codegouvfr/react-dsfr/Input';
-import { ComponentPropsWithoutRef, InputHTMLAttributes } from 'react';
+import { ComponentPropsWithoutRef, TextareaHTMLAttributes } from 'react';
 import { useForm } from 'src/hooks/useForm';
 import { ZodRawShape } from 'zod';
 
@@ -9,14 +9,14 @@ type AppTextInputProps<T extends ZodRawShape> = Partial<
     'label' | 'hintText' | 'state' | 'stateRelatedMessage'
   >
 > &
-  InputHTMLAttributes<HTMLInputElement> & {
+  TextareaHTMLAttributes<HTMLTextAreaElement> & {
     inputForm: ReturnType<typeof useForm>;
     inputKey: keyof T;
     inputPathFromKey?: (string | number)[];
     whenValid?: string;
   };
 
-function AppTextInput<T extends ZodRawShape>(props: AppTextInputProps<T>) {
+function AppTextAreaInput<T extends ZodRawShape>(props: AppTextInputProps<T>) {
   const {
     inputKey,
     inputPathFromKey,
@@ -32,12 +32,12 @@ function AppTextInput<T extends ZodRawShape>(props: AppTextInputProps<T>) {
   return (
     <Input
       label={textInputProps.label ?? ''}
+      textArea
       {...textInputProps}
-      nativeInputProps={{
+      nativeTextAreaProps={{
         ...textInputProps,
         placeholder,
       }}
-      hintText={hintText}
       state={state ?? inputForm.messageType(String(inputKey), inputPathFromKey)}
       stateRelatedMessage={
         stateRelatedMessage ??
@@ -47,4 +47,4 @@ function AppTextInput<T extends ZodRawShape>(props: AppTextInputProps<T>) {
   );
 }
 
-export default AppTextInput;
+export default AppTextAreaInput;
