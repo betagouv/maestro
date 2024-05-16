@@ -21,14 +21,17 @@ export const Sample = z.object({
   id: z.string().uuid(),
   reference: z.string(),
   department: Department,
-  resytalId: z.coerce
-    .string()
-    .regex(
-      /^22[0-9]{6}$/g,
-      "L'identifiant Resytal doit être au format 22XXXXXX."
-    )
-    .optional()
-    .nullable(),
+  resytalId: z.preprocess(
+    (arg) => (arg === '' ? null : arg),
+    z.coerce
+      .string()
+      .regex(
+        /^22[0-9]{6}$/g,
+        "L'identifiant Resytal doit être au format 22XXXXXX."
+      )
+      .optional()
+      .nullable()
+  ),
   createdAt: z.coerce.date(),
   createdBy: z.string(),
   lastUpdatedAt: z.coerce.date(),
