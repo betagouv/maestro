@@ -19,8 +19,9 @@ export const sampleApi = api.injectEndpoints({
       query: (sampleId) => `samples/${sampleId}`,
       transformResponse: (response: any) =>
         PartialSample.parse(fp.omitBy(response, fp.isNil)),
-      providesTags: (result, error, sampleId) =>
-        result ? [{ type: 'Sample', id: sampleId }] : [],
+      providesTags: (result, error, sampleId) => [
+        { type: 'Sample', id: sampleId },
+      ],
     }),
     findSamples: builder.query<PartialSample[], FindSampleOptions>({
       query: (findOptions) => ({
@@ -31,9 +32,7 @@ export const sampleApi = api.injectEndpoints({
         response.map((_) => PartialSample.parse(fp.omitBy(_, fp.isNil))),
       providesTags: (result) => [
         { type: 'Sample', id: 'LIST' },
-        ...(result
-          ? [...result.map(({ id }) => ({ type: 'Sample' as const, id }))]
-          : []),
+        ...(result ?? []).map(({ id }) => ({ type: 'Sample' as const, id })),
       ],
     }),
     countSamples: builder.query<number, FindSampleOptions>({

@@ -21,14 +21,10 @@ export const prescriptionApi = api.injectEndpoints({
         response.map((_) => Prescription.parse(fp.omitBy(_, fp.isNil))),
       providesTags: (result) => [
         { type: 'Prescription', id: 'LIST' },
-        ...(result
-          ? [
-              ...result.map(({ id }) => ({
-                type: 'Prescription' as const,
-                id,
-              })),
-            ]
-          : []),
+        ...(result ?? []).map(({ id }) => ({
+          type: 'Prescription' as const,
+          id,
+        })),
       ],
     }),
     addPrescriptions: builder.mutation<

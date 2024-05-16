@@ -53,14 +53,10 @@ export const documentApi = api.injectEndpoints({
         response.map((_) => Document.parse(_)),
       providesTags: (result) => [
         { type: 'Document', id: 'LIST' },
-        ...(result
-          ? [
-              ...result.map(({ id }) => ({
-                type: 'Document' as const,
-                id,
-              })),
-            ]
-          : []),
+        ...(result ?? []).map(({ id }) => ({
+          type: 'Document' as const,
+          id,
+        })),
       ],
     }),
     getDocumentDownloadSignedUrl: builder.query<string, string>({

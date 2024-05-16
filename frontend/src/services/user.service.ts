@@ -6,8 +6,9 @@ export const userApi = api.injectEndpoints({
     getUserInfos: builder.query<UserInfos, string>({
       query: (userId) => `users/${userId}/infos`,
       transformResponse: (response: any) => UserInfos.parse(response),
-      providesTags: (result, error, userId) =>
-        result ? [{ type: 'UserInfos', id: userId }] : [],
+      providesTags: (result, error, userId) => [
+        { type: 'UserInfos', id: userId },
+      ],
     }),
   }),
 });
