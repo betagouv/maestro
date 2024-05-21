@@ -170,7 +170,8 @@ export const genPrescriptions = (
   programmingPlanId: string,
   matrix?: string,
   stage?: string,
-  countArray?: number[]
+  countArray?: number[],
+  laboratoryId?: string
 ): Prescription[] =>
   (countArray ?? new Array(18).fill(genNumber(1))).map((count, index) => ({
     id: uuidv4(),
@@ -179,6 +180,7 @@ export const genPrescriptions = (
     sampleMatrix: matrix ?? randomstring.generate(),
     sampleStage: (stage as SampleStage) ?? oneOf(SampleStageList),
     sampleCount: count,
+    laboratoryId: laboratoryId ?? uuidv4(),
   }));
 
 export const genDocument = (userId: string): Document => ({

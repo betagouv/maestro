@@ -4,7 +4,6 @@ import { AuthenticatedRequest, SampleRequest } from 'express-jwt';
 import * as handlebars from 'handlebars';
 import { constants } from 'http2';
 import fp from 'lodash';
-import path from 'node:path';
 import puppeteer from 'puppeteer';
 import { v4 as uuidv4 } from 'uuid';
 import { FindSampleOptions } from '../../shared/schema/Sample/FindSampleOptions';
@@ -15,9 +14,15 @@ import {
 } from '../../shared/schema/Sample/Sample';
 import { SampleItem } from '../../shared/schema/Sample/SampleItem';
 import { DraftStatusList } from '../../shared/schema/Sample/SampleStatus';
+import laboratoryRepository from '../repositories/laboratoryRepository';
+import prescriptionRepository from '../repositories/prescriptionRepository';
+import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import sampleItemRepository from '../repositories/sampleItemRepository';
 import sampleRepository from '../repositories/sampleRepository';
-import SampleDocumentFileContent from '../templates/sampleDocument';
+import {
+  SampleItemDocumentFileContent,
+  SampleItemDocumentStylePath,
+} from '../templates/sampleItemDocument';
 import config from '../utils/config';
 
 const getSample = async (request: Request, response: Response) => {
@@ -33,20 +38,62 @@ const getSample = async (request: Request, response: Response) => {
   });
 };
 
-const getSampleDocument = async (request: Request, response: Response) => {
+const getSampleItemDocument = async (request: Request, response: Response) => {
   const sample = (request as SampleRequest).sample;
+  const itemNumber = Number(request.params.itemNumber);
 
   console.info('Get sample document', sample.id);
 
-  const compiledTemplate = handlebars.compile(SampleDocumentFileContent);
+  const sampleItems = await sampleItemRepository.findMany(sample.id);
+
+  if (itemNumber > sampleItems.length) {
+    return response.sendStatus(constants.HTTP_STATUS_NOT_FOUND);
+  }
+
+  const programmingPlan = await programmingPlanRepository.findUnique(
+    sample.programmingPlanId
+  );
+
+  if (!programmingPlan) {
+    return response.sendStatus(constants.HTTP_STATUS_NOT_FOUND);
+  }
+
+  const prescriptions = await prescriptionRepository.findMany({
+    region: sample.region,
+    programmingPlanId: sample.programmingPlanId,
+    sampleMatrix: sample.matrix,
+    sampleStage: sample.stage,
+  });
+
+  //TODO: handle prescription not found
+  if (
+    !prescriptions ||
+    prescriptions.length === 0 ||
+    !prescriptions[0].laboratoryId
+  ) {
+    return response.sendStatus(constants.HTTP_STATUS_NOT_FOUND);
+  }
+
+  const laboratory = await laboratoryRepository.findUnique(
+    prescriptions[0].laboratoryId
+  );
+
+  const sampleItem = sampleItems[itemNumber - 1];
+  const compiledTemplate = handlebars.compile(SampleItemDocumentFileContent);
   const htmlContent = compiledTemplate({
     ...sample,
+    ...sampleItem,
+    laboratory,
+    programmingPlan,
+    reference: [sample.reference, itemNumber].join('-'),
     sampledAt: format(sample.sampledAt, 'dd/MM/yyyy'),
     expiryDate: sample.expiryDate
       ? format(sample.expiryDate, 'dd/MM/yyyy')
       : '',
     releaseControl: sample.releaseControl ? 'Oui' : 'Non',
     temperatureMaintenance: sample.temperatureMaintenance ? 'Oui' : 'Non',
+    comment: sample.comment ?? 'Aucun',
+    compliance200263: sampleItem.compliance200263 ? 'Oui' : 'Non',
     dsfrLink: `${config.application.host}/dsfr/dsfr.min.css`,
   });
 
@@ -69,13 +116,7 @@ const getSampleDocument = async (request: Request, response: Response) => {
   });
 
   await page.addStyleTag({
-    path: path.join(
-      __dirname,
-      '..',
-      'templates',
-      'sampleDocument',
-      'sampleDocument.css'
-    ),
+    path: SampleItemDocumentStylePath,
   });
 
   const pdfBuffer = await page.pdf({
@@ -213,7 +254,7 @@ const deleteSample = async (request: Request, response: Response) => {
 
 export default {
   getSample,
-  getSampleDocument,
+  getSampleItemDocument,
   findSamples,
   countSamples,
   createSample,

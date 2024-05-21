@@ -120,39 +120,47 @@ describe('Sample router', () => {
     });
   });
 
-  describe('GET /samples/{sampleId}/document', () => {
-    const testRoute = (sampleId: string) => `/api/samples/${sampleId}/document`;
+  describe('GET /samples/{sampleId}/items/{itemNumber}/document', () => {
+    const testRoute = (sampleId: string, itemNumber: number) =>
+      `/api/samples/${sampleId}/items/${itemNumber}/document`;
 
     it('should fail if the user is not authenticated', async () => {
       await request(app)
-        .get(testRoute(sample11.id))
+        .get(testRoute(sample11.id, 1))
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
     it('should get a valid sample id', async () => {
       await request(app)
-        .get(`${testRoute(randomstring.generate())}`)
+        .get(`${testRoute(randomstring.generate(), 1)}`)
         .use(tokenProvider(sampler1))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
     it('should fail if the sample does not exist', async () => {
       await request(app)
-        .get(`${testRoute(uuidv4())}`)
+        .get(`${testRoute(uuidv4(), 1)}`)
+        .use(tokenProvider(sampler1))
+        .expect(constants.HTTP_STATUS_NOT_FOUND);
+    });
+
+    it('should fail if the item does not exist', async () => {
+      await request(app)
+        .get(`${testRoute(sample11.id, 2)}`)
         .use(tokenProvider(sampler1))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
     it('should fail if the sample does not belong to the user region', async () => {
       await request(app)
-        .get(`${testRoute(sample11.id)}`)
+        .get(`${testRoute(sample11.id, 1)}`)
         .use(tokenProvider(sampler2))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     it('should fail if the user does not have the permission to download the sample document', async () => {
       await request(app)
-        .get(`${testRoute(sample11.id)}`)
+        .get(`${testRoute(sample11.id, 1)}`)
         .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });

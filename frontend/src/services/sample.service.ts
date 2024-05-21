@@ -19,7 +19,7 @@ export const sampleApi = api.injectEndpoints({
       query: (sampleId) => `samples/${sampleId}`,
       transformResponse: (response: any) =>
         PartialSample.parse(fp.omitBy(response, fp.isNil)),
-      providesTags: (result, error, sampleId) => [
+      providesTags: (_result, _error, sampleId) => [
         { type: 'Sample', id: sampleId },
       ],
     }),
@@ -68,7 +68,7 @@ export const sampleApi = api.injectEndpoints({
       }),
       transformResponse: (response: any) =>
         PartialSample.parse(fp.omitBy(response, fp.isNil)),
-      invalidatesTags: (result, error, { id }) => [
+      invalidatesTags: (_result, _error, { id }) => [
         { type: 'Sample', id: 'LIST' },
         { type: 'Sample', id },
         'SampleCount',
@@ -83,14 +83,14 @@ export const sampleApi = api.injectEndpoints({
         method: 'PUT',
         body: items,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'Sample', id }],
+      invalidatesTags: (_result, _error, { id }) => [{ type: 'Sample', id }],
     }),
     [SampleMutationEndpoints.DELETE_SAMPLE]: builder.mutation<void, string>({
       query: (id) => ({
         url: `samples/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: (result, error, id) => [
+      invalidatesTags: (_result, _error, id) => [
         { type: 'Sample', id: 'LIST' },
         { type: 'Sample', id },
         'SampleCount',
@@ -99,9 +99,9 @@ export const sampleApi = api.injectEndpoints({
   }),
 });
 
-const sampleDocumentURL = (sampleId: string) => {
+const sampleItemDocumentURL = (sampleId: string, itemNumber: number) => {
   const params = getURLQuery(authParams);
-  return `${config.apiEndpoint}/api/samples/${sampleId}/document${params}`;
+  return `${config.apiEndpoint}/api/samples/${sampleId}/items/${itemNumber}/document${params}`;
 };
 
 export const {
@@ -112,8 +112,8 @@ export const {
   useUpdateSampleMutation,
   useUpdateSampleItemsMutation,
   useDeleteSampleMutation,
-  getsampleDocumentURL,
+  getSampleItemDocumentURL,
 } = {
   ...sampleApi,
-  getsampleDocumentURL: sampleDocumentURL,
+  getSampleItemDocumentURL: sampleItemDocumentURL,
 };

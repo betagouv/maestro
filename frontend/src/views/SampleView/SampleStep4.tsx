@@ -13,7 +13,7 @@ import { PartialSample } from 'shared/schema/Sample/Sample';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.service';
 import {
-  getsampleDocumentURL,
+  getSampleItemDocumentURL,
   useUpdateSampleMutation,
 } from 'src/services/sample.service';
 
@@ -122,10 +122,10 @@ const SampleStep4 = ({ sample }: Props) => {
       <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
       <h3>Échantillons</h3>
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        {(sample.items ?? []).map((item, index) => (
-          <div key={index} className={cx('fr-col-6')}>
+        {(sample.items ?? []).map((item, itemIndex) => (
+          <div key={itemIndex} className={cx('fr-col-6')}>
             <Card
-              title={`Échantillon ${index + 1}`}
+              title={`Échantillon ${itemIndex + 1}`}
               shadow
               size="small"
               end={
@@ -138,7 +138,7 @@ const SampleStep4 = ({ sample }: Props) => {
                     <strong>Numéro de scellé :</strong> {item.sealId}
                   </li>
                   <li>
-                    <strong>Respect directive 2002/63 :</strong> 
+                    <strong>Directive 2002/63 respectée :</strong> 
                     {item.compliance200263 ? 'Oui' : 'Non'}
                   </li>
                   <li>
@@ -154,13 +154,15 @@ const SampleStep4 = ({ sample }: Props) => {
               }
               footer={
                 <>
-                  {hasPermission('downloadSampleDocument') &&
+                  {hasPermission('downloadSampleItemDocument') &&
                     sample.status === 'Submitted' && (
                       <Button
                         priority="secondary"
                         iconId="fr-icon-download-line"
                         onClick={() =>
-                          window.open(getsampleDocumentURL(sample.id))
+                          window.open(
+                            getSampleItemDocumentURL(sample.id, itemIndex + 1)
+                          )
                         }
                       >
                         Document d'accompagnement

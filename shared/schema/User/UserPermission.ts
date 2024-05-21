@@ -5,7 +5,7 @@ export const UserPermission = z.enum([
   'readSamples',
   'updateSample',
   'deleteSample',
-  'downloadSampleDocument',
+  'downloadSampleItemDocument',
   'readProgrammingPlans',
   'readProgrammingPlansInProgress',
   'createPrescription',
@@ -16,7 +16,6 @@ export const UserPermission = z.enum([
   'createDocument',
   'readDocuments',
   'deleteDocument',
-  '',
 ]);
 
 export type UserPermission = z.infer<typeof UserPermission>;
@@ -28,7 +27,7 @@ export const UserPermissionList: UserPermission[] = [
   'readProgrammingPlansInProgress',
   'updateSample',
   'deleteSample',
-  'downloadSampleDocument',
+  'downloadSampleItemDocument',
   'createPrescription',
   'readPrescriptions',
   'updatePrescriptionSampleCount',

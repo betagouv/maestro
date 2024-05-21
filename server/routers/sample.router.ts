@@ -9,7 +9,12 @@ import { PartialSampleItem } from '../../shared/schema/Sample/SampleItem';
 import sampleController from '../controllers/sampleController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
 import { sampleCheck } from '../middlewares/checks/sampleCheck';
-import validator, { body, query, uuidParam } from '../middlewares/validator';
+import validator, {
+  body,
+  params,
+  query,
+  uuidParam,
+} from '../middlewares/validator';
 const router = express.Router();
 
 router.get(
@@ -32,11 +37,18 @@ router.get(
   sampleController.getSample
 );
 router.get(
-  '/:sampleId/document',
-  validator.validate(uuidParam('sampleId')),
-  permissionsCheck(['downloadSampleDocument']),
+  '/:sampleId/items/:itemNumber/document',
+  validator.validate(
+    params(
+      z.object({
+        sampleId: z.string().uuid(),
+        itemNumber: z.coerce.number().min(1),
+      })
+    )
+  ),
+  permissionsCheck(['downloadSampleItemDocument']),
   sampleCheck(),
-  sampleController.getSampleDocument
+  sampleController.getSampleItemDocument
 );
 router.post(
   '',
