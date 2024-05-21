@@ -7,7 +7,6 @@ import fp from 'lodash';
 import path from 'node:path';
 import puppeteer from 'puppeteer';
 import { v4 as uuidv4 } from 'uuid';
-import { Regions } from '../../shared/schema/Region';
 import { FindSampleOptions } from '../../shared/schema/Sample/FindSampleOptions';
 import {
   CreatedSample,
@@ -130,19 +129,21 @@ const createSample = async (request: Request, response: Response) => {
 
   console.info('Create sample', sampleToCreate);
 
-  const serial = await sampleRepository.getSerial();
-
   if (!user.region) {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
   }
 
+  const serial = await sampleRepository.getNextSequence(
+    user.region,
+    new Date().getFullYear()
+  );
+
   const sample: CreatedSample = {
     id: uuidv4(),
-    reference: `${Regions[user.region].shortName}-${
-      sampleToCreate.department
-    }-${format(new Date(), 'yy')}-${String(serial).padStart(4, '0')}-${
-      sampleToCreate.legalContext
-    }`,
+    reference: `${user.region}-${sampleToCreate.department}-${format(
+      new Date(),
+      'yy'
+    )}-${String(serial).padStart(4, '0')}-${sampleToCreate.legalContext}`,
     createdBy: user.id,
     createdAt: new Date(),
     lastUpdatedAt: new Date(),

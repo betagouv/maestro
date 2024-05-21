@@ -319,9 +319,10 @@ describe('Sample router', () => {
           createdAt: expect.any(String),
           createdBy: sampler1.id,
           sampledAt: sample.sampledAt.toISOString(),
-          reference: `${Regions[sampler1.region].shortName}-${
-            sample.department
-          }-${format(new Date(), 'yy')}-0001-${sample.legalContext}`,
+          reference: `${sampler1.region}-${sample.department}-${format(
+            new Date(),
+            'yy'
+          )}-0001-${sample.legalContext}`,
           status: 'DraftInfos',
         })
       );

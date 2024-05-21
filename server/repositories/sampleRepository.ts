@@ -1,6 +1,6 @@
 import fp from 'lodash';
 import { defaultPerPage } from '../../shared/schema/commons/Pagination';
-import { Regions } from '../../shared/schema/Region';
+import { Region, Regions } from '../../shared/schema/Region';
 import { FindSampleOptions } from '../../shared/schema/Sample/FindSampleOptions';
 import {
   CreatedSample,
@@ -9,7 +9,7 @@ import {
 import db from './db';
 
 const samplesTable = 'samples';
-const samplesSerial = 'samples_serial';
+const sampleSequenceNumbers = 'sample_sequence_numbers';
 
 export const Samples = () => db<PartialSample>(samplesTable);
 
@@ -64,9 +64,30 @@ const count = async (findOptions: FindSampleOptions): Promise<number> => {
     .then(([{ count }]) => Number(count));
 };
 
-const getSerial = async (): Promise<number> => {
-  const result = await db.select(db.raw(`nextval('${samplesSerial}')`)).first();
-  return result.nextval;
+const getNextSequence = async (
+  region: Region,
+  programmingPlanYear: number
+): Promise<number> => {
+  console.info('Get next sequence', region, programmingPlanYear);
+  const result = await db(sampleSequenceNumbers)
+    .where({ region, programmingPlanYear })
+    .select('next_sequence')
+    .first();
+
+  if (!result) {
+    await db(sampleSequenceNumbers).insert({
+      region,
+      programmingPlanYear,
+      next_sequence: 1,
+    });
+    return 1;
+  }
+
+  await db(sampleSequenceNumbers)
+    .where({ region, programmingPlanYear })
+    .increment('next_sequence', 1);
+
+  return result.nextSequence;
 };
 
 const insert = async (createdSample: CreatedSample): Promise<void> => {
@@ -102,6 +123,6 @@ export default {
   findUnique,
   findMany,
   count,
-  getSerial,
+  getNextSequence,
   deleteOne,
 };

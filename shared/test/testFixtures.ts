@@ -102,9 +102,9 @@ export const genCreatedSample = (
   programmingPlanId?: string
 ): CreatedSample => ({
   id: uuidv4(),
-  reference: `GES-${oneOf(Regions['44'].departments)}-24-${genNumber(
-    4
-  )}-${oneOf(SampleLegalContextList)}`,
+  reference: `44-${oneOf(Regions['44'].departments)}-24-${genNumber(4)}-${oneOf(
+    SampleLegalContextList
+  )}`,
   createdBy: userId ?? uuidv4(),
   createdAt: new Date(),
   lastUpdatedAt: new Date(),
@@ -115,22 +115,26 @@ export const genCreatedSample = (
 export const genSample = (
   userId?: string,
   programmingPlanId?: string
-): Sample => ({
-  ...genCreatedSample(userId, programmingPlanId),
-  locationSiret: String(genSiret()),
-  locationName: faker.company.name(),
-  locationAddress: faker.location.streetAddress({ useFullAddress: true }),
-  matrixKind: oneOf(MatrixKindList),
-  matrix: oneOf(MatrixList),
-  matrixPart: oneOf(MatrixPartList),
-  stage: oneOf(SampleStageList),
-  cultureKind: oneOf(['Bio', 'Conventionnel']),
-  storageCondition: oneOf(SampleStorageConditionList),
-  releaseControl: genBoolean(),
-  temperatureMaintenance: genBoolean(),
-  expiryDate: new Date(),
-  items: [],
-});
+): Sample => {
+  const sample = genCreatedSample(userId, programmingPlanId);
+
+  return {
+    ...sample,
+    locationSiret: String(genSiret()),
+    locationName: faker.company.name(),
+    locationAddress: faker.location.streetAddress({ useFullAddress: true }),
+    matrixKind: oneOf(MatrixKindList),
+    matrix: oneOf(MatrixList),
+    matrixPart: oneOf(MatrixPartList),
+    stage: oneOf(SampleStageList),
+    cultureKind: oneOf(['Bio', 'Conventionnel']),
+    storageCondition: oneOf(SampleStorageConditionList),
+    releaseControl: genBoolean(),
+    temperatureMaintenance: genBoolean(),
+    expiryDate: new Date(),
+    items: [genSampleItem(sample.id, 1)],
+  };
+};
 
 export const genSampleItem = (
   sampleId: string,
@@ -138,8 +142,8 @@ export const genSampleItem = (
 ): SampleItem => ({
   sampleId,
   itemNumber: itemNumber ?? genNumber(2),
-  quantity: genNumber(),
-  quantityUnit: randomstring.generate(),
+  quantity: genNumber(3),
+  quantityUnit: oneOf(['g', 'kg', 'L', 'mL']),
   compliance200263: genBoolean(),
   pooling: genBoolean(),
   poolingCount: genNumber(6),
