@@ -1,8 +1,10 @@
-import { getYear } from 'date-fns';
+import { format } from 'date-fns';
 import { Request, Response } from 'express';
 import { AuthenticatedRequest, SampleRequest } from 'express-jwt';
+import * as handlebars from 'handlebars';
 import { constants } from 'http2';
 import fp from 'lodash';
+import puppeteer from 'puppeteer';
 import { v4 as uuidv4 } from 'uuid';
 import { FindSampleOptions } from '../../shared/schema/Sample/FindSampleOptions';
 import {
@@ -12,8 +14,16 @@ import {
 } from '../../shared/schema/Sample/Sample';
 import { SampleItem } from '../../shared/schema/Sample/SampleItem';
 import { DraftStatusList } from '../../shared/schema/Sample/SampleStatus';
+import laboratoryRepository from '../repositories/laboratoryRepository';
+import prescriptionRepository from '../repositories/prescriptionRepository';
+import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import sampleItemRepository from '../repositories/sampleItemRepository';
 import sampleRepository from '../repositories/sampleRepository';
+import {
+  SampleItemDocumentFileContent,
+  SampleItemDocumentStylePath,
+} from '../templates/sampleItemDocument';
+import config from '../utils/config';
 
 const getSample = async (request: Request, response: Response) => {
   const sample = (request as SampleRequest).sample;
@@ -26,6 +36,100 @@ const getSample = async (request: Request, response: Response) => {
     ...sample,
     items: sampleItems.map((item) => fp.omitBy(item, fp.isNil)),
   });
+};
+
+const getSampleItemDocument = async (request: Request, response: Response) => {
+  const sample = (request as SampleRequest).sample;
+  const itemNumber = Number(request.params.itemNumber);
+
+  console.info('Get sample document', sample.id);
+
+  const sampleItems = await sampleItemRepository.findMany(sample.id);
+
+  if (itemNumber > sampleItems.length) {
+    return response.sendStatus(constants.HTTP_STATUS_NOT_FOUND);
+  }
+
+  const programmingPlan = await programmingPlanRepository.findUnique(
+    sample.programmingPlanId
+  );
+
+  if (!programmingPlan) {
+    return response.sendStatus(constants.HTTP_STATUS_NOT_FOUND);
+  }
+
+  const prescriptions = await prescriptionRepository.findMany({
+    region: sample.region,
+    programmingPlanId: sample.programmingPlanId,
+    sampleMatrix: sample.matrix,
+    sampleStage: sample.stage,
+  });
+
+  //TODO: handle prescription not found
+  if (
+    !prescriptions ||
+    prescriptions.length === 0 ||
+    !prescriptions[0].laboratoryId
+  ) {
+    return response.sendStatus(constants.HTTP_STATUS_NOT_FOUND);
+  }
+
+  const laboratory = await laboratoryRepository.findUnique(
+    prescriptions[0].laboratoryId
+  );
+
+  const sampleItem = sampleItems[itemNumber - 1];
+  const compiledTemplate = handlebars.compile(SampleItemDocumentFileContent);
+  const htmlContent = compiledTemplate({
+    ...sample,
+    ...sampleItem,
+    laboratory,
+    programmingPlan,
+    reference: [sample.reference, itemNumber].join('-'),
+    sampledAt: format(sample.sampledAt, 'dd/MM/yyyy'),
+    expiryDate: sample.expiryDate
+      ? format(sample.expiryDate, 'dd/MM/yyyy')
+      : '',
+    releaseControl: sample.releaseControl ? 'Oui' : 'Non',
+    temperatureMaintenance: sample.temperatureMaintenance ? 'Oui' : 'Non',
+    comment: sample.comment ?? 'Aucun',
+    compliance200263: sampleItem.compliance200263 ? 'Oui' : 'Non',
+    dsfrLink: `${config.application.host}/dsfr/dsfr.min.css`,
+  });
+
+  const browser = await puppeteer.launch({
+    args: ['--no-sandbox'],
+  });
+  const page = await browser.newPage();
+  await page.emulateMediaType('screen');
+  await page.setContent(htmlContent);
+
+  const dsfrStyles = await fetch(
+    `${config.application.host}/dsfr/dsfr.min.css`
+  ).then((response) => response.text());
+
+  await page.addStyleTag({
+    content: dsfrStyles.replaceAll(
+      '@media (min-width: 62em)',
+      '@media (min-width: 48em)'
+    ),
+  });
+
+  await page.addStyleTag({
+    path: SampleItemDocumentStylePath,
+  });
+
+  const pdfBuffer = await page.pdf({
+    printBackground: true,
+  });
+  await browser.close();
+
+  response.setHeader('Content-Type', 'application/pdf');
+  response.setHeader(
+    'Content-Disposition',
+    'inline; filename="generated-pdf.pdf"'
+  );
+  response.send(pdfBuffer);
 };
 
 const findSamples = async (request: Request, response: Response) => {
@@ -61,19 +165,27 @@ const countSamples = async (request: Request, response: Response) => {
 };
 
 const createSample = async (request: Request, response: Response) => {
-  const { userId } = (request as AuthenticatedRequest).auth;
+  const { user } = request as AuthenticatedRequest;
   const sampleToCreate = request.body as SampleToCreate;
 
   console.info('Create sample', sampleToCreate);
 
-  const serial = await sampleRepository.getSerial();
+  if (!user.region) {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
+
+  const serial = await sampleRepository.getNextSequence(
+    user.region,
+    new Date().getFullYear()
+  );
 
   const sample: CreatedSample = {
     id: uuidv4(),
-    reference: `GES-${sampleToCreate.department}-${getYear(
-      new Date()
-    )}-${serial}`,
-    createdBy: userId,
+    reference: `${user.region}-${sampleToCreate.department}-${format(
+      new Date(),
+      'yy'
+    )}-${String(serial).padStart(4, '0')}-${sampleToCreate.legalContext}`,
+    createdBy: user.id,
     createdAt: new Date(),
     lastUpdatedAt: new Date(),
     status: 'DraftInfos',
@@ -142,6 +254,7 @@ const deleteSample = async (request: Request, response: Response) => {
 
 export default {
   getSample,
+  getSampleItemDocument,
   findSamples,
   countSamples,
   createSample,

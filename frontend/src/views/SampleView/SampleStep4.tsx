@@ -1,5 +1,7 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
+import Button from '@codegouvfr/react-dsfr/Button';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
+import Card from '@codegouvfr/react-dsfr/Card';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { format } from 'date-fns';
 import { t } from 'i18next';
@@ -10,7 +12,10 @@ import { ProgrammingPlanKindLabels } from 'shared/schema/ProgrammingPlan/Program
 import { PartialSample } from 'shared/schema/Sample/Sample';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.service';
-import { useUpdateSampleMutation } from 'src/services/sample.service';
+import {
+  getSampleItemDocumentURL,
+  useUpdateSampleMutation,
+} from 'src/services/sample.service';
 
 interface Props {
   sample: PartialSample;
@@ -73,15 +78,15 @@ const SampleStep4 = ({ sample }: Props) => {
         <li>
           <strong>Cadre juridique :</strong> {sample.legalContext}
         </li>
-        <li>
-          <strong> Catégorie de matrice :</strong> {sample.matrixKind}
-        </li>
       </ul>
       <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
       <h3>Informations spécifiques</h3>
       <ul>
         <li>
           <strong>Matrice :</strong> {sample.matrix}
+        </li>
+        <li>
+          <strong>Catégorie de matrice :</strong> {sample.matrixKind}
         </li>
         <li>
           <strong>Partie du végétal :</strong> {sample.matrixPart}
@@ -116,21 +121,59 @@ const SampleStep4 = ({ sample }: Props) => {
       </ul>
       <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
       <h3>Échantillons</h3>
-      <ul>
-        {(sample.items ?? []).map((item, index) => (
-          <li key={index}>
-            <strong>Échantillon {index + 1}</strong>
-            <ul>
-              <li>
-                <strong>Quantité :</strong> {item.quantity} {item.quantityUnit}
-              </li>
-              <li>
-                <strong>Identifiant du scellé :</strong> {item.sealId}
-              </li>
-            </ul>
-          </li>
+      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+        {(sample.items ?? []).map((item, itemIndex) => (
+          <div key={itemIndex} className={cx('fr-col-6')}>
+            <Card
+              title={`Échantillon ${itemIndex + 1}`}
+              shadow
+              size="small"
+              end={
+                <ul>
+                  <li>
+                    <strong>Quantité :</strong> {item.quantity} 
+                    {item.quantityUnit}
+                  </li>
+                  <li>
+                    <strong>Numéro de scellé :</strong> {item.sealId}
+                  </li>
+                  <li>
+                    <strong>Directive 2002/63 respectée :</strong> 
+                    {item.compliance200263 ? 'Oui' : 'Non'}
+                  </li>
+                  <li>
+                    <strong>Recours au poolage :</strong> 
+                    {item.pooling ? 'Oui' : 'Non'}
+                  </li>
+                  {item.pooling && (
+                    <li>
+                      <strong>Nombre d'unités :</strong> {item.poolingCount}
+                    </li>
+                  )}
+                </ul>
+              }
+              footer={
+                <>
+                  {hasPermission('downloadSampleItemDocument') &&
+                    sample.status === 'Submitted' && (
+                      <Button
+                        priority="secondary"
+                        iconId="fr-icon-download-line"
+                        onClick={() =>
+                          window.open(
+                            getSampleItemDocumentURL(sample.id, itemIndex + 1)
+                          )
+                        }
+                      >
+                        Document d'accompagnement
+                      </Button>
+                    )}
+                </>
+              }
+            />
+          </div>
         ))}
-      </ul>
+      </div>
       <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
       <h3>Lieu de prélèvement</h3>
       <ul>

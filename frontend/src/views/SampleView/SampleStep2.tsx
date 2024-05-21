@@ -13,6 +13,7 @@ import {
 } from 'shared/schema/Sample/SampleStorageCondition';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
+import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useForm } from 'src/hooks/useForm';
 import { useUpdateSampleMutation } from 'src/services/sample.service';
@@ -263,8 +264,7 @@ const SampleStep2 = ({ partialSample }: Props) => {
             />
           </div>
           <div className={cx('fr-col-12')}>
-            <AppTextInput<FormShape>
-              textArea
+            <AppTextAreaInput<FormShape>
               rows={3}
               defaultValue={comment ?? ''}
               onChange={(e) => setComment(e.target.value)}

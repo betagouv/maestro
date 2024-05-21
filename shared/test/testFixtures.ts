@@ -2,14 +2,13 @@ import { fakerFR as faker } from '@faker-js/faker';
 import randomstring from 'randomstring';
 import { v4 as uuidv4 } from 'uuid';
 import { MatrixKindList, MatrixList, MatrixPartList } from '../foodex2/Matrix';
-import { DepartmentList } from '../schema/Department';
 import { Document } from '../schema/Document/Document';
 import { Laboratory } from '../schema/Laboratory/Laboratory';
 import { Prescription } from '../schema/Prescription/Prescription';
 import { ProgrammingPlanKindList } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlan } from '../schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatusList } from '../schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { RegionList } from '../schema/Region';
+import { RegionList, Regions } from '../schema/Region';
 import { CreatedSample, Sample, SampleToCreate } from '../schema/Sample/Sample';
 import { SampleItem } from '../schema/Sample/SampleItem';
 import { SampleLegalContextList } from '../schema/Sample/SampleLegalContext';
@@ -95,7 +94,7 @@ export const genSampleToCreate = (
     }),
   programmingPlanId: programmingPlanId ?? uuidv4(),
   legalContext: oneOf(SampleLegalContextList),
-  department: oneOf(DepartmentList),
+  department: oneOf(Regions['44'].departments),
 });
 
 export const genCreatedSample = (
@@ -103,7 +102,9 @@ export const genCreatedSample = (
   programmingPlanId?: string
 ): CreatedSample => ({
   id: uuidv4(),
-  reference: `GES-${oneOf(DepartmentList)}-${genNumber(4)}`,
+  reference: `44-${oneOf(Regions['44'].departments)}-24-${genNumber(4)}-${oneOf(
+    SampleLegalContextList
+  )}`,
   createdBy: userId ?? uuidv4(),
   createdAt: new Date(),
   lastUpdatedAt: new Date(),
@@ -114,22 +115,26 @@ export const genCreatedSample = (
 export const genSample = (
   userId?: string,
   programmingPlanId?: string
-): Sample => ({
-  ...genCreatedSample(userId, programmingPlanId),
-  locationSiret: String(genSiret()),
-  locationName: faker.company.name(),
-  locationAddress: faker.location.streetAddress({ useFullAddress: true }),
-  matrixKind: oneOf(MatrixKindList),
-  matrix: oneOf(MatrixList),
-  matrixPart: oneOf(MatrixPartList),
-  stage: oneOf(SampleStageList),
-  cultureKind: oneOf(['Bio', 'Conventionnel']),
-  storageCondition: oneOf(SampleStorageConditionList),
-  releaseControl: genBoolean(),
-  temperatureMaintenance: genBoolean(),
-  expiryDate: new Date(),
-  items: [],
-});
+): Sample => {
+  const sample = genCreatedSample(userId, programmingPlanId);
+
+  return {
+    ...sample,
+    locationSiret: String(genSiret()),
+    locationName: faker.company.name(),
+    locationAddress: faker.location.streetAddress({ useFullAddress: true }),
+    matrixKind: oneOf(MatrixKindList),
+    matrix: oneOf(MatrixList),
+    matrixPart: oneOf(MatrixPartList),
+    stage: oneOf(SampleStageList),
+    cultureKind: oneOf(['Bio', 'Conventionnel']),
+    storageCondition: oneOf(SampleStorageConditionList),
+    releaseControl: genBoolean(),
+    temperatureMaintenance: genBoolean(),
+    expiryDate: new Date(),
+    items: [genSampleItem(sample.id, 1)],
+  };
+};
 
 export const genSampleItem = (
   sampleId: string,
@@ -137,8 +142,8 @@ export const genSampleItem = (
 ): SampleItem => ({
   sampleId,
   itemNumber: itemNumber ?? genNumber(2),
-  quantity: genNumber(),
-  quantityUnit: randomstring.generate(),
+  quantity: genNumber(3),
+  quantityUnit: oneOf(['g', 'kg', 'L', 'mL']),
   compliance200263: genBoolean(),
   pooling: genBoolean(),
   poolingCount: genNumber(6),
@@ -165,7 +170,8 @@ export const genPrescriptions = (
   programmingPlanId: string,
   matrix?: string,
   stage?: string,
-  countArray?: number[]
+  countArray?: number[],
+  laboratoryId?: string
 ): Prescription[] =>
   (countArray ?? new Array(18).fill(genNumber(1))).map((count, index) => ({
     id: uuidv4(),
@@ -174,6 +180,7 @@ export const genPrescriptions = (
     sampleMatrix: matrix ?? randomstring.generate(),
     sampleStage: (stage as SampleStage) ?? oneOf(SampleStageList),
     sampleCount: count,
+    laboratoryId: laboratoryId ?? uuidv4(),
   }));
 
 export const genDocument = (userId: string): Document => ({

@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 import { constants } from 'http2';
 import { default as fp, default as _ } from 'lodash';
 import randomstring from 'randomstring';
@@ -28,7 +29,7 @@ import { tokenProvider } from '../../test/testUtils';
 describe('Sample router', () => {
   const { app } = createServer();
 
-  const region1 = oneOf(RegionList);
+  const region1 = '44' as Region;
   const region2 = oneOf(_.difference(RegionList, region1)) as Region;
   const sampler1 = { ...genUser('Sampler'), region: region1 };
   const sampler2 = { ...genUser('Sampler'), region: region2 };
@@ -116,6 +117,52 @@ describe('Sample router', () => {
         sampledAt: sample11.sampledAt.toISOString(),
         expiryDate: sample11.expiryDate?.toISOString(),
       });
+    });
+  });
+
+  describe('GET /samples/{sampleId}/items/{itemNumber}/document', () => {
+    const testRoute = (sampleId: string, itemNumber: number) =>
+      `/api/samples/${sampleId}/items/${itemNumber}/document`;
+
+    it('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .get(testRoute(sample11.id, 1))
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    it('should get a valid sample id', async () => {
+      await request(app)
+        .get(`${testRoute(randomstring.generate(), 1)}`)
+        .use(tokenProvider(sampler1))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    it('should fail if the sample does not exist', async () => {
+      await request(app)
+        .get(`${testRoute(uuidv4(), 1)}`)
+        .use(tokenProvider(sampler1))
+        .expect(constants.HTTP_STATUS_NOT_FOUND);
+    });
+
+    it('should fail if the item does not exist', async () => {
+      await request(app)
+        .get(`${testRoute(sample11.id, 2)}`)
+        .use(tokenProvider(sampler1))
+        .expect(constants.HTTP_STATUS_NOT_FOUND);
+    });
+
+    it('should fail if the sample does not belong to the user region', async () => {
+      await request(app)
+        .get(`${testRoute(sample11.id, 1)}`)
+        .use(tokenProvider(sampler2))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    it('should fail if the user does not have the permission to download the sample document', async () => {
+      await request(app)
+        .get(`${testRoute(sample11.id, 1)}`)
+        .use(tokenProvider(nationalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
   });
 
@@ -227,7 +274,6 @@ describe('Sample router', () => {
 
       await badRequestTest();
       await badRequestTest({ ...genSampleToCreate(), resytalId: '123' });
-      await badRequestTest({ ...genSampleToCreate(), resytalId: '' });
       await badRequestTest({ ...genSampleToCreate(), resytalId: 123 });
       await badRequestTest({ ...genSampleToCreate(), userLocation: undefined });
       await badRequestTest({ ...genSampleToCreate(), userLocation: '123' });
@@ -281,7 +327,10 @@ describe('Sample router', () => {
           createdAt: expect.any(String),
           createdBy: sampler1.id,
           sampledAt: sample.sampledAt.toISOString(),
-          reference: expect.stringMatching(/^GES-[0-9]{2,3}-2024-1$/),
+          reference: `${sampler1.region}-${sample.department}-${format(
+            new Date(),
+            'yy'
+          )}-0001-${sample.legalContext}`,
           status: 'DraftInfos',
         })
       );

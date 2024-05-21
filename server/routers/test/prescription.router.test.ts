@@ -8,14 +8,13 @@ import {
   PrescriptionUpdate,
 } from '../../../shared/schema/Prescription/Prescription';
 import { ProgrammingPlanStatus } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { RegionList } from '../../../shared/schema/Region';
+import { Region } from '../../../shared/schema/Region';
 import {
   genLaboratory,
   genNumber,
   genPrescriptions,
   genProgrammingPlan,
   genUser,
-  oneOf,
 } from '../../../shared/test/testFixtures';
 import { Laboratories } from '../../repositories/laboratoryRepository';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
@@ -27,7 +26,7 @@ import { tokenProvider } from '../../test/testUtils';
 describe('Prescriptions router', () => {
   const { app } = createServer();
 
-  const region = oneOf(RegionList);
+  const region = '44' as Region;
   const nationalCoordinator = genUser('NationalCoordinator');
   const regionalCoordinator = {
     ...genUser('RegionalCoordinator'),

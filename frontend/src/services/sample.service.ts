@@ -2,6 +2,9 @@ import fp from 'lodash';
 import { FindSampleOptions } from 'shared/schema/Sample/FindSampleOptions';
 import { PartialSample, SampleToCreate } from 'shared/schema/Sample/Sample';
 import { api } from 'src/services/api.service';
+import { authParams } from 'src/services/auth-headers';
+import config from 'src/utils/config';
+import { getURLQuery } from 'src/utils/fetchUtils';
 
 export enum SampleMutationEndpoints {
   CREATE_SAMPLE = 'createSample',
@@ -16,8 +19,9 @@ export const sampleApi = api.injectEndpoints({
       query: (sampleId) => `samples/${sampleId}`,
       transformResponse: (response: any) =>
         PartialSample.parse(fp.omitBy(response, fp.isNil)),
-      providesTags: (result, error, sampleId) =>
-        result ? [{ type: 'Sample', id: sampleId }] : [],
+      providesTags: (_result, _error, sampleId) => [
+        { type: 'Sample', id: sampleId },
+      ],
     }),
     findSamples: builder.query<PartialSample[], FindSampleOptions>({
       query: (findOptions) => ({
@@ -28,9 +32,7 @@ export const sampleApi = api.injectEndpoints({
         response.map((_) => PartialSample.parse(fp.omitBy(_, fp.isNil))),
       providesTags: (result) => [
         { type: 'Sample', id: 'LIST' },
-        ...(result
-          ? [...result.map(({ id }) => ({ type: 'Sample' as const, id }))]
-          : []),
+        ...(result ?? []).map(({ id }) => ({ type: 'Sample' as const, id })),
       ],
     }),
     countSamples: builder.query<number, FindSampleOptions>({
@@ -66,7 +68,7 @@ export const sampleApi = api.injectEndpoints({
       }),
       transformResponse: (response: any) =>
         PartialSample.parse(fp.omitBy(response, fp.isNil)),
-      invalidatesTags: (result, error, { id }) => [
+      invalidatesTags: (_result, _error, { id }) => [
         { type: 'Sample', id: 'LIST' },
         { type: 'Sample', id },
         'SampleCount',
@@ -81,14 +83,14 @@ export const sampleApi = api.injectEndpoints({
         method: 'PUT',
         body: items,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'Sample', id }],
+      invalidatesTags: (_result, _error, { id }) => [{ type: 'Sample', id }],
     }),
     [SampleMutationEndpoints.DELETE_SAMPLE]: builder.mutation<void, string>({
       query: (id) => ({
         url: `samples/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: (result, error, id) => [
+      invalidatesTags: (_result, _error, id) => [
         { type: 'Sample', id: 'LIST' },
         { type: 'Sample', id },
         'SampleCount',
@@ -96,6 +98,11 @@ export const sampleApi = api.injectEndpoints({
     }),
   }),
 });
+
+const sampleItemDocumentURL = (sampleId: string, itemNumber: number) => {
+  const params = getURLQuery(authParams);
+  return `${config.apiEndpoint}/api/samples/${sampleId}/items/${itemNumber}/document${params}`;
+};
 
 export const {
   useCreateSampleMutation,
@@ -105,4 +112,8 @@ export const {
   useUpdateSampleMutation,
   useUpdateSampleItemsMutation,
   useDeleteSampleMutation,
-} = sampleApi;
+  getSampleItemDocumentURL,
+} = {
+  ...sampleApi,
+  getSampleItemDocumentURL: sampleItemDocumentURL,
+};

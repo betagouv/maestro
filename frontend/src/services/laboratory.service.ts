@@ -10,9 +10,10 @@ export const laboratoryApi = api.injectEndpoints({
         response.map((_) => Laboratory.parse(fp.omitBy(_, fp.isNil))),
       providesTags: (result) => [
         { type: 'Laboratory', id: 'LIST' },
-        ...(result
-          ? [...result.map(({ id }) => ({ type: 'Laboratory' as const, id }))]
-          : []),
+        ...(result ?? []).map(({ id }) => ({
+          type: 'Laboratory' as const,
+          id,
+        })),
       ],
     }),
   }),
