@@ -5,6 +5,11 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  QuantityUnit,
+  QuantityUnitLabels,
+  QuantityUnitList,
+} from 'shared/referential/QuantityUnit';
 import { PartialSample, Sample } from 'shared/schema/Sample/Sample';
 import { PartialSampleItem } from 'shared/schema/Sample/SampleItem';
 import { isDefinedAndNotNull } from 'shared/utils/utils';
@@ -143,9 +148,14 @@ const SampleStep3 = ({ partialSample }: Props) => {
             <div className={cx('fr-col-12', 'fr-col-sm-4')}>
               <AppSelect<FormShape>
                 value={item.quantityUnit ?? ''}
-                options={selectOptionsFromList(['kg', 'g', 'mg', 'µg'])}
+                options={selectOptionsFromList(QuantityUnitList, {
+                  labels: QuantityUnitLabels,
+                })}
                 onChange={(e) =>
-                  changeItems({ ...item, quantityUnit: e.target.value }, index)
+                  changeItems(
+                    { ...item, quantityUnit: e.target.value as QuantityUnit },
+                    index
+                  )
                 }
                 inputForm={form}
                 inputKey="items"

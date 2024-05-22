@@ -10,12 +10,7 @@ export const UserRole = z.enum([
 
 export type UserRole = z.infer<typeof UserRole>;
 
-export const UserRoleList: UserRole[] = [
-  'Administrator',
-  'NationalCoordinator',
-  'RegionalCoordinator',
-  'Sampler',
-];
+export const UserRoleList: UserRole[] = UserRole.options;
 
 export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
   NationalCoordinator: [

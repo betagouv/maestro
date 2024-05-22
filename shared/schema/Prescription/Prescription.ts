@@ -1,13 +1,14 @@
 import { z } from 'zod';
-import { Region } from '../Region';
-import { SampleStage } from '../Sample/SampleStage';
+import { Matrix } from '../../referential/Matrix/Matrix';
+import { Region } from '../../referential/Region';
+import { Stage } from '../../referential/Stage';
 
 export const Prescription = z.object({
   id: z.string().uuid(),
   programmingPlanId: z.string().uuid(),
   region: Region,
-  sampleMatrix: z.string(),
-  sampleStage: SampleStage,
+  sampleMatrix: Matrix,
+  sampleStage: Stage,
   sampleCount: z.number(),
   laboratoryId: z.string().optional().nullable(),
 });

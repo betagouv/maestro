@@ -6,10 +6,8 @@ export const ProgrammingPlanKind = z.enum(['Surveillance', 'Control'], {
 
 export type ProgrammingPlanKind = z.infer<typeof ProgrammingPlanKind>;
 
-export const ProgrammingPlanKindList: ProgrammingPlanKind[] = [
-  'Surveillance',
-  'Control',
-];
+export const ProgrammingPlanKindList: ProgrammingPlanKind[] =
+  ProgrammingPlanKind.options;
 
 export const ProgrammingPlanKindLabels: Record<ProgrammingPlanKind, string> = {
   Surveillance: 'Plan de surveillance',

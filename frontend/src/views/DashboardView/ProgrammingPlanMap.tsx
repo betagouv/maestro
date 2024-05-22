@@ -15,10 +15,10 @@ import Map, {
   SymbolLayer,
 } from 'react-map-gl/maplibre';
 import { useNavigate } from 'react-router-dom';
+import { Region, RegionList, Regions } from 'shared/referential/Region';
 import { Prescription } from 'shared/schema/Prescription/Prescription';
 import { completionRate } from 'shared/schema/Prescription/PrescriptionsByMatrix';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { Region, RegionList, Regions } from 'shared/schema/Region';
 import { getSampleRegion, PartialSample } from 'shared/schema/Sample/Sample';
 import { useGetRegionsGeoJsonQuery } from 'src/services/region.service';
 

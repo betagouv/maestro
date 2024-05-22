@@ -2,7 +2,7 @@ import { configureStore, Store } from '@reduxjs/toolkit';
 import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import Router, { BrowserRouter } from 'react-router-dom';
-import { Region, RegionList } from 'shared/schema/Region';
+import { Region, RegionList } from 'shared/referential/Region';
 import {
   genAuthUser,
   genPrescriptions,

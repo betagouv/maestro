@@ -4,7 +4,7 @@ import { t } from 'i18next';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { Region, RegionList, Regions } from 'shared/schema/Region';
+import { Region, RegionList, Regions } from 'shared/referential/Region';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useFindPrescriptionsQuery } from 'src/services/prescription.service';

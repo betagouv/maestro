@@ -5,6 +5,10 @@ import Table from '@codegouvfr/react-dsfr/Table';
 import clsx from 'clsx';
 import _ from 'lodash';
 import { useMemo } from 'react';
+import { Matrix } from 'shared/referential/Matrix/Matrix';
+import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
+import { Region, RegionList } from 'shared/referential/Region';
+import { Stage, StageLabels } from 'shared/referential/Stage';
 import {
   Prescription,
   PrescriptionUpdate,
@@ -14,9 +18,7 @@ import {
   matrixCompletionRate,
 } from 'shared/schema/Prescription/PrescriptionsByMatrix';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { Region, RegionList } from 'shared/schema/Region';
 import { PartialSample } from 'shared/schema/Sample/Sample';
-import { SampleStage } from 'shared/schema/Sample/SampleStage';
 import { isNotEmpty } from 'shared/utils/utils';
 import AutoClose from 'src/components/AutoClose/AutoClose';
 import EditableNumberCell from 'src/components/EditableCell/EditableNumberCell';
@@ -68,7 +70,7 @@ const PrescriptionTable = ({
 
   const EmptyCell = <div></div>;
 
-  const addMatrix = async (matrix: string, stage: SampleStage) => {
+  const addMatrix = async (matrix: Matrix, stage: Stage) => {
     await addPrescriptions({
       programmingPlanId: programmingPlan.id,
       prescriptions: RegionList.map((region) => ({
@@ -80,7 +82,7 @@ const PrescriptionTable = ({
     });
   };
 
-  const removeMatrix = async (matrix: string, stage: SampleStage) => {
+  const removeMatrix = async (matrix: string, stage: Stage) => {
     await deletePrescription({
       programmingPlanId: programmingPlan.id,
       prescriptionIds: (prescriptions ?? [])
@@ -136,13 +138,13 @@ const PrescriptionTable = ({
             data-testid={`sampleMatrix-${p.sampleMatrix}`}
             key={`sampleMatrix-${p.sampleMatrix}-${p.sampleStage}`}
           >
-            {p.sampleMatrix}
+            {MatrixLabels[p.sampleMatrix]}
           </div>,
           <div
             className={cx('fr-pl-0', 'fr-text--bold')}
             key={`sampleStage-${p.sampleMatrix}-${p.sampleStage}`}
           >
-            {p.sampleStage}
+            {StageLabels[p.sampleStage]}
           </div>,
           regions.length > 1 && (
             <div
@@ -296,7 +298,7 @@ const PrescriptionTable = ({
 
   const changePrescription = async (
     matrix: string,
-    stage: SampleStage,
+    stage: Stage,
     region: Region,
     prescriptionUpdate: PrescriptionUpdate
   ) => {

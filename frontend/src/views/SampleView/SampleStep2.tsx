@@ -4,13 +4,31 @@ import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import { format, parse } from 'date-fns';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MatrixList, MatrixPartList } from 'shared/foodex2/Matrix';
-import { PartialSample, Sample } from 'shared/schema/Sample/Sample';
-import { SampleStage, SampleStageList } from 'shared/schema/Sample/SampleStage';
 import {
-  SampleStorageCondition,
-  SampleStorageConditionList,
-} from 'shared/schema/Sample/SampleStorageCondition';
+  CultureKind,
+  CultureKindLabels,
+  CultureKindList,
+} from 'shared/referential/CultureKind';
+import { Matrix } from 'shared/referential/Matrix/Matrix';
+import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
+import { MatrixList } from 'shared/referential/Matrix/MatrixList';
+import {
+  MatrixKind,
+  MatrixKindLabels,
+  MatrixKindList,
+} from 'shared/referential/MatrixKind';
+import {
+  MatrixPart,
+  MatrixPartLabels,
+  MatrixPartList,
+} from 'shared/referential/MatrixPart';
+import { Stage, StageLabels, StageList } from 'shared/referential/Stage';
+import {
+  StorageCondition,
+  StorageConditionLabels,
+  StorageConditionList,
+} from 'shared/referential/StorageCondition';
+import { PartialSample, Sample } from 'shared/schema/Sample/Sample';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
@@ -124,8 +142,13 @@ const SampleStep2 = ({ partialSample }: Props) => {
           <div className={cx('fr-col-12', 'fr-col-sm-4')}>
             <AppSelect<FormShape>
               defaultValue={matrixKind ?? ''}
-              options={selectOptionsFromList(['Fruits', 'Légumes'])}
-              onChange={(e) => setMatrixKind(e.target.value)}
+              options={selectOptionsFromList(MatrixKindList, {
+                labels: MatrixKindLabels,
+              })}
+              onChange={(e) => {
+                setMatrix(undefined);
+                setMatrixKind(e.target.value as MatrixKind);
+              }}
               inputForm={form}
               inputKey="matrixKind"
               whenValid="Catégorie de matrice correctement renseignée."
@@ -136,9 +159,15 @@ const SampleStep2 = ({ partialSample }: Props) => {
           </div>
           <div className={cx('fr-col-12', 'fr-col-sm-4')}>
             <AppSelect<FormShape>
-              defaultValue={matrix ?? ''}
-              options={selectOptionsFromList(MatrixList)}
-              onChange={(e) => setMatrix(e.target.value as string)}
+              value={matrix ?? ''}
+              options={
+                matrixKind
+                  ? selectOptionsFromList(MatrixList[matrixKind], {
+                      labels: MatrixLabels,
+                    })
+                  : []
+              }
+              onChange={(e) => setMatrix(e.target.value as Matrix)}
               inputForm={form}
               inputKey="matrix"
               whenValid="Matrice correctement renseignée."
@@ -150,8 +179,10 @@ const SampleStep2 = ({ partialSample }: Props) => {
           <div className={cx('fr-col-12', 'fr-col-sm-4')}>
             <AppSelect<FormShape>
               defaultValue={matrixPart ?? ''}
-              options={selectOptionsFromList(MatrixPartList)}
-              onChange={(e) => setMatrixPart(e.target.value)}
+              options={selectOptionsFromList(MatrixPartList, {
+                labels: MatrixPartLabels,
+              })}
+              onChange={(e) => setMatrixPart(e.target.value as MatrixPart)}
               inputForm={form}
               inputKey="matrixPart"
               whenValid="Partie du végétal correctement renseignée."
@@ -163,8 +194,10 @@ const SampleStep2 = ({ partialSample }: Props) => {
           <div className={cx('fr-col-12', 'fr-col-sm-4')}>
             <AppSelect<FormShape>
               defaultValue={cultureKind ?? ''}
-              options={selectOptionsFromList(['Bio', 'Conventionnel'])}
-              onChange={(e) => setCultureKind(e.target.value)}
+              options={selectOptionsFromList(CultureKindList, {
+                labels: CultureKindLabels,
+              })}
+              onChange={(e) => setCultureKind(e.target.value as CultureKind)}
               inputForm={form}
               inputKey="cultureKind"
               whenValid="Type de culture correctement renseigné."
@@ -175,8 +208,10 @@ const SampleStep2 = ({ partialSample }: Props) => {
           <div className={cx('fr-col-12', 'fr-col-sm-4')}>
             <AppSelect<FormShape>
               defaultValue={stage ?? ''}
-              options={selectOptionsFromList(SampleStageList)}
-              onChange={(e) => setStage(e.target.value as SampleStage)}
+              options={selectOptionsFromList(StageList, {
+                labels: StageLabels,
+              })}
+              onChange={(e) => setStage(e.target.value as Stage)}
               inputForm={form}
               inputKey="stage"
               whenValid="Stade de prélèvement correctement renseigné."
@@ -223,9 +258,11 @@ const SampleStep2 = ({ partialSample }: Props) => {
           <div className={cx('fr-col-12', 'fr-col-sm-4')}>
             <AppSelect<FormShape>
               defaultValue={storageCondition ?? ''}
-              options={selectOptionsFromList(SampleStorageConditionList)}
+              options={selectOptionsFromList(StorageConditionList, {
+                labels: StorageConditionLabels,
+              })}
               onChange={(e) =>
-                setStorageCondition(e.target.value as SampleStorageCondition)
+                setStorageCondition(e.target.value as StorageCondition)
               }
               inputForm={form}
               inputKey="storageCondition"

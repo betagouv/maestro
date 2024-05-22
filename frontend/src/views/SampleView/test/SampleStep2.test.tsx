@@ -3,9 +3,12 @@ import { userEvent } from '@testing-library/user-event';
 import { parse, startOfDay } from 'date-fns';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
-import { MatrixList, MatrixPartList } from 'shared/foodex2/Matrix';
-import { SampleStageList } from 'shared/schema/Sample/SampleStage';
-import { SampleStorageConditionList } from 'shared/schema/Sample/SampleStorageCondition';
+import { CultureKindList } from 'shared/referential/CultureKind';
+import { Matrix } from 'shared/referential/Matrix/Matrix';
+import { MatrixKindList } from 'shared/referential/MatrixKind';
+import { MatrixPartList } from 'shared/referential/MatrixPart';
+import { StageList } from 'shared/referential/Stage';
+import { StorageConditionList } from 'shared/referential/StorageCondition';
 import { genCreatedSample } from 'shared/test/testFixtures';
 import { store } from 'src/store/store';
 import config from 'src/utils/config';
@@ -99,7 +102,7 @@ describe('SampleFormStep2', () => {
     const matrixSelect = screen.getAllByTestId('matrix-select')[1];
 
     await act(async () => {
-      await user.selectOptions(matrixKindSelect, 'Fruits');
+      await user.selectOptions(matrixKindSelect, MatrixKindList[0]);
       await user.click(matrixSelect);
     });
     expect(
@@ -159,16 +162,13 @@ describe('SampleFormStep2', () => {
     const submitButton = screen.getByTestId('submit-button');
 
     await act(async () => {
-      await user.selectOptions(matrixKindSelect, 'Fruits'); //1 call
-      await user.selectOptions(matrixSelect, MatrixList[0]); //1 call
+      await user.selectOptions(matrixKindSelect, MatrixKindList[0]); //1 call
+      await user.selectOptions(matrixSelect, Matrix.options[0]); //1 call
       await user.selectOptions(matrixPartSelect, MatrixPartList[0]); //1 call
-      await user.selectOptions(cultureKindSelect, 'Bio'); //1 call
-      await user.selectOptions(stageSelect, SampleStageList[0]); //1 call
+      await user.selectOptions(cultureKindSelect, CultureKindList[0]); //1 call
+      await user.selectOptions(stageSelect, StageList[0]); //1 call
       await user.type(expiryDateInput, '2023-12-31'); //1 call
-      await user.selectOptions(
-        storageConditionSelect,
-        SampleStorageConditionList[0]
-      ); //1 call
+      await user.selectOptions(storageConditionSelect, StorageConditionList[0]); //1 call
       await user.type(locationSiretInput, '12345678901234'); //14 calls
       await user.type(locationNameInput, 'Location'); //8 calls
       await user.type(commentInput, 'Comment'); //7 calls
@@ -187,15 +187,15 @@ describe('SampleFormStep2', () => {
         lastUpdatedAt: createdSample.lastUpdatedAt.toISOString(),
         sampledAt: createdSample.sampledAt.toISOString(),
         status: 'DraftItems',
-        matrixKind: 'Fruits',
-        matrix: MatrixList[0],
+        matrixKind: MatrixKindList[0],
+        matrix: Matrix.options[0],
         matrixPart: MatrixPartList[0],
-        cultureKind: 'Bio',
-        stage: SampleStageList[0],
+        cultureKind: CultureKindList[0],
+        stage: StageList[0],
         expiryDate: startOfDay(
           parse('2023-12-31', 'yyyy-MM-dd', new Date())
         ).toISOString(),
-        storageCondition: SampleStorageConditionList[0],
+        storageCondition: StorageConditionList[0],
         locationSiret: '12345678901234',
         locationName: 'Location',
         comment: 'Comment',

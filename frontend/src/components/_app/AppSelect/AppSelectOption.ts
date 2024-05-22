@@ -1,4 +1,5 @@
 import { Laboratory } from 'shared/schema/Laboratory/Laboratory';
+import { isDefinedAndNotNull } from 'shared/utils/utils';
 
 export interface AppSelectOption {
   label: string;
@@ -33,10 +34,13 @@ export const selectOptionsFromList = (
   };
   return [
     ...(selectConfig.withDefault ? [DefaultAppSelectOption] : []),
-    ...list.map((item) => ({
-      label: selectConfig.labels ? selectConfig.labels[item] : item,
-      value: item,
-    })),
+    ...list
+      .map((item) => ({
+        label: selectConfig.labels ? selectConfig.labels[item] : item,
+        value: item,
+      }))
+      .filter((item) => isDefinedAndNotNull(item.label) && item.label !== '')
+      .sort((a, b) => a.label.localeCompare(b.label)),
   ];
 };
 

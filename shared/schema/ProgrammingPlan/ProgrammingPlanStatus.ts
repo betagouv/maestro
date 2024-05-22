@@ -6,10 +6,8 @@ export const ProgrammingPlanStatus = z.enum(['InProgress', 'Validated'], {
 
 export type ProgrammingPlanStatus = z.infer<typeof ProgrammingPlanStatus>;
 
-export const ProgrammingPlanStatusList: ProgrammingPlanStatus[] = [
-  'InProgress',
-  'Validated',
-];
+export const ProgrammingPlanStatusList: ProgrammingPlanStatus[] =
+  ProgrammingPlanStatus.options;
 
 export const ProgrammingPlanStatusLabels: Record<
   ProgrammingPlanStatus,

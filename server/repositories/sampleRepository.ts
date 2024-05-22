@@ -1,6 +1,6 @@
 import fp from 'lodash';
+import { Region, Regions } from '../../shared/referential/Region';
 import { defaultPerPage } from '../../shared/schema/commons/Pagination';
-import { Region, Regions } from '../../shared/schema/Region';
 import { FindSampleOptions } from '../../shared/schema/Sample/FindSampleOptions';
 import {
   CreatedSample,

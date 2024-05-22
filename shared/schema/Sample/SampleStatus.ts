@@ -9,13 +9,7 @@ export const SampleStatus = z.enum(
 
 export type SampleStatus = z.infer<typeof SampleStatus>;
 
-export const SampleStatusList: SampleStatus[] = [
-  'Draft',
-  'DraftInfos',
-  'DraftItems',
-  'Submitted',
-  'Sent',
-];
+export const SampleStatusList: SampleStatus[] = SampleStatus.options;
 
 export const DraftStatusList: SampleStatus[] = [
   'Draft',

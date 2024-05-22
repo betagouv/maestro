@@ -2,6 +2,7 @@ import { act, render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
+import { QuantityUnitList } from 'shared/referential/QuantityUnit';
 import { SampleStatus } from 'shared/schema/Sample/SampleStatus';
 import { genCreatedSample } from 'shared/test/testFixtures';
 import { store } from 'src/store/store';
@@ -163,7 +164,7 @@ describe('SampleFormStep3', () => {
 
     await act(async () => {
       await user.type(quantityInput, '10'); //2 calls
-      await user.selectOptions(unitSelect, 'kg'); //2 calls
+      await user.selectOptions(unitSelect, QuantityUnitList[0]); //2 calls
       await user.type(sealidInput, '12a'); //3 calls
       await user.click(screen.getByTestId('submit-button')); //2 calls (1 for items, 1 for sample)
     });
@@ -178,7 +179,7 @@ describe('SampleFormStep3', () => {
         {
           itemNumber: 1,
           quantity: 10,
-          quantityUnit: 'kg',
+          quantityUnit: QuantityUnitList[0],
           sampleId: draftSample.id,
           sealId: '12a',
         },

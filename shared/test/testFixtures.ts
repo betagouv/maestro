@@ -1,19 +1,24 @@
 import { fakerFR as faker } from '@faker-js/faker';
 import randomstring from 'randomstring';
 import { v4 as uuidv4 } from 'uuid';
-import { MatrixKindList, MatrixList, MatrixPartList } from '../foodex2/Matrix';
+import { CultureKindList } from '../referential/CultureKind';
+import { LegalContextList } from '../referential/LegalContext';
+import { Matrix } from '../referential/Matrix/Matrix';
+import { MatrixList } from '../referential/Matrix/MatrixList';
+import { MatrixKindList } from '../referential/MatrixKind';
+import { MatrixPartList } from '../referential/MatrixPart';
+import { QuantityUnitList } from '../referential/QuantityUnit';
+import { RegionList, Regions } from '../referential/Region';
+import { Stage, StageList } from '../referential/Stage';
+import { StorageConditionList } from '../referential/StorageCondition';
 import { Document } from '../schema/Document/Document';
 import { Laboratory } from '../schema/Laboratory/Laboratory';
 import { Prescription } from '../schema/Prescription/Prescription';
 import { ProgrammingPlanKindList } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlan } from '../schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatusList } from '../schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { RegionList, Regions } from '../schema/Region';
 import { CreatedSample, Sample, SampleToCreate } from '../schema/Sample/Sample';
 import { SampleItem } from '../schema/Sample/SampleItem';
-import { SampleLegalContextList } from '../schema/Sample/SampleLegalContext';
-import { SampleStage, SampleStageList } from '../schema/Sample/SampleStage';
-import { SampleStorageConditionList } from '../schema/Sample/SampleStorageCondition';
 import { AuthUser } from '../schema/User/AuthUser';
 import { User } from '../schema/User/User';
 import { UserRole, UserRoleList } from '../schema/User/UserRole';
@@ -93,7 +98,7 @@ export const genSampleToCreate = (
       charset: '123456789',
     }),
   programmingPlanId: programmingPlanId ?? uuidv4(),
-  legalContext: oneOf(SampleLegalContextList),
+  legalContext: oneOf(LegalContextList),
   department: oneOf(Regions['44'].departments),
 });
 
@@ -103,7 +108,7 @@ export const genCreatedSample = (
 ): CreatedSample => ({
   id: uuidv4(),
   reference: `44-${oneOf(Regions['44'].departments)}-24-${genNumber(4)}-${oneOf(
-    SampleLegalContextList
+    LegalContextList
   )}`,
   createdBy: userId ?? uuidv4(),
   createdAt: new Date(),
@@ -117,18 +122,18 @@ export const genSample = (
   programmingPlanId?: string
 ): Sample => {
   const sample = genCreatedSample(userId, programmingPlanId);
-
+  const matrixKind = oneOf(MatrixKindList);
   return {
     ...sample,
     locationSiret: String(genSiret()),
     locationName: faker.company.name(),
     locationAddress: faker.location.streetAddress({ useFullAddress: true }),
-    matrixKind: oneOf(MatrixKindList),
-    matrix: oneOf(MatrixList),
+    matrixKind,
+    matrix: oneOf(MatrixList[matrixKind]),
     matrixPart: oneOf(MatrixPartList),
-    stage: oneOf(SampleStageList),
-    cultureKind: oneOf(['Bio', 'Conventionnel']),
-    storageCondition: oneOf(SampleStorageConditionList),
+    stage: oneOf(StageList),
+    cultureKind: oneOf(CultureKindList),
+    storageCondition: oneOf(StorageConditionList),
     releaseControl: genBoolean(),
     temperatureMaintenance: genBoolean(),
     expiryDate: new Date(),
@@ -143,7 +148,7 @@ export const genSampleItem = (
   sampleId,
   itemNumber: itemNumber ?? genNumber(2),
   quantity: genNumber(3),
-  quantityUnit: oneOf(['g', 'kg', 'L', 'mL']),
+  quantityUnit: oneOf(QuantityUnitList),
   compliance200263: genBoolean(),
   pooling: genBoolean(),
   poolingCount: genNumber(6),
@@ -168,7 +173,7 @@ export const genProgrammingPlan = (userId?: string): ProgrammingPlan => ({
 
 export const genPrescriptions = (
   programmingPlanId: string,
-  matrix?: string,
+  matrix?: Matrix,
   stage?: string,
   countArray?: number[],
   laboratoryId?: string
@@ -177,10 +182,10 @@ export const genPrescriptions = (
     id: uuidv4(),
     programmingPlanId,
     region: RegionList[index],
-    sampleMatrix: matrix ?? randomstring.generate(),
-    sampleStage: (stage as SampleStage) ?? oneOf(SampleStageList),
+    sampleMatrix: matrix ?? oneOf(MatrixList[oneOf(MatrixKindList)]),
+    sampleStage: (stage as Stage) ?? oneOf(StageList),
     sampleCount: count,
-    laboratoryId: laboratoryId ?? uuidv4(),
+    laboratoryId,
   }));
 
 export const genDocument = (userId: string): Document => ({

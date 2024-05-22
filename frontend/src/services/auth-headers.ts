@@ -9,7 +9,7 @@ export const withAuthHeader = (headers: Headers) => {
   }
 };
 
-export const authParams = {
+export const authParams = () => ({
   'x-access-token': JSON.parse(localStorage.getItem('authUser') ?? '{}')
     .accessToken,
-};
+});

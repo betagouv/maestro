@@ -1,14 +1,16 @@
 import _ from 'lodash';
 import { z } from 'zod';
-import { Region, RegionList } from '../Region';
+import { Matrix } from '../../referential/Matrix/Matrix';
+import { MatrixLabels } from '../../referential/Matrix/MatrixLabels';
+import { Region, RegionList } from '../../referential/Region';
+import { Stage, StageLabels } from '../../referential/Stage';
 import { getSampleRegion, PartialSample } from '../Sample/Sample';
-import { SampleStage, SampleStageList } from '../Sample/SampleStage';
 import { Prescription } from './Prescription';
 
 export const PrescriptionByMatrix = z.object({
   programmingPlanId: z.string().uuid(),
-  sampleMatrix: z.string(),
-  sampleStage: SampleStage,
+  sampleMatrix: Matrix,
+  sampleStage: Stage,
   regionalData: z.array(
     Prescription.pick({
       sampleCount: true,
@@ -69,15 +71,15 @@ export const genPrescriptionByMatrix = (
     .sort((a, b) =>
       [
         a.programmingPlanId,
-        a.sampleMatrix,
-        SampleStageList.indexOf(a.sampleStage),
+        MatrixLabels[a.sampleMatrix],
+        StageLabels[a.sampleStage],
       ]
         .join()
         .localeCompare(
           [
             b.programmingPlanId,
-            b.sampleMatrix,
-            SampleStageList.indexOf(b.sampleStage),
+            MatrixLabels[b.sampleMatrix],
+            StageLabels[b.sampleStage],
           ].join()
         )
     );

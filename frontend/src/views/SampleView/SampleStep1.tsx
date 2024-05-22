@@ -9,15 +9,15 @@ import {
   Department,
   DepartmentLabels,
   DepartmentList,
-} from 'shared/schema/Department';
-import { ProgrammingPlanKindLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { Regions } from 'shared/schema/Region';
-import { PartialSample, SampleToCreate } from 'shared/schema/Sample/Sample';
+} from 'shared/referential/Department';
 import {
-  SampleLegalContext,
-  SampleLegalContextLabels,
-  SampleLegalContextList,
-} from 'shared/schema/Sample/SampleLegalContext';
+  LegalContext,
+  LegalContextLabels,
+  LegalContextList,
+} from 'shared/referential/LegalContext';
+import { Regions } from 'shared/referential/Region';
+import { ProgrammingPlanKindLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import { PartialSample, SampleToCreate } from 'shared/schema/Sample/Sample';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import {
   DefaultAppSelectOption,
@@ -99,8 +99,8 @@ const SampleStep1 = ({ partialSample }: Props) => {
     })),
   ];
 
-  const legalContextOptions = selectOptionsFromList(SampleLegalContextList, {
-    labels: SampleLegalContextLabels,
+  const legalContextOptions = selectOptionsFromList(LegalContextList, {
+    labels: LegalContextLabels,
   });
 
   const departmentOptions = selectOptionsFromList(
@@ -127,7 +127,7 @@ const SampleStep1 = ({ partialSample }: Props) => {
           sampledAt: parse(sampledAt, 'yyyy-MM-dd', new Date()),
           resytalId: resytalId as string,
           programmingPlanId: programmingPlanId as string,
-          legalContext: legalContext as SampleLegalContext,
+          legalContext: legalContext as LegalContext,
           department: department as Department,
         })
           .unwrap()
@@ -149,7 +149,7 @@ const SampleStep1 = ({ partialSample }: Props) => {
         sampledAt: parse(sampledAt, 'yyyy-MM-dd', new Date()),
         resytalId: resytalId as string,
         programmingPlanId: programmingPlanId as string,
-        legalContext: legalContext as SampleLegalContext,
+        legalContext: legalContext as LegalContext,
         department: department as Department,
         ...data,
       });
@@ -312,9 +312,7 @@ const SampleStep1 = ({ partialSample }: Props) => {
           <AppSelect<FormShape>
             defaultValue={partialSample?.legalContext || ''}
             options={legalContextOptions}
-            onChange={(e) =>
-              setLegalContext(e.target.value as SampleLegalContext)
-            }
+            onChange={(e) => setLegalContext(e.target.value as LegalContext)}
             inputForm={form}
             inputKey="legalContext"
             whenValid="Cadre juridique correctement renseigné."
