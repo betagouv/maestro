@@ -4,8 +4,12 @@ import { default as fp, default as _ } from 'lodash';
 import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
-import { MatrixList } from '../../../shared/foodex2/Matrix';
-import { Region, RegionList, Regions } from '../../../shared/schema/Region';
+import { MatrixList } from '../../../shared/referential/Matrix/MatrixList';
+import {
+  Region,
+  RegionList,
+  Regions,
+} from '../../../shared/referential/Region';
 import { SampleStatus } from '../../../shared/schema/Sample/SampleStatus';
 import {
   genCreatedSample,
@@ -388,7 +392,7 @@ describe('Sample router', () => {
 
     const validBody = {
       ...sample11,
-      matrix: oneOf(MatrixList),
+      matrix: oneOf(MatrixList[sample11.matrixKind]),
     };
 
     it('should fail if the user does not have the permission to update samples', async () => {
@@ -433,9 +437,7 @@ describe('Sample router', () => {
       });
 
       await expect(
-        Samples()
-          .where({ id: sample11.id, matrix: validBody.matrix as string })
-          .first()
+        Samples().where({ id: sample11.id, matrix: validBody.matrix }).first()
       ).resolves.toBeDefined();
     });
   });

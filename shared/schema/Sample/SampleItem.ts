@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { QuantityUnit } from '../../referential/QuantityUnit';
 
 export const SampleItem = z.object({
   sampleId: z.string().uuid(),
@@ -8,9 +9,7 @@ export const SampleItem = z.object({
       required_error: 'Veuillez renseigner la quantité.',
     })
     .nonnegative('La quantité doit être positive.'),
-  quantityUnit: z.string({
-    required_error: "Veuillez renseigner l'unité de quantité.",
-  }),
+  quantityUnit: QuantityUnit,
   compliance200263: z.boolean().optional().nullable(),
   pooling: z.boolean().optional().nullable(),
   poolingCount: z.number().optional().nullable(),

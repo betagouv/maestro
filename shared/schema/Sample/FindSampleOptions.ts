@@ -1,8 +1,8 @@
 import { z } from 'zod';
+import { Department } from '../../referential/Department';
+import { Region } from '../../referential/Region';
 import { coerceToArray } from '../../utils/utils';
 import { Pagination } from '../commons/Pagination';
-import { Department } from '../Department';
-import { Region } from '../Region';
 import { SampleStatus } from './SampleStatus';
 
 export const FindSampleOptions = z

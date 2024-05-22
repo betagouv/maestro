@@ -3,12 +3,12 @@ import fp from 'lodash/fp';
 import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
+import { Region } from '../../../shared/referential/Region';
 import {
   Prescription,
   PrescriptionUpdate,
 } from '../../../shared/schema/Prescription/Prescription';
 import { ProgrammingPlanStatus } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { Region } from '../../../shared/schema/Region';
 import {
   genLaboratory,
   genNumber,
@@ -41,9 +41,19 @@ describe('Prescriptions router', () => {
     ...genProgrammingPlan(nationalCoordinator.id),
     status: 'Validated' as ProgrammingPlanStatus,
   };
-  const prescriptions1 = genPrescriptions(programmingPlanInProgress.id);
-  const prescriptions2 = genPrescriptions(programmingPlanValidated.id);
   const laboratory = genLaboratory();
+  const prescriptions1 = genPrescriptions(programmingPlanInProgress.id).map(
+    (prescription) => ({
+      ...prescription,
+      laboratoryId: laboratory.id,
+    })
+  );
+  const prescriptions2 = genPrescriptions(programmingPlanValidated.id).map(
+    (prescription) => ({
+      ...prescription,
+      laboratoryId: laboratory.id,
+    })
+  );
 
   beforeAll(async () => {
     await Users().insert([nationalCoordinator, regionalCoordinator, sampler]);
@@ -51,8 +61,8 @@ describe('Prescriptions router', () => {
       programmingPlanInProgress,
       programmingPlanValidated,
     ]);
-    await Prescriptions().insert([...prescriptions1, ...prescriptions2]);
     await Laboratories().insert(laboratory);
+    await Prescriptions().insert([...prescriptions1, ...prescriptions2]);
   });
 
   describe('GET /programming-plans/{programmingPlanId}/prescriptions', () => {
@@ -128,7 +138,9 @@ describe('Prescriptions router', () => {
   describe('POST /programming-plans/{programmingPlanId}/prescriptions', () => {
     const prescriptionsToCreate = genPrescriptions(
       programmingPlanInProgress.id
-    ).map((prescription) => fp.omit(['id', 'programmingPlanId'])(prescription));
+    ).map((prescription) =>
+      fp.omit(['id', 'programmingPlanId', 'laboratoryId'])(prescription)
+    );
     const testRoute = (programmingPlanId: string) =>
       `/api/programming-plans/${programmingPlanId}/prescriptions`;
 

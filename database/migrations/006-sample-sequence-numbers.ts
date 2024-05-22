@@ -1,5 +1,5 @@
 import { Knex } from 'knex';
-import { RegionList } from '../../shared/schema/Region';
+import { RegionList } from '../../shared/referential/Region';
 
 exports.up = async (knex: Knex) => {
   await knex.schema.createTable('sample_sequence_numbers', (table) => {

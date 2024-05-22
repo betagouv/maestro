@@ -100,7 +100,7 @@ export const sampleApi = api.injectEndpoints({
 });
 
 const sampleItemDocumentURL = (sampleId: string, itemNumber: number) => {
-  const params = getURLQuery(authParams);
+  const params = getURLQuery(authParams());
   return `${config.apiEndpoint}/api/samples/${sampleId}/items/${itemNumber}/document${params}`;
 };
 

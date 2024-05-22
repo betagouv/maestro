@@ -29,26 +29,7 @@ export const Region = z.enum(
 
 export type Region = z.infer<typeof Region>;
 
-export const RegionList: Region[] = [
-  '84',
-  '27',
-  '53',
-  '24',
-  '94',
-  '44',
-  '32',
-  '11',
-  '28',
-  '75',
-  '76',
-  '52',
-  '93',
-  '01',
-  '02',
-  '03',
-  '04',
-  '06',
-];
+export const RegionList: Region[] = Region.options;
 
 export const Regions: Record<
   Region,

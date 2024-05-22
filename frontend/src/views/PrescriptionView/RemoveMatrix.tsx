@@ -1,11 +1,13 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useMemo } from 'react';
-import { SampleStage } from 'shared/schema/Sample/SampleStage';
+import { Matrix } from 'shared/referential/Matrix/Matrix';
+import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
+import { Stage, StageLabels } from 'shared/referential/Stage';
 interface RemoveMatrixProps {
-  matrix: string;
-  stage: SampleStage;
-  onRemoveMatrix: (matrix: string, stage: SampleStage) => Promise<void>;
+  matrix: Matrix;
+  stage: Stage;
+  onRemoveMatrix: (matrix: string, stage: Stage) => Promise<void>;
 }
 
 const RemoveMatrix = ({ matrix, stage, onRemoveMatrix }: RemoveMatrixProps) => {
@@ -50,10 +52,10 @@ const RemoveMatrix = ({ matrix, stage, onRemoveMatrix }: RemoveMatrixProps) => {
         Êtes-vous sûr de vouloir supprimer cette ligne ?
         <ul>
           <li>
-            <b>Matrice</b> : {matrix}
+            <b>Matrice</b> : {MatrixLabels[matrix]}
           </li>
           <li>
-            <b>Stade de prélèvement</b> : {stage}
+            <b>Stade de prélèvement</b> : {StageLabels[stage]}
           </li>
         </ul>
       </removeModal.Component>

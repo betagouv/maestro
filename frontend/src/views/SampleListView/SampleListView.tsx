@@ -8,13 +8,13 @@ import { t } from 'i18next';
 import fp from 'lodash';
 import { useEffect, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { defaultPerPage } from 'shared/schema/commons/Pagination';
 import {
   Department,
   DepartmentLabels,
   DepartmentList,
-} from 'shared/schema/Department';
-import { Region, RegionList, Regions } from 'shared/schema/Region';
+} from 'shared/referential/Department';
+import { Region, RegionList, Regions } from 'shared/referential/Region';
+import { defaultPerPage } from 'shared/schema/commons/Pagination';
 import { FindSampleOptions } from 'shared/schema/Sample/FindSampleOptions';
 import {
   DraftStatusList,

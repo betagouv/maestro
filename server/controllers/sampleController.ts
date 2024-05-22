@@ -6,10 +6,17 @@ import { constants } from 'http2';
 import fp from 'lodash';
 import puppeteer from 'puppeteer';
 import { v4 as uuidv4 } from 'uuid';
+import { MatrixLabels } from '../../shared/referential/Matrix/MatrixLabels';
+import { MatrixKindLabels } from '../../shared/referential/MatrixKind';
+import { MatrixPartLabels } from '../../shared/referential/MatrixPart';
+import { QuantityUnitLabels } from '../../shared/referential/QuantityUnit';
+import { StageLabels } from '../../shared/referential/Stage';
 import { FindSampleOptions } from '../../shared/schema/Sample/FindSampleOptions';
 import {
   CreatedSample,
+  getSampleRegion,
   PartialSample,
+  Sample,
   SampleToCreate,
 } from '../../shared/schema/Sample/Sample';
 import { SampleItem } from '../../shared/schema/Sample/SampleItem';
@@ -39,7 +46,7 @@ const getSample = async (request: Request, response: Response) => {
 };
 
 const getSampleItemDocument = async (request: Request, response: Response) => {
-  const sample = (request as SampleRequest).sample;
+  const sample: Sample = (request as SampleRequest).sample;
   const itemNumber = Number(request.params.itemNumber);
 
   console.info('Get sample document', sample.id);
@@ -59,24 +66,26 @@ const getSampleItemDocument = async (request: Request, response: Response) => {
   }
 
   const prescriptions = await prescriptionRepository.findMany({
-    region: sample.region,
+    region: getSampleRegion(sample),
     programmingPlanId: sample.programmingPlanId,
     sampleMatrix: sample.matrix,
     sampleStage: sample.stage,
   });
 
-  //TODO: handle prescription not found
-  if (
-    !prescriptions ||
-    prescriptions.length === 0 ||
-    !prescriptions[0].laboratoryId
-  ) {
-    return response.sendStatus(constants.HTTP_STATUS_NOT_FOUND);
-  }
+  //TODO: handle prescription or laboratory not found
+  // if (
+  //   !prescriptions ||
+  //   prescriptions.length === 0 ||
+  //   !prescriptions[0].laboratoryId
+  // ) {
+  //   return response.sendStatus(constants.HTTP_STATUS_NOT_FOUND);
+  // }
 
-  const laboratory = await laboratoryRepository.findUnique(
-    prescriptions[0].laboratoryId
-  );
+  const laboratory = prescriptions[0]?.laboratoryId
+    ? await laboratoryRepository.findUnique(prescriptions[0].laboratoryId)
+    : await laboratoryRepository
+        .findMany()
+        .then((laboratories) => laboratories[0]);
 
   const sampleItem = sampleItems[itemNumber - 1];
   const compiledTemplate = handlebars.compile(SampleItemDocumentFileContent);
@@ -90,6 +99,11 @@ const getSampleItemDocument = async (request: Request, response: Response) => {
     expiryDate: sample.expiryDate
       ? format(sample.expiryDate, 'dd/MM/yyyy')
       : '',
+    stage: StageLabels[sample.stage],
+    matrixKind: MatrixKindLabels[sample.matrixKind],
+    matrix: MatrixLabels[sample.matrix],
+    matrixPart: MatrixPartLabels[sample.matrixPart],
+    quantityUnit: QuantityUnitLabels[sampleItem.quantityUnit],
     releaseControl: sample.releaseControl ? 'Oui' : 'Non',
     temperatureMaintenance: sample.temperatureMaintenance ? 'Oui' : 'Non',
     comment: sample.comment ?? 'Aucun',

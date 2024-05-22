@@ -4,15 +4,22 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import { useState } from 'react';
-import { MatrixList } from 'shared/foodex2/Matrix';
+import { Matrix } from 'shared/referential/Matrix/Matrix';
+import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
+import { MatrixList } from 'shared/referential/Matrix/MatrixList';
+import {
+  MatrixKind,
+  MatrixKindLabels,
+  MatrixKindList,
+} from 'shared/referential/MatrixKind';
+import { Stage, StageLabels, StageList } from 'shared/referential/Stage';
 import { Sample } from 'shared/schema/Sample/Sample';
-import { SampleStage, SampleStageList } from 'shared/schema/Sample/SampleStage';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import { useForm } from 'src/hooks/useForm';
 interface AddMatrixProps {
-  excludedList: { matrix: string; stage: SampleStage }[];
-  onAddMatrix: (matrix: string, stage: SampleStage) => Promise<void>;
+  excludedList: { matrix: Matrix; stage: Stage }[];
+  onAddMatrix: (matrix: Matrix, stage: Stage) => Promise<void>;
 }
 
 const addModal = createModal({
@@ -29,10 +36,12 @@ const AddMatrix = ({ excludedList, onAddMatrix }: AddMatrixProps) => {
     },
   });
 
-  const [matrix, setMatrix] = useState<string>();
-  const [stage, setStage] = useState<SampleStage>();
+  const [matrixKind, setMatrixKind] = useState<MatrixKind>();
+  const [matrix, setMatrix] = useState<Matrix>();
+  const [stage, setStage] = useState<Stage>();
 
   const Form = Sample.pick({
+    matrixKind: true,
     matrix: true,
     stage: true,
   });
@@ -49,6 +58,7 @@ const AddMatrix = ({ excludedList, onAddMatrix }: AddMatrixProps) => {
   );
 
   const form = useForm(FormRefinement, {
+    matrixKind,
     matrix,
     stage,
     existingMatrix: false,
@@ -92,9 +102,31 @@ const AddMatrix = ({ excludedList, onAddMatrix }: AddMatrixProps) => {
       >
         <form data-testid="add_matrix_form">
           <AppSelect<FormShape>
+            value={matrixKind ?? ''}
+            options={selectOptionsFromList(MatrixKindList, {
+              labels: MatrixKindLabels,
+            })}
+            onChange={(e) => {
+              setMatrix(undefined);
+              setMatrixKind(e.target.value as MatrixKind);
+            }}
+            inputForm={form}
+            inputKey="matrixKind"
+            whenValid="Catégorie de matrice correctement renseignée."
+            data-testid="matrixkind-select"
+            label="Catégorie de matrice (obligatoire)"
+            required
+          />
+          <AppSelect<FormShape>
             value={matrix ?? ''}
-            options={selectOptionsFromList(MatrixList)}
-            onChange={(e) => setMatrix(e.target.value as string)}
+            options={
+              matrixKind
+                ? selectOptionsFromList(MatrixList[matrixKind], {
+                    labels: MatrixLabels,
+                  })
+                : []
+            }
+            onChange={(e) => setMatrix(e.target.value as Matrix)}
             inputForm={form}
             inputKey="matrix"
             whenValid="Matrice correctement renseignée."
@@ -104,8 +136,10 @@ const AddMatrix = ({ excludedList, onAddMatrix }: AddMatrixProps) => {
           />
           <AppSelect<FormShape>
             value={stage ?? ''}
-            options={selectOptionsFromList(SampleStageList)}
-            onChange={(e) => setStage(e.target.value as SampleStage)}
+            options={selectOptionsFromList(StageList, {
+              labels: StageLabels,
+            })}
+            onChange={(e) => setStage(e.target.value as Stage)}
             inputForm={form}
             inputKey="stage"
             whenValid="Stade de prélèvement correctement renseigné."

@@ -6,7 +6,7 @@ import {
   Samples,
 } from '../../../server/repositories/sampleRepository';
 import { Users } from '../../../server/repositories/userRepository';
-import { Regions } from '../../../shared/schema/Region';
+import { Regions } from '../../../shared/referential/Region';
 import { Sample } from '../../../shared/schema/Sample/Sample';
 import { genSample, oneOf } from '../../../shared/test/testFixtures';
 
@@ -27,8 +27,8 @@ exports.seed = async function () {
     faker.helpers.multiple<Sample>(
       () => ({
         ...genSample(sampler.id, validatedSurveyProgrammingPlan.id),
-        matrix: 'Abricots',
-        stage: 'Avant récolte',
+        matrix: 'A01GF',
+        stage: 'STADE2',
         status: 'Sent',
         department: oneOf(Regions[sampler.region!].departments),
       }),
@@ -37,8 +37,8 @@ exports.seed = async function () {
     faker.helpers.multiple<Sample>(
       () => ({
         ...genSample(sampler.id, validatedSurveyProgrammingPlan.id),
-        matrix: 'Avoine',
-        stage: 'Post récolte',
+        matrix: 'A000F',
+        stage: 'STADE1',
         status: 'Sent',
         department: oneOf(Regions[sampler.region!].departments),
       }),
@@ -47,8 +47,8 @@ exports.seed = async function () {
     faker.helpers.multiple<Sample>(
       () => ({
         ...genSample(sampler.id, validatedSurveyProgrammingPlan.id),
-        matrix: 'Carottes',
-        stage: 'Stockage',
+        matrix: 'A00QH',
+        stage: 'STADE3',
         status: 'Sent',
         department: oneOf(Regions[sampler.region!].departments),
       }),
@@ -57,8 +57,8 @@ exports.seed = async function () {
     faker.helpers.multiple<Sample>(
       () => ({
         ...genSample(sampler.id, validatedSurveyProgrammingPlan.id),
-        matrix: 'Cerises',
-        stage: 'Autre',
+        matrix: 'A01GG',
+        stage: 'STADE9',
         status: 'Sent',
         department: oneOf(Regions[sampler.region!].departments),
       }),
@@ -67,8 +67,8 @@ exports.seed = async function () {
     faker.helpers.multiple<Sample>(
       () => ({
         ...genSample(sampler.id, validatedSurveyProgrammingPlan.id),
-        matrix: 'Choux-fleurs',
-        stage: 'Stockage',
+        matrix: 'A00FR',
+        stage: 'STADE3',
         status: 'Sent',
         department: oneOf(Regions[sampler.region!].departments),
       }),
@@ -77,8 +77,8 @@ exports.seed = async function () {
     faker.helpers.multiple<Sample>(
       () => ({
         ...genSample(sampler.id, validatedSurveyProgrammingPlan.id),
-        matrix: 'Lentilles sèches',
-        stage: 'Stockage',
+        matrix: 'A0DFB',
+        stage: 'STADE3',
         status: 'Sent',
         department: oneOf(Regions[sampler.region!].departments),
       }),
@@ -87,8 +87,8 @@ exports.seed = async function () {
     faker.helpers.multiple<Sample>(
       () => ({
         ...genSample(sampler.id, validatedSurveyProgrammingPlan.id),
-        matrix: 'Soja',
-        stage: 'Avant récolte',
+        matrix: 'A01BG',
+        stage: 'STADE2',
         status: 'Sent',
         department: oneOf(Regions[sampler.region!].departments),
       }),

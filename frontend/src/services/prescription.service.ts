@@ -77,7 +77,7 @@ const prescriptionsExportURL = (findOptions: FindPrescriptionOptions) => {
   const { programmingPlanId, ...queryFindOptions } = findOptions;
   const params = getURLQuery({
     ...queryFindOptions,
-    ...authParams,
+    ...authParams(),
   });
   return `${config.apiEndpoint}/api/programming-plans/${programmingPlanId}/prescriptions/export${params}`;
 };

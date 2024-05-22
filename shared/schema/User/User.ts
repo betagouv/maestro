@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { z } from 'zod';
-import { Region, RegionList, Regions } from '../Region';
+import { Region, RegionList, Regions } from '../../referential/Region';
 import { UserPermission } from './UserPermission';
 import { UserRole, UserRolePermissions } from './UserRole';
 

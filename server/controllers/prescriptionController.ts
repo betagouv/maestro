@@ -4,6 +4,9 @@ import highland from 'highland';
 import { constants } from 'http2';
 import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
+import { MatrixLabels } from '../../shared/referential/Matrix/MatrixLabels';
+import { RegionList, Regions } from '../../shared/referential/Region';
+import { StageLabels } from '../../shared/referential/Stage';
 import { FindPrescriptionOptions } from '../../shared/schema/Prescription/FindPrescriptionOptions';
 import {
   PrescriptionToCreate,
@@ -13,7 +16,6 @@ import {
   genPrescriptionByMatrix,
   matrixCompletionRate,
 } from '../../shared/schema/Prescription/PrescriptionsByMatrix';
-import { RegionList, Regions } from '../../shared/schema/Region';
 import { hasPermission } from '../../shared/schema/User/User';
 import { isDefined } from '../../shared/utils/utils';
 import laboratoryRepository from '../repositories/laboratoryRepository';
@@ -139,8 +141,8 @@ const exportPrescriptions = async (request: Request, response: Response) => {
     .each((prescription) => {
       worksheet
         .addRow({
-          sampleMatrix: prescription.sampleMatrix,
-          sampleStage: prescription.sampleStage,
+          sampleMatrix: MatrixLabels[prescription.sampleMatrix],
+          sampleStage: StageLabels[prescription.sampleStage],
           sampleTotalCount: _.sumBy(
             prescription.regionalData,
             ({ sampleCount }) => sampleCount

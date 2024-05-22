@@ -7,7 +7,15 @@ import { format } from 'date-fns';
 import { t } from 'i18next';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { DepartmentLabels } from 'shared/schema/Department';
+import { CultureKindLabels } from 'shared/referential/CultureKind';
+import { DepartmentLabels } from 'shared/referential/Department';
+import { LegalContextLabels } from 'shared/referential/LegalContext';
+import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
+import { MatrixKindLabels } from 'shared/referential/MatrixKind';
+import { MatrixPartLabels } from 'shared/referential/MatrixPart';
+import { QuantityUnitLabels } from 'shared/referential/QuantityUnit';
+import { StageLabels } from 'shared/referential/Stage';
+import { StorageConditionLabels } from 'shared/referential/StorageCondition';
 import { ProgrammingPlanKindLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { PartialSample } from 'shared/schema/Sample/Sample';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -56,68 +64,89 @@ const SampleStep4 = ({ sample }: Props) => {
       <h3>Informations générales</h3>
       <ul>
         <li>
-          <strong>Date de prélèvement :</strong>
+          <strong>Date de prélèvement : </strong>
           {format(sample.sampledAt, 'dd/MM/yyyy')}
         </li>
         <li>
-          <strong>Géolocalisation :</strong> {sample.userLocation.x} -{' '}
-          {sample.userLocation.y}
+          <strong>Géolocalisation : </strong>
+          {sample.userLocation.x} - {sample.userLocation.y}
         </li>
         <li>
-          <strong>Département :</strong> {DepartmentLabels[sample.department]}
+          <strong>Département : </strong>
+          {DepartmentLabels[sample.department]}
         </li>
         <li>
-          <strong>Identifiant résytal :</strong> {sample.resytalId}
+          <strong>Identifiant résytal : </strong>
+          {sample.resytalId}
         </li>
         {sampleProgrammingPlan && (
           <li>
-            <strong>Contexte :</strong>{' '}
+            <strong>Contexte : </strong>
             {ProgrammingPlanKindLabels[sampleProgrammingPlan.kind]}
           </li>
         )}
         <li>
-          <strong>Cadre juridique :</strong> {sample.legalContext}
+          <strong>Cadre juridique : </strong>
+          {LegalContextLabels[sample.legalContext]}
         </li>
       </ul>
       <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
       <h3>Informations spécifiques</h3>
       <ul>
+        {sample.matrix && (
+          <li>
+            <strong>Matrice : </strong>
+            {MatrixLabels[sample.matrix]}
+          </li>
+        )}
+        {sample.matrixKind && (
+          <li>
+            <strong>Catégorie de matrice : </strong>
+            {MatrixKindLabels[sample.matrixKind]}
+          </li>
+        )}
+        {sample.matrixPart && (
+          <li>
+            <strong>Partie du végétal : </strong>
+            {MatrixPartLabels[sample.matrixPart]}
+          </li>
+        )}
+        {sample.cultureKind && (
+          <li>
+            <strong>Type de culture : </strong>
+            {CultureKindLabels[sample.cultureKind]}
+          </li>
+        )}
+        {sample.stage && (
+          <li>
+            <strong>Stade de prélèvement : </strong>
+            {StageLabels[sample.stage]}
+          </li>
+        )}
         <li>
-          <strong>Matrice :</strong> {sample.matrix}
-        </li>
-        <li>
-          <strong>Catégorie de matrice :</strong> {sample.matrixKind}
-        </li>
-        <li>
-          <strong>Partie du végétal :</strong> {sample.matrixPart}
-        </li>
-        <li>
-          <strong>Type de culture :</strong> {sample.cultureKind}
-        </li>
-        <li>
-          <strong>Stade de prélèvement :</strong> {sample.stage}
-        </li>
-        <li>
-          <strong>Contrôle libératoire :</strong>{' '}
+          <strong>Contrôle libératoire : </strong>
           {t('boolean', { count: Number(sample.releaseControl ?? 0) })}
         </li>
         <li>
           <strong>
-            Condition de maintien du prélèvement sous température dirigée :
-          </strong>{' '}
+            Condition de maintien du prélèvement sous température dirigée : 
+          </strong>
           {t('boolean', {
             count: Number(sample.temperatureMaintenance ?? 0),
           })}
         </li>
         <li>
-          <strong>Date de péremption :</strong>{' '}
+          <strong>Date de péremption : </strong>
           {sample.expiryDate
             ? format(sample.expiryDate, 'dd/MM/yyyy')
             : 'Non renseignée'}
         </li>
-        <li>
-          <strong>Condition de stockage :</strong> {sample.storageCondition}
-        </li>
+        {sample.storageCondition && (
+          <li>
+            <strong>Condition de stockage : </strong>
+            {StorageConditionLabels[sample.storageCondition]}
+          </li>
+        )}
       </ul>
       <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
       <h3>Échantillons</h3>
@@ -131,23 +160,26 @@ const SampleStep4 = ({ sample }: Props) => {
               end={
                 <ul>
                   <li>
-                    <strong>Quantité :</strong> {item.quantity} 
-                    {item.quantityUnit}
+                    <strong>Quantité : </strong>
+                    {item.quantity} 
+                    {item.quantityUnit && QuantityUnitLabels[item.quantityUnit]}
                   </li>
                   <li>
-                    <strong>Numéro de scellé :</strong> {item.sealId}
+                    <strong>Numéro de scellé : </strong>
+                    {item.sealId}
                   </li>
                   <li>
-                    <strong>Directive 2002/63 respectée :</strong> 
+                    <strong>Directive 2002/63 respectée : </strong>
                     {item.compliance200263 ? 'Oui' : 'Non'}
                   </li>
                   <li>
-                    <strong>Recours au poolage :</strong> 
+                    <strong>Recours au poolage : </strong>
                     {item.pooling ? 'Oui' : 'Non'}
                   </li>
                   {item.pooling && (
                     <li>
-                      <strong>Nombre d'unités :</strong> {item.poolingCount}
+                      <strong>Nombre d'unités : </strong>
+                      {item.poolingCount}
                     </li>
                   )}
                 </ul>

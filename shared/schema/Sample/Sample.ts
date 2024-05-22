@@ -1,11 +1,15 @@
 import { z } from 'zod';
-import { Department } from '../Department';
-import { Region, RegionList, Regions } from '../Region';
+import { CultureKind } from '../../referential/CultureKind';
+import { Department } from '../../referential/Department';
+import { LegalContext } from '../../referential/LegalContext';
+import { Matrix } from '../../referential/Matrix/Matrix';
+import { MatrixKind } from '../../referential/MatrixKind';
+import { MatrixPart } from '../../referential/MatrixPart';
+import { Region, RegionList, Regions } from '../../referential/Region';
+import { Stage } from '../../referential/Stage';
+import { StorageCondition } from '../../referential/StorageCondition';
 import { PartialSampleItem, SampleItemRefinement } from './SampleItem';
-import { SampleLegalContext } from './SampleLegalContext';
-import { SampleStage } from './SampleStage';
 import { SampleStatus } from './SampleStatus';
-import { SampleStorageCondition } from './SampleStorageCondition';
 
 export const UserLocation = z.object(
   {
@@ -47,7 +51,7 @@ export const Sample = z.object({
       required_error: 'Veuillez renseigner le contexte.',
     })
     .uuid(),
-  legalContext: SampleLegalContext,
+  legalContext: LegalContext,
   userLocation: UserLocation,
   locationSiret: z
     .string({
@@ -58,18 +62,12 @@ export const Sample = z.object({
     required_error: 'Veuillez renseigner le nom du lieu de prélèvement.',
   }),
   locationAddress: z.string().optional().nullable(),
-  matrixKind: z.string({
-    required_error: 'Veuillez renseigner la catégorie de matrice.',
-  }),
-  matrix: z.string({
-    required_error: 'Veuillez renseigner la matrice.',
-  }),
-  matrixPart: z.string({
-    required_error: 'Veuillez renseigner la partie du végétal.',
-  }),
-  stage: SampleStage,
-  cultureKind: z.string().optional().nullable(),
-  storageCondition: SampleStorageCondition.optional().nullable(),
+  matrixKind: MatrixKind,
+  matrix: Matrix,
+  matrixPart: MatrixPart,
+  stage: Stage,
+  cultureKind: CultureKind,
+  storageCondition: StorageCondition.optional().nullable(),
   releaseControl: z.boolean().optional().nullable(),
   items: z.array(SampleItemRefinement).min(1, {
     message: 'Veuillez renseigner au moins un échantillon.',

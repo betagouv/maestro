@@ -1,4 +1,4 @@
-import { Region, Regions } from 'shared/schema/Region';
+import { Region, Regions } from 'shared/referential/Region';
 
 interface RegionHeaderCellProps {
   region: Region;
