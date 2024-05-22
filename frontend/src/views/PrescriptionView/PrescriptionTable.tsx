@@ -135,7 +135,7 @@ const PrescriptionTable = ({
           </div>,
           <div
             className={cx('fr-pl-0', 'fr-text--bold')}
-            data-testid={`sampleMatrix-${p.sampleMatrix}`}
+            data-testid={`sampleMatrix-${p.sampleMatrix}-${p.sampleStage}`}
             key={`sampleMatrix-${p.sampleMatrix}-${p.sampleStage}`}
           >
             {MatrixLabels[p.sampleMatrix]}
@@ -154,15 +154,17 @@ const PrescriptionTable = ({
               <div>
                 {_.sumBy(p.regionalData, ({ sampleCount }) => sampleCount)}
               </div>
-              {programmingPlan.status === 'Validated' && [
-                <div>
-                  {_.sumBy(
-                    p.regionalData,
-                    ({ sentSampleCount }) => sentSampleCount
-                  )}
-                </div>,
-                <div>{matrixCompletionRate(p)}%</div>,
-              ]}
+              {programmingPlan.status === 'Validated' && (
+                <>
+                  <div>
+                    {_.sumBy(
+                      p.regionalData,
+                      ({ sentSampleCount }) => sentSampleCount
+                    )}
+                  </div>
+                  <div>{matrixCompletionRate(p)}%</div>
+                </>
+              )}
             </div>
           ),
           ...p.regionalData.map(({ sampleCount, sentSampleCount, region }) => (
@@ -247,16 +249,18 @@ const PrescriptionTable = ({
                   .map((p) => p.sampleCount)
               )}
             </div>
-            {programmingPlan.status === 'Validated' && [
-              <div>
-                {_.sum(
-                  prescriptionsByMatrix
-                    .flatMap((p) => p.regionalData)
-                    .map((p) => p.sentSampleCount)
-                )}
-              </div>,
-              <div>{matrixCompletionRate(prescriptionsByMatrix)}%</div>,
-            ]}
+            {programmingPlan.status === 'Validated' && (
+              <>
+                <div>
+                  {_.sum(
+                    prescriptionsByMatrix
+                      .flatMap((p) => p.regionalData)
+                      .map((p) => p.sentSampleCount)
+                  )}
+                </div>
+                <div>{matrixCompletionRate(prescriptionsByMatrix)}%</div>
+              </>
+            )}
           </div>
         ),
         ...regions.map((region) => [
