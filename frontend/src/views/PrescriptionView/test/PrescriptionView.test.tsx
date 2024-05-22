@@ -107,10 +107,14 @@ describe('PrescriptionView', () => {
       const p1 = prescriptions1[0];
       const p2 = prescriptions2[0];
       expect(
-        await screen.findByTestId(`sampleMatrix-${p1.sampleMatrix}`)
+        await screen.findByTestId(
+          `sampleMatrix-${p1.sampleMatrix}-${p1.sampleStage}`
+        )
       ).toBeInTheDocument();
       expect(
-        await screen.findByTestId(`sampleMatrix-${p2.sampleMatrix}`)
+        await screen.findByTestId(
+          `sampleMatrix-${p2.sampleMatrix}-${p2.sampleStage}`
+        )
       ).toBeInTheDocument();
       expect(
         await screen.findAllByTestId(`cell-${p1.sampleMatrix}`)
@@ -159,10 +163,14 @@ describe('PrescriptionView', () => {
       const p1 = prescriptions1[0];
       const p2 = prescriptions2[0];
       expect(
-        await screen.findByTestId(`sampleMatrix-${p1.sampleMatrix}`)
+        await screen.findByTestId(
+          `sampleMatrix-${p1.sampleMatrix}-${p1.sampleStage}`
+        )
       ).toBeInTheDocument();
       expect(
-        await screen.findByTestId(`sampleMatrix-${p2.sampleMatrix}`)
+        await screen.findByTestId(
+          `sampleMatrix-${p2.sampleMatrix}-${p2.sampleStage}`
+        )
       ).toBeInTheDocument();
       expect(
         await screen.findAllByTestId(`cell-${p1.sampleMatrix}`)
