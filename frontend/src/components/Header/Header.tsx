@@ -43,13 +43,7 @@ const Header = () => {
       id="header"
       data-testid="header"
       // serviceTagline="baseline - précisions sur l'organisation"
-      serviceTitle={
-        <>
-          Plan de Surveillance
-          <br />
-          Plan de Contrôle
-        </>
-      }
+      serviceTitle={<h1>maestro.</h1>}
       navigation={(isAuthenticated
         ? [
             {

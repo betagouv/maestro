@@ -32,12 +32,7 @@ describe('Header', () => {
       </Provider>
     );
 
-    expect(
-      screen.getByText(
-        (t) =>
-          t.includes('Plan de Surveillance') && t.includes('Plan de Contrôle')
-      )
-    ).toBeInTheDocument();
+    expect(screen.getByText((t) => t.includes('maestro.'))).toBeInTheDocument();
   });
 
   describe('when user is not authenticated', () => {
