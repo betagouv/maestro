@@ -30,7 +30,6 @@ import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
-import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
 import { useFindPrescriptionsQuery } from 'src/services/prescription.service';
 import { useUpdateSampleMutation } from 'src/services/sample.service';
@@ -140,8 +139,6 @@ const SampleStep2 = ({ partialSample }: Props) => {
       status,
     });
   };
-
-  const { userInfos } = useAuthentication();
 
   if (!prescriptions) {
     return <></>;
