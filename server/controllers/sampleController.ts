@@ -7,7 +7,6 @@ import fp from 'lodash';
 import puppeteer from 'puppeteer';
 import { v4 as uuidv4 } from 'uuid';
 import { MatrixLabels } from '../../shared/referential/Matrix/MatrixLabels';
-import { MatrixKindLabels } from '../../shared/referential/MatrixKind';
 import { MatrixPartLabels } from '../../shared/referential/MatrixPart';
 import { QuantityUnitLabels } from '../../shared/referential/QuantityUnit';
 import { StageLabels } from '../../shared/referential/Stage';
@@ -100,8 +99,8 @@ const getSampleItemDocument = async (request: Request, response: Response) => {
       ? format(sample.expiryDate, 'dd/MM/yyyy')
       : '',
     stage: StageLabels[sample.stage],
-    matrixKind: MatrixKindLabels[sample.matrixKind],
     matrix: MatrixLabels[sample.matrix],
+    matrixDetails: sample.matrixDetails,
     matrixPart: MatrixPartLabels[sample.matrixPart],
     quantityUnit: QuantityUnitLabels[sampleItem.quantityUnit],
     releaseControl: sample.releaseControl ? 'Oui' : 'Non',

@@ -13,27 +13,26 @@ import { Matrix } from 'shared/referential/Matrix/Matrix';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
 import { MatrixList } from 'shared/referential/Matrix/MatrixList';
 import {
-  MatrixKind,
-  MatrixKindLabels,
-  MatrixKindList,
-} from 'shared/referential/MatrixKind';
-import {
   MatrixPart,
   MatrixPartLabels,
   MatrixPartList,
 } from 'shared/referential/MatrixPart';
-import { Stage, StageLabels, StageList } from 'shared/referential/Stage';
+import { Stage, StageLabels } from 'shared/referential/Stage';
 import {
   StorageCondition,
   StorageConditionLabels,
   StorageConditionList,
 } from 'shared/referential/StorageCondition';
 import { PartialSample, Sample } from 'shared/schema/Sample/Sample';
+import { isDefined } from 'shared/utils/utils';
+import MatrixSelectModal from 'src/components/MatrixSelectModal/MatrixSelectModal';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
+import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
+import { useFindPrescriptionsQuery } from 'src/services/prescription.service';
 import { useUpdateSampleMutation } from 'src/services/sample.service';
 
 interface Props {
@@ -43,8 +42,10 @@ interface Props {
 const SampleStep2 = ({ partialSample }: Props) => {
   const navigate = useNavigate();
 
-  const [matrixKind, setMatrixKind] = useState(partialSample.matrixKind);
   const [matrix, setMatrix] = useState(partialSample.matrix);
+  const [matrixDetails, setMatrixDetails] = useState(
+    partialSample.matrixDetails
+  );
   const [matrixPart, setMatrixPart] = useState(partialSample.matrixPart);
   const [stage, setStage] = useState(partialSample.stage);
   const [cultureKind, setCultureKind] = useState(partialSample.cultureKind);
@@ -63,12 +64,23 @@ const SampleStep2 = ({ partialSample }: Props) => {
   );
   const [locationName, setLocationName] = useState(partialSample.locationName);
   const [comment, setComment] = useState(partialSample.comment);
+  const [additionalMatrix, setAdditionalMatrix] = useState<{
+    matrix: Matrix;
+    stage: Stage;
+  }>();
 
   const [updateSample] = useUpdateSampleMutation();
 
+  const { data: prescriptions } = useFindPrescriptionsQuery(
+    { programmingPlanId: partialSample.programmingPlanId },
+    {
+      skip: !partialSample.programmingPlanId,
+    }
+  );
+
   const Form = Sample.pick({
-    matrixKind: true,
     matrix: true,
+    matrixDetails: true,
     matrixPart: true,
     stage: true,
     cultureKind: true,
@@ -83,8 +95,8 @@ const SampleStep2 = ({ partialSample }: Props) => {
   });
 
   const form = useForm(Form, {
-    matrixKind,
     matrix,
+    matrixDetails,
     matrixPart,
     stage,
     cultureKind,
@@ -113,7 +125,7 @@ const SampleStep2 = ({ partialSample }: Props) => {
   const save = async (status = partialSample.status) => {
     await updateSample({
       ...partialSample,
-      matrixKind,
+      matrixDetails,
       matrix,
       matrixPart,
       stage,
@@ -129,6 +141,12 @@ const SampleStep2 = ({ partialSample }: Props) => {
     });
   };
 
+  const { userInfos } = useAuthentication();
+
+  if (!prescriptions) {
+    return <></>;
+  }
+
   return (
     <>
       <form
@@ -141,32 +159,18 @@ const SampleStep2 = ({ partialSample }: Props) => {
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12', 'fr-col-sm-4')}>
             <AppSelect<FormShape>
-              defaultValue={matrixKind ?? ''}
-              options={selectOptionsFromList(MatrixKindList, {
-                labels: MatrixKindLabels,
-              })}
-              onChange={(e) => {
-                setMatrix(undefined);
-                setMatrixKind(e.target.value as MatrixKind);
-              }}
-              inputForm={form}
-              inputKey="matrixKind"
-              whenValid="Catégorie de matrice correctement renseignée."
-              data-testid="matrixkind-select"
-              label="Catégorie de matrice (obligatoire)"
-              required
-            />
-          </div>
-          <div className={cx('fr-col-12', 'fr-col-sm-4')}>
-            <AppSelect<FormShape>
               value={matrix ?? ''}
-              options={
-                matrixKind
-                  ? selectOptionsFromList(MatrixList[matrixKind], {
-                      labels: MatrixLabels,
-                    })
-                  : []
-              }
+              options={selectOptionsFromList(
+                [
+                  ...MatrixList.filter((matrix) =>
+                    prescriptions.find((p) => p.sampleMatrix === matrix)
+                  ),
+                  additionalMatrix?.matrix,
+                ].filter(isDefined),
+                {
+                  labels: MatrixLabels,
+                }
+              )}
               onChange={(e) => setMatrix(e.target.value as Matrix)}
               inputForm={form}
               inputKey="matrix"
@@ -178,17 +182,43 @@ const SampleStep2 = ({ partialSample }: Props) => {
           </div>
           <div className={cx('fr-col-12', 'fr-col-sm-4')}>
             <AppSelect<FormShape>
-              defaultValue={matrixPart ?? ''}
-              options={selectOptionsFromList(MatrixPartList, {
-                labels: MatrixPartLabels,
-              })}
-              onChange={(e) => setMatrixPart(e.target.value as MatrixPart)}
+              defaultValue={stage ?? ''}
+              options={selectOptionsFromList(
+                [
+                  ...prescriptions
+                    .filter((p) => p.sampleMatrix === matrix)
+                    .map((p) => p.sampleStage),
+                  additionalMatrix?.stage,
+                ].filter(isDefined),
+                {
+                  labels: StageLabels,
+                }
+              )}
+              onChange={(e) => setStage(e.target.value as Stage)}
               inputForm={form}
-              inputKey="matrixPart"
-              whenValid="Partie du végétal correctement renseignée."
-              data-testid="matrixpart-select"
-              label="Partie du végétal (obligatoire)"
+              inputKey="stage"
+              whenValid="Stade de prélèvement correctement renseigné."
+              data-testid="stage-select"
+              label="Stade de prélèvement (obligatoire)"
               required
+            />
+          </div>
+          <div
+            className={cx('fr-col-12', 'fr-col-sm-4')}
+            style={{
+              display: 'flex',
+              justifyContent: 'end',
+              flexDirection: 'column',
+            }}
+          >
+            <MatrixSelectModal
+              excludedList={[]}
+              onSelect={async (matrix, stage) => {
+                setAdditionalMatrix({ matrix, stage });
+                setMatrix(matrix);
+                setStage(stage);
+              }}
+              buttonTitle="Matrice / stade hors plan"
             />
           </div>
           <div className={cx('fr-col-12', 'fr-col-sm-4')}>
@@ -207,17 +237,28 @@ const SampleStep2 = ({ partialSample }: Props) => {
           </div>
           <div className={cx('fr-col-12', 'fr-col-sm-4')}>
             <AppSelect<FormShape>
-              defaultValue={stage ?? ''}
-              options={selectOptionsFromList(StageList, {
-                labels: StageLabels,
+              defaultValue={matrixPart ?? ''}
+              options={selectOptionsFromList(MatrixPartList, {
+                labels: MatrixPartLabels,
               })}
-              onChange={(e) => setStage(e.target.value as Stage)}
+              onChange={(e) => setMatrixPart(e.target.value as MatrixPart)}
               inputForm={form}
-              inputKey="stage"
-              whenValid="Stade de prélèvement correctement renseigné."
-              data-testid="stage-select"
-              label="Stade de prélèvement (obligatoire)"
+              inputKey="matrixPart"
+              whenValid="Partie du végétal correctement renseignée."
+              data-testid="matrixpart-select"
+              label="Partie du végétal (obligatoire)"
               required
+            />
+          </div>
+          <div className={cx('fr-col-12', 'fr-col-sm-4')}>
+            <AppTextInput<FormShape>
+              defaultValue={matrixDetails ?? ''}
+              onChange={(e) => setMatrixDetails(e.target.value)}
+              inputForm={form}
+              inputKey="matrixDetails"
+              whenValid="Détail de la matrice correctement renseigné."
+              data-testid="matrixdetails-input"
+              label="Détail de la matrice"
             />
           </div>
         </div>

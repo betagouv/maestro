@@ -3,7 +3,6 @@ import { CultureKind } from '../../referential/CultureKind';
 import { Department } from '../../referential/Department';
 import { LegalContext } from '../../referential/LegalContext';
 import { Matrix } from '../../referential/Matrix/Matrix';
-import { MatrixKind } from '../../referential/MatrixKind';
 import { MatrixPart } from '../../referential/MatrixPart';
 import { Region, RegionList, Regions } from '../../referential/Region';
 import { Stage } from '../../referential/Stage';
@@ -62,8 +61,8 @@ export const Sample = z.object({
     required_error: 'Veuillez renseigner le nom du lieu de prélèvement.',
   }),
   locationAddress: z.string().optional().nullable(),
-  matrixKind: MatrixKind,
   matrix: Matrix,
+  matrixDetails: z.string().optional().nullable(),
   matrixPart: MatrixPart,
   stage: Stage,
   cultureKind: CultureKind,

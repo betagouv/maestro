@@ -6,14 +6,11 @@ import {
   useRef,
   useState,
 } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useForm } from 'src/hooks/useForm';
 import { ZodRawShape } from 'zod';
-import dataAttributes from './data-attributes';
 import './searchableSelect.css';
-import SelectWrapper from './SelectWrapper';
 
 type SearchableSelectHint = string | Object | any[];
 
@@ -56,23 +53,14 @@ interface AppSearchableSelectProps<T extends ZodRawShape>
 }
 
 function AppSearchableSelect<T extends ZodRawShape>({
-  id,
-  messageType,
   options,
-  selected,
-  filter,
   onChange,
-  onTextChange,
-  onBlur,
-  onFocus,
-  onKeyDown,
   inputForm,
   inputKey,
   inputPathFromKey,
   whenValid,
   ...remainingProps
 }: AppSearchableSelectProps<T>) {
-  const selectId = useRef(id || uuidv4());
   const optionsRef = useRef<MutableRefObject<HTMLDivElement>[]>([]);
   const optionsContainerRef = useRef<HTMLDivElement>(null);
   const [arrowSelected, setArrowSelected] = useState<number | null>(null);
@@ -85,31 +73,15 @@ function AppSearchableSelect<T extends ZodRawShape>({
       .map((option, i) => optionsRef.current[i] || createRef());
   }
 
-  useEffect(() => {
-    selectId.current = id || uuidv4();
-  }, [id]);
-
-  useEffect(() => {
-    if (selected) {
-      const selectedOption = options.find(
-        (option) => option.value === selected
-      );
-      setInternalLabel(selectedOption ? selectedOption.label : '');
-    } else {
-      setInternalLabel('');
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected]);
-
-  useEffect(() => {
-    if (selected) {
-      const selectedOption = options.find(
-        (option) => option.value === selected
-      );
-      setInternalLabel(selectedOption ? selectedOption.label : '');
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [options]);
+  // useEffect(() => {
+  //   if (selected) {
+  //     const selectedOption = options.find(
+  //       (option) => option.value === selected
+  //     );
+  //     setInternalLabel(selectedOption ? selectedOption.label : '');
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [options]);
 
   useEffect(() => {
     if (optionsContainerRef.current !== null) {
@@ -124,16 +96,13 @@ function AppSearchableSelect<T extends ZodRawShape>({
     }
   }, [arrowSelected]);
 
-  const _className = clsx('fr-select', {
-    [`fr-select--${messageType}`]: messageType,
-  });
-
-  const filteredOptions = options.filter((option, index, arr) =>
-    filter?.(internalLabel, option, index, arr)
-  );
+  const filteredOptions = options;
+  //   .filter((option, index, arr) =>
+  //   filter?.(internalLabel, option, index, arr)
+  // );
 
   const onTextInternalChange = (value: string) => {
-    onTextChange?.(value);
+    // onTextChange?.(value);
     setInternalLabel(value);
   };
 
@@ -146,125 +115,117 @@ function AppSearchableSelect<T extends ZodRawShape>({
     onInternalChange('', '');
     setShowOptions(true);
     setArrowSelected(null);
-    onFocus?.(e);
+    // onFocus?.(e);
   };
 
   const onInternalBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    if (filteredOptions.length === 1) {
-      onInternalChange(filteredOptions[0].value, filteredOptions[0].label);
-    } else {
-      const foundValue = options.find(
-        (option) => option.label === internalLabel
-      );
-      if (!foundValue) {
-        onTextInternalChange('');
-      }
+    // if (filteredOptions.length === 1) {
+    //   onInternalChange(filteredOptions[0].value, filteredOptions[0].label);
+    // } else {
+    const foundValue = options.find((option) => option.label === internalLabel);
+    if (!foundValue) {
+      onTextInternalChange('');
     }
+    // }
     setShowOptions(false);
-    onBlur?.(e);
+    // onBlur?.(e);
   };
 
-  const onInternalKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    onKeyDown?.(e);
-    switch (e.key) {
-      case 'ArrowDown':
-        e.preventDefault();
-        setShowOptions(true);
-        if (arrowSelected === null) {
-          setArrowSelected(0);
-        } else if (
-          arrowSelected <
-          filteredOptions.filter((o) => !o.disabled).length - 1
-        ) {
-          setArrowSelected(arrowSelected + 1);
-        }
-        break;
-      case 'ArrowUp':
-        e.preventDefault();
-        setShowOptions(true);
-        if (arrowSelected && arrowSelected > 0) {
-          setArrowSelected(arrowSelected - 1);
-        }
-        break;
-      case 'Enter':
-        e.preventDefault();
-        if (arrowSelected !== null) {
-          const option = filteredOptions.filter((o) => !o.disabled)[
-            arrowSelected
-          ];
-          onInternalChange(option.value, option.label);
-          setShowOptions(false);
-        }
-        break;
-      default:
-        setArrowSelected(null);
-    }
-  };
+  // const onInternalKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  //   // onKeyDown?.(e);
+  //   switch (e.key) {
+  //     case 'ArrowDown':
+  //       e.preventDefault();
+  //       setShowOptions(true);
+  //       if (arrowSelected === null) {
+  //         setArrowSelected(0);
+  //       } else if (
+  //         arrowSelected <
+  //         filteredOptions.filter((o) => !o.disabled).length - 1
+  //       ) {
+  //         setArrowSelected(arrowSelected + 1);
+  //       }
+  //       break;
+  //     case 'ArrowUp':
+  //       e.preventDefault();
+  //       setShowOptions(true);
+  //       if (arrowSelected && arrowSelected > 0) {
+  //         setArrowSelected(arrowSelected - 1);
+  //       }
+  //       break;
+  //     case 'Enter':
+  //       e.preventDefault();
+  //       if (arrowSelected !== null) {
+  //         const option = filteredOptions.filter((o) => !o.disabled)[
+  //           arrowSelected
+  //         ];
+  //         onInternalChange(option.value, option.label);
+  //         setShowOptions(false);
+  //       }
+  //       break;
+  //     default:
+  //       setArrowSelected(null);
+  //   }
+  // };
 
   let refCount = -1;
   return (
-    <SelectWrapper
-      selectId={selectId.current}
-      messageType={messageType}
-      {...remainingProps}
-    >
-      <div className="select-search-input">
-        <AppTextInput<T>
-          {...dataAttributes.filterAll(remainingProps)}
-          id={selectId.current}
-          className={_className}
-          autoComplete="off"
-          onChange={(e) => onTextInternalChange(e.target.value)}
-          onFocus={onInternalFocus}
-          onBlur={onInternalBlur}
-          onKeyDown={onInternalKeyDown}
-          value={internalLabel}
-          inputForm={inputForm}
-          inputKey={inputKey}
-          inputPathFromKey={inputPathFromKey}
-          whenValid={whenValid}
-        />
-        <div
-          ref={optionsContainerRef}
-          className={clsx('select-search-options', 'midlength-input', {
-            'select-search-options__visible': showOptions,
-          })}
-        >
-          {filteredOptions.length === 0 ? (
-            <div className="select-search-option__disabled">Aucun résultat</div>
-          ) : (
-            <>
-              {filteredOptions.map((option) => {
-                if (!option.disabled) {
-                  refCount += 1;
-                }
-                return (
-                  <div
-                    role="option"
-                    aria-selected={selected === option.value}
-                    ref={option.disabled ? null : optionsRef.current[refCount]}
-                    className={clsx('select-search-option', {
-                      'select-search-option__selected':
-                        !option.disabled && refCount === arrowSelected,
-                      'select-search-option__disabled': option.disabled,
-                    })}
-                    // disabled={option.disabled || false}
-                    hidden={option.hidden || false}
-                    key={`${selectId}-${option.value}`}
-                    // value={option.value}
-                    onMouseDown={() =>
-                      onInternalChange(option.value, option.label)
-                    }
-                  >
-                    {option.label}
-                  </div>
-                );
-              })}
-            </>
-          )}
-        </div>
+    <div>
+      <AppTextInput<T>
+        {...remainingProps}
+        // id={selectId.current}
+        className="select-search-input"
+        autoComplete="off"
+        onChange={(e) => onTextInternalChange(e.target.value)}
+        onFocus={onInternalFocus}
+        onBlur={onInternalBlur}
+        // onKeyDown={onInternalKeyDown}
+        value={internalLabel}
+        inputForm={inputForm}
+        inputKey={inputKey}
+        inputPathFromKey={inputPathFromKey}
+        whenValid={whenValid}
+      />
+      <div
+        ref={optionsContainerRef}
+        className={clsx('select-search-options', 'midlength-input', {
+          'select-search-options__visible': showOptions,
+        })}
+      >
+        {filteredOptions.length === 0 ? (
+          <div className="select-search-option__disabled">Aucun résultat</div>
+        ) : (
+          <>
+            {filteredOptions.map((option) => {
+              if (!option.disabled) {
+                refCount += 1;
+              }
+              return (
+                <div
+                  role="option"
+                  // aria-selected={selected === option.value}
+                  ref={option.disabled ? null : optionsRef.current[refCount]}
+                  className={clsx('select-search-option', {
+                    'select-search-option__selected':
+                      !option.disabled && refCount === arrowSelected,
+                    'select-search-option__disabled': option.disabled,
+                  })}
+                  // disabled={option.disabled || false}
+                  hidden={option.hidden || false}
+                  // key={`${selectId}-${option.value}`}
+                  // value={option.value}
+                  onMouseDown={() =>
+                    onInternalChange(option.value, option.label)
+                  }
+                >
+                  {option.label}
+                </div>
+              );
+            })}
+          </>
+        )}
       </div>
-    </SelectWrapper>
+    </div>
   );
 }
 
@@ -282,11 +243,9 @@ AppSearchableSelect.defaultProps = {
   onBlur: () => {},
   onFocus: () => {},
   onKeyDown: () => {},
-  placeholder: 'Sélectionner une valeur',
+  placeholder: 'Chercher une valeur',
   selected: '',
   required: false,
-  filter: (label: string, option: any) =>
-    option.label.toLowerCase().includes(label.toLowerCase()),
 };
 
 export default AppSearchableSelect;

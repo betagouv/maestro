@@ -392,7 +392,7 @@ describe('Sample router', () => {
 
     const validBody = {
       ...sample11,
-      matrix: oneOf(MatrixList[sample11.matrixKind]),
+      matrix: oneOf(MatrixList),
     };
 
     it('should fail if the user does not have the permission to update samples', async () => {

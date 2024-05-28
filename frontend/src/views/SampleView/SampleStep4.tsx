@@ -5,13 +5,11 @@ import Card from '@codegouvfr/react-dsfr/Card';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { format } from 'date-fns';
 import { t } from 'i18next';
-import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CultureKindLabels } from 'shared/referential/CultureKind';
 import { DepartmentLabels } from 'shared/referential/Department';
 import { LegalContextLabels } from 'shared/referential/LegalContext';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
-import { MatrixKindLabels } from 'shared/referential/MatrixKind';
 import { MatrixPartLabels } from 'shared/referential/MatrixPart';
 import { QuantityUnitLabels } from 'shared/referential/QuantityUnit';
 import { StageLabels } from 'shared/referential/Stage';
@@ -19,7 +17,7 @@ import { StorageConditionLabels } from 'shared/referential/StorageCondition';
 import { ProgrammingPlanKindLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { PartialSample } from 'shared/schema/Sample/Sample';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.service';
+import { useGetProgrammingPlanQuery } from 'src/services/programming-plan.service';
 import {
   getSampleItemDocumentURL,
   useUpdateSampleMutation,
@@ -35,14 +33,11 @@ const SampleStep4 = ({ sample }: Props) => {
   const [updateSample, { isSuccess: isUpdateSuccess }] =
     useUpdateSampleMutation();
 
-  const { data: programmingPlans } = useFindProgrammingPlansQuery({
-    status: 'Validated',
-  });
-
-  const sampleProgrammingPlan = useMemo(
-    () =>
-      programmingPlans?.find((plan) => plan.id === sample.programmingPlanId),
-    [programmingPlans, sample.programmingPlanId]
+  const { data: sampleProgrammingPlan } = useGetProgrammingPlanQuery(
+    sample.programmingPlanId,
+    {
+      skip: !sample.programmingPlanId,
+    }
   );
 
   const submit = async () => {
@@ -99,10 +94,10 @@ const SampleStep4 = ({ sample }: Props) => {
             {MatrixLabels[sample.matrix]}
           </li>
         )}
-        {sample.matrixKind && (
+        {sample.matrixDetails && (
           <li>
-            <strong>Catégorie de matrice : </strong>
-            {MatrixKindLabels[sample.matrixKind]}
+            <strong>Detail de la matrice : </strong>
+            {sample.matrixDetails}
           </li>
         )}
         {sample.matrixPart && (

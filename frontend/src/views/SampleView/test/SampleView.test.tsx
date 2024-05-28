@@ -5,6 +5,7 @@ import Router, { BrowserRouter } from 'react-router-dom';
 import {
   genAuthUser,
   genCreatedSample,
+  genPrescriptions,
   genProgrammingPlan,
   genSample,
   genUser,
@@ -39,6 +40,11 @@ const programmingPlanRequest = {
     body: JSON.stringify([programmingPlan1, programmingPlan2]),
   },
 };
+const prescriptions = genPrescriptions(programmingPlan1.id);
+const prescriptionsRequest = {
+  pathname: `/api/programming-plans/${programmingPlan1.id}/prescriptions?`,
+  response: { body: JSON.stringify(prescriptions) },
+};
 
 describe('SampleView', () => {
   beforeEach(() => {
@@ -70,9 +76,10 @@ describe('SampleView', () => {
   });
 
   test('should render the second step for a draft sample', async () => {
-    const createdSample = genCreatedSample();
+    const createdSample = genCreatedSample(sampler.id, programmingPlan1.id);
     mockRequests([
       userRequest,
+      prescriptionsRequest,
       {
         pathname: `/api/samples/${createdSample.id}`,
         response: { body: JSON.stringify(createdSample) },

@@ -23,6 +23,7 @@ import { isNotEmpty } from 'shared/utils/utils';
 import AutoClose from 'src/components/AutoClose/AutoClose';
 import EditableNumberCell from 'src/components/EditableCell/EditableNumberCell';
 import EditableSelectCell from 'src/components/EditableCell/EditableSelectCell';
+import MatrixSelectModal from 'src/components/MatrixSelectModal/MatrixSelectModal';
 import RegionHeaderCell from 'src/components/RegionHeaderCell/RegionHeaderCell';
 import { laboratoriesOptions } from 'src/components/_app/AppSelect/AppSelectOption';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -33,7 +34,6 @@ import {
   useDeletePrescriptionsMutation,
   useUpdatePrescriptionMutation,
 } from 'src/services/prescription.service';
-import AddMatrix from 'src/views/PrescriptionView/AddMatrix';
 import RemoveMatrix from 'src/views/PrescriptionView/RemoveMatrix';
 
 interface Props {
@@ -97,12 +97,12 @@ const PrescriptionTable = ({
         <div className="cell-icon">
           {hasPermission('createPrescription') &&
             programmingPlan.status === 'InProgress' && (
-              <AddMatrix
+              <MatrixSelectModal
                 excludedList={prescriptionsByMatrix.map((p) => ({
                   matrix: p.sampleMatrix,
                   stage: p.sampleStage,
                 }))}
-                onAddMatrix={addMatrix}
+                onSelect={addMatrix}
               />
             )}
         </div>,

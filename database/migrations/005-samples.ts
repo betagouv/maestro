@@ -27,7 +27,7 @@ exports.up = async (knex: Knex) => {
     table.string('location_name');
     table.string('location_address');
     table.string('matrix');
-    table.string('matrix_kind');
+    table.string('matrix_details');
     table.string('matrix_part');
     table.string('stage');
     table.string('culture_kind');

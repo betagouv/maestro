@@ -5,7 +5,6 @@ import { CultureKindList } from '../referential/CultureKind';
 import { LegalContextList } from '../referential/LegalContext';
 import { Matrix } from '../referential/Matrix/Matrix';
 import { MatrixList } from '../referential/Matrix/MatrixList';
-import { MatrixKindList } from '../referential/MatrixKind';
 import { MatrixPartList } from '../referential/MatrixPart';
 import { QuantityUnitList } from '../referential/QuantityUnit';
 import { RegionList, Regions } from '../referential/Region';
@@ -122,14 +121,12 @@ export const genSample = (
   programmingPlanId?: string
 ): Sample => {
   const sample = genCreatedSample(userId, programmingPlanId);
-  const matrixKind = oneOf(MatrixKindList);
   return {
     ...sample,
     locationSiret: String(genSiret()),
     locationName: faker.company.name(),
     locationAddress: faker.location.streetAddress({ useFullAddress: true }),
-    matrixKind,
-    matrix: oneOf(MatrixList[matrixKind]),
+    matrix: oneOf(MatrixList),
     matrixPart: oneOf(MatrixPartList),
     stage: oneOf(StageList),
     cultureKind: oneOf(CultureKindList),
@@ -182,7 +179,7 @@ export const genPrescriptions = (
     id: uuidv4(),
     programmingPlanId,
     region: RegionList[index],
-    sampleMatrix: matrix ?? oneOf(MatrixList[oneOf(MatrixKindList)]),
+    sampleMatrix: matrix ?? oneOf(MatrixList),
     sampleStage: (stage as Stage) ?? oneOf(StageList),
     sampleCount: count,
     laboratoryId,

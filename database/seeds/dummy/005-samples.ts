@@ -11,24 +11,24 @@ import { Sample } from '../../../shared/schema/Sample/Sample';
 import { genSample, oneOf } from '../../../shared/test/testFixtures';
 
 exports.seed = async function () {
-  const validatedSurveyProgrammingPlan = await ProgrammingPlans()
-    .where({ title: 'Plan de surveillance', status: 'Validated' })
+  const validatedControlProgrammingPlan = await ProgrammingPlans()
+    .where({ status: 'Validated', kind: 'Control' })
     .first();
 
   const sampler = await Users()
     .where({ roles: ['Sampler'] })
     .first();
 
-  if (!validatedSurveyProgrammingPlan || !sampler) {
+  if (!validatedControlProgrammingPlan || !sampler) {
     return;
   }
 
   const samples = [
     faker.helpers.multiple<Sample>(
       () => ({
-        ...genSample(sampler.id, validatedSurveyProgrammingPlan.id),
-        matrix: 'A01GF',
-        stage: 'STADE2',
+        ...genSample(sampler.id, validatedControlProgrammingPlan.id),
+        matrix: 'A0DVX',
+        stage: 'STADE1',
         status: 'Sent',
         department: oneOf(Regions[sampler.region!].departments),
       }),
@@ -36,7 +36,7 @@ exports.seed = async function () {
     ),
     faker.helpers.multiple<Sample>(
       () => ({
-        ...genSample(sampler.id, validatedSurveyProgrammingPlan.id),
+        ...genSample(sampler.id, validatedControlProgrammingPlan.id),
         matrix: 'A000F',
         stage: 'STADE1',
         status: 'Sent',
@@ -46,9 +46,9 @@ exports.seed = async function () {
     ),
     faker.helpers.multiple<Sample>(
       () => ({
-        ...genSample(sampler.id, validatedSurveyProgrammingPlan.id),
+        ...genSample(sampler.id, validatedControlProgrammingPlan.id),
         matrix: 'A00QH',
-        stage: 'STADE3',
+        stage: 'STADE1',
         status: 'Sent',
         department: oneOf(Regions[sampler.region!].departments),
       }),
@@ -56,9 +56,9 @@ exports.seed = async function () {
     ),
     faker.helpers.multiple<Sample>(
       () => ({
-        ...genSample(sampler.id, validatedSurveyProgrammingPlan.id),
+        ...genSample(sampler.id, validatedControlProgrammingPlan.id),
         matrix: 'A01GG',
-        stage: 'STADE9',
+        stage: 'STADE1',
         status: 'Sent',
         department: oneOf(Regions[sampler.region!].departments),
       }),
@@ -66,9 +66,9 @@ exports.seed = async function () {
     ),
     faker.helpers.multiple<Sample>(
       () => ({
-        ...genSample(sampler.id, validatedSurveyProgrammingPlan.id),
-        matrix: 'A00FR',
-        stage: 'STADE3',
+        ...genSample(sampler.id, validatedControlProgrammingPlan.id),
+        matrix: 'A00HC',
+        stage: 'STADE1',
         status: 'Sent',
         department: oneOf(Regions[sampler.region!].departments),
       }),
@@ -76,9 +76,9 @@ exports.seed = async function () {
     ),
     faker.helpers.multiple<Sample>(
       () => ({
-        ...genSample(sampler.id, validatedSurveyProgrammingPlan.id),
+        ...genSample(sampler.id, validatedControlProgrammingPlan.id),
         matrix: 'A0DFB',
-        stage: 'STADE3',
+        stage: 'STADE1',
         status: 'Sent',
         department: oneOf(Regions[sampler.region!].departments),
       }),
@@ -86,9 +86,9 @@ exports.seed = async function () {
     ),
     faker.helpers.multiple<Sample>(
       () => ({
-        ...genSample(sampler.id, validatedSurveyProgrammingPlan.id),
-        matrix: 'A01BG',
-        stage: 'STADE2',
+        ...genSample(sampler.id, validatedControlProgrammingPlan.id),
+        matrix: 'A0DFR',
+        stage: 'STADE1',
         status: 'Sent',
         department: oneOf(Regions[sampler.region!].departments),
       }),

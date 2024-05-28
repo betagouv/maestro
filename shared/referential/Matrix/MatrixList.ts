@@ -1,7 +1,9 @@
 import { MatrixKind } from '../MatrixKind';
 import { Matrix } from './Matrix';
 
-export const MatrixList: Record<MatrixKind, Matrix[]> = {
+export const MatrixList = Matrix.options;
+
+export const MatrixListByKind: Record<MatrixKind, Matrix[]> = {
   A0EZF: Matrix.extract([
     'A000L',
     'A001X',

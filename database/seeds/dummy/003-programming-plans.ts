@@ -9,20 +9,12 @@ exports.seed = async function () {
     return;
   }
 
-  const validatedSurveyPlanId = uuidv4();
   const validatedControlPlanId = uuidv4();
-  const inProgressSurveyPlanId = uuidv4();
+  const validatedSurveillancePlanId = uuidv4();
   const inProgressControlPlanId = uuidv4();
+  const inProgressSurveillancePlanId = uuidv4();
 
   await ProgrammingPlans().insert([
-    {
-      id: validatedSurveyPlanId,
-      title: 'Plan de surveillance',
-      createdAt: new Date(),
-      createdBy: user.id,
-      kind: 'Surveillance',
-      status: 'Validated',
-    },
     {
       id: validatedControlPlanId,
       title: 'Plan de contrôle',
@@ -32,12 +24,12 @@ exports.seed = async function () {
       status: 'Validated',
     },
     {
-      id: inProgressSurveyPlanId,
+      id: validatedSurveillancePlanId,
       title: 'Plan de surveillance',
       createdAt: new Date(),
       createdBy: user.id,
       kind: 'Surveillance',
-      status: 'InProgress',
+      status: 'Validated',
     },
     {
       id: inProgressControlPlanId,
@@ -45,6 +37,14 @@ exports.seed = async function () {
       createdAt: new Date(),
       createdBy: user.id,
       kind: 'Control',
+      status: 'InProgress',
+    },
+    {
+      id: inProgressSurveillancePlanId,
+      title: 'Plan de surveillance',
+      createdAt: new Date(),
+      createdBy: user.id,
+      kind: 'Surveillance',
       status: 'InProgress',
     },
   ]);

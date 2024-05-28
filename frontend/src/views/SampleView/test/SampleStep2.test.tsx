@@ -1,16 +1,20 @@
-import { act, render, screen } from '@testing-library/react';
+import { configureStore, Store } from '@reduxjs/toolkit';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { parse, startOfDay } from 'date-fns';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { CultureKindList } from 'shared/referential/CultureKind';
-import { Matrix } from 'shared/referential/Matrix/Matrix';
-import { MatrixKindList } from 'shared/referential/MatrixKind';
 import { MatrixPartList } from 'shared/referential/MatrixPart';
-import { StageList } from 'shared/referential/Stage';
 import { StorageConditionList } from 'shared/referential/StorageCondition';
-import { genCreatedSample } from 'shared/test/testFixtures';
-import { store } from 'src/store/store';
+import {
+  genAuthUser,
+  genCreatedSample,
+  genPrescriptions,
+  genProgrammingPlan,
+  genUser,
+} from 'shared/test/testFixtures';
+import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import config from 'src/utils/config';
 import SampleStep2 from 'src/views/SampleView/SampleStep2';
 import {
@@ -18,21 +22,59 @@ import {
   mockRequests,
 } from '../../../../test/requestUtils.test';
 
+let store: Store;
+const authUser = genAuthUser();
+const sampler = {
+  ...genUser('Sampler'),
+  id: authUser.userId,
+};
+const userRequest = {
+  pathname: `/api/users/${sampler.id}/infos`,
+  response: { body: JSON.stringify(sampler) },
+};
+const programmingPlan = genProgrammingPlan();
+const prescriptions = genPrescriptions(programmingPlan.id);
+const prescriptionsRequest = {
+  pathname: `/api/programming-plans/${programmingPlan.id}/prescriptions?`,
+  response: { body: JSON.stringify(prescriptions) },
+};
+
 describe('SampleFormStep2', () => {
+  beforeEach(() => {
+    fetchMock.resetMocks();
+    store = configureStore({
+      reducer: applicationReducer,
+      middleware: applicationMiddleware,
+      preloadedState: {
+        auth: { authUser },
+      },
+    });
+  });
+
   const user = userEvent.setup();
 
-  test('should render form successfully', () => {
+  test('should render form successfully', async () => {
+    mockRequests([userRequest, prescriptionsRequest]);
+
     render(
       <Provider store={store}>
         <BrowserRouter>
-          <SampleStep2 partialSample={genCreatedSample()} />
+          <SampleStep2
+            partialSample={genCreatedSample(sampler.id, programmingPlan.id)}
+          />
         </BrowserRouter>
       </Provider>
     );
 
-    expect(screen.getAllByTestId('matrixpart-select')).toHaveLength(2);
-    expect(screen.getAllByTestId('culturekind-select')).toHaveLength(2);
+    await waitFor(async () => {
+      expect(screen.getByTestId('submit-button')).toBeInTheDocument();
+    });
+
+    expect(screen.getAllByTestId('matrix-select')).toHaveLength(2);
     expect(screen.getAllByTestId('stage-select')).toHaveLength(2);
+    expect(screen.getAllByTestId('culturekind-select')).toHaveLength(2);
+    expect(screen.getAllByTestId('matrixpart-select')).toHaveLength(2);
+    expect(screen.getAllByTestId('matrixdetails-input')).toHaveLength(2);
     expect(screen.getByLabelText('Contrôle libératoire')).toBeInTheDocument();
     expect(
       screen.getByLabelText(
@@ -50,20 +92,25 @@ describe('SampleFormStep2', () => {
   });
 
   test('should handle errors on submitting', async () => {
+    mockRequests([userRequest, prescriptionsRequest]);
+
     render(
       <Provider store={store}>
         <BrowserRouter>
-          <SampleStep2 partialSample={genCreatedSample()} />
+          <SampleStep2
+            partialSample={genCreatedSample(sampler.id, programmingPlan.id)}
+          />
         </BrowserRouter>
       </Provider>
     );
 
+    await waitFor(async () => {
+      expect(screen.getByTestId('submit-button')).toBeInTheDocument();
+    });
+
     await act(async () => {
       await user.click(screen.getByTestId('submit-button'));
     });
-    expect(
-      screen.getByText('Veuillez renseigner la catégorie de matrice.')
-    ).toBeInTheDocument();
     expect(
       screen.getByText('Veuillez renseigner la matrice.')
     ).toBeInTheDocument();
@@ -82,8 +129,10 @@ describe('SampleFormStep2', () => {
   });
 
   test('should save on blur without handling errors', async () => {
-    const createdSample = genCreatedSample();
+    const createdSample = genCreatedSample(sampler.id, programmingPlan.id);
     mockRequests([
+      userRequest,
+      prescriptionsRequest,
       {
         pathname: `/api/samples/${createdSample.id}`,
         method: 'PUT',
@@ -94,20 +143,22 @@ describe('SampleFormStep2', () => {
     render(
       <Provider store={store}>
         <BrowserRouter>
-          <SampleStep2 partialSample={genCreatedSample()} />
+          <SampleStep2 partialSample={createdSample} />
         </BrowserRouter>
       </Provider>
     );
-    const matrixKindSelect = screen.getAllByTestId('matrixkind-select')[1];
+
+    await waitFor(async () => {
+      expect(screen.getByTestId('submit-button')).toBeInTheDocument();
+    });
+
     const matrixSelect = screen.getAllByTestId('matrix-select')[1];
+    const stageSelect = screen.getAllByTestId('stage-select')[1];
 
     await act(async () => {
-      await user.selectOptions(matrixKindSelect, MatrixKindList[0]);
-      await user.click(matrixSelect);
+      await user.selectOptions(matrixSelect, prescriptions[0].sampleMatrix);
+      await user.click(stageSelect);
     });
-    expect(
-      screen.queryByText('Veuillez renseigner la catégorie de matrice.')
-    ).not.toBeInTheDocument();
     expect(
       screen.queryByText('Veuillez renseigner la matrice.')
     ).not.toBeInTheDocument();
@@ -125,13 +176,19 @@ describe('SampleFormStep2', () => {
     ).not.toBeInTheDocument();
 
     const calls = await getRequestCalls(fetchMock);
-    expect(calls).toHaveLength(1);
+    expect(
+      calls.filter((call) =>
+        call?.url.endsWith(`/api/samples/${createdSample.id}`)
+      )
+    ).toHaveLength(1);
   });
 
   test('should submit the sample with updating it status', async () => {
-    const createdSample = genCreatedSample();
+    const createdSample = genCreatedSample(sampler.id, programmingPlan.id);
 
     mockRequests([
+      userRequest,
+      prescriptionsRequest,
       {
         pathname: `/api/samples/${createdSample.id}`,
         method: 'PUT',
@@ -147,11 +204,15 @@ describe('SampleFormStep2', () => {
       </Provider>
     );
 
-    const matrixKindSelect = screen.getAllByTestId('matrixkind-select')[1];
+    await waitFor(async () => {
+      expect(screen.getByTestId('submit-button')).toBeInTheDocument();
+    });
+
     const matrixSelect = screen.getAllByTestId('matrix-select')[1];
     const matrixPartSelect = screen.getAllByTestId('matrixpart-select')[1];
     const cultureKindSelect = screen.getAllByTestId('culturekind-select')[1];
     const stageSelect = screen.getAllByTestId('stage-select')[1];
+    const matrixDetailsInput = screen.getAllByTestId('matrixdetails-input')[1];
     const expiryDateInput = screen.getAllByTestId('expirydate-input')[1];
     const storageConditionSelect = screen.getAllByTestId(
       'storagecondition-select'
@@ -162,11 +223,11 @@ describe('SampleFormStep2', () => {
     const submitButton = screen.getByTestId('submit-button');
 
     await act(async () => {
-      await user.selectOptions(matrixKindSelect, MatrixKindList[0]); //1 call
-      await user.selectOptions(matrixSelect, Matrix.options[0]); //1 call
+      await user.selectOptions(matrixSelect, prescriptions[0].sampleMatrix); //1 call
       await user.selectOptions(matrixPartSelect, MatrixPartList[0]); //1 call
       await user.selectOptions(cultureKindSelect, CultureKindList[0]); //1 call
-      await user.selectOptions(stageSelect, StageList[0]); //1 call
+      await user.selectOptions(stageSelect, prescriptions[0].sampleStage); //1 call
+      await user.type(matrixDetailsInput, 'Details'); //7 calls
       await user.type(expiryDateInput, '2023-12-31'); //1 call
       await user.selectOptions(storageConditionSelect, StorageConditionList[0]); //1 call
       await user.type(locationSiretInput, '12345678901234'); //14 calls
@@ -176,7 +237,11 @@ describe('SampleFormStep2', () => {
     });
 
     const calls = await getRequestCalls(fetchMock);
-    expect(calls).toHaveLength(37);
+    expect(
+      calls.filter((call) =>
+        call?.url.endsWith(`/api/samples/${createdSample.id}`)
+      )
+    ).toHaveLength(43);
 
     expect(calls).toContainEqual({
       url: `${config.apiEndpoint}/api/samples/${createdSample.id}`,
@@ -187,11 +252,11 @@ describe('SampleFormStep2', () => {
         lastUpdatedAt: createdSample.lastUpdatedAt.toISOString(),
         sampledAt: createdSample.sampledAt.toISOString(),
         status: 'DraftItems',
-        matrixKind: MatrixKindList[0],
-        matrix: Matrix.options[0],
+        matrix: prescriptions[0].sampleMatrix,
         matrixPart: MatrixPartList[0],
         cultureKind: CultureKindList[0],
-        stage: StageList[0],
+        stage: prescriptions[0].sampleStage,
+        matrixDetails: 'Details',
         expiryDate: startOfDay(
           parse('2023-12-31', 'yyyy-MM-dd', new Date())
         ).toISOString(),
