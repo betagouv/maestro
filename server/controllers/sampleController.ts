@@ -201,7 +201,7 @@ const createSample = async (request: Request, response: Response) => {
     createdBy: user.id,
     createdAt: new Date(),
     lastUpdatedAt: new Date(),
-    status: 'DraftInfos',
+    status: 'DraftCompany',
     ...sampleToCreate,
   };
   await sampleRepository.insert(sample);

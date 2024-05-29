@@ -233,7 +233,7 @@ const SampleListView = () => {
                 </Link>,
                 format(sample.createdAt, 'dd/MM/yyyy'),
                 `${sample.department} - ${DepartmentLabels[sample.department]}`,
-                sample.locationName || '',
+                sample.company?.name || '',
                 programmingPlans?.find(
                   (plan) => plan.id === sample.programmingPlanId
                 )?.title,

@@ -28,7 +28,7 @@ interface Props {
   partialSample: PartialSample;
 }
 
-const SampleStep3 = ({ partialSample }: Props) => {
+const SampleStepDraftItems = ({ partialSample }: Props) => {
   const navigate = useNavigate();
 
   const [items, setItems] = useState<PartialSampleItem[]>(
@@ -64,7 +64,7 @@ const SampleStep3 = ({ partialSample }: Props) => {
         ...partialSample,
         status: 'Submitted',
       });
-      navigate(`/prelevements/${partialSample.id}?etape=4`, {
+      navigate(`/prelevements/${partialSample.id}?etape=5`, {
         replace: true,
       });
     });
@@ -86,7 +86,7 @@ const SampleStep3 = ({ partialSample }: Props) => {
   return (
     <>
       <form
-        data-testid="draft_sample_3_form"
+        data-testid="draft_sample_items_form"
         onChange={async (e) => {
           e.preventDefault();
           await save();
@@ -277,7 +277,7 @@ const SampleStep3 = ({ partialSample }: Props) => {
                     ...partialSample,
                     status: 'DraftInfos',
                   });
-                  navigate(`/prelevements/${partialSample.id}?etape=2`, {
+                  navigate(`/prelevements/${partialSample.id}?etape=3`, {
                     replace: true,
                   });
                 },
@@ -300,4 +300,4 @@ const SampleStep3 = ({ partialSample }: Props) => {
   );
 };
 
-export default SampleStep3;
+export default SampleStepDraftItems;

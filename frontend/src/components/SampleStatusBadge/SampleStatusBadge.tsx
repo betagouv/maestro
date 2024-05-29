@@ -14,6 +14,7 @@ const SampleStatusBadge = ({ status, ...props }: Props) => {
 
   const severity = {
     Draft: 'new',
+    DraftCompany: 'new',
     DraftInfos: 'new',
     DraftItems: 'new',
     Submitted: 'info',

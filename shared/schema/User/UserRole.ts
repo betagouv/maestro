@@ -24,6 +24,7 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'createDocument',
     'readDocuments',
     'deleteDocument',
+    'readCompanies',
   ],
   RegionalCoordinator: [
     'readProgrammingPlans',
@@ -32,6 +33,7 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'updatePrescriptionLaboratory',
     'readSamples',
     'readDocuments',
+    'readCompanies',
   ],
   Sampler: [
     'readProgrammingPlans',
@@ -42,6 +44,7 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'deleteSample',
     'downloadSampleItemDocument',
     'readDocuments',
+    'readCompanies',
   ],
   Administrator: UserPermissionList,
 };

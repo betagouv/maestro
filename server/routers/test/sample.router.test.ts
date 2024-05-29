@@ -12,6 +12,7 @@ import {
 } from '../../../shared/referential/Region';
 import { SampleStatus } from '../../../shared/schema/Sample/SampleStatus';
 import {
+  genCompany,
   genCreatedSample,
   genProgrammingPlan,
   genSample,
@@ -20,6 +21,7 @@ import {
   genUser,
   oneOf,
 } from '../../../shared/test/testFixtures';
+import { Companies } from '../../repositories/companyRepository';
 import { ProgrammingPlans } from '../../repositories/programmingPlanRepository';
 import { SampleItems } from '../../repositories/sampleItemRepository';
 import {
@@ -39,29 +41,30 @@ describe('Sample router', () => {
   const sampler2 = { ...genUser('Sampler'), region: region2 };
   const nationalCoordinator = genUser('NationalCoordinator');
   const programmingPlan = genProgrammingPlan(nationalCoordinator.id);
+  const company = genCompany();
   const sample11Id = uuidv4();
   const sampleItem1 = genSampleItem(sample11Id, 1);
   const sample11 = {
-    ...genSample(sampler1.id, programmingPlan.id),
+    ...genSample(sampler1.id, programmingPlan.id, company),
     id: sample11Id,
     items: [sampleItem1],
     status: 'DraftInfos' as SampleStatus,
     department: oneOf(Regions[region1].departments),
   };
   const sample12 = {
-    ...genSample(sampler1.id, programmingPlan.id),
+    ...genSample(sampler1.id, programmingPlan.id, company),
     id: uuidv4(),
     status: 'Draft' as SampleStatus,
     department: oneOf(Regions[region1].departments),
   };
   const sample13 = {
-    ...genSample(sampler1.id, programmingPlan.id),
+    ...genSample(sampler1.id, programmingPlan.id, company),
     id: uuidv4(),
     status: 'Sent' as SampleStatus,
     department: oneOf(Regions[region1].departments),
   };
   const sample2 = {
-    ...genSample(sampler2.id, programmingPlan.id),
+    ...genSample(sampler2.id, programmingPlan.id, company),
     status: 'DraftInfos' as SampleStatus,
     department: oneOf(Regions[region2].departments),
   };
@@ -69,6 +72,7 @@ describe('Sample router', () => {
   beforeAll(async () => {
     await Users().insert([sampler1, sampler2, nationalCoordinator]);
     await ProgrammingPlans().insert(programmingPlan);
+    await Companies().insert(company);
     await Samples().insert([
       formatPartialSample(sample11),
       formatPartialSample(sample12),
@@ -205,11 +209,11 @@ describe('Sample router', () => {
 
       expect(res.body).toMatchObject([
         {
-          ...fp.omit(sample11, ['items']),
-          createdAt: sample11.createdAt.toISOString(),
-          lastUpdatedAt: sample11.lastUpdatedAt.toISOString(),
-          sampledAt: sample11.sampledAt.toISOString(),
-          expiryDate: sample11.expiryDate?.toISOString(),
+          ...fp.omit(sample2, ['items']),
+          createdAt: sample2.createdAt.toISOString(),
+          lastUpdatedAt: sample2.lastUpdatedAt.toISOString(),
+          sampledAt: sample2.sampledAt.toISOString(),
+          expiryDate: sample2.expiryDate?.toISOString(),
         },
         {
           ...fp.omit(sample12, ['items']),
@@ -219,11 +223,11 @@ describe('Sample router', () => {
           expiryDate: sample12.expiryDate?.toISOString(),
         },
         {
-          ...fp.omit(sample2, ['items']),
-          createdAt: sample2.createdAt.toISOString(),
-          lastUpdatedAt: sample2.lastUpdatedAt.toISOString(),
-          sampledAt: sample2.sampledAt.toISOString(),
-          expiryDate: sample2.expiryDate?.toISOString(),
+          ...fp.omit(sample11, ['items']),
+          createdAt: sample11.createdAt.toISOString(),
+          lastUpdatedAt: sample11.lastUpdatedAt.toISOString(),
+          sampledAt: sample11.sampledAt.toISOString(),
+          expiryDate: sample11.expiryDate?.toISOString(),
         },
       ]);
     });
@@ -335,7 +339,7 @@ describe('Sample router', () => {
             new Date(),
             'yy'
           )}-0001-${sample.legalContext}`,
-          status: 'DraftInfos',
+          status: 'DraftCompany',
         })
       );
 
@@ -404,7 +408,7 @@ describe('Sample router', () => {
     });
 
     it('should be forbidden to update a sample that is already sent', async () => {
-      const sample = genSample(sampler1.id, programmingPlan.id);
+      const sample = genSample(sampler1.id, programmingPlan.id, company);
       await Samples().insert(
         formatPartialSample({
           ...sample,
@@ -508,7 +512,7 @@ describe('Sample router', () => {
     });
 
     it('should be forbidden to update a sample that is already sent', async () => {
-      const sample = genSample(sampler1.id, programmingPlan.id);
+      const sample = genSample(sampler1.id, programmingPlan.id, company);
       await Samples().insert(
         formatPartialSample({
           ...sample,

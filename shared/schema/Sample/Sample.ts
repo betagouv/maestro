@@ -7,6 +7,7 @@ import { MatrixPart } from '../../referential/MatrixPart';
 import { Region, RegionList, Regions } from '../../referential/Region';
 import { Stage } from '../../referential/Stage';
 import { StorageCondition } from '../../referential/StorageCondition';
+import { Company } from '../Company/Company';
 import { PartialSampleItem, SampleItemRefinement } from './SampleItem';
 import { SampleStatus } from './SampleStatus';
 
@@ -52,15 +53,7 @@ export const Sample = z.object({
     .uuid(),
   legalContext: LegalContext,
   userLocation: UserLocation,
-  locationSiret: z
-    .string({
-      required_error: 'Veuillez renseigner le SIRET du lieu de prélèvement.',
-    })
-    .regex(/^[0-9]{14}$/g, 'SIRET invalide.'),
-  locationName: z.string({
-    required_error: 'Veuillez renseigner le nom du lieu de prélèvement.',
-  }),
-  locationAddress: z.string().optional().nullable(),
+  company: Company.optional().nullable(),
   matrix: Matrix,
   matrixDetails: z.string().optional().nullable(),
   matrixPart: MatrixPart,

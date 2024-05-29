@@ -16,6 +16,7 @@ export const UserPermission = z.enum([
   'createDocument',
   'readDocuments',
   'deleteDocument',
+  'readCompanies',
 ]);
 
 export type UserPermission = z.infer<typeof UserPermission>;

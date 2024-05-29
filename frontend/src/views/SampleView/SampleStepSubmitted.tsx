@@ -27,7 +27,7 @@ interface Props {
   sample: PartialSample;
 }
 
-const SampleStep4 = ({ sample }: Props) => {
+const SampleStepSubmitted = ({ sample }: Props) => {
   const navigate = useNavigate();
   const { hasPermission } = useAuthentication();
   const [updateSample, { isSuccess: isUpdateSuccess }] =
@@ -70,10 +70,12 @@ const SampleStep4 = ({ sample }: Props) => {
           <strong>Département : </strong>
           {DepartmentLabels[sample.department]}
         </li>
-        <li>
-          <strong>Identifiant résytal : </strong>
-          {sample.resytalId}
-        </li>
+        {sample.resytalId && (
+          <li>
+            <strong>Identifiant résytal : </strong>
+            {sample.resytalId}
+          </li>
+        )}
         {sampleProgrammingPlan && (
           <li>
             <strong>Contexte : </strong>
@@ -83,6 +85,19 @@ const SampleStep4 = ({ sample }: Props) => {
         <li>
           <strong>Cadre juridique : </strong>
           {LegalContextLabels[sample.legalContext]}
+        </li>
+      </ul>
+      <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
+      <h3>Lieu de prélèvement</h3>
+      <ul>
+        <li>
+          <strong>SIRET :</strong> {sample.company?.siret}
+        </li>
+        <li>
+          <strong>Nom :</strong> {sample.company?.name}
+        </li>
+        <li>
+          <strong>Adresse :</strong> {sample.company?.address}
         </li>
       </ul>
       <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
@@ -124,7 +139,7 @@ const SampleStep4 = ({ sample }: Props) => {
         </li>
         <li>
           <strong>
-            Condition de maintien du prélèvement sous température dirigée : 
+            Condition de maintien du prélèvement sous température dirigée :
           </strong>
           {t('boolean', {
             count: Number(sample.temperatureMaintenance ?? 0),
@@ -142,6 +157,12 @@ const SampleStep4 = ({ sample }: Props) => {
             {StorageConditionLabels[sample.storageCondition]}
           </li>
         )}
+        {sample.comment && (
+          <li>
+            <strong>Commentaire : </strong>
+            {sample.comment}
+          </li>
+        )}
       </ul>
       <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
       <h3>Échantillons</h3>
@@ -156,7 +177,7 @@ const SampleStep4 = ({ sample }: Props) => {
                 <ul>
                   <li>
                     <strong>Quantité : </strong>
-                    {item.quantity} 
+                    {item.quantity}
                     {item.quantityUnit && QuantityUnitLabels[item.quantityUnit]}
                   </li>
                   <li>
@@ -202,25 +223,6 @@ const SampleStep4 = ({ sample }: Props) => {
         ))}
       </div>
       <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
-      <h3>Lieu de prélèvement</h3>
-      <ul>
-        <li>
-          <strong>SIRET du site :</strong> {sample.locationSiret}
-        </li>
-        <li>
-          <strong>Nom du site :</strong> {sample.locationName}
-        </li>
-        <li>
-          <strong>Adresse du site :</strong> {sample.locationAddress}
-        </li>
-      </ul>
-      <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
-      <ul>
-        <li>
-          <strong>Commentaire :</strong> {sample.comment}
-        </li>
-      </ul>
-      <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
       {isUpdateSuccess ? (
         <Alert severity="success" title="Le prélèvement a bien été envoyé." />
       ) : (
@@ -238,7 +240,7 @@ const SampleStep4 = ({ sample }: Props) => {
                       ...sample,
                       status: 'DraftItems',
                     });
-                    navigate(`/prelevements/${sample.id}?etape=3`, {
+                    navigate(`/prelevements/${sample.id}?etape=4`, {
                       replace: true,
                     });
                   },
@@ -270,4 +272,4 @@ const SampleStep4 = ({ sample }: Props) => {
   );
 };
 
-export default SampleStep4;
+export default SampleStepSubmitted;

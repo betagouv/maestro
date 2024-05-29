@@ -38,7 +38,7 @@ interface Props {
   partialSample?: PartialSample;
 }
 
-const SampleStep1 = ({ partialSample }: Props) => {
+const SampleStepCreation = ({ partialSample }: Props) => {
   const navigate = useNavigate();
   const { userInfos } = useAuthentication();
 
@@ -115,7 +115,7 @@ const SampleStep1 = ({ partialSample }: Props) => {
     await form.validate(async () => {
       if (partialSample) {
         await save({
-          status: 'DraftInfos',
+          status: 'DraftCompany',
         });
         navigate(`/prelevements/${partialSample.id}`, { replace: true });
       } else {
@@ -172,7 +172,7 @@ const SampleStep1 = ({ partialSample }: Props) => {
 
   return (
     <form
-      data-testid="draft_sample_1_form"
+      data-testid="draft_sample_creation_form"
       onChange={async (e) => {
         e.preventDefault();
         await save();
@@ -346,4 +346,4 @@ const SampleStep1 = ({ partialSample }: Props) => {
   );
 };
 
-export default SampleStep1;
+export default SampleStepCreation;

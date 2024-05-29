@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import { Companies } from '../../../server/repositories/companyRepository';
 import { ProgrammingPlans } from '../../../server/repositories/programmingPlanRepository';
 import { SampleItems } from '../../../server/repositories/sampleItemRepository';
 import {
@@ -19,6 +20,8 @@ exports.seed = async function () {
     .where({ roles: ['Sampler'] })
     .first();
 
+  const companies = await Companies();
+
   if (!validatedControlProgrammingPlan || !sampler) {
     return;
   }
@@ -31,6 +34,7 @@ exports.seed = async function () {
         stage: 'STADE1',
         status: 'Sent',
         department: oneOf(Regions[sampler.region!].departments),
+        company: oneOf(companies),
       }),
       { count: 2 }
     ),
@@ -41,6 +45,7 @@ exports.seed = async function () {
         stage: 'STADE1',
         status: 'Sent',
         department: oneOf(Regions[sampler.region!].departments),
+        company: oneOf(companies),
       }),
       { count: 8 }
     ),
@@ -51,6 +56,7 @@ exports.seed = async function () {
         stage: 'STADE1',
         status: 'Sent',
         department: oneOf(Regions[sampler.region!].departments),
+        company: oneOf(companies),
       }),
       { count: 3 }
     ),
@@ -61,6 +67,7 @@ exports.seed = async function () {
         stage: 'STADE1',
         status: 'Sent',
         department: oneOf(Regions[sampler.region!].departments),
+        company: oneOf(companies),
       }),
       { count: 4 }
     ),
@@ -71,6 +78,7 @@ exports.seed = async function () {
         stage: 'STADE1',
         status: 'Sent',
         department: oneOf(Regions[sampler.region!].departments),
+        company: oneOf(companies),
       }),
       { count: 7 }
     ),
@@ -81,6 +89,7 @@ exports.seed = async function () {
         stage: 'STADE1',
         status: 'Sent',
         department: oneOf(Regions[sampler.region!].departments),
+        company: oneOf(companies),
       }),
       { count: 6 }
     ),
@@ -91,6 +100,7 @@ exports.seed = async function () {
         stage: 'STADE1',
         status: 'Sent',
         department: oneOf(Regions[sampler.region!].departments),
+        company: oneOf(companies),
       }),
       { count: 6 }
     ),

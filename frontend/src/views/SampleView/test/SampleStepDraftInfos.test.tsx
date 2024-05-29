@@ -16,7 +16,7 @@ import {
 } from 'shared/test/testFixtures';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import config from 'src/utils/config';
-import SampleStep2 from 'src/views/SampleView/SampleStep2';
+import SampleStepDraftInfos from 'src/views/SampleView/SampleStepDraftInfos';
 import {
   getRequestCalls,
   mockRequests,
@@ -59,7 +59,7 @@ describe('SampleFormStep2', () => {
     render(
       <Provider store={store}>
         <BrowserRouter>
-          <SampleStep2
+          <SampleStepDraftInfos
             partialSample={genCreatedSample(sampler.id, programmingPlan.id)}
           />
         </BrowserRouter>
@@ -83,8 +83,6 @@ describe('SampleFormStep2', () => {
     ).toBeInTheDocument();
     expect(screen.getAllByTestId('expirydate-input')).toHaveLength(2);
     expect(screen.getAllByTestId('storagecondition-select')).toHaveLength(2);
-    expect(screen.getAllByTestId('locationSiret-input')).toHaveLength(2);
-    expect(screen.getAllByTestId('location-name-input')).toHaveLength(2);
     expect(screen.getAllByTestId('comment-input')).toHaveLength(2);
 
     expect(screen.getByTestId('previous-button')).toBeInTheDocument();
@@ -97,7 +95,7 @@ describe('SampleFormStep2', () => {
     render(
       <Provider store={store}>
         <BrowserRouter>
-          <SampleStep2
+          <SampleStepDraftInfos
             partialSample={genCreatedSample(sampler.id, programmingPlan.id)}
           />
         </BrowserRouter>
@@ -120,12 +118,6 @@ describe('SampleFormStep2', () => {
     expect(
       screen.getByText('Veuillez renseigner le stade de prélèvement.')
     ).toBeInTheDocument();
-    expect(
-      screen.getByText('Veuillez renseigner le SIRET du lieu de prélèvement.')
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText('Veuillez renseigner le nom du lieu de prélèvement.')
-    ).toBeInTheDocument();
   });
 
   test('should save on blur without handling errors', async () => {
@@ -143,7 +135,7 @@ describe('SampleFormStep2', () => {
     render(
       <Provider store={store}>
         <BrowserRouter>
-          <SampleStep2 partialSample={createdSample} />
+          <SampleStepDraftInfos partialSample={createdSample} />
         </BrowserRouter>
       </Provider>
     );
@@ -199,7 +191,7 @@ describe('SampleFormStep2', () => {
     render(
       <Provider store={store}>
         <BrowserRouter>
-          <SampleStep2 partialSample={createdSample} />
+          <SampleStepDraftInfos partialSample={createdSample} />
         </BrowserRouter>
       </Provider>
     );
@@ -217,8 +209,6 @@ describe('SampleFormStep2', () => {
     const storageConditionSelect = screen.getAllByTestId(
       'storagecondition-select'
     )[1];
-    const locationSiretInput = screen.getAllByTestId('locationSiret-input')[1];
-    const locationNameInput = screen.getAllByTestId('location-name-input')[1];
     const commentInput = screen.getAllByTestId('comment-input')[1];
     const submitButton = screen.getByTestId('submit-button');
 
@@ -230,8 +220,6 @@ describe('SampleFormStep2', () => {
       await user.type(matrixDetailsInput, 'Details'); //7 calls
       await user.type(expiryDateInput, '2023-12-31'); //1 call
       await user.selectOptions(storageConditionSelect, StorageConditionList[0]); //1 call
-      await user.type(locationSiretInput, '12345678901234'); //14 calls
-      await user.type(locationNameInput, 'Location'); //8 calls
       await user.type(commentInput, 'Comment'); //7 calls
       await user.click(submitButton); //1 call
     });
@@ -241,7 +229,7 @@ describe('SampleFormStep2', () => {
       calls.filter((call) =>
         call?.url.endsWith(`/api/samples/${createdSample.id}`)
       )
-    ).toHaveLength(43);
+    ).toHaveLength(21);
 
     expect(calls).toContainEqual({
       url: `${config.apiEndpoint}/api/samples/${createdSample.id}`,
@@ -261,8 +249,6 @@ describe('SampleFormStep2', () => {
           parse('2023-12-31', 'yyyy-MM-dd', new Date())
         ).toISOString(),
         storageCondition: StorageConditionList[0],
-        locationSiret: '12345678901234',
-        locationName: 'Location',
         comment: 'Comment',
       },
     });

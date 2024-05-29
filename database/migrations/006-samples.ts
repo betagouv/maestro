@@ -23,9 +23,7 @@ exports.up = async (knex: Knex) => {
       .notNullable();
     table.string('legal_context').notNullable();
     table.point('user_location').notNullable();
-    table.string('location_siret');
-    table.string('location_name');
-    table.string('location_address');
+    table.uuid('company_id').references('id').inTable('companies');
     table.string('matrix');
     table.string('matrix_details');
     table.string('matrix_part');

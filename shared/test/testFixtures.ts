@@ -1,4 +1,4 @@
-import { fakerFR as faker } from '@faker-js/faker';
+import { fakerFR as faker, fakerFR } from '@faker-js/faker';
 import randomstring from 'randomstring';
 import { v4 as uuidv4 } from 'uuid';
 import { CultureKindList } from '../referential/CultureKind';
@@ -10,6 +10,7 @@ import { QuantityUnitList } from '../referential/QuantityUnit';
 import { RegionList, Regions } from '../referential/Region';
 import { Stage, StageList } from '../referential/Stage';
 import { StorageConditionList } from '../referential/StorageCondition';
+import { Company } from '../schema/Company/Company';
 import { Document } from '../schema/Document/Document';
 import { Laboratory } from '../schema/Laboratory/Laboratory';
 import { Prescription } from '../schema/Prescription/Prescription';
@@ -118,14 +119,13 @@ export const genCreatedSample = (
 
 export const genSample = (
   userId?: string,
-  programmingPlanId?: string
+  programmingPlanId?: string,
+  company?: Company
 ): Sample => {
   const sample = genCreatedSample(userId, programmingPlanId);
   return {
     ...sample,
-    locationSiret: String(genSiret()),
-    locationName: faker.company.name(),
-    locationAddress: faker.location.streetAddress({ useFullAddress: true }),
+    company: company ?? genCompany(),
     matrix: oneOf(MatrixList),
     matrixPart: oneOf(MatrixPartList),
     stage: oneOf(StageList),
@@ -195,4 +195,12 @@ export const genDocument = (userId: string): Document => ({
 export const genLaboratory = (): Laboratory => ({
   id: uuidv4(),
   name: randomstring.generate(),
+});
+
+export const genCompany = (): Company => ({
+  id: uuidv4(),
+  siret: genSiret(),
+  name: fakerFR.company.name(),
+  address: faker.location.streetAddress({ useFullAddress: true }),
+  postalCode: faker.location.zipCode(),
 });

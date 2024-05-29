@@ -6,7 +6,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { genCoords, genProgrammingPlan } from 'shared/test/testFixtures';
 import { store } from 'src/store/store';
 import config from 'src/utils/config';
-import SampleStep1 from 'src/views/SampleView/SampleStep1';
+import SampleStepCreation from 'src/views/SampleView/SampleStepCreation';
 import {
   getRequestCalls,
   mockRequests,
@@ -34,12 +34,14 @@ describe('SampleFormStep1', () => {
     render(
       <Provider store={store}>
         <BrowserRouter>
-          <SampleStep1 />
+          <SampleStepCreation />
         </BrowserRouter>
       </Provider>
     );
 
-    expect(screen.getByTestId('draft_sample_1_form')).toBeInTheDocument();
+    expect(
+      screen.getByTestId('draft_sample_creation_form')
+    ).toBeInTheDocument();
     expect(screen.getAllByTestId('sampledAt-input')).toHaveLength(2);
     expect(screen.getAllByTestId('userLocationX-input')).toHaveLength(2);
     expect(screen.getAllByTestId('userLocationY-input')).toHaveLength(2);
@@ -55,7 +57,7 @@ describe('SampleFormStep1', () => {
     render(
       <Provider store={store}>
         <BrowserRouter>
-          <SampleStep1 />
+          <SampleStepCreation />
         </BrowserRouter>
       </Provider>
     );
@@ -69,7 +71,7 @@ describe('SampleFormStep1', () => {
     render(
       <Provider store={store}>
         <BrowserRouter>
-          <SampleStep1 />
+          <SampleStepCreation />
         </BrowserRouter>
       </Provider>
     );
@@ -116,7 +118,7 @@ describe('SampleFormStep1', () => {
     render(
       <Provider store={store}>
         <BrowserRouter>
-          <SampleStep1 />
+          <SampleStepCreation />
         </BrowserRouter>
       </Provider>
     );

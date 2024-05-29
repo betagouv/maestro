@@ -71,7 +71,9 @@ describe('SampleView', () => {
     );
 
     await waitFor(async () => {
-      expect(screen.getByTestId('draft_sample_1_form')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('draft_sample_creation_form')
+      ).toBeInTheDocument();
     });
   });
 
@@ -98,7 +100,7 @@ describe('SampleView', () => {
     );
 
     await waitFor(async () => {
-      expect(screen.getByTestId('draft_sample_2_form')).toBeInTheDocument();
+      expect(screen.getByTestId('draft_sample_infos_form')).toBeInTheDocument();
     });
 
     const calls = await getRequestCalls(fetchMock);
@@ -134,7 +136,7 @@ describe('SampleView', () => {
     );
 
     await waitFor(async () => {
-      expect(screen.getByTestId('draft_sample_3_form')).toBeInTheDocument();
+      expect(screen.getByTestId('draft_sample_items_form')).toBeInTheDocument();
     });
 
     const calls = await getRequestCalls(fetchMock);

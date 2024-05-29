@@ -38,7 +38,7 @@ interface Props {
   partialSample: PartialSample;
 }
 
-const SampleStep2 = ({ partialSample }: Props) => {
+const SampleStepDraftInfos = ({ partialSample }: Props) => {
   const navigate = useNavigate();
 
   const [matrix, setMatrix] = useState(partialSample.matrix);
@@ -58,10 +58,6 @@ const SampleStep2 = ({ partialSample }: Props) => {
     partialSample.temperatureMaintenance
   );
   const [expiryDate, setExpiryDate] = useState(partialSample.expiryDate);
-  const [locationSiret, setLocationSiret] = useState(
-    partialSample.locationSiret
-  );
-  const [locationName, setLocationName] = useState(partialSample.locationName);
   const [comment, setComment] = useState(partialSample.comment);
   const [additionalMatrix, setAdditionalMatrix] = useState<{
     matrix: Matrix;
@@ -87,8 +83,6 @@ const SampleStep2 = ({ partialSample }: Props) => {
     releaseControl: true,
     temperatureMaintenance: true,
     expiryDate: true,
-    locationSiret: true,
-    locationName: true,
     comment: true,
     status: true,
   });
@@ -103,8 +97,6 @@ const SampleStep2 = ({ partialSample }: Props) => {
     releaseControl,
     temperatureMaintenance,
     expiryDate,
-    locationSiret,
-    locationName,
     comment,
     status: partialSample.status,
   });
@@ -115,7 +107,7 @@ const SampleStep2 = ({ partialSample }: Props) => {
     e.preventDefault();
     await form.validate(async () => {
       await save('DraftItems');
-      navigate(`/prelevements/${partialSample.id}?etape=3`, {
+      navigate(`/prelevements/${partialSample.id}?etape=4`, {
         replace: true,
       });
     });
@@ -133,8 +125,6 @@ const SampleStep2 = ({ partialSample }: Props) => {
       releaseControl,
       temperatureMaintenance,
       expiryDate,
-      locationSiret,
-      locationName,
       comment,
       status,
     });
@@ -147,7 +137,7 @@ const SampleStep2 = ({ partialSample }: Props) => {
   return (
     <>
       <form
-        data-testid="draft_sample_2_form"
+        data-testid="draft_sample_infos_form"
         onChange={async (e) => {
           e.preventDefault();
           await save();
@@ -312,32 +302,6 @@ const SampleStep2 = ({ partialSample }: Props) => {
         </div>
         <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={cx('fr-col-12', 'fr-col-sm-4')}>
-            <AppTextInput<FormShape>
-              defaultValue={locationSiret ?? ''}
-              onChange={(e) => setLocationSiret(e.target.value)}
-              inputForm={form}
-              inputKey="locationSiret"
-              whenValid="SIRET valide"
-              data-testid="locationSiret-input"
-              label="SIRET (obligatoire) //TODO"
-              hintText="Format 12345678901234"
-              required
-            />
-          </div>
-          <div className={cx('fr-col-12', 'fr-col-sm-4')}>
-            <AppTextInput<FormShape>
-              defaultValue={locationName ?? ''}
-              onChange={(e) => setLocationName(e.target.value)}
-              inputForm={form}
-              inputKey="locationName"
-              whenValid="Nom du lieu de prélèvement correctement renseigné."
-              data-testid="location-name-input"
-              hintText="Sera alimenté automatiquement avec le SIRET."
-              label="Nom du lieu de prélèvement (obligatoire)"
-              required
-            />
-          </div>
           <div className={cx('fr-col-12')}>
             <AppTextAreaInput<FormShape>
               rows={3}
@@ -361,8 +325,8 @@ const SampleStep2 = ({ partialSample }: Props) => {
                 priority: 'secondary',
                 onClick: async (e) => {
                   e.preventDefault();
-                  await save('Draft');
-                  navigate(`/prelevements/${partialSample.id}?etape=1`, {
+                  await save('DraftCompany');
+                  navigate(`/prelevements/${partialSample.id}?etape=2`, {
                     replace: true,
                   });
                 },
@@ -385,4 +349,4 @@ const SampleStep2 = ({ partialSample }: Props) => {
   );
 };
 
-export default SampleStep2;
+export default SampleStepDraftInfos;
