@@ -21,8 +21,7 @@ interface Props {
 const SampleStepDraftCompany = ({ partialSample }: Props) => {
   const navigate = useNavigate();
 
-  const [searchInputElement, setSearchInputElement] =
-    useState<HTMLInputElement | null>(null);
+  const [, setSearchInputElement] = useState<HTMLInputElement | null>(null);
   const [siret, setSiret] = useState<string>(
     partialSample?.company?.siret ?? ''
   );
