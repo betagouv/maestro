@@ -140,7 +140,7 @@ const getSampleItemDocument = async (request: Request, response: Response) => {
   response.setHeader('Content-Type', 'application/pdf');
   response.setHeader(
     'Content-Disposition',
-    'inline; filename="generated-pdf.pdf"'
+    `inline; filename="DAP-${sample.reference}-${itemNumber}.pdf"`
   );
   response.send(pdfBuffer);
 };

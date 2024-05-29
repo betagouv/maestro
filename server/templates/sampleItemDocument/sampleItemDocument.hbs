@@ -59,19 +59,36 @@
               </div>
               <div class='fr-col-4'>
                 <div class='label'>
-                  Lieu de prélèvement
-                </div>
-                {{locationSiret}}
-                <br />
-                {{locationName}}
-                <br />
-                {{locationAddress}}
-              </div>
-              <div class='fr-col-4'>
-                <div class='label'>
                   Stade de prélèvement
                 </div>
                 {{stage}}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class='fr-card fr-card--xs fr-my-1w'>
+          <div class='fr-container fr-my-1w'>
+            <div class='fr-grid-row fr-grid-row--gutters'>
+              <div class='fr-col-4'>
+                <div class='label'>
+                  Lieu de prélèvement
+                </div>
+                {{company.name}}
+              </div>
+              <div class='fr-col-4'>
+                <div class='label'>
+                  Adresse
+                </div>
+                {{company.address}}
+                <br />
+                {{company.postalCode}} 
+                {{company.city}}
+              </div>
+              <div class='fr-col-4'>
+                <div class='label'>
+                  Siret
+                </div>
+                {{company.siret}}
               </div>
             </div>
           </div>
