@@ -260,6 +260,23 @@ export type QuantityUnit = z.infer<typeof QuantityUnit>;
 
 export const QuantityUnitList: QuantityUnit[] = QuantityUnit.options;
 
+const PrimaryQuantityUnits: QuantityUnit[] = [
+  'G167A',
+  'G148A',
+  'G155A',
+  'G156A',
+  'G005A',
+];
+export const PrimaryQuantityUnitList: QuantityUnit[] = QuantityUnit.extract([
+  PrimaryQuantityUnits[0],
+  ...PrimaryQuantityUnits.slice(1),
+]).options;
+
+export const SecondaryQuantityUnitList: QuantityUnit[] = QuantityUnit.exclude([
+  PrimaryQuantityUnits[0],
+  ...PrimaryQuantityUnits.slice(1),
+]).options;
+
 export const QuantityUnitLabels: Record<QuantityUnit, string> = {
   G001A: 'Bq/kg',
   G002A: 'Bq/L',

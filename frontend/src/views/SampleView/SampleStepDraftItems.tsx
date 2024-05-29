@@ -6,9 +6,10 @@ import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
+  PrimaryQuantityUnitList,
   QuantityUnit,
   QuantityUnitLabels,
-  QuantityUnitList,
+  SecondaryQuantityUnitList,
 } from 'shared/referential/QuantityUnit';
 import { PartialSample, Sample } from 'shared/schema/Sample/Sample';
 import { PartialSampleItem } from 'shared/schema/Sample/SampleItem';
@@ -148,9 +149,15 @@ const SampleStepDraftItems = ({ partialSample }: Props) => {
             <div className={cx('fr-col-12', 'fr-col-sm-4')}>
               <AppSelect<FormShape>
                 value={item.quantityUnit ?? ''}
-                options={selectOptionsFromList(QuantityUnitList, {
-                  labels: QuantityUnitLabels,
-                })}
+                options={[
+                  ...selectOptionsFromList(PrimaryQuantityUnitList, {
+                    labels: QuantityUnitLabels,
+                  }),
+                  ...selectOptionsFromList(SecondaryQuantityUnitList, {
+                    labels: QuantityUnitLabels,
+                    withDefault: false,
+                  }),
+                ]}
                 onChange={(e) =>
                   changeItems(
                     { ...item, quantityUnit: e.target.value as QuantityUnit },
