@@ -67,8 +67,8 @@ const getSampleItemDocument = async (request: Request, response: Response) => {
   const prescriptions = await prescriptionRepository.findMany({
     region: getSampleRegion(sample),
     programmingPlanId: sample.programmingPlanId,
-    sampleMatrix: sample.matrix,
-    sampleStage: sample.stage,
+    matrix: sample.matrix,
+    stage: sample.stage,
   });
 
   //TODO: handle prescription or laboratory not found

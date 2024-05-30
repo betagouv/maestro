@@ -267,15 +267,13 @@ const PrimaryQuantityUnits: QuantityUnit[] = [
   'G156A',
   'G005A',
 ];
-export const PrimaryQuantityUnitList: QuantityUnit[] = QuantityUnit.extract([
-  PrimaryQuantityUnits[0],
-  ...PrimaryQuantityUnits.slice(1),
-]).options;
+export const PrimaryQuantityUnitList: QuantityUnit[] = QuantityUnit.extract(
+  PrimaryQuantityUnits as [QuantityUnit, ...QuantityUnit[]]
+).options;
 
-export const SecondaryQuantityUnitList: QuantityUnit[] = QuantityUnit.exclude([
-  PrimaryQuantityUnits[0],
-  ...PrimaryQuantityUnits.slice(1),
-]).options;
+export const SecondaryQuantityUnitList: QuantityUnit[] = QuantityUnit.exclude(
+  PrimaryQuantityUnits as [QuantityUnit, ...QuantityUnit[]]
+).options;
 
 export const QuantityUnitLabels: Record<QuantityUnit, string> = {
   G001A: 'Bq/kg',

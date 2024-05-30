@@ -9,8 +9,8 @@ import { Prescription } from './Prescription';
 
 export const PrescriptionByMatrix = z.object({
   programmingPlanId: z.string().uuid(),
-  sampleMatrix: Matrix,
-  sampleStage: Stage,
+  matrix: Matrix,
+  stages: z.array(Stage),
   regionalData: z.array(
     Prescription.pick({
       sampleCount: true,
@@ -33,27 +33,28 @@ export const genPrescriptionByMatrix = (
         !acc.some(
           (p) =>
             p.programmingPlanId === prescription.programmingPlanId &&
-            p.sampleMatrix === prescription.sampleMatrix &&
-            p.sampleStage === prescription.sampleStage
+            p.matrix === prescription.matrix &&
+            _.isEqual(p.stages, prescription.stages)
         )
       ) {
         acc.push({
           programmingPlanId: prescription.programmingPlanId,
-          sampleMatrix: prescription.sampleMatrix,
-          sampleStage: prescription.sampleStage,
+          matrix: prescription.matrix,
+          stages: prescription.stages,
           regionalData: includedRegions.map((region) => {
             const regionalPrescription = prescriptions.find(
-              (_) =>
-                _.programmingPlanId === prescription.programmingPlanId &&
-                _.sampleMatrix === prescription.sampleMatrix &&
-                _.sampleStage === prescription.sampleStage &&
-                _.region === region
+              (p) =>
+                p.programmingPlanId === prescription.programmingPlanId &&
+                p.matrix === prescription.matrix &&
+                _.isEqual(p.stages, prescription.stages) &&
+                p.region === region
             );
             const regionalSamples = samples.filter(
               (sample) =>
                 sample.programmingPlanId === prescription.programmingPlanId &&
-                sample.matrix === prescription.sampleMatrix &&
-                sample.stage === prescription.sampleStage &&
+                sample.matrix === prescription.matrix &&
+                sample.stage !== undefined &&
+                prescription.stages.includes(sample.stage) &&
                 getSampleRegion(sample) === region
             );
 
@@ -71,15 +72,15 @@ export const genPrescriptionByMatrix = (
     .sort((a, b) =>
       [
         a.programmingPlanId,
-        MatrixLabels[a.sampleMatrix],
-        StageLabels[a.sampleStage],
+        MatrixLabels[a.matrix],
+        ...a.stages.map((_) => StageLabels[_]),
       ]
         .join()
         .localeCompare(
           [
             b.programmingPlanId,
-            MatrixLabels[b.sampleMatrix],
-            StageLabels[b.sampleStage],
+            MatrixLabels[b.matrix],
+            ...b.stages.map((_) => StageLabels[_]),
           ].join()
         )
     );

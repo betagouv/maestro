@@ -171,7 +171,7 @@ export const genProgrammingPlan = (userId?: string): ProgrammingPlan => ({
 export const genPrescriptions = (
   programmingPlanId: string,
   matrix?: Matrix,
-  stage?: string,
+  stages?: string[],
   countArray?: number[],
   laboratoryId?: string
 ): Prescription[] =>
@@ -179,8 +179,8 @@ export const genPrescriptions = (
     id: uuidv4(),
     programmingPlanId,
     region: RegionList[index],
-    sampleMatrix: matrix ?? oneOf(MatrixList),
-    sampleStage: (stage as Stage) ?? oneOf(StageList),
+    matrix: matrix ?? oneOf(MatrixList),
+    stages: (stages as Stage[]) ?? [oneOf(StageList)],
     sampleCount: count,
     laboratoryId,
   }));

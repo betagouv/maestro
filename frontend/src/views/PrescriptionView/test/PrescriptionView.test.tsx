@@ -107,18 +107,14 @@ describe('PrescriptionView', () => {
       const p1 = prescriptions1[0];
       const p2 = prescriptions2[0];
       expect(
-        await screen.findByTestId(
-          `sampleMatrix-${p1.sampleMatrix}-${p1.sampleStage}`
-        )
+        await screen.findByTestId(`matrix-${p1.matrix}-${p1.stages}`)
       ).toBeInTheDocument();
       expect(
-        await screen.findByTestId(
-          `sampleMatrix-${p2.sampleMatrix}-${p2.sampleStage}`
-        )
+        await screen.findByTestId(`matrix-${p2.matrix}-${p2.stages}`)
       ).toBeInTheDocument();
-      expect(
-        await screen.findAllByTestId(`cell-${p1.sampleMatrix}`)
-      ).toHaveLength(RegionList.length);
+      expect(await screen.findAllByTestId(`cell-${p1.matrix}`)).toHaveLength(
+        RegionList.length
+      );
 
       expect(
         await screen.findByTestId('add-matrix-button')
@@ -163,18 +159,12 @@ describe('PrescriptionView', () => {
       const p1 = prescriptions1[0];
       const p2 = prescriptions2[0];
       expect(
-        await screen.findByTestId(
-          `sampleMatrix-${p1.sampleMatrix}-${p1.sampleStage}`
-        )
+        await screen.findByTestId(`matrix-${p1.matrix}-${p1.stages}`)
       ).toBeInTheDocument();
       expect(
-        await screen.findByTestId(
-          `sampleMatrix-${p2.sampleMatrix}-${p2.sampleStage}`
-        )
+        await screen.findByTestId(`matrix-${p2.matrix}-${p2.stages}`)
       ).toBeInTheDocument();
-      expect(
-        await screen.findAllByTestId(`cell-${p1.sampleMatrix}`)
-      ).toHaveLength(1);
+      expect(await screen.findAllByTestId(`cell-${p1.matrix}`)).toHaveLength(1);
     });
 
     test('should not display the addMatrix button', async () => {

@@ -1,27 +1,31 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { Matrix } from 'shared/referential/Matrix/Matrix';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
 import { Stage, StageLabels } from 'shared/referential/Stage';
 interface RemoveMatrixProps {
   matrix: Matrix;
-  stage: Stage;
-  onRemoveMatrix: (matrix: string, stage: Stage) => Promise<void>;
+  stages: Stage[];
+  onRemoveMatrix: (matrix: string, stages: Stage[]) => Promise<void>;
 }
 
-const RemoveMatrix = ({ matrix, stage, onRemoveMatrix }: RemoveMatrixProps) => {
+const RemoveMatrix = ({
+  matrix,
+  stages,
+  onRemoveMatrix,
+}: RemoveMatrixProps) => {
   const removeModal = useMemo(
     () =>
       createModal({
-        id: `remove-modal-${matrix}-${stage}`,
+        id: `remove-modal-${matrix}-${stages}`,
         isOpenedByDefault: false,
       }),
-    [matrix, stage]
+    [matrix, stages]
   );
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
-    await onRemoveMatrix(matrix, stage);
+    await onRemoveMatrix(matrix, stages);
     removeModal.close();
   };
 
@@ -55,7 +59,8 @@ const RemoveMatrix = ({ matrix, stage, onRemoveMatrix }: RemoveMatrixProps) => {
             <b>Matrice</b> : {MatrixLabels[matrix]}
           </li>
           <li>
-            <b>Stade de prélèvement</b> : {StageLabels[stage]}
+            <b>Stade(s) de prélèvement</b> :{' '}
+            {stages.map((stage) => StageLabels[stage]).join(', ')}
           </li>
         </ul>
       </removeModal.Component>

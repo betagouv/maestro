@@ -7,16 +7,16 @@ export const Prescription = z.object({
   id: z.string().uuid(),
   programmingPlanId: z.string().uuid(),
   region: Region,
-  sampleMatrix: Matrix,
-  sampleStage: Stage,
+  matrix: Matrix,
+  stages: z.array(Stage),
   sampleCount: z.number(),
   laboratoryId: z.string().optional().nullable(),
 });
 
 export const PrescriptionToCreate = Prescription.pick({
   region: true,
-  sampleMatrix: true,
-  sampleStage: true,
+  matrix: true,
+  stages: true,
   sampleCount: true,
 });
 
