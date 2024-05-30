@@ -216,7 +216,7 @@ describe('SampleFormStep2', () => {
       await user.selectOptions(matrixSelect, prescriptions[0].matrix); //1 call
       await user.selectOptions(matrixPartSelect, MatrixPartList[0]); //1 call
       await user.selectOptions(cultureKindSelect, CultureKindList[0]); //1 call
-      await user.selectOptions(stageSelect, prescriptions[0].stages); //1 call
+      await user.selectOptions(stageSelect, prescriptions[0].stages[0]); //1 call
       await user.type(matrixDetailsInput, 'Details'); //7 calls
       await user.type(expiryDateInput, '2023-12-31'); //1 call
       await user.selectOptions(storageConditionSelect, StorageConditionList[0]); //1 call
@@ -243,7 +243,7 @@ describe('SampleFormStep2', () => {
         matrix: prescriptions[0].matrix,
         matrixPart: MatrixPartList[0],
         cultureKind: CultureKindList[0],
-        stages: prescriptions[0].stages,
+        stage: prescriptions[0].stages[0],
         matrixDetails: 'Details',
         expiryDate: startOfDay(
           parse('2023-12-31', 'yyyy-MM-dd', new Date())
