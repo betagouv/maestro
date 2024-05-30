@@ -203,7 +203,7 @@ const SampleStepSubmitted = ({ sample }: Props) => {
               footer={
                 <>
                   {hasPermission('downloadSampleItemDocument') &&
-                    sample.status === 'Submitted' && (
+                    ['Sent', 'Submitted'].includes(sample.status) && (
                       <Button
                         priority="secondary"
                         iconId="fr-icon-download-line"
