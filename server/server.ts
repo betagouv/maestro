@@ -47,6 +47,7 @@ export function createServer(): Server {
           connectSrc: [
             "'self'",
             'https://stats.beta.gouv.fr',
+            'https://openmaptiles.data.gouv.fr',
             'https://openmaptiles.geo.data.gouv.fr',
             'https://openmaptiles.github.io',
             `https://${config.s3.bucket}.${
