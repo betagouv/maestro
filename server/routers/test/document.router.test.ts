@@ -90,6 +90,7 @@ describe('Document router', () => {
         ...validBody,
         createdAt: expect.any(String),
         createdBy: nationalCoordinator.id,
+        kind: 'OverviewDocument',
       });
 
       await expect(
@@ -98,6 +99,7 @@ describe('Document router', () => {
         ...validBody,
         createdAt: expect.any(Date),
         createdBy: nationalCoordinator.id,
+        kind: 'OverviewDocument',
       });
     });
   });
