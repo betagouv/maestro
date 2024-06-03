@@ -17,6 +17,7 @@ import { StorageConditionLabels } from 'shared/referential/StorageCondition';
 import { ProgrammingPlanKindLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { PartialSample } from 'shared/schema/Sample/Sample';
 import { useAuthentication } from 'src/hooks/useAuthentication';
+import { useLazyGetDocumentDownloadSignedUrlQuery } from 'src/services/document.service';
 import { useGetProgrammingPlanQuery } from 'src/services/programming-plan.service';
 import {
   getSampleItemDocumentURL,
@@ -32,6 +33,7 @@ const SampleStepSubmitted = ({ sample }: Props) => {
   const { hasPermission } = useAuthentication();
   const [updateSample, { isSuccess: isUpdateSuccess }] =
     useUpdateSampleMutation();
+  const [getDocumentUrl] = useLazyGetDocumentDownloadSignedUrlQuery();
 
   const { data: sampleProgrammingPlan } = useGetProgrammingPlanQuery(
     sample.programmingPlanId,
@@ -39,6 +41,11 @@ const SampleStepSubmitted = ({ sample }: Props) => {
       skip: !sample.programmingPlanId,
     }
   );
+
+  const openFile = async (documentId: string) => {
+    const url = await getDocumentUrl(documentId).unwrap();
+    window.open(url);
+  };
 
   const submit = async () => {
     await updateSample({
@@ -208,10 +215,16 @@ const SampleStepSubmitted = ({ sample }: Props) => {
                         priority="secondary"
                         iconId="fr-icon-download-line"
                         onClick={() =>
-                          window.open(
-                            getSampleItemDocumentURL(sample.id, itemIndex + 1)
-                          )
+                          sample.status === 'Submitted'
+                            ? window.open(
+                                getSampleItemDocumentURL(
+                                  sample.id,
+                                  itemIndex + 1
+                                )
+                              )
+                            : openFile(item.documentId as string)
                         }
+                        disabled={sample.status == 'Sent' && !item.documentId}
                       >
                         Document d'accompagnement
                       </Button>

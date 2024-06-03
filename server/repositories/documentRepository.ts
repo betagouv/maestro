@@ -1,5 +1,6 @@
 import fp from 'lodash';
 import { Document } from '../../shared/schema/Document/Document';
+import { FindDocumentOptions } from '../../shared/schema/Document/FindDocumentOptions';
 import db from './db';
 
 const documentsTable = 'documents';
@@ -14,11 +15,15 @@ const findUnique = async (id: string): Promise<Document | undefined> => {
     .then((_) => _ && Document.parse(fp.omitBy(_, fp.isNil)));
 };
 
-const findMany = async (): Promise<Document[]> => {
-  console.info('Find documents');
-  return Documents().then((documents) =>
-    documents.map((_) => Document.parse(fp.omitBy(_, fp.isNil)))
-  );
+const findMany = async (
+  findOptions: FindDocumentOptions
+): Promise<Document[]> => {
+  console.info('Find documents', fp.omitBy(findOptions, fp.isNil));
+  return Documents()
+    .where(fp.omitBy(findOptions, fp.isNil))
+    .then((documents) =>
+      documents.map((_) => Document.parse(fp.omitBy(_, fp.isNil)))
+    );
 };
 
 const insert = async (document: Document): Promise<void> => {

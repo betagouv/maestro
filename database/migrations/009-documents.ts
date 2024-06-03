@@ -8,6 +8,7 @@ exports.up = async (knex: Knex) => {
       .specificType('created_at', 'timestamptz')
       .defaultTo(knex.raw('current_timestamp'));
     table.uuid('created_by').references('id').inTable('users');
+    table.string('kind').notNullable();
   });
 };
 
