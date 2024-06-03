@@ -50,7 +50,7 @@ const SampleStepDraftCompany = ({ partialSample }: Props) => {
   };
 
   const Form = z.object({
-    company: Company,
+    company: Company.optional().nullable(),
     status: SampleStatus,
   });
 
