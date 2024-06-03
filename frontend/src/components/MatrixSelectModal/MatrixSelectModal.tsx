@@ -96,7 +96,10 @@ const MatrixSelectModal = ({
         iconId="fr-icon-add-circle-line"
         priority="tertiary no outline"
         className="cell-icon"
-        onClick={matrixSelectModal.open}
+        onClick={(e) => {
+          e.preventDefault();
+          matrixSelectModal.open();
+        }}
         data-testid="add-matrix-button"
       >
         {buttonTitle}
@@ -107,6 +110,7 @@ const MatrixSelectModal = ({
           {
             children: 'Annuler',
             priority: 'secondary',
+            onClick: (e) => e.preventDefault(),
           },
           {
             children: 'Ajouter',
