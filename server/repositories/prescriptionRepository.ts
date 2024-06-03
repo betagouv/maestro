@@ -20,9 +20,16 @@ const findMany = async (
 ): Promise<Prescription[]> => {
   console.info('Find prescriptions', fp.omitBy(findOptions, fp.isNil));
   return Prescriptions()
-    .where(fp.omitBy(findOptions, fp.isNil))
+    .where(fp.omitBy(fp.omit(findOptions, 'stage'), fp.isNil))
+    .modify((builder) => {
+      if (findOptions.stage) {
+        builder.where('stages', '@>', [findOptions.stage]);
+      }
+    })
     .then((prescriptions) =>
-      prescriptions.map((_) => Prescription.parse(fp.omitBy(_, fp.isNil)))
+      prescriptions.map((_: Prescription) =>
+        Prescription.parse(fp.omitBy(_, fp.isNil))
+      )
     );
 };
 

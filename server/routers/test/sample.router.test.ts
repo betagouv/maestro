@@ -4,7 +4,7 @@ import { default as fp, default as _ } from 'lodash';
 import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
-import { MatrixList } from '../../../shared/referential/Matrix/MatrixList';
+import { MatrixList } from '../../../shared/referential/Matrix/Matrix';
 import {
   Region,
   RegionList,

@@ -10,6 +10,8 @@ import { MatrixLabels } from '../../shared/referential/Matrix/MatrixLabels';
 import { MatrixPartLabels } from '../../shared/referential/MatrixPart';
 import { QuantityUnitLabels } from '../../shared/referential/QuantityUnit';
 import { StageLabels } from '../../shared/referential/Stage';
+import { SubstanceLabel } from '../../shared/referential/Substance/SubstanceLabels';
+import { SubstanceListByMatrix } from '../../shared/referential/Substance/SubstanceListByMatrix';
 import { FindSampleOptions } from '../../shared/schema/Sample/FindSampleOptions';
 import {
   CreatedSample,
@@ -67,8 +69,8 @@ const getSampleItemDocument = async (request: Request, response: Response) => {
   const prescriptions = await prescriptionRepository.findMany({
     region: getSampleRegion(sample),
     programmingPlanId: sample.programmingPlanId,
-    sampleMatrix: sample.matrix,
-    sampleStage: sample.stage,
+    matrix: sample.matrix,
+    stage: sample.stage,
   });
 
   //TODO: handle prescription or laboratory not found
@@ -86,6 +88,10 @@ const getSampleItemDocument = async (request: Request, response: Response) => {
         .findMany()
         .then((laboratories) => laboratories[0]);
 
+  const substances = SubstanceListByMatrix[sample.matrix]?.map(
+    (substance) => SubstanceLabel[substance]
+  );
+
   const sampleItem = sampleItems[itemNumber - 1];
   const compiledTemplate = handlebars.compile(SampleItemDocumentFileContent);
   const htmlContent = compiledTemplate({
@@ -93,6 +99,7 @@ const getSampleItemDocument = async (request: Request, response: Response) => {
     ...sampleItem,
     laboratory,
     programmingPlan,
+    substances,
     reference: [sample.reference, itemNumber].join('-'),
     sampledAt: format(sample.sampledAt, 'dd/MM/yyyy'),
     expiryDate: sample.expiryDate

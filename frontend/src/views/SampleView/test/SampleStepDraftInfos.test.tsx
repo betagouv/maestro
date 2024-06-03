@@ -148,7 +148,7 @@ describe('SampleFormStep2', () => {
     const stageSelect = screen.getAllByTestId('stage-select')[1];
 
     await act(async () => {
-      await user.selectOptions(matrixSelect, prescriptions[0].sampleMatrix);
+      await user.selectOptions(matrixSelect, prescriptions[0].matrix);
       await user.click(stageSelect);
     });
     expect(
@@ -213,10 +213,10 @@ describe('SampleFormStep2', () => {
     const submitButton = screen.getByTestId('submit-button');
 
     await act(async () => {
-      await user.selectOptions(matrixSelect, prescriptions[0].sampleMatrix); //1 call
+      await user.selectOptions(matrixSelect, prescriptions[0].matrix); //1 call
       await user.selectOptions(matrixPartSelect, MatrixPartList[0]); //1 call
       await user.selectOptions(cultureKindSelect, CultureKindList[0]); //1 call
-      await user.selectOptions(stageSelect, prescriptions[0].sampleStage); //1 call
+      await user.selectOptions(stageSelect, prescriptions[0].stages[0]); //1 call
       await user.type(matrixDetailsInput, 'Details'); //7 calls
       await user.type(expiryDateInput, '2023-12-31'); //1 call
       await user.selectOptions(storageConditionSelect, StorageConditionList[0]); //1 call
@@ -240,10 +240,10 @@ describe('SampleFormStep2', () => {
         lastUpdatedAt: createdSample.lastUpdatedAt.toISOString(),
         sampledAt: createdSample.sampledAt.toISOString(),
         status: 'DraftItems',
-        matrix: prescriptions[0].sampleMatrix,
+        matrix: prescriptions[0].matrix,
         matrixPart: MatrixPartList[0],
         cultureKind: CultureKindList[0],
-        stage: prescriptions[0].sampleStage,
+        stage: prescriptions[0].stages[0],
         matrixDetails: 'Details',
         expiryDate: startOfDay(
           parse('2023-12-31', 'yyyy-MM-dd', new Date())

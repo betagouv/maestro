@@ -3184,3 +3184,5 @@ export const Matrix = z.enum(
 );
 
 export type Matrix = z.infer<typeof Matrix>;
+
+export const MatrixList = Matrix.options;

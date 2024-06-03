@@ -139,7 +139,7 @@ const SampleStepSubmitted = ({ sample }: Props) => {
         </li>
         <li>
           <strong>
-            Condition de maintien du prélèvement sous température dirigée :
+            Condition de maintien du prélèvement sous température dirigée : 
           </strong>
           {t('boolean', {
             count: Number(sample.temperatureMaintenance ?? 0),
@@ -203,7 +203,7 @@ const SampleStepSubmitted = ({ sample }: Props) => {
               footer={
                 <>
                   {hasPermission('downloadSampleItemDocument') &&
-                    sample.status === 'Submitted' && (
+                    ['Sent', 'Submitted'].includes(sample.status) && (
                       <Button
                         priority="secondary"
                         iconId="fr-icon-download-line"

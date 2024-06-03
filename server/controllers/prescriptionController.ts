@@ -82,8 +82,8 @@ const exportPrescriptions = async (request: Request, response: Response) => {
   const workbook = workbookUtils.init(fileName, response);
   const worksheet = workbook.addWorksheet('Prescriptions');
   worksheet.columns = [
-    { header: 'Matrice', key: 'sampleMatrix', width: 30 },
-    { header: 'Stade de prélèvement', key: 'sampleStage', width: 20 },
+    { header: 'Matrice', key: 'matrix', width: 30 },
+    { header: 'Stade(s) de prélèvement', key: 'stages', width: 20 },
     !uniqueExportedRegion
       ? {
           header: 'Total national\nProgrammés',
@@ -141,8 +141,10 @@ const exportPrescriptions = async (request: Request, response: Response) => {
     .each((prescription) => {
       worksheet
         .addRow({
-          sampleMatrix: MatrixLabels[prescription.sampleMatrix],
-          sampleStage: StageLabels[prescription.sampleStage],
+          matrix: MatrixLabels[prescription.matrix],
+          stages: prescription.stages
+            .map((stage) => StageLabels[stage])
+            .join('\n'),
           sampleTotalCount: _.sumBy(
             prescription.regionalData,
             ({ sampleCount }) => sampleCount
@@ -173,7 +175,7 @@ const exportPrescriptions = async (request: Request, response: Response) => {
     })
     .done(() => {
       worksheet.addRow({
-        sampleMatrix: 'Total',
+        matrix: 'Total',
         sampleTotalCount: _.sum(
           prescriptionByMatrix
             .flatMap((p) => p.regionalData)

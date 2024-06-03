@@ -112,7 +112,7 @@
               </div>
             </div>
             <div class='fr-grid-row fr-grid-row--gutters'>
-              <div class='fr-col-4'>
+              <div class='fr-col-6'>
                 <div class='label'>
                   Quantité
                 </div>
@@ -145,10 +145,13 @@
         <div class='fr-card fr-card--xs fr-my-1w'>
           <div class='fr-container fr-my-1w'>
             <div class='fr-grid-row fr-grid-row--gutters'>
-              <div class='fr-col-4'>
+              <div class='fr-col-12'>
                 <div class='label'>
                   Analyses demandées
                 </div>
+                <ul>
+                  {{#each substances}}<li> {{this}} </li>{{/each}}
+                </ul>
               </div>
             </div>
           </div>

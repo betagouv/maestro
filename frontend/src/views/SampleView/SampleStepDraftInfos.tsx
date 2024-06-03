@@ -2,16 +2,15 @@ import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import { format, parse } from 'date-fns';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   CultureKind,
   CultureKindLabels,
   CultureKindList,
 } from 'shared/referential/CultureKind';
-import { Matrix } from 'shared/referential/Matrix/Matrix';
+import { Matrix, MatrixList } from 'shared/referential/Matrix/Matrix';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
-import { MatrixList } from 'shared/referential/Matrix/MatrixList';
 import {
   MatrixPart,
   MatrixPartLabels,
@@ -150,7 +149,7 @@ const SampleStepDraftInfos = ({ partialSample }: Props) => {
               options={selectOptionsFromList(
                 [
                   ...MatrixList.filter((matrix) =>
-                    prescriptions.find((p) => p.sampleMatrix === matrix)
+                    prescriptions.find((p) => p.matrix === matrix)
                   ),
                   additionalMatrix?.matrix,
                 ].filter(isDefined),
@@ -173,8 +172,9 @@ const SampleStepDraftInfos = ({ partialSample }: Props) => {
               options={selectOptionsFromList(
                 [
                   ...prescriptions
-                    .filter((p) => p.sampleMatrix === matrix)
-                    .map((p) => p.sampleStage),
+                    .filter((p) => p.matrix === matrix)
+                    .map((p) => p.stages)
+                    .flat(),
                   additionalMatrix?.stage,
                 ].filter(isDefined),
                 {
@@ -200,7 +200,7 @@ const SampleStepDraftInfos = ({ partialSample }: Props) => {
           >
             <MatrixSelectModal
               excludedList={[]}
-              onSelect={async (matrix, stage) => {
+              onSelect={async (matrix, [stage]) => {
                 setAdditionalMatrix({ matrix, stage });
                 setMatrix(matrix);
                 setStage(stage);

@@ -8,18 +8,14 @@ exports.up = async (knex: Knex) => {
       .references('id')
       .inTable('programming_plans');
     table.string('region');
-    table.string('sample_matrix');
-    table.string(' sample_stage');
+    table.string('matrix');
+    table.specificType('stages', 'text[]');
     table.integer('sample_count');
     table.uuid('laboratory_id').references('id').inTable('laboratories');
+    table.specificType('substances', 'text[]');
   });
   await knex.schema.alterTable('prescriptions', (table) => {
-    table.unique([
-      'programming_plan_id',
-      'region',
-      'sample_matrix',
-      'sample_stage',
-    ]);
+    table.unique(['programming_plan_id', 'region', 'matrix', 'stages']);
   });
 };
 

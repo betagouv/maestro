@@ -70,23 +70,23 @@ const PrescriptionTable = ({
 
   const EmptyCell = <div></div>;
 
-  const addMatrix = async (matrix: Matrix, stage: Stage) => {
+  const addMatrix = async (matrix: Matrix, stages: Stage[]) => {
     await addPrescriptions({
       programmingPlanId: programmingPlan.id,
       prescriptions: RegionList.map((region) => ({
-        sampleMatrix: matrix,
-        sampleStage: stage,
+        matrix,
+        stages,
         region,
         sampleCount: 0,
       })),
     });
   };
 
-  const removeMatrix = async (matrix: string, stage: Stage) => {
+  const removeMatrix = async (matrix: string, stages: Stage[]) => {
     await deletePrescription({
       programmingPlanId: programmingPlan.id,
       prescriptionIds: (prescriptions ?? [])
-        .filter((p) => p.sampleMatrix === matrix && p.sampleStage === stage)
+        .filter((p) => p.matrix === matrix && _.isEqual(p.stages, stages))
         .map((p) => p.id),
     });
   };
@@ -99,15 +99,15 @@ const PrescriptionTable = ({
             programmingPlan.status === 'InProgress' && (
               <MatrixSelectModal
                 excludedList={prescriptionsByMatrix.map((p) => ({
-                  matrix: p.sampleMatrix,
-                  stage: p.sampleStage,
+                  matrix: p.matrix,
+                  stages: p.stages,
                 }))}
                 onSelect={addMatrix}
               />
             )}
         </div>,
         <div>Matrice</div>,
-        <div>Stade de prélèvement</div>,
+        <div>Stade(s) de prélèvement</div>,
         regions.length > 1 && <div className="border-left">Total</div>,
         ...regions.map((region) => (
           <div className="border-left" key={`header-${region}`}>
@@ -123,33 +123,37 @@ const PrescriptionTable = ({
     () =>
       prescriptionsByMatrix.map((p) =>
         [
-          <div key={`remove-${p.sampleMatrix}-${p.sampleStage}`}>
+          <div key={`remove-${p.matrix}-${p.stages}`}>
             {hasPermission('deletePrescription') &&
               programmingPlan.status === 'InProgress' && (
                 <RemoveMatrix
-                  matrix={p.sampleMatrix}
-                  stage={p.sampleStage}
+                  matrix={p.matrix}
+                  stages={p.stages}
                   onRemoveMatrix={removeMatrix}
                 />
               )}
           </div>,
           <div
             className={cx('fr-pl-0', 'fr-text--bold')}
-            data-testid={`sampleMatrix-${p.sampleMatrix}-${p.sampleStage}`}
-            key={`sampleMatrix-${p.sampleMatrix}-${p.sampleStage}`}
+            data-testid={`matrix-${p.matrix}-${p.stages}`}
+            key={`matrix-${p.matrix}-${p.stages}`}
           >
-            {MatrixLabels[p.sampleMatrix]}
+            {MatrixLabels[p.matrix]}
           </div>,
           <div
             className={cx('fr-pl-0', 'fr-text--bold')}
-            key={`sampleStage-${p.sampleMatrix}-${p.sampleStage}`}
+            key={`sampleStage-${p.matrix}-${p.stages}`}
           >
-            {StageLabels[p.sampleStage]}
+            {p.stages.map((stage) => (
+              <div key={`sampleStage-${p.matrix}-${stage}`}>
+                {StageLabels[stage]}
+              </div>
+            ))}
           </div>,
           regions.length > 1 && (
             <div
               className="border-left fr-text--bold"
-              key={`total-${p.sampleMatrix}-${p.sampleStage}`}
+              key={`total-${p.matrix}-${p.stages}`}
             >
               <div>
                 {_.sumBy(p.regionalData, ({ sampleCount }) => sampleCount)}
@@ -170,15 +174,15 @@ const PrescriptionTable = ({
           ...p.regionalData.map(({ sampleCount, sentSampleCount, region }) => (
             <div
               className="border-left"
-              data-testid={`cell-${p.sampleMatrix}`}
-              key={`cell-${p.sampleMatrix}-${p.sampleStage}-${region}`}
+              data-testid={`cell-${p.matrix}`}
+              key={`cell-${p.matrix}-${p.stages}-${region}`}
             >
               {hasPermission('updatePrescriptionSampleCount') &&
               programmingPlan.status === 'InProgress' ? (
                 <EditableNumberCell
                   initialValue={sampleCount}
                   onChange={(value) =>
-                    changePrescription(p.sampleMatrix, p.sampleStage, region, {
+                    changePrescription(p.matrix, p.stages, region, {
                       sampleCount: value,
                     })
                   }
@@ -197,7 +201,7 @@ const PrescriptionTable = ({
             </div>
           )),
           regions.length === 1 && (
-            <div key={`laboratory-${p.sampleMatrix}-${p.sampleStage}`}>
+            <div key={`laboratory-${p.matrix}-${p.stages}`}>
               {programmingPlan.status === 'InProgress' &&
               hasPermission('updatePrescriptionLaboratory') ? (
                 <EditableSelectCell
@@ -207,14 +211,9 @@ const PrescriptionTable = ({
                       ?.laboratoryId ?? ''
                   }
                   onChange={(value) =>
-                    changePrescription(
-                      p.sampleMatrix,
-                      p.sampleStage,
-                      regions[0],
-                      {
-                        laboratoryId: value,
-                      }
-                    )
+                    changePrescription(p.matrix, p.stages, regions[0], {
+                      laboratoryId: value,
+                    })
                   }
                 />
               ) : (
@@ -302,14 +301,14 @@ const PrescriptionTable = ({
 
   const changePrescription = async (
     matrix: string,
-    stage: Stage,
+    stages: Stage[],
     region: Region,
     prescriptionUpdate: PrescriptionUpdate
   ) => {
     const prescriptionId = prescriptions.find(
       (p) =>
-        p.sampleMatrix === matrix &&
-        p.sampleStage === stage &&
+        p.matrix === matrix &&
+        _.isEqual(p.stages, stages) &&
         p.region === region
     )?.id;
 
