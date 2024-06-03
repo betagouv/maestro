@@ -139,7 +139,7 @@ const SampleStepSubmitted = ({ sample }: Props) => {
         </li>
         <li>
           <strong>
-            Condition de maintien du prélèvement sous température dirigée :
+            Condition de maintien du prélèvement sous température dirigée : 
           </strong>
           {t('boolean', {
             count: Number(sample.temperatureMaintenance ?? 0),

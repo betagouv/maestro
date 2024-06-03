@@ -9,9 +9,8 @@ import {
   CultureKindLabels,
   CultureKindList,
 } from 'shared/referential/CultureKind';
-import { Matrix } from 'shared/referential/Matrix/Matrix';
+import { Matrix, MatrixList } from 'shared/referential/Matrix/Matrix';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
-import { MatrixList } from 'shared/referential/Matrix/MatrixList';
 import {
   MatrixPart,
   MatrixPartLabels,

@@ -7,7 +7,7 @@ import _ from 'lodash';
 import React, { useState } from 'react';
 import { Matrix } from 'shared/referential/Matrix/Matrix';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
-import { MatrixListByKind } from 'shared/referential/Matrix/MatrixList';
+import { MatrixListByKind } from 'shared/referential/Matrix/MatrixListByKind';
 import {
   MatrixKind,
   MatrixKindLabels,
