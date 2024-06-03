@@ -224,7 +224,7 @@ const SampleStepSubmitted = ({ sample }: Props) => {
                               )
                             : openFile(item.documentId as string)
                         }
-                        disabled={sample.status == 'Sent' && !item.documentId}
+                        disabled={sample.status === 'Sent' && !item.documentId}
                       >
                         Document d'accompagnement
                       </Button>
