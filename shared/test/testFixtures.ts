@@ -189,6 +189,7 @@ export const genDocument = (userId: string): Document => ({
   filename: randomstring.generate(),
   createdAt: new Date(),
   createdBy: userId,
+  kind: 'OverviewDocument',
 });
 
 export const genLaboratory = (): Laboratory => ({

@@ -16,6 +16,7 @@ export const SampleItem = z.object({
   sealId: z.string({
     required_error: 'Veuillez renseigner le numéro de scellé.',
   }),
+  documentId: z.string().uuid().optional().nullable(),
 });
 
 export const SampleItemRefinement = SampleItem.refine(

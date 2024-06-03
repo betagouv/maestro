@@ -10,7 +10,10 @@ import { AuthenticatedRequest } from 'express-jwt';
 import { constants } from 'http2';
 import { v4 as uuidv4 } from 'uuid';
 import DocumentMissingError from '../../shared/errors/documentMissingError';
-import { DocumentToCreate } from '../../shared/schema/Document/Document';
+import {
+  Document,
+  DocumentToCreate,
+} from '../../shared/schema/Document/Document';
 import documentRepository from '../repositories/documentRepository';
 import config from '../utils/config';
 
@@ -63,10 +66,11 @@ const createDocument = async (request: Request, response: Response) => {
 
   console.log('Create document', documentToCreate);
 
-  const document = {
+  const document: Document = {
     ...documentToCreate,
     createdAt: new Date(),
     createdBy: userId,
+    kind: 'OverviewDocument',
   };
 
   await documentRepository.insert(document);
@@ -77,7 +81,9 @@ const createDocument = async (request: Request, response: Response) => {
 const findDocuments = async (request: Request, response: Response) => {
   console.info('Find documents');
 
-  const documents = await documentRepository.findMany();
+  const documents = await documentRepository.findMany({
+    kind: 'OverviewDocument',
+  });
 
   response.status(constants.HTTP_STATUS_OK).send(documents);
 };
