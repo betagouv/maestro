@@ -17,7 +17,6 @@ import {
 } from 'shared/referential/MatrixPart';
 import { Stage, StageLabels } from 'shared/referential/Stage';
 import { PartialSample, Sample } from 'shared/schema/Sample/Sample';
-import { isDefined } from 'shared/utils/utils';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
@@ -45,10 +44,6 @@ const SampleStepDraftInfos = ({ partialSample }: Props) => {
     partialSample.releaseControl
   );
   const [commentInfos, setCommentInfos] = useState(partialSample.commentInfos);
-  const [additionalMatrix, setAdditionalMatrix] = useState<{
-    matrix: Matrix;
-    stage: Stage;
-  }>();
 
   const [updateSample] = useUpdateSampleMutation();
 
@@ -129,12 +124,9 @@ const SampleStepDraftInfos = ({ partialSample }: Props) => {
             <AppSelect<FormShape>
               value={matrix ?? ''}
               options={selectOptionsFromList(
-                [
-                  ...MatrixList.filter((matrix) =>
-                    prescriptions.find((p) => p.matrix === matrix)
-                  ),
-                  additionalMatrix?.matrix,
-                ].filter(isDefined),
+                MatrixList.filter((matrix) =>
+                  prescriptions.find((p) => p.matrix === matrix)
+                ),
                 {
                   labels: MatrixLabels,
                 }
@@ -152,13 +144,10 @@ const SampleStepDraftInfos = ({ partialSample }: Props) => {
             <AppSelect<FormShape>
               defaultValue={stage ?? ''}
               options={selectOptionsFromList(
-                [
-                  ...prescriptions
-                    .filter((p) => p.matrix === matrix)
-                    .map((p) => p.stages)
-                    .flat(),
-                  additionalMatrix?.stage,
-                ].filter(isDefined),
+                prescriptions
+                  .filter((p) => p.matrix === matrix)
+                  .map((p) => p.stages)
+                  .flat(),
                 {
                   labels: StageLabels,
                 }
