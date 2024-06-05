@@ -1,1 +1,1 @@
-export const Brand = 'PSPC';
+export const Brand = 'maestro';
