@@ -9,11 +9,11 @@ import Map, {
   MarkerDragEvent,
   NavigationControl,
 } from 'react-map-gl/maplibre';
-import { UserLocation } from 'shared/schema/Sample/Sample';
+import { Geolocation } from 'shared/schema/Sample/Sample';
 interface Props {
   sampleId?: string;
-  location?: UserLocation;
-  onLocationChange: (coordinates: UserLocation) => void;
+  location?: Geolocation;
+  onLocationChange: (coordinates: Geolocation) => void;
 }
 
 const SampleGeolocation = ({ sampleId, location, onLocationChange }: Props) => {
@@ -26,7 +26,7 @@ const SampleGeolocation = ({ sampleId, location, onLocationChange }: Props) => {
     [sampleId]
   );
 
-  const [marker, setMarker] = useState<UserLocation>();
+  const [marker, setMarker] = useState<Geolocation>();
 
   useIsModalOpen(geolocationModal, {
     onConceal: () => {

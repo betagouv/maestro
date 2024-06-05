@@ -8,7 +8,6 @@ import { MatrixPartList } from '../referential/MatrixPart';
 import { QuantityUnitList } from '../referential/QuantityUnit';
 import { RegionList, Regions } from '../referential/Region';
 import { Stage, StageList } from '../referential/Stage';
-import { StorageConditionList } from '../referential/StorageCondition';
 import { Company } from '../schema/Company/Company';
 import { Document } from '../schema/Document/Document';
 import { Laboratory } from '../schema/Laboratory/Laboratory';
@@ -85,13 +84,13 @@ export function genAuthUser(): AuthUser {
 export const genSampleToCreate = (
   programmingPlanId?: string
 ): SampleToCreate => ({
-  userLocation: {
+  geolocation: {
     x: 48.8566,
     y: 2.3522,
   },
   sampledAt: new Date(),
   resytalId:
-    '22' +
+    '23-' +
     randomstring.generate({
       length: 6,
       charset: '123456789',
@@ -99,6 +98,7 @@ export const genSampleToCreate = (
   programmingPlanId: programmingPlanId ?? uuidv4(),
   legalContext: oneOf(LegalContextList),
   department: oneOf(Regions['44'].departments),
+  commentCreation: randomstring.generate(),
 });
 
 export const genCreatedSample = (
@@ -129,10 +129,7 @@ export const genSample = (
     matrixPart: oneOf(MatrixPartList),
     stage: oneOf(StageList),
     cultureKind: oneOf(CultureKindList),
-    storageCondition: oneOf(StorageConditionList),
     releaseControl: genBoolean(),
-    temperatureMaintenance: genBoolean(),
-    expiryDate: new Date(),
     items: [genSampleItem(sample.id, 1)],
   };
 };
@@ -146,8 +143,6 @@ export const genSampleItem = (
   quantity: genNumber(3),
   quantityUnit: oneOf(QuantityUnitList),
   compliance200263: genBoolean(),
-  pooling: genBoolean(),
-  poolingCount: genNumber(6),
   sealId: randomstring.generate(),
 });
 

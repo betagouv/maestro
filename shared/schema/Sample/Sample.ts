@@ -6,12 +6,11 @@ import { Matrix } from '../../referential/Matrix/Matrix';
 import { MatrixPart } from '../../referential/MatrixPart';
 import { Region, RegionList, Regions } from '../../referential/Region';
 import { Stage } from '../../referential/Stage';
-import { StorageCondition } from '../../referential/StorageCondition';
 import { Company } from '../Company/Company';
-import { PartialSampleItem, SampleItemRefinement } from './SampleItem';
+import { PartialSampleItem, SampleItem } from './SampleItem';
 import { SampleStatus } from './SampleStatus';
 
-export const UserLocation = z.object(
+export const Geolocation = z.object(
   {
     x: z.number(),
     y: z.number(),
@@ -25,17 +24,7 @@ export const Sample = z.object({
   id: z.string().uuid(),
   reference: z.string(),
   department: Department,
-  resytalId: z.preprocess(
-    (arg) => (arg === '' ? null : arg),
-    z.coerce
-      .string()
-      .regex(
-        /^22[0-9]{6}$/g,
-        "L'identifiant Resytal doit être au format 22XXXXXX."
-      )
-      .optional()
-      .nullable()
-  ),
+  resytalId: z.string().optional().nullable(),
   createdAt: z.coerce.date(),
   createdBy: z.string(),
   lastUpdatedAt: z.coerce.date(),
@@ -52,30 +41,32 @@ export const Sample = z.object({
     })
     .uuid(),
   legalContext: LegalContext,
-  userLocation: UserLocation,
+  geolocation: Geolocation,
+  parcel: z.string().optional().nullable(),
   company: Company.optional().nullable(),
   matrix: Matrix,
   matrixDetails: z.string().optional().nullable(),
   matrixPart: MatrixPart,
   stage: Stage,
   cultureKind: CultureKind,
-  storageCondition: StorageCondition.optional().nullable(),
   releaseControl: z.boolean().optional().nullable(),
-  items: z.array(SampleItemRefinement).min(1, {
+  items: z.array(SampleItem).min(1, {
     message: 'Veuillez renseigner au moins un échantillon.',
   }),
-  temperatureMaintenance: z.boolean().optional().nullable(),
-  expiryDate: z.coerce.date().optional().nullable(),
-  comment: z.string().optional().nullable(),
+  commentCreation: z.string().optional().nullable(),
+  commentCompany: z.string().optional().nullable(),
+  commentInfos: z.string().optional().nullable(),
+  commentItems: z.string().optional().nullable(),
 });
 
 export const SampleToCreate = Sample.pick({
-  userLocation: true,
+  geolocation: true,
   sampledAt: true,
   resytalId: true,
   programmingPlanId: true,
   legalContext: true,
   department: true,
+  commentCreation: true,
 });
 
 export const CreatedSample = SampleToCreate.merge(
@@ -97,7 +88,7 @@ export const PartialSample = Sample.partial()
     })
   );
 
-export type UserLocation = z.infer<typeof UserLocation>;
+export type Geolocation = z.infer<typeof Geolocation>;
 export type Sample = z.infer<typeof Sample>;
 export type SampleToCreate = z.infer<typeof SampleToCreate>;
 export type CreatedSample = z.infer<typeof CreatedSample>;

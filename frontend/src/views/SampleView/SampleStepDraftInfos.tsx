@@ -1,7 +1,6 @@
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
-import { format, parse } from 'date-fns';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -17,14 +16,8 @@ import {
   MatrixPartList,
 } from 'shared/referential/MatrixPart';
 import { Stage, StageLabels } from 'shared/referential/Stage';
-import {
-  StorageCondition,
-  StorageConditionLabels,
-  StorageConditionList,
-} from 'shared/referential/StorageCondition';
 import { PartialSample, Sample } from 'shared/schema/Sample/Sample';
 import { isDefined } from 'shared/utils/utils';
-import MatrixSelectModal from 'src/components/MatrixSelectModal/MatrixSelectModal';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
@@ -47,17 +40,11 @@ const SampleStepDraftInfos = ({ partialSample }: Props) => {
   const [matrixPart, setMatrixPart] = useState(partialSample.matrixPart);
   const [stage, setStage] = useState(partialSample.stage);
   const [cultureKind, setCultureKind] = useState(partialSample.cultureKind);
-  const [storageCondition, setStorageCondition] = useState(
-    partialSample.storageCondition
-  );
+  const [parcel, setParcel] = useState(partialSample.parcel);
   const [releaseControl, setReleaseControl] = useState(
     partialSample.releaseControl
   );
-  const [temperatureMaintenance, setTemperatureMaintenance] = useState(
-    partialSample.temperatureMaintenance
-  );
-  const [expiryDate, setExpiryDate] = useState(partialSample.expiryDate);
-  const [comment, setComment] = useState(partialSample.comment);
+  const [commentInfos, setCommentInfos] = useState(partialSample.commentInfos);
   const [additionalMatrix, setAdditionalMatrix] = useState<{
     matrix: Matrix;
     stage: Stage;
@@ -78,11 +65,10 @@ const SampleStepDraftInfos = ({ partialSample }: Props) => {
     matrixPart: true,
     stage: true,
     cultureKind: true,
-    storageCondition: true,
+    parcel: true,
     releaseControl: true,
     temperatureMaintenance: true,
-    expiryDate: true,
-    comment: true,
+    commentInfos: true,
     status: true,
   });
 
@@ -92,11 +78,9 @@ const SampleStepDraftInfos = ({ partialSample }: Props) => {
     matrixPart,
     stage,
     cultureKind,
-    storageCondition,
+    parcel,
     releaseControl,
-    temperatureMaintenance,
-    expiryDate,
-    comment,
+    commentInfos,
     status: partialSample.status,
   });
 
@@ -120,11 +104,9 @@ const SampleStepDraftInfos = ({ partialSample }: Props) => {
       matrixPart,
       stage,
       cultureKind,
-      storageCondition,
+      parcel,
       releaseControl,
-      temperatureMaintenance,
-      expiryDate,
-      comment,
+      commentInfos,
       status,
     });
   };
@@ -190,22 +172,15 @@ const SampleStepDraftInfos = ({ partialSample }: Props) => {
               required
             />
           </div>
-          <div
-            className={cx('fr-col-12', 'fr-col-sm-4')}
-            style={{
-              display: 'flex',
-              justifyContent: 'end',
-              flexDirection: 'column',
-            }}
-          >
-            <MatrixSelectModal
-              excludedList={[]}
-              onSelect={async (matrix, [stage]) => {
-                setAdditionalMatrix({ matrix, stage });
-                setMatrix(matrix);
-                setStage(stage);
-              }}
-              buttonTitle="Matrice / stade hors plan"
+          <div className={cx('fr-col-12', 'fr-col-sm-4')}>
+            <AppTextInput<FormShape>
+              defaultValue={matrixDetails ?? ''}
+              onChange={(e) => setMatrixDetails(e.target.value)}
+              inputForm={form}
+              inputKey="matrixDetails"
+              whenValid="Détail de la matrice correctement renseigné."
+              data-testid="matrixdetails-input"
+              label="Détail de la matrice"
             />
           </div>
           <div className={cx('fr-col-12', 'fr-col-sm-4')}>
@@ -239,13 +214,13 @@ const SampleStepDraftInfos = ({ partialSample }: Props) => {
           </div>
           <div className={cx('fr-col-12', 'fr-col-sm-4')}>
             <AppTextInput<FormShape>
-              defaultValue={matrixDetails ?? ''}
-              onChange={(e) => setMatrixDetails(e.target.value)}
+              defaultValue={parcel ?? ''}
+              onChange={(e) => setParcel(e.target.value)}
               inputForm={form}
-              inputKey="matrixDetails"
-              whenValid="Détail de la matrice correctement renseigné."
-              data-testid="matrixdetails-input"
-              label="Détail de la matrice"
+              inputKey="parcel"
+              whenValid="Parcelle correctement renseignée."
+              data-testid="parcel-input"
+              label="Parcelle"
             />
           </div>
         </div>
@@ -259,56 +234,16 @@ const SampleStepDraftInfos = ({ partialSample }: Props) => {
               showCheckedHint={false}
             />
           </div>
-          <div className={cx('fr-col-12', 'fr-col-sm-8')}>
-            <ToggleSwitch
-              label="Condition de maintien du prélèvement sous température dirigée"
-              checked={temperatureMaintenance ?? false}
-              onChange={(checked) => setTemperatureMaintenance(checked)}
-              showCheckedHint={false}
-            />
-          </div>
-          <div className={cx('fr-col-12', 'fr-col-sm-4')}>
-            <AppTextInput<FormShape>
-              type="date"
-              defaultValue={
-                expiryDate ? format(expiryDate, 'yyyy-MM-dd') : undefined
-              }
-              onChange={(e) =>
-                setExpiryDate(parse(e.target.value, 'yyyy-MM-dd', new Date()))
-              }
-              inputForm={form}
-              inputKey="expiryDate"
-              whenValid="Date de péremption correctement renseignée."
-              data-testid="expirydate-input"
-              label="Date de péremption"
-            />
-          </div>
-          <div className={cx('fr-col-12', 'fr-col-sm-4')}>
-            <AppSelect<FormShape>
-              defaultValue={storageCondition ?? ''}
-              options={selectOptionsFromList(StorageConditionList, {
-                labels: StorageConditionLabels,
-              })}
-              onChange={(e) =>
-                setStorageCondition(e.target.value as StorageCondition)
-              }
-              inputForm={form}
-              inputKey="storageCondition"
-              whenValid="Condition de stockage correctement renseignée."
-              data-testid="storagecondition-select"
-              label="Condition de stockage"
-            />
-          </div>
         </div>
         <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
             <AppTextAreaInput<FormShape>
               rows={3}
-              defaultValue={comment ?? ''}
-              onChange={(e) => setComment(e.target.value)}
+              defaultValue={commentInfos ?? ''}
+              onChange={(e) => setCommentInfos(e.target.value)}
               inputForm={form}
-              inputKey="comment"
+              inputKey="commentInfos"
               whenValid="Commentaire correctement renseigné."
               data-testid="comment-input"
               label="Commentaires"

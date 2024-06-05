@@ -3,13 +3,14 @@ import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { SearchBar } from '@codegouvfr/react-dsfr/SearchBar';
 import clsx from 'clsx';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Company } from 'shared/schema/Company/Company';
 import { FindCompanyOptions } from 'shared/schema/Company/FindCompanyOptions';
 import { PartialSample } from 'shared/schema/Sample/Sample';
 import { SampleStatus } from 'shared/schema/Sample/SampleStatus';
 import { isDefined } from 'shared/utils/utils';
+import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import { useForm } from 'src/hooks/useForm';
 import { useLazyFindCompaniesQuery } from 'src/services/company.service';
 import { useUpdateSampleMutation } from 'src/services/sample.service';
@@ -26,6 +27,9 @@ const SampleStepDraftCompany = ({ partialSample }: Props) => {
     partialSample?.company?.siret ?? ''
   );
   const [company, setCompany] = useState(partialSample.company);
+  const [commentCompany, setCommentCompany] = useState(
+    partialSample?.commentCompany
+  );
 
   const [updateSample] = useUpdateSampleMutation();
   const [findCompanies] = useLazyFindCompaniesQuery();
@@ -51,11 +55,15 @@ const SampleStepDraftCompany = ({ partialSample }: Props) => {
 
   const Form = z.object({
     company: Company.optional().nullable(),
+    commentCompany: z.string().optional().nullable(),
     status: SampleStatus,
   });
 
+  type FormShape = typeof Form.shape;
+
   const form = useForm(Form, {
     company,
+    commentCompany,
     status: partialSample.status,
   });
 
@@ -73,6 +81,7 @@ const SampleStepDraftCompany = ({ partialSample }: Props) => {
     await updateSample({
       ...partialSample,
       company,
+      commentCompany,
       status,
     });
   };
@@ -146,6 +155,21 @@ const SampleStepDraftCompany = ({ partialSample }: Props) => {
           </div>
         </div>
       )}
+      <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
+      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+        <div className={cx('fr-col-12')}>
+          <AppTextAreaInput<FormShape>
+            rows={3}
+            defaultValue={commentCompany ?? ''}
+            onChange={(e) => setCommentCompany(e.target.value)}
+            inputForm={form}
+            inputKey="commentCompany"
+            whenValid="Commentaire correctement renseigné."
+            data-testid="comment-input"
+            label="Commentaires"
+          />
+        </div>
+      </div>
       <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>

@@ -19,7 +19,7 @@ const PartialSampleDbo = PartialSample.omit({
 }).merge(
   z.object({
     companyId: z.string().uuid().optional().nullable(),
-    userLocation: z.any(),
+    geolocation: z.any(),
   })
 );
 
@@ -170,9 +170,9 @@ export const formatPartialSample = (
   partialSample: PartialSample
 ): PartialSampleDbo => ({
   ...fp.omit(partialSample, ['items', 'company']),
-  userLocation: db.raw('Point(?, ?)', [
-    partialSample.userLocation.x,
-    partialSample.userLocation.y,
+  geolocation: db.raw('Point(?, ?)', [
+    partialSample.geolocation.x,
+    partialSample.geolocation.y,
   ]),
   companyId: partialSample.company?.id,
 });
@@ -183,9 +183,9 @@ export const parsePartialSample = (
   sample &&
   PartialSample.parse({
     ...fp.omit(fp.omitBy(sample, fp.isNil), ['companyId']),
-    userLocation: {
-      x: sample.userLocation.x,
-      y: sample.userLocation.y,
+    geolocation: {
+      x: sample.geolocation.x,
+      y: sample.geolocation.y,
     },
     company: sample.companyId
       ? {

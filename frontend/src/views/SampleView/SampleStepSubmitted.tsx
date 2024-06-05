@@ -13,7 +13,6 @@ import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
 import { MatrixPartLabels } from 'shared/referential/MatrixPart';
 import { QuantityUnitLabels } from 'shared/referential/QuantityUnit';
 import { StageLabels } from 'shared/referential/Stage';
-import { StorageConditionLabels } from 'shared/referential/StorageCondition';
 import { ProgrammingPlanKindLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { PartialSample } from 'shared/schema/Sample/Sample';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -71,7 +70,7 @@ const SampleStepSubmitted = ({ sample }: Props) => {
         </li>
         <li>
           <strong>Géolocalisation : </strong>
-          {sample.userLocation.x} - {sample.userLocation.y}
+          {sample.geolocation.x} - {sample.geolocation.y}
         </li>
         <li>
           <strong>Département : </strong>
@@ -93,6 +92,12 @@ const SampleStepSubmitted = ({ sample }: Props) => {
           <strong>Cadre juridique : </strong>
           {LegalContextLabels[sample.legalContext]}
         </li>
+        {sample.commentCreation && (
+          <li>
+            <strong>Commentaires : </strong>
+            {sample.commentCreation}
+          </li>
+        )}
       </ul>
       <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
       <h3>Lieu de prélèvement</h3>
@@ -106,6 +111,12 @@ const SampleStepSubmitted = ({ sample }: Props) => {
         <li>
           <strong>Adresse :</strong> {sample.company?.address}
         </li>
+        {sample.commentCompany && (
+          <li>
+            <strong>Commentaires : </strong>
+            {sample.commentCompany}
+          </li>
+        )}
       </ul>
       <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
       <h3>Informations spécifiques</h3>
@@ -144,30 +155,16 @@ const SampleStepSubmitted = ({ sample }: Props) => {
           <strong>Contrôle libératoire : </strong>
           {t('boolean', { count: Number(sample.releaseControl ?? 0) })}
         </li>
-        <li>
-          <strong>
-            Condition de maintien du prélèvement sous température dirigée : 
-          </strong>
-          {t('boolean', {
-            count: Number(sample.temperatureMaintenance ?? 0),
-          })}
-        </li>
-        <li>
-          <strong>Date de péremption : </strong>
-          {sample.expiryDate
-            ? format(sample.expiryDate, 'dd/MM/yyyy')
-            : 'Non renseignée'}
-        </li>
-        {sample.storageCondition && (
+        {sample.parcel && (
           <li>
-            <strong>Condition de stockage : </strong>
-            {StorageConditionLabels[sample.storageCondition]}
+            <strong>Parcelle : </strong>
+            {sample.parcel}
           </li>
         )}
-        {sample.comment && (
+        {sample.commentInfos && (
           <li>
-            <strong>Commentaire : </strong>
-            {sample.comment}
+            <strong>Commentaires : </strong>
+            {sample.commentInfos}
           </li>
         )}
       </ul>
@@ -195,16 +192,6 @@ const SampleStepSubmitted = ({ sample }: Props) => {
                     <strong>Directive 2002/63 respectée : </strong>
                     {item.compliance200263 ? 'Oui' : 'Non'}
                   </li>
-                  <li>
-                    <strong>Recours au poolage : </strong>
-                    {item.pooling ? 'Oui' : 'Non'}
-                  </li>
-                  {item.pooling && (
-                    <li>
-                      <strong>Nombre d'unités : </strong>
-                      {item.poolingCount}
-                    </li>
-                  )}
                 </ul>
               }
               footer={
@@ -234,6 +221,12 @@ const SampleStepSubmitted = ({ sample }: Props) => {
             />
           </div>
         ))}
+        {sample.commentItems && (
+          <div className={cx('fr-col-12')}>
+            <strong>Commentaires : </strong>
+            {sample.commentItems}
+          </div>
+        )}
       </div>
       <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
       {isUpdateSuccess ? (

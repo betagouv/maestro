@@ -66,17 +66,12 @@ const generateSampleItemDocument = async (
     substances,
     reference: [sample.reference, sampleItem.itemNumber].join('-'),
     sampledAt: format(sample.sampledAt, 'dd/MM/yyyy'),
-    expiryDate: sample.expiryDate
-      ? format(sample.expiryDate, 'dd/MM/yyyy')
-      : '',
     stage: StageLabels[sample.stage],
     matrix: MatrixLabels[sample.matrix],
     matrixDetails: sample.matrixDetails,
     matrixPart: MatrixPartLabels[sample.matrixPart],
     quantityUnit: QuantityUnitLabels[sampleItem.quantityUnit],
     releaseControl: sample.releaseControl ? 'Oui' : 'Non',
-    temperatureMaintenance: sample.temperatureMaintenance ? 'Oui' : 'Non',
-    comment: sample.comment ?? 'Aucun',
     compliance200263: sampleItem.compliance200263 ? 'Oui' : 'Non',
     dsfrLink: `${config.application.host}/dsfr/dsfr.min.css`,
   });

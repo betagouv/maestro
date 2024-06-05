@@ -13,7 +13,7 @@ import {
   mockRequests,
 } from '../../../../test/requestUtils.test';
 
-describe('SampleFormStep3', () => {
+describe('SampleStepDraftItems', () => {
   const user = userEvent.setup();
   const draftSample = {
     ...genCreatedSample(),

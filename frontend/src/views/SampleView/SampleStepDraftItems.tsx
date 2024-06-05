@@ -3,7 +3,7 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   PrimaryQuantityUnitList,
@@ -16,6 +16,7 @@ import { PartialSampleItem } from 'shared/schema/Sample/SampleItem';
 import { isDefinedAndNotNull } from 'shared/utils/utils';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
+import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useForm } from 'src/hooks/useForm';
 import {
@@ -43,16 +44,19 @@ const SampleStepDraftItems = ({ partialSample }: Props) => {
         ]
       : partialSample.items
   );
+  const [commentItems, setCommentItems] = useState(partialSample?.commentItems);
 
   const [updateSampleItems] = useUpdateSampleItemsMutation();
   const [updateSample] = useUpdateSampleMutation();
 
   const Form = Sample.pick({
     items: true,
+    commentItems: true,
   });
 
   const form = useForm(Form, {
     items,
+    commentItems,
   });
 
   type FormShape = typeof Form.shape;
@@ -63,6 +67,7 @@ const SampleStepDraftItems = ({ partialSample }: Props) => {
       await save();
       await updateSample({
         ...partialSample,
+        commentItems,
         status: 'Submitted',
       });
       navigate(`/prelevements/${partialSample.id}?etape=5`, {
@@ -204,43 +209,6 @@ const SampleStepDraftItems = ({ partialSample }: Props) => {
                 showCheckedHint={false}
               />
             </div>
-            <div className={cx('fr-col-12', 'fr-col-sm-4')}>
-              <ToggleSwitch
-                label="Recours au poolage"
-                checked={item.pooling ?? false}
-                onChange={(checked) =>
-                  changeItems(
-                    { ...item, pooling: checked, poolingCount: undefined },
-                    index
-                  )
-                }
-                showCheckedHint={false}
-              />
-            </div>
-            {item.pooling && (
-              <div className={cx('fr-col-12', 'fr-col-sm-4')}>
-                <AppTextInput<FormShape>
-                  value={item.poolingCount ?? ''}
-                  type="number"
-                  onChange={(e) =>
-                    changeItems(
-                      {
-                        ...item,
-                        poolingCount: Number(e.target.value),
-                      },
-                      index
-                    )
-                  }
-                  inputForm={form}
-                  inputKey="items"
-                  inputPathFromKey={[index, 'poolingCount']}
-                  whenValid="Nombre d'unités correctement renseigné."
-                  data-testid={`item-poolingcount-input-${index}`}
-                  label="Nombre d'unités (obligatoire)"
-                  required
-                />
-              </div>
-            )}
           </div>
         ))}
         {items.length < MaxItemCount && (
@@ -271,6 +239,22 @@ const SampleStepDraftItems = ({ partialSample }: Props) => {
             className={cx('fr-mb-4w')}
           />
         )}
+        <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
+        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+          <div className={cx('fr-col-12')}>
+            <AppTextAreaInput<FormShape>
+              rows={3}
+              defaultValue={commentItems ?? ''}
+              onChange={(e) => setCommentItems(e.target.value)}
+              inputForm={form}
+              inputKey="commentItems"
+              whenValid="Commentaire correctement renseigné."
+              data-testid="comment-input"
+              label="Commentaires"
+            />
+          </div>
+        </div>
+        <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
         <div className={cx('fr-col-12')}>
           <ButtonsGroup
             inlineLayoutWhen="md and up"

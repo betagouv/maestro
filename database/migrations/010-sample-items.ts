@@ -13,8 +13,6 @@ exports.up = async (knex: Knex) => {
     table.string('quantity_unit');
     table.string('seal_id');
     table.boolean('compliance200263');
-    table.boolean('pooling');
-    table.integer('pooling_count');
     table.uuid('document_id').references('id').inTable('documents');
     table.primary(['sample_id', 'item_number']);
   });

@@ -1,6 +1,6 @@
 import { act, render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import { format, startOfDay } from 'date-fns';
+import { format } from 'date-fns';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { genCoords, genProgrammingPlan } from 'shared/test/testFixtures';
@@ -21,7 +21,7 @@ const programmingPlanRequest = {
   },
 };
 
-describe('SampleFormStep1', () => {
+describe('SampleStepCreation', () => {
   const user = userEvent.setup();
 
   beforeEach(() => {
@@ -43,12 +43,13 @@ describe('SampleFormStep1', () => {
       screen.getByTestId('draft_sample_creation_form')
     ).toBeInTheDocument();
     expect(screen.getAllByTestId('sampledAt-input')).toHaveLength(2);
-    expect(screen.getAllByTestId('userLocationX-input')).toHaveLength(2);
-    expect(screen.getAllByTestId('userLocationY-input')).toHaveLength(2);
+    expect(screen.getAllByTestId('geolocationX-input')).toHaveLength(2);
+    expect(screen.getAllByTestId('geolocationY-input')).toHaveLength(2);
     expect(screen.getAllByTestId('department-select')).toHaveLength(2);
     expect(screen.getAllByTestId('resytalId-input')).toHaveLength(2);
     expect(screen.getAllByTestId('programming-plan-id-select')).toHaveLength(2);
     expect(screen.getAllByTestId('legal-context-select')).toHaveLength(2);
+    expect(screen.getAllByTestId('comment-input')).toHaveLength(2);
 
     expect(screen.getByTestId('submit-button')).toBeInTheDocument();
   });
@@ -62,9 +63,9 @@ describe('SampleFormStep1', () => {
       </Provider>
     );
 
-    expect(
-      screen.getByDisplayValue(format(new Date(), 'yyyy-MM-dd'))
-    ).toBeInTheDocument();
+    const dateInput = screen.getAllByTestId('sampledAt-input')[1];
+
+    expect(dateInput).toHaveValue(format(new Date(), "yyyy-MM-dd'T'HH:mm"));
   });
 
   test('should handle errors on submitting', async () => {
@@ -75,7 +76,6 @@ describe('SampleFormStep1', () => {
         </BrowserRouter>
       </Provider>
     );
-    const resytalIdInput = screen.getAllByTestId('resytalId-input')[1];
 
     await act(async () => {
       await user.click(screen.getByTestId('submit-button'));
@@ -94,14 +94,6 @@ describe('SampleFormStep1', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByText('Veuillez renseigner le cadre juridique.')
-    ).toBeInTheDocument();
-
-    await act(async () => {
-      await user.type(resytalIdInput, '223aze12');
-      await user.click(screen.getByTestId('submit-button'));
-    });
-    expect(
-      screen.getByText("L'identifiant Resytal doit être au format 22XXXXXX.")
     ).toBeInTheDocument();
   });
 
@@ -129,6 +121,7 @@ describe('SampleFormStep1', () => {
       'programming-plan-id-select'
     )[1];
     const legalContextSelect = screen.getAllByTestId('legal-context-select')[1];
+    const commentInput = screen.getAllByTestId('comment-input')[1];
 
     await act(async () => {
       (
@@ -141,6 +134,7 @@ describe('SampleFormStep1', () => {
       await user.type(resytalIdInput, '22123456');
       await user.selectOptions(programmingPlanIdSelect, programmingPlan1.id);
       await user.selectOptions(legalContextSelect, 'B');
+      await user.type(commentInput, 'Comment');
       await user.click(screen.getByTestId('submit-button'));
     });
     expect(
@@ -163,15 +157,16 @@ describe('SampleFormStep1', () => {
       url: `${config.apiEndpoint}/api/samples`,
       method: 'POST',
       body: {
-        sampledAt: startOfDay(new Date()).toISOString(),
+        sampledAt: expect.stringContaining(format(new Date(), 'yyyy-MM-dd')),
         department: '08',
         resytalId: '22123456',
         programmingPlanId: programmingPlan1.id,
         legalContext: 'B',
-        userLocation: {
+        geolocation: {
           x: coords.coords.latitude,
           y: coords.coords.longitude,
         },
+        commentCreation: 'Comment',
       },
     });
   });

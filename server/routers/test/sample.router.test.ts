@@ -123,7 +123,6 @@ describe('Sample router', () => {
         createdAt: sample11.createdAt.toISOString(),
         lastUpdatedAt: sample11.lastUpdatedAt.toISOString(),
         sampledAt: sample11.sampledAt.toISOString(),
-        expiryDate: sample11.expiryDate?.toISOString(),
       });
     });
   });
@@ -196,7 +195,6 @@ describe('Sample router', () => {
           createdAt: sample11.createdAt.toISOString(),
           lastUpdatedAt: sample11.lastUpdatedAt.toISOString(),
           sampledAt: sample11.sampledAt.toISOString(),
-          expiryDate: sample11.expiryDate?.toISOString(),
         },
       ]);
     });
@@ -213,21 +211,18 @@ describe('Sample router', () => {
           createdAt: sample2.createdAt.toISOString(),
           lastUpdatedAt: sample2.lastUpdatedAt.toISOString(),
           sampledAt: sample2.sampledAt.toISOString(),
-          expiryDate: sample2.expiryDate?.toISOString(),
         },
         {
           ...fp.omit(sample12, ['items']),
           createdAt: sample12.createdAt.toISOString(),
           lastUpdatedAt: sample12.lastUpdatedAt.toISOString(),
           sampledAt: sample12.sampledAt.toISOString(),
-          expiryDate: sample12.expiryDate?.toISOString(),
         },
         {
           ...fp.omit(sample11, ['items']),
           createdAt: sample11.createdAt.toISOString(),
           lastUpdatedAt: sample11.lastUpdatedAt.toISOString(),
           sampledAt: sample11.sampledAt.toISOString(),
-          expiryDate: sample11.expiryDate?.toISOString(),
         },
       ]);
     });
@@ -281,13 +276,12 @@ describe('Sample router', () => {
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await badRequestTest();
-      await badRequestTest({ ...genSampleToCreate(), resytalId: '123' });
       await badRequestTest({ ...genSampleToCreate(), resytalId: 123 });
-      await badRequestTest({ ...genSampleToCreate(), userLocation: undefined });
-      await badRequestTest({ ...genSampleToCreate(), userLocation: '123' });
+      await badRequestTest({ ...genSampleToCreate(), geolocation: undefined });
+      await badRequestTest({ ...genSampleToCreate(), geolocation: '123' });
       await badRequestTest({
         ...genSampleToCreate(),
-        userLocation: {
+        geolocation: {
           latitude: undefined,
         },
       });
@@ -436,7 +430,6 @@ describe('Sample router', () => {
         createdAt: sample11.createdAt.toISOString(),
         lastUpdatedAt: expect.any(String),
         sampledAt: sample11.sampledAt.toISOString(),
-        expiryDate: sample11.expiryDate?.toISOString(),
         matrix: validBody.matrix,
       });
 

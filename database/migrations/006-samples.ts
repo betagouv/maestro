@@ -22,18 +22,19 @@ exports.up = async (knex: Knex) => {
       .inTable('programming_plans')
       .notNullable();
     table.string('legal_context').notNullable();
-    table.point('user_location').notNullable();
+    table.point('geolocation').notNullable();
+    table.string('parcel');
     table.uuid('company_id').references('id').inTable('companies');
     table.string('matrix');
     table.string('matrix_details');
     table.string('matrix_part');
     table.string('stage');
     table.string('culture_kind');
-    table.string('storage_condition');
     table.boolean('release_control');
-    table.boolean('temperature_maintenance');
-    table.datetime('expiry_date');
-    table.text('comment');
+    table.text('comment_creation');
+    table.text('comment_company');
+    table.text('comment_infos');
+    table.text('comment_items');
   });
 };
 

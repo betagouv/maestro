@@ -1,12 +1,10 @@
 import { configureStore, Store } from '@reduxjs/toolkit';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import { parse, startOfDay } from 'date-fns';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { CultureKindList } from 'shared/referential/CultureKind';
 import { MatrixPartList } from 'shared/referential/MatrixPart';
-import { StorageConditionList } from 'shared/referential/StorageCondition';
 import {
   genAuthUser,
   genCreatedSample,
@@ -39,7 +37,7 @@ const prescriptionsRequest = {
   response: { body: JSON.stringify(prescriptions) },
 };
 
-describe('SampleFormStep2', () => {
+describe('SampleStepDraftInfos', () => {
   beforeEach(() => {
     fetchMock.resetMocks();
     store = configureStore({
@@ -76,13 +74,7 @@ describe('SampleFormStep2', () => {
     expect(screen.getAllByTestId('matrixpart-select')).toHaveLength(2);
     expect(screen.getAllByTestId('matrixdetails-input')).toHaveLength(2);
     expect(screen.getByLabelText('Contrôle libératoire')).toBeInTheDocument();
-    expect(
-      screen.getByLabelText(
-        'Condition de maintien du prélèvement sous température dirigée'
-      )
-    ).toBeInTheDocument();
-    expect(screen.getAllByTestId('expirydate-input')).toHaveLength(2);
-    expect(screen.getAllByTestId('storagecondition-select')).toHaveLength(2);
+    expect(screen.getAllByTestId('parcel-input')).toHaveLength(2);
     expect(screen.getAllByTestId('comment-input')).toHaveLength(2);
 
     expect(screen.getByTestId('previous-button')).toBeInTheDocument();
@@ -205,10 +197,7 @@ describe('SampleFormStep2', () => {
     const cultureKindSelect = screen.getAllByTestId('culturekind-select')[1];
     const stageSelect = screen.getAllByTestId('stage-select')[1];
     const matrixDetailsInput = screen.getAllByTestId('matrixdetails-input')[1];
-    const expiryDateInput = screen.getAllByTestId('expirydate-input')[1];
-    const storageConditionSelect = screen.getAllByTestId(
-      'storagecondition-select'
-    )[1];
+    const parcelInput = screen.getAllByTestId('parcel-input')[1];
     const commentInput = screen.getAllByTestId('comment-input')[1];
     const submitButton = screen.getByTestId('submit-button');
 
@@ -218,8 +207,7 @@ describe('SampleFormStep2', () => {
       await user.selectOptions(cultureKindSelect, CultureKindList[0]); //1 call
       await user.selectOptions(stageSelect, prescriptions[0].stages[0]); //1 call
       await user.type(matrixDetailsInput, 'Details'); //7 calls
-      await user.type(expiryDateInput, '2023-12-31'); //1 call
-      await user.selectOptions(storageConditionSelect, StorageConditionList[0]); //1 call
+      await user.type(parcelInput, 'C03'); //3 calls
       await user.type(commentInput, 'Comment'); //7 calls
       await user.click(submitButton); //1 call
     });
@@ -229,7 +217,7 @@ describe('SampleFormStep2', () => {
       calls.filter((call) =>
         call?.url.endsWith(`/api/samples/${createdSample.id}`)
       )
-    ).toHaveLength(21);
+    ).toHaveLength(22);
 
     expect(calls).toContainEqual({
       url: `${config.apiEndpoint}/api/samples/${createdSample.id}`,
@@ -245,11 +233,8 @@ describe('SampleFormStep2', () => {
         cultureKind: CultureKindList[0],
         stage: prescriptions[0].stages[0],
         matrixDetails: 'Details',
-        expiryDate: startOfDay(
-          parse('2023-12-31', 'yyyy-MM-dd', new Date())
-        ).toISOString(),
-        storageCondition: StorageConditionList[0],
-        comment: 'Comment',
+        parcel: 'C03',
+        commentInfos: 'Comment',
       },
     });
   });

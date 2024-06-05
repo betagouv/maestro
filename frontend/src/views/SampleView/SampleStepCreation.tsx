@@ -3,7 +3,7 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Notice from '@codegouvfr/react-dsfr/Notice';
 import { format, parse } from 'date-fns';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Department,
@@ -23,6 +23,7 @@ import {
   DefaultAppSelectOption,
   selectOptionsFromList,
 } from 'src/components/_app/AppSelect/AppSelectOption';
+import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
@@ -33,7 +34,6 @@ import {
 } from 'src/services/sample.service';
 import SampleGeolocation from 'src/views/SampleView/SampleGeolocation';
 import { z } from 'zod';
-
 interface Props {
   partialSample?: PartialSample;
 }
@@ -47,18 +47,21 @@ const SampleStepCreation = ({ partialSample }: Props) => {
     partialSample?.programmingPlanId
   );
   const [legalContext, setLegalContext] = useState(partialSample?.legalContext);
-  const [userLocationX, setUserLocationX] = useState(
-    partialSample?.userLocation.x
+  const [geolocationX, setGeolocationX] = useState(
+    partialSample?.geolocation.x
   );
-  const [userLocationY, setUserLocationY] = useState(
-    partialSample?.userLocation.y
+  const [geolocationY, setGeolocationY] = useState(
+    partialSample?.geolocation.y
   );
-  const [isUserLocationFromGeolocation, setIsUserLocationFromGeolocation] =
-    useState(false);
+  const [isBrowserGeolocation, setIsBrowserGeolocation] = useState(false);
   const [sampledAt, setSampledAt] = useState(
-    format(partialSample?.sampledAt ?? new Date(), 'yyyy-MM-dd')
+    format(partialSample?.sampledAt ?? new Date(), 'yyyy-MM-dd HH:mm')
   );
+
   const [department, setDepartment] = useState(partialSample?.department);
+  const [commentCreation, setCommentCreation] = useState(
+    partialSample?.commentCreation
+  );
 
   const { data: programmingPlans } = useFindProgrammingPlansQuery({
     status: 'Validated',
@@ -66,13 +69,13 @@ const SampleStepCreation = ({ partialSample }: Props) => {
   const [createSample] = useCreateSampleMutation();
   const [updateSample] = useUpdateSampleMutation();
 
-  const Form = SampleToCreate.omit({ userLocation: true }).merge(
+  const Form = SampleToCreate.omit({ geolocation: true }).merge(
     z.object({
-      userLocationX: z.number({
+      geolocationX: z.number({
         required_error: 'Veuillez renseigner la latitude.',
         invalid_type_error: 'Latitude invalide.',
       }),
-      userLocationY: z.number({
+      geolocationY: z.number({
         required_error: 'Veuillez renseigner la longitude.',
         invalid_type_error: 'Longitude invalide.',
       }),
@@ -80,13 +83,14 @@ const SampleStepCreation = ({ partialSample }: Props) => {
   );
 
   const form = useForm(Form, {
-    userLocationX,
-    userLocationY,
+    geolocationX,
+    geolocationY,
     sampledAt,
     resytalId,
     programmingPlanId,
     legalContext,
     department,
+    commentCreation,
   });
 
   type FormShape = typeof Form.shape;
@@ -120,15 +124,16 @@ const SampleStepCreation = ({ partialSample }: Props) => {
         navigate(`/prelevements/${partialSample.id}`, { replace: true });
       } else {
         await createSample({
-          userLocation: {
-            x: userLocationX as number,
-            y: userLocationY as number,
+          geolocation: {
+            x: geolocationX as number,
+            y: geolocationY as number,
           },
-          sampledAt: parse(sampledAt, 'yyyy-MM-dd', new Date()),
+          sampledAt: parse(sampledAt, 'yyyy-MM-dd HH:mm', new Date()),
           resytalId: resytalId as string,
           programmingPlanId: programmingPlanId as string,
           legalContext: legalContext as LegalContext,
           department: department as Department,
+          commentCreation,
         })
           .unwrap()
           .then((result) => {
@@ -142,15 +147,16 @@ const SampleStepCreation = ({ partialSample }: Props) => {
     if (partialSample) {
       await updateSample({
         ...partialSample,
-        userLocation: {
-          x: userLocationX as number,
-          y: userLocationY as number,
+        geolocation: {
+          x: geolocationX as number,
+          y: geolocationY as number,
         },
         sampledAt: parse(sampledAt, 'yyyy-MM-dd', new Date()),
         resytalId: resytalId as string,
         programmingPlanId: programmingPlanId as string,
         legalContext: legalContext as LegalContext,
         department: department as Department,
+        commentCreation,
         ...data,
       });
     }
@@ -159,14 +165,14 @@ const SampleStepCreation = ({ partialSample }: Props) => {
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) => {
-        if (!userLocationX && !userLocationY) {
-          setUserLocationX(position.coords.latitude);
-          setUserLocationY(position.coords.longitude);
+        if (!geolocationX && !geolocationY) {
+          setGeolocationX(position.coords.latitude);
+          setGeolocationY(position.coords.longitude);
         }
-        setIsUserLocationFromGeolocation(true);
+        setIsBrowserGeolocation(true);
       });
     } else {
-      setIsUserLocationFromGeolocation(false);
+      setIsBrowserGeolocation(false);
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -178,7 +184,7 @@ const SampleStepCreation = ({ partialSample }: Props) => {
         await save();
       }}
     >
-      {!isUserLocationFromGeolocation && (
+      {!isBrowserGeolocation && (
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12', 'fr-p-0', 'fr-mb-2w')}>
             <Notice
@@ -203,32 +209,32 @@ const SampleStepCreation = ({ partialSample }: Props) => {
       >
         <div className={cx('fr-col-12', 'fr-col-sm-4')}>
           <AppTextInput<FormShape>
-            type="date"
+            type="datetime-local"
             defaultValue={sampledAt}
             onChange={(e) => setSampledAt(e.target.value)}
             inputForm={form}
             inputKey="sampledAt"
-            whenValid="Date de prélèvement correctement renseignée."
+            whenValid="Date et heure de prélèvement correctement renseignés."
             data-testid="sampledAt-input"
-            label="Date de prélèvement (obligatoire)"
+            label="Date et heure de prélèvement (obligatoire)"
             required
           />
         </div>
         <div className={cx('fr-col-5', 'fr-col-sm-2')}>
           <AppTextInput<FormShape>
             type="text"
-            value={userLocationX ?? ''}
+            value={geolocationX ?? ''}
             onChange={(e) =>
-              setUserLocationX(
+              setGeolocationX(
                 isNaN(parseFloat(e.target.value))
                   ? undefined
                   : parseFloat(e.target.value)
               )
             }
             inputForm={form}
-            inputKey="userLocationX"
+            inputKey="geolocationX"
             whenValid="Latitude correctement renseignée."
-            data-testid="userLocationX-input"
+            data-testid="geolocationX-input"
             label="Latitude (obligatoire)"
             required
           />
@@ -236,18 +242,18 @@ const SampleStepCreation = ({ partialSample }: Props) => {
         <div className={cx('fr-col-5', 'fr-col-sm-2')}>
           <AppTextInput<FormShape>
             type="text"
-            value={userLocationY ?? ''}
+            value={geolocationY ?? ''}
             onChange={(e) =>
-              setUserLocationY(
+              setGeolocationY(
                 isNaN(parseFloat(e.target.value))
                   ? undefined
                   : parseFloat(e.target.value)
               )
             }
             inputForm={form}
-            inputKey="userLocationY"
+            inputKey="geolocationY"
             whenValid="Longitude correctement renseignée."
-            data-testid="userLocationY-input"
+            data-testid="geolocationY-input"
             label="Longitude (obligatoire)"
             required
           />
@@ -263,21 +269,21 @@ const SampleStepCreation = ({ partialSample }: Props) => {
           <SampleGeolocation
             sampleId={partialSample?.id}
             location={
-              userLocationX && userLocationY
-                ? { x: userLocationX, y: userLocationY }
+              geolocationX && geolocationY
+                ? { x: geolocationX, y: geolocationY }
                 : undefined
             }
             onLocationChange={async (location) => {
-              setUserLocationX(location.x);
-              setUserLocationY(location.y);
+              setGeolocationX(location.x);
+              setGeolocationY(location.y);
               await save({
-                userLocation: {
+                geolocation: {
                   x: location.x,
                   y: location.y,
                 },
               });
             }}
-            key={`geolocation-${isUserLocationFromGeolocation}`}
+            key={`geolocation-${isBrowserGeolocation}`}
           />
         </div>
       </div>
@@ -332,6 +338,21 @@ const SampleStepCreation = ({ partialSample }: Props) => {
             data-testid="resytalId-input"
             label="Identifiant Resytal"
             hintText="Format 22XXXXXX"
+          />
+        </div>
+      </div>
+      <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
+      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+        <div className={cx('fr-col-12')}>
+          <AppTextAreaInput<FormShape>
+            rows={3}
+            defaultValue={commentCreation ?? ''}
+            onChange={(e) => setCommentCreation(e.target.value)}
+            inputForm={form}
+            inputKey="commentCreation"
+            whenValid="Commentaire correctement renseigné."
+            data-testid="comment-input"
+            label="Commentaires"
           />
         </div>
       </div>
