@@ -163,14 +163,7 @@ const SampleListView = () => {
             ))}
           </Select>
         </div>
-        <div
-          className={cx(
-            'fr-col-12',
-            'fr-col-md-6',
-            'fr-col-lg-3',
-            'fr-col-offset-lg-3--right'
-          )}
-        >
+        <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
           <Select
             label="Statut"
             nativeSelectProps={{
@@ -189,6 +182,8 @@ const SampleListView = () => {
             ))}
           </Select>
         </div>
+      </div>
+      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
           <Select
             label="Contexte"
