@@ -13,6 +13,8 @@ import {
   DepartmentLabels,
   DepartmentList,
 } from 'shared/referential/Department';
+import { Matrix, MatrixList } from 'shared/referential/Matrix/Matrix';
+import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
 import { Region, RegionList, Regions } from 'shared/referential/Region';
 import { defaultPerPage } from 'shared/schema/commons/Pagination';
 import { FindSampleOptions } from 'shared/schema/Sample/FindSampleOptions';
@@ -23,9 +25,11 @@ import {
 } from 'shared/schema/Sample/SampleStatus';
 import { isDefined } from 'shared/utils/utils';
 import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
+import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
+import { useFindPrescriptionsQuery } from 'src/services/prescription.service';
 import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.service';
 import {
   useCountSamplesQuery,
@@ -44,7 +48,7 @@ const SampleListView = () => {
   const { findSampleOptions } = useAppSelector((state) => state.samples);
 
   useEffect(() => {
-    if (searchParams.size > 0) {
+    if (searchParams) {
       const status = searchParams.get('status') as SampleStatus;
       dispatch(
         samplesSlice.actions.changeFindOptions({
@@ -56,6 +60,7 @@ const SampleListView = () => {
           department:
             (searchParams.get('department') as Department) ?? undefined,
           status: status === 'Draft' ? DraftStatusList : status ?? undefined,
+          matrix: searchParams.get('matrix') as Matrix,
           page: Number(searchParams.get('page')) || 1,
           perPage: defaultPerPage,
         })
@@ -72,6 +77,21 @@ const SampleListView = () => {
     { status: programmingPlanStatus },
     { skip: !programmingPlanStatus }
   );
+  const { data: prescriptions } = useFindPrescriptionsQuery(
+    { programmingPlanId: findSampleOptions.programmingPlanId as string },
+    {
+      skip: !findSampleOptions.programmingPlanId,
+    }
+  );
+
+  const initFilter = () => {
+    setSearchParams();
+    dispatch(
+      samplesSlice.actions.changeFindOptions(
+        samplesSlice.getInitialState().findSampleOptions
+      )
+    );
+  };
 
   const changeFilter = (findFilter: Partial<FindSampleOptions>) => {
     setSearchParams(
@@ -85,15 +105,6 @@ const SampleListView = () => {
         ),
         'page',
         'perPage'
-      )
-    );
-  };
-
-  const initFilter = () => {
-    setSearchParams();
-    dispatch(
-      samplesSlice.actions.changeFindOptions(
-        samplesSlice.getInitialState().findSampleOptions
       )
     );
   };
@@ -152,7 +163,14 @@ const SampleListView = () => {
             ))}
           </Select>
         </div>
-        <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
+        <div
+          className={cx(
+            'fr-col-12',
+            'fr-col-md-6',
+            'fr-col-lg-3',
+            'fr-col-offset-lg-3--right'
+          )}
+        >
           <Select
             label="Statut"
             nativeSelectProps={{
@@ -177,7 +195,10 @@ const SampleListView = () => {
             nativeSelectProps={{
               value: findSampleOptions.programmingPlanId || '',
               onChange: (e) => {
-                changeFilter({ programmingPlanId: e.target.value });
+                changeFilter({
+                  programmingPlanId: e.target.value,
+                  matrix: undefined,
+                });
               },
             }}
           >
@@ -185,6 +206,35 @@ const SampleListView = () => {
             {programmingPlans?.map((plan) => (
               <option key={plan.id} value={plan.id}>
                 {plan.title}
+              </option>
+            ))}
+          </Select>
+        </div>
+        <div className={cx('fr-col-12', 'fr-col-md-6')}>
+          <Select
+            label="Matrice"
+            nativeSelectProps={{
+              value: findSampleOptions.matrix || '',
+              onChange: (e) => {
+                changeFilter({ matrix: e.target.value as Matrix });
+              },
+            }}
+          >
+            <option value="">Toutes les matrices</option>
+            {selectOptionsFromList(
+              MatrixList.filter(
+                (matrix) =>
+                  !findSampleOptions.programmingPlanId ||
+                  !prescriptions ||
+                  prescriptions.find((p) => p.matrix === matrix)
+              ),
+              {
+                labels: MatrixLabels,
+                withDefault: false,
+              }
+            ).map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
               </option>
             ))}
           </Select>
@@ -213,6 +263,7 @@ const SampleListView = () => {
                 <div className="cell-icon"></div>
               ) : undefined,
               'Identifiant',
+              'Matrice',
               'Date de création',
               'Département',
               "Site d'intervention",
@@ -231,6 +282,7 @@ const SampleListView = () => {
                 <Link to={`/prelevements/${sample.id}`}>
                   {sample.reference}
                 </Link>,
+                sample.matrix && MatrixLabels[sample.matrix],
                 format(sample.createdAt, 'dd/MM/yyyy'),
                 `${sample.department} - ${DepartmentLabels[sample.department]}`,
                 sample.company?.name || '',

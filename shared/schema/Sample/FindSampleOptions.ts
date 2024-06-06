@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { Department } from '../../referential/Department';
+import { Matrix } from '../../referential/Matrix/Matrix';
 import { Region } from '../../referential/Region';
 import { coerceToArray } from '../../utils/utils';
 import { Pagination } from '../commons/Pagination';
@@ -14,6 +15,7 @@ export const FindSampleOptions = z
       .union([SampleStatus, coerceToArray(z.array(SampleStatus))])
       .optional()
       .nullable(),
+    matrix: Matrix.optional().nullable(),
   })
   .merge(Pagination.partial());
 
