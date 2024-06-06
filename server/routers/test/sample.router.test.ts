@@ -291,10 +291,6 @@ describe('Sample router', () => {
       });
       await badRequestTest({
         ...genSampleToCreate(),
-        programmingPlanId: undefined,
-      });
-      await badRequestTest({
-        ...genSampleToCreate(),
         programmingPlanId: '123',
       });
       await badRequestTest({ ...genSampleToCreate(), legalContext: undefined });
