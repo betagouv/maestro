@@ -23,17 +23,19 @@ const generateSampleItemDocument = async (
   sample: Sample,
   sampleItem: SampleItem
 ) => {
+  //TODO : handle sample outside any programming plan (ie sample.programmingPlanId is null)
+
   const programmingPlan = await programmingPlanRepository.findUnique(
-    sample.programmingPlanId
+    sample.programmingPlanId as string
   );
 
   if (!programmingPlan) {
-    throw new ProgrammingPlanMissingError(sample.programmingPlanId);
+    throw new ProgrammingPlanMissingError(sample.programmingPlanId as string);
   }
 
   const prescriptions = await prescriptionRepository.findMany({
     region: getSampleRegion(sample),
-    programmingPlanId: sample.programmingPlanId,
+    programmingPlanId: sample.programmingPlanId as string,
     matrix: sample.matrix,
     stage: sample.stage,
   });
