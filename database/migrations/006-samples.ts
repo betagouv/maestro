@@ -19,8 +19,7 @@ exports.up = async (knex: Knex) => {
     table
       .uuid('programming_plan_id')
       .references('id')
-      .inTable('programming_plans')
-      .notNullable();
+      .inTable('programming_plans');
     table.string('legal_context').notNullable();
     table.point('geolocation').notNullable();
     table.string('parcel');

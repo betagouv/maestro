@@ -35,7 +35,7 @@ const SampleStepSubmitted = ({ sample }: Props) => {
   const [getDocumentUrl] = useLazyGetDocumentDownloadSignedUrlQuery();
 
   const { data: sampleProgrammingPlan } = useGetProgrammingPlanQuery(
-    sample.programmingPlanId,
+    sample.programmingPlanId as string,
     {
       skip: !sample.programmingPlanId,
     }

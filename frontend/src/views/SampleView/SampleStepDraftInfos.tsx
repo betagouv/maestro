@@ -15,7 +15,7 @@ import {
   MatrixPartLabels,
   MatrixPartList,
 } from 'shared/referential/MatrixPart';
-import { Stage, StageLabels } from 'shared/referential/Stage';
+import { Stage, StageLabels, StageList } from 'shared/referential/Stage';
 import { PartialSample, Sample } from 'shared/schema/Sample/Sample';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
@@ -48,7 +48,7 @@ const SampleStepDraftInfos = ({ partialSample }: Props) => {
   const [updateSample] = useUpdateSampleMutation();
 
   const { data: prescriptions } = useFindPrescriptionsQuery(
-    { programmingPlanId: partialSample.programmingPlanId },
+    { programmingPlanId: partialSample.programmingPlanId as string },
     {
       skip: !partialSample.programmingPlanId,
     }
@@ -106,10 +106,6 @@ const SampleStepDraftInfos = ({ partialSample }: Props) => {
     });
   };
 
-  if (!prescriptions) {
-    return <></>;
-  }
-
   return (
     <>
       <form
@@ -124,8 +120,10 @@ const SampleStepDraftInfos = ({ partialSample }: Props) => {
             <AppSelect<FormShape>
               value={matrix ?? ''}
               options={selectOptionsFromList(
-                MatrixList.filter((matrix) =>
-                  prescriptions.find((p) => p.matrix === matrix)
+                MatrixList.filter(
+                  (matrix) =>
+                    !prescriptions ||
+                    prescriptions.find((p) => p.matrix === matrix)
                 ),
                 {
                   labels: MatrixLabels,
@@ -144,10 +142,13 @@ const SampleStepDraftInfos = ({ partialSample }: Props) => {
             <AppSelect<FormShape>
               defaultValue={stage ?? ''}
               options={selectOptionsFromList(
-                prescriptions
-                  .filter((p) => p.matrix === matrix)
-                  .map((p) => p.stages)
-                  .flat(),
+                StageList.filter(
+                  (stage) =>
+                    !prescriptions ||
+                    prescriptions.find(
+                      (p) => p.matrix === matrix && p.stages.includes(stage)
+                    )
+                ),
                 {
                   labels: StageLabels,
                 }

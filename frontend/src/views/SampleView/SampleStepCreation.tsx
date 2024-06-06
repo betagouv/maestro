@@ -42,9 +42,10 @@ const SampleStepCreation = ({ partialSample }: Props) => {
   const navigate = useNavigate();
   const { userInfos } = useAuthentication();
 
+  const OutsideProgrammingId = 'OutsideProgramming';
   const [resytalId, setResytalId] = useState(partialSample?.resytalId);
   const [programmingPlanId, setProgrammingPlanId] = useState(
-    partialSample?.programmingPlanId
+    partialSample ? partialSample.programmingPlanId ?? OutsideProgrammingId : ''
   );
   const [legalContext, setLegalContext] = useState(partialSample?.legalContext);
   const [geolocationX, setGeolocationX] = useState(
@@ -87,7 +88,10 @@ const SampleStepCreation = ({ partialSample }: Props) => {
     geolocationY,
     sampledAt,
     resytalId,
-    programmingPlanId,
+    programmingPlanId:
+      programmingPlanId === OutsideProgrammingId
+        ? undefined
+        : programmingPlanId,
     legalContext,
     department,
     commentCreation,
@@ -101,6 +105,10 @@ const SampleStepCreation = ({ partialSample }: Props) => {
       label: ProgrammingPlanKindLabels[kind],
       value: id,
     })),
+    {
+      label: 'Hors programmation',
+      value: OutsideProgrammingId,
+    },
   ];
 
   const legalContextOptions = selectOptionsFromList(LegalContextList, {
@@ -130,7 +138,10 @@ const SampleStepCreation = ({ partialSample }: Props) => {
           },
           sampledAt: parse(sampledAt, 'yyyy-MM-dd HH:mm', new Date()),
           resytalId: resytalId as string,
-          programmingPlanId: programmingPlanId as string,
+          programmingPlanId:
+            (programmingPlanId as string) === OutsideProgrammingId
+              ? undefined
+              : (programmingPlanId as string),
           legalContext: legalContext as LegalContext,
           department: department as Department,
           commentCreation,
@@ -153,7 +164,10 @@ const SampleStepCreation = ({ partialSample }: Props) => {
         },
         sampledAt: parse(sampledAt, 'yyyy-MM-dd', new Date()),
         resytalId: resytalId as string,
-        programmingPlanId: programmingPlanId as string,
+        programmingPlanId:
+          (programmingPlanId as string) === OutsideProgrammingId
+            ? null
+            : (programmingPlanId as string),
         legalContext: legalContext as LegalContext,
         department: department as Department,
         commentCreation,
@@ -303,7 +317,7 @@ const SampleStepCreation = ({ partialSample }: Props) => {
         </div>
         <div className={cx('fr-col-12', 'fr-col-sm-4')}>
           <AppSelect<FormShape>
-            defaultValue={partialSample?.programmingPlanId || ''}
+            value={programmingPlanId}
             options={programmingPlanOptions}
             onChange={(e) => setProgrammingPlanId(e.target.value)}
             inputForm={form}

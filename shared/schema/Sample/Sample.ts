@@ -36,10 +36,12 @@ export const Sample = z.object({
   sentAt: z.coerce.date().optional().nullable(),
   status: SampleStatus,
   programmingPlanId: z
-    .string({
-      required_error: 'Veuillez renseigner le contexte.',
+    .string()
+    .uuid({
+      message: 'Veuillez renseigner le contexte.',
     })
-    .uuid(),
+    .optional()
+    .nullable(),
   legalContext: LegalContext,
   geolocation: Geolocation,
   parcel: z.string().optional().nullable(),
