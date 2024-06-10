@@ -1,16 +1,15 @@
 import express from 'express';
-import { FindCompanyOptions } from '../../shared/schema/Company/FindCompanyOptions';
-import companyController from '../controllers/companyController';
-import { permissionsCheck } from '../middlewares/checks/authCheck';
-import validator, { query } from '../middlewares/validator';
+import { createProxyMiddleware } from 'http-proxy-middleware';
 
 const router = express.Router();
 
-router.get(
-  '',
-  validator.validate(query(FindCompanyOptions)),
-  permissionsCheck(['readCompanies']),
-  companyController.findCompanies
+router.use(
+  '/search',
+  createProxyMiddleware({
+    target: 'https://recherche-entreprises.api.gouv.fr/search',
+    changeOrigin: true,
+    pathRewrite: { '/?': '' },
+  })
 );
 
 export default router;

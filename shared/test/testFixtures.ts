@@ -193,7 +193,6 @@ export const genLaboratory = (): Laboratory => ({
 });
 
 export const genCompany = (): Company => ({
-  id: uuidv4(),
   siret: genSiret(),
   name: fakerFR.company.name(),
   address: faker.location.streetAddress({ useFullAddress: true }),

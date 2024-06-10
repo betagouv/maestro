@@ -1,23 +1,27 @@
 import fp from 'lodash';
-import { Company } from 'shared/schema/Company/Company';
-import { FindCompanyOptions } from 'shared/schema/Company/FindCompanyOptions';
+import { Department } from 'shared/referential/Department';
+import { CompanySearchResult } from 'shared/schema/Company/CompanySearchResult';
 import { api } from 'src/services/api.service';
 
 export const companyApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    findCompanies: builder.query<Company[], FindCompanyOptions>({
-      query: (findOptions) => ({
-        url: 'companies',
-        params: findOptions,
+    searchCompanies: builder.query<
+      CompanySearchResult[],
+      { query: string; department: Department }
+    >({
+      query: ({ query, department }) => ({
+        url: 'companies/search',
+        params: {
+          departement: department,
+          q: query,
+        },
       }),
-      transformResponse: (response: any[]) =>
-        response.map((_) => Company.parse(fp.omitBy(_, fp.isNil))),
-      providesTags: (result) => [
-        { type: 'Company', id: 'LIST' },
-        ...(result ?? []).map(({ id }) => ({ type: 'Company' as const, id })),
-      ],
+      transformResponse: (response: { results: CompanySearchResult[] }) =>
+        response.results.map((_) =>
+          CompanySearchResult.parse(fp.omitBy(_, fp.isNil))
+        ),
     }),
   }),
 });
 
-export const { useLazyFindCompaniesQuery } = companyApi;
+export const { useLazySearchCompaniesQuery } = companyApi;

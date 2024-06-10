@@ -14,6 +14,7 @@ import {
 } from '../../shared/schema/Sample/Sample';
 import { SampleItem } from '../../shared/schema/Sample/SampleItem';
 import { DraftStatusList } from '../../shared/schema/Sample/SampleStatus';
+import companyRepository from '../repositories/companyRepository';
 import documentRepository from '../repositories/documentRepository';
 import sampleItemRepository from '../repositories/sampleItemRepository';
 import sampleRepository from '../repositories/sampleRepository';
@@ -126,10 +127,22 @@ const createSample = async (request: Request, response: Response) => {
 };
 
 const updateSample = async (request: Request, response: Response) => {
-  const sample = (request as SampleRequest).sample;
+  const sample = (request as SampleRequest).sample as PartialSample;
   const sampleUpdate = request.body as PartialSample;
 
   console.info('Update sample', sample.id, sampleUpdate);
+
+  if (
+    sampleUpdate.company?.siret &&
+    sample.company?.siret !== sampleUpdate.company?.siret
+  ) {
+    const company = await companyRepository.findUnique(
+      sampleUpdate.company?.siret
+    );
+    if (!company) {
+      await companyRepository.insert(sampleUpdate.company);
+    }
+  }
 
   if (sample.status === 'Sent') {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
@@ -149,7 +162,7 @@ const updateSample = async (request: Request, response: Response) => {
     await Promise.all(
       sampleItems.map(async (sampleItem) => {
         const pdfBuffer = await documentService.generateSampleItemDocument(
-          updatedSample,
+          updatedSample as Sample,
           sampleItem
         );
 

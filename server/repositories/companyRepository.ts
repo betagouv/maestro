@@ -1,23 +1,29 @@
 import fp from 'lodash';
 import { Company } from '../../shared/schema/Company/Company';
-import { FindCompanyOptions } from '../../shared/schema/Company/FindCompanyOptions';
 import db from './db';
 
 export const companiesTable = 'companies';
 
 export const Companies = () => db<Company>(companiesTable);
 
-const findMany = async (
-  findOptions: FindCompanyOptions
-): Promise<Company[]> => {
-  console.info('Find companies', findOptions);
+const findUnique = async (siret: string): Promise<Company | undefined> => {
+  console.info('Find company', siret);
   return Companies()
-    .where(fp.omitBy(findOptions, fp.isNil))
-    .then((companies) =>
-      companies.map((_) => Company.parse(fp.omitBy(_, fp.isNil)))
-    );
+    .where({
+      siret,
+    })
+    .first()
+    .then((_) => _ && Company.parse(fp.omitBy(_, fp.isNil)));
+};
+
+const insert = async (company: Company): Promise<Company> => {
+  console.info('Insert company', company.siret);
+  return Companies()
+    .insert(company)
+    .then(() => company);
 };
 
 export default {
-  findMany,
+  findUnique,
+  insert,
 };

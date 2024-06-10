@@ -18,7 +18,7 @@ const PartialSampleDbo = PartialSample.omit({
   company: true,
 }).merge(
   z.object({
-    companyId: z.string().uuid().optional().nullable(),
+    companySiret: z.string().optional().nullable(),
     geolocation: z.any(),
   })
 );
@@ -45,7 +45,6 @@ const findUnique = async (id: string): Promise<PartialSample | undefined> => {
   return Samples()
     .select(
       `${samplesTable}.*`,
-      `${companiesTable}.id as company_id`,
       `${companiesTable}.siret as company_siret`,
       `${companiesTable}.name as company_name`,
       `${companiesTable}.trade_name as company_trade_name`,
@@ -57,8 +56,8 @@ const findUnique = async (id: string): Promise<PartialSample | undefined> => {
     .where(`${samplesTable}.id`, id)
     .leftJoin(
       companiesTable,
-      `${samplesTable}.companyId`,
-      `${companiesTable}.id`
+      `${samplesTable}.companySiret`,
+      `${companiesTable}.siret`
     )
     .first()
     .then(parsePartialSample);
@@ -88,7 +87,6 @@ const findMany = async (
   return findRequest(findOptions)
     .select(
       `${samplesTable}.*`,
-      `${companiesTable}.id as company_id`,
       `${companiesTable}.siret as company_siret`,
       `${companiesTable}.name as company_name`,
       `${companiesTable}.trade_name as company_trade_name`,
@@ -99,8 +97,8 @@ const findMany = async (
     )
     .leftJoin(
       companiesTable,
-      `${samplesTable}.companyId`,
-      `${companiesTable}.id`
+      `${samplesTable}.companySiret`,
+      `${companiesTable}.siret`
     )
     .modify((builder) => {
       if (findOptions.page) {
@@ -174,7 +172,7 @@ export const formatPartialSample = (
     partialSample.geolocation.x,
     partialSample.geolocation.y,
   ]),
-  companyId: partialSample.company?.id,
+  companySiret: partialSample.company?.siret,
 });
 
 export const parsePartialSample = (
@@ -187,9 +185,8 @@ export const parsePartialSample = (
       x: sample.geolocation.x,
       y: sample.geolocation.y,
     },
-    company: sample.companyId
+    company: sample.companySiret
       ? {
-          id: sample.companyId,
           siret: sample.companySiret,
           name: sample.companyName,
           tradeName: sample.companyTradeName ?? undefined,
