@@ -5,16 +5,25 @@ import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import maplibregl from 'maplibre-gl';
 import React, { useMemo, useState } from 'react';
 import Map, {
+  FullscreenControl,
   Marker,
   MarkerDragEvent,
   NavigationControl,
 } from 'react-map-gl/maplibre';
 import { Geolocation } from 'shared/schema/Sample/Sample';
+import config from 'src/utils/config';
 interface Props {
   sampleId?: string;
   location?: Geolocation;
   onLocationChange: (coordinates: Geolocation) => void;
 }
+
+type ViewStyle = 'map' | 'satellite';
+
+const ViewStyles: Record<ViewStyle, string | undefined> = {
+  map: 'https://openmaptiles.geo.data.gouv.fr/styles/osm-bright/style.json',
+  satellite: config.satelliteStyle,
+};
 
 const SampleGeolocation = ({ sampleId, location, onLocationChange }: Props) => {
   const geolocationModal = useMemo(
@@ -27,6 +36,7 @@ const SampleGeolocation = ({ sampleId, location, onLocationChange }: Props) => {
   );
 
   const [marker, setMarker] = useState<Geolocation>();
+  const [viewStyle, setViewStyle] = useState<ViewStyle>('map');
 
   useIsModalOpen(geolocationModal, {
     onConceal: () => {
@@ -100,9 +110,10 @@ const SampleGeolocation = ({ sampleId, location, onLocationChange }: Props) => {
                 fontFamily: 'Marianne, sans-serif',
               }}
               mapLib={maplibregl}
-              mapStyle="https://openmaptiles.geo.data.gouv.fr/styles/osm-bright/style.json"
+              mapStyle={ViewStyles[viewStyle]}
             >
               <NavigationControl position="top-left" showCompass={false} />
+              <FullscreenControl position="top-left" />
               <Marker
                 longitude={marker.y}
                 latitude={marker.x}
@@ -110,6 +121,32 @@ const SampleGeolocation = ({ sampleId, location, onLocationChange }: Props) => {
                 draggable
                 onDrag={onMarkerDragEnd}
               />
+              {ViewStyles['satellite'] && (
+                <Button
+                  iconId={
+                    viewStyle === 'map'
+                      ? 'fr-icon-earth-fill'
+                      : 'fr-icon-earth-line'
+                  }
+                  title={
+                    viewStyle === 'map'
+                      ? 'Afficher la vue satellite'
+                      : 'Afficher la vue plan'
+                  }
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setViewStyle(viewStyle === 'map' ? 'satellite' : 'map');
+                  }}
+                  priority="primary"
+                  size="small"
+                  style={{
+                    position: 'absolute',
+                    top: '1rem',
+                    right: '1rem',
+                    zIndex: 1,
+                  }}
+                />
+              )}
             </Map>
           </>
         )}
