@@ -92,6 +92,9 @@ const SampleStepDraftInfos = ({ partialSample }: Props) => {
   };
 
   const save = async (status = partialSample.status) => {
+    const prescription = prescriptions?.find(
+      (p) => matrix && stage && p.matrix === matrix && p.stages.includes(stage)
+    );
     await updateSample({
       ...partialSample,
       matrixDetails,
@@ -103,6 +106,7 @@ const SampleStepDraftInfos = ({ partialSample }: Props) => {
       releaseControl,
       commentInfos,
       status,
+      laboratoryId: prescription?.laboratoryId ?? partialSample.laboratoryId,
     });
   };
 

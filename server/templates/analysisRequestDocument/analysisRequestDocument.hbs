@@ -1,0 +1,181 @@
+<html lang='fr'>
+  <head>
+    <title>Prélèvement {{reference}}</title>
+    <link rel='stylesheet' href='{{dsfrLink}}' />
+  </head>
+  <body>
+    <header role='banner' class='fr-header'>
+      <div class='fr-header__body'>
+        <div class='fr-container'>
+          <div class='fr-header__body-row'>
+            <div class='fr-header__brand'>
+              <div class='fr-header__brand-top'>
+                <div class='fr-header__logo'>
+                  <p class='fr-logo'>
+                    Ministère
+                    <br />
+                    de l'Agriculture
+                    <br />
+                    et de la Souveraineté
+                    <br />alimentaire
+                  </p>
+                </div>
+              </div>
+              <div class='fr-header__service'>
+                <p class='fr-header__service-title'>
+                  {{programmingPlan.title}}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class='fr-container fr-pt-2w'>
+      <section><div class='fr-card fr-card--xs fr-my-1w'>
+          <div class='fr-container fr-my-1w'>
+            <div class='fr-grid-row fr-grid-row--gutters'>
+              <div class='fr-col-4'>
+                <div class='label'>
+                  Donneur d'ordre
+                </div>
+                {{establishment.name}}
+              </div>
+              <div class='fr-col-4'>
+                <div class='label'>
+                  Adresse
+                </div>
+                {{#if establishment.additionalLine}}
+                  {{establishment.additionalLine}}<br />
+                {{/if}}
+                {{establishment.street}}<br />
+                {{establishment.postalCode}} {{establishment.city}}
+              </div>
+              <div class='fr-col-4'>
+                <div class='label'>
+                  Contact mail
+                </div>
+                {{sampler.email}}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class='fr-card fr-card--xs fr-my-1w'>
+          <div class='fr-container fr-my-1w'>
+            <div class='fr-grid-row fr-grid-row--gutters'>
+              <div class='fr-col-4'>
+                <div class='label'>
+                  Numéro d'identification
+                </div>
+                {{reference}}
+              </div>
+              <div class='fr-col-4'>
+                <div class='label'>
+                  Numéro de scellé
+                </div>
+                {{sealId}}
+              </div>
+            </div>
+            <div class='fr-grid-row fr-grid-row--gutters'>
+              <div class='fr-col-4'>
+                <div class='label'>
+                  Date de prélèvement
+                </div>
+                {{sampledAt}}
+              </div>
+              <div class='fr-col-4'>
+                <div class='label'>
+                  Stade de prélèvement
+                </div>
+                {{stage}}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class='fr-card fr-card--xs fr-my-1w'>
+          <div class='fr-container fr-my-1w'>
+            <div class='fr-grid-row fr-grid-row--gutters'>
+              <div class='fr-col-4'>
+                <div class='label'>
+                  Lieu de prélèvement
+                </div>
+                {{company.name}}
+              </div>
+              <div class='fr-col-4'>
+                <div class='label'>
+                  Adresse
+                </div>
+                {{company.address}}
+                <br />
+                {{company.postalCode}} 
+                {{company.city}}
+              </div>
+              <div class='fr-col-4'>
+                <div class='label'>
+                  Siret
+                </div>
+                {{company.siret}}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class='fr-card fr-card--xs fr-my-1w'>
+          <div class='fr-container fr-my-1w'>
+            <div class='fr-grid-row fr-grid-row--gutters'>
+              <div class='fr-col-12'>
+                <div class='label'>
+                  Matrice
+                </div>
+                {{matrix}}
+              </div>
+            </div>
+            <div class='fr-grid-row fr-grid-row--gutters'>
+              <div class='fr-col-12'>
+                <div class='label'>
+                  Partie du végétal
+                </div>
+                {{matrixPart}}
+              </div>
+            </div>
+            <div class='fr-grid-row fr-grid-row--gutters'>
+              <div class='fr-col-6'>
+                <div class='label'>
+                  Quantité
+                </div>
+                {{quantity}}
+                {{quantityUnit}}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class='fr-card fr-card--xs fr-my-1w'>
+          <div class='fr-container fr-my-1w'>
+            <div class='fr-grid-row fr-grid-row--gutters'>
+              <div class='fr-col-4'>
+                <div class='label'>
+                  Directive 2002/63 respectée
+                </div>
+                {{compliance200263}}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class='fr-card fr-card--xs fr-my-1w'>
+          <div class='fr-container fr-my-1w'>
+            <div class='fr-grid-row fr-grid-row--gutters'>
+              <div class='fr-col-12'>
+                <div class='label'>
+                  Analyses demandées
+                </div>
+                <ul>
+                  {{#each substances}}<li> {{this}} </li>{{/each}}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

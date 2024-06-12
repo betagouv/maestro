@@ -1,0 +1,14 @@
+@page {
+    margin: 1cm;
+}
+
+.fr-header {
+    filter: none;
+}
+
+.label {
+    margin-bottom: 0;
+    color: var(--text-disabled-grey);
+    font-weight: 500;
+    font-size: 14px;
+}

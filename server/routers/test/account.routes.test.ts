@@ -1,12 +1,9 @@
+import { fakerFR } from '@faker-js/faker';
 import bcrypt from 'bcryptjs';
 import { constants } from 'http2';
 import randomstring from 'randomstring';
 import request from 'supertest';
-import {
-  genEmail,
-  genUser,
-  genValidPassword,
-} from '../../../shared/test/testFixtures';
+import { genUser, genValidPassword } from '../../../shared/test/testFixtures';
 import { Users } from '../../repositories/userRepository';
 import { createServer } from '../../server';
 
@@ -38,7 +35,7 @@ describe('Account routes', () => {
       await request(app)
         .post(testRoute)
         .send({
-          email: genEmail(),
+          email: fakerFR.internet.email(),
           password: '   ',
         })
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
@@ -48,7 +45,7 @@ describe('Account routes', () => {
       await request(app)
         .post(testRoute)
         .send({
-          email: genEmail(),
+          email: fakerFR.internet.email(),
           password: genValidPassword(),
         })
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);

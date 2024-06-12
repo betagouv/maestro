@@ -2,6 +2,7 @@ import convict from 'convict';
 import formats from 'convict-format-with-validator';
 import dotenv from 'dotenv';
 import path from 'path';
+import { z } from 'zod';
 
 convict.addFormats(formats);
 
@@ -10,7 +11,20 @@ if (!process.env.API_PORT) {
 }
 export const isProduction = process.env.NODE_ENV === 'production';
 
+const MailProvider = z.enum(['brevo', 'nodemailer']);
+type MailProvider = z.infer<typeof MailProvider>;
+
+convict.addFormat({
+  name: 'mail-provider',
+  validate(val: any) {
+    return MailProvider.options.includes(val);
+  },
+});
+
 interface Config {
+  application: {
+    host: string;
+  };
   environment: string;
   serverPort: number;
   auth: {
@@ -20,10 +34,20 @@ interface Config {
   databaseEnvironment: string;
   databaseUrl: string;
   databaseUrlTest: string;
-  maxRate: number;
-  application: {
-    host: string;
+  mail: {
+    from: string;
   };
+  mailer: {
+    provider: MailProvider;
+    host: string | null;
+    port: number | null;
+    user: string | null;
+    password: string | null;
+    apiKey: string | null;
+    eventApiKey: string | null;
+    secure: boolean;
+  };
+  maxRate: number;
   s3: {
     client: {
       endpoint: string;
@@ -38,6 +62,13 @@ interface Config {
 }
 
 const config = convict<Config>({
+  application: {
+    host: {
+      env: 'APPLICATION_HOST',
+      format: 'url',
+      default: 'http://localhost:3000',
+    },
+  },
   environment: {
     env: 'NODE_ENV',
     format: String,
@@ -76,17 +107,68 @@ const config = convict<Config>({
     format: String,
     default: null,
   },
+  mail: {
+    from: {
+      env: 'MAIL_FROM',
+      format: String,
+      default: 'contact@maestro.beta.gouv.fr',
+    },
+  },
+  mailer: {
+    provider: {
+      env: 'MAILER_PROVIDER',
+      format: 'mail-provider',
+      default: 'nodemailer',
+    },
+    host: {
+      env: 'MAILER_HOST',
+      format: String,
+      default: null,
+      nullable: true,
+    },
+    port: {
+      env: 'MAILER_PORT',
+      format: 'port',
+      default: null,
+      nullable: true,
+    },
+    user: {
+      env: 'MAILER_USER',
+      format: String,
+      default: null,
+      nullable: true,
+    },
+    password: {
+      env: 'MAILER_PASSWORD',
+      format: String,
+      sensitive: true,
+      default: null,
+      nullable: true,
+    },
+    apiKey: {
+      env: 'MAILER_API_KEY',
+      format: String,
+      sensitive: true,
+      default: null,
+      nullable: true,
+    },
+    eventApiKey: {
+      env: 'MAILER_EVENT_API_KEY',
+      format: String,
+      sensitive: true,
+      default: null,
+      nullable: true,
+    },
+    secure: {
+      env: 'MAILER_SECURE',
+      format: Boolean,
+      default: false,
+    },
+  },
   maxRate: {
     env: 'MAX_RATE',
     format: 'int',
     default: 10000,
-  },
-  application: {
-    host: {
-      env: 'APPLICATION_HOST',
-      format: 'url',
-      default: 'http://localhost:3000',
-    },
   },
   s3: {
     client: {

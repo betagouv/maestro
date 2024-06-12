@@ -277,13 +277,13 @@ const SampleListView = () => {
                 <Link to={`/prelevements/${sample.id}`}>
                   {sample.reference}
                 </Link>,
-                sample.matrix && MatrixLabels[sample.matrix],
+                (sample.matrix && MatrixLabels[sample.matrix]) ?? '',
                 format(sample.createdAt, 'dd/MM/yyyy'),
                 `${sample.department} - ${DepartmentLabels[sample.department]}`,
-                sample.company?.name || '',
+                sample.company?.name ?? '',
                 programmingPlans?.find(
                   (plan) => plan.id === sample.programmingPlanId
-                )?.title,
+                )?.title ?? '',
                 <SampleStatusBadge status={sample?.status as SampleStatus} />,
               ].filter(isDefined)
             )}

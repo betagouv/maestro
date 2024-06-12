@@ -59,6 +59,7 @@ export const Sample = z.object({
   commentCompany: z.string().optional().nullable(),
   commentInfos: z.string().optional().nullable(),
   commentItems: z.string().optional().nullable(),
+  laboratoryId: z.string().uuid().optional().nullable(),
 });
 
 export const SampleToCreate = Sample.pick({

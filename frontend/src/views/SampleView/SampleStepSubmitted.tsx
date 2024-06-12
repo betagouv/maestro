@@ -1,6 +1,5 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
-import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import Card from '@codegouvfr/react-dsfr/Card';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { format } from 'date-fns';
@@ -17,11 +16,13 @@ import { ProgrammingPlanKindLabels } from 'shared/schema/ProgrammingPlan/Program
 import { PartialSample } from 'shared/schema/Sample/Sample';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useLazyGetDocumentDownloadSignedUrlQuery } from 'src/services/document.service';
+import { useGetLaboratoryQuery } from 'src/services/laboratory.service';
 import { useGetProgrammingPlanQuery } from 'src/services/programming-plan.service';
 import {
-  getSampleItemDocumentURL,
+  getSupportDocumentURL,
   useUpdateSampleMutation,
 } from 'src/services/sample.service';
+import SampleSendModal from 'src/views/SampleView/SampleSendModal';
 
 interface Props {
   sample: PartialSample;
@@ -38,6 +39,13 @@ const SampleStepSubmitted = ({ sample }: Props) => {
     sample.programmingPlanId as string,
     {
       skip: !sample.programmingPlanId,
+    }
+  );
+
+  const { data: laboratory } = useGetLaboratoryQuery(
+    sample.laboratoryId as string,
+    {
+      skip: !sample.laboratoryId,
     }
   );
 
@@ -196,7 +204,7 @@ const SampleStepSubmitted = ({ sample }: Props) => {
               }
               footer={
                 <>
-                  {hasPermission('downloadSampleItemDocument') &&
+                  {hasPermission('downloadSupportDocument') &&
                     ['Sent', 'Submitted'].includes(sample.status) && (
                       <Button
                         priority="secondary"
@@ -204,14 +212,13 @@ const SampleStepSubmitted = ({ sample }: Props) => {
                         onClick={() =>
                           sample.status === 'Submitted'
                             ? window.open(
-                                getSampleItemDocumentURL(
-                                  sample.id,
-                                  itemIndex + 1
-                                )
+                                getSupportDocumentURL(sample.id, itemIndex + 1)
                               )
-                            : openFile(item.documentId as string)
+                            : openFile(item.supportDocumentId as string)
                         }
-                        disabled={sample.status === 'Sent' && !item.documentId}
+                        disabled={
+                          sample.status === 'Sent' && !item.supportDocumentId
+                        }
                       >
                         Document d'accompagnement
                       </Button>
@@ -234,35 +241,33 @@ const SampleStepSubmitted = ({ sample }: Props) => {
       ) : (
         <>
           {hasPermission('updateSample') && sample.status !== 'Sent' && (
-            <ButtonsGroup
-              inlineLayoutWhen="md and up"
-              buttons={[
-                {
-                  children: 'Etape précédente',
-                  priority: 'secondary',
-                  onClick: async (e) => {
-                    e.preventDefault();
-                    await updateSample({
-                      ...sample,
-                      status: 'DraftItems',
-                    });
-                    navigate(`/prelevements/${sample.id}?etape=4`, {
-                      replace: true,
-                    });
-                  },
-                  nativeButtonProps: {
-                    'data-testid': 'previous-button',
-                  },
-                },
-                {
-                  children: 'Envoyer le prélèvement',
-                  onClick: submit,
-                  nativeButtonProps: {
-                    'data-testid': 'submit-button',
-                  },
-                },
-              ]}
-            />
+            <div className="fr-btns-group fr-btns-group--inline-md fr-btns-group--left fr-btns-group--icon-left">
+              <Button
+                priority="secondary"
+                onClick={async (e) => {
+                  e.preventDefault();
+                  await updateSample({
+                    ...sample,
+                    status: 'DraftItems',
+                  });
+                  navigate(`/prelevements/${sample.id}?etape=4`, {
+                    replace: true,
+                  });
+                }}
+                data-testid="previous-button"
+              >
+                Etape précédente
+              </Button>
+              {laboratory ? (
+                <SampleSendModal
+                  sample={sample}
+                  laboratory={laboratory}
+                  onConfirm={submit}
+                />
+              ) : (
+                <Alert severity={'error'} title={'Laboratoire non trouvé'} />
+              )}
+            </div>
           )}
           {sample.status === 'Sent' && (
             <Alert

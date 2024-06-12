@@ -14,7 +14,7 @@ export const SampleItem = z.object({
   sealId: z.string({
     required_error: 'Veuillez renseigner le numéro de scellé.',
   }),
-  documentId: z.string().uuid().optional().nullable(),
+  supportDocumentId: z.string().uuid().optional().nullable(),
 });
 
 export const PartialSampleItem = SampleItem.partial().merge(

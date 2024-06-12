@@ -34,6 +34,7 @@ exports.up = async (knex: Knex) => {
     table.text('comment_company');
     table.text('comment_infos');
     table.text('comment_items');
+    table.uuid('laboratory_id').references('id').inTable('laboratories');
   });
 };
 

@@ -99,7 +99,7 @@ export const sampleApi = api.injectEndpoints({
   }),
 });
 
-const sampleItemDocumentURL = (sampleId: string, itemNumber: number) => {
+const supportDocumentURL = (sampleId: string, itemNumber: number) => {
   const params = getURLQuery(authParams());
   return `${config.apiEndpoint}/api/samples/${sampleId}/items/${itemNumber}/document${params}`;
 };
@@ -112,8 +112,8 @@ export const {
   useUpdateSampleMutation,
   useUpdateSampleItemsMutation,
   useDeleteSampleMutation,
-  getSampleItemDocumentURL,
+  getSupportDocumentURL,
 } = {
   ...sampleApi,
-  getSampleItemDocumentURL: sampleItemDocumentURL,
+  getSupportDocumentURL: supportDocumentURL,
 };

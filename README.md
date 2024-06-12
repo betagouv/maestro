@@ -8,6 +8,7 @@
 - npm
 - serveur Postgres (sur macOS, possible d'utiliser [postgresapp](https://postgresapp.com>))
 - service de stockage S3
+- serveur mail (par exemple mailDev)
 
 ### Base de données
 
@@ -38,11 +39,23 @@ npm i
 L'application utilise les variables d'environnement suivantes :
 
 ```
+APPLICATION_HOST
+NODE_ENV
+API_PORT
 AUTH_SECRET
+AUTH_EXPIRES_IN
 DATABASE_ENV
 DATABASE_URL
 DATABASE_URL_TEST
-
+MAILER_PROVIDER
+MAILER_HOST
+MAILER_PORT
+MAILER_USER
+MAILER_PASSWORD
+MAILER_API_KEY
+MAILER_EVENT_API_KEY
+MAILER_SECURE
+MAX_RATE
 S3_ENDPOINT
 S3_REGION
 S3_ACCESS_KEY_ID

@@ -105,6 +105,18 @@
   text-align: initial;
   font-weight: initial;
   font-size: initial;
+
+  .fr-btn--close {
+    font-size: 0.875rem;
+    line-height: 1.5rem;
+    min-height: 2rem;
+    padding: 0.25rem 0.75rem;
+    overflow: initial;
+    max-width: 100%;
+    max-height: none;
+    display: flex;
+    margin-left: auto;
+  }
 }
 
 .fr-card--xs {

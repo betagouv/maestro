@@ -34,7 +34,35 @@
 
     <main class='fr-container fr-pt-2w'>
       <section>
-        <div class='fr-card fr-card--xs fr-py-mw'>
+        <div class='fr-card fr-card--xs fr-my-1w'>
+          <div class='fr-container fr-my-1w'>
+            <div class='fr-grid-row fr-grid-row--gutters'>
+              <div class='fr-col-4'>
+                <div class='label'>
+                  Donneur d'ordre
+                </div>
+                {{establishment.name}}
+              </div>
+              <div class='fr-col-4'>
+                <div class='label'>
+                  Adresse
+                </div>
+                {{#if establishment.additionalLine}}
+                  {{establishment.additionalLine}}<br />
+                {{/if}}
+                {{establishment.street}}<br />
+                {{establishment.postalCode}} {{establishment.city}}
+              </div>
+              <div class='fr-col-4'>
+                <div class='label'>
+                  Contact mail
+                </div>
+                {{sampler.email}}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class='fr-card fr-card--xs fr-my-1w'>
           <div class='fr-container fr-my-1w'>
             <div class='fr-grid-row fr-grid-row--gutters'>
               <div class='fr-col-4'>

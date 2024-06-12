@@ -21,25 +21,6 @@ import { AuthUser } from '../schema/User/AuthUser';
 import { User } from '../schema/User/User';
 import { UserRole, UserRoleList } from '../schema/User/UserRole';
 
-export const genEmail = () => {
-  return (
-    randomstring.generate({
-      length: 10,
-      charset: 'alphabetic',
-    }) +
-    '@' +
-    randomstring.generate({
-      length: 10,
-      charset: 'alphabetic',
-    }) +
-    '.' +
-    randomstring.generate({
-      length: 2,
-      charset: 'alphabetic',
-    })
-  );
-};
-
 export const genNumber = (length = 10) => {
   return Number(
     randomstring.generate({
@@ -66,7 +47,7 @@ export const genValidPassword = () => '123Valid';
 export const genUser = (...roles: UserRole[]): User => ({
   id: uuidv4(),
   password: randomstring.generate(),
-  email: genEmail(),
+  email: fakerFR.internet.email(),
   roles: roles ?? [oneOf(UserRoleList)],
   region:
     roles?.includes('NationalCoordinator') || roles?.includes('Administrator')
@@ -190,6 +171,7 @@ export const genDocument = (userId: string): Document => ({
 export const genLaboratory = (): Laboratory => ({
   id: uuidv4(),
   name: randomstring.generate(),
+  email: fakerFR.internet.email(),
 });
 
 export const genCompany = (): Company => ({

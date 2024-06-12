@@ -5,78 +5,25 @@ import ProgrammingPlanMissingError from '../../../shared/errors/promgrammingPlan
 import { MatrixLabels } from '../../../shared/referential/Matrix/MatrixLabels';
 import { MatrixPartLabels } from '../../../shared/referential/MatrixPart';
 import { QuantityUnitLabels } from '../../../shared/referential/QuantityUnit';
+import { Region, Regions } from '../../../shared/referential/Region';
 import { StageLabels } from '../../../shared/referential/Stage';
 import { SubstanceLabel } from '../../../shared/referential/Substance/SubstanceLabels';
 import { SubstanceListByMatrix } from '../../../shared/referential/Substance/SubstanceListByMatrix';
 import { getSampleRegion, Sample } from '../../../shared/schema/Sample/Sample';
 import { SampleItem } from '../../../shared/schema/Sample/SampleItem';
+import { UserInfos } from '../../../shared/schema/User/User';
 import laboratoryRepository from '../../repositories/laboratoryRepository';
-import prescriptionRepository from '../../repositories/prescriptionRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
 import {
-  SampleItemDocumentFileContent,
-  SampleItemDocumentStylePath,
-} from '../../templates/sampleItemDocument';
+  Template,
+  templateContent,
+  templateStylePath,
+} from '../../templates/templates';
 import config from '../../utils/config';
 
-const generateSampleItemDocument = async (
-  sample: Sample,
-  sampleItem: SampleItem
-) => {
-  //TODO : handle sample outside any programming plan (ie sample.programmingPlanId is null)
-
-  const programmingPlan = await programmingPlanRepository.findUnique(
-    sample.programmingPlanId as string
-  );
-
-  if (!programmingPlan) {
-    throw new ProgrammingPlanMissingError(sample.programmingPlanId as string);
-  }
-
-  const prescriptions = await prescriptionRepository.findMany({
-    region: getSampleRegion(sample),
-    programmingPlanId: sample.programmingPlanId as string,
-    matrix: sample.matrix,
-    stage: sample.stage,
-  });
-
-  //TODO: handle prescription or laboratory not found
-  // if (
-  //   !prescriptions ||
-  //   prescriptions.length === 0 ||
-  //   !prescriptions[0].laboratoryId
-  // ) {
-  //   return response.sendStatus(constants.HTTP_STATUS_NOT_FOUND);
-  // }
-
-  const laboratory = prescriptions[0]?.laboratoryId
-    ? await laboratoryRepository.findUnique(prescriptions[0].laboratoryId)
-    : await laboratoryRepository
-        .findMany()
-        .then((laboratories) => laboratories[0]);
-
-  const substances = SubstanceListByMatrix[sample.matrix]?.map(
-    (substance) => SubstanceLabel[substance]
-  );
-
-  const compiledTemplate = handlebars.compile(SampleItemDocumentFileContent);
-  const htmlContent = compiledTemplate({
-    ...sample,
-    ...sampleItem,
-    laboratory,
-    programmingPlan,
-    substances,
-    reference: [sample.reference, sampleItem.itemNumber].join('-'),
-    sampledAt: format(sample.sampledAt, 'dd/MM/yyyy'),
-    stage: StageLabels[sample.stage],
-    matrix: MatrixLabels[sample.matrix],
-    matrixDetails: sample.matrixDetails,
-    matrixPart: MatrixPartLabels[sample.matrixPart],
-    quantityUnit: QuantityUnitLabels[sampleItem.quantityUnit],
-    releaseControl: sample.releaseControl ? 'Oui' : 'Non',
-    compliance200263: sampleItem.compliance200263 ? 'Oui' : 'Non',
-    dsfrLink: `${config.application.host}/dsfr/dsfr.min.css`,
-  });
+const generateDocument = async (template: Template, data: any) => {
+  const compiledTemplate = handlebars.compile(templateContent(template));
+  const htmlContent = compiledTemplate(data);
 
   const browser = await puppeteer.launch({
     args: ['--no-sandbox'],
@@ -97,7 +44,7 @@ const generateSampleItemDocument = async (
   });
 
   await page.addStyleTag({
-    path: SampleItemDocumentStylePath,
+    path: templateStylePath(template),
   });
 
   const pdfBuffer = await page.pdf({
@@ -108,6 +55,52 @@ const generateSampleItemDocument = async (
   return pdfBuffer;
 };
 
+const generateSupportDocument = async (
+  sample: Sample,
+  sampleItem: SampleItem,
+  sampler: UserInfos
+) => {
+  //TODO : handle sample outside any programming plan (ie sample.programmingPlanId is null and laboratoryId is null)
+
+  const programmingPlan = await programmingPlanRepository.findUnique(
+    sample.programmingPlanId as string
+  );
+
+  if (!programmingPlan) {
+    throw new ProgrammingPlanMissingError(sample.programmingPlanId as string);
+  }
+
+  const laboratory = sample.laboratoryId
+    ? await laboratoryRepository.findUnique(sample.laboratoryId)
+    : await laboratoryRepository
+        .findMany()
+        .then((laboratories) => laboratories[0]);
+
+  const substances = SubstanceListByMatrix[sample.matrix]?.map(
+    (substance) => SubstanceLabel[substance]
+  );
+
+  return generateDocument('supportDocument', {
+    ...sample,
+    ...sampleItem,
+    sampler,
+    laboratory,
+    programmingPlan,
+    substances,
+    reference: [sample.reference, sampleItem.itemNumber].join('-'),
+    sampledAt: format(sample.sampledAt, 'dd/MM/yyyy'),
+    stage: StageLabels[sample.stage],
+    matrix: MatrixLabels[sample.matrix],
+    matrixDetails: sample.matrixDetails,
+    matrixPart: MatrixPartLabels[sample.matrixPart],
+    quantityUnit: QuantityUnitLabels[sampleItem.quantityUnit],
+    releaseControl: sample.releaseControl ? 'Oui' : 'Non',
+    compliance200263: sampleItem.compliance200263 ? 'Oui' : 'Non',
+    dsfrLink: `${config.application.host}/dsfr/dsfr.min.css`,
+    establishment: Regions[getSampleRegion(sample) as Region].establishment,
+  });
+};
+
 export default {
-  generateSampleItemDocument,
+  generateSupportDocument,
 };
