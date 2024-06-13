@@ -50,6 +50,7 @@ export function createServer(): Server {
             'https://openmaptiles.data.gouv.fr',
             'https://openmaptiles.geo.data.gouv.fr',
             'https://openmaptiles.github.io',
+            'https://api.maptiler.com',
             `https://${config.s3.bucket}.${
               config.s3.client.endpoint.split('//')[1]
             }`,
