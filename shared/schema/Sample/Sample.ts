@@ -69,6 +69,7 @@ export const SampleToCreate = Sample.pick({
   programmingPlanId: true,
   legalContext: true,
   department: true,
+  parcel: true,
   commentCreation: true,
 });
 

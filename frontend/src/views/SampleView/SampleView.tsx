@@ -1,14 +1,9 @@
-import { fr } from '@codegouvfr/react-dsfr';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Stepper from '@codegouvfr/react-dsfr/Stepper';
-import { format } from 'date-fns';
+import clsx from 'clsx';
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import {
-  DraftStatusList,
-  SampleStatus,
-} from 'shared/schema/Sample/SampleStatus';
-import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
+import { SampleStatus } from 'shared/schema/Sample/SampleStatus';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useAppSelector } from 'src/hooks/useStore';
@@ -21,6 +16,8 @@ import SampleStepDraftCompany from 'src/views/SampleView/SampleStepDraftCompany'
 import SampleStepDraftInfos from 'src/views/SampleView/SampleStepDraftInfos';
 import SampleStepDraftItems from 'src/views/SampleView/SampleStepDraftItems';
 import SampleStepSubmitted from 'src/views/SampleView/SampleStepSubmitted';
+import newSample from '../../assets/illustrations/new-sample.png';
+import './SampleView.scss';
 
 const SampleView = () => {
   useDocumentTitle("Saisie d'un prélèvement");
@@ -46,11 +43,11 @@ const SampleView = () => {
   const [step, setStep] = useState<number>();
 
   const StepTitles = [
-    'Création du prélèvement',
-    'Lieu de prélèvement',
-    'Informations',
+    'Cadre du prélèvement',
+    'Matrice contrôlée',
     'Echantillons',
-    'Validation',
+    'Récapitulatif',
+    "Demande d'analyse enregistrée",
   ];
 
   const SampleStatusSteps: Record<SampleStatus, number> = {
@@ -83,45 +80,38 @@ const SampleView = () => {
   }
 
   return (
-    <section className={cx('fr-py-3w')}>
-      <h1>
-        Prélévement {sample?.reference}
-        <div
-          className={cx('fr-text--sm', 'fr-text--light')}
-          style={{
-            color: fr.colors.decisions.text.mention.grey.default,
-          }}
-        >
-          <SampleStatusBadge
-            status={sample?.status as SampleStatus}
-            className={cx('fr-mr-1w')}
-          />
-
-          {isSomeMutationPending ? (
-            'Enregistrement en cours...'
-          ) : (
-            <>
-              {sample?.status &&
-                sample?.lastUpdatedAt &&
-                DraftStatusList.includes(sample?.status) && (
-                  <>
-                    Enregistré le{' '}
-                    {format(sample.lastUpdatedAt, 'dd/MM/yyyy à HH:mm:ss')}
-                  </>
-                )}
-            </>
-          )}
-        </div>
-      </h1>
+    <section className={clsx(cx('fr-pt-4w', 'fr-pb-6w'), 'white-container')}>
+      {/*<div*/}
+      {/*  className={cx('fr-text--sm', 'fr-text--light')}*/}
+      {/*  style={{*/}
+      {/*    color: fr.colors.decisions.text.mention.grey.default,*/}
+      {/*  }}*/}
+      {/*>*/}
+      {/*  {isSomeMutationPending ? (*/}
+      {/*    'Enregistrement en cours...'*/}
+      {/*  ) : (*/}
+      {/*    <>*/}
+      {/*      {sample?.status &&*/}
+      {/*        sample?.lastUpdatedAt &&*/}
+      {/*        DraftStatusList.includes(sample?.status) && (*/}
+      {/*          <>*/}
+      {/*            Enregistré le{' '}*/}
+      {/*            {format(sample.lastUpdatedAt, 'dd/MM/yyyy à HH:mm:ss')}*/}
+      {/*          </>*/}
+      {/*        )}*/}
+      {/*    </>*/}
+      {/*  )}*/}
+      {/*</div>*/}
       {hasPermission('updateSample') && sample?.status !== 'Sent' && step && (
-        <>
+        <div className="sample-stepper">
+          <img src={newSample} height="100%" aria-hidden={true} />
           <Stepper
             currentStep={step}
             nextTitle={StepTitles[step]}
             stepCount={5}
             title={StepTitles[step - 1]}
           />
-        </>
+        </div>
       )}
       {step === 1 && <SampleStepCreation partialSample={sample} />}
       {step === 2 && sample && (

@@ -1,7 +1,7 @@
-import { fr } from '@codegouvfr/react-dsfr';
+import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import Notice from '@codegouvfr/react-dsfr/Notice';
+import RadioButtons from '@codegouvfr/react-dsfr/RadioButtons';
 import { format, parse } from 'date-fns';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -18,11 +18,14 @@ import {
 import { Regions } from 'shared/referential/Region';
 import { ProgrammingPlanKindLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { PartialSample, SampleToCreate } from 'shared/schema/Sample/Sample';
+import agenda from 'src/assets/illustrations/agenda.png';
+import alarm from 'src/assets/illustrations/alarm.png';
+import food from 'src/assets/illustrations/food.png';
+import policeHat from 'src/assets/illustrations/police-hat.png';
+import scale from 'src/assets/illustrations/scale.png';
+import AppRequiredInput from 'src/components/_app/AppRequiredInput/AppRequiredInput';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
-import {
-  DefaultAppSelectOption,
-  selectOptionsFromList,
-} from 'src/components/_app/AppSelect/AppSelectOption';
+import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -60,6 +63,7 @@ const SampleStepCreation = ({ partialSample }: Props) => {
   );
 
   const [department, setDepartment] = useState(partialSample?.department);
+  const [parcel, setParcel] = useState(partialSample?.parcel);
   const [commentCreation, setCommentCreation] = useState(
     partialSample?.commentCreation
   );
@@ -94,25 +98,28 @@ const SampleStepCreation = ({ partialSample }: Props) => {
         : programmingPlanId,
     legalContext,
     department,
+    parcel,
     commentCreation,
   });
 
   type FormShape = typeof Form.shape;
 
   const programmingPlanOptions = [
-    DefaultAppSelectOption,
     ...(programmingPlans ?? []).map(({ id, kind }) => ({
       label: ProgrammingPlanKindLabels[kind],
       value: id,
+      illustration: kind === 'Control' ? agenda : alarm,
     })),
     {
       label: 'Hors programmation',
       value: OutsideProgrammingId,
+      illustration: food,
     },
   ];
 
   const legalContextOptions = selectOptionsFromList(LegalContextList, {
     labels: LegalContextLabels,
+    withDefault: false,
   });
 
   const departmentOptions = selectOptionsFromList(
@@ -144,6 +151,7 @@ const SampleStepCreation = ({ partialSample }: Props) => {
               : (programmingPlanId as string),
           legalContext: legalContext as LegalContext,
           department: department as Department,
+          parcel,
           commentCreation,
         })
           .unwrap()
@@ -170,6 +178,7 @@ const SampleStepCreation = ({ partialSample }: Props) => {
             : (programmingPlanId as string),
         legalContext: legalContext as LegalContext,
         department: department as Department,
+        parcel,
         commentCreation,
         ...data,
       });
@@ -197,31 +206,24 @@ const SampleStepCreation = ({ partialSample }: Props) => {
         e.preventDefault();
         await save();
       }}
+      className="sample-form"
     >
       {!isBrowserGeolocation && (
-        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={cx('fr-col-12', 'fr-p-0', 'fr-mb-2w')}>
-            <Notice
-              isClosable
-              title="Vous pouvez renseigner automatiquement la latitude et la longitude en
-          autorisant le navigateur à accéder à votre position."
-              className={cx('fr-py-1w')}
-            />
-          </div>
-        </div>
+        <Alert
+          severity="info"
+          title=""
+          small
+          closable
+          description="Autorisez le partage de votre position pour faciliter la localisation de la parcelle"
+          className={cx('fr-mb-3w')}
+        />
       )}
-      <div
-        className={cx(
-          'fr-grid-row',
-          'fr-grid-row--gutters',
-          'fr-pb-1w',
-          'fr-mb-2w'
-        )}
-        style={{
-          backgroundColor: fr.colors.decisions.background.disabled.grey.default,
-        }}
-      >
-        <div className={cx('fr-col-12', 'fr-col-sm-4')}>
+      <p className={cx('fr-text--sm')}>
+        Les champs marqués du symbole{' '}
+        <span className={cx('fr-label--error')}>*</span> sont obligatoires.
+      </p>
+      <div className={cx('fr-grid-row', 'fr-grid-row--gutters', 'fr-pt-2w')}>
+        <div className={cx('fr-col-12', 'fr-col-sm-8')}>
           <AppTextInput<FormShape>
             type="datetime-local"
             defaultValue={sampledAt}
@@ -230,56 +232,35 @@ const SampleStepCreation = ({ partialSample }: Props) => {
             inputKey="sampledAt"
             whenValid="Date et heure de prélèvement correctement renseignés."
             data-testid="sampledAt-input"
-            label="Date et heure de prélèvement (obligatoire)"
+            label="Date et heure de prélèvement"
             required
           />
         </div>
-        <div className={cx('fr-col-5', 'fr-col-sm-2')}>
-          <AppTextInput<FormShape>
-            type="text"
-            value={geolocationX ?? ''}
-            onChange={(e) =>
-              setGeolocationX(
-                isNaN(parseFloat(e.target.value))
-                  ? undefined
-                  : parseFloat(e.target.value)
-              )
-            }
+        <div className={cx('fr-col-12', 'fr-col-sm-4')}>
+          <AppSelect<FormShape>
+            defaultValue={partialSample?.department || ''}
+            options={departmentOptions}
+            onChange={(e) => setDepartment(e.target.value as Department)}
             inputForm={form}
-            inputKey="geolocationX"
-            whenValid="Latitude correctement renseignée."
-            data-testid="geolocationX-input"
-            label="Latitude (obligatoire)"
+            inputKey="department"
+            whenValid="Département correctement renseigné."
+            data-testid="department-select"
+            label="Département"
             required
           />
         </div>
-        <div className={cx('fr-col-5', 'fr-col-sm-2')}>
-          <AppTextInput<FormShape>
-            type="text"
-            value={geolocationY ?? ''}
-            onChange={(e) =>
-              setGeolocationY(
-                isNaN(parseFloat(e.target.value))
-                  ? undefined
-                  : parseFloat(e.target.value)
-              )
-            }
-            inputForm={form}
-            inputKey="geolocationY"
-            whenValid="Longitude correctement renseignée."
-            data-testid="geolocationY-input"
-            label="Longitude (obligatoire)"
-            required
-          />
+      </div>
+      <div className={cx('fr-grid-row', 'fr-grid-row--gutters', 'fr-pt-3w')}>
+        <div className={cx('fr-col-12', 'fr-pb-0')}>
+          <div className={cx('fr-text--bold')}>
+            Emplacement de la parcelle contrôlée
+          </div>
+          <div className={cx('fr-text--light')}>
+            Placez votre repère sur la zone correspondante ou renseignez
+            manuellement les coordonnées GPS
+          </div>
         </div>
-        <div
-          className={cx('fr-col-12', 'fr-col-sm-4')}
-          style={{
-            display: 'flex',
-            justifyContent: 'end',
-            flexDirection: 'column',
-          }}
-        >
+        <div className={cx('fr-col-12', 'fr-col-sm-8')}>
           <SampleGeolocation
             sampleId={partialSample?.id}
             location={
@@ -300,48 +281,109 @@ const SampleStepCreation = ({ partialSample }: Props) => {
             key={`geolocation-${isBrowserGeolocation}`}
           />
         </div>
+        <div className={cx('fr-col-12', 'fr-col-sm-4')}>
+          <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+            <div className={cx('fr-col-12')}>
+              <AppTextInput<FormShape>
+                type="number"
+                step={0.000001}
+                value={geolocationX ?? ''}
+                onChange={(e) => setGeolocationX(Number(e.target.value))}
+                inputForm={form}
+                inputKey="geolocationX"
+                whenValid="Latitude correctement renseignée."
+                data-testid="geolocationX-input"
+                label="Latitude"
+                required
+              />
+            </div>
+            <div className={cx('fr-col-12')}>
+              <AppTextInput<FormShape>
+                type="number"
+                step={0.000001}
+                value={geolocationY ?? ''}
+                onChange={(e) => setGeolocationY(Number(e.target.value))}
+                inputForm={form}
+                inputKey="geolocationY"
+                whenValid="Longitude correctement renseignée."
+                data-testid="geolocationY-input"
+                label="Longitude"
+                required
+              />
+            </div>
+            <div className={cx('fr-col-12')}>
+              <AppTextInput<FormShape>
+                defaultValue={parcel ?? ''}
+                onChange={(e) => setParcel(e.target.value)}
+                inputForm={form}
+                inputKey="parcel"
+                whenValid="Parcelle correctement renseignée."
+                data-testid="parcel-input"
+                label="N° ou appellation de la parcelle"
+                placeholder="Facultatif"
+              />
+            </div>
+          </div>
+        </div>
       </div>
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={cx('fr-col-12', 'fr-col-sm-4')}>
-          <AppSelect<FormShape>
-            defaultValue={partialSample?.department || ''}
-            options={departmentOptions}
-            onChange={(e) => setDepartment(e.target.value as Department)}
-            inputForm={form}
-            inputKey="department"
-            whenValid="Département correctement renseigné."
-            data-testid="department-select"
-            label="Département (obligatoire)"
-            required
-          />
-        </div>
-        <div className={cx('fr-col-12', 'fr-col-sm-4')}>
-          <AppSelect<FormShape>
-            value={programmingPlanId}
-            options={programmingPlanOptions}
-            onChange={(e) => setProgrammingPlanId(e.target.value)}
-            inputForm={form}
-            inputKey="programmingPlanId"
-            whenValid="Contexte correctement renseigné."
-            data-testid="programming-plan-id-select"
-            label="Contexte (obligatoire)"
-            required
-          />
-        </div>
-        <div className={cx('fr-col-12', 'fr-col-sm-4')}>
-          <AppSelect<FormShape>
-            defaultValue={partialSample?.legalContext || ''}
-            options={legalContextOptions}
-            onChange={(e) => setLegalContext(e.target.value as LegalContext)}
-            inputForm={form}
-            inputKey="legalContext"
-            whenValid="Cadre juridique correctement renseigné."
-            data-testid="legal-context-select"
-            label="Cadre juridique (obligatoire)"
-            required
-          />
-        </div>
-        <div className={cx('fr-col-12', 'fr-col-sm-4')}>
+      <RadioButtons
+        key={`programmingPlan-${programmingPlanId}`}
+        legend={
+          <>
+            Contexte du prélèvement
+            <AppRequiredInput />
+          </>
+        }
+        options={
+          programmingPlanOptions?.map(({ label, value, illustration }) => ({
+            key: `programmingPlan-option-${value}`,
+            label,
+            nativeInputProps: {
+              checked: programmingPlanId === value,
+              onChange: (e) => setProgrammingPlanId(value),
+            },
+            illustration: <img src={illustration} />,
+          })) ?? []
+        }
+        state={form.messageType('programmingPlanId')}
+        stateRelatedMessage={form.message('programmingPlanId')}
+        classes={{
+          inputGroup: cx('fr-col-12', 'fr-col-sm-6'),
+          content: cx('fr-grid-row', 'fr-grid-row--gutters', 'fr-mx-0'),
+          root: cx('fr-px-0', 'fr-mt-5w'),
+          legend: cx('fr-col-12', 'fr-mx-0'),
+        }}
+      />
+      <RadioButtons
+        key={`legalContext-${legalContext}`}
+        legend={
+          <>
+            Cadre juridique
+            <AppRequiredInput />
+          </>
+        }
+        options={
+          legalContextOptions?.map(({ label, value }) => ({
+            key: `legalContext-option-${value}`,
+            label,
+            nativeInputProps: {
+              checked: legalContext === value,
+              onChange: () => setLegalContext(value as LegalContext),
+            },
+            illustration: <img src={value === 'B' ? policeHat : scale} />,
+          })) ?? []
+        }
+        state={form.messageType('legalContext')}
+        stateRelatedMessage={form.message('legalContext')}
+        classes={{
+          inputGroup: cx('fr-col-12', 'fr-col-sm-6'),
+          content: cx('fr-grid-row', 'fr-grid-row--gutters', 'fr-mx-0'),
+          root: cx('fr-px-0', 'fr-mt-3w'),
+          legend: cx('fr-col-12', 'fr-mx-0'),
+        }}
+      />
+      <div className={cx('fr-grid-row', 'fr-grid-row--gutters', 'fr-pt-3w')}>
+        <div className={cx('fr-col-12', 'fr-col-sm-6')}>
           <AppTextInput<FormShape>
             type="text"
             defaultValue={partialSample?.resytalId || ''}
@@ -355,27 +397,33 @@ const SampleStepCreation = ({ partialSample }: Props) => {
           />
         </div>
       </div>
-      <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>
           <AppTextAreaInput<FormShape>
-            rows={3}
+            rows={1}
             defaultValue={commentCreation ?? ''}
             onChange={(e) => setCommentCreation(e.target.value)}
             inputForm={form}
             inputKey="commentCreation"
             whenValid="Commentaire correctement renseigné."
             data-testid="comment-input"
-            label="Commentaires"
+            label="Note additionnelle"
           />
         </div>
       </div>
       <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
-
-      <div className={cx('fr-col-12')}>
-        <Button data-testid="submit-button" onClick={submit}>
-          Etape suivante
-        </Button>
+      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+        <div className={cx('fr-col-12')}>
+          <Button
+            iconId="fr-icon-arrow-right-line"
+            iconPosition="right"
+            data-testid="submit-button"
+            onClick={submit}
+            style={{ float: 'right' }}
+          >
+            Continuer
+          </Button>
+        </div>
       </div>
     </form>
   );

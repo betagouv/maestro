@@ -1,5 +1,6 @@
 import Input from '@codegouvfr/react-dsfr/Input';
 import { ComponentPropsWithoutRef, InputHTMLAttributes } from 'react';
+import AppRequiredInput from 'src/components/_app/AppRequiredInput/AppRequiredInput';
 import { useForm } from 'src/hooks/useForm';
 import { ZodRawShape } from 'zod';
 
@@ -31,8 +32,17 @@ function AppTextInput<T extends ZodRawShape>(props: AppTextInputProps<T>) {
 
   return (
     <Input
-      label={textInputProps.label ?? ''}
       {...textInputProps}
+      label={
+        textInputProps.label ? (
+          <>
+            {textInputProps.label}
+            {textInputProps.required && <AppRequiredInput />}
+          </>
+        ) : (
+          ''
+        )
+      }
       nativeInputProps={{
         ...textInputProps,
         placeholder,

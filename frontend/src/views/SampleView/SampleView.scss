@@ -1,0 +1,26 @@
+.sample-stepper {
+  display: flex;
+  padding-left: 4.375rem;
+  padding-right: 12.75rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border-default-grey);
+  gap: 3.5rem;
+
+  .fr-stepper {
+    flex: 1;
+  }
+}
+
+.sample-form {
+  padding-left: 12.75rem;
+  padding-right: 12.75rem;
+
+  .fr-radio-group {
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
+  }
+
+  .fr-messages-group {
+    margin-top: 1rem;
+  }
+}
