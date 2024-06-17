@@ -14,7 +14,7 @@ import {
 } from 'shared/test/testFixtures';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import config from 'src/utils/config';
-import SampleStepDraftInfos from 'src/views/SampleView/SampleStepDraftInfos';
+import SampleStepDraftMatrix from 'src/views/SampleView/SampleStepDraftMatrix';
 import {
   getRequestCalls,
   mockRequests,
@@ -57,7 +57,7 @@ describe('SampleStepDraftInfos', () => {
     render(
       <Provider store={store}>
         <BrowserRouter>
-          <SampleStepDraftInfos
+          <SampleStepDraftMatrix
             partialSample={genCreatedSample(sampler.id, programmingPlan.id)}
           />
         </BrowserRouter>
@@ -87,7 +87,7 @@ describe('SampleStepDraftInfos', () => {
     render(
       <Provider store={store}>
         <BrowserRouter>
-          <SampleStepDraftInfos
+          <SampleStepDraftMatrix
             partialSample={genCreatedSample(sampler.id, programmingPlan.id)}
           />
         </BrowserRouter>
@@ -127,7 +127,7 @@ describe('SampleStepDraftInfos', () => {
     render(
       <Provider store={store}>
         <BrowserRouter>
-          <SampleStepDraftInfos partialSample={createdSample} />
+          <SampleStepDraftMatrix partialSample={createdSample} />
         </BrowserRouter>
       </Provider>
     );
@@ -183,7 +183,7 @@ describe('SampleStepDraftInfos', () => {
     render(
       <Provider store={store}>
         <BrowserRouter>
-          <SampleStepDraftInfos partialSample={createdSample} />
+          <SampleStepDraftMatrix partialSample={createdSample} />
         </BrowserRouter>
       </Provider>
     );

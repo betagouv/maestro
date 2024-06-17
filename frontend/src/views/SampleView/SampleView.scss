@@ -1,10 +1,19 @@
+$breakpoint-md: 36em;
+
 .sample-stepper {
   display: flex;
-  padding-left: 4.375rem;
-  padding-right: 12.75rem;
-  margin-bottom: 2rem;
   border-bottom: 1px solid var(--border-default-grey);
-  gap: 3.5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  margin-bottom: 1.5rem;
+  gap: 1.5rem;
+
+  @media (min-width: $breakpoint-md) {
+    padding-left: 4.375rem;
+    padding-right: 12.75rem;
+    margin-bottom: 2rem;
+    gap: 3.5rem;
+  }
 
   .fr-stepper {
     flex: 1;
@@ -12,15 +21,31 @@
 }
 
 .sample-form {
-  padding-left: 12.75rem;
-  padding-right: 12.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+
+  @media (min-width: $breakpoint-md) {
+    padding-left: 12.75rem;
+    padding-right: 12.75rem;
+    gap: 2.5rem;
+  }
 
   .fr-radio-group {
     margin-bottom: 0 !important;
     margin-top: 0 !important;
   }
 
-  .fr-messages-group {
+  .fr-messages-group:not(:empty) {
     margin-top: 1rem;
+  }
+}
+
+.fr-btns-group {
+  @media (max-width: $breakpoint-md) {
+    display: flex;
+    flex-direction: column-reverse;
   }
 }

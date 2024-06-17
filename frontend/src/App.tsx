@@ -1,4 +1,5 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import { createMuiDsfrThemeProvider } from '@codegouvfr/react-dsfr/mui';
 import { startReactDsfr } from '@codegouvfr/react-dsfr/spa';
 import React from 'react';
 import { Provider } from 'react-redux';
@@ -21,11 +22,19 @@ declare module '@codegouvfr/react-dsfr/spa' {
 function AppWrapper() {
   startReactDsfr({ defaultColorScheme: 'light', Link });
 
+  const { MuiDsfrThemeProvider } = createMuiDsfrThemeProvider({
+    augmentMuiTheme: ({ nonAugmentedMuiTheme }) => ({
+      ...nonAugmentedMuiTheme,
+    }),
+  });
+
   return (
-    <Provider store={store}>
-      <ScrollToTop />
-      <App />
-    </Provider>
+    <MuiDsfrThemeProvider>
+      <Provider store={store}>
+        <ScrollToTop />
+        <App />
+      </Provider>
+    </MuiDsfrThemeProvider>
   );
 }
 

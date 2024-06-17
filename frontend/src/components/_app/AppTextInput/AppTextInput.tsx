@@ -1,6 +1,6 @@
 import Input from '@codegouvfr/react-dsfr/Input';
 import { ComponentPropsWithoutRef, InputHTMLAttributes } from 'react';
-import AppRequiredInput from 'src/components/_app/AppRequiredInput/AppRequiredInput';
+import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
 import { useForm } from 'src/hooks/useForm';
 import { ZodRawShape } from 'zod';
 

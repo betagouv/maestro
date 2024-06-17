@@ -1,5 +1,5 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
-import Button from '@codegouvfr/react-dsfr/Button';
+import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import RadioButtons from '@codegouvfr/react-dsfr/RadioButtons';
 import { format, parse } from 'date-fns';
@@ -16,14 +16,18 @@ import {
   LegalContextList,
 } from 'shared/referential/LegalContext';
 import { Regions } from 'shared/referential/Region';
+import { companyFromSearchResult } from 'shared/schema/Company/Company';
 import { ProgrammingPlanKindLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { PartialSample, SampleToCreate } from 'shared/schema/Sample/Sample';
+import { SampleStatus } from 'shared/schema/Sample/SampleStatus';
 import agenda from 'src/assets/illustrations/agenda.png';
 import alarm from 'src/assets/illustrations/alarm.png';
 import food from 'src/assets/illustrations/food.png';
 import policeHat from 'src/assets/illustrations/police-hat.png';
 import scale from 'src/assets/illustrations/scale.png';
-import AppRequiredInput from 'src/components/_app/AppRequiredInput/AppRequiredInput';
+import CompanySearch from 'src/components/CompanySearch/CompanySearch';
+import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
+import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
@@ -64,6 +68,7 @@ const SampleStepCreation = ({ partialSample }: Props) => {
 
   const [department, setDepartment] = useState(partialSample?.department);
   const [parcel, setParcel] = useState(partialSample?.parcel);
+  const [company, setCompany] = useState(partialSample?.company);
   const [commentCreation, setCommentCreation] = useState(
     partialSample?.commentCreation
   );
@@ -129,31 +134,32 @@ const SampleStepCreation = ({ partialSample }: Props) => {
     }
   );
 
+  const formData = {
+    geolocation: {
+      x: geolocationX as number,
+      y: geolocationY as number,
+    },
+    sampledAt: parse(sampledAt, 'yyyy-MM-dd HH:mm', new Date()),
+    resytalId: resytalId as string,
+    programmingPlanId:
+      (programmingPlanId as string) === OutsideProgrammingId
+        ? undefined
+        : (programmingPlanId as string),
+    legalContext: legalContext as LegalContext,
+    department: department as Department,
+    company,
+    parcel,
+    commentCreation,
+  };
+
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     await form.validate(async () => {
       if (partialSample) {
-        await save({
-          status: 'DraftCompany',
-        });
+        await save('DraftMatrix');
         navigate(`/prelevements/${partialSample.id}`, { replace: true });
       } else {
-        await createSample({
-          geolocation: {
-            x: geolocationX as number,
-            y: geolocationY as number,
-          },
-          sampledAt: parse(sampledAt, 'yyyy-MM-dd HH:mm', new Date()),
-          resytalId: resytalId as string,
-          programmingPlanId:
-            (programmingPlanId as string) === OutsideProgrammingId
-              ? undefined
-              : (programmingPlanId as string),
-          legalContext: legalContext as LegalContext,
-          department: department as Department,
-          parcel,
-          commentCreation,
-        })
+        await createSample(formData)
           .unwrap()
           .then((result) => {
             navigate(`/prelevements/${result.id}`, { replace: true });
@@ -162,25 +168,12 @@ const SampleStepCreation = ({ partialSample }: Props) => {
     });
   };
 
-  const save = async (data?: Partial<PartialSample>) => {
-    if (partialSample) {
+  const save = async (status = partialSample?.status) => {
+    if (partialSample?.status) {
       await updateSample({
         ...partialSample,
-        geolocation: {
-          x: geolocationX as number,
-          y: geolocationY as number,
-        },
-        sampledAt: parse(sampledAt, 'yyyy-MM-dd', new Date()),
-        resytalId: resytalId as string,
-        programmingPlanId:
-          (programmingPlanId as string) === OutsideProgrammingId
-            ? null
-            : (programmingPlanId as string),
-        legalContext: legalContext as LegalContext,
-        department: department as Department,
-        parcel,
-        commentCreation,
-        ...data,
+        ...formData,
+        status: status as SampleStatus,
       });
     }
   };
@@ -215,14 +208,10 @@ const SampleStepCreation = ({ partialSample }: Props) => {
           small
           closable
           description="Autorisez le partage de votre position pour faciliter la localisation de la parcelle"
-          className={cx('fr-mb-3w')}
         />
       )}
-      <p className={cx('fr-text--sm')}>
-        Les champs marqués du symbole{' '}
-        <span className={cx('fr-label--error')}>*</span> sont obligatoires.
-      </p>
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters', 'fr-pt-2w')}>
+      <AppRequiredText />
+      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12', 'fr-col-sm-8')}>
           <AppTextInput<FormShape>
             type="datetime-local"
@@ -233,6 +222,7 @@ const SampleStepCreation = ({ partialSample }: Props) => {
             whenValid="Date et heure de prélèvement correctement renseignés."
             data-testid="sampledAt-input"
             label="Date et heure de prélèvement"
+            hintText="Format attendu › JJ/MM/AAAA HH:MM"
             required
           />
         </div>
@@ -246,11 +236,12 @@ const SampleStepCreation = ({ partialSample }: Props) => {
             whenValid="Département correctement renseigné."
             data-testid="department-select"
             label="Département"
+            hint="Zone géographique de prélèvement"
             required
           />
         </div>
       </div>
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters', 'fr-pt-3w')}>
+      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12', 'fr-pb-0')}>
           <div className={cx('fr-text--bold')}>
             Emplacement de la parcelle contrôlée
@@ -271,12 +262,6 @@ const SampleStepCreation = ({ partialSample }: Props) => {
             onLocationChange={async (location) => {
               setGeolocationX(location.x);
               setGeolocationY(location.y);
-              await save({
-                geolocation: {
-                  x: location.x,
-                  y: location.y,
-                },
-              });
             }}
             key={`geolocation-${isBrowserGeolocation}`}
           />
@@ -350,7 +335,7 @@ const SampleStepCreation = ({ partialSample }: Props) => {
         classes={{
           inputGroup: cx('fr-col-12', 'fr-col-sm-6'),
           content: cx('fr-grid-row', 'fr-grid-row--gutters', 'fr-mx-0'),
-          root: cx('fr-px-0', 'fr-mt-5w'),
+          root: cx('fr-px-0', 'fr-my-0'),
           legend: cx('fr-col-12', 'fr-mx-0'),
         }}
       />
@@ -378,11 +363,21 @@ const SampleStepCreation = ({ partialSample }: Props) => {
         classes={{
           inputGroup: cx('fr-col-12', 'fr-col-sm-6'),
           content: cx('fr-grid-row', 'fr-grid-row--gutters', 'fr-mx-0'),
-          root: cx('fr-px-0', 'fr-mt-3w'),
+          root: cx('fr-px-0', 'fr-my-0'),
           legend: cx('fr-col-12', 'fr-mx-0'),
         }}
       />
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters', 'fr-pt-3w')}>
+      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+        <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+          <CompanySearch
+            department={department}
+            onSelectCompany={(result) => {
+              if (result) {
+                setCompany(companyFromSearchResult(result));
+              }
+            }}
+          />
+        </div>
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
           <AppTextInput<FormShape>
             type="text"
@@ -405,24 +400,36 @@ const SampleStepCreation = ({ partialSample }: Props) => {
             onChange={(e) => setCommentCreation(e.target.value)}
             inputForm={form}
             inputKey="commentCreation"
-            whenValid="Commentaire correctement renseigné."
+            whenValid="Note correctement renseignée."
             data-testid="comment-input"
             label="Note additionnelle"
+            hintText="Champ facultatif pour précisions supplémentaires"
           />
         </div>
       </div>
-      <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>
-          <Button
-            iconId="fr-icon-arrow-right-line"
-            iconPosition="right"
-            data-testid="submit-button"
-            onClick={submit}
-            style={{ float: 'right' }}
-          >
-            Continuer
-          </Button>
+          <hr className={cx('fr-mx-0')} />
+          <ButtonsGroup
+            alignment="between"
+            inlineLayoutWhen="md and up"
+            buttons={[
+              {
+                children: 'Abandonner la saisie',
+                priority: 'tertiary',
+                onClick: (_) => navigate(`/prelevements`),
+              },
+              {
+                children: 'Continuer',
+                onClick: submit,
+                iconId: 'fr-icon-arrow-right-line',
+                iconPosition: 'right',
+                nativeButtonProps: {
+                  'data-testid': 'submit-button',
+                },
+              },
+            ]}
+          />
         </div>
       </div>
     </form>

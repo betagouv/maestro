@@ -88,7 +88,7 @@ const SampleStepDraftCompany = ({ partialSample }: Props) => {
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     await form.validate(async () => {
-      await save('DraftInfos');
+      await save('DraftMatrix');
       navigate(`/prelevements/${partialSample.id}?etape=3`, {
         replace: true,
       });

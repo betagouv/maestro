@@ -12,9 +12,8 @@ import {
   useGetSampleQuery,
 } from 'src/services/sample.service';
 import SampleStepCreation from 'src/views/SampleView/SampleStepCreation';
-import SampleStepDraftCompany from 'src/views/SampleView/SampleStepDraftCompany';
-import SampleStepDraftInfos from 'src/views/SampleView/SampleStepDraftInfos';
 import SampleStepDraftItems from 'src/views/SampleView/SampleStepDraftItems';
+import SampleStepDraftMatrix from 'src/views/SampleView/SampleStepDraftMatrix';
 import SampleStepSubmitted from 'src/views/SampleView/SampleStepSubmitted';
 import newSample from '../../assets/illustrations/new-sample.png';
 import './SampleView.scss';
@@ -53,7 +52,7 @@ const SampleView = () => {
   const SampleStatusSteps: Record<SampleStatus, number> = {
     Draft: 1,
     DraftCompany: 2,
-    DraftInfos: 3,
+    DraftMatrix: 3,
     DraftItems: 4,
     Submitted: 5,
     Sent: 5,
@@ -80,7 +79,12 @@ const SampleView = () => {
   }
 
   return (
-    <section className={clsx(cx('fr-pt-4w', 'fr-pb-6w'), 'white-container')}>
+    <section
+      className={clsx(
+        cx('fr-pt-3w', 'fr-pt-md-4w', 'fr-pb-6w'),
+        'white-container'
+      )}
+    >
       {/*<div*/}
       {/*  className={cx('fr-text--sm', 'fr-text--light')}*/}
       {/*  style={{*/}
@@ -104,7 +108,12 @@ const SampleView = () => {
       {/*</div>*/}
       {hasPermission('updateSample') && sample?.status !== 'Sent' && step && (
         <div className="sample-stepper">
-          <img src={newSample} height="100%" aria-hidden={true} />
+          <img
+            src={newSample}
+            height="100%"
+            aria-hidden={true}
+            className={cx('fr-hidden', 'fr-unhidden-md')}
+          />
           <Stepper
             currentStep={step}
             nextTitle={StepTitles[step]}
@@ -114,12 +123,9 @@ const SampleView = () => {
         </div>
       )}
       {step === 1 && <SampleStepCreation partialSample={sample} />}
-      {step === 2 && sample && (
-        <SampleStepDraftCompany partialSample={sample} />
-      )}
-      {step === 3 && sample && <SampleStepDraftInfos partialSample={sample} />}
-      {step === 4 && sample && <SampleStepDraftItems partialSample={sample} />}
-      {step === 5 && sample && <SampleStepSubmitted sample={sample} />}
+      {step === 2 && sample && <SampleStepDraftMatrix partialSample={sample} />}
+      {step === 3 && sample && <SampleStepDraftItems partialSample={sample} />}
+      {step === 4 && sample && <SampleStepSubmitted sample={sample} />}
     </section>
   );
 };

@@ -1,12 +1,12 @@
 import Select from '@codegouvfr/react-dsfr/Select';
 import { ComponentPropsWithoutRef, InputHTMLAttributes } from 'react';
-import AppRequiredInput from 'src/components/_app/AppRequiredInput/AppRequiredInput';
+import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
 import { AppSelectOption } from 'src/components/_app/AppSelect/AppSelectOption';
 import { useForm } from 'src/hooks/useForm';
 import { ZodRawShape } from 'zod';
 
 type AppSelectProps<T extends ZodRawShape> = Partial<
-  Pick<ComponentPropsWithoutRef<typeof Select>, 'label'>
+  Pick<ComponentPropsWithoutRef<typeof Select>, 'label' | 'hint'>
 > &
   InputHTMLAttributes<HTMLSelectElement> & {
     options: AppSelectOption[];
@@ -23,6 +23,7 @@ function AppSelect<T extends ZodRawShape>(props: AppSelectProps<T>) {
     inputPathFromKey,
     inputForm,
     whenValid,
+    hint,
     ...selectProps
   } = props;
 
@@ -39,6 +40,7 @@ function AppSelect<T extends ZodRawShape>(props: AppSelectProps<T>) {
           ''
         )
       }
+      hint={hint}
       nativeSelectProps={{
         ...selectProps,
       }}

@@ -97,6 +97,7 @@ const SampleStepDraftItems = ({ partialSample }: Props) => {
           e.preventDefault();
           await save();
         }}
+        className="sample-form"
       >
         {items?.map((item, index) => (
           <div
@@ -266,7 +267,7 @@ const SampleStepDraftItems = ({ partialSample }: Props) => {
                   e.preventDefault();
                   await updateSample({
                     ...partialSample,
-                    status: 'DraftInfos',
+                    status: 'DraftMatrix',
                   });
                   navigate(`/prelevements/${partialSample.id}?etape=3`, {
                     replace: true,

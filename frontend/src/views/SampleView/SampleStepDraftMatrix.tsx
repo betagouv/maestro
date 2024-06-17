@@ -17,6 +17,7 @@ import {
 } from 'shared/referential/MatrixPart';
 import { Stage, StageLabels, StageList } from 'shared/referential/Stage';
 import { PartialSample, Sample } from 'shared/schema/Sample/Sample';
+import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
@@ -29,7 +30,7 @@ interface Props {
   partialSample: PartialSample;
 }
 
-const SampleStepDraftInfos = ({ partialSample }: Props) => {
+const SampleStepDraftMatrix = ({ partialSample }: Props) => {
   const navigate = useNavigate();
 
   const [matrix, setMatrix] = useState(partialSample.matrix);
@@ -39,7 +40,6 @@ const SampleStepDraftInfos = ({ partialSample }: Props) => {
   const [matrixPart, setMatrixPart] = useState(partialSample.matrixPart);
   const [stage, setStage] = useState(partialSample.stage);
   const [cultureKind, setCultureKind] = useState(partialSample.cultureKind);
-  const [parcel, setParcel] = useState(partialSample.parcel);
   const [releaseControl, setReleaseControl] = useState(
     partialSample.releaseControl
   );
@@ -60,7 +60,6 @@ const SampleStepDraftInfos = ({ partialSample }: Props) => {
     matrixPart: true,
     stage: true,
     cultureKind: true,
-    parcel: true,
     releaseControl: true,
     temperatureMaintenance: true,
     commentInfos: true,
@@ -73,7 +72,6 @@ const SampleStepDraftInfos = ({ partialSample }: Props) => {
     matrixPart,
     stage,
     cultureKind,
-    parcel,
     releaseControl,
     commentInfos,
     status: partialSample.status,
@@ -102,7 +100,6 @@ const SampleStepDraftInfos = ({ partialSample }: Props) => {
       matrixPart,
       stage,
       cultureKind,
-      parcel,
       releaseControl,
       commentInfos,
       status,
@@ -118,9 +115,11 @@ const SampleStepDraftInfos = ({ partialSample }: Props) => {
           e.preventDefault();
           await save();
         }}
+        className="sample-form"
       >
+        <AppRequiredText />
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={cx('fr-col-12', 'fr-col-sm-4')}>
+          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
             <AppSelect<FormShape>
               value={matrix ?? ''}
               options={selectOptionsFromList(
@@ -138,11 +137,11 @@ const SampleStepDraftInfos = ({ partialSample }: Props) => {
               inputKey="matrix"
               whenValid="Matrice correctement renseignée."
               data-testid="matrix-select"
-              label="Matrice (obligatoire)"
+              label="Matrice"
               required
             />
           </div>
-          <div className={cx('fr-col-12', 'fr-col-sm-4')}>
+          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
             <AppSelect<FormShape>
               defaultValue={stage ?? ''}
               options={selectOptionsFromList(
@@ -162,11 +161,13 @@ const SampleStepDraftInfos = ({ partialSample }: Props) => {
               inputKey="stage"
               whenValid="Stade de prélèvement correctement renseigné."
               data-testid="stage-select"
-              label="Stade de prélèvement (obligatoire)"
+              label="Stade de prélèvement"
               required
             />
           </div>
-          <div className={cx('fr-col-12', 'fr-col-sm-4')}>
+        </div>
+        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+          <div className={cx('fr-col-12')}>
             <AppTextInput<FormShape>
               defaultValue={matrixDetails ?? ''}
               onChange={(e) => setMatrixDetails(e.target.value)}
@@ -175,9 +176,10 @@ const SampleStepDraftInfos = ({ partialSample }: Props) => {
               whenValid="Détail de la matrice correctement renseigné."
               data-testid="matrixdetails-input"
               label="Détail de la matrice"
+              hintText="Champ facultatif pour précisions supplémentaires"
             />
           </div>
-          <div className={cx('fr-col-12', 'fr-col-sm-4')}>
+          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
             <AppSelect<FormShape>
               defaultValue={cultureKind ?? ''}
               options={selectOptionsFromList(CultureKindList, {
@@ -191,7 +193,7 @@ const SampleStepDraftInfos = ({ partialSample }: Props) => {
               label="Type de culture"
             />
           </div>
-          <div className={cx('fr-col-12', 'fr-col-sm-4')}>
+          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
             <AppSelect<FormShape>
               defaultValue={matrixPart ?? ''}
               options={selectOptionsFromList(MatrixPartList, {
@@ -202,25 +204,13 @@ const SampleStepDraftInfos = ({ partialSample }: Props) => {
               inputKey="matrixPart"
               whenValid="Partie du végétal correctement renseignée."
               data-testid="matrixpart-select"
-              label="Partie du végétal (obligatoire)"
+              label="Partie du végétal"
               required
             />
           </div>
-          <div className={cx('fr-col-12', 'fr-col-sm-4')}>
-            <AppTextInput<FormShape>
-              defaultValue={parcel ?? ''}
-              onChange={(e) => setParcel(e.target.value)}
-              inputForm={form}
-              inputKey="parcel"
-              whenValid="Parcelle correctement renseignée."
-              data-testid="parcel-input"
-              label="Parcelle"
-            />
-          </div>
         </div>
-        <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={cx('fr-col-12', 'fr-col-sm-4')}>
+          <div className={cx('fr-col-12')}>
             <ToggleSwitch
               label="Contrôle libératoire"
               checked={releaseControl ?? false}
@@ -229,53 +219,68 @@ const SampleStepDraftInfos = ({ partialSample }: Props) => {
             />
           </div>
         </div>
-        <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
             <AppTextAreaInput<FormShape>
-              rows={3}
+              rows={1}
               defaultValue={commentInfos ?? ''}
               onChange={(e) => setCommentInfos(e.target.value)}
               inputForm={form}
               inputKey="commentInfos"
-              whenValid="Commentaire correctement renseigné."
+              whenValid="Note correctement renseignée."
               data-testid="comment-input"
-              label="Commentaires"
+              label="Note additionnelle"
+              hintText="Champ facultatif pour précisions supplémentaires"
             />
           </div>
         </div>
-        <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
-        <div className={cx('fr-col-12')}>
-          <ButtonsGroup
-            inlineLayoutWhen="md and up"
-            buttons={[
-              {
-                children: 'Etape précédente',
-                priority: 'secondary',
-                onClick: async (e) => {
-                  e.preventDefault();
-                  await save('DraftCompany');
-                  navigate(`/prelevements/${partialSample.id}?etape=2`, {
-                    replace: true,
-                  });
+        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+          <div className={cx('fr-col-12')}>
+            <hr className={cx('fr-mx-0')} />
+            <ButtonsGroup
+              alignment="between"
+              inlineLayoutWhen="md and up"
+              buttons={[
+                {
+                  title: 'Etape précédente',
+                  iconId: 'fr-icon-arrow-left-line',
+                  priority: 'tertiary',
+                  onClick: async (e) => {
+                    e.preventDefault();
+                    await save('Draft');
+                    navigate(`/prelevements/${partialSample.id}?etape=2`, {
+                      replace: true,
+                    });
+                  },
+                  nativeButtonProps: {
+                    'data-testid': 'previous-button',
+                  },
                 },
-                nativeButtonProps: {
-                  'data-testid': 'previous-button',
+                {
+                  children: 'Enregistrer en brouillon',
+                  iconId: 'fr-icon-save-line',
+                  priority: 'tertiary',
+                  onClick: async (e) => {
+                    e.preventDefault();
+                    await save();
+                  },
                 },
-              },
-              {
-                children: 'Etape suivante',
-                onClick: submit,
-                nativeButtonProps: {
-                  'data-testid': 'submit-button',
+                {
+                  children: 'Continuer',
+                  onClick: submit,
+                  iconId: 'fr-icon-arrow-right-line',
+                  iconPosition: 'right',
+                  nativeButtonProps: {
+                    'data-testid': 'submit-button',
+                  },
                 },
-              },
-            ]}
-          />
+              ]}
+            />
+          </div>
         </div>
       </form>
     </>
   );
 };
 
-export default SampleStepDraftInfos;
+export default SampleStepDraftMatrix;

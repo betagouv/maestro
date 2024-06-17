@@ -62,6 +62,9 @@ const SampleGeolocation = ({ sampleId, location, onLocationChange }: Props) => {
         setMapLatitude(e.viewState.latitude);
         setMapLongitude(e.viewState.longitude);
       }}
+      style={{
+        minHeight: 375,
+      }}
     >
       <NavigationControl position="bottom-right" showCompass={false} />
       <FullscreenControl position="bottom-right" />
