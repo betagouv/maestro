@@ -110,6 +110,8 @@ const createSample = async (request: Request, response: Response) => {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
   }
 
+  await companyRepository.upsert(sampleToCreate.company);
+
   const serial = await sampleRepository.getNextSequence(
     user.region,
     new Date().getFullYear()
@@ -124,7 +126,7 @@ const createSample = async (request: Request, response: Response) => {
     createdBy: user.id,
     createdAt: new Date(),
     lastUpdatedAt: new Date(),
-    status: 'DraftCompany',
+    status: 'DraftMatrix',
     ...sampleToCreate,
   };
   await sampleRepository.insert(sample);
@@ -143,12 +145,7 @@ const updateSample = async (request: Request, response: Response) => {
     sampleUpdate.company?.siret &&
     sample.company?.siret !== sampleUpdate.company?.siret
   ) {
-    const company = await companyRepository.findUnique(
-      sampleUpdate.company?.siret
-    );
-    if (!company) {
-      await companyRepository.insert(sampleUpdate.company);
-    }
+    await companyRepository.upsert(sampleUpdate.company);
   }
 
   if (sample.status === 'Sent') {

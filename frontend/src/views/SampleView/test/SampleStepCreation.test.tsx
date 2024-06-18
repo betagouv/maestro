@@ -49,7 +49,7 @@ describe('SampleStepCreation', () => {
     expect(screen.getAllByTestId('resytalId-input')).toHaveLength(2);
     expect(screen.getAllByTestId('programming-plan-id-select')).toHaveLength(2);
     expect(screen.getAllByTestId('legal-context-select')).toHaveLength(2);
-    expect(screen.getAllByTestId('comment-input')).toHaveLength(2);
+    expect(screen.getAllByTestId('notes-input')).toHaveLength(2);
 
     expect(screen.getByTestId('submit-button')).toBeInTheDocument();
   });
@@ -121,7 +121,7 @@ describe('SampleStepCreation', () => {
       'programming-plan-id-select'
     )[1];
     const legalContextSelect = screen.getAllByTestId('legal-context-select')[1];
-    const commentInput = screen.getAllByTestId('comment-input')[1];
+    const commentInput = screen.getAllByTestId('notes-input')[1];
 
     await act(async () => {
       (
@@ -166,7 +166,7 @@ describe('SampleStepCreation', () => {
           x: coords.coords.latitude,
           y: coords.coords.longitude,
         },
-        commentCreation: 'Comment',
+        notesOnCreation: 'Comment',
       },
     });
   });

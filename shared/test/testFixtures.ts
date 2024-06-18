@@ -65,21 +65,22 @@ export function genAuthUser(): AuthUser {
 export const genSampleToCreate = (
   programmingPlanId?: string
 ): SampleToCreate => ({
+  sampledAt: new Date(),
+  department: oneOf(Regions['44'].departments),
   geolocation: {
     x: 48.8566,
     y: 2.3522,
   },
-  sampledAt: new Date(),
+  programmingPlanId: programmingPlanId ?? uuidv4(),
+  legalContext: oneOf(LegalContextList),
   resytalId:
     '23-' +
     randomstring.generate({
       length: 6,
       charset: '123456789',
     }),
-  programmingPlanId: programmingPlanId ?? uuidv4(),
-  legalContext: oneOf(LegalContextList),
-  department: oneOf(Regions['44'].departments),
-  commentCreation: randomstring.generate(),
+  company: genCompany(),
+  notesOnCreation: randomstring.generate(),
 });
 
 export const genCreatedSample = (
@@ -93,7 +94,7 @@ export const genCreatedSample = (
   createdBy: userId ?? uuidv4(),
   createdAt: new Date(),
   lastUpdatedAt: new Date(),
-  status: 'DraftInfos',
+  status: 'DraftMatrix',
   ...genSampleToCreate(programmingPlanId),
 });
 

@@ -329,7 +329,7 @@ describe('Sample router', () => {
             new Date(),
             'yy'
           )}-0001-${sample.legalContext}`,
-          status: 'DraftCompany',
+          status: 'DraftMatrix',
         })
       );
 

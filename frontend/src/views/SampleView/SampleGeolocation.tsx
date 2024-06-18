@@ -9,7 +9,6 @@ import Map, {
 import { Geolocation } from 'shared/schema/Sample/Sample';
 import config from 'src/utils/config';
 interface Props {
-  sampleId?: string;
   location?: Geolocation;
   onLocationChange: (coordinates: Geolocation) => void;
 }
@@ -21,7 +20,7 @@ const ViewStyles: Record<ViewStyle, string | undefined> = {
   satellite: config.satelliteStyle,
 };
 
-const SampleGeolocation = ({ sampleId, location, onLocationChange }: Props) => {
+const SampleGeolocation = ({ location, onLocationChange }: Props) => {
   const [mapLatitude, setMapLatitude] = useState<number>(
     location ? location.x : 46
   );

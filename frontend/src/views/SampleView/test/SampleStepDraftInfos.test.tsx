@@ -75,7 +75,7 @@ describe('SampleStepDraftInfos', () => {
     expect(screen.getAllByTestId('matrixdetails-input')).toHaveLength(2);
     expect(screen.getByLabelText('Contrôle libératoire')).toBeInTheDocument();
     expect(screen.getAllByTestId('parcel-input')).toHaveLength(2);
-    expect(screen.getAllByTestId('comment-input')).toHaveLength(2);
+    expect(screen.getAllByTestId('notes-input')).toHaveLength(2);
 
     expect(screen.getByTestId('previous-button')).toBeInTheDocument();
     expect(screen.getByTestId('submit-button')).toBeInTheDocument();
@@ -198,7 +198,7 @@ describe('SampleStepDraftInfos', () => {
     const stageSelect = screen.getAllByTestId('stage-select')[1];
     const matrixDetailsInput = screen.getAllByTestId('matrixdetails-input')[1];
     const parcelInput = screen.getAllByTestId('parcel-input')[1];
-    const commentInput = screen.getAllByTestId('comment-input')[1];
+    const commentInput = screen.getAllByTestId('notes-input')[1];
     const submitButton = screen.getByTestId('submit-button');
 
     await act(async () => {
@@ -234,7 +234,7 @@ describe('SampleStepDraftInfos', () => {
         stage: prescriptions[0].stages[0],
         matrixDetails: 'Details',
         parcel: 'C03',
-        commentInfos: 'Comment',
+        notesOnMatrix: 'Comment',
       },
     });
   });

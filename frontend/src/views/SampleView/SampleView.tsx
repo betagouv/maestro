@@ -6,11 +6,7 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { SampleStatus } from 'shared/schema/Sample/SampleStatus';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
-import { useAppSelector } from 'src/hooks/useStore';
-import {
-  SampleMutationEndpoints,
-  useGetSampleQuery,
-} from 'src/services/sample.service';
+import { useGetSampleQuery } from 'src/services/sample.service';
 import SampleStepCreation from 'src/views/SampleView/SampleStepCreation';
 import SampleStepDraftItems from 'src/views/SampleView/SampleStepDraftItems';
 import SampleStepDraftMatrix from 'src/views/SampleView/SampleStepDraftMatrix';
@@ -28,16 +24,6 @@ const SampleView = () => {
     skip: !sampleId,
   });
 
-  const isSomeMutationPending = useAppSelector((state) =>
-    Object.values(state.api.mutations).some(
-      (mutation) =>
-        mutation?.endpointName !== undefined &&
-        Object.values(SampleMutationEndpoints).includes(
-          mutation?.endpointName as SampleMutationEndpoints
-        ) &&
-        mutation?.status === 'pending'
-    )
-  );
   const [searchParams] = useSearchParams();
   const [step, setStep] = useState<number>();
 
@@ -51,10 +37,9 @@ const SampleView = () => {
 
   const SampleStatusSteps: Record<SampleStatus, number> = {
     Draft: 1,
-    DraftCompany: 2,
-    DraftMatrix: 3,
-    DraftItems: 4,
-    Submitted: 5,
+    DraftMatrix: 2,
+    DraftItems: 3,
+    Submitted: 4,
     Sent: 5,
   };
 
@@ -111,8 +96,9 @@ const SampleView = () => {
           <img
             src={newSample}
             height="100%"
-            aria-hidden={true}
+            aria-hidden
             className={cx('fr-hidden', 'fr-unhidden-md')}
+            alt=""
           />
           <Stepper
             currentStep={step}

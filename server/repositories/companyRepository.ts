@@ -16,14 +16,16 @@ const findUnique = async (siret: string): Promise<Company | undefined> => {
     .then((_) => _ && Company.parse(fp.omitBy(_, fp.isNil)));
 };
 
-const insert = async (company: Company): Promise<Company> => {
-  console.info('Insert company', company.siret);
+const upsert = async (company: Company): Promise<Company> => {
+  console.info('Upsert company', company.siret);
   return Companies()
     .insert(company)
+    .onConflict('siret')
+    .merge()
     .then(() => company);
 };
 
 export default {
   findUnique,
-  insert,
+  upsert,
 };

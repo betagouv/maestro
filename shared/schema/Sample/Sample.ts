@@ -45,7 +45,7 @@ export const Sample = z.object({
   legalContext: LegalContext,
   geolocation: Geolocation,
   parcel: z.string().optional().nullable(),
-  company: Company.optional().nullable(),
+  company: Company,
   matrix: Matrix,
   matrixDetails: z.string().optional().nullable(),
   matrixPart: MatrixPart,
@@ -55,22 +55,22 @@ export const Sample = z.object({
   items: z.array(SampleItem).min(1, {
     message: 'Veuillez renseigner au moins un échantillon.',
   }),
-  commentCreation: z.string().optional().nullable(),
-  commentCompany: z.string().optional().nullable(),
-  commentInfos: z.string().optional().nullable(),
-  commentItems: z.string().optional().nullable(),
+  notesOnCreation: z.string().optional().nullable(),
+  notesOnMatrix: z.string().optional().nullable(),
+  notesOnItems: z.string().optional().nullable(),
   laboratoryId: z.string().uuid().optional().nullable(),
 });
 
 export const SampleToCreate = Sample.pick({
-  geolocation: true,
   sampledAt: true,
-  resytalId: true,
+  department: true,
+  geolocation: true,
+  parcel: true,
   programmingPlanId: true,
   legalContext: true,
-  department: true,
-  parcel: true,
-  commentCreation: true,
+  company: true,
+  resytalId: true,
+  notesOnCreation: true,
 });
 
 export const CreatedSample = SampleToCreate.merge(

@@ -20,7 +20,7 @@ export const companyApi = api.injectEndpoints({
         response.results.map((_) =>
           CompanySearchResult.parse(fp.omitBy(_, fp.isNil))
         ),
-      transformErrorResponse: (response) => {
+      transformErrorResponse: () => {
         return [];
       },
     }),

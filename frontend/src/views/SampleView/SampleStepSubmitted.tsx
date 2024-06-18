@@ -100,10 +100,10 @@ const SampleStepSubmitted = ({ sample }: Props) => {
           <strong>Cadre juridique : </strong>
           {LegalContextLabels[sample.legalContext]}
         </li>
-        {sample.commentCreation && (
+        {sample.notesOnCreation && (
           <li>
             <strong>Commentaires : </strong>
-            {sample.commentCreation}
+            {sample.notesOnCreation}
           </li>
         )}
       </ul>
@@ -119,12 +119,6 @@ const SampleStepSubmitted = ({ sample }: Props) => {
         <li>
           <strong>Adresse :</strong> {sample.company?.address}
         </li>
-        {sample.commentCompany && (
-          <li>
-            <strong>Commentaires : </strong>
-            {sample.commentCompany}
-          </li>
-        )}
       </ul>
       <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
       <h3>Informations spécifiques</h3>
@@ -169,10 +163,10 @@ const SampleStepSubmitted = ({ sample }: Props) => {
             {sample.parcel}
           </li>
         )}
-        {sample.commentInfos && (
+        {sample.notesOnMatrix && (
           <li>
             <strong>Commentaires : </strong>
-            {sample.commentInfos}
+            {sample.notesOnMatrix}
           </li>
         )}
       </ul>
@@ -228,10 +222,10 @@ const SampleStepSubmitted = ({ sample }: Props) => {
             />
           </div>
         ))}
-        {sample.commentItems && (
+        {sample.notesOnItems && (
           <div className={cx('fr-col-12')}>
             <strong>Commentaires : </strong>
-            {sample.commentItems}
+            {sample.notesOnItems}
           </div>
         )}
       </div>

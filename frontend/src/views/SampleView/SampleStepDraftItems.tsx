@@ -2,6 +2,7 @@ import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import Highlight from '@codegouvfr/react-dsfr/Highlight';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -14,6 +15,7 @@ import {
 import { PartialSample, Sample } from 'shared/schema/Sample/Sample';
 import { PartialSampleItem } from 'shared/schema/Sample/SampleItem';
 import { isDefinedAndNotNull } from 'shared/utils/utils';
+import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
@@ -44,19 +46,19 @@ const SampleStepDraftItems = ({ partialSample }: Props) => {
         ]
       : partialSample.items
   );
-  const [commentItems, setCommentItems] = useState(partialSample?.commentItems);
+  const [notesOnItems, setNotesOnItems] = useState(partialSample?.notesOnItems);
 
   const [updateSampleItems] = useUpdateSampleItemsMutation();
   const [updateSample] = useUpdateSampleMutation();
 
   const Form = Sample.pick({
     items: true,
-    commentItems: true,
+    notesOnItems: true,
   });
 
   const form = useForm(Form, {
     items,
-    commentItems,
+    notesOnItems,
   });
 
   type FormShape = typeof Form.shape;
@@ -67,10 +69,10 @@ const SampleStepDraftItems = ({ partialSample }: Props) => {
       await save();
       await updateSample({
         ...partialSample,
-        commentItems,
+        notesOnItems,
         status: 'Submitted',
       });
-      navigate(`/prelevements/${partialSample.id}?etape=5`, {
+      navigate(`/prelevements/${partialSample.id}?etape=4`, {
         replace: true,
       });
     });
@@ -99,15 +101,16 @@ const SampleStepDraftItems = ({ partialSample }: Props) => {
         }}
         className="sample-form"
       >
+        <AppRequiredText />
         {items?.map((item, index) => (
-          <div
+          <Highlight
             key={`item_${index}`}
             className={cx('fr-grid-row', 'fr-grid-row--gutters')}
-            style={{
-              border: '1px solid #e5e5e5',
-              padding: '1rem',
-              marginBottom: '1rem',
-            }}
+            // style={{
+            //   border: '1px solid #e5e5e5',
+            //   padding: '1rem',
+            //   marginBottom: '1rem',
+            // }}
           >
             <h3
               className={cx('fr-col-12', 'fr-mb-0')}
@@ -210,7 +213,7 @@ const SampleStepDraftItems = ({ partialSample }: Props) => {
                 showCheckedHint={false}
               />
             </div>
-          </div>
+          </Highlight>
         ))}
         {items.length < MaxItemCount && (
           <Button
@@ -245,12 +248,12 @@ const SampleStepDraftItems = ({ partialSample }: Props) => {
           <div className={cx('fr-col-12')}>
             <AppTextAreaInput<FormShape>
               rows={3}
-              defaultValue={commentItems ?? ''}
-              onChange={(e) => setCommentItems(e.target.value)}
+              defaultValue={notesOnItems ?? ''}
+              onChange={(e) => setNotesOnItems(e.target.value)}
               inputForm={form}
-              inputKey="commentItems"
+              inputKey="notesOnItems"
               whenValid="Commentaire correctement renseigné."
-              data-testid="comment-input"
+              data-testid="notes-input"
               label="Commentaires"
             />
           </div>
@@ -269,7 +272,7 @@ const SampleStepDraftItems = ({ partialSample }: Props) => {
                     ...partialSample,
                     status: 'DraftMatrix',
                   });
-                  navigate(`/prelevements/${partialSample.id}?etape=3`, {
+                  navigate(`/prelevements/${partialSample.id}?etape=2`, {
                     replace: true,
                   });
                 },

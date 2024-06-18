@@ -1,3 +1,4 @@
+import Button from '@codegouvfr/react-dsfr/Button';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
@@ -25,6 +26,7 @@ import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useForm } from 'src/hooks/useForm';
 import { useFindPrescriptionsQuery } from 'src/services/prescription.service';
 import { useUpdateSampleMutation } from 'src/services/sample.service';
+import PreviousButton from 'src/views/SampleView/PreviousButton';
 
 interface Props {
   partialSample: PartialSample;
@@ -43,7 +45,9 @@ const SampleStepDraftMatrix = ({ partialSample }: Props) => {
   const [releaseControl, setReleaseControl] = useState(
     partialSample.releaseControl
   );
-  const [commentInfos, setCommentInfos] = useState(partialSample.commentInfos);
+  const [notesOnMatrix, setNotesOnMatrix] = useState(
+    partialSample.notesOnMatrix
+  );
 
   const [updateSample] = useUpdateSampleMutation();
 
@@ -62,7 +66,7 @@ const SampleStepDraftMatrix = ({ partialSample }: Props) => {
     cultureKind: true,
     releaseControl: true,
     temperatureMaintenance: true,
-    commentInfos: true,
+    notesOnMatrix: true,
     status: true,
   });
 
@@ -73,7 +77,7 @@ const SampleStepDraftMatrix = ({ partialSample }: Props) => {
     stage,
     cultureKind,
     releaseControl,
-    commentInfos,
+    notesOnMatrix,
     status: partialSample.status,
   });
 
@@ -83,7 +87,7 @@ const SampleStepDraftMatrix = ({ partialSample }: Props) => {
     e.preventDefault();
     await form.validate(async () => {
       await save('DraftItems');
-      navigate(`/prelevements/${partialSample.id}?etape=4`, {
+      navigate(`/prelevements/${partialSample.id}?etape=3`, {
         replace: true,
       });
     });
@@ -101,7 +105,7 @@ const SampleStepDraftMatrix = ({ partialSample }: Props) => {
       stage,
       cultureKind,
       releaseControl,
-      commentInfos,
+      notesOnMatrix,
       status,
       laboratoryId: prescription?.laboratoryId ?? partialSample.laboratoryId,
     });
@@ -130,6 +134,7 @@ const SampleStepDraftMatrix = ({ partialSample }: Props) => {
                 ),
                 {
                   labels: MatrixLabels,
+                  defaultLabel: 'Sélectionner une matrice',
                 }
               )}
               onChange={(e) => setMatrix(e.target.value as Matrix)}
@@ -154,6 +159,7 @@ const SampleStepDraftMatrix = ({ partialSample }: Props) => {
                 ),
                 {
                   labels: StageLabels,
+                  defaultLabel: 'Sélectionner un stade',
                 }
               )}
               onChange={(e) => setStage(e.target.value as Stage)}
@@ -184,6 +190,7 @@ const SampleStepDraftMatrix = ({ partialSample }: Props) => {
               defaultValue={cultureKind ?? ''}
               options={selectOptionsFromList(CultureKindList, {
                 labels: CultureKindLabels,
+                defaultLabel: 'Sélectionner un type de culture',
               })}
               onChange={(e) => setCultureKind(e.target.value as CultureKind)}
               inputForm={form}
@@ -198,13 +205,14 @@ const SampleStepDraftMatrix = ({ partialSample }: Props) => {
               defaultValue={matrixPart ?? ''}
               options={selectOptionsFromList(MatrixPartList, {
                 labels: MatrixPartLabels,
+                defaultLabel: 'Sélectionner une partie du végétal',
               })}
               onChange={(e) => setMatrixPart(e.target.value as MatrixPart)}
               inputForm={form}
               inputKey="matrixPart"
               whenValid="Partie du végétal correctement renseignée."
               data-testid="matrixpart-select"
-              label="Partie du végétal"
+              label="LMR / Partie du végétal concernée"
               required
             />
           </div>
@@ -223,12 +231,12 @@ const SampleStepDraftMatrix = ({ partialSample }: Props) => {
           <div className={cx('fr-col-12')}>
             <AppTextAreaInput<FormShape>
               rows={1}
-              defaultValue={commentInfos ?? ''}
-              onChange={(e) => setCommentInfos(e.target.value)}
+              defaultValue={notesOnMatrix ?? ''}
+              onChange={(e) => setNotesOnMatrix(e.target.value)}
               inputForm={form}
-              inputKey="commentInfos"
+              inputKey="notesOnMatrix"
               whenValid="Note correctement renseignée."
-              data-testid="comment-input"
+              data-testid="notes-input"
               label="Note additionnelle"
               hintText="Champ facultatif pour précisions supplémentaires"
             />
@@ -237,45 +245,56 @@ const SampleStepDraftMatrix = ({ partialSample }: Props) => {
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
             <hr className={cx('fr-mx-0')} />
-            <ButtonsGroup
-              alignment="between"
-              inlineLayoutWhen="md and up"
-              buttons={[
-                {
-                  title: 'Etape précédente',
-                  iconId: 'fr-icon-arrow-left-line',
-                  priority: 'tertiary',
-                  onClick: async (e) => {
-                    e.preventDefault();
-                    await save('Draft');
-                    navigate(`/prelevements/${partialSample.id}?etape=2`, {
-                      replace: true,
-                    });
-                  },
-                  nativeButtonProps: {
-                    'data-testid': 'previous-button',
-                  },
-                },
-                {
-                  children: 'Enregistrer en brouillon',
-                  iconId: 'fr-icon-save-line',
-                  priority: 'tertiary',
-                  onClick: async (e) => {
-                    e.preventDefault();
-                    await save();
-                  },
-                },
-                {
-                  children: 'Continuer',
-                  onClick: submit,
-                  iconId: 'fr-icon-arrow-right-line',
-                  iconPosition: 'right',
-                  nativeButtonProps: {
-                    'data-testid': 'submit-button',
-                  },
-                },
-              ]}
-            />
+            <ul
+              id="fr-btns-group-:r3r:"
+              className={cx(
+                'fr-btns-group',
+                'fr-btns-group--inline-md',
+                'fr-btns-group--between',
+                'fr-btns-group--icon-left'
+              )}
+            >
+              <li>
+                <ButtonsGroup
+                  alignment="left"
+                  inlineLayoutWhen="md and up"
+                  buttons={
+                    [
+                      PreviousButton({
+                        sampleId: partialSample.id,
+                        onSave: () => save('Draft'),
+                        currentStep: 2,
+                        isSmallMedia: false,
+                      }),
+                      {
+                        children: 'Enregistrer en brouillon',
+                        iconId: 'fr-icon-save-line',
+                        priority: 'tertiary',
+                        onClick: async (e: React.MouseEvent<HTMLElement>) => {
+                          e.preventDefault();
+                          await save();
+                        },
+                      },
+                      PreviousButton({
+                        sampleId: partialSample.id,
+                        onSave: () => save('Draft'),
+                        currentStep: 2,
+                        isSmallMedia: true,
+                      }),
+                    ] as any
+                  }
+                />
+              </li>
+              <li>
+                <Button
+                  children="Continuer"
+                  onClick={submit}
+                  iconId="fr-icon-arrow-right-line"
+                  iconPosition="right"
+                  data-testid="submit-button"
+                />
+              </li>
+            </ul>
           </div>
         </div>
       </form>

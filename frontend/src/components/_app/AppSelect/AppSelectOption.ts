@@ -9,11 +9,13 @@ export interface AppSelectOption {
   hidden?: boolean;
 }
 
-export const DefaultAppSelectOption: AppSelectOption = {
-  label: 'Sélectionner une valeur',
+export const defaultAppSelectOption = (
+  optionLabel?: string
+): AppSelectOption => ({
+  label: `${optionLabel ?? 'Sélectionner une valeur'}`,
   value: '',
   disabled: true,
-};
+});
 
 const DefaultSelectOptionsFromListConfig = {
   withDefault: true,
@@ -24,6 +26,7 @@ export const selectOptionsFromList = (
   config: {
     labels?: Record<string, string>;
     withDefault?: boolean;
+    defaultLabel?: string;
   } = {
     withDefault: true,
   }
@@ -33,7 +36,9 @@ export const selectOptionsFromList = (
     ...config,
   };
   return [
-    ...(selectConfig.withDefault ? [DefaultAppSelectOption] : []),
+    ...(selectConfig.withDefault
+      ? [defaultAppSelectOption(selectConfig.defaultLabel)]
+      : []),
     ...list
       .map((item) => ({
         label: selectConfig.labels ? selectConfig.labels[item] : item,
@@ -49,7 +54,7 @@ export const laboratoriesOptions = (
 ): AppSelectOption[] => {
   return [
     {
-      ...DefaultAppSelectOption,
+      ...defaultAppSelectOption('Sélectionner un laboratoire'),
       label: '-',
     },
     ...laboratories.map((laboratory) => ({
