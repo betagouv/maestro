@@ -16,7 +16,10 @@ import {
   LegalContextList,
 } from 'shared/referential/LegalContext';
 import { Regions } from 'shared/referential/Region';
-import { companyFromSearchResult } from 'shared/schema/Company/Company';
+import {
+  Company,
+  companyFromSearchResult,
+} from 'shared/schema/Company/Company';
 import { ProgrammingPlanKindLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { PartialSample, SampleToCreate } from 'shared/schema/Sample/Sample';
 import { SampleStatus } from 'shared/schema/Sample/SampleStatus';
@@ -69,8 +72,8 @@ const SampleStepCreation = ({ partialSample }: Props) => {
   const [department, setDepartment] = useState(partialSample?.department);
   const [parcel, setParcel] = useState(partialSample?.parcel);
   const [company, setCompany] = useState(partialSample?.company);
-  const [commentCreation, setCommentCreation] = useState(
-    partialSample?.commentCreation
+  const [notesOnCreation, setNotesOnCreation] = useState(
+    partialSample?.notesOnCreation
   );
 
   const { data: programmingPlans } = useFindProgrammingPlansQuery({
@@ -93,21 +96,30 @@ const SampleStepCreation = ({ partialSample }: Props) => {
   );
 
   const form = useForm(Form, {
+    sampledAt,
+    department,
     geolocationX,
     geolocationY,
-    sampledAt,
-    resytalId,
+    parcel,
     programmingPlanId:
       programmingPlanId === OutsideProgrammingId
         ? undefined
         : programmingPlanId,
     legalContext,
-    department,
-    parcel,
-    commentCreation,
+    company,
+    resytalId,
+    notesOnCreation,
   });
 
   type FormShape = typeof Form.shape;
+
+  const departmentOptions = selectOptionsFromList(
+    userInfos?.region ? Regions[userInfos.region].departments : DepartmentList,
+    {
+      labels: DepartmentLabels,
+      defaultLabel: 'Sélectionner une zone',
+    }
+  );
 
   const programmingPlanOptions = [
     ...(programmingPlans ?? []).map(({ id, kind }) => ({
@@ -127,29 +139,22 @@ const SampleStepCreation = ({ partialSample }: Props) => {
     withDefault: false,
   });
 
-  const departmentOptions = selectOptionsFromList(
-    userInfos?.region ? Regions[userInfos.region].departments : DepartmentList,
-    {
-      labels: DepartmentLabels,
-    }
-  );
-
   const formData = {
+    sampledAt: parse(sampledAt, 'yyyy-MM-dd HH:mm', new Date()),
+    department: department as Department,
     geolocation: {
       x: geolocationX as number,
       y: geolocationY as number,
     },
-    sampledAt: parse(sampledAt, 'yyyy-MM-dd HH:mm', new Date()),
-    resytalId: resytalId as string,
+    parcel,
     programmingPlanId:
       (programmingPlanId as string) === OutsideProgrammingId
         ? undefined
         : (programmingPlanId as string),
     legalContext: legalContext as LegalContext,
-    department: department as Department,
-    company,
-    parcel,
-    commentCreation,
+    company: company as Company,
+    resytalId: resytalId as string,
+    notesOnCreation,
   };
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
@@ -253,7 +258,7 @@ const SampleStepCreation = ({ partialSample }: Props) => {
         </div>
         <div className={cx('fr-col-12', 'fr-col-sm-8')}>
           <SampleGeolocation
-            sampleId={partialSample?.id}
+            key={`geolocation-${isBrowserGeolocation}`}
             location={
               geolocationX && geolocationY
                 ? { x: geolocationX, y: geolocationY }
@@ -263,7 +268,6 @@ const SampleStepCreation = ({ partialSample }: Props) => {
               setGeolocationX(location.x);
               setGeolocationY(location.y);
             }}
-            key={`geolocation-${isBrowserGeolocation}`}
           />
         </div>
         <div className={cx('fr-col-12', 'fr-col-sm-4')}>
@@ -305,7 +309,7 @@ const SampleStepCreation = ({ partialSample }: Props) => {
                 whenValid="Parcelle correctement renseignée."
                 data-testid="parcel-input"
                 label="N° ou appellation de la parcelle"
-                placeholder="Facultatif"
+                hintText="Facultatif"
               />
             </div>
           </div>
@@ -325,9 +329,9 @@ const SampleStepCreation = ({ partialSample }: Props) => {
             label,
             nativeInputProps: {
               checked: programmingPlanId === value,
-              onChange: (e) => setProgrammingPlanId(value),
+              onChange: () => setProgrammingPlanId(value),
             },
-            illustration: <img src={illustration} />,
+            illustration: <img src={illustration} alt="" aria-hidden />,
           })) ?? []
         }
         state={form.messageType('programmingPlanId')}
@@ -355,7 +359,9 @@ const SampleStepCreation = ({ partialSample }: Props) => {
               checked: legalContext === value,
               onChange: () => setLegalContext(value as LegalContext),
             },
-            illustration: <img src={value === 'B' ? policeHat : scale} />,
+            illustration: (
+              <img src={value === 'B' ? policeHat : scale} alt="" aria-hidden />
+            ),
           })) ?? []
         }
         state={form.messageType('legalContext')}
@@ -372,10 +378,12 @@ const SampleStepCreation = ({ partialSample }: Props) => {
           <CompanySearch
             department={department}
             onSelectCompany={(result) => {
-              if (result) {
-                setCompany(companyFromSearchResult(result));
-              }
+              setCompany(result ? companyFromSearchResult(result) : undefined);
             }}
+            state={form.messageType('company')}
+            stateRelatedMessage={
+              form.message('company') ?? 'Entité correctement renseignée'
+            }
           />
         </div>
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
@@ -388,7 +396,7 @@ const SampleStepCreation = ({ partialSample }: Props) => {
             whenValid="Identifiant Resytal correctement renseigné."
             data-testid="resytalId-input"
             label="Identifiant Resytal"
-            hintText="Format 22XXXXXX"
+            hintText="Format AA-XXXXXX"
           />
         </div>
       </div>
@@ -396,12 +404,12 @@ const SampleStepCreation = ({ partialSample }: Props) => {
         <div className={cx('fr-col-12')}>
           <AppTextAreaInput<FormShape>
             rows={1}
-            defaultValue={commentCreation ?? ''}
-            onChange={(e) => setCommentCreation(e.target.value)}
+            defaultValue={notesOnCreation ?? ''}
+            onChange={(e) => setNotesOnCreation(e.target.value)}
             inputForm={form}
-            inputKey="commentCreation"
+            inputKey="notesOnCreation"
             whenValid="Note correctement renseignée."
-            data-testid="comment-input"
+            data-testid="notes-input"
             label="Note additionnelle"
             hintText="Champ facultatif pour précisions supplémentaires"
           />
