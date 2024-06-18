@@ -172,7 +172,7 @@ const updateSample = async (request: Request, response: Response) => {
       sampleItems.map(async (sampleItem) => {
         const doc = await storeSampleItemDocument(
           updatedSample as Sample,
-          sampleItem,
+          sampleItem as SampleItem,
           user
         );
 
