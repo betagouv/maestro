@@ -50,7 +50,7 @@ export const Sample = z.object({
   matrixDetails: z.string().optional().nullable(),
   matrixPart: MatrixPart,
   stage: Stage,
-  cultureKind: CultureKind,
+  cultureKind: CultureKind.optional().nullable(),
   releaseControl: z.boolean().optional().nullable(),
   items: z.array(SampleItem).min(1, {
     message: 'Veuillez renseigner au moins un échantillon.',

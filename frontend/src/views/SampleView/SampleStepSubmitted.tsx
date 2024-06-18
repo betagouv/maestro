@@ -1,38 +1,33 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
-import Button from '@codegouvfr/react-dsfr/Button';
-import Card from '@codegouvfr/react-dsfr/Card';
+import Badge from '@codegouvfr/react-dsfr/Badge';
+import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { format } from 'date-fns';
-import { t } from 'i18next';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import { CultureKindLabels } from 'shared/referential/CultureKind';
 import { DepartmentLabels } from 'shared/referential/Department';
 import { LegalContextLabels } from 'shared/referential/LegalContext';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
 import { MatrixPartLabels } from 'shared/referential/MatrixPart';
-import { QuantityUnitLabels } from 'shared/referential/QuantityUnit';
 import { StageLabels } from 'shared/referential/Stage';
 import { ProgrammingPlanKindLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { PartialSample } from 'shared/schema/Sample/Sample';
+import { Sample } from 'shared/schema/Sample/Sample';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useLazyGetDocumentDownloadSignedUrlQuery } from 'src/services/document.service';
 import { useGetLaboratoryQuery } from 'src/services/laboratory.service';
 import { useGetProgrammingPlanQuery } from 'src/services/programming-plan.service';
-import {
-  getSupportDocumentURL,
-  useUpdateSampleMutation,
-} from 'src/services/sample.service';
+import { useUpdateSampleMutation } from 'src/services/sample.service';
+import PreviousButton from 'src/views/SampleView/PreviousButton';
+import SampleItemsCallout from 'src/views/SampleView/SampleItemsCallout';
 import SampleSendModal from 'src/views/SampleView/SampleSendModal';
 
 interface Props {
-  sample: PartialSample;
+  sample: Sample;
 }
 
 const SampleStepSubmitted = ({ sample }: Props) => {
-  const navigate = useNavigate();
   const { hasPermission } = useAuthentication();
-  const [updateSample, { isSuccess: isUpdateSuccess }] =
-    useUpdateSampleMutation();
+  const [updateSample] = useUpdateSampleMutation();
   const [getDocumentUrl] = useLazyGetDocumentDownloadSignedUrlQuery();
 
   const { data: sampleProgrammingPlan } = useGetProgrammingPlanQuery(
@@ -62,216 +57,212 @@ const SampleStepSubmitted = ({ sample }: Props) => {
     });
   };
 
+  const save = async (status = sample.status) => {
+    await updateSample({
+      ...sample,
+      status,
+    });
+  };
+
   return (
-    <div data-testid="sample_data">
-      {hasPermission('updateSample') && sample.status !== 'Sent' && (
-        <p>
-          Vérifiez que les informations saisies sont correctes avant de valider
-          l'envoi de votre prélèvement.
-        </p>
-      )}
-      <h3>Informations générales</h3>
-      <ul>
-        <li>
-          <strong>Date de prélèvement : </strong>
-          {format(sample.sampledAt, 'dd/MM/yyyy')}
-        </li>
-        <li>
-          <strong>Géolocalisation : </strong>
-          {sample.geolocation.x} - {sample.geolocation.y}
-        </li>
-        <li>
-          <strong>Département : </strong>
-          {DepartmentLabels[sample.department]}
-        </li>
-        {sample.resytalId && (
-          <li>
-            <strong>Identifiant résytal : </strong>
-            {sample.resytalId}
-          </li>
-        )}
-        {sampleProgrammingPlan && (
-          <li>
-            <strong>Contexte : </strong>
-            {ProgrammingPlanKindLabels[sampleProgrammingPlan.kind]}
-          </li>
-        )}
-        <li>
-          <strong>Cadre juridique : </strong>
-          {LegalContextLabels[sample.legalContext]}
-        </li>
-        {sample.notesOnCreation && (
-          <li>
-            <strong>Commentaires : </strong>
-            {sample.notesOnCreation}
-          </li>
-        )}
-      </ul>
-      <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
-      <h3>Lieu de prélèvement</h3>
-      <ul>
-        <li>
-          <strong>SIRET :</strong> {sample.company?.siret}
-        </li>
-        <li>
-          <strong>Nom :</strong> {sample.company?.name}
-        </li>
-        <li>
-          <strong>Adresse :</strong> {sample.company?.address}
-        </li>
-      </ul>
-      <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
-      <h3>Informations spécifiques</h3>
-      <ul>
-        {sample.matrix && (
-          <li>
-            <strong>Matrice : </strong>
-            {MatrixLabels[sample.matrix]}
-          </li>
-        )}
-        {sample.matrixDetails && (
-          <li>
-            <strong>Detail de la matrice : </strong>
-            {sample.matrixDetails}
-          </li>
-        )}
-        {sample.matrixPart && (
-          <li>
-            <strong>Partie du végétal : </strong>
-            {MatrixPartLabels[sample.matrixPart]}
-          </li>
-        )}
-        {sample.cultureKind && (
-          <li>
-            <strong>Type de culture : </strong>
-            {CultureKindLabels[sample.cultureKind]}
-          </li>
-        )}
-        {sample.stage && (
-          <li>
-            <strong>Stade de prélèvement : </strong>
-            {StageLabels[sample.stage]}
-          </li>
-        )}
-        <li>
-          <strong>Contrôle libératoire : </strong>
-          {t('boolean', { count: Number(sample.releaseControl ?? 0) })}
-        </li>
-        {sample.parcel && (
-          <li>
-            <strong>Parcelle : </strong>
-            {sample.parcel}
-          </li>
-        )}
-        {sample.notesOnMatrix && (
-          <li>
-            <strong>Commentaires : </strong>
-            {sample.notesOnMatrix}
-          </li>
-        )}
-      </ul>
-      <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
-      <h3>Échantillons</h3>
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        {(sample.items ?? []).map((item, itemIndex) => (
-          <div key={itemIndex} className={cx('fr-col-6')}>
-            <Card
-              title={`Échantillon ${itemIndex + 1}`}
-              shadow
-              size="small"
-              end={
-                <ul>
-                  <li>
-                    <strong>Quantité : </strong>
-                    {item.quantity}
-                    {item.quantityUnit && QuantityUnitLabels[item.quantityUnit]}
-                  </li>
-                  <li>
-                    <strong>Numéro de scellé : </strong>
-                    {item.sealId}
-                  </li>
-                  <li>
-                    <strong>Directive 2002/63 respectée : </strong>
-                    {item.compliance200263 ? 'Oui' : 'Non'}
-                  </li>
-                </ul>
-              }
-              footer={
-                <>
-                  {hasPermission('downloadSupportDocument') &&
-                    ['Sent', 'Submitted'].includes(sample.status) && (
-                      <Button
-                        priority="secondary"
-                        iconId="fr-icon-download-line"
-                        onClick={() =>
-                          sample.status === 'Submitted'
-                            ? window.open(
-                                getSupportDocumentURL(sample.id, itemIndex + 1)
-                              )
-                            : openFile(item.supportDocumentId as string)
-                        }
-                        disabled={
-                          sample.status === 'Sent' && !item.supportDocumentId
-                        }
-                      >
-                        Document d'accompagnement
-                      </Button>
-                    )}
-                </>
-              }
-            />
+    <div data-testid="sample_data" className="sample-form">
+      <h3 className={cx('fr-m-0')}>
+        Récapitulatif du prélèvement {sample.reference}
+        {hasPermission('updateSample') && sample.status !== 'Sent' && (
+          <div className={cx('fr-text--md', 'fr-text--regular', 'fr-m-0')}>
+            Vérifiez l’ensemble des informations avant de finaliser votre envoi
           </div>
-        ))}
+        )}
+      </h3>
+
+      <section className="sample-step-summary">
+        <Badge className={cx('fr-badge--green-tilleul-verveine')}>
+          Le contexte du prélèvement
+        </Badge>
+        <div className="summary-item">
+          <div className={cx('fr-icon-user-line')}></div>
+          <div>Prélèvement réalisé par TODO</div>
+        </div>
+        <div className="summary-item">
+          <div className={cx('fr-icon-calendar-event-line')}></div>
+          <div>
+            Prélèvement réalisé le{' '}
+            <b>{format(sample.sampledAt, 'dd/MM/yyyy')}</b> à{' '}
+            <b>{format(sample.sampledAt, "HH'h'mm")}</b>
+          </div>
+        </div>
+        <div className="summary-item">
+          <div className={cx('fr-icon-road-map-line')}></div>
+          <div>
+            Département : <b>{DepartmentLabels[sample.department]}</b>
+            <div>
+              Latitude : <b>{sample.geolocation.x}</b> Longitude : 
+              <b>{sample.geolocation.y}</b>
+            </div>
+            {sample.parcel && (
+              <div>
+                N° ou appellation de la parcelle : <b>{sample.parcel}</b>
+              </div>
+            )}
+          </div>
+        </div>
+        {sampleProgrammingPlan && (
+          <div className="summary-item">
+            <div className={cx('fr-icon-microscope-line')}></div>
+            <div>
+              Contexte :{' '}
+              <b>{ProgrammingPlanKindLabels[sampleProgrammingPlan?.kind]}</b>
+            </div>
+          </div>
+        )}
+        <div className="summary-item">
+          <div className={cx('fr-icon-scales-3-line')}></div>
+          <div>
+            Cadre juridique : <b>{LegalContextLabels[sample.legalContext]}</b>
+          </div>
+        </div>
+        <div className="summary-item">
+          <div className={cx('fr-icon-map-pin-2-line')}></div>
+          <div>
+            Entité contrôlée : <b>{sample.company.name}</b> - SIRET{' '}
+            {sample.company.siret}
+            {sample.resytalId && (
+              <div>
+                Identifiant RESYTAL : <b>{sample.resytalId}</b>
+              </div>
+            )}
+          </div>
+        </div>
+        {sample.notesOnCreation && (
+          <div className="summary-item">
+            <div className={cx('fr-icon-quote-line')}></div>
+            <div>
+              Note additionnelle{' '}
+              <div>
+                <b>“ {sample.notesOnCreation} “</b>
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
+      <hr className={cx('fr-mx-0')} />
+      <section className="sample-step-summary">
+        <Badge className={cx('fr-badge--green-tilleul-verveine')}>
+          La matrice contrôlée
+        </Badge>
+        <div className="summary-item">
+          <div className={cx('fr-icon-restaurant-line')}></div>
+          <div>
+            Matrice : <b>{MatrixLabels[sample.matrix]}</b>
+            <div>
+              LMR/ Partie du végétal concernée :{' '}
+              <b>{MatrixPartLabels[sample.matrixPart]}</b>
+            </div>
+            {sample.matrixDetails && (
+              <div>
+                Détails de la matrice : <b>{sample.matrixDetails}</b>
+              </div>
+            )}
+          </div>
+        </div>
+        {sample.cultureKind && (
+          <div className="summary-item">
+            <div className={cx('fr-icon-seedling-line')}></div>
+            <div>
+              Type de culture : <b>{CultureKindLabels[sample.cultureKind]}</b>
+            </div>
+          </div>
+        )}
+        <div className="summary-item">
+          <div className={cx('fr-icon-sip-line')}></div>
+          <div>
+            Stade de prélèvement : <b>{StageLabels[sample.stage]}</b>
+          </div>
+        </div>
+        {sample.notesOnMatrix && (
+          <div className="summary-item">
+            <div className={cx('fr-icon-quote-line')}></div>
+            <div>
+              Note additionnelle{' '}
+              <div>
+                <b>“ {sample.notesOnMatrix} “</b>
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
+      <hr className={cx('fr-mx-0')} />
+      <h3 className={cx('fr-m-0')}>Échantillons prélevés</h3>
+      <div className="sample-items">
+        <SampleItemsCallout items={sample.items} />
         {sample.notesOnItems && (
           <div className={cx('fr-col-12')}>
-            <strong>Commentaires : </strong>
+            <strong>Commentaires : </strong>
             {sample.notesOnItems}
           </div>
         )}
-      </div>
-      <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
-      {isUpdateSuccess ? (
-        <Alert severity="success" title="Le prélèvement a bien été envoyé." />
-      ) : (
-        <>
-          {hasPermission('updateSample') && sample.status !== 'Sent' && (
-            <div className="fr-btns-group fr-btns-group--inline-md fr-btns-group--left fr-btns-group--icon-left">
-              <Button
-                priority="secondary"
-                onClick={async (e) => {
-                  e.preventDefault();
-                  await updateSample({
-                    ...sample,
-                    status: 'DraftItems',
-                  });
-                  navigate(`/prelevements/${sample.id}?etape=4`, {
-                    replace: true,
-                  });
-                }}
-                data-testid="previous-button"
-              >
-                Etape précédente
-              </Button>
-              {laboratory ? (
-                <SampleSendModal
-                  sample={sample}
-                  laboratory={laboratory}
-                  onConfirm={submit}
-                />
-              ) : (
-                <Alert severity={'error'} title={'Laboratoire non trouvé'} />
-              )}
+        {sample.notesOnItems && (
+          <div className="summary-item">
+            <div className={cx('fr-icon-quote-line')}></div>
+            <div>
+              Note additionnelle{' '}
+              <div>
+                <b>“ {sample.notesOnItems} “</b>
+              </div>
             </div>
-          )}
-          {sample.status === 'Sent' && (
-            <Alert
-              severity="info"
-              title={`Le prélevement a été envoyé ${
-                sample.sentAt ? 'le' + format(sample.sentAt, 'dd/MM/yyyy') : ''
-              }`}
-            />
-          )}
-        </>
+          </div>
+        )}
+      </div>
+      <hr className={cx('fr-mx-0')} />
+      {hasPermission('updateSample') && sample.status !== 'Sent' && (
+        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+          <div className={cx('fr-col-12')}>
+            <ul
+              className={cx(
+                'fr-btns-group',
+                'fr-btns-group--inline-md',
+                'fr-btns-group--between',
+                'fr-btns-group--icon-left'
+              )}
+            >
+              <li>
+                <ButtonsGroup
+                  alignment="left"
+                  inlineLayoutWhen="md and up"
+                  buttons={
+                    [
+                      PreviousButton({
+                        sampleId: sample.id,
+                        onSave: async () => save('DraftItems'),
+                        currentStep: 4,
+                      }),
+                      {
+                        children: 'Enregistrer',
+                        iconId: 'fr-icon-save-line',
+                        priority: 'tertiary',
+                        onClick: async (e: React.MouseEvent<HTMLElement>) => {
+                          e.preventDefault();
+                          await save();
+                        },
+                      },
+                    ] as any
+                  }
+                />
+              </li>
+              <li>
+                {laboratory ? (
+                  <SampleSendModal
+                    sample={sample}
+                    laboratory={laboratory}
+                    onConfirm={submit}
+                  />
+                ) : (
+                  <Alert severity={'error'} title={'Laboratoire non trouvé'} />
+                )}
+              </li>
+            </ul>
+          </div>
+        </div>
       )}
     </div>
   );

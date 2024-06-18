@@ -37,7 +37,7 @@ function AppSelect<T extends ZodRawShape>(props: AppSelectProps<T>) {
             {selectProps.required && <AppRequiredInput />}
           </>
         ) : (
-          ''
+          ' '
         )
       }
       hint={hint}

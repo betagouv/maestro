@@ -3,6 +3,7 @@ import Stepper from '@codegouvfr/react-dsfr/Stepper';
 import clsx from 'clsx';
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
+import { Sample } from 'shared/schema/Sample/Sample';
 import { SampleStatus } from 'shared/schema/Sample/SampleStatus';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
@@ -28,7 +29,7 @@ const SampleView = () => {
   const [step, setStep] = useState<number>();
 
   const StepTitles = [
-    'Cadre du prélèvement',
+    'Contexte du prélèvement',
     'Matrice contrôlée',
     'Echantillons',
     'Récapitulatif',
@@ -111,7 +112,9 @@ const SampleView = () => {
       {step === 1 && <SampleStepCreation partialSample={sample} />}
       {step === 2 && sample && <SampleStepDraftMatrix partialSample={sample} />}
       {step === 3 && sample && <SampleStepDraftItems partialSample={sample} />}
-      {step === 4 && sample && <SampleStepSubmitted sample={sample} />}
+      {step === 4 && sample && (
+        <SampleStepSubmitted sample={sample as Sample} />
+      )}
     </section>
   );
 };

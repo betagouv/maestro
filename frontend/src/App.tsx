@@ -57,7 +57,7 @@ function App() {
 
       <main
         className={cx('fr-container', 'fr-pt-2w')}
-        style={{ minHeight: 'calc(100vh - 440px)' }}
+        style={{ minHeight: 'calc(100vh - 440px)', paddingBottom: '80px' }}
       >
         <Routes>
           {[

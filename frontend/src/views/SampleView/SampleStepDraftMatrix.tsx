@@ -112,193 +112,183 @@ const SampleStepDraftMatrix = ({ partialSample }: Props) => {
   };
 
   return (
-    <>
-      <form
-        data-testid="draft_sample_infos_form"
-        onChange={async (e) => {
-          e.preventDefault();
-          await save();
-        }}
-        className="sample-form"
-      >
-        <AppRequiredText />
-        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-            <AppSelect<FormShape>
-              value={matrix ?? ''}
-              options={selectOptionsFromList(
-                MatrixList.filter(
-                  (matrix) =>
-                    !prescriptions ||
-                    prescriptions.find((p) => p.matrix === matrix)
-                ),
-                {
-                  labels: MatrixLabels,
-                  defaultLabel: 'Sélectionner une matrice',
-                }
-              )}
-              onChange={(e) => setMatrix(e.target.value as Matrix)}
-              inputForm={form}
-              inputKey="matrix"
-              whenValid="Matrice correctement renseignée."
-              data-testid="matrix-select"
-              label="Matrice"
-              required
-            />
-          </div>
-          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-            <AppSelect<FormShape>
-              defaultValue={stage ?? ''}
-              options={selectOptionsFromList(
-                StageList.filter(
-                  (stage) =>
-                    !prescriptions ||
-                    prescriptions.find(
-                      (p) => p.matrix === matrix && p.stages.includes(stage)
-                    )
-                ),
-                {
-                  labels: StageLabels,
-                  defaultLabel: 'Sélectionner un stade',
-                }
-              )}
-              onChange={(e) => setStage(e.target.value as Stage)}
-              inputForm={form}
-              inputKey="stage"
-              whenValid="Stade de prélèvement correctement renseigné."
-              data-testid="stage-select"
-              label="Stade de prélèvement"
-              required
-            />
-          </div>
+    <form
+      data-testid="draft_sample_infos_form"
+      onChange={async (e) => {
+        e.preventDefault();
+        await save();
+      }}
+      className="sample-form"
+    >
+      <AppRequiredText />
+      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+        <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+          <AppSelect<FormShape>
+            value={matrix ?? ''}
+            options={selectOptionsFromList(
+              MatrixList.filter(
+                (matrix) =>
+                  !prescriptions ||
+                  prescriptions.find((p) => p.matrix === matrix)
+              ),
+              {
+                labels: MatrixLabels,
+                defaultLabel: 'Sélectionner une matrice',
+              }
+            )}
+            onChange={(e) => setMatrix(e.target.value as Matrix)}
+            inputForm={form}
+            inputKey="matrix"
+            whenValid="Matrice correctement renseignée."
+            data-testid="matrix-select"
+            label="Matrice"
+            required
+          />
         </div>
-        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={cx('fr-col-12')}>
-            <AppTextInput<FormShape>
-              defaultValue={matrixDetails ?? ''}
-              onChange={(e) => setMatrixDetails(e.target.value)}
-              inputForm={form}
-              inputKey="matrixDetails"
-              whenValid="Détail de la matrice correctement renseigné."
-              data-testid="matrixdetails-input"
-              label="Détail de la matrice"
-              hintText="Champ facultatif pour précisions supplémentaires"
-            />
-          </div>
-          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-            <AppSelect<FormShape>
-              defaultValue={cultureKind ?? ''}
-              options={selectOptionsFromList(CultureKindList, {
-                labels: CultureKindLabels,
-                defaultLabel: 'Sélectionner un type de culture',
-              })}
-              onChange={(e) => setCultureKind(e.target.value as CultureKind)}
-              inputForm={form}
-              inputKey="cultureKind"
-              whenValid="Type de culture correctement renseigné."
-              data-testid="culturekind-select"
-              label="Type de culture"
-            />
-          </div>
-          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-            <AppSelect<FormShape>
-              defaultValue={matrixPart ?? ''}
-              options={selectOptionsFromList(MatrixPartList, {
-                labels: MatrixPartLabels,
-                defaultLabel: 'Sélectionner une partie du végétal',
-              })}
-              onChange={(e) => setMatrixPart(e.target.value as MatrixPart)}
-              inputForm={form}
-              inputKey="matrixPart"
-              whenValid="Partie du végétal correctement renseignée."
-              data-testid="matrixpart-select"
-              label="LMR / Partie du végétal concernée"
-              required
-            />
-          </div>
+        <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+          <AppSelect<FormShape>
+            defaultValue={stage ?? ''}
+            options={selectOptionsFromList(
+              StageList.filter(
+                (stage) =>
+                  !prescriptions ||
+                  prescriptions.find(
+                    (p) => p.matrix === matrix && p.stages.includes(stage)
+                  )
+              ),
+              {
+                labels: StageLabels,
+                defaultLabel: 'Sélectionner un stade',
+              }
+            )}
+            onChange={(e) => setStage(e.target.value as Stage)}
+            inputForm={form}
+            inputKey="stage"
+            whenValid="Stade de prélèvement correctement renseigné."
+            data-testid="stage-select"
+            label="Stade de prélèvement"
+            required
+          />
         </div>
-        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={cx('fr-col-12')}>
-            <ToggleSwitch
-              label="Contrôle libératoire"
-              checked={releaseControl ?? false}
-              onChange={(checked) => setReleaseControl(checked)}
-              showCheckedHint={false}
-            />
-          </div>
+      </div>
+      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+        <div className={cx('fr-col-12')}>
+          <AppTextInput<FormShape>
+            defaultValue={matrixDetails ?? ''}
+            onChange={(e) => setMatrixDetails(e.target.value)}
+            inputForm={form}
+            inputKey="matrixDetails"
+            whenValid="Détail de la matrice correctement renseigné."
+            data-testid="matrixdetails-input"
+            label="Détail de la matrice"
+            hintText="Champ facultatif pour précisions supplémentaires"
+          />
         </div>
-        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={cx('fr-col-12')}>
-            <AppTextAreaInput<FormShape>
-              rows={1}
-              defaultValue={notesOnMatrix ?? ''}
-              onChange={(e) => setNotesOnMatrix(e.target.value)}
-              inputForm={form}
-              inputKey="notesOnMatrix"
-              whenValid="Note correctement renseignée."
-              data-testid="notes-input"
-              label="Note additionnelle"
-              hintText="Champ facultatif pour précisions supplémentaires"
-            />
-          </div>
+        <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+          <AppSelect<FormShape>
+            defaultValue={cultureKind ?? ''}
+            options={selectOptionsFromList(CultureKindList, {
+              labels: CultureKindLabels,
+              defaultLabel: 'Sélectionner un type de culture',
+            })}
+            onChange={(e) => setCultureKind(e.target.value as CultureKind)}
+            inputForm={form}
+            inputKey="cultureKind"
+            whenValid="Type de culture correctement renseigné."
+            data-testid="culturekind-select"
+            label="Type de culture"
+          />
         </div>
-        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={cx('fr-col-12')}>
-            <hr className={cx('fr-mx-0')} />
-            <ul
-              id="fr-btns-group-:r3r:"
-              className={cx(
-                'fr-btns-group',
-                'fr-btns-group--inline-md',
-                'fr-btns-group--between',
-                'fr-btns-group--icon-left'
-              )}
-            >
-              <li>
-                <ButtonsGroup
-                  alignment="left"
-                  inlineLayoutWhen="md and up"
-                  buttons={
-                    [
-                      PreviousButton({
-                        sampleId: partialSample.id,
-                        onSave: () => save('Draft'),
-                        currentStep: 2,
-                        isSmallMedia: false,
-                      }),
-                      {
-                        children: 'Enregistrer en brouillon',
-                        iconId: 'fr-icon-save-line',
-                        priority: 'tertiary',
-                        onClick: async (e: React.MouseEvent<HTMLElement>) => {
-                          e.preventDefault();
-                          await save();
-                        },
+        <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+          <AppSelect<FormShape>
+            defaultValue={matrixPart ?? ''}
+            options={selectOptionsFromList(MatrixPartList, {
+              labels: MatrixPartLabels,
+              defaultLabel: 'Sélectionner une partie du végétal',
+            })}
+            onChange={(e) => setMatrixPart(e.target.value as MatrixPart)}
+            inputForm={form}
+            inputKey="matrixPart"
+            whenValid="Partie du végétal correctement renseignée."
+            data-testid="matrixpart-select"
+            label="LMR / Partie du végétal concernée"
+            required
+          />
+        </div>
+      </div>
+      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+        <div className={cx('fr-col-12')}>
+          <ToggleSwitch
+            label="Contrôle libératoire"
+            checked={releaseControl ?? false}
+            onChange={(checked) => setReleaseControl(checked)}
+            showCheckedHint={false}
+          />
+        </div>
+      </div>
+      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+        <div className={cx('fr-col-12')}>
+          <AppTextAreaInput<FormShape>
+            rows={1}
+            defaultValue={notesOnMatrix ?? ''}
+            onChange={(e) => setNotesOnMatrix(e.target.value)}
+            inputForm={form}
+            inputKey="notesOnMatrix"
+            whenValid="Note correctement renseignée."
+            data-testid="notes-input"
+            label="Note additionnelle"
+            hintText="Champ facultatif pour précisions supplémentaires (date de semis, précédent cultural, traitements faits, etc.)"
+          />
+        </div>
+      </div>
+      <hr className={cx('fr-mx-0')} />
+      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+        <div className={cx('fr-col-12')}>
+          <ul
+            className={cx(
+              'fr-btns-group',
+              'fr-btns-group--inline-md',
+              'fr-btns-group--between',
+              'fr-btns-group--icon-left'
+            )}
+          >
+            <li>
+              <ButtonsGroup
+                alignment="left"
+                inlineLayoutWhen="md and up"
+                buttons={
+                  [
+                    PreviousButton({
+                      sampleId: partialSample.id,
+                      onSave: () => save('Draft'),
+                      currentStep: 2,
+                    }),
+                    {
+                      children: 'Enregistrer en brouillon',
+                      iconId: 'fr-icon-save-line',
+                      priority: 'tertiary',
+                      onClick: async (e: React.MouseEvent<HTMLElement>) => {
+                        e.preventDefault();
+                        await save();
                       },
-                      PreviousButton({
-                        sampleId: partialSample.id,
-                        onSave: () => save('Draft'),
-                        currentStep: 2,
-                        isSmallMedia: true,
-                      }),
-                    ] as any
-                  }
-                />
-              </li>
-              <li>
-                <Button
-                  children="Continuer"
-                  onClick={submit}
-                  iconId="fr-icon-arrow-right-line"
-                  iconPosition="right"
-                  data-testid="submit-button"
-                />
-              </li>
-            </ul>
-          </div>
+                    },
+                  ] as any
+                }
+              />
+            </li>
+            <li>
+              <Button
+                children="Continuer"
+                onClick={submit}
+                iconId="fr-icon-arrow-right-line"
+                iconPosition="right"
+                data-testid="submit-button"
+              />
+            </li>
+          </ul>
         </div>
-      </form>
-    </>
+      </div>
+    </form>
   );
 };
 

@@ -415,9 +415,9 @@ const SampleStepCreation = ({ partialSample }: Props) => {
           />
         </div>
       </div>
+      <hr className={cx('fr-mx-0')} />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>
-          <hr className={cx('fr-mx-0')} />
           <ButtonsGroup
             alignment="between"
             inlineLayoutWhen="md and up"

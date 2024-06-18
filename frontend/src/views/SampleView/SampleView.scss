@@ -47,5 +47,44 @@ $breakpoint-md: 36em;
   @media (max-width: $breakpoint-md) {
     display: flex;
     flex-direction: column-reverse;
+
+    .fr-btns-group {
+      flex-direction: column;
+    }
   }
+}
+
+.sample-items {
+  display: flex;
+  flex-direction: column;
+  gap: 2.25rem;
+
+  .sample-item {
+    border: 1px solid #e5e5e5;
+    background-color: #fff;
+  }
+
+  .fr-label {
+    text-wrap: nowrap;
+  }
+}
+
+.sample-step-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  .summary-item {
+    display: flex;
+    font-size: 1.25rem;
+    line-height: 2rem;
+
+    div:first-child {
+      margin-right: 0.75rem;
+    }
+  }
+}
+
+hr {
+  padding: 1px;
 }

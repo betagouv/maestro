@@ -2,29 +2,20 @@ import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import Highlight from '@codegouvfr/react-dsfr/Highlight';
-import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  PrimaryQuantityUnitList,
-  QuantityUnit,
-  QuantityUnitLabels,
-  SecondaryQuantityUnitList,
-} from 'shared/referential/QuantityUnit';
 import { PartialSample, Sample } from 'shared/schema/Sample/Sample';
 import { PartialSampleItem } from 'shared/schema/Sample/SampleItem';
 import { isDefinedAndNotNull } from 'shared/utils/utils';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
-import AppSelect from 'src/components/_app/AppSelect/AppSelect';
-import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
-import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useForm } from 'src/hooks/useForm';
 import {
   useUpdateSampleItemsMutation,
   useUpdateSampleMutation,
 } from 'src/services/sample.service';
+import PreviousButton from 'src/views/SampleView/PreviousButton';
+import SampleItemsCallout from 'src/views/SampleView/SampleItemsCallout';
 
 export const MaxItemCount = 3;
 
@@ -66,22 +57,22 @@ const SampleStepDraftItems = ({ partialSample }: Props) => {
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     await form.validate(async () => {
-      await save();
-      await updateSample({
-        ...partialSample,
-        notesOnItems,
-        status: 'Submitted',
-      });
+      await save('Submitted');
       navigate(`/prelevements/${partialSample.id}?etape=4`, {
         replace: true,
       });
     });
   };
 
-  const save = async () => {
+  const save = async (status = partialSample.status) => {
     await updateSampleItems({
       id: partialSample.id,
       items,
+    });
+    await updateSample({
+      ...partialSample,
+      notesOnItems,
+      status,
     });
   };
 
@@ -92,133 +83,25 @@ const SampleStepDraftItems = ({ partialSample }: Props) => {
   };
 
   return (
-    <>
-      <form
-        data-testid="draft_sample_items_form"
-        onChange={async (e) => {
-          e.preventDefault();
-          await save();
-        }}
-        className="sample-form"
-      >
-        <AppRequiredText />
-        {items?.map((item, index) => (
-          <Highlight
-            key={`item_${index}`}
-            className={cx('fr-grid-row', 'fr-grid-row--gutters')}
-            // style={{
-            //   border: '1px solid #e5e5e5',
-            //   padding: '1rem',
-            //   marginBottom: '1rem',
-            // }}
-          >
-            <h3
-              className={cx('fr-col-12', 'fr-mb-0')}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-              }}
-            >
-              Echantillon {index + 1}
-              <Button
-                title="Supprimer"
-                iconId="fr-icon-delete-line"
-                priority="tertiary no outline"
-                className={cx('fr-mx-2w')}
-                onClick={(e) => {
-                  e.preventDefault();
-                  const newItems = [...items];
-                  newItems.splice(index, 1);
-                  setItems(newItems);
-                }}
-                data-testid={`remove-item-button-${index}`}
-              />
-            </h3>
-            <div className={cx('fr-col-12', 'fr-col-sm-4')}>
-              <AppTextInput<FormShape>
-                value={item.quantity ?? ''}
-                onChange={(e) =>
-                  changeItems(
-                    { ...item, quantity: Number(e.target.value) },
-                    index
-                  )
-                }
-                type="number"
-                inputForm={form}
-                inputKey="items"
-                inputPathFromKey={[index, 'quantity']}
-                whenValid="Quantité valide"
-                data-testid={`item-quantity-input-${index}`}
-                label="Quantité (obligatoire)"
-                min={0}
-                required
-              />
-            </div>
-            <div className={cx('fr-col-12', 'fr-col-sm-4')}>
-              <AppSelect<FormShape>
-                value={item.quantityUnit ?? ''}
-                options={[
-                  ...selectOptionsFromList(PrimaryQuantityUnitList, {
-                    labels: QuantityUnitLabels,
-                  }),
-                  ...selectOptionsFromList(SecondaryQuantityUnitList, {
-                    labels: QuantityUnitLabels,
-                    withDefault: false,
-                  }),
-                ]}
-                onChange={(e) =>
-                  changeItems(
-                    { ...item, quantityUnit: e.target.value as QuantityUnit },
-                    index
-                  )
-                }
-                inputForm={form}
-                inputKey="items"
-                inputPathFromKey={[index, 'quantityUnit']}
-                whenValid="Unité de quantité correctement renseignée."
-                data-testid={`item-unit-select-${index}`}
-                label="Unité de quantité (obligatoire)"
-                required
-              />
-            </div>
-            <div className={cx('fr-col-12', 'fr-col-sm-4')}>
-              <AppTextInput<FormShape>
-                value={item.sealId ?? ''}
-                onChange={(e) =>
-                  changeItems(
-                    {
-                      ...item,
-                      sealId: e.target.value,
-                    },
-                    index
-                  )
-                }
-                inputForm={form}
-                inputKey="items"
-                inputPathFromKey={[index, 'sealId']}
-                whenValid="Numéro de scellé correctement renseigné."
-                data-testid={`item-sealid-input-${index}`}
-                label="Numéro de scellé (obligatoire)"
-                required
-              />
-            </div>
-            <div className={cx('fr-col-12', 'fr-col-sm-12')}>
-              <ToggleSwitch
-                label="Respect directive 2002/63"
-                checked={item.compliance200263 ?? false}
-                onChange={(checked) =>
-                  changeItems({ ...item, compliance200263: checked }, index)
-                }
-                showCheckedHint={false}
-              />
-            </div>
-          </Highlight>
-        ))}
+    <form
+      data-testid="draft_sample_items_form"
+      onChange={async (e) => {
+        e.preventDefault();
+        await save();
+      }}
+      className="sample-form"
+    >
+      <AppRequiredText />
+      <div className="sample-items">
+        <SampleItemsCallout
+          items={items}
+          onChangeItem={changeItems}
+          itemsForm={form}
+        />
         {items.length < MaxItemCount && (
           <Button
             iconId="fr-icon-add-line"
-            priority="tertiary no outline"
+            priority="secondary"
             onClick={(e) => {
               e.preventDefault();
               setItems([
@@ -229,69 +112,86 @@ const SampleStepDraftItems = ({ partialSample }: Props) => {
                 },
               ]);
             }}
-            className={cx('fr-mb-2w')}
+            style={{
+              alignSelf: 'center',
+            }}
             data-testid="add-item-button"
           >
             Ajouter un échantillon
           </Button>
         )}
-        {form.hasIssue('items') && (
-          <Alert
-            severity="error"
-            description={form.message('items') as string}
-            small
-            className={cx('fr-mb-4w')}
-          />
-        )}
-        <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
-        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={cx('fr-col-12')}>
-            <AppTextAreaInput<FormShape>
-              rows={3}
-              defaultValue={notesOnItems ?? ''}
-              onChange={(e) => setNotesOnItems(e.target.value)}
-              inputForm={form}
-              inputKey="notesOnItems"
-              whenValid="Commentaire correctement renseigné."
-              data-testid="notes-input"
-              label="Commentaires"
-            />
-          </div>
-        </div>
-        <hr className={cx('fr-mt-3w', 'fr-mx-0')} />
+      </div>
+      {form.hasIssue('items') && (
+        <Alert
+          severity="error"
+          description={form.message('items') as string}
+          small
+          className={cx('fr-mb-4w')}
+        />
+      )}
+      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>
-          <ButtonsGroup
-            inlineLayoutWhen="md and up"
-            buttons={[
-              {
-                children: 'Etape précédente',
-                priority: 'secondary',
-                onClick: async (e) => {
-                  e.preventDefault();
-                  await updateSample({
-                    ...partialSample,
-                    status: 'DraftMatrix',
-                  });
-                  navigate(`/prelevements/${partialSample.id}?etape=2`, {
-                    replace: true,
-                  });
-                },
-                nativeButtonProps: {
-                  'data-testid': 'previous-button',
-                },
-              },
-              {
-                children: 'Etape suivante',
-                onClick: submit,
-                nativeButtonProps: {
-                  'data-testid': 'submit-button',
-                },
-              },
-            ]}
+          <AppTextAreaInput<FormShape>
+            rows={1}
+            defaultValue={notesOnItems ?? ''}
+            onChange={(e) => setNotesOnItems(e.target.value)}
+            inputForm={form}
+            inputKey="notesOnItems"
+            whenValid="Note correctement renseignée."
+            data-testid="notes-input"
+            label="Note additionnelle"
+            hintText="Champ facultatif pour précisions supplémentaires"
           />
         </div>
-      </form>
-    </>
+      </div>
+      <hr className={cx('fr-mx-0')} />
+      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+        <div className={cx('fr-col-12')}>
+          <ul
+            className={cx(
+              'fr-btns-group',
+              'fr-btns-group--inline-md',
+              'fr-btns-group--between',
+              'fr-btns-group--icon-left'
+            )}
+          >
+            <li>
+              <ButtonsGroup
+                alignment="left"
+                inlineLayoutWhen="md and up"
+                buttons={
+                  [
+                    PreviousButton({
+                      sampleId: partialSample.id,
+                      onSave: async () => save('DraftMatrix'),
+                      currentStep: 3,
+                    }),
+                    {
+                      children: 'Enregistrer en brouillon',
+                      iconId: 'fr-icon-save-line',
+                      priority: 'tertiary',
+                      onClick: async (e: React.MouseEvent<HTMLElement>) => {
+                        e.preventDefault();
+                        await save();
+                      },
+                    },
+                  ] as any
+                }
+              />
+            </li>
+            <li>
+              <Button
+                children="Continuer"
+                onClick={submit}
+                iconId="fr-icon-arrow-right-line"
+                iconPosition="right"
+                data-testid="submit-button"
+              />
+            </li>
+          </ul>
+        </div>
+      </div>
+    </form>
   );
 };
 

@@ -32,25 +32,25 @@ const SampleSendModal = ({ sample, laboratory, onConfirm }: Props) => {
         priority="primary"
         onClick={sendSampleModal.open}
       >
-        Envoyer le prélèvement
+        Envoyer la demande d’analyse
       </Button>
       <sendSampleModal.Component
-        title="Envoi d'un prélèvement"
+        title="Vous vous apprêtez à envoyer un prélèvement"
         buttons={[
           {
             children: 'Annuler',
             priority: 'secondary',
           },
           {
-            children: 'Envoyer',
+            children: "Confirmer l'envoi",
             onClick: submit,
             doClosesModal: false,
           },
         ]}
       >
-        La demande d'analyse va être envoyée au laboratoire {laboratory.name} 
-        par mail (à l'adresse {laboratory.email}).
-        <br />
+        La demande d’analyse va être envoyée au laboratoire{' '}
+        <b>{laboratory.name}</b> par e-mail à l’adresse{' '}
+        <b>{laboratory.email}</b>.
       </sendSampleModal.Component>
     </>
   );
