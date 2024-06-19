@@ -22,5 +22,5 @@ export const SampleStatusLabels: Record<SampleStatus, string> = {
   DraftMatrix: 'Brouillon',
   DraftItems: 'Brouillon',
   Submitted: 'A envoyer',
-  Sent: 'Envoyé',
+  Sent: 'Transmis',
 };

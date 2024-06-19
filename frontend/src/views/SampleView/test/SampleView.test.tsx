@@ -78,7 +78,7 @@ describe('SampleView', () => {
   });
 
   test('should render the second step for a draft sample', async () => {
-    const createdSample = genCreatedSample(sampler.id, programmingPlan1.id);
+    const createdSample = genCreatedSample(sampler, programmingPlan1.id);
     mockRequests([
       userRequest,
       prescriptionsRequest,

@@ -1,7 +1,9 @@
+import Accordion from '@codegouvfr/react-dsfr/Accordion';
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import Badge from '@codegouvfr/react-dsfr/Badge';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import clsx from 'clsx';
 import { format } from 'date-fns';
 import React from 'react';
 import { CultureKindLabels } from 'shared/referential/CultureKind';
@@ -13,12 +15,14 @@ import { StageLabels } from 'shared/referential/Stage';
 import { ProgrammingPlanKindLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { Sample } from 'shared/schema/Sample/Sample';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import { useLazyGetDocumentDownloadSignedUrlQuery } from 'src/services/document.service';
 import { useGetLaboratoryQuery } from 'src/services/laboratory.service';
 import { useGetProgrammingPlanQuery } from 'src/services/programming-plan.service';
-import { useUpdateSampleMutation } from 'src/services/sample.service';
+import {
+  getSupportDocumentURL,
+  useUpdateSampleMutation,
+} from 'src/services/sample.service';
 import PreviousButton from 'src/views/SampleView/PreviousButton';
-import SampleItemsCallout from 'src/views/SampleView/SampleItemsCallout';
+import SampleItemCallout from 'src/views/SampleView/SampleItemCallout';
 import SampleSendModal from 'src/views/SampleView/SampleSendModal';
 
 interface Props {
@@ -28,7 +32,6 @@ interface Props {
 const SampleStepSubmitted = ({ sample }: Props) => {
   const { hasPermission } = useAuthentication();
   const [updateSample] = useUpdateSampleMutation();
-  const [getDocumentUrl] = useLazyGetDocumentDownloadSignedUrlQuery();
 
   const { data: sampleProgrammingPlan } = useGetProgrammingPlanQuery(
     sample.programmingPlanId as string,
@@ -43,11 +46,6 @@ const SampleStepSubmitted = ({ sample }: Props) => {
       skip: !sample.laboratoryId,
     }
   );
-
-  const openFile = async (documentId: string) => {
-    const url = await getDocumentUrl(documentId).unwrap();
-    window.open(url);
-  };
 
   const submit = async () => {
     await updateSample({
@@ -68,7 +66,7 @@ const SampleStepSubmitted = ({ sample }: Props) => {
     <div data-testid="sample_data" className="sample-form">
       <h3 className={cx('fr-m-0')}>
         Récapitulatif du prélèvement {sample.reference}
-        {hasPermission('updateSample') && sample.status !== 'Sent' && (
+        {hasPermission('updateSample') && (
           <div className={cx('fr-text--md', 'fr-text--regular', 'fr-m-0')}>
             Vérifiez l’ensemble des informations avant de finaliser votre envoi
           </div>
@@ -78,11 +76,16 @@ const SampleStepSubmitted = ({ sample }: Props) => {
         <Badge className={cx('fr-badge--green-menthe')}>
           Le contexte du prélèvement
         </Badge>
-        <div className="summary-item">
+        <div className="summary-item icon-text">
           <div className={cx('fr-icon-user-line')}></div>
-          <div>Prélèvement réalisé par TODO</div>
+          <div>
+            Prélèvement réalisé par 
+            <b>
+              {sample.sampler.firstName} {sample.sampler.lastName}
+            </b>
+          </div>
         </div>
-        <div className="summary-item">
+        <div className="summary-item icon-text">
           <div className={cx('fr-icon-calendar-event-line')}></div>
           <div>
             Prélèvement réalisé le{' '}
@@ -90,7 +93,7 @@ const SampleStepSubmitted = ({ sample }: Props) => {
             <b>{format(sample.sampledAt, "HH'h'mm")}</b>
           </div>
         </div>
-        <div className="summary-item">
+        <div className="summary-item icon-text">
           <div className={cx('fr-icon-road-map-line')}></div>
           <div>
             Département : <b>{DepartmentLabels[sample.department]}</b>
@@ -106,7 +109,7 @@ const SampleStepSubmitted = ({ sample }: Props) => {
           </div>
         </div>
         {sampleProgrammingPlan && (
-          <div className="summary-item">
+          <div className="summary-item icon-text">
             <div className={cx('fr-icon-microscope-line')}></div>
             <div>
               Contexte :{' '}
@@ -114,13 +117,13 @@ const SampleStepSubmitted = ({ sample }: Props) => {
             </div>
           </div>
         )}
-        <div className="summary-item">
+        <div className="summary-item icon-text">
           <div className={cx('fr-icon-scales-3-line')}></div>
           <div>
             Cadre juridique : <b>{LegalContextLabels[sample.legalContext]}</b>
           </div>
         </div>
-        <div className="summary-item">
+        <div className="summary-item icon-text">
           <div className={cx('fr-icon-map-pin-2-line')}></div>
           <div>
             Entité contrôlée : <b>{sample.company.name}</b> - SIRET{' '}
@@ -133,7 +136,7 @@ const SampleStepSubmitted = ({ sample }: Props) => {
           </div>
         </div>
         {sample.notesOnCreation && (
-          <div className="summary-item">
+          <div className="summary-item icon-text">
             <div className={cx('fr-icon-quote-line')}></div>
             <div>
               Note additionnelle{' '}
@@ -146,10 +149,10 @@ const SampleStepSubmitted = ({ sample }: Props) => {
       </section>
       <hr className={cx('fr-mx-0')} />
       <section className="sample-step-summary">
-        <Badge className={cx('fr-badge--green-tilleul-verveine')}>
+        <Badge className={cx('fr-badge--green-menthe')}>
           La matrice contrôlée
         </Badge>
-        <div className="summary-item">
+        <div className="summary-item icon-text">
           <div className={cx('fr-icon-restaurant-line')}></div>
           <div>
             Matrice : <b>{MatrixLabels[sample.matrix]}</b>
@@ -165,21 +168,21 @@ const SampleStepSubmitted = ({ sample }: Props) => {
           </div>
         </div>
         {sample.cultureKind && (
-          <div className="summary-item">
+          <div className="summary-item icon-text">
             <div className={cx('fr-icon-seedling-line')}></div>
             <div>
               Type de culture : <b>{CultureKindLabels[sample.cultureKind]}</b>
             </div>
           </div>
         )}
-        <div className="summary-item">
+        <div className="summary-item icon-text">
           <div className={cx('fr-icon-sip-line')}></div>
           <div>
             Stade de prélèvement : <b>{StageLabels[sample.stage]}</b>
           </div>
         </div>
         {sample.notesOnMatrix && (
-          <div className="summary-item">
+          <div className="summary-item icon-text">
             <div className={cx('fr-icon-quote-line')}></div>
             <div>
               Note additionnelle{' '}
@@ -193,15 +196,51 @@ const SampleStepSubmitted = ({ sample }: Props) => {
       <hr className={cx('fr-mx-0')} />
       <h3 className={cx('fr-m-0')}>Échantillons prélevés</h3>
       <div className="sample-items">
-        <SampleItemsCallout items={sample.items} />
-        {sample.notesOnItems && (
-          <div className={cx('fr-col-12')}>
-            <strong>Commentaires : </strong>
-            {sample.notesOnItems}
+        {sample.items?.map((item, itemIndex) => (
+          <div
+            className={clsx(
+              cx('fr-callout', 'fr-callout--pink-tuile', 'fr-mb-0', 'fr-pb-2w'),
+              'sample-item'
+            )}
+            key={`item-${itemIndex}`}
+          >
+            <SampleItemCallout item={item} itemIndex={itemIndex}>
+              <hr className={cx('fr-m-0')} />
+              <div>
+                <div className={cx('fr-text--bold', 'fr-text--lg')}>
+                  Document d'accompagnement du prélèvement / Procès verbal
+                </div>
+                <ButtonsGroup
+                  inlineLayoutWhen="always"
+                  buttons={[
+                    {
+                      children: 'Aperçu',
+                      iconId: 'fr-icon-external-link-line',
+                      priority: 'secondary',
+                      onClick: () =>
+                        window.open(
+                          getSupportDocumentURL(sample.id, itemIndex + 1)
+                        ),
+                    },
+                    {
+                      children: 'Imprimer',
+                      iconId: 'fr-icon-file-pdf-line',
+                      onClick: () =>
+                        window.open(
+                          getSupportDocumentURL(sample.id, itemIndex + 1)
+                        ),
+                    },
+                  ]}
+                />
+              </div>
+              <Accordion label="Informer le détenteur de la marchandise">
+                TODO
+              </Accordion>
+            </SampleItemCallout>
           </div>
-        )}
+        ))}
         {sample.notesOnItems && (
-          <div className="summary-item">
+          <div className="summary-item icon-text">
             <div className={cx('fr-icon-quote-line')}></div>
             <div>
               Note additionnelle{' '}
@@ -213,9 +252,9 @@ const SampleStepSubmitted = ({ sample }: Props) => {
         )}
       </div>
       <hr className={cx('fr-mx-0')} />
-      {hasPermission('updateSample') && sample.status !== 'Sent' && (
+      {hasPermission('updateSample') && (
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={cx('fr-col-12')}>
+          <div className={clsx(cx('fr-col-12'), 'sample-actions')}>
             <ul
               className={cx(
                 'fr-btns-group',

@@ -123,7 +123,7 @@ const createSample = async (request: Request, response: Response) => {
       new Date(),
       'yy'
     )}-${String(serial).padStart(4, '0')}-${sampleToCreate.legalContext}`,
-    createdBy: user.id,
+    sampler: fp.pick(user, ['id', 'firstName', 'lastName']),
     createdAt: new Date(),
     lastUpdatedAt: new Date(),
     status: 'DraftMatrix',
@@ -220,7 +220,7 @@ const storeSampleItemDocument = async (
     id,
     filename,
     kind: 'SupportDocument',
-    createdBy: sample.createdBy,
+    createdBy: sample.sampler.id, //TODO : check if it's the right user
     createdAt: new Date(),
   });
 

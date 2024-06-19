@@ -1,4 +1,3 @@
-import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createMuiDsfrThemeProvider } from '@codegouvfr/react-dsfr/mui';
 import { startReactDsfr } from '@codegouvfr/react-dsfr/spa';
 import React from 'react';
@@ -55,10 +54,7 @@ function App() {
         <div className="toast">Chargement en cours...</div>
       )}
 
-      <main
-        className={cx('fr-container', 'fr-pt-2w')}
-        style={{ minHeight: 'calc(100vh - 440px)', paddingBottom: '80px' }}
-      >
+      <main style={{ minHeight: 'calc(100vh - 440px)' }}>
         <Routes>
           {[
             ...availableRoutes.map((route) => (

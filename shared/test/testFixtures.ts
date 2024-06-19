@@ -47,8 +47,10 @@ export const genValidPassword = () => '123Valid';
 
 export const genUser = (...roles: UserRole[]): User => ({
   id: uuidv4(),
-  password: randomstring.generate(),
   email: fakerFR.internet.email(),
+  password: randomstring.generate(),
+  firstName: fakerFR.person.firstName(),
+  lastName: fakerFR.person.lastName(),
   roles: roles ?? [oneOf(UserRoleList)],
   region:
     roles?.includes('NationalCoordinator') || roles?.includes('Administrator')
@@ -85,14 +87,18 @@ export const genSampleToCreate = (
 });
 
 export const genCreatedSample = (
-  userId?: string,
+  user?: User,
   programmingPlanId?: string
 ): CreatedSample => ({
   id: uuidv4(),
   reference: `44-${oneOf(Regions['44'].departments)}-24-${genNumber(4)}-${oneOf(
     LegalContextList
   )}`,
-  createdBy: userId ?? uuidv4(),
+  sampler: {
+    id: user?.id ?? uuidv4(),
+    firstName: user?.firstName ?? fakerFR.person.firstName(),
+    lastName: user?.lastName ?? fakerFR.person.lastName(),
+  },
   createdAt: new Date(),
   lastUpdatedAt: new Date(),
   status: 'DraftMatrix',
@@ -100,11 +106,11 @@ export const genCreatedSample = (
 });
 
 export const genSample = (
-  userId?: string,
+  user?: User,
   programmingPlanId?: string,
   company?: Company
 ): Sample => {
-  const sample = genCreatedSample(userId, programmingPlanId);
+  const sample = genCreatedSample(user, programmingPlanId);
   return {
     ...sample,
     company: company ?? genCompany(),
@@ -127,13 +133,6 @@ export const genSampleItem = (
   quantityUnit: oneOf(QuantityUnitList),
   compliance200263: genBoolean(),
   sealId: randomstring.generate(),
-});
-
-export const genCoords = () => ({
-  coords: {
-    latitude: Math.random() * 180 - 90,
-    longitude: Math.random() * 360 - 180,
-  },
 });
 
 export const genProgrammingPlan = (userId?: string): ProgrammingPlan => ({

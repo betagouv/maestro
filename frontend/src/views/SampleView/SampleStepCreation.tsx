@@ -2,6 +2,7 @@ import Alert from '@codegouvfr/react-dsfr/Alert';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import RadioButtons from '@codegouvfr/react-dsfr/RadioButtons';
+import clsx from 'clsx';
 import { format, parse } from 'date-fns';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -419,7 +420,7 @@ const SampleStepCreation = ({ partialSample }: Props) => {
       </div>
       <hr className={cx('fr-mx-0')} />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={cx('fr-col-12')}>
+        <div className={clsx(cx('fr-col-12'), 'sample-actions')}>
           <ButtonsGroup
             alignment="between"
             inlineLayoutWhen="md and up"

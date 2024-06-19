@@ -2,6 +2,7 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
+import clsx from 'clsx';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -243,7 +244,7 @@ const SampleStepDraftMatrix = ({ partialSample }: Props) => {
       </div>
       <hr className={cx('fr-mx-0')} />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={cx('fr-col-12')}>
+        <div className={clsx(cx('fr-col-12'), 'sample-actions')}>
           <ul
             className={cx(
               'fr-btns-group',

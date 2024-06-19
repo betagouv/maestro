@@ -1,4 +1,4 @@
-$breakpoint-md: 36em;
+@import '../../constants';
 
 .sample-stepper {
   display: flex;
@@ -41,15 +41,17 @@ $breakpoint-md: 36em;
   .fr-messages-group:not(:empty) {
     margin-top: 1rem;
   }
-}
 
-.fr-btns-group {
-  @media (max-width: $breakpoint-md) {
-    display: flex;
-    flex-direction: column-reverse;
-
+  .sample-actions {
     .fr-btns-group {
-      flex-direction: column;
+      @media (max-width: $breakpoint-md) {
+        display: flex;
+        flex-direction: column-reverse;
+
+        .fr-btns-group {
+          flex-direction: column;
+        }
+      }
     }
   }
 }
@@ -60,12 +62,23 @@ $breakpoint-md: 36em;
   gap: 2.25rem;
 
   .sample-item {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
     border: 1px solid #e5e5e5;
     background-color: #fff;
   }
 
   .fr-label {
     text-wrap: nowrap;
+  }
+
+  .fr-callout {
+    button.fr-btn--secondary:hover,
+    button.fr-btn--tertiary:hover,
+    .fr-accordion__btn:hover {
+      background-color: var(--grey-975-75);
+    }
   }
 }
 
@@ -75,13 +88,16 @@ $breakpoint-md: 36em;
   gap: 1.5rem;
 
   .summary-item {
-    display: flex;
     font-size: 1.25rem;
     line-height: 2rem;
+  }
+}
 
-    div:first-child {
-      margin-right: 0.75rem;
-    }
+.icon-text {
+  display: flex;
+
+  div:first-child {
+    margin-right: 0.75rem;
   }
 }
 

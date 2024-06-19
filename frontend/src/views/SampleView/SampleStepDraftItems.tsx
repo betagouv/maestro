@@ -2,6 +2,7 @@ import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import clsx from 'clsx';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PartialSample, Sample } from 'shared/schema/Sample/Sample';
@@ -15,7 +16,7 @@ import {
   useUpdateSampleMutation,
 } from 'src/services/sample.service';
 import PreviousButton from 'src/views/SampleView/PreviousButton';
-import SampleItemsCallout from 'src/views/SampleView/SampleItemsCallout';
+import SampleItemCallout from 'src/views/SampleView/SampleItemCallout';
 
 export const MaxItemCount = 3;
 
@@ -93,16 +94,27 @@ const SampleStepDraftItems = ({ partialSample }: Props) => {
     >
       <AppRequiredText />
       <div className="sample-items">
-        <SampleItemsCallout
-          items={items}
-          onRemoveItem={(index) => {
-            const newItems = [...items];
-            newItems.splice(index, 1);
-            setItems(newItems);
-          }}
-          onChangeItem={changeItems}
-          itemsForm={form}
-        />
+        {items?.map((item, itemIndex) => (
+          <div
+            className={clsx(
+              cx('fr-callout', 'fr-callout--pink-tuile', 'fr-mb-0', 'fr-pb-2w'),
+              'sample-item'
+            )}
+            key={`item-${itemIndex}`}
+          >
+            <SampleItemCallout
+              item={item}
+              itemIndex={itemIndex}
+              onRemoveItem={(index) => {
+                const newItems = [...items];
+                newItems.splice(index, 1);
+                setItems(newItems);
+              }}
+              onChangeItem={changeItems}
+              itemsForm={form}
+            />
+          </div>
+        ))}
         {items.length < MaxItemCount && (
           <Button
             iconId="fr-icon-add-line"
@@ -151,7 +163,7 @@ const SampleStepDraftItems = ({ partialSample }: Props) => {
       </div>
       <hr className={cx('fr-mx-0')} />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={cx('fr-col-12')}>
+        <div className={clsx(cx('fr-col-12'), 'sample-actions')}>
           <ul
             className={cx(
               'fr-btns-group',

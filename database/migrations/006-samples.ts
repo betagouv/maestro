@@ -9,7 +9,7 @@ exports.up = async (knex: Knex) => {
     table
       .specificType('created_at', 'timestamptz')
       .defaultTo(knex.raw('current_timestamp'));
-    table.uuid('created_by').references('id').inTable('users');
+    table.uuid('sampled_by').references('id').inTable('users');
     table
       .specificType('last_updated_at', 'timestamptz')
       .defaultTo(knex.raw('current_timestamp'));

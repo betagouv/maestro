@@ -1,5 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
-import { genSample } from '../../../test/testFixtures';
+import { genSample, genUser } from '../../../test/testFixtures';
 import { Sample } from '../../Sample/Sample';
 import { Prescription } from '../Prescription';
 import {
@@ -56,7 +55,7 @@ describe('PrescriptionsByMatrix', () => {
 
       const samples: Sample[] = [
         {
-          ...genSample(uuidv4(), '1'),
+          ...genSample(genUser(), '1'),
           matrix: 'A000L',
           stage: 'STADE2',
           department: '52',

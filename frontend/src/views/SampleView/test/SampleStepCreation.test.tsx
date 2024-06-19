@@ -3,10 +3,7 @@ import { userEvent } from '@testing-library/user-event';
 import { format } from 'date-fns';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
-import {
-  genCompanySearchResult,
-  genProgrammingPlan,
-} from 'shared/test/testFixtures';
+import { genProgrammingPlan } from 'shared/test/testFixtures';
 import { store } from 'src/store/store';
 import SampleStepCreation from 'src/views/SampleView/SampleStepCreation';
 import { mockRequests } from '../../../../test/requestUtils.test';
@@ -26,11 +23,11 @@ const programmingPlanRequest = {
   },
 };
 
-const companySearchResult = genCompanySearchResult();
-const companySearchRequest = {
-  pathname: `/api/companies/search?q=Company`,
-  response: { body: JSON.stringify([companySearchResult]) },
-};
+// const companySearchResult = genCompanySearchResult();
+// const companySearchRequest = {
+//   pathname: `/api/companies/search?q=Company`,
+//   response: { body: JSON.stringify([companySearchResult]) },
+// };
 
 describe('SampleStepCreation', () => {
   const user = userEvent.setup();

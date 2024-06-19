@@ -7,6 +7,7 @@ import { MatrixPart } from '../../referential/MatrixPart';
 import { Region, RegionList, Regions } from '../../referential/Region';
 import { Stage } from '../../referential/Stage';
 import { Company } from '../Company/Company';
+import { User } from '../User/User';
 import { PartialSampleItem, SampleItem } from './SampleItem';
 import { SampleStatus } from './SampleStatus';
 
@@ -20,13 +21,19 @@ export const Geolocation = z.object(
   }
 );
 
+export const Sampler = User.pick({
+  id: true,
+  firstName: true,
+  lastName: true,
+});
+
 export const Sample = z.object({
   id: z.string().uuid(),
   reference: z.string(),
   department: Department,
   resytalId: z.string().optional().nullable(),
   createdAt: z.coerce.date(),
-  createdBy: z.string(),
+  sampler: Sampler,
   lastUpdatedAt: z.coerce.date(),
   sampledAt: z.coerce.date({
     errorMap: () => ({
@@ -78,7 +85,7 @@ export const CreatedSample = SampleToCreate.merge(
     id: true,
     reference: true,
     createdAt: true,
-    createdBy: true,
+    sampler: true,
     lastUpdatedAt: true,
     status: true,
   })

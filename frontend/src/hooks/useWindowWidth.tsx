@@ -1,6 +1,8 @@
+import { useBreakpointsValuesPx } from '@codegouvfr/react-dsfr/useBreakpointsValuesPx';
 import { useEffect, useState } from 'react';
 
 const useWindowWidth = () => {
+  const { breakpointsValues } = useBreakpointsValuesPx();
   const [width, setWidth] = useState(window.innerWidth);
 
   useEffect(() => {
@@ -16,7 +18,10 @@ const useWindowWidth = () => {
     };
   }, []);
 
-  return width;
+  return {
+    width,
+    isMobile: width < breakpointsValues.sm,
+  };
 };
 
 export default useWindowWidth;

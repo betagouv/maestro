@@ -1,6 +1,5 @@
 import { ButtonProps } from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { useBreakpointsValuesPx } from '@codegouvfr/react-dsfr/useBreakpointsValuesPx';
 import { useNavigate } from 'react-router-dom';
 import useWindowWidth from 'src/hooks/useWindowWidth';
 
@@ -16,8 +15,7 @@ const PreviousButton = ({
   currentStep,
 }: Props): ButtonProps => {
   const navigate = useNavigate();
-  const { breakpointsValues } = useBreakpointsValuesPx();
-  const width = useWindowWidth();
+  const { isMobile } = useWindowWidth();
 
   return {
     ...{
@@ -34,7 +32,7 @@ const PreviousButton = ({
         'data-testid': 'previous-button',
       },
     },
-    ...(width < breakpointsValues.sm
+    ...(isMobile
       ? {
           children: 'Retour',
           className: cx('fr-hidden-md'),
