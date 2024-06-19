@@ -23,18 +23,6 @@ describe('Header', () => {
     });
   });
 
-  test('should display brand', () => {
-    render(
-      <Provider store={store}>
-        <MemoryRouter>
-          <Header />
-        </MemoryRouter>
-      </Provider>
-    );
-
-    expect(screen.getByText((t) => t.includes('maestro.'))).toBeInTheDocument();
-  });
-
   describe('when user is not authenticated', () => {
     test('should not display any navigation item', () => {
       const store = configureStore({

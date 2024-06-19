@@ -13,7 +13,7 @@ export const Company = z.object(
   },
   {
     errorMap: () => ({
-      message: "Veuillez renseigner l'entiré",
+      message: "Veuillez renseigner l'entité",
     }),
   }
 );

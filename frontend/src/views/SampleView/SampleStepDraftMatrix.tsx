@@ -113,7 +113,7 @@ const SampleStepDraftMatrix = ({ partialSample }: Props) => {
 
   return (
     <form
-      data-testid="draft_sample_infos_form"
+      data-testid="draft_sample_maatrix_form"
       onChange={async (e) => {
         e.preventDefault();
         await save();
@@ -270,6 +270,9 @@ const SampleStepDraftMatrix = ({ partialSample }: Props) => {
                       onClick: async (e: React.MouseEvent<HTMLElement>) => {
                         e.preventDefault();
                         await save();
+                      },
+                      nativeButtonProps: {
+                        'data-testid': 'save-button',
                       },
                     },
                   ] as any

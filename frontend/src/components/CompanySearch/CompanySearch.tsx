@@ -87,7 +87,12 @@ const CompanySearch = ({
           }}
           renderInput={(params) => (
             <div ref={params.InputProps.ref}>
-              <input {...params.inputProps} className="fr-input" type="text" />
+              <input
+                {...params.inputProps}
+                className="fr-input"
+                type="text"
+                data-testid="companySearch-input"
+              />
             </div>
           )}
           loading={isLoading || isFetching}

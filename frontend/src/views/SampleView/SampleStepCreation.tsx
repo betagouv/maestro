@@ -342,6 +342,7 @@ const SampleStepCreation = ({ partialSample }: Props) => {
           root: cx('fr-px-0', 'fr-my-0'),
           legend: cx('fr-col-12', 'fr-mx-0'),
         }}
+        data-testid="programmingPlanId-radio"
       />
       <RadioButtons
         key={`legalContext-${legalContext}`}
@@ -372,6 +373,7 @@ const SampleStepCreation = ({ partialSample }: Props) => {
           root: cx('fr-px-0', 'fr-my-0'),
           legend: cx('fr-col-12', 'fr-mx-0'),
         }}
+        data-testid="legalContext-radio"
       />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
@@ -426,6 +428,9 @@ const SampleStepCreation = ({ partialSample }: Props) => {
                 children: 'Abandonner la saisie',
                 priority: 'tertiary',
                 onClick: (_) => navigate(`/prelevements`),
+                nativeButtonProps: {
+                  'data-testid': 'cancel-button',
+                },
               },
               {
                 children: 'Continuer',

@@ -48,7 +48,7 @@ describe('Sample router', () => {
     ...genSample(sampler1.id, programmingPlan.id, company),
     id: sample11Id,
     items: [sampleItem1],
-    status: 'DraftInfos' as SampleStatus,
+    status: 'DraftMatrix' as SampleStatus,
     department: oneOf(Regions[region1].departments),
   };
   const sample12 = {
@@ -65,7 +65,7 @@ describe('Sample router', () => {
   };
   const sample2 = {
     ...genSample(sampler2.id, programmingPlan.id, company),
-    status: 'DraftInfos' as SampleStatus,
+    status: 'DraftMatrix' as SampleStatus,
     department: oneOf(Regions[region2].departments),
   };
 
@@ -185,7 +185,7 @@ describe('Sample router', () => {
 
     it('should find the samples with query parameters restricted to the user region', async () => {
       const res = await request(app)
-        .get(testRoute({ status: 'DraftInfos' }))
+        .get(testRoute({ status: 'DraftMatrix' }))
         .use(tokenProvider(sampler1))
         .expect(constants.HTTP_STATUS_OK);
 
@@ -201,7 +201,7 @@ describe('Sample router', () => {
 
     it('should find national samples with a list of statuses', async () => {
       const res = await request(app)
-        .get(testRoute({ status: 'DraftInfos,Draft' }))
+        .get(testRoute({ status: 'DraftMatrix,Draft' }))
         .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
@@ -240,7 +240,7 @@ describe('Sample router', () => {
 
     it('should count the samples with query parameters restricted to the user region', async () => {
       const res = await request(app)
-        .get(testRoute({ status: 'DraftInfos' }))
+        .get(testRoute({ status: 'DraftMatrix' }))
         .use(tokenProvider(sampler1))
         .expect(constants.HTTP_STATUS_OK);
 
@@ -249,7 +249,7 @@ describe('Sample router', () => {
 
     it('should count national samples with a list of statuses', async () => {
       const res = await request(app)
-        .get(testRoute({ status: 'DraftInfos,Draft' }))
+        .get(testRoute({ status: 'DraftMatrix,Draft' }))
         .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 

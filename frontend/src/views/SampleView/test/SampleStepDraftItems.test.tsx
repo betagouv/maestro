@@ -68,10 +68,11 @@ describe('SampleStepDraftItems', () => {
       </Provider>
     );
 
-    await user.click(screen.getByTestId('remove-item-button-0'));
+    await user.click(screen.getByTestId('add-item-button'));
+    await user.click(screen.getByTestId('remove-item-button-1'));
 
     expect(
-      screen.queryByTestId('item-quantity-input-0')
+      screen.queryByTestId('item-quantity-input-1')
     ).not.toBeInTheDocument();
   });
 
@@ -92,14 +93,14 @@ describe('SampleStepDraftItems', () => {
       screen.getByText('Veuillez renseigner la quantité.')
     ).toBeInTheDocument();
     expect(
-      screen.getByText("Veuillez renseigner l'unité de quantité.")
+      screen.getByText("Veuillez renseigner l'unité de mesure.")
     ).toBeInTheDocument();
     expect(
       screen.getByText('Veuillez renseigner le numéro de scellé.')
     ).toBeInTheDocument();
   });
 
-  test('should save the items on change without handling errors', async () => {
+  test('should save the items and the sample on change without handling errors', async () => {
     mockRequests([
       {
         pathname: `/api/samples/${draftSample.id}/items`,
@@ -126,14 +127,23 @@ describe('SampleStepDraftItems', () => {
       screen.queryByText('Veuillez renseigner la quantité.')
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByText("Veuillez renseigner l'unité de quantité.")
+      screen.queryByText("Veuillez renseigner l'unité de mesure.")
     ).not.toBeInTheDocument();
     expect(
       screen.queryByText('Veuillez renseigner le numéro de scellé.')
     ).not.toBeInTheDocument();
 
     const calls = await getRequestCalls(fetchMock);
-    expect(calls).toHaveLength(2);
+    expect(
+      calls.filter((call) =>
+        call?.url.endsWith(`/api/samples/${draftSample.id}/items`)
+      )
+    ).toHaveLength(2);
+    expect(
+      calls.filter((call) =>
+        call?.url.endsWith(`/api/samples/${draftSample.id}`)
+      )
+    ).toHaveLength(2);
   });
 
   test('should submit the items and update sample status', async () => {
@@ -164,13 +174,22 @@ describe('SampleStepDraftItems', () => {
 
     await act(async () => {
       await user.type(quantityInput, '10'); //2 calls
-      await user.selectOptions(unitSelect, QuantityUnitList[0]); //2 calls
+      await user.selectOptions(unitSelect, QuantityUnitList[0]); //1 call
       await user.type(sealidInput, '12a'); //3 calls
-      await user.click(screen.getByTestId('submit-button')); //2 calls (1 for items, 1 for sample)
+      await user.click(screen.getByTestId('submit-button')); //1 call
     });
 
     const calls = await getRequestCalls(fetchMock);
-    expect(calls).toHaveLength(8);
+    expect(
+      calls.filter((call) =>
+        call?.url.endsWith(`/api/samples/${draftSample.id}/items`)
+      )
+    ).toHaveLength(7);
+    expect(
+      calls.filter((call) =>
+        call?.url.endsWith(`/api/samples/${draftSample.id}`)
+      )
+    ).toHaveLength(7);
 
     expect(calls).toContainEqual({
       method: 'PUT',

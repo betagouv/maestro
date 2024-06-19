@@ -74,9 +74,8 @@ const SampleStepSubmitted = ({ sample }: Props) => {
           </div>
         )}
       </h3>
-
       <section className="sample-step-summary">
-        <Badge className={cx('fr-badge--green-tilleul-verveine')}>
+        <Badge className={cx('fr-badge--green-menthe')}>
           Le contexte du prélèvement
         </Badge>
         <div className="summary-item">

@@ -9,6 +9,7 @@ import { QuantityUnitList } from '../referential/QuantityUnit';
 import { RegionList, Regions } from '../referential/Region';
 import { Stage, StageList } from '../referential/Stage';
 import { Company } from '../schema/Company/Company';
+import { CompanySearchResult } from '../schema/Company/CompanySearchResult';
 import { Document } from '../schema/Document/Document';
 import { Laboratory } from '../schema/Laboratory/Laboratory';
 import { Prescription } from '../schema/Prescription/Prescription';
@@ -180,4 +181,25 @@ export const genCompany = (): Company => ({
   name: fakerFR.company.name(),
   address: faker.location.streetAddress({ useFullAddress: true }),
   postalCode: faker.location.zipCode(),
+});
+
+export const genCompanySearchResult = (): CompanySearchResult => ({
+  siren: genSiret().substring(0, 9),
+  nom_complet: fakerFR.company.name(),
+  nom_raison_sociale: fakerFR.company.name(),
+  sigle: fakerFR.company.buzzNoun(),
+  siege: {
+    activite_principale: fakerFR.commerce.department(),
+    adresse: fakerFR.location.streetAddress(),
+    code_postal: fakerFR.location.zipCode(),
+    commune: fakerFR.location.city(),
+    complement_adresse: fakerFR.location.secondaryAddress(),
+    departement: oneOf(Regions['44'].departments),
+    libelle_commune: fakerFR.location.city(),
+    libelle_voie: fakerFR.location.street(),
+    numero_voie: fakerFR.location.buildingNumber(),
+    region: oneOf(RegionList),
+    siret: genSiret(),
+  },
+  activite_principale: faker.commerce.department(),
 });

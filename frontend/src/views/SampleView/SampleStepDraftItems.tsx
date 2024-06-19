@@ -95,6 +95,11 @@ const SampleStepDraftItems = ({ partialSample }: Props) => {
       <div className="sample-items">
         <SampleItemsCallout
           items={items}
+          onRemoveItem={(index) => {
+            const newItems = [...items];
+            newItems.splice(index, 1);
+            setItems(newItems);
+          }}
           onChangeItem={changeItems}
           itemsForm={form}
         />
