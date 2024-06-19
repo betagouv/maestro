@@ -53,6 +53,8 @@ describe('User router', () => {
 
     expect(res.body).toEqual({
       email: user1.email,
+      firstName: user1.firstName,
+      lastName: user1.lastName,
       roles: user1.roles,
       region: user1.region,
     });
