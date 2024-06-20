@@ -1,8 +1,9 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { QuantityUnitList } from 'shared/referential/QuantityUnit';
+import { SampleItemRecipientKindLabels } from 'shared/schema/Sample/SampleItemRecipientKind';
 import { SampleStatus } from 'shared/schema/Sample/SampleStatus';
 import { genCreatedSample } from 'shared/test/testFixtures';
 import { store } from 'src/store/store';
@@ -57,6 +58,7 @@ describe('SampleStepDraftItems', () => {
     expect(screen.getAllByTestId('item-quantity-input-1')).toHaveLength(2);
     expect(screen.getAllByTestId('item-unit-select-1')).toHaveLength(2);
     expect(screen.getAllByTestId('item-sealid-input-1')).toHaveLength(2);
+    expect(screen.getAllByTestId('recipientKind-radio')).toHaveLength(1);
   });
 
   test('should remove an item', async () => {
@@ -98,6 +100,7 @@ describe('SampleStepDraftItems', () => {
     expect(
       screen.getByText('Veuillez renseigner le numéro de scellé.')
     ).toBeInTheDocument();
+    expect(screen.getByText('Destinataire non renseigné.')).toBeInTheDocument();
   });
 
   test('should save the items and the sample on change without handling errors', async () => {
@@ -131,6 +134,9 @@ describe('SampleStepDraftItems', () => {
     ).not.toBeInTheDocument();
     expect(
       screen.queryByText('Veuillez renseigner le numéro de scellé.')
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('Destinataire non renseigné.')
     ).not.toBeInTheDocument();
 
     const calls = await getRequestCalls(fetchMock);
@@ -171,11 +177,15 @@ describe('SampleStepDraftItems', () => {
     const quantityInput = screen.getAllByTestId('item-quantity-input-0')[1];
     const unitSelect = screen.getAllByTestId('item-unit-select-0')[1];
     const sealidInput = screen.getAllByTestId('item-sealid-input-0')[1];
+    const recipientKindRadio = await within(
+      screen.getByTestId('recipientKind-radio')
+    ).findByLabelText(SampleItemRecipientKindLabels['Laboratory']);
 
     await act(async () => {
       await user.type(quantityInput, '10'); //2 calls
       await user.selectOptions(unitSelect, QuantityUnitList[0]); //1 call
       await user.type(sealidInput, '12a'); //3 calls
+      await user.click(recipientKindRadio); //1 call
       await user.click(screen.getByTestId('submit-button')); //1 call
     });
 
@@ -184,12 +194,12 @@ describe('SampleStepDraftItems', () => {
       calls.filter((call) =>
         call?.url.endsWith(`/api/samples/${draftSample.id}/items`)
       )
-    ).toHaveLength(7);
+    ).toHaveLength(8);
     expect(
       calls.filter((call) =>
         call?.url.endsWith(`/api/samples/${draftSample.id}`)
       )
-    ).toHaveLength(7);
+    ).toHaveLength(8);
 
     expect(calls).toContainEqual({
       method: 'PUT',
@@ -201,6 +211,7 @@ describe('SampleStepDraftItems', () => {
           quantityUnit: QuantityUnitList[0],
           sampleId: draftSample.id,
           sealId: '12a',
+          recipientKind: 'Laboratory',
         },
       ],
     });
