@@ -9,7 +9,7 @@ exports.up = async (knex: Knex) => {
     table
       .specificType('created_at', 'timestamptz')
       .defaultTo(knex.raw('current_timestamp'));
-    table.uuid('created_by').references('id').inTable('users');
+    table.uuid('sampled_by').references('id').inTable('users');
     table
       .specificType('last_updated_at', 'timestamptz')
       .defaultTo(knex.raw('current_timestamp'));
@@ -30,10 +30,9 @@ exports.up = async (knex: Knex) => {
     table.string('stage');
     table.string('culture_kind');
     table.boolean('release_control');
-    table.text('comment_creation');
-    table.text('comment_company');
-    table.text('comment_infos');
-    table.text('comment_items');
+    table.text('notes_on_creation');
+    table.text('notes_on_matrix');
+    table.text('notes_on_items');
     table.uuid('laboratory_id').references('id').inTable('laboratories');
   });
 };

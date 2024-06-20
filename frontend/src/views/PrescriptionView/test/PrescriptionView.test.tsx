@@ -12,7 +12,6 @@ import {
 } from 'shared/test/testFixtures';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import PrescriptionView from 'src/views/PrescriptionView/PrescriptionView';
-import { v4 as uuidv4 } from 'uuid';
 import { mockRequests } from '../../../../test/requestUtils.test';
 
 jest.mock('react-router-dom', () => ({
@@ -26,7 +25,7 @@ const programmingPlan = {
 };
 const prescriptions1 = genPrescriptions(programmingPlan.id);
 const prescriptions2 = genPrescriptions(programmingPlan.id);
-const sample = genSample(uuidv4(), programmingPlan.id);
+const sample = genSample(genUser(), programmingPlan.id);
 
 const prescriptionRequest = (region?: Region) => ({
   pathname: `/api/programming-plans/${programmingPlan.id}/prescriptions?${

@@ -1,0 +1,42 @@
+@import '../../constants';
+
+main:has(.teaser) {
+  background: none !important;
+}
+
+.teaser {
+  padding: 3.625rem 5rem 3.625rem 7.5rem;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    #16553b 58%,
+    rgba(31, 100, 72, 0.7) 77%
+  );
+  opacity: 0.9;
+
+  @media (max-width: $breakpoint-md) {
+    padding: 2rem 1rem;
+  }
+
+  * {
+    color: #fff;
+  }
+
+  h1 {
+    font-size: 3rem;
+    font-weight: normal;
+  }
+
+  .title-additionnal {
+    font-size: 1.75rem;
+    line-height: 2.25rem;
+  }
+}
+
+.sign-in {
+  padding: 5rem 7.5rem;
+
+  @media (max-width: $breakpoint-md) {
+    padding: 2rem 1rem;
+  }
+}

@@ -14,6 +14,7 @@ import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import { api } from 'src/services/api.service';
 import authSlice from 'src/store/reducers/authSlice';
 import settingsSlice from 'src/store/reducers/settingsSlice';
+import logo from '../../assets/logo.png';
 
 const Header = () => {
   const dispatch = useAppDispatch();
@@ -41,9 +42,11 @@ const Header = () => {
         title: 'Accueil',
       }}
       id="header"
-      data-testid="header"
-      // serviceTagline="baseline - précisions sur l'organisation"
-      serviceTitle={<h1>maestro.</h1>}
+      operatorLogo={{
+        alt: 'Logo maestro',
+        imgUrl: logo,
+        orientation: 'horizontal',
+      }}
       navigation={(isAuthenticated
         ? [
             {

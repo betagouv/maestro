@@ -7,7 +7,7 @@ export const companyApi = api.injectEndpoints({
   endpoints: (builder) => ({
     searchCompanies: builder.query<
       CompanySearchResult[],
-      { query: string; department: Department }
+      { query: string; department?: Department }
     >({
       query: ({ query, department }) => ({
         url: 'companies/search',
@@ -20,6 +20,9 @@ export const companyApi = api.injectEndpoints({
         response.results.map((_) =>
           CompanySearchResult.parse(fp.omitBy(_, fp.isNil))
         ),
+      transformErrorResponse: () => {
+        return [];
+      },
     }),
   }),
 });

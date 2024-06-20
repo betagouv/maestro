@@ -53,7 +53,7 @@ const PrescriptionView = () => {
   }
 
   return (
-    <section className={clsx(cx('fr-py-6w'))}>
+    <section className={clsx(cx('fr-container'), 'main-section')}>
       <h1
         className={cx('fr-mb-0', {
           'fr-container': hasNationalView,

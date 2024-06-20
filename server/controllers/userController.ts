@@ -21,7 +21,13 @@ const getUserInfos = async (request: Request, response: Response) => {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
   }
 
-  const userInfos: UserInfos = fp.pick(user, ['email', 'roles', 'region']);
+  const userInfos: UserInfos = fp.pick(user, [
+    'email',
+    'firstName',
+    'lastName',
+    'roles',
+    'region',
+  ]);
 
   response.status(constants.HTTP_STATUS_OK).send(userInfos);
 };

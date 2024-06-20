@@ -1,6 +1,8 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import clsx from 'clsx';
 import { t } from 'i18next';
+import document from 'src/assets/illustrations/document.png';
 import AutoClose from 'src/components/AutoClose/AutoClose';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
@@ -10,7 +12,6 @@ import {
 } from 'src/services/document.service';
 import AddDocument from 'src/views/DocumentListView/AddDocument';
 import DocumentTable from 'src/views/DocumentListView/DocumentTable';
-
 const DocumentListView = () => {
   useDocumentTitle('Liste des documents ressources');
 
@@ -22,7 +23,7 @@ const DocumentListView = () => {
   });
 
   return (
-    <section className={cx('fr-py-6w')}>
+    <section className={clsx(cx('fr-container'), 'main-section')}>
       {isCreateSuccess && (
         <AutoClose>
           <div className="toast">
@@ -35,21 +36,40 @@ const DocumentListView = () => {
           </div>
         </AutoClose>
       )}
-      <h1>Liste des documents ressources</h1>
-      <div className={cx('fr-mb-4w')}>
-        {t('document', { count: documents?.length || 0 })}
+      <div className="section-header">
+        <img src={document} height="100%" aria-hidden alt="" />
+        <div>
+          <h1>Ressources</h1>
+          <div
+            className={cx(
+              'fr-text--lg',
+              'fr-text--regular',
+              'fr-hint-text',
+              'fr-mb-0'
+            )}
+          >
+            Consultez les ressources mises à disposition des utilisateurs de
+            maestro
+          </div>
+        </div>
       </div>
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={cx('fr-col-7', 'fr-col-offset-1--right')}>
-          {documents && documents.length > 0 && (
-            <DocumentTable documents={documents} />
+
+      <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
+        <div className={cx('fr-mb-4w')}>
+          {t('document', { count: documents?.length || 0 })}
+        </div>
+        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+          <div className={cx('fr-col-7', 'fr-col-offset-1--right')}>
+            {documents && documents.length > 0 && (
+              <DocumentTable documents={documents} />
+            )}
+          </div>
+          {hasPermission('createDocument') && (
+            <div className={cx('fr-col-4')}>
+              <AddDocument key={`add-document-${isCreateSuccess}`} />
+            </div>
           )}
         </div>
-        {hasPermission('createDocument') && (
-          <div className={cx('fr-col-4')}>
-            <AddDocument key={`add-document-${isCreateSuccess}`} />
-          </div>
-        )}
       </div>
     </section>
   );

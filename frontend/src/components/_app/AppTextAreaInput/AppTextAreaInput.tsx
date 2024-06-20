@@ -43,6 +43,7 @@ function AppTextAreaInput<T extends ZodRawShape>(props: AppTextInputProps<T>) {
         stateRelatedMessage ??
         inputForm.message(String(inputKey), inputPathFromKey, whenValid)
       }
+      hintText={hintText}
     />
   );
 }

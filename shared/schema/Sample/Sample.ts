@@ -7,6 +7,7 @@ import { MatrixPart } from '../../referential/MatrixPart';
 import { Region, RegionList, Regions } from '../../referential/Region';
 import { Stage } from '../../referential/Stage';
 import { Company } from '../Company/Company';
+import { User } from '../User/User';
 import { PartialSampleItem, SampleItem } from './SampleItem';
 import { SampleStatus } from './SampleStatus';
 
@@ -20,13 +21,19 @@ export const Geolocation = z.object(
   }
 );
 
+export const Sampler = User.pick({
+  id: true,
+  firstName: true,
+  lastName: true,
+});
+
 export const Sample = z.object({
   id: z.string().uuid(),
   reference: z.string(),
   department: Department,
   resytalId: z.string().optional().nullable(),
   createdAt: z.coerce.date(),
-  createdBy: z.string(),
+  sampler: Sampler,
   lastUpdatedAt: z.coerce.date(),
   sampledAt: z.coerce.date({
     errorMap: () => ({
@@ -45,31 +52,32 @@ export const Sample = z.object({
   legalContext: LegalContext,
   geolocation: Geolocation,
   parcel: z.string().optional().nullable(),
-  company: Company.optional().nullable(),
+  company: Company,
   matrix: Matrix,
   matrixDetails: z.string().optional().nullable(),
   matrixPart: MatrixPart,
   stage: Stage,
-  cultureKind: CultureKind,
+  cultureKind: CultureKind.optional().nullable(),
   releaseControl: z.boolean().optional().nullable(),
   items: z.array(SampleItem).min(1, {
     message: 'Veuillez renseigner au moins un échantillon.',
   }),
-  commentCreation: z.string().optional().nullable(),
-  commentCompany: z.string().optional().nullable(),
-  commentInfos: z.string().optional().nullable(),
-  commentItems: z.string().optional().nullable(),
+  notesOnCreation: z.string().optional().nullable(),
+  notesOnMatrix: z.string().optional().nullable(),
+  notesOnItems: z.string().optional().nullable(),
   laboratoryId: z.string().uuid().optional().nullable(),
 });
 
 export const SampleToCreate = Sample.pick({
-  geolocation: true,
   sampledAt: true,
-  resytalId: true,
+  department: true,
+  geolocation: true,
+  parcel: true,
   programmingPlanId: true,
   legalContext: true,
-  department: true,
-  commentCreation: true,
+  company: true,
+  resytalId: true,
+  notesOnCreation: true,
 });
 
 export const CreatedSample = SampleToCreate.merge(
@@ -77,7 +85,7 @@ export const CreatedSample = SampleToCreate.merge(
     id: true,
     reference: true,
     createdAt: true,
-    createdBy: true,
+    sampler: true,
     lastUpdatedAt: true,
     status: true,
   })

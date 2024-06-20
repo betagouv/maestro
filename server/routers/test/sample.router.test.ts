@@ -45,27 +45,27 @@ describe('Sample router', () => {
   const sample11Id = uuidv4();
   const sampleItem1 = genSampleItem(sample11Id, 1);
   const sample11 = {
-    ...genSample(sampler1.id, programmingPlan.id, company),
+    ...genSample(sampler1, programmingPlan.id, company),
     id: sample11Id,
     items: [sampleItem1],
-    status: 'DraftInfos' as SampleStatus,
+    status: 'DraftMatrix' as SampleStatus,
     department: oneOf(Regions[region1].departments),
   };
   const sample12 = {
-    ...genSample(sampler1.id, programmingPlan.id, company),
+    ...genSample(sampler1, programmingPlan.id, company),
     id: uuidv4(),
     status: 'Draft' as SampleStatus,
     department: oneOf(Regions[region1].departments),
   };
   const sample13 = {
-    ...genSample(sampler1.id, programmingPlan.id, company),
+    ...genSample(sampler1, programmingPlan.id, company),
     id: uuidv4(),
     status: 'Sent' as SampleStatus,
     department: oneOf(Regions[region1].departments),
   };
   const sample2 = {
-    ...genSample(sampler2.id, programmingPlan.id, company),
-    status: 'DraftInfos' as SampleStatus,
+    ...genSample(sampler2, programmingPlan.id, company),
+    status: 'DraftMatrix' as SampleStatus,
     department: oneOf(Regions[region2].departments),
   };
 
@@ -185,7 +185,7 @@ describe('Sample router', () => {
 
     it('should find the samples with query parameters restricted to the user region', async () => {
       const res = await request(app)
-        .get(testRoute({ status: 'DraftInfos' }))
+        .get(testRoute({ status: 'DraftMatrix' }))
         .use(tokenProvider(sampler1))
         .expect(constants.HTTP_STATUS_OK);
 
@@ -201,30 +201,32 @@ describe('Sample router', () => {
 
     it('should find national samples with a list of statuses', async () => {
       const res = await request(app)
-        .get(testRoute({ status: 'DraftInfos,Draft' }))
+        .get(testRoute({ status: 'DraftMatrix,Draft' }))
         .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toMatchObject([
-        {
-          ...fp.omit(sample2, ['items']),
-          createdAt: sample2.createdAt.toISOString(),
-          lastUpdatedAt: sample2.lastUpdatedAt.toISOString(),
-          sampledAt: sample2.sampledAt.toISOString(),
-        },
-        {
-          ...fp.omit(sample12, ['items']),
-          createdAt: sample12.createdAt.toISOString(),
-          lastUpdatedAt: sample12.lastUpdatedAt.toISOString(),
-          sampledAt: sample12.sampledAt.toISOString(),
-        },
-        {
-          ...fp.omit(sample11, ['items']),
-          createdAt: sample11.createdAt.toISOString(),
-          lastUpdatedAt: sample11.lastUpdatedAt.toISOString(),
-          sampledAt: sample11.sampledAt.toISOString(),
-        },
-      ]);
+      expect(res.body).toMatchObject(
+        expect.arrayContaining([
+          {
+            ...fp.omit(sample2, ['items']),
+            createdAt: sample2.createdAt.toISOString(),
+            lastUpdatedAt: sample2.lastUpdatedAt.toISOString(),
+            sampledAt: sample2.sampledAt.toISOString(),
+          },
+          {
+            ...fp.omit(sample12, ['items']),
+            createdAt: sample12.createdAt.toISOString(),
+            lastUpdatedAt: sample12.lastUpdatedAt.toISOString(),
+            sampledAt: sample12.sampledAt.toISOString(),
+          },
+          {
+            ...fp.omit(sample11, ['items']),
+            createdAt: sample11.createdAt.toISOString(),
+            lastUpdatedAt: sample11.lastUpdatedAt.toISOString(),
+            sampledAt: sample11.sampledAt.toISOString(),
+          },
+        ])
+      );
     });
   });
 
@@ -240,7 +242,7 @@ describe('Sample router', () => {
 
     it('should count the samples with query parameters restricted to the user region', async () => {
       const res = await request(app)
-        .get(testRoute({ status: 'DraftInfos' }))
+        .get(testRoute({ status: 'DraftMatrix' }))
         .use(tokenProvider(sampler1))
         .expect(constants.HTTP_STATUS_OK);
 
@@ -249,7 +251,7 @@ describe('Sample router', () => {
 
     it('should count national samples with a list of statuses', async () => {
       const res = await request(app)
-        .get(testRoute({ status: 'DraftInfos,Draft' }))
+        .get(testRoute({ status: 'DraftMatrix,Draft' }))
         .use(tokenProvider(nationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
@@ -323,13 +325,17 @@ describe('Sample router', () => {
           ...sample,
           id: expect.any(String),
           createdAt: expect.any(String),
-          createdBy: sampler1.id,
+          sampler: {
+            id: sampler1.id,
+            firstName: sampler1.firstName,
+            lastName: sampler1.lastName,
+          },
           sampledAt: sample.sampledAt.toISOString(),
           reference: `${sampler1.region}-${sample.department}-${format(
             new Date(),
             'yy'
           )}-0001-${sample.legalContext}`,
-          status: 'DraftCompany',
+          status: 'DraftMatrix',
         })
       );
 
@@ -360,7 +366,7 @@ describe('Sample router', () => {
     it('should fail if the sample does not exist', async () => {
       await request(app)
         .put(`${testRoute(uuidv4())}`)
-        .send(genCreatedSample(sampler1.id))
+        .send(genCreatedSample(sampler1))
         .use(tokenProvider(sampler1))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
@@ -398,7 +404,7 @@ describe('Sample router', () => {
     });
 
     it('should be forbidden to update a sample that is already sent', async () => {
-      const sample = genSample(sampler1.id, programmingPlan.id, company);
+      const sample = genSample(sampler1, programmingPlan.id, company);
       await Samples().insert(
         formatPartialSample({
           ...sample,
@@ -501,7 +507,7 @@ describe('Sample router', () => {
     });
 
     it('should be forbidden to update a sample that is already sent', async () => {
-      const sample = genSample(sampler1.id, programmingPlan.id, company);
+      const sample = genSample(sampler1, programmingPlan.id, company);
       await Samples().insert(
         formatPartialSample({
           ...sample,

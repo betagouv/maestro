@@ -1,4 +1,4 @@
-import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import { createMuiDsfrThemeProvider } from '@codegouvfr/react-dsfr/mui';
 import { startReactDsfr } from '@codegouvfr/react-dsfr/spa';
 import React from 'react';
 import { Provider } from 'react-redux';
@@ -21,11 +21,19 @@ declare module '@codegouvfr/react-dsfr/spa' {
 function AppWrapper() {
   startReactDsfr({ defaultColorScheme: 'light', Link });
 
+  const { MuiDsfrThemeProvider } = createMuiDsfrThemeProvider({
+    augmentMuiTheme: ({ nonAugmentedMuiTheme }) => ({
+      ...nonAugmentedMuiTheme,
+    }),
+  });
+
   return (
-    <Provider store={store}>
-      <ScrollToTop />
-      <App />
-    </Provider>
+    <MuiDsfrThemeProvider>
+      <Provider store={store}>
+        <ScrollToTop />
+        <App />
+      </Provider>
+    </MuiDsfrThemeProvider>
   );
 }
 
@@ -46,10 +54,7 @@ function App() {
         <div className="toast">Chargement en cours...</div>
       )}
 
-      <main
-        className={cx('fr-container', 'fr-pt-2w')}
-        style={{ minHeight: 'calc(100vh - 440px)' }}
-      >
+      <main style={{ minHeight: 'calc(100vh - 440px)' }}>
         <Routes>
           {[
             ...availableRoutes.map((route) => (

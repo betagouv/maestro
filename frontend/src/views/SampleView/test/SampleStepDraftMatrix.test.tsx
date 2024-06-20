@@ -14,7 +14,7 @@ import {
 } from 'shared/test/testFixtures';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import config from 'src/utils/config';
-import SampleStepDraftInfos from 'src/views/SampleView/SampleStepDraftInfos';
+import SampleStepDraftMatrix from 'src/views/SampleView/SampleStepDraftMatrix/SampleStepDraftMatrix';
 import {
   getRequestCalls,
   mockRequests,
@@ -57,8 +57,8 @@ describe('SampleStepDraftInfos', () => {
     render(
       <Provider store={store}>
         <BrowserRouter>
-          <SampleStepDraftInfos
-            partialSample={genCreatedSample(sampler.id, programmingPlan.id)}
+          <SampleStepDraftMatrix
+            partialSample={genCreatedSample(sampler, programmingPlan.id)}
           />
         </BrowserRouter>
       </Provider>
@@ -70,14 +70,14 @@ describe('SampleStepDraftInfos', () => {
 
     expect(screen.getAllByTestId('matrix-select')).toHaveLength(2);
     expect(screen.getAllByTestId('stage-select')).toHaveLength(2);
+    expect(screen.getAllByTestId('matrixdetails-input')).toHaveLength(2);
     expect(screen.getAllByTestId('culturekind-select')).toHaveLength(2);
     expect(screen.getAllByTestId('matrixpart-select')).toHaveLength(2);
-    expect(screen.getAllByTestId('matrixdetails-input')).toHaveLength(2);
     expect(screen.getByLabelText('Contrôle libératoire')).toBeInTheDocument();
-    expect(screen.getAllByTestId('parcel-input')).toHaveLength(2);
-    expect(screen.getAllByTestId('comment-input')).toHaveLength(2);
+    expect(screen.getAllByTestId('notes-input')).toHaveLength(2);
 
     expect(screen.getByTestId('previous-button')).toBeInTheDocument();
+    expect(screen.getByTestId('save-button')).toBeInTheDocument();
     expect(screen.getByTestId('submit-button')).toBeInTheDocument();
   });
 
@@ -87,8 +87,8 @@ describe('SampleStepDraftInfos', () => {
     render(
       <Provider store={store}>
         <BrowserRouter>
-          <SampleStepDraftInfos
-            partialSample={genCreatedSample(sampler.id, programmingPlan.id)}
+          <SampleStepDraftMatrix
+            partialSample={genCreatedSample(sampler, programmingPlan.id)}
           />
         </BrowserRouter>
       </Provider>
@@ -113,7 +113,7 @@ describe('SampleStepDraftInfos', () => {
   });
 
   test('should save on blur without handling errors', async () => {
-    const createdSample = genCreatedSample(sampler.id, programmingPlan.id);
+    const createdSample = genCreatedSample(sampler, programmingPlan.id);
     mockRequests([
       userRequest,
       prescriptionsRequest,
@@ -127,7 +127,7 @@ describe('SampleStepDraftInfos', () => {
     render(
       <Provider store={store}>
         <BrowserRouter>
-          <SampleStepDraftInfos partialSample={createdSample} />
+          <SampleStepDraftMatrix partialSample={createdSample} />
         </BrowserRouter>
       </Provider>
     );
@@ -147,16 +147,10 @@ describe('SampleStepDraftInfos', () => {
       screen.queryByText('Veuillez renseigner la matrice.')
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByText('Veuillez renseigner la partie du végétal.')
-    ).not.toBeInTheDocument();
-    expect(
       screen.queryByText('Veuillez renseigner le stade de prélèvement.')
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByText('Veuillez renseigner le SIRET du lieu de prélèvement.')
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByText('Veuillez renseigner le nom du lieu de prélèvement.')
+      screen.queryByText('Veuillez renseigner la partie du végétal.')
     ).not.toBeInTheDocument();
 
     const calls = await getRequestCalls(fetchMock);
@@ -168,7 +162,7 @@ describe('SampleStepDraftInfos', () => {
   });
 
   test('should submit the sample with updating it status', async () => {
-    const createdSample = genCreatedSample(sampler.id, programmingPlan.id);
+    const createdSample = genCreatedSample(sampler, programmingPlan.id);
 
     mockRequests([
       userRequest,
@@ -183,7 +177,7 @@ describe('SampleStepDraftInfos', () => {
     render(
       <Provider store={store}>
         <BrowserRouter>
-          <SampleStepDraftInfos partialSample={createdSample} />
+          <SampleStepDraftMatrix partialSample={createdSample} />
         </BrowserRouter>
       </Provider>
     );
@@ -193,22 +187,20 @@ describe('SampleStepDraftInfos', () => {
     });
 
     const matrixSelect = screen.getAllByTestId('matrix-select')[1];
-    const matrixPartSelect = screen.getAllByTestId('matrixpart-select')[1];
-    const cultureKindSelect = screen.getAllByTestId('culturekind-select')[1];
     const stageSelect = screen.getAllByTestId('stage-select')[1];
     const matrixDetailsInput = screen.getAllByTestId('matrixdetails-input')[1];
-    const parcelInput = screen.getAllByTestId('parcel-input')[1];
-    const commentInput = screen.getAllByTestId('comment-input')[1];
+    const cultureKindSelect = screen.getAllByTestId('culturekind-select')[1];
+    const matrixPartSelect = screen.getAllByTestId('matrixpart-select')[1];
+    const notesInput = screen.getAllByTestId('notes-input')[1];
     const submitButton = screen.getByTestId('submit-button');
 
     await act(async () => {
       await user.selectOptions(matrixSelect, prescriptions[0].matrix); //1 call
-      await user.selectOptions(matrixPartSelect, MatrixPartList[0]); //1 call
-      await user.selectOptions(cultureKindSelect, CultureKindList[0]); //1 call
       await user.selectOptions(stageSelect, prescriptions[0].stages[0]); //1 call
       await user.type(matrixDetailsInput, 'Details'); //7 calls
-      await user.type(parcelInput, 'C03'); //3 calls
-      await user.type(commentInput, 'Comment'); //7 calls
+      await user.selectOptions(cultureKindSelect, CultureKindList[0]); //1 call
+      await user.selectOptions(matrixPartSelect, MatrixPartList[0]); //1 call
+      await user.type(notesInput, 'Comment'); //7 calls
       await user.click(submitButton); //1 call
     });
 
@@ -217,7 +209,7 @@ describe('SampleStepDraftInfos', () => {
       calls.filter((call) =>
         call?.url.endsWith(`/api/samples/${createdSample.id}`)
       )
-    ).toHaveLength(22);
+    ).toHaveLength(19);
 
     expect(calls).toContainEqual({
       url: `${config.apiEndpoint}/api/samples/${createdSample.id}`,
@@ -233,8 +225,7 @@ describe('SampleStepDraftInfos', () => {
         cultureKind: CultureKindList[0],
         stage: prescriptions[0].stages[0],
         matrixDetails: 'Details',
-        parcel: 'C03',
-        commentInfos: 'Comment',
+        notesOnMatrix: 'Comment',
       },
     });
   });

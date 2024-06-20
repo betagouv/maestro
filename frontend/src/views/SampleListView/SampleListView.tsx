@@ -3,11 +3,12 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Pagination from '@codegouvfr/react-dsfr/Pagination';
 import Select from '@codegouvfr/react-dsfr/Select';
 import Table from '@codegouvfr/react-dsfr/Table';
+import clsx from 'clsx';
 import { format } from 'date-fns';
 import { t } from 'i18next';
 import fp from 'lodash';
 import { useEffect, useMemo } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Department,
   DepartmentLabels,
@@ -23,12 +24,12 @@ import {
   SampleStatus,
   SampleStatusLabels,
 } from 'shared/schema/Sample/SampleStatus';
-import { isDefined } from 'shared/utils/utils';
 import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
+import useWindowSize from 'src/hooks/useWindowSize';
 import { useFindPrescriptionsQuery } from 'src/services/prescription.service';
 import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.service';
 import {
@@ -38,14 +39,17 @@ import {
 import samplesSlice from 'src/store/reducers/samplesSlice';
 import { getURLQuery } from 'src/utils/fetchUtils';
 import RemoveSample from 'src/views/SampleListView/RemoveSample';
-
+import food from '../../assets/illustrations/food.png';
+import './SampleList.scss';
 const SampleListView = () => {
   useDocumentTitle('Liste des prélèvements');
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const [searchParams, setSearchParams] = useSearchParams();
   const { hasPermission, hasNationalView, userInfos } = useAuthentication();
   const { findSampleOptions } = useAppSelector((state) => state.samples);
+  const { isMobile } = useWindowSize();
 
   useEffect(() => {
     if (searchParams) {
@@ -114,206 +118,245 @@ const SampleListView = () => {
     return region ? Regions[region as Region].departments : DepartmentList;
   }, [userInfos?.region, findSampleOptions.region]);
 
+  const tableHeaders = [
+    'Matrice',
+    'Préleveur',
+    'Date',
+    'Département',
+    'Entité',
+    'Contexte',
+    'Statut',
+    'Actions',
+  ];
+
+  const tableData = useMemo(
+    () =>
+      (samples ?? []).map((sample) => [
+        ...[
+          (sample.matrix && MatrixLabels[sample.matrix]) ?? '',
+          `${sample.sampler.firstName} ${sample.sampler.lastName}`,
+          format(sample.createdAt, 'dd/MM/yyyy'),
+          sample.department,
+          sample.company?.name ?? '',
+          programmingPlans?.find((plan) => plan.id === sample.programmingPlanId)
+            ?.title ?? '',
+          <SampleStatusBadge status={sample?.status as SampleStatus} />,
+        ].map((cell) => (
+          <div
+            onClick={() => navigate(`/prelevements/${sample.id}`)}
+            style={{
+              cursor: 'pointer',
+            }}
+          >
+            {cell}
+          </div>
+        )),
+        <div className="actions">
+          <Button
+            title="Voir le prélèvement"
+            iconId={'fr-icon-eye-fill'}
+            linkProps={{
+              to: `/prelevements/${sample.id}`,
+            }}
+            size="small"
+            priority="tertiary"
+          />
+          {hasPermission('deleteSample') &&
+            DraftStatusList.includes(sample.status) && (
+              <RemoveSample sample={sample} />
+            )}
+        </div>,
+      ]),
+    [samples, programmingPlans] // eslint-disable-line react-hooks/exhaustive-deps
+  );
+
   if (!samples || samplesCount === undefined) {
     return <></>;
   }
 
   return (
-    <section className={cx('fr-py-6w')}>
-      <h1>Liste des prélèvements</h1>
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        {hasNationalView && (
+    <section className={clsx(cx('fr-container'), 'main-section')}>
+      <div className="section-header">
+        <img src={food} height="100%" aria-hidden alt="" />
+        <div>
+          <h1>Prélèvements</h1>
+          <div
+            className={cx(
+              'fr-text--lg',
+              'fr-text--regular',
+              'fr-hint-text',
+              'fr-mb-0'
+            )}
+          >
+            Consultez les dossiers des prélèvements
+          </div>
+        </div>
+        {hasPermission('createSample') && (
+          <Button
+            linkProps={{
+              to: '/prelevements/nouveau',
+              target: '_self',
+            }}
+            iconId="fr-icon-microscope-line"
+          >
+            Saisir un prélèvement
+          </Button>
+        )}
+      </div>
+      <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
+        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+          {hasNationalView && (
+            <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
+              <Select
+                label="Région"
+                nativeSelectProps={{
+                  value: findSampleOptions.region || '',
+                  onChange: (e) => {
+                    changeFilter({
+                      region: e.target.value as Region,
+                      department: undefined,
+                    });
+                  },
+                }}
+              >
+                <option value="">Toutes les régions</option>
+                {RegionList.map((region) => (
+                  <option key={`region-${region}`} value={region}>
+                    {Regions[region].name}
+                  </option>
+                ))}
+              </Select>
+            </div>
+          )}
           <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
             <Select
-              label="Région"
+              label="Département"
               nativeSelectProps={{
-                value: findSampleOptions.region || '',
+                value: findSampleOptions.department || '',
                 onChange: (e) => {
-                  changeFilter({
-                    region: e.target.value as Region,
-                    department: undefined,
-                  });
+                  changeFilter({ department: e.target.value as Department });
                 },
               }}
             >
-              <option value="">Toutes les régions</option>
-              {RegionList.map((region) => (
-                <option key={`region-${region}`} value={region}>
-                  {Regions[region].name}
+              <option value="">Tous les départements</option>
+              {departmentOptions.map((department) => (
+                <option key={`department-${department}`} value={department}>
+                  {`${department} - ${DepartmentLabels[department]}`}
                 </option>
               ))}
             </Select>
           </div>
-        )}
-        <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
-          <Select
-            label="Département"
-            nativeSelectProps={{
-              value: findSampleOptions.department || '',
-              onChange: (e) => {
-                changeFilter({ department: e.target.value as Department });
-              },
-            }}
-          >
-            <option value="">Tous les départements</option>
-            {departmentOptions.map((department) => (
-              <option key={`department-${department}`} value={department}>
-                {`${department} - ${DepartmentLabels[department]}`}
-              </option>
-            ))}
-          </Select>
+          <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
+            <Select
+              label="Statut"
+              nativeSelectProps={{
+                value: findSampleOptions.status || '',
+                onChange: (e) => {
+                  changeFilter({ status: e.target.value as SampleStatus });
+                },
+              }}
+            >
+              <option value="">Tous les statuts</option>
+              <option value={DraftStatusList.join(',')}>Brouillon</option>
+              {(['Submitted', 'Sent'] as SampleStatus[]).map((status) => (
+                <option key={`status-${status}`} value={status}>
+                  {SampleStatusLabels[status]}
+                </option>
+              ))}
+            </Select>
+          </div>
         </div>
-        <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
-          <Select
-            label="Statut"
-            nativeSelectProps={{
-              value: findSampleOptions.status || '',
-              onChange: (e) => {
-                changeFilter({ status: e.target.value as SampleStatus });
-              },
-            }}
-          >
-            <option value="">Tous les statuts</option>
-            <option value={DraftStatusList.join(',')}>Brouillon</option>
-            {(['Submitted', 'Sent'] as SampleStatus[]).map((status) => (
-              <option key={`status-${status}`} value={status}>
-                {SampleStatusLabels[status]}
-              </option>
-            ))}
-          </Select>
+        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+          <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
+            <Select
+              label="Contexte"
+              nativeSelectProps={{
+                value: findSampleOptions.programmingPlanId || '',
+                onChange: (e) => {
+                  changeFilter({
+                    programmingPlanId: e.target.value,
+                    matrix: undefined,
+                  });
+                },
+              }}
+            >
+              <option value="">Tous les contextes</option>
+              {programmingPlans?.map((plan) => (
+                <option key={plan.id} value={plan.id}>
+                  {plan.title}
+                </option>
+              ))}
+            </Select>
+          </div>
+          <div className={cx('fr-col-12', 'fr-col-md-6')}>
+            <Select
+              label="Matrice"
+              nativeSelectProps={{
+                value: findSampleOptions.matrix || '',
+                onChange: (e) => {
+                  changeFilter({ matrix: e.target.value as Matrix });
+                },
+              }}
+            >
+              <option value="">Toutes les matrices</option>
+              {selectOptionsFromList(
+                MatrixList.filter(
+                  (matrix) =>
+                    !findSampleOptions.programmingPlanId ||
+                    !prescriptions ||
+                    prescriptions.find((p) => p.matrix === matrix)
+                ),
+                {
+                  labels: MatrixLabels,
+                  withDefault: false,
+                }
+              ).map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </Select>
+          </div>
         </div>
-      </div>
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
-          <Select
-            label="Contexte"
-            nativeSelectProps={{
-              value: findSampleOptions.programmingPlanId || '',
-              onChange: (e) => {
-                changeFilter({
-                  programmingPlanId: e.target.value,
-                  matrix: undefined,
-                });
-              },
-            }}
-          >
-            <option value="">Tous les contextes</option>
-            {programmingPlans?.map((plan) => (
-              <option key={plan.id} value={plan.id}>
-                {plan.title}
-              </option>
-            ))}
-          </Select>
-        </div>
-        <div className={cx('fr-col-12', 'fr-col-md-6')}>
-          <Select
-            label="Matrice"
-            nativeSelectProps={{
-              value: findSampleOptions.matrix || '',
-              onChange: (e) => {
-                changeFilter({ matrix: e.target.value as Matrix });
-              },
-            }}
-          >
-            <option value="">Toutes les matrices</option>
-            {selectOptionsFromList(
-              MatrixList.filter(
-                (matrix) =>
-                  !findSampleOptions.programmingPlanId ||
-                  !prescriptions ||
-                  prescriptions.find((p) => p.matrix === matrix)
-              ),
-              {
-                labels: MatrixLabels,
-                withDefault: false,
-              }
-            ).map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </Select>
-        </div>
-      </div>
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={cx('fr-col-12')}>
-          <Link to="" onClick={initFilter}>
-            Réinitialiser
-          </Link>
+        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+          <div className={cx('fr-col-12')}>
+            <Link to="" onClick={initFilter}>
+              Réinitialiser
+            </Link>
+          </div>
         </div>
       </div>
 
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters', 'fr-my-2w')}>
-        <div className={cx('fr-col-12', 'fr-text--bold')}>
-          {t('sample', { count: samplesCount })}
+      <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
+        <div className={cx('fr-grid-row', 'fr-grid-row--gutters', 'fr-my-2w')}>
+          <div className={cx('fr-col-12', 'fr-text--bold')}>
+            {t('sample', { count: samplesCount })}
+          </div>
         </div>
-      </div>
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={cx('fr-col-12')}>
-          <Table
-            noCaption
-            fixed
-            headers={[
-              hasPermission('deleteSample') ? (
-                <div className="cell-icon"></div>
-              ) : undefined,
-              'Identifiant',
-              'Matrice',
-              'Date de création',
-              'Département',
-              "Site d'intervention",
-              'Contexte',
-              'Statut',
-            ].filter(isDefined)}
-            data={samples.map((sample) =>
-              [
-                hasPermission('deleteSample') ? (
-                  <div className="cell-icon">
-                    {DraftStatusList.includes(sample.status) && (
-                      <RemoveSample sample={sample} />
-                    )}
-                  </div>
-                ) : undefined,
-                <Link to={`/prelevements/${sample.id}`}>
-                  {sample.reference}
-                </Link>,
-                (sample.matrix && MatrixLabels[sample.matrix]) ?? '',
-                format(sample.createdAt, 'dd/MM/yyyy'),
-                `${sample.department} - ${DepartmentLabels[sample.department]}`,
-                sample.company?.name ?? '',
-                programmingPlans?.find(
-                  (plan) => plan.id === sample.programmingPlanId
-                )?.title ?? '',
-                <SampleStatusBadge status={sample?.status as SampleStatus} />,
-              ].filter(isDefined)
-            )}
-            className={cx('fr-mb-2w')}
-          />
-          {samplesCount > defaultPerPage && (
-            <Pagination
-              count={Math.floor(samplesCount / defaultPerPage) + 1}
-              defaultPage={Number(findSampleOptions.page) || 1}
-              getPageLinkProps={(page: number) => ({
-                to: getURLQuery({
-                  ...findSampleOptions,
-                  page: page.toString(),
-                }),
-              })}
+        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+          <div className={cx('fr-col-12')}>
+            <Table
+              noCaption
+              fixed={!isMobile}
+              headers={tableHeaders}
+              data={tableData}
+              className={cx('fr-mb-2w')}
             />
-          )}
+            {samplesCount > defaultPerPage && (
+              <Pagination
+                count={Math.floor(samplesCount / defaultPerPage) + 1}
+                defaultPage={Number(findSampleOptions.page) || 1}
+                getPageLinkProps={(page: number) => ({
+                  to: getURLQuery({
+                    ...findSampleOptions,
+                    page: page.toString(),
+                  }),
+                })}
+              />
+            )}
+          </div>
         </div>
       </div>
-      {hasPermission('createSample') && (
-        <Button
-          linkProps={{
-            to: '/prelevements/nouveau',
-            target: '_self',
-          }}
-          className={cx('fr-mt-4w')}
-        >
-          Créer un prélèvement
-        </Button>
-      )}
     </section>
   );
 };

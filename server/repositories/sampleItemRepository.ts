@@ -7,7 +7,7 @@ import db from './db';
 
 const sampleItemsTable = 'sample_items';
 
-export const SampleItems = () => db<SampleItem>(sampleItemsTable);
+export const SampleItems = () => db<PartialSampleItem>(sampleItemsTable);
 
 const findUnique = async (
   sampleId: string,
@@ -20,12 +20,12 @@ const findUnique = async (
     .then((_) => _ && SampleItem.parse(fp.omitBy(_, fp.isNil)));
 };
 
-const findMany = async (sampleId: string): Promise<SampleItem[]> => {
+const findMany = async (sampleId: string): Promise<PartialSampleItem[]> => {
   console.info('Find sampleItems for sample', sampleId);
   return SampleItems()
     .where({ sampleId })
     .then((sampleItems) =>
-      sampleItems.map((_) => SampleItem.parse(fp.omitBy(_, fp.isNil)))
+      sampleItems.map((_) => PartialSampleItem.parse(fp.omitBy(_, fp.isNil)))
     );
 };
 

@@ -1,26 +1,20 @@
-import { fr } from '@codegouvfr/react-dsfr';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Stepper from '@codegouvfr/react-dsfr/Stepper';
-import { format } from 'date-fns';
+import clsx from 'clsx';
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import {
-  DraftStatusList,
-  SampleStatus,
-} from 'shared/schema/Sample/SampleStatus';
-import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
+import { Sample } from 'shared/schema/Sample/Sample';
+import { SampleStatus } from 'shared/schema/Sample/SampleStatus';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
-import { useAppSelector } from 'src/hooks/useStore';
-import {
-  SampleMutationEndpoints,
-  useGetSampleQuery,
-} from 'src/services/sample.service';
-import SampleStepCreation from 'src/views/SampleView/SampleStepCreation';
-import SampleStepDraftCompany from 'src/views/SampleView/SampleStepDraftCompany';
-import SampleStepDraftInfos from 'src/views/SampleView/SampleStepDraftInfos';
-import SampleStepDraftItems from 'src/views/SampleView/SampleStepDraftItems';
-import SampleStepSubmitted from 'src/views/SampleView/SampleStepSubmitted';
+import { useGetSampleQuery } from 'src/services/sample.service';
+import SampleStepCreation from 'src/views/SampleView/SampleStepCreation/SampleStepCreation';
+import SampleStepDraftItems from 'src/views/SampleView/SampleStepDraftItems/SampleStepDraftItems';
+import SampleStepDraftMatrix from 'src/views/SampleView/SampleStepDraftMatrix/SampleStepDraftMatrix';
+import SampleStepSent from 'src/views/SampleView/SampleStepSent';
+import SampleStepSubmitted from 'src/views/SampleView/SampleStepSubmitted/SampleStepSubmitted';
+import newSample from '../../assets/illustrations/new-sample.png';
+import './SampleView.scss';
 
 const SampleView = () => {
   useDocumentTitle("Saisie d'un prélèvement");
@@ -32,33 +26,22 @@ const SampleView = () => {
     skip: !sampleId,
   });
 
-  const isSomeMutationPending = useAppSelector((state) =>
-    Object.values(state.api.mutations).some(
-      (mutation) =>
-        mutation?.endpointName !== undefined &&
-        Object.values(SampleMutationEndpoints).includes(
-          mutation?.endpointName as SampleMutationEndpoints
-        ) &&
-        mutation?.status === 'pending'
-    )
-  );
   const [searchParams] = useSearchParams();
   const [step, setStep] = useState<number>();
 
   const StepTitles = [
-    'Création du prélèvement',
-    'Lieu de prélèvement',
-    'Informations',
+    'Contexte du prélèvement',
+    'Matrice contrôlée',
     'Echantillons',
-    'Validation',
+    'Récapitulatif',
+    "Demande d'analyse enregistrée",
   ];
 
   const SampleStatusSteps: Record<SampleStatus, number> = {
     Draft: 1,
-    DraftCompany: 2,
-    DraftInfos: 3,
-    DraftItems: 4,
-    Submitted: 5,
+    DraftMatrix: 2,
+    DraftItems: 3,
+    Submitted: 4,
     Sent: 5,
   };
 
@@ -83,53 +66,63 @@ const SampleView = () => {
   }
 
   return (
-    <section className={cx('fr-py-3w')}>
-      <h1>
-        Prélévement {sample?.reference}
-        <div
-          className={cx('fr-text--sm', 'fr-text--light')}
-          style={{
-            color: fr.colors.decisions.text.mention.grey.default,
-          }}
-        >
-          <SampleStatusBadge
-            status={sample?.status as SampleStatus}
-            className={cx('fr-mr-1w')}
-          />
-
-          {isSomeMutationPending ? (
-            'Enregistrement en cours...'
-          ) : (
-            <>
-              {sample?.status &&
-                sample?.lastUpdatedAt &&
-                DraftStatusList.includes(sample?.status) && (
-                  <>
-                    Enregistré le{' '}
-                    {format(sample.lastUpdatedAt, 'dd/MM/yyyy à HH:mm:ss')}
-                  </>
-                )}
-            </>
-          )}
-        </div>
-      </h1>
-      {hasPermission('updateSample') && sample?.status !== 'Sent' && step && (
-        <>
-          <Stepper
-            currentStep={step}
-            nextTitle={StepTitles[step]}
-            stepCount={5}
-            title={StepTitles[step - 1]}
-          />
-        </>
-      )}
-      {step === 1 && <SampleStepCreation partialSample={sample} />}
-      {step === 2 && sample && (
-        <SampleStepDraftCompany partialSample={sample} />
-      )}
-      {step === 3 && sample && <SampleStepDraftInfos partialSample={sample} />}
-      {step === 4 && sample && <SampleStepDraftItems partialSample={sample} />}
-      {step === 5 && sample && <SampleStepSubmitted sample={sample} />}
+    <section className={clsx(cx('fr-container'), 'main-section')}>
+      <div
+        className={clsx(
+          cx('fr-pt-3w', 'fr-pt-md-4w', 'fr-pb-6w'),
+          'white-container'
+        )}
+      >
+        {/*<div*/}
+        {/*  className={cx('fr-text--sm', 'fr-text--light')}*/}
+        {/*  style={{*/}
+        {/*    color: fr.colors.decisions.text.mention.grey.default,*/}
+        {/*  }}*/}
+        {/*>*/}
+        {/*  {isSomeMutationPending ? (*/}
+        {/*    'Enregistrement en cours...'*/}
+        {/*  ) : (*/}
+        {/*    <>*/}
+        {/*      {sample?.status &&*/}
+        {/*        sample?.lastUpdatedAt &&*/}
+        {/*        DraftStatusList.includes(sample?.status) && (*/}
+        {/*          <>*/}
+        {/*            Enregistré le{' '}*/}
+        {/*            {format(sample.lastUpdatedAt, 'dd/MM/yyyy à HH:mm:ss')}*/}
+        {/*          </>*/}
+        {/*        )}*/}
+        {/*    </>*/}
+        {/*  )}*/}
+        {/*</div>*/}
+        {hasPermission('updateSample') && step && (
+          <div className="sample-stepper">
+            <img
+              src={newSample}
+              height="100%"
+              aria-hidden
+              className={cx('fr-hidden', 'fr-unhidden-md')}
+              alt=""
+            />
+            <Stepper
+              currentStep={step}
+              nextTitle={StepTitles[step]}
+              stepCount={5}
+              title={StepTitles[step - 1]}
+            />
+          </div>
+        )}
+        {step === 1 && <SampleStepCreation partialSample={sample} />}
+        {step === 2 && sample && (
+          <SampleStepDraftMatrix partialSample={sample} />
+        )}
+        {step === 3 && sample && (
+          <SampleStepDraftItems partialSample={sample} />
+        )}
+        {step === 4 && sample && (
+          <SampleStepSubmitted sample={sample as Sample} />
+        )}
+        {step === 5 && sample && <SampleStepSent sample={sample as Sample} />}
+      </div>
     </section>
   );
 };

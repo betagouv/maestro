@@ -1,4 +1,5 @@
 import { Knex } from 'knex';
+import { SampleItemRecipientKindList } from '../../shared/schema/Sample/SampleItemRecipientKind';
 
 exports.up = async (knex: Knex) => {
   await knex.schema.createTable('sample_items', (table) => {
@@ -14,6 +15,7 @@ exports.up = async (knex: Knex) => {
     table.string('seal_id');
     table.boolean('compliance200263');
     table.uuid('support_document_id').references('id').inTable('documents');
+    table.enum('recipient_kind', SampleItemRecipientKindList);
     table.primary(['sample_id', 'item_number']);
   });
 };

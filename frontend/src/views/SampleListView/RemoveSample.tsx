@@ -30,7 +30,7 @@ const RemoveSample = ({ sample }: RemoveSampleProps) => {
       <Button
         title="Supprimer"
         iconId="fr-icon-delete-line"
-        priority="tertiary no outline"
+        priority="tertiary"
         size="small"
         onClick={removeModal.open}
       />

@@ -1,15 +1,22 @@
 import { z } from 'zod';
 import { isDefined } from '../../utils/utils';
 import { CompanySearchResult } from './CompanySearchResult';
-export const Company = z.object({
-  siret: z.string(),
-  name: z.string(),
-  tradeName: z.string().optional().nullable(),
-  address: z.string().optional().nullable(),
-  postalCode: z.string().optional().nullable(),
-  city: z.string().optional().nullable(),
-  nafCode: z.string().optional().nullable(),
-});
+export const Company = z.object(
+  {
+    siret: z.string(),
+    name: z.string(),
+    tradeName: z.string().optional().nullable(),
+    address: z.string().optional().nullable(),
+    postalCode: z.string().optional().nullable(),
+    city: z.string().optional().nullable(),
+    nafCode: z.string().optional().nullable(),
+  },
+  {
+    errorMap: () => ({
+      message: "Veuillez renseigner l'entité",
+    }),
+  }
+);
 
 export type Company = z.infer<typeof Company>;
 

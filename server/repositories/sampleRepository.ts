@@ -9,6 +9,7 @@ import {
 } from '../../shared/schema/Sample/Sample';
 import { companiesTable } from './companyRepository';
 import db from './db';
+import { usersTable } from './userRepository';
 
 const samplesTable = 'samples';
 const sampleSequenceNumbers = 'sample_sequence_numbers';
@@ -16,10 +17,12 @@ const sampleSequenceNumbers = 'sample_sequence_numbers';
 const PartialSampleDbo = PartialSample.omit({
   items: true,
   company: true,
+  sampler: true,
 }).merge(
   z.object({
     companySiret: z.string().optional().nullable(),
     geolocation: z.any(),
+    sampledBy: z.string().uuid(),
   })
 );
 
@@ -32,6 +35,9 @@ const PartialSampleJoinedDbo = PartialSampleDbo.merge(
     companyPostalCode: z.string().optional().nullable(),
     companyCity: z.string().optional().nullable(),
     companyNafCode: z.string().optional().nullable(),
+    samplerId: z.string().uuid(),
+    samplerFirstName: z.string(),
+    samplerLastName: z.string(),
   })
 );
 
@@ -51,7 +57,10 @@ const findUnique = async (id: string): Promise<PartialSample | undefined> => {
       `${companiesTable}.address as company_address`,
       `${companiesTable}.postal_code as company_postal_code`,
       `${companiesTable}.city as company_city`,
-      `${companiesTable}.naf_code as company_naf_code`
+      `${companiesTable}.naf_code as company_naf_code`,
+      `${usersTable}.id as sampler_id`,
+      `${usersTable}.first_name as sampler_first_name`,
+      `${usersTable}.last_name as sampler_last_name`
     )
     .where(`${samplesTable}.id`, id)
     .leftJoin(
@@ -59,6 +68,7 @@ const findUnique = async (id: string): Promise<PartialSample | undefined> => {
       `${samplesTable}.companySiret`,
       `${companiesTable}.siret`
     )
+    .join(usersTable, `${samplesTable}.sampled_by`, `${usersTable}.id`)
     .first()
     .then(parsePartialSample);
 };
@@ -93,13 +103,17 @@ const findMany = async (
       `${companiesTable}.address as company_address`,
       `${companiesTable}.postal_code as company_postal_code`,
       `${companiesTable}.city as company_city`,
-      `${companiesTable}.naf_code as company_naf_code`
+      `${companiesTable}.naf_code as company_naf_code`,
+      `${usersTable}.id as sampler_id`,
+      `${usersTable}.first_name as sampler_first_name`,
+      `${usersTable}.last_name as sampler_last_name`
     )
     .leftJoin(
       companiesTable,
       `${samplesTable}.companySiret`,
       `${companiesTable}.siret`
     )
+    .join(usersTable, `${samplesTable}.sampled_by`, `${usersTable}.id`)
     .modify((builder) => {
       if (findOptions.page) {
         builder
@@ -167,12 +181,13 @@ const deleteOne = async (id: string): Promise<void> => {
 export const formatPartialSample = (
   partialSample: PartialSample
 ): PartialSampleDbo => ({
-  ...fp.omit(partialSample, ['items', 'company']),
+  ...fp.omit(partialSample, ['items', 'company', 'sampler']),
   geolocation: db.raw('Point(?, ?)', [
     partialSample.geolocation.x,
     partialSample.geolocation.y,
   ]),
   companySiret: partialSample.company?.siret,
+  sampledBy: partialSample.sampler.id,
 });
 
 export const parsePartialSample = (
@@ -196,6 +211,11 @@ export const parsePartialSample = (
           nafCode: sample.companyNafCode ?? undefined,
         }
       : undefined,
+    sampler: {
+      id: sample.samplerId,
+      firstName: sample.samplerFirstName,
+      lastName: sample.samplerLastName,
+    },
   });
 
 export default {

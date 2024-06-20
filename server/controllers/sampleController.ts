@@ -110,6 +110,8 @@ const createSample = async (request: Request, response: Response) => {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
   }
 
+  await companyRepository.upsert(sampleToCreate.company);
+
   const serial = await sampleRepository.getNextSequence(
     user.region,
     new Date().getFullYear()
@@ -121,10 +123,10 @@ const createSample = async (request: Request, response: Response) => {
       new Date(),
       'yy'
     )}-${String(serial).padStart(4, '0')}-${sampleToCreate.legalContext}`,
-    createdBy: user.id,
+    sampler: fp.pick(user, ['id', 'firstName', 'lastName']),
     createdAt: new Date(),
     lastUpdatedAt: new Date(),
-    status: 'DraftCompany',
+    status: 'DraftMatrix',
     ...sampleToCreate,
   };
   await sampleRepository.insert(sample);
@@ -143,12 +145,7 @@ const updateSample = async (request: Request, response: Response) => {
     sampleUpdate.company?.siret &&
     sample.company?.siret !== sampleUpdate.company?.siret
   ) {
-    const company = await companyRepository.findUnique(
-      sampleUpdate.company?.siret
-    );
-    if (!company) {
-      await companyRepository.insert(sampleUpdate.company);
-    }
+    await companyRepository.upsert(sampleUpdate.company);
   }
 
   if (sample.status === 'Sent') {
@@ -175,7 +172,7 @@ const updateSample = async (request: Request, response: Response) => {
       sampleItems.map(async (sampleItem) => {
         const doc = await storeSampleItemDocument(
           updatedSample as Sample,
-          sampleItem,
+          sampleItem as SampleItem,
           user
         );
 
@@ -223,7 +220,7 @@ const storeSampleItemDocument = async (
     id,
     filename,
     kind: 'SupportDocument',
-    createdBy: sample.createdBy,
+    createdBy: sample.sampler.id, //TODO : check if it's the right user
     createdAt: new Date(),
   });
 

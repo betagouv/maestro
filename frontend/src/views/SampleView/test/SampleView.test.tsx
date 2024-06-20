@@ -78,7 +78,7 @@ describe('SampleView', () => {
   });
 
   test('should render the second step for a draft sample', async () => {
-    const createdSample = genCreatedSample(sampler.id, programmingPlan1.id);
+    const createdSample = genCreatedSample(sampler, programmingPlan1.id);
     mockRequests([
       userRequest,
       prescriptionsRequest,
@@ -100,7 +100,9 @@ describe('SampleView', () => {
     );
 
     await waitFor(async () => {
-      expect(screen.getByTestId('draft_sample_infos_form')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('draft_sample_maatrix_form')
+      ).toBeInTheDocument();
     });
 
     const calls = await getRequestCalls(fetchMock);
@@ -147,10 +149,10 @@ describe('SampleView', () => {
     ).toHaveLength(1);
   });
 
-  test('should render the fourth step for a sample with status Sent', async () => {
+  test('should render the fourth step for a sample with status Submitted', async () => {
     const draftSample = {
       ...genSample(),
-      status: 'Sent',
+      status: 'Submitted',
     };
     mockRequests([
       userRequest,

@@ -251,7 +251,7 @@ export const QuantityUnit = z.enum(
   ],
   {
     errorMap: () => ({
-      message: "Veuillez renseigner l'unité de quantité.",
+      message: "Veuillez renseigner l'unité de mesure.",
     }),
   }
 );

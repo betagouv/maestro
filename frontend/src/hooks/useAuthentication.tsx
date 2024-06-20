@@ -7,10 +7,10 @@ import { useAppSelector } from 'src/hooks/useStore';
 import { useGetUserInfosQuery } from 'src/services/user.service';
 import DashboardView from 'src/views/DashboardView/DashboardView';
 import DocumentListView from 'src/views/DocumentListView/DocumentListView';
+import HomeView from 'src/views/HomeView/HomeView';
 import PrescriptionView from 'src/views/PrescriptionView/PrescriptionView';
 import SampleListView from 'src/views/SampleListView/SampleListView';
 import SampleView from 'src/views/SampleView/SampleView';
-import SignInView from 'src/views/SignInView/SignInView';
 
 export const useAuthentication = () => {
   const { authUser } = useAppSelector((state) => state.auth);
@@ -102,7 +102,7 @@ export const useAuthentication = () => {
               path: '/',
               label: 'Connexion',
               key: 'signin_route',
-              component: SignInView,
+              component: HomeView,
             },
           ]),
     ].filter(isDefined);

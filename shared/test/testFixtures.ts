@@ -9,6 +9,7 @@ import { QuantityUnitList } from '../referential/QuantityUnit';
 import { RegionList, Regions } from '../referential/Region';
 import { Stage, StageList } from '../referential/Stage';
 import { Company } from '../schema/Company/Company';
+import { CompanySearchResult } from '../schema/Company/CompanySearchResult';
 import { Document } from '../schema/Document/Document';
 import { Laboratory } from '../schema/Laboratory/Laboratory';
 import { Prescription } from '../schema/Prescription/Prescription';
@@ -46,8 +47,10 @@ export const genValidPassword = () => '123Valid';
 
 export const genUser = (...roles: UserRole[]): User => ({
   id: uuidv4(),
-  password: randomstring.generate(),
   email: fakerFR.internet.email(),
+  password: randomstring.generate(),
+  firstName: fakerFR.person.firstName(),
+  lastName: fakerFR.person.lastName(),
   roles: roles ?? [oneOf(UserRoleList)],
   region:
     roles?.includes('NationalCoordinator') || roles?.includes('Administrator')
@@ -65,44 +68,49 @@ export function genAuthUser(): AuthUser {
 export const genSampleToCreate = (
   programmingPlanId?: string
 ): SampleToCreate => ({
+  sampledAt: new Date(),
+  department: oneOf(Regions['44'].departments),
   geolocation: {
     x: 48.8566,
     y: 2.3522,
   },
-  sampledAt: new Date(),
+  programmingPlanId: programmingPlanId ?? uuidv4(),
+  legalContext: oneOf(LegalContextList),
   resytalId:
     '23-' +
     randomstring.generate({
       length: 6,
       charset: '123456789',
     }),
-  programmingPlanId: programmingPlanId ?? uuidv4(),
-  legalContext: oneOf(LegalContextList),
-  department: oneOf(Regions['44'].departments),
-  commentCreation: randomstring.generate(),
+  company: genCompany(),
+  notesOnCreation: randomstring.generate(),
 });
 
 export const genCreatedSample = (
-  userId?: string,
+  user?: User,
   programmingPlanId?: string
 ): CreatedSample => ({
   id: uuidv4(),
   reference: `44-${oneOf(Regions['44'].departments)}-24-${genNumber(4)}-${oneOf(
     LegalContextList
   )}`,
-  createdBy: userId ?? uuidv4(),
+  sampler: {
+    id: user?.id ?? uuidv4(),
+    firstName: user?.firstName ?? fakerFR.person.firstName(),
+    lastName: user?.lastName ?? fakerFR.person.lastName(),
+  },
   createdAt: new Date(),
   lastUpdatedAt: new Date(),
-  status: 'DraftInfos',
+  status: 'DraftMatrix',
   ...genSampleToCreate(programmingPlanId),
 });
 
 export const genSample = (
-  userId?: string,
+  user?: User,
   programmingPlanId?: string,
   company?: Company
 ): Sample => {
-  const sample = genCreatedSample(userId, programmingPlanId);
+  const sample = genCreatedSample(user, programmingPlanId);
   return {
     ...sample,
     company: company ?? genCompany(),
@@ -125,13 +133,7 @@ export const genSampleItem = (
   quantityUnit: oneOf(QuantityUnitList),
   compliance200263: genBoolean(),
   sealId: randomstring.generate(),
-});
-
-export const genCoords = () => ({
-  coords: {
-    latitude: Math.random() * 180 - 90,
-    longitude: Math.random() * 360 - 180,
-  },
+  recipientKind: 'Laboratory',
 });
 
 export const genProgrammingPlan = (userId?: string): ProgrammingPlan => ({
@@ -179,4 +181,25 @@ export const genCompany = (): Company => ({
   name: fakerFR.company.name(),
   address: faker.location.streetAddress({ useFullAddress: true }),
   postalCode: faker.location.zipCode(),
+});
+
+export const genCompanySearchResult = (): CompanySearchResult => ({
+  siren: genSiret().substring(0, 9),
+  nom_complet: fakerFR.company.name(),
+  nom_raison_sociale: fakerFR.company.name(),
+  sigle: fakerFR.company.buzzNoun(),
+  siege: {
+    activite_principale: fakerFR.commerce.department(),
+    adresse: fakerFR.location.streetAddress(),
+    code_postal: fakerFR.location.zipCode(),
+    commune: fakerFR.location.city(),
+    complement_adresse: fakerFR.location.secondaryAddress(),
+    departement: oneOf(Regions['44'].departments),
+    libelle_commune: fakerFR.location.city(),
+    libelle_voie: fakerFR.location.street(),
+    numero_voie: fakerFR.location.buildingNumber(),
+    region: oneOf(RegionList),
+    siret: genSiret(),
+  },
+  activite_principale: faker.commerce.department(),
 });

@@ -1,0 +1,127 @@
+@import '../../constants';
+
+.sample-stepper {
+  display: flex;
+  border-bottom: 1px solid var(--border-default-grey);
+  padding-left: 1rem;
+  padding-right: 1rem;
+  margin-bottom: 1.5rem;
+  gap: 1.5rem;
+
+  @media (min-width: $breakpoint-md) {
+    padding-left: 4.375rem;
+    padding-right: 12.75rem;
+    margin-bottom: 2rem;
+    gap: 3.5rem;
+  }
+
+  .fr-stepper {
+    flex: 1;
+  }
+}
+
+.sample-form {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+
+  @media (max-width: $breakpoint-md) {
+    .fr-grid-row {
+      .fr-col-12:not(:first-child):has(.fr-input-group, .fr-select-group) {
+        margin-top: 0.75rem;
+      }
+    }
+  }
+
+  @media (min-width: $breakpoint-md) {
+    padding-left: 12.75rem;
+    padding-right: 12.75rem;
+    gap: 2.5rem;
+  }
+
+  .fr-radio-group {
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
+  }
+
+  .fr-messages-group:not(:empty) {
+    margin-top: 1rem;
+  }
+
+  .sample-actions {
+    .fr-btns-group {
+      @media (max-width: $breakpoint-md) {
+        display: flex;
+        flex-direction: column-reverse;
+
+        .fr-btns-group {
+          flex-direction: column;
+          margin-left: 0;
+          margin-right: 0;
+        }
+      }
+    }
+  }
+}
+
+.sample-items {
+  display: flex;
+  flex-direction: column;
+  gap: 2.25rem;
+
+  .sample-item {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    border: 1px solid #e5e5e5;
+    background-color: #fff;
+  }
+
+  .fr-label {
+    text-wrap: nowrap;
+  }
+
+  .fr-callout {
+    button.fr-btn--secondary:hover,
+    button.fr-btn--tertiary:hover,
+    .fr-accordion__btn:hover {
+      background-color: var(--grey-975-75);
+    }
+  }
+}
+
+.sample-step-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  .summary-item {
+    font-size: 1.25rem;
+    line-height: 2rem;
+  }
+}
+
+.sample-step-summary-accordion + hr + .sample-step-summary-accordion {
+  margin-top: -2rem;
+}
+
+.sample-step-summary-accordion {
+  .fr-accordion__btn {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+}
+
+.icon-text {
+  display: flex;
+
+  div:first-child {
+    margin-right: 0.75rem;
+  }
+}
+
+hr {
+  padding: 1px;
+}
