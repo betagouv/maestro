@@ -23,9 +23,11 @@ class BrevoService implements MailService {
     await this.emailsApi.sendTransacEmail({
       ...options,
       templateId: Number(options.templateId),
-      to: options.recipients.map((recipient) => ({
-        email: recipient,
-      })),
+      to: options.recipients
+        .filter((recipient) => !recipient.includes('@example'))
+        .map((recipient) => ({
+          email: recipient,
+        })),
     });
   }
 

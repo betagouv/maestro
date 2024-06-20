@@ -6,6 +6,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { format } from 'date-fns';
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { CultureKindLabels } from 'shared/referential/CultureKind';
 import { DepartmentLabels } from 'shared/referential/Department';
 import { LegalContextLabels } from 'shared/referential/LegalContext';
@@ -30,6 +31,7 @@ interface Props {
 }
 
 const SampleStepSubmitted = ({ sample }: Props) => {
+  const navigate = useNavigate();
   const { hasPermission } = useAuthentication();
   const [updateSample] = useUpdateSampleMutation();
 
@@ -52,6 +54,9 @@ const SampleStepSubmitted = ({ sample }: Props) => {
       ...sample,
       status: 'Sent',
       sentAt: new Date(),
+    });
+    navigate(`/prelevements/${sample.id}?etape=5`, {
+      replace: true,
     });
   };
 
@@ -181,6 +186,14 @@ const SampleStepSubmitted = ({ sample }: Props) => {
             Stade de prélèvement : <b>{StageLabels[sample.stage]}</b>
           </div>
         </div>
+        {sample.releaseControl && (
+          <div className="summary-item icon-text">
+            <div className={cx('fr-icon-checkbox-circle-line')}></div>
+            <div>
+              <b>Contrôle libératoire</b>
+            </div>
+          </div>
+        )}
         {sample.notesOnMatrix && (
           <div className="summary-item icon-text">
             <div className={cx('fr-icon-quote-line')}></div>
