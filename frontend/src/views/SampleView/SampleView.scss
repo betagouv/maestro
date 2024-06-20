@@ -23,9 +23,17 @@
 .sample-form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2rem;
   padding-left: 1rem;
   padding-right: 1rem;
+
+  @media (max-width: $breakpoint-md) {
+    .fr-grid-row {
+      .fr-col-12:not(:first-child):has(.fr-input-group, .fr-select-group) {
+        margin-top: 0.75rem;
+      }
+    }
+  }
 
   @media (min-width: $breakpoint-md) {
     padding-left: 12.75rem;
@@ -50,6 +58,8 @@
 
         .fr-btns-group {
           flex-direction: column;
+          margin-left: 0;
+          margin-right: 0;
         }
       }
     }
@@ -90,6 +100,17 @@
   .summary-item {
     font-size: 1.25rem;
     line-height: 2rem;
+  }
+}
+
+.sample-step-summary-accordion + hr + .sample-step-summary-accordion {
+  margin-top: -2rem;
+}
+
+.sample-step-summary-accordion {
+  .fr-accordion__btn {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
   }
 }
 

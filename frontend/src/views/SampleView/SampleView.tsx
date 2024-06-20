@@ -8,11 +8,11 @@ import { SampleStatus } from 'shared/schema/Sample/SampleStatus';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useGetSampleQuery } from 'src/services/sample.service';
-import SampleStepCreation from 'src/views/SampleView/SampleStepCreation';
-import SampleStepDraftItems from 'src/views/SampleView/SampleStepDraftItems';
-import SampleStepDraftMatrix from 'src/views/SampleView/SampleStepDraftMatrix';
+import SampleStepCreation from 'src/views/SampleView/SampleStepCreation/SampleStepCreation';
+import SampleStepDraftItems from 'src/views/SampleView/SampleStepDraftItems/SampleStepDraftItems';
+import SampleStepDraftMatrix from 'src/views/SampleView/SampleStepDraftMatrix/SampleStepDraftMatrix';
 import SampleStepSent from 'src/views/SampleView/SampleStepSent';
-import SampleStepSubmitted from 'src/views/SampleView/SampleStepSubmitted';
+import SampleStepSubmitted from 'src/views/SampleView/SampleStepSubmitted/SampleStepSubmitted';
 import newSample from '../../assets/illustrations/new-sample.png';
 import './SampleView.scss';
 

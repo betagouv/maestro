@@ -1,7 +1,7 @@
 import { ButtonProps } from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { useNavigate } from 'react-router-dom';
-import useWindowWidth from 'src/hooks/useWindowWidth';
+import useWindowSize from 'src/hooks/useWindowSize';
 
 interface Props {
   sampleId: string;
@@ -15,7 +15,7 @@ const PreviousButton = ({
   currentStep,
 }: Props): ButtonProps => {
   const navigate = useNavigate();
-  const { isMobile } = useWindowWidth();
+  const { isMobile } = useWindowSize();
 
   return {
     ...{

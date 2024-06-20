@@ -7,7 +7,7 @@ import { SampleStatus } from 'shared/schema/Sample/SampleStatus';
 import { genCreatedSample } from 'shared/test/testFixtures';
 import { store } from 'src/store/store';
 import config from 'src/utils/config';
-import SampleStepDraftItems from 'src/views/SampleView/SampleStepDraftItems';
+import SampleStepDraftItems from 'src/views/SampleView/SampleStepDraftItems/SampleStepDraftItems';
 import {
   getRequestCalls,
   mockRequests,

@@ -8,7 +8,7 @@ import { format } from 'date-fns';
 import { t } from 'i18next';
 import fp from 'lodash';
 import { useEffect, useMemo } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Department,
   DepartmentLabels,
@@ -29,7 +29,7 @@ import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOp
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
-import useWindowWidth from 'src/hooks/useWindowWidth';
+import useWindowSize from 'src/hooks/useWindowSize';
 import { useFindPrescriptionsQuery } from 'src/services/prescription.service';
 import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.service';
 import {
@@ -44,11 +44,12 @@ import './SampleList.scss';
 const SampleListView = () => {
   useDocumentTitle('Liste des prélèvements');
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const [searchParams, setSearchParams] = useSearchParams();
   const { hasPermission, hasNationalView, userInfos } = useAuthentication();
   const { findSampleOptions } = useAppSelector((state) => state.samples);
-  const { isMobile } = useWindowWidth();
+  const { isMobile } = useWindowSize();
 
   useEffect(() => {
     if (searchParams) {
@@ -131,14 +132,25 @@ const SampleListView = () => {
   const tableData = useMemo(
     () =>
       (samples ?? []).map((sample) => [
-        (sample.matrix && MatrixLabels[sample.matrix]) ?? '',
-        `${sample.sampler.firstName} ${sample.sampler.lastName}`,
-        format(sample.createdAt, 'dd/MM/yyyy'),
-        sample.department,
-        sample.company?.name ?? '',
-        programmingPlans?.find((plan) => plan.id === sample.programmingPlanId)
-          ?.title ?? '',
-        <SampleStatusBadge status={sample?.status as SampleStatus} />,
+        ...[
+          (sample.matrix && MatrixLabels[sample.matrix]) ?? '',
+          `${sample.sampler.firstName} ${sample.sampler.lastName}`,
+          format(sample.createdAt, 'dd/MM/yyyy'),
+          sample.department,
+          sample.company?.name ?? '',
+          programmingPlans?.find((plan) => plan.id === sample.programmingPlanId)
+            ?.title ?? '',
+          <SampleStatusBadge status={sample?.status as SampleStatus} />,
+        ].map((cell) => (
+          <div
+            onClick={() => navigate(`/prelevements/${sample.id}`)}
+            style={{
+              cursor: 'pointer',
+            }}
+          >
+            {cell}
+          </div>
+        )),
         <div className="actions">
           <Button
             title="Voir le prélèvement"

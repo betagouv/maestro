@@ -24,7 +24,8 @@ import {
 } from 'src/services/sample.service';
 import PreviousButton from 'src/views/SampleView/PreviousButton';
 import SampleItemCallout from 'src/views/SampleView/SampleItemCallout';
-import SampleSendModal from 'src/views/SampleView/SampleSendModal';
+import SampleSendModal from 'src/views/SampleView/SampleStepSubmitted/SampleSendModal';
+import StepSummary from 'src/views/SampleView/SampleStepSubmitted/StepSummary';
 
 interface Props {
   sample: Sample;
@@ -67,6 +68,8 @@ const SampleStepSubmitted = ({ sample }: Props) => {
     });
   };
 
+  const a = true;
+
   return (
     <div data-testid="sample_data" className="sample-form">
       <h3 className={cx('fr-m-0')}>
@@ -77,14 +80,17 @@ const SampleStepSubmitted = ({ sample }: Props) => {
           </div>
         )}
       </h3>
-      <section className="sample-step-summary">
-        <Badge className={cx('fr-badge--green-menthe')}>
-          Le contexte du prélèvement
-        </Badge>
+      <StepSummary
+        label={
+          <Badge className={cx('fr-badge--green-menthe')}>
+            Le contexte du prélèvement
+          </Badge>
+        }
+      >
         <div className="summary-item icon-text">
           <div className={cx('fr-icon-user-line')}></div>
           <div>
-            Prélèvement réalisé par 
+            Prélèvement réalisé par
             <b>
               {sample.sampler.firstName} {sample.sampler.lastName}
             </b>
@@ -101,14 +107,14 @@ const SampleStepSubmitted = ({ sample }: Props) => {
         <div className="summary-item icon-text">
           <div className={cx('fr-icon-road-map-line')}></div>
           <div>
-            Département : <b>{DepartmentLabels[sample.department]}</b>
+            Département : <b>{DepartmentLabels[sample.department]}</b>
             <div>
-              Latitude : <b>{sample.geolocation.x}</b> Longitude : 
+              Latitude : <b>{sample.geolocation.x}</b> Longitude :
               <b>{sample.geolocation.y}</b>
             </div>
             {sample.parcel && (
               <div>
-                N° ou appellation de la parcelle : <b>{sample.parcel}</b>
+                N° ou appellation de la parcelle : <b>{sample.parcel}</b>
               </div>
             )}
           </div>
@@ -125,17 +131,17 @@ const SampleStepSubmitted = ({ sample }: Props) => {
         <div className="summary-item icon-text">
           <div className={cx('fr-icon-scales-3-line')}></div>
           <div>
-            Cadre juridique : <b>{LegalContextLabels[sample.legalContext]}</b>
+            Cadre juridique : <b>{LegalContextLabels[sample.legalContext]}</b>
           </div>
         </div>
         <div className="summary-item icon-text">
           <div className={cx('fr-icon-map-pin-2-line')}></div>
           <div>
-            Entité contrôlée : <b>{sample.company.name}</b> - SIRET{' '}
+            Entité contrôlée : <b>{sample.company.name}</b> - SIRET{' '}
             {sample.company.siret}
             {sample.resytalId && (
               <div>
-                Identifiant RESYTAL : <b>{sample.resytalId}</b>
+                Identifiant RESYTAL : <b>{sample.resytalId}</b>
               </div>
             )}
           </div>
@@ -151,23 +157,26 @@ const SampleStepSubmitted = ({ sample }: Props) => {
             </div>
           </div>
         )}
-      </section>
-      <hr className={cx('fr-mx-0')} />
-      <section className="sample-step-summary">
-        <Badge className={cx('fr-badge--green-menthe')}>
-          La matrice contrôlée
-        </Badge>
+      </StepSummary>
+      <hr className={cx('fr-mx-0', 'fr-hidden', 'fr-unhidden-sm')} />
+      <StepSummary
+        label={
+          <Badge className={cx('fr-badge--green-menthe')}>
+            La matrice contrôlée
+          </Badge>
+        }
+      >
         <div className="summary-item icon-text">
           <div className={cx('fr-icon-restaurant-line')}></div>
           <div>
-            Matrice : <b>{MatrixLabels[sample.matrix]}</b>
+            Matrice : <b>{MatrixLabels[sample.matrix]}</b>
             <div>
               LMR/ Partie du végétal concernée :{' '}
               <b>{MatrixPartLabels[sample.matrixPart]}</b>
             </div>
             {sample.matrixDetails && (
               <div>
-                Détails de la matrice : <b>{sample.matrixDetails}</b>
+                Détails de la matrice : <b>{sample.matrixDetails}</b>
               </div>
             )}
           </div>
@@ -176,14 +185,14 @@ const SampleStepSubmitted = ({ sample }: Props) => {
           <div className="summary-item icon-text">
             <div className={cx('fr-icon-seedling-line')}></div>
             <div>
-              Type de culture : <b>{CultureKindLabels[sample.cultureKind]}</b>
+              Type de culture : <b>{CultureKindLabels[sample.cultureKind]}</b>
             </div>
           </div>
         )}
         <div className="summary-item icon-text">
           <div className={cx('fr-icon-sip-line')}></div>
           <div>
-            Stade de prélèvement : <b>{StageLabels[sample.stage]}</b>
+            Stade de prélèvement : <b>{StageLabels[sample.stage]}</b>
           </div>
         </div>
         {sample.releaseControl && (
@@ -205,8 +214,8 @@ const SampleStepSubmitted = ({ sample }: Props) => {
             </div>
           </div>
         )}
-      </section>
-      <hr className={cx('fr-mx-0')} />
+      </StepSummary>
+      <hr className={cx('fr-mx-0', 'fr-hidden', 'fr-unhidden-sm')} />
       <h3 className={cx('fr-m-0')}>Échantillons prélevés</h3>
       <div className="sample-items">
         {sample.items?.map((item, itemIndex) => (
@@ -221,7 +230,7 @@ const SampleStepSubmitted = ({ sample }: Props) => {
               <hr className={cx('fr-m-0')} />
               <div>
                 <div className={cx('fr-text--bold', 'fr-text--lg')}>
-                  Document d'accompagnement du prélèvement / Procès verbal
+                  Document d'accompagnement du prélèvement / Procès verbal
                 </div>
                 <ButtonsGroup
                   inlineLayoutWhen="always"

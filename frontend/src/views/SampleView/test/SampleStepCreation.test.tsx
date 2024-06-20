@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { genProgrammingPlan } from 'shared/test/testFixtures';
 import { store } from 'src/store/store';
-import SampleStepCreation from 'src/views/SampleView/SampleStepCreation';
+import SampleStepCreation from 'src/views/SampleView/SampleStepCreation/SampleStepCreation';
 import { mockRequests } from '../../../../test/requestUtils.test';
 
 const programmingPlan1 = {

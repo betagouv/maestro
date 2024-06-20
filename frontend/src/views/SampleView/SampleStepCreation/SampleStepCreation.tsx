@@ -24,8 +24,6 @@ import {
 import { ProgrammingPlanKindLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { PartialSample, SampleToCreate } from 'shared/schema/Sample/Sample';
 import { SampleStatus } from 'shared/schema/Sample/SampleStatus';
-import agenda from 'src/assets/illustrations/agenda.png';
-import alarm from 'src/assets/illustrations/alarm.png';
 import food from 'src/assets/illustrations/food.png';
 import policeHat from 'src/assets/illustrations/police-hat.png';
 import scale from 'src/assets/illustrations/scale.png';
@@ -43,8 +41,10 @@ import {
   useCreateSampleMutation,
   useUpdateSampleMutation,
 } from 'src/services/sample.service';
-import SampleGeolocation from 'src/views/SampleView/SampleGeolocation';
+import SampleGeolocation from 'src/views/SampleView/SampleStepCreation/SampleGeolocation';
 import { z } from 'zod';
+import checkCircle from '../../../assets/illustrations/check_circle.png';
+import leafs from '../../../assets/illustrations/leafs.png';
 interface Props {
   partialSample?: PartialSample;
 }
@@ -126,7 +126,7 @@ const SampleStepCreation = ({ partialSample }: Props) => {
     ...(programmingPlans ?? []).map(({ id, kind }) => ({
       label: ProgrammingPlanKindLabels[kind],
       value: id,
-      illustration: kind === 'Control' ? agenda : alarm,
+      illustration: kind === 'Control' ? checkCircle : leafs,
     })),
     {
       label: 'Hors programmation',

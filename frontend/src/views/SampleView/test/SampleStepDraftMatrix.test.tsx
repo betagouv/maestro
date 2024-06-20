@@ -14,7 +14,7 @@ import {
 } from 'shared/test/testFixtures';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import config from 'src/utils/config';
-import SampleStepDraftMatrix from 'src/views/SampleView/SampleStepDraftMatrix';
+import SampleStepDraftMatrix from 'src/views/SampleView/SampleStepDraftMatrix/SampleStepDraftMatrix';
 import {
   getRequestCalls,
   mockRequests,

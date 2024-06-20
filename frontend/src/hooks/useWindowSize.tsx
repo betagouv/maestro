@@ -1,7 +1,7 @@
 import { useBreakpointsValuesPx } from '@codegouvfr/react-dsfr/useBreakpointsValuesPx';
 import { useEffect, useState } from 'react';
 
-const useWindowWidth = () => {
+const useWindowSize = () => {
   const { breakpointsValues } = useBreakpointsValuesPx();
   const [width, setWidth] = useState(window.innerWidth);
 
@@ -24,4 +24,4 @@ const useWindowWidth = () => {
   };
 };
 
-export default useWindowWidth;
+export default useWindowSize;
