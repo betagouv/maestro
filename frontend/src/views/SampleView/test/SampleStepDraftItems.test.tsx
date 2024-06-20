@@ -33,6 +33,7 @@ describe('SampleStepDraftItems', () => {
     expect(screen.getAllByTestId('item-quantity-input-0')).toHaveLength(2);
     expect(screen.getAllByTestId('item-unit-select-0')).toHaveLength(2);
     expect(screen.getAllByTestId('item-sealid-input-0')).toHaveLength(2);
+    expect(screen.getAllByTestId('recipientKind-radio-0')).toHaveLength(1);
     expect(
       screen.queryByTestId('item-quantity-input-1')
     ).not.toBeInTheDocument();
@@ -58,7 +59,7 @@ describe('SampleStepDraftItems', () => {
     expect(screen.getAllByTestId('item-quantity-input-1')).toHaveLength(2);
     expect(screen.getAllByTestId('item-unit-select-1')).toHaveLength(2);
     expect(screen.getAllByTestId('item-sealid-input-1')).toHaveLength(2);
-    expect(screen.getAllByTestId('recipientKind-radio')).toHaveLength(1);
+    expect(screen.getAllByTestId('recipientKind-radio-1')).toHaveLength(1);
   });
 
   test('should remove an item', async () => {
@@ -178,7 +179,7 @@ describe('SampleStepDraftItems', () => {
     const unitSelect = screen.getAllByTestId('item-unit-select-0')[1];
     const sealidInput = screen.getAllByTestId('item-sealid-input-0')[1];
     const recipientKindRadio = await within(
-      screen.getByTestId('recipientKind-radio')
+      screen.getByTestId('recipientKind-radio-0')
     ).findByLabelText(SampleItemRecipientKindLabels['Laboratory']);
 
     await act(async () => {

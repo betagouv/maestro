@@ -186,7 +186,7 @@ const SampleItemCallout = ({
             inputPathFromKey={[itemIndex, 'recipientKind']}
             disabled={!itemsForm}
             required
-            data-testid="recipientKind-radio"
+            data-testid={`recipientKind-radio-${itemIndex}`}
           />
         </div>
       </div>
