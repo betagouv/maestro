@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { QuantityUnit } from '../../referential/QuantityUnit';
+import { SampleItemRecipientKind } from './SampleItemRecipientKind';
 
 export const SampleItem = z.object({
   sampleId: z.string().uuid(),
@@ -15,11 +16,12 @@ export const SampleItem = z.object({
     required_error: 'Veuillez renseigner le numéro de scellé.',
   }),
   supportDocumentId: z.string().uuid().optional().nullable(),
+  recipientKind: SampleItemRecipientKind,
 });
 
 export const PartialSampleItem = SampleItem.partial().merge(
   SampleItem.pick({
-    id: true,
+    sampleId: true,
     itemNumber: true,
   })
 );

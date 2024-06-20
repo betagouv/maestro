@@ -11,6 +11,12 @@ import {
 } from 'shared/referential/QuantityUnit';
 import { Sample } from 'shared/schema/Sample/Sample';
 import { PartialSampleItem } from 'shared/schema/Sample/SampleItem';
+import {
+  SampleItemRecipientKind,
+  SampleItemRecipientKindLabels,
+  SampleItemRecipientKindList,
+} from 'shared/schema/Sample/SampleItemRecipientKind';
+import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppResponsiveButton from 'src/components/_app/AppResponsiveButton/AppResponsiveButton';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
@@ -151,7 +157,40 @@ const SampleItemCallout = ({
         </div>
       </div>
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={cx('fr-col-12', 'fr-col-sm-12')}>
+        <div className={cx('fr-col-12')}>
+          <AppRadioButtons<FormShape>
+            legend="Destinataire de l’échantillon"
+            options={
+              selectOptionsFromList(SampleItemRecipientKindList, {
+                labels: SampleItemRecipientKindLabels,
+                withDefault: false,
+              }).map(({ label, value }) => ({
+                key: `recipientKind-option-${value}`,
+                label,
+                nativeInputProps: {
+                  checked: item.recipientKind === value,
+                  onChange: () =>
+                    onChangeItem?.(
+                      {
+                        ...item,
+                        recipientKind: value as SampleItemRecipientKind,
+                      },
+                      itemIndex
+                    ),
+                },
+              })) ?? []
+            }
+            colSm={4}
+            inputForm={form}
+            inputKey="items"
+            inputPathFromKey={[itemIndex, 'recipientKind']}
+            disabled={!itemsForm}
+            required
+          />
+        </div>
+      </div>
+      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+        <div className={cx('fr-col-12')}>
           {itemsForm ? (
             <ToggleSwitch
               label="Respect directive 2002/63"

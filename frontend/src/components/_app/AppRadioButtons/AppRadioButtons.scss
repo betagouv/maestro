@@ -1,0 +1,7 @@
+@import '../../../constants';
+
+@media (max-width: $breakpoint-md) {
+  .fr-fieldset__content.fr-grid-row--gutters {
+    margin: -0.5rem;
+  }
+}

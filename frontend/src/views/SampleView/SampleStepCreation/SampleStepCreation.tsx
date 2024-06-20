@@ -1,7 +1,6 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import RadioButtons from '@codegouvfr/react-dsfr/RadioButtons';
 import clsx from 'clsx';
 import { format, parse } from 'date-fns';
 import React, { useEffect, useState } from 'react';
@@ -28,7 +27,7 @@ import food from 'src/assets/illustrations/food.png';
 import policeHat from 'src/assets/illustrations/police-hat.png';
 import scale from 'src/assets/illustrations/scale.png';
 import CompanySearch from 'src/components/CompanySearch/CompanySearch';
-import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
+import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
@@ -316,14 +315,9 @@ const SampleStepCreation = ({ partialSample }: Props) => {
           </div>
         </div>
       </div>
-      <RadioButtons
+      <AppRadioButtons<FormShape>
         key={`programmingPlan-${programmingPlanId}`}
-        legend={
-          <>
-            Contexte du prélèvement
-            <AppRequiredInput />
-          </>
-        }
+        legend="Contexte du prélèvement"
         options={
           programmingPlanOptions?.map(({ label, value, illustration }) => ({
             key: `programmingPlan-option-${value}`,
@@ -335,24 +329,16 @@ const SampleStepCreation = ({ partialSample }: Props) => {
             illustration: <img src={illustration} alt="" aria-hidden />,
           })) ?? []
         }
-        state={form.messageType('programmingPlanId')}
-        stateRelatedMessage={form.message('programmingPlanId')}
-        classes={{
-          inputGroup: cx('fr-col-12', 'fr-col-sm-6'),
-          content: cx('fr-grid-row', 'fr-grid-row--gutters', 'fr-mx-0'),
-          root: cx('fr-px-0', 'fr-my-0'),
-          legend: cx('fr-col-12', 'fr-mx-0'),
-        }}
+        colSm={6}
+        inputForm={form}
+        inputKey="programmingPlanId"
+        whenValid="Contexte du prélèvement correctement renseigné."
+        required
         data-testid="programmingPlanId-radio"
       />
-      <RadioButtons
+      <AppRadioButtons<FormShape>
         key={`legalContext-${legalContext}`}
-        legend={
-          <>
-            Cadre juridique
-            <AppRequiredInput />
-          </>
-        }
+        legend="Cadre juridique"
         options={
           legalContextOptions?.map(({ label, value }) => ({
             key: `legalContext-option-${value}`,
@@ -366,14 +352,11 @@ const SampleStepCreation = ({ partialSample }: Props) => {
             ),
           })) ?? []
         }
-        state={form.messageType('legalContext')}
-        stateRelatedMessage={form.message('legalContext')}
-        classes={{
-          inputGroup: cx('fr-col-12', 'fr-col-sm-6'),
-          content: cx('fr-grid-row', 'fr-grid-row--gutters', 'fr-mx-0'),
-          root: cx('fr-px-0', 'fr-my-0'),
-          legend: cx('fr-col-12', 'fr-mx-0'),
-        }}
+        colSm={6}
+        inputForm={form}
+        inputKey="legalContext"
+        whenValid="Cadre juridique correctement renseigné."
+        required
         data-testid="legalContext-radio"
       />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>

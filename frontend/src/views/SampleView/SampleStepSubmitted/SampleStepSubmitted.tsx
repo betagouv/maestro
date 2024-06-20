@@ -68,8 +68,6 @@ const SampleStepSubmitted = ({ sample }: Props) => {
     });
   };
 
-  const a = true;
-
   return (
     <div data-testid="sample_data" className="sample-form">
       <h3 className={cx('fr-m-0')}>

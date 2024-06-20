@@ -66,7 +66,6 @@ const SampleStepDraftMatrix = ({ partialSample }: Props) => {
     stage: true,
     cultureKind: true,
     releaseControl: true,
-    temperatureMaintenance: true,
     notesOnMatrix: true,
     status: true,
   });

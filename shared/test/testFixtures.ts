@@ -133,6 +133,7 @@ export const genSampleItem = (
   quantityUnit: oneOf(QuantityUnitList),
   compliance200263: genBoolean(),
   sealId: randomstring.generate(),
+  recipientKind: 'Laboratory',
 });
 
 export const genProgrammingPlan = (userId?: string): ProgrammingPlan => ({
