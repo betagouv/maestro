@@ -5,9 +5,9 @@ import Router, { BrowserRouter } from 'react-router-dom';
 import {
   genAuthUser,
   genCreatedSample,
+  genPartialSample,
   genPrescriptions,
   genProgrammingPlan,
-  genSample,
   genUser,
 } from 'shared/test/testFixtures';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
@@ -115,7 +115,7 @@ describe('SampleView', () => {
 
   test('should render the third step for a sample with status DraftItems', async () => {
     const draftSample = {
-      ...genSample(),
+      ...genPartialSample(),
       status: 'DraftItems',
     };
     mockRequests([
@@ -151,7 +151,7 @@ describe('SampleView', () => {
 
   test('should render the fourth step for a sample with status Submitted', async () => {
     const draftSample = {
-      ...genSample(),
+      ...genPartialSample(),
       status: 'Submitted',
     };
     mockRequests([

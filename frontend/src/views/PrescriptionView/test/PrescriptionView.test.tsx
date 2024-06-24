@@ -5,9 +5,9 @@ import Router, { BrowserRouter } from 'react-router-dom';
 import { Region, RegionList } from 'shared/referential/Region';
 import {
   genAuthUser,
+  genPartialSample,
   genPrescriptions,
   genProgrammingPlan,
-  genSample,
   genUser,
 } from 'shared/test/testFixtures';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
@@ -25,7 +25,7 @@ const programmingPlan = {
 };
 const prescriptions1 = genPrescriptions(programmingPlan.id);
 const prescriptions2 = genPrescriptions(programmingPlan.id);
-const sample = genSample(genUser(), programmingPlan.id);
+const sample = genPartialSample(genUser(), programmingPlan.id);
 
 const prescriptionRequest = (region?: Region) => ({
   pathname: `/api/programming-plans/${programmingPlan.id}/prescriptions?${

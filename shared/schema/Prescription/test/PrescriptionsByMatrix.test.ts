@@ -1,5 +1,5 @@
-import { genSample, genUser } from '../../../test/testFixtures';
-import { Sample } from '../../Sample/Sample';
+import { genPartialSample, genUser } from '../../../test/testFixtures';
+import { PartialSample } from '../../Sample/Sample';
 import { Prescription } from '../Prescription';
 import {
   genPrescriptionByMatrix,
@@ -53,9 +53,9 @@ describe('PrescriptionsByMatrix', () => {
         },
       ];
 
-      const samples: Sample[] = [
+      const samples: PartialSample[] = [
         {
-          ...genSample(genUser(), '1'),
+          ...genPartialSample(genUser(), '1'),
           matrix: 'A000L',
           stage: 'STADE2',
           department: '52',

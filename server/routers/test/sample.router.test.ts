@@ -14,8 +14,8 @@ import { SampleStatus } from '../../../shared/schema/Sample/SampleStatus';
 import {
   genCompany,
   genCreatedSample,
+  genPartialSample,
   genProgrammingPlan,
-  genSample,
   genSampleItem,
   genSampleToCreate,
   genUser,
@@ -45,26 +45,26 @@ describe('Sample router', () => {
   const sample11Id = uuidv4();
   const sampleItem1 = genSampleItem(sample11Id, 1);
   const sample11 = {
-    ...genSample(sampler1, programmingPlan.id, company),
+    ...genPartialSample(sampler1, programmingPlan.id, company),
     id: sample11Id,
     items: [sampleItem1],
     status: 'DraftMatrix' as SampleStatus,
     department: oneOf(Regions[region1].departments),
   };
   const sample12 = {
-    ...genSample(sampler1, programmingPlan.id, company),
+    ...genPartialSample(sampler1, programmingPlan.id, company),
     id: uuidv4(),
     status: 'Draft' as SampleStatus,
     department: oneOf(Regions[region1].departments),
   };
   const sample13 = {
-    ...genSample(sampler1, programmingPlan.id, company),
+    ...genPartialSample(sampler1, programmingPlan.id, company),
     id: uuidv4(),
     status: 'Sent' as SampleStatus,
     department: oneOf(Regions[region1].departments),
   };
   const sample2 = {
-    ...genSample(sampler2, programmingPlan.id, company),
+    ...genPartialSample(sampler2, programmingPlan.id, company),
     status: 'DraftMatrix' as SampleStatus,
     department: oneOf(Regions[region2].departments),
   };
@@ -404,7 +404,7 @@ describe('Sample router', () => {
     });
 
     it('should be forbidden to update a sample that is already sent', async () => {
-      const sample = genSample(sampler1, programmingPlan.id, company);
+      const sample = genPartialSample(sampler1, programmingPlan.id, company);
       await Samples().insert(
         formatPartialSample({
           ...sample,
@@ -507,7 +507,7 @@ describe('Sample router', () => {
     });
 
     it('should be forbidden to update a sample that is already sent', async () => {
-      const sample = genSample(sampler1, programmingPlan.id, company);
+      const sample = genPartialSample(sampler1, programmingPlan.id, company);
       await Samples().insert(
         formatPartialSample({
           ...sample,

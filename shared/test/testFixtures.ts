@@ -16,7 +16,11 @@ import { Prescription } from '../schema/Prescription/Prescription';
 import { ProgrammingPlanKindList } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlan } from '../schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatusList } from '../schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { CreatedSample, Sample, SampleToCreate } from '../schema/Sample/Sample';
+import {
+  CreatedSample,
+  PartialSample,
+  SampleToCreate,
+} from '../schema/Sample/Sample';
 import { SampleItem } from '../schema/Sample/SampleItem';
 import { AuthUser } from '../schema/User/AuthUser';
 import { User } from '../schema/User/User';
@@ -105,11 +109,11 @@ export const genCreatedSample = (
   ...genSampleToCreate(programmingPlanId),
 });
 
-export const genSample = (
+export const genPartialSample = (
   user?: User,
   programmingPlanId?: string,
   company?: Company
-): Sample => {
+): PartialSample => {
   const sample = genCreatedSample(user, programmingPlanId);
   return {
     ...sample,
