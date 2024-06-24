@@ -14,7 +14,7 @@ import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import { api } from 'src/services/api.service';
 import authSlice from 'src/store/reducers/authSlice';
 import settingsSlice from 'src/store/reducers/settingsSlice';
-import logo from '../../assets/logo.png';
+import logo from '../../assets/logo.svg';
 
 const Header = () => {
   const dispatch = useAppDispatch();

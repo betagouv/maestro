@@ -2,7 +2,7 @@ import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { t } from 'i18next';
-import document from 'src/assets/illustrations/document.png';
+import ressources from 'src/assets/illustrations/ressources.svg';
 import AutoClose from 'src/components/AutoClose/AutoClose';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
@@ -37,7 +37,7 @@ const DocumentListView = () => {
         </AutoClose>
       )}
       <div className="section-header">
-        <img src={document} height="100%" aria-hidden alt="" />
+        <img src={ressources} height="100%" aria-hidden alt="" />
         <div>
           <h1>Ressources</h1>
           <div

@@ -1,4 +1,5 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import { skipToken } from '@reduxjs/toolkit/query';
 import clsx from 'clsx';
 import { t } from 'i18next';
 import _ from 'lodash';
@@ -26,10 +27,7 @@ const PrescriptionView = () => {
   );
 
   const { data: programmingPlan } = useGetProgrammingPlanQuery(
-    programmingPlanId as string,
-    {
-      skip: !programmingPlanId,
-    }
+    programmingPlanId ?? skipToken
   );
   const { data: prescriptions } = useFindPrescriptionsQuery(
     { programmingPlanId: programmingPlanId as string, region },

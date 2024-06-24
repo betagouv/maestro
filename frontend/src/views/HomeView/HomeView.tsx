@@ -12,7 +12,7 @@ import { useAppDispatch } from 'src/hooks/useStore';
 import { useSignInMutation } from 'src/services/account.service';
 import authSlice from 'src/store/reducers/authSlice';
 import farmhand from '../../assets/farmland.png';
-import foodWhite from '../../assets/illustrations/food_white.png';
+import foodGreen from '../../assets/illustrations/food-green.svg';
 import './HomeView.scss';
 
 const HomeView = () => {
@@ -59,7 +59,7 @@ const HomeView = () => {
           }}
         >
           <div className={clsx('teaser')}>
-            <img src={foodWhite} aria-hidden alt="" />
+            <img src={foodGreen} aria-hidden alt="" />
             <h1>
               L'outil de <b>contrôle</b> et de <b>surveillance</b> de la{' '}
               <b>chaîne alimentaire</b>

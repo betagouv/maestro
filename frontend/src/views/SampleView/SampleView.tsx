@@ -1,5 +1,6 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Stepper from '@codegouvfr/react-dsfr/Stepper';
+import { skipToken } from '@reduxjs/toolkit/query';
 import clsx from 'clsx';
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
@@ -13,7 +14,7 @@ import SampleStepDraftItems from 'src/views/SampleView/SampleStepDraftItems/Samp
 import SampleStepDraftMatrix from 'src/views/SampleView/SampleStepDraftMatrix/SampleStepDraftMatrix';
 import SampleStepSent from 'src/views/SampleView/SampleStepSent';
 import SampleStepSubmitted from 'src/views/SampleView/SampleStepSubmitted/SampleStepSubmitted';
-import newSample from '../../assets/illustrations/new-sample.png';
+import audit from '../../assets/illustrations/audit.svg';
 import './SampleView.scss';
 
 const SampleView = () => {
@@ -22,9 +23,7 @@ const SampleView = () => {
   const { hasPermission } = useAuthentication();
   const { sampleId } = useParams<{ sampleId?: string }>();
 
-  const { data: sample } = useGetSampleQuery(sampleId as string, {
-    skip: !sampleId,
-  });
+  const { data: sample } = useGetSampleQuery(sampleId ?? skipToken);
 
   const [searchParams] = useSearchParams();
   const [step, setStep] = useState<number>();
@@ -97,7 +96,7 @@ const SampleView = () => {
         {hasPermission('updateSample') && step && (
           <div className="sample-stepper">
             <img
-              src={newSample}
+              src={audit}
               height="100%"
               aria-hidden
               className={cx('fr-hidden', 'fr-unhidden-md')}

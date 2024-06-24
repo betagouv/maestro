@@ -3,7 +3,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { Regions } from 'shared/referential/Region';
 import { ProgrammingPlanStatusLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import dashboard from 'src/assets/illustrations/dashboard.png';
+import dashboard from 'src/assets/illustrations/dashboard.svg';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useAppSelector } from 'src/hooks/useStore';
