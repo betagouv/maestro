@@ -35,6 +35,7 @@ class BrevoService implements MailService {
     return this.send({
       ...options,
       templateId: SampleAnalysisRequestTemplateId,
+      params: options.params,
     });
   }
 }
