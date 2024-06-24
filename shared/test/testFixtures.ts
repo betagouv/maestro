@@ -1,10 +1,11 @@
 import { fakerFR as faker, fakerFR } from '@faker-js/faker';
 import randomstring from 'randomstring';
 import { v4 as uuidv4 } from 'uuid';
+import { DummyLaboratoryIds } from '../../database/seeds/dummy/002-laboratories';
 import { CultureKindList } from '../referential/CultureKind';
 import { LegalContextList } from '../referential/LegalContext';
 import { Matrix, MatrixList } from '../referential/Matrix/Matrix';
-import { MatrixPartList } from '../referential/MatrixPart';
+import { MatrixPart, MatrixPartList } from '../referential/MatrixPart';
 import { QuantityUnitList } from '../referential/QuantityUnit';
 import { RegionList, Regions } from '../referential/Region';
 import { Stage, StageList } from '../referential/Stage';
@@ -19,6 +20,7 @@ import { ProgrammingPlanStatusList } from '../schema/ProgrammingPlan/Programming
 import {
   CreatedSample,
   PartialSample,
+  Sample,
   SampleToCreate,
 } from '../schema/Sample/Sample';
 import { SampleItem } from '../schema/Sample/SampleItem';
@@ -124,6 +126,22 @@ export const genPartialSample = (
     cultureKind: oneOf(CultureKindList),
     releaseControl: genBoolean(),
     items: [genSampleItem(sample.id, 1)],
+  };
+};
+
+export const genSample = (
+  user?: User,
+  programmingPlanId?: string,
+  company?: Company
+): Sample => {
+  const sample = genPartialSample(user, programmingPlanId, company);
+  return {
+    ...sample,
+    matrix: sample.matrix as Matrix,
+    matrixPart: sample.matrixPart as MatrixPart,
+    stage: sample.stage as Stage,
+    laboratoryId: oneOf(DummyLaboratoryIds),
+    items: sample.items as SampleItem[],
   };
 };
 

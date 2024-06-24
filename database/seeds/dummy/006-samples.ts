@@ -9,7 +9,7 @@ import {
 import { Users } from '../../../server/repositories/userRepository';
 import { Regions } from '../../../shared/referential/Region';
 import { Sample } from '../../../shared/schema/Sample/Sample';
-import { genPartialSample, oneOf } from '../../../shared/test/testFixtures';
+import { genSample, oneOf } from '../../../shared/test/testFixtures';
 
 exports.seed = async function () {
   const validatedControlProgrammingPlan = await ProgrammingPlans()
@@ -29,7 +29,7 @@ exports.seed = async function () {
   const samples = [
     faker.helpers.multiple<Sample>(
       () => ({
-        ...genPartialSample(sampler, validatedControlProgrammingPlan.id),
+        ...genSample(sampler, validatedControlProgrammingPlan.id),
         matrix: 'A0DVX',
         stage: 'STADE1',
         status: 'Sent',
@@ -40,7 +40,7 @@ exports.seed = async function () {
     ),
     faker.helpers.multiple<Sample>(
       () => ({
-        ...genPartialSample(sampler, validatedControlProgrammingPlan.id),
+        ...genSample(sampler, validatedControlProgrammingPlan.id),
         matrix: 'A000F',
         stage: 'STADE1',
         status: 'Sent',
@@ -51,7 +51,7 @@ exports.seed = async function () {
     ),
     faker.helpers.multiple<Sample>(
       () => ({
-        ...genPartialSample(sampler, validatedControlProgrammingPlan.id),
+        ...genSample(sampler, validatedControlProgrammingPlan.id),
         matrix: 'A00QH',
         stage: 'STADE1',
         status: 'Sent',
@@ -62,7 +62,7 @@ exports.seed = async function () {
     ),
     faker.helpers.multiple<Sample>(
       () => ({
-        ...genPartialSample(sampler, validatedControlProgrammingPlan.id),
+        ...genSample(sampler, validatedControlProgrammingPlan.id),
         matrix: 'A01GG',
         stage: 'STADE1',
         status: 'Sent',
@@ -73,7 +73,7 @@ exports.seed = async function () {
     ),
     faker.helpers.multiple<Sample>(
       () => ({
-        ...genPartialSample(sampler, validatedControlProgrammingPlan.id),
+        ...genSample(sampler, validatedControlProgrammingPlan.id),
         matrix: 'A00HC',
         stage: 'STADE1',
         status: 'Sent',
@@ -84,7 +84,7 @@ exports.seed = async function () {
     ),
     faker.helpers.multiple<Sample>(
       () => ({
-        ...genPartialSample(sampler, validatedControlProgrammingPlan.id),
+        ...genSample(sampler, validatedControlProgrammingPlan.id),
         matrix: 'A0DFB',
         stage: 'STADE1',
         status: 'Sent',
@@ -95,7 +95,7 @@ exports.seed = async function () {
     ),
     faker.helpers.multiple<Sample>(
       () => ({
-        ...genPartialSample(sampler, validatedControlProgrammingPlan.id),
+        ...genSample(sampler, validatedControlProgrammingPlan.id),
         matrix: 'A0DFR',
         stage: 'STADE1',
         status: 'Sent',
