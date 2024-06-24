@@ -60,7 +60,7 @@ const generateSupportDocument = async (
   sampleItem: SampleItem,
   sampler: UserInfos
 ) => {
-  //TODO : handle sample outside any programming plan (ie sample.programmingPlanId is null and laboratoryId is null)
+  //TODO : handle sample outside any programming plan (ie sample.programmingPlanId is null)
 
   const programmingPlan = await programmingPlanRepository.findUnique(
     sample.programmingPlanId as string
@@ -70,11 +70,7 @@ const generateSupportDocument = async (
     throw new ProgrammingPlanMissingError(sample.programmingPlanId as string);
   }
 
-  const laboratory = sample.laboratoryId
-    ? await laboratoryRepository.findUnique(sample.laboratoryId)
-    : await laboratoryRepository
-        .findMany()
-        .then((laboratories) => laboratories[0]);
+  const laboratory = await laboratoryRepository.findUnique(sample.laboratoryId);
 
   const substances = SubstanceListByMatrix[sample.matrix]?.map(
     (substance) => SubstanceLabel[substance]

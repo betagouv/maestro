@@ -224,7 +224,11 @@ const SampleStepSubmitted = ({ sample }: Props) => {
             )}
             key={`item-${itemIndex}`}
           >
-            <SampleItemCallout item={item} itemIndex={itemIndex}>
+            <SampleItemCallout
+              item={item}
+              itemIndex={itemIndex}
+              laboratoryId={sample.laboratoryId}
+            >
               <hr className={cx('fr-m-0')} />
               <div>
                 <div className={cx('fr-text--bold', 'fr-text--lg')}>

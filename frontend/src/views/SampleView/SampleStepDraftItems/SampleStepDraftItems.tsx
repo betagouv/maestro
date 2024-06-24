@@ -34,6 +34,7 @@ const SampleStepDraftItems = ({ partialSample }: Props) => {
           {
             sampleId: partialSample.id,
             itemNumber: 1,
+            recipientKind: 'Laboratory',
           },
         ]
       : partialSample.items
@@ -112,6 +113,7 @@ const SampleStepDraftItems = ({ partialSample }: Props) => {
               }}
               onChangeItem={changeItems}
               itemsForm={form}
+              laboratoryId={partialSample.laboratoryId}
             />
           </div>
         ))}

@@ -1,3 +1,4 @@
+import { skipToken } from '@reduxjs/toolkit/query';
 import { ReactElement, useMemo } from 'react';
 import { hasPermission as hasUserPermission } from 'shared/schema/User/User';
 import { UserPermission } from 'shared/schema/User/UserPermission';
@@ -15,9 +16,9 @@ import SampleView from 'src/views/SampleView/SampleView';
 export const useAuthentication = () => {
   const { authUser } = useAppSelector((state) => state.auth);
 
-  const { data: userInfos } = useGetUserInfosQuery(authUser?.userId!, {
-    skip: !authUser?.userId,
-  });
+  const { data: userInfos } = useGetUserInfosQuery(
+    authUser?.userId ?? skipToken
+  );
 
   const isAuthenticated = useMemo(() => !!authUser?.userId, [authUser]);
 

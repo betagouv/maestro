@@ -65,7 +65,7 @@ export const Sample = z.object({
   notesOnCreation: z.string().optional().nullable(),
   notesOnMatrix: z.string().optional().nullable(),
   notesOnItems: z.string().optional().nullable(),
-  laboratoryId: z.string().uuid().optional().nullable(),
+  laboratoryId: z.string().uuid(),
 });
 
 export const SampleToCreate = Sample.pick({

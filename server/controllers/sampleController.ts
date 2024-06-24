@@ -160,13 +160,6 @@ const updateSample = async (request: Request, response: Response) => {
   };
 
   if (sampleUpdate.status === 'Sent') {
-    //TODO : handle sample outside any programming plan (ie laboratoryId is null)
-    const laboratory = sample.laboratoryId
-      ? await laboratoryRepository.findUnique(sample.laboratoryId)
-      : await laboratoryRepository
-          .findMany()
-          .then((laboratories) => laboratories[0]);
-
     const sampleItems = await sampleItemRepository.findMany(sample.id);
 
     await Promise.all(
@@ -175,6 +168,11 @@ const updateSample = async (request: Request, response: Response) => {
           updatedSample as Sample,
           sampleItem as SampleItem,
           user
+        );
+
+        //TODO send only item 1 ? filter on recipient ?
+        const laboratory = await laboratoryRepository.findUnique(
+          updatedSample.laboratoryId as string
         );
 
         await mailService.sendAnalysisRequest({

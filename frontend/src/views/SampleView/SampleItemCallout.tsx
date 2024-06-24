@@ -1,6 +1,7 @@
 import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
+import { skipToken } from '@reduxjs/toolkit/query';
 import clsx from 'clsx';
 import React from 'react';
 import {
@@ -22,6 +23,7 @@ import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useForm } from 'src/hooks/useForm';
+import { useGetLaboratoryQuery } from 'src/services/laboratory.service';
 
 interface Props {
   item: PartialSampleItem;
@@ -29,6 +31,7 @@ interface Props {
   onRemoveItem?: (itemIndex: number) => void;
   onChangeItem?: (item: PartialSampleItem, itemIndex: number) => void;
   itemsForm?: ReturnType<typeof useForm>;
+  laboratoryId?: string | null;
   children?: React.ReactNode;
 }
 
@@ -38,6 +41,7 @@ const SampleItemCallout = ({
   onRemoveItem,
   onChangeItem,
   itemsForm,
+  laboratoryId,
   children,
 }: Props) => {
   const Form = Sample.pick({
@@ -51,6 +55,8 @@ const SampleItemCallout = ({
   });
 
   const form = itemsForm ?? fakeForm;
+
+  const { data: laboratory } = useGetLaboratoryQuery(laboratoryId ?? skipToken);
 
   return (
     <>
@@ -158,36 +164,43 @@ const SampleItemCallout = ({
       </div>
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>
-          <AppRadioButtons<FormShape>
-            legend="Destinataire de l’échantillon"
-            options={
-              selectOptionsFromList(SampleItemRecipientKindList, {
-                labels: SampleItemRecipientKindLabels,
-                withDefault: false,
-              }).map(({ label, value }) => ({
-                key: `recipientKind-option-${value}`,
-                label,
-                nativeInputProps: {
-                  checked: item.recipientKind === value,
-                  onChange: () =>
-                    onChangeItem?.(
-                      {
-                        ...item,
-                        recipientKind: value as SampleItemRecipientKind,
-                      },
-                      itemIndex
-                    ),
-                },
-              })) ?? []
-            }
-            colSm={4}
-            inputForm={form}
-            inputKey="items"
-            inputPathFromKey={[itemIndex, 'recipientKind']}
-            disabled={!itemsForm}
-            required
-            data-testid={`recipientKind-radio-${itemIndex}`}
-          />
+          {itemIndex === 0 ? (
+            <>
+              Laboratoire :{' '}
+              {laboratory ? <b>{laboratory.name}</b> : <i>Non renseigné</i>}
+            </>
+          ) : (
+            <AppRadioButtons<FormShape>
+              legend="Destinataire de l’échantillon"
+              options={
+                selectOptionsFromList(SampleItemRecipientKindList, {
+                  labels: SampleItemRecipientKindLabels,
+                  withDefault: false,
+                }).map(({ label, value }) => ({
+                  key: `recipientKind-option-${value}`,
+                  label,
+                  nativeInputProps: {
+                    checked: item.recipientKind === value,
+                    onChange: () =>
+                      onChangeItem?.(
+                        {
+                          ...item,
+                          recipientKind: value as SampleItemRecipientKind,
+                        },
+                        itemIndex
+                      ),
+                  },
+                })) ?? []
+              }
+              colSm={4}
+              inputForm={form}
+              inputKey="items"
+              inputPathFromKey={[itemIndex, 'recipientKind']}
+              disabled={!itemsForm}
+              required
+              data-testid={`recipientKind-radio-${itemIndex}`}
+            />
+          )}
         </div>
       </div>
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
