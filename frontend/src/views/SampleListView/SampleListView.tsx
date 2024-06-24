@@ -39,7 +39,7 @@ import {
 import samplesSlice from 'src/store/reducers/samplesSlice';
 import { getURLQuery } from 'src/utils/fetchUtils';
 import RemoveSample from 'src/views/SampleListView/RemoveSample';
-import food from '../../assets/illustrations/food.png';
+import food from '../../assets/illustrations/food.svg';
 import './SampleList.scss';
 const SampleListView = () => {
   useDocumentTitle('Liste des prélèvements');
