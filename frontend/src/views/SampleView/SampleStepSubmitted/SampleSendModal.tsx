@@ -1,6 +1,6 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Laboratory } from 'shared/schema/Laboratory/Laboratory';
 import { PartialSample } from 'shared/schema/Sample/Sample';
 interface Props {
@@ -10,6 +10,8 @@ interface Props {
 }
 
 const SampleSendModal = ({ sample, laboratory, onConfirm }: Props) => {
+  const [isConfirmationPending, setIsConfirmationPending] = useState(false);
+
   const sendSampleModal = useMemo(
     () =>
       createModal({
@@ -21,6 +23,7 @@ const SampleSendModal = ({ sample, laboratory, onConfirm }: Props) => {
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
+    setIsConfirmationPending(true);
     await onConfirm();
   };
 
@@ -36,14 +39,17 @@ const SampleSendModal = ({ sample, laboratory, onConfirm }: Props) => {
       </Button>
       <sendSampleModal.Component
         title="Vous vous apprêtez à envoyer un prélèvement"
+        concealingBackdrop={false}
         buttons={[
           {
             children: 'Annuler',
             priority: 'secondary',
+            disabled: isConfirmationPending,
           },
           {
             children: "Confirmer l'envoi",
             onClick: submit,
+            disabled: isConfirmationPending,
             doClosesModal: false,
           },
         ]}

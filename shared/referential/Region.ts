@@ -46,7 +46,7 @@ export const Regions: Record<
       street: string;
       postalCode: string;
       city: string;
-      additionalLine?: string;
+      additionalAddress?: string;
     };
   }
 > = {
@@ -71,11 +71,6 @@ export const Regions: Record<
       '73',
       '74',
     ],
-    establishment: {
-      street: '165 rue Garibaldi',
-      postalCode: '69003',
-      city: 'Lyon',
-    },
   },
   '27': {
     name: 'Bourgogne-Franche-Comté',
@@ -85,12 +80,6 @@ export const Regions: Record<
       longitude: 4.81,
     },
     departments: ['21', '25', '39', '58', '70', '71', '89', '90'],
-    establishment: {
-      street: '4 bis rue Hoche',
-      postalCode: '21000',
-      city: 'Dijon',
-      additionalLine: 'Cité Administrative',
-    },
   },
   '53': {
     name: 'Bretagne',
@@ -100,11 +89,6 @@ export const Regions: Record<
       longitude: -2.92,
     },
     departments: ['22', '29', '35', '56'],
-    establishment: {
-      street: '12 rue du Botrel',
-      postalCode: '35042',
-      city: 'Rennes Cedex',
-    },
   },
   '24': {
     name: 'Centre-Val de Loire',
@@ -114,11 +98,6 @@ export const Regions: Record<
       longitude: 1.75,
     },
     departments: ['18', '28', '36', '37', '41', '45'],
-    establishment: {
-      street: '131 rue du Faubourg Bannier',
-      postalCode: '45042',
-      city: 'Orléans Cedex 1',
-    },
   },
   '94': {
     name: 'Corse',
@@ -128,11 +107,6 @@ export const Regions: Record<
       longitude: 9.1,
     },
     departments: ['2A', '2B'],
-    establishment: {
-      street: 'Avenue Jean Nicoli',
-      postalCode: '20200',
-      city: 'Bastia',
-    },
   },
   '44': {
     name: 'Grand Est',
@@ -143,10 +117,10 @@ export const Regions: Record<
     },
     departments: ['08', '10', '51', '52', '54', '55', '57', '67', '68', '88'],
     establishment: {
-      name: 'SRAL Grand Est',
-      street: '14 rue du Maréchal Juin',
-      postalCode: '67084',
-      city: 'Strasbourg Cedex',
+      name: 'DRAAF Grand Est',
+      street: '4 Rue Dom Pierre Perignon',
+      postalCode: '51000',
+      city: 'Châlons-en-Champagne',
     },
   },
   '32': {
@@ -158,9 +132,11 @@ export const Regions: Record<
     },
     departments: ['02', '59', '60', '62', '80'],
     establishment: {
-      street: '175 rue Sadi Carnot',
-      postalCode: '59034',
-      city: 'Lille Cedex',
+      name: 'DRAAF Hauts de France',
+      street: '518 rue St Fuscien',
+      postalCode: '80094',
+      additionalAddress: 'CS 90069',
+      city: 'Amiens Cedex 3',
     },
   },
   '11': {
@@ -171,11 +147,6 @@ export const Regions: Record<
       longitude: 2.5,
     },
     departments: ['75', '77', '78', '91', '92', '93', '94'],
-    establishment: {
-      street: '18 avenue du Maine',
-      postalCode: '75015',
-      city: 'Paris',
-    },
   },
   '28': {
     name: 'Normandie',
@@ -185,11 +156,6 @@ export const Regions: Record<
       longitude: 0,
     },
     departments: ['14', '27', '50', '61', '76'],
-    establishment: {
-      street: '21 avenue de la République',
-      postalCode: '76036',
-      city: 'Rouen Cedex',
-    },
   },
   '75': {
     name: 'Nouvelle-Aquitaine',
@@ -212,11 +178,6 @@ export const Regions: Record<
       '86',
       '87',
     ],
-    establishment: {
-      street: 'Cité Administrative',
-      postalCode: '33077',
-      city: 'Bordeaux Cedex',
-    },
   },
   '76': {
     name: 'Occitanie',
@@ -240,11 +201,6 @@ export const Regions: Record<
       '81',
       '82',
     ],
-    establishment: {
-      street: '3 Boulevard Montmorency',
-      postalCode: '31074',
-      city: 'Toulouse Cedex 7',
-    },
   },
   '52': {
     name: 'Pays de la Loire',
@@ -255,9 +211,10 @@ export const Regions: Record<
     },
     departments: ['44', '49', '53', '72', '85'],
     establishment: {
-      name: 'SRAL Pays de la Loire',
-      street: '15 Boulevard Léon Bureau',
-      postalCode: '44262',
+      name: 'DRAAF Pays de Loire',
+      street: '5 rue Françoise Giroud',
+      additionalAddress: 'CS 67517',
+      postalCode: '44275',
       city: 'Nantes Cedex 2',
     },
   },
@@ -269,11 +226,6 @@ export const Regions: Record<
       longitude: 6.1,
     },
     departments: ['04', '05', '06', '13', '83', '84'],
-    establishment: {
-      street: '22 rue Borde',
-      postalCode: '13285',
-      city: 'Marseille Cedex 08',
-    },
   },
   '01': {
     name: 'Guadeloupe',

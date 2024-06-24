@@ -5,6 +5,7 @@ import { AuthenticatedRequest, SampleRequest } from 'express-jwt';
 import { constants } from 'http2';
 import fp from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
+import { Regions } from '../../shared/referential/Region';
 import { Laboratory } from '../../shared/schema/Laboratory/Laboratory';
 import { FindSampleOptions } from '../../shared/schema/Sample/FindSampleOptions';
 import {
@@ -178,6 +179,11 @@ const updateSample = async (request: Request, response: Response) => {
 
         await mailService.sendAnalysisRequest({
           recipients: [(laboratory as Laboratory).email, config.mail.from],
+          params: {
+            region: user.region ? Regions[user.region].name : undefined,
+            userMail: user.email,
+            sampledAt: format(updatedSample.sampledAt, 'dd/MM/yyyy'),
+          },
           attachment: [
             {
               name: `DAP-${updatedSample.reference}-${sampleItem.itemNumber}.pdf`,
