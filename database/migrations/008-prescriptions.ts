@@ -12,7 +12,6 @@ exports.up = async (knex: Knex) => {
     table.specificType('stages', 'text[]');
     table.integer('sample_count');
     table.uuid('laboratory_id').references('id').inTable('laboratories');
-    table.specificType('substances', 'text[]');
   });
   await knex.schema.alterTable('prescriptions', (table) => {
     table.unique(['programming_plan_id', 'region', 'matrix', 'stages']);

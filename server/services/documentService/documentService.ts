@@ -7,13 +7,12 @@ import { MatrixPartLabels } from '../../../shared/referential/MatrixPart';
 import { QuantityUnitLabels } from '../../../shared/referential/QuantityUnit';
 import { Region, Regions } from '../../../shared/referential/Region';
 import { StageLabels } from '../../../shared/referential/Stage';
-import { SubstanceLabel } from '../../../shared/referential/Substance/SubstanceLabels';
-import { SubstanceListByMatrix } from '../../../shared/referential/Substance/SubstanceListByMatrix';
 import { getSampleRegion, Sample } from '../../../shared/schema/Sample/Sample';
 import { SampleItem } from '../../../shared/schema/Sample/SampleItem';
 import { UserInfos } from '../../../shared/schema/User/User';
 import laboratoryRepository from '../../repositories/laboratoryRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
+import substanceAnalysisRepository from '../../repositories/substanceAnalysisRepository';
 import {
   Template,
   templateContent,
@@ -72,9 +71,10 @@ const generateSupportDocument = async (
 
   const laboratory = await laboratoryRepository.findUnique(sample.laboratoryId);
 
-  const substances = SubstanceListByMatrix[sample.matrix]?.map(
-    (substance) => SubstanceLabel[substance]
-  );
+  const substanceAnalysis = await substanceAnalysisRepository.findMany({
+    matrix: sample.matrix,
+    year: sample.sampledAt.getFullYear(),
+  });
 
   return generateDocument('supportDocument', {
     ...sample,
@@ -82,7 +82,7 @@ const generateSupportDocument = async (
     sampler,
     laboratory,
     programmingPlan,
-    substances,
+    substances: substanceAnalysis.map((analysis) => analysis.substance.label),
     reference: [sample.reference, sampleItem.itemNumber].join('-'),
     sampledAt: format(sample.sampledAt, 'dd/MM/yyyy'),
     stage: StageLabels[sample.stage],

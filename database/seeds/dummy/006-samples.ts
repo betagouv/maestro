@@ -10,6 +10,7 @@ import { Users } from '../../../server/repositories/userRepository';
 import { Regions } from '../../../shared/referential/Region';
 import { Sample } from '../../../shared/schema/Sample/Sample';
 import { genSample, oneOf } from '../../../shared/test/testFixtures';
+import { DummyLaboratoryIds } from './002-laboratories';
 
 exports.seed = async function () {
   const validatedControlProgrammingPlan = await ProgrammingPlans()
@@ -35,6 +36,7 @@ exports.seed = async function () {
         status: 'Sent',
         department: oneOf(Regions[sampler.region!].departments),
         company: oneOf(companies),
+        laboratoryId: oneOf(DummyLaboratoryIds),
       }),
       { count: 2 }
     ),
@@ -46,6 +48,7 @@ exports.seed = async function () {
         status: 'Sent',
         department: oneOf(Regions[sampler.region!].departments),
         company: oneOf(companies),
+        laboratoryId: oneOf(DummyLaboratoryIds),
       }),
       { count: 8 }
     ),
@@ -57,6 +60,7 @@ exports.seed = async function () {
         status: 'Sent',
         department: oneOf(Regions[sampler.region!].departments),
         company: oneOf(companies),
+        laboratoryId: oneOf(DummyLaboratoryIds),
       }),
       { count: 3 }
     ),
@@ -68,6 +72,7 @@ exports.seed = async function () {
         status: 'Sent',
         department: oneOf(Regions[sampler.region!].departments),
         company: oneOf(companies),
+        laboratoryId: oneOf(DummyLaboratoryIds),
       }),
       { count: 4 }
     ),
@@ -79,6 +84,7 @@ exports.seed = async function () {
         status: 'Sent',
         department: oneOf(Regions[sampler.region!].departments),
         company: oneOf(companies),
+        laboratoryId: oneOf(DummyLaboratoryIds),
       }),
       { count: 7 }
     ),
@@ -90,6 +96,7 @@ exports.seed = async function () {
         status: 'Sent',
         department: oneOf(Regions[sampler.region!].departments),
         company: oneOf(companies),
+        laboratoryId: oneOf(DummyLaboratoryIds),
       }),
       { count: 6 }
     ),
@@ -101,6 +108,7 @@ exports.seed = async function () {
         status: 'Sent',
         department: oneOf(Regions[sampler.region!].departments),
         company: oneOf(companies),
+        laboratoryId: oneOf(DummyLaboratoryIds),
       }),
       { count: 6 }
     ),
