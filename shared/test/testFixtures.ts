@@ -1,7 +1,6 @@
 import { fakerFR as faker, fakerFR } from '@faker-js/faker';
 import randomstring from 'randomstring';
 import { v4 as uuidv4 } from 'uuid';
-import { DummyLaboratoryIds } from '../../database/seeds/dummy/002-laboratories';
 import { CultureKindList } from '../referential/CultureKind';
 import { LegalContextList } from '../referential/LegalContext';
 import { Matrix, MatrixList } from '../referential/Matrix/Matrix';
@@ -140,7 +139,7 @@ export const genSample = (
     matrix: sample.matrix as Matrix,
     matrixPart: sample.matrixPart as MatrixPart,
     stage: sample.stage as Stage,
-    laboratoryId: oneOf(DummyLaboratoryIds),
+    laboratoryId: uuidv4(),
     items: sample.items as SampleItem[],
   };
 };

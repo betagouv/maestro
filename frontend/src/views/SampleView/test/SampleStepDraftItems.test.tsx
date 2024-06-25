@@ -1,9 +1,8 @@
-import { act, render, screen, within } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { QuantityUnitList } from 'shared/referential/QuantityUnit';
-import { SampleItemRecipientKindLabels } from 'shared/schema/Sample/SampleItemRecipientKind';
 import { SampleStatus } from 'shared/schema/Sample/SampleStatus';
 import { genCreatedSample } from 'shared/test/testFixtures';
 import { store } from 'src/store/store';
@@ -21,7 +20,7 @@ describe('SampleStepDraftItems', () => {
     status: 'DraftItems' as SampleStatus,
   };
 
-  test('should render form successfully with a default item', () => {
+  test('should render form successfully with a default item without recipient kind choice', () => {
     render(
       <Provider store={store}>
         <BrowserRouter>
@@ -33,7 +32,9 @@ describe('SampleStepDraftItems', () => {
     expect(screen.getAllByTestId('item-quantity-input-0')).toHaveLength(2);
     expect(screen.getAllByTestId('item-unit-select-0')).toHaveLength(2);
     expect(screen.getAllByTestId('item-sealid-input-0')).toHaveLength(2);
-    expect(screen.getAllByTestId('recipientKind-radio-0')).toHaveLength(1);
+    expect(
+      screen.queryByTestId('recipientKind-radio-0')
+    ).not.toBeInTheDocument();
     expect(
       screen.queryByTestId('item-quantity-input-1')
     ).not.toBeInTheDocument();
@@ -42,7 +43,7 @@ describe('SampleStepDraftItems', () => {
     expect(screen.getByTestId('submit-button')).toBeInTheDocument();
   });
 
-  test('should add an item', async () => {
+  test('should add an item with recipient kind choice', async () => {
     render(
       <Provider store={store}>
         <BrowserRouter>
@@ -101,7 +102,6 @@ describe('SampleStepDraftItems', () => {
     expect(
       screen.getByText('Veuillez renseigner le numéro de scellé.')
     ).toBeInTheDocument();
-    expect(screen.getByText('Destinataire non renseigné.')).toBeInTheDocument();
   });
 
   test('should save the items and the sample on change without handling errors', async () => {
@@ -135,9 +135,6 @@ describe('SampleStepDraftItems', () => {
     ).not.toBeInTheDocument();
     expect(
       screen.queryByText('Veuillez renseigner le numéro de scellé.')
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByText('Destinataire non renseigné.')
     ).not.toBeInTheDocument();
 
     const calls = await getRequestCalls(fetchMock);
@@ -178,15 +175,11 @@ describe('SampleStepDraftItems', () => {
     const quantityInput = screen.getAllByTestId('item-quantity-input-0')[1];
     const unitSelect = screen.getAllByTestId('item-unit-select-0')[1];
     const sealidInput = screen.getAllByTestId('item-sealid-input-0')[1];
-    const recipientKindRadio = await within(
-      screen.getByTestId('recipientKind-radio-0')
-    ).findByLabelText(SampleItemRecipientKindLabels['Laboratory']);
 
     await act(async () => {
       await user.type(quantityInput, '10'); //2 calls
       await user.selectOptions(unitSelect, QuantityUnitList[0]); //1 call
       await user.type(sealidInput, '12a'); //3 calls
-      await user.click(recipientKindRadio); //1 call
       await user.click(screen.getByTestId('submit-button')); //1 call
     });
 
@@ -195,12 +188,12 @@ describe('SampleStepDraftItems', () => {
       calls.filter((call) =>
         call?.url.endsWith(`/api/samples/${draftSample.id}/items`)
       )
-    ).toHaveLength(8);
+    ).toHaveLength(7);
     expect(
       calls.filter((call) =>
         call?.url.endsWith(`/api/samples/${draftSample.id}`)
       )
-    ).toHaveLength(8);
+    ).toHaveLength(7);
 
     expect(calls).toContainEqual({
       method: 'PUT',
