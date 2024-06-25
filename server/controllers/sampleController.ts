@@ -170,25 +170,26 @@ const updateSample = async (request: Request, response: Response) => {
           user
         );
 
-        //TODO send only item 1 ? filter on recipient ?
-        const laboratory = await laboratoryRepository.findUnique(
-          updatedSample.laboratoryId as string
-        );
+        if (sampleItem.itemNumber === 1) {
+          const laboratory = await laboratoryRepository.findUnique(
+            updatedSample.laboratoryId as string
+          );
 
-        await mailService.sendAnalysisRequest({
-          recipients: [(laboratory as Laboratory).email, config.mail.from],
-          params: {
-            region: user.region ? Regions[user.region].name : undefined,
-            userMail: user.email,
-            sampledAt: format(updatedSample.sampledAt, 'dd/MM/yyyy'),
-          },
-          attachment: [
-            {
-              name: `DAP-${updatedSample.reference}-${sampleItem.itemNumber}.pdf`,
-              content: doc.toString('base64'),
+          await mailService.sendAnalysisRequest({
+            recipients: [(laboratory as Laboratory).email, config.mail.from],
+            params: {
+              region: user.region ? Regions[user.region].name : undefined,
+              userMail: user.email,
+              sampledAt: format(updatedSample.sampledAt, 'dd/MM/yyyy'),
             },
-          ],
-        });
+            attachment: [
+              {
+                name: `DAP-${updatedSample.reference}-${sampleItem.itemNumber}.pdf`,
+                content: doc.toString('base64'),
+              },
+            ],
+          });
+        }
       })
     );
   }
