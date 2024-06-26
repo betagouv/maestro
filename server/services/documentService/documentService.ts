@@ -12,7 +12,7 @@ import { SampleItem } from '../../../shared/schema/Sample/SampleItem';
 import { UserInfos } from '../../../shared/schema/User/User';
 import laboratoryRepository from '../../repositories/laboratoryRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
-import substanceAnalysisRepository from '../../repositories/substanceAnalysisRepository';
+import substanceAnalysisRepository from '../../repositories/substanceRepository';
 import {
   Template,
   templateContent,
@@ -82,7 +82,12 @@ const generateSupportDocument = async (
     sampler,
     laboratory,
     programmingPlan,
-    substances: substanceAnalysis.map((analysis) => analysis.substance.label),
+    monoSubstances: substanceAnalysis
+      .filter((analysis) => analysis.kind === 'Mono')
+      .map((analysis) => analysis.substance.label),
+    multiSubstances: substanceAnalysis
+      .filter((analysis) => analysis.kind === 'Multi')
+      .map((analysis) => analysis.substance.label),
     reference: [sample.reference, sampleItem.itemNumber].join('-'),
     sampledAt: format(sample.sampledAt, 'dd/MM/yyyy'),
     stage: StageLabels[sample.stage],

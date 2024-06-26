@@ -24,6 +24,10 @@
               <div class='fr-header__service'>
                 <p class='fr-header__service-title'>
                   {{programmingPlan.title}}
+                  <br />
+                  Document d'accompagnement du prélèvement /
+                  <br />
+                  Procès verbal
                 </p>
               </div>
             </div>
@@ -170,7 +174,16 @@
                   Analyses demandées
                 </div>
                 <ul>
-                  {{#each substances}}<li> {{this}} </li>{{/each}}
+                  <li>Analyse multi-résidus :
+                    <ul>
+                      {{#each multiSubstances}}<li> {{this}} </li>{{/each}}
+                    </ul>
+                  </li>
+                  <li>Analyse mono-résidu :
+                    <ul>
+                      {{#each monoSubstances}}<li> {{this}} </li>{{/each}}
+                    </ul>
+                  </li>
                 </ul>
               </div>
             </div>

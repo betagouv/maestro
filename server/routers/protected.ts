@@ -7,6 +7,7 @@ import laboratoryRouter from './laboratory.router';
 import prescriptionRouter from './prescription.router';
 import programmingPlanRouter from './programmingPlan.router';
 import sampleRouter from './sample.router';
+import substanceRouter from './substance.router';
 import userRouter from './user.router';
 
 const router = express.Router();
@@ -21,6 +22,7 @@ router.use('/programming-plans', prescriptionRouter);
 router.use('/documents', documentRouter);
 router.use('/laboratories', laboratoryRouter);
 router.use('/companies', companyRouter);
+router.use('/substances', substanceRouter);
 
 router.get('/regions.geojson', (req, res) => {
   res.setHeader('Content-Type', 'application/json');

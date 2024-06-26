@@ -17,6 +17,7 @@ export const api = createApi({
     'Regions',
     'Sample',
     'SampleCount',
+    'SubstanceAnalysis',
     'UserInfos',
   ],
   endpoints: () => ({}),

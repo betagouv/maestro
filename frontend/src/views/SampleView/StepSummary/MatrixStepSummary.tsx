@@ -1,16 +1,34 @@
 import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import { useMemo } from 'react';
 import { CultureKindLabels } from 'shared/referential/CultureKind';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
 import { MatrixPartLabels } from 'shared/referential/MatrixPart';
 import { StageLabels } from 'shared/referential/Stage';
 import { Sample } from 'shared/schema/Sample/Sample';
+import { useGetLaboratoryQuery } from 'src/services/laboratory.service';
+import { useFindSubstanceAnalysisQuery } from 'src/services/substance.service';
 import StepSummary from 'src/views/SampleView/StepSummary/StepSummary';
 
 interface Props {
   sample: Sample;
 }
 const MatrixStepSummary = ({ sample }: Props) => {
+  const { data: substanceAnalysis } = useFindSubstanceAnalysisQuery({
+    matrix: sample.matrix,
+    year: sample.sampledAt.getFullYear(),
+  });
+
+  const { data: laboratory } = useGetLaboratoryQuery(sample.laboratoryId);
+
+  const monoSubstances = useMemo(() => {
+    return substanceAnalysis?.filter((analysis) => analysis.kind === 'Mono');
+  }, [substanceAnalysis]);
+
+  const multiSubstances = useMemo(() => {
+    return substanceAnalysis?.filter((analysis) => analysis.kind === 'Multi');
+  }, [substanceAnalysis]);
+
   return (
     <StepSummary
       label={
@@ -53,6 +71,40 @@ const MatrixStepSummary = ({ sample }: Props) => {
           <div className={cx('fr-icon-checkbox-circle-line')}></div>
           <div>
             <b>Contrôle libératoire</b>
+          </div>
+        </div>
+      )}
+      {laboratory && (
+        <div className="summary-item icon-text">
+          <div className={cx('fr-icon-checkbox-circle-line')}></div>
+          <div>
+            Laboratoire destinataire : <b>{laboratory.name}</b>
+          </div>
+        </div>
+      )}
+      {monoSubstances && monoSubstances.length > 0 && (
+        <div className="summary-item icon-text">
+          <div className={cx('fr-icon-checkbox-circle-line')}></div>
+          <div>
+            Analyses mono-résidu :{' '}
+            <ul>
+              {monoSubstances.map((analysis) => (
+                <li key={analysis.matrix}>{analysis.substance.label}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+      {multiSubstances && multiSubstances.length > 0 && (
+        <div className="summary-item icon-text">
+          <div className={cx('fr-icon-checkbox-circle-line')}></div>
+          <div>
+            Analyses multi-résidus :{' '}
+            <ul>
+              {multiSubstances.map((analysis) => (
+                <li key={analysis.matrix}>{analysis.substance.label}</li>
+              ))}
+            </ul>
           </div>
         </div>
       )}

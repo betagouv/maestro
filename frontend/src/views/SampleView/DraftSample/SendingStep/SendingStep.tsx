@@ -2,6 +2,7 @@ import Accordion from '@codegouvfr/react-dsfr/Accordion';
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import { skipToken } from '@reduxjs/toolkit/query';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sample } from 'shared/schema/Sample/Sample';
@@ -29,10 +30,7 @@ const SendingStep = ({ sample }: Props) => {
   });
 
   const { data: laboratory } = useGetLaboratoryQuery(
-    sample.laboratoryId as string,
-    {
-      skip: !sample.laboratoryId,
-    }
+    sample.laboratoryId ?? skipToken
   );
 
   const submit = async () => {
