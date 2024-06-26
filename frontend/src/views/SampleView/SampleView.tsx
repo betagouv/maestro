@@ -4,7 +4,7 @@ import { Sample } from 'shared/schema/Sample/Sample';
 import { DraftStatusList } from 'shared/schema/Sample/SampleStatus';
 import { useGetSampleQuery } from 'src/services/sample.service';
 import DraftSample from 'src/views/SampleView/DraftSample/DraftSample';
-import SentSample from 'src/views/SampleView/SentSample/SentSample';
+import SampleOverview from 'src/views/SampleView/SampleOverview/SampleOverview';
 import './SampleView.scss';
 
 export const SampleStepTitles = [
@@ -32,7 +32,7 @@ const SampleView = () => {
       {[...DraftStatusList, 'Submitted'].includes(sample.status) ? (
         <DraftSample sample={sample} />
       ) : (
-        <SentSample sample={sample as Sample} />
+        <SampleOverview sample={sample as Sample} />
       )}
     </>
   );

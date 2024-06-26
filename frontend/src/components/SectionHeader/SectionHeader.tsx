@@ -1,5 +1,6 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import React from 'react';
+import './SectionHeader.scss';
 
 interface Props {
   title: string | React.ReactNode;

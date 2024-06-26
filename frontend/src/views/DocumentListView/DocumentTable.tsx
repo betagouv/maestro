@@ -5,10 +5,8 @@ import { format } from 'date-fns';
 import { Document } from 'shared/schema/Document/Document';
 import AutoClose from 'src/components/AutoClose/AutoClose';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import {
-  useDeleteDocumentMutation,
-  useLazyGetDocumentDownloadSignedUrlQuery,
-} from 'src/services/document.service';
+import { useDocument } from 'src/hooks/useDocument';
+import { useDeleteDocumentMutation } from 'src/services/document.service';
 import RemoveDocument from 'src/views/DocumentListView/RemoveDocument';
 
 interface Props {
@@ -18,14 +16,10 @@ interface Props {
 const DocumentTable = ({ documents }: Props) => {
   const { hasPermission } = useAuthentication();
 
-  const [getDocumentUrl] = useLazyGetDocumentDownloadSignedUrlQuery();
   const [deleteDocument, { isSuccess: isDeleteSuccess }] =
     useDeleteDocumentMutation();
 
-  const openFile = async (documentId: string) => {
-    const url = await getDocumentUrl(documentId).unwrap();
-    window.open(url);
-  };
+  const { openDocument } = useDocument();
 
   return (
     <div data-testid="document-table">
@@ -60,7 +54,7 @@ const DocumentTable = ({ documents }: Props) => {
           format(document.createdAt, 'dd/MM/yy HH:mm:ss'),
           <Button
             priority="tertiary no outline"
-            onClick={() => openFile(document.id)}
+            onClick={() => openDocument(document.id)}
             children="Consulter"
             iconId="fr-icon-arrow-right-line"
             iconPosition="right"

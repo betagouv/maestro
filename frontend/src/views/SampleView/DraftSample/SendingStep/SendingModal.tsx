@@ -9,7 +9,7 @@ interface Props {
   onConfirm: () => Promise<void>;
 }
 
-const SampleSendModal = ({ sample, laboratory, onConfirm }: Props) => {
+const SendingModal = ({ sample, laboratory, onConfirm }: Props) => {
   const [isConfirmationPending, setIsConfirmationPending] = useState(false);
 
   const sendSampleModal = useMemo(
@@ -25,6 +25,8 @@ const SampleSendModal = ({ sample, laboratory, onConfirm }: Props) => {
     e.preventDefault();
     setIsConfirmationPending(true);
     await onConfirm();
+    sendSampleModal.close();
+    setIsConfirmationPending(false);
   };
 
   return (
@@ -62,4 +64,4 @@ const SampleSendModal = ({ sample, laboratory, onConfirm }: Props) => {
   );
 };
 
-export default SampleSendModal;
+export default SendingModal;

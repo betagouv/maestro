@@ -12,28 +12,6 @@ main {
   padding-bottom: 5rem;
 }
 
-.section-header {
-  display: flex;
-  align-items: center;
-  justify-item: center;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-
-  div:has(h1) {
-    flex: 1;
-  }
-
-  h1 {
-    margin-bottom: 0;
-  }
-
-  @media (max-width: $breakpoint-md) {
-    .fr-btn {
-      flex-basis: 100%;
-    }
-  }
-}
-
 .white-container {
   background-color: #fff;
   border: 1px solid var(--border-default-grey);

@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { genProgrammingPlan } from 'shared/test/testFixtures';
 import { store } from 'src/store/store';
-import SampleStepCreation from 'src/views/SampleView/DraftSample/SampleStepCreation/SampleStepCreation';
+import CreationStep from 'src/views/SampleView/DraftSample/CreationStep/CreationStep';
 import { mockRequests } from '../../../../../../test/requestUtils.test';
 
 const programmingPlan1 = {
@@ -42,7 +42,7 @@ describe('SampleStepCreation', () => {
     render(
       <Provider store={store}>
         <BrowserRouter>
-          <SampleStepCreation />
+          <CreationStep />
         </BrowserRouter>
       </Provider>
     );
@@ -69,7 +69,7 @@ describe('SampleStepCreation', () => {
     render(
       <Provider store={store}>
         <BrowserRouter>
-          <SampleStepCreation />
+          <CreationStep />
         </BrowserRouter>
       </Provider>
     );
@@ -83,7 +83,7 @@ describe('SampleStepCreation', () => {
     render(
       <Provider store={store}>
         <BrowserRouter>
-          <SampleStepCreation />
+          <CreationStep />
         </BrowserRouter>
       </Provider>
     );

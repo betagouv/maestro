@@ -7,10 +7,10 @@ import { PartialSample, Sample } from 'shared/schema/Sample/Sample';
 import { SampleStatus } from 'shared/schema/Sample/SampleStatus';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
-import SampleStepCreation from 'src/views/SampleView/DraftSample/SampleStepCreation/SampleStepCreation';
-import SampleStepDraftItems from 'src/views/SampleView/DraftSample/SampleStepDraftItems/SampleStepDraftItems';
-import SampleStepDraftMatrix from 'src/views/SampleView/DraftSample/SampleStepDraftMatrix/SampleStepDraftMatrix';
-import SampleStepSubmitted from 'src/views/SampleView/DraftSample/SampleStepSubmitted/SampleStepSubmitted';
+import CreationStep from 'src/views/SampleView/DraftSample/CreationStep/CreationStep';
+import ItemsStep from 'src/views/SampleView/DraftSample/ItemsStep/ItemsStep';
+import MatrixStep from 'src/views/SampleView/DraftSample/MatrixStep/MatrixStep';
+import SendingStep from 'src/views/SampleView/DraftSample/SendingStep/SendingStep';
 import { SampleStepTitles } from 'src/views/SampleView/SampleView';
 import audit from '../../../assets/illustrations/audit.svg';
 import '../SampleView.scss';
@@ -71,16 +71,10 @@ const SampleView = ({ sample }: Props) => {
             />
           </div>
         )}
-        {step === 1 && <SampleStepCreation partialSample={sample} />}
-        {step === 2 && sample && (
-          <SampleStepDraftMatrix partialSample={sample} />
-        )}
-        {step === 3 && sample && (
-          <SampleStepDraftItems partialSample={sample} />
-        )}
-        {step === 4 && sample && (
-          <SampleStepSubmitted sample={sample as Sample} />
-        )}
+        {step === 1 && <CreationStep partialSample={sample} />}
+        {step === 2 && sample && <MatrixStep partialSample={sample} />}
+        {step === 3 && sample && <ItemsStep partialSample={sample} />}
+        {step === 4 && sample && <SendingStep sample={sample as Sample} />}
       </div>
     </section>
   );

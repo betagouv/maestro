@@ -1,4 +1,4 @@
-import { PutObjectCommand, S3 } from '@aws-sdk/client-s3';
+import { DeleteObjectCommand, PutObjectCommand, S3 } from '@aws-sdk/client-s3';
 import { format } from 'date-fns';
 import { Request, Response } from 'express';
 import { AuthenticatedRequest, SampleRequest } from 'express-jwt';
@@ -201,14 +201,31 @@ const storeSampleItemDocument = async (
   sampleItem: SampleItem,
   sampler: UserInfos
 ) => {
+  const client = new S3(config.s3.client);
+
   const pdfBuffer = await documentService.generateSupportDocument(
     sample,
     sampleItem,
     sampler
   );
 
+  if (sampleItem.supportDocumentId) {
+    console.info('Delete previous document', sampleItem.supportDocumentId);
+    const deleteCommand = new DeleteObjectCommand({
+      Bucket: config.s3.bucket,
+      Key: sampleItem.supportDocumentId,
+    });
+    await client.send(deleteCommand);
+
+    await sampleItemRepository.update(sample.id, sampleItem.itemNumber, {
+      ...sampleItem,
+      supportDocumentId: null,
+    });
+
+    await documentRepository.deleteOne(sampleItem.supportDocumentId);
+  }
+
   const filename = `DAP-${sample.reference}-${sampleItem.itemNumber}.pdf`;
-  const client = new S3(config.s3.client);
   const id = uuidv4();
   const key = `${id}_${filename}`;
   const command = new PutObjectCommand({

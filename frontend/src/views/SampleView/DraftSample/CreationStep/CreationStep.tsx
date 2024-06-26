@@ -40,7 +40,7 @@ import {
   useCreateSampleMutation,
   useUpdateSampleMutation,
 } from 'src/services/sample.service';
-import SampleGeolocation from 'src/views/SampleView/DraftSample/SampleStepCreation/SampleGeolocation';
+import SampleGeolocation from 'src/views/SampleView/DraftSample/CreationStep/SampleGeolocation';
 import { z } from 'zod';
 import check from '../../../../assets/illustrations/check.svg';
 import leaf from '../../../../assets/illustrations/leaf.svg';
@@ -48,7 +48,7 @@ interface Props {
   partialSample?: PartialSample;
 }
 
-const SampleStepCreation = ({ partialSample }: Props) => {
+const CreationStep = ({ partialSample }: Props) => {
   const navigate = useNavigate();
   const { userInfos } = useAuthentication();
 
@@ -435,4 +435,4 @@ const SampleStepCreation = ({ partialSample }: Props) => {
   );
 };
 
-export default SampleStepCreation;
+export default CreationStep;

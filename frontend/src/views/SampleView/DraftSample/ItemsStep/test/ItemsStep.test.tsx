@@ -7,7 +7,7 @@ import { SampleStatus } from 'shared/schema/Sample/SampleStatus';
 import { genCreatedSample } from 'shared/test/testFixtures';
 import { store } from 'src/store/store';
 import config from 'src/utils/config';
-import SampleStepDraftItems from 'src/views/SampleView/DraftSample/SampleStepDraftItems/SampleStepDraftItems';
+import ItemsStep from 'src/views/SampleView/DraftSample/ItemsStep/ItemsStep';
 import {
   getRequestCalls,
   mockRequests,
@@ -24,7 +24,7 @@ describe('SampleStepDraftItems', () => {
     render(
       <Provider store={store}>
         <BrowserRouter>
-          <SampleStepDraftItems partialSample={draftSample} />
+          <ItemsStep partialSample={draftSample} />
         </BrowserRouter>
       </Provider>
     );
@@ -47,7 +47,7 @@ describe('SampleStepDraftItems', () => {
     render(
       <Provider store={store}>
         <BrowserRouter>
-          <SampleStepDraftItems partialSample={draftSample} />
+          <ItemsStep partialSample={draftSample} />
         </BrowserRouter>
       </Provider>
     );
@@ -67,7 +67,7 @@ describe('SampleStepDraftItems', () => {
     render(
       <Provider store={store}>
         <BrowserRouter>
-          <SampleStepDraftItems partialSample={draftSample} />
+          <ItemsStep partialSample={draftSample} />
         </BrowserRouter>
       </Provider>
     );
@@ -84,7 +84,7 @@ describe('SampleStepDraftItems', () => {
     render(
       <Provider store={store}>
         <BrowserRouter>
-          <SampleStepDraftItems partialSample={draftSample} />
+          <ItemsStep partialSample={draftSample} />
         </BrowserRouter>
       </Provider>
     );
@@ -116,7 +116,7 @@ describe('SampleStepDraftItems', () => {
     render(
       <Provider store={store}>
         <BrowserRouter>
-          <SampleStepDraftItems partialSample={draftSample} />
+          <ItemsStep partialSample={draftSample} />
         </BrowserRouter>
       </Provider>
     );
@@ -167,7 +167,7 @@ describe('SampleStepDraftItems', () => {
     render(
       <Provider store={store}>
         <BrowserRouter>
-          <SampleStepDraftItems partialSample={draftSample} />
+          <ItemsStep partialSample={draftSample} />
         </BrowserRouter>
       </Provider>
     );

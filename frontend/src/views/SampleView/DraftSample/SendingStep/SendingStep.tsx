@@ -2,7 +2,6 @@ import Accordion from '@codegouvfr/react-dsfr/Accordion';
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import clsx from 'clsx';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sample } from 'shared/schema/Sample/Sample';
@@ -13,7 +12,7 @@ import {
   useUpdateSampleMutation,
 } from 'src/services/sample.service';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
-import SampleSendModal from 'src/views/SampleView/DraftSample/SampleStepSubmitted/SampleSendModal';
+import SendingModal from 'src/views/SampleView/DraftSample/SendingStep/SendingModal';
 import CreationStepSummary from 'src/views/SampleView/StepSummary/CreationStepSummary';
 import ItemsStepSummary from 'src/views/SampleView/StepSummary/ItemsStepSummary';
 import MatrixStepSummary from 'src/views/SampleView/StepSummary/MatrixStepSummary';
@@ -22,10 +21,12 @@ interface Props {
   sample: Sample;
 }
 
-const SampleStepSubmitted = ({ sample }: Props) => {
+const SendingStep = ({ sample }: Props) => {
   const navigate = useNavigate();
   const { hasPermission } = useAuthentication();
-  const [updateSample] = useUpdateSampleMutation();
+  const [updateSample, { isError }] = useUpdateSampleMutation({
+    fixedCacheKey: `sending-sample-${sample.id}`,
+  });
 
   const { data: laboratory } = useGetLaboratoryQuery(
     sample.laboratoryId as string,
@@ -40,7 +41,7 @@ const SampleStepSubmitted = ({ sample }: Props) => {
       status: 'Sent',
       sentAt: new Date(),
     });
-    navigate(`/prelevements/${sample.id}?etape=5`, {
+    navigate(`/prelevements/${sample.id}`, {
       replace: true,
     });
   };
@@ -105,59 +106,65 @@ const SampleStepSubmitted = ({ sample }: Props) => {
           </>
         )}
       />
-      <hr className={cx('fr-mx-0')} />
+      {isError ? (
+        <Alert
+          severity={'error'}
+          description="Une erreur est survenue lors de l'envoi, veuillez réessayer."
+          small
+        />
+      ) : (
+        <hr className={cx('fr-mx-0')} />
+      )}
       {hasPermission('updateSample') && (
-        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={clsx(cx('fr-col-12'), 'sample-actions')}>
-            <ul
-              className={cx(
-                'fr-btns-group',
-                'fr-btns-group--inline-md',
-                'fr-btns-group--between',
-                'fr-btns-group--icon-left'
-              )}
-            >
-              <li>
-                <ButtonsGroup
-                  alignment="left"
-                  inlineLayoutWhen="md and up"
-                  buttons={
-                    [
-                      PreviousButton({
-                        sampleId: sample.id,
-                        onSave: async () => save('DraftItems'),
-                        currentStep: 4,
-                      }),
-                      {
-                        children: 'Enregistrer',
-                        iconId: 'fr-icon-save-line',
-                        priority: 'tertiary',
-                        onClick: async (e: React.MouseEvent<HTMLElement>) => {
-                          e.preventDefault();
-                          await save();
-                        },
+        <div className="sample-actions">
+          <ul
+            className={cx(
+              'fr-btns-group',
+              'fr-btns-group--inline-md',
+              'fr-btns-group--between',
+              'fr-btns-group--icon-left'
+            )}
+          >
+            <li>
+              <ButtonsGroup
+                alignment="left"
+                inlineLayoutWhen="md and up"
+                buttons={
+                  [
+                    PreviousButton({
+                      sampleId: sample.id,
+                      onSave: async () => save('DraftItems'),
+                      currentStep: 4,
+                    }),
+                    {
+                      children: 'Enregistrer',
+                      iconId: 'fr-icon-save-line',
+                      priority: 'tertiary',
+                      onClick: async (e: React.MouseEvent<HTMLElement>) => {
+                        e.preventDefault();
+                        await save();
                       },
-                    ] as any
-                  }
+                    },
+                  ] as any
+                }
+              />
+            </li>
+            <li>
+              {laboratory ? (
+                <SendingModal
+                  sample={sample}
+                  laboratory={laboratory}
+                  onConfirm={submit}
                 />
-              </li>
-              <li>
-                {laboratory ? (
-                  <SampleSendModal
-                    sample={sample}
-                    laboratory={laboratory}
-                    onConfirm={submit}
-                  />
-                ) : (
-                  <Alert severity={'error'} title={'Laboratoire non trouvé'} />
-                )}
-              </li>
-            </ul>
-          </div>
+              ) : (
+                <Alert severity={'error'} title={'Laboratoire non trouvé'} />
+              )}
+            </li>
+          </ul>
         </div>
       )}
     </div>
   );
 };
 
-export default SampleStepSubmitted;
+export default SendingStep;

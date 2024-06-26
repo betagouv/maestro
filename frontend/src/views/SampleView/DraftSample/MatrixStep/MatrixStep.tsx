@@ -33,7 +33,7 @@ interface Props {
   partialSample: PartialSample;
 }
 
-const SampleStepDraftMatrix = ({ partialSample }: Props) => {
+const MatrixStep = ({ partialSample }: Props) => {
   const navigate = useNavigate();
 
   const [matrix, setMatrix] = useState(partialSample.matrix);
@@ -295,4 +295,4 @@ const SampleStepDraftMatrix = ({ partialSample }: Props) => {
   );
 };
 
-export default SampleStepDraftMatrix;
+export default MatrixStep;

@@ -1,12 +1,14 @@
+import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import clsx from 'clsx';
 import { Sample } from 'shared/schema/Sample/Sample';
 import food from 'src/assets/illustrations/food.svg';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
+import { useDocument } from 'src/hooks/useDocument';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
+import SampleTracking from 'src/views/SampleView/SampleOverview/SampleTracking';
 import { SampleStepTitles } from 'src/views/SampleView/SampleView';
-import SampleTracking from 'src/views/SampleView/SentSample/SampleTracking';
 import CreationStepSummary from 'src/views/SampleView/StepSummary/CreationStepSummary';
 import ItemsStepSummary from 'src/views/SampleView/StepSummary/ItemsStepSummary';
 import MatrixStepSummary from 'src/views/SampleView/StepSummary/MatrixStepSummary';
@@ -15,8 +17,10 @@ interface Props {
   sample: Sample;
 }
 
-const SentSample = ({ sample }: Props) => {
+const SampleOverview = ({ sample }: Props) => {
   useDocumentTitle(`Prélèvement ${sample.reference}`);
+
+  const { openDocument } = useDocument();
 
   return (
     <section className={clsx(cx('fr-container'), 'main-section')}>
@@ -24,6 +28,20 @@ const SentSample = ({ sample }: Props) => {
         title={<>Prélèvement {sample.reference}</>}
         subtitle="Consultez le récapitulatif du prélèvement réalisé"
         illustration={food}
+        //TODO case of several items
+        action={
+          sample.items[0].supportDocumentId && (
+            <Button
+              priority="secondary"
+              onClick={() =>
+                openDocument(sample.items[0].supportDocumentId as string)
+              }
+              iconId="fr-icon-file-download-line"
+            >
+              Document d'accompagnement
+            </Button>
+          )
+        }
       />
       <Tabs
         tabs={[
@@ -52,4 +70,4 @@ const SentSample = ({ sample }: Props) => {
   );
 };
 
-export default SentSample;
+export default SampleOverview;

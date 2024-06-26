@@ -16,7 +16,7 @@ import {
   useUpdateSampleMutation,
 } from 'src/services/sample.service';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
-import SampleItemDetails from 'src/views/SampleView/SampleItemDetails';
+import SampleItemDetails from 'src/views/SampleView/SampleItemDetails/SampleItemDetails';
 
 export const MaxItemCount = 3;
 
@@ -24,7 +24,7 @@ interface Props {
   partialSample: PartialSample;
 }
 
-const SampleStepDraftItems = ({ partialSample }: Props) => {
+const ItemsStep = ({ partialSample }: Props) => {
   const navigate = useNavigate();
 
   const [items, setItems] = useState<PartialSampleItem[]>(
@@ -94,7 +94,7 @@ const SampleStepDraftItems = ({ partialSample }: Props) => {
       className="sample-form"
     >
       <AppRequiredText />
-      <div className="sample-callout">
+      <div className="sample-items">
         {items?.map((item, itemIndex) => (
           <div
             className={clsx(
@@ -214,4 +214,4 @@ const SampleStepDraftItems = ({ partialSample }: Props) => {
   );
 };
 
-export default SampleStepDraftItems;
+export default ItemsStep;

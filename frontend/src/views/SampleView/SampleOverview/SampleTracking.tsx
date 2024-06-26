@@ -1,3 +1,4 @@
+import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
@@ -5,10 +6,12 @@ import { format, parse } from 'date-fns';
 import React, { useState } from 'react';
 import { Sample } from 'shared/schema/Sample/Sample';
 import { isAdmissibleStatus } from 'shared/schema/Sample/SampleStatus';
+import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useForm } from 'src/hooks/useForm';
+import { useGetLaboratoryQuery } from 'src/services/laboratory.service';
 import { useUpdateSampleMutation } from 'src/services/sample.service';
 import z from 'zod';
 import check from '../../../assets/illustrations/check.svg';
@@ -19,6 +22,12 @@ interface Props {
 }
 const SampleTracking = ({ sample }: Props) => {
   const [updateSample] = useUpdateSampleMutation();
+  const [, { isSuccess: isSendingSuccess }] = useUpdateSampleMutation({
+    fixedCacheKey: `sending-sample-${sample.id}`,
+  });
+  const { data: laboratory } = useGetLaboratoryQuery(sample.laboratoryId, {
+    skip: !isSendingSuccess,
+  });
 
   const [receivedAt, setReceivedAt] = useState(
     format(sample.receivedAt ?? new Date(), 'yyyy-MM-dd')
@@ -63,12 +72,25 @@ const SampleTracking = ({ sample }: Props) => {
 
   return (
     <div>
-      <h3>
-        Statut du prélèvement
-        <div className={cx('fr-text--lg', 'fr-text--regular')}>
-          Renseignez ci-dessous le suivi d’analyse par le laboratoire
+      {isSendingSuccess && laboratory && (
+        <Alert
+          severity="info"
+          small
+          description={`Votre demande d’analyse a bien été transmise au laboratoire ${laboratory.name} par e-mail.`}
+          className={cx('fr-mb-4w')}
+        />
+      )}
+      <div className="section-header">
+        <div>
+          <h3>
+            Statut du prélèvement
+            <div className={cx('fr-text--lg', 'fr-text--regular', 'fr-mb-1w')}>
+              Renseignez ci-dessous le suivi d’analyse par le laboratoire
+            </div>
+          </h3>
         </div>
-      </h3>
+        <SampleStatusBadge status={sample.status} />
+      </div>
       <form
         className={clsx(
           cx('fr-callout', 'fr-callout--pink-tuile'),
