@@ -18,6 +18,8 @@ const SampleStatusBadge = ({ status, ...props }: Props) => {
     DraftItems: 'new',
     Submitted: 'info',
     Sent: 'success',
+    NotAdmissible: 'error',
+    Analysis: 'info',
   }[status];
 
   return (

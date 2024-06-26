@@ -39,6 +39,10 @@ main {
   border: 1px solid var(--border-default-grey);
 }
 
+.bg-white {
+  background-color: #fff;
+}
+
 .fr-table {
   &:not(.fr-table--layout-fixed) table {
     max-height: calc(100vh - 100px);

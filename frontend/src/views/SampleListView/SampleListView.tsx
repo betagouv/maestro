@@ -6,7 +6,7 @@ import Table from '@codegouvfr/react-dsfr/Table';
 import clsx from 'clsx';
 import { format } from 'date-fns';
 import { t } from 'i18next';
-import fp from 'lodash';
+import { default as fp, default as _ } from 'lodash';
 import { useEffect, useMemo } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
@@ -23,8 +23,10 @@ import {
   DraftStatusList,
   SampleStatus,
   SampleStatusLabels,
+  SampleStatusList,
 } from 'shared/schema/Sample/SampleStatus';
 import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
+import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
@@ -176,33 +178,26 @@ const SampleListView = () => {
 
   return (
     <section className={clsx(cx('fr-container'), 'main-section')}>
-      <div className="section-header">
-        <img src={food} height="100%" aria-hidden alt="" />
-        <div>
-          <h1>Prélèvements</h1>
-          <div
-            className={cx(
-              'fr-text--lg',
-              'fr-text--regular',
-              'fr-hint-text',
-              'fr-mb-0'
+      <SectionHeader
+        title="Prélèvements"
+        subtitle="Consultez les dossiers des prélèvements"
+        illustration={food}
+        action={
+          <>
+            {hasPermission('createSample') && (
+              <Button
+                linkProps={{
+                  to: '/prelevements/nouveau',
+                  target: '_self',
+                }}
+                iconId="fr-icon-microscope-line"
+              >
+                Saisir un prélèvement
+              </Button>
             )}
-          >
-            Consultez les dossiers des prélèvements
-          </div>
-        </div>
-        {hasPermission('createSample') && (
-          <Button
-            linkProps={{
-              to: '/prelevements/nouveau',
-              target: '_self',
-            }}
-            iconId="fr-icon-microscope-line"
-          >
-            Saisir un prélèvement
-          </Button>
-        )}
-      </div>
+          </>
+        }
+      />
       <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           {hasNationalView && (
@@ -258,7 +253,7 @@ const SampleListView = () => {
             >
               <option value="">Tous les statuts</option>
               <option value={DraftStatusList.join(',')}>Brouillon</option>
-              {(['Submitted', 'Sent'] as SampleStatus[]).map((status) => (
+              {_.difference(SampleStatusList, DraftStatusList).map((status) => (
                 <option key={`status-${status}`} value={status}>
                   {SampleStatusLabels[status]}
                 </option>

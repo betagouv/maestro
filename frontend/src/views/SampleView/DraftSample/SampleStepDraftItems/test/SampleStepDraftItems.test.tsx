@@ -7,11 +7,11 @@ import { SampleStatus } from 'shared/schema/Sample/SampleStatus';
 import { genCreatedSample } from 'shared/test/testFixtures';
 import { store } from 'src/store/store';
 import config from 'src/utils/config';
-import SampleStepDraftItems from 'src/views/SampleView/SampleStepDraftItems/SampleStepDraftItems';
+import SampleStepDraftItems from 'src/views/SampleView/DraftSample/SampleStepDraftItems/SampleStepDraftItems';
 import {
   getRequestCalls,
   mockRequests,
-} from '../../../../test/requestUtils.test';
+} from '../../../../../../test/requestUtils.test';
 
 describe('SampleStepDraftItems', () => {
   const user = userEvent.setup();

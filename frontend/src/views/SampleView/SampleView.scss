@@ -41,15 +41,6 @@
     gap: 2.5rem;
   }
 
-  .fr-radio-group {
-    margin-bottom: 0 !important;
-    margin-top: 0 !important;
-  }
-
-  .fr-messages-group:not(:empty) {
-    margin-top: 1rem;
-  }
-
   .sample-actions {
     .fr-btns-group {
       @media (max-width: $breakpoint-md) {
@@ -66,24 +57,36 @@
   }
 }
 
+.sample-callout,
+.sample-form {
+  .fr-radio-group {
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
+  }
+
+  .fr-messages-group:not(:empty) {
+    margin-top: 1rem;
+  }
+}
+
 .sample-items {
   display: flex;
   flex-direction: column;
   gap: 2.25rem;
 
-  .sample-item {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    border: 1px solid #e5e5e5;
-    background-color: #fff;
-  }
-
   .fr-label {
     text-wrap: nowrap;
   }
+}
 
-  .fr-callout {
+.sample-callout {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  border: 1px solid #e5e5e5;
+  background-color: #fff;
+
+  &.fr-callout {
     button.fr-btn--secondary:hover,
     button.fr-btn--tertiary:hover,
     .fr-accordion__btn:hover {
@@ -124,4 +127,18 @@
 
 hr {
   padding: 1px;
+}
+
+.fr-tabs {
+  padding-top: 9px !important;
+}
+
+.fr-tabs__panel {
+  margin-top: -1px;
+}
+
+.fr-tabs__list,
+.fr-tabs__panel {
+  padding-left: 12rem;
+  padding-right: 12rem;
 }

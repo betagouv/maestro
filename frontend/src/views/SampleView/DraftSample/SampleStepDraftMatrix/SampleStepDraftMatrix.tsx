@@ -27,7 +27,7 @@ import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useForm } from 'src/hooks/useForm';
 import { useFindPrescriptionsQuery } from 'src/services/prescription.service';
 import { useUpdateSampleMutation } from 'src/services/sample.service';
-import PreviousButton from 'src/views/SampleView/PreviousButton';
+import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 
 interface Props {
   partialSample: PartialSample;

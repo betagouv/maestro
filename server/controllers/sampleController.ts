@@ -149,10 +149,7 @@ const updateSample = async (request: Request, response: Response) => {
     await companyRepository.upsert(sampleUpdate.company);
   }
 
-  if (sample.status === 'Sent') {
-    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
-  }
-
+  //TODO update only the fields concerned in relation to the status
   const updatedSample = {
     ...sample,
     ...sampleUpdate,

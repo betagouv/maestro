@@ -1,7 +1,15 @@
 import { z } from 'zod';
 
 export const SampleStatus = z.enum(
-  ['Draft', 'DraftMatrix', 'DraftItems', 'Submitted', 'Sent'],
+  [
+    'Draft',
+    'DraftMatrix',
+    'DraftItems',
+    'Submitted',
+    'Sent',
+    'NotAdmissible',
+    'Analysis',
+  ],
   {
     errorMap: () => ({ message: 'Statut non renseigné.' }),
   }
@@ -23,4 +31,9 @@ export const SampleStatusLabels: Record<SampleStatus, string> = {
   DraftItems: 'Brouillon',
   Submitted: 'A envoyer',
   Sent: 'Transmis',
+  NotAdmissible: 'Non recevable',
+  Analysis: 'En cours d’analyse',
 };
+
+export const isAdmissibleStatus = (status: SampleStatus): boolean | undefined =>
+  status === 'Analysis' ? true : status === 'NotAdmissible' ? false : undefined;

@@ -14,11 +14,11 @@ import {
 } from 'shared/test/testFixtures';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import config from 'src/utils/config';
-import SampleStepDraftMatrix from 'src/views/SampleView/SampleStepDraftMatrix/SampleStepDraftMatrix';
+import SampleStepDraftMatrix from 'src/views/SampleView/DraftSample/SampleStepDraftMatrix/SampleStepDraftMatrix';
 import {
   getRequestCalls,
   mockRequests,
-} from '../../../../test/requestUtils.test';
+} from '../../../../../../test/requestUtils.test';
 
 let store: Store;
 const authUser = genAuthUser();

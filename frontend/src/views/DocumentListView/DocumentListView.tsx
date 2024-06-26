@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { t } from 'i18next';
 import ressources from 'src/assets/illustrations/ressources.svg';
 import AutoClose from 'src/components/AutoClose/AutoClose';
+import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import {
@@ -36,23 +37,11 @@ const DocumentListView = () => {
           </div>
         </AutoClose>
       )}
-      <div className="section-header">
-        <img src={ressources} height="100%" aria-hidden alt="" />
-        <div>
-          <h1>Ressources</h1>
-          <div
-            className={cx(
-              'fr-text--lg',
-              'fr-text--regular',
-              'fr-hint-text',
-              'fr-mb-0'
-            )}
-          >
-            Consultez les ressources mises à disposition des utilisateurs de
-            maestro
-          </div>
-        </div>
-      </div>
+      <SectionHeader
+        title="Ressources"
+        subtitle="Consultez les ressources mises à disposition des utilisateurs de maestro"
+        illustration={ressources}
+      />
 
       <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
         <div className={cx('fr-mb-4w')}>

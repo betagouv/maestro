@@ -15,8 +15,8 @@ import {
   useUpdateSampleItemsMutation,
   useUpdateSampleMutation,
 } from 'src/services/sample.service';
-import PreviousButton from 'src/views/SampleView/PreviousButton';
-import SampleItemCallout from 'src/views/SampleView/SampleItemCallout';
+import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
+import SampleItemDetails from 'src/views/SampleView/SampleItemDetails';
 
 export const MaxItemCount = 3;
 
@@ -94,16 +94,16 @@ const SampleStepDraftItems = ({ partialSample }: Props) => {
       className="sample-form"
     >
       <AppRequiredText />
-      <div className="sample-items">
+      <div className="sample-callout">
         {items?.map((item, itemIndex) => (
           <div
             className={clsx(
               cx('fr-callout', 'fr-callout--pink-tuile', 'fr-mb-0', 'fr-pb-2w'),
-              'sample-item'
+              'sample-callout'
             )}
             key={`item-${itemIndex}`}
           >
-            <SampleItemCallout
+            <SampleItemDetails
               item={item}
               itemIndex={itemIndex}
               onRemoveItem={(index) => {

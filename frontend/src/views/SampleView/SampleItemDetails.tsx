@@ -35,7 +35,7 @@ interface Props {
   children?: React.ReactNode;
 }
 
-const SampleItemCallout = ({
+const SampleItemDetails = ({
   item,
   itemIndex,
   onRemoveItem,
@@ -239,4 +239,4 @@ const SampleItemCallout = ({
   );
 };
 
-export default SampleItemCallout;
+export default SampleItemDetails;

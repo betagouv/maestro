@@ -15,6 +15,7 @@ exports.up = async (knex: Knex) => {
       .defaultTo(knex.raw('current_timestamp'));
     table.specificType('sampled_at', 'timestamptz').notNullable();
     table.specificType('sent_at', 'timestamptz');
+    table.specificType('received_at', 'timestamptz');
     table.string('status').notNullable();
     table
       .uuid('programming_plan_id')
@@ -33,6 +34,7 @@ exports.up = async (knex: Knex) => {
     table.text('notes_on_creation');
     table.text('notes_on_matrix');
     table.text('notes_on_items');
+    table.text('notes_on_admissibility');
     table.uuid('laboratory_id').references('id').inTable('laboratories');
   });
 };

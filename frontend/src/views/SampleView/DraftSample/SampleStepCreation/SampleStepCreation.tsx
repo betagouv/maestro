@@ -40,10 +40,10 @@ import {
   useCreateSampleMutation,
   useUpdateSampleMutation,
 } from 'src/services/sample.service';
-import SampleGeolocation from 'src/views/SampleView/SampleStepCreation/SampleGeolocation';
+import SampleGeolocation from 'src/views/SampleView/DraftSample/SampleStepCreation/SampleGeolocation';
 import { z } from 'zod';
-import check from '../../../assets/illustrations/check.svg';
-import leaf from '../../../assets/illustrations/leaf.svg';
+import check from '../../../../assets/illustrations/check.svg';
+import leaf from '../../../../assets/illustrations/leaf.svg';
 interface Props {
   partialSample?: PartialSample;
 }
@@ -316,7 +316,6 @@ const SampleStepCreation = ({ partialSample }: Props) => {
         </div>
       </div>
       <AppRadioButtons<FormShape>
-        key={`programmingPlan-${programmingPlanId}`}
         legend="Contexte du prélèvement"
         options={
           programmingPlanOptions?.map(({ label, value, illustration }) => ({
@@ -337,7 +336,6 @@ const SampleStepCreation = ({ partialSample }: Props) => {
         data-testid="programmingPlanId-radio"
       />
       <AppRadioButtons<FormShape>
-        key={`legalContext-${legalContext}`}
         legend="Cadre juridique"
         options={
           legalContextOptions?.map(({ label, value }) => ({

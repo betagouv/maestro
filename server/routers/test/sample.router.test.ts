@@ -403,23 +403,6 @@ describe('Sample router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should be forbidden to update a sample that is already sent', async () => {
-      const sample = genPartialSample(sampler1, programmingPlan.id, company);
-      await Samples().insert(
-        formatPartialSample({
-          ...sample,
-          status: 'Sent',
-          sentAt: new Date(),
-        })
-      );
-
-      await request(app)
-        .put(`${testRoute(sample.id)}`)
-        .send(sample)
-        .use(tokenProvider(sampler1))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
-    });
-
     it('should update the sample', async () => {
       const res = await request(app)
         .put(`${testRoute(sample11.id)}`)
