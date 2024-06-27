@@ -9,6 +9,7 @@ export const SampleStatus = z.enum(
     'Sent',
     'NotAdmissible',
     'Analysis',
+    'Completed',
   ],
   {
     errorMap: () => ({ message: 'Statut non renseigné.' }),
@@ -30,9 +31,10 @@ export const SampleStatusLabels: Record<SampleStatus, string> = {
   DraftMatrix: 'Brouillon',
   DraftItems: 'Brouillon',
   Submitted: 'A envoyer',
-  Sent: 'Transmis',
+  Sent: 'Transmis au labo',
   NotAdmissible: 'Non recevable',
   Analysis: 'En cours d’analyse',
+  Completed: 'Terminé',
 };
 
 export const isAdmissibleStatus = (status: SampleStatus): boolean | undefined =>

@@ -20,6 +20,7 @@ const SampleStatusBadge = ({ status, ...props }: Props) => {
     Sent: 'success',
     NotAdmissible: 'error',
     Analysis: 'info',
+    Completed: 'success',
   }[status];
 
   return (
