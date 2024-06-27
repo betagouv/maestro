@@ -184,7 +184,6 @@ const SendingStep = ({ sample }: Props) => {
       {laboratory && (
         <SendingModal
           modal={sendingSampleModal}
-          sample={sample}
           laboratory={laboratory}
           onConfirm={submit}
         />

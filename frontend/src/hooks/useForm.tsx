@@ -75,8 +75,10 @@ export function useForm<
   };
 
   const reset = () => {
-    setIsTouched(false);
-    setError(undefined);
+    setTimeout(() => {
+      setIsTouched(false);
+      setError(undefined);
+    }, 1);
   };
 
   useEffect(() => {

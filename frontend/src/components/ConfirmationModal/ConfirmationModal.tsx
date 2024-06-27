@@ -1,6 +1,5 @@
 import { ModalProps } from '@codegouvfr/react-dsfr/Modal';
-import React, { useState } from 'react';
-import { Laboratory } from 'shared/schema/Laboratory/Laboratory';
+import React, { type ReactNode } from 'react';
 interface Props {
   modal: {
     buttonProps: {
@@ -15,44 +14,38 @@ interface Props {
     isOpenedByDefault: boolean;
     id: string;
   };
-  laboratory: Laboratory;
+  title: ReactNode;
+  children: ReactNode;
   onConfirm: () => Promise<void>;
 }
 
-const SendingModal = ({ modal, laboratory, onConfirm }: Props) => {
-  const [isConfirmationPending, setIsConfirmationPending] = useState(false);
-
+const ConfirmationModal = ({ modal, title, children, onConfirm }: Props) => {
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
-    setIsConfirmationPending(true);
     await onConfirm();
     modal.close();
-    setIsConfirmationPending(false);
   };
 
   return (
     <modal.Component
-      title="Vous vous apprêtez à envoyer un prélèvement"
+      title={title}
       concealingBackdrop={false}
       topAnchor
       buttons={[
         {
           children: 'Annuler',
           priority: 'secondary',
-          disabled: isConfirmationPending,
         },
         {
-          children: "Confirmer l'envoi",
+          children: 'Confirmer',
           onClick: submit,
-          disabled: isConfirmationPending,
           doClosesModal: false,
         },
       ]}
     >
-      La demande d’analyse va être envoyée au laboratoire{' '}
-      <b>{laboratory.name}</b> par e-mail à l’adresse <b>{laboratory.email}</b>.
+      {children}
     </modal.Component>
   );
 };
 
-export default SendingModal;
+export default ConfirmationModal;

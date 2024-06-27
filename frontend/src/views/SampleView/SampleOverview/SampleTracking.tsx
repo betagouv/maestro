@@ -1,11 +1,13 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
 import { format, parse } from 'date-fns';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Sample } from 'shared/schema/Sample/Sample';
 import { isAdmissibleStatus } from 'shared/schema/Sample/SampleStatus';
+import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
@@ -32,8 +34,8 @@ const SampleTracking = ({ sample }: Props) => {
   const [receivedAt, setReceivedAt] = useState(
     format(sample.receivedAt ?? new Date(), 'yyyy-MM-dd')
   );
-  const [isAdmissible, setIsAdmissible] = useState(
-    isAdmissibleStatus(sample.status)
+  const [isAdmissible, setIsAdmissible] = useState<boolean | null>(
+    isAdmissibleStatus(sample.status) ?? null
   );
   const [notesOnAdmissibility, setNotesOnAdmissibility] = useState(
     sample.notesOnAdmissibility
@@ -45,9 +47,18 @@ const SampleTracking = ({ sample }: Props) => {
   }).merge(
     z.object({
       isAdmissible: z.boolean({
-        required_error: 'Veuillez renseigner la recevabilité du prélèvement.',
+        message: 'Veuillez renseigner la recevabilité du prélèvement.',
       }),
     })
+  );
+
+  const nonAdmissibleConfirmationModal = useMemo(
+    () =>
+      createModal({
+        id: `non-admissible-confirmation-modal-${sample.id}`,
+        isOpenedByDefault: false,
+      }),
+    [sample.id]
   );
 
   const form = useForm(Form, {
@@ -61,13 +72,22 @@ const SampleTracking = ({ sample }: Props) => {
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     await form.validate(async () => {
-      await updateSample({
-        ...sample,
-        receivedAt: parse(receivedAt, 'yyyy-MM-dd', new Date()),
-        status: isAdmissible ? 'Analysis' : 'NotAdmissible',
-        notesOnAdmissibility,
-      });
+      if (isAdmissible === false) {
+        nonAdmissibleConfirmationModal.open();
+      } else {
+        await save();
+      }
     });
+  };
+
+  const save = async () => {
+    await updateSample({
+      ...sample,
+      receivedAt: parse(receivedAt, 'yyyy-MM-dd', new Date()),
+      status: isAdmissible ? 'Analysis' : 'NotAdmissible',
+      notesOnAdmissibility,
+    });
+    form.reset();
   };
 
   return (
@@ -97,7 +117,12 @@ const SampleTracking = ({ sample }: Props) => {
       </div>
       <form
         className={clsx(
-          cx('fr-callout', 'fr-callout--pink-tuile'),
+          cx(
+            'fr-callout',
+            sample.status === 'Sent'
+              ? 'fr-callout--pink-tuile'
+              : 'fr-callout--green-emeraude'
+          ),
           'sample-callout'
         )}
       >
@@ -131,7 +156,7 @@ const SampleTracking = ({ sample }: Props) => {
             {
               label: 'Recevable',
               nativeInputProps: {
-                checked: isAdmissible,
+                checked: isAdmissible === true,
                 onChange: () => setIsAdmissible(true),
               },
               illustration: <img src={check} alt="" aria-hidden />,
@@ -185,20 +210,28 @@ const SampleTracking = ({ sample }: Props) => {
           </Button>
         )}
       </form>
-      <form
-        className={clsx(
-          cx('fr-callout', 'fr-callout--pink-tuile', 'fr-mt-5w'),
-          'sample-callout'
-        )}
+      {/*<form*/}
+      {/*  className={clsx(*/}
+      {/*    cx('fr-callout', 'fr-callout--pink-tuile', 'fr-mt-5w'),*/}
+      {/*    'sample-callout'*/}
+      {/*  )}*/}
+      {/*>*/}
+      {/*  <h4 className={cx('fr-mb-0')}>*/}
+      {/*    <div className={cx('fr-label--disabled', 'fr-text--sm')}>ETAPE 2</div>*/}
+      {/*    Saisie des résultats d’analyse*/}
+      {/*    <div className={cx('fr-text--md', 'fr-text--regular')}>*/}
+      {/*      En attente de l’accusé de réception*/}
+      {/*    </div>*/}
+      {/*  </h4>*/}
+      {/*</form>*/}
+      <ConfirmationModal
+        modal={nonAdmissibleConfirmationModal}
+        title="Confirmez que l’échantillon est non-recevable"
+        onConfirm={save}
       >
-        <h4 className={cx('fr-mb-0')}>
-          <div className={cx('fr-label--disabled', 'fr-text--sm')}>ETAPE 2</div>
-          Saisie des résultats d’analyse
-          <div className={cx('fr-text--md', 'fr-text--regular')}>
-            En attente de l’accusé de réception
-          </div>
-        </h4>
-      </form>
+        La notification du laboratoire vous informe que l’échantillon reçu est
+        non-recevable pour l’analyse.
+      </ConfirmationModal>
     </div>
   );
 };

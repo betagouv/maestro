@@ -91,7 +91,9 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
             Analyses mono-résidu :{' '}
             <ul>
               {monoSubstances.map((analysis) => (
-                <li key={analysis.matrix}>{analysis.substance.label}</li>
+                <li key={analysis.substance.code}>
+                  {analysis.substance.label}
+                </li>
               ))}
             </ul>
           </div>
@@ -104,7 +106,9 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
             Analyses multi-résidus dont :{' '}
             <ul>
               {multiSubstances.map((analysis) => (
-                <li key={analysis.matrix}>{analysis.substance.label}</li>
+                <li key={analysis.substance.code}>
+                  {analysis.substance.label}
+                </li>
               ))}
             </ul>
           </div>
