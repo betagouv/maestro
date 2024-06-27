@@ -12,6 +12,7 @@ import {
   getSupportDocumentURL,
   useUpdateSampleMutation,
 } from 'src/services/sample.service';
+import { pluralize } from 'src/utils/stringUtils';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SendingModal from 'src/views/SampleView/DraftSample/SendingStep/SendingModal';
 import CreationStepSummary from 'src/views/SampleView/StepSummary/CreationStepSummary';
@@ -65,7 +66,9 @@ const SendingStep = ({ sample }: Props) => {
       <hr className={cx('fr-mx-0', 'fr-hidden', 'fr-unhidden-sm')} />
       <MatrixStepSummary sample={sample} />
       <hr className={cx('fr-mx-0', 'fr-hidden', 'fr-unhidden-sm')} />
-      <h3 className={cx('fr-m-0')}>Échantillons prélevés</h3>
+      <h3 className={cx('fr-m-0')}>
+        {pluralize(sample.items.length)('Échantillon prélevé')}
+      </h3>
       <ItemsStepSummary
         sample={sample}
         itemChildren={(item, itemIndex) => (

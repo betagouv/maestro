@@ -90,15 +90,15 @@ const SampleOverview = ({ sample }: Props) => {
             content: <SampleTracking sample={sample} />,
           },
           {
-            label: SampleStepTitles[0],
+            label: SampleStepTitles(sample)[0],
             content: <CreationStepSummary sample={sample} />,
           },
           {
-            label: SampleStepTitles[1],
+            label: SampleStepTitles(sample)[1],
             content: <MatrixStepSummary sample={sample} />,
           },
           {
-            label: SampleStepTitles[2],
+            label: SampleStepTitles(sample)[2],
             content: <ItemsStepSummary sample={sample} />,
           },
         ]}

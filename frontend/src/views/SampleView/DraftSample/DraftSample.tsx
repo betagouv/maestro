@@ -65,9 +65,9 @@ const SampleView = ({ sample }: Props) => {
             />
             <Stepper
               currentStep={step}
-              nextTitle={SampleStepTitles[step]}
+              nextTitle={SampleStepTitles(sample)[step]}
               stepCount={4}
-              title={SampleStepTitles[step - 1]}
+              title={SampleStepTitles(sample)[step - 1]}
             />
           </div>
         )}
