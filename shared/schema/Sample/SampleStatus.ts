@@ -30,7 +30,7 @@ export const SampleStatusLabels: Record<SampleStatus, string> = {
   Draft: 'Brouillon',
   DraftMatrix: 'Brouillon',
   DraftItems: 'Brouillon',
-  Submitted: 'A envoyer',
+  Submitted: 'À envoyer',
   Sent: 'Transmis au labo',
   NotAdmissible: 'Non recevable',
   Analysis: 'En cours d’analyse',
