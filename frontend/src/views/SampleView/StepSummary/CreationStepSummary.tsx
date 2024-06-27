@@ -31,7 +31,7 @@ const CreationStepSummary = ({ sample }: Props) => {
       <div className="summary-item icon-text">
         <div className={cx('fr-icon-user-line')}></div>
         <div>
-          Prélèvement réalisé par
+          Prélèvement réalisé par 
           <b>
             {sample.sampler.firstName} {sample.sampler.lastName}
           </b>
