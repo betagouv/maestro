@@ -2,6 +2,7 @@ import fp from 'lodash';
 import {
   PartialSampleItem,
   SampleItem,
+  SampleItemSort,
 } from '../../shared/schema/Sample/SampleItem';
 import db from './db';
 
@@ -25,7 +26,9 @@ const findMany = async (sampleId: string): Promise<PartialSampleItem[]> => {
   return SampleItems()
     .where({ sampleId })
     .then((sampleItems) =>
-      sampleItems.map((_) => PartialSampleItem.parse(fp.omitBy(_, fp.isNil)))
+      sampleItems
+        .map((_) => PartialSampleItem.parse(fp.omitBy(_, fp.isNil)))
+        .sort(SampleItemSort)
     );
 };
 

@@ -11,4 +11,14 @@
     color: var(--text-disabled-grey);
     font-weight: 500;
     font-size: 14px;
+
+    & + .label {
+        margin-top: 1rem;
+    }
+}
+
+.fr-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    overflow: hidden;
 }

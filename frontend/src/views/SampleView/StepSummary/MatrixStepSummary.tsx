@@ -86,7 +86,7 @@ const MatrixStepSummary = ({ sample }: Props) => {
         <div className="summary-item icon-text">
           <div className={cx('fr-icon-checkbox-circle-line')}></div>
           <div>
-            Analyses mono-résidu :{' '}
+            Analyses mono-résidu :{' '}
             <ul>
               {monoSubstances.map((analysis) => (
                 <li key={analysis.matrix}>{analysis.substance.label}</li>
@@ -99,7 +99,7 @@ const MatrixStepSummary = ({ sample }: Props) => {
         <div className="summary-item icon-text">
           <div className={cx('fr-icon-checkbox-circle-line')}></div>
           <div>
-            Analyses multi-résidus :{' '}
+            Analyses multi-résidus dont :{' '}
             <ul>
               {multiSubstances.map((analysis) => (
                 <li key={analysis.matrix}>{analysis.substance.label}</li>

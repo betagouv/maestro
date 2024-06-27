@@ -142,3 +142,12 @@ hr {
   padding-left: 12rem;
   padding-right: 12rem;
 }
+
+.select-with-button {
+  display: flex;
+  align-items: flex-end;
+
+  button {
+    margin-bottom: 1.5rem;
+  }
+}

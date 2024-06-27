@@ -15,7 +15,6 @@ import { PartialSampleItem } from 'shared/schema/Sample/SampleItem';
 import {
   SampleItemRecipientKind,
   SampleItemRecipientKindLabels,
-  SampleItemRecipientKindList,
 } from 'shared/schema/Sample/SampleItemRecipientKind';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppResponsiveButton from 'src/components/_app/AppResponsiveButton/AppResponsiveButton';
@@ -173,7 +172,7 @@ const SampleItemDetails = ({
             <AppRadioButtons<FormShape>
               legend="Destinataire de l’échantillon"
               options={
-                selectOptionsFromList(SampleItemRecipientKindList, {
+                selectOptionsFromList(['Sampler', 'Operator'], {
                   labels: SampleItemRecipientKindLabels,
                   withDefault: false,
                 }).map(({ label, value }) => ({
@@ -192,7 +191,7 @@ const SampleItemDetails = ({
                   },
                 })) ?? []
               }
-              colSm={4}
+              colSm={6}
               inputForm={form}
               inputKey="items"
               inputPathFromKey={[itemIndex, 'recipientKind']}

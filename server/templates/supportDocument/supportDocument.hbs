@@ -44,8 +44,12 @@
                   Donneur d'ordre
                 </div>
                 {{establishment.name}}
+                <div class='label'>
+                  Contact mail
+                </div>
+                {{sampler.email}}
               </div>
-              <div class='fr-col-4'>
+              <div class='fr-col-8'>
                 <div class='label'>
                   Adresse
                 </div>
@@ -54,12 +58,6 @@
                 {{/if}}
                 {{establishment.street}}<br />
                 {{establishment.postalCode}} {{establishment.city}}
-              </div>
-              <div class='fr-col-4'>
-                <div class='label'>
-                  Contact mail
-                </div>
-                {{sampler.email}}
               </div>
             </div>
           </div>
@@ -94,6 +92,16 @@
                 {{stage}}
               </div>
             </div>
+            {{#if notesOnCreation}}
+              <div class='fr-grid-row fr-grid-row--gutters'>
+                <div class='fr-col-12'>
+                  <div class='label'>
+                    Notes
+                  </div>
+                  {{notesOnCreation}}
+                </div>
+              </div>
+            {{/if}}
           </div>
         </div>
         <div class='fr-card fr-card--xs fr-my-1w'>
@@ -104,8 +112,12 @@
                   Lieu de prélèvement
                 </div>
                 {{company.name}}
+                <div class='label'>
+                  Siret
+                </div>
+                {{company.siret}}
               </div>
-              <div class='fr-col-4'>
+              <div class='fr-col-8'>
                 <div class='label'>
                   Adresse
                 </div>
@@ -113,12 +125,6 @@
                 <br />
                 {{company.postalCode}} 
                 {{company.city}}
-              </div>
-              <div class='fr-col-4'>
-                <div class='label'>
-                  Siret
-                </div>
-                {{company.siret}}
               </div>
             </div>
           </div>
@@ -141,6 +147,26 @@
                 {{matrixPart}}
               </div>
             </div>
+            {{#if matrixDetails}}
+              <div class='fr-grid-row fr-grid-row--gutters'>
+                <div class='fr-col-12'>
+                  <div class='label'>
+                    Details
+                  </div>
+                  {{matrixDetails}}
+                </div>
+              </div>
+            {{/if}}
+            {{#if notesOnMatrix}}
+              <div class='fr-grid-row fr-grid-row--gutters'>
+                <div class='fr-col-12'>
+                  <div class='label'>
+                    Notes
+                  </div>
+                  {{notesOnMatrix}}
+                </div>
+              </div>
+            {{/if}}
             <div class='fr-grid-row fr-grid-row--gutters'>
               <div class='fr-col-6'>
                 <div class='label'>
@@ -150,6 +176,16 @@
                 {{quantityUnit}}
               </div>
             </div>
+            {{#if notesOnItems}}
+              <div class='fr-grid-row fr-grid-row--gutters'>
+                <div class='fr-col-12'>
+                  <div class='label'>
+                    Notes
+                  </div>
+                  {{notesOnItems}}
+                </div>
+              </div>
+            {{/if}}
           </div>
         </div>
         <div class='fr-card fr-card--xs fr-my-1w'>
@@ -172,7 +208,7 @@
                   Analyses demandées
                 </div>
                 <ul>
-                  <li>Analyse multi-résidus :
+                  <li>Analyse multi-résidus dont :
                     <ul>
                       {{#each multiSubstances}}<li> {{this}} </li>{{/each}}
                     </ul>

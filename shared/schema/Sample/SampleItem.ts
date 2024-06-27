@@ -28,3 +28,6 @@ export const PartialSampleItem = SampleItem.partial().merge(
 
 export type SampleItem = z.infer<typeof SampleItem>;
 export type PartialSampleItem = z.infer<typeof PartialSampleItem>;
+
+export const SampleItemSort = (a: PartialSampleItem, b: PartialSampleItem) =>
+  a.itemNumber - b.itemNumber;
