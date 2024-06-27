@@ -21,7 +21,7 @@ interface Props {
   onConfirm: () => Promise<void>;
 }
 
-const SendingModal = ({ modal, sample, laboratory, onConfirm }: Props) => {
+const SendingModal = ({ modal, laboratory, onConfirm }: Props) => {
   const [isConfirmationPending, setIsConfirmationPending] = useState(false);
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
