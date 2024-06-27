@@ -16,10 +16,17 @@ interface Props {
   };
   title: ReactNode;
   children: ReactNode;
+  confirmLabel?: string;
   onConfirm: () => Promise<void>;
 }
 
-const ConfirmationModal = ({ modal, title, children, onConfirm }: Props) => {
+const ConfirmationModal = ({
+  modal,
+  title,
+  children,
+  confirmLabel,
+  onConfirm,
+}: Props) => {
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     await onConfirm();
@@ -37,7 +44,7 @@ const ConfirmationModal = ({ modal, title, children, onConfirm }: Props) => {
           priority: 'secondary',
         },
         {
-          children: 'Confirmer',
+          children: confirmLabel ?? 'Confirmer',
           onClick: submit,
           doClosesModal: false,
         },
