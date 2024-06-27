@@ -213,11 +213,13 @@
                       {{#each multiSubstances}}<li> {{this}} </li>{{/each}}
                     </ul>
                   </li>
-                  <li>Analyse mono-résidu :
-                    <ul>
-                      {{#each monoSubstances}}<li> {{this}} </li>{{/each}}
-                    </ul>
-                  </li>
+                  {{#if monoSubstances}}
+                    <li>Analyse mono-résidu :
+                      <ul>
+                        {{#each monoSubstances}}<li> {{this}} </li>{{/each}}
+                      </ul>
+                    </li>
+                  {{/if}}
                 </ul>
               </div>
             </div>
