@@ -95,22 +95,6 @@ const CreationStep = ({ partialSample }: Props) => {
     })
   );
 
-  const form = useForm(Form, {
-    sampledAt,
-    department,
-    geolocationX,
-    geolocationY,
-    parcel,
-    programmingPlanId:
-      programmingPlanId === OutsideProgrammingId
-        ? undefined
-        : programmingPlanId,
-    legalContext,
-    company,
-    resytalId,
-    notesOnCreation,
-  });
-
   type FormShape = typeof Form.shape;
 
   const departmentOptions = selectOptionsFromList(
@@ -197,15 +181,28 @@ const CreationStep = ({ partialSample }: Props) => {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const form = useForm(
+    Form,
+    {
+      sampledAt,
+      department,
+      geolocationX,
+      geolocationY,
+      parcel,
+      programmingPlanId:
+        programmingPlanId === OutsideProgrammingId
+          ? undefined
+          : programmingPlanId,
+      legalContext,
+      company,
+      resytalId,
+      notesOnCreation,
+    },
+    save
+  );
+
   return (
-    <form
-      data-testid="draft_sample_creation_form"
-      onChange={async (e) => {
-        e.preventDefault();
-        await save();
-      }}
-      className="sample-form"
-    >
+    <form data-testid="draft_sample_creation_form" className="sample-form">
       {!isBrowserGeolocation && (
         <Alert
           severity="info"

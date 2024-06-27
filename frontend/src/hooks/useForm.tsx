@@ -7,9 +7,14 @@ type MessageType = 'error' | 'success' | 'default';
 export function useForm<
   T extends ZodRawShape,
   U extends Record<keyof T, unknown>
->(schema: ZodObject<T> | ZodEffects<ZodObject<any>>, input: U) {
+>(
+  schema: ZodObject<T> | ZodEffects<ZodObject<any>>,
+  input: U,
+  onInputChange?: () => Promise<void>
+) {
   const [error, setError] = useState<z.ZodError>();
   const [isTouched, setIsTouched] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   function issue<K extends keyof U>(
     key?: K,
@@ -89,6 +94,13 @@ export function useForm<
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [...Object.values(input)]);
+
+  useEffect(() => {
+    if (isInitialized) {
+      (async () => await onInputChange?.())();
+    }
+    setIsInitialized(true);
+  }, [...Object.values(input)]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
     isTouched,

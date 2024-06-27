@@ -49,11 +49,6 @@ const ItemsStep = ({ partialSample }: Props) => {
     notesOnItems: true,
   });
 
-  const form = useForm(Form, {
-    items,
-    notesOnItems,
-  });
-
   type FormShape = typeof Form.shape;
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
@@ -84,15 +79,17 @@ const ItemsStep = ({ partialSample }: Props) => {
     setItems(newItems);
   };
 
+  const form = useForm(
+    Form,
+    {
+      items,
+      notesOnItems,
+    },
+    save
+  );
+
   return (
-    <form
-      data-testid="draft_sample_items_form"
-      onChange={async (e) => {
-        e.preventDefault();
-        await save();
-      }}
-      className="sample-form"
-    >
+    <form data-testid="draft_sample_items_form" className="sample-form">
       <AppRequiredText />
       <div className="sample-items">
         {items?.map((item, itemIndex) => (

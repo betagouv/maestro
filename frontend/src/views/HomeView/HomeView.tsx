@@ -61,8 +61,8 @@ const HomeView = () => {
           <div className={clsx('teaser')}>
             <img src={foodGreen} aria-hidden alt="" />
             <h1>
-              L'outil de <b>contrôle</b> et de <b>surveillance</b> de la{' '}
-              <b>chaîne alimentaire</b>
+              <b>Surveillance</b> et <b>contrôle</b> officiels sur la{' '}
+              <b>chaine alimentaire</b>
             </h1>
             <div className="title-additionnal">
               permettant la circulation et l'accès en temps réel à une donnée

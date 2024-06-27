@@ -70,17 +70,6 @@ const MatrixStep = ({ partialSample }: Props) => {
     status: true,
   });
 
-  const form = useForm(Form, {
-    matrix,
-    matrixDetails,
-    matrixPart,
-    stage,
-    cultureKind,
-    releaseControl,
-    notesOnMatrix,
-    status: partialSample.status,
-  });
-
   type FormShape = typeof Form.shape;
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
@@ -111,15 +100,23 @@ const MatrixStep = ({ partialSample }: Props) => {
     });
   };
 
+  const form = useForm(
+    Form,
+    {
+      matrix,
+      matrixDetails,
+      matrixPart,
+      stage,
+      cultureKind,
+      releaseControl,
+      notesOnMatrix,
+      status: partialSample.status,
+    },
+    save
+  );
+
   return (
-    <form
-      data-testid="draft_sample_maatrix_form"
-      onChange={async (e) => {
-        e.preventDefault();
-        await save();
-      }}
-      className="sample-form"
-    >
+    <form data-testid="draft_sample_matrix_form" className="sample-form">
       <AppRequiredText />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>

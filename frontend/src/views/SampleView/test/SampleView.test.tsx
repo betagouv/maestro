@@ -101,7 +101,7 @@ describe('SampleView', () => {
 
     await waitFor(async () => {
       expect(
-        screen.getByTestId('draft_sample_maatrix_form')
+        screen.getByTestId('draft_sample_matrix_form')
       ).toBeInTheDocument();
     });
 
