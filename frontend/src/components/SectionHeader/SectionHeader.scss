@@ -17,6 +17,9 @@
   }
 
   @media (max-width: $breakpoint-md) {
+    padding-left: 1rem;
+    padding-right: 1rem;
+
     .fr-btn {
       flex-basis: 100%;
     }

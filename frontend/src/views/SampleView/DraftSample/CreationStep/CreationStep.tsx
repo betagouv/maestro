@@ -25,7 +25,6 @@ import { PartialSample, SampleToCreate } from 'shared/schema/Sample/Sample';
 import { SampleStatus } from 'shared/schema/Sample/SampleStatus';
 import balance from 'src/assets/illustrations/balance.svg';
 import controle from 'src/assets/illustrations/controle.svg';
-import food from 'src/assets/illustrations/food.svg';
 import CompanySearch from 'src/components/CompanySearch/CompanySearch';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
@@ -111,11 +110,6 @@ const CreationStep = ({ partialSample }: Props) => {
       value: id,
       illustration: kind === 'Control' ? check : leaf,
     })),
-    {
-      label: 'Hors programmation',
-      value: OutsideProgrammingId,
-      illustration: food,
-    },
   ];
 
   const legalContextOptions = selectOptionsFromList(LegalContextList, {

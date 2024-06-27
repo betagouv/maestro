@@ -38,7 +38,6 @@ const PreviousButton = ({
           className: cx('fr-hidden-md'),
         }
       : {
-          title: 'Retour',
           iconId: 'fr-icon-arrow-left-line',
         }),
   };

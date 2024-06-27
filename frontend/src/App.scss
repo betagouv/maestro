@@ -120,6 +120,13 @@ main {
   padding-right: 1rem;
 }
 
+section.fr-container {
+  @media (max-width: $breakpoint-md) {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
 .pointer {
   cursor: pointer;
 }
@@ -132,24 +139,6 @@ main {
   left: calc(50% - 140px);
 }
 
-.fr-modal {
-  text-align: initial;
-  font-weight: initial;
-  font-size: initial;
-
-  .fr-btn--close {
-    font-size: 0.875rem;
-    line-height: 1.5rem;
-    min-height: 2rem;
-    padding: 0.25rem 0.75rem;
-    overflow: initial;
-    max-width: 100%;
-    max-height: none;
-    display: flex;
-    margin-left: auto;
-  }
-}
-
 .fr-card--xs {
   .fr-card__content {
     padding: 0.75rem !important;
@@ -158,9 +147,6 @@ main {
   .fr-card__end:empty {
     display: none;
   }
-}
-.fr-btn {
-  justify-content: center;
 }
 
 textarea.fr-input {

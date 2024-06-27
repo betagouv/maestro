@@ -165,7 +165,7 @@ const SampleItemDetails = ({
         <div className={cx('fr-col-12')}>
           {itemIndex === 0 ? (
             <>
-              Laboratoire :{' '}
+              Laboratoire destinataire :{' '}
               {laboratory ? <b>{laboratory.name}</b> : <i>Non renseigné</i>}
             </>
           ) : (

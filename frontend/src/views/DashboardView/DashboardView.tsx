@@ -28,7 +28,14 @@ const DashboardView = () => {
   return (
     <section className={clsx(cx('fr-container'), 'main-section')}>
       <div>
-        <div className={cx('fr-text--sm', 'fr-text--bold', 'fr-hint-text')}>
+        <div
+          className={cx(
+            'fr-text--sm',
+            'fr-text--bold',
+            'fr-hint-text',
+            'fr-px-2w'
+          )}
+        >
           Espace de {userInfos.firstName} {userInfos.lastName}
           {userInfos.region && <> - Région {Regions[userInfos.region].name}</>}
         </div>
