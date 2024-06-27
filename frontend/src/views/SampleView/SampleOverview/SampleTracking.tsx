@@ -83,13 +83,17 @@ const SampleTracking = ({ sample }: Props) => {
       <div className="section-header">
         <div>
           <h3>
-            Statut du prélèvement
+            <div className="sample-status">
+              <div>Statut du prélèvement</div>
+              <div>
+                <SampleStatusBadge status={sample.status} />
+              </div>
+            </div>
             <div className={cx('fr-text--lg', 'fr-text--regular', 'fr-mb-1w')}>
               Renseignez ci-dessous le suivi d’analyse par le laboratoire
             </div>
           </h3>
         </div>
-        <SampleStatusBadge status={sample.status} />
       </div>
       <form
         className={clsx(
@@ -99,7 +103,7 @@ const SampleTracking = ({ sample }: Props) => {
       >
         <h4 className={cx('fr-mb-0')}>
           <div className={cx('fr-label--error', 'fr-text--sm')}>ETAPE 1</div>
-          Accusé de réception du laboratoire
+          Accusé de réception
           <div className={cx('fr-text--md', 'fr-text--regular')}>
             Complétez les champs suivant à réception de la notification par le
             laboratoire

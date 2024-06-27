@@ -12,8 +12,9 @@ import StepSummary from 'src/views/SampleView/StepSummary/StepSummary';
 
 interface Props {
   sample: Sample;
+  showLabel?: boolean;
 }
-const MatrixStepSummary = ({ sample }: Props) => {
+const MatrixStepSummary = ({ sample, showLabel }: Props) => {
   const { data: substanceAnalysis } = useFindSubstanceAnalysisQuery({
     matrix: sample.matrix,
     year: sample.sampledAt.getFullYear(),
@@ -36,6 +37,7 @@ const MatrixStepSummary = ({ sample }: Props) => {
           La matrice contrôlée
         </Badge>
       }
+      showLabel={showLabel}
     >
       <div className="summary-item icon-text">
         <div className={cx('fr-icon-restaurant-line')}></div>

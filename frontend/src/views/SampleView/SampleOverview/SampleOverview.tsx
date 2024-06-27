@@ -14,7 +14,7 @@ import { SampleStepTitles } from 'src/views/SampleView/SampleView';
 import CreationStepSummary from 'src/views/SampleView/StepSummary/CreationStepSummary';
 import ItemsStepSummary from 'src/views/SampleView/StepSummary/ItemsStepSummary';
 import MatrixStepSummary from 'src/views/SampleView/StepSummary/MatrixStepSummary';
-
+import './SampleOverview.scss';
 interface Props {
   sample: Sample;
 }
@@ -41,7 +41,7 @@ const SampleOverview = ({ sample }: Props) => {
         illustration={food}
         action={
           itemsWithSupportDocument.length > 0 &&
-          itemsWithSupportDocument.length === 1 ? (
+          (itemsWithSupportDocument.length === 1 ? (
             <Button
               priority="secondary"
               onClick={() =>
@@ -80,7 +80,7 @@ const SampleOverview = ({ sample }: Props) => {
                 title="Télécharger"
               />
             </div>
-          )
+          ))
         }
       />
       <Tabs
@@ -91,11 +91,11 @@ const SampleOverview = ({ sample }: Props) => {
           },
           {
             label: SampleStepTitles(sample)[0],
-            content: <CreationStepSummary sample={sample} />,
+            content: <CreationStepSummary sample={sample} showLabel={false} />,
           },
           {
             label: SampleStepTitles(sample)[1],
-            content: <MatrixStepSummary sample={sample} />,
+            content: <MatrixStepSummary sample={sample} showLabel={false} />,
           },
           {
             label: SampleStepTitles(sample)[2],

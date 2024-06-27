@@ -10,9 +10,10 @@ import StepSummary from 'src/views/SampleView/StepSummary/StepSummary';
 
 interface Props {
   sample: Sample;
+  showLabel?: boolean;
 }
 
-const CreationStepSummary = ({ sample }: Props) => {
+const CreationStepSummary = ({ sample, showLabel }: Props) => {
   const { data: sampleProgrammingPlan } = useGetProgrammingPlanQuery(
     sample.programmingPlanId as string,
     {
@@ -27,6 +28,7 @@ const CreationStepSummary = ({ sample }: Props) => {
           Le contexte du prélèvement
         </Badge>
       }
+      showLabel={showLabel}
     >
       <div className="summary-item icon-text">
         <div className={cx('fr-icon-user-line')}></div>

@@ -4,15 +4,16 @@ import useWindowSize from 'src/hooks/useWindowSize';
 
 interface Props {
   label: React.ReactNode;
+  showLabel?: boolean;
   children: NonNullable<React.ReactNode>;
 }
 
-const StepSummary = ({ label, children }: Props) => {
+const StepSummary = ({ label, showLabel = true, children }: Props) => {
   const { isMobile } = useWindowSize();
 
   return (
     <>
-      {isMobile ? (
+      {isMobile && showLabel ? (
         <Accordion
           label={label}
           className="sample-step-summary-accordion"
@@ -24,7 +25,7 @@ const StepSummary = ({ label, children }: Props) => {
         </Accordion>
       ) : (
         <section className="sample-step-summary">
-          {label}
+          {showLabel && label}
           {children}
         </section>
       )}
