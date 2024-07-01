@@ -193,7 +193,6 @@ const SampleTracking = ({ sample }: Props) => {
                 data-testid="notes-input"
                 label="Motif de non-recevabilité"
                 hintText="Champ facultatif pour précisions supplémentaires"
-                disabled={sample.status !== 'Sent'}
               />
             </div>
           </div>
@@ -207,6 +206,16 @@ const SampleTracking = ({ sample }: Props) => {
             onClick={submit}
           >
             Confirmer
+          </Button>
+        )}
+        {sample.status === 'NotAdmissible' && (
+          <Button
+            type="button"
+            className="fr-m-0"
+            onClick={save}
+            priority="secondary"
+          >
+            Mettre à jour
           </Button>
         )}
       </form>
