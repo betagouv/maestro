@@ -23,8 +23,10 @@ import laboratoryRepository from '../repositories/laboratoryRepository';
 import sampleItemRepository from '../repositories/sampleItemRepository';
 import sampleRepository from '../repositories/sampleRepository';
 import documentService from '../services/documentService/documentService';
+import exportSamplesService from '../services/exportService/exportSamplesService';
 import mailService from '../services/mailService';
 import config from '../utils/config';
+import workbookUtils from '../utils/workbookUtils';
 
 const getSample = async (request: Request, response: Response) => {
   const sample = (request as SampleRequest).sample;
@@ -99,6 +101,26 @@ const countSamples = async (request: Request, response: Response) => {
   const count = await sampleRepository.count(findOptions);
 
   response.status(constants.HTTP_STATUS_OK).send({ count });
+};
+
+const exportSamples = async (request: Request, response: Response) => {
+  const { user } = request as AuthenticatedRequest;
+  const queryFindOptions = request.query as FindSampleOptions;
+
+  const findOptions = {
+    ...queryFindOptions,
+    region: user.region ?? queryFindOptions.region,
+  };
+
+  console.info('Export samples for user', user.id, findOptions);
+
+  const samples = await sampleRepository.findMany(findOptions);
+
+  const fileName = `samples-${format(new Date(), 'yyyy-MM-dd-HH-mm-ss')}.xlsx`;
+
+  const workbook = workbookUtils.init(fileName, response);
+
+  await exportSamplesService.writeToWorkbook(samples, workbook);
 };
 
 const createSample = async (request: Request, response: Response) => {
@@ -291,6 +313,7 @@ export default {
   getSampleItemDocument,
   findSamples,
   countSamples,
+  exportSamples,
   createSample,
   updateSample,
   updateSampleItems,

@@ -1,5 +1,15 @@
 @import '../../constants';
 
+.table-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  div:first-child {
+    flex: 1;
+  }
+}
+
 .fr-pagination__list {
   justify-content: center;
 }

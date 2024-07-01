@@ -35,6 +35,7 @@ import useWindowSize from 'src/hooks/useWindowSize';
 import { useFindPrescriptionsQuery } from 'src/services/prescription.service';
 import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.service';
 import {
+  getSampleListExportURL,
   useCountSamplesQuery,
   useFindSamplesQuery,
 } from 'src/services/sample.service';
@@ -323,10 +324,25 @@ const SampleListView = () => {
       </div>
 
       <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
-        <div className={cx('fr-grid-row', 'fr-grid-row--gutters', 'fr-my-2w')}>
-          <div className={cx('fr-col-12', 'fr-text--bold')}>
+        <div className={clsx(cx('fr-my-2w'), 'table-header')}>
+          <div className={cx('fr-text--bold')}>
             {t('sample', { count: samplesCount })}
           </div>
+          <Button
+            iconId="fr-icon-file-download-line"
+            priority="secondary"
+            onClick={() =>
+              window.open(
+                getSampleListExportURL({
+                  ...findSampleOptions,
+                  perPage: undefined,
+                  page: undefined,
+                })
+              )
+            }
+            title="Exporter"
+            children={isMobile ? undefined : 'Exporter'}
+          />
         </div>
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
