@@ -30,6 +30,12 @@ router.get(
   sampleController.countSamples
 );
 router.get(
+  '/export',
+  validator.validate(query(FindSampleOptions)),
+  permissionsCheck(['readSamples']),
+  sampleController.exportSamples
+);
+router.get(
   '/:sampleId',
   validator.validate(uuidParam('sampleId')),
   permissionsCheck(['readSamples']),

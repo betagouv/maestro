@@ -23,6 +23,9 @@ import {
   SampleToCreate,
 } from '../schema/Sample/Sample';
 import { SampleItem } from '../schema/Sample/SampleItem';
+import { Substance } from '../schema/Substance/Substance';
+import { SubstanceAnalysis } from '../schema/Substance/SubstanceAnalysis';
+import { SubstanceAnalysisKindList } from '../schema/Substance/SubstanceAnalysisKind';
 import { AuthUser } from '../schema/User/AuthUser';
 import { User } from '../schema/User/User';
 import { UserRole, UserRoleList } from '../schema/User/UserRole';
@@ -223,4 +226,19 @@ export const genCompanySearchResult = (): CompanySearchResult => ({
     siret: genSiret(),
   },
   activite_principale: faker.commerce.department(),
+});
+
+export const genSubstance = (): Substance => ({
+  code: randomstring.generate(),
+  label: randomstring.generate(),
+});
+
+export const genSubstanceAnalysis = (
+  initial: Partial<SubstanceAnalysis>
+): SubstanceAnalysis => ({
+  matrix: oneOf(MatrixList),
+  substance: genSubstance(),
+  kind: oneOf(SubstanceAnalysisKindList),
+  year: 2024,
+  ...initial,
 });

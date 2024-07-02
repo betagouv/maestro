@@ -104,6 +104,14 @@ const supportDocumentURL = (sampleId: string, itemNumber: number) => {
   return `${config.apiEndpoint}/api/samples/${sampleId}/items/${itemNumber}/document${params}`;
 };
 
+const sampleListExportURL = (findOptions: FindSampleOptions) => {
+  const params = getURLQuery({
+    ...findOptions,
+    ...authParams(),
+  });
+  return `${config.apiEndpoint}/api/samples/export${params}`;
+};
+
 export const {
   useCreateSampleMutation,
   useFindSamplesQuery,
@@ -113,7 +121,9 @@ export const {
   useUpdateSampleItemsMutation,
   useDeleteSampleMutation,
   getSupportDocumentURL,
+  getSampleListExportURL,
 } = {
   ...sampleApi,
   getSupportDocumentURL: supportDocumentURL,
+  getSampleListExportURL: sampleListExportURL,
 };

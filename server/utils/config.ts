@@ -6,6 +6,14 @@ import { z } from 'zod';
 
 convict.addFormats(formats);
 
+convict.addFormat({
+  name: 'strict-boolean',
+  validate(val: any) {
+    return typeof val === 'string' && val === 'true';
+  },
+  coerce: (val: string): boolean => val === 'true',
+});
+
 if (!process.env.API_PORT) {
   dotenv.config({ path: path.join(__dirname, '../../.env') });
 }
@@ -58,6 +66,10 @@ interface Config {
       };
     };
     bucket: string;
+  };
+  sentry: {
+    dsn: string | null;
+    enabled: boolean;
   };
 }
 
@@ -199,6 +211,19 @@ const config = convict<Config>({
       env: 'S3_BUCKET',
       format: String,
       default: 'pspc',
+    },
+  },
+  sentry: {
+    dsn: {
+      env: 'SENTRY_DSN',
+      format: String,
+      default: null,
+      nullable: true,
+    },
+    enabled: {
+      env: 'SENTRY_ENABLED',
+      format: 'strict-boolean',
+      default: process.env.NODE_ENV === 'production',
     },
   },
 })

@@ -1,6 +1,7 @@
 import fp from 'lodash';
 import z from 'zod';
 import { FindSubstanceAnalysisOptions } from '../../shared/schema/Substance/FindSubstanceAnalysisOptions';
+import { Substance } from '../../shared/schema/Substance/Substance';
 import { SubstanceAnalysis } from '../../shared/schema/Substance/SubstanceAnalysis';
 import db from './db';
 
@@ -25,6 +26,7 @@ const SubstanceAnalysisJoinedDbo = SubstanceAnalysisDbo.merge(
 type SubstanceAnalysisDbo = z.infer<typeof SubstanceAnalysisDbo>;
 type SubstanceAnalysisJoinedDbo = z.infer<typeof SubstanceAnalysisJoinedDbo>;
 
+export const Substances = () => db<Substance>(substanceTable);
 export const SubstanceAnalysisTable = () =>
   db<SubstanceAnalysisDbo>(substanceAnalysisTable);
 

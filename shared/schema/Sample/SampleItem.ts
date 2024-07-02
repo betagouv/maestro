@@ -17,13 +17,24 @@ export const SampleItem = z.object({
   }),
   supportDocumentId: z.string().uuid().optional().nullable(),
   recipientKind: SampleItemRecipientKind,
+  ownerFirstName: z.string().optional().nullable(),
+  ownerLastName: z.string().optional().nullable(),
+  ownerEmail: z
+    .string()
+    .email("L'adresse email du détenteur est invalide.")
+    .optional()
+    .nullable(),
 });
 
 export const PartialSampleItem = SampleItem.partial().merge(
   SampleItem.pick({
     sampleId: true,
     itemNumber: true,
-  })
+  }).merge(
+    z.object({
+      ownerEmail: z.string().optional().nullable(),
+    })
+  )
 );
 
 export type SampleItem = z.infer<typeof SampleItem>;
