@@ -1,4 +1,4 @@
-import stream from 'exceljs/index';
+import exceljs from 'exceljs';
 import highland from 'highland';
 import _ from 'lodash';
 import { MatrixLabels } from '../../../shared/referential/Matrix/MatrixLabels';
@@ -17,7 +17,7 @@ import { ProgrammingPlan } from '../../../shared/schema/ProgrammingPlan/Programm
 import { isDefined } from '../../../shared/utils/utils';
 import laboratoryRepository from '../../repositories/laboratoryRepository';
 import sampleRepository from '../../repositories/sampleRepository';
-import WorkbookWriter = stream.xlsx.WorkbookWriter;
+import WorkbookWriter = exceljs.stream.xlsx.WorkbookWriter;
 
 interface PrescriptionWorkbookData {
   prescriptions: Prescription[];

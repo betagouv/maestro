@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import stream from 'exceljs/index';
+import exceljs from 'exceljs';
 import highland from 'highland';
 import { CultureKindLabels } from '../../../shared/referential/CultureKind';
 import { LegalContextLabels } from '../../../shared/referential/LegalContext';
@@ -11,7 +11,7 @@ import { SampleItemRecipientKindLabels } from '../../../shared/schema/Sample/Sam
 import laboratoryRepository from '../../repositories/laboratoryRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
 import sampleItemRepository from '../../repositories/sampleItemRepository';
-import WorkbookWriter = stream.xlsx.WorkbookWriter;
+import WorkbookWriter = exceljs.stream.xlsx.WorkbookWriter;
 
 const writeToWorkbook = async (
   samples: PartialSample[],
