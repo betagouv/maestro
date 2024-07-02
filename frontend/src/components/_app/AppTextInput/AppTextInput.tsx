@@ -40,7 +40,7 @@ function AppTextInput<T extends ZodRawShape>(props: AppTextInputProps<T>) {
             {textInputProps.required && <AppRequiredInput />}
           </>
         ) : (
-          ''
+          ' '
         )
       }
       nativeInputProps={{
