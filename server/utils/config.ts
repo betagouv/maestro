@@ -59,6 +59,10 @@ interface Config {
     };
     bucket: string;
   };
+  sentry: {
+    dsn: string | null;
+    enabled: boolean;
+  };
 }
 
 const config = convict<Config>({
@@ -199,6 +203,19 @@ const config = convict<Config>({
       env: 'S3_BUCKET',
       format: String,
       default: 'pspc',
+    },
+  },
+  sentry: {
+    dsn: {
+      env: 'SENTRY_DSN',
+      format: String,
+      default: null,
+      nullable: true,
+    },
+    enabled: {
+      env: 'SENTRY_ENABLED',
+      format: 'strict-boolean',
+      default: process.env.NODE_ENV === 'production',
     },
   },
 })

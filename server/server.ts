@@ -12,6 +12,7 @@ import errorHandler from './middlewares/error-handler';
 import protectedRouter from './routers/protected';
 import unprotectedRouter from './routers/unprotected';
 import config from './utils/config';
+import sentry from './utils/sentry';
 
 const PORT = config.serverPort;
 
@@ -22,6 +23,8 @@ export interface Server {
 
 export function createServer(): Server {
   const app = express();
+
+  sentry.init(app);
 
   app.use(
     helmet({
@@ -90,6 +93,7 @@ export function createServer(): Server {
   app.all('*', () => {
     throw new RouteNotFoundError();
   });
+  sentry.errorHandler(app);
   app.use(errorHandler());
 
   function start(): Promise<void> {
