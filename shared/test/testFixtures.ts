@@ -8,6 +8,7 @@ import { MatrixPart, MatrixPartList } from '../referential/MatrixPart';
 import { QuantityUnitList } from '../referential/QuantityUnit';
 import { RegionList, Regions } from '../referential/Region';
 import { Stage, StageList } from '../referential/Stage';
+import { AnalysisKindList } from '../schema/Analysis/AnalysisKind';
 import { Company } from '../schema/Company/Company';
 import { CompanySearchResult } from '../schema/Company/CompanySearchResult';
 import { Document } from '../schema/Document/Document';
@@ -25,7 +26,6 @@ import {
 import { SampleItem } from '../schema/Sample/SampleItem';
 import { Substance } from '../schema/Substance/Substance';
 import { SubstanceAnalysis } from '../schema/Substance/SubstanceAnalysis';
-import { SubstanceAnalysisKindList } from '../schema/Substance/SubstanceAnalysisKind';
 import { AuthUser } from '../schema/User/AuthUser';
 import { User } from '../schema/User/User';
 import { UserRole, UserRoleList } from '../schema/User/UserRole';
@@ -238,7 +238,7 @@ export const genSubstanceAnalysis = (
 ): SubstanceAnalysis => ({
   matrix: oneOf(MatrixList),
   substance: genSubstance(),
-  kind: oneOf(SubstanceAnalysisKindList),
+  kind: oneOf(AnalysisKindList),
   year: 2024,
   ...initial,
 });

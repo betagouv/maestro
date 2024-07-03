@@ -1,11 +1,11 @@
 import { SubstanceAnalysisTable } from '../../../server/repositories/substanceRepository';
 import { Matrix } from '../../../shared/referential/Matrix/Matrix';
-import { SubstanceAnalysisKind } from '../../../shared/schema/Substance/SubstanceAnalysisKind';
+import { AnalysisKind } from '../../../shared/schema/Analysis/AnalysisKind';
 
 exports.seed = async function () {
   const genSubstanceAnalysis = (
     matrix: Matrix,
-    kind: SubstanceAnalysisKind,
+    kind: AnalysisKind,
     ...substanceCodes: string[]
   ) =>
     substanceCodes.map((substanceCode) => ({
