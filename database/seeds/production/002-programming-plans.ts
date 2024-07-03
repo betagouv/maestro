@@ -1,12 +1,17 @@
+import fp from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { ProgrammingPlans } from '../../../server/repositories/programmingPlanRepository';
-import userRepository from '../../../server/repositories/userRepository';
+import { Users } from '../../../server/repositories/userRepository';
+import { User } from '../../../shared/schema/User/User';
 
 exports.seed = async function () {
-  const user = await userRepository.findOne('coordinateur.national@pspc.fr');
+  const user = await Users()
+    .where('roles', '@>', ['NationalCoordinator'])
+    .first()
+    .then((_) => _ && User.parse(fp.omitBy(_, fp.isNil)));
 
   if (!user) {
-    return;
+    throw new Error('No NationalCoordinator found');
   }
 
   const validatedControlPlanId = uuidv4();

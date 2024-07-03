@@ -12,7 +12,7 @@ exports.seed = async function () {
     .first();
 
   if (!validatedControlProgrammingPlan) {
-    return;
+    throw new Error('No validated control programming plan found');
   }
 
   // prettier-ignore
@@ -80,7 +80,7 @@ exports.seed = async function () {
   ]);
 
   if (!validatedSurveillanceProgrammingPlan) {
-    return;
+    throw new Error('No validated surveillance programming plan found');
   }
 
   // prettier-ignore
