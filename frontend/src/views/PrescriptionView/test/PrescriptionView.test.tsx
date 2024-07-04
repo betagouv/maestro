@@ -3,9 +3,9 @@ import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import Router, { BrowserRouter } from 'react-router-dom';
 import { Region, RegionList } from 'shared/referential/Region';
+import { genPartialSample } from 'shared/test/sampleFixtures';
 import {
   genAuthUser,
-  genPartialSample,
   genPrescriptions,
   genProgrammingPlan,
   genUser,

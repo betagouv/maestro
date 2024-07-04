@@ -1,45 +1,41 @@
 import { constants } from 'http2';
 import request from 'supertest';
-import { Region, Regions } from '../../../shared/referential/Region';
-import { genAnalysisToCreate } from '../../../shared/test/analysisFixtures';
 import {
-  genCompany,
-  genDocument,
-  genPartialSample,
-  genProgrammingPlan,
-  genUser,
-  oneOf,
-} from '../../../shared/test/testFixtures';
+  NationalCoordinator,
+  Region1Fixture,
+  Sampler1Fixture,
+} from '../../../database/seeds/test/001-users';
+import { ProgrammingPlanFixture } from '../../../database/seeds/test/002-programming-plans';
+import { CompanyFixture } from '../../../database/seeds/test/003-companies';
+import { Regions } from '../../../shared/referential/Region';
+import { genAnalysisToCreate } from '../../../shared/test/analysisFixtures';
+import { genPartialSample } from '../../../shared/test/sampleFixtures';
+import { genDocument, oneOf } from '../../../shared/test/testFixtures';
 import { Analysis } from '../../repositories/analysisRepository';
-import { Companies } from '../../repositories/companyRepository';
+import db from '../../repositories/db';
 import { Documents } from '../../repositories/documentRepository';
-import { ProgrammingPlans } from '../../repositories/programmingPlanRepository';
 import {
   formatPartialSample,
   Samples,
 } from '../../repositories/sampleRepository';
-import { Users } from '../../repositories/userRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
 describe('Analysis router', () => {
   const { app } = createServer();
 
-  const region1 = '44' as Region;
-  const sampler1 = { ...genUser('Sampler'), region: region1 };
-  const nationalCoordinator = genUser('NationalCoordinator');
-  const programmingPlan = genProgrammingPlan(nationalCoordinator.id);
-  const company = genCompany();
   const sample1 = {
-    ...genPartialSample(sampler1, programmingPlan.id, company),
-    department: oneOf(Regions[region1].departments),
+    ...genPartialSample(
+      Sampler1Fixture,
+      ProgrammingPlanFixture.id,
+      CompanyFixture
+    ),
+    department: oneOf(Regions[Region1Fixture].departments),
   };
-  const document = genDocument(sampler1.id);
+  const document = genDocument(Sampler1Fixture.id);
 
   beforeAll(async () => {
-    await Users().insert([sampler1, nationalCoordinator]);
-    await ProgrammingPlans().insert(programmingPlan);
-    await Companies().insert(company);
+    await db.seed.run();
     await Samples().insert(formatPartialSample(sample1));
     await Documents().insert(document);
   });
@@ -59,7 +55,7 @@ describe('Analysis router', () => {
         request(app)
           .post(testRoute)
           .send(payload)
-          .use(tokenProvider(sampler1))
+          .use(tokenProvider(Sampler1Fixture))
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await badRequestTest();
@@ -89,7 +85,7 @@ describe('Analysis router', () => {
       await request(app)
         .post(testRoute)
         .send(genAnalysisToCreate())
-        .use(tokenProvider(nationalCoordinator))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
@@ -102,7 +98,7 @@ describe('Analysis router', () => {
       const res = await request(app)
         .post(testRoute)
         .send(analysis)
-        .use(tokenProvider(sampler1))
+        .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_CREATED);
 
       expect(res.body).toMatchObject(
@@ -110,7 +106,7 @@ describe('Analysis router', () => {
           ...analysis,
           id: expect.any(String),
           createdAt: expect.any(String),
-          createdBy: sampler1.id,
+          createdBy: Sampler1Fixture.id,
         })
       );
 

@@ -5,9 +5,9 @@ import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { CultureKindList } from 'shared/referential/CultureKind';
 import { MatrixPartList } from 'shared/referential/MatrixPart';
+import { genCreatedSample } from 'shared/test/sampleFixtures';
 import {
   genAuthUser,
-  genCreatedSample,
   genPrescriptions,
   genProgrammingPlan,
   genUser,

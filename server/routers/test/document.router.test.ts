@@ -2,21 +2,23 @@ import { constants } from 'http2';
 import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
-import { genDocument, genUser } from '../../../shared/test/testFixtures';
+import {
+  NationalCoordinator,
+  Sampler1Fixture,
+} from '../../../database/seeds/test/001-users';
+import { genDocument } from '../../../shared/test/testFixtures';
+import db from '../../repositories/db';
 import { Documents } from '../../repositories/documentRepository';
-import { Users } from '../../repositories/userRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
 describe('Document router', () => {
   const { app } = createServer();
 
-  const sampler1 = genUser('Sampler');
-  const nationalCoordinator = genUser('NationalCoordinator');
-  const document = genDocument(sampler1.id);
+  const document = genDocument(Sampler1Fixture.id);
 
   beforeAll(async () => {
-    await Users().insert([sampler1, nationalCoordinator]);
+    await db.seed.run();
     await Documents().insert(document);
   });
 
@@ -32,7 +34,7 @@ describe('Document router', () => {
     it('should return all documents', async () => {
       const res = await request(app)
         .get(testRoute)
-        .use(tokenProvider(sampler1))
+        .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toEqual([
@@ -62,7 +64,7 @@ describe('Document router', () => {
       await request(app)
         .post(testRoute)
         .send(validBody)
-        .use(tokenProvider(sampler1))
+        .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
@@ -71,7 +73,7 @@ describe('Document router', () => {
         request(app)
           .post(testRoute)
           .send(payload)
-          .use(tokenProvider(nationalCoordinator))
+          .use(tokenProvider(NationalCoordinator))
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await badRequestTest();
@@ -83,13 +85,13 @@ describe('Document router', () => {
       const res = await request(app)
         .post(testRoute)
         .send(validBody)
-        .use(tokenProvider(nationalCoordinator))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_CREATED);
 
       expect(res.body).toEqual({
         ...validBody,
         createdAt: expect.any(String),
-        createdBy: nationalCoordinator.id,
+        createdBy: NationalCoordinator.id,
         kind: 'OverviewDocument',
       });
 
@@ -98,7 +100,7 @@ describe('Document router', () => {
       ).resolves.toEqual({
         ...validBody,
         createdAt: expect.any(Date),
-        createdBy: nationalCoordinator.id,
+        createdBy: NationalCoordinator.id,
         kind: 'OverviewDocument',
       });
     });

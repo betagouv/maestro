@@ -1,17 +1,9 @@
 import { constants } from 'http2';
 import request from 'supertest';
-import { genUser } from '../../../shared/test/testFixtures';
-import { Users } from '../../repositories/userRepository';
 import { createServer } from '../../server';
 
 describe('Company Router', () => {
   const { app } = createServer();
-
-  const sampler = genUser('Sampler');
-
-  beforeAll(async () => {
-    await Users().insert(sampler);
-  });
 
   describe('GET /companies/search', () => {
     const testRoute = (params: Record<string, string>) =>
