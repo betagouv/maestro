@@ -12,11 +12,7 @@ import { z } from 'zod';
 const AddAnalysisDocument = () => {
   const [
     createDocument,
-    {
-      isLoading: isCreateLoading,
-      isSuccess: isCreateSuccess,
-      isError: isCreateError,
-    },
+    { isLoading: isCreateLoading, isError: isCreateError },
   ] = useCreateDocumentMutation({
     fixedCacheKey: 'createDocument',
   });
