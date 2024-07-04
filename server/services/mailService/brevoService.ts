@@ -3,6 +3,7 @@ import config from '../../utils/config';
 import { MailService, SendOptions } from './mailService';
 
 const SampleAnalysisRequestTemplateId = 1;
+const SupportDocumentCopyToOwnerTemplateId = 2;
 
 class BrevoService implements MailService {
   private emailsApi: Brevo.TransactionalEmailsApi;
@@ -34,6 +35,13 @@ class BrevoService implements MailService {
       ...options,
       templateId: SampleAnalysisRequestTemplateId,
       params: options.params,
+    });
+  }
+
+  async sendSupportDocumentCopyToOwner(options: SendOptions): Promise<void> {
+    return this.send({
+      ...options,
+      templateId: SupportDocumentCopyToOwnerTemplateId,
     });
   }
 }
