@@ -5,6 +5,7 @@ import { CultureKindLabels } from '../../../shared/referential/CultureKind';
 import { LegalContextLabels } from '../../../shared/referential/LegalContext';
 import { MatrixLabels } from '../../../shared/referential/Matrix/MatrixLabels';
 import { MatrixPartLabels } from '../../../shared/referential/MatrixPart';
+import { QuantityUnitLabels } from '../../../shared/referential/QuantityUnit';
 import { StageLabels } from '../../../shared/referential/Stage';
 import { PartialSample } from '../../../shared/schema/Sample/Sample';
 import { SampleItemRecipientKindLabels } from '../../../shared/schema/Sample/SampleItemRecipientKind';
@@ -49,6 +50,10 @@ const writeToWorkbook = async (
         {
           header: `Echantillon ${itemNumber} \n Quantité`,
           key: `quantity_${itemNumber}`,
+        },
+        {
+          header: `Echantillon ${itemNumber} \n Unité de mesure`,
+          key: `quantityUnit_${itemNumber}`,
         },
         {
           header: `Echantillon ${itemNumber} \n Numéro de scellé`,
@@ -108,13 +113,13 @@ const writeToWorkbook = async (
             : undefined,
           releaseControl: sample.releaseControl ? 'Oui' : 'Non',
           notesOnMatrix: sample.notesOnMatrix,
-          quantity_1: 'toto',
           ...items.reduce(
             (acc, item, index) => ({
               ...acc,
-              [`quantity_${
-                index + 1
-              }`]: `${item.quantity} ${item.quantityUnit}`,
+              [`quantity_${index + 1}`]: item.quantity,
+              [`quantityUnit_${index + 1}`]: item.quantityUnit
+                ? QuantityUnitLabels[item.quantityUnit]
+                : undefined,
               [`sealId_${index + 1}`]: item.sealId,
               [`recipient_${index + 1}`]:
                 item.recipientKind &&
