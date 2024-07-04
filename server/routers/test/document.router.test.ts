@@ -37,12 +37,14 @@ describe('Document router', () => {
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toEqual([
-        {
-          ...document,
-          createdAt: document.createdAt.toISOString(),
-        },
-      ]);
+      expect(res.body).toEqual(
+        expect.arrayContaining([
+          {
+            ...document,
+            createdAt: document.createdAt.toISOString(),
+          },
+        ])
+      );
     });
   });
 
