@@ -33,6 +33,14 @@ class NodemailerService implements MailService {
       content: `Vous allez bientôt recevoir un prélèvement`,
     });
   }
+
+  async sendSupportDocumentCopyToOwner(options: SendOptions): Promise<void> {
+    return this.send({
+      ...options,
+      subject: 'Copie du document d’accompagnement',
+      content: 'Voici une copie de votre document d’accompagnement',
+    });
+  }
 }
 
 export default function createNodemailerService(): MailService {

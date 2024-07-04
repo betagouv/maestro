@@ -214,11 +214,10 @@ const updateSample = async (request: Request, response: Response) => {
         }
 
         if (sampleItem.ownerEmail) {
-          await mailService.sendAnalysisRequest({
+          await mailService.sendSupportDocumentCopyToOwner({
             recipients: [sampleItem.ownerEmail, config.mail.from],
             params: {
               region: user.region ? Regions[user.region].name : undefined,
-              userMail: user.email,
               sampledAt: format(updatedSample.sampledAt, 'dd/MM/yyyy'),
             },
             attachment: [
