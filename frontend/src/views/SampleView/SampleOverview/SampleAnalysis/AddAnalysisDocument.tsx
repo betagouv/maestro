@@ -1,15 +1,15 @@
-import { fr } from '@codegouvfr/react-dsfr';
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { useState } from 'react';
 import { FileInput } from 'shared/schema/File/FileInput';
+import { FileType } from 'shared/schema/File/FileType';
 import AppUpload from 'src/components/_app/AppUpload/AppUpload';
 import { useForm } from 'src/hooks/useForm';
 import { useCreateDocumentMutation } from 'src/services/document.service';
 import { z } from 'zod';
 
-const AddDocument = () => {
+const AddAnalysisDocument = () => {
   const [
     createDocument,
     {
@@ -23,8 +23,14 @@ const AddDocument = () => {
 
   const [file, setFile] = useState<File | undefined>();
 
+  const acceptFileTypes: FileType[] = [
+    'application/pdf',
+    'image/jpeg',
+    'image/png',
+  ];
+
   const Form = z.object({
-    file: FileInput(),
+    file: FileInput(acceptFileTypes),
   });
 
   const form = useForm(Form, { file });
@@ -35,33 +41,23 @@ const AddDocument = () => {
     setFile(event?.target?.files?.[0]);
   };
 
-  const submitFile = async () => {
+  const submit = async () => {
     await form.validate(async () => {
       form.reset();
-      await createDocument(file as File);
+      const document = await createDocument(file as File);
+      console.log('document', document);
     });
   };
 
   return (
-    <div
-      className={cx('fr-p-2w')}
-      style={{
-        border: `1px solid ${
-          isCreateLoading
-            ? fr.colors.decisions.border.disabled.grey.default
-            : fr.colors.decisions.border.default.grey.default
-        }`,
-        height: 'fit-content',
-      }}
-      data-testid="add-document"
-    >
+    <>
       <AppUpload<FormShape>
+        label="Ajouter le rapport d'analyse"
         nativeInputProps={{
           onChange: (event: any) => selectFile(event),
         }}
-        className={cx('fr-mb-2w')}
         disabled={isCreateLoading}
-        key={`upload-${isCreateSuccess}`}
+        acceptFileTypes={acceptFileTypes}
         inputForm={form}
         inputKey="file"
         whenValid="fichier valide"
@@ -74,9 +70,18 @@ const AddDocument = () => {
           small={true}
         />
       )}
-      <Button onClick={submitFile}>Déposer</Button>
-    </div>
+      <hr />
+      <Button
+        type="submit"
+        iconId="fr-icon-arrow-right-line"
+        iconPosition="right"
+        className="fr-m-0"
+        onClick={submit}
+      >
+        Confirmer
+      </Button>
+    </>
   );
 };
 
-export default AddDocument;
+export default AddAnalysisDocument;

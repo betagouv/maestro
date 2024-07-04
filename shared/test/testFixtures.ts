@@ -234,11 +234,11 @@ export const genSubstance = (): Substance => ({
 });
 
 export const genSubstanceAnalysis = (
-  initial: Partial<SubstanceAnalysis>
+  data: Partial<SubstanceAnalysis>
 ): SubstanceAnalysis => ({
   matrix: oneOf(MatrixList),
   substance: genSubstance(),
   kind: oneOf(AnalysisKindList),
   year: 2024,
-  ...initial,
+  ...data,
 });

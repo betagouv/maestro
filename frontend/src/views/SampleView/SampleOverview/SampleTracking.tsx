@@ -2,6 +2,7 @@ import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
+import Stepper from '@codegouvfr/react-dsfr/Stepper';
 import clsx from 'clsx';
 import { format, parse } from 'date-fns';
 import React, { useMemo, useState } from 'react';
@@ -15,6 +16,7 @@ import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useForm } from 'src/hooks/useForm';
 import { useGetLaboratoryQuery } from 'src/services/laboratory.service';
 import { useUpdateSampleMutation } from 'src/services/sample.service';
+import AddAnalysisDocument from 'src/views/SampleView/SampleOverview/SampleAnalysis/AddAnalysisDocument';
 import z from 'zod';
 import check from '../../../assets/illustrations/check.svg';
 import warning from '../../../assets/illustrations/warning.svg';
@@ -127,7 +129,16 @@ const SampleTracking = ({ sample }: Props) => {
         )}
       >
         <h4 className={cx('fr-mb-0')}>
-          <div className={cx('fr-label--error', 'fr-text--sm')}>ETAPE 1</div>
+          <div
+            className={cx(
+              sample.status === 'Sent'
+                ? 'fr-label--error'
+                : 'fr-label--success',
+              'fr-text--sm'
+            )}
+          >
+            ETAPE 1
+          </div>
           Accusé de réception
           <div className={cx('fr-text--md', 'fr-text--regular')}>
             Complétez les champs suivant à réception de la notification par le
@@ -219,20 +230,29 @@ const SampleTracking = ({ sample }: Props) => {
           </Button>
         )}
       </form>
-      {/*<form*/}
-      {/*  className={clsx(*/}
-      {/*    cx('fr-callout', 'fr-callout--pink-tuile', 'fr-mt-5w'),*/}
-      {/*    'sample-callout'*/}
-      {/*  )}*/}
-      {/*>*/}
-      {/*  <h4 className={cx('fr-mb-0')}>*/}
-      {/*    <div className={cx('fr-label--disabled', 'fr-text--sm')}>ETAPE 2</div>*/}
-      {/*    Saisie des résultats d’analyse*/}
-      {/*    <div className={cx('fr-text--md', 'fr-text--regular')}>*/}
-      {/*      En attente de l’accusé de réception*/}
-      {/*    </div>*/}
-      {/*  </h4>*/}
-      {/*</form>*/}
+      <div
+        className={clsx(
+          cx('fr-callout', 'fr-callout--pink-tuile', 'fr-mt-5w'),
+          'sample-callout'
+        )}
+      >
+        <h4 className={cx('fr-mb-0')}>
+          <div className={cx('fr-label--error', 'fr-text--sm')}>ETAPE 2</div>
+          Saisie des résultats d’analyse
+          <div className={cx('fr-text--md', 'fr-text--regular')}>
+            Renseignez les résultats du rapport d’analyse
+          </div>
+        </h4>
+        <Stepper
+          currentStep={1}
+          nextTitle="Résidus identifiés"
+          stepCount={3}
+          title="Rapport d’analyse"
+          className={cx('fr-mb-0')}
+        />
+        <hr />
+        <AddAnalysisDocument />
+      </div>
       <ConfirmationModal
         modal={nonAdmissibleConfirmationModal}
         title="Confirmez que l’échantillon est non-recevable"

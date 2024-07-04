@@ -46,6 +46,7 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'downloadAnalysisRequestDocument',
     'readDocuments',
     'readCompanies',
+    'createAnalysis',
   ],
   Administrator: UserPermissionList,
 };

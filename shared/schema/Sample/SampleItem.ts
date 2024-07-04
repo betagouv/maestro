@@ -4,7 +4,7 @@ import { SampleItemRecipientKind } from './SampleItemRecipientKind';
 
 export const SampleItem = z.object({
   sampleId: z.string().uuid(),
-  itemNumber: z.number(),
+  itemNumber: z.number().int().positive(),
   quantity: z
     .number({
       required_error: 'Veuillez renseigner la quantité.',
