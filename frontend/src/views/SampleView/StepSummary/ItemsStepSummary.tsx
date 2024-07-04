@@ -16,7 +16,7 @@ const ItemsStepSummary = ({ sample, itemChildren }: Props) => {
       {sample.items?.map((item, itemIndex) => (
         <div
           className={clsx(
-            cx('fr-callout', 'fr-callout--pink-tuile', 'fr-mb-0', 'fr-pb-2w'),
+            cx('fr-callout', 'fr-callout--pink-tuile'),
             'sample-callout'
           )}
           key={`item-${itemIndex}`}

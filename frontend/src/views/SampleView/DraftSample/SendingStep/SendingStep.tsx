@@ -1,4 +1,3 @@
-import Accordion from '@codegouvfr/react-dsfr/Accordion';
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
@@ -124,9 +123,9 @@ const SendingStep = ({ sample }: Props) => {
             <>
               <hr className={cx('fr-m-0')} />
               <div>
-                <div className={cx('fr-text--bold', 'fr-text--lg')}>
+                <h6>
                   Document d'accompagnement du prélèvement / Procès verbal
-                </div>
+                </h6>
                 <ButtonsGroup
                   inlineLayoutWhen="always"
                   buttons={[
@@ -150,10 +149,15 @@ const SendingStep = ({ sample }: Props) => {
                   ]}
                 />
               </div>
-              <Accordion
-                label="Informer le détenteur de la marchandise"
-                className={cx('fr-label--error')}
-              >
+              <hr className={cx('fr-m-0')} />
+              <div>
+                <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+                  <div className={cx('fr-col-12')}>
+                    <h6>
+                      Envoyer le procès verbal au détenteur de la marchandise
+                    </h6>
+                  </div>
+                </div>
                 <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
                   <div className={cx('fr-col-6', 'fr-col-sm-3')}>
                     <AppTextInput<FormShape>
@@ -207,7 +211,7 @@ const SendingStep = ({ sample }: Props) => {
                     />
                   </div>
                 </div>
-              </Accordion>
+              </div>
             </>
           )}
         />

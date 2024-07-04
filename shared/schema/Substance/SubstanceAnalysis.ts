@@ -1,12 +1,12 @@
 import { z } from 'zod';
 import { Matrix } from '../../referential/Matrix/Matrix';
+import { AnalysisKind } from '../Analysis/AnalysisKind';
 import { Substance } from './Substance';
-import { SubstanceAnalysisKind } from './SubstanceAnalysisKind';
 
 export const SubstanceAnalysis = z.object({
   matrix: Matrix,
   substance: Substance,
-  kind: SubstanceAnalysisKind,
+  kind: AnalysisKind,
   year: z.number(),
 });
 

@@ -116,7 +116,10 @@ const exportSamples = async (request: Request, response: Response) => {
 
   const samples = await sampleRepository.findMany(findOptions);
 
-  const fileName = `samples-${format(new Date(), 'yyyy-MM-dd-HH-mm-ss')}.xlsx`;
+  const fileName = `prelevements-${format(
+    new Date(),
+    'yyyy-MM-dd-HH-mm-ss'
+  )}.xlsx`;
 
   const workbook = workbookUtils.init(fileName, response);
 
