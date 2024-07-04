@@ -6,16 +6,22 @@ import { FileInput } from 'shared/schema/File/FileInput';
 import { FileType } from 'shared/schema/File/FileType';
 import AppUpload from 'src/components/_app/AppUpload/AppUpload';
 import { useForm } from 'src/hooks/useForm';
+import { useCreateAnalysisMutation } from 'src/services/analysis.service';
 import { useCreateDocumentMutation } from 'src/services/document.service';
 import { z } from 'zod';
 
-const AddAnalysisDocument = () => {
+interface Props {
+  sampleId: string;
+}
+
+const AnalysisDocumentStep = ({ sampleId }: Props) => {
   const [
     createDocument,
     { isLoading: isCreateLoading, isError: isCreateError },
   ] = useCreateDocumentMutation({
     fixedCacheKey: 'createDocument',
   });
+  const [createAnalysis] = useCreateAnalysisMutation();
 
   const [file, setFile] = useState<File | undefined>();
 
@@ -40,8 +46,11 @@ const AddAnalysisDocument = () => {
   const submit = async () => {
     await form.validate(async () => {
       form.reset();
-      const document = await createDocument(file as File);
-      console.log('document', document);
+      const document = await createDocument(file as File).unwrap();
+      await createAnalysis({
+        sampleId,
+        documentId: document.id,
+      });
     });
   };
 
@@ -80,4 +89,4 @@ const AddAnalysisDocument = () => {
   );
 };
 
-export default AddAnalysisDocument;
+export default AnalysisDocumentStep;

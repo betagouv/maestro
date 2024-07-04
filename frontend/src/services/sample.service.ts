@@ -6,13 +6,6 @@ import { authParams } from 'src/services/auth-headers';
 import config from 'src/utils/config';
 import { getURLQuery } from 'src/utils/fetchUtils';
 
-export enum SampleMutationEndpoints {
-  CREATE_SAMPLE = 'createSample',
-  UPDATE_SAMPLE = 'updateSample',
-  UPDATE_SAMPLE_ITEMS = 'updateSampleItems',
-  DELETE_SAMPLE = 'deleteSample',
-}
-
 export const sampleApi = api.injectEndpoints({
   endpoints: (builder) => ({
     getSample: builder.query<PartialSample, string>({
@@ -44,10 +37,7 @@ export const sampleApi = api.injectEndpoints({
         Number(response.count),
       providesTags: ['SampleCount'],
     }),
-    [SampleMutationEndpoints.CREATE_SAMPLE]: builder.mutation<
-      PartialSample,
-      SampleToCreate
-    >({
+    createSample: builder.mutation<PartialSample, SampleToCreate>({
       query: (draft) => ({
         url: 'samples',
         method: 'POST',
@@ -57,10 +47,7 @@ export const sampleApi = api.injectEndpoints({
         PartialSample.parse(fp.omitBy(response, fp.isNil)),
       invalidatesTags: [{ type: 'Sample', id: 'LIST' }, 'SampleCount'],
     }),
-    [SampleMutationEndpoints.UPDATE_SAMPLE]: builder.mutation<
-      PartialSample,
-      PartialSample
-    >({
+    updateSample: builder.mutation<PartialSample, PartialSample>({
       query: (partialSample) => ({
         url: `samples/${partialSample.id}`,
         method: 'PUT',
@@ -74,10 +61,7 @@ export const sampleApi = api.injectEndpoints({
         'SampleCount',
       ],
     }),
-    [SampleMutationEndpoints.UPDATE_SAMPLE_ITEMS]: builder.mutation<
-      void,
-      { id: string; items: any[] }
-    >({
+    updateSampleItems: builder.mutation<void, { id: string; items: any[] }>({
       query: ({ id, items }) => ({
         url: `samples/${id}/items`,
         method: 'PUT',
@@ -85,7 +69,7 @@ export const sampleApi = api.injectEndpoints({
       }),
       invalidatesTags: (_result, _error, { id }) => [{ type: 'Sample', id }],
     }),
-    [SampleMutationEndpoints.DELETE_SAMPLE]: builder.mutation<void, string>({
+    deleteSample: builder.mutation<void, string>({
       query: (id) => ({
         url: `samples/${id}`,
         method: 'DELETE',

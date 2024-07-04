@@ -112,7 +112,12 @@ describe('Analysis router', () => {
 
       await expect(
         Analysis().where({ id: res.body.id }).first()
-      ).resolves.toBeDefined();
+      ).resolves.toMatchObject({
+        ...analysis,
+        id: res.body.id,
+        createdAt: expect.any(Date),
+        createdBy: Sampler1Fixture.id,
+      });
     });
   });
 });
