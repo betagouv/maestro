@@ -3174,7 +3174,7 @@ export const Matrix = z.enum(
     'A16FP',
     'A048V',
     'A16PQ',
-    ...MatrixKind.extract(['A00KR', 'A012R']).options,
+    ...MatrixKind.extract(['A00KR', 'A012R', 'A014C']).options,
   ],
   {
     errorMap: () => ({
