@@ -123,10 +123,8 @@ const MatrixStep = ({ partialSample }: Props) => {
           <AppSelect<FormShape>
             value={matrix ?? ''}
             options={selectOptionsFromList(
-              MatrixList.filter(
-                (matrix) =>
-                  !prescriptions ||
-                  prescriptions.find((p) => p.matrix === matrix)
+              MatrixList.filter((matrix) =>
+                prescriptions?.find((p) => p.matrix === matrix)
               ),
               {
                 labels: MatrixLabels,
