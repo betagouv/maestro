@@ -8,6 +8,7 @@ export const api = createApi({
     prepareHeaders: withAuthHeader,
   }),
   tagTypes: [
+    'Analysis',
     'AuthUser',
     'Company',
     'Document',

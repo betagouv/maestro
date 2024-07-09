@@ -14,11 +14,12 @@ export const UserPermission = z.enum([
   'updatePrescriptionSampleCount',
   'updatePrescriptionLaboratory',
   'deletePrescription',
-  'createDocument',
+  'createResource',
   'readDocuments',
   'deleteDocument',
   'readCompanies',
   'createAnalysis',
+  'readAnalysis',
 ]);
 
 export type UserPermission = z.infer<typeof UserPermission>;

@@ -1,8 +1,8 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Stepper from '@codegouvfr/react-dsfr/Stepper';
 import clsx from 'clsx';
-import { useState } from 'react';
 import { Sample } from 'shared/schema/Sample/Sample';
+import { useGetAnalysisQuery } from 'src/services/analysis.service';
 import AnalysisDocumentStep from 'src/views/SampleView/SampleAnalysis/AnalysisDocumentStep';
 import AnalysisResiduesStep from 'src/views/SampleView/SampleAnalysis/AnalysisResiduesStep';
 
@@ -11,7 +11,7 @@ interface Props {
 }
 
 const SampleAnalysis = ({ sample }: Props) => {
-  const [step, setStep] = useState<number>(1);
+  const { data: analysis } = useGetAnalysisQuery(sample.id);
 
   return (
     <div
@@ -35,8 +35,8 @@ const SampleAnalysis = ({ sample }: Props) => {
         className={cx('fr-mb-0')}
       />
       <hr />
-      {step === 1 && <AnalysisDocumentStep sampleId={sample.id} />}
-      {step === 2 && <AnalysisResiduesStep />}
+      {!analysis && <AnalysisDocumentStep sampleId={sample.id} />}
+      {analysis && <AnalysisResiduesStep analysis={analysis} />}
     </div>
   );
 };

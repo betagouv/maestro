@@ -14,11 +14,20 @@ import {
   Document,
   DocumentToCreate,
 } from '../../shared/schema/Document/Document';
+import { hasPermission } from '../../shared/schema/User/User';
 import documentRepository from '../repositories/documentRepository';
 import config from '../utils/config';
 
 const getUploadSignedUrl = async (request: Request, response: Response) => {
-  const { filename } = request.body as { filename: string };
+  const { filename, kind } = request.body as Omit<DocumentToCreate, 'id'>;
+  const user = (request as AuthenticatedRequest).user;
+
+  if (kind === 'Resource' && !hasPermission(user, 'createResource')) {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
+  if (kind === 'AnalysisDocument' && !hasPermission(user, 'createAnalysis')) {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
 
   console.log('Get signed url for file', filename);
 
@@ -61,16 +70,28 @@ const getDownloadSignedUrl = async (request: Request, response: Response) => {
 };
 
 const createDocument = async (request: Request, response: Response) => {
-  const { userId } = (request as AuthenticatedRequest).auth;
+  const user = (request as AuthenticatedRequest).user;
   const documentToCreate = DocumentToCreate.parse(request.body);
+
+  if (
+    documentToCreate.kind === 'Resource' &&
+    !hasPermission(user, 'createResource')
+  ) {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
+  if (
+    documentToCreate.kind === 'AnalysisDocument' &&
+    !hasPermission(user, 'createAnalysis')
+  ) {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
 
   console.log('Create document', documentToCreate);
 
   const document: Document = {
     ...documentToCreate,
     createdAt: new Date(),
-    createdBy: userId,
-    kind: 'OverviewDocument',
+    createdBy: user.id,
   };
 
   await documentRepository.insert(document);
@@ -78,11 +99,11 @@ const createDocument = async (request: Request, response: Response) => {
   response.status(constants.HTTP_STATUS_CREATED).send(document);
 };
 
-const findDocuments = async (request: Request, response: Response) => {
+const findResources = async (request: Request, response: Response) => {
   console.info('Find documents');
 
   const documents = await documentRepository.findMany({
-    kind: 'OverviewDocument',
+    kind: 'Resource',
   });
 
   response.status(constants.HTTP_STATUS_OK).send(documents);
@@ -118,6 +139,6 @@ export default {
   getUploadSignedUrl,
   getDownloadSignedUrl,
   createDocument,
-  findDocuments,
+  findResources,
   deleteDocument,
 };

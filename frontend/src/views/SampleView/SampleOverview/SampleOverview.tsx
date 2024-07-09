@@ -10,7 +10,7 @@ import food from 'src/assets/illustrations/food.svg';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import { useDocument } from 'src/hooks/useDocument';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
-import SampleTracking from 'src/views/SampleView/SampleOverview/SampleTracking';
+import SampleMonitoringTab from 'src/views/SampleView/SampleOverview/SampleMonitoringTab';
 import { SampleStepTitles } from 'src/views/SampleView/SampleView';
 import CreationStepSummary from 'src/views/SampleView/StepSummary/CreationStepSummary';
 import ItemsStepSummary from 'src/views/SampleView/StepSummary/ItemsStepSummary';
@@ -89,7 +89,7 @@ const SampleOverview = ({ sample }: Props) => {
         tabs={[
           {
             label: 'Suivi du prélèvement',
-            content: <SampleTracking sample={sample} />,
+            content: <SampleMonitoringTab sample={sample} />,
           },
           {
             label: SampleStepTitles(sample)[0],

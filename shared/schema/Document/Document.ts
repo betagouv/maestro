@@ -11,6 +11,7 @@ export const Document = z.object({
 export const DocumentToCreate = Document.pick({
   id: true,
   filename: true,
+  kind: true,
 });
 
 export type Document = z.infer<typeof Document>;

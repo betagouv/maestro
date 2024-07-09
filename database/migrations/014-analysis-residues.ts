@@ -11,7 +11,9 @@ exports.up = async (knex: Knex) => {
       .onDelete('CASCADE');
     table.integer('residue_number').notNullable();
     table.enum('kind', ResidueKindList);
-    table.double('result');
+    table.string('reference');
+    table.string('result_kind');
+    table.double('quantity');
     table.double('lmr');
     table.string('result_higher_than_arfd');
     table.string('notes_on_result');

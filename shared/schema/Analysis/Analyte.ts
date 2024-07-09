@@ -9,4 +9,12 @@ export const Analyte = z.object({
   result: z.number().optional().nullable(),
 });
 
+export const PartialAnalyte = Analyte.partial().merge(
+  Analyte.pick({
+    residueId: true,
+    analyteNumber: true,
+  })
+);
+
 export type Analyte = z.infer<typeof Analyte>;
+export type PartialAnalyte = z.infer<typeof PartialAnalyte>;

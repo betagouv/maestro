@@ -1,3 +1,5 @@
+import _ from 'lodash';
+import fp from 'lodash/fp';
 import { z } from 'zod';
 
 export const isDefined = <A>(a: A | undefined): a is A => a !== undefined;
@@ -16,3 +18,11 @@ export function coerceToArray<Schema extends z.ZodArray<z.ZodTypeAny>>(
     .union([z.any().array(), z.any().transform((x) => x.split(','))])
     .pipe(schema);
 }
+
+export const convertKeysToCamelCase = (obj: any) => {
+  const transform = fp.mapKeys((key: string) => _.camelCase(key));
+  const deepTransform: any = fp.mapValues((value: any) =>
+    _.isPlainObject(value) ? convertKeysToCamelCase(value) : value
+  );
+  return fp.flow(transform, deepTransform)(obj);
+};

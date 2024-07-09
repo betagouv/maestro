@@ -46,7 +46,10 @@ const AnalysisDocumentStep = ({ sampleId }: Props) => {
   const submit = async () => {
     await form.validate(async () => {
       form.reset();
-      const document = await createDocument(file as File).unwrap();
+      const document = await createDocument({
+        file: file as File,
+        kind: 'AnalysisDocument',
+      }).unwrap();
       await createAnalysis({
         sampleId,
         documentId: document.id,
@@ -66,6 +69,7 @@ const AnalysisDocumentStep = ({ sampleId }: Props) => {
         inputForm={form}
         inputKey="file"
         whenValid="fichier valide"
+        required
       />
       {isCreateError && (
         <Alert
@@ -83,7 +87,7 @@ const AnalysisDocumentStep = ({ sampleId }: Props) => {
         className="fr-m-0"
         onClick={submit}
       >
-        Confirmer
+        Continuer
       </Button>
     </>
   );

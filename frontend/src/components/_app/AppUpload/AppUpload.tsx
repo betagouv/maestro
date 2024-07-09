@@ -6,6 +6,7 @@ import {
   FileTypeLabels,
   FileTypeList,
 } from 'shared/schema/File/FileType';
+import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
 import { useForm } from 'src/hooks/useForm';
 import { ZodRawShape } from 'zod';
 
@@ -18,6 +19,7 @@ type AppUploadProps<T extends ZodRawShape> = Partial<
   whenValid?: string;
   acceptFileTypes?: FileType[];
   maxSize?: number;
+  required?: boolean;
 };
 
 function AppUpload<T extends ZodRawShape>(props: AppUploadProps<T>) {
@@ -33,6 +35,7 @@ function AppUpload<T extends ZodRawShape>(props: AppUploadProps<T>) {
     state,
     stateRelatedMessage,
     nativeInputProps,
+    required,
     ...uploadProps
   } = props;
 
@@ -40,7 +43,12 @@ function AppUpload<T extends ZodRawShape>(props: AppUploadProps<T>) {
     <div style={{ position: 'relative' }}>
       <Upload
         {...uploadProps}
-        label={label ?? 'Déposer un nouveau document'}
+        label={
+          <>
+            {label ?? 'Déposer un nouveau document'}
+            {required && <AppRequiredInput />}
+          </>
+        }
         hint={
           hint ??
           `Formats acceptés : ${(acceptFileTypes ?? FileTypeList)

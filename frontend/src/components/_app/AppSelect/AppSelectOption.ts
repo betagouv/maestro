@@ -26,9 +26,11 @@ export const selectOptionsFromList = (
   config: {
     labels?: Record<string, string>;
     withDefault?: boolean;
+    withSort?: boolean;
     defaultLabel?: string;
   } = {
     withDefault: true,
+    withSort: true,
   }
 ): AppSelectOption[] => {
   const selectConfig = {
@@ -45,7 +47,7 @@ export const selectOptionsFromList = (
         value: item,
       }))
       .filter((item) => isDefinedAndNotNull(item.label) && item.label !== '')
-      .sort((a, b) => a.label.localeCompare(b.label)),
+      .sort((a, b) => (config.withSort ? a.label.localeCompare(b.label) : 0)),
   ];
 };
 

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { AnalysisKind } from './AnalysisKind';
-import { Residue } from './Residue';
+import { PartialResidue, Residue } from './Residue';
 
 export const Analysis = z.object({
   id: z.string().uuid(),
@@ -31,7 +31,7 @@ export const PartialAnalysis = Analysis.partial()
   .merge(CreatedAnalysis)
   .merge(
     z.object({
-      residues: z.array(Residue).optional().nullable(),
+      residues: z.array(PartialResidue).optional().nullable(),
     })
   );
 

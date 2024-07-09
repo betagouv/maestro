@@ -1,15 +1,24 @@
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { Document } from 'shared/schema/Document/Document';
+import { DocumentKind } from 'shared/schema/Document/DocumentKind';
 import { api } from 'src/services/api.service';
 
 export const documentApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    createDocument: builder.mutation<Document, File>({
-      queryFn: async (file, _queryApi, _extraOptions, fetchWithBQ) => {
+    createDocument: builder.mutation<
+      Document,
+      { file: File; kind: DocumentKind }
+    >({
+      queryFn: async (
+        { file, kind },
+        _queryApi,
+        _extraOptions,
+        fetchWithBQ
+      ) => {
         const signedUrlResult = await fetchWithBQ({
           url: 'documents/upload-signed-url',
           method: 'POST',
-          body: { filename: file.name },
+          body: { filename: file.name, kind },
         });
         if (signedUrlResult.error) {
           return { error: signedUrlResult.error as FetchBaseQueryError };
@@ -39,6 +48,7 @@ export const documentApi = api.injectEndpoints({
           body: {
             id: documentId,
             filename: file.name,
+            kind,
           },
         });
         return result.data
@@ -47,8 +57,8 @@ export const documentApi = api.injectEndpoints({
       },
       invalidatesTags: () => [{ type: 'Document', id: 'LIST' }],
     }),
-    findDocuments: builder.query<Document[], void>({
-      query: () => 'documents',
+    findResources: builder.query<Document[], void>({
+      query: () => 'documents/resources',
       transformResponse: (response: any[]) =>
         response.map((_) => Document.parse(_)),
       providesTags: (result) => [
@@ -78,7 +88,7 @@ export const documentApi = api.injectEndpoints({
 
 export const {
   useCreateDocumentMutation,
-  useFindDocumentsQuery,
+  useFindResourcesQuery,
   useDeleteDocumentMutation,
   useLazyGetDocumentDownloadSignedUrlQuery,
 } = documentApi;

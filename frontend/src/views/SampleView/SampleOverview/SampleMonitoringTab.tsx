@@ -4,6 +4,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
 import { format, parse } from 'date-fns';
+import { default as fr } from 'date-fns/locale/fr';
 import React, { useMemo, useState } from 'react';
 import { Sample } from 'shared/schema/Sample/Sample';
 import { isAdmissibleStatus } from 'shared/schema/Sample/SampleStatus';
@@ -23,7 +24,7 @@ import warning from '../../../assets/illustrations/warning.svg';
 interface Props {
   sample: Sample;
 }
-const SampleTracking = ({ sample }: Props) => {
+const SampleMonitoringTab = ({ sample }: Props) => {
   const [updateSample] = useUpdateSampleMutation();
   const [, { isSuccess: isSendingSuccess }] = useUpdateSampleMutation({
     fixedCacheKey: `sending-sample-${sample.id}`,
@@ -127,106 +128,129 @@ const SampleTracking = ({ sample }: Props) => {
           'sample-callout'
         )}
       >
-        <h4 className={cx('fr-mb-0')}>
-          <div
-            className={cx(
-              sample.status === 'Sent'
-                ? 'fr-label--error'
-                : 'fr-label--success',
-              'fr-text--sm'
-            )}
-          >
-            ETAPE 1
+        {sample.status === 'Analysis' ? (
+          <div>
+            <h4>
+              Prélèvement reçu par le laboratoire le{' '}
+              {format(sample.receivedAt as Date, 'dd MMMM yyyy', {
+                locale: fr,
+              })}
+            </h4>
+            <div>
+              <span
+                className={cx(
+                  'fr-icon-success-fill',
+                  'fr-label--success',
+                  'fr-mr-1w'
+                )}
+              />
+              Échantillon recevable
+            </div>
           </div>
-          Accusé de réception
-          <div className={cx('fr-text--md', 'fr-text--regular')}>
-            Complétez les champs suivant à réception de la notification par le
-            laboratoire
-          </div>
-        </h4>
-        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-            <AppTextInput<FormShape>
-              type="date"
-              defaultValue={receivedAt}
-              onChange={(e) => setReceivedAt(e.target.value)}
+        ) : (
+          <>
+            <h4 className={cx('fr-mb-0')}>
+              <div
+                className={cx(
+                  sample.status === 'Sent'
+                    ? 'fr-label--error'
+                    : 'fr-label--success',
+                  'fr-text--sm'
+                )}
+              >
+                ETAPE 1
+              </div>
+              Accusé de réception
+              <div className={cx('fr-text--md', 'fr-text--regular')}>
+                Complétez les champs suivant à réception de la notification par
+                le laboratoire
+              </div>
+            </h4>
+            <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+              <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+                <AppTextInput<FormShape>
+                  type="date"
+                  defaultValue={receivedAt}
+                  onChange={(e) => setReceivedAt(e.target.value)}
+                  inputForm={form}
+                  inputKey="receivedAt"
+                  whenValid="Date de notification correctement renseignée."
+                  label="Date de notification"
+                  hintText="Format attendu › JJ/MM/AAAA"
+                  disabled={sample.status !== 'Sent'}
+                  required
+                />
+              </div>
+            </div>
+            <AppRadioButtons<FormShape>
+              legend="Échantillon"
+              options={[
+                {
+                  label: 'Recevable',
+                  nativeInputProps: {
+                    checked: isAdmissible === true,
+                    onChange: () => setIsAdmissible(true),
+                  },
+                  illustration: <img src={check} alt="" aria-hidden />,
+                },
+                {
+                  label: 'Non recevable',
+                  nativeInputProps: {
+                    checked: isAdmissible === false,
+                    onChange: () => {
+                      setIsAdmissible(false);
+                      setNotesOnAdmissibility('');
+                    },
+                  },
+                  illustration: <img src={warning} alt="" aria-hidden />,
+                },
+              ]}
+              colSm={6}
               inputForm={form}
-              inputKey="receivedAt"
-              whenValid="Date de notification correctement renseignée."
-              label="Date de notification"
-              hintText="Format attendu › JJ/MM/AAAA"
+              inputKey="isAdmissible"
+              whenValid="Recevabilité correctement renseignée."
               disabled={sample.status !== 'Sent'}
               required
             />
-          </div>
-        </div>
-        <AppRadioButtons<FormShape>
-          legend="Échantillon"
-          options={[
-            {
-              label: 'Recevable',
-              nativeInputProps: {
-                checked: isAdmissible === true,
-                onChange: () => setIsAdmissible(true),
-              },
-              illustration: <img src={check} alt="" aria-hidden />,
-            },
-            {
-              label: 'Non recevable',
-              nativeInputProps: {
-                checked: isAdmissible === false,
-                onChange: () => {
-                  setIsAdmissible(false);
-                  setNotesOnAdmissibility('');
-                },
-              },
-              illustration: <img src={warning} alt="" aria-hidden />,
-            },
-          ]}
-          colSm={6}
-          inputForm={form}
-          inputKey="isAdmissible"
-          whenValid="Recevabilité correctement renseignée."
-          disabled={sample.status !== 'Sent'}
-          required
-        />
-        {isAdmissible === false && (
-          <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-            <div className={cx('fr-col-12')}>
-              <AppTextAreaInput<FormShape>
-                rows={1}
-                defaultValue={notesOnAdmissibility ?? ''}
-                onChange={(e) => setNotesOnAdmissibility(e.target.value)}
-                inputForm={form}
-                inputKey="notesOnAdmissibility"
-                whenValid="Motif de non-recevabilité correctement renseigné."
-                data-testid="notes-input"
-                label="Motif de non-recevabilité"
-                hintText="Champ facultatif pour précisions supplémentaires"
-              />
-            </div>
-          </div>
-        )}
-        {sample.status === 'Sent' && (
-          <Button
-            type="submit"
-            iconId="fr-icon-arrow-down-line"
-            iconPosition="right"
-            className="fr-m-0"
-            onClick={submit}
-          >
-            Confirmer
-          </Button>
-        )}
-        {sample.status === 'NotAdmissible' && (
-          <Button
-            type="button"
-            className="fr-m-0"
-            onClick={save}
-            priority="secondary"
-          >
-            Mettre à jour
-          </Button>
+            {isAdmissible === false && (
+              <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+                <div className={cx('fr-col-12')}>
+                  <AppTextAreaInput<FormShape>
+                    rows={1}
+                    defaultValue={notesOnAdmissibility ?? ''}
+                    onChange={(e) => setNotesOnAdmissibility(e.target.value)}
+                    inputForm={form}
+                    inputKey="notesOnAdmissibility"
+                    whenValid="Motif de non-recevabilité correctement renseigné."
+                    data-testid="notes-input"
+                    label="Motif de non-recevabilité"
+                    hintText="Champ facultatif pour précisions supplémentaires"
+                  />
+                </div>
+              </div>
+            )}
+            {sample.status === 'Sent' && (
+              <Button
+                type="submit"
+                iconId="fr-icon-arrow-down-line"
+                iconPosition="right"
+                className="fr-m-0"
+                onClick={submit}
+              >
+                Confirmer
+              </Button>
+            )}
+            {sample.status === 'NotAdmissible' && (
+              <Button
+                type="button"
+                className="fr-m-0"
+                onClick={save}
+                priority="secondary"
+              >
+                Mettre à jour
+              </Button>
+            )}
+          </>
         )}
       </form>
       <SampleAnalysis sample={sample} />
@@ -242,4 +266,4 @@ const SampleTracking = ({ sample }: Props) => {
   );
 };
 
-export default SampleTracking;
+export default SampleMonitoringTab;

@@ -38,7 +38,7 @@ const AddDocument = () => {
   const submitFile = async () => {
     await form.validate(async () => {
       form.reset();
-      await createDocument(file as File);
+      await createDocument({ file: file as File, kind: 'Resource' });
     });
   };
 
