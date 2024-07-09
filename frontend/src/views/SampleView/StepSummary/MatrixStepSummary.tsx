@@ -17,7 +17,7 @@ interface Props {
 const MatrixStepSummary = ({ sample, showLabel }: Props) => {
   const { data: substanceAnalysis } = useFindSubstanceAnalysisQuery({
     matrix: sample.matrix,
-    year: sample.sampledAt.getFullYear(),
+    // year: sample.sampledAt.getFullYear(), //TODO Uncomment this line when the issue on sample.sampledAt will be fixed
   });
 
   const { data: laboratory } = useGetLaboratoryQuery(sample.laboratoryId);

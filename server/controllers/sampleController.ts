@@ -145,10 +145,11 @@ const createSample = async (request: Request, response: Response) => {
 
   const sample: CreatedSample = {
     id: uuidv4(),
-    reference: `${user.region}-${sampleToCreate.department}-${format(
-      new Date(),
-      'yy'
-    )}-${String(serial).padStart(4, '0')}-${sampleToCreate.legalContext}`,
+    reference: `${Regions[user.region].shortName}-${
+      sampleToCreate.department
+    }-${format(new Date(), 'yy')}-${String(serial).padStart(4, '0')}-${
+      sampleToCreate.legalContext
+    }`,
     sampler: fp.pick(user, ['id', 'firstName', 'lastName']),
     createdAt: new Date(),
     lastUpdatedAt: new Date(),
