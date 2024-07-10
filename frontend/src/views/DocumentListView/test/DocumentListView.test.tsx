@@ -39,7 +39,7 @@ describe('DocumentListView', () => {
     const document = genDocument(nationalCoordinator.id);
     mockRequests([
       {
-        pathname: `/api/documents`,
+        pathname: `/api/documents/resources`,
         response: { body: JSON.stringify([document]) },
       },
     ]);
