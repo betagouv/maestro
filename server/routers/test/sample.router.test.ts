@@ -1,78 +1,85 @@
 import { format } from 'date-fns';
 import { constants } from 'http2';
-import { default as fp, default as _ } from 'lodash';
+import { default as fp } from 'lodash';
 import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
-import { MatrixList } from '../../../shared/referential/Matrix/Matrix';
 import {
-  Region,
-  RegionList,
-  Regions,
-} from '../../../shared/referential/Region';
+  NationalCoordinator,
+  Region1Fixture,
+  Region2Fixture,
+  Sampler1Fixture,
+  Sampler2Fixture,
+} from '../../../database/seeds/test/001-users';
+import { ProgrammingPlanFixture } from '../../../database/seeds/test/002-programming-plans';
+import { CompanyFixture } from '../../../database/seeds/test/003-companies';
+import { MatrixList } from '../../../shared/referential/Matrix/Matrix';
+import { Regions } from '../../../shared/referential/Region';
 import { SampleStatus } from '../../../shared/schema/Sample/SampleStatus';
 import {
-  genCompany,
   genCreatedSample,
   genPartialSample,
-  genProgrammingPlan,
   genSampleItem,
   genSampleToCreate,
-  genUser,
-  oneOf,
-} from '../../../shared/test/testFixtures';
-import { Companies } from '../../repositories/companyRepository';
-import { ProgrammingPlans } from '../../repositories/programmingPlanRepository';
+} from '../../../shared/test/sampleFixtures';
+import { oneOf } from '../../../shared/test/testFixtures';
+import db from '../../repositories/db';
 import { SampleItems } from '../../repositories/sampleItemRepository';
 import {
   formatPartialSample,
   Samples,
 } from '../../repositories/sampleRepository';
-import { Users } from '../../repositories/userRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
 describe('Sample router', () => {
   const { app } = createServer();
 
-  const region1 = '44' as Region;
-  const region2 = oneOf(_.difference(RegionList, region1)) as Region;
-  const sampler1 = { ...genUser('Sampler'), region: region1 };
-  const sampler2 = { ...genUser('Sampler'), region: region2 };
-  const nationalCoordinator = genUser('NationalCoordinator');
-  const programmingPlan = genProgrammingPlan(nationalCoordinator.id);
-  const company = genCompany();
   const sample11Id = uuidv4();
   const sampleItem1 = genSampleItem(sample11Id, 1);
   const sample11 = {
-    ...genPartialSample(sampler1, programmingPlan.id, company),
+    ...genPartialSample(
+      Sampler1Fixture,
+      ProgrammingPlanFixture.id,
+      CompanyFixture
+    ),
     id: sample11Id,
     items: [sampleItem1],
     status: 'DraftMatrix' as SampleStatus,
-    department: oneOf(Regions[region1].departments),
+    department: oneOf(Regions[Region1Fixture].departments),
   };
   const sample12 = {
-    ...genPartialSample(sampler1, programmingPlan.id, company),
+    ...genPartialSample(
+      Sampler1Fixture,
+      ProgrammingPlanFixture.id,
+      CompanyFixture
+    ),
     id: uuidv4(),
     status: 'Draft' as SampleStatus,
-    department: oneOf(Regions[region1].departments),
+    department: oneOf(Regions[Region1Fixture].departments),
   };
   const sample13 = {
-    ...genPartialSample(sampler1, programmingPlan.id, company),
+    ...genPartialSample(
+      Sampler1Fixture,
+      ProgrammingPlanFixture.id,
+      CompanyFixture
+    ),
     id: uuidv4(),
     status: 'Sent' as SampleStatus,
-    department: oneOf(Regions[region1].departments),
+    department: oneOf(Regions[Region1Fixture].departments),
   };
   const sample2 = {
-    ...genPartialSample(sampler2, programmingPlan.id, company),
+    ...genPartialSample(
+      Sampler2Fixture,
+      ProgrammingPlanFixture.id,
+      CompanyFixture
+    ),
     status: 'DraftMatrix' as SampleStatus,
-    department: oneOf(Regions[region2].departments),
+    department: oneOf(Regions[Region2Fixture].departments),
   };
 
   beforeAll(async () => {
-    await Users().insert([sampler1, sampler2, nationalCoordinator]);
-    await ProgrammingPlans().insert(programmingPlan);
-    await Companies().insert(company);
+    await db.seed.run();
     await Samples().insert([
       formatPartialSample(sample11),
       formatPartialSample(sample12),
@@ -94,28 +101,28 @@ describe('Sample router', () => {
     it('should get a valid sample id', async () => {
       await request(app)
         .get(`${testRoute(randomstring.generate())}`)
-        .use(tokenProvider(sampler1))
+        .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
     it('should fail if the sample does not exist', async () => {
       await request(app)
         .get(`${testRoute(uuidv4())}`)
-        .use(tokenProvider(sampler1))
+        .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
     it('should fail if the sample does not belong to the user region', async () => {
       await request(app)
         .get(`${testRoute(sample11.id)}`)
-        .use(tokenProvider(sampler2))
+        .use(tokenProvider(Sampler2Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     it('should get the sample', async () => {
       const res = await request(app)
         .get(testRoute(sample11.id))
-        .use(tokenProvider(sampler1))
+        .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject({
@@ -140,35 +147,35 @@ describe('Sample router', () => {
     it('should get a valid sample id', async () => {
       await request(app)
         .get(`${testRoute(randomstring.generate(), 1)}`)
-        .use(tokenProvider(sampler1))
+        .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
     it('should fail if the sample does not exist', async () => {
       await request(app)
         .get(`${testRoute(uuidv4(), 1)}`)
-        .use(tokenProvider(sampler1))
+        .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
     it('should fail if the item does not exist', async () => {
       await request(app)
         .get(`${testRoute(sample11.id, 2)}`)
-        .use(tokenProvider(sampler1))
+        .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
     it('should fail if the sample does not belong to the user region', async () => {
       await request(app)
         .get(`${testRoute(sample11.id, 1)}`)
-        .use(tokenProvider(sampler2))
+        .use(tokenProvider(Sampler2Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     it('should fail if the user does not have the permission to download the sample document', async () => {
       await request(app)
         .get(`${testRoute(sample11.id, 1)}`)
-        .use(tokenProvider(nationalCoordinator))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
   });
@@ -186,7 +193,7 @@ describe('Sample router', () => {
     it('should find the samples with query parameters restricted to the user region', async () => {
       const res = await request(app)
         .get(testRoute({ status: 'DraftMatrix' }))
-        .use(tokenProvider(sampler1))
+        .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject([
@@ -202,7 +209,7 @@ describe('Sample router', () => {
     it('should find national samples with a list of statuses', async () => {
       const res = await request(app)
         .get(testRoute({ status: 'DraftMatrix,Draft' }))
-        .use(tokenProvider(nationalCoordinator))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject(
@@ -243,7 +250,7 @@ describe('Sample router', () => {
     it('should count the samples with query parameters restricted to the user region', async () => {
       const res = await request(app)
         .get(testRoute({ status: 'DraftMatrix' }))
-        .use(tokenProvider(sampler1))
+        .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject({ count: 1 });
@@ -252,7 +259,7 @@ describe('Sample router', () => {
     it('should count national samples with a list of statuses', async () => {
       const res = await request(app)
         .get(testRoute({ status: 'DraftMatrix,Draft' }))
-        .use(tokenProvider(nationalCoordinator))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject({ count: 3 });
@@ -274,7 +281,7 @@ describe('Sample router', () => {
         request(app)
           .post(testRoute)
           .send(payload)
-          .use(tokenProvider(sampler1))
+          .use(tokenProvider(Sampler1Fixture))
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await badRequestTest();
@@ -307,17 +314,17 @@ describe('Sample router', () => {
       await request(app)
         .post(testRoute)
         .send(genSampleToCreate())
-        .use(tokenProvider(nationalCoordinator))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     it('should create a sample', async () => {
-      const sample = genSampleToCreate(programmingPlan.id);
+      const sample = genSampleToCreate(ProgrammingPlanFixture.id);
 
       const res = await request(app)
         .post(testRoute)
         .send(sample)
-        .use(tokenProvider(sampler1))
+        .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_CREATED);
 
       expect(res.body).toMatchObject(
@@ -326,15 +333,14 @@ describe('Sample router', () => {
           id: expect.any(String),
           createdAt: expect.any(String),
           sampler: {
-            id: sampler1.id,
-            firstName: sampler1.firstName,
-            lastName: sampler1.lastName,
+            id: Sampler1Fixture.id,
+            firstName: Sampler1Fixture.firstName,
+            lastName: Sampler1Fixture.lastName,
           },
           sampledAt: sample.sampledAt.toISOString(),
-          reference: `${sampler1.region}-${sample.department}-${format(
-            new Date(),
-            'yy'
-          )}-0001-${sample.legalContext}`,
+          reference: `${Regions[Sampler1Fixture.region].shortName}-${
+            sample.department
+          }-${format(new Date(), 'yy')}-0001-${sample.legalContext}`,
           status: 'DraftMatrix',
         })
       );
@@ -359,15 +365,15 @@ describe('Sample router', () => {
       await request(app)
         .put(`${testRoute(randomstring.generate())}`)
         .send({})
-        .use(tokenProvider(sampler1))
+        .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
     it('should fail if the sample does not exist', async () => {
       await request(app)
         .put(`${testRoute(uuidv4())}`)
-        .send(genCreatedSample(sampler1))
-        .use(tokenProvider(sampler1))
+        .send(genCreatedSample(Sampler1Fixture))
+        .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
@@ -375,7 +381,7 @@ describe('Sample router', () => {
       await request(app)
         .put(`${testRoute(sample11.id)}`)
         .send(sample11)
-        .use(tokenProvider(sampler2))
+        .use(tokenProvider(Sampler2Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
@@ -384,7 +390,7 @@ describe('Sample router', () => {
         request(app)
           .put(`${testRoute(sample11.id)}`)
           .send(payload)
-          .use(tokenProvider(sampler1))
+          .use(tokenProvider(Sampler1Fixture))
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await badRequestTest({ matrix: 123 });
@@ -399,7 +405,7 @@ describe('Sample router', () => {
       await request(app)
         .put(`${testRoute(sample11.id)}`)
         .send(validBody)
-        .use(tokenProvider(nationalCoordinator))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
@@ -407,7 +413,7 @@ describe('Sample router', () => {
       const res = await request(app)
         .put(`${testRoute(sample11.id)}`)
         .send(validBody)
-        .use(tokenProvider(sampler1))
+        .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject({
@@ -438,7 +444,7 @@ describe('Sample router', () => {
       await request(app)
         .put(testRoute(randomstring.generate()))
         .send([genSampleItem(sample11.id)])
-        .use(tokenProvider(sampler1))
+        .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
@@ -446,7 +452,7 @@ describe('Sample router', () => {
       await request(app)
         .put(testRoute(uuidv4()))
         .send([genSampleItem(sample11.id)])
-        .use(tokenProvider(sampler1))
+        .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
@@ -454,7 +460,7 @@ describe('Sample router', () => {
       await request(app)
         .put(testRoute(sample11.id))
         .send([genSampleItem(sample11.id)])
-        .use(tokenProvider(sampler2))
+        .use(tokenProvider(Sampler2Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
@@ -462,7 +468,7 @@ describe('Sample router', () => {
       await request(app)
         .put(testRoute(sample11.id))
         .send([genSampleItem(sample11.id)])
-        .use(tokenProvider(nationalCoordinator))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
@@ -471,7 +477,7 @@ describe('Sample router', () => {
         request(app)
           .put(testRoute(sample11.id))
           .send(payload)
-          .use(tokenProvider(sampler1))
+          .use(tokenProvider(Sampler1Fixture))
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await badRequestTest();
@@ -490,7 +496,11 @@ describe('Sample router', () => {
     });
 
     it('should be forbidden to update a sample that is already sent', async () => {
-      const sample = genPartialSample(sampler1, programmingPlan.id, company);
+      const sample = genPartialSample(
+        Sampler1Fixture,
+        ProgrammingPlanFixture.id,
+        CompanyFixture
+      );
       await Samples().insert(
         formatPartialSample({
           ...sample,
@@ -502,7 +512,7 @@ describe('Sample router', () => {
       await request(app)
         .put(testRoute(sample.id))
         .send([genSampleItem(sample.id)])
-        .use(tokenProvider(sampler1))
+        .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
@@ -515,7 +525,7 @@ describe('Sample router', () => {
       await request(app)
         .put(testRoute(sample11.id))
         .send(sampleItems)
-        .use(tokenProvider(sampler1))
+        .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
       await expect(
@@ -536,42 +546,42 @@ describe('Sample router', () => {
     it('should get a valid sample id', async () => {
       await request(app)
         .delete(testRoute(randomstring.generate()))
-        .use(tokenProvider(sampler1))
+        .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
     it('should fail if the sample does not exist', async () => {
       await request(app)
         .delete(testRoute(uuidv4()))
-        .use(tokenProvider(sampler1))
+        .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
     it('should fail if the sample does not belong to the user', async () => {
       await request(app)
         .delete(testRoute(sample11.id))
-        .use(tokenProvider(sampler2))
+        .use(tokenProvider(Sampler2Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     it('should fail if the user does not have the permission to delete samples', async () => {
       await request(app)
         .delete(testRoute(sample11.id))
-        .use(tokenProvider(nationalCoordinator))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     it('should be forbidden to delete a sample that is not in draft status', async () => {
       await request(app)
         .delete(testRoute(sample13.id))
-        .use(tokenProvider(sampler1))
+        .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     it('should delete the sample', async () => {
       await request(app)
         .delete(testRoute(sample11.id))
-        .use(tokenProvider(sampler1))
+        .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_NO_CONTENT);
 
       await expect(

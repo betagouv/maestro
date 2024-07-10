@@ -21,7 +21,7 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'updatePrescriptionSampleCount',
     'deletePrescription',
     'readSamples',
-    'createDocument',
+    'createResource',
     'readDocuments',
     'deleteDocument',
     'readCompanies',
@@ -46,6 +46,8 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'downloadAnalysisRequestDocument',
     'readDocuments',
     'readCompanies',
+    'createAnalysis',
+    'readAnalysis',
   ],
   Administrator: UserPermissionList,
 };

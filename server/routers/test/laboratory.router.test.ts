@@ -1,20 +1,20 @@
 import { constants } from 'http2';
 import randomstring from 'randomstring';
 import request from 'supertest';
-import { genLaboratory, genUser } from '../../../shared/test/testFixtures';
+import { NationalCoordinator } from '../../../database/seeds/test/001-users';
+import { genLaboratory } from '../../../shared/test/testFixtures';
+import db from '../../repositories/db';
 import { Laboratories } from '../../repositories/laboratoryRepository';
-import { Users } from '../../repositories/userRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
 describe('Laboratory router', () => {
   const { app } = createServer();
 
-  const nationalCoordinator = genUser('NationalCoordinator');
   const laboratory = genLaboratory();
 
   beforeAll(async () => {
-    await Users().insert([nationalCoordinator]);
+    await db.seed.run();
     await Laboratories().insert(laboratory);
   });
 
@@ -31,14 +31,14 @@ describe('Laboratory router', () => {
     it('should get a valid laboratory id', async () => {
       await request(app)
         .get(testRoute(randomstring.generate()))
-        .use(tokenProvider(nationalCoordinator))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
     it('should find the laboratory', async () => {
       const res = await request(app)
         .get(testRoute(laboratory.id))
-        .use(tokenProvider(nationalCoordinator))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toEqual(
@@ -62,7 +62,7 @@ describe('Laboratory router', () => {
     it('should find the laboratories', async () => {
       const res = await request(app)
         .get(testRoute)
-        .use(tokenProvider(nationalCoordinator))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toEqual(

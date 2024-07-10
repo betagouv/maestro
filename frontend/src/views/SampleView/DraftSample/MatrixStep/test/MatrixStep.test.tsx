@@ -1,13 +1,13 @@
 import { configureStore, Store } from '@reduxjs/toolkit';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { CultureKindList } from 'shared/referential/CultureKind';
 import { MatrixPartList } from 'shared/referential/MatrixPart';
+import { genCreatedSample } from 'shared/test/sampleFixtures';
 import {
   genAuthUser,
-  genCreatedSample,
   genPrescriptions,
   genProgrammingPlan,
   genUser,
@@ -139,6 +139,12 @@ describe('SampleStepDraftInfos', () => {
     const matrixSelect = screen.getAllByTestId('matrix-select')[1];
     const stageSelect = screen.getAllByTestId('stage-select')[1];
 
+    await waitFor(async () => {
+      expect(
+        within(matrixSelect).getAllByRole('option').length
+      ).toBeGreaterThan(2);
+    });
+
     await act(async () => {
       await user.selectOptions(matrixSelect, prescriptions[0].matrix);
       await user.click(stageSelect);
@@ -193,6 +199,12 @@ describe('SampleStepDraftInfos', () => {
     const matrixPartSelect = screen.getAllByTestId('matrixpart-select')[1];
     const notesInput = screen.getAllByTestId('notes-input')[1];
     const submitButton = screen.getByTestId('submit-button');
+
+    await waitFor(async () => {
+      expect(
+        within(matrixSelect).getAllByRole('option').length
+      ).toBeGreaterThan(2);
+    });
 
     await act(async () => {
       await user.selectOptions(matrixSelect, prescriptions[0].matrix); //1 call

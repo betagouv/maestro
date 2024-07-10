@@ -3,7 +3,11 @@ import fp from 'lodash/fp';
 import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
-import { Region } from '../../../shared/referential/Region';
+import {
+  NationalCoordinator,
+  RegionalCoordinator,
+  Sampler1Fixture,
+} from '../../../database/seeds/test/001-users';
 import {
   Prescription,
   PrescriptionUpdate,
@@ -14,31 +18,23 @@ import {
   genNumber,
   genPrescriptions,
   genProgrammingPlan,
-  genUser,
 } from '../../../shared/test/testFixtures';
+import db from '../../repositories/db';
 import { Laboratories } from '../../repositories/laboratoryRepository';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import { ProgrammingPlans } from '../../repositories/programmingPlanRepository';
-import { Users } from '../../repositories/userRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
 describe('Prescriptions router', () => {
   const { app } = createServer();
 
-  const region = '44' as Region;
-  const nationalCoordinator = genUser('NationalCoordinator');
-  const regionalCoordinator = {
-    ...genUser('RegionalCoordinator'),
-    region,
-  };
-  const sampler = { ...genUser('Sampler'), region };
   const programmingPlanInProgress = {
-    ...genProgrammingPlan(nationalCoordinator.id),
+    ...genProgrammingPlan(NationalCoordinator.id),
     status: 'InProgress' as ProgrammingPlanStatus,
   };
   const programmingPlanValidated = {
-    ...genProgrammingPlan(nationalCoordinator.id),
+    ...genProgrammingPlan(NationalCoordinator.id),
     status: 'Validated' as ProgrammingPlanStatus,
   };
   const laboratory = genLaboratory();
@@ -56,7 +52,7 @@ describe('Prescriptions router', () => {
   );
 
   beforeAll(async () => {
-    await Users().insert([nationalCoordinator, regionalCoordinator, sampler]);
+    await db.seed.run();
     await ProgrammingPlans().insert([
       programmingPlanInProgress,
       programmingPlanValidated,
@@ -78,14 +74,14 @@ describe('Prescriptions router', () => {
     it('should get a valid programmingPlan id', async () => {
       await request(app)
         .get(`${testRoute(randomstring.generate())}`)
-        .use(tokenProvider(nationalCoordinator))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
     it('should find all the prescriptions of the programmingPlan for a national role', async () => {
       const res = await request(app)
         .get(testRoute(programmingPlanInProgress.id))
-        .use(tokenProvider(nationalCoordinator))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject(expect.arrayContaining(prescriptions1));
@@ -97,13 +93,13 @@ describe('Prescriptions router', () => {
     it('should find the regional prescriptions of the programmingPlan for a regional role', async () => {
       const res = await request(app)
         .get(testRoute(programmingPlanInProgress.id))
-        .use(tokenProvider(regionalCoordinator))
+        .use(tokenProvider(RegionalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject(
         expect.arrayContaining(
           prescriptions1.filter(
-            ({ region }) => region === regionalCoordinator.region
+            ({ region }) => region === RegionalCoordinator.region
           )
         )
       );
@@ -123,14 +119,14 @@ describe('Prescriptions router', () => {
     it('should get a valid programmingPlan id', async () => {
       await request(app)
         .get(`${testRoute(randomstring.generate())}`)
-        .use(tokenProvider(nationalCoordinator))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
     it('should export the prescriptions of the programmingPlan', async () => {
       await request(app)
         .get(testRoute(programmingPlanInProgress.id))
-        .use(tokenProvider(nationalCoordinator))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
     });
   });
@@ -155,7 +151,7 @@ describe('Prescriptions router', () => {
       await request(app)
         .post(testRoute(randomstring.generate()))
         .send(prescriptionsToCreate)
-        .use(tokenProvider(nationalCoordinator))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
@@ -166,7 +162,7 @@ describe('Prescriptions router', () => {
           ...prescriptionsToCreate,
           { ...prescriptionsToCreate[0], sampleCount: 'invalid' },
         ])
-        .use(tokenProvider(nationalCoordinator))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
@@ -174,7 +170,7 @@ describe('Prescriptions router', () => {
       await request(app)
         .post(testRoute(programmingPlanInProgress.id))
         .send(prescriptionsToCreate)
-        .use(tokenProvider(regionalCoordinator))
+        .use(tokenProvider(RegionalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
@@ -182,7 +178,7 @@ describe('Prescriptions router', () => {
       await request(app)
         .post(testRoute(programmingPlanValidated.id))
         .send(prescriptionsToCreate)
-        .use(tokenProvider(nationalCoordinator))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
@@ -190,7 +186,7 @@ describe('Prescriptions router', () => {
       const res = await request(app)
         .post(testRoute(programmingPlanInProgress.id))
         .send(prescriptionsToCreate)
-        .use(tokenProvider(nationalCoordinator))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_CREATED);
 
       expect(res.body).toMatchObject(prescriptionsToCreate);
@@ -224,13 +220,13 @@ describe('Prescriptions router', () => {
       await request(app)
         .put(testRoute(randomstring.generate(), prescriptions1[0].id))
         .send(prescriptionUpdate)
-        .use(tokenProvider(nationalCoordinator))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await request(app)
         .put(testRoute(programmingPlanInProgress.id, randomstring.generate()))
         .send(prescriptionUpdate)
-        .use(tokenProvider(nationalCoordinator))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
@@ -238,7 +234,7 @@ describe('Prescriptions router', () => {
       await request(app)
         .put(testRoute(programmingPlanInProgress.id, uuidv4()))
         .send(prescriptionUpdate)
-        .use(tokenProvider(nationalCoordinator))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
@@ -246,7 +242,7 @@ describe('Prescriptions router', () => {
       await request(app)
         .put(testRoute(programmingPlanInProgress.id, prescriptions2[0].id))
         .send(prescriptions2[0])
-        .use(tokenProvider(nationalCoordinator))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
@@ -254,7 +250,7 @@ describe('Prescriptions router', () => {
       await request(app)
         .put(testRoute(programmingPlanInProgress.id, prescriptions1[0].id))
         .send(prescriptionUpdate)
-        .use(tokenProvider(sampler))
+        .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
@@ -262,7 +258,7 @@ describe('Prescriptions router', () => {
       await request(app)
         .put(testRoute(programmingPlanValidated.id, prescriptions2[0].id))
         .send(prescriptionUpdate)
-        .use(tokenProvider(nationalCoordinator))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
@@ -270,7 +266,7 @@ describe('Prescriptions router', () => {
       const res = await request(app)
         .put(testRoute(programmingPlanInProgress.id, prescriptions1[1].id))
         .send(prescriptionUpdate)
-        .use(tokenProvider(nationalCoordinator))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject({
@@ -283,7 +279,7 @@ describe('Prescriptions router', () => {
       const res = await request(app)
         .put(testRoute(programmingPlanInProgress.id, prescriptions1[0].id))
         .send(prescriptionUpdate)
-        .use(tokenProvider(regionalCoordinator))
+        .use(tokenProvider(RegionalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject({
@@ -308,7 +304,7 @@ describe('Prescriptions router', () => {
       await request(app)
         .delete(testRoute(randomstring.generate()))
         .send([prescriptions1[0].id])
-        .use(tokenProvider(nationalCoordinator))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
@@ -316,7 +312,7 @@ describe('Prescriptions router', () => {
       await request(app)
         .delete(testRoute(programmingPlanInProgress.id))
         .send([randomstring.generate()])
-        .use(tokenProvider(nationalCoordinator))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
@@ -324,7 +320,7 @@ describe('Prescriptions router', () => {
       await request(app)
         .delete(testRoute(programmingPlanInProgress.id))
         .send([prescriptions1[0].id])
-        .use(tokenProvider(regionalCoordinator))
+        .use(tokenProvider(RegionalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
@@ -332,7 +328,7 @@ describe('Prescriptions router', () => {
       await request(app)
         .delete(testRoute(programmingPlanValidated.id))
         .send([prescriptions2[0].id])
-        .use(tokenProvider(nationalCoordinator))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
@@ -340,7 +336,7 @@ describe('Prescriptions router', () => {
       await request(app)
         .delete(testRoute(programmingPlanInProgress.id))
         .send([...prescriptions1, ...prescriptions2].map(({ id }) => id))
-        .use(tokenProvider(nationalCoordinator))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_NO_CONTENT);
 
       await expect(

@@ -9,7 +9,8 @@ import {
 import { Users } from '../../../server/repositories/userRepository';
 import { Regions } from '../../../shared/referential/Region';
 import { Sample } from '../../../shared/schema/Sample/Sample';
-import { genSample, oneOf } from '../../../shared/test/testFixtures';
+import { genSample } from '../../../shared/test/sampleFixtures';
+import { oneOf } from '../../../shared/test/testFixtures';
 import { DummyLaboratoryIds } from './002-laboratories';
 
 exports.seed = async function () {

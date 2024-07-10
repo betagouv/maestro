@@ -1,23 +1,22 @@
 import { constants } from 'http2';
 import request from 'supertest';
+import { NationalCoordinator } from '../../../database/seeds/test/001-users';
 import {
   genSubstance,
   genSubstanceAnalysis,
-  genUser,
 } from '../../../shared/test/testFixtures';
+import db from '../../repositories/db';
 import {
   formatSubstanceAnalysis,
   SubstanceAnalysisTable,
   Substances,
 } from '../../repositories/substanceRepository';
-import { Users } from '../../repositories/userRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
 describe('Substance Router', () => {
   const { app } = createServer();
 
-  const nationalCoordinator = genUser('NationalCoordinator');
   const substance = genSubstance();
   const substanceAnalysis1 = genSubstanceAnalysis({
     substance,
@@ -27,7 +26,7 @@ describe('Substance Router', () => {
   });
 
   beforeAll(async () => {
-    await Users().insert([nationalCoordinator]);
+    await db.seed.run();
     await Substances().insert(substance);
     await SubstanceAnalysisTable().insert([
       formatSubstanceAnalysis(substanceAnalysis1),
@@ -48,7 +47,7 @@ describe('Substance Router', () => {
     it('should find all substance analysis', async () => {
       const res = await request(app)
         .get(testRoute({}))
-        .use(tokenProvider(nationalCoordinator))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toEqual(
@@ -63,7 +62,7 @@ describe('Substance Router', () => {
             matrix: substanceAnalysis1.matrix,
           })
         )
-        .use(tokenProvider(nationalCoordinator))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toEqual(expect.arrayContaining([substanceAnalysis1]));
