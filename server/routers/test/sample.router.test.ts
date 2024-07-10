@@ -338,10 +338,9 @@ describe('Sample router', () => {
             lastName: Sampler1Fixture.lastName,
           },
           sampledAt: sample.sampledAt.toISOString(),
-          reference: `${Sampler1Fixture.region}-${sample.department}-${format(
-            new Date(),
-            'yy'
-          )}-0001-${sample.legalContext}`,
+          reference: `${Regions[Sampler1Fixture.region].shortName}-${
+            sample.department
+          }-${format(new Date(), 'yy')}-0001-${sample.legalContext}`,
           status: 'DraftMatrix',
         })
       );
