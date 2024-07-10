@@ -11,7 +11,7 @@ import AnalysisComplianceStep from 'src/views/SampleView/SampleAnalysis/Analysis
 import AnalysisReportStep from 'src/views/SampleView/SampleAnalysis/AnalysisReportStep/AnalysisReportStep';
 import AnalysisResiduesStep from 'src/views/SampleView/SampleAnalysis/AnalysisResiduesStep/AnalysisResiduesStep';
 
-export const AnalysisStepTitles = (analysis?: PartialAnalysis) => [
+export const AnalysisStepTitles = [
   'Rapport d’analyse',
   'Résidus identifiés',
   "Conformité de l'échantillon",
@@ -63,9 +63,9 @@ const SampleAnalysis = ({ sample }: Props) => {
       {step && (
         <Stepper
           currentStep={step}
-          nextTitle={AnalysisStepTitles(partialAnalysis)[step]}
+          nextTitle={AnalysisStepTitles[step]}
           stepCount={3}
-          title={AnalysisStepTitles(partialAnalysis)[step - 1]}
+          title={AnalysisStepTitles[step - 1]}
           className={cx('fr-mb-0')}
         />
       )}
