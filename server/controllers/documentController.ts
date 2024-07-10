@@ -18,6 +18,20 @@ import { hasPermission } from '../../shared/schema/User/User';
 import documentRepository from '../repositories/documentRepository';
 import config from '../utils/config';
 
+const getDocument = async (request: Request, response: Response) => {
+  const { documentId } = request.params;
+
+  console.info('Find document', documentId);
+
+  const document = await documentRepository.findUnique(documentId);
+
+  if (!document) {
+    throw new DocumentMissingError(documentId);
+  }
+
+  response.status(constants.HTTP_STATUS_OK).send(document);
+};
+
 const getUploadSignedUrl = async (request: Request, response: Response) => {
   const { filename, kind } = request.body as Omit<DocumentToCreate, 'id'>;
   const user = (request as AuthenticatedRequest).user;
@@ -25,7 +39,10 @@ const getUploadSignedUrl = async (request: Request, response: Response) => {
   if (kind === 'Resource' && !hasPermission(user, 'createResource')) {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
   }
-  if (kind === 'AnalysisDocument' && !hasPermission(user, 'createAnalysis')) {
+  if (
+    kind === 'AnalysisReportDocument' &&
+    !hasPermission(user, 'createAnalysis')
+  ) {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
   }
 
@@ -80,7 +97,7 @@ const createDocument = async (request: Request, response: Response) => {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
   }
   if (
-    documentToCreate.kind === 'AnalysisDocument' &&
+    documentToCreate.kind === 'AnalysisReportDocument' &&
     !hasPermission(user, 'createAnalysis')
   ) {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
@@ -136,6 +153,7 @@ const deleteDocument = async (request: Request, response: Response) => {
 };
 
 export default {
+  getDocument,
   getUploadSignedUrl,
   getDownloadSignedUrl,
   createDocument,

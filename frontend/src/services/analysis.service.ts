@@ -7,12 +7,15 @@ import { api } from 'src/services/api.service';
 
 export const analysisApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    getAnalysis: builder.query<PartialAnalysis, string>({
-      query: (sampleId) => `analysis/${sampleId}`,
+    getSampleAnalysis: builder.query<PartialAnalysis, string>({
+      query: (sampleId) => ({
+        url: 'analysis',
+        params: { sampleId },
+      }),
       transformResponse: (response: any) =>
         PartialAnalysis.parse(fp.omitBy(response, fp.isNil)),
       providesTags: (_result, _error, sampleId) => [
-        { type: 'Analysis', id: sampleId },
+        { type: 'SampleAnalysis', id: sampleId },
       ],
     }),
     createAnalysis: builder.mutation<PartialAnalysis, AnalysisToCreate>({
@@ -23,6 +26,10 @@ export const analysisApi = api.injectEndpoints({
       }),
       transformResponse: (response: any) =>
         PartialAnalysis.parse(fp.omitBy(response, fp.isNil)),
+      invalidatesTags: (_result, _error, draft) => [
+        { type: 'SampleAnalysis', id: draft.sampleId },
+        { type: 'Sample' as const, id: draft.sampleId },
+      ],
     }),
     updateAnalysis: builder.mutation<PartialAnalysis, PartialAnalysis>({
       query: (partialAnalysis) => ({
@@ -32,15 +39,15 @@ export const analysisApi = api.injectEndpoints({
       }),
       transformResponse: (response: any) =>
         PartialAnalysis.parse(fp.omitBy(response, fp.isNil)),
-      invalidatesTags: (result, error, draft) => [
-        { type: 'Analysis', id: draft.id },
+      invalidatesTags: (_result, _error, draft) => [
+        { type: 'SampleAnalysis', id: draft.sampleId },
       ],
     }),
   }),
 });
 
 export const {
-  useGetAnalysisQuery,
+  useGetSampleAnalysisQuery,
   useCreateAnalysisMutation,
   useUpdateAnalysisMutation,
 } = {

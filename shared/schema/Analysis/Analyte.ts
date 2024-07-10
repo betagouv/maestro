@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ResultKind } from './ResultKind';
+import { ResultKind } from './Residue/ResultKind';
 
 export const Analyte = z.object({
   residueId: z.string().uuid(),

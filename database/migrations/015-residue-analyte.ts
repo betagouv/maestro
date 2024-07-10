@@ -1,5 +1,5 @@
 import { Knex } from 'knex';
-import { ResultKindList } from '../../shared/schema/Analysis/ResultKind';
+import { ResultKindList } from '../../shared/schema/Analysis/Residue/ResultKind';
 
 exports.up = async (knex: Knex) => {
   await knex.schema.createTable('residue_analyte', (table) => {

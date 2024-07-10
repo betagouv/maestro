@@ -1,6 +1,10 @@
 import { z } from 'zod';
 
-export const AnalysisKind = z.enum(['Mono', 'Multi']);
+export const AnalysisKind = z.enum(['Mono', 'Multi'], {
+  errorMap: () => ({
+    message: "Veuillez renseigner la méthode d'analyse.",
+  }),
+});
 
 export type AnalysisKind = z.infer<typeof AnalysisKind>;
 

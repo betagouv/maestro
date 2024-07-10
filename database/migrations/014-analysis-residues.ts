@@ -1,5 +1,8 @@
 import { Knex } from 'knex';
-import { ResidueKindList } from '../../shared/schema/Analysis/ResidueKind';
+import { OptionalBooleanList } from '../../shared/referential/OptionnalBoolean';
+import { ResidueComplianceList } from '../../shared/schema/Analysis/Residue/ResidueCompliance';
+import { ResidueKindList } from '../../shared/schema/Analysis/Residue/ResidueKind';
+import { ResultKindList } from '../../shared/schema/Analysis/Residue/ResultKind';
 
 exports.up = async (knex: Knex) => {
   await knex.schema.createTable('analysis_residues', (table) => {
@@ -12,16 +15,16 @@ exports.up = async (knex: Knex) => {
     table.integer('residue_number').notNullable();
     table.enum('kind', ResidueKindList);
     table.string('reference');
-    table.string('result_kind');
-    table.double('quantity');
+    table.enum('result_kind', ResultKindList);
+    table.double('result');
     table.double('lmr');
-    table.string('result_higher_than_arfd');
+    table.enum('result_higher_than_arfd', OptionalBooleanList);
     table.string('notes_on_result');
-    table.string('substance_approved');
-    table.string('substance_authorised');
-    table.string('pollution_risk');
+    table.enum('substance_approved', OptionalBooleanList);
+    table.enum('substance_authorised', OptionalBooleanList);
+    table.enum('pollution_risk', OptionalBooleanList);
     table.string('notes_on_pollution_risk');
-    table.boolean('compliance');
+    table.enum('compliance', ResidueComplianceList);
     table.primary(['analysis_id', 'residue_number']);
   });
 };

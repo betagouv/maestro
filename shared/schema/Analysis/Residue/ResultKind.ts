@@ -1,6 +1,10 @@
 import { z } from 'zod';
 
-export const ResultKind = z.enum(['Q', 'NQ']);
+export const ResultKind = z.enum(['Q', 'NQ'], {
+  errorMap: () => ({
+    message: 'Veuillez renseigner le type de résultat.',
+  }),
+});
 
 export type ResultKind = z.infer<typeof ResultKind>;
 

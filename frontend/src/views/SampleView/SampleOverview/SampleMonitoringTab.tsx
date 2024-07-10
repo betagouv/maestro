@@ -121,14 +121,14 @@ const SampleMonitoringTab = ({ sample }: Props) => {
         className={clsx(
           cx(
             'fr-callout',
-            sample.status === 'Sent'
-              ? 'fr-callout--pink-tuile'
-              : 'fr-callout--green-emeraude'
+            sample.receivedAt
+              ? 'fr-callout--green-emeraude'
+              : 'fr-callout--pink-tuile'
           ),
           'sample-callout'
         )}
       >
-        {sample.status === 'Analysis' ? (
+        {sample.status === 'Analysis' && sample.receivedAt !== undefined ? (
           <div>
             <h4>
               Prélèvement reçu par le laboratoire le{' '}
@@ -152,9 +152,7 @@ const SampleMonitoringTab = ({ sample }: Props) => {
             <h4 className={cx('fr-mb-0')}>
               <div
                 className={cx(
-                  sample.status === 'Sent'
-                    ? 'fr-label--error'
-                    : 'fr-label--success',
+                  sample.receivedAt ? 'fr-label--success' : 'fr-label--error',
                   'fr-text--sm'
                 )}
               >
@@ -177,7 +175,7 @@ const SampleMonitoringTab = ({ sample }: Props) => {
                   whenValid="Date de notification correctement renseignée."
                   label="Date de notification"
                   hintText="Format attendu › JJ/MM/AAAA"
-                  disabled={sample.status !== 'Sent'}
+                  disabled={sample.receivedAt !== undefined}
                   required
                 />
               </div>
@@ -209,7 +207,7 @@ const SampleMonitoringTab = ({ sample }: Props) => {
               inputForm={form}
               inputKey="isAdmissible"
               whenValid="Recevabilité correctement renseignée."
-              disabled={sample.status !== 'Sent'}
+              disabled={sample.receivedAt !== undefined}
               required
             />
             {isAdmissible === false && (

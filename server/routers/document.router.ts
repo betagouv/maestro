@@ -21,6 +21,13 @@ router.post(
 );
 
 router.get(
+  '/:documentId',
+  validator.validate(uuidParam('documentId')),
+  permissionsCheck(['readDocuments']),
+  documentController.getDocument
+);
+
+router.get(
   '/resources',
   permissionsCheck(['readDocuments']),
   documentController.findResources

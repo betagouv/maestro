@@ -4,7 +4,7 @@ import {
   CreatedAnalysis,
   PartialAnalysis,
 } from '../../shared/schema/Analysis/Analysis';
-import { PartialResidue, Residue } from '../../shared/schema/Analysis/Residue';
+import { PartialResidue } from '../../shared/schema/Analysis/Residue/Residue';
 import { convertKeysToCamelCase } from '../../shared/utils/utils';
 import db from './db';
 
@@ -17,7 +17,7 @@ const PartialAnalysisDbo = PartialAnalysis.omit({
 
 const PartialAnalysisJoinedDbo = PartialAnalysisDbo.merge(
   z.object({
-    residues: z.array(Residue).optional().nullable(),
+    residues: z.array(PartialResidue).optional().nullable(),
   })
 );
 
@@ -30,9 +30,9 @@ export const AnalysisResidues = (transaction = db) =>
   transaction<PartialResidue>(analysisResiduesTable);
 
 const findUnique = async (
-  sampleId: string
+  key: string | { sampleId: string }
 ): Promise<PartialAnalysis | undefined> => {
-  console.info('Find analysis with sampleId', sampleId);
+  console.info('Find analysis with key', key);
   return Analysis()
     .select(
       `${analysisTable}.*`,
@@ -46,7 +46,7 @@ const findUnique = async (
       `${analysisResiduesTable}.analysis_id`,
       `${analysisTable}.id`
     )
-    .where({ sampleId })
+    .where(typeof key === 'string' ? { id: key } : { sampleId: key.sampleId })
     .groupBy(`${analysisTable}.id`)
     .first()
     .then(parsePartialAnalysis);
@@ -68,7 +68,7 @@ const update = async (partialAnalysis: PartialAnalysis): Promise<void> => {
         analysisId: partialAnalysis.id,
       });
 
-      if (partialAnalysis.residues) {
+      if (partialAnalysis.residues && partialAnalysis.residues.length > 0) {
         await AnalysisResidues(transaction).insert(partialAnalysis.residues);
       }
     }
@@ -88,7 +88,7 @@ export const parsePartialAnalysis = (
   PartialAnalysis.parse({
     ...fp.omitBy(partialAnalysisJoinedDbo, fp.isNil),
     residues: partialAnalysisJoinedDbo.residues?.map((residue) =>
-      convertKeysToCamelCase(residue)
+      convertKeysToCamelCase(fp.omitBy(residue, fp.isNil))
     ),
   });
 

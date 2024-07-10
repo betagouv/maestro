@@ -8,7 +8,6 @@ export const api = createApi({
     prepareHeaders: withAuthHeader,
   }),
   tagTypes: [
-    'Analysis',
     'AuthUser',
     'Company',
     'Document',
@@ -17,6 +16,7 @@ export const api = createApi({
     'ProgrammingPlan',
     'Regions',
     'Sample',
+    'SampleAnalysis',
     'SampleCount',
     'SubstanceAnalysis',
     'UserInfos',

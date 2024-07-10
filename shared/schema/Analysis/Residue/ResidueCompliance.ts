@@ -1,6 +1,13 @@
 import { z } from 'zod';
 
-export const ResidueCompliance = z.enum(['Compliant', 'NonCompliant', 'Other']);
+export const ResidueCompliance = z.enum(
+  ['Compliant', 'NonCompliant', 'Other'],
+  {
+    errorMap: () => ({
+      message: 'Veuillez renseigner la conformité.',
+    }),
+  }
+);
 
 export type ResidueCompliance = z.infer<typeof ResidueCompliance>;
 

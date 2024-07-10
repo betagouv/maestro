@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const DocumentKind = z.enum([
   'Resource',
   'SupportDocument',
-  'AnalysisDocument',
+  'AnalysisReportDocument',
 ]);
 
 export const DocumentKindList: DocumentKind[] = DocumentKind.options;

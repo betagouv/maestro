@@ -1,22 +1,26 @@
 import { z } from 'zod';
 import { AnalysisKind } from './AnalysisKind';
-import { PartialResidue, Residue } from './Residue';
+import { AnalysisStatus } from './AnalysisStatus';
+import { PartialResidue, Residue } from './Residue/Residue';
 
 export const Analysis = z.object({
   id: z.string().uuid(),
   sampleId: z.string().uuid(),
   createdAt: z.coerce.date(),
   createdBy: z.string().uuid(),
-  documentId: z.string().uuid(),
+  status: AnalysisStatus,
+  reportDocumentId: z.string().uuid(),
   kind: AnalysisKind,
-  residues: z.array(Residue).min(1, {
-    message: 'Veuillez renseigner au moins un résidu.',
+  residues: z.array(Residue),
+  compliance: z.boolean({
+    message: "Veuillez renseigner la conformité de l'échantillon.",
   }),
+  notesOnCompliance: z.string().optional().nullable(),
 });
 
 export const AnalysisToCreate = Analysis.pick({
   sampleId: true,
-  documentId: true,
+  reportDocumentId: true,
 });
 
 export const CreatedAnalysis = AnalysisToCreate.merge(
@@ -24,6 +28,7 @@ export const CreatedAnalysis = AnalysisToCreate.merge(
     id: true,
     createdAt: true,
     createdBy: true,
+    status: true,
   })
 );
 

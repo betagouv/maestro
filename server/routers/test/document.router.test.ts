@@ -19,7 +19,7 @@ describe('Document router', () => {
 
   const analysisDocument = {
     ...genDocument(Sampler1Fixture.id),
-    kind: 'AnalysisDocument' as DocumentKind,
+    kind: 'AnalysisReportDocument' as DocumentKind,
   };
   const resourceDocument = {
     ...genDocument(NationalCoordinator.id),
@@ -80,7 +80,7 @@ describe('Document router', () => {
         .post(testRoute)
         .send({
           ...validResourceBody,
-          kind: 'AnalysisDocument',
+          kind: 'AnalysisReportDocument',
         })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
@@ -126,7 +126,7 @@ describe('Document router', () => {
     it('should create an analysis document', async () => {
       const validAnalysisBody = {
         ...genDocumentToCreate(),
-        kind: 'AnalysisDocument',
+        kind: 'AnalysisReportDocument',
       };
 
       const res = await request(app)
@@ -139,7 +139,7 @@ describe('Document router', () => {
         ...validAnalysisBody,
         createdAt: expect.any(String),
         createdBy: Sampler1Fixture.id,
-        kind: 'AnalysisDocument',
+        kind: 'AnalysisReportDocument',
       });
 
       await expect(
@@ -148,7 +148,7 @@ describe('Document router', () => {
         ...validAnalysisBody,
         createdAt: expect.any(Date),
         createdBy: Sampler1Fixture.id,
-        kind: 'AnalysisDocument',
+        kind: 'AnalysisReportDocument',
       });
     });
   });

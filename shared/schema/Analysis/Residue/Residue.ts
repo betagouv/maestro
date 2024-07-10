@@ -1,6 +1,7 @@
 import { z } from 'zod';
-import { SimpleResidue } from '../../referential/Residue/SimpleResidue';
-import { Analyte, PartialAnalyte } from './Analyte';
+import { OptionalBoolean } from '../../../referential/OptionnalBoolean';
+import { SimpleResidue } from '../../../referential/Residue/SimpleResidue';
+import { Analyte, PartialAnalyte } from '../Analyte';
 import { ResidueCompliance } from './ResidueCompliance';
 import { ResidueKind } from './ResidueKind';
 import { ResultKind } from './ResultKind';
@@ -13,11 +14,11 @@ export const Residue = z.object({
   resultKind: ResultKind,
   result: z.number().min(0).optional().nullable(),
   lmr: z.number().optional().nullable(),
-  resultHigherThanArfd: z.string(),
+  resultHigherThanArfd: OptionalBoolean,
   notesOnResult: z.string().optional().nullable(),
-  substanceApproved: z.string(),
-  substanceAuthorised: z.string(),
-  pollutionRisk: z.string().optional().nullable(),
+  substanceApproved: OptionalBoolean,
+  substanceAuthorised: OptionalBoolean,
+  pollutionRisk: OptionalBoolean.optional().nullable(),
   notesOnPollutionRisk: z.string().optional().nullable(),
   compliance: ResidueCompliance,
   analytes: z.array(Analyte).min(1, {

@@ -14,8 +14,11 @@ exports.up = async (knex: Knex) => {
       .specificType('created_at', 'timestamptz')
       .defaultTo(knex.raw('current_timestamp'));
     table.uuid('created_by').references('id').inTable('users');
-    table.uuid('document_id').references('id').inTable('documents');
+    table.string('status').notNullable();
+    table.uuid('report_document_id').references('id').inTable('documents');
     table.enum('kind', AnalysisKindList);
+    table.boolean('compliance');
+    table.string('notes_on_compliance');
   });
 };
 

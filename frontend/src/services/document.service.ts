@@ -5,6 +5,12 @@ import { api } from 'src/services/api.service';
 
 export const documentApi = api.injectEndpoints({
   endpoints: (builder) => ({
+    getDocument: builder.query<Document, string>({
+      query: (documentId) => `documents/${documentId}`,
+      transformResponse: (response: any) => Document.parse(response),
+      providesTags: (result, error, documentId) =>
+        result ? [{ type: 'Document', id: documentId }] : [],
+    }),
     createDocument: builder.mutation<
       Document,
       { file: File; kind: DocumentKind }
@@ -87,6 +93,7 @@ export const documentApi = api.injectEndpoints({
 });
 
 export const {
+  useGetDocumentQuery,
   useCreateDocumentMutation,
   useFindResourcesQuery,
   useDeleteDocumentMutation,

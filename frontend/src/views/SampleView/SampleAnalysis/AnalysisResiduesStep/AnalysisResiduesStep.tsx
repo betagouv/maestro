@@ -4,6 +4,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   OptionalBoolean,
   OptionalBooleanLabels,
@@ -14,50 +15,54 @@ import {
   SimpleResidueList,
 } from 'shared/referential/Residue/SimpleResidue';
 import { SimpleResidueLabels } from 'shared/referential/Residue/SimpleResidueLabels';
-import { Analysis, PartialAnalysis } from 'shared/schema/Analysis/Analysis';
+import { PartialAnalysis } from 'shared/schema/Analysis/Analysis';
 import {
   AnalysisKind,
   AnalysisKindLabels,
   AnalysisKindList,
 } from 'shared/schema/Analysis/AnalysisKind';
-import { PartialResidue } from 'shared/schema/Analysis/Residue';
+import { PartialResidue } from 'shared/schema/Analysis/Residue/Residue';
 import {
   ResidueCompliance,
   ResidueComplianceLabels,
   ResidueComplianceList,
-} from 'shared/schema/Analysis/ResidueCompliance';
+} from 'shared/schema/Analysis/Residue/ResidueCompliance';
 import {
   ResidueKind,
   ResidueKindLabels,
   ResidueKindList,
-} from 'shared/schema/Analysis/ResidueKind';
+} from 'shared/schema/Analysis/Residue/ResidueKind';
 import {
   ResultKind,
   ResultKindLabels,
   ResultKindList,
-} from 'shared/schema/Analysis/ResultKind';
+} from 'shared/schema/Analysis/Residue/ResultKind';
+import { isDefined } from 'shared/utils/utils';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useForm } from 'src/hooks/useForm';
 import { useUpdateAnalysisMutation } from 'src/services/analysis.service';
-import check from '../../../assets/illustrations/check.svg';
-import close from '../../../assets/illustrations/close.svg';
-import warning from '../../../assets/illustrations/warning.svg';
-import './SampleAnalysis.scss';
+import check from '../../../../assets/illustrations/check.svg';
+import close from '../../../../assets/illustrations/close.svg';
+import warning from '../../../../assets/illustrations/warning.svg';
+import '../SampleAnalysis.scss';
 
 interface Props {
-  analysis: PartialAnalysis;
+  partialAnalysis: PartialAnalysis;
 }
 
-const AnalysisResiduesStep = ({ analysis }: Props) => {
+const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
+  const navigate = useNavigate();
   const [updateAnalysis] = useUpdateAnalysisMutation();
 
-  const [analysisKind, setAnalysisKind] = useState(analysis?.kind);
-  const [residues, setResidues] = useState(analysis.residues ?? []);
+  const [analysisKind, setAnalysisKind] = useState(
+    partialAnalysis?.kind ?? 'Mono'
+  );
+  const [residues, setResidues] = useState(partialAnalysis.residues ?? []);
 
-  const Form = Analysis.pick({
+  const Form = PartialAnalysis.pick({
     kind: true,
     residues: true,
   });
@@ -74,14 +79,14 @@ const AnalysisResiduesStep = ({ analysis }: Props) => {
     e.preventDefault();
     await form.validate(async () => {
       await updateAnalysis({
-        ...analysis,
+        ...partialAnalysis,
         kind: analysisKind,
         residues,
-      })
-        .unwrap()
-        .then((result) => {
-          console.log('updateAnalysis', result);
-        });
+        status: 'Compliance',
+      });
+      navigate(`/prelevements/${partialAnalysis.sampleId}/analyse?etape=3`, {
+        replace: true,
+      });
     });
   };
 
@@ -105,7 +110,7 @@ const AnalysisResiduesStep = ({ analysis }: Props) => {
           if (checked) {
             setResidues([
               {
-                analysisId: analysis.id,
+                analysisId: partialAnalysis.id,
                 residueNumber: 1,
               },
             ]);
@@ -446,32 +451,70 @@ const AnalysisResiduesStep = ({ analysis }: Props) => {
               </div>
             </div>
           ))}
-          <hr />
-          <ButtonsGroup
-            buttons={[
-              {
-                children: 'Ajouter un résidu',
-                iconId: 'fr-icon-microscope-line',
-                priority: 'secondary',
-                onClick: () =>
-                  setResidues([
-                    ...residues,
-                    {
-                      analysisId: analysis.id,
-                      residueNumber: residues.length + 1,
-                    },
-                  ]),
-              },
-              {
-                children: 'Continuer',
-                iconId: 'fr-icon-arrow-right-line',
-                iconPosition: 'right',
-                onClick: submit,
-              },
-            ]}
-          />
         </>
       )}
+      <hr />
+      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+        <div className={clsx(cx('fr-col-12'), 'sample-actions')}>
+          <ul
+            className={cx(
+              'fr-btns-group',
+              'fr-btns-group--inline-md',
+              'fr-btns-group--between',
+              'fr-btns-group--icon-left'
+            )}
+          >
+            <li>
+              <ButtonsGroup
+                alignment="left"
+                inlineLayoutWhen="md and up"
+                buttons={
+                  [
+                    {
+                      priority: 'tertiary',
+                      onClick: async (e: React.MouseEvent<HTMLElement>) => {
+                        e.preventDefault();
+                        //TODO await onSave();
+                        navigate(
+                          `/prelevements/${partialAnalysis.sampleId}?etape=1`,
+                          {
+                            replace: true,
+                          }
+                        );
+                      },
+                      title: 'Retour',
+                      iconId: 'fr-icon-arrow-left-line',
+                    },
+                    residues.length > 0
+                      ? {
+                          children: 'Ajouter un résidu',
+                          iconId: 'fr-icon-microscope-line',
+                          priority: 'secondary',
+                          onClick: () =>
+                            setResidues([
+                              ...residues,
+                              {
+                                analysisId: partialAnalysis.id,
+                                residueNumber: residues.length + 1,
+                              },
+                            ]),
+                        }
+                      : undefined,
+                  ].filter(isDefined) as any
+                }
+              />
+            </li>
+            <li>
+              <Button
+                children="Continuer"
+                onClick={submit}
+                iconId="fr-icon-arrow-right-line"
+                iconPosition="right"
+              />
+            </li>
+          </ul>
+        </div>
+      </div>
     </>
   );
 };
