@@ -7,8 +7,8 @@ import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useForm } from 'src/hooks/useForm';
 import { useUpdateAnalysisMutation } from 'src/services/analysis.service';
-import check from '../../../../assets/illustrations/check.svg';
-import close from '../../../../assets/illustrations/close.svg';
+import check from '../../../../../assets/illustrations/check.svg';
+import close from '../../../../../assets/illustrations/close.svg';
 
 interface Props {
   partialAnalysis: PartialAnalysis;
@@ -82,8 +82,8 @@ const AnalysisComplianceStep = ({ partialAnalysis }: Props) => {
       </div>
       <div className={cx('fr-col-12')}>
         <AppTextInput<FormShape>
-          value={partialAnalysis.notesOnCompliance ?? ''}
-          onChange={(e) => setNotesOnCompliance(e.currentTarget.value)}
+          value={notesOnCompliance ?? ''}
+          onChange={(e) => setNotesOnCompliance(e.target.value)}
           inputForm={form}
           inputKey="notesOnCompliance"
           whenValid="Note additionnelle correctement renseignée"

@@ -12,5 +12,5 @@ export const ResultKindList: ResultKind[] = ResultKind.options;
 
 export const ResultKindLabels: Record<ResultKind, string> = {
   Q: 'Valeur numérique',
-  NQ: 'Quantifié non détecté',
+  NQ: 'Détecté, non quantifié',
 };

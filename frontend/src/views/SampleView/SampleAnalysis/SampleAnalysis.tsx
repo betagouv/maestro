@@ -1,101 +1,76 @@
+import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import Stepper from '@codegouvfr/react-dsfr/Stepper';
 import clsx from 'clsx';
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Analysis, PartialAnalysis } from 'shared/schema/Analysis/Analysis';
-import { AnalysisStatus } from 'shared/schema/Analysis/AnalysisStatus';
 import { Sample } from 'shared/schema/Sample/Sample';
-import { useGetSampleAnalysisQuery } from 'src/services/analysis.service';
-import AnalysisComplianceStep from 'src/views/SampleView/SampleAnalysis/AnalysisComplianceStep/AnalysisComplianceStep';
-import AnalysisOverview from 'src/views/SampleView/SampleAnalysis/AnalysisOverview/AnalysisOverview';
-import AnalysisReportStep from 'src/views/SampleView/SampleAnalysis/AnalysisReportStep/AnalysisReportStep';
-import AnalysisResiduesStep from 'src/views/SampleView/SampleAnalysis/AnalysisResiduesStep/AnalysisResiduesStep';
-
-export const AnalysisStepTitles = [
-  'Rapport d’analyse',
-  'Résidus identifiés',
-  "Conformité de l'échantillon",
-];
+import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
+import { useGetLaboratoryQuery } from 'src/services/laboratory.service';
+import { useUpdateSampleMutation } from 'src/services/sample.service';
+import SampleAdmissibility from 'src/views/SampleView/SampleAnalysis/SampleAdmissibility/SampleAdmissibility';
+import SampleAnalysisOverview from 'src/views/SampleView/SampleAnalysis/SampleAnalysisOverview/SampleAnalysisOverview';
+import SampleDraftAnalysis from 'src/views/SampleView/SampleAnalysis/SampleDraftAnalysis/SampleDraftAnalysis';
 
 interface Props {
   sample: Sample;
 }
-
 const SampleAnalysis = ({ sample }: Props) => {
-  const { data: partialAnalysis } = useGetSampleAnalysisQuery(sample.id);
-
-  const [searchParams] = useSearchParams();
-  const [step, setStep] = useState<number>();
-
-  const AnalysisStatusSteps: Partial<Record<AnalysisStatus, number>> = {
-    Report: 1,
-    Residues: 2,
-    Compliance: 3,
-  };
-
-  useEffect(() => {
-    if (partialAnalysis) {
-      if (searchParams.get('etape')) {
-        setStep(Number(searchParams.get('etape')));
-      } else {
-        setStep(AnalysisStatusSteps[partialAnalysis.status]);
-      }
-    } else {
-      setStep(1);
-    }
-  }, [partialAnalysis, searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
+  const [, { isSuccess: isSendingSuccess }] = useUpdateSampleMutation({
+    fixedCacheKey: `sending-sample-${sample.id}`,
+  });
+  const { data: laboratory } = useGetLaboratoryQuery(sample.laboratoryId, {
+    skip: !isSendingSuccess,
+  });
 
   return (
-    <div
-      className={clsx(
-        cx(
-          'fr-callout',
-          sample.status === 'Completed'
-            ? 'fr-callout--green-emeraude'
-            : 'fr-callout--pink-tuile'
-        ),
-        'sample-callout',
-        'fr-mt-5w'
+    <div>
+      {isSendingSuccess && laboratory && (
+        <Alert
+          severity="info"
+          small
+          description={`Votre demande d’analyse a bien été transmise au laboratoire ${laboratory.name} par e-mail.`}
+          className={cx('fr-mb-4w')}
+        />
       )}
-    >
-      {sample.status !== 'Completed' ? (
-        <>
-          <h4 className={cx('fr-mb-0')}>
-            Saisie des résultats d’analyse
-            <div className={cx('fr-text--md', 'fr-text--regular')}>
-              Renseignez les résultats du rapport d’analyse
+      <div className="section-header">
+        <div>
+          <h3>
+            <div className="sample-status">
+              <div>Suivi du prélèvement</div>
+              <div>
+                <SampleStatusBadge status={sample.status} />
+              </div>
             </div>
-          </h4>
-          {step && (
-            <Stepper
-              currentStep={step}
-              nextTitle={AnalysisStepTitles[step]}
-              stepCount={3}
-              title={AnalysisStepTitles[step - 1]}
-              className={cx('fr-mb-0')}
-            />
+            {!['Completed', 'NotAdmissible'].includes(sample.status) && (
+              <div
+                className={cx('fr-text--lg', 'fr-text--regular', 'fr-mb-1w')}
+              >
+                Renseignez ci-dessous le suivi d’analyse par le laboratoire
+              </div>
+            )}
+          </h3>
+        </div>
+      </div>
+      <SampleAdmissibility sample={sample} />
+
+      {['Analysis', 'Completed'].includes(sample.status) && (
+        <div
+          className={clsx(
+            cx(
+              'fr-callout',
+              sample.status === 'Completed'
+                ? 'fr-callout--green-emeraude'
+                : 'fr-callout--pink-tuile'
+            ),
+            'sample-callout',
+            'fr-mt-5w'
           )}
-          <hr />
-          {step === 1 && (
-            <AnalysisReportStep
-              sampleId={sample.id}
-              partialAnalysis={partialAnalysis}
-            />
+        >
+          {sample.status === 'Analysis' && (
+            <SampleDraftAnalysis sample={sample} />
           )}
-          {step === 2 && (
-            <AnalysisResiduesStep
-              partialAnalysis={partialAnalysis as PartialAnalysis}
-            />
+          {sample.status === 'Completed' && (
+            <SampleAnalysisOverview sample={sample} />
           )}
-          {step === 3 && (
-            <AnalysisComplianceStep
-              partialAnalysis={partialAnalysis as PartialAnalysis}
-            />
-          )}
-        </>
-      ) : (
-        <AnalysisOverview analysis={partialAnalysis as Analysis} />
+        </div>
       )}
     </div>
   );

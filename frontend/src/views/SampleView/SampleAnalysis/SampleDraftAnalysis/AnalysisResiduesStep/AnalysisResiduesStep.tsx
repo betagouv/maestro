@@ -15,7 +15,7 @@ import {
   SimpleResidueList,
 } from 'shared/referential/Residue/SimpleResidue';
 import { SimpleResidueLabels } from 'shared/referential/Residue/SimpleResidueLabels';
-import { PartialAnalysis } from 'shared/schema/Analysis/Analysis';
+import { Analysis, PartialAnalysis } from 'shared/schema/Analysis/Analysis';
 import {
   AnalysisKind,
   AnalysisKindLabels,
@@ -37,17 +37,19 @@ import {
   ResultKindLabels,
   ResultKindList,
 } from 'shared/schema/Analysis/Residue/ResultKind';
-import { isDefined } from 'shared/utils/utils';
+import { isDefinedAndNotNull } from 'shared/utils/utils';
+import ResidueResultAlert from 'src/components/ResidueResultAlert/ResidueResultAlert';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useForm } from 'src/hooks/useForm';
 import { useUpdateAnalysisMutation } from 'src/services/analysis.service';
-import check from '../../../../assets/illustrations/check.svg';
-import close from '../../../../assets/illustrations/close.svg';
-import warning from '../../../../assets/illustrations/warning.svg';
-import '../SampleAnalysis.scss';
+import { undefined } from 'zod';
+import check from '../../../../../assets/illustrations/check.svg';
+import close from '../../../../../assets/illustrations/close.svg';
+import warning from '../../../../../assets/illustrations/warning.svg';
+import '../SampleDraftAnalysis.scss';
 
 interface Props {
   partialAnalysis: PartialAnalysis;
@@ -62,7 +64,7 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
   );
   const [residues, setResidues] = useState(partialAnalysis.residues ?? []);
 
-  const Form = PartialAnalysis.pick({
+  const Form = Analysis.pick({
     kind: true,
     residues: true,
   });
@@ -112,6 +114,7 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
               {
                 analysisId: partialAnalysis.id,
                 residueNumber: 1,
+                kind: 'Simple',
               },
             ]);
           } else {
@@ -228,7 +231,7 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
                   </div>
                 </div>
                 <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-                  <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+                  <div className={cx('fr-col-12')}>
                     <AppSelect<FormShape>
                       value={residue.resultKind ?? ''}
                       options={selectOptionsFromList(ResultKindList, {
@@ -248,35 +251,70 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
                       inputPathFromKey={[residueIndex, 'resultKind']}
                       whenValid="Type de résultat correctement renseigné"
                       label="Type de résultat de l'analyse"
-                      hint="Blabla"
                       required
                     />
                   </div>
                   {residue.resultKind === 'Q' && (
-                    <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-                      <AppTextInput<FormShape>
-                        value={residue.result ?? ''}
-                        onChange={(e) =>
-                          changeResidue(
-                            { ...residue, result: Number(e.target.value) },
-                            residueIndex
-                          )
-                        }
-                        type="number"
-                        inputForm={form}
-                        inputKey="residues"
-                        inputPathFromKey={[residueIndex, 'result']}
-                        whenValid="Valeur correctement renseignée"
-                        label="Valeur numérique du résultat"
-                        hintText="En mg/kg"
-                        min={0}
-                        required
-                      />
-                    </div>
+                    <>
+                      <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+                        <AppTextInput<FormShape>
+                          value={residue.result ?? ''}
+                          onChange={(e) =>
+                            changeResidue(
+                              { ...residue, result: Number(e.target.value) },
+                              residueIndex
+                            )
+                          }
+                          type="number"
+                          inputForm={form}
+                          inputKey="residues"
+                          inputPathFromKey={[residueIndex, 'result']}
+                          whenValid="Valeur correctement renseignée"
+                          label="Valeur numérique du résultat"
+                          hintText="En mg/kg"
+                          min={0}
+                          required
+                        />
+                      </div>
+                      <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+                        <AppTextInput<FormShape>
+                          value={residue.lmr ?? ''}
+                          onChange={(e) =>
+                            changeResidue(
+                              { ...residue, lmr: Number(e.target.value) },
+                              residueIndex
+                            )
+                          }
+                          type="number"
+                          inputForm={form}
+                          inputKey="residues"
+                          inputPathFromKey={[residueIndex, 'lmr']}
+                          whenValid="Valeur correctement renseignée"
+                          label="Valeur de la LMR"
+                          hintText="En mg/kg"
+                          min={0}
+                          required
+                        />
+                      </div>
+                      {isDefinedAndNotNull(residue.result) &&
+                        isDefinedAndNotNull(residue.lmr) && (
+                          <div className={cx('fr-col-12')}>
+                            <ResidueResultAlert
+                              result={residue.result}
+                              lmr={residue.lmr}
+                            />
+                          </div>
+                        )}
+                    </>
                   )}
                 </div>
                 <hr />
-                <h6 className={cx('fr-mb-0')}>Interprétation du résultat</h6>
+                <h6 className={cx('fr-mb-0')}>
+                  <span
+                    className={cx('fr-icon-test-tube-line', 'fr-mr-1w')}
+                  ></span>
+                  Interprétation du résultat
+                </h6>
                 <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
                   <div className={cx('fr-col-12', 'fr-col-sm-6')}>
                     <AppSelect<FormShape>
@@ -489,7 +527,7 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
                     residues.length > 0
                       ? {
                           children: 'Ajouter un résidu',
-                          iconId: 'fr-icon-microscope-line',
+                          iconId: 'fr-icon-microscope-fill',
                           priority: 'secondary',
                           onClick: () =>
                             setResidues([
@@ -497,11 +535,12 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
                               {
                                 analysisId: partialAnalysis.id,
                                 residueNumber: residues.length + 1,
+                                kind: 'Simple',
                               },
                             ]),
                         }
                       : undefined,
-                  ].filter(isDefined) as any
+                  ].filter((_) => _ !== undefined) as any
                 }
               />
             </li>

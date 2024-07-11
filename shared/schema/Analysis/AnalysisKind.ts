@@ -11,6 +11,6 @@ export type AnalysisKind = z.infer<typeof AnalysisKind>;
 export const AnalysisKindList: AnalysisKind[] = AnalysisKind.options;
 
 export const AnalysisKindLabels: Record<AnalysisKind, string> = {
-  Mono: 'Mono-résidu',
-  Multi: 'Multi-résidus',
+  Mono: 'mono-résidu',
+  Multi: 'multi-résidus',
 };

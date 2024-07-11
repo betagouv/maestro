@@ -21,9 +21,7 @@ export const Residue = z.object({
   pollutionRisk: OptionalBoolean.optional().nullable(),
   notesOnPollutionRisk: z.string().optional().nullable(),
   compliance: ResidueCompliance,
-  analytes: z.array(Analyte).min(1, {
-    message: 'Veuillez renseigner au moins un analyte.',
-  }),
+  analytes: z.array(Analyte).optional().nullable(),
 });
 
 export const PartialResidue = Residue.partial().merge(
