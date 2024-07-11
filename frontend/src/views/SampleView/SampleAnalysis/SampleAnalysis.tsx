@@ -3,11 +3,12 @@ import Stepper from '@codegouvfr/react-dsfr/Stepper';
 import clsx from 'clsx';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { PartialAnalysis } from 'shared/schema/Analysis/Analysis';
+import { Analysis, PartialAnalysis } from 'shared/schema/Analysis/Analysis';
 import { AnalysisStatus } from 'shared/schema/Analysis/AnalysisStatus';
 import { Sample } from 'shared/schema/Sample/Sample';
 import { useGetSampleAnalysisQuery } from 'src/services/analysis.service';
 import AnalysisComplianceStep from 'src/views/SampleView/SampleAnalysis/AnalysisComplianceStep/AnalysisComplianceStep';
+import AnalysisOverview from 'src/views/SampleView/SampleAnalysis/AnalysisOverview/AnalysisOverview';
 import AnalysisReportStep from 'src/views/SampleView/SampleAnalysis/AnalysisReportStep/AnalysisReportStep';
 import AnalysisResiduesStep from 'src/views/SampleView/SampleAnalysis/AnalysisResiduesStep/AnalysisResiduesStep';
 
@@ -61,7 +62,6 @@ const SampleAnalysis = ({ sample }: Props) => {
       {sample.status !== 'Completed' ? (
         <>
           <h4 className={cx('fr-mb-0')}>
-            <div className={cx('fr-label--error', 'fr-text--sm')}>ETAPE 2</div>
             Saisie des résultats d’analyse
             <div className={cx('fr-text--md', 'fr-text--regular')}>
               Renseignez les résultats du rapport d’analyse
@@ -95,10 +95,7 @@ const SampleAnalysis = ({ sample }: Props) => {
           )}
         </>
       ) : (
-        <div>
-          <h4>Résulats enregistrés</h4>
-          <div>TODO: Afficher les résultats de l'analyse</div>
-        </div>
+        <AnalysisOverview analysis={partialAnalysis as Analysis} />
       )}
     </div>
   );

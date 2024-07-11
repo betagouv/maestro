@@ -95,6 +95,10 @@
   border: 1px solid #e5e5e5;
   background-color: #fff;
 
+  .fr-btn--tertiary-no-outline:hover {
+    background-color: var(--grey-975-75) !important;
+  }
+
   &.fr-callout {
     button.fr-btn--secondary:hover,
     button.fr-btn--tertiary:hover,

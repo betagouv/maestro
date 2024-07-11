@@ -42,6 +42,9 @@ const ConfirmationModal = ({
         {
           children: 'Annuler',
           priority: 'secondary',
+          onClick: (e) => {
+            e.preventDefault();
+          },
         },
         {
           children: confirmLabel ?? 'Confirmer',

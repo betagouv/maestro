@@ -8,7 +8,7 @@ export function useForm<
   T extends ZodRawShape,
   U extends Record<keyof T, unknown>
 >(
-  schema: ZodObject<T> | ZodEffects<ZodObject<any>>,
+  schema: ZodObject<T> | ZodEffects<any>,
   input: U,
   onInputChange?: () => Promise<void>
 ) {

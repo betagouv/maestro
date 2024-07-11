@@ -1,16 +1,14 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { skipToken } from '@reduxjs/toolkit/query';
 import clsx from 'clsx';
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { PartialAnalysis } from 'shared/schema/Analysis/Analysis';
-import { Document } from 'shared/schema/Document/Document';
 import { FileInput } from 'shared/schema/File/FileInput';
 import { FileType } from 'shared/schema/File/FileType';
+import DocumentLink from 'src/components/DocumentLink/DocumentLink';
 import AppUpload from 'src/components/_app/AppUpload/AppUpload';
-import { useDocument } from 'src/hooks/useDocument';
 import { useForm } from 'src/hooks/useForm';
 import {
   useCreateAnalysisMutation,
@@ -19,7 +17,6 @@ import {
 import {
   useCreateDocumentMutation,
   useDeleteDocumentMutation,
-  useGetDocumentQuery,
 } from 'src/services/document.service';
 import { z } from 'zod';
 
@@ -40,11 +37,6 @@ const AnalysisReportStep = ({ sampleId, partialAnalysis }: Props) => {
   const [deleteDocument] = useDeleteDocumentMutation();
   const [createAnalysis] = useCreateAnalysisMutation();
   const [updateAnalysis] = useUpdateAnalysisMutation();
-  const { data: reportDocument } = useGetDocumentQuery(
-    partialAnalysis?.reportDocumentId ?? skipToken
-  );
-
-  const { openDocument } = useDocument();
 
   const [fileInput, setFileInput] = useState<File | undefined>();
   const [hasReportDocument, setHasReportDocument] = useState(
@@ -82,24 +74,26 @@ const AnalysisReportStep = ({ sampleId, partialAnalysis }: Props) => {
     e.preventDefault();
     await form.validate(async () => {
       form.reset();
-      const document = hasReportDocument
-        ? (reportDocument as Document)
+      const reportDocumentId = hasReportDocument
+        ? (partialAnalysis?.reportDocumentId as string)
         : await createDocument({
             file: fileInput as File,
             kind: 'AnalysisReportDocument',
-          }).unwrap();
+          })
+            .unwrap()
+            .then((document) => document.id);
       if (!partialAnalysis) {
         await createAnalysis({
           sampleId,
-          reportDocumentId: document.id,
+          reportDocumentId,
         });
       } else {
-        if (partialAnalysis.reportDocumentId !== document.id) {
+        if (partialAnalysis.reportDocumentId !== reportDocumentId) {
           await deleteDocument(partialAnalysis.reportDocumentId);
         }
         await updateAnalysis({
           ...partialAnalysis,
-          reportDocumentId: document.id,
+          reportDocumentId,
           status: 'Residues',
         });
       }
@@ -114,33 +108,20 @@ const AnalysisReportStep = ({ sampleId, partialAnalysis }: Props) => {
       {hasReportDocument ? (
         <>
           <div className={cx('fr-label')}>Ajouter le rapport d'analyse</div>
-          {reportDocument && (
-            <div>
-              <Link
-                onClick={(e) => {
-                  e.preventDefault();
-                  openDocument(reportDocument?.id);
-                }}
-                to="#"
-              >
-                {reportDocument?.filename}
-                <span
-                  className={cx('fr-icon-download-line', 'fr-ml-1w')}
-                ></span>
-              </Link>
-              <Button
-                title="Supprimer"
-                iconId="fr-icon-delete-line"
-                priority="tertiary"
-                size="small"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setHasReportDocument(false);
-                }}
-                className={clsx(cx('fr-mt-0'), 'float-right')}
-              />
-            </div>
-          )}
+          <div>
+            <DocumentLink documentId={partialAnalysis?.reportDocumentId} />
+            <Button
+              title="Supprimer"
+              iconId="fr-icon-delete-line"
+              priority="tertiary"
+              size="small"
+              onClick={(e) => {
+                e.preventDefault();
+                setHasReportDocument(false);
+              }}
+              className={clsx(cx('fr-mt-0'), 'float-right')}
+            />
+          </div>
         </>
       ) : (
         <AppUpload<FormShape>

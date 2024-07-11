@@ -1,96 +1,22 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
-import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { createModal } from '@codegouvfr/react-dsfr/Modal';
-import clsx from 'clsx';
-import { format, parse } from 'date-fns';
-import { default as fr } from 'date-fns/locale/fr';
-import React, { useMemo, useState } from 'react';
 import { Sample } from 'shared/schema/Sample/Sample';
-import { isAdmissibleStatus } from 'shared/schema/Sample/SampleStatus';
-import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
-import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
-import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
-import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
-import { useForm } from 'src/hooks/useForm';
 import { useGetLaboratoryQuery } from 'src/services/laboratory.service';
 import { useUpdateSampleMutation } from 'src/services/sample.service';
+import SampleAdmissibility from 'src/views/SampleView/SampleAdmissibility/SampleAdmissibility';
 import SampleAnalysis from 'src/views/SampleView/SampleAnalysis/SampleAnalysis';
-import z from 'zod';
-import check from '../../../assets/illustrations/check.svg';
-import warning from '../../../assets/illustrations/warning.svg';
 
 interface Props {
   sample: Sample;
 }
 const SampleMonitoringTab = ({ sample }: Props) => {
-  const [updateSample] = useUpdateSampleMutation();
   const [, { isSuccess: isSendingSuccess }] = useUpdateSampleMutation({
     fixedCacheKey: `sending-sample-${sample.id}`,
   });
   const { data: laboratory } = useGetLaboratoryQuery(sample.laboratoryId, {
     skip: !isSendingSuccess,
   });
-
-  const [receivedAt, setReceivedAt] = useState(
-    format(sample.receivedAt ?? new Date(), 'yyyy-MM-dd')
-  );
-  const [isAdmissible, setIsAdmissible] = useState<boolean | null>(
-    isAdmissibleStatus(sample.status) ?? null
-  );
-  const [notesOnAdmissibility, setNotesOnAdmissibility] = useState(
-    sample.notesOnAdmissibility
-  );
-
-  const Form = Sample.pick({
-    receivedAt: true,
-    notesOnAdmissibility: true,
-  }).merge(
-    z.object({
-      isAdmissible: z.boolean({
-        message: 'Veuillez renseigner la recevabilité du prélèvement.',
-      }),
-    })
-  );
-
-  const nonAdmissibleConfirmationModal = useMemo(
-    () =>
-      createModal({
-        id: `non-admissible-confirmation-modal-${sample.id}`,
-        isOpenedByDefault: false,
-      }),
-    [sample.id]
-  );
-
-  const form = useForm(Form, {
-    receivedAt,
-    isAdmissible,
-    notesOnAdmissibility,
-  });
-
-  type FormShape = typeof Form.shape;
-
-  const submit = async (e: React.MouseEvent<HTMLElement>) => {
-    e.preventDefault();
-    await form.validate(async () => {
-      if (isAdmissible === false) {
-        nonAdmissibleConfirmationModal.open();
-      } else {
-        await save();
-      }
-    });
-  };
-
-  const save = async () => {
-    await updateSample({
-      ...sample,
-      receivedAt: parse(receivedAt, 'yyyy-MM-dd', new Date()),
-      status: isAdmissible ? 'Analysis' : 'NotAdmissible',
-      notesOnAdmissibility,
-    });
-    form.reset();
-  };
 
   return (
     <div>
@@ -106,7 +32,7 @@ const SampleMonitoringTab = ({ sample }: Props) => {
         <div>
           <h3>
             <div className="sample-status">
-              <div>Statut du prélèvement</div>
+              <div>Suivi du prélèvement</div>
               <div>
                 <SampleStatusBadge status={sample.status} />
               </div>
@@ -117,149 +43,8 @@ const SampleMonitoringTab = ({ sample }: Props) => {
           </h3>
         </div>
       </div>
-      <form
-        className={clsx(
-          cx(
-            'fr-callout',
-            sample.receivedAt
-              ? 'fr-callout--green-emeraude'
-              : 'fr-callout--pink-tuile'
-          ),
-          'sample-callout'
-        )}
-      >
-        {sample.status === 'Analysis' && sample.receivedAt !== undefined ? (
-          <div>
-            <h4>
-              Prélèvement reçu par le laboratoire le{' '}
-              {format(sample.receivedAt as Date, 'dd MMMM yyyy', {
-                locale: fr,
-              })}
-            </h4>
-            <div>
-              <span
-                className={cx(
-                  'fr-icon-success-fill',
-                  'fr-label--success',
-                  'fr-mr-1w'
-                )}
-              />
-              Échantillon recevable
-            </div>
-          </div>
-        ) : (
-          <>
-            <h4 className={cx('fr-mb-0')}>
-              <div
-                className={cx(
-                  sample.receivedAt ? 'fr-label--success' : 'fr-label--error',
-                  'fr-text--sm'
-                )}
-              >
-                ETAPE 1
-              </div>
-              Accusé de réception
-              <div className={cx('fr-text--md', 'fr-text--regular')}>
-                Complétez les champs suivant à réception de la notification par
-                le laboratoire
-              </div>
-            </h4>
-            <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-              <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-                <AppTextInput<FormShape>
-                  type="date"
-                  defaultValue={receivedAt}
-                  onChange={(e) => setReceivedAt(e.target.value)}
-                  inputForm={form}
-                  inputKey="receivedAt"
-                  whenValid="Date de notification correctement renseignée."
-                  label="Date de notification"
-                  hintText="Format attendu › JJ/MM/AAAA"
-                  disabled={sample.receivedAt !== undefined}
-                  required
-                />
-              </div>
-            </div>
-            <AppRadioButtons<FormShape>
-              legend="Échantillon"
-              options={[
-                {
-                  label: 'Recevable',
-                  nativeInputProps: {
-                    checked: isAdmissible === true,
-                    onChange: () => setIsAdmissible(true),
-                  },
-                  illustration: <img src={check} alt="" aria-hidden />,
-                },
-                {
-                  label: 'Non recevable',
-                  nativeInputProps: {
-                    checked: isAdmissible === false,
-                    onChange: () => {
-                      setIsAdmissible(false);
-                      setNotesOnAdmissibility('');
-                    },
-                  },
-                  illustration: <img src={warning} alt="" aria-hidden />,
-                },
-              ]}
-              colSm={6}
-              inputForm={form}
-              inputKey="isAdmissible"
-              whenValid="Recevabilité correctement renseignée."
-              disabled={sample.receivedAt !== undefined}
-              required
-            />
-            {isAdmissible === false && (
-              <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-                <div className={cx('fr-col-12')}>
-                  <AppTextAreaInput<FormShape>
-                    rows={1}
-                    defaultValue={notesOnAdmissibility ?? ''}
-                    onChange={(e) => setNotesOnAdmissibility(e.target.value)}
-                    inputForm={form}
-                    inputKey="notesOnAdmissibility"
-                    whenValid="Motif de non-recevabilité correctement renseigné."
-                    data-testid="notes-input"
-                    label="Motif de non-recevabilité"
-                    hintText="Champ facultatif pour précisions supplémentaires"
-                  />
-                </div>
-              </div>
-            )}
-            {sample.status === 'Sent' && (
-              <Button
-                type="submit"
-                iconId="fr-icon-arrow-down-line"
-                iconPosition="right"
-                className="fr-m-0"
-                onClick={submit}
-              >
-                Confirmer
-              </Button>
-            )}
-            {sample.status === 'NotAdmissible' && (
-              <Button
-                type="button"
-                className="fr-m-0"
-                onClick={save}
-                priority="secondary"
-              >
-                Mettre à jour
-              </Button>
-            )}
-          </>
-        )}
-      </form>
-      <SampleAnalysis sample={sample} />
-      <ConfirmationModal
-        modal={nonAdmissibleConfirmationModal}
-        title="Confirmez que l’échantillon est non-recevable"
-        onConfirm={save}
-      >
-        La notification du laboratoire vous informe que l’échantillon reçu est
-        non-recevable pour l’analyse.
-      </ConfirmationModal>
+      <SampleAdmissibility sample={sample} />
+      {sample.status === 'Analysis' && <SampleAnalysis sample={sample} />}
     </div>
   );
 };
