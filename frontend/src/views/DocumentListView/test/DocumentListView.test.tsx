@@ -36,7 +36,9 @@ describe('DocumentListView', () => {
   });
 
   test('should render the document list view', async () => {
-    const document = genDocument(nationalCoordinator.id);
+    const document = genDocument({
+      createdBy: nationalCoordinator.id,
+    });
     mockRequests([
       {
         pathname: `/api/documents/resources`,
