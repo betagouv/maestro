@@ -17,14 +17,15 @@ import { tokenProvider } from '../../test/testUtils';
 describe('Document router', () => {
   const { app } = createServer();
 
-  const analysisDocument = {
-    ...genDocument(Sampler1Fixture.id),
+  const analysisDocument = genDocument({
+    createdBy: Sampler1Fixture.id,
     kind: 'AnalysisReportDocument' as DocumentKind,
-  };
-  const resourceDocument = {
-    ...genDocument(NationalCoordinator.id),
+  });
+
+  const resourceDocument = genDocument({
+    createdBy: NationalCoordinator.id,
     kind: 'Resource' as DocumentKind,
-  };
+  });
 
   beforeAll(async () => {
     await db.seed.run();

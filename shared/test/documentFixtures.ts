@@ -10,10 +10,11 @@ export const genDocumentToCreate = (): DocumentToCreate => ({
   kind: oneOf(DocumentKindList),
 });
 
-export const genDocument = (userId: string): Document => ({
+export const genDocument = (data?: Partial<Document>): Document => ({
   id: uuidv4(),
   filename: randomstring.generate(),
   createdAt: new Date(),
-  createdBy: userId,
+  createdBy: uuidv4(),
   kind: oneOf(DocumentKindList),
+  ...data,
 });

@@ -50,8 +50,14 @@ describe('Analysis router', () => {
     ),
     department: oneOf(Regions[Region1Fixture].departments),
   };
-  const document1 = genDocument(Sampler1Fixture.id);
-  const document2 = genDocument(Sampler1Fixture.id);
+  const document1 = genDocument({
+    createdBy: Sampler1Fixture.id,
+    kind: 'AnalysisReportDocument',
+  });
+  const document2 = genDocument({
+    createdBy: Sampler1Fixture.id,
+    kind: 'AnalysisReportDocument',
+  });
   const analysisWithoutResidue = genPartialAnalysis({
     sampleId: sample1.id,
     reportDocumentId: document1.id,
