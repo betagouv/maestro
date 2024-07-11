@@ -190,6 +190,7 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
                               { ...residue, kind: value as ResidueKind },
                               residueIndex
                             ),
+                          disabled: value === 'Complexe',
                         },
                       }))}
                       colSm={6}

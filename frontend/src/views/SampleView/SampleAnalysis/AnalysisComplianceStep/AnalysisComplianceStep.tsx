@@ -39,7 +39,7 @@ const AnalysisComplianceStep = ({ partialAnalysis }: Props) => {
         notesOnCompliance,
         status: 'Completed',
       });
-      navigate(`/prelevements/${partialAnalysis.sampleId}/analyse?etape=4`, {
+      navigate(`/prelevements/${partialAnalysis.sampleId}`, {
         replace: true,
       });
     });

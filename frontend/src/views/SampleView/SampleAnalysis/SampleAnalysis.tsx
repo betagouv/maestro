@@ -31,7 +31,6 @@ const SampleAnalysis = ({ sample }: Props) => {
     Report: 1,
     Residues: 2,
     Compliance: 3,
-    Completed: 4,
   };
 
   useEffect(() => {
@@ -49,46 +48,56 @@ const SampleAnalysis = ({ sample }: Props) => {
   return (
     <div
       className={clsx(
-        cx('fr-callout', 'fr-callout--pink-tuile', 'fr-mt-5w'),
-        'sample-callout'
+        cx(
+          'fr-callout',
+          sample.status === 'Completed'
+            ? 'fr-callout--green-emeraude'
+            : 'fr-callout--pink-tuile'
+        ),
+        'sample-callout',
+        'fr-mt-5w'
       )}
     >
-      <h4 className={cx('fr-mb-0')}>
-        <div className={cx('fr-label--error', 'fr-text--sm')}>ETAPE 2</div>
-        Saisie des résultats d’analyse
-        <div className={cx('fr-text--md', 'fr-text--regular')}>
-          Renseignez les résultats du rapport d’analyse
-        </div>
-      </h4>
-      {step && (
-        <Stepper
-          currentStep={step}
-          nextTitle={AnalysisStepTitles[step]}
-          stepCount={3}
-          title={AnalysisStepTitles[step - 1]}
-          className={cx('fr-mb-0')}
-        />
-      )}
-      <hr />
-      {step === 1 && (
-        <AnalysisReportStep
-          sampleId={sample.id}
-          partialAnalysis={partialAnalysis}
-        />
-      )}
-      {step === 2 && (
-        <AnalysisResiduesStep
-          partialAnalysis={partialAnalysis as PartialAnalysis}
-        />
-      )}
-      {step === 3 && (
-        <AnalysisComplianceStep
-          partialAnalysis={partialAnalysis as PartialAnalysis}
-        />
-      )}
-      {step === 4 && (
+      {sample.status !== 'Completed' ? (
+        <>
+          <h4 className={cx('fr-mb-0')}>
+            <div className={cx('fr-label--error', 'fr-text--sm')}>ETAPE 2</div>
+            Saisie des résultats d’analyse
+            <div className={cx('fr-text--md', 'fr-text--regular')}>
+              Renseignez les résultats du rapport d’analyse
+            </div>
+          </h4>
+          {step && (
+            <Stepper
+              currentStep={step}
+              nextTitle={AnalysisStepTitles[step]}
+              stepCount={3}
+              title={AnalysisStepTitles[step - 1]}
+              className={cx('fr-mb-0')}
+            />
+          )}
+          <hr />
+          {step === 1 && (
+            <AnalysisReportStep
+              sampleId={sample.id}
+              partialAnalysis={partialAnalysis}
+            />
+          )}
+          {step === 2 && (
+            <AnalysisResiduesStep
+              partialAnalysis={partialAnalysis as PartialAnalysis}
+            />
+          )}
+          {step === 3 && (
+            <AnalysisComplianceStep
+              partialAnalysis={partialAnalysis as PartialAnalysis}
+            />
+          )}
+        </>
+      ) : (
         <div>
           <h4>Résulats enregistrés</h4>
+          <div>TODO: Afficher les résultats de l'analyse</div>
         </div>
       )}
     </div>

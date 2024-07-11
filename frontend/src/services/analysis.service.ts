@@ -41,6 +41,7 @@ export const analysisApi = api.injectEndpoints({
         PartialAnalysis.parse(fp.omitBy(response, fp.isNil)),
       invalidatesTags: (_result, _error, draft) => [
         { type: 'SampleAnalysis', id: draft.sampleId },
+        { type: 'Sample' as const, id: draft.sampleId },
       ],
     }),
   }),
