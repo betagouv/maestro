@@ -35,11 +35,13 @@ export const Sample = z.object({
   createdAt: z.coerce.date(),
   sampler: Sampler,
   lastUpdatedAt: z.coerce.date(),
-  sampledAt: z.coerce.date({
-    errorMap: () => ({
-      message: 'La date de prélèvement est invalide.',
-    }),
-  }),
+  sampledAt: z.union([z.string(), z.date()]).pipe(
+    z.coerce.date({
+      errorMap: () => ({
+        message: 'La date de prélèvement est invalide.',
+      }),
+    })
+  ),
   sentAt: z.coerce.date().optional().nullable(),
   receivedAt: z.coerce.date().optional().nullable(),
   status: SampleStatus,

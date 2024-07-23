@@ -212,7 +212,7 @@ const CreationStep = ({ partialSample }: Props) => {
           <AppTextInput<FormShape>
             type="datetime-local"
             defaultValue={sampledAt}
-            onChange={(e) => setSampledAt(e.target.value)}
+            onChange={(e) => setSampledAt(e.target.value.replace('T', ' '))}
             inputForm={form}
             inputKey="sampledAt"
             whenValid="Date et heure de prélèvement correctement renseignés."
