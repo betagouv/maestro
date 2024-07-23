@@ -308,6 +308,11 @@ describe('Sample router', () => {
       await badRequestTest({ ...genSampleToCreate(), department: '123' });
       await badRequestTest({ ...genSampleToCreate(), department: '' });
       await badRequestTest({ ...genSampleToCreate(), department: 123 });
+      await badRequestTest({
+        ...genSampleToCreate(),
+        sampledAt: 'invalid date',
+      });
+      await badRequestTest({ ...genSampleToCreate(), sampledAt: null });
     });
 
     it('should fail if the user does not have the permission to create samples', async () => {
