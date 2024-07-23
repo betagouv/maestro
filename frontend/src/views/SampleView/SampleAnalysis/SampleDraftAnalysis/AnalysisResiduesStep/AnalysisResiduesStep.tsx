@@ -494,7 +494,7 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
       )}
       <hr />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={clsx(cx('fr-col-12'), 'sample-actions')}>
+        <div className={cx('fr-col-12')}>
           <ul
             className={cx(
               'fr-btns-group',
@@ -507,23 +507,34 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
               <ButtonsGroup
                 alignment="left"
                 inlineLayoutWhen="md and up"
+                buttons={[
+                  {
+                    priority: 'tertiary',
+                    onClick: async (e: React.MouseEvent<HTMLElement>) => {
+                      e.preventDefault();
+                      await updateAnalysis({
+                        ...partialAnalysis,
+                        status: 'Report',
+                      });
+                      navigate(
+                        `/prelevements/${partialAnalysis.sampleId}?etape=1`,
+                        {
+                          replace: true,
+                        }
+                      );
+                    },
+                    title: 'Retour',
+                    iconId: 'fr-icon-arrow-left-line',
+                  },
+                ]}
+              />
+            </li>
+            <li>
+              <ButtonsGroup
+                alignment="left"
+                inlineLayoutWhen="md and up"
                 buttons={
                   [
-                    {
-                      priority: 'tertiary',
-                      onClick: async (e: React.MouseEvent<HTMLElement>) => {
-                        e.preventDefault();
-                        //TODO await onSave();
-                        navigate(
-                          `/prelevements/${partialAnalysis.sampleId}?etape=1`,
-                          {
-                            replace: true,
-                          }
-                        );
-                      },
-                      title: 'Retour',
-                      iconId: 'fr-icon-arrow-left-line',
-                    },
                     residues.length > 0
                       ? {
                           children: 'Ajouter un résidu',
@@ -540,16 +551,14 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
                             ]),
                         }
                       : undefined,
+                    {
+                      children: 'Continuer',
+                      onClick: submit,
+                      iconId: 'fr-icon-arrow-right-line',
+                      iconPosition: 'right',
+                    },
                   ].filter((_) => _ !== undefined) as any
                 }
-              />
-            </li>
-            <li>
-              <Button
-                children="Continuer"
-                onClick={submit}
-                iconId="fr-icon-arrow-right-line"
-                iconPosition="right"
               />
             </li>
           </ul>

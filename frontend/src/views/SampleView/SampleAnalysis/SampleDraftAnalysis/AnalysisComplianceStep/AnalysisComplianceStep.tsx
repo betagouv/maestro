@@ -92,28 +92,34 @@ const AnalysisComplianceStep = ({ partialAnalysis }: Props) => {
         />
       </div>
       <hr />
-      <ButtonsGroup
-        inlineLayoutWhen="sm and up"
-        buttons={[
-          {
-            priority: 'tertiary',
-            onClick: async (e) => {
-              e.preventDefault();
-              //TODO await onSave();
-              navigate(`/prelevements/${partialAnalysis.sampleId}?etape=2`, {
-                replace: true,
-              });
+      <div className={cx('fr-col-12')}>
+        <ButtonsGroup
+          inlineLayoutWhen="sm and up"
+          alignment="between"
+          buttons={[
+            {
+              priority: 'tertiary',
+              onClick: async (e) => {
+                e.preventDefault();
+                await updateAnalysis({
+                  ...partialAnalysis,
+                  status: 'Residues',
+                });
+                navigate(`/prelevements/${partialAnalysis.sampleId}?etape=2`, {
+                  replace: true,
+                });
+              },
+              title: 'Retour',
+              iconId: 'fr-icon-arrow-left-line',
             },
-            title: 'Retour',
-            iconId: 'fr-icon-arrow-left-line',
-          },
-          {
-            children: 'Enregistrer le résultat',
-            iconId: 'fr-icon-save-line',
-            onClick: submit,
-          },
-        ]}
-      />
+            {
+              children: 'Enregistrer le résultat',
+              iconId: 'fr-icon-save-line',
+              onClick: submit,
+            },
+          ]}
+        />
+      </div>
     </div>
   );
 };

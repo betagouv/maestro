@@ -26,7 +26,9 @@ const DocumentLink = ({ documentId }: Props) => {
       to="#"
     >
       {document.filename}
-      <span className={cx('fr-icon-download-line', 'fr-ml-1w')}></span>
+      <span
+        className={cx('fr-icon-download-line', 'fr-ml-1w', 'fr-icon--sm')}
+      ></span>
     </Link>
   );
 };

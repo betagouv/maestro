@@ -1,3 +1,4 @@
+import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
@@ -29,7 +30,9 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
     <>
       <div>
         <h6>
-          <span className={cx('fr-icon-newspaper-line', 'fr-mr-1w')}></span>
+          <span
+            className={clsx(cx('fr-icon-newspaper-line'), 'analysis-icon')}
+          ></span>
           Document du rapport d’analyse
         </h6>
         <div className={cx('fr-pl-4w')}>
@@ -38,23 +41,23 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
       </div>
       <hr />
       <div>
-        <h6>
+        <h5>
           {t('residue', { count: analysis.residues?.length || 0 })}
           {pluralize(analysis.residues?.length || 0)(' identifié')}
-        </h6>
+        </h5>
         Analyse {AnalysisKindLabels[analysis.kind]}
       </div>
       {analysis.residues?.map((residue, residueIndex) => (
         <div key={`residue-${residueIndex}`}>
-          <div className={clsx(cx('fr-mb-2w'), 'd-flex-align-center')}>
-            <span className={cx('fr-icon-microscope-line', 'fr-mr-1w')}></span>
-            <span className={cx('fr-text--xl', 'fr-text--bold')}>
-              Résidu n°{residueIndex + 1}
-            </span>
-            <Tag className={cx('fr-ml-1w')}>
+          <h6 className={clsx(cx('fr-mb-2w'), 'd-flex-align-center')}>
+            <span
+              className={clsx(cx('fr-icon-microscope-line'), 'analysis-icon')}
+            ></span>
+            <span>Résidu n°{residueIndex + 1}</span>
+            <Tag className={cx('fr-ml-1w', 'fr-text--regular')}>
               {ResidueKindLabels[residue.kind]}
             </Tag>
-          </div>
+          </h6>
           <div className={clsx(cx('fr-pl-4w'), 'step-summary')}>
             {SimpleResidueLabels[residue.reference]}
             {residue.resultKind === 'Q' && (
@@ -97,15 +100,56 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
               <b>{OptionalBooleanLabels[residue.substanceAuthorised]}</b>
             </div>
             {residue.pollutionRisk && (
-              <div className="d-flex-align-center">
-                Pollution environnementale probable
-                <div className="border-middle"></div>
-                <b>{OptionalBooleanLabels[residue.pollutionRisk]}</b>
-              </div>
+              <>
+                <div className="d-flex-align-center">
+                  Pollution environnementale probable
+                  <div className="border-middle"></div>
+                  <b>{OptionalBooleanLabels[residue.pollutionRisk]}</b>
+                </div>
+                {residue.pollutionRisk === 'true' && (
+                  <Alert
+                    severity="warning"
+                    small
+                    description="Alerte risque consommateur"
+                  />
+                )}
+              </>
             )}
             {residue.notesOnPollutionRisk && (
               <div className="analysis-note">
                 <i>“ {residue.notesOnPollutionRisk} “</i>
+              </div>
+            )}
+            {residue.compliance === 'Compliant' && (
+              <div>
+                <span
+                  className={cx(
+                    'fr-icon-check-line',
+                    'fr-label--success',
+                    'fr-mr-1w'
+                  )}
+                />
+                Résidu <b>conforme</b>
+              </div>
+            )}
+            {residue.compliance === 'NonCompliant' && (
+              <div>
+                <span
+                  className={cx(
+                    'fr-icon-close-line',
+                    'fr-label--error',
+                    'fr-mr-1w'
+                  )}
+                />
+                Résidu <b>non conforme</b>
+              </div>
+            )}
+            {residue.compliance === 'Other' && (
+              <div>
+                <span
+                  className={clsx(cx('fr-icon-alert-line'), 'analysis-icon')}
+                />
+                Conformité du résidu <b>autre</b>
               </div>
             )}
           </div>
@@ -114,7 +158,9 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
       <hr />
       <div>
         <div className={clsx(cx('fr-mb-2w'), 'd-flex-align-center')}>
-          <span className={cx('fr-icon-survey-line', 'fr-mr-1w')}></span>
+          <span
+            className={clsx(cx('fr-icon-survey-line'), 'analysis-icon')}
+          ></span>
           <span className={cx('fr-text--xl', 'fr-text--bold')}>
             Conformité globale de l'échantillon
           </span>
@@ -146,7 +192,9 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
           {analysis.notesOnCompliance && (
             <>
               <div>
-                <span className={cx('fr-icon-quote-line', 'fr-mr-1w')} />
+                <span
+                  className={clsx(cx('fr-icon-quote-line'), 'analysis-icon')}
+                ></span>
                 Note additionnelle
               </div>
               <div className={cx('fr-pl-4w')}>

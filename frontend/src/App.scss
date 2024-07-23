@@ -170,3 +170,25 @@ h6,
   margin-right: 1rem;
   flex-grow: 1;
 }
+
+.fr-btns-group {
+  @media (max-width: $breakpoint-md) {
+    display: flex;
+    flex-direction: column-reverse;
+  }
+
+  .fr-btns-group {
+    margin-left: 0;
+    margin-right: 0;
+
+    @media (max-width: $breakpoint-md) {
+      flex-direction: column;
+      margin-left: 0;
+      margin-right: 0;
+    }
+  }
+
+  .fr-btn[class*='fr-icon-']:not([class*='fr-btn--icon-']) {
+    padding-right: 0.5rem !important;
+  }
+}
