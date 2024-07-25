@@ -39,6 +39,7 @@ const RemoveDocument = ({
           await onRemoveDocument(document);
         }}
         confirmLabel="Supprimer"
+        closeOnConfirm
       >
         Êtes-vous sûr de vouloir supprimer ce document ?
       </ConfirmationModal>

@@ -20,17 +20,17 @@ interface Props {
   sample: Sample;
 }
 
+export const AnalysisStatusSteps: Partial<Record<AnalysisStatus, number>> = {
+  Report: 1,
+  Residues: 2,
+  Compliance: 3,
+};
+
 const SampleDraftAnalysis = ({ sample }: Props) => {
   const { data: partialAnalysis } = useGetSampleAnalysisQuery(sample.id);
 
   const [searchParams] = useSearchParams();
   const [step, setStep] = useState<number>();
-
-  const AnalysisStatusSteps: Partial<Record<AnalysisStatus, number>> = {
-    Report: 1,
-    Residues: 2,
-    Compliance: 3,
-  };
 
   useEffect(() => {
     if (partialAnalysis) {

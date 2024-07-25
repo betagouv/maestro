@@ -165,7 +165,7 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
                             residues.filter((_, i) => i !== residueIndex)
                           );
                         }}
-                        className={clsx(cx('fr-mt-0'), 'float-right')}
+                        className={cx('fr-mt-0')}
                       />
                     </>
                   )}

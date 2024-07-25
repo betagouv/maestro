@@ -15,9 +15,10 @@ interface Props {
     id: string;
   };
   title: ReactNode;
-  children: ReactNode;
+  children?: ReactNode;
   confirmLabel?: string;
   onConfirm: () => Promise<void>;
+  closeOnConfirm?: boolean;
 }
 
 const ConfirmationModal = ({
@@ -26,11 +27,14 @@ const ConfirmationModal = ({
   children,
   confirmLabel,
   onConfirm,
+  closeOnConfirm,
 }: Props) => {
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     await onConfirm();
-    modal.close();
+    if (closeOnConfirm) {
+      modal.close();
+    }
   };
 
   return (

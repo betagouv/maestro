@@ -237,6 +237,7 @@ const SampleAdmissibility = ({ sample }: Props) => {
             modal={nonAdmissibleConfirmationModal}
             title="Confirmez que l’échantillon est non-recevable"
             onConfirm={save}
+            closeOnConfirm
           >
             La notification du laboratoire vous informe que l’échantillon reçu
             est non-recevable pour l’analyse.
