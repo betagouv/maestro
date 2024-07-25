@@ -35,6 +35,9 @@ describe('Substance Router', () => {
   });
 
   afterAll(async () => {
+    await SubstanceAnalysisTable()
+      .delete()
+      .where('substance_code', substance.code);
     await Substances().delete().where('code', substance.code);
   });
 
