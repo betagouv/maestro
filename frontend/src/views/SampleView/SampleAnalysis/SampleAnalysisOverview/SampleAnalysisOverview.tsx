@@ -7,7 +7,6 @@ import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
 import { t } from 'i18next';
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { OptionalBooleanLabels } from 'shared/referential/OptionnalBoolean';
 import { AnalyteLabels } from 'shared/referential/Residue/AnalyteLabels';
 import { ComplexResidue } from 'shared/referential/Residue/ComplexResidue';
@@ -33,7 +32,6 @@ interface Props {
 }
 
 const SampleAnalysisOverview = ({ sample }: Props) => {
-  const navigate = useNavigate();
   const { data } = useGetSampleAnalysisQuery(sample.id);
   const analysis = data as Analysis | undefined;
 
