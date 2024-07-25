@@ -106,9 +106,7 @@ describe('Analysis router', () => {
   });
 
   afterAll(async () => {
-    await Analysis()
-      .delete()
-      .where('id', 'in', [analysisWithoutResidue.id, analysisWithResidues.id]);
+    await Analysis().delete().where('sampleId', 'in', [sample1.id, sample2.id]);
     await Documents().delete().where('id', 'in', [document1.id, document2.id]);
     await Samples().delete().where('id', 'in', [sample1.id, sample2.id]);
   });
