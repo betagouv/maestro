@@ -3,7 +3,12 @@ import { ResultKindList } from '../../shared/schema/Analysis/Residue/ResultKind'
 
 exports.up = async (knex: Knex) => {
   await knex.schema.createTable('residue_analytes', (table) => {
-    table.uuid('analysis_id').references('id').inTable('analysis');
+    table
+      .uuid('analysis_id')
+      .references('id')
+      .inTable('analysis')
+      .onUpdate('CASCADE')
+      .onDelete('CASCADE');
     table.integer('residue_number').notNullable();
     table.integer('analyte_number').notNullable();
     table.string('reference');
