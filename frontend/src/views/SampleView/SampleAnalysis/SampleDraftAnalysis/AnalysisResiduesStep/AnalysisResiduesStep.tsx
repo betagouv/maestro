@@ -10,11 +10,6 @@ import {
   OptionalBooleanLabels,
   OptionalBooleanList,
 } from 'shared/referential/OptionnalBoolean';
-import {
-  SimpleResidue,
-  SimpleResidueList,
-} from 'shared/referential/Residue/SimpleResidue';
-import { SimpleResidueLabels } from 'shared/referential/Residue/SimpleResidueLabels';
 import { Analysis, PartialAnalysis } from 'shared/schema/Analysis/Analysis';
 import {
   AnalysisKind,
@@ -32,25 +27,19 @@ import {
   ResidueKindLabels,
   ResidueKindList,
 } from 'shared/schema/Analysis/Residue/ResidueKind';
-import {
-  ResultKind,
-  ResultKindLabels,
-  ResultKindList,
-} from 'shared/schema/Analysis/Residue/ResultKind';
-import { isDefinedAndNotNull } from 'shared/utils/utils';
-import ResidueResultAlert from 'src/components/ResidueResultAlert/ResidueResultAlert';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useForm } from 'src/hooks/useForm';
 import { useUpdateAnalysisMutation } from 'src/services/analysis.service';
+import ComplexResidueForm from 'src/views/SampleView/SampleAnalysis/SampleDraftAnalysis/AnalysisResiduesStep/ComplexResidueForm';
+import SimpleResidueForm from 'src/views/SampleView/SampleAnalysis/SampleDraftAnalysis/AnalysisResiduesStep/SimpleResidueForm';
 import { undefined } from 'zod';
 import check from '../../../../../assets/illustrations/check.svg';
 import close from '../../../../../assets/illustrations/close.svg';
 import warning from '../../../../../assets/illustrations/warning.svg';
 import '../SampleDraftAnalysis.scss';
-
 interface Props {
   partialAnalysis: PartialAnalysis;
 }
@@ -114,7 +103,6 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
               {
                 analysisId: partialAnalysis.id,
                 residueNumber: 1,
-                kind: 'Simple',
               },
             ]);
           } else {
@@ -151,9 +139,16 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
           </div>
           <hr />
           {residues?.map((residue, residueIndex) => (
-            <div key={residueIndex} className="residue-container">
-              <div className={cx('fr-icon-microscope-line')}></div>
-              <div className={clsx(cx('fr-container'), 'residue-form')}>
+            <div key={`residue-${residueIndex}`} className="residue-container">
+              <div
+                className={clsx(
+                  cx('fr-icon-microscope-line', 'fr-mr-1w'),
+                  'icon-grey'
+                )}
+              ></div>
+              <div
+                className={clsx(cx('fr-container', 'fr-px-0'), 'residue-form')}
+              >
                 <h5>
                   <div>Résidu n°{residueIndex + 1}</div>
                   {residueIndex > 0 && (
@@ -190,10 +185,23 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
                           checked: residue.kind === value,
                           onChange: () =>
                             changeResidue(
-                              { ...residue, kind: value as ResidueKind },
+                              {
+                                analysisId: residue.analysisId,
+                                residueNumber: residue.residueNumber,
+                                kind: value as ResidueKind,
+                                analytes:
+                                  value === 'Complex'
+                                    ? [
+                                        {
+                                          analysisId: partialAnalysis.id,
+                                          residueNumber: residueIndex + 1,
+                                          analyteNumber: 1,
+                                        },
+                                      ]
+                                    : null,
+                              },
                               residueIndex
                             ),
-                          disabled: value === 'Complexe',
                         },
                       }))}
                       colSm={6}
@@ -205,288 +213,224 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
                     />
                   </div>
                 </div>
-                <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-                  <div className={cx('fr-col-12')}>
-                    <AppSelect<FormShape>
-                      value={residue.reference ?? ''}
-                      options={selectOptionsFromList(SimpleResidueList, {
-                        labels: SimpleResidueLabels,
-                      })}
-                      onChange={(e) =>
-                        changeResidue(
-                          {
-                            ...residue,
-                            reference: e.target.value as SimpleResidue,
-                          },
-                          residueIndex
-                        )
-                      }
-                      inputForm={form}
-                      inputKey="residues"
-                      inputPathFromKey={[residueIndex, 'reference']}
-                      whenValid="Résidu correctement renseigné"
-                      label="Résidu selon définition"
-                      required
-                    />
-                  </div>
-                </div>
-                <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-                  <div className={cx('fr-col-12')}>
-                    <AppSelect<FormShape>
-                      value={residue.resultKind ?? ''}
-                      options={selectOptionsFromList(ResultKindList, {
-                        labels: ResultKindLabels,
-                      })}
-                      onChange={(e) =>
-                        changeResidue(
-                          {
-                            ...residue,
-                            resultKind: e.target.value as ResultKind,
-                          },
-                          residueIndex
-                        )
-                      }
-                      inputForm={form}
-                      inputKey="residues"
-                      inputPathFromKey={[residueIndex, 'resultKind']}
-                      whenValid="Type de résultat correctement renseigné"
-                      label="Type de résultat de l'analyse"
-                      required
-                    />
-                  </div>
-                  {residue.resultKind === 'Q' && (
-                    <>
-                      <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-                        <AppTextInput<FormShape>
-                          value={residue.result ?? ''}
-                          onChange={(e) =>
-                            changeResidue(
-                              { ...residue, result: Number(e.target.value) },
-                              residueIndex
-                            )
-                          }
-                          type="number"
-                          inputForm={form}
-                          inputKey="residues"
-                          inputPathFromKey={[residueIndex, 'result']}
-                          whenValid="Valeur correctement renseignée"
-                          label="Valeur numérique du résultat"
-                          hintText="En mg/kg"
-                          min={0}
-                          required
-                        />
-                      </div>
-                      <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-                        <AppTextInput<FormShape>
-                          value={residue.lmr ?? ''}
-                          onChange={(e) =>
-                            changeResidue(
-                              { ...residue, lmr: Number(e.target.value) },
-                              residueIndex
-                            )
-                          }
-                          type="number"
-                          inputForm={form}
-                          inputKey="residues"
-                          inputPathFromKey={[residueIndex, 'lmr']}
-                          whenValid="Valeur correctement renseignée"
-                          label="Valeur de la LMR"
-                          hintText="En mg/kg"
-                          min={0}
-                          required
-                        />
-                      </div>
-                      {isDefinedAndNotNull(residue.result) &&
-                        isDefinedAndNotNull(residue.lmr) && (
-                          <div className={cx('fr-col-12')}>
-                            <ResidueResultAlert
-                              result={residue.result}
-                              lmr={residue.lmr}
-                            />
-                          </div>
+                {residue.kind === 'Simple' && (
+                  <SimpleResidueForm<FormShape>
+                    form={form}
+                    residue={residue}
+                    residueIndex={residueIndex}
+                    changeResidue={changeResidue}
+                  />
+                )}
+                {residue.kind === 'Complex' && (
+                  <ComplexResidueForm<FormShape>
+                    form={form}
+                    residue={residue}
+                    residueIndex={residueIndex}
+                    changeResidue={changeResidue}
+                  />
+                )}
+                {residue.kind && (
+                  <>
+                    <hr />
+                    <h6 className={cx('fr-mb-0')}>
+                      <span
+                        className={clsx(
+                          cx('fr-icon-test-tube-line', 'fr-mr-1w'),
+                          'icon-grey'
                         )}
-                    </>
-                  )}
-                </div>
-                <hr />
-                <h6 className={cx('fr-mb-0')}>
-                  <span
-                    className={cx('fr-icon-test-tube-line', 'fr-mr-1w')}
-                  ></span>
-                  Interprétation du résultat
-                </h6>
-                <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-                  <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-                    <AppSelect<FormShape>
-                      value={residue.resultHigherThanArfd ?? ''}
-                      options={selectOptionsFromList(OptionalBooleanList, {
-                        labels: OptionalBooleanLabels,
-                      })}
-                      onChange={(e) =>
-                        changeResidue(
-                          {
-                            ...residue,
-                            resultHigherThanArfd: e.target
-                              .value as OptionalBoolean,
-                          },
-                          residueIndex
-                        )
-                      }
-                      inputForm={form}
-                      inputKey="residues"
-                      inputPathFromKey={[residueIndex, 'resultHigherThanArfd']}
-                      whenValid="Valeur correctement renseignée"
-                      label="Résultat brut supérieur à l'Arfd ?"
-                      required
-                    />
-                  </div>
-                  <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-                    <AppTextInput<FormShape>
-                      value={residue.notesOnResult ?? ''}
-                      onChange={(e) =>
-                        changeResidue(
-                          { ...residue, notesOnResult: e.target.value },
-                          residueIndex
-                        )
-                      }
-                      inputForm={form}
-                      inputKey="residues"
-                      inputPathFromKey={[residueIndex, 'notesOnResult']}
-                      whenValid="Note interne correctement renseignée"
-                      label="Note interne"
-                    />
-                  </div>
-                  <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-                    <AppSelect<FormShape>
-                      value={residue.substanceApproved ?? ''}
-                      options={selectOptionsFromList(OptionalBooleanList, {
-                        labels: OptionalBooleanLabels,
-                      })}
-                      onChange={(e) =>
-                        changeResidue(
-                          {
-                            ...residue,
-                            substanceApproved: e.target
-                              .value as OptionalBoolean,
-                          },
-                          residueIndex
-                        )
-                      }
-                      inputForm={form}
-                      inputKey="residues"
-                      inputPathFromKey={[residueIndex, 'substanceApproved']}
-                      whenValid="Valeur correctement renseignée"
-                      label="Substance approuvée dans l'UE"
-                      required
-                    />
-                  </div>
-                  <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-                    <AppSelect<FormShape>
-                      value={residue.substanceAuthorised ?? ''}
-                      options={selectOptionsFromList(OptionalBooleanList, {
-                        labels: OptionalBooleanLabels,
-                      })}
-                      onChange={(e) =>
-                        changeResidue(
-                          {
-                            ...residue,
-                            substanceAuthorised: e.target
-                              .value as OptionalBoolean,
-                          },
-                          residueIndex
-                        )
-                      }
-                      inputForm={form}
-                      inputKey="residues"
-                      inputPathFromKey={[residueIndex, 'substanceAuthorised']}
-                      whenValid="Valeur correctement renseignée"
-                      label="Substance autorisée pour l'usage"
-                      required
-                    />
-                  </div>
-                  <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-                    <AppSelect<FormShape>
-                      value={residue.pollutionRisk ?? ''}
-                      options={selectOptionsFromList(OptionalBooleanList, {
-                        labels: OptionalBooleanLabels,
-                      })}
-                      onChange={(e) =>
-                        changeResidue(
-                          {
-                            ...residue,
-                            pollutionRisk: e.target.value as OptionalBoolean,
-                          },
-                          residueIndex
-                        )
-                      }
-                      inputForm={form}
-                      inputKey="residues"
-                      inputPathFromKey={[residueIndex, 'pollutionRisk']}
-                      whenValid="Valeur correctement renseignée"
-                      label="Pollution environnementale probable"
-                    />
-                  </div>
-                  <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-                    <AppTextInput<FormShape>
-                      value={residue.notesOnPollutionRisk ?? ''}
-                      onChange={(e) =>
-                        changeResidue(
-                          { ...residue, notesOnPollutionRisk: e.target.value },
-                          residueIndex
-                        )
-                      }
-                      inputForm={form}
-                      inputKey="residues"
-                      inputPathFromKey={[residueIndex, 'notesOnPollutionRisk']}
-                      whenValid="Note interne correctement renseignée"
-                      label="Note interne"
-                    />
-                  </div>
-                </div>
-                <hr />
-                <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-                  <div className={cx('fr-col-12')}>
-                    <AppRadioButtons<FormShape>
-                      legend="Conformité pour le résidu"
-                      options={selectOptionsFromList(ResidueComplianceList, {
-                        labels: ResidueComplianceLabels,
-                        withDefault: false,
-                        withSort: false,
-                      }).map(({ label, value }) => ({
-                        key: `residueCompliance-option-${value}`,
-                        label,
-                        nativeInputProps: {
-                          checked: residue.compliance === value,
-                          onChange: () =>
+                      ></span>
+                      Interprétation du résultat
+                    </h6>
+                    <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+                      <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+                        <AppSelect<FormShape>
+                          value={residue.resultHigherThanArfd ?? ''}
+                          options={selectOptionsFromList(OptionalBooleanList, {
+                            labels: OptionalBooleanLabels,
+                          })}
+                          onChange={(e) =>
                             changeResidue(
                               {
                                 ...residue,
-                                compliance: value as ResidueCompliance,
+                                resultHigherThanArfd: e.target
+                                  .value as OptionalBoolean,
                               },
                               residueIndex
-                            ),
-                        },
-                        illustration: (
-                          <img
-                            src={
-                              ResidueComplianceIllustrations[
-                                value as ResidueCompliance
-                              ]
+                            )
+                          }
+                          inputForm={form}
+                          inputKey="residues"
+                          inputPathFromKey={[
+                            residueIndex,
+                            'resultHigherThanArfd',
+                          ]}
+                          whenValid="Valeur correctement renseignée"
+                          label="Résultat brut supérieur à l'Arfd ?"
+                          required
+                        />
+                      </div>
+                      <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+                        <AppTextInput<FormShape>
+                          value={residue.notesOnResult ?? ''}
+                          onChange={(e) =>
+                            changeResidue(
+                              { ...residue, notesOnResult: e.target.value },
+                              residueIndex
+                            )
+                          }
+                          inputForm={form}
+                          inputKey="residues"
+                          inputPathFromKey={[residueIndex, 'notesOnResult']}
+                          whenValid="Note interne correctement renseignée"
+                          label="Note interne"
+                        />
+                      </div>
+                      <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+                        <AppSelect<FormShape>
+                          value={residue.substanceApproved ?? ''}
+                          options={selectOptionsFromList(OptionalBooleanList, {
+                            labels: OptionalBooleanLabels,
+                          })}
+                          onChange={(e) =>
+                            changeResidue(
+                              {
+                                ...residue,
+                                substanceApproved: e.target
+                                  .value as OptionalBoolean,
+                              },
+                              residueIndex
+                            )
+                          }
+                          inputForm={form}
+                          inputKey="residues"
+                          inputPathFromKey={[residueIndex, 'substanceApproved']}
+                          whenValid="Valeur correctement renseignée"
+                          label="Substance approuvée dans l'UE"
+                          required
+                        />
+                      </div>
+                      <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+                        <AppSelect<FormShape>
+                          value={residue.substanceAuthorised ?? ''}
+                          options={selectOptionsFromList(OptionalBooleanList, {
+                            labels: OptionalBooleanLabels,
+                          })}
+                          onChange={(e) =>
+                            changeResidue(
+                              {
+                                ...residue,
+                                substanceAuthorised: e.target
+                                  .value as OptionalBoolean,
+                              },
+                              residueIndex
+                            )
+                          }
+                          inputForm={form}
+                          inputKey="residues"
+                          inputPathFromKey={[
+                            residueIndex,
+                            'substanceAuthorised',
+                          ]}
+                          whenValid="Valeur correctement renseignée"
+                          label="Substance autorisée pour l'usage"
+                          required
+                        />
+                      </div>
+                      <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+                        <AppSelect<FormShape>
+                          value={residue.pollutionRisk ?? ''}
+                          options={selectOptionsFromList(OptionalBooleanList, {
+                            labels: OptionalBooleanLabels,
+                          })}
+                          onChange={(e) =>
+                            changeResidue(
+                              {
+                                ...residue,
+                                pollutionRisk: e.target
+                                  .value as OptionalBoolean,
+                              },
+                              residueIndex
+                            )
+                          }
+                          inputForm={form}
+                          inputKey="residues"
+                          inputPathFromKey={[residueIndex, 'pollutionRisk']}
+                          whenValid="Valeur correctement renseignée"
+                          label="Pollution environnementale probable"
+                        />
+                      </div>
+                      <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+                        <AppTextInput<FormShape>
+                          value={residue.notesOnPollutionRisk ?? ''}
+                          onChange={(e) =>
+                            changeResidue(
+                              {
+                                ...residue,
+                                notesOnPollutionRisk: e.target.value,
+                              },
+                              residueIndex
+                            )
+                          }
+                          inputForm={form}
+                          inputKey="residues"
+                          inputPathFromKey={[
+                            residueIndex,
+                            'notesOnPollutionRisk',
+                          ]}
+                          whenValid="Note interne correctement renseignée"
+                          label="Note interne"
+                        />
+                      </div>
+                    </div>
+                    <hr />
+                    <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+                      <div className={cx('fr-col-12')}>
+                        <AppRadioButtons<FormShape>
+                          legend="Conformité pour le résidu"
+                          options={selectOptionsFromList(
+                            ResidueComplianceList,
+                            {
+                              labels: ResidueComplianceLabels,
+                              withDefault: false,
+                              withSort: false,
                             }
-                            alt=""
-                            aria-hidden
-                          />
-                        ),
-                      }))}
-                      colSm={6}
-                      inputForm={form}
-                      inputKey="residues"
-                      inputPathFromKey={[residueIndex, 'compliance']}
-                      whenValid="Conformité correctement renseignée"
-                      required
-                    />
-                  </div>
-                </div>
+                          ).map(({ label, value }) => ({
+                            key: `residueCompliance-option-${value}`,
+                            label,
+                            nativeInputProps: {
+                              checked: residue.compliance === value,
+                              onChange: () =>
+                                changeResidue(
+                                  {
+                                    ...residue,
+                                    compliance: value as ResidueCompliance,
+                                  },
+                                  residueIndex
+                                ),
+                            },
+                            illustration: (
+                              <img
+                                src={
+                                  ResidueComplianceIllustrations[
+                                    value as ResidueCompliance
+                                  ]
+                                }
+                                alt=""
+                                aria-hidden
+                              />
+                            ),
+                          }))}
+                          colSm={6}
+                          inputForm={form}
+                          inputKey="residues"
+                          inputPathFromKey={[residueIndex, 'compliance']}
+                          whenValid="Conformité correctement renseignée"
+                          required
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           ))}
@@ -546,7 +490,6 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
                               {
                                 analysisId: partialAnalysis.id,
                                 residueNumber: residues.length + 1,
-                                kind: 'Simple',
                               },
                             ]),
                         }

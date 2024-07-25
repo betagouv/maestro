@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { OptionalBoolean } from '../../../referential/OptionnalBoolean';
+import { ComplexResidue } from '../../../referential/Residue/ComplexResidue';
 import { SimpleResidue } from '../../../referential/Residue/SimpleResidue';
 import { Analyte, PartialAnalyte } from '../Analyte';
 import { ResidueCompliance } from './ResidueCompliance';
@@ -10,8 +11,12 @@ export const Residue = z.object({
   analysisId: z.string().uuid(),
   residueNumber: z.number().int().positive(),
   kind: ResidueKind,
-  reference: SimpleResidue,
-  resultKind: ResultKind,
+  reference: z.union([SimpleResidue, ComplexResidue], {
+    errorMap: () => ({
+      message: 'Veuillez renseigner le résidu.',
+    }),
+  }),
+  resultKind: ResultKind.optional().nullable(),
   result: z.number().min(0).optional().nullable(),
   lmr: z.number().optional().nullable(),
   resultHigherThanArfd: OptionalBoolean,

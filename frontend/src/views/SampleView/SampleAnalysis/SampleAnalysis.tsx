@@ -61,6 +61,7 @@ const SampleAnalysis = ({ sample }: Props) => {
                 : 'fr-callout--pink-tuile'
             ),
             'sample-callout',
+            'analysis-container',
             'fr-mt-5w'
           )}
         >

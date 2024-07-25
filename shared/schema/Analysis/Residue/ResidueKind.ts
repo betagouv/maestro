@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const ResidueKind = z.enum(['Simple', 'Complexe'], {
+export const ResidueKind = z.enum(['Simple', 'Complex'], {
   errorMap: () => ({
     message: 'Veuillez renseigner le type de résidu.',
   }),
@@ -12,5 +12,5 @@ export const ResidueKindList: ResidueKind[] = ResidueKind.options;
 
 export const ResidueKindLabels: Record<ResidueKind, string> = {
   Simple: 'Simple',
-  Complexe: 'Complexe',
+  Complex: 'Complexe',
 };

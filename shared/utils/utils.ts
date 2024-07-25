@@ -1,6 +1,5 @@
-import _ from 'lodash';
 import fp from 'lodash/fp';
-import { z } from 'zod';
+import { z, ZodObject } from 'zod';
 
 export const isDefined = <A>(a: A | undefined): a is A => a !== undefined;
 
@@ -19,10 +18,26 @@ export function coerceToArray<Schema extends z.ZodArray<z.ZodTypeAny>>(
     .pipe(schema);
 }
 
-export const convertKeysToCamelCase = (obj: any) => {
-  const transform = fp.mapKeys((key: string) => _.camelCase(key));
+export const convertKeysToCamelCase: any = (obj: any) => {
+  const transform = fp.mapKeys((key: string) => fp.camelCase(key));
   const deepTransform: any = fp.mapValues((value: any) =>
-    _.isPlainObject(value) ? convertKeysToCamelCase(value) : value
+    fp.isPlainObject(value)
+      ? convertKeysToCamelCase(value)
+      : fp.isArray(value)
+      ? value.map(convertKeysToCamelCase)
+      : value
   );
   return fp.flow(transform, deepTransform)(obj);
 };
+
+export function refineObject<T extends ZodObject<any>>(
+  schema: T,
+  refinement: (data: z.infer<T>) => boolean,
+  path: (string | number)[],
+  message: string
+): T {
+  return schema.refine(refinement, {
+    path,
+    message,
+  }) as unknown as T;
+}

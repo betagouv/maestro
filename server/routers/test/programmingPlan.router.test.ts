@@ -20,6 +20,12 @@ describe('ProgrammingPlan router', () => {
     await ProgrammingPlans().insert([programmingPlan1, programmingPlan2]);
   });
 
+  afterAll(async () => {
+    await ProgrammingPlans()
+      .delete()
+      .where('id', 'in', [programmingPlan1.id, programmingPlan2.id]);
+  });
+
   describe('GET /programming-plans/{programmingPlanId}', () => {
     const testRoute = (programmingPlanId: string) =>
       `/api/programming-plans/${programmingPlanId}`;

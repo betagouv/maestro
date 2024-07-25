@@ -2,12 +2,12 @@ import { Knex } from 'knex';
 import { ResultKindList } from '../../shared/schema/Analysis/Residue/ResultKind';
 
 exports.up = async (knex: Knex) => {
-  await knex.schema.createTable('residue_analyte', (table) => {
+  await knex.schema.createTable('residue_analytes', (table) => {
     table.uuid('analysis_id').references('id').inTable('analysis');
     table.integer('residue_number').notNullable();
     table.integer('analyte_number').notNullable();
-    table.string('analyte');
-    table.enum('kind', ResultKindList);
+    table.string('reference');
+    table.enum('result_kind', ResultKindList);
     table.double('result');
     table.primary(['analysis_id', 'residue_number', 'analyte_number']);
     table
@@ -20,5 +20,5 @@ exports.up = async (knex: Knex) => {
 };
 
 exports.down = async (knex: Knex) => {
-  await knex.schema.dropTable('residue_analyte');
+  await knex.schema.dropTable('residue_analytes');
 };

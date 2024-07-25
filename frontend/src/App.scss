@@ -169,6 +169,18 @@ h6,
   margin-left: 1rem;
   margin-right: 1rem;
   flex-grow: 1;
+
+  &:last-child {
+    margin-right: 0;
+  }
+}
+
+.fr-badge + .border-middle {
+  margin-top: 0;
+}
+
+.fr-btn--sm + .border-middle {
+  margin-top: 1rem;
 }
 
 .fr-btns-group {
@@ -191,4 +203,8 @@ h6,
   .fr-btn[class*='fr-icon-']:not([class*='fr-btn--icon-']) {
     padding-right: 0.5rem !important;
   }
+}
+
+.icon-grey {
+  color: var(--text-mention-grey);
 }

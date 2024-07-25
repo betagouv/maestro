@@ -18,6 +18,10 @@ describe('Laboratory router', () => {
     await Laboratories().insert(laboratory);
   });
 
+  afterAll(async () => {
+    await Laboratories().delete().where('id', laboratory.id);
+  });
+
   describe('GET /laboratories/:id', () => {
     const testRoute = (laboratoryId: string) =>
       `/api/laboratories/${laboratoryId}`;

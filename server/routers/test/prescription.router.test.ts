@@ -61,6 +61,22 @@ describe('Prescriptions router', () => {
     await Prescriptions().insert([...prescriptions1, ...prescriptions2]);
   });
 
+  afterAll(async () => {
+    await Prescriptions()
+      .delete()
+      .where('programmingPlanId', 'in', [
+        programmingPlanInProgress.id,
+        programmingPlanValidated.id,
+      ]);
+    await Laboratories().delete().where('id', laboratory.id);
+    await ProgrammingPlans()
+      .delete()
+      .where('id', 'in', [
+        programmingPlanInProgress.id,
+        programmingPlanValidated.id,
+      ]);
+  });
+
   describe('GET /programming-plans/{programmingPlanId}/prescriptions', () => {
     const testRoute = (programmingPlanId: string) =>
       `/api/programming-plans/${programmingPlanId}/prescriptions`;

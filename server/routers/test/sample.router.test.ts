@@ -89,6 +89,13 @@ describe('Sample router', () => {
     await SampleItems().insert(sampleItem1);
   });
 
+  afterAll(async () => {
+    await SampleItems().delete().where('sampleId', sample11.id);
+    await Samples()
+      .delete()
+      .where('id', 'in', [sample11.id, sample12.id, sample13.id, sample2.id]);
+  });
+
   describe('GET /samples/{sampleId}', () => {
     const testRoute = (sampleId: string) => `/api/samples/${sampleId}`;
 

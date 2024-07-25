@@ -32,6 +32,12 @@ describe('Document router', () => {
     await Documents().insert([analysisDocument, resourceDocument]);
   });
 
+  afterAll(async () => {
+    await Documents()
+      .delete()
+      .where('id', 'in', [analysisDocument.id, resourceDocument.id]);
+  });
+
   describe('GET /documents/resources', () => {
     const testRoute = '/api/documents/resources';
 

@@ -34,6 +34,10 @@ describe('Substance Router', () => {
     ]);
   });
 
+  afterAll(async () => {
+    await Substances().delete().where('id', substance.code);
+  });
+
   describe('GET /substances/analysis', () => {
     const testRoute = (params: Record<string, string>) =>
       `/api/substances/analysis?${new URLSearchParams(params)}`;

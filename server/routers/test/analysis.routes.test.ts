@@ -10,9 +10,12 @@ import {
 import { ProgrammingPlanFixture } from '../../../database/seeds/test/002-programming-plans';
 import { CompanyFixture } from '../../../database/seeds/test/003-companies';
 import { Regions } from '../../../shared/referential/Region';
+import { AnalyteList } from '../../../shared/referential/Residue/Analyte';
+import { PartialAnalyte } from '../../../shared/schema/Analysis/Analyte';
 import {
   genAnalysisToCreate,
   genPartialAnalysis,
+  genPartialAnalyte,
   genPartialResidue,
 } from '../../../shared/test/analysisFixtures';
 import { genDocument } from '../../../shared/test/documentFixtures';
@@ -21,6 +24,7 @@ import { oneOf } from '../../../shared/test/testFixtures';
 import {
   Analysis,
   AnalysisResidues,
+  ResidueAnalytes,
 } from '../../repositories/analysisRepository';
 import db from '../../repositories/db';
 import { Documents } from '../../repositories/documentRepository';
@@ -71,9 +75,21 @@ describe('Analysis router', () => {
   const residues = [
     genPartialResidue({
       analysisId: analysisWithResidues.id,
+      residueNumber: 1,
+      kind: 'Simple',
     }),
     genPartialResidue({
       analysisId: analysisWithResidues.id,
+      residueNumber: 2,
+      kind: 'Complex',
+    }),
+  ];
+  const complexResidueAnalytes = [
+    genPartialAnalyte({
+      analysisId: analysisWithResidues.id,
+      residueNumber: 2,
+      analyteNumber: 1,
+      reference: oneOf(AnalyteList),
     }),
   ];
 
@@ -86,6 +102,15 @@ describe('Analysis router', () => {
     await Documents().insert([document1, document2]);
     await Analysis().insert([analysisWithoutResidue, analysisWithResidues]);
     await AnalysisResidues().insert(residues);
+    await ResidueAnalytes().insert(complexResidueAnalytes);
+  });
+
+  afterAll(async () => {
+    await Analysis()
+      .delete()
+      .where('id', 'in', [analysisWithoutResidue.id, analysisWithResidues.id]);
+    await Documents().delete().where('id', 'in', [document1.id, document2.id]);
+    await Samples().delete().where('id', 'in', [sample1.id, sample2.id]);
   });
 
   describe('GET /analysis', () => {
@@ -138,15 +163,22 @@ describe('Analysis router', () => {
       });
     });
 
-    it('should get a analysis with residues', async () => {
+    it('should get an analysis with residues', async () => {
       const res = await request(app)
         .get(testRoute(analysisWithResidues.sampleId))
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toMatchObject({
+      expect(res.body).toEqual({
         ...analysisWithResidues,
         createdAt: analysisWithResidues.createdAt.toISOString(),
+        residues: [
+          residues[0],
+          {
+            ...residues[1],
+            analytes: complexResidueAnalytes,
+          },
+        ],
       });
     });
   });
@@ -325,6 +357,20 @@ describe('Analysis router', () => {
           genPartialResidue({
             analysisId: analysisWithoutResidue.id,
             residueNumber: 1,
+            kind: 'Simple',
+          }),
+          genPartialResidue({
+            analysisId: analysisWithoutResidue.id,
+            residueNumber: 2,
+            kind: 'Complex',
+            analytes: [
+              genPartialAnalyte({
+                analysisId: analysisWithoutResidue.id,
+                residueNumber: 2,
+                analyteNumber: 1,
+                reference: oneOf(AnalyteList),
+              }),
+            ],
           }),
         ],
       };
@@ -350,7 +396,18 @@ describe('Analysis router', () => {
         AnalysisResidues().where({
           analysisId: analysisWithoutResidue.id,
         })
-      ).resolves.toMatchObject(analysisUpdate.residues);
+      ).resolves.toMatchObject(
+        analysisUpdate.residues.map((_) => fp.omit(_, ['analytes']))
+      );
+
+      await expect(
+        ResidueAnalytes().where({
+          analysisId: analysisWithoutResidue.id,
+          residueNumber: 2,
+        })
+      ).resolves.toMatchObject(
+        analysisUpdate.residues[1].analytes as PartialAnalyte[]
+      );
     });
 
     it('should update a analysis with removing residues', async () => {

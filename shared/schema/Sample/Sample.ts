@@ -43,7 +43,17 @@ export const Sample = z.object({
     })
   ),
   sentAt: z.coerce.date().optional().nullable(),
-  receivedAt: z.coerce.date().optional().nullable(),
+  receivedAt: z
+    .union([z.string(), z.date()])
+    .pipe(
+      z.coerce.date({
+        errorMap: () => ({
+          message: 'La date de réception est invalide.',
+        }),
+      })
+    )
+    .optional()
+    .nullable(),
   status: SampleStatus,
   programmingPlanId: z
     .string()

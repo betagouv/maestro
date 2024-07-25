@@ -18,6 +18,10 @@ describe('User router', () => {
     await Users().insert(user2);
   });
 
+  afterAll(async () => {
+    await Users().delete().where('id', 'in', [user1.id, user2.id]);
+  });
+
   it('should fail if the user is not authenticated', async () => {
     await request(app)
       .get(`/api/users/${user1.id}/infos`)
