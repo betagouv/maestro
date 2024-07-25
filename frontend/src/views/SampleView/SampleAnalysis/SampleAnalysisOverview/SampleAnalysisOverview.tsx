@@ -131,9 +131,9 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
           <div className={clsx(cx('fr-pl-4w'), 'step-summary')}>
             {residue.kind === 'Simple' ? (
               <>
-                {SimpleResidueLabels[residue.reference as SimpleResidue]}
                 {residue.resultKind === 'Q' && (
                   <>
+                    {SimpleResidueLabels[residue.reference as SimpleResidue]}
                     <div className="d-flex-align-center">
                       Valeur du résultat
                       <div className="border-middle"></div>
@@ -150,7 +150,15 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
                     />
                   </>
                 )}
-                {residue.resultKind === 'NQ' && <b>Détecté, non quantifié</b>}
+                {residue.resultKind === 'NQ' && (
+                  <>
+                    <div className="d-flex-align-center">
+                      {SimpleResidueLabels[residue.reference as SimpleResidue]}
+                      <div className="border-middle"></div>
+                      <b>Détecté, non quantifié</b>
+                    </div>
+                  </>
+                )}
               </>
             ) : (
               <>
@@ -163,7 +171,11 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
                     <div className="d-flex-align-center">
                       {AnalyteLabels[analyte.reference]}
                       <div className="border-middle"></div>
-                      <b>{analyte.result} mg/kg</b>
+                      {analyte.resultKind === 'Q' ? (
+                        <b>{analyte.result} mg/kg</b>
+                      ) : (
+                        <b>Détecté, non quantifié</b>
+                      )}
                     </div>
                   </div>
                 ))}
