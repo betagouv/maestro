@@ -157,6 +157,7 @@ function ComplexResidueForm<T extends ZodRawShape>({
                         {
                           ...analyte,
                           resultKind: e.target.value as ResultKind,
+                          result: undefined,
                         },
                         analyteIndex
                       )

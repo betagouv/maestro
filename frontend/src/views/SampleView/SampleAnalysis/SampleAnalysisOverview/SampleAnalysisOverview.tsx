@@ -248,7 +248,7 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
                     'fr-mr-1w'
                   )}
                 />
-                Résidu <b>conforme</b>
+                <b>Conforme</b>
               </div>
             )}
             {residue.compliance === 'NonCompliant' && (
@@ -260,7 +260,7 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
                     'fr-mr-1w'
                   )}
                 />
-                Résidu <b>non conforme</b>
+                <b>Non conforme</b>
               </div>
             )}
             {residue.compliance === 'Other' && (

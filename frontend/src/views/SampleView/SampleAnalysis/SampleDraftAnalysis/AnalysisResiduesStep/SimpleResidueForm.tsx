@@ -71,6 +71,8 @@ function SimpleResidueForm<T extends ZodRawShape>({
                 {
                   ...residue,
                   resultKind: e.target.value as ResultKind,
+                  result: undefined,
+                  lmr: undefined,
                 },
                 residueIndex
               )

@@ -17,17 +17,16 @@ const ResidueResultAlert = ({ result, lmr }: Props) => {
         <Alert severity="success" small description="Résultat conforme" />
       ) : (
         <>
-          {result * 0.5 >= lmr ? (
+          <Alert
+            severity="error"
+            small
+            description="Résultat brut supérieur à la LMR"
+          />
+          {result * 0.5 >= lmr && (
             <Alert
               severity="warning"
               small
               description="Résultat  corrigé  supérieur à la LMR"
-            />
-          ) : (
-            <Alert
-              severity="error"
-              small
-              description="Résultat brut supérieur à la LMR"
             />
           )}
         </>
