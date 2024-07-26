@@ -49,7 +49,7 @@ const SampleGeolocation = ({ location, onLocationChange }: Props) => {
 
   return (
     <Map
-      attributionControl={false}
+      // attributionControl={false}
       id="sampleLocationMap"
       latitude={mapLatitude}
       longitude={mapLongitude}

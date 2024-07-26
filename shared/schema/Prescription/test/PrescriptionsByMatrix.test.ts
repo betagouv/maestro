@@ -1,4 +1,5 @@
-import { genPartialSample, genUser } from '../../../test/testFixtures';
+import { genPartialSample } from '../../../test/sampleFixtures';
+import { genUser } from '../../../test/testFixtures';
 import { PartialSample } from '../../Sample/Sample';
 import { Prescription } from '../Prescription';
 import {

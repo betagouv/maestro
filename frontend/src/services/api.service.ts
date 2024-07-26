@@ -16,6 +16,7 @@ export const api = createApi({
     'ProgrammingPlan',
     'Regions',
     'Sample',
+    'SampleAnalysis',
     'SampleCount',
     'SubstanceAnalysis',
     'UserInfos',

@@ -8,14 +8,13 @@ import { SampleStatus } from './SampleStatus';
 
 export const FindSampleOptions = z
   .object({
-    programmingPlanId: z.string().uuid().optional().nullable(),
-    region: Region.optional().nullable(),
-    department: Department.optional().nullable(),
+    programmingPlanId: z.string().uuid().nullish(),
+    region: Region.nullish(),
+    department: Department.nullish(),
     status: z
       .union([SampleStatus, coerceToArray(z.array(SampleStatus))])
-      .optional()
-      .nullable(),
-    matrix: Matrix.optional().nullable(),
+      .nullish(),
+    matrix: Matrix.nullish(),
   })
   .merge(Pagination.partial());
 

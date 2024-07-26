@@ -1,5 +1,4 @@
 import express from 'express';
-import { z } from 'zod';
 import { DocumentToCreate } from '../../shared/schema/Document/Document';
 import documentController from '../controllers/documentController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
@@ -9,22 +8,29 @@ const router = express.Router();
 
 router.post(
   '/upload-signed-url',
-  validator.validate(body(z.object({ filename: z.string() }))),
-  permissionsCheck(['createDocument']),
+  validator.validate(body(DocumentToCreate.omit({ id: true }))),
+  permissionsCheck(['createResource', 'createAnalysis']),
   documentController.getUploadSignedUrl
 );
 
 router.post(
   '',
   validator.validate(body(DocumentToCreate)),
-  permissionsCheck(['createDocument']),
+  permissionsCheck(['createResource', 'createAnalysis']),
   documentController.createDocument
 );
 
 router.get(
-  '',
+  '/resources',
   permissionsCheck(['readDocuments']),
-  documentController.findDocuments
+  documentController.findResources
+);
+
+router.get(
+  '/:documentId',
+  validator.validate(uuidParam('documentId')),
+  permissionsCheck(['readDocuments']),
+  documentController.getDocument
 );
 
 router.get(

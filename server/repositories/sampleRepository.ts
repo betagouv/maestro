@@ -20,7 +20,7 @@ const PartialSampleDbo = PartialSample.omit({
   sampler: true,
 }).merge(
   z.object({
-    companySiret: z.string().optional().nullable(),
+    companySiret: z.string().nullish(),
     geolocation: z.any(),
     sampledBy: z.string().uuid(),
   })
@@ -30,11 +30,11 @@ const PartialSampleJoinedDbo = PartialSampleDbo.merge(
   z.object({
     companySiret: z.string(),
     companyName: z.string(),
-    companyTradeName: z.string().optional().nullable(),
-    companyAddress: z.string().optional().nullable(),
-    companyPostalCode: z.string().optional().nullable(),
-    companyCity: z.string().optional().nullable(),
-    companyNafCode: z.string().optional().nullable(),
+    companyTradeName: z.string().nullish(),
+    companyAddress: z.string().nullish(),
+    companyPostalCode: z.string().nullish(),
+    companyCity: z.string().nullish(),
+    companyNafCode: z.string().nullish(),
     samplerId: z.string().uuid(),
     samplerFirstName: z.string(),
     samplerLastName: z.string(),

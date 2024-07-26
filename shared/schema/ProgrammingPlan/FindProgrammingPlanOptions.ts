@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { ProgrammingPlanStatus } from './ProgrammingPlanStatus';
 export const FindProgrammingPlanOptions = z.object({
-  status: ProgrammingPlanStatus.optional().nullable(),
+  status: ProgrammingPlanStatus.nullish(),
 });
 
 export type FindProgrammingPlanOptions = z.infer<

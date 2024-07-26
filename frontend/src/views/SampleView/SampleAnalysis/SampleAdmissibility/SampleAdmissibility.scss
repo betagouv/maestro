@@ -1,0 +1,14 @@
+.admissibility-result {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  .admissibility-notes {
+    display: flex;
+    align-items: center;
+
+    & > *:not(button) {
+      flex-grow: 1;
+    }
+  }
+}

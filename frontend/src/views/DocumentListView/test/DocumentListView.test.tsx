@@ -2,7 +2,8 @@ import { configureStore, Store } from '@reduxjs/toolkit';
 import { render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
-import { genAuthUser, genDocument, genUser } from 'shared/test/testFixtures';
+import { genDocument } from 'shared/test/documentFixtures';
+import { genAuthUser, genUser } from 'shared/test/testFixtures';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import DocumentListView from 'src/views/DocumentListView/DocumentListView';
 import { mockRequests } from '../../../../test/requestUtils.test';
@@ -35,10 +36,12 @@ describe('DocumentListView', () => {
   });
 
   test('should render the document list view', async () => {
-    const document = genDocument(nationalCoordinator.id);
+    const document = genDocument({
+      createdBy: nationalCoordinator.id,
+    });
     mockRequests([
       {
-        pathname: `/api/documents`,
+        pathname: `/api/documents/resources`,
         response: { body: JSON.stringify([document]) },
       },
     ]);

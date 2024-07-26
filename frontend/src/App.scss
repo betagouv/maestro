@@ -156,3 +156,59 @@ textarea.fr-input {
 .float-right {
   float: right;
 }
+
+.flex-grow-1 {
+  flex-grow: 1;
+}
+
+h6,
+.d-flex-align-center {
+  display: flex;
+  align-items: center;
+}
+
+.border-middle {
+  border-top: 1px solid #e0e0e0;
+  margin-top: 0.35rem;
+  margin-left: 1rem;
+  margin-right: 1rem;
+  flex-grow: 1;
+
+  &:last-child {
+    margin-right: 0;
+  }
+}
+
+.fr-badge + .border-middle {
+  margin-top: 0;
+}
+
+.fr-btn--sm + .border-middle {
+  margin-top: 1rem;
+}
+
+.fr-btns-group {
+  @media (max-width: $breakpoint-md) {
+    display: flex;
+    flex-direction: column-reverse;
+  }
+
+  .fr-btns-group {
+    margin-left: 0;
+    margin-right: 0;
+
+    @media (max-width: $breakpoint-md) {
+      flex-direction: column;
+      margin-left: 0;
+      margin-right: 0;
+    }
+  }
+
+  .fr-btn[class*='fr-icon-']:not([class*='fr-btn--icon-']) {
+    padding-right: 0.5rem !important;
+  }
+}
+
+.icon-grey {
+  color: var(--text-mention-grey);
+}

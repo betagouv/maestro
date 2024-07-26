@@ -9,16 +9,16 @@ import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import {
   useCreateDocumentMutation,
-  useFindDocumentsQuery,
+  useFindResourcesQuery,
 } from 'src/services/document.service';
 import AddDocument from 'src/views/DocumentListView/AddDocument';
 import DocumentTable from 'src/views/DocumentListView/DocumentTable';
 const DocumentListView = () => {
-  useDocumentTitle('Liste des documents ressources');
+  useDocumentTitle('Liste des resources ressources');
 
   const { hasPermission } = useAuthentication();
 
-  const { data: documents } = useFindDocumentsQuery();
+  const { data: resources } = useFindResourcesQuery();
   const [, { isSuccess: isCreateSuccess }] = useCreateDocumentMutation({
     fixedCacheKey: 'createDocument',
   });
@@ -31,7 +31,7 @@ const DocumentListView = () => {
             <Alert
               severity="success"
               small={true}
-              description="Document déposé avec succès."
+              description="Ressources déposée avec succès."
               closable
             />
           </div>
@@ -45,15 +45,15 @@ const DocumentListView = () => {
 
       <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
         <div className={cx('fr-mb-4w')}>
-          {t('document', { count: documents?.length || 0 })}
+          {t('document', { count: resources?.length || 0 })}
         </div>
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-7', 'fr-col-offset-1--right')}>
-            {documents && documents.length > 0 && (
-              <DocumentTable documents={documents} />
+            {resources && resources.length > 0 && (
+              <DocumentTable documents={resources} />
             )}
           </div>
-          {hasPermission('createDocument') && (
+          {hasPermission('createResource') && (
             <div className={cx('fr-col-4')}>
               <AddDocument key={`add-document-${isCreateSuccess}`} />
             </div>

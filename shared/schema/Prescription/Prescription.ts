@@ -10,7 +10,7 @@ export const Prescription = z.object({
   matrix: Matrix,
   stages: z.array(Stage),
   sampleCount: z.number(),
-  laboratoryId: z.string().optional().nullable(),
+  laboratoryId: z.string().nullish(),
 });
 
 export const PrescriptionToCreate = Prescription.pick({

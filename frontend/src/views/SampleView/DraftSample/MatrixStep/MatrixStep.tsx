@@ -52,6 +52,11 @@ const MatrixStep = ({ partialSample }: Props) => {
 
   const [updateSample] = useUpdateSampleMutation();
 
+  console.log(
+    'partialSample.programmingPlanId',
+    partialSample.programmingPlanId
+  );
+
   const { data: prescriptions } = useFindPrescriptionsQuery(
     { programmingPlanId: partialSample.programmingPlanId as string },
     {

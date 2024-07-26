@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { QuantityUnitList } from 'shared/referential/QuantityUnit';
 import { SampleStatus } from 'shared/schema/Sample/SampleStatus';
-import { genCreatedSample } from 'shared/test/testFixtures';
+import { genCreatedSample } from 'shared/test/sampleFixtures';
 import { store } from 'src/store/store';
 import config from 'src/utils/config';
 import ItemsStep from 'src/views/SampleView/DraftSample/ItemsStep/ItemsStep';

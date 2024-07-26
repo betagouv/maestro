@@ -36,6 +36,7 @@ const RemoveSample = ({ sample }: RemoveSampleProps) => {
           await deleteSample(sample.id);
         }}
         confirmLabel="Supprimer"
+        closeOnConfirm
       >
         Êtes-vous sûr de vouloir supprimer le prélèvement {sample.reference} ?
       </ConfirmationModal>

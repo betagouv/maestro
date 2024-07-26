@@ -40,30 +40,6 @@
     padding-right: 12.75rem;
     gap: 2.5rem;
   }
-
-  .sample-actions {
-    .fr-btns-group {
-      @media (max-width: $breakpoint-md) {
-        display: flex;
-        flex-direction: column-reverse;
-      }
-
-      .fr-btns-group {
-        margin-left: 0;
-        margin-right: 0;
-
-        .fr-btn[class*=' fr-icon-']:not([class*='fr-btn--icon-']) {
-          padding-right: 0.5rem;
-        }
-
-        @media (max-width: $breakpoint-md) {
-          flex-direction: column;
-          margin-left: 0;
-          margin-right: 0;
-        }
-      }
-    }
-  }
 }
 
 .sample-callout,
@@ -94,6 +70,10 @@
   gap: 1.5rem;
   border: 1px solid #e5e5e5;
   background-color: #fff;
+
+  .fr-btn--tertiary-no-outline:hover {
+    background-color: var(--grey-975-75) !important;
+  }
 
   &.fr-callout {
     button.fr-btn--secondary:hover,
@@ -131,6 +111,7 @@
 
   div:first-child {
     margin-right: 0.75rem;
+    color: var(--text-mention-grey);
   }
 }
 

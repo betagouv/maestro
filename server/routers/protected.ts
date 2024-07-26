@@ -1,6 +1,7 @@
 import express from 'express';
 import fs from 'fs';
 import { jwtCheck, userCheck } from '../middlewares/checks/authCheck';
+import analysisRouter from './analysis.router';
 import companyRouter from './company.router';
 import documentRouter from './document.router';
 import laboratoryRouter from './laboratory.router';
@@ -15,14 +16,15 @@ const router = express.Router();
 router.use(jwtCheck(true));
 router.use(userCheck(true));
 
-router.use('/users', userRouter);
-router.use('/samples', sampleRouter);
-router.use('/programming-plans', programmingPlanRouter);
-router.use('/programming-plans', prescriptionRouter);
+router.use('/analysis', analysisRouter);
+router.use('/companies', companyRouter);
 router.use('/documents', documentRouter);
 router.use('/laboratories', laboratoryRouter);
-router.use('/companies', companyRouter);
+router.use('/programming-plans', prescriptionRouter);
+router.use('/programming-plans', programmingPlanRouter);
+router.use('/samples', sampleRouter);
 router.use('/substances', substanceRouter);
+router.use('/users', userRouter);
 
 router.get('/regions.geojson', (req, res) => {
   res.setHeader('Content-Type', 'application/json');

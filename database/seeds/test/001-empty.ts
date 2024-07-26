@@ -1,1 +1,0 @@
-exports.seed = async function () {};

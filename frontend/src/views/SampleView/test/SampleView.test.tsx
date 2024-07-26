@@ -2,10 +2,9 @@ import { configureStore, Store } from '@reduxjs/toolkit';
 import { render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import Router, { BrowserRouter } from 'react-router-dom';
+import { genCreatedSample, genPartialSample } from 'shared/test/sampleFixtures';
 import {
   genAuthUser,
-  genCreatedSample,
-  genPartialSample,
   genPrescriptions,
   genProgrammingPlan,
   genUser,

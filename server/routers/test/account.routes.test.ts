@@ -20,6 +20,10 @@ describe('Account routes', () => {
     });
   });
 
+  afterAll(async () => {
+    await Users().delete().where('email', user.email);
+  });
+
   describe('POST /accounts/sign-in', () => {
     const testRoute = '/api/accounts/sign-in';
 
