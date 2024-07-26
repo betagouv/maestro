@@ -1,5 +1,6 @@
 const { CracoAliasPlugin } = require('react-app-alias-ex');
 const { CracoAliasPluginWrapper } = require('./test/CracoAliasPluginWrapper');
+const WorkboxWebpackPlugin = require('workbox-webpack-plugin');
 
 module.exports = {
   plugins: [
@@ -25,6 +26,16 @@ module.exports = {
         '<rootDir>/node_modules/(?!@codegouvfr)/.+\\.js$',
       ];
       return config;
+    },
+  },
+  webpack: {
+    plugins: {
+      add: [
+        new WorkboxWebpackPlugin.InjectManifest({
+          swSrc: './src/service-worker.js',
+          swDest: 'service-worker.js',
+        }),
+      ],
     },
   },
 };
