@@ -138,7 +138,7 @@ const SampleListView = () => {
         ...[
           (sample.matrix && MatrixLabels[sample.matrix]) ?? '',
           `${sample.sampler.firstName} ${sample.sampler.lastName}`,
-          format(sample.createdAt, 'dd/MM/yyyy'),
+          format(sample.sampledAt, 'dd/MM/yyyy'),
           sample.department,
           sample.company?.name ?? '',
           programmingPlans?.find((plan) => plan.id === sample.programmingPlanId)
