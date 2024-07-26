@@ -16,17 +16,17 @@ export const Residue = z.object({
       message: 'Veuillez renseigner le résidu.',
     }),
   }),
-  resultKind: ResultKind.optional().nullable(),
-  result: z.number().min(0).optional().nullable(),
-  lmr: z.number().optional().nullable(),
+  resultKind: ResultKind.nullish(),
+  result: z.number().min(0).nullish(),
+  lmr: z.number().nullish(),
   resultHigherThanArfd: OptionalBoolean,
-  notesOnResult: z.string().optional().nullable(),
+  notesOnResult: z.string().nullish(),
   substanceApproved: OptionalBoolean,
   substanceAuthorised: OptionalBoolean,
-  pollutionRisk: OptionalBoolean.optional().nullable(),
-  notesOnPollutionRisk: z.string().optional().nullable(),
+  pollutionRisk: OptionalBoolean.nullish(),
+  notesOnPollutionRisk: z.string().nullish(),
   compliance: ResidueCompliance,
-  analytes: z.array(Analyte).optional().nullable(),
+  analytes: z.array(Analyte).nullish(),
 });
 
 export const PartialResidue = Residue.partial().merge(
@@ -35,7 +35,7 @@ export const PartialResidue = Residue.partial().merge(
     residueNumber: true,
   }).merge(
     z.object({
-      analytes: z.array(PartialAnalyte).optional().nullable(),
+      analytes: z.array(PartialAnalyte).nullish(),
     })
   )
 );

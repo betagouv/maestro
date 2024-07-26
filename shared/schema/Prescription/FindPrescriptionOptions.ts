@@ -3,9 +3,9 @@ import { Region } from '../../referential/Region';
 import { Stage } from '../../referential/Stage';
 export const FindPrescriptionOptions = z.object({
   programmingPlanId: z.string().uuid(),
-  region: Region.optional().nullable(),
-  matrix: z.string().optional().nullable(),
-  stage: Stage.optional().nullable(),
+  region: Region.nullish(),
+  matrix: z.string().nullish(),
+  stage: Stage.nullish(),
 });
 
 export type FindPrescriptionOptions = z.infer<typeof FindPrescriptionOptions>;

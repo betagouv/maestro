@@ -5,11 +5,11 @@ export const Company = z.object(
   {
     siret: z.string(),
     name: z.string(),
-    tradeName: z.string().optional().nullable(),
-    address: z.string().optional().nullable(),
-    postalCode: z.string().optional().nullable(),
-    city: z.string().optional().nullable(),
-    nafCode: z.string().optional().nullable(),
+    tradeName: z.string().nullish(),
+    address: z.string().nullish(),
+    postalCode: z.string().nullish(),
+    city: z.string().nullish(),
+    nafCode: z.string().nullish(),
   },
   {
     errorMap: () => ({

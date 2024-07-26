@@ -31,7 +31,7 @@ export const Sample = z.object({
   id: z.string().uuid(),
   reference: z.string(),
   department: Department,
-  resytalId: z.string().optional().nullable(),
+  resytalId: z.string().nullish(),
   createdAt: z.coerce.date(),
   sampler: Sampler,
   lastUpdatedAt: z.coerce.date(),
@@ -42,7 +42,7 @@ export const Sample = z.object({
       }),
     })
   ),
-  sentAt: z.coerce.date().optional().nullable(),
+  sentAt: z.coerce.date().nullish(),
   receivedAt: z
     .union([z.string(), z.date()])
     .pipe(
@@ -52,33 +52,31 @@ export const Sample = z.object({
         }),
       })
     )
-    .optional()
-    .nullable(),
+    .nullish(),
   status: SampleStatus,
   programmingPlanId: z
     .string()
     .uuid({
       message: 'Veuillez renseigner le contexte.',
     })
-    .optional()
-    .nullable(),
+    .nullish(),
   legalContext: LegalContext,
   geolocation: Geolocation,
-  parcel: z.string().optional().nullable(),
+  parcel: z.string().nullish(),
   company: Company,
   matrix: Matrix,
-  matrixDetails: z.string().optional().nullable(),
+  matrixDetails: z.string().nullish(),
   matrixPart: MatrixPart,
   stage: Stage,
-  cultureKind: CultureKind.optional().nullable(),
-  releaseControl: z.boolean().optional().nullable(),
+  cultureKind: CultureKind.nullish(),
+  releaseControl: z.boolean().nullish(),
   items: z.array(SampleItem).min(1, {
     message: 'Veuillez renseigner au moins un échantillon.',
   }),
-  notesOnCreation: z.string().optional().nullable(),
-  notesOnMatrix: z.string().optional().nullable(),
-  notesOnItems: z.string().optional().nullable(),
-  notesOnAdmissibility: z.string().optional().nullable(),
+  notesOnCreation: z.string().nullish(),
+  notesOnMatrix: z.string().nullish(),
+  notesOnItems: z.string().nullish(),
+  notesOnAdmissibility: z.string().nullish(),
   laboratoryId: z.string().uuid(),
 });
 
@@ -109,7 +107,7 @@ export const PartialSample = Sample.partial()
   .merge(CreatedSample)
   .merge(
     z.object({
-      items: z.array(PartialSampleItem).optional().nullable(),
+      items: z.array(PartialSampleItem).nullish(),
     })
   );
 

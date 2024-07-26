@@ -61,7 +61,7 @@ const SampleAdmissibility = ({ sample }: Props) => {
         message:
           'Veuillez renseigner la notification de réception par le laboratoire.',
       }),
-      isAdmissible: z.boolean().optional().nullable(),
+      isAdmissible: z.boolean().nullish(),
     })
   );
 

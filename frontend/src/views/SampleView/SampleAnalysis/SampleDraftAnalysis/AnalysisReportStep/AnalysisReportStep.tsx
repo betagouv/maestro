@@ -51,7 +51,7 @@ const AnalysisReportStep = ({ sampleId, partialAnalysis }: Props) => {
 
   const Form = z.object({
     hasReportDocument: z.boolean(),
-    fileInput: FileInput(acceptFileTypes).optional().nullable(),
+    fileInput: FileInput(acceptFileTypes).nullish(),
   });
 
   const FormRefinement = Form.refine(

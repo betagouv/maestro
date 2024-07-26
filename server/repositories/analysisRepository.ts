@@ -19,7 +19,7 @@ const PartialAnalysisDbo = PartialAnalysis.omit({
 
 const PartialAnalysisJoinedDbo = PartialAnalysisDbo.merge(
   z.object({
-    residues: z.array(PartialResidue).optional().nullable(),
+    residues: z.array(PartialResidue).nullish(),
   })
 );
 

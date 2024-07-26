@@ -8,7 +8,7 @@ export const Analyte = z.object({
   analyteNumber: z.number().int().positive(),
   reference: AnalyteReference,
   resultKind: ResultKind,
-  result: z.number().min(0).optional().nullable(),
+  result: z.number().min(0).nullish(),
 });
 
 export const PartialAnalyte = Analyte.partial().merge(

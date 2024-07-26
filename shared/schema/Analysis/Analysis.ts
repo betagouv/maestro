@@ -15,7 +15,7 @@ export const Analysis = z.object({
   compliance: z.boolean({
     message: "Veuillez renseigner la conformité de l'échantillon.",
   }),
-  notesOnCompliance: z.string().optional().nullable(),
+  notesOnCompliance: z.string().nullish(),
 });
 
 export const AnalysisToCreate = Analysis.pick({
@@ -36,7 +36,7 @@ export const PartialAnalysis = Analysis.partial()
   .merge(CreatedAnalysis)
   .merge(
     z.object({
-      residues: z.array(PartialResidue).optional().nullable(),
+      residues: z.array(PartialResidue).nullish(),
     })
   );
 

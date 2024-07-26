@@ -11,19 +11,18 @@ export const SampleItem = z.object({
     })
     .nonnegative('La quantité doit être positive.'),
   quantityUnit: QuantityUnit,
-  compliance200263: z.boolean().optional().nullable(),
+  compliance200263: z.boolean().nullish(),
   sealId: z.string({
     required_error: 'Veuillez renseigner le numéro de scellé.',
   }),
-  supportDocumentId: z.string().uuid().optional().nullable(),
+  supportDocumentId: z.string().uuid().nullish(),
   recipientKind: SampleItemRecipientKind,
-  ownerFirstName: z.string().optional().nullable(),
-  ownerLastName: z.string().optional().nullable(),
+  ownerFirstName: z.string().nullish(),
+  ownerLastName: z.string().nullish(),
   ownerEmail: z
     .string()
     .email("L'adresse email du détenteur est invalide.")
-    .optional()
-    .nullable(),
+    .nullish(),
 });
 
 export const PartialSampleItem = SampleItem.partial().merge(
@@ -32,7 +31,7 @@ export const PartialSampleItem = SampleItem.partial().merge(
     itemNumber: true,
   }).merge(
     z.object({
-      ownerEmail: z.string().optional().nullable(),
+      ownerEmail: z.string().nullish(),
     })
   )
 );
