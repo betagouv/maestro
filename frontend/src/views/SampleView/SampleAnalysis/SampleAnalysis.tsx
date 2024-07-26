@@ -17,9 +17,9 @@ const SampleAnalysis = ({ sample }: Props) => {
   const [, { isSuccess: isSendingSuccess }] = useUpdateSampleMutation({
     fixedCacheKey: `sending-sample-${sample.id}`,
   });
-  const [, { isSuccess: isUpdatingAnalysisSuccess }] =
+  const [, { isSuccess: isCompletingAnalysisSuccess }] =
     useUpdateAnalysisMutation({
-      fixedCacheKey: `update-analysis-${sample.id}`,
+      fixedCacheKey: `complete-analysis-${sample.id}`,
     });
   const { data: laboratory } = useGetLaboratoryQuery(sample.laboratoryId, {
     skip: !isSendingSuccess,
@@ -35,7 +35,7 @@ const SampleAnalysis = ({ sample }: Props) => {
           className={cx('fr-mb-4w')}
         />
       )}
-      {isUpdatingAnalysisSuccess && (
+      {sample.status === 'Completed' && isCompletingAnalysisSuccess && (
         <Alert
           severity="info"
           small

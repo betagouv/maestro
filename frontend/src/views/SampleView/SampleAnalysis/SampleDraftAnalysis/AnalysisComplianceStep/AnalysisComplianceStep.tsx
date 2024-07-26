@@ -17,7 +17,7 @@ interface Props {
 const AnalysisComplianceStep = ({ partialAnalysis }: Props) => {
   const navigate = useNavigate();
   const [updateAnalysis] = useUpdateAnalysisMutation({
-    fixedCacheKey: `update-analysis-${partialAnalysis.sampleId}`,
+    fixedCacheKey: `complete-analysis-${partialAnalysis.sampleId}`,
   });
 
   const [compliance, setCompliance] = useState(partialAnalysis.compliance);
