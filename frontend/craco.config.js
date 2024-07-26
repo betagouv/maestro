@@ -33,7 +33,7 @@ module.exports = {
       add: [
         new WorkboxWebpackPlugin.InjectManifest({
           swSrc: './public/service-worker.js',
-          swDest: 'service-worker.js',
+          swDest: 'serviceWorker.js',
         }),
       ],
     },
