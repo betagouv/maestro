@@ -25,6 +25,7 @@ import {
   SampleStatusLabels,
   SampleStatusList,
 } from 'shared/schema/Sample/SampleStatus';
+import { isDefinedAndNotNull } from 'shared/utils/utils';
 import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
@@ -172,10 +173,6 @@ const SampleListView = () => {
       ]),
     [samples, programmingPlans] // eslint-disable-line react-hooks/exhaustive-deps
   );
-
-  if (!samples || samplesCount === undefined) {
-    return <></>;
-  }
 
   return (
     <section className={clsx(cx('fr-container'), 'main-section')}>
@@ -353,18 +350,19 @@ const SampleListView = () => {
               data={tableData}
               className={cx('fr-mb-2w')}
             />
-            {samplesCount > defaultPerPage && (
-              <Pagination
-                count={Math.floor(samplesCount / defaultPerPage) + 1}
-                defaultPage={Number(findSampleOptions.page) || 1}
-                getPageLinkProps={(page: number) => ({
-                  to: getURLQuery({
-                    ...findSampleOptions,
-                    page: page.toString(),
-                  }),
-                })}
-              />
-            )}
+            {isDefinedAndNotNull(samplesCount) &&
+              samplesCount > defaultPerPage && (
+                <Pagination
+                  count={Math.floor(samplesCount / defaultPerPage) + 1}
+                  defaultPage={Number(findSampleOptions.page) || 1}
+                  getPageLinkProps={(page: number) => ({
+                    to: getURLQuery({
+                      ...findSampleOptions,
+                      page: page.toString(),
+                    }),
+                  })}
+                />
+              )}
           </div>
         </div>
       </div>

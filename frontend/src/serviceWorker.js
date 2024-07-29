@@ -73,7 +73,7 @@ registerRoute(
     plugins: [
       new ExpirationPlugin({
         maxEntries: 50, // Limite le nombre d'éléments dans le cache
-        maxAgeSeconds: 5 * 60, // Cache pendant 5 minutes
+        maxAgeSeconds: 5 * 24 * 60 * 60, // Cache pendant 5 jours
       }),
       new CacheableResponsePlugin({
         statuses: [0, 200], // Met en cache uniquement les réponses réussies
