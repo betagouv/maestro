@@ -33,7 +33,7 @@ module.exports = {
       add: [
         new WorkboxWebpackPlugin.InjectManifest({
           swSrc: './src/serviceWorker.js',
-          swDest: 'serviceWorker.js',
+          swDest: 'service-worker.js',
           maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         }),
       ],
