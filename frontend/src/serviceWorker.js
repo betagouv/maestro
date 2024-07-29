@@ -12,7 +12,7 @@ import { clientsClaim } from 'workbox-core';
 import { ExpirationPlugin } from 'workbox-expiration';
 import { createHandlerBoundToURL, precacheAndRoute } from 'workbox-precaching';
 import { registerRoute } from 'workbox-routing';
-import { CacheFirst, StaleWhileRevalidate } from 'workbox-strategies';
+import { CacheFirst } from 'workbox-strategies';
 
 clientsClaim();
 
@@ -63,18 +63,6 @@ registerRoute(
         statuses: [0, 200], // Met en cache uniquement les réponses réussies
       }),
     ],
-  })
-);
-
-registerRoute(
-  ({ url }) => {
-    console.log('registerRoute', url);
-    return (
-      url.origin === self.location.origin && url.pathname.startsWith('/dsfr/')
-    );
-  },
-  new StaleWhileRevalidate({
-    cacheName: 'dsfr-cache',
   })
 );
 
