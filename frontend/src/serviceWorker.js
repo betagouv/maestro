@@ -63,9 +63,10 @@ registerRoute(
 );
 
 registerRoute(
-  ({ request }) => request.destination === 'style',
+  ({ url }) =>
+    url.origin === self.location.origin && url.pathname.startsWith('/dsfr/'),
   new StaleWhileRevalidate({
-    cacheName: 'css-cache',
+    cacheName: 'dsfr-cache',
   })
 );
 
