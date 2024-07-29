@@ -12,7 +12,7 @@ import { clientsClaim } from 'workbox-core';
 import { ExpirationPlugin } from 'workbox-expiration';
 import { createHandlerBoundToURL, precacheAndRoute } from 'workbox-precaching';
 import { registerRoute } from 'workbox-routing';
-import { CacheFirst } from 'workbox-strategies';
+import { CacheFirst, NetworkFirst } from 'workbox-strategies';
 
 clientsClaim();
 
@@ -58,6 +58,22 @@ registerRoute(
       new ExpirationPlugin({
         maxEntries: 50, // Limite le nombre d'éléments dans le cache
         maxAgeSeconds: 30 * 24 * 60 * 60, // Cache pendant 30 jours
+      }),
+      new CacheableResponsePlugin({
+        statuses: [0, 200], // Met en cache uniquement les réponses réussies
+      }),
+    ],
+  })
+);
+
+registerRoute(
+  ({ url }) => url.pathname.startsWith('/api/users/'),
+  new NetworkFirst({
+    cacheName: 'api-cache',
+    plugins: [
+      new ExpirationPlugin({
+        maxEntries: 50, // Limite le nombre d'éléments dans le cache
+        maxAgeSeconds: 5 * 60, // Cache pendant 5 minutes
       }),
       new CacheableResponsePlugin({
         statuses: [0, 200], // Met en cache uniquement les réponses réussies
