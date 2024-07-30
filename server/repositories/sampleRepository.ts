@@ -182,10 +182,12 @@ export const formatPartialSample = (
   partialSample: PartialSample
 ): PartialSampleDbo => ({
   ...fp.omit(partialSample, ['items', 'company', 'sampler']),
-  geolocation: db.raw('Point(?, ?)', [
-    partialSample.geolocation.x,
-    partialSample.geolocation.y,
-  ]),
+  geolocation: partialSample.geolocation
+    ? db.raw('Point(?, ?)', [
+        partialSample.geolocation.x,
+        partialSample.geolocation.y,
+      ])
+    : null,
   companySiret: partialSample.company?.siret,
   sampledBy: partialSample.sampler.id,
 });
@@ -196,7 +198,7 @@ export const parsePartialSample = (
   sample &&
   PartialSample.parse({
     ...fp.omit(fp.omitBy(sample, fp.isNil), ['companyId']),
-    geolocation: {
+    geolocation: sample.geolocation && {
       x: sample.geolocation.x,
       y: sample.geolocation.y,
     },

@@ -93,7 +93,9 @@ const SampleOverview = ({ sample }: Props) => {
           },
           {
             label: SampleStepTitles(sample)[0],
-            content: <CreationStepSummary sample={sample} showLabel={false} />,
+            content: (
+              <CreationStepSummary partialSample={sample} showLabel={false} />
+            ),
           },
           {
             label: SampleStepTitles(sample)[1],

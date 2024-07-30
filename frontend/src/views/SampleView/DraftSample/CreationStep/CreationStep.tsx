@@ -1,6 +1,7 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import { Skeleton } from '@mui/material';
 import clsx from 'clsx';
 import { format, parse } from 'date-fns';
 import React, { useEffect, useState } from 'react';
@@ -34,6 +35,7 @@ import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaIn
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
+import { useOnLine } from 'src/hooks/useOnLine';
 import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.service';
 import {
   useCreateSampleMutation,
@@ -50,6 +52,7 @@ interface Props {
 const CreationStep = ({ partialSample }: Props) => {
   const navigate = useNavigate();
   const { userInfos } = useAuthentication();
+  const { isOnline } = useOnLine();
 
   const OutsideProgrammingId = 'OutsideProgramming';
   const [resytalId, setResytalId] = useState(partialSample?.resytalId);
@@ -58,10 +61,10 @@ const CreationStep = ({ partialSample }: Props) => {
   );
   const [legalContext, setLegalContext] = useState(partialSample?.legalContext);
   const [geolocationX, setGeolocationX] = useState(
-    partialSample?.geolocation.x
+    partialSample?.geolocation?.x
   );
   const [geolocationY, setGeolocationY] = useState(
-    partialSample?.geolocation.y
+    partialSample?.geolocation?.y
   );
   const [isBrowserGeolocation, setIsBrowserGeolocation] = useState(false);
   const [sampledAt, setSampledAt] = useState(
@@ -71,6 +74,9 @@ const CreationStep = ({ partialSample }: Props) => {
   const [department, setDepartment] = useState(partialSample?.department);
   const [parcel, setParcel] = useState(partialSample?.parcel);
   const [company, setCompany] = useState(partialSample?.company);
+  const [companySearch, setCompanySearch] = useState(
+    partialSample?.companySearch
+  );
   const [notesOnCreation, setNotesOnCreation] = useState(
     partialSample?.notesOnCreation
   );
@@ -81,18 +87,28 @@ const CreationStep = ({ partialSample }: Props) => {
   const [createSample] = useCreateSampleMutation();
   const [updateSample] = useUpdateSampleMutation();
 
-  const Form = SampleToCreate.omit({ geolocation: true }).merge(
-    z.object({
-      geolocationX: z.number({
-        required_error: 'Veuillez renseigner la latitude.',
-        invalid_type_error: 'Latitude invalide.',
-      }),
-      geolocationY: z.number({
-        required_error: 'Veuillez renseigner la longitude.',
-        invalid_type_error: 'Longitude invalide.',
-      }),
-    })
-  );
+  const geolocation = z.object({
+    geolocationX: z.number({
+      required_error: 'Veuillez renseigner la latitude.',
+      invalid_type_error: 'Latitude invalide.',
+    }),
+    geolocationY: z.number({
+      required_error: 'Veuillez renseigner la longitude.',
+      invalid_type_error: 'Longitude invalide.',
+    }),
+  });
+
+  const Form = SampleToCreate.omit({ geolocation: true, company: true })
+    .merge(isOnline ? geolocation : geolocation.partial())
+    .extend(
+      isOnline
+        ? { company: Company }
+        : {
+            companySearch: z.string({
+              required_error: "Veuillez renseigner l'entité contrôlée.",
+            }),
+          }
+    );
 
   type FormShape = typeof Form.shape;
 
@@ -120,17 +136,21 @@ const CreationStep = ({ partialSample }: Props) => {
   const formData = {
     sampledAt: parse(sampledAt, 'yyyy-MM-dd HH:mm', new Date()),
     department: department as Department,
-    geolocation: {
-      x: geolocationX as number,
-      y: geolocationY as number,
-    },
+    geolocation:
+      geolocationX && geolocationY
+        ? {
+            x: geolocationX as number,
+            y: geolocationY as number,
+          }
+        : undefined,
     parcel,
     programmingPlanId:
       (programmingPlanId as string) === OutsideProgrammingId
         ? undefined
         : (programmingPlanId as string),
     legalContext: legalContext as LegalContext,
-    company: company as Company,
+    company,
+    companySearch,
     resytalId: resytalId as string,
     notesOnCreation,
   };
@@ -189,6 +209,7 @@ const CreationStep = ({ partialSample }: Props) => {
           : programmingPlanId,
       legalContext,
       company,
+      companySearch,
       resytalId,
       notesOnCreation,
     },
@@ -248,18 +269,22 @@ const CreationStep = ({ partialSample }: Props) => {
           </div>
         </div>
         <div className={cx('fr-col-12', 'fr-col-sm-8')}>
-          <SampleGeolocation
-            key={`geolocation-${isBrowserGeolocation}`}
-            location={
-              geolocationX && geolocationY
-                ? { x: geolocationX, y: geolocationY }
-                : undefined
-            }
-            onLocationChange={async (location) => {
-              setGeolocationX(location.x);
-              setGeolocationY(location.y);
-            }}
-          />
+          {isOnline ? (
+            <SampleGeolocation
+              key={`geolocation-${isBrowserGeolocation}`}
+              location={
+                geolocationX && geolocationY
+                  ? { x: geolocationX, y: geolocationY }
+                  : undefined
+              }
+              onLocationChange={async (location) => {
+                setGeolocationX(location.x);
+                setGeolocationY(location.y);
+              }}
+            />
+          ) : (
+            <Skeleton variant="rectangular" height={375} />
+          )}
         </div>
         <div className={cx('fr-col-12', 'fr-col-sm-4')}>
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
@@ -274,7 +299,7 @@ const CreationStep = ({ partialSample }: Props) => {
                 whenValid="Latitude correctement renseignée."
                 data-testid="geolocationX-input"
                 label="Latitude"
-                required
+                required={isOnline}
               />
             </div>
             <div className={cx('fr-col-12')}>
@@ -288,7 +313,7 @@ const CreationStep = ({ partialSample }: Props) => {
                 whenValid="Longitude correctement renseignée."
                 data-testid="geolocationY-input"
                 label="Longitude"
-                required
+                required={isOnline}
               />
             </div>
             <div className={cx('fr-col-12')}>
@@ -354,16 +379,32 @@ const CreationStep = ({ partialSample }: Props) => {
       />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-          <CompanySearch
-            department={department}
-            onSelectCompany={(result) => {
-              setCompany(result ? companyFromSearchResult(result) : undefined);
-            }}
-            state={form.messageType('company')}
-            stateRelatedMessage={
-              form.message('company') ?? 'Entité correctement renseignée'
-            }
-          />
+          {isOnline ? (
+            <CompanySearch
+              department={department}
+              onSelectCompany={(result) => {
+                setCompany(
+                  result ? companyFromSearchResult(result) : undefined
+                );
+              }}
+              state={form.messageType('company')}
+              stateRelatedMessage={
+                form.message('company') ?? 'Entité correctement renseignée'
+              }
+            />
+          ) : (
+            <AppTextInput<FormShape>
+              type="text"
+              defaultValue={companySearch ?? ''}
+              onChange={(e) => setCompanySearch(e.target.value)}
+              inputForm={form}
+              inputKey="companySearch"
+              whenValid="Entité correctement renseignée."
+              label="Entité contrôlée"
+              hintText="Saisissez le nom, un SIRET ou un SIREN"
+              required
+            />
+          )}
         </div>
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
           <AppTextInput<FormShape>

@@ -107,7 +107,7 @@ const SendingStep = ({ sample }: Props) => {
             </div>
           )}
         </h3>
-        <CreationStepSummary sample={sample} />
+        <CreationStepSummary partialSample={sample} />
         <hr className={cx('fr-mx-0', 'fr-hidden', 'fr-unhidden-sm')} />
         <MatrixStepSummary sample={sample} />
         <hr className={cx('fr-mx-0', 'fr-hidden', 'fr-unhidden-sm')} />

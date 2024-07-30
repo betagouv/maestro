@@ -48,10 +48,9 @@ registerRoute(
 );
 
 registerRoute(
-  ({ request }) =>
-    request.destination === 'style' ||
-    request.destination === 'script' ||
-    request.destination === 'image',
+  ({ request, url }) =>
+    url.origin === self.location.origin &&
+    (request.destination === 'font' || request.destination === 'manifest'),
   new CacheFirst({
     cacheName: 'assets-cache',
     plugins: [
@@ -67,12 +66,33 @@ registerRoute(
 );
 
 registerRoute(
-  ({ url }) => url.pathname.startsWith('/api/users/'),
+  ({ request, url }) =>
+    url.origin === self.location.origin &&
+    (request.destination === 'style' ||
+      request.destination === 'script' ||
+      request.destination === 'image'),
+  new NetworkFirst({
+    cacheName: 'assets-cache',
+    plugins: [
+      new ExpirationPlugin({
+        maxEntries: 50, // Limite le nombre d'éléments dans le cache
+        maxAgeSeconds: 30 * 24 * 60 * 60, // Cache pendant 30 jours
+      }),
+      new CacheableResponsePlugin({
+        statuses: [0, 200], // Met en cache uniquement les réponses réussies
+      }),
+    ],
+  })
+);
+
+registerRoute(
+  ({ url, request }) =>
+    request.method === 'GET' && url.pathname.startsWith('/api'),
   new NetworkFirst({
     cacheName: 'api-cache',
     plugins: [
       new ExpirationPlugin({
-        maxEntries: 50, // Limite le nombre d'éléments dans le cache
+        maxEntries: 100, // Limite le nombre d'éléments dans le cache
         maxAgeSeconds: 5 * 24 * 60 * 60, // Cache pendant 5 jours
       }),
       new CacheableResponsePlugin({

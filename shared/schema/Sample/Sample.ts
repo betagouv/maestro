@@ -27,14 +27,7 @@ export const Sampler = User.pick({
   lastName: true,
 });
 
-export const Sample = z.object({
-  id: z.string().uuid(),
-  reference: z.string(),
-  department: Department,
-  resytalId: z.string().nullish(),
-  createdAt: z.coerce.date(),
-  sampler: Sampler,
-  lastUpdatedAt: z.coerce.date(),
+export const SampleToCreate = z.object({
   sampledAt: z.union([z.string(), z.date()]).pipe(
     z.coerce.date({
       errorMap: () => ({
@@ -42,6 +35,34 @@ export const Sample = z.object({
       }),
     })
   ),
+  department: Department,
+  geolocation: Geolocation.nullish(),
+  parcel: z.string().nullish(),
+  programmingPlanId: z
+    .string()
+    .uuid({
+      message: 'Veuillez renseigner le contexte.',
+    })
+    .nullish(),
+  legalContext: LegalContext,
+  company: Company.nullish(),
+  companySearch: z.string().nullish(),
+  resytalId: z.string().nullish(),
+  notesOnCreation: z.string().nullish(),
+});
+
+export const CreatedSample = SampleToCreate.extend({
+  id: z.string().uuid(),
+  reference: z.string(),
+  createdAt: z.coerce.date(),
+  sampler: Sampler,
+  lastUpdatedAt: z.coerce.date(),
+  status: SampleStatus,
+});
+
+export const Sample = CreatedSample.extend({
+  geolocation: Geolocation,
+  company: Company,
   sentAt: z.coerce.date().nullish(),
   receivedAt: z
     .union([z.string(), z.date()])
@@ -53,17 +74,6 @@ export const Sample = z.object({
       })
     )
     .nullish(),
-  status: SampleStatus,
-  programmingPlanId: z
-    .string()
-    .uuid({
-      message: 'Veuillez renseigner le contexte.',
-    })
-    .nullish(),
-  legalContext: LegalContext,
-  geolocation: Geolocation,
-  parcel: z.string().nullish(),
-  company: Company,
   matrix: Matrix,
   matrixDetails: z.string().nullish(),
   matrixPart: MatrixPart,
@@ -73,43 +83,17 @@ export const Sample = z.object({
   items: z.array(SampleItem).min(1, {
     message: 'Veuillez renseigner au moins un échantillon.',
   }),
-  notesOnCreation: z.string().nullish(),
   notesOnMatrix: z.string().nullish(),
   notesOnItems: z.string().nullish(),
   notesOnAdmissibility: z.string().nullish(),
   laboratoryId: z.string().uuid(),
 });
 
-export const SampleToCreate = Sample.pick({
-  sampledAt: true,
-  department: true,
-  geolocation: true,
-  parcel: true,
-  programmingPlanId: true,
-  legalContext: true,
-  company: true,
-  resytalId: true,
-  notesOnCreation: true,
-});
-
-export const CreatedSample = SampleToCreate.merge(
-  Sample.pick({
-    id: true,
-    reference: true,
-    createdAt: true,
-    sampler: true,
-    lastUpdatedAt: true,
-    status: true,
-  })
-);
-
 export const PartialSample = Sample.partial()
   .merge(CreatedSample)
-  .merge(
-    z.object({
-      items: z.array(PartialSampleItem).nullish(),
-    })
-  );
+  .extend({
+    items: z.array(PartialSampleItem).nullish(),
+  });
 
 export type Geolocation = z.infer<typeof Geolocation>;
 export type Sample = z.infer<typeof Sample>;

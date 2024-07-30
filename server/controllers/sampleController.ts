@@ -136,7 +136,9 @@ const createSample = async (request: Request, response: Response) => {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
   }
 
-  await companyRepository.upsert(sampleToCreate.company);
+  if (sampleToCreate.company) {
+    await companyRepository.upsert(sampleToCreate.company);
+  }
 
   const serial = await sampleRepository.getNextSequence(
     user.region,

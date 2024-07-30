@@ -11,6 +11,7 @@ import { Stage, StageList } from '../referential/Stage';
 import { Company } from '../schema/Company/Company';
 import {
   CreatedSample,
+  Geolocation,
   PartialSample,
   Sample,
   SampleToCreate,
@@ -82,6 +83,8 @@ export const genSample = (
   const sample = genPartialSample(user, programmingPlanId, company);
   return {
     ...sample,
+    geolocation: sample.geolocation as Geolocation,
+    company: sample.company as Company,
     matrix: sample.matrix as Matrix,
     matrixPart: sample.matrixPart as MatrixPart,
     stage: sample.stage as Stage,

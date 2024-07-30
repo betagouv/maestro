@@ -1,5 +1,7 @@
+import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createMuiDsfrThemeProvider } from '@codegouvfr/react-dsfr/mui';
 import { startReactDsfr } from '@codegouvfr/react-dsfr/spa';
+import clsx from 'clsx';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { Link, Navigate, Route, Routes } from 'react-router-dom';
@@ -8,6 +10,7 @@ import Footer from 'src/components/Footer/Footer';
 import Header from 'src/components/Header/Header';
 import ScrollToTop from 'src/components/ScrollToTop/ScrollToTop';
 import { useAuthentication } from 'src/hooks/useAuthentication';
+import { useOnLine } from 'src/hooks/useOnLine';
 import { useAppSelector } from 'src/hooks/useStore';
 import './App.scss';
 import { store } from './store/store';
@@ -45,6 +48,8 @@ function App() {
     )
   );
 
+  const { isOnline } = useOnLine();
+
   FetchInterceptor();
 
   return (
@@ -52,6 +57,20 @@ function App() {
       <Header />
       {isSomeQueryPending && (
         <div className="toast">Chargement en cours...</div>
+      )}
+      {!isOnline && (
+        <div className={cx('fr-badge--error')}>
+          <div
+            className={clsx(
+              cx('fr-container', 'fr-py-2w'),
+              'd-flex-align-center'
+            )}
+          >
+            <span className={cx('fr-icon-link-unlink', 'fr-mr-1w')}></span>
+            Votre connexion Internet est instable. Les données renseignées sont
+            conservées jusqu’au rétablissement de la connexion.
+          </div>
+        </div>
       )}
 
       <main style={{ minHeight: 'calc(100vh - 440px)' }}>
