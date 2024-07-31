@@ -1,18 +1,22 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useMemo } from 'react';
-import { PartialSample } from 'shared/schema/Sample/Sample';
+import {
+  isPartialSample,
+  PartialSample,
+  PartialSampleToCreate,
+} from 'shared/schema/Sample/Sample';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 import { useDeleteSampleMutation } from 'src/services/sample.service';
 interface RemoveSampleProps {
-  sample: PartialSample;
+  sample: PartialSample | PartialSampleToCreate;
 }
 
 const RemoveSample = ({ sample }: RemoveSampleProps) => {
   const removeModal = useMemo(
     () =>
       createModal({
-        id: `remove-modal-${sample.reference}`,
+        id: `remove-modal-${sample.id}`,
         isOpenedByDefault: false,
       }),
     [sample]
@@ -38,7 +42,8 @@ const RemoveSample = ({ sample }: RemoveSampleProps) => {
         confirmLabel="Supprimer"
         closeOnConfirm
       >
-        Êtes-vous sûr de vouloir supprimer le prélèvement {sample.reference} ?
+        Êtes-vous sûr de vouloir supprimer le prélèvement{' '}
+        {isPartialSample(sample) ? sample.reference : ''} ?
       </ConfirmationModal>
     </>
   );

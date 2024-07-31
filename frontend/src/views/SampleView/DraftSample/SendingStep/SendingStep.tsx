@@ -6,7 +6,7 @@ import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { skipToken } from '@reduxjs/toolkit/query';
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sample } from 'shared/schema/Sample/Sample';
+import { isSample, Sample, SampleToCreate } from 'shared/schema/Sample/Sample';
 import { SampleItem } from 'shared/schema/Sample/SampleItem';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -14,8 +14,7 @@ import { useForm } from 'src/hooks/useForm';
 import { useGetLaboratoryQuery } from 'src/services/laboratory.service';
 import {
   getSupportDocumentURL,
-  useUpdateSampleItemsMutation,
-  useUpdateSampleMutation,
+  useCreateOrUpdateSampleMutation,
 } from 'src/services/sample.service';
 import { pluralize } from 'src/utils/stringUtils';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
@@ -25,7 +24,7 @@ import ItemsStepSummary from 'src/views/SampleView/StepSummary/ItemsStepSummary'
 import MatrixStepSummary from 'src/views/SampleView/StepSummary/MatrixStepSummary';
 
 interface Props {
-  sample: Sample;
+  sample: Sample | SampleToCreate;
 }
 
 const SendingStep = ({ sample }: Props) => {
@@ -34,13 +33,12 @@ const SendingStep = ({ sample }: Props) => {
 
   const [items, setItems] = useState<SampleItem[]>(sample.items);
 
-  const [updateSampleItems] = useUpdateSampleItemsMutation();
-  const [updateSample, { isError }] = useUpdateSampleMutation({
+  const [createOrUpdateSample, { isError }] = useCreateOrUpdateSampleMutation({
     fixedCacheKey: `sending-sample-${sample.id}`,
   });
 
   const { data: laboratory } = useGetLaboratoryQuery(
-    sample.laboratoryId ?? skipToken
+    (sample.laboratoryId as string) ?? skipToken
   );
 
   const sendingSampleModal = useMemo(
@@ -59,23 +57,20 @@ const SendingStep = ({ sample }: Props) => {
   type FormShape = typeof Form.shape;
 
   const submit = async () => {
-    await updateSample({
+    await createOrUpdateSample({
       ...sample,
       status: 'Sent',
       sentAt: new Date(),
-    });
+    } as Sample);
     navigate(`/prelevements/${sample.id}`, {
       replace: true,
     });
   };
 
   const save = async (status = sample.status) => {
-    await updateSampleItems({
-      id: sample.id,
-      items,
-    });
-    await updateSample({
+    await createOrUpdateSample({
       ...sample,
+      items,
       status,
     });
   };
@@ -99,7 +94,7 @@ const SendingStep = ({ sample }: Props) => {
     <>
       <div data-testid="sample_data" className="sample-form">
         <h3 className={cx('fr-m-0')}>
-          Récapitulatif du prélèvement {sample.reference}
+          Récapitulatif du prélèvement {isSample(sample) && sample.reference}
           {hasPermission('updateSample') && (
             <div className={cx('fr-text--md', 'fr-text--regular', 'fr-m-0')}>
               Vérifiez l’ensemble des informations avant de finaliser votre
@@ -107,7 +102,7 @@ const SendingStep = ({ sample }: Props) => {
             </div>
           )}
         </h3>
-        <CreationStepSummary partialSample={sample} />
+        <CreationStepSummary sample={sample} />
         <hr className={cx('fr-mx-0', 'fr-hidden', 'fr-unhidden-sm')} />
         <MatrixStepSummary sample={sample} />
         <hr className={cx('fr-mx-0', 'fr-hidden', 'fr-unhidden-sm')} />

@@ -9,10 +9,9 @@ import { Regions } from '../../shared/referential/Region';
 import { Laboratory } from '../../shared/schema/Laboratory/Laboratory';
 import { FindSampleOptions } from '../../shared/schema/Sample/FindSampleOptions';
 import {
-  CreatedSample,
   PartialSample,
   Sample,
-  SampleToCreate,
+  SampleContextData,
 } from '../../shared/schema/Sample/Sample';
 import { SampleItem } from '../../shared/schema/Sample/SampleItem';
 import { DraftStatusList } from '../../shared/schema/Sample/SampleStatus';
@@ -128,7 +127,7 @@ const exportSamples = async (request: Request, response: Response) => {
 
 const createSample = async (request: Request, response: Response) => {
   const { user } = request as AuthenticatedRequest;
-  const sampleToCreate = request.body as SampleToCreate;
+  const sampleToCreate = request.body as SampleContextData;
 
   console.info('Create sample', sampleToCreate);
 
@@ -145,8 +144,8 @@ const createSample = async (request: Request, response: Response) => {
     new Date().getFullYear()
   );
 
-  const sample: CreatedSample = {
-    id: uuidv4(),
+  const sample = {
+    ...sampleToCreate,
     reference: `${Regions[user.region].shortName}-${
       sampleToCreate.department
     }-${format(new Date(), 'yy')}-${String(serial).padStart(4, '0')}-${
@@ -155,8 +154,6 @@ const createSample = async (request: Request, response: Response) => {
     sampler: fp.pick(user, ['id', 'firstName', 'lastName']),
     createdAt: new Date(),
     lastUpdatedAt: new Date(),
-    status: 'DraftMatrix',
-    ...sampleToCreate,
   };
   await sampleRepository.insert(sample);
 
@@ -175,6 +172,11 @@ const updateSample = async (request: Request, response: Response) => {
     sample.company?.siret !== sampleUpdate.company?.siret
   ) {
     await companyRepository.upsert(sampleUpdate.company);
+  }
+
+  if (sampleUpdate.items) {
+    await sampleItemRepository.deleteMany(sample.id);
+    await sampleItemRepository.insertMany(sampleUpdate.items);
   }
 
   //TODO update only the fields concerned in relation to the status
@@ -295,27 +297,6 @@ const storeSampleItemDocument = async (
   return pdfBuffer;
 };
 
-const updateSampleItems = async (request: Request, response: Response) => {
-  const sample = (request as SampleRequest).sample;
-  const sampleItems = request.body as SampleItem[];
-
-  console.info('Update sample items', sample.id, sampleItems);
-
-  if (sample.status === 'Sent') {
-    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
-  }
-
-  await sampleItemRepository.deleteMany(sample.id);
-  await sampleItemRepository.insertMany(sampleItems);
-
-  await sampleRepository.update({
-    ...sample,
-    lastUpdatedAt: new Date(),
-  });
-
-  response.status(constants.HTTP_STATUS_OK).send(sampleItems);
-};
-
 const deleteSample = async (request: Request, response: Response) => {
   const sample = (request as SampleRequest).sample;
 
@@ -338,6 +319,5 @@ export default {
   exportSamples,
   createSample,
   updateSample,
-  updateSampleItems,
   deleteSample,
 };

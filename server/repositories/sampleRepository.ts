@@ -3,10 +3,7 @@ import z from 'zod';
 import { Region, Regions } from '../../shared/referential/Region';
 import { defaultPerPage } from '../../shared/schema/commons/Pagination';
 import { FindSampleOptions } from '../../shared/schema/Sample/FindSampleOptions';
-import {
-  CreatedSample,
-  PartialSample,
-} from '../../shared/schema/Sample/Sample';
+import { PartialSample, Sample } from '../../shared/schema/Sample/Sample';
 import { companiesTable } from './companyRepository';
 import db from './db';
 import { usersTable } from './userRepository';
@@ -159,9 +156,9 @@ const getNextSequence = async (
   return result.nextSequence;
 };
 
-const insert = async (createdSample: CreatedSample): Promise<void> => {
-  console.info('Insert sample', createdSample.id);
-  await Samples().insert(formatPartialSample(createdSample));
+const insert = async (partialSample: PartialSample): Promise<void> => {
+  console.info('Insert sample', partialSample.id);
+  await Samples().insert(formatPartialSample(partialSample));
 };
 
 const update = async (partialSample: PartialSample): Promise<void> => {
@@ -179,7 +176,7 @@ const deleteOne = async (id: string): Promise<void> => {
 };
 
 export const formatPartialSample = (
-  partialSample: PartialSample
+  partialSample: PartialSample | Sample
 ): PartialSampleDbo => ({
   ...fp.omit(partialSample, ['items', 'company', 'sampler']),
   geolocation: partialSample.geolocation

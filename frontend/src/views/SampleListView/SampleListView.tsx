@@ -19,6 +19,7 @@ import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
 import { Region, RegionList, Regions } from 'shared/referential/Region';
 import { defaultPerPage } from 'shared/schema/commons/Pagination';
 import { FindSampleOptions } from 'shared/schema/Sample/FindSampleOptions';
+import { isPartialSample } from 'shared/schema/Sample/Sample';
 import {
   DraftStatusList,
   SampleStatus,
@@ -50,6 +51,8 @@ const SampleListView = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
+  const { pendingSamples } = useAppSelector((state) => state.samples);
+
   const [searchParams, setSearchParams] = useSearchParams();
   const { hasPermission, hasNationalView, userInfos } = useAuthentication();
   const { findSampleOptions } = useAppSelector((state) => state.samples);
@@ -77,7 +80,12 @@ const SampleListView = () => {
   }, [searchParams, userInfos?.region]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { programmingPlanStatus } = useAppSelector((state) => state.settings);
-  const { data: samples } = useFindSamplesQuery(findSampleOptions);
+  const { data } = useFindSamplesQuery(findSampleOptions);
+  const samples = _.unionBy(
+    Object.values(pendingSamples),
+    data ?? [],
+    (_) => _.id
+  );
   const { data: samplesCount } = useCountSamplesQuery(
     fp.omit(findSampleOptions, 'page', 'perPage')
   );
@@ -123,6 +131,7 @@ const SampleListView = () => {
   }, [userInfos?.region, findSampleOptions.region]);
 
   const tableHeaders = [
+    'id', //TODO: remove it
     'Matrice',
     'Préleveur',
     'Date',
@@ -137,8 +146,11 @@ const SampleListView = () => {
     () =>
       (samples ?? []).map((sample) => [
         ...[
+          sample.id, //TODO: remove it
           (sample.matrix && MatrixLabels[sample.matrix]) ?? '',
-          `${sample.sampler.firstName} ${sample.sampler.lastName}`,
+          isPartialSample(sample)
+            ? `${sample.sampler.firstName} ${sample.sampler.lastName}`
+            : `${userInfos?.firstName} ${userInfos?.lastName}`,
           format(sample.sampledAt, 'dd/MM/yyyy'),
           sample.department,
           sample.company?.name ?? '',

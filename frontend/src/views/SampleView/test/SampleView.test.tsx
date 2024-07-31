@@ -2,7 +2,11 @@ import { configureStore, Store } from '@reduxjs/toolkit';
 import { render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import Router, { BrowserRouter } from 'react-router-dom';
-import { genCreatedSample, genPartialSample } from 'shared/test/sampleFixtures';
+import {
+  genCreatedSampleData,
+  genPartialSample,
+  genSampleContextData,
+} from 'shared/test/sampleFixtures';
 import {
   genAuthUser,
   genPrescriptions,
@@ -77,7 +81,10 @@ describe('SampleView', () => {
   });
 
   test('should render the second step for a draft sample', async () => {
-    const createdSample = genCreatedSample(sampler, programmingPlan1.id);
+    const createdSample = {
+      ...genSampleContextData(programmingPlan1.id),
+      ...genCreatedSampleData(sampler),
+    };
     mockRequests([
       userRequest,
       prescriptionsRequest,

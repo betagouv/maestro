@@ -5,7 +5,10 @@ import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { CultureKindList } from 'shared/referential/CultureKind';
 import { MatrixPartList } from 'shared/referential/MatrixPart';
-import { genCreatedSample } from 'shared/test/sampleFixtures';
+import {
+  genCreatedSampleData,
+  genSampleContextData,
+} from 'shared/test/sampleFixtures';
 import {
   genAuthUser,
   genPrescriptions,
@@ -58,7 +61,10 @@ describe('SampleStepDraftInfos', () => {
       <Provider store={store}>
         <BrowserRouter>
           <MatrixStep
-            partialSample={genCreatedSample(sampler, programmingPlan.id)}
+            partialSample={{
+              ...genSampleContextData(programmingPlan.id),
+              ...genCreatedSampleData(sampler),
+            }}
           />
         </BrowserRouter>
       </Provider>
@@ -88,7 +94,10 @@ describe('SampleStepDraftInfos', () => {
       <Provider store={store}>
         <BrowserRouter>
           <MatrixStep
-            partialSample={genCreatedSample(sampler, programmingPlan.id)}
+            partialSample={{
+              ...genSampleContextData(programmingPlan.id),
+              ...genCreatedSampleData(sampler),
+            }}
           />
         </BrowserRouter>
       </Provider>
@@ -113,7 +122,10 @@ describe('SampleStepDraftInfos', () => {
   });
 
   test('should save on blur without handling errors', async () => {
-    const createdSample = genCreatedSample(sampler, programmingPlan.id);
+    const createdSample = {
+      ...genSampleContextData(programmingPlan.id),
+      ...genCreatedSampleData(sampler),
+    };
     mockRequests([
       userRequest,
       prescriptionsRequest,
@@ -168,7 +180,10 @@ describe('SampleStepDraftInfos', () => {
   });
 
   test('should submit the sample with updating it status', async () => {
-    const createdSample = genCreatedSample(sampler, programmingPlan.id);
+    const createdSample = {
+      ...genSampleContextData(programmingPlan.id),
+      ...genCreatedSampleData(sampler),
+    };
 
     mockRequests([
       userRequest,

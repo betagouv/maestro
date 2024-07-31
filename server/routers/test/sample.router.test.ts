@@ -17,10 +17,11 @@ import { MatrixList } from '../../../shared/referential/Matrix/Matrix';
 import { Regions } from '../../../shared/referential/Region';
 import { SampleStatus } from '../../../shared/schema/Sample/SampleStatus';
 import {
-  genCreatedSample,
+  genCreatedSampleData,
   genPartialSample,
+  genSample,
+  genSampleContextData,
   genSampleItem,
-  genSampleToCreate,
 } from '../../../shared/test/sampleFixtures';
 import { oneOf } from '../../../shared/test/testFixtures';
 import db from '../../repositories/db';
@@ -279,7 +280,7 @@ describe('Sample router', () => {
     it('should fail if the user is not authenticated', async () => {
       await request(app)
         .post(testRoute)
-        .send(genSampleToCreate())
+        .send(genSampleContextData())
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
@@ -292,46 +293,55 @@ describe('Sample router', () => {
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await badRequestTest();
-      await badRequestTest({ ...genSampleToCreate(), resytalId: 123 });
-      await badRequestTest({ ...genSampleToCreate(), geolocation: undefined });
-      await badRequestTest({ ...genSampleToCreate(), geolocation: '123' });
+      await badRequestTest({ ...genSampleContextData(), resytalId: 123 });
       await badRequestTest({
-        ...genSampleToCreate(),
+        ...genSampleContextData(),
+        geolocation: undefined,
+      });
+      await badRequestTest({ ...genSampleContextData(), geolocation: '123' });
+      await badRequestTest({
+        ...genSampleContextData(),
         geolocation: {
           latitude: undefined,
         },
       });
       await badRequestTest({
-        ...genSampleToCreate(),
+        ...genSampleContextData(),
         sampledAt: undefined,
       });
       await badRequestTest({
-        ...genSampleToCreate(),
+        ...genSampleContextData(),
         programmingPlanId: '123',
       });
-      await badRequestTest({ ...genSampleToCreate(), legalContext: undefined });
-      await badRequestTest({ ...genSampleToCreate(), legalContext: '123' });
-      await badRequestTest({ ...genSampleToCreate(), department: undefined });
-      await badRequestTest({ ...genSampleToCreate(), department: '123' });
-      await badRequestTest({ ...genSampleToCreate(), department: '' });
-      await badRequestTest({ ...genSampleToCreate(), department: 123 });
       await badRequestTest({
-        ...genSampleToCreate(),
+        ...genSampleContextData(),
+        legalContext: undefined,
+      });
+      await badRequestTest({ ...genSampleContextData(), legalContext: '123' });
+      await badRequestTest({
+        ...genSampleContextData(),
+        department: undefined,
+      });
+      await badRequestTest({ ...genSampleContextData(), department: '123' });
+      await badRequestTest({ ...genSampleContextData(), department: '' });
+      await badRequestTest({ ...genSampleContextData(), department: 123 });
+      await badRequestTest({
+        ...genSampleContextData(),
         sampledAt: 'invalid date',
       });
-      await badRequestTest({ ...genSampleToCreate(), sampledAt: null });
+      await badRequestTest({ ...genSampleContextData(), sampledAt: null });
     });
 
     it('should fail if the user does not have the permission to create samples', async () => {
       await request(app)
         .post(testRoute)
-        .send(genSampleToCreate())
+        .send(genSampleContextData())
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     it('should create a sample', async () => {
-      const sample = genSampleToCreate(ProgrammingPlanFixture.id);
+      const sample = genSampleContextData(ProgrammingPlanFixture.id);
 
       const res = await request(app)
         .post(testRoute)
@@ -384,7 +394,7 @@ describe('Sample router', () => {
     it('should fail if the sample does not exist', async () => {
       await request(app)
         .put(`${testRoute(uuidv4())}`)
-        .send(genCreatedSample(Sampler1Fixture))
+        .send(genCreatedSampleData(Sampler1Fixture))
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
@@ -508,7 +518,7 @@ describe('Sample router', () => {
     });
 
     it('should be forbidden to update a sample that is already sent', async () => {
-      const sample = genPartialSample(
+      const sample = genSample(
         Sampler1Fixture,
         ProgrammingPlanFixture.id,
         CompanyFixture

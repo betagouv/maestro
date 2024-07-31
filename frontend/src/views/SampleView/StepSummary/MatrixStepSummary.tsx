@@ -5,19 +5,19 @@ import { CultureKindLabels } from 'shared/referential/CultureKind';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
 import { MatrixPartLabels } from 'shared/referential/MatrixPart';
 import { StageLabels } from 'shared/referential/Stage';
-import { Sample } from 'shared/schema/Sample/Sample';
+import { Sample, SampleToCreate } from 'shared/schema/Sample/Sample';
 import { useGetLaboratoryQuery } from 'src/services/laboratory.service';
 import { useFindSubstanceAnalysisQuery } from 'src/services/substance.service';
 import StepSummary from 'src/views/SampleView/StepSummary/StepSummary';
 
 interface Props {
-  sample: Sample;
+  sample: Sample | SampleToCreate;
   showLabel?: boolean;
 }
 const MatrixStepSummary = ({ sample, showLabel }: Props) => {
   const { data: substanceAnalysis } = useFindSubstanceAnalysisQuery({
     matrix: sample.matrix,
-    // year: sample.sampledAt.getFullYear(), //TODO Uncomment this line when the issue on sample.sampledAt will be fixed
+    year: sample.sampledAt.getFullYear(),
   });
 
   const { data: laboratory } = useGetLaboratoryQuery(sample.laboratoryId);

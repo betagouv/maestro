@@ -68,7 +68,7 @@ export function useForm<
       setIsTouched(true);
       setError(undefined);
     } catch (error) {
-      console.error(error);
+      console.error(error, (error as z.ZodError).issues);
       setIsTouched(true);
       setError(error as z.ZodError);
     }
@@ -112,5 +112,6 @@ export function useForm<
     messageType,
     reset,
     validate,
+    input,
   };
 }

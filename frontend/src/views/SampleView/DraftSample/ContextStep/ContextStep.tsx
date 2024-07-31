@@ -4,7 +4,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Skeleton } from '@mui/material';
 import clsx from 'clsx';
 import { format, parse } from 'date-fns';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Department,
@@ -22,7 +22,11 @@ import {
   companyFromSearchResult,
 } from 'shared/schema/Company/Company';
 import { ProgrammingPlanKindLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { PartialSample, SampleToCreate } from 'shared/schema/Sample/Sample';
+import {
+  PartialSample,
+  PartialSampleToCreate,
+  SampleContextData,
+} from 'shared/schema/Sample/Sample';
 import { SampleStatus } from 'shared/schema/Sample/SampleStatus';
 import balance from 'src/assets/illustrations/balance.svg';
 import controle from 'src/assets/illustrations/controle.svg';
@@ -37,19 +41,17 @@ import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
 import { useOnLine } from 'src/hooks/useOnLine';
 import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.service';
-import {
-  useCreateSampleMutation,
-  useUpdateSampleMutation,
-} from 'src/services/sample.service';
-import SampleGeolocation from 'src/views/SampleView/DraftSample/CreationStep/SampleGeolocation';
+import { useCreateOrUpdateSampleMutation } from 'src/services/sample.service';
+import SampleGeolocation from 'src/views/SampleView/DraftSample/ContextStep/SampleGeolocation';
+import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import check from '../../../../assets/illustrations/check.svg';
 import leaf from '../../../../assets/illustrations/leaf.svg';
 interface Props {
-  partialSample?: PartialSample;
+  partialSample?: PartialSample | PartialSampleToCreate;
 }
 
-const CreationStep = ({ partialSample }: Props) => {
+const ContextStep = ({ partialSample }: Props) => {
   const navigate = useNavigate();
   const { userInfos } = useAuthentication();
   const { isOnline } = useOnLine();
@@ -84,8 +86,7 @@ const CreationStep = ({ partialSample }: Props) => {
   const { data: programmingPlans } = useFindProgrammingPlansQuery({
     status: 'Validated',
   });
-  const [createSample] = useCreateSampleMutation();
-  const [updateSample] = useUpdateSampleMutation();
+  const [createOrUpdateSample] = useCreateOrUpdateSampleMutation();
 
   const geolocation = z.object({
     geolocationX: z.number({
@@ -98,7 +99,7 @@ const CreationStep = ({ partialSample }: Props) => {
     }),
   });
 
-  const Form = SampleToCreate.omit({ geolocation: true, company: true })
+  const Form = SampleContextData.omit({ geolocation: true, company: true })
     .merge(isOnline ? geolocation : geolocation.partial())
     .extend(
       isOnline
@@ -133,7 +134,10 @@ const CreationStep = ({ partialSample }: Props) => {
     withDefault: false,
   });
 
+  const id = useMemo(() => partialSample?.id ?? uuidv4(), [partialSample]);
+
   const formData = {
+    id,
     sampledAt: parse(sampledAt, 'yyyy-MM-dd HH:mm', new Date()),
     department: department as Department,
     geolocation:
@@ -153,16 +157,18 @@ const CreationStep = ({ partialSample }: Props) => {
     companySearch,
     resytalId: resytalId as string,
     notesOnCreation,
+    status: 'DraftMatrix' as SampleStatus,
   };
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     await form.validate(async () => {
       if (partialSample) {
+        console.log('save');
         await save('DraftMatrix');
         navigate(`/prelevements/${partialSample.id}`, { replace: true });
       } else {
-        await createSample(formData)
+        await createOrUpdateSample(formData)
           .unwrap()
           .then((result) => {
             navigate(`/prelevements/${result.id}`, { replace: true });
@@ -172,8 +178,8 @@ const CreationStep = ({ partialSample }: Props) => {
   };
 
   const save = async (status = partialSample?.status) => {
-    if (partialSample?.status) {
-      await updateSample({
+    if (partialSample) {
+      await createOrUpdateSample({
         ...partialSample,
         ...formData,
         status: status as SampleStatus,
@@ -198,6 +204,7 @@ const CreationStep = ({ partialSample }: Props) => {
   const form = useForm(
     Form,
     {
+      id,
       sampledAt,
       department,
       geolocationX,
@@ -212,6 +219,7 @@ const CreationStep = ({ partialSample }: Props) => {
       companySearch,
       resytalId,
       notesOnCreation,
+      status: 'DraftMatrix',
     },
     save
   );
@@ -300,6 +308,8 @@ const CreationStep = ({ partialSample }: Props) => {
                 data-testid="geolocationX-input"
                 label="Latitude"
                 required={isOnline}
+                min={-90}
+                max={90}
               />
             </div>
             <div className={cx('fr-col-12')}>
@@ -314,6 +324,8 @@ const CreationStep = ({ partialSample }: Props) => {
                 data-testid="geolocationY-input"
                 label="Longitude"
                 required={isOnline}
+                min={-180}
+                max={180}
               />
             </div>
             <div className={cx('fr-col-12')}>
@@ -467,4 +479,4 @@ const CreationStep = ({ partialSample }: Props) => {
   );
 };
 
-export default CreationStep;
+export default ContextStep;

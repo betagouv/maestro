@@ -3,9 +3,8 @@ import { z } from 'zod';
 import { FindSampleOptions } from '../../shared/schema/Sample/FindSampleOptions';
 import {
   PartialSample,
-  SampleToCreate,
+  SampleContextData,
 } from '../../shared/schema/Sample/Sample';
-import { PartialSampleItem } from '../../shared/schema/Sample/SampleItem';
 import sampleController from '../controllers/sampleController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
 import { sampleCheck } from '../middlewares/checks/sampleCheck';
@@ -58,7 +57,7 @@ router.get(
 );
 router.post(
   '',
-  validator.validate(body(SampleToCreate)),
+  validator.validate(body(SampleContextData)),
   permissionsCheck(['createSample']),
   sampleController.createSample
 );
@@ -68,15 +67,6 @@ router.put(
   permissionsCheck(['updateSample']),
   sampleCheck(),
   sampleController.updateSample
-);
-router.put(
-  '/:sampleId/items',
-  validator.validate(
-    uuidParam('sampleId').merge(body(z.array(PartialSampleItem)))
-  ),
-  permissionsCheck(['updateSample']),
-  sampleCheck(),
-  sampleController.updateSampleItems
 );
 router.delete(
   '/:sampleId',

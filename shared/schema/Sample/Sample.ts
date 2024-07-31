@@ -27,7 +27,8 @@ export const Sampler = User.pick({
   lastName: true,
 });
 
-export const SampleToCreate = z.object({
+export const SampleContextData = z.object({
+  id: z.string().uuid(),
   sampledAt: z.union([z.string(), z.date()]).pipe(
     z.coerce.date({
       errorMap: () => ({
@@ -49,18 +50,48 @@ export const SampleToCreate = z.object({
   companySearch: z.string().nullish(),
   resytalId: z.string().nullish(),
   notesOnCreation: z.string().nullish(),
+  status: SampleStatus,
 });
 
-export const CreatedSample = SampleToCreate.extend({
-  id: z.string().uuid(),
+export const SampleMatrixData = z.object({
+  matrix: Matrix,
+  matrixDetails: z.string().nullish(),
+  matrixPart: MatrixPart,
+  stage: Stage,
+  cultureKind: CultureKind.nullish(),
+  releaseControl: z.boolean().nullish(),
+  notesOnMatrix: z.string().nullish(),
+  laboratoryId: z.string().uuid(),
+});
+
+export const SampleItemsData = z.object({
+  items: z.array(SampleItem).min(1, {
+    message: 'Veuillez renseigner au moins un échantillon.',
+  }),
+  notesOnItems: z.string().nullish(),
+});
+
+export const CreatedSampleData = z.object({
   reference: z.string(),
   createdAt: z.coerce.date(),
   sampler: Sampler,
   lastUpdatedAt: z.coerce.date(),
-  status: SampleStatus,
 });
 
-export const Sample = CreatedSample.extend({
+export const PartialSampleToCreate = SampleContextData.merge(
+  SampleMatrixData.partial()
+)
+  .merge(SampleItemsData.partial())
+  .extend({
+    items: z.array(PartialSampleItem).nullish(),
+  });
+
+export const PartialSample = PartialSampleToCreate.merge(CreatedSampleData);
+
+export const SampleToCreate =
+  SampleContextData.merge(SampleMatrixData).merge(SampleItemsData);
+
+export const Sample = SampleToCreate.merge(CreatedSampleData).extend({
   geolocation: Geolocation,
   company: Company,
   sentAt: z.coerce.date().nullish(),
@@ -74,34 +105,29 @@ export const Sample = CreatedSample.extend({
       })
     )
     .nullish(),
-  matrix: Matrix,
-  matrixDetails: z.string().nullish(),
-  matrixPart: MatrixPart,
-  stage: Stage,
-  cultureKind: CultureKind.nullish(),
-  releaseControl: z.boolean().nullish(),
-  items: z.array(SampleItem).min(1, {
-    message: 'Veuillez renseigner au moins un échantillon.',
-  }),
-  notesOnMatrix: z.string().nullish(),
-  notesOnItems: z.string().nullish(),
   notesOnAdmissibility: z.string().nullish(),
   laboratoryId: z.string().uuid(),
 });
 
-export const PartialSample = Sample.partial()
-  .merge(CreatedSample)
-  .extend({
-    items: z.array(PartialSampleItem).nullish(),
-  });
-
 export type Geolocation = z.infer<typeof Geolocation>;
-export type Sample = z.infer<typeof Sample>;
-export type SampleToCreate = z.infer<typeof SampleToCreate>;
-export type CreatedSample = z.infer<typeof CreatedSample>;
+export type SampleContextData = z.infer<typeof SampleContextData>;
+export type SampleMatrixData = z.infer<typeof SampleMatrixData>;
+export type SampleItemsData = z.infer<typeof SampleItemsData>;
+export type CreatedSampleData = z.infer<typeof CreatedSampleData>;
+export type PartialSampleToCreate = z.infer<typeof PartialSampleToCreate>;
 export type PartialSample = z.infer<typeof PartialSample>;
+export type SampleToCreate = z.infer<typeof SampleToCreate>;
+export type Sample = z.infer<typeof Sample>;
 
 export const getSampleRegion = (sample: PartialSample): Region | undefined =>
   RegionList.find((region) =>
     Regions[region].departments.includes(sample.department)
   );
+
+export const isPartialSample = (
+  partialSample: PartialSample | PartialSampleToCreate
+): partialSample is PartialSample =>
+  CreatedSampleData.safeParse(partialSample).success;
+
+export const isSample = (sample: Sample | SampleToCreate): sample is Sample =>
+  CreatedSampleData.safeParse(sample).success;

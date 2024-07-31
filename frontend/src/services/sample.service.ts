@@ -1,8 +1,15 @@
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import fp from 'lodash';
 import { FindSampleOptions } from 'shared/schema/Sample/FindSampleOptions';
-import { PartialSample, SampleToCreate } from 'shared/schema/Sample/Sample';
+import {
+  isPartialSample,
+  PartialSample,
+  PartialSampleToCreate,
+} from 'shared/schema/Sample/Sample';
 import { api } from 'src/services/api.service';
 import { authParams } from 'src/services/auth-headers';
+import samplesSlice from 'src/store/reducers/samplesSlice';
+import { store } from 'src/store/store';
 import config from 'src/utils/config';
 import { getURLQuery } from 'src/utils/fetchUtils';
 
@@ -37,15 +44,42 @@ export const sampleApi = api.injectEndpoints({
         Number(response.count),
       providesTags: ['SampleCount'],
     }),
-    createSample: builder.mutation<PartialSample, SampleToCreate>({
-      query: (draft) => ({
-        url: 'samples',
-        method: 'POST',
-        body: { ...draft },
-      }),
-      transformResponse: (response: any) =>
-        PartialSample.parse(fp.omitBy(response, fp.isNil)),
-      invalidatesTags: [{ type: 'Sample', id: 'LIST' }, 'SampleCount'],
+    createOrUpdateSample: builder.mutation<
+      PartialSample | PartialSampleToCreate,
+      PartialSample | PartialSampleToCreate
+    >({
+      queryFn: async (partialSample, _queryApi, _extraOptions, fetchWithBQ) => {
+        const result = await fetchWithBQ({
+          url: isPartialSample(partialSample)
+            ? `samples/${partialSample.id}`
+            : 'samples',
+          method: isPartialSample(partialSample) ? 'PUT' : 'POST',
+          body: partialSample,
+        });
+
+        if (result.error) {
+          if (!navigator.onLine) {
+            store.dispatch(
+              samplesSlice.actions.addPendingSample(partialSample)
+            );
+            return { data: partialSample };
+          }
+          return { error: result.error as FetchBaseQueryError };
+        }
+
+        store.dispatch(
+          samplesSlice.actions.removePendingSample(partialSample.id)
+        );
+
+        return {
+          data: PartialSample.parse(fp.omitBy(result.data as any, fp.isNil)),
+        };
+      },
+      invalidatesTags: (_result, _error, { id }) => [
+        { type: 'Sample', id: 'LIST' },
+        { type: 'Sample', id },
+        'SampleCount',
+      ],
     }),
     updateSample: builder.mutation<PartialSample, PartialSample>({
       query: (partialSample) => ({
@@ -97,12 +131,11 @@ const sampleListExportURL = (findOptions: FindSampleOptions) => {
 };
 
 export const {
-  useCreateSampleMutation,
+  useCreateOrUpdateSampleMutation,
   useFindSamplesQuery,
   useCountSamplesQuery,
   useGetSampleQuery,
   useUpdateSampleMutation,
-  useUpdateSampleItemsMutation,
   useDeleteSampleMutation,
   getSupportDocumentURL,
   getSampleListExportURL,
