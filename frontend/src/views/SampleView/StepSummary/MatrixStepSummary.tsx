@@ -1,5 +1,6 @@
 import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import { skipToken } from '@reduxjs/toolkit/query';
 import { useMemo } from 'react';
 import { CultureKindLabels } from 'shared/referential/CultureKind';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
@@ -20,7 +21,9 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
     year: sample.sampledAt.getFullYear(),
   });
 
-  const { data: laboratory } = useGetLaboratoryQuery(sample.laboratoryId);
+  const { data: laboratory } = useGetLaboratoryQuery(
+    sample.laboratoryId ?? skipToken
+  );
 
   const monoSubstances = useMemo(() => {
     return substanceAnalysis?.filter((analysis) => analysis.kind === 'Mono');
