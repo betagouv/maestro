@@ -84,6 +84,7 @@ describe('SampleView', () => {
     const createdSample = {
       ...genSampleContextData(programmingPlan1.id),
       ...genCreatedSampleData(sampler),
+      status: 'DraftMatrix',
     };
     mockRequests([
       userRequest,

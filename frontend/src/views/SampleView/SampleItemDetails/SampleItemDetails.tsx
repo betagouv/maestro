@@ -169,7 +169,7 @@ const SampleItemDetails = ({
               {laboratory ? (
                 <b>{laboratory.name}</b>
               ) : (
-                <div className="missing-data">Information non disponible</div>
+                <span className="missing-data">Information non disponible</span>
               )}
             </>
           ) : (

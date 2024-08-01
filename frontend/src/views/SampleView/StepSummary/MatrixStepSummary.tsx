@@ -83,7 +83,7 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
           {laboratory ? (
             <b>{laboratory.name}</b>
           ) : (
-            <div className="missing-data">Information non disponible</div>
+            <span className="missing-data">Information non disponible</span>
           )}
         </div>
       </div>
