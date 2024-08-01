@@ -54,7 +54,7 @@ export const genCreatedSampleData = (user?: User): CreatedSampleData => ({
   createdAt: new Date(),
   lastUpdatedAt: new Date(),
 });
-export const genPartialSample = (
+export const genCreatedPartialSample = (
   user?: User,
   programmingPlanId?: string,
   company?: Company
@@ -72,12 +72,12 @@ export const genPartialSample = (
     items: [genSampleItem(contextData.id, 1)],
   };
 };
-export const genSample = (
+export const genCreatedSample = (
   user?: User,
   programmingPlanId?: string,
   company?: Company
 ): Sample => {
-  const sample = genPartialSample(user, programmingPlanId, company);
+  const sample = genCreatedPartialSample(user, programmingPlanId, company);
   return {
     ...sample,
     geolocation: sample.geolocation as Geolocation,

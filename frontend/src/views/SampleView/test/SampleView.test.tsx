@@ -3,8 +3,8 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import Router, { BrowserRouter } from 'react-router-dom';
 import {
+  genCreatedPartialSample,
   genCreatedSampleData,
-  genPartialSample,
   genSampleContextData,
 } from 'shared/test/sampleFixtures';
 import {
@@ -121,7 +121,7 @@ describe('SampleView', () => {
 
   test('should render the third step for a sample with status DraftItems', async () => {
     const draftSample = {
-      ...genPartialSample(),
+      ...genCreatedPartialSample(),
       status: 'DraftItems',
     };
     mockRequests([
@@ -157,7 +157,7 @@ describe('SampleView', () => {
 
   test('should render the fourth step for a sample with status Submitted', async () => {
     const draftSample = {
-      ...genPartialSample(),
+      ...genCreatedPartialSample(),
       status: 'Submitted',
     };
     mockRequests([

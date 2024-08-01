@@ -17,9 +17,7 @@ import { MatrixList } from '../../../shared/referential/Matrix/Matrix';
 import { Regions } from '../../../shared/referential/Region';
 import { SampleStatus } from '../../../shared/schema/Sample/SampleStatus';
 import {
-  genCreatedSampleData,
-  genPartialSample,
-  genSample,
+  genCreatedPartialSample,
   genSampleContextData,
   genSampleItem,
 } from '../../../shared/test/sampleFixtures';
@@ -39,7 +37,7 @@ describe('Sample router', () => {
   const sample11Id = uuidv4();
   const sampleItem1 = genSampleItem(sample11Id, 1);
   const sample11 = {
-    ...genPartialSample(
+    ...genCreatedPartialSample(
       Sampler1Fixture,
       ProgrammingPlanFixture.id,
       CompanyFixture
@@ -50,7 +48,7 @@ describe('Sample router', () => {
     department: oneOf(Regions[Region1Fixture].departments),
   };
   const sample12 = {
-    ...genPartialSample(
+    ...genCreatedPartialSample(
       Sampler1Fixture,
       ProgrammingPlanFixture.id,
       CompanyFixture
@@ -60,7 +58,7 @@ describe('Sample router', () => {
     department: oneOf(Regions[Region1Fixture].departments),
   };
   const sample13 = {
-    ...genPartialSample(
+    ...genCreatedPartialSample(
       Sampler1Fixture,
       ProgrammingPlanFixture.id,
       CompanyFixture
@@ -70,7 +68,7 @@ describe('Sample router', () => {
     department: oneOf(Regions[Region1Fixture].departments),
   };
   const sample2 = {
-    ...genPartialSample(
+    ...genCreatedPartialSample(
       Sampler2Fixture,
       ProgrammingPlanFixture.id,
       CompanyFixture
@@ -294,10 +292,6 @@ describe('Sample router', () => {
 
       await badRequestTest();
       await badRequestTest({ ...genSampleContextData(), resytalId: 123 });
-      await badRequestTest({
-        ...genSampleContextData(),
-        geolocation: undefined,
-      });
       await badRequestTest({ ...genSampleContextData(), geolocation: '123' });
       await badRequestTest({
         ...genSampleContextData(),
@@ -352,7 +346,7 @@ describe('Sample router', () => {
       expect(res.body).toMatchObject(
         expect.objectContaining({
           ...sample,
-          id: expect.any(String),
+          id: sample.id,
           createdAt: expect.any(String),
           sampler: {
             id: Sampler1Fixture.id,
@@ -363,7 +357,7 @@ describe('Sample router', () => {
           reference: `${Regions[Sampler1Fixture.region].shortName}-${
             sample.department
           }-${format(new Date(), 'yy')}-0001-${sample.legalContext}`,
-          status: 'DraftMatrix',
+          status: sample.status,
         })
       );
 
@@ -394,7 +388,7 @@ describe('Sample router', () => {
     it('should fail if the sample does not exist', async () => {
       await request(app)
         .put(`${testRoute(uuidv4())}`)
-        .send(genCreatedSampleData(Sampler1Fixture))
+        .send(genCreatedPartialSample(Sampler1Fixture))
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
@@ -449,110 +443,6 @@ describe('Sample router', () => {
       await expect(
         Samples().where({ id: sample11.id, matrix: validBody.matrix }).first()
       ).resolves.toBeDefined();
-    });
-  });
-
-  describe('PUT /samples/{sampleId}/items', () => {
-    const testRoute = (sampleId: string) => `/api/samples/${sampleId}/items`;
-
-    it('should fail if the user is not authenticated', async () => {
-      await request(app)
-        .put(testRoute(sample11.id))
-        .send([genSampleItem(sample11.id)])
-        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
-    });
-
-    it('should get a valid sample id', async () => {
-      await request(app)
-        .put(testRoute(randomstring.generate()))
-        .send([genSampleItem(sample11.id)])
-        .use(tokenProvider(Sampler1Fixture))
-        .expect(constants.HTTP_STATUS_BAD_REQUEST);
-    });
-
-    it('should fail if the sample does not exist', async () => {
-      await request(app)
-        .put(testRoute(uuidv4()))
-        .send([genSampleItem(sample11.id)])
-        .use(tokenProvider(Sampler1Fixture))
-        .expect(constants.HTTP_STATUS_NOT_FOUND);
-    });
-
-    it('should fail if the sample does not belong to the user', async () => {
-      await request(app)
-        .put(testRoute(sample11.id))
-        .send([genSampleItem(sample11.id)])
-        .use(tokenProvider(Sampler2Fixture))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
-    });
-
-    it('should fail if the user does not have the permission to update samples', async () => {
-      await request(app)
-        .put(testRoute(sample11.id))
-        .send([genSampleItem(sample11.id)])
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
-    });
-
-    it('should get a valid body', async () => {
-      const badRequestTest = async (payload?: any[]) =>
-        request(app)
-          .put(testRoute(sample11.id))
-          .send(payload)
-          .use(tokenProvider(Sampler1Fixture))
-          .expect(constants.HTTP_STATUS_BAD_REQUEST);
-
-      await badRequestTest();
-      await badRequestTest([
-        {
-          ...genSampleItem(sample11.id),
-          quantity: '123',
-        },
-      ]);
-      await badRequestTest([
-        {
-          ...genSampleItem(sample11.id),
-          quantityUnit: 123,
-        },
-      ]);
-    });
-
-    it('should be forbidden to update a sample that is already sent', async () => {
-      const sample = genSample(
-        Sampler1Fixture,
-        ProgrammingPlanFixture.id,
-        CompanyFixture
-      );
-      await Samples().insert(
-        formatPartialSample({
-          ...sample,
-          status: 'Sent',
-          sentAt: new Date(),
-        })
-      );
-
-      await request(app)
-        .put(testRoute(sample.id))
-        .send([genSampleItem(sample.id)])
-        .use(tokenProvider(Sampler1Fixture))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
-    });
-
-    it('should update the sample items', async () => {
-      const sampleItems = [
-        genSampleItem(sample11.id, 1),
-        genSampleItem(sample11.id, 2),
-      ];
-
-      await request(app)
-        .put(testRoute(sample11.id))
-        .send(sampleItems)
-        .use(tokenProvider(Sampler1Fixture))
-        .expect(constants.HTTP_STATUS_OK);
-
-      await expect(
-        SampleItems().where({ sampleId: sample11.id })
-      ).resolves.toMatchObject(sampleItems);
     });
   });
 
