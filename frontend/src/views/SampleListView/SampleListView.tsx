@@ -131,7 +131,6 @@ const SampleListView = () => {
   }, [userInfos?.region, findSampleOptions.region]);
 
   const tableHeaders = [
-    'id', //TODO: remove it
     'Matrice',
     'Préleveur',
     'Date',
@@ -146,11 +145,22 @@ const SampleListView = () => {
     () =>
       (samples ?? []).map((sample) => [
         ...[
-          sample.id, //TODO: remove it
           (sample.matrix && MatrixLabels[sample.matrix]) ?? '',
-          isPartialSample(sample)
-            ? `${sample.sampler.firstName} ${sample.sampler.lastName}`
-            : `${userInfos?.firstName} ${userInfos?.lastName}`,
+          <div className="d-flex-align-center">
+            {pendingSamples[sample.id] && (
+              <span className="fr-icon-link-unlink fr-icon--sm fr-mr-1w"></span>
+            )}
+            {isPartialSample(sample) ? (
+              <>
+                {sample.sampler.firstName} {sample.sampler.lastName}
+              </>
+            ) : (
+              <>
+                {userInfos?.firstName} ${userInfos?.lastName}
+              </>
+            )}
+          </div>,
+
           format(sample.sampledAt, 'dd/MM/yyyy'),
           sample.department,
           sample.company?.name ?? '',
