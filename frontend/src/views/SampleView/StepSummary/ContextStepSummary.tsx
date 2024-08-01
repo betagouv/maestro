@@ -4,7 +4,11 @@ import { format } from 'date-fns';
 import { DepartmentLabels } from 'shared/referential/Department';
 import { LegalContextLabels } from 'shared/referential/LegalContext';
 import { ProgrammingPlanKindLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { isSample, Sample, SampleToCreate } from 'shared/schema/Sample/Sample';
+import {
+  isCreatedSample,
+  Sample,
+  SampleToCreate,
+} from 'shared/schema/Sample/Sample';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useGetProgrammingPlanQuery } from 'src/services/programming-plan.service';
 import StepSummary from 'src/views/SampleView/StepSummary/StepSummary';
@@ -14,7 +18,7 @@ interface Props {
   showLabel?: boolean;
 }
 
-const CreationStepSummary = ({ sample, showLabel }: Props) => {
+const ContextStepSummary = ({ sample, showLabel }: Props) => {
   const { userInfos } = useAuthentication();
 
   const { data: sampleProgrammingPlan } = useGetProgrammingPlanQuery(
@@ -38,7 +42,7 @@ const CreationStepSummary = ({ sample, showLabel }: Props) => {
         <div>
           Prélèvement réalisé par 
           <b>
-            {isSample(sample)
+            {isCreatedSample(sample)
               ? `${sample.sampler.firstName} ${sample.sampler.lastName}`
               : `${userInfos?.firstName} ${userInfos?.lastName}`}
           </b>
@@ -63,9 +67,7 @@ const CreationStepSummary = ({ sample, showLabel }: Props) => {
           ) : (
             <div>
               Latitude et longitude :{' '}
-              <span className={cx('fr-label--error')}>
-                Informations à compléter
-              </span>
+              <span className="missing-data">Informations à compléter</span>
             </div>
           )}
           {sample.parcel && (
@@ -100,10 +102,8 @@ const CreationStepSummary = ({ sample, showLabel }: Props) => {
             </>
           ) : (
             <>
-              {sample.companySearch}
-              <div className={cx('fr-label--error')}>
-                Information à compléter
-              </div>
+              {sample.companyOffline}
+              <div className="missing-data">Information à compléter</div>
             </>
           )}
           {sample.resytalId && (
@@ -128,4 +128,4 @@ const CreationStepSummary = ({ sample, showLabel }: Props) => {
   );
 };
 
-export default CreationStepSummary;
+export default ContextStepSummary;

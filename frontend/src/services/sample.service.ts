@@ -2,7 +2,7 @@ import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import fp from 'lodash';
 import { FindSampleOptions } from 'shared/schema/Sample/FindSampleOptions';
 import {
-  isPartialSample,
+  isCreatedPartialSample,
   PartialSample,
   PartialSampleToCreate,
 } from 'shared/schema/Sample/Sample';
@@ -50,10 +50,10 @@ export const sampleApi = api.injectEndpoints({
     >({
       queryFn: async (partialSample, _queryApi, _extraOptions, fetchWithBQ) => {
         const result = await fetchWithBQ({
-          url: isPartialSample(partialSample)
+          url: isCreatedPartialSample(partialSample)
             ? `samples/${partialSample.id}`
             : 'samples',
-          method: isPartialSample(partialSample) ? 'PUT' : 'POST',
+          method: isCreatedPartialSample(partialSample) ? 'PUT' : 'POST',
           body: partialSample,
         });
 

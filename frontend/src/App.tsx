@@ -57,7 +57,6 @@ function App() {
 
   useEffect(() => {
     if (isOnline) {
-      console.info('Sending pending samples', pendingSamples);
       Object.values(pendingSamples).forEach(async (sample) => {
         await createOrUpdateSample(sample);
       });

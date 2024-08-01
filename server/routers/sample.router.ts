@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { FindSampleOptions } from '../../shared/schema/Sample/FindSampleOptions';
 import {
   PartialSample,
-  SampleContextData,
+  PartialSampleToCreate,
 } from '../../shared/schema/Sample/Sample';
 import sampleController from '../controllers/sampleController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
@@ -57,7 +57,7 @@ router.get(
 );
 router.post(
   '',
-  validator.validate(body(SampleContextData)),
+  validator.validate(body(PartialSampleToCreate)),
   permissionsCheck(['createSample']),
   sampleController.createSample
 );

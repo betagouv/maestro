@@ -5,12 +5,17 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { skipToken } from '@reduxjs/toolkit/query';
 import React, { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { isSample, Sample, SampleToCreate } from 'shared/schema/Sample/Sample';
+import { Link, useNavigate } from 'react-router-dom';
+import {
+  isCreatedSample,
+  Sample,
+  SampleToCreate,
+} from 'shared/schema/Sample/Sample';
 import { SampleItem } from 'shared/schema/Sample/SampleItem';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
+import { useOnLine } from 'src/hooks/useOnLine';
 import { useGetLaboratoryQuery } from 'src/services/laboratory.service';
 import {
   getSupportDocumentURL,
@@ -19,7 +24,7 @@ import {
 import { pluralize } from 'src/utils/stringUtils';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SendingModal from 'src/views/SampleView/DraftSample/SendingStep/SendingModal';
-import CreationStepSummary from 'src/views/SampleView/StepSummary/CreationStepSummary';
+import ContextStepSummary from 'src/views/SampleView/StepSummary/ContextStepSummary';
 import ItemsStepSummary from 'src/views/SampleView/StepSummary/ItemsStepSummary';
 import MatrixStepSummary from 'src/views/SampleView/StepSummary/MatrixStepSummary';
 
@@ -30,6 +35,7 @@ interface Props {
 const SendingStep = ({ sample }: Props) => {
   const navigate = useNavigate();
   const { hasPermission } = useAuthentication();
+  const { isOnline } = useOnLine();
 
   const [items, setItems] = useState<SampleItem[]>(sample.items);
 
@@ -39,6 +45,11 @@ const SendingStep = ({ sample }: Props) => {
 
   const { data: laboratory } = useGetLaboratoryQuery(
     (sample.laboratoryId as string) ?? skipToken
+  );
+
+  const isSendable = useMemo(
+    () => Sample.safeParse(sample).success && isOnline,
+    [sample, isOnline]
   );
 
   const sendingSampleModal = useMemo(
@@ -94,7 +105,8 @@ const SendingStep = ({ sample }: Props) => {
     <>
       <div data-testid="sample_data" className="sample-form">
         <h3 className={cx('fr-m-0')}>
-          Récapitulatif du prélèvement {isSample(sample) && sample.reference}
+          Récapitulatif du prélèvement{' '}
+          {isCreatedSample(sample) && sample.reference}
           {hasPermission('updateSample') && (
             <div className={cx('fr-text--md', 'fr-text--regular', 'fr-m-0')}>
               Vérifiez l’ensemble des informations avant de finaliser votre
@@ -102,7 +114,7 @@ const SendingStep = ({ sample }: Props) => {
             </div>
           )}
         </h3>
-        <CreationStepSummary sample={sample} />
+        <ContextStepSummary sample={sample} />
         <hr className={cx('fr-mx-0', 'fr-hidden', 'fr-unhidden-sm')} />
         <MatrixStepSummary sample={sample} />
         <hr className={cx('fr-mx-0', 'fr-hidden', 'fr-unhidden-sm')} />
@@ -117,33 +129,43 @@ const SendingStep = ({ sample }: Props) => {
           itemChildren={(item, itemIndex) => (
             <>
               <hr className={cx('fr-m-0')} />
-              <div>
-                <h6>
-                  Document d'accompagnement du prélèvement / Procès verbal
-                </h6>
-                <ButtonsGroup
-                  inlineLayoutWhen="always"
-                  buttons={[
-                    {
-                      children: 'Aperçu',
-                      iconId: 'fr-icon-external-link-line',
-                      priority: 'secondary',
-                      onClick: () =>
-                        window.open(
-                          getSupportDocumentURL(sample.id, itemIndex + 1)
-                        ),
-                    },
-                    {
-                      children: 'Imprimer',
-                      iconId: 'fr-icon-file-pdf-line',
-                      onClick: () =>
-                        window.open(
-                          getSupportDocumentURL(sample.id, itemIndex + 1)
-                        ),
-                    },
-                  ]}
-                />
-              </div>
+              {isOnline ? (
+                <div>
+                  <h6>
+                    Document d'accompagnement du prélèvement / Procès verbal
+                  </h6>
+                  <ButtonsGroup
+                    inlineLayoutWhen="always"
+                    buttons={[
+                      {
+                        children: 'Aperçu',
+                        iconId: 'fr-icon-external-link-line',
+                        priority: 'secondary',
+                        onClick: () =>
+                          window.open(
+                            getSupportDocumentURL(sample.id, itemIndex + 1)
+                          ),
+                      },
+                      {
+                        children: 'Imprimer',
+                        iconId: 'fr-icon-file-pdf-line',
+                        onClick: () =>
+                          window.open(
+                            getSupportDocumentURL(sample.id, itemIndex + 1)
+                          ),
+                      },
+                    ]}
+                  />
+                </div>
+              ) : (
+                <div className="d-flex-align-center">
+                  <span
+                    className={cx('fr-icon-warning-line', 'fr-mr-1w')}
+                  ></span>
+                  Le document d'accompagnement du prélèvement / Procès verbal
+                  sera disponible lorsque la connexion Internet sera rétablie.
+                </div>
+              )}
               <hr className={cx('fr-m-0')} />
               <div>
                 <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
@@ -210,9 +232,33 @@ const SendingStep = ({ sample }: Props) => {
             </>
           )}
         />
+        {!isSendable && (
+          <Alert
+            severity="warning"
+            description={
+              <>
+                En l’absence de connexion lors de la saisie, certaines
+                informations n’ont pu être validées (<b>entité contrôlée</b> et
+                <b> localisation de la parcelle</b>)
+                <div>
+                  <Link
+                    to=""
+                    onClick={async (e: React.MouseEvent<HTMLElement>) => {
+                      e.preventDefault();
+                      await save('Draft');
+                    }}
+                  >
+                    Compléter ces informations
+                  </Link>
+                </div>
+              </>
+            }
+            small
+          />
+        )}
         {isError ? (
           <Alert
-            severity={'error'}
+            severity="error"
             description="Une erreur est survenue lors de l'envoi, veuillez réessayer."
             small
           />
@@ -254,7 +300,7 @@ const SendingStep = ({ sample }: Props) => {
                 />
               </li>
               <li>
-                {laboratory ? (
+                {laboratory && (
                   <Button
                     iconId="fr-icon-send-plane-fill"
                     iconPosition="right"
@@ -264,11 +310,10 @@ const SendingStep = ({ sample }: Props) => {
                         sendingSampleModal.open()
                       );
                     }}
+                    disabled={!isSendable}
                   >
                     Envoyer la demande d’analyse
                   </Button>
-                ) : (
-                  <Alert severity={'error'} title={'Laboratoire non trouvé'} />
                 )}
               </li>
             </ul>

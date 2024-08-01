@@ -76,8 +76,8 @@ const ContextStep = ({ partialSample }: Props) => {
   const [department, setDepartment] = useState(partialSample?.department);
   const [parcel, setParcel] = useState(partialSample?.parcel);
   const [company, setCompany] = useState(partialSample?.company);
-  const [companySearch, setCompanySearch] = useState(
-    partialSample?.companySearch
+  const [companyOffline, setCompanyOffline] = useState(
+    partialSample?.companyOffline
   );
   const [notesOnCreation, setNotesOnCreation] = useState(
     partialSample?.notesOnCreation
@@ -105,7 +105,7 @@ const ContextStep = ({ partialSample }: Props) => {
       isOnline
         ? { company: Company }
         : {
-            companySearch: z.string({
+            companyOffline: z.string({
               required_error: "Veuillez renseigner l'entité contrôlée.",
             }),
           }
@@ -154,7 +154,7 @@ const ContextStep = ({ partialSample }: Props) => {
         : (programmingPlanId as string),
     legalContext: legalContext as LegalContext,
     company,
-    companySearch,
+    companyOffline,
     resytalId: resytalId as string,
     notesOnCreation,
     status: 'DraftMatrix' as SampleStatus,
@@ -164,7 +164,6 @@ const ContextStep = ({ partialSample }: Props) => {
     e.preventDefault();
     await form.validate(async () => {
       if (partialSample) {
-        console.log('save');
         await save('DraftMatrix');
         navigate(`/prelevements/${partialSample.id}`, { replace: true });
       } else {
@@ -216,7 +215,7 @@ const ContextStep = ({ partialSample }: Props) => {
           : programmingPlanId,
       legalContext,
       company,
-      companySearch,
+      companyOffline,
       resytalId,
       notesOnCreation,
       status: 'DraftMatrix',
@@ -390,6 +389,20 @@ const ContextStep = ({ partialSample }: Props) => {
         data-testid="legalContext-radio"
       />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+        {isOnline && companyOffline && !company && (
+          <div
+            className={cx(
+              'fr-col-12',
+              'fr-col-sm-6',
+              'fr-col-offset-sm-6--right'
+            )}
+          >
+            <span className="missing-data">
+              Entité saisie hors ligne à compléter : 
+            </span>
+            {companyOffline}
+          </div>
+        )}
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
           {isOnline ? (
             <CompanySearch
@@ -407,10 +420,10 @@ const ContextStep = ({ partialSample }: Props) => {
           ) : (
             <AppTextInput<FormShape>
               type="text"
-              defaultValue={companySearch ?? ''}
-              onChange={(e) => setCompanySearch(e.target.value)}
+              defaultValue={companyOffline ?? ''}
+              onChange={(e) => setCompanyOffline(e.target.value)}
               inputForm={form}
-              inputKey="companySearch"
+              inputKey="companyOffline"
               whenValid="Entité correctement renseignée."
               label="Entité contrôlée"
               hintText="Saisissez le nom, un SIRET ou un SIREN"

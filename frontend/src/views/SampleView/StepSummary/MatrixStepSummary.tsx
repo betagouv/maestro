@@ -76,17 +76,26 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
           </div>
         </div>
       )}
-      {laboratory && (
+      <div className="summary-item icon-text">
+        <div className={cx('fr-icon-mental-health-line')}></div>
+        <div>
+          Laboratoire destinataire :{' '}
+          {laboratory ? (
+            <b>{laboratory.name}</b>
+          ) : (
+            <div className="missing-data">Information non disponible</div>
+          )}
+        </div>
+      </div>
+      {!monoSubstances?.length && !multiSubstances?.length && (
         <div className="summary-item icon-text">
-          <div className={cx('fr-icon-checkbox-circle-line')}></div>
-          <div>
-            Laboratoire destinataire : <b>{laboratory.name}</b>
-          </div>
+          <div className={cx('fr-icon-list-ordered')}></div>
+          <div className="missing-data">Méthode d'analyse non disponible</div>
         </div>
       )}
       {monoSubstances && monoSubstances.length > 0 && (
         <div className="summary-item icon-text">
-          <div className={cx('fr-icon-checkbox-circle-line')}></div>
+          <div className={cx('fr-icon-list-ordered')}></div>
           <div>
             Analyses mono-résidu :{' '}
             <ul>
@@ -101,7 +110,7 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
       )}
       {multiSubstances && multiSubstances.length > 0 && (
         <div className="summary-item icon-text">
-          <div className={cx('fr-icon-checkbox-circle-line')}></div>
+          <div className={cx('fr-icon-list-ordered')}></div>
           <div>
             Analyses multi-résidus dont :{' '}
             <ul>

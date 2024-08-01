@@ -10,8 +10,8 @@ import { Laboratory } from '../../shared/schema/Laboratory/Laboratory';
 import { FindSampleOptions } from '../../shared/schema/Sample/FindSampleOptions';
 import {
   PartialSample,
+  PartialSampleToCreate,
   Sample,
-  SampleContextData,
 } from '../../shared/schema/Sample/Sample';
 import { SampleItem } from '../../shared/schema/Sample/SampleItem';
 import { DraftStatusList } from '../../shared/schema/Sample/SampleStatus';
@@ -127,7 +127,7 @@ const exportSamples = async (request: Request, response: Response) => {
 
 const createSample = async (request: Request, response: Response) => {
   const { user } = request as AuthenticatedRequest;
-  const sampleToCreate = request.body as SampleContextData;
+  const sampleToCreate = request.body as PartialSampleToCreate;
 
   console.info('Create sample', sampleToCreate);
 
@@ -156,6 +156,10 @@ const createSample = async (request: Request, response: Response) => {
     lastUpdatedAt: new Date(),
   };
   await sampleRepository.insert(sample);
+
+  if (sampleToCreate.items) {
+    await sampleItemRepository.insertMany(sampleToCreate.items);
+  }
 
   response.status(constants.HTTP_STATUS_CREATED).send(sample);
 };

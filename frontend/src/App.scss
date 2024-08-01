@@ -212,3 +212,8 @@ h6,
 .icon-grey {
   color: var(--text-mention-grey);
 }
+
+.missing-data {
+  color: var(--text-default-warning);
+  font-weight: bold;
+}

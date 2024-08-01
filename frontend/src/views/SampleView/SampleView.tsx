@@ -29,7 +29,7 @@ const SampleView = () => {
     skip: !sampleId || sampleId in pendingSamples,
   });
 
-  const sample = data ?? pendingSamples[sampleId ?? ''];
+  const sample = pendingSamples[sampleId ?? ''] ?? data;
 
   if (!sampleId) {
     return <DraftSample />;

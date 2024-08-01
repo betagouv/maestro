@@ -47,7 +47,7 @@ export const SampleContextData = z.object({
     .nullish(),
   legalContext: LegalContext,
   company: Company.nullish(),
-  companySearch: z.string().nullish(),
+  companyOffline: z.string().nullish(),
   resytalId: z.string().nullish(),
   notesOnCreation: z.string().nullish(),
   status: SampleStatus,
@@ -124,10 +124,11 @@ export const getSampleRegion = (sample: PartialSample): Region | undefined =>
     Regions[region].departments.includes(sample.department)
   );
 
-export const isPartialSample = (
+export const isCreatedPartialSample = (
   partialSample: PartialSample | PartialSampleToCreate
 ): partialSample is PartialSample =>
   CreatedSampleData.safeParse(partialSample).success;
 
-export const isSample = (sample: Sample | SampleToCreate): sample is Sample =>
-  CreatedSampleData.safeParse(sample).success;
+export const isCreatedSample = (
+  sample: Sample | SampleToCreate
+): sample is Sample => CreatedSampleData.safeParse(sample).success;

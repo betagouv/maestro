@@ -6,8 +6,18 @@ import {
   PartialSample,
   PartialSampleToCreate,
 } from 'shared/schema/Sample/Sample';
+import { z } from 'zod';
 const pendingSamples = JSON.parse(
   localStorage.getItem('pendingSamples') ?? '[]'
+).reduce(
+  (acc: Record<string, PartialSample | PartialSampleToCreate>, _: any) => {
+    const sample = z
+      .union([PartialSampleToCreate, PartialSample])
+      .parse(fp.omitBy(_, fp.isNil));
+    acc[sample.id] = sample;
+    return acc;
+  },
+  {} as Record<string, PartialSample | PartialSampleToCreate>
 );
 
 type SamplesState = {
@@ -52,9 +62,15 @@ const samplesSlice = createSlice({
       );
     },
     removePendingSample: (state, action: PayloadAction<string>) => {
-      if (state.pendingSamples[action.payload]) {
-        delete pendingSamples[action.payload];
-      }
+      state.pendingSamples = Object.entries(state.pendingSamples).reduce(
+        (acc, [key, value]) => {
+          if (key !== action.payload) {
+            acc[key] = value;
+          }
+          return acc;
+        },
+        {} as Record<string, PartialSample | PartialSampleToCreate>
+      );
       localStorage.setItem(
         'pendingSamples',
         JSON.stringify(Object.values(state.pendingSamples))

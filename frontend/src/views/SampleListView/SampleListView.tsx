@@ -19,7 +19,7 @@ import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
 import { Region, RegionList, Regions } from 'shared/referential/Region';
 import { defaultPerPage } from 'shared/schema/commons/Pagination';
 import { FindSampleOptions } from 'shared/schema/Sample/FindSampleOptions';
-import { isPartialSample } from 'shared/schema/Sample/Sample';
+import { isCreatedPartialSample } from 'shared/schema/Sample/Sample';
 import {
   DraftStatusList,
   SampleStatus,
@@ -150,13 +150,13 @@ const SampleListView = () => {
             {pendingSamples[sample.id] && (
               <span className="fr-icon-link-unlink fr-icon--sm fr-mr-1w"></span>
             )}
-            {isPartialSample(sample) ? (
+            {isCreatedPartialSample(sample) ? (
               <>
                 {sample.sampler.firstName} {sample.sampler.lastName}
               </>
             ) : (
               <>
-                {userInfos?.firstName} ${userInfos?.lastName}
+                {userInfos?.firstName} {userInfos?.lastName}
               </>
             )}
           </div>,

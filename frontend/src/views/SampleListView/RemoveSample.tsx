@@ -2,7 +2,7 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useMemo } from 'react';
 import {
-  isPartialSample,
+  isCreatedPartialSample,
   PartialSample,
   PartialSampleToCreate,
 } from 'shared/schema/Sample/Sample';
@@ -43,7 +43,7 @@ const RemoveSample = ({ sample }: RemoveSampleProps) => {
         closeOnConfirm
       >
         Êtes-vous sûr de vouloir supprimer le prélèvement{' '}
-        {isPartialSample(sample) ? sample.reference : ''} ?
+        {isCreatedPartialSample(sample) ? sample.reference : ''} ?
       </ConfirmationModal>
     </>
   );

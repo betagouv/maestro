@@ -21,6 +21,12 @@ clientsClaim();
 // This variable must be present somewhere in your service worker file,
 // even if you decide not to use precaching. See https://cra.link/PWA
 precacheAndRoute(self.__WB_MANIFEST);
+// precacheAndRoute([
+//   {
+//     url: '/static/media/ressources.44d71a0011f3daf991cfe07ea6e98b14.svg',
+//     revision: null,
+//   },
+// ]);
 
 // Set up App Shell-style routing, so that all navigation requests
 // are fulfilled with your index.html shell. Learn more at
@@ -44,7 +50,7 @@ registerRoute(
 
     return true;
   },
-  createHandlerBoundToURL(process.env.PUBLIC_URL + '/index.html')
+  createHandlerBoundToURL(process.env.REACT_APP_PUBLIC_URL + '/index.html')
 );
 
 registerRoute(
@@ -72,7 +78,7 @@ registerRoute(
       request.destination === 'script' ||
       request.destination === 'image'),
   new NetworkFirst({
-    cacheName: 'assets-cache',
+    cacheName: 'assets-offline-cache',
     plugins: [
       new ExpirationPlugin({
         maxEntries: 50, // Limite le nombre d'éléments dans le cache
@@ -89,7 +95,7 @@ registerRoute(
   ({ url, request }) =>
     request.method === 'GET' && url.pathname.startsWith('/api'),
   new NetworkFirst({
-    cacheName: 'api-cache',
+    cacheName: 'api-offline-cache',
     plugins: [
       new ExpirationPlugin({
         maxEntries: 100, // Limite le nombre d'éléments dans le cache
