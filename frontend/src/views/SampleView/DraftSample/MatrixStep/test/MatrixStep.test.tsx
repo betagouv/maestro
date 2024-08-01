@@ -238,8 +238,6 @@ describe('SampleStepDraftInfos', () => {
       )
     ).toHaveLength(19);
 
-    console.log(calls.map((_) => _.body));
-
     expect(calls).toContainEqual({
       url: `${config.apiEndpoint}/api/samples/${createdSample.id}`,
       method: 'PUT',
