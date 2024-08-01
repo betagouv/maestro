@@ -61,7 +61,7 @@ export const SampleMatrixData = z.object({
   cultureKind: CultureKind.nullish(),
   releaseControl: z.boolean().nullish(),
   notesOnMatrix: z.string().nullish(),
-  laboratoryId: z.string().uuid(),
+  laboratoryId: z.string().uuid().nullish(),
 });
 
 export const SampleItemsData = z.object({
@@ -94,6 +94,7 @@ export const SampleToCreate =
 export const Sample = SampleToCreate.merge(CreatedSampleData).extend({
   geolocation: Geolocation,
   company: Company,
+  laboratoryId: z.string().uuid(),
   sentAt: z.coerce.date().nullish(),
   receivedAt: z
     .union([z.string(), z.date()])
@@ -106,7 +107,6 @@ export const Sample = SampleToCreate.merge(CreatedSampleData).extend({
     )
     .nullish(),
   notesOnAdmissibility: z.string().nullish(),
-  laboratoryId: z.string().uuid(),
 });
 
 export type Geolocation = z.infer<typeof Geolocation>;
