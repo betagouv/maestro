@@ -61,7 +61,7 @@ function App() {
         await createOrUpdateSample(sample);
       });
     }
-  }, [isOnline]);
+  }, [isOnline]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <React.Suspense fallback={<></>}>
