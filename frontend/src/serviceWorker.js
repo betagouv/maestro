@@ -21,14 +21,6 @@ clientsClaim();
 // This variable must be present somewhere in your service worker file,
 // even if you decide not to use precaching. See https://cra.link/PWA
 precacheAndRoute(self.__WB_MANIFEST);
-precacheAndRoute([
-  '/dsfr/icons/editor/link-unlink.svg',
-  '/dsfr/icons/system/fr--info-fill.svg',
-  '/dsfr/icons/system/fr--error-fill.svg',
-  '/dsfr/fonts/Marianne-Light.woff2',
-  '/dsfr/icons/device/save-line.svg',
-  '/dsfr/icons/system/arrow-left-line.svg',
-]);
 
 // Set up App Shell-style routing, so that all navigation requests
 // are fulfilled with your index.html shell. Learn more at
