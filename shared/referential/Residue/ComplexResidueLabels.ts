@@ -159,4 +159,8 @@ export const ComplexResidueLabels: Record<ComplexResidue, string> = {
     'Fenvalerate (any ratio of constituent isomers (RR, SS, RS and SR) including esfenvalerate)',
   'RF-1078-002-PPP':
     'Didecyldimethylammonium chloride (mixture of alkyl-quaternary ammonium salts with alkyl chain lengths of C8, C10 and C12)',
+  'RF-00014208-PAR':
+    'Sum of M4 and M6 (both free and conjugated), expressed as pinoxaden',
+  'RF-00014207-PAR':
+    'Quinmerac (sum of quinmerac and its metabolites BH 518-2 and BH 518-4 expressed as quinmerac)',
 };
