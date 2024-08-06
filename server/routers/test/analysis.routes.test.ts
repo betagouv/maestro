@@ -19,7 +19,7 @@ import {
   genPartialResidue,
 } from '../../../shared/test/analysisFixtures';
 import { genDocument } from '../../../shared/test/documentFixtures';
-import { genPartialSample } from '../../../shared/test/sampleFixtures';
+import { genCreatedPartialSample } from '../../../shared/test/sampleFixtures';
 import { oneOf } from '../../../shared/test/testFixtures';
 import {
   Analysis,
@@ -39,7 +39,7 @@ describe('Analysis router', () => {
   const { app } = createServer();
 
   const sample1 = {
-    ...genPartialSample(
+    ...genCreatedPartialSample(
       Sampler1Fixture,
       ProgrammingPlanFixture.id,
       CompanyFixture
@@ -47,7 +47,7 @@ describe('Analysis router', () => {
     department: oneOf(Regions[Region1Fixture].departments),
   };
   const sample2 = {
-    ...genPartialSample(
+    ...genCreatedPartialSample(
       Sampler1Fixture,
       ProgrammingPlanFixture.id,
       CompanyFixture

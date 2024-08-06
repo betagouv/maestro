@@ -1,26 +1,29 @@
 import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import { skipToken } from '@reduxjs/toolkit/query';
 import { useMemo } from 'react';
 import { CultureKindLabels } from 'shared/referential/CultureKind';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
 import { MatrixPartLabels } from 'shared/referential/MatrixPart';
 import { StageLabels } from 'shared/referential/Stage';
-import { Sample } from 'shared/schema/Sample/Sample';
+import { Sample, SampleToCreate } from 'shared/schema/Sample/Sample';
 import { useGetLaboratoryQuery } from 'src/services/laboratory.service';
 import { useFindSubstanceAnalysisQuery } from 'src/services/substance.service';
 import StepSummary from 'src/views/SampleView/StepSummary/StepSummary';
 
 interface Props {
-  sample: Sample;
+  sample: Sample | SampleToCreate;
   showLabel?: boolean;
 }
 const MatrixStepSummary = ({ sample, showLabel }: Props) => {
   const { data: substanceAnalysis } = useFindSubstanceAnalysisQuery({
     matrix: sample.matrix,
-    // year: sample.sampledAt.getFullYear(), //TODO Uncomment this line when the issue on sample.sampledAt will be fixed
+    year: sample.sampledAt.getFullYear(),
   });
 
-  const { data: laboratory } = useGetLaboratoryQuery(sample.laboratoryId);
+  const { data: laboratory } = useGetLaboratoryQuery(
+    sample.laboratoryId ?? skipToken
+  );
 
   const monoSubstances = useMemo(() => {
     return substanceAnalysis?.filter((analysis) => analysis.kind === 'Mono');
@@ -76,17 +79,26 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
           </div>
         </div>
       )}
-      {laboratory && (
+      <div className="summary-item icon-text">
+        <div className={cx('fr-icon-mental-health-line')}></div>
+        <div>
+          Laboratoire destinataire :{' '}
+          {laboratory ? (
+            <b>{laboratory.name}</b>
+          ) : (
+            <span className="missing-data">Information non disponible</span>
+          )}
+        </div>
+      </div>
+      {!monoSubstances?.length && !multiSubstances?.length && (
         <div className="summary-item icon-text">
-          <div className={cx('fr-icon-checkbox-circle-line')}></div>
-          <div>
-            Laboratoire destinataire : <b>{laboratory.name}</b>
-          </div>
+          <div className={cx('fr-icon-list-ordered')}></div>
+          <div className="missing-data">Méthode d'analyse non disponible</div>
         </div>
       )}
       {monoSubstances && monoSubstances.length > 0 && (
         <div className="summary-item icon-text">
-          <div className={cx('fr-icon-checkbox-circle-line')}></div>
+          <div className={cx('fr-icon-list-ordered')}></div>
           <div>
             Analyses mono-résidu :{' '}
             <ul>
@@ -101,7 +113,7 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
       )}
       {multiSubstances && multiSubstances.length > 0 && (
         <div className="summary-item icon-text">
-          <div className={cx('fr-icon-checkbox-circle-line')}></div>
+          <div className={cx('fr-icon-list-ordered')}></div>
           <div>
             Analyses multi-résidus dont :{' '}
             <ul>

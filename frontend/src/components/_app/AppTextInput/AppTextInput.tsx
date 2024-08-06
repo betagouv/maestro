@@ -48,7 +48,14 @@ function AppTextInput<T extends ZodRawShape>(props: AppTextInputProps<T>) {
         placeholder,
       }}
       hintText={hintText}
-      state={state ?? inputForm.messageType(String(inputKey), inputPathFromKey)}
+      state={
+        state ?? textInputProps.required
+          ? inputForm.messageType(String(inputKey), inputPathFromKey)
+          : inputForm.messageType(String(inputKey), inputPathFromKey) ===
+            'error'
+          ? 'error'
+          : 'default'
+      }
       stateRelatedMessage={
         stateRelatedMessage ??
         inputForm.message(String(inputKey), inputPathFromKey, whenValid)

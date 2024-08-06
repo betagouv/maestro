@@ -14,3 +14,7 @@ export const mockGeolocation = {
 global.navigator.geolocation = mockGeolocation;
 
 global.URL.createObjectURL = jest.fn();
+
+jest.mock('src/hooks/useOnLine', () => ({
+  useOnLine: () => ({ isOnline: true }),
+}));

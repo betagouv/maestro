@@ -5,23 +5,24 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PartialSample, Sample } from 'shared/schema/Sample/Sample';
+import {
+  PartialSample,
+  PartialSampleToCreate,
+  SampleItemsData,
+} from 'shared/schema/Sample/Sample';
 import { PartialSampleItem } from 'shared/schema/Sample/SampleItem';
 import { isDefinedAndNotNull } from 'shared/utils/utils';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import { useForm } from 'src/hooks/useForm';
-import {
-  useUpdateSampleItemsMutation,
-  useUpdateSampleMutation,
-} from 'src/services/sample.service';
+import { useCreateOrUpdateSampleMutation } from 'src/services/sample.service';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SampleItemDetails from 'src/views/SampleView/SampleItemDetails/SampleItemDetails';
 
 export const MaxItemCount = 3;
 
 interface Props {
-  partialSample: PartialSample;
+  partialSample: PartialSample | PartialSampleToCreate;
 }
 
 const ItemsStep = ({ partialSample }: Props) => {
@@ -41,13 +42,9 @@ const ItemsStep = ({ partialSample }: Props) => {
   );
   const [notesOnItems, setNotesOnItems] = useState(partialSample?.notesOnItems);
 
-  const [updateSampleItems] = useUpdateSampleItemsMutation();
-  const [updateSample] = useUpdateSampleMutation();
+  const [createOrUpdateSample] = useCreateOrUpdateSampleMutation();
 
-  const Form = Sample.pick({
-    items: true,
-    notesOnItems: true,
-  });
+  const Form = SampleItemsData;
 
   type FormShape = typeof Form.shape;
 
@@ -62,13 +59,10 @@ const ItemsStep = ({ partialSample }: Props) => {
   };
 
   const save = async (status = partialSample.status) => {
-    await updateSampleItems({
-      id: partialSample.id,
-      items,
-    });
-    await updateSample({
+    await createOrUpdateSample({
       ...partialSample,
       notesOnItems,
+      items,
       status,
     });
   };
@@ -110,7 +104,7 @@ const ItemsStep = ({ partialSample }: Props) => {
               }}
               onChangeItem={changeItems}
               itemsForm={form}
-              laboratoryId={partialSample.laboratoryId}
+              //TODO laboratoryId={partialSample.laboratoryId}
             />
           </div>
         ))}

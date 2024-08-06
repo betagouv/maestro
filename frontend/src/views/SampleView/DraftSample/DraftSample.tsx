@@ -3,11 +3,15 @@ import Stepper from '@codegouvfr/react-dsfr/Stepper';
 import clsx from 'clsx';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { PartialSample, Sample } from 'shared/schema/Sample/Sample';
+import {
+  PartialSample,
+  PartialSampleToCreate,
+  Sample,
+} from 'shared/schema/Sample/Sample';
 import { SampleStatus } from 'shared/schema/Sample/SampleStatus';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
-import CreationStep from 'src/views/SampleView/DraftSample/CreationStep/CreationStep';
+import ContextStep from 'src/views/SampleView/DraftSample/ContextStep/ContextStep';
 import ItemsStep from 'src/views/SampleView/DraftSample/ItemsStep/ItemsStep';
 import MatrixStep from 'src/views/SampleView/DraftSample/MatrixStep/MatrixStep';
 import SendingStep from 'src/views/SampleView/DraftSample/SendingStep/SendingStep';
@@ -16,7 +20,7 @@ import audit from '../../../assets/illustrations/audit.svg';
 import '../SampleView.scss';
 
 interface Props {
-  sample?: PartialSample | Sample;
+  sample?: PartialSample | PartialSampleToCreate;
 }
 
 const SampleView = ({ sample }: Props) => {
@@ -71,7 +75,7 @@ const SampleView = ({ sample }: Props) => {
             />
           </div>
         )}
-        {step === 1 && <CreationStep partialSample={sample} />}
+        {step === 1 && <ContextStep partialSample={sample} />}
         {step === 2 && sample && <MatrixStep partialSample={sample} />}
         {step === 3 && sample && <ItemsStep partialSample={sample} />}
         {step === 4 && sample && <SendingStep sample={sample as Sample} />}

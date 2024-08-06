@@ -1,12 +1,12 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import React from 'react';
-import { Sample } from 'shared/schema/Sample/Sample';
+import { Sample, SampleToCreate } from 'shared/schema/Sample/Sample';
 import { SampleItem } from 'shared/schema/Sample/SampleItem';
 import SampleItemDetails from 'src/views/SampleView/SampleItemDetails/SampleItemDetails';
 
 interface Props {
-  sample: Sample;
+  sample: Sample | SampleToCreate;
   itemChildren?: (item: SampleItem, itemIndex: number) => React.ReactNode;
 }
 

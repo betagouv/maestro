@@ -166,7 +166,11 @@ const SampleItemDetails = ({
           {itemIndex === 0 ? (
             <>
               Laboratoire destinataire :{' '}
-              {laboratory ? <b>{laboratory.name}</b> : <i>Non renseigné</i>}
+              {laboratory ? (
+                <b>{laboratory.name}</b>
+              ) : (
+                <span className="missing-data">Information non disponible</span>
+              )}
             </>
           ) : (
             <AppRadioButtons<FormShape>

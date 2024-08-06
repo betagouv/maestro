@@ -12,7 +12,7 @@ import { useDocument } from 'src/hooks/useDocument';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import SampleAnalysis from 'src/views/SampleView/SampleAnalysis/SampleAnalysis';
 import { SampleStepTitles } from 'src/views/SampleView/SampleView';
-import CreationStepSummary from 'src/views/SampleView/StepSummary/CreationStepSummary';
+import ContextStepSummary from 'src/views/SampleView/StepSummary/ContextStepSummary';
 import ItemsStepSummary from 'src/views/SampleView/StepSummary/ItemsStepSummary';
 import MatrixStepSummary from 'src/views/SampleView/StepSummary/MatrixStepSummary';
 import './SampleOverview.scss';
@@ -93,7 +93,7 @@ const SampleOverview = ({ sample }: Props) => {
           },
           {
             label: SampleStepTitles(sample)[0],
-            content: <CreationStepSummary sample={sample} showLabel={false} />,
+            content: <ContextStepSummary sample={sample} showLabel={false} />,
           },
           {
             label: SampleStepTitles(sample)[1],
