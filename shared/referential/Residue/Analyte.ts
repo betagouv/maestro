@@ -241,6 +241,11 @@ export const Analyte = z.enum(
     'RF-00007489-PAR',
     'RF-00007495-PAR',
     'RF-00007627-PAR',
+    'RF-00006819-PAR',
+    'RF-00006827-PAR',
+    'RF-0381-001-PPP',
+    'RF-00007283-PAR',
+    'RF-00007284-PAR',
   ],
   {
     errorMap: () => ({
