@@ -761,6 +761,18 @@ export const SimpleResidue = z.enum(
     'RF-1057-001-PPP',
     'RF-1062-001-PPP',
     'RF-1071-001-PPP',
+    'RF-00009238-PAR',
+    'RF-00012298-PAR',
+    'RF-00013414-PAR',
+    'RF-00013741-PAR',
+    'RF-00014144-PAR',
+    'RF-00014213-PAR',
+    'RF-00014255-PAR',
+    'RF-00014535-PAR',
+    'RF-00014542-PAR',
+    'RF-00014543-PAR',
+    'RF-00014544-PAR',
+    'RF-00014552-PAR',
   ],
   {
     errorMap: () => ({

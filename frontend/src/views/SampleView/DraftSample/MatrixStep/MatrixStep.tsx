@@ -18,7 +18,11 @@ import {
   MatrixPartList,
 } from 'shared/referential/MatrixPart';
 import { Stage, StageLabels, StageList } from 'shared/referential/Stage';
-import { PartialSample, Sample } from 'shared/schema/Sample/Sample';
+import {
+  PartialSample,
+  PartialSampleToCreate,
+  SampleMatrixData,
+} from 'shared/schema/Sample/Sample';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
@@ -26,11 +30,11 @@ import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaIn
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useForm } from 'src/hooks/useForm';
 import { useFindPrescriptionsQuery } from 'src/services/prescription.service';
-import { useUpdateSampleMutation } from 'src/services/sample.service';
+import { useCreateOrUpdateSampleMutation } from 'src/services/sample.service';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 
 interface Props {
-  partialSample: PartialSample;
+  partialSample: PartialSample | PartialSampleToCreate;
 }
 
 const MatrixStep = ({ partialSample }: Props) => {
@@ -50,12 +54,7 @@ const MatrixStep = ({ partialSample }: Props) => {
     partialSample.notesOnMatrix
   );
 
-  const [updateSample] = useUpdateSampleMutation();
-
-  console.log(
-    'partialSample.programmingPlanId',
-    partialSample.programmingPlanId
-  );
+  const [createOrUpdate] = useCreateOrUpdateSampleMutation();
 
   const { data: prescriptions } = useFindPrescriptionsQuery(
     { programmingPlanId: partialSample.programmingPlanId as string },
@@ -64,16 +63,7 @@ const MatrixStep = ({ partialSample }: Props) => {
     }
   );
 
-  const Form = Sample.pick({
-    matrix: true,
-    matrixDetails: true,
-    matrixPart: true,
-    stage: true,
-    cultureKind: true,
-    releaseControl: true,
-    notesOnMatrix: true,
-    status: true,
-  });
+  const Form = SampleMatrixData;
 
   type FormShape = typeof Form.shape;
 
@@ -91,7 +81,7 @@ const MatrixStep = ({ partialSample }: Props) => {
     const prescription = prescriptions?.find(
       (p) => matrix && stage && p.matrix === matrix && p.stages.includes(stage)
     );
-    await updateSample({
+    await createOrUpdate({
       ...partialSample,
       matrixDetails,
       matrix,
@@ -115,7 +105,7 @@ const MatrixStep = ({ partialSample }: Props) => {
       cultureKind,
       releaseControl,
       notesOnMatrix,
-      status: partialSample.status,
+      laboratoryId: partialSample.laboratoryId,
     },
     save
   );

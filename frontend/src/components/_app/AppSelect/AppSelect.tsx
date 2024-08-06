@@ -44,7 +44,14 @@ function AppSelect<T extends ZodRawShape>(props: AppSelectProps<T>) {
       nativeSelectProps={{
         ...selectProps,
       }}
-      state={inputForm.messageType(String(inputKey), inputPathFromKey)}
+      state={
+        selectProps.required
+          ? inputForm.messageType(String(inputKey), inputPathFromKey)
+          : inputForm.messageType(String(inputKey), inputPathFromKey) ===
+            'error'
+          ? 'error'
+          : 'default'
+      }
       stateRelatedMessage={inputForm.message(
         String(inputKey),
         inputPathFromKey,

@@ -252,4 +252,9 @@ export const AnalyteLabels: Record<Analyte, string> = {
   'RF-00007489-PAR': 'Dilauryldimonium Chloride',
   'RF-00007495-PAR': 'Dioctyldimonium Chloride',
   'RF-00007627-PAR': 'DDAC-C10 (Didecyldimethylammonium chloride)',
+  'RF-00006819-PAR': 'Pinoxaden metabolite (SYN 502836)',
+  'RF-00006827-PAR': 'Pinoxaden metabolite (SYN 505164)',
+  'RF-0381-001-PPP': 'Quinmerac',
+  'RF-00007283-PAR': '7-chloroquinoline-3,8-dicarboxylic acid',
+  'RF-00007284-PAR': '7-chloro-3-(hydroxymethyl)quinoline-8-carboxylic acid',
 };

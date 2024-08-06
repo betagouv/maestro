@@ -38,7 +38,14 @@ function AppTextAreaInput<T extends ZodRawShape>(props: AppTextInputProps<T>) {
         ...textInputProps,
         placeholder,
       }}
-      state={state ?? inputForm.messageType(String(inputKey), inputPathFromKey)}
+      state={
+        state ?? textInputProps.required
+          ? inputForm.messageType(String(inputKey), inputPathFromKey)
+          : inputForm.messageType(String(inputKey), inputPathFromKey) ===
+            'error'
+          ? 'error'
+          : 'default'
+      }
       stateRelatedMessage={
         stateRelatedMessage ??
         inputForm.message(String(inputKey), inputPathFromKey, whenValid)

@@ -4,19 +4,20 @@ import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { QuantityUnitList } from 'shared/referential/QuantityUnit';
 import { SampleStatus } from 'shared/schema/Sample/SampleStatus';
-import { genCreatedSample } from 'shared/test/sampleFixtures';
+import {
+  genCreatedSampleData,
+  genSampleContextData,
+} from 'shared/test/sampleFixtures';
 import { store } from 'src/store/store';
 import config from 'src/utils/config';
 import ItemsStep from 'src/views/SampleView/DraftSample/ItemsStep/ItemsStep';
-import {
-  getRequestCalls,
-  mockRequests,
-} from '../../../../../../test/requestUtils.test';
+import { getRequestCalls } from '../../../../../../test/requestUtils.test';
 
 describe('SampleStepDraftItems', () => {
   const user = userEvent.setup();
   const draftSample = {
-    ...genCreatedSample(),
+    ...genSampleContextData(),
+    ...genCreatedSampleData(),
     status: 'DraftItems' as SampleStatus,
   };
 
@@ -105,14 +106,6 @@ describe('SampleStepDraftItems', () => {
   });
 
   test('should save the items and the sample on change without handling errors', async () => {
-    mockRequests([
-      {
-        pathname: `/api/samples/${draftSample.id}/items`,
-        method: 'PUT',
-        response: { body: JSON.stringify({}) },
-      },
-    ]);
-
     render(
       <Provider store={store}>
         <BrowserRouter>
@@ -140,30 +133,12 @@ describe('SampleStepDraftItems', () => {
     const calls = await getRequestCalls(fetchMock);
     expect(
       calls.filter((call) =>
-        call?.url.endsWith(`/api/samples/${draftSample.id}/items`)
-      )
-    ).toHaveLength(2);
-    expect(
-      calls.filter((call) =>
         call?.url.endsWith(`/api/samples/${draftSample.id}`)
       )
     ).toHaveLength(2);
   });
 
   test('should submit the items and update sample status', async () => {
-    mockRequests([
-      {
-        pathname: `/api/samples/${draftSample.id}`,
-        method: 'PUT',
-        response: { body: JSON.stringify({}) },
-      },
-      {
-        pathname: `/api/samples/${draftSample.id}/items`,
-        method: 'PUT',
-        response: { body: JSON.stringify({}) },
-      },
-    ]);
-
     render(
       <Provider store={store}>
         <BrowserRouter>
@@ -186,29 +161,10 @@ describe('SampleStepDraftItems', () => {
     const calls = await getRequestCalls(fetchMock);
     expect(
       calls.filter((call) =>
-        call?.url.endsWith(`/api/samples/${draftSample.id}/items`)
-      )
-    ).toHaveLength(7);
-    expect(
-      calls.filter((call) =>
         call?.url.endsWith(`/api/samples/${draftSample.id}`)
       )
     ).toHaveLength(7);
 
-    expect(calls).toContainEqual({
-      method: 'PUT',
-      url: `${config.apiEndpoint}/api/samples/${draftSample.id}/items`,
-      body: [
-        {
-          itemNumber: 1,
-          quantity: 10,
-          quantityUnit: QuantityUnitList[0],
-          sampleId: draftSample.id,
-          sealId: '12a',
-          recipientKind: 'Laboratory',
-        },
-      ],
-    });
     expect(calls).toContainEqual({
       method: 'PUT',
       url: `${config.apiEndpoint}/api/samples/${draftSample.id}`,
@@ -218,6 +174,16 @@ describe('SampleStepDraftItems', () => {
         lastUpdatedAt: draftSample.lastUpdatedAt.toISOString(),
         sampledAt: draftSample.sampledAt.toISOString(),
         status: 'Submitted',
+        items: [
+          {
+            itemNumber: 1,
+            quantity: 10,
+            quantityUnit: QuantityUnitList[0],
+            sampleId: draftSample.id,
+            sealId: '12a',
+            recipientKind: 'Laboratory',
+          },
+        ],
       },
     });
   });

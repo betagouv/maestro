@@ -10,18 +10,20 @@ import { Regions } from '../referential/Region';
 import { Stage, StageList } from '../referential/Stage';
 import { Company } from '../schema/Company/Company';
 import {
-  CreatedSample,
+  CreatedSampleData,
+  Geolocation,
   PartialSample,
   Sample,
-  SampleToCreate,
+  SampleContextData,
 } from '../schema/Sample/Sample';
 import { SampleItem } from '../schema/Sample/SampleItem';
 import { User } from '../schema/User/User';
 import { genBoolean, genCompany, genNumber, oneOf } from './testFixtures';
 
-export const genSampleToCreate = (
+export const genSampleContextData = (
   programmingPlanId?: string
-): SampleToCreate => ({
+): SampleContextData => ({
+  id: uuidv4(),
   sampledAt: new Date(),
   department: oneOf(Regions['44'].departments),
   geolocation: {
@@ -38,12 +40,9 @@ export const genSampleToCreate = (
     }),
   company: genCompany(),
   notesOnCreation: randomstring.generate(),
+  status: 'Draft',
 });
-export const genCreatedSample = (
-  user?: User,
-  programmingPlanId?: string
-): CreatedSample => ({
-  id: uuidv4(),
+export const genCreatedSampleData = (user?: User): CreatedSampleData => ({
   reference: `44-${oneOf(Regions['44'].departments)}-24-${genNumber(4)}-${oneOf(
     LegalContextList
   )}`,
@@ -54,34 +53,35 @@ export const genCreatedSample = (
   },
   createdAt: new Date(),
   lastUpdatedAt: new Date(),
-  status: 'DraftMatrix',
-  ...genSampleToCreate(programmingPlanId),
 });
-export const genPartialSample = (
+export const genCreatedPartialSample = (
   user?: User,
   programmingPlanId?: string,
   company?: Company
 ): PartialSample => {
-  const sample = genCreatedSample(user, programmingPlanId);
+  const contextData = genSampleContextData(programmingPlanId);
   return {
-    ...sample,
+    ...contextData,
+    ...genCreatedSampleData(user),
     company: company ?? genCompany(),
     matrix: oneOf(MatrixList),
     matrixPart: oneOf(MatrixPartList),
     stage: oneOf(StageList),
     cultureKind: oneOf(CultureKindList),
     releaseControl: genBoolean(),
-    items: [genSampleItem(sample.id, 1)],
+    items: [genSampleItem(contextData.id, 1)],
   };
 };
-export const genSample = (
+export const genCreatedSample = (
   user?: User,
   programmingPlanId?: string,
   company?: Company
 ): Sample => {
-  const sample = genPartialSample(user, programmingPlanId, company);
+  const sample = genCreatedPartialSample(user, programmingPlanId, company);
   return {
     ...sample,
+    geolocation: sample.geolocation as Geolocation,
+    company: sample.company as Company,
     matrix: sample.matrix as Matrix,
     matrixPart: sample.matrixPart as MatrixPart,
     stage: sample.stage as Stage,

@@ -1,5 +1,6 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import { Skeleton } from '@mui/material';
 import clsx from 'clsx';
 import { t } from 'i18next';
 import ressources from 'src/assets/illustrations/ressources.svg';
@@ -7,6 +8,7 @@ import AutoClose from 'src/components/AutoClose/AutoClose';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
+import { useOnLine } from 'src/hooks/useOnLine';
 import {
   useCreateDocumentMutation,
   useFindResourcesQuery,
@@ -15,6 +17,7 @@ import AddDocument from 'src/views/DocumentListView/AddDocument';
 import DocumentTable from 'src/views/DocumentListView/DocumentTable';
 const DocumentListView = () => {
   useDocumentTitle('Liste des resources ressources');
+  const { isOnline } = useOnLine();
 
   const { hasPermission } = useAuthentication();
 
@@ -43,23 +46,27 @@ const DocumentListView = () => {
         illustration={ressources}
       />
 
-      <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
-        <div className={cx('fr-mb-4w')}>
-          {t('document', { count: resources?.length || 0 })}
-        </div>
-        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={cx('fr-col-7', 'fr-col-offset-1--right')}>
-            {resources && resources.length > 0 && (
-              <DocumentTable documents={resources} />
+      {isOnline ? (
+        <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
+          <div className={cx('fr-mb-4w')}>
+            {t('document', { count: resources?.length || 0 })}
+          </div>
+          <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+            <div className={cx('fr-col-7', 'fr-col-offset-1--right')}>
+              {resources && resources.length > 0 && (
+                <DocumentTable documents={resources} />
+              )}
+            </div>
+            {hasPermission('createResource') && (
+              <div className={cx('fr-col-4')}>
+                <AddDocument key={`add-document-${isCreateSuccess}`} />
+              </div>
             )}
           </div>
-          {hasPermission('createResource') && (
-            <div className={cx('fr-col-4')}>
-              <AddDocument key={`add-document-${isCreateSuccess}`} />
-            </div>
-          )}
         </div>
-      </div>
+      ) : (
+        <Skeleton variant="rectangular" width="100%" height={400} />
+      )}
     </section>
   );
 };

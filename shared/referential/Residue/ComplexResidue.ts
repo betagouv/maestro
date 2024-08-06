@@ -85,6 +85,8 @@ export const ComplexResidue = z.enum(
     'RF-0440-001-PPP',
     'RF-0690-006-PPP',
     'RF-1078-002-PPP',
+    'RF-00014208-PAR',
+    'RF-00014207-PAR',
   ],
   {
     errorMap: () => ({

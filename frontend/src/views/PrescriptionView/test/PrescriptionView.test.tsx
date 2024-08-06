@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import Router, { BrowserRouter } from 'react-router-dom';
 import { Region, RegionList } from 'shared/referential/Region';
-import { genPartialSample } from 'shared/test/sampleFixtures';
+import { genCreatedPartialSample } from 'shared/test/sampleFixtures';
 import {
   genAuthUser,
   genPrescriptions,
@@ -25,7 +25,7 @@ const programmingPlan = {
 };
 const prescriptions1 = genPrescriptions(programmingPlan.id);
 const prescriptions2 = genPrescriptions(programmingPlan.id);
-const sample = genPartialSample(genUser(), programmingPlan.id);
+const sample = genCreatedPartialSample(genUser(), programmingPlan.id);
 
 const prescriptionRequest = (region?: Region) => ({
   pathname: `/api/programming-plans/${programmingPlan.id}/prescriptions?${

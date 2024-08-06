@@ -2,7 +2,11 @@ import { configureStore, Store } from '@reduxjs/toolkit';
 import { render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import Router, { BrowserRouter } from 'react-router-dom';
-import { genCreatedSample, genPartialSample } from 'shared/test/sampleFixtures';
+import {
+  genCreatedPartialSample,
+  genCreatedSampleData,
+  genSampleContextData,
+} from 'shared/test/sampleFixtures';
 import {
   genAuthUser,
   genPrescriptions,
@@ -77,7 +81,11 @@ describe('SampleView', () => {
   });
 
   test('should render the second step for a draft sample', async () => {
-    const createdSample = genCreatedSample(sampler, programmingPlan1.id);
+    const createdSample = {
+      ...genSampleContextData(programmingPlan1.id),
+      ...genCreatedSampleData(sampler),
+      status: 'DraftMatrix',
+    };
     mockRequests([
       userRequest,
       prescriptionsRequest,
@@ -114,7 +122,7 @@ describe('SampleView', () => {
 
   test('should render the third step for a sample with status DraftItems', async () => {
     const draftSample = {
-      ...genPartialSample(),
+      ...genCreatedPartialSample(),
       status: 'DraftItems',
     };
     mockRequests([
@@ -150,7 +158,7 @@ describe('SampleView', () => {
 
   test('should render the fourth step for a sample with status Submitted', async () => {
     const draftSample = {
-      ...genPartialSample(),
+      ...genCreatedPartialSample(),
       status: 'Submitted',
     };
     mockRequests([

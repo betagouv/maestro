@@ -4,16 +4,23 @@ import { format } from 'date-fns';
 import { DepartmentLabels } from 'shared/referential/Department';
 import { LegalContextLabels } from 'shared/referential/LegalContext';
 import { ProgrammingPlanKindLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { Sample } from 'shared/schema/Sample/Sample';
+import {
+  isCreatedSample,
+  Sample,
+  SampleToCreate,
+} from 'shared/schema/Sample/Sample';
+import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useGetProgrammingPlanQuery } from 'src/services/programming-plan.service';
 import StepSummary from 'src/views/SampleView/StepSummary/StepSummary';
 
 interface Props {
-  sample: Sample;
+  sample: Sample | SampleToCreate;
   showLabel?: boolean;
 }
 
-const CreationStepSummary = ({ sample, showLabel }: Props) => {
+const ContextStepSummary = ({ sample, showLabel }: Props) => {
+  const { userInfos } = useAuthentication();
+
   const { data: sampleProgrammingPlan } = useGetProgrammingPlanQuery(
     sample.programmingPlanId as string,
     {
@@ -35,7 +42,9 @@ const CreationStepSummary = ({ sample, showLabel }: Props) => {
         <div>
           Prélèvement réalisé par 
           <b>
-            {sample.sampler.firstName} {sample.sampler.lastName}
+            {isCreatedSample(sample)
+              ? `${sample.sampler.firstName} ${sample.sampler.lastName}`
+              : `${userInfos?.firstName} ${userInfos?.lastName}`}
           </b>
         </div>
       </div>
@@ -50,10 +59,17 @@ const CreationStepSummary = ({ sample, showLabel }: Props) => {
         <div className={cx('fr-icon-road-map-line')}></div>
         <div>
           Département : <b>{DepartmentLabels[sample.department]}</b>
-          <div>
-            Latitude : <b>{sample.geolocation.x}</b> Longitude :
-            <b>{sample.geolocation.y}</b>
-          </div>
+          {sample.geolocation ? (
+            <div>
+              Latitude : <b>{sample.geolocation.x}</b> Longitude :
+              <b>{sample.geolocation.y}</b>
+            </div>
+          ) : (
+            <div>
+              Latitude et longitude :{' '}
+              <span className="missing-data">Informations à compléter</span>
+            </div>
+          )}
           {sample.parcel && (
             <div>
               N° ou appellation de la parcelle : <b>{sample.parcel}</b>
@@ -79,8 +95,17 @@ const CreationStepSummary = ({ sample, showLabel }: Props) => {
       <div className="summary-item icon-text">
         <div className={cx('fr-icon-map-pin-2-line')}></div>
         <div>
-          Entité contrôlée : <b>{sample.company.name}</b> - SIRET{' '}
-          {sample.company.siret}
+          Entité contrôlée :{' '}
+          {sample.company ? (
+            <>
+              <b>{sample.company.name}</b> - SIRET {sample.company.siret}
+            </>
+          ) : (
+            <>
+              {sample.companyOffline}
+              <div className="missing-data">Information à compléter</div>
+            </>
+          )}
           {sample.resytalId && (
             <div>
               Identifiant RESYTAL : <b>{sample.resytalId}</b>
@@ -103,4 +128,4 @@ const CreationStepSummary = ({ sample, showLabel }: Props) => {
   );
 };
 
-export default CreationStepSummary;
+export default ContextStepSummary;

@@ -4,6 +4,10 @@
       "generator": "url",
       "template": "%URL%"
     },
+    "REACT_APP_PUBLIC_URL": {
+      "generator": "url",
+      "template": "%URL%"
+    },
     "REACT_APP_API_URL": {
       "generator": "url",
       "template": "%URL%"

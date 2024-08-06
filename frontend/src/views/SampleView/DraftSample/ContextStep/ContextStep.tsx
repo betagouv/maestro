@@ -1,9 +1,10 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import { Skeleton } from '@mui/material';
 import clsx from 'clsx';
 import { format, parse } from 'date-fns';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Department,
@@ -21,7 +22,11 @@ import {
   companyFromSearchResult,
 } from 'shared/schema/Company/Company';
 import { ProgrammingPlanKindLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { PartialSample, SampleToCreate } from 'shared/schema/Sample/Sample';
+import {
+  PartialSample,
+  PartialSampleToCreate,
+  SampleContextData,
+} from 'shared/schema/Sample/Sample';
 import { SampleStatus } from 'shared/schema/Sample/SampleStatus';
 import balance from 'src/assets/illustrations/balance.svg';
 import controle from 'src/assets/illustrations/controle.svg';
@@ -34,22 +39,22 @@ import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaIn
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
+import { useOnLine } from 'src/hooks/useOnLine';
 import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.service';
-import {
-  useCreateSampleMutation,
-  useUpdateSampleMutation,
-} from 'src/services/sample.service';
-import SampleGeolocation from 'src/views/SampleView/DraftSample/CreationStep/SampleGeolocation';
+import { useCreateOrUpdateSampleMutation } from 'src/services/sample.service';
+import SampleGeolocation from 'src/views/SampleView/DraftSample/ContextStep/SampleGeolocation';
+import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import check from '../../../../assets/illustrations/check.svg';
 import leaf from '../../../../assets/illustrations/leaf.svg';
 interface Props {
-  partialSample?: PartialSample;
+  partialSample?: PartialSample | PartialSampleToCreate;
 }
 
-const CreationStep = ({ partialSample }: Props) => {
+const ContextStep = ({ partialSample }: Props) => {
   const navigate = useNavigate();
   const { userInfos } = useAuthentication();
+  const { isOnline } = useOnLine();
 
   const OutsideProgrammingId = 'OutsideProgramming';
   const [resytalId, setResytalId] = useState(partialSample?.resytalId);
@@ -58,10 +63,10 @@ const CreationStep = ({ partialSample }: Props) => {
   );
   const [legalContext, setLegalContext] = useState(partialSample?.legalContext);
   const [geolocationX, setGeolocationX] = useState(
-    partialSample?.geolocation.x
+    partialSample?.geolocation?.x
   );
   const [geolocationY, setGeolocationY] = useState(
-    partialSample?.geolocation.y
+    partialSample?.geolocation?.y
   );
   const [isBrowserGeolocation, setIsBrowserGeolocation] = useState(false);
   const [sampledAt, setSampledAt] = useState(
@@ -71,6 +76,9 @@ const CreationStep = ({ partialSample }: Props) => {
   const [department, setDepartment] = useState(partialSample?.department);
   const [parcel, setParcel] = useState(partialSample?.parcel);
   const [company, setCompany] = useState(partialSample?.company);
+  const [companyOffline, setCompanyOffline] = useState(
+    partialSample?.companyOffline
+  );
   const [notesOnCreation, setNotesOnCreation] = useState(
     partialSample?.notesOnCreation
   );
@@ -78,21 +86,30 @@ const CreationStep = ({ partialSample }: Props) => {
   const { data: programmingPlans } = useFindProgrammingPlansQuery({
     status: 'Validated',
   });
-  const [createSample] = useCreateSampleMutation();
-  const [updateSample] = useUpdateSampleMutation();
+  const [createOrUpdateSample] = useCreateOrUpdateSampleMutation();
 
-  const Form = SampleToCreate.omit({ geolocation: true }).merge(
-    z.object({
-      geolocationX: z.number({
-        required_error: 'Veuillez renseigner la latitude.',
-        invalid_type_error: 'Latitude invalide.',
-      }),
-      geolocationY: z.number({
-        required_error: 'Veuillez renseigner la longitude.',
-        invalid_type_error: 'Longitude invalide.',
-      }),
-    })
-  );
+  const geolocation = z.object({
+    geolocationX: z.number({
+      required_error: 'Veuillez renseigner la latitude.',
+      invalid_type_error: 'Latitude invalide.',
+    }),
+    geolocationY: z.number({
+      required_error: 'Veuillez renseigner la longitude.',
+      invalid_type_error: 'Longitude invalide.',
+    }),
+  });
+
+  const Form = SampleContextData.omit({ geolocation: true, company: true })
+    .merge(isOnline ? geolocation : geolocation.partial())
+    .extend(
+      isOnline
+        ? { company: Company }
+        : {
+            companyOffline: z.string({
+              required_error: "Veuillez renseigner l'entité contrôlée.",
+            }),
+          }
+    );
 
   type FormShape = typeof Form.shape;
 
@@ -117,22 +134,30 @@ const CreationStep = ({ partialSample }: Props) => {
     withDefault: false,
   });
 
+  const id = useMemo(() => partialSample?.id ?? uuidv4(), [partialSample]);
+
   const formData = {
+    id,
     sampledAt: parse(sampledAt, 'yyyy-MM-dd HH:mm', new Date()),
     department: department as Department,
-    geolocation: {
-      x: geolocationX as number,
-      y: geolocationY as number,
-    },
+    geolocation:
+      geolocationX && geolocationY
+        ? {
+            x: geolocationX as number,
+            y: geolocationY as number,
+          }
+        : undefined,
     parcel,
     programmingPlanId:
       (programmingPlanId as string) === OutsideProgrammingId
         ? undefined
         : (programmingPlanId as string),
     legalContext: legalContext as LegalContext,
-    company: company as Company,
+    company,
+    companyOffline,
     resytalId: resytalId as string,
     notesOnCreation,
+    status: 'DraftMatrix' as SampleStatus,
   };
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
@@ -142,7 +167,7 @@ const CreationStep = ({ partialSample }: Props) => {
         await save('DraftMatrix');
         navigate(`/prelevements/${partialSample.id}`, { replace: true });
       } else {
-        await createSample(formData)
+        await createOrUpdateSample(formData)
           .unwrap()
           .then((result) => {
             navigate(`/prelevements/${result.id}`, { replace: true });
@@ -152,8 +177,8 @@ const CreationStep = ({ partialSample }: Props) => {
   };
 
   const save = async (status = partialSample?.status) => {
-    if (partialSample?.status) {
-      await updateSample({
+    if (partialSample) {
+      await createOrUpdateSample({
         ...partialSample,
         ...formData,
         status: status as SampleStatus,
@@ -178,6 +203,7 @@ const CreationStep = ({ partialSample }: Props) => {
   const form = useForm(
     Form,
     {
+      id,
       sampledAt,
       department,
       geolocationX,
@@ -189,8 +215,10 @@ const CreationStep = ({ partialSample }: Props) => {
           : programmingPlanId,
       legalContext,
       company,
+      companyOffline,
       resytalId,
       notesOnCreation,
+      status: 'DraftMatrix',
     },
     save
   );
@@ -248,18 +276,22 @@ const CreationStep = ({ partialSample }: Props) => {
           </div>
         </div>
         <div className={cx('fr-col-12', 'fr-col-sm-8')}>
-          <SampleGeolocation
-            key={`geolocation-${isBrowserGeolocation}`}
-            location={
-              geolocationX && geolocationY
-                ? { x: geolocationX, y: geolocationY }
-                : undefined
-            }
-            onLocationChange={async (location) => {
-              setGeolocationX(location.x);
-              setGeolocationY(location.y);
-            }}
-          />
+          {isOnline ? (
+            <SampleGeolocation
+              key={`geolocation-${isBrowserGeolocation}`}
+              location={
+                geolocationX && geolocationY
+                  ? { x: geolocationX, y: geolocationY }
+                  : undefined
+              }
+              onLocationChange={async (location) => {
+                setGeolocationX(location.x);
+                setGeolocationY(location.y);
+              }}
+            />
+          ) : (
+            <Skeleton variant="rectangular" height={375} />
+          )}
         </div>
         <div className={cx('fr-col-12', 'fr-col-sm-4')}>
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
@@ -274,7 +306,9 @@ const CreationStep = ({ partialSample }: Props) => {
                 whenValid="Latitude correctement renseignée."
                 data-testid="geolocationX-input"
                 label="Latitude"
-                required
+                required={isOnline}
+                min={-90}
+                max={90}
               />
             </div>
             <div className={cx('fr-col-12')}>
@@ -288,7 +322,9 @@ const CreationStep = ({ partialSample }: Props) => {
                 whenValid="Longitude correctement renseignée."
                 data-testid="geolocationY-input"
                 label="Longitude"
-                required
+                required={isOnline}
+                min={-180}
+                max={180}
               />
             </div>
             <div className={cx('fr-col-12')}>
@@ -353,17 +389,47 @@ const CreationStep = ({ partialSample }: Props) => {
         data-testid="legalContext-radio"
       />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+        {isOnline && companyOffline && !company && (
+          <div
+            className={cx(
+              'fr-col-12',
+              'fr-col-sm-6',
+              'fr-col-offset-sm-6--right'
+            )}
+          >
+            <span className="missing-data">
+              Entité saisie hors ligne à compléter : 
+            </span>
+            {companyOffline}
+          </div>
+        )}
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-          <CompanySearch
-            department={department}
-            onSelectCompany={(result) => {
-              setCompany(result ? companyFromSearchResult(result) : undefined);
-            }}
-            state={form.messageType('company')}
-            stateRelatedMessage={
-              form.message('company') ?? 'Entité correctement renseignée'
-            }
-          />
+          {isOnline ? (
+            <CompanySearch
+              department={department}
+              onSelectCompany={(result) => {
+                setCompany(
+                  result ? companyFromSearchResult(result) : undefined
+                );
+              }}
+              state={form.messageType('company')}
+              stateRelatedMessage={
+                form.message('company') ?? 'Entité correctement renseignée'
+              }
+            />
+          ) : (
+            <AppTextInput<FormShape>
+              type="text"
+              defaultValue={companyOffline ?? ''}
+              onChange={(e) => setCompanyOffline(e.target.value)}
+              inputForm={form}
+              inputKey="companyOffline"
+              whenValid="Entité correctement renseignée."
+              label="Entité contrôlée"
+              hintText="Saisissez le nom, un SIRET ou un SIREN"
+              required
+            />
+          )}
         </div>
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
           <AppTextInput<FormShape>
@@ -426,4 +492,4 @@ const CreationStep = ({ partialSample }: Props) => {
   );
 };
 
-export default CreationStep;
+export default ContextStep;
