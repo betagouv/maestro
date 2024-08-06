@@ -85,22 +85,24 @@ registerRoute(
   })
 );
 
-// registerRoute(
-//   ({ url, request }) =>
-//     request.method === 'GET' && url.pathname.startsWith('/api'),
-//   new NetworkFirst({
-//     cacheName: 'api-offline-cache',
-//     plugins: [
-//       new ExpirationPlugin({
-//         maxEntries: 100, // Limite le nombre d'éléments dans le cache
-//         maxAgeSeconds: 5 * 24 * 60 * 60, // Cache pendant 5 jours
-//       }),
-//       new CacheableResponsePlugin({
-//         statuses: [0, 200], // Met en cache uniquement les réponses réussies
-//       }),
-//     ],
-//   })
-// );
+registerRoute(
+  ({ url, request }) =>
+    request.method === 'GET' &&
+    url.pathname.startsWith('/api') &&
+    !url.searchParams.has('x-access-token'),
+  new NetworkFirst({
+    cacheName: 'api-offline-cache',
+    plugins: [
+      new ExpirationPlugin({
+        maxEntries: 100, // Limite le nombre d'éléments dans le cache
+        maxAgeSeconds: 5 * 24 * 60 * 60, // Cache pendant 5 jours
+      }),
+      new CacheableResponsePlugin({
+        statuses: [0, 200], // Met en cache uniquement les réponses réussies
+      }),
+    ],
+  })
+);
 
 // This allows the web app to trigger skipWaiting via
 // registration.waiting.postMessage({type: 'SKIP_WAITING'})
