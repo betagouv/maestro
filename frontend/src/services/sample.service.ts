@@ -133,8 +133,10 @@ const sampleListExportURL = (findOptions: FindSampleOptions) => {
 export const {
   useCreateOrUpdateSampleMutation,
   useFindSamplesQuery,
+  useLazyFindSamplesQuery,
   useCountSamplesQuery,
   useGetSampleQuery,
+  useLazyGetSampleQuery,
   useUpdateSampleMutation,
   useDeleteSampleMutation,
   getSupportDocumentURL,

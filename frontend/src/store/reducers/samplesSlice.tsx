@@ -23,6 +23,7 @@ const pendingSamples = JSON.parse(
 type SamplesState = {
   findSampleOptions: FindSampleOptions;
   pendingSamples: Record<string, PartialSample | PartialSampleToCreate>;
+  offlineSamples: Record<string, PartialSample | PartialSampleToCreate>;
 };
 
 const samplesSlice = createSlice({

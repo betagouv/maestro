@@ -84,6 +84,7 @@ const prescriptionsExportURL = (findOptions: FindPrescriptionOptions) => {
 
 export const {
   useFindPrescriptionsQuery,
+  useLazyFindPrescriptionsQuery,
   useUpdatePrescriptionMutation,
   useAddPrescriptionsMutation,
   useDeletePrescriptionsMutation,
