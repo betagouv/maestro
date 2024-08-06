@@ -246,6 +246,9 @@ const SendingStep = ({ sample }: Props) => {
                     onClick={async (e: React.MouseEvent<HTMLElement>) => {
                       e.preventDefault();
                       await save('Draft');
+                      navigate(`/prelevements/${sample.id}?etape=1`, {
+                        replace: true,
+                      });
                     }}
                   >
                     Compléter ces informations
