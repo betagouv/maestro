@@ -104,7 +104,7 @@ const ItemsStep = ({ partialSample }: Props) => {
               }}
               onChangeItem={changeItems}
               itemsForm={form}
-              //TODO laboratoryId={partialSample.laboratoryId}
+              laboratoryId={partialSample.laboratoryId}
             />
           </div>
         ))}
