@@ -179,8 +179,7 @@ const updateSample = async (request: Request, response: Response) => {
   }
 
   if (sampleUpdate.items) {
-    await sampleItemRepository.deleteMany(sample.id);
-    await sampleItemRepository.insertMany(sampleUpdate.items);
+    await sampleItemRepository.updateMany(sample.id, sampleUpdate.items);
   }
 
   //TODO update only the fields concerned in relation to the status

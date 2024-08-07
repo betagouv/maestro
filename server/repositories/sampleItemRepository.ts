@@ -8,7 +8,8 @@ import db from './db';
 
 const sampleItemsTable = 'sample_items';
 
-export const SampleItems = () => db<PartialSampleItem>(sampleItemsTable);
+export const SampleItems = (transaction = db) =>
+  transaction<PartialSampleItem>(sampleItemsTable);
 
 const findUnique = async (
   sampleId: string,
@@ -41,9 +42,15 @@ const insertMany = async (
   }
 };
 
-const deleteMany = async (sampleId: string): Promise<void> => {
-  console.info('Delete sampleItems for sample', sampleId);
-  await SampleItems().where({ sampleId }).delete();
+const updateMany = async (
+  sampleId: string,
+  partialSampleItems: PartialSampleItem[]
+): Promise<void> => {
+  console.info('Update sampleItems for sample', sampleId);
+  await db.transaction(async (transaction) => {
+    await SampleItems(transaction).where({ sampleId }).delete();
+    await SampleItems(transaction).insert(partialSampleItems);
+  });
 };
 
 const update = async (
@@ -59,6 +66,6 @@ export default {
   findUnique,
   findMany,
   insertMany,
-  deleteMany,
   update,
+  updateMany,
 };
