@@ -405,16 +405,32 @@ describe('Sample router', () => {
       const badRequestTest = async (payload?: Record<string, unknown>) =>
         request(app)
           .put(`${testRoute(sample11.id)}`)
-          .send(payload)
+          .send({ ...sample11, ...payload })
           .use(tokenProvider(Sampler1Fixture))
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await badRequestTest({ matrix: 123 });
+      await badRequestTest({
+        items: [
+          {
+            ...genSampleItem(sample11.id, 1),
+            quantity: '123',
+          },
+        ],
+      });
+      await badRequestTest({
+        items: [
+          {
+            quantityUnit: 123,
+          },
+        ],
+      });
     });
 
     const validBody = {
       ...sample11,
       matrix: oneOf(MatrixList),
+      items: [genSampleItem(sample11.id, 1)],
     };
 
     it('should fail if the user does not have the permission to update samples', async () => {
@@ -438,10 +454,15 @@ describe('Sample router', () => {
         lastUpdatedAt: expect.any(String),
         sampledAt: sample11.sampledAt.toISOString(),
         matrix: validBody.matrix,
+        items: validBody.items,
       });
 
       await expect(
         Samples().where({ id: sample11.id, matrix: validBody.matrix }).first()
+      ).resolves.toBeDefined();
+
+      await expect(
+        SampleItems().where({ sampleId: sample11.id, itemNumber: 1 }).first()
       ).resolves.toBeDefined();
     });
   });
@@ -498,6 +519,10 @@ describe('Sample router', () => {
 
       await expect(
         Samples().where({ id: sample11.id }).first()
+      ).resolves.toBeUndefined();
+
+      await expect(
+        SampleItems().where({ sampleId: sample11.id }).first()
       ).resolves.toBeUndefined();
     });
   });
