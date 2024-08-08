@@ -15,6 +15,8 @@ export const FindSampleOptions = z
       .union([SampleStatus, coerceToArray(z.array(SampleStatus))])
       .nullish(),
     matrix: Matrix.nullish(),
+    sampledBy: z.string().uuid().nullish(),
+    sampledAt: z.string().nullish(),
   })
   .merge(Pagination.partial());
 

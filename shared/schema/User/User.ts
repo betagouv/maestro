@@ -15,6 +15,7 @@ export const User = z.object({
 });
 
 export const UserInfos = User.pick({
+  id: true,
   email: true,
   firstName: true,
   lastName: true,
