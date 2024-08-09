@@ -9,3 +9,13 @@
     flex: 1;
   }
 }
+
+.sample-filters-accordion {
+  background-color: var(--grey-1000-50);
+
+  .fr-accordion__btn {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--grey-1000-75);
+  }
+}

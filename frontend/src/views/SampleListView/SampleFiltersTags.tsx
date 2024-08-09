@@ -14,6 +14,7 @@ import {
   SampleStatusLabels,
 } from 'shared/schema/Sample/SampleStatus';
 import { UserInfos } from 'shared/schema/User/User';
+import { useAuthentication } from 'src/hooks/useAuthentication';
 
 interface Props {
   filters: FindSampleOptions;
@@ -22,12 +23,13 @@ interface Props {
   programmingPlans?: ProgrammingPlan[];
 }
 
-const SampleFilterTags = ({
+const SampleFiltersTags = ({
   filters,
   onChange,
   samplers,
   programmingPlans,
 }: Props) => {
+  const { hasNationalView } = useAuthentication();
   const sampler = useMemo(
     () => samplers?.find((user) => user.id === filters.sampledBy),
     [samplers, filters.sampledBy]
@@ -88,7 +90,7 @@ const SampleFilterTags = ({
           {format(new Date(filters.sampledAt as string), 'dd/MM/yyyy')}
         </Tag>
       )}
-      {filters.region && (
+      {hasNationalView && filters.region && (
         <Tag
           dismissible
           nativeButtonProps={{
@@ -126,4 +128,4 @@ const SampleFilterTags = ({
   );
 };
 
-export default SampleFilterTags;
+export default SampleFiltersTags;
