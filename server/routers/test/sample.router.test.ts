@@ -6,93 +6,34 @@ import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import {
   NationalCoordinator,
-  Region1Fixture,
-  Region2Fixture,
   Sampler1Fixture,
   Sampler2Fixture,
 } from '../../../database/seeds/test/001-users';
 import { ProgrammingPlanFixture } from '../../../database/seeds/test/002-programming-plans';
-import { CompanyFixture } from '../../../database/seeds/test/003-companies';
+import {
+  Sample11Fixture,
+  Sample12Fixture,
+  Sample13Fixture,
+  Sample2Fixture,
+} from '../../../database/seeds/test/004-samples';
 import { MatrixList } from '../../../shared/referential/Matrix/Matrix';
-import { Regions } from '../../../shared/referential/Region';
-import { SampleStatus } from '../../../shared/schema/Sample/SampleStatus';
+import { Region, Regions } from '../../../shared/referential/Region';
 import {
   genCreatedPartialSample,
   genSampleContextData,
   genSampleItem,
 } from '../../../shared/test/sampleFixtures';
 import { oneOf } from '../../../shared/test/testFixtures';
-import db from '../../repositories/db';
 import { SampleItems } from '../../repositories/sampleItemRepository';
-import {
-  formatPartialSample,
-  Samples,
-} from '../../repositories/sampleRepository';
+import { Samples } from '../../repositories/sampleRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
 describe('Sample router', () => {
   const { app } = createServer();
 
-  const sample11Id = uuidv4();
-  const sampleItem1 = genSampleItem(sample11Id, 1);
-  const sample11 = {
-    ...genCreatedPartialSample(
-      Sampler1Fixture,
-      ProgrammingPlanFixture.id,
-      CompanyFixture
-    ),
-    id: sample11Id,
-    items: [sampleItem1],
-    status: 'DraftMatrix' as SampleStatus,
-    department: oneOf(Regions[Region1Fixture].departments),
-  };
-  const sample12 = {
-    ...genCreatedPartialSample(
-      Sampler1Fixture,
-      ProgrammingPlanFixture.id,
-      CompanyFixture
-    ),
-    id: uuidv4(),
-    status: 'Draft' as SampleStatus,
-    department: oneOf(Regions[Region1Fixture].departments),
-  };
-  const sample13 = {
-    ...genCreatedPartialSample(
-      Sampler1Fixture,
-      ProgrammingPlanFixture.id,
-      CompanyFixture
-    ),
-    id: uuidv4(),
-    status: 'Sent' as SampleStatus,
-    department: oneOf(Regions[Region1Fixture].departments),
-  };
-  const sample2 = {
-    ...genCreatedPartialSample(
-      Sampler2Fixture,
-      ProgrammingPlanFixture.id,
-      CompanyFixture
-    ),
-    status: 'DraftMatrix' as SampleStatus,
-    department: oneOf(Regions[Region2Fixture].departments),
-  };
-
-  beforeAll(async () => {
-    await db.seed.run();
-    await Samples().insert([
-      formatPartialSample(sample11),
-      formatPartialSample(sample12),
-      formatPartialSample(sample13),
-      formatPartialSample(sample2),
-    ]);
-    await SampleItems().insert(sampleItem1);
-  });
-
-  afterAll(async () => {
-    await SampleItems().delete().where('sampleId', sample11.id);
-    await Samples()
-      .delete()
-      .where('id', 'in', [sample11.id, sample12.id, sample13.id, sample2.id]);
+  const sample = genSampleContextData({
+    programmingPlanId: ProgrammingPlanFixture.id,
   });
 
   describe('GET /samples/{sampleId}', () => {
@@ -100,7 +41,7 @@ describe('Sample router', () => {
 
     it('should fail if the user is not authenticated', async () => {
       await request(app)
-        .get(testRoute(sample11.id))
+        .get(testRoute(Sample11Fixture.id))
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
@@ -120,22 +61,22 @@ describe('Sample router', () => {
 
     it('should fail if the sample does not belong to the user region', async () => {
       await request(app)
-        .get(`${testRoute(sample11.id)}`)
+        .get(`${testRoute(Sample11Fixture.id)}`)
         .use(tokenProvider(Sampler2Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     it('should get the sample', async () => {
       const res = await request(app)
-        .get(testRoute(sample11.id))
+        .get(testRoute(Sample11Fixture.id))
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject({
-        ...sample11,
-        createdAt: sample11.createdAt.toISOString(),
-        lastUpdatedAt: sample11.lastUpdatedAt.toISOString(),
-        sampledAt: sample11.sampledAt.toISOString(),
+        ...Sample11Fixture,
+        createdAt: Sample11Fixture.createdAt.toISOString(),
+        lastUpdatedAt: Sample11Fixture.lastUpdatedAt.toISOString(),
+        sampledAt: Sample11Fixture.sampledAt.toISOString(),
       });
     });
   });
@@ -146,7 +87,7 @@ describe('Sample router', () => {
 
     it('should fail if the user is not authenticated', async () => {
       await request(app)
-        .get(testRoute(sample11.id, 1))
+        .get(testRoute(Sample11Fixture.id, 1))
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
@@ -166,21 +107,21 @@ describe('Sample router', () => {
 
     it('should fail if the item does not exist', async () => {
       await request(app)
-        .get(`${testRoute(sample11.id, 2)}`)
+        .get(`${testRoute(Sample11Fixture.id, 2)}`)
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
     it('should fail if the sample does not belong to the user region', async () => {
       await request(app)
-        .get(`${testRoute(sample11.id, 1)}`)
+        .get(`${testRoute(Sample11Fixture.id, 1)}`)
         .use(tokenProvider(Sampler2Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     it('should fail if the user does not have the permission to download the sample document', async () => {
       await request(app)
-        .get(`${testRoute(sample11.id, 1)}`)
+        .get(`${testRoute(Sample11Fixture.id, 1)}`)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
@@ -204,10 +145,10 @@ describe('Sample router', () => {
 
       expect(res.body).toMatchObject([
         {
-          ...fp.omit(sample11, ['items']),
-          createdAt: sample11.createdAt.toISOString(),
-          lastUpdatedAt: sample11.lastUpdatedAt.toISOString(),
-          sampledAt: sample11.sampledAt.toISOString(),
+          ...fp.omit(Sample11Fixture, ['items']),
+          createdAt: Sample11Fixture.createdAt.toISOString(),
+          lastUpdatedAt: Sample11Fixture.lastUpdatedAt.toISOString(),
+          sampledAt: Sample11Fixture.sampledAt.toISOString(),
         },
       ]);
     });
@@ -221,23 +162,17 @@ describe('Sample router', () => {
       expect(res.body).toMatchObject(
         expect.arrayContaining([
           {
-            ...fp.omit(sample2, ['items']),
-            createdAt: sample2.createdAt.toISOString(),
-            lastUpdatedAt: sample2.lastUpdatedAt.toISOString(),
-            sampledAt: sample2.sampledAt.toISOString(),
+            ...fp.omit(Sample11Fixture, ['items']),
+            createdAt: Sample11Fixture.createdAt.toISOString(),
+            lastUpdatedAt: Sample11Fixture.lastUpdatedAt.toISOString(),
+            sampledAt: Sample11Fixture.sampledAt.toISOString(),
           },
-          {
-            ...fp.omit(sample12, ['items']),
-            createdAt: sample12.createdAt.toISOString(),
-            lastUpdatedAt: sample12.lastUpdatedAt.toISOString(),
-            sampledAt: sample12.sampledAt.toISOString(),
-          },
-          {
-            ...fp.omit(sample11, ['items']),
-            createdAt: sample11.createdAt.toISOString(),
-            lastUpdatedAt: sample11.lastUpdatedAt.toISOString(),
-            sampledAt: sample11.sampledAt.toISOString(),
-          },
+          expect.objectContaining({
+            id: Sample12Fixture.id,
+          }),
+          expect.objectContaining({
+            id: Sample2Fixture.id,
+          }),
         ])
       );
     });
@@ -335,8 +270,6 @@ describe('Sample router', () => {
     });
 
     it('should create a sample', async () => {
-      const sample = genSampleContextData(ProgrammingPlanFixture.id);
-
       const res = await request(app)
         .post(testRoute)
         .send(sample)
@@ -354,7 +287,7 @@ describe('Sample router', () => {
             lastName: Sampler1Fixture.lastName,
           },
           sampledAt: sample.sampledAt.toISOString(),
-          reference: `${Regions[Sampler1Fixture.region].shortName}-${
+          reference: `${Regions[Sampler1Fixture.region as Region].shortName}-${
             sample.department
           }-${format(new Date(), 'yy')}-0001-${sample.legalContext}`,
           status: sample.status,
@@ -372,7 +305,7 @@ describe('Sample router', () => {
 
     it('should fail if the user is not authenticated', async () => {
       await request(app)
-        .put(`${testRoute(sample11.id)}`)
+        .put(`${testRoute(Sample11Fixture.id)}`)
         .send({})
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
@@ -395,8 +328,8 @@ describe('Sample router', () => {
 
     it('should fail if the sample does not belong to the user', async () => {
       await request(app)
-        .put(`${testRoute(sample11.id)}`)
-        .send(sample11)
+        .put(`${testRoute(Sample11Fixture.id)}`)
+        .send(Sample11Fixture)
         .use(tokenProvider(Sampler2Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
@@ -404,8 +337,8 @@ describe('Sample router', () => {
     it('should get a valid body', async () => {
       const badRequestTest = async (payload?: Record<string, unknown>) =>
         request(app)
-          .put(`${testRoute(sample11.id)}`)
-          .send({ ...sample11, ...payload })
+          .put(`${testRoute(Sample11Fixture.id)}`)
+          .send({ ...Sample11Fixture, ...payload })
           .use(tokenProvider(Sampler1Fixture))
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
@@ -413,7 +346,10 @@ describe('Sample router', () => {
       await badRequestTest({
         items: [
           {
-            ...genSampleItem(sample11.id, 1),
+            ...genSampleItem({
+              sampleId: Sample11Fixture.id,
+              itemNumber: 1,
+            }),
             quantity: '123',
           },
         ],
@@ -421,6 +357,10 @@ describe('Sample router', () => {
       await badRequestTest({
         items: [
           {
+            ...genSampleItem({
+              sampleId: Sample11Fixture.id,
+              itemNumber: 1,
+            }),
             quantityUnit: 123,
           },
         ],
@@ -428,14 +368,19 @@ describe('Sample router', () => {
     });
 
     const validBody = {
-      ...sample11,
+      ...Sample11Fixture,
       matrix: oneOf(MatrixList),
-      items: [genSampleItem(sample11.id, 1)],
+      items: [
+        genSampleItem({
+          sampleId: Sample11Fixture.id,
+          itemNumber: 1,
+        }),
+      ],
     };
 
     it('should fail if the user does not have the permission to update samples', async () => {
       await request(app)
-        .put(`${testRoute(sample11.id)}`)
+        .put(`${testRoute(Sample11Fixture.id)}`)
         .send(validBody)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
@@ -443,26 +388,30 @@ describe('Sample router', () => {
 
     it('should update the sample', async () => {
       const res = await request(app)
-        .put(`${testRoute(sample11.id)}`)
+        .put(`${testRoute(Sample11Fixture.id)}`)
         .send(validBody)
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject({
-        ...sample11,
-        createdAt: sample11.createdAt.toISOString(),
+        ...Sample11Fixture,
+        createdAt: Sample11Fixture.createdAt.toISOString(),
         lastUpdatedAt: expect.any(String),
-        sampledAt: sample11.sampledAt.toISOString(),
+        sampledAt: Sample11Fixture.sampledAt.toISOString(),
         matrix: validBody.matrix,
         items: validBody.items,
       });
 
       await expect(
-        Samples().where({ id: sample11.id, matrix: validBody.matrix }).first()
+        Samples()
+          .where({ id: Sample11Fixture.id, matrix: validBody.matrix })
+          .first()
       ).resolves.toBeDefined();
 
       await expect(
-        SampleItems().where({ sampleId: sample11.id, itemNumber: 1 }).first()
+        SampleItems()
+          .where({ sampleId: Sample11Fixture.id, itemNumber: 1 })
+          .first()
       ).resolves.toBeDefined();
     });
   });
@@ -472,7 +421,7 @@ describe('Sample router', () => {
 
     it('should fail if the user is not authenticated', async () => {
       await request(app)
-        .delete(testRoute(sample11.id))
+        .delete(testRoute(Sample11Fixture.id))
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
@@ -492,37 +441,37 @@ describe('Sample router', () => {
 
     it('should fail if the sample does not belong to the user', async () => {
       await request(app)
-        .delete(testRoute(sample11.id))
+        .delete(testRoute(Sample11Fixture.id))
         .use(tokenProvider(Sampler2Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     it('should fail if the user does not have the permission to delete samples', async () => {
       await request(app)
-        .delete(testRoute(sample11.id))
+        .delete(testRoute(Sample11Fixture.id))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     it('should be forbidden to delete a sample that is not in draft status', async () => {
       await request(app)
-        .delete(testRoute(sample13.id))
+        .delete(testRoute(Sample13Fixture.id))
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     it('should delete the sample', async () => {
       await request(app)
-        .delete(testRoute(sample11.id))
+        .delete(testRoute(sample.id))
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_NO_CONTENT);
 
       await expect(
-        Samples().where({ id: sample11.id }).first()
+        Samples().where({ id: sample.id }).first()
       ).resolves.toBeUndefined();
 
       await expect(
-        SampleItems().where({ sampleId: sample11.id }).first()
+        SampleItems().where({ sampleId: sample.id }).first()
       ).resolves.toBeUndefined();
     });
   });
