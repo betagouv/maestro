@@ -9,16 +9,12 @@ import {
   Sampler1Fixture,
   Sampler2Fixture,
 } from '../../../database/seeds/test/001-users';
-import db from '../../repositories/db';
+import { Region } from '../../../shared/referential/Region';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
 describe('User router', () => {
   const { app } = createServer();
-
-  beforeAll(async () => {
-    await db.seed.run();
-  });
 
   describe('GET /{userId}/infos', () => {
     it('should fail if the user is not authenticated', async () => {
@@ -77,7 +73,7 @@ describe('User router', () => {
 
     it('should filter users by region', async () => {
       const res = await request(app)
-        .get(testRoute({ region: Sampler1Fixture.region }))
+        .get(testRoute({ region: Sampler1Fixture.region as Region }))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
