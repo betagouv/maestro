@@ -4,12 +4,12 @@ import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import {
   NationalCoordinator,
-  Region1Fixture,
   Sampler1Fixture,
 } from '../../../database/seeds/test/001-users';
-import { ProgrammingPlanFixture } from '../../../database/seeds/test/002-programming-plans';
-import { CompanyFixture } from '../../../database/seeds/test/003-companies';
-import { Regions } from '../../../shared/referential/Region';
+import {
+  Sample11Fixture,
+  Sample2Fixture,
+} from '../../../database/seeds/test/004-samples';
 import { AnalyteList } from '../../../shared/referential/Residue/Analyte';
 import { PartialAnalyte } from '../../../shared/schema/Analysis/Analyte';
 import {
@@ -19,41 +19,20 @@ import {
   genPartialResidue,
 } from '../../../shared/test/analysisFixtures';
 import { genDocument } from '../../../shared/test/documentFixtures';
-import { genCreatedPartialSample } from '../../../shared/test/sampleFixtures';
 import { oneOf } from '../../../shared/test/testFixtures';
 import {
   Analysis,
   AnalysisResidues,
   ResidueAnalytes,
 } from '../../repositories/analysisRepository';
-import db from '../../repositories/db';
 import { Documents } from '../../repositories/documentRepository';
-import {
-  formatPartialSample,
-  Samples,
-} from '../../repositories/sampleRepository';
+import { Samples } from '../../repositories/sampleRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
 describe('Analysis router', () => {
   const { app } = createServer();
 
-  const sample1 = {
-    ...genCreatedPartialSample(
-      Sampler1Fixture,
-      ProgrammingPlanFixture.id,
-      CompanyFixture
-    ),
-    department: oneOf(Regions[Region1Fixture].departments),
-  };
-  const sample2 = {
-    ...genCreatedPartialSample(
-      Sampler1Fixture,
-      ProgrammingPlanFixture.id,
-      CompanyFixture
-    ),
-    department: oneOf(Regions[Region1Fixture].departments),
-  };
   const document1 = genDocument({
     createdBy: Sampler1Fixture.id,
     kind: 'AnalysisReportDocument',
@@ -63,12 +42,12 @@ describe('Analysis router', () => {
     kind: 'AnalysisReportDocument',
   });
   const analysisWithoutResidue = genPartialAnalysis({
-    sampleId: sample1.id,
+    sampleId: Sample11Fixture.id,
     reportDocumentId: document1.id,
     createdBy: Sampler1Fixture.id,
   });
   const analysisWithResidues = genPartialAnalysis({
-    sampleId: sample2.id,
+    sampleId: Sample2Fixture.id,
     reportDocumentId: document2.id,
     createdBy: Sampler1Fixture.id,
   });
@@ -94,11 +73,6 @@ describe('Analysis router', () => {
   ];
 
   beforeAll(async () => {
-    await db.seed.run();
-    await Samples().insert([
-      formatPartialSample(sample1),
-      formatPartialSample(sample2),
-    ]);
     await Documents().insert([document1, document2]);
     await Analysis().insert([analysisWithoutResidue, analysisWithResidues]);
     await AnalysisResidues().insert(residues);
@@ -106,9 +80,10 @@ describe('Analysis router', () => {
   });
 
   afterAll(async () => {
-    await Analysis().delete().where('sampleId', 'in', [sample1.id, sample2.id]);
+    await Analysis()
+      .delete()
+      .where('sampleId', 'in', [Sample11Fixture.id, Sample2Fixture.id]);
     await Documents().delete().where('id', 'in', [document1.id, document2.id]);
-    await Samples().delete().where('id', 'in', [sample1.id, sample2.id]);
   });
 
   describe('GET /analysis', () => {
@@ -232,7 +207,7 @@ describe('Analysis router', () => {
 
     it('should create an analysis and update the associated sample status', async () => {
       const analysis = genAnalysisToCreate({
-        sampleId: sample1.id,
+        sampleId: Sample11Fixture.id,
         reportDocumentId: document1.id,
       });
 
@@ -265,6 +240,10 @@ describe('Analysis router', () => {
       ).resolves.toMatchObject({
         status: 'Analysis',
       });
+
+      await Samples()
+        .where({ id: analysis.sampleId })
+        .update({ status: Sample11Fixture.status });
     });
   });
 
@@ -308,7 +287,7 @@ describe('Analysis router', () => {
     it('should get a valid body', async () => {
       const validBody = genPartialAnalysis({
         id: analysisWithoutResidue.id,
-        sampleId: sample1.id,
+        sampleId: Sample11Fixture.id,
         reportDocumentId: document1.id,
       });
       const badRequestTest = async (payload?: Record<string, unknown>) =>

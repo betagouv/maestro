@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import { constants } from 'http2';
 import randomstring from 'randomstring';
 import request from 'supertest';
-import { genUser, genValidPassword } from '../../../shared/test/testFixtures';
+import { genUser, genValidPassword } from '../../../shared/test/userFixtures';
 import { Users } from '../../repositories/userRepository';
 import { createServer } from '../../server';
 

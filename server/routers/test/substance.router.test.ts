@@ -5,7 +5,6 @@ import {
   genSubstance,
   genSubstanceAnalysis,
 } from '../../../shared/test/testFixtures';
-import db from '../../repositories/db';
 import {
   formatSubstanceAnalysis,
   SubstanceAnalysisTable,
@@ -26,7 +25,6 @@ describe('Substance Router', () => {
   });
 
   beforeAll(async () => {
-    await db.seed.run();
     await Substances().insert(substance);
     await SubstanceAnalysisTable().insert([
       formatSubstanceAnalysis(substanceAnalysis1),

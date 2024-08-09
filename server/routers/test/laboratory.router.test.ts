@@ -3,7 +3,6 @@ import randomstring from 'randomstring';
 import request from 'supertest';
 import { NationalCoordinator } from '../../../database/seeds/test/001-users';
 import { genLaboratory } from '../../../shared/test/testFixtures';
-import db from '../../repositories/db';
 import { Laboratories } from '../../repositories/laboratoryRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
@@ -14,7 +13,6 @@ describe('Laboratory router', () => {
   const laboratory = genLaboratory();
 
   beforeAll(async () => {
-    await db.seed.run();
     await Laboratories().insert(laboratory);
   });
 
