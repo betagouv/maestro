@@ -3,7 +3,7 @@ import { userEvent } from '@testing-library/user-event';
 import { format } from 'date-fns';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
-import { genProgrammingPlan } from 'shared/test/testFixtures';
+import { genProgrammingPlan } from 'shared/test/programmingPlanFixtures';
 import { store } from 'src/store/store';
 import ContextStep from 'src/views/SampleView/DraftSample/ContextStep/ContextStep';
 import { mockRequests } from '../../../../../../test/requestUtils.test';

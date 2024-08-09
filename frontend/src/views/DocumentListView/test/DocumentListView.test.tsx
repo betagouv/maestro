@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { genDocument } from 'shared/test/documentFixtures';
-import { genAuthUser, genUser } from 'shared/test/testFixtures';
+import { genAuthUser, genUser } from 'shared/test/userFixtures';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import DocumentListView from 'src/views/DocumentListView/DocumentListView';
 import { mockRequests } from '../../../../test/requestUtils.test';
@@ -14,14 +14,15 @@ jest.mock('react-router-dom', () => ({
 
 let store: Store;
 const authUser = genAuthUser();
-const nationalCoordinator = {
-  ...genUser('NationalCoordinator'),
+const nationalCoordinator = genUser({
+  roles: ['NationalCoordinator'],
   id: authUser.userId,
-};
-const sampler = {
-  ...genUser('Sampler'),
+});
+
+const sampler = genUser({
+  roles: ['Sampler'],
   id: 'SamplerId',
-};
+});
 
 describe('DocumentListView', () => {
   beforeEach(() => {

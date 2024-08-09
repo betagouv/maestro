@@ -5,16 +5,13 @@ import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { CultureKindList } from 'shared/referential/CultureKind';
 import { MatrixPartList } from 'shared/referential/MatrixPart';
+import { genProgrammingPlan } from 'shared/test/programmingPlanFixtures';
 import {
   genCreatedSampleData,
   genSampleContextData,
 } from 'shared/test/sampleFixtures';
-import {
-  genAuthUser,
-  genPrescriptions,
-  genProgrammingPlan,
-  genUser,
-} from 'shared/test/testFixtures';
+import { genPrescriptions } from 'shared/test/testFixtures';
+import { genAuthUser, genUser } from 'shared/test/userFixtures';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import config from 'src/utils/config';
 import MatrixStep from 'src/views/SampleView/DraftSample/MatrixStep/MatrixStep';
@@ -25,10 +22,10 @@ import {
 
 let store: Store;
 const authUser = genAuthUser();
-const sampler = {
-  ...genUser('Sampler'),
+const sampler = genUser({
+  roles: ['Sampler'],
   id: authUser.userId,
-};
+});
 const userRequest = {
   pathname: `/api/users/${sampler.id}/infos`,
   response: { body: JSON.stringify(sampler) },
@@ -62,8 +59,10 @@ describe('SampleStepDraftInfos', () => {
         <BrowserRouter>
           <MatrixStep
             partialSample={{
-              ...genSampleContextData(programmingPlan.id),
-              ...genCreatedSampleData(sampler),
+              ...genSampleContextData({
+                programmingPlanId: programmingPlan.id,
+              }),
+              ...genCreatedSampleData({ sampler }),
             }}
           />
         </BrowserRouter>
@@ -95,8 +94,10 @@ describe('SampleStepDraftInfos', () => {
         <BrowserRouter>
           <MatrixStep
             partialSample={{
-              ...genSampleContextData(programmingPlan.id),
-              ...genCreatedSampleData(sampler),
+              ...genSampleContextData({
+                programmingPlanId: programmingPlan.id,
+              }),
+              ...genCreatedSampleData({ sampler }),
             }}
           />
         </BrowserRouter>
@@ -123,8 +124,10 @@ describe('SampleStepDraftInfos', () => {
 
   test('should save on blur without handling errors', async () => {
     const createdSample = {
-      ...genSampleContextData(programmingPlan.id),
-      ...genCreatedSampleData(sampler),
+      ...genSampleContextData({
+        programmingPlanId: programmingPlan.id,
+      }),
+      ...genCreatedSampleData({ sampler }),
     };
     mockRequests([
       userRequest,
@@ -181,8 +184,10 @@ describe('SampleStepDraftInfos', () => {
 
   test('should submit the sample with updating it status', async () => {
     const createdSample = {
-      ...genSampleContextData(programmingPlan.id),
-      ...genCreatedSampleData(sampler),
+      ...genSampleContextData({
+        programmingPlanId: programmingPlan.id,
+      }),
+      ...genCreatedSampleData({ sampler }),
     };
 
     mockRequests([

@@ -2,17 +2,14 @@ import { configureStore, Store } from '@reduxjs/toolkit';
 import { render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import Router, { BrowserRouter } from 'react-router-dom';
+import { genProgrammingPlan } from 'shared/test/programmingPlanFixtures';
 import {
   genCreatedPartialSample,
   genCreatedSampleData,
   genSampleContextData,
 } from 'shared/test/sampleFixtures';
-import {
-  genAuthUser,
-  genPrescriptions,
-  genProgrammingPlan,
-  genUser,
-} from 'shared/test/testFixtures';
+import { genPrescriptions } from 'shared/test/testFixtures';
+import { genAuthUser, genUser } from 'shared/test/userFixtures';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import SampleView from 'src/views/SampleView/SampleView';
 import {
@@ -27,10 +24,10 @@ jest.mock('react-router-dom', () => ({
 
 let store: Store;
 const authUser = genAuthUser();
-const sampler = {
-  ...genUser('Sampler'),
+const sampler = genUser({
+  roles: ['Sampler'],
   id: authUser.userId,
-};
+});
 const userRequest = {
   pathname: `/api/users/${sampler.id}/infos`,
   response: { body: JSON.stringify(sampler) },
@@ -82,8 +79,12 @@ describe('SampleView', () => {
 
   test('should render the second step for a draft sample', async () => {
     const createdSample = {
-      ...genSampleContextData(programmingPlan1.id),
-      ...genCreatedSampleData(sampler),
+      ...genSampleContextData({
+        programmingPlanId: programmingPlan1.id,
+      }),
+      ...genCreatedSampleData({
+        sampler,
+      }),
       status: 'DraftMatrix',
     };
     mockRequests([
