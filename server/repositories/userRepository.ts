@@ -29,8 +29,8 @@ const findMany = async (findOptions: FindUserOptions): Promise<UserInfos[]> => {
   return Users()
     .where(fp.omit(fp.omitBy(findOptions, fp.isNil), ['role']))
     .modify((builder) => {
-      if (findOptions.region) {
-        builder.where('region', findOptions.region);
+      if (findOptions.role) {
+        builder.where('roles', '@>', [findOptions.role]);
       }
     })
     .then((users) =>
