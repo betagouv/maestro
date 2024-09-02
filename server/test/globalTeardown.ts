@@ -5,5 +5,10 @@ const knexStringcase = require('knex-stringcase');
 
 export default async function teardown() {
   const db = knex(knexStringcase(knexConfig));
-  await db.destroy();
+  try {
+    await db.migrate.rollback(undefined, true);
+    console.log('Rolled back.');
+  } finally {
+    await db.destroy();
+  }
 }
