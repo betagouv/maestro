@@ -11,7 +11,7 @@ import { useForm } from 'src/hooks/useForm';
 import { useAppDispatch } from 'src/hooks/useStore';
 import { useSignInMutation } from 'src/services/account.service';
 import authSlice from 'src/store/reducers/authSlice';
-import farmhand from '../../assets/farmland.png';
+import farmhand from '../../assets/farmland.webp';
 import foodGreen from '../../assets/illustrations/food-green.svg';
 import './HomeView.scss';
 
