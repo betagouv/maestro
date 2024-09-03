@@ -87,9 +87,7 @@ registerRoute(
 
 registerRoute(
   ({ url, request }) =>
-    request.method === 'GET' &&
-    url.pathname.startsWith('/api') &&
-    !url.searchParams.has('x-access-token'),
+    request.method === 'GET' && url.pathname.startsWith('/api'),
   new NetworkFirst({
     cacheName: 'api-offline-cache',
     plugins: [
