@@ -1,10 +1,6 @@
-import knex from 'knex';
-import knexConfig from '../knex';
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const knexStringcase = require('knex-stringcase');
+import db from '../repositories/db';
 
 export default async function setup() {
-  const db = knex(knexStringcase(knexConfig));
   try {
     // Roll back if needed
     await db.migrate.rollback(undefined, true);
