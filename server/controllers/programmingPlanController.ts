@@ -20,6 +20,8 @@ const findProgrammingPlans = async (request: Request, response: Response) => {
     findOptions
   );
 
+  console.info('Found programmingPlans', programmingPlans);
+
   response.status(constants.HTTP_STATUS_OK).send(programmingPlans);
 };
 
