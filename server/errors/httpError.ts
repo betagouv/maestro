@@ -1,7 +1,3 @@
-export interface HttpError extends Error {
-  status: number;
-}
-
 interface HttpErrorOptions {
   name: string;
   message: string;
