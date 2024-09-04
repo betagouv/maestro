@@ -74,7 +74,14 @@ const findRequest = (findOptions: FindSampleOptions) =>
   Samples()
     .where(
       fp.omitBy(
-        fp.omit(findOptions, 'region', 'page', 'perPage', 'statusList'),
+        fp.omit(
+          findOptions,
+          'region',
+          'sampledAt',
+          'page',
+          'perPage',
+          'statusList'
+        ),
         (_) => fp.isNil(_) || fp.isArray(_)
       )
     )
@@ -84,6 +91,12 @@ const findRequest = (findOptions: FindSampleOptions) =>
       }
       if (fp.isArray(findOptions.status)) {
         builder.whereIn('status', findOptions.status);
+      }
+      if (findOptions.sampledAt) {
+        builder.whereRaw(
+          `to_char(sampled_at, 'YYYY-MM-DD') = ?`,
+          findOptions.sampledAt
+        );
       }
     });
 

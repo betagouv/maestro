@@ -1,33 +1,25 @@
+import Accordion from '@codegouvfr/react-dsfr/Accordion';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Pagination from '@codegouvfr/react-dsfr/Pagination';
-import Select from '@codegouvfr/react-dsfr/Select';
 import { Skeleton } from '@mui/material';
 import clsx from 'clsx';
 import { t } from 'i18next';
-import { default as fp, default as _ } from 'lodash';
-import { useEffect, useMemo } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import {
-  Department,
-  DepartmentLabels,
-  DepartmentList,
-} from 'shared/referential/Department';
-import { Matrix, MatrixList } from 'shared/referential/Matrix/Matrix';
-import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
-import { Region, RegionList, Regions } from 'shared/referential/Region';
+import { default as fp } from 'lodash';
+import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { Department } from 'shared/referential/Department';
+import { Matrix } from 'shared/referential/Matrix/Matrix';
+import { Region } from 'shared/referential/Region';
 import { defaultPerPage } from 'shared/schema/commons/Pagination';
 import { FindSampleOptions } from 'shared/schema/Sample/FindSampleOptions';
 import {
   DraftStatusList,
   SampleStatus,
-  SampleStatusLabels,
-  SampleStatusList,
 } from 'shared/schema/Sample/SampleStatus';
 import { isDefinedAndNotNull } from 'shared/utils/utils';
 import SampleTable from 'src/components/SampleTable/SampleTable';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
-import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useOnLine } from 'src/hooks/useOnLine';
@@ -40,19 +32,25 @@ import {
   useCountSamplesQuery,
   useFindSamplesQuery,
 } from 'src/services/sample.service';
+import { useFindUsersQuery } from 'src/services/user.service';
 import samplesSlice from 'src/store/reducers/samplesSlice';
 import { getURLQuery } from 'src/utils/fetchUtils';
+import SampleFiltersTags from 'src/views/SampleListView/SampleFiltersTags';
+import SamplePrimaryFilters from 'src/views/SampleListView/SamplePrimaryFilters';
+import SampleSecondaryFilters from 'src/views/SampleListView/SampleSecondaryFilters';
 import food from '../../assets/illustrations/food.svg';
 import './SampleList.scss';
 const SampleListView = () => {
   useDocumentTitle('Liste des prélèvements');
   const dispatch = useAppDispatch();
   const { isOnline } = useOnLine();
+  const { isMobile } = useWindowSize();
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const { hasPermission, hasNationalView, userInfos } = useAuthentication();
+  const { hasPermission, userInfos, hasNationalView } = useAuthentication();
   const { findSampleOptions } = useAppSelector((state) => state.samples);
-  const { isMobile } = useWindowSize();
+
+  const [isFilterExpanded, setIsFilterExpanded] = useState(false);
 
   useEffect(() => {
     if (searchParams) {
@@ -68,6 +66,8 @@ const SampleListView = () => {
             (searchParams.get('department') as Department) ?? undefined,
           status: status === 'Draft' ? DraftStatusList : status ?? undefined,
           matrix: searchParams.get('matrix') as Matrix,
+          sampledBy: searchParams.get('sampledBy'),
+          sampledAt: searchParams.get('sampledAt'),
           page: Number(searchParams.get('page')) || 1,
           perPage: defaultPerPage,
         })
@@ -90,17 +90,12 @@ const SampleListView = () => {
       skip: !findSampleOptions.programmingPlanId,
     }
   );
+  const { data: samplers } = useFindUsersQuery({
+    region: userInfos?.region,
+    role: 'Sampler',
+  });
 
-  const initFilter = () => {
-    setSearchParams();
-    dispatch(
-      samplesSlice.actions.changeFindOptions(
-        samplesSlice.getInitialState().findSampleOptions
-      )
-    );
-  };
-
-  const changeFilter = (findFilter: Partial<FindSampleOptions>) => {
+  const changeFilter = (findFilter: FindSampleOptions) => {
     setSearchParams(
       fp.omit(
         fp.omitBy(
@@ -116,10 +111,14 @@ const SampleListView = () => {
     );
   };
 
-  const departmentOptions = useMemo(() => {
-    const region = userInfos?.region ?? findSampleOptions.region;
-    return region ? Regions[region as Region].departments : DepartmentList;
-  }, [userInfos?.region, findSampleOptions.region]);
+  const hasFilter = useMemo(
+    () =>
+      Object.values(
+        fp.omit(findSampleOptions, 'region', 'page', 'perPage')
+      ).some((value) => isDefinedAndNotNull(value) && value !== '') ||
+      (findSampleOptions.region && hasNationalView),
+    [findSampleOptions, hasNationalView]
+  );
 
   return (
     <section className={clsx(cx('fr-container'), 'main-section')}>
@@ -145,134 +144,65 @@ const SampleListView = () => {
       />
       {isOnline ? (
         <>
-          <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
-            <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-              {hasNationalView && (
-                <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
-                  <Select
-                    label="Région"
-                    nativeSelectProps={{
-                      value: findSampleOptions.region || '',
-                      onChange: (e) => {
-                        changeFilter({
-                          region: e.target.value as Region,
-                          department: undefined,
-                        });
-                      },
-                    }}
-                  >
-                    <option value="">Toutes les régions</option>
-                    {RegionList.map((region) => (
-                      <option key={`region-${region}`} value={region}>
-                        {Regions[region].name}
-                      </option>
-                    ))}
-                  </Select>
-                </div>
+          {isMobile ? (
+            <Accordion
+              label="Filtrer les résultats"
+              className="sample-filters-accordion"
+            >
+              <div className={cx('fr-container')}>
+                <SamplePrimaryFilters
+                  filters={findSampleOptions}
+                  onChange={changeFilter}
+                  samplers={samplers}
+                  prescriptions={prescriptions}
+                />
+                <SampleSecondaryFilters
+                  filters={findSampleOptions}
+                  onChange={changeFilter}
+                  programmingPlans={programmingPlans}
+                />
+              </div>
+            </Accordion>
+          ) : (
+            <div
+              className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}
+            >
+              <div className={clsx(cx('fr-mb-2w'), 'd-flex-align-end')}>
+                <SamplePrimaryFilters
+                  filters={findSampleOptions}
+                  onChange={changeFilter}
+                  samplers={samplers}
+                  prescriptions={prescriptions}
+                />
+                <Button
+                  onClick={() => setIsFilterExpanded(!isFilterExpanded)}
+                  priority="secondary"
+                  className={cx('fr-ml-3w')}
+                  style={{ minWidth: '140px', justifyContent: 'center' }}
+                >
+                  {isFilterExpanded ? 'Fermer' : 'Plus de filtres'}
+                </Button>
+              </div>
+              {isFilterExpanded && (
+                <SampleSecondaryFilters
+                  filters={findSampleOptions}
+                  onChange={changeFilter}
+                  programmingPlans={programmingPlans}
+                />
               )}
-              <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
-                <Select
-                  label="Département"
-                  nativeSelectProps={{
-                    value: findSampleOptions.department || '',
-                    onChange: (e) => {
-                      changeFilter({
-                        department: e.target.value as Department,
-                      });
-                    },
-                  }}
-                >
-                  <option value="">Tous les départements</option>
-                  {departmentOptions.map((department) => (
-                    <option key={`department-${department}`} value={department}>
-                      {`${department} - ${DepartmentLabels[department]}`}
-                    </option>
-                  ))}
-                </Select>
-              </div>
-              <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
-                <Select
-                  label="Statut"
-                  nativeSelectProps={{
-                    value: findSampleOptions.status || '',
-                    onChange: (e) => {
-                      changeFilter({ status: e.target.value as SampleStatus });
-                    },
-                  }}
-                >
-                  <option value="">Tous les statuts</option>
-                  <option value={DraftStatusList.join(',')}>Brouillon</option>
-                  {_.difference(SampleStatusList, DraftStatusList).map(
-                    (status) => (
-                      <option key={`status-${status}`} value={status}>
-                        {SampleStatusLabels[status]}
-                      </option>
-                    )
-                  )}
-                </Select>
-              </div>
             </div>
-            <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-              <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
-                <Select
-                  label="Contexte"
-                  nativeSelectProps={{
-                    value: findSampleOptions.programmingPlanId || '',
-                    onChange: (e) => {
-                      changeFilter({
-                        programmingPlanId: e.target.value,
-                        matrix: undefined,
-                      });
-                    },
-                  }}
-                >
-                  <option value="">Tous les contextes</option>
-                  {programmingPlans?.map((plan) => (
-                    <option key={plan.id} value={plan.id}>
-                      {plan.title}
-                    </option>
-                  ))}
-                </Select>
-              </div>
-              <div className={cx('fr-col-12', 'fr-col-md-6')}>
-                <Select
-                  label="Matrice"
-                  nativeSelectProps={{
-                    value: findSampleOptions.matrix || '',
-                    onChange: (e) => {
-                      changeFilter({ matrix: e.target.value as Matrix });
-                    },
-                  }}
-                >
-                  <option value="">Toutes les matrices</option>
-                  {selectOptionsFromList(
-                    MatrixList.filter(
-                      (matrix) =>
-                        !findSampleOptions.programmingPlanId ||
-                        !prescriptions ||
-                        prescriptions.find((p) => p.matrix === matrix)
-                    ),
-                    {
-                      labels: MatrixLabels,
-                      withDefault: false,
-                    }
-                  ).map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </Select>
-              </div>
-            </div>
-            <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-              <div className={cx('fr-col-12')}>
-                <Link to="" onClick={initFilter}>
-                  Réinitialiser
-                </Link>
-              </div>
-            </div>
-          </div>
+          )}
 
+          {hasFilter && (
+            <div className="d-flex-align-center">
+              <SampleFiltersTags
+                filters={findSampleOptions}
+                programmingPlans={programmingPlans}
+                samplers={samplers}
+                onChange={changeFilter}
+              />
+            </div>
+          )}
           <SampleTable
             samples={samples ?? []}
             tableHeader={

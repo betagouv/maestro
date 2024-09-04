@@ -3,8 +3,7 @@ import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { NationalCoordinator } from '../../../database/seeds/test/001-users';
-import { genProgrammingPlan } from '../../../shared/test/testFixtures';
-import db from '../../repositories/db';
+import { genProgrammingPlan } from '../../../shared/test/programmingPlanFixtures';
 import { ProgrammingPlans } from '../../repositories/programmingPlanRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
@@ -12,11 +11,14 @@ import { tokenProvider } from '../../test/testUtils';
 describe('ProgrammingPlan router', () => {
   const { app } = createServer();
 
-  const programmingPlan1 = genProgrammingPlan(NationalCoordinator.id);
-  const programmingPlan2 = genProgrammingPlan(NationalCoordinator.id);
+  const programmingPlan1 = genProgrammingPlan({
+    createdBy: NationalCoordinator.id,
+  });
+  const programmingPlan2 = genProgrammingPlan({
+    createdBy: NationalCoordinator.id,
+  });
 
   beforeAll(async () => {
-    await db.seed.run();
     await ProgrammingPlans().insert([programmingPlan1, programmingPlan2]);
   });
 

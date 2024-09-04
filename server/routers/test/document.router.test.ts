@@ -9,7 +9,6 @@ import {
   genDocument,
   genDocumentToCreate,
 } from '../../../shared/test/documentFixtures';
-import db from '../../repositories/db';
 import { Documents } from '../../repositories/documentRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
@@ -28,7 +27,6 @@ describe('Document router', () => {
   });
 
   beforeAll(async () => {
-    await db.seed.run();
     await Documents().insert([analysisDocument, resourceDocument]);
   });
 

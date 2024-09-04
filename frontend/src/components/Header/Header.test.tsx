@@ -3,7 +3,7 @@ import { render, screen, within } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { ProgrammingPlanStatusLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { genAuthUser, genUser } from 'shared/test/testFixtures';
+import { genAuthUser, genUser } from 'shared/test/userFixtures';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import { mockRequests } from '../../../test/requestUtils.test';
 import Header from './Header';
@@ -49,10 +49,10 @@ describe('Header', () => {
   });
 
   describe('when user is authenticated with role "NationalCoordinator"', () => {
-    const user = {
-      ...genUser('NationalCoordinator'),
+    const user = genUser({
+      roles: ['NationalCoordinator'],
       id: authUser.userId,
-    };
+    });
 
     test('should display only authorized items', async () => {
       mockRequests([
@@ -87,10 +87,10 @@ describe('Header', () => {
   });
 
   describe('when user is authenticated with role "RegionalCoordinator"', () => {
-    const user = {
-      ...genUser('RegionalCoordinator'),
+    const user = genUser({
+      roles: ['RegionalCoordinator'],
       id: authUser.userId,
-    };
+    });
 
     beforeEach(() => {
       mockRequests([
@@ -127,10 +127,7 @@ describe('Header', () => {
   });
 
   describe('when user is authenticated with role "Sampler"', () => {
-    const user = {
-      ...genUser('Sampler'),
-      id: authUser.userId,
-    };
+    const user = genUser({ roles: ['Sampler'], id: authUser.userId });
 
     beforeEach(() => {
       mockRequests([
@@ -167,10 +164,7 @@ describe('Header', () => {
   });
 
   describe('when user is authenticated with role "Administrator"', () => {
-    const user = {
-      ...genUser('Administrator'),
-      id: authUser.userId,
-    };
+    const user = genUser({ roles: ['Administrator'], id: authUser.userId });
 
     beforeEach(() => {
       mockRequests([

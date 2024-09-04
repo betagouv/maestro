@@ -13,13 +13,12 @@ import {
   PrescriptionUpdate,
 } from '../../../shared/schema/Prescription/Prescription';
 import { ProgrammingPlanStatus } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import { genProgrammingPlan } from '../../../shared/test/programmingPlanFixtures';
 import {
   genLaboratory,
   genNumber,
   genPrescriptions,
-  genProgrammingPlan,
 } from '../../../shared/test/testFixtures';
-import db from '../../repositories/db';
 import { Laboratories } from '../../repositories/laboratoryRepository';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import { ProgrammingPlans } from '../../repositories/programmingPlanRepository';
@@ -29,14 +28,14 @@ import { tokenProvider } from '../../test/testUtils';
 describe('Prescriptions router', () => {
   const { app } = createServer();
 
-  const programmingPlanInProgress = {
-    ...genProgrammingPlan(NationalCoordinator.id),
+  const programmingPlanInProgress = genProgrammingPlan({
+    createdBy: NationalCoordinator.id,
     status: 'InProgress' as ProgrammingPlanStatus,
-  };
-  const programmingPlanValidated = {
-    ...genProgrammingPlan(NationalCoordinator.id),
+  });
+  const programmingPlanValidated = genProgrammingPlan({
+    createdBy: NationalCoordinator.id,
     status: 'Validated' as ProgrammingPlanStatus,
-  };
+  });
   const laboratory = genLaboratory();
   const prescriptions1 = genPrescriptions(programmingPlanInProgress.id).map(
     (prescription) => ({
@@ -52,7 +51,6 @@ describe('Prescriptions router', () => {
   );
 
   beforeAll(async () => {
-    await db.seed.run();
     await ProgrammingPlans().insert([
       programmingPlanInProgress,
       programmingPlanValidated,
