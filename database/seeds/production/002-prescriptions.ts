@@ -89,6 +89,16 @@ exports.seed = async function () {
 
   // prettier-ignore
   await Prescriptions().insert([
-    ...genPrescriptions(validatedSurveillanceProgrammingPlan.id,'A0DBP', [], [12,0,0,8,0,0,0,0,0,17,13,0,0,0,0,0,0,0]),
+    ...genPrescriptions(validatedSurveillanceProgrammingPlan.id,'A0DBP', [
+      'STADE1',
+      'STADE2',
+      'STADE3',
+      'STADE4',
+      'STADE5',
+      'STADE6',
+      'STADE7',
+      'STADE8',
+      'STADE9',
+    ], [12,0,0,8,0,0,0,0,0,17,13,0,0,0,0,0,0,0]),
   ]);
 };
