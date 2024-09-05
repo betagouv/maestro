@@ -167,29 +167,31 @@ const SampleListView = () => {
             <div
               className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}
             >
-              <div className={clsx(cx('fr-mb-2w'), 'd-flex-align-end')}>
-                <SamplePrimaryFilters
-                  filters={findSampleOptions}
-                  onChange={changeFilter}
-                  samplers={samplers}
-                  prescriptions={prescriptions}
-                />
+              <div className="d-flex-align-start">
+                <div>
+                  <SamplePrimaryFilters
+                    filters={findSampleOptions}
+                    onChange={changeFilter}
+                    samplers={samplers}
+                    prescriptions={prescriptions}
+                  />
+                  {isFilterExpanded && (
+                    <SampleSecondaryFilters
+                      filters={findSampleOptions}
+                      onChange={changeFilter}
+                      programmingPlans={programmingPlans}
+                    />
+                  )}
+                </div>
                 <Button
                   onClick={() => setIsFilterExpanded(!isFilterExpanded)}
                   priority="secondary"
-                  className={cx('fr-ml-3w')}
+                  className={cx('fr-ml-3w', 'fr-mt-4w')}
                   style={{ minWidth: '140px', justifyContent: 'center' }}
                 >
                   {isFilterExpanded ? 'Fermer' : 'Plus de filtres'}
                 </Button>
               </div>
-              {isFilterExpanded && (
-                <SampleSecondaryFilters
-                  filters={findSampleOptions}
-                  onChange={changeFilter}
-                  programmingPlans={programmingPlans}
-                />
-              )}
             </div>
           )}
 
