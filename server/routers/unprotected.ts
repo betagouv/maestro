@@ -1,4 +1,5 @@
 import express from 'express';
+import { constants } from 'http2';
 import { SignIn } from '../../shared/schema/SignIn';
 import accountController from '../controllers/accountController';
 import { jwtCheck, userCheck } from '../middlewares/checks/authCheck';
@@ -8,9 +9,11 @@ const router = express.Router();
 router.use(jwtCheck(false));
 router.use(userCheck(false));
 
-router.get('test', () => {
+router.get('/test', (req, res) => {
   console.log('test exécuté');
-  return 'test exécuté';
+  return res.status(constants.HTTP_STATUS_OK).json({
+    result: 'test exécuté',
+  });
 });
 
 router.post(
