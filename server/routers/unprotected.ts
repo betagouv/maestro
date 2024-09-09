@@ -11,12 +11,12 @@ router.use(userCheck(false));
 
 router.get('/test', (req, res) => {
   console.log('test exécuté');
-  return res
-    .status(constants.HTTP_STATUS_OK)
-    .json({
-      result: 'test exécuté',
-    })
-    .set('Content-Type', 'application/json; charset=utf-8');
+
+  res.set('Content-Type', 'application/json; charset=utf-8');
+
+  return res.status(constants.HTTP_STATUS_OK).json({
+    result: 'test exécuté',
+  });
 });
 
 router.post(
