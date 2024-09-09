@@ -4,6 +4,7 @@ import express, { Application } from 'express';
 import cors from 'cors';
 import 'express-async-errors';
 import fileUpload from 'express-fileupload';
+import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import path from 'path';
 import RouteNotFoundError from './errors/routeNotFoundError';
@@ -69,12 +70,12 @@ export function createServer(): Server {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
-  // const rateLimiter = rateLimit({
-  //   windowMs: 5 * 60 * 1000, // 5 minutes window
-  //   max: config.maxRate, // start blocking after X requests for windowMs time
-  //   message: 'Too many request from this address, try again later please.',
-  // });
-  // app.use(rateLimiter);
+  const rateLimiter = rateLimit({
+    windowMs: 5 * 60 * 1000, // 5 minutes window
+    max: config.maxRate, // start blocking after X requests for windowMs time
+    message: 'Too many request from this address, try again later please.',
+  });
+  app.use(rateLimiter);
   app.set('trust proxy', 1);
 
   app.use('/api', unprotectedRouter);
