@@ -1,4 +1,6 @@
+const { CracoAliasPlugin } = require('react-app-alias-ex');
 const { CracoAliasPluginWrapper } = require('./test/CracoAliasPluginWrapper');
+const WorkboxWebpackPlugin = require('workbox-webpack-plugin');
 
 module.exports = {
   plugins: [
@@ -26,15 +28,15 @@ module.exports = {
       return config;
     },
   },
-  // webpack: {
-  //   plugins: {
-  //     add: [
-  //       new WorkboxWebpackPlugin.InjectManifest({
-  //         swSrc: './src/serviceWorker.js',
-  //         swDest: 'service-worker.js',
-  //         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
-  //       }),
-  //     ],
-  //   },
-  // },
+  webpack: {
+    plugins: {
+      add: [
+        new WorkboxWebpackPlugin.InjectManifest({
+          swSrc: './src/serviceWorker.js',
+          swDest: 'service-worker.js',
+          maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+        }),
+      ],
+    },
+  },
 };
