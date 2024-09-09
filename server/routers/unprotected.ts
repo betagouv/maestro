@@ -8,6 +8,11 @@ const router = express.Router();
 router.use(jwtCheck(false));
 router.use(userCheck(false));
 
+router.get('test', () => {
+  console.log('test exécuté');
+  return 'test exécuté';
+});
+
 router.post(
   '/accounts/sign-in',
   validator.validate(body(SignIn)),
