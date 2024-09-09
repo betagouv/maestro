@@ -1,6 +1,4 @@
-const { CracoAliasPlugin } = require('react-app-alias-ex');
 const { CracoAliasPluginWrapper } = require('./test/CracoAliasPluginWrapper');
-const WorkboxWebpackPlugin = require('workbox-webpack-plugin');
 
 module.exports = {
   plugins: [
