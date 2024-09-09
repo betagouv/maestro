@@ -28,15 +28,15 @@ module.exports = {
       return config;
     },
   },
-  webpack: {
-    plugins: {
-      add: [
-        new WorkboxWebpackPlugin.InjectManifest({
-          swSrc: './src/serviceWorker.js',
-          swDest: 'service-worker.js',
-          maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
-        }),
-      ],
-    },
-  },
+  // webpack: {
+  //   plugins: {
+  //     add: [
+  //       new WorkboxWebpackPlugin.InjectManifest({
+  //         swSrc: './src/serviceWorker.js',
+  //         swDest: 'service-worker.js',
+  //         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+  //       }),
+  //     ],
+  //   },
+  // },
 };
