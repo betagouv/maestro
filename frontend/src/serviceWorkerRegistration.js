@@ -21,7 +21,11 @@ const isLocalhost = Boolean(
 );
 
 export function register(config) {
-  if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
+  if (
+    process.env.NODE_ENV === 'production' &&
+    'serviceWorker' in navigator &&
+    !navigator.userAgent.includes('HeadlessChrome')
+  ) {
     // The URL constructor is available in all browsers that support SW.
     const publicUrl = new URL(
       process.env.REACT_APP_PUBLIC_URL,
