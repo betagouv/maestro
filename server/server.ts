@@ -7,6 +7,8 @@ import fileUpload from 'express-fileupload';
 import helmet from 'helmet';
 import path from 'path';
 import RouteNotFoundError from './errors/routeNotFoundError';
+import protectedRouter from './routers/protected';
+import unprotectedRouter from './routers/unprotected';
 import config from './utils/config';
 
 const PORT = config.serverPort;
