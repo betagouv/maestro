@@ -16,10 +16,13 @@ interface Props {
   showLabel?: boolean;
 }
 const MatrixStepSummary = ({ sample, showLabel }: Props) => {
-  const { data: substanceAnalysis } = useFindSubstanceAnalysisQuery({
-    matrix: sample.matrix,
-    year: sample.sampledAt.getFullYear(),
-  });
+  const { data: substanceAnalysis } = useFindSubstanceAnalysisQuery(
+    {
+      matrix: sample.matrix,
+      year: sample.sampledAt.getFullYear(),
+    },
+    { skip: !sample.matrix || !sample.sampledAt }
+  );
 
   const { data: laboratory } = useGetLaboratoryQuery(
     sample.laboratoryId ?? skipToken

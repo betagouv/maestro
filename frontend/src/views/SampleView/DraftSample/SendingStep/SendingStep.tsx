@@ -22,6 +22,7 @@ import {
   useCreateOrUpdateSampleMutation,
 } from 'src/services/sample.service';
 import { pluralize } from 'src/utils/stringUtils';
+import DraftSavedAlert from 'src/views/SampleView/DraftSample/DraftSavedAlert';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SendingModal from 'src/views/SampleView/DraftSample/SendingStep/SendingModal';
 import ContextStepSummary from 'src/views/SampleView/StepSummary/ContextStepSummary';
@@ -38,6 +39,7 @@ const SendingStep = ({ sample }: Props) => {
   const { isOnline } = useOnLine();
 
   const [items, setItems] = useState<SampleItem[]>(sample.items);
+  const [isSavedAsDraft, setIsSavedAsDraft] = useState(false);
 
   const [createOrUpdateSample, { isError }] = useCreateOrUpdateSampleMutation({
     fixedCacheKey: `sending-sample-${sample.id}`,
@@ -269,58 +271,62 @@ const SendingStep = ({ sample }: Props) => {
           <hr className={cx('fr-mx-0')} />
         )}
         {hasPermission('updateSample') && (
-          <div className="sample-actions">
-            <ul
-              className={cx(
-                'fr-btns-group',
-                'fr-btns-group--inline-md',
-                'fr-btns-group--between',
-                'fr-btns-group--icon-left'
-              )}
-            >
-              <li>
-                <ButtonsGroup
-                  alignment="left"
-                  inlineLayoutWhen="md and up"
-                  buttons={
-                    [
-                      PreviousButton({
-                        sampleId: sample.id,
-                        onSave: async () => save('DraftItems'),
-                        currentStep: 4,
-                      }),
-                      {
-                        children: 'Enregistrer',
-                        iconId: 'fr-icon-save-line',
-                        priority: 'tertiary',
-                        onClick: async (e: React.MouseEvent<HTMLElement>) => {
-                          e.preventDefault();
-                          await save();
-                        },
-                      },
-                    ] as any
-                  }
-                />
-              </li>
-              <li>
-                {laboratory && (
-                  <Button
-                    iconId="fr-icon-send-plane-fill"
-                    iconPosition="right"
-                    priority="primary"
-                    onClick={async () => {
-                      await form.validate(async () =>
-                        sendingSampleModal.open()
-                      );
-                    }}
-                    disabled={!isSendable}
-                  >
-                    Envoyer la demande d’analyse
-                  </Button>
+          <>
+            <div className="sample-actions">
+              <ul
+                className={cx(
+                  'fr-btns-group',
+                  'fr-btns-group--inline-md',
+                  'fr-btns-group--between',
+                  'fr-btns-group--icon-left'
                 )}
-              </li>
-            </ul>
-          </div>
+              >
+                <li>
+                  <ButtonsGroup
+                    alignment="left"
+                    inlineLayoutWhen="md and up"
+                    buttons={
+                      [
+                        PreviousButton({
+                          sampleId: sample.id,
+                          onSave: async () => save('DraftItems'),
+                          currentStep: 4,
+                        }),
+                        {
+                          children: 'Enregistrer',
+                          iconId: 'fr-icon-save-line',
+                          priority: 'tertiary',
+                          onClick: async (e: React.MouseEvent<HTMLElement>) => {
+                            e.preventDefault();
+                            await save();
+                            setIsSavedAsDraft(true);
+                          },
+                        },
+                      ] as any
+                    }
+                  />
+                </li>
+                <li>
+                  {laboratory && (
+                    <Button
+                      iconId="fr-icon-send-plane-fill"
+                      iconPosition="right"
+                      priority="primary"
+                      onClick={async () => {
+                        await form.validate(async () =>
+                          sendingSampleModal.open()
+                        );
+                      }}
+                      disabled={!isSendable}
+                    >
+                      Envoyer la demande d’analyse
+                    </Button>
+                  )}
+                </li>
+              </ul>
+            </div>
+            <DraftSavedAlert isOpen={isSavedAsDraft} isSubmitted />
+          </>
         )}
       </div>
       {laboratory && (

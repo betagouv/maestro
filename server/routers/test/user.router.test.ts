@@ -1,66 +1,98 @@
 import { constants } from 'http2';
+import fp from 'lodash';
 import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
-import { genUser } from '../../../shared/test/testFixtures';
-import { Users } from '../../repositories/userRepository';
+import {
+  NationalCoordinator,
+  RegionalCoordinator,
+  Sampler1Fixture,
+  Sampler2Fixture,
+} from '../../../database/seeds/test/001-users';
+import { Region } from '../../../shared/referential/Region';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
 describe('User router', () => {
   const { app } = createServer();
 
-  const user1 = genUser();
-  const user2 = genUser();
+  describe('GET /{userId}/infos', () => {
+    it('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .get(`/api/users/${Sampler1Fixture.id}/infos`)
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
 
-  beforeAll(async () => {
-    await Users().insert(user1);
-    await Users().insert(user2);
+    it('should get a valid user id', async () => {
+      await request(app)
+        .get(`/api/users/${randomstring.generate()}/infos`)
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    it('should fail if the user does not exist', async () => {
+      await request(app)
+        .get(`/api/users/${uuidv4()}/infos`)
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_NOT_FOUND);
+    });
+
+    it('should fail if the user requested is not the user authenticated', async () => {
+      await request(app)
+        .get(`/api/users/${Sampler1Fixture.id}/infos`)
+        .use(tokenProvider(Sampler2Fixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    it('should return user infos', async () => {
+      const res = await request(app)
+        .get(`/api/users/${Sampler1Fixture.id}/infos`)
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toEqual({
+        id: Sampler1Fixture.id,
+        email: Sampler1Fixture.email,
+        firstName: Sampler1Fixture.firstName,
+        lastName: Sampler1Fixture.lastName,
+        roles: Sampler1Fixture.roles,
+        region: Sampler1Fixture.region,
+      });
+    });
   });
 
-  afterAll(async () => {
-    await Users().delete().where('id', 'in', [user1.id, user2.id]);
-  });
+  describe('GET /', () => {
+    const testRoute = (params: Record<string, string>) =>
+      `/api/users?${new URLSearchParams(params).toString()}`;
 
-  it('should fail if the user is not authenticated', async () => {
-    await request(app)
-      .get(`/api/users/${user1.id}/infos`)
-      .expect(constants.HTTP_STATUS_UNAUTHORIZED);
-  });
+    it('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .get(testRoute({}))
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
 
-  it('should get a valid user id', async () => {
-    await request(app)
-      .get(`/api/users/${randomstring.generate()}/infos`)
-      .use(tokenProvider(user1))
-      .expect(constants.HTTP_STATUS_BAD_REQUEST);
-  });
+    it('should filter users by region', async () => {
+      const res = await request(app)
+        .get(testRoute({ region: Sampler1Fixture.region as Region }))
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
 
-  it('should fail if the user does not exist', async () => {
-    await request(app)
-      .get(`/api/users/${uuidv4()}/infos`)
-      .use(tokenProvider(user1))
-      .expect(constants.HTTP_STATUS_NOT_FOUND);
-  });
+      expect(res.body).toEqual([
+        fp.omit(Sampler1Fixture, 'password'),
+        fp.omit(RegionalCoordinator, 'password'),
+      ]);
+    });
 
-  it('should fail if the user requested is not the user authenticated', async () => {
-    await request(app)
-      .get(`/api/users/${user1.id}/infos`)
-      .use(tokenProvider(user2))
-      .expect(constants.HTTP_STATUS_FORBIDDEN);
-  });
+    it('should filter users by role', async () => {
+      const res = await request(app)
+        .get(testRoute({ role: 'Sampler' }))
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
 
-  it('should return user infos', async () => {
-    const res = await request(app)
-      .get(`/api/users/${user1.id}/infos`)
-      .use(tokenProvider(user1))
-      .expect(constants.HTTP_STATUS_OK);
-
-    expect(res.body).toEqual({
-      email: user1.email,
-      firstName: user1.firstName,
-      lastName: user1.lastName,
-      roles: user1.roles,
-      region: user1.region,
+      expect(res.body).toEqual([
+        fp.omit(Sampler1Fixture, 'password'),
+        fp.omit(Sampler2Fixture, 'password'),
+      ]);
     });
   });
 });

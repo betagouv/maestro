@@ -3,13 +3,10 @@ import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import Router, { BrowserRouter } from 'react-router-dom';
 import { Region, RegionList } from 'shared/referential/Region';
+import { genProgrammingPlan } from 'shared/test/programmingPlanFixtures';
 import { genCreatedPartialSample } from 'shared/test/sampleFixtures';
-import {
-  genAuthUser,
-  genPrescriptions,
-  genProgrammingPlan,
-  genUser,
-} from 'shared/test/testFixtures';
+import { genPrescriptions } from 'shared/test/testFixtures';
+import { genAuthUser, genUser } from 'shared/test/userFixtures';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import PrescriptionView from 'src/views/PrescriptionView/PrescriptionView';
 import { mockRequests } from '../../../../test/requestUtils.test';
@@ -25,7 +22,10 @@ const programmingPlan = {
 };
 const prescriptions1 = genPrescriptions(programmingPlan.id);
 const prescriptions2 = genPrescriptions(programmingPlan.id);
-const sample = genCreatedPartialSample(genUser(), programmingPlan.id);
+const sample = genCreatedPartialSample({
+  sampler: genUser(),
+  programmingPlanId: programmingPlan.id,
+});
 
 const prescriptionRequest = (region?: Region) => ({
   pathname: `/api/programming-plans/${programmingPlan.id}/prescriptions?${
@@ -66,10 +66,10 @@ describe('PrescriptionView', () => {
   });
 
   describe('for national coordinator', () => {
-    const nationalCoordinator = {
-      ...genUser('NationalCoordinator'),
+    const nationalCoordinator = genUser({
+      roles: ['NationalCoordinator'],
       id: authUser.userId,
-    };
+    });
     const userRequest = {
       pathname: `/api/users/${nationalCoordinator.id}/infos`,
       response: { body: JSON.stringify(nationalCoordinator) },
@@ -122,10 +122,10 @@ describe('PrescriptionView', () => {
   });
 
   describe('for regional coordinator', () => {
-    const regionalCoordinator = {
-      ...genUser('RegionalCoordinator'),
+    const regionalCoordinator = genUser({
+      roles: ['RegionalCoordinator'],
       id: authUser.userId,
-    };
+    });
     const userRequest = {
       pathname: `/api/users/${regionalCoordinator.id}/infos`,
       response: { body: JSON.stringify(regionalCoordinator) },
