@@ -15,10 +15,11 @@ const PartialSampleDbo = PartialSample.omit({
   items: true,
   company: true,
   sampler: true,
+  geolocation: true,
 }).merge(
   z.object({
     companySiret: z.string().nullish(),
-    geolocation: z.any(),
+    geolocation: z.any().nullish(),
     sampledBy: z.string().uuid(),
   })
 );
