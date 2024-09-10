@@ -13,13 +13,7 @@ const SampleOverviewContextTab = ({ sample }: Props) => {
   const [resytalId, setResytalId] = useState(sample.resytalId);
   const [isSaved, setIsSaved] = useState(false);
 
-  const [updateSample, { isError }] = useUpdateSampleMutation();
-
-  const Form = Sample.pick({
-    resytalId: true,
-  });
-
-  type FormShape = typeof Form.shape;
+  const [updateSample] = useUpdateSampleMutation();
 
   const save = async () => {
     await updateSample({
