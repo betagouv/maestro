@@ -69,12 +69,17 @@ const generateSupportDocument = async (
     throw new ProgrammingPlanMissingError(sample.programmingPlanId as string);
   }
 
-  const laboratory = await laboratoryRepository.findUnique(sample.laboratoryId);
+  const laboratory = sample.laboratoryId
+    ? await laboratoryRepository.findUnique(sample.laboratoryId)
+    : null;
 
-  const substanceAnalysis = await substanceAnalysisRepository.findMany({
-    matrix: sample.matrix,
-    year: sample.sampledAt.getFullYear(),
-  });
+  const substanceAnalysis =
+    sample.matrix && sample.sampledAt
+      ? await substanceAnalysisRepository.findMany({
+          matrix: sample.matrix,
+          year: sample.sampledAt.getFullYear(),
+        })
+      : null;
 
   return generateDocument('supportDocument', {
     ...sample,
@@ -83,10 +88,10 @@ const generateSupportDocument = async (
     laboratory,
     programmingPlan,
     monoSubstances: substanceAnalysis
-      .filter((analysis) => analysis.kind === 'Mono')
+      ?.filter((analysis) => analysis.kind === 'Mono')
       .map((analysis) => analysis.substance.label),
     multiSubstances: substanceAnalysis
-      .filter((analysis) => analysis.kind === 'Multi')
+      ?.filter((analysis) => analysis.kind === 'Multi')
       .map((analysis) => analysis.substance.label),
     reference: [sample.reference, sampleItem.itemNumber].join('-'),
     sampledAt: format(sample.sampledAt, 'dd/MM/yyyy'),

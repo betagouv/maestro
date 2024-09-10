@@ -3,7 +3,6 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { isAfter } from 'date-fns';
 import { default as _ } from 'lodash';
-import { useEffect } from 'react';
 import { Regions } from 'shared/referential/Region';
 import { ProgrammingPlanStatusLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import dashboard from 'src/assets/illustrations/dashboard.svg';
@@ -13,7 +12,6 @@ import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useOnLine } from 'src/hooks/useOnLine';
 import { useAppSelector } from 'src/hooks/useStore';
-import { useLazyFindPrescriptionsQuery } from 'src/services/prescription.service';
 import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.service';
 import { useFindSamplesQuery } from 'src/services/sample.service';
 import ProgrammingPlanCard from 'src/views/DashboardView/ProgrammingPlanCard';
@@ -26,7 +24,6 @@ const DashboardView = () => {
     { status: programmingPlanStatus },
     { skip: !programmingPlanStatus }
   );
-  const [findPrescriptions] = useLazyFindPrescriptionsQuery();
 
   const { pendingSamples } = useAppSelector((state) => state.samples);
   const { data } = useFindSamplesQuery({
@@ -40,17 +37,6 @@ const DashboardView = () => {
   ).sort((s1, s2) => (isAfter(s2.sampledAt, s1.sampledAt) ? 1 : -1));
 
   useDocumentTitle(ProgrammingPlanStatusLabels[programmingPlanStatus]);
-
-  // Fetch prescriptions for each programming plan (useful for offline mode)
-  useEffect(() => {
-    if (isOnline) {
-      programmingPlans?.forEach(async (programmingPlan) => {
-        await findPrescriptions({
-          programmingPlanId: programmingPlan.id,
-        }).unwrap();
-      });
-    }
-  }, [programmingPlans, isOnline]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!userInfos || !programmingPlans) {
     return <></>;
