@@ -31,8 +31,8 @@ import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useForm } from 'src/hooks/useForm';
 import { useFindPrescriptionsQuery } from 'src/services/prescription.service';
 import { useCreateOrUpdateSampleMutation } from 'src/services/sample.service';
-import DraftSavedAlert from 'src/views/SampleView/DraftSample/DraftSavedAlert';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
+import SavedAlert from 'src/views/SampleView/SavedAlert';
 
 interface Props {
   partialSample: PartialSample | PartialSampleToCreate;
@@ -54,7 +54,7 @@ const MatrixStep = ({ partialSample }: Props) => {
   const [notesOnMatrix, setNotesOnMatrix] = useState(
     partialSample.notesOnMatrix
   );
-  const [isSavedAsDraft, setIsSavedAsDraft] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
 
   const [createOrUpdate] = useCreateOrUpdateSampleMutation();
 
@@ -262,7 +262,7 @@ const MatrixStep = ({ partialSample }: Props) => {
                       onClick: async (e: React.MouseEvent<HTMLElement>) => {
                         e.preventDefault();
                         await save();
-                        setIsSavedAsDraft(true);
+                        setIsSaved(true);
                       },
                       nativeButtonProps: {
                         'data-testid': 'save-button',
@@ -284,7 +284,7 @@ const MatrixStep = ({ partialSample }: Props) => {
           </ul>
         </div>
       </div>
-      <DraftSavedAlert isOpen={isSavedAsDraft} />
+      <SavedAlert isOpen={isSaved} isDraft />
     </form>
   );
 };
