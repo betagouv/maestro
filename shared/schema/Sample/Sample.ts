@@ -65,36 +65,13 @@ export const SampleMatrixData = z.object({
 });
 
 export const SampleItemsData = z.object({
-  items: z.array(SampleItem).min(1, {
-    message: 'Veuillez renseigner au moins un échantillon.',
-  }),
+  items: z
+    .array(SampleItem)
+    .min(1, { message: 'Veuillez renseigner au moins un échantillon.' }),
   notesOnItems: z.string().nullish(),
 });
 
-export const CreatedSampleData = z.object({
-  reference: z.string(),
-  createdAt: z.coerce.date(),
-  sampler: Sampler,
-  lastUpdatedAt: z.coerce.date(),
-});
-
-export const PartialSampleToCreate = SampleContextData.merge(
-  SampleMatrixData.partial()
-)
-  .merge(SampleItemsData.partial())
-  .extend({
-    items: z.array(PartialSampleItem).nullish(),
-  });
-
-export const PartialSample = PartialSampleToCreate.merge(CreatedSampleData);
-
-export const SampleToCreate =
-  SampleContextData.merge(SampleMatrixData).merge(SampleItemsData);
-
-export const Sample = SampleToCreate.merge(CreatedSampleData).extend({
-  geolocation: Geolocation,
-  company: Company,
-  laboratoryId: z.string().uuid(),
+export const SampleAdmissibilityData = z.object({
   sentAt: z.coerce.date().nullish(),
   receivedAt: z
     .union([z.string(), z.date()])
@@ -107,6 +84,39 @@ export const Sample = SampleToCreate.merge(CreatedSampleData).extend({
     )
     .nullish(),
   notesOnAdmissibility: z.string().nullish(),
+});
+
+export const PartialSampleToCreate = z.object({
+  ...SampleContextData.shape,
+  ...SampleMatrixData.partial().shape,
+  ...SampleItemsData.partial().shape,
+  ...SampleAdmissibilityData.partial().shape,
+  items: z.array(PartialSampleItem).nullish(),
+});
+
+export const SampleToCreate = z.object({
+  ...SampleContextData.shape,
+  ...SampleMatrixData.shape,
+  ...SampleItemsData.shape,
+  ...SampleAdmissibilityData.shape,
+});
+
+export const CreatedSampleData = z.object({
+  reference: z.string(),
+  createdAt: z.coerce.date(),
+  sampler: Sampler,
+  lastUpdatedAt: z.coerce.date(),
+});
+
+export const PartialSample = PartialSampleToCreate.extend({
+  ...CreatedSampleData.shape,
+});
+
+export const Sample = SampleToCreate.extend({
+  ...CreatedSampleData.shape,
+  geolocation: Geolocation,
+  company: Company,
+  laboratoryId: z.string().uuid(),
 });
 
 export type Geolocation = z.infer<typeof Geolocation>;

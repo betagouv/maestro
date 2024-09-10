@@ -386,7 +386,7 @@ describe('Sample router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should update the sample', async () => {
+    it('should update a partial sample', async () => {
       const res = await request(app)
         .put(`${testRoute(Sample11Fixture.id)}`)
         .send(validBody)
@@ -413,6 +413,29 @@ describe('Sample router', () => {
           .where({ sampleId: Sample11Fixture.id, itemNumber: 1 })
           .first()
       ).resolves.toBeDefined();
+    });
+
+    it('should update the sample compliance', async () => {
+      await request(app)
+        .put(`${testRoute(Sample11Fixture.id)}`)
+        .send({
+          ...validBody,
+          status: 'Analysis',
+          notesOnAdmissibility: 'Admissible',
+        })
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      await expect(
+        Samples()
+          .where({
+            id: Sample11Fixture.id,
+          })
+          .first()
+      ).resolves.toMatchObject({
+        status: 'Analysis',
+        notesOnAdmissibility: 'Admissible',
+      });
     });
   });
 
