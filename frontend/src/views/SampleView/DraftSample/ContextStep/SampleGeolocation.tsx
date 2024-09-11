@@ -7,6 +7,7 @@ import Map, {
   NavigationControl,
 } from 'react-map-gl/maplibre';
 import { Geolocation } from 'shared/schema/Sample/Sample';
+import AddressSearch from 'src/components/AddressSearch/AddressSearch';
 import config from 'src/utils/config';
 interface Props {
   location?: Geolocation;
@@ -49,7 +50,7 @@ const SampleGeolocation = ({ location, onLocationChange }: Props) => {
 
   return (
     <Map
-      // attributionControl={false}
+      attributionControl={false}
       id="sampleLocationMap"
       latitude={mapLatitude}
       longitude={mapLongitude}
@@ -104,6 +105,28 @@ const SampleGeolocation = ({ location, onLocationChange }: Props) => {
           onMouseOut={() => setIsSecondaryMapHovered(false)}
         />
       )}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 15,
+          left: 70,
+          width: 300,
+        }}
+      >
+        <AddressSearch
+          onSelectAddress={(address) => {
+            if (address) {
+              onLocationChange({
+                x: address.geometry.coordinates[1],
+                y: address.geometry.coordinates[0],
+              });
+              setMapLongitude(address.geometry.coordinates[0]);
+              setMapLatitude(address.geometry.coordinates[1]);
+              setMapZoom(12);
+            }
+          }}
+        />
+      </div>
     </Map>
   );
 };
