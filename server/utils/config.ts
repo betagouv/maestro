@@ -71,6 +71,14 @@ interface Config {
     dsn: string | null;
     enabled: boolean;
   };
+  apis: {
+    address: {
+      url: string;
+    };
+    company: {
+      url: string;
+    };
+  };
 }
 
 const config = convict<Config>({
@@ -224,6 +232,22 @@ const config = convict<Config>({
       env: 'SENTRY_ENABLED',
       format: 'strict-boolean',
       default: process.env.NODE_ENV === 'production',
+    },
+  },
+  apis: {
+    address: {
+      url: {
+        env: 'ADDRESS_API_URL',
+        format: 'url',
+        default: 'https://api-adresse.data.gouv.fr',
+      },
+    },
+    company: {
+      url: {
+        env: 'COMPANY_API_URL',
+        format: 'url',
+        default: 'https://recherche-entreprises.api.gouv.fr',
+      },
     },
   },
 })

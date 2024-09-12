@@ -1,6 +1,7 @@
 import express from 'express';
 import fs from 'fs';
 import { jwtCheck, userCheck } from '../middlewares/checks/authCheck';
+import addressRouter from './address.router';
 import analysisRouter from './analysis.router';
 import companyRouter from './company.router';
 import documentRouter from './document.router';
@@ -17,6 +18,7 @@ router.use(jwtCheck(true));
 router.use(userCheck(true));
 
 router.use('/analysis', analysisRouter);
+router.use('/addresses', addressRouter);
 router.use('/companies', companyRouter);
 router.use('/documents', documentRouter);
 router.use('/laboratories', laboratoryRouter);
