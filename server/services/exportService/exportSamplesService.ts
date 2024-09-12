@@ -10,6 +10,8 @@ import { StageLabels } from '../../../shared/referential/Stage';
 import { PartialSample } from '../../../shared/schema/Sample/Sample';
 import { SampleItemRecipientKindLabels } from '../../../shared/schema/Sample/SampleItemRecipientKind';
 import { SampleStatusLabels } from '../../../shared/schema/Sample/SampleStatus';
+import { isDefinedAndNotNull } from '../../../shared/utils/utils';
+import analysisRepository from '../../repositories/analysisRepository';
 import laboratoryRepository from '../../repositories/laboratoryRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
 import sampleItemRepository from '../../repositories/sampleItemRepository';
@@ -75,17 +77,19 @@ const writeToWorkbook = async (
       .flat(),
     { header: 'Notes sur les échantillons', key: 'notesOnItems' },
     { header: 'Notes sur la recevabilité', key: 'notesOnAdmissibility' },
+    { header: "Conformité globale de l'échantillon", key: 'compliance' },
   ];
 
   highland(samples)
     .flatMap((sample) =>
       highland(
-        sampleItemRepository
-          .findMany(sample.id)
-          .then((items) => ({ sample, items }))
+        Promise.all([
+          sampleItemRepository.findMany(sample.id),
+          analysisRepository.findUnique({ sampleId: sample.id }),
+        ]).then(([items, analysis]) => ({ sample, items, analysis }))
       )
     )
-    .tap(({ sample, items }) => {
+    .tap(({ sample, items, analysis }) => {
       worksheet
         .addRow({
           reference: sample.reference,
@@ -148,6 +152,11 @@ const writeToWorkbook = async (
           ),
           notesOnItems: sample.notesOnItems,
           notesOnAdmissibility: sample.notesOnAdmissibility,
+          compliance: isDefinedAndNotNull(analysis?.compliance)
+            ? analysis?.compliance
+              ? 'Oui'
+              : 'Non'
+            : '',
         })
         .commit();
     })
