@@ -16,9 +16,9 @@ import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import { useForm } from 'src/hooks/useForm';
 import { useCreateOrUpdateSampleMutation } from 'src/services/sample.service';
-import DraftSavedAlert from 'src/views/SampleView/DraftSample/DraftSavedAlert';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SampleItemDetails from 'src/views/SampleView/SampleItemDetails/SampleItemDetails';
+import SavedAlert from 'src/views/SampleView/SavedAlert';
 
 export const MaxItemCount = 3;
 
@@ -42,7 +42,7 @@ const ItemsStep = ({ partialSample }: Props) => {
       : partialSample.items
   );
   const [notesOnItems, setNotesOnItems] = useState(partialSample?.notesOnItems);
-  const [isSavedAsDraft, setIsSavedAsDraft] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
 
   const [createOrUpdateSample] = useCreateOrUpdateSampleMutation();
 
@@ -185,7 +185,7 @@ const ItemsStep = ({ partialSample }: Props) => {
                       onClick: async (e: React.MouseEvent<HTMLElement>) => {
                         e.preventDefault();
                         await save();
-                        setIsSavedAsDraft(true);
+                        setIsSaved(true);
                       },
                     },
                   ] as any
@@ -204,7 +204,7 @@ const ItemsStep = ({ partialSample }: Props) => {
           </ul>
         </div>
       </div>
-      <DraftSavedAlert isOpen={isSavedAsDraft} />
+      <SavedAlert isOpen={isSaved} isDraft />
     </form>
   );
 };

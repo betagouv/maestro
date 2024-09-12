@@ -9,6 +9,9 @@ import { QuantityUnitLabels } from '../../../shared/referential/QuantityUnit';
 import { StageLabels } from '../../../shared/referential/Stage';
 import { PartialSample } from '../../../shared/schema/Sample/Sample';
 import { SampleItemRecipientKindLabels } from '../../../shared/schema/Sample/SampleItemRecipientKind';
+import { SampleStatusLabels } from '../../../shared/schema/Sample/SampleStatus';
+import { isDefinedAndNotNull } from '../../../shared/utils/utils';
+import analysisRepository from '../../repositories/analysisRepository';
 import laboratoryRepository from '../../repositories/laboratoryRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
 import sampleItemRepository from '../../repositories/sampleItemRepository';
@@ -27,7 +30,10 @@ const writeToWorkbook = async (
     { header: 'Référence', key: 'reference' },
     { header: 'Département', key: 'department' },
     { header: 'Préleveur', key: 'sampler' },
-    { header: 'Date et heure', key: 'sampledAt' },
+    { header: 'Date de prélèvement', key: 'sampledAt' },
+    { header: 'Statut', key: 'status' },
+    { header: "Date d'envoi", key: 'sentAt' },
+    { header: 'Date de réception', key: 'receivedAt' },
     { header: 'Latitude', key: 'latitude' },
     { header: 'Longitude', key: 'longitude' },
     { header: 'Parcelle', key: 'parcel' },
@@ -70,23 +76,33 @@ const writeToWorkbook = async (
       ])
       .flat(),
     { header: 'Notes sur les échantillons', key: 'notesOnItems' },
+    { header: 'Notes sur la recevabilité', key: 'notesOnAdmissibility' },
+    { header: "Conformité globale de l'échantillon", key: 'compliance' },
   ];
 
   highland(samples)
     .flatMap((sample) =>
       highland(
-        sampleItemRepository
-          .findMany(sample.id)
-          .then((items) => ({ sample, items }))
+        Promise.all([
+          sampleItemRepository.findMany(sample.id),
+          analysisRepository.findUnique({ sampleId: sample.id }),
+        ]).then(([items, analysis]) => ({ sample, items, analysis }))
       )
     )
-    .tap(({ sample, items }) => {
+    .tap(({ sample, items, analysis }) => {
       worksheet
         .addRow({
           reference: sample.reference,
           department: sample.department,
           sampler: `${sample.sampler.firstName} ${sample.sampler.lastName}`,
           sampledAt: format(sample.sampledAt, 'dd/MM/yyyy HH:mm'),
+          status: SampleStatusLabels[sample.status],
+          sentAt: sample.sentAt
+            ? format(sample.sentAt, 'dd/MM/yyyy HH:mm')
+            : '',
+          receivedAt: sample.receivedAt
+            ? format(sample.receivedAt, 'dd/MM/yyyy')
+            : '',
           latitude: sample.geolocation?.x,
           longitude: sample.geolocation?.y,
           parcel: sample.parcel,
@@ -134,6 +150,13 @@ const writeToWorkbook = async (
             }),
             {}
           ),
+          notesOnItems: sample.notesOnItems,
+          notesOnAdmissibility: sample.notesOnAdmissibility,
+          compliance: isDefinedAndNotNull(analysis?.compliance)
+            ? analysis?.compliance
+              ? 'Oui'
+              : 'Non'
+            : '',
         })
         .commit();
     })

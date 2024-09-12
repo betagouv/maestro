@@ -4,10 +4,10 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 
 interface Props {
   isOpen: boolean;
-  isSubmitted?: boolean;
+  isDraft?: boolean;
 }
 
-const DraftSavedAlert = ({ isOpen, isSubmitted }: Props) => {
+const SavedAlert = ({ isOpen, isDraft }: Props) => {
   return isOpen ? (
     <Alert
       severity={'success'}
@@ -15,8 +15,8 @@ const DraftSavedAlert = ({ isOpen, isSubmitted }: Props) => {
       description={
         <>
           <div className={cx('fr-ml-2w')}>
-            Votre saisie a bien été enregistrée en tant que prélèvement
-            {isSubmitted ? ' à envoyer' : ' en brouillon'}.
+            Votre saisie a bien été enregistrée
+            {isDraft && ' en tant que prélèvement en brouillon'}.
           </div>
           <Button
             iconId="fr-icon-arrow-right-line"
@@ -36,4 +36,4 @@ const DraftSavedAlert = ({ isOpen, isSubmitted }: Props) => {
   );
 };
 
-export default DraftSavedAlert;
+export default SavedAlert;

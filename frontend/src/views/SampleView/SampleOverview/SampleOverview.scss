@@ -6,6 +6,9 @@
 
 .fr-tabs__panel {
   margin-top: -1px;
+  gap: 2rem;
+  display: flex;
+  flex-direction: column;
 }
 
 .fr-tabs__list,

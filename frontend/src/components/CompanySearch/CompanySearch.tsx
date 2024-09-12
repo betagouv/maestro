@@ -33,7 +33,6 @@ const CompanySearch = ({
     value: string
   ) => {
     setSearchQuery(value);
-    // setCompanySearchResults([]);
 
     if (value.length > 3) {
       await searchCompanies({

@@ -7,7 +7,7 @@ const router = express.Router();
 router.use(
   '/search',
   createProxyMiddleware({
-    target: `${config.apis.company.url}/search`,
+    target: `${config.apis.address.url}/search`,
     changeOrigin: true,
     pathRewrite: { '/?': '' },
   })

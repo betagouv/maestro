@@ -22,9 +22,9 @@ import {
   useCreateOrUpdateSampleMutation,
 } from 'src/services/sample.service';
 import { pluralize } from 'src/utils/stringUtils';
-import DraftSavedAlert from 'src/views/SampleView/DraftSample/DraftSavedAlert';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SendingModal from 'src/views/SampleView/DraftSample/SendingStep/SendingModal';
+import SavedAlert from 'src/views/SampleView/SavedAlert';
 import ContextStepSummary from 'src/views/SampleView/StepSummary/ContextStepSummary';
 import ItemsStepSummary from 'src/views/SampleView/StepSummary/ItemsStepSummary';
 import MatrixStepSummary from 'src/views/SampleView/StepSummary/MatrixStepSummary';
@@ -39,7 +39,8 @@ const SendingStep = ({ sample }: Props) => {
   const { isOnline } = useOnLine();
 
   const [items, setItems] = useState<SampleItem[]>(sample.items);
-  const [isSavedAsDraft, setIsSavedAsDraft] = useState(false);
+  const [resytalId, setResytalId] = useState(sample.resytalId);
+  const [isSaved, setIsSaved] = useState(false);
 
   const [createOrUpdateSample, { isError }] = useCreateOrUpdateSampleMutation({
     fixedCacheKey: `sending-sample-${sample.id}`,
@@ -65,6 +66,7 @@ const SendingStep = ({ sample }: Props) => {
 
   const Form = Sample.pick({
     items: true,
+    resytalId: true,
   });
 
   type FormShape = typeof Form.shape;
@@ -84,6 +86,7 @@ const SendingStep = ({ sample }: Props) => {
     await createOrUpdateSample({
       ...sample,
       items,
+      resytalId,
       status,
     });
   };
@@ -99,6 +102,7 @@ const SendingStep = ({ sample }: Props) => {
     Form,
     {
       items,
+      resytalId,
     },
     save
   );
@@ -116,7 +120,7 @@ const SendingStep = ({ sample }: Props) => {
             </div>
           )}
         </h3>
-        <ContextStepSummary sample={sample} />
+        <ContextStepSummary sample={sample} onChangeResytalId={setResytalId} />
         <hr className={cx('fr-mx-0', 'fr-hidden', 'fr-unhidden-sm')} />
         <MatrixStepSummary sample={sample} />
         <hr className={cx('fr-mx-0', 'fr-hidden', 'fr-unhidden-sm')} />
@@ -299,7 +303,7 @@ const SendingStep = ({ sample }: Props) => {
                           onClick: async (e: React.MouseEvent<HTMLElement>) => {
                             e.preventDefault();
                             await save();
-                            setIsSavedAsDraft(true);
+                            setIsSaved(true);
                           },
                         },
                       ] as any
@@ -325,7 +329,7 @@ const SendingStep = ({ sample }: Props) => {
                 </li>
               </ul>
             </div>
-            <DraftSavedAlert isOpen={isSavedAsDraft} isSubmitted />
+            <SavedAlert isOpen={isSaved} />
           </>
         )}
       </div>

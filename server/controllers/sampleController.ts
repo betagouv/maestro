@@ -189,7 +189,7 @@ const updateSample = async (request: Request, response: Response) => {
     lastUpdatedAt: new Date(),
   };
 
-  if (sampleUpdate.status === 'Sent') {
+  if (sample.status === 'Submitted' && updatedSample.status === 'Sent') {
     const sampleItems = await sampleItemRepository.findMany(sample.id);
 
     await Promise.all(

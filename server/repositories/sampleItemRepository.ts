@@ -48,6 +48,7 @@ const updateMany = async (
 ): Promise<void> => {
   console.info('Update sampleItems for sample', sampleId);
   await db.transaction(async (transaction) => {
+    await SampleItems(transaction).where({ sampleId }).forUpdate();
     await SampleItems(transaction).where({ sampleId }).delete();
     if (partialSampleItems.length > 0) {
       await SampleItems(transaction).insert(partialSampleItems);

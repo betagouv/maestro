@@ -1,5 +1,6 @@
 import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import Input from '@codegouvfr/react-dsfr/Input';
 import { format } from 'date-fns';
 import { DepartmentLabels } from 'shared/referential/Department';
 import { LegalContextLabels } from 'shared/referential/LegalContext';
@@ -16,9 +17,14 @@ import StepSummary from 'src/views/SampleView/StepSummary/StepSummary';
 interface Props {
   sample: Sample | SampleToCreate;
   showLabel?: boolean;
+  onChangeResytalId: (resytalId: string) => void;
 }
 
-const ContextStepSummary = ({ sample, showLabel }: Props) => {
+const ContextStepSummary = ({
+  sample,
+  showLabel,
+  onChangeResytalId,
+}: Props) => {
   const { userInfos } = useAuthentication();
 
   const { data: sampleProgrammingPlan } = useGetProgrammingPlanQuery(
@@ -106,11 +112,19 @@ const ContextStepSummary = ({ sample, showLabel }: Props) => {
               <div className="missing-data">Information à compléter</div>
             </>
           )}
-          {sample.resytalId && (
-            <div>
-              Identifiant RESYTAL : <b>{sample.resytalId}</b>
-            </div>
-          )}
+        </div>
+      </div>
+      <div className="summary-item icon-text">
+        <div className={cx('fr-icon-map-pin-user-line')}></div>
+        <div>
+          <Input
+            label="Identifiant Resytal"
+            hintText="Format AA-XXXXXX"
+            nativeInputProps={{
+              defaultValue: sample.resytalId || '',
+              onChange: (e) => onChangeResytalId?.(e.target.value),
+            }}
+          />
         </div>
       </div>
       {sample.notesOnCreation && (

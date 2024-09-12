@@ -11,8 +11,8 @@ import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import { useDocument } from 'src/hooks/useDocument';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import SampleAnalysis from 'src/views/SampleView/SampleAnalysis/SampleAnalysis';
+import SampleOverviewContextTab from 'src/views/SampleView/SampleOverview/SampleOverviewContextTab';
 import { SampleStepTitles } from 'src/views/SampleView/SampleView';
-import ContextStepSummary from 'src/views/SampleView/StepSummary/ContextStepSummary';
 import ItemsStepSummary from 'src/views/SampleView/StepSummary/ItemsStepSummary';
 import MatrixStepSummary from 'src/views/SampleView/StepSummary/MatrixStepSummary';
 import './SampleOverview.scss';
@@ -93,7 +93,7 @@ const SampleOverview = ({ sample }: Props) => {
           },
           {
             label: SampleStepTitles(sample)[0],
-            content: <ContextStepSummary sample={sample} showLabel={false} />,
+            content: <SampleOverviewContextTab sample={sample} />,
           },
           {
             label: SampleStepTitles(sample)[1],
