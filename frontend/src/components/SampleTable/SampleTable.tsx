@@ -47,6 +47,7 @@ const SampleTable = ({ samples, tableHeader, tableFooter }: Props) => {
   const { pendingSamples } = useAppSelector((state) => state.samples);
 
   const tableHeaders = [
+    'Numéro',
     'Matrice',
     'Préleveur',
     'Date',
@@ -61,6 +62,7 @@ const SampleTable = ({ samples, tableHeader, tableFooter }: Props) => {
     () =>
       (samples ?? []).map((sample) => [
         ...[
+          isCreatedPartialSample(sample) ? sample.reference : '',
           (sample.matrix && MatrixLabels[sample.matrix]) ?? '',
           <div className="d-flex-align-center">
             {pendingSamples[sample.id] && (
