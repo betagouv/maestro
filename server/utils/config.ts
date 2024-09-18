@@ -78,6 +78,9 @@ interface Config {
     company: {
       url: string;
     };
+    openai: {
+      apiKey: string;
+    };
   };
 }
 
@@ -247,6 +250,14 @@ const config = convict<Config>({
         env: 'COMPANY_API_URL',
         format: 'url',
         default: 'https://recherche-entreprises.api.gouv.fr',
+      },
+    },
+    openai: {
+      apiKey: {
+        env: 'OPENAI_API_KEY',
+        format: String,
+        default: null,
+        nullable: true,
       },
     },
   },

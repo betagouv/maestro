@@ -11,6 +11,7 @@ import {
 } from '../../shared/schema/Analysis/Analysis';
 import analysisRepository from '../repositories/analysisRepository';
 import sampleRepository from '../repositories/sampleRepository';
+import { extractFromReport } from '../services/analysisService/AnalysisService';
 
 const getAnalysis = async (request: Request, response: Response) => {
   const { sampleId } = request.query as { sampleId: string };
@@ -86,8 +87,22 @@ const updateAnalysis = async (request: Request, response: Response) => {
   response.send(updatedAnalysis);
 };
 
+const extractAnalysis = async (request: Request, response: Response) => {
+  const { analysisId } = request.params;
+  const analysis = await analysisRepository.findUnique(analysisId);
+
+  if (!analysis) {
+    return response.sendStatus(constants.HTTP_STATUS_NOT_FOUND);
+  }
+
+  const extraction = await extractFromReport(analysis.reportDocumentId);
+
+  response.send(extraction);
+};
+
 export default {
   getAnalysis,
   createAnalysis,
   updateAnalysis,
+  extractAnalysis,
 };

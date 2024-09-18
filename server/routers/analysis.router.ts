@@ -28,4 +28,6 @@ router.put(
   analysisController.updateAnalysis
 );
 
+router.get('/:analysisId/extract', analysisController.extractAnalysis);
+
 export default router;
