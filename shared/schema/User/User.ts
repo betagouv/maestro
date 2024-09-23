@@ -31,7 +31,10 @@ export const userRegions = (user?: User | UserInfos) =>
 
 export const userDepartments = (user?: User | UserInfos) =>
   user
-    ? userRegions(user).flatMap((region) => Regions[region].departments)
+    ? userRegions(user).flatMap((region) => [
+        ...Regions[region].departments,
+        ...(Regions[region].borderingDepartments || []),
+      ])
     : [];
 
 export const hasPermission = (

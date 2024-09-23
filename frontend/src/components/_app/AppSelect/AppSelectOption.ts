@@ -9,6 +9,11 @@ export interface AppSelectOption {
   hidden?: boolean;
 }
 
+export interface AppSelectOptionsGroup {
+  label?: string;
+  options: AppSelectOption[];
+}
+
 export const defaultAppSelectOption = (
   optionLabel?: string
 ): AppSelectOption => ({
