@@ -49,85 +49,79 @@ const SampleGeolocation = ({ location, onLocationChange }: Props) => {
   };
 
   return (
-    <Map
-      attributionControl={false}
-      id="sampleLocationMap"
-      latitude={mapLatitude}
-      longitude={mapLongitude}
-      zoom={mapZoom}
-      mapLib={maplibregl}
-      mapStyle={ViewStyles[viewStyle]}
-      onZoom={(e) => setMapZoom(e.viewState.zoom)}
-      onMove={(e) => {
-        setMapLatitude(e.viewState.latitude);
-        setMapLongitude(e.viewState.longitude);
-      }}
-      style={{
-        minHeight: 375,
-      }}
-    >
-      <NavigationControl position="bottom-right" showCompass={false} />
-      <FullscreenControl position="bottom-right" />
-      <Marker
-        longitude={marker.y}
-        latitude={marker.x}
-        anchor="bottom"
-        draggable
-        onDrag={onMarkerDragEnd}
-      />
-      {ViewStyles['satellite'] && (
-        <Map
-          attributionControl={false}
-          id="sampleLocationMapLayer"
-          latitude={mapLatitude}
-          longitude={mapLongitude}
-          zoom={mapZoom}
-          scrollZoom={false}
-          dragPan={false}
-          doubleClickZoom={false}
-          style={{
-            height: 50,
-            width: 50,
-            margin: 10,
-            borderRadius: 5,
-            border: `white solid ${isSecondaryMapHovered ? '2px' : '1px'}`,
-            bottom: 0,
-            position: 'absolute',
-            cursor: 'grab',
-          }}
-          mapLib={maplibregl}
-          mapStyle={ViewStyles[viewStyle === 'map' ? 'satellite' : 'map']}
-          onClick={(e) => {
-            e.preventDefault();
-            setViewStyle(viewStyle === 'map' ? 'satellite' : 'map');
-          }}
-          onMouseOver={() => setIsSecondaryMapHovered(true)}
-          onMouseOut={() => setIsSecondaryMapHovered(false)}
-        />
-      )}
-      <div
+    <>
+      <Map
+        attributionControl={false}
+        id="sampleLocationMap"
+        latitude={mapLatitude}
+        longitude={mapLongitude}
+        zoom={mapZoom}
+        mapLib={maplibregl}
+        mapStyle={ViewStyles[viewStyle]}
+        onZoom={(e) => setMapZoom(e.viewState.zoom)}
+        onMove={(e) => {
+          setMapLatitude(e.viewState.latitude);
+          setMapLongitude(e.viewState.longitude);
+        }}
         style={{
-          position: 'absolute',
-          bottom: 15,
-          left: 70,
-          width: 300,
+          minHeight: 375,
+          height: 'calc(100% - 40px)',
         }}
       >
-        <AddressSearch
-          onSelectAddress={(address) => {
-            if (address) {
-              onLocationChange({
-                x: address.geometry.coordinates[1],
-                y: address.geometry.coordinates[0],
-              });
-              setMapLongitude(address.geometry.coordinates[0]);
-              setMapLatitude(address.geometry.coordinates[1]);
-              setMapZoom(12);
-            }
-          }}
+        <NavigationControl position="bottom-right" showCompass={false} />
+        <FullscreenControl position="bottom-right" />
+        <Marker
+          longitude={marker.y}
+          latitude={marker.x}
+          anchor="bottom"
+          draggable
+          onDrag={onMarkerDragEnd}
         />
-      </div>
-    </Map>
+        {ViewStyles['satellite'] && (
+          <Map
+            attributionControl={false}
+            id="sampleLocationMapLayer"
+            latitude={mapLatitude}
+            longitude={mapLongitude}
+            zoom={mapZoom}
+            scrollZoom={false}
+            dragPan={false}
+            doubleClickZoom={false}
+            style={{
+              height: 50,
+              width: 50,
+              margin: 10,
+              borderRadius: 5,
+              border: `white solid ${isSecondaryMapHovered ? '2px' : '1px'}`,
+              bottom: 0,
+              position: 'absolute',
+              cursor: 'grab',
+            }}
+            mapLib={maplibregl}
+            mapStyle={ViewStyles[viewStyle === 'map' ? 'satellite' : 'map']}
+            onClick={(e) => {
+              e.preventDefault();
+              setViewStyle(viewStyle === 'map' ? 'satellite' : 'map');
+            }}
+            onMouseOver={() => setIsSecondaryMapHovered(true)}
+            onMouseOut={() => setIsSecondaryMapHovered(false)}
+          />
+        )}
+      </Map>
+      <AddressSearch
+        onSelectAddress={(address) => {
+          if (address) {
+            onLocationChange({
+              x: address.geometry.coordinates[1],
+              y: address.geometry.coordinates[0],
+            });
+            setMapLongitude(address.geometry.coordinates[0]);
+            setMapLatitude(address.geometry.coordinates[1]);
+            setMapZoom(12);
+          }
+        }}
+      />
+    </>
   );
 };
 
