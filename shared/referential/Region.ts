@@ -41,6 +41,7 @@ export const Regions: Record<
       longitude: number;
     };
     departments: Department[];
+    borderingDepartments?: Department[];
     establishment?: {
       name?: string;
       street: string;
@@ -71,6 +72,21 @@ export const Regions: Record<
       '73',
       '74',
     ],
+    borderingDepartments: [
+      '39',
+      '71',
+      '58',
+      '18',
+      '23',
+      '19',
+      '46',
+      '12',
+      '48',
+      '30',
+      '84',
+      '04',
+      '05',
+    ],
   },
   '27': {
     name: 'Bourgogne-Franche-Comté',
@@ -80,6 +96,19 @@ export const Regions: Record<
       longitude: 4.81,
     },
     departments: ['21', '25', '39', '58', '70', '71', '89', '90'],
+    borderingDepartments: [
+      '68',
+      '88',
+      '52',
+      '10',
+      '77',
+      '45',
+      '18',
+      '03',
+      '42',
+      '69',
+      '01',
+    ],
   },
   '53': {
     name: 'Bretagne',
@@ -89,6 +118,7 @@ export const Regions: Record<
       longitude: -2.92,
     },
     departments: ['22', '29', '35', '56'],
+    borderingDepartments: ['50', '53', '49', '44'],
   },
   '24': {
     name: 'Centre-Val de Loire',
@@ -98,6 +128,21 @@ export const Regions: Record<
       longitude: 1.75,
     },
     departments: ['18', '28', '36', '37', '41', '45'],
+    borderingDepartments: [
+      '77',
+      '89',
+      '58',
+      '03',
+      '23',
+      '87',
+      '86',
+      '49',
+      '72',
+      '61',
+      '27',
+      '91',
+      '78',
+    ],
   },
   '94': {
     name: 'Corse',
@@ -116,6 +161,7 @@ export const Regions: Record<
       longitude: 5.6,
     },
     departments: ['08', '10', '51', '52', '54', '55', '57', '67', '68', '88'],
+    borderingDepartments: ['59', '02', '77', '89', '21', '70', '80'],
     establishment: {
       name: 'DRAAF Grand Est',
       street: '4 Rue Dom Pierre Perignon',
@@ -131,6 +177,7 @@ export const Regions: Record<
       longitude: 2.88,
     },
     departments: ['02', '59', '60', '62', '80'],
+    borderingDepartments: ['08', '51', '77', '95', '27', '76'],
     establishment: {
       name: 'DRAAF Hauts de France',
       street: '518 rue St Fuscien',
@@ -147,6 +194,7 @@ export const Regions: Record<
       longitude: 2.5,
     },
     departments: ['75', '77', '78', '91', '92', '93', '94'],
+    borderingDepartments: ['60', '02', '51', '10', '89', '45', '28', '27'],
   },
   '28': {
     name: 'Normandie',
@@ -156,6 +204,17 @@ export const Regions: Record<
       longitude: 0,
     },
     departments: ['14', '27', '50', '61', '76'],
+    borderingDepartments: [
+      '80',
+      '60',
+      '95',
+      '78',
+      '28',
+      '41',
+      '72',
+      '53',
+      '35',
+    ],
   },
   '75': {
     name: 'Nouvelle-Aquitaine',
@@ -177,6 +236,20 @@ export const Regions: Record<
       '79',
       '86',
       '87',
+    ],
+    borderingDepartments: [
+      '85',
+      '49',
+      '37',
+      '36',
+      '18',
+      '03',
+      '63',
+      '15',
+      '46',
+      '82',
+      '32',
+      '65',
     ],
   },
   '76': {
@@ -201,6 +274,19 @@ export const Regions: Record<
       '81',
       '82',
     ],
+    borderingDepartments: [
+      '64',
+      '40',
+      '47',
+      '24',
+      '19',
+      '15',
+      '43',
+      '07',
+      '26',
+      '84',
+      '13',
+    ],
   },
   '52': {
     name: 'Pays de la Loire',
@@ -210,6 +296,18 @@ export const Regions: Record<
       longitude: -0.6,
     },
     departments: ['44', '49', '53', '72', '85'],
+    borderingDepartments: [
+      '56',
+      '35',
+      '50',
+      '61',
+      '28',
+      '41',
+      '37',
+      '86',
+      '79',
+      '17',
+    ],
     establishment: {
       name: 'DRAAF Pays de Loire',
       street: '5 rue Françoise Giroud',
@@ -226,6 +324,7 @@ export const Regions: Record<
       longitude: 6.1,
     },
     departments: ['04', '05', '06', '13', '83', '84'],
+    borderingDepartments: ['73', '38', '26', '07', '30'],
   },
   '01': {
     name: 'Guadeloupe',

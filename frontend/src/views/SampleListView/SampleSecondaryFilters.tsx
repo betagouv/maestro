@@ -29,6 +29,15 @@ const SampleSecondaryFilters = ({
     return region ? Regions[region as Region].departments : DepartmentList;
   }, [userInfos?.region, filters.region]);
 
+  const borderingDepartments = useMemo(() => {
+    const region = userInfos?.region ?? filters.region;
+    return region
+      ? Regions[region as Region].borderingDepartments?.sort((a, b) =>
+          a.localeCompare(b)
+        ) ?? []
+      : [];
+  }, [userInfos?.region, filters.region]);
+
   return (
     <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
       {hasNationalView && (
@@ -64,12 +73,21 @@ const SampleSecondaryFilters = ({
               }),
           }}
         >
-          <option value="">Tous</option>
-          {departmentOptions.map((department) => (
-            <option key={`department-${department}`} value={department}>
-              {`${department} - ${DepartmentLabels[department]}`}
-            </option>
-          ))}
+          <optgroup>
+            <option value="">Tous</option>
+            {departmentOptions.map((department) => (
+              <option key={`department-${department}`} value={department}>
+                {`${department} - ${DepartmentLabels[department]}`}
+              </option>
+            ))}
+          </optgroup>
+          <optgroup label={'Départements limitrophes'}>
+            {borderingDepartments.map((department) => (
+              <option key={`department-${department}`} value={department}>
+                {`${department} - ${DepartmentLabels[department]}`}
+              </option>
+            ))}
+          </optgroup>
         </Select>
       </div>
       <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>

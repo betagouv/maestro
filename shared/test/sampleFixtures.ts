@@ -46,9 +46,9 @@ export const genSampleContextData = (
 export const genCreatedSampleData = (
   data?: Partial<CreatedSampleData>
 ): CreatedSampleData => ({
-  reference: `44-${oneOf(Regions['44'].departments)}-24-${genNumber(4)}-${oneOf(
-    LegalContextList
-  )}`,
+  reference: `GES-${oneOf(Regions['44'].departments)}-24-${genNumber(
+    4
+  )}-${oneOf(LegalContextList)}`,
   sampler: {
     id: uuidv4(),
     firstName: fakerFR.person.firstName(),

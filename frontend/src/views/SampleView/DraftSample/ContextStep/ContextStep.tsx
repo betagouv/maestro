@@ -117,7 +117,19 @@ const ContextStep = ({ partialSample }: Props) => {
     userInfos?.region ? Regions[userInfos.region].departments : DepartmentList,
     {
       labels: DepartmentLabels,
-      defaultLabel: 'Sélectionner une zone',
+      defaultLabel: 'Sélectionner un département',
+    }
+  );
+
+  const borderingDepartments = selectOptionsFromList(
+    userInfos?.region
+      ? Regions[userInfos.region].borderingDepartments?.sort((a, b) =>
+          a.localeCompare(b)
+        ) ?? []
+      : [],
+    {
+      labels: DepartmentLabels,
+      withDefault: false,
     }
   );
 
@@ -253,7 +265,15 @@ const ContextStep = ({ partialSample }: Props) => {
         <div className={cx('fr-col-12', 'fr-col-sm-4')}>
           <AppSelect<FormShape>
             defaultValue={partialSample?.department || ''}
-            options={departmentOptions}
+            optionsGroups={[
+              {
+                options: departmentOptions,
+              },
+              {
+                label: 'Départements limitrophes',
+                options: borderingDepartments,
+              },
+            ]}
             onChange={(e) => setDepartment(e.target.value as Department)}
             inputForm={form}
             inputKey="department"
