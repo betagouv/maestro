@@ -130,8 +130,8 @@ export type SampleToCreate = z.infer<typeof SampleToCreate>;
 export type Sample = z.infer<typeof Sample>;
 
 export const getSampleRegion = (sample: PartialSample): Region | undefined =>
-  RegionList.find((region) =>
-    Regions[region].departments.includes(sample.department)
+  RegionList.find(
+    (region) => Regions[region].shortName === sample.reference.split('-')[0]
   );
 
 export const isCreatedPartialSample = (

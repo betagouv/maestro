@@ -18,3 +18,15 @@ root.render(
 );
 
 serviceWorkerRegistration.register();
+
+navigator.serviceWorker.addEventListener('controllerchange', () => {
+  window.location.reload(); // Recharge la page dès que le nouveau service worker prend le contrôle
+});
+
+if (navigator.serviceWorker.controller) {
+  navigator.serviceWorker.ready.then((registration) => {
+    if (registration.waiting) {
+      registration.waiting.postMessage({ type: 'SKIP_WAITING' }); // Demande au service worker d'activer immédiatement
+    }
+  });
+}

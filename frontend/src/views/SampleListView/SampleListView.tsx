@@ -53,7 +53,7 @@ const SampleListView = () => {
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
 
   useEffect(() => {
-    if (searchParams) {
+    if (searchParams?.size > 0) {
       const status = searchParams.get('status') as SampleStatus;
       dispatch(
         samplesSlice.actions.changeFindOptions({
