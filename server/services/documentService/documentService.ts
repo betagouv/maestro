@@ -10,6 +10,7 @@ import { StageLabels } from '../../../shared/referential/Stage';
 import { getSampleRegion, Sample } from '../../../shared/schema/Sample/Sample';
 import { SampleItem } from '../../../shared/schema/Sample/SampleItem';
 import { UserInfos } from '../../../shared/schema/User/User';
+import { isDefinedAndNotNull } from '../../../shared/utils/utils';
 import laboratoryRepository from '../../repositories/laboratoryRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
 import substanceAnalysisRepository from '../../repositories/substanceRepository';
@@ -56,11 +57,9 @@ const generateDocument = async (template: Template, data: any) => {
 
 const generateSupportDocument = async (
   sample: Sample,
-  sampleItem: SampleItem,
+  sampleItem: SampleItem | null,
   sampler: UserInfos
 ) => {
-  //TODO : handle sample outside any programming plan (ie sample.programmingPlanId is null)
-
   const programmingPlan = await programmingPlanRepository.findUnique(
     sample.programmingPlanId as string
   );
@@ -93,15 +92,21 @@ const generateSupportDocument = async (
     multiSubstances: substanceAnalysis
       ?.filter((analysis) => analysis.kind === 'Multi')
       .map((analysis) => analysis.substance.label),
-    reference: [sample.reference, sampleItem.itemNumber].join('-'),
+    reference: [sample.reference, sampleItem?.itemNumber]
+      .filter(isDefinedAndNotNull)
+      .join('-'),
     sampledAt: format(sample.sampledAt, 'dd/MM/yyyy'),
     stage: StageLabels[sample.stage],
     matrix: MatrixLabels[sample.matrix],
     matrixDetails: sample.matrixDetails,
     matrixPart: MatrixPartLabels[sample.matrixPart],
-    quantityUnit: QuantityUnitLabels[sampleItem.quantityUnit],
+    quantityUnit: sampleItem ? QuantityUnitLabels[sampleItem.quantityUnit] : '',
     releaseControl: sample.releaseControl ? 'Oui' : 'Non',
-    compliance200263: sampleItem.compliance200263 ? 'Oui' : 'Non',
+    compliance200263: sampleItem
+      ? sampleItem.compliance200263
+        ? 'Oui'
+        : 'Non'
+      : '',
     dsfrLink: `${config.application.host}/dsfr/dsfr.min.css`,
     establishment: Regions[getSampleRegion(sample) as Region].establishment,
   });
