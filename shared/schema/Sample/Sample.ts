@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { z } from 'zod';
 import { CultureKind } from '../../referential/CultureKind';
 import { Department } from '../../referential/Department';
@@ -67,7 +68,11 @@ export const SampleMatrixData = z.object({
 export const SampleItemsData = z.object({
   items: z
     .array(SampleItem)
-    .min(1, { message: 'Veuillez renseigner au moins un échantillon.' }),
+    .min(1, { message: 'Veuillez renseigner au moins un échantillon.' })
+    .refine(
+      (items) => _.uniqBy(items, (item) => item.sealId).length === items.length,
+      'Les numéros de scellés doivent être uniques.'
+    ),
   notesOnItems: z.string().nullish(),
 });
 
