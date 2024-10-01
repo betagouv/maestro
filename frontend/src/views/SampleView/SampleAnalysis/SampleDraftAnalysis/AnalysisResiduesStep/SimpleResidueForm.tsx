@@ -12,6 +12,7 @@ import {
 } from 'shared/schema/Analysis/Residue/ResultKind';
 import { isDefinedAndNotNull } from 'shared/utils/utils';
 import ResidueResultAlert from 'src/components/ResidueResultAlert/ResidueResultAlert';
+import AppSearchInput from 'src/components/_app/AppSearchInput/AppSearchInput';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
@@ -35,26 +36,29 @@ function SimpleResidueForm<T extends ZodRawShape>({
     <>
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>
-          <AppSelect<T>
-            value={residue.reference ?? ''}
+          <AppSearchInput
             options={selectOptionsFromList(SimpleResidueList, {
               labels: SimpleResidueLabels,
               withSort: true,
+              withDefault: false,
             })}
-            onChange={(e) =>
+            value={residue.reference ?? ''}
+            state={form.messageType('residues', [residueIndex, 'reference'])}
+            stateRelatedMessage={form.message('residues', [
+              residueIndex,
+              'reference',
+            ])}
+            onSelect={(value) =>
               changeResidue(
                 {
                   ...residue,
-                  reference: e.target.value as SimpleResidue,
+                  reference: value as SimpleResidue,
                 },
                 residueIndex
               )
             }
-            inputForm={form}
-            inputKey="residues"
-            inputPathFromKey={[residueIndex, 'reference']}
-            whenValid="Résidu correctement renseigné"
             label="Résidu selon définition"
+            whenValid={`Résidu correctement renseigné`}
             required
           />
         </div>

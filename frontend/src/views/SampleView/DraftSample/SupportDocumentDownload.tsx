@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { useMemo } from 'react';
 import { PartialSample } from 'shared/schema/Sample/Sample';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
+import useWindowSize from 'src/hooks/useWindowSize';
 import { getSupportDocumentURL } from 'src/services/sample.service';
 
 interface Props {
@@ -11,6 +12,8 @@ interface Props {
 }
 
 const SupportDocumentDownload = ({ partialSample }: Props) => {
+  const { isMobile } = useWindowSize();
+
   const confirmationModal = useMemo(
     () =>
       createModal({
@@ -22,7 +25,13 @@ const SupportDocumentDownload = ({ partialSample }: Props) => {
 
   return (
     <>
-      <div className={clsx('d-flex-align-center', 'flex-grow-1')}>
+      <div
+        className={clsx(
+          'd-flex-align-center',
+          'd-flex-justify-center',
+          'flex-grow-1'
+        )}
+      >
         <Button
           onClick={(e: React.MouseEvent) => {
             e.preventDefault();
@@ -31,9 +40,13 @@ const SupportDocumentDownload = ({ partialSample }: Props) => {
           priority="tertiary no outline"
           iconId="fr-icon-printer-fill"
         >
-          Générer le document d'accompagnement
+          <div>
+            Générer le document 
+            {isMobile && <br />}
+            d'accompagnement
+          </div>
         </Button>
-        <div className="border-middle"></div>
+        {!isMobile && <div className="border-middle"></div>}
       </div>
       <ConfirmationModal
         modal={confirmationModal}
