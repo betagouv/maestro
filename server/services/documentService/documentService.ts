@@ -8,7 +8,7 @@ import { QuantityUnitLabels } from '../../../shared/referential/QuantityUnit';
 import { Region, Regions } from '../../../shared/referential/Region';
 import { StageLabels } from '../../../shared/referential/Stage';
 import { getSampleRegion, Sample } from '../../../shared/schema/Sample/Sample';
-import { SampleItem } from '../../../shared/schema/Sample/SampleItem';
+import { PartialSampleItem } from '../../../shared/schema/Sample/SampleItem';
 import { UserInfos } from '../../../shared/schema/User/User';
 import { isDefinedAndNotNull } from '../../../shared/utils/utils';
 import laboratoryRepository from '../../repositories/laboratoryRepository';
@@ -57,7 +57,7 @@ const generateDocument = async (template: Template, data: any) => {
 
 const generateSupportDocument = async (
   sample: Sample,
-  sampleItem: SampleItem | null,
+  sampleItem: PartialSampleItem | null,
   sampler: UserInfos
 ) => {
   const programmingPlan = await programmingPlanRepository.findUnique(
@@ -100,7 +100,9 @@ const generateSupportDocument = async (
     matrix: MatrixLabels[sample.matrix],
     matrixDetails: sample.matrixDetails,
     matrixPart: MatrixPartLabels[sample.matrixPart],
-    quantityUnit: sampleItem ? QuantityUnitLabels[sampleItem.quantityUnit] : '',
+    quantityUnit: sampleItem?.quantityUnit
+      ? QuantityUnitLabels[sampleItem.quantityUnit]
+      : '',
     releaseControl: sample.releaseControl ? 'Oui' : 'Non',
     compliance200263: sampleItem
       ? sampleItem.compliance200263

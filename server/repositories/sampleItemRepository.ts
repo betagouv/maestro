@@ -1,7 +1,6 @@
 import fp from 'lodash';
 import {
   PartialSampleItem,
-  SampleItem,
   SampleItemSort,
 } from '../../shared/schema/Sample/SampleItem';
 import db from './db';
@@ -14,12 +13,12 @@ export const SampleItems = (transaction = db) =>
 const findUnique = async (
   sampleId: string,
   itemNumber: number
-): Promise<SampleItem | undefined> => {
+): Promise<PartialSampleItem | undefined> => {
   console.info('Find sampleItem', sampleId, itemNumber);
   return SampleItems()
     .where({ sampleId, itemNumber })
     .first()
-    .then((_) => _ && SampleItem.parse(fp.omitBy(_, fp.isNil)));
+    .then((_) => _ && PartialSampleItem.parse(fp.omitBy(_, fp.isNil)));
 };
 
 const findMany = async (sampleId: string): Promise<PartialSampleItem[]> => {
