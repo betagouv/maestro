@@ -11,7 +11,7 @@ import {
 } from '../../shared/schema/Analysis/Analysis';
 import analysisRepository from '../repositories/analysisRepository';
 import sampleRepository from '../repositories/sampleRepository';
-import { extractFromReport } from '../services/analysisService/AnalysisService';
+import { extractFromReport } from '../services/analysisService/analysisService';
 
 const getAnalysis = async (request: Request, response: Response) => {
   const { sampleId } = request.query as { sampleId: string };

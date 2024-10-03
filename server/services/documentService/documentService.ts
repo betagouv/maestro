@@ -1,6 +1,10 @@
+import { GetObjectCommand, S3 } from '@aws-sdk/client-s3';
 import { format } from 'date-fns';
 import handlebars from 'handlebars';
+import { Readable } from 'node:stream';
+import pdf from 'pdf-parse';
 import puppeteer from 'puppeteer';
+import DocumentMissingError from '../../../shared/errors/documentMissingError';
 import ProgrammingPlanMissingError from '../../../shared/errors/promgrammingPlanMissingError';
 import { MatrixLabels } from '../../../shared/referential/Matrix/MatrixLabels';
 import { MatrixPartLabels } from '../../../shared/referential/MatrixPart';
@@ -11,6 +15,7 @@ import { getSampleRegion, Sample } from '../../../shared/schema/Sample/Sample';
 import { PartialSampleItem } from '../../../shared/schema/Sample/SampleItem';
 import { UserInfos } from '../../../shared/schema/User/User';
 import { isDefinedAndNotNull } from '../../../shared/utils/utils';
+import documentRepository from '../../repositories/documentRepository';
 import laboratoryRepository from '../../repositories/laboratoryRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
 import substanceAnalysisRepository from '../../repositories/substanceRepository';
@@ -20,6 +25,7 @@ import {
   templateStylePath,
 } from '../../templates/templates';
 import config from '../../utils/config';
+import { streamToBuffer } from '../../utils/steamUtils';
 
 const generateDocument = async (template: Template, data: any) => {
   const compiledTemplate = handlebars.compile(templateContent(template));
@@ -114,6 +120,31 @@ const generateSupportDocument = async (
   });
 };
 
+const getDocumentContent = async (reportDocumentId: string) => {
+  const document = await documentRepository.findUnique(reportDocumentId);
+
+  if (!document) {
+    throw new DocumentMissingError(reportDocumentId);
+  }
+
+  const client = new S3(config.s3.client);
+  const key = `${document.id}_${document.filename}`;
+
+  const command = new GetObjectCommand({
+    Bucket: config.s3.bucket,
+    Key: key,
+  });
+
+  const responseStream = await client.send(command);
+
+  const data = await streamToBuffer(responseStream.Body as Readable);
+
+  const result = await pdf(data);
+
+  return result.text;
+};
+
 export default {
   generateSupportDocument,
+  getDocumentContent,
 };
