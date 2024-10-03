@@ -88,7 +88,10 @@ const findRequest = (findOptions: FindSampleOptions) =>
     )
     .modify((builder) => {
       if (findOptions.region) {
-        builder.whereIn('department', Regions[findOptions.region].departments);
+        builder.whereILike(
+          'reference',
+          `${Regions[findOptions.region].shortName}-%`
+        );
       }
       if (fp.isArray(findOptions.status)) {
         builder.whereIn('status', findOptions.status);

@@ -199,7 +199,12 @@
                 <div class='label'>
                   Directive 2002/63 respectée
                 </div>
-                {{compliance200263}}
+                {{#if compliance200263}}
+                  {{compliance200263}}
+                {{else}}
+                  <input type="checkbox" class="fr-mr-1w">Oui</input>
+                  <input type="checkbox" class="fr-ml-2w fr-mr-1w">Non</input>
+                {{/if}}
               </div>
             </div>
           </div>
@@ -211,22 +216,28 @@
                 <div class='label'>
                   Analyses demandées
                 </div>
-                <ul>
-                  <li>Analyse multi-résidus
-                    {{#if multiSubstances}}dont :
-                      <ul>
-                        {{#each multiSubstances}}<li> {{this}} </li>{{/each}}
-                      </ul>
-                    {{/if}}
-                  </li>
-                  {{#if monoSubstances}}
-                    <li>Analyse mono-résidu :
-                      <ul>
-                        {{#each monoSubstances}}<li> {{this}} </li>{{/each}}
-                      </ul>
+                {{#if matrix}}
+                  <ul>
+                    <li>Analyse multi-résidus
+                      {{#if multiSubstances}}dont :
+                        <ul>
+                          {{#each multiSubstances}}<li> {{this}} </li>{{/each}}
+                        </ul>
+                      {{/if}}
                     </li>
-                  {{/if}}
-                </ul>
+                    {{#if monoSubstances}}
+                      <li>Analyse mono-résidu :
+                        <ul>
+                          {{#each monoSubstances}}<li> {{this}} </li>{{/each}}
+                        </ul>
+                      </li>
+                    {{/if}}
+                  </ul>
+                {{else}}
+                  &nbsp;
+                  <br/>&nbsp;
+                  <br/>&nbsp;
+                {{/if}}
               </div>
             </div>
           </div>
@@ -241,7 +252,7 @@
                 {{#if laboratory}}
                   {{laboratory.name}}
                 {{else}}
-                  Information non disponible
+                  &nbsp;
                 {{/if}}
               </div>
             </div>

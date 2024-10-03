@@ -105,13 +105,6 @@ describe('Sample router', () => {
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
-    it('should fail if the item does not exist', async () => {
-      await request(app)
-        .get(`${testRoute(Sample11Fixture.id, 2)}`)
-        .use(tokenProvider(Sampler1Fixture))
-        .expect(constants.HTTP_STATUS_NOT_FOUND);
-    });
-
     it('should fail if the sample does not belong to the user region', async () => {
       await request(app)
         .get(`${testRoute(Sample11Fixture.id, 1)}`)

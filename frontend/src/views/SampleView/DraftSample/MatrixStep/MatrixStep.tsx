@@ -19,6 +19,7 @@ import {
 } from 'shared/referential/MatrixPart';
 import { Stage, StageLabels, StageList } from 'shared/referential/Stage';
 import {
+  isCreatedPartialSample,
   PartialSample,
   PartialSampleToCreate,
   SampleMatrixData,
@@ -32,6 +33,7 @@ import { useForm } from 'src/hooks/useForm';
 import { useFindPrescriptionsQuery } from 'src/services/prescription.service';
 import { useCreateOrUpdateSampleMutation } from 'src/services/sample.service';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
+import SupportDocumentDownload from 'src/views/SampleView/DraftSample/SupportDocumentDownload';
 import SavedAlert from 'src/views/SampleView/SavedAlert';
 
 interface Props {
@@ -283,6 +285,9 @@ const MatrixStep = ({ partialSample }: Props) => {
             </li>
           </ul>
         </div>
+        {isCreatedPartialSample(partialSample) && (
+          <SupportDocumentDownload partialSample={partialSample} />
+        )}
       </div>
       <SavedAlert isOpen={isSaved} isDraft />
     </form>

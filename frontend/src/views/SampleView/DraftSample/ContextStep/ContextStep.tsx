@@ -23,6 +23,7 @@ import {
 } from 'shared/schema/Company/Company';
 import { ProgrammingPlanKindLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
+  isCreatedPartialSample,
   PartialSample,
   PartialSampleToCreate,
   SampleContextData,
@@ -43,6 +44,7 @@ import { useOnLine } from 'src/hooks/useOnLine';
 import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.service';
 import { useCreateOrUpdateSampleMutation } from 'src/services/sample.service';
 import SampleGeolocation from 'src/views/SampleView/DraftSample/ContextStep/SampleGeolocation';
+import SupportDocumentDownload from 'src/views/SampleView/DraftSample/SupportDocumentDownload';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import check from '../../../../assets/illustrations/check.svg';
@@ -117,7 +119,19 @@ const ContextStep = ({ partialSample }: Props) => {
     userInfos?.region ? Regions[userInfos.region].departments : DepartmentList,
     {
       labels: DepartmentLabels,
-      defaultLabel: 'Sélectionner une zone',
+      defaultLabel: 'Sélectionner un département',
+    }
+  );
+
+  const borderingDepartments = selectOptionsFromList(
+    userInfos?.region
+      ? Regions[userInfos.region].borderingDepartments?.sort((a, b) =>
+          a.localeCompare(b)
+        ) ?? []
+      : [],
+    {
+      labels: DepartmentLabels,
+      withDefault: false,
     }
   );
 
@@ -253,7 +267,15 @@ const ContextStep = ({ partialSample }: Props) => {
         <div className={cx('fr-col-12', 'fr-col-sm-4')}>
           <AppSelect<FormShape>
             defaultValue={partialSample?.department || ''}
-            options={departmentOptions}
+            optionsGroups={[
+              {
+                options: departmentOptions,
+              },
+              {
+                label: 'Départements limitrophes',
+                options: borderingDepartments,
+              },
+            ]}
             onChange={(e) => setDepartment(e.target.value as Department)}
             inputForm={form}
             inputKey="department"
@@ -487,6 +509,9 @@ const ContextStep = ({ partialSample }: Props) => {
             ]}
           />
         </div>
+        {partialSample && isCreatedPartialSample(partialSample) && (
+          <SupportDocumentDownload partialSample={partialSample} />
+        )}
       </div>
     </form>
   );

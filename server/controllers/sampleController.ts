@@ -52,13 +52,9 @@ const getSampleItemDocument = async (request: Request, response: Response) => {
     itemNumber
   );
 
-  if (!sampleItem) {
-    return response.sendStatus(constants.HTTP_STATUS_NOT_FOUND);
-  }
-
   const pdfBuffer = await documentService.generateSupportDocument(
     sample,
-    sampleItem,
+    sampleItem ?? null,
     user
   );
 

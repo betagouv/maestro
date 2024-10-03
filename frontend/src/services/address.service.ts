@@ -15,7 +15,7 @@ export const addressApi = api.injectEndpoints({
       query: ({ query }) => ({
         url: 'addresses/search',
         params: {
-          type: 'municipality',
+          // type: 'municipality',
           q: query,
         },
       }),

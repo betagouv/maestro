@@ -38,7 +38,7 @@ export const Sample11Fixture = genCreatedPartialSample({
   resytalId: '23-123456',
   company: CompanyFixture,
   notesOnCreation: 'notes on creation',
-  reference: '44-08-24-313-A',
+  reference: 'GES-08-24-313-A',
   sampler: fp.pick(Sampler1Fixture, ['id', 'firstName', 'lastName']),
   createdAt: new Date('2023-01-02'),
   lastUpdatedAt: new Date('2024-03-04'),
@@ -58,6 +58,7 @@ export const Sample12Fixture = genCreatedPartialSample({
   id: '11111111-2222-2222-2222-222222222222',
   status: 'Draft' as SampleStatus,
   department: oneOf(Regions[Region1Fixture].departments),
+  reference: 'GES-08-24-314-A',
 });
 
 export const Sample13Fixture = genCreatedPartialSample({
@@ -67,6 +68,7 @@ export const Sample13Fixture = genCreatedPartialSample({
   id: '11111111-3333-3333-3333-333333333333',
   status: 'Sent' as SampleStatus,
   department: oneOf(Regions[Region1Fixture].departments),
+  reference: 'GES-08-24-315-A',
 });
 export const Sample2Fixture = genCreatedPartialSample({
   sampler: Sampler2Fixture,
@@ -75,6 +77,7 @@ export const Sample2Fixture = genCreatedPartialSample({
   id: '22222222-2222-2222-2222-222222222222',
   status: 'DraftMatrix' as SampleStatus,
   department: oneOf(Regions[Region2Fixture].departments),
+  reference: 'PDL-08-24-313-A',
 });
 
 exports.seed = async function () {

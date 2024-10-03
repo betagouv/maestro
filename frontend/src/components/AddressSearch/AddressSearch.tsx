@@ -57,7 +57,7 @@ const AddressSearch = ({ onSelectAddress }: Props) => {
               {...params.inputProps}
               className="fr-input"
               type="text"
-              placeholder={'Rechercher une commune...'}
+              placeholder={'Adresse, code postal ou commune'}
             />
           </div>
         )}
