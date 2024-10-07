@@ -47,7 +47,7 @@ const SampleTable = ({ samples, tableHeader, tableFooter }: Props) => {
   const { pendingSamples } = useAppSelector((state) => state.samples);
 
   const tableHeaders = [
-    'Numéro',
+    '#',
     'Matrice',
     'Préleveur',
     'Date',
