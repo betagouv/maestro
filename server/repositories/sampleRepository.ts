@@ -1,7 +1,7 @@
 import fp from 'lodash';
 import z from 'zod';
 import { Region, Regions } from '../../shared/referential/Region';
-import { defaultTablePerPage } from '../../shared/schema/commons/Pagination';
+import { defaultPerPage } from '../../shared/schema/commons/Pagination';
 import { FindSampleOptions } from '../../shared/schema/Sample/FindSampleOptions';
 import { PartialSample, Sample } from '../../shared/schema/Sample/Sample';
 import { companiesTable } from './companyRepository';
@@ -135,10 +135,9 @@ const findMany = async (
     .modify((builder) => {
       if (findOptions.page) {
         builder
-          .limit(findOptions.perPage ?? defaultTablePerPage)
+          .limit(findOptions.perPage ?? defaultPerPage)
           .offset(
-            (findOptions.page - 1) *
-              (findOptions.perPage ?? defaultTablePerPage)
+            (findOptions.page - 1) * (findOptions.perPage ?? defaultPerPage)
           );
       }
     })
