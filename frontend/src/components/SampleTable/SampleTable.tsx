@@ -1,7 +1,6 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
-import clsx from 'clsx';
 import { format } from 'date-fns';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -26,11 +25,10 @@ import './SampleTable.scss';
 
 interface Props {
   samples: (PartialSample | PartialSampleToCreate)[];
-  tableHeader?: React.ReactNode;
   tableFooter?: React.ReactNode;
 }
 
-const SampleTable = ({ samples, tableHeader, tableFooter }: Props) => {
+const SampleTable = ({ samples, tableFooter }: Props) => {
   const navigate = useNavigate();
   const { isOnline } = useOnLine();
 
@@ -51,7 +49,7 @@ const SampleTable = ({ samples, tableHeader, tableFooter }: Props) => {
     'Matrice',
     'Préleveur',
     'Date',
-    'Département',
+    'Dépt.',
     'Entité',
     'Contexte',
     'Statut',
@@ -116,21 +114,16 @@ const SampleTable = ({ samples, tableHeader, tableFooter }: Props) => {
   );
 
   return (
-    <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
-      <div className={clsx(cx('fr-my-2w'), 'table-header')}>{tableHeader}</div>
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={cx('fr-col-12')}>
-          <Table
-            noCaption
-            fixed={!isMobile}
-            headers={tableHeaders}
-            data={tableData}
-            className={cx('fr-mb-2w')}
-          />
-          {tableFooter}
-        </div>
-      </div>
-    </div>
+    <>
+      <Table
+        noCaption
+        fixed={!isMobile}
+        headers={tableHeaders}
+        data={tableData}
+        className={cx('fr-mb-2w')}
+      />
+      {tableFooter}
+    </>
   );
 };
 

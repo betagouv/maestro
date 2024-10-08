@@ -145,5 +145,5 @@ export const isCreatedPartialSample = (
   CreatedSampleData.safeParse(partialSample).success;
 
 export const isCreatedSample = (
-  sample: Sample | SampleToCreate
+  sample?: Sample | SampleToCreate
 ): sample is Sample => CreatedSampleData.safeParse(sample).success;

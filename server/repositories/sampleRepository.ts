@@ -1,7 +1,7 @@
 import fp from 'lodash';
 import z from 'zod';
 import { Region, Regions } from '../../shared/referential/Region';
-import { defaultPerPage } from '../../shared/schema/commons/Pagination';
+import { defaultTablePerPage } from '../../shared/schema/commons/Pagination';
 import { FindSampleOptions } from '../../shared/schema/Sample/FindSampleOptions';
 import { PartialSample, Sample } from '../../shared/schema/Sample/Sample';
 import { companiesTable } from './companyRepository';
@@ -81,7 +81,8 @@ const findRequest = (findOptions: FindSampleOptions) =>
           'sampledAt',
           'page',
           'perPage',
-          'statusList'
+          'statusList',
+          'reference'
         ),
         (_) => fp.isNil(_) || fp.isArray(_)
       )
@@ -101,6 +102,9 @@ const findRequest = (findOptions: FindSampleOptions) =>
           `to_char(sampled_at, 'YYYY-MM-DD') = ?`,
           findOptions.sampledAt
         );
+      }
+      if (findOptions.reference) {
+        builder.whereILike('reference', `%${findOptions.reference}%`);
       }
     });
 
@@ -131,9 +135,10 @@ const findMany = async (
     .modify((builder) => {
       if (findOptions.page) {
         builder
-          .limit(findOptions.perPage ?? defaultPerPage)
+          .limit(findOptions.perPage ?? defaultTablePerPage)
           .offset(
-            (findOptions.page - 1) * (findOptions.perPage ?? defaultPerPage)
+            (findOptions.page - 1) *
+              (findOptions.perPage ?? defaultTablePerPage)
           );
       }
     })

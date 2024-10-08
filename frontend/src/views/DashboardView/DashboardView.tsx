@@ -54,7 +54,7 @@ const DashboardView = () => {
           )}
         >
           Espace de {userInfos.firstName} {userInfos.lastName}
-          {userInfos.region && <> - Région {Regions[userInfos.region].name}</>}
+          {userInfos.region && <> - Région {Regions[userInfos.region].name}</>}
         </div>
         <SectionHeader
           title="Tableau de bord"
@@ -92,24 +92,28 @@ const DashboardView = () => {
         </div>
       )}
 
-      <SampleTable
-        samples={samples ?? []}
-        tableHeader={<h4>Vos derniers prélèvements</h4>}
-        tableFooter={
-          isOnline && (
-            <Button
-              priority="secondary"
-              iconId={'fr-icon-arrow-right-line'}
-              iconPosition="right"
-              linkProps={{
-                to: '/prelevements',
-              }}
-            >
-              Tous les prélèvements
-            </Button>
-          )
-        }
-      />
+      <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
+        <div className={clsx(cx('fr-my-2w'), 'table-header')}>
+          <h4 className={cx('fr-mb-0')}>Vos derniers prélèvements</h4>
+        </div>
+        <SampleTable
+          samples={samples ?? []}
+          tableFooter={
+            isOnline && (
+              <Button
+                priority="secondary"
+                iconId={'fr-icon-arrow-right-line'}
+                iconPosition="right"
+                linkProps={{
+                  to: '/prelevements',
+                }}
+              >
+                Tous les prélèvements
+              </Button>
+            )
+          }
+        />
+      </div>
     </section>
   );
 };

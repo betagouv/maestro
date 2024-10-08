@@ -1,0 +1,15 @@
+.fr-card__desc {
+  .fr-text--xs {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}
+
+.fr-card__end {
+  margin-top: 0 !important;
+
+  .fr-btn {
+    margin-bottom: 0;
+  }
+}
