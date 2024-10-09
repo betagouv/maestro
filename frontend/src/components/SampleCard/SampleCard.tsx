@@ -38,10 +38,12 @@ const SampleCard = ({ sample, sampleProgrammingPlan }: Props) => {
         to: `/prelevements/${sample.id}`,
       }}
       desc={
-        <div className={cx('fr-text--xs', 'fr-mb-0')}>
-          <div className="icon-text">
-            <div className={cx('fr-icon-map-pin-2-line', 'fr-icon--sm')}></div>
-            <div>
+        <span className={cx('fr-text--xs', 'fr-mb-0')}>
+          <span className="icon-text">
+            <span
+              className={cx('fr-icon-map-pin-2-line', 'fr-icon--sm')}
+            ></span>
+            <span>
               {sample.company ? (
                 sample.company.name
               ) : (
@@ -50,41 +52,41 @@ const SampleCard = ({ sample, sampleProgrammingPlan }: Props) => {
                   <div className="missing-data">Information à compléter</div>
                 </>
               )}
-            </div>
-          </div>
-          <div className="icon-text">
-            <div
+            </span>
+          </span>
+          <span className="icon-text">
+            <span
               className={cx('fr-icon-calendar-event-line', 'fr-icon--sm')}
-            ></div>
+            ></span>
             {format(sample.sampledAt, 'dd/MM/yyyy')}
-          </div>
-          <div className="icon-text">
-            <div className={cx('fr-icon-road-map-line', 'fr-icon--sm')}></div>
+          </span>
+          <span className="icon-text">
+            <span className={cx('fr-icon-road-map-line', 'fr-icon--sm')}></span>
             {DepartmentLabels[sample.department]} ({sample.department})
-          </div>
+          </span>
           {sampleProgrammingPlan && (
-            <div className="icon-text">
-              <div
+            <span className="icon-text">
+              <span
                 className={cx('fr-icon-microscope-line', 'fr-icon--sm')}
-              ></div>
+              ></span>
               {ProgrammingPlanKindLabels[sampleProgrammingPlan?.kind]}
-            </div>
+            </span>
           )}
           {sample.matrix && (
-            <div className="icon-text">
-              <div
+            <span className="icon-text">
+              <span
                 className={cx('fr-icon-restaurant-line', 'fr-icon--sm')}
-              ></div>
+              ></span>
               {MatrixLabels[sample.matrix]}
-            </div>
+            </span>
           )}
-          <div className="icon-text">
-            <div className={cx('fr-icon-user-line', 'fr-icon--sm')}></div>
+          <span className="icon-text">
+            <span className={cx('fr-icon-user-line', 'fr-icon--sm')}></span>
             {isCreatedPartialSample(sample)
               ? `${sample.sampler.firstName} ${sample.sampler.lastName}`
               : `${userInfos?.firstName} ${userInfos?.lastName}`}
-          </div>
-        </div>
+          </span>
+        </span>
       }
       size="small"
       titleAs="h6"

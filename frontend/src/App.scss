@@ -231,3 +231,12 @@ h6,
 .fr-pagination__list {
   justify-content: center;
 }
+
+.icon-text {
+  display: flex;
+
+  & > :first-child {
+    margin-right: 0.75rem;
+    color: var(--text-mention-grey);
+  }
+}
