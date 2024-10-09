@@ -20,6 +20,7 @@ import { Regions } from 'shared/referential/Region';
 import {
   Company,
   companyFromSearchResult,
+  companyToSearchResult,
 } from 'shared/schema/Company/Company';
 import { ProgrammingPlanKindLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
@@ -426,6 +427,9 @@ const ContextStep = ({ partialSample }: Props) => {
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
           {isOnline ? (
             <CompanySearch
+              initialCompany={
+                company ? companyToSearchResult(company) : undefined
+              }
               department={department}
               onSelectCompany={(result) => {
                 setCompany(
