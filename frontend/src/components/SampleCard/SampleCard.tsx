@@ -4,6 +4,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { format } from 'date-fns';
 import { DepartmentLabels } from 'shared/referential/Department';
+import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
 import { ProgrammingPlanKindLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
@@ -67,6 +68,14 @@ const SampleCard = ({ sample, sampleProgrammingPlan }: Props) => {
                 className={cx('fr-icon-microscope-line', 'fr-icon--sm')}
               ></div>
               {ProgrammingPlanKindLabels[sampleProgrammingPlan?.kind]}
+            </div>
+          )}
+          {sample.matrix && (
+            <div className="icon-text">
+              <div
+                className={cx('fr-icon-restaurant-line', 'fr-icon--sm')}
+              ></div>
+              {MatrixLabels[sample.matrix]}
             </div>
           )}
           <div className="icon-text">
