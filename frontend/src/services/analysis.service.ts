@@ -4,6 +4,9 @@ import {
   PartialAnalysis,
 } from 'shared/schema/Analysis/Analysis';
 import { api } from 'src/services/api.service';
+import { authParams } from 'src/services/auth-headers';
+import config from 'src/utils/config';
+import { getURLQuery } from 'src/utils/fetchUtils';
 
 export const analysisApi = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -49,10 +52,19 @@ export const analysisApi = api.injectEndpoints({
   }),
 });
 
+const analysisExtractURL = (analysis: PartialAnalysis) => {
+  const params = getURLQuery({
+    ...authParams(),
+  });
+  return `${config.apiEndpoint}/api/analysis/${analysis.id}/extract${params}`;
+};
+
 export const {
   useGetSampleAnalysisQuery,
   useCreateAnalysisMutation,
   useUpdateAnalysisMutation,
+  getAnalysisExtractURL,
 } = {
   ...analysisApi,
+  getAnalysisExtractURL: analysisExtractURL,
 };
