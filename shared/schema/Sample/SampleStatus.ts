@@ -10,6 +10,7 @@ export const SampleStatus = z.enum(
     'NotAdmissible',
     'Analysis',
     'Completed',
+    'CompletedNotConform',
   ],
   {
     errorMap: () => ({ message: 'Statut non renseigné.' }),
@@ -26,6 +27,11 @@ export const DraftStatusList: SampleStatus[] = [
   'DraftItems',
 ];
 
+export const CompletedStatusList: SampleStatus[] = [
+  'Completed',
+  'CompletedNotConform',
+];
+
 export const SampleStatusLabels: Record<SampleStatus, string> = {
   Draft: 'Brouillon',
   DraftMatrix: 'Brouillon',
@@ -35,7 +41,5 @@ export const SampleStatusLabels: Record<SampleStatus, string> = {
   NotAdmissible: 'Non recevable',
   Analysis: 'En cours d’analyse',
   Completed: 'Terminé',
+  CompletedNotConform: 'Terminé non conforme',
 };
-
-export const isAdmissibleStatus = (status: SampleStatus): boolean | undefined =>
-  status === 'Analysis' ? true : status === 'NotAdmissible' ? false : undefined;

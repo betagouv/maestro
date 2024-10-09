@@ -29,6 +29,7 @@ export const analysisApi = api.injectEndpoints({
       invalidatesTags: (_result, _error, draft) => [
         { type: 'SampleAnalysis', id: draft.sampleId },
         { type: 'Sample' as const, id: draft.sampleId },
+        { type: 'Sample', id: 'LIST' },
       ],
     }),
     updateAnalysis: builder.mutation<PartialAnalysis, PartialAnalysis>({
@@ -42,6 +43,7 @@ export const analysisApi = api.injectEndpoints({
       invalidatesTags: (_result, _error, draft) => [
         { type: 'SampleAnalysis', id: draft.sampleId },
         { type: 'Sample' as const, id: draft.sampleId },
+        { type: 'Sample', id: 'LIST' },
       ],
     }),
   }),

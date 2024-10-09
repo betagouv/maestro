@@ -6,6 +6,7 @@ import { format, parse } from 'date-fns';
 import { default as fr } from 'date-fns/locale/fr';
 import React, { useMemo, useState } from 'react';
 import { Sample } from 'shared/schema/Sample/Sample';
+import { CompletedStatusList } from 'shared/schema/Sample/SampleStatus';
 import check from 'src/assets/illustrations/check.svg';
 import warning from 'src/assets/illustrations/warning.svg';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
@@ -24,7 +25,9 @@ const SampleAdmissibility = ({ sample }: Props) => {
   const [updateSample] = useUpdateSampleMutation();
 
   const [isReceived, setIsReceived] = useState(
-    ['Analysis', 'Completed', 'NotAdmissible'].includes(sample.status)
+    ['Analysis', 'NotAdmissible', ...CompletedStatusList].includes(
+      sample.status
+    )
       ? sample.receivedAt !== undefined
       : undefined
   );
@@ -32,7 +35,7 @@ const SampleAdmissibility = ({ sample }: Props) => {
     sample.receivedAt ? format(sample.receivedAt, 'yyyy-MM-dd') : undefined
   );
   const [isAdmissible, setIsAdmissible] = useState(
-    ['Analysis', 'Completed'].includes(sample.status)
+    ['Analysis', ...CompletedStatusList].includes(sample.status)
       ? true
       : sample.status === 'NotAdmissible'
       ? false
@@ -117,7 +120,7 @@ const SampleAdmissibility = ({ sample }: Props) => {
       className={clsx(
         cx(
           'fr-callout',
-          ['Analysis', 'Completed'].includes(sample.status)
+          ['Analysis', ...CompletedStatusList].includes(sample.status)
             ? 'fr-callout--green-emeraude'
             : 'fr-callout--pink-tuile'
         ),
@@ -244,7 +247,9 @@ const SampleAdmissibility = ({ sample }: Props) => {
           </ConfirmationModal>
         </>
       )}
-      {['Analysis', 'Completed', 'NotAdmissible'].includes(sample.status) && (
+      {['Analysis', 'NotAdmissible', ...CompletedStatusList].includes(
+        sample.status
+      ) && (
         <div className="admissibility-result">
           <h4 className={cx('fr-mb-0')}>Recevabilité par le laboratoire</h4>
           {sample.receivedAt ? (

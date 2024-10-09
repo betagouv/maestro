@@ -2,6 +2,7 @@ import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { Sample } from 'shared/schema/Sample/Sample';
+import { CompletedStatusList } from 'shared/schema/Sample/SampleStatus';
 import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import { useUpdateAnalysisMutation } from 'src/services/analysis.service';
 import { useGetLaboratoryQuery } from 'src/services/laboratory.service';
@@ -35,14 +36,15 @@ const SampleAnalysis = ({ sample }: Props) => {
           className={cx('fr-mb-4w')}
         />
       )}
-      {sample.status === 'Completed' && isCompletingAnalysisSuccess && (
-        <Alert
-          severity="info"
-          small
-          description="Les résultats d’analyse ont bien été enregistrés."
-          className={cx('fr-mb-4w')}
-        />
-      )}
+      {CompletedStatusList.includes(sample.status) &&
+        isCompletingAnalysisSuccess && (
+          <Alert
+            severity="info"
+            small
+            description="Les résultats d’analyse ont bien été enregistrés."
+            className={cx('fr-mb-4w')}
+          />
+        )}
       <div className="section-header">
         <div>
           <h3>
@@ -52,7 +54,9 @@ const SampleAnalysis = ({ sample }: Props) => {
                 <SampleStatusBadge status={sample.status} />
               </div>
             </div>
-            {!['Completed', 'NotAdmissible'].includes(sample.status) && (
+            {![...CompletedStatusList, 'NotAdmissible'].includes(
+              sample.status
+            ) && (
               <div
                 className={cx('fr-text--lg', 'fr-text--regular', 'fr-mb-1w')}
               >
@@ -64,12 +68,12 @@ const SampleAnalysis = ({ sample }: Props) => {
       </div>
       <SampleAdmissibility sample={sample} />
 
-      {['Analysis', 'Completed'].includes(sample.status) && (
+      {['Analysis', ...CompletedStatusList].includes(sample.status) && (
         <div
           className={clsx(
             cx(
               'fr-callout',
-              sample.status === 'Completed'
+              CompletedStatusList.includes(sample.status)
                 ? 'fr-callout--green-emeraude'
                 : 'fr-callout--pink-tuile'
             ),
@@ -81,7 +85,7 @@ const SampleAnalysis = ({ sample }: Props) => {
           {sample.status === 'Analysis' && (
             <SampleDraftAnalysis sample={sample} />
           )}
-          {sample.status === 'Completed' && (
+          {CompletedStatusList.includes(sample.status) && (
             <SampleAnalysisOverview sample={sample} />
           )}
         </div>

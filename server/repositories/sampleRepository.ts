@@ -81,7 +81,8 @@ const findRequest = (findOptions: FindSampleOptions) =>
           'sampledAt',
           'page',
           'perPage',
-          'statusList'
+          'statusList',
+          'reference'
         ),
         (_) => fp.isNil(_) || fp.isArray(_)
       )
@@ -101,6 +102,9 @@ const findRequest = (findOptions: FindSampleOptions) =>
           `to_char(sampled_at, 'YYYY-MM-DD') = ?`,
           findOptions.sampledAt
         );
+      }
+      if (findOptions.reference) {
+        builder.whereILike('reference', `%${findOptions.reference}%`);
       }
     });
 
