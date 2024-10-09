@@ -2,12 +2,6 @@ import { ModalProps } from '@codegouvfr/react-dsfr/Modal';
 import React, { type ReactNode } from 'react';
 interface Props {
   modal: {
-    buttonProps: {
-      /** Only for analytics, feel free to overwrite */
-      id: string;
-      'aria-controls': string;
-      'data-fr-opened': boolean;
-    };
     Component: (props: ModalProps) => JSX.Element;
     close: () => void;
     open: () => void;

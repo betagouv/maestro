@@ -174,8 +174,8 @@ const ContextStep = ({ partialSample }: Props) => {
     status: 'DraftMatrix' as SampleStatus,
   };
 
-  const submit = async (e: React.MouseEvent<HTMLElement>) => {
-    e.preventDefault();
+  const submit = async (e?: React.MouseEvent<HTMLElement>) => {
+    e?.preventDefault();
     await form.validate(async () => {
       if (partialSample) {
         await save('DraftMatrix');
@@ -214,28 +214,26 @@ const ContextStep = ({ partialSample }: Props) => {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const form = useForm(
-    Form,
-    {
-      id,
-      sampledAt,
-      department,
-      geolocationX,
-      geolocationY,
-      parcel,
-      programmingPlanId:
-        programmingPlanId === OutsideProgrammingId
-          ? undefined
-          : programmingPlanId,
-      legalContext,
-      company,
-      companyOffline,
-      resytalId,
-      notesOnCreation,
-      status: 'DraftMatrix',
-    },
-    save
-  );
+  const formInput = {
+    id,
+    sampledAt,
+    department,
+    geolocationX,
+    geolocationY,
+    parcel,
+    programmingPlanId:
+      programmingPlanId === OutsideProgrammingId
+        ? undefined
+        : programmingPlanId,
+    legalContext,
+    company,
+    companyOffline,
+    resytalId,
+    notesOnCreation,
+    status: 'DraftMatrix',
+  };
+
+  const form = useForm(Form, formInput, save);
 
   return (
     <form data-testid="draft_sample_creation_form" className="sample-form">
@@ -509,8 +507,14 @@ const ContextStep = ({ partialSample }: Props) => {
             ]}
           />
         </div>
-        {partialSample && isCreatedPartialSample(partialSample) && (
-          <SupportDocumentDownload partialSample={partialSample} />
+        {isOnline && (
+          <SupportDocumentDownload
+            partialSample={partialSample ?? formData}
+            missingData={Form.safeParse(formInput).success === false}
+            onConfirm={
+              isCreatedPartialSample(partialSample) ? undefined : submit
+            }
+          />
         )}
       </div>
     </form>

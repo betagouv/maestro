@@ -140,8 +140,9 @@ export const getSampleRegion = (sample: PartialSample): Region | undefined =>
   );
 
 export const isCreatedPartialSample = (
-  partialSample: PartialSample | PartialSampleToCreate
+  partialSample?: PartialSample | PartialSampleToCreate
 ): partialSample is PartialSample =>
+  partialSample !== undefined &&
   CreatedSampleData.safeParse(partialSample).success;
 
 export const isCreatedSample = (
