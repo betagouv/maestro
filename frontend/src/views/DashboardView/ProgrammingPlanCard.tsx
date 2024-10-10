@@ -9,6 +9,7 @@ import {
   matrixCompletionRate,
 } from 'shared/schema/Prescription/PrescriptionsByMatrix';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { RealizedStatusList } from 'shared/schema/Sample/SampleStatus';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useFindPrescriptionsQuery } from 'src/services/prescription.service';
 import {
@@ -30,7 +31,7 @@ const ProgrammingPlanCard = ({ programmingPlan }: ProgrammingPlanCardProps) => {
   });
   const { data: samples } = useFindSamplesQuery({
     programmingPlanId: programmingPlan.id,
-    status: 'Sent',
+    status: RealizedStatusList,
   });
   const { data: samplesToSentCount } = useCountSamplesQuery(
     {
@@ -92,7 +93,7 @@ const ProgrammingPlanCard = ({ programmingPlan }: ProgrammingPlanCardProps) => {
                 className={'fr-card--xs'}
                 enlargeLink
                 linkProps={{
-                  to: `/prelevements?status=Sent&programmingPlanId=${programmingPlan.id}`,
+                  to: `/prelevements?status=${RealizedStatusList}&programmingPlanId=${programmingPlan.id}`,
                 }}
               />
             </div>

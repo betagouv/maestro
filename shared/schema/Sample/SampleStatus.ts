@@ -32,6 +32,13 @@ export const CompletedStatusList: SampleStatus[] = [
   'CompletedNotConform',
 ];
 
+export const RealizedStatusList: SampleStatus[] = [
+  'Sent',
+  'NotAdmissible',
+  'Analysis',
+  ...CompletedStatusList,
+];
+
 export const SampleStatusLabels: Record<SampleStatus, string> = {
   Draft: 'Brouillon',
   DraftMatrix: 'Brouillon',
