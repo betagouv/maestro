@@ -6,4 +6,4 @@ export const Pagination = z.object({
 
 export type Pagination = z.infer<typeof Pagination>;
 
-export const defaultPerPage = 10;
+export const defaultPerPage = 12;

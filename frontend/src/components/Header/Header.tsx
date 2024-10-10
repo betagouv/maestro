@@ -84,7 +84,7 @@ const Header = () => {
       quickAccessItems={
         isAuthenticated
           ? [
-              hasPermission('readProgrammingPlansInProgress') && (
+              hasPermission('readProgrammingPlansInProgress') ? (
                 <Select
                   label={undefined}
                   nativeSelectProps={{
@@ -108,7 +108,7 @@ const Header = () => {
                     {ProgrammingPlanStatusLabels['InProgress']}
                   </option>
                 </Select>
-              ),
+              ) : undefined,
               <div>
                 {userInfos?.roles.map((role) => (
                   <div key={role} className={cx('fr-text--sm', 'fr-mr-2w')}>
@@ -125,7 +125,7 @@ const Header = () => {
                   Se déconnecter
                 </Button>
               </div>,
-            ]
+            ].filter(isDefined)
           : [
               {
                 linkProps: {

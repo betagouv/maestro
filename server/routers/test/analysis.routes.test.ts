@@ -416,5 +416,45 @@ describe('Analysis router', () => {
         })
       ).resolves.toMatchObject([]);
     });
+
+    it('should update the sample when the analysis is completed and compliant', async () => {
+      const analysisUpdate = {
+        ...genPartialAnalysis(analysisWithResidues),
+        status: 'Completed',
+        compliance: true,
+      };
+
+      await request(app)
+        .put(testRoute(analysisWithResidues.id))
+        .send(analysisUpdate)
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      await expect(
+        Samples().where({ id: analysisWithResidues.sampleId }).first()
+      ).resolves.toMatchObject({
+        status: 'Completed',
+      });
+    });
+
+    it('should update the sample when the analysis is completed and not compliant', async () => {
+      const analysisUpdate = {
+        ...genPartialAnalysis(analysisWithResidues),
+        status: 'Completed',
+        compliance: false,
+      };
+
+      await request(app)
+        .put(testRoute(analysisWithResidues.id))
+        .send(analysisUpdate)
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      await expect(
+        Samples().where({ id: analysisWithResidues.sampleId }).first()
+      ).resolves.toMatchObject({
+        status: 'CompletedNotConform',
+      });
+    });
   });
 });

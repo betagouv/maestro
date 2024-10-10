@@ -4,7 +4,6 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Pagination from '@codegouvfr/react-dsfr/Pagination';
 import { Skeleton } from '@mui/material';
 import clsx from 'clsx';
-import { t } from 'i18next';
 import { default as fp } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -18,6 +17,7 @@ import {
   SampleStatus,
 } from 'shared/schema/Sample/SampleStatus';
 import { isDefinedAndNotNull } from 'shared/utils/utils';
+import SampleCard from 'src/components/SampleCard/SampleCard';
 import SampleTable from 'src/components/SampleTable/SampleTable';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -28,7 +28,6 @@ import useWindowSize from 'src/hooks/useWindowSize';
 import { useFindPrescriptionsQuery } from 'src/services/prescription.service';
 import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.service';
 import {
-  getSampleListExportURL,
   useCountSamplesQuery,
   useFindSamplesQuery,
 } from 'src/services/sample.service';
@@ -36,10 +35,14 @@ import { useFindUsersQuery } from 'src/services/user.service';
 import samplesSlice from 'src/store/reducers/samplesSlice';
 import { getURLQuery } from 'src/utils/fetchUtils';
 import SampleFiltersTags from 'src/views/SampleListView/SampleFiltersTags';
+import SampleListHeader from 'src/views/SampleListView/SampleListHeader';
 import SamplePrimaryFilters from 'src/views/SampleListView/SamplePrimaryFilters';
 import SampleSecondaryFilters from 'src/views/SampleListView/SampleSecondaryFilters';
 import food from '../../assets/illustrations/food.svg';
 import './SampleList.scss';
+
+export type SampleListDisplay = 'table' | 'cards';
+
 const SampleListView = () => {
   useDocumentTitle('Liste des prélèvements');
   const dispatch = useAppDispatch();
@@ -48,7 +51,9 @@ const SampleListView = () => {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const { hasPermission, userInfos, hasNationalView } = useAuthentication();
-  const { findSampleOptions } = useAppSelector((state) => state.samples);
+  const { findSampleOptions, sampleListDisplay } = useAppSelector(
+    (state) => state.samples
+  );
 
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
 
@@ -68,12 +73,13 @@ const SampleListView = () => {
           matrix: searchParams.get('matrix') as Matrix,
           sampledBy: searchParams.get('sampledBy'),
           sampledAt: searchParams.get('sampledAt'),
+          reference: searchParams.get('reference'),
           page: Number(searchParams.get('page')) || 1,
           perPage: defaultPerPage,
         })
       );
     }
-  }, [searchParams, userInfos?.region]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [searchParams, userInfos?.region, sampleListDisplay]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { programmingPlanStatus } = useAppSelector((state) => state.settings);
   const { data: samples } = useFindSamplesQuery(findSampleOptions);
@@ -107,7 +113,8 @@ const SampleListView = () => {
         ),
         'page',
         'perPage'
-      )
+      ),
+      { replace: true }
     );
   };
 
@@ -205,48 +212,60 @@ const SampleListView = () => {
               />
             </div>
           )}
-          <SampleTable
-            samples={samples ?? []}
-            tableHeader={
-              <>
-                <div className={cx('fr-text--bold')}>
-                  {t('sample', { count: samplesCount })}
-                </div>
-                <Button
-                  iconId="fr-icon-file-download-line"
-                  priority="secondary"
-                  onClick={() =>
-                    window.open(
-                      getSampleListExportURL({
-                        ...findSampleOptions,
-                        perPage: undefined,
-                        page: undefined,
-                      })
-                    )
-                  }
-                  title="Exporter"
-                  children={isMobile ? undefined : 'Exporter'}
+          <div
+            className={clsx(
+              'white-container',
+              cx('fr-px-2w', 'fr-px-md-5w', 'fr-py-2w', 'fr-py-md-5w')
+            )}
+          >
+            <div
+              className={clsx(cx('fr-mb-2w', 'fr-mb-md-5w'), 'table-header')}
+            >
+              {
+                <SampleListHeader
+                  findSampleOptions={findSampleOptions}
+                  changeFilter={changeFilter}
+                  samplesCount={samplesCount}
                 />
-              </>
-            }
-            tableFooter={
+              }
+            </div>
+            {sampleListDisplay === 'cards' && (
               <>
-                {isDefinedAndNotNull(samplesCount) &&
-                  samplesCount > defaultPerPage && (
-                    <Pagination
-                      count={Math.floor(samplesCount / defaultPerPage) + 1}
-                      defaultPage={Number(findSampleOptions.page) || 1}
-                      getPageLinkProps={(page: number) => ({
-                        to: getURLQuery({
-                          ...findSampleOptions,
-                          page: page.toString(),
-                        }),
-                      })}
-                    />
-                  )}
+                <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+                  {samples?.map((sample) => (
+                    <div
+                      className={cx('fr-col-12', 'fr-col-md-3')}
+                      key={sample.id}
+                    >
+                      <SampleCard
+                        sample={sample}
+                        sampleProgrammingPlan={programmingPlans?.find(
+                          (plan) => plan.id === sample.programmingPlanId
+                        )}
+                      />
+                    </div>
+                  ))}
+                </div>
               </>
-            }
-          />
+            )}
+            {sampleListDisplay === 'table' && (
+              <SampleTable samples={samples ?? []} />
+            )}
+            {isDefinedAndNotNull(samplesCount) &&
+              samplesCount > defaultPerPage && (
+                <Pagination
+                  count={Math.floor(samplesCount / defaultPerPage) + 1}
+                  defaultPage={Number(findSampleOptions.page) || 1}
+                  getPageLinkProps={(page: number) => ({
+                    to: getURLQuery({
+                      ...findSampleOptions,
+                      page: page.toString(),
+                    }),
+                  })}
+                  className={cx('fr-mt-5w')}
+                />
+              )}
+          </div>
         </>
       ) : (
         <Skeleton variant="rectangular" height={400} />

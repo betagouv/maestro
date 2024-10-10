@@ -8,6 +8,7 @@ import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
 import { useLazySearchCompaniesQuery } from 'src/services/company.service';
 
 interface Props {
+  initialCompany?: CompanySearchResult;
   department?: Department;
   onSelectCompany: (company?: CompanySearchResult) => void;
   state?: 'success' | 'error' | 'default';
@@ -15,6 +16,7 @@ interface Props {
 }
 
 const CompanySearch = ({
+  initialCompany,
   department,
   onSelectCompany,
   state,
@@ -26,7 +28,9 @@ const CompanySearch = ({
   >([]);
   const [searchCompanies, { isLoading, isFetching }] =
     useLazySearchCompaniesQuery();
-  const [company, setCompany] = useState<CompanySearchResult | null>(null);
+  const [company, setCompany] = useState<CompanySearchResult | null>(
+    initialCompany ?? null
+  );
 
   const handleInputChange = async (
     event: SyntheticEvent<Element, Event>,
@@ -99,10 +103,7 @@ const CompanySearch = ({
           filterOptions={(x) => x}
           options={companySearchResults}
           getOptionLabel={(option) =>
-            [
-              option.siege.siret,
-              option.nom_raison_sociale ?? option.nom_complet,
-            ].join(' - ')
+            [option.siege.siret, option.nom_complet].join(' - ')
           }
           noOptionsText={
             searchQuery.length > 3
@@ -143,10 +144,7 @@ const CompanySearch = ({
               },
             }}
           >
-            {[
-              company.siege.siret,
-              company.nom_raison_sociale ?? company.nom_complet,
-            ].join(' - ')}
+            {[company.siege.siret, company.nom_complet].join(' - ')}
           </Tag>
         </>
       )}

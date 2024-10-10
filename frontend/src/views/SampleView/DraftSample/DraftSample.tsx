@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
+  isCreatedPartialSample,
   PartialSample,
   PartialSampleToCreate,
   Sample,
@@ -71,7 +72,16 @@ const SampleView = ({ sample }: Props) => {
               currentStep={step}
               nextTitle={SampleStepTitles(sample)[step]}
               stepCount={4}
-              title={SampleStepTitles(sample)[step - 1]}
+              title={
+                <div>
+                  {SampleStepTitles(sample)[step - 1]}
+                  {sample && isCreatedPartialSample(sample) && (
+                    <span className={cx('fr-text--regular')}>
+                       • Prélèvement {sample.reference}
+                    </span>
+                  )}
+                </div>
+              }
             />
           </div>
         )}

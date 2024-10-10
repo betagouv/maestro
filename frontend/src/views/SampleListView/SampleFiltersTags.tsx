@@ -10,6 +10,7 @@ import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans'
 import { FindSampleOptions } from 'shared/schema/Sample/FindSampleOptions';
 import {
   DraftStatusList,
+  RealizedStatusList,
   SampleStatus,
   SampleStatusLabels,
 } from 'shared/schema/Sample/SampleStatus';
@@ -65,6 +66,8 @@ const SampleFiltersTags = ({
         >
           {filters.status === DraftStatusList.join(',')
             ? 'Brouillon'
+            : filters.status === RealizedStatusList.join(',')
+            ? 'Réalisé'
             : SampleStatusLabels[filters.status as SampleStatus]}
         </Tag>
       )}

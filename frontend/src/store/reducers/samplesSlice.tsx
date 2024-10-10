@@ -6,6 +6,7 @@ import {
   PartialSample,
   PartialSampleToCreate,
 } from 'shared/schema/Sample/Sample';
+import { SampleListDisplay } from 'src/views/SampleListView/SampleListView';
 import { z } from 'zod';
 const pendingSamples = JSON.parse(
   localStorage.getItem('pendingSamples') ?? '[]'
@@ -21,14 +22,15 @@ const pendingSamples = JSON.parse(
 );
 
 type SamplesState = {
+  sampleListDisplay: SampleListDisplay;
   findSampleOptions: FindSampleOptions;
   pendingSamples: Record<string, PartialSample | PartialSampleToCreate>;
-  offlineSamples: Record<string, PartialSample | PartialSampleToCreate>;
 };
 
 const samplesSlice = createSlice({
   name: 'samples',
   initialState: {
+    sampleListDisplay: 'cards',
     findSampleOptions: {
       page: 1,
       perPage: defaultPerPage,
@@ -40,6 +42,9 @@ const samplesSlice = createSlice({
     pendingSamples,
   } as SamplesState,
   reducers: {
+    changeListDisplay: (state, action: PayloadAction<SampleListDisplay>) => {
+      state.sampleListDisplay = action.payload;
+    },
     changeFindOptions: (
       state,
       action: PayloadAction<Partial<FindSampleOptions>>

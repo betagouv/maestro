@@ -17,6 +17,7 @@ const SampleStatusBadge = ({ status, ...props }: Props) => {
     NotAdmissible: 'error',
     Analysis: 'info',
     Completed: 'success',
+    CompletedNotConform: 'error',
   };
 
   const ColorFamily: Partial<Record<SampleStatus, string>> = {
@@ -24,9 +25,14 @@ const SampleStatusBadge = ({ status, ...props }: Props) => {
     Sent: 'purple-glycine',
   };
 
+  const Icon: Partial<Record<SampleStatus, string>> = {
+    Completed: 'success',
+    CompletedNotConform: 'error',
+  };
+
   return (
     <Badge
-      noIcon
+      noIcon={Icon[status] === undefined}
       small
       {...props}
       severity={(Severity[status] ?? undefined) as AlertProps.Severity}
