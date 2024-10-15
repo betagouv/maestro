@@ -80,6 +80,9 @@ interface Config {
     };
     openai: {
       apiKey: string;
+      models: {
+        analysisExtraction: string;
+      };
     };
   };
 }
@@ -258,6 +261,13 @@ const config = convict<Config>({
         format: String,
         default: null,
         nullable: true,
+      },
+      models: {
+        analysisExtraction: {
+          env: 'OPENAI_MODEL_ANALYSIS_EXTRACTION',
+          format: String,
+          default: 'gpt-4o-mini-2024-07-18',
+        },
       },
     },
   },

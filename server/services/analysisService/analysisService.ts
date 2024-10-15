@@ -36,7 +36,7 @@ const AnalyteExtraction = z.object({
 });
 
 const ResidueExtraction = z.object({
-  label: z.string(),
+  label: z.string().nullish(),
   reference: z.string().nullish(),
   residueNumber: z.number().int(),
   kind: ResidueKind,
@@ -63,11 +63,12 @@ const ResidueExtraction = z.object({
     ),
 });
 
-const AnalysisExtraction = z.object({
+export const AnalysisExtraction = z.object({
   kind: z.enum(['Mono', 'Multi']).optional(),
   residues: z
     .array(ResidueExtraction)
     .optional()
+    //  .default([])
     .describe(
       'Contains only the residues that were detected in the sample. (Residues marked as "ND" are not included.)'
     ),
@@ -75,7 +76,7 @@ const AnalysisExtraction = z.object({
   notesOnCompliance: z.string().nullable().optional(),
 });
 
-type AnalyseExtraction = z.infer<typeof AnalysisExtraction>;
+export type AnalyseExtraction = z.infer<typeof AnalysisExtraction>;
 type ResidueExtraction = z.infer<typeof ResidueExtraction>;
 type AnalyteExtraction = z.infer<typeof AnalyteExtraction>;
 
@@ -139,10 +140,12 @@ const retrieveResiduesReferences = async (
 
   const newResidues = await Promise.all(
     (analysisExtraction.residues ?? []).map(async (residue) => {
-      const reference = await resolveReferenceWithEmbeddings(residue.label, [
-        ...simpleResidueEmbeddings,
-        ...complexResidueEmbeddings,
-      ]);
+      const reference = residue.label
+        ? await resolveReferenceWithEmbeddings(residue.label, [
+            ...simpleResidueEmbeddings,
+            ...complexResidueEmbeddings,
+          ])
+        : undefined;
 
       const residueWithAnalyte = ComplexResidue.safeParse(reference).success
         ? await retrieveAnalytesReferences(residue, reference as ComplexResidue)
@@ -172,7 +175,7 @@ export const extractFromReport = async (
   const content = await documentService.getDocumentContent(reportDocumentId);
 
   const completion = await openai.chat.completions.create({
-    model: 'gpt-4o-mini-2024-07-18',
+    model: config.apis.openai.models.analysisExtraction,
     messages: extractAnalysisFromReportPrompt(content),
     response_format: zodResponseFormat(AnalysisExtraction, 'analysis'),
   });

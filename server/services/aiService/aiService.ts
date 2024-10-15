@@ -79,7 +79,7 @@ async function resolveReferenceWithEmbeddings<T>(
     }
   }
 
-  console.log('bestMatch', bestMatch.referenceEmbedding);
+  console.log('bestMatch', bestMatch.referenceEmbedding?.reference);
 
   return bestMatch.referenceEmbedding?.reference;
 }
