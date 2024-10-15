@@ -78,6 +78,12 @@ interface Config {
     company: {
       url: string;
     };
+    openai: {
+      apiKey: string;
+      models: {
+        analysisExtraction: string;
+      };
+    };
   };
 }
 
@@ -247,6 +253,21 @@ const config = convict<Config>({
         env: 'COMPANY_API_URL',
         format: 'url',
         default: 'https://recherche-entreprises.api.gouv.fr',
+      },
+    },
+    openai: {
+      apiKey: {
+        env: 'OPENAI_API_KEY',
+        format: String,
+        default: null,
+        nullable: true,
+      },
+      models: {
+        analysisExtraction: {
+          env: 'OPENAI_MODEL_ANALYSIS_EXTRACTION',
+          format: String,
+          default: 'gpt-4o-mini-2024-07-18',
+        },
       },
     },
   },

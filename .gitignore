@@ -29,3 +29,5 @@ yarn-error.log*
 /frontend/.env
 /dist/
 /local/
+/scripts/node_modules
+/scripts/samplesAnalysisReport.jsonl
