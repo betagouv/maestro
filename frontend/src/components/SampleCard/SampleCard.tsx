@@ -37,6 +37,7 @@ const SampleCard = ({ sample, sampleProgrammingPlan }: Props) => {
 
   return (
     <Card
+      className="sample-card"
       start={
         <div className={clsx('d-flex-align-start')}>
           <div className="flex-grow-1">

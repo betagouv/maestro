@@ -1,28 +1,30 @@
 @import '../../constants';
 
-.fr-card__title {
-  @media (max-width: $breakpoint-md) {
-    margin-top: -0.75rem;
-  }
-}
-
-.fr-card__desc {
-  .fr-text--xs {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-}
-
-.fr-card__end {
-  margin-top: 0 !important;
-  justify-content: end;
-
-  .fr-btn {
-    margin-bottom: 0;
+.sample-card {
+  .fr-card__title {
+    @media (max-width: $breakpoint-md) {
+      margin-top: -0.75rem;
+    }
   }
 
-  &:not(:has(*)) {
-    display: none;
+  .fr-card__desc {
+    .fr-text--xs {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+  }
+
+  .fr-card__end {
+    margin-top: 0 !important;
+    justify-content: end;
+
+    .fr-btn {
+      margin-bottom: 0;
+    }
+
+    &:not(:has(*)) {
+      display: none;
+    }
   }
 }
