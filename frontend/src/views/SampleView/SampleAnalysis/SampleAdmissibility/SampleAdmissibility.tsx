@@ -227,14 +227,8 @@ const SampleAdmissibility = ({ sample }: Props) => {
               )}
             </>
           )}
-          <Button
-            type="submit"
-            iconId="fr-icon-arrow-down-line"
-            iconPosition="right"
-            className="fr-m-0"
-            onClick={submit}
-          >
-            Saisir le résultat
+          <Button type="submit" className="fr-m-0" onClick={submit}>
+            Enregistrer
           </Button>
           <ConfirmationModal
             modal={nonAdmissibleConfirmationModal}

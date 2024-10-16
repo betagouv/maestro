@@ -27,22 +27,26 @@ export const AnalysisStatusSteps: Partial<Record<AnalysisStatus, number>> = {
 };
 
 const SampleDraftAnalysis = ({ sample }: Props) => {
-  const { data: partialAnalysis } = useGetSampleAnalysisQuery(sample.id);
+  const { data: partialAnalysis, isFetching } = useGetSampleAnalysisQuery(
+    sample.id
+  );
 
   const [searchParams] = useSearchParams();
   const [step, setStep] = useState<number>();
 
   useEffect(() => {
-    if (partialAnalysis) {
-      if (searchParams.get('etape')) {
-        setStep(Number(searchParams.get('etape')));
+    if (!isFetching) {
+      if (partialAnalysis) {
+        if (searchParams.get('etape')) {
+          setStep(Number(searchParams.get('etape')));
+        } else {
+          setStep(AnalysisStatusSteps[partialAnalysis.status]);
+        }
       } else {
-        setStep(AnalysisStatusSteps[partialAnalysis.status]);
+        setStep(1);
       }
-    } else {
-      setStep(1);
     }
-  }, [partialAnalysis, searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isFetching, partialAnalysis, searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>
