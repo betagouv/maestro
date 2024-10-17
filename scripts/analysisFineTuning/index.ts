@@ -2,13 +2,29 @@
 
 import fs from 'fs';
 import highland from 'highland';
+import z from 'zod';
 import { extractAnalysisFromReportPrompt } from '../../server/prompts/extractAnalysisFromReport.prompt';
 import analysisRepository from '../../server/repositories/analysisRepository';
 import sampleRepository from '../../server/repositories/sampleRepository';
-import { AnalysisExtraction } from '../../server/services/analysisService/analysisService';
+import {
+  AnalysisExtraction,
+  ResidueExtraction,
+} from '../../server/services/analysisService/analysisService';
 import documentService from '../../server/services/documentService/documentService';
 
 const myfile = fs.createWriteStream('samplesAnalysisReport.jsonl');
+
+const ResidueExtractionWithDefault = ResidueExtraction.extend({
+  analytes: ResidueExtraction.shape.analytes.default([]),
+  notesOnResult: ResidueExtraction.shape.notesOnResult.default(''),
+}).omit({
+  reference: true,
+});
+
+const AnalysisExtractionWithDefault = AnalysisExtraction.extend({
+  residues: z.array(ResidueExtractionWithDefault).default([]),
+  notesOnCompliance: AnalysisExtraction.shape.notesOnCompliance.default(''),
+});
 
 highland(
   sampleRepository.findMany({
@@ -39,7 +55,9 @@ highland(
           ...extractAnalysisFromReportPrompt(content),
           {
             role: 'assistant',
-            content: JSON.stringify(AnalysisExtraction.parse(analysis)),
+            content: JSON.stringify(
+              AnalysisExtractionWithDefault.parse(analysis)
+            ),
           },
         ],
       })

@@ -41,14 +41,14 @@ const findUnique = async (
     .select(
       `${analysisTable}.*`,
       db.raw(
-        `case when count(analysis_residues.*) = 0 then null 
+        `case when count(${analysisResiduesTable}.*) = 0 then null 
                  else array_agg(
-                  to_json(analysis_residues.*)::jsonb || 
+                  to_json(${analysisResiduesTable}.*)::jsonb || 
                   json_build_object('analytes', (
                     select json_agg(to_json(${residueAnalytesTable}.*))
                     from ${residueAnalytesTable}
-                    where ${residueAnalytesTable}.analysis_id = analysis_residues.analysis_id
-                    and ${residueAnalytesTable}.residue_number = analysis_residues.residue_number
+                    where ${residueAnalytesTable}.analysis_id = ${analysisResiduesTable}.analysis_id
+                    and ${residueAnalytesTable}.residue_number = ${analysisResiduesTable}.residue_number
                   ))::jsonb
                  ) end as residues`
       )

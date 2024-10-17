@@ -11,6 +11,10 @@ export const Residue = z.object({
   analysisId: z.string().uuid(),
   residueNumber: z.number().int().positive(),
   kind: ResidueKind,
+  originalName: z
+    .string()
+    .nullish()
+    .describe('The name of the residue as it appears in the report'),
   reference: z.union([SimpleResidue, ComplexResidue], {
     errorMap: () => ({
       message: 'Veuillez renseigner le résidu.',

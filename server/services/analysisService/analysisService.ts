@@ -35,14 +35,17 @@ const AnalyteExtraction = z.object({
   result: z.number().nullish(),
 });
 
-const ResidueExtraction = z.object({
-  label: z.string().nullish(),
-  reference: z.string().nullish(),
+export const ResidueExtraction = z.object({
+  originalName: z
+    .string()
+    .nullish()
+    .describe('The name of the residue as it appears in the report'),
+  // reference: z.string().nullish(),
   residueNumber: z.number().int(),
   kind: ResidueKind,
   resultKind: ResultKind.nullish().describe(ResultKindLabels.toString()),
   result: z.number().nullish().describe('Result when resultKind is Q'),
-  LMR: z
+  lmr: z
     .number()
     .nullish()
     .describe(
@@ -70,7 +73,7 @@ export const AnalysisExtraction = z.object({
     .optional()
     //  .default([])
     .describe(
-      'Contains only the residues that were detected in the sample. (Residues marked as "ND" are not included.)'
+      'Contains only the residues of pesticides that were detected in the sample. (Residues marked as "ND" are not included.)'
     ),
   compliance: z.boolean().optional(),
   notesOnCompliance: z.string().nullable().optional(),
@@ -140,8 +143,8 @@ const retrieveResiduesReferences = async (
 
   const newResidues = await Promise.all(
     (analysisExtraction.residues ?? []).map(async (residue) => {
-      const reference = residue.label
-        ? await resolveReferenceWithEmbeddings(residue.label, [
+      const reference = residue.originalName
+        ? await resolveReferenceWithEmbeddings(residue.originalName, [
             ...simpleResidueEmbeddings,
             ...complexResidueEmbeddings,
           ])
