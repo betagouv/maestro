@@ -6,7 +6,7 @@ import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Region, RegionList, Regions } from 'shared/referential/Region';
 import { Context } from 'shared/schema/ProgrammingPlan/Context';
-import { ProgrammingPlanStatusLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import { programmingPlanLabel } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useAppSelector } from 'src/hooks/useStore';
@@ -65,7 +65,7 @@ const PrescriptionView = () => {
           'fr-container': hasNationalView,
         })}
       >
-        {ProgrammingPlanStatusLabels[programmingPlan.status]}
+        {programmingPlanLabel(programmingPlan)}
         <div className={cx('fr-text--lead')}>
           {region && <>{Regions[region]?.name} - </>}
           {t('sample', { count: _.sumBy(prescriptions, 'sampleCount') })}

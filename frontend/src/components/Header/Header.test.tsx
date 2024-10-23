@@ -58,7 +58,9 @@ describe('Header', () => {
       );
 
       expect(
-        screen.queryByText(ProgrammingPlanStatusLabels['Validated'])
+        screen.queryByText(
+          `${ProgrammingPlanStatusLabels['Validated']} ${validatedProgrammingPlan.year}`
+        )
       ).not.toBeInTheDocument();
       expect(screen.queryByText('Prélèvements')).not.toBeInTheDocument();
       expect(
@@ -94,7 +96,7 @@ describe('Header', () => {
 
       expect(
         await within(navigation).findByText(
-          ProgrammingPlanStatusLabels['Validated']
+          `${ProgrammingPlanStatusLabels['Validated']} ${validatedProgrammingPlan.year}`
         )
       ).toBeInTheDocument();
       expect(
@@ -135,7 +137,7 @@ describe('Header', () => {
 
       expect(
         await within(navigation).findByText(
-          ProgrammingPlanStatusLabels['Validated']
+          `${ProgrammingPlanStatusLabels['Validated']} ${validatedProgrammingPlan.year}`
         )
       ).toBeInTheDocument();
       expect(
@@ -173,7 +175,7 @@ describe('Header', () => {
 
       expect(
         await within(navigation).findByText(
-          ProgrammingPlanStatusLabels['Validated']
+          `${ProgrammingPlanStatusLabels['Validated']} ${validatedProgrammingPlan.year}`
         )
       ).toBeInTheDocument();
       expect(
@@ -211,7 +213,7 @@ describe('Header', () => {
 
       expect(
         await within(navigation).findByText(
-          ProgrammingPlanStatusLabels['Validated']
+          `${ProgrammingPlanStatusLabels['Validated']} ${validatedProgrammingPlan.year}`
         )
       ).toBeInTheDocument();
       expect(

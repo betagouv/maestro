@@ -16,6 +16,14 @@ const findUnique = async (id: string): Promise<ProgrammingPlan | undefined> => {
     .then((_) => _ && ProgrammingPlan.parse(fp.omitBy(_, fp.isNil)));
 };
 
+const findOne = async (year: number): Promise<ProgrammingPlan | undefined> => {
+  console.info('Find programming plan', year);
+  return ProgrammingPlans()
+    .where({ year })
+    .first()
+    .then((_) => _ && ProgrammingPlan.parse(fp.omitBy(_, fp.isNil)));
+};
+
 const findMany = async (
   findOptions: FindProgrammingPlanOptions
 ): Promise<ProgrammingPlan[]> => {
@@ -34,8 +42,17 @@ const insert = async (programmingPlan: ProgrammingPlan): Promise<void> => {
   await ProgrammingPlans().insert(programmingPlan);
 };
 
+const update = async (programmingPlan: ProgrammingPlan): Promise<void> => {
+  console.info('Update programming plan', programmingPlan.id);
+  await ProgrammingPlans()
+    .where({ id: programmingPlan.id })
+    .update(programmingPlan);
+};
+
 export default {
   findUnique,
+  findOne,
   findMany,
   insert,
+  update,
 };

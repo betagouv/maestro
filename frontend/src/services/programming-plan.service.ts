@@ -1,6 +1,9 @@
 import fp from 'lodash';
 import { FindProgrammingPlanOptions } from 'shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
-import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
+import {
+  ProgrammingPlan,
+  ProgrammingPlanUpdate,
+} from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { api } from 'src/services/api.service';
 
 export const programmingPlanApi = api.injectEndpoints({
@@ -23,7 +26,45 @@ export const programmingPlanApi = api.injectEndpoints({
         })),
       ],
     }),
+    getProgrammingPlanByYear: builder.query<ProgrammingPlan, number>({
+      query: (year) => `programming-plans/${year}`,
+      transformResponse: (response: any) =>
+        ProgrammingPlan.parse(fp.omitBy(response, fp.isNil)),
+      providesTags: (result) => [{ type: 'ProgrammingPlan', id: result?.id }],
+    }),
+    createProgrammingPlan: builder.mutation<ProgrammingPlan, number>({
+      query: (year) => ({
+        url: `programming-plans/${year}`,
+        method: 'POST',
+      }),
+      transformResponse: (response: any) =>
+        ProgrammingPlan.parse(fp.omitBy(response, fp.isNil)),
+      invalidatesTags: (_result, _error, year) => [{ type: 'ProgrammingPlan' }],
+    }),
+    updateProgrammingPlan: builder.mutation<
+      ProgrammingPlan,
+      {
+        programmingPlanId: string;
+        programmingPlanUpdate: ProgrammingPlanUpdate;
+      }
+    >({
+      query: ({ programmingPlanId, programmingPlanUpdate }) => ({
+        url: `programming-plans/${programmingPlanId}`,
+        method: 'PUT',
+        body: programmingPlanUpdate,
+      }),
+      transformResponse: (response: any) =>
+        ProgrammingPlan.parse(fp.omitBy(response, fp.isNil)),
+      invalidatesTags: (result, _error, { programmingPlanId }) => [
+        { type: 'ProgrammingPlan', id: programmingPlanId },
+      ],
+    }),
   }),
 });
 
-export const { useFindProgrammingPlansQuery } = programmingPlanApi;
+export const {
+  useFindProgrammingPlansQuery,
+  useGetProgrammingPlanByYearQuery,
+  useCreateProgrammingPlanMutation,
+  useUpdateProgrammingPlanMutation,
+} = programmingPlanApi;

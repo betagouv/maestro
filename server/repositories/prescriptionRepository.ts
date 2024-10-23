@@ -40,7 +40,9 @@ const insert = async (prescription: Prescription): Promise<void> => {
 
 const insertMany = async (prescriptions: Prescription[]): Promise<void> => {
   console.info('Insert multiple prescriptions', prescriptions.length);
-  await Prescriptions().insert(prescriptions);
+  if (prescriptions.length > 0) {
+    await Prescriptions().insert(prescriptions);
+  }
 };
 
 const update = async (prescription: Prescription): Promise<void> => {

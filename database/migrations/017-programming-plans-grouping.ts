@@ -80,11 +80,13 @@ exports.up = async (knex: Knex) => {
   await knex.schema.alterTable('programming_plans', (table) => {
     table.integer('year').notNullable().alter();
     table.dropColumns('title', 'kind');
+    table.unique(['year']);
   });
 };
 
 export const down = async (knex: Knex) => {
   await knex.schema.alterTable('programming_plans', (table) => {
+    table.dropUnique(['year']);
     table.string('title');
     table.enum('kind', Context.options).defaultTo('Control');
     table.dropColumns('year');

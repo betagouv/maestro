@@ -14,7 +14,7 @@ export const UserRoleList: UserRole[] = UserRole.options;
 
 export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
   NationalCoordinator: [
-    'createProgrammingPlan',
+    'manageProgrammingPlan',
     'readProgrammingPlans',
     'readProgrammingPlansInProgress',
     'createPrescription',
