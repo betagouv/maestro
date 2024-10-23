@@ -1,14 +1,8 @@
 import { Request, Response } from 'express';
-import { AuthenticatedRequest, ProgrammingPlanRequest } from 'express-jwt';
+import { AuthenticatedRequest } from 'express-jwt';
 import { constants } from 'http2';
 import { FindProgrammingPlanOptions } from '../../shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
-
-const getProgrammingPlan = async (request: Request, response: Response) => {
-  const programmingPlan = (request as ProgrammingPlanRequest).programmingPlan;
-
-  response.status(constants.HTTP_STATUS_OK).send(programmingPlan);
-};
 
 const findProgrammingPlans = async (request: Request, response: Response) => {
   const user = (request as AuthenticatedRequest).user;
@@ -26,6 +20,5 @@ const findProgrammingPlans = async (request: Request, response: Response) => {
 };
 
 export default {
-  getProgrammingPlan,
   findProgrammingPlans,
 };

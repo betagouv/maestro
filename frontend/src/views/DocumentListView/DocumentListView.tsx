@@ -33,7 +33,7 @@ const DocumentListView = () => {
           <div className="toast">
             <Alert
               severity="success"
-              small={true}
+              small
               description="Ressources déposée avec succès."
               closable
             />
