@@ -39,7 +39,7 @@ export const programmingPlanApi = api.injectEndpoints({
       }),
       transformResponse: (response: any) =>
         ProgrammingPlan.parse(fp.omitBy(response, fp.isNil)),
-      invalidatesTags: (_result, _error, year) => [{ type: 'ProgrammingPlan' }],
+      invalidatesTags: (_result, _error) => [{ type: 'ProgrammingPlan' }],
     }),
     updateProgrammingPlan: builder.mutation<
       ProgrammingPlan,
