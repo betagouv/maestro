@@ -68,7 +68,7 @@ const getSampleItemDocument = async (request: Request, response: Response) => {
 
 const findSamples = async (request: Request, response: Response) => {
   const { user } = request as AuthenticatedRequest;
-  const queryFindOptions = request.query as FindSampleOptions;
+  const queryFindOptions = FindSampleOptions.parse(request.query);
 
   const findOptions = {
     ...queryFindOptions,
@@ -84,7 +84,7 @@ const findSamples = async (request: Request, response: Response) => {
 
 const countSamples = async (request: Request, response: Response) => {
   const { user } = request as AuthenticatedRequest;
-  const queryFindOptions = request.query as FindSampleOptions;
+  const queryFindOptions = FindSampleOptions.parse(request.query);
 
   const findOptions = {
     ...queryFindOptions,
@@ -100,7 +100,7 @@ const countSamples = async (request: Request, response: Response) => {
 
 const exportSamples = async (request: Request, response: Response) => {
   const { user } = request as AuthenticatedRequest;
-  const queryFindOptions = request.query as FindSampleOptions;
+  const queryFindOptions = FindSampleOptions.parse(request.query);
 
   const findOptions = {
     ...queryFindOptions,
