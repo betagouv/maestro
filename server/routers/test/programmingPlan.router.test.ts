@@ -42,6 +42,12 @@ describe('ProgrammingPlan router', () => {
   });
 
   afterAll(async () => {
+    await Prescriptions()
+      .whereIn('programmingPlanId', [
+        programmingPlan2020.id,
+        programmingPlan2021.id,
+      ])
+      .delete();
     await ProgrammingPlans()
       .delete()
       .where('id', 'in', [programmingPlan2020.id, programmingPlan2021.id]);
