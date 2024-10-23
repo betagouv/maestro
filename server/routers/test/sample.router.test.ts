@@ -130,9 +130,21 @@ describe('Sample router', () => {
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
+    it('should fail if the programmingPlanId is not provided', async () => {
+      await request(app)
+        .get(testRoute({}))
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
     it('should find the samples with query parameters restricted to the user region', async () => {
       const res = await request(app)
-        .get(testRoute({ status: 'DraftMatrix' }))
+        .get(
+          testRoute({
+            programmingPlanId: ProgrammingPlanFixture.id,
+            status: 'DraftMatrix',
+          })
+        )
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
@@ -148,7 +160,12 @@ describe('Sample router', () => {
 
     it('should find national samples with a list of statuses', async () => {
       const res = await request(app)
-        .get(testRoute({ status: 'DraftMatrix,Draft' }))
+        .get(
+          testRoute({
+            programmingPlanId: ProgrammingPlanFixture.id,
+            status: 'DraftMatrix,Draft',
+          })
+        )
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
@@ -181,9 +198,21 @@ describe('Sample router', () => {
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
+    it('should fail if the programmingPlanId is not provided', async () => {
+      await request(app)
+        .get(testRoute({}))
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
     it('should count the samples with query parameters restricted to the user region', async () => {
       const res = await request(app)
-        .get(testRoute({ status: 'DraftMatrix' }))
+        .get(
+          testRoute({
+            programmingPlanId: ProgrammingPlanFixture.id,
+            status: 'DraftMatrix',
+          })
+        )
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
@@ -192,7 +221,12 @@ describe('Sample router', () => {
 
     it('should count national samples with a list of statuses', async () => {
       const res = await request(app)
-        .get(testRoute({ status: 'DraftMatrix,Draft' }))
+        .get(
+          testRoute({
+            programmingPlanId: ProgrammingPlanFixture.id,
+            status: 'DraftMatrix,Draft',
+          })
+        )
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
