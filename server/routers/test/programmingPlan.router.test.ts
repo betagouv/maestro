@@ -174,7 +174,14 @@ describe('ProgrammingPlan router', () => {
       ).resolves.toHaveLength(surveillancePrescription2021.length);
 
       //Cleanup
-      await Prescriptions().where('programmingPlanId', res.body.id).delete();
+      await Prescriptions()
+        .where('programmingPlanId', res.body.id)
+        .andWhere('context', 'Control')
+        .delete();
+      await Prescriptions()
+        .where('programmingPlanId', res.body.id)
+        .andWhere('context', 'Surveillance')
+        .delete();
       await ProgrammingPlans().where('year', 2022).delete();
     });
   });

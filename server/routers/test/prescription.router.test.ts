@@ -29,10 +29,12 @@ describe('Prescriptions router', () => {
   const programmingPlanInProgress = genProgrammingPlan({
     createdBy: NationalCoordinator.id,
     status: 'InProgress' as ProgrammingPlanStatus,
+    year: 2020,
   });
   const programmingPlanValidated = genProgrammingPlan({
     createdBy: NationalCoordinator.id,
     status: 'Validated' as ProgrammingPlanStatus,
+    year: 2021,
   });
   const laboratory = genLaboratory();
   const inProgressControlPrescription = genPrescriptions({
