@@ -8,6 +8,7 @@ import { MatrixPart } from '../../referential/MatrixPart';
 import { Region, RegionList, Regions } from '../../referential/Region';
 import { Stage } from '../../referential/Stage';
 import { Company } from '../Company/Company';
+import { Context } from '../ProgrammingPlan/Context';
 import { User } from '../User/User';
 import { PartialSampleItem, SampleItem } from './SampleItem';
 import { SampleStatus } from './SampleStatus';
@@ -40,12 +41,8 @@ export const SampleContextData = z.object({
   department: Department,
   geolocation: Geolocation.nullish(),
   parcel: z.string().nullish(),
-  programmingPlanId: z
-    .string()
-    .uuid({
-      message: 'Veuillez renseigner le contexte.',
-    })
-    .nullish(),
+  programmingPlanId: z.string().uuid(),
+  context: Context,
   legalContext: LegalContext,
   company: Company.nullish(),
   companyOffline: z.string().nullish(),

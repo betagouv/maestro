@@ -2,7 +2,8 @@ import fp from 'lodash';
 import { FindPrescriptionOptions } from 'shared/schema/Prescription/FindPrescriptionOptions';
 import {
   Prescription,
-  PrescriptionToCreate,
+  PrescriptionsToCreate,
+  PrescriptionsToDelete,
   PrescriptionUpdate,
 } from 'shared/schema/Prescription/Prescription';
 import { api } from 'src/services/api.service';
@@ -13,8 +14,8 @@ import { getURLQuery } from 'src/utils/fetchUtils';
 export const prescriptionApi = api.injectEndpoints({
   endpoints: (builder) => ({
     findPrescriptions: builder.query<Prescription[], FindPrescriptionOptions>({
-      query: ({ programmingPlanId, ...findOptions }) => ({
-        url: `programming-plans/${programmingPlanId}/prescriptions`,
+      query: (findOptions) => ({
+        url: `prescriptions`,
         params: findOptions,
       }),
       transformResponse: (response: any[]) =>
@@ -27,14 +28,11 @@ export const prescriptionApi = api.injectEndpoints({
         })),
       ],
     }),
-    addPrescriptions: builder.mutation<
-      Prescription[],
-      { programmingPlanId: string; prescriptions: PrescriptionToCreate[] }
-    >({
-      query: ({ programmingPlanId, prescriptions }) => ({
-        url: `programming-plans/${programmingPlanId}/prescriptions`,
+    addPrescriptions: builder.mutation<Prescription[], PrescriptionsToCreate>({
+      query: (prescriptionToCreate) => ({
+        url: 'prescriptions',
         method: 'POST',
-        body: prescriptions,
+        body: prescriptionToCreate,
       }),
       invalidatesTags: [{ type: 'Prescription', id: 'LIST' }],
       transformResponse: (response: any[]) =>
@@ -43,13 +41,12 @@ export const prescriptionApi = api.injectEndpoints({
     updatePrescription: builder.mutation<
       Prescription,
       {
-        programmingPlanId: string;
         prescriptionId: string;
         prescriptionUpdate: PrescriptionUpdate;
       }
     >({
-      query: ({ programmingPlanId, prescriptionId, prescriptionUpdate }) => ({
-        url: `programming-plans/${programmingPlanId}/prescriptions/${prescriptionId}`,
+      query: ({ prescriptionId, prescriptionUpdate }) => ({
+        url: `prescriptions/${prescriptionId}`,
         method: 'PUT',
         body: prescriptionUpdate,
       }),
@@ -59,14 +56,11 @@ export const prescriptionApi = api.injectEndpoints({
       ],
       transformResponse: (response) => Prescription.parse(response),
     }),
-    deletePrescriptions: builder.mutation<
-      void,
-      { programmingPlanId: string; prescriptionIds: string[] }
-    >({
-      query: ({ programmingPlanId, prescriptionIds }) => ({
-        url: `programming-plans/${programmingPlanId}/prescriptions`,
+    deletePrescriptions: builder.mutation<void, PrescriptionsToDelete>({
+      query: (prescriptionsToDelete) => ({
+        url: 'prescriptions',
         method: 'DELETE',
-        body: prescriptionIds,
+        body: prescriptionsToDelete,
       }),
       invalidatesTags: [{ type: 'Prescription', id: 'LIST' }],
     }),
@@ -74,12 +68,11 @@ export const prescriptionApi = api.injectEndpoints({
 });
 
 const prescriptionsExportURL = (findOptions: FindPrescriptionOptions) => {
-  const { programmingPlanId, ...queryFindOptions } = findOptions;
   const params = getURLQuery({
-    ...queryFindOptions,
+    ...findOptions,
     ...authParams(),
   });
-  return `${config.apiEndpoint}/api/programming-plans/${programmingPlanId}/prescriptions/export${params}`;
+  return `${config.apiEndpoint}/api/prescriptions/export${params}`;
 };
 
 export const {

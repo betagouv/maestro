@@ -14,8 +14,8 @@ import { oneOf } from '../../../shared/test/testFixtures';
 import { DummyLaboratoryIds } from './002-laboratories';
 
 exports.seed = async function () {
-  const validatedControlProgrammingPlan = await ProgrammingPlans()
-    .where({ status: 'Validated', kind: 'Control' })
+  const validatedProgrammingPlan = await ProgrammingPlans()
+    .where({ status: 'Validated' })
     .first();
 
   const sampler = await Users()
@@ -24,7 +24,7 @@ exports.seed = async function () {
 
   const companies = await Companies();
 
-  if (!validatedControlProgrammingPlan || !sampler) {
+  if (!validatedProgrammingPlan || !sampler) {
     return;
   }
 
@@ -33,7 +33,8 @@ exports.seed = async function () {
       () =>
         genCreatedSample({
           sampler,
-          programmingPlanId: validatedControlProgrammingPlan.id,
+          programmingPlanId: validatedProgrammingPlan.id,
+          context: 'Control',
           matrix: 'A0DVX',
           stage: 'STADE1',
           status: 'Sent',
@@ -47,7 +48,8 @@ exports.seed = async function () {
       () =>
         genCreatedSample({
           sampler,
-          programmingPlanId: validatedControlProgrammingPlan.id,
+          programmingPlanId: validatedProgrammingPlan.id,
+          context: 'Control',
           matrix: 'A000F',
           stage: 'STADE1',
           status: 'Sent',
@@ -61,7 +63,8 @@ exports.seed = async function () {
       () =>
         genCreatedSample({
           sampler,
-          programmingPlanId: validatedControlProgrammingPlan.id,
+          programmingPlanId: validatedProgrammingPlan.id,
+          context: 'Control',
           matrix: 'A00QH',
           stage: 'STADE1',
           status: 'Sent',
@@ -75,7 +78,8 @@ exports.seed = async function () {
       () =>
         genCreatedSample({
           sampler,
-          programmingPlanId: validatedControlProgrammingPlan.id,
+          programmingPlanId: validatedProgrammingPlan.id,
+          context: 'Control',
           matrix: 'A01GG',
           stage: 'STADE1',
           status: 'Sent',
@@ -89,7 +93,8 @@ exports.seed = async function () {
       () =>
         genCreatedSample({
           sampler,
-          programmingPlanId: validatedControlProgrammingPlan.id,
+          programmingPlanId: validatedProgrammingPlan.id,
+          context: 'Control',
           matrix: 'A00HC',
           stage: 'STADE1',
           status: 'Sent',
@@ -103,7 +108,8 @@ exports.seed = async function () {
       () =>
         genCreatedSample({
           sampler,
-          programmingPlanId: validatedControlProgrammingPlan.id,
+          programmingPlanId: validatedProgrammingPlan.id,
+          context: 'Control',
           matrix: 'A0DFB',
           stage: 'STADE1',
           status: 'Sent',
@@ -117,7 +123,8 @@ exports.seed = async function () {
       () =>
         genCreatedSample({
           sampler,
-          programmingPlanId: validatedControlProgrammingPlan.id,
+          programmingPlanId: validatedProgrammingPlan.id,
+          context: 'Control',
           matrix: 'A0DFR',
           stage: 'STADE1',
           status: 'Sent',

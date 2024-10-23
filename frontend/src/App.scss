@@ -83,11 +83,11 @@ main {
 
   td:has(.fr-input-group) {
     padding: 0;
+    max-width: 56px;
 
     .fr-label + .fr-input {
       margin: 0;
       padding-right: 0;
-      max-width: 56px;
     }
 
     .fr-input-group {

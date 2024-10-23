@@ -5,12 +5,12 @@ import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { CultureKindList } from 'shared/referential/CultureKind';
 import { MatrixPartList } from 'shared/referential/MatrixPart';
+import { genPrescriptions } from 'shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'shared/test/programmingPlanFixtures';
 import {
   genCreatedSampleData,
   genSampleContextData,
 } from 'shared/test/sampleFixtures';
-import { genPrescriptions } from 'shared/test/testFixtures';
 import { genAuthUser, genUser } from 'shared/test/userFixtures';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import config from 'src/utils/config';
@@ -31,9 +31,12 @@ const userRequest = {
   response: { body: JSON.stringify(sampler) },
 };
 const programmingPlan = genProgrammingPlan();
-const prescriptions = genPrescriptions(programmingPlan.id);
+const prescriptions = genPrescriptions({
+  programmingPlanId: programmingPlan.id,
+  context: 'Control',
+});
 const prescriptionsRequest = {
-  pathname: `/api/programming-plans/${programmingPlan.id}/prescriptions?`,
+  pathname: `/api/prescriptions?programmingPlanId=${programmingPlan.id}&context=Control`,
   response: { body: JSON.stringify(prescriptions) },
 };
 
@@ -126,6 +129,7 @@ describe('SampleStepDraftInfos', () => {
     const createdSample = {
       ...genSampleContextData({
         programmingPlanId: programmingPlan.id,
+        context: 'Control',
       }),
       ...genCreatedSampleData({ sampler }),
     };
@@ -186,6 +190,7 @@ describe('SampleStepDraftInfos', () => {
     const createdSample = {
       ...genSampleContextData({
         programmingPlanId: programmingPlan.id,
+        context: 'Control',
       }),
       ...genCreatedSampleData({ sampler }),
     };

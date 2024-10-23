@@ -22,7 +22,7 @@ router.use('/addresses', addressRouter);
 router.use('/companies', companyRouter);
 router.use('/documents', documentRouter);
 router.use('/laboratories', laboratoryRouter);
-router.use('/programming-plans', prescriptionRouter);
+router.use('/prescriptions', prescriptionRouter);
 router.use('/programming-plans', programmingPlanRouter);
 router.use('/samples', sampleRouter);
 router.use('/substances', substanceRouter);

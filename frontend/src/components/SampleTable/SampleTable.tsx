@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
+import { ContextLabels } from 'shared/schema/ProgrammingPlan/Context';
 import {
   isCreatedPartialSample,
   PartialSample,
@@ -20,7 +21,6 @@ import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useOnLine } from 'src/hooks/useOnLine';
 import { useAppSelector } from 'src/hooks/useStore';
 import useWindowSize from 'src/hooks/useWindowSize';
-import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.service';
 import './SampleTable.scss';
 
 interface Props {
@@ -34,13 +34,6 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
 
   const { hasPermission, userInfos } = useAuthentication();
   const { isMobile } = useWindowSize();
-
-  const { programmingPlanStatus } = useAppSelector((state) => state.settings);
-
-  const { data: programmingPlans } = useFindProgrammingPlansQuery(
-    { status: programmingPlanStatus },
-    { skip: !programmingPlanStatus }
-  );
 
   const { pendingSamples } = useAppSelector((state) => state.samples);
 
@@ -80,8 +73,7 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
           format(sample.sampledAt, 'dd/MM/yyyy'),
           sample.department,
           sample.company?.name ?? '',
-          programmingPlans?.find((plan) => plan.id === sample.programmingPlanId)
-            ?.title ?? '',
+          ContextLabels[sample.context],
           <SampleStatusBadge status={sample?.status as SampleStatus} />,
         ].map((cell) => (
           <div
@@ -110,7 +102,7 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
             )}
         </div>,
       ]),
-    [samples, programmingPlans] // eslint-disable-line react-hooks/exhaustive-deps
+    [samples] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   return (

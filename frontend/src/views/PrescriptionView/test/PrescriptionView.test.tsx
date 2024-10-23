@@ -1,11 +1,11 @@
 import { configureStore, Store } from '@reduxjs/toolkit';
 import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
-import Router, { BrowserRouter } from 'react-router-dom';
+import Router, { BrowserRouter, MemoryRouter } from 'react-router-dom';
 import { Region, RegionList } from 'shared/referential/Region';
+import { genPrescriptions } from 'shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'shared/test/programmingPlanFixtures';
 import { genCreatedPartialSample } from 'shared/test/sampleFixtures';
-import { genPrescriptions } from 'shared/test/testFixtures';
 import { genAuthUser, genUser } from 'shared/test/userFixtures';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import PrescriptionView from 'src/views/PrescriptionView/PrescriptionView';
@@ -20,31 +20,33 @@ const programmingPlan = {
   ...genProgrammingPlan(),
   status: 'InProgress',
 };
-const prescriptions1 = genPrescriptions(programmingPlan.id);
-const prescriptions2 = genPrescriptions(programmingPlan.id);
+const prescriptions1 = genPrescriptions({
+  programmingPlanId: programmingPlan.id,
+  context: 'Control',
+});
+const prescriptions2 = genPrescriptions({
+  programmingPlanId: programmingPlan.id,
+  context: 'Control',
+});
 const sample = genCreatedPartialSample({
   sampler: genUser(),
   programmingPlanId: programmingPlan.id,
+  context: 'Control',
 });
 
 const prescriptionRequest = (region?: Region) => ({
-  pathname: `/api/programming-plans/${programmingPlan.id}/prescriptions?${
-    region ? `region=${region}` : ''
-  }`,
+  pathname: `/api/prescriptions?programmingPlanId=${
+    programmingPlan.id
+  }&context=Control${region ? `&region=${region}` : ''}`,
   response: {
     body: JSON.stringify([...prescriptions1, ...prescriptions2]),
   },
 });
-const programmingPlanRequest = {
-  pathname: `/api/programming-plans/${programmingPlan.id}`,
-  response: {
-    body: JSON.stringify(programmingPlan),
-  },
-};
+
 const sampleRequest = (region?: Region) => ({
-  pathname: `/api/samples?programmingPlanId=${programmingPlan.id}&status=Sent${
-    region ? `&region=${region}` : ''
-  }`,
+  pathname: `/api/samples?programmingPlanId=${
+    programmingPlan.id
+  }&context=Control&status=Sent${region ? `&region=${region}` : ''}`,
   response: {
     body: JSON.stringify([sample]),
   },
@@ -61,6 +63,7 @@ describe('PrescriptionView', () => {
       middleware: applicationMiddleware,
       preloadedState: {
         auth: { authUser },
+        settings: { programmingPlan },
       },
     });
   });
@@ -81,7 +84,6 @@ describe('PrescriptionView', () => {
 
     test('should render a table with prescriptions with editable cells for all matrix and region when in table view', async () => {
       mockRequests([
-        programmingPlanRequest,
         prescriptionRequest(),
         userRequest,
         regionsRequest,
@@ -90,12 +92,13 @@ describe('PrescriptionView', () => {
       jest
         .spyOn(Router, 'useParams')
         .mockReturnValue({ programmingPlanId: programmingPlan.id });
+      const searchParams = '?context=Control';
 
       render(
         <Provider store={store}>
-          <BrowserRouter>
+          <MemoryRouter initialEntries={[`/prescription${searchParams}`]}>
             <PrescriptionView />
-          </BrowserRouter>
+          </MemoryRouter>
         </Provider>
       );
 
@@ -133,7 +136,6 @@ describe('PrescriptionView', () => {
 
     test('should render a table with prescriptions with non editable cells for regional coordinator', async () => {
       mockRequests([
-        programmingPlanRequest,
         prescriptionRequest(regionalCoordinator.region as Region),
         userRequest,
         sampleRequest(regionalCoordinator.region as Region),
@@ -143,11 +145,13 @@ describe('PrescriptionView', () => {
         .spyOn(Router, 'useParams')
         .mockReturnValue({ programmingPlanId: programmingPlan.id });
 
+      const searchParams = '?context=Control';
+
       render(
         <Provider store={store}>
-          <BrowserRouter>
+          <MemoryRouter initialEntries={[`/prescription${searchParams}`]}>
             <PrescriptionView />
-          </BrowserRouter>
+          </MemoryRouter>
         </Provider>
       );
 
@@ -168,7 +172,6 @@ describe('PrescriptionView', () => {
 
     test('should not display the addMatrix button', async () => {
       mockRequests([
-        programmingPlanRequest,
         prescriptionRequest(regionalCoordinator.region as Region),
         userRequest,
       ]);

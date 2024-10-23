@@ -8,6 +8,7 @@ import {
   genPrescriptionByMatrix,
   matrixCompletionRate,
 } from 'shared/schema/Prescription/PrescriptionsByMatrix';
+import { Context, ContextLabels } from 'shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { RealizedStatusList } from 'shared/schema/Sample/SampleStatus';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -21,21 +22,28 @@ import ProgrammingPlanMap from 'src/views/DashboardView/ProgrammingPlanMap';
 
 interface ProgrammingPlanCardProps {
   programmingPlan: ProgrammingPlan;
+  context: Context;
 }
 
-const ProgrammingPlanCard = ({ programmingPlan }: ProgrammingPlanCardProps) => {
+const ProgrammingPlanCard = ({
+  programmingPlan,
+  context,
+}: ProgrammingPlanCardProps) => {
   const { hasNationalView } = useAuthentication();
 
   const { data: prescriptions } = useFindPrescriptionsQuery({
     programmingPlanId: programmingPlan.id,
+    context,
   });
   const { data: samples } = useFindSamplesQuery({
     programmingPlanId: programmingPlan.id,
+    context,
     status: RealizedStatusList,
   });
   const { data: samplesToSentCount } = useCountSamplesQuery(
     {
       programmingPlanId: programmingPlan.id,
+      context,
       status: 'Submitted',
     },
     { skip: hasNationalView }
@@ -55,7 +63,7 @@ const ProgrammingPlanCard = ({ programmingPlan }: ProgrammingPlanCardProps) => {
       border
       shadow
       size="medium"
-      title={programmingPlan.title}
+      title={ContextLabels[context]}
       titleAs="h2"
       end={
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
@@ -93,7 +101,7 @@ const ProgrammingPlanCard = ({ programmingPlan }: ProgrammingPlanCardProps) => {
                 className={'fr-card--xs'}
                 enlargeLink
                 linkProps={{
-                  to: `/prelevements?status=${RealizedStatusList}&programmingPlanId=${programmingPlan.id}`,
+                  to: `/prelevements?status=${RealizedStatusList}&programmingPlanId=${programmingPlan.id}&context=${context}`,
                 }}
               />
             </div>
@@ -132,7 +140,7 @@ const ProgrammingPlanCard = ({ programmingPlan }: ProgrammingPlanCardProps) => {
           <Button
             className={cx('fr-mr-2w')}
             linkProps={{
-              to: `/plans/${programmingPlan.id}/prescription`,
+              to: `/prescription?context=${context}`,
             }}
           >
             Voir le tableau complet

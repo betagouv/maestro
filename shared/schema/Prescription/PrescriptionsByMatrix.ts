@@ -4,11 +4,13 @@ import { Matrix } from '../../referential/Matrix/Matrix';
 import { MatrixLabels } from '../../referential/Matrix/MatrixLabels';
 import { Region, RegionList } from '../../referential/Region';
 import { Stage, StageLabels } from '../../referential/Stage';
+import { Context } from '../ProgrammingPlan/Context';
 import { getSampleRegion, PartialSample } from '../Sample/Sample';
 import { Prescription } from './Prescription';
 
 export const PrescriptionByMatrix = z.object({
   programmingPlanId: z.string().uuid(),
+  context: Context,
   matrix: Matrix,
   stages: z.array(Stage),
   regionalData: z.array(
@@ -33,12 +35,14 @@ export const genPrescriptionByMatrix = (
         !acc.some(
           (p) =>
             p.programmingPlanId === prescription.programmingPlanId &&
+            p.context === prescription.context &&
             p.matrix === prescription.matrix &&
             _.isEqual(p.stages, prescription.stages)
         )
       ) {
         acc.push({
           programmingPlanId: prescription.programmingPlanId,
+          context: prescription.context,
           matrix: prescription.matrix,
           stages: prescription.stages,
           regionalData: includedRegions.map((region) => {

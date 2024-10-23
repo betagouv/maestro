@@ -1,24 +1,30 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { skipToken } from '@reduxjs/toolkit/query';
 import clsx from 'clsx';
 import { t } from 'i18next';
 import _ from 'lodash';
 import { useMemo } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { Region, RegionList, Regions } from 'shared/referential/Region';
+import { Context } from 'shared/schema/ProgrammingPlan/Context';
+import { ProgrammingPlanStatusLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
+import { useAppSelector } from 'src/hooks/useStore';
 import { useFindPrescriptionsQuery } from 'src/services/prescription.service';
-import { useGetProgrammingPlanQuery } from 'src/services/programming-plan.service';
 import { useFindSamplesQuery } from 'src/services/sample.service';
 import PrescriptionTable from 'src/views/PrescriptionView/PrescriptionTable';
 
 const PrescriptionView = () => {
   useDocumentTitle('Prescription');
+  const { programmingPlan } = useAppSelector((state) => state.settings);
 
   const [searchParams] = useSearchParams();
-  const { programmingPlanId } = useParams<{ programmingPlanId: string }>();
   const { hasNationalView, userInfos } = useAuthentication();
+
+  const context = useMemo(
+    () => searchParams.get('context') as Context,
+    [searchParams]
+  );
 
   const region: Region = useMemo(
     () =>
@@ -26,27 +32,29 @@ const PrescriptionView = () => {
     [userInfos, searchParams]
   );
 
-  const { data: programmingPlan } = useGetProgrammingPlanQuery(
-    programmingPlanId ?? skipToken
-  );
   const { data: prescriptions } = useFindPrescriptionsQuery(
-    { programmingPlanId: programmingPlanId as string, region },
     {
-      skip: !programmingPlanId,
+      programmingPlanId: programmingPlan?.id as string,
+      context: context as Context,
+      region,
+    },
+    {
+      skip: !programmingPlan || !context,
     }
   );
   const { data: samples } = useFindSamplesQuery(
     {
-      programmingPlanId: programmingPlanId as string,
+      programmingPlanId: programmingPlan?.id as string,
+      context: context as Context,
       status: 'Sent',
       region,
     },
     {
-      skip: !programmingPlanId,
+      skip: !programmingPlan || !context,
     }
   );
 
-  if (!programmingPlan || !prescriptions || !samples) {
+  if (!programmingPlan || !context || !prescriptions || !samples) {
     return <></>;
   }
 
@@ -57,7 +65,7 @@ const PrescriptionView = () => {
           'fr-container': hasNationalView,
         })}
       >
-        {programmingPlan.title}
+        {ProgrammingPlanStatusLabels[programmingPlan.status]}
         <div className={cx('fr-text--lead')}>
           {region && <>{Regions[region]?.name} - </>}
           {t('sample', { count: _.sumBy(prescriptions, 'sampleCount') })}
@@ -65,6 +73,7 @@ const PrescriptionView = () => {
       </h1>
       <PrescriptionTable
         programmingPlan={programmingPlan}
+        context={context}
         prescriptions={prescriptions}
         samples={samples}
         regions={region ? [region] : RegionList}

@@ -34,6 +34,7 @@ export const Sample11Fixture = genCreatedPartialSample({
   sampledAt: new Date('2025-05-06'),
   department: '08',
   programmingPlanId: ProgrammingPlanFixture.id,
+  context: 'Control',
   legalContext: 'A',
   resytalId: '23-123456',
   company: CompanyFixture,
@@ -54,6 +55,7 @@ export const Sample11Fixture = genCreatedPartialSample({
 export const Sample12Fixture = genCreatedPartialSample({
   sampler: Sampler1Fixture,
   programmingPlanId: ProgrammingPlanFixture.id,
+  context: 'Control',
   company: CompanyFixture,
   id: '11111111-2222-2222-2222-222222222222',
   status: 'Draft' as SampleStatus,
@@ -64,6 +66,7 @@ export const Sample12Fixture = genCreatedPartialSample({
 export const Sample13Fixture = genCreatedPartialSample({
   sampler: Sampler1Fixture,
   programmingPlanId: ProgrammingPlanFixture.id,
+  context: 'Control',
   company: CompanyFixture,
   id: '11111111-3333-3333-3333-333333333333',
   status: 'Sent' as SampleStatus,
@@ -73,6 +76,7 @@ export const Sample13Fixture = genCreatedPartialSample({
 export const Sample2Fixture = genCreatedPartialSample({
   sampler: Sampler2Fixture,
   programmingPlanId: ProgrammingPlanFixture.id,
+  context: 'Control',
   company: CompanyFixture,
   id: '22222222-2222-2222-2222-222222222222',
   status: 'DraftMatrix' as SampleStatus,

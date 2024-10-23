@@ -125,6 +125,7 @@ const MatrixSelectModal = ({
               value={matrixKind ?? ''}
               options={selectOptionsFromList(MatrixKindList, {
                 labels: MatrixKindLabels,
+                withSort: true,
               })}
               onChange={(e) => {
                 setMatrix(undefined);

@@ -4,14 +4,13 @@ import Input from '@codegouvfr/react-dsfr/Input';
 import { format } from 'date-fns';
 import { DepartmentLabels } from 'shared/referential/Department';
 import { LegalContextLabels } from 'shared/referential/LegalContext';
-import { ProgrammingPlanKindLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import { ContextLabels } from 'shared/schema/ProgrammingPlan/Context';
 import {
   isCreatedSample,
   Sample,
   SampleToCreate,
 } from 'shared/schema/Sample/Sample';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import { useGetProgrammingPlanQuery } from 'src/services/programming-plan.service';
 import StepSummary from 'src/views/SampleView/StepSummary/StepSummary';
 
 interface Props {
@@ -26,13 +25,6 @@ const ContextStepSummary = ({
   onChangeResytalId,
 }: Props) => {
   const { userInfos } = useAuthentication();
-
-  const { data: sampleProgrammingPlan } = useGetProgrammingPlanQuery(
-    sample.programmingPlanId as string,
-    {
-      skip: !sample.programmingPlanId,
-    }
-  );
 
   return (
     <StepSummary
@@ -83,15 +75,12 @@ const ContextStepSummary = ({
           )}
         </div>
       </div>
-      {sampleProgrammingPlan && (
-        <div className="summary-item icon-text">
-          <div className={cx('fr-icon-microscope-line')}></div>
-          <div>
-            Contexte :{' '}
-            <b>{ProgrammingPlanKindLabels[sampleProgrammingPlan?.kind]}</b>
-          </div>
+      <div className="summary-item icon-text">
+        <div className={cx('fr-icon-microscope-line')}></div>
+        <div>
+          Contexte : <b>{ContextLabels[sample.context]}</b>
         </div>
-      )}
+      </div>
       <div className="summary-item icon-text">
         <div className={cx('fr-icon-scales-3-line')}></div>
         <div>
