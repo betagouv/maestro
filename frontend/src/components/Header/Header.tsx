@@ -38,7 +38,7 @@ const Header = () => {
           : undefined
       )
     );
-  }, [programmingPlans, isAuthenticated]);
+  }, [programmingPlans, isAuthenticated]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <DSFRHeader
