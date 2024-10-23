@@ -10,6 +10,6 @@ export const genProgrammingPlan = (
   createdAt: new Date(),
   createdBy: uuidv4(),
   status: oneOf(ProgrammingPlanStatusList),
-  year: 2024,
+  year: new Date().getFullYear(),
   ...data,
 });
