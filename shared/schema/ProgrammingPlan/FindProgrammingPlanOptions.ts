@@ -1,8 +1,5 @@
 import { z } from 'zod';
-import { ProgrammingPlanStatus } from './ProgrammingPlanStatus';
-export const FindProgrammingPlanOptions = z.object({
-  status: ProgrammingPlanStatus.nullish(),
-});
+export const FindProgrammingPlanOptions = z.object({});
 
 export type FindProgrammingPlanOptions = z.infer<
   typeof FindProgrammingPlanOptions

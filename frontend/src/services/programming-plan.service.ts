@@ -35,7 +35,7 @@ export const programmingPlanApi = api.injectEndpoints({
 });
 
 export const {
-  useFindProgrammingPlansQuery,
   useLazyFindProgrammingPlansQuery,
+  useFindProgrammingPlansQuery,
   useGetProgrammingPlanQuery,
 } = programmingPlanApi;

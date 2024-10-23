@@ -3,25 +3,8 @@ import { userEvent } from '@testing-library/user-event';
 import { format } from 'date-fns';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
-import { genProgrammingPlan } from 'shared/test/programmingPlanFixtures';
 import { store } from 'src/store/store';
 import ContextStep from 'src/views/SampleView/DraftSample/ContextStep/ContextStep';
-import { mockRequests } from '../../../../../../test/requestUtils.test';
-
-const programmingPlan1 = {
-  ...genProgrammingPlan(),
-  kind: 'Surveillance',
-};
-const programmingPlan2 = {
-  ...genProgrammingPlan(),
-  kind: 'Control',
-};
-const programmingPlanRequest = {
-  pathname: `/api/programming-plans?status=Validated`,
-  response: {
-    body: JSON.stringify([programmingPlan1, programmingPlan2]),
-  },
-};
 
 // const companySearchResult = genCompanySearchResult();
 // const companySearchRequest = {
@@ -37,8 +20,6 @@ describe('SampleStepCreation', () => {
   });
 
   test('should render form successfully', () => {
-    mockRequests([programmingPlanRequest]);
-
     render(
       <Provider store={store}>
         <BrowserRouter>
@@ -55,7 +36,7 @@ describe('SampleStepCreation', () => {
     expect(screen.getAllByTestId('geolocationX-input')).toHaveLength(2);
     expect(screen.getAllByTestId('geolocationY-input')).toHaveLength(2);
     expect(screen.getAllByTestId('parcel-input')).toHaveLength(2);
-    expect(screen.getAllByTestId('programmingPlanId-radio')).toHaveLength(1);
+    expect(screen.getAllByTestId('context-radio')).toHaveLength(1);
     expect(screen.getAllByTestId('legalContext-radio')).toHaveLength(1);
     expect(screen.getAllByTestId('companySearch-input')).toHaveLength(1);
     expect(screen.getAllByTestId('resytalId-input')).toHaveLength(2);
@@ -132,7 +113,7 @@ describe('SampleStepCreation', () => {
   //
   //   const departmentSelect = screen.getAllByTestId('department-select')[1];
   //   const programmingPlan1Radio = await within(
-  //     screen.getByTestId('programmingPlanId-radio')
+  //     screen.getByTestId('context-radio')
   //   ).findByLabelText(
   //     ProgrammingPlanKindLabels[programmingPlan1.kind as ProgrammingPlanKind]
   //   );

@@ -2,16 +2,15 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Header as DSFRHeader } from '@codegouvfr/react-dsfr/Header';
 import Select from '@codegouvfr/react-dsfr/Select';
+import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import {
-  ProgrammingPlanStatus,
-  ProgrammingPlanStatusLabels,
-} from 'shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import { ProgrammingPlanStatusLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { UserRoleLabels } from 'shared/schema/User/UserRole';
 import { isDefined } from 'shared/utils/utils';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import { api } from 'src/services/api.service';
+import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.service';
 import authSlice from 'src/store/reducers/authSlice';
 import settingsSlice from 'src/store/reducers/settingsSlice';
 import logo from '../../assets/logo.svg';
@@ -22,7 +21,24 @@ const Header = () => {
   const navigate = useNavigate();
 
   const { isAuthenticated, hasPermission, userInfos } = useAuthentication();
-  const { programmingPlanStatus } = useAppSelector((state) => state.settings);
+  const { programmingPlan } = useAppSelector((state) => state.settings);
+
+  const { data: programmingPlans } = useFindProgrammingPlansQuery(
+    {},
+    { skip: !isAuthenticated }
+  );
+
+  useEffect(() => {
+    dispatch(
+      settingsSlice.actions.changeProgrammingPlan(
+        isAuthenticated
+          ? programmingPlans?.find(
+              (plan) => plan.year === new Date().getFullYear()
+            )
+          : undefined
+      )
+    );
+  }, [programmingPlans, isAuthenticated]);
 
   return (
     <DSFRHeader
@@ -49,17 +65,19 @@ const Header = () => {
       }}
       navigation={(isAuthenticated
         ? [
-            {
-              linkProps: {
-                to: '/',
-                target: '_self',
-              },
-              text: ProgrammingPlanStatusLabels[programmingPlanStatus],
-              isActive:
-                location.pathname === '/' ||
-                location.pathname.startsWith('/plans'),
-            },
-            programmingPlanStatus === 'Validated' &&
+            programmingPlan
+              ? {
+                  linkProps: {
+                    to: '/',
+                    target: '_self',
+                  },
+                  text: ProgrammingPlanStatusLabels[programmingPlan.status],
+                  isActive:
+                    location.pathname === '/' ||
+                    location.pathname.startsWith('/plans'),
+                }
+              : undefined,
+            programmingPlan?.status === 'Validated' &&
             hasPermission('readSamples')
               ? {
                   linkProps: {
@@ -84,29 +102,31 @@ const Header = () => {
       quickAccessItems={
         isAuthenticated
           ? [
+              programmingPlans &&
               hasPermission('readProgrammingPlansInProgress') ? (
                 <Select
                   label={undefined}
                   nativeSelectProps={{
-                    defaultValue: programmingPlanStatus,
+                    defaultValue: programmingPlans[0]?.status,
                     onChange: (e) => {
                       dispatch(
-                        settingsSlice.actions.changeProgrammingPlanStatus({
-                          programmingPlanStatus: e.target
-                            .value as ProgrammingPlanStatus,
-                        })
+                        settingsSlice.actions.changeProgrammingPlan(
+                          programmingPlans.find(
+                            (programmingPlan) =>
+                              programmingPlan.id === e.target.value
+                          )
+                        )
                       );
                       navigate('/', { replace: true });
                     },
                   }}
                   className="fr-mr-2w"
                 >
-                  <option value="Validated">
-                    {ProgrammingPlanStatusLabels['Validated']}
-                  </option>
-                  <option value="InProgress">
-                    {ProgrammingPlanStatusLabels['InProgress']}
-                  </option>
+                  {programmingPlans.map((programmingPlan) => (
+                    <option key={programmingPlan.id} value={programmingPlan.id}>
+                      {ProgrammingPlanStatusLabels[programmingPlan.status]}
+                    </option>
+                  ))}
                 </Select>
               ) : undefined,
               <div>

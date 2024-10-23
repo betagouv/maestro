@@ -6,7 +6,7 @@ import { Department, DepartmentLabels } from 'shared/referential/Department';
 import { Matrix } from 'shared/referential/Matrix/Matrix';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
 import { Region, Regions } from 'shared/referential/Region';
-import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ContextLabels } from 'shared/schema/ProgrammingPlan/Context';
 import { FindSampleOptions } from 'shared/schema/Sample/FindSampleOptions';
 import {
   DraftStatusList,
@@ -18,28 +18,16 @@ import { UserInfos } from 'shared/schema/User/User';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 
 interface Props {
-  filters: FindSampleOptions;
-  onChange: (filters: FindSampleOptions) => void;
+  filters: Partial<FindSampleOptions>;
+  onChange: (filters: Partial<FindSampleOptions>) => void;
   samplers?: UserInfos[];
-  programmingPlans?: ProgrammingPlan[];
 }
 
-const SampleFiltersTags = ({
-  filters,
-  onChange,
-  samplers,
-  programmingPlans,
-}: Props) => {
+const SampleFiltersTags = ({ filters, onChange, samplers }: Props) => {
   const { hasNationalView } = useAuthentication();
   const sampler = useMemo(
     () => samplers?.find((user) => user.id === filters.sampledBy),
     [samplers, filters.sampledBy]
-  );
-
-  const programmingPlan = useMemo(
-    () =>
-      programmingPlans?.find((plan) => plan.id === filters.programmingPlanId),
-    [programmingPlans, filters.programmingPlanId]
   );
 
   return (
@@ -116,15 +104,15 @@ const SampleFiltersTags = ({
           {DepartmentLabels[filters.department as Department]}
         </Tag>
       )}
-      {programmingPlan && (
+      {filters.context && (
         <Tag
           dismissible
           nativeButtonProps={{
-            onClick: () => onChange({ programmingPlanId: undefined }),
+            onClick: () => onChange({ context: undefined }),
           }}
           className={cx('fr-mx-1w')}
         >
-          {programmingPlan.title}
+          {ContextLabels[filters.context]}
         </Tag>
       )}
     </>

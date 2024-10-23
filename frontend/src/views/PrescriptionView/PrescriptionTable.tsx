@@ -17,6 +17,7 @@ import {
   genPrescriptionByMatrix,
   matrixCompletionRate,
 } from 'shared/schema/Prescription/PrescriptionsByMatrix';
+import { Context } from 'shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { PartialSample } from 'shared/schema/Sample/Sample';
 import { isNotEmpty } from 'shared/utils/utils';
@@ -38,6 +39,7 @@ import RemoveMatrix from 'src/views/PrescriptionView/RemoveMatrix';
 
 interface Props {
   programmingPlan: ProgrammingPlan;
+  context: Context;
   prescriptions: Prescription[];
   samples: PartialSample[];
   regions: Region[];
@@ -45,6 +47,7 @@ interface Props {
 
 const PrescriptionTable = ({
   programmingPlan,
+  context,
   prescriptions,
   samples,
   regions,
@@ -73,6 +76,7 @@ const PrescriptionTable = ({
   const addMatrix = async (matrix: Matrix, stages: Stage[]) => {
     await addPrescriptions({
       programmingPlanId: programmingPlan.id,
+      context,
       prescriptions: RegionList.map((region) => ({
         matrix,
         stages,
@@ -85,6 +89,7 @@ const PrescriptionTable = ({
   const removeMatrix = async (matrix: string, stages: Stage[]) => {
     await deletePrescription({
       programmingPlanId: programmingPlan.id,
+      context,
       prescriptionIds: (prescriptions ?? [])
         .filter((p) => p.matrix === matrix && _.isEqual(p.stages, stages))
         .map((p) => p.id),
@@ -183,6 +188,8 @@ const PrescriptionTable = ({
                   initialValue={sampleCount}
                   onChange={(value) =>
                     changePrescription(p.matrix, p.stages, region, {
+                      programmingPlanId: programmingPlan.id,
+                      context: context,
                       sampleCount: value,
                     })
                   }
@@ -212,6 +219,8 @@ const PrescriptionTable = ({
                   }
                   onChange={(value) =>
                     changePrescription(p.matrix, p.stages, regions[0], {
+                      programmingPlanId: programmingPlan.id,
+                      context: context,
                       laboratoryId: value,
                     })
                   }
@@ -314,7 +323,6 @@ const PrescriptionTable = ({
 
     if (prescriptionId) {
       await updatePrescription({
-        programmingPlanId: programmingPlan.id,
         prescriptionId,
         prescriptionUpdate,
       });
@@ -366,6 +374,7 @@ const PrescriptionTable = ({
           window.open(
             getPrescriptionsExportURL({
               programmingPlanId: programmingPlan.id,
+              context,
               region: regions.length > 1 ? undefined : regions[0],
             })
           )

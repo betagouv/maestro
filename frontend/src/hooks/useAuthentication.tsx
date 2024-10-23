@@ -61,7 +61,7 @@ export const useAuthentication = () => {
             },
             hasPermission('readPrescriptions')
               ? {
-                  path: '/plans/:programmingPlanId/prescription',
+                  path: '/prescription',
                   label: 'Prescriptions',
                   key: 'prescription_route',
                   component: PrescriptionView,

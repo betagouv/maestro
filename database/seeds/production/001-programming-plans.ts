@@ -14,43 +14,15 @@ exports.seed = async function () {
     throw new Error('No NationalCoordinator found');
   }
 
-  const validatedControlPlanId = uuidv4();
-  const validatedSurveillancePlanId = uuidv4();
-  const inProgressControlPlanId = uuidv4();
-  const inProgressSurveillancePlanId = uuidv4();
+  const validatedProgrammingPlanId = uuidv4();
 
   await ProgrammingPlans().insert([
     {
-      id: validatedControlPlanId,
-      title: 'Plan de contrôle',
+      id: validatedProgrammingPlanId,
       createdAt: new Date(),
       createdBy: user.id,
-      kind: 'Control',
       status: 'Validated',
-    },
-    {
-      id: validatedSurveillancePlanId,
-      title: 'Plan de surveillance',
-      createdAt: new Date(),
-      createdBy: user.id,
-      kind: 'Surveillance',
-      status: 'Validated',
-    },
-    {
-      id: inProgressControlPlanId,
-      title: 'Plan de contrôle',
-      createdAt: new Date(),
-      createdBy: user.id,
-      kind: 'Control',
-      status: 'InProgress',
-    },
-    {
-      id: inProgressSurveillancePlanId,
-      title: 'Plan de surveillance',
-      createdAt: new Date(),
-      createdBy: user.id,
-      kind: 'Surveillance',
-      status: 'InProgress',
+      year: 2024,
     },
   ]);
 };

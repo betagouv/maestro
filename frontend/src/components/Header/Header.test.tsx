@@ -3,10 +3,29 @@ import { render, screen, within } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { ProgrammingPlanStatusLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import { genProgrammingPlan } from 'shared/test/programmingPlanFixtures';
 import { genAuthUser, genUser } from 'shared/test/userFixtures';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import { mockRequests } from '../../../test/requestUtils.test';
 import Header from './Header';
+
+const validatedProgrammingPlan = {
+  ...genProgrammingPlan(),
+  status: 'Validated',
+  year: new Date().getFullYear(),
+};
+const inProgressProgrammingPlan = {
+  ...genProgrammingPlan(),
+  status: 'InProgress',
+  year: new Date().getFullYear() + 1,
+};
+
+const programmingPlanRequest = {
+  pathname: `/api/programming-plans?`,
+  response: {
+    body: JSON.stringify([validatedProgrammingPlan, inProgressProgrammingPlan]),
+  },
+};
 
 describe('Header', () => {
   const authUser = genAuthUser();
@@ -56,6 +75,7 @@ describe('Header', () => {
 
     test('should display only authorized items', async () => {
       mockRequests([
+        programmingPlanRequest,
         {
           pathname: `/api/users/${user.id}/infos`,
           response: { body: JSON.stringify(user) },
@@ -78,8 +98,8 @@ describe('Header', () => {
         )
       ).toBeInTheDocument();
       expect(
-        within(navigation).queryByText('Prélèvements')
-      ).not.toBeInTheDocument();
+        await within(navigation).findByText('Prélèvements')
+      ).toBeInTheDocument();
       expect(
         await within(navigation).findByText('Documents ressources')
       ).toBeInTheDocument();
@@ -94,6 +114,7 @@ describe('Header', () => {
 
     beforeEach(() => {
       mockRequests([
+        programmingPlanRequest,
         {
           pathname: `/api/users/${user.id}/infos`,
           response: { body: JSON.stringify(user) },
@@ -118,8 +139,8 @@ describe('Header', () => {
         )
       ).toBeInTheDocument();
       expect(
-        within(navigation).queryByText('Prélèvements')
-      ).not.toBeInTheDocument();
+        await within(navigation).findByText('Prélèvements')
+      ).toBeInTheDocument();
       expect(
         await within(navigation).findByText('Documents ressources')
       ).toBeInTheDocument();
@@ -131,6 +152,7 @@ describe('Header', () => {
 
     beforeEach(() => {
       mockRequests([
+        programmingPlanRequest,
         {
           pathname: `/api/users/${user.id}/infos`,
           response: { body: JSON.stringify(user) },
@@ -168,6 +190,7 @@ describe('Header', () => {
 
     beforeEach(() => {
       mockRequests([
+        programmingPlanRequest,
         {
           pathname: `/api/users/${user.id}/infos`,
           response: { body: JSON.stringify(user) },

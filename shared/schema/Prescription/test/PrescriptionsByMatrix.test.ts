@@ -15,6 +15,7 @@ describe('PrescriptionsByMatrix', () => {
         {
           id: '1',
           programmingPlanId: '1',
+          context: 'Control',
           matrix: 'A000L',
           stages: ['STADE2'],
           region: '44',
@@ -23,6 +24,7 @@ describe('PrescriptionsByMatrix', () => {
         {
           id: '2',
           programmingPlanId: '1',
+          context: 'Control',
           matrix: 'A000L',
           stages: ['STADE2'],
           region: '53',
@@ -31,6 +33,7 @@ describe('PrescriptionsByMatrix', () => {
         {
           id: '3',
           programmingPlanId: '1',
+          context: 'Control',
           matrix: 'A001X',
           stages: ['STADE2'],
           region: '01',
@@ -39,6 +42,7 @@ describe('PrescriptionsByMatrix', () => {
         {
           id: '4',
           programmingPlanId: '1',
+          context: 'Control',
           matrix: 'A000L',
           stages: ['STADE3'],
           region: '94',
@@ -47,6 +51,7 @@ describe('PrescriptionsByMatrix', () => {
         {
           id: '5',
           programmingPlanId: '2',
+          context: 'Control',
           matrix: 'A000L',
           stages: ['STADE2'],
           region: '27',
@@ -58,6 +63,7 @@ describe('PrescriptionsByMatrix', () => {
         genCreatedPartialSample({
           sampler: genUser(),
           programmingPlanId: '1',
+          context: 'Control',
           matrix: 'A000L',
           stage: 'STADE2',
           department: '52',
@@ -69,6 +75,7 @@ describe('PrescriptionsByMatrix', () => {
       expect(result).toEqual([
         {
           programmingPlanId: '1',
+          context: 'Control',
           matrix: 'A000L',
           stages: ['STADE3'],
           regionalData: [
@@ -184,6 +191,7 @@ describe('PrescriptionsByMatrix', () => {
         },
         {
           programmingPlanId: '1',
+          context: 'Control',
           matrix: 'A000L',
           stages: ['STADE2'],
           regionalData: [
@@ -299,6 +307,7 @@ describe('PrescriptionsByMatrix', () => {
         },
         {
           programmingPlanId: '1',
+          context: 'Control',
           matrix: 'A001X',
           stages: ['STADE2'],
           regionalData: [
@@ -414,6 +423,7 @@ describe('PrescriptionsByMatrix', () => {
         },
         {
           programmingPlanId: '2',
+          context: 'Control',
           matrix: 'A000L',
           stages: ['STADE2'],
           regionalData: [
@@ -535,6 +545,7 @@ describe('PrescriptionsByMatrix', () => {
     it('should return the completion rate for a region', () => {
       const prescriptionMatrix: PrescriptionByMatrix = {
         programmingPlanId: '1',
+        context: 'Control',
         matrix: 'A000L',
         stages: ['STADE2'],
         regionalData: [{ sampleCount: 5, sentSampleCount: 3, region: '84' }],
@@ -547,6 +558,7 @@ describe('PrescriptionsByMatrix', () => {
     it('should limit the rate to 100', () => {
       const prescriptionMatrix: PrescriptionByMatrix = {
         programmingPlanId: '1',
+        context: 'Control',
         matrix: 'A000L',
         stages: ['STADE2'],
         regionalData: [{ sampleCount: 5, sentSampleCount: 6, region: '84' }],
@@ -559,6 +571,7 @@ describe('PrescriptionsByMatrix', () => {
     it('should return 100 if sampleCount is 0', () => {
       const prescriptionMatrix: PrescriptionByMatrix = {
         programmingPlanId: '1',
+        context: 'Control',
         matrix: 'A000L',
         stages: ['STADE2'],
         regionalData: [{ sampleCount: 0, sentSampleCount: 0, region: '84' }],
@@ -572,6 +585,7 @@ describe('PrescriptionsByMatrix', () => {
   it('should return the total completion rate for a prescription', () => {
     const prescriptionMatrix: PrescriptionByMatrix = {
       programmingPlanId: '1',
+      context: 'Control',
       matrix: 'A000L',
       stages: ['STADE2'],
       regionalData: [
@@ -604,6 +618,7 @@ describe('PrescriptionsByMatrix', () => {
     const prescriptionMatrix: PrescriptionByMatrix[] = [
       {
         programmingPlanId: '1',
+        context: 'Control',
         matrix: 'A000L',
         stages: ['STADE2'],
         regionalData: [
@@ -629,6 +644,7 @@ describe('PrescriptionsByMatrix', () => {
       },
       {
         programmingPlanId: '1',
+        context: 'Control',
         matrix: 'A000L',
         stages: ['STADE3'],
         regionalData: [

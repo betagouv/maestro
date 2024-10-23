@@ -2,58 +2,43 @@ import express from 'express';
 import { z } from 'zod';
 import { FindPrescriptionOptions } from '../../shared/schema/Prescription/FindPrescriptionOptions';
 import {
-  PrescriptionToCreate,
+  PrescriptionsToCreate,
+  PrescriptionsToDelete,
   PrescriptionUpdate,
 } from '../../shared/schema/Prescription/Prescription';
 import prescriptionController from '../controllers/prescriptionController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
 import { programmingPlanCheck } from '../middlewares/checks/programmingPlanCheck';
-import validator, {
-  body,
-  params,
-  query,
-  uuidParam,
-} from '../middlewares/validator';
+import validator, { body, params, query } from '../middlewares/validator';
 
 const router = express.Router();
 
 router.get(
-  '/:programmingPlanId/prescriptions',
-  validator.validate(
-    uuidParam('programmingPlanId').merge(
-      query(FindPrescriptionOptions.omit({ programmingPlanId: true }))
-    )
-  ),
+  '',
+  validator.validate(query(FindPrescriptionOptions)),
   permissionsCheck(['readPrescriptions']),
   programmingPlanCheck(),
   prescriptionController.findPrescriptions
 );
 router.get(
-  '/:programmingPlanId/prescriptions/export',
-  validator.validate(
-    uuidParam('programmingPlanId').merge(
-      query(FindPrescriptionOptions.omit({ programmingPlanId: true }))
-    )
-  ),
+  '/export',
+  validator.validate(query(FindPrescriptionOptions)),
   permissionsCheck(['readPrescriptions']),
   programmingPlanCheck(),
   prescriptionController.exportPrescriptions
 );
 router.post(
-  '/:programmingPlanId/prescriptions',
-  validator.validate(
-    uuidParam('programmingPlanId').merge(body(z.array(PrescriptionToCreate)))
-  ),
+  '',
+  validator.validate(body(PrescriptionsToCreate)),
   permissionsCheck(['createPrescription']),
   programmingPlanCheck('InProgress'),
   prescriptionController.createPrescriptions
 );
 router.put(
-  '/:programmingPlanId/prescriptions/:prescriptionId',
+  '/:prescriptionId',
   validator.validate(
     params(
       z.object({
-        programmingPlanId: z.string().uuid(),
         prescriptionId: z.string().uuid(),
       })
     ).merge(body(PrescriptionUpdate))
@@ -66,10 +51,8 @@ router.put(
   prescriptionController.updatePrescription
 );
 router.delete(
-  '/:programmingPlanId/prescriptions',
-  validator.validate(
-    uuidParam('programmingPlanId').merge(body(z.array(z.string().uuid())))
-  ),
+  '',
+  validator.validate(body(PrescriptionsToDelete)),
   permissionsCheck(['deletePrescription']),
   programmingPlanCheck('InProgress'),
   prescriptionController.deletePrescriptions

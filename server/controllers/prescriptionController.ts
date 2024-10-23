@@ -4,21 +4,21 @@ import { constants } from 'http2';
 import { v4 as uuidv4 } from 'uuid';
 import { FindPrescriptionOptions } from '../../shared/schema/Prescription/FindPrescriptionOptions';
 import {
-  PrescriptionToCreate,
+  PrescriptionsToCreate,
+  PrescriptionsToDelete,
   PrescriptionUpdate,
 } from '../../shared/schema/Prescription/Prescription';
+import { ContextLabels } from '../../shared/schema/ProgrammingPlan/Context';
 import { hasPermission } from '../../shared/schema/User/User';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import exportPrescriptionsService from '../services/exportService/exportPrescriptionsService';
 import workbookUtils from '../utils/workbookUtils';
 const findPrescriptions = async (request: Request, response: Response) => {
-  const programmingPlan = (request as ProgrammingPlanRequest).programmingPlan;
   const user = (request as AuthenticatedRequest).user;
   const queryFindOptions = request.query as FindPrescriptionOptions;
 
   const findOptions = {
     ...queryFindOptions,
-    programmingPlanId: programmingPlan.id,
     region: user.region ?? queryFindOptions.region,
   };
 
@@ -38,7 +38,6 @@ const exportPrescriptions = async (request: Request, response: Response) => {
 
   const findOptions = {
     ...queryFindOptions,
-    programmingPlanId: programmingPlan.id,
     region: exportedRegion,
   };
 
@@ -46,9 +45,10 @@ const exportPrescriptions = async (request: Request, response: Response) => {
 
   const prescriptions = await prescriptionRepository.findMany(findOptions);
 
-  const fileName = `prescriptions-${programmingPlan.title
-    .toLowerCase()
-    .replaceAll(' ', '-')}.xlsx`;
+  const fileName = `prescriptions-${
+    findOptions.context &&
+    ContextLabels[findOptions.context].toLowerCase().replaceAll(' ', '-')
+  }.xlsx`;
 
   const workbook = workbookUtils.init(fileName, response);
 
@@ -56,6 +56,7 @@ const exportPrescriptions = async (request: Request, response: Response) => {
     {
       prescriptions,
       programmingPlan,
+      context: findOptions.context,
       exportedRegion,
     },
     workbook
@@ -64,19 +65,22 @@ const exportPrescriptions = async (request: Request, response: Response) => {
 
 const createPrescriptions = async (request: Request, response: Response) => {
   const programmingPlan = (request as ProgrammingPlanRequest).programmingPlan;
-  const prescriptionsToCreate = request.body as PrescriptionToCreate[];
+  const prescriptionsToCreate = request.body as PrescriptionsToCreate;
 
   console.info(
     'Create prescriptions for programming plan with id',
     programmingPlan.id,
-    prescriptionsToCreate.length
+    prescriptionsToCreate.prescriptions.length
   );
 
-  const prescriptions = prescriptionsToCreate.map((prescription) => ({
-    ...prescription,
-    id: uuidv4(),
-    programmingPlanId: programmingPlan.id,
-  }));
+  const prescriptions = prescriptionsToCreate.prescriptions.map(
+    (prescription) => ({
+      ...prescription,
+      id: uuidv4(),
+      programmingPlanId: programmingPlan.id,
+      context: prescriptionsToCreate.context,
+    })
+  );
 
   await prescriptionRepository.insertMany(prescriptions);
 
@@ -99,7 +103,7 @@ const updatePrescription = async (request: Request, response: Response) => {
 
   if (
     prescription.programmingPlanId !== programmingPlan.id ||
-    prescription.id !== prescriptionId
+    prescription.context !== prescriptionUpdate.context
   ) {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
   }
@@ -123,22 +127,25 @@ const updatePrescription = async (request: Request, response: Response) => {
 
 const deletePrescriptions = async (request: Request, response: Response) => {
   const programmingPlan = (request as ProgrammingPlanRequest).programmingPlan;
-  const prescriptionIds = request.body as string[];
+  const prescriptionsDelete = request.body as PrescriptionsToDelete;
 
   console.info(
     'Delete prescriptions with ids',
-    prescriptionIds,
+    prescriptionsDelete.prescriptionIds,
     'for programming plan with id',
     programmingPlan.id
   );
 
   const prescriptions = await prescriptionRepository.findMany({
     programmingPlanId: programmingPlan.id,
+    context: prescriptionsDelete.context,
   });
   const existingPrescriptionIds = prescriptions.map((p) => p.id);
 
   await prescriptionRepository.deleteMany(
-    prescriptionIds.filter((id) => existingPrescriptionIds.includes(id))
+    prescriptionsDelete.prescriptionIds.filter((id) =>
+      existingPrescriptionIds.includes(id)
+    )
   );
 
   response.sendStatus(constants.HTTP_STATUS_NO_CONTENT);

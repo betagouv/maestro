@@ -7,13 +7,13 @@ import { MatrixLabels } from '../../../shared/referential/Matrix/MatrixLabels';
 import { MatrixPartLabels } from '../../../shared/referential/MatrixPart';
 import { QuantityUnitLabels } from '../../../shared/referential/QuantityUnit';
 import { StageLabels } from '../../../shared/referential/Stage';
+import { ContextLabels } from '../../../shared/schema/ProgrammingPlan/Context';
 import { PartialSample } from '../../../shared/schema/Sample/Sample';
 import { SampleItemRecipientKindLabels } from '../../../shared/schema/Sample/SampleItemRecipientKind';
 import { SampleStatusLabels } from '../../../shared/schema/Sample/SampleStatus';
 import { isDefinedAndNotNull } from '../../../shared/utils/utils';
 import analysisRepository from '../../repositories/analysisRepository';
 import laboratoryRepository from '../../repositories/laboratoryRepository';
-import programmingPlanRepository from '../../repositories/programmingPlanRepository';
 import sampleItemRepository from '../../repositories/sampleItemRepository';
 import WorkbookWriter = exceljs.stream.xlsx.WorkbookWriter;
 
@@ -21,8 +21,6 @@ const writeToWorkbook = async (
   samples: PartialSample[],
   workbook: WorkbookWriter
 ) => {
-  const programmingPlans = await programmingPlanRepository.findMany({});
-
   const laboratories = await laboratoryRepository.findMany();
 
   const worksheet = workbook.addWorksheet('Prélèvements');
@@ -37,7 +35,7 @@ const writeToWorkbook = async (
     { header: 'Latitude', key: 'latitude' },
     { header: 'Longitude', key: 'longitude' },
     { header: 'Parcelle', key: 'parcel' },
-    { header: 'Contexte', key: 'programmingPlan' },
+    { header: 'Contexte', key: 'context' },
     { header: 'Cadre juridique', key: 'legalContext' },
     { header: 'Entité contrôlée', key: 'companyName' },
     { header: 'Adresse', key: 'companyAddress' },
@@ -106,9 +104,7 @@ const writeToWorkbook = async (
           latitude: sample.geolocation?.x,
           longitude: sample.geolocation?.y,
           parcel: sample.parcel,
-          programmingPlan: programmingPlans.find(
-            (plan) => plan.id === sample.programmingPlanId
-          )?.title,
+          context: ContextLabels[sample.context],
           legalContext: LegalContextLabels[sample.legalContext],
           company: sample.company?.name,
           companyAddress: [

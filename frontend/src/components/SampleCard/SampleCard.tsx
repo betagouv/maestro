@@ -6,15 +6,13 @@ import { format } from 'date-fns';
 import { useState } from 'react';
 import { DepartmentLabels } from 'shared/referential/Department';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
-import { ProgrammingPlanKindLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ContextLabels } from 'shared/schema/ProgrammingPlan/Context';
 import {
   isCreatedPartialSample,
   PartialSample,
   PartialSampleToCreate,
 } from 'shared/schema/Sample/Sample';
 import { DraftStatusList } from 'shared/schema/Sample/SampleStatus';
-import { UserInfos } from 'shared/schema/User/User';
 import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import RemoveSample from 'src/components/SampleTable/RemoveSample';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -24,11 +22,9 @@ import './SampleCard.scss';
 
 interface Props {
   sample: PartialSample | PartialSampleToCreate;
-  sampleProgrammingPlan?: ProgrammingPlan;
-  userInfos?: UserInfos;
 }
 
-const SampleCard = ({ sample, sampleProgrammingPlan }: Props) => {
+const SampleCard = ({ sample }: Props) => {
   const { userInfos, hasPermission } = useAuthentication();
   const { isOnline } = useOnLine();
   const { isMobile } = useWindowSize();
@@ -102,14 +98,12 @@ const SampleCard = ({ sample, sampleProgrammingPlan }: Props) => {
                 ></span>
                 {DepartmentLabels[sample.department]} ({sample.department})
               </span>
-              {sampleProgrammingPlan && (
-                <span className="icon-text">
-                  <span
-                    className={cx('fr-icon-microscope-line', 'fr-icon--sm')}
-                  ></span>
-                  {ProgrammingPlanKindLabels[sampleProgrammingPlan?.kind]}
-                </span>
-              )}
+              <span className="icon-text">
+                <span
+                  className={cx('fr-icon-microscope-line', 'fr-icon--sm')}
+                ></span>
+                {ContextLabels[sample.context]}
+              </span>
               {sample.matrix && (
                 <span className="icon-text">
                   <span

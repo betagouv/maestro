@@ -1,19 +1,21 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ProgrammingPlanStatus } from 'shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 
 type SettingsState = {
-  programmingPlanStatus: ProgrammingPlanStatus;
+  programmingPlan?: ProgrammingPlan;
 };
 
 const settingsSlice = createSlice({
   name: 'settings',
-  initialState: { programmingPlanStatus: 'Validated' } as SettingsState,
+  initialState: {
+    programmingPlan: undefined,
+  } as SettingsState,
   reducers: {
-    changeProgrammingPlanStatus: (
+    changeProgrammingPlan: (
       state,
-      action: PayloadAction<{ programmingPlanStatus: ProgrammingPlanStatus }>
+      action: PayloadAction<ProgrammingPlan | undefined>
     ) => {
-      state.programmingPlanStatus = action.payload.programmingPlanStatus;
+      state.programmingPlan = action.payload;
     },
   },
 });

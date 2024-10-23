@@ -7,7 +7,10 @@ import programmingPlanRepository from '../../repositories/programmingPlanReposit
 export const programmingPlanCheck =
   (status?: ProgrammingPlanStatus) =>
   async (request: Request, response: Response, next: NextFunction) => {
-    const programmingPlanId = request.params.programmingPlanId;
+    const programmingPlanId =
+      request.params?.programmingPlanId ||
+      request.query?.programmingPlanId ||
+      request.body?.programmingPlanId;
 
     const programmingPlan = await programmingPlanRepository.findUnique(
       programmingPlanId

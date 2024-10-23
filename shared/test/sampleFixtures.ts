@@ -9,6 +9,7 @@ import { QuantityUnitList } from '../referential/QuantityUnit';
 import { Regions } from '../referential/Region';
 import { Stage, StageList } from '../referential/Stage';
 import { Company } from '../schema/Company/Company';
+import { ContextList } from '../schema/ProgrammingPlan/Context';
 import {
   CreatedSampleData,
   Geolocation,
@@ -31,6 +32,7 @@ export const genSampleContextData = (
     y: 2.3522,
   },
   programmingPlanId: uuidv4(),
+  context: oneOf(ContextList),
   legalContext: oneOf(LegalContextList),
   resytalId:
     '23-' +

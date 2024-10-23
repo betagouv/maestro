@@ -13,6 +13,7 @@ import {
   genPrescriptionByMatrix,
   matrixCompletionRate,
 } from '../../../shared/schema/Prescription/PrescriptionsByMatrix';
+import { Context } from '../../../shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlan } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { isDefined } from '../../../shared/utils/utils';
 import laboratoryRepository from '../../repositories/laboratoryRepository';
@@ -22,15 +23,22 @@ import WorkbookWriter = exceljs.stream.xlsx.WorkbookWriter;
 interface PrescriptionWorkbookData {
   prescriptions: Prescription[];
   programmingPlan: ProgrammingPlan;
+  context: Context;
   exportedRegion: Region | undefined;
 }
 
 const writeToWorkbook = async (
-  { prescriptions, programmingPlan, exportedRegion }: PrescriptionWorkbookData,
+  {
+    prescriptions,
+    programmingPlan,
+    context,
+    exportedRegion,
+  }: PrescriptionWorkbookData,
   workbook: WorkbookWriter
 ) => {
   const samples = await sampleRepository.findMany({
     programmingPlanId: programmingPlan.id,
+    context,
     status: 'Sent',
   });
 
