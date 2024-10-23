@@ -30,8 +30,7 @@ const SampleAnalysis = ({ sample }: Props) => {
   const { data: laboratory } = useGetLaboratoryQuery(sample.laboratoryId, {
     skip: !isSendingSuccess,
   });
-  const { data: analysis, isFetching: isAnalysisFetching } =
-    useGetSampleAnalysisQuery(sample.id);
+  const { data: analysis } = useGetSampleAnalysisQuery(sample.id);
 
   const [continueToAnalysis, setContinueToAnalysis] = useState(false);
 
@@ -77,42 +76,38 @@ const SampleAnalysis = ({ sample }: Props) => {
       </div>
       <SampleAdmissibility sample={sample} />
 
-      {!isAnalysisFetching && (
+      {sample.status === 'Analysis' && !analysis && !continueToAnalysis ? (
+        <Button
+          iconId="fr-icon-arrow-down-line"
+          iconPosition="right"
+          className="fr-m-0"
+          onClick={() => setContinueToAnalysis(true)}
+        >
+          Saisir le résultat
+        </Button>
+      ) : (
         <>
-          {sample.status === 'Analysis' && !analysis && !continueToAnalysis ? (
-            <Button
-              iconId="fr-icon-arrow-down-line"
-              iconPosition="right"
-              className="fr-m-0"
-              onClick={() => setContinueToAnalysis(true)}
-            >
-              Saisir le résultat
-            </Button>
-          ) : (
-            <>
-              {['Analysis', ...CompletedStatusList].includes(sample.status) && (
-                <div
-                  className={clsx(
-                    cx(
-                      'fr-callout',
-                      CompletedStatusList.includes(sample.status)
-                        ? 'fr-callout--green-emeraude'
-                        : 'fr-callout--pink-tuile'
-                    ),
-                    'sample-callout',
-                    'analysis-container',
-                    'fr-mt-5w'
-                  )}
-                >
-                  {sample.status === 'Analysis' && (
-                    <SampleDraftAnalysis sample={sample} />
-                  )}
-                  {CompletedStatusList.includes(sample.status) && (
-                    <SampleAnalysisOverview sample={sample} />
-                  )}
-                </div>
+          {['Analysis', ...CompletedStatusList].includes(sample.status) && (
+            <div
+              className={clsx(
+                cx(
+                  'fr-callout',
+                  CompletedStatusList.includes(sample.status)
+                    ? 'fr-callout--green-emeraude'
+                    : 'fr-callout--pink-tuile'
+                ),
+                'sample-callout',
+                'analysis-container',
+                'fr-mt-5w'
               )}
-            </>
+            >
+              {sample.status === 'Analysis' && (
+                <SampleDraftAnalysis sample={sample} />
+              )}
+              {CompletedStatusList.includes(sample.status) && (
+                <SampleAnalysisOverview sample={sample} />
+              )}
+            </div>
           )}
         </>
       )}
