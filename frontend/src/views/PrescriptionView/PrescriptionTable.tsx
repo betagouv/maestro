@@ -336,7 +336,7 @@ const PrescriptionTable = ({
           <div className="toast">
             <Alert
               severity="success"
-              small={true}
+              small
               description="Modification enregistrée"
               closable
             />
@@ -348,7 +348,7 @@ const PrescriptionTable = ({
           <div className="toast">
             <Alert
               severity="success"
-              small={true}
+              small
               description="Matrice ajoutée"
               closable
             />
@@ -360,7 +360,7 @@ const PrescriptionTable = ({
           <div className="toast">
             <Alert
               severity="success"
-              small={true}
+              small
               description="Matrice supprimée"
               closable
             />

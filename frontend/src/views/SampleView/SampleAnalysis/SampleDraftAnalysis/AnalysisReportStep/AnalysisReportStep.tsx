@@ -142,7 +142,7 @@ const AnalysisReportStep = ({ sampleId, partialAnalysis }: Props) => {
           className={cx('fr-mb-2w')}
           description={<>Le dépôt de fichier a échoué.</>}
           severity="error"
-          small={true}
+          small
         />
       )}
       <hr />

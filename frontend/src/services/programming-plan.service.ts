@@ -5,14 +5,6 @@ import { api } from 'src/services/api.service';
 
 export const programmingPlanApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    getProgrammingPlan: builder.query<ProgrammingPlan, string>({
-      query: (programmingPlanId) => `programming-plans/${programmingPlanId}`,
-      transformResponse: (response: any) =>
-        ProgrammingPlan.parse(fp.omitBy(response, fp.isNil)),
-      providesTags: (result, error, programmingPlanId) => [
-        { type: 'ProgrammingPlan', id: programmingPlanId },
-      ],
-    }),
     findProgrammingPlans: builder.query<
       ProgrammingPlan[],
       FindProgrammingPlanOptions
@@ -34,8 +26,4 @@ export const programmingPlanApi = api.injectEndpoints({
   }),
 });
 
-export const {
-  useLazyFindProgrammingPlansQuery,
-  useFindProgrammingPlansQuery,
-  useGetProgrammingPlanQuery,
-} = programmingPlanApi;
+export const { useFindProgrammingPlansQuery } = programmingPlanApi;

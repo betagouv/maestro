@@ -28,7 +28,7 @@ const DocumentTable = ({ documents }: Props) => {
           <div className="toast">
             <Alert
               severity="success"
-              small={true}
+              small
               description="Le document a bien été supprimé."
               closable
             />

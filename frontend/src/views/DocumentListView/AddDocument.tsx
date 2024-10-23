@@ -71,7 +71,7 @@ const AddDocument = () => {
           className={cx('fr-mb-2w')}
           description={<>Le dépôt de fichier a échoué.</>}
           severity="error"
-          small={true}
+          small
         />
       )}
       <Button onClick={submitFile}>Déposer</Button>
