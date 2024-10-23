@@ -63,16 +63,22 @@ const ProgrammingPlanCard = ({
       border
       shadow
       size="medium"
-      title={ContextLabels[context]}
+      title={[ContextLabels[context], programmingPlan.year].join(' ')}
       titleAs="h2"
       end={
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12', 'fr-pt-0')}>
-            {programmingPlan.status === 'InProgress' ? (
+            {programmingPlan.status === 'InProgress' && (
               <Badge severity="new" noIcon>
                 Programmation en cours
               </Badge>
-            ) : (
+            )}
+            {programmingPlan.status === 'Submitted' && (
+              <Badge severity="warning" noIcon>
+                Soumis aux régions
+              </Badge>
+            )}
+            {programmingPlan.status === 'Validated' && (
               <Badge severity="success" noIcon>
                 Taux de réalisation : {planCompletionRate}%
               </Badge>

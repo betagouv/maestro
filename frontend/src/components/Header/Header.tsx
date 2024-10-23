@@ -4,7 +4,7 @@ import { Header as DSFRHeader } from '@codegouvfr/react-dsfr/Header';
 import Select from '@codegouvfr/react-dsfr/Select';
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ProgrammingPlanStatusLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import { programmingPlanLabel } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { UserRoleLabels } from 'shared/schema/User/UserRole';
 import { isDefined } from 'shared/utils/utils';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -29,15 +29,15 @@ const Header = () => {
   );
 
   useEffect(() => {
-    dispatch(
-      settingsSlice.actions.changeProgrammingPlan(
-        isAuthenticated
-          ? programmingPlans?.find(
-              (plan) => plan.year === new Date().getFullYear()
-            )
-          : undefined
-      )
-    );
+    if (!programmingPlan && programmingPlans) {
+      dispatch(
+        settingsSlice.actions.changeProgrammingPlan(
+          programmingPlans.find(
+            (plan) => plan.year === new Date().getFullYear()
+          )
+        )
+      );
+    }
   }, [programmingPlans, isAuthenticated]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
@@ -71,7 +71,7 @@ const Header = () => {
                     to: '/',
                     target: '_self',
                   },
-                  text: ProgrammingPlanStatusLabels[programmingPlan.status],
+                  text: programmingPlanLabel(programmingPlan),
                   isActive:
                     location.pathname === '/' ||
                     location.pathname.startsWith('/plans'),
@@ -107,7 +107,7 @@ const Header = () => {
                 <Select
                   label={undefined}
                   nativeSelectProps={{
-                    defaultValue: programmingPlans[0]?.status,
+                    value: programmingPlan?.id,
                     onChange: (e) => {
                       dispatch(
                         settingsSlice.actions.changeProgrammingPlan(
@@ -124,7 +124,7 @@ const Header = () => {
                 >
                   {programmingPlans.map((programmingPlan) => (
                     <option key={programmingPlan.id} value={programmingPlan.id}>
-                      {ProgrammingPlanStatusLabels[programmingPlan.status]}
+                      {programmingPlanLabel(programmingPlan)}
                     </option>
                   ))}
                 </Select>

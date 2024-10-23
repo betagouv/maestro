@@ -1,9 +1,16 @@
 import express from 'express';
+import { z } from 'zod';
 import { FindProgrammingPlanOptions } from '../../shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
+import { ProgrammingPlanUpdate } from '../../shared/schema/ProgrammingPlan/ProgrammingPlans';
 import programmingPlanController from '../controllers/programmingPlanController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
-import validator, { query } from '../middlewares/validator';
-
+import { programmingPlanCheck } from '../middlewares/checks/programmingPlanCheck';
+import validator, {
+  body,
+  params,
+  query,
+  uuidParam,
+} from '../middlewares/validator';
 const router = express.Router();
 
 router.get(
@@ -11,6 +18,39 @@ router.get(
   validator.validate(query(FindProgrammingPlanOptions)),
   permissionsCheck(['readProgrammingPlans']),
   programmingPlanController.findProgrammingPlans
+);
+router.get(
+  '/:year',
+  validator.validate(
+    params(
+      z.object({
+        year: z.coerce.number().int(),
+      })
+    )
+  ),
+  permissionsCheck(['readProgrammingPlans']),
+  programmingPlanController.getProgrammingPlanByYear
+);
+router.post(
+  '/:year',
+  validator.validate(
+    params(
+      z.object({
+        year: z.coerce.number().int(),
+      })
+    )
+  ),
+  permissionsCheck(['manageProgrammingPlan']),
+  programmingPlanController.createProgrammingPlan
+);
+router.put(
+  '/:programmingPlanId',
+  validator.validate(
+    uuidParam('programmingPlanId').merge(body(ProgrammingPlanUpdate))
+  ),
+  permissionsCheck(['manageProgrammingPlan']),
+  programmingPlanCheck(),
+  programmingPlanController.updateProgrammingPlan
 );
 
 export default router;

@@ -16,7 +16,7 @@ export const ProgrammingPlanStatusLabels: Record<
   ProgrammingPlanStatus,
   string
 > = {
-  InProgress: 'Programmation 2025',
-  Submitted: 'Programmation 2025',
-  Validated: 'Suivi 2024',
+  InProgress: 'Programmation',
+  Submitted: 'Programmation',
+  Validated: 'Suivi',
 };
