@@ -4,6 +4,12 @@ main:has(.teaser) {
   background: none !important;
 }
 
+.home-section {
+  @media (min-width: $breakpoint-md) {
+    flex-direction: row-reverse;
+  }
+}
+
 .teaser {
   padding: 3.625rem 5rem 3.625rem 7.5rem;
   height: 100%;
