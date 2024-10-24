@@ -16,4 +16,6 @@ export interface MailService {
   send(options: SendOptions): Promise<void>;
   sendAnalysisRequest(options: SendOptions): Promise<void>;
   sendSupportDocumentCopyToOwner(options: SendOptions): Promise<void>;
+  sendSubmittedProgrammingPlan(options: SendOptions): Promise<void>;
+  sendValidatedProgrammingPlan(options: SendOptions): Promise<void>;
 }

@@ -3,8 +3,11 @@ import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import {
   NationalCoordinator,
+  RegionalCoordinator,
   Sampler1Fixture,
 } from '../../../database/seeds/test/001-users';
+import { ProgrammingPlan } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanStatus } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { genPrescriptions } from '../../../shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from '../../../shared/test/programmingPlanFixtures';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
@@ -14,69 +17,175 @@ import { tokenProvider } from '../../test/testUtils';
 describe('ProgrammingPlan router', () => {
   const { app } = createServer();
 
-  const programmingPlan2020 = genProgrammingPlan({
+  const validatedProgrammingPlan = genProgrammingPlan({
+    id: 'b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1',
     createdBy: NationalCoordinator.id,
-    year: 2020,
-    status: 'InProgress',
-  });
-  const programmingPlan2021 = genProgrammingPlan({
-    createdBy: NationalCoordinator.id,
-    year: 2021,
+    year: 2019,
     status: 'Validated',
   });
-  const controlPrescription2021 = genPrescriptions({
-    programmingPlanId: programmingPlan2021.id,
+  const submittedProgrammingPlan = genProgrammingPlan({
+    id: 'b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2',
+    createdBy: NationalCoordinator.id,
+    year: 2021,
+    status: 'Submitted',
+  });
+  const inProgressProgrammingPlan = genProgrammingPlan({
+    id: 'b3b3b3b3-b3b3-b3b3-b3b3-b3b3b3b3b3b3',
+    createdBy: NationalCoordinator.id,
+    year: 2022,
+    status: 'InProgress',
+  });
+  const controlPrescriptionsValidatedPlan = genPrescriptions({
+    programmingPlanId: validatedProgrammingPlan.id,
     context: 'Control',
   });
-  const surveillancePrescription2021 = genPrescriptions({
-    programmingPlanId: programmingPlan2021.id,
+  const surveillancePrescriptionVaidatedPlan = genPrescriptions({
+    programmingPlanId: validatedProgrammingPlan.id,
     context: 'Surveillance',
   });
 
   beforeAll(async () => {
-    await ProgrammingPlans().insert([programmingPlan2020, programmingPlan2021]);
+    await ProgrammingPlans().insert([
+      validatedProgrammingPlan,
+      submittedProgrammingPlan,
+      inProgressProgrammingPlan,
+    ]);
     await Prescriptions().insert([
-      ...controlPrescription2021,
-      ...surveillancePrescription2021,
+      ...controlPrescriptionsValidatedPlan,
+      ...surveillancePrescriptionVaidatedPlan,
     ]);
   });
 
   afterAll(async () => {
     await Prescriptions()
       .whereIn('programmingPlanId', [
-        programmingPlan2020.id,
-        programmingPlan2021.id,
+        validatedProgrammingPlan.id,
+        submittedProgrammingPlan.id,
+        inProgressProgrammingPlan.id,
       ])
       .delete();
     await ProgrammingPlans()
       .delete()
-      .where('id', 'in', [programmingPlan2020.id, programmingPlan2021.id]);
+      .where('id', 'in', [
+        validatedProgrammingPlan.id,
+        submittedProgrammingPlan.id,
+        inProgressProgrammingPlan.id,
+      ]);
   });
 
   describe('GET /programming-plans', () => {
-    const testRoute = '/api/programming-plans';
+    const testRoute = (params?: Record<string, string>) =>
+      `/api/programming-plans?${new URLSearchParams(params).toString()}`;
 
     it('should fail if the user is not authenticated', async () => {
       await request(app)
-        .get(testRoute)
+        .get(testRoute())
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    it('should find all the programmingPlans', async () => {
+    it('should find all the programmingPlans for the national coordinator', async () => {
       const res = await request(app)
-        .get(testRoute)
+        .get(testRoute())
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject(
         expect.arrayContaining([
           {
-            ...programmingPlan2020,
-            createdAt: programmingPlan2020.createdAt.toISOString(),
+            ...validatedProgrammingPlan,
+            createdAt: validatedProgrammingPlan.createdAt.toISOString(),
           },
           {
-            ...programmingPlan2021,
-            createdAt: programmingPlan2021.createdAt.toISOString(),
+            ...submittedProgrammingPlan,
+            createdAt: submittedProgrammingPlan.createdAt.toISOString(),
+          },
+          {
+            ...inProgressProgrammingPlan,
+            createdAt: inProgressProgrammingPlan.createdAt.toISOString(),
+          },
+        ])
+      );
+    });
+
+    it('should find only submitted and validated programming plans for the regional coordinator', async () => {
+      const res = await request(app)
+        .get(testRoute())
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toMatchObject(
+        expect.arrayContaining([
+          {
+            ...validatedProgrammingPlan,
+            createdAt: validatedProgrammingPlan.createdAt.toISOString(),
+          },
+          {
+            ...submittedProgrammingPlan,
+            createdAt: submittedProgrammingPlan.createdAt.toISOString(),
+          },
+        ])
+      );
+      expect(res.body).not.toMatchObject(
+        expect.arrayContaining([
+          {
+            ...inProgressProgrammingPlan,
+            createdAt: inProgressProgrammingPlan.createdAt.toISOString(),
+          },
+        ])
+      );
+    });
+
+    it('should find only validated programming plans for the sampler', async () => {
+      const res = await request(app)
+        .get(testRoute())
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toMatchObject(
+        expect.arrayContaining([
+          {
+            ...validatedProgrammingPlan,
+            createdAt: validatedProgrammingPlan.createdAt.toISOString(),
+          },
+        ])
+      );
+      expect(res.body).not.toMatchObject(
+        expect.arrayContaining([
+          {
+            ...inProgressProgrammingPlan,
+            createdAt: inProgressProgrammingPlan.createdAt.toISOString(),
+          },
+          {
+            ...submittedProgrammingPlan,
+            createdAt: submittedProgrammingPlan.createdAt.toISOString(),
+          },
+        ])
+      );
+    });
+
+    it('should filter programming plans by status and user authorization', async () => {
+      const res = await request(app)
+        .get(testRoute({ status: 'Submitted' }))
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toMatchObject(
+        expect.arrayContaining([
+          {
+            ...submittedProgrammingPlan,
+            createdAt: submittedProgrammingPlan.createdAt.toISOString(),
+          },
+        ])
+      );
+      expect(res.body).not.toMatchObject(
+        expect.arrayContaining([
+          {
+            ...inProgressProgrammingPlan,
+            createdAt: inProgressProgrammingPlan.createdAt.toISOString(),
+          },
+          {
+            ...validatedProgrammingPlan,
+            createdAt: validatedProgrammingPlan.createdAt.toISOString(),
           },
         ])
       );
@@ -108,13 +217,13 @@ describe('ProgrammingPlan router', () => {
 
     it('should find the programmingPlan for the given year', async () => {
       const res = await request(app)
-        .get(testRoute('2020'))
+        .get(testRoute(validatedProgrammingPlan.year.toString()))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject({
-        ...programmingPlan2020,
-        createdAt: programmingPlan2020.createdAt.toISOString(),
+        ...validatedProgrammingPlan,
+        createdAt: validatedProgrammingPlan.createdAt.toISOString(),
       });
     });
   });
@@ -124,47 +233,47 @@ describe('ProgrammingPlan router', () => {
 
     it('should fail if the user is not authenticated', async () => {
       await request(app)
-        .post(testRoute('2025'))
+        .post(testRoute('2020'))
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
     //test user not authorize
     it('should fail if the user is not authorized', async () => {
       await request(app)
-        .post(testRoute('2025'))
+        .post(testRoute('2020'))
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     it('should fail if the previous programming plan does not exist', async () => {
       await request(app)
-        .post(testRoute('2023'))
+        .post(testRoute('2000'))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
     it('should fail if the previous programming plan is not validated', async () => {
       await request(app)
-        .post(testRoute('2020'))
+        .post(testRoute('2023'))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
     it('should create a new programming plan for the given year', async () => {
       const res = await request(app)
-        .post(testRoute('2022'))
+        .post(testRoute('2020'))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_CREATED);
 
       expect(res.body).toMatchObject({
-        year: 2022,
+        year: 2020,
         status: 'InProgress',
       });
 
       await expect(
-        ProgrammingPlans().where('year', 2022).first()
+        ProgrammingPlans().where('year', 2020).first()
       ).resolves.toMatchObject({
-        year: 2022,
+        year: 2020,
         status: 'InProgress',
       });
 
@@ -172,12 +281,12 @@ describe('ProgrammingPlan router', () => {
         Prescriptions()
           .where('programmingPlanId', res.body.id)
           .andWhere('context', 'Control')
-      ).resolves.toHaveLength(controlPrescription2021.length);
+      ).resolves.toHaveLength(controlPrescriptionsValidatedPlan.length);
       await expect(
         Prescriptions()
           .where('programmingPlanId', res.body.id)
           .andWhere('context', 'Surveillance')
-      ).resolves.toHaveLength(surveillancePrescription2021.length);
+      ).resolves.toHaveLength(surveillancePrescriptionVaidatedPlan.length);
 
       //Cleanup
       await Prescriptions()
@@ -188,7 +297,7 @@ describe('ProgrammingPlan router', () => {
         .where('programmingPlanId', res.body.id)
         .andWhere('context', 'Surveillance')
         .delete();
-      await ProgrammingPlans().where('year', 2022).delete();
+      await ProgrammingPlans().where('id', res.body.id).delete();
     });
   });
 
@@ -202,14 +311,14 @@ describe('ProgrammingPlan router', () => {
 
     it('should fail if the user is not authenticated', async () => {
       await request(app)
-        .put(testRoute(programmingPlan2020.id))
+        .put(testRoute(validatedProgrammingPlan.id))
         .send(programmingPlanUpdate)
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
     it('should fail if the user is not authorized', async () => {
       await request(app)
-        .put(testRoute(programmingPlan2020.id))
+        .put(testRoute(validatedProgrammingPlan.id))
         .send(programmingPlanUpdate)
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
@@ -226,7 +335,7 @@ describe('ProgrammingPlan router', () => {
     it('should get a valid body', async () => {
       const badRequestTest = async (payload?: Record<string, unknown>) =>
         request(app)
-          .put(testRoute(programmingPlan2020.id))
+          .put(testRoute(validatedProgrammingPlan.id))
           .send({ ...programmingPlanUpdate, ...payload })
           .use(tokenProvider(NationalCoordinator))
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
@@ -235,30 +344,50 @@ describe('ProgrammingPlan router', () => {
       await badRequestTest({ status: 'Invalid' });
     });
 
-    it('should update the programming plan for the given year', async () => {
+    it('should fail if the status update is forbidden', async () => {
+      const badRequestTest = async (
+        programmingPlan: ProgrammingPlan,
+        status: ProgrammingPlanStatus
+      ) =>
+        request(app)
+          .put(testRoute(programmingPlan.id))
+          .send({ status })
+          .use(tokenProvider(NationalCoordinator))
+          .expect(constants.HTTP_STATUS_BAD_REQUEST);
+
+      await badRequestTest(inProgressProgrammingPlan, 'InProgress');
+      await badRequestTest(inProgressProgrammingPlan, 'Validated');
+      await badRequestTest(submittedProgrammingPlan, 'Submitted');
+      await badRequestTest(submittedProgrammingPlan, 'InProgress');
+      await badRequestTest(validatedProgrammingPlan, 'InProgress');
+      await badRequestTest(validatedProgrammingPlan, 'Submitted');
+      await badRequestTest(validatedProgrammingPlan, 'Validated');
+    });
+
+    it('should update a Submitted programming plan to Validated', async () => {
       const res = await request(app)
-        .put(testRoute(programmingPlan2020.id))
+        .put(testRoute(submittedProgrammingPlan.id))
         .send(programmingPlanUpdate)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject({
-        ...programmingPlan2020,
+        ...submittedProgrammingPlan,
         status: 'Validated',
-        createdAt: programmingPlan2020.createdAt.toISOString(),
+        createdAt: submittedProgrammingPlan.createdAt.toISOString(),
       });
 
       await expect(
-        ProgrammingPlans().where('year', 2020).first()
+        ProgrammingPlans().where('id', submittedProgrammingPlan.id).first()
       ).resolves.toMatchObject({
-        ...programmingPlan2020,
+        ...submittedProgrammingPlan,
         status: 'Validated',
       });
 
       //Cleanup
       await ProgrammingPlans()
-        .where('year', 2020)
-        .update({ status: 'InProgress' });
+        .where('id', submittedProgrammingPlan.id)
+        .update({ status: 'Submitted' });
     });
   });
 });

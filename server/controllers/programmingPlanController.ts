@@ -1,14 +1,23 @@
 import { Request, Response } from 'express';
 import { AuthenticatedRequest, ProgrammingPlanRequest } from 'express-jwt';
 import { constants } from 'http2';
+import _, { isArray } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import ProgrammingPlanMissingError from '../../shared/errors/promgrammingPlanMissingError';
 import { ContextList } from '../../shared/schema/ProgrammingPlan/Context';
 import { FindProgrammingPlanOptions } from '../../shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import { ProgrammingPlanUpdate } from '../../shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { ProgrammingPlanStatus } from '../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import {
+  ProgrammingPlanStatus,
+  ProgrammingPlanStatusList,
+  ProgrammingPlanStatusPermissions,
+} from '../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import { hasPermission } from '../../shared/schema/User/User';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
+import userRepository from '../repositories/userRepository';
+import mailService from '../services/mailService';
+import config from '../utils/config';
 
 const findProgrammingPlans = async (request: Request, response: Response) => {
   const user = (request as AuthenticatedRequest).user;
@@ -16,9 +25,25 @@ const findProgrammingPlans = async (request: Request, response: Response) => {
 
   console.info('Find programmingPlans for user', user.id, findOptions);
 
-  const programmingPlans = await programmingPlanRepository.findMany(
-    findOptions
-  );
+  const userStatusAuthorized = Object.entries(ProgrammingPlanStatusPermissions)
+    .filter(([, permission]) => hasPermission(user, permission))
+    .map(([status]) => status);
+
+  const findOptionsStatus = (
+    isArray(findOptions.status)
+      ? findOptions.status
+      : findOptions.status
+      ? [findOptions.status]
+      : ProgrammingPlanStatusList
+  ) as ProgrammingPlanStatus[];
+
+  const programmingPlans = await programmingPlanRepository.findMany({
+    ...findOptions,
+    status: _.intersection(
+      findOptionsStatus,
+      userStatusAuthorized
+    ) as ProgrammingPlanStatus[],
+  });
 
   console.info('Found programmingPlans', programmingPlans);
 
@@ -94,6 +119,40 @@ const updateProgrammingPlan = async (request: Request, response: Response) => {
   const programmingPlanUpdate = request.body as ProgrammingPlanUpdate;
 
   console.info('Update programming plan', programmingPlan.id);
+
+  const regionalCoordinators = await userRepository.findMany({
+    role: 'RegionalCoordinator',
+  });
+
+  if (
+    programmingPlan.status === 'InProgress' &&
+    programmingPlanUpdate.status === 'Submitted'
+  ) {
+    await mailService.sendSubmittedProgrammingPlan({
+      recipients: [
+        ...regionalCoordinators.map(
+          (regionalCoordinator) => regionalCoordinator.email
+        ),
+        config.mail.from,
+      ],
+      params: {}, //TODO : add params
+    });
+  } else if (
+    programmingPlan.status === 'Submitted' &&
+    programmingPlanUpdate.status === 'Validated'
+  ) {
+    await mailService.sendValidatedProgrammingPlan({
+      recipients: [
+        ...regionalCoordinators.map(
+          (regionalCoordinator) => regionalCoordinator.email
+        ),
+        config.mail.from,
+      ],
+      params: {}, //TODO : add params
+    });
+  } else {
+    return response.sendStatus(constants.HTTP_STATUS_BAD_REQUEST);
+  }
 
   const updatedProgrammingPlan = {
     ...programmingPlan,
