@@ -41,6 +41,22 @@ class NodemailerService implements MailService {
       content: 'Voici une copie de votre document d’accompagnement',
     });
   }
+
+  async sendSubmittedProgrammingPlan(options: SendOptions): Promise<void> {
+    return this.send({
+      ...options,
+      subject: 'Plan de programmation',
+      content: 'Le plan de programmation a été soumis',
+    });
+  }
+
+  async sendValidatedProgrammingPlan(options: SendOptions): Promise<void> {
+    return this.send({
+      ...options,
+      subject: 'Plan de programmation validé',
+      content: 'Le plan de programmation a été validé',
+    });
+  }
 }
 
 export default function createNodemailerService(): MailService {

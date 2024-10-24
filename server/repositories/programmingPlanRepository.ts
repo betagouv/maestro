@@ -29,7 +29,12 @@ const findMany = async (
 ): Promise<ProgrammingPlan[]> => {
   console.info('Find programming plans', fp.omitBy(findOptions, fp.isNil));
   return ProgrammingPlans()
-    .where(fp.omitBy(findOptions, fp.isNil))
+    .where(fp.omitBy(fp.omit(findOptions, 'status'), fp.isNil))
+    .modify((builder) => {
+      if (fp.isArray(findOptions.status)) {
+        builder.whereIn('status', findOptions.status);
+      }
+    })
     .then((programmingPlans) =>
       programmingPlans.map((_: any) =>
         ProgrammingPlan.parse(fp.omitBy(_, fp.isNil))

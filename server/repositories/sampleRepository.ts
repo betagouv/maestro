@@ -81,7 +81,7 @@ const findRequest = (findOptions: FindSampleOptions) =>
           'sampledAt',
           'page',
           'perPage',
-          'statusList',
+          'status',
           'reference'
         ),
         (_) => fp.isNil(_) || fp.isArray(_)

@@ -102,8 +102,10 @@ const Header = () => {
       quickAccessItems={
         isAuthenticated
           ? [
-              programmingPlans &&
-              hasPermission('readProgrammingPlansInProgress') ? (
+              programmingPlans && programmingPlans.length === 1 ? (
+                <div>{programmingPlanLabel(programmingPlans[0])}</div>
+              ) : undefined,
+              programmingPlans && programmingPlans.length > 1 ? (
                 <Select
                   label={undefined}
                   nativeSelectProps={{

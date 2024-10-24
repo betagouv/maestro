@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { UserPermission } from '../User/UserPermission';
 
 export const ProgrammingPlanStatus = z.enum(
   ['InProgress', 'Submitted', 'Validated'],
@@ -19,4 +20,13 @@ export const ProgrammingPlanStatusLabels: Record<
   InProgress: 'Programmation',
   Submitted: 'Programmation',
   Validated: 'Suivi',
+};
+
+export const ProgrammingPlanStatusPermissions: Record<
+  ProgrammingPlanStatus,
+  UserPermission
+> = {
+  InProgress: 'readProgrammingPlansInProgress',
+  Submitted: 'readProgrammingPlanSubmitted',
+  Validated: 'readProgrammingPlanValidated',
 };

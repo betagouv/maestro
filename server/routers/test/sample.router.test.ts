@@ -9,7 +9,7 @@ import {
   Sampler1Fixture,
   Sampler2Fixture,
 } from '../../../database/seeds/test/001-users';
-import { ProgrammingPlanFixture } from '../../../database/seeds/test/002-programming-plans';
+import { ValidatedProgrammingPlanFixture } from '../../../database/seeds/test/002-programming-plans';
 import {
   Sample11Fixture,
   Sample12Fixture,
@@ -33,7 +33,7 @@ describe('Sample router', () => {
   const { app } = createServer();
 
   const sample = genSampleContextData({
-    programmingPlanId: ProgrammingPlanFixture.id,
+    programmingPlanId: ValidatedProgrammingPlanFixture.id,
   });
 
   describe('GET /samples/{sampleId}', () => {
@@ -141,7 +141,7 @@ describe('Sample router', () => {
       const res = await request(app)
         .get(
           testRoute({
-            programmingPlanId: ProgrammingPlanFixture.id,
+            programmingPlanId: ValidatedProgrammingPlanFixture.id,
             status: 'DraftMatrix',
           })
         )
@@ -162,7 +162,7 @@ describe('Sample router', () => {
       const res = await request(app)
         .get(
           testRoute({
-            programmingPlanId: ProgrammingPlanFixture.id,
+            programmingPlanId: ValidatedProgrammingPlanFixture.id,
             status: 'DraftMatrix,Draft',
           })
         )
@@ -209,7 +209,7 @@ describe('Sample router', () => {
       const res = await request(app)
         .get(
           testRoute({
-            programmingPlanId: ProgrammingPlanFixture.id,
+            programmingPlanId: ValidatedProgrammingPlanFixture.id,
             status: 'DraftMatrix',
           })
         )
@@ -223,7 +223,7 @@ describe('Sample router', () => {
       const res = await request(app)
         .get(
           testRoute({
-            programmingPlanId: ProgrammingPlanFixture.id,
+            programmingPlanId: ValidatedProgrammingPlanFixture.id,
             status: 'DraftMatrix,Draft',
           })
         )

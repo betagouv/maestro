@@ -59,28 +59,25 @@ const SampleListView = () => {
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
 
   useEffect(() => {
-    if (searchParams?.size > 0) {
-      const status = searchParams.get('status') as SampleStatus;
-      dispatch(
-        samplesSlice.actions.changeFindOptions({
-          programmingPlanId: searchParams.get('programmingPlanId') ?? undefined,
-          context: searchParams.get('context') as Context,
-          region:
-            userInfos?.region ??
-            (searchParams.get('region') as Region) ??
-            undefined,
-          department:
-            (searchParams.get('department') as Department) ?? undefined,
-          status: status === 'Draft' ? DraftStatusList : status ?? undefined,
-          matrix: searchParams.get('matrix') as Matrix,
-          sampledBy: searchParams.get('sampledBy'),
-          sampledAt: searchParams.get('sampledAt'),
-          reference: searchParams.get('reference'),
-          page: Number(searchParams.get('page')) || 1,
-          perPage: defaultPerPage,
-        })
-      );
-    }
+    const status = searchParams.get('status') as SampleStatus;
+    dispatch(
+      samplesSlice.actions.changeFindOptions({
+        programmingPlanId: searchParams.get('programmingPlanId') ?? undefined,
+        context: searchParams.get('context') as Context,
+        region:
+          userInfos?.region ??
+          (searchParams.get('region') as Region) ??
+          undefined,
+        department: (searchParams.get('department') as Department) ?? undefined,
+        status: status === 'Draft' ? DraftStatusList : status ?? undefined,
+        matrix: searchParams.get('matrix') as Matrix,
+        sampledBy: searchParams.get('sampledBy'),
+        sampledAt: searchParams.get('sampledAt'),
+        reference: searchParams.get('reference'),
+        page: Number(searchParams.get('page')) || 1,
+        perPage: defaultPerPage,
+      })
+    );
   }, [searchParams, userInfos?.region, sampleListDisplay]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { data: samples } = useFindSamplesQuery(
@@ -109,6 +106,7 @@ const SampleListView = () => {
   });
 
   const changeFilter = (findFilter: Partial<FindSampleOptions>) => {
+    console.log('changeFilter', findFilter);
     const filteredParams = fp.omit(
       fp.omitBy(
         {
