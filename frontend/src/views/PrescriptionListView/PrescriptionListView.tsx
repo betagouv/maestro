@@ -115,7 +115,7 @@ const PrescriptionListView = () => {
       samples,
       region ? [region] : RegionList
     );
-  }, [prescriptions, samples]);
+  }, [prescriptions, samples, region]);
 
   const changeFilter = (findFilter: Partial<FindPrescriptionOptions>) => {
     const filteredParams = fp.omitBy(
