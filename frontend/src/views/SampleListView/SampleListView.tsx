@@ -62,7 +62,6 @@ const SampleListView = () => {
     const status = searchParams.get('status') as SampleStatus;
     dispatch(
       samplesSlice.actions.changeFindOptions({
-        programmingPlanId: searchParams.get('programmingPlanId') ?? undefined,
         context: searchParams.get('context') as Context,
         region:
           userInfos?.region ??
@@ -106,7 +105,6 @@ const SampleListView = () => {
   });
 
   const changeFilter = (findFilter: Partial<FindSampleOptions>) => {
-    console.log('changeFilter', findFilter);
     const filteredParams = fp.omit(
       fp.omitBy(
         {

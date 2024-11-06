@@ -93,16 +93,15 @@ const MatrixSelectModal = ({
     <>
       <Button
         title="Ajouter"
-        iconId="fr-icon-add-circle-line"
-        priority="tertiary no outline"
-        className="cell-icon"
+        priority="secondary"
         onClick={(e) => {
           e.preventDefault();
           matrixSelectModal.open();
         }}
+        className={cx('fr-mr-3w')}
         data-testid="add-matrix-button"
       >
-        {buttonTitle}
+        {buttonTitle ?? 'Ajouter'}
       </Button>
       <matrixSelectModal.Component
         title="Ajouter une matrice"

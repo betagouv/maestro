@@ -18,7 +18,12 @@ export const PrescriptionByMatrix = z.object({
       sampleCount: true,
       laboratoryId: true,
       region: true,
-    }).merge(z.object({ sentSampleCount: z.number() }))
+    }).merge(
+      z.object({
+        sentSampleCount: z.number(),
+        prescriptionId: z.string().uuid(),
+      })
+    )
   ),
 });
 
@@ -27,7 +32,7 @@ export type PrescriptionByMatrix = z.infer<typeof PrescriptionByMatrix>;
 export const genPrescriptionByMatrix = (
   prescriptions: Prescription[],
   samples: PartialSample[],
-  includedRegions = RegionList
+  includedRegions: Region[]
 ): PrescriptionByMatrix[] =>
   (prescriptions ?? [])
     .reduce((acc, prescription) => {
@@ -52,7 +57,7 @@ export const genPrescriptionByMatrix = (
                 p.matrix === prescription.matrix &&
                 _.isEqual(p.stages, prescription.stages) &&
                 p.region === region
-            );
+            ) as Prescription;
             const regionalSamples = samples.filter(
               (sample) =>
                 sample.programmingPlanId === prescription.programmingPlanId &&
@@ -63,10 +68,11 @@ export const genPrescriptionByMatrix = (
             );
 
             return {
-              sampleCount: regionalPrescription?.sampleCount ?? 0,
-              sentSampleCount: regionalSamples?.length ?? 0,
+              prescriptionId: regionalPrescription.id,
+              sampleCount: regionalPrescription.sampleCount,
+              sentSampleCount: regionalSamples.length,
               region,
-              laboratoryId: regionalPrescription?.laboratoryId,
+              laboratoryId: regionalPrescription.laboratoryId,
             };
           }),
         });
@@ -136,7 +142,7 @@ export const completionRate = (
   const prescriptionsByMatrix = genPrescriptionByMatrix(
     prescriptions,
     samples,
-    region ? [region] : undefined
+    region ? [region] : RegionList
   );
   return matrixCompletionRate(prescriptionsByMatrix, region);
 };

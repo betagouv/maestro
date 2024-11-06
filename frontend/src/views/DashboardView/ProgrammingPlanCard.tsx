@@ -4,6 +4,7 @@ import Card from '@codegouvfr/react-dsfr/Card';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { sumBy } from 'lodash';
 import { useMemo } from 'react';
+import { RegionList } from 'shared/referential/Region';
 import {
   genPrescriptionByMatrix,
   matrixCompletionRate,
@@ -29,7 +30,7 @@ const ProgrammingPlanCard = ({
   programmingPlan,
   context,
 }: ProgrammingPlanCardProps) => {
-  const { hasNationalView } = useAuthentication();
+  const { hasNationalView, userInfos } = useAuthentication();
 
   const { data: prescriptions } = useFindPrescriptionsQuery({
     programmingPlanId: programmingPlan.id,
@@ -52,10 +53,14 @@ const ProgrammingPlanCard = ({
   const planCompletionRate = useMemo(() => {
     if (prescriptions && samples) {
       return matrixCompletionRate(
-        genPrescriptionByMatrix(prescriptions, samples)
+        genPrescriptionByMatrix(
+          prescriptions,
+          samples,
+          userInfos?.region ? [userInfos.region] : RegionList
+        )
       );
     }
-  }, [prescriptions, samples]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [prescriptions, samples, userInfos]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <Card

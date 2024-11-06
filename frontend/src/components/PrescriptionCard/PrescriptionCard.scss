@@ -1,0 +1,28 @@
+@import '../../constants';
+
+.prescription-cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.prescription-card {
+  .fr-card__title {
+    color: var(--text-action-high-blue-france);
+  }
+
+  table {
+    th {
+      padding: 0.5rem 1rem !important;
+    }
+
+    .editable-cell {
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+    }
+
+    td:has(.fr-input-group) {
+      padding-top: 0;
+    }
+  }
+}

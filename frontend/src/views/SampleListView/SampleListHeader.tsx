@@ -29,7 +29,6 @@ const SampleListHeader = ({
 
   const changeReference = (e: React.ChangeEvent<HTMLInputElement>) => {
     changeFilter({
-      ...findSampleOptions,
       reference: e.target.value,
     });
   };

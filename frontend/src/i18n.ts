@@ -9,6 +9,9 @@ i18n.use(initReactI18next).init({
       translation: {
         boolean_zero: 'Non',
         boolean_one: 'Oui',
+        matrix_zero: 'Aucune matrice',
+        matrix_one: 'Une matrice',
+        matrix_other: '{{count}} matrices',
         programmingPlan_zero: 'Aucun plan',
         programmingPlan_one: 'Un plan',
         programmingPlan_other: '{{count}} plans',

@@ -49,6 +49,15 @@ main {
     }
   }
 
+  th,
+  td {
+    vertical-align: top !important;
+
+    ul {
+      margin-top: 0;
+    }
+  }
+
   th:has(.fr-pl-0),
   td:has(.fr-pl-0) {
     padding-left: 0;
@@ -67,7 +76,7 @@ main {
   th:has(.cell-icon),
   td:has(.cell-icon) {
     width: 40px !important;
-    padding: 0;
+    padding-top: 0.675rem;
   }
 
   th,
@@ -82,7 +91,7 @@ main {
   }
 
   td:has(.fr-input-group) {
-    padding: 0;
+    padding: 0.5rem 0 0 0;
     max-width: 56px;
 
     .fr-label + .fr-input {

@@ -94,7 +94,6 @@ const SendingStep = ({ sample }: Props) => {
   const changeItems = (item: SampleItem, index: number) => {
     const newItems = [...items];
     newItems[index] = item;
-    console.log(newItems);
     setItems(newItems);
   };
 

@@ -7,14 +7,10 @@ import { Stage, StageLabels } from 'shared/referential/Stage';
 interface RemoveMatrixProps {
   matrix: Matrix;
   stages: Stage[];
-  onRemoveMatrix: (matrix: string, stages: Stage[]) => Promise<void>;
+  onRemove: () => Promise<void>;
 }
 
-const RemoveMatrix = ({
-  matrix,
-  stages,
-  onRemoveMatrix,
-}: RemoveMatrixProps) => {
+const RemoveMatrix = ({ matrix, stages, onRemove }: RemoveMatrixProps) => {
   const removeModal = useMemo(
     () =>
       createModal({
@@ -25,7 +21,7 @@ const RemoveMatrix = ({
   );
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
-    await onRemoveMatrix(matrix, stages);
+    await onRemove();
     removeModal.close();
   };
 
@@ -34,7 +30,7 @@ const RemoveMatrix = ({
       <Button
         title="Supprimer"
         iconId="fr-icon-delete-line"
-        priority="tertiary no outline"
+        priority="tertiary"
         size="small"
         className="cell-icon"
         onClick={removeModal.open}

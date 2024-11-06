@@ -8,7 +8,7 @@ import { genProgrammingPlan } from 'shared/test/programmingPlanFixtures';
 import { genCreatedPartialSample } from 'shared/test/sampleFixtures';
 import { genAuthUser, genUser } from 'shared/test/userFixtures';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
-import PrescriptionView from 'src/views/PrescriptionView/PrescriptionView';
+import PrescriptionListView from 'src/views/PrescriptionListView/PrescriptionListView';
 import { mockRequests } from '../../../../test/requestUtils.test';
 
 jest.mock('react-router-dom', () => ({
@@ -97,7 +97,7 @@ describe('PrescriptionView', () => {
       render(
         <Provider store={store}>
           <MemoryRouter initialEntries={[`/prescription${searchParams}`]}>
-            <PrescriptionView />
+            <PrescriptionListView />
           </MemoryRouter>
         </Provider>
       );
@@ -150,7 +150,7 @@ describe('PrescriptionView', () => {
       render(
         <Provider store={store}>
           <MemoryRouter initialEntries={[`/prescription${searchParams}`]}>
-            <PrescriptionView />
+            <PrescriptionListView />
           </MemoryRouter>
         </Provider>
       );
@@ -182,7 +182,7 @@ describe('PrescriptionView', () => {
       render(
         <Provider store={store}>
           <BrowserRouter>
-            <PrescriptionView />
+            <PrescriptionListView />
           </BrowserRouter>
         </Provider>
       );

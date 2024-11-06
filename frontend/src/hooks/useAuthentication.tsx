@@ -9,7 +9,7 @@ import { useGetUserInfosQuery } from 'src/services/user.service';
 import DashboardView from 'src/views/DashboardView/DashboardView';
 import DocumentListView from 'src/views/DocumentListView/DocumentListView';
 import HomeView from 'src/views/HomeView/HomeView';
-import PrescriptionView from 'src/views/PrescriptionView/PrescriptionView';
+import PrescriptionListView from 'src/views/PrescriptionListView/PrescriptionListView';
 import SampleListView from 'src/views/SampleListView/SampleListView';
 import SampleView from 'src/views/SampleView/SampleView';
 
@@ -64,7 +64,7 @@ export const useAuthentication = () => {
                   path: '/prescription',
                   label: 'Prescriptions',
                   key: 'prescription_route',
-                  component: PrescriptionView,
+                  component: PrescriptionListView,
                 }
               : undefined,
             hasPermission('readSamples')
