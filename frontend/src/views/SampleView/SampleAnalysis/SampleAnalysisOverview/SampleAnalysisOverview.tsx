@@ -201,7 +201,11 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
             <div className="d-flex-align-center">
               Résultat brut supérieur à l'Arfd ?
               <div className="border-middle"></div>
-              <b>{OptionalBooleanLabels[residue.resultHigherThanArfd]}</b>
+              <b>
+                {residue.resultHigherThanArfd
+                  ? OptionalBooleanLabels[residue.resultHigherThanArfd]
+                  : 'Non renseigné'}
+              </b>
             </div>
             {residue.notesOnResult && (
               <div className="analysis-note">
@@ -211,12 +215,20 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
             <div className="d-flex-align-center">
               Substance approuvée dans l'UE
               <div className="border-middle"></div>
-              <b>{OptionalBooleanLabels[residue.substanceApproved]}</b>
+              <b>
+                {residue.substanceApproved
+                  ? OptionalBooleanLabels[residue.substanceApproved]
+                  : 'Non renseigné'}
+              </b>
             </div>
             <div className="d-flex-align-center">
               Substance autorisée pour l'usage
               <div className="border-middle"></div>
-              <b>{OptionalBooleanLabels[residue.substanceAuthorised]}</b>
+              <b>
+                {residue.substanceAuthorised
+                  ? OptionalBooleanLabels[residue.substanceAuthorised]
+                  : 'Non renseigné'}
+              </b>
             </div>
             {residue.pollutionRisk && (
               <>

@@ -266,7 +266,6 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
                           ]}
                           whenValid="Valeur correctement renseignée"
                           label="Résultat brut supérieur à l'Arfd ?"
-                          required
                         />
                       </div>
                       <div className={cx('fr-col-12', 'fr-col-sm-6')}>
@@ -306,7 +305,6 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
                           inputPathFromKey={[residueIndex, 'substanceApproved']}
                           whenValid="Valeur correctement renseignée"
                           label="Substance approuvée dans l'UE"
-                          required
                         />
                       </div>
                       <div className={cx('fr-col-12', 'fr-col-sm-6')}>
@@ -333,7 +331,6 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
                           ]}
                           whenValid="Valeur correctement renseignée"
                           label="Substance autorisée pour l'usage"
-                          required
                         />
                       </div>
                       <div className={cx('fr-col-12', 'fr-col-sm-6')}>
