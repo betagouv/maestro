@@ -1,6 +1,8 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
+import Badge from '@codegouvfr/react-dsfr/Badge';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import Tile from '@codegouvfr/react-dsfr/Tile';
 import clsx from 'clsx';
 import { isAfter } from 'date-fns';
 import { default as _ } from 'lodash';
@@ -88,6 +90,29 @@ const DashboardView = () => {
                   Saisir un prélèvement
                 </Button>
               )}
+              {nextProgrammingPlan &&
+                nextProgrammingPlan.status === 'InProgress' && (
+                  <div>
+                    <Tile
+                      detail="À compléter"
+                      small
+                      orientation="horizontal"
+                      linkProps={{
+                        to: `/prescription?context=Control`,
+                      }}
+                      start={
+                        <Badge
+                          noIcon
+                          className={cx('fr-badge--yellow-tournesol')}
+                        >
+                          {programmingPlanLabel(nextProgrammingPlan)}
+                        </Badge>
+                      }
+                      title="Editer la programmation"
+                      titleAs="h3"
+                    />
+                  </div>
+                )}
             </>
           }
         />
@@ -128,49 +153,7 @@ const DashboardView = () => {
               }
             ></Alert>
           )}
-          {nextProgrammingPlan &&
-            nextProgrammingPlan.status === 'InProgress' && (
-              <Alert
-                severity="success"
-                title={`Programmation ${new Date().getFullYear() + 1}`}
-                className="white-container"
-                description={
-                  <>
-                    <p>
-                      Le plan de programmation pour l'année{' '}
-                      {new Date().getFullYear() + 1} est en cours de saisie et
-                      non consultable par les régions.
-                      <br />
-                      Vous pouvez continuer la programmation en cours ci-dessous
-                      avant de la soumettre aux régions.
-                    </p>
-                    <Button
-                      priority="secondary"
-                      iconId={'fr-icon-arrow-right-line'}
-                      iconPosition="right"
-                      onClick={async () => {
-                        await updateProgrammingPlan({
-                          programmingPlanId: nextProgrammingPlan.id,
-                          programmingPlanUpdate: {
-                            status: 'Submitted',
-                          },
-                        })
-                          .unwrap()
-                          .then((newProgrammingPlan) => {
-                            dispatch(
-                              settingsSlice.actions.changeProgrammingPlan(
-                                newProgrammingPlan
-                              )
-                            );
-                          });
-                      }}
-                    >
-                      Soumettre la programmation aux régions
-                    </Button>
-                  </>
-                }
-              ></Alert>
-            )}
+
           {nextProgrammingPlan &&
             nextProgrammingPlan.status === 'Submitted' && (
               <Alert

@@ -121,7 +121,11 @@ describe('PrescriptionsByMatrix', () => {
         }),
       ];
 
-      const result = genPrescriptionByMatrix(prescriptions, samples);
+      const result = genPrescriptionByMatrix(
+        prescriptions,
+        samples,
+        RegionList
+      );
 
       expect(result).toEqual([
         {

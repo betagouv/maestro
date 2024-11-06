@@ -22,6 +22,7 @@ import {
 import { programmingPlanLabel } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import AutoClose from 'src/components/AutoClose/AutoClose';
 import PrescriptionCard from 'src/components/PrescriptionCard/PrescriptionCard';
+import ProgrammingPlanSubmission from 'src/components/ProgrammingPlan/ProgrammingPlanSubmission/ProgrammingPlanSubmission';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
@@ -253,9 +254,8 @@ const PrescriptionListView = () => {
                     },
                   })) as any
                 }
-                className={cx('fr-mr-3w')}
               />
-              {/*//TODO: Implement the button to submit the programming plan*/}
+              <ProgrammingPlanSubmission programmingPlan={programmingPlan} />
             </>
           }
         />
