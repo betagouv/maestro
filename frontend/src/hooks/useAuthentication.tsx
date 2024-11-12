@@ -4,6 +4,7 @@ import { hasPermission as hasUserPermission } from 'shared/schema/User/User';
 import { UserPermission } from 'shared/schema/User/UserPermission';
 import { UserRole } from 'shared/schema/User/UserRole';
 import { isDefined } from 'shared/utils/utils';
+import YearRoute from 'src/components/YearRoute/YearRoute';
 import { useAppSelector } from 'src/hooks/useStore';
 import { useGetUserInfosQuery } from 'src/services/user.service';
 import DashboardView from 'src/views/DashboardView/DashboardView';
@@ -61,34 +62,34 @@ export const useAuthentication = () => {
             },
             hasPermission('readPrescriptions')
               ? {
-                  path: '/prescription',
+                  path: '/prescriptions/:year',
                   label: 'Prescriptions',
                   key: 'prescription_route',
-                  component: PrescriptionListView,
+                  component: () => <YearRoute element={PrescriptionListView} />,
                 }
               : undefined,
             hasPermission('readSamples')
               ? {
-                  path: '/prelevements',
+                  path: '/prelevements/:year',
                   label: 'Prélèvements',
                   key: 'samples_route',
-                  component: SampleListView,
+                  component: () => <YearRoute element={SampleListView} />,
                 }
               : undefined,
             hasPermission('createSample')
               ? {
-                  path: '/prelevements/nouveau',
+                  path: '/prelevements/:year/nouveau',
                   label: 'Prélèvement',
                   key: 'new_sample_route',
-                  component: SampleView,
+                  component: () => <YearRoute element={SampleView} />,
                 }
               : undefined,
             hasPermission('updateSample') || hasPermission('readSamples')
               ? {
-                  path: '/prelevements/:sampleId/*',
+                  path: '/prelevements/:year/:sampleId/*',
                   label: 'Prélèvement',
                   key: 'sample_route',
-                  component: SampleView,
+                  component: () => <YearRoute element={SampleView} />,
                 }
               : undefined,
             {

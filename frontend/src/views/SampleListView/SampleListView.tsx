@@ -54,7 +54,7 @@ const SampleListView = () => {
   const { findSampleOptions, sampleListDisplay } = useAppSelector(
     (state) => state.samples
   );
-  const { programmingPlan } = useAppSelector((state) => state.settings);
+  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
 
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
 
@@ -135,7 +135,7 @@ const SampleListView = () => {
   return (
     <section className={clsx(cx('fr-container'), 'main-section')}>
       <SectionHeader
-        title="Prélèvements"
+        title={`Prélèvements ${programmingPlan?.year}`}
         subtitle="Consultez les dossiers des prélèvements"
         illustration={food}
         action={

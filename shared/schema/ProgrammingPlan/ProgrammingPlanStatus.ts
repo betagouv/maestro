@@ -17,9 +17,9 @@ export const ProgrammingPlanStatusLabels: Record<
   ProgrammingPlanStatus,
   string
 > = {
-  InProgress: 'Programmation',
-  Submitted: 'Programmation',
-  Validated: 'Suivi',
+  InProgress: 'Programmation en cours',
+  Submitted: 'Soumis aux régions',
+  Validated: 'Campagne en cours',
 };
 
 export const ProgrammingPlanStatusPermissions: Record<

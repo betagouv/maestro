@@ -20,7 +20,7 @@ const inProgressProgrammingPlan = {
   year: new Date().getFullYear() + 1,
 };
 
-const programmingPlanRequest = {
+const programmingPlansRequest = {
   pathname: `/api/programming-plans?`,
   response: {
     body: JSON.stringify([validatedProgrammingPlan, inProgressProgrammingPlan]),
@@ -38,6 +38,7 @@ describe('Header', () => {
       middleware: applicationMiddleware,
       preloadedState: {
         auth: { authUser },
+        programmingPlan: { programmingPlan: validatedProgrammingPlan },
       },
     });
   });
@@ -69,15 +70,15 @@ describe('Header', () => {
     });
   });
 
-  describe('when user is authenticated with role "NationalCoordinator"', () => {
+  describe('when user is authenticated', () => {
     const user = genUser({
       roles: ['NationalCoordinator'],
       id: authUser.userId,
     });
 
-    test('should display only authorized items', async () => {
+    test('should display navigation items', async () => {
       mockRequests([
-        programmingPlanRequest,
+        programmingPlansRequest,
         {
           pathname: `/api/users/${user.id}/infos`,
           response: { body: JSON.stringify(user) },
@@ -95,129 +96,13 @@ describe('Header', () => {
       const navigation = screen.getByRole('navigation');
 
       expect(
-        await within(navigation).findByText(
-          `${ProgrammingPlanStatusLabels['Validated']} ${validatedProgrammingPlan.year}`
-        )
+        await within(navigation).findByText('Tableau de bord')
       ).toBeInTheDocument();
       expect(
         await within(navigation).findByText('Prélèvements')
       ).toBeInTheDocument();
       expect(
-        await within(navigation).findByText('Documents ressources')
-      ).toBeInTheDocument();
-    });
-  });
-
-  describe('when user is authenticated with role "RegionalCoordinator"', () => {
-    const user = genUser({
-      roles: ['RegionalCoordinator'],
-      id: authUser.userId,
-    });
-
-    beforeEach(() => {
-      mockRequests([
-        programmingPlanRequest,
-        {
-          pathname: `/api/users/${user.id}/infos`,
-          response: { body: JSON.stringify(user) },
-        },
-      ]);
-    });
-
-    test('should display only authorized items', async () => {
-      render(
-        <Provider store={store}>
-          <MemoryRouter>
-            <Header />
-          </MemoryRouter>
-        </Provider>
-      );
-
-      const navigation = screen.getByRole('navigation');
-
-      expect(
-        await within(navigation).findByText(
-          `${ProgrammingPlanStatusLabels['Validated']} ${validatedProgrammingPlan.year}`
-        )
-      ).toBeInTheDocument();
-      expect(
-        await within(navigation).findByText('Prélèvements')
-      ).toBeInTheDocument();
-      expect(
-        await within(navigation).findByText('Documents ressources')
-      ).toBeInTheDocument();
-    });
-  });
-
-  describe('when user is authenticated with role "Sampler"', () => {
-    const user = genUser({ roles: ['Sampler'], id: authUser.userId });
-
-    beforeEach(() => {
-      mockRequests([
-        programmingPlanRequest,
-        {
-          pathname: `/api/users/${user.id}/infos`,
-          response: { body: JSON.stringify(user) },
-        },
-      ]);
-    });
-
-    test('should display only authorized items', async () => {
-      render(
-        <Provider store={store}>
-          <MemoryRouter>
-            <Header />
-          </MemoryRouter>
-        </Provider>
-      );
-
-      const navigation = screen.getByRole('navigation');
-
-      expect(
-        await within(navigation).findByText(
-          `${ProgrammingPlanStatusLabels['Validated']} ${validatedProgrammingPlan.year}`
-        )
-      ).toBeInTheDocument();
-      expect(
-        await within(navigation).findByText('Prélèvements')
-      ).toBeInTheDocument();
-      expect(
-        await within(navigation).findByText('Documents ressources')
-      ).toBeInTheDocument();
-    });
-  });
-
-  describe('when user is authenticated with role "Administrator"', () => {
-    const user = genUser({ roles: ['Administrator'], id: authUser.userId });
-
-    beforeEach(() => {
-      mockRequests([
-        programmingPlanRequest,
-        {
-          pathname: `/api/users/${user.id}/infos`,
-          response: { body: JSON.stringify(user) },
-        },
-      ]);
-    });
-
-    test('should display all items', async () => {
-      render(
-        <Provider store={store}>
-          <MemoryRouter>
-            <Header />
-          </MemoryRouter>
-        </Provider>
-      );
-
-      const navigation = screen.getByRole('navigation');
-
-      expect(
-        await within(navigation).findByText(
-          `${ProgrammingPlanStatusLabels['Validated']} ${validatedProgrammingPlan.year}`
-        )
-      ).toBeInTheDocument();
-      expect(
-        await within(navigation).findByText('Prélèvements')
+        await within(navigation).findByText('Programmation')
       ).toBeInTheDocument();
       expect(
         await within(navigation).findByText('Documents ressources')

@@ -1,10 +1,7 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Header as DSFRHeader } from '@codegouvfr/react-dsfr/Header';
-import Select from '@codegouvfr/react-dsfr/Select';
-import { useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { programmingPlanLabel } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { useLocation } from 'react-router-dom';
 import { UserRoleLabels } from 'shared/schema/User/UserRole';
 import { isDefined } from 'shared/utils/utils';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -12,33 +9,26 @@ import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import { api } from 'src/services/api.service';
 import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.service';
 import authSlice from 'src/store/reducers/authSlice';
-import settingsSlice from 'src/store/reducers/settingsSlice';
 import logo from '../../assets/logo.svg';
 
 const Header = () => {
   const dispatch = useAppDispatch();
   const location = useLocation();
-  const navigate = useNavigate();
 
   const { isAuthenticated, hasPermission, userInfos } = useAuthentication();
-  const { programmingPlan } = useAppSelector((state) => state.settings);
 
   const { data: programmingPlans } = useFindProgrammingPlansQuery(
     {},
     { skip: !isAuthenticated }
   );
 
-  useEffect(() => {
-    if (!programmingPlan && programmingPlans) {
-      dispatch(
-        settingsSlice.actions.changeProgrammingPlan(
-          programmingPlans.find(
-            (plan) => plan.year === new Date().getFullYear()
-          )
-        )
-      );
-    }
-  }, [programmingPlans, isAuthenticated]); // eslint-disable-line react-hooks/exhaustive-deps
+  const validatedProgrammingPlans = programmingPlans?.filter(
+    (pp) => pp.status === 'Validated'
+  );
+
+  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
+
+  const isActive = (path: string) => location.pathname.startsWith(path);
 
   return (
     <DSFRHeader
@@ -65,29 +55,76 @@ const Header = () => {
       }}
       navigation={(isAuthenticated
         ? [
-            programmingPlan
-              ? {
-                  linkProps: {
-                    to: '/',
-                    target: '_self',
-                  },
-                  text: programmingPlanLabel(programmingPlan),
-                  isActive:
-                    location.pathname === '/' ||
-                    location.pathname.startsWith('/plans'),
-                }
-              : undefined,
-            programmingPlan?.status === 'Validated' &&
+            {
+              linkProps: {
+                to: '/',
+                target: '_self',
+              },
+              text: 'Tableau de bord',
+              isActive:
+                location.pathname === '/' ||
+                location.pathname.startsWith('/plans'),
+            },
             hasPermission('readSamples')
               ? {
-                  linkProps: {
-                    to: '/prelevements',
-                    target: '_self',
-                  },
-                  text: 'Prélèvements',
-                  isActive: location.pathname.startsWith('/prelevements'),
+                  isActive: isActive('/prelevements'),
+                  ...(validatedProgrammingPlans?.length === 1
+                    ? {
+                        text: 'Prélèvements',
+                        linkProps: {
+                          to: `/prelevements/${validatedProgrammingPlans[0].year}`,
+                          target: '_self',
+                        },
+                      }
+                    : {
+                        text: `Prélèvements ${
+                          isActive('/prelevements') && programmingPlan
+                            ? programmingPlan.year
+                            : ''
+                        }`,
+                        menuLinks: (validatedProgrammingPlans ?? []).map(
+                          (pp) => ({
+                            linkProps: {
+                              to: `/prelevements/${pp.year}`,
+                              target: '_self',
+                            },
+                            text: pp.year,
+                            isActive:
+                              isActive('/prelevements') &&
+                              pp.id === programmingPlan?.id,
+                          })
+                        ),
+                      }),
                 }
               : undefined,
+            {
+              isActive: isActive('/prescriptions'),
+              ...(programmingPlans?.length === 1
+                ? {
+                    text: 'Programmation',
+                    linkProps: {
+                      to: `/prescriptions/${programmingPlans[0].year}`,
+                      target: '_self',
+                    },
+                  }
+                : {
+                    text: `Programmation ${
+                      isActive('/prescriptions') && programmingPlan
+                        ? programmingPlan.year
+                        : ''
+                    }`,
+                    menuLinks: (programmingPlans ?? []).map((pp) => ({
+                      linkProps: {
+                        to: `/prescriptions/${pp.year}`,
+                        target: '_self',
+                      },
+                      text: `Campagne ${pp.year}`,
+                      isActive:
+                        isActive('/prescriptions') &&
+                        pp.id === programmingPlan?.id,
+                    })),
+                  }),
+            },
             {
               linkProps: {
                 to: '/documents',
@@ -102,35 +139,6 @@ const Header = () => {
       quickAccessItems={
         isAuthenticated
           ? [
-              programmingPlans && programmingPlans.length === 1 ? (
-                <div>{programmingPlanLabel(programmingPlans[0])}</div>
-              ) : undefined,
-              programmingPlans && programmingPlans.length > 1 ? (
-                <Select
-                  label={undefined}
-                  nativeSelectProps={{
-                    value: programmingPlan?.id,
-                    onChange: (e) => {
-                      dispatch(
-                        settingsSlice.actions.changeProgrammingPlan(
-                          programmingPlans.find(
-                            (programmingPlan) =>
-                              programmingPlan.id === e.target.value
-                          )
-                        )
-                      );
-                      navigate('/', { replace: true });
-                    },
-                  }}
-                  className="fr-mr-2w"
-                >
-                  {programmingPlans.map((programmingPlan) => (
-                    <option key={programmingPlan.id} value={programmingPlan.id}>
-                      {programmingPlanLabel(programmingPlan)}
-                    </option>
-                  ))}
-                </Select>
-              ) : undefined,
               <div>
                 {userInfos?.roles.map((role) => (
                   <div key={role} className={cx('fr-text--sm', 'fr-mr-2w')}>

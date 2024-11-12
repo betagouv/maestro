@@ -11,7 +11,7 @@ import {
 
 export const useOnLine = () => {
   const { isAuthenticated } = useAuthentication();
-  const { programmingPlan } = useAppSelector((state) => state.settings);
+  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
   const [isOnline, setIsOnline] = React.useState(navigator.onLine);
 
   const { pendingSamples } = useAppSelector((state) => state.samples);

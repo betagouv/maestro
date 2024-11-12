@@ -24,7 +24,7 @@ const SampleListHeader = ({
   const dispatch = useAppDispatch();
   const { isMobile } = useWindowSize();
 
-  const { programmingPlan } = useAppSelector((state) => state.settings);
+  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
   const { sampleListDisplay } = useAppSelector((state) => state.samples);
 
   const changeReference = (e: React.ChangeEvent<HTMLInputElement>) => {

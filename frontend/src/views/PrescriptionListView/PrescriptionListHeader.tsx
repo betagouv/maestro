@@ -91,7 +91,8 @@ const PrescriptionListHeader = ({
                       prescriptionsSlice.actions.changeListDisplay('cards')
                     );
                   },
-                },
+                  'data-testid': 'prescriptions-cards-segment',
+                } as any,
               },
               {
                 label: 'Tableau',
@@ -103,7 +104,8 @@ const PrescriptionListHeader = ({
                       prescriptionsSlice.actions.changeListDisplay('table')
                     );
                   },
-                },
+                  'data-testid': 'prescriptions-table-segment',
+                } as any,
               },
             ]}
             className={cx('fr-mr-3w')}

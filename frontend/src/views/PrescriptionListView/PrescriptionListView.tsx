@@ -19,7 +19,6 @@ import {
   ContextLabels,
   ContextList,
 } from 'shared/schema/ProgrammingPlan/Context';
-import { programmingPlanLabel } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import AutoClose from 'src/components/AutoClose/AutoClose';
 import PrescriptionCard from 'src/components/PrescriptionCard/PrescriptionCard';
 import ProgrammingPlanSubmission from 'src/components/ProgrammingPlan/ProgrammingPlanSubmission/ProgrammingPlanSubmission';
@@ -44,7 +43,7 @@ export type PrescriptionListDisplay = 'table' | 'cards';
 const PrescriptionListView = () => {
   useDocumentTitle('Prescription');
   const dispatch = useAppDispatch();
-  const { programmingPlan } = useAppSelector((state) => state.settings);
+  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
   const { prescriptionListDisplay, matrixQuery, prescriptionListContext } =
     useAppSelector((state) => state.prescriptions);
 
@@ -65,11 +64,13 @@ const PrescriptionListView = () => {
   );
 
   useEffect(() => {
-    dispatch(
-      prescriptionsSlice.actions.changeListContext(
-        searchParams.get('context') as Context
-      )
-    );
+    if (searchParams.get('context')) {
+      dispatch(
+        prescriptionsSlice.actions.changeListContext(
+          searchParams.get('context') as Context
+        )
+      );
+    }
   }, [searchParams, dispatch]);
 
   const findPrescriptionOptions = useMemo(
@@ -133,13 +134,13 @@ const PrescriptionListView = () => {
     setSearchParams(urlSearchParams, { replace: true });
   };
 
-  if (!programmingPlan || !prescriptions || !samples) {
-    return <></>;
-  }
-
-  const addMatrix = async (matrix: Matrix, stages: Stage[]) => {
+  const addMatrix = async (
+    programmingPlanId: string,
+    matrix: Matrix,
+    stages: Stage[]
+  ) => {
     await addPrescriptions({
-      programmingPlanId: programmingPlan.id,
+      programmingPlanId,
       context: prescriptionListContext,
       prescriptions: RegionList.map((region) => ({
         matrix,
@@ -166,33 +167,31 @@ const PrescriptionListView = () => {
     });
   };
 
-  const changePrescriptionCount = async (
-    prescriptionId: string,
-    count: number
-  ) => {
-    await updatePrescription({
-      prescriptionId,
-      prescriptionUpdate: {
-        programmingPlanId: programmingPlan.id,
-        context: findPrescriptionOptions.context,
-        sampleCount: count,
-      },
-    });
-  };
+  const changePrescriptionCount =
+    (programmingPlanId: string) =>
+    async (prescriptionId: string, count: number) => {
+      await updatePrescription({
+        prescriptionId,
+        prescriptionUpdate: {
+          programmingPlanId,
+          context: findPrescriptionOptions.context,
+          sampleCount: count,
+        },
+      });
+    };
 
-  const changePrescriptionLaboratory = async (
-    prescriptionId: string,
-    laboratoryId?: string
-  ) => {
-    await updatePrescription({
-      prescriptionId,
-      prescriptionUpdate: {
-        programmingPlanId: programmingPlan.id,
-        context: findPrescriptionOptions.context,
-        laboratoryId,
-      },
-    });
-  };
+  const changePrescriptionLaboratory =
+    (programmingPlanId: string) =>
+    async (prescriptionId: string, laboratoryId?: string) => {
+      await updatePrescription({
+        prescriptionId,
+        prescriptionUpdate: {
+          programmingPlanId,
+          context: findPrescriptionOptions.context,
+          laboratoryId,
+        },
+      });
+    };
 
   return (
     <section className="main-section">
@@ -234,7 +233,7 @@ const PrescriptionListView = () => {
       )}
       <div className={cx('fr-container')}>
         <SectionHeader
-          title={programmingPlanLabel(programmingPlan)}
+          title={`Programmation ${programmingPlan?.year}`}
           subtitle={region && Regions[region]?.name}
           illustration={programmation}
           action={
@@ -255,7 +254,9 @@ const PrescriptionListView = () => {
                   })) as any
                 }
               />
-              <ProgrammingPlanSubmission programmingPlan={programmingPlan} />
+              {programmingPlan && (
+                <ProgrammingPlanSubmission programmingPlan={programmingPlan} />
+              )}
             </>
           }
         />
@@ -273,45 +274,57 @@ const PrescriptionListView = () => {
           )
         )}
       >
-        <div
-          className={clsx(
-            cx('fr-mb-2w', 'fr-mb-md-5w', 'fr-container'),
-            'table-header'
-          )}
-        >
-          {
-            <PrescriptionListHeader
-              programmingPlan={programmingPlan}
-              findPrescriptionOptions={findPrescriptionOptions}
-              prescriptions={prescriptions}
-              addMatrix={addMatrix}
-            />
-          }
-        </div>
-        {prescriptionListDisplay === 'cards' && (
-          <div className="prescription-cards-container">
-            {prescriptionsByMatrix.map((prescriptionByMatrix) => (
-              <PrescriptionCard
+        {programmingPlan && prescriptions && samples && (
+          <>
+            <div
+              className={clsx(
+                cx('fr-mb-2w', 'fr-mb-md-5w', 'fr-container'),
+                'table-header'
+              )}
+            >
+              {
+                <PrescriptionListHeader
+                  programmingPlan={programmingPlan}
+                  findPrescriptionOptions={findPrescriptionOptions}
+                  prescriptions={prescriptions}
+                  addMatrix={(matrix, stages) =>
+                    addMatrix(programmingPlan.id, matrix, stages)
+                  }
+                />
+              }
+            </div>
+            {prescriptionListDisplay === 'cards' && (
+              <div className="prescription-cards-container">
+                {prescriptionsByMatrix.map((prescriptionByMatrix) => (
+                  <PrescriptionCard
+                    programmingPlan={programmingPlan}
+                    prescriptionByMatrix={prescriptionByMatrix}
+                    onChangePrescriptionCount={changePrescriptionCount(
+                      programmingPlan.id
+                    )}
+                    onRemovePrescriptionByMatrix={removePrescriptionByMatrix}
+                    key={`prescription_${prescriptionByMatrix.matrix}`}
+                  />
+                ))}
+              </div>
+            )}
+            {prescriptionListDisplay === 'table' && (
+              <PrescriptionTable
                 programmingPlan={programmingPlan}
-                prescriptionByMatrix={prescriptionByMatrix}
-                onChangePrescriptionCount={changePrescriptionCount}
+                context={findPrescriptionOptions.context}
+                prescriptionsByMatrix={prescriptionsByMatrix}
+                samples={samples}
+                regions={region ? [region] : RegionList}
+                onChangePrescriptionCount={changePrescriptionCount(
+                  programmingPlan.id
+                )}
+                onChangePrescriptionLaboratory={changePrescriptionLaboratory(
+                  programmingPlan.id
+                )}
                 onRemovePrescriptionByMatrix={removePrescriptionByMatrix}
-                key={`prescription_${prescriptionByMatrix.matrix}`}
               />
-            ))}
-          </div>
-        )}
-        {prescriptionListDisplay === 'table' && (
-          <PrescriptionTable
-            programmingPlan={programmingPlan}
-            context={findPrescriptionOptions.context}
-            prescriptionsByMatrix={prescriptionsByMatrix}
-            samples={samples}
-            regions={region ? [region] : RegionList}
-            onChangePrescriptionCount={changePrescriptionCount}
-            onChangePrescriptionLaboratory={changePrescriptionLaboratory}
-            onRemovePrescriptionByMatrix={removePrescriptionByMatrix}
-          />
+            )}
+          </>
         )}
       </div>
     </section>

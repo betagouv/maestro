@@ -40,6 +40,7 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'readCompanies',
   ],
   Sampler: [
+    'readProgrammingPlans',
     'readProgrammingPlanValidated',
     'readPrescriptions',
     'createSample',

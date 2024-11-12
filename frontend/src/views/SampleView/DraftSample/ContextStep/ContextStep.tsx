@@ -59,7 +59,7 @@ const ContextStep = ({ partialSample }: Props) => {
   const { userInfos } = useAuthentication();
   const { isOnline } = useOnLine();
 
-  const { programmingPlan } = useAppSelector((state) => state.settings);
+  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
 
   const [resytalId, setResytalId] = useState(partialSample?.resytalId);
   const [context, setContext] = useState(partialSample?.context);

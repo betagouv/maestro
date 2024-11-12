@@ -75,12 +75,12 @@ const ProgrammingPlanCard = ({
           <div className={cx('fr-col-12', 'fr-pt-0')}>
             {programmingPlan.status === 'InProgress' && (
               <Badge severity="new" noIcon>
-                Programmation en cours
+                ProgrammingPlanStatusLabels[programmingPlan.status]
               </Badge>
             )}
             {programmingPlan.status === 'Submitted' && (
               <Badge severity="warning" noIcon>
-                Soumis aux régions
+                ProgrammingPlanStatusLabels[programmingPlan.status]
               </Badge>
             )}
             {programmingPlan.status === 'Validated' && (
@@ -151,7 +151,7 @@ const ProgrammingPlanCard = ({
           <Button
             className={cx('fr-mr-2w')}
             linkProps={{
-              to: `/prescription?context=${context}`,
+              to: `/prescriptions/${programmingPlan.year}?context=${context}`,
             }}
           >
             Voir le tableau complet

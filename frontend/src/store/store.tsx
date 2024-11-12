@@ -2,15 +2,15 @@ import { configureStore } from '@reduxjs/toolkit';
 import { CurriedGetDefaultMiddleware } from '@reduxjs/toolkit/dist/getDefaultMiddleware';
 import { api } from 'src/services/api.service';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
+import programmingPlanSlice from 'src/store/reducers/programmingPlanSlice';
 import samplesSlice from 'src/store/reducers/samplesSlice';
-import settingsSlice from 'src/store/reducers/settingsSlice';
 import authSlice from './reducers/authSlice';
 
 export const applicationReducer = {
   [authSlice.name]: authSlice.reducer,
   [prescriptionsSlice.name]: prescriptionsSlice.reducer,
   [samplesSlice.name]: samplesSlice.reducer,
-  [settingsSlice.name]: settingsSlice.reducer,
+  [programmingPlanSlice.name]: programmingPlanSlice.reducer,
   [api.reducerPath]: api.reducer,
 };
 

@@ -2,21 +2,15 @@ import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useMemo, useState } from 'react';
-import {
-  ProgrammingPlan,
-  programmingPlanLabel,
-} from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import { useAppDispatch } from 'src/hooks/useStore';
 import { useUpdateProgrammingPlanMutation } from 'src/services/programming-plan.service';
-import settingsSlice from 'src/store/reducers/settingsSlice';
 interface Props {
   programmingPlan: ProgrammingPlan;
 }
 
 const ProgrammingPlanSubmission = ({ programmingPlan }: Props) => {
-  const dispatch = useAppDispatch();
   const { hasPermission } = useAuthentication();
   const submissionModal = useMemo(
     () =>
@@ -64,9 +58,7 @@ const ProgrammingPlanSubmission = ({ programmingPlan }: Props) => {
           })
             .unwrap()
             .then((newProgrammingPlan) => {
-              dispatch(
-                settingsSlice.actions.changeProgrammingPlan(newProgrammingPlan)
-              );
+              //TODO
               submissionModal.close();
             })
             .catch((error) => {
@@ -75,8 +67,8 @@ const ProgrammingPlanSubmission = ({ programmingPlan }: Props) => {
         }}
         confirmLabel="Confirmer"
       >
-        Vous êtes sur le point de partager la programmation du 
-        {programmingPlanLabel(programmingPlan)} aux coordinateurs des régions.
+        Vous êtes sur le point de partager la programmation 
+        {programmingPlan.year} aux coordinateurs des régions.
         {isError && (
           <Alert
             severity="error"

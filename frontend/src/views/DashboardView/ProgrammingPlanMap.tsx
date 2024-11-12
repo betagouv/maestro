@@ -219,7 +219,7 @@ const ProgrammingPlanMap = ({
   const onClick = (e: maplibregl.MapLayerMouseEvent) => {
     if (e.features && e.features.length > 0) {
       navigate(
-        `/plans/${programmingPlan.id}/prescription?region=${hoveredRegion}`
+        `/prescriptions/${programmingPlan.year}?region=${hoveredRegion}`
       );
     }
   };

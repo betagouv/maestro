@@ -8,31 +8,30 @@ import { isAfter } from 'date-fns';
 import { default as _ } from 'lodash';
 import { Regions } from 'shared/referential/Region';
 import { ContextList } from 'shared/schema/ProgrammingPlan/Context';
-import { programmingPlanLabel } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import dashboard from 'src/assets/illustrations/dashboard.svg';
 import SampleTable from 'src/components/SampleTable/SampleTable';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useOnLine } from 'src/hooks/useOnLine';
-import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
+import { useAppSelector } from 'src/hooks/useStore';
 import {
   useCreateProgrammingPlanMutation,
   useGetProgrammingPlanByYearQuery,
   useUpdateProgrammingPlanMutation,
 } from 'src/services/programming-plan.service';
 import { useFindSamplesQuery } from 'src/services/sample.service';
-import settingsSlice from 'src/store/reducers/settingsSlice';
 import ProgrammingPlanCard from 'src/views/DashboardView/ProgrammingPlanCard';
 const DashboardView = () => {
-  const dispatch = useAppDispatch();
   const { hasPermission, userInfos } = useAuthentication();
   const { isOnline } = useOnLine();
 
-  const { programmingPlan } = useAppSelector((state) => state.settings);
+  const { data: programmingPlan } = useGetProgrammingPlanByYearQuery(
+    new Date().getFullYear()
+  );
   const { pendingSamples } = useAppSelector((state) => state.samples);
 
-  useDocumentTitle(programmingPlan && programmingPlanLabel(programmingPlan));
+  useDocumentTitle('Tableau de bord');
 
   const { data: nextProgrammingPlan } = useGetProgrammingPlanByYearQuery(
     new Date().getFullYear() + 1
@@ -98,14 +97,14 @@ const DashboardView = () => {
                       small
                       orientation="horizontal"
                       linkProps={{
-                        to: `/prescription?context=Control`,
+                        to: `/prescriptions/${nextProgrammingPlan.year}?context=Control`,
                       }}
                       start={
                         <Badge
                           noIcon
                           className={cx('fr-badge--yellow-tournesol')}
                         >
-                          {programmingPlanLabel(nextProgrammingPlan)}
+                          Programmation {nextProgrammingPlan.year}
                         </Badge>
                       }
                       title="Editer la programmation"
@@ -139,11 +138,7 @@ const DashboardView = () => {
                       await createProgrammingPlan(new Date().getFullYear() + 1)
                         .unwrap()
                         .then((newProgrammingPlan) => {
-                          dispatch(
-                            settingsSlice.actions.changeProgrammingPlan(
-                              newProgrammingPlan
-                            )
-                          );
+                          //TODO
                         });
                     }}
                   >
@@ -183,11 +178,7 @@ const DashboardView = () => {
                         })
                           .unwrap()
                           .then((newProgrammingPlan) => {
-                            dispatch(
-                              settingsSlice.actions.changeProgrammingPlan(
-                                newProgrammingPlan
-                              )
-                            );
+                            //TODO
                           });
                       }}
                     >

@@ -1,17 +1,17 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 
-type SettingsState = {
+type ProgrammingPlanState = {
   programmingPlan?: ProgrammingPlan;
 };
 
-const settingsSlice = createSlice({
-  name: 'settings',
+const programmingPlanSlice = createSlice({
+  name: 'programmingPlan',
   initialState: {
     programmingPlan: undefined,
-  } as SettingsState,
+  } as ProgrammingPlanState,
   reducers: {
-    changeProgrammingPlan: (
+    setProgrammingPlan: (
       state,
       action: PayloadAction<ProgrammingPlan | undefined>
     ) => {
@@ -20,4 +20,4 @@ const settingsSlice = createSlice({
   },
 });
 
-export default settingsSlice;
+export default programmingPlanSlice;
