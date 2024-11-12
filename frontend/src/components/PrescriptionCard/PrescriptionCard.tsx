@@ -1,16 +1,13 @@
+import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import Table from '@codegouvfr/react-dsfr/Table';
 import clsx from 'clsx';
 import { useMemo } from 'react';
-import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
-import { RegionList, Regions } from 'shared/referential/Region';
-import { StageLabels } from 'shared/referential/Stage';
-import {
-  matrixCompletionRate,
-  PrescriptionByMatrix,
-} from 'shared/schema/Prescription/PrescriptionsByMatrix';
+import { RegionList } from 'shared/referential/Region';
+import { PrescriptionByMatrix } from 'shared/schema/Prescription/PrescriptionsByMatrix';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
-import PrescriptionCountCell from 'src/components/PrescriptionCountCell/PrescriptionCountCell';
+import { userRegions } from 'shared/schema/User/User';
+import PrescriptionCardContent from 'src/components/PrescriptionCard/PrescriptionCardContent';
+import PrescriptionCardPartialTable from 'src/components/PrescriptionCard/PrescriptionCardPartialTable';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { pluralize } from 'src/utils/stringUtils';
 import RemoveMatrix from 'src/views/PrescriptionListView/RemoveMatrix';
@@ -31,7 +28,7 @@ const PrescriptionCard = ({
   onChangePrescriptionCount,
   onRemovePrescriptionByMatrix: removeMatrix,
 }: Props) => {
-  const { hasPermission } = useAuthentication();
+  const { hasPermission, userInfos } = useAuthentication();
 
   const totalCount = useMemo(
     () =>
@@ -41,87 +38,78 @@ const PrescriptionCard = ({
     [prescriptionByMatrix.regionalData]
   );
 
-  const partialTable = (start: number, end?: number) => (
-    <Table
-      bordered={false}
-      noCaption
-      noScroll
-      fixed
-      headers={RegionList.slice(0, RegionList.length / 2).map((region) => (
-        <div
-          key={`prescription_${prescriptionByMatrix.matrix}_header_${region}`}
-        >
-          {Regions[region].shortName}
-        </div>
-      ))}
-      data={[
-        prescriptionByMatrix.regionalData
-          .slice(start, end)
-          .map((regionalData) => (
-            <PrescriptionCountCell
-              prescriptionId={regionalData.prescriptionId}
-              programmingPlan={programmingPlan}
-              sampleCount={regionalData.sampleCount}
-              sentSampleCount={regionalData.sentSampleCount}
-              completionRate={matrixCompletionRate(
-                prescriptionByMatrix,
-                regionalData.region
-              )}
-              onChange={async (value) =>
-                onChangePrescriptionCount(regionalData.prescriptionId, value)
-              }
-            />
-          )),
-      ]}
-      className={cx('fr-mb-3w')}
-    />
-  );
-
   return (
-    <div className={clsx(cx('fr-card'), 'prescription-card')}>
-      <div className={cx('fr-card__body')}>
-        <div className={cx('fr-card__content')}>
-          <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-            <div className={cx('fr-col-12', 'fr-col-md-5')}>
-              <h3 className={cx('fr-card__title')}>
-                {MatrixLabels[prescriptionByMatrix.matrix]}
-              </h3>
-              <div className={cx('fr-text--xs', 'fr-card__desc')}>
-                <div className={cx('fr-text--bold', 'fr-mb-0')}>
-                  Stades de prélèvement
+    <>
+      {userRegions(userInfos).length > 1 ? (
+        <div
+          className={clsx(cx('fr-card', 'fr-card--sm'), 'prescription-card')}
+        >
+          <div className={cx('fr-card__body')}>
+            <div className={cx('fr-card__content')}>
+              <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+                <div className={cx('fr-col-12', 'fr-col-md-5')}>
+                  <PrescriptionCardContent
+                    prescriptionByMatrix={prescriptionByMatrix}
+                  />
                 </div>
-                <ul>
-                  {prescriptionByMatrix.stages.map((stage) => (
-                    <li
-                      key={`prescription_${prescriptionByMatrix.matrix}_stage_${stage}`}
-                    >
-                      {StageLabels[stage]}
-                    </li>
-                  ))}
-                </ul>
+                <div className={cx('fr-col-12', 'fr-col-md-7')}>
+                  <div className={clsx(cx('fr-mb-3w'), 'd-flex-align-center')}>
+                    <span className="flex-grow-1">
+                      {totalCount} 
+                      {pluralize(totalCount)('prélèvement programmé')}
+                    </span>
+                    {hasPermission('deletePrescription') &&
+                      programmingPlan.status === 'InProgress' && (
+                        <RemoveMatrix
+                          matrix={prescriptionByMatrix.matrix}
+                          stages={prescriptionByMatrix.stages}
+                          onRemove={() => removeMatrix(prescriptionByMatrix)}
+                        />
+                      )}
+                  </div>
+                  <PrescriptionCardPartialTable
+                    programmingPlan={programmingPlan}
+                    prescriptionByMatrix={prescriptionByMatrix}
+                    onChangePrescriptionCount={onChangePrescriptionCount}
+                    start={0}
+                    end={RegionList.length / 2}
+                  />
+                  <PrescriptionCardPartialTable
+                    programmingPlan={programmingPlan}
+                    prescriptionByMatrix={prescriptionByMatrix}
+                    onChangePrescriptionCount={onChangePrescriptionCount}
+                    start={RegionList.length / 2}
+                  />
+                </div>
               </div>
-            </div>
-            <div className={cx('fr-col-12', 'fr-col-md-7')}>
-              <div className={clsx(cx('fr-mb-3w'), 'd-flex-align-center')}>
-                <span className="flex-grow-1">
-                  {totalCount} {pluralize(totalCount)('prélèvement programmé')}
-                </span>
-                {hasPermission('deletePrescription') &&
-                  programmingPlan.status === 'InProgress' && (
-                    <RemoveMatrix
-                      matrix={prescriptionByMatrix.matrix}
-                      stages={prescriptionByMatrix.stages}
-                      onRemove={() => removeMatrix(prescriptionByMatrix)}
-                    />
-                  )}
-              </div>
-              {partialTable(0, RegionList.length / 2)}
-              {partialTable(RegionList.length / 2)}
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      ) : (
+        <div className={cx('fr-col-12', 'fr-col-md-4')}>
+          <div
+            className={clsx(cx('fr-card', 'fr-card--sm'), 'prescription-card')}
+          >
+            <div className={cx('fr-card__body')}>
+              <div className={cx('fr-card__content')}>
+                <PrescriptionCardContent
+                  prescriptionByMatrix={prescriptionByMatrix}
+                  subtitle={
+                    <Badge
+                      noIcon
+                      className={cx('fr-badge--yellow-tournesol', 'fr-my-1w')}
+                    >
+                      {totalCount} 
+                      {pluralize(totalCount)('prélèvement programmé')}
+                    </Badge>
+                  }
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

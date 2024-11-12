@@ -19,6 +19,7 @@ import {
   ContextLabels,
   ContextList,
 } from 'shared/schema/ProgrammingPlan/Context';
+import { userRegions } from 'shared/schema/User/User';
 import AutoClose from 'src/components/AutoClose/AutoClose';
 import PrescriptionCard from 'src/components/PrescriptionCard/PrescriptionCard';
 import ProgrammingPlanSubmission from 'src/components/ProgrammingPlan/ProgrammingPlanSubmission/ProgrammingPlanSubmission';
@@ -294,7 +295,13 @@ const PrescriptionListView = () => {
               }
             </div>
             {prescriptionListDisplay === 'cards' && (
-              <div className="prescription-cards-container">
+              <div
+                className={
+                  userRegions(userInfos).length === 1
+                    ? cx('fr-grid-row', 'fr-grid-row--gutters')
+                    : 'prescription-cards-container'
+                }
+              >
                 {prescriptionsByMatrix.map((prescriptionByMatrix) => (
                   <PrescriptionCard
                     programmingPlan={programmingPlan}
