@@ -8,6 +8,8 @@ import {
   RegionalCoordinator,
   Sampler1Fixture,
 } from '../../../database/seeds/test/001-users';
+import { MatrixList } from '../../../shared/referential/Matrix/Matrix';
+import { StageList } from '../../../shared/referential/Stage';
 import {
   Prescription,
   PrescriptionsToDelete,
@@ -16,7 +18,11 @@ import {
 import { ProgrammingPlanStatus } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { genPrescriptions } from '../../../shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from '../../../shared/test/programmingPlanFixtures';
-import { genLaboratory, genNumber } from '../../../shared/test/testFixtures';
+import {
+  genLaboratory,
+  genNumber,
+  oneOf,
+} from '../../../shared/test/testFixtures';
 import { Laboratories } from '../../repositories/laboratoryRepository';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import { ProgrammingPlans } from '../../repositories/programmingPlanRepository';
@@ -41,16 +47,22 @@ describe('Prescriptions router', () => {
     programmingPlanId: programmingPlanInProgress.id,
     context: 'Control',
     laboratoryId: laboratory.id,
+    matrix: oneOf(MatrixList),
+    stages: [oneOf(StageList)],
   });
   const inProgressSurveillancePrescription = genPrescriptions({
     programmingPlanId: programmingPlanInProgress.id,
     context: 'Surveillance',
     laboratoryId: laboratory.id,
+    matrix: oneOf(MatrixList),
+    stages: [oneOf(StageList)],
   });
   const validatedControlPrescription = genPrescriptions({
     programmingPlanId: programmingPlanValidated.id,
     context: 'Control',
     laboratoryId: laboratory.id,
+    matrix: oneOf(MatrixList),
+    stages: [oneOf(StageList)],
   });
 
   beforeAll(async () => {

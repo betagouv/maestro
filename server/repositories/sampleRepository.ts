@@ -94,8 +94,12 @@ const findRequest = (findOptions: FindSampleOptions) =>
           `${Regions[findOptions.region].shortName}-%`
         );
       }
-      if (fp.isArray(findOptions.status)) {
-        builder.whereIn('status', findOptions.status);
+      if (findOptions.status) {
+        if (fp.isArray(findOptions.status)) {
+          builder.whereIn('status', findOptions.status);
+        } else {
+          builder.where('status', findOptions.status);
+        }
       }
       if (findOptions.sampledAt) {
         builder.whereRaw(
