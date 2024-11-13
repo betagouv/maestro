@@ -1,4 +1,5 @@
 import Badge from '@codegouvfr/react-dsfr/Badge';
+import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { useMemo } from 'react';
@@ -6,8 +7,9 @@ import { RegionList } from 'shared/referential/Region';
 import { PrescriptionByMatrix } from 'shared/schema/Prescription/PrescriptionsByMatrix';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { userRegions } from 'shared/schema/User/User';
-import PrescriptionCardContent from 'src/components/PrescriptionCard/PrescriptionCardContent';
-import PrescriptionCardPartialTable from 'src/components/PrescriptionCard/PrescriptionCardPartialTable';
+import PrescriptionCardContent from 'src/components/Prescription/PrescriptionCard/PrescriptionCardContent';
+import PrescriptionCardPartialTable from 'src/components/Prescription/PrescriptionCard/PrescriptionCardPartialTable';
+import PrescriptionCommentsModal from 'src/components/Prescription/PrescriptionCommentsModal/PrescriptionCommentsModal';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { pluralize } from 'src/utils/stringUtils';
 import RemoveMatrix from 'src/views/PrescriptionListView/RemoveMatrix';
@@ -104,6 +106,41 @@ const PrescriptionCard = ({
                     </Badge>
                   }
                 />
+                {programmingPlan.status === 'Submitted' &&
+                  hasPermission('commentPrescription') && (
+                    <div className="fr-card__end">
+                      <div className="d-flex-align-center">
+                        <PrescriptionCommentsModal
+                          programmingPlanId={programmingPlan.id}
+                          prescriptionId={
+                            prescriptionByMatrix.regionalData[0].prescriptionId
+                          }
+                          comments={
+                            prescriptionByMatrix.regionalData[0].comments
+                          }
+                          modalButton={
+                            <Button
+                              priority="tertiary"
+                              size="small"
+                              iconId={'fr-icon-question-answer-line'}
+                            >
+                              {(
+                                prescriptionByMatrix.regionalData[0].comments ??
+                                []
+                              ).length > 0
+                                ? `${
+                                    (
+                                      prescriptionByMatrix.regionalData[0]
+                                        .comments ?? []
+                                    ).length
+                                  } commentaires`
+                                : 'Échanger avec le coordinateur national'}
+                            </Button>
+                          }
+                        />
+                      </div>
+                    </div>
+                  )}
               </div>
             </div>
           </div>

@@ -2,14 +2,20 @@ import { Request, Response } from 'express';
 import { AuthenticatedRequest, ProgrammingPlanRequest } from 'express-jwt';
 import { constants } from 'http2';
 import { v4 as uuidv4 } from 'uuid';
+import PrescriptionMissingError from '../../shared/errors/prescriptionPlanMissingError';
 import { FindPrescriptionOptions } from '../../shared/schema/Prescription/FindPrescriptionOptions';
 import {
   PrescriptionsToCreate,
   PrescriptionsToDelete,
   PrescriptionUpdate,
 } from '../../shared/schema/Prescription/Prescription';
+import {
+  PrescriptionComment,
+  PrescriptionCommentToCreate,
+} from '../../shared/schema/Prescription/PrescriptionComment';
 import { ContextLabels } from '../../shared/schema/ProgrammingPlan/Context';
-import { hasPermission } from '../../shared/schema/User/User';
+import { hasPermission, userRegions } from '../../shared/schema/User/User';
+import prescriptionCommentRepository from '../repositories/prescriptionCommentRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import exportPrescriptionsService from '../services/exportService/exportPrescriptionsService';
 import workbookUtils from '../utils/workbookUtils';
@@ -98,7 +104,7 @@ const updatePrescription = async (request: Request, response: Response) => {
   const prescription = await prescriptionRepository.findUnique(prescriptionId);
 
   if (!prescription) {
-    return response.sendStatus(constants.HTTP_STATUS_NOT_FOUND);
+    throw new PrescriptionMissingError(prescriptionId);
   }
 
   if (
@@ -151,10 +157,44 @@ const deletePrescriptions = async (request: Request, response: Response) => {
   response.sendStatus(constants.HTTP_STATUS_NO_CONTENT);
 };
 
+const commentPrescription = async (request: Request, response: Response) => {
+  const { user } = request as AuthenticatedRequest;
+  const draftPrescriptionComment = request.body as PrescriptionCommentToCreate;
+  const prescriptionId = request.params.prescriptionId;
+
+  const prescription = await prescriptionRepository.findUnique(prescriptionId);
+
+  if (!prescription) {
+    throw new PrescriptionMissingError(prescriptionId);
+  }
+  console.info(
+    'Comment prescription with id',
+    userRegions(user),
+    prescription.region
+  );
+
+  if (!userRegions(user).includes(prescription.region)) {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
+
+  const prescriptionComment: PrescriptionComment = {
+    id: uuidv4(),
+    prescriptionId,
+    comment: draftPrescriptionComment.comment,
+    createdAt: new Date(),
+    createdBy: user.id,
+  };
+
+  await prescriptionCommentRepository.insert(prescriptionComment);
+
+  response.status(constants.HTTP_STATUS_CREATED).send(prescriptionComment);
+};
+
 export default {
   findPrescriptions,
   exportPrescriptions,
   createPrescriptions,
   updatePrescription,
   deletePrescriptions,
+  commentPrescription,
 };

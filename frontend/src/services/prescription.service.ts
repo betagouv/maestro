@@ -6,6 +6,10 @@ import {
   PrescriptionsToDelete,
   PrescriptionUpdate,
 } from 'shared/schema/Prescription/Prescription';
+import {
+  PrescriptionComment,
+  PrescriptionCommentToCreate,
+} from 'shared/schema/Prescription/PrescriptionComment';
 import { api } from 'src/services/api.service';
 import { authParams } from 'src/services/auth-headers';
 import config from 'src/utils/config';
@@ -50,7 +54,7 @@ export const prescriptionApi = api.injectEndpoints({
         method: 'PUT',
         body: prescriptionUpdate,
       }),
-      invalidatesTags: (result, error, { prescriptionId }) => [
+      invalidatesTags: (_result, _error, { prescriptionId }) => [
         { type: 'Prescription', id: 'LIST' },
         { type: 'Prescription', id: prescriptionId },
       ],
@@ -63,6 +67,20 @@ export const prescriptionApi = api.injectEndpoints({
         body: prescriptionsToDelete,
       }),
       invalidatesTags: [{ type: 'Prescription', id: 'LIST' }],
+    }),
+    commentPrescription: builder.mutation<
+      PrescriptionComment,
+      { prescriptionId: string; commentToCreate: PrescriptionCommentToCreate }
+    >({
+      query: ({ prescriptionId, commentToCreate }) => ({
+        url: `prescriptions/${prescriptionId}/comments`,
+        method: 'POST',
+        body: commentToCreate,
+      }),
+      transformResponse: (response) => PrescriptionComment.parse(response),
+      invalidatesTags: (_result, _error, { prescriptionId }) => [
+        { type: 'Prescription', id: prescriptionId },
+      ],
     }),
   }),
 });
@@ -82,6 +100,7 @@ export const {
   useAddPrescriptionsMutation,
   useDeletePrescriptionsMutation,
   getPrescriptionsExportURL,
+  useCommentPrescriptionMutation,
 } = {
   ...prescriptionApi,
   getPrescriptionsExportURL: prescriptionsExportURL,

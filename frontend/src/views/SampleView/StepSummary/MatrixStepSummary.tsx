@@ -9,6 +9,7 @@ import { StageLabels } from 'shared/referential/Stage';
 import { Sample, SampleToCreate } from 'shared/schema/Sample/Sample';
 import { useGetLaboratoryQuery } from 'src/services/laboratory.service';
 import { useFindSubstanceAnalysisQuery } from 'src/services/substance.service';
+import { quote } from 'src/utils/stringUtils';
 import StepSummary from 'src/views/SampleView/StepSummary/StepSummary';
 
 interface Props {
@@ -135,7 +136,7 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
           <div>
             Note additionnelle{' '}
             <div>
-              <b>“ {sample.notesOnMatrix} “</b>
+              <b>{quote(sample.notesOnMatrix)}</b>
             </div>
           </div>
         </div>

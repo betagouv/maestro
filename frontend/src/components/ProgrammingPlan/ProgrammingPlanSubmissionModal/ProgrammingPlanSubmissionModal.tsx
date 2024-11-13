@@ -10,7 +10,7 @@ interface Props {
   programmingPlan: ProgrammingPlan;
 }
 
-const ProgrammingPlanSubmission = ({ programmingPlan }: Props) => {
+const ProgrammingPlanSubmissionModal = ({ programmingPlan }: Props) => {
   const { hasPermission } = useAuthentication();
   const submissionModal = useMemo(
     () =>
@@ -82,4 +82,4 @@ const ProgrammingPlanSubmission = ({ programmingPlan }: Props) => {
   );
 };
 
-export default ProgrammingPlanSubmission;
+export default ProgrammingPlanSubmissionModal;

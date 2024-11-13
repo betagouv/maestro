@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import React from 'react';
 import { Sample, SampleToCreate } from 'shared/schema/Sample/Sample';
 import { SampleItem } from 'shared/schema/Sample/SampleItem';
+import { quote } from 'src/utils/stringUtils';
 import SampleItemDetails from 'src/views/SampleView/SampleItemDetails/SampleItemDetails';
 
 interface Props {
@@ -36,7 +37,7 @@ const ItemsStepSummary = ({ sample, itemChildren }: Props) => {
           <div>
             Note additionnelle{' '}
             <div>
-              <b>“ {sample.notesOnItems} “</b>
+              <b>{quote(sample.notesOnItems)}</b>
             </div>
           </div>
         </div>

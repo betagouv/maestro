@@ -18,6 +18,7 @@ export const PrescriptionByMatrix = z.object({
       sampleCount: true,
       laboratoryId: true,
       region: true,
+      comments: true,
     }).merge(
       z.object({
         sentSampleCount: z.number(),
@@ -73,6 +74,7 @@ export const genPrescriptionByMatrix = (
               sentSampleCount: regionalSamples.length,
               region,
               laboratoryId: regionalPrescription.laboratoryId,
+              comments: regionalPrescription.comments,
             };
           }),
         });

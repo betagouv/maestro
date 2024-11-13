@@ -17,6 +17,7 @@ export const UserPermission = z.enum([
   'updatePrescriptionSampleCount',
   'updatePrescriptionLaboratory',
   'deletePrescription',
+  'commentPrescription',
   'createResource',
   'readDocuments',
   'deleteDocument',

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { constants } from 'http2';
-import ProgrammingPlanMissingError from '../../../shared/errors/promgrammingPlanMissingError';
+import ProgrammingPlanMissingError from '../../../shared/errors/programmingPlanMissingError';
 import { ProgrammingPlanStatus } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
 

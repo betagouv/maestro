@@ -1,4 +1,4 @@
-@import '../../constants';
+@import '../../../constants';
 
 .prescription-cards-container {
   display: flex;
@@ -7,9 +7,21 @@
 }
 
 .prescription-card {
+  * {
+    order: unset;
+  }
+
+  .fr-card__content {
+    gap: 0.75rem;
+  }
+  .fr-card__end {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    justify-content: end;
+  }
+
   .fr-card__title {
     color: var(--text-action-high-blue-france);
-    order: 0;
   }
 
   table {
@@ -24,6 +36,14 @@
 
     td:has(.fr-input-group) {
       padding-top: 0;
+    }
+  }
+
+  ul {
+    margin-bottom: 0;
+
+    li:last-of-type {
+      padding-bottom: 0;
     }
   }
 }

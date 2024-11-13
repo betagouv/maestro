@@ -3,7 +3,7 @@ import { AuthenticatedRequest, ProgrammingPlanRequest } from 'express-jwt';
 import { constants } from 'http2';
 import _, { isArray } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
-import ProgrammingPlanMissingError from '../../shared/errors/promgrammingPlanMissingError';
+import ProgrammingPlanMissingError from '../../shared/errors/programmingPlanMissingError';
 import { ContextList } from '../../shared/schema/ProgrammingPlan/Context';
 import { FindProgrammingPlanOptions } from '../../shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import { ProgrammingPlanUpdate } from '../../shared/schema/ProgrammingPlan/ProgrammingPlans';

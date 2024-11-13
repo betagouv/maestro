@@ -6,6 +6,7 @@ import {
   PrescriptionsToDelete,
   PrescriptionUpdate,
 } from '../../shared/schema/Prescription/Prescription';
+import { PrescriptionCommentToCreate } from '../../shared/schema/Prescription/PrescriptionComment';
 import prescriptionController from '../controllers/prescriptionController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
 import { programmingPlanCheck } from '../middlewares/checks/programmingPlanCheck';
@@ -56,5 +57,18 @@ router.delete(
   permissionsCheck(['deletePrescription']),
   programmingPlanCheck('InProgress'),
   prescriptionController.deletePrescriptions
+);
+router.post(
+  '/:prescriptionId/comments',
+  validator.validate(
+    params(
+      z.object({
+        prescriptionId: z.string().uuid(),
+      })
+    ).merge(body(PrescriptionCommentToCreate))
+  ),
+  permissionsCheck(['commentPrescription']),
+  programmingPlanCheck('Submitted'),
+  prescriptionController.commentPrescription
 );
 export default router;

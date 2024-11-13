@@ -6,7 +6,7 @@ import {
   PrescriptionByMatrix,
 } from 'shared/schema/Prescription/PrescriptionsByMatrix';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
-import PrescriptionCountCell from 'src/components/PrescriptionCountCell/PrescriptionCountCell';
+import PrescriptionCountCell from 'src/components/Prescription/PrescriptionCountCell/PrescriptionCountCell';
 import './PrescriptionCard.scss';
 
 interface Props {
@@ -44,12 +44,13 @@ const PrescriptionCardPartialTable = ({
             <PrescriptionCountCell
               prescriptionId={regionalData.prescriptionId}
               programmingPlan={programmingPlan}
-              sampleCount={regionalData.sampleCount}
-              sentSampleCount={regionalData.sentSampleCount}
+              samplesCount={regionalData.sampleCount}
+              sentSamplesCount={regionalData.sentSampleCount}
               completionRate={matrixCompletionRate(
                 prescriptionByMatrix,
                 regionalData.region
               )}
+              comments={regionalData.comments}
               onChange={async (value) =>
                 onChangePrescriptionCount(regionalData.prescriptionId, value)
               }

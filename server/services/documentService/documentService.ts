@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
 import handlebars from 'handlebars';
 import puppeteer from 'puppeteer';
-import ProgrammingPlanMissingError from '../../../shared/errors/promgrammingPlanMissingError';
+import ProgrammingPlanMissingError from '../../../shared/errors/programmingPlanMissingError';
 import { MatrixLabels } from '../../../shared/referential/Matrix/MatrixLabels';
 import { MatrixPartLabels } from '../../../shared/referential/MatrixPart';
 import { QuantityUnitLabels } from '../../../shared/referential/QuantityUnit';

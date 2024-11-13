@@ -15,7 +15,7 @@ import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans'
 import { PartialSample } from 'shared/schema/Sample/Sample';
 import { isNotEmpty } from 'shared/utils/utils';
 import EditableSelectCell from 'src/components/EditableCell/EditableSelectCell';
-import PrescriptionCountCell from 'src/components/PrescriptionCountCell/PrescriptionCountCell';
+import PrescriptionCountCell from 'src/components/Prescription/PrescriptionCountCell/PrescriptionCountCell';
 import RegionHeaderCell from 'src/components/RegionHeaderCell/RegionHeaderCell';
 import { laboratoriesOptions } from 'src/components/_app/AppSelect/AppSelectOption';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -129,7 +129,13 @@ const PrescriptionTable = ({
             </div>
           ),
           ...p.regionalData.map(
-            ({ sampleCount, sentSampleCount, region, prescriptionId }) => (
+            ({
+              sampleCount,
+              sentSampleCount,
+              region,
+              prescriptionId,
+              comments,
+            }) => (
               <div
                 className="border-left"
                 data-testid={`cell-${p.matrix}`}
@@ -138,9 +144,10 @@ const PrescriptionTable = ({
                 <PrescriptionCountCell
                   prescriptionId={prescriptionId}
                   programmingPlan={programmingPlan}
-                  sampleCount={sampleCount}
-                  sentSampleCount={sentSampleCount}
+                  samplesCount={sampleCount}
+                  sentSamplesCount={sentSampleCount}
                   completionRate={matrixCompletionRate(p, region)}
+                  comments={comments}
                   onChange={async (value) =>
                     onChangePrescriptionCount(prescriptionId, value)
                   }

@@ -11,6 +11,7 @@ import {
   SampleToCreate,
 } from 'shared/schema/Sample/Sample';
 import { useAuthentication } from 'src/hooks/useAuthentication';
+import { quote } from 'src/utils/stringUtils';
 import StepSummary from 'src/views/SampleView/StepSummary/StepSummary';
 
 interface Props {
@@ -122,7 +123,7 @@ const ContextStepSummary = ({
           <div>
             Note additionnelle{' '}
             <div>
-              <b>“ {sample.notesOnCreation} “</b>
+              <b>{quote(sample.notesOnCreation)}</b>
             </div>
           </div>
         </div>

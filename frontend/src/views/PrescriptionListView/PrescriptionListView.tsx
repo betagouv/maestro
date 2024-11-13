@@ -9,7 +9,10 @@ import { Matrix } from 'shared/referential/Matrix/Matrix';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
 import { Region, RegionList, Regions } from 'shared/referential/Region';
 import { Stage } from 'shared/referential/Stage';
-import { FindPrescriptionOptions } from 'shared/schema/Prescription/FindPrescriptionOptions';
+import {
+  FindPrescriptionOptions,
+  FindPrescriptionOptionsInclude,
+} from 'shared/schema/Prescription/FindPrescriptionOptions';
 import {
   genPrescriptionByMatrix,
   PrescriptionByMatrix,
@@ -21,8 +24,8 @@ import {
 } from 'shared/schema/ProgrammingPlan/Context';
 import { userRegions } from 'shared/schema/User/User';
 import AutoClose from 'src/components/AutoClose/AutoClose';
-import PrescriptionCard from 'src/components/PrescriptionCard/PrescriptionCard';
-import ProgrammingPlanSubmission from 'src/components/ProgrammingPlan/ProgrammingPlanSubmission/ProgrammingPlanSubmission';
+import PrescriptionCard from 'src/components/Prescription/PrescriptionCard/PrescriptionCard';
+import ProgrammingPlanSubmissionModal from 'src/components/ProgrammingPlan/ProgrammingPlanSubmissionModal/ProgrammingPlanSubmissionModal';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
@@ -79,6 +82,7 @@ const PrescriptionListView = () => {
       programmingPlanId: programmingPlan?.id as string,
       context: prescriptionListContext,
       region,
+      includes: 'comments' as FindPrescriptionOptionsInclude,
     }),
     [programmingPlan, prescriptionListContext, region]
   );
@@ -256,7 +260,9 @@ const PrescriptionListView = () => {
                 }
               />
               {programmingPlan && (
-                <ProgrammingPlanSubmission programmingPlan={programmingPlan} />
+                <ProgrammingPlanSubmissionModal
+                  programmingPlan={programmingPlan}
+                />
               )}
             </>
           }

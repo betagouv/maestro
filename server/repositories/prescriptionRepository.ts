@@ -1,7 +1,12 @@
-import fp from 'lodash';
-import { FindPrescriptionOptions } from '../../shared/schema/Prescription/FindPrescriptionOptions';
+import { Knex } from 'knex';
+import { default as fp, default as _, isArray } from 'lodash';
+import {
+  FindPrescriptionOptions,
+  FindPrescriptionOptionsInclude,
+} from '../../shared/schema/Prescription/FindPrescriptionOptions';
 import { Prescription } from '../../shared/schema/Prescription/Prescription';
 import db from './db';
+import { prescriptionCommentsTable } from './prescriptionCommentRepository';
 
 const prescriptionsTable = 'prescriptions';
 
@@ -20,17 +25,62 @@ const findMany = async (
 ): Promise<Prescription[]> => {
   console.info('Find prescriptions', fp.omitBy(findOptions, fp.isNil));
   return Prescriptions()
-    .where(fp.omitBy(fp.omit(findOptions, 'stage'), fp.isNil))
+    .select(`${prescriptionsTable}.*`)
+    .where(fp.omitBy(fp.omit(findOptions, 'stage', 'includes'), fp.isNil))
     .modify((builder) => {
       if (findOptions.stage) {
         builder.where('stages', '@>', [findOptions.stage]);
       }
     })
+    .modify(include(findOptions))
     .then((prescriptions) =>
       prescriptions.map((_: Prescription) =>
         Prescription.parse(fp.omitBy(_, fp.isNil))
       )
     );
+};
+
+const include = (opts?: FindPrescriptionOptions) => {
+  const joins: Record<
+    FindPrescriptionOptionsInclude,
+    (query: Knex.QueryBuilder) => void
+  > = {
+    comments: (query) => {
+      query
+        .select(
+          db.raw(
+            `case 
+              when count(${prescriptionCommentsTable}.id) > 0 
+                then array_agg(
+                  json_build_object(
+                    'id', ${prescriptionCommentsTable}.id, 
+                    'comment', ${prescriptionCommentsTable}.comment, 
+                    'createdAt', ${prescriptionCommentsTable}.created_at, 
+                    'createdBy', ${prescriptionCommentsTable}.created_by
+                  )
+                ) 
+              else '{}' end as comments`
+          )
+        )
+        .leftJoin(
+          prescriptionCommentsTable,
+          `${prescriptionCommentsTable}.prescription_id`,
+          `${prescriptionsTable}.id`
+        )
+        .groupBy(`${prescriptionsTable}.id`);
+    },
+  };
+
+  return (query: Knex.QueryBuilder) => {
+    const includes = opts?.includes
+      ? isArray(opts.includes)
+        ? opts.includes
+        : [opts.includes]
+      : [];
+    _.uniq(includes).forEach((include) => {
+      joins[include as FindPrescriptionOptionsInclude](query);
+    });
+  };
 };
 
 const insert = async (prescription: Prescription): Promise<void> => {

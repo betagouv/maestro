@@ -12,7 +12,7 @@ interface Props {
 
 const PrescriptionCardContent = ({ prescriptionByMatrix, subtitle }: Props) => {
   return (
-    <>
+    <div>
       <h3 className={cx('fr-card__title')}>
         {MatrixLabels[prescriptionByMatrix.matrix]}
       </h3>
@@ -31,7 +31,7 @@ const PrescriptionCardContent = ({ prescriptionByMatrix, subtitle }: Props) => {
           ))}
         </ul>
       </div>
-    </>
+    </div>
   );
 };
 

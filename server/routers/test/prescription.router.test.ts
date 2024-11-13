@@ -9,12 +9,17 @@ import {
   Sampler1Fixture,
 } from '../../../database/seeds/test/001-users';
 import { MatrixList } from '../../../shared/referential/Matrix/Matrix';
+import { Region, RegionList } from '../../../shared/referential/Region';
 import { StageList } from '../../../shared/referential/Stage';
 import {
   Prescription,
   PrescriptionsToDelete,
   PrescriptionUpdate,
 } from '../../../shared/schema/Prescription/Prescription';
+import {
+  PrescriptionComment,
+  PrescriptionCommentToCreate,
+} from '../../../shared/schema/Prescription/PrescriptionComment';
 import { ProgrammingPlanStatus } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { genPrescriptions } from '../../../shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from '../../../shared/test/programmingPlanFixtures';
@@ -24,6 +29,7 @@ import {
   oneOf,
 } from '../../../shared/test/testFixtures';
 import { Laboratories } from '../../repositories/laboratoryRepository';
+import { PrescriptionComments } from '../../repositories/prescriptionCommentRepository';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import { ProgrammingPlans } from '../../repositories/programmingPlanRepository';
 import { createServer } from '../../server';
@@ -32,17 +38,46 @@ import { tokenProvider } from '../../test/testUtils';
 describe('Prescriptions router', () => {
   const { app } = createServer();
 
-  const programmingPlanInProgress = genProgrammingPlan({
-    createdBy: NationalCoordinator.id,
-    status: 'InProgress' as ProgrammingPlanStatus,
-    year: 2020,
-  });
   const programmingPlanValidated = genProgrammingPlan({
     createdBy: NationalCoordinator.id,
     status: 'Validated' as ProgrammingPlanStatus,
+    year: 2020,
+  });
+  const programmingPlanSubmitted = genProgrammingPlan({
+    createdBy: NationalCoordinator.id,
+    status: 'Submitted' as ProgrammingPlanStatus,
     year: 2021,
   });
+  const programmingPlanInProgress = genProgrammingPlan({
+    createdBy: NationalCoordinator.id,
+    status: 'InProgress' as ProgrammingPlanStatus,
+    year: 2022,
+  });
   const laboratory = genLaboratory();
+  const validatedControlPrescription = genPrescriptions({
+    programmingPlanId: programmingPlanValidated.id,
+    context: 'Control',
+    laboratoryId: laboratory.id,
+    matrix: oneOf(MatrixList),
+    stages: [oneOf(StageList)],
+  });
+  const validatedControlPrescriptionComment: PrescriptionComment = {
+    id: uuidv4(),
+    prescriptionId:
+      validatedControlPrescription[
+        RegionList.indexOf(RegionalCoordinator.region as Region)
+      ].id,
+    comment: randomstring.generate(),
+    createdBy: RegionalCoordinator.id,
+    createdAt: new Date(),
+  };
+  const submittedControlPrescription = genPrescriptions({
+    programmingPlanId: programmingPlanSubmitted.id,
+    context: 'Control',
+    laboratoryId: laboratory.id,
+    matrix: oneOf(MatrixList),
+    stages: [oneOf(StageList)],
+  });
   const inProgressControlPrescription = genPrescriptions({
     programmingPlanId: programmingPlanInProgress.id,
     context: 'Control',
@@ -57,25 +92,21 @@ describe('Prescriptions router', () => {
     matrix: oneOf(MatrixList),
     stages: [oneOf(StageList)],
   });
-  const validatedControlPrescription = genPrescriptions({
-    programmingPlanId: programmingPlanValidated.id,
-    context: 'Control',
-    laboratoryId: laboratory.id,
-    matrix: oneOf(MatrixList),
-    stages: [oneOf(StageList)],
-  });
 
   beforeAll(async () => {
     await ProgrammingPlans().insert([
-      programmingPlanInProgress,
       programmingPlanValidated,
+      programmingPlanSubmitted,
+      programmingPlanInProgress,
     ]);
     await Laboratories().insert(laboratory);
     await Prescriptions().insert([
+      ...validatedControlPrescription,
+      ...submittedControlPrescription,
       ...inProgressControlPrescription,
       ...inProgressSurveillancePrescription,
-      ...validatedControlPrescription,
     ]);
+    await PrescriptionComments().insert([validatedControlPrescriptionComment]);
   });
 
   afterAll(async () => {
@@ -95,8 +126,14 @@ describe('Prescriptions router', () => {
   });
 
   describe('GET /prescriptions', () => {
-    const testRoute = (programmingPlanId: string, context: string) =>
-      `/api/prescriptions?programmingPlanId=${programmingPlanId}&context=${context}`;
+    const testRoute = (
+      programmingPlanId: string,
+      context: string,
+      params?: Record<string, string>
+    ) =>
+      `/api/prescriptions?programmingPlanId=${programmingPlanId}&context=${context}${
+        params ? `&${new URLSearchParams(params).toString()}` : ''
+      }`;
 
     it('should fail if the user is not authenticated', async () => {
       await request(app)
@@ -146,6 +183,39 @@ describe('Prescriptions router', () => {
           inProgressControlPrescription.filter(
             ({ region }) => region === RegionalCoordinator.region
           )
+        )
+      );
+    });
+
+    it('should retrieve the comments of the prescriptions if requested', async () => {
+      const res = await request(app)
+        .get(
+          `${testRoute(
+            programmingPlanValidated.id,
+            'Control'
+          )}&includes=comments`
+        )
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toMatchObject(
+        expect.arrayContaining(
+          validatedControlPrescription.map((prescription) => ({
+            ...prescription,
+            comments:
+              prescription.id ===
+              validatedControlPrescriptionComment.prescriptionId
+                ? [
+                    {
+                      id: validatedControlPrescriptionComment.id,
+                      comment: validatedControlPrescriptionComment.comment,
+                      createdBy: validatedControlPrescriptionComment.createdBy,
+                      createdAt:
+                        validatedControlPrescriptionComment.createdAt.toISOString(),
+                    },
+                  ]
+                : [],
+          }))
         )
       );
     });
@@ -382,6 +452,106 @@ describe('Prescriptions router', () => {
       expect(res.body).toMatchObject({
         ...inProgressControlPrescription[1],
         laboratoryId: prescriptionUpdate.laboratoryId,
+      });
+    });
+  });
+
+  describe('POST /prescriptions/{prescriptionId}/comments', () => {
+    const validComment: PrescriptionCommentToCreate = {
+      programmingPlanId: programmingPlanSubmitted.id,
+      comment: randomstring.generate(),
+    };
+
+    const regionalPrescription =
+      submittedControlPrescription[
+        RegionList.indexOf(RegionalCoordinator.region as Region)
+      ];
+
+    const testRoute = (prescriptionId: string = regionalPrescription.id) =>
+      `/api/prescriptions/${prescriptionId}/comments`;
+
+    it('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .post(testRoute())
+        .send(validComment)
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    it('should fail if the prescription does not exist', async () => {
+      await request(app)
+        .post(testRoute(uuidv4()))
+        .send(validComment)
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_NOT_FOUND);
+    });
+
+    it('should get a valid body', async () => {
+      const badRequestTest = async (payload?: Record<string, unknown>) =>
+        request(app)
+          .post(testRoute())
+          .send(payload)
+          .use(tokenProvider(RegionalCoordinator))
+          .expect(constants.HTTP_STATUS_BAD_REQUEST);
+
+      await badRequestTest();
+      await badRequestTest({ programmingPlanId: undefined });
+      await badRequestTest({ programmingPlanId: randomstring.generate() });
+      await badRequestTest({ comment: undefined });
+      await badRequestTest({ comment: '' });
+      await badRequestTest({ comment: 123 });
+    });
+
+    it('should fail if the user does not have the permission to comment prescriptions', async () => {
+      await request(app)
+        .post(testRoute())
+        .send(validComment)
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    it('should fail if the prescription does not belong to the user region', async () => {
+      await request(app)
+        .post(testRoute(submittedControlPrescription[0].id))
+        .send(validComment)
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    it('should fail if the programming plan is validated', async () => {
+      await request(app)
+        .post(testRoute())
+        .send({
+          ...validComment,
+          programmingPlanId: programmingPlanValidated.id,
+        })
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    it('should add a comment to the prescription', async () => {
+      const res = await request(app)
+        .post(testRoute())
+        .send(validComment)
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_CREATED);
+
+      expect(res.body).toMatchObject({
+        id: expect.any(String),
+        prescriptionId: regionalPrescription.id,
+        comment: validComment.comment,
+        createdBy: RegionalCoordinator.id,
+        createdAt: expect.any(String),
+      });
+
+      await expect(
+        PrescriptionComments()
+          .where({ prescriptionId: regionalPrescription.id })
+          .first()
+      ).resolves.toMatchObject({
+        id: res.body.id,
+        prescriptionId: regionalPrescription.id,
+        comment: validComment.comment,
+        createdBy: RegionalCoordinator.id,
       });
     });
   });

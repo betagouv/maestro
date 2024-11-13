@@ -3,6 +3,7 @@ import { Matrix } from '../../referential/Matrix/Matrix';
 import { Region } from '../../referential/Region';
 import { Stage } from '../../referential/Stage';
 import { Context } from '../ProgrammingPlan/Context';
+import { PrescriptionComment } from './PrescriptionComment';
 
 export const Prescription = z.object({
   id: z.string().uuid(),
@@ -13,6 +14,16 @@ export const Prescription = z.object({
   stages: z.array(Stage),
   sampleCount: z.number(),
   laboratoryId: z.string().nullish(),
+  comments: z
+    .array(
+      PrescriptionComment.pick({
+        id: true,
+        comment: true,
+        createdAt: true,
+        createdBy: true,
+      })
+    )
+    .nullish(),
 });
 
 export const PrescriptionsToCreate = z.object({
