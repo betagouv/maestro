@@ -1,4 +1,3 @@
-import Alert from '@codegouvfr/react-dsfr/Alert';
 import Badge from '@codegouvfr/react-dsfr/Badge';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
@@ -6,6 +5,7 @@ import Tile from '@codegouvfr/react-dsfr/Tile';
 import clsx from 'clsx';
 import { isAfter } from 'date-fns';
 import { default as _ } from 'lodash';
+import { useMemo } from 'react';
 import { Regions } from 'shared/referential/Region';
 import { ContextList } from 'shared/schema/ProgrammingPlan/Context';
 import dashboard from 'src/assets/illustrations/dashboard.svg';
@@ -16,9 +16,8 @@ import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useOnLine } from 'src/hooks/useOnLine';
 import { useAppSelector } from 'src/hooks/useStore';
 import {
-  useCreateProgrammingPlanMutation,
+  useFindProgrammingPlansQuery,
   useGetProgrammingPlanByYearQuery,
-  useUpdateProgrammingPlanMutation,
 } from 'src/services/programming-plan.service';
 import { useFindSamplesQuery } from 'src/services/sample.service';
 import ProgrammingPlanCard from 'src/views/DashboardView/ProgrammingPlanCard';
@@ -33,11 +32,18 @@ const DashboardView = () => {
 
   useDocumentTitle('Tableau de bord');
 
-  const { data: nextProgrammingPlan } = useGetProgrammingPlanByYearQuery(
-    new Date().getFullYear() + 1
+  const { data: nextProgrammingPlans } = useFindProgrammingPlansQuery(
+    {
+      status: ['InProgress', 'Submitted'],
+    },
+    {
+      skip: !hasPermission('manageProgrammingPlan'),
+    }
   );
-  const [createProgrammingPlan] = useCreateProgrammingPlanMutation();
-  const [updateProgrammingPlan] = useUpdateProgrammingPlanMutation();
+  const nextProgrammingPlan = useMemo(
+    () => nextProgrammingPlans?.[0],
+    [nextProgrammingPlans]
+  );
 
   const { data } = useFindSamplesQuery(
     {
@@ -90,15 +96,14 @@ const DashboardView = () => {
                 </Button>
               )}
               {hasPermission('manageProgrammingPlan') &&
-                nextProgrammingPlan &&
-                nextProgrammingPlan.status === 'InProgress' && (
+                nextProgrammingPlan && (
                   <div>
                     <Tile
                       detail="À compléter"
                       small
                       orientation="horizontal"
                       linkProps={{
-                        to: `/prescriptions/${nextProgrammingPlan.year}?context=Control`,
+                        to: `/prescriptions/${nextProgrammingPlan.year}`,
                       }}
                       start={
                         <Badge
@@ -117,80 +122,6 @@ const DashboardView = () => {
           }
         />
       </div>
-
-      {hasPermission('manageProgrammingPlan') && (
-        <>
-          {!nextProgrammingPlan && (
-            <Alert
-              severity="info"
-              title={`Programmation ${new Date().getFullYear() + 1}`}
-              className="white-container"
-              description={
-                <>
-                  <p>
-                    Le plan de programmation pour l'année{' '}
-                    {new Date().getFullYear() + 1} n'a pas encore été créé.
-                  </p>
-                  <Button
-                    priority="secondary"
-                    iconId={'fr-icon-arrow-right-line'}
-                    iconPosition="right"
-                    onClick={async () => {
-                      await createProgrammingPlan(new Date().getFullYear() + 1)
-                        .unwrap()
-                        .then((newProgrammingPlan) => {
-                          //TODO
-                        });
-                    }}
-                  >
-                    Créer la programmation
-                  </Button>
-                </>
-              }
-            ></Alert>
-          )}
-
-          {nextProgrammingPlan &&
-            nextProgrammingPlan.status === 'Submitted' && (
-              <Alert
-                severity="success"
-                title={`Programmation ${new Date().getFullYear() + 1}`}
-                className="white-container"
-                description={
-                  <>
-                    <p>
-                      Le plan de programmation pour l'année{' '}
-                      {new Date().getFullYear() + 1} a été soumis aux régions.
-                      <br />
-                      Vous pouvez le modifier en accord avec leurs retours avant
-                      de le figer pour lancer la campagne de prélevements. avant
-                      de la soumettre aux régions.
-                    </p>
-                    <Button
-                      priority="secondary"
-                      iconId={'fr-icon-arrow-right-line'}
-                      iconPosition="right"
-                      onClick={async () => {
-                        await updateProgrammingPlan({
-                          programmingPlanId: nextProgrammingPlan.id,
-                          programmingPlanUpdate: {
-                            status: 'Validated',
-                          },
-                        })
-                          .unwrap()
-                          .then((newProgrammingPlan) => {
-                            //TODO
-                          });
-                      }}
-                    >
-                      Lancer la campagne de prélèvements
-                    </Button>
-                  </>
-                }
-              ></Alert>
-            )}
-        </>
-      )}
 
       {isOnline && (
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>

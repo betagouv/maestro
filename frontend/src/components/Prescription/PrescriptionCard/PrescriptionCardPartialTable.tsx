@@ -30,7 +30,7 @@ const PrescriptionCardPartialTable = ({
       noCaption
       noScroll
       fixed
-      headers={RegionList.slice(0, RegionList.length / 2).map((region) => (
+      headers={RegionList.slice(start, end).map((region) => (
         <div
           key={`prescription_${prescriptionByMatrix.matrix}_header_${region}`}
         >
@@ -38,21 +38,24 @@ const PrescriptionCardPartialTable = ({
         </div>
       ))}
       data={[
-        prescriptionByMatrix.regionalData
+        prescriptionByMatrix.regionalPrescriptions
           .slice(start, end)
-          .map((regionalData) => (
+          .map((regionalPrescriptions) => (
             <PrescriptionCountCell
-              prescriptionId={regionalData.prescriptionId}
+              prescriptionId={regionalPrescriptions.prescriptionId}
               programmingPlan={programmingPlan}
-              samplesCount={regionalData.sampleCount}
-              sentSamplesCount={regionalData.sentSampleCount}
+              samplesCount={regionalPrescriptions.sampleCount}
+              sentSamplesCount={regionalPrescriptions.sentSampleCount}
               completionRate={matrixCompletionRate(
                 prescriptionByMatrix,
-                regionalData.region
+                regionalPrescriptions.region
               )}
-              comments={regionalData.comments}
+              comments={regionalPrescriptions.comments}
               onChange={async (value) =>
-                onChangePrescriptionCount(regionalData.prescriptionId, value)
+                onChangePrescriptionCount(
+                  regionalPrescriptions.prescriptionId,
+                  value
+                )
               }
             />
           )),

@@ -53,7 +53,7 @@ const programmingPlanRequest = {
 const prescriptionRequest = (region?: Region) => ({
   pathname: `/api/prescriptions?programmingPlanId=${
     programmingPlan.id
-  }&context=Control${region ? `&region=${region}` : ''}`,
+  }&context=Control${region ? `&region=${region}` : ''}&includes=comments`,
   response: {
     body: JSON.stringify([...prescriptions1, ...prescriptions2]),
   },

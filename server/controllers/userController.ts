@@ -1,14 +1,14 @@
 import { Request, Response } from 'express';
 import { AuthenticatedRequest } from 'express-jwt';
 import { constants } from 'http2';
-import fp from 'lodash';
+import { default as fp } from 'lodash';
 import { FindUserOptions } from '../../shared/schema/User/FindUserOptions';
-import { UserInfos } from '../../shared/schema/User/User';
+import { UserInfos, userRegions } from '../../shared/schema/User/User';
 import userRepository from '../repositories/userRepository';
 
 const getUserInfos = async (request: Request, response: Response) => {
   const { userId } = request.params;
-  const { userId: authUserId } = (request as AuthenticatedRequest).auth;
+  const authUser = (request as AuthenticatedRequest).user;
 
   console.info('Get user', userId);
 
@@ -18,7 +18,7 @@ const getUserInfos = async (request: Request, response: Response) => {
     return response.sendStatus(constants.HTTP_STATUS_NOT_FOUND);
   }
 
-  if (user.id !== authUserId) {
+  if (fp.intersection(userRegions(user), userRegions(authUser)).length === 0) {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
   }
 

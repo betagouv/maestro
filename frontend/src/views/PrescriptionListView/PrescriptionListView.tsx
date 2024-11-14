@@ -24,7 +24,8 @@ import {
 } from 'shared/schema/ProgrammingPlan/Context';
 import { userRegions } from 'shared/schema/User/User';
 import AutoClose from 'src/components/AutoClose/AutoClose';
-import PrescriptionCard from 'src/components/Prescription/PrescriptionCard/PrescriptionCard';
+import PrescriptionCardNational from 'src/components/Prescription/PrescriptionCard/PrescriptionCardNational';
+import PrescriptionCardRegional from 'src/components/Prescription/PrescriptionCard/PrescriptionCardRegional';
 import ProgrammingPlanSubmissionModal from 'src/components/ProgrammingPlan/ProgrammingPlanSubmissionModal/ProgrammingPlanSubmissionModal';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -52,7 +53,7 @@ const PrescriptionListView = () => {
     useAppSelector((state) => state.prescriptions);
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const { userInfos } = useAuthentication();
+  const { userInfos, hasNationalView } = useAuthentication();
 
   const [addPrescriptions, { isSuccess: isAddSuccess }] =
     useAddPrescriptionsMutation();
@@ -82,13 +83,15 @@ const PrescriptionListView = () => {
       programmingPlanId: programmingPlan?.id as string,
       context: prescriptionListContext,
       region,
-      includes: 'comments' as FindPrescriptionOptionsInclude,
     }),
     [programmingPlan, prescriptionListContext, region]
   );
 
   const { data: allPrescriptions } = useFindPrescriptionsQuery(
-    findPrescriptionOptions,
+    {
+      ...findPrescriptionOptions,
+      includes: 'comments' as FindPrescriptionOptionsInclude,
+    },
     {
       skip: !programmingPlan,
     }
@@ -309,15 +312,27 @@ const PrescriptionListView = () => {
                 }
               >
                 {prescriptionsByMatrix.map((prescriptionByMatrix) => (
-                  <PrescriptionCard
-                    programmingPlan={programmingPlan}
-                    prescriptionByMatrix={prescriptionByMatrix}
-                    onChangePrescriptionCount={changePrescriptionCount(
-                      programmingPlan.id
+                  <>
+                    {hasNationalView ? (
+                      <PrescriptionCardNational
+                        programmingPlan={programmingPlan}
+                        prescriptionByMatrix={prescriptionByMatrix}
+                        onChangePrescriptionCount={changePrescriptionCount(
+                          programmingPlan.id
+                        )}
+                        onRemovePrescriptionByMatrix={
+                          removePrescriptionByMatrix
+                        }
+                        key={`prescription_${prescriptionByMatrix.matrix}`}
+                      />
+                    ) : (
+                      <PrescriptionCardRegional
+                        programmingPlan={programmingPlan}
+                        prescriptionByMatrix={prescriptionByMatrix}
+                        key={`prescription_${prescriptionByMatrix.matrix}`}
+                      />
                     )}
-                    onRemovePrescriptionByMatrix={removePrescriptionByMatrix}
-                    key={`prescription_${prescriptionByMatrix.matrix}`}
-                  />
+                  </>
                 ))}
               </div>
             )}

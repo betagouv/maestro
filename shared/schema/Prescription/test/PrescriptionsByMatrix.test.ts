@@ -133,7 +133,7 @@ describe('PrescriptionsByMatrix', () => {
           context: 'Control',
           matrix: 'A000L',
           stages: ['STADE3'],
-          regionalData: [
+          regionalPrescriptions: [
             {
               prescriptionId: '201',
               sampleCount: 0,
@@ -267,7 +267,7 @@ describe('PrescriptionsByMatrix', () => {
           context: 'Control',
           matrix: 'A000L',
           stages: ['STADE2'],
-          regionalData: [
+          regionalPrescriptions: [
             {
               prescriptionId: '3',
               sampleCount: 0,
@@ -401,7 +401,7 @@ describe('PrescriptionsByMatrix', () => {
           context: 'Control',
           matrix: 'A001X',
           stages: ['STADE2'],
-          regionalData: [
+          regionalPrescriptions: [
             {
               prescriptionId: '101',
               sampleCount: 0,
@@ -535,7 +535,7 @@ describe('PrescriptionsByMatrix', () => {
           context: 'Control',
           matrix: 'A000L',
           stages: ['STADE2'],
-          regionalData: [
+          regionalPrescriptions: [
             {
               prescriptionId: '301',
               sampleCount: 0,
@@ -675,7 +675,7 @@ describe('PrescriptionsByMatrix', () => {
         context: 'Control',
         matrix: 'A000L',
         stages: ['STADE2'],
-        regionalData: [
+        regionalPrescriptions: [
           {
             prescriptionId: '1',
             sampleCount: 5,
@@ -695,7 +695,7 @@ describe('PrescriptionsByMatrix', () => {
         context: 'Control',
         matrix: 'A000L',
         stages: ['STADE2'],
-        regionalData: [
+        regionalPrescriptions: [
           {
             prescriptionId: '1',
             sampleCount: 5,
@@ -715,7 +715,7 @@ describe('PrescriptionsByMatrix', () => {
         context: 'Control',
         matrix: 'A000L',
         stages: ['STADE2'],
-        regionalData: [
+        regionalPrescriptions: [
           {
             prescriptionId: '1',
             sampleCount: 0,
@@ -736,7 +736,7 @@ describe('PrescriptionsByMatrix', () => {
       context: 'Control',
       matrix: 'A000L',
       stages: ['STADE2'],
-      regionalData: [
+      regionalPrescriptions: [
         {
           prescriptionId: '1',
           sampleCount: 5,
@@ -772,7 +772,7 @@ describe('PrescriptionsByMatrix', () => {
         context: 'Control',
         matrix: 'A000L',
         stages: ['STADE2'],
-        regionalData: [
+        regionalPrescriptions: [
           {
             prescriptionId: '1',
             sampleCount: 5,
@@ -801,7 +801,7 @@ describe('PrescriptionsByMatrix', () => {
         context: 'Control',
         matrix: 'A000L',
         stages: ['STADE3'],
-        regionalData: [
+        regionalPrescriptions: [
           {
             prescriptionId: '1',
             sampleCount: 10,

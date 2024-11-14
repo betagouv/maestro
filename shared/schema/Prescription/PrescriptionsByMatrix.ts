@@ -8,26 +8,27 @@ import { Context } from '../ProgrammingPlan/Context';
 import { getSampleRegion, PartialSample } from '../Sample/Sample';
 import { Prescription } from './Prescription';
 
+export const RegionalPrescription = Prescription.pick({
+  sampleCount: true,
+  laboratoryId: true,
+  region: true,
+  comments: true,
+}).merge(
+  z.object({
+    sentSampleCount: z.number(),
+    prescriptionId: z.string().uuid(),
+  })
+);
+
 export const PrescriptionByMatrix = z.object({
   programmingPlanId: z.string().uuid(),
   context: Context,
   matrix: Matrix,
   stages: z.array(Stage),
-  regionalData: z.array(
-    Prescription.pick({
-      sampleCount: true,
-      laboratoryId: true,
-      region: true,
-      comments: true,
-    }).merge(
-      z.object({
-        sentSampleCount: z.number(),
-        prescriptionId: z.string().uuid(),
-      })
-    )
-  ),
+  regionalPrescriptions: z.array(RegionalPrescription),
 });
 
+export type RegionalPrescription = z.infer<typeof RegionalPrescription>;
 export type PrescriptionByMatrix = z.infer<typeof PrescriptionByMatrix>;
 
 export const genPrescriptionByMatrix = (
@@ -51,7 +52,7 @@ export const genPrescriptionByMatrix = (
           context: prescription.context,
           matrix: prescription.matrix,
           stages: prescription.stages,
-          regionalData: includedRegions.map((region) => {
+          regionalPrescriptions: includedRegions.map((region) => {
             const regionalPrescription = prescriptions.find(
               (p) =>
                 p.programmingPlanId === prescription.programmingPlanId &&
@@ -107,7 +108,7 @@ export const matrixCompletionRate = (
       : [prescriptionMatrix]
   ).map((prescription) => ({
     ...prescription,
-    regionalData: prescription.regionalData.map((data) => ({
+    regionalPrescriptions: prescription.regionalPrescriptions.map((data) => ({
       ...data,
       sentSampleCount: Math.min(data.sampleCount, data.sentSampleCount),
     })),
@@ -117,18 +118,18 @@ export const matrixCompletionRate = (
     prescriptionsWithLimitedSentCount,
     (prescription) =>
       region
-        ? prescription.regionalData.find((_) => _.region === region)
+        ? prescription.regionalPrescriptions.find((_) => _.region === region)
             ?.sampleCount ?? 0
-        : _.sumBy(prescription.regionalData, 'sampleCount')
+        : _.sumBy(prescription.regionalPrescriptions, 'sampleCount')
   );
 
   const totalSentSampleCount = _.sumBy(
     prescriptionsWithLimitedSentCount,
     (prescription) =>
       region
-        ? prescription.regionalData.find((_) => _.region === region)
+        ? prescription.regionalPrescriptions.find((_) => _.region === region)
             ?.sentSampleCount ?? 0
-        : _.sumBy(prescription.regionalData, 'sentSampleCount')
+        : _.sumBy(prescription.regionalPrescriptions, 'sentSampleCount')
   );
 
   return totalSampleCount

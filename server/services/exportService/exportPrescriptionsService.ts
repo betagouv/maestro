@@ -120,15 +120,15 @@ const writeToWorkbook = async (
             .map((stage) => StageLabels[stage])
             .join('\n'),
           sampleTotalCount: _.sumBy(
-            prescription.regionalData,
+            prescription.regionalPrescriptions,
             ({ sampleCount }) => sampleCount
           ),
           sentSampleTotalCount: _.sumBy(
-            prescription.regionalData,
+            prescription.regionalPrescriptions,
             ({ sentSampleCount }) => sentSampleCount
           ),
           completionRate: matrixCompletionRate(prescription),
-          ...prescription.regionalData.reduce(
+          ...prescription.regionalPrescriptions.reduce(
             (acc, { sampleCount, sentSampleCount, region }) => ({
               ...acc,
               [`sampleCount-${region}`]: sampleCount,
@@ -142,7 +142,8 @@ const writeToWorkbook = async (
           ),
           laboratory: laboratories.find(
             (laboratory) =>
-              laboratory.id === prescription.regionalData[0]?.laboratoryId
+              laboratory.id ===
+              prescription.regionalPrescriptions[0]?.laboratoryId
           )?.name,
         })
         .commit();
@@ -152,12 +153,12 @@ const writeToWorkbook = async (
         matrix: 'Total',
         sampleTotalCount: _.sum(
           prescriptionsByMatrix
-            .flatMap((p) => p.regionalData)
+            .flatMap((p) => p.regionalPrescriptions)
             .map((p) => p.sampleCount)
         ),
         sentSampleTotalCount: _.sum(
           prescriptionsByMatrix
-            .flatMap((p) => p.regionalData)
+            .flatMap((p) => p.regionalPrescriptions)
             .map((p) => p.sentSampleCount)
         ),
         completionRate: matrixCompletionRate(prescriptionsByMatrix),
@@ -167,14 +168,14 @@ const writeToWorkbook = async (
             [`sampleCount-${region}`]: _.sum(
               prescriptionsByMatrix.map(
                 (p) =>
-                  p.regionalData.find((r) => r.region === region)
+                  p.regionalPrescriptions.find((r) => r.region === region)
                     ?.sampleCount ?? 0
               )
             ),
             [`sentSampleCount-${region}`]: _.sum(
               prescriptionsByMatrix.map(
                 (p) =>
-                  p.regionalData.find((r) => r.region === region)
+                  p.regionalPrescriptions.find((r) => r.region === region)
                     ?.sentSampleCount ?? 0
               )
             ),

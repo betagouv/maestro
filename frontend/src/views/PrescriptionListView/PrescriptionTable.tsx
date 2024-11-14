@@ -76,7 +76,7 @@ const PrescriptionTable = ({
     prescriptionByMatrix: PrescriptionByMatrix,
     region: Region
   ) =>
-    prescriptionByMatrix.regionalData.find((r) => r.region === region)
+    prescriptionByMatrix.regionalPrescriptions.find((r) => r.region === region)
       ?.laboratoryId;
 
   const prescriptionsData = useMemo(
@@ -113,13 +113,16 @@ const PrescriptionTable = ({
               key={`total-${p.matrix}-${p.stages}`}
             >
               <div>
-                {_.sumBy(p.regionalData, ({ sampleCount }) => sampleCount)}
+                {_.sumBy(
+                  p.regionalPrescriptions,
+                  ({ sampleCount }) => sampleCount
+                )}
               </div>
               {programmingPlan.status === 'Validated' && (
                 <>
                   <div>
                     {_.sumBy(
-                      p.regionalData,
+                      p.regionalPrescriptions,
                       ({ sentSampleCount }) => sentSampleCount
                     )}
                   </div>
@@ -128,7 +131,7 @@ const PrescriptionTable = ({
               )}
             </div>
           ),
-          ...p.regionalData.map(
+          ...p.regionalPrescriptions.map(
             ({
               sampleCount,
               sentSampleCount,
@@ -194,7 +197,7 @@ const PrescriptionTable = ({
             <div>
               {_.sum(
                 prescriptionsByMatrix
-                  .flatMap((p) => p.regionalData)
+                  .flatMap((p) => p.regionalPrescriptions)
                   .map((p) => p.sampleCount)
               )}
             </div>
@@ -203,7 +206,7 @@ const PrescriptionTable = ({
                 <div>
                   {_.sum(
                     prescriptionsByMatrix
-                      .flatMap((p) => p.regionalData)
+                      .flatMap((p) => p.regionalPrescriptions)
                       .map((p) => p.sentSampleCount)
                   )}
                 </div>
@@ -218,7 +221,8 @@ const PrescriptionTable = ({
               {_.sum(
                 prescriptionsByMatrix.map(
                   (p) =>
-                    p.regionalData.find((r) => r.region === region)?.sampleCount
+                    p.regionalPrescriptions.find((r) => r.region === region)
+                      ?.sampleCount
                 )
               )}
             </div>
@@ -228,7 +232,7 @@ const PrescriptionTable = ({
                   {_.sum(
                     prescriptionsByMatrix.map(
                       (p) =>
-                        p.regionalData.find((r) => r.region === region)
+                        p.regionalPrescriptions.find((r) => r.region === region)
                           ?.sentSampleCount
                     )
                   )}
