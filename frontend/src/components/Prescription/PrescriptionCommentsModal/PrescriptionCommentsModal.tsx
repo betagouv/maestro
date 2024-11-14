@@ -66,6 +66,8 @@ const PrescriptionCommentsModal = ({
           comment,
         },
       });
+      setComment('');
+      form.reset();
     });
   };
 

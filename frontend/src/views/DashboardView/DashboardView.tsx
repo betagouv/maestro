@@ -89,7 +89,8 @@ const DashboardView = () => {
                   Saisir un prélèvement
                 </Button>
               )}
-              {nextProgrammingPlan &&
+              {hasPermission('manageProgrammingPlan') &&
+                nextProgrammingPlan &&
                 nextProgrammingPlan.status === 'InProgress' && (
                   <div>
                     <Tile
