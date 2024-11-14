@@ -135,7 +135,7 @@ const updateProgrammingPlan = async (request: Request, response: Response) => {
         ),
         config.mail.from,
       ],
-      params: {}, //TODO : add params
+      // params: {}, //TODO : add params
     });
   } else if (
     programmingPlan.status === 'Submitted' &&
@@ -148,7 +148,7 @@ const updateProgrammingPlan = async (request: Request, response: Response) => {
         ),
         config.mail.from,
       ],
-      params: {}, //TODO : add params
+      // params: {}, //TODO : add params
     });
   } else {
     return response.sendStatus(constants.HTTP_STATUS_BAD_REQUEST);
