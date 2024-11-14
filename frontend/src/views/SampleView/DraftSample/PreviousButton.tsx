@@ -1,6 +1,7 @@
 import { ButtonProps } from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { useNavigate } from 'react-router-dom';
+import { useAppSelector } from 'src/hooks/useStore';
 import useWindowSize from 'src/hooks/useWindowSize';
 
 interface Props {
@@ -16,6 +17,7 @@ const PreviousButton = ({
 }: Props): ButtonProps => {
   const navigate = useNavigate();
   const { isMobile } = useWindowSize();
+  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
 
   return {
     ...{
@@ -23,9 +25,14 @@ const PreviousButton = ({
       onClick: async (e) => {
         e.preventDefault();
         await onSave();
-        navigate(`/prelevements/${sampleId}?etape=${currentStep - 1}`, {
-          replace: true,
-        });
+        navigate(
+          `/prelevements/${programmingPlan?.year}/${sampleId}?etape=${
+            currentStep - 1
+          }`,
+          {
+            replace: true,
+          }
+        );
       },
       title: 'Retour',
       nativeButtonProps: {

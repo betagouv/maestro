@@ -117,10 +117,14 @@ const updatePrescription = async (request: Request, response: Response) => {
   const updatedPrescription = {
     ...prescription,
     sampleCount:
-      hasPermission(user, 'updatePrescriptionSampleCount') &&
+      hasPermission(user, 'updatePrescription') &&
       prescriptionUpdate.sampleCount
         ? prescriptionUpdate.sampleCount
         : prescription.sampleCount,
+    stages:
+      hasPermission(user, 'updatePrescription') && prescriptionUpdate.stages
+        ? prescriptionUpdate.stages
+        : prescription.stages,
     laboratoryId: hasPermission(user, 'updatePrescriptionLaboratory')
       ? prescriptionUpdate.laboratoryId
       : prescription.laboratoryId,

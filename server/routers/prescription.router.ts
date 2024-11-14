@@ -44,10 +44,7 @@ router.put(
       })
     ).merge(body(PrescriptionUpdate))
   ),
-  permissionsCheck([
-    'updatePrescriptionSampleCount',
-    'updatePrescriptionLaboratory',
-  ]),
+  permissionsCheck(['updatePrescription', 'updatePrescriptionLaboratory']),
   programmingPlanCheck('InProgress'),
   prescriptionController.updatePrescription
 );

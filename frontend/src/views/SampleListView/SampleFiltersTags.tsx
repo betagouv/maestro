@@ -1,4 +1,3 @@
-import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import { format } from 'date-fns';
 import { useMemo } from 'react';
@@ -38,7 +37,6 @@ const SampleFiltersTags = ({ filters, onChange, samplers }: Props) => {
           nativeButtonProps={{
             onClick: () => onChange({ matrix: undefined }),
           }}
-          className={cx('fr-mx-1w')}
         >
           {MatrixLabels[filters.matrix as Matrix]}
         </Tag>
@@ -50,7 +48,6 @@ const SampleFiltersTags = ({ filters, onChange, samplers }: Props) => {
           nativeButtonProps={{
             onClick: () => onChange({ status: undefined }),
           }}
-          className={cx('fr-mx-1w')}
         >
           {filters.status === DraftStatusList.join(',')
             ? 'Brouillon'
@@ -65,7 +62,6 @@ const SampleFiltersTags = ({ filters, onChange, samplers }: Props) => {
           nativeButtonProps={{
             onClick: () => onChange({ sampledBy: undefined }),
           }}
-          className={cx('fr-mx-1w')}
         >
           {sampler.firstName} {sampler.lastName}
         </Tag>
@@ -76,7 +72,6 @@ const SampleFiltersTags = ({ filters, onChange, samplers }: Props) => {
           nativeButtonProps={{
             onClick: () => onChange({ sampledAt: undefined }),
           }}
-          className={cx('fr-mx-1w')}
         >
           {format(new Date(filters.sampledAt as string), 'dd/MM/yyyy')}
         </Tag>
@@ -88,7 +83,6 @@ const SampleFiltersTags = ({ filters, onChange, samplers }: Props) => {
             onClick: () =>
               onChange({ region: undefined, department: undefined }),
           }}
-          className={cx('fr-mx-1w')}
         >
           {Regions[filters.region as Region].name}
         </Tag>
@@ -99,7 +93,6 @@ const SampleFiltersTags = ({ filters, onChange, samplers }: Props) => {
           nativeButtonProps={{
             onClick: () => onChange({ department: undefined }),
           }}
-          className={cx('fr-mx-1w')}
         >
           {DepartmentLabels[filters.department as Department]}
         </Tag>
@@ -110,7 +103,6 @@ const SampleFiltersTags = ({ filters, onChange, samplers }: Props) => {
           nativeButtonProps={{
             onClick: () => onChange({ context: undefined }),
           }}
-          className={cx('fr-mx-1w')}
         >
           {ContextLabels[filters.context]}
         </Tag>

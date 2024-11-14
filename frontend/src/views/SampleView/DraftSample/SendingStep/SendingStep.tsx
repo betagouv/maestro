@@ -16,6 +16,7 @@ import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
 import { useOnLine } from 'src/hooks/useOnLine';
+import { useAppSelector } from 'src/hooks/useStore';
 import { useGetLaboratoryQuery } from 'src/services/laboratory.service';
 import {
   getSupportDocumentURL,
@@ -37,6 +38,7 @@ const SendingStep = ({ sample }: Props) => {
   const navigate = useNavigate();
   const { hasPermission } = useAuthentication();
   const { isOnline } = useOnLine();
+  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
 
   const [items, setItems] = useState<SampleItem[]>(sample.items);
   const [resytalId, setResytalId] = useState(sample.resytalId);
@@ -77,7 +79,7 @@ const SendingStep = ({ sample }: Props) => {
       status: 'Sent',
       sentAt: new Date(),
     } as Sample);
-    navigate(`/prelevements/${sample.id}`, {
+    navigate(`/prelevements/${programmingPlan?.year}/${sample.id}`, {
       replace: true,
     });
   };
@@ -251,9 +253,12 @@ const SendingStep = ({ sample }: Props) => {
                     onClick={async (e: React.MouseEvent<HTMLElement>) => {
                       e.preventDefault();
                       await save('Draft');
-                      navigate(`/prelevements/${sample.id}?etape=1`, {
-                        replace: true,
-                      });
+                      navigate(
+                        `/prelevements/${programmingPlan?.year}/${sample.id}?etape=1`,
+                        {
+                          replace: true,
+                        }
+                      );
                     }}
                   >
                     Compléter ces informations

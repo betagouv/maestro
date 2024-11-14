@@ -179,7 +179,7 @@ describe('PrescriptionListView', () => {
         <Provider store={store}>
           <MemoryRouter
             initialEntries={[
-              `/prescriptions/${programmingPlan.year}${searchParams}`,
+              `/prescriptions/${programmingPlan.year}/${searchParams}`,
             ]}
           >
             <YearRoute element={PrescriptionListView} />

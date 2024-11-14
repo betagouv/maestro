@@ -30,6 +30,7 @@ import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOp
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useForm } from 'src/hooks/useForm';
+import { useAppSelector } from 'src/hooks/useStore';
 import { useFindPrescriptionsQuery } from 'src/services/prescription.service';
 import { useCreateOrUpdateSampleMutation } from 'src/services/sample.service';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
@@ -42,6 +43,7 @@ interface Props {
 
 const MatrixStep = ({ partialSample }: Props) => {
   const navigate = useNavigate();
+  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
 
   const [matrix, setMatrix] = useState(partialSample.matrix);
   const [matrixDetails, setMatrixDetails] = useState(
@@ -78,9 +80,12 @@ const MatrixStep = ({ partialSample }: Props) => {
     e.preventDefault();
     await form.validate(async () => {
       await save('DraftItems');
-      navigate(`/prelevements/${partialSample.id}?etape=3`, {
-        replace: true,
-      });
+      navigate(
+        `/prelevements/${programmingPlan?.year}/${partialSample.id}?etape=3`,
+        {
+          replace: true,
+        }
+      );
     });
   };
 

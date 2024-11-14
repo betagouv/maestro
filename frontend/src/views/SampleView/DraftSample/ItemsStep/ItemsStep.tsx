@@ -15,6 +15,7 @@ import { isDefinedAndNotNull } from 'shared/utils/utils';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import { useForm } from 'src/hooks/useForm';
+import { useAppSelector } from 'src/hooks/useStore';
 import { useCreateOrUpdateSampleMutation } from 'src/services/sample.service';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SampleItemDetails from 'src/views/SampleView/SampleItemDetails/SampleItemDetails';
@@ -28,6 +29,7 @@ interface Props {
 
 const ItemsStep = ({ partialSample }: Props) => {
   const navigate = useNavigate();
+  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
 
   const [items, setItems] = useState<PartialSampleItem[]>(
     !isDefinedAndNotNull(partialSample.items) ||
@@ -54,9 +56,12 @@ const ItemsStep = ({ partialSample }: Props) => {
     e.preventDefault();
     await form.validate(async () => {
       await save('Submitted');
-      navigate(`/prelevements/${partialSample.id}?etape=4`, {
-        replace: true,
-      });
+      navigate(
+        `/prelevements/${programmingPlan?.year}/${partialSample.id}?etape=4`,
+        {
+          replace: true,
+        }
+      );
     });
   };
 

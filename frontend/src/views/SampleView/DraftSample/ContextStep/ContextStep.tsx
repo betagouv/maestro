@@ -176,12 +176,16 @@ const ContextStep = ({ partialSample }: Props) => {
     await form.validate(async () => {
       if (partialSample) {
         await save('DraftMatrix');
-        navigate(`/prelevements/${partialSample.id}`, { replace: true });
+        navigate(`/prelevements/${programmingPlan?.year}/${partialSample.id}`, {
+          replace: true,
+        });
       } else {
         await createOrUpdateSample(formData)
           .unwrap()
           .then((result) => {
-            navigate(`/prelevements/${result.id}`, { replace: true });
+            navigate(`/prelevements/${programmingPlan?.year}/${result.id}`, {
+              replace: true,
+            });
           });
       }
     });
@@ -493,7 +497,8 @@ const ContextStep = ({ partialSample }: Props) => {
               {
                 children: 'Abandonner la saisie',
                 priority: 'tertiary',
-                onClick: (_) => navigate(`/prelevements`),
+                onClick: (_) =>
+                  navigate(`/prelevements/${programmingPlan?.year}`),
                 nativeButtonProps: {
                   'data-testid': 'cancel-button',
                 },

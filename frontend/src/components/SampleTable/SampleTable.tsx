@@ -6,6 +6,7 @@ import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
 import { ContextLabels } from 'shared/schema/ProgrammingPlan/Context';
+import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   isCreatedPartialSample,
   PartialSample,
@@ -24,11 +25,12 @@ import useWindowSize from 'src/hooks/useWindowSize';
 import './SampleTable.scss';
 
 interface Props {
+  programmingPlan: ProgrammingPlan;
   samples: (PartialSample | PartialSampleToCreate)[];
   tableFooter?: React.ReactNode;
 }
 
-const SampleTable = ({ samples, tableFooter }: Props) => {
+const SampleTable = ({ programmingPlan, samples, tableFooter }: Props) => {
   const navigate = useNavigate();
   const { isOnline } = useOnLine();
 
@@ -77,7 +79,9 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
           <SampleStatusBadge status={sample?.status as SampleStatus} />,
         ].map((cell) => (
           <div
-            onClick={() => navigate(`/prelevements/${sample.id}`)}
+            onClick={() =>
+              navigate(`/prelevements/${programmingPlan?.year}/${sample.id}`)
+            }
             style={{
               cursor: 'pointer',
             }}
@@ -90,7 +94,7 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
             title="Voir le prélèvement"
             iconId={'fr-icon-eye-fill'}
             linkProps={{
-              to: `/prelevements/${sample.id}`,
+              to: `/prelevements/${programmingPlan?.year}/${sample.id}`,
             }}
             size="small"
             priority="tertiary"

@@ -10,6 +10,7 @@ import food from 'src/assets/illustrations/food.svg';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import { useDocument } from 'src/hooks/useDocument';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
+import { useAppSelector } from 'src/hooks/useStore';
 import SampleAnalysis from 'src/views/SampleView/SampleAnalysis/SampleAnalysis';
 import SampleOverviewContextTab from 'src/views/SampleView/SampleOverview/SampleOverviewContextTab';
 import { SampleStepTitles } from 'src/views/SampleView/SampleView';
@@ -24,6 +25,7 @@ const SampleOverview = ({ sample }: Props) => {
   useDocumentTitle(`Prélèvement ${sample.reference}`);
 
   const navigate = useNavigate();
+  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
   const { openDocument } = useDocument();
 
   const itemsWithSupportDocument = useMemo(
@@ -111,7 +113,7 @@ const SampleOverview = ({ sample }: Props) => {
       <div className="back">
         <Button
           priority="secondary"
-          onClick={() => navigate(`/prelevements`)}
+          onClick={() => navigate(`/prelevements/${programmingPlan?.year}`)}
           iconId="fr-icon-arrow-left-line"
         >
           Retour aux prélèvements

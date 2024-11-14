@@ -132,6 +132,10 @@ const SampleListView = () => {
     [findSampleOptions, hasNationalView]
   );
 
+  if (!programmingPlan) {
+    return <></>;
+  }
+
   return (
     <section className={clsx(cx('fr-container'), 'main-section')}>
       <SectionHeader
@@ -143,7 +147,7 @@ const SampleListView = () => {
             {hasPermission('createSample') && (
               <Button
                 linkProps={{
-                  to: '/prelevements/nouveau',
+                  to: `/prelevements/${programmingPlan?.year}/nouveau`,
                   target: '_self',
                 }}
                 iconId="fr-icon-microscope-line"
@@ -246,7 +250,10 @@ const SampleListView = () => {
               </>
             )}
             {sampleListDisplay === 'table' && (
-              <SampleTable samples={samples ?? []} />
+              <SampleTable
+                programmingPlan={programmingPlan}
+                samples={samples ?? []}
+              />
             )}
             {isDefinedAndNotNull(samplesCount) &&
               samplesCount > defaultPerPage && (

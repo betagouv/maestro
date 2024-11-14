@@ -25,7 +25,7 @@ const PrescriptionCountCell = ({
 }: Props) => {
   const { hasPermission } = useAuthentication();
 
-  return hasPermission('updatePrescriptionSampleCount') &&
+  return hasPermission('updatePrescription') &&
     programmingPlan.status === 'InProgress' ? (
     <EditableNumberCell
       initialValue={samplesCount}

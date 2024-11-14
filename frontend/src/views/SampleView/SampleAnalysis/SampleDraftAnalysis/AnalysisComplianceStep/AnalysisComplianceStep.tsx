@@ -6,6 +6,7 @@ import { Analysis, PartialAnalysis } from 'shared/schema/Analysis/Analysis';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useForm } from 'src/hooks/useForm';
+import { useAppSelector } from 'src/hooks/useStore';
 import { useUpdateAnalysisMutation } from 'src/services/analysis.service';
 import check from '../../../../../assets/illustrations/check.svg';
 import close from '../../../../../assets/illustrations/close.svg';
@@ -16,6 +17,8 @@ interface Props {
 
 const AnalysisComplianceStep = ({ partialAnalysis }: Props) => {
   const navigate = useNavigate();
+  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
+
   const [updateAnalysis] = useUpdateAnalysisMutation({
     fixedCacheKey: `complete-analysis-${partialAnalysis.sampleId}`,
   });
@@ -41,9 +44,12 @@ const AnalysisComplianceStep = ({ partialAnalysis }: Props) => {
         notesOnCompliance,
         status: 'Completed',
       });
-      navigate(`/prelevements/${partialAnalysis.sampleId}`, {
-        replace: true,
-      });
+      navigate(
+        `/prelevements/${programmingPlan?.year}/${partialAnalysis.sampleId}`,
+        {
+          replace: true,
+        }
+      );
     });
   };
 
@@ -107,9 +113,12 @@ const AnalysisComplianceStep = ({ partialAnalysis }: Props) => {
                   ...partialAnalysis,
                   status: 'Residues',
                 });
-                navigate(`/prelevements/${partialAnalysis.sampleId}?etape=2`, {
-                  replace: true,
-                });
+                navigate(
+                  `/prelevements/${programmingPlan?.year}/${partialAnalysis.sampleId}?etape=2`,
+                  {
+                    replace: true,
+                  }
+                );
               },
               title: 'Retour',
               iconId: 'fr-icon-arrow-left-line',

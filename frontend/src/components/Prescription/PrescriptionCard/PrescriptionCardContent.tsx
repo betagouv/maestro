@@ -1,4 +1,5 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import Tag from '@codegouvfr/react-dsfr/Tag';
 import { ReactNode } from 'react';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
 import { StageLabels } from 'shared/referential/Stage';
@@ -17,19 +18,21 @@ const PrescriptionCardContent = ({ prescriptionByMatrix, subtitle }: Props) => {
         {MatrixLabels[prescriptionByMatrix.matrix]}
       </h3>
       {subtitle}
-      <div className={cx('fr-text--xs', 'fr-card__desc')}>
-        <div className={cx('fr-text--bold', 'fr-mb-0')}>
+      <div className={cx('fr-card__desc')}>
+        <div className={cx('fr-text--md', 'fr-mb-0')}>
           Stades de prélèvement
         </div>
-        <ul>
-          {prescriptionByMatrix.stages.map((stage) => (
-            <li
-              key={`prescription_${prescriptionByMatrix.matrix}_stage_${stage}`}
-            >
-              {StageLabels[stage]}
-            </li>
-          ))}
-        </ul>
+        {prescriptionByMatrix.stages.map((stage) => (
+          <Tag
+            key={`prescription_${prescriptionByMatrix.matrix}_stage_${stage}`}
+            dismissible
+            nativeButtonProps={{
+              onClick: function noRefCheck() {},
+            }}
+          >
+            {StageLabels[stage]}
+          </Tag>
+        ))}
       </div>
     </div>
   );

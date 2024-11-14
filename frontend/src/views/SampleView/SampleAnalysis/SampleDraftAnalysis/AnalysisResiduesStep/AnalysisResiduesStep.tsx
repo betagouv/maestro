@@ -32,6 +32,7 @@ import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useForm } from 'src/hooks/useForm';
+import { useAppSelector } from 'src/hooks/useStore';
 import { useUpdateAnalysisMutation } from 'src/services/analysis.service';
 import ComplexResidueForm from 'src/views/SampleView/SampleAnalysis/SampleDraftAnalysis/AnalysisResiduesStep/ComplexResidueForm';
 import SimpleResidueForm from 'src/views/SampleView/SampleAnalysis/SampleDraftAnalysis/AnalysisResiduesStep/SimpleResidueForm';
@@ -46,6 +47,7 @@ interface Props {
 
 const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
   const navigate = useNavigate();
+  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
   const [updateAnalysis] = useUpdateAnalysisMutation();
 
   const [analysisKind, setAnalysisKind] = useState(
@@ -75,9 +77,12 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
         residues,
         status: 'Compliance',
       });
-      navigate(`/prelevements/${partialAnalysis.sampleId}/analyse?etape=3`, {
-        replace: true,
-      });
+      navigate(
+        `/prelevements/${programmingPlan?.year}/${partialAnalysis.sampleId}/analyse?etape=3`,
+        {
+          replace: true,
+        }
+      );
     });
   };
 
@@ -458,7 +463,7 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
                         status: 'Report',
                       });
                       navigate(
-                        `/prelevements/${partialAnalysis.sampleId}?etape=1`,
+                        `/prelevements/${programmingPlan?.year}/${partialAnalysis.sampleId}?etape=1`,
                         {
                           replace: true,
                         }

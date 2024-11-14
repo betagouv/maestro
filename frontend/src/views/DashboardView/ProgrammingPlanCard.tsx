@@ -112,7 +112,7 @@ const ProgrammingPlanCard = ({
                 className={'fr-card--xs'}
                 enlargeLink
                 linkProps={{
-                  to: `/prelevements?status=${RealizedStatusList}&programmingPlanId=${programmingPlan.id}&context=${context}`,
+                  to: `/prelevements/${programmingPlan.year}?status=${RealizedStatusList}&programmingPlanId=${programmingPlan.id}&context=${context}`,
                 }}
               />
             </div>
@@ -139,7 +139,7 @@ const ProgrammingPlanCard = ({
                 className={'fr-card--xs'}
                 enlargeLink
                 linkProps={{
-                  to: `/prelevements?status=Submitted&programmingPlanId=${programmingPlan.id}`,
+                  to: `/prelevements/${programmingPlan.year}?status=Submitted&programmingPlanId=${programmingPlan.id}`,
                 }}
               />
             </div>

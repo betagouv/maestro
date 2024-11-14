@@ -6,7 +6,6 @@ import clsx from 'clsx';
 import { t } from 'i18next';
 import _ from 'lodash';
 import { Matrix } from 'shared/referential/Matrix/Matrix';
-import { Stage } from 'shared/referential/Stage';
 import { FindPrescriptionOptions } from 'shared/schema/Prescription/FindPrescriptionOptions';
 import { Prescription } from 'shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -16,12 +15,13 @@ import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import useWindowSize from 'src/hooks/useWindowSize';
 import { getPrescriptionsExportURL } from 'src/services/prescription.service';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
+import { pluralize } from 'src/utils/stringUtils';
 
 interface Props {
   programmingPlan: ProgrammingPlan;
   findPrescriptionOptions: FindPrescriptionOptions;
   prescriptions: Prescription[];
-  addMatrix: (matrix: Matrix, stages: Stage[]) => Promise<void>;
+  addMatrix: (matrix: Matrix) => Promise<void>;
 }
 
 const PrescriptionListHeader = ({
@@ -41,20 +41,14 @@ const PrescriptionListHeader = ({
   return (
     <>
       <div className={clsx('d-flex-align-center')}>
-        <div className={cx('fr-text--bold', 'fr-mr-3w')}>
-          {t('matrix', {
-            count: _.uniqBy(prescriptions, (p) => p.matrix).length,
-          })}
-        </div>
+        <h4 className={cx('fr-mb-0', 'fr-mr-3w')}>
+          {t('sample', { count: _.sumBy(prescriptions, 'sampleCount') })} 
+          {pluralize(_.sumBy(prescriptions, 'sampleCount'))('programmé')}
+        </h4>
         {hasPermission('createPrescription') &&
           programmingPlan.status === 'InProgress' && (
             <MatrixSelectModal
-              excludedList={_.uniq(
-                prescriptions.map((p) => ({
-                  matrix: p.matrix,
-                  stages: p.stages,
-                }))
-              )}
+              excludedMatrixList={_.uniq(prescriptions.map((p) => p.matrix))}
               onSelect={addMatrix}
             />
           )}

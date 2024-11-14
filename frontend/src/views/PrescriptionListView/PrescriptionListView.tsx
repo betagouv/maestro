@@ -8,7 +8,6 @@ import { useSearchParams } from 'react-router-dom';
 import { Matrix } from 'shared/referential/Matrix/Matrix';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
 import { Region, RegionList, Regions } from 'shared/referential/Region';
-import { Stage } from 'shared/referential/Stage';
 import {
   FindPrescriptionOptions,
   FindPrescriptionOptionsInclude,
@@ -142,17 +141,13 @@ const PrescriptionListView = () => {
     setSearchParams(urlSearchParams, { replace: true });
   };
 
-  const addMatrix = async (
-    programmingPlanId: string,
-    matrix: Matrix,
-    stages: Stage[]
-  ) => {
+  const addMatrix = async (programmingPlanId: string, matrix: Matrix) => {
     await addPrescriptions({
       programmingPlanId,
       context: prescriptionListContext,
       prescriptions: RegionList.map((region) => ({
         matrix,
-        stages,
+        stages: [],
         region,
         sampleCount: 0,
       })),
@@ -288,7 +283,7 @@ const PrescriptionListView = () => {
           <>
             <div
               className={clsx(
-                cx('fr-mb-2w', 'fr-mb-md-5w', 'fr-container'),
+                cx('fr-mb-2w', 'fr-mb-md-5w', 'fr-px-0', 'fr-container'),
                 'table-header'
               )}
             >
@@ -297,9 +292,7 @@ const PrescriptionListView = () => {
                   programmingPlan={programmingPlan}
                   findPrescriptionOptions={findPrescriptionOptions}
                   prescriptions={prescriptions}
-                  addMatrix={(matrix, stages) =>
-                    addMatrix(programmingPlan.id, matrix, stages)
-                  }
+                  addMatrix={(matrix) => addMatrix(programmingPlan.id, matrix)}
                 />
               }
             </div>
@@ -317,7 +310,7 @@ const PrescriptionListView = () => {
                       <PrescriptionCardNational
                         programmingPlan={programmingPlan}
                         prescriptionByMatrix={prescriptionByMatrix}
-                        onChangePrescriptionCount={changePrescriptionCount(
+                        onChangePrescription={changePrescriptionCount(
                           programmingPlan.id
                         )}
                         onRemovePrescriptionByMatrix={

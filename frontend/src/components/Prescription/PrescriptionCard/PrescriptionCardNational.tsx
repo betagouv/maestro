@@ -14,7 +14,11 @@ import './PrescriptionCard.scss';
 interface Props {
   programmingPlan: ProgrammingPlan;
   prescriptionByMatrix: PrescriptionByMatrix;
-  onChangePrescriptionCount: (prescriptionId: string, value: number) => void;
+  onChangePrescription: (
+    prescriptionId: string,
+    value: number
+    // update: Pick<Prescription, 'sampleCount'>
+  ) => void;
   onRemovePrescriptionByMatrix: (
     prescriptionByMatrix: PrescriptionByMatrix
   ) => Promise<void>;
@@ -23,7 +27,7 @@ interface Props {
 const PrescriptionCardNational = ({
   programmingPlan,
   prescriptionByMatrix,
-  onChangePrescriptionCount,
+  onChangePrescription,
   onRemovePrescriptionByMatrix: removeMatrix,
 }: Props) => {
   const { hasPermission } = useAuthentication();
@@ -66,14 +70,14 @@ const PrescriptionCardNational = ({
               <PrescriptionCardPartialTable
                 programmingPlan={programmingPlan}
                 prescriptionByMatrix={prescriptionByMatrix}
-                onChangePrescriptionCount={onChangePrescriptionCount}
+                onChangePrescriptionCount={onChangePrescription}
                 start={0}
                 end={RegionList.length / 2}
               />
               <PrescriptionCardPartialTable
                 programmingPlan={programmingPlan}
                 prescriptionByMatrix={prescriptionByMatrix}
-                onChangePrescriptionCount={onChangePrescriptionCount}
+                onChangePrescriptionCount={onChangePrescription}
                 start={RegionList.length / 2}
               />
             </div>

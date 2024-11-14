@@ -87,7 +87,7 @@ const DashboardView = () => {
                 <Button
                   size="large"
                   linkProps={{
-                    to: '/prelevements/nouveau',
+                    to: `/prelevements/${programmingPlan.year}/nouveau`,
                     target: '_self',
                   }}
                   iconId="fr-icon-microscope-line"
@@ -145,6 +145,7 @@ const DashboardView = () => {
             <h4 className={cx('fr-mb-0')}>Vos derniers prélèvements</h4>
           </div>
           <SampleTable
+            programmingPlan={programmingPlan}
             samples={samples ?? []}
             tableFooter={
               isOnline && (
@@ -153,7 +154,7 @@ const DashboardView = () => {
                   iconId={'fr-icon-arrow-right-line'}
                   iconPosition="right"
                   linkProps={{
-                    to: '/prelevements',
+                    to: `/prelevements/${programmingPlan.year}`,
                   }}
                 >
                   Tous les prélèvements

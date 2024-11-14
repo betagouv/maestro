@@ -46,6 +46,7 @@ export const PrescriptionUpdate = Prescription.pick({
   Prescription.pick({
     sampleCount: true,
     laboratoryId: true,
+    stages: true,
   }).partial()
 );
 

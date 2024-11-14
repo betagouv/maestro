@@ -10,6 +10,7 @@ import { FileType } from 'shared/schema/File/FileType';
 import DocumentLink from 'src/components/DocumentLink/DocumentLink';
 import AppUpload from 'src/components/_app/AppUpload/AppUpload';
 import { useForm } from 'src/hooks/useForm';
+import { useAppSelector } from 'src/hooks/useStore';
 import {
   useCreateAnalysisMutation,
   useUpdateAnalysisMutation,
@@ -27,6 +28,7 @@ interface Props {
 
 const AnalysisReportStep = ({ sampleId, partialAnalysis }: Props) => {
   const navigate = useNavigate();
+  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
 
   const [
     createDocument,
@@ -97,9 +99,12 @@ const AnalysisReportStep = ({ sampleId, partialAnalysis }: Props) => {
           status: 'Residues',
         });
       }
-      navigate(`/prelevements/${sampleId}/analyse?etape=2`, {
-        replace: true,
-      });
+      navigate(
+        `/prelevements/${programmingPlan?.year}/${sampleId}/analyse?etape=2`,
+        {
+          replace: true,
+        }
+      );
     });
   };
 

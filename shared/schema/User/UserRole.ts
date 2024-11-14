@@ -21,7 +21,7 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'readProgrammingPlanValidated',
     'createPrescription',
     'readPrescriptions',
-    'updatePrescriptionSampleCount',
+    'updatePrescription',
     'deletePrescription',
     'commentPrescription',
     'readSamples',
