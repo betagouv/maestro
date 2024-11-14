@@ -30,6 +30,7 @@
     ]
   },
   "dependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@codegouvfr/react-dsfr": "^1.14.2",
     "@craco/craco": "^7.0.0",
     "@emotion/react": "^11.11.4",
@@ -69,7 +70,6 @@
     "workbox-webpack-plugin": "^7.1.0"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@types/dompurify": "^3.0.0",
     "@typescript-eslint/parser": "^8.14.0",
     "eslint": "^8.57.1",
