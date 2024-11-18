@@ -145,7 +145,6 @@ const DashboardView = () => {
             <h4 className={cx('fr-mb-0')}>Vos derniers prélèvements</h4>
           </div>
           <SampleTable
-            programmingPlan={programmingPlan}
             samples={samples ?? []}
             tableFooter={
               isOnline && (

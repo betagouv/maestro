@@ -1,12 +1,11 @@
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Analysis, PartialAnalysis } from 'shared/schema/Analysis/Analysis';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useForm } from 'src/hooks/useForm';
-import { useAppSelector } from 'src/hooks/useStore';
+import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import { useUpdateAnalysisMutation } from 'src/services/analysis.service';
 import check from '../../../../../assets/illustrations/check.svg';
 import close from '../../../../../assets/illustrations/close.svg';
@@ -16,8 +15,7 @@ interface Props {
 }
 
 const AnalysisComplianceStep = ({ partialAnalysis }: Props) => {
-  const navigate = useNavigate();
-  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
+  const { navigateToSample } = useSamplesLink();
 
   const [updateAnalysis] = useUpdateAnalysisMutation({
     fixedCacheKey: `complete-analysis-${partialAnalysis.sampleId}`,
@@ -44,12 +42,7 @@ const AnalysisComplianceStep = ({ partialAnalysis }: Props) => {
         notesOnCompliance,
         status: 'Completed',
       });
-      navigate(
-        `/prelevements/${programmingPlan?.year}/${partialAnalysis.sampleId}`,
-        {
-          replace: true,
-        }
-      );
+      navigateToSample(partialAnalysis.sampleId);
     });
   };
 
@@ -113,12 +106,7 @@ const AnalysisComplianceStep = ({ partialAnalysis }: Props) => {
                   ...partialAnalysis,
                   status: 'Residues',
                 });
-                navigate(
-                  `/prelevements/${programmingPlan?.year}/${partialAnalysis.sampleId}?etape=2`,
-                  {
-                    replace: true,
-                  }
-                );
+                navigateToSample(partialAnalysis.sampleId, 2);
               },
               title: 'Retour',
               iconId: 'fr-icon-arrow-left-line',

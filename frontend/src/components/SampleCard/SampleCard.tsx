@@ -17,7 +17,7 @@ import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadg
 import RemoveSample from 'src/components/SampleTable/RemoveSample';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useOnLine } from 'src/hooks/useOnLine';
-import { useAppSelector } from 'src/hooks/useStore';
+import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import useWindowSize from 'src/hooks/useWindowSize';
 import './SampleCard.scss';
 
@@ -26,10 +26,10 @@ interface Props {
 }
 
 const SampleCard = ({ sample }: Props) => {
+  const { sampleLink } = useSamplesLink();
   const { userInfos, hasPermission } = useAuthentication();
   const { isOnline } = useOnLine();
   const { isMobile } = useWindowSize();
-  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
 
   const [isExpanded, setIsExpanded] = useState(!isMobile);
 
@@ -67,7 +67,7 @@ const SampleCard = ({ sample }: Props) => {
       title={isCreatedPartialSample(sample) ? sample.reference : 'Hors ligne'}
       border
       linkProps={{
-        to: `/prelevements/${programmingPlan?.year}/${sample.id}`,
+        to: sampleLink(sample.id),
       }}
       desc={
         <span className={cx('fr-text--xs', 'fr-mb-0')}>
@@ -133,7 +133,7 @@ const SampleCard = ({ sample }: Props) => {
               size="small"
               className={clsx('fr-mr-2w')}
               linkProps={{
-                to: `/prelevements/${programmingPlan?.year}/${sample.id}`,
+                to: sampleLink(sample.id),
               }}
               priority={
                 [...DraftStatusList, 'Submitted'].includes(sample.status)

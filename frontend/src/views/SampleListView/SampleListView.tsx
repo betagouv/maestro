@@ -250,10 +250,7 @@ const SampleListView = () => {
               </>
             )}
             {sampleListDisplay === 'table' && (
-              <SampleTable
-                programmingPlan={programmingPlan}
-                samples={samples ?? []}
-              />
+              <SampleTable samples={samples ?? []} />
             )}
             {isDefinedAndNotNull(samplesCount) &&
               samplesCount > defaultPerPage && (

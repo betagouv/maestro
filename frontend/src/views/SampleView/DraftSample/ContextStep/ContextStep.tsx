@@ -5,7 +5,6 @@ import { Skeleton } from '@mui/material';
 import clsx from 'clsx';
 import { format, parse } from 'date-fns';
 import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   Department,
   DepartmentLabels,
@@ -44,6 +43,7 @@ import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
 import { useOnLine } from 'src/hooks/useOnLine';
+import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import { useAppSelector } from 'src/hooks/useStore';
 import { useCreateOrUpdateSampleMutation } from 'src/services/sample.service';
 import SampleGeolocation from 'src/views/SampleView/DraftSample/ContextStep/SampleGeolocation';
@@ -55,7 +55,7 @@ interface Props {
 }
 
 const ContextStep = ({ partialSample }: Props) => {
-  const navigate = useNavigate();
+  const { navigateToSample, navigateToSamples } = useSamplesLink();
   const { userInfos } = useAuthentication();
   const { isOnline } = useOnLine();
 
@@ -176,16 +176,12 @@ const ContextStep = ({ partialSample }: Props) => {
     await form.validate(async () => {
       if (partialSample) {
         await save('DraftMatrix');
-        navigate(`/prelevements/${programmingPlan?.year}/${partialSample.id}`, {
-          replace: true,
-        });
+        navigateToSample(partialSample.id);
       } else {
         await createOrUpdateSample(formData)
           .unwrap()
           .then((result) => {
-            navigate(`/prelevements/${programmingPlan?.year}/${result.id}`, {
-              replace: true,
-            });
+            navigateToSample(result.id);
           });
       }
     });
@@ -497,8 +493,7 @@ const ContextStep = ({ partialSample }: Props) => {
               {
                 children: 'Abandonner la saisie',
                 priority: 'tertiary',
-                onClick: (_) =>
-                  navigate(`/prelevements/${programmingPlan?.year}`),
+                onClick: navigateToSamples,
                 nativeButtonProps: {
                   'data-testid': 'cancel-button',
                 },

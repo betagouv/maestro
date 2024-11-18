@@ -4,13 +4,12 @@ import Select from '@codegouvfr/react-dsfr/Select';
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import clsx from 'clsx';
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Sample } from 'shared/schema/Sample/Sample';
 import food from 'src/assets/illustrations/food.svg';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import { useDocument } from 'src/hooks/useDocument';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
-import { useAppSelector } from 'src/hooks/useStore';
+import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import SampleAnalysis from 'src/views/SampleView/SampleAnalysis/SampleAnalysis';
 import SampleOverviewContextTab from 'src/views/SampleView/SampleOverview/SampleOverviewContextTab';
 import { SampleStepTitles } from 'src/views/SampleView/SampleView';
@@ -24,8 +23,7 @@ interface Props {
 const SampleOverview = ({ sample }: Props) => {
   useDocumentTitle(`Prélèvement ${sample.reference}`);
 
-  const navigate = useNavigate();
-  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
+  const { navigateToSamples } = useSamplesLink();
   const { openDocument } = useDocument();
 
   const itemsWithSupportDocument = useMemo(
@@ -113,7 +111,7 @@ const SampleOverview = ({ sample }: Props) => {
       <div className="back">
         <Button
           priority="secondary"
-          onClick={() => navigate(`/prelevements/${programmingPlan?.year}`)}
+          onClick={navigateToSamples}
           iconId="fr-icon-arrow-left-line"
         >
           Retour aux prélèvements

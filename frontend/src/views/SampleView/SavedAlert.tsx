@@ -1,7 +1,7 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { useAppSelector } from 'src/hooks/useStore';
+import { useSamplesLink } from 'src/hooks/useSamplesLink';
 
 interface Props {
   isOpen: boolean;
@@ -9,7 +9,7 @@ interface Props {
 }
 
 const SavedAlert = ({ isOpen, isDraft }: Props) => {
-  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
+  const { samplesLink } = useSamplesLink();
 
   return isOpen ? (
     <Alert
@@ -25,7 +25,7 @@ const SavedAlert = ({ isOpen, isDraft }: Props) => {
             iconId="fr-icon-arrow-right-line"
             iconPosition="right"
             linkProps={{
-              to: `/prelevements/${programmingPlan?.year}`,
+              to: samplesLink,
             }}
             priority="tertiary no outline"
           >

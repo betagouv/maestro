@@ -5,7 +5,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { skipToken } from '@reduxjs/toolkit/query';
 import React, { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
   isCreatedSample,
   Sample,
@@ -16,7 +16,7 @@ import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
 import { useOnLine } from 'src/hooks/useOnLine';
-import { useAppSelector } from 'src/hooks/useStore';
+import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import { useGetLaboratoryQuery } from 'src/services/laboratory.service';
 import {
   getSupportDocumentURL,
@@ -35,10 +35,9 @@ interface Props {
 }
 
 const SendingStep = ({ sample }: Props) => {
-  const navigate = useNavigate();
+  const { navigateToSample } = useSamplesLink();
   const { hasPermission } = useAuthentication();
   const { isOnline } = useOnLine();
-  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
 
   const [items, setItems] = useState<SampleItem[]>(sample.items);
   const [resytalId, setResytalId] = useState(sample.resytalId);
@@ -79,9 +78,7 @@ const SendingStep = ({ sample }: Props) => {
       status: 'Sent',
       sentAt: new Date(),
     } as Sample);
-    navigate(`/prelevements/${programmingPlan?.year}/${sample.id}`, {
-      replace: true,
-    });
+    navigateToSample(sample.id);
   };
 
   const save = async (status = sample.status) => {
@@ -253,12 +250,7 @@ const SendingStep = ({ sample }: Props) => {
                     onClick={async (e: React.MouseEvent<HTMLElement>) => {
                       e.preventDefault();
                       await save('Draft');
-                      navigate(
-                        `/prelevements/${programmingPlan?.year}/${sample.id}?etape=1`,
-                        {
-                          replace: true,
-                        }
-                      );
+                      navigateToSample(sample.id, 1);
                     }}
                   >
                     Compléter ces informations

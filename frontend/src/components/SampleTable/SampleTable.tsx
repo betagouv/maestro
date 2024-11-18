@@ -3,10 +3,8 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
 import { format } from 'date-fns';
 import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
 import { ContextLabels } from 'shared/schema/ProgrammingPlan/Context';
-import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   isCreatedPartialSample,
   PartialSample,
@@ -20,18 +18,18 @@ import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadg
 import RemoveSample from 'src/components/SampleTable/RemoveSample';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useOnLine } from 'src/hooks/useOnLine';
+import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import { useAppSelector } from 'src/hooks/useStore';
 import useWindowSize from 'src/hooks/useWindowSize';
 import './SampleTable.scss';
 
 interface Props {
-  programmingPlan: ProgrammingPlan;
   samples: (PartialSample | PartialSampleToCreate)[];
   tableFooter?: React.ReactNode;
 }
 
-const SampleTable = ({ programmingPlan, samples, tableFooter }: Props) => {
-  const navigate = useNavigate();
+const SampleTable = ({ samples, tableFooter }: Props) => {
+  const { sampleLink, navigateToSample } = useSamplesLink();
   const { isOnline } = useOnLine();
 
   const { hasPermission, userInfos } = useAuthentication();
@@ -79,9 +77,7 @@ const SampleTable = ({ programmingPlan, samples, tableFooter }: Props) => {
           <SampleStatusBadge status={sample?.status as SampleStatus} />,
         ].map((cell) => (
           <div
-            onClick={() =>
-              navigate(`/prelevements/${programmingPlan?.year}/${sample.id}`)
-            }
+            onClick={() => navigateToSample(sample.id)}
             style={{
               cursor: 'pointer',
             }}
@@ -94,7 +90,7 @@ const SampleTable = ({ programmingPlan, samples, tableFooter }: Props) => {
             title="Voir le prélèvement"
             iconId={'fr-icon-eye-fill'}
             linkProps={{
-              to: `/prelevements/${programmingPlan?.year}/${sample.id}`,
+              to: sampleLink(sample.id),
             }}
             size="small"
             priority="tertiary"
