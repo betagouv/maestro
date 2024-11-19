@@ -6,39 +6,41 @@ import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import clsx from 'clsx';
 import { format } from 'date-fns';
 import { default as fr } from 'date-fns/locale/fr';
-import { useMemo, useState } from 'react';
-import { Prescription } from 'shared/schema/Prescription/Prescription';
-import { PrescriptionCommentToCreate } from 'shared/schema/Prescription/PrescriptionComment';
-import PrescriptionCommentAuthor from 'src/components/Prescription/PrescriptionCommentsModal/PrescriptionCommentAuthor';
+import React, { useMemo, useState } from 'react';
+import { RegionalPrescription } from 'shared/schema/Prescription/RegionalPrescription';
+import { RegionalPrescriptionCommentToCreate } from 'shared/schema/Prescription/RegionalPrescriptionComment';
+import RegionalPrescriptionCommentAuthor from 'src/components/Prescription/RegionalPrescriptionCommentsModal/RegionalPrescriptionCommentAuthor';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import { useForm } from 'src/hooks/useForm';
-import { useCommentPrescriptionMutation } from 'src/services/prescription.service';
+import { useCommentRegionalPrescriptionMutation } from 'src/services/regionalPrescription.service';
 import { quote } from 'src/utils/stringUtils';
-import './PrescriptionCommentsModal.scss';
-interface Props extends Pick<Prescription, 'programmingPlanId' | 'comments'> {
-  prescriptionId: string;
+import './RegionalPrescriptionCommentsModal.scss';
+
+interface Props {
+  programmingPlanId: string;
+  regionalPrescription: RegionalPrescription;
   modalButton: React.ReactNode;
 }
 
-const PrescriptionCommentsModal = ({
-  prescriptionId,
+const RegionalPrescriptionCommentsModal = ({
   programmingPlanId,
-  comments,
+  regionalPrescription,
   modalButton,
 }: Props) => {
   const prescriptionCommentsModal = useMemo(
     () =>
       createModal({
-        id: `prescription-comments-modal-${prescriptionId}`,
+        id: `prescription-comments-modal-${regionalPrescription.id}`,
         isOpenedByDefault: false,
       }),
-    [prescriptionId]
+    [regionalPrescription]
   );
 
   const [comment, setComment] = useState('');
-  const [commentPrescription, { isError }] = useCommentPrescriptionMutation();
+  const [commentRegionalPrescription, { isError }] =
+    useCommentRegionalPrescriptionMutation();
 
-  const Form = PrescriptionCommentToCreate.pick({
+  const Form = RegionalPrescriptionCommentToCreate.pick({
     comment: true,
   });
 
@@ -59,8 +61,8 @@ const PrescriptionCommentsModal = ({
     e.preventDefault();
 
     await form.validate(async () => {
-      await commentPrescription({
-        prescriptionId,
+      await commentRegionalPrescription({
+        regionalPrescriptionId: regionalPrescription.id,
         commentToCreate: {
           programmingPlanId,
           comment,
@@ -72,11 +74,11 @@ const PrescriptionCommentsModal = ({
   };
 
   const { commentsArray, hasComments } = useMemo(() => {
-    const commentsArray = comments ?? [];
+    const commentsArray = regionalPrescription.comments ?? [];
     const hasComments = commentsArray.length > 0;
 
     return { commentsArray, hasComments };
-  }, [comments]);
+  }, [regionalPrescription.comments]);
 
   return (
     <>
@@ -98,7 +100,7 @@ const PrescriptionCommentsModal = ({
                 key={`${comment.id}-${index}`}
                 className="prescription-comment"
               >
-                <PrescriptionCommentAuthor userId={comment.createdBy} />
+                <RegionalPrescriptionCommentAuthor userId={comment.createdBy} />
                 <div>
                   <div className={cx('fr-text--md', 'fr-mb-1w')}>
                     {quote(comment.comment)}
@@ -155,4 +157,4 @@ const PrescriptionCommentsModal = ({
   );
 };
 
-export default PrescriptionCommentsModal;
+export default RegionalPrescriptionCommentsModal;

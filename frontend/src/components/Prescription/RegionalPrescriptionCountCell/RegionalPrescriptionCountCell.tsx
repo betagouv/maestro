@@ -1,26 +1,22 @@
 import Button from '@codegouvfr/react-dsfr/Button';
-import { Prescription } from 'shared/schema/Prescription/Prescription';
+import {
+  getCompletionRate,
+  RegionalPrescription,
+} from 'shared/schema/Prescription/RegionalPrescription';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import EditableNumberCell from 'src/components/EditableCell/EditableNumberCell';
-import PrescriptionCommentsModal from 'src/components/Prescription/PrescriptionCommentsModal/PrescriptionCommentsModal';
+import RegionalPrescriptionCommentsModal from 'src/components/Prescription/RegionalPrescriptionCommentsModal/RegionalPrescriptionCommentsModal';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import './PrescriptionCountCell.scss';
-interface Props extends Pick<Prescription, 'comments'> {
+import './RegionalPrescriptionCountCell.scss';
+interface Props {
   programmingPlan: ProgrammingPlan;
-  prescriptionId: string;
-  samplesCount: number;
-  sentSamplesCount: number;
-  completionRate: number;
+  regionalPrescription: RegionalPrescription;
   onChange: (value: number) => void;
 }
 
-const PrescriptionCountCell = ({
+const RegionalPrescriptionCountCell = ({
   programmingPlan,
-  prescriptionId,
-  samplesCount,
-  sentSamplesCount,
-  completionRate,
-  comments,
+  regionalPrescription,
   onChange,
 }: Props) => {
   const { hasPermission } = useAuthentication();
@@ -28,18 +24,17 @@ const PrescriptionCountCell = ({
   return hasPermission('updatePrescription') &&
     programmingPlan.status === 'InProgress' ? (
     <EditableNumberCell
-      initialValue={samplesCount}
+      initialValue={regionalPrescription.sampleCount}
       onChange={(value) => onChange(value)}
     />
   ) : (
     <>
       <div className="d-flex-align-center">
-        <div className="sample-count">{samplesCount}</div>
-        {(comments ?? []).length > 0 && (
-          <PrescriptionCommentsModal
+        <div className="sample-count">{regionalPrescription.sampleCount}</div>
+        {(regionalPrescription.comments ?? []).length > 0 && (
+          <RegionalPrescriptionCommentsModal
             programmingPlanId={programmingPlan.id}
-            prescriptionId={prescriptionId}
-            comments={comments}
+            regionalPrescription={regionalPrescription}
             modalButton={
               <Button
                 title="Consulter les commentaires"
@@ -53,12 +48,12 @@ const PrescriptionCountCell = ({
       </div>
       {programmingPlan.status === 'Validated' && (
         <>
-          <div>{sentSamplesCount}</div>
-          <div>{completionRate}%</div>
+          <div>{regionalPrescription.realizedSampleCount}</div>
+          <div>{getCompletionRate(regionalPrescription)}%</div>
         </>
       )}
     </>
   );
 };
 
-export default PrescriptionCountCell;
+export default RegionalPrescriptionCountCell;

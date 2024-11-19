@@ -1,38 +1,33 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import Tag from '@codegouvfr/react-dsfr/Tag';
 import { ReactNode } from 'react';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
-import { StageLabels } from 'shared/referential/Stage';
-import { PrescriptionByMatrix } from 'shared/schema/Prescription/PrescriptionsByMatrix';
+import { Prescription } from 'shared/schema/Prescription/Prescription';
+import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
+import PrescriptionStages from 'src/components/Prescription/PrescriptionStages/PrescriptionStages';
 import './PrescriptionCard.scss';
 
 interface Props {
-  prescriptionByMatrix: PrescriptionByMatrix;
+  programmingPlan: ProgrammingPlan;
+  prescription: Prescription;
   subtitle?: ReactNode;
 }
 
-const PrescriptionCardContent = ({ prescriptionByMatrix, subtitle }: Props) => {
+const PrescriptionCardContent = ({
+  programmingPlan,
+  prescription,
+  subtitle,
+}: Props) => {
   return (
     <div>
       <h3 className={cx('fr-card__title')}>
-        {MatrixLabels[prescriptionByMatrix.matrix]}
+        {MatrixLabels[prescription.matrix]}
       </h3>
       {subtitle}
       <div className={cx('fr-card__desc')}>
-        <div className={cx('fr-text--md', 'fr-mb-0')}>
-          Stades de prélèvement
-        </div>
-        {prescriptionByMatrix.stages.map((stage) => (
-          <Tag
-            key={`prescription_${prescriptionByMatrix.matrix}_stage_${stage}`}
-            dismissible
-            nativeButtonProps={{
-              onClick: function noRefCheck() {},
-            }}
-          >
-            {StageLabels[stage]}
-          </Tag>
-        ))}
+        <PrescriptionStages
+          programmingPlan={programmingPlan}
+          prescription={prescription}
+        />
       </div>
     </div>
   );

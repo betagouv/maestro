@@ -1,26 +1,26 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
 import { RegionList, Regions } from 'shared/referential/Region';
-import {
-  matrixCompletionRate,
-  PrescriptionByMatrix,
-} from 'shared/schema/Prescription/PrescriptionsByMatrix';
+import { RegionalPrescription } from 'shared/schema/Prescription/RegionalPrescription';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
-import PrescriptionCountCell from 'src/components/Prescription/PrescriptionCountCell/PrescriptionCountCell';
+import RegionalPrescriptionCountCell from 'src/components/Prescription/RegionalPrescriptionCountCell/RegionalPrescriptionCountCell';
 import './PrescriptionCard.scss';
 
 interface Props {
   programmingPlan: ProgrammingPlan;
-  prescriptionByMatrix: PrescriptionByMatrix;
-  onChangePrescriptionCount: (prescriptionId: string, value: number) => void;
+  regionalPrescriptions: RegionalPrescription[];
+  onChangeRegionalPrescriptionCount: (
+    prescriptionId: string,
+    value: number
+  ) => void;
   start: number;
   end?: number;
 }
 
 const PrescriptionCardPartialTable = ({
   programmingPlan,
-  prescriptionByMatrix,
-  onChangePrescriptionCount,
+  regionalPrescriptions,
+  onChangeRegionalPrescriptionCount,
   start,
   end,
 }: Props) => {
@@ -31,29 +31,20 @@ const PrescriptionCardPartialTable = ({
       noScroll
       fixed
       headers={RegionList.slice(start, end).map((region) => (
-        <div
-          key={`prescription_${prescriptionByMatrix.matrix}_header_${region}`}
-        >
+        <div key={`${Math.random()}_header_${region}`}>
           {Regions[region].shortName}
         </div>
       ))}
       data={[
-        prescriptionByMatrix.regionalPrescriptions
+        regionalPrescriptions
           .slice(start, end)
-          .map((regionalPrescriptions) => (
-            <PrescriptionCountCell
-              prescriptionId={regionalPrescriptions.prescriptionId}
+          .map((regionalPrescription) => (
+            <RegionalPrescriptionCountCell
               programmingPlan={programmingPlan}
-              samplesCount={regionalPrescriptions.sampleCount}
-              sentSamplesCount={regionalPrescriptions.sentSampleCount}
-              completionRate={matrixCompletionRate(
-                prescriptionByMatrix,
-                regionalPrescriptions.region
-              )}
-              comments={regionalPrescriptions.comments}
+              regionalPrescription={regionalPrescription}
               onChange={async (value) =>
-                onChangePrescriptionCount(
-                  regionalPrescriptions.prescriptionId,
+                onChangeRegionalPrescriptionCount(
+                  regionalPrescription.id,
                   value
                 )
               }

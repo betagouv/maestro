@@ -7,7 +7,7 @@ interface Props {
   userId: string;
 }
 
-const PrescriptionCommentAuthor = ({ userId }: Props) => {
+const RegionalPrescriptionCommentAuthor = ({ userId }: Props) => {
   const { data: user } = useGetUserInfosQuery(userId);
 
   return (
@@ -21,4 +21,4 @@ const PrescriptionCommentAuthor = ({ userId }: Props) => {
   );
 };
 
-export default PrescriptionCommentAuthor;
+export default RegionalPrescriptionCommentAuthor;

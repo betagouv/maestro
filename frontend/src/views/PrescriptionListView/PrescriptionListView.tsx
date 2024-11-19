@@ -8,14 +8,8 @@ import { useSearchParams } from 'react-router-dom';
 import { Matrix } from 'shared/referential/Matrix/Matrix';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
 import { Region, RegionList, Regions } from 'shared/referential/Region';
-import {
-  FindPrescriptionOptions,
-  FindPrescriptionOptionsInclude,
-} from 'shared/schema/Prescription/FindPrescriptionOptions';
-import {
-  genPrescriptionByMatrix,
-  PrescriptionByMatrix,
-} from 'shared/schema/Prescription/PrescriptionsByMatrix';
+import { FindPrescriptionOptions } from 'shared/schema/Prescription/FindPrescriptionOptions';
+import { PrescriptionSort } from 'shared/schema/Prescription/Prescription';
 import {
   Context,
   ContextLabels,
@@ -31,12 +25,14 @@ import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import {
-  useAddPrescriptionsMutation,
-  useDeletePrescriptionsMutation,
+  useAddPrescriptionMutation,
+  useDeletePrescriptionMutation,
   useFindPrescriptionsQuery,
-  useUpdatePrescriptionMutation,
 } from 'src/services/prescription.service';
-import { useFindSamplesQuery } from 'src/services/sample.service';
+import {
+  useFindRegionalPrescriptionsQuery,
+  useUpdateRegionalPrescriptionMutation,
+} from 'src/services/regionalPrescription.service';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import PrescriptionListHeader from 'src/views/PrescriptionListView/PrescriptionListHeader';
 import PrescriptionTable from 'src/views/PrescriptionListView/PrescriptionTable';
@@ -54,12 +50,12 @@ const PrescriptionListView = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { userInfos, hasNationalView } = useAuthentication();
 
-  const [addPrescriptions, { isSuccess: isAddSuccess }] =
-    useAddPrescriptionsMutation();
-  const [updatePrescription, { isSuccess: isUpdateSuccess }] =
-    useUpdatePrescriptionMutation();
+  const [addPrescription, { isSuccess: isAddSuccess }] =
+    useAddPrescriptionMutation();
+  const [updateRegionalPrescription, { isSuccess: isUpdateSuccess }] =
+    useUpdateRegionalPrescriptionMutation();
   const [deletePrescription, { isSuccess: isDeleteSuccess }] =
-    useDeletePrescriptionsMutation();
+    useDeletePrescriptionMutation();
 
   const region: Region = useMemo(
     () =>
@@ -87,43 +83,33 @@ const PrescriptionListView = () => {
   );
 
   const { data: allPrescriptions } = useFindPrescriptionsQuery(
-    {
-      ...findPrescriptionOptions,
-      includes: 'comments' as FindPrescriptionOptionsInclude,
-    },
+    findPrescriptionOptions,
     {
       skip: !programmingPlan,
     }
   );
 
   const prescriptions = useMemo(() => {
-    return allPrescriptions?.filter((p) =>
-      matrixQuery
-        ? MatrixLabels[p.matrix]
-            .toLowerCase()
-            .includes(matrixQuery.toLowerCase())
-        : true
-    );
+    return allPrescriptions
+      ?.filter((p) =>
+        matrixQuery
+          ? MatrixLabels[p.matrix]
+              .toLowerCase()
+              .includes(matrixQuery.toLowerCase())
+          : true
+      )
+      .sort(PrescriptionSort);
   }, [allPrescriptions, matrixQuery]);
 
-  const { data: samples } = useFindSamplesQuery(
+  const { data: allRegionalPrescriptions } = useFindRegionalPrescriptionsQuery(
     {
       ...findPrescriptionOptions,
-      status: 'Sent',
+      includes: ['comments', 'realizedSampleCount'],
     },
     {
       skip: !programmingPlan,
     }
   );
-
-  const prescriptionsByMatrix = useMemo(() => {
-    if (!prescriptions || !samples) return [];
-    return genPrescriptionByMatrix(
-      prescriptions,
-      samples,
-      region ? [region] : RegionList
-    );
-  }, [prescriptions, samples, region]);
 
   const changeFilter = (findFilter: Partial<FindPrescriptionOptions>) => {
     const filteredParams = fp.omitBy(
@@ -142,58 +128,46 @@ const PrescriptionListView = () => {
   };
 
   const addMatrix = async (programmingPlanId: string, matrix: Matrix) => {
-    await addPrescriptions({
+    await addPrescription({
       programmingPlanId,
       context: prescriptionListContext,
-      prescriptions: RegionList.map((region) => ({
-        matrix,
-        stages: [],
-        region,
-        sampleCount: 0,
-      })),
+      matrix,
+      stages: [],
     });
   };
 
-  const removePrescriptionByMatrix = async (
-    prescriptionsByMatrix: PrescriptionByMatrix
-  ) => {
+  const removePrescription = async (prescriptionId: string) => {
     await deletePrescription({
-      programmingPlanId: prescriptionsByMatrix.programmingPlanId,
-      context: prescriptionsByMatrix.context,
-      prescriptionIds: (prescriptions ?? [])
-        .filter(
-          (p) =>
-            p.matrix === prescriptionsByMatrix.matrix &&
-            _.isEqual(p.stages, prescriptionsByMatrix.stages)
-        )
-        .map((p) => p.id),
+      programmingPlanId: programmingPlan?.id as string,
+      prescriptionId,
     });
   };
 
-  const changePrescriptionCount =
-    (programmingPlanId: string) =>
-    async (prescriptionId: string, count: number) => {
-      await updatePrescription({
-        prescriptionId,
-        prescriptionUpdate: {
-          programmingPlanId,
-          context: findPrescriptionOptions.context,
-          sampleCount: count,
-        },
-      });
-    };
+  const changeRegionalPrescriptionCount = async (
+    regionalPrescriptionId: string,
+    count: number
+  ) => {
+    await updateRegionalPrescription({
+      regionalPrescriptionId,
+      prescriptionUpdate: {
+        programmingPlanId: programmingPlan?.id as string,
+        sampleCount: count,
+      },
+    });
+  };
 
   const changePrescriptionLaboratory =
     (programmingPlanId: string) =>
     async (prescriptionId: string, laboratoryId?: string) => {
-      await updatePrescription({
-        prescriptionId,
-        prescriptionUpdate: {
-          programmingPlanId,
-          context: findPrescriptionOptions.context,
-          laboratoryId,
-        },
-      });
+      // TODO
+      // await updatePrescription({
+      //   prescriptionId,
+      //   prescriptionUpdate: {
+      //     programmingPlanId,
+      //     context: findPrescriptionOptions.context,
+      //     laboratoryId,
+      //   },
+      // });
     };
 
   return (
@@ -279,7 +253,7 @@ const PrescriptionListView = () => {
           )
         )}
       >
-        {programmingPlan && prescriptions && samples && (
+        {programmingPlan && prescriptions && allRegionalPrescriptions && (
           <>
             <div
               className={clsx(
@@ -293,6 +267,7 @@ const PrescriptionListView = () => {
                   findPrescriptionOptions={findPrescriptionOptions}
                   prescriptions={prescriptions}
                   addMatrix={(matrix) => addMatrix(programmingPlan.id, matrix)}
+                  sampleCount={_.sumBy(allRegionalPrescriptions, 'sampleCount')}
                 />
               }
             </div>
@@ -304,25 +279,26 @@ const PrescriptionListView = () => {
                     : 'prescription-cards-container'
                 }
               >
-                {prescriptionsByMatrix.map((prescriptionByMatrix) => (
+                {prescriptions?.map((prescription) => (
                   <>
                     {hasNationalView ? (
                       <PrescriptionCardNational
                         programmingPlan={programmingPlan}
-                        prescriptionByMatrix={prescriptionByMatrix}
-                        onChangePrescription={changePrescriptionCount(
-                          programmingPlan.id
+                        prescription={prescription}
+                        regionalPrescriptions={allRegionalPrescriptions.filter(
+                          (rp) => rp.prescriptionId === prescription.id
                         )}
-                        onRemovePrescriptionByMatrix={
-                          removePrescriptionByMatrix
+                        onChangeRegionalPrescriptionCount={
+                          changeRegionalPrescriptionCount
                         }
-                        key={`prescription_${prescriptionByMatrix.matrix}`}
+                        onRemovePrescription={removePrescription}
+                        key={`prescription_${prescription.matrix}`}
                       />
                     ) : (
                       <PrescriptionCardRegional
                         programmingPlan={programmingPlan}
-                        prescriptionByMatrix={prescriptionByMatrix}
-                        key={`prescription_${prescriptionByMatrix.matrix}`}
+                        prescription={prescription}
+                        key={`prescription_${prescription.matrix}`}
                       />
                     )}
                   </>
@@ -332,17 +308,16 @@ const PrescriptionListView = () => {
             {prescriptionListDisplay === 'table' && (
               <PrescriptionTable
                 programmingPlan={programmingPlan}
-                context={findPrescriptionOptions.context}
-                prescriptionsByMatrix={prescriptionsByMatrix}
-                samples={samples}
+                prescriptions={prescriptions}
+                regionalPrescriptions={allRegionalPrescriptions}
                 regions={region ? [region] : RegionList}
-                onChangePrescriptionCount={changePrescriptionCount(
-                  programmingPlan.id
-                )}
+                onChangeRegionalPrescriptionCount={
+                  changeRegionalPrescriptionCount
+                }
                 onChangePrescriptionLaboratory={changePrescriptionLaboratory(
                   programmingPlan.id
                 )}
-                onRemovePrescriptionByMatrix={removePrescriptionByMatrix}
+                onRemovePrescription={removePrescription}
               />
             )}
           </>

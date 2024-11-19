@@ -96,7 +96,7 @@ const MatrixStep = ({ partialSample }: Props) => {
       releaseControl,
       notesOnMatrix,
       status,
-      laboratoryId: prescription?.laboratoryId ?? partialSample.laboratoryId,
+      //TODO backend laboratoryId: prescription?.laboratoryId ?? partialSample.laboratoryId,
     });
   };
 

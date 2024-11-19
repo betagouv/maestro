@@ -26,8 +26,8 @@ export const useAuthentication = () => {
   const hasPermission = useMemo(
     () => (permission: UserPermission) => {
       return (
-        authUser?.userId &&
-        userInfos &&
+        isDefined(authUser?.userId) &&
+        isDefined(userInfos) &&
         hasUserPermission(userInfos, permission)
       );
     },

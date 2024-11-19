@@ -13,7 +13,6 @@ import {
   ProgrammingPlanStatusPermissions,
 } from '../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { hasPermission } from '../../shared/schema/User/User';
-import prescriptionRepository from '../repositories/prescriptionRepository';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import userRepository from '../repositories/userRepository';
 import mailService from '../services/mailService';
@@ -93,19 +92,19 @@ const createProgrammingPlan = async (request: Request, response: Response) => {
 
   await Promise.all([
     ContextList.map(async (context) => {
-      const previousPrescriptions = await prescriptionRepository.findMany({
-        programmingPlanId: previousProgrammingPlan.id,
-        context,
-      });
-
-      await prescriptionRepository.insertMany(
-        previousPrescriptions.map((prescription) => ({
-          ...prescription,
-          id: uuidv4(),
-          programmingPlanId: newProgrammingPlan.id,
-          laboratoryId: null,
-        }))
-      );
+      //TODO
+      // const previousPrescriptions = await prescriptionRepository.findMany({
+      //   programmingPlanId: previousProgrammingPlan.id,
+      //   context,
+      // });
+      // await prescriptionRepository.insertMany(
+      //   previousPrescriptions.map((prescription) => ({
+      //     ...prescription,
+      //     id: uuidv4(),
+      //     programmingPlanId: newProgrammingPlan.id,
+      //     laboratoryId: null,
+      //   }))
+      // );
     }),
   ]);
 

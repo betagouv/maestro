@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { CultureKindList } from 'shared/referential/CultureKind';
 import { MatrixPartList } from 'shared/referential/MatrixPart';
-import { genPrescriptions } from 'shared/test/prescriptionFixtures';
+import { genPrescription } from 'shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'shared/test/programmingPlanFixtures';
 import {
   genCreatedSampleData,
@@ -31,13 +31,13 @@ const userRequest = {
   response: { body: JSON.stringify(sampler) },
 };
 const programmingPlan = genProgrammingPlan();
-const prescriptions = genPrescriptions({
+const prescription = genPrescription({
   programmingPlanId: programmingPlan.id,
   context: 'Control',
 });
 const prescriptionsRequest = {
   pathname: `/api/prescriptions?programmingPlanId=${programmingPlan.id}&context=Control`,
-  response: { body: JSON.stringify(prescriptions) },
+  response: { body: JSON.stringify(prescription) },
 };
 
 describe('SampleStepDraftInfos', () => {
@@ -165,7 +165,7 @@ describe('SampleStepDraftInfos', () => {
     });
 
     await act(async () => {
-      await user.selectOptions(matrixSelect, prescriptions[0].matrix);
+      await user.selectOptions(matrixSelect, prescription.matrix);
       await user.click(stageSelect);
     });
     expect(
@@ -232,8 +232,8 @@ describe('SampleStepDraftInfos', () => {
     });
 
     await act(async () => {
-      await user.selectOptions(matrixSelect, prescriptions[0].matrix); //1 call
-      await user.selectOptions(stageSelect, prescriptions[0].stages[0]); //1 call
+      await user.selectOptions(matrixSelect, prescription.matrix); //1 call
+      await user.selectOptions(stageSelect, prescription.stages[0]); //1 call
       await user.type(matrixDetailsInput, 'Details'); //7 calls
       await user.selectOptions(cultureKindSelect, CultureKindList[0]); //1 call
       await user.selectOptions(matrixPartSelect, MatrixPartList[0]); //1 call
@@ -257,10 +257,10 @@ describe('SampleStepDraftInfos', () => {
         lastUpdatedAt: createdSample.lastUpdatedAt.toISOString(),
         sampledAt: createdSample.sampledAt.toISOString(),
         status: 'DraftItems',
-        matrix: prescriptions[0].matrix,
+        matrix: prescription.matrix,
         matrixPart: MatrixPartList[0],
         cultureKind: CultureKindList[0],
-        stage: prescriptions[0].stages[0],
+        stage: prescription.stages[0],
         matrixDetails: 'Details',
         notesOnMatrix: 'Comment',
       },

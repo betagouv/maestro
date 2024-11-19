@@ -6,7 +6,7 @@ import Router, { BrowserRouter, MemoryRouter } from 'react-router-dom';
 import { MatrixList } from 'shared/referential/Matrix/Matrix';
 import { Region, RegionList } from 'shared/referential/Region';
 import { StageList } from 'shared/referential/Stage';
-import { genPrescriptions } from 'shared/test/prescriptionFixtures';
+import { genPrescription } from 'shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'shared/test/programmingPlanFixtures';
 import { genCreatedPartialSample } from 'shared/test/sampleFixtures';
 import { oneOf } from 'shared/test/testFixtures';
@@ -25,13 +25,13 @@ const programmingPlan = {
   ...genProgrammingPlan(),
   status: 'InProgress',
 };
-const prescriptions1 = genPrescriptions({
+const prescription1 = genPrescription({
   programmingPlanId: programmingPlan.id,
   context: 'Control',
   matrix: oneOf(MatrixList),
   stages: [oneOf(StageList)],
 });
-const prescriptions2 = genPrescriptions({
+const prescription2 = genPrescription({
   programmingPlanId: programmingPlan.id,
   context: 'Control',
   matrix: oneOf(MatrixList),
@@ -55,7 +55,7 @@ const prescriptionRequest = (region?: Region) => ({
     programmingPlan.id
   }&context=Control${region ? `&region=${region}` : ''}&includes=comments`,
   response: {
-    body: JSON.stringify([...prescriptions1, ...prescriptions2]),
+    body: JSON.stringify([prescription1, prescription2]),
   },
 });
 
@@ -133,17 +133,19 @@ describe('PrescriptionListView', () => {
         await screen.findByTestId('prescription-table')
       ).toBeInTheDocument();
 
-      const p1 = prescriptions1[0];
-      const p2 = prescriptions2[0];
       expect(
-        await screen.findByTestId(`matrix-${p1.matrix}-${p1.stages}`)
+        await screen.findByTestId(
+          `matrix-${prescription1.matrix}-${prescription1.stages}`
+        )
       ).toBeInTheDocument();
       expect(
-        await screen.findByTestId(`matrix-${p2.matrix}-${p2.stages}`)
+        await screen.findByTestId(
+          `matrix-${prescription2.matrix}-${prescription2.stages}`
+        )
       ).toBeInTheDocument();
-      expect(await screen.findAllByTestId(`cell-${p1.matrix}`)).toHaveLength(
-        RegionList.length
-      );
+      expect(
+        await screen.findAllByTestId(`cell-${prescription1.matrix}`)
+      ).toHaveLength(RegionList.length);
 
       expect(
         await screen.findByTestId('add-matrix-button')
@@ -202,15 +204,19 @@ describe('PrescriptionListView', () => {
         await screen.findByTestId('prescription-table')
       ).toBeInTheDocument();
 
-      const p1 = prescriptions1[0];
-      const p2 = prescriptions2[0];
       expect(
-        await screen.findByTestId(`matrix-${p1.matrix}-${p1.stages}`)
+        await screen.findByTestId(
+          `matrix-${prescription1.matrix}-${prescription1.stages}`
+        )
       ).toBeInTheDocument();
       expect(
-        await screen.findByTestId(`matrix-${p2.matrix}-${p2.stages}`)
+        await screen.findByTestId(
+          `matrix-${prescription2.matrix}-${prescription2.stages}`
+        )
       ).toBeInTheDocument();
-      expect(await screen.findAllByTestId(`cell-${p1.matrix}`)).toHaveLength(1);
+      expect(
+        await screen.findAllByTestId(`cell-${prescription1.matrix}`)
+      ).toHaveLength(1);
     });
 
     test('should not display the addMatrix button', async () => {

@@ -2,14 +2,9 @@ import fp from 'lodash';
 import { FindPrescriptionOptions } from 'shared/schema/Prescription/FindPrescriptionOptions';
 import {
   Prescription,
-  PrescriptionsToCreate,
-  PrescriptionsToDelete,
+  PrescriptionToCreate,
   PrescriptionUpdate,
 } from 'shared/schema/Prescription/Prescription';
-import {
-  PrescriptionComment,
-  PrescriptionCommentToCreate,
-} from 'shared/schema/Prescription/PrescriptionComment';
 import { api } from 'src/services/api.service';
 import { authParams } from 'src/services/auth-headers';
 import config from 'src/utils/config';
@@ -32,15 +27,18 @@ export const prescriptionApi = api.injectEndpoints({
         })),
       ],
     }),
-    addPrescriptions: builder.mutation<Prescription[], PrescriptionsToCreate>({
+    addPrescription: builder.mutation<Prescription, PrescriptionToCreate>({
       query: (prescriptionToCreate) => ({
         url: 'prescriptions',
         method: 'POST',
         body: prescriptionToCreate,
       }),
-      invalidatesTags: [{ type: 'Prescription', id: 'LIST' }],
-      transformResponse: (response: any[]) =>
-        response.map((_) => Prescription.parse(fp.omitBy(_, fp.isNil))),
+      invalidatesTags: [
+        { type: 'Prescription', id: 'LIST' },
+        { type: 'RegionalPrescription', id: 'LIST' },
+      ],
+      transformResponse: (response: any) =>
+        Prescription.parse(fp.omitBy(response, fp.isNil)),
     }),
     updatePrescription: builder.mutation<
       Prescription,
@@ -60,27 +58,19 @@ export const prescriptionApi = api.injectEndpoints({
       ],
       transformResponse: (response) => Prescription.parse(response),
     }),
-    deletePrescriptions: builder.mutation<void, PrescriptionsToDelete>({
-      query: (prescriptionsToDelete) => ({
-        url: 'prescriptions',
+    deletePrescription: builder.mutation<
+      void,
+      {
+        programmingPlanId: string;
+        prescriptionId: string;
+      }
+    >({
+      query: ({ prescriptionId, programmingPlanId }) => ({
+        url: `prescriptions/${prescriptionId}`,
         method: 'DELETE',
-        body: prescriptionsToDelete,
+        body: { programmingPlanId },
       }),
       invalidatesTags: [{ type: 'Prescription', id: 'LIST' }],
-    }),
-    commentPrescription: builder.mutation<
-      PrescriptionComment,
-      { prescriptionId: string; commentToCreate: PrescriptionCommentToCreate }
-    >({
-      query: ({ prescriptionId, commentToCreate }) => ({
-        url: `prescriptions/${prescriptionId}/comments`,
-        method: 'POST',
-        body: commentToCreate,
-      }),
-      transformResponse: (response) => PrescriptionComment.parse(response),
-      invalidatesTags: (_result, _error, { prescriptionId }) => [
-        { type: 'Prescription', id: prescriptionId },
-      ],
     }),
   }),
 });
@@ -97,10 +87,9 @@ export const {
   useFindPrescriptionsQuery,
   useLazyFindPrescriptionsQuery,
   useUpdatePrescriptionMutation,
-  useAddPrescriptionsMutation,
-  useDeletePrescriptionsMutation,
+  useAddPrescriptionMutation,
+  useDeletePrescriptionMutation,
   getPrescriptionsExportURL,
-  useCommentPrescriptionMutation,
 } = {
   ...prescriptionApi,
   getPrescriptionsExportURL: prescriptionsExportURL,

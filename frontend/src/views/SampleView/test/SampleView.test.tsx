@@ -2,7 +2,7 @@ import { configureStore, Store } from '@reduxjs/toolkit';
 import { render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import Router, { BrowserRouter } from 'react-router-dom';
-import { genPrescriptions } from 'shared/test/prescriptionFixtures';
+import { genPrescription } from 'shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'shared/test/programmingPlanFixtures';
 import {
   genCreatedPartialSample,
@@ -40,10 +40,12 @@ const programmingPlanRequest = {
     body: JSON.stringify([programmingPlan1, programmingPlan2]),
   },
 };
-const prescriptions = genPrescriptions({
-  programmingPlanId: programmingPlan1.id,
-  context: 'Control',
-});
+const prescriptions = [
+  genPrescription({
+    programmingPlanId: programmingPlan1.id,
+    context: 'Control',
+  }),
+];
 const prescriptionsRequest = {
   pathname: `/api/programming-plans/${programmingPlan1.id}/prescriptions?`,
   response: { body: JSON.stringify(prescriptions) },

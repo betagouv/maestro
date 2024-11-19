@@ -8,7 +8,7 @@ import { companiesTable } from './companyRepository';
 import db from './db';
 import { usersTable } from './userRepository';
 
-const samplesTable = 'samples';
+export const samplesTable = 'samples';
 const sampleSequenceNumbers = 'sample_sequence_numbers';
 
 const PartialSampleDbo = PartialSample.omit({

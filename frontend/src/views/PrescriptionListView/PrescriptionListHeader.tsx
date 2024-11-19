@@ -15,13 +15,13 @@ import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import useWindowSize from 'src/hooks/useWindowSize';
 import { getPrescriptionsExportURL } from 'src/services/prescription.service';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
-import { pluralize } from 'src/utils/stringUtils';
 
 interface Props {
   programmingPlan: ProgrammingPlan;
   findPrescriptionOptions: FindPrescriptionOptions;
   prescriptions: Prescription[];
   addMatrix: (matrix: Matrix) => Promise<void>;
+  sampleCount?: number;
 }
 
 const PrescriptionListHeader = ({
@@ -29,6 +29,7 @@ const PrescriptionListHeader = ({
   findPrescriptionOptions,
   prescriptions,
   addMatrix,
+  sampleCount,
 }: Props) => {
   const dispatch = useAppDispatch();
   const { isMobile } = useWindowSize();
@@ -42,8 +43,7 @@ const PrescriptionListHeader = ({
     <>
       <div className={clsx('d-flex-align-center')}>
         <h4 className={cx('fr-mb-0', 'fr-mr-3w')}>
-          {t('sample', { count: _.sumBy(prescriptions, 'sampleCount') })} 
-          {pluralize(_.sumBy(prescriptions, 'sampleCount'))('programmé')}
+          {t('plannedSample', { count: sampleCount ?? 0 })}
         </h4>
         {hasPermission('createPrescription') &&
           programmingPlan.status === 'InProgress' && (

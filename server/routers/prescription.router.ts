@@ -2,15 +2,18 @@ import express from 'express';
 import { z } from 'zod';
 import { FindPrescriptionOptions } from '../../shared/schema/Prescription/FindPrescriptionOptions';
 import {
-  PrescriptionsToCreate,
-  PrescriptionsToDelete,
+  PrescriptionToCreate,
   PrescriptionUpdate,
 } from '../../shared/schema/Prescription/Prescription';
-import { PrescriptionCommentToCreate } from '../../shared/schema/Prescription/PrescriptionComment';
 import prescriptionController from '../controllers/prescriptionController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
 import { programmingPlanCheck } from '../middlewares/checks/programmingPlanCheck';
-import validator, { body, params, query } from '../middlewares/validator';
+import validator, {
+  body,
+  params,
+  query,
+  uuidParam,
+} from '../middlewares/validator';
 
 const router = express.Router();
 
@@ -30,10 +33,10 @@ router.get(
 );
 router.post(
   '',
-  validator.validate(body(PrescriptionsToCreate)),
+  validator.validate(body(PrescriptionToCreate)),
   permissionsCheck(['createPrescription']),
   programmingPlanCheck('InProgress'),
-  prescriptionController.createPrescriptions
+  prescriptionController.createPrescription
 );
 router.put(
   '/:prescriptionId',
@@ -49,23 +52,10 @@ router.put(
   prescriptionController.updatePrescription
 );
 router.delete(
-  '',
-  validator.validate(body(PrescriptionsToDelete)),
+  '/:prescriptionId',
+  validator.validate(uuidParam('prescriptionId')),
   permissionsCheck(['deletePrescription']),
   programmingPlanCheck('InProgress'),
-  prescriptionController.deletePrescriptions
-);
-router.post(
-  '/:prescriptionId/comments',
-  validator.validate(
-    params(
-      z.object({
-        prescriptionId: z.string().uuid(),
-      })
-    ).merge(body(PrescriptionCommentToCreate))
-  ),
-  permissionsCheck(['commentPrescription']),
-  programmingPlanCheck('Submitted'),
-  prescriptionController.commentPrescription
+  prescriptionController.deletePrescription
 );
 export default router;

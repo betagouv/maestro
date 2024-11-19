@@ -2,22 +2,14 @@ import Badge from '@codegouvfr/react-dsfr/Badge';
 import Button from '@codegouvfr/react-dsfr/Button';
 import Card from '@codegouvfr/react-dsfr/Card';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { sumBy } from 'lodash';
-import { useMemo } from 'react';
-import { RegionList } from 'shared/referential/Region';
-import {
-  genPrescriptionByMatrix,
-  matrixCompletionRate,
-} from 'shared/schema/Prescription/PrescriptionsByMatrix';
+import _, { sumBy } from 'lodash';
+import { getCompletionRate } from 'shared/schema/Prescription/RegionalPrescription';
 import { Context, ContextLabels } from 'shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { RealizedStatusList } from 'shared/schema/Sample/SampleStatus';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import { useFindPrescriptionsQuery } from 'src/services/prescription.service';
-import {
-  useCountSamplesQuery,
-  useFindSamplesQuery,
-} from 'src/services/sample.service';
+import { useFindRegionalPrescriptionsQuery } from 'src/services/regionalPrescription.service';
+import { useCountSamplesQuery } from 'src/services/sample.service';
 import { pluralize } from 'src/utils/stringUtils';
 import ProgrammingPlanMap from 'src/views/DashboardView/ProgrammingPlanMap';
 
@@ -30,17 +22,14 @@ const ProgrammingPlanCard = ({
   programmingPlan,
   context,
 }: ProgrammingPlanCardProps) => {
-  const { hasNationalView, userInfos } = useAuthentication();
+  const { hasNationalView } = useAuthentication();
 
-  const { data: prescriptions } = useFindPrescriptionsQuery({
+  const { data: regionalPrescriptions } = useFindRegionalPrescriptionsQuery({
     programmingPlanId: programmingPlan.id,
     context,
+    includes: ['realizedSampleCount'],
   });
-  const { data: samples } = useFindSamplesQuery({
-    programmingPlanId: programmingPlan.id,
-    context,
-    status: RealizedStatusList,
-  });
+
   const { data: samplesToSentCount } = useCountSamplesQuery(
     {
       programmingPlanId: programmingPlan.id,
@@ -49,18 +38,6 @@ const ProgrammingPlanCard = ({
     },
     { skip: hasNationalView }
   );
-
-  const planCompletionRate = useMemo(() => {
-    if (prescriptions && samples) {
-      return matrixCompletionRate(
-        genPrescriptionByMatrix(
-          prescriptions,
-          samples,
-          userInfos?.region ? [userInfos.region] : RegionList
-        )
-      );
-    }
-  }, [prescriptions, samples, userInfos]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <Card
@@ -85,7 +62,8 @@ const ProgrammingPlanCard = ({
             )}
             {programmingPlan.status === 'Validated' && (
               <Badge severity="success" noIcon>
-                Taux de réalisation : {planCompletionRate}%
+                Taux de réalisation :{' '}
+                {getCompletionRate(regionalPrescriptions ?? [])}%
               </Badge>
             )}
           </div>
@@ -94,8 +72,8 @@ const ProgrammingPlanCard = ({
               background
               border
               size="small"
-              title={sumBy(prescriptions, 'sampleCount')}
-              desc={pluralize(sumBy(prescriptions, 'sampleCount'))(
+              title={sumBy(regionalPrescriptions, 'sampleCount')}
+              desc={pluralize(sumBy(regionalPrescriptions, 'sampleCount'))(
                 'prélèvement programmé'
               )}
               className={'fr-card--xs'}
@@ -107,8 +85,10 @@ const ProgrammingPlanCard = ({
                 background
                 border
                 size="small"
-                title={samples?.length ?? 0}
-                desc={pluralize(samples?.length ?? 0)('prélèvement réalisé')}
+                title={_.sumBy(regionalPrescriptions, 'realizedSampleCount')}
+                desc={pluralize(
+                  _.sumBy(regionalPrescriptions, 'realizedSampleCount')
+                )('prélèvement réalisé')}
                 className={'fr-card--xs'}
                 enlargeLink
                 linkProps={{
@@ -121,8 +101,7 @@ const ProgrammingPlanCard = ({
             <div className={cx('fr-col-12')}>
               <ProgrammingPlanMap
                 programmingPlan={programmingPlan}
-                prescriptions={prescriptions ?? []}
-                samples={samples ?? []}
+                regionalPrescriptions={regionalPrescriptions ?? []}
               />
             </div>
           )}

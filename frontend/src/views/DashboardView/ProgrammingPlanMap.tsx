@@ -16,22 +16,21 @@ import Map, {
 } from 'react-map-gl/maplibre';
 import { useNavigate } from 'react-router-dom';
 import { Region, RegionList, Regions } from 'shared/referential/Region';
-import { Prescription } from 'shared/schema/Prescription/Prescription';
-import { completionRate } from 'shared/schema/Prescription/PrescriptionsByMatrix';
+import {
+  getCompletionRate,
+  RegionalPrescription,
+} from 'shared/schema/Prescription/RegionalPrescription';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { getSampleRegion, PartialSample } from 'shared/schema/Sample/Sample';
 import { useGetRegionsGeoJsonQuery } from 'src/services/region.service';
 
 interface Props {
   programmingPlan: ProgrammingPlan;
-  prescriptions: Prescription[];
-  samples: PartialSample[];
+  regionalPrescriptions: RegionalPrescription[];
 }
 
 const ProgrammingPlanMap = ({
   programmingPlan,
-  prescriptions,
-  samples,
+  regionalPrescriptions,
 }: Props) => {
   const ref = useRef<any>();
   const navigate = useNavigate();
@@ -69,23 +68,25 @@ const ProgrammingPlanMap = ({
     return String(hoverInfo?.feature.id).padStart(2, '0') as Region;
   }, [hoverInfo]);
 
-  if (!regions || !prescriptions) {
+  if (!regions || !regionalPrescriptions) {
     return <></>;
   }
 
   const getSampleCount = (region: Region) =>
     _.sumBy(
-      prescriptions.filter((prescription) => prescription.region === region),
+      regionalPrescriptions.filter(
+        (regionalPrescription) => regionalPrescription.region === region
+      ),
       'sampleCount'
     );
 
-  const getSentSampleCount = (region: Region) =>
-    samples.filter(
-      (sample) => getSampleRegion(sample) === region && sample.status === 'Sent'
-    ).length;
-
-  const getCompletionRate = (region: Region) =>
-    completionRate(prescriptions, samples, region);
+  const getRealizedSampleCount = (region: Region) =>
+    _.sumBy(
+      regionalPrescriptions.filter(
+        (regionalPrescription) => regionalPrescription.region === region
+      ),
+      'realizedSampleCount'
+    );
 
   const addRegionProperties = (featureCollection: any) => ({
     ...featureCollection,
@@ -99,8 +100,8 @@ const ProgrammingPlanMap = ({
               ...feature.properties,
               title: Regions[region].name,
               sampleCount: getSampleCount(region),
-              sentSampleCount: getSentSampleCount(region),
-              completionRate: getCompletionRate(region),
+              realizedSampleCount: getRealizedSampleCount(region),
+              completionRate: getCompletionRate(regionalPrescriptions, region),
             },
           }
         : feature;
@@ -279,8 +280,11 @@ const ProgrammingPlanMap = ({
           >
             <div>{Regions[hoveredRegion].name}</div>
             <div>{getSampleCount(hoveredRegion)} prélevements</div>
-            <div>{getSentSampleCount(hoveredRegion)} réalisés</div>
-            <div>Taux de réalisation : {getCompletionRate(hoveredRegion)}%</div>
+            <div>{getRealizedSampleCount(hoveredRegion)} réalisés</div>
+            <div>
+              Taux de réalisation :{' '}
+              {getCompletionRate(regionalPrescriptions, hoveredRegion)}%
+            </div>
           </div>
         )}
         <div
