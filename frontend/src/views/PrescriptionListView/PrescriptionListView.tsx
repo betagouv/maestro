@@ -101,7 +101,7 @@ const PrescriptionListView = () => {
       .sort(PrescriptionSort);
   }, [allPrescriptions, matrixQuery]);
 
-  const { data: allRegionalPrescriptions } = useFindRegionalPrescriptionsQuery(
+  const { data: regionalPrescriptions } = useFindRegionalPrescriptionsQuery(
     {
       ...findPrescriptionOptions,
       includes: ['comments', 'realizedSampleCount'],
@@ -253,7 +253,7 @@ const PrescriptionListView = () => {
           )
         )}
       >
-        {programmingPlan && prescriptions && allRegionalPrescriptions && (
+        {programmingPlan && prescriptions && regionalPrescriptions && (
           <>
             <div
               className={clsx(
@@ -267,7 +267,7 @@ const PrescriptionListView = () => {
                   findPrescriptionOptions={findPrescriptionOptions}
                   prescriptions={prescriptions}
                   addMatrix={(matrix) => addMatrix(programmingPlan.id, matrix)}
-                  sampleCount={_.sumBy(allRegionalPrescriptions, 'sampleCount')}
+                  sampleCount={_.sumBy(regionalPrescriptions, 'sampleCount')}
                 />
               }
             </div>
@@ -285,7 +285,7 @@ const PrescriptionListView = () => {
                       <PrescriptionCardNational
                         programmingPlan={programmingPlan}
                         prescription={prescription}
-                        regionalPrescriptions={allRegionalPrescriptions.filter(
+                        regionalPrescriptions={regionalPrescriptions.filter(
                           (rp) => rp.prescriptionId === prescription.id
                         )}
                         onChangeRegionalPrescriptionCount={
@@ -298,6 +298,12 @@ const PrescriptionListView = () => {
                       <PrescriptionCardRegional
                         programmingPlan={programmingPlan}
                         prescription={prescription}
+                        regionalPrescription={regionalPrescriptions.find(
+                          (regionalPrescription) =>
+                            regionalPrescription.prescriptionId ===
+                              prescription.id &&
+                            regionalPrescription.region === region
+                        )}
                         key={`prescription_${prescription.matrix}`}
                       />
                     )}
@@ -309,7 +315,7 @@ const PrescriptionListView = () => {
               <PrescriptionTable
                 programmingPlan={programmingPlan}
                 prescriptions={prescriptions}
-                regionalPrescriptions={allRegionalPrescriptions}
+                regionalPrescriptions={regionalPrescriptions}
                 regions={region ? [region] : RegionList}
                 onChangeRegionalPrescriptionCount={
                   changeRegionalPrescriptionCount
