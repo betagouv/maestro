@@ -57,4 +57,10 @@ router.delete(
   permissionsCheck(['deletePrescription']),
   prescriptionController.deletePrescription
 );
+router.get(
+  '/:prescriptionId/substances',
+  validator.validate(uuidParam('prescriptionId')),
+  permissionsCheck(['readPrescriptions']),
+  prescriptionController.getPrescriptionSubstanceAnalysis
+);
 export default router;

@@ -11,10 +11,18 @@ import { MatrixList } from '../../../shared/referential/Matrix/Matrix';
 import { StageList } from '../../../shared/referential/Stage';
 import { PrescriptionUpdate } from '../../../shared/schema/Prescription/Prescription';
 import { ProgrammingPlanStatus } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { genPrescription } from '../../../shared/test/prescriptionFixtures';
+import {
+  genPrescription,
+  genPrescriptionSubstanceAnalysis,
+} from '../../../shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from '../../../shared/test/programmingPlanFixtures';
-import { oneOf } from '../../../shared/test/testFixtures';
+import { genSubstance, oneOf } from '../../../shared/test/testFixtures';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
+import {
+  formatPrescriptionSubstanceAnalysis,
+  PrescriptionSubstanceAnalysisTable,
+  Substances,
+} from '../../repositories/prescriptionSubstanceAnalysisRepository';
 import { ProgrammingPlans } from '../../repositories/programmingPlanRepository';
 import { RegionalPrescriptions } from '../../repositories/regionalPrescriptionRepository';
 import { createServer } from '../../server';
@@ -55,6 +63,13 @@ describe('Prescriptions router', () => {
     matrix: oneOf(MatrixList),
     stages: [oneOf(StageList)],
   });
+  const substance = genSubstance();
+  const inProgressControlPrescriptionSubstanceAnalysis =
+    genPrescriptionSubstanceAnalysis({
+      prescriptionId: inProgressControlPrescription.id,
+      substance,
+      analysisKind: 'Mono',
+    });
   const inProgressSurveillancePrescription = genPrescription({
     programmingPlanId: programmingPlanInProgress.id,
     context: 'Surveillance',
@@ -74,9 +89,16 @@ describe('Prescriptions router', () => {
       inProgressControlPrescription,
       inProgressSurveillancePrescription,
     ]);
+    await Substances().insert(substance);
+    await PrescriptionSubstanceAnalysisTable().insert(
+      formatPrescriptionSubstanceAnalysis(
+        inProgressControlPrescriptionSubstanceAnalysis
+      )
+    );
   });
 
   afterAll(async () => {
+    await Substances().where({ code: substance.code }).delete();
     await Prescriptions()
       .delete()
       .where('programmingPlanId', 'in', [
@@ -141,6 +163,26 @@ describe('Prescriptions router', () => {
       expect(res.body).toEqual([inProgressControlPrescription]);
       expect(res.body).not.toMatchObject([inProgressSurveillancePrescription]);
       expect(res.body).not.toMatchObject([validatedControlPrescription]);
+    });
+
+    it('should retrieve the prescription substances count if requested', async () => {
+      const res = await request(app)
+        .get(testRoute)
+        .query({
+          programmingPlanId: programmingPlanInProgress.id,
+          context: 'Control',
+          includes: ['substanceCount'],
+        })
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toEqual([
+        {
+          ...inProgressControlPrescription,
+          monoAnalysisCount: 1,
+          multiAnalysisCount: 0,
+        },
+      ]);
     });
   });
 
@@ -401,6 +443,44 @@ describe('Prescriptions router', () => {
           .count()
           .first()
       ).resolves.toMatchObject({ count: '0' });
+    });
+  });
+
+  describe('GET /prescriptions/{prescriptionId}/substances', () => {
+    const testRoute = (prescriptionId: string) =>
+      `/api/prescriptions/${prescriptionId}/substances`;
+
+    it('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .get(testRoute(inProgressControlPrescription.id))
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    it('should fail if the prescription does not exist', async () => {
+      await request(app)
+        .get(testRoute(uuidv4()))
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_NOT_FOUND);
+    });
+
+    // TODO specifc permission required ?
+    //
+    // it('should fail if the user does not have the permission to re prescriptions', async () => {
+    //   await request(app)
+    //     .get(testRoute(inProgressControlPrescription.id))
+    //     .use(tokenProvider(RegionalCoordinator))
+    //     .expect(constants.HTTP_STATUS_FORBIDDEN);
+    // });
+
+    it('should retrieve the prescription substances', async () => {
+      const res = await request(app)
+        .get(testRoute(inProgressControlPrescription.id))
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toEqual([
+        inProgressControlPrescriptionSubstanceAnalysis,
+      ]);
     });
   });
 });

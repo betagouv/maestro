@@ -1,4 +1,4 @@
-import { SubstanceAnalysisTable } from '../../../server/repositories/substanceRepository';
+import { PrescriptionSubstanceAnalysisTable } from '../../../server/repositories/prescriptionSubstanceAnalysisRepository';
 import { Matrix } from '../../../shared/referential/Matrix/Matrix';
 import { AnalysisKind } from '../../../shared/schema/Analysis/AnalysisKind';
 
@@ -81,5 +81,5 @@ exports.seed = async function () {
     genSubstanceAnalysis('A0DBP', 'Multi', 'RF-00007585-PAR', 'RF-00009360-PAR', 'RF-00008949-PAR', 'RF-0440-001-PPP', 'RF-00002591-PAR', 'RF-0259-001-PPP'),
   ];
 
-  await SubstanceAnalysisTable().insert(substanceAnalysis.flat());
+  await PrescriptionSubstanceAnalysisTable().insert(substanceAnalysis.flat());
 };

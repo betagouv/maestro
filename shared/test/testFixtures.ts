@@ -1,11 +1,8 @@
 import { fakerFR } from '@faker-js/faker';
 import randomstring from 'randomstring';
 import { v4 as uuidv4 } from 'uuid';
-import { MatrixList } from '../referential/Matrix/Matrix';
-import { AnalysisKindList } from '../schema/Analysis/AnalysisKind';
 import { Laboratory } from '../schema/Laboratory/Laboratory';
 import { Substance } from '../schema/Substance/Substance';
-import { SubstanceAnalysis } from '../schema/Substance/SubstanceAnalysis';
 
 export const genNumber = (length = 10) => {
   return Number(
@@ -37,14 +34,4 @@ export const genLaboratory = (): Laboratory => ({
 export const genSubstance = (): Substance => ({
   code: randomstring.generate(),
   label: randomstring.generate(),
-});
-
-export const genSubstanceAnalysis = (
-  data: Partial<SubstanceAnalysis>
-): SubstanceAnalysis => ({
-  matrix: oneOf(MatrixList),
-  substance: genSubstance(),
-  kind: oneOf(AnalysisKindList),
-  year: 2024,
-  ...data,
 });

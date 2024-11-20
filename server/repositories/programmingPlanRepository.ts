@@ -3,7 +3,7 @@ import { FindProgrammingPlanOptions } from '../../shared/schema/ProgrammingPlan/
 import { ProgrammingPlan } from '../../shared/schema/ProgrammingPlan/ProgrammingPlans';
 import db from './db';
 
-const programmingPlansTable = 'programming_plans';
+export const programmingPlansTable = 'programming_plans';
 
 export const ProgrammingPlans = () =>
   db<ProgrammingPlan>(programmingPlansTable);

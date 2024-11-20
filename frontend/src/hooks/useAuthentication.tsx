@@ -1,5 +1,6 @@
 import { skipToken } from '@reduxjs/toolkit/query';
 import { ReactElement, useMemo } from 'react';
+import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { hasPermission as hasUserPermission } from 'shared/schema/User/User';
 import { UserPermission } from 'shared/schema/User/UserPermission';
 import { UserRole } from 'shared/schema/User/UserRole';
@@ -44,6 +45,16 @@ export const useAuthentication = () => {
   const hasNationalView = useMemo(() => {
     return isAuthenticated && !userInfos?.region;
   }, [userInfos, isAuthenticated]);
+
+  const canEditPrescriptions = useMemo(
+    () => (programmingPlan: ProgrammingPlan) => {
+      return (
+        hasPermission('updatePrescription') &&
+        programmingPlan.status !== 'Validated'
+      );
+    },
+    [hasPermission]
+  );
 
   const availableRoutes: {
     path: string;
@@ -117,5 +128,6 @@ export const useAuthentication = () => {
     hasRole,
     hasNationalView,
     availableRoutes,
+    canEditPrescriptions,
   };
 };

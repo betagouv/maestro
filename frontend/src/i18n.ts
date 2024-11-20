@@ -7,6 +7,9 @@ i18n.use(initReactI18next).init({
   resources: {
     fr: {
       translation: {
+        analysis_zero: 'Aucune analyse',
+        analysis_one: 'Une analyse',
+        analysis_other: '{{count}} analyses',
         boolean_zero: 'Non',
         boolean_one: 'Oui',
         matrix_zero: 'Aucune matrice',

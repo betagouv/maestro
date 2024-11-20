@@ -9,7 +9,7 @@ interface Props {
   element: () => JSX.Element;
 }
 
-const YearRoute = ({ element, ...rest }: Props) => {
+const YearRoute = ({ element }: Props) => {
   const dispatch = useAppDispatch();
   const { year } = useParams<{ year: string }>();
   const { isAuthenticated } = useAuthentication();

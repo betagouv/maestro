@@ -3,13 +3,13 @@ import { Region } from '../../referential/Region';
 import { coerceToArray } from '../../utils/utils';
 import { Context } from '../ProgrammingPlan/Context';
 
-export const FindRegionalPrescriptionOptionsInclude = z.enum([
+export const RegionalPrescriptionOptionsInclude = z.enum([
   'comments',
   'realizedSampleCount',
 ]);
 
-export type FindRegionalPrescriptionOptionsInclude = z.infer<
-  typeof FindRegionalPrescriptionOptionsInclude
+export type RegionalPrescriptionOptionsInclude = z.infer<
+  typeof RegionalPrescriptionOptionsInclude
 >;
 
 export const FindRegionalPrescriptionOptions = z.object({
@@ -18,8 +18,8 @@ export const FindRegionalPrescriptionOptions = z.object({
   region: Region.nullish(),
   includes: z
     .union([
-      FindRegionalPrescriptionOptionsInclude,
-      coerceToArray(z.array(FindRegionalPrescriptionOptionsInclude)),
+      RegionalPrescriptionOptionsInclude,
+      coerceToArray(z.array(RegionalPrescriptionOptionsInclude)),
     ])
     .nullish(),
 });

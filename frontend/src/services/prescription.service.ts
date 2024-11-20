@@ -5,6 +5,7 @@ import {
   PrescriptionToCreate,
   PrescriptionUpdate,
 } from 'shared/schema/Prescription/Prescription';
+import { PrescriptionSubstanceAnalysis } from 'shared/schema/Prescription/PrescriptionSubstanceAnalysis';
 import { api } from 'src/services/api.service';
 import { authParams } from 'src/services/auth-headers';
 import config from 'src/utils/config';
@@ -68,6 +69,19 @@ export const prescriptionApi = api.injectEndpoints({
         { type: 'RegionalPrescription', id: 'LIST' },
       ],
     }),
+    getPrescriptionSubstanceAnalysis: builder.query<
+      PrescriptionSubstanceAnalysis[],
+      string
+    >({
+      query: (prescriptionId) => `prescriptions/${prescriptionId}/substances`,
+      transformResponse: (response: any[]) =>
+        response.map((_) =>
+          PrescriptionSubstanceAnalysis.parse(fp.omitBy(_, fp.isNil))
+        ),
+      providesTags: (_result, _error, prescriptionId) => [
+        { type: 'PrescriptionSubstanceAnalysis', id: prescriptionId },
+      ],
+    }),
   }),
 });
 
@@ -86,6 +100,7 @@ export const {
   useAddPrescriptionMutation,
   useDeletePrescriptionMutation,
   getPrescriptionsExportURL,
+  useGetPrescriptionSubstanceAnalysisQuery,
 } = {
   ...prescriptionApi,
   getPrescriptionsExportURL: prescriptionsExportURL,

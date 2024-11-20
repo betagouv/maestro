@@ -3,7 +3,7 @@ import { default as fp, default as _, isArray } from 'lodash';
 import { RegionList, Regions } from '../../shared/referential/Region';
 import {
   FindRegionalPrescriptionOptions,
-  FindRegionalPrescriptionOptionsInclude,
+  RegionalPrescriptionOptionsInclude,
 } from '../../shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import { RegionalPrescription } from '../../shared/schema/RegionalPrescription/RegionalPrescription';
 import { RealizedStatusList } from '../../shared/schema/Sample/SampleStatus';
@@ -66,7 +66,7 @@ const findMany = async (
 
 const include = (opts?: FindRegionalPrescriptionOptions) => {
   const joins: Record<
-    FindRegionalPrescriptionOptionsInclude,
+    RegionalPrescriptionOptionsInclude,
     (query: Knex.QueryBuilder) => void
   > = {
     comments: (query) => {
@@ -128,7 +128,7 @@ const include = (opts?: FindRegionalPrescriptionOptions) => {
         : [opts.includes]
       : [];
     _.uniq(includes).forEach((include) => {
-      joins[include as FindRegionalPrescriptionOptionsInclude](query);
+      joins[include as RegionalPrescriptionOptionsInclude](query);
     });
   };
 };

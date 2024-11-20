@@ -13,7 +13,9 @@ import {
   ProgrammingPlanStatusPermissions,
 } from '../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { hasPermission } from '../../shared/schema/User/User';
+import prescriptionRepository from '../repositories/prescriptionRepository';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
+import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
 import userRepository from '../repositories/userRepository';
 import mailService from '../services/mailService';
 import config from '../utils/config';
@@ -92,19 +94,41 @@ const createProgrammingPlan = async (request: Request, response: Response) => {
 
   await Promise.all([
     ContextList.map(async (context) => {
-      //TODO
-      // const previousPrescriptions = await prescriptionRepository.findMany({
-      //   programmingPlanId: previousProgrammingPlan.id,
-      //   context,
-      // });
-      // await prescriptionRepository.insertMany(
-      //   previousPrescriptions.map((prescription) => ({
-      //     ...prescription,
-      //     id: uuidv4(),
-      //     programmingPlanId: newProgrammingPlan.id,
-      //     laboratoryId: null,
-      //   }))
-      // );
+      const previousPrescriptions = await prescriptionRepository.findMany({
+        programmingPlanId: previousProgrammingPlan.id,
+        context,
+      });
+      const previousRegionalPrescriptions =
+        await regionalPrescriptionRepository.findMany({
+          programmingPlanId: previousProgrammingPlan.id,
+          context,
+        });
+
+      await Promise.all([
+        previousPrescriptions.map(async (prescription) => {
+          const newPrescription = {
+            ...prescription,
+            id: uuidv4(),
+            programmingPlanId: newProgrammingPlan.id,
+          };
+
+          await prescriptionRepository.insert(newPrescription);
+
+          await regionalPrescriptionRepository.insertMany(
+            previousRegionalPrescriptions
+              .filter(
+                (regionalPrescription) =>
+                  regionalPrescription.prescriptionId === prescription.id
+              )
+              .map((regionalPrescription) => ({
+                ...regionalPrescription,
+                id: uuidv4(),
+                prescriptionId: newPrescription.id,
+                laboratoryId: null,
+              }))
+          );
+        }),
+      ]);
     }),
   ]);
 

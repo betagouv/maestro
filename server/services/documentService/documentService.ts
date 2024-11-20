@@ -12,8 +12,8 @@ import { PartialSampleItem } from '../../../shared/schema/Sample/SampleItem';
 import { UserInfos } from '../../../shared/schema/User/User';
 import { isDefinedAndNotNull } from '../../../shared/utils/utils';
 import laboratoryRepository from '../../repositories/laboratoryRepository';
+import prescriptionSubstanceAnalysisRepository from '../../repositories/prescriptionSubstanceAnalysisRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
-import substanceAnalysisRepository from '../../repositories/substanceRepository';
 import {
   Template,
   templateContent,
@@ -72,13 +72,10 @@ const generateSupportDocument = async (
     ? await laboratoryRepository.findUnique(sample.laboratoryId)
     : null;
 
-  const substanceAnalysis =
-    sample.matrix && sample.sampledAt
-      ? await substanceAnalysisRepository.findMany({
-          matrix: sample.matrix,
-          year: sample.sampledAt.getFullYear(),
-        })
-      : null;
+  const prescriptionSubstanceAnalysis =
+    await prescriptionSubstanceAnalysisRepository.findMany(
+      '' //TODO sample.prescriptionId
+    );
 
   return generateDocument('supportDocument', {
     ...sample,
@@ -86,12 +83,12 @@ const generateSupportDocument = async (
     sampler,
     laboratory,
     programmingPlan,
-    monoSubstances: substanceAnalysis
-      ?.filter((analysis) => analysis.kind === 'Mono')
-      .map((analysis) => analysis.substance.label),
-    multiSubstances: substanceAnalysis
-      ?.filter((analysis) => analysis.kind === 'Multi')
-      .map((analysis) => analysis.substance.label),
+    monoSubstances: prescriptionSubstanceAnalysis
+      ?.filter((substance) => substance.analysisKind === 'Mono')
+      .map((substance) => substance.substance.label),
+    multiSubstances: prescriptionSubstanceAnalysis
+      ?.filter((substance) => substance.analysisKind === 'Multi')
+      .map((substance) => substance.substance.label),
     reference: [sample.reference, sampleItem?.itemNumber]
       .filter(isDefinedAndNotNull)
       .join('-'),

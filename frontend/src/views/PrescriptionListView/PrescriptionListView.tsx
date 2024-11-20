@@ -7,7 +7,10 @@ import { useSearchParams } from 'react-router-dom';
 import { Matrix } from 'shared/referential/Matrix/Matrix';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
 import { Region, RegionList, Regions } from 'shared/referential/Region';
-import { FindPrescriptionOptions } from 'shared/schema/Prescription/FindPrescriptionOptions';
+import {
+  FindPrescriptionOptions,
+  PrescriptionOptionsInclude,
+} from 'shared/schema/Prescription/FindPrescriptionOptions';
 import { PrescriptionSort } from 'shared/schema/Prescription/Prescription';
 import {
   Context,
@@ -77,6 +80,7 @@ const PrescriptionListView = () => {
       programmingPlanId: programmingPlan?.id as string,
       context: prescriptionListContext,
       region,
+      includes: ['substanceCount' as PrescriptionOptionsInclude],
     }),
     [programmingPlan, prescriptionListContext, region]
   );

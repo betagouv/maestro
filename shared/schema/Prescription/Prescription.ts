@@ -10,15 +10,18 @@ export const Prescription = z.object({
   context: Context,
   matrix: Matrix,
   stages: z.array(Stage),
+  monoAnalysisCount: z.coerce.number().nullish(),
+  multiAnalysisCount: z.coerce.number().nullish(),
 });
 
 export const PrescriptionToCreate = Prescription.omit({
   id: true,
 });
 
-export const PrescriptionUpdate = Prescription.pick({
-  programmingPlanId: true,
-  stages: true,
+export const PrescriptionUpdate = z.object({
+  programmingPlanId: z.string().uuid(),
+  stages: z.array(Stage).nullish(),
+  substanceCodes: z.array(z.string()).nullish(),
 });
 
 export type Prescription = z.infer<typeof Prescription>;

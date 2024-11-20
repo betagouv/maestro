@@ -2,7 +2,7 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
 import Tag from '@codegouvfr/react-dsfr/Tag';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Stage, StageLabels, StageList } from 'shared/referential/Stage';
 import { Prescription } from 'shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -22,21 +22,14 @@ const PrescriptionStages = ({
   prescription,
   label,
 }: Props) => {
-  const { hasPermission } = useAuthentication();
+  const { canEditPrescriptions } = useAuthentication();
   const [updatePrescription, { isSuccess: isUpdateSuccess }] =
     useUpdatePrescriptionMutation();
 
   const [newStage, setNewStage] = useState<Stage | ''>('');
 
-  const canEdit = useMemo(
-    () =>
-      hasPermission('updatePrescription') &&
-      programmingPlan.status !== 'Validated',
-    [hasPermission, programmingPlan.status]
-  );
-
   const removeStage = async (stage: Stage) => {
-    if (canEdit) {
+    if (canEditPrescriptions(programmingPlan)) {
       await updatePrescription({
         prescriptionId: prescription.id,
         prescriptionUpdate: {
@@ -48,7 +41,7 @@ const PrescriptionStages = ({
   };
 
   const addStage = async (stage: Stage) => {
-    if (canEdit) {
+    if (canEditPrescriptions(programmingPlan)) {
       await updatePrescription({
         prescriptionId: prescription.id,
         prescriptionUpdate: {
@@ -62,7 +55,7 @@ const PrescriptionStages = ({
   return (
     <>
       <AppToast open={isUpdateSuccess} description="Modification enregistrée" />
-      {canEdit ? (
+      {canEditPrescriptions(programmingPlan) ? (
         <div className="d-flex-align-center">
           <Select
             label={label ?? ''}
@@ -104,10 +97,10 @@ const PrescriptionStages = ({
       {prescription.stages.map((stage) => (
         <Tag
           key={`prescription_${prescription.matrix}_stage_${stage}`}
-          dismissible={canEdit}
+          dismissible={canEditPrescriptions(programmingPlan)}
           small
           nativeButtonProps={
-            canEdit
+            canEditPrescriptions(programmingPlan)
               ? {
                   onClick: () => removeStage(stage),
                 }

@@ -13,6 +13,7 @@ import {
 import { ContextLabels } from '../../shared/schema/ProgrammingPlan/Context';
 import { FindRegionalPrescriptionOptions } from '../../shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import prescriptionRepository from '../repositories/prescriptionRepository';
+import prescriptionSubstanceAnalysisRepository from '../repositories/prescriptionSubstanceAnalysisRepository';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
 import exportPrescriptionsService from '../services/exportService/exportPrescriptionsService';
@@ -30,7 +31,10 @@ const findPrescriptions = async (request: Request, response: Response) => {
 const exportPrescriptions = async (request: Request, response: Response) => {
   const programmingPlan = (request as ProgrammingPlanRequest).programmingPlan;
   const user = (request as AuthenticatedRequest).user;
-  const queryFindOptions = request.query as FindRegionalPrescriptionOptions;
+  const queryFindOptions = request.query as Omit<
+    FindRegionalPrescriptionOptions,
+    'includes'
+  >;
   const exportedRegion = user.region ?? queryFindOptions.region ?? undefined;
 
   const findOptions = {
@@ -112,8 +116,12 @@ const updatePrescription = async (request: Request, response: Response) => {
 
   const updatedPrescription = {
     ...prescription,
-    stages: prescriptionUpdate.stages,
+    stages: prescriptionUpdate.stages ?? prescription.stages,
+    substanceMonoCount: prescriptionUpdate.substanceCodes
+      ? prescriptionUpdate.substanceCodes.length
+      : prescription.monoAnalysisCount,
   };
+  //TODO
 
   await prescriptionRepository.update(updatedPrescription);
 
@@ -148,10 +156,32 @@ const deletePrescription = async (request: Request, response: Response) => {
   response.sendStatus(constants.HTTP_STATUS_NO_CONTENT);
 };
 
+const getPrescriptionSubstanceAnalysis = async (
+  request: Request,
+  response: Response
+) => {
+  const prescriptionId = request.params.prescriptionId;
+
+  console.info('Get prescription substances', prescriptionId);
+
+  const prescription = await prescriptionRepository.findUnique(prescriptionId);
+
+  if (!prescription) {
+    throw new PrescriptionMissingError(prescriptionId);
+  }
+
+  const substances = await prescriptionSubstanceAnalysisRepository.findMany(
+    prescriptionId
+  );
+
+  response.status(constants.HTTP_STATUS_OK).send(substances);
+};
+
 export default {
   findPrescriptions,
   exportPrescriptions,
   createPrescription,
   updatePrescription,
   deletePrescription,
+  getPrescriptionSubstanceAnalysis,
 };

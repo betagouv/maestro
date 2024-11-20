@@ -16,6 +16,7 @@ import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useOnLine } from 'src/hooks/useOnLine';
 import { useAppSelector } from 'src/hooks/useStore';
 import {
+  useCreateProgrammingPlanMutation,
   useFindProgrammingPlansQuery,
   useGetProgrammingPlanByYearQuery,
 } from 'src/services/programming-plan.service';
@@ -28,6 +29,7 @@ const DashboardView = () => {
   const { data: programmingPlan } = useGetProgrammingPlanByYearQuery(
     new Date().getFullYear()
   );
+  const [createProgrammingPlan] = useCreateProgrammingPlanMutation();
   const { pendingSamples } = useAppSelector((state) => state.samples);
 
   useDocumentTitle('Tableau de bord');
@@ -116,6 +118,20 @@ const DashboardView = () => {
                       title="Editer la programmation"
                       titleAs="h3"
                     />
+                  </div>
+                )}
+              {hasPermission('manageProgrammingPlan') &&
+                !nextProgrammingPlan && (
+                  <div>
+                    <Button
+                      onClick={async () => {
+                        await createProgrammingPlan(
+                          new Date().getFullYear() + 1
+                        ).unwrap();
+                      }}
+                    >
+                      Créer la programmation {new Date().getFullYear() + 1}
+                    </Button>
                   </div>
                 )}
             </>
