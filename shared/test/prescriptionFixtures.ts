@@ -3,8 +3,8 @@ import { MatrixList } from '../referential/Matrix/Matrix';
 import { RegionList } from '../referential/Region';
 import { StageList } from '../referential/Stage';
 import { Prescription } from '../schema/Prescription/Prescription';
-import { RegionalPrescription } from '../schema/Prescription/RegionalPrescription';
 import { ContextList } from '../schema/ProgrammingPlan/Context';
+import { RegionalPrescription } from '../schema/RegionalPrescription/RegionalPrescription';
 import { genNumber, oneOf } from './testFixtures';
 
 export const genPrescription = (

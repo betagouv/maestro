@@ -4,8 +4,8 @@ import { RegionList, Regions } from '../../shared/referential/Region';
 import {
   FindRegionalPrescriptionOptions,
   FindRegionalPrescriptionOptionsInclude,
-} from '../../shared/schema/Prescription/FindRegionalPrescriptionOptions';
-import { RegionalPrescription } from '../../shared/schema/Prescription/RegionalPrescription';
+} from '../../shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
+import { RegionalPrescription } from '../../shared/schema/RegionalPrescription/RegionalPrescription';
 import { RealizedStatusList } from '../../shared/schema/Sample/SampleStatus';
 import db from './db';
 import { prescriptionsTable } from './prescriptionRepository';
@@ -57,7 +57,6 @@ const findMany = async (
       }
     })
     .modify(include(findOptions))
-    .debug(true)
     .then((regionalPrescriptions) =>
       regionalPrescriptions.map((_: RegionalPrescription) =>
         RegionalPrescription.parse(fp.omitBy(_, fp.isNil))

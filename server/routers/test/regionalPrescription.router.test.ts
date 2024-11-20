@@ -10,9 +10,9 @@ import {
 import { MatrixList } from '../../../shared/referential/Matrix/Matrix';
 import { Region, RegionList } from '../../../shared/referential/Region';
 import { StageList } from '../../../shared/referential/Stage';
-import { RegionalPrescription } from '../../../shared/schema/Prescription/RegionalPrescription';
-import { RegionalPrescriptionComment } from '../../../shared/schema/Prescription/RegionalPrescriptionComment';
 import { ProgrammingPlanStatus } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import { RegionalPrescription } from '../../../shared/schema/RegionalPrescription/RegionalPrescription';
+import { RegionalPrescriptionComment } from '../../../shared/schema/RegionalPrescription/RegionalPrescriptionComment';
 import {
   genPrescription,
   genRegionalPrescription,

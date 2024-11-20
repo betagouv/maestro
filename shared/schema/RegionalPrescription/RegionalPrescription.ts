@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { z } from 'zod';
-import { Region } from '../../referential/Region';
-import { Prescription } from './Prescription';
+import { Region, RegionSort } from '../../referential/Region';
+import { Prescription } from '../Prescription/Prescription';
 import { RegionalPrescriptionComment } from './RegionalPrescriptionComment';
 
 export const RegionalPrescription = z.object({
@@ -69,3 +69,8 @@ export const getCompletionRate = (
     ? Number(((totalRealizedSampleCount / totalSampleCount) * 100).toFixed(2))
     : 100;
 };
+
+export const RegionalPrescriptionSort = (
+  a: RegionalPrescription,
+  b: RegionalPrescription
+) => RegionSort(a.region, b.region);

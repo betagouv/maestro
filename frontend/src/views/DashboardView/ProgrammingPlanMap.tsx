@@ -16,11 +16,11 @@ import Map, {
 } from 'react-map-gl/maplibre';
 import { useNavigate } from 'react-router-dom';
 import { Region, RegionList, Regions } from 'shared/referential/Region';
+import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   getCompletionRate,
   RegionalPrescription,
-} from 'shared/schema/Prescription/RegionalPrescription';
-import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
+} from 'shared/schema/RegionalPrescription/RegionalPrescription';
 import { useGetRegionsGeoJsonQuery } from 'src/services/region.service';
 
 interface Props {

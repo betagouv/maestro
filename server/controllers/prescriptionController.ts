@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { ProgrammingPlanRequest } from 'express-jwt';
+import { AuthenticatedRequest, ProgrammingPlanRequest } from 'express-jwt';
 import { constants } from 'http2';
 import { v4 as uuidv4 } from 'uuid';
 import PrescriptionMissingError from '../../shared/errors/prescriptionPlanMissingError';
@@ -9,8 +9,12 @@ import {
   PrescriptionToCreate,
   PrescriptionUpdate,
 } from '../../shared/schema/Prescription/Prescription';
+import { ContextLabels } from '../../shared/schema/ProgrammingPlan/Context';
+import { FindRegionalPrescriptionOptions } from '../../shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
+import exportPrescriptionsService from '../services/exportService/exportPrescriptionsService';
+import workbookUtils from '../utils/workbookUtils';
 const findPrescriptions = async (request: Request, response: Response) => {
   const findOptions = request.query as FindPrescriptionOptions;
 
@@ -22,37 +26,40 @@ const findPrescriptions = async (request: Request, response: Response) => {
 };
 
 const exportPrescriptions = async (request: Request, response: Response) => {
-  //TODO
-  // const programmingPlan = (request as ProgrammingPlanRequest).programmingPlan;
-  // const user = (request as AuthenticatedRequest).user;
-  // const queryFindOptions = request.query as FindPrescriptionOptions;
-  // const exportedRegion = user.region ?? queryFindOptions.region ?? undefined;
-  //
-  // const findOptions = {
-  //   ...queryFindOptions,
-  //   region: exportedRegion,
-  // };
-  //
-  // console.info('Export prescriptions', user.id, findOptions);
-  //
-  // const prescriptions = await prescriptionRepository.findMany(findOptions);
-  //
-  // const fileName = `prescriptions-${
-  //   findOptions.context &&
-  //   ContextLabels[findOptions.context].toLowerCase().replaceAll(' ', '-')
-  // }.xlsx`;
-  //
-  // const workbook = workbookUtils.init(fileName, response);
-  //
-  // await exportPrescriptionsService.writeToWorkbook(
-  //   {
-  //     prescriptions,
-  //     programmingPlan,
-  //     context: findOptions.context,
-  //     exportedRegion,
-  //   },
-  //   workbook
-  // );
+  const programmingPlan = (request as ProgrammingPlanRequest).programmingPlan;
+  const user = (request as AuthenticatedRequest).user;
+  const queryFindOptions = request.query as FindRegionalPrescriptionOptions;
+  const exportedRegion = user.region ?? queryFindOptions.region ?? undefined;
+
+  const findOptions = {
+    ...queryFindOptions,
+    region: exportedRegion,
+  };
+
+  console.info('Export prescriptions', user.id, findOptions);
+
+  const prescriptions = await prescriptionRepository.findMany(queryFindOptions);
+  const regionalPrescriptions = await regionalPrescriptionRepository.findMany({
+    ...findOptions,
+    includes: ['comments', 'realizedSampleCount'],
+  });
+
+  const fileName = `prescriptions-${
+    findOptions.context &&
+    ContextLabels[findOptions.context].toLowerCase().replaceAll(' ', '-')
+  }.xlsx`;
+
+  const workbook = workbookUtils.init(fileName, response);
+
+  await exportPrescriptionsService.writeToWorkbook(
+    {
+      prescriptions,
+      programmingPlan,
+      exportedRegion,
+      regionalPrescriptions,
+    },
+    workbook
+  );
 };
 
 const createPrescription = async (request: Request, response: Response) => {

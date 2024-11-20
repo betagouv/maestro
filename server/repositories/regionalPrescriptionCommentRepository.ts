@@ -1,4 +1,4 @@
-import { RegionalPrescriptionComment } from '../../shared/schema/Prescription/RegionalPrescriptionComment';
+import { RegionalPrescriptionComment } from '../../shared/schema/RegionalPrescription/RegionalPrescriptionComment';
 import db from './db';
 
 export const regionalPrescriptionCommentsTable =

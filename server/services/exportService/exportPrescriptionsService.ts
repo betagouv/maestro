@@ -1,180 +1,180 @@
 import exceljs from 'exceljs';
-import { Region } from '../../../shared/referential/Region';
-import { Prescription } from '../../../shared/schema/Prescription/Prescription';
+import highland from 'highland';
+import {
+  Region,
+  RegionList,
+  Regions,
+} from '../../../shared/referential/Region';
+import {
+  Prescription,
+  PrescriptionSort,
+} from '../../../shared/schema/Prescription/Prescription';
 
-import { Context } from '../../../shared/schema/ProgrammingPlan/Context';
+import _ from 'lodash';
+import { MatrixLabels } from '../../../shared/referential/Matrix/MatrixLabels';
+import { StageLabels } from '../../../shared/referential/Stage';
 import { ProgrammingPlan } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlans';
+import {
+  getCompletionRate,
+  RegionalPrescription,
+} from '../../../shared/schema/RegionalPrescription/RegionalPrescription';
+import { isDefined } from '../../../shared/utils/utils';
+import laboratoryRepository from '../../repositories/laboratoryRepository';
 import WorkbookWriter = exceljs.stream.xlsx.WorkbookWriter;
 
 interface PrescriptionWorkbookData {
-  prescriptions: Prescription[];
   programmingPlan: ProgrammingPlan;
-  context: Context;
+  prescriptions: Prescription[];
+  regionalPrescriptions: RegionalPrescription[];
   exportedRegion: Region | undefined;
 }
 
 const writeToWorkbook = async (
   {
-    prescriptions,
     programmingPlan,
-    context,
+    prescriptions,
+    regionalPrescriptions,
     exportedRegion,
   }: PrescriptionWorkbookData,
   workbook: WorkbookWriter
 ) => {
-  // const samples = await sampleRepository.findMany({
-  //   programmingPlanId: programmingPlan.id,
-  //   context,
-  //   status: 'Sent',
-  // });
-  //
-  // const exportedRegions = exportedRegion ? [exportedRegion] : RegionList;
-  //
-  // const prescriptionsByMatrix = genPrescriptionByMatrix(
-  //   prescriptions,
-  //   samples,
-  //   exportedRegions
-  // );
-  //
-  // const laboratories = exportedRegion
-  //   ? await laboratoryRepository.findMany()
-  //   : [];
-  //
-  // const worksheet = workbook.addWorksheet('Prescriptions');
-  // worksheet.columns = [
-  //   { header: 'Matrice', key: 'matrix', width: 30 },
-  //   { header: 'Stade(s) de prélèvement', key: 'stages', width: 20 },
-  //   !exportedRegion
-  //     ? {
-  //         header: 'Total national\nProgrammés',
-  //         key: 'sampleTotalCount',
-  //         width: 15,
-  //       }
-  //     : undefined,
-  //   !exportedRegion && programmingPlan.status === 'Validated'
-  //     ? {
-  //         header: 'Total national\nRéalisés',
-  //         key: 'sentSampleTotalCount',
-  //         width: 15,
-  //       }
-  //     : undefined,
-  //   !exportedRegion && programmingPlan.status === 'Validated'
-  //     ? {
-  //         header: 'Total national\nTaux de réalisation',
-  //         key: 'completionRate',
-  //         width: 15,
-  //       }
-  //     : undefined,
-  //   ...exportedRegions.map((region) => [
-  //     {
-  //       header: `${Regions[region].shortName}\nProgrammés`,
-  //       key: `sampleCount-${region}`,
-  //       width: 10,
-  //     },
-  //     programmingPlan.status === 'Validated'
-  //       ? {
-  //           header: `${Regions[region].shortName}\nRéalisés`,
-  //           key: `realizedSampleCount-${region}`,
-  //           width: 10,
-  //         }
-  //       : undefined,
-  //     programmingPlan.status === 'Validated'
-  //       ? {
-  //           header: `${Regions[region].shortName}\nTaux de réalisation`,
-  //           key: `completionRate-${region}`,
-  //           width: 10,
-  //         }
-  //       : undefined,
-  //   ]),
-  //   exportedRegion
-  //     ? {
-  //         header: 'Laboratoire',
-  //         key: 'laboratory',
-  //         width: 20,
-  //       }
-  //     : undefined,
-  // ]
-  //   .flat()
-  //   .filter(isDefined);
-  //
-  // highland(prescriptionsByMatrix)
-  //   .each((prescription) => {
-  //     worksheet
-  //       .addRow({
-  //         matrix: MatrixLabels[prescription.matrix],
-  //         stages: prescription.stages
-  //           .map((stage) => StageLabels[stage])
-  //           .join('\n'),
-  //         sampleTotalCount: _.sumBy(
-  //           prescription.regionalPrescriptions,
-  //           ({ sampleCount }) => sampleCount
-  //         ),
-  //         sentSampleTotalCount: _.sumBy(
-  //           prescription.regionalPrescriptions,
-  //           ({ realizedSampleCount }) => realizedSampleCount
-  //         ),
-  //         completionRate: matrixCompletionRate(prescription),
-  //         ...prescription.regionalPrescriptions.reduce(
-  //           (acc, { sampleCount, realizedSampleCount, region }) => ({
-  //             ...acc,
-  //             [`sampleCount-${region}`]: sampleCount,
-  //             [`realizedSampleCount-${region}`]: realizedSampleCount,
-  //             [`completionRate-${region}`]: matrixCompletionRate(
-  //               prescription,
-  //               region
-  //             ),
-  //           }),
-  //           {}
-  //         ),
-  //         laboratory: laboratories.find(
-  //           (laboratory) =>
-  //             laboratory.id ===
-  //             prescription.regionalPrescriptions[0]?.laboratoryId
-  //         )?.name,
-  //       })
-  //       .commit();
-  //   })
-  //   .done(() => {
-  //     worksheet.addRow({
-  //       matrix: 'Total',
-  //       sampleTotalCount: _.sum(
-  //         prescriptionsByMatrix
-  //           .flatMap((p) => p.regionalPrescriptions)
-  //           .map((p) => p.sampleCount)
-  //       ),
-  //       sentSampleTotalCount: _.sum(
-  //         prescriptionsByMatrix
-  //           .flatMap((p) => p.regionalPrescriptions)
-  //           .map((p) => p.realizedSampleCount)
-  //       ),
-  //       completionRate: matrixCompletionRate(prescriptionsByMatrix),
-  //       ...exportedRegions.reduce(
-  //         (acc, region) => ({
-  //           ...acc,
-  //           [`sampleCount-${region}`]: _.sum(
-  //             prescriptionsByMatrix.map(
-  //               (p) =>
-  //                 p.regionalPrescriptions.find((r) => r.region === region)
-  //                   ?.sampleCount ?? 0
-  //             )
-  //           ),
-  //           [`realizedSampleCount-${region}`]: _.sum(
-  //             prescriptionsByMatrix.map(
-  //               (p) =>
-  //                 p.regionalPrescriptions.find((r) => r.region === region)
-  //                   ?.realizedSampleCount ?? 0
-  //             )
-  //           ),
-  //           [`completionRate-${region}`]: matrixCompletionRate(
-  //             prescriptionsByMatrix,
-  //             region
-  //           ),
-  //         }),
-  //         {}
-  //       ),
-  //     });
-  //     workbook.commit();
-  //   });
+  const exportedRegions = exportedRegion ? [exportedRegion] : RegionList;
+
+  const laboratories = exportedRegion
+    ? await laboratoryRepository.findMany()
+    : [];
+
+  const worksheet = workbook.addWorksheet('Prescriptions');
+  worksheet.columns = [
+    { header: 'Matrice', key: 'matrix', width: 30 },
+    { header: 'Stade(s) de prélèvement', key: 'stages', width: 20 },
+    !exportedRegion
+      ? {
+          header: 'Total national\nProgrammés',
+          key: 'sampleTotalCount',
+          width: 15,
+        }
+      : undefined,
+    !exportedRegion && programmingPlan.status === 'Validated'
+      ? {
+          header: 'Total national\nRéalisés',
+          key: 'sentSampleTotalCount',
+          width: 15,
+        }
+      : undefined,
+    !exportedRegion && programmingPlan.status === 'Validated'
+      ? {
+          header: 'Total national\nTaux de réalisation',
+          key: 'completionRate',
+          width: 15,
+        }
+      : undefined,
+    ...exportedRegions.map((region) => [
+      {
+        header: `${Regions[region].shortName}\nProgrammés`,
+        key: `sampleCount-${region}`,
+        width: 10,
+      },
+      programmingPlan.status === 'Validated'
+        ? {
+            header: `${Regions[region].shortName}\nRéalisés`,
+            key: `realizedSampleCount-${region}`,
+            width: 10,
+          }
+        : undefined,
+      programmingPlan.status === 'Validated'
+        ? {
+            header: `${Regions[region].shortName}\nTaux de réalisation`,
+            key: `completionRate-${region}`,
+            width: 10,
+          }
+        : undefined,
+    ]),
+    exportedRegion
+      ? {
+          header: 'Laboratoire',
+          key: 'laboratory',
+          width: 20,
+        }
+      : undefined,
+  ]
+    .flat()
+    .filter(isDefined);
+
+  highland(prescriptions.sort(PrescriptionSort))
+    .map((prescription) => ({
+      prescription,
+      filteredRegionalPrescriptions: [
+        ...regionalPrescriptions.filter(
+          (r) => r.prescriptionId === prescription.id
+        ),
+      ],
+    }))
+    .each(({ prescription, filteredRegionalPrescriptions }) => {
+      worksheet
+        .addRow({
+          matrix: MatrixLabels[prescription.matrix],
+          stages: prescription.stages
+            .map((stage) => StageLabels[stage])
+            .join('\n'),
+          sampleTotalCount: _.sumBy(
+            filteredRegionalPrescriptions,
+            'sampleCount'
+          ),
+          sentSampleTotalCount: _.sumBy(
+            filteredRegionalPrescriptions,
+            'realizedSampleCount'
+          ),
+          completionRate: getCompletionRate(filteredRegionalPrescriptions),
+          ...filteredRegionalPrescriptions.reduce(
+            (acc, { sampleCount, realizedSampleCount, region }) => ({
+              ...acc,
+              [`sampleCount-${region}`]: sampleCount,
+              [`realizedSampleCount-${region}`]: realizedSampleCount,
+              [`completionRate-${region}`]: getCompletionRate(
+                filteredRegionalPrescriptions,
+                region
+              ),
+            }),
+            {}
+          ),
+          laboratory: laboratories.find(
+            (laboratory) =>
+              laboratory.id === filteredRegionalPrescriptions[0]?.laboratoryId
+          )?.name,
+        })
+        .commit();
+    })
+    .done(() => {
+      worksheet.addRow({
+        matrix: 'Total',
+        sampleTotalCount: _.sumBy(regionalPrescriptions, 'sampleCount'),
+        sentSampleTotalCount: _.sumBy(
+          regionalPrescriptions,
+          'realizedSampleCount'
+        ),
+        completionRate: getCompletionRate(regionalPrescriptions),
+        ...exportedRegions.reduce(
+          (acc, region) => ({
+            ...acc,
+            [`sampleCount-${region}`]: _.sumBy(
+              regionalPrescriptions.filter((r) => r.region === region),
+              'sampleCount'
+            ),
+            [`realizedSampleCount-${region}`]: _.sumBy(
+              regionalPrescriptions.filter((r) => r.region === region),
+              'realizedSampleCount'
+            ),
+            [`completionRate-${region}`]: getCompletionRate(
+              regionalPrescriptions.filter((r) => r.region === region),
+              region
+            ),
+          }),
+          {}
+        ),
+      });
+      workbook.commit();
+    });
 };
 
 export default {

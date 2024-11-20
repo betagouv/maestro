@@ -1,13 +1,13 @@
 import fp from 'lodash';
-import { FindRegionalPrescriptionOptions } from 'shared/schema/Prescription/FindRegionalPrescriptionOptions';
+import { FindRegionalPrescriptionOptions } from 'shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import {
   RegionalPrescription,
   RegionalPrescriptionUpdate,
-} from 'shared/schema/Prescription/RegionalPrescription';
+} from 'shared/schema/RegionalPrescription/RegionalPrescription';
 import {
   RegionalPrescriptionComment,
   RegionalPrescriptionCommentToCreate,
-} from 'shared/schema/Prescription/RegionalPrescriptionComment';
+} from 'shared/schema/RegionalPrescription/RegionalPrescriptionComment';
 import { api } from 'src/services/api.service';
 
 export const prescriptionApi = api.injectEndpoints({

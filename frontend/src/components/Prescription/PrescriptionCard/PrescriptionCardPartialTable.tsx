@@ -1,8 +1,11 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
 import { RegionList, Regions } from 'shared/referential/Region';
-import { RegionalPrescription } from 'shared/schema/Prescription/RegionalPrescription';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
+import {
+  RegionalPrescription,
+  RegionalPrescriptionSort,
+} from 'shared/schema/RegionalPrescription/RegionalPrescription';
 import RegionalPrescriptionCountCell from 'src/components/Prescription/RegionalPrescriptionCountCell/RegionalPrescriptionCountCell';
 import './PrescriptionCard.scss';
 
@@ -37,6 +40,7 @@ const PrescriptionCardPartialTable = ({
       ))}
       data={[
         regionalPrescriptions
+          .sort(RegionalPrescriptionSort)
           .slice(start, end)
           .map((regionalPrescription) => (
             <RegionalPrescriptionCountCell

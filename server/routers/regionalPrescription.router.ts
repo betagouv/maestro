@@ -1,7 +1,7 @@
 import express from 'express';
 import { z } from 'zod';
-import { FindRegionalPrescriptionOptions } from '../../shared/schema/Prescription/FindRegionalPrescriptionOptions';
-import { RegionalPrescriptionUpdate } from '../../shared/schema/Prescription/RegionalPrescription';
+import { FindRegionalPrescriptionOptions } from '../../shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
+import { RegionalPrescriptionUpdate } from '../../shared/schema/RegionalPrescription/RegionalPrescription';
 import regionalPrescriptionController from '../controllers/regionalPrescriptionController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
 import { programmingPlanCheck } from '../middlewares/checks/programmingPlanCheck';

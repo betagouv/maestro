@@ -7,11 +7,12 @@ import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
 import { Region } from 'shared/referential/Region';
 import { StageLabels } from 'shared/referential/Stage';
 import { Prescription } from 'shared/schema/Prescription/Prescription';
+import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   getCompletionRate,
   RegionalPrescription,
-} from 'shared/schema/Prescription/RegionalPrescription';
-import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
+  RegionalPrescriptionSort,
+} from 'shared/schema/RegionalPrescription/RegionalPrescription';
 import { isNotEmpty } from 'shared/utils/utils';
 import RegionalPrescriptionCountCell from 'src/components/Prescription/RegionalPrescriptionCountCell/RegionalPrescriptionCountCell';
 import RegionHeaderCell from 'src/components/RegionHeaderCell/RegionHeaderCell';
@@ -47,7 +48,9 @@ const PrescriptionTable = ({
   const { hasPermission } = useAuthentication();
 
   const getRegionalPrescriptions = (prescriptionId: string) =>
-    regionalPrescriptions.filter((r) => r.prescriptionId === prescriptionId);
+    regionalPrescriptions
+      .filter((r) => r.prescriptionId === prescriptionId)
+      .sort((a, b) => a.region.localeCompare(b.region));
 
   // @ts-ignore
   const { data: laboratories } = useFindLaboratoriesQuery(_, {
@@ -135,8 +138,9 @@ const PrescriptionTable = ({
               )}
             </div>
           ),
-          ...getRegionalPrescriptions(prescription.id).map(
-            (regionalPrescription) => (
+          ...getRegionalPrescriptions(prescription.id)
+            .sort(RegionalPrescriptionSort)
+            .map((regionalPrescription) => (
               <div
                 className="border-left"
                 data-testid={`cell-${prescription.matrix}`}
@@ -153,8 +157,7 @@ const PrescriptionTable = ({
                   }
                 />
               </div>
-            )
-          ),
+            )),
           // regions.length === 1 && (
           //   <div
           //     key={`laboratory-${prescription.matrix}-${prescription.stages}`}
@@ -224,7 +227,10 @@ const PrescriptionTable = ({
                   )}
                 </div>
                 <div>
-                  {getCompletionRate(getRegionalPrescriptions(region))}%
+                  {getCompletionRate(
+                    regionalPrescriptions.filter((r) => r.region === region),
+                    region
+                  )}
                 </div>
               </>
             )}

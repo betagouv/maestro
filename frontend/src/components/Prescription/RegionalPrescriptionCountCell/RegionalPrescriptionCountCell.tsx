@@ -1,9 +1,9 @@
 import Button from '@codegouvfr/react-dsfr/Button';
+import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   getCompletionRate,
   RegionalPrescription,
-} from 'shared/schema/Prescription/RegionalPrescription';
-import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
+} from 'shared/schema/RegionalPrescription/RegionalPrescription';
 import EditableNumberCell from 'src/components/EditableCell/EditableNumberCell';
 import RegionalPrescriptionCommentsModal from 'src/components/Prescription/RegionalPrescriptionCommentsModal/RegionalPrescriptionCommentsModal';
 import { useAuthentication } from 'src/hooks/useAuthentication';
