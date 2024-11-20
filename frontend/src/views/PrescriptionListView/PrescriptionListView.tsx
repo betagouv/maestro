@@ -85,12 +85,10 @@ const PrescriptionListView = () => {
     [programmingPlan, prescriptionListContext, region]
   );
 
-  const { data: allPrescriptions } = useFindPrescriptionsQuery(
-    findPrescriptionOptions,
-    {
+Fixes  const { data: allPrescriptions, isFetching: isPrescriptionFetching } =
+    useFindPrescriptionsQuery(findPrescriptionOptions, {
       skip: !programmingPlan,
-    }
-  );
+    });
 
   const prescriptions = useMemo(() => {
     return allPrescriptions
@@ -104,7 +102,10 @@ const PrescriptionListView = () => {
       .sort(PrescriptionSort);
   }, [allPrescriptions, matrixQuery]);
 
-  const { data: regionalPrescriptions } = useFindRegionalPrescriptionsQuery(
+  const {
+    data: regionalPrescriptions,
+    isFetching: isRegionalPrescriptionFetching,
+  } = useFindRegionalPrescriptionsQuery(
     {
       ...findPrescriptionOptions,
       includes: ['comments', 'realizedSampleCount'],
@@ -220,81 +221,87 @@ const PrescriptionListView = () => {
           )
         )}
       >
-        {programmingPlan && prescriptions && regionalPrescriptions && (
-          <>
-            <div
-              className={clsx(
-                cx('fr-mb-2w', 'fr-mb-md-5w', 'fr-px-0', 'fr-container'),
-                'table-header'
-              )}
-            >
-              {
-                <PrescriptionListHeader
-                  programmingPlan={programmingPlan}
-                  findPrescriptionOptions={findPrescriptionOptions}
-                  prescriptions={prescriptions}
-                  addMatrix={(matrix) => addMatrix(programmingPlan.id, matrix)}
-                  sampleCount={_.sumBy(regionalPrescriptions, 'sampleCount')}
-                />
-              }
-            </div>
-            {prescriptionListDisplay === 'cards' && (
+        {programmingPlan &&
+          prescriptions &&
+          regionalPrescriptions &&
+          !isPrescriptionFetching &&
+          !isRegionalPrescriptionFetching && (
+            <>
               <div
-                className={
-                  userRegions(userInfos).length === 1
-                    ? cx('fr-grid-row', 'fr-grid-row--gutters')
-                    : 'prescription-cards-container'
-                }
-              >
-                {prescriptions?.map((prescription) => (
-                  <>
-                    {hasNationalView ? (
-                      <PrescriptionCardNational
-                        programmingPlan={programmingPlan}
-                        prescription={prescription}
-                        regionalPrescriptions={regionalPrescriptions.filter(
-                          (rp) => rp.prescriptionId === prescription.id
-                        )}
-                        onChangeRegionalPrescriptionCount={
-                          changeRegionalPrescriptionCount
-                        }
-                        onRemovePrescription={removePrescription}
-                        key={`prescription_${prescription.matrix}`}
-                      />
-                    ) : (
-                      <PrescriptionCardRegional
-                        programmingPlan={programmingPlan}
-                        prescription={prescription}
-                        regionalPrescription={regionalPrescriptions.find(
-                          (regionalPrescription) =>
-                            regionalPrescription.prescriptionId ===
-                              prescription.id &&
-                            regionalPrescription.region === region
-                        )}
-                        key={`prescription_${prescription.matrix}`}
-                      />
-                    )}
-                  </>
-                ))}
-              </div>
-            )}
-            {prescriptionListDisplay === 'table' && (
-              <PrescriptionTable
-                programmingPlan={programmingPlan}
-                prescriptions={prescriptions}
-                regionalPrescriptions={regionalPrescriptions}
-                regions={region ? [region] : RegionList}
-                onChangeRegionalPrescriptionCount={
-                  changeRegionalPrescriptionCount
-                }
-                onChangePrescriptionLaboratory={changePrescriptionLaboratory(
-                  programmingPlan.id
+                className={clsx(
+                  cx('fr-mb-2w', 'fr-mb-md-5w', 'fr-px-0', 'fr-container'),
+                  'table-header'
                 )}
-                onRemovePrescription={removePrescription}
-              />
-            )}
-          </>
-        )}
+              >
+                {
+                  <PrescriptionListHeader
+                    programmingPlan={programmingPlan}
+                    findPrescriptionOptions={findPrescriptionOptions}
+                    prescriptions={prescriptions}
+                    addMatrix={(matrix) =>
+                      addMatrix(programmingPlan.id, matrix)
+                    }
+                    sampleCount={_.sumBy(regionalPrescriptions, 'sampleCount')}
+                  />
+                }
+              </div>
+              {prescriptionListDisplay === 'cards' && (
+                <div
+                  className={
+                    userRegions(userInfos).length === 1
+                      ? cx('fr-grid-row', 'fr-grid-row--gutters')
+                      : 'prescription-cards-container'
+                  }
+                >
+                  {prescriptions?.map((prescription) => (
+                    <div key={`prescription_cards_${prescription.id}`}>
+                      {hasNationalView ? (
+                        <PrescriptionCardNational
+                          programmingPlan={programmingPlan}
+                          prescription={prescription}
+                          regionalPrescriptions={regionalPrescriptions.filter(
+                            (rp) => rp.prescriptionId === prescription.id
+                          )}
+                          onChangeRegionalPrescriptionCount={
+                            changeRegionalPrescriptionCount
+                          }
+                          onRemovePrescription={removePrescription}
+                          key={`prescription_${prescription.matrix}`}
+                        />
+                      ) : (
+                        <PrescriptionCardRegional
+                          programmingPlan={programmingPlan}
+                          prescription={prescription}
+                          regionalPrescription={regionalPrescriptions.find(
+                            (regionalPrescription) =>
+                              regionalPrescription.prescriptionId ===
+                                prescription.id &&
+                              regionalPrescription.region === region
+                          )}
+                          key={`prescription_${prescription.matrix}`}
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {prescriptionListDisplay === 'table' && (
+                <PrescriptionTable
+                  programmingPlan={programmingPlan}
+                  prescriptions={prescriptions}
+                  regionalPrescriptions={regionalPrescriptions}
+                  regions={region ? [region] : RegionList}
+                  onChangeRegionalPrescriptionCount={
+                    changeRegionalPrescriptionCount
+                  }
+                  onChangePrescriptionLaboratory={changePrescriptionLaboratory(
+                    programmingPlan.id
+                  )}
+                  onRemovePrescription={removePrescription}
+                />
+              )}
+            </>
+          )}
       </div>
     </section>
   );

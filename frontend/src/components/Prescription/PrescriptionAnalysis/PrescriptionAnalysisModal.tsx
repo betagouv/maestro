@@ -26,7 +26,7 @@ const PrescriptionAnalysisModal = ({
   const prescriptionAnalysisModal = useMemo(
     () =>
       createModal({
-        id: `prescription-analysis-modal-${prescription.id}`,
+        id: `prescription-analysis-modal-${programmingPlan.id}-${prescription.id}`,
         isOpenedByDefault: false,
       }),
     [prescription]
