@@ -120,54 +120,6 @@ const updatePrescription = async (request: Request, response: Response) => {
   response.status(constants.HTTP_STATUS_OK).send(updatedPrescription);
 };
 
-const updateRegionalPrescription = async (
-  request: Request,
-  response: Response
-) => {
-  // const user = (request as AuthenticatedRequest).user;
-  // const programmingPlan = (request as ProgrammingPlanRequest).programmingPlan;
-  // const { regionalPrescriptionId } = request.params;
-  // const regionalPrescriptionUpdate = request.body as RegionalPrescriptionUpdate;
-  //
-  // console.info(
-  //   'Update regional prescription with id',
-  //   regionalPrescriptionUpdate
-  // );
-  //
-  // const prescription = await prescriptionRepository.findUnique(prescriptionId);
-  //
-  // if (!prescription) {
-  //   throw new PrescriptionMissingError(prescriptionId);
-  // }
-  //
-  // if (
-  //   prescription.programmingPlanId !== programmingPlan.id ||
-  //   prescription.context !== prescriptionUpdate.context
-  // ) {
-  //   return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
-  // }
-  //
-  // const updatedPrescription = {
-  //   ...prescription,
-  //   sampleCount:
-  //     hasPermission(user, 'updatePrescription') &&
-  //     prescriptionUpdate.sampleCount
-  //       ? prescriptionUpdate.sampleCount
-  //       : prescription.sampleCount,
-  //   stages:
-  //     hasPermission(user, 'updatePrescription') && prescriptionUpdate.stages
-  //       ? prescriptionUpdate.stages
-  //       : prescription.stages,
-  //   laboratoryId: hasPermission(user, 'updatePrescriptionLaboratory')
-  //     ? prescriptionUpdate.laboratoryId
-  //     : prescription.laboratoryId,
-  // };
-  //
-  // await prescriptionRepository.update(updatedPrescription);
-
-  response.status(constants.HTTP_STATUS_OK); //.send(updatedPrescription);
-};
-
 const deletePrescription = async (request: Request, response: Response) => {
   const prescriptionId = request.params.prescriptionId;
 
@@ -196,45 +148,10 @@ const deletePrescription = async (request: Request, response: Response) => {
   response.sendStatus(constants.HTTP_STATUS_NO_CONTENT);
 };
 
-const commentPrescription = async (request: Request, response: Response) => {
-  // const { user } = request as AuthenticatedRequest;
-  // const draftPrescriptionComment = request.body as PrescriptionCommentToCreate;
-  // const prescriptionId = request.params.prescriptionId;
-  //
-  // const prescription = await prescriptionRepository.findUnique(prescriptionId);
-  //
-  // if (!prescription) {
-  //   throw new PrescriptionMissingError(prescriptionId);
-  // }
-  // console.info(
-  //   'Comment prescription with id',
-  //   userRegions(user),
-  //   prescription.region
-  // );
-  //
-  // if (!userRegions(user).includes(prescription.region)) {
-  //   return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
-  // }
-  //
-  // const prescriptionComment: PrescriptionComment = {
-  //   id: uuidv4(),
-  //   prescriptionId,
-  //   comment: draftPrescriptionComment.comment,
-  //   createdAt: new Date(),
-  //   createdBy: user.id,
-  // };
-  //
-  // await prescriptionCommentRepository.insert(prescriptionComment);
-
-  response.status(constants.HTTP_STATUS_CREATED); //.send(prescriptionComment);
-};
-
 export default {
   findPrescriptions,
   exportPrescriptions,
   createPrescription,
   updatePrescription,
-  updateRegionalPrescription,
   deletePrescription,
-  commentPrescription,
 };

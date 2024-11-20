@@ -8,7 +8,7 @@ import {
 } from '../../../database/seeds/test/001-users';
 import { ProgrammingPlan } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatus } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { genPrescriptions } from '../../../shared/test/prescriptionFixtures';
+import { genPrescription } from '../../../shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from '../../../shared/test/programmingPlanFixtures';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import { ProgrammingPlans } from '../../repositories/programmingPlanRepository';
@@ -35,11 +35,11 @@ describe('ProgrammingPlan router', () => {
     year: 2022,
     status: 'InProgress',
   });
-  const controlPrescriptionsValidatedPlan = genPrescriptions({
+  const controlPrescriptionValidatedPlan = genPrescription({
     programmingPlanId: validatedProgrammingPlan.id,
     context: 'Control',
   });
-  const surveillancePrescriptionVaidatedPlan = genPrescriptions({
+  const surveillancePrescriptionValidatedPlan = genPrescription({
     programmingPlanId: validatedProgrammingPlan.id,
     context: 'Surveillance',
   });
@@ -51,8 +51,8 @@ describe('ProgrammingPlan router', () => {
       inProgressProgrammingPlan,
     ]);
     await Prescriptions().insert([
-      ...controlPrescriptionsValidatedPlan,
-      ...surveillancePrescriptionVaidatedPlan,
+      controlPrescriptionValidatedPlan,
+      surveillancePrescriptionValidatedPlan,
     ]);
   });
 
@@ -281,12 +281,26 @@ describe('ProgrammingPlan router', () => {
         Prescriptions()
           .where('programmingPlanId', res.body.id)
           .andWhere('context', 'Control')
-      ).resolves.toHaveLength(controlPrescriptionsValidatedPlan.length);
+      ).resolves.toMatchObject(
+        expect.arrayContaining([
+          {
+            context: 'Control',
+            programmingPlanId: res.body.id,
+          },
+        ])
+      );
       await expect(
         Prescriptions()
           .where('programmingPlanId', res.body.id)
           .andWhere('context', 'Surveillance')
-      ).resolves.toHaveLength(surveillancePrescriptionVaidatedPlan.length);
+      ).resolves.toMatchObject(
+        expect.arrayContaining([
+          {
+            context: 'Surveillance',
+            programmingPlanId: res.body.id,
+          },
+        ])
+      );
 
       //Cleanup
       await Prescriptions()

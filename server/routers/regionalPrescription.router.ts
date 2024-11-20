@@ -2,6 +2,7 @@ import express from 'express';
 import { z } from 'zod';
 import { FindRegionalPrescriptionOptions } from '../../shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import { RegionalPrescriptionUpdate } from '../../shared/schema/RegionalPrescription/RegionalPrescription';
+import { RegionalPrescriptionCommentToCreate } from '../../shared/schema/RegionalPrescription/RegionalPrescriptionComment';
 import regionalPrescriptionController from '../controllers/regionalPrescriptionController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
 import { programmingPlanCheck } from '../middlewares/checks/programmingPlanCheck';
@@ -25,8 +26,21 @@ router.put(
       })
     ).merge(body(RegionalPrescriptionUpdate))
   ),
-  permissionsCheck(['updatePrescription', 'updatePrescriptionLaboratory']),
+  permissionsCheck(['updatePrescription', 'updatePrescriptionLaboratory']), //TODO specific permission
   programmingPlanCheck('InProgress'),
   regionalPrescriptionController.updateRegionalPrescription
+);
+router.post(
+  '/:regionalPrescriptionId/comments',
+  validator.validate(
+    params(
+      z.object({
+        prescriptionId: z.string().uuid(),
+      })
+    ).merge(body(RegionalPrescriptionCommentToCreate))
+  ),
+  permissionsCheck(['commentPrescription']),
+  programmingPlanCheck('Submitted'),
+  regionalPrescriptionController.commentRegionalPrescription
 );
 export default router;

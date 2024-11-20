@@ -5,9 +5,11 @@ import { v4 as uuidv4 } from 'uuid';
 import {
   NationalCoordinator,
   RegionalCoordinator,
+  Sampler1Fixture,
 } from '../../../database/seeds/test/001-users';
 import { MatrixList } from '../../../shared/referential/Matrix/Matrix';
 import { StageList } from '../../../shared/referential/Stage';
+import { PrescriptionUpdate } from '../../../shared/schema/Prescription/Prescription';
 import { ProgrammingPlanStatus } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { genPrescription } from '../../../shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from '../../../shared/test/programmingPlanFixtures';
@@ -259,207 +261,99 @@ describe('Prescriptions router', () => {
       await Prescriptions().where({ id: res.body.id }).delete();
     });
   });
-  //
-  // describe('PUT /prescriptions/{prescriptionId}', () => {
-  //   const prescriptionUpdate: PrescriptionUpdate = {
-  //     programmingPlanId: programmingPlanInProgress.id,
-  //     context: 'Control',
-  //     sampleCount: genNumber(4),
-  //     laboratoryId: laboratory.id,
-  //   };
-  //   const testRoute = (
-  //     prescriptionId: string = inProgressControlPrescription[0].id
-  //   ) => `/api/prescriptions/${prescriptionId}`;
-  //
-  //   it('should fail if the user is not authenticated', async () => {
-  //     await request(app)
-  //       .put(testRoute())
-  //       .send(prescriptionUpdate)
-  //       .expect(constants.HTTP_STATUS_UNAUTHORIZED);
-  //   });
-  //
-  //   it('should receive valid programmingPlanId and prescriptionId', async () => {
-  //     await request(app)
-  //       .put(testRoute())
-  //       .send({
-  //         ...prescriptionUpdate,
-  //         programmingPlanId: randomstring.generate(),
-  //       })
-  //       .use(tokenProvider(NationalCoordinator))
-  //       .expect(constants.HTTP_STATUS_BAD_REQUEST);
-  //
-  //     await request(app)
-  //       .put(testRoute(randomstring.generate()))
-  //       .send(prescriptionUpdate)
-  //       .use(tokenProvider(NationalCoordinator))
-  //       .expect(constants.HTTP_STATUS_BAD_REQUEST);
-  //   });
-  //
-  //   it('should fail if the prescription does not exist', async () => {
-  //     await request(app)
-  //       .put(testRoute(uuidv4()))
-  //       .send(prescriptionUpdate)
-  //       .use(tokenProvider(NationalCoordinator))
-  //       .expect(constants.HTTP_STATUS_NOT_FOUND);
-  //   });
-  //
-  //   it('should fail if the prescription does not belong to the programmingPlan', async () => {
-  //     await request(app)
-  //       .put(testRoute())
-  //       .send({
-  //         ...prescriptionUpdate,
-  //         programmingPlanId: programmingPlanValidated.id,
-  //       })
-  //       .use(tokenProvider(NationalCoordinator))
-  //       .expect(constants.HTTP_STATUS_FORBIDDEN);
-  //   });
-  //
-  //   it('should fail if the user does not have the permission to update prescriptions', async () => {
-  //     await request(app)
-  //       .put(testRoute())
-  //       .send(prescriptionUpdate)
-  //       .use(tokenProvider(Sampler1Fixture))
-  //       .expect(constants.HTTP_STATUS_FORBIDDEN);
-  //   });
-  //
-  //   it('should fail if the programming plan is validated', async () => {
-  //     await request(app)
-  //       .put(testRoute())
-  //       .send({
-  //         ...prescriptionUpdate,
-  //         programmingPlanId: programmingPlanValidated.id,
-  //       })
-  //       .use(tokenProvider(NationalCoordinator))
-  //       .expect(constants.HTTP_STATUS_FORBIDDEN);
-  //   });
-  //
-  //   it('should update the sample count of the prescription for a national coordinator', async () => {
-  //     const res = await request(app)
-  //       .put(testRoute())
-  //       .send(prescriptionUpdate)
-  //       .use(tokenProvider(NationalCoordinator))
-  //       .expect(constants.HTTP_STATUS_OK);
-  //
-  //     expect(res.body).toMatchObject({
-  //       ...inProgressControlPrescription[0],
-  //       sampleCount: prescriptionUpdate.sampleCount,
-  //     });
-  //   });
-  //
-  //   it('should update the laboratory of the prescription for a regional coordinator', async () => {
-  //     const res = await request(app)
-  //       .put(testRoute(inProgressControlPrescription[1].id))
-  //       .send(prescriptionUpdate)
-  //       .use(tokenProvider(RegionalCoordinator))
-  //       .expect(constants.HTTP_STATUS_OK);
-  //
-  //     expect(res.body).toMatchObject({
-  //       ...inProgressControlPrescription[1],
-  //       laboratoryId: prescriptionUpdate.laboratoryId,
-  //     });
-  //   });
-  // });
-  //
-  // describe('POST /prescriptions/{prescriptionId}/comments', () => {
-  //   const validComment: PrescriptionCommentToCreate = {
-  //     programmingPlanId: programmingPlanSubmitted.id,
-  //     comment: randomstring.generate(),
-  //   };
-  //
-  //   const regionalPrescription =
-  //     submittedControlPrescription[
-  //       RegionList.indexOf(RegionalCoordinator.region as Region)
-  //     ];
-  //
-  //   const testRoute = (prescriptionId: string = regionalPrescription.id) =>
-  //     `/api/prescriptions/${prescriptionId}/comments`;
-  //
-  //   it('should fail if the user is not authenticated', async () => {
-  //     await request(app)
-  //       .post(testRoute())
-  //       .send(validComment)
-  //       .expect(constants.HTTP_STATUS_UNAUTHORIZED);
-  //   });
-  //
-  //   it('should fail if the prescription does not exist', async () => {
-  //     await request(app)
-  //       .post(testRoute(uuidv4()))
-  //       .send(validComment)
-  //       .use(tokenProvider(RegionalCoordinator))
-  //       .expect(constants.HTTP_STATUS_NOT_FOUND);
-  //   });
-  //
-  //   it('should get a valid body', async () => {
-  //     const badRequestTest = async (payload?: Record<string, unknown>) =>
-  //       request(app)
-  //         .post(testRoute())
-  //         .send(payload)
-  //         .use(tokenProvider(RegionalCoordinator))
-  //         .expect(constants.HTTP_STATUS_BAD_REQUEST);
-  //
-  //     await badRequestTest();
-  //     await badRequestTest({ programmingPlanId: undefined });
-  //     await badRequestTest({ programmingPlanId: randomstring.generate() });
-  //     await badRequestTest({ comment: undefined });
-  //     await badRequestTest({ comment: '' });
-  //     await badRequestTest({ comment: 123 });
-  //   });
-  //
-  //   it('should fail if the user does not have the permission to comment prescriptions', async () => {
-  //     await request(app)
-  //       .post(testRoute())
-  //       .send(validComment)
-  //       .use(tokenProvider(Sampler1Fixture))
-  //       .expect(constants.HTTP_STATUS_FORBIDDEN);
-  //   });
-  //
-  //   it('should fail if the prescription does not belong to the user region', async () => {
-  //     await request(app)
-  //       .post(testRoute(submittedControlPrescription[0].id))
-  //       .send(validComment)
-  //       .use(tokenProvider(RegionalCoordinator))
-  //       .expect(constants.HTTP_STATUS_FORBIDDEN);
-  //   });
-  //
-  //   it('should fail if the programming plan is validated', async () => {
-  //     await request(app)
-  //       .post(testRoute())
-  //       .send({
-  //         ...validComment,
-  //         programmingPlanId: programmingPlanValidated.id,
-  //       })
-  //       .use(tokenProvider(RegionalCoordinator))
-  //       .expect(constants.HTTP_STATUS_FORBIDDEN);
-  //   });
-  //
-  //   it('should add a comment to the prescription', async () => {
-  //     const res = await request(app)
-  //       .post(testRoute())
-  //       .send(validComment)
-  //       .use(tokenProvider(RegionalCoordinator))
-  //       .expect(constants.HTTP_STATUS_CREATED);
-  //
-  //     expect(res.body).toMatchObject({
-  //       id: expect.any(String),
-  //       prescriptionId: regionalPrescription.id,
-  //       comment: validComment.comment,
-  //       createdBy: RegionalCoordinator.id,
-  //       createdAt: expect.any(String),
-  //     });
-  //
-  //     await expect(
-  //       PrescriptionComments()
-  //         .where({ prescriptionId: regionalPrescription.id })
-  //         .first()
-  //     ).resolves.toMatchObject({
-  //       id: res.body.id,
-  //       prescriptionId: regionalPrescription.id,
-  //       comment: validComment.comment,
-  //       createdBy: RegionalCoordinator.id,
-  //     });
-  //   });
-  // });
-  //
+
+  describe('PUT /prescriptions/{prescriptionId}', () => {
+    const prescriptionUpdate: PrescriptionUpdate = {
+      programmingPlanId: programmingPlanInProgress.id,
+      stages: [oneOf(StageList)],
+    };
+    const testRoute = (
+      prescriptionId: string = inProgressControlPrescription.id
+    ) => `/api/prescriptions/${prescriptionId}`;
+
+    it('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .put(testRoute())
+        .send(prescriptionUpdate)
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    it('should receive valid programmingPlanId and prescriptionId', async () => {
+      await request(app)
+        .put(testRoute())
+        .send({
+          ...prescriptionUpdate,
+          programmingPlanId: randomstring.generate(),
+        })
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+
+      await request(app)
+        .put(testRoute(randomstring.generate()))
+        .send(prescriptionUpdate)
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    it('should fail if the prescription does not exist', async () => {
+      await request(app)
+        .put(testRoute(uuidv4()))
+        .send(prescriptionUpdate)
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_NOT_FOUND);
+    });
+
+    it('should fail if the prescription does not belong to the programmingPlan', async () => {
+      await request(app)
+        .put(testRoute())
+        .send({
+          ...prescriptionUpdate,
+          programmingPlanId: programmingPlanValidated.id,
+        })
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    it('should fail if the user does not have the permission to update prescriptions', async () => {
+      await request(app)
+        .put(testRoute())
+        .send(prescriptionUpdate)
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    it('should fail if the programming plan is validated', async () => {
+      await request(app)
+        .put(testRoute())
+        .send({
+          ...prescriptionUpdate,
+          programmingPlanId: programmingPlanValidated.id,
+        })
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    it('should update the stages of the prescription', async () => {
+      const res = await request(app)
+        .put(testRoute())
+        .send(prescriptionUpdate)
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toMatchObject({
+        ...inProgressControlPrescription,
+        stages: prescriptionUpdate.stages,
+      });
+
+      await expect(
+        Prescriptions().where({ id: inProgressControlPrescription.id }).first()
+      ).resolves.toMatchObject({
+        ...inProgressControlPrescription,
+        stages: prescriptionUpdate.stages,
+      });
+    });
+  });
+
   describe('DELETE /prescriptions', () => {
     const testRoute = (prescriptionId: string) =>
       `/api/prescriptions/${prescriptionId}`;

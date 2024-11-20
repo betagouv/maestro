@@ -1,11 +1,10 @@
-import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Skeleton } from '@mui/material';
 import clsx from 'clsx';
 import { t } from 'i18next';
 import ressources from 'src/assets/illustrations/ressources.svg';
-import AutoClose from 'src/components/AutoClose/AutoClose';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
+import AppToast from 'src/components/_app/AppToast/AppToast';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useOnLine } from 'src/hooks/useOnLine';
@@ -28,18 +27,10 @@ const DocumentListView = () => {
 
   return (
     <section className={clsx(cx('fr-container'), 'main-section')}>
-      {isCreateSuccess && (
-        <AutoClose>
-          <div className="toast">
-            <Alert
-              severity="success"
-              small
-              description="Ressources déposée avec succès."
-              closable
-            />
-          </div>
-        </AutoClose>
-      )}
+      <AppToast
+        open={isCreateSuccess}
+        description="Ressources déposée avec succès."
+      />
       <SectionHeader
         title="Ressources"
         subtitle="Consultez les ressources mises à disposition des utilisateurs de maestro"

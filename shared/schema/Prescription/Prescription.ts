@@ -17,6 +17,7 @@ export const PrescriptionToCreate = Prescription.omit({
 });
 
 export const PrescriptionUpdate = Prescription.pick({
+  programmingPlanId: true,
   stages: true,
 });
 

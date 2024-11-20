@@ -1,4 +1,3 @@
-import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import clsx from 'clsx';
@@ -16,11 +15,11 @@ import {
   ContextList,
 } from 'shared/schema/ProgrammingPlan/Context';
 import { userRegions } from 'shared/schema/User/User';
-import AutoClose from 'src/components/AutoClose/AutoClose';
 import PrescriptionCardNational from 'src/components/Prescription/PrescriptionCard/PrescriptionCardNational';
 import PrescriptionCardRegional from 'src/components/Prescription/PrescriptionCard/PrescriptionCardRegional';
 import ProgrammingPlanSubmissionModal from 'src/components/ProgrammingPlan/ProgrammingPlanSubmissionModal/ProgrammingPlanSubmissionModal';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
+import AppToast from 'src/components/_app/AppToast/AppToast';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
@@ -169,42 +168,9 @@ const PrescriptionListView = () => {
 
   return (
     <section className="main-section">
-      {isAddSuccess && (
-        <AutoClose>
-          <div className="toast">
-            <Alert
-              severity="success"
-              small
-              description="Matrice ajoutée"
-              closable
-            />
-          </div>
-        </AutoClose>
-      )}
-      {isUpdateSuccess && (
-        <AutoClose>
-          <div className="toast">
-            <Alert
-              severity="success"
-              small
-              description="Modification enregistrée"
-              closable
-            />
-          </div>
-        </AutoClose>
-      )}
-      {isDeleteSuccess && (
-        <AutoClose>
-          <div className="toast">
-            <Alert
-              severity="success"
-              small
-              description="Matrice supprimée"
-              closable
-            />
-          </div>
-        </AutoClose>
-      )}
+      <AppToast open={isAddSuccess} description="Matrice ajoutée" />
+      <AppToast open={isUpdateSuccess} description="Modification enregistrée" />
+      <AppToast open={isDeleteSuccess} description="Matrice supprimée" />
       <div className={cx('fr-container')}>
         <SectionHeader
           title={`Programmation ${programmingPlan?.year}`}

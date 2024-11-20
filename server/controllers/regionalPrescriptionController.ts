@@ -77,7 +77,44 @@ const updateRegionalPrescription = async (
   response.status(constants.HTTP_STATUS_OK).send(updatedRegionalPrescription);
 };
 
+const commentRegionalPrescription = async (
+  request: Request,
+  response: Response
+) => {
+  // const { user } = request as AuthenticatedRequest;
+  // const draftPrescriptionComment = request.body as PrescriptionCommentToCreate;
+  // const prescriptionId = request.params.prescriptionId;
+  //
+  // const prescription = await prescriptionRepository.findUnique(prescriptionId);
+  //
+  // if (!prescription) {
+  //   throw new PrescriptionMissingError(prescriptionId);
+  // }
+  // console.info(
+  //   'Comment prescription with id',
+  //   userRegions(user),
+  //   prescription.region
+  // );
+  //
+  // if (!userRegions(user).includes(prescription.region)) {
+  //   return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  // }
+  //
+  // const prescriptionComment: PrescriptionComment = {
+  //   id: uuidv4(),
+  //   prescriptionId,
+  //   comment: draftPrescriptionComment.comment,
+  //   createdAt: new Date(),
+  //   createdBy: user.id,
+  // };
+  //
+  // await prescriptionCommentRepository.insert(prescriptionComment);
+
+  response.status(constants.HTTP_STATUS_CREATED); //.send(prescriptionComment);
+};
+
 export default {
   findRegionalPrescriptions,
   updateRegionalPrescription,
+  commentRegionalPrescription,
 };

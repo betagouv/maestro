@@ -27,6 +27,7 @@ const PrescriptionCardContent = ({
         <PrescriptionStages
           programmingPlan={programmingPlan}
           prescription={prescription}
+          label="Stades de prélèvements"
         />
       </div>
     </div>

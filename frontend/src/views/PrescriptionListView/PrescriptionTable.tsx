@@ -5,7 +5,6 @@ import _ from 'lodash';
 import { useMemo } from 'react';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
 import { Region } from 'shared/referential/Region';
-import { StageLabels } from 'shared/referential/Stage';
 import { Prescription } from 'shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
@@ -14,6 +13,7 @@ import {
   RegionalPrescriptionSort,
 } from 'shared/schema/RegionalPrescription/RegionalPrescription';
 import { isNotEmpty } from 'shared/utils/utils';
+import PrescriptionStages from 'src/components/Prescription/PrescriptionStages/PrescriptionStages';
 import RegionalPrescriptionCountCell from 'src/components/Prescription/RegionalPrescriptionCountCell/RegionalPrescriptionCountCell';
 import RegionHeaderCell from 'src/components/RegionHeaderCell/RegionHeaderCell';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -102,13 +102,15 @@ const PrescriptionTable = ({
           >
             {MatrixLabels[prescription.matrix]}
           </div>,
-          <ul key={`sampleStage-${prescription.matrix}-${prescription.stages}`}>
-            {prescription.stages.map((stage) => (
-              <li key={`sampleStage-${prescription.matrix}-${stage}`}>
-                {StageLabels[stage]}
-              </li>
-            ))}
-          </ul>,
+          <div
+            key={`stages-${prescription.matrix}-${prescription.stages}`}
+            className={cx('fr-p-1w')}
+          >
+            <PrescriptionStages
+              programmingPlan={programmingPlan}
+              prescription={prescription}
+            />
+          </div>,
           regions.length > 1 && (
             <div
               className="border-left fr-text--bold"

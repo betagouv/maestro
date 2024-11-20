@@ -1,9 +1,8 @@
-import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import Table from '@codegouvfr/react-dsfr/Table';
 import { format } from 'date-fns';
 import { Document } from 'shared/schema/Document/Document';
-import AutoClose from 'src/components/AutoClose/AutoClose';
+import AppToast from 'src/components/_app/AppToast/AppToast';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocument } from 'src/hooks/useDocument';
 import { useDeleteDocumentMutation } from 'src/services/document.service';
@@ -23,18 +22,10 @@ const DocumentTable = ({ documents }: Props) => {
 
   return (
     <div data-testid="document-table">
-      {isDeleteSuccess && (
-        <AutoClose>
-          <div className="toast">
-            <Alert
-              severity="success"
-              small
-              description="Le document a bien été supprimé."
-              closable
-            />
-          </div>
-        </AutoClose>
-      )}
+      <AppToast
+        open={isDeleteSuccess}
+        description="Le document a bien été supprimé."
+      />
       <Table
         noCaption
         headers={['', 'Nom', 'Date de création', '']}
