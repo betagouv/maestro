@@ -8,7 +8,7 @@ export const RegionalPrescription = z.object({
   id: z.string().uuid(),
   prescriptionId: z.string().uuid(),
   region: Region,
-  sampleCount: z.number(),
+  sampleCount: z.coerce.number(),
   laboratoryId: z.string().nullish(),
   comments: z
     .array(

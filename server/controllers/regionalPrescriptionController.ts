@@ -64,7 +64,7 @@ const updateRegionalPrescription = async (
     ...regionalPrescription,
     sampleCount:
       hasPermission(user, 'updatePrescription') &&
-      regionalPrescriptionUpdate.sampleCount
+      regionalPrescriptionUpdate.sampleCount !== undefined
         ? regionalPrescriptionUpdate.sampleCount
         : regionalPrescription.sampleCount,
     laboratoryId: hasPermission(user, 'updatePrescriptionLaboratory')

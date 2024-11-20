@@ -3,6 +3,7 @@ import { AuthenticatedRequest, ProgrammingPlanRequest } from 'express-jwt';
 import { constants } from 'http2';
 import { v4 as uuidv4 } from 'uuid';
 import PrescriptionMissingError from '../../shared/errors/prescriptionPlanMissingError';
+import ProgrammingPlanMissingError from '../../shared/errors/programmingPlanMissingError';
 import { RegionList } from '../../shared/referential/Region';
 import { FindPrescriptionOptions } from '../../shared/schema/Prescription/FindPrescriptionOptions';
 import {
@@ -12,6 +13,7 @@ import {
 import { ContextLabels } from '../../shared/schema/ProgrammingPlan/Context';
 import { FindRegionalPrescriptionOptions } from '../../shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import prescriptionRepository from '../repositories/prescriptionRepository';
+import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
 import exportPrescriptionsService from '../services/exportService/exportPrescriptionsService';
 import workbookUtils from '../utils/workbookUtils';
@@ -167,14 +169,25 @@ const updateRegionalPrescription = async (
 };
 
 const deletePrescription = async (request: Request, response: Response) => {
-  const programmingPlan = (request as ProgrammingPlanRequest).programmingPlan;
   const prescriptionId = request.params.prescriptionId;
 
   console.info('Delete prescription with id', prescriptionId);
 
   const prescription = await prescriptionRepository.findUnique(prescriptionId);
 
-  if (prescription?.programmingPlanId !== programmingPlan.id) {
+  if (!prescription) {
+    throw new PrescriptionMissingError(prescriptionId);
+  }
+
+  const programmingPlan = await programmingPlanRepository.findUnique(
+    prescription.programmingPlanId
+  );
+
+  if (!programmingPlan) {
+    throw new ProgrammingPlanMissingError(prescription.programmingPlanId);
+  }
+
+  if (!['InProgress', 'Submitted'].includes(programmingPlan.status)) {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
   }
 

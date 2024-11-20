@@ -58,19 +58,15 @@ export const prescriptionApi = api.injectEndpoints({
       ],
       transformResponse: (response) => Prescription.parse(response),
     }),
-    deletePrescription: builder.mutation<
-      void,
-      {
-        programmingPlanId: string;
-        prescriptionId: string;
-      }
-    >({
-      query: ({ prescriptionId, programmingPlanId }) => ({
+    deletePrescription: builder.mutation<void, string>({
+      query: (prescriptionId) => ({
         url: `prescriptions/${prescriptionId}`,
         method: 'DELETE',
-        body: { programmingPlanId },
       }),
-      invalidatesTags: [{ type: 'Prescription', id: 'LIST' }],
+      invalidatesTags: [
+        { type: 'Prescription', id: 'LIST' },
+        { type: 'RegionalPrescription', id: 'LIST' },
+      ],
     }),
   }),
 });

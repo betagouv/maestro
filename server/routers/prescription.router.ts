@@ -55,7 +55,6 @@ router.delete(
   '/:prescriptionId',
   validator.validate(uuidParam('prescriptionId')),
   permissionsCheck(['deletePrescription']),
-  programmingPlanCheck('InProgress'),
   prescriptionController.deletePrescription
 );
 export default router;

@@ -71,7 +71,6 @@ export function createServer(): Server {
   app.use(fileUpload());
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
-  // app.use(parseCommaSeparatedParams);
 
   const rateLimiter = rateLimit({
     windowMs: 5 * 60 * 1000, // 5 minutes window

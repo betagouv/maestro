@@ -7,6 +7,13 @@ import programmingPlanRepository from '../../repositories/programmingPlanReposit
 export const programmingPlanCheck =
   (status?: ProgrammingPlanStatus) =>
   async (request: Request, response: Response, next: NextFunction) => {
+    console.log(
+      'programmingPlanCheck',
+      request.params,
+      request.query,
+      request.body
+    );
+
     const programmingPlanId =
       request.params?.programmingPlanId ||
       request.query?.programmingPlanId ||

@@ -137,10 +137,7 @@ const PrescriptionListView = () => {
   };
 
   const removePrescription = async (prescriptionId: string) => {
-    await deletePrescription({
-      programmingPlanId: programmingPlan?.id as string,
-      prescriptionId,
-    });
+    await deletePrescription(prescriptionId);
   };
 
   const changeRegionalPrescriptionCount = async (
