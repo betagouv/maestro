@@ -85,7 +85,7 @@ const PrescriptionListView = () => {
     [programmingPlan, prescriptionListContext, region]
   );
 
-Fixes  const { data: allPrescriptions, isFetching: isPrescriptionFetching } =
+  const { data: allPrescriptions, isFetching: isPrescriptionFetching } =
     useFindPrescriptionsQuery(findPrescriptionOptions, {
       skip: !programmingPlan,
     });
