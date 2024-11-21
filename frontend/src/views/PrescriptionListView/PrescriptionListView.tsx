@@ -17,7 +17,6 @@ import {
   ContextLabels,
   ContextList,
 } from 'shared/schema/ProgrammingPlan/Context';
-import { userRegions } from 'shared/schema/User/User';
 import PrescriptionCardNational from 'src/components/Prescription/PrescriptionCard/PrescriptionCardNational';
 import PrescriptionCardRegional from 'src/components/Prescription/PrescriptionCard/PrescriptionCardRegional';
 import ProgrammingPlanSubmissionModal from 'src/components/ProgrammingPlan/ProgrammingPlanSubmissionModal/ProgrammingPlanSubmissionModal';
@@ -246,16 +245,10 @@ const PrescriptionListView = () => {
                 }
               </div>
               {prescriptionListDisplay === 'cards' && (
-                <div
-                  className={
-                    userRegions(userInfos).length === 1
-                      ? cx('fr-grid-row', 'fr-grid-row--gutters')
-                      : 'prescription-cards-container'
-                  }
-                >
-                  {prescriptions?.map((prescription) => (
-                    <div key={`prescription_cards_${prescription.id}`}>
-                      {hasNationalView ? (
+                <>
+                  {hasNationalView ? (
+                    <div className="prescription-cards-container">
+                      {prescriptions?.map((prescription) => (
                         <PrescriptionCardNational
                           programmingPlan={programmingPlan}
                           prescription={prescription}
@@ -266,9 +259,13 @@ const PrescriptionListView = () => {
                             changeRegionalPrescriptionCount
                           }
                           onRemovePrescription={removePrescription}
-                          key={`prescription_${prescription.matrix}`}
+                          key={`prescription_cards_${prescription.id}`}
                         />
-                      ) : (
+                      ))}
+                    </div>
+                  ) : (
+                    <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+                      {prescriptions?.map((prescription) => (
                         <PrescriptionCardRegional
                           programmingPlan={programmingPlan}
                           prescription={prescription}
@@ -278,12 +275,12 @@ const PrescriptionListView = () => {
                                 prescription.id &&
                               regionalPrescription.region === region
                           )}
-                          key={`prescription_${prescription.matrix}`}
+                          key={`prescription_cards_${prescription.id}`}
                         />
-                      )}
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  )}
+                </>
               )}
               {prescriptionListDisplay === 'table' && (
                 <PrescriptionTable
