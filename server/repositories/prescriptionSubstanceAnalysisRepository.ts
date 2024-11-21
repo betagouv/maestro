@@ -63,6 +63,20 @@ const insert = async (
   );
 };
 
+const insertMany = async (
+  prescriptionSubstanceAnalysis: PrescriptionSubstanceAnalysis[]
+): Promise<void> => {
+  console.info(
+    'Insert prescription substances',
+    prescriptionSubstanceAnalysis.map((_) => _.prescriptionId)
+  );
+  if (prescriptionSubstanceAnalysis.length > 0) {
+    await PrescriptionSubstanceAnalysisTable().insert(
+      prescriptionSubstanceAnalysis.map(formatPrescriptionSubstanceAnalysis)
+    );
+  }
+};
+
 const deleteOne = async (
   prescriptionId: string,
   substanceCode: string
@@ -98,5 +112,6 @@ export const parsePrescriptionSubstanceAnalysis = (
 export default {
   findMany,
   insert,
+  insertMany,
   deleteOne,
 };

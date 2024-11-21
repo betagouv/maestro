@@ -14,6 +14,7 @@ import {
 } from '../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { hasPermission } from '../../shared/schema/User/User';
 import prescriptionRepository from '../repositories/prescriptionRepository';
+import prescriptionSubstanceAnalysisRepository from '../repositories/prescriptionSubstanceAnalysisRepository';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
 import userRepository from '../repositories/userRepository';
@@ -126,6 +127,20 @@ const createProgrammingPlan = async (request: Request, response: Response) => {
                 prescriptionId: newPrescription.id,
                 laboratoryId: null,
               }))
+          );
+
+          const previousPrescriptionSubstanceAnalysis =
+            await prescriptionSubstanceAnalysisRepository.findMany(
+              prescription.id
+            );
+
+          await prescriptionSubstanceAnalysisRepository.insertMany(
+            previousPrescriptionSubstanceAnalysis.map(
+              (prescriptionSubstanceAnalysis) => ({
+                ...prescriptionSubstanceAnalysis,
+                prescriptionId: newPrescription.id,
+              })
+            )
           );
         }),
       ]);
