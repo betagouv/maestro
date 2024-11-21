@@ -348,7 +348,7 @@ describe('Sample router', () => {
     it('should fail if the sample does not exist', async () => {
       await request(app)
         .put(`${testRoute(uuidv4())}`)
-        .send(genCreatedPartialSample(Sampler1Fixture))
+        .send(genCreatedPartialSample())
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
