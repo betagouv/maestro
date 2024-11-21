@@ -13,6 +13,7 @@ import {
   RegionalPrescriptionSort,
 } from 'shared/schema/RegionalPrescription/RegionalPrescription';
 import { isNotEmpty } from 'shared/utils/utils';
+import PrescriptionAnalysisModal from 'src/components/Prescription/PrescriptionAnalysisModal/PrescriptionAnalysisModal';
 import PrescriptionStages from 'src/components/Prescription/PrescriptionStages/PrescriptionStages';
 import RegionalPrescriptionCountCell from 'src/components/Prescription/RegionalPrescriptionCountCell/RegionalPrescriptionCountCell';
 import RegionHeaderCell from 'src/components/RegionHeaderCell/RegionHeaderCell';
@@ -85,7 +86,7 @@ const PrescriptionTable = ({
     () =>
       prescriptions.map((prescription) =>
         [
-          <div key={`remove-${prescription.matrix}-${prescription.stages}`}>
+          <div key={`remove-${prescription.matrix}`}>
             {hasPermission('deletePrescription') &&
               programmingPlan.status === 'InProgress' && (
                 <RemoveMatrix
@@ -97,15 +98,16 @@ const PrescriptionTable = ({
           </div>,
           <div
             className={cx('fr-pl-0', 'fr-text--bold')}
-            data-testid={`matrix-${prescription.matrix}-${prescription.stages}`}
-            key={`matrix-${prescription.matrix}-${prescription.stages}`}
+            data-testid={`matrix-${prescription.matrix}`}
+            key={`matrix-${prescription.matrix}`}
           >
             {MatrixLabels[prescription.matrix]}
+            <PrescriptionAnalysisModal
+              programmingPlan={programmingPlan}
+              prescription={prescription}
+            />
           </div>,
-          <div
-            key={`stages-${prescription.matrix}-${prescription.stages}`}
-            className={cx('fr-p-1w')}
-          >
+          <div key={`stages-${prescription.matrix}`} className={cx('fr-p-1w')}>
             <PrescriptionStages
               programmingPlan={programmingPlan}
               prescription={prescription}
@@ -114,7 +116,7 @@ const PrescriptionTable = ({
           regions.length > 1 && (
             <div
               className="border-left fr-text--bold"
-              key={`total-${prescription.matrix}-${prescription.stages}`}
+              key={`total-${prescription.matrix}`}
             >
               <div>
                 {_.sumBy(
@@ -146,7 +148,7 @@ const PrescriptionTable = ({
               <div
                 className="border-left"
                 data-testid={`cell-${prescription.matrix}`}
-                key={`cell-${prescription.matrix}-${prescription.stages}-${regionalPrescription.region}`}
+                key={`cell-${prescription.matrix}-${regionalPrescription.region}`}
               >
                 <RegionalPrescriptionCountCell
                   programmingPlan={programmingPlan}
@@ -162,7 +164,7 @@ const PrescriptionTable = ({
             )),
           // regions.length === 1 && (
           //   <div
-          //     key={`laboratory-${prescription.matrix}-${prescription.stages}`}
+          //     key={`laboratory-${prescription.matrix}`}
           //   >
           //     {programmingPlan.status === 'InProgress' &&
           //     hasPermission('updatePrescriptionLaboratory') ? (

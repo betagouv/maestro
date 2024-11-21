@@ -1,33 +1,32 @@
+import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import Tag from '@codegouvfr/react-dsfr/Tag';
+import { t } from 'i18next';
 import { useMemo } from 'react';
-import { Matrix } from 'shared/referential/Matrix/Matrix';
 import { Prescription } from 'shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useGetPrescriptionSubstanceAnalysisQuery } from 'src/services/prescription.service';
+import './PrescriptionAnalysisModal.scss';
+
 interface Props {
   programmingPlan: ProgrammingPlan;
   prescription: Prescription;
-  onSubmit: (matrix: Matrix) => void;
-  modalButtons: React.ReactNode[];
 }
 
 const PrescriptionAnalysisModal = ({
   programmingPlan,
   prescription,
-  onSubmit,
-  modalButtons,
 }: Props) => {
   const { canEditPrescriptions } = useAuthentication();
 
   const prescriptionAnalysisModal = useMemo(
     () =>
       createModal({
-        id: `prescription-analysis-modal-${programmingPlan.id}-${prescription.id}`,
-        isOpenedByDefault: false,
+        id: `prescription-analysis-modal-${prescription.id}`,
+        isOpenedByDefault: true,
       }),
     [prescription]
   );
@@ -40,12 +39,35 @@ const PrescriptionAnalysisModal = ({
     });
 
   return (
-    <>
-      {modalButtons.map((modalButton, index) => (
-        <div key={index} onClick={() => prescriptionAnalysisModal.open()}>
-          {modalButton}
-        </div>
-      ))}
+    <div className="prescription-analysis-modal">
+      <div>
+        <Button
+          onClick={() => prescriptionAnalysisModal.open()}
+          priority="tertiary no outline"
+          className={cx('fr-link--xs')}
+        >
+          {canEditPrescriptions(programmingPlan) &&
+          (prescription.monoAnalysisCount ?? 0) === 0
+            ? `Ajouter une analyse mono résidu`
+            : `${t('analysis', {
+                count: prescription.monoAnalysisCount || 0,
+              })} mono résidu`}
+        </Button>
+      </div>
+      <div>
+        <Button
+          onClick={() => prescriptionAnalysisModal.open()}
+          priority="tertiary no outline"
+          className={cx('fr-link--xs')}
+        >
+          {canEditPrescriptions(programmingPlan) &&
+          (prescription.multiAnalysisCount ?? 0) === 0
+            ? `Ajouter une analyse multi résidus`
+            : `${t('analysis', {
+                count: prescription.multiAnalysisCount || 0,
+              })} multi résidus`}
+        </Button>
+      </div>
       <prescriptionAnalysisModal.Component
         title="Analyses mono-résidus et multi-résidus"
         concealingBackdrop={false}
@@ -53,7 +75,9 @@ const PrescriptionAnalysisModal = ({
       >
         <div>
           {canEditPrescriptions(programmingPlan) ? (
-            <div className="d-flex-align-center"></div>
+            <div className="d-flex-align-center">
+              <div>TODO champs de recherche et bouton d'ajout</div>
+            </div>
           ) : (
             <label className={cx('fr-label')}>Mono résidu</label>
           )}
@@ -84,7 +108,9 @@ const PrescriptionAnalysisModal = ({
         <hr className={cx('fr-my-1w')} />
         <div>
           {canEditPrescriptions(programmingPlan) ? (
-            <div className="d-flex-align-center"></div>
+            <div className="d-flex-align-center">
+              <div>TODO champs de recherche et bouton d'ajout</div>
+            </div>
           ) : (
             <label className={cx('fr-label')}>Multi résidus</label>
           )}
@@ -112,7 +138,7 @@ const PrescriptionAnalysisModal = ({
             ))}
         </div>
       </prescriptionAnalysisModal.Component>
-    </>
+    </div>
   );
 };
 
