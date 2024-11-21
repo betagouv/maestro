@@ -25,6 +25,7 @@ router.use('/documents', documentRouter);
 router.use('/laboratories', laboratoryRouter);
 router.use('/prescriptions/regional', regionalPrescriptionRouter);
 router.use('/prescriptions', prescriptionRouter);
+router.use('/prescriptions', regionalPrescriptionRouter);
 router.use('/programming-plans', programmingPlanRouter);
 router.use('/samples', sampleRouter);
 router.use('/substances', substanceRouter);

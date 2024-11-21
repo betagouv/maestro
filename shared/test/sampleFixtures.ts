@@ -48,6 +48,7 @@ export const genSampleContextData = (
 export const genCreatedSampleData = (
   data?: Partial<CreatedSampleData>
 ): CreatedSampleData => ({
+  region: '44',
   reference: `GES-${oneOf(Regions['44'].departments)}-24-${genNumber(
     4
   )}-${oneOf(LegalContextList)}`,
@@ -86,7 +87,7 @@ export const genCreatedSample = (data?: Partial<Sample>): Sample => {
     matrix: sample.matrix as Matrix,
     matrixPart: sample.matrixPart as MatrixPart,
     stage: sample.stage as Stage,
-    laboratoryId: uuidv4(),
+    prescriptionId: uuidv4(),
     items: sample.items as SampleItem[],
     ...data,
   };

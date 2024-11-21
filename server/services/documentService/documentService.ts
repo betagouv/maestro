@@ -5,13 +5,12 @@ import ProgrammingPlanMissingError from '../../../shared/errors/programmingPlanM
 import { MatrixLabels } from '../../../shared/referential/Matrix/MatrixLabels';
 import { MatrixPartLabels } from '../../../shared/referential/MatrixPart';
 import { QuantityUnitLabels } from '../../../shared/referential/QuantityUnit';
-import { Region, Regions } from '../../../shared/referential/Region';
+import { Regions } from '../../../shared/referential/Region';
 import { StageLabels } from '../../../shared/referential/Stage';
-import { getSampleRegion, Sample } from '../../../shared/schema/Sample/Sample';
+import { Sample } from '../../../shared/schema/Sample/Sample';
 import { PartialSampleItem } from '../../../shared/schema/Sample/SampleItem';
 import { UserInfos } from '../../../shared/schema/User/User';
 import { isDefinedAndNotNull } from '../../../shared/utils/utils';
-import laboratoryRepository from '../../repositories/laboratoryRepository';
 import prescriptionSubstanceAnalysisRepository from '../../repositories/prescriptionSubstanceAnalysisRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
 import {
@@ -20,6 +19,7 @@ import {
   templateStylePath,
 } from '../../templates/templates';
 import config from '../../utils/config';
+import sampleService from '../sampleService/sampleService';
 
 const generateDocument = async (template: Template, data: any) => {
   const compiledTemplate = handlebars.compile(templateContent(template));
@@ -68,14 +68,13 @@ const generateSupportDocument = async (
     throw new ProgrammingPlanMissingError(sample.programmingPlanId as string);
   }
 
-  const laboratory = sample.laboratoryId
-    ? await laboratoryRepository.findUnique(sample.laboratoryId)
-    : null;
+  const laboratory = await sampleService.getSampleLaboratory(sample);
 
-  const prescriptionSubstanceAnalysis =
-    await prescriptionSubstanceAnalysisRepository.findMany(
-      '' //TODO sample.prescriptionId
-    );
+  const prescriptionSubstanceAnalysis = sample.prescriptionId
+    ? await prescriptionSubstanceAnalysisRepository.findMany(
+        sample.prescriptionId
+      )
+    : undefined;
 
   return generateDocument('supportDocument', {
     ...sample,
@@ -107,7 +106,7 @@ const generateSupportDocument = async (
         : 'Non'
       : '',
     dsfrLink: `${config.application.host}/dsfr/dsfr.min.css`,
-    establishment: Regions[getSampleRegion(sample) as Region].establishment,
+    establishment: Regions[sample.region].establishment,
   });
 };
 

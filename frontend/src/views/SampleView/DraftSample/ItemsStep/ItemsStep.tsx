@@ -14,6 +14,7 @@ import { isDefinedAndNotNull } from 'shared/utils/utils';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import { useForm } from 'src/hooks/useForm';
+import { usePartialSample } from 'src/hooks/usePartialSample';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import { useCreateOrUpdateSampleMutation } from 'src/services/sample.service';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
@@ -28,6 +29,7 @@ interface Props {
 
 const ItemsStep = ({ partialSample }: Props) => {
   const { navigateToSample } = useSamplesLink();
+  const { laboratory } = usePartialSample(partialSample);
 
   const [items, setItems] = useState<PartialSampleItem[]>(
     !isDefinedAndNotNull(partialSample.items) ||
@@ -104,7 +106,7 @@ const ItemsStep = ({ partialSample }: Props) => {
               }}
               onChangeItem={changeItems}
               itemsForm={form}
-              laboratoryId={partialSample.laboratoryId}
+              laboratory={laboratory}
             />
           </div>
         ))}

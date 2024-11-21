@@ -3,7 +3,6 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
-import { skipToken } from '@reduxjs/toolkit/query';
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -16,8 +15,8 @@ import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
 import { useOnLine } from 'src/hooks/useOnLine';
+import { usePartialSample } from 'src/hooks/usePartialSample';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
-import { useGetLaboratoryQuery } from 'src/services/laboratory.service';
 import {
   getSupportDocumentURL,
   useCreateOrUpdateSampleMutation,
@@ -38,6 +37,7 @@ const SendingStep = ({ sample }: Props) => {
   const { navigateToSample } = useSamplesLink();
   const { hasPermission } = useAuthentication();
   const { isOnline } = useOnLine();
+  const { laboratory } = usePartialSample(sample);
 
   const [items, setItems] = useState<SampleItem[]>(sample.items);
   const [resytalId, setResytalId] = useState(sample.resytalId);
@@ -46,10 +46,6 @@ const SendingStep = ({ sample }: Props) => {
   const [createOrUpdateSample, { isError }] = useCreateOrUpdateSampleMutation({
     fixedCacheKey: `sending-sample-${sample.id}`,
   });
-
-  const { data: laboratory } = useGetLaboratoryQuery(
-    (sample.laboratoryId as string) ?? skipToken
-  );
 
   const isSendable = useMemo(
     () => Sample.safeParse(sample).success && isOnline,

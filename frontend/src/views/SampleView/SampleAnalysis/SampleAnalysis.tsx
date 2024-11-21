@@ -6,11 +6,11 @@ import { useState } from 'react';
 import { Sample } from 'shared/schema/Sample/Sample';
 import { CompletedStatusList } from 'shared/schema/Sample/SampleStatus';
 import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
+import { usePartialSample } from 'src/hooks/usePartialSample';
 import {
   useGetSampleAnalysisQuery,
   useUpdateAnalysisMutation,
 } from 'src/services/analysis.service';
-import { useGetLaboratoryQuery } from 'src/services/laboratory.service';
 import { useUpdateSampleMutation } from 'src/services/sample.service';
 import SampleAdmissibility from 'src/views/SampleView/SampleAnalysis/SampleAdmissibility/SampleAdmissibility';
 import SampleAnalysisOverview from 'src/views/SampleView/SampleAnalysis/SampleAnalysisOverview/SampleAnalysisOverview';
@@ -20,6 +20,7 @@ interface Props {
   sample: Sample;
 }
 const SampleAnalysis = ({ sample }: Props) => {
+  const { laboratory } = usePartialSample(sample);
   const [, { isSuccess: isSendingSuccess }] = useUpdateSampleMutation({
     fixedCacheKey: `sending-sample-${sample.id}`,
   });
@@ -27,9 +28,6 @@ const SampleAnalysis = ({ sample }: Props) => {
     useUpdateAnalysisMutation({
       fixedCacheKey: `complete-analysis-${sample.id}`,
     });
-  const { data: laboratory } = useGetLaboratoryQuery(sample.laboratoryId, {
-    skip: !isSendingSuccess,
-  });
   const { data: analysis } = useGetSampleAnalysisQuery(sample.id);
 
   const [continueToAnalysis, setContinueToAnalysis] = useState(false);
@@ -75,7 +73,6 @@ const SampleAnalysis = ({ sample }: Props) => {
         </div>
       </div>
       <SampleAdmissibility sample={sample} />
-
       {sample.status === 'Analysis' && !analysis && !continueToAnalysis ? (
         <Button
           iconId="fr-icon-arrow-down-line"

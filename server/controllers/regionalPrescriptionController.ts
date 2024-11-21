@@ -3,9 +3,11 @@ import { AuthenticatedRequest, ProgrammingPlanRequest } from 'express-jwt';
 import { constants } from 'http2';
 import PrescriptionMissingError from '../../shared/errors/prescriptionPlanMissingError';
 import RegionalPrescriptionMissingError from '../../shared/errors/regionalPrescriptionPlanMissingError';
+import { Region } from '../../shared/referential/Region';
 import { FindRegionalPrescriptionOptions } from '../../shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import { RegionalPrescriptionUpdate } from '../../shared/schema/RegionalPrescription/RegionalPrescription';
-import { hasPermission } from '../../shared/schema/User/User';
+import { hasPermission, userRegions } from '../../shared/schema/User/User';
+import laboratoryRepository from '../repositories/laboratoryRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
 const findRegionalPrescriptions = async (
@@ -40,12 +42,14 @@ const updateRegionalPrescription = async (
 
   console.info('Update regional prescription with id', regionalPrescriptionId);
 
-  const regionalPrescription = await regionalPrescriptionRepository.findUnique(
-    regionalPrescriptionId
-  );
+  const regionalPrescription =
+    await regionalPrescriptionRepository.findUniqueDeprecated(
+      //TODO
+      regionalPrescriptionId
+    );
 
   if (!regionalPrescription) {
-    throw new RegionalPrescriptionMissingError(regionalPrescriptionId);
+    throw new PrescriptionMissingError(regionalPrescriptionId); //TODO regional
   }
 
   const prescription = await prescriptionRepository.findUnique(
@@ -113,8 +117,45 @@ const commentRegionalPrescription = async (
   response.status(constants.HTTP_STATUS_CREATED); //.send(prescriptionComment);
 };
 
+const getRegionalPrescriptionLaboratory = async (
+  request: Request,
+  response: Response
+) => {
+  const { user } = request as AuthenticatedRequest;
+  const { region, prescriptionId } = request.params as {
+    region: Region;
+    prescriptionId: string;
+  };
+
+  if (!userRegions(user).includes(region)) {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
+
+  const regionalPrescription = await regionalPrescriptionRepository.findUnique(
+    prescriptionId,
+    region
+  );
+
+  if (!regionalPrescription) {
+    throw new RegionalPrescriptionMissingError(prescriptionId, region);
+  }
+
+  console.info(
+    'Get laboratory for regional prescription',
+    prescriptionId,
+    region
+  );
+
+  const laboratory = regionalPrescription.laboratoryId
+    ? await laboratoryRepository.findUnique(regionalPrescription.laboratoryId)
+    : undefined;
+
+  response.status(constants.HTTP_STATUS_OK).send(laboratory);
+};
+
 export default {
   findRegionalPrescriptions,
   updateRegionalPrescription,
   commentRegionalPrescription,
+  getRegionalPrescriptionLaboratory,
 };

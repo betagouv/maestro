@@ -3,7 +3,9 @@ import { ProgrammingPlans } from '../../../server/repositories/programmingPlanRe
 import { RegionalPrescriptions } from '../../../server/repositories/regionalPrescriptionRepository';
 import { RegionList } from '../../../shared/referential/Region';
 import { genPrescription } from '../../../shared/test/prescriptionFixtures';
+import { oneOf } from '../../../shared/test/testFixtures';
 import { validatedProgrammingPlanId } from '../dummy/003-programming-plans';
+import { DummyLaboratoryIds } from './002-laboratories';
 
 export const abricotsEtSimilaires = genPrescription({
   id: '02b1d919-f5e7-4d67-afa6-dc8e7e8f3687',
@@ -263,6 +265,7 @@ exports.seed = async function () {
       prescriptionId,
       region: RegionList[index],
       sampleCount: quantity,
+      laboratoryId: oneOf(DummyLaboratoryIds),
     }));
 
   await Prescriptions().insert([

@@ -96,7 +96,7 @@ const MatrixStep = ({ partialSample }: Props) => {
       releaseControl,
       notesOnMatrix,
       status,
-      //TODO backend laboratoryId: prescription?.laboratoryId ?? partialSample.laboratoryId,
+      prescriptionId: prescription?.id,
     });
   };
 
@@ -110,7 +110,7 @@ const MatrixStep = ({ partialSample }: Props) => {
       cultureKind,
       releaseControl,
       notesOnMatrix,
-      laboratoryId: partialSample.laboratoryId,
+      prescriptionId: partialSample.prescriptionId,
     },
     save
   );

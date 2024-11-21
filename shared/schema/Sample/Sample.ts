@@ -5,7 +5,7 @@ import { Department } from '../../referential/Department';
 import { LegalContext } from '../../referential/LegalContext';
 import { Matrix } from '../../referential/Matrix/Matrix';
 import { MatrixPart } from '../../referential/MatrixPart';
-import { Region, RegionList, Regions } from '../../referential/Region';
+import { Region } from '../../referential/Region';
 import { Stage } from '../../referential/Stage';
 import { Company } from '../Company/Company';
 import { Context } from '../ProgrammingPlan/Context';
@@ -59,7 +59,7 @@ export const SampleMatrixData = z.object({
   cultureKind: CultureKind.nullish(),
   releaseControl: z.boolean().nullish(),
   notesOnMatrix: z.string().nullish(),
-  laboratoryId: z.string().uuid().nullish(),
+  prescriptionId: z.string().uuid(),
 });
 
 export const SampleItemsData = z.object({
@@ -105,6 +105,7 @@ export const SampleToCreate = z.object({
 
 export const CreatedSampleData = z.object({
   reference: z.string(),
+  region: Region,
   createdAt: z.coerce.date(),
   sampler: Sampler,
   lastUpdatedAt: z.coerce.date(),
@@ -118,7 +119,6 @@ export const Sample = SampleToCreate.extend({
   ...CreatedSampleData.shape,
   geolocation: Geolocation,
   company: Company,
-  laboratoryId: z.string().uuid(),
 });
 
 export type Geolocation = z.infer<typeof Geolocation>;
@@ -130,11 +130,6 @@ export type PartialSampleToCreate = z.infer<typeof PartialSampleToCreate>;
 export type PartialSample = z.infer<typeof PartialSample>;
 export type SampleToCreate = z.infer<typeof SampleToCreate>;
 export type Sample = z.infer<typeof Sample>;
-
-export const getSampleRegion = (sample: PartialSample): Region | undefined =>
-  RegionList.find(
-    (region) => Regions[region].shortName === sample.reference.split('-')[0]
-  );
 
 export const isCreatedPartialSample = (
   partialSample?: PartialSample | PartialSampleToCreate

@@ -1,12 +1,11 @@
 import { Knex } from 'knex';
 import { default as fp, default as _, isArray } from 'lodash';
-import { RegionList, Regions } from '../../shared/referential/Region';
+import { Region } from '../../shared/referential/Region';
 import {
   FindRegionalPrescriptionOptions,
   RegionalPrescriptionOptionsInclude,
 } from '../../shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import { RegionalPrescription } from '../../shared/schema/RegionalPrescription/RegionalPrescription';
-import { RealizedStatusList } from '../../shared/schema/Sample/SampleStatus';
 import db from './db';
 import { prescriptionsTable } from './prescriptionRepository';
 import { regionalPrescriptionCommentsTable } from './regionalPrescriptionCommentRepository';
@@ -16,12 +15,23 @@ export const regionalPrescriptionsTable = 'regional_prescriptions';
 export const RegionalPrescriptions = () =>
   db<RegionalPrescription>(regionalPrescriptionsTable);
 
-const findUnique = async (
+const findUniqueDeprecated = async (
   id: string
 ): Promise<RegionalPrescription | undefined> => {
   console.info('Find regional prescription by id', id);
   return RegionalPrescriptions()
     .where({ id })
+    .first()
+    .then((_) => _ && RegionalPrescription.parse(fp.omitBy(_, fp.isNil)));
+};
+
+const findUnique = async (
+  prescriptionId: string,
+  region: Region
+): Promise<RegionalPrescription | undefined> => {
+  console.info('Find regional prescription', prescriptionId, region);
+  return RegionalPrescriptions()
+    .where('prescription_id', prescriptionId)
     .first()
     .then((_) => _ && RegionalPrescription.parse(fp.omitBy(_, fp.isNil)));
 };
@@ -34,7 +44,13 @@ const findMany = async (
     .select(`${regionalPrescriptionsTable}.*`)
     .where(
       fp.omitBy(
-        fp.omit(findOptions, 'programmingPlanId', 'context', 'includes'),
+        fp.omit(
+          findOptions,
+          'programmingPlanId',
+          'context',
+          'includes',
+          'region'
+        ),
         fp.isNil
       )
     )
@@ -97,25 +113,10 @@ const include = (opts?: FindRegionalPrescriptionOptions) => {
       query
         .select(db.raw(`count(${samplesTable}.id) as realized_sample_count`))
         .leftJoin(samplesTable, (query) =>
-          query
-            .on({
-              [`${samplesTable}.programming_plan_id`]: `${prescriptionsTable}.programming_plan_id`,
-              [`${samplesTable}.matrix`]: `${prescriptionsTable}.matrix`,
-            })
-            .andOn(
-              db.raw(
-                `${samplesTable}.stage = any(${prescriptionsTable}.stages)`
-              )
-            )
-            .andOn(
-              db.raw(
-                `${regionalPrescriptionsTable}.region = case ${RegionList.map(
-                  (region) =>
-                    `when '${Regions[region].shortName}' = split_part(${samplesTable}.reference, '-', 1) then '${region}'`
-                ).join(' ')} end`
-              )
-            )
-            .andOnIn(`${samplesTable}.status`, RealizedStatusList)
+          query.on(
+            `${samplesTable}.prescription_id`,
+            `${prescriptionsTable}.id`
+          )
         )
         .groupBy(`${regionalPrescriptionsTable}.id`);
     },
@@ -149,6 +150,7 @@ const update = async (regionalPrescription: RegionalPrescription) => {
 
 export default {
   findUnique,
+  findUniqueDeprecated,
   findMany,
   insertMany,
   update,

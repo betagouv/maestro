@@ -1,5 +1,6 @@
 import express from 'express';
 import { z } from 'zod';
+import { Region } from '../../shared/referential/Region';
 import { FindRegionalPrescriptionOptions } from '../../shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import { RegionalPrescriptionUpdate } from '../../shared/schema/RegionalPrescription/RegionalPrescription';
 import { RegionalPrescriptionCommentToCreate } from '../../shared/schema/RegionalPrescription/RegionalPrescriptionComment';
@@ -43,4 +44,19 @@ router.post(
   programmingPlanCheck('Submitted'),
   regionalPrescriptionController.commentRegionalPrescription
 );
+
+router.get(
+  '/:prescriptionId/regions/:region/laboratory',
+  validator.validate(
+    params(
+      z.object({
+        prescriptionId: z.string().uuid(),
+        region: Region,
+      })
+    )
+  ),
+  permissionsCheck(['readPrescriptions']),
+  regionalPrescriptionController.getRegionalPrescriptionLaboratory
+);
+
 export default router;

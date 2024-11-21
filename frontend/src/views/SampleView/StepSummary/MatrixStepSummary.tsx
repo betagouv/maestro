@@ -7,7 +7,7 @@ import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
 import { MatrixPartLabels } from 'shared/referential/MatrixPart';
 import { StageLabels } from 'shared/referential/Stage';
 import { Sample, SampleToCreate } from 'shared/schema/Sample/Sample';
-import { useGetLaboratoryQuery } from 'src/services/laboratory.service';
+import { usePartialSample } from 'src/hooks/usePartialSample';
 import { useGetPrescriptionSubstanceAnalysisQuery } from 'src/services/prescription.service';
 import { quote } from 'src/utils/stringUtils';
 import StepSummary from 'src/views/SampleView/StepSummary/StepSummary';
@@ -17,13 +17,9 @@ interface Props {
   showLabel?: boolean;
 }
 const MatrixStepSummary = ({ sample, showLabel }: Props) => {
+  const { laboratory } = usePartialSample(sample);
   const { data: substances } = useGetPrescriptionSubstanceAnalysisQuery(
-    '', //TODO sample.prescriptionId
-    { skip: !sample.matrix || !sample.sampledAt }
-  );
-
-  const { data: laboratory } = useGetLaboratoryQuery(
-    sample.laboratoryId ?? skipToken
+    sample.prescriptionId ?? skipToken
   );
 
   const monoSubstances = useMemo(() => {

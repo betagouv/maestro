@@ -18,12 +18,12 @@ import { DraftStatusList } from '../../shared/schema/Sample/SampleStatus';
 import { UserInfos } from '../../shared/schema/User/User';
 import companyRepository from '../repositories/companyRepository';
 import documentRepository from '../repositories/documentRepository';
-import laboratoryRepository from '../repositories/laboratoryRepository';
 import sampleItemRepository from '../repositories/sampleItemRepository';
 import sampleRepository from '../repositories/sampleRepository';
 import documentService from '../services/documentService/documentService';
 import exportSamplesService from '../services/exportService/exportSamplesService';
 import mailService from '../services/mailService';
+import sampleService from '../services/sampleService/sampleService';
 import config from '../utils/config';
 import workbookUtils from '../utils/workbookUtils';
 
@@ -142,6 +142,7 @@ const createSample = async (request: Request, response: Response) => {
 
   const sample = {
     ...sampleToCreate,
+    region: user.region,
     reference: `${Regions[user.region].shortName}-${
       sampleToCreate.department
     }-${format(new Date(), 'yy')}-${String(serial).padStart(4, '0')}-${
@@ -197,12 +198,12 @@ const updateSample = async (request: Request, response: Response) => {
         );
 
         if (sampleItem.itemNumber === 1) {
-          const laboratory = await laboratoryRepository.findUnique(
-            updatedSample.laboratoryId as string
-          );
+          const laboratory = (await sampleService.getSampleLaboratory(
+            updatedSample as Sample
+          )) as Laboratory;
 
           await mailService.sendAnalysisRequest({
-            recipients: [(laboratory as Laboratory).email, config.mail.from],
+            recipients: [laboratory.email, config.mail.from],
             params: {
               region: user.region ? Regions[user.region].name : undefined,
               userMail: user.email,

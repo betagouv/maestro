@@ -11,7 +11,15 @@ import { Regions } from '../../../shared/referential/Region';
 import { Sample } from '../../../shared/schema/Sample/Sample';
 import { genCreatedSample } from '../../../shared/test/sampleFixtures';
 import { oneOf } from '../../../shared/test/testFixtures';
-import { DummyLaboratoryIds } from './002-laboratories';
+import {
+  abricotsEtSimilaires,
+  avoineEtSimilaires,
+  carottes,
+  cerisesEtSimilaires,
+  fevesDeSoja,
+  lentilles,
+  oignons,
+} from './004-prescriptions';
 
 exports.seed = async function () {
   const validatedProgrammingPlan = await ProgrammingPlans()
@@ -40,7 +48,7 @@ exports.seed = async function () {
           status: 'Sent',
           department: oneOf(Regions[sampler.region!].departments),
           company: oneOf(companies),
-          laboratoryId: oneOf(DummyLaboratoryIds),
+          prescriptionId: abricotsEtSimilaires.id,
         }),
       { count: 2 }
     ),
@@ -55,7 +63,7 @@ exports.seed = async function () {
           status: 'Sent',
           department: oneOf(Regions[sampler.region!].departments),
           company: oneOf(companies),
-          laboratoryId: oneOf(DummyLaboratoryIds),
+          prescriptionId: avoineEtSimilaires.id,
         }),
       { count: 8 }
     ),
@@ -70,7 +78,7 @@ exports.seed = async function () {
           status: 'Sent',
           department: oneOf(Regions[sampler.region!].departments),
           company: oneOf(companies),
-          laboratoryId: oneOf(DummyLaboratoryIds),
+          prescriptionId: carottes.id,
         }),
       { count: 3 }
     ),
@@ -85,7 +93,7 @@ exports.seed = async function () {
           status: 'Sent',
           department: oneOf(Regions[sampler.region!].departments),
           company: oneOf(companies),
-          laboratoryId: oneOf(DummyLaboratoryIds),
+          prescriptionId: cerisesEtSimilaires.id,
         }),
       { count: 4 }
     ),
@@ -100,7 +108,7 @@ exports.seed = async function () {
           status: 'Sent',
           department: oneOf(Regions[sampler.region!].departments),
           company: oneOf(companies),
-          laboratoryId: oneOf(DummyLaboratoryIds),
+          prescriptionId: oignons.id,
         }),
       { count: 7 }
     ),
@@ -110,12 +118,12 @@ exports.seed = async function () {
           sampler,
           programmingPlanId: validatedProgrammingPlan.id,
           context: 'Control',
-          matrix: 'A0DFB',
+          matrix: 'A013Q',
           stage: 'STADE1',
           status: 'Sent',
           department: oneOf(Regions[sampler.region!].departments),
           company: oneOf(companies),
-          laboratoryId: oneOf(DummyLaboratoryIds),
+          prescriptionId: lentilles.id,
         }),
       { count: 6 }
     ),
@@ -130,7 +138,7 @@ exports.seed = async function () {
           status: 'Sent',
           department: oneOf(Regions[sampler.region!].departments),
           company: oneOf(companies),
-          laboratoryId: oneOf(DummyLaboratoryIds),
+          prescriptionId: fevesDeSoja.id,
         }),
       { count: 6 }
     ),
