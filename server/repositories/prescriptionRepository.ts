@@ -32,7 +32,6 @@ const findMany = async (
       }
     })
     .modify(include(findOptions))
-    .debug(true)
     .then((prescriptions) =>
       prescriptions.map((_: Prescription) =>
         Prescription.parse(fp.omitBy(_, fp.isNil))

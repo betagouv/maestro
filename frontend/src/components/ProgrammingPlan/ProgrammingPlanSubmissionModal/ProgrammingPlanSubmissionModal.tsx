@@ -39,6 +39,7 @@ const ProgrammingPlanSubmissionModal = ({ programmingPlan }: Props) => {
         iconPosition="right"
         priority="primary"
         onClick={submissionModal.open}
+        disabled
       >
         Soumettre aux régions
       </Button>

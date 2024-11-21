@@ -117,13 +117,21 @@ const updatePrescription = async (request: Request, response: Response) => {
   const updatedPrescription = {
     ...prescription,
     stages: prescriptionUpdate.stages ?? prescription.stages,
-    substanceMonoCount: prescriptionUpdate.substanceCodes
-      ? prescriptionUpdate.substanceCodes.length
-      : prescription.monoAnalysisCount,
   };
-  //TODO
 
   await prescriptionRepository.update(updatedPrescription);
+
+  if (prescriptionUpdate.substanceAnalysis) {
+    const substances = prescriptionUpdate.substanceAnalysis.map(
+      (substance) => ({
+        prescriptionId,
+        ...substance,
+      })
+    );
+
+    await prescriptionSubstanceAnalysisRepository.deleteMany(prescriptionId);
+    await prescriptionSubstanceAnalysisRepository.insertMany(substances);
+  }
 
   response.status(constants.HTTP_STATUS_OK).send(updatedPrescription);
 };

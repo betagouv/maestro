@@ -2,8 +2,8 @@ import fp from 'lodash';
 import { z } from 'zod';
 import { PrescriptionSubstanceAnalysis } from '../../shared/schema/Prescription/PrescriptionSubstanceAnalysis';
 import db from './db';
+import { substancesTable } from './substanceRepository';
 
-export const substancesTable = 'substances';
 export const prescriptionSubstanceAnalysisTable =
   'prescription_substance_analysis';
 
@@ -26,7 +26,6 @@ type PrescriptionSubstanceAnalysisJoinedDbo = z.infer<
   typeof PrescriptionSubstanceAnalysisJoinedDbo
 >;
 
-export const Substances = () => db(substancesTable);
 export const PrescriptionSubstanceAnalysisTable = () =>
   db<PrescriptionSubstanceAnalysisDbo>(prescriptionSubstanceAnalysisTable);
 
@@ -77,14 +76,9 @@ const insertMany = async (
   }
 };
 
-const deleteOne = async (
-  prescriptionId: string,
-  substanceCode: string
-): Promise<void> => {
-  console.info('Delete prescription substance', prescriptionId, substanceCode);
-  await PrescriptionSubstanceAnalysisTable()
-    .where({ prescriptionId, substanceCode })
-    .delete();
+const deleteMany = async (prescriptionId: string): Promise<void> => {
+  console.info('Delete prescription substances', prescriptionId);
+  await PrescriptionSubstanceAnalysisTable().where({ prescriptionId }).delete();
 };
 
 export const formatPrescriptionSubstanceAnalysis = (
@@ -113,5 +107,5 @@ export default {
   findMany,
   insert,
   insertMany,
-  deleteOne,
+  deleteMany,
 };

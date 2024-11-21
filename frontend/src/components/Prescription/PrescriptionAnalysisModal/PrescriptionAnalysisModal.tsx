@@ -2,11 +2,11 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
-import Tag from '@codegouvfr/react-dsfr/Tag';
 import { t } from 'i18next';
 import { useMemo } from 'react';
 import { Prescription } from 'shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
+import PrescriptionAnalysisByKind from 'src/components/Prescription/PrescriptionAnalysisModal/PrescriptionAnalysisByKind';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useGetPrescriptionSubstanceAnalysisQuery } from 'src/services/prescription.service';
 import './PrescriptionAnalysisModal.scss';
@@ -73,70 +73,29 @@ const PrescriptionAnalysisModal = ({
         concealingBackdrop={false}
         topAnchor
       >
-        <div>
-          {canEditPrescriptions(programmingPlan) ? (
-            <div className="d-flex-align-center">
-              <div>TODO champs de recherche et bouton d'ajout</div>
-            </div>
-          ) : (
-            <label className={cx('fr-label')}>Mono résidu</label>
-          )}
-
-          {prescriptionSubstanceAnalysis
-            ?.filter(
-              (prescriptionSubstance) =>
-                prescriptionSubstance.analysisKind === 'Mono'
-            )
-            .map((prescriptionSubstance) => (
-              <Tag
-                key={`${prescriptionSubstance.prescriptionId}-${prescriptionSubstance.substance.code}`}
-                dismissible={canEditPrescriptions(programmingPlan)}
-                small
-                nativeButtonProps={
-                  canEditPrescriptions(programmingPlan)
-                    ? {
-                        onClick: () => {},
-                      }
-                    : undefined
-                }
-                className={cx('fr-m-1v')}
-              >
-                {prescriptionSubstance.substance.label}
-              </Tag>
-            ))}
-        </div>
-        <hr className={cx('fr-my-1w')} />
-        <div>
-          {canEditPrescriptions(programmingPlan) ? (
-            <div className="d-flex-align-center">
-              <div>TODO champs de recherche et bouton d'ajout</div>
-            </div>
-          ) : (
-            <label className={cx('fr-label')}>Multi résidus</label>
-          )}
-          {prescriptionSubstanceAnalysis
-            ?.filter(
-              (prescriptionSubstance) =>
-                prescriptionSubstance.analysisKind === 'Multi'
-            )
-            .map((prescriptionSubstance) => (
-              <Tag
-                key={`${prescriptionSubstance.prescriptionId}-${prescriptionSubstance.substance.code}`}
-                dismissible={canEditPrescriptions(programmingPlan)}
-                small
-                nativeButtonProps={
-                  canEditPrescriptions(programmingPlan)
-                    ? {
-                        onClick: () => {},
-                      }
-                    : undefined
-                }
-                className={cx('fr-m-1v')}
-              >
-                {prescriptionSubstance.substance.label}
-              </Tag>
-            ))}
-        </div>
+        {prescriptionSubstanceAnalysis && (
+          <>
+            <PrescriptionAnalysisByKind
+              programmingPlan={programmingPlan}
+              prescriptionId={prescription.id}
+              prescriptionSubstanceAnalysis={prescriptionSubstanceAnalysis.filter(
+                (prescriptionSubstance) =>
+                  prescriptionSubstance.analysisKind === 'Mono'
+              )}
+              analysisKind="Mono"
+            />
+            <hr className={cx('fr-mt-3w', 'fr-mb-2w')} />
+            <PrescriptionAnalysisByKind
+              programmingPlan={programmingPlan}
+              prescriptionId={prescription.id}
+              prescriptionSubstanceAnalysis={prescriptionSubstanceAnalysis.filter(
+                (prescriptionSubstance) =>
+                  prescriptionSubstance.analysisKind === 'Multi'
+              )}
+              analysisKind="Multi"
+            />
+          </>
+        )}
       </prescriptionAnalysisModal.Component>
     </div>
   );

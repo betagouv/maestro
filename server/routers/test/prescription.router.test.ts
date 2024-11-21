@@ -21,10 +21,10 @@ import { Prescriptions } from '../../repositories/prescriptionRepository';
 import {
   formatPrescriptionSubstanceAnalysis,
   PrescriptionSubstanceAnalysisTable,
-  Substances,
 } from '../../repositories/prescriptionSubstanceAnalysisRepository';
 import { ProgrammingPlans } from '../../repositories/programmingPlanRepository';
 import { RegionalPrescriptions } from '../../repositories/regionalPrescriptionRepository';
+import { Substances } from '../../repositories/substanceRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 describe('Prescriptions router', () => {

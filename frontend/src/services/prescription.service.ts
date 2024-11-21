@@ -56,6 +56,7 @@ export const prescriptionApi = api.injectEndpoints({
       invalidatesTags: (_result, _error, { prescriptionId }) => [
         { type: 'Prescription', id: 'LIST' },
         { type: 'Prescription', id: prescriptionId },
+        { type: 'PrescriptionSubstanceAnalysis', id: prescriptionId },
       ],
       transformResponse: (response) => Prescription.parse(response),
     }),

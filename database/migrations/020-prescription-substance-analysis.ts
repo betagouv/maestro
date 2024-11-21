@@ -58,7 +58,7 @@ exports.down = async (knex: Knex) => {
 
   await knex.schema.alterTable('substance_analysis', (table) => {
     table.dropPrimary('prescription_substance_analysis_pkey');
-    table.primary(['matrix', 'substance_code']);
+    table.primary(['matrix', 'substance_code', 'year']);
     table.dropColumn('prescription_id');
     table.renameColumn('analysis_kind', 'kind');
   });

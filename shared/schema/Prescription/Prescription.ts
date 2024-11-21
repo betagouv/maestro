@@ -3,6 +3,7 @@ import { Matrix } from '../../referential/Matrix/Matrix';
 import { MatrixLabels } from '../../referential/Matrix/MatrixLabels';
 import { Stage, StageLabels } from '../../referential/Stage';
 import { Context } from '../ProgrammingPlan/Context';
+import { PrescriptionSubstanceAnalysis } from './PrescriptionSubstanceAnalysis';
 
 export const Prescription = z.object({
   id: z.string().uuid(),
@@ -21,7 +22,14 @@ export const PrescriptionToCreate = Prescription.omit({
 export const PrescriptionUpdate = z.object({
   programmingPlanId: z.string().uuid(),
   stages: z.array(Stage).nullish(),
-  substanceCodes: z.array(z.string()).nullish(),
+  substanceAnalysis: z
+    .array(
+      PrescriptionSubstanceAnalysis.pick({
+        analysisKind: true,
+        substance: true,
+      })
+    )
+    .nullish(),
 });
 
 export type Prescription = z.infer<typeof Prescription>;
