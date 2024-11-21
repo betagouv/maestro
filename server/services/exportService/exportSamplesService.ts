@@ -13,7 +13,6 @@ import { SampleItemRecipientKindLabels } from '../../../shared/schema/Sample/Sam
 import { SampleStatusLabels } from '../../../shared/schema/Sample/SampleStatus';
 import { isDefinedAndNotNull } from '../../../shared/utils/utils';
 import analysisRepository from '../../repositories/analysisRepository';
-import laboratoryRepository from '../../repositories/laboratoryRepository';
 import sampleItemRepository from '../../repositories/sampleItemRepository';
 import WorkbookWriter = exceljs.stream.xlsx.WorkbookWriter;
 
@@ -21,7 +20,7 @@ const writeToWorkbook = async (
   samples: PartialSample[],
   workbook: WorkbookWriter
 ) => {
-  const laboratories = await laboratoryRepository.findMany();
+  // const laboratories = await laboratoryRepository.findMany();
 
   const worksheet = workbook.addWorksheet('Prélèvements');
   worksheet.columns = [
@@ -136,10 +135,12 @@ const writeToWorkbook = async (
               [`recipient_${index + 1}`]:
                 item.recipientKind &&
                 (item.recipientKind === 'Laboratory'
-                  ? 'Laboratoire ' +
-                    laboratories.find((lab) => lab.id === sample.laboratoryId)
-                      ?.name
-                  : SampleItemRecipientKindLabels[item.recipientKind]),
+                  ? 'Laboratoire '
+                  : //TODO
+                    // +
+                    //   laboratories.find((lab) => lab.id === sample.laboratoryId)
+                    //     ?.name
+                    SampleItemRecipientKindLabels[item.recipientKind]),
               [`compliance200263_${index + 1}`]: item.compliance200263
                 ? 'Oui'
                 : 'Non',

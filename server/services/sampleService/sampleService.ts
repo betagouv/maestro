@@ -10,10 +10,10 @@ const getSampleLaboratory = async (
     return null;
   }
 
-  const regionalPrescription = await regionalPrescriptionRepository.findUnique(
-    sample.prescriptionId,
-    sample.region
-  );
+  const regionalPrescription = await regionalPrescriptionRepository.findUnique({
+    prescriptionId: sample.prescriptionId,
+    region: sample.region,
+  });
 
   if (!regionalPrescription) {
     return null;

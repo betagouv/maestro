@@ -1,11 +1,13 @@
 import { Knex } from 'knex';
 import { default as fp, default as _, isArray } from 'lodash';
-import { Region } from '../../shared/referential/Region';
 import {
   FindRegionalPrescriptionOptions,
   RegionalPrescriptionOptionsInclude,
 } from '../../shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
-import { RegionalPrescription } from '../../shared/schema/RegionalPrescription/RegionalPrescription';
+import {
+  RegionalPrescription,
+  RegionalPrescriptionKey,
+} from '../../shared/schema/RegionalPrescription/RegionalPrescription';
 import db from './db';
 import { prescriptionsTable } from './prescriptionRepository';
 import { regionalPrescriptionCommentsTable } from './regionalPrescriptionCommentRepository';
@@ -15,23 +17,14 @@ export const regionalPrescriptionsTable = 'regional_prescriptions';
 export const RegionalPrescriptions = () =>
   db<RegionalPrescription>(regionalPrescriptionsTable);
 
-const findUniqueDeprecated = async (
-  id: string
-): Promise<RegionalPrescription | undefined> => {
-  console.info('Find regional prescription by id', id);
-  return RegionalPrescriptions()
-    .where({ id })
-    .first()
-    .then((_) => _ && RegionalPrescription.parse(fp.omitBy(_, fp.isNil)));
-};
-
-const findUnique = async (
-  prescriptionId: string,
-  region: Region
-): Promise<RegionalPrescription | undefined> => {
+const findUnique = async ({
+  prescriptionId,
+  region,
+}: RegionalPrescriptionKey): Promise<RegionalPrescription | undefined> => {
   console.info('Find regional prescription', prescriptionId, region);
   return RegionalPrescriptions()
-    .where('prescription_id', prescriptionId)
+    .where('prescriptionId', prescriptionId)
+    .where('region', region)
     .first()
     .then((_) => _ && RegionalPrescription.parse(fp.omitBy(_, fp.isNil)));
 };
@@ -102,12 +95,21 @@ const include = (opts?: FindRegionalPrescriptionOptions) => {
               else '{}' end as comments`
           )
         )
-        .leftJoin(
-          regionalPrescriptionCommentsTable,
-          `${regionalPrescriptionCommentsTable}.regional_prescription_id`,
-          `${regionalPrescriptionsTable}.id`
+        .leftJoin(regionalPrescriptionCommentsTable, (query) =>
+          query
+            .on(
+              `${regionalPrescriptionCommentsTable}.prescription_id`,
+              `${regionalPrescriptionsTable}.prescription_id`
+            )
+            .andOn(
+              `${regionalPrescriptionCommentsTable}.region`,
+              `${regionalPrescriptionsTable}.region`
+            )
         )
-        .groupBy(`${regionalPrescriptionsTable}.id`);
+        .groupBy(
+          `${regionalPrescriptionsTable}.prescription_id`,
+          `${regionalPrescriptionsTable}.region`
+        );
     },
     realizedSampleCount: (query) => {
       query
@@ -115,10 +117,13 @@ const include = (opts?: FindRegionalPrescriptionOptions) => {
         .leftJoin(samplesTable, (query) =>
           query.on(
             `${samplesTable}.prescription_id`,
-            `${prescriptionsTable}.id`
+            `${regionalPrescriptionsTable}.prescription_id`
           )
         )
-        .groupBy(`${regionalPrescriptionsTable}.id`);
+        .groupBy(
+          `${regionalPrescriptionsTable}.prescription_id`,
+          `${regionalPrescriptionsTable}.region`
+        );
     },
   };
 
@@ -144,13 +149,13 @@ const insertMany = async (regionalPrescriptions: RegionalPrescription[]) => {
 const update = async (regionalPrescription: RegionalPrescription) => {
   console.info('Update regional prescription', regionalPrescription);
   await RegionalPrescriptions()
-    .where('id', regionalPrescription.id)
+    .where('prescriptionId', regionalPrescription.prescriptionId)
+    .where('region', regionalPrescription.region)
     .update(regionalPrescription);
 };
 
 export default {
   findUnique,
-  findUniqueDeprecated,
   findMany,
   insertMany,
   update,

@@ -4,10 +4,13 @@ import { Region, RegionSort } from '../../referential/Region';
 import { Prescription } from '../Prescription/Prescription';
 import { RegionalPrescriptionComment } from './RegionalPrescriptionComment';
 
-export const RegionalPrescription = z.object({
-  id: z.string().uuid(),
+export const RegionalPrescriptionKey = z.object({
   prescriptionId: z.string().uuid(),
   region: Region,
+});
+
+export const RegionalPrescription = z.object({
+  ...RegionalPrescriptionKey.shape,
   sampleCount: z.coerce.number(),
   laboratoryId: z.string().nullish(),
   comments: z
@@ -30,6 +33,7 @@ export const RegionalPrescriptionUpdate = RegionalPrescription.pick({
   .partial()
   .merge(Prescription.pick({ programmingPlanId: true }));
 
+export type RegionalPrescriptionKey = z.infer<typeof RegionalPrescriptionKey>;
 export type RegionalPrescription = z.infer<typeof RegionalPrescription>;
 export type RegionalPrescriptionUpdate = z.infer<
   typeof RegionalPrescriptionUpdate

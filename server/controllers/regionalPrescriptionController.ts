@@ -3,9 +3,11 @@ import { AuthenticatedRequest, ProgrammingPlanRequest } from 'express-jwt';
 import { constants } from 'http2';
 import PrescriptionMissingError from '../../shared/errors/prescriptionPlanMissingError';
 import RegionalPrescriptionMissingError from '../../shared/errors/regionalPrescriptionPlanMissingError';
-import { Region } from '../../shared/referential/Region';
 import { FindRegionalPrescriptionOptions } from '../../shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
-import { RegionalPrescriptionUpdate } from '../../shared/schema/RegionalPrescription/RegionalPrescription';
+import {
+  RegionalPrescriptionKey,
+  RegionalPrescriptionUpdate,
+} from '../../shared/schema/RegionalPrescription/RegionalPrescription';
 import { hasPermission, userRegions } from '../../shared/schema/User/User';
 import laboratoryRepository from '../repositories/laboratoryRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
@@ -37,19 +39,18 @@ const updateRegionalPrescription = async (
 ) => {
   const user = (request as AuthenticatedRequest).user;
   const programmingPlan = (request as ProgrammingPlanRequest).programmingPlan;
-  const { regionalPrescriptionId } = request.params;
+  const { region, prescriptionId } = request.params as RegionalPrescriptionKey;
   const regionalPrescriptionUpdate = request.body as RegionalPrescriptionUpdate;
 
-  console.info('Update regional prescription with id', regionalPrescriptionId);
+  console.info('Update regional prescription', prescriptionId, region);
 
-  const regionalPrescription =
-    await regionalPrescriptionRepository.findUniqueDeprecated(
-      //TODO
-      regionalPrescriptionId
-    );
+  const regionalPrescription = await regionalPrescriptionRepository.findUnique({
+    prescriptionId,
+    region,
+  });
 
   if (!regionalPrescription) {
-    throw new PrescriptionMissingError(regionalPrescriptionId); //TODO regional
+    throw new RegionalPrescriptionMissingError(prescriptionId, region);
   }
 
   const prescription = await prescriptionRepository.findUnique(
@@ -122,19 +123,16 @@ const getRegionalPrescriptionLaboratory = async (
   response: Response
 ) => {
   const { user } = request as AuthenticatedRequest;
-  const { region, prescriptionId } = request.params as {
-    region: Region;
-    prescriptionId: string;
-  };
+  const { region, prescriptionId } = request.params as RegionalPrescriptionKey;
 
   if (!userRegions(user).includes(region)) {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
   }
 
-  const regionalPrescription = await regionalPrescriptionRepository.findUnique(
+  const regionalPrescription = await regionalPrescriptionRepository.findUnique({
     prescriptionId,
-    region
-  );
+    region,
+  });
 
   if (!regionalPrescription) {
     throw new RegionalPrescriptionMissingError(prescriptionId, region);

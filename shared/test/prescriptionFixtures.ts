@@ -23,7 +23,6 @@ export const genPrescription = (
 export const genRegionalPrescription = (
   data?: Partial<RegionalPrescription>
 ): RegionalPrescription => ({
-  id: uuidv4(),
   prescriptionId: uuidv4(),
   region: oneOf(RegionList),
   sampleCount: genNumber(1),

@@ -143,11 +143,13 @@ const PrescriptionListView = () => {
   };
 
   const changeRegionalPrescriptionCount = async (
-    regionalPrescriptionId: string,
+    prescriptionId: string,
+    region: Region,
     count: number
   ) => {
     await updateRegionalPrescription({
-      regionalPrescriptionId,
+      prescriptionId,
+      region,
       prescriptionUpdate: {
         programmingPlanId: programmingPlan?.id as string,
         sampleCount: count,

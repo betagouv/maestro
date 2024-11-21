@@ -1,6 +1,6 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
-import { RegionList, Regions } from 'shared/referential/Region';
+import { Region, RegionList, Regions } from 'shared/referential/Region';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   RegionalPrescription,
@@ -14,6 +14,7 @@ interface Props {
   regionalPrescriptions: RegionalPrescription[];
   onChangeRegionalPrescriptionCount: (
     prescriptionId: string,
+    region: Region,
     value: number
   ) => void;
   start: number;
@@ -48,7 +49,8 @@ const PrescriptionCardPartialTable = ({
               regionalPrescription={regionalPrescription}
               onChange={async (value) =>
                 onChangeRegionalPrescriptionCount(
-                  regionalPrescription.id,
+                  regionalPrescription.prescriptionId,
+                  regionalPrescription.region,
                   value
                 )
               }

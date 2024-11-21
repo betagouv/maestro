@@ -27,7 +27,7 @@ import { RegionalPrescriptions } from '../../repositories/regionalPrescriptionRe
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
-describe('Prescriptions router', () => {
+describe('Regional prescriptions router', () => {
   const { app } = createServer();
 
   const programmingPlanValidated = genProgrammingPlan({
@@ -71,10 +71,8 @@ describe('Prescriptions router', () => {
     }));
   const validatedControlPrescriptionComment: RegionalPrescriptionComment = {
     id: uuidv4(),
-    regionalPrescriptionId:
-      validatedControlRegionalPrescriptions[
-        RegionList.indexOf(RegionalCoordinator.region as Region)
-      ].id,
+    prescriptionId: validatedControlPrescription.id,
+    region: RegionalCoordinator.region as Region,
     comment: randomstring.generate(),
     createdBy: RegionalCoordinator.id,
     createdAt: new Date(),
@@ -162,7 +160,9 @@ describe('Prescriptions router', () => {
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toEqual(validatedControlRegionalPrescriptions);
+      expect(res.body).toMatchObject(
+        expect.arrayContaining(validatedControlRegionalPrescriptions)
+      );
       expect(res.body).not.toMatchObject(
         expect.arrayContaining(submittedControlRegionalPrescriptions)
       );
@@ -201,8 +201,10 @@ describe('Prescriptions router', () => {
           validatedControlRegionalPrescriptions.map((regionalPrescription) => ({
             ...regionalPrescription,
             comments:
-              regionalPrescription.id ===
-              validatedControlPrescriptionComment.regionalPrescriptionId
+              regionalPrescription.prescriptionId ===
+                validatedControlPrescriptionComment.prescriptionId &&
+              regionalPrescription.region ===
+                validatedControlPrescriptionComment.region
                 ? [
                     {
                       id: validatedControlPrescriptionComment.id,

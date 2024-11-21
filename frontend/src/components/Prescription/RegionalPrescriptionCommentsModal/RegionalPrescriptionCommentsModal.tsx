@@ -30,7 +30,7 @@ const RegionalPrescriptionCommentsModal = ({
   const prescriptionCommentsModal = useMemo(
     () =>
       createModal({
-        id: `prescription-comments-modal-${regionalPrescription.id}`,
+        id: `prescription-comments-modal-${regionalPrescription.prescriptionId}-${regionalPrescription.region}`,
         isOpenedByDefault: false,
       }),
     [regionalPrescription]
@@ -62,7 +62,8 @@ const RegionalPrescriptionCommentsModal = ({
 
     await form.validate(async () => {
       await commentRegionalPrescription({
-        regionalPrescriptionId: regionalPrescription.id,
+        prescriptionId: regionalPrescription.prescriptionId,
+        region: regionalPrescription.region,
         commentToCreate: {
           programmingPlanId,
           comment,

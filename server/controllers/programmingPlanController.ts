@@ -123,7 +123,6 @@ const createProgrammingPlan = async (request: Request, response: Response) => {
               )
               .map((regionalPrescription) => ({
                 ...regionalPrescription,
-                id: uuidv4(),
                 prescriptionId: newPrescription.id,
                 laboratoryId: null,
               }))

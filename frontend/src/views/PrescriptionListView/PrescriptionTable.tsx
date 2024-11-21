@@ -28,6 +28,7 @@ interface Props {
   regions: Region[];
   onChangeRegionalPrescriptionCount: (
     prescriptionId: string,
+    region: Region,
     count: number
   ) => void;
   onChangePrescriptionLaboratory: (
@@ -155,7 +156,8 @@ const PrescriptionTable = ({
                   regionalPrescription={regionalPrescription}
                   onChange={async (value) =>
                     onChangeRegionalPrescriptionCount(
-                      regionalPrescription.id,
+                      regionalPrescription.prescriptionId,
+                      regionalPrescription.region,
                       value
                     )
                   }

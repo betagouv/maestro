@@ -4,7 +4,6 @@ import { Context } from '../../shared/schema/ProgrammingPlan/Context';
 exports.up = async (knex: Knex) => {
   await knex.schema.alterTable('prescriptions', (table) => {
     table.dropPrimary();
-    table.primary(['id'], { constraintName: 'regional_prescriptions_pkey' });
   });
   await knex.schema.renameTable('prescriptions', 'regional_prescriptions');
 
@@ -51,11 +50,15 @@ exports.up = async (knex: Knex) => {
       prescription_id: knex.ref('prescriptions.id'),
     });
   await knex.schema.alterTable('regional_prescriptions', (table) => {
+    table.dropColumn('id');
     table.dropColumn('programming_plan_id');
     table.dropColumn('context');
     table.dropColumn('matrix');
     table.dropColumn('stages');
     table.uuid('prescription_id').notNullable().alter();
+    table.primary(['prescription_id', 'region'], {
+      constraintName: 'regional_prescriptions_pkey',
+    });
   });
 };
 
@@ -84,8 +87,10 @@ exports.down = async (knex: Knex) => {
   await knex.schema.dropTable('prescriptions');
   await knex.schema.renameTable('regional_prescriptions', 'prescriptions');
   await knex.schema.alterTable('prescriptions', (table) => {
-    table.dropPrimary('regional_prescriptions_pkey');
-    table.primary(['id'], { constraintName: 'prescriptions_pkey' });
+    table
+      .uuid('id')
+      .primary({ constraintName: 'prescriptions_pkey' })
+      .defaultTo(knex.raw('uuid_generate_v4()'));
   });
   await knex.schema.alterTable('prescriptions', (table) => {
     table.unique([

@@ -2,7 +2,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { t } from 'i18next';
 import _ from 'lodash';
-import { RegionList } from 'shared/referential/Region';
+import { Region, RegionList } from 'shared/referential/Region';
 import { Prescription } from 'shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { RegionalPrescription } from 'shared/schema/RegionalPrescription/RegionalPrescription';
@@ -17,7 +17,8 @@ interface Props {
   prescription: Prescription;
   regionalPrescriptions: RegionalPrescription[];
   onChangeRegionalPrescriptionCount: (
-    regionalPrescriptionId: string,
+    prescriptionId: string,
+    region: Region,
     value: number
   ) => void;
   onRemovePrescription: (prescriptionId: string) => Promise<void>;
