@@ -26,7 +26,7 @@ const PrescriptionAnalysisModal = ({
     () =>
       createModal({
         id: `prescription-analysis-modal-${prescription.id}`,
-        isOpenedByDefault: true,
+        isOpenedByDefault: false,
       }),
     [prescription]
   );
