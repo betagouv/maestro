@@ -123,6 +123,7 @@ describe('Regional prescriptions router', () => {
   });
 
   afterAll(async () => {
+    await Samples().delete().where('id', sample.id);
     await Prescriptions()
       .delete()
       .where('programmingPlanId', 'in', [
