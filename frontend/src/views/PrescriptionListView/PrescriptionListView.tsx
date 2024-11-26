@@ -136,7 +136,7 @@ const PrescriptionListView = () => {
 
       setSearchParams(urlSearchParams, { replace: true });
     },
-    [findPrescriptionOptions]
+    [findPrescriptionOptions] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const addMatrix = useCallback(
@@ -148,12 +148,15 @@ const PrescriptionListView = () => {
         stages: [],
       });
     },
-    [prescriptionListContext]
+    [prescriptionListContext] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
-  const removePrescription = useCallback(async (prescriptionId: string) => {
-    await deletePrescription(prescriptionId);
-  }, []);
+  const removePrescription = useCallback(
+    async (prescriptionId: string) => {
+      await deletePrescription(prescriptionId);
+    },
+    [] // eslint-disable-line react-hooks/exhaustive-deps
+  );
 
   const changeRegionalPrescriptionCount = useCallback(
     async (prescriptionId: string, region: Region, count: number) => {
@@ -166,7 +169,7 @@ const PrescriptionListView = () => {
         },
       });
     },
-    [programmingPlan]
+    [programmingPlan] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const changePrescriptionLaboratory =
@@ -196,7 +199,7 @@ const PrescriptionListView = () => {
         },
       });
     },
-    [programmingPlan]
+    [programmingPlan] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   return (

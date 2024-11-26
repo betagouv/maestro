@@ -77,11 +77,11 @@ const PrescriptionTable = ({
       ].filter(isNotEmpty),
     [] // eslint-disable-line react-hooks/exhaustive-deps
   );
-
-  const regionalLaboratoryId = (
-    regionalPrescriptions: RegionalPrescription[],
-    region: Region
-  ) => regionalPrescriptions.find((r) => r.region === region)?.laboratoryId;
+  //
+  // const regionalLaboratoryId = (
+  //   regionalPrescriptions: RegionalPrescription[],
+  //   region: Region
+  // ) => regionalPrescriptions.find((r) => r.region === region)?.laboratoryId;
 
   const prescriptionsData = useMemo(
     () =>
