@@ -11,6 +11,7 @@ import { Regions } from '../../../shared/referential/Region';
 import { Sample } from '../../../shared/schema/Sample/Sample';
 import { genCreatedSample } from '../../../shared/test/sampleFixtures';
 import { oneOf } from '../../../shared/test/testFixtures';
+import { DummyLaboratoryIds } from './002-laboratories';
 import {
   abricotsEtSimilaires,
   avoineEtSimilaires,
@@ -49,8 +50,9 @@ exports.seed = async function () {
           department: oneOf(Regions[sampler.region!].departments),
           company: oneOf(companies),
           prescriptionId: abricotsEtSimilaires.id,
+          laboratoryId: oneOf(DummyLaboratoryIds),
         }),
-      { count: 2 }
+      { count: 2 },
     ),
     faker.helpers.multiple<Sample>(
       () =>
@@ -64,8 +66,9 @@ exports.seed = async function () {
           department: oneOf(Regions[sampler.region!].departments),
           company: oneOf(companies),
           prescriptionId: avoineEtSimilaires.id,
+          laboratoryId: oneOf(DummyLaboratoryIds),
         }),
-      { count: 8 }
+      { count: 8 },
     ),
     faker.helpers.multiple<Sample>(
       () =>
@@ -79,8 +82,9 @@ exports.seed = async function () {
           department: oneOf(Regions[sampler.region!].departments),
           company: oneOf(companies),
           prescriptionId: carottes.id,
+          laboratoryId: oneOf(DummyLaboratoryIds),
         }),
-      { count: 3 }
+      { count: 3 },
     ),
     faker.helpers.multiple<Sample>(
       () =>
@@ -94,8 +98,9 @@ exports.seed = async function () {
           department: oneOf(Regions[sampler.region!].departments),
           company: oneOf(companies),
           prescriptionId: cerisesEtSimilaires.id,
+          laboratoryId: oneOf(DummyLaboratoryIds),
         }),
-      { count: 4 }
+      { count: 4 },
     ),
     faker.helpers.multiple<Sample>(
       () =>
@@ -109,8 +114,9 @@ exports.seed = async function () {
           department: oneOf(Regions[sampler.region!].departments),
           company: oneOf(companies),
           prescriptionId: oignons.id,
+          laboratoryId: oneOf(DummyLaboratoryIds),
         }),
-      { count: 7 }
+      { count: 7 },
     ),
     faker.helpers.multiple<Sample>(
       () =>
@@ -124,8 +130,9 @@ exports.seed = async function () {
           department: oneOf(Regions[sampler.region!].departments),
           company: oneOf(companies),
           prescriptionId: lentilles.id,
+          laboratoryId: oneOf(DummyLaboratoryIds),
         }),
-      { count: 6 }
+      { count: 6 },
     ),
     faker.helpers.multiple<Sample>(
       () =>
@@ -139,8 +146,9 @@ exports.seed = async function () {
           department: oneOf(Regions[sampler.region!].departments),
           company: oneOf(companies),
           prescriptionId: fevesDeSoja.id,
+          laboratoryId: oneOf(DummyLaboratoryIds),
         }),
-      { count: 6 }
+      { count: 6 },
     ),
   ];
 
@@ -150,7 +158,7 @@ exports.seed = async function () {
     .flat();
 
   await Samples().insert(
-    samples.flat().map((_: any) => formatPartialSample(_))
+    samples.flat().map((_: any) => formatPartialSample(_)),
   );
 
   await SampleItems().insert(sampleItems);
