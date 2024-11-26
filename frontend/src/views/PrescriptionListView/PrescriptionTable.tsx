@@ -13,7 +13,7 @@ import {
   RegionalPrescriptionSort,
 } from 'shared/schema/RegionalPrescription/RegionalPrescription';
 import { isNotEmpty } from 'shared/utils/utils';
-import PrescriptionAnalysisModal from 'src/components/Prescription/PrescriptionAnalysisModal/PrescriptionAnalysisModal';
+import PrescriptionAnalysisSummary from 'src/components/Prescription/PrescriptionAnalysis/PrescriptionAnalysisSummary';
 import PrescriptionStages from 'src/components/Prescription/PrescriptionStages/PrescriptionStages';
 import RegionalPrescriptionCountCell from 'src/components/Prescription/RegionalPrescriptionCountCell/RegionalPrescriptionCountCell';
 import RegionHeaderCell from 'src/components/RegionHeaderCell/RegionHeaderCell';
@@ -103,7 +103,7 @@ const PrescriptionTable = ({
             key={`matrix-${prescription.matrix}`}
           >
             {MatrixLabels[prescription.matrix]}
-            <PrescriptionAnalysisModal
+            <PrescriptionAnalysisSummary
               programmingPlan={programmingPlan}
               prescription={prescription}
             />

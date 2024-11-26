@@ -6,6 +6,7 @@ type PrescriptionsState = {
   prescriptionListContext: Context;
   prescriptionListDisplay: PrescriptionListDisplay;
   matrixQuery?: string;
+  prescriptionAnalysisEditId?: string;
 };
 
 const prescriptionsSlice = createSlice({
@@ -26,6 +27,12 @@ const prescriptionsSlice = createSlice({
     },
     changeMatrixQuery: (state, action: PayloadAction<string>) => {
       state.matrixQuery = action.payload;
+    },
+    setPrescriptionAnalysisEditId: (
+      state,
+      action: PayloadAction<string | undefined>
+    ) => {
+      state.prescriptionAnalysisEditId = action.payload;
     },
   },
 });

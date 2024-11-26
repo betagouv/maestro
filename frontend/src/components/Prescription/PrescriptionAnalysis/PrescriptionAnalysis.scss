@@ -1,10 +1,12 @@
 .prescription-analysis-modal {
+  .fr-tag {
+    text-align: left;
+  }
+}
+
+.prescription-analysis-summary {
   button.fr-link--xs {
     text-decoration: underline;
     min-height: 1.5rem;
-  }
-
-  .fr-tag {
-    text-align: left;
   }
 }

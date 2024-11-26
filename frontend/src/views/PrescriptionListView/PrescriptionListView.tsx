@@ -2,7 +2,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import clsx from 'clsx';
 import _, { default as fp } from 'lodash';
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Matrix } from 'shared/referential/Matrix/Matrix';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
@@ -12,11 +12,13 @@ import {
   PrescriptionOptionsInclude,
 } from 'shared/schema/Prescription/FindPrescriptionOptions';
 import { PrescriptionSort } from 'shared/schema/Prescription/Prescription';
+import { PrescriptionSubstanceAnalysis } from 'shared/schema/Prescription/PrescriptionSubstanceAnalysis';
 import {
   Context,
   ContextLabels,
   ContextList,
 } from 'shared/schema/ProgrammingPlan/Context';
+import PrescriptionAnalysisModal from 'src/components/Prescription/PrescriptionAnalysis/PrescriptionAnalysisModal';
 import PrescriptionCardNational from 'src/components/Prescription/PrescriptionCard/PrescriptionCardNational';
 import PrescriptionCardRegional from 'src/components/Prescription/PrescriptionCard/PrescriptionCardRegional';
 import ProgrammingPlanSubmissionModal from 'src/components/ProgrammingPlan/ProgrammingPlanSubmissionModal/ProgrammingPlanSubmissionModal';
@@ -29,6 +31,7 @@ import {
   useAddPrescriptionMutation,
   useDeletePrescriptionMutation,
   useFindPrescriptionsQuery,
+  useUpdatePrescriptionMutation,
 } from 'src/services/prescription.service';
 import {
   useFindRegionalPrescriptionsQuery,
@@ -53,7 +56,9 @@ const PrescriptionListView = () => {
 
   const [addPrescription, { isSuccess: isAddSuccess }] =
     useAddPrescriptionMutation();
-  const [updateRegionalPrescription, { isSuccess: isUpdateSuccess }] =
+  const [updatePrescription, { isSuccess: isUpdateSuccess }] =
+    useUpdatePrescriptionMutation();
+  const [updateRegionalPrescription, { isSuccess: isUpdateRegionalSuccess }] =
     useUpdateRegionalPrescriptionMutation();
   const [deletePrescription, { isSuccess: isDeleteSuccess }] =
     useDeletePrescriptionMutation();
@@ -113,49 +118,56 @@ const PrescriptionListView = () => {
     }
   );
 
-  const changeFilter = (findFilter: Partial<FindPrescriptionOptions>) => {
-    const filteredParams = fp.omitBy(
-      {
-        ...fp.mapValues(findPrescriptionOptions, (value) => value?.toString()),
-        ...fp.mapValues(findFilter, (value) => value?.toString()),
-      },
-      fp.isEmpty
-    );
+  const changeFilter = useCallback(
+    (findFilter: Partial<FindPrescriptionOptions>) => {
+      const filteredParams = fp.omitBy(
+        {
+          ...fp.mapValues(findPrescriptionOptions, (value) =>
+            value?.toString()
+          ),
+          ...fp.mapValues(findFilter, (value) => value?.toString()),
+        },
+        fp.isEmpty
+      );
 
-    const urlSearchParams = new URLSearchParams(
-      filteredParams as Record<string, string>
-    );
+      const urlSearchParams = new URLSearchParams(
+        filteredParams as Record<string, string>
+      );
 
-    setSearchParams(urlSearchParams, { replace: true });
-  };
+      setSearchParams(urlSearchParams, { replace: true });
+    },
+    [findPrescriptionOptions]
+  );
 
-  const addMatrix = async (programmingPlanId: string, matrix: Matrix) => {
-    await addPrescription({
-      programmingPlanId,
-      context: prescriptionListContext,
-      matrix,
-      stages: [],
-    });
-  };
+  const addMatrix = useCallback(
+    async (programmingPlanId: string, matrix: Matrix) => {
+      await addPrescription({
+        programmingPlanId,
+        context: prescriptionListContext,
+        matrix,
+        stages: [],
+      });
+    },
+    [prescriptionListContext]
+  );
 
-  const removePrescription = async (prescriptionId: string) => {
+  const removePrescription = useCallback(async (prescriptionId: string) => {
     await deletePrescription(prescriptionId);
-  };
+  }, []);
 
-  const changeRegionalPrescriptionCount = async (
-    prescriptionId: string,
-    region: Region,
-    count: number
-  ) => {
-    await updateRegionalPrescription({
-      prescriptionId,
-      region,
-      prescriptionUpdate: {
-        programmingPlanId: programmingPlan?.id as string,
-        sampleCount: count,
-      },
-    });
-  };
+  const changeRegionalPrescriptionCount = useCallback(
+    async (prescriptionId: string, region: Region, count: number) => {
+      await updateRegionalPrescription({
+        prescriptionId,
+        region,
+        prescriptionUpdate: {
+          programmingPlanId: programmingPlan?.id as string,
+          sampleCount: count,
+        },
+      });
+    },
+    [programmingPlan]
+  );
 
   const changePrescriptionLaboratory =
     (programmingPlanId: string) =>
@@ -171,10 +183,29 @@ const PrescriptionListView = () => {
       // });
     };
 
+  const updatePrescriptionSubstanceAnalysis = useCallback(
+    async (
+      prescriptionId: string,
+      prescriptionSubstanceAnalysis: PrescriptionSubstanceAnalysis[]
+    ) => {
+      await updatePrescription({
+        prescriptionId,
+        prescriptionUpdate: {
+          programmingPlanId: programmingPlan?.id as string,
+          substanceAnalysis: prescriptionSubstanceAnalysis,
+        },
+      });
+    },
+    [programmingPlan]
+  );
+
   return (
     <section className="main-section">
       <AppToast open={isAddSuccess} description="Matrice ajoutée" />
-      <AppToast open={isUpdateSuccess} description="Modification enregistrée" />
+      <AppToast
+        open={isUpdateSuccess || isUpdateRegionalSuccess}
+        description="Modification enregistrée"
+      />
       <AppToast open={isDeleteSuccess} description="Matrice supprimée" />
       <div className={cx('fr-container')}>
         <SectionHeader
@@ -295,6 +326,11 @@ const PrescriptionListView = () => {
           </>
         )}
       </div>
+      <PrescriptionAnalysisModal
+        onUpdatePrescriptionSubstanceAnalysis={
+          updatePrescriptionSubstanceAnalysis
+        }
+      />
     </section>
   );
 };

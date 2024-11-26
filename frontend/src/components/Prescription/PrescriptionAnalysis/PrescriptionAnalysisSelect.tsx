@@ -3,7 +3,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import { Autocomplete } from '@mui/material';
 import { capitalize } from 'lodash';
-import { SyntheticEvent, useState } from 'react';
+import { SyntheticEvent, useMemo, useState } from 'react';
 import {
   AnalysisKind,
   AnalysisKindLabels,
@@ -12,26 +12,28 @@ import { PrescriptionSubstanceAnalysis } from 'shared/schema/Prescription/Prescr
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { Substance } from 'shared/schema/Substance/Substance';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import { useUpdatePrescriptionMutation } from 'src/services/prescription.service';
 import { useLazySearchSubstancesQuery } from 'src/services/substance.service';
-import './PrescriptionAnalysisModal.scss';
+import './PrescriptionAnalysis.scss';
 
 interface Props {
   programmingPlan: ProgrammingPlan;
   prescriptionId: string;
   prescriptionSubstanceAnalysis: PrescriptionSubstanceAnalysis[];
   analysisKind: AnalysisKind;
+  onUpdatePrescriptionSubstanceAnalysis: (
+    prescriptionId: string,
+    prescriptionSubstanceAnalysis: PrescriptionSubstanceAnalysis[]
+  ) => Promise<void>;
 }
 
-const PrescriptionAnalysisByKind = ({
+const PrescriptionAnalysisSelect = ({
   programmingPlan,
   prescriptionId,
   prescriptionSubstanceAnalysis,
   analysisKind,
+  onUpdatePrescriptionSubstanceAnalysis,
 }: Props) => {
   const { canEditPrescriptions } = useAuthentication();
-  const [updatePrescription, { isSuccess: isUpdateSuccess }] =
-    useUpdatePrescriptionMutation();
 
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [substanceSearchResults, setSubstanceSearchResults] = useState<
@@ -39,7 +41,14 @@ const PrescriptionAnalysisByKind = ({
   >([]);
   const [searchSubstances, { isLoading, isFetching }] =
     useLazySearchSubstancesQuery();
-  const [newSubstance, setNewSubstance] = useState<Substance>();
+  const [newSubstance, setNewSubstance] = useState<Substance | null>(null);
+
+  const filteredPrescriptionSubstanceAnalysis = useMemo(() => {
+    return prescriptionSubstanceAnalysis.filter(
+      (prescriptionSubstance) =>
+        prescriptionSubstance.analysisKind === analysisKind
+    );
+  }, [prescriptionSubstanceAnalysis, analysisKind]);
 
   const handleInputChange = async (
     event: SyntheticEvent<Element, Event>,
@@ -51,7 +60,14 @@ const PrescriptionAnalysisByKind = ({
       await searchSubstances(value as string)
         .unwrap()
         .then((results) => {
-          setSubstanceSearchResults(results);
+          setSubstanceSearchResults(
+            results.filter(
+              ({ code }) =>
+                !filteredPrescriptionSubstanceAnalysis.some(
+                  (_) => _.substance.code === code
+                )
+            )
+          );
         })
         .catch((error) => {
           console.error(error);
@@ -60,40 +76,24 @@ const PrescriptionAnalysisByKind = ({
   };
 
   const addSubstance = async (substance: Substance) => {
-    const newPrescriptionSubstanceAnalysis = [
+    await onUpdatePrescriptionSubstanceAnalysis(prescriptionId, [
       ...prescriptionSubstanceAnalysis,
       {
         prescriptionId,
         substance,
         analysisKind,
       },
-    ];
-    await updatePrescriptionSubstanceAnalysis(newPrescriptionSubstanceAnalysis);
+    ]);
+    setNewSubstance(null);
   };
 
   const removeSubstance = async (substance: Substance) => {
-    const newPrescriptionSubstanceAnalysis =
+    await onUpdatePrescriptionSubstanceAnalysis(
+      prescriptionId,
       prescriptionSubstanceAnalysis.filter(
         (_) => _.substance.code !== substance.code
-      );
-    await updatePrescriptionSubstanceAnalysis(newPrescriptionSubstanceAnalysis);
-  };
-
-  const updatePrescriptionSubstanceAnalysis = async (
-    prescriptionSubstanceAnalysis: PrescriptionSubstanceAnalysis[]
-  ) => {
-    await updatePrescription({
-      prescriptionId,
-      prescriptionUpdate: {
-        programmingPlanId: programmingPlan.id,
-        substanceAnalysis: prescriptionSubstanceAnalysis.map(
-          (prescriptionSubstanceAnalysis) => ({
-            ...prescriptionSubstanceAnalysis,
-            analysisKind,
-          })
-        ),
-      },
-    });
+      )
+    );
   };
 
   return (
@@ -109,6 +109,7 @@ const PrescriptionAnalysisByKind = ({
             includeInputInList
             filterSelectedOptions
             value={newSubstance}
+            inputValue={searchQuery}
             onInputChange={handleInputChange}
             onChange={(_, value) => {
               if (value) {
@@ -129,7 +130,7 @@ const PrescriptionAnalysisByKind = ({
             loadingText={`Recherche en cours...`}
             filterOptions={(x) => x}
             options={substanceSearchResults}
-            getOptionLabel={({ label }) => label}
+            getOptionLabel={(option) => option.label}
             noOptionsText={
               searchQuery.length > 3
                 ? 'Aucun résultat'
@@ -141,9 +142,8 @@ const PrescriptionAnalysisByKind = ({
             priority="secondary"
             title="Ajouter"
             disabled={!newSubstance}
-            onClick={() => {
-              addSubstance(newSubstance as Substance);
-              setNewSubstance(undefined);
+            onClick={async () => {
+              await addSubstance(newSubstance as Substance);
             }}
             className={cx('fr-ml-2w')}
           />
@@ -151,7 +151,7 @@ const PrescriptionAnalysisByKind = ({
       )}
 
       <div className="fr-mt-1w">
-        {prescriptionSubstanceAnalysis.map((prescriptionSubstance) => (
+        {filteredPrescriptionSubstanceAnalysis.map((prescriptionSubstance) => (
           <Tag
             key={`${prescriptionSubstance.prescriptionId}-${prescriptionSubstance.substance.code}`}
             dismissible={canEditPrescriptions(programmingPlan)}
@@ -159,7 +159,7 @@ const PrescriptionAnalysisByKind = ({
             nativeButtonProps={
               canEditPrescriptions(programmingPlan)
                 ? {
-                    onClick: () => {
+                    onClick: async () => {
                       removeSubstance(prescriptionSubstance.substance);
                     },
                   }
@@ -175,4 +175,4 @@ const PrescriptionAnalysisByKind = ({
   );
 };
 
-export default PrescriptionAnalysisByKind;
+export default PrescriptionAnalysisSelect;
