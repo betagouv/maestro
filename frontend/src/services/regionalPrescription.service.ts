@@ -1,6 +1,5 @@
 import fp from 'lodash';
 import { Region } from 'shared/referential/Region';
-import { Laboratory } from 'shared/schema/Laboratory/Laboratory';
 import { FindRegionalPrescriptionOptions } from 'shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import {
   RegionalPrescription,
@@ -70,19 +69,6 @@ export const prescriptionApi = api.injectEndpoints({
         { type: 'RegionalPrescription', id: prescriptionId },
       ],
     }),
-    getRegionalPrescriptionLaboratory: builder.query<
-      Laboratory,
-      { prescriptionId: string; region: string }
-    >({
-      query: ({ prescriptionId, region }) => ({
-        url: `prescriptions/${prescriptionId}/regions/${region}/laboratory`,
-      }),
-      transformResponse: (response: any) =>
-        Laboratory.parse(fp.omitBy(response, fp.isNil)),
-      providesTags: (_result, _error, { prescriptionId }) => [
-        { type: 'Laboratory', id: prescriptionId },
-      ],
-    }),
   }),
 });
 
@@ -90,7 +76,6 @@ export const {
   useFindRegionalPrescriptionsQuery,
   useCommentRegionalPrescriptionMutation,
   useUpdateRegionalPrescriptionMutation,
-  useGetRegionalPrescriptionLaboratoryQuery,
 } = {
   ...prescriptionApi,
 };

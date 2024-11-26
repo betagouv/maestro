@@ -88,6 +88,7 @@ export const genCreatedSample = (data?: Partial<Sample>): Sample => {
     matrixPart: sample.matrixPart as MatrixPart,
     stage: sample.stage as Stage,
     prescriptionId: uuidv4(),
+    laboratoryId: uuidv4(),
     items: sample.items as SampleItem[],
     ...data,
   };

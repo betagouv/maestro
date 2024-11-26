@@ -60,6 +60,7 @@ export const SampleMatrixData = z.object({
   releaseControl: z.boolean().nullish(),
   notesOnMatrix: z.string().nullish(),
   prescriptionId: z.string().uuid(),
+  laboratoryId: z.string().uuid().nullish(),
 });
 
 export const SampleItemsData = z.object({
@@ -119,6 +120,7 @@ export const Sample = SampleToCreate.extend({
   ...CreatedSampleData.shape,
   geolocation: Geolocation,
   company: Company,
+  laboratoryId: z.string().uuid(),
 });
 
 export type Geolocation = z.infer<typeof Geolocation>;

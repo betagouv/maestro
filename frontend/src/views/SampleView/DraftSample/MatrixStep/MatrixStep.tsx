@@ -28,9 +28,11 @@ import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
+import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import { useFindPrescriptionsQuery } from 'src/services/prescription.service';
+import { useFindRegionalPrescriptionsQuery } from 'src/services/regionalPrescription.service';
 import { useCreateOrUpdateSampleMutation } from 'src/services/sample.service';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SupportDocumentDownload from 'src/views/SampleView/DraftSample/SupportDocumentDownload';
@@ -42,6 +44,7 @@ interface Props {
 
 const MatrixStep = ({ partialSample }: Props) => {
   const { navigateToSample } = useSamplesLink();
+  const { userInfos } = useAuthentication();
 
   const [matrix, setMatrix] = useState(partialSample.matrix);
   const [matrixDetails, setMatrixDetails] = useState(
@@ -69,6 +72,18 @@ const MatrixStep = ({ partialSample }: Props) => {
       skip: !partialSample.programmingPlanId || !partialSample.context,
     }
   );
+  const { data: regionalPrescriptions } = useFindRegionalPrescriptionsQuery(
+    {
+      programmingPlanId: partialSample.programmingPlanId as string,
+      context: partialSample.context,
+      region: isCreatedPartialSample(partialSample)
+        ? partialSample.region
+        : userInfos?.region,
+    },
+    {
+      skip: !partialSample.programmingPlanId || !partialSample.context,
+    }
+  );
 
   const Form = SampleMatrixData;
 
@@ -86,6 +101,9 @@ const MatrixStep = ({ partialSample }: Props) => {
     const prescription = prescriptions?.find(
       (p) => matrix && stage && p.matrix === matrix && p.stages.includes(stage)
     );
+    const regionalPrescription = regionalPrescriptions?.find(
+      (rp) => rp.prescriptionId === prescription?.id
+    );
     await createOrUpdate({
       ...partialSample,
       matrixDetails,
@@ -97,6 +115,8 @@ const MatrixStep = ({ partialSample }: Props) => {
       notesOnMatrix,
       status,
       prescriptionId: prescription?.id,
+      laboratoryId:
+        regionalPrescription?.laboratoryId ?? partialSample.laboratoryId,
     });
   };
 
@@ -111,6 +131,7 @@ const MatrixStep = ({ partialSample }: Props) => {
       releaseControl,
       notesOnMatrix,
       prescriptionId: partialSample.prescriptionId,
+      laboratoryId: partialSample.laboratoryId,
     },
     save
   );

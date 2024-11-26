@@ -11,6 +11,7 @@ import { Sample } from '../../../shared/schema/Sample/Sample';
 import { PartialSampleItem } from '../../../shared/schema/Sample/SampleItem';
 import { UserInfos } from '../../../shared/schema/User/User';
 import { isDefinedAndNotNull } from '../../../shared/utils/utils';
+import laboratoryRepository from '../../repositories/laboratoryRepository';
 import prescriptionSubstanceAnalysisRepository from '../../repositories/prescriptionSubstanceAnalysisRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
 import {
@@ -19,7 +20,6 @@ import {
   templateStylePath,
 } from '../../templates/templates';
 import config from '../../utils/config';
-import sampleService from '../sampleService/sampleService';
 
 const generateDocument = async (template: Template, data: any) => {
   const compiledTemplate = handlebars.compile(templateContent(template));
@@ -68,7 +68,9 @@ const generateSupportDocument = async (
     throw new ProgrammingPlanMissingError(sample.programmingPlanId as string);
   }
 
-  const laboratory = await sampleService.getSampleLaboratory(sample);
+  const laboratory = sample.laboratoryId
+    ? await laboratoryRepository.findUnique(sample.laboratoryId)
+    : null;
 
   const prescriptionSubstanceAnalysis = sample.prescriptionId
     ? await prescriptionSubstanceAnalysisRepository.findMany(
