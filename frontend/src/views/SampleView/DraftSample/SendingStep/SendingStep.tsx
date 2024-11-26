@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import {
   isCreatedSample,
   Sample,
-  SampleToCreate,
+  SampleToCreate
 } from 'shared/schema/Sample/Sample';
 import { SampleItem } from 'shared/schema/Sample/SampleItem';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
@@ -19,7 +19,7 @@ import { usePartialSample } from 'src/hooks/usePartialSample';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import {
   getSupportDocumentURL,
-  useCreateOrUpdateSampleMutation,
+  useCreateOrUpdateSampleMutation
 } from 'src/services/sample.service';
 import { pluralize } from 'src/utils/stringUtils';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
@@ -44,7 +44,7 @@ const SendingStep = ({ sample }: Props) => {
   const [isSaved, setIsSaved] = useState(false);
 
   const [createOrUpdateSample, { isError }] = useCreateOrUpdateSampleMutation({
-    fixedCacheKey: `sending-sample-${sample.id}`,
+    fixedCacheKey: `sending-sample-${sample.id}`
   });
 
   const isSendable = useMemo(
@@ -56,33 +56,34 @@ const SendingStep = ({ sample }: Props) => {
     () =>
       createModal({
         id: `sending-sample-modal-${sample.id}`,
-        isOpenedByDefault: false,
+        isOpenedByDefault: false
       }),
     [sample.id]
   );
 
   const Form = Sample.pick({
     items: true,
-    resytalId: true,
+    resytalId: true
   });
 
   type FormShape = typeof Form.shape;
 
   const submit = async () => {
-    await createOrUpdateSample({
-      ...sample,
-      status: 'Sent',
-      sentAt: new Date(),
-    } as Sample);
-    navigateToSample(sample.id);
+    await save('Sent', () => {
+      navigateToSample(sample.id);
+    });
   };
 
-  const save = async (status = sample.status) => {
-    await createOrUpdateSample({
-      ...sample,
-      items,
-      resytalId,
-      status,
+  const save = async (status = sample.status, callback?: () => void) => {
+    setIsSaved(false);
+    await form.validate(async () => {
+      await createOrUpdateSample({
+        ...sample,
+        items,
+        resytalId,
+        status
+      });
+      callback?.();
     });
   };
 
@@ -96,7 +97,7 @@ const SendingStep = ({ sample }: Props) => {
     Form,
     {
       items,
-      resytalId,
+      resytalId
     },
     save
   );
@@ -124,7 +125,7 @@ const SendingStep = ({ sample }: Props) => {
         <ItemsStepSummary
           sample={{
             ...sample,
-            items,
+            items
           }}
           itemChildren={(item, itemIndex) => (
             <>
@@ -144,7 +145,7 @@ const SendingStep = ({ sample }: Props) => {
                         onClick: () =>
                           window.open(
                             getSupportDocumentURL(sample.id, itemIndex + 1)
-                          ),
+                          )
                       },
                       {
                         children: 'Imprimer',
@@ -152,8 +153,8 @@ const SendingStep = ({ sample }: Props) => {
                         onClick: () =>
                           window.open(
                             getSupportDocumentURL(sample.id, itemIndex + 1)
-                          ),
-                      },
+                          )
+                      }
                     ]}
                   />
                 </div>
@@ -286,7 +287,7 @@ const SendingStep = ({ sample }: Props) => {
                         PreviousButton({
                           sampleId: sample.id,
                           onSave: async () => save('DraftItems'),
-                          currentStep: 4,
+                          currentStep: 4
                         }),
                         {
                           children: 'Enregistrer',
@@ -294,10 +295,9 @@ const SendingStep = ({ sample }: Props) => {
                           priority: 'tertiary',
                           onClick: async (e: React.MouseEvent<HTMLElement>) => {
                             e.preventDefault();
-                            await save();
-                            setIsSaved(true);
-                          },
-                        },
+                            await save(sample.status, () => setIsSaved(true));
+                          }
+                        }
                       ] as any
                     }
                   />
