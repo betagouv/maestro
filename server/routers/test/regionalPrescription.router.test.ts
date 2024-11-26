@@ -33,12 +33,12 @@ describe('Regional prescriptions router', () => {
   const programmingPlanValidated = genProgrammingPlan({
     createdBy: NationalCoordinator.id,
     status: 'Validated' as ProgrammingPlanStatus,
-    year: 2020,
+    year: 1920,
   });
   const programmingPlanSubmitted = genProgrammingPlan({
     createdBy: NationalCoordinator.id,
     status: 'Submitted' as ProgrammingPlanStatus,
-    year: 2021,
+    year: 1921,
   });
   const laboratory = genLaboratory();
   const validatedControlPrescription = genPrescription({
@@ -92,7 +92,7 @@ describe('Regional prescriptions router', () => {
       [
         ...validatedControlRegionalPrescriptions,
         ...submittedControlRegionalPrescriptions,
-      ].map((_) => fp.omit('realizedSampleCount')(_))
+      ].map((_) => fp.omit('realizedSampleCount')(_)),
     );
     await RegionalPrescriptionComments().insert([
       validatedControlPrescriptionComment,
@@ -163,16 +163,16 @@ describe('Regional prescriptions router', () => {
       expect(res.body).toMatchObject(
         expect.arrayContaining(
           validatedControlRegionalPrescriptions.map(
-            fp.omit('realizedSampleCount')
-          )
-        )
+            fp.omit('realizedSampleCount'),
+          ),
+        ),
       );
       expect(res.body).not.toMatchObject(
         expect.arrayContaining(
           submittedControlRegionalPrescriptions.map(
-            fp.omit('realizedSampleCount')
-          )
-        )
+            fp.omit('realizedSampleCount'),
+          ),
+        ),
       );
     });
 
@@ -189,7 +189,7 @@ describe('Regional prescriptions router', () => {
       expect(res.body).toEqual(
         validatedControlRegionalPrescriptions
           .filter(({ region }) => region === RegionalCoordinator.region)
-          .map(fp.omit('realizedSampleCount'))
+          .map(fp.omit('realizedSampleCount')),
       );
     });
 
@@ -224,8 +224,8 @@ describe('Regional prescriptions router', () => {
                   ]
                 : [],
             realizedSampleCount: 0,
-          }))
-        )
+          })),
+        ),
       );
     });
   });

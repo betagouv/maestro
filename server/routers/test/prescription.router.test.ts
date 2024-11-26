@@ -33,17 +33,17 @@ describe('Prescriptions router', () => {
   const programmingPlanValidated = genProgrammingPlan({
     createdBy: NationalCoordinator.id,
     status: 'Validated' as ProgrammingPlanStatus,
-    year: 2020,
+    year: 1820,
   });
   const programmingPlanSubmitted = genProgrammingPlan({
     createdBy: NationalCoordinator.id,
     status: 'Submitted' as ProgrammingPlanStatus,
-    year: 2021,
+    year: 1821,
   });
   const programmingPlanInProgress = genProgrammingPlan({
     createdBy: NationalCoordinator.id,
     status: 'InProgress' as ProgrammingPlanStatus,
-    year: 2022,
+    year: 1822,
   });
   const validatedControlPrescription = genPrescription({
     programmingPlanId: programmingPlanValidated.id,
@@ -90,7 +90,7 @@ describe('Prescriptions router', () => {
     ]);
     await Substances().insert(substance);
     await PrescriptionSubstances().insert(
-      formatPrescriptionSubstance(inProgressControlPrescriptionSubstance)
+      formatPrescriptionSubstance(inProgressControlPrescriptionSubstance),
     );
   });
 
@@ -283,7 +283,7 @@ describe('Prescriptions router', () => {
       });
 
       await expect(
-        Prescriptions().where({ id: res.body.id }).first()
+        Prescriptions().where({ id: res.body.id }).first(),
       ).resolves.toMatchObject({
         ...validBody,
         id: res.body.id,
@@ -293,7 +293,7 @@ describe('Prescriptions router', () => {
         RegionalPrescriptions()
           .where({ prescriptionId: res.body.id })
           .count()
-          .first()
+          .first(),
       ).resolves.toMatchObject({ count: '18' });
 
       //Cleanup
@@ -307,7 +307,7 @@ describe('Prescriptions router', () => {
       stages: [oneOf(StageList)],
     };
     const testRoute = (
-      prescriptionId: string = inProgressControlPrescription.id
+      prescriptionId: string = inProgressControlPrescription.id,
     ) => `/api/prescriptions/${prescriptionId}`;
 
     it('should fail if the user is not authenticated', async () => {
@@ -385,7 +385,7 @@ describe('Prescriptions router', () => {
       });
 
       await expect(
-        Prescriptions().where({ id: inProgressControlPrescription.id }).first()
+        Prescriptions().where({ id: inProgressControlPrescription.id }).first(),
       ).resolves.toMatchObject({
         ...inProgressControlPrescription,
         stages: prescriptionUpdate.stages,
@@ -467,14 +467,14 @@ describe('Prescriptions router', () => {
         .expect(constants.HTTP_STATUS_NO_CONTENT);
 
       await expect(
-        Prescriptions().where({ id: inProgressControlPrescription.id }).first()
+        Prescriptions().where({ id: inProgressControlPrescription.id }).first(),
       ).resolves.toBeUndefined();
 
       await expect(
         RegionalPrescriptions()
           .where({ prescriptionId: inProgressControlPrescription.id })
           .count()
-          .first()
+          .first(),
       ).resolves.toMatchObject({ count: '0' });
     });
   });
