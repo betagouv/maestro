@@ -2,7 +2,7 @@ import { constants } from 'http2';
 import randomstring from 'randomstring';
 import request from 'supertest';
 import { NationalCoordinator } from '../../../database/seeds/test/001-users';
-import { genLaboratory } from '../../../shared/test/testFixtures';
+import { genLaboratory } from '../../../shared/test/laboratoryFixtures';
 import { Laboratories } from '../../repositories/laboratoryRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
@@ -46,7 +46,7 @@ describe('Laboratory router', () => {
       expect(res.body).toEqual(
         expect.objectContaining({
           id: laboratory.id,
-          name: laboratory.name,
+          name: laboratory.name
         })
       );
     });
@@ -71,8 +71,8 @@ describe('Laboratory router', () => {
         expect.arrayContaining([
           expect.objectContaining({
             id: laboratory.id,
-            name: laboratory.name,
-          }),
+            name: laboratory.name
+          })
         ])
       );
     });
