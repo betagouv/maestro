@@ -72,6 +72,7 @@ const MatrixStep = ({ partialSample }: Props) => {
       skip: !partialSample.programmingPlanId || !partialSample.context,
     }
   );
+
   const { data: regionalPrescriptions } = useFindRegionalPrescriptionsQuery(
     {
       programmingPlanId: partialSample.programmingPlanId as string,
@@ -104,6 +105,7 @@ const MatrixStep = ({ partialSample }: Props) => {
     const regionalPrescription = regionalPrescriptions?.find(
       (rp) => rp.prescriptionId === prescription?.id
     );
+
     await createOrUpdate({
       ...partialSample,
       matrixDetails,

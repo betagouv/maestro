@@ -3,13 +3,13 @@ import { act, render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import Router, { BrowserRouter, MemoryRouter } from 'react-router-dom';
-import { MatrixList } from 'shared/referential/Matrix/Matrix';
 import { Region, RegionList } from 'shared/referential/Region';
-import { StageList } from 'shared/referential/Stage';
-import { genPrescription } from 'shared/test/prescriptionFixtures';
+import {
+  genPrescription,
+  genRegionalPrescription,
+} from 'shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'shared/test/programmingPlanFixtures';
 import { genCreatedPartialSample } from 'shared/test/sampleFixtures';
-import { oneOf } from 'shared/test/testFixtures';
 import { genAuthUser, genUser } from 'shared/test/userFixtures';
 import YearRoute from 'src/components/YearRoute/YearRoute';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
@@ -28,14 +28,10 @@ const programmingPlan = {
 const prescription1 = genPrescription({
   programmingPlanId: programmingPlan.id,
   context: 'Control',
-  matrix: oneOf(MatrixList),
-  stages: [oneOf(StageList)],
 });
 const prescription2 = genPrescription({
   programmingPlanId: programmingPlan.id,
   context: 'Control',
-  matrix: oneOf(MatrixList),
-  stages: [oneOf(StageList)],
 });
 const sample = genCreatedPartialSample({
   sampler: genUser(),
@@ -53,9 +49,36 @@ const programmingPlanRequest = {
 const prescriptionRequest = (region?: Region) => ({
   pathname: `/api/prescriptions?programmingPlanId=${
     programmingPlan.id
-  }&context=Control${region ? `&region=${region}` : ''}&includes=comments`,
+  }&context=Control${
+    region ? `&region=${region}` : ''
+  }&includes=substanceCount`,
   response: {
     body: JSON.stringify([prescription1, prescription2]),
+  },
+});
+
+const regionalPrescriptionRequest = (region?: Region) => ({
+  pathname: `/api/prescriptions/regions?programmingPlanId=${
+    programmingPlan.id
+  }&context=Control${
+    region ? `&region=${region}` : ''
+  }&includes=comments%2CrealizedSampleCount`,
+  response: {
+    body: JSON.stringify(
+      region
+        ? [
+            genRegionalPrescription({
+              prescriptionId: prescription1.id,
+              region,
+            }),
+          ]
+        : RegionList.map((region) =>
+            genRegionalPrescription({
+              prescriptionId: prescription1.id,
+              region,
+            })
+          )
+    ),
   },
 });
 
@@ -98,6 +121,7 @@ describe('PrescriptionListView', () => {
       mockRequests([
         programmingPlanRequest,
         prescriptionRequest(),
+        regionalPrescriptionRequest(),
         userRequest,
         sampleRequest(),
       ]);
@@ -134,14 +158,10 @@ describe('PrescriptionListView', () => {
       ).toBeInTheDocument();
 
       expect(
-        await screen.findByTestId(
-          `matrix-${prescription1.matrix}-${prescription1.stages}`
-        )
+        await screen.findByTestId(`matrix-${prescription1.matrix}`)
       ).toBeInTheDocument();
       expect(
-        await screen.findByTestId(
-          `matrix-${prescription2.matrix}-${prescription2.stages}`
-        )
+        await screen.findByTestId(`matrix-${prescription2.matrix}`)
       ).toBeInTheDocument();
       expect(
         await screen.findAllByTestId(`cell-${prescription1.matrix}`)
@@ -167,6 +187,7 @@ describe('PrescriptionListView', () => {
       mockRequests([
         programmingPlanRequest,
         prescriptionRequest(regionalCoordinator.region as Region),
+        regionalPrescriptionRequest(regionalCoordinator.region as Region),
         userRequest,
         sampleRequest(regionalCoordinator.region as Region),
       ]);
@@ -205,14 +226,10 @@ describe('PrescriptionListView', () => {
       ).toBeInTheDocument();
 
       expect(
-        await screen.findByTestId(
-          `matrix-${prescription1.matrix}-${prescription1.stages}`
-        )
+        await screen.findByTestId(`matrix-${prescription1.matrix}`)
       ).toBeInTheDocument();
       expect(
-        await screen.findByTestId(
-          `matrix-${prescription2.matrix}-${prescription2.stages}`
-        )
+        await screen.findByTestId(`matrix-${prescription2.matrix}`)
       ).toBeInTheDocument();
       expect(
         await screen.findAllByTestId(`cell-${prescription1.matrix}`)

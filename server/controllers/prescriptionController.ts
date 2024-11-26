@@ -87,7 +87,6 @@ const createPrescription = async (request: Request, response: Response) => {
 
   await regionalPrescriptionRepository.insertMany(
     RegionList.map((region) => ({
-      id: uuidv4(),
       prescriptionId: createdPrescription.id,
       region,
       sampleCount: 0,

@@ -31,13 +31,17 @@ const userRequest = {
   response: { body: JSON.stringify(sampler) },
 };
 const programmingPlan = genProgrammingPlan();
-const prescription = genPrescription({
+const prescription1 = genPrescription({
+  programmingPlanId: programmingPlan.id,
+  context: 'Control',
+});
+const prescription2 = genPrescription({
   programmingPlanId: programmingPlan.id,
   context: 'Control',
 });
 const prescriptionsRequest = {
   pathname: `/api/prescriptions?programmingPlanId=${programmingPlan.id}&context=Control`,
-  response: { body: JSON.stringify(prescription) },
+  response: { body: JSON.stringify([prescription1, prescription2]) },
 };
 
 describe('SampleStepDraftInfos', () => {
@@ -159,13 +163,11 @@ describe('SampleStepDraftInfos', () => {
     const stageSelect = screen.getAllByTestId('stage-select')[1];
 
     await waitFor(async () => {
-      expect(
-        within(matrixSelect).getAllByRole('option').length
-      ).toBeGreaterThan(2);
+      expect(within(matrixSelect).getAllByRole('option').length).toBe(3);
     });
 
     await act(async () => {
-      await user.selectOptions(matrixSelect, prescription.matrix);
+      await user.selectOptions(matrixSelect, prescription1.matrix);
       await user.click(stageSelect);
     });
     expect(
@@ -193,6 +195,7 @@ describe('SampleStepDraftInfos', () => {
         context: 'Control',
       }),
       ...genCreatedSampleData({ sampler }),
+      prescriptionId: prescription1.id,
     };
 
     mockRequests([
@@ -201,7 +204,7 @@ describe('SampleStepDraftInfos', () => {
       {
         pathname: `/api/samples/${createdSample.id}`,
         method: 'PUT',
-        response: { body: JSON.stringify({}) },
+        response: { body: JSON.stringify(createdSample) },
       },
     ]);
 
@@ -226,14 +229,12 @@ describe('SampleStepDraftInfos', () => {
     const submitButton = screen.getByTestId('submit-button');
 
     await waitFor(async () => {
-      expect(
-        within(matrixSelect).getAllByRole('option').length
-      ).toBeGreaterThan(2);
+      expect(within(matrixSelect).getAllByRole('option').length).toBe(3);
     });
 
     await act(async () => {
-      await user.selectOptions(matrixSelect, prescription.matrix); //1 call
-      await user.selectOptions(stageSelect, prescription.stages[0]); //1 call
+      await user.selectOptions(matrixSelect, prescription1.matrix); //1 call
+      await user.selectOptions(stageSelect, prescription1.stages[0]); //1 call
       await user.type(matrixDetailsInput, 'Details'); //7 calls
       await user.selectOptions(cultureKindSelect, CultureKindList[0]); //1 call
       await user.selectOptions(matrixPartSelect, MatrixPartList[0]); //1 call
@@ -257,10 +258,10 @@ describe('SampleStepDraftInfos', () => {
         lastUpdatedAt: createdSample.lastUpdatedAt.toISOString(),
         sampledAt: createdSample.sampledAt.toISOString(),
         status: 'DraftItems',
-        matrix: prescription.matrix,
+        matrix: prescription1.matrix,
         matrixPart: MatrixPartList[0],
         cultureKind: CultureKindList[0],
-        stage: prescription.stages[0],
+        stage: prescription1.stages[0],
         matrixDetails: 'Details',
         notesOnMatrix: 'Comment',
       },

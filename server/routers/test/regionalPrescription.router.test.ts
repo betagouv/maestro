@@ -115,8 +115,8 @@ describe('Regional prescriptions router', () => {
       ]);
   });
 
-  describe('GET /prescriptions/regional', () => {
-    const testRoute = '/api/prescriptions/regional';
+  describe('GET /prescriptions/regions', () => {
+    const testRoute = '/api/prescriptions/regions';
 
     it('should fail if the user is not authenticated', async () => {
       await request(app)
@@ -161,10 +161,18 @@ describe('Regional prescriptions router', () => {
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject(
-        expect.arrayContaining(validatedControlRegionalPrescriptions)
+        expect.arrayContaining(
+          validatedControlRegionalPrescriptions.map(
+            fp.omit('realizedSampleCount')
+          )
+        )
       );
       expect(res.body).not.toMatchObject(
-        expect.arrayContaining(submittedControlRegionalPrescriptions)
+        expect.arrayContaining(
+          submittedControlRegionalPrescriptions.map(
+            fp.omit('realizedSampleCount')
+          )
+        )
       );
     });
 
@@ -179,9 +187,9 @@ describe('Regional prescriptions router', () => {
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toEqual(
-        validatedControlRegionalPrescriptions.filter(
-          ({ region }) => region === RegionalCoordinator.region
-        )
+        validatedControlRegionalPrescriptions
+          .filter(({ region }) => region === RegionalCoordinator.region)
+          .map(fp.omit('realizedSampleCount'))
       );
     });
 

@@ -40,11 +40,4 @@ router.post(
   regionalPrescriptionController.commentRegionalPrescription
 );
 
-router.get(
-  '/:prescriptionId/regions/:region/laboratory',
-  validator.validate(params(RegionalPrescriptionKey)),
-  permissionsCheck(['readPrescriptions']),
-  regionalPrescriptionController.getRegionalPrescriptionLaboratory
-);
-
 export default router;

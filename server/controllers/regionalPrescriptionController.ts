@@ -8,8 +8,7 @@ import {
   RegionalPrescriptionKey,
   RegionalPrescriptionUpdate,
 } from '../../shared/schema/RegionalPrescription/RegionalPrescription';
-import { hasPermission, userRegions } from '../../shared/schema/User/User';
-import laboratoryRepository from '../repositories/laboratoryRepository';
+import { hasPermission } from '../../shared/schema/User/User';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
 const findRegionalPrescriptions = async (
@@ -118,42 +117,8 @@ const commentRegionalPrescription = async (
   response.status(constants.HTTP_STATUS_CREATED); //.send(prescriptionComment);
 };
 
-const getRegionalPrescriptionLaboratory = async (
-  request: Request,
-  response: Response
-) => {
-  const { user } = request as AuthenticatedRequest;
-  const { region, prescriptionId } = request.params as RegionalPrescriptionKey;
-
-  if (!userRegions(user).includes(region)) {
-    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
-  }
-
-  const regionalPrescription = await regionalPrescriptionRepository.findUnique({
-    prescriptionId,
-    region,
-  });
-
-  if (!regionalPrescription) {
-    throw new RegionalPrescriptionMissingError(prescriptionId, region);
-  }
-
-  console.info(
-    'Get laboratory for regional prescription',
-    prescriptionId,
-    region
-  );
-
-  const laboratory = regionalPrescription.laboratoryId
-    ? await laboratoryRepository.findUnique(regionalPrescription.laboratoryId)
-    : undefined;
-
-  response.status(constants.HTTP_STATUS_OK).send(laboratory);
-};
-
 export default {
   findRegionalPrescriptions,
   updateRegionalPrescription,
   commentRegionalPrescription,
-  getRegionalPrescriptionLaboratory,
 };

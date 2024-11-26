@@ -393,6 +393,42 @@ describe('Prescriptions router', () => {
     });
   });
 
+  describe('GET /prescriptions/{prescriptionId}/substances', () => {
+    const testRoute = (prescriptionId: string) =>
+      `/api/prescriptions/${prescriptionId}/substances`;
+
+    it('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .get(testRoute(inProgressControlPrescription.id))
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    it('should fail if the prescription does not exist', async () => {
+      await request(app)
+        .get(testRoute(uuidv4()))
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_NOT_FOUND);
+    });
+
+    // TODO specifc permission required ?
+    //
+    // it('should fail if the user does not have the permission to re prescriptions', async () => {
+    //   await request(app)
+    //     .get(testRoute(inProgressControlPrescription.id))
+    //     .use(tokenProvider(RegionalCoordinator))
+    //     .expect(constants.HTTP_STATUS_FORBIDDEN);
+    // });
+
+    it('should retrieve the prescription substances', async () => {
+      const res = await request(app)
+        .get(testRoute(inProgressControlPrescription.id))
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toEqual([inProgressControlPrescriptionSubstance]);
+    });
+  });
+
   describe('DELETE /prescriptions', () => {
     const testRoute = (prescriptionId: string) =>
       `/api/prescriptions/${prescriptionId}`;
@@ -440,42 +476,6 @@ describe('Prescriptions router', () => {
           .count()
           .first()
       ).resolves.toMatchObject({ count: '0' });
-    });
-  });
-
-  describe('GET /prescriptions/{prescriptionId}/substances', () => {
-    const testRoute = (prescriptionId: string) =>
-      `/api/prescriptions/${prescriptionId}/substances`;
-
-    it('should fail if the user is not authenticated', async () => {
-      await request(app)
-        .get(testRoute(inProgressControlPrescription.id))
-        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
-    });
-
-    it('should fail if the prescription does not exist', async () => {
-      await request(app)
-        .get(testRoute(uuidv4()))
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_NOT_FOUND);
-    });
-
-    // TODO specifc permission required ?
-    //
-    // it('should fail if the user does not have the permission to re prescriptions', async () => {
-    //   await request(app)
-    //     .get(testRoute(inProgressControlPrescription.id))
-    //     .use(tokenProvider(RegionalCoordinator))
-    //     .expect(constants.HTTP_STATUS_FORBIDDEN);
-    // });
-
-    it('should retrieve the prescription substances', async () => {
-      const res = await request(app)
-        .get(testRoute(inProgressControlPrescription.id))
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_OK);
-
-      expect(res.body).toEqual([inProgressControlPrescriptionSubstance]);
     });
   });
 });

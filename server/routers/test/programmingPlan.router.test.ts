@@ -284,8 +284,11 @@ describe('ProgrammingPlan router', () => {
       ).resolves.toMatchObject(
         expect.arrayContaining([
           {
+            id: expect.any(String),
             context: 'Control',
             programmingPlanId: res.body.id,
+            matrix: controlPrescriptionValidatedPlan.matrix,
+            stages: controlPrescriptionValidatedPlan.stages,
           },
         ])
       );
@@ -296,11 +299,16 @@ describe('ProgrammingPlan router', () => {
       ).resolves.toMatchObject(
         expect.arrayContaining([
           {
+            id: expect.any(String),
             context: 'Surveillance',
             programmingPlanId: res.body.id,
+            matrix: surveillancePrescriptionValidatedPlan.matrix,
+            stages: surveillancePrescriptionValidatedPlan.stages,
           },
         ])
       );
+
+      //TODO check substances duplication
 
       //Cleanup
       await Prescriptions()
