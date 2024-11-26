@@ -10,7 +10,7 @@ import { ProgrammingPlanUpdate } from '../../shared/schema/ProgrammingPlan/Progr
 import {
   ProgrammingPlanStatus,
   ProgrammingPlanStatusList,
-  ProgrammingPlanStatusPermissions,
+  ProgrammingPlanStatusPermissions
 } from '../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { hasPermission } from '../../shared/schema/User/User';
 import prescriptionRepository from '../repositories/prescriptionRepository';
@@ -35,8 +35,8 @@ const findProgrammingPlans = async (request: Request, response: Response) => {
     isArray(findOptions.status)
       ? findOptions.status
       : findOptions.status
-      ? [findOptions.status]
-      : ProgrammingPlanStatusList
+        ? [findOptions.status]
+        : ProgrammingPlanStatusList
   ) as ProgrammingPlanStatus[];
 
   const programmingPlans = await programmingPlanRepository.findMany({
@@ -44,7 +44,7 @@ const findProgrammingPlans = async (request: Request, response: Response) => {
     status: _.intersection(
       findOptionsStatus,
       userStatusAuthorized
-    ) as ProgrammingPlanStatus[],
+    ) as ProgrammingPlanStatus[]
   });
 
   console.info('Found programmingPlans', programmingPlans);
@@ -90,19 +90,19 @@ const createProgrammingPlan = async (request: Request, response: Response) => {
     createdAt: new Date(),
     createdBy: user.id,
     year,
-    status: 'InProgress' as ProgrammingPlanStatus,
+    status: 'InProgress' as ProgrammingPlanStatus
   };
 
   await Promise.all([
     ContextList.map(async (context) => {
       const previousPrescriptions = await prescriptionRepository.findMany({
         programmingPlanId: previousProgrammingPlan.id,
-        context,
+        context
       });
       const previousRegionalPrescriptions =
         await regionalPrescriptionRepository.findMany({
           programmingPlanId: previousProgrammingPlan.id,
-          context,
+          context
         });
 
       await Promise.all([
@@ -110,7 +110,7 @@ const createProgrammingPlan = async (request: Request, response: Response) => {
           const newPrescription = {
             ...prescription,
             id: uuidv4(),
-            programmingPlanId: newProgrammingPlan.id,
+            programmingPlanId: newProgrammingPlan.id
           };
 
           await prescriptionRepository.insert(newPrescription);
@@ -124,7 +124,7 @@ const createProgrammingPlan = async (request: Request, response: Response) => {
               .map((regionalPrescription) => ({
                 ...regionalPrescription,
                 prescriptionId: newPrescription.id,
-                laboratoryId: null,
+                laboratoryId: null
               }))
           );
 
@@ -134,12 +134,12 @@ const createProgrammingPlan = async (request: Request, response: Response) => {
           await prescriptionSubstanceRepository.insertMany(
             previousPrescriptionSubstances.map((prescriptionSubstance) => ({
               ...prescriptionSubstance,
-              prescriptionId: newPrescription.id,
+              prescriptionId: newPrescription.id
             }))
           );
-        }),
+        })
       ]);
-    }),
+    })
   ]);
 
   await programmingPlanRepository.insert(newProgrammingPlan);
@@ -154,7 +154,7 @@ const updateProgrammingPlan = async (request: Request, response: Response) => {
   console.info('Update programming plan', programmingPlan.id);
 
   const regionalCoordinators = await userRepository.findMany({
-    role: 'RegionalCoordinator',
+    role: 'RegionalCoordinator'
   });
 
   if (
@@ -166,8 +166,8 @@ const updateProgrammingPlan = async (request: Request, response: Response) => {
         ...regionalCoordinators.map(
           (regionalCoordinator) => regionalCoordinator.email
         ),
-        config.mail.from,
-      ],
+        config.mail.from
+      ]
       // params: {}, //TODO : add params
     });
   } else if (
@@ -179,8 +179,8 @@ const updateProgrammingPlan = async (request: Request, response: Response) => {
         ...regionalCoordinators.map(
           (regionalCoordinator) => regionalCoordinator.email
         ),
-        config.mail.from,
-      ],
+        config.mail.from
+      ]
       // params: {}, //TODO : add params
     });
   } else {
@@ -189,7 +189,7 @@ const updateProgrammingPlan = async (request: Request, response: Response) => {
 
   const updatedProgrammingPlan = {
     ...programmingPlan,
-    status: programmingPlanUpdate.status,
+    status: programmingPlanUpdate.status
   };
 
   await programmingPlanRepository.update(updatedProgrammingPlan);
@@ -201,5 +201,5 @@ export default {
   getProgrammingPlanByYear,
   findProgrammingPlans,
   createProgrammingPlan,
-  updateProgrammingPlan,
+  updateProgrammingPlan
 };

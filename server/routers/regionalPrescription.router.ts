@@ -2,7 +2,7 @@ import express from 'express';
 import { FindRegionalPrescriptionOptions } from '../../shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import {
   RegionalPrescriptionKey,
-  RegionalPrescriptionUpdate,
+  RegionalPrescriptionUpdate
 } from '../../shared/schema/RegionalPrescription/RegionalPrescription';
 import { RegionalPrescriptionCommentToCreate } from '../../shared/schema/RegionalPrescription/RegionalPrescriptionComment';
 import regionalPrescriptionController from '../controllers/regionalPrescriptionController';
@@ -24,8 +24,8 @@ router.put(
   validator.validate(
     params(RegionalPrescriptionKey).merge(body(RegionalPrescriptionUpdate))
   ),
-  permissionsCheck(['updatePrescription', 'updatePrescriptionLaboratory']), //TODO specific permission
-  programmingPlanCheck('InProgress'),
+  permissionsCheck(['updatePrescription', 'updatePrescriptionLaboratory']),
+  programmingPlanCheck(['InProgress', 'Submitted']),
   regionalPrescriptionController.updateRegionalPrescription
 );
 router.post(
@@ -36,7 +36,7 @@ router.post(
     )
   ),
   permissionsCheck(['commentPrescription']),
-  programmingPlanCheck('Submitted'),
+  programmingPlanCheck(['InProgress', 'Submitted']),
   regionalPrescriptionController.commentRegionalPrescription
 );
 

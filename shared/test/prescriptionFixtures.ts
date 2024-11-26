@@ -17,7 +17,7 @@ export const genPrescription = (
   context: oneOf(ContextList),
   matrix: oneOf(MatrixList),
   stages: [oneOf(StageList)],
-  ...data,
+  ...data
 });
 
 export const genRegionalPrescription = (
@@ -26,8 +26,7 @@ export const genRegionalPrescription = (
   prescriptionId: uuidv4(),
   region: oneOf(RegionList),
   sampleCount: genNumber(1),
-  realizedSampleCount: genNumber(1),
-  ...data,
+  ...data
 });
 
 export const genPrescriptionSubstance = (
@@ -36,5 +35,5 @@ export const genPrescriptionSubstance = (
   prescriptionId: uuidv4(),
   analysisKind: oneOf(AnalysisKindList),
   substance: genSubstance(),
-  ...data,
+  ...data
 });

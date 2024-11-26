@@ -6,7 +6,7 @@ import RegionalPrescriptionMissingError from '../../shared/errors/regionalPrescr
 import { FindRegionalPrescriptionOptions } from '../../shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import {
   RegionalPrescriptionKey,
-  RegionalPrescriptionUpdate,
+  RegionalPrescriptionUpdate
 } from '../../shared/schema/RegionalPrescription/RegionalPrescription';
 import { hasPermission } from '../../shared/schema/User/User';
 import prescriptionRepository from '../repositories/prescriptionRepository';
@@ -20,14 +20,13 @@ const findRegionalPrescriptions = async (
 
   const findOptions = {
     ...queryFindOptions,
-    region: user.region ?? queryFindOptions.region,
+    region: user.region ?? queryFindOptions.region
   };
 
   console.info('Find regional prescriptions', user.id, findOptions);
 
-  const regionalPrescriptions = await regionalPrescriptionRepository.findMany(
-    findOptions
-  );
+  const regionalPrescriptions =
+    await regionalPrescriptionRepository.findMany(findOptions);
 
   response.status(constants.HTTP_STATUS_OK).send(regionalPrescriptions);
 };
@@ -45,7 +44,7 @@ const updateRegionalPrescription = async (
 
   const regionalPrescription = await regionalPrescriptionRepository.findUnique({
     prescriptionId,
-    region,
+    region
   });
 
   if (!regionalPrescription) {
@@ -73,7 +72,7 @@ const updateRegionalPrescription = async (
         : regionalPrescription.sampleCount,
     laboratoryId: hasPermission(user, 'updatePrescriptionLaboratory')
       ? regionalPrescriptionUpdate.laboratoryId
-      : regionalPrescription.laboratoryId,
+      : regionalPrescription.laboratoryId
   };
 
   await regionalPrescriptionRepository.update(updatedRegionalPrescription);
@@ -120,5 +119,5 @@ const commentRegionalPrescription = async (
 export default {
   findRegionalPrescriptions,
   updateRegionalPrescription,
-  commentRegionalPrescription,
+  commentRegionalPrescription
 };

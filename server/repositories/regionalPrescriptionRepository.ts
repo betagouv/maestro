@@ -2,11 +2,11 @@ import { Knex } from 'knex';
 import { default as fp, default as _, isArray } from 'lodash';
 import {
   FindRegionalPrescriptionOptions,
-  RegionalPrescriptionOptionsInclude,
+  RegionalPrescriptionOptionsInclude
 } from '../../shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import {
   RegionalPrescription,
-  RegionalPrescriptionKey,
+  RegionalPrescriptionKey
 } from '../../shared/schema/RegionalPrescription/RegionalPrescription';
 import db from './db';
 import { prescriptionsTable } from './prescriptionRepository';
@@ -19,7 +19,7 @@ export const RegionalPrescriptions = () =>
 
 const findUnique = async ({
   prescriptionId,
-  region,
+  region
 }: RegionalPrescriptionKey): Promise<RegionalPrescription | undefined> => {
   console.info('Find regional prescription', prescriptionId, region);
   return RegionalPrescriptions()
@@ -115,16 +115,21 @@ const include = (opts?: FindRegionalPrescriptionOptions) => {
       query
         .select(db.raw(`count(${samplesTable}.id) as realized_sample_count`))
         .leftJoin(samplesTable, (query) =>
-          query.on(
-            `${samplesTable}.prescription_id`,
-            `${regionalPrescriptionsTable}.prescription_id`
-          )
+          query
+            .on(
+              `${samplesTable}.prescription_id`,
+              `${regionalPrescriptionsTable}.prescription_id`
+            )
+            .andOn(
+              `${samplesTable}.region`,
+              `${regionalPrescriptionsTable}.region`
+            )
         )
         .groupBy(
           `${regionalPrescriptionsTable}.prescription_id`,
           `${regionalPrescriptionsTable}.region`
         );
-    },
+    }
   };
 
   return (query: Knex.QueryBuilder) => {
@@ -158,5 +163,5 @@ export default {
   findUnique,
   findMany,
   insertMany,
-  update,
+  update
 };
