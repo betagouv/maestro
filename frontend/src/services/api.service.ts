@@ -13,7 +13,7 @@ export const api = createApi({
     'Document',
     'Laboratory',
     'Prescription',
-    'PrescriptionSubstanceAnalysis',
+    'PrescriptionSubstance',
     'ProgrammingPlan',
     'RegionalPrescription',
     'Regions',

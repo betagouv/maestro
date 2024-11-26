@@ -13,7 +13,7 @@ import {
 import { ContextLabels } from '../../shared/schema/ProgrammingPlan/Context';
 import { FindRegionalPrescriptionOptions } from '../../shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import prescriptionRepository from '../repositories/prescriptionRepository';
-import prescriptionSubstanceAnalysisRepository from '../repositories/prescriptionSubstanceAnalysisRepository';
+import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
 import exportPrescriptionsService from '../services/exportService/exportPrescriptionsService';
@@ -121,16 +121,14 @@ const updatePrescription = async (request: Request, response: Response) => {
 
   await prescriptionRepository.update(updatedPrescription);
 
-  if (prescriptionUpdate.substanceAnalysis) {
-    const substances = prescriptionUpdate.substanceAnalysis.map(
-      (substance) => ({
-        prescriptionId,
-        ...substance,
-      })
-    );
+  if (prescriptionUpdate.substances) {
+    const substances = prescriptionUpdate.substances.map((substance) => ({
+      prescriptionId,
+      ...substance,
+    }));
 
-    await prescriptionSubstanceAnalysisRepository.deleteMany(prescriptionId);
-    await prescriptionSubstanceAnalysisRepository.insertMany(substances);
+    await prescriptionSubstanceRepository.deleteMany(prescriptionId);
+    await prescriptionSubstanceRepository.insertMany(substances);
   }
 
   response.status(constants.HTTP_STATUS_OK).send(updatedPrescription);
@@ -164,7 +162,7 @@ const deletePrescription = async (request: Request, response: Response) => {
   response.sendStatus(constants.HTTP_STATUS_NO_CONTENT);
 };
 
-const getPrescriptionSubstanceAnalysis = async (
+const getPrescriptionSubstances = async (
   request: Request,
   response: Response
 ) => {
@@ -178,7 +176,7 @@ const getPrescriptionSubstanceAnalysis = async (
     throw new PrescriptionMissingError(prescriptionId);
   }
 
-  const substances = await prescriptionSubstanceAnalysisRepository.findMany(
+  const substances = await prescriptionSubstanceRepository.findMany(
     prescriptionId
   );
 
@@ -191,5 +189,5 @@ export default {
   createPrescription,
   updatePrescription,
   deletePrescription,
-  getPrescriptionSubstanceAnalysis,
+  getPrescriptionSubstances,
 };

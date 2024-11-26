@@ -1,4 +1,4 @@
-import { PrescriptionSubstanceAnalysisTable } from '../../../server/repositories/prescriptionSubstanceAnalysisRepository';
+import { PrescriptionSubstances } from '../../../server/repositories/prescriptionSubstanceRepository';
 import { AnalysisKind } from '../../../shared/schema/Analysis/AnalysisKind';
 import {
   abricotsEtSimilaires,
@@ -112,5 +112,5 @@ exports.seed = async function () {
     genSubstanceAnalysis(graineDeTournesol1.id, 'Multi', 'RF-00007585-PAR', 'RF-00009360-PAR', 'RF-00008949-PAR', 'RF-0440-001-PPP', 'RF-00002591-PAR', 'RF-0259-001-PPP'),
   ];
 
-  await PrescriptionSubstanceAnalysisTable().insert(substanceAnalysis.flat());
+  await PrescriptionSubstances().insert(substanceAnalysis.flat());
 };

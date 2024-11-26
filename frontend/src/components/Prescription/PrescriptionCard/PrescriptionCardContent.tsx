@@ -3,8 +3,8 @@ import { ReactNode } from 'react';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
 import { Prescription } from 'shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
-import PrescriptionAnalysisSummary from 'src/components/Prescription/PrescriptionAnalysis/PrescriptionAnalysisSummary';
 import PrescriptionStages from 'src/components/Prescription/PrescriptionStages/PrescriptionStages';
+import PrescriptionSubstancesSummary from 'src/components/Prescription/PrescriptionSubstances/PrescriptionSubstancesSummary';
 import './PrescriptionCard.scss';
 
 interface Props {
@@ -25,7 +25,7 @@ const PrescriptionCardContent = ({
       </h3>
       {subtitle}
       <div className={cx('fr-card__desc')}>
-        <PrescriptionAnalysisSummary
+        <PrescriptionSubstancesSummary
           programmingPlan={programmingPlan}
           prescription={prescription}
         />

@@ -3,27 +3,27 @@ import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import { skipToken } from '@reduxjs/toolkit/query';
 import { useEffect } from 'react';
-import { PrescriptionSubstanceAnalysis } from 'shared/schema/Prescription/PrescriptionSubstanceAnalysis';
-import PrescriptionAnalysisSelect from 'src/components/Prescription/PrescriptionAnalysis/PrescriptionAnalysisSelect';
+import { PrescriptionSubstance } from 'shared/schema/Prescription/PrescriptionSubstance';
+import PrescriptionSubstancesSelect from 'src/components/Prescription/PrescriptionSubstances/PrescriptionSubstancesSelect';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
-import { useGetPrescriptionSubstanceAnalysisQuery } from 'src/services/prescription.service';
+import { useGetPrescriptionSubstancesQuery } from 'src/services/prescription.service';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
-import './PrescriptionAnalysis.scss';
+import './PrescriptionSubstances.scss';
 
-const prescriptionAnalysisModal = createModal({
+const prescriptionSubstancesModal = createModal({
   id: `prescription-analysis-modal`,
   isOpenedByDefault: false,
 });
 
 interface Props {
-  onUpdatePrescriptionSubstanceAnalysis: (
+  onUpdatePrescriptionSubstances: (
     prescriptionId: string,
-    prescriptionSubstanceAnalysis: PrescriptionSubstanceAnalysis[]
+    prescriptionSubstances: PrescriptionSubstance[]
   ) => Promise<void>;
 }
 
 const PrescriptionAnalysisModal = ({
-  onUpdatePrescriptionSubstanceAnalysis,
+  onUpdatePrescriptionSubstances,
 }: Props) => {
   const dispatch = useAppDispatch();
   const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
@@ -31,12 +31,11 @@ const PrescriptionAnalysisModal = ({
     (state) => state.prescriptions
   );
 
-  const { data: prescriptionSubstanceAnalysis } =
-    useGetPrescriptionSubstanceAnalysisQuery(
-      prescriptionAnalysisEditId ?? skipToken
-    );
+  const { data: prescriptionSubstances } = useGetPrescriptionSubstancesQuery(
+    prescriptionAnalysisEditId ?? skipToken
+  );
 
-  useIsModalOpen(prescriptionAnalysisModal, {
+  useIsModalOpen(prescriptionSubstancesModal, {
     onConceal: () => {
       dispatch(
         prescriptionsSlice.actions.setPrescriptionAnalysisEditId(undefined)
@@ -46,43 +45,39 @@ const PrescriptionAnalysisModal = ({
 
   useEffect(() => {
     if (prescriptionAnalysisEditId) {
-      prescriptionAnalysisModal.open();
+      prescriptionSubstancesModal.open();
     }
   }, [prescriptionAnalysisEditId]);
 
   return (
     <div className="prescription-analysis-modal">
-      <prescriptionAnalysisModal.Component
+      <prescriptionSubstancesModal.Component
         title="Analyses mono-résidus et multi-résidus"
         concealingBackdrop={false}
         topAnchor
       >
         {programmingPlan &&
           prescriptionAnalysisEditId &&
-          prescriptionSubstanceAnalysis && (
+          prescriptionSubstances && (
             <>
-              <PrescriptionAnalysisSelect
+              <PrescriptionSubstancesSelect
                 programmingPlan={programmingPlan}
                 prescriptionId={prescriptionAnalysisEditId}
-                prescriptionSubstanceAnalysis={prescriptionSubstanceAnalysis}
+                prescriptionSubstances={prescriptionSubstances}
                 analysisKind="Mono"
-                onUpdatePrescriptionSubstanceAnalysis={
-                  onUpdatePrescriptionSubstanceAnalysis
-                }
+                onUpdatePrescriptionSubstances={onUpdatePrescriptionSubstances}
               />
               <hr className={cx('fr-mt-3w', 'fr-mb-2w')} />
-              <PrescriptionAnalysisSelect
+              <PrescriptionSubstancesSelect
                 programmingPlan={programmingPlan}
                 prescriptionId={prescriptionAnalysisEditId}
-                prescriptionSubstanceAnalysis={prescriptionSubstanceAnalysis}
+                prescriptionSubstances={prescriptionSubstances}
                 analysisKind="Multi"
-                onUpdatePrescriptionSubstanceAnalysis={
-                  onUpdatePrescriptionSubstanceAnalysis
-                }
+                onUpdatePrescriptionSubstances={onUpdatePrescriptionSubstances}
               />
             </>
           )}
-      </prescriptionAnalysisModal.Component>
+      </prescriptionSubstancesModal.Component>
     </div>
   );
 };

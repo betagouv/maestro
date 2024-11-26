@@ -12,7 +12,7 @@ import { PartialSampleItem } from '../../../shared/schema/Sample/SampleItem';
 import { UserInfos } from '../../../shared/schema/User/User';
 import { isDefinedAndNotNull } from '../../../shared/utils/utils';
 import laboratoryRepository from '../../repositories/laboratoryRepository';
-import prescriptionSubstanceAnalysisRepository from '../../repositories/prescriptionSubstanceAnalysisRepository';
+import prescriptionSubstanceRepository from '../../repositories/prescriptionSubstanceRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
 import {
   Template,
@@ -72,10 +72,8 @@ const generateSupportDocument = async (
     ? await laboratoryRepository.findUnique(sample.laboratoryId)
     : null;
 
-  const prescriptionSubstanceAnalysis = sample.prescriptionId
-    ? await prescriptionSubstanceAnalysisRepository.findMany(
-        sample.prescriptionId
-      )
+  const prescriptionSubstances = sample.prescriptionId
+    ? await prescriptionSubstanceRepository.findMany(sample.prescriptionId)
     : undefined;
 
   return generateDocument('supportDocument', {
@@ -84,10 +82,10 @@ const generateSupportDocument = async (
     sampler,
     laboratory,
     programmingPlan,
-    monoSubstances: prescriptionSubstanceAnalysis
+    monoSubstances: prescriptionSubstances
       ?.filter((substance) => substance.analysisKind === 'Mono')
       .map((substance) => substance.substance.label),
-    multiSubstances: prescriptionSubstanceAnalysis
+    multiSubstances: prescriptionSubstances
       ?.filter((substance) => substance.analysisKind === 'Multi')
       .map((substance) => substance.substance.label),
     reference: [sample.reference, sampleItem?.itemNumber]

@@ -6,14 +6,14 @@ import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans'
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch } from 'src/hooks/useStore';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
-import './PrescriptionAnalysis.scss';
+import './PrescriptionSubstances.scss';
 
 interface Props {
   programmingPlan: ProgrammingPlan;
   prescription: Prescription;
 }
 
-const PrescriptionAnalysisSummary = ({
+const PrescriptionSubstancesSummary = ({
   programmingPlan,
   prescription,
 }: Props) => {
@@ -66,4 +66,4 @@ const PrescriptionAnalysisSummary = ({
   );
 };
 
-export default PrescriptionAnalysisSummary;
+export default PrescriptionSubstancesSummary;

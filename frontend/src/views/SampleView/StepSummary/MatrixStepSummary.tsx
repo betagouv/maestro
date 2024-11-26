@@ -8,7 +8,7 @@ import { MatrixPartLabels } from 'shared/referential/MatrixPart';
 import { StageLabels } from 'shared/referential/Stage';
 import { Sample, SampleToCreate } from 'shared/schema/Sample/Sample';
 import { usePartialSample } from 'src/hooks/usePartialSample';
-import { useGetPrescriptionSubstanceAnalysisQuery } from 'src/services/prescription.service';
+import { useGetPrescriptionSubstancesQuery } from 'src/services/prescription.service';
 import { quote } from 'src/utils/stringUtils';
 import StepSummary from 'src/views/SampleView/StepSummary/StepSummary';
 
@@ -18,7 +18,7 @@ interface Props {
 }
 const MatrixStepSummary = ({ sample, showLabel }: Props) => {
   const { laboratory } = usePartialSample(sample);
-  const { data: substances } = useGetPrescriptionSubstanceAnalysisQuery(
+  const { data: substances } = useGetPrescriptionSubstancesQuery(
     sample.prescriptionId ?? skipToken
   );
 

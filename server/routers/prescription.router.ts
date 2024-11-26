@@ -61,6 +61,6 @@ router.get(
   '/:prescriptionId/substances',
   validator.validate(uuidParam('prescriptionId')),
   permissionsCheck(['readPrescriptions']),
-  prescriptionController.getPrescriptionSubstanceAnalysis
+  prescriptionController.getPrescriptionSubstances
 );
 export default router;

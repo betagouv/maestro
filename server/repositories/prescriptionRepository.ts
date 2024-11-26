@@ -6,7 +6,7 @@ import {
 } from '../../shared/schema/Prescription/FindPrescriptionOptions';
 import { Prescription } from '../../shared/schema/Prescription/Prescription';
 import db from './db';
-import { prescriptionSubstanceAnalysisTable } from './prescriptionSubstanceAnalysisRepository';
+import { prescriptionSubstanceTable } from './prescriptionSubstanceRepository';
 export const prescriptionsTable = 'prescriptions';
 
 export const Prescriptions = () => db<Prescription>(prescriptionsTable);
@@ -55,7 +55,7 @@ const include = (opts?: FindPrescriptionOptions) => {
           )
         )
         .leftJoin(
-          prescriptionSubstanceAnalysisTable,
+          prescriptionSubstanceTable,
           'prescription_id',
           `${prescriptionsTable}.id`
         )

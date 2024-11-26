@@ -13,15 +13,15 @@ import { PrescriptionUpdate } from '../../../shared/schema/Prescription/Prescrip
 import { ProgrammingPlanStatus } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import {
   genPrescription,
-  genPrescriptionSubstanceAnalysis,
+  genPrescriptionSubstance,
 } from '../../../shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from '../../../shared/test/programmingPlanFixtures';
 import { genSubstance, oneOf } from '../../../shared/test/testFixtures';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import {
-  formatPrescriptionSubstanceAnalysis,
-  PrescriptionSubstanceAnalysisTable,
-} from '../../repositories/prescriptionSubstanceAnalysisRepository';
+  formatPrescriptionSubstance,
+  PrescriptionSubstances,
+} from '../../repositories/prescriptionSubstanceRepository';
 import { ProgrammingPlans } from '../../repositories/programmingPlanRepository';
 import { RegionalPrescriptions } from '../../repositories/regionalPrescriptionRepository';
 import { Substances } from '../../repositories/substanceRepository';
@@ -64,12 +64,11 @@ describe('Prescriptions router', () => {
     stages: [oneOf(StageList)],
   });
   const substance = genSubstance();
-  const inProgressControlPrescriptionSubstanceAnalysis =
-    genPrescriptionSubstanceAnalysis({
-      prescriptionId: inProgressControlPrescription.id,
-      substance,
-      analysisKind: 'Mono',
-    });
+  const inProgressControlPrescriptionSubstance = genPrescriptionSubstance({
+    prescriptionId: inProgressControlPrescription.id,
+    substance,
+    analysisKind: 'Mono',
+  });
   const inProgressSurveillancePrescription = genPrescription({
     programmingPlanId: programmingPlanInProgress.id,
     context: 'Surveillance',
@@ -90,10 +89,8 @@ describe('Prescriptions router', () => {
       inProgressSurveillancePrescription,
     ]);
     await Substances().insert(substance);
-    await PrescriptionSubstanceAnalysisTable().insert(
-      formatPrescriptionSubstanceAnalysis(
-        inProgressControlPrescriptionSubstanceAnalysis
-      )
+    await PrescriptionSubstances().insert(
+      formatPrescriptionSubstance(inProgressControlPrescriptionSubstance)
     );
   });
 
@@ -478,9 +475,7 @@ describe('Prescriptions router', () => {
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toEqual([
-        inProgressControlPrescriptionSubstanceAnalysis,
-      ]);
+      expect(res.body).toEqual([inProgressControlPrescriptionSubstance]);
     });
   });
 });

@@ -12,15 +12,15 @@ import {
   PrescriptionOptionsInclude,
 } from 'shared/schema/Prescription/FindPrescriptionOptions';
 import { PrescriptionSort } from 'shared/schema/Prescription/Prescription';
-import { PrescriptionSubstanceAnalysis } from 'shared/schema/Prescription/PrescriptionSubstanceAnalysis';
+import { PrescriptionSubstance } from 'shared/schema/Prescription/PrescriptionSubstance';
 import {
   Context,
   ContextLabels,
   ContextList,
 } from 'shared/schema/ProgrammingPlan/Context';
-import PrescriptionAnalysisModal from 'src/components/Prescription/PrescriptionAnalysis/PrescriptionAnalysisModal';
 import PrescriptionCardNational from 'src/components/Prescription/PrescriptionCard/PrescriptionCardNational';
 import PrescriptionCardRegional from 'src/components/Prescription/PrescriptionCard/PrescriptionCardRegional';
+import PrescriptionAnalysisModal from 'src/components/Prescription/PrescriptionSubstances/PrescriptionSubstancesModal';
 import ProgrammingPlanSubmissionModal from 'src/components/ProgrammingPlan/ProgrammingPlanSubmissionModal/ProgrammingPlanSubmissionModal';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import AppToast from 'src/components/_app/AppToast/AppToast';
@@ -183,16 +183,16 @@ const PrescriptionListView = () => {
       // });
     };
 
-  const updatePrescriptionSubstanceAnalysis = useCallback(
+  const updatePrescriptionSubstances = useCallback(
     async (
       prescriptionId: string,
-      prescriptionSubstanceAnalysis: PrescriptionSubstanceAnalysis[]
+      prescriptionSubstances: PrescriptionSubstance[]
     ) => {
       await updatePrescription({
         prescriptionId,
         prescriptionUpdate: {
           programmingPlanId: programmingPlan?.id as string,
-          substanceAnalysis: prescriptionSubstanceAnalysis,
+          substances: prescriptionSubstances,
         },
       });
     },
@@ -327,9 +327,7 @@ const PrescriptionListView = () => {
         )}
       </div>
       <PrescriptionAnalysisModal
-        onUpdatePrescriptionSubstanceAnalysis={
-          updatePrescriptionSubstanceAnalysis
-        }
+        onUpdatePrescriptionSubstances={updatePrescriptionSubstances}
       />
     </section>
   );

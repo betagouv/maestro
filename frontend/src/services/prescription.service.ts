@@ -5,7 +5,7 @@ import {
   PrescriptionToCreate,
   PrescriptionUpdate,
 } from 'shared/schema/Prescription/Prescription';
-import { PrescriptionSubstanceAnalysis } from 'shared/schema/Prescription/PrescriptionSubstanceAnalysis';
+import { PrescriptionSubstance } from 'shared/schema/Prescription/PrescriptionSubstance';
 import { api } from 'src/services/api.service';
 import { authParams } from 'src/services/auth-headers';
 import config from 'src/utils/config';
@@ -56,7 +56,7 @@ export const prescriptionApi = api.injectEndpoints({
       invalidatesTags: (_result, _error, { prescriptionId }) => [
         { type: 'Prescription', id: 'LIST' },
         { type: 'Prescription', id: prescriptionId },
-        { type: 'PrescriptionSubstanceAnalysis', id: prescriptionId },
+        { type: 'PrescriptionSubstance', id: prescriptionId },
       ],
       transformResponse: (response) => Prescription.parse(response),
     }),
@@ -70,17 +70,14 @@ export const prescriptionApi = api.injectEndpoints({
         { type: 'RegionalPrescription', id: 'LIST' },
       ],
     }),
-    getPrescriptionSubstanceAnalysis: builder.query<
-      PrescriptionSubstanceAnalysis[],
-      string
-    >({
+    getPrescriptionSubstances: builder.query<PrescriptionSubstance[], string>({
       query: (prescriptionId) => `prescriptions/${prescriptionId}/substances`,
       transformResponse: (response: any[]) =>
         response.map((_) =>
-          PrescriptionSubstanceAnalysis.parse(fp.omitBy(_, fp.isNil))
+          PrescriptionSubstance.parse(fp.omitBy(_, fp.isNil))
         ),
       providesTags: (_result, _error, prescriptionId) => [
-        { type: 'PrescriptionSubstanceAnalysis', id: prescriptionId },
+        { type: 'PrescriptionSubstance', id: prescriptionId },
       ],
     }),
   }),
@@ -101,7 +98,7 @@ export const {
   useAddPrescriptionMutation,
   useDeletePrescriptionMutation,
   getPrescriptionsExportURL,
-  useGetPrescriptionSubstanceAnalysisQuery,
+  useGetPrescriptionSubstancesQuery,
 } = {
   ...prescriptionApi,
   getPrescriptionsExportURL: prescriptionsExportURL,

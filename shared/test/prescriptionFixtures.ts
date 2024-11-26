@@ -4,7 +4,7 @@ import { RegionList } from '../referential/Region';
 import { StageList } from '../referential/Stage';
 import { AnalysisKindList } from '../schema/Analysis/AnalysisKind';
 import { Prescription } from '../schema/Prescription/Prescription';
-import { PrescriptionSubstanceAnalysis } from '../schema/Prescription/PrescriptionSubstanceAnalysis';
+import { PrescriptionSubstance } from '../schema/Prescription/PrescriptionSubstance';
 import { ContextList } from '../schema/ProgrammingPlan/Context';
 import { RegionalPrescription } from '../schema/RegionalPrescription/RegionalPrescription';
 import { genNumber, genSubstance, oneOf } from './testFixtures';
@@ -30,9 +30,9 @@ export const genRegionalPrescription = (
   ...data,
 });
 
-export const genPrescriptionSubstanceAnalysis = (
-  data?: Partial<PrescriptionSubstanceAnalysis>
-): PrescriptionSubstanceAnalysis => ({
+export const genPrescriptionSubstance = (
+  data?: Partial<PrescriptionSubstance>
+): PrescriptionSubstance => ({
   prescriptionId: uuidv4(),
   analysisKind: oneOf(AnalysisKindList),
   substance: genSubstance(),
