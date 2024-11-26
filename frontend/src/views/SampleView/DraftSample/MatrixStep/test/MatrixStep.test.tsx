@@ -5,12 +5,12 @@ import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { CultureKindList } from 'shared/referential/CultureKind';
 import { MatrixPartList } from 'shared/referential/MatrixPart';
+import { genPrescription } from 'shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'shared/test/programmingPlanFixtures';
 import {
   genCreatedSampleData,
   genSampleContextData,
 } from 'shared/test/sampleFixtures';
-import { genPrescriptions } from 'shared/test/testFixtures';
 import { genAuthUser, genUser } from 'shared/test/userFixtures';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import config from 'src/utils/config';
@@ -31,10 +31,17 @@ const userRequest = {
   response: { body: JSON.stringify(sampler) },
 };
 const programmingPlan = genProgrammingPlan();
-const prescriptions = genPrescriptions(programmingPlan.id);
+const prescription1 = genPrescription({
+  programmingPlanId: programmingPlan.id,
+  context: 'Control',
+});
+const prescription2 = genPrescription({
+  programmingPlanId: programmingPlan.id,
+  context: 'Control',
+});
 const prescriptionsRequest = {
-  pathname: `/api/programming-plans/${programmingPlan.id}/prescriptions?`,
-  response: { body: JSON.stringify(prescriptions) },
+  pathname: `/api/prescriptions?programmingPlanId=${programmingPlan.id}&context=Control`,
+  response: { body: JSON.stringify([prescription1, prescription2]) },
 };
 
 describe('SampleStepDraftInfos', () => {
@@ -126,6 +133,7 @@ describe('SampleStepDraftInfos', () => {
     const createdSample = {
       ...genSampleContextData({
         programmingPlanId: programmingPlan.id,
+        context: 'Control',
       }),
       ...genCreatedSampleData({ sampler }),
     };
@@ -155,13 +163,11 @@ describe('SampleStepDraftInfos', () => {
     const stageSelect = screen.getAllByTestId('stage-select')[1];
 
     await waitFor(async () => {
-      expect(
-        within(matrixSelect).getAllByRole('option').length
-      ).toBeGreaterThan(2);
+      expect(within(matrixSelect).getAllByRole('option').length).toBe(3);
     });
 
     await act(async () => {
-      await user.selectOptions(matrixSelect, prescriptions[0].matrix);
+      await user.selectOptions(matrixSelect, prescription1.matrix);
       await user.click(stageSelect);
     });
     expect(
@@ -186,8 +192,10 @@ describe('SampleStepDraftInfos', () => {
     const createdSample = {
       ...genSampleContextData({
         programmingPlanId: programmingPlan.id,
+        context: 'Control',
       }),
       ...genCreatedSampleData({ sampler }),
+      prescriptionId: prescription1.id,
     };
 
     mockRequests([
@@ -196,7 +204,7 @@ describe('SampleStepDraftInfos', () => {
       {
         pathname: `/api/samples/${createdSample.id}`,
         method: 'PUT',
-        response: { body: JSON.stringify({}) },
+        response: { body: JSON.stringify(createdSample) },
       },
     ]);
 
@@ -221,14 +229,12 @@ describe('SampleStepDraftInfos', () => {
     const submitButton = screen.getByTestId('submit-button');
 
     await waitFor(async () => {
-      expect(
-        within(matrixSelect).getAllByRole('option').length
-      ).toBeGreaterThan(2);
+      expect(within(matrixSelect).getAllByRole('option').length).toBe(3);
     });
 
     await act(async () => {
-      await user.selectOptions(matrixSelect, prescriptions[0].matrix); //1 call
-      await user.selectOptions(stageSelect, prescriptions[0].stages[0]); //1 call
+      await user.selectOptions(matrixSelect, prescription1.matrix); //1 call
+      await user.selectOptions(stageSelect, prescription1.stages[0]); //1 call
       await user.type(matrixDetailsInput, 'Details'); //7 calls
       await user.selectOptions(cultureKindSelect, CultureKindList[0]); //1 call
       await user.selectOptions(matrixPartSelect, MatrixPartList[0]); //1 call
@@ -252,10 +258,10 @@ describe('SampleStepDraftInfos', () => {
         lastUpdatedAt: createdSample.lastUpdatedAt.toISOString(),
         sampledAt: createdSample.sampledAt.toISOString(),
         status: 'DraftItems',
-        matrix: prescriptions[0].matrix,
+        matrix: prescription1.matrix,
         matrixPart: MatrixPartList[0],
         cultureKind: CultureKindList[0],
-        stage: prescriptions[0].stages[0],
+        stage: prescription1.stages[0],
         matrixDetails: 'Details',
         notesOnMatrix: 'Comment',
       },

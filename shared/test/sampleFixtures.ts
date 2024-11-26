@@ -9,6 +9,7 @@ import { QuantityUnitList } from '../referential/QuantityUnit';
 import { Regions } from '../referential/Region';
 import { Stage, StageList } from '../referential/Stage';
 import { Company } from '../schema/Company/Company';
+import { ContextList } from '../schema/ProgrammingPlan/Context';
 import {
   CreatedSampleData,
   Geolocation,
@@ -31,6 +32,7 @@ export const genSampleContextData = (
     y: 2.3522,
   },
   programmingPlanId: uuidv4(),
+  context: oneOf(ContextList),
   legalContext: oneOf(LegalContextList),
   resytalId:
     '23-' +
@@ -46,6 +48,7 @@ export const genSampleContextData = (
 export const genCreatedSampleData = (
   data?: Partial<CreatedSampleData>
 ): CreatedSampleData => ({
+  region: '44',
   reference: `GES-${oneOf(Regions['44'].departments)}-24-${genNumber(
     4
   )}-${oneOf(LegalContextList)}`,
@@ -84,6 +87,7 @@ export const genCreatedSample = (data?: Partial<Sample>): Sample => {
     matrix: sample.matrix as Matrix,
     matrixPart: sample.matrixPart as MatrixPart,
     stage: sample.stage as Stage,
+    prescriptionId: uuidv4(),
     laboratoryId: uuidv4(),
     items: sample.items as SampleItem[],
     ...data,

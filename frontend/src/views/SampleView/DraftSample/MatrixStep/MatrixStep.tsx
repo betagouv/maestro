@@ -4,7 +4,6 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   CultureKind,
   CultureKindLabels,
@@ -29,8 +28,11 @@ import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
+import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
+import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import { useFindPrescriptionsQuery } from 'src/services/prescription.service';
+import { useFindRegionalPrescriptionsQuery } from 'src/services/regionalPrescription.service';
 import { useCreateOrUpdateSampleMutation } from 'src/services/sample.service';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SupportDocumentDownload from 'src/views/SampleView/DraftSample/SupportDocumentDownload';
@@ -41,7 +43,8 @@ interface Props {
 }
 
 const MatrixStep = ({ partialSample }: Props) => {
-  const navigate = useNavigate();
+  const { navigateToSample } = useSamplesLink();
+  const { userInfos } = useAuthentication();
 
   const [matrix, setMatrix] = useState(partialSample.matrix);
   const [matrixDetails, setMatrixDetails] = useState(
@@ -61,9 +64,25 @@ const MatrixStep = ({ partialSample }: Props) => {
   const [createOrUpdate] = useCreateOrUpdateSampleMutation();
 
   const { data: prescriptions } = useFindPrescriptionsQuery(
-    { programmingPlanId: partialSample.programmingPlanId as string },
     {
-      skip: !partialSample.programmingPlanId,
+      programmingPlanId: partialSample.programmingPlanId as string,
+      context: partialSample.context,
+    },
+    {
+      skip: !partialSample.programmingPlanId || !partialSample.context,
+    }
+  );
+
+  const { data: regionalPrescriptions } = useFindRegionalPrescriptionsQuery(
+    {
+      programmingPlanId: partialSample.programmingPlanId as string,
+      context: partialSample.context,
+      region: isCreatedPartialSample(partialSample)
+        ? partialSample.region
+        : userInfos?.region,
+    },
+    {
+      skip: !partialSample.programmingPlanId || !partialSample.context,
     }
   );
 
@@ -75,9 +94,7 @@ const MatrixStep = ({ partialSample }: Props) => {
     e.preventDefault();
     await form.validate(async () => {
       await save('DraftItems');
-      navigate(`/prelevements/${partialSample.id}?etape=3`, {
-        replace: true,
-      });
+      navigateToSample(partialSample.id, 3);
     });
   };
 
@@ -85,6 +102,10 @@ const MatrixStep = ({ partialSample }: Props) => {
     const prescription = prescriptions?.find(
       (p) => matrix && stage && p.matrix === matrix && p.stages.includes(stage)
     );
+    const regionalPrescription = regionalPrescriptions?.find(
+      (rp) => rp.prescriptionId === prescription?.id
+    );
+
     await createOrUpdate({
       ...partialSample,
       matrixDetails,
@@ -95,7 +116,9 @@ const MatrixStep = ({ partialSample }: Props) => {
       releaseControl,
       notesOnMatrix,
       status,
-      laboratoryId: prescription?.laboratoryId ?? partialSample.laboratoryId,
+      prescriptionId: prescription?.id,
+      laboratoryId:
+        regionalPrescription?.laboratoryId ?? partialSample.laboratoryId,
     });
   };
 
@@ -109,6 +132,7 @@ const MatrixStep = ({ partialSample }: Props) => {
       cultureKind,
       releaseControl,
       notesOnMatrix,
+      prescriptionId: partialSample.prescriptionId,
       laboratoryId: partialSample.laboratoryId,
     },
     save

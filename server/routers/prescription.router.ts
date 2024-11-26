@@ -18,60 +18,49 @@ import validator, {
 const router = express.Router();
 
 router.get(
-  '/:programmingPlanId/prescriptions',
-  validator.validate(
-    uuidParam('programmingPlanId').merge(
-      query(FindPrescriptionOptions.omit({ programmingPlanId: true }))
-    )
-  ),
+  '',
+  validator.validate(query(FindPrescriptionOptions)),
   permissionsCheck(['readPrescriptions']),
   programmingPlanCheck(),
   prescriptionController.findPrescriptions
 );
 router.get(
-  '/:programmingPlanId/prescriptions/export',
-  validator.validate(
-    uuidParam('programmingPlanId').merge(
-      query(FindPrescriptionOptions.omit({ programmingPlanId: true }))
-    )
-  ),
+  '/export',
+  validator.validate(query(FindPrescriptionOptions)),
   permissionsCheck(['readPrescriptions']),
   programmingPlanCheck(),
   prescriptionController.exportPrescriptions
 );
 router.post(
-  '/:programmingPlanId/prescriptions',
-  validator.validate(
-    uuidParam('programmingPlanId').merge(body(z.array(PrescriptionToCreate)))
-  ),
+  '',
+  validator.validate(body(PrescriptionToCreate)),
   permissionsCheck(['createPrescription']),
   programmingPlanCheck('InProgress'),
-  prescriptionController.createPrescriptions
+  prescriptionController.createPrescription
 );
 router.put(
-  '/:programmingPlanId/prescriptions/:prescriptionId',
+  '/:prescriptionId',
   validator.validate(
     params(
       z.object({
-        programmingPlanId: z.string().uuid(),
         prescriptionId: z.string().uuid(),
       })
     ).merge(body(PrescriptionUpdate))
   ),
-  permissionsCheck([
-    'updatePrescriptionSampleCount',
-    'updatePrescriptionLaboratory',
-  ]),
+  permissionsCheck(['updatePrescription']),
   programmingPlanCheck('InProgress'),
   prescriptionController.updatePrescription
 );
 router.delete(
-  '/:programmingPlanId/prescriptions',
-  validator.validate(
-    uuidParam('programmingPlanId').merge(body(z.array(z.string().uuid())))
-  ),
+  '/:prescriptionId',
+  validator.validate(uuidParam('prescriptionId')),
   permissionsCheck(['deletePrescription']),
-  programmingPlanCheck('InProgress'),
-  prescriptionController.deletePrescriptions
+  prescriptionController.deletePrescription
+);
+router.get(
+  '/:prescriptionId/substances',
+  validator.validate(uuidParam('prescriptionId')),
+  permissionsCheck(['readPrescriptions']),
+  prescriptionController.getPrescriptionSubstances
 );
 export default router;

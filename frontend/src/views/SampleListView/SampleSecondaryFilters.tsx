@@ -7,21 +7,20 @@ import {
   DepartmentList,
 } from 'shared/referential/Department';
 import { Region, RegionList, Regions } from 'shared/referential/Region';
-import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
+import {
+  Context,
+  ContextLabels,
+  ContextList,
+} from 'shared/schema/ProgrammingPlan/Context';
 import { FindSampleOptions } from 'shared/schema/Sample/FindSampleOptions';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 
 interface Props {
-  filters: FindSampleOptions;
-  onChange: (filters: FindSampleOptions) => void;
-  programmingPlans?: ProgrammingPlan[];
+  filters: Partial<FindSampleOptions>;
+  onChange: (filters: Partial<FindSampleOptions>) => void;
 }
 
-const SampleSecondaryFilters = ({
-  filters,
-  onChange,
-  programmingPlans,
-}: Props) => {
+const SampleSecondaryFilters = ({ filters, onChange }: Props) => {
   const { hasNationalView, userInfos } = useAuthentication();
 
   const departmentOptions = useMemo(() => {
@@ -94,18 +93,18 @@ const SampleSecondaryFilters = ({
         <Select
           label="Contexte"
           nativeSelectProps={{
-            value: filters.programmingPlanId || '',
+            value: filters.context || '',
             onChange: (e) =>
               onChange({
-                programmingPlanId: e.target.value,
+                context: e.target.value as Context,
                 matrix: undefined,
               }),
           }}
         >
           <option value="">Tous</option>
-          {programmingPlans?.map((plan) => (
-            <option key={plan.id} value={plan.id}>
-              {plan.title}
+          {ContextList.map((context) => (
+            <option key={`context-${context}`} value={context}>
+              {ContextLabels[context]}
             </option>
           ))}
         </Select>

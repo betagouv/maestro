@@ -11,8 +11,8 @@ import { getSampleListExportURL } from 'src/services/sample.service';
 import samplesSlice from 'src/store/reducers/samplesSlice';
 
 interface Props {
-  findSampleOptions: FindSampleOptions;
-  changeFilter: (filters: FindSampleOptions) => void;
+  findSampleOptions: Partial<FindSampleOptions>;
+  changeFilter: (filters: Partial<FindSampleOptions>) => void;
   samplesCount?: number;
 }
 
@@ -24,11 +24,11 @@ const SampleListHeader = ({
   const dispatch = useAppDispatch();
   const { isMobile } = useWindowSize();
 
+  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
   const { sampleListDisplay } = useAppSelector((state) => state.samples);
 
   const changeReference = (e: React.ChangeEvent<HTMLInputElement>) => {
     changeFilter({
-      ...findSampleOptions,
       reference: e.target.value,
     });
   };
@@ -87,6 +87,7 @@ const SampleListHeader = ({
             window.open(
               getSampleListExportURL({
                 ...findSampleOptions,
+                programmingPlanId: programmingPlan?.id as string,
                 perPage: undefined,
                 page: undefined,
               })

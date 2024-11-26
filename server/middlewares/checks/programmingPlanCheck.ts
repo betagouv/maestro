@@ -1,13 +1,23 @@
 import { NextFunction, Request, Response } from 'express';
 import { constants } from 'http2';
-import ProgrammingPlanMissingError from '../../../shared/errors/promgrammingPlanMissingError';
+import ProgrammingPlanMissingError from '../../../shared/errors/programmingPlanMissingError';
 import { ProgrammingPlanStatus } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
 
 export const programmingPlanCheck =
   (status?: ProgrammingPlanStatus) =>
   async (request: Request, response: Response, next: NextFunction) => {
-    const programmingPlanId = request.params.programmingPlanId;
+    console.log(
+      'programmingPlanCheck',
+      request.params,
+      request.query,
+      request.body
+    );
+
+    const programmingPlanId =
+      request.params?.programmingPlanId ||
+      request.query?.programmingPlanId ||
+      request.body?.programmingPlanId;
 
     const programmingPlan = await programmingPlanRepository.findUnique(
       programmingPlanId

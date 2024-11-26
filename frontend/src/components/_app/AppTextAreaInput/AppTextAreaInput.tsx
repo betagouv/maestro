@@ -1,5 +1,6 @@
 import Input from '@codegouvfr/react-dsfr/Input';
 import { ComponentPropsWithoutRef, TextareaHTMLAttributes } from 'react';
+import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
 import { useForm } from 'src/hooks/useForm';
 import { ZodRawShape } from 'zod';
 
@@ -31,13 +32,23 @@ function AppTextAreaInput<T extends ZodRawShape>(props: AppTextInputProps<T>) {
 
   return (
     <Input
-      label={textInputProps.label ?? ''}
-      textArea
       {...textInputProps}
+      label={
+        textInputProps.label ? (
+          <>
+            {textInputProps.label}
+            {textInputProps.required && <AppRequiredInput />}
+          </>
+        ) : (
+          ' '
+        )
+      }
+      textArea
       nativeTextAreaProps={{
         ...textInputProps,
         placeholder,
       }}
+      hintText={hintText}
       state={
         state ?? textInputProps.required
           ? inputForm.messageType(String(inputKey), inputPathFromKey)
@@ -50,7 +61,6 @@ function AppTextAreaInput<T extends ZodRawShape>(props: AppTextInputProps<T>) {
         stateRelatedMessage ??
         inputForm.message(String(inputKey), inputPathFromKey, whenValid)
       }
-      hintText={hintText}
     />
   );
 }

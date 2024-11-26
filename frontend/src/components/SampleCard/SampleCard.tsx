@@ -6,29 +6,27 @@ import { format } from 'date-fns';
 import { useState } from 'react';
 import { DepartmentLabels } from 'shared/referential/Department';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
-import { ProgrammingPlanKindLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ContextLabels } from 'shared/schema/ProgrammingPlan/Context';
 import {
   isCreatedPartialSample,
   PartialSample,
   PartialSampleToCreate,
 } from 'shared/schema/Sample/Sample';
 import { DraftStatusList } from 'shared/schema/Sample/SampleStatus';
-import { UserInfos } from 'shared/schema/User/User';
 import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import RemoveSample from 'src/components/SampleTable/RemoveSample';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useOnLine } from 'src/hooks/useOnLine';
+import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import useWindowSize from 'src/hooks/useWindowSize';
 import './SampleCard.scss';
 
 interface Props {
   sample: PartialSample | PartialSampleToCreate;
-  sampleProgrammingPlan?: ProgrammingPlan;
-  userInfos?: UserInfos;
 }
 
-const SampleCard = ({ sample, sampleProgrammingPlan }: Props) => {
+const SampleCard = ({ sample }: Props) => {
+  const { sampleLink } = useSamplesLink();
   const { userInfos, hasPermission } = useAuthentication();
   const { isOnline } = useOnLine();
   const { isMobile } = useWindowSize();
@@ -69,7 +67,7 @@ const SampleCard = ({ sample, sampleProgrammingPlan }: Props) => {
       title={isCreatedPartialSample(sample) ? sample.reference : 'Hors ligne'}
       border
       linkProps={{
-        to: `/prelevements/${sample.id}`,
+        to: sampleLink(sample.id),
       }}
       desc={
         <span className={cx('fr-text--xs', 'fr-mb-0')}>
@@ -102,14 +100,12 @@ const SampleCard = ({ sample, sampleProgrammingPlan }: Props) => {
                 ></span>
                 {DepartmentLabels[sample.department]} ({sample.department})
               </span>
-              {sampleProgrammingPlan && (
-                <span className="icon-text">
-                  <span
-                    className={cx('fr-icon-microscope-line', 'fr-icon--sm')}
-                  ></span>
-                  {ProgrammingPlanKindLabels[sampleProgrammingPlan?.kind]}
-                </span>
-              )}
+              <span className="icon-text">
+                <span
+                  className={cx('fr-icon-microscope-line', 'fr-icon--sm')}
+                ></span>
+                {ContextLabels[sample.context]}
+              </span>
               {sample.matrix && (
                 <span className="icon-text">
                   <span
@@ -137,7 +133,7 @@ const SampleCard = ({ sample, sampleProgrammingPlan }: Props) => {
               size="small"
               className={clsx('fr-mr-2w')}
               linkProps={{
-                to: `/prelevements/${sample.id}`,
+                to: sampleLink(sample.id),
               }}
               priority={
                 [...DraftStatusList, 'Submitted'].includes(sample.status)

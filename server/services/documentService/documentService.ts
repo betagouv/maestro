@@ -1,19 +1,19 @@
 import { format } from 'date-fns';
 import handlebars from 'handlebars';
 import puppeteer from 'puppeteer';
-import ProgrammingPlanMissingError from '../../../shared/errors/promgrammingPlanMissingError';
+import ProgrammingPlanMissingError from '../../../shared/errors/programmingPlanMissingError';
 import { MatrixLabels } from '../../../shared/referential/Matrix/MatrixLabels';
 import { MatrixPartLabels } from '../../../shared/referential/MatrixPart';
 import { QuantityUnitLabels } from '../../../shared/referential/QuantityUnit';
-import { Region, Regions } from '../../../shared/referential/Region';
+import { Regions } from '../../../shared/referential/Region';
 import { StageLabels } from '../../../shared/referential/Stage';
-import { getSampleRegion, Sample } from '../../../shared/schema/Sample/Sample';
+import { Sample } from '../../../shared/schema/Sample/Sample';
 import { PartialSampleItem } from '../../../shared/schema/Sample/SampleItem';
 import { UserInfos } from '../../../shared/schema/User/User';
 import { isDefinedAndNotNull } from '../../../shared/utils/utils';
 import laboratoryRepository from '../../repositories/laboratoryRepository';
+import prescriptionSubstanceRepository from '../../repositories/prescriptionSubstanceRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
-import substanceAnalysisRepository from '../../repositories/substanceRepository';
 import {
   Template,
   templateContent,
@@ -72,13 +72,9 @@ const generateSupportDocument = async (
     ? await laboratoryRepository.findUnique(sample.laboratoryId)
     : null;
 
-  const substanceAnalysis =
-    sample.matrix && sample.sampledAt
-      ? await substanceAnalysisRepository.findMany({
-          matrix: sample.matrix,
-          year: sample.sampledAt.getFullYear(),
-        })
-      : null;
+  const prescriptionSubstances = sample.prescriptionId
+    ? await prescriptionSubstanceRepository.findMany(sample.prescriptionId)
+    : undefined;
 
   return generateDocument('supportDocument', {
     ...sample,
@@ -86,12 +82,12 @@ const generateSupportDocument = async (
     sampler,
     laboratory,
     programmingPlan,
-    monoSubstances: substanceAnalysis
-      ?.filter((analysis) => analysis.kind === 'Mono')
-      .map((analysis) => analysis.substance.label),
-    multiSubstances: substanceAnalysis
-      ?.filter((analysis) => analysis.kind === 'Multi')
-      .map((analysis) => analysis.substance.label),
+    monoSubstances: prescriptionSubstances
+      ?.filter((substance) => substance.analysisKind === 'Mono')
+      .map((substance) => substance.substance.label),
+    multiSubstances: prescriptionSubstances
+      ?.filter((substance) => substance.analysisKind === 'Multi')
+      .map((substance) => substance.substance.label),
     reference: [sample.reference, sampleItem?.itemNumber]
       .filter(isDefinedAndNotNull)
       .join('-'),
@@ -110,7 +106,7 @@ const generateSupportDocument = async (
         : 'Non'
       : '',
     dsfrLink: `${config.application.host}/dsfr/dsfr.min.css`,
-    establishment: Regions[getSampleRegion(sample) as Region].establishment,
+    establishment: Regions[sample.region].establishment,
   });
 };
 

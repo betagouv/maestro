@@ -1,11 +1,25 @@
 import { z } from 'zod';
-import { Region } from '../../referential/Region';
 import { Stage } from '../../referential/Stage';
+import { coerceToArray } from '../../utils/utils';
+import { Context } from '../ProgrammingPlan/Context';
+
+export const PrescriptionOptionsInclude = z.enum(['substanceCount']);
+
+export type PrescriptionOptionsInclude = z.infer<
+  typeof PrescriptionOptionsInclude
+>;
+
 export const FindPrescriptionOptions = z.object({
   programmingPlanId: z.string().uuid(),
-  region: Region.nullish(),
+  context: Context,
   matrix: z.string().nullish(),
   stage: Stage.nullish(),
+  includes: z
+    .union([
+      PrescriptionOptionsInclude,
+      coerceToArray(z.array(PrescriptionOptionsInclude)),
+    ])
+    .nullish(),
 });
 
 export type FindPrescriptionOptions = z.infer<typeof FindPrescriptionOptions>;

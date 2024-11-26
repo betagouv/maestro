@@ -4,7 +4,6 @@ import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   PartialSample,
   PartialSampleToCreate,
@@ -15,6 +14,8 @@ import { isDefinedAndNotNull } from 'shared/utils/utils';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import { useForm } from 'src/hooks/useForm';
+import { usePartialSample } from 'src/hooks/usePartialSample';
+import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import { useCreateOrUpdateSampleMutation } from 'src/services/sample.service';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SampleItemDetails from 'src/views/SampleView/SampleItemDetails/SampleItemDetails';
@@ -27,7 +28,8 @@ interface Props {
 }
 
 const ItemsStep = ({ partialSample }: Props) => {
-  const navigate = useNavigate();
+  const { navigateToSample } = useSamplesLink();
+  const { laboratory } = usePartialSample(partialSample);
 
   const [items, setItems] = useState<PartialSampleItem[]>(
     !isDefinedAndNotNull(partialSample.items) ||
@@ -54,9 +56,7 @@ const ItemsStep = ({ partialSample }: Props) => {
     e.preventDefault();
     await form.validate(async () => {
       await save('Submitted');
-      navigate(`/prelevements/${partialSample.id}?etape=4`, {
-        replace: true,
-      });
+      navigateToSample(partialSample.id, 4);
     });
   };
 
@@ -106,7 +106,7 @@ const ItemsStep = ({ partialSample }: Props) => {
               }}
               onChangeItem={changeItems}
               itemsForm={form}
-              laboratoryId={partialSample.laboratoryId}
+              laboratory={laboratory}
             />
           </div>
         ))}

@@ -1,5 +1,4 @@
 import { constants } from 'http2';
-import fp from 'lodash/fp';
 import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
@@ -8,237 +7,328 @@ import {
   RegionalCoordinator,
   Sampler1Fixture,
 } from '../../../database/seeds/test/001-users';
-import {
-  Prescription,
-  PrescriptionUpdate,
-} from '../../../shared/schema/Prescription/Prescription';
+import { MatrixList } from '../../../shared/referential/Matrix/Matrix';
+import { StageList } from '../../../shared/referential/Stage';
+import { PrescriptionUpdate } from '../../../shared/schema/Prescription/Prescription';
 import { ProgrammingPlanStatus } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { genProgrammingPlan } from '../../../shared/test/programmingPlanFixtures';
 import {
-  genLaboratory,
-  genNumber,
-  genPrescriptions,
-} from '../../../shared/test/testFixtures';
-import { Laboratories } from '../../repositories/laboratoryRepository';
+  genPrescription,
+  genPrescriptionSubstance,
+} from '../../../shared/test/prescriptionFixtures';
+import { genProgrammingPlan } from '../../../shared/test/programmingPlanFixtures';
+import { genSubstance, oneOf } from '../../../shared/test/testFixtures';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
+import {
+  formatPrescriptionSubstance,
+  PrescriptionSubstances,
+} from '../../repositories/prescriptionSubstanceRepository';
 import { ProgrammingPlans } from '../../repositories/programmingPlanRepository';
+import { RegionalPrescriptions } from '../../repositories/regionalPrescriptionRepository';
+import { Substances } from '../../repositories/substanceRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
-
 describe('Prescriptions router', () => {
   const { app } = createServer();
 
-  const programmingPlanInProgress = genProgrammingPlan({
-    createdBy: NationalCoordinator.id,
-    status: 'InProgress' as ProgrammingPlanStatus,
-  });
   const programmingPlanValidated = genProgrammingPlan({
     createdBy: NationalCoordinator.id,
     status: 'Validated' as ProgrammingPlanStatus,
+    year: 2020,
   });
-  const laboratory = genLaboratory();
-  const prescriptions1 = genPrescriptions(programmingPlanInProgress.id).map(
-    (prescription) => ({
-      ...prescription,
-      laboratoryId: laboratory.id,
-    })
-  );
-  const prescriptions2 = genPrescriptions(programmingPlanValidated.id).map(
-    (prescription) => ({
-      ...prescription,
-      laboratoryId: laboratory.id,
-    })
-  );
+  const programmingPlanSubmitted = genProgrammingPlan({
+    createdBy: NationalCoordinator.id,
+    status: 'Submitted' as ProgrammingPlanStatus,
+    year: 2021,
+  });
+  const programmingPlanInProgress = genProgrammingPlan({
+    createdBy: NationalCoordinator.id,
+    status: 'InProgress' as ProgrammingPlanStatus,
+    year: 2022,
+  });
+  const validatedControlPrescription = genPrescription({
+    programmingPlanId: programmingPlanValidated.id,
+    context: 'Control',
+    matrix: oneOf(MatrixList),
+    stages: [oneOf(StageList)],
+  });
+  const submittedControlPrescription = genPrescription({
+    programmingPlanId: programmingPlanSubmitted.id,
+    context: 'Control',
+    matrix: oneOf(MatrixList),
+    stages: [oneOf(StageList)],
+  });
+  const inProgressControlPrescription = genPrescription({
+    programmingPlanId: programmingPlanInProgress.id,
+    context: 'Control',
+    matrix: oneOf(MatrixList),
+    stages: [oneOf(StageList)],
+  });
+  const substance = genSubstance();
+  const inProgressControlPrescriptionSubstance = genPrescriptionSubstance({
+    prescriptionId: inProgressControlPrescription.id,
+    substance,
+    analysisKind: 'Mono',
+  });
+  const inProgressSurveillancePrescription = genPrescription({
+    programmingPlanId: programmingPlanInProgress.id,
+    context: 'Surveillance',
+    matrix: oneOf(MatrixList),
+    stages: [oneOf(StageList)],
+  });
 
   beforeAll(async () => {
     await ProgrammingPlans().insert([
-      programmingPlanInProgress,
       programmingPlanValidated,
+      programmingPlanSubmitted,
+      programmingPlanInProgress,
     ]);
-    await Laboratories().insert(laboratory);
-    await Prescriptions().insert([...prescriptions1, ...prescriptions2]);
+    await Prescriptions().insert([
+      submittedControlPrescription,
+      validatedControlPrescription,
+      inProgressControlPrescription,
+      inProgressSurveillancePrescription,
+    ]);
+    await Substances().insert(substance);
+    await PrescriptionSubstances().insert(
+      formatPrescriptionSubstance(inProgressControlPrescriptionSubstance)
+    );
   });
 
   afterAll(async () => {
+    await Substances().where({ code: substance.code }).delete();
     await Prescriptions()
       .delete()
       .where('programmingPlanId', 'in', [
         programmingPlanInProgress.id,
+        programmingPlanSubmitted.id,
         programmingPlanValidated.id,
       ]);
-    await Laboratories().delete().where('id', laboratory.id);
     await ProgrammingPlans()
       .delete()
       .where('id', 'in', [
         programmingPlanInProgress.id,
+        programmingPlanSubmitted.id,
         programmingPlanValidated.id,
       ]);
   });
 
-  describe('GET /programming-plans/{programmingPlanId}/prescriptions', () => {
-    const testRoute = (programmingPlanId: string) =>
-      `/api/programming-plans/${programmingPlanId}/prescriptions`;
+  describe('GET /prescriptions', () => {
+    const testRoute = '/api/prescriptions';
 
     it('should fail if the user is not authenticated', async () => {
       await request(app)
-        .get(testRoute(programmingPlanInProgress.id))
+        .get(testRoute)
+        .query({
+          programmingPlanId: programmingPlanInProgress.id,
+          context: 'Control',
+        })
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
     it('should get a valid programmingPlan id', async () => {
       await request(app)
-        .get(`${testRoute(randomstring.generate())}`)
+        .get(testRoute)
+        .query({
+          programmingPlanId: randomstring.generate(),
+          context: 'Control',
+        })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    it('should find all the prescriptions of the programmingPlan for a national role', async () => {
+    it('should get a valid context', async () => {
+      await request(app)
+        .get(testRoute)
+        .query({
+          programmingPlanId: programmingPlanInProgress.id,
+          context: 'invalid',
+        })
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    it('should find all the prescriptions of the programmingPlan with Control context', async () => {
       const res = await request(app)
-        .get(testRoute(programmingPlanInProgress.id))
+        .get(testRoute)
+        .query({
+          programmingPlanId: programmingPlanInProgress.id,
+          context: 'Control',
+        })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toMatchObject(expect.arrayContaining(prescriptions1));
-      expect(res.body).not.toMatchObject(
-        expect.arrayContaining(prescriptions2)
-      );
+      expect(res.body).toEqual([inProgressControlPrescription]);
+      expect(res.body).not.toMatchObject([inProgressSurveillancePrescription]);
+      expect(res.body).not.toMatchObject([validatedControlPrescription]);
     });
 
-    it('should find the regional prescriptions of the programmingPlan for a regional role', async () => {
+    it('should retrieve the prescription substances count if requested', async () => {
       const res = await request(app)
-        .get(testRoute(programmingPlanInProgress.id))
-        .use(tokenProvider(RegionalCoordinator))
+        .get(testRoute)
+        .query({
+          programmingPlanId: programmingPlanInProgress.id,
+          context: 'Control',
+          includes: ['substanceCount'],
+        })
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toMatchObject(
-        expect.arrayContaining(
-          prescriptions1.filter(
-            ({ region }) => region === RegionalCoordinator.region
-          )
-        )
-      );
+      expect(res.body).toEqual([
+        {
+          ...inProgressControlPrescription,
+          monoAnalysisCount: 1,
+          multiAnalysisCount: 0,
+        },
+      ]);
     });
   });
 
-  describe('GET /programming-plans/{programmingPlanId}/prescriptions/export', () => {
-    const testRoute = (programmingPlanId: string) =>
-      `/api/programming-plans/${programmingPlanId}/prescriptions/export`;
+  describe('GET /prescriptions/export', () => {
+    const testRoute = (programmingPlanId: string, context: string) =>
+      `/api/prescriptions/export?programmingPlanId=${programmingPlanId}&context=${context}`;
 
     it('should fail if the user is not authenticated', async () => {
       await request(app)
-        .get(testRoute(programmingPlanInProgress.id))
+        .get(testRoute(programmingPlanInProgress.id, 'Control'))
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
     it('should get a valid programmingPlan id', async () => {
       await request(app)
-        .get(`${testRoute(randomstring.generate())}`)
+        .get(`${testRoute(randomstring.generate(), 'Control')}`)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    it('should export the prescriptions of the programmingPlan', async () => {
+    it('should get a valid context', async () => {
       await request(app)
-        .get(testRoute(programmingPlanInProgress.id))
+        .get(testRoute(programmingPlanInProgress.id, 'invalid'))
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    it('should export the prescriptions of the programmingPlan with Control context', async () => {
+      await request(app)
+        .get(testRoute(programmingPlanInProgress.id, 'Control'))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
     });
   });
 
-  describe('POST /programming-plans/{programmingPlanId}/prescriptions', () => {
-    const prescriptionsToCreate = genPrescriptions(
-      programmingPlanInProgress.id
-    ).map((prescription) =>
-      fp.omit(['id', 'programmingPlanId', 'laboratoryId'])(prescription)
-    );
-    const testRoute = (programmingPlanId: string) =>
-      `/api/programming-plans/${programmingPlanId}/prescriptions`;
+  describe('POST /prescriptions', () => {
+    const validBody = genPrescription({
+      programmingPlanId: programmingPlanInProgress.id,
+      context: 'Control',
+    });
+    const testRoute = '/api/prescriptions';
 
     it('should fail if the user is not authenticated', async () => {
       await request(app)
-        .post(testRoute(programmingPlanInProgress.id))
-        .send(prescriptionsToCreate)
+        .post(testRoute)
+        .send(validBody)
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    it('should receive a valid programmingPlanId', async () => {
-      await request(app)
-        .post(testRoute(randomstring.generate()))
-        .send(prescriptionsToCreate)
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_BAD_REQUEST);
-    });
+    it('should get a valid body', async () => {
+      const badRequestTest = async (payload?: Record<string, unknown>) =>
+        request(app)
+          .post(testRoute)
+          .send(payload)
+          .use(tokenProvider(NationalCoordinator))
+          .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
-    it('sould receive valid prescriptions', async () => {
-      await request(app)
-        .post(testRoute(programmingPlanInProgress.id))
-        .send([
-          ...prescriptionsToCreate,
-          { ...prescriptionsToCreate[0], sampleCount: 'invalid' },
-        ])
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+      await badRequestTest();
+      await badRequestTest({ ...validBody, programmingPlanId: undefined });
+      await badRequestTest({
+        ...validBody,
+        programmingPlanId: randomstring.generate(),
+      });
+      await badRequestTest({ ...validBody, context: undefined });
+      await badRequestTest({ ...validBody, context: 'invalid' });
+      await badRequestTest({ ...validBody, matrix: undefined });
+      await badRequestTest({ ...validBody, matrix: 'invalid' });
+      await badRequestTest({ ...validBody, stages: undefined });
+      await badRequestTest({ ...validBody, stages: 'invalid' });
     });
 
     it('should fail if the user does not have the permission to create prescriptions', async () => {
       await request(app)
-        .post(testRoute(programmingPlanInProgress.id))
-        .send(prescriptionsToCreate)
+        .post(testRoute)
+        .send(validBody)
         .use(tokenProvider(RegionalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     it('should fail if the programming plan is validated', async () => {
       await request(app)
-        .post(testRoute(programmingPlanValidated.id))
-        .send(prescriptionsToCreate)
+        .post(testRoute)
+        .send({
+          ...validBody,
+          programmingPlanId: programmingPlanValidated.id,
+        })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should create the prescriptions', async () => {
+    it('should create the prescription and regional prescriptions', async () => {
       const res = await request(app)
-        .post(testRoute(programmingPlanInProgress.id))
-        .send(prescriptionsToCreate)
+        .post(testRoute)
+        .send(validBody)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_CREATED);
 
-      expect(res.body).toMatchObject(prescriptionsToCreate);
+      expect(res.body).toMatchObject({
+        ...validBody,
+        id: expect.any(String),
+      });
+
+      await expect(
+        Prescriptions().where({ id: res.body.id }).first()
+      ).resolves.toMatchObject({
+        ...validBody,
+        id: res.body.id,
+      });
+
+      await expect(
+        RegionalPrescriptions()
+          .where({ prescriptionId: res.body.id })
+          .count()
+          .first()
+      ).resolves.toMatchObject({ count: '18' });
 
       //Cleanup
-      await Prescriptions()
-        .whereIn(
-          'id',
-          (res.body as Prescription[]).map(({ id }) => id)
-        )
-        .delete();
+      await Prescriptions().where({ id: res.body.id }).delete();
     });
   });
 
-  describe('PUT /programming-plans/{programmingPlanId}/prescriptions/{prescriptionId}', () => {
+  describe('PUT /prescriptions/{prescriptionId}', () => {
     const prescriptionUpdate: PrescriptionUpdate = {
-      sampleCount: genNumber(4),
-      laboratoryId: laboratory.id,
+      programmingPlanId: programmingPlanInProgress.id,
+      stages: [oneOf(StageList)],
     };
-    const testRoute = (programmingPlanId: string, prescriptionId: string) =>
-      `/api/programming-plans/${programmingPlanId}/prescriptions/${prescriptionId}`;
+    const testRoute = (
+      prescriptionId: string = inProgressControlPrescription.id
+    ) => `/api/prescriptions/${prescriptionId}`;
 
     it('should fail if the user is not authenticated', async () => {
       await request(app)
-        .put(testRoute(programmingPlanInProgress.id, prescriptions1[0].id))
+        .put(testRoute())
         .send(prescriptionUpdate)
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
     it('should receive valid programmingPlanId and prescriptionId', async () => {
       await request(app)
-        .put(testRoute(randomstring.generate(), prescriptions1[0].id))
-        .send(prescriptionUpdate)
+        .put(testRoute())
+        .send({
+          ...prescriptionUpdate,
+          programmingPlanId: randomstring.generate(),
+        })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await request(app)
-        .put(testRoute(programmingPlanInProgress.id, randomstring.generate()))
+        .put(testRoute(randomstring.generate()))
         .send(prescriptionUpdate)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
@@ -246,7 +336,7 @@ describe('Prescriptions router', () => {
 
     it('should fail if the prescription does not exist', async () => {
       await request(app)
-        .put(testRoute(programmingPlanInProgress.id, uuidv4()))
+        .put(testRoute(uuidv4()))
         .send(prescriptionUpdate)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
@@ -254,15 +344,18 @@ describe('Prescriptions router', () => {
 
     it('should fail if the prescription does not belong to the programmingPlan', async () => {
       await request(app)
-        .put(testRoute(programmingPlanInProgress.id, prescriptions2[0].id))
-        .send(prescriptions2[0])
+        .put(testRoute())
+        .send({
+          ...prescriptionUpdate,
+          programmingPlanId: programmingPlanValidated.id,
+        })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     it('should fail if the user does not have the permission to update prescriptions', async () => {
       await request(app)
-        .put(testRoute(programmingPlanInProgress.id, prescriptions1[0].id))
+        .put(testRoute())
         .send(prescriptionUpdate)
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
@@ -270,101 +363,119 @@ describe('Prescriptions router', () => {
 
     it('should fail if the programming plan is validated', async () => {
       await request(app)
-        .put(testRoute(programmingPlanValidated.id, prescriptions2[0].id))
-        .send(prescriptionUpdate)
+        .put(testRoute())
+        .send({
+          ...prescriptionUpdate,
+          programmingPlanId: programmingPlanValidated.id,
+        })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should update the sample count of the prescription for a national coordinator', async () => {
+    it('should update the stages of the prescription', async () => {
       const res = await request(app)
-        .put(testRoute(programmingPlanInProgress.id, prescriptions1[1].id))
+        .put(testRoute())
         .send(prescriptionUpdate)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject({
-        ...prescriptions1[1],
-        sampleCount: prescriptionUpdate.sampleCount,
+        ...inProgressControlPrescription,
+        stages: prescriptionUpdate.stages,
       });
-    });
 
-    it('should update the laboratory of the prescription for a regional coordinator', async () => {
-      const res = await request(app)
-        .put(testRoute(programmingPlanInProgress.id, prescriptions1[0].id))
-        .send(prescriptionUpdate)
-        .use(tokenProvider(RegionalCoordinator))
-        .expect(constants.HTTP_STATUS_OK);
-
-      expect(res.body).toMatchObject({
-        ...prescriptions1[0],
-        laboratoryId: prescriptionUpdate.laboratoryId,
+      await expect(
+        Prescriptions().where({ id: inProgressControlPrescription.id }).first()
+      ).resolves.toMatchObject({
+        ...inProgressControlPrescription,
+        stages: prescriptionUpdate.stages,
       });
     });
   });
 
-  describe('DELETE /programming-plans/{programmingPlanId}/prescriptions', () => {
-    const testRoute = (programmingPlanId: string) =>
-      `/api/programming-plans/${programmingPlanId}/prescriptions`;
+  describe('GET /prescriptions/{prescriptionId}/substances', () => {
+    const testRoute = (prescriptionId: string) =>
+      `/api/prescriptions/${prescriptionId}/substances`;
 
     it('should fail if the user is not authenticated', async () => {
       await request(app)
-        .delete(testRoute(programmingPlanInProgress.id))
-        .send([prescriptions1[0].id])
+        .get(testRoute(inProgressControlPrescription.id))
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    it('should receive a valid programmingPlanId', async () => {
+    it('should fail if the prescription does not exist', async () => {
       await request(app)
-        .delete(testRoute(randomstring.generate()))
-        .send([prescriptions1[0].id])
+        .get(testRoute(uuidv4()))
         .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+        .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
-    it('should receive valid prescriptionIds', async () => {
-      await request(app)
-        .delete(testRoute(programmingPlanInProgress.id))
-        .send([randomstring.generate()])
+    // TODO specifc permission required ?
+    //
+    // it('should fail if the user does not have the permission to re prescriptions', async () => {
+    //   await request(app)
+    //     .get(testRoute(inProgressControlPrescription.id))
+    //     .use(tokenProvider(RegionalCoordinator))
+    //     .expect(constants.HTTP_STATUS_FORBIDDEN);
+    // });
+
+    it('should retrieve the prescription substances', async () => {
+      const res = await request(app)
+        .get(testRoute(inProgressControlPrescription.id))
         .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toEqual([inProgressControlPrescriptionSubstance]);
+    });
+  });
+
+  describe('DELETE /prescriptions', () => {
+    const testRoute = (prescriptionId: string) =>
+      `/api/prescriptions/${prescriptionId}`;
+
+    it('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .delete(testRoute(inProgressControlPrescription.id))
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    it('should fail if the prescription does not exist', async () => {
+      await request(app)
+        .delete(testRoute(uuidv4()))
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
     it('should fail if the user does not have the permission to delete prescriptions', async () => {
       await request(app)
-        .delete(testRoute(programmingPlanInProgress.id))
-        .send([prescriptions1[0].id])
+        .delete(testRoute(inProgressControlPrescription.id))
         .use(tokenProvider(RegionalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     it('should fail if the programming plan is validated', async () => {
       await request(app)
-        .delete(testRoute(programmingPlanValidated.id))
-        .send([prescriptions2[0].id])
+        .delete(testRoute(validatedControlPrescription.id))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should delete the prescriptions of the programmingPlan', async () => {
+    it('should delete the prescription', async () => {
       await request(app)
-        .delete(testRoute(programmingPlanInProgress.id))
-        .send([...prescriptions1, ...prescriptions2].map(({ id }) => id))
+        .delete(testRoute(inProgressControlPrescription.id))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_NO_CONTENT);
 
       await expect(
-        Prescriptions()
-          .where({ programmingPlanId: programmingPlanInProgress.id })
+        Prescriptions().where({ id: inProgressControlPrescription.id }).first()
+      ).resolves.toBeUndefined();
+
+      await expect(
+        RegionalPrescriptions()
+          .where({ prescriptionId: inProgressControlPrescription.id })
           .count()
           .first()
       ).resolves.toMatchObject({ count: '0' });
-      await expect(
-        Prescriptions()
-          .where({ programmingPlanId: programmingPlanValidated.id })
-          .count()
-          .first()
-      ).resolves.toMatchObject({ count: '18' });
     });
   });
 });

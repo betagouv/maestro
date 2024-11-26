@@ -11,6 +11,7 @@ import { Department } from 'shared/referential/Department';
 import { Matrix } from 'shared/referential/Matrix/Matrix';
 import { Region } from 'shared/referential/Region';
 import { defaultPerPage } from 'shared/schema/commons/Pagination';
+import { Context } from 'shared/schema/ProgrammingPlan/Context';
 import { FindSampleOptions } from 'shared/schema/Sample/FindSampleOptions';
 import {
   DraftStatusList,
@@ -26,7 +27,6 @@ import { useOnLine } from 'src/hooks/useOnLine';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import useWindowSize from 'src/hooks/useWindowSize';
 import { useFindPrescriptionsQuery } from 'src/services/prescription.service';
-import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.service';
 import {
   useCountSamplesQuery,
   useFindSamplesQuery,
@@ -54,46 +54,49 @@ const SampleListView = () => {
   const { findSampleOptions, sampleListDisplay } = useAppSelector(
     (state) => state.samples
   );
+  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
 
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
 
   useEffect(() => {
-    if (searchParams?.size > 0) {
-      const status = searchParams.get('status') as SampleStatus;
-      dispatch(
-        samplesSlice.actions.changeFindOptions({
-          programmingPlanId: searchParams.get('programmingPlanId') ?? undefined,
-          region:
-            userInfos?.region ??
-            (searchParams.get('region') as Region) ??
-            undefined,
-          department:
-            (searchParams.get('department') as Department) ?? undefined,
-          status: status === 'Draft' ? DraftStatusList : status ?? undefined,
-          matrix: searchParams.get('matrix') as Matrix,
-          sampledBy: searchParams.get('sampledBy'),
-          sampledAt: searchParams.get('sampledAt'),
-          reference: searchParams.get('reference'),
-          page: Number(searchParams.get('page')) || 1,
-          perPage: defaultPerPage,
-        })
-      );
-    }
+    const status = searchParams.get('status') as SampleStatus;
+    dispatch(
+      samplesSlice.actions.changeFindOptions({
+        context: searchParams.get('context') as Context,
+        region:
+          userInfos?.region ??
+          (searchParams.get('region') as Region) ??
+          undefined,
+        department: (searchParams.get('department') as Department) ?? undefined,
+        status: status === 'Draft' ? DraftStatusList : status ?? undefined,
+        matrix: searchParams.get('matrix') as Matrix,
+        sampledBy: searchParams.get('sampledBy'),
+        sampledAt: searchParams.get('sampledAt'),
+        reference: searchParams.get('reference'),
+        page: Number(searchParams.get('page')) || 1,
+        perPage: defaultPerPage,
+      })
+    );
   }, [searchParams, userInfos?.region, sampleListDisplay]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const { programmingPlanStatus } = useAppSelector((state) => state.settings);
-  const { data: samples } = useFindSamplesQuery(findSampleOptions);
-  const { data: samplesCount } = useCountSamplesQuery(
-    fp.omit(findSampleOptions, 'page', 'perPage')
+  const { data: samples } = useFindSamplesQuery(
+    { ...findSampleOptions, programmingPlanId: programmingPlan?.id as string },
+    { skip: !programmingPlan }
   );
-  const { data: programmingPlans } = useFindProgrammingPlansQuery(
-    { status: programmingPlanStatus },
-    { skip: !programmingPlanStatus }
+  const { data: samplesCount } = useCountSamplesQuery(
+    {
+      ...fp.omit(findSampleOptions, 'page', 'perPage'),
+      programmingPlanId: programmingPlan?.id as string,
+    },
+    { skip: !programmingPlan }
   );
   const { data: prescriptions } = useFindPrescriptionsQuery(
-    { programmingPlanId: findSampleOptions.programmingPlanId as string },
     {
-      skip: !findSampleOptions.programmingPlanId,
+      programmingPlanId: programmingPlan?.id as string,
+      context: findSampleOptions.context as Context,
+    },
+    {
+      skip: !programmingPlan?.id || !findSampleOptions.context,
     }
   );
   const { data: samplers } = useFindUsersQuery({
@@ -101,21 +104,23 @@ const SampleListView = () => {
     role: 'Sampler',
   });
 
-  const changeFilter = (findFilter: FindSampleOptions) => {
-    setSearchParams(
-      fp.omit(
-        fp.omitBy(
-          {
-            ...fp.mapValues(findSampleOptions, (value) => value?.toString()),
-            ...fp.mapValues(findFilter, (value) => value?.toString()),
-          },
-          fp.isEmpty
-        ),
-        'page',
-        'perPage'
+  const changeFilter = (findFilter: Partial<FindSampleOptions>) => {
+    const filteredParams = fp.omit(
+      fp.omitBy(
+        {
+          ...fp.mapValues(findSampleOptions, (value) => value?.toString()),
+          ...fp.mapValues(findFilter, (value) => value?.toString()),
+        },
+        fp.isEmpty
       ),
-      { replace: true }
+      ['page', 'perPage']
     );
+
+    const urlSearchParams = new URLSearchParams(
+      filteredParams as Record<string, string>
+    );
+
+    setSearchParams(urlSearchParams, { replace: true });
   };
 
   const hasFilter = useMemo(
@@ -127,10 +132,14 @@ const SampleListView = () => {
     [findSampleOptions, hasNationalView]
   );
 
+  if (!programmingPlan) {
+    return <></>;
+  }
+
   return (
     <section className={clsx(cx('fr-container'), 'main-section')}>
       <SectionHeader
-        title="Prélèvements"
+        title={`Prélèvements ${programmingPlan?.year}`}
         subtitle="Consultez les dossiers des prélèvements"
         illustration={food}
         action={
@@ -138,7 +147,7 @@ const SampleListView = () => {
             {hasPermission('createSample') && (
               <Button
                 linkProps={{
-                  to: '/prelevements/nouveau',
+                  to: `/prelevements/${programmingPlan?.year}/nouveau`,
                   target: '_self',
                 }}
                 iconId="fr-icon-microscope-line"
@@ -166,7 +175,6 @@ const SampleListView = () => {
                 <SampleSecondaryFilters
                   filters={findSampleOptions}
                   onChange={changeFilter}
-                  programmingPlans={programmingPlans}
                 />
               </div>
             </Accordion>
@@ -186,7 +194,6 @@ const SampleListView = () => {
                     <SampleSecondaryFilters
                       filters={findSampleOptions}
                       onChange={changeFilter}
-                      programmingPlans={programmingPlans}
                     />
                   )}
                 </div>
@@ -206,7 +213,6 @@ const SampleListView = () => {
             <div className="d-flex-align-center">
               <SampleFiltersTags
                 filters={findSampleOptions}
-                programmingPlans={programmingPlans}
                 samplers={samplers}
                 onChange={changeFilter}
               />
@@ -237,12 +243,7 @@ const SampleListView = () => {
                       className={cx('fr-col-12', 'fr-col-md-3')}
                       key={sample.id}
                     >
-                      <SampleCard
-                        sample={sample}
-                        sampleProgrammingPlan={programmingPlans?.find(
-                          (plan) => plan.id === sample.programmingPlanId
-                        )}
-                      />
+                      <SampleCard sample={sample} />
                     </div>
                   ))}
                 </div>

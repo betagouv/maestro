@@ -372,3 +372,7 @@ export const Regions: Record<
     departments: ['976'],
   },
 };
+
+export const RegionSort = (a: Region, b: Region) => {
+  return RegionList.indexOf(a) - RegionList.indexOf(b);
+};

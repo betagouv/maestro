@@ -37,7 +37,7 @@ describe('User router', () => {
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
-    it('should fail if the user requested is not the user authenticated', async () => {
+    it('should fail if the user requested has no common region with the authenticated user', async () => {
       await request(app)
         .get(`/api/users/${Sampler1Fixture.id}/infos`)
         .use(tokenProvider(Sampler2Fixture))
@@ -47,7 +47,7 @@ describe('User router', () => {
     it('should return user infos', async () => {
       const res = await request(app)
         .get(`/api/users/${Sampler1Fixture.id}/infos`)
-        .use(tokenProvider(Sampler1Fixture))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toEqual({

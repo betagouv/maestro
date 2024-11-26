@@ -16,8 +16,8 @@ import { UserInfos } from 'shared/schema/User/User';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 
 interface Props {
-  filters: FindSampleOptions;
-  onChange: (filters: FindSampleOptions) => void;
+  filters: Partial<FindSampleOptions>;
+  onChange: (filters: Partial<FindSampleOptions>) => void;
   samplers?: UserInfos[];
   prescriptions?: Prescription[];
 }
@@ -43,6 +43,7 @@ const SamplePrimaryFilters = ({
             MatrixList.filter(
               (matrix) =>
                 !filters.programmingPlanId ||
+                !filters.context ||
                 !prescriptions ||
                 prescriptions.find((p) => p.matrix === matrix)
             ),

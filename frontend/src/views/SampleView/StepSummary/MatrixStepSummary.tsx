@@ -7,8 +7,9 @@ import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
 import { MatrixPartLabels } from 'shared/referential/MatrixPart';
 import { StageLabels } from 'shared/referential/Stage';
 import { Sample, SampleToCreate } from 'shared/schema/Sample/Sample';
-import { useGetLaboratoryQuery } from 'src/services/laboratory.service';
-import { useFindSubstanceAnalysisQuery } from 'src/services/substance.service';
+import { usePartialSample } from 'src/hooks/usePartialSample';
+import { useGetPrescriptionSubstancesQuery } from 'src/services/prescription.service';
+import { quote } from 'src/utils/stringUtils';
 import StepSummary from 'src/views/SampleView/StepSummary/StepSummary';
 
 interface Props {
@@ -16,25 +17,20 @@ interface Props {
   showLabel?: boolean;
 }
 const MatrixStepSummary = ({ sample, showLabel }: Props) => {
-  const { data: substanceAnalysis } = useFindSubstanceAnalysisQuery(
-    {
-      matrix: sample.matrix,
-      year: sample.sampledAt.getFullYear(),
-    },
-    { skip: !sample.matrix || !sample.sampledAt }
-  );
-
-  const { data: laboratory } = useGetLaboratoryQuery(
-    sample.laboratoryId ?? skipToken
+  const { laboratory } = usePartialSample(sample);
+  const { data: substances } = useGetPrescriptionSubstancesQuery(
+    sample.prescriptionId ?? skipToken
   );
 
   const monoSubstances = useMemo(() => {
-    return substanceAnalysis?.filter((analysis) => analysis.kind === 'Mono');
-  }, [substanceAnalysis]);
+    return substances?.filter((substance) => substance.analysisKind === 'Mono');
+  }, [substances]);
 
   const multiSubstances = useMemo(() => {
-    return substanceAnalysis?.filter((analysis) => analysis.kind === 'Multi');
-  }, [substanceAnalysis]);
+    return substances?.filter(
+      (substance) => substance.analysisKind === 'Multi'
+    );
+  }, [substances]);
 
   return (
     <StepSummary
@@ -135,7 +131,7 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
           <div>
             Note additionnelle{' '}
             <div>
-              <b>“ {sample.notesOnMatrix} “</b>
+              <b>{quote(sample.notesOnMatrix)}</b>
             </div>
           </div>
         </div>

@@ -1,30 +1,52 @@
 import { z } from 'zod';
 import { Matrix } from '../../referential/Matrix/Matrix';
-import { Region } from '../../referential/Region';
-import { Stage } from '../../referential/Stage';
+import { MatrixLabels } from '../../referential/Matrix/MatrixLabels';
+import { Stage, StageLabels } from '../../referential/Stage';
+import { Context } from '../ProgrammingPlan/Context';
+import { PrescriptionSubstance } from './PrescriptionSubstance';
 
 export const Prescription = z.object({
   id: z.string().uuid(),
   programmingPlanId: z.string().uuid(),
-  region: Region,
+  context: Context,
   matrix: Matrix,
   stages: z.array(Stage),
-  sampleCount: z.number(),
-  laboratoryId: z.string().nullish(),
+  monoAnalysisCount: z.coerce.number().nullish(),
+  multiAnalysisCount: z.coerce.number().nullish(),
 });
 
-export const PrescriptionToCreate = Prescription.pick({
-  region: true,
-  matrix: true,
-  stages: true,
-  sampleCount: true,
+export const PrescriptionToCreate = Prescription.omit({
+  id: true,
 });
 
-export const PrescriptionUpdate = Prescription.pick({
-  sampleCount: true,
-  laboratoryId: true,
-}).partial();
+export const PrescriptionUpdate = z.object({
+  programmingPlanId: z.string().uuid(),
+  stages: z.array(Stage).nullish(),
+  substances: z
+    .array(
+      PrescriptionSubstance.pick({
+        analysisKind: true,
+        substance: true,
+      })
+    )
+    .nullish(),
+});
 
 export type Prescription = z.infer<typeof Prescription>;
 export type PrescriptionToCreate = z.infer<typeof PrescriptionToCreate>;
 export type PrescriptionUpdate = z.infer<typeof PrescriptionUpdate>;
+
+export const PrescriptionSort = (a: Prescription, b: Prescription) =>
+  [
+    a.programmingPlanId,
+    MatrixLabels[a.matrix],
+    ...a.stages.map((_) => StageLabels[_]),
+  ]
+    .join()
+    .localeCompare(
+      [
+        b.programmingPlanId,
+        MatrixLabels[b.matrix],
+        ...b.stages.map((_) => StageLabels[_]),
+      ].join()
+    );

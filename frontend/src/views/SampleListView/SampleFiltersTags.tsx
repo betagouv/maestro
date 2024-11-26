@@ -1,4 +1,3 @@
-import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import { format } from 'date-fns';
 import { useMemo } from 'react';
@@ -6,7 +5,7 @@ import { Department, DepartmentLabels } from 'shared/referential/Department';
 import { Matrix } from 'shared/referential/Matrix/Matrix';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
 import { Region, Regions } from 'shared/referential/Region';
-import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ContextLabels } from 'shared/schema/ProgrammingPlan/Context';
 import { FindSampleOptions } from 'shared/schema/Sample/FindSampleOptions';
 import {
   DraftStatusList,
@@ -18,28 +17,16 @@ import { UserInfos } from 'shared/schema/User/User';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 
 interface Props {
-  filters: FindSampleOptions;
-  onChange: (filters: FindSampleOptions) => void;
+  filters: Partial<FindSampleOptions>;
+  onChange: (filters: Partial<FindSampleOptions>) => void;
   samplers?: UserInfos[];
-  programmingPlans?: ProgrammingPlan[];
 }
 
-const SampleFiltersTags = ({
-  filters,
-  onChange,
-  samplers,
-  programmingPlans,
-}: Props) => {
+const SampleFiltersTags = ({ filters, onChange, samplers }: Props) => {
   const { hasNationalView } = useAuthentication();
   const sampler = useMemo(
     () => samplers?.find((user) => user.id === filters.sampledBy),
     [samplers, filters.sampledBy]
-  );
-
-  const programmingPlan = useMemo(
-    () =>
-      programmingPlans?.find((plan) => plan.id === filters.programmingPlanId),
-    [programmingPlans, filters.programmingPlanId]
   );
 
   return (
@@ -50,7 +37,6 @@ const SampleFiltersTags = ({
           nativeButtonProps={{
             onClick: () => onChange({ matrix: undefined }),
           }}
-          className={cx('fr-mx-1w')}
         >
           {MatrixLabels[filters.matrix as Matrix]}
         </Tag>
@@ -62,7 +48,6 @@ const SampleFiltersTags = ({
           nativeButtonProps={{
             onClick: () => onChange({ status: undefined }),
           }}
-          className={cx('fr-mx-1w')}
         >
           {filters.status === DraftStatusList.join(',')
             ? 'Brouillon'
@@ -77,7 +62,6 @@ const SampleFiltersTags = ({
           nativeButtonProps={{
             onClick: () => onChange({ sampledBy: undefined }),
           }}
-          className={cx('fr-mx-1w')}
         >
           {sampler.firstName} {sampler.lastName}
         </Tag>
@@ -88,7 +72,6 @@ const SampleFiltersTags = ({
           nativeButtonProps={{
             onClick: () => onChange({ sampledAt: undefined }),
           }}
-          className={cx('fr-mx-1w')}
         >
           {format(new Date(filters.sampledAt as string), 'dd/MM/yyyy')}
         </Tag>
@@ -100,7 +83,6 @@ const SampleFiltersTags = ({
             onClick: () =>
               onChange({ region: undefined, department: undefined }),
           }}
-          className={cx('fr-mx-1w')}
         >
           {Regions[filters.region as Region].name}
         </Tag>
@@ -111,20 +93,18 @@ const SampleFiltersTags = ({
           nativeButtonProps={{
             onClick: () => onChange({ department: undefined }),
           }}
-          className={cx('fr-mx-1w')}
         >
           {DepartmentLabels[filters.department as Department]}
         </Tag>
       )}
-      {programmingPlan && (
+      {filters.context && (
         <Tag
           dismissible
           nativeButtonProps={{
-            onClick: () => onChange({ programmingPlanId: undefined }),
+            onClick: () => onChange({ context: undefined }),
           }}
-          className={cx('fr-mx-1w')}
         >
-          {programmingPlan.title}
+          {ContextLabels[filters.context]}
         </Tag>
       )}
     </>

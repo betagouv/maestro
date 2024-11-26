@@ -1,0 +1,26 @@
+.prescription-comments-modal {
+  form {
+    flex-grow: 1;
+  }
+
+  button {
+    align-self: end;
+  }
+
+  .comments-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .prescription-comment {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    background-color: var(--beige-gris-galet-975-75);
+    border: 1px solid var(--beige-gris-galet-925-125);
+    border-radius: 0.25rem;
+    padding: 1.5rem;
+    gap: 1rem;
+  }
+}

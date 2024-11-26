@@ -2,13 +2,13 @@ import { configureStore, Store } from '@reduxjs/toolkit';
 import { render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import Router, { BrowserRouter } from 'react-router-dom';
+import { genPrescription } from 'shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'shared/test/programmingPlanFixtures';
 import {
   genCreatedPartialSample,
   genCreatedSampleData,
   genSampleContextData,
 } from 'shared/test/sampleFixtures';
-import { genPrescriptions } from 'shared/test/testFixtures';
 import { genAuthUser, genUser } from 'shared/test/userFixtures';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import SampleView from 'src/views/SampleView/SampleView';
@@ -40,7 +40,12 @@ const programmingPlanRequest = {
     body: JSON.stringify([programmingPlan1, programmingPlan2]),
   },
 };
-const prescriptions = genPrescriptions(programmingPlan1.id);
+const prescriptions = [
+  genPrescription({
+    programmingPlanId: programmingPlan1.id,
+    context: 'Control',
+  }),
+];
 const prescriptionsRequest = {
   pathname: `/api/programming-plans/${programmingPlan1.id}/prescriptions?`,
   response: { body: JSON.stringify(prescriptions) },

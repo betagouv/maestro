@@ -14,12 +14,16 @@ export const UserRoleList: UserRole[] = UserRole.options;
 
 export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
   NationalCoordinator: [
+    'manageProgrammingPlan',
     'readProgrammingPlans',
     'readProgrammingPlansInProgress',
+    'readProgrammingPlanSubmitted',
+    'readProgrammingPlanValidated',
     'createPrescription',
     'readPrescriptions',
-    'updatePrescriptionSampleCount',
+    'updatePrescription',
     'deletePrescription',
+    'commentPrescription',
     'readSamples',
     'createResource',
     'readDocuments',
@@ -28,15 +32,18 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
   ],
   RegionalCoordinator: [
     'readProgrammingPlans',
-    'readProgrammingPlansInProgress',
+    'readProgrammingPlanSubmitted',
+    'readProgrammingPlanValidated',
     'readPrescriptions',
     'updatePrescriptionLaboratory',
+    'commentPrescription',
     'readSamples',
     'readDocuments',
     'readCompanies',
   ],
   Sampler: [
     'readProgrammingPlans',
+    'readProgrammingPlanValidated',
     'readPrescriptions',
     'createSample',
     'readSamples',

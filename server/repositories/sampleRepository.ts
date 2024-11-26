@@ -8,7 +8,7 @@ import { companiesTable } from './companyRepository';
 import db from './db';
 import { usersTable } from './userRepository';
 
-const samplesTable = 'samples';
+export const samplesTable = 'samples';
 const sampleSequenceNumbers = 'sample_sequence_numbers';
 
 const PartialSampleDbo = PartialSample.omit({
@@ -81,7 +81,7 @@ const findRequest = (findOptions: FindSampleOptions) =>
           'sampledAt',
           'page',
           'perPage',
-          'statusList',
+          'status',
           'reference'
         ),
         (_) => fp.isNil(_) || fp.isArray(_)
@@ -94,8 +94,12 @@ const findRequest = (findOptions: FindSampleOptions) =>
           `${Regions[findOptions.region].shortName}-%`
         );
       }
-      if (fp.isArray(findOptions.status)) {
-        builder.whereIn('status', findOptions.status);
+      if (findOptions.status) {
+        if (fp.isArray(findOptions.status)) {
+          builder.whereIn('status', findOptions.status);
+        } else {
+          builder.where('status', findOptions.status);
+        }
       }
       if (findOptions.sampledAt) {
         builder.whereRaw(

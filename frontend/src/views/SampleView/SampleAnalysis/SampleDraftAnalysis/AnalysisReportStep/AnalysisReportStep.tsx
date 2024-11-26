@@ -3,13 +3,13 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { PartialAnalysis } from 'shared/schema/Analysis/Analysis';
 import { FileInput } from 'shared/schema/File/FileInput';
 import { FileType } from 'shared/schema/File/FileType';
 import DocumentLink from 'src/components/DocumentLink/DocumentLink';
 import AppUpload from 'src/components/_app/AppUpload/AppUpload';
 import { useForm } from 'src/hooks/useForm';
+import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import {
   useCreateAnalysisMutation,
   useUpdateAnalysisMutation,
@@ -26,7 +26,7 @@ interface Props {
 }
 
 const AnalysisReportStep = ({ sampleId, partialAnalysis }: Props) => {
-  const navigate = useNavigate();
+  const { navigateToSample } = useSamplesLink();
 
   const [
     createDocument,
@@ -97,9 +97,7 @@ const AnalysisReportStep = ({ sampleId, partialAnalysis }: Props) => {
           status: 'Residues',
         });
       }
-      navigate(`/prelevements/${sampleId}/analyse?etape=2`, {
-        replace: true,
-      });
+      navigateToSample(sampleId, 2);
     });
   };
 
@@ -142,7 +140,7 @@ const AnalysisReportStep = ({ sampleId, partialAnalysis }: Props) => {
           className={cx('fr-mb-2w')}
           description={<>Le dépôt de fichier a échoué.</>}
           severity="error"
-          small={true}
+          small
         />
       )}
       <hr />

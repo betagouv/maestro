@@ -4,11 +4,13 @@ import { Matrix } from '../../referential/Matrix/Matrix';
 import { Region } from '../../referential/Region';
 import { coerceToArray } from '../../utils/utils';
 import { Pagination } from '../commons/Pagination';
+import { Context } from '../ProgrammingPlan/Context';
 import { SampleStatus } from './SampleStatus';
 
 export const FindSampleOptions = z
   .object({
-    programmingPlanId: z.string().uuid().nullish(),
+    programmingPlanId: z.string().uuid(),
+    context: Context.nullish(),
     region: Region.nullish(),
     department: Department.nullish(),
     status: z

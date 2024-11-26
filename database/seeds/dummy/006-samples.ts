@@ -11,11 +11,19 @@ import { Regions } from '../../../shared/referential/Region';
 import { Sample } from '../../../shared/schema/Sample/Sample';
 import { genCreatedSample } from '../../../shared/test/sampleFixtures';
 import { oneOf } from '../../../shared/test/testFixtures';
-import { DummyLaboratoryIds } from './002-laboratories';
+import {
+  abricotsEtSimilaires,
+  avoineEtSimilaires,
+  carottes,
+  cerisesEtSimilaires,
+  fevesDeSoja,
+  lentilles,
+  oignons,
+} from './004-prescriptions';
 
 exports.seed = async function () {
-  const validatedControlProgrammingPlan = await ProgrammingPlans()
-    .where({ status: 'Validated', kind: 'Control' })
+  const validatedProgrammingPlan = await ProgrammingPlans()
+    .where({ status: 'Validated' })
     .first();
 
   const sampler = await Users()
@@ -24,7 +32,7 @@ exports.seed = async function () {
 
   const companies = await Companies();
 
-  if (!validatedControlProgrammingPlan || !sampler) {
+  if (!validatedProgrammingPlan || !sampler) {
     return;
   }
 
@@ -33,13 +41,14 @@ exports.seed = async function () {
       () =>
         genCreatedSample({
           sampler,
-          programmingPlanId: validatedControlProgrammingPlan.id,
+          programmingPlanId: validatedProgrammingPlan.id,
+          context: 'Control',
           matrix: 'A0DVX',
           stage: 'STADE1',
           status: 'Sent',
           department: oneOf(Regions[sampler.region!].departments),
           company: oneOf(companies),
-          laboratoryId: oneOf(DummyLaboratoryIds),
+          prescriptionId: abricotsEtSimilaires.id,
         }),
       { count: 2 }
     ),
@@ -47,13 +56,14 @@ exports.seed = async function () {
       () =>
         genCreatedSample({
           sampler,
-          programmingPlanId: validatedControlProgrammingPlan.id,
+          programmingPlanId: validatedProgrammingPlan.id,
+          context: 'Control',
           matrix: 'A000F',
           stage: 'STADE1',
           status: 'Sent',
           department: oneOf(Regions[sampler.region!].departments),
           company: oneOf(companies),
-          laboratoryId: oneOf(DummyLaboratoryIds),
+          prescriptionId: avoineEtSimilaires.id,
         }),
       { count: 8 }
     ),
@@ -61,13 +71,14 @@ exports.seed = async function () {
       () =>
         genCreatedSample({
           sampler,
-          programmingPlanId: validatedControlProgrammingPlan.id,
+          programmingPlanId: validatedProgrammingPlan.id,
+          context: 'Control',
           matrix: 'A00QH',
           stage: 'STADE1',
           status: 'Sent',
           department: oneOf(Regions[sampler.region!].departments),
           company: oneOf(companies),
-          laboratoryId: oneOf(DummyLaboratoryIds),
+          prescriptionId: carottes.id,
         }),
       { count: 3 }
     ),
@@ -75,13 +86,14 @@ exports.seed = async function () {
       () =>
         genCreatedSample({
           sampler,
-          programmingPlanId: validatedControlProgrammingPlan.id,
+          programmingPlanId: validatedProgrammingPlan.id,
+          context: 'Control',
           matrix: 'A01GG',
           stage: 'STADE1',
           status: 'Sent',
           department: oneOf(Regions[sampler.region!].departments),
           company: oneOf(companies),
-          laboratoryId: oneOf(DummyLaboratoryIds),
+          prescriptionId: cerisesEtSimilaires.id,
         }),
       { count: 4 }
     ),
@@ -89,13 +101,14 @@ exports.seed = async function () {
       () =>
         genCreatedSample({
           sampler,
-          programmingPlanId: validatedControlProgrammingPlan.id,
+          programmingPlanId: validatedProgrammingPlan.id,
+          context: 'Control',
           matrix: 'A00HC',
           stage: 'STADE1',
           status: 'Sent',
           department: oneOf(Regions[sampler.region!].departments),
           company: oneOf(companies),
-          laboratoryId: oneOf(DummyLaboratoryIds),
+          prescriptionId: oignons.id,
         }),
       { count: 7 }
     ),
@@ -103,13 +116,14 @@ exports.seed = async function () {
       () =>
         genCreatedSample({
           sampler,
-          programmingPlanId: validatedControlProgrammingPlan.id,
-          matrix: 'A0DFB',
+          programmingPlanId: validatedProgrammingPlan.id,
+          context: 'Control',
+          matrix: 'A013Q',
           stage: 'STADE1',
           status: 'Sent',
           department: oneOf(Regions[sampler.region!].departments),
           company: oneOf(companies),
-          laboratoryId: oneOf(DummyLaboratoryIds),
+          prescriptionId: lentilles.id,
         }),
       { count: 6 }
     ),
@@ -117,13 +131,14 @@ exports.seed = async function () {
       () =>
         genCreatedSample({
           sampler,
-          programmingPlanId: validatedControlProgrammingPlan.id,
+          programmingPlanId: validatedProgrammingPlan.id,
+          context: 'Control',
           matrix: 'A0DFR',
           stage: 'STADE1',
           status: 'Sent',
           department: oneOf(Regions[sampler.region!].departments),
           company: oneOf(companies),
-          laboratoryId: oneOf(DummyLaboratoryIds),
+          prescriptionId: fevesDeSoja.id,
         }),
       { count: 6 }
     ),

@@ -3,9 +3,8 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
-import { skipToken } from '@reduxjs/toolkit/query';
 import React, { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
   isCreatedSample,
   Sample,
@@ -16,7 +15,8 @@ import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
 import { useOnLine } from 'src/hooks/useOnLine';
-import { useGetLaboratoryQuery } from 'src/services/laboratory.service';
+import { usePartialSample } from 'src/hooks/usePartialSample';
+import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import {
   getSupportDocumentURL,
   useCreateOrUpdateSampleMutation,
@@ -34,9 +34,10 @@ interface Props {
 }
 
 const SendingStep = ({ sample }: Props) => {
-  const navigate = useNavigate();
+  const { navigateToSample } = useSamplesLink();
   const { hasPermission } = useAuthentication();
   const { isOnline } = useOnLine();
+  const { laboratory } = usePartialSample(sample);
 
   const [items, setItems] = useState<SampleItem[]>(sample.items);
   const [resytalId, setResytalId] = useState(sample.resytalId);
@@ -45,10 +46,6 @@ const SendingStep = ({ sample }: Props) => {
   const [createOrUpdateSample, { isError }] = useCreateOrUpdateSampleMutation({
     fixedCacheKey: `sending-sample-${sample.id}`,
   });
-
-  const { data: laboratory } = useGetLaboratoryQuery(
-    (sample.laboratoryId as string) ?? skipToken
-  );
 
   const isSendable = useMemo(
     () => Sample.safeParse(sample).success && isOnline,
@@ -77,9 +74,7 @@ const SendingStep = ({ sample }: Props) => {
       status: 'Sent',
       sentAt: new Date(),
     } as Sample);
-    navigate(`/prelevements/${sample.id}`, {
-      replace: true,
-    });
+    navigateToSample(sample.id);
   };
 
   const save = async (status = sample.status) => {
@@ -94,7 +89,6 @@ const SendingStep = ({ sample }: Props) => {
   const changeItems = (item: SampleItem, index: number) => {
     const newItems = [...items];
     newItems[index] = item;
-    console.log(newItems);
     setItems(newItems);
   };
 
@@ -252,9 +246,7 @@ const SendingStep = ({ sample }: Props) => {
                     onClick={async (e: React.MouseEvent<HTMLElement>) => {
                       e.preventDefault();
                       await save('Draft');
-                      navigate(`/prelevements/${sample.id}?etape=1`, {
-                        replace: true,
-                      });
+                      navigateToSample(sample.id, 1);
                     }}
                   >
                     Compléter ces informations

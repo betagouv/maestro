@@ -68,7 +68,7 @@ const getSampleItemDocument = async (request: Request, response: Response) => {
 
 const findSamples = async (request: Request, response: Response) => {
   const { user } = request as AuthenticatedRequest;
-  const queryFindOptions = request.query as FindSampleOptions;
+  const queryFindOptions = FindSampleOptions.parse(request.query);
 
   const findOptions = {
     ...queryFindOptions,
@@ -84,7 +84,7 @@ const findSamples = async (request: Request, response: Response) => {
 
 const countSamples = async (request: Request, response: Response) => {
   const { user } = request as AuthenticatedRequest;
-  const queryFindOptions = request.query as FindSampleOptions;
+  const queryFindOptions = FindSampleOptions.parse(request.query);
 
   const findOptions = {
     ...queryFindOptions,
@@ -100,7 +100,7 @@ const countSamples = async (request: Request, response: Response) => {
 
 const exportSamples = async (request: Request, response: Response) => {
   const { user } = request as AuthenticatedRequest;
-  const queryFindOptions = request.query as FindSampleOptions;
+  const queryFindOptions = FindSampleOptions.parse(request.query);
 
   const findOptions = {
     ...queryFindOptions,
@@ -142,6 +142,7 @@ const createSample = async (request: Request, response: Response) => {
 
   const sample = {
     ...sampleToCreate,
+    region: user.region,
     reference: `${Regions[user.region].shortName}-${
       sampleToCreate.department
     }-${format(new Date(), 'yy')}-${String(serial).padStart(4, '0')}-${
@@ -197,12 +198,12 @@ const updateSample = async (request: Request, response: Response) => {
         );
 
         if (sampleItem.itemNumber === 1) {
-          const laboratory = await laboratoryRepository.findUnique(
+          const laboratory = (await laboratoryRepository.findUnique(
             updatedSample.laboratoryId as string
-          );
+          )) as Laboratory;
 
           await mailService.sendAnalysisRequest({
-            recipients: [(laboratory as Laboratory).email, config.mail.from],
+            recipients: [laboratory?.email, config.mail.from],
             params: {
               region: user.region ? Regions[user.region].name : undefined,
               userMail: user.email,

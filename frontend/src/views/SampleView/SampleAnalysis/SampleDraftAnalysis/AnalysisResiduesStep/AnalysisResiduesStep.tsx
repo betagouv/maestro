@@ -4,7 +4,6 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   OptionalBoolean,
   OptionalBooleanLabels,
@@ -32,6 +31,7 @@ import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useForm } from 'src/hooks/useForm';
+import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import { useUpdateAnalysisMutation } from 'src/services/analysis.service';
 import ComplexResidueForm from 'src/views/SampleView/SampleAnalysis/SampleDraftAnalysis/AnalysisResiduesStep/ComplexResidueForm';
 import SimpleResidueForm from 'src/views/SampleView/SampleAnalysis/SampleDraftAnalysis/AnalysisResiduesStep/SimpleResidueForm';
@@ -45,7 +45,7 @@ interface Props {
 }
 
 const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
-  const navigate = useNavigate();
+  const { navigateToSample } = useSamplesLink();
   const [updateAnalysis] = useUpdateAnalysisMutation();
 
   const [analysisKind, setAnalysisKind] = useState(
@@ -75,9 +75,7 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
         residues,
         status: 'Compliance',
       });
-      navigate(`/prelevements/${partialAnalysis.sampleId}/analyse?etape=3`, {
-        replace: true,
-      });
+      navigateToSample(partialAnalysis.sampleId, 3);
     });
   };
 
@@ -457,12 +455,7 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
                         ...partialAnalysis,
                         status: 'Report',
                       });
-                      navigate(
-                        `/prelevements/${partialAnalysis.sampleId}?etape=1`,
-                        {
-                          replace: true,
-                        }
-                      );
+                      navigateToSample(partialAnalysis.sampleId, 1);
                     },
                     title: 'Retour',
                     iconId: 'fr-icon-arrow-left-line',
