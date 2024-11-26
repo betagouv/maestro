@@ -1,5 +1,5 @@
 {
-  "name": "maestro frontend",
+  "name": "Maestro frontend",
   "version": "0.0.1",
   "private": false,
   "scripts": {
@@ -14,7 +14,7 @@
   },
   "license": "AGPL-3.0",
   "engines": {
-    "node": "20",
+    "node": "21",
     "npm": "10"
   },
   "browserslist": {
