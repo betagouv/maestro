@@ -34,7 +34,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: pspc
+          POSTGRES_DB: maestro
         ports:
           - 5432:5432
         options:
@@ -47,7 +47,7 @@ jobs:
         ports:
           - 9090:9090
         env:
-          initialBuckets: "pspc"
+          initialBuckets: "maestro"
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
@@ -61,8 +61,16 @@ jobs:
         run: npm run build
         env:
           AUTH_SECRET: abcd1234
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/pspc
-          DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/pspc
+          DATABASE_HOST: localhost
+          DATABASE_PORT: 5432
+          DATABASE_USER: postgres
+          DATABASE_PASSWORD: postgres
+          DATABASE_NAME: maestro
+          DATABASE_TEST_HOST: localhost
+          DATABASE_TEST_PORT: 5432
+          DATABASE_TEST_USER: postgres
+          DATABASE_TEST_PASSWORD: postgres
+          DATABASE_TEST_NAME: maestro
           NODE_ENV: production
           S3_ENDPOINT: s3
           S3_REGION: region
@@ -78,11 +86,19 @@ jobs:
 #        run: npm run test:database
 #        env:
 #          AUTH_SECRET: abcd1234
-#          DATABASE_URL: postgres://postgres:postgres@localhost:5432/pspc
-#          DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/pspc
+#          DATABASE_URL: postgres://postgres:postgres@localhost:5432/maestro
+#          DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/maestro
       - name: Server tests
         run: npm run test -- --test-timeout=30000
         env:
           AUTH_SECRET: abcd1234
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/pspc
-          DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/pspc
+          DATABASE_HOST: localhost
+          DATABASE_PORT: 5432
+          DATABASE_USER: postgres
+          DATABASE_PASSWORD: postgres
+          DATABASE_NAME: maestro
+          DATABASE_TEST_HOST: localhost
+          DATABASE_TEST_PORT: 5432
+          DATABASE_TEST_USER: postgres
+          DATABASE_TEST_PASSWORD: postgres
+          DATABASE_TEST_NAME: maestro
