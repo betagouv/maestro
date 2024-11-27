@@ -1,4 +1,4 @@
-# PSPC
+# Maestro 
 
 ## Développement
 
@@ -12,7 +12,7 @@
 
 ### Base de données
 
-Créer une base de données vide pour l'application (par exemple `pspc`) et une autre pour les tests (par exemple `test_pspc`).
+Créer une base de données vide pour l'application (par exemple `maestro`) et une autre pour les tests (par exemple `test_maestro`).
 
 La création des tables et autres structures SQL se fera automatiquement lors du lancement de l'application via les migrations [KnexJS](http://knexjs.org/#Migrations) contenues dans le répertoire `/database/migrations`
 
@@ -25,13 +25,13 @@ En local et pour les tests, il est possible d'utiliser https://github.com/adobe/
 ### Installation de l'application
 
 ```bash
-git clone https://github.com/betagouv/pspc.git
+git clone https://github.com/betagouv/maestro.git
 
-cd pspc
-npm i
+cd maestro 
+npm ci
 
 cd frontend
-npm i
+npm ci
 ```
 
 ### Variables d'environnement
@@ -45,8 +45,16 @@ API_PORT
 AUTH_SECRET
 AUTH_EXPIRES_IN
 DATABASE_ENV
-DATABASE_URL
-DATABASE_URL_TEST
+DATABASE_HOST
+DATABASE_PORT
+DATABASE_USER
+DATABASE_PASSWORD
+DATABASE_NAME
+DATABASE_TEST_HOST
+DATABASE_TEST_PORT
+DATABASE_TEST_USER
+DATABASE_TEST_PASSWORD
+DATABASE_TEST_NAME
 MAILER_PROVIDER
 MAILER_HOST
 MAILER_PORT
@@ -104,6 +112,6 @@ npm run test
 
 ## Démo
 
-La version de démo de l'application est accessible à l'adresse <https://pspc-staging.incubateur.net>
+La version de démo de l'application est accessible à l'adresse <https://maestro.incubateur.net>
 
 ## Production

@@ -278,7 +278,7 @@ const config = convict<Config>({
     bucket: {
       env: 'S3_BUCKET',
       format: String,
-      default: 'pspc',
+      default: 'maestro',
     },
   },
   sentry: {
