@@ -165,7 +165,7 @@ const getPrescriptionSubstances = async (
   request: Request,
   response: Response
 ) => {
-  const { prescriptionId } = request.body;
+  const { prescriptionId } = request.params;
 
   console.info('Get prescription substances', prescriptionId);
 
