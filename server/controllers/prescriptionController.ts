@@ -8,7 +8,7 @@ import { RegionList } from '../../shared/referential/Region';
 import { FindPrescriptionOptions } from '../../shared/schema/Prescription/FindPrescriptionOptions';
 import {
   PrescriptionToCreate,
-  PrescriptionUpdate,
+  PrescriptionUpdate
 } from '../../shared/schema/Prescription/Prescription';
 import { ContextLabels } from '../../shared/schema/ProgrammingPlan/Context';
 import { FindRegionalPrescriptionOptions } from '../../shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
@@ -39,7 +39,7 @@ const exportPrescriptions = async (request: Request, response: Response) => {
 
   const findOptions = {
     ...queryFindOptions,
-    region: exportedRegion,
+    region: exportedRegion
   };
 
   console.info('Export prescriptions', user.id, findOptions);
@@ -47,7 +47,7 @@ const exportPrescriptions = async (request: Request, response: Response) => {
   const prescriptions = await prescriptionRepository.findMany(queryFindOptions);
   const regionalPrescriptions = await regionalPrescriptionRepository.findMany({
     ...findOptions,
-    includes: ['comments', 'realizedSampleCount'],
+    includes: ['comments', 'realizedSampleCount']
   });
 
   const fileName = `prescriptions-${
@@ -62,7 +62,7 @@ const exportPrescriptions = async (request: Request, response: Response) => {
       prescriptions,
       programmingPlan,
       exportedRegion,
-      regionalPrescriptions,
+      regionalPrescriptions
     },
     workbook
   );
@@ -80,7 +80,7 @@ const createPrescription = async (request: Request, response: Response) => {
   const createdPrescription = {
     ...prescriptionToCreate,
     id: uuidv4(),
-    programmingPlanId: programmingPlan.id,
+    programmingPlanId: programmingPlan.id
   };
 
   await prescriptionRepository.insert(createdPrescription);
@@ -89,7 +89,7 @@ const createPrescription = async (request: Request, response: Response) => {
     RegionList.map((region) => ({
       prescriptionId: createdPrescription.id,
       region,
-      sampleCount: 0,
+      sampleCount: 0
     }))
   );
 
@@ -115,7 +115,7 @@ const updatePrescription = async (request: Request, response: Response) => {
 
   const updatedPrescription = {
     ...prescription,
-    stages: prescriptionUpdate.stages ?? prescription.stages,
+    stages: prescriptionUpdate.stages ?? prescription.stages
   };
 
   await prescriptionRepository.update(updatedPrescription);
@@ -123,7 +123,7 @@ const updatePrescription = async (request: Request, response: Response) => {
   if (prescriptionUpdate.substances) {
     const substances = prescriptionUpdate.substances.map((substance) => ({
       prescriptionId,
-      ...substance,
+      ...substance
     }));
 
     await prescriptionSubstanceRepository.deleteMany(prescriptionId);
@@ -165,7 +165,7 @@ const getPrescriptionSubstances = async (
   request: Request,
   response: Response
 ) => {
-  const prescriptionId = request.params.prescriptionId;
+  const { prescriptionId } = request.body;
 
   console.info('Get prescription substances', prescriptionId);
 
@@ -175,9 +175,8 @@ const getPrescriptionSubstances = async (
     throw new PrescriptionMissingError(prescriptionId);
   }
 
-  const substances = await prescriptionSubstanceRepository.findMany(
-    prescriptionId
-  );
+  const substances =
+    await prescriptionSubstanceRepository.findMany(prescriptionId);
 
   response.status(constants.HTTP_STATUS_OK).send(substances);
 };
@@ -188,5 +187,5 @@ export default {
   createPrescription,
   updatePrescription,
   deletePrescription,
-  getPrescriptionSubstances,
+  getPrescriptionSubstances
 };
