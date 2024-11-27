@@ -61,8 +61,16 @@ jobs:
         run: npm run build
         env:
           AUTH_SECRET: abcd1234
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/pspc
-          DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/pspc
+          DATABASE_HOST: localhost
+          DATABASE_PORT: 5432
+          DATABASE_USER: postgres
+          DATABASE_PASSWORD: postgres
+          DATABASE_NAME: pspc
+          DATABASE_TEST_HOST: localhost
+          DATABASE_TEST_PORT: 5432
+          DATABASE_TEST_USER: postgres
+          DATABASE_TEST_PASSWORD: postgres
+          DATABASE_TEST_NAME: pspc
           NODE_ENV: production
           S3_ENDPOINT: s3
           S3_REGION: region
@@ -84,5 +92,13 @@ jobs:
         run: npm run test -- --test-timeout=30000
         env:
           AUTH_SECRET: abcd1234
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/pspc
-          DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/pspc
+          DATABASE_HOST: localhost
+          DATABASE_PORT: 5432
+          DATABASE_USER: postgres
+          DATABASE_PASSWORD: postgres
+          DATABASE_NAME: pspc
+          DATABASE_TEST_HOST: localhost
+          DATABASE_TEST_PORT: 5432
+          DATABASE_TEST_USER: postgres
+          DATABASE_TEST_PASSWORD: postgres
+          DATABASE_TEST_NAME: pspc
