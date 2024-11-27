@@ -12,6 +12,16 @@ import {
 import { Region } from '../../../shared/referential/Region';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
+import { User } from '../../../shared/schema/User/User';
+import { Selectable } from 'kysely';
+import { DB } from '../../repositories/kysely.type';
+
+// Vérifie que le type généré par kysely correspond bien à notre type
+// À l'avenir mieux vaut utiliser vitest pour tester les types => https://vitest.dev/guide/testing-types.html
+const userShareToKysely = (v: User) : Selectable<DB['users']> => v
+const userKyselyToShare = (v:  Selectable<DB['users']>) :User => v
+console.log(userShareToKysely)
+console.log(userKyselyToShare)
 
 describe('User router', () => {
   const { app } = createServer();

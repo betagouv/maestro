@@ -3,7 +3,6 @@ import formats from 'convict-format-with-validator';
 import dotenv from 'dotenv';
 import path from 'path';
 import { z } from 'zod';
-import { Knex } from 'knex';
 
 convict.addFormats(formats);
 
@@ -30,8 +29,6 @@ convict.addFormat({
   },
 });
 
-type DatabaseConnection =  Required<Pick<Knex.PgConnectionConfig, 'user' | 'password' | 'database' | 'host' | 'port'>>;
-
 interface Config {
   application: {
     host: string;
@@ -43,8 +40,8 @@ interface Config {
     expiresIn: string;
   };
   databaseEnvironment: string;
-  database: DatabaseConnection;
-  databaseTest: DatabaseConnection;
+  databaseUrl: string;
+  databaseUrlTest: string;
   mail: {
     from: string;
   };
@@ -120,72 +117,15 @@ const config = convict<Config>({
     format: String,
     default: process.env.NODE_ENV ?? 'development',
   },
-  database: {
-    host: {
-      env: 'DATABASE_HOST',
-      format: String,
-      nullable: false,
-      default: null,
-    },
-    port: {
-      env: 'DATABASE_PORT',
-      format: 'port',
-      nullable: false,
-      default: null,
-    },
-    user: {
-      env: 'DATABASE_USER',
-      format: String,
-      nullable: false,
-      default: null,
-    },
-    password: {
-      env: 'DATABASE_PASSWORD',
-      format: String,
-      nullable: false,
-      default: null,
-    },
-    database: {
-      env: 'DATABASE_NAME',
-      format: String,
-      nullable: false,
-      default: null,
-    }
-
+  databaseUrl: {
+    env: 'DATABASE_URL',
+    format: String,
+    default: null,
   },
-  databaseTest: {
-    host: {
-      env: 'DATABASE_TEST_HOST',
-      format: String,
-      nullable: false,
-      default: null,
-    },
-    port: {
-      env: 'DATABASE_TEST_PORT',
-      format: 'port',
-      nullable: false,
-      default: null,
-    },
-    user: {
-      env: 'DATABASE_TEST_USER',
-      format: String,
-      nullable: false,
-      default: null,
-    },
-    password: {
-      env: 'DATABASE_TEST_PASSWORD',
-      format: String,
-      nullable: false,
-      default: null,
-    },
-    database: {
-      env: 'DATABASE_TEST_NAME',
-      format: String,
-      nullable: false,
-      default: null,
-    }
-
-
+  databaseUrlTest: {
+    env: 'DATABASE_URL_TEST',
+    format: String,
+    default: null,
   },
   mail: {
     from: {
