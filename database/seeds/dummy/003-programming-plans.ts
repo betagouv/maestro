@@ -5,7 +5,7 @@ import userRepository from '../../../server/repositories/userRepository';
 export const validatedProgrammingPlanId = uuidv4();
 
 exports.seed = async function () {
-  const user = await userRepository.findOne('coordinateur.national@pspc.fr');
+  const user = await userRepository.findOne('coordinateur.national@maestro.fr');
 
   if (!user) {
     return;
@@ -17,7 +17,7 @@ exports.seed = async function () {
       createdAt: new Date(),
       createdBy: user.id,
       status: 'Validated',
-      year: new Date().getFullYear(),
-    },
+      year: new Date().getFullYear()
+    }
   ]);
 };
