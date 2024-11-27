@@ -25,7 +25,7 @@ import {
   useUpdateAnalysisMutation,
 } from 'src/services/analysis.service';
 import { useUpdateSampleMutation } from 'src/services/sample.service';
-import { pluralize } from 'src/utils/stringUtils';
+import { pluralize, quote } from 'src/utils/stringUtils';
 import './SampleAnalysisOverview.scss';
 interface Props {
   sample: Sample;
@@ -209,7 +209,7 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
             </div>
             {residue.notesOnResult && (
               <div className="analysis-note">
-                <i>“ {residue.notesOnResult} “</i>
+                <i>{quote(residue.notesOnResult)}</i>
               </div>
             )}
             <div className="d-flex-align-center">
@@ -248,7 +248,7 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
             )}
             {residue.notesOnPollutionRisk && (
               <div className="analysis-note">
-                <i>“ {residue.notesOnPollutionRisk} “</i>
+                <i>{quote(residue.notesOnPollutionRisk)}</i>
               </div>
             )}
             {residue.compliance === 'Compliant' && (
@@ -344,7 +344,7 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
                 Note additionnelle
               </div>
               <div className={cx('fr-pl-4w')}>
-                <b>“ {analysis.notesOnCompliance} “</b>
+                <b>{quote(analysis.notesOnCompliance)}</b>
               </div>
             </>
           )}

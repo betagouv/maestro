@@ -435,6 +435,9 @@ describe('Analysis router', () => {
       ).resolves.toMatchObject({
         status: 'Completed',
       });
+      await Samples()
+        .where({ id: analysisWithResidues.sampleId })
+        .update({ status: Sample2Fixture.status });
     });
 
     it('should update the sample when the analysis is completed and not compliant', async () => {
@@ -455,6 +458,9 @@ describe('Analysis router', () => {
       ).resolves.toMatchObject({
         status: 'CompletedNotConform',
       });
+      await Samples()
+        .where({ id: analysisWithResidues.sampleId })
+        .update({ status: Sample2Fixture.status });
     });
   });
 });

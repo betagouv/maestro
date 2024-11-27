@@ -5,9 +5,10 @@ import { Department } from '../../referential/Department';
 import { LegalContext } from '../../referential/LegalContext';
 import { Matrix } from '../../referential/Matrix/Matrix';
 import { MatrixPart } from '../../referential/MatrixPart';
-import { Region, RegionList, Regions } from '../../referential/Region';
+import { Region } from '../../referential/Region';
 import { Stage } from '../../referential/Stage';
 import { Company } from '../Company/Company';
+import { Context } from '../ProgrammingPlan/Context';
 import { User } from '../User/User';
 import { PartialSampleItem, SampleItem } from './SampleItem';
 import { SampleStatus } from './SampleStatus';
@@ -40,12 +41,8 @@ export const SampleContextData = z.object({
   department: Department,
   geolocation: Geolocation.nullish(),
   parcel: z.string().nullish(),
-  programmingPlanId: z
-    .string()
-    .uuid({
-      message: 'Veuillez renseigner le contexte.',
-    })
-    .nullish(),
+  programmingPlanId: z.string().uuid(),
+  context: Context,
   legalContext: LegalContext,
   company: Company.nullish(),
   companyOffline: z.string().nullish(),
@@ -62,6 +59,7 @@ export const SampleMatrixData = z.object({
   cultureKind: CultureKind.nullish(),
   releaseControl: z.boolean().nullish(),
   notesOnMatrix: z.string().nullish(),
+  prescriptionId: z.string().uuid(),
   laboratoryId: z.string().uuid().nullish(),
 });
 
@@ -108,6 +106,7 @@ export const SampleToCreate = z.object({
 
 export const CreatedSampleData = z.object({
   reference: z.string(),
+  region: Region,
   createdAt: z.coerce.date(),
   sampler: Sampler,
   lastUpdatedAt: z.coerce.date(),
@@ -133,11 +132,6 @@ export type PartialSampleToCreate = z.infer<typeof PartialSampleToCreate>;
 export type PartialSample = z.infer<typeof PartialSample>;
 export type SampleToCreate = z.infer<typeof SampleToCreate>;
 export type Sample = z.infer<typeof Sample>;
-
-export const getSampleRegion = (sample: PartialSample): Region | undefined =>
-  RegionList.find(
-    (region) => Regions[region].shortName === sample.reference.split('-')[0]
-  );
 
 export const isCreatedPartialSample = (
   partialSample?: PartialSample | PartialSampleToCreate

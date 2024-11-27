@@ -1,7 +1,6 @@
 import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
-import { skipToken } from '@reduxjs/toolkit/query';
 import clsx from 'clsx';
 import React from 'react';
 import {
@@ -10,6 +9,7 @@ import {
   QuantityUnitLabels,
   SecondaryQuantityUnitList,
 } from 'shared/referential/QuantityUnit';
+import { Laboratory } from 'shared/schema/Laboratory/Laboratory';
 import { Sample } from 'shared/schema/Sample/Sample';
 import { PartialSampleItem } from 'shared/schema/Sample/SampleItem';
 import {
@@ -22,7 +22,6 @@ import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useForm } from 'src/hooks/useForm';
-import { useGetLaboratoryQuery } from 'src/services/laboratory.service';
 
 interface Props {
   item: PartialSampleItem;
@@ -30,7 +29,7 @@ interface Props {
   onRemoveItem?: (itemIndex: number) => void;
   onChangeItem?: (item: PartialSampleItem, itemIndex: number) => void;
   itemsForm?: ReturnType<typeof useForm>;
-  laboratoryId?: string | null;
+  laboratory?: Laboratory;
   children?: React.ReactNode;
 }
 
@@ -40,7 +39,7 @@ const SampleItemDetails = ({
   onRemoveItem,
   onChangeItem,
   itemsForm,
-  laboratoryId,
+  laboratory,
   children,
 }: Props) => {
   const Form = Sample.pick({
@@ -54,8 +53,6 @@ const SampleItemDetails = ({
   });
 
   const form = itemsForm ?? fakeForm;
-
-  const { data: laboratory } = useGetLaboratoryQuery(laboratoryId ?? skipToken);
 
   return (
     <>

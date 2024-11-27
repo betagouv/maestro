@@ -12,10 +12,19 @@ import { Sample } from '../../../shared/schema/Sample/Sample';
 import { genCreatedSample } from '../../../shared/test/sampleFixtures';
 import { oneOf } from '../../../shared/test/testFixtures';
 import { DummyLaboratoryIds } from './002-laboratories';
+import {
+  abricotsEtSimilaires,
+  avoineEtSimilaires,
+  carottes,
+  cerisesEtSimilaires,
+  fevesDeSoja,
+  lentilles,
+  oignons,
+} from './004-prescriptions';
 
 exports.seed = async function () {
-  const validatedControlProgrammingPlan = await ProgrammingPlans()
-    .where({ status: 'Validated', kind: 'Control' })
+  const validatedProgrammingPlan = await ProgrammingPlans()
+    .where({ status: 'Validated' })
     .first();
 
   const sampler = await Users()
@@ -24,7 +33,7 @@ exports.seed = async function () {
 
   const companies = await Companies();
 
-  if (!validatedControlProgrammingPlan || !sampler) {
+  if (!validatedProgrammingPlan || !sampler) {
     return;
   }
 
@@ -33,99 +42,113 @@ exports.seed = async function () {
       () =>
         genCreatedSample({
           sampler,
-          programmingPlanId: validatedControlProgrammingPlan.id,
+          programmingPlanId: validatedProgrammingPlan.id,
+          context: 'Control',
           matrix: 'A0DVX',
           stage: 'STADE1',
           status: 'Sent',
           department: oneOf(Regions[sampler.region!].departments),
           company: oneOf(companies),
+          prescriptionId: abricotsEtSimilaires.id,
           laboratoryId: oneOf(DummyLaboratoryIds),
         }),
-      { count: 2 }
+      { count: 2 },
     ),
     faker.helpers.multiple<Sample>(
       () =>
         genCreatedSample({
           sampler,
-          programmingPlanId: validatedControlProgrammingPlan.id,
+          programmingPlanId: validatedProgrammingPlan.id,
+          context: 'Control',
           matrix: 'A000F',
           stage: 'STADE1',
           status: 'Sent',
           department: oneOf(Regions[sampler.region!].departments),
           company: oneOf(companies),
+          prescriptionId: avoineEtSimilaires.id,
           laboratoryId: oneOf(DummyLaboratoryIds),
         }),
-      { count: 8 }
+      { count: 8 },
     ),
     faker.helpers.multiple<Sample>(
       () =>
         genCreatedSample({
           sampler,
-          programmingPlanId: validatedControlProgrammingPlan.id,
+          programmingPlanId: validatedProgrammingPlan.id,
+          context: 'Control',
           matrix: 'A00QH',
           stage: 'STADE1',
           status: 'Sent',
           department: oneOf(Regions[sampler.region!].departments),
           company: oneOf(companies),
+          prescriptionId: carottes.id,
           laboratoryId: oneOf(DummyLaboratoryIds),
         }),
-      { count: 3 }
+      { count: 3 },
     ),
     faker.helpers.multiple<Sample>(
       () =>
         genCreatedSample({
           sampler,
-          programmingPlanId: validatedControlProgrammingPlan.id,
+          programmingPlanId: validatedProgrammingPlan.id,
+          context: 'Control',
           matrix: 'A01GG',
           stage: 'STADE1',
           status: 'Sent',
           department: oneOf(Regions[sampler.region!].departments),
           company: oneOf(companies),
+          prescriptionId: cerisesEtSimilaires.id,
           laboratoryId: oneOf(DummyLaboratoryIds),
         }),
-      { count: 4 }
+      { count: 4 },
     ),
     faker.helpers.multiple<Sample>(
       () =>
         genCreatedSample({
           sampler,
-          programmingPlanId: validatedControlProgrammingPlan.id,
+          programmingPlanId: validatedProgrammingPlan.id,
+          context: 'Control',
           matrix: 'A00HC',
           stage: 'STADE1',
           status: 'Sent',
           department: oneOf(Regions[sampler.region!].departments),
           company: oneOf(companies),
+          prescriptionId: oignons.id,
           laboratoryId: oneOf(DummyLaboratoryIds),
         }),
-      { count: 7 }
+      { count: 7 },
     ),
     faker.helpers.multiple<Sample>(
       () =>
         genCreatedSample({
           sampler,
-          programmingPlanId: validatedControlProgrammingPlan.id,
-          matrix: 'A0DFB',
+          programmingPlanId: validatedProgrammingPlan.id,
+          context: 'Control',
+          matrix: 'A013Q',
           stage: 'STADE1',
           status: 'Sent',
           department: oneOf(Regions[sampler.region!].departments),
           company: oneOf(companies),
+          prescriptionId: lentilles.id,
           laboratoryId: oneOf(DummyLaboratoryIds),
         }),
-      { count: 6 }
+      { count: 6 },
     ),
     faker.helpers.multiple<Sample>(
       () =>
         genCreatedSample({
           sampler,
-          programmingPlanId: validatedControlProgrammingPlan.id,
+          programmingPlanId: validatedProgrammingPlan.id,
+          context: 'Control',
           matrix: 'A0DFR',
           stage: 'STADE1',
           status: 'Sent',
           department: oneOf(Regions[sampler.region!].departments),
           company: oneOf(companies),
+          prescriptionId: fevesDeSoja.id,
           laboratoryId: oneOf(DummyLaboratoryIds),
         }),
-      { count: 6 }
+      { count: 6 },
     ),
   ];
 
@@ -135,7 +158,7 @@ exports.seed = async function () {
     .flat();
 
   await Samples().insert(
-    samples.flat().map((_: any) => formatPartialSample(_))
+    samples.flat().map((_: any) => formatPartialSample(_)),
   );
 
   await SampleItems().insert(sampleItems);

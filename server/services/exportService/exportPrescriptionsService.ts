@@ -1,46 +1,44 @@
 import exceljs from 'exceljs';
 import highland from 'highland';
-import _ from 'lodash';
-import { MatrixLabels } from '../../../shared/referential/Matrix/MatrixLabels';
 import {
   Region,
   RegionList,
   Regions,
 } from '../../../shared/referential/Region';
-import { StageLabels } from '../../../shared/referential/Stage';
-import { Prescription } from '../../../shared/schema/Prescription/Prescription';
 import {
-  genPrescriptionByMatrix,
-  matrixCompletionRate,
-} from '../../../shared/schema/Prescription/PrescriptionsByMatrix';
+  Prescription,
+  PrescriptionSort,
+} from '../../../shared/schema/Prescription/Prescription';
+
+import _ from 'lodash';
+import { MatrixLabels } from '../../../shared/referential/Matrix/MatrixLabels';
+import { StageLabels } from '../../../shared/referential/Stage';
 import { ProgrammingPlan } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlans';
+import {
+  getCompletionRate,
+  RegionalPrescription,
+} from '../../../shared/schema/RegionalPrescription/RegionalPrescription';
 import { isDefined } from '../../../shared/utils/utils';
 import laboratoryRepository from '../../repositories/laboratoryRepository';
-import sampleRepository from '../../repositories/sampleRepository';
 import WorkbookWriter = exceljs.stream.xlsx.WorkbookWriter;
 
 interface PrescriptionWorkbookData {
-  prescriptions: Prescription[];
   programmingPlan: ProgrammingPlan;
+  prescriptions: Prescription[];
+  regionalPrescriptions: RegionalPrescription[];
   exportedRegion: Region | undefined;
 }
 
 const writeToWorkbook = async (
-  { prescriptions, programmingPlan, exportedRegion }: PrescriptionWorkbookData,
+  {
+    programmingPlan,
+    prescriptions,
+    regionalPrescriptions,
+    exportedRegion,
+  }: PrescriptionWorkbookData,
   workbook: WorkbookWriter
 ) => {
-  const samples = await sampleRepository.findMany({
-    programmingPlanId: programmingPlan.id,
-    status: 'Sent',
-  });
-
   const exportedRegions = exportedRegion ? [exportedRegion] : RegionList;
-
-  const prescriptionsByMatrix = genPrescriptionByMatrix(
-    prescriptions,
-    samples,
-    exportedRegions
-  );
 
   const laboratories = exportedRegion
     ? await laboratoryRepository.findMany()
@@ -80,7 +78,7 @@ const writeToWorkbook = async (
       programmingPlan.status === 'Validated'
         ? {
             header: `${Regions[region].shortName}\nRéalisés`,
-            key: `sentSampleCount-${region}`,
+            key: `realizedSampleCount-${region}`,
             width: 10,
           }
         : undefined,
@@ -103,8 +101,16 @@ const writeToWorkbook = async (
     .flat()
     .filter(isDefined);
 
-  highland(prescriptionsByMatrix)
-    .each((prescription) => {
+  highland(prescriptions.sort(PrescriptionSort))
+    .map((prescription) => ({
+      prescription,
+      filteredRegionalPrescriptions: [
+        ...regionalPrescriptions.filter(
+          (r) => r.prescriptionId === prescription.id
+        ),
+      ],
+    }))
+    .each(({ prescription, filteredRegionalPrescriptions }) => {
       worksheet
         .addRow({
           matrix: MatrixLabels[prescription.matrix],
@@ -112,21 +118,21 @@ const writeToWorkbook = async (
             .map((stage) => StageLabels[stage])
             .join('\n'),
           sampleTotalCount: _.sumBy(
-            prescription.regionalData,
-            ({ sampleCount }) => sampleCount
+            filteredRegionalPrescriptions,
+            'sampleCount'
           ),
           sentSampleTotalCount: _.sumBy(
-            prescription.regionalData,
-            ({ sentSampleCount }) => sentSampleCount
+            filteredRegionalPrescriptions,
+            'realizedSampleCount'
           ),
-          completionRate: matrixCompletionRate(prescription),
-          ...prescription.regionalData.reduce(
-            (acc, { sampleCount, sentSampleCount, region }) => ({
+          completionRate: getCompletionRate(filteredRegionalPrescriptions),
+          ...filteredRegionalPrescriptions.reduce(
+            (acc, { sampleCount, realizedSampleCount, region }) => ({
               ...acc,
               [`sampleCount-${region}`]: sampleCount,
-              [`sentSampleCount-${region}`]: sentSampleCount,
-              [`completionRate-${region}`]: matrixCompletionRate(
-                prescription,
+              [`realizedSampleCount-${region}`]: realizedSampleCount,
+              [`completionRate-${region}`]: getCompletionRate(
+                filteredRegionalPrescriptions,
                 region
               ),
             }),
@@ -134,7 +140,7 @@ const writeToWorkbook = async (
           ),
           laboratory: laboratories.find(
             (laboratory) =>
-              laboratory.id === prescription.regionalData[0]?.laboratoryId
+              laboratory.id === filteredRegionalPrescriptions[0]?.laboratoryId
           )?.name,
         })
         .commit();
@@ -142,36 +148,25 @@ const writeToWorkbook = async (
     .done(() => {
       worksheet.addRow({
         matrix: 'Total',
-        sampleTotalCount: _.sum(
-          prescriptionsByMatrix
-            .flatMap((p) => p.regionalData)
-            .map((p) => p.sampleCount)
+        sampleTotalCount: _.sumBy(regionalPrescriptions, 'sampleCount'),
+        sentSampleTotalCount: _.sumBy(
+          regionalPrescriptions,
+          'realizedSampleCount'
         ),
-        sentSampleTotalCount: _.sum(
-          prescriptionsByMatrix
-            .flatMap((p) => p.regionalData)
-            .map((p) => p.sentSampleCount)
-        ),
-        completionRate: matrixCompletionRate(prescriptionsByMatrix),
+        completionRate: getCompletionRate(regionalPrescriptions),
         ...exportedRegions.reduce(
           (acc, region) => ({
             ...acc,
-            [`sampleCount-${region}`]: _.sum(
-              prescriptionsByMatrix.map(
-                (p) =>
-                  p.regionalData.find((r) => r.region === region)
-                    ?.sampleCount ?? 0
-              )
+            [`sampleCount-${region}`]: _.sumBy(
+              regionalPrescriptions.filter((r) => r.region === region),
+              'sampleCount'
             ),
-            [`sentSampleCount-${region}`]: _.sum(
-              prescriptionsByMatrix.map(
-                (p) =>
-                  p.regionalData.find((r) => r.region === region)
-                    ?.sentSampleCount ?? 0
-              )
+            [`realizedSampleCount-${region}`]: _.sumBy(
+              regionalPrescriptions.filter((r) => r.region === region),
+              'realizedSampleCount'
             ),
-            [`completionRate-${region}`]: matrixCompletionRate(
-              prescriptionsByMatrix,
+            [`completionRate-${region}`]: getCompletionRate(
+              regionalPrescriptions.filter((r) => r.region === region),
               region
             ),
           }),

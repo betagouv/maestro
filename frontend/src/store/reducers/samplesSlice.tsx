@@ -23,7 +23,7 @@ const pendingSamples = JSON.parse(
 
 type SamplesState = {
   sampleListDisplay: SampleListDisplay;
-  findSampleOptions: FindSampleOptions;
+  findSampleOptions: Omit<FindSampleOptions, 'programmingPlanId'>;
   pendingSamples: Record<string, PartialSample | PartialSampleToCreate>;
 };
 
@@ -38,6 +38,7 @@ const samplesSlice = createSlice({
       department: undefined,
       status: undefined,
       programmingPlanId: undefined,
+      context: undefined,
     },
     pendingSamples,
   } as SamplesState,

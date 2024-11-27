@@ -3,6 +3,8 @@ import clsx from 'clsx';
 import React from 'react';
 import { Sample, SampleToCreate } from 'shared/schema/Sample/Sample';
 import { SampleItem } from 'shared/schema/Sample/SampleItem';
+import { usePartialSample } from 'src/hooks/usePartialSample';
+import { quote } from 'src/utils/stringUtils';
 import SampleItemDetails from 'src/views/SampleView/SampleItemDetails/SampleItemDetails';
 
 interface Props {
@@ -11,6 +13,8 @@ interface Props {
 }
 
 const ItemsStepSummary = ({ sample, itemChildren }: Props) => {
+  const { laboratory } = usePartialSample(sample);
+
   return (
     <div className="sample-items">
       {sample.items?.map((item, itemIndex) => (
@@ -24,7 +28,7 @@ const ItemsStepSummary = ({ sample, itemChildren }: Props) => {
           <SampleItemDetails
             item={item}
             itemIndex={itemIndex}
-            laboratoryId={sample.laboratoryId}
+            laboratory={laboratory}
           >
             {itemChildren && itemChildren(item, itemIndex)}
           </SampleItemDetails>
@@ -36,7 +40,7 @@ const ItemsStepSummary = ({ sample, itemChildren }: Props) => {
           <div>
             Note additionnelle{' '}
             <div>
-              <b>“ {sample.notesOnItems} “</b>
+              <b>{quote(sample.notesOnItems)}</b>
             </div>
           </div>
         </div>

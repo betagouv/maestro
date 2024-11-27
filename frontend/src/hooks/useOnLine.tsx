@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
+import { ContextList } from 'shared/schema/ProgrammingPlan/Context';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppSelector } from 'src/hooks/useStore';
 import { useLazyFindPrescriptionsQuery } from 'src/services/prescription.service';
-import { useLazyFindProgrammingPlansQuery } from 'src/services/programming-plan.service';
 import {
   useCreateOrUpdateSampleMutation,
   useLazyFindSamplesQuery,
@@ -11,12 +11,12 @@ import {
 
 export const useOnLine = () => {
   const { isAuthenticated } = useAuthentication();
+  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
   const [isOnline, setIsOnline] = React.useState(navigator.onLine);
 
   const { pendingSamples } = useAppSelector((state) => state.samples);
   const [createOrUpdateSample] = useCreateOrUpdateSampleMutation();
 
-  const [findProgrammingPlans] = useLazyFindProgrammingPlansQuery();
   const [findPrescriptions] = useLazyFindPrescriptionsQuery();
   const [getSample] = useLazyGetSampleQuery();
   const [findSamples] = useLazyFindSamplesQuery();
@@ -44,26 +44,27 @@ export const useOnLine = () => {
           )
         );
 
-        //Load programming plans and prescriptions from the server to made them available offline in order to create new samples
-        const programmingPlans = await findProgrammingPlans({
-          status: 'Validated',
-        }).unwrap();
-        await Promise.all(
-          programmingPlans.map(async (programmingPlan) =>
-            findPrescriptions({
-              programmingPlanId: programmingPlan.id,
-            }).unwrap()
-          )
-        );
+        //Load prescriptions and last samples from the server to made them available offline in order to create new samples
+        if (programmingPlan) {
+          await Promise.all(
+            ContextList.map(async (context) =>
+              findPrescriptions({
+                programmingPlanId: programmingPlan.id,
+                context,
+              }).unwrap()
+            )
+          );
 
-        //Load last samples from the server to made them available offline
-        const samples = await findSamples({
-          page: 1,
-          perPage: 5,
-        }).unwrap();
-        await Promise.all(
-          samples.map((sample) => getSample(sample.id).unwrap())
-        );
+          const samples = await findSamples({
+            programmingPlanId: programmingPlan?.id as string,
+            page: 1,
+            perPage: 5,
+          }).unwrap();
+
+          await Promise.all(
+            samples.map((sample) => getSample(sample.id).unwrap())
+          );
+        }
       })();
     }
   }, [isOnline, isAuthenticated, pendingSamples]); // eslint-disable-line react-hooks/exhaustive-deps

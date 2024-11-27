@@ -1,6 +1,7 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import { useSamplesLink } from 'src/hooks/useSamplesLink';
 
 interface Props {
   isOpen: boolean;
@@ -8,6 +9,8 @@ interface Props {
 }
 
 const SavedAlert = ({ isOpen, isDraft }: Props) => {
+  const { samplesLink } = useSamplesLink();
+
   return isOpen ? (
     <Alert
       severity={'success'}
@@ -22,7 +25,7 @@ const SavedAlert = ({ isOpen, isDraft }: Props) => {
             iconId="fr-icon-arrow-right-line"
             iconPosition="right"
             linkProps={{
-              to: `/prelevements`,
+              to: samplesLink,
             }}
             priority="tertiary no outline"
           >

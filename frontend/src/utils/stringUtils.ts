@@ -10,3 +10,5 @@ export function pluralize(
       )
       .join(' ');
 }
+
+export const quote = (str: string): string => `“ ${str} “`;

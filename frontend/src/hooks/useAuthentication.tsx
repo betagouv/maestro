@@ -1,15 +1,17 @@
 import { skipToken } from '@reduxjs/toolkit/query';
 import { ReactElement, useMemo } from 'react';
+import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { hasPermission as hasUserPermission } from 'shared/schema/User/User';
 import { UserPermission } from 'shared/schema/User/UserPermission';
 import { UserRole } from 'shared/schema/User/UserRole';
 import { isDefined } from 'shared/utils/utils';
+import YearRoute from 'src/components/YearRoute/YearRoute';
 import { useAppSelector } from 'src/hooks/useStore';
 import { useGetUserInfosQuery } from 'src/services/user.service';
 import DashboardView from 'src/views/DashboardView/DashboardView';
 import DocumentListView from 'src/views/DocumentListView/DocumentListView';
 import HomeView from 'src/views/HomeView/HomeView';
-import PrescriptionView from 'src/views/PrescriptionView/PrescriptionView';
+import PrescriptionListView from 'src/views/PrescriptionListView/PrescriptionListView';
 import SampleListView from 'src/views/SampleListView/SampleListView';
 import SampleView from 'src/views/SampleView/SampleView';
 
@@ -25,8 +27,8 @@ export const useAuthentication = () => {
   const hasPermission = useMemo(
     () => (permission: UserPermission) => {
       return (
-        authUser?.userId &&
-        userInfos &&
+        isDefined(authUser?.userId) &&
+        isDefined(userInfos) &&
         hasUserPermission(userInfos, permission)
       );
     },
@@ -43,6 +45,16 @@ export const useAuthentication = () => {
   const hasNationalView = useMemo(() => {
     return isAuthenticated && !userInfos?.region;
   }, [userInfos, isAuthenticated]);
+
+  const canEditPrescriptions = useMemo(
+    () => (programmingPlan: ProgrammingPlan) => {
+      return (
+        hasPermission('updatePrescription') &&
+        programmingPlan.status !== 'Validated'
+      );
+    },
+    [hasPermission]
+  );
 
   const availableRoutes: {
     path: string;
@@ -61,34 +73,34 @@ export const useAuthentication = () => {
             },
             hasPermission('readPrescriptions')
               ? {
-                  path: '/plans/:programmingPlanId/prescription',
+                  path: '/prescriptions/:year',
                   label: 'Prescriptions',
                   key: 'prescription_route',
-                  component: PrescriptionView,
+                  component: () => <YearRoute element={PrescriptionListView} />,
                 }
               : undefined,
             hasPermission('readSamples')
               ? {
-                  path: '/prelevements',
+                  path: '/prelevements/:year',
                   label: 'Prélèvements',
                   key: 'samples_route',
-                  component: SampleListView,
+                  component: () => <YearRoute element={SampleListView} />,
                 }
               : undefined,
             hasPermission('createSample')
               ? {
-                  path: '/prelevements/nouveau',
+                  path: '/prelevements/:year/nouveau',
                   label: 'Prélèvement',
                   key: 'new_sample_route',
-                  component: SampleView,
+                  component: () => <YearRoute element={SampleView} />,
                 }
               : undefined,
             hasPermission('updateSample') || hasPermission('readSamples')
               ? {
-                  path: '/prelevements/:sampleId/*',
+                  path: '/prelevements/:year/:sampleId/*',
                   label: 'Prélèvement',
                   key: 'sample_route',
-                  component: SampleView,
+                  component: () => <YearRoute element={SampleView} />,
                 }
               : undefined,
             {
@@ -116,5 +128,6 @@ export const useAuthentication = () => {
     hasRole,
     hasNationalView,
     availableRoutes,
+    canEditPrescriptions,
   };
 };

@@ -4,6 +4,8 @@ import { MailService, SendOptions } from './mailService';
 
 const SampleAnalysisRequestTemplateId = 1;
 const SupportDocumentCopyToOwnerTemplateId = 2;
+const SubmittedProgrammingPlanTemplateId = 3;
+const ValidatedProgrammingPlanTemplateId = 4;
 
 class BrevoService implements MailService {
   private emailsApi: Brevo.TransactionalEmailsApi;
@@ -42,6 +44,20 @@ class BrevoService implements MailService {
     return this.send({
       ...options,
       templateId: SupportDocumentCopyToOwnerTemplateId,
+    });
+  }
+
+  async sendSubmittedProgrammingPlan(options: SendOptions): Promise<void> {
+    return this.send({
+      ...options,
+      templateId: SubmittedProgrammingPlanTemplateId,
+    });
+  }
+
+  async sendValidatedProgrammingPlan(options: SendOptions): Promise<void> {
+    return this.send({
+      ...options,
+      templateId: ValidatedProgrammingPlanTemplateId,
     });
   }
 }

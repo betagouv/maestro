@@ -3,22 +3,24 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
+import _ from 'lodash';
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   PartialSample,
-  PartialSampleToCreate,
-  SampleItemsData,
+  PartialSampleToCreate
 } from 'shared/schema/Sample/Sample';
-import { PartialSampleItem } from 'shared/schema/Sample/SampleItem';
+import { PartialSampleItem, SampleItem } from 'shared/schema/Sample/SampleItem';
 import { isDefinedAndNotNull } from 'shared/utils/utils';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import { useForm } from 'src/hooks/useForm';
+import { usePartialSample } from 'src/hooks/usePartialSample';
+import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import { useCreateOrUpdateSampleMutation } from 'src/services/sample.service';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SampleItemDetails from 'src/views/SampleView/SampleItemDetails/SampleItemDetails';
 import SavedAlert from 'src/views/SampleView/SavedAlert';
+import { z } from 'zod';
 
 export const MaxItemCount = 3;
 
@@ -27,7 +29,8 @@ interface Props {
 }
 
 const ItemsStep = ({ partialSample }: Props) => {
-  const navigate = useNavigate();
+  const { navigateToSample } = useSamplesLink();
+  const { laboratory } = usePartialSample(partialSample);
 
   const [items, setItems] = useState<PartialSampleItem[]>(
     !isDefinedAndNotNull(partialSample.items) ||
@@ -36,8 +39,8 @@ const ItemsStep = ({ partialSample }: Props) => {
           {
             sampleId: partialSample.id,
             itemNumber: 1,
-            recipientKind: 'Laboratory',
-          },
+            recipientKind: 'Laboratory'
+          }
         ]
       : partialSample.items
   );
@@ -46,7 +49,23 @@ const ItemsStep = ({ partialSample }: Props) => {
 
   const [createOrUpdateSample] = useCreateOrUpdateSampleMutation();
 
-  const Form = SampleItemsData;
+  const Form = z.object({
+    items: z
+      .array(
+        SampleItem.omit({
+          ownerFirstName: true,
+          ownerLastName: true,
+          ownerEmail: true
+        })
+      )
+      .min(1, { message: 'Veuillez renseigner au moins un échantillon.' })
+      .refine(
+        (items) =>
+          _.uniqBy(items, (item) => item.sealId).length === items.length,
+        'Les numéros de scellés doivent être uniques.'
+      ),
+    notesOnItems: z.string().nullish()
+  });
 
   type FormShape = typeof Form.shape;
 
@@ -54,9 +73,7 @@ const ItemsStep = ({ partialSample }: Props) => {
     e.preventDefault();
     await form.validate(async () => {
       await save('Submitted');
-      navigate(`/prelevements/${partialSample.id}?etape=4`, {
-        replace: true,
-      });
+      navigateToSample(partialSample.id, 4);
     });
   };
 
@@ -65,7 +82,7 @@ const ItemsStep = ({ partialSample }: Props) => {
       ...partialSample,
       notesOnItems,
       items,
-      status,
+      status
     });
   };
 
@@ -79,7 +96,7 @@ const ItemsStep = ({ partialSample }: Props) => {
     Form,
     {
       items,
-      notesOnItems,
+      notesOnItems
     },
     save
   );
@@ -106,7 +123,7 @@ const ItemsStep = ({ partialSample }: Props) => {
               }}
               onChangeItem={changeItems}
               itemsForm={form}
-              laboratoryId={partialSample.laboratoryId}
+              laboratory={laboratory}
             />
           </div>
         ))}
@@ -120,12 +137,12 @@ const ItemsStep = ({ partialSample }: Props) => {
                 ...items,
                 {
                   sampleId: partialSample.id,
-                  itemNumber: items.length + 1,
-                },
+                  itemNumber: items.length + 1
+                }
               ]);
             }}
             style={{
-              alignSelf: 'center',
+              alignSelf: 'center'
             }}
             data-testid="add-item-button"
           >
@@ -176,7 +193,7 @@ const ItemsStep = ({ partialSample }: Props) => {
                     PreviousButton({
                       sampleId: partialSample.id,
                       onSave: async () => save('DraftMatrix'),
-                      currentStep: 3,
+                      currentStep: 3
                     }),
                     {
                       children: 'Enregistrer en brouillon',
@@ -186,8 +203,8 @@ const ItemsStep = ({ partialSample }: Props) => {
                         e.preventDefault();
                         await save();
                         setIsSaved(true);
-                      },
-                    },
+                      }
+                    }
                   ] as any
                 }
               />

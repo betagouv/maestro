@@ -3,7 +3,6 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
-import _ from 'lodash';
 import React, { useState } from 'react';
 import { Matrix } from 'shared/referential/Matrix/Matrix';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
@@ -13,15 +12,14 @@ import {
   MatrixKindLabels,
   MatrixKindList,
 } from 'shared/referential/MatrixKind';
-import { Stage, StageLabels, StageList } from 'shared/referential/Stage';
 import { Prescription } from 'shared/schema/Prescription/Prescription';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import { useForm } from 'src/hooks/useForm';
 import { z } from 'zod';
 interface AddMatrixProps {
-  excludedList: { matrix: Matrix; stages: Stage[] }[];
-  onSelect: (matrix: Matrix, stages: [Stage, ...Stage[]]) => Promise<void>;
+  excludedMatrixList: Matrix[];
+  onSelect: (matrix: Matrix) => Promise<void>;
   buttonTitle?: string;
 }
 
@@ -31,14 +29,13 @@ const matrixSelectModal = createModal({
 });
 
 const MatrixSelectModal = ({
-  excludedList,
+  excludedMatrixList,
   onSelect,
   buttonTitle,
 }: AddMatrixProps) => {
   useIsModalOpen(matrixSelectModal, {
     onConceal: () => {
       setMatrix(undefined);
-      setStages(undefined);
       form.reset();
     },
   });
@@ -46,11 +43,9 @@ const MatrixSelectModal = ({
   const isOpen = useIsModalOpen(matrixSelectModal);
   const [matrixKind, setMatrixKind] = useState<MatrixKind>();
   const [matrix, setMatrix] = useState<Matrix>();
-  const [stages, setStages] = useState<Stage[]>();
 
   const Form = Prescription.pick({
     matrix: true,
-    stages: true,
   }).merge(
     z.object({
       matrixKind: MatrixKind,
@@ -58,22 +53,16 @@ const MatrixSelectModal = ({
   );
 
   const FormRefinement = Form.refine(
-    ({ matrix, stages }) =>
-      !excludedList.find(
-        (excluded) =>
-          excluded.matrix === matrix &&
-          _.intersection(excluded.stages, stages).length > 0
-      ),
+    ({ matrix }) => !excludedMatrixList.includes(matrix),
     {
       path: ['existingMatrix'],
-      message: 'Cette matrice a déjà été ajoutée avec ce stade de prélèvement.',
+      message: 'Cette matrice a déjà été ajoutée.',
     }
   );
 
   const form = useForm(FormRefinement, {
     matrix,
     matrixKind,
-    stages,
     existingMatrix: false,
   });
 
@@ -82,9 +71,9 @@ const MatrixSelectModal = ({
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     await form.validate(async () => {
-      FormRefinement.safeParse({ matrix, stages });
+      FormRefinement.safeParse({ matrix });
 
-      await onSelect(matrix as Matrix, stages as [Stage, ...Stage[]]);
+      await onSelect(matrix as Matrix);
       matrixSelectModal.close();
     });
   };
@@ -93,16 +82,15 @@ const MatrixSelectModal = ({
     <>
       <Button
         title="Ajouter"
-        iconId="fr-icon-add-circle-line"
-        priority="tertiary no outline"
-        className="cell-icon"
+        priority="secondary"
         onClick={(e) => {
           e.preventDefault();
           matrixSelectModal.open();
         }}
+        className={cx('fr-mr-3w')}
         data-testid="add-matrix-button"
       >
-        {buttonTitle}
+        {buttonTitle ?? 'Ajouter'}
       </Button>
       <matrixSelectModal.Component
         title="Ajouter une matrice"
@@ -125,6 +113,7 @@ const MatrixSelectModal = ({
               value={matrixKind ?? ''}
               options={selectOptionsFromList(MatrixKindList, {
                 labels: MatrixKindLabels,
+                withSort: true,
               })}
               onChange={(e) => {
                 setMatrix(undefined);
@@ -152,19 +141,6 @@ const MatrixSelectModal = ({
               whenValid="Matrice correctement renseignée."
               data-testid="matrix-select"
               label="Matrice (obligatoire)"
-              required
-            />
-            <AppSelect<FormShape>
-              value={stages ? stages[0] : ''}
-              options={selectOptionsFromList(StageList, {
-                labels: StageLabels,
-              })}
-              onChange={(e) => setStages([e.target.value as Stage])}
-              inputForm={form}
-              inputKey="stages"
-              whenValid="Stade de prélèvement correctement renseigné."
-              data-testid="stage-select"
-              label="Stade de prélèvement (obligatoire)"
               required
             />
           </form>
