@@ -2,7 +2,7 @@ import config from './utils/config';
 
 const defaultConfig = {
   client: 'pg',
-  connection: config.databaseUrl,
+  connection: config.database,
   acquireConnectionTimeout: 10000,
   migrations: {
     tableName: 'knex_migrations',
@@ -20,7 +20,7 @@ const dummyConfig = {
 
 const testConfig = {
   ...defaultConfig,
-  connection: config.databaseUrlTest,
+  connection: config.databaseTest,
   migrations: {
     ...defaultConfig.migrations,
     directory: './database/migrations',
