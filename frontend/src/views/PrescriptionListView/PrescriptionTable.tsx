@@ -10,7 +10,7 @@ import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans'
 import {
   getCompletionRate,
   RegionalPrescription,
-  RegionalPrescriptionSort,
+  RegionalPrescriptionSort
 } from 'shared/schema/RegionalPrescription/RegionalPrescription';
 import { isNotEmpty } from 'shared/utils/utils';
 import PrescriptionStages from 'src/components/Prescription/PrescriptionStages/PrescriptionStages';
@@ -45,9 +45,9 @@ const PrescriptionTable = ({
   regions,
   onChangeRegionalPrescriptionCount,
   onChangePrescriptionLaboratory,
-  onRemovePrescription,
+  onRemovePrescription
 }: Props) => {
-  const { hasPermission } = useAuthentication();
+  const { hasUserPrescriptionPermission } = useAuthentication();
 
   const getRegionalPrescriptions = (prescriptionId: string) =>
     regionalPrescriptions
@@ -56,7 +56,7 @@ const PrescriptionTable = ({
 
   // @ts-ignore
   const { data: laboratories } = useFindLaboratoriesQuery(_, {
-    skip: regions.length > 1,
+    skip: regions.length > 1
   }); // eslint-disable-line react-hooks/exhaustive-deps
 
   const EmptyCell = <div></div>;
@@ -73,7 +73,7 @@ const PrescriptionTable = ({
             <RegionHeaderCell region={region} />
           </div>
         )),
-        regions.length === 1 && 'Laboratoire',
+        regions.length === 1 && 'Laboratoire'
       ].filter(isNotEmpty),
     [] // eslint-disable-line react-hooks/exhaustive-deps
   );
@@ -88,14 +88,13 @@ const PrescriptionTable = ({
       prescriptions.map((prescription) =>
         [
           <div key={`remove-${prescription.matrix}`}>
-            {hasPermission('deletePrescription') &&
-              programmingPlan.status === 'InProgress' && (
-                <RemoveMatrix
-                  matrix={prescription.matrix}
-                  stages={prescription.stages}
-                  onRemove={() => onRemovePrescription(prescription.id)}
-                />
-              )}
+            {hasUserPrescriptionPermission(programmingPlan)?.delete && (
+              <RemoveMatrix
+                matrix={prescription.matrix}
+                stages={prescription.stages}
+                onRemove={() => onRemovePrescription(prescription.id)}
+              />
+            )}
           </div>,
           <div
             className={cx('fr-pl-0', 'fr-text--bold')}
@@ -163,7 +162,7 @@ const PrescriptionTable = ({
                   }
                 />
               </div>
-            )),
+            ))
           // regions.length === 1 && (
           //   <div
           //     key={`laboratory-${prescription.matrix}`}
@@ -240,9 +239,9 @@ const PrescriptionTable = ({
                 </div>
               </>
             )}
-          </div>,
+          </div>
         ]),
-        regions.length === 1 && EmptyCell,
+        regions.length === 1 && EmptyCell
       ].filter(isNotEmpty),
     [regionalPrescriptions] // eslint-disable-line react-hooks/exhaustive-deps
   );

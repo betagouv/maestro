@@ -1,6 +1,7 @@
 import express from 'express';
 import * as jwt from 'jsonwebtoken';
 import { MarkRequired } from 'ts-essentials';
+import { ProgrammingPlan } from '../../shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { TokenPayload } from '../../shared/schema/User/TokenPayload';
 import { User } from '../../shared/schema/User/User';
 
@@ -20,6 +21,8 @@ declare module 'express-jwt' {
   type ProgrammingPlanRequest = MarkRequired<
     express.Request,
     'programmingPlan'
-  >;
+  > & {
+    programmingPlan: ProgrammingPlan;
+  };
   type SampleRequest = MarkRequired<express.Request, 'sample'>;
 }

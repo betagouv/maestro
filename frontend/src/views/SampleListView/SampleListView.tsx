@@ -15,7 +15,7 @@ import { Context } from 'shared/schema/ProgrammingPlan/Context';
 import { FindSampleOptions } from 'shared/schema/Sample/FindSampleOptions';
 import {
   DraftStatusList,
-  SampleStatus,
+  SampleStatus
 } from 'shared/schema/Sample/SampleStatus';
 import { isDefinedAndNotNull } from 'shared/utils/utils';
 import SampleCard from 'src/components/SampleCard/SampleCard';
@@ -29,7 +29,7 @@ import useWindowSize from 'src/hooks/useWindowSize';
 import { useFindPrescriptionsQuery } from 'src/services/prescription.service';
 import {
   useCountSamplesQuery,
-  useFindSamplesQuery,
+  useFindSamplesQuery
 } from 'src/services/sample.service';
 import { useFindUsersQuery } from 'src/services/user.service';
 import samplesSlice from 'src/store/reducers/samplesSlice';
@@ -50,7 +50,7 @@ const SampleListView = () => {
   const { isMobile } = useWindowSize();
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const { hasPermission, userInfos, hasNationalView } = useAuthentication();
+  const { hasUserPermission, userInfos, hasNationalView } = useAuthentication();
   const { findSampleOptions, sampleListDisplay } = useAppSelector(
     (state) => state.samples
   );
@@ -68,13 +68,13 @@ const SampleListView = () => {
           (searchParams.get('region') as Region) ??
           undefined,
         department: (searchParams.get('department') as Department) ?? undefined,
-        status: status === 'Draft' ? DraftStatusList : status ?? undefined,
+        status: status === 'Draft' ? DraftStatusList : (status ?? undefined),
         matrix: searchParams.get('matrix') as Matrix,
         sampledBy: searchParams.get('sampledBy'),
         sampledAt: searchParams.get('sampledAt'),
         reference: searchParams.get('reference'),
         page: Number(searchParams.get('page')) || 1,
-        perPage: defaultPerPage,
+        perPage: defaultPerPage
       })
     );
   }, [searchParams, userInfos?.region, sampleListDisplay]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -86,22 +86,22 @@ const SampleListView = () => {
   const { data: samplesCount } = useCountSamplesQuery(
     {
       ...fp.omit(findSampleOptions, 'page', 'perPage'),
-      programmingPlanId: programmingPlan?.id as string,
+      programmingPlanId: programmingPlan?.id as string
     },
     { skip: !programmingPlan }
   );
   const { data: prescriptions } = useFindPrescriptionsQuery(
     {
       programmingPlanId: programmingPlan?.id as string,
-      context: findSampleOptions.context as Context,
+      context: findSampleOptions.context as Context
     },
     {
-      skip: !programmingPlan?.id || !findSampleOptions.context,
+      skip: !programmingPlan?.id || !findSampleOptions.context
     }
   );
   const { data: samplers } = useFindUsersQuery({
     region: userInfos?.region,
-    role: 'Sampler',
+    role: 'Sampler'
   });
 
   const changeFilter = (findFilter: Partial<FindSampleOptions>) => {
@@ -109,7 +109,7 @@ const SampleListView = () => {
       fp.omitBy(
         {
           ...fp.mapValues(findSampleOptions, (value) => value?.toString()),
-          ...fp.mapValues(findFilter, (value) => value?.toString()),
+          ...fp.mapValues(findFilter, (value) => value?.toString())
         },
         fp.isEmpty
       ),
@@ -144,11 +144,11 @@ const SampleListView = () => {
         illustration={food}
         action={
           <>
-            {hasPermission('createSample') && (
+            {hasUserPermission('createSample') && (
               <Button
                 linkProps={{
                   to: `/prelevements/${programmingPlan?.year}/nouveau`,
-                  target: '_self',
+                  target: '_self'
                 }}
                 iconId="fr-icon-microscope-line"
               >
@@ -260,8 +260,8 @@ const SampleListView = () => {
                   getPageLinkProps={(page: number) => ({
                     to: getURLQuery({
                       ...findSampleOptions,
-                      page: page.toString(),
-                    }),
+                      page: page.toString()
+                    })
                   })}
                   className={cx('fr-mt-5w')}
                 />

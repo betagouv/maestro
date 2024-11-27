@@ -15,10 +15,10 @@ interface Props {
 
 const PrescriptionSubstancesSummary = ({
   programmingPlan,
-  prescription,
+  prescription
 }: Props) => {
   const dispatch = useAppDispatch();
-  const { canEditPrescriptions } = useAuthentication();
+  const { hasUserPrescriptionPermission } = useAuthentication();
 
   return (
     <div className="prescription-analysis-summary">
@@ -34,11 +34,11 @@ const PrescriptionSubstancesSummary = ({
           priority="tertiary no outline"
           className={cx('fr-link--xs')}
         >
-          {canEditPrescriptions(programmingPlan) &&
+          {hasUserPrescriptionPermission(programmingPlan)?.update &&
           (prescription.monoAnalysisCount ?? 0) === 0
             ? `Ajouter une analyse mono résidu`
             : `${t('analysis', {
-                count: prescription.monoAnalysisCount || 0,
+                count: prescription.monoAnalysisCount || 0
               })} mono résidu`}
         </Button>
       </div>
@@ -54,11 +54,11 @@ const PrescriptionSubstancesSummary = ({
           priority="tertiary no outline"
           className={cx('fr-link--xs')}
         >
-          {canEditPrescriptions(programmingPlan) &&
+          {hasUserPrescriptionPermission(programmingPlan)?.update &&
           (prescription.multiAnalysisCount ?? 0) === 0
             ? `Ajouter une analyse multi résidus`
             : `${t('analysis', {
-                count: prescription.multiAnalysisCount || 0,
+                count: prescription.multiAnalysisCount || 0
               })} multi résidus`}
         </Button>
       </div>

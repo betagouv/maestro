@@ -25,7 +25,7 @@ router.put(
     params(RegionalPrescriptionKey).merge(body(RegionalPrescriptionUpdate))
   ),
   permissionsCheck(['updatePrescription', 'updatePrescriptionLaboratory']),
-  programmingPlanCheck(['InProgress', 'Submitted']),
+  programmingPlanCheck(),
   regionalPrescriptionController.updateRegionalPrescription
 );
 router.post(
@@ -36,7 +36,7 @@ router.post(
     )
   ),
   permissionsCheck(['commentPrescription']),
-  programmingPlanCheck(['InProgress', 'Submitted']),
+  programmingPlanCheck(),
   regionalPrescriptionController.commentRegionalPrescription
 );
 

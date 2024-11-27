@@ -9,19 +9,20 @@ import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
 import { Region, RegionList, Regions } from 'shared/referential/Region';
 import {
   FindPrescriptionOptions,
-  PrescriptionOptionsInclude,
+  PrescriptionOptionsInclude
 } from 'shared/schema/Prescription/FindPrescriptionOptions';
 import { PrescriptionSort } from 'shared/schema/Prescription/Prescription';
 import { PrescriptionSubstance } from 'shared/schema/Prescription/PrescriptionSubstance';
 import {
   Context,
   ContextLabels,
-  ContextList,
+  ContextList
 } from 'shared/schema/ProgrammingPlan/Context';
+import { NextProgrammingPlanStatus } from 'shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import PrescriptionCardNational from 'src/components/Prescription/PrescriptionCard/PrescriptionCardNational';
 import PrescriptionCardRegional from 'src/components/Prescription/PrescriptionCard/PrescriptionCardRegional';
 import PrescriptionAnalysisModal from 'src/components/Prescription/PrescriptionSubstances/PrescriptionSubstancesModal';
-import ProgrammingPlanSubmissionModal from 'src/components/ProgrammingPlan/ProgrammingPlanSubmissionModal/ProgrammingPlanSubmissionModal';
+import ProgrammingPlanUpdateModal from 'src/components/ProgrammingPlan/ProgrammingPlanUpdateModal/ProgrammingPlanUpdateModal';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import AppToast from 'src/components/_app/AppToast/AppToast';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -31,11 +32,11 @@ import {
   useAddPrescriptionMutation,
   useDeletePrescriptionMutation,
   useFindPrescriptionsQuery,
-  useUpdatePrescriptionMutation,
+  useUpdatePrescriptionMutation
 } from 'src/services/prescription.service';
 import {
   useFindRegionalPrescriptionsQuery,
-  useUpdateRegionalPrescriptionMutation,
+  useUpdateRegionalPrescriptionMutation
 } from 'src/services/regionalPrescription.service';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import PrescriptionListHeader from 'src/views/PrescriptionListView/PrescriptionListHeader';
@@ -84,7 +85,7 @@ const PrescriptionListView = () => {
       programmingPlanId: programmingPlan?.id as string,
       context: prescriptionListContext,
       region,
-      includes: ['substanceCount' as PrescriptionOptionsInclude],
+      includes: ['substanceCount' as PrescriptionOptionsInclude]
     }),
     [programmingPlan, prescriptionListContext, region]
   );
@@ -92,7 +93,7 @@ const PrescriptionListView = () => {
   const { data: allPrescriptions } = useFindPrescriptionsQuery(
     findPrescriptionOptions,
     {
-      skip: !programmingPlan,
+      skip: !programmingPlan
     }
   );
 
@@ -111,10 +112,10 @@ const PrescriptionListView = () => {
   const { data: regionalPrescriptions } = useFindRegionalPrescriptionsQuery(
     {
       ...findPrescriptionOptions,
-      includes: ['comments', 'realizedSampleCount'],
+      includes: ['comments', 'realizedSampleCount']
     },
     {
-      skip: !programmingPlan,
+      skip: !programmingPlan
     }
   );
 
@@ -125,7 +126,7 @@ const PrescriptionListView = () => {
           ...fp.mapValues(findPrescriptionOptions, (value) =>
             value?.toString()
           ),
-          ...fp.mapValues(findFilter, (value) => value?.toString()),
+          ...fp.mapValues(findFilter, (value) => value?.toString())
         },
         fp.isEmpty
       );
@@ -145,7 +146,7 @@ const PrescriptionListView = () => {
         programmingPlanId,
         context: prescriptionListContext,
         matrix,
-        stages: [],
+        stages: []
       });
     },
     [prescriptionListContext] // eslint-disable-line react-hooks/exhaustive-deps
@@ -165,8 +166,8 @@ const PrescriptionListView = () => {
         region,
         prescriptionUpdate: {
           programmingPlanId: programmingPlan?.id as string,
-          sampleCount: count,
-        },
+          sampleCount: count
+        }
       });
     },
     [programmingPlan] // eslint-disable-line react-hooks/exhaustive-deps
@@ -195,8 +196,8 @@ const PrescriptionListView = () => {
         prescriptionId,
         prescriptionUpdate: {
           programmingPlanId: programmingPlan?.id as string,
-          substances: prescriptionSubstances,
-        },
+          substances: prescriptionSubstances
+        }
       });
     },
     [programmingPlan] // eslint-disable-line react-hooks/exhaustive-deps
@@ -227,20 +228,19 @@ const PrescriptionListView = () => {
                       checked: context === findPrescriptionOptions.context,
                       onChange: () =>
                         changeFilter({
-                          context,
-                        }),
-                    },
+                          context
+                        })
+                    }
                   })) as any
                 }
               />
-              {programmingPlan && (
-                <ProgrammingPlanSubmissionModal
-                  programmingPlan={programmingPlan}
-                />
-              )}
             </>
           }
         />
+        {programmingPlan &&
+          NextProgrammingPlanStatus[programmingPlan.status] && (
+            <ProgrammingPlanUpdateModal programmingPlan={programmingPlan} />
+          )}
       </div>
 
       <div

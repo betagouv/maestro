@@ -29,9 +29,9 @@ const PrescriptionCardNational = ({
   prescription,
   regionalPrescriptions,
   onChangeRegionalPrescriptionCount,
-  onRemovePrescription: removeMatrix,
+  onRemovePrescription: removeMatrix
 }: Props) => {
-  const { hasPermission } = useAuthentication();
+  const { hasUserPrescriptionPermission } = useAuthentication();
 
   return (
     <div className={clsx(cx('fr-card', 'fr-card--sm'), 'prescription-card')}>
@@ -48,17 +48,16 @@ const PrescriptionCardNational = ({
               <div className={clsx(cx('fr-mb-3w'), 'd-flex-align-center')}>
                 <span className="flex-grow-1">
                   {t('plannedSample', {
-                    count: _.sumBy(regionalPrescriptions, 'sampleCount'),
+                    count: _.sumBy(regionalPrescriptions, 'sampleCount')
                   })}
                 </span>
-                {hasPermission('deletePrescription') &&
-                  programmingPlan.status === 'InProgress' && (
-                    <RemoveMatrix
-                      matrix={prescription.matrix}
-                      stages={prescription.stages}
-                      onRemove={() => removeMatrix(prescription.id)}
-                    />
-                  )}
+                {hasUserPrescriptionPermission(programmingPlan)?.delete && (
+                  <RemoveMatrix
+                    matrix={prescription.matrix}
+                    stages={prescription.stages}
+                    onRemove={() => removeMatrix(prescription.id)}
+                  />
+                )}
               </div>
               <PrescriptionCardPartialTable
                 programmingPlan={programmingPlan}

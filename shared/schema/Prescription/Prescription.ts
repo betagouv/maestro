@@ -3,6 +3,8 @@ import { Matrix } from '../../referential/Matrix/Matrix';
 import { MatrixLabels } from '../../referential/Matrix/MatrixLabels';
 import { Stage, StageLabels } from '../../referential/Stage';
 import { Context } from '../ProgrammingPlan/Context';
+import { ProgrammingPlan } from '../ProgrammingPlan/ProgrammingPlans';
+import { hasPermission, User, UserInfos } from '../User/User';
 import { PrescriptionSubstance } from './PrescriptionSubstance';
 
 export const Prescription = z.object({
@@ -12,11 +14,11 @@ export const Prescription = z.object({
   matrix: Matrix,
   stages: z.array(Stage),
   monoAnalysisCount: z.coerce.number().nullish(),
-  multiAnalysisCount: z.coerce.number().nullish(),
+  multiAnalysisCount: z.coerce.number().nullish()
 });
 
 export const PrescriptionToCreate = Prescription.omit({
-  id: true,
+  id: true
 });
 
 export const PrescriptionUpdate = z.object({
@@ -26,10 +28,10 @@ export const PrescriptionUpdate = z.object({
     .array(
       PrescriptionSubstance.pick({
         analysisKind: true,
-        substance: true,
+        substance: true
       })
     )
-    .nullish(),
+    .nullish()
 });
 
 export type Prescription = z.infer<typeof Prescription>;
@@ -40,13 +42,35 @@ export const PrescriptionSort = (a: Prescription, b: Prescription) =>
   [
     a.programmingPlanId,
     MatrixLabels[a.matrix],
-    ...a.stages.map((_) => StageLabels[_]),
+    ...a.stages.map((_) => StageLabels[_])
   ]
     .join()
     .localeCompare(
       [
         b.programmingPlanId,
         MatrixLabels[b.matrix],
-        ...b.stages.map((_) => StageLabels[_]),
+        ...b.stages.map((_) => StageLabels[_])
       ].join()
     );
+
+const PrescriptionPermission = z.enum(['create', 'update', 'delete']);
+
+export type PrescriptionPermission = z.infer<typeof PrescriptionPermission>;
+
+export const hasPrescriptionPermission = (
+  user: User | UserInfos,
+  programmingPlan: ProgrammingPlan
+): Record<PrescriptionPermission, boolean> => ({
+  create:
+    hasPermission(user, 'createPrescription') &&
+    programmingPlan.status !== 'Validated' &&
+    programmingPlan.statusDrom !== 'Validated',
+  update:
+    hasPermission(user, 'updatePrescription') &&
+    programmingPlan.status !== 'Validated' &&
+    programmingPlan.statusDrom !== 'Validated',
+  delete:
+    hasPermission(user, 'deletePrescription') &&
+    programmingPlan.status !== 'Validated' &&
+    programmingPlan.statusDrom !== 'Validated'
+});

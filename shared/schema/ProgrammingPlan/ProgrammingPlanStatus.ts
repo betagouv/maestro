@@ -4,7 +4,7 @@ import { UserPermission } from '../User/UserPermission';
 export const ProgrammingPlanStatus = z.enum(
   ['InProgress', 'Submitted', 'Validated'],
   {
-    errorMap: () => ({ message: 'Statut non renseigné.' }),
+    errorMap: () => ({ message: 'Statut non renseigné.' })
   }
 );
 
@@ -19,7 +19,7 @@ export const ProgrammingPlanStatusLabels: Record<
 > = {
   InProgress: 'Programmation en cours',
   Submitted: 'Soumis aux régions',
-  Validated: 'Campagne en cours',
+  Validated: 'Campagne en cours'
 };
 
 export const ProgrammingPlanStatusPermissions: Record<
@@ -28,5 +28,14 @@ export const ProgrammingPlanStatusPermissions: Record<
 > = {
   InProgress: 'readProgrammingPlansInProgress',
   Submitted: 'readProgrammingPlanSubmitted',
-  Validated: 'readProgrammingPlanValidated',
+  Validated: 'readProgrammingPlanValidated'
+};
+
+export const NextProgrammingPlanStatus: Record<
+  ProgrammingPlanStatus,
+  ProgrammingPlanStatus | null
+> = {
+  InProgress: 'Submitted',
+  Submitted: 'Validated',
+  Validated: null
 };

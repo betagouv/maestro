@@ -6,7 +6,7 @@ import { capitalize } from 'lodash';
 import { SyntheticEvent, useMemo, useState } from 'react';
 import {
   AnalysisKind,
-  AnalysisKindLabels,
+  AnalysisKindLabels
 } from 'shared/schema/Analysis/AnalysisKind';
 import { PrescriptionSubstance } from 'shared/schema/Prescription/PrescriptionSubstance';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -31,9 +31,9 @@ const PrescriptionSubstancesSelect = ({
   prescriptionId,
   prescriptionSubstances,
   analysisKind,
-  onUpdatePrescriptionSubstances,
+  onUpdatePrescriptionSubstances
 }: Props) => {
-  const { canEditPrescriptions } = useAuthentication();
+  const { hasUserPrescriptionPermission } = useAuthentication();
 
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [substanceSearchResults, setSubstanceSearchResults] = useState<
@@ -81,8 +81,8 @@ const PrescriptionSubstancesSelect = ({
       {
         prescriptionId,
         substance,
-        analysisKind,
-      },
+        analysisKind
+      }
     ]);
     setNewSubstance(null);
   };
@@ -99,7 +99,7 @@ const PrescriptionSubstancesSelect = ({
       <label className={cx('fr-label', 'fr-mb-1w')}>
         {capitalize(AnalysisKindLabels[analysisKind])}
       </label>
-      {canEditPrescriptions(programmingPlan) && (
+      {hasUserPrescriptionPermission(programmingPlan)?.update && (
         <div className="d-flex-align-center">
           <Autocomplete
             fullWidth
@@ -152,14 +152,14 @@ const PrescriptionSubstancesSelect = ({
         {filteredPrescriptionSubstances.map((prescriptionSubstance) => (
           <Tag
             key={`${prescriptionSubstance.prescriptionId}-${prescriptionSubstance.substance.code}`}
-            dismissible={canEditPrescriptions(programmingPlan)}
+            dismissible={hasUserPrescriptionPermission(programmingPlan)?.update}
             small
             nativeButtonProps={
-              canEditPrescriptions(programmingPlan)
+              hasUserPrescriptionPermission(programmingPlan)?.update
                 ? {
                     onClick: async () => {
                       removeSubstance(prescriptionSubstance.substance);
-                    },
+                    }
                   }
                 : undefined
             }

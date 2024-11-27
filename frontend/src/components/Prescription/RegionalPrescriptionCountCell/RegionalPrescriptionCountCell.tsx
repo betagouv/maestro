@@ -2,7 +2,7 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   getCompletionRate,
-  RegionalPrescription,
+  RegionalPrescription
 } from 'shared/schema/RegionalPrescription/RegionalPrescription';
 import EditableNumberCell from 'src/components/EditableCell/EditableNumberCell';
 import RegionalPrescriptionCommentsModal from 'src/components/Prescription/RegionalPrescriptionCommentsModal/RegionalPrescriptionCommentsModal';
@@ -17,12 +17,14 @@ interface Props {
 const RegionalPrescriptionCountCell = ({
   programmingPlan,
   regionalPrescription,
-  onChange,
+  onChange
 }: Props) => {
-  const { hasPermission } = useAuthentication();
+  const { hasUserRegionalPrescriptionPermission } = useAuthentication();
 
-  return hasPermission('updatePrescription') &&
-    programmingPlan.status === 'InProgress' ? (
+  return hasUserRegionalPrescriptionPermission(
+    programmingPlan,
+    regionalPrescription
+  )?.updateSampleCount ? (
     <EditableNumberCell
       initialValue={regionalPrescription.sampleCount}
       onChange={(value) => onChange(value)}

@@ -15,7 +15,7 @@ const Header = () => {
   const dispatch = useAppDispatch();
   const location = useLocation();
 
-  const { isAuthenticated, hasPermission, userInfos } = useAuthentication();
+  const { isAuthenticated, hasUserPermission, userInfos } = useAuthentication();
 
   const { data: programmingPlans } = useFindProgrammingPlansQuery(
     {},
@@ -45,27 +45,27 @@ const Header = () => {
       }
       homeLinkProps={{
         to: '/',
-        title: 'Accueil',
+        title: 'Accueil'
       }}
       id="header"
       operatorLogo={{
         alt: 'Logo maestro',
         imgUrl: logo,
-        orientation: 'horizontal',
+        orientation: 'horizontal'
       }}
       navigation={(isAuthenticated
         ? [
             {
               linkProps: {
                 to: '/',
-                target: '_self',
+                target: '_self'
               },
               text: 'Tableau de bord',
               isActive:
                 location.pathname === '/' ||
-                location.pathname.startsWith('/plans'),
+                location.pathname.startsWith('/plans')
             },
-            hasPermission('readSamples')
+            hasUserPermission('readSamples')
               ? {
                   isActive: isActive('/prelevements'),
                   ...(validatedProgrammingPlans?.length === 1
@@ -73,8 +73,8 @@ const Header = () => {
                         text: 'Prélèvements',
                         linkProps: {
                           to: `/prelevements/${validatedProgrammingPlans[0].year}`,
-                          target: '_self',
-                        },
+                          target: '_self'
+                        }
                       }
                     : {
                         text: `Prélèvements ${
@@ -86,15 +86,15 @@ const Header = () => {
                           (pp) => ({
                             linkProps: {
                               to: `/prelevements/${pp.year}`,
-                              target: '_self',
+                              target: '_self'
                             },
                             text: pp.year,
                             isActive:
                               isActive('/prelevements') &&
-                              pp.id === programmingPlan?.id,
+                              pp.id === programmingPlan?.id
                           })
-                        ),
-                      }),
+                        )
+                      })
                 }
               : undefined,
             {
@@ -104,8 +104,8 @@ const Header = () => {
                     text: 'Programmation',
                     linkProps: {
                       to: `/prescriptions/${programmingPlans[0].year}`,
-                      target: '_self',
-                    },
+                      target: '_self'
+                    }
                   }
                 : {
                     text: `Programmation ${
@@ -116,23 +116,23 @@ const Header = () => {
                     menuLinks: (programmingPlans ?? []).map((pp) => ({
                       linkProps: {
                         to: `/prescriptions/${pp.year}`,
-                        target: '_self',
+                        target: '_self'
                       },
                       text: `Campagne ${pp.year}`,
                       isActive:
                         isActive('/prescriptions') &&
-                        pp.id === programmingPlan?.id,
-                    })),
-                  }),
+                        pp.id === programmingPlan?.id
+                    }))
+                  })
             },
             {
               linkProps: {
                 to: '/documents',
-                target: '_self',
+                target: '_self'
               },
               text: 'Documents ressources',
-              isActive: location.pathname.startsWith('/documents'),
-            },
+              isActive: location.pathname.startsWith('/documents')
+            }
           ]
         : []
       ).filter(isDefined)}
@@ -154,16 +154,16 @@ const Header = () => {
                 >
                   Se déconnecter
                 </Button>
-              </div>,
+              </div>
             ].filter(isDefined)
           : [
               {
                 linkProps: {
-                  to: '/connexion',
+                  to: '/connexion'
                 },
                 iconId: 'fr-icon-user-fill',
-                text: 'Se connecter',
-              },
+                text: 'Se connecter'
+              }
             ]
       }
     />

@@ -5,6 +5,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import _, { sumBy } from 'lodash';
 import { Context, ContextLabels } from 'shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanStatusLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { getCompletionRate } from 'shared/schema/RegionalPrescription/RegionalPrescription';
 import { RealizedStatusList } from 'shared/schema/Sample/SampleStatus';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -20,21 +21,21 @@ interface ProgrammingPlanCardProps {
 
 const ProgrammingPlanCard = ({
   programmingPlan,
-  context,
+  context
 }: ProgrammingPlanCardProps) => {
   const { hasNationalView } = useAuthentication();
 
   const { data: regionalPrescriptions } = useFindRegionalPrescriptionsQuery({
     programmingPlanId: programmingPlan.id,
     context,
-    includes: ['realizedSampleCount'],
+    includes: ['realizedSampleCount']
   });
 
   const { data: samplesToSentCount } = useCountSamplesQuery(
     {
       programmingPlanId: programmingPlan.id,
       context,
-      status: 'Submitted',
+      status: 'Submitted'
     },
     { skip: hasNationalView }
   );
@@ -50,20 +51,14 @@ const ProgrammingPlanCard = ({
       end={
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12', 'fr-pt-0')}>
-            {programmingPlan.status === 'InProgress' && (
-              <Badge severity="new" noIcon>
-                ProgrammingPlanStatusLabels[programmingPlan.status]
-              </Badge>
-            )}
-            {programmingPlan.status === 'Submitted' && (
-              <Badge severity="warning" noIcon>
-                ProgrammingPlanStatusLabels[programmingPlan.status]
-              </Badge>
-            )}
-            {programmingPlan.status === 'Validated' && (
+            {programmingPlan.status === 'Validated' ? (
               <Badge severity="success" noIcon>
                 Taux de réalisation :{' '}
                 {getCompletionRate(regionalPrescriptions ?? [])}%
+              </Badge>
+            ) : (
+              <Badge severity="warning" noIcon>
+                {ProgrammingPlanStatusLabels[programmingPlan.status]}
               </Badge>
             )}
           </div>
@@ -92,7 +87,7 @@ const ProgrammingPlanCard = ({
                 className={'fr-card--xs'}
                 enlargeLink
                 linkProps={{
-                  to: `/prelevements/${programmingPlan.year}?status=${RealizedStatusList}&programmingPlanId=${programmingPlan.id}&context=${context}`,
+                  to: `/prelevements/${programmingPlan.year}?status=${RealizedStatusList}&programmingPlanId=${programmingPlan.id}&context=${context}`
                 }}
               />
             </div>
@@ -118,7 +113,7 @@ const ProgrammingPlanCard = ({
                 className={'fr-card--xs'}
                 enlargeLink
                 linkProps={{
-                  to: `/prelevements/${programmingPlan.year}?status=Submitted&programmingPlanId=${programmingPlan.id}`,
+                  to: `/prelevements/${programmingPlan.year}?status=Submitted&programmingPlanId=${programmingPlan.id}`
                 }}
               />
             </div>
@@ -130,7 +125,7 @@ const ProgrammingPlanCard = ({
           <Button
             className={cx('fr-mr-2w')}
             linkProps={{
-              to: `/prescriptions/${programmingPlan.year}?context=${context}`,
+              to: `/prescriptions/${programmingPlan.year}?context=${context}`
             }}
           >
             Voir le tableau complet

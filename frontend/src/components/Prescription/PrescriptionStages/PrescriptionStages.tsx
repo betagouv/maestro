@@ -20,34 +20,34 @@ interface Props {
 const PrescriptionStages = ({
   programmingPlan,
   prescription,
-  label,
+  label
 }: Props) => {
-  const { canEditPrescriptions } = useAuthentication();
+  const { hasUserPrescriptionPermission } = useAuthentication();
   const [updatePrescription, { isSuccess: isUpdateSuccess }] =
     useUpdatePrescriptionMutation();
 
   const [newStage, setNewStage] = useState<Stage | ''>('');
 
   const removeStage = async (stage: Stage) => {
-    if (canEditPrescriptions(programmingPlan)) {
+    if (hasUserPrescriptionPermission(programmingPlan)?.update) {
       await updatePrescription({
         prescriptionId: prescription.id,
         prescriptionUpdate: {
           programmingPlanId: prescription.programmingPlanId,
-          stages: prescription.stages.filter((s) => s !== stage),
-        },
+          stages: prescription.stages.filter((s) => s !== stage)
+        }
       });
     }
   };
 
   const addStage = async (stage: Stage) => {
-    if (canEditPrescriptions(programmingPlan)) {
+    if (hasUserPrescriptionPermission(programmingPlan)?.update) {
       await updatePrescription({
         prescriptionId: prescription.id,
         prescriptionUpdate: {
           programmingPlanId: prescription.programmingPlanId,
-          stages: [...prescription.stages, stage],
-        },
+          stages: [...prescription.stages, stage]
+        }
       });
     }
   };
@@ -55,14 +55,14 @@ const PrescriptionStages = ({
   return (
     <>
       <AppToast open={isUpdateSuccess} description="Modification enregistrée" />
-      {canEditPrescriptions(programmingPlan) ? (
+      {hasUserPrescriptionPermission(programmingPlan)?.update ? (
         <div className="d-flex-align-center">
           <Select
             label={label ?? ''}
             nativeSelectProps={{
               onChange: (e) => {
                 setNewStage(e.target.value as Stage);
-              },
+              }
             }}
             className={cx('fr-mb-1w')}
           >
@@ -71,7 +71,7 @@ const PrescriptionStages = ({
               {
                 defaultLabel: 'Sélectionner',
                 labels: StageLabels,
-                withSort: true,
+                withSort: true
               }
             ).map((option) => (
               <option key={option.value} value={option.value}>
@@ -97,12 +97,12 @@ const PrescriptionStages = ({
       {prescription.stages.map((stage) => (
         <Tag
           key={`prescription_${prescription.matrix}_stage_${stage}`}
-          dismissible={canEditPrescriptions(programmingPlan)}
+          dismissible={hasUserPrescriptionPermission(programmingPlan)?.update}
           small
           nativeButtonProps={
-            canEditPrescriptions(programmingPlan)
+            hasUserPrescriptionPermission(programmingPlan)?.update
               ? {
-                  onClick: () => removeStage(stage),
+                  onClick: () => removeStage(stage)
                 }
               : undefined
           }

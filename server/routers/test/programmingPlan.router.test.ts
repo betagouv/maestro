@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import {
   NationalCoordinator,
   RegionalCoordinator,
-  Sampler1Fixture,
+  Sampler1Fixture
 } from '../../../database/seeds/test/001-users';
 import { ProgrammingPlan } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatus } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
@@ -21,38 +21,38 @@ describe('ProgrammingPlan router', () => {
     id: 'b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1',
     createdBy: NationalCoordinator.id,
     year: 2019,
-    status: 'Validated',
+    status: 'Validated'
   });
   const submittedProgrammingPlan = genProgrammingPlan({
     id: 'b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2',
     createdBy: NationalCoordinator.id,
     year: 2021,
-    status: 'Submitted',
+    status: 'Submitted'
   });
   const inProgressProgrammingPlan = genProgrammingPlan({
     id: 'b3b3b3b3-b3b3-b3b3-b3b3-b3b3b3b3b3b3',
     createdBy: NationalCoordinator.id,
     year: 2022,
-    status: 'InProgress',
+    status: 'InProgress'
   });
   const controlPrescriptionValidatedPlan = genPrescription({
     programmingPlanId: validatedProgrammingPlan.id,
-    context: 'Control',
+    context: 'Control'
   });
   const surveillancePrescriptionValidatedPlan = genPrescription({
     programmingPlanId: validatedProgrammingPlan.id,
-    context: 'Surveillance',
+    context: 'Surveillance'
   });
 
   beforeAll(async () => {
     await ProgrammingPlans().insert([
       validatedProgrammingPlan,
       submittedProgrammingPlan,
-      inProgressProgrammingPlan,
+      inProgressProgrammingPlan
     ]);
     await Prescriptions().insert([
       controlPrescriptionValidatedPlan,
-      surveillancePrescriptionValidatedPlan,
+      surveillancePrescriptionValidatedPlan
     ]);
   });
 
@@ -61,7 +61,7 @@ describe('ProgrammingPlan router', () => {
       .whereIn('programmingPlanId', [
         validatedProgrammingPlan.id,
         submittedProgrammingPlan.id,
-        inProgressProgrammingPlan.id,
+        inProgressProgrammingPlan.id
       ])
       .delete();
     await ProgrammingPlans()
@@ -69,7 +69,7 @@ describe('ProgrammingPlan router', () => {
       .where('id', 'in', [
         validatedProgrammingPlan.id,
         submittedProgrammingPlan.id,
-        inProgressProgrammingPlan.id,
+        inProgressProgrammingPlan.id
       ]);
   });
 
@@ -93,16 +93,16 @@ describe('ProgrammingPlan router', () => {
         expect.arrayContaining([
           {
             ...validatedProgrammingPlan,
-            createdAt: validatedProgrammingPlan.createdAt.toISOString(),
+            createdAt: validatedProgrammingPlan.createdAt.toISOString()
           },
           {
             ...submittedProgrammingPlan,
-            createdAt: submittedProgrammingPlan.createdAt.toISOString(),
+            createdAt: submittedProgrammingPlan.createdAt.toISOString()
           },
           {
             ...inProgressProgrammingPlan,
-            createdAt: inProgressProgrammingPlan.createdAt.toISOString(),
-          },
+            createdAt: inProgressProgrammingPlan.createdAt.toISOString()
+          }
         ])
       );
     });
@@ -117,20 +117,20 @@ describe('ProgrammingPlan router', () => {
         expect.arrayContaining([
           {
             ...validatedProgrammingPlan,
-            createdAt: validatedProgrammingPlan.createdAt.toISOString(),
+            createdAt: validatedProgrammingPlan.createdAt.toISOString()
           },
           {
             ...submittedProgrammingPlan,
-            createdAt: submittedProgrammingPlan.createdAt.toISOString(),
-          },
+            createdAt: submittedProgrammingPlan.createdAt.toISOString()
+          }
         ])
       );
       expect(res.body).not.toMatchObject(
         expect.arrayContaining([
           {
             ...inProgressProgrammingPlan,
-            createdAt: inProgressProgrammingPlan.createdAt.toISOString(),
-          },
+            createdAt: inProgressProgrammingPlan.createdAt.toISOString()
+          }
         ])
       );
     });
@@ -145,20 +145,20 @@ describe('ProgrammingPlan router', () => {
         expect.arrayContaining([
           {
             ...validatedProgrammingPlan,
-            createdAt: validatedProgrammingPlan.createdAt.toISOString(),
-          },
+            createdAt: validatedProgrammingPlan.createdAt.toISOString()
+          }
         ])
       );
       expect(res.body).not.toMatchObject(
         expect.arrayContaining([
           {
             ...inProgressProgrammingPlan,
-            createdAt: inProgressProgrammingPlan.createdAt.toISOString(),
+            createdAt: inProgressProgrammingPlan.createdAt.toISOString()
           },
           {
             ...submittedProgrammingPlan,
-            createdAt: submittedProgrammingPlan.createdAt.toISOString(),
-          },
+            createdAt: submittedProgrammingPlan.createdAt.toISOString()
+          }
         ])
       );
     });
@@ -173,20 +173,20 @@ describe('ProgrammingPlan router', () => {
         expect.arrayContaining([
           {
             ...submittedProgrammingPlan,
-            createdAt: submittedProgrammingPlan.createdAt.toISOString(),
-          },
+            createdAt: submittedProgrammingPlan.createdAt.toISOString()
+          }
         ])
       );
       expect(res.body).not.toMatchObject(
         expect.arrayContaining([
           {
             ...inProgressProgrammingPlan,
-            createdAt: inProgressProgrammingPlan.createdAt.toISOString(),
+            createdAt: inProgressProgrammingPlan.createdAt.toISOString()
           },
           {
             ...validatedProgrammingPlan,
-            createdAt: validatedProgrammingPlan.createdAt.toISOString(),
-          },
+            createdAt: validatedProgrammingPlan.createdAt.toISOString()
+          }
         ])
       );
     });
@@ -223,7 +223,7 @@ describe('ProgrammingPlan router', () => {
 
       expect(res.body).toMatchObject({
         ...validatedProgrammingPlan,
-        createdAt: validatedProgrammingPlan.createdAt.toISOString(),
+        createdAt: validatedProgrammingPlan.createdAt.toISOString()
       });
     });
   });
@@ -267,14 +267,14 @@ describe('ProgrammingPlan router', () => {
 
       expect(res.body).toMatchObject({
         year: 2020,
-        status: 'InProgress',
+        status: 'InProgress'
       });
 
       await expect(
         ProgrammingPlans().where('year', 2020).first()
       ).resolves.toMatchObject({
         year: 2020,
-        status: 'InProgress',
+        status: 'InProgress'
       });
 
       await expect(
@@ -288,8 +288,8 @@ describe('ProgrammingPlan router', () => {
             context: 'Control',
             programmingPlanId: res.body.id,
             matrix: controlPrescriptionValidatedPlan.matrix,
-            stages: controlPrescriptionValidatedPlan.stages,
-          },
+            stages: controlPrescriptionValidatedPlan.stages
+          }
         ])
       );
       await expect(
@@ -303,8 +303,8 @@ describe('ProgrammingPlan router', () => {
             context: 'Surveillance',
             programmingPlanId: res.body.id,
             matrix: surveillancePrescriptionValidatedPlan.matrix,
-            stages: surveillancePrescriptionValidatedPlan.stages,
-          },
+            stages: surveillancePrescriptionValidatedPlan.stages
+          }
         ])
       );
 
@@ -326,6 +326,7 @@ describe('ProgrammingPlan router', () => {
   describe('PUT /programming-plans/:year', () => {
     const programmingPlanUpdate = {
       status: 'Validated',
+      isDrom: false
     };
 
     const testRoute = (programmingPlanId: string) =>
@@ -362,8 +363,14 @@ describe('ProgrammingPlan router', () => {
           .use(tokenProvider(NationalCoordinator))
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
-      await badRequestTest({ status: undefined });
-      await badRequestTest({ status: 'Invalid' });
+      await badRequestTest({
+        ...programmingPlanUpdate,
+        status: 'Invalid'
+      });
+      await badRequestTest({
+        ...programmingPlanUpdate,
+        isDrom: 'Invalid'
+      });
     });
 
     it('should fail if the status update is forbidden', async () => {
@@ -396,14 +403,14 @@ describe('ProgrammingPlan router', () => {
       expect(res.body).toMatchObject({
         ...submittedProgrammingPlan,
         status: 'Validated',
-        createdAt: submittedProgrammingPlan.createdAt.toISOString(),
+        createdAt: submittedProgrammingPlan.createdAt.toISOString()
       });
 
       await expect(
         ProgrammingPlans().where('id', submittedProgrammingPlan.id).first()
       ).resolves.toMatchObject({
         ...submittedProgrammingPlan,
-        status: 'Validated',
+        status: 'Validated'
       });
 
       //Cleanup

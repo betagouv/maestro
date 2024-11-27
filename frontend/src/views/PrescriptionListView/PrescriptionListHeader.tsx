@@ -29,11 +29,11 @@ const PrescriptionListHeader = ({
   findPrescriptionOptions,
   prescriptions,
   addMatrix,
-  sampleCount,
+  sampleCount
 }: Props) => {
   const dispatch = useAppDispatch();
   const { isMobile } = useWindowSize();
-  const { hasPermission } = useAuthentication();
+  const { hasUserPrescriptionPermission } = useAuthentication();
 
   const { prescriptionListDisplay, matrixQuery } = useAppSelector(
     (state) => state.prescriptions
@@ -45,13 +45,12 @@ const PrescriptionListHeader = ({
         <h4 className={cx('fr-mb-0', 'fr-mr-3w')}>
           {t('plannedSample', { count: sampleCount ?? 0 })}
         </h4>
-        {hasPermission('createPrescription') &&
-          programmingPlan.status === 'InProgress' && (
-            <MatrixSelectModal
-              excludedMatrixList={_.uniq(prescriptions.map((p) => p.matrix))}
-              onSelect={addMatrix}
-            />
-          )}
+        {hasUserPrescriptionPermission(programmingPlan)?.create && (
+          <MatrixSelectModal
+            excludedMatrixList={_.uniq(prescriptions.map((p) => p.matrix))}
+            onSelect={addMatrix}
+          />
+        )}
         <Input
           iconId="fr-icon-search-line"
           hideLabel
@@ -64,7 +63,7 @@ const PrescriptionListHeader = ({
               dispatch(
                 prescriptionsSlice.actions.changeMatrixQuery(e.target.value)
               );
-            },
+            }
           }}
           className={cx('fr-my-0', 'fr-hidden', 'fr-unhidden-md')}
         />
@@ -85,8 +84,8 @@ const PrescriptionListHeader = ({
                       prescriptionsSlice.actions.changeListDisplay('cards')
                     );
                   },
-                  'data-testid': 'prescriptions-cards-segment',
-                } as any,
+                  'data-testid': 'prescriptions-cards-segment'
+                } as any
               },
               {
                 label: 'Tableau',
@@ -98,9 +97,9 @@ const PrescriptionListHeader = ({
                       prescriptionsSlice.actions.changeListDisplay('table')
                     );
                   },
-                  'data-testid': 'prescriptions-table-segment',
-                } as any,
-              },
+                  'data-testid': 'prescriptions-table-segment'
+                } as any
+              }
             ]}
             className={cx('fr-mr-3w')}
           />

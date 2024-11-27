@@ -11,7 +11,7 @@ export const User = z.object({
   firstName: z.string(),
   lastName: z.string(),
   roles: z.array(UserRole),
-  region: Region.nullable(),
+  region: Region.nullable()
 });
 
 export const UserInfos = User.pick({
@@ -20,7 +20,7 @@ export const UserInfos = User.pick({
   firstName: true,
   lastName: true,
   roles: true,
-  region: true,
+  region: true
 });
 
 export type User = z.infer<typeof User>;
@@ -33,7 +33,7 @@ export const userDepartments = (user?: User | UserInfos) =>
   user
     ? userRegions(user).flatMap((region) => [
         ...Regions[region].departments,
-        ...(Regions[region].borderingDepartments || []),
+        ...(Regions[region].borderingDepartments || [])
       ])
     : [];
 

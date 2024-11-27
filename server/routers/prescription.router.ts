@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { FindPrescriptionOptions } from '../../shared/schema/Prescription/FindPrescriptionOptions';
 import {
   PrescriptionToCreate,
-  PrescriptionUpdate,
+  PrescriptionUpdate
 } from '../../shared/schema/Prescription/Prescription';
 import prescriptionController from '../controllers/prescriptionController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
@@ -12,7 +12,7 @@ import validator, {
   body,
   params,
   query,
-  uuidParam,
+  uuidParam
 } from '../middlewares/validator';
 
 const router = express.Router();
@@ -35,7 +35,7 @@ router.post(
   '',
   validator.validate(body(PrescriptionToCreate)),
   permissionsCheck(['createPrescription']),
-  programmingPlanCheck('InProgress'),
+  programmingPlanCheck(),
   prescriptionController.createPrescription
 );
 router.put(
@@ -43,12 +43,12 @@ router.put(
   validator.validate(
     params(
       z.object({
-        prescriptionId: z.string().uuid(),
+        prescriptionId: z.string().uuid()
       })
     ).merge(body(PrescriptionUpdate))
   ),
   permissionsCheck(['updatePrescription']),
-  programmingPlanCheck('InProgress'),
+  programmingPlanCheck(),
   prescriptionController.updatePrescription
 );
 router.delete(

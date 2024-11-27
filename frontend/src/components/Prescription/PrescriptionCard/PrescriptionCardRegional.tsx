@@ -22,9 +22,9 @@ interface Props {
 const PrescriptionCardRegional = ({
   programmingPlan,
   prescription,
-  regionalPrescription,
+  regionalPrescription
 }: Props) => {
-  const { hasPermission } = useAuthentication();
+  const { hasUserPermission } = useAuthentication();
 
   const comments = useMemo(() => {
     return regionalPrescription?.comments || [];
@@ -48,13 +48,13 @@ const PrescriptionCardRegional = ({
                   className={cx('fr-badge--yellow-tournesol', 'fr-my-1w')}
                 >
                   {t('plannedSample', {
-                    count: regionalPrescription.sampleCount,
+                    count: regionalPrescription.sampleCount
                   })}
                 </Badge>
               }
             />
             {programmingPlan.status === 'Submitted' &&
-              hasPermission('commentPrescription') && (
+              hasUserPermission('commentPrescription') && (
                 <div className="fr-card__end">
                   <div className="d-flex-align-center">
                     <RegionalPrescriptionCommentsModal

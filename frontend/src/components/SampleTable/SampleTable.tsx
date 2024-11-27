@@ -8,11 +8,11 @@ import { ContextLabels } from 'shared/schema/ProgrammingPlan/Context';
 import {
   isCreatedPartialSample,
   PartialSample,
-  PartialSampleToCreate,
+  PartialSampleToCreate
 } from 'shared/schema/Sample/Sample';
 import {
   DraftStatusList,
-  SampleStatus,
+  SampleStatus
 } from 'shared/schema/Sample/SampleStatus';
 import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import RemoveSample from 'src/components/SampleTable/RemoveSample';
@@ -32,7 +32,7 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
   const { sampleLink, navigateToSample } = useSamplesLink();
   const { isOnline } = useOnLine();
 
-  const { hasPermission, userInfos } = useAuthentication();
+  const { hasUserPermission, userInfos } = useAuthentication();
   const { isMobile } = useWindowSize();
 
   const { pendingSamples } = useAppSelector((state) => state.samples);
@@ -46,7 +46,7 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
     'Entité',
     'Contexte',
     'Statut',
-    'Actions',
+    'Actions'
   ];
 
   const tableData = useMemo(
@@ -74,12 +74,12 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
           sample.department,
           sample.company?.name ?? '',
           ContextLabels[sample.context],
-          <SampleStatusBadge status={sample?.status as SampleStatus} />,
+          <SampleStatusBadge status={sample?.status as SampleStatus} />
         ].map((cell) => (
           <div
             onClick={() => navigateToSample(sample.id)}
             style={{
-              cursor: 'pointer',
+              cursor: 'pointer'
             }}
           >
             {cell}
@@ -90,17 +90,17 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
             title="Voir le prélèvement"
             iconId={'fr-icon-eye-fill'}
             linkProps={{
-              to: sampleLink(sample.id),
+              to: sampleLink(sample.id)
             }}
             size="small"
             priority="tertiary"
           />
           {isOnline &&
-            hasPermission('deleteSample') &&
+            hasUserPermission('deleteSample') &&
             DraftStatusList.includes(sample.status) && (
               <RemoveSample sample={sample} />
             )}
-        </div>,
+        </div>
       ]),
     [samples] // eslint-disable-line react-hooks/exhaustive-deps
   );

@@ -7,6 +7,7 @@ import ProgrammingPlanMissingError from '../../shared/errors/programmingPlanMiss
 import { RegionList } from '../../shared/referential/Region';
 import { FindPrescriptionOptions } from '../../shared/schema/Prescription/FindPrescriptionOptions';
 import {
+  hasPrescriptionPermission,
   PrescriptionToCreate,
   PrescriptionUpdate
 } from '../../shared/schema/Prescription/Prescription';
@@ -69,8 +70,13 @@ const exportPrescriptions = async (request: Request, response: Response) => {
 };
 
 const createPrescription = async (request: Request, response: Response) => {
+  const user = (request as AuthenticatedRequest).user;
   const programmingPlan = (request as ProgrammingPlanRequest).programmingPlan;
   const prescriptionToCreate = request.body as PrescriptionToCreate;
+
+  if (!hasPrescriptionPermission(user, programmingPlan).create) {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
 
   console.info(
     'Create prescriptions for programming plan with id',
@@ -97,9 +103,14 @@ const createPrescription = async (request: Request, response: Response) => {
 };
 
 const updatePrescription = async (request: Request, response: Response) => {
+  const user = (request as AuthenticatedRequest).user;
   const programmingPlan = (request as ProgrammingPlanRequest).programmingPlan;
   const { prescriptionId } = request.params;
   const prescriptionUpdate = request.body as PrescriptionUpdate;
+
+  if (!hasPrescriptionPermission(user, programmingPlan).update) {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
 
   console.info('Update prescription with id', prescriptionId);
 
@@ -110,6 +121,10 @@ const updatePrescription = async (request: Request, response: Response) => {
   }
 
   if (prescription.programmingPlanId !== programmingPlan.id) {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
+
+  if (programmingPlan.status === 'Validated') {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
   }
 
@@ -134,6 +149,7 @@ const updatePrescription = async (request: Request, response: Response) => {
 };
 
 const deletePrescription = async (request: Request, response: Response) => {
+  const user = (request as AuthenticatedRequest).user;
   const prescriptionId = request.params.prescriptionId;
 
   console.info('Delete prescription with id', prescriptionId);
@@ -152,7 +168,7 @@ const deletePrescription = async (request: Request, response: Response) => {
     throw new ProgrammingPlanMissingError(prescription.programmingPlanId);
   }
 
-  if (!['InProgress', 'Submitted'].includes(programmingPlan.status)) {
+  if (!hasPrescriptionPermission(user, programmingPlan).delete) {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
   }
 

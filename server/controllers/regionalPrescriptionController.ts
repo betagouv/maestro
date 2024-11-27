@@ -5,10 +5,10 @@ import PrescriptionMissingError from '../../shared/errors/prescriptionPlanMissin
 import RegionalPrescriptionMissingError from '../../shared/errors/regionalPrescriptionPlanMissingError';
 import { FindRegionalPrescriptionOptions } from '../../shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import {
+  hasRegionalPrescriptionPermission,
   RegionalPrescriptionKey,
   RegionalPrescriptionUpdate
 } from '../../shared/schema/RegionalPrescription/RegionalPrescription';
-import { hasPermission } from '../../shared/schema/User/User';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
 const findRegionalPrescriptions = async (
@@ -63,14 +63,29 @@ const updateRegionalPrescription = async (
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
   }
 
+  const canUpdateSampleCount = hasRegionalPrescriptionPermission(
+    user,
+    programmingPlan,
+    regionalPrescription
+  ).updateSampleCount;
+
+  const canUpdateLaboratory = hasRegionalPrescriptionPermission(
+    user,
+    programmingPlan,
+    regionalPrescription
+  ).updateLaboratory;
+
+  if (!canUpdateSampleCount && !canUpdateLaboratory) {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
+
   const updatedRegionalPrescription = {
     ...regionalPrescription,
     sampleCount:
-      hasPermission(user, 'updatePrescription') &&
-      regionalPrescriptionUpdate.sampleCount !== undefined
+      canUpdateSampleCount && regionalPrescriptionUpdate.sampleCount
         ? regionalPrescriptionUpdate.sampleCount
         : regionalPrescription.sampleCount,
-    laboratoryId: hasPermission(user, 'updatePrescriptionLaboratory')
+    laboratoryId: canUpdateLaboratory
       ? regionalPrescriptionUpdate.laboratoryId
       : regionalPrescription.laboratoryId
   };
