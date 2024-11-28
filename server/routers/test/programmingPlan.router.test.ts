@@ -21,19 +21,22 @@ describe('ProgrammingPlan router', () => {
     id: 'b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1',
     createdBy: NationalCoordinator.id,
     year: 2019,
-    status: 'Validated'
+    status: 'Validated',
+    statusDrom: 'Validated'
   });
   const submittedProgrammingPlan = genProgrammingPlan({
     id: 'b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2',
     createdBy: NationalCoordinator.id,
     year: 2021,
-    status: 'Submitted'
+    status: 'Submitted',
+    statusDrom: 'Submitted'
   });
   const inProgressProgrammingPlan = genProgrammingPlan({
     id: 'b3b3b3b3-b3b3-b3b3-b3b3-b3b3b3b3b3b3',
     createdBy: NationalCoordinator.id,
     year: 2022,
-    status: 'InProgress'
+    status: 'InProgress',
+    statusDrom: 'InProgress'
   });
   const controlPrescriptionValidatedPlan = genPrescription({
     programmingPlanId: validatedProgrammingPlan.id,

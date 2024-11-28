@@ -11,11 +11,13 @@ import Header from './Header';
 const validatedProgrammingPlan = {
   ...genProgrammingPlan(),
   status: 'Validated',
+  statusDrom: 'Validated',
   year: new Date().getFullYear()
 };
 const inProgressProgrammingPlan = {
   ...genProgrammingPlan(),
   status: 'InProgress',
+  statusDrom: 'InProgress',
   year: new Date().getFullYear() + 1
 };
 

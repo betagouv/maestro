@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import {
   NationalCoordinator,
   RegionalCoordinator,
-  Sampler1Fixture,
+  Sampler1Fixture
 } from '../../../database/seeds/test/001-users';
 import { MatrixList } from '../../../shared/referential/Matrix/Matrix';
 import { StageList } from '../../../shared/referential/Stage';
@@ -13,14 +13,14 @@ import { PrescriptionUpdate } from '../../../shared/schema/Prescription/Prescrip
 import { ProgrammingPlanStatus } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import {
   genPrescription,
-  genPrescriptionSubstance,
+  genPrescriptionSubstance
 } from '../../../shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from '../../../shared/test/programmingPlanFixtures';
 import { genSubstance, oneOf } from '../../../shared/test/testFixtures';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import {
   formatPrescriptionSubstance,
-  PrescriptionSubstances,
+  PrescriptionSubstances
 } from '../../repositories/prescriptionSubstanceRepository';
 import { ProgrammingPlans } from '../../repositories/programmingPlanRepository';
 import { RegionalPrescriptions } from '../../repositories/regionalPrescriptionRepository';
@@ -33,64 +33,67 @@ describe('Prescriptions router', () => {
   const programmingPlanValidated = genProgrammingPlan({
     createdBy: NationalCoordinator.id,
     status: 'Validated' as ProgrammingPlanStatus,
-    year: 1820,
+    statusDrom: 'Validated' as ProgrammingPlanStatus,
+    year: 1820
   });
   const programmingPlanSubmitted = genProgrammingPlan({
     createdBy: NationalCoordinator.id,
     status: 'Submitted' as ProgrammingPlanStatus,
-    year: 1821,
+    statusDrom: 'Submitted' as ProgrammingPlanStatus,
+    year: 1821
   });
   const programmingPlanInProgress = genProgrammingPlan({
     createdBy: NationalCoordinator.id,
     status: 'InProgress' as ProgrammingPlanStatus,
-    year: 1822,
+    statusDrom: 'InProgress' as ProgrammingPlanStatus,
+    year: 1822
   });
   const validatedControlPrescription = genPrescription({
     programmingPlanId: programmingPlanValidated.id,
     context: 'Control',
     matrix: oneOf(MatrixList),
-    stages: [oneOf(StageList)],
+    stages: [oneOf(StageList)]
   });
   const submittedControlPrescription = genPrescription({
     programmingPlanId: programmingPlanSubmitted.id,
     context: 'Control',
     matrix: oneOf(MatrixList),
-    stages: [oneOf(StageList)],
+    stages: [oneOf(StageList)]
   });
   const inProgressControlPrescription = genPrescription({
     programmingPlanId: programmingPlanInProgress.id,
     context: 'Control',
     matrix: oneOf(MatrixList),
-    stages: [oneOf(StageList)],
+    stages: [oneOf(StageList)]
   });
   const substance = genSubstance();
   const inProgressControlPrescriptionSubstance = genPrescriptionSubstance({
     prescriptionId: inProgressControlPrescription.id,
     substance,
-    analysisKind: 'Mono',
+    analysisKind: 'Mono'
   });
   const inProgressSurveillancePrescription = genPrescription({
     programmingPlanId: programmingPlanInProgress.id,
     context: 'Surveillance',
     matrix: oneOf(MatrixList),
-    stages: [oneOf(StageList)],
+    stages: [oneOf(StageList)]
   });
 
   beforeAll(async () => {
     await ProgrammingPlans().insert([
       programmingPlanValidated,
       programmingPlanSubmitted,
-      programmingPlanInProgress,
+      programmingPlanInProgress
     ]);
     await Prescriptions().insert([
       submittedControlPrescription,
       validatedControlPrescription,
       inProgressControlPrescription,
-      inProgressSurveillancePrescription,
+      inProgressSurveillancePrescription
     ]);
     await Substances().insert(substance);
     await PrescriptionSubstances().insert(
-      formatPrescriptionSubstance(inProgressControlPrescriptionSubstance),
+      formatPrescriptionSubstance(inProgressControlPrescriptionSubstance)
     );
   });
 
@@ -101,14 +104,14 @@ describe('Prescriptions router', () => {
       .where('programmingPlanId', 'in', [
         programmingPlanInProgress.id,
         programmingPlanSubmitted.id,
-        programmingPlanValidated.id,
+        programmingPlanValidated.id
       ]);
     await ProgrammingPlans()
       .delete()
       .where('id', 'in', [
         programmingPlanInProgress.id,
         programmingPlanSubmitted.id,
-        programmingPlanValidated.id,
+        programmingPlanValidated.id
       ]);
   });
 
@@ -120,7 +123,7 @@ describe('Prescriptions router', () => {
         .get(testRoute)
         .query({
           programmingPlanId: programmingPlanInProgress.id,
-          context: 'Control',
+          context: 'Control'
         })
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
@@ -130,7 +133,7 @@ describe('Prescriptions router', () => {
         .get(testRoute)
         .query({
           programmingPlanId: randomstring.generate(),
-          context: 'Control',
+          context: 'Control'
         })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
@@ -141,7 +144,7 @@ describe('Prescriptions router', () => {
         .get(testRoute)
         .query({
           programmingPlanId: programmingPlanInProgress.id,
-          context: 'invalid',
+          context: 'invalid'
         })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
@@ -152,7 +155,7 @@ describe('Prescriptions router', () => {
         .get(testRoute)
         .query({
           programmingPlanId: programmingPlanInProgress.id,
-          context: 'Control',
+          context: 'Control'
         })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
@@ -168,7 +171,7 @@ describe('Prescriptions router', () => {
         .query({
           programmingPlanId: programmingPlanInProgress.id,
           context: 'Control',
-          includes: ['substanceCount'],
+          includes: ['substanceCount']
         })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
@@ -177,8 +180,8 @@ describe('Prescriptions router', () => {
         {
           ...inProgressControlPrescription,
           monoAnalysisCount: 1,
-          multiAnalysisCount: 0,
-        },
+          multiAnalysisCount: 0
+        }
       ]);
     });
   });
@@ -218,7 +221,7 @@ describe('Prescriptions router', () => {
   describe('POST /prescriptions', () => {
     const validBody = genPrescription({
       programmingPlanId: programmingPlanInProgress.id,
-      context: 'Control',
+      context: 'Control'
     });
     const testRoute = '/api/prescriptions';
 
@@ -241,7 +244,7 @@ describe('Prescriptions router', () => {
       await badRequestTest({ ...validBody, programmingPlanId: undefined });
       await badRequestTest({
         ...validBody,
-        programmingPlanId: randomstring.generate(),
+        programmingPlanId: randomstring.generate()
       });
       await badRequestTest({ ...validBody, context: undefined });
       await badRequestTest({ ...validBody, context: 'invalid' });
@@ -264,7 +267,7 @@ describe('Prescriptions router', () => {
         .post(testRoute)
         .send({
           ...validBody,
-          programmingPlanId: programmingPlanValidated.id,
+          programmingPlanId: programmingPlanValidated.id
         })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
@@ -279,21 +282,21 @@ describe('Prescriptions router', () => {
 
       expect(res.body).toMatchObject({
         ...validBody,
-        id: expect.any(String),
+        id: expect.any(String)
       });
 
       await expect(
-        Prescriptions().where({ id: res.body.id }).first(),
+        Prescriptions().where({ id: res.body.id }).first()
       ).resolves.toMatchObject({
         ...validBody,
-        id: res.body.id,
+        id: res.body.id
       });
 
       await expect(
         RegionalPrescriptions()
           .where({ prescriptionId: res.body.id })
           .count()
-          .first(),
+          .first()
       ).resolves.toMatchObject({ count: '18' });
 
       //Cleanup
@@ -304,10 +307,10 @@ describe('Prescriptions router', () => {
   describe('PUT /prescriptions/{prescriptionId}', () => {
     const prescriptionUpdate: PrescriptionUpdate = {
       programmingPlanId: programmingPlanInProgress.id,
-      stages: [oneOf(StageList)],
+      stages: [oneOf(StageList)]
     };
     const testRoute = (
-      prescriptionId: string = inProgressControlPrescription.id,
+      prescriptionId: string = inProgressControlPrescription.id
     ) => `/api/prescriptions/${prescriptionId}`;
 
     it('should fail if the user is not authenticated', async () => {
@@ -322,7 +325,7 @@ describe('Prescriptions router', () => {
         .put(testRoute())
         .send({
           ...prescriptionUpdate,
-          programmingPlanId: randomstring.generate(),
+          programmingPlanId: randomstring.generate()
         })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
@@ -347,7 +350,7 @@ describe('Prescriptions router', () => {
         .put(testRoute())
         .send({
           ...prescriptionUpdate,
-          programmingPlanId: programmingPlanValidated.id,
+          programmingPlanId: programmingPlanValidated.id
         })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
@@ -366,7 +369,7 @@ describe('Prescriptions router', () => {
         .put(testRoute())
         .send({
           ...prescriptionUpdate,
-          programmingPlanId: programmingPlanValidated.id,
+          programmingPlanId: programmingPlanValidated.id
         })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
@@ -381,14 +384,14 @@ describe('Prescriptions router', () => {
 
       expect(res.body).toMatchObject({
         ...inProgressControlPrescription,
-        stages: prescriptionUpdate.stages,
+        stages: prescriptionUpdate.stages
       });
 
       await expect(
-        Prescriptions().where({ id: inProgressControlPrescription.id }).first(),
+        Prescriptions().where({ id: inProgressControlPrescription.id }).first()
       ).resolves.toMatchObject({
         ...inProgressControlPrescription,
-        stages: prescriptionUpdate.stages,
+        stages: prescriptionUpdate.stages
       });
     });
   });
@@ -467,14 +470,14 @@ describe('Prescriptions router', () => {
         .expect(constants.HTTP_STATUS_NO_CONTENT);
 
       await expect(
-        Prescriptions().where({ id: inProgressControlPrescription.id }).first(),
+        Prescriptions().where({ id: inProgressControlPrescription.id }).first()
       ).resolves.toBeUndefined();
 
       await expect(
         RegionalPrescriptions()
           .where({ prescriptionId: inProgressControlPrescription.id })
           .count()
-          .first(),
+          .first()
       ).resolves.toMatchObject({ count: '0' });
     });
   });

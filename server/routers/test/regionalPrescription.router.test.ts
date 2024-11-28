@@ -47,11 +47,13 @@ describe('Regional prescriptions router', () => {
   const programmingPlanValidated = genProgrammingPlan({
     createdBy: NationalCoordinator.id,
     status: 'Validated' as ProgrammingPlanStatus,
+    statusDrom: 'Validated' as ProgrammingPlanStatus,
     year: 1920
   });
   const programmingPlanSubmitted = genProgrammingPlan({
     createdBy: NationalCoordinator.id,
     status: 'Submitted' as ProgrammingPlanStatus,
+    statusDrom: 'Submitted' as ProgrammingPlanStatus,
     year: 1921
   });
   const laboratory = genLaboratory();
