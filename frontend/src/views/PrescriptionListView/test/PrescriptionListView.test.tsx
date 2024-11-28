@@ -2,7 +2,7 @@ import { configureStore, Store } from '@reduxjs/toolkit';
 import { act, render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { Provider } from 'react-redux';
-import Router, { BrowserRouter, MemoryRouter } from 'react-router-dom';
+import { BrowserRouter, MemoryRouter, useParams } from 'react-router-dom';
 import { Region, RegionList } from 'shared/referential/Region';
 import {
   genPrescription,
@@ -14,13 +14,18 @@ import { genAuthUser, genUser } from 'shared/test/userFixtures';
 import YearRoute from 'src/components/YearRoute/YearRoute';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import PrescriptionListView from 'src/views/PrescriptionListView/PrescriptionListView';
-import { mockRequests } from '../../../../test/requestUtils.test';
+import { mockRequests } from '../../../../test/requestTestUtils';
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useParams: jest.fn()
-}));
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
+
+vi.mock(import('react-router-dom'), async (importOriginal) => {
+  const original = await importOriginal();
+  return {
+    ...original,
+    useParams: vi.fn()
+  };
+});
 const programmingPlan = {
   ...genProgrammingPlan(),
   status: 'InProgress',
@@ -126,9 +131,9 @@ describe('PrescriptionListView', () => {
         userRequest,
         sampleRequest()
       ]);
-      jest
-        .spyOn(Router, 'useParams')
-        .mockReturnValue({ year: String(programmingPlan.year) });
+      vi.mocked(useParams).mockReturnValue({
+        year: String(programmingPlan.year)
+      });
       const searchParams = '?context=Control';
 
       render(
@@ -189,9 +194,9 @@ describe('PrescriptionListView', () => {
         prescriptionRequest(regionalCoordinator.region as Region),
         userRequest
       ]);
-      jest
-        .spyOn(Router, 'useParams')
-        .mockReturnValue({ programmingPlanId: programmingPlan.id });
+      vi.mocked(useParams).mockReturnValue({
+        programmingPlanId: programmingPlan.id
+      });
 
       render(
         <Provider store={store}>

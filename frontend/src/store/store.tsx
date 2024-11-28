@@ -1,5 +1,4 @@
-import { configureStore } from '@reduxjs/toolkit';
-import { CurriedGetDefaultMiddleware } from '@reduxjs/toolkit/dist/getDefaultMiddleware';
+import { configureStore, ConfigureStoreOptions  } from '@reduxjs/toolkit';
 import { api, tagTypes } from 'src/services/api.service';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import programmingPlanSlice from 'src/store/reducers/programmingPlanSlice';
@@ -13,9 +12,8 @@ export const applicationReducer = {
   [programmingPlanSlice.name]: programmingPlanSlice.reducer,
   [api.reducerPath]: api.reducer
 };
-
 export const applicationMiddleware = (
-  getDefaultMiddleware: CurriedGetDefaultMiddleware
+  getDefaultMiddleware: Parameters<Required<ConfigureStoreOptions>['middleware']>[0]
 ) =>
   getDefaultMiddleware({
     serializableCheck: false

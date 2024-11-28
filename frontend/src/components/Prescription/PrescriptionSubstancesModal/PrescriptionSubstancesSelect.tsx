@@ -51,7 +51,7 @@ const PrescriptionSubstancesSelect = ({
   }, [prescriptionSubstances, analysisKind]);
 
   const handleInputChange = async (
-    event: SyntheticEvent<Element, Event>,
+    _event: SyntheticEvent<Element, Event>,
     value: string
   ) => {
     setSearchQuery(value);

@@ -55,7 +55,7 @@ export const programmingPlanApi = api.injectEndpoints({
       }),
       transformResponse: (response: any) =>
         ProgrammingPlan.parse(fp.omitBy(response, fp.isNil)),
-      invalidatesTags: (result, _error, { programmingPlanId }) => [
+      invalidatesTags: (_result, _error, { programmingPlanId }) => [
         { type: 'ProgrammingPlan', id: programmingPlanId }
       ]
     })

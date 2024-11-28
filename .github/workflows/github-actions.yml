@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [16.x]
+        node-version: [22.x]
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [16.x]
+        node-version: [22.x]
     services:
       postgres:
         image: postgis/postgis
@@ -80,9 +80,11 @@ jobs:
 #          AUTH_SECRET: abcd1234
 #          DATABASE_URL: postgres://postgres:postgres@localhost:5432/maestro
 #          DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/maestro
-      - name: Server tests
+      - name: Server integration tests
         run: npm run test -- --test-timeout=30000
         env:
           AUTH_SECRET: abcd1234
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/maestro
           DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/maestro
+      - name: Server unit tests
+        run: npm run test:unit

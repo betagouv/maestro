@@ -6,12 +6,18 @@ import { genDocument } from 'shared/test/documentFixtures';
 import { genAuthUser, genUser } from 'shared/test/userFixtures';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import DocumentListView from 'src/views/DocumentListView/DocumentListView';
-import { mockRequests } from '../../../../test/requestUtils.test';
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useParams: jest.fn(),
-}));
+import { mockRequests } from '../../../../test/requestTestUtils';
 
+
+vi.mock(import('react-router-dom'), async (importOriginal) => {
+  const original = await importOriginal();
+  return {
+    ...original,
+    useParams: vi.fn()
+  };
+});
+
+import { describe, test, expect, vi } from 'vitest';
 let store: Store;
 const authUser = genAuthUser();
 const nationalCoordinator = genUser({

@@ -17,7 +17,7 @@ const AddressSearch = ({ onSelectAddress }: Props) => {
   const [address, setAddress] = useState<AddressSearchResult | null>(null);
 
   const handleInputChange = async (
-    event: SyntheticEvent<Element, Event>,
+    _event: SyntheticEvent<Element, Event>,
     value: string
   ) => {
     setSearchQuery(value);
