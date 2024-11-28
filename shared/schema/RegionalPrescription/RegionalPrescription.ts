@@ -98,8 +98,8 @@ export const hasRegionalPrescriptionPermission = (
   updateSampleCount:
     hasPermission(user, 'updatePrescription') &&
     ((isDromRegion(regionalPrescription.region) &&
-      programmingPlan.statusDrom !== 'Validated') ||
+      programmingPlan.statusDrom !== 'Closed') ||
       (!isDromRegion(regionalPrescription.region) &&
-        programmingPlan.status !== 'Validated')),
+        programmingPlan.status !== 'Closed')),
   updateLaboratory: hasPermission(user, 'updatePrescriptionLaboratory')
 });

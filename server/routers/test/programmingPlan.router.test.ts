@@ -4,7 +4,9 @@ import { v4 as uuidv4 } from 'uuid';
 import {
   NationalCoordinator,
   RegionalCoordinator,
-  Sampler1Fixture
+  RegionalDromCoordinator,
+  Sampler1Fixture,
+  SamplerDromFixture
 } from '../../../database/seeds/test/001-users';
 import { ProgrammingPlan } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatus } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
@@ -17,6 +19,13 @@ import { tokenProvider } from '../../test/testUtils';
 describe('ProgrammingPlan router', () => {
   const { app } = createServer();
 
+  const validatedDromProgrammingPlan = genProgrammingPlan({
+    id: 'a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1',
+    createdBy: NationalCoordinator.id,
+    year: 2018,
+    status: 'Submitted',
+    statusDrom: 'Validated'
+  });
   const validatedProgrammingPlan = genProgrammingPlan({
     id: 'b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1',
     createdBy: NationalCoordinator.id,
@@ -24,7 +33,7 @@ describe('ProgrammingPlan router', () => {
     status: 'Validated',
     statusDrom: 'Validated'
   });
-  const submittedProgrammingPlan = genProgrammingPlan({
+  const submittedDromProgrammingPlan = genProgrammingPlan({
     id: 'b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2',
     createdBy: NationalCoordinator.id,
     year: 2021,
@@ -49,8 +58,9 @@ describe('ProgrammingPlan router', () => {
 
   beforeAll(async () => {
     await ProgrammingPlans().insert([
+      validatedDromProgrammingPlan,
       validatedProgrammingPlan,
-      submittedProgrammingPlan,
+      submittedDromProgrammingPlan,
       inProgressProgrammingPlan
     ]);
     await Prescriptions().insert([
@@ -62,19 +72,35 @@ describe('ProgrammingPlan router', () => {
   afterAll(async () => {
     await Prescriptions()
       .whereIn('programmingPlanId', [
+        validatedDromProgrammingPlan.id,
         validatedProgrammingPlan.id,
-        submittedProgrammingPlan.id,
+        submittedDromProgrammingPlan.id,
         inProgressProgrammingPlan.id
       ])
       .delete();
     await ProgrammingPlans()
       .delete()
       .where('id', 'in', [
+        validatedDromProgrammingPlan.id,
         validatedProgrammingPlan.id,
-        submittedProgrammingPlan.id,
+        submittedDromProgrammingPlan.id,
         inProgressProgrammingPlan.id
       ]);
   });
+
+  const programmingPlansMatch = (programmingPlans: ProgrammingPlan[]) =>
+    expect.arrayContaining(
+      programmingPlans.map((programmingPlan) => ({
+        ...programmingPlan,
+        createdAt: programmingPlan.createdAt.toISOString()
+      }))
+    );
+
+  const expectedBody = (body: any, programmingPlans: ProgrammingPlan[]) =>
+    expect(body).toMatchObject(programmingPlansMatch(programmingPlans));
+
+  const notExpectedBody = (body: any, programmingPlans: ProgrammingPlan[]) =>
+    expect(body).not.toMatchObject(programmingPlansMatch(programmingPlans));
 
   describe('GET /programming-plans', () => {
     const testRoute = (params?: Record<string, string>) =>
@@ -92,106 +118,86 @@ describe('ProgrammingPlan router', () => {
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toMatchObject(
-        expect.arrayContaining([
-          {
-            ...validatedProgrammingPlan,
-            createdAt: validatedProgrammingPlan.createdAt.toISOString()
-          },
-          {
-            ...submittedProgrammingPlan,
-            createdAt: submittedProgrammingPlan.createdAt.toISOString()
-          },
-          {
-            ...inProgressProgrammingPlan,
-            createdAt: inProgressProgrammingPlan.createdAt.toISOString()
-          }
-        ])
-      );
+      expectedBody(res.body, [
+        validatedDromProgrammingPlan,
+        validatedProgrammingPlan,
+        submittedDromProgrammingPlan,
+        inProgressProgrammingPlan
+      ]);
     });
 
-    it('should find only submitted and validated programming plans for the regional coordinator', async () => {
+    it('should find drom submitted and validated programming plans for a regional coordinator from drom', async () => {
+      const res = await request(app)
+        .get(testRoute())
+        .use(tokenProvider(RegionalDromCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expectedBody(res.body, [
+        validatedDromProgrammingPlan,
+        validatedProgrammingPlan,
+        submittedDromProgrammingPlan
+      ]);
+      notExpectedBody(res.body, [inProgressProgrammingPlan]);
+    });
+
+    it('should find validated programming plans for a regional coordinator outside drom', async () => {
       const res = await request(app)
         .get(testRoute())
         .use(tokenProvider(RegionalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toMatchObject(
-        expect.arrayContaining([
-          {
-            ...validatedProgrammingPlan,
-            createdAt: validatedProgrammingPlan.createdAt.toISOString()
-          },
-          {
-            ...submittedProgrammingPlan,
-            createdAt: submittedProgrammingPlan.createdAt.toISOString()
-          }
-        ])
-      );
-      expect(res.body).not.toMatchObject(
-        expect.arrayContaining([
-          {
-            ...inProgressProgrammingPlan,
-            createdAt: inProgressProgrammingPlan.createdAt.toISOString()
-          }
-        ])
-      );
+      expectedBody(res.body, [
+        validatedProgrammingPlan,
+        submittedDromProgrammingPlan
+      ]);
+      notExpectedBody(res.body, [
+        validatedDromProgrammingPlan,
+        inProgressProgrammingPlan
+      ]);
     });
 
-    it('should find only validated programming plans for the sampler', async () => {
+    it('should find drom validated programming plans for a sampler from Drom', async () => {
       const res = await request(app)
         .get(testRoute())
-        .use(tokenProvider(RegionalCoordinator))
+        .use(tokenProvider(SamplerDromFixture))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toMatchObject(
-        expect.arrayContaining([
-          {
-            ...validatedProgrammingPlan,
-            createdAt: validatedProgrammingPlan.createdAt.toISOString()
-          }
-        ])
-      );
-      expect(res.body).not.toMatchObject(
-        expect.arrayContaining([
-          {
-            ...inProgressProgrammingPlan,
-            createdAt: inProgressProgrammingPlan.createdAt.toISOString()
-          },
-          {
-            ...submittedProgrammingPlan,
-            createdAt: submittedProgrammingPlan.createdAt.toISOString()
-          }
-        ])
-      );
+      expectedBody(res.body, [
+        validatedDromProgrammingPlan,
+        validatedProgrammingPlan
+      ]);
+      notExpectedBody(res.body, [
+        inProgressProgrammingPlan,
+        submittedDromProgrammingPlan
+      ]);
+    });
+
+    it('should find no programming plans for a sampler outside Drom', async () => {
+      const res = await request(app)
+        .get(testRoute())
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expectedBody(res.body, [validatedProgrammingPlan]);
+      notExpectedBody(res.body, [
+        validatedDromProgrammingPlan,
+        inProgressProgrammingPlan,
+        submittedDromProgrammingPlan
+      ]);
     });
 
     it('should filter programming plans by status and user authorization', async () => {
       const res = await request(app)
         .get(testRoute({ status: 'Submitted' }))
-        .use(tokenProvider(RegionalCoordinator))
+        .use(tokenProvider(RegionalDromCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toMatchObject(
-        expect.arrayContaining([
-          {
-            ...submittedProgrammingPlan,
-            createdAt: submittedProgrammingPlan.createdAt.toISOString()
-          }
-        ])
-      );
-      expect(res.body).not.toMatchObject(
-        expect.arrayContaining([
-          {
-            ...inProgressProgrammingPlan,
-            createdAt: inProgressProgrammingPlan.createdAt.toISOString()
-          },
-          {
-            ...validatedProgrammingPlan,
-            createdAt: validatedProgrammingPlan.createdAt.toISOString()
-          }
-        ])
-      );
+      expectedBody(res.body, [submittedDromProgrammingPlan]);
+      notExpectedBody(res.body, [
+        validatedDromProgrammingPlan,
+        validatedProgrammingPlan,
+        inProgressProgrammingPlan
+      ]);
     });
   });
 
@@ -240,7 +246,6 @@ describe('ProgrammingPlan router', () => {
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    //test user not authorize
     it('should fail if the user is not authorized', async () => {
       await request(app)
         .post(testRoute('2020'))
@@ -389,8 +394,8 @@ describe('ProgrammingPlan router', () => {
 
       await badRequestTest(inProgressProgrammingPlan, 'InProgress');
       await badRequestTest(inProgressProgrammingPlan, 'Validated');
-      await badRequestTest(submittedProgrammingPlan, 'Submitted');
-      await badRequestTest(submittedProgrammingPlan, 'InProgress');
+      await badRequestTest(submittedDromProgrammingPlan, 'Submitted');
+      await badRequestTest(submittedDromProgrammingPlan, 'InProgress');
       await badRequestTest(validatedProgrammingPlan, 'InProgress');
       await badRequestTest(validatedProgrammingPlan, 'Submitted');
       await badRequestTest(validatedProgrammingPlan, 'Validated');
@@ -398,27 +403,27 @@ describe('ProgrammingPlan router', () => {
 
     it('should update a Submitted programming plan to Validated', async () => {
       const res = await request(app)
-        .put(testRoute(submittedProgrammingPlan.id))
+        .put(testRoute(submittedDromProgrammingPlan.id))
         .send(programmingPlanUpdate)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject({
-        ...submittedProgrammingPlan,
+        ...submittedDromProgrammingPlan,
         status: 'Validated',
-        createdAt: submittedProgrammingPlan.createdAt.toISOString()
+        createdAt: submittedDromProgrammingPlan.createdAt.toISOString()
       });
 
       await expect(
-        ProgrammingPlans().where('id', submittedProgrammingPlan.id).first()
+        ProgrammingPlans().where('id', submittedDromProgrammingPlan.id).first()
       ).resolves.toMatchObject({
-        ...submittedProgrammingPlan,
+        ...submittedDromProgrammingPlan,
         status: 'Validated'
       });
 
       //Cleanup
       await ProgrammingPlans()
-        .where('id', submittedProgrammingPlan.id)
+        .where('id', submittedDromProgrammingPlan.id)
         .update({ status: 'Submitted' });
     });
   });

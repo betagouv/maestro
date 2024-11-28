@@ -238,9 +238,10 @@ const PrescriptionListView = () => {
           }
         />
         {programmingPlan &&
-          NextProgrammingPlanStatus[programmingPlan.status] && (
-            <ProgrammingPlanUpdateModal programmingPlan={programmingPlan} />
-          )}
+          NextProgrammingPlanStatus[programmingPlan.status] &&
+          ['Submitted', 'Validated'].includes(
+            NextProgrammingPlanStatus[programmingPlan.status] as string
+          ) && <ProgrammingPlanUpdateModal programmingPlan={programmingPlan} />}
       </div>
 
       <div

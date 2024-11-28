@@ -30,10 +30,10 @@ import { tokenProvider } from '../../test/testUtils';
 describe('Prescriptions router', () => {
   const { app } = createServer();
 
-  const programmingPlanValidated = genProgrammingPlan({
+  const programmingPlanClosed = genProgrammingPlan({
     createdBy: NationalCoordinator.id,
-    status: 'Validated' as ProgrammingPlanStatus,
-    statusDrom: 'Validated' as ProgrammingPlanStatus,
+    status: 'Closed' as ProgrammingPlanStatus,
+    statusDrom: 'Closed' as ProgrammingPlanStatus,
     year: 1820
   });
   const programmingPlanSubmitted = genProgrammingPlan({
@@ -48,8 +48,8 @@ describe('Prescriptions router', () => {
     statusDrom: 'InProgress' as ProgrammingPlanStatus,
     year: 1822
   });
-  const validatedControlPrescription = genPrescription({
-    programmingPlanId: programmingPlanValidated.id,
+  const closedControlPrescription = genPrescription({
+    programmingPlanId: programmingPlanClosed.id,
     context: 'Control',
     matrix: oneOf(MatrixList),
     stages: [oneOf(StageList)]
@@ -81,13 +81,13 @@ describe('Prescriptions router', () => {
 
   beforeAll(async () => {
     await ProgrammingPlans().insert([
-      programmingPlanValidated,
       programmingPlanSubmitted,
-      programmingPlanInProgress
+      programmingPlanInProgress,
+      programmingPlanClosed
     ]);
     await Prescriptions().insert([
+      closedControlPrescription,
       submittedControlPrescription,
-      validatedControlPrescription,
       inProgressControlPrescription,
       inProgressSurveillancePrescription
     ]);
@@ -104,14 +104,14 @@ describe('Prescriptions router', () => {
       .where('programmingPlanId', 'in', [
         programmingPlanInProgress.id,
         programmingPlanSubmitted.id,
-        programmingPlanValidated.id
+        programmingPlanClosed.id
       ]);
     await ProgrammingPlans()
       .delete()
       .where('id', 'in', [
         programmingPlanInProgress.id,
         programmingPlanSubmitted.id,
-        programmingPlanValidated.id
+        programmingPlanClosed.id
       ]);
   });
 
@@ -162,7 +162,6 @@ describe('Prescriptions router', () => {
 
       expect(res.body).toEqual([inProgressControlPrescription]);
       expect(res.body).not.toMatchObject([inProgressSurveillancePrescription]);
-      expect(res.body).not.toMatchObject([validatedControlPrescription]);
     });
 
     it('should retrieve the prescription substances count if requested', async () => {
@@ -262,12 +261,12 @@ describe('Prescriptions router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should fail if the programming plan is validated', async () => {
+    it('should fail if the programming plan is closed', async () => {
       await request(app)
         .post(testRoute)
         .send({
           ...validBody,
-          programmingPlanId: programmingPlanValidated.id
+          programmingPlanId: programmingPlanClosed.id
         })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
@@ -350,7 +349,7 @@ describe('Prescriptions router', () => {
         .put(testRoute())
         .send({
           ...prescriptionUpdate,
-          programmingPlanId: programmingPlanValidated.id
+          programmingPlanId: programmingPlanSubmitted.id
         })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
@@ -364,12 +363,12 @@ describe('Prescriptions router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should fail if the programming plan is validated', async () => {
+    it('should fail if the programming plan is closed', async () => {
       await request(app)
-        .put(testRoute())
+        .put(testRoute(closedControlPrescription.id))
         .send({
           ...prescriptionUpdate,
-          programmingPlanId: programmingPlanValidated.id
+          programmingPlanId: programmingPlanClosed.id
         })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
@@ -413,15 +412,6 @@ describe('Prescriptions router', () => {
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
-    // TODO specifc permission required ?
-    //
-    // it('should fail if the user does not have the permission to re prescriptions', async () => {
-    //   await request(app)
-    //     .get(testRoute(inProgressControlPrescription.id))
-    //     .use(tokenProvider(RegionalCoordinator))
-    //     .expect(constants.HTTP_STATUS_FORBIDDEN);
-    // });
-
     it('should retrieve the prescription substances', async () => {
       const res = await request(app)
         .get(testRoute(inProgressControlPrescription.id))
@@ -456,9 +446,9 @@ describe('Prescriptions router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should fail if the programming plan is validated', async () => {
+    it('should fail if the programming plan is closed', async () => {
       await request(app)
-        .delete(testRoute(validatedControlPrescription.id))
+        .delete(testRoute(closedControlPrescription.id))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });

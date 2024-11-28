@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { UserPermission } from '../User/UserPermission';
 
 export const ProgrammingPlanStatus = z.enum(
-  ['InProgress', 'Submitted', 'Validated'],
+  ['InProgress', 'Submitted', 'Validated', 'Closed'],
   {
     errorMap: () => ({ message: 'Statut non renseigné.' })
   }
@@ -19,7 +19,8 @@ export const ProgrammingPlanStatusLabels: Record<
 > = {
   InProgress: 'Programmation en cours',
   Submitted: 'Soumis aux régions',
-  Validated: 'Campagne en cours'
+  Validated: 'Campagne en cours',
+  Closed: 'Campagne terminée'
 };
 
 export const ProgrammingPlanStatusPermissions: Record<
@@ -28,7 +29,8 @@ export const ProgrammingPlanStatusPermissions: Record<
 > = {
   InProgress: 'readProgrammingPlansInProgress',
   Submitted: 'readProgrammingPlanSubmitted',
-  Validated: 'readProgrammingPlanValidated'
+  Validated: 'readProgrammingPlanValidated',
+  Closed: 'readProgrammingPlanClosed'
 };
 
 export const NextProgrammingPlanStatus: Record<
@@ -37,5 +39,6 @@ export const NextProgrammingPlanStatus: Record<
 > = {
   InProgress: 'Submitted',
   Submitted: 'Validated',
-  Validated: null
+  Validated: 'Closed',
+  Closed: null
 };

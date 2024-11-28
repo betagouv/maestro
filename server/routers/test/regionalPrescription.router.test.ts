@@ -44,10 +44,10 @@ import { tokenProvider } from '../../test/testUtils';
 describe('Regional prescriptions router', () => {
   const { app } = createServer();
 
-  const programmingPlanValidated = genProgrammingPlan({
+  const programmingPlanClosed = genProgrammingPlan({
     createdBy: NationalCoordinator.id,
-    status: 'Validated' as ProgrammingPlanStatus,
-    statusDrom: 'Validated' as ProgrammingPlanStatus,
+    status: 'Closed' as ProgrammingPlanStatus,
+    statusDrom: 'Closed' as ProgrammingPlanStatus,
     year: 1920
   });
   const programmingPlanSubmitted = genProgrammingPlan({
@@ -57,8 +57,8 @@ describe('Regional prescriptions router', () => {
     year: 1921
   });
   const laboratory = genLaboratory();
-  const validatedControlPrescription = genPrescription({
-    programmingPlanId: programmingPlanValidated.id,
+  const closedControlPrescription = genPrescription({
+    programmingPlanId: programmingPlanClosed.id,
     context: 'Control',
     matrix: oneOf(MatrixList),
     stages: [oneOf(StageList)]
@@ -69,10 +69,10 @@ describe('Regional prescriptions router', () => {
     matrix: oneOf(MatrixList),
     stages: [oneOf(StageList)]
   });
-  const validatedControlRegionalPrescriptions: RegionalPrescription[] =
+  const closedControlRegionalPrescriptions: RegionalPrescription[] =
     RegionList.map((region) => ({
       ...genRegionalPrescription({
-        prescriptionId: validatedControlPrescription.id,
+        prescriptionId: closedControlPrescription.id,
         region,
         laboratoryId: laboratory.id
       })
@@ -85,17 +85,17 @@ describe('Regional prescriptions router', () => {
         laboratoryId: laboratory.id
       })
     }));
-  const validatedControlPrescriptionComment: RegionalPrescriptionComment = {
+  const closedControlPrescriptionComment: RegionalPrescriptionComment = {
     id: uuidv4(),
-    prescriptionId: validatedControlPrescription.id,
+    prescriptionId: closedControlPrescription.id,
     region: RegionalCoordinator.region as Region,
     comment: randomstring.generate(),
     createdBy: RegionalCoordinator.id,
     createdAt: new Date()
   };
   const sample = genCreatedSample({
-    programmingPlanId: programmingPlanValidated.id,
-    prescriptionId: validatedControlPrescription.id,
+    programmingPlanId: programmingPlanClosed.id,
+    prescriptionId: closedControlPrescription.id,
     region: Sampler1Fixture.region as Region,
     company: CompanyFixture,
     sampler: Sampler1Fixture,
@@ -104,22 +104,22 @@ describe('Regional prescriptions router', () => {
 
   beforeAll(async () => {
     await ProgrammingPlans().insert([
-      programmingPlanValidated,
+      programmingPlanClosed,
       programmingPlanSubmitted
     ]);
     await Laboratories().insert(laboratory);
     await Prescriptions().insert([
-      validatedControlPrescription,
+      closedControlPrescription,
       submittedControlPrescription
     ]);
     await RegionalPrescriptions().insert(
       [
-        ...validatedControlRegionalPrescriptions,
+        ...closedControlRegionalPrescriptions,
         ...submittedControlRegionalPrescriptions
       ].map((_) => fp.omit('realizedSampleCount')(_))
     );
     await RegionalPrescriptionComments().insert([
-      validatedControlPrescriptionComment
+      closedControlPrescriptionComment
     ]);
     await Samples().insert(formatPartialSample(sample));
   });
@@ -129,14 +129,14 @@ describe('Regional prescriptions router', () => {
     await Prescriptions()
       .delete()
       .where('programmingPlanId', 'in', [
-        programmingPlanValidated.id,
+        programmingPlanClosed.id,
         programmingPlanSubmitted.id
       ]);
     await Laboratories().delete().where('id', laboratory.id);
     await ProgrammingPlans()
       .delete()
       .where('id', 'in', [
-        programmingPlanValidated.id,
+        programmingPlanClosed.id,
         programmingPlanSubmitted.id
       ]);
     await Samples().delete().where('id', sample.id);
@@ -196,9 +196,7 @@ describe('Regional prescriptions router', () => {
       );
       expect(res.body).not.toMatchObject(
         expect.arrayContaining(
-          validatedControlRegionalPrescriptions.map(
-            fp.omit('realizedSampleCount')
-          )
+          closedControlRegionalPrescriptions.map(fp.omit('realizedSampleCount'))
         )
       );
     });
@@ -224,7 +222,7 @@ describe('Regional prescriptions router', () => {
       const res = await request(app)
         .get(testRoute)
         .query({
-          programmingPlanId: programmingPlanValidated.id,
+          programmingPlanId: programmingPlanClosed.id,
           context: 'Control',
           includes: 'comments,realizedSampleCount'
         })
@@ -233,19 +231,19 @@ describe('Regional prescriptions router', () => {
 
       expect(res.body).toEqual(
         expect.arrayContaining(
-          validatedControlRegionalPrescriptions.map((regionalPrescription) => ({
+          closedControlRegionalPrescriptions.map((regionalPrescription) => ({
             ...regionalPrescription,
             comments: _.isEqual(
               RegionalPrescriptionKey.parse(regionalPrescription),
-              RegionalPrescriptionKey.parse(validatedControlPrescriptionComment)
+              RegionalPrescriptionKey.parse(closedControlPrescriptionComment)
             )
               ? [
                   {
-                    id: validatedControlPrescriptionComment.id,
-                    comment: validatedControlPrescriptionComment.comment,
-                    createdBy: validatedControlPrescriptionComment.createdBy,
+                    id: closedControlPrescriptionComment.id,
+                    comment: closedControlPrescriptionComment.comment,
+                    createdBy: closedControlPrescriptionComment.createdBy,
                     createdAt:
-                      validatedControlPrescriptionComment.createdAt.toISOString()
+                      closedControlPrescriptionComment.createdAt.toISOString()
                   }
                 ]
               : [],
@@ -332,7 +330,7 @@ describe('Regional prescriptions router', () => {
         .put(testRoute())
         .send({
           ...regionalPrescriptionUpdate,
-          programmingPlanId: programmingPlanValidated.id
+          programmingPlanId: programmingPlanClosed.id
         })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
@@ -346,17 +344,17 @@ describe('Regional prescriptions router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should fail if the programming plan is validated', async () => {
+    it('should fail if the programming plan is closed', async () => {
       await request(app)
         .put(
           testRoute(
-            validatedControlPrescription.id,
+            closedControlPrescription.id,
             RegionalCoordinator.region as string
           )
         )
         .send({
           ...regionalPrescriptionUpdate,
-          programmingPlanId: programmingPlanValidated.id
+          programmingPlanId: programmingPlanClosed.id
         })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);

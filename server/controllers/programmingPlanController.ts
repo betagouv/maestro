@@ -39,13 +39,13 @@ const findProgrammingPlans = async (request: Request, response: Response) => {
     ? findOptions.status
     : ProgrammingPlanStatusList;
 
-  //TODO with DROM users
   const programmingPlans = await programmingPlanRepository.findMany({
     ...findOptions,
     status: _.intersection(
       findOptionsStatus,
       userStatusAuthorized
-    ) as ProgrammingPlanStatus[]
+    ) as ProgrammingPlanStatus[],
+    isDrom: findOptions.isDrom || isDromRegion(user.region)
   });
 
   console.info('Found programmingPlans', programmingPlans);

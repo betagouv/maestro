@@ -373,4 +373,5 @@ export const RegionSort = (a: Region, b: Region) => {
   return RegionList.indexOf(a) - RegionList.indexOf(b);
 };
 
-export const isDromRegion = (region: Region) => Regions[region].isDrom;
+export const isDromRegion = (region?: Region | null) =>
+  region && Regions[region].isDrom;
