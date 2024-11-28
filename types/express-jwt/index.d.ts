@@ -4,7 +4,6 @@ import { MarkRequired } from 'ts-essentials';
 import { Prescription } from '../../shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from '../../shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { RegionalPrescription } from '../../shared/schema/RegionalPrescription/RegionalPrescription';
-import { PartialSample } from '../../shared/schema/Sample/Sample';
 import { TokenPayload } from '../../shared/schema/User/TokenPayload';
 import { User } from '../../shared/schema/User/User';
 
@@ -14,7 +13,7 @@ declare global {
       auth?: jwt.JwtPayload & TokenPayload;
       user?: User;
       programmingPlan?: ProgrammingPlan;
-      sample?: PartialSample;
+      sample?: Sample;
       prescription?: Prescription;
       regionalPrescription?: RegionalPrescription;
     }
@@ -29,9 +28,7 @@ declare module 'express-jwt' {
   > & {
     programmingPlan: ProgrammingPlan;
   };
-  type SampleRequest = MarkRequired<express.Request, 'sample'> & {
-    sample: PartialSample;
-  };
+  type SampleRequest = MarkRequired<express.Request, 'sample'>;
   type PrescriptionRequest = MarkRequired<express.Request, 'prescription'> & {
     prescription: Prescription;
   };
