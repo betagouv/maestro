@@ -1,12 +1,19 @@
 import Input from '@codegouvfr/react-dsfr/Input';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 
 interface EditableCellProps {
   initialValue: number;
+  isEditable?: boolean;
   onChange: (value: number) => void;
+  defaultContent: ReactNode;
 }
 
-const EditableNumberCell = ({ initialValue, onChange }: EditableCellProps) => {
+const EditableNumberCell = ({
+  initialValue,
+  isEditable,
+  onChange,
+  defaultContent
+}: EditableCellProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(initialValue);
 
@@ -33,13 +40,19 @@ const EditableNumberCell = ({ initialValue, onChange }: EditableCellProps) => {
                 submitEdition();
               }
             },
-            onBlur: submitEdition,
+            onBlur: submitEdition
           }}
         />
       ) : (
-        <div className="editable-cell" onClick={() => setIsEditing(true)}>
-          {value}
-        </div>
+        <>
+          {isEditable ? (
+            <div className="editable-cell" onClick={() => setIsEditing(true)}>
+              {defaultContent}
+            </div>
+          ) : (
+            defaultContent
+          )}
+        </>
       )}
     </>
   );

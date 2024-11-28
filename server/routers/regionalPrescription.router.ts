@@ -8,6 +8,7 @@ import { RegionalPrescriptionCommentToCreate } from '../../shared/schema/Regiona
 import regionalPrescriptionController from '../controllers/regionalPrescriptionController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
 import { programmingPlanCheck } from '../middlewares/checks/programmingPlanCheck';
+import { regionalPrescriptionCheck } from '../middlewares/checks/regionalPrescriptionCheck';
 import validator, { body, params, query } from '../middlewares/validator';
 
 const router = express.Router();
@@ -26,6 +27,7 @@ router.put(
   ),
   permissionsCheck(['updatePrescription', 'updatePrescriptionLaboratory']),
   programmingPlanCheck(),
+  regionalPrescriptionCheck(),
   regionalPrescriptionController.updateRegionalPrescription
 );
 router.post(
@@ -37,6 +39,7 @@ router.post(
   ),
   permissionsCheck(['commentPrescription']),
   programmingPlanCheck(),
+  regionalPrescriptionCheck(),
   regionalPrescriptionController.commentRegionalPrescription
 );
 

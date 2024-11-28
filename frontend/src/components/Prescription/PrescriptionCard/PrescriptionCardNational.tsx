@@ -2,12 +2,14 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { t } from 'i18next';
 import _ from 'lodash';
+import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
 import { Region, RegionList } from 'shared/referential/Region';
 import { Prescription } from 'shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { RegionalPrescription } from 'shared/schema/RegionalPrescription/RegionalPrescription';
-import PrescriptionCardContent from 'src/components/Prescription/PrescriptionCard/PrescriptionCardContent';
 import PrescriptionCardPartialTable from 'src/components/Prescription/PrescriptionCard/PrescriptionCardPartialTable';
+import PrescriptionStages from 'src/components/Prescription/PrescriptionStages/PrescriptionStages';
+import PrescriptionSubstancesModalButtons from 'src/components/Prescription/PrescriptionSubstancesModal/PrescriptionSubstancesModalButtons';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import RemoveMatrix from 'src/views/PrescriptionListView/RemoveMatrix';
 import './PrescriptionCard.scss';
@@ -39,10 +41,21 @@ const PrescriptionCardNational = ({
         <div className={cx('fr-card__content')}>
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             <div className={cx('fr-col-12', 'fr-col-md-5')}>
-              <PrescriptionCardContent
-                programmingPlan={programmingPlan}
-                prescription={prescription}
-              />
+              <h3 className={cx('fr-card__title')}>
+                {MatrixLabels[prescription.matrix]}
+              </h3>
+              <div className={cx('fr-card__desc')}>
+                <PrescriptionSubstancesModalButtons
+                  programmingPlan={programmingPlan}
+                  prescription={prescription}
+                />
+                <hr className={cx('fr-my-1w')} />
+                <PrescriptionStages
+                  programmingPlan={programmingPlan}
+                  prescription={prescription}
+                  label="Stades de prélèvement"
+                />
+              </div>
             </div>
             <div className={cx('fr-col-12', 'fr-col-md-7')}>
               <div className={clsx(cx('fr-mb-3w'), 'd-flex-align-center')}>

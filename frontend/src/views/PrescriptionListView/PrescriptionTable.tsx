@@ -1,6 +1,7 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
 import clsx from 'clsx';
+import { t } from 'i18next';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
@@ -14,7 +15,8 @@ import {
 } from 'shared/schema/RegionalPrescription/RegionalPrescription';
 import { isNotEmpty } from 'shared/utils/utils';
 import PrescriptionStages from 'src/components/Prescription/PrescriptionStages/PrescriptionStages';
-import PrescriptionSubstancesSummary from 'src/components/Prescription/PrescriptionSubstances/PrescriptionSubstancesSummary';
+import PrescriptionSubstancesModalButtons from 'src/components/Prescription/PrescriptionSubstancesModal/PrescriptionSubstancesModalButtons';
+import RegionalPrescriptionCommentsModalButton from 'src/components/Prescription/RegionalPrescriptionCommentsModal/RegionalPrescriptionCommentsModalButton';
 import RegionalPrescriptionCountCell from 'src/components/Prescription/RegionalPrescriptionCountCell/RegionalPrescriptionCountCell';
 import RegionHeaderCell from 'src/components/RegionHeaderCell/RegionHeaderCell';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -47,7 +49,11 @@ const PrescriptionTable = ({
   onChangePrescriptionLaboratory,
   onRemovePrescription
 }: Props) => {
-  const { hasUserPrescriptionPermission } = useAuthentication();
+  const {
+    hasUserPermission,
+    hasUserPrescriptionPermission,
+    hasUserRegionalPrescriptionPermission
+  } = useAuthentication();
 
   const getRegionalPrescriptions = (prescriptionId: string) =>
     regionalPrescriptions
@@ -72,8 +78,8 @@ const PrescriptionTable = ({
           <div className="border-left" key={`header-${region}`}>
             <RegionHeaderCell region={region} />
           </div>
-        )),
-        regions.length === 1 && 'Laboratoire'
+        ))
+        // regions.length === 1 && 'Laboratoire'
       ].filter(isNotEmpty),
     [] // eslint-disable-line react-hooks/exhaustive-deps
   );
@@ -102,10 +108,33 @@ const PrescriptionTable = ({
             key={`matrix-${prescription.matrix}`}
           >
             {MatrixLabels[prescription.matrix]}
-            <PrescriptionSubstancesSummary
-              programmingPlan={programmingPlan}
-              prescription={prescription}
-            />
+            {getRegionalPrescriptions(prescription.id).length === 1 && (
+              <div className={cx('fr-mt-2w')}>
+                {t('plannedSample', {
+                  count: getRegionalPrescriptions(prescription.id)[0]
+                    .sampleCount
+                })}
+              </div>
+            )}
+            {hasUserPermission('updatePrescription') && (
+              <PrescriptionSubstancesModalButtons
+                programmingPlan={programmingPlan}
+                prescription={prescription}
+              />
+            )}
+            {getRegionalPrescriptions(prescription.id).length === 1 &&
+              hasUserRegionalPrescriptionPermission(
+                programmingPlan,
+                getRegionalPrescriptions(prescription.id)[0]
+              )?.comment && (
+                <div className={cx('fr-mt-1w')}>
+                  <RegionalPrescriptionCommentsModalButton
+                    regionalPrescription={
+                      getRegionalPrescriptions(prescription.id)[0]
+                    }
+                  />
+                </div>
+              )}
           </div>,
           <div key={`stages-${prescription.matrix}`} className={cx('fr-p-1w')}>
             <PrescriptionStages

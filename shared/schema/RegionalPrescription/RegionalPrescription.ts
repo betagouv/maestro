@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { isDromRegion, Region, RegionSort } from '../../referential/Region';
 import { Prescription } from '../Prescription/Prescription';
 import { ProgrammingPlan } from '../ProgrammingPlan/ProgrammingPlans';
-import { hasPermission, User, UserInfos } from '../User/User';
+import { hasPermission, User, UserInfos, userRegions } from '../User/User';
 import { RegionalPrescriptionComment } from './RegionalPrescriptionComment';
 
 export const RegionalPrescriptionKey = z.object({
@@ -83,6 +83,7 @@ export const RegionalPrescriptionSort = (
 
 const RegionalPrescriptionPermission = z.enum([
   'updateSampleCount',
+  'comment',
   'updateLaboratory'
 ]);
 
@@ -97,9 +98,15 @@ export const hasRegionalPrescriptionPermission = (
 ): Record<RegionalPrescriptionPermission, boolean> => ({
   updateSampleCount:
     hasPermission(user, 'updatePrescription') &&
-    ((isDromRegion(regionalPrescription.region) &&
-      programmingPlan.statusDrom !== 'Closed') ||
-      (!isDromRegion(regionalPrescription.region) &&
-        programmingPlan.status !== 'Closed')),
+    userRegions(user).includes(regionalPrescription.region) &&
+    (isDromRegion(regionalPrescription.region)
+      ? programmingPlan.statusDrom !== 'Closed'
+      : programmingPlan.status !== 'Closed'),
+  comment:
+    hasPermission(user, 'commentPrescription') &&
+    userRegions(user).includes(regionalPrescription.region) &&
+    (isDromRegion(regionalPrescription.region)
+      ? programmingPlan.statusDrom === 'Submitted'
+      : programmingPlan.status === 'Submitted'),
   updateLaboratory: hasPermission(user, 'updatePrescriptionLaboratory')
 });

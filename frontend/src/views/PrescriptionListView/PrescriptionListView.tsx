@@ -19,9 +19,11 @@ import {
   ContextList
 } from 'shared/schema/ProgrammingPlan/Context';
 import { NextProgrammingPlanStatus } from 'shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import { RegionalPrescriptionKey } from 'shared/schema/RegionalPrescription/RegionalPrescription';
 import PrescriptionCardNational from 'src/components/Prescription/PrescriptionCard/PrescriptionCardNational';
 import PrescriptionCardRegional from 'src/components/Prescription/PrescriptionCard/PrescriptionCardRegional';
-import PrescriptionAnalysisModal from 'src/components/Prescription/PrescriptionSubstances/PrescriptionSubstancesModal';
+import PrescriptionSubstancesModal from 'src/components/Prescription/PrescriptionSubstancesModal/PrescriptionSubstancesModal';
+import RegionalPrescriptionCommentsModal from 'src/components/Prescription/RegionalPrescriptionCommentsModal/RegionalPrescriptionCommentsModal';
 import ProgrammingPlanUpdateModal from 'src/components/ProgrammingPlan/ProgrammingPlanUpdateModal/ProgrammingPlanUpdateModal';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import AppToast from 'src/components/_app/AppToast/AppToast';
@@ -35,6 +37,7 @@ import {
   useUpdatePrescriptionMutation
 } from 'src/services/prescription.service';
 import {
+  useCommentRegionalPrescriptionMutation,
   useFindRegionalPrescriptionsQuery,
   useUpdateRegionalPrescriptionMutation
 } from 'src/services/regionalPrescription.service';
@@ -63,6 +66,8 @@ const PrescriptionListView = () => {
     useUpdateRegionalPrescriptionMutation();
   const [deletePrescription, { isSuccess: isDeleteSuccess }] =
     useDeletePrescriptionMutation();
+  const [commentRegionalPrescription, { isSuccess: isCommentSuccess }] =
+    useCommentRegionalPrescriptionMutation();
 
   const region: Region = useMemo(
     () =>
@@ -203,6 +208,23 @@ const PrescriptionListView = () => {
     [programmingPlan] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
+  const submitRegionalPrescriptionComment = useCallback(
+    async (
+      regionalPrescriptionKey: RegionalPrescriptionKey,
+      comment: string
+    ) => {
+      await commentRegionalPrescription({
+        prescriptionId: regionalPrescriptionKey.prescriptionId,
+        region: regionalPrescriptionKey.region,
+        commentToCreate: {
+          programmingPlanId: programmingPlan?.id as string,
+          comment
+        }
+      });
+    },
+    [programmingPlan] // eslint-disable-line react-hooks/exhaustive-deps
+  );
+
   return (
     <section className="main-section">
       <AppToast open={isAddSuccess} description="Matrice ajoutée" />
@@ -211,6 +233,7 @@ const PrescriptionListView = () => {
         description="Modification enregistrée"
       />
       <AppToast open={isDeleteSuccess} description="Matrice supprimée" />
+      <AppToast open={isCommentSuccess} description="Commentaire ajouté" />
       <div className={cx('fr-container')}>
         <SectionHeader
           title={`Programmation ${programmingPlan?.year}`}
@@ -330,8 +353,11 @@ const PrescriptionListView = () => {
           </>
         )}
       </div>
-      <PrescriptionAnalysisModal
+      <PrescriptionSubstancesModal
         onUpdatePrescriptionSubstances={updatePrescriptionSubstances}
+      />
+      <RegionalPrescriptionCommentsModal
+        onSubmitRegionalPrescriptionComment={submitRegionalPrescriptionComment}
       />
     </section>
   );

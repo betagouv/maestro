@@ -254,10 +254,14 @@ h6,
   white-space: nowrap;
 }
 
-.fr-tag + .fr-tag {
-  margin-left: 0.5rem;
+.fr-tag:not(:last-of-type) {
+  margin-right: 0.5rem;
 }
 
 .MuiAutocomplete-popper {
   z-index: 1750 !important;
+}
+
+.link-underline {
+  text-decoration: underline;
 }

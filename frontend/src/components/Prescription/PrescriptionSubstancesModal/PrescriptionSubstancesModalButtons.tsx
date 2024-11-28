@@ -1,5 +1,6 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import clsx from 'clsx';
 import { t } from 'i18next';
 import { Prescription } from 'shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -13,7 +14,7 @@ interface Props {
   prescription: Prescription;
 }
 
-const PrescriptionSubstancesSummary = ({
+const PrescriptionSubstancesModalButtons = ({
   programmingPlan,
   prescription
 }: Props) => {
@@ -21,7 +22,7 @@ const PrescriptionSubstancesSummary = ({
   const { hasUserPrescriptionPermission } = useAuthentication();
 
   return (
-    <div className="prescription-analysis-summary">
+    <div className="prescription-substance-button">
       <div>
         <Button
           onClick={() =>
@@ -32,7 +33,7 @@ const PrescriptionSubstancesSummary = ({
             )
           }
           priority="tertiary no outline"
-          className={cx('fr-link--xs')}
+          className={clsx(cx('fr-link--xs'), 'link-underline')}
         >
           {hasUserPrescriptionPermission(programmingPlan)?.update &&
           (prescription.monoAnalysisCount ?? 0) === 0
@@ -52,7 +53,7 @@ const PrescriptionSubstancesSummary = ({
             )
           }
           priority="tertiary no outline"
-          className={cx('fr-link--xs')}
+          className={clsx(cx('fr-link--xs'), 'link-underline')}
         >
           {hasUserPrescriptionPermission(programmingPlan)?.update &&
           (prescription.multiAnalysisCount ?? 0) === 0
@@ -66,4 +67,4 @@ const PrescriptionSubstancesSummary = ({
   );
 };
 
-export default PrescriptionSubstancesSummary;
+export default PrescriptionSubstancesModalButtons;

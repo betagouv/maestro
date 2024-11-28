@@ -1,16 +1,14 @@
 import Badge from '@codegouvfr/react-dsfr/Badge';
-import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { t } from 'i18next';
-import { useMemo } from 'react';
+import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
 import { Prescription } from 'shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { RegionalPrescription } from 'shared/schema/RegionalPrescription/RegionalPrescription';
-import PrescriptionCardContent from 'src/components/Prescription/PrescriptionCard/PrescriptionCardContent';
-import RegionalPrescriptionCommentsModal from 'src/components/Prescription/RegionalPrescriptionCommentsModal/RegionalPrescriptionCommentsModal';
+import PrescriptionStages from 'src/components/Prescription/PrescriptionStages/PrescriptionStages';
+import RegionalPrescriptionCommentsModalButton from 'src/components/Prescription/RegionalPrescriptionCommentsModal/RegionalPrescriptionCommentsModalButton';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import { pluralize } from 'src/utils/stringUtils';
 import './PrescriptionCard.scss';
 
 interface Props {
@@ -24,11 +22,7 @@ const PrescriptionCardRegional = ({
   prescription,
   regionalPrescription
 }: Props) => {
-  const { hasUserPermission } = useAuthentication();
-
-  const comments = useMemo(() => {
-    return regionalPrescription?.comments || [];
-  }, [regionalPrescription?.comments]);
+  const { hasUserRegionalPrescriptionPermission } = useAuthentication();
 
   if (!regionalPrescription) {
     return <></>;
@@ -39,44 +33,34 @@ const PrescriptionCardRegional = ({
       <div className={clsx(cx('fr-card', 'fr-card--sm'), 'prescription-card')}>
         <div className={cx('fr-card__body')}>
           <div className={cx('fr-card__content')}>
-            <PrescriptionCardContent
-              programmingPlan={programmingPlan}
-              prescription={prescription}
-              subtitle={
-                <Badge
-                  noIcon
-                  className={cx('fr-badge--yellow-tournesol', 'fr-my-1w')}
-                >
-                  {t('plannedSample', {
-                    count: regionalPrescription.sampleCount
-                  })}
-                </Badge>
-              }
-            />
-            {programmingPlan.status === 'Submitted' &&
-              hasUserPermission('commentPrescription') && (
-                <div className="fr-card__end">
-                  <div className="d-flex-align-center">
-                    <RegionalPrescriptionCommentsModal
-                      programmingPlanId={programmingPlan.id}
-                      regionalPrescription={regionalPrescription}
-                      modalButton={
-                        <Button
-                          priority="tertiary"
-                          size="small"
-                          iconId={'fr-icon-question-answer-line'}
-                        >
-                          {comments.length > 0
-                            ? `${comments.length} ${pluralize(comments.length)(
-                                'commentaire'
-                              )}`
-                            : 'Échanger avec le coordinateur national'}
-                        </Button>
-                      }
-                    />
-                  </div>
-                </div>
-              )}
+            <h3 className={cx('fr-card__title')}>
+              {MatrixLabels[prescription.matrix]}
+            </h3>
+            <Badge
+              noIcon
+              className={cx('fr-badge--yellow-tournesol', 'fr-my-1w')}
+            >
+              {t('plannedSample', {
+                count: regionalPrescription.sampleCount
+              })}
+            </Badge>
+            <div className={cx('fr-card__desc')}>
+              <PrescriptionStages
+                programmingPlan={programmingPlan}
+                prescription={prescription}
+                label="Stades de prélèvement"
+              />
+            </div>
+            {hasUserRegionalPrescriptionPermission(
+              programmingPlan,
+              regionalPrescription
+            )?.comment && (
+              <div className="fr-card__end">
+                <RegionalPrescriptionCommentsModalButton
+                  regionalPrescription={regionalPrescription}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

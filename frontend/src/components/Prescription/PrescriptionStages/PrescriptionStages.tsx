@@ -106,7 +106,7 @@ const PrescriptionStages = ({
                 }
               : undefined
           }
-          className={cx('fr-m-1v')}
+          className={cx('fr-my-1v')}
         >
           {StageLabels[stage]}
         </Tag>
