@@ -157,6 +157,7 @@ describe('Regional prescriptions router', () => {
       .delete()
       .where('programmingPlanId', 'in', [
         programmingPlanClosed.id,
+        programmingPlanValidated.id,
         programmingPlanSubmitted.id
       ]);
     await Laboratories().delete().where('id', laboratory.id);
