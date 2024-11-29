@@ -144,7 +144,11 @@ const PrescriptionTable = ({
           </div>,
           regions.length > 1 && (
             <div
-              className="border-left fr-text--bold"
+              className={clsx(
+                cx('fr-text--bold'),
+                'border-left',
+                'sample-count'
+              )}
               key={`total-${prescription.matrix}`}
             >
               <div>

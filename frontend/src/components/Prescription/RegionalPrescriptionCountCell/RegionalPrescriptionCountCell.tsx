@@ -34,11 +34,9 @@ const RegionalPrescriptionCountCell = ({
       }
       onChange={(value) => onChange(value)}
       defaultContent={
-        <div className="d-flex-align-center">
-          <div>
-            <div className="sample-count">
-              {regionalPrescription.sampleCount}
-            </div>
+        <div className="sample-count-container">
+          <div className="sample-count">
+            <div>{regionalPrescription.sampleCount}</div>
             {programmingPlan.status === 'Validated' && (
               <>
                 <div>{regionalPrescription.realizedSampleCount}</div>
