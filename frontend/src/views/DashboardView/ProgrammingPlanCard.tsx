@@ -95,7 +95,6 @@ const ProgrammingPlanCard = ({
           {hasNationalView && (
             <div className={cx('fr-col-12')}>
               <ProgrammingPlanMap
-                programmingPlan={programmingPlan}
                 regionalPrescriptions={regionalPrescriptions ?? []}
               />
             </div>

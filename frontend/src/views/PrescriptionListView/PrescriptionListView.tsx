@@ -189,8 +189,8 @@ const PrescriptionListView = () => {
         }
       });
     },
-    [programmingPlan, region]
-  ); // eslint-disable-line react-hooks/exhaustive-deps
+    [programmingPlan, region] // eslint-disable-line react-hooks/exhaustive-deps
+  );
 
   const updatePrescriptionSubstances = useCallback(
     async (

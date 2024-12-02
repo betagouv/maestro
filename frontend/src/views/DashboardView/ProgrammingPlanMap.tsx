@@ -14,9 +14,7 @@ import Map, {
   Source,
   SymbolLayer
 } from 'react-map-gl/maplibre';
-import { useNavigate } from 'react-router-dom';
 import { Region, RegionList, Regions } from 'shared/referential/Region';
-import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   getCompletionRate,
   RegionalPrescription
@@ -24,16 +22,11 @@ import {
 import { useGetRegionsGeoJsonQuery } from 'src/services/region.service';
 
 interface Props {
-  programmingPlan: ProgrammingPlan;
   regionalPrescriptions: RegionalPrescription[];
 }
 
-const ProgrammingPlanMap = ({
-  programmingPlan,
-  regionalPrescriptions
-}: Props) => {
+const ProgrammingPlanMap = ({ regionalPrescriptions }: Props) => {
   const ref = useRef<any>();
-  const navigate = useNavigate();
 
   const [hoverInfo, setHoverInfo] = useState<{
     feature: MapGeoJSONFeature;
@@ -217,14 +210,6 @@ const ProgrammingPlanMap = ({
     }
   };
 
-  const onClick = (e: maplibregl.MapLayerMouseEvent) => {
-    if (e.features && e.features.length > 0) {
-      navigate(
-        `/prescriptions/${programmingPlan.year}?region=${hoveredRegion}`
-      );
-    }
-  };
-
   return (
     <div data-testid="prescription-map">
       <Map
@@ -246,7 +231,6 @@ const ProgrammingPlanMap = ({
         mapStyle={mapStyle}
         interactiveLayerIds={['regions-fill']}
         onMouseMove={onHover}
-        // onClick={onClick}
         cursor="pointer"
       >
         {regions && (
