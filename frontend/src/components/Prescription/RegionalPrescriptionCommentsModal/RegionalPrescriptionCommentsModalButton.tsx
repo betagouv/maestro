@@ -25,7 +25,6 @@ const RegionalPrescriptionCommentsModalButton = ({
     <Button
       priority="tertiary no outline"
       size="small"
-      iconId={'fr-icon-question-answer-line'}
       className={clsx(cx('fr-link--sm'), 'link-underline')}
       onClick={() =>
         dispatch(
@@ -35,6 +34,13 @@ const RegionalPrescriptionCommentsModalButton = ({
         )
       }
     >
+      <span
+        className={cx(
+          'fr-icon-question-answer-line',
+          'fr-icon--sm',
+          'fr-mr-1w'
+        )}
+      />
       {comments.length > 0
         ? `${comments.length} ${pluralize(comments.length)('commentaire')}`
         : 'Échanger avec le coordinateur national'}

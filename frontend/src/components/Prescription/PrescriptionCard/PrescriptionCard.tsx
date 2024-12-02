@@ -26,7 +26,7 @@ interface Props {
   onRemovePrescription: (prescriptionId: string) => Promise<void>;
 }
 
-const PrescriptionCardNational = ({
+const PrescriptionCard = ({
   programmingPlan,
   prescription,
   regionalPrescriptions,
@@ -97,4 +97,4 @@ const PrescriptionCardNational = ({
   );
 };
 
-export default PrescriptionCardNational;
+export default PrescriptionCard;

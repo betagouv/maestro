@@ -41,6 +41,15 @@ exports.seed = async function () {
     },
     {
       id: uuidv4(),
+      email: 'preleveur@maestro.fr',
+      password: bcrypt.hashSync('Test2024'),
+      firstName: fakerFR.person.firstName(),
+      lastName: fakerFR.person.lastName(),
+      roles: ['Sampler'],
+      region: '44'
+    },
+    {
+      id: uuidv4(),
       email: 'preleveur.drom@maestro.fr',
       password: bcrypt.hashSync('Test2024'),
       firstName: fakerFR.person.firstName(),

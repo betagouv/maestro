@@ -8,19 +8,22 @@ import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans'
 import { RegionalPrescription } from 'shared/schema/RegionalPrescription/RegionalPrescription';
 import PrescriptionStages from 'src/components/Prescription/PrescriptionStages/PrescriptionStages';
 import RegionalPrescriptionCommentsModalButton from 'src/components/Prescription/RegionalPrescriptionCommentsModal/RegionalPrescriptionCommentsModalButton';
+import RegionalPrescriptionLaboratory from 'src/components/Prescription/RegionalPrescriptionLaboratory/RegionalPrescriptionLaboratory';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import './PrescriptionCard.scss';
+import '../PrescriptionCard/PrescriptionCard.scss';
 
 interface Props {
   programmingPlan: ProgrammingPlan;
   prescription: Prescription;
   regionalPrescription?: RegionalPrescription;
+  onChangeLaboratory: (laboratoryId: string) => Promise<void>;
 }
 
-const PrescriptionCardRegional = ({
+const RegionalPrescriptionCard = ({
   programmingPlan,
   prescription,
-  regionalPrescription
+  regionalPrescription,
+  onChangeLaboratory
 }: Props) => {
   const { hasUserRegionalPrescriptionPermission } = useAuthentication();
 
@@ -61,6 +64,17 @@ const PrescriptionCardRegional = ({
                 />
               </div>
             )}
+            {hasUserRegionalPrescriptionPermission(
+              programmingPlan,
+              regionalPrescription
+            )?.updateLaboratory && (
+              <div className="fr-card__end">
+                <RegionalPrescriptionLaboratory
+                  regionalPrescription={regionalPrescription}
+                  onChangeLaboratory={onChangeLaboratory}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -68,4 +82,4 @@ const PrescriptionCardRegional = ({
   );
 };
 
-export default PrescriptionCardRegional;
+export default RegionalPrescriptionCard;

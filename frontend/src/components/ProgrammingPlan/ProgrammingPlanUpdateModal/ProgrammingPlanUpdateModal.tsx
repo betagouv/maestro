@@ -110,7 +110,6 @@ const ProgrammingPlanUpdateModal = ({ programmingPlan }: Props) => {
           })
             .unwrap()
             .then((newProgrammingPlan) => {
-              //TODO
               submissionModal.close();
             })
             .catch((error) => {

@@ -108,5 +108,10 @@ export const hasRegionalPrescriptionPermission = (
     (isDromRegion(regionalPrescription.region)
       ? programmingPlan.statusDrom === 'Submitted'
       : programmingPlan.status === 'Submitted'),
-  updateLaboratory: hasPermission(user, 'updatePrescriptionLaboratory')
+  updateLaboratory:
+    hasPermission(user, 'updatePrescriptionLaboratory') &&
+    userRegions(user).includes(regionalPrescription.region) &&
+    (isDromRegion(regionalPrescription.region)
+      ? programmingPlan.statusDrom === 'Validated'
+      : programmingPlan.status === 'Validated')
 });

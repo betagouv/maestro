@@ -34,7 +34,6 @@ const DashboardView = () => {
 
   useDocumentTitle('Tableau de bord');
 
-  //TODO check this for drom users
   const { data: nextProgrammingPlans } = useFindProgrammingPlansQuery(
     {
       status: ['InProgress', 'Submitted']

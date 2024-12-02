@@ -18,9 +18,9 @@ import PrescriptionStages from 'src/components/Prescription/PrescriptionStages/P
 import PrescriptionSubstancesModalButtons from 'src/components/Prescription/PrescriptionSubstancesModal/PrescriptionSubstancesModalButtons';
 import RegionalPrescriptionCommentsModalButton from 'src/components/Prescription/RegionalPrescriptionCommentsModal/RegionalPrescriptionCommentsModalButton';
 import RegionalPrescriptionCountCell from 'src/components/Prescription/RegionalPrescriptionCountCell/RegionalPrescriptionCountCell';
+import RegionalPrescriptionLaboratory from 'src/components/Prescription/RegionalPrescriptionLaboratory/RegionalPrescriptionLaboratory';
 import RegionHeaderCell from 'src/components/RegionHeaderCell/RegionHeaderCell';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import { useFindLaboratoriesQuery } from 'src/services/laboratory.service';
 import RemoveMatrix from 'src/views/PrescriptionListView/RemoveMatrix';
 
 interface Props {
@@ -33,10 +33,9 @@ interface Props {
     region: Region,
     count: number
   ) => void;
-  onChangePrescriptionLaboratory: (
-    prescriptionId: string,
-    laboratoryId?: string
-  ) => void;
+  onChangeRegionalPrescriptionLaboratory: (
+    laboratoryId: string
+  ) => Promise<void>;
   onRemovePrescription: (prescriptionId: string) => Promise<void>;
 }
 
@@ -46,7 +45,7 @@ const PrescriptionTable = ({
   regionalPrescriptions,
   regions,
   onChangeRegionalPrescriptionCount,
-  onChangePrescriptionLaboratory,
+  onChangeRegionalPrescriptionLaboratory,
   onRemovePrescription
 }: Props) => {
   const {
@@ -59,11 +58,6 @@ const PrescriptionTable = ({
     regionalPrescriptions
       .filter((r) => r.prescriptionId === prescriptionId)
       .sort((a, b) => a.region.localeCompare(b.region));
-
-  // @ts-ignore
-  const { data: laboratories } = useFindLaboratoriesQuery(_, {
-    skip: regions.length > 1
-  }); // eslint-disable-line react-hooks/exhaustive-deps
 
   const EmptyCell = <div></div>;
 
@@ -83,11 +77,6 @@ const PrescriptionTable = ({
       ].filter(isNotEmpty),
     [] // eslint-disable-line react-hooks/exhaustive-deps
   );
-  //
-  // const regionalLaboratoryId = (
-  //   regionalPrescriptions: RegionalPrescription[],
-  //   region: Region
-  // ) => regionalPrescriptions.find((r) => r.region === region)?.laboratoryId;
 
   const prescriptionsData = useMemo(
     () =>
@@ -122,19 +111,35 @@ const PrescriptionTable = ({
                 prescription={prescription}
               />
             )}
-            {getRegionalPrescriptions(prescription.id).length === 1 &&
-              hasUserRegionalPrescriptionPermission(
-                programmingPlan,
-                getRegionalPrescriptions(prescription.id)[0]
-              )?.comment && (
-                <div className={cx('fr-mt-1w')}>
-                  <RegionalPrescriptionCommentsModalButton
-                    regionalPrescription={
-                      getRegionalPrescriptions(prescription.id)[0]
-                    }
-                  />
-                </div>
-              )}
+            {getRegionalPrescriptions(prescription.id).length === 1 && (
+              <>
+                {hasUserRegionalPrescriptionPermission(
+                  programmingPlan,
+                  getRegionalPrescriptions(prescription.id)[0]
+                )?.comment && (
+                  <div className={cx('fr-mt-1w')}>
+                    <RegionalPrescriptionCommentsModalButton
+                      regionalPrescription={
+                        getRegionalPrescriptions(prescription.id)[0]
+                      }
+                    />
+                  </div>
+                )}
+              </>
+            )}
+            {hasUserRegionalPrescriptionPermission(
+              programmingPlan,
+              getRegionalPrescriptions(prescription.id)[0]
+            )?.updateLaboratory && (
+              <div className={cx('fr-mt-1w')}>
+                <RegionalPrescriptionLaboratory
+                  regionalPrescription={
+                    getRegionalPrescriptions(prescription.id)[0]
+                  }
+                  onChangeLaboratory={onChangeRegionalPrescriptionLaboratory}
+                />
+              </div>
+            )}
           </div>,
           <div key={`stages-${prescription.matrix}`} className={cx('fr-p-1w')}>
             <PrescriptionStages
@@ -226,7 +231,7 @@ const PrescriptionTable = ({
           // ),
         ].filter(isNotEmpty)
       ),
-    [prescriptions, regionalPrescriptions, laboratories] // eslint-disable-line react-hooks/exhaustive-deps
+    [prescriptions, regionalPrescriptions] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const totalData = useMemo(

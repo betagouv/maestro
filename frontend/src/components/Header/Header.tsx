@@ -6,9 +6,8 @@ import { UserRoleLabels } from 'shared/schema/User/UserRole';
 import { isDefined } from 'shared/utils/utils';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
-import { api } from 'src/services/api.service';
 import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.service';
-import authSlice from 'src/store/reducers/authSlice';
+import { logout } from 'src/store/store';
 import logo from '../../assets/logo.svg';
 
 const Header = () => {
@@ -148,8 +147,7 @@ const Header = () => {
                 <Button
                   iconId="fr-icon-logout-box-r-line"
                   onClick={() => {
-                    dispatch(authSlice.actions.signoutUser());
-                    dispatch(api.util.resetApiState());
+                    logout()(dispatch);
                   }}
                 >
                   Se déconnecter

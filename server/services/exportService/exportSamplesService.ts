@@ -13,6 +13,7 @@ import { SampleItemRecipientKindLabels } from '../../../shared/schema/Sample/Sam
 import { SampleStatusLabels } from '../../../shared/schema/Sample/SampleStatus';
 import { isDefinedAndNotNull } from '../../../shared/utils/utils';
 import analysisRepository from '../../repositories/analysisRepository';
+import laboratoryRepository from '../../repositories/laboratoryRepository';
 import sampleItemRepository from '../../repositories/sampleItemRepository';
 import WorkbookWriter = exceljs.stream.xlsx.WorkbookWriter;
 
@@ -20,7 +21,7 @@ const writeToWorkbook = async (
   samples: PartialSample[],
   workbook: WorkbookWriter
 ) => {
-  // const laboratories = await laboratoryRepository.findMany();
+  const laboratories = await laboratoryRepository.findMany();
 
   const worksheet = workbook.addWorksheet('Prélèvements');
   worksheet.columns = [
@@ -52,29 +53,29 @@ const writeToWorkbook = async (
       .map((itemNumber) => [
         {
           header: `Echantillon ${itemNumber} \n Quantité`,
-          key: `quantity_${itemNumber}`,
+          key: `quantity_${itemNumber}`
         },
         {
           header: `Echantillon ${itemNumber} \n Unité de mesure`,
-          key: `quantityUnit_${itemNumber}`,
+          key: `quantityUnit_${itemNumber}`
         },
         {
           header: `Echantillon ${itemNumber} \n Numéro de scellé`,
-          key: `sealId_${itemNumber}`,
+          key: `sealId_${itemNumber}`
         },
         {
           header: `Echantillon ${itemNumber} \n Destinataire`,
-          key: `recipient_${itemNumber}`,
+          key: `recipient_${itemNumber}`
         },
         {
           header: `Echantillon ${itemNumber} \n Respect directive 2002/63`,
-          key: `compliance200263_${itemNumber}`,
-        },
+          key: `compliance200263_${itemNumber}`
+        }
       ])
       .flat(),
     { header: 'Notes sur les échantillons', key: 'notesOnItems' },
     { header: 'Notes sur la recevabilité', key: 'notesOnAdmissibility' },
-    { header: "Conformité globale de l'échantillon", key: 'compliance' },
+    { header: "Conformité globale de l'échantillon", key: 'compliance' }
   ];
 
   highland(samples)
@@ -82,7 +83,7 @@ const writeToWorkbook = async (
       highland(
         Promise.all([
           sampleItemRepository.findMany(sample.id),
-          analysisRepository.findUnique({ sampleId: sample.id }),
+          analysisRepository.findUnique({ sampleId: sample.id })
         ]).then(([items, analysis]) => ({ sample, items, analysis }))
       )
     )
@@ -108,7 +109,7 @@ const writeToWorkbook = async (
           company: sample.company?.name,
           companyAddress: [
             sample.company?.address,
-            [sample.company?.postalCode, sample.company?.city].join(' '),
+            [sample.company?.postalCode, sample.company?.city].join(' ')
           ].join('\n'),
           companySiret: sample.company?.siret,
           resytalId: sample.resytalId,
@@ -135,15 +136,13 @@ const writeToWorkbook = async (
               [`recipient_${index + 1}`]:
                 item.recipientKind &&
                 (item.recipientKind === 'Laboratory'
-                  ? 'Laboratoire '
-                  : //TODO
-                    // +
-                    //   laboratories.find((lab) => lab.id === sample.laboratoryId)
-                    //     ?.name
-                    SampleItemRecipientKindLabels[item.recipientKind]),
+                  ? 'Laboratoire ' +
+                    laboratories.find((lab) => lab.id === sample.laboratoryId)
+                      ?.name
+                  : SampleItemRecipientKindLabels[item.recipientKind]),
               [`compliance200263_${index + 1}`]: item.compliance200263
                 ? 'Oui'
-                : 'Non',
+                : 'Non'
             }),
             {}
           ),
@@ -153,7 +152,7 @@ const writeToWorkbook = async (
             ? analysis?.compliance
               ? 'Oui'
               : 'Non'
-            : '',
+            : ''
         })
         .commit();
     })
@@ -163,5 +162,5 @@ const writeToWorkbook = async (
 };
 
 export default {
-  writeToWorkbook,
+  writeToWorkbook
 };

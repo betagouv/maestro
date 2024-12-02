@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { CurriedGetDefaultMiddleware } from '@reduxjs/toolkit/dist/getDefaultMiddleware';
-import { api } from 'src/services/api.service';
+import { api, tagTypes } from 'src/services/api.service';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import programmingPlanSlice from 'src/store/reducers/programmingPlanSlice';
 import samplesSlice from 'src/store/reducers/samplesSlice';
@@ -11,23 +11,29 @@ export const applicationReducer = {
   [prescriptionsSlice.name]: prescriptionsSlice.reducer,
   [samplesSlice.name]: samplesSlice.reducer,
   [programmingPlanSlice.name]: programmingPlanSlice.reducer,
-  [api.reducerPath]: api.reducer,
+  [api.reducerPath]: api.reducer
 };
 
 export const applicationMiddleware = (
   getDefaultMiddleware: CurriedGetDefaultMiddleware
 ) =>
   getDefaultMiddleware({
-    serializableCheck: false,
+    serializableCheck: false
   }).concat(api.middleware);
 
 export const store = configureStore({
   reducer: applicationReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      serializableCheck: false,
-    }).concat(api.middleware),
+      serializableCheck: false
+    }).concat(api.middleware)
 });
 
 export type AppState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
+
+export const logout = () => async (dispatch: AppDispatch) => {
+  console.log('logout');
+  dispatch(authSlice.actions.signoutUser());
+  dispatch(api.util.invalidateTags(tagTypes));
+};

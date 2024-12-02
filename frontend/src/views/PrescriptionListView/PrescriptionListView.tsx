@@ -20,9 +20,9 @@ import {
 } from 'shared/schema/ProgrammingPlan/Context';
 import { NextProgrammingPlanStatus } from 'shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { RegionalPrescriptionKey } from 'shared/schema/RegionalPrescription/RegionalPrescription';
-import PrescriptionCardNational from 'src/components/Prescription/PrescriptionCard/PrescriptionCardNational';
-import PrescriptionCardRegional from 'src/components/Prescription/PrescriptionCard/PrescriptionCardRegional';
+import PrescriptionCard from 'src/components/Prescription/PrescriptionCard/PrescriptionCard';
 import PrescriptionSubstancesModal from 'src/components/Prescription/PrescriptionSubstancesModal/PrescriptionSubstancesModal';
+import RegionalPrescriptionCard from 'src/components/Prescription/RegionalPrescriptionCard/RegionalPrescriptionCard';
 import RegionalPrescriptionCommentsModal from 'src/components/Prescription/RegionalPrescriptionCommentsModal/RegionalPrescriptionCommentsModal';
 import ProgrammingPlanUpdateModal from 'src/components/ProgrammingPlan/ProgrammingPlanUpdateModal/ProgrammingPlanUpdateModal';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
@@ -178,19 +178,19 @@ const PrescriptionListView = () => {
     [programmingPlan] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
-  const changePrescriptionLaboratory =
-    (programmingPlanId: string) =>
+  const changePrescriptionLaboratory = useCallback(
     async (prescriptionId: string, laboratoryId?: string) => {
-      // TODO
-      // await updatePrescription({
-      //   prescriptionId,
-      //   prescriptionUpdate: {
-      //     programmingPlanId,
-      //     context: findPrescriptionOptions.context,
-      //     laboratoryId,
-      //   },
-      // });
-    };
+      await updateRegionalPrescription({
+        prescriptionId,
+        region,
+        prescriptionUpdate: {
+          programmingPlanId: programmingPlan?.id as string,
+          laboratoryId
+        }
+      });
+    },
+    [programmingPlan, region]
+  ); // eslint-disable-line react-hooks/exhaustive-deps
 
   const updatePrescriptionSubstances = useCallback(
     async (
@@ -302,7 +302,7 @@ const PrescriptionListView = () => {
                 {hasNationalView ? (
                   <div className="prescription-cards-container">
                     {prescriptions?.map((prescription) => (
-                      <PrescriptionCardNational
+                      <PrescriptionCard
                         programmingPlan={programmingPlan}
                         prescription={prescription}
                         regionalPrescriptions={regionalPrescriptions.filter(
@@ -319,7 +319,8 @@ const PrescriptionListView = () => {
                 ) : (
                   <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
                     {prescriptions?.map((prescription) => (
-                      <PrescriptionCardRegional
+                      <RegionalPrescriptionCard
+                        key={`prescription_cards_${prescription.id}`}
                         programmingPlan={programmingPlan}
                         prescription={prescription}
                         regionalPrescription={regionalPrescriptions.find(
@@ -328,7 +329,12 @@ const PrescriptionListView = () => {
                               prescription.id &&
                             regionalPrescription.region === region
                         )}
-                        key={`prescription_cards_${prescription.id}`}
+                        onChangeLaboratory={(laboratoryId) =>
+                          changePrescriptionLaboratory(
+                            prescription.id,
+                            laboratoryId
+                          )
+                        }
                       />
                     ))}
                   </div>
@@ -344,9 +350,9 @@ const PrescriptionListView = () => {
                 onChangeRegionalPrescriptionCount={
                   changeRegionalPrescriptionCount
                 }
-                onChangePrescriptionLaboratory={changePrescriptionLaboratory(
-                  programmingPlan.id
-                )}
+                onChangeRegionalPrescriptionLaboratory={
+                  changePrescriptionLaboratory
+                }
                 onRemovePrescription={removePrescription}
               />
             )}

@@ -4,7 +4,7 @@ import {
   getCompletionRate,
   RegionalPrescription
 } from 'shared/schema/RegionalPrescription/RegionalPrescription';
-import EditableNumberCell from 'src/components/EditableCell/EditableNumberCell';
+import EditableNumberCell from 'src/components/EditableNumberCell/EditableNumberCell';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch } from 'src/hooks/useStore';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
