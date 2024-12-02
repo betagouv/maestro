@@ -11,7 +11,7 @@ export const User = z.object({
   firstName: z.string(),
   lastName: z.string(),
   roles: z.array(UserRole),
-  region: Region.nullish(),
+  region: Region.nullable(),
 });
 
 export const UserInfos = User.pick({
