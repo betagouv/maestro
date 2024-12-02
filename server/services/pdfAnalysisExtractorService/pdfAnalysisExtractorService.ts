@@ -6,10 +6,11 @@ import { assertUnreachable } from '../../../shared/utils/typescript';
 import { SimpleResidueLabels } from '../../../shared/referential/Residue/SimpleResidueLabels';
 
 const labos = ['INOVALYS'] as const;
-type Labos = (typeof labos)[number];
+export type Labos = (typeof labos)[number];
 
-const parseNovalysDocument = async (doc: PDFDocumentProxy): Promise<null> => {
-  const content = await extractPageContent(doc, 2);
+type ParseLaboDocument =  (extractPageContentFunction: (page: number) => Promise<string[]>) => Promise<null>
+const parseNovalysDocument: ParseLaboDocument = async (extractPageContentFunction) => {
+  const content = await extractPageContentFunction(2);
 
   const dateValidator = z.string().regex(/^\d{2}\/\d{2}\/\d{2}$/);
   const numberValidator = z.union([
@@ -67,9 +68,10 @@ const parseNovalysDocument = async (doc: PDFDocumentProxy): Promise<null> => {
     ])
     .transform((r) => {
       if( r.length > 5){
-        const substance: string = r[1]
+        const substance: string = r[1] ?? ''
 
-        const ref = Object.entries(SimpleResidueLabels).find(([key, value]) => value.toLowerCase().includes(substance.toLowerCase()))
+        //FIXME comment retrouver le bon résidu ?
+        const ref = Object.entries(SimpleResidueLabels).find(([key, value]) => value.toLowerCase().slice(0, 5).includes(substance.toLowerCase().slice(0, 5)))
       return {
         substance: ref?.[0],
         teneur: r[2],
@@ -115,9 +117,9 @@ const parseNovalysDocument = async (doc: PDFDocumentProxy): Promise<null> => {
   console.log('coucou', lines.filter(l => !isNil(l)));
   return null;
 };
-const parseDocument = {
+export const parseDocument = {
   INOVALYS: parseNovalysDocument
-} as const satisfies Record<Labos, (doc: PDFDocumentProxy) => Promise<null>>;
+} as const satisfies Record<Labos, ParseLaboDocument>;
 //1e6f1197-b922-4d2c-9889-e8121ad5b892_DAP-GES-51-24-0039-A-3.pdf
 export const extractAnalysisFromPdf = async (
   documentId: string
@@ -135,7 +137,7 @@ export const extractAnalysisFromPdf = async (
   }
   console.log('Laboratoire trouvé : ', labo);
 
-  const result = await parseDocument[labo](doc);
+  const result = await parseDocument[labo]((page) => extractPageContent(doc, page));
   if (isNil(result)) {
     console.log(
       "Impossible d'extraire les données du document pour le labo : ",
@@ -164,8 +166,8 @@ const getLabo = (linesFirstPage: string[]): Labos | null => {
   return null;
 };
 
-const extractPageContent = async (
-  doc: PDFDocumentProxy,
+export const extractPageContent = async (
+  doc: Pick<PDFDocumentProxy, 'getPage'>,
   pageNumber: number
 ): Promise<string[]> => {
   const page = await doc.getPage(pageNumber);
@@ -177,11 +179,11 @@ const extractPageContent = async (
     .map(({ str }) => str);
 };
 
-extractAnalysisFromPdf('toto')
-  .then(() => {
-    process.exit();
-  })
-  .catch((e) => {
-    console.error('Erreur', e);
-    process.exit(1);
-  });
+// extractAnalysisFromPdf('toto')
+//   .then(() => {
+//     process.exit();
+//   })
+//   .catch((e) => {
+//     console.error('Erreur', e);
+//     process.exit(1);
+//   });
