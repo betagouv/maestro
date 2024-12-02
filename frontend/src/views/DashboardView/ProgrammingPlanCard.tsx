@@ -121,16 +121,16 @@ const ProgrammingPlanCard = ({
         </div>
       }
       footer={
-        <div style={{ textAlign: 'center' }}>
-          <Button
-            className={cx('fr-mr-2w')}
-            linkProps={{
-              to: `/prescriptions/${programmingPlan.year}?context=${context}`
-            }}
-          >
-            Voir le tableau complet
-          </Button>
-        </div>
+        <Button
+          className={cx('fr-mr-2w')}
+          linkProps={{
+            to: `/prescriptions/${programmingPlan.year}?context=${context}`
+          }}
+          priority="secondary"
+          iconId="fr-icon-table-2"
+        >
+          {ContextLabels[context]}
+        </Button>
       }
     ></Card>
   );

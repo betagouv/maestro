@@ -1,15 +1,15 @@
-import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { t } from 'i18next';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
 import { Prescription } from 'shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { RegionalPrescription } from 'shared/schema/RegionalPrescription/RegionalPrescription';
+import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
 import PrescriptionStages from 'src/components/Prescription/PrescriptionStages/PrescriptionStages';
 import RegionalPrescriptionCommentsModalButton from 'src/components/Prescription/RegionalPrescriptionCommentsModal/RegionalPrescriptionCommentsModalButton';
 import RegionalPrescriptionLaboratory from 'src/components/Prescription/RegionalPrescriptionLaboratory/RegionalPrescriptionLaboratory';
 import { useAuthentication } from 'src/hooks/useAuthentication';
+import { pluralize } from 'src/utils/stringUtils';
 import '../PrescriptionCard/PrescriptionCard.scss';
 
 interface Props {
@@ -39,14 +39,27 @@ const RegionalPrescriptionCard = ({
             <h3 className={cx('fr-card__title')}>
               {MatrixLabels[prescription.matrix]}
             </h3>
-            <Badge
-              noIcon
-              className={cx('fr-badge--yellow-tournesol', 'fr-my-1w')}
-            >
-              {t('plannedSample', {
-                count: regionalPrescription.sampleCount
-              })}
-            </Badge>
+            <div>
+              <span className={cx('fr-text--bold')}>
+                {regionalPrescription.realizedSampleCount ?? 0} 
+                {pluralize(regionalPrescription.realizedSampleCount ?? 0)(
+                  'prélèvement'
+                )}
+              </span>
+              {['Validated', 'Closed'].includes(programmingPlan.status) && (
+                <>
+                   sur 
+                  {regionalPrescription.sampleCount ?? 0} 
+                  {pluralize(regionalPrescription.sampleCount ?? 0)(
+                    'programmé'
+                  )}
+                  {' • '}
+                  <CompletionBadge
+                    regionalPrescriptions={regionalPrescription}
+                  />
+                </>
+              )}
+            </div>
             <div className={cx('fr-card__desc')}>
               <PrescriptionStages
                 programmingPlan={programmingPlan}

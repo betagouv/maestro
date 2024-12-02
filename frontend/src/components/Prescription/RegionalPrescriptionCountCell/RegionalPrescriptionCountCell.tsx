@@ -1,9 +1,7 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
-import {
-  getCompletionRate,
-  RegionalPrescription
-} from 'shared/schema/RegionalPrescription/RegionalPrescription';
+import { RegionalPrescription } from 'shared/schema/RegionalPrescription/RegionalPrescription';
+import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
 import EditableNumberCell from 'src/components/EditableNumberCell/EditableNumberCell';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch } from 'src/hooks/useStore';
@@ -40,7 +38,7 @@ const RegionalPrescriptionCountCell = ({
             {programmingPlan.status === 'Validated' && (
               <>
                 <div>{regionalPrescription.realizedSampleCount}</div>
-                <div>{getCompletionRate(regionalPrescription)}%</div>
+                <CompletionBadge regionalPrescriptions={regionalPrescription} />
               </>
             )}
           </div>

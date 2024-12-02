@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Matrix } from 'shared/referential/Matrix/Matrix';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
-import { Region, RegionList, Regions } from 'shared/referential/Region';
+import { Region, Regions } from 'shared/referential/Region';
 import {
   FindPrescriptionOptions,
   PrescriptionOptionsInclude
@@ -346,7 +346,6 @@ const PrescriptionListView = () => {
                 programmingPlan={programmingPlan}
                 prescriptions={prescriptions}
                 regionalPrescriptions={regionalPrescriptions}
-                regions={region ? [region] : RegionList}
                 onChangeRegionalPrescriptionCount={
                   changeRegionalPrescriptionCount
                 }

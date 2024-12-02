@@ -36,4 +36,5 @@ export const logout = () => async (dispatch: AppDispatch) => {
   console.log('logout');
   dispatch(authSlice.actions.signoutUser());
   dispatch(api.util.invalidateTags(tagTypes));
+  dispatch(prescriptionsSlice.actions.reset());
 };

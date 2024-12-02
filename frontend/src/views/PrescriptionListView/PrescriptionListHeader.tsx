@@ -33,7 +33,8 @@ const PrescriptionListHeader = ({
 }: Props) => {
   const dispatch = useAppDispatch();
   const { isMobile } = useWindowSize();
-  const { hasUserPrescriptionPermission } = useAuthentication();
+  const { hasUserPrescriptionPermission, hasNationalView } =
+    useAuthentication();
 
   const { prescriptionListDisplay, matrixQuery } = useAppSelector(
     (state) => state.prescriptions
@@ -69,7 +70,7 @@ const PrescriptionListHeader = ({
         />
       </div>
       <div>
-        {!isMobile && (
+        {!isMobile && hasNationalView && (
           <SegmentedControl
             hideLegend
             legend="Légende"

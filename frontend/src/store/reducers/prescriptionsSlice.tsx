@@ -10,13 +10,14 @@ type PrescriptionsState = {
   prescriptionAnalysisEditId?: string;
   regionalPrescriptionComments?: RegionalPrescription;
 };
+const initialState: PrescriptionsState = {
+  prescriptionListContext: 'Control',
+  prescriptionListDisplay: 'cards'
+};
 
 const prescriptionsSlice = createSlice({
   name: 'prescriptions',
-  initialState: {
-    prescriptionListContext: 'Control',
-    prescriptionListDisplay: 'cards'
-  } as PrescriptionsState,
+  initialState,
   reducers: {
     changeListContext: (state, action: PayloadAction<Context>) => {
       state.prescriptionListContext = action.payload;
@@ -41,6 +42,9 @@ const prescriptionsSlice = createSlice({
       action: PayloadAction<RegionalPrescription | undefined>
     ) => {
       state.regionalPrescriptionComments = action.payload;
+    },
+    reset(): PrescriptionsState {
+      return initialState;
     }
   }
 });
