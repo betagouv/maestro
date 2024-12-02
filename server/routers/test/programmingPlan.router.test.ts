@@ -319,14 +319,7 @@ describe('ProgrammingPlan router', () => {
       //TODO check substances duplication
 
       //Cleanup
-      await Prescriptions()
-        .where('programmingPlanId', res.body.id)
-        .andWhere('context', 'Control')
-        .delete();
-      await Prescriptions()
-        .where('programmingPlanId', res.body.id)
-        .andWhere('context', 'Surveillance')
-        .delete();
+      await Prescriptions().where('programmingPlanId', res.body.id).delete();
       await ProgrammingPlans().where('id', res.body.id).delete();
     });
   });

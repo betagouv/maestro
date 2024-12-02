@@ -288,13 +288,13 @@ describe('Regional prescriptions router', () => {
   });
 
   describe('PUT /{prescriptionId}/regions/{region}', () => {
-    const regionalPrescriptionUpdate: RegionalPrescriptionUpdate = {
+    const submittedRegionalPrescriptionUpdate: RegionalPrescriptionUpdate = {
       programmingPlanId: programmingPlanSubmitted.id,
       sampleCount: 10,
       laboratoryId: LaboratoryFixture.id
     };
-    const regionalPrescription = submittedControlRegionalPrescriptions.find(
-      (regionalPrescription) =>
+    const submittedRegionalPrescription =
+      submittedControlRegionalPrescriptions.find((regionalPrescription) =>
         _.isEqual(
           RegionalPrescriptionKey.parse(regionalPrescription),
           RegionalPrescriptionKey.parse({
@@ -302,29 +302,29 @@ describe('Regional prescriptions router', () => {
             region: RegionalCoordinator.region as Region
           })
         )
-    ) as RegionalPrescription;
+      ) as RegionalPrescription;
     const testRoute = (
-      prescriptionId: string = regionalPrescription.prescriptionId,
-      region: string = regionalPrescription.region
+      prescriptionId: string = submittedRegionalPrescription.prescriptionId,
+      region: string = submittedRegionalPrescription.region
     ) => `/api/prescriptions/${prescriptionId}/regions/${region}`;
 
     it('should fail if the user is not authenticated', async () => {
       await request(app)
         .put(testRoute())
-        .send(regionalPrescriptionUpdate)
+        .send(submittedRegionalPrescriptionUpdate)
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
     it('should receive valid prescriptionId and region', async () => {
       await request(app)
         .put(testRoute(randomstring.generate()))
-        .send(regionalPrescriptionUpdate)
+        .send(submittedRegionalPrescriptionUpdate)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await request(app)
         .put(testRoute(submittedControlPrescription.id, 'invalid'))
-        .send(regionalPrescriptionUpdate)
+        .send(submittedRegionalPrescriptionUpdate)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
@@ -348,7 +348,7 @@ describe('Regional prescriptions router', () => {
     it('should fail if the prescription does not exist', async () => {
       await request(app)
         .put(testRoute(uuidv4()))
-        .send(regionalPrescriptionUpdate)
+        .send(submittedRegionalPrescriptionUpdate)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
@@ -357,7 +357,7 @@ describe('Regional prescriptions router', () => {
       await request(app)
         .put(testRoute())
         .send({
-          ...regionalPrescriptionUpdate,
+          ...submittedRegionalPrescriptionUpdate,
           programmingPlanId: programmingPlanClosed.id
         })
         .use(tokenProvider(NationalCoordinator))
@@ -367,7 +367,7 @@ describe('Regional prescriptions router', () => {
     it('should fail if the user does not have the permission to update prescriptions', async () => {
       await request(app)
         .put(testRoute())
-        .send(regionalPrescriptionUpdate)
+        .send(submittedRegionalPrescriptionUpdate)
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
@@ -381,7 +381,7 @@ describe('Regional prescriptions router', () => {
           )
         )
         .send({
-          ...regionalPrescriptionUpdate,
+          ...submittedRegionalPrescriptionUpdate,
           programmingPlanId: programmingPlanClosed.id
         })
         .use(tokenProvider(NationalCoordinator))
@@ -391,30 +391,50 @@ describe('Regional prescriptions router', () => {
     it('should update the sample count of the prescription for a national coordinator', async () => {
       const res = await request(app)
         .put(testRoute())
-        .send(regionalPrescriptionUpdate)
+        .send(submittedRegionalPrescriptionUpdate)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toEqual({
-        ...regionalPrescription,
-        sampleCount: regionalPrescriptionUpdate.sampleCount
+        ...submittedRegionalPrescription,
+        sampleCount: submittedRegionalPrescriptionUpdate.sampleCount
       });
 
       await RegionalPrescriptions()
         .where(RegionalPrescriptionKey.parse(res.body))
-        .update({ sampleCount: regionalPrescription.sampleCount });
+        .update({ sampleCount: submittedRegionalPrescription.sampleCount });
     });
 
     it('should update the laboratory of the prescription for a regional coordinator', async () => {
+      const validatedRegionalPrescriptionUpdate: RegionalPrescriptionUpdate = {
+        programmingPlanId: programmingPlanValidated.id,
+        laboratoryId: laboratory.id
+      };
+      const validatedRegionalPrescription =
+        validatedControlRegionalPrescriptions.find((regionalPrescription) =>
+          _.isEqual(
+            RegionalPrescriptionKey.parse(regionalPrescription),
+            RegionalPrescriptionKey.parse({
+              prescriptionId: validatedControlPrescription.id,
+              region: RegionalCoordinator.region as Region
+            })
+          )
+        ) as RegionalPrescription;
+
       const res = await request(app)
-        .put(testRoute())
-        .send(regionalPrescriptionUpdate)
+        .put(
+          testRoute(
+            validatedRegionalPrescription.prescriptionId,
+            validatedRegionalPrescription.region
+          )
+        )
+        .send(validatedRegionalPrescriptionUpdate)
         .use(tokenProvider(RegionalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toEqual({
-        ...regionalPrescription,
-        laboratoryId: regionalPrescriptionUpdate.laboratoryId
+        ...validatedRegionalPrescription,
+        laboratoryId: validatedRegionalPrescriptionUpdate.laboratoryId
       });
     });
   });
