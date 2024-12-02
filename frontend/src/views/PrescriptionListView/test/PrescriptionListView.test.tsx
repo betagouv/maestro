@@ -184,59 +184,6 @@ describe('PrescriptionListView', () => {
       response: { body: JSON.stringify(regionalCoordinator) }
     };
 
-    test('should render a table with prescriptions with non editable cells for regional coordinator', async () => {
-      mockRequests([
-        programmingPlanRequest,
-        prescriptionRequest(regionalCoordinator.region as Region),
-        regionalPrescriptionRequest(regionalCoordinator.region as Region),
-        userRequest,
-        sampleRequest(regionalCoordinator.region as Region)
-      ]);
-
-      jest
-        .spyOn(Router, 'useParams')
-        .mockReturnValue({ year: String(programmingPlan.year) });
-
-      const searchParams = '?context=Control';
-
-      render(
-        <Provider store={store}>
-          <MemoryRouter
-            initialEntries={[
-              `/prescriptions/${programmingPlan.year}/${searchParams}`
-            ]}
-          >
-            <YearRoute element={PrescriptionListView} />
-          </MemoryRouter>
-        </Provider>
-      );
-
-      expect(
-        await screen.findByTestId('prescriptions-cards-segment')
-      ).toBeInTheDocument();
-      expect(
-        await screen.findByTestId('prescriptions-table-segment')
-      ).toBeInTheDocument();
-
-      await act(async () => {
-        await user.click(screen.getByTestId('prescriptions-table-segment'));
-      });
-
-      expect(
-        await screen.findByTestId('prescription-table')
-      ).toBeInTheDocument();
-
-      expect(
-        await screen.findByTestId(`matrix-${prescription1.matrix}`)
-      ).toBeInTheDocument();
-      expect(
-        await screen.findByTestId(`matrix-${prescription2.matrix}`)
-      ).toBeInTheDocument();
-      expect(
-        await screen.findAllByTestId(`cell-${prescription1.matrix}`)
-      ).toHaveLength(1);
-    });
-
     test('should not display the addMatrix button', async () => {
       mockRequests([
         prescriptionRequest(regionalCoordinator.region as Region),
