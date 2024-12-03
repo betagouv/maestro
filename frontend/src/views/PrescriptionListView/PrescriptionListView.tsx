@@ -349,9 +349,6 @@ const PrescriptionListView = () => {
                 onChangeRegionalPrescriptionCount={
                   changeRegionalPrescriptionCount
                 }
-                onChangeRegionalPrescriptionLaboratory={
-                  changePrescriptionLaboratory
-                }
                 onRemovePrescription={removePrescription}
               />
             )}

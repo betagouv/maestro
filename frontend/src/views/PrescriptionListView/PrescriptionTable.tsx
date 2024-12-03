@@ -1,7 +1,6 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
 import clsx from 'clsx';
-import { t } from 'i18next';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
@@ -15,9 +14,7 @@ import {
 import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
 import PrescriptionStages from 'src/components/Prescription/PrescriptionStages/PrescriptionStages';
 import PrescriptionSubstancesModalButtons from 'src/components/Prescription/PrescriptionSubstancesModal/PrescriptionSubstancesModalButtons';
-import RegionalPrescriptionCommentsModalButton from 'src/components/Prescription/RegionalPrescriptionCommentsModal/RegionalPrescriptionCommentsModalButton';
 import RegionalPrescriptionCountCell from 'src/components/Prescription/RegionalPrescriptionCountCell/RegionalPrescriptionCountCell';
-import RegionalPrescriptionLaboratory from 'src/components/Prescription/RegionalPrescriptionLaboratory/RegionalPrescriptionLaboratory';
 import RegionHeaderCell from 'src/components/RegionHeaderCell/RegionHeaderCell';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import RemoveMatrix from 'src/views/PrescriptionListView/RemoveMatrix';
@@ -31,9 +28,6 @@ interface Props {
     region: Region,
     count: number
   ) => void;
-  onChangeRegionalPrescriptionLaboratory: (
-    laboratoryId: string
-  ) => Promise<void>;
   onRemovePrescription: (prescriptionId: string) => Promise<void>;
 }
 
@@ -42,14 +36,10 @@ const PrescriptionTable = ({
   prescriptions,
   regionalPrescriptions,
   onChangeRegionalPrescriptionCount,
-  onChangeRegionalPrescriptionLaboratory,
   onRemovePrescription
 }: Props) => {
-  const {
-    hasUserPermission,
-    hasUserPrescriptionPermission,
-    hasUserRegionalPrescriptionPermission
-  } = useAuthentication();
+  const { hasUserPermission, hasUserPrescriptionPermission } =
+    useAuthentication();
 
   const getRegionalPrescriptions = (prescriptionId: string) =>
     regionalPrescriptions
@@ -90,13 +80,6 @@ const PrescriptionTable = ({
           key={`matrix-${prescription.matrix}`}
         >
           {MatrixLabels[prescription.matrix]}
-          {getRegionalPrescriptions(prescription.id).length === 1 && (
-            <div className={cx('fr-mt-2w')}>
-              {t('plannedSample', {
-                count: getRegionalPrescriptions(prescription.id)[0].sampleCount
-              })}
-            </div>
-          )}
           {hasUserPermission('updatePrescription') && (
             <PrescriptionSubstancesModalButtons
               programmingPlan={programmingPlan}
@@ -110,35 +93,6 @@ const PrescriptionTable = ({
               prescription={prescription}
             />
           </div>
-          {getRegionalPrescriptions(prescription.id).length === 1 && (
-            <>
-              {hasUserRegionalPrescriptionPermission(
-                programmingPlan,
-                getRegionalPrescriptions(prescription.id)[0]
-              )?.comment && (
-                <div className={cx('fr-mt-1w')}>
-                  <RegionalPrescriptionCommentsModalButton
-                    regionalPrescription={
-                      getRegionalPrescriptions(prescription.id)[0]
-                    }
-                  />
-                </div>
-              )}
-              {hasUserRegionalPrescriptionPermission(
-                programmingPlan,
-                getRegionalPrescriptions(prescription.id)[0]
-              )?.updateLaboratory && (
-                <div className={cx('fr-mt-1w')}>
-                  <RegionalPrescriptionLaboratory
-                    regionalPrescription={
-                      getRegionalPrescriptions(prescription.id)[0]
-                    }
-                    onChangeLaboratory={onChangeRegionalPrescriptionLaboratory}
-                  />
-                </div>
-              )}
-            </>
-          )}
         </div>,
         <div
           className={clsx(cx('fr-text--bold'), 'border-left', 'sample-count')}
