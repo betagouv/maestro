@@ -29,9 +29,10 @@ declare module 'express-jwt' {
     programmingPlan: ProgrammingPlan;
   };
   type SampleRequest = MarkRequired<express.Request, 'sample'>;
-  type PrescriptionRequest = MarkRequired<express.Request, 'prescription'> & {
-    prescription: Prescription;
-  };
+  type PrescriptionRequest = ProgrammingPlanRequest &
+    MarkRequired<express.Request, 'prescription'> & {
+      prescription: Prescription;
+    };
   type RegionalPrescriptionRequest = MarkRequired<
     express.Request,
     'regionalPrescription'

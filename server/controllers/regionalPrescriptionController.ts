@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import {
   AuthenticatedRequest,
   PrescriptionRequest,
-  ProgrammingPlanRequest,
   RegionalPrescriptionRequest
 } from 'express-jwt';
 import { constants } from 'http2';
@@ -49,7 +48,7 @@ const updateRegionalPrescription = async (
 ) => {
   const { user } = request as AuthenticatedRequest;
   const { regionalPrescription } = request as RegionalPrescriptionRequest;
-  const { programmingPlan } = request as ProgrammingPlanRequest;
+  const { programmingPlan } = request as PrescriptionRequest;
   const { region, prescriptionId } = request.params as RegionalPrescriptionKey;
   const regionalPrescriptionUpdate = request.body as RegionalPrescriptionUpdate;
 
@@ -93,8 +92,7 @@ const commentRegionalPrescription = async (
 ) => {
   const { user } = request as AuthenticatedRequest;
   const { regionalPrescription } = request as RegionalPrescriptionRequest;
-  const { prescription } = request as PrescriptionRequest;
-  const { programmingPlan } = request as ProgrammingPlanRequest;
+  const { prescription, programmingPlan } = request as PrescriptionRequest;
   const draftPrescriptionComment =
     request.body as RegionalPrescriptionCommentToCreate;
 
