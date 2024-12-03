@@ -10,6 +10,7 @@ import { RegionalPrescriptionKey } from 'shared/schema/RegionalPrescription/Regi
 import { RegionalPrescriptionCommentToCreate } from 'shared/schema/RegionalPrescription/RegionalPrescriptionComment';
 import RegionalPrescriptionCommentAuthor from 'src/components/Prescription/RegionalPrescriptionCommentsModal/RegionalPrescriptionCommentAuthor';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
+import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
@@ -32,9 +33,11 @@ const RegionalPrescriptionCommentsModal = ({
   onSubmitRegionalPrescriptionComment
 }: Props) => {
   const dispatch = useAppDispatch();
+  const { hasUserRegionalPrescriptionPermission } = useAuthentication();
   const { regionalPrescriptionComments } = useAppSelector(
     (state) => state.prescriptions
   );
+  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
 
   const [comment, setComment] = useState('');
 
@@ -125,27 +128,34 @@ const RegionalPrescriptionCommentsModal = ({
             propos de la programmation 2025 des prélèvements de cette matrice.
           </div>
         )}
-        <div className={clsx(cx('fr-mt-2w'), 'd-flex-justify-center')}>
-          <form id="login_form">
-            <AppTextAreaInput<FormShape>
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              inputForm={form}
-              inputKey="comment"
-              whenValid="Commentaire correctement renseigné."
-              label="Commentaire"
-              rows={1}
-              required
-            />
-          </form>
-          <Button
-            priority="secondary"
-            className={cx('fr-ml-2w')}
-            onClick={submit}
-          >
-            Envoyer
-          </Button>
-        </div>
+        {programmingPlan &&
+          regionalPrescriptionComments &&
+          hasUserRegionalPrescriptionPermission(
+            programmingPlan,
+            regionalPrescriptionComments
+          )?.comment && (
+            <div className={clsx(cx('fr-mt-2w'), 'd-flex-justify-center')}>
+              <form id="login_form">
+                <AppTextAreaInput<FormShape>
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  inputForm={form}
+                  inputKey="comment"
+                  whenValid="Commentaire correctement renseigné."
+                  label="Commentaire"
+                  rows={1}
+                  required
+                />
+              </form>
+              <Button
+                priority="secondary"
+                className={cx('fr-ml-2w')}
+                onClick={submit}
+              >
+                Envoyer
+              </Button>
+            </div>
+          )}
       </regionalPrescriptionCommentsModal.Component>
     </>
   );
