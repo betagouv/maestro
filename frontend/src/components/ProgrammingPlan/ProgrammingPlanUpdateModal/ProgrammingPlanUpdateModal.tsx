@@ -1,5 +1,6 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
+import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useMemo, useState } from 'react';
 import {
@@ -10,6 +11,7 @@ import { ProgrammingPlanStatus } from 'shared/schema/ProgrammingPlan/Programming
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useUpdateProgrammingPlanMutation } from 'src/services/programming-plan.service';
+import './ProgrammingPlanUpdateModal.scss';
 interface Props {
   programmingPlan: ProgrammingPlan;
 }
@@ -30,6 +32,7 @@ const ProgrammingPlanUpdateModal = ({ programmingPlan }: Props) => {
   const [isError, setIsError] = useState(false);
   const [isDrom, setIsDrom] = useState<boolean>();
   const [nextStatus, setNextStatus] = useState<ProgrammingPlanStatus>();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   if (!hasUserPermission('manageProgrammingPlan')) {
     return <> </>;
@@ -37,58 +40,76 @@ const ProgrammingPlanUpdateModal = ({ programmingPlan }: Props) => {
 
   return (
     <>
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'flex-end',
-          gap: '1rem'
-        }}
-      >
-        {getNextProgrammingPlanStatus(programmingPlan, true) && (
-          <Button
-            iconId="fr-icon-send-plane-fill"
-            iconPosition="right"
-            priority="primary"
-            onClick={() => {
-              setIsDrom(true);
-              setNextStatus(
-                getNextProgrammingPlanStatus(
-                  programmingPlan,
-                  true
-                ) as ProgrammingPlanStatus
-              );
-              submissionModal.open();
-            }}
+      <div className="notify-regions-menu">
+        <Button
+          iconId="fr-icon-send-plane-fill"
+          iconPosition="right"
+          id="notify-regions-button"
+          aria-expanded={isMenuOpen}
+          aria-controls="notify-regions-menu"
+          onClick={() =>
+            setTimeout(() => setIsMenuOpen(!isMenuOpen), isMenuOpen ? 200 : 0)
+          }
+        >
+          Notifier les régions
+        </Button>
+        {isMenuOpen && (
+          <div
+            className={cx('fr-menu', 'fr-collapse')}
+            id="notify-regions-menu"
           >
-            {getNextProgrammingPlanStatus(programmingPlan, true) === 'Submitted'
-              ? 'Soumettre DROM'
-              : 'Valider DROM'}
-          </Button>
-        )}
-        {getNextProgrammingPlanStatus(programmingPlan, false) && (
-          <Button
-            iconId="fr-icon-send-plane-fill"
-            iconPosition="right"
-            priority="primary"
-            onClick={() => {
-              setIsDrom(false);
-              setNextStatus(
-                getNextProgrammingPlanStatus(
-                  programmingPlan,
-                  false
-                ) as ProgrammingPlanStatus
-              );
-              submissionModal.open();
-            }}
-          >
-            {getNextProgrammingPlanStatus(programmingPlan, false) ===
-            'Submitted'
-              ? 'Soumettre hexagone et Corse'
-              : 'Valider hexagone et Corse'}
-          </Button>
+            <ul className="fr-menu__list">
+              {getNextProgrammingPlanStatus(programmingPlan, true) && (
+                <li>
+                  <Button
+                    className={cx('fr-nav__link')}
+                    priority="secondary"
+                    onClick={() => {
+                      setIsDrom(true);
+                      setNextStatus(
+                        getNextProgrammingPlanStatus(
+                          programmingPlan,
+                          true
+                        ) as ProgrammingPlanStatus
+                      );
+                      submissionModal.open();
+                    }}
+                  >
+                    {getNextProgrammingPlanStatus(programmingPlan, true) ===
+                    'Submitted'
+                      ? 'Soumettre DROM'
+                      : 'Valider DROM'}
+                  </Button>
+                </li>
+              )}
+              {getNextProgrammingPlanStatus(programmingPlan, false) && (
+                <li>
+                  <Button
+                    className={cx('fr-nav__link')}
+                    priority="secondary"
+                    onClick={() => {
+                      setIsDrom(false);
+                      setNextStatus(
+                        getNextProgrammingPlanStatus(
+                          programmingPlan,
+                          false
+                        ) as ProgrammingPlanStatus
+                      );
+                      submissionModal.open();
+                    }}
+                  >
+                    {getNextProgrammingPlanStatus(programmingPlan, false) ===
+                    'Submitted'
+                      ? 'Soumettre hexagone et Corse'
+                      : 'Valider hexagone et Corse'}
+                  </Button>
+                </li>
+              )}
+            </ul>
+          </div>
         )}
       </div>
+
       <ConfirmationModal
         modal={submissionModal}
         title={
@@ -109,8 +130,9 @@ const ProgrammingPlanUpdateModal = ({ programmingPlan }: Props) => {
             }
           })
             .unwrap()
-            .then((newProgrammingPlan) => {
+            .then(() => {
               submissionModal.close();
+              setIsMenuOpen(false);
             })
             .catch((error) => {
               setIsError(true);
@@ -120,7 +142,7 @@ const ProgrammingPlanUpdateModal = ({ programmingPlan }: Props) => {
       >
         Vous êtes sur le point de
         {nextStatus === 'Submitted' ? '  soumettre ' : ' valider '} la
-        programmation {programmingPlan.year} pour l'ensemble des coordinateurs
+        programmation {programmingPlan.year} pour l'ensemble des coordinateurs
         régionaux
         {isDrom ? ' des DROM' : " de l'hexagone et de la Corse"}
         {isError && (

@@ -257,14 +257,18 @@ const PrescriptionListView = () => {
                   })) as any
                 }
               />
+              {programmingPlan &&
+                NextProgrammingPlanStatus[programmingPlan.status] &&
+                ['Submitted', 'Validated'].includes(
+                  NextProgrammingPlanStatus[programmingPlan.status] as string
+                ) && (
+                  <ProgrammingPlanUpdateModal
+                    programmingPlan={programmingPlan}
+                  />
+                )}
             </>
           }
         />
-        {programmingPlan &&
-          NextProgrammingPlanStatus[programmingPlan.status] &&
-          ['Submitted', 'Validated'].includes(
-            NextProgrammingPlanStatus[programmingPlan.status] as string
-          ) && <ProgrammingPlanUpdateModal programmingPlan={programmingPlan} />}
       </div>
 
       <div
@@ -274,7 +278,7 @@ const PrescriptionListView = () => {
             'fr-px-2w',
             'fr-px-md-5w',
             'fr-py-2w',
-            'fr-py-md-5w',
+            'fr-py-md-3w',
             'fr-container'
           )
         )}
