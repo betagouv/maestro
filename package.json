@@ -62,7 +62,6 @@
     "lodash": "^4.17.21",
     "node-fetch": "^2.6.7",
     "nodemailer": "^6.9.13",
-    "pdfjs-dist": "^4.8.69",
     "pg": "^8.13.1",
     "puppeteer": "^22.11.2",
     "randomstring": "^1.2.1",
