@@ -1,11 +1,13 @@
 import { Request, Response } from 'express';
 import {
   AuthenticatedRequest,
+  PrescriptionRequest,
   ProgrammingPlanRequest,
   RegionalPrescriptionRequest
 } from 'express-jwt';
 import { constants } from 'http2';
 import { v4 as uuidv4 } from 'uuid';
+import { MatrixLabels } from '../../shared/referential/Matrix/MatrixLabels';
 import { FindRegionalPrescriptionOptions } from '../../shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import {
   hasRegionalPrescriptionPermission,
@@ -18,6 +20,9 @@ import {
 } from '../../shared/schema/RegionalPrescription/RegionalPrescriptionComment';
 import regionalPrescriptionCommentRepository from '../repositories/regionalPrescriptionCommentRepository';
 import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
+import userRepository from '../repositories/userRepository';
+import mailService from '../services/mailService';
+import config from '../utils/config';
 const findRegionalPrescriptions = async (
   request: Request,
   response: Response
@@ -88,6 +93,7 @@ const commentRegionalPrescription = async (
 ) => {
   const { user } = request as AuthenticatedRequest;
   const { regionalPrescription } = request as RegionalPrescriptionRequest;
+  const { prescription } = request as PrescriptionRequest;
   const { programmingPlan } = request as ProgrammingPlanRequest;
   const draftPrescriptionComment =
     request.body as RegionalPrescriptionCommentToCreate;
@@ -117,6 +123,30 @@ const commentRegionalPrescription = async (
   };
 
   await regionalPrescriptionCommentRepository.insert(prescriptionComment);
+
+  const recipients = await userRepository.findMany(
+    user.roles.includes('NationalCoordinator')
+      ? {
+          region: regionalPrescription.region,
+          role: 'RegionalCoordinator'
+        }
+      : {
+          role: 'NationalCoordinator'
+        }
+  );
+
+  await mailService.sendNewRegionalPrescriptionComment({
+    recipients: [
+      ...recipients.map((recipient) => recipient.email),
+      config.mail.from
+    ],
+    params: {
+      matrix: MatrixLabels[prescription?.matrix],
+      sampleCount: regionalPrescription.sampleCount,
+      comment: draftPrescriptionComment.comment,
+      author: `${user.firstName} ${user.lastName}`
+    }
+  });
 
   response.status(constants.HTTP_STATUS_CREATED).send(prescriptionComment);
 };

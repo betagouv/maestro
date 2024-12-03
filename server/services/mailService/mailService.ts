@@ -18,4 +18,5 @@ export interface MailService {
   sendSupportDocumentCopyToOwner(options: SendOptions): Promise<void>;
   sendSubmittedProgrammingPlan(options: SendOptions): Promise<void>;
   sendValidatedProgrammingPlan(options: SendOptions): Promise<void>;
+  sendNewRegionalPrescriptionComment(options: SendOptions): Promise<void>;
 }

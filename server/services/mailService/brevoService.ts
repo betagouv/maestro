@@ -6,6 +6,7 @@ const SampleAnalysisRequestTemplateId = 1;
 const SupportDocumentCopyToOwnerTemplateId = 2;
 const SubmittedProgrammingPlanTemplateId = 3;
 const ValidatedProgrammingPlanTemplateId = 4;
+const NewRegionalPrescriptionCommentTemplateId = 5;
 
 class BrevoService implements MailService {
   private emailsApi: Brevo.TransactionalEmailsApi;
@@ -27,8 +28,8 @@ class BrevoService implements MailService {
       ...options,
       templateId: Number(options.templateId),
       to: options.recipients.map((recipient) => ({
-        email: recipient,
-      })),
+        email: recipient
+      }))
     });
   }
 
@@ -36,28 +37,37 @@ class BrevoService implements MailService {
     return this.send({
       ...options,
       templateId: SampleAnalysisRequestTemplateId,
-      params: options.params,
+      params: options.params
     });
   }
 
   async sendSupportDocumentCopyToOwner(options: SendOptions): Promise<void> {
     return this.send({
       ...options,
-      templateId: SupportDocumentCopyToOwnerTemplateId,
+      templateId: SupportDocumentCopyToOwnerTemplateId
     });
   }
 
   async sendSubmittedProgrammingPlan(options: SendOptions): Promise<void> {
     return this.send({
       ...options,
-      templateId: SubmittedProgrammingPlanTemplateId,
+      templateId: SubmittedProgrammingPlanTemplateId
     });
   }
 
   async sendValidatedProgrammingPlan(options: SendOptions): Promise<void> {
     return this.send({
       ...options,
-      templateId: ValidatedProgrammingPlanTemplateId,
+      templateId: ValidatedProgrammingPlanTemplateId
+    });
+  }
+
+  async sendNewRegionalPrescriptionComment(
+    options: SendOptions
+  ): Promise<void> {
+    return this.send({
+      ...options,
+      templateId: NewRegionalPrescriptionCommentTemplateId
     });
   }
 }
