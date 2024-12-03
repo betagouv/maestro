@@ -40,14 +40,21 @@ const RegionalPrescriptionCard = ({
               {MatrixLabels[prescription.matrix]}
             </h3>
             <div>
-              <span className={cx('fr-text--bold')}>
-                {regionalPrescription.realizedSampleCount ?? 0} 
-                {pluralize(regionalPrescription.realizedSampleCount ?? 0)(
-                  'prélèvement'
-                )}
-              </span>
-              {['Validated', 'Closed'].includes(programmingPlan.status) && (
+              {['InProgress', 'Submitted'].includes(programmingPlan.status) ? (
+                <span className={cx('fr-text--bold')}>
+                  {regionalPrescription.sampleCount ?? 0} 
+                  {pluralize(regionalPrescription.sampleCount ?? 0)(
+                    'prélèvement programmé'
+                  )}
+                </span>
+              ) : (
                 <>
+                  <span className={cx('fr-text--bold')}>
+                    {regionalPrescription.realizedSampleCount ?? 0} 
+                    {pluralize(regionalPrescription.realizedSampleCount ?? 0)(
+                      'prélèvement'
+                    )}
+                  </span>
                    sur 
                   {regionalPrescription.sampleCount ?? 0} 
                   {pluralize(regionalPrescription.sampleCount ?? 0)(
