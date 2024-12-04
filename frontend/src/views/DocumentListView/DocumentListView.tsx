@@ -10,7 +10,7 @@ import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useOnLine } from 'src/hooks/useOnLine';
 import {
   useCreateDocumentMutation,
-  useFindResourcesQuery,
+  useFindResourcesQuery
 } from 'src/services/document.service';
 import AddDocument from 'src/views/DocumentListView/AddDocument';
 import DocumentTable from 'src/views/DocumentListView/DocumentTable';
@@ -18,11 +18,11 @@ const DocumentListView = () => {
   useDocumentTitle('Liste des resources ressources');
   const { isOnline } = useOnLine();
 
-  const { hasPermission } = useAuthentication();
+  const { hasUserPermission } = useAuthentication();
 
   const { data: resources } = useFindResourcesQuery();
   const [, { isSuccess: isCreateSuccess }] = useCreateDocumentMutation({
-    fixedCacheKey: 'createDocument',
+    fixedCacheKey: 'createDocument'
   });
 
   return (
@@ -48,7 +48,7 @@ const DocumentListView = () => {
                 <DocumentTable documents={resources} />
               )}
             </div>
-            {hasPermission('createResource') && (
+            {hasUserPermission('createResource') && (
               <div className={cx('fr-col-4')}>
                 <AddDocument key={`add-document-${isCreateSuccess}`} />
               </div>

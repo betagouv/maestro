@@ -3,7 +3,7 @@ import _ from 'lodash';
 import maplibregl, {
   MapGeoJSONFeature,
   Point,
-  StyleSpecification,
+  StyleSpecification
 } from 'maplibre-gl';
 import { useMemo, useRef, useState } from 'react';
 import Map, {
@@ -12,28 +12,21 @@ import Map, {
   Layer,
   LineLayer,
   Source,
-  SymbolLayer,
+  SymbolLayer
 } from 'react-map-gl/maplibre';
-import { useNavigate } from 'react-router-dom';
 import { Region, RegionList, Regions } from 'shared/referential/Region';
-import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   getCompletionRate,
-  RegionalPrescription,
+  RegionalPrescription
 } from 'shared/schema/RegionalPrescription/RegionalPrescription';
 import { useGetRegionsGeoJsonQuery } from 'src/services/region.service';
 
 interface Props {
-  programmingPlan: ProgrammingPlan;
   regionalPrescriptions: RegionalPrescription[];
 }
 
-const ProgrammingPlanMap = ({
-  programmingPlan,
-  regionalPrescriptions,
-}: Props) => {
+const ProgrammingPlanMap = ({ regionalPrescriptions }: Props) => {
   const ref = useRef<any>();
-  const navigate = useNavigate();
 
   const [hoverInfo, setHoverInfo] = useState<{
     feature: MapGeoJSONFeature;
@@ -48,8 +41,8 @@ const ProgrammingPlanMap = ({
       sources: {
         openmaptiles: {
           type: 'vector',
-          url: 'https://openmaptiles.geo.data.gouv.fr/data/france-vector.json',
-        },
+          url: 'https://openmaptiles.geo.data.gouv.fr/data/france-vector.json'
+        }
       },
       glyphs:
         'https://openmaptiles.geo.data.gouv.fr/fonts/{fontstack}/{range}.pbf',
@@ -57,9 +50,9 @@ const ProgrammingPlanMap = ({
         {
           id: 'background',
           type: 'background',
-          paint: { 'background-color': '#f8f4f0' },
-        },
-      ],
+          paint: { 'background-color': '#f8f4f0' }
+        }
+      ]
     }),
     []
   );
@@ -101,11 +94,11 @@ const ProgrammingPlanMap = ({
               title: Regions[region].name,
               sampleCount: getSampleCount(region),
               realizedSampleCount: getRealizedSampleCount(region),
-              completionRate: getCompletionRate(regionalPrescriptions, region),
-            },
+              completionRate: getCompletionRate(regionalPrescriptions, region)
+            }
           }
         : feature;
-    }),
+    })
   });
 
   const regionCenters: FeatureCollection = addRegionProperties({
@@ -117,13 +110,13 @@ const ProgrammingPlanMap = ({
         type: 'Point',
         coordinates: [
           Regions[region].center.longitude,
-          Regions[region].center.latitude,
-        ],
+          Regions[region].center.latitude
+        ]
       },
       properties: {
-        id: region,
-      },
-    })),
+        id: region
+      }
+    }))
   });
 
   const centerCircleLayer: CircleLayer = {
@@ -138,10 +131,10 @@ const ProgrammingPlanMap = ({
         10,
         10,
         100,
-        20,
+        20
       ],
-      'circle-color': '#000091',
-    },
+      'circle-color': '#000091'
+    }
   };
 
   const centerCountLayer: SymbolLayer = {
@@ -150,12 +143,12 @@ const ProgrammingPlanMap = ({
     source: 'centers',
     layout: {
       'text-field': ['get', 'sampleCount'],
-      'text-size': 12,
+      'text-size': 12
     },
     paint: {
       'text-color': '#ffffff',
-      'text-opacity': 1,
-    },
+      'text-opacity': 1
+    }
   };
 
   const regionsFillLayer: FillLayer = {
@@ -167,15 +160,15 @@ const ProgrammingPlanMap = ({
         'case',
         ['boolean', ['feature-state', 'hover'], false],
         '#000091',
-        '#6a6af4',
+        '#6a6af4'
       ],
       'fill-opacity': [
         'case',
         ['boolean', ['feature-state', 'hover'], false],
         1,
-        ['interpolate', ['linear'], ['get', 'completionRate'], 5, 0.1, 95, 1],
-      ],
-    },
+        ['interpolate', ['linear'], ['get', 'completionRate'], 5, 0.1, 95, 1]
+      ]
+    }
   };
 
   const regionsLineLayer: LineLayer = {
@@ -184,8 +177,8 @@ const ProgrammingPlanMap = ({
     source: 'mapbox',
     paint: {
       'line-color': '#000091',
-      'line-width': 0.1,
-    },
+      'line-width': 0.1
+    }
   };
 
   const onHover = (e: maplibregl.MapLayerMouseEvent) => {
@@ -202,7 +195,7 @@ const ProgrammingPlanMap = ({
     if (e.features && e.features.length > 0) {
       setHoverInfo({
         feature: e.features[0],
-        position: e.point,
+        position: e.point
       });
       ref.current.setFeatureState(
         { source: 'regions', id: e.features[0].id },
@@ -217,14 +210,6 @@ const ProgrammingPlanMap = ({
     }
   };
 
-  const onClick = (e: maplibregl.MapLayerMouseEvent) => {
-    if (e.features && e.features.length > 0) {
-      navigate(
-        `/prescriptions/${programmingPlan.year}?region=${hoveredRegion}`
-      );
-    }
-  };
-
   return (
     <div data-testid="prescription-map">
       <Map
@@ -234,19 +219,18 @@ const ProgrammingPlanMap = ({
         initialViewState={{
           latitude: 46,
           longitude: 2,
-          zoom: 4,
+          zoom: 4
         }}
         scrollZoom={false}
         dragPan={false}
         style={{
           minHeight: 400,
-          fontFamily: 'Marianne, sans-serif',
+          fontFamily: 'Marianne, sans-serif'
         }}
         mapLib={maplibregl}
         mapStyle={mapStyle}
         interactiveLayerIds={['regions-fill']}
         onMouseMove={onHover}
-        onClick={onClick}
         cursor="pointer"
       >
         {regions && (
@@ -275,7 +259,7 @@ const ProgrammingPlanMap = ({
               margin: 8,
               padding: 4,
               background: 'white',
-              pointerEvents: 'none',
+              pointerEvents: 'none'
             }}
           >
             <div>{Regions[hoveredRegion].name}</div>
@@ -291,7 +275,7 @@ const ProgrammingPlanMap = ({
           style={{
             position: 'absolute',
             bottom: 5,
-            left: 15,
+            left: 15
           }}
         >
           Taux de réalisation
@@ -300,7 +284,7 @@ const ProgrammingPlanMap = ({
               height: 15,
               width: 110,
               color: 'white',
-              background: 'linear-gradient(90deg, #ebe7f0, #6a6af4)',
+              background: 'linear-gradient(90deg, #ebe7f0, #6a6af4)'
             }}
           ></div>
           <span>1</span>

@@ -7,7 +7,9 @@ import {
 import { RegionalPrescriptionCommentToCreate } from '../../shared/schema/RegionalPrescription/RegionalPrescriptionComment';
 import regionalPrescriptionController from '../controllers/regionalPrescriptionController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
+import { prescriptionCheck } from '../middlewares/checks/prescriptionCheck';
 import { programmingPlanCheck } from '../middlewares/checks/programmingPlanCheck';
+import { regionalPrescriptionCheck } from '../middlewares/checks/regionalPrescriptionCheck';
 import validator, { body, params, query } from '../middlewares/validator';
 
 const router = express.Router();
@@ -25,7 +27,9 @@ router.put(
     params(RegionalPrescriptionKey).merge(body(RegionalPrescriptionUpdate))
   ),
   permissionsCheck(['updatePrescription', 'updatePrescriptionLaboratory']),
-  programmingPlanCheck(['InProgress', 'Submitted']),
+  programmingPlanCheck(),
+  prescriptionCheck(),
+  regionalPrescriptionCheck(),
   regionalPrescriptionController.updateRegionalPrescription
 );
 router.post(
@@ -36,7 +40,9 @@ router.post(
     )
   ),
   permissionsCheck(['commentPrescription']),
-  programmingPlanCheck(['InProgress', 'Submitted']),
+  programmingPlanCheck(),
+  prescriptionCheck(),
+  regionalPrescriptionCheck(),
   regionalPrescriptionController.commentRegionalPrescription
 );
 

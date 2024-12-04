@@ -1,7 +1,7 @@
 import express from 'express';
 import { z } from 'zod';
 import { FindProgrammingPlanOptions } from '../../shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
-import { ProgrammingPlanUpdate } from '../../shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanStatusUpdate } from '../../shared/schema/ProgrammingPlan/ProgrammingPlans';
 import programmingPlanController from '../controllers/programmingPlanController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
 import { programmingPlanCheck } from '../middlewares/checks/programmingPlanCheck';
@@ -9,7 +9,7 @@ import validator, {
   body,
   params,
   query,
-  uuidParam,
+  uuidParam
 } from '../middlewares/validator';
 const router = express.Router();
 
@@ -24,7 +24,7 @@ router.get(
   validator.validate(
     params(
       z.object({
-        year: z.coerce.number().int(),
+        year: z.coerce.number().int()
       })
     )
   ),
@@ -36,7 +36,7 @@ router.post(
   validator.validate(
     params(
       z.object({
-        year: z.coerce.number().int(),
+        year: z.coerce.number().int()
       })
     )
   ),
@@ -46,7 +46,7 @@ router.post(
 router.put(
   '/:programmingPlanId',
   validator.validate(
-    uuidParam('programmingPlanId').merge(body(ProgrammingPlanUpdate))
+    uuidParam('programmingPlanId').merge(body(ProgrammingPlanStatusUpdate))
   ),
   permissionsCheck(['manageProgrammingPlan']),
   programmingPlanCheck(),

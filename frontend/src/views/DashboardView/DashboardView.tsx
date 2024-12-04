@@ -18,12 +18,12 @@ import { useAppSelector } from 'src/hooks/useStore';
 import {
   useCreateProgrammingPlanMutation,
   useFindProgrammingPlansQuery,
-  useGetProgrammingPlanByYearQuery,
+  useGetProgrammingPlanByYearQuery
 } from 'src/services/programming-plan.service';
 import { useFindSamplesQuery } from 'src/services/sample.service';
 import ProgrammingPlanCard from 'src/views/DashboardView/ProgrammingPlanCard';
 const DashboardView = () => {
-  const { hasPermission, userInfos } = useAuthentication();
+  const { hasUserPermission, userInfos } = useAuthentication();
   const { isOnline } = useOnLine();
 
   const { data: programmingPlan } = useGetProgrammingPlanByYearQuery(
@@ -36,10 +36,10 @@ const DashboardView = () => {
 
   const { data: nextProgrammingPlans } = useFindProgrammingPlansQuery(
     {
-      status: ['InProgress', 'Submitted'],
+      status: ['InProgress', 'Submitted']
     },
     {
-      skip: !hasPermission('manageProgrammingPlan'),
+      skip: !hasUserPermission('manageProgrammingPlan')
     }
   );
   const nextProgrammingPlan = useMemo(
@@ -51,7 +51,7 @@ const DashboardView = () => {
     {
       programmingPlanId: programmingPlan?.id as string,
       page: 1,
-      perPage: 5,
+      perPage: 5
     },
     { skip: !programmingPlan }
   );
@@ -85,19 +85,19 @@ const DashboardView = () => {
           illustration={dashboard}
           action={
             <>
-              {hasPermission('createSample') && (
+              {hasUserPermission('createSample') && (
                 <Button
                   size="large"
                   linkProps={{
                     to: `/prelevements/${programmingPlan.year}/nouveau`,
-                    target: '_self',
+                    target: '_self'
                   }}
                   iconId="fr-icon-microscope-line"
                 >
                   Saisir un prélèvement
                 </Button>
               )}
-              {hasPermission('manageProgrammingPlan') &&
+              {hasUserPermission('manageProgrammingPlan') &&
                 nextProgrammingPlan && (
                   <div>
                     <Tile
@@ -105,7 +105,7 @@ const DashboardView = () => {
                       small
                       orientation="horizontal"
                       linkProps={{
-                        to: `/prescriptions/${nextProgrammingPlan.year}`,
+                        to: `/prescriptions/${nextProgrammingPlan.year}`
                       }}
                       start={
                         <Badge
@@ -120,7 +120,7 @@ const DashboardView = () => {
                     />
                   </div>
                 )}
-              {hasPermission('manageProgrammingPlan') &&
+              {hasUserPermission('manageProgrammingPlan') &&
                 !nextProgrammingPlan && (
                   <div>
                     <Button
@@ -169,7 +169,7 @@ const DashboardView = () => {
                   iconId={'fr-icon-arrow-right-line'}
                   iconPosition="right"
                   linkProps={{
-                    to: `/prelevements/${programmingPlan.year}`,
+                    to: `/prelevements/${programmingPlan.year}`
                   }}
                 >
                   Tous les prélèvements

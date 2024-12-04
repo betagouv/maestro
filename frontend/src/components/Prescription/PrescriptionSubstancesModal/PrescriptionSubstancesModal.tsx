@@ -4,15 +4,15 @@ import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import { skipToken } from '@reduxjs/toolkit/query';
 import { useEffect } from 'react';
 import { PrescriptionSubstance } from 'shared/schema/Prescription/PrescriptionSubstance';
-import PrescriptionSubstancesSelect from 'src/components/Prescription/PrescriptionSubstances/PrescriptionSubstancesSelect';
+import PrescriptionSubstancesSelect from 'src/components/Prescription/PrescriptionSubstancesModal/PrescriptionSubstancesSelect';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import { useGetPrescriptionSubstancesQuery } from 'src/services/prescription.service';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import './PrescriptionSubstances.scss';
 
 const prescriptionSubstancesModal = createModal({
-  id: `prescription-analysis-modal`,
-  isOpenedByDefault: false,
+  id: `prescription-substances-modal`,
+  isOpenedByDefault: false
 });
 
 interface Props {
@@ -22,8 +22,8 @@ interface Props {
   ) => Promise<void>;
 }
 
-const PrescriptionAnalysisModal = ({
-  onUpdatePrescriptionSubstances,
+const PrescriptionSubstancesModal = ({
+  onUpdatePrescriptionSubstances
 }: Props) => {
   const dispatch = useAppDispatch();
   const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
@@ -40,7 +40,7 @@ const PrescriptionAnalysisModal = ({
       dispatch(
         prescriptionsSlice.actions.setPrescriptionAnalysisEditId(undefined)
       );
-    },
+    }
   });
 
   useEffect(() => {
@@ -50,7 +50,7 @@ const PrescriptionAnalysisModal = ({
   }, [prescriptionAnalysisEditId]);
 
   return (
-    <div className="prescription-analysis-modal">
+    <div className="prescription-substances-modal">
       <prescriptionSubstancesModal.Component
         title="Analyses mono-résidus et multi-résidus"
         concealingBackdrop={false}
@@ -82,4 +82,4 @@ const PrescriptionAnalysisModal = ({
   );
 };
 
-export default PrescriptionAnalysisModal;
+export default PrescriptionSubstancesModal;

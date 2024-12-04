@@ -8,6 +8,7 @@ import {
   RegionalCoordinator,
   Sampler1Fixture,
   Sampler2Fixture,
+  SamplerDromFixture
 } from '../../../database/seeds/test/001-users';
 import { Region } from '../../../shared/referential/Region';
 import { createServer } from '../../server';
@@ -66,7 +67,7 @@ describe('User router', () => {
         firstName: Sampler1Fixture.firstName,
         lastName: Sampler1Fixture.lastName,
         roles: Sampler1Fixture.roles,
-        region: Sampler1Fixture.region,
+        region: Sampler1Fixture.region
       });
     });
   });
@@ -89,7 +90,7 @@ describe('User router', () => {
 
       expect(res.body).toEqual([
         fp.omit(Sampler1Fixture, 'password'),
-        fp.omit(RegionalCoordinator, 'password'),
+        fp.omit(RegionalCoordinator, 'password')
       ]);
     });
 
@@ -102,6 +103,7 @@ describe('User router', () => {
       expect(res.body).toEqual([
         fp.omit(Sampler1Fixture, 'password'),
         fp.omit(Sampler2Fixture, 'password'),
+        fp.omit(SamplerDromFixture, 'password')
       ]);
     });
   });

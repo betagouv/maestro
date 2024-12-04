@@ -6,7 +6,7 @@ import Router, { BrowserRouter, MemoryRouter } from 'react-router-dom';
 import { Region, RegionList } from 'shared/referential/Region';
 import {
   genPrescription,
-  genRegionalPrescription,
+  genRegionalPrescription
 } from 'shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'shared/test/programmingPlanFixtures';
 import { genCreatedPartialSample } from 'shared/test/sampleFixtures';
@@ -18,32 +18,33 @@ import { mockRequests } from '../../../../test/requestUtils.test';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useParams: jest.fn(),
+  useParams: jest.fn()
 }));
 
 const programmingPlan = {
   ...genProgrammingPlan(),
   status: 'InProgress',
+  statusDrom: 'InProgress'
 };
 const prescription1 = genPrescription({
   programmingPlanId: programmingPlan.id,
-  context: 'Control',
+  context: 'Control'
 });
 const prescription2 = genPrescription({
   programmingPlanId: programmingPlan.id,
-  context: 'Control',
+  context: 'Control'
 });
 const sample = genCreatedPartialSample({
   sampler: genUser(),
   programmingPlanId: programmingPlan.id,
-  context: 'Control',
+  context: 'Control'
 });
 
 const programmingPlanRequest = {
   pathname: `/api/programming-plans?`,
   response: {
-    body: JSON.stringify([programmingPlan]),
-  },
+    body: JSON.stringify([programmingPlan])
+  }
 };
 
 const prescriptionRequest = (region?: Region) => ({
@@ -53,8 +54,8 @@ const prescriptionRequest = (region?: Region) => ({
     region ? `&region=${region}` : ''
   }&includes=substanceCount`,
   response: {
-    body: JSON.stringify([prescription1, prescription2]),
-  },
+    body: JSON.stringify([prescription1, prescription2])
+  }
 });
 
 const regionalPrescriptionRequest = (region?: Region) => ({
@@ -69,17 +70,17 @@ const regionalPrescriptionRequest = (region?: Region) => ({
         ? [
             genRegionalPrescription({
               prescriptionId: prescription1.id,
-              region,
-            }),
+              region
+            })
           ]
         : RegionList.map((region) =>
             genRegionalPrescription({
               prescriptionId: prescription1.id,
-              region,
+              region
             })
           )
-    ),
-  },
+    )
+  }
 });
 
 const sampleRequest = (region?: Region) => ({
@@ -87,8 +88,8 @@ const sampleRequest = (region?: Region) => ({
     programmingPlan.id
   }&context=Control${region ? `&region=${region}` : ''}&status=Sent`,
   response: {
-    body: JSON.stringify([sample]),
-  },
+    body: JSON.stringify([sample])
+  }
 });
 
 describe('PrescriptionListView', () => {
@@ -102,19 +103,19 @@ describe('PrescriptionListView', () => {
       reducer: applicationReducer,
       middleware: applicationMiddleware,
       preloadedState: {
-        auth: { authUser },
-      },
+        auth: { authUser }
+      }
     });
   });
 
   describe('for national coordinator', () => {
     const nationalCoordinator = genUser({
       roles: ['NationalCoordinator'],
-      id: authUser.userId,
+      id: authUser.userId
     });
     const userRequest = {
       pathname: `/api/users/${nationalCoordinator.id}/infos`,
-      response: { body: JSON.stringify(nationalCoordinator) },
+      response: { body: JSON.stringify(nationalCoordinator) }
     };
 
     test('should render a table with prescriptions with editable cells for all matrix and region when in table view', async () => {
@@ -123,7 +124,7 @@ describe('PrescriptionListView', () => {
         prescriptionRequest(),
         regionalPrescriptionRequest(),
         userRequest,
-        sampleRequest(),
+        sampleRequest()
       ]);
       jest
         .spyOn(Router, 'useParams')
@@ -134,7 +135,7 @@ describe('PrescriptionListView', () => {
         <Provider store={store}>
           <MemoryRouter
             initialEntries={[
-              `/prescriptions/${programmingPlan.year}/${searchParams}`,
+              `/prescriptions/${programmingPlan.year}/${searchParams}`
             ]}
           >
             <YearRoute element={PrescriptionListView} />
@@ -176,70 +177,17 @@ describe('PrescriptionListView', () => {
   describe('for regional coordinator', () => {
     const regionalCoordinator = genUser({
       roles: ['RegionalCoordinator'],
-      id: authUser.userId,
+      id: authUser.userId
     });
     const userRequest = {
       pathname: `/api/users/${regionalCoordinator.id}/infos`,
-      response: { body: JSON.stringify(regionalCoordinator) },
+      response: { body: JSON.stringify(regionalCoordinator) }
     };
-
-    test('should render a table with prescriptions with non editable cells for regional coordinator', async () => {
-      mockRequests([
-        programmingPlanRequest,
-        prescriptionRequest(regionalCoordinator.region as Region),
-        regionalPrescriptionRequest(regionalCoordinator.region as Region),
-        userRequest,
-        sampleRequest(regionalCoordinator.region as Region),
-      ]);
-
-      jest
-        .spyOn(Router, 'useParams')
-        .mockReturnValue({ year: String(programmingPlan.year) });
-
-      const searchParams = '?context=Control';
-
-      render(
-        <Provider store={store}>
-          <MemoryRouter
-            initialEntries={[
-              `/prescriptions/${programmingPlan.year}/${searchParams}`,
-            ]}
-          >
-            <YearRoute element={PrescriptionListView} />
-          </MemoryRouter>
-        </Provider>
-      );
-
-      expect(
-        await screen.findByTestId('prescriptions-cards-segment')
-      ).toBeInTheDocument();
-      expect(
-        await screen.findByTestId('prescriptions-table-segment')
-      ).toBeInTheDocument();
-
-      await act(async () => {
-        await user.click(screen.getByTestId('prescriptions-table-segment'));
-      });
-
-      expect(
-        await screen.findByTestId('prescription-table')
-      ).toBeInTheDocument();
-
-      expect(
-        await screen.findByTestId(`matrix-${prescription1.matrix}`)
-      ).toBeInTheDocument();
-      expect(
-        await screen.findByTestId(`matrix-${prescription2.matrix}`)
-      ).toBeInTheDocument();
-      expect(
-        await screen.findAllByTestId(`cell-${prescription1.matrix}`)
-      ).toHaveLength(1);
-    });
 
     test('should not display the addMatrix button', async () => {
       mockRequests([
         prescriptionRequest(regionalCoordinator.region as Region),
-        userRequest,
+        userRequest
       ]);
       jest
         .spyOn(Router, 'useParams')

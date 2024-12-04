@@ -1,7 +1,6 @@
 import fetchIntercept from 'fetch-intercept';
 import { useAppDispatch } from 'src/hooks/useStore';
-import { api } from 'src/services/api.service';
-import authSlice from 'src/store/reducers/authSlice';
+import { logout } from 'src/store/store';
 
 const FetchInterceptor = () => {
   const dispatch = useAppDispatch();
@@ -16,15 +15,14 @@ const FetchInterceptor = () => {
 
     response: function (response) {
       if (response.status === 401) {
-        dispatch(authSlice.actions.signoutUser());
-        dispatch(api.util.resetApiState());
+        logout()(dispatch);
       }
       return response;
     },
 
     responseError: function (error) {
       return Promise.reject(error);
-    },
+    }
   });
 };
 

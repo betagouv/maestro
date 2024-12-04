@@ -6,22 +6,32 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Matrix } from 'shared/referential/Matrix/Matrix';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
-import { Region, RegionList, Regions } from 'shared/referential/Region';
+import { Region, Regions } from 'shared/referential/Region';
+import { Stage } from 'shared/referential/Stage';
 import {
   FindPrescriptionOptions,
-  PrescriptionOptionsInclude,
+  PrescriptionOptionsInclude
 } from 'shared/schema/Prescription/FindPrescriptionOptions';
-import { PrescriptionSort } from 'shared/schema/Prescription/Prescription';
+import {
+  PrescriptionSort,
+  PrescriptionUpdate
+} from 'shared/schema/Prescription/Prescription';
 import { PrescriptionSubstance } from 'shared/schema/Prescription/PrescriptionSubstance';
 import {
   Context,
   ContextLabels,
-  ContextList,
+  ContextList
 } from 'shared/schema/ProgrammingPlan/Context';
-import PrescriptionCardNational from 'src/components/Prescription/PrescriptionCard/PrescriptionCardNational';
-import PrescriptionCardRegional from 'src/components/Prescription/PrescriptionCard/PrescriptionCardRegional';
-import PrescriptionAnalysisModal from 'src/components/Prescription/PrescriptionSubstances/PrescriptionSubstancesModal';
-import ProgrammingPlanSubmissionModal from 'src/components/ProgrammingPlan/ProgrammingPlanSubmissionModal/ProgrammingPlanSubmissionModal';
+import { NextProgrammingPlanStatus } from 'shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import {
+  RegionalPrescriptionKey,
+  RegionalPrescriptionUpdate
+} from 'shared/schema/RegionalPrescription/RegionalPrescription';
+import PrescriptionCard from 'src/components/Prescription/PrescriptionCard/PrescriptionCard';
+import PrescriptionSubstancesModal from 'src/components/Prescription/PrescriptionSubstancesModal/PrescriptionSubstancesModal';
+import RegionalPrescriptionCard from 'src/components/Prescription/RegionalPrescriptionCard/RegionalPrescriptionCard';
+import RegionalPrescriptionCommentsModal from 'src/components/Prescription/RegionalPrescriptionCommentsModal/RegionalPrescriptionCommentsModal';
+import ProgrammingPlanUpdateModal from 'src/components/ProgrammingPlan/ProgrammingPlanUpdateModal/ProgrammingPlanUpdateModal';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import AppToast from 'src/components/_app/AppToast/AppToast';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -31,11 +41,12 @@ import {
   useAddPrescriptionMutation,
   useDeletePrescriptionMutation,
   useFindPrescriptionsQuery,
-  useUpdatePrescriptionMutation,
+  useUpdatePrescriptionMutation
 } from 'src/services/prescription.service';
 import {
+  useCommentRegionalPrescriptionMutation,
   useFindRegionalPrescriptionsQuery,
-  useUpdateRegionalPrescriptionMutation,
+  useUpdateRegionalPrescriptionMutation
 } from 'src/services/regionalPrescription.service';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import PrescriptionListHeader from 'src/views/PrescriptionListView/PrescriptionListHeader';
@@ -52,7 +63,8 @@ const PrescriptionListView = () => {
     useAppSelector((state) => state.prescriptions);
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const { userInfos, hasNationalView } = useAuthentication();
+  const { userInfos, hasNationalView, hasUserPrescriptionPermission } =
+    useAuthentication();
 
   const [addPrescription, { isSuccess: isAddSuccess }] =
     useAddPrescriptionMutation();
@@ -62,6 +74,8 @@ const PrescriptionListView = () => {
     useUpdateRegionalPrescriptionMutation();
   const [deletePrescription, { isSuccess: isDeleteSuccess }] =
     useDeletePrescriptionMutation();
+  const [commentRegionalPrescription, { isSuccess: isCommentSuccess }] =
+    useCommentRegionalPrescriptionMutation();
 
   const region: Region = useMemo(
     () =>
@@ -84,7 +98,7 @@ const PrescriptionListView = () => {
       programmingPlanId: programmingPlan?.id as string,
       context: prescriptionListContext,
       region,
-      includes: ['substanceCount' as PrescriptionOptionsInclude],
+      includes: ['substanceCount' as PrescriptionOptionsInclude]
     }),
     [programmingPlan, prescriptionListContext, region]
   );
@@ -92,7 +106,7 @@ const PrescriptionListView = () => {
   const { data: allPrescriptions } = useFindPrescriptionsQuery(
     findPrescriptionOptions,
     {
-      skip: !programmingPlan,
+      skip: !programmingPlan
     }
   );
 
@@ -111,10 +125,10 @@ const PrescriptionListView = () => {
   const { data: regionalPrescriptions } = useFindRegionalPrescriptionsQuery(
     {
       ...findPrescriptionOptions,
-      includes: ['comments', 'realizedSampleCount'],
+      includes: ['comments', 'realizedSampleCount']
     },
     {
-      skip: !programmingPlan,
+      skip: !programmingPlan
     }
   );
 
@@ -125,7 +139,7 @@ const PrescriptionListView = () => {
           ...fp.mapValues(findPrescriptionOptions, (value) =>
             value?.toString()
           ),
-          ...fp.mapValues(findFilter, (value) => value?.toString()),
+          ...fp.mapValues(findFilter, (value) => value?.toString())
         },
         fp.isEmpty
       );
@@ -145,7 +159,7 @@ const PrescriptionListView = () => {
         programmingPlanId,
         context: prescriptionListContext,
         matrix,
-        stages: [],
+        stages: []
       });
     },
     [prescriptionListContext] // eslint-disable-line react-hooks/exhaustive-deps
@@ -158,45 +172,100 @@ const PrescriptionListView = () => {
     [] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
-  const changeRegionalPrescriptionCount = useCallback(
-    async (prescriptionId: string, region: Region, count: number) => {
-      await updateRegionalPrescription({
-        prescriptionId,
-        region,
-        prescriptionUpdate: {
-          programmingPlanId: programmingPlan?.id as string,
-          sampleCount: count,
-        },
-      });
+  const changePrescription = useCallback(
+    async (
+      prescriptionId: string,
+      prescriptionUpdate: Omit<PrescriptionUpdate, 'programmingPlanId'>
+    ) => {
+      if (
+        programmingPlan &&
+        hasUserPrescriptionPermission(programmingPlan)?.update
+      ) {
+        await updatePrescription({
+          prescriptionId,
+          prescriptionUpdate: {
+            programmingPlanId: programmingPlan.id,
+            ...prescriptionUpdate
+          }
+        });
+      }
     },
     [programmingPlan] // eslint-disable-line react-hooks/exhaustive-deps
   );
-
-  const changePrescriptionLaboratory =
-    (programmingPlanId: string) =>
-    async (prescriptionId: string, laboratoryId?: string) => {
-      // TODO
-      // await updatePrescription({
-      //   prescriptionId,
-      //   prescriptionUpdate: {
-      //     programmingPlanId,
-      //     context: findPrescriptionOptions.context,
-      //     laboratoryId,
-      //   },
-      // });
-    };
 
   const updatePrescriptionSubstances = useCallback(
     async (
       prescriptionId: string,
       prescriptionSubstances: PrescriptionSubstance[]
+    ) =>
+      changePrescription(prescriptionId, {
+        substances: prescriptionSubstances
+      }),
+    [changePrescription] // eslint-disable-line react-hooks/exhaustive-deps
+  );
+
+  const updatePrescriptionStages = useCallback(
+    async (prescriptionId: string, stages: Stage[]) =>
+      changePrescription(prescriptionId, {
+        stages
+      }),
+    [changePrescription] // eslint-disable-line react-hooks/exhaustive-deps
+  );
+
+  const updatePrescriptionNotes = useCallback(
+    async (prescriptionId: string, notes: string) =>
+      changePrescription(prescriptionId, {
+        notes
+      }),
+    [changePrescription] // eslint-disable-line react-hooks/exhaustive-deps
+  );
+
+  const changeRegionalPrescription = useCallback(
+    async (
+      prescriptionId: string,
+      region: Region,
+      prescriptionUpdate: Omit<RegionalPrescriptionUpdate, 'programmingPlanId'>
     ) => {
-      await updatePrescription({
+      await updateRegionalPrescription({
         prescriptionId,
+        region,
         prescriptionUpdate: {
           programmingPlanId: programmingPlan?.id as string,
-          substances: prescriptionSubstances,
-        },
+          ...prescriptionUpdate
+        }
+      });
+    },
+    [programmingPlan] // eslint-disable-line react-hooks/exhaustive-deps
+  );
+
+  const changeRegionalPrescriptionCount = useCallback(
+    async (prescriptionId: string, region: Region, count: number) =>
+      changeRegionalPrescription(prescriptionId, region, {
+        sampleCount: count
+      }),
+    [changeRegionalPrescription] // eslint-disable-line react-hooks/exhaustive-deps
+  );
+
+  const changeRegionalPrescriptionLaboratory = useCallback(
+    async (prescriptionId: string, laboratoryId?: string) =>
+      changeRegionalPrescription(prescriptionId, region, {
+        laboratoryId
+      }),
+    [changeRegionalPrescription, region] // eslint-disable-line react-hooks/exhaustive-deps
+  );
+
+  const submitRegionalPrescriptionComment = useCallback(
+    async (
+      regionalPrescriptionKey: RegionalPrescriptionKey,
+      comment: string
+    ) => {
+      await commentRegionalPrescription({
+        prescriptionId: regionalPrescriptionKey.prescriptionId,
+        region: regionalPrescriptionKey.region,
+        commentToCreate: {
+          programmingPlanId: programmingPlan?.id as string,
+          comment
+        }
       });
     },
     [programmingPlan] // eslint-disable-line react-hooks/exhaustive-deps
@@ -210,6 +279,7 @@ const PrescriptionListView = () => {
         description="Modification enregistrée"
       />
       <AppToast open={isDeleteSuccess} description="Matrice supprimée" />
+      <AppToast open={isCommentSuccess} description="Commentaire ajouté" />
       <div className={cx('fr-container')}>
         <SectionHeader
           title={`Programmation ${programmingPlan?.year}`}
@@ -227,17 +297,21 @@ const PrescriptionListView = () => {
                       checked: context === findPrescriptionOptions.context,
                       onChange: () =>
                         changeFilter({
-                          context,
-                        }),
-                    },
+                          context
+                        })
+                    }
                   })) as any
                 }
               />
-              {programmingPlan && (
-                <ProgrammingPlanSubmissionModal
-                  programmingPlan={programmingPlan}
-                />
-              )}
+              {programmingPlan &&
+                NextProgrammingPlanStatus[programmingPlan.status] &&
+                ['Submitted', 'Validated'].includes(
+                  NextProgrammingPlanStatus[programmingPlan.status] as string
+                ) && (
+                  <ProgrammingPlanUpdateModal
+                    programmingPlan={programmingPlan}
+                  />
+                )}
             </>
           }
         />
@@ -250,7 +324,7 @@ const PrescriptionListView = () => {
             'fr-px-2w',
             'fr-px-md-5w',
             'fr-py-2w',
-            'fr-py-md-5w',
+            'fr-py-md-3w',
             'fr-container'
           )
         )}
@@ -278,7 +352,8 @@ const PrescriptionListView = () => {
                 {hasNationalView ? (
                   <div className="prescription-cards-container">
                     {prescriptions?.map((prescription) => (
-                      <PrescriptionCardNational
+                      <PrescriptionCard
+                        key={`prescription_cards_${prescription.id}`}
                         programmingPlan={programmingPlan}
                         prescription={prescription}
                         regionalPrescriptions={regionalPrescriptions.filter(
@@ -288,14 +363,16 @@ const PrescriptionListView = () => {
                           changeRegionalPrescriptionCount
                         }
                         onRemovePrescription={removePrescription}
-                        key={`prescription_cards_${prescription.id}`}
+                        onChangePrescriptionStages={updatePrescriptionStages}
+                        onChangePrescriptionNotes={updatePrescriptionNotes}
                       />
                     ))}
                   </div>
                 ) : (
                   <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
                     {prescriptions?.map((prescription) => (
-                      <PrescriptionCardRegional
+                      <RegionalPrescriptionCard
+                        key={`prescription_cards_${prescription.id}`}
                         programmingPlan={programmingPlan}
                         prescription={prescription}
                         regionalPrescription={regionalPrescriptions.find(
@@ -304,7 +381,12 @@ const PrescriptionListView = () => {
                               prescription.id &&
                             regionalPrescription.region === region
                         )}
-                        key={`prescription_cards_${prescription.id}`}
+                        onChangeLaboratory={(laboratoryId) =>
+                          changeRegionalPrescriptionLaboratory(
+                            prescription.id,
+                            laboratoryId
+                          )
+                        }
                       />
                     ))}
                   </div>
@@ -316,21 +398,20 @@ const PrescriptionListView = () => {
                 programmingPlan={programmingPlan}
                 prescriptions={prescriptions}
                 regionalPrescriptions={regionalPrescriptions}
-                regions={region ? [region] : RegionList}
                 onChangeRegionalPrescriptionCount={
                   changeRegionalPrescriptionCount
                 }
-                onChangePrescriptionLaboratory={changePrescriptionLaboratory(
-                  programmingPlan.id
-                )}
                 onRemovePrescription={removePrescription}
               />
             )}
           </>
         )}
       </div>
-      <PrescriptionAnalysisModal
+      <PrescriptionSubstancesModal
         onUpdatePrescriptionSubstances={updatePrescriptionSubstances}
+      />
+      <RegionalPrescriptionCommentsModal
+        onSubmitRegionalPrescriptionComment={submitRegionalPrescriptionComment}
       />
     </section>
   );

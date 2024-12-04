@@ -1,4 +1,3 @@
-import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
@@ -6,85 +5,90 @@ import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import clsx from 'clsx';
 import { format } from 'date-fns';
 import { default as fr } from 'date-fns/locale/fr';
-import React, { useMemo, useState } from 'react';
-import { RegionalPrescription } from 'shared/schema/RegionalPrescription/RegionalPrescription';
+import React, { useEffect, useMemo, useState } from 'react';
+import { RegionalPrescriptionKey } from 'shared/schema/RegionalPrescription/RegionalPrescription';
 import { RegionalPrescriptionCommentToCreate } from 'shared/schema/RegionalPrescription/RegionalPrescriptionComment';
 import RegionalPrescriptionCommentAuthor from 'src/components/Prescription/RegionalPrescriptionCommentsModal/RegionalPrescriptionCommentAuthor';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
+import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
-import { useCommentRegionalPrescriptionMutation } from 'src/services/regionalPrescription.service';
+import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
+import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import { quote } from 'src/utils/stringUtils';
 import './RegionalPrescriptionCommentsModal.scss';
 
+const regionalPrescriptionCommentsModal = createModal({
+  id: `prescription-comments-modal`,
+  isOpenedByDefault: false
+});
+
 interface Props {
-  programmingPlanId: string;
-  regionalPrescription: RegionalPrescription;
-  modalButton: React.ReactNode;
+  onSubmitRegionalPrescriptionComment: (
+    regionalPrescriptionKey: RegionalPrescriptionKey,
+    comment: string
+  ) => Promise<void>;
 }
 
 const RegionalPrescriptionCommentsModal = ({
-  programmingPlanId,
-  regionalPrescription,
-  modalButton,
+  onSubmitRegionalPrescriptionComment
 }: Props) => {
-  const prescriptionCommentsModal = useMemo(
-    () =>
-      createModal({
-        id: `prescription-comments-modal-${regionalPrescription.prescriptionId}-${regionalPrescription.region}`,
-        isOpenedByDefault: false,
-      }),
-    [regionalPrescription]
+  const dispatch = useAppDispatch();
+  const { hasUserRegionalPrescriptionPermission } = useAuthentication();
+  const { regionalPrescriptionComments } = useAppSelector(
+    (state) => state.prescriptions
   );
+  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
 
   const [comment, setComment] = useState('');
-  const [commentRegionalPrescription, { isError }] =
-    useCommentRegionalPrescriptionMutation();
 
   const Form = RegionalPrescriptionCommentToCreate.pick({
-    comment: true,
+    comment: true
   });
 
   const form = useForm(Form, {
-    comment,
+    comment
   });
 
   type FormShape = typeof Form.shape;
 
-  useIsModalOpen(prescriptionCommentsModal, {
+  useIsModalOpen(regionalPrescriptionCommentsModal, {
     onConceal: () => {
       setComment('');
       form.reset();
-    },
+      dispatch(
+        prescriptionsSlice.actions.setRegionalPrescriptionComments(undefined)
+      );
+    }
   });
+
+  useEffect(() => {
+    if (regionalPrescriptionComments) {
+      regionalPrescriptionCommentsModal.open();
+    }
+  }, [regionalPrescriptionComments]);
+
+  const { commentsArray, hasComments } = useMemo(() => {
+    const commentsArray = regionalPrescriptionComments?.comments ?? [];
+    const hasComments = commentsArray.length > 0;
+
+    return { commentsArray, hasComments };
+  }, [regionalPrescriptionComments?.comments]);
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
 
     await form.validate(async () => {
-      await commentRegionalPrescription({
-        prescriptionId: regionalPrescription.prescriptionId,
-        region: regionalPrescription.region,
-        commentToCreate: {
-          programmingPlanId,
-          comment,
-        },
-      });
-      setComment('');
-      form.reset();
+      await onSubmitRegionalPrescriptionComment(
+        RegionalPrescriptionKey.parse(regionalPrescriptionComments),
+        comment
+      );
+      regionalPrescriptionCommentsModal.close();
     });
   };
 
-  const { commentsArray, hasComments } = useMemo(() => {
-    const commentsArray = regionalPrescription.comments ?? [];
-    const hasComments = commentsArray.length > 0;
-
-    return { commentsArray, hasComments };
-  }, [regionalPrescription.comments]);
-
   return (
     <>
-      <div onClick={() => prescriptionCommentsModal.open()}>{modalButton}</div>
-      <prescriptionCommentsModal.Component
+      <regionalPrescriptionCommentsModal.Component
         title={
           hasComments
             ? `${commentsArray.length} commentaires`
@@ -111,7 +115,7 @@ const RegionalPrescriptionCommentsModal = ({
                   >
                     Posté le{' '}
                     {format(comment.createdAt, 'dd MMMM yyyy à HH:mm', {
-                      locale: fr,
+                      locale: fr
                     })}
                   </div>
                 </div>
@@ -124,36 +128,35 @@ const RegionalPrescriptionCommentsModal = ({
             propos de la programmation 2025 des prélèvements de cette matrice.
           </div>
         )}
-        {isError && (
-          <Alert
-            severity="error"
-            description="Une erreur est survenue lors de l'envoi, veuillez réessayer."
-            small
-            className={'fr-my-2w'}
-          />
-        )}
-        <div className={clsx(cx('fr-mt-2w'), 'd-flex-justify-center')}>
-          <form id="login_form">
-            <AppTextAreaInput<FormShape>
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              inputForm={form}
-              inputKey="comment"
-              whenValid="Commentaire correctement renseigné."
-              label="Commentaire"
-              rows={1}
-              required
-            />
-          </form>
-          <Button
-            priority="secondary"
-            className={cx('fr-ml-2w')}
-            onClick={submit}
-          >
-            Envoyer
-          </Button>
-        </div>
-      </prescriptionCommentsModal.Component>
+        {programmingPlan &&
+          regionalPrescriptionComments &&
+          hasUserRegionalPrescriptionPermission(
+            programmingPlan,
+            regionalPrescriptionComments
+          )?.comment && (
+            <div className={clsx(cx('fr-mt-2w'), 'd-flex-justify-center')}>
+              <form id="login_form">
+                <AppTextAreaInput<FormShape>
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  inputForm={form}
+                  inputKey="comment"
+                  whenValid="Commentaire correctement renseigné."
+                  label="Commentaire"
+                  rows={1}
+                  required
+                />
+              </form>
+              <Button
+                priority="secondary"
+                className={cx('fr-ml-2w')}
+                onClick={submit}
+              >
+                Envoyer
+              </Button>
+            </div>
+          )}
+      </regionalPrescriptionCommentsModal.Component>
     </>
   );
 };
