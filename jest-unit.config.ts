@@ -1,12 +1,12 @@
-module.exports = {
+import type {Config} from 'jest';
+
+const config: Config = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   rootDir: './server',
   roots: ['<rootDir>', '../shared'],
   setupFiles: [],
-  setupFilesAfterEnv: ['<rootDir>/test/setupTests.ts'],
-  globalSetup: '<rootDir>/test/globalSetup.ts',
-  globalTeardown: '<rootDir>/test/globalTeardown.ts',
+  testMatch: ['**/**/*.test.unit.ts'],
   transform: {
     "^.+\\.tsx?$": [
       "ts-jest",
@@ -23,3 +23,5 @@ module.exports = {
     ],
   },
 };
+
+export default config;

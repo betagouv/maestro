@@ -2,19 +2,23 @@
 // allows you to do things like:
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
-import '@testing-library/jest-dom';
-import { enableFetchMocks } from 'jest-fetch-mock';
 
-enableFetchMocks();
+import "@testing-library/jest-dom/vitest";
+import { vi } from 'vitest';
+import createFetchMock from 'vitest-fetch-mock';
+
+createFetchMock(vi).enableMocks();
 
 export const mockGeolocation = {
-  getCurrentPosition: jest.fn(),
+  getCurrentPosition: vi.fn()
 };
 
+// @ts-expect-error TS2540
 global.navigator.geolocation = mockGeolocation;
 
-global.URL.createObjectURL = jest.fn();
+global.URL.createObjectURL = vi.fn();
 
-jest.mock('src/hooks/useOnLine', () => ({
+vi.mock('src/hooks/useOnLine', () => ({
   useOnLine: () => ({ isOnline: true }),
 }));
+

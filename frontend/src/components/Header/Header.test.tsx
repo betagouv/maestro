@@ -5,9 +5,10 @@ import { MemoryRouter } from 'react-router-dom';
 import { genProgrammingPlan } from 'shared/test/programmingPlanFixtures';
 import { genAuthUser, genUser } from 'shared/test/userFixtures';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
-import { mockRequests } from '../../../test/requestUtils.test';
+import { mockRequests } from '../../../test/requestTestUtils';
 import Header from './Header';
 
+import {describe, test, expect} from 'vitest';
 const validatedProgrammingPlan = {
   ...genProgrammingPlan(),
   status: 'Validated',
@@ -48,7 +49,8 @@ describe('Header', () => {
     test('should not display any navigation item', () => {
       const store = configureStore({
         reducer: applicationReducer,
-        preloadedState: { auth: { authUser: undefined } }
+        middleware: applicationMiddleware,
+        preloadedState: { auth: { authUser: undefined } },
       });
 
       render(

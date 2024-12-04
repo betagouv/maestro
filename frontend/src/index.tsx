@@ -3,7 +3,19 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import App from './App';
 import './i18n';
-import * as serviceWorkerRegistration from './serviceWorkerRegistration';
+import { registerSW } from 'virtual:pwa-register'
+
+// Vérifie qu'il n'y a pas une nouvelle version du site toutes les 5min
+const intervalMS =  5 * 60 * 1000
+registerSW({immediate: true,
+  onRegisteredSW(_s, r) {
+    if( r !== undefined ) {
+      setInterval(() => {
+        r.update()
+      }, intervalMS)
+    }
+  }
+})
 
 const container = document.getElementById('root');
 const root = ReactDOM.createRoot(container!);
@@ -17,16 +29,4 @@ root.render(
   </React.StrictMode>
 );
 
-serviceWorkerRegistration.register();
 
-navigator.serviceWorker.addEventListener('controllerchange', () => {
-  window.location.reload(); // Recharge la page dès que le nouveau service worker prend le contrôle
-});
-
-if (navigator.serviceWorker.controller) {
-  navigator.serviceWorker.ready.then((registration) => {
-    if (registration.waiting) {
-      registration.waiting.postMessage({ type: 'SKIP_WAITING' }); // Demande au service worker d'activer immédiatement
-    }
-  });
-}

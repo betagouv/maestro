@@ -25,7 +25,7 @@ export const prescriptionApi = api.injectEndpoints({
         response.map((_) => RegionalPrescription.parse(fp.omitBy(_, fp.isNil))),
       providesTags: (result) => [
         { type: 'RegionalPrescription', id: 'LIST' },
-        ...(result ?? []).map(({ prescriptionId, region }) => ({
+        ...(result ?? []).map(({ prescriptionId }) => ({
           type: 'RegionalPrescription' as const,
           id: prescriptionId,
         })),
