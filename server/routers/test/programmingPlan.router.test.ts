@@ -296,7 +296,8 @@ describe('ProgrammingPlan router', () => {
             context: 'Control',
             programmingPlanId: res.body.id,
             matrix: controlPrescriptionValidatedPlan.matrix,
-            stages: controlPrescriptionValidatedPlan.stages
+            stages: controlPrescriptionValidatedPlan.stages,
+            notes: null
           }
         ])
       );
@@ -311,7 +312,8 @@ describe('ProgrammingPlan router', () => {
             context: 'Surveillance',
             programmingPlanId: res.body.id,
             matrix: surveillancePrescriptionValidatedPlan.matrix,
-            stages: surveillancePrescriptionValidatedPlan.stages
+            stages: surveillancePrescriptionValidatedPlan.stages,
+            notes: null
           }
         ])
       );
