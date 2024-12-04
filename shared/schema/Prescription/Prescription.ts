@@ -14,7 +14,8 @@ export const Prescription = z.object({
   matrix: Matrix,
   stages: z.array(Stage),
   monoAnalysisCount: z.coerce.number().nullish(),
-  multiAnalysisCount: z.coerce.number().nullish()
+  multiAnalysisCount: z.coerce.number().nullish(),
+  notes: z.string().nullish()
 });
 
 export const PrescriptionToCreate = Prescription.omit({
@@ -31,7 +32,8 @@ export const PrescriptionUpdate = z.object({
         substance: true
       })
     )
-    .nullish()
+    .nullish(),
+  notes: z.string().nullish()
 });
 
 export type Prescription = z.infer<typeof Prescription>;

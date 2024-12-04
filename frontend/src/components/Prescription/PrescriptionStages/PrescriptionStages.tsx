@@ -7,54 +7,33 @@ import { Stage, StageLabels, StageList } from 'shared/referential/Stage';
 import { Prescription } from 'shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
-import AppToast from 'src/components/_app/AppToast/AppToast';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import { useUpdatePrescriptionMutation } from 'src/services/prescription.service';
 
 interface Props {
   programmingPlan: ProgrammingPlan;
   prescription: Prescription;
   label?: string;
+  onChangeStages?: (stages: Stage[]) => void;
 }
 
 const PrescriptionStages = ({
   programmingPlan,
   prescription,
-  label
+  label,
+  onChangeStages
 }: Props) => {
   const { hasUserPrescriptionPermission } = useAuthentication();
-  const [updatePrescription, { isSuccess: isUpdateSuccess }] =
-    useUpdatePrescriptionMutation();
 
   const [newStage, setNewStage] = useState<Stage | ''>('');
 
-  const removeStage = async (stage: Stage) => {
-    if (hasUserPrescriptionPermission(programmingPlan)?.update) {
-      await updatePrescription({
-        prescriptionId: prescription.id,
-        prescriptionUpdate: {
-          programmingPlanId: prescription.programmingPlanId,
-          stages: prescription.stages.filter((s) => s !== stage)
-        }
-      });
-    }
-  };
+  const removeStage = async (stage: Stage) =>
+    onChangeStages?.(prescription.stages.filter((s) => s !== stage));
 
-  const addStage = async (stage: Stage) => {
-    if (hasUserPrescriptionPermission(programmingPlan)?.update) {
-      await updatePrescription({
-        prescriptionId: prescription.id,
-        prescriptionUpdate: {
-          programmingPlanId: prescription.programmingPlanId,
-          stages: [...prescription.stages, stage]
-        }
-      });
-    }
-  };
+  const addStage = async (stage: Stage) =>
+    onChangeStages?.([...prescription.stages, stage]);
 
   return (
     <>
-      <AppToast open={isUpdateSuccess} description="Modification enregistrée" />
       {hasUserPrescriptionPermission(programmingPlan)?.update ? (
         <div className="d-flex-align-center">
           <Select
@@ -84,8 +63,8 @@ const PrescriptionStages = ({
             priority="secondary"
             title="Ajouter"
             disabled={!newStage}
-            onClick={() => {
-              addStage(newStage as Stage);
+            onClick={async () => {
+              await addStage(newStage as Stage);
               setNewStage('');
             }}
             className={cx(label ? 'fr-mt-3w' : 'fr-mb-1w', 'fr-ml-2w')}
@@ -102,7 +81,7 @@ const PrescriptionStages = ({
           nativeButtonProps={
             hasUserPrescriptionPermission(programmingPlan)?.update
               ? {
-                  onClick: () => removeStage(stage)
+                  onClick: async () => await removeStage(stage)
                 }
               : undefined
           }

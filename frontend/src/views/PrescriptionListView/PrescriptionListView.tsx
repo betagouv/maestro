@@ -7,11 +7,15 @@ import { useSearchParams } from 'react-router-dom';
 import { Matrix } from 'shared/referential/Matrix/Matrix';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
 import { Region, Regions } from 'shared/referential/Region';
+import { Stage } from 'shared/referential/Stage';
 import {
   FindPrescriptionOptions,
   PrescriptionOptionsInclude
 } from 'shared/schema/Prescription/FindPrescriptionOptions';
-import { PrescriptionSort } from 'shared/schema/Prescription/Prescription';
+import {
+  PrescriptionSort,
+  PrescriptionUpdate
+} from 'shared/schema/Prescription/Prescription';
 import { PrescriptionSubstance } from 'shared/schema/Prescription/PrescriptionSubstance';
 import {
   Context,
@@ -19,7 +23,10 @@ import {
   ContextList
 } from 'shared/schema/ProgrammingPlan/Context';
 import { NextProgrammingPlanStatus } from 'shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { RegionalPrescriptionKey } from 'shared/schema/RegionalPrescription/RegionalPrescription';
+import {
+  RegionalPrescriptionKey,
+  RegionalPrescriptionUpdate
+} from 'shared/schema/RegionalPrescription/RegionalPrescription';
 import PrescriptionCard from 'src/components/Prescription/PrescriptionCard/PrescriptionCard';
 import PrescriptionSubstancesModal from 'src/components/Prescription/PrescriptionSubstancesModal/PrescriptionSubstancesModal';
 import RegionalPrescriptionCard from 'src/components/Prescription/RegionalPrescriptionCard/RegionalPrescriptionCard';
@@ -56,7 +63,8 @@ const PrescriptionListView = () => {
     useAppSelector((state) => state.prescriptions);
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const { userInfos, hasNationalView } = useAuthentication();
+  const { userInfos, hasNationalView, hasUserPrescriptionPermission } =
+    useAuthentication();
 
   const [addPrescription, { isSuccess: isAddSuccess }] =
     useAddPrescriptionMutation();
@@ -164,48 +172,86 @@ const PrescriptionListView = () => {
     [] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
-  const changeRegionalPrescriptionCount = useCallback(
-    async (prescriptionId: string, region: Region, count: number) => {
-      await updateRegionalPrescription({
-        prescriptionId,
-        region,
-        prescriptionUpdate: {
-          programmingPlanId: programmingPlan?.id as string,
-          sampleCount: count
-        }
-      });
+  const changePrescription = useCallback(
+    async (
+      prescriptionId: string,
+      prescriptionUpdate: Omit<PrescriptionUpdate, 'programmingPlanId'>
+    ) => {
+      if (
+        programmingPlan &&
+        hasUserPrescriptionPermission(programmingPlan)?.update
+      ) {
+        await updatePrescription({
+          prescriptionId,
+          prescriptionUpdate: {
+            programmingPlanId: programmingPlan.id,
+            ...prescriptionUpdate
+          }
+        });
+      }
     },
     [programmingPlan] // eslint-disable-line react-hooks/exhaustive-deps
-  );
-
-  const changePrescriptionLaboratory = useCallback(
-    async (prescriptionId: string, laboratoryId?: string) => {
-      await updateRegionalPrescription({
-        prescriptionId,
-        region,
-        prescriptionUpdate: {
-          programmingPlanId: programmingPlan?.id as string,
-          laboratoryId
-        }
-      });
-    },
-    [programmingPlan, region] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const updatePrescriptionSubstances = useCallback(
     async (
       prescriptionId: string,
       prescriptionSubstances: PrescriptionSubstance[]
+    ) =>
+      changePrescription(prescriptionId, {
+        substances: prescriptionSubstances
+      }),
+    [changePrescription] // eslint-disable-line react-hooks/exhaustive-deps
+  );
+
+  const updatePrescriptionStages = useCallback(
+    async (prescriptionId: string, stages: Stage[]) =>
+      changePrescription(prescriptionId, {
+        stages
+      }),
+    [changePrescription] // eslint-disable-line react-hooks/exhaustive-deps
+  );
+
+  const updatePrescriptionNotes = useCallback(
+    async (prescriptionId: string, notes: string) =>
+      changePrescription(prescriptionId, {
+        notes
+      }),
+    [changePrescription] // eslint-disable-line react-hooks/exhaustive-deps
+  );
+
+  const changeRegionalPrescription = useCallback(
+    async (
+      prescriptionId: string,
+      region: Region,
+      prescriptionUpdate: Omit<RegionalPrescriptionUpdate, 'programmingPlanId'>
     ) => {
-      await updatePrescription({
+      await updateRegionalPrescription({
         prescriptionId,
+        region,
         prescriptionUpdate: {
           programmingPlanId: programmingPlan?.id as string,
-          substances: prescriptionSubstances
+          ...prescriptionUpdate
         }
       });
     },
     [programmingPlan] // eslint-disable-line react-hooks/exhaustive-deps
+  );
+
+  const changeRegionalPrescriptionCount = useCallback(
+    async (prescriptionId: string, region: Region, count: number) =>
+      changeRegionalPrescription(prescriptionId, region, {
+        sampleCount: count
+      }),
+    [changeRegionalPrescription] // eslint-disable-line react-hooks/exhaustive-deps
+  );
+
+  const changeRegionalPrescriptionLaboratory = useCallback(
+    async (prescriptionId: string, laboratoryId?: string) =>
+      changeRegionalPrescription(prescriptionId, region, {
+        laboratoryId
+      }),
+    [changeRegionalPrescription, region] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const submitRegionalPrescriptionComment = useCallback(
@@ -307,6 +353,7 @@ const PrescriptionListView = () => {
                   <div className="prescription-cards-container">
                     {prescriptions?.map((prescription) => (
                       <PrescriptionCard
+                        key={`prescription_cards_${prescription.id}`}
                         programmingPlan={programmingPlan}
                         prescription={prescription}
                         regionalPrescriptions={regionalPrescriptions.filter(
@@ -316,7 +363,8 @@ const PrescriptionListView = () => {
                           changeRegionalPrescriptionCount
                         }
                         onRemovePrescription={removePrescription}
-                        key={`prescription_cards_${prescription.id}`}
+                        onChangePrescriptionStages={updatePrescriptionStages}
+                        onChangePrescriptionNotes={updatePrescriptionNotes}
                       />
                     ))}
                   </div>
@@ -334,7 +382,7 @@ const PrescriptionListView = () => {
                             regionalPrescription.region === region
                         )}
                         onChangeLaboratory={(laboratoryId) =>
-                          changePrescriptionLaboratory(
+                          changeRegionalPrescriptionLaboratory(
                             prescription.id,
                             laboratoryId
                           )

@@ -306,7 +306,8 @@ describe('Prescriptions router', () => {
   describe('PUT /prescriptions/{prescriptionId}', () => {
     const prescriptionUpdate: PrescriptionUpdate = {
       programmingPlanId: programmingPlanInProgress.id,
-      stages: [oneOf(StageList)]
+      stages: [oneOf(StageList)],
+      notes: randomstring.generate()
     };
     const testRoute = (
       prescriptionId: string = inProgressControlPrescription.id
@@ -383,14 +384,16 @@ describe('Prescriptions router', () => {
 
       expect(res.body).toMatchObject({
         ...inProgressControlPrescription,
-        stages: prescriptionUpdate.stages
+        stages: prescriptionUpdate.stages,
+        notes: prescriptionUpdate.notes
       });
 
       await expect(
         Prescriptions().where({ id: inProgressControlPrescription.id }).first()
       ).resolves.toMatchObject({
         ...inProgressControlPrescription,
-        stages: prescriptionUpdate.stages
+        stages: prescriptionUpdate.stages,
+        notes: prescriptionUpdate.notes
       });
     });
   });

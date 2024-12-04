@@ -61,7 +61,7 @@ const PrescriptionCardPartialTable = ({
             />
           ))
       ]}
-      className={cx('fr-mb-3w')}
+      className={cx('fr-mb-0')}
     />
   );
 };

@@ -7,6 +7,7 @@ import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans'
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch } from 'src/hooks/useStore';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
+import { pluralize } from 'src/utils/stringUtils';
 import './PrescriptionSubstances.scss';
 
 interface Props {
@@ -57,10 +58,10 @@ const PrescriptionSubstancesModalButtons = ({
         >
           {hasUserPrescriptionPermission(programmingPlan)?.update &&
           (prescription.multiAnalysisCount ?? 0) === 0
-            ? `Ajouter une analyse multi résidus`
-            : `${t('analysis', {
-                count: prescription.multiAnalysisCount || 0
-              })} multi résidus`}
+            ? `Spécifier une analyse multi résidus`
+            : `Analyse multi-résidu (${prescription.multiAnalysisCount || 0} ${pluralize(
+                prescription.multiAnalysisCount || 0
+              )('spécifiée')})`}
         </Button>
       </div>
     </div>

@@ -114,13 +114,10 @@ const updatePrescription = async (request: Request, response: Response) => {
 
   console.info('Update prescription with id', prescription.id);
 
-  if (programmingPlan.status === 'Validated') {
-    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
-  }
-
   const updatedPrescription = {
     ...prescription,
-    stages: prescriptionUpdate.stages ?? prescription.stages
+    stages: prescriptionUpdate.stages ?? prescription.stages,
+    notes: prescriptionUpdate.notes ?? prescription.notes
   };
 
   await prescriptionRepository.update(updatedPrescription);

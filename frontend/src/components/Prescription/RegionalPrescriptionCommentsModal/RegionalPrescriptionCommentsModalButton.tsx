@@ -25,7 +25,7 @@ const RegionalPrescriptionCommentsModalButton = ({
     <Button
       priority="tertiary no outline"
       size="small"
-      className={clsx(cx('fr-link--sm'), 'link-underline')}
+      className={clsx(cx('fr-link--sm', 'fr-mt-1w'), 'link-underline')}
       onClick={() =>
         dispatch(
           prescriptionsSlice.actions.setRegionalPrescriptionComments(
