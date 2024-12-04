@@ -134,7 +134,7 @@ const ProgrammingPlanUpdateModal = ({ programmingPlan }: Props) => {
               submissionModal.close();
               setIsMenuOpen(false);
             })
-            .catch((error) => {
+            .catch((_error) => {
               setIsError(true);
             });
         }}

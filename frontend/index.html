@@ -7,7 +7,7 @@
     <link rel="apple-touch-icon" href="/dsfr/favicon/apple-touch-icon.png?v=1.12.1" />
     <link rel="icon" href="/dsfr/favicon/favicon.svg?v=1.12.1" type="image/svg+xml" />
     <link rel="shortcut icon" href="/dsfr/favicon/favicon.ico?v=1.12.1" type="image/x-icon" />
-    <link rel="stylesheet" href="/dsfr/utility/icons/icons.min.css?hash=19f0b40b" />
+    <link rel="stylesheet" href="/dsfr/utility/icons/icons.min.css?hash=31e515c5" />
     <link rel="stylesheet" href="/dsfr/dsfr.min.css?v=1.12.1" />
     <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.1.2/dist/maplibre-gl.css" />
 
@@ -19,23 +19,11 @@
     />
     <title>maestro</title>
 
-    <%
-      [
-        //"Marianne-Light",
-        //"Marianne-Light_Italic",
-        "Marianne-Regular",
-        //"Marianne-Regular_Italic",
-        "Marianne-Medium",
-        //"Marianne-Medium_Italic",
-        "Marianne-Bold",
-        //"Marianne-Bold_Italic",
-        //"Spectral-Regular",
-        //"Spectral-ExtraBold"
-      ].forEach(function(name){ %>
-      <link rel="preload" href="/dsfr/fonts/<%=name%>.woff2?v=1.12.1" as="font" crossorigin="anonymous" />
-    <% }); %>
+    <link rel="preload" href="/dsfr/fonts/Marianne-Regular.woff2?v=1.12.1" as="font" crossorigin="anonymous" />
+    <link rel="preload" href="/dsfr/fonts/Marianne-Medium.woff2?v=1.12.1" as="font" crossorigin="anonymous" />
+    <link rel="preload" href="/dsfr/fonts/Marianne-Bold.woff2?v=1.12.1" as="font" crossorigin="anonymous" />
 
-  </head>
+  <script type="module" src="src/index"></script></head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
