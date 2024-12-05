@@ -2,15 +2,18 @@ import { isNil } from 'lodash';
 import { getDocument, PDFDocumentProxy } from 'pdfjs-dist';
 import { TextItem } from 'pdfjs-dist/types/src/display/api';
 import { z } from 'zod';
-import { assertUnreachable } from '../../../shared/utils/typescript';
 import { SimpleResidueLabels } from '../../../shared/referential/Residue/SimpleResidueLabels';
 
-const labos = ['INOVALYS'] as const;
+const labos = ['LDA 72'] as const;
 export type Labos = (typeof labos)[number];
 
-type ParseLaboDocument =  (extractPageContentFunction: (page: number) => Promise<string[]>) => Promise<null>
+type ParseLaboDocument =  (extractPageContentFunction: (page: number) => ReturnType<typeof extractPageContent>) => Promise<null>
 const parseNovalysDocument: ParseLaboDocument = async (extractPageContentFunction) => {
-  const content = await extractPageContentFunction(2);
+  const {content, valid} = await extractPageContentFunction(2);
+
+  if (!valid) {
+    return null
+  }
 
   const dateValidator = z.string().regex(/^\d{2}\/\d{2}\/\d{2}$/);
   const numberValidator = z.union([
@@ -71,7 +74,7 @@ const parseNovalysDocument: ParseLaboDocument = async (extractPageContentFunctio
         const substance: string = r[1] ?? ''
 
         //FIXME comment retrouver le bon résidu ?
-        const ref = Object.entries(SimpleResidueLabels).find(([key, value]) => value.toLowerCase().slice(0, 5).includes(substance.toLowerCase().slice(0, 5)))
+        const ref = Object.entries(SimpleResidueLabels).find(([_key, value]) => value.toLowerCase().slice(0, 5).includes(substance.toLowerCase().slice(0, 5)))
       return {
         substance: ref?.[0],
         teneur: r[2],
@@ -118,24 +121,16 @@ const parseNovalysDocument: ParseLaboDocument = async (extractPageContentFunctio
   return null;
 };
 export const parseDocument = {
-  INOVALYS: parseNovalysDocument
+  'LDA 72': parseNovalysDocument
 } as const satisfies Record<Labos, ParseLaboDocument>;
 //1e6f1197-b922-4d2c-9889-e8121ad5b892_DAP-GES-51-24-0039-A-3.pdf
 export const extractAnalysisFromPdf = async (
   documentId: string
+  , labo: Labos
 ): Promise<null | unknown> => {
   const doc = await getDocument(
     '../../../.terraform/7fd5bc47-55f6-4710-b67d-0cb1c62d91d2_ResultatHOUBLON_GES67240015A.pdf'
   ).promise;
-
-  const linesFirstPage = await extractPageContent(doc, 1);
-  const labo = getLabo(linesFirstPage);
-
-  if (isNil(labo)) {
-    console.log('Aucun laboratoire trouvé pour ce rapport', linesFirstPage);
-    return null;
-  }
-  console.log('Laboratoire trouvé : ', labo);
 
   const result = await parseDocument[labo]((page) => extractPageContent(doc, page));
   if (isNil(result)) {
@@ -149,34 +144,22 @@ export const extractAnalysisFromPdf = async (
   return result;
 };
 
-//FIXME peut-être que ça sert à rien car on a peut-être déjà le labo dans la bdd
-const getLabo = (linesFirstPage: string[]): Labos | null => {
-  for (const labo of labos) {
-    switch (labo) {
-      case 'INOVALYS':
-        if (linesFirstPage.find((l) => l.includes('Inovalys'))) {
-          return 'INOVALYS';
-        }
-        break;
-      default:
-        assertUnreachable(labo);
-    }
-  }
 
-  return null;
-};
 
 export const extractPageContent = async (
   doc: Pick<PDFDocumentProxy, 'getPage'>,
   pageNumber: number
-): Promise<string[]> => {
+): Promise<{ valid: true, content: string[], error?: never} | {valid: false, error: string, content?: never}> => {
   const page = await doc.getPage(pageNumber);
   const pageContent = await page.getTextContent();
-  return pageContent.items
+  if (pageContent.items.length === 0) {
+    return {valid: false, error: 'PDF non lisible car contient juste une image'}
+  }
+  return { valid: true, content: pageContent.items
     .filter((item): item is TextItem =>
       'str' in item ? item.str.trim().length > 0 : false
     )
-    .map(({ str }) => str);
+    .map(({ str }) => str) }
 };
 
 // extractAnalysisFromPdf('toto')

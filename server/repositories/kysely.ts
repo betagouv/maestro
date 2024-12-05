@@ -1,4 +1,4 @@
-import { CamelCasePlugin,  Kysely, PostgresDialect } from 'kysely';
+import { CamelCasePlugin, Kysely, PostgresDialect } from 'kysely';
 import { DB } from './kysely.type';
 import { Pool } from 'pg';
 import knex from '../knex';
@@ -15,5 +15,4 @@ export const kysely = new Kysely<DB>({
   dialect,
   plugins: [new CamelCasePlugin()]
 })
-
 

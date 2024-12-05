@@ -30,6 +30,7 @@ const generateTests = async (): Promise<void> => {
     .innerJoin('laboratories', 'laboratories.id', 'samples.laboratoryId')
     .where('analysis.reportDocumentId','is not', null)
     .select(['analysis.id as analysisId', 'documents.filename as fileName','documents.id as documentId', 'laboratories.name as laboratoryName'])
+    .orderBy('analysisId')
     .execute();
 
 
@@ -51,25 +52,34 @@ const generateTests = async (): Promise<void> => {
     switch (analysis.laboratoryName){
       //FIXME
       case 'LDA 72': {
-        const page2 = await extractPageContent(doc, 2)
-        const startIndex = page2.findIndex(s => s.startsWith('ND'))
-        const endIndex = page2.findIndex(s => s.startsWith('Approuvé'))
+        const {valid, content, error} = await extractPageContent(doc, 2)
+        if (!valid) {
+          console.error(`fichier ${analysis.documentId}_${analysis.fileName} ignoré car : `, error)
+          continue
+        }
+        const startIndex = content.findIndex(s => s.startsWith('ND'));
+        const endIndex = content.findIndex(s => s.startsWith('Approuvé'))
+
         if( startIndex === -1 || endIndex === -1){
           console.error(`fichier ${analysis.documentId}_${analysis.fileName} ignoré car non conforme`)
           continue
         }
-        input.push(...[[], page2.slice(startIndex, endIndex)])
+        input.push(...[[], content.slice(startIndex, endIndex)])
         break
       }
       case 'GIR 49': {
-        const page: Array<string> = await extractPageContent(doc, 1)
-        const startIndex = page.findIndex(s => s === 'Méthode')
-        const endIndex = page.findLastIndex(s => s.startsWith('RAPPORT'))
+        const {content, valid, error}  = await extractPageContent(doc, 1)
+        if (!valid) {
+          console.error(`fichier ${analysis.documentId}_${analysis.fileName} ignoré car : `, error)
+          continue
+        }
+        const startIndex = content.findIndex(s => s === 'Méthode')
+        const endIndex = content.findLastIndex(s => s.startsWith('RAPPORT'))
         if (startIndex === -1 || endIndex === -1) {
           console.error(`fichier ${analysis.documentId}_${analysis.fileName} ignoré car non conforme`)
           continue
         }
-        input.push(page.slice(startIndex, endIndex))
+        input.push(content.slice(startIndex, endIndex))
         break
       }
       default:
@@ -82,7 +92,7 @@ const generateTests = async (): Promise<void> => {
 
   //FIXME path
   // writeFileSync(`server/services/pdfAnalysisExtractorServicejson/analysis-snapshots.json`, JSON.stringify(snapshots))
-  writeFileSync(`analysis-snapshots.json`, JSON.stringify(snapshots))
+  writeFileSync(`analysis-snapshots.json`, JSON.stringify(snapshots, null, 4))
 
 console.log('Snapshots générés : ', snapshots.length)
 
