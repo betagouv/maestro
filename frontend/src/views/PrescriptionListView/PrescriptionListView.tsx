@@ -27,13 +27,13 @@ import {
   RegionalPrescriptionKey,
   RegionalPrescriptionUpdate
 } from 'shared/schema/RegionalPrescription/RegionalPrescription';
+import AppToast from 'src/components/_app/AppToast/AppToast';
 import PrescriptionCard from 'src/components/Prescription/PrescriptionCard/PrescriptionCard';
 import PrescriptionSubstancesModal from 'src/components/Prescription/PrescriptionSubstancesModal/PrescriptionSubstancesModal';
 import RegionalPrescriptionCard from 'src/components/Prescription/RegionalPrescriptionCard/RegionalPrescriptionCard';
 import RegionalPrescriptionCommentsModal from 'src/components/Prescription/RegionalPrescriptionCommentsModal/RegionalPrescriptionCommentsModal';
 import ProgrammingPlanUpdateModal from 'src/components/ProgrammingPlan/ProgrammingPlanUpdateModal/ProgrammingPlanUpdateModal';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
-import AppToast from 'src/components/_app/AppToast/AppToast';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
@@ -401,7 +401,6 @@ const PrescriptionListView = () => {
                 onChangeRegionalPrescriptionCount={
                   changeRegionalPrescriptionCount
                 }
-                onRemovePrescription={removePrescription}
               />
             )}
           </>

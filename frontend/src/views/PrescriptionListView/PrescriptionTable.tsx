@@ -14,7 +14,6 @@ import {
 import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
 import RegionalPrescriptionCountCell from 'src/components/Prescription/RegionalPrescriptionCountCell/RegionalPrescriptionCountCell';
 import RegionHeaderCell from 'src/components/RegionHeaderCell/RegionHeaderCell';
-import { useAuthentication } from 'src/hooks/useAuthentication';
 
 interface Props {
   programmingPlan: ProgrammingPlan;
@@ -25,19 +24,14 @@ interface Props {
     region: Region,
     count: number
   ) => void;
-  onRemovePrescription: (prescriptionId: string) => Promise<void>;
 }
 
 const PrescriptionTable = ({
   programmingPlan,
   prescriptions,
   regionalPrescriptions,
-  onChangeRegionalPrescriptionCount,
-  onRemovePrescription
+  onChangeRegionalPrescriptionCount
 }: Props) => {
-  const { hasUserPermission, hasUserPrescriptionPermission } =
-    useAuthentication();
-
   const getRegionalPrescriptions = (prescriptionId: string) =>
     regionalPrescriptions
       .filter((r) => r.prescriptionId === prescriptionId)
