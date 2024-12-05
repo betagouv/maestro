@@ -14,6 +14,7 @@ import PrescriptionNotes from 'src/components/Prescription/PrescriptionNote/Pres
 import PrescriptionStages from 'src/components/Prescription/PrescriptionStages/PrescriptionStages';
 import PrescriptionSubstancesModalButtons from 'src/components/Prescription/PrescriptionSubstancesModal/PrescriptionSubstancesModalButtons';
 import { useAuthentication } from 'src/hooks/useAuthentication';
+import { pluralize } from 'src/utils/stringUtils';
 import RemoveMatrix from 'src/views/PrescriptionListView/RemoveMatrix';
 import './PrescriptionCard.scss';
 
@@ -74,12 +75,12 @@ const PrescriptionCard = ({
                       prescription.stages.length > 0
                         ? 'fr-icon-check-line'
                         : undefined,
-                    label: 'Stades',
+                    label: pluralize(prescription.stages.length)('Stade'),
                     content: (
                       <PrescriptionStages
                         programmingPlan={programmingPlan}
                         prescription={prescription}
-                        label="Stades de prélèvement"
+                        label={`${pluralize(prescription.stages.length)('Stade')} de prélèvement`}
                         onChangeStages={(stages) =>
                           onChangePrescriptionStages(prescription.id, stages)
                         }

@@ -58,11 +58,6 @@ main {
     }
   }
 
-  th:has(.fr-pl-0),
-  td:has(.fr-pl-0) {
-    padding-left: 0;
-  }
-
   th:has(.fr-pl-1w),
   td:has(.fr-pl-1w) {
     padding-left: 0.5rem;

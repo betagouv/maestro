@@ -54,7 +54,7 @@ const RegionalPrescriptionCard = ({
               <PrescriptionStages
                 programmingPlan={programmingPlan}
                 prescription={prescription}
-                label="Stades de prélèvement"
+                label={`${pluralize(prescription.stages.length)('Stade')} de prélèvement`}
               />
             </div>
             <div className="fr-card__end">
@@ -83,9 +83,9 @@ const RegionalPrescriptionCard = ({
                   programmingPlan.status
                 ) ? (
                   <span className={cx('fr-text--bold')}>
-                    {regionalPrescription.sampleCount ?? 0}
+                    {regionalPrescription.sampleCount ?? 0}{' '}
                     {pluralize(regionalPrescription.sampleCount ?? 0)(
-                      ' prélèvement programmé'
+                      'prélèvement programmé'
                     )}
                   </span>
                 ) : (
@@ -93,7 +93,7 @@ const RegionalPrescriptionCard = ({
                     <span className={cx('fr-text--bold')}>
                       {regionalPrescription.realizedSampleCount ?? 0}{' '}
                       {pluralize(regionalPrescription.realizedSampleCount ?? 0)(
-                        ' prélèvement'
+                        'prélèvement'
                       )}
                     </span>
                     {' sur '}

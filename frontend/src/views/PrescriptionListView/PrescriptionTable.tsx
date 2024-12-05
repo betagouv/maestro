@@ -12,12 +12,9 @@ import {
   RegionalPrescriptionSort
 } from 'shared/schema/RegionalPrescription/RegionalPrescription';
 import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
-import PrescriptionStages from 'src/components/Prescription/PrescriptionStages/PrescriptionStages';
-import PrescriptionSubstancesModalButtons from 'src/components/Prescription/PrescriptionSubstancesModal/PrescriptionSubstancesModalButtons';
 import RegionalPrescriptionCountCell from 'src/components/Prescription/RegionalPrescriptionCountCell/RegionalPrescriptionCountCell';
 import RegionHeaderCell from 'src/components/RegionHeaderCell/RegionHeaderCell';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import RemoveMatrix from 'src/views/PrescriptionListView/RemoveMatrix';
 
 interface Props {
   programmingPlan: ProgrammingPlan;
@@ -46,12 +43,9 @@ const PrescriptionTable = ({
       .filter((r) => r.prescriptionId === prescriptionId)
       .sort((a, b) => a.region.localeCompare(b.region));
 
-  const EmptyCell = <div></div>;
-
   const headers = useMemo(
     () => [
-      <></>,
-      <div className={cx('fr-pl-0')}>Matrice</div>,
+      <div>Matrice</div>,
       <div className="border-left">Total</div>,
       ...RegionList.map((region) => (
         <div className="border-left" key={`header-${region}`}>
@@ -65,34 +59,12 @@ const PrescriptionTable = ({
   const prescriptionsData = useMemo(
     () =>
       prescriptions.map((prescription) => [
-        <div key={`remove-${prescription.matrix}`}>
-          {hasUserPrescriptionPermission(programmingPlan)?.delete && (
-            <RemoveMatrix
-              matrix={prescription.matrix}
-              stages={prescription.stages}
-              onRemove={() => onRemovePrescription(prescription.id)}
-            />
-          )}
-        </div>,
         <div
-          className={cx('fr-pl-0', 'fr-text--bold')}
+          className={cx('fr-text--bold')}
           data-testid={`matrix-${prescription.matrix}`}
           key={`matrix-${prescription.matrix}`}
         >
           {MatrixLabels[prescription.matrix]}
-          {hasUserPermission('updatePrescription') && (
-            <PrescriptionSubstancesModalButtons
-              programmingPlan={programmingPlan}
-              prescription={prescription}
-            />
-          )}
-          <hr className={cx('fr-my-1w')} />
-          <div key={`stages-${prescription.matrix}`}>
-            <PrescriptionStages
-              programmingPlan={programmingPlan}
-              prescription={prescription}
-            />
-          </div>
         </div>,
         <div
           className={clsx(cx('fr-text--bold'), 'border-left', 'sample-count')}
@@ -149,7 +121,6 @@ const PrescriptionTable = ({
 
   const totalData = useMemo(
     () => [
-      EmptyCell,
       <b>Total</b>,
       <div className="border-left fr-text--bold">
         <div>{_.sumBy(regionalPrescriptions, 'sampleCount')}</div>
