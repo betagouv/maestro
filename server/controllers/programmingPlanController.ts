@@ -1,12 +1,16 @@
 import { Request, Response } from 'express';
 import { AuthenticatedRequest, ProgrammingPlanRequest } from 'express-jwt';
 import { constants } from 'http2';
-import _, { isArray } from 'lodash';
+import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import ProgrammingPlanMissingError from '../../shared/errors/programmingPlanMissingError';
+import { isDromRegion } from '../../shared/referential/Region';
 import { ContextList } from '../../shared/schema/ProgrammingPlan/Context';
 import { FindProgrammingPlanOptions } from '../../shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
-import { ProgrammingPlanUpdate } from '../../shared/schema/ProgrammingPlan/ProgrammingPlans';
+import {
+  getNextProgrammingPlanStatus,
+  ProgrammingPlanStatusUpdate
+} from '../../shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   ProgrammingPlanStatus,
   ProgrammingPlanStatusList,
@@ -31,20 +35,17 @@ const findProgrammingPlans = async (request: Request, response: Response) => {
     .filter(([, permission]) => hasPermission(user, permission))
     .map(([status]) => status);
 
-  const findOptionsStatus = (
-    isArray(findOptions.status)
-      ? findOptions.status
-      : findOptions.status
-        ? [findOptions.status]
-        : ProgrammingPlanStatusList
-  ) as ProgrammingPlanStatus[];
+  const findOptionsStatus = findOptions.status
+    ? findOptions.status
+    : ProgrammingPlanStatusList;
 
   const programmingPlans = await programmingPlanRepository.findMany({
     ...findOptions,
     status: _.intersection(
       findOptionsStatus,
       userStatusAuthorized
-    ) as ProgrammingPlanStatus[]
+    ) as ProgrammingPlanStatus[],
+    isDrom: findOptions.isDrom || isDromRegion(user.region)
   });
 
   console.info('Found programmingPlans', programmingPlans);
@@ -90,7 +91,8 @@ const createProgrammingPlan = async (request: Request, response: Response) => {
     createdAt: new Date(),
     createdBy: user.id,
     year,
-    status: 'InProgress' as ProgrammingPlanStatus
+    status: 'InProgress' as ProgrammingPlanStatus,
+    statusDrom: 'InProgress' as ProgrammingPlanStatus
   };
 
   await Promise.all([
@@ -148,8 +150,8 @@ const createProgrammingPlan = async (request: Request, response: Response) => {
 };
 
 const updateProgrammingPlan = async (request: Request, response: Response) => {
-  const programmingPlan = (request as ProgrammingPlanRequest).programmingPlan;
-  const programmingPlanUpdate = request.body as ProgrammingPlanUpdate;
+  const { programmingPlan } = request as ProgrammingPlanRequest;
+  const programmingPlanUpdate = request.body as ProgrammingPlanStatusUpdate;
 
   console.info('Update programming plan', programmingPlan.id);
 
@@ -158,30 +160,53 @@ const updateProgrammingPlan = async (request: Request, response: Response) => {
   });
 
   if (
-    programmingPlan.status === 'InProgress' &&
-    programmingPlanUpdate.status === 'Submitted'
+    programmingPlanUpdate.status !==
+    getNextProgrammingPlanStatus(programmingPlan, programmingPlanUpdate.isDrom)
+  ) {
+    return response.sendStatus(constants.HTTP_STATUS_BAD_REQUEST);
+  }
+
+  if (
+    getNextProgrammingPlanStatus(
+      programmingPlan,
+      programmingPlanUpdate.isDrom
+    ) === 'Submitted'
   ) {
     await mailService.sendSubmittedProgrammingPlan({
       recipients: [
-        ...regionalCoordinators.map(
-          (regionalCoordinator) => regionalCoordinator.email
-        ),
+        ...regionalCoordinators
+          .filter(
+            (regionalCoordinator) =>
+              regionalCoordinator.region &&
+              ((programmingPlanUpdate.isDrom &&
+                isDromRegion(regionalCoordinator.region)) ||
+                (!programmingPlanUpdate.isDrom &&
+                  !isDromRegion(regionalCoordinator.region)))
+          )
+          .map((regionalCoordinator) => regionalCoordinator.email),
         config.mail.from
       ]
-      // params: {}, //TODO : add params
     });
   } else if (
-    programmingPlan.status === 'Submitted' &&
-    programmingPlanUpdate.status === 'Validated'
+    getNextProgrammingPlanStatus(
+      programmingPlan,
+      programmingPlanUpdate.isDrom
+    ) === 'Validated'
   ) {
     await mailService.sendValidatedProgrammingPlan({
       recipients: [
-        ...regionalCoordinators.map(
-          (regionalCoordinator) => regionalCoordinator.email
-        ),
+        ...regionalCoordinators
+          .filter(
+            (regionalCoordinator) =>
+              regionalCoordinator.region &&
+              ((programmingPlanUpdate.isDrom &&
+                isDromRegion(regionalCoordinator.region)) ||
+                (!programmingPlanUpdate.isDrom &&
+                  !isDromRegion(regionalCoordinator.region)))
+          )
+          .map((regionalCoordinator) => regionalCoordinator.email),
         config.mail.from
       ]
-      // params: {}, //TODO : add params
     });
   } else {
     return response.sendStatus(constants.HTTP_STATUS_BAD_REQUEST);
@@ -189,8 +214,15 @@ const updateProgrammingPlan = async (request: Request, response: Response) => {
 
   const updatedProgrammingPlan = {
     ...programmingPlan,
-    status: programmingPlanUpdate.status
+    status: !programmingPlanUpdate.isDrom
+      ? programmingPlanUpdate.status
+      : programmingPlan.status,
+    statusDrom: programmingPlanUpdate.isDrom
+      ? programmingPlanUpdate.status
+      : programmingPlan.statusDrom
   };
+
+  console.info('Updated programming plan', updatedProgrammingPlan);
 
   await programmingPlanRepository.update(updatedProgrammingPlan);
 

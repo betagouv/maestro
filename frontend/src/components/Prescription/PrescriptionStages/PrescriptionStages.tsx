@@ -7,62 +7,41 @@ import { Stage, StageLabels, StageList } from 'shared/referential/Stage';
 import { Prescription } from 'shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
-import AppToast from 'src/components/_app/AppToast/AppToast';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import { useUpdatePrescriptionMutation } from 'src/services/prescription.service';
 
 interface Props {
   programmingPlan: ProgrammingPlan;
   prescription: Prescription;
   label?: string;
+  onChangeStages?: (stages: Stage[]) => void;
 }
 
 const PrescriptionStages = ({
   programmingPlan,
   prescription,
   label,
+  onChangeStages
 }: Props) => {
-  const { canEditPrescriptions } = useAuthentication();
-  const [updatePrescription, { isSuccess: isUpdateSuccess }] =
-    useUpdatePrescriptionMutation();
+  const { hasUserPrescriptionPermission } = useAuthentication();
 
   const [newStage, setNewStage] = useState<Stage | ''>('');
 
-  const removeStage = async (stage: Stage) => {
-    if (canEditPrescriptions(programmingPlan)) {
-      await updatePrescription({
-        prescriptionId: prescription.id,
-        prescriptionUpdate: {
-          programmingPlanId: prescription.programmingPlanId,
-          stages: prescription.stages.filter((s) => s !== stage),
-        },
-      });
-    }
-  };
+  const removeStage = async (stage: Stage) =>
+    onChangeStages?.(prescription.stages.filter((s) => s !== stage));
 
-  const addStage = async (stage: Stage) => {
-    if (canEditPrescriptions(programmingPlan)) {
-      await updatePrescription({
-        prescriptionId: prescription.id,
-        prescriptionUpdate: {
-          programmingPlanId: prescription.programmingPlanId,
-          stages: [...prescription.stages, stage],
-        },
-      });
-    }
-  };
+  const addStage = async (stage: Stage) =>
+    onChangeStages?.([...prescription.stages, stage]);
 
   return (
     <>
-      <AppToast open={isUpdateSuccess} description="Modification enregistrée" />
-      {canEditPrescriptions(programmingPlan) ? (
+      {hasUserPrescriptionPermission(programmingPlan)?.update ? (
         <div className="d-flex-align-center">
           <Select
             label={label ?? ''}
             nativeSelectProps={{
               onChange: (e) => {
                 setNewStage(e.target.value as Stage);
-              },
+              }
             }}
             className={cx('fr-mb-1w')}
           >
@@ -71,7 +50,7 @@ const PrescriptionStages = ({
               {
                 defaultLabel: 'Sélectionner',
                 labels: StageLabels,
-                withSort: true,
+                withSort: true
               }
             ).map((option) => (
               <option key={option.value} value={option.value}>
@@ -84,8 +63,8 @@ const PrescriptionStages = ({
             priority="secondary"
             title="Ajouter"
             disabled={!newStage}
-            onClick={() => {
-              addStage(newStage as Stage);
+            onClick={async () => {
+              await addStage(newStage as Stage);
               setNewStage('');
             }}
             className={cx(label ? 'fr-mt-3w' : 'fr-mb-1w', 'fr-ml-2w')}
@@ -97,16 +76,16 @@ const PrescriptionStages = ({
       {prescription.stages.map((stage) => (
         <Tag
           key={`prescription_${prescription.matrix}_stage_${stage}`}
-          dismissible={canEditPrescriptions(programmingPlan)}
+          dismissible={hasUserPrescriptionPermission(programmingPlan)?.update}
           small
           nativeButtonProps={
-            canEditPrescriptions(programmingPlan)
+            hasUserPrescriptionPermission(programmingPlan)?.update
               ? {
-                  onClick: () => removeStage(stage),
+                  onClick: async () => await removeStage(stage)
                 }
               : undefined
           }
-          className={cx('fr-m-1v')}
+          className={cx('fr-my-1v')}
         >
           {StageLabels[stage]}
         </Tag>

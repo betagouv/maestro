@@ -36,7 +36,9 @@ const SampleOverview = ({ sample }: Props) => {
   );
 
   return (
-    <section className={clsx(cx('fr-container'), 'main-section')}>
+    <section
+      className={clsx(cx('fr-container'), 'main-section', 'sample-overview')}
+    >
       <SectionHeader
         title={<>Prélèvement {sample.reference}</>}
         subtitle="Consultez le récapitulatif du prélèvement réalisé"
@@ -59,7 +61,7 @@ const SampleOverview = ({ sample }: Props) => {
                 label="Document d'accompagnement"
                 nativeSelectProps={{
                   onChange: (event) => setSupportDocumentId(event.target.value),
-                  value: supportDocumentId,
+                  value: supportDocumentId
                 }}
               >
                 {itemsWithSupportDocument.map((item) =>
@@ -89,23 +91,23 @@ const SampleOverview = ({ sample }: Props) => {
         tabs={[
           {
             label: 'Suivi du prélèvement',
-            content: <SampleAnalysis sample={sample} />,
+            content: <SampleAnalysis sample={sample} />
           },
           {
             label: SampleStepTitles(sample)[0],
-            content: <SampleOverviewContextTab sample={sample} />,
+            content: <SampleOverviewContextTab sample={sample} />
           },
           {
             label: SampleStepTitles(sample)[1],
-            content: <MatrixStepSummary sample={sample} showLabel={false} />,
+            content: <MatrixStepSummary sample={sample} showLabel={false} />
           },
           {
             label: SampleStepTitles(sample)[2],
-            content: <ItemsStepSummary sample={sample} />,
-          },
+            content: <ItemsStepSummary sample={sample} />
+          }
         ]}
         classes={{
-          panel: 'white-container',
+          panel: 'white-container'
         }}
       />
       <div className="back">

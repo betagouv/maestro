@@ -2,29 +2,31 @@ import { configureStore, Store } from '@reduxjs/toolkit';
 import { render, screen, within } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
-import { ProgrammingPlanStatusLabels } from 'shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { genProgrammingPlan } from 'shared/test/programmingPlanFixtures';
 import { genAuthUser, genUser } from 'shared/test/userFixtures';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
-import { mockRequests } from '../../../test/requestUtils.test';
+import { mockRequests } from '../../../test/requestTestUtils';
 import Header from './Header';
 
+import {describe, test, expect} from 'vitest';
 const validatedProgrammingPlan = {
   ...genProgrammingPlan(),
   status: 'Validated',
-  year: new Date().getFullYear(),
+  statusDrom: 'Validated',
+  year: new Date().getFullYear()
 };
 const inProgressProgrammingPlan = {
   ...genProgrammingPlan(),
   status: 'InProgress',
-  year: new Date().getFullYear() + 1,
+  statusDrom: 'InProgress',
+  year: new Date().getFullYear() + 1
 };
 
 const programmingPlansRequest = {
   pathname: `/api/programming-plans?`,
   response: {
-    body: JSON.stringify([validatedProgrammingPlan, inProgressProgrammingPlan]),
-  },
+    body: JSON.stringify([validatedProgrammingPlan, inProgressProgrammingPlan])
+  }
 };
 
 describe('Header', () => {
@@ -38,8 +40,8 @@ describe('Header', () => {
       middleware: applicationMiddleware,
       preloadedState: {
         auth: { authUser },
-        programmingPlan: { programmingPlan: validatedProgrammingPlan },
-      },
+        programmingPlan: { programmingPlan: validatedProgrammingPlan }
+      }
     });
   });
 
@@ -47,6 +49,7 @@ describe('Header', () => {
     test('should not display any navigation item', () => {
       const store = configureStore({
         reducer: applicationReducer,
+        middleware: applicationMiddleware,
         preloadedState: { auth: { authUser: undefined } },
       });
 
@@ -58,11 +61,6 @@ describe('Header', () => {
         </Provider>
       );
 
-      expect(
-        screen.queryByText(
-          `${ProgrammingPlanStatusLabels['Validated']} ${validatedProgrammingPlan.year}`
-        )
-      ).not.toBeInTheDocument();
       expect(screen.queryByText('Prélèvements')).not.toBeInTheDocument();
       expect(
         screen.queryByText('Documents ressources')
@@ -73,7 +71,7 @@ describe('Header', () => {
   describe('when user is authenticated', () => {
     const user = genUser({
       roles: ['NationalCoordinator'],
-      id: authUser.userId,
+      id: authUser.userId
     });
 
     test('should display navigation items', async () => {
@@ -81,8 +79,8 @@ describe('Header', () => {
         programmingPlansRequest,
         {
           pathname: `/api/users/${user.id}/infos`,
-          response: { body: JSON.stringify(user) },
-        },
+          response: { body: JSON.stringify(user) }
+        }
       ]);
 
       render(

@@ -1,7 +1,16 @@
 import { skipToken } from '@reduxjs/toolkit/query';
-import { ReactElement, useMemo } from 'react';
+import { ReactElement, useCallback, useMemo } from 'react';
+import {
+  hasPrescriptionPermission,
+  PrescriptionPermission
+} from 'shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { hasPermission as hasUserPermission } from 'shared/schema/User/User';
+import {
+  hasRegionalPrescriptionPermission,
+  RegionalPrescription,
+  RegionalPrescriptionPermission
+} from 'shared/schema/RegionalPrescription/RegionalPrescription';
+import { hasPermission } from 'shared/schema/User/User';
 import { UserPermission } from 'shared/schema/User/UserPermission';
 import { UserRole } from 'shared/schema/User/UserRole';
 import { isDefined } from 'shared/utils/utils';
@@ -24,19 +33,16 @@ export const useAuthentication = () => {
 
   const isAuthenticated = useMemo(() => !!authUser?.userId, [authUser]);
 
-  const hasPermission = useMemo(
-    () => (permission: UserPermission) => {
-      return (
-        isDefined(authUser?.userId) &&
-        isDefined(userInfos) &&
-        hasUserPermission(userInfos, permission)
-      );
-    },
+  const hasUserPermission = useCallback(
+    (permission: UserPermission) =>
+      isDefined(authUser?.userId) &&
+      isDefined(userInfos) &&
+      hasPermission(userInfos, permission),
     [authUser, userInfos]
   );
 
-  const hasRole = useMemo(
-    () => (role: UserRole) => {
+  const hasRole = useCallback(
+    (role: UserRole) => {
       return isAuthenticated && userInfos && userInfos?.roles.includes(role);
     },
     [userInfos, isAuthenticated]
@@ -46,14 +52,29 @@ export const useAuthentication = () => {
     return isAuthenticated && !userInfos?.region;
   }, [userInfos, isAuthenticated]);
 
-  const canEditPrescriptions = useMemo(
-    () => (programmingPlan: ProgrammingPlan) => {
-      return (
-        hasPermission('updatePrescription') &&
-        programmingPlan.status !== 'Validated'
-      );
-    },
-    [hasPermission]
+  const hasUserPrescriptionPermission = useCallback(
+    (
+      programmingPlan: ProgrammingPlan
+    ): Record<PrescriptionPermission, boolean> | null =>
+      isDefined(authUser?.userId) && isDefined(userInfos)
+        ? hasPrescriptionPermission(userInfos, programmingPlan)
+        : null,
+    [authUser, userInfos]
+  );
+
+  const hasUserRegionalPrescriptionPermission = useCallback(
+    (
+      programmingPlan: ProgrammingPlan,
+      regionalPrescription: RegionalPrescription
+    ): Record<RegionalPrescriptionPermission, boolean> | null =>
+      isDefined(authUser?.userId) && isDefined(userInfos)
+        ? hasRegionalPrescriptionPermission(
+            userInfos,
+            programmingPlan,
+            regionalPrescription
+          )
+        : null,
+    [authUser, userInfos]
   );
 
   const availableRoutes: {
@@ -69,65 +90,67 @@ export const useAuthentication = () => {
               path: '/',
               label: 'Tableau de bord',
               key: 'dashboard_route',
-              component: DashboardView,
+              component: DashboardView
             },
-            hasPermission('readPrescriptions')
+            hasUserPermission('readPrescriptions')
               ? {
                   path: '/prescriptions/:year',
                   label: 'Prescriptions',
                   key: 'prescription_route',
-                  component: () => <YearRoute element={PrescriptionListView} />,
+                  component: () => <YearRoute element={PrescriptionListView} />
                 }
               : undefined,
-            hasPermission('readSamples')
+            hasUserPermission('readSamples')
               ? {
                   path: '/prelevements/:year',
                   label: 'Prélèvements',
                   key: 'samples_route',
-                  component: () => <YearRoute element={SampleListView} />,
+                  component: () => <YearRoute element={SampleListView} />
                 }
               : undefined,
-            hasPermission('createSample')
+            hasUserPermission('createSample')
               ? {
                   path: '/prelevements/:year/nouveau',
                   label: 'Prélèvement',
                   key: 'new_sample_route',
-                  component: () => <YearRoute element={SampleView} />,
+                  component: () => <YearRoute element={SampleView} />
                 }
               : undefined,
-            hasPermission('updateSample') || hasPermission('readSamples')
+            hasUserPermission('updateSample') ||
+            hasUserPermission('readSamples')
               ? {
                   path: '/prelevements/:year/:sampleId/*',
                   label: 'Prélèvement',
                   key: 'sample_route',
-                  component: () => <YearRoute element={SampleView} />,
+                  component: () => <YearRoute element={SampleView} />
                 }
               : undefined,
             {
               path: '/documents',
               label: 'Documents ressources',
               key: 'documents_route',
-              component: DocumentListView,
-            },
+              component: DocumentListView
+            }
           ]
         : [
             {
               path: '/',
               label: 'Connexion',
               key: 'signin_route',
-              component: HomeView,
-            },
-          ]),
+              component: HomeView
+            }
+          ])
     ].filter(isDefined);
-  }, [isAuthenticated, hasPermission]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, hasUserPermission]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
     userInfos,
     isAuthenticated,
-    hasPermission,
+    hasUserPermission,
+    hasUserPrescriptionPermission,
+    hasUserRegionalPrescriptionPermission,
     hasRole,
     hasNationalView,
-    availableRoutes,
-    canEditPrescriptions,
+    availableRoutes
   };
 };

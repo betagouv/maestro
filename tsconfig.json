@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "lib": ["esnext"],
+    "lib": ["esnext", "ESNext.Array"],
     "outDir": "./dist",
     "target": "esnext",
     "allowJs": true,

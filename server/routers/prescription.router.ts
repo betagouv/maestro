@@ -3,16 +3,17 @@ import { z } from 'zod';
 import { FindPrescriptionOptions } from '../../shared/schema/Prescription/FindPrescriptionOptions';
 import {
   PrescriptionToCreate,
-  PrescriptionUpdate,
+  PrescriptionUpdate
 } from '../../shared/schema/Prescription/Prescription';
 import prescriptionController from '../controllers/prescriptionController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
+import { prescriptionCheck } from '../middlewares/checks/prescriptionCheck';
 import { programmingPlanCheck } from '../middlewares/checks/programmingPlanCheck';
 import validator, {
   body,
   params,
   query,
-  uuidParam,
+  uuidParam
 } from '../middlewares/validator';
 
 const router = express.Router();
@@ -35,7 +36,7 @@ router.post(
   '',
   validator.validate(body(PrescriptionToCreate)),
   permissionsCheck(['createPrescription']),
-  programmingPlanCheck('InProgress'),
+  programmingPlanCheck(),
   prescriptionController.createPrescription
 );
 router.put(
@@ -43,24 +44,27 @@ router.put(
   validator.validate(
     params(
       z.object({
-        prescriptionId: z.string().uuid(),
+        prescriptionId: z.string().uuid()
       })
     ).merge(body(PrescriptionUpdate))
   ),
   permissionsCheck(['updatePrescription']),
-  programmingPlanCheck('InProgress'),
+  programmingPlanCheck(),
+  prescriptionCheck(),
   prescriptionController.updatePrescription
 );
 router.delete(
   '/:prescriptionId',
   validator.validate(uuidParam('prescriptionId')),
   permissionsCheck(['deletePrescription']),
+  prescriptionCheck(),
   prescriptionController.deletePrescription
 );
 router.get(
   '/:prescriptionId/substances',
   validator.validate(uuidParam('prescriptionId')),
   permissionsCheck(['readPrescriptions']),
+  prescriptionCheck(),
   prescriptionController.getPrescriptionSubstances
 );
 export default router;

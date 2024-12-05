@@ -1,4 +1,3 @@
-import { Laboratory } from 'shared/schema/Laboratory/Laboratory';
 import { isDefinedAndNotNull } from 'shared/utils/utils';
 
 export interface AppSelectOption {
@@ -19,11 +18,11 @@ export const defaultAppSelectOption = (
 ): AppSelectOption => ({
   label: `${optionLabel ?? 'Sélectionner une valeur'}`,
   value: '',
-  disabled: true,
+  disabled: true
 });
 
 const DefaultSelectOptionsFromListConfig = {
-  withDefault: true,
+  withDefault: true
 };
 
 export const selectOptionsFromList = (
@@ -35,12 +34,12 @@ export const selectOptionsFromList = (
     defaultLabel?: string;
   } = {
     withDefault: true,
-    withSort: true,
+    withSort: true
   }
 ): AppSelectOption[] => {
   const selectConfig = {
     ...DefaultSelectOptionsFromListConfig,
-    ...config,
+    ...config
   };
   return [
     ...(selectConfig.withDefault
@@ -49,24 +48,9 @@ export const selectOptionsFromList = (
     ...list
       .map((item) => ({
         label: selectConfig.labels ? selectConfig.labels[item] : item,
-        value: item,
+        value: item
       }))
       .filter((item) => isDefinedAndNotNull(item.label) && item.label !== '')
-      .sort((a, b) => (config.withSort ? a.label.localeCompare(b.label) : 0)),
-  ];
-};
-
-export const laboratoriesOptions = (
-  laboratories: Laboratory[] = []
-): AppSelectOption[] => {
-  return [
-    {
-      ...defaultAppSelectOption('Sélectionner un laboratoire'),
-      label: '-',
-    },
-    ...laboratories.map((laboratory) => ({
-      label: laboratory.name,
-      value: laboratory.id,
-    })),
+      .sort((a, b) => (config.withSort ? a.label.localeCompare(b.label) : 0))
   ];
 };

@@ -1,8 +1,6 @@
-import fetchMock, {
-  FetchMock,
-  MockResponseInit,
-  MockResponseInitFunction,
-} from 'jest-fetch-mock';
+import {
+  FetchMock, MockResponse
+} from 'vitest-fetch-mock';
 
 export interface RequestCall {
   url: string;
@@ -27,7 +25,7 @@ export const getRequestCalls = (fetchMock: FetchMock) =>
 export interface RequestMatch {
   pathname: string;
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-  response: MockResponseInitFunction | MockResponseInit;
+  response:  MockResponse;
 }
 
 export const mockRequests = (matches: RequestMatch[]): void => {
@@ -40,7 +38,7 @@ export const mockRequests = (matches: RequestMatch[]): void => {
     ];
   }
 
-  fetchMock.mockResponse((request): Promise<MockResponseInit | string> => {
+  fetchMock.mockResponse((request)  => {
     const match = matches.find((match) => {
       return predicates(match).every((predicate) => predicate(request));
     });
@@ -48,15 +46,9 @@ export const mockRequests = (matches: RequestMatch[]): void => {
       throw new MockError(request);
     }
 
-    return isMockResponseInitFunction(match.response)
-      ? match.response(request)
-      : Promise.resolve(match.response);
+    return match.response
   });
 };
-
-const isMockResponseInitFunction = (
-  response: unknown
-): response is MockResponseInitFunction => typeof response === 'function';
 
 class MockError extends Error {
   constructor(request: Request) {

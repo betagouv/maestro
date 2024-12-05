@@ -18,8 +18,9 @@ import MatrixStep from 'src/views/SampleView/DraftSample/MatrixStep/MatrixStep';
 import {
   getRequestCalls,
   mockRequests,
-} from '../../../../../../test/requestUtils.test';
+} from '../../../../../../test/requestTestUtils';
 
+import {describe, test, expect} from 'vitest';
 let store: Store;
 const authUser = genAuthUser();
 const sampler = genUser({

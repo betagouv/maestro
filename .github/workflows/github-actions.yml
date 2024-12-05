@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [16.x]
+        node-version: [22.x]
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
@@ -27,14 +27,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [16.x]
+        node-version: [22.x]
     services:
       postgres:
         image: postgis/postgis
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: pspc
+          POSTGRES_DB: maestro
         ports:
           - 5432:5432
         options:
@@ -47,7 +47,7 @@ jobs:
         ports:
           - 9090:9090
         env:
-          initialBuckets: "pspc"
+          initialBuckets: "maestro"
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
@@ -61,8 +61,8 @@ jobs:
         run: npm run build
         env:
           AUTH_SECRET: abcd1234
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/pspc
-          DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/pspc
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/maestro
+          DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/maestro
           NODE_ENV: production
           S3_ENDPOINT: s3
           S3_REGION: region
@@ -78,11 +78,13 @@ jobs:
 #        run: npm run test:database
 #        env:
 #          AUTH_SECRET: abcd1234
-#          DATABASE_URL: postgres://postgres:postgres@localhost:5432/pspc
-#          DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/pspc
-      - name: Server tests
+#          DATABASE_URL: postgres://postgres:postgres@localhost:5432/maestro
+#          DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/maestro
+      - name: Server integration tests
         run: npm run test -- --test-timeout=30000
         env:
           AUTH_SECRET: abcd1234
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/pspc
-          DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/pspc
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/maestro
+          DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/maestro
+      - name: Server unit tests
+        run: npm run test:unit

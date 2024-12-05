@@ -4,7 +4,7 @@ import { Region, RegionList, Regions } from 'shared/referential/Region';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   RegionalPrescription,
-  RegionalPrescriptionSort,
+  RegionalPrescriptionSort
 } from 'shared/schema/RegionalPrescription/RegionalPrescription';
 import RegionalPrescriptionCountCell from 'src/components/Prescription/RegionalPrescriptionCountCell/RegionalPrescriptionCountCell';
 import './PrescriptionCard.scss';
@@ -26,8 +26,12 @@ const PrescriptionCardPartialTable = ({
   regionalPrescriptions,
   onChangeRegionalPrescriptionCount,
   start,
-  end,
+  end
 }: Props) => {
+  if (!regionalPrescriptions) {
+    return <></>;
+  }
+
   return (
     <Table
       bordered={false}
@@ -55,9 +59,9 @@ const PrescriptionCardPartialTable = ({
                 )
               }
             />
-          )),
+          ))
       ]}
-      className={cx('fr-mb-3w')}
+      className={cx('fr-mb-0')}
     />
   );
 };

@@ -35,7 +35,7 @@ interface Props {
 
 const SendingStep = ({ sample }: Props) => {
   const { navigateToSample } = useSamplesLink();
-  const { hasPermission } = useAuthentication();
+  const { hasUserPermission } = useAuthentication();
   const { isOnline } = useOnLine();
   const { laboratory } = usePartialSample(sample);
 
@@ -108,7 +108,7 @@ const SendingStep = ({ sample }: Props) => {
         <h3 className={cx('fr-m-0')}>
           Récapitulatif du prélèvement{' '}
           {isCreatedSample(sample) && sample.reference}
-          {hasPermission('updateSample') && (
+          {hasUserPermission('updateSample') && (
             <div className={cx('fr-text--md', 'fr-text--regular', 'fr-m-0')}>
               Vérifiez l’ensemble des informations avant de finaliser votre
               envoi
@@ -267,7 +267,7 @@ const SendingStep = ({ sample }: Props) => {
         ) : (
           <hr className={cx('fr-mx-0')} />
         )}
-        {hasPermission('updateSample') && (
+        {hasUserPermission('updateSample') && (
           <>
             <div className="sample-actions">
               <ul

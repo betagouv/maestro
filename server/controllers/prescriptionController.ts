@@ -1,12 +1,15 @@
 import { Request, Response } from 'express';
-import { AuthenticatedRequest, ProgrammingPlanRequest } from 'express-jwt';
+import {
+  AuthenticatedRequest,
+  PrescriptionRequest,
+  ProgrammingPlanRequest
+} from 'express-jwt';
 import { constants } from 'http2';
 import { v4 as uuidv4 } from 'uuid';
-import PrescriptionMissingError from '../../shared/errors/prescriptionPlanMissingError';
-import ProgrammingPlanMissingError from '../../shared/errors/programmingPlanMissingError';
 import { RegionList } from '../../shared/referential/Region';
 import { FindPrescriptionOptions } from '../../shared/schema/Prescription/FindPrescriptionOptions';
 import {
+  hasPrescriptionPermission,
   PrescriptionToCreate,
   PrescriptionUpdate
 } from '../../shared/schema/Prescription/Prescription';
@@ -14,7 +17,6 @@ import { ContextLabels } from '../../shared/schema/ProgrammingPlan/Context';
 import { FindRegionalPrescriptionOptions } from '../../shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
-import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
 import exportPrescriptionsService from '../services/exportService/exportPrescriptionsService';
 import workbookUtils from '../utils/workbookUtils';
@@ -69,8 +71,13 @@ const exportPrescriptions = async (request: Request, response: Response) => {
 };
 
 const createPrescription = async (request: Request, response: Response) => {
+  const user = (request as AuthenticatedRequest).user;
   const programmingPlan = (request as ProgrammingPlanRequest).programmingPlan;
   const prescriptionToCreate = request.body as PrescriptionToCreate;
+
+  if (!hasPrescriptionPermission(user, programmingPlan).create) {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
 
   console.info(
     'Create prescriptions for programming plan with id',
@@ -97,36 +104,31 @@ const createPrescription = async (request: Request, response: Response) => {
 };
 
 const updatePrescription = async (request: Request, response: Response) => {
-  const programmingPlan = (request as ProgrammingPlanRequest).programmingPlan;
-  const { prescriptionId } = request.params;
+  const user = (request as AuthenticatedRequest).user;
+  const { prescription, programmingPlan } = request as PrescriptionRequest;
   const prescriptionUpdate = request.body as PrescriptionUpdate;
 
-  console.info('Update prescription with id', prescriptionId);
-
-  const prescription = await prescriptionRepository.findUnique(prescriptionId);
-
-  if (!prescription) {
-    throw new PrescriptionMissingError(prescriptionId);
-  }
-
-  if (prescription.programmingPlanId !== programmingPlan.id) {
+  if (!hasPrescriptionPermission(user, programmingPlan).update) {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
   }
 
+  console.info('Update prescription with id', prescription.id);
+
   const updatedPrescription = {
     ...prescription,
-    stages: prescriptionUpdate.stages ?? prescription.stages
+    stages: prescriptionUpdate.stages ?? prescription.stages,
+    notes: prescriptionUpdate.notes ?? prescription.notes
   };
 
   await prescriptionRepository.update(updatedPrescription);
 
   if (prescriptionUpdate.substances) {
     const substances = prescriptionUpdate.substances.map((substance) => ({
-      prescriptionId,
+      prescriptionId: prescription.id,
       ...substance
     }));
 
-    await prescriptionSubstanceRepository.deleteMany(prescriptionId);
+    await prescriptionSubstanceRepository.deleteMany(prescription.id);
     await prescriptionSubstanceRepository.insertMany(substances);
   }
 
@@ -134,29 +136,16 @@ const updatePrescription = async (request: Request, response: Response) => {
 };
 
 const deletePrescription = async (request: Request, response: Response) => {
-  const prescriptionId = request.params.prescriptionId;
+  const user = (request as AuthenticatedRequest).user;
+  const { prescription, programmingPlan } = request as PrescriptionRequest;
 
-  console.info('Delete prescription with id', prescriptionId);
+  console.info('Delete prescription with id', prescription.id);
 
-  const prescription = await prescriptionRepository.findUnique(prescriptionId);
-
-  if (!prescription) {
-    throw new PrescriptionMissingError(prescriptionId);
-  }
-
-  const programmingPlan = await programmingPlanRepository.findUnique(
-    prescription.programmingPlanId
-  );
-
-  if (!programmingPlan) {
-    throw new ProgrammingPlanMissingError(prescription.programmingPlanId);
-  }
-
-  if (!['InProgress', 'Submitted'].includes(programmingPlan.status)) {
+  if (!hasPrescriptionPermission(user, programmingPlan).delete) {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
   }
 
-  await prescriptionRepository.deleteOne(prescriptionId);
+  await prescriptionRepository.deleteOne(prescription.id);
 
   response.sendStatus(constants.HTTP_STATUS_NO_CONTENT);
 };
@@ -165,18 +154,13 @@ const getPrescriptionSubstances = async (
   request: Request,
   response: Response
 ) => {
-  const { prescriptionId } = request.params;
+  const { prescription } = request as PrescriptionRequest;
 
-  console.info('Get prescription substances', prescriptionId);
+  console.info('Get prescription substances', prescription.id);
 
-  const prescription = await prescriptionRepository.findUnique(prescriptionId);
-
-  if (!prescription) {
-    throw new PrescriptionMissingError(prescriptionId);
-  }
-
-  const substances =
-    await prescriptionSubstanceRepository.findMany(prescriptionId);
+  const substances = await prescriptionSubstanceRepository.findMany(
+    prescription.id
+  );
 
   response.status(constants.HTTP_STATUS_OK).send(substances);
 };

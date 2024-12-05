@@ -7,7 +7,7 @@ import {
   isCreatedPartialSample,
   PartialSample,
   PartialSampleToCreate,
-  Sample,
+  Sample
 } from 'shared/schema/Sample/Sample';
 import { SampleStatus } from 'shared/schema/Sample/SampleStatus';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -27,7 +27,7 @@ interface Props {
 const SampleView = ({ sample }: Props) => {
   useDocumentTitle("Saisie d'un prélèvement");
 
-  const { hasPermission } = useAuthentication();
+  const { hasUserPermission } = useAuthentication();
 
   const [searchParams] = useSearchParams();
   const [step, setStep] = useState<number>();
@@ -36,7 +36,7 @@ const SampleView = ({ sample }: Props) => {
     Draft: 1,
     DraftMatrix: 2,
     DraftItems: 3,
-    Submitted: 4,
+    Submitted: 4
   };
 
   useEffect(() => {
@@ -59,7 +59,7 @@ const SampleView = ({ sample }: Props) => {
           'white-container'
         )}
       >
-        {hasPermission('updateSample') && step && (
+        {hasUserPermission('updateSample') && step && (
           <div className="sample-stepper">
             <img
               src={audit}

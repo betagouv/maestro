@@ -8,7 +8,7 @@ export const documentApi = api.injectEndpoints({
     getDocument: builder.query<Document, string>({
       query: (documentId) => `documents/${documentId}`,
       transformResponse: (response: any) => Document.parse(response),
-      providesTags: (result, error, documentId) =>
+      providesTags: (result, _error, documentId) =>
         result ? [{ type: 'Document', id: documentId }] : [],
     }),
     createDocument: builder.mutation<
@@ -84,7 +84,7 @@ export const documentApi = api.injectEndpoints({
         url: `documents/${documentId}`,
         method: 'DELETE',
       }),
-      invalidatesTags: (result, error, documentId) => [
+      invalidatesTags: (_result, _error, documentId) => [
         { type: 'Document', id: 'LIST' },
         { type: 'Document', id: documentId },
       ],

@@ -11,7 +11,8 @@ import {
 import { store } from 'src/store/store';
 import config from 'src/utils/config';
 import ItemsStep from 'src/views/SampleView/DraftSample/ItemsStep/ItemsStep';
-import { getRequestCalls } from '../../../../../../test/requestUtils.test';
+import { getRequestCalls } from '../../../../../../test/requestTestUtils';
+import {describe, test, expect} from 'vitest';
 
 describe('SampleStepDraftItems', () => {
   const user = userEvent.setup();
@@ -106,6 +107,7 @@ describe('SampleStepDraftItems', () => {
   });
 
   test('should save the items and the sample on change without handling errors', async () => {
+    fetchMock.resetMocks()
     render(
       <Provider store={store}>
         <BrowserRouter>
@@ -139,6 +141,7 @@ describe('SampleStepDraftItems', () => {
   });
 
   test('should submit the items and update sample status', async () => {
+    fetchMock.resetMocks()
     render(
       <Provider store={store}>
         <BrowserRouter>

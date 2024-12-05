@@ -12,8 +12,8 @@ class NodemailerService implements MailService {
       secure: config.mailer.secure ?? undefined,
       auth: {
         user: config.mailer.user ?? undefined,
-        pass: config.mailer.password ?? undefined,
-      },
+        pass: config.mailer.password ?? undefined
+      }
     });
   }
 
@@ -22,7 +22,7 @@ class NodemailerService implements MailService {
       from: config.mail.from,
       to: options.recipients.join(','),
       subject: options.subject,
-      html: options.content,
+      html: options.content
     });
   }
 
@@ -30,7 +30,7 @@ class NodemailerService implements MailService {
     return this.send({
       ...options,
       subject: "Réception à venir d'un prélèvement",
-      content: `Vous allez bientôt recevoir un prélèvement`,
+      content: `Vous allez bientôt recevoir un prélèvement`
     });
   }
 
@@ -38,7 +38,7 @@ class NodemailerService implements MailService {
     return this.send({
       ...options,
       subject: 'Copie du document d’accompagnement',
-      content: 'Voici une copie de votre document d’accompagnement',
+      content: 'Voici une copie de votre document d’accompagnement'
     });
   }
 
@@ -46,7 +46,7 @@ class NodemailerService implements MailService {
     return this.send({
       ...options,
       subject: 'Plan de programmation',
-      content: 'Le plan de programmation a été soumis',
+      content: 'Le plan de programmation a été soumis'
     });
   }
 
@@ -54,7 +54,17 @@ class NodemailerService implements MailService {
     return this.send({
       ...options,
       subject: 'Plan de programmation validé',
-      content: 'Le plan de programmation a été validé',
+      content: 'Le plan de programmation a été validé'
+    });
+  }
+
+  async sendNewRegionalPrescriptionComment(
+    options: SendOptions
+  ): Promise<void> {
+    return this.send({
+      ...options,
+      subject: 'Nouveau commentaire',
+      content: 'Un nouveau commentaire a été ajouté'
     });
   }
 }

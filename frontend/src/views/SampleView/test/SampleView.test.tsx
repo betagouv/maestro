@@ -1,7 +1,7 @@
 import { configureStore, Store } from '@reduxjs/toolkit';
 import { render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
-import Router, { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, useParams } from 'react-router-dom';
 import { genPrescription } from 'shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'shared/test/programmingPlanFixtures';
 import {
@@ -15,12 +15,18 @@ import SampleView from 'src/views/SampleView/SampleView';
 import {
   getRequestCalls,
   mockRequests,
-} from '../../../../test/requestUtils.test';
+} from '../../../../test/requestTestUtils';
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useParams: jest.fn(),
-}));
+import { describe, test, expect, vi } from 'vitest';
+
+
+vi.mock(import('react-router-dom'), async (importOriginal) => {
+  const original = await importOriginal();
+  return {
+    ...original,
+    useParams: vi.fn()
+  };
+});
 
 let store: Store;
 const authUser = genAuthUser();
@@ -65,7 +71,7 @@ describe('SampleView', () => {
 
   test('should render the first step for a new sample', async () => {
     mockRequests([userRequest]);
-    jest.spyOn(Router, 'useParams').mockReturnValue({ sampleId: undefined });
+    vi.mocked(useParams).mockReturnValue({ sampleId: undefined });
 
     render(
       <Provider store={store}>
@@ -100,8 +106,8 @@ describe('SampleView', () => {
         response: { body: JSON.stringify(createdSample) },
       },
     ]);
-    jest
-      .spyOn(Router, 'useParams')
+   vi
+      .mocked(useParams)
       .mockReturnValue({ sampleId: createdSample.id });
 
     render(
@@ -138,8 +144,8 @@ describe('SampleView', () => {
         response: { body: JSON.stringify(draftSample) },
       },
     ]);
-    jest
-      .spyOn(Router, 'useParams')
+   vi
+      .mocked(useParams)
       .mockReturnValue({ sampleId: draftSample.id });
 
     render(
@@ -175,8 +181,8 @@ describe('SampleView', () => {
         response: { body: JSON.stringify(draftSample) },
       },
     ]);
-    jest
-      .spyOn(Router, 'useParams')
+   vi
+      .mocked(useParams)
       .mockReturnValue({ sampleId: draftSample.id });
 
     render(

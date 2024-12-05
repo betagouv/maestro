@@ -29,10 +29,13 @@ const findMany = async (
 ): Promise<ProgrammingPlan[]> => {
   console.info('Find programming plans', fp.omitBy(findOptions, fp.isNil));
   return ProgrammingPlans()
-    .where(fp.omitBy(fp.omit(findOptions, 'status'), fp.isNil))
+    .where(fp.omitBy(fp.omit(findOptions, 'status', 'isDrom'), fp.isNil))
     .modify((builder) => {
       if (fp.isArray(findOptions.status)) {
-        builder.whereIn('status', findOptions.status);
+        builder.whereIn(
+          findOptions.isDrom ? 'statusDrom' : 'status',
+          findOptions.status
+        );
       }
     })
     .then((programmingPlans) =>
@@ -59,5 +62,5 @@ export default {
   findOne,
   findMany,
   insert,
-  update,
+  update
 };

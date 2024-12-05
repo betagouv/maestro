@@ -13,7 +13,7 @@ interface Props {
 }
 
 const DocumentTable = ({ documents }: Props) => {
-  const { hasPermission } = useAuthentication();
+  const { hasUserPermission } = useAuthentication();
 
   const [deleteDocument, { isSuccess: isDeleteSuccess }] =
     useDeleteDocumentMutation();
@@ -31,7 +31,7 @@ const DocumentTable = ({ documents }: Props) => {
         headers={['', 'Nom', 'Date de création', '']}
         data={documents.map((document) => [
           <div>
-            {hasPermission('deleteDocument') && (
+            {hasUserPermission('deleteDocument') && (
               <RemoveDocument
                 document={document}
                 onRemoveDocument={async () => {
@@ -49,7 +49,7 @@ const DocumentTable = ({ documents }: Props) => {
             children="Consulter"
             iconId="fr-icon-arrow-right-line"
             iconPosition="right"
-          />,
+          />
         ])}
       />
     </div>

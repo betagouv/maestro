@@ -1,11 +1,13 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import clsx from 'clsx';
 import { t } from 'i18next';
 import { Prescription } from 'shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch } from 'src/hooks/useStore';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
+import { pluralize } from 'src/utils/stringUtils';
 import './PrescriptionSubstances.scss';
 
 interface Props {
@@ -13,15 +15,15 @@ interface Props {
   prescription: Prescription;
 }
 
-const PrescriptionSubstancesSummary = ({
+const PrescriptionSubstancesModalButtons = ({
   programmingPlan,
-  prescription,
+  prescription
 }: Props) => {
   const dispatch = useAppDispatch();
-  const { canEditPrescriptions } = useAuthentication();
+  const { hasUserPrescriptionPermission } = useAuthentication();
 
   return (
-    <div className="prescription-analysis-summary">
+    <div className="prescription-substance-button">
       <div>
         <Button
           onClick={() =>
@@ -32,13 +34,13 @@ const PrescriptionSubstancesSummary = ({
             )
           }
           priority="tertiary no outline"
-          className={cx('fr-link--xs')}
+          className={clsx(cx('fr-link--xs'), 'link-underline')}
         >
-          {canEditPrescriptions(programmingPlan) &&
+          {hasUserPrescriptionPermission(programmingPlan)?.update &&
           (prescription.monoAnalysisCount ?? 0) === 0
             ? `Ajouter une analyse mono résidu`
             : `${t('analysis', {
-                count: prescription.monoAnalysisCount || 0,
+                count: prescription.monoAnalysisCount || 0
               })} mono résidu`}
         </Button>
       </div>
@@ -52,18 +54,18 @@ const PrescriptionSubstancesSummary = ({
             )
           }
           priority="tertiary no outline"
-          className={cx('fr-link--xs')}
+          className={clsx(cx('fr-link--xs'), 'link-underline')}
         >
-          {canEditPrescriptions(programmingPlan) &&
+          {hasUserPrescriptionPermission(programmingPlan)?.update &&
           (prescription.multiAnalysisCount ?? 0) === 0
-            ? `Ajouter une analyse multi résidus`
-            : `${t('analysis', {
-                count: prescription.multiAnalysisCount || 0,
-              })} multi résidus`}
+            ? `Spécifier une analyse multi résidus`
+            : `Analyse multi-résidu (${prescription.multiAnalysisCount || 0} ${pluralize(
+                prescription.multiAnalysisCount || 0
+              )('spécifiée')})`}
         </Button>
       </div>
     </div>
   );
 };
 
-export default PrescriptionSubstancesSummary;
+export default PrescriptionSubstancesModalButtons;

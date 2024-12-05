@@ -1,12 +1,14 @@
 import _ from 'lodash';
 import { z } from 'zod';
-import { Region, RegionSort } from '../../referential/Region';
+import { isDromRegion, Region, RegionSort } from '../../referential/Region';
 import { Prescription } from '../Prescription/Prescription';
+import { ProgrammingPlan } from '../ProgrammingPlan/ProgrammingPlans';
+import { hasPermission, User, UserInfos, userRegions } from '../User/User';
 import { RegionalPrescriptionComment } from './RegionalPrescriptionComment';
 
 export const RegionalPrescriptionKey = z.object({
   prescriptionId: z.string().uuid(),
-  region: Region,
+  region: Region
 });
 
 export const RegionalPrescription = z.object({
@@ -19,16 +21,16 @@ export const RegionalPrescription = z.object({
         id: true,
         comment: true,
         createdAt: true,
-        createdBy: true,
+        createdBy: true
       })
     )
     .nullish(),
-  realizedSampleCount: z.coerce.number().nullish(),
+  realizedSampleCount: z.coerce.number().nullish()
 });
 
 export const RegionalPrescriptionUpdate = RegionalPrescription.pick({
   sampleCount: true,
-  laboratoryId: true,
+  laboratoryId: true
 })
   .partial()
   .merge(Prescription.pick({ programmingPlanId: true }));
@@ -52,7 +54,7 @@ export const getCompletionRate = (
     realizedSampleCount: Math.min(
       regionalPrescription.sampleCount,
       regionalPrescription.realizedSampleCount ?? 0
-    ),
+    )
   }));
 
   const totalSampleCount = _.sumBy(
@@ -78,3 +80,38 @@ export const RegionalPrescriptionSort = (
   a: RegionalPrescription,
   b: RegionalPrescription
 ) => RegionSort(a.region, b.region);
+
+const RegionalPrescriptionPermission = z.enum([
+  'updateSampleCount',
+  'comment',
+  'updateLaboratory'
+]);
+
+export type RegionalPrescriptionPermission = z.infer<
+  typeof RegionalPrescriptionPermission
+>;
+
+export const hasRegionalPrescriptionPermission = (
+  user: User | UserInfos,
+  programmingPlan: ProgrammingPlan,
+  regionalPrescription: RegionalPrescription
+): Record<RegionalPrescriptionPermission, boolean> => ({
+  updateSampleCount:
+    hasPermission(user, 'updatePrescription') &&
+    userRegions(user).includes(regionalPrescription.region) &&
+    (isDromRegion(regionalPrescription.region)
+      ? programmingPlan.statusDrom !== 'Closed'
+      : programmingPlan.status !== 'Closed'),
+  comment:
+    hasPermission(user, 'commentPrescription') &&
+    userRegions(user).includes(regionalPrescription.region) &&
+    (isDromRegion(regionalPrescription.region)
+      ? programmingPlan.statusDrom === 'Submitted'
+      : programmingPlan.status === 'Submitted'),
+  updateLaboratory:
+    hasPermission(user, 'updatePrescriptionLaboratory') &&
+    userRegions(user).includes(regionalPrescription.region) &&
+    (isDromRegion(regionalPrescription.region)
+      ? programmingPlan.statusDrom === 'Validated'
+      : programmingPlan.status === 'Validated')
+});

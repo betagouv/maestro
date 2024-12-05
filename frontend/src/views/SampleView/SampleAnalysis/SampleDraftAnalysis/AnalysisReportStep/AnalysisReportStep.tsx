@@ -43,11 +43,11 @@ const AnalysisReportStep = ({ sampleId, partialAnalysis }: Props) => {
     partialAnalysis?.reportDocumentId !== undefined
   );
 
-  const acceptFileTypes: FileType[] = [
+  const acceptFileTypes = [
     'application/pdf',
     'image/jpeg',
     'image/png',
-  ];
+  ] as const satisfies FileType[];
 
   const Form = z.object({
     hasReportDocument: z.boolean(),

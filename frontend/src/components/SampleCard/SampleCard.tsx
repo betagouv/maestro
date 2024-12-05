@@ -10,7 +10,7 @@ import { ContextLabels } from 'shared/schema/ProgrammingPlan/Context';
 import {
   isCreatedPartialSample,
   PartialSample,
-  PartialSampleToCreate,
+  PartialSampleToCreate
 } from 'shared/schema/Sample/Sample';
 import { DraftStatusList } from 'shared/schema/Sample/SampleStatus';
 import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
@@ -27,7 +27,7 @@ interface Props {
 
 const SampleCard = ({ sample }: Props) => {
   const { sampleLink } = useSamplesLink();
-  const { userInfos, hasPermission } = useAuthentication();
+  const { userInfos, hasUserPermission } = useAuthentication();
   const { isOnline } = useOnLine();
   const { isMobile } = useWindowSize();
 
@@ -67,7 +67,7 @@ const SampleCard = ({ sample }: Props) => {
       title={isCreatedPartialSample(sample) ? sample.reference : 'Hors ligne'}
       border
       linkProps={{
-        to: sampleLink(sample.id),
+        to: sampleLink(sample.id)
       }}
       desc={
         <span className={cx('fr-text--xs', 'fr-mb-0')}>
@@ -133,7 +133,7 @@ const SampleCard = ({ sample }: Props) => {
               size="small"
               className={clsx('fr-mr-2w')}
               linkProps={{
-                to: sampleLink(sample.id),
+                to: sampleLink(sample.id)
               }}
               priority={
                 [...DraftStatusList, 'Submitted'].includes(sample.status)
@@ -146,7 +146,7 @@ const SampleCard = ({ sample }: Props) => {
                 : 'Consulter'}
             </Button>
             {isOnline &&
-              hasPermission('deleteSample') &&
+              hasUserPermission('deleteSample') &&
               DraftStatusList.includes(sample.status) && (
                 <RemoveSample sample={sample} />
               )}

@@ -55,7 +55,11 @@ const SupportDocumentDownload = ({
         <Button
           onClick={async (e: React.MouseEvent) => {
             e.preventDefault();
-            missingData ? alertModal.open() : confirmationModal.open();
+            if( missingData ) {
+              alertModal.open() }
+            else {
+              confirmationModal.open()
+            }
           }}
           priority="tertiary no outline"
           iconId="fr-icon-printer-fill"
