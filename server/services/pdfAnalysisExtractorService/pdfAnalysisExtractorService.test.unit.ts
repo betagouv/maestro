@@ -9,10 +9,11 @@ describe('pdfAnalysisExtractorService', () => {
 
   test.each(snapshots)('cas réel numéro %#', async (snapshot) => {
     //FIXME labo name
+    console.log(snapshot.documentId)
     await expect(
       parseDocument[snapshot.laboratoryName as Labos](
         async (page) => ({ valid: true, content: snapshot.input[page - 1] })
       )
-    ).resolves.toBe(snapshot.output);
+    ).resolves.toStrictEqual(snapshot.output);
   });
 });

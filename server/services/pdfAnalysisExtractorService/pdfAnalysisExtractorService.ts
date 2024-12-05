@@ -7,12 +7,32 @@ import { SimpleResidueLabels } from '../../../shared/referential/Residue/SimpleR
 const labos = ['LDA 72'] as const;
 export type Labos = (typeof labos)[number];
 
-type ParseLaboDocument =  (extractPageContentFunction: (page: number) => ReturnType<typeof extractPageContent>) => Promise<null>
-const parseNovalysDocument: ParseLaboDocument = async (extractPageContentFunction) => {
-  const {content, valid} = await extractPageContentFunction(2);
+const resultValidator = z.discriminatedUnion('result_kind',[z.object({
+  result_kind: z.literal('NQ'),
+  result: z.null()
+}),z.object({result_kind: z.literal('Q'), result: z.number().nullable()})])
+
+
+export const analysiesResiduesValidator = z.object(
+  {reference: z.string().nullable() ,
+    lmr: z.number().nullable(),
+    result: resultValidator
+  }
+)
+export type AnalysieResidues = z.infer<typeof analysiesResiduesValidator>
+type ParseLaboDocument = (
+  extractPageContentFunction: (
+    page: number
+  ) => ReturnType<typeof extractPageContent>
+) => Promise<AnalysieResidues[] | null>;
+
+const parseNovalysDocument: ParseLaboDocument = async (
+  extractPageContentFunction
+) => {
+  const { content, valid } = await extractPageContentFunction(2);
 
   if (!valid) {
-    return null
+    return null;
   }
 
   const dateValidator = z.string().regex(/^\d{2}\/\d{2}\/\d{2}$/);
@@ -24,6 +44,14 @@ const parseNovalysDocument: ParseLaboDocument = async (extractPageContentFunctio
     z.literal('-')
   ]);
   const uniteValidator = z.literal('mg/kg');
+
+  const lmrValidator = z.string()
+    .refine(s => s !== 'M')
+    .transform(s => {
+      console.log(s)
+      const {success, data} = z.coerce.number().safeParse(s.replace('<', ''))
+      return success ? data : null
+    })
 
   const lineValidator = z
     .union([
@@ -37,19 +65,8 @@ const parseNovalysDocument: ParseLaboDocument = async (extractPageContentFunctio
         z.string(),
         z.string(),
         dateValidator,
-        z.string().refine((s) => s !== 'M'),
-      ]),
-      z.tuple([
-        z.literal('M'),
-        z.string(),
-        z.union([numberValidator, z.literal('ND')]),
-        uniteValidator,
-        numberValidator,
-        z.string(),
-        z.string(),
-        dateValidator,
-        z.string().refine((s) => s !== 'M'),
-      ]),
+       lmrValidator
+      ]).transform((r) => ({substance: r[1], result: r[2], lmr: r[9]})),
 
       z.tuple([
         z.literal('M'),
@@ -60,28 +77,47 @@ const parseNovalysDocument: ParseLaboDocument = async (extractPageContentFunctio
         z.string(),
         z.string(),
         dateValidator,
-      ]),
+      lmrValidator
+      ]).transform((r) => ({substance: r[1], result: r[2], lmr: r[8]})),
+
+
+      z.tuple([
+        z.literal('M'),
+        z.string(),
+        z.union([numberValidator, z.literal('ND')]),
+        uniteValidator,
+        numberValidator,
+        z.string(),
+        z.string(),
+        dateValidator
+      ]).transform((r) => ({substance: r[1], result: r[2], lmr: null})),
       z.tuple([
         z.literal('M'),
         z.string(),
         z.literal('en annexe.'),
         dateValidator
-      ]),
-     z.tuple([ z.literal('Analyses à la carte')])
+      ]).transform(() => null),
+      z.tuple([z.literal('Analyses à la carte')]).transform(() => null)
     ])
     .transform((r) => {
-      if( r.length > 5){
-        const substance: string = r[1] ?? ''
+      if (r !== null) {
 
         //FIXME comment retrouver le bon résidu ?
-        const ref = Object.entries(SimpleResidueLabels).find(([_key, value]) => value.toLowerCase().slice(0, 5).includes(substance.toLowerCase().slice(0, 5)))
-      return {
-        substance: ref?.[0],
-        teneur: r[2],
-        LMR: r[9]
+        const ref = Object.entries(SimpleResidueLabels).find(([_key, value]) =>
+          value
+            .toLowerCase()
+            .slice(0, 5)
+            .includes(r.substance.toLowerCase().slice(0, 5))
+        );
+        const result: AnalysieResidues = {
+
+          reference: ref?.[0] ?? null,
+          result: r.result === 'ND' || r.result === '-' ? ({result_kind: 'NQ', result: null}) : ({result_kind: 'Q', result: r.result}),
+          lmr: r.lmr
+        }
+        return result
       }
-    }
-    return null
+      return null;
     });
 
   const indexStart = content.findIndex((i) =>
@@ -92,47 +128,46 @@ const parseNovalysDocument: ParseLaboDocument = async (extractPageContentFunctio
   );
   const itemsWithoutHeaders = content.slice(indexStart + 1, indexEnd);
   let index = 0;
-  const lines = [];
+  const lines : AnalysieResidues[]= [];
   do {
-    for (let i = 10; i >0; i--) {
+    for (let i = 10; i > 0; i--) {
       const { success, data } = lineValidator.safeParse(
         itemsWithoutHeaders.slice(index, index + i)
       );
-      if (success) {
+      if (success && data !== null) {
         lines.push(data);
         index += i;
-        break
-      }else{
-       //  console.log(
-       //    itemsWithoutHeaders.slice(index, index + i)
-       // )
+        break;
+      } else {
+        //  console.log(
+        //    itemsWithoutHeaders.slice(index, index + i)
+        // )
       }
 
-      if( i === 1 ){
-        console.log('haha', itemsWithoutHeaders.slice(index, index + 10))
-        index += 1
+      if (i === 1) {
+        index += 1;
       }
     }
   } while (index < itemsWithoutHeaders.length);
 
-  console.log(indexStart, indexEnd);
-  // console.log(items.slice(indexStart, indexEnd))
-  console.log('coucou', lines.filter(l => !isNil(l)));
-  return null;
+
+  return lines;
 };
 export const parseDocument = {
   'LDA 72': parseNovalysDocument
 } as const satisfies Record<Labos, ParseLaboDocument>;
 //1e6f1197-b922-4d2c-9889-e8121ad5b892_DAP-GES-51-24-0039-A-3.pdf
 export const extractAnalysisFromPdf = async (
-  documentId: string
-  , labo: Labos
+  documentId: string,
+  labo: Labos
 ): Promise<null | unknown> => {
   const doc = await getDocument(
     '../../../.terraform/7fd5bc47-55f6-4710-b67d-0cb1c62d91d2_ResultatHOUBLON_GES67240015A.pdf'
   ).promise;
 
-  const result = await parseDocument[labo]((page) => extractPageContent(doc, page));
+  const result = await parseDocument[labo]((page) =>
+    extractPageContent(doc, page)
+  );
   if (isNil(result)) {
     console.log(
       "Impossible d'extraire les données du document pour le labo : ",
@@ -144,22 +179,29 @@ export const extractAnalysisFromPdf = async (
   return result;
 };
 
-
-
 export const extractPageContent = async (
   doc: Pick<PDFDocumentProxy, 'getPage'>,
   pageNumber: number
-): Promise<{ valid: true, content: string[], error?: never} | {valid: false, error: string, content?: never}> => {
+): Promise<
+  | { valid: true; content: string[]; error?: never }
+  | { valid: false; error: string; content?: never }
+> => {
   const page = await doc.getPage(pageNumber);
   const pageContent = await page.getTextContent();
   if (pageContent.items.length === 0) {
-    return {valid: false, error: 'PDF non lisible car contient juste une image'}
+    return {
+      valid: false,
+      error: 'PDF non lisible car contient juste une image'
+    };
   }
-  return { valid: true, content: pageContent.items
-    .filter((item): item is TextItem =>
-      'str' in item ? item.str.trim().length > 0 : false
-    )
-    .map(({ str }) => str) }
+  return {
+    valid: true,
+    content: pageContent.items
+      .filter((item): item is TextItem =>
+        'str' in item ? item.str.trim().length > 0 : false
+      )
+      .map(({ str }) => str)
+  };
 };
 
 // extractAnalysisFromPdf('toto')

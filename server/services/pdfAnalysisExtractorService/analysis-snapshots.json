@@ -110,17 +110,26 @@
             {
                 "reference": "RF-00012047-PAR",
                 "lmr": 90,
-                "result": 8.69
+                "result": {
+                    "result_kind": "Q",
+                    "result": 8.69
+                }
             },
             {
                 "reference": "RF-0439-001-PPP",
                 "lmr": 40,
-                "result": 3.446
+                "result": {
+                    "result_kind": "Q",
+                    "result": 3.446
+                }
             },
             {
                 "reference": "RF-0225-001-PPP",
                 "lmr": 2000,
-                "result": 27.45
+                "result": {
+                    "result_kind": "NQ",
+                    "result": null
+                }
             }
         ]
     },
@@ -161,7 +170,10 @@
             {
                 "reference": "RF-0377-001-PPP",
                 "lmr": 4,
-                "result": 0.054
+                "result": {
+                    "result_kind": "Q",
+                    "result": 0.054
+                }
             }
         ]
     },
@@ -295,22 +307,34 @@
             {
                 "reference": "RF-1071-001-PPP",
                 "lmr": 60,
-                "result": 0.048
+                "result": {
+                    "result_kind": "Q",
+                    "result": 0.048
+                }
             },
             {
                 "reference": "RF-00012047-PAR",
                 "lmr": 90,
-                "result": 4.21
+                "result": {
+                    "result_kind": "Q",
+                    "result": 4.21
+                }
             },
             {
                 "reference": "RF-0439-001-PPP",
                 "lmr": 40,
-                "result": 1.054
+                "result": {
+                    "result_kind": "Q",
+                    "result": 1.054
+                }
             },
             {
                 "reference": "RF-0225-001-PPP",
                 "lmr": 2000,
-                "result": 7.276
+                "result": {
+                    "result_kind": "NQ",
+                    "result": null
+                }
             }
         ]
     },
@@ -394,17 +418,26 @@
             {
                 "reference": "RF-00012047-PAR",
                 "lmr": 90,
-                "result": 7.616
+                "result": {
+                    "result_kind": "Q",
+                    "result": 7.616
+                }
             },
             {
                 "reference": "RF-0439-001-PPP",
                 "lmr": 40,
-                "result": 0.984
+                "result": {
+                    "result_kind": "Q",
+                    "result": 0.984
+                }
             },
             {
                 "reference": "RF-0225-001-PPP",
                 "lmr": 2000,
-                "result": 16.883
+                "result": {
+                    "result_kind": "NQ",
+                    "result": null
+                }
             }
         ]
     },
@@ -700,7 +733,10 @@
             {
                 "reference": "RF-00005730-PAR",
                 "lmr": 0,
-                "result": 0
+                "result": {
+                    "result_kind": "NQ",
+                    "result": null
+                }
             }
         ]
     },
@@ -809,12 +845,18 @@
             {
                 "reference": "RF-00012047-PAR",
                 "lmr": 90,
-                "result": 7.55
+                "result": {
+                    "result_kind": "Q",
+                    "result": 7.55
+                }
             },
             {
                 "reference": "RF-0225-001-PPP",
                 "lmr": 2000,
-                "result": 12.836
+                "result": {
+                    "result_kind": "NQ",
+                    "result": null
+                }
             }
         ]
     },
@@ -910,12 +952,18 @@
             {
                 "reference": "RF-1020-001-PPP",
                 "lmr": 20,
-                "result": 0.0504
+                "result": {
+                    "result_kind": "Q",
+                    "result": 0.0504
+                }
             },
             {
                 "reference": "RF-00005727-PAR",
                 "lmr": 15,
-                "result": 0.509
+                "result": {
+                    "result_kind": "Q",
+                    "result": 0.509
+                }
             }
         ]
     },
@@ -1204,7 +1252,10 @@
             {
                 "reference": "RF-00005727-PAR",
                 "lmr": 3,
-                "result": 0.01
+                "result": {
+                    "result_kind": "Q",
+                    "result": 0.01
+                }
             }
         ]
     },
@@ -1341,17 +1392,26 @@
             {
                 "reference": "RF-00012047-PAR",
                 "lmr": 90,
-                "result": 8.71
+                "result": {
+                    "result_kind": "Q",
+                    "result": 8.71
+                }
             },
             {
                 "reference": "RF-0439-001-PPP",
                 "lmr": 40,
-                "result": 0.655
+                "result": {
+                    "result_kind": "Q",
+                    "result": 0.655
+                }
             },
             {
                 "reference": "RF-0225-001-PPP",
                 "lmr": 2000,
-                "result": 0.64
+                "result": {
+                    "result_kind": "NQ",
+                    "result": null
+                }
             }
         ]
     },
@@ -1562,7 +1622,10 @@
             {
                 "reference": "RF-1020-001-PPP",
                 "lmr": 20,
-                "result": 0.042
+                "result": {
+                    "result_kind": "Q",
+                    "result": 0.042
+                }
             }
         ]
     },
@@ -1633,17 +1696,26 @@
             {
                 "reference": "RF-0035-001-PPP",
                 "lmr": 0.15,
-                "result": 0.011
+                "result": {
+                    "result_kind": "Q",
+                    "result": 0.011
+                }
             },
             {
                 "reference": "RF-0403-001-PPP",
                 "lmr": 0.2,
-                "result": 0.025
+                "result": {
+                    "result_kind": "Q",
+                    "result": 0.025
+                }
             },
             {
                 "reference": "RF-0868-001-PPP",
                 "lmr": null,
-                "result": null
+                "result": {
+                    "result_kind": "NQ",
+                    "result": null
+                }
             }
         ]
     },
@@ -1729,12 +1801,18 @@
             {
                 "reference": "RF-00004681-PAR",
                 "lmr": 6,
-                "result": 0.029
+                "result": {
+                    "result_kind": "NQ",
+                    "result": null
+                }
             },
             {
                 "reference": "RF-00009360-PAR",
                 "lmr": 0.7,
-                "result": 0.03
+                "result": {
+                    "result_kind": "Q",
+                    "result": 0.03
+                }
             }
         ]
     },
@@ -1975,12 +2053,18 @@
             {
                 "reference": "RF-00000030-PAR",
                 "lmr": 0.7,
-                "result": 0.01
+                "result": {
+                    "result_kind": "NQ",
+                    "result": null
+                }
             },
             {
                 "reference": "RF-0225-001-PPP",
                 "lmr": 150,
-                "result": 14.509
+                "result": {
+                    "result_kind": "NQ",
+                    "result": null
+                }
             }
         ]
     },
@@ -2099,7 +2183,10 @@
             {
                 "reference": "RF-0366-001-PPP",
                 "lmr": null,
-                "result": null
+                "result": {
+                    "result_kind": "NQ",
+                    "result": null
+                }
             }
         ]
     },
@@ -2300,57 +2387,90 @@
             {
                 "reference": "RF-0049-001-PPP",
                 "lmr": 5,
-                "result": 0.019
+                "result": {
+                    "result_kind": "Q",
+                    "result": 0.019
+                }
             },
             {
                 "reference": "RF-0114-001-PPP",
                 "lmr": null,
-                "result": null
+                "result": {
+                    "result_kind": "NQ",
+                    "result": null
+                }
             },
             {
                 "reference": "RF-0202-001-PPP",
                 "lmr": 5,
-                "result": 0.017
+                "result": {
+                    "result_kind": "Q",
+                    "result": 0.017
+                }
             },
             {
                 "reference": "RF-1071-001-PPP",
                 "lmr": 1.5,
-                "result": 0.049
+                "result": {
+                    "result_kind": "Q",
+                    "result": 0.049
+                }
             },
             {
                 "reference": "RF-00000024-PAR",
                 "lmr": 1.5,
-                "result": 0.469
+                "result": {
+                    "result_kind": "Q",
+                    "result": 0.469
+                }
             },
             {
                 "reference": "RF-1004-001-PPP",
                 "lmr": 0.15,
-                "result": 0.037
+                "result": {
+                    "result_kind": "Q",
+                    "result": 0.037
+                }
             },
             {
                 "reference": "RF-00009360-PAR",
                 "lmr": 0.7,
-                "result": 0.025
+                "result": {
+                    "result_kind": "Q",
+                    "result": 0.025
+                }
             },
             {
                 "reference": "RF-0403-001-PPP",
                 "lmr": 0.6,
-                "result": 0.053
+                "result": {
+                    "result_kind": "Q",
+                    "result": 0.053
+                }
             },
             {
                 "reference": "RF-00004683-PAR",
                 "lmr": 0.3,
-                "result": 0.075
+                "result": {
+                    "result_kind": "NQ",
+                    "result": null
+                }
             },
             {
                 "reference": "RF-00003336-PAR",
                 "lmr": 0.7,
-                "result": 0.04
+                "result": {
+                    "result_kind": "Q",
+                    "result": 0.04
+                }
             },
             {
                 "reference": "RF-0439-001-PPP",
                 "lmr": 3,
-                "result": 0.016
+                "result": {
+                    "result_kind": "Q",
+                    "result": 0.016
+                }
             }
         ]
     },
@@ -2490,7 +2610,10 @@
             {
                 "reference": "RF-1020-001-PPP",
                 "lmr": 20,
-                "result": 0.031
+                "result": {
+                    "result_kind": "Q",
+                    "result": 0.031
+                }
             }
         ]
     },
@@ -2627,17 +2750,26 @@
             {
                 "reference": "RF-00012047-PAR",
                 "lmr": 90,
-                "result": 0.072
+                "result": {
+                    "result_kind": "Q",
+                    "result": 0.072
+                }
             },
             {
                 "reference": "RF-0439-001-PPP",
                 "lmr": 40,
-                "result": 0.017
+                "result": {
+                    "result_kind": "Q",
+                    "result": 0.017
+                }
             },
             {
                 "reference": "RF-0225-001-PPP",
                 "lmr": 2000,
-                "result": 4.679
+                "result": {
+                    "result_kind": "NQ",
+                    "result": null
+                }
             }
         ]
     },

@@ -1,20 +1,18 @@
 import { kysely } from '../../repositories/kysely';
 import { writeFileSync } from 'node:fs';
 import { getDocument } from 'pdfjs-dist';
-import { extractPageContent } from './pdfAnalysisExtractorService';
+import { analysiesResiduesValidator, extractPageContent } from './pdfAnalysisExtractorService';
 import { z } from 'zod';
+
+
 
 
 export const snapshotValidator = z.object({
   analysisId: z.string(),
   fileName: z.string(),
   laboratoryName: z.string(),
-  output: z.array(z.object(
-    {reference: z.string().nullable() ,
-    lmr: z.number().nullable(),
-    result: z.number().nullable()
-    }
-  )),
+  documentId: z.string(),
+  output: z.array(analysiesResiduesValidator),
   input: z.array(z.array(z.string()
   ))
 })
@@ -39,7 +37,7 @@ const generateTests = async (): Promise<void> => {
 
     const residues = await kysely.selectFrom('analysisResidues')
       .where('analysisId', '=', analysis.analysisId)
-      .select(['reference', 'lmr', 'result'])
+      .select(['reference', 'lmr', 'result', 'resultKind'])
       .execute()
 
     //FIXME path
@@ -86,7 +84,11 @@ const generateTests = async (): Promise<void> => {
         console.error(`Laboratoire inconnu : `, analysis.laboratoryName)
     }
 
-    snapshots.push({...analysis, input, output: residues})
+    snapshots.push({...analysis, input, output: residues.map(r => ({
+        reference: r.reference,
+        lmr: r.lmr,
+        result: r.resultKind === 'Q' ? ({result_kind: 'Q', result: r.result}) : ({result_kind: 'NQ', result: null})
+      }))})
 
   }
 
