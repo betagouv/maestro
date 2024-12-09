@@ -10,14 +10,14 @@ import { createServer } from '../../server';
 import { describe, test, expect, beforeAll, afterAll } from 'vitest';
 const { app } = createServer();
 
-describe('Account routes', () => {
+describe('Auth routes', () => {
   const user = genUser();
 
   beforeAll(async () => {
     const hash = await bcrypt.hash(user.password, 10);
     await Users().insert({
       ...user,
-      password: hash,
+      password: hash
     });
   });
 
@@ -25,15 +25,15 @@ describe('Account routes', () => {
     await Users().delete().where('email', user.email);
   });
 
-  describe('POST /accounts/sign-in', () => {
-    const testRoute = '/api/accounts/sign-in';
+  describe('POST /auth/sign-in', () => {
+    const testRoute = '/api/auth/sign-in';
 
     test('should receive valid email and password', async () => {
       await request(app)
         .post(testRoute)
         .send({
           email: randomstring.generate(),
-          password: genValidPassword(),
+          password: genValidPassword()
         })
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
@@ -41,7 +41,7 @@ describe('Account routes', () => {
         .post(testRoute)
         .send({
           email: fakerFR.internet.email(),
-          password: '   ',
+          password: '   '
         })
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
@@ -51,7 +51,7 @@ describe('Account routes', () => {
         .post(testRoute)
         .send({
           email: fakerFR.internet.email(),
-          password: genValidPassword(),
+          password: genValidPassword()
         })
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
@@ -61,7 +61,7 @@ describe('Account routes', () => {
         .post(testRoute)
         .send({
           email: user.email,
-          password: genValidPassword(),
+          password: genValidPassword()
         })
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
@@ -71,14 +71,14 @@ describe('Account routes', () => {
         .post(testRoute)
         .send({
           email: user.email,
-          password: user.password,
+          password: user.password
         })
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject(
         expect.objectContaining({
           userId: user.id,
-          accessToken: expect.any(String),
+          accessToken: expect.any(String)
         })
       );
     });
