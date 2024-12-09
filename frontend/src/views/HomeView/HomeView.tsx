@@ -1,15 +1,19 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import ProConnectButton from '@codegouvfr/react-dsfr/ProConnectButton';
 import clsx from 'clsx';
 import { SignIn } from 'shared/schema/SignIn';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useForm } from 'src/hooks/useForm';
 import { useAppDispatch } from 'src/hooks/useStore';
-import { useSignInMutation } from 'src/services/account.service';
+import {
+  useGetAuthRedirectUrlQuery,
+  useSignInMutation
+} from 'src/services/auth.service';
 import authSlice from 'src/store/reducers/authSlice';
 import farmhand from '../../assets/farmland.webp';
 import foodGreen from '../../assets/illustrations/food-green.svg';
@@ -23,10 +27,18 @@ const HomeView = () => {
   const [signInError, setSignInError] = useState(false);
 
   const [signIn] = useSignInMutation();
+  const { data: authRedirectUrl } = useGetAuthRedirectUrlQuery();
+
+  useEffect(() => {
+    if (authRedirectUrl) {
+      sessionStorage.setItem('nonce', authRedirectUrl.nonce);
+      sessionStorage.setItem('state', authRedirectUrl.state);
+    }
+  }, [authRedirectUrl]);
 
   const form = useForm(SignIn, {
     email,
-    password,
+    password
   });
 
   type SignInShape = typeof SignIn.shape;
@@ -37,7 +49,7 @@ const HomeView = () => {
     await form.validate(async () => {
       signIn({
         email,
-        password,
+        password
       })
         .unwrap()
         .then((authUser) => {
@@ -59,6 +71,8 @@ const HomeView = () => {
       <div className={cx('fr-col-12', 'fr-col-md-6')}>
         <div className={clsx('sign-in')}>
           <h2>Identifiez-vous pour accéder à votre espace maestro</h2>
+          {authRedirectUrl && <ProConnectButton url={authRedirectUrl.url} />}
+
           <form id="login_form">
             <AppTextInput<SignInShape>
               type="email"
@@ -106,7 +120,7 @@ const HomeView = () => {
         <div
           style={{
             backgroundImage: `url(${farmhand})`,
-            backgroundSize: 'cover',
+            backgroundSize: 'cover'
           }}
         >
           <div className={clsx('teaser')}>
