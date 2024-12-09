@@ -14,6 +14,7 @@ import { useOnLine } from 'src/hooks/useOnLine';
 import { useAppSelector } from 'src/hooks/useStore';
 import LoginCallbackView from 'src/views/LoginCallbackView/LoginCallbackView';
 import LogoutCallbackView from 'src/views/LogoutCallbackView/LogoutCallbackView';
+import LoginView from 'src/views/LoginView/LoginView';
 import './App.scss';
 import { store } from './store/store';
 
@@ -84,6 +85,7 @@ function App() {
                 key={route.key}
               />
             )),
+            <Route path="/login" element={<LoginView />} key="login_route" />,
             <Route
               path="/login-callback"
               element={<LoginCallbackView />}
