@@ -40,6 +40,11 @@ const generateTests = async (): Promise<void> => {
       .select(['reference', 'lmr', 'result', 'resultKind'])
       .execute()
 
+
+    const analytes = await kysely.selectFrom('residueAnalytes')
+      .where('analysisId', '=', analysis.analysisId)
+      .where('')
+
     //FIXME path
     const doc = await getDocument(
       `../../../.terraform/${analysis.documentId}_${analysis.fileName}`
@@ -87,7 +92,8 @@ const generateTests = async (): Promise<void> => {
     snapshots.push({...analysis, input, output: residues.map(r => ({
         reference: r.reference,
         lmr: r.lmr,
-        result: r.resultKind === 'Q' ? ({result_kind: 'Q', result: r.result}) : ({result_kind: 'NQ', result: null})
+        result: r.resultKind === 'Q' ? ({result_kind: 'Q', result: r.result}) : ({result_kind: 'NQ', result: null}),
+        analytes: []
       }))})
 
   }

@@ -113,7 +113,8 @@
                 "result": {
                     "result_kind": "Q",
                     "result": 8.69
-                }
+                },
+                "analytes": []
             },
             {
                 "reference": "RF-0439-001-PPP",
@@ -121,7 +122,8 @@
                 "result": {
                     "result_kind": "Q",
                     "result": 3.446
-                }
+                },
+                "analytes": []
             },
             {
                 "reference": "RF-0225-001-PPP",
@@ -129,7 +131,8 @@
                 "result": {
                     "result_kind": "NQ",
                     "result": null
-                }
+                },
+                "analytes": []
             }
         ]
     },
@@ -173,7 +176,8 @@
                 "result": {
                     "result_kind": "Q",
                     "result": 0.054
-                }
+                },
+                "analytes": []
             }
         ]
     },
@@ -310,7 +314,8 @@
                 "result": {
                     "result_kind": "Q",
                     "result": 0.048
-                }
+                },
+                "analytes": []
             },
             {
                 "reference": "RF-00012047-PAR",
@@ -318,7 +323,8 @@
                 "result": {
                     "result_kind": "Q",
                     "result": 4.21
-                }
+                },
+                "analytes": []
             },
             {
                 "reference": "RF-0439-001-PPP",
@@ -326,7 +332,8 @@
                 "result": {
                     "result_kind": "Q",
                     "result": 1.054
-                }
+                },
+                "analytes": []
             },
             {
                 "reference": "RF-0225-001-PPP",
@@ -334,7 +341,8 @@
                 "result": {
                     "result_kind": "NQ",
                     "result": null
-                }
+                },
+                "analytes": []
             }
         ]
     },
@@ -421,7 +429,8 @@
                 "result": {
                     "result_kind": "Q",
                     "result": 7.616
-                }
+                },
+                "analytes": []
             },
             {
                 "reference": "RF-0439-001-PPP",
@@ -429,7 +438,8 @@
                 "result": {
                     "result_kind": "Q",
                     "result": 0.984
-                }
+                },
+                "analytes": []
             },
             {
                 "reference": "RF-0225-001-PPP",
@@ -437,7 +447,8 @@
                 "result": {
                     "result_kind": "NQ",
                     "result": null
-                }
+                },
+                "analytes": []
             }
         ]
     },
@@ -736,7 +747,8 @@
                 "result": {
                     "result_kind": "NQ",
                     "result": null
-                }
+                },
+                "analytes": []
             }
         ]
     },
@@ -848,7 +860,8 @@
                 "result": {
                     "result_kind": "Q",
                     "result": 7.55
-                }
+                },
+                "analytes": []
             },
             {
                 "reference": "RF-0225-001-PPP",
@@ -856,7 +869,8 @@
                 "result": {
                     "result_kind": "NQ",
                     "result": null
-                }
+                },
+                "analytes": []
             }
         ]
     },
@@ -955,7 +969,8 @@
                 "result": {
                     "result_kind": "Q",
                     "result": 0.0504
-                }
+                },
+                "analytes": []
             },
             {
                 "reference": "RF-00005727-PAR",
@@ -963,7 +978,8 @@
                 "result": {
                     "result_kind": "Q",
                     "result": 0.509
-                }
+                },
+                "analytes": []
             }
         ]
     },
@@ -1255,7 +1271,8 @@
                 "result": {
                     "result_kind": "Q",
                     "result": 0.01
-                }
+                },
+                "analytes": []
             }
         ]
     },
@@ -1395,7 +1412,8 @@
                 "result": {
                     "result_kind": "Q",
                     "result": 8.71
-                }
+                },
+                "analytes": []
             },
             {
                 "reference": "RF-0439-001-PPP",
@@ -1403,7 +1421,8 @@
                 "result": {
                     "result_kind": "Q",
                     "result": 0.655
-                }
+                },
+                "analytes": []
             },
             {
                 "reference": "RF-0225-001-PPP",
@@ -1411,7 +1430,8 @@
                 "result": {
                     "result_kind": "NQ",
                     "result": null
-                }
+                },
+                "analytes": []
             }
         ]
     },
@@ -1625,7 +1645,8 @@
                 "result": {
                     "result_kind": "Q",
                     "result": 0.042
-                }
+                },
+                "analytes": []
             }
         ]
     },
@@ -1699,7 +1720,8 @@
                 "result": {
                     "result_kind": "Q",
                     "result": 0.011
-                }
+                },
+                "analytes": []
             },
             {
                 "reference": "RF-0403-001-PPP",
@@ -1707,7 +1729,8 @@
                 "result": {
                     "result_kind": "Q",
                     "result": 0.025
-                }
+                },
+                "analytes": []
             },
             {
                 "reference": "RF-0868-001-PPP",
@@ -1715,7 +1738,8 @@
                 "result": {
                     "result_kind": "NQ",
                     "result": null
-                }
+                },
+                "analytes": []
             }
         ]
     },
@@ -1804,7 +1828,8 @@
                 "result": {
                     "result_kind": "NQ",
                     "result": null
-                }
+                },
+                "analytes": []
             },
             {
                 "reference": "RF-00009360-PAR",
@@ -1812,7 +1837,8 @@
                 "result": {
                     "result_kind": "Q",
                     "result": 0.03
-                }
+                },
+                "analytes": []
             }
         ]
     },
@@ -2056,7 +2082,8 @@
                 "result": {
                     "result_kind": "NQ",
                     "result": null
-                }
+                },
+                "analytes": []
             },
             {
                 "reference": "RF-0225-001-PPP",
@@ -2064,7 +2091,8 @@
                 "result": {
                     "result_kind": "NQ",
                     "result": null
-                }
+                },
+                "analytes": []
             }
         ]
     },
@@ -2186,7 +2214,8 @@
                 "result": {
                     "result_kind": "NQ",
                     "result": null
-                }
+                },
+                "analytes": []
             }
         ]
     },
@@ -2390,7 +2419,8 @@
                 "result": {
                     "result_kind": "Q",
                     "result": 0.019
-                }
+                },
+                "analytes": []
             },
             {
                 "reference": "RF-0114-001-PPP",
@@ -2398,7 +2428,8 @@
                 "result": {
                     "result_kind": "NQ",
                     "result": null
-                }
+                },
+                "analytes": []
             },
             {
                 "reference": "RF-0202-001-PPP",
@@ -2406,7 +2437,8 @@
                 "result": {
                     "result_kind": "Q",
                     "result": 0.017
-                }
+                },
+                "analytes": []
             },
             {
                 "reference": "RF-1071-001-PPP",
@@ -2414,7 +2446,8 @@
                 "result": {
                     "result_kind": "Q",
                     "result": 0.049
-                }
+                },
+                "analytes": []
             },
             {
                 "reference": "RF-00000024-PAR",
@@ -2422,7 +2455,8 @@
                 "result": {
                     "result_kind": "Q",
                     "result": 0.469
-                }
+                },
+                "analytes": []
             },
             {
                 "reference": "RF-1004-001-PPP",
@@ -2430,7 +2464,8 @@
                 "result": {
                     "result_kind": "Q",
                     "result": 0.037
-                }
+                },
+                "analytes": []
             },
             {
                 "reference": "RF-00009360-PAR",
@@ -2438,7 +2473,8 @@
                 "result": {
                     "result_kind": "Q",
                     "result": 0.025
-                }
+                },
+                "analytes": []
             },
             {
                 "reference": "RF-0403-001-PPP",
@@ -2446,7 +2482,8 @@
                 "result": {
                     "result_kind": "Q",
                     "result": 0.053
-                }
+                },
+                "analytes": []
             },
             {
                 "reference": "RF-00004683-PAR",
@@ -2454,7 +2491,8 @@
                 "result": {
                     "result_kind": "NQ",
                     "result": null
-                }
+                },
+                "analytes": []
             },
             {
                 "reference": "RF-00003336-PAR",
@@ -2462,7 +2500,8 @@
                 "result": {
                     "result_kind": "Q",
                     "result": 0.04
-                }
+                },
+                "analytes": []
             },
             {
                 "reference": "RF-0439-001-PPP",
@@ -2470,7 +2509,8 @@
                 "result": {
                     "result_kind": "Q",
                     "result": 0.016
-                }
+                },
+                "analytes": []
             }
         ]
     },
@@ -2613,7 +2653,8 @@
                 "result": {
                     "result_kind": "Q",
                     "result": 0.031
-                }
+                },
+                "analytes": []
             }
         ]
     },
@@ -2753,7 +2794,8 @@
                 "result": {
                     "result_kind": "Q",
                     "result": 0.072
-                }
+                },
+                "analytes": []
             },
             {
                 "reference": "RF-0439-001-PPP",
@@ -2761,7 +2803,8 @@
                 "result": {
                     "result_kind": "Q",
                     "result": 0.017
-                }
+                },
+                "analytes": []
             },
             {
                 "reference": "RF-0225-001-PPP",
@@ -2769,7 +2812,8 @@
                 "result": {
                     "result_kind": "NQ",
                     "result": null
-                }
+                },
+                "analytes": []
             }
         ]
     },

@@ -16,7 +16,11 @@ const resultValidator = z.discriminatedUnion('result_kind',[z.object({
 export const analysiesResiduesValidator = z.object(
   {reference: z.string().nullable() ,
     lmr: z.number().nullable(),
-    result: resultValidator
+    result: resultValidator,
+    analytes: z.array(z.object({
+      result: resultValidator,
+      lmr: z.number().nullable()
+    }))
   }
 )
 export type AnalysieResidues = z.infer<typeof analysiesResiduesValidator>
@@ -28,7 +32,7 @@ type ParseLaboDocument = (
 
 const parseNovalysDocument: ParseLaboDocument = async (
   extractPageContentFunction
-) => {
+):  Promise<AnalysieResidues[] | null> => {
   const { content, valid } = await extractPageContentFunction(2);
 
   if (!valid) {
@@ -53,6 +57,8 @@ const parseNovalysDocument: ParseLaboDocument = async (
       return success ? data : null
     })
 
+
+type Line =  Pick<AnalysieResidues, 'result' | 'lmr'> & {residueName: string}
   const lineValidator = z
     .union([
       z.tuple([
@@ -102,16 +108,9 @@ const parseNovalysDocument: ParseLaboDocument = async (
     .transform((r) => {
       if (r !== null) {
 
-        //FIXME comment retrouver le bon résidu ?
-        const ref = Object.entries(SimpleResidueLabels).find(([_key, value]) =>
-          value
-            .toLowerCase()
-            .slice(0, 5)
-            .includes(r.substance.toLowerCase().slice(0, 5))
-        );
-        const result: AnalysieResidues = {
+        const result: Line = {
 
-          reference: ref?.[0] ?? null,
+         residueName: r.substance,
           result: r.result === 'ND' || r.result === '-' ? ({result_kind: 'NQ', result: null}) : ({result_kind: 'Q', result: r.result}),
           lmr: r.lmr
         }
@@ -128,7 +127,7 @@ const parseNovalysDocument: ParseLaboDocument = async (
   );
   const itemsWithoutHeaders = content.slice(indexStart + 1, indexEnd);
   let index = 0;
-  const lines : AnalysieResidues[]= [];
+  const lines : Line[]= [];
   do {
     for (let i = 10; i > 0; i--) {
       const { success, data } = lineValidator.safeParse(
@@ -151,7 +150,32 @@ const parseNovalysDocument: ParseLaboDocument = async (
   } while (index < itemsWithoutHeaders.length);
 
 
-  return lines;
+  return lines.reduce<AnalysieResidues[]>((acc, line) => {
+
+
+
+    if( line.residueName.startsWith('· ')){
+      acc[acc.length-1].analytes.push(line)
+    }else{
+      //FIXME comment retrouver le bon résidu ?
+      const ref = Object.entries(SimpleResidueLabels).find(([_key, value]) =>
+        value
+          .toLowerCase()
+          .slice(0, 8)
+          .includes(line.residueName.toLowerCase().slice(0, 8))
+      );
+
+      acc.push({
+       lmr: line.lmr,
+       result: line.result,
+       reference: ref?.[1] ?? null,
+        analytes: []
+      })
+    }
+
+    return acc
+  }, [])
+
 };
 export const parseDocument = {
   'LDA 72': parseNovalysDocument
