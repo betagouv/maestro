@@ -1,4 +1,5 @@
 import { FileInput } from './FileInput';
+import { describe, expect, test } from 'vitest';
 
 describe('FileInput', () => {
   test.each<[any, string[]]>(
