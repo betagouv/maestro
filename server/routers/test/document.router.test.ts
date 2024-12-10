@@ -13,6 +13,7 @@ import { Documents } from '../../repositories/documentRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
+import { describe, test, expect, beforeAll, afterAll } from 'vitest';
 describe('Document router', () => {
   const { app } = createServer();
 
@@ -39,13 +40,13 @@ describe('Document router', () => {
   describe('GET /documents/resources', () => {
     const testRoute = '/api/documents/resources';
 
-    it('should fail if the user is not authenticated', async () => {
+    test('should fail if the user is not authenticated', async () => {
       await request(app)
         .get(testRoute)
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    it('should return all resources', async () => {
+    test('should return all resources', async () => {
       const res = await request(app)
         .get(testRoute)
         .use(tokenProvider(Sampler1Fixture))
@@ -67,14 +68,14 @@ describe('Document router', () => {
       kind: 'Resource',
     };
 
-    it('should fail if the user is not authenticated', async () => {
+    test('should fail if the user is not authenticated', async () => {
       await request(app)
         .post(testRoute)
         .send(validResourceBody)
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    it('should fail if the user has not the right permissions', async () => {
+    test('should fail if the user has not the right permissions', async () => {
       await request(app)
         .post(testRoute)
         .send(validResourceBody)
@@ -91,7 +92,7 @@ describe('Document router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should get a valid body', async () => {
+    test('should get a valid body', async () => {
       const badRequestTest = async (payload?: Record<string, unknown>) =>
         request(app)
           .post(testRoute)
@@ -104,7 +105,7 @@ describe('Document router', () => {
       await badRequestTest({ ...validResourceBody, id: 'test' });
     });
 
-    it('should create a resource document', async () => {
+    test('should create a resource document', async () => {
       const res = await request(app)
         .post(testRoute)
         .send(validResourceBody)
@@ -128,7 +129,7 @@ describe('Document router', () => {
       });
     });
 
-    it('should create an analysis document', async () => {
+    test('should create an analysis document', async () => {
       const validAnalysisBody = {
         ...genDocumentToCreate(),
         kind: 'AnalysisReportDocument',

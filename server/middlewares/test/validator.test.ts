@@ -1,4 +1,5 @@
 import bodyParser from 'body-parser';
+import { describe, test } from 'vitest';
 import express, { Request, Response } from 'express';
 import { constants } from 'http2';
 import request from 'supertest';
@@ -43,27 +44,27 @@ describe('Validator middleware', () => {
       }
     );
 
-    it('should validate body', () => {
+    test('should validate body', () => {
       return request(app)
         .post(testRoute)
         .send({ name: '1234' })
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    it('should validate header', () => {
+    test('should validate header', () => {
       return request(app)
         .post(testRoute)
         .set('Custom-Header', '123456789')
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    it('should validate params', () => {
+    test('should validate params', () => {
       return request(app)
         .post('/validate/not-uuid')
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    it('should validate query', () => {
+    test('should validate query', () => {
       return request(app)
         .post(testRoute)
         .query({
@@ -72,7 +73,7 @@ describe('Validator middleware', () => {
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    it('should pass and sanitize input', async () => {
+    test('should pass and sanitize input', async () => {
       await request(app)
         .post(testRoute)
         .send({

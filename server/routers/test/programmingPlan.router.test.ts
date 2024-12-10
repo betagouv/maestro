@@ -1,4 +1,5 @@
 import { constants } from 'http2';
+import { describe, test, expect, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -106,13 +107,13 @@ describe('ProgrammingPlan router', () => {
     const testRoute = (params?: Record<string, string>) =>
       `/api/programming-plans?${new URLSearchParams(params).toString()}`;
 
-    it('should fail if the user is not authenticated', async () => {
+    test('should fail if the user is not authenticated', async () => {
       await request(app)
         .get(testRoute())
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    it('should find all the programmingPlans for the national coordinator', async () => {
+    test('should find all the programmingPlans for the national coordinator', async () => {
       const res = await request(app)
         .get(testRoute())
         .use(tokenProvider(NationalCoordinator))
@@ -126,7 +127,7 @@ describe('ProgrammingPlan router', () => {
       ]);
     });
 
-    it('should find drom submitted and validated programming plans for a regional coordinator from drom', async () => {
+    test('should find drom submitted and validated programming plans for a regional coordinator from drom', async () => {
       const res = await request(app)
         .get(testRoute())
         .use(tokenProvider(RegionalDromCoordinator))
@@ -140,7 +141,7 @@ describe('ProgrammingPlan router', () => {
       notExpectedBody(res.body, [inProgressProgrammingPlan]);
     });
 
-    it('should find validated programming plans for a regional coordinator outside drom', async () => {
+    test('should find validated programming plans for a regional coordinator outside drom', async () => {
       const res = await request(app)
         .get(testRoute())
         .use(tokenProvider(RegionalCoordinator))
@@ -156,7 +157,7 @@ describe('ProgrammingPlan router', () => {
       ]);
     });
 
-    it('should find drom validated programming plans for a sampler from Drom', async () => {
+    test('should find drom validated programming plans for a sampler from Drom', async () => {
       const res = await request(app)
         .get(testRoute())
         .use(tokenProvider(SamplerDromFixture))
@@ -172,7 +173,7 @@ describe('ProgrammingPlan router', () => {
       ]);
     });
 
-    it('should find no programming plans for a sampler outside Drom', async () => {
+    test('should find no programming plans for a sampler outside Drom', async () => {
       const res = await request(app)
         .get(testRoute())
         .use(tokenProvider(Sampler1Fixture))
@@ -186,7 +187,7 @@ describe('ProgrammingPlan router', () => {
       ]);
     });
 
-    it('should filter programming plans by status and user authorization', async () => {
+    test('should filter programming plans by status and user authorization', async () => {
       const res = await request(app)
         .get(testRoute({ status: 'Submitted' }))
         .use(tokenProvider(RegionalDromCoordinator))
@@ -204,27 +205,27 @@ describe('ProgrammingPlan router', () => {
   describe('GET /programming-plans/:year', () => {
     const testRoute = (year: string) => `/api/programming-plans/${year}`;
 
-    it('should fail if the user is not authenticated', async () => {
+    test('should fail if the user is not authenticated', async () => {
       await request(app)
         .get(testRoute('2025'))
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    it('should get a valid year', async () => {
+    test('should get a valid year', async () => {
       await request(app)
         .get(testRoute('invalid'))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    it('should fail if the programmingPlan does not exist', async () => {
+    test('should fail if the programmingPlan does not exist', async () => {
       await request(app)
         .get(testRoute('2025'))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
-    it('should find the programmingPlan for the given year', async () => {
+    test('should find the programmingPlan for the given year', async () => {
       const res = await request(app)
         .get(testRoute(validatedProgrammingPlan.year.toString()))
         .use(tokenProvider(NationalCoordinator))
@@ -240,34 +241,34 @@ describe('ProgrammingPlan router', () => {
   describe('POST /programming-plans/:year', () => {
     const testRoute = (year: string) => `/api/programming-plans/${year}`;
 
-    it('should fail if the user is not authenticated', async () => {
+    test('should fail if the user is not authenticated', async () => {
       await request(app)
         .post(testRoute('2020'))
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    it('should fail if the user is not authorized', async () => {
+    test('should fail if the user is not authorized', async () => {
       await request(app)
         .post(testRoute('2020'))
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should fail if the previous programming plan does not exist', async () => {
+    test('should fail if the previous programming plan does not exist', async () => {
       await request(app)
         .post(testRoute('2000'))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
-    it('should fail if the previous programming plan is not validated', async () => {
+    test('should fail if the previous programming plan is not validated', async () => {
       await request(app)
         .post(testRoute('2023'))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
-    it('should create a new programming plan for the given year', async () => {
+    test('should create a new programming plan for the given year', async () => {
       const res = await request(app)
         .post(testRoute('2020'))
         .use(tokenProvider(NationalCoordinator))
@@ -335,14 +336,14 @@ describe('ProgrammingPlan router', () => {
     const testRoute = (programmingPlanId: string) =>
       `/api/programming-plans/${programmingPlanId}`;
 
-    it('should fail if the user is not authenticated', async () => {
+    test('should fail if the user is not authenticated', async () => {
       await request(app)
         .put(testRoute(validatedProgrammingPlan.id))
         .send(programmingPlanUpdate)
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    it('should fail if the user is not authorized', async () => {
+    test('should fail if the user is not authorized', async () => {
       await request(app)
         .put(testRoute(validatedProgrammingPlan.id))
         .send(programmingPlanUpdate)
@@ -350,7 +351,7 @@ describe('ProgrammingPlan router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should fail if the programming plan does not exist', async () => {
+    test('should fail if the programming plan does not exist', async () => {
       await request(app)
         .put(testRoute(uuidv4()))
         .send(programmingPlanUpdate)
@@ -358,7 +359,7 @@ describe('ProgrammingPlan router', () => {
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
-    it('should get a valid body', async () => {
+    test('should get a valid body', async () => {
       const badRequestTest = async (payload?: Record<string, unknown>) =>
         request(app)
           .put(testRoute(validatedProgrammingPlan.id))
@@ -376,7 +377,7 @@ describe('ProgrammingPlan router', () => {
       });
     });
 
-    it('should fail if the status update is forbidden', async () => {
+    test('should fail if the status update is forbidden', async () => {
       const badRequestTest = async (
         programmingPlan: ProgrammingPlan,
         status: ProgrammingPlanStatus
@@ -396,7 +397,7 @@ describe('ProgrammingPlan router', () => {
       await badRequestTest(validatedProgrammingPlan, 'Validated');
     });
 
-    it('should update a Submitted programming plan to Validated', async () => {
+    test('should update a Submitted programming plan to Validated', async () => {
       const res = await request(app)
         .put(testRoute(submittedDromProgrammingPlan.id))
         .send(programmingPlanUpdate)
