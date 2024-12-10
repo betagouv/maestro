@@ -12,6 +12,7 @@ import ScrollToTop from 'src/components/ScrollToTop/ScrollToTop';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useOnLine } from 'src/hooks/useOnLine';
 import { useAppSelector } from 'src/hooks/useStore';
+import LoginView from 'src/views/LoginView/LoginView';
 import './App.scss';
 import { store } from './store/store';
 
@@ -26,8 +27,8 @@ function AppWrapper() {
 
   const { MuiDsfrThemeProvider } = createMuiDsfrThemeProvider({
     augmentMuiTheme: ({ nonAugmentedMuiTheme }) => ({
-      ...nonAugmentedMuiTheme,
-    }),
+      ...nonAugmentedMuiTheme
+    })
   });
 
   return (
@@ -82,11 +83,12 @@ function App() {
                 key={route.key}
               />
             )),
+            <Route path="/login" element={<LoginView />} key="login_route" />,
             <Route
               path="/*"
               element={<Navigate replace to="/" />}
               key="redirection_route"
-            />,
+            />
           ]}
         </Routes>
       </main>
