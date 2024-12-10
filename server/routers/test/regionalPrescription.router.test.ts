@@ -1,4 +1,5 @@
 import { constants } from 'http2';
+import { describe, test, expect, beforeAll, afterAll } from 'vitest';
 import _ from 'lodash';
 import fp from 'lodash/fp';
 import randomstring from 'randomstring';
@@ -173,7 +174,7 @@ describe('Regional prescriptions router', () => {
   describe('GET /prescriptions/regions', () => {
     const testRoute = '/api/prescriptions/regions';
 
-    it('should fail if the user is not authenticated', async () => {
+    test('should fail if the user is not authenticated', async () => {
       await request(app)
         .get(testRoute)
         .query({
@@ -183,7 +184,7 @@ describe('Regional prescriptions router', () => {
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    it('should get a valid programmingPlan id', async () => {
+    test('should get a valid programmingPlan id', async () => {
       await request(app)
         .get(testRoute)
         .query({
@@ -194,7 +195,7 @@ describe('Regional prescriptions router', () => {
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    it('should get a valid context', async () => {
+    test('should get a valid context', async () => {
       await request(app)
         .get(testRoute)
         .query({
@@ -205,7 +206,7 @@ describe('Regional prescriptions router', () => {
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    it('should find all the regional prescriptions for a national role', async () => {
+    test('should find all the regional prescriptions for a national role', async () => {
       const res = await request(app)
         .get(testRoute)
         .query({
@@ -229,7 +230,7 @@ describe('Regional prescriptions router', () => {
       );
     });
 
-    it('should find the regional prescriptions of the programmingPlan with Control context for a regional role', async () => {
+    test('should find the regional prescriptions of the programmingPlan with Control context for a regional role', async () => {
       const res = await request(app)
         .get(testRoute)
         .query({
@@ -246,7 +247,7 @@ describe('Regional prescriptions router', () => {
       );
     });
 
-    it('should retrieve the comments of the prescriptions and realized samples count if requested', async () => {
+    test('should retrieve the comments of the prescriptions and realized samples count if requested', async () => {
       const res = await request(app)
         .get(testRoute)
         .query({
@@ -308,14 +309,14 @@ describe('Regional prescriptions router', () => {
       region: string = submittedRegionalPrescription.region
     ) => `/api/prescriptions/${prescriptionId}/regions/${region}`;
 
-    it('should fail if the user is not authenticated', async () => {
+    test('should fail if the user is not authenticated', async () => {
       await request(app)
         .put(testRoute())
         .send(submittedRegionalPrescriptionUpdate)
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    it('should receive valid prescriptionId and region', async () => {
+    test('should receive valid prescriptionId and region', async () => {
       await request(app)
         .put(testRoute(randomstring.generate()))
         .send(submittedRegionalPrescriptionUpdate)
@@ -329,7 +330,7 @@ describe('Regional prescriptions router', () => {
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    it('should get a valid body', async () => {
+    test('should get a valid body', async () => {
       const badRequestTest = async (payload?: Record<string, unknown>) =>
         request(app)
           .put(testRoute())
@@ -345,7 +346,7 @@ describe('Regional prescriptions router', () => {
       await badRequestTest({ sampleCount: 123 });
     });
 
-    it('should fail if the prescription does not exist', async () => {
+    test('should fail if the prescription does not exist', async () => {
       await request(app)
         .put(testRoute(uuidv4()))
         .send(submittedRegionalPrescriptionUpdate)
@@ -353,7 +354,7 @@ describe('Regional prescriptions router', () => {
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
-    it('should fail if the prescription does not belong to the programmingPlan', async () => {
+    test('should fail if the prescription does not belong to the programmingPlan', async () => {
       await request(app)
         .put(testRoute())
         .send({
@@ -364,7 +365,7 @@ describe('Regional prescriptions router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should fail if the user does not have the permission to update prescriptions', async () => {
+    test('should fail if the user does not have the permission to update prescriptions', async () => {
       await request(app)
         .put(testRoute())
         .send(submittedRegionalPrescriptionUpdate)
@@ -372,7 +373,7 @@ describe('Regional prescriptions router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should fail if the programming plan is closed', async () => {
+    test('should fail if the programming plan is closed', async () => {
       await request(app)
         .put(
           testRoute(
@@ -388,7 +389,7 @@ describe('Regional prescriptions router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should update the sample count of the prescription for a national coordinator', async () => {
+    test('should update the sample count of the prescription for a national coordinator', async () => {
       const res = await request(app)
         .put(testRoute())
         .send(submittedRegionalPrescriptionUpdate)
@@ -405,7 +406,7 @@ describe('Regional prescriptions router', () => {
         .update({ sampleCount: submittedRegionalPrescription.sampleCount });
     });
 
-    it('should update the laboratory of the prescription for a regional coordinator', async () => {
+    test('should update the laboratory of the prescription for a regional coordinator', async () => {
       const validatedRegionalPrescriptionUpdate: RegionalPrescriptionUpdate = {
         programmingPlanId: programmingPlanValidated.id,
         laboratoryId: laboratory.id
@@ -471,14 +472,14 @@ describe('Regional prescriptions router', () => {
       region: string = regionalSubmittedPrescription.region
     ) => `/api/prescriptions/${prescriptionId}/regions/${region}/comments`;
 
-    it('should fail if the user is not authenticated', async () => {
+    test('should fail if the user is not authenticated', async () => {
       await request(app)
         .post(testRoute())
         .send(validComment)
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    it('should fail if the prescription does not exist', async () => {
+    test('should fail if the prescription does not exist', async () => {
       await request(app)
         .post(testRoute(uuidv4()))
         .send(validComment)
@@ -486,7 +487,7 @@ describe('Regional prescriptions router', () => {
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
-    it('should get a valid body', async () => {
+    test('should get a valid body', async () => {
       const badRequestTest = async (payload?: Record<string, unknown>) =>
         request(app)
           .post(testRoute())
@@ -502,7 +503,7 @@ describe('Regional prescriptions router', () => {
       await badRequestTest({ comment: 123 });
     });
 
-    it('should fail if the user does not have the permission to comment prescriptions', async () => {
+    test('should fail if the user does not have the permission to comment prescriptions', async () => {
       await request(app)
         .post(testRoute())
         .send(validComment)
@@ -510,7 +511,7 @@ describe('Regional prescriptions router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should fail if the prescription does not belong to the user region', async () => {
+    test('should fail if the prescription does not belong to the user region', async () => {
       await request(app)
         .post(
           testRoute(
@@ -527,7 +528,7 @@ describe('Regional prescriptions router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should fail if the programming plan is validated', async () => {
+    test('should fail if the programming plan is validated', async () => {
       console.log(
         'TEST',
         validatedControlRegionalPrescriptions,
@@ -556,7 +557,7 @@ describe('Regional prescriptions router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should add a comment to the prescription', async () => {
+    test('should add a comment to the prescription', async () => {
       const res = await request(app)
         .post(testRoute())
         .send(validComment)

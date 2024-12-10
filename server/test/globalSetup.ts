@@ -1,14 +1,21 @@
 import db from '../repositories/db';
+import { dbManager } from './db-manager';
 
-export default async function setup() {
+export const setup = async () => {
   try {
     // Roll back if needed
-    await db.migrate.rollback(undefined, true);
-    await db.migrate.latest();
+  await    dbManager.populateDb()
     console.log('Migrated.');
-    await db.seed.run();
     console.log('Seeded.');
   } finally {
     await db.destroy();
+  }
+}
+export async function teardown() {
+ try {
+    await db.destroy();
+    console.log('Database connection closed.');
+  } catch (error) {
+    console.error('Error closing the database connection:', error);
   }
 }

@@ -1,4 +1,5 @@
 import { constants } from 'http2';
+import { describe, test, expect, beforeAll, afterAll } from 'vitest';
 import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
@@ -118,7 +119,7 @@ describe('Prescriptions router', () => {
   describe('GET /prescriptions', () => {
     const testRoute = '/api/prescriptions';
 
-    it('should fail if the user is not authenticated', async () => {
+    test('should fail if the user is not authenticated', async () => {
       await request(app)
         .get(testRoute)
         .query({
@@ -128,7 +129,7 @@ describe('Prescriptions router', () => {
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    it('should get a valid programmingPlan id', async () => {
+    test('should get a valid programmingPlan id', async () => {
       await request(app)
         .get(testRoute)
         .query({
@@ -139,7 +140,7 @@ describe('Prescriptions router', () => {
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    it('should get a valid context', async () => {
+    test('should get a valid context', async () => {
       await request(app)
         .get(testRoute)
         .query({
@@ -150,7 +151,7 @@ describe('Prescriptions router', () => {
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    it('should find all the prescriptions of the programmingPlan with Control context', async () => {
+    test('should find all the prescriptions of the programmingPlan with Control context', async () => {
       const res = await request(app)
         .get(testRoute)
         .query({
@@ -164,7 +165,7 @@ describe('Prescriptions router', () => {
       expect(res.body).not.toMatchObject([inProgressSurveillancePrescription]);
     });
 
-    it('should retrieve the prescription substances count if requested', async () => {
+    test('should retrieve the prescription substances count if requested', async () => {
       const res = await request(app)
         .get(testRoute)
         .query({
@@ -189,27 +190,27 @@ describe('Prescriptions router', () => {
     const testRoute = (programmingPlanId: string, context: string) =>
       `/api/prescriptions/export?programmingPlanId=${programmingPlanId}&context=${context}`;
 
-    it('should fail if the user is not authenticated', async () => {
+    test('should fail if the user is not authenticated', async () => {
       await request(app)
         .get(testRoute(programmingPlanInProgress.id, 'Control'))
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    it('should get a valid programmingPlan id', async () => {
+    test('should get a valid programmingPlan id', async () => {
       await request(app)
         .get(`${testRoute(randomstring.generate(), 'Control')}`)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    it('should get a valid context', async () => {
+    test('should get a valid context', async () => {
       await request(app)
         .get(testRoute(programmingPlanInProgress.id, 'invalid'))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    it('should export the prescriptions of the programmingPlan with Control context', async () => {
+    test('should export the prescriptions of the programmingPlan with Control context', async () => {
       await request(app)
         .get(testRoute(programmingPlanInProgress.id, 'Control'))
         .use(tokenProvider(NationalCoordinator))
@@ -224,14 +225,14 @@ describe('Prescriptions router', () => {
     });
     const testRoute = '/api/prescriptions';
 
-    it('should fail if the user is not authenticated', async () => {
+    test('should fail if the user is not authenticated', async () => {
       await request(app)
         .post(testRoute)
         .send(validBody)
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    it('should get a valid body', async () => {
+    test('should get a valid body', async () => {
       const badRequestTest = async (payload?: Record<string, unknown>) =>
         request(app)
           .post(testRoute)
@@ -253,7 +254,7 @@ describe('Prescriptions router', () => {
       await badRequestTest({ ...validBody, stages: 'invalid' });
     });
 
-    it('should fail if the user does not have the permission to create prescriptions', async () => {
+    test('should fail if the user does not have the permission to create prescriptions', async () => {
       await request(app)
         .post(testRoute)
         .send(validBody)
@@ -261,7 +262,7 @@ describe('Prescriptions router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should fail if the programming plan is closed', async () => {
+    test('should fail if the programming plan is closed', async () => {
       await request(app)
         .post(testRoute)
         .send({
@@ -272,7 +273,7 @@ describe('Prescriptions router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should create the prescription and regional prescriptions', async () => {
+    test('should create the prescription and regional prescriptions', async () => {
       const res = await request(app)
         .post(testRoute)
         .send(validBody)
@@ -313,14 +314,14 @@ describe('Prescriptions router', () => {
       prescriptionId: string = inProgressControlPrescription.id
     ) => `/api/prescriptions/${prescriptionId}`;
 
-    it('should fail if the user is not authenticated', async () => {
+    test('should fail if the user is not authenticated', async () => {
       await request(app)
         .put(testRoute())
         .send(prescriptionUpdate)
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    it('should receive valid programmingPlanId and prescriptionId', async () => {
+    test('should receive valid programmingPlanId and prescriptionId', async () => {
       await request(app)
         .put(testRoute())
         .send({
@@ -337,7 +338,7 @@ describe('Prescriptions router', () => {
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    it('should fail if the prescription does not exist', async () => {
+    test('should fail if the prescription does not exist', async () => {
       await request(app)
         .put(testRoute(uuidv4()))
         .send(prescriptionUpdate)
@@ -345,7 +346,7 @@ describe('Prescriptions router', () => {
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
-    it('should fail if the prescription does not belong to the programmingPlan', async () => {
+    test('should fail if the prescription does not belong to the programmingPlan', async () => {
       await request(app)
         .put(testRoute())
         .send({
@@ -356,7 +357,7 @@ describe('Prescriptions router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should fail if the user does not have the permission to update prescriptions', async () => {
+    test('should fail if the user does not have the permission to update prescriptions', async () => {
       await request(app)
         .put(testRoute())
         .send(prescriptionUpdate)
@@ -364,7 +365,7 @@ describe('Prescriptions router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should fail if the programming plan is closed', async () => {
+    test('should fail if the programming plan is closed', async () => {
       await request(app)
         .put(testRoute(closedControlPrescription.id))
         .send({
@@ -375,7 +376,7 @@ describe('Prescriptions router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should update the stages of the prescription', async () => {
+    test('should update the stages of the prescription', async () => {
       const res = await request(app)
         .put(testRoute())
         .send(prescriptionUpdate)
@@ -402,20 +403,20 @@ describe('Prescriptions router', () => {
     const testRoute = (prescriptionId: string) =>
       `/api/prescriptions/${prescriptionId}/substances`;
 
-    it('should fail if the user is not authenticated', async () => {
+    test('should fail if the user is not authenticated', async () => {
       await request(app)
         .get(testRoute(inProgressControlPrescription.id))
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    it('should fail if the prescription does not exist', async () => {
+    test('should fail if the prescription does not exist', async () => {
       await request(app)
         .get(testRoute(uuidv4()))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
-    it('should retrieve the prescription substances', async () => {
+    test('should retrieve the prescription substances', async () => {
       const res = await request(app)
         .get(testRoute(inProgressControlPrescription.id))
         .use(tokenProvider(NationalCoordinator))
@@ -429,34 +430,34 @@ describe('Prescriptions router', () => {
     const testRoute = (prescriptionId: string) =>
       `/api/prescriptions/${prescriptionId}`;
 
-    it('should fail if the user is not authenticated', async () => {
+    test('should fail if the user is not authenticated', async () => {
       await request(app)
         .delete(testRoute(inProgressControlPrescription.id))
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    it('should fail if the prescription does not exist', async () => {
+    test('should fail if the prescription does not exist', async () => {
       await request(app)
         .delete(testRoute(uuidv4()))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
-    it('should fail if the user does not have the permission to delete prescriptions', async () => {
+    test('should fail if the user does not have the permission to delete prescriptions', async () => {
       await request(app)
         .delete(testRoute(inProgressControlPrescription.id))
         .use(tokenProvider(RegionalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should fail if the programming plan is closed', async () => {
+    test('should fail if the programming plan is closed', async () => {
       await request(app)
         .delete(testRoute(closedControlPrescription.id))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should delete the prescription', async () => {
+    test('should delete the prescription', async () => {
       await request(app)
         .delete(testRoute(inProgressControlPrescription.id))
         .use(tokenProvider(NationalCoordinator))

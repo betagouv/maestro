@@ -1,7 +1,9 @@
 import config from '../config';
+import { describe, test, expect } from 'vitest';
 
+//FIXME unit
 describe('Config', () => {
-  it('should validate the configuration', () => {
+  test('should validate the configuration', () => {
     expect(config).toBeDefined();
   });
 });
