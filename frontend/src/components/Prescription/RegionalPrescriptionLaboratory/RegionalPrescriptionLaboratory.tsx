@@ -43,7 +43,7 @@ const RegionalPrescriptionLaboratory = ({
   ];
 
   const currentLaboratory = laboratories?.find(
-    (laboratory) => laboratory.id === value
+    (laboratory) => laboratory.id === regionalPrescription.laboratoryId
   );
 
   return (

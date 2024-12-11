@@ -5,6 +5,7 @@ import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import clsx from 'clsx';
 import { t } from 'i18next';
 import _ from 'lodash';
+import React from 'react';
 import { Matrix } from 'shared/referential/Matrix/Matrix';
 import { FindPrescriptionOptions } from 'shared/schema/Prescription/FindPrescriptionOptions';
 import { Prescription } from 'shared/schema/Prescription/Prescription';
@@ -15,13 +16,17 @@ import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import useWindowSize from 'src/hooks/useWindowSize';
 import { getPrescriptionsExportURL } from 'src/services/prescription.service';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
-
+import PrescriptionListGroupedUpdate from 'src/views/PrescriptionListView/PrescriptionListGroupedUpdate';
+import './PrescriptionListView.scss';
 interface Props {
   programmingPlan: ProgrammingPlan;
   findPrescriptionOptions: FindPrescriptionOptions;
   prescriptions: Prescription[];
   addMatrix: (matrix: Matrix) => Promise<void>;
   sampleCount?: number;
+  hasGroupedUpdatePermission?: boolean;
+  selectedCount?: number;
+  onGroupedUpdate?: (laboratoryId?: string) => Promise<void>;
 }
 
 const PrescriptionListHeader = ({
@@ -29,7 +34,10 @@ const PrescriptionListHeader = ({
   findPrescriptionOptions,
   prescriptions,
   addMatrix,
-  sampleCount
+  sampleCount,
+  hasGroupedUpdatePermission,
+  selectedCount,
+  onGroupedUpdate
 }: Props) => {
   const dispatch = useAppDispatch();
   const { isMobile } = useWindowSize();
@@ -39,6 +47,8 @@ const PrescriptionListHeader = ({
   const { prescriptionListDisplay, matrixQuery } = useAppSelector(
     (state) => state.prescriptions
   );
+
+  const [isGroupedUpdate, setIsGroupedUpdate] = React.useState(false);
 
   return (
     <>
@@ -105,6 +115,17 @@ const PrescriptionListHeader = ({
             className={cx('fr-mr-3w')}
           />
         )}
+        {hasGroupedUpdatePermission && (
+          <Button
+            iconId="fr-icon-list-ordered"
+            priority="secondary"
+            title="Action groupée"
+            children={isMobile ? undefined : 'Action groupée'}
+            size={isMobile ? 'small' : 'medium'}
+            className={cx('fr-mr-2w')}
+            onClick={() => setIsGroupedUpdate(true)}
+          />
+        )}
         <Button
           iconId="fr-icon-file-download-line"
           priority="secondary"
@@ -116,6 +137,16 @@ const PrescriptionListHeader = ({
           size={isMobile ? 'small' : 'medium'}
         />
       </div>
+      {isGroupedUpdate && onGroupedUpdate && (
+        <PrescriptionListGroupedUpdate
+          selectedCount={selectedCount ?? 0}
+          onSubmit={async (laboratoryId) => {
+            await onGroupedUpdate(laboratoryId);
+            setIsGroupedUpdate(false);
+          }}
+          onCancel={() => setIsGroupedUpdate(false)}
+        />
+      )}
     </>
   );
 };

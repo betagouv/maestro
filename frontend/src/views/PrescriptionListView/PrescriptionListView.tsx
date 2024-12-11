@@ -2,7 +2,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import clsx from 'clsx';
 import _, { default as fp } from 'lodash';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Matrix } from 'shared/referential/Matrix/Matrix';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
@@ -63,8 +63,15 @@ const PrescriptionListView = () => {
     useAppSelector((state) => state.prescriptions);
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const { userInfos, hasNationalView, hasUserPrescriptionPermission } =
-    useAuthentication();
+  const {
+    userInfos,
+    hasNationalView,
+    hasUserPrescriptionPermission,
+    hasUserRegionalPrescriptionPermission
+  } = useAuthentication();
+
+  const [selectedRegionalPrescriptionIds, setSelectedRegionalPrescriptionIds] =
+    useState<string[]>([]);
 
   const [addPrescription, { isSuccess: isAddSuccess }] =
     useAddPrescriptionMutation();
@@ -246,11 +253,17 @@ const PrescriptionListView = () => {
     [changeRegionalPrescription] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
-  const changeRegionalPrescriptionLaboratory = useCallback(
-    async (prescriptionId: string, laboratoryId?: string) =>
-      changeRegionalPrescription(prescriptionId, region, {
-        laboratoryId
-      }),
+  const changeRegionalPrescriptionsLaboratory = useCallback(
+    async (prescriptionIds: string[], laboratoryId?: string) => {
+      await Promise.all(
+        prescriptionIds.map((prescriptionId) =>
+          changeRegionalPrescription(prescriptionId, region, {
+            laboratoryId
+          })
+        )
+      );
+      return;
+    },
     [changeRegionalPrescription, region] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
@@ -344,6 +357,21 @@ const PrescriptionListView = () => {
                   prescriptions={prescriptions}
                   addMatrix={(matrix) => addMatrix(programmingPlan.id, matrix)}
                   sampleCount={_.sumBy(regionalPrescriptions, 'sampleCount')}
+                  hasGroupedUpdatePermission={regionalPrescriptions.some(
+                    (regionalPrescription) =>
+                      hasUserRegionalPrescriptionPermission(
+                        programmingPlan,
+                        regionalPrescription
+                      )?.updateLaboratory
+                  )}
+                  selectedCount={selectedRegionalPrescriptionIds.length}
+                  onGroupedUpdate={async (laboratoryId) => {
+                    await changeRegionalPrescriptionsLaboratory(
+                      selectedRegionalPrescriptionIds,
+                      laboratoryId
+                    );
+                    setSelectedRegionalPrescriptionIds([]);
+                  }}
                 />
               }
             </div>
@@ -382,11 +410,21 @@ const PrescriptionListView = () => {
                             regionalPrescription.region === region
                         )}
                         onChangeLaboratory={(laboratoryId) =>
-                          changeRegionalPrescriptionLaboratory(
-                            prescription.id,
+                          changeRegionalPrescriptionsLaboratory(
+                            [prescription.id],
                             laboratoryId
                           )
                         }
+                        isSelected={selectedRegionalPrescriptionIds.includes(
+                          prescription.id
+                        )}
+                        onToggleSelection={() => {
+                          setSelectedRegionalPrescriptionIds((prevState) =>
+                            prevState.includes(prescription.id)
+                              ? prevState.filter((id) => id !== prescription.id)
+                              : [...prevState, prescription.id]
+                          );
+                        }}
                       />
                     ))}
                   </div>
