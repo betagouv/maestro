@@ -5,7 +5,7 @@ import { defaultPerPage } from '../../shared/schema/commons/Pagination';
 import { FindSampleOptions } from '../../shared/schema/Sample/FindSampleOptions';
 import { PartialSample, Sample } from '../../shared/schema/Sample/Sample';
 import { companiesTable } from './companyRepository';
-import db from './db';
+import {knexInstance as db } from './db';
 import { usersTable } from './userRepository';
 
 export const samplesTable = 'samples';

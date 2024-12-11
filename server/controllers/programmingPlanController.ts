@@ -22,7 +22,7 @@ import prescriptionSubstanceRepository from '../repositories/prescriptionSubstan
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
 import userRepository from '../repositories/userRepository';
-import mailService from '../services/mailService';
+import {mailService} from '../services/mailService';
 import config from '../utils/config';
 
 const findProgrammingPlans = async (request: Request, response: Response) => {
@@ -95,7 +95,9 @@ const createProgrammingPlan = async (request: Request, response: Response) => {
     statusDrom: 'InProgress' as ProgrammingPlanStatus
   };
 
-  await Promise.all([
+  await programmingPlanRepository.insert(newProgrammingPlan);
+
+  await Promise.all(
     ContextList.map(async (context) => {
       const previousPrescriptions = await prescriptionRepository.findMany({
         programmingPlanId: previousProgrammingPlan.id,
@@ -107,7 +109,7 @@ const createProgrammingPlan = async (request: Request, response: Response) => {
           context
         });
 
-      await Promise.all([
+      await Promise.all(
         previousPrescriptions.map(async (prescription) => {
           const newPrescription = {
             ...prescription,
@@ -140,11 +142,10 @@ const createProgrammingPlan = async (request: Request, response: Response) => {
             }))
           );
         })
-      ]);
+      );
     })
-  ]);
+  );
 
-  await programmingPlanRepository.insert(newProgrammingPlan);
 
   response.status(constants.HTTP_STATUS_CREATED).send(newProgrammingPlan);
 };

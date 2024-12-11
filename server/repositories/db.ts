@@ -1,13 +1,22 @@
 import knex, { Knex } from 'knex';
 import knexConfig from '../knex';
 import { cloneDeep } from 'lodash';
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const knexStringcase = require('knex-stringcase');
-
-const options = knexStringcase(knexConfig);
+import knexStringcase from 'knex-stringcase';
 
 
-let knexInstance  = knex(cloneDeep(options));
+
+// @ts-ignore
+let knexInstance: Knex  = null;
 export const setKnexInstance = (newKnex: Knex) => (knexInstance = newKnex)
+
+
+
+export const initKnex = () => {
+  setKnexInstance(knex(cloneDeep({
+    ...knexConfig,
+    ...knexStringcase()
+  })))
+}
+export {knexInstance}
 
 export default knexInstance

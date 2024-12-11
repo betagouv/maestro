@@ -1,6 +1,8 @@
 import { Users } from '../../../server/repositories/userRepository';
 import { Region } from '../../../shared/referential/Region';
 import { genUser } from '../../../shared/test/userFixtures';
+import { Knex } from 'knex';
+import { setKnexInstance } from '../../../server/repositories/db';
 
 export const Region1Fixture = '44' as Region;
 export const Region2Fixture = '52' as Region;
@@ -54,7 +56,9 @@ export const NationalCoordinator = genUser({
   id: '55555555-5555-5555-5555-555555555555'
 });
 
-exports.seed = async function () {
+exports.seed = async function (knex: Knex) {
+  setKnexInstance(knex)
+
   await Users().insert([
     Sampler1Fixture,
     Sampler2Fixture,

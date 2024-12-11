@@ -19,6 +19,8 @@ import {
 } from './001-users';
 import { ValidatedProgrammingPlanFixture } from './002-programming-plans';
 import { CompanyFixture } from './003-companies';
+import { Knex } from 'knex';
+import { setKnexInstance } from '../../../server/repositories/db';
 
 const Sample11FixtureId = '11111111-1111-1111-1111-111111111111';
 const Sample1Item1Fixture = genSampleItem({
@@ -84,7 +86,9 @@ export const Sample2Fixture = genCreatedPartialSample({
   reference: 'PDL-08-24-313-A',
 });
 
-exports.seed = async function () {
+exports.seed = async function (knex: Knex) {
+  setKnexInstance(knex)
+
   await Samples().insert([
     formatPartialSample(Sample11Fixture),
     formatPartialSample(Sample12Fixture),

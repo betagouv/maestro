@@ -2,11 +2,11 @@ import knex, { Knex } from 'knex';
 import { spawnSync } from 'node:child_process';
 import { Client } from 'pg';
 import config from '../utils/config';
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const knexStringcase = require('knex-stringcase');
 import defaultKnexConfig from '../knex'
 import { deepClone } from '@vitest/utils';
 import { setKnexInstance } from '../repositories/db';
+import { initKysely, kysely } from '../repositories/kysely';
+import knexStringcase from 'knex-stringcase';
 
 class DbManager {
   private readonly dbName: string;
@@ -14,11 +14,12 @@ class DbManager {
   private connectionUrl: string | null = null
 
   public constructor() {
-    this.dbName = `test_${(Math.random() + 1).toString(36).substring(7)}`;
+    this.dbName = `maestro_test_${(Math.random() + 1).toString(36).substring(7)}`;
+    console.log(`Base de données de test: ${this.dbName}`)
   }
 
   private async init(): Promise<void> {
-    const globalConnection = config.databaseUrlTest;
+    const globalConnection = config.databaseUrl;
     const globalClient = new Client(globalConnection);
     await globalClient.connect();
     const queryResult = await globalClient.query(`SELECT 1
@@ -32,7 +33,7 @@ class DbManager {
 
     this.connectionUrl = `postgres://${globalClient.user}:${globalClient.password}@${globalClient.host}:${globalClient.port}/${this.dbName}`
     this.knexInstance = this.getKnex(this.connectionUrl);
-
+    initKysely(this.connectionUrl)
     setKnexInstance(this.knexInstance!);
     const output = spawnSync(
       'npx',
@@ -82,12 +83,13 @@ class DbManager {
   }
 
   private getKnex(url: string): Knex {
-    const options = knexStringcase(deepClone(defaultKnexConfig));
+    const options = deepClone(defaultKnexConfig)
 
 
     return knex({
       ...options,
-      connection: url
+      connection: url,
+      ...knexStringcase()
     });
   }
 
@@ -105,14 +107,16 @@ class DbManager {
     return { knex: this.knexInstance };
   }
 
-  public async closeKnex(): Promise<void> {
+  public async closeDb(): Promise<void> {
     DbManager.checkKnexInstance(this.knexInstance);
     await this.knexInstance.destroy();
+
+    await kysely.destroy()
     await this.end();
   }
 
   private async end(): Promise<void> {
-    const globalClient = new Client(this.connectionUrl!);
+    const globalClient = new Client(config.databaseUrl);
     await globalClient.connect();
     await globalClient.query(`DROP DATABASE ${this.dbName}`);
     await globalClient.end();

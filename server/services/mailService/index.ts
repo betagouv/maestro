@@ -3,9 +3,10 @@ import createBrevoService from './brevoService';
 import { MailService } from './mailService';
 import createNodemailerService from './nodemailerService';
 
-const mailService: MailService =
+export let mailService: MailService =
   config.mailer.provider === 'brevo'
     ? createBrevoService()
     : createNodemailerService();
 
-export default mailService;
+export const setMailService = (emailService: MailService) => (mailService = emailService)
+

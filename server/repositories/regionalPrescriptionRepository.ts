@@ -8,7 +8,7 @@ import {
   RegionalPrescription,
   RegionalPrescriptionKey
 } from '../../shared/schema/RegionalPrescription/RegionalPrescription';
-import db from './db';
+import {knexInstance as db} from './db';
 import { prescriptionsTable } from './prescriptionRepository';
 import { regionalPrescriptionCommentsTable } from './regionalPrescriptionCommentRepository';
 import { samplesTable } from './sampleRepository';

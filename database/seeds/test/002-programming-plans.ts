@@ -1,6 +1,8 @@
 import { ProgrammingPlans } from '../../../server/repositories/programmingPlanRepository';
 import { genProgrammingPlan } from '../../../shared/test/programmingPlanFixtures';
 import { NationalCoordinator } from './001-users';
+import { Knex } from 'knex';
+import { setKnexInstance } from '../../../server/repositories/db';
 
 export const ValidatedProgrammingPlanFixture = genProgrammingPlan({
   createdBy: NationalCoordinator.id,
@@ -10,6 +12,9 @@ export const ValidatedProgrammingPlanFixture = genProgrammingPlan({
   year: 2024,
 });
 
-exports.seed = async function () {
+exports.seed = async function (knex: Knex) {
+  setKnexInstance(knex)
+
+
   await ProgrammingPlans().insert(ValidatedProgrammingPlanFixture);
 };

@@ -5,19 +5,17 @@ export default defineWorkspace([
     test: {
       name: 'unit',
       setupFiles: [],
-      include: ['shared/**/*.test.unit.ts', 'server/**/*.test.unit.ts']
+      include: ['shared/**/*.test.ts', 'server/**/*.test.ts'],
+      exclude: ['**/*.router.test.ts', '**/*.routes.test.ts'],
     },
   },
   {
     test: {
       name: 'integration',
-      testTimeout: 10000,
       hookTimeout: 45000,
       root: 'server',
-      setupFiles: [],
-      // setupFilesAfterEnv: ['<rootDir>/test/setupTests.ts'],
-      globalSetup: './server/test/globalSetup.ts',
-      include: ['**/*.test.ts'],
+      setupFiles: ['./server/test/setupTests.ts'],
+      include: ['**/*.router.test.ts', '**/*.routes.test.ts'],
     },
   },
 ])

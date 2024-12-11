@@ -1,7 +1,21 @@
-import { enableFetchMocks } from 'jest-fetch-mock';
+import { dbManager } from './db-manager';
+import { afterAll, beforeAll } from 'vitest';
+import { setMailService } from '../services/mailService';
 
-enableFetchMocks();
+setMailService({
+  send: async () => {},
+  sendAnalysisRequest: async () => {},
+  sendNewRegionalPrescriptionComment: async () => {},
+  sendSubmittedProgrammingPlan: async () => {},
+  sendSupportDocumentCopyToOwner: async () => {},
+  sendValidatedProgrammingPlan: async () => {},
+})
 
-jest.useFakeTimers({
-  legacyFakeTimers: true,
-});
+beforeAll(async () => {
+  await dbManager.populateDb()
+})
+
+
+afterAll(async () => {
+  await dbManager.closeDb()
+})

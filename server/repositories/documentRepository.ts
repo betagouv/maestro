@@ -1,7 +1,7 @@
 import fp from 'lodash';
 import { Document } from '../../shared/schema/Document/Document';
 import { FindDocumentOptions } from '../../shared/schema/Document/FindDocumentOptions';
-import db from './db';
+import {knexInstance as db} from './db';
 
 const documentsTable = 'documents';
 

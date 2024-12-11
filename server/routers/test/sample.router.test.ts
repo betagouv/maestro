@@ -305,7 +305,7 @@ describe('Sample router', () => {
         .expect(constants.HTTP_STATUS_CREATED);
 
       expect(res.body).toMatchObject(
-        expect.objectContaining({
+        {
           ...sample,
           id: sample.id,
           createdAt: expect.any(String),
@@ -319,7 +319,7 @@ describe('Sample router', () => {
             sample.department
           }-${format(new Date(), 'yy')}-0001-${sample.legalContext}`,
           status: sample.status,
-        })
+        }
       );
 
       await expect(
