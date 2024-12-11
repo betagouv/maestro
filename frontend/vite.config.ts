@@ -27,6 +27,9 @@ export default defineConfig(({ mode }) => {
         REACT_APP_API_URL: 'http://localhost:3001'
       }
     },
+    preview: {
+      port: 3000
+    },
     plugins: [
       react(),
       tsconfigPaths(),
@@ -42,7 +45,11 @@ export default defineConfig(({ mode }) => {
         registerType: 'autoUpdate',
         manifest: false,
         srcDir: 'src',
+        strategies: 'injectManifest',
         filename: 'serviceWorker.js',
+        injectManifest: {
+          maximumFileSizeToCacheInBytes: 5 * 1024 * 1024
+        },
         workbox: {
           maximumFileSizeToCacheInBytes: 5 * 1024 * 1024
         }
