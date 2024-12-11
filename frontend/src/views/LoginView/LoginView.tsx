@@ -1,11 +1,27 @@
-import { useSearchParams } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAppDispatch } from 'src/hooks/useStore';
+import { useAuthenticateMutation } from 'src/services/auth.service';
+import authSlice from 'src/store/reducers/authSlice';
 
-interface Props {}
+export const LoginView = () => {
+  const dispatch = useAppDispatch();
+  const [authenticate] = useAuthenticateMutation();
+  const navigate = useNavigate();
 
-export const LoginView: React.FC<Props> = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  searchParams.forEach((value, key) => console.log(key, value));
+  useEffect(() => {
+    (() =>
+      authenticate({
+        url: window.location.href,
+        nonce: sessionStorage.getItem('nonce') || '',
+        state: sessionStorage.getItem('state') || ''
+      })
+        .unwrap()
+        .then((authUser) => {
+          dispatch(authSlice.actions.signinUser({ authUser }));
+          navigate('/');
+        }))();
+  }, [window.location.href]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return <div>Merci de patienter....</div>;
 };

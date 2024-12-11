@@ -15,8 +15,21 @@ export const authApi = api.injectEndpoints({
     }),
     getAuthRedirectUrl: builder.query<AuthRedirectUrl, void>({
       query: () => 'auth/redirect-url'
+    }),
+    authenticate: builder.mutation<AuthUser, AuthRedirectUrl>({
+      query: (authRedirectUrl) => ({
+        url: 'auth',
+        method: 'POST',
+        body: authRedirectUrl
+      }),
+      transformResponse: (result: any) => AuthUser.parse(result),
+      invalidatesTags: ['AuthUser']
     })
   })
 });
 
-export const { useSignInMutation, useGetAuthRedirectUrlQuery } = authApi;
+export const {
+  useSignInMutation,
+  useGetAuthRedirectUrlQuery,
+  useAuthenticateMutation
+} = authApi;
