@@ -12,7 +12,8 @@ import ScrollToTop from 'src/components/ScrollToTop/ScrollToTop';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useOnLine } from 'src/hooks/useOnLine';
 import { useAppSelector } from 'src/hooks/useStore';
-import LoginView from 'src/views/LoginView/LoginView';
+import LoginCallbackView from 'src/views/LoginCallbackView/LoginCallbackView';
+import LogoutCallbackView from 'src/views/LogoutCallbackView/LogoutCallbackView';
 import './App.scss';
 import { store } from './store/store';
 
@@ -83,7 +84,16 @@ function App() {
                 key={route.key}
               />
             )),
-            <Route path="/login" element={<LoginView />} key="login_route" />,
+            <Route
+              path="/login"
+              element={<LoginCallbackView />}
+              key="login_callback_route"
+            />,
+            <Route
+              path="/logout"
+              element={<LogoutCallbackView />}
+              key="logout_callback_route"
+            />,
             <Route
               path="/*"
               element={<Navigate replace to="/" />}

@@ -4,7 +4,7 @@ import { useAppDispatch } from 'src/hooks/useStore';
 import { useAuthenticateMutation } from 'src/services/auth.service';
 import authSlice from 'src/store/reducers/authSlice';
 
-export const LoginView = () => {
+export const LoginCallbackView = () => {
   const dispatch = useAppDispatch();
   const [authenticate] = useAuthenticateMutation();
   const navigate = useNavigate();
@@ -23,7 +23,7 @@ export const LoginView = () => {
         }))();
   }, [window.location.href]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return <div>Merci de patienter....</div>;
+  return <div>Connexion ... Merci de patienter....</div>;
 };
 
-export default LoginView;
+export default LoginCallbackView;

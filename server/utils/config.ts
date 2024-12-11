@@ -38,10 +38,12 @@ interface Config {
   auth: {
     secret: string;
     expiresIn: string;
-    callbackUrl: string | null;
     clientId: string | null;
     clientSecret: string | null;
+    loginCallbackUrl: string | null;
+    logoutCallbackUrl: string | null;
     providerUrl: string | null;
+    tokenAlgorithm: string;
   };
   databaseEnvironment: string;
   databaseUrl: string;
@@ -114,11 +116,6 @@ const config = convict<Config>({
       format: String,
       default: '12 hours'
     },
-    callbackUrl: {
-      env: 'AUTH_CALLBACK_URL',
-      format: 'url',
-      default: 'http://localhost:3000/login'
-    },
     clientId: {
       env: 'AUTH_CLIENT_ID',
       format: String,
@@ -131,11 +128,26 @@ const config = convict<Config>({
       default: null,
       nullable: true
     },
+    loginCallbackUrl: {
+      env: 'AUTH_CALLBACK_URL',
+      format: 'url',
+      default: 'http://localhost:3000/login'
+    },
+    logoutCallbackUrl: {
+      env: 'AUTH_LOGOUT_CALLBACK_URL',
+      format: 'url',
+      default: 'http://localhost:3000/logout'
+    },
     providerUrl: {
       env: 'AUTH_PROVIDER_URL',
       format: 'url',
       default: null,
       nullable: true
+    },
+    tokenAlgorithm: {
+      env: 'AUTH_TOKEN_ALGORITHM',
+      format: String,
+      default: 'RS256'
     }
   },
   databaseEnvironment: {

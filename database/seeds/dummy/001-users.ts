@@ -11,7 +11,7 @@ exports.seed = async function (knex: Knex) {
   await Users().insert([
     {
       id: uuidv4(),
-      email: 'admin@maestro.fr',
+      email: 'admin@yopmail.fr',
       password: bcrypt.hashSync('Test2024'),
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
@@ -19,7 +19,7 @@ exports.seed = async function (knex: Knex) {
     },
     {
       id: uuidv4(),
-      email: 'coordinateur.national@maestro.fr',
+      email: 'coordinateur.national@yopmail.fr',
       password: bcrypt.hashSync('Test2024'),
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
@@ -27,7 +27,7 @@ exports.seed = async function (knex: Knex) {
     },
     {
       id: uuidv4(),
-      email: 'coordinateur.regional@maestro.fr',
+      email: 'coordinateur.regional@yopmail.fr',
       password: bcrypt.hashSync('Test2024'),
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
@@ -36,7 +36,7 @@ exports.seed = async function (knex: Knex) {
     },
     {
       id: uuidv4(),
-      email: 'coordinateur.regional.drom@maestro.fr',
+      email: 'coordinateur.regional.drom@yopmail.fr',
       password: bcrypt.hashSync('Test2024'),
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
@@ -45,7 +45,7 @@ exports.seed = async function (knex: Knex) {
     },
     {
       id: uuidv4(),
-      email: 'preleveur@maestro.fr',
+      email: 'preleveur@yopmail.fr',
       password: bcrypt.hashSync('Test2024'),
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
@@ -54,7 +54,7 @@ exports.seed = async function (knex: Knex) {
     },
     {
       id: uuidv4(),
-      email: 'preleveur.drom@maestro.fr',
+      email: 'preleveur.drom@yopmail.fr',
       password: bcrypt.hashSync('Test2024'),
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),

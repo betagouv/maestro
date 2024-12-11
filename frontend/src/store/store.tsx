@@ -1,4 +1,4 @@
-import { configureStore, ConfigureStoreOptions  } from '@reduxjs/toolkit';
+import { configureStore, ConfigureStoreOptions } from '@reduxjs/toolkit';
 import { api, tagTypes } from 'src/services/api.service';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import programmingPlanSlice from 'src/store/reducers/programmingPlanSlice';
@@ -13,7 +13,9 @@ export const applicationReducer = {
   [api.reducerPath]: api.reducer
 };
 export const applicationMiddleware = (
-  getDefaultMiddleware: Parameters<Required<ConfigureStoreOptions>['middleware']>[0]
+  getDefaultMiddleware: Parameters<
+    Required<ConfigureStoreOptions>['middleware']
+  >[0]
 ) =>
   getDefaultMiddleware({
     serializableCheck: false
@@ -30,7 +32,7 @@ export const store = configureStore({
 export type AppState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 
-export const logout = () => async (dispatch: AppDispatch) => {
+export const appLogout = () => async (dispatch: AppDispatch) => {
   console.log('logout');
   dispatch(authSlice.actions.signoutUser());
   dispatch(api.util.invalidateTags(tagTypes));

@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { Request, Response } from 'express';
+import { AuthenticatedRequest } from 'express-jwt';
 import { constants } from 'http2';
 import jwt, { decode } from 'jsonwebtoken';
 import { generators, Issuer } from 'openid-client';
@@ -54,10 +55,12 @@ const getAuthProviderConfig = async () => {
   return new issuer.Client({
     client_id: config.auth.clientId,
     client_secret: config.auth.clientSecret,
-    redirect_uris: config.auth.callbackUrl ? [config.auth.callbackUrl] : [],
+    redirect_uris: config.auth.loginCallbackUrl
+      ? [config.auth.loginCallbackUrl]
+      : [],
     response_types: ['code'],
-    id_token_signed_response_alg: 'RS256',
-    userinfo_signed_response_alg: 'RS256'
+    id_token_signed_response_alg: config.auth.tokenAlgorithm,
+    userinfo_signed_response_alg: config.auth.tokenAlgorithm
   });
 };
 
@@ -91,7 +94,7 @@ const authenticate = async (request: Request, response: Response) => {
 
   const params = client.callbackParams(authRedirectUrl.url);
   const tokenSet = await client.callback(
-    config.auth.callbackUrl as string,
+    config.auth.loginCallbackUrl as string,
     params,
     {
       state: authRedirectUrl.state,
@@ -114,8 +117,7 @@ const authenticate = async (request: Request, response: Response) => {
     throw new Error('Invalid ID token');
   }
 
-  if (decodedToken.header.alg !== 'RS256') {
-    //TODO constante
+  if (decodedToken.header.alg !== config.auth.tokenAlgorithm) {
     throw new Error('Invalid token algorithm');
   }
 
@@ -137,7 +139,8 @@ const authenticate = async (request: Request, response: Response) => {
 
   const accessToken = jwt.sign(
     {
-      userId: user.id
+      userId: user.id,
+      idToken
     } as TokenPayload,
     config.auth.secret,
     { expiresIn: config.auth.expiresIn }
@@ -150,8 +153,27 @@ const authenticate = async (request: Request, response: Response) => {
   });
 };
 
+const logout = async (request: Request, response: Response) => {
+  const { idToken } = (request as AuthenticatedRequest).auth;
+  const client = await getAuthProviderConfig();
+
+  const state = generators.state();
+
+  const logoutUrl = client.endSessionUrl({
+    id_token_hint: idToken,
+    state,
+    post_logout_redirect_uri: config.auth.logoutCallbackUrl as string
+  });
+
+  return response.status(constants.HTTP_STATUS_OK).json({
+    url: logoutUrl,
+    state
+  });
+};
+
 export default {
   signIn,
   getAuthRedirectUrl,
-  authenticate
+  authenticate,
+  logout
 };

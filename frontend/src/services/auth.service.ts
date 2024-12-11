@@ -14,7 +14,8 @@ export const authApi = api.injectEndpoints({
       invalidatesTags: ['AuthUser']
     }),
     getAuthRedirectUrl: builder.query<AuthRedirectUrl, void>({
-      query: () => 'auth/redirect-url'
+      query: () => 'auth/redirect-url',
+      transformResponse: (result: any) => AuthRedirectUrl.parse(result)
     }),
     authenticate: builder.mutation<AuthUser, AuthRedirectUrl>({
       query: (authRedirectUrl) => ({
@@ -24,6 +25,14 @@ export const authApi = api.injectEndpoints({
       }),
       transformResponse: (result: any) => AuthUser.parse(result),
       invalidatesTags: ['AuthUser']
+    }),
+    logout: builder.mutation<AuthRedirectUrl, void>({
+      query: () => ({
+        url: 'auth/logout',
+        method: 'POST'
+      }),
+      transformResponse: (result: any) => AuthRedirectUrl.parse(result),
+      invalidatesTags: ['AuthUser']
     })
   })
 });
@@ -31,5 +40,6 @@ export const authApi = api.injectEndpoints({
 export const {
   useSignInMutation,
   useGetAuthRedirectUrlQuery,
-  useAuthenticateMutation
+  useAuthenticateMutation,
+  useLogoutMutation
 } = authApi;
