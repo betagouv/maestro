@@ -4,8 +4,7 @@ import { cloneDeep } from 'lodash';
 import knexStringcase from 'knex-stringcase';
 
 
-
-// @ts-ignore
+//@ts-expect-error TS2322
 let knexInstance: Knex  = null;
 export const setKnexInstance = (newKnex: Knex) => (knexInstance = newKnex)
 
