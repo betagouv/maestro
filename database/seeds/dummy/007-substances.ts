@@ -1,7 +1,10 @@
-import db from '../../../server/repositories/db';
+import db, { setKnexInstance } from '../../../server/repositories/db';
 import { Substance } from '../../../shared/schema/Substance/Substance';
+import { Knex } from 'knex';
 
-exports.seed = async function () {
+exports.seed = async function (knex: Knex) {
+  setKnexInstance(knex)
+
   const genSubstance = (code: string, label: string): Substance => ({
     code,
     label,

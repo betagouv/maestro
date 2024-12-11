@@ -2,8 +2,12 @@ import { fakerFR } from '@faker-js/faker';
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { Users } from '../../../server/repositories/userRepository';
+import { Knex } from 'knex';
+import { setKnexInstance } from '../../../server/repositories/db';
 
-exports.seed = async function () {
+exports.seed = async function (knex: Knex) {
+  setKnexInstance(knex)
+
   await Users().insert([
     {
       id: uuidv4(),

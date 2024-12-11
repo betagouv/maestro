@@ -18,19 +18,6 @@ const dummyConfig = {
   },
 };
 
-const testConfig = {
-  ...defaultConfig,
-  connection: config.databaseUrlTest,
-  migrations: {
-    ...defaultConfig.migrations,
-    directory: './database/migrations',
-  },
-  seeds: {
-    directory: './database/seeds/test',
-    extension: 'ts',
-  },
-};
-
 const productionConfig = {
   ...defaultConfig,
   seeds: {
@@ -41,6 +28,4 @@ const productionConfig = {
 
 export default config.databaseEnvironment === 'production'
   ? productionConfig
-  : config.environment === 'test'
-  ? testConfig
-  : dummyConfig;
+  :  dummyConfig;

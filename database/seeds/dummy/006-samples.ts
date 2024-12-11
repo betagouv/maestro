@@ -22,8 +22,11 @@ import {
   lentilles,
   oignons
 } from './004-prescriptions';
+import { Knex } from 'knex';
+import { setKnexInstance } from '../../../server/repositories/db';
+exports.seed = async function (knex: Knex) {
+  setKnexInstance(knex)
 
-exports.seed = async function () {
   const validatedProgrammingPlan = await ProgrammingPlans()
     .where({ status: 'Validated' })
     .first();

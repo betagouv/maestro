@@ -41,7 +41,6 @@ interface Config {
   };
   databaseEnvironment: string;
   databaseUrl: string;
-  databaseUrlTest: string;
   mail: {
     from: string;
   };
@@ -119,11 +118,6 @@ const config = convict<Config>({
   },
   databaseUrl: {
     env: 'DATABASE_URL',
-    format: String,
-    default: null,
-  },
-  databaseUrlTest: {
-    env: 'DATABASE_URL_TEST',
     format: String,
     default: null,
   },

@@ -78,7 +78,6 @@ jobs:
 #        env:
 #          AUTH_SECRET: abcd1234
 #          DATABASE_URL: postgres://postgres:postgres@localhost:5432/maestro
-#          DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/maestro
       - name: Server tests
         run: npm run test
         env:

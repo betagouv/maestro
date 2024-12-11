@@ -6,7 +6,7 @@ export default defineWorkspace([
       name: 'unit',
       setupFiles: [],
       include: ['shared/**/*.test.ts', 'server/**/*.test.ts'],
-      exclude: ['**/*.router.test.ts', '**/*.routes.test.ts'],
+      exclude: ['**/*.router.test.ts'],
     },
   },
   {
@@ -15,7 +15,7 @@ export default defineWorkspace([
       hookTimeout: 45000,
       root: 'server',
       setupFiles: ['./server/test/setupTests.ts'],
-      include: ['**/*.router.test.ts', '**/*.routes.test.ts'],
+      include: ['**/*.router.test.ts'],
     },
   },
 ])

@@ -268,7 +268,7 @@ describe('ProgrammingPlan router', () => {
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
-    test.only('should create a new programming plan for the given year', async () => {
+    test('should create a new programming plan for the given year', async () => {
       const res = await request(app)
         .post(testRoute('2020'))
         .use(tokenProvider(NationalCoordinator))
