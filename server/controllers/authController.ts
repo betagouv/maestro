@@ -51,7 +51,7 @@ const getAuthProviderConfig = async () => {
 
   const issuer = await Issuer.discover(config.auth.providerUrl);
 
-  const client = new issuer.Client({
+  return new issuer.Client({
     client_id: config.auth.clientId,
     client_secret: config.auth.clientSecret,
     redirect_uris: config.auth.callbackUrl ? [config.auth.callbackUrl] : [],
@@ -59,8 +59,6 @@ const getAuthProviderConfig = async () => {
     id_token_signed_response_alg: 'RS256',
     userinfo_signed_response_alg: 'RS256'
   });
-
-  return client;
 };
 
 const getAuthRedirectUrl = async (request: Request, response: Response) => {
