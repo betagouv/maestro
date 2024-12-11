@@ -14,7 +14,6 @@ const getAuthRedirectUrl = async (request: Request, response: Response) => {
   const authRedirectUrl = authService.getAuthorizationUrl(
     'openid profile email'
   );
-
   response.status(200).send(authRedirectUrl);
 };
 
