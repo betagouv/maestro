@@ -1,4 +1,3 @@
-import bcrypt from 'bcryptjs';
 import { Request, Response } from 'express';
 import { AuthenticatedRequest } from 'express-jwt';
 import { constants } from 'http2';
@@ -6,38 +5,9 @@ import jwt, { decode } from 'jsonwebtoken';
 import { generators, Issuer } from 'openid-client';
 import AuthenticationFailedError from '../../shared/errors/authenticationFailedError';
 import { AuthRedirectUrl } from '../../shared/schema/Auth/AuthRedirectUrl';
-import { SignIn } from '../../shared/schema/SignIn';
 import { TokenPayload } from '../../shared/schema/User/TokenPayload';
 import userRepository from '../repositories/userRepository';
 import config from '../utils/config';
-
-const signIn = async (request: Request, response: Response) => {
-  const { email, password } = request.body as SignIn;
-
-  const user = await userRepository.findOne(email);
-  if (!user || !user.password) {
-    throw new AuthenticationFailedError();
-  }
-
-  const isPasswordValid = await bcrypt.compare(password, user.password);
-  if (!isPasswordValid) {
-    throw new AuthenticationFailedError();
-  }
-
-  const accessToken = jwt.sign(
-    {
-      userId: user.id
-    } as TokenPayload,
-    config.auth.secret,
-    { expiresIn: config.auth.expiresIn }
-  );
-
-  return response.status(constants.HTTP_STATUS_OK).json({
-    userId: user.id,
-    accessToken,
-    userRoles: user.roles
-  });
-};
 
 const getAuthProviderConfig = async () => {
   if (
@@ -97,32 +67,37 @@ const authenticate = async (request: Request, response: Response) => {
     config.auth.loginCallbackUrl as string,
     params,
     {
-      state: authRedirectUrl.state,
-      nonce: authRedirectUrl.nonce
+      state: authRedirectUrl.state ?? '',
+      nonce: authRedirectUrl.nonce ?? ''
     }
   );
 
   if (!tokenSet.access_token) {
-    throw new Error('No access token received');
+    console.error('No access token received', tokenSet);
+    throw new AuthenticationFailedError();
   }
 
   if (tokenSet.expires_at && Date.now() > tokenSet.expires_at * 1000) {
-    throw new Error('Access token has expired');
+    console.error('Token expired', tokenSet);
+    throw new AuthenticationFailedError();
   }
 
   const idToken = tokenSet.id_token as string;
   const decodedToken = decode(idToken, { complete: true });
 
   if (!decodedToken || typeof decodedToken.payload === 'string') {
-    throw new Error('Invalid ID token');
+    console.error('Invalid token', decodedToken);
+    throw new AuthenticationFailedError();
   }
 
   if (decodedToken.header.alg !== config.auth.tokenAlgorithm) {
-    throw new Error('Invalid token algorithm');
+    console.error('Invalid algorithm', decodedToken);
+    throw new AuthenticationFailedError();
   }
 
   if (decodedToken.payload.nonce !== authRedirectUrl.nonce) {
-    throw new Error('Invalid nonce');
+    console.error('Invalid nonce', decodedToken);
+    throw new AuthenticationFailedError();
   }
 
   const userInfo = await client.userinfo(tokenSet.access_token as string);
@@ -134,6 +109,7 @@ const authenticate = async (request: Request, response: Response) => {
   const user = await userRepository.findOne(userInfo.email);
 
   if (!user) {
+    console.error('User not found', userInfo.email);
     throw new AuthenticationFailedError();
   }
 
@@ -172,7 +148,6 @@ const logout = async (request: Request, response: Response) => {
 };
 
 export default {
-  signIn,
   getAuthRedirectUrl,
   authenticate,
   logout

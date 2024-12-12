@@ -4,15 +4,6 @@ import { api } from 'src/services/api.service';
 
 export const authApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    signIn: builder.mutation<AuthUser, { email: string; password: string }>({
-      query: ({ email, password }) => ({
-        url: 'auth/sign-in',
-        method: 'POST',
-        body: { email, password }
-      }),
-      transformResponse: (result: any) => AuthUser.parse(result),
-      invalidatesTags: ['AuthUser']
-    }),
     getAuthRedirectUrl: builder.query<AuthRedirectUrl, void>({
       query: () => 'auth/redirect-url',
       transformResponse: (result: any) => AuthRedirectUrl.parse(result)
@@ -38,7 +29,6 @@ export const authApi = api.injectEndpoints({
 });
 
 export const {
-  useSignInMutation,
   useGetAuthRedirectUrlQuery,
   useAuthenticateMutation,
   useLogoutMutation

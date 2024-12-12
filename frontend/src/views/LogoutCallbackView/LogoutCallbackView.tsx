@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch } from 'src/hooks/useStore';
 import { appLogout } from 'src/store/store';
+import HomeView from 'src/views/HomeView/HomeView';
 
 export const LogoutCallbackView = () => {
   const dispatch = useAppDispatch();
@@ -12,9 +13,9 @@ export const LogoutCallbackView = () => {
       await appLogout()(dispatch);
       navigate('/');
     })();
-  }, [window.location.href]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return <div>Déconnexion ... Merci de patienter....</div>;
+  return <HomeView></HomeView>;
 };
 
 export default LogoutCallbackView;
