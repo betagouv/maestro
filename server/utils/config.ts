@@ -19,8 +19,8 @@ if (!process.env.API_PORT) {
 }
 export const isProduction = process.env.NODE_ENV === 'production';
 
-const MailProvider = z.enum(['brevo', 'nodemailer']);
-type MailProvider = z.infer<typeof MailProvider>;
+const MailProvider = z.enum(['fake', 'brevo', 'nodemailer']);
+export type MailProvider = z.infer<typeof MailProvider>;
 
 convict.addFormat({
   name: 'mail-provider',
@@ -132,7 +132,7 @@ const config = convict<Config>({
     provider: {
       env: 'MAILER_PROVIDER',
       format: 'mail-provider',
-      default: 'nodemailer',
+      default: 'fake',
     },
     host: {
       env: 'MAILER_HOST',
