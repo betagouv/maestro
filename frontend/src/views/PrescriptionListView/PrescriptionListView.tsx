@@ -372,6 +372,14 @@ const PrescriptionListView = () => {
                     );
                     setSelectedRegionalPrescriptionIds([]);
                   }}
+                  onSelectAll={() => {
+                    setSelectedRegionalPrescriptionIds(
+                      selectedRegionalPrescriptionIds.length ===
+                        prescriptions.length
+                        ? []
+                        : prescriptions.map((p) => p.id)
+                    );
+                  }}
                 />
               }
             </div>

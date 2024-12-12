@@ -27,6 +27,7 @@ interface Props {
   hasGroupedUpdatePermission?: boolean;
   selectedCount?: number;
   onGroupedUpdate?: (laboratoryId?: string) => Promise<void>;
+  onSelectAll: () => void;
 }
 
 const PrescriptionListHeader = ({
@@ -37,7 +38,8 @@ const PrescriptionListHeader = ({
   sampleCount,
   hasGroupedUpdatePermission,
   selectedCount,
-  onGroupedUpdate
+  onGroupedUpdate,
+  onSelectAll
 }: Props) => {
   const dispatch = useAppDispatch();
   const { isMobile } = useWindowSize();
@@ -140,11 +142,13 @@ const PrescriptionListHeader = ({
       {isGroupedUpdate && onGroupedUpdate && (
         <PrescriptionListGroupedUpdate
           selectedCount={selectedCount ?? 0}
+          totalCount={prescriptions.length}
           onSubmit={async (laboratoryId) => {
             await onGroupedUpdate(laboratoryId);
             setIsGroupedUpdate(false);
           }}
           onCancel={() => setIsGroupedUpdate(false)}
+          onSelectAll={onSelectAll}
         />
       )}
     </>
