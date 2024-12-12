@@ -8,14 +8,14 @@ import {
   NationalCoordinator,
   Sampler1Fixture,
   Sampler2Fixture,
-} from '../../../database/seeds/test/001-users';
-import { ValidatedProgrammingPlanFixture } from '../../../database/seeds/test/002-programming-plans';
+} from '../../test/seed/001-users';
+import { ValidatedProgrammingPlanFixture } from '../../test/seed/002-programming-plans';
 import {
   Sample11Fixture,
   Sample12Fixture,
   Sample13Fixture,
   Sample2Fixture,
-} from '../../../database/seeds/test/004-samples';
+} from '../../test/seed/004-samples';
 import { MatrixList } from '../../../shared/referential/Matrix/Matrix';
 import { Region, Regions } from '../../../shared/referential/Region';
 import {

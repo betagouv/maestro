@@ -10,9 +10,9 @@ import {
   Region2Fixture,
   RegionalCoordinator,
   Sampler1Fixture
-} from '../../../database/seeds/test/001-users';
-import { CompanyFixture } from '../../../database/seeds/test/003-companies';
-import { LaboratoryFixture } from '../../../database/seeds/test/005-laboratories';
+} from '../../test/seed/001-users';
+import { CompanyFixture } from '../../test/seed/003-companies';
+import { LaboratoryFixture } from '../../test/seed/005-laboratories';
 import { MatrixList } from '../../../shared/referential/Matrix/Matrix';
 import { Region, RegionList } from '../../../shared/referential/Region';
 import { StageList } from '../../../shared/referential/Stage';

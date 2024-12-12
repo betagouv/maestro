@@ -5,11 +5,11 @@ import { v4 as uuidv4 } from 'uuid';
 import {
   NationalCoordinator,
   Sampler1Fixture,
-} from '../../../database/seeds/test/001-users';
+} from '../../test/seed/001-users';
 import {
   Sample11Fixture,
   Sample2Fixture,
-} from '../../../database/seeds/test/004-samples';
+} from '../../test/seed/004-samples';
 import { AnalyteList } from '../../../shared/referential/Residue/Analyte';
 import { PartialAnalyte } from '../../../shared/schema/Analysis/Analyte';
 import {

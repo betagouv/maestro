@@ -8,7 +8,7 @@ import {
   RegionalDromCoordinator,
   Sampler1Fixture,
   SamplerDromFixture
-} from '../../../database/seeds/test/001-users';
+} from '../../test/seed/001-users';
 import { ProgrammingPlan } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatus } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { genPrescription } from '../../../shared/test/prescriptionFixtures';

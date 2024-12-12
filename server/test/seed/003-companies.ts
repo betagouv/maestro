@@ -1,7 +1,5 @@
-import { Companies } from '../../../server/repositories/companyRepository';
+import { Companies } from '../../repositories/companyRepository';
 import { genCompany } from '../../../shared/test/companyFixtures';
-import { Knex } from 'knex';
-import { setKnexInstance } from '../../../server/repositories/db';
 
 export const CompanyFixture = genCompany({
   siret: '11111111111111',
@@ -11,7 +9,7 @@ export const CompanyFixture = genCompany({
 });
 
 
-exports.seed = async function (knex: Knex) {
-  setKnexInstance(knex)
+export const seed = async () : Promise<void> => {
+
   await Companies().insert(CompanyFixture);
 }

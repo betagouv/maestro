@@ -7,7 +7,7 @@ import {
   NationalCoordinator,
   RegionalCoordinator,
   Sampler1Fixture
-} from '../../../database/seeds/test/001-users';
+} from '../../test/seed/001-users';
 import { MatrixList } from '../../../shared/referential/Matrix/Matrix';
 import { StageList } from '../../../shared/referential/Stage';
 import { PrescriptionUpdate } from '../../../shared/schema/Prescription/Prescription';

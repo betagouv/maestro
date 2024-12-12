@@ -1,9 +1,9 @@
 import fp from 'lodash';
-import { SampleItems } from '../../../server/repositories/sampleItemRepository';
+import { SampleItems } from '../../repositories/sampleItemRepository';
 import {
   formatPartialSample,
   Samples,
-} from '../../../server/repositories/sampleRepository';
+} from '../../repositories/sampleRepository';
 import { Regions } from '../../../shared/referential/Region';
 import { SampleStatus } from '../../../shared/schema/Sample/SampleStatus';
 import {
@@ -19,8 +19,6 @@ import {
 } from './001-users';
 import { ValidatedProgrammingPlanFixture } from './002-programming-plans';
 import { CompanyFixture } from './003-companies';
-import { Knex } from 'knex';
-import { setKnexInstance } from '../../../server/repositories/db';
 
 const Sample11FixtureId = '11111111-1111-1111-1111-111111111111';
 const Sample1Item1Fixture = genSampleItem({
@@ -86,9 +84,7 @@ export const Sample2Fixture = genCreatedPartialSample({
   reference: 'PDL-08-24-313-A',
 });
 
-exports.seed = async function (knex: Knex) {
-  setKnexInstance(knex)
-
+export const seed = async () : Promise<void> => {
   await Samples().insert([
     formatPartialSample(Sample11Fixture),
     formatPartialSample(Sample12Fixture),

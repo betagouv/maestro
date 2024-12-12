@@ -1,20 +1,10 @@
-// Update with your config settings.
-
 import knexStringcase from 'knex-stringcase';
+import { Knex } from 'knex';
 
-/**
- * @type { Object.<string, import("knex").Knex.Config> }
- */
-export default {
-
+const config: Knex.Config = {
   client: 'pg',
-  migrations: {
-    extension: 'ts',
-    loadExtensions: ['.ts'],
-  },seeds: {
-    directory: 'database/seeds/test',
-    extension: 'ts',
-  },
+  acquireConnectionTimeout: 10000,
   ...knexStringcase()
-
 };
+
+export default config

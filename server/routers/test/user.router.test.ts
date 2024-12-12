@@ -10,7 +10,7 @@ import {
   Sampler1Fixture,
   Sampler2Fixture,
   SamplerDromFixture
-} from '../../../database/seeds/test/001-users';
+} from '../../test/seed/001-users';
 import { Region } from '../../../shared/referential/Region';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';

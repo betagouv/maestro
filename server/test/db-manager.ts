@@ -6,7 +6,6 @@ import defaultKnexConfig from '../knex'
 import { deepClone } from '@vitest/utils';
 import { setKnexInstance } from '../repositories/db';
 import { initKysely, kysely } from '../repositories/kysely';
-import knexStringcase from 'knex-stringcase';
 
 class DbManager {
   private readonly dbName: string;
@@ -57,31 +56,6 @@ class DbManager {
     console.log(output.stdout); // eslint-disable-line no-console
     console.log(output.stderr); // eslint-disable-line no-console
 
-    //TODO 2024-12-12 arrêter d'utiliser knex pour seed les tests et appeller directement une méthode seed destinée aux tests
-    const outputSeed = spawnSync(
-      'npx',
-      [
-        'knex',
-        'seed:run',
-        '--connection',
-        `${this.connectionUrl}`
-      ],
-      {
-        encoding: 'utf-8',
-        env: {
-          ...process.env,
-          PATH: process.env.PATH,
-          DATABASE_URL: this.connectionUrl
-        }
-      }
-    );
-
-    console.log(outputSeed.stdout); // eslint-disable-line no-console
-    console.log(outputSeed.stderr); // eslint-disable-line no-console
-    if (outputSeed.status !== 0) {
-      console.log(`seed went wrong ${outputSeed.status}`); // eslint-disable-line no-console
-      throw new Error(`Seed went wrong:`);
-    }
   }
 
   private getKnex(url: string): Knex {
@@ -90,8 +64,7 @@ class DbManager {
 
     return knex({
       ...options,
-      connection: url,
-      ...knexStringcase()
+      connection: url
     });
   }
 

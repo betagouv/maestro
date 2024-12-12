@@ -3,7 +3,7 @@ import request from 'supertest';
 import {
   NationalCoordinator,
   Sampler1Fixture,
-} from '../../../database/seeds/test/001-users';
+} from '../../test/seed/001-users';
 import { DocumentKind } from '../../../shared/schema/Document/DocumentKind';
 import {
   genDocument,
