@@ -129,7 +129,7 @@ const config = convict<Config>({
       nullable: true
     },
     loginCallbackUrl: {
-      env: 'AUTH_CALLBACK_URL',
+      env: 'AUTH_LOGIN_CALLBACK_URL',
       format: 'url',
       default: 'http://localhost:3000/login'
     },
