@@ -1,3 +1,4 @@
+import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
@@ -17,13 +18,17 @@ interface Props {
   prescription: Prescription;
   regionalPrescription?: RegionalPrescription;
   onChangeLaboratory: (laboratoryId: string) => Promise<void>;
+  isSelected?: boolean;
+  onToggleSelection?: () => void;
 }
 
 const RegionalPrescriptionCard = ({
   programmingPlan,
   prescription,
   regionalPrescription,
-  onChangeLaboratory
+  onChangeLaboratory,
+  isSelected,
+  onToggleSelection
 }: Props) => {
   const { hasUserRegionalPrescriptionPermission } = useAuthentication();
 
@@ -41,8 +46,29 @@ const RegionalPrescriptionCard = ({
       >
         <div className={cx('fr-card__body')}>
           <div className={cx('fr-card__content')}>
-            <h3 className={cx('fr-card__title')}>
-              {MatrixLabels[prescription.matrix]}
+            <h3 className={clsx(cx('fr-card__title'), 'd-flex-align-center')}>
+              <div className="flex-grow-1">
+                {MatrixLabels[prescription.matrix]}
+              </div>
+              {hasUserRegionalPrescriptionPermission(
+                programmingPlan,
+                regionalPrescription
+              )?.updateLaboratory && (
+                <Checkbox
+                  options={[
+                    {
+                      label: '',
+                      nativeInputProps: {
+                        checked: isSelected,
+                        onChange: onToggleSelection
+                      }
+                    }
+                  ]}
+                  classes={{
+                    content: 'fr-mt-1v'
+                  }}
+                />
+              )}
             </h3>
             {prescription.notes && (
               <div className={cx('fr-mt-1v')}>
