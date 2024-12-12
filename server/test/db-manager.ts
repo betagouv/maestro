@@ -57,6 +57,7 @@ class DbManager {
     console.log(output.stdout); // eslint-disable-line no-console
     console.log(output.stderr); // eslint-disable-line no-console
 
+    //TODO 2024-12-12 arrêter d'utiliser knex pour seed les tests et appeller directement une méthode seed destinée aux tests
     const outputSeed = spawnSync(
       'npx',
       [
@@ -68,6 +69,7 @@ class DbManager {
       {
         encoding: 'utf-8',
         env: {
+          ...process.env,
           PATH: process.env.PATH,
           DATABASE_URL: this.connectionUrl
         }
