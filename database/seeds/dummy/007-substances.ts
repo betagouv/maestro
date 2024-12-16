@@ -1,13 +1,14 @@
-import db, { setKnexInstance } from '../../../server/repositories/db';
-import { Substance } from '../../../shared/schema/Substance/Substance';
 import { Knex } from 'knex';
+import { setKnexInstance } from '../../../server/repositories/db';
+import { Substances } from '../../../server/repositories/substanceRepository';
+import { Substance } from '../../../shared/schema/Substance/Substance';
 
 exports.seed = async function (knex: Knex) {
-  setKnexInstance(knex)
+  setKnexInstance(knex);
 
   const genSubstance = (code: string, label: string): Substance => ({
     code,
-    label,
+    label
   });
 
   //prettier-ignore
@@ -828,5 +829,5 @@ exports.seed = async function (knex: Knex) {
     genSubstance('RF-0452-001-PPP', "Zoxamide")
   ];
 
-  await db<Substance>('substances').insert(substances);
+  await Substances().insert(substances);
 };

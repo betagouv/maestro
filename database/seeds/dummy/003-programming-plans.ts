@@ -2,7 +2,7 @@ import { Knex } from 'knex';
 import { v4 as uuidv4 } from 'uuid';
 import { setKnexInstance } from '../../../server/repositories/db';
 import { ProgrammingPlans } from '../../../server/repositories/programmingPlanRepository';
-import userRepository from '../../../server/repositories/userRepository';
+import { Users } from '../../../server/repositories/userRepository';
 import { genProgrammingPlan } from '../../../shared/test/programmingPlanFixtures';
 
 export const validatedProgrammingPlanId = uuidv4();
@@ -10,7 +10,9 @@ export const validatedProgrammingPlanId = uuidv4();
 exports.seed = async function (knex: Knex) {
   setKnexInstance(knex);
 
-  const user = await userRepository.findOne('coordinateur.national@yopmail.fr');
+  const user = await Users()
+    .where('email', 'coordinateur.national@yopmail.fr')
+    .first();
 
   if (!user) {
     return;
