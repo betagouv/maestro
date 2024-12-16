@@ -1,7 +1,8 @@
 import config from '../config';
+import { describe, test, expect } from 'vitest';
 
 describe('Config', () => {
-  it('should validate the configuration', () => {
+  test('should validate the configuration', () => {
     expect(config).toBeDefined();
   });
 });

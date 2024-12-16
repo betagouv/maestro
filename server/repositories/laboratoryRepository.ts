@@ -1,6 +1,6 @@
 import fp from 'lodash';
 import { Laboratory } from '../../shared/schema/Laboratory/Laboratory';
-import db from './db';
+import {knexInstance as db} from './db';
 
 const laboratoryTable = 'laboratories';
 

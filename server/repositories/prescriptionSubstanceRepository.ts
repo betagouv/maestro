@@ -1,7 +1,7 @@
 import fp from 'lodash';
 import { z } from 'zod';
 import { PrescriptionSubstance } from '../../shared/schema/Prescription/PrescriptionSubstance';
-import db from './db';
+import {knexInstance as db} from './db';
 import { substancesTable } from './substanceRepository';
 
 export const prescriptionSubstanceTable = 'prescription_substances';

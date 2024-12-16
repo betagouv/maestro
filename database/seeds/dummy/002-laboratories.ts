@@ -1,6 +1,8 @@
 import { fakerFR } from '@faker-js/faker';
 import { v4 as uuidv4 } from 'uuid';
 import { Laboratories } from '../../../server/repositories/laboratoryRepository';
+import { Knex } from 'knex';
+import { setKnexInstance } from '../../../server/repositories/db';
 
 export const SCL34Id = uuidv4();
 export const LDA66Id = uuidv4();
@@ -22,7 +24,9 @@ export const DummyLaboratoryIds = [
   FYTId,
 ];
 
-exports.seed = async function () {
+exports.seed = async function (knex: Knex) {
+  setKnexInstance(knex)
+
   await Laboratories().insert([
     {
       id: SCL34Id,

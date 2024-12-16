@@ -1,6 +1,10 @@
 import { Companies } from '../../../server/repositories/companyRepository';
+import { Knex } from 'knex';
+import { setKnexInstance } from '../../../server/repositories/db';
 
-exports.seed = async function () {
+exports.seed = async function (knex: Knex) {
+  setKnexInstance(knex)
+
   await Companies().insert([
     {
       siret: '77560611400061',

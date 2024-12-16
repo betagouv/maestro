@@ -1,7 +1,7 @@
 import fp from 'lodash';
 import { FindProgrammingPlanOptions } from '../../shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import { ProgrammingPlan } from '../../shared/schema/ProgrammingPlan/ProgrammingPlans';
-import db from './db';
+import {knexInstance as db} from './db';
 
 export const programmingPlansTable = 'programming_plans';
 

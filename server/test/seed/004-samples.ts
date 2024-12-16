@@ -1,9 +1,9 @@
 import fp from 'lodash';
-import { SampleItems } from '../../../server/repositories/sampleItemRepository';
+import { SampleItems } from '../../repositories/sampleItemRepository';
 import {
   formatPartialSample,
   Samples,
-} from '../../../server/repositories/sampleRepository';
+} from '../../repositories/sampleRepository';
 import { Regions } from '../../../shared/referential/Region';
 import { SampleStatus } from '../../../shared/schema/Sample/SampleStatus';
 import {
@@ -84,7 +84,7 @@ export const Sample2Fixture = genCreatedPartialSample({
   reference: 'PDL-08-24-313-A',
 });
 
-exports.seed = async function () {
+export const seed = async () : Promise<void> => {
   await Samples().insert([
     formatPartialSample(Sample11Fixture),
     formatPartialSample(Sample12Fixture),

@@ -7,7 +7,7 @@ import {
 import { PartialAnalyte } from '../../shared/schema/Analysis/Analyte';
 import { PartialResidue } from '../../shared/schema/Analysis/Residue/Residue';
 import { convertKeysToCamelCase } from '../../shared/utils/utils';
-import db from './db';
+import {knexInstance as db} from './db';
 
 const analysisTable = 'analysis';
 const analysisResiduesTable = 'analysis_residues';

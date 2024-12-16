@@ -1,7 +1,7 @@
 import { isNil } from 'lodash';
 import { FindUserOptions } from '../../shared/schema/User/FindUserOptions';
 import { User, UserInfos } from '../../shared/schema/User/User';
-import db from './db';
+import {knexInstance as db} from './db';
 import { kysely } from './kysely';
 import { assertUnreachable } from '../../shared/utils/typescript';
 import { sql } from 'kysely';

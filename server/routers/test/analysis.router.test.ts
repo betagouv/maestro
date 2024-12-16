@@ -5,11 +5,11 @@ import { v4 as uuidv4 } from 'uuid';
 import {
   NationalCoordinator,
   Sampler1Fixture,
-} from '../../../database/seeds/test/001-users';
+} from '../../test/seed/001-users';
 import {
   Sample11Fixture,
   Sample2Fixture,
-} from '../../../database/seeds/test/004-samples';
+} from '../../test/seed/004-samples';
 import { AnalyteList } from '../../../shared/referential/Residue/Analyte';
 import { PartialAnalyte } from '../../../shared/schema/Analysis/Analyte';
 import {
@@ -30,6 +30,7 @@ import { Samples } from '../../repositories/sampleRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
+import { describe, test, expect, beforeAll, afterAll } from 'vitest';
 describe('Analysis router', () => {
   const { app } = createServer();
 
@@ -92,20 +93,20 @@ describe('Analysis router', () => {
         sampleId ? new URLSearchParams({ sampleId }).toString() : ''
       }`;
 
-    it('should fail if the user is not authenticated', async () => {
+    test('should fail if the user is not authenticated', async () => {
       await request(app)
         .get(testRoute(analysisWithoutResidue.sampleId))
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    it('should fail if the user does not have the permission to read analysis', async () => {
+    test('should fail if the user does not have the permission to read analysis', async () => {
       await request(app)
         .get(testRoute(analysisWithoutResidue.sampleId))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should get a valid sample id', async () => {
+    test('should get a valid sample id', async () => {
       await request(app)
         .get(testRoute())
         .use(tokenProvider(Sampler1Fixture))
@@ -117,14 +118,14 @@ describe('Analysis router', () => {
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    it('should fail if the analysis does not exist', async () => {
+    test('should fail if the analysis does not exist', async () => {
       await request(app)
         .get(testRoute(uuidv4()))
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
-    it('should get a analysis without residue', async () => {
+    test('should get a analysis without residue', async () => {
       const res = await request(app)
         .get(testRoute(analysisWithoutResidue.sampleId))
         .use(tokenProvider(Sampler1Fixture))
@@ -136,7 +137,7 @@ describe('Analysis router', () => {
       });
     });
 
-    it('should get an analysis with residues', async () => {
+    test('should get an analysis with residues', async () => {
       const res = await request(app)
         .get(testRoute(analysisWithResidues.sampleId))
         .use(tokenProvider(Sampler1Fixture))
@@ -159,14 +160,14 @@ describe('Analysis router', () => {
   describe('POST /analysis', () => {
     const testRoute = '/api/analysis';
 
-    it('should fail if the user is not authenticated', async () => {
+    test('should fail if the user is not authenticated', async () => {
       await request(app)
         .post(testRoute)
         .send(genAnalysisToCreate())
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    it('should get a valid body', async () => {
+    test('should get a valid body', async () => {
       const badRequestTest = async (payload?: Record<string, unknown>) =>
         request(app)
           .post(testRoute)
@@ -197,7 +198,7 @@ describe('Analysis router', () => {
       );
     });
 
-    it('should fail if the user does not have the permission to create analysis', async () => {
+    test('should fail if the user does not have the permission to create analysis', async () => {
       await request(app)
         .post(testRoute)
         .send(genAnalysisToCreate())
@@ -205,7 +206,7 @@ describe('Analysis router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should create an analysis and update the associated sample status', async () => {
+    test('should create an analysis and update the associated sample status', async () => {
       const analysis = genAnalysisToCreate({
         sampleId: Sample11Fixture.id,
         reportDocumentId: document1.id,
@@ -250,14 +251,14 @@ describe('Analysis router', () => {
   describe('PUT /analysis/:id', () => {
     const testRoute = (analysisId: string) => `/api/analysis/${analysisId}`;
 
-    it('should fail if the user is not authenticated', async () => {
+    test('should fail if the user is not authenticated', async () => {
       await request(app)
         .put(testRoute(analysisWithoutResidue.id))
         .send(genPartialAnalysis())
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    it('should get a valid analysis id', async () => {
+    test('should get a valid analysis id', async () => {
       const badRequestTest = async (analysisId: string) =>
         request(app)
           .put(testRoute(analysisId))
@@ -268,7 +269,7 @@ describe('Analysis router', () => {
       await badRequestTest('123');
     });
 
-    it('should fail if the analysis does not exist', async () => {
+    test('should fail if the analysis does not exist', async () => {
       await request(app)
         .put(testRoute(uuidv4()))
         .send(genPartialAnalysis())
@@ -276,7 +277,7 @@ describe('Analysis router', () => {
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
-    it('should fail if the user does not have the permission to update analysis', async () => {
+    test('should fail if the user does not have the permission to update analysis', async () => {
       await request(app)
         .put(testRoute(analysisWithoutResidue.id))
         .send(genPartialAnalysis())
@@ -284,7 +285,7 @@ describe('Analysis router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should get a valid body', async () => {
+    test('should get a valid body', async () => {
       const validBody = genPartialAnalysis({
         id: analysisWithoutResidue.id,
         sampleId: Sample11Fixture.id,
@@ -327,7 +328,7 @@ describe('Analysis router', () => {
       });
     });
 
-    it('should update a analysis with adding residues', async () => {
+    test('should update a analysis with adding residues', async () => {
       const analysisUpdate = {
         ...genPartialAnalysis(analysisWithoutResidue),
         residues: [
@@ -387,7 +388,7 @@ describe('Analysis router', () => {
       );
     });
 
-    it('should update a analysis with removing residues', async () => {
+    test('should update a analysis with removing residues', async () => {
       const analysisUpdate = {
         ...genPartialAnalysis(analysisWithResidues),
         residues: [],
@@ -417,7 +418,7 @@ describe('Analysis router', () => {
       ).resolves.toMatchObject([]);
     });
 
-    it('should update the sample when the analysis is completed and compliant', async () => {
+    test('should update the sample when the analysis is completed and compliant', async () => {
       const analysisUpdate = {
         ...genPartialAnalysis(analysisWithResidues),
         status: 'Completed',
@@ -440,7 +441,7 @@ describe('Analysis router', () => {
         .update({ status: Sample2Fixture.status });
     });
 
-    it('should update the sample when the analysis is completed and not compliant', async () => {
+    test('should update the sample when the analysis is completed and not compliant', async () => {
       const analysisUpdate = {
         ...genPartialAnalysis(analysisWithResidues),
         status: 'Completed',

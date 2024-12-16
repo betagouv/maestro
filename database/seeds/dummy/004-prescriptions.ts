@@ -6,6 +6,8 @@ import { genPrescription } from '../../../shared/test/prescriptionFixtures';
 import { oneOf } from '../../../shared/test/testFixtures';
 import { validatedProgrammingPlanId } from '../dummy/003-programming-plans';
 import { DummyLaboratoryIds } from './002-laboratories';
+import { Knex } from 'knex';
+import { setKnexInstance } from '../../../server/repositories/db';
 
 export const abricotsEtSimilaires = genPrescription({
   id: '02b1d919-f5e7-4d67-afa6-dc8e7e8f3687',
@@ -248,7 +250,9 @@ export const graineDeTournesol2 = genPrescription({
     'STADE9',
   ],
 });
-exports.seed = async function () {
+exports.seed = async function (knex: Knex) {
+  setKnexInstance(knex)
+
   const validatedProgrammingPlan = await ProgrammingPlans()
     .where({ status: 'Validated' })
     .first();

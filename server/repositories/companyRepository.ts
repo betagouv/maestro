@@ -1,6 +1,6 @@
 import fp from 'lodash';
 import { Company } from '../../shared/schema/Company/Company';
-import db from './db';
+import {knexInstance as db} from './db';
 
 export const companiesTable = 'companies';
 

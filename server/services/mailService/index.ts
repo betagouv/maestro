@@ -1,11 +1,15 @@
-import config from '../../utils/config';
+import config, { MailProvider } from '../../utils/config';
 import createBrevoService from './brevoService';
 import { MailService } from './mailService';
 import createNodemailerService from './nodemailerService';
+import { createFakeMailService } from './fakeService';
 
-const mailService: MailService =
-  config.mailer.provider === 'brevo'
-    ? createBrevoService()
-    : createNodemailerService();
+const serviceByProvider = {
+  'fake': createFakeMailService,
+  'brevo': createBrevoService,
+  'nodemailer': createNodemailerService
+} as const satisfies Record<MailProvider, () => MailService>
 
-export default mailService;
+
+export const mailService: MailService = serviceByProvider[config.mailer.provider]()
+

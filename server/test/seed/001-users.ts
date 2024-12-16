@@ -1,4 +1,4 @@
-import { Users } from '../../../server/repositories/userRepository';
+import { Users } from '../../repositories/userRepository';
 import { Region } from '../../../shared/referential/Region';
 import { genUser } from '../../../shared/test/userFixtures';
 
@@ -54,7 +54,7 @@ export const NationalCoordinator = genUser({
   id: '55555555-5555-5555-5555-555555555555'
 });
 
-exports.seed = async function () {
+export const seed = async () : Promise<void> => {
   await Users().insert([
     Sampler1Fixture,
     Sampler2Fixture,

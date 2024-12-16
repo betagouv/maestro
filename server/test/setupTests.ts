@@ -1,7 +1,13 @@
-import { enableFetchMocks } from 'jest-fetch-mock';
+import { dbManager } from './db-manager';
+import { afterAll, beforeAll } from 'vitest';
+import { dbSeed } from './seed';
 
-enableFetchMocks();
+beforeAll(async () => {
+  await dbManager.populateDb()
+  await dbSeed()
+})
 
-jest.useFakeTimers({
-  legacyFakeTimers: true,
-});
+
+afterAll(async () => {
+  await dbManager.closeDb()
+})

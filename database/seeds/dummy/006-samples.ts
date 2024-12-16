@@ -11,7 +11,7 @@ import { Region, Regions } from '../../../shared/referential/Region';
 import { Sample } from '../../../shared/schema/Sample/Sample';
 import { genCreatedSample } from '../../../shared/test/sampleFixtures';
 import { oneOf } from '../../../shared/test/testFixtures';
-import { Sampler1Fixture } from '../test/001-users';
+import { Sampler1Fixture } from '../../../server/test/seed/001-users';
 import { DummyLaboratoryIds } from './002-laboratories';
 import {
   abricotsEtSimilaires,
@@ -22,8 +22,11 @@ import {
   lentilles,
   oignons
 } from './004-prescriptions';
+import { Knex } from 'knex';
+import { setKnexInstance } from '../../../server/repositories/db';
+exports.seed = async function (knex: Knex) {
+  setKnexInstance(knex)
 
-exports.seed = async function () {
   const validatedProgrammingPlan = await ProgrammingPlans()
     .where({ status: 'Validated' })
     .first();

@@ -8,14 +8,14 @@ import {
   NationalCoordinator,
   Sampler1Fixture,
   Sampler2Fixture,
-} from '../../../database/seeds/test/001-users';
-import { ValidatedProgrammingPlanFixture } from '../../../database/seeds/test/002-programming-plans';
+} from '../../test/seed/001-users';
+import { ValidatedProgrammingPlanFixture } from '../../test/seed/002-programming-plans';
 import {
   Sample11Fixture,
   Sample12Fixture,
   Sample13Fixture,
   Sample2Fixture,
-} from '../../../database/seeds/test/004-samples';
+} from '../../test/seed/004-samples';
 import { MatrixList } from '../../../shared/referential/Matrix/Matrix';
 import { Region, Regions } from '../../../shared/referential/Region';
 import {
@@ -29,6 +29,7 @@ import { Samples } from '../../repositories/sampleRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
+import { describe, test, expect } from 'vitest';
 describe('Sample router', () => {
   const { app } = createServer();
 
@@ -39,34 +40,34 @@ describe('Sample router', () => {
   describe('GET /samples/{sampleId}', () => {
     const testRoute = (sampleId: string) => `/api/samples/${sampleId}`;
 
-    it('should fail if the user is not authenticated', async () => {
+    test('should fail if the user is not authenticated', async () => {
       await request(app)
         .get(testRoute(Sample11Fixture.id))
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    it('should get a valid sample id', async () => {
+    test('should get a valid sample id', async () => {
       await request(app)
         .get(`${testRoute(randomstring.generate())}`)
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    it('should fail if the sample does not exist', async () => {
+    test('should fail if the sample does not exist', async () => {
       await request(app)
         .get(`${testRoute(uuidv4())}`)
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
-    it('should fail if the sample does not belong to the user region', async () => {
+    test('should fail if the sample does not belong to the user region', async () => {
       await request(app)
         .get(`${testRoute(Sample11Fixture.id)}`)
         .use(tokenProvider(Sampler2Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should get the sample', async () => {
+    test('should get the sample', async () => {
       const res = await request(app)
         .get(testRoute(Sample11Fixture.id))
         .use(tokenProvider(Sampler1Fixture))
@@ -85,34 +86,34 @@ describe('Sample router', () => {
     const testRoute = (sampleId: string, itemNumber: number) =>
       `/api/samples/${sampleId}/items/${itemNumber}/document`;
 
-    it('should fail if the user is not authenticated', async () => {
+    test('should fail if the user is not authenticated', async () => {
       await request(app)
         .get(testRoute(Sample11Fixture.id, 1))
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    it('should get a valid sample id', async () => {
+    test('should get a valid sample id', async () => {
       await request(app)
         .get(`${testRoute(randomstring.generate(), 1)}`)
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    it('should fail if the sample does not exist', async () => {
+    test('should fail if the sample does not exist', async () => {
       await request(app)
         .get(`${testRoute(uuidv4(), 1)}`)
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
-    it('should fail if the sample does not belong to the user region', async () => {
+    test('should fail if the sample does not belong to the user region', async () => {
       await request(app)
         .get(`${testRoute(Sample11Fixture.id, 1)}`)
         .use(tokenProvider(Sampler2Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should fail if the user does not have the permission to download the sample document', async () => {
+    test('should fail if the user does not have the permission to download the sample document', async () => {
       await request(app)
         .get(`${testRoute(Sample11Fixture.id, 1)}`)
         .use(tokenProvider(NationalCoordinator))
@@ -124,20 +125,20 @@ describe('Sample router', () => {
     const testRoute = (params: Record<string, string>) =>
       `/api/samples?${new URLSearchParams(params).toString()}`;
 
-    it('should fail if the user is not authenticated', async () => {
+    test('should fail if the user is not authenticated', async () => {
       await request(app)
         .get(testRoute({}))
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    it('should fail if the programmingPlanId is not provided', async () => {
+    test('should fail if the programmingPlanId is not provided', async () => {
       await request(app)
         .get(testRoute({}))
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    it('should find the samples with query parameters restricted to the user region', async () => {
+    test('should find the samples with query parameters restricted to the user region', async () => {
       const res = await request(app)
         .get(
           testRoute({
@@ -158,7 +159,7 @@ describe('Sample router', () => {
       ]);
     });
 
-    it('should find national samples with a list of statuses', async () => {
+    test('should find national samples with a list of statuses', async () => {
       const res = await request(app)
         .get(
           testRoute({
@@ -192,20 +193,20 @@ describe('Sample router', () => {
     const testRoute = (params: Record<string, string>) =>
       `/api/samples/count?${new URLSearchParams(params).toString()}`;
 
-    it('should fail if the user is not authenticated', async () => {
+    test('should fail if the user is not authenticated', async () => {
       await request(app)
         .get(testRoute({}))
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    it('should fail if the programmingPlanId is not provided', async () => {
+    test('should fail if the programmingPlanId is not provided', async () => {
       await request(app)
         .get(testRoute({}))
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    it('should count the samples with query parameters restricted to the user region', async () => {
+    test('should count the samples with query parameters restricted to the user region', async () => {
       const res = await request(app)
         .get(
           testRoute({
@@ -219,7 +220,7 @@ describe('Sample router', () => {
       expect(res.body).toMatchObject({ count: 1 });
     });
 
-    it('should count national samples with a list of statuses', async () => {
+    test('should count national samples with a list of statuses', async () => {
       const res = await request(app)
         .get(
           testRoute({
@@ -237,14 +238,14 @@ describe('Sample router', () => {
   describe('POST /samples', () => {
     const testRoute = '/api/samples';
 
-    it('should fail if the user is not authenticated', async () => {
+    test('should fail if the user is not authenticated', async () => {
       await request(app)
         .post(testRoute)
         .send(genSampleContextData())
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    it('should get a valid body', async () => {
+    test('should get a valid body', async () => {
       const badRequestTest = async (payload?: Record<string, unknown>) =>
         request(app)
           .post(testRoute)
@@ -288,7 +289,7 @@ describe('Sample router', () => {
       await badRequestTest({ ...genSampleContextData(), sampledAt: null });
     });
 
-    it('should fail if the user does not have the permission to create samples', async () => {
+    test('should fail if the user does not have the permission to create samples', async () => {
       await request(app)
         .post(testRoute)
         .send(genSampleContextData())
@@ -296,7 +297,7 @@ describe('Sample router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should create a sample', async () => {
+    test('should create a sample', async () => {
       const res = await request(app)
         .post(testRoute)
         .send(sample)
@@ -304,7 +305,7 @@ describe('Sample router', () => {
         .expect(constants.HTTP_STATUS_CREATED);
 
       expect(res.body).toMatchObject(
-        expect.objectContaining({
+        {
           ...sample,
           id: sample.id,
           createdAt: expect.any(String),
@@ -318,7 +319,7 @@ describe('Sample router', () => {
             sample.department
           }-${format(new Date(), 'yy')}-0001-${sample.legalContext}`,
           status: sample.status,
-        })
+        }
       );
 
       await expect(
@@ -330,14 +331,14 @@ describe('Sample router', () => {
   describe('PUT /samples/{sampleId}', () => {
     const testRoute = (sampleId: string) => `/api/samples/${sampleId}`;
 
-    it('should fail if the user is not authenticated', async () => {
+    test('should fail if the user is not authenticated', async () => {
       await request(app)
         .put(`${testRoute(Sample11Fixture.id)}`)
         .send({})
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    it('should get a valid sample id', async () => {
+    test('should get a valid sample id', async () => {
       await request(app)
         .put(`${testRoute(randomstring.generate())}`)
         .send({})
@@ -345,7 +346,7 @@ describe('Sample router', () => {
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    it('should fail if the sample does not exist', async () => {
+    test('should fail if the sample does not exist', async () => {
       await request(app)
         .put(`${testRoute(uuidv4())}`)
         .send(genCreatedPartialSample())
@@ -353,7 +354,7 @@ describe('Sample router', () => {
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
-    it('should fail if the sample does not belong to the user', async () => {
+    test('should fail if the sample does not belong to the user', async () => {
       await request(app)
         .put(`${testRoute(Sample11Fixture.id)}`)
         .send(Sample11Fixture)
@@ -361,7 +362,7 @@ describe('Sample router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should get a valid body', async () => {
+    test('should get a valid body', async () => {
       const badRequestTest = async (payload?: Record<string, unknown>) =>
         request(app)
           .put(`${testRoute(Sample11Fixture.id)}`)
@@ -405,7 +406,7 @@ describe('Sample router', () => {
       ],
     };
 
-    it('should fail if the user does not have the permission to update samples', async () => {
+    test('should fail if the user does not have the permission to update samples', async () => {
       await request(app)
         .put(`${testRoute(Sample11Fixture.id)}`)
         .send(validBody)
@@ -413,7 +414,7 @@ describe('Sample router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should update a partial sample', async () => {
+    test('should update a partial sample', async () => {
       const res = await request(app)
         .put(`${testRoute(Sample11Fixture.id)}`)
         .send(validBody)
@@ -442,7 +443,7 @@ describe('Sample router', () => {
       ).resolves.toBeDefined();
     });
 
-    it('should update the sample compliance', async () => {
+    test('should update the sample compliance', async () => {
       await request(app)
         .put(`${testRoute(Sample11Fixture.id)}`)
         .send({
@@ -469,48 +470,48 @@ describe('Sample router', () => {
   describe('DELETE /samples/{sampleId}', () => {
     const testRoute = (sampleId: string) => `/api/samples/${sampleId}`;
 
-    it('should fail if the user is not authenticated', async () => {
+    test('should fail if the user is not authenticated', async () => {
       await request(app)
         .delete(testRoute(Sample11Fixture.id))
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    it('should get a valid sample id', async () => {
+    test('should get a valid sample id', async () => {
       await request(app)
         .delete(testRoute(randomstring.generate()))
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    it('should fail if the sample does not exist', async () => {
+    test('should fail if the sample does not exist', async () => {
       await request(app)
         .delete(testRoute(uuidv4()))
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
-    it('should fail if the sample does not belong to the user', async () => {
+    test('should fail if the sample does not belong to the user', async () => {
       await request(app)
         .delete(testRoute(Sample11Fixture.id))
         .use(tokenProvider(Sampler2Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should fail if the user does not have the permission to delete samples', async () => {
+    test('should fail if the user does not have the permission to delete samples', async () => {
       await request(app)
         .delete(testRoute(Sample11Fixture.id))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should be forbidden to delete a sample that is not in draft status', async () => {
+    test('should be forbidden to delete a sample that is not in draft status', async () => {
       await request(app)
         .delete(testRoute(Sample13Fixture.id))
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    it('should delete the sample', async () => {
+    test('should delete the sample', async () => {
       await request(app)
         .delete(testRoute(sample.id))
         .use(tokenProvider(Sampler1Fixture))

@@ -1,4 +1,4 @@
-import { Companies } from '../../../server/repositories/companyRepository';
+import { Companies } from '../../repositories/companyRepository';
 import { genCompany } from '../../../shared/test/companyFixtures';
 
 export const CompanyFixture = genCompany({
@@ -8,6 +8,8 @@ export const CompanyFixture = genCompany({
   postalCode: '75000',
 });
 
-exports.seed = async function () {
+
+export const seed = async () : Promise<void> => {
+
   await Companies().insert(CompanyFixture);
-};
+}

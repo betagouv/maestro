@@ -3,7 +3,7 @@ import {
   PartialSampleItem,
   SampleItemSort,
 } from '../../shared/schema/Sample/SampleItem';
-import db from './db';
+import { knexInstance as db} from './db';
 
 const sampleItemsTable = 'sample_items';
 

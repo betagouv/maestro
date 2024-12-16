@@ -1,5 +1,5 @@
 import { RegionalPrescriptionComment } from '../../shared/schema/RegionalPrescription/RegionalPrescriptionComment';
-import db from './db';
+import {knexInstance as db} from './db';
 
 export const regionalPrescriptionCommentsTable =
   'regional_prescription_comments';

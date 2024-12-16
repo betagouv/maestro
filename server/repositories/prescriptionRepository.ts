@@ -5,7 +5,7 @@ import {
   PrescriptionOptionsInclude,
 } from '../../shared/schema/Prescription/FindPrescriptionOptions';
 import { Prescription } from '../../shared/schema/Prescription/Prescription';
-import db from './db';
+import {knexInstance as db} from './db';
 import { prescriptionSubstanceTable } from './prescriptionSubstanceRepository';
 export const prescriptionsTable = 'prescriptions';
 

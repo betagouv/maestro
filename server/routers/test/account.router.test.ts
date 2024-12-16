@@ -7,6 +7,7 @@ import { genUser, genValidPassword } from '../../../shared/test/userFixtures';
 import { Users } from '../../repositories/userRepository';
 import { createServer } from '../../server';
 
+import { describe, test, expect, beforeAll, afterAll } from 'vitest';
 const { app } = createServer();
 
 describe('Account routes', () => {
@@ -27,7 +28,7 @@ describe('Account routes', () => {
   describe('POST /accounts/sign-in', () => {
     const testRoute = '/api/accounts/sign-in';
 
-    it('should receive valid email and password', async () => {
+    test('should receive valid email and password', async () => {
       await request(app)
         .post(testRoute)
         .send({
@@ -45,7 +46,7 @@ describe('Account routes', () => {
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    it('should fail if the user is missing', async () => {
+    test('should fail if the user is missing', async () => {
       await request(app)
         .post(testRoute)
         .send({
@@ -55,7 +56,7 @@ describe('Account routes', () => {
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    it('should fail if the password is wrong', async () => {
+    test('should fail if the password is wrong', async () => {
       await request(app)
         .post(testRoute)
         .send({
@@ -65,7 +66,7 @@ describe('Account routes', () => {
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    it('should succeed if the user is found and the password is correct', async () => {
+    test('should succeed if the user is found and the password is correct', async () => {
       const res = await request(app)
         .post(testRoute)
         .send({

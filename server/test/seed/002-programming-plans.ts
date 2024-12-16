@@ -1,4 +1,4 @@
-import { ProgrammingPlans } from '../../../server/repositories/programmingPlanRepository';
+import { ProgrammingPlans } from '../../repositories/programmingPlanRepository';
 import { genProgrammingPlan } from '../../../shared/test/programmingPlanFixtures';
 import { NationalCoordinator } from './001-users';
 
@@ -10,6 +10,7 @@ export const ValidatedProgrammingPlanFixture = genProgrammingPlan({
   year: 2024,
 });
 
-exports.seed = async function () {
+export const seed = async () : Promise<void> => {
+
   await ProgrammingPlans().insert(ValidatedProgrammingPlanFixture);
 };
