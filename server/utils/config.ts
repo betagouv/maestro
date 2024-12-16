@@ -131,12 +131,12 @@ const config = convict<Config>({
     loginCallbackUrl: {
       env: 'AUTH_LOGIN_CALLBACK_URL',
       format: 'url',
-      default: 'http://localhost:3000/login'
+      default: 'http://localhost:3000/login-callback'
     },
     logoutCallbackUrl: {
       env: 'AUTH_LOGOUT_CALLBACK_URL',
       format: 'url',
-      default: 'http://localhost:3000/logout'
+      default: 'http://localhost:3000/logout-callback'
     },
     providerUrl: {
       env: 'AUTH_PROVIDER_URL',

@@ -85,12 +85,12 @@ function App() {
               />
             )),
             <Route
-              path="/login"
+              path="/login-callback"
               element={<LoginCallbackView />}
               key="login_callback_route"
             />,
             <Route
-              path="/logout"
+              path="/logout-callback"
               element={<LogoutCallbackView />}
               key="logout_callback_route"
             />,
