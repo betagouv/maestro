@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import { expressjwt } from 'express-jwt';
 
 import _ from 'lodash';
@@ -68,4 +68,27 @@ export const permissionsCheck = (permissions: UserPermission[]) =>
     }
 
     next();
+  };
+
+export const basicAuthCheck =
+  async (req: Request, res: express.Response, next: express.NextFunction) => {
+    try {
+      const token = req.headers.authorization
+      if (token !== config.basicToken) {
+        res.status(401);
+        res.send('Authentication Required');
+
+        return;
+      }
+
+    } catch (e) {
+      console.error(e);
+      res.status(500);
+      res.send('Internal error');
+
+      return;
+    }
+
+
+    next()
   };

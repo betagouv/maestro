@@ -84,6 +84,7 @@ interface Config {
       url: string;
     };
   };
+  basicToken: string
 }
 
 const config = convict<Config>({
@@ -282,6 +283,12 @@ const config = convict<Config>({
         default: 'https://recherche-entreprises.api.gouv.fr'
       }
     }
+  },
+  basicToken: {
+    env: 'MAESTRO_BASIC_TOKEN',
+    format: String,
+    sensitive: true,
+    default: null
   }
 })
   .validate({ allowed: 'strict' })

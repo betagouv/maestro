@@ -67,6 +67,7 @@ jobs:
           S3_REGION: region
           S3_ACCESS_KEY_ID: key
           S3_SECRET_ACCESS_KEY: secret
+          MAESTRO_BASIC_TOKEN: fakeBasicToken
       - name: Frontend linter
         run: npm --prefix frontend run lint
       - name: Server linter
