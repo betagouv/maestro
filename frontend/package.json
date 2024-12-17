@@ -9,7 +9,6 @@
     "preview": "vite preview",
     "test": "vitest",
     "lint": "node_modules/.bin/eslint . --ext .ts,.tsx",
-    "postinstall": "copy-dsfr-to-public",
     "predev": "react-dsfr update-icons",
     "prestart": "react-dsfr update-icons",
     "prebuild": "react-dsfr update-icons"
