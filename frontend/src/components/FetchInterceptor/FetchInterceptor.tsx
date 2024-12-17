@@ -1,8 +1,12 @@
 import fetchIntercept from 'fetch-intercept';
-import { useLogoutMutation } from 'src/services/auth.service';
+import { useNavigate } from 'react-router-dom';
+import { useAppDispatch } from 'src/hooks/useStore';
+import { appLogout } from 'src/store/store';
 
 const FetchInterceptor = () => {
-  const [logout] = useLogoutMutation();
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
   return fetchIntercept.register({
     request: function (url, config) {
       return [url, config];
@@ -15,8 +19,8 @@ const FetchInterceptor = () => {
     response: function (response) {
       if (response.status === 401) {
         (async () => {
-          const logoutRedirectUrl = await logout().unwrap();
-          window.location.href = logoutRedirectUrl.url;
+          await appLogout()(dispatch);
+          navigate('/');
         })();
       }
       return response;
