@@ -62,7 +62,6 @@
     "lodash": "^4.17.21",
     "node-fetch": "^2.6.7",
     "nodemailer": "^6.9.13",
-    "openapi3-ts": "^4.4.0",
     "openid-client": "^5.7.1",
     "pg": "^8.13.1",
     "puppeteer": "^22.11.2",

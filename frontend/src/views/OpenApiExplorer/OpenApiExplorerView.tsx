@@ -1,4 +1,4 @@
-import 'openapi-explorer';
+import 'openapi-explorer/dist/es/openapi-explorer';
 import React, {  useEffect } from 'react';
 // @ts-expect-error TS7016
 import {reactEventListener} from 'openapi-explorer/dist/es/react'
