@@ -20,9 +20,9 @@ declare module '@codegouvfr/react-dsfr/spa' {
     Link: typeof Link;
   }
 }
+startReactDsfr({ defaultColorScheme: 'light', Link });
 
 function AppWrapper() {
-  startReactDsfr({ defaultColorScheme: 'light', Link });
 
   const { MuiDsfrThemeProvider } = createMuiDsfrThemeProvider({
     augmentMuiTheme: ({ nonAugmentedMuiTheme }) => ({
