@@ -3,15 +3,16 @@
   "version": "0.0.1",
   "private": false,
   "scripts": {
+    "dev": "vite",
     "start": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest",
     "lint": "node_modules/.bin/eslint . --ext .ts,.tsx",
     "postinstall": "copy-dsfr-to-public",
-    "prestart": "only-include-used-icons",
-    "prebuild": "only-include-used-icons",
-    "dev": "vite"
+    "predev": "react-dsfr update-icons",
+    "prestart": "react-dsfr update-icons",
+    "prebuild": "react-dsfr update-icons"
   },
   "license": "AGPL-3.0",
   "engines": {
