@@ -11,7 +11,7 @@ exports.seed = async function (knex: Knex) {
   await Users().insert([
     {
       id: uuidv4(),
-      email: 'admin@maestro.beta.gouv.fr.fr',
+      email: 'admin@maestro.beta.gouv.fr',
       password: bcrypt.hashSync('Test2024'),
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
@@ -19,7 +19,7 @@ exports.seed = async function (knex: Knex) {
     },
     {
       id: uuidv4(),
-      email: 'coordinateur.national@maestro.beta.gouv.fr.fr',
+      email: 'coordinateur.national@maestro.beta.gouv.fr',
       password: bcrypt.hashSync('Test2024'),
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
@@ -27,7 +27,7 @@ exports.seed = async function (knex: Knex) {
     },
     {
       id: uuidv4(),
-      email: 'coordinateur.regional@maestro.beta.gouv.fr.fr',
+      email: 'coordinateur.regional@maestro.beta.gouv.fr',
       password: bcrypt.hashSync('Test2024'),
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
@@ -36,7 +36,7 @@ exports.seed = async function (knex: Knex) {
     },
     {
       id: uuidv4(),
-      email: 'coordinateur.regional.drom@maestro.beta.gouv.fr.fr',
+      email: 'coordinateur.regional.drom@maestro.beta.gouv.fr',
       password: bcrypt.hashSync('Test2024'),
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
@@ -45,7 +45,7 @@ exports.seed = async function (knex: Knex) {
     },
     {
       id: uuidv4(),
-      email: 'preleveur@maestro.beta.gouv.fr.fr',
+      email: 'preleveur@maestro.beta.gouv.fr',
       password: bcrypt.hashSync('Test2024'),
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
@@ -54,7 +54,7 @@ exports.seed = async function (knex: Knex) {
     },
     {
       id: uuidv4(),
-      email: 'preleveur.drom@maestro.beta.gouv.fr.fr',
+      email: 'preleveur.drom@maestro.beta.gouv.fr',
       password: bcrypt.hashSync('Test2024'),
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),

@@ -11,7 +11,7 @@ exports.seed = async function (knex: Knex) {
   setKnexInstance(knex);
 
   const user = await Users()
-    .where('email', 'coordinateur.national@maestro.beta.gouv.fr.fr')
+    .where('email', 'coordinateur.national@maestro.beta.gouv.fr')
     .first();
 
   if (!user) {
