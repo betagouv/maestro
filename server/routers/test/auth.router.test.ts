@@ -39,10 +39,11 @@ describe('Auth routes', () => {
     test('should return a redirect url', async () => {
       const mockedAuthRedirectUrl = genAuthRedirectUrl();
       mockGetAuthorizationUrl.mockReturnValueOnce(mockedAuthRedirectUrl);
-      const response = await request(app).get(testRoute);
+      const res = await request(app)
+        .get(testRoute)
+        .expect(constants.HTTP_STATUS_OK);
 
-      expect(response.status).toBe(constants.HTTP_STATUS_OK);
-      expect(response.body).toEqual(mockedAuthRedirectUrl);
+      expect(res.body).toEqual(mockedAuthRedirectUrl);
     });
   });
 
@@ -74,9 +75,10 @@ describe('Auth routes', () => {
         email: randomstring.generate()
       });
       mockAuthenticate.mockResolvedValueOnce(mockedAuthenticate);
-      const response = await request(app).post(testRoute).send(validBody);
-
-      expect(response.status).toBe(constants.HTTP_STATUS_UNAUTHORIZED);
+      await request(app)
+        .post(testRoute)
+        .send(validBody)
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
     test('should authenticate a user', async () => {
@@ -85,10 +87,12 @@ describe('Auth routes', () => {
         email: Sampler1Fixture.email
       });
       mockAuthenticate.mockResolvedValueOnce(mockedAuthenticate);
-      const response = await request(app).post(testRoute).send(validBody);
+      const res = await request(app)
+        .post(testRoute)
+        .send(validBody)
+        .expect(constants.HTTP_STATUS_OK);
 
-      expect(response.status).toBe(constants.HTTP_STATUS_OK);
-      expect(response.body).toMatchObject({
+      expect(res.body).toMatchObject({
         userId: Sampler1Fixture.id,
         accessToken: expect.any(String),
         userRoles: Sampler1Fixture.roles
@@ -108,12 +112,12 @@ describe('Auth routes', () => {
     test('should return a logout url', async () => {
       const mockedLogoutUrl = genAuthRedirectUrl();
       mockGetLogoutUrl.mockReturnValueOnce(mockedLogoutUrl);
-      const response = await request(app)
+      const res = await request(app)
         .post(testRoute)
-        .use(tokenProvider(Sampler1Fixture));
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_OK);
 
-      expect(response.status).toBe(constants.HTTP_STATUS_OK);
-      expect(response.body).toEqual(mockedLogoutUrl);
+      expect(res.body).toEqual(mockedLogoutUrl);
     });
   });
 });
