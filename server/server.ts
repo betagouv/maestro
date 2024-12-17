@@ -81,7 +81,7 @@ export function createServer(): Server {
   app.use(rateLimiter);
   app.set('trust proxy', 1);
 
-  app.use('/api', m2mProtectedRouter);
+  app.use('/api/m2m', m2mProtectedRouter);
   app.use('/api', unprotectedRouter);
   app.use('/api', protectedRouter);
 
