@@ -16,7 +16,7 @@ describe('basicAuth', () => {
   test('should respond with the status 200 with good basic token', async () => {
     await request(app)
       .get(myM2MRoute)
-      .set('authorization', config.basicToken)
+      .set('authorization', config.m2mBasicToken)
       .expect(constants.HTTP_STATUS_OK);
   });
 
