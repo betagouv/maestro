@@ -84,7 +84,7 @@ interface Config {
       url: string;
     };
   };
-  basicToken: string
+  m2mBasicToken: string
 }
 
 const config = convict<Config>({
@@ -284,8 +284,8 @@ const config = convict<Config>({
       }
     }
   },
-  basicToken: {
-    env: 'MAESTRO_BASIC_TOKEN',
+  m2mBasicToken: {
+    env: 'M2M_BASIC_TOKEN',
     format: String,
     sensitive: true,
     default: null

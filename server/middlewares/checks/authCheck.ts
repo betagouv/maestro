@@ -74,7 +74,7 @@ export const basicAuthCheck =
   async (req: Request, res: express.Response, next: express.NextFunction) => {
     try {
       const token = req.headers.authorization
-      if (token !== config.basicToken) {
+      if (token !== config.m2mBasicToken) {
         res.status(401);
         res.send('Authentication Required');
 
