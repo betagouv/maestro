@@ -5,20 +5,16 @@ import { genUser } from '../../../shared/test/userFixtures';
 import { Users } from '../../repositories/userRepository';
 import { createServer } from '../../server';
 
-import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
+import randomstring from 'randomstring';
+import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { genAuthRedirectUrl } from '../../../shared/test/authFixtures';
-
-const mockedAuthRedirectUrl = genAuthRedirectUrl();
-
-vi.mock('../../services/authService', () => ({
-  getAuthService: Promise.resolve({
-    getAuthorizationUrl: () => mockedAuthRedirectUrl,
-    authenticate: () => ({
-      idToken: 'idToken',
-      email: 'email'
-    })
-  })
-}));
+import { Sampler1Fixture } from '../../test/seed/001-users';
+import {
+  mockAuthenticate,
+  mockGetAuthorizationUrl,
+  mockGetLogoutUrl
+} from '../../test/setupTests';
+import { tokenProvider } from '../../test/testUtils';
 
 describe('Auth routes', () => {
   const { app } = createServer();
@@ -35,13 +31,14 @@ describe('Auth routes', () => {
 
   afterAll(async () => {
     await Users().delete().where('email', user.email);
-    vi.restoreAllMocks();
   });
 
   describe('GET /auth/redirect-url', () => {
     const testRoute = '/api/auth/redirect-url';
 
     test('should return a redirect url', async () => {
+      const mockedAuthRedirectUrl = genAuthRedirectUrl();
+      mockGetAuthorizationUrl.mockReturnValueOnce(mockedAuthRedirectUrl);
       const response = await request(app).get(testRoute);
 
       expect(response.status).toBe(constants.HTTP_STATUS_OK);
@@ -49,15 +46,74 @@ describe('Auth routes', () => {
     });
   });
 
-  describe('POST /auth/authenticate', () => {
-    const testRoute = '/api/auth/authenticate';
+  describe('POST /auth', () => {
+    const testRoute = '/api/auth';
+    const validBody = genAuthRedirectUrl();
+
+    test('should get a valid body', async () => {
+      const badRequestTest = async (payload?: Record<string, unknown>) =>
+        request(app)
+          .post(testRoute)
+          .send(payload)
+          .expect(constants.HTTP_STATUS_BAD_REQUEST);
+
+      await badRequestTest();
+      await badRequestTest({
+        ...validBody,
+        url: undefined
+      });
+      await badRequestTest({
+        ...validBody,
+        url: randomstring.generate()
+      });
+    });
 
     test('should fail when the user does not exist', async () => {
-      const response = await request(app)
-        .post(testRoute)
-        .send({ authRedirectUrl: mockedAuthRedirectUrl });
+      const mockedAuthenticate = Promise.resolve({
+        idToken: randomstring.generate(),
+        email: randomstring.generate()
+      });
+      mockAuthenticate.mockResolvedValueOnce(mockedAuthenticate);
+      const response = await request(app).post(testRoute).send(validBody);
 
       expect(response.status).toBe(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should authenticate a user', async () => {
+      const mockedAuthenticate = Promise.resolve({
+        idToken: randomstring.generate(),
+        email: Sampler1Fixture.email
+      });
+      mockAuthenticate.mockResolvedValueOnce(mockedAuthenticate);
+      const response = await request(app).post(testRoute).send(validBody);
+
+      expect(response.status).toBe(constants.HTTP_STATUS_OK);
+      expect(response.body).toMatchObject({
+        userId: Sampler1Fixture.id,
+        accessToken: expect.any(String),
+        userRoles: Sampler1Fixture.roles
+      });
+    });
+  });
+
+  describe('POST /auth/logout', () => {
+    const testRoute = '/api/auth/logout';
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .post(testRoute)
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should return a logout url', async () => {
+      const mockedLogoutUrl = genAuthRedirectUrl();
+      mockGetLogoutUrl.mockReturnValueOnce(mockedLogoutUrl);
+      const response = await request(app)
+        .post(testRoute)
+        .use(tokenProvider(Sampler1Fixture));
+
+      expect(response.status).toBe(constants.HTTP_STATUS_OK);
+      expect(response.body).toEqual(mockedLogoutUrl);
     });
   });
 });
