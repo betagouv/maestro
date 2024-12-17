@@ -15,9 +15,5 @@
   },
   "scripts": {
     "first-deploy": "npm ci --production=false && npm run migrate-latest && npm run seed"
-  },
-  "jobs": [{
-    "command": "*/10 * * * * curl ${REACT_APP_API_URL}/m2m/checkLaboratoryEmails -H 'authorization: ${MAESTRO_BASIC_TOKEN}",
-    "size": "M"
-  }]
+  }
 }
