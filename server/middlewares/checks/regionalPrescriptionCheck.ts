@@ -4,7 +4,7 @@ import { RegionalPrescriptionKey } from '../../../shared/schema/RegionalPrescrip
 import regionalPrescriptionRepository from '../../repositories/regionalPrescriptionRepository';
 
 export const regionalPrescriptionCheck =
-  () => async (request: Request, response: Response, next: NextFunction) => {
+  () => async (request: Request, _response: Response, next: NextFunction) => {
     const { region, prescriptionId } =
       request.params as RegionalPrescriptionKey;
 

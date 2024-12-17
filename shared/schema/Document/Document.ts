@@ -4,7 +4,7 @@ export const Document = z.object({
   id: z.string().uuid(),
   filename: z.string(),
   createdAt: z.coerce.date(),
-  createdBy: z.string().uuid(),
+  createdBy: z.string().uuid().nullable(),
   kind: DocumentKind,
 });
 

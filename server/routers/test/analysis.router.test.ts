@@ -218,13 +218,12 @@ describe('Analysis router', () => {
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_CREATED);
 
-      expect(res.body).toMatchObject(
-        expect.objectContaining({
+      expect(res.body).toMatchObject({
           ...analysis,
           id: expect.any(String),
           createdAt: expect.any(String),
           createdBy: Sampler1Fixture.id
-        })
+        }
       );
 
       await expect(

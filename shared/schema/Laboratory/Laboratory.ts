@@ -1,7 +1,10 @@
 import { z } from 'zod';
+import { laboratoryNameValidator } from '../../referential/Laboratory';
+
+
 export const Laboratory = z.object({
   id: z.string().uuid(),
-  name: z.string(),
+  name: laboratoryNameValidator,
   email: z.string().email(),
 });
 

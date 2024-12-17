@@ -12,7 +12,7 @@ import { PartialSample } from '../../../shared/schema/Sample/Sample';
 import { SampleItemRecipientKindLabels } from '../../../shared/schema/Sample/SampleItemRecipientKind';
 import { SampleStatusLabels } from '../../../shared/schema/Sample/SampleStatus';
 import { isDefinedAndNotNull } from '../../../shared/utils/utils';
-import analysisRepository from '../../repositories/analysisRepository';
+import { analysisRepository } from '../../repositories/analysisRepository';
 import laboratoryRepository from '../../repositories/laboratoryRepository';
 import sampleItemRepository from '../../repositories/sampleItemRepository';
 import WorkbookWriter = exceljs.stream.xlsx.WorkbookWriter;

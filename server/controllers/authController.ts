@@ -10,7 +10,7 @@ import { getAuthService } from '../services/authService';
 import config from '../utils/config';
 import { AuthMaybeUnknownUser } from '../../shared/schema/User/AuthUser';
 
-const getAuthRedirectUrl = async (request: Request, response: Response) => {
+const getAuthRedirectUrl = async (_request: Request, response: Response) => {
   const authService = await getAuthService;
   //Prénom given_name
   //Nom usual_name

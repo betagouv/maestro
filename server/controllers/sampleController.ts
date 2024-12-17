@@ -17,16 +17,16 @@ import { SampleItem } from '../../shared/schema/Sample/SampleItem';
 import { DraftStatusList } from '../../shared/schema/Sample/SampleStatus';
 import { User } from '../../shared/schema/User/User';
 import companyRepository from '../repositories/companyRepository';
-import documentRepository from '../repositories/documentRepository';
+import { documentRepository } from '../repositories/documentRepository';
 import laboratoryRepository from '../repositories/laboratoryRepository';
 import sampleItemRepository from '../repositories/sampleItemRepository';
-import sampleRepository from '../repositories/sampleRepository';
+import { sampleRepository } from '../repositories/sampleRepository';
 import { documentService } from '../services/documentService/documentService';
 import exportSamplesService from '../services/exportService/exportSamplesService';
-import { mailService } from '../services/mailService';
-import { getS3Client } from '../services/s3Service';
+import {mailService} from '../services/mailService';
 import config from '../utils/config';
 import workbookUtils from '../utils/workbookUtils';
+import { s3Service } from '../services/s3Service';
 
 const getSample = async (request: Request, response: Response) => {
   const sample = (request as SampleRequest).sample;
@@ -248,7 +248,7 @@ const storeSampleItemDocument = async (
   itemNumber: number,
   sampler: User
 ) => {
-  const client = getS3Client();
+  const client = s3Service.getClient();
 
   const pdfBuffer = await documentService.generateSupportDocument(
     sample,

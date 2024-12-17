@@ -32,6 +32,7 @@ convict.addFormat({
 interface Config {
   application: {
     host: string;
+    isReviewApp: boolean;
   };
   environment: string;
   serverUrl: string;
@@ -82,7 +83,17 @@ interface Config {
       url: string;
     };
   };
-  m2mBasicToken: string;
+  inbox: {
+    mailboxName: string
+    trashboxName: string
+    errorboxName: string
+    host: string | null;
+    user: string | null;
+    password: string | null;
+    port: number;
+  };
+  m2mBasicToken: string,
+  mattermostIncomingWebhook: string | null,
 }
 
 const config = convict<Config>({
@@ -91,6 +102,11 @@ const config = convict<Config>({
       env: 'APPLICATION_HOST',
       format: 'url',
       default: 'http://localhost:3000'
+    },
+    isReviewApp: {
+      env: 'REVIEW_APP',
+      format: Boolean,
+      default: false
     }
   },
   environment: {
@@ -273,10 +289,58 @@ const config = convict<Config>({
       }
     }
   },
+  inbox: {
+    mailboxName: {
+      env: 'INBOX_MAILBOX_NAME',
+      format: String,
+      default: 'Inbox'
+    },
+    trashboxName: {
+      env: 'INBOX_TRASHBOX_NAME',
+      format: String,
+      default: 'Trash'
+    },
+    errorboxName: {
+      env: 'INBOX_ERRORBOX_NAME',
+      format: String,
+      default: 'Trash'
+    },
+    host: {
+      env: 'INBOX_HOST',
+      format: String,
+      nullable: true,
+      default: null
+    },
+    user: {
+      env: 'INBOX_USER',
+      format: String,
+      nullable: true,
+      default: null
+    },
+    password: {
+      env: 'INBOX_PASSWORD',
+      format: String,
+      nullable: true,
+      default: null
+    },
+    port: {
+      env: 'INBOX_PORT',
+      format: Number,
+      nullable: true,
+      default: 993
+    }
+  },
   m2mBasicToken: {
     env: 'M2M_BASIC_TOKEN',
     format: String,
     sensitive: true,
+    default: null
+},
+  mattermostIncomingWebhook: {
+    env: 'MATTERMOST_INCOMING_WEBHOOK',
+    format: 'url',
+    sensitive: true,
+    nullable: true,
     default: null
   }
 })
