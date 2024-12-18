@@ -1,3 +1,4 @@
+import { chain, isObject } from 'lodash';
 import fp from 'lodash/fp';
 import { z, ZodObject } from 'zod';
 
@@ -24,8 +25,8 @@ export const convertKeysToCamelCase: any = (obj: any) => {
     fp.isPlainObject(value)
       ? convertKeysToCamelCase(value)
       : fp.isArray(value)
-      ? value.map(convertKeysToCamelCase)
-      : value
+        ? value.map(convertKeysToCamelCase)
+        : value
   );
   return fp.flow(transform, deepTransform)(obj);
 };
@@ -38,6 +39,14 @@ export function refineObject<T extends ZodObject<any>>(
 ): T {
   return schema.refine(refinement, {
     path,
-    message,
+    message
   }) as unknown as T;
 }
+
+export const objToUrlParams = (obj: any) =>
+  new URLSearchParams(
+    chain(obj)
+      .omitBy((v) => !v)
+      .mapValues((o) => (isObject(o) ? JSON.stringify(o) : o))
+      .value()
+  );

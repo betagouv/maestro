@@ -12,6 +12,8 @@ import ScrollToTop from 'src/components/ScrollToTop/ScrollToTop';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useOnLine } from 'src/hooks/useOnLine';
 import { useAppSelector } from 'src/hooks/useStore';
+import LoginCallbackView from 'src/views/LoginCallbackView/LoginCallbackView';
+import LogoutCallbackView from 'src/views/LogoutCallbackView/LogoutCallbackView';
 import './App.scss';
 import { store } from './store/store';
 
@@ -26,8 +28,8 @@ function AppWrapper() {
 
   const { MuiDsfrThemeProvider } = createMuiDsfrThemeProvider({
     augmentMuiTheme: ({ nonAugmentedMuiTheme }) => ({
-      ...nonAugmentedMuiTheme,
-    }),
+      ...nonAugmentedMuiTheme
+    })
   });
 
   return (
@@ -83,10 +85,20 @@ function App() {
               />
             )),
             <Route
+              path="/login-callback"
+              element={<LoginCallbackView />}
+              key="login_callback_route"
+            />,
+            <Route
+              path="/logout-callback"
+              element={<LogoutCallbackView />}
+              key="logout_callback_route"
+            />,
+            <Route
               path="/*"
               element={<Navigate replace to="/" />}
               key="redirection_route"
-            />,
+            />
           ]}
         </Routes>
       </main>

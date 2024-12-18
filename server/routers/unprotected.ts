@@ -1,17 +1,10 @@
 import express from 'express';
-import { SignIn } from '../../shared/schema/SignIn';
-import accountController from '../controllers/accountController';
 import { jwtCheck, userCheck } from '../middlewares/checks/authCheck';
-import validator, { body } from '../middlewares/validator';
+import authRouter from './auth.router';
 
 const router = express.Router();
 router.use(jwtCheck(false));
 router.use(userCheck(false));
 
-router.post(
-  '/accounts/sign-in',
-  validator.validate(body(SignIn)),
-  accountController.signIn
-);
-
+router.use('/auth', authRouter);
 export default router;

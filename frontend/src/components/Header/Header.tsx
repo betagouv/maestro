@@ -5,13 +5,12 @@ import { useLocation } from 'react-router-dom';
 import { UserRoleLabels } from 'shared/schema/User/UserRole';
 import { isDefined } from 'shared/utils/utils';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
+import { useAppSelector } from 'src/hooks/useStore';
+import { useLogoutMutation } from 'src/services/auth.service';
 import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.service';
-import { logout } from 'src/store/store';
 import logo from '../../assets/logo.svg';
 
 const Header = () => {
-  const dispatch = useAppDispatch();
   const location = useLocation();
 
   const { isAuthenticated, hasUserPermission, userInfos } = useAuthentication();
@@ -20,6 +19,7 @@ const Header = () => {
     {},
     { skip: !isAuthenticated }
   );
+  const [logout] = useLogoutMutation();
 
   const validatedProgrammingPlans = programmingPlans?.filter(
     (pp) => pp.status === 'Validated'
@@ -146,8 +146,9 @@ const Header = () => {
                 ))}
                 <Button
                   iconId="fr-icon-logout-box-r-line"
-                  onClick={() => {
-                    logout()(dispatch);
+                  onClick={async () => {
+                    const logoutRedirectUrl = await logout().unwrap();
+                    window.location.href = logoutRedirectUrl.url;
                   }}
                 >
                   Se déconnecter

@@ -1,13 +1,29 @@
-import { dbManager } from './db-manager';
 import { afterAll, beforeAll } from 'vitest';
+import { dbManager } from './db-manager';
 import { dbSeed } from './seed';
 
-beforeAll(async () => {
-  await dbManager.populateDb()
-  await dbSeed()
-})
+import { afterEach, vi } from 'vitest';
 
+export const mockGetAuthorizationUrl = vi.fn();
+export const mockAuthenticate = vi.fn();
+export const mockGetLogoutUrl = vi.fn();
+vi.mock('../services/authService', () => ({
+  getAuthService: Promise.resolve({
+    getAuthorizationUrl: () => mockGetAuthorizationUrl(),
+    authenticate: () => mockAuthenticate(),
+    getLogoutUrl: () => mockGetLogoutUrl()
+  })
+}));
+
+beforeAll(async () => {
+  await dbManager.populateDb();
+  await dbSeed();
+});
 
 afterAll(async () => {
-  await dbManager.closeDb()
-})
+  await dbManager.closeDb();
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});

@@ -1,17 +1,17 @@
 import { fakerFR } from '@faker-js/faker';
 import bcrypt from 'bcryptjs';
-import { v4 as uuidv4 } from 'uuid';
-import { Users } from '../../../server/repositories/userRepository';
 import { Knex } from 'knex';
+import { v4 as uuidv4 } from 'uuid';
 import { setKnexInstance } from '../../../server/repositories/db';
+import { Users } from '../../../server/repositories/userRepository';
 
 exports.seed = async function (knex: Knex) {
-  setKnexInstance(knex)
+  setKnexInstance(knex);
 
   await Users().insert([
     {
       id: uuidv4(),
-      email: 'admin@maestro.fr',
+      email: 'admin@maestro.beta.gouv.fr',
       password: bcrypt.hashSync('Test2024'),
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
@@ -19,7 +19,7 @@ exports.seed = async function (knex: Knex) {
     },
     {
       id: uuidv4(),
-      email: 'coordinateur.national@maestro.fr',
+      email: 'coordinateur.national@maestro.beta.gouv.fr',
       password: bcrypt.hashSync('Test2024'),
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
@@ -27,7 +27,7 @@ exports.seed = async function (knex: Knex) {
     },
     {
       id: uuidv4(),
-      email: 'coordinateur.regional@maestro.fr',
+      email: 'coordinateur.regional@maestro.beta.gouv.fr',
       password: bcrypt.hashSync('Test2024'),
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
@@ -36,7 +36,7 @@ exports.seed = async function (knex: Knex) {
     },
     {
       id: uuidv4(),
-      email: 'coordinateur.regional.drom@maestro.fr',
+      email: 'coordinateur.regional.drom@maestro.beta.gouv.fr',
       password: bcrypt.hashSync('Test2024'),
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
@@ -45,7 +45,7 @@ exports.seed = async function (knex: Knex) {
     },
     {
       id: uuidv4(),
-      email: 'preleveur@maestro.fr',
+      email: 'preleveur@maestro.beta.gouv.fr',
       password: bcrypt.hashSync('Test2024'),
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
@@ -54,7 +54,7 @@ exports.seed = async function (knex: Knex) {
     },
     {
       id: uuidv4(),
-      email: 'preleveur.drom@maestro.fr',
+      email: 'preleveur.drom@maestro.beta.gouv.fr',
       password: bcrypt.hashSync('Test2024'),
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),

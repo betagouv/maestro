@@ -1,9 +1,12 @@
 import fetchIntercept from 'fetch-intercept';
+import { useNavigate } from 'react-router-dom';
 import { useAppDispatch } from 'src/hooks/useStore';
-import { logout } from 'src/store/store';
+import { appLogout } from 'src/store/store';
 
 const FetchInterceptor = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
   return fetchIntercept.register({
     request: function (url, config) {
       return [url, config];
@@ -15,7 +18,10 @@ const FetchInterceptor = () => {
 
     response: function (response) {
       if (response.status === 401) {
-        logout()(dispatch);
+        (async () => {
+          await appLogout()(dispatch);
+          navigate('/');
+        })();
       }
       return response;
     },

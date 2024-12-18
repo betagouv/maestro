@@ -13,6 +13,7 @@ export const withAccessToken = (test: Test, user: User) =>
     'x-access-token',
     accessTokenTest({
       userId: user.id,
+      idToken: 'idToken'
     })
   );
 
@@ -21,7 +22,8 @@ export const tokenProvider = (user: User): Plugin => {
     request.set({
       'x-access-token': accessTokenTest({
         userId: user.id,
-      }),
+        idToken: 'idToken'
+      })
     });
   };
 };
