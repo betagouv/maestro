@@ -42,10 +42,6 @@ main:has(.teaser) {
 .sign-in {
   padding: 5rem 7.5rem;
 
-  .fr-connect-group {
-    text-align: center;
-  }
-
   @media (max-width: $breakpoint-md) {
     padding: 2rem 1rem;
   }
