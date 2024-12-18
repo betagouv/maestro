@@ -116,7 +116,7 @@ const createDocument = async (request: Request, response: Response) => {
   response.status(constants.HTTP_STATUS_CREATED).send(document);
 };
 
-const findResources = async (request: Request, response: Response) => {
+const findResources = async (_request: Request, response: Response) => {
   console.info('Find documents');
 
   const documents = await documentRepository.findMany({
