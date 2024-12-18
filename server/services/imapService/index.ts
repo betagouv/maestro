@@ -3,20 +3,24 @@ import { isNull } from 'lodash';
 import { ParsedMail, simpleParser } from 'mailparser';
 import { LaboratoryName } from '../../../shared/referential/Laboratory';
 import config from '../../utils/config';
+import { girpaConf } from './girpa';
 
 const laboratoriesWithConf = ['GIR 49'] as const satisfies LaboratoryName[];
 type LaboratoryWithConf = (typeof laboratoriesWithConf)[number];
+
+export type IsSender = (senderAddress: string) => boolean
+export type ExportDataFromEmail = (email: ParsedMail) => unknown
+
+export type LaboratoryConf = {
+  isSender: IsSender;
+  exportDataFromEmail: ExportDataFromEmail;
+};
 const laboratoriesConf = {
-  'GIR 49': {
-    //FIXME
-    isSender: (_senderAddress) =>
-      true,
-    extractData: (email): null | unknown => email ?? null
-  }
+  'GIR 49': girpaConf
 } as const satisfies {
   [name in LaboratoryWithConf]: {
-    isSender: (senderAddress: string) => boolean;
-    extractData: (email: ParsedMail) => void;
+    isSender: IsSender;
+    exportDataFromEmail: ExportDataFromEmail;
   };
 };
 
@@ -55,22 +59,13 @@ const run = async () => {
     logger: false
   });
   await client.connect();
-  // Select and lock a mailbox. Throws if mailbox does not exist
   const lock = await client.getMailboxLock(config.inbox.mailboxName);
   try {
-    // fetch latest message source
-    // client.mailbox includes information about currently selected mailbox
-    // "exists" value is also the largest sequence number available in the mailbox
     if (typeof client.mailbox !== 'boolean') {
-      // const message = await client.fetchOne(`${client.mailbox.exists}`, { source: true });
-      // console.log(message.source.toString());
-
       const messagesToRead: {
         messageUid: number;
         laboratoryName: LaboratoryWithConf;
       }[] = [];
-      // list subjects for all messages
-      // uid value is always included in FETCH response, envelope strings are in unicode.
       for await (const message of client.fetch('1:*', {
         envelope: true,
         bodyStructure: true
@@ -104,8 +99,7 @@ const run = async () => {
         //FIXME trash
         // await client.messageMove(messageUid, config.inbox.trashboxName, {uid: true})
 
-        const data =
-          laboratoriesConf[message.laboratoryName].extractData(
+        const data =  laboratoriesConf[message.laboratoryName].exportDataFromEmail(
             parsed
           );
 
