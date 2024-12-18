@@ -34,7 +34,13 @@ const HomeView = () => {
     >
       <div className={cx('fr-col-12', 'fr-col-md-6')}>
         <div className={clsx('sign-in')}>
-          <h2>Identifiez-vous pour accéder à votre espace maestro</h2>
+          <h2 className={cx('fr-mb-2w')}>
+            Identifiez-vous pour accéder à votre espace maestro
+          </h2>
+          <div className={cx('fr-text--lg', 'fr-mb-5w')}>
+            ProConnect est la solution proposée par l’État pour sécuriser et
+            simplifier la connexion à vos services en ligne.
+          </div>
           {authRedirectUrl && <ProConnectButton url={authRedirectUrl.url} />}
         </div>
       </div>
