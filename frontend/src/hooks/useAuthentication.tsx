@@ -133,7 +133,7 @@ export const useAuthentication = () => {
               component: DocumentListView
             },
           {
-            path:'/apiDocs',
+            path:'/api-docs',
             label: 'API Docs',
             key:'api_docs',
             component: OpenApiExplorerView
