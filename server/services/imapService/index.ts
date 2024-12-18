@@ -9,9 +9,12 @@ import { Sample } from '../../../shared/schema/Sample/Sample';
 const laboratoriesWithConf = ['GIR 49'] as const satisfies LaboratoryName[];
 type LaboratoryWithConf = (typeof laboratoriesWithConf)[number];
 
+export type ExportDataSubstance = {substance: string, lmr: number, result: number}
 export type IsSender = (senderAddress: string) => boolean
 export type ExportDataFromEmail = (email: ParsedMail) => null | {
-  sampleReference: Sample['reference']
+  sampleReference: Sample['reference'],
+  notes: string,
+  substances: ExportDataSubstance[]
 }
 
 export type LaboratoryConf = {
@@ -39,6 +42,7 @@ export const getLaboratoryNameBySender = (
   return null;
 };
 
+//FIXME pas d'emails
 const run = async () => {
   if (
     isNull(config.inbox.user) ||
