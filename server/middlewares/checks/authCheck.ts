@@ -11,6 +11,7 @@ import { UserPermission } from '../../../shared/schema/User/UserPermission';
 import { UserRole } from '../../../shared/schema/User/UserRole';
 import userRepository from '../../repositories/userRepository';
 import config from '../../utils/config';
+import { constants } from 'http2';
 
 export const jwtCheck = (credentialsRequired: boolean) =>
   expressjwt({
@@ -75,7 +76,7 @@ export const basicAuthCheck =
     try {
       const token = req.headers.authorization
       if (token !== config.m2mBasicToken) {
-        res.status(401);
+        res.status(constants.HTTP_STATUS_UNAUTHORIZED);
         res.send('Authentication Required');
 
         return;
@@ -83,7 +84,7 @@ export const basicAuthCheck =
 
     } catch (e) {
       console.error(e);
-      res.status(500);
+      res.status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
       res.send('Internal error');
 
       return;
