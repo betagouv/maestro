@@ -1,0 +1,8 @@
+{
+  "jobs": [
+    {
+      "command": "*/10 * * * * curl ${REACT_APP_API_URL}/api/m2m/checkLaboratoryEmails -H \"authorization: ${M2M_BASIC_TOKEN}\"",
+      "size": "M"
+    }
+  ]
+}

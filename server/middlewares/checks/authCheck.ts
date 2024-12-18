@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import { expressjwt } from 'express-jwt';
 
 import _ from 'lodash';
@@ -11,6 +11,7 @@ import { UserPermission } from '../../../shared/schema/User/UserPermission';
 import { UserRole } from '../../../shared/schema/User/UserRole';
 import userRepository from '../../repositories/userRepository';
 import config from '../../utils/config';
+import { constants } from 'http2';
 
 export const jwtCheck = (credentialsRequired: boolean) =>
   expressjwt({
@@ -68,4 +69,27 @@ export const permissionsCheck = (permissions: UserPermission[]) =>
     }
 
     next();
+  };
+
+export const basicAuthCheck =
+  async (req: Request, res: express.Response, next: express.NextFunction) => {
+    try {
+      const token = req.headers.authorization
+      if (token !== config.m2mBasicToken) {
+        res.status(constants.HTTP_STATUS_UNAUTHORIZED);
+        res.send('Authentication Required');
+
+        return;
+      }
+
+    } catch (e) {
+      console.error(e);
+      res.status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
+      res.send('Internal error');
+
+      return;
+    }
+
+
+    next()
   };

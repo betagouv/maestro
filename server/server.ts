@@ -9,10 +9,11 @@ import helmet from 'helmet';
 import path from 'path';
 import RouteNotFoundError from './errors/routeNotFoundError';
 import errorHandler from './middlewares/error-handler';
-import protectedRouter from './routers/protected';
+import {  protectedRouter } from './routers/protected';
 import unprotectedRouter from './routers/unprotected';
 import config from './utils/config';
 import sentry from './utils/sentry';
+import { m2mProtectedRouter } from './routers/m2mProtected';
 
 const PORT = config.serverPort;
 
@@ -80,6 +81,7 @@ export function createServer(): Server {
   app.use(rateLimiter);
   app.set('trust proxy', 1);
 
+  app.use('/api/m2m', m2mProtectedRouter);
   app.use('/api', unprotectedRouter);
   app.use('/api', protectedRouter);
 

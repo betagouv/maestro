@@ -13,26 +13,25 @@ import sampleRouter from './sample.router';
 import substanceRouter from './substance.router';
 import userRouter from './user.router';
 
-const router = express.Router();
+export const protectedRouter = express.Router();
 
-router.use(jwtCheck(true));
-router.use(userCheck(true));
+protectedRouter.use(jwtCheck(true));
+protectedRouter.use(userCheck(true));
 
-router.use('/analysis', analysisRouter);
-router.use('/addresses', addressRouter);
-router.use('/companies', companyRouter);
-router.use('/documents', documentRouter);
-router.use('/laboratories', laboratoryRouter);
-router.use('/prescriptions', prescriptionRouter);
-router.use('/prescriptions', regionalPrescriptionRouter);
-router.use('/programming-plans', programmingPlanRouter);
-router.use('/samples', sampleRouter);
-router.use('/substances', substanceRouter);
-router.use('/users', userRouter);
+protectedRouter.use('/analysis', analysisRouter);
+protectedRouter.use('/addresses', addressRouter);
+protectedRouter.use('/companies', companyRouter);
+protectedRouter.use('/documents', documentRouter);
+protectedRouter.use('/laboratories', laboratoryRouter);
+protectedRouter.use('/prescriptions', prescriptionRouter);
+protectedRouter.use('/prescriptions', regionalPrescriptionRouter);
+protectedRouter.use('/programming-plans', programmingPlanRouter);
+protectedRouter.use('/samples', sampleRouter);
+protectedRouter.use('/substances', substanceRouter);
+protectedRouter.use('/users', userRouter);
 
-router.get('/regions.geojson', (req, res) => {
+protectedRouter.get('/regions.geojson', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   fs.createReadStream(__dirname + '/../data/regions.json').pipe(res);
 });
 
-export default router;
