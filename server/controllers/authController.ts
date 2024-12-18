@@ -9,7 +9,7 @@ import userRepository from '../repositories/userRepository';
 import { getAuthService } from '../services/authService';
 import config from '../utils/config';
 
-const getAuthRedirectUrl = async (request: Request, response: Response) => {
+const getAuthRedirectUrl = async (_request: Request, response: Response) => {
   const authService = await getAuthService;
   const authRedirectUrl = authService.getAuthorizationUrl(
     'openid profile email'

@@ -24,7 +24,7 @@ export const jwtCheck = (credentialsRequired: boolean) =>
   });
 
 export const userCheck = (credentialsRequired: boolean) =>
-  async function (request: Request, response: Response, next: NextFunction) {
+  async function (request: Request, _response: Response, next: NextFunction) {
     if (credentialsRequired) {
       if (!request.auth || !request.auth.userId) {
         throw new AuthenticationMissingError();
