@@ -87,7 +87,7 @@ export function createServer(): Server {
 
   if (config.environment === 'production') {
     app.use(express.static(path.join(__dirname, '../../frontend/build')));
-    app.get('*', function (req: any, res: { sendFile: (arg0: any) => void }) {
+    app.get('*', function (_req: any, res: { sendFile: (arg0: any) => void }) {
       res.sendFile(path.join(__dirname, '../../frontend/build', 'index.html'));
     });
   }

@@ -5,8 +5,8 @@ import { isClientError, isHttpError } from '../errors/httpError';
 
 function log(
   error: Error,
-  request: Request,
-  response: Response,
+  _request: Request,
+  _response: Response,
   next: Next,
 ): void {
   // Should later be enhanced with relevant info like Request ID, user ID, etc.
@@ -18,7 +18,7 @@ function log(
 
 function respond(
   error: Error,
-  request: Request,
+  _request: Request,
   response: Response,
   // Needed because express bases itself on the number of arguments
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
