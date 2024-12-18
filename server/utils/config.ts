@@ -85,6 +85,8 @@ interface Config {
     };
   };
   inbox: {
+    mailboxName: string
+    trashboxName: string
     host: string | null;
     user: string | null;
     password: string | null;
@@ -291,6 +293,16 @@ const config = convict<Config>({
     }
   },
   inbox: {
+    mailboxName: {
+      env: 'INBOX_MAILBOX_NAME',
+      format: String,
+      default: 'Inbox'
+    },
+    trashboxName: {
+      env: 'INBOX_TRASHBOX_NAME',
+      format: String,
+      default: 'Trash'
+    },
     host: {
       env: 'INBOX_HOST',
       format: String,
