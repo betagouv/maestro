@@ -4,17 +4,17 @@ import authController from '../controllers/authController';
 import { jwtCheck, userCheck } from '../middlewares/checks/authCheck';
 import validator, { body } from '../middlewares/validator';
 
-const router = express.Router();
+const authRouter = express.Router();
 
-router.get('/redirect-url', authController.getAuthRedirectUrl);
-router.post(
+authRouter.get('/redirect-url', authController.getAuthRedirectUrl);
+authRouter.post(
   '/',
   validator.validate(body(AuthRedirectUrl)),
   authController.authenticate
 );
 
-router.use(jwtCheck(true));
-router.use(userCheck(true));
-router.post('/logout', authController.logout);
+authRouter.use(jwtCheck(true));
+authRouter.use(userCheck(true));
+authRouter.post('/logout', authController.logout);
 
-export default router;
+export default authRouter;
