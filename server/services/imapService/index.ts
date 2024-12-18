@@ -4,12 +4,15 @@ import { ParsedMail, simpleParser } from 'mailparser';
 import { LaboratoryName } from '../../../shared/referential/Laboratory';
 import config from '../../utils/config';
 import { girpaConf } from './girpa';
+import { Sample } from '../../../shared/schema/Sample/Sample';
 
 const laboratoriesWithConf = ['GIR 49'] as const satisfies LaboratoryName[];
 type LaboratoryWithConf = (typeof laboratoriesWithConf)[number];
 
 export type IsSender = (senderAddress: string) => boolean
-export type ExportDataFromEmail = (email: ParsedMail) => unknown
+export type ExportDataFromEmail = (email: ParsedMail) => null | {
+  sampleReference: Sample['reference']
+}
 
 export type LaboratoryConf = {
   isSender: IsSender;
@@ -94,7 +97,6 @@ const run = async () => {
         });
 
         const parsed = await simpleParser(downloadObject.content);
-        console.log(parsed);
 
         //FIXME trash
         // await client.messageMove(messageUid, config.inbox.trashboxName, {uid: true})
