@@ -109,6 +109,7 @@ const run = async () => {
             parsed
           );
 
+        console.log(data)
         // createWriteStream(parsed.attachments[2].filename ?? '').write(parsed.attachments[2].content)
       }
     }

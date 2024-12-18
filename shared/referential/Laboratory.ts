@@ -1,5 +1,14 @@
 import { z } from 'zod';
 
-export const laboratoryNames = ['LDA 72', 'GIR 49'] as const satisfies string[]
-export const laboratoryNameValidator = z.enum(laboratoryNames)
-export type LaboratoryName = z.infer<typeof laboratoryNameValidator>
+export const laboratoryNames = [
+  'SCL 34',
+  'LDA 66',
+  'LDA 72',
+  'SCL 91',
+  'GIR 49',
+  'CAP 29',
+  'CER 30',
+  'FYT',
+] as const satisfies string[];
+export const laboratoryNameValidator = z.enum(laboratoryNames);
+export type LaboratoryName = z.infer<typeof laboratoryNameValidator>;
