@@ -27,7 +27,8 @@ import {
   templateStylePath
 } from '../../templates/templates';
 import config from '../../utils/config';
-const generateDocument = async (template: Template, data: any) => {
+
+const generatePDF = async (template: Template, data: any) => {
   handlebars.registerHelper(
     'breaklines',
     (text) =>
@@ -83,6 +84,7 @@ const generateDocument = async (template: Template, data: any) => {
       '@media (min-width: 48em)'
     )
   });
+
   await page.addStyleTag({
     content: utilityStyleSheet
   });
@@ -115,7 +117,7 @@ const generateDocument = async (template: Template, data: any) => {
   return pdfBuffer;
 };
 
-const generateSupportDocument = async (
+const generateSampleSupportPDF = async (
   sample: Sample,
   sampleItems: PartialSampleItem[],
   itemNumber: number,
@@ -144,7 +146,7 @@ const generateSupportDocument = async (
       itemNumber: index + 1
     }));
 
-  return generateDocument('supportDocument', {
+  return generatePDF('supportDocument', {
     ...sample,
     sampleItems: (sampleItems.length > 0 ? sampleItems : emptySampleItems).map(
       (sampleItem) => ({
@@ -195,5 +197,5 @@ const generateSupportDocument = async (
 };
 
 export const documentService = {
-  generateSupportDocument
+  generateSupportDocument: generateSampleSupportPDF
 };
