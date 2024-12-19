@@ -21,9 +21,9 @@ import { documentRepository } from '../repositories/documentRepository';
 import laboratoryRepository from '../repositories/laboratoryRepository';
 import sampleItemRepository from '../repositories/sampleItemRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
-import { documentService } from '../services/documentService/documentService';
 import exportSamplesService from '../services/exportService/exportSamplesService';
 import { mailService } from '../services/mailService';
+import { pdfService } from '../services/pdfService/pdfService';
 import { s3Service } from '../services/s3Service';
 import config from '../utils/config';
 import workbookUtils from '../utils/workbookUtils';
@@ -50,7 +50,7 @@ const getSampleItemDocument = async (request: Request, response: Response) => {
 
   const sampleItems = await sampleItemRepository.findMany(sample.id);
 
-  const pdfBuffer = await documentService.generateSupportDocument(
+  const pdfBuffer = await pdfService.generateSupportDocument(
     sample,
     sampleItems,
     itemNumber,
@@ -250,7 +250,7 @@ const storeSampleItemDocument = async (
 ) => {
   const client = s3Service.getClient();
 
-  const pdfBuffer = await documentService.generateSupportDocument(
+  const pdfBuffer = await pdfService.generateSupportDocument(
     sample,
     sampleItems,
     itemNumber,
