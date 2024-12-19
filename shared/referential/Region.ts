@@ -42,8 +42,10 @@ export const Regions: Record<
     };
     departments: Department[];
     borderingDepartments?: Department[];
-    establishment?: {
-      name?: string;
+    establishment: {
+      name: string;
+      service?: string;
+      locality?: string;
       street: string;
       postalCode: string;
       city: string;
@@ -87,7 +89,15 @@ export const Regions: Record<
       '84',
       '04',
       '05'
-    ]
+    ],
+    establishment: {
+      name: 'DRAAF Auvergne-Rhône-Alpes',
+      locality: 'Marmilhat',
+      street: '16B Rue Aimé Rudel',
+      postalCode: '63370',
+      city: 'Lempdes',
+      additionalAddress: 'BP 45'
+    }
   },
   '27': {
     name: 'Bourgogne-Franche-Comté',
@@ -109,7 +119,14 @@ export const Regions: Record<
       '42',
       '69',
       '01'
-    ]
+    ],
+    establishment: {
+      name: 'DRAAF Bourgogne-Franche-Comté',
+      street: '4 bis rue Hoche',
+      postalCode: '21078',
+      city: 'Dijon',
+      additionalAddress: 'BP 87865'
+    }
   },
   '53': {
     name: 'Bretagne',
@@ -119,7 +136,13 @@ export const Regions: Record<
       longitude: -2.92
     },
     departments: ['22', '29', '35', '56'],
-    borderingDepartments: ['50', '53', '49', '44']
+    borderingDepartments: ['50', '53', '49', '44'],
+    establishment: {
+      name: 'DRAAF Bretagne',
+      street: '15 avenue de Cucillé',
+      postalCode: '35047',
+      city: 'Rennes Cedex 9'
+    }
   },
   '24': {
     name: 'Centre-Val de Loire',
@@ -143,7 +166,14 @@ export const Regions: Record<
       '27',
       '91',
       '78'
-    ]
+    ],
+    establishment: {
+      name: 'DRAAF Centre-Val de Loire',
+      service: 'Cité Administrative Coligny - Bâtiment D',
+      street: '131 Rue du Faubourg Bannier',
+      postalCode: '45000',
+      city: 'Orléans'
+    }
   },
   '94': {
     name: 'Corse',
@@ -152,7 +182,14 @@ export const Regions: Record<
       latitude: 42.15,
       longitude: 9.1
     },
-    departments: ['2A', '2B']
+    departments: ['2A', '2B'],
+    establishment: {
+      name: 'DRAAF Corse',
+      service: 'Service régional de l’alimentation (SRAL)',
+      street: 'Le Solférino - 8 cours Napoléon',
+      postalCode: '20704',
+      city: 'Ajaccio Cedex 9'
+    }
   },
   '44': {
     name: 'Grand Est',
@@ -165,6 +202,7 @@ export const Regions: Record<
     borderingDepartments: ['59', '02', '77', '89', '21', '70', '80'],
     establishment: {
       name: 'DRAAF Grand Est',
+      locality: 'Parc technologique du Mont-Bernard',
       street: '4 Rue Dom Pierre Perignon',
       postalCode: '51000',
       city: 'Châlons-en-Champagne'
@@ -195,7 +233,14 @@ export const Regions: Record<
       longitude: 2.5
     },
     departments: ['75', '77', '78', '91', '92', '93', '94'],
-    borderingDepartments: ['60', '02', '51', '10', '89', '45', '28', '27']
+    borderingDepartments: ['60', '02', '51', '10', '89', '45', '28', '27'],
+    establishment: {
+      name: 'DRIAAF Île de France',
+      service: 'Préfecture de Paris et d’Île-de-France',
+      street: '5 rue Leblanc',
+      postalCode: '75911',
+      city: 'Paris Cedex 15'
+    }
   },
   '28': {
     name: 'Normandie',
@@ -205,7 +250,24 @@ export const Regions: Record<
       longitude: 0
     },
     departments: ['14', '27', '50', '61', '76'],
-    borderingDepartments: ['80', '60', '95', '78', '28', '41', '72', '53', '35']
+    borderingDepartments: [
+      '80',
+      '60',
+      '95',
+      '78',
+      '28',
+      '41',
+      '72',
+      '53',
+      '35'
+    ],
+    establishment: {
+      name: 'DRAAF Normandie',
+      street: '6 boulevard du général Vanier',
+      postalCode: '14070',
+      city: 'Caen Cedex 5',
+      additionalAddress: 'CS 95181'
+    }
   },
   '75': {
     name: 'Nouvelle-Aquitaine',
@@ -241,7 +303,13 @@ export const Regions: Record<
       '82',
       '32',
       '65'
-    ]
+    ],
+    establishment: {
+      name: 'DRAAF Nouvelle-Aquitaine',
+      street: '51 Rue Kiésel',
+      postalCode: '33000',
+      city: 'Bordeaux'
+    }
   },
   '76': {
     name: 'Occitanie',
@@ -277,7 +345,13 @@ export const Regions: Record<
       '26',
       '84',
       '13'
-    ]
+    ],
+    establishment: {
+      name: 'DRAAF Occitanie',
+      street: 'Rue de la Cité Administrative',
+      postalCode: '31000',
+      city: 'Toulouse'
+    }
   },
   '52': {
     name: 'Pays de la Loire',
@@ -302,7 +376,7 @@ export const Regions: Record<
     establishment: {
       name: 'DRAAF Pays de Loire',
       street: '5 rue Françoise Giroud',
-      additionalAddress: 'CS 67517',
+      additionalAddress: 'CS 67516',
       postalCode: '44275',
       city: 'Nantes Cedex 2'
     }
@@ -315,7 +389,13 @@ export const Regions: Record<
       longitude: 6.1
     },
     departments: ['04', '05', '06', '13', '83', '84'],
-    borderingDepartments: ['73', '38', '26', '07', '30']
+    borderingDepartments: ['73', '38', '26', '07', '30'],
+    establishment: {
+      name: 'DRAAF Provence Alpes Cote d’azur',
+      street: '132 Bd de Paris',
+      postalCode: '13000',
+      city: 'Marseille'
+    }
   },
   '01': {
     name: 'Guadeloupe',
@@ -325,7 +405,13 @@ export const Regions: Record<
       longitude: -2.8
     },
     departments: ['971'],
-    isDrom: true
+    isDrom: true,
+    establishment: {
+      name: 'DAAF Guadeloupe',
+      street: 'Rue Edmond Maurice Carlton - Saint Phy',
+      postalCode: '97108',
+      city: 'Basse Terre cedex'
+    }
   },
   '02': {
     name: 'Martinique',
@@ -335,7 +421,14 @@ export const Regions: Record<
       longitude: -5.8
     },
     departments: ['972'],
-    isDrom: true
+    isDrom: true,
+    establishment: {
+      name: 'DAAF Martinique',
+      street: 'Rue des Pionniers',
+      postalCode: '97262',
+      city: 'Fort-de-France cedex',
+      additionalAddress: 'BP 642'
+    }
   },
   '03': {
     name: 'Guyane',
@@ -345,7 +438,14 @@ export const Regions: Record<
       longitude: -5.8
     },
     departments: ['973'],
-    isDrom: true
+    isDrom: true,
+    establishment: {
+      name: 'DAAF de Guyane',
+      street: 'Parc Rebard',
+      postalCode: '97305',
+      city: 'Cayenne cedex',
+      additionalAddress: 'BP 5002'
+    }
   },
   '04': {
     name: 'La Réunion',
@@ -355,7 +455,13 @@ export const Regions: Record<
       longitude: -2.45
     },
     departments: ['974'],
-    isDrom: true
+    isDrom: true,
+    establishment: {
+      name: 'DAAF de la Réunion',
+      street: '29 Boulevard de la Providence',
+      postalCode: '97489',
+      city: 'Saint Denis cedex'
+    }
   },
   '06': {
     name: 'Mayotte',
@@ -365,7 +471,13 @@ export const Regions: Record<
       longitude: -3.9
     },
     departments: ['976'],
-    isDrom: true
+    isDrom: true,
+    establishment: {
+      name: 'DAAF Mayotte',
+      street: '15 rue Mariaze',
+      postalCode: '97600',
+      city: 'Mamoudzou'
+    }
   }
 };
 
