@@ -196,6 +196,6 @@ const generateSampleSupportPDF = async (
   });
 };
 
-export const documentService = {
+export const pdfService = {
   generateSupportDocument: generateSampleSupportPDF
 };
