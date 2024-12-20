@@ -9,13 +9,15 @@ import { Sample } from '../../../shared/schema/Sample/Sample';
 const laboratoriesWithConf = ['GIR 49'] as const satisfies LaboratoryName[];
 type LaboratoryWithConf = (typeof laboratoriesWithConf)[number];
 
-export type ExportDataSubstance = {substance: string, lmr: number, result: number}
+
+export type ExportDataSubstance = {substance: string} & ( {result_kind: 'NQ', result: null, lmr: null} | {result_kind: 'Q', result: number, lmr: number})
 export type IsSender = (senderAddress: string) => boolean
-export type ExportDataFromEmail = (email: ParsedMail) => null | {
+export type ExportSample = {
   sampleReference: Sample['reference'],
   notes: string,
   substances: ExportDataSubstance[]
-}
+};
+export type ExportDataFromEmail = (email: ParsedMail) => null | ExportSample[]
 
 export type LaboratoryConf = {
   isSender: IsSender;
@@ -109,7 +111,7 @@ const run = async () => {
             parsed
           );
 
-        console.log(data)
+        console.log(JSON.stringify(data, null, 4))
         // createWriteStream(parsed.attachments[2].filename ?? '').write(parsed.attachments[2].content)
       }
     }
