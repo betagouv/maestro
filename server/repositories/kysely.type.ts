@@ -222,7 +222,6 @@ export interface Users {
   firstName: string;
   id: Generated<string>;
   lastName: string;
-  password: string;
   region: Region | null;
   roles: UserRole[];
 }
