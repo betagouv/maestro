@@ -37,7 +37,6 @@
     "@faker-js/faker": "^8.2.0",
     "@getbrevo/brevo": "^2.1.1",
     "@sentry/node": "^7.118.0",
-    "bcryptjs": "^2.4.3",
     "compose-middleware": "^5.0.1",
     "convict": "^6.2.4",
     "convict-format-with-validator": "^6.2.0",
@@ -72,7 +71,6 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^2.4.2",
     "@types/convict": "^6.1.1",
     "@types/convict-format-with-validator": "^6.0.2",
     "@types/cors": "^2.8.12",

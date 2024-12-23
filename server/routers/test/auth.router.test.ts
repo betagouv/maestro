@@ -1,4 +1,3 @@
-import bcrypt from 'bcryptjs';
 import { constants } from 'http2';
 import request from 'supertest';
 import { genUser } from '../../../shared/test/userFixtures';
@@ -22,10 +21,8 @@ describe('Auth routes', () => {
   const user = genUser();
 
   beforeAll(async () => {
-    const hash = await bcrypt.hash(user.password, 10);
     await Users().insert({
-      ...user,
-      password: hash
+      ...user
     });
   });
 

@@ -7,7 +7,6 @@ import { UserRole, UserRolePermissions } from './UserRole';
 export const User = z.object({
   id: z.string().uuid(),
   email: z.string().email(),
-  password: z.string(),
   firstName: z.string(),
   lastName: z.string(),
   roles: z.array(UserRole),
