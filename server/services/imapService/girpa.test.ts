@@ -140,6 +140,13 @@ describe('getResidue', () => {
     ['', 'toto', null],
     ['', 'bixafen', {value: 'RF-1056-001-PPP', kind: 'SimpleResidue'}],
     ['', 'bixafen according reg.', {value: 'RF-1056-001-PPP', kind: 'SimpleResidue'}],
+    ['120983-64-4', 'prothioconazole: prothioconazole-desthio', {value: 'RF-1056-001-PPP', kind: 'SimpleResidue'}],
+    ['-', 'metobromuron according reg.',  {value: 'RF-00014532-PAR', kind: 'SimpleResidue'}],
+    ['-', 'metobromuron',  {value: 'RF-00014532-PAR', kind: 'SimpleResidue'}],
+    ['15299-99-7', 'napropamide according reg.', {value: 'RF-0868-001-PPP', kind: 'SimpleResidue'}],
+    //FIXME
+    //Résidu non trouvé: 1967-25-5 4-bromophenylurea
+    // Résidu non trouvé: 27112-32-9 desmethyl-metobromuron
   ])('getResidue %#', (casNumber, englishName, expected) => {
 
     expect(getResidue(casNumber as z.infer<typeof residueCasNumberValidator>, englishName as z.infer<typeof residueEnglishNameValidator>)).toEqual(expected)

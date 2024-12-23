@@ -20,7 +20,7 @@ const isSender: IsSender = (_emailSender) => true;
 
 // Visible for testing
 export const getResidue = (
-  _casNumber: ResidueCasNumber,
+  casNumber: ResidueCasNumber,
   englishName: ResidueEnglishName
 ): ExportResidue | null => {
   const normalizedEnglishName = englishName
@@ -44,6 +44,27 @@ export const getResidue = (
       return { value: entry[0] as Analyte, kind: 'Analyte' };
     }
   }
+
+
+  //En attendant d'avoir un référentiel CAS => SSD2
+  const casToSSD2SimpleResidue:  Record<ResidueCasNumber, SimpleResidue> = {
+    ['120983-64-4' as ResidueCasNumber]: 'RF-0868-001-PPP',
+    ['15299-99-7' as ResidueCasNumber]: 'RF-00012802-PAR',
+  } as const satisfies Record<ResidueCasNumber, SimpleResidue>
+
+  if (casNumber in casToSSD2SimpleResidue) {
+    return { value: casToSSD2SimpleResidue[casNumber], kind: 'SimpleResidue'}
+  }
+
+  //Pour ceux qui n'ont pas de CAS
+  const labelToSimpleResidue: Record<string, SimpleResidue>  = {
+      'metobromuron': 'RF-0868-001-PPP'
+    }
+
+    if (normalizedEnglishName in labelToSimpleResidue) {
+      return { value: labelToSimpleResidue[normalizedEnglishName], kind: 'SimpleResidue'}
+    }
+
   return null;
 };
 
@@ -100,6 +121,7 @@ export const extractSample = (obj: unknown): ExportSample[] | null => {
           );
           if (substance === null) {
             //FIXME comment gérer les erreurs ?!
+            console.error('Résidu non trouvé:', a.Substance_active_CAS, a.Substance_active_anglais)
             return null;
           }
 
