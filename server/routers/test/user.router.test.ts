@@ -1,6 +1,5 @@
 import { constants } from 'http2';
 import { describe, test, expect } from 'vitest';
-import fp from 'lodash';
 import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
@@ -90,8 +89,8 @@ describe('User router', () => {
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toEqual([
-        fp.omit(Sampler1Fixture, 'password'),
-        fp.omit(RegionalCoordinator, 'password')
+        Sampler1Fixture,
+        RegionalCoordinator,
       ]);
     });
 
@@ -102,9 +101,9 @@ describe('User router', () => {
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toEqual([
-        fp.omit(Sampler1Fixture, 'password'),
-        fp.omit(Sampler2Fixture, 'password'),
-        fp.omit(SamplerDromFixture, 'password')
+        Sampler1Fixture,
+        Sampler2Fixture,
+        SamplerDromFixture,
       ]);
     });
   });
