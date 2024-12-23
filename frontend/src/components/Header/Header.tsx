@@ -37,9 +37,9 @@ const Header = () => {
           <br />
           de l'Agriculture
           <br />
-          et de la Souveraineté
+          de la Souveraineté
           <br />
-          alimentaire
+          alimentaire et de la Forêt
         </>
       }
       homeLinkProps={{
@@ -155,15 +155,7 @@ const Header = () => {
                 </Button>
               </div>
             ].filter(isDefined)
-          : [
-              {
-                linkProps: {
-                  to: '/connexion'
-                },
-                iconId: 'fr-icon-user-fill',
-                text: 'Se connecter'
-              }
-            ]
+          : []
       }
     />
   );
