@@ -1,5 +1,11 @@
 import { describe, expect, test } from 'vitest';
-import { analyseXmlValidator, extractSample } from './girpa';
+import {
+  analyseXmlValidator,
+  extractSample,
+  getResidue,
+  residueCasNumberValidator,
+  residueEnglishNameValidator
+} from './girpa';
 import { z } from 'zod';
 
 const girpaXMLExample = (analyses: z.input<typeof analyseXmlValidator>[]) => ({
@@ -41,7 +47,8 @@ describe('parse correctement le XML', () => {
       LMR: 10,
       Limite_de_quantification: '1,1',
       Résultat: '5,2',
-      Substance_active_CAS: '?'
+      Substance_active_CAS: '?',
+      Substance_active_anglais: 'bixafen'
     }]))).toMatchInlineSnapshot(`
       [
         {
@@ -52,7 +59,10 @@ describe('parse correctement le XML', () => {
               "lmr": 10,
               "result": 5.2,
               "result_kind": "Q",
-              "substance": "?",
+              "substance": {
+                "kind": "SimpleResidue",
+                "value": "RF-1056-001-PPP",
+              },
             },
           ],
         },
@@ -66,25 +76,29 @@ describe('parse correctement le XML', () => {
         LMR: 10,
         Limite_de_quantification: '0,9',
         Résultat: '0,3',
-        Substance_active_CAS: '1967-25-5'
+        Substance_active_CAS: '1967-25-5',
+        Substance_active_anglais: 'bixafen'
       },
       {
         LMR: 10,
         Limite_de_quantification: '0,9',
         Résultat: '0,29',
-        Substance_active_CAS: '27112-32-9'
+        Substance_active_CAS: '27112-32-9',
+        Substance_active_anglais: 'fluopyram'
       },
       {
         LMR: 10,
         Limite_de_quantification:  '1',
         Résultat: '10,1',
-        Substance_active_CAS: '15299-99-7'
+        Substance_active_CAS: '15299-99-7',
+        Substance_active_anglais: 'fluroxypyr'
       },
       {
         LMR: '-',
         Limite_de_quantification:  '1',
         Résultat: '8',
-        Substance_active_CAS: '?'
+        Substance_active_CAS: '?',
+        Substance_active_anglais: 'fluxapyroxad'
       }
     ]))![0].substances).toMatchInlineSnapshot(`
       [
@@ -92,21 +106,43 @@ describe('parse correctement le XML', () => {
           "lmr": 10,
           "result": 0.3,
           "result_kind": "Q",
-          "substance": "1967-25-5",
+          "substance": {
+            "kind": "SimpleResidue",
+            "value": "RF-1056-001-PPP",
+          },
         },
         {
           "lmr": 10,
           "result": 10.1,
           "result_kind": "Q",
-          "substance": "15299-99-7",
+          "substance": {
+            "kind": "Analyte",
+            "value": "RF-0215-003-PPP",
+          },
         },
         {
           "lmr": null,
           "result": null,
           "result_kind": "NQ",
-          "substance": "?",
+          "substance": {
+            "kind": "SimpleResidue",
+            "value": "RF-00000024-PAR",
+          },
         },
       ]
     `);
   });
 });
+
+
+describe('getResidue', () => {
+  test.each<[string, string, ReturnType<typeof getResidue>]>([
+    ['', 'toto', null],
+    ['', 'bixafen', {value: 'RF-1056-001-PPP', kind: 'SimpleResidue'}],
+    ['', 'bixafen according reg.', {value: 'RF-1056-001-PPP', kind: 'SimpleResidue'}],
+  ])('getResidue %#', (casNumber, englishName, expected) => {
+
+    expect(getResidue(casNumber as z.infer<typeof residueCasNumberValidator>, englishName as z.infer<typeof residueEnglishNameValidator>)).toEqual(expected)
+
+  })
+})

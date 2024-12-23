@@ -5,12 +5,19 @@ import { LaboratoryName } from '../../../shared/referential/Laboratory';
 import config from '../../utils/config';
 import { girpaConf } from './girpa';
 import { Sample } from '../../../shared/schema/Sample/Sample';
+import { SimpleResidue } from '../../../shared/referential/Residue/SimpleResidue';
+import { ComplexResidue } from '../../../shared/referential/Residue/ComplexResidue';
+import { Analyte } from '../../../shared/referential/Residue/Analyte';
 
 const laboratoriesWithConf = ['GIR 49'] as const satisfies LaboratoryName[];
 type LaboratoryWithConf = (typeof laboratoriesWithConf)[number];
 
+export type ExportResidue =
+{ value: SimpleResidue, kind: 'SimpleResidue' } |
+{ value:ComplexResidue, kind: 'ComplexResidue' } |
+{ value: Analyte, kind: 'Analyte' }
 
-export type ExportDataSubstance = {substance: string} & ( {result_kind: 'NQ', result: null, lmr: null} | {result_kind: 'Q', result: number, lmr: number})
+export type ExportDataSubstance = {substance: ExportResidue} & ( {result_kind: 'NQ', result: null, lmr: null} | {result_kind: 'Q', result: number, lmr: number})
 export type IsSender = (senderAddress: string) => boolean
 export type ExportSample = {
   sampleReference: Sample['reference'],
