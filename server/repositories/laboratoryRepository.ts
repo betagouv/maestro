@@ -1,4 +1,4 @@
-import fp from 'lodash';
+import { isNil, omitBy } from 'lodash-es';
 import { Laboratory } from '../../shared/schema/Laboratory/Laboratory';
 import {knexInstance as db} from './db';
 
@@ -11,13 +11,13 @@ const findUnique = async (id: string): Promise<Laboratory | undefined> => {
   return Laboratories()
     .where({ id })
     .first()
-    .then((_) => _ && Laboratory.parse(fp.omitBy(_, fp.isNil)));
+    .then((_) => _ && Laboratory.parse(omitBy(_, isNil)));
 };
 
 const findMany = async (): Promise<Laboratory[]> => {
   console.info('Find laboratories');
   return Laboratories().then((laboratories) =>
-    laboratories.map((_) => Laboratory.parse(fp.omitBy(_, fp.isNil)))
+    laboratories.map((_) => Laboratory.parse(omitBy(_, isNil)))
   );
 };
 

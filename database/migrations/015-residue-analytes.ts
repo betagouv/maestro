@@ -1,7 +1,7 @@
 import { Knex } from 'knex';
 import { ResultKindList } from '../../shared/schema/Analysis/Residue/ResultKind';
 
-exports.up = async (knex: Knex) => {
+export const up = async (knex: Knex) => {
   await knex.schema.createTable('residue_analytes', (table) => {
     table
       .uuid('analysis_id')
@@ -24,6 +24,6 @@ exports.up = async (knex: Knex) => {
   });
 };
 
-exports.down = async (knex: Knex) => {
+export const down = async (knex: Knex) => {
   await knex.schema.dropTable('residue_analytes');
 };

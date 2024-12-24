@@ -1,4 +1,4 @@
-import { chain, isObject } from 'lodash';
+import { chain, isObject } from 'lodash-es';
 import fp from 'lodash/fp';
 import { z, ZodObject } from 'zod';
 

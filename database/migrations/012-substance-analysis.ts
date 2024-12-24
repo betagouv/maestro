@@ -1,7 +1,7 @@
 import { Knex } from 'knex';
 import { AnalysisKindList } from '../../shared/schema/Analysis/AnalysisKind';
 
-exports.up = async (knex: Knex) => {
+export const up = async (knex: Knex) => {
   await knex.schema.createTable('substance_analysis', (table) => {
     table.string('matrix').notNullable();
     table
@@ -15,6 +15,6 @@ exports.up = async (knex: Knex) => {
   });
 };
 
-exports.down = async (knex: Knex) => {
+export const down = async (knex: Knex) => {
   await knex.schema.dropTable('substance_analysis');
 };

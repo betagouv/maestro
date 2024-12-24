@@ -3,7 +3,7 @@ import { prescriptionsTable } from '../../server/repositories/prescriptionReposi
 import { prescriptionSubstanceTable } from '../../server/repositories/prescriptionSubstanceRepository';
 import { programmingPlansTable } from '../../server/repositories/programmingPlanRepository';
 
-exports.up = async (knex: Knex) => {
+export const up = async (knex: Knex) => {
   await knex.schema.renameTable(
     'substance_analysis',
     'prescription_substances'
@@ -36,7 +36,7 @@ exports.up = async (knex: Knex) => {
   });
 };
 
-exports.down = async (knex: Knex) => {
+export const down = async (knex: Knex) => {
   await knex.schema.alterTable('prescription_substances', (table) => {
     table.integer('year');
     table.string('matrix');
