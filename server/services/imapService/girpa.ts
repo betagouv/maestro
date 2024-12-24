@@ -11,7 +11,7 @@ import {
   ExportDataFromEmail,
   ExportDataSubstance,
   ExportResidue,
-  ExportSample,
+  ExportSample, ExtractError,
   IsSender,
   LaboratoryConf
 } from './index';
@@ -89,7 +89,7 @@ export const analyseXmlValidator = z.object({
   Substance_active_anglais: residueEnglishNameValidator
 });
 // Visible for testing
-export const extractSample = (obj: unknown): Omit<ExportSample, 'pdfFile'>[] | null => {
+export const extractSample = (obj: unknown): Omit<ExportSample, 'pdfFile'>[] => {
   const echantillonValidator = z.object({
     Code_échantillon: z.string(),
     Commentaire: z.string(),
@@ -104,10 +104,9 @@ export const extractSample = (obj: unknown): Omit<ExportSample, 'pdfFile'>[] | n
     })
   });
 
-  const result = validator.safeParse(obj);
+  const result = validator.parse(obj);
 
-  if (result.success) {
-    return result.data.Rapport.Echantillon.map((echantillon) => {
+    return result.Rapport.Echantillon.map((echantillon) => {
       const substances: ExportDataSubstance[] = echantillon.Analyse.filter(
         (a) =>
           a.LMR === '-' ||
@@ -120,9 +119,7 @@ export const extractSample = (obj: unknown): Omit<ExportSample, 'pdfFile'>[] | n
             a.Substance_active_anglais
           );
           if (substance === null) {
-            //FIXME comment gérer les erreurs ?!
-            console.error('Résidu non trouvé:', a.Substance_active_CAS, a.Substance_active_anglais)
-            return null;
+            throw new ExtractError(`Résidu non trouvé:, ${a.Substance_active_CAS}, ${a.Substance_active_anglais}`)
           }
 
           return a.LMR === '-'
@@ -140,10 +137,7 @@ export const extractSample = (obj: unknown): Omit<ExportSample, 'pdfFile'>[] | n
         notes: echantillon.Commentaire,
         substances
       };
-    });
-  }
-  console.log('Erreur: ', result.error);
-  return null;
+    });;
 };
 
 const exportDataFromEmail: ExportDataFromEmail = (email) => {
@@ -158,19 +152,13 @@ const exportDataFromEmail: ExportDataFromEmail = (email) => {
 
     const extractAnalyse = extractSample(obj)
 
-    if( extractAnalyse === null ){
-      //FIXME error
-      return null
-    }
-
     const analyseWithPdf: ExportSample[] = []
 
     for (const analyse of extractAnalyse) {
       const pdfAttachment = email.attachments.find(({ contentType, filename }) => contentType === 'application/pdf' && filename?.startsWith(analyse.sampleReference))
 
       if (pdfAttachment === undefined) {
-        //FIXME error
-        return null
+        throw new ExtractError(`Aucun fichier pdf pour ${analyse.sampleReference}`)
       }
 
       const pdfFile: File = new File([pdfAttachment.content], pdfAttachment.filename ?? '');
@@ -180,8 +168,7 @@ const exportDataFromEmail: ExportDataFromEmail = (email) => {
 
     return analyseWithPdf
   } else {
-    console.log('Aucun XML', email.attachments);
-    return null
+    throw new ExtractError('Pas de fichier XML dans les pièces jointes')
   }
 
 };

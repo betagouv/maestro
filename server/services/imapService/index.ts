@@ -14,6 +14,12 @@ import { girpaConf } from './girpa';
 const laboratoriesWithConf = ['GIR 49'] as const satisfies LaboratoryName[];
 type LaboratoryWithConf = (typeof laboratoriesWithConf)[number];
 
+export class ExtractError extends Error {
+  constructor(message: string) {
+    super(message);
+  }
+}
+
 export type ExportResidue =
   | { value: SimpleResidue; kind: 'SimpleResidue' }
   | { value: ComplexResidue; kind: 'ComplexResidue' }
@@ -34,7 +40,7 @@ export type ExportSample = {
   pdfFile: File;
   substances: ExportDataSubstance[];
 };
-export type ExportDataFromEmail = (email: ParsedMail) => null | ExportSample[];
+export type ExportDataFromEmail = (email: ParsedMail) => ExportSample[];
 
 export type LaboratoryConf = {
   isSender: IsSender;
@@ -124,11 +130,13 @@ const run = async () => {
         //FIXME trash
         // await client.messageMove(messageUid, config.inbox.trashboxName, {uid: true})
 
-        const data =
-          laboratoriesConf[message.laboratoryName].exportDataFromEmail(parsed);
+        try {
+          const data =
+            laboratoriesConf[message.laboratoryName].exportDataFromEmail(
+              parsed
+            );
 
-        if (data !== null) {
-          initKysely(config.databaseUrl)
+          initKysely(config.databaseUrl);
           for (const analyse of data) {
             const { url, documentId } = await getUploadSignedUrlS3(
               analyse.pdfFile.name
@@ -162,8 +170,12 @@ const run = async () => {
             console.log(JSON.stringify(data, null, 4));
             // createWriteStream(parsed.attachments[2].filename ?? '').write(parsed.attachments[2].content)
           }
-        } else {
-          //FIXME
+        } catch (e: any) {
+          console.error(
+            `Email "${parsed.subject}" from "${parsed.from?.value[0].address}" ignoré => `,
+            e.message
+          );
+          //FIXME envoyer une notification (mattermost ? email ?) aux devs
         }
       }
     }
