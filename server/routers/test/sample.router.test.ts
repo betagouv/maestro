@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 import { constants } from 'http2';
-import { default as fp } from 'lodash';
+import  { omit } from 'lodash-es';
 import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
@@ -151,11 +151,11 @@ describe('Sample router', () => {
 
       expect(res.body).toMatchObject([
         {
-          ...fp.omit(Sample11Fixture, ['items']),
+          ...omit(Sample11Fixture, ['items']),
           createdAt: Sample11Fixture.createdAt.toISOString(),
           lastUpdatedAt: Sample11Fixture.lastUpdatedAt.toISOString(),
-          sampledAt: Sample11Fixture.sampledAt.toISOString(),
-        },
+          sampledAt: Sample11Fixture.sampledAt.toISOString()
+        }
       ]);
     });
 
@@ -173,7 +173,7 @@ describe('Sample router', () => {
       expect(res.body).toMatchObject(
         expect.arrayContaining([
           {
-            ...fp.omit(Sample11Fixture, ['items']),
+            ...omit(Sample11Fixture, ['items']),
             createdAt: Sample11Fixture.createdAt.toISOString(),
             lastUpdatedAt: Sample11Fixture.lastUpdatedAt.toISOString(),
             sampledAt: Sample11Fixture.sampledAt.toISOString(),

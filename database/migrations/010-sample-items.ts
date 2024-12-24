@@ -1,7 +1,7 @@
 import { Knex } from 'knex';
 import { SampleItemRecipientKindList } from '../../shared/schema/Sample/SampleItemRecipientKind';
 
-exports.up = async (knex: Knex) => {
+export const up = async (knex: Knex) => {
   await knex.schema.createTable('sample_items', (table) => {
     table
       .uuid('sample_id')
@@ -23,6 +23,6 @@ exports.up = async (knex: Knex) => {
   });
 };
 
-exports.down = async (knex: Knex) => {
+export const down = async (knex: Knex) => {
   await knex.schema.dropTable('sample_items');
 };

@@ -1,5 +1,5 @@
 import { Knex } from 'knex';
-import { default as fp, default as _, isArray } from 'lodash';
+import { isArray, isNil, omit, omitBy, uniq } from 'lodash-es';
 import {
   FindPrescriptionOptions,
   PrescriptionOptionsInclude,
@@ -16,16 +16,16 @@ const findUnique = async (id: string): Promise<Prescription | undefined> => {
   return Prescriptions()
     .where({ id })
     .first()
-    .then((_) => _ && Prescription.parse(fp.omitBy(_, fp.isNil)));
+    .then((_) => _ && Prescription.parse(omitBy(_, isNil)));
 };
 
 const findMany = async (
   findOptions: FindPrescriptionOptions
 ): Promise<Prescription[]> => {
-  console.info('Find prescriptions', fp.omitBy(findOptions, fp.isNil));
+  console.info('Find prescriptions', omitBy(findOptions, isNil));
   return Prescriptions()
     .select(`${prescriptionsTable}.*`)
-    .where(fp.omitBy(fp.omit(findOptions, 'stage', 'includes'), fp.isNil))
+    .where(omitBy(omit(findOptions, 'stage', 'includes'), isNil))
     .modify((builder) => {
       if (findOptions.stage) {
         builder.where('stages', '@>', [findOptions.stage]);
@@ -34,7 +34,7 @@ const findMany = async (
     .modify(include(findOptions))
     .then((prescriptions) =>
       prescriptions.map((_: Prescription) =>
-        Prescription.parse(fp.omitBy(_, fp.isNil))
+        Prescription.parse(omitBy(_, isNil))
       )
     );
 };
@@ -69,7 +69,7 @@ const include = (opts?: FindPrescriptionOptions) => {
         ? opts.includes
         : [opts.includes]
       : [];
-    _.uniq(includes).forEach((include) => {
+    uniq(includes).forEach((include) => {
       joins[include as PrescriptionOptionsInclude](query);
     });
   };

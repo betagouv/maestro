@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { AuthenticatedRequest } from 'express-jwt';
 import { constants } from 'http2';
-import { default as fp } from 'lodash';
+import { intersection, pick } from 'lodash-es';
 import { FindUserOptions } from '../../shared/schema/User/FindUserOptions';
 import { UserInfos, userRegions } from '../../shared/schema/User/User';
 import userRepository from '../repositories/userRepository';
@@ -18,11 +18,11 @@ const getUserInfos = async (request: Request, response: Response) => {
     return response.sendStatus(constants.HTTP_STATUS_NOT_FOUND);
   }
 
-  if (fp.intersection(userRegions(user), userRegions(authUser)).length === 0) {
+  if (intersection(userRegions(user), userRegions(authUser)).length === 0) {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
   }
 
-  const userInfos: UserInfos = fp.pick(user, [
+  const userInfos: UserInfos = pick(user, [
     'id',
     'email',
     'firstName',

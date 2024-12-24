@@ -11,6 +11,7 @@ import {
   MatrixKindLabels,
   MatrixKindList
 } from 'shared/referential/MatrixKind';
+import { isNil } from 'lodash-es';
 interface AddMatrixProps {
   excludedMatrixList: Matrix[];
   onSelect: (matrix: Matrix) => Promise<void>;
@@ -37,13 +38,15 @@ const MatrixSelectModal = ({
   const [selectedOption, setSelectedOption] = useState<{
     label: string;
     value: Matrix;
-  }>(null);
+  } | null>(null);
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
 
-    await onSelect(selectedOption.value as Matrix);
-    matrixSelectModal.close();
+    if( !isNil(selectedOption)) {
+      await onSelect(selectedOption.value);
+      matrixSelectModal.close();
+    }
   };
 
   return (

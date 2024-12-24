@@ -17,7 +17,7 @@ vi.mock(import('react-router-dom'), async (importOriginal) => {
   };
 });
 
-import { describe, test, expect, vi } from 'vitest';
+import { describe, test, expect, vi, beforeEach } from 'vitest';
 let store: Store;
 const authUser = genAuthUser();
 const nationalCoordinator = genUser({
