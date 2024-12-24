@@ -1,4 +1,4 @@
-import { isNil } from 'lodash';
+import { isNil } from 'lodash-es';
 import { FindUserOptions } from '../../shared/schema/User/FindUserOptions';
 import { User, UserInfos } from '../../shared/schema/User/User';
 import {knexInstance as db} from './db';

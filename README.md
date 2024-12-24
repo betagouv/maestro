@@ -44,7 +44,6 @@ NODE_ENV
 API_PORT
 AUTH_SECRET
 AUTH_EXPIRES_IN
-DATABASE_ENV
 DATABASE_URL
 MAILER_PROVIDER
 MAILER_HOST
@@ -74,7 +73,7 @@ En local, elles peuvent être définies dans des fichiers `.env` :
 
 ### Chargement des données
 
-Le chargement se fait via Knex et les fichiers de chargement de données dans le répertoire `/database/seeds` en fonction de l'environnement visé via `DATABASE_ENV`.
+Vous pouvez injecter un jeu de données grâce au répertoire `/database/seeds/dummy`.
 
 ```bash
 npm run seed

@@ -1,7 +1,7 @@
 import { Knex } from 'knex';
 import { RegionList, Regions } from '../../shared/referential/Region';
 
-exports.up = async (knex: Knex) => {
+export const up = async (knex: Knex) => {
   await knex.schema.alterTable('samples', (table) => {
     table.uuid('prescription_id').references('id').inTable('prescriptions');
     table.string('region');
@@ -34,7 +34,7 @@ exports.up = async (knex: Knex) => {
   });
 };
 
-exports.down = async (knex: Knex) => {
+export const down = async (knex: Knex) => {
   await knex.schema.alterTable('samples', (table) => {
     table.dropColumn('prescription_id');
     table.dropColumn('region');

@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 import { Request, Response } from 'express';
 import { AuthenticatedRequest, SampleRequest } from 'express-jwt';
 import { constants } from 'http2';
-import fp from 'lodash';
+import { isNil, omitBy, pick } from 'lodash-es';
 import { v4 as uuidv4 } from 'uuid';
 import { Regions } from '../../shared/referential/Region';
 import { Laboratory } from '../../shared/schema/Laboratory/Laboratory';
@@ -36,7 +36,7 @@ const getSample = async (request: Request, response: Response) => {
 
   response.status(constants.HTTP_STATUS_OK).send({
     ...sample,
-    items: sampleItems.map((item) => fp.omitBy(item, fp.isNil)),
+    items: sampleItems.map((item) => omitBy(item, isNil)),
   });
 };
 
@@ -148,7 +148,7 @@ const createSample = async (request: Request, response: Response) => {
     }-${format(new Date(), 'yy')}-${String(serial).padStart(4, '0')}-${
       sampleToCreate.legalContext
     }`,
-    sampler: fp.pick(user, ['id', 'firstName', 'lastName']),
+    sampler: pick(user, ['id', 'firstName', 'lastName']),
     createdAt: new Date(),
     lastUpdatedAt: new Date(),
   };

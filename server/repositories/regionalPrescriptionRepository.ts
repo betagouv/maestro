@@ -1,5 +1,5 @@
 import { Knex } from 'knex';
-import { default as fp, default as _, isArray } from 'lodash';
+import { isArray, isNil, omit, omitBy, uniq } from 'lodash-es';
 import {
   FindRegionalPrescriptionOptions,
   RegionalPrescriptionOptionsInclude
@@ -26,25 +26,25 @@ const findUnique = async ({
     .where('prescriptionId', prescriptionId)
     .where('region', region)
     .first()
-    .then((_) => _ && RegionalPrescription.parse(fp.omitBy(_, fp.isNil)));
+    .then((_) => _ && RegionalPrescription.parse(omitBy(_, isNil)));
 };
 
 const findMany = async (
   findOptions: FindRegionalPrescriptionOptions
 ): Promise<RegionalPrescription[]> => {
-  console.info('Find regional prescriptions', fp.omitBy(findOptions, fp.isNil));
+  console.info('Find regional prescriptions', omitBy(findOptions, isNil));
   return RegionalPrescriptions()
     .select(`${regionalPrescriptionsTable}.*`)
     .where(
-      fp.omitBy(
-        fp.omit(
+      omitBy(
+        omit(
           findOptions,
           'programmingPlanId',
           'context',
           'includes',
           'region'
         ),
-        fp.isNil
+        isNil
       )
     )
     .join(
@@ -68,7 +68,7 @@ const findMany = async (
     .modify(include(findOptions))
     .then((regionalPrescriptions) =>
       regionalPrescriptions.map((_: RegionalPrescription) =>
-        RegionalPrescription.parse(fp.omitBy(_, fp.isNil))
+        RegionalPrescription.parse(omitBy(_, isNil))
       )
     );
 };
@@ -138,7 +138,7 @@ const include = (opts?: FindRegionalPrescriptionOptions) => {
         ? opts.includes
         : [opts.includes]
       : [];
-    _.uniq(includes).forEach((include) => {
+    uniq(includes).forEach((include) => {
       joins[include as RegionalPrescriptionOptionsInclude](query);
     });
   };

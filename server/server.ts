@@ -86,9 +86,9 @@ export function createServer(): Server {
   app.use('/api', protectedRouter);
 
   if (config.environment === 'production') {
-    app.use(express.static(path.join(__dirname, '../../frontend/build')));
+    app.use(express.static(path.join(import.meta.dirname, '../frontend/build')));
     app.get('*', function (req: any, res: { sendFile: (arg0: any) => void }) {
-      res.sendFile(path.join(__dirname, '../../frontend/build', 'index.html'));
+      res.sendFile(path.join(import.meta.dirname, '../frontend/build', 'index.html'));
     });
   }
 

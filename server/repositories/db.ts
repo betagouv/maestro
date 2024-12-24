@@ -1,6 +1,6 @@
 import knex, { Knex } from 'knex';
 import knexConfig from '../knex';
-import { cloneDeep } from 'lodash';
+import { cloneDeep } from 'lodash-es';
 
 
 //@ts-expect-error TS2322

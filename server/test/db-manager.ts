@@ -49,6 +49,7 @@ class DbManager {
         env: {
           ...process.env,
           PATH: process.env.PATH,
+          NODE_OPTIONS: '--import @swc-node/register/esm-register '
         }
       }
     );

@@ -11,16 +11,4 @@ const productionConfig: Knex.Config = {
   },
 };
 
-const dummyConfig: Knex.Config = {
-  ...productionConfig,
-  seeds: {
-    directory: '../database/seeds/dummy',
-    extension: 'ts',
-  },
-};
-
-
-
-export default config.databaseEnvironment === 'production'
-  ? productionConfig
-  :  dummyConfig;
+export default productionConfig

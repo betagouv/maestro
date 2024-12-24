@@ -1,8 +1,8 @@
-import _ from 'lodash';
 import { z } from 'zod';
 import { Region, RegionList, Regions } from '../../referential/Region';
 import { UserPermission } from './UserPermission';
 import { UserRole, UserRolePermissions } from './UserRole';
+import { intersection } from 'lodash-es';
 
 export const User = z.object({
   id: z.string().uuid(),
@@ -44,5 +44,5 @@ export const hasPermission = (
     .map((role) => UserRolePermissions[role])
     .flat();
 
-  return _.intersection(permissions, userPermissions).length > 0;
+  return intersection(permissions, userPermissions).length > 0;
 };
