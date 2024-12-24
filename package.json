@@ -12,7 +12,6 @@
     "server-local": "npm run dev",
     "start-local": "run-p frontend:start server-local",
     "clean": "rimraf dist",
-    "prebuild": "run-s clean copy",
     "build": "npm run migrate-latest && tsc  && npm run frontend:build",
     "start": "node --enable-source-maps -r dotenv/config --loader ts-node/esm/transpile-only ./server/index.ts",
     "test": "vitest",
