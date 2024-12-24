@@ -84,6 +84,14 @@ interface Config {
       url: string;
     };
   };
+  inbox: {
+    mailboxName: string
+    trashboxName: string
+    host: string | null;
+    user: string | null;
+    password: string | null;
+    port: number;
+  };
   m2mBasicToken: string
 }
 
@@ -282,6 +290,42 @@ const config = convict<Config>({
         format: 'url',
         default: 'https://recherche-entreprises.api.gouv.fr'
       }
+    }
+  },
+  inbox: {
+    mailboxName: {
+      env: 'INBOX_MAILBOX_NAME',
+      format: String,
+      default: 'Inbox'
+    },
+    trashboxName: {
+      env: 'INBOX_TRASHBOX_NAME',
+      format: String,
+      default: 'Trash'
+    },
+    host: {
+      env: 'INBOX_HOST',
+      format: String,
+      nullable: true,
+      default: null
+    },
+    user: {
+      env: 'INBOX_USER',
+      format: String,
+      nullable: true,
+      default: null
+    },
+    password: {
+      env: 'INBOX_PASSWORD',
+      format: String,
+      nullable: true,
+      default: null
+    },
+    port: {
+      env: 'INBOX_PORT',
+      format: Number,
+      nullable: true,
+      default: 993
     }
   },
   m2mBasicToken: {

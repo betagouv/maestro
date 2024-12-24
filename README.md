@@ -20,6 +20,9 @@ La création des tables et autres structures SQL se fera automatiquement lors du
 
 Pour le stockage des fichiers, l'application utilise un service S3. 
 En local et pour les tests, il est possible d'utiliser https://github.com/adobe/S3Mock
+```bash
+docker compose up -d
+```
 
 
 ### Installation de l'application
@@ -61,6 +64,12 @@ S3_ACCESS_KEY_ID
 S3_SECRET_ACCESS_KEY
 S3_BUCKET
 S3_FILE_PATH
+INBOX_MAILBOX_NAME
+INBOX_TRASHBOX_NAME
+INBOX_HOST
+INBOX_PORT
+INBOX_USER
+INBOX_PASSWORD
 M2M_BASIC_TOKEN
 
 REACT_APP_PUBLIC_URL
