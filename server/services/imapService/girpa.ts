@@ -16,6 +16,9 @@ import {
   LaboratoryConf
 } from './index';
 
+
+// FIXME
+// FIXME test
 const isSender: IsSender = (_emailSender) => true;
 
 // Visible for testing
