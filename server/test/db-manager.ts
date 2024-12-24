@@ -34,6 +34,7 @@ class DbManager {
     this.knexInstance = this.getKnex(this.connectionUrl);
     initKysely(this.connectionUrl)
     setKnexInstance(this.knexInstance!);
+    console.log('migratino !!!!!')
     const output = spawnSync(
       'npx',
       [
@@ -49,6 +50,7 @@ class DbManager {
         env: {
           ...process.env,
           PATH: process.env.PATH,
+          NODE_OPTIONS: '--loader ts-node/esm/transpile-only'
         }
       }
     );
@@ -56,6 +58,7 @@ class DbManager {
     console.log(output.stdout); // eslint-disable-line no-console
     console.log(output.stderr); // eslint-disable-line no-console
 
+    console.log('migratino !!!!!')
   }
 
   private getKnex(url: string): Knex {

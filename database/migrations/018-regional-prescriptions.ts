@@ -1,7 +1,7 @@
 import { Knex } from 'knex';
 import { Context } from '../../shared/schema/ProgrammingPlan/Context';
 
-exports.up = async (knex: Knex) => {
+export const up = async (knex: Knex) => {
   await knex.schema.alterTable('prescriptions', (table) => {
     table.dropPrimary();
   });
@@ -62,7 +62,7 @@ exports.up = async (knex: Knex) => {
   });
 };
 
-exports.down = async (knex: Knex) => {
+export const down = async (knex: Knex) => {
   await knex.schema.alterTable('regional_prescriptions', (table) => {
     table
       .uuid('programming_plan_id')

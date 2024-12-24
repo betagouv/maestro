@@ -4,7 +4,7 @@ import { ResidueComplianceList } from '../../shared/schema/Analysis/Residue/Resi
 import { ResidueKindList } from '../../shared/schema/Analysis/Residue/ResidueKind';
 import { ResultKindList } from '../../shared/schema/Analysis/Residue/ResultKind';
 
-exports.up = async (knex: Knex) => {
+export const up = async (knex: Knex) => {
   await knex.schema.createTable('analysis_residues', (table) => {
     table
       .uuid('analysis_id')
@@ -29,6 +29,6 @@ exports.up = async (knex: Knex) => {
   });
 };
 
-exports.down = async (knex: Knex) => {
+export const down = async (knex: Knex) => {
   await knex.schema.dropTable('analysis_residues');
 };

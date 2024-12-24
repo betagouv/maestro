@@ -1,7 +1,7 @@
 import { Knex } from 'knex';
 import { RegionList } from '../../shared/referential/Region';
 
-exports.up = async (knex: Knex) => {
+export const up = async (knex: Knex) => {
   await knex.schema.createTable('sample_sequence_numbers', (table) => {
     table.primary(['region', 'programming_plan_year']);
     table.enum('region', RegionList).notNullable();
@@ -10,6 +10,6 @@ exports.up = async (knex: Knex) => {
   });
 };
 
-exports.down = async (knex: Knex) => {
+export const down = async (knex: Knex) => {
   await knex.schema.dropTable('sample_sequence_numbers');
 };

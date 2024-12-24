@@ -15,7 +15,7 @@ convict.addFormat({
 });
 
 if (!process.env.API_PORT) {
-  dotenv.config({ path: path.join(__dirname, '../../.env') });
+  dotenv.config({ path: path.join(import.meta.dirname, '../../.env') });
 }
 export const isProduction = process.env.NODE_ENV === 'production';
 

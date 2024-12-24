@@ -1,4 +1,4 @@
-import fp from 'lodash';
+import { isNil, omitBy } from 'lodash-es';
 import {
   PartialSampleItem,
   SampleItemSort,
@@ -18,7 +18,7 @@ const findUnique = async (
   return SampleItems()
     .where({ sampleId, itemNumber })
     .first()
-    .then((_) => _ && PartialSampleItem.parse(fp.omitBy(_, fp.isNil)));
+    .then((_) => _ && PartialSampleItem.parse(omitBy(_, isNil)));
 };
 
 const findMany = async (sampleId: string): Promise<PartialSampleItem[]> => {
@@ -27,7 +27,7 @@ const findMany = async (sampleId: string): Promise<PartialSampleItem[]> => {
     .where({ sampleId })
     .then((sampleItems) =>
       sampleItems
-        .map((_) => PartialSampleItem.parse(fp.omitBy(_, fp.isNil)))
+        .map((_) => PartialSampleItem.parse(omitBy(_, isNil)))
         .sort(SampleItemSort)
     );
 };

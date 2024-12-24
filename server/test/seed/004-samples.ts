@@ -1,4 +1,4 @@
-import fp from 'lodash';
+import { pick } from 'lodash-es';
 import { SampleItems } from '../../repositories/sampleItemRepository';
 import {
   formatPartialSample,
@@ -40,7 +40,7 @@ export const Sample11Fixture = genCreatedPartialSample({
   company: CompanyFixture,
   notesOnCreation: 'notes on creation',
   reference: 'GES-08-24-313-A',
-  sampler: fp.pick(Sampler1Fixture, ['id', 'firstName', 'lastName']),
+  sampler: pick(Sampler1Fixture, ['id', 'firstName', 'lastName']),
   createdAt: new Date('2023-01-02'),
   lastUpdatedAt: new Date('2024-03-04'),
   status: 'DraftMatrix' as SampleStatus,

@@ -1,4 +1,4 @@
-import fp from 'lodash';
+import {omitBy, isNil} from 'lodash-es';
 import { Company } from '../../shared/schema/Company/Company';
 import {knexInstance as db} from './db';
 
@@ -13,7 +13,7 @@ const findUnique = async (siret: string): Promise<Company | undefined> => {
       siret,
     })
     .first()
-    .then((_) => _ && Company.parse(fp.omitBy(_, fp.isNil)));
+    .then((_) => _ && Company.parse(omitBy(_, isNil)));
 };
 
 const upsert = async (company: Company): Promise<Company> => {

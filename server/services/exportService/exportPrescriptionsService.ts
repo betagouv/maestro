@@ -10,7 +10,7 @@ import {
   PrescriptionSort,
 } from '../../../shared/schema/Prescription/Prescription';
 
-import _ from 'lodash';
+import {} from 'lodash-es';
 import { MatrixLabels } from '../../../shared/referential/Matrix/MatrixLabels';
 import { StageLabels } from '../../../shared/referential/Stage';
 import { ProgrammingPlan } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -21,6 +21,7 @@ import {
 import { isDefined } from '../../../shared/utils/utils';
 import laboratoryRepository from '../../repositories/laboratoryRepository';
 import WorkbookWriter = exceljs.stream.xlsx.WorkbookWriter;
+import { sumBy } from 'lodash';
 
 interface PrescriptionWorkbookData {
   programmingPlan: ProgrammingPlan;
@@ -117,11 +118,11 @@ const writeToWorkbook = async (
           stages: prescription.stages
             .map((stage) => StageLabels[stage])
             .join('\n'),
-          sampleTotalCount: _.sumBy(
+          sampleTotalCount: sumBy(
             filteredRegionalPrescriptions,
             'sampleCount'
           ),
-          sentSampleTotalCount: _.sumBy(
+          sentSampleTotalCount: sumBy(
             filteredRegionalPrescriptions,
             'realizedSampleCount'
           ),
@@ -148,8 +149,8 @@ const writeToWorkbook = async (
     .done(() => {
       worksheet.addRow({
         matrix: 'Total',
-        sampleTotalCount: _.sumBy(regionalPrescriptions, 'sampleCount'),
-        sentSampleTotalCount: _.sumBy(
+        sampleTotalCount: sumBy(regionalPrescriptions, 'sampleCount'),
+        sentSampleTotalCount: sumBy(
           regionalPrescriptions,
           'realizedSampleCount'
         ),
@@ -157,11 +158,11 @@ const writeToWorkbook = async (
         ...exportedRegions.reduce(
           (acc, region) => ({
             ...acc,
-            [`sampleCount-${region}`]: _.sumBy(
+            [`sampleCount-${region}`]: sumBy(
               regionalPrescriptions.filter((r) => r.region === region),
               'sampleCount'
             ),
-            [`realizedSampleCount-${region}`]: _.sumBy(
+            [`realizedSampleCount-${region}`]: sumBy(
               regionalPrescriptions.filter((r) => r.region === region),
               'realizedSampleCount'
             ),
