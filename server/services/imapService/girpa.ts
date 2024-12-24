@@ -58,7 +58,7 @@ export const getResidue = (
 
   //Pour ceux qui n'ont pas de CAS
   const labelToSimpleResidue: Record<string, SimpleResidue>  = {
-      'metobromuron': 'RF-0868-001-PPP'
+      'metobromuron': 'RF-00014532-PAR'
     }
 
     if (normalizedEnglishName in labelToSimpleResidue) {
