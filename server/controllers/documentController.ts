@@ -1,14 +1,12 @@
 import {
   DeleteObjectCommand,
   GetObjectCommand,
-  PutObjectCommand,
   S3,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl as getS3SignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Request, Response } from 'express';
 import { AuthenticatedRequest } from 'express-jwt';
 import { constants } from 'http2';
-import { v4 as uuidv4 } from 'uuid';
 import DocumentMissingError from '../../shared/errors/documentMissingError';
 import {
   Document,
@@ -17,6 +15,7 @@ import {
 import { hasPermission } from '../../shared/schema/User/User';
 import documentRepository from '../repositories/documentRepository';
 import config from '../utils/config';
+import { getUploadSignedUrlS3 } from '../services/s3Service';
 
 const getDocument = async (request: Request, response: Response) => {
   const { documentId } = request.params;
@@ -37,30 +36,19 @@ const getUploadSignedUrl = async (request: Request, response: Response) => {
   const user = (request as AuthenticatedRequest).user;
 
   if (kind === 'Resource' && !hasPermission(user, 'createResource')) {
-    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+    return { status: constants.HTTP_STATUS_FORBIDDEN}
   }
   if (
     kind === 'AnalysisReportDocument' &&
     !hasPermission(user, 'createAnalysis')
   ) {
-    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+    return { status: constants.HTTP_STATUS_FORBIDDEN }
   }
 
-  console.log('Get signed url for file', filename);
+  const result: {url: string, documentId: string} = await getUploadSignedUrlS3(filename )
 
-  const client = new S3(config.s3.client);
-  const id = uuidv4();
-  const key = `${id}_${filename}`;
-
-  const command = new PutObjectCommand({
-    Bucket: config.s3.bucket,
-    Key: key,
-  });
-
-  const url = await getS3SignedUrl(client, command, { expiresIn: 3600 });
-
-  response.status(200).json({ url, documentId: id });
-};
+  return response.status(200).json(result)
+}
 
 const getDownloadSignedUrl = async (request: Request, response: Response) => {
   const { documentId } = request.params;

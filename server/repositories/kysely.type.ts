@@ -6,6 +6,7 @@
 import type { ColumnType } from "kysely";
 import { UserRole } from '../../shared/schema/User/UserRole';
 import { Region } from '../../shared/referential/Region';
+import { DocumentKind } from '../../shared/schema/Document/DocumentKind';
 
 export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   ? ColumnType<S, I | undefined, U>
@@ -90,7 +91,7 @@ export interface Documents {
   createdBy: string | null;
   filename: string;
   id: Generated<string>;
-  kind: string;
+  kind: DocumentKind;
 }
 
 export interface KnexMigrations {

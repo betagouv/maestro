@@ -89,7 +89,7 @@ export const analyseXmlValidator = z.object({
   Substance_active_anglais: residueEnglishNameValidator
 });
 // Visible for testing
-export const extractSample = (obj: unknown): ExportSample[] | null => {
+export const extractSample = (obj: unknown): Omit<ExportSample, 'pdfFile'>[] | null => {
   const echantillonValidator = z.object({
     Code_échantillon: z.string(),
     Commentaire: z.string(),
@@ -155,12 +155,35 @@ const exportDataFromEmail: ExportDataFromEmail = (email) => {
   if (xmlFile !== undefined) {
     const parser = new XMLParser();
     const obj = parser.parse(xmlFile.content);
-    return extractSample(obj);
+
+    const extractAnalyse = extractSample(obj)
+
+    if( extractAnalyse === null ){
+      //FIXME error
+      return null
+    }
+
+    const analyseWithPdf: ExportSample[] = []
+
+    for (const analyse of extractAnalyse) {
+      const pdfAttachment = email.attachments.find(({ contentType, filename }) => contentType === 'application/pdf' && filename?.startsWith(analyse.sampleReference))
+
+      if (pdfAttachment === undefined) {
+        //FIXME error
+        return null
+      }
+
+      const pdfFile: File = new File([pdfAttachment.content], pdfAttachment.filename ?? '');
+      analyseWithPdf.push({...analyse, pdfFile})
+    }
+
+
+    return analyseWithPdf
   } else {
     console.log('Aucun XML', email.attachments);
+    return null
   }
 
-  return null;
 };
 
 export const girpaConf: LaboratoryConf = {

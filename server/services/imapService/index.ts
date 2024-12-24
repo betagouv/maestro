@@ -2,29 +2,39 @@ import { ImapFlow } from 'imapflow';
 import { isNull } from 'lodash';
 import { ParsedMail, simpleParser } from 'mailparser';
 import { LaboratoryName } from '../../../shared/referential/Laboratory';
-import config from '../../utils/config';
-import { girpaConf } from './girpa';
-import { Sample } from '../../../shared/schema/Sample/Sample';
-import { SimpleResidue } from '../../../shared/referential/Residue/SimpleResidue';
-import { ComplexResidue } from '../../../shared/referential/Residue/ComplexResidue';
 import { Analyte } from '../../../shared/referential/Residue/Analyte';
+import { ComplexResidue } from '../../../shared/referential/Residue/ComplexResidue';
+import { SimpleResidue } from '../../../shared/referential/Residue/SimpleResidue';
+import { Sample } from '../../../shared/schema/Sample/Sample';
+import { initKysely, kysely } from '../../repositories/kysely';
+import config from '../../utils/config';
+import { getUploadSignedUrlS3 } from '../s3Service';
+import { girpaConf } from './girpa';
 
 const laboratoriesWithConf = ['GIR 49'] as const satisfies LaboratoryName[];
 type LaboratoryWithConf = (typeof laboratoriesWithConf)[number];
 
 export type ExportResidue =
-{ value: SimpleResidue, kind: 'SimpleResidue' } |
-{ value:ComplexResidue, kind: 'ComplexResidue' } |
-{ value: Analyte, kind: 'Analyte' }
+  | { value: SimpleResidue; kind: 'SimpleResidue' }
+  | { value: ComplexResidue; kind: 'ComplexResidue' }
+  | { value: Analyte; kind: 'Analyte' };
 
-export type ExportDataSubstance = {substance: ExportResidue} & ( {result_kind: 'NQ', result: null, lmr: null} | {result_kind: 'Q', result: number, lmr: number})
-export type IsSender = (senderAddress: string) => boolean
+export type ExportDataSubstance = { substance: ExportResidue } & (
+  | { result_kind: 'NQ'; result: null; lmr: null }
+  | {
+      result_kind: 'Q';
+      result: number;
+      lmr: number;
+    }
+);
+export type IsSender = (senderAddress: string) => boolean;
 export type ExportSample = {
-  sampleReference: Sample['reference'],
-  notes: string,
-  substances: ExportDataSubstance[]
+  sampleReference: Sample['reference'];
+  notes: string;
+  pdfFile: File;
+  substances: ExportDataSubstance[];
 };
-export type ExportDataFromEmail = (email: ParsedMail) => null | ExportSample[]
+export type ExportDataFromEmail = (email: ParsedMail) => null | ExportSample[];
 
 export type LaboratoryConf = {
   isSender: IsSender;
@@ -103,7 +113,7 @@ const run = async () => {
         }
       }
       for (const message of messagesToRead) {
-        const messageUid: string = `${message.messageUid}`
+        const messageUid: string = `${message.messageUid}`;
         //undefined permet de récupérer tout l'email
         const downloadObject = await client.download(messageUid, undefined, {
           uid: true
@@ -114,12 +124,47 @@ const run = async () => {
         //FIXME trash
         // await client.messageMove(messageUid, config.inbox.trashboxName, {uid: true})
 
-        const data =  laboratoriesConf[message.laboratoryName].exportDataFromEmail(
-            parsed
-          );
+        const data =
+          laboratoriesConf[message.laboratoryName].exportDataFromEmail(parsed);
 
-        console.log(JSON.stringify(data, null, 4))
-        // createWriteStream(parsed.attachments[2].filename ?? '').write(parsed.attachments[2].content)
+        if (data !== null) {
+          initKysely(config.databaseUrl)
+          for (const analyse of data) {
+            const { url, documentId } = await getUploadSignedUrlS3(
+              analyse.pdfFile.name
+            );
+
+            const uploadResult = await fetch(url, {
+              method: 'PUT',
+              body: analyse.pdfFile
+            });
+            if (!uploadResult.ok) {
+              //FIXME
+              // return {
+              //   error: {
+              //     status: uploadResult.status,
+              //     data: await uploadResult.json(),
+              //   } as FetchBaseQueryError,
+              // };
+            }
+            await kysely.transaction().execute(async (trx) => {
+              await trx
+                .insertInto('documents')
+                .values({
+                  id: documentId,
+                  filename: analyse.pdfFile.name,
+                  kind: 'AnalysisReportDocument',
+                  createdAt: new Date(),
+                  createdBy: null
+                })
+                .execute();
+            });
+            console.log(JSON.stringify(data, null, 4));
+            // createWriteStream(parsed.attachments[2].filename ?? '').write(parsed.attachments[2].content)
+          }
+        } else {
+          //FIXME
+        }
       }
     }
   } catch (e) {
