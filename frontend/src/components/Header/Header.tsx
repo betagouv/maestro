@@ -37,9 +37,9 @@ const Header = () => {
           <br />
           de l'Agriculture
           <br />
-          de la Souveraineté
+          et de la Souveraineté
           <br />
-          alimentaire et de la Forêt
+          alimentaire
         </>
       }
       homeLinkProps={{
