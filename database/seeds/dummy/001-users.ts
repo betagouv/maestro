@@ -1,5 +1,4 @@
 import { fakerFR } from '@faker-js/faker';
-import bcrypt from 'bcryptjs';
 import { Knex } from 'knex';
 import { v4 as uuidv4 } from 'uuid';
 import { setKnexInstance } from '../../../server/repositories/db';
@@ -12,7 +11,6 @@ exports.seed = async function (knex: Knex) {
     {
       id: uuidv4(),
       email: 'admin@maestro.beta.gouv.fr',
-      password: bcrypt.hashSync('Test2024'),
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
       roles: ['Administrator']
@@ -20,7 +18,6 @@ exports.seed = async function (knex: Knex) {
     {
       id: uuidv4(),
       email: 'coordinateur.national@maestro.beta.gouv.fr',
-      password: bcrypt.hashSync('Test2024'),
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
       roles: ['NationalCoordinator']
@@ -28,7 +25,6 @@ exports.seed = async function (knex: Knex) {
     {
       id: uuidv4(),
       email: 'coordinateur.regional@maestro.beta.gouv.fr',
-      password: bcrypt.hashSync('Test2024'),
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
       roles: ['RegionalCoordinator'],
@@ -37,7 +33,6 @@ exports.seed = async function (knex: Knex) {
     {
       id: uuidv4(),
       email: 'coordinateur.regional.drom@maestro.beta.gouv.fr',
-      password: bcrypt.hashSync('Test2024'),
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
       roles: ['RegionalCoordinator'],
@@ -46,7 +41,6 @@ exports.seed = async function (knex: Knex) {
     {
       id: uuidv4(),
       email: 'preleveur@maestro.beta.gouv.fr',
-      password: bcrypt.hashSync('Test2024'),
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
       roles: ['Sampler'],
@@ -55,7 +49,6 @@ exports.seed = async function (knex: Knex) {
     {
       id: uuidv4(),
       email: 'preleveur.drom@maestro.beta.gouv.fr',
-      password: bcrypt.hashSync('Test2024'),
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
       roles: ['Sampler'],
