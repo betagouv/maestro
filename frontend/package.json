@@ -2,9 +2,13 @@
   "name": "Maestro frontend",
   "version": "0.0.1",
   "private": false,
+  "scriptsComments": {
+    "postinstall": "Permet à l'API d'utiliser le DSFR pour générer des PDF."
+  },
   "scripts": {
     "dev": "vite",
     "start": "vite",
+    "postinstall": "copy-dsfr-to-public",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest",
