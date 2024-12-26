@@ -7,9 +7,11 @@ import { ComplexResidue } from '../../../shared/referential/Residue/ComplexResid
 import { SimpleResidue } from '../../../shared/referential/Residue/SimpleResidue';
 import { Sample } from '../../../shared/schema/Sample/Sample';
 import { kysely } from '../../repositories/kysely';
+import { AnalysisResidues, ResidueAnalytes } from '../../repositories/kysely.type';
 import config from '../../utils/config';
 import { deleteDocumentS3, getUploadSignedUrlS3 } from '../s3Service';
 import { girpaConf } from './girpa';
+import { ComplexResidueAnalytes } from '../../../shared/referential/Residue/ComplexResidueAnalytes';
 
 const laboratoriesWithConf = ['GIR 49'] as const satisfies LaboratoryName[];
 type LaboratoryWithConf = (typeof laboratoriesWithConf)[number];
@@ -20,10 +22,11 @@ export class ExtractError extends Error {
   }
 }
 
+export type ExportResidueAnalyte =  { reference: Analyte; kind: 'Analyte' };
 export type ExportResidue =
-  | { value: SimpleResidue; kind: 'SimpleResidue' }
-  | { value: ComplexResidue; kind: 'ComplexResidue' }
-  | { value: Analyte; kind: 'Analyte' };
+  | { reference: SimpleResidue; kind: 'SimpleResidue' }
+  | { reference: ComplexResidue; kind: 'ComplexResidue' }
+  | ExportResidueAnalyte;
 
 export type ExportDataSubstance = { substance: ExportResidue } & (
   | { result_kind: 'NQ'; result: null; lmr: null }
@@ -65,6 +68,8 @@ export const getLaboratoryNameBySender = (
   }
   return null;
 };
+// from https://stackoverflow.com/questions/72789915/typescript-omit-seems-to-transform-an-union-into-an-intersection/72790170#72790170
+export type OmitDistributive<T, K extends string> = T extends unknown ? Omit<T, K> : never
 
 export const checkEmails = async () => {
   if (
@@ -129,8 +134,6 @@ export const checkEmails = async () => {
 
           const parsed = await simpleParser(downloadObject.content);
 
-          //FIXME trash
-          // await client.messageMove(messageUid, config.inbox.trashboxName, {uid: true})
 
           try {
             const data =
@@ -139,6 +142,55 @@ export const checkEmails = async () => {
               );
 
             for (const analyse of data) {
+              const analyseResidue: (Pick<
+                AnalysisResidues,
+                'result' | 'lmr' | 'resultKind' | 'residueNumber'
+              > & {substance: ExportDataSubstance['substance']})[] = [];
+
+              analyse.substances
+                .filter((s) => s.substance.kind === 'SimpleResidue' || s.substance.kind === 'ComplexResidue')
+                .forEach((s, index) => {
+                  analyseResidue.push({
+                    substance: s.substance,
+                    result: s.result,
+                    resultKind: s.result_kind,
+                    lmr: s.lmr,
+                    residueNumber: index + 1
+                  });
+                });
+
+              const residueAnalytes : Pick<ResidueAnalytes, 'residueNumber' | 'result' | 'resultKind' | 'analyteNumber' | 'reference'>[] = []
+              const analytes = analyse.substances.filter((s): s is (OmitDistributive<ExportDataSubstance, 'substance'> & {substance: ExportResidueAnalyte}) => s.substance.kind === 'Analyte')
+
+              for (let i = 0; i < analytes.length; i++){
+                const analyte = analytes[i];
+                const complexResidue = analyseResidue.find(aR => aR.substance.kind === 'ComplexResidue' && ComplexResidueAnalytes[aR.substance.reference].includes(analyte.substance.reference))
+                if (complexResidue === undefined) {
+                  throw new ExtractError(`Impossible de trouver le résidu complexe pour l'analyte ${analyte.substance.reference}`)
+                }
+
+                residueAnalytes.push({
+                  reference: analyte.substance.reference,
+                 residueNumber: complexResidue.residueNumber,
+                 analyteNumber: i + 1,
+                  resultKind: analyte.result_kind,
+                  result: analyte.result
+                })
+              }
+
+              const { sampleId, analyseId } = await kysely
+                .selectFrom('samples')
+                .leftJoin('analysis', 'samples.id', 'analysis.sampleId')
+                .where('reference', '=', analyse.sampleReference)
+                .select(['samples.id as sampleId', 'analysis.id as analyseId'])
+                .executeTakeFirstOrThrow();
+
+              if (analyseId !== null) {
+                throw new ExtractError(
+                  `Une analyse est déjà présente pour cet échantillon : ${analyse.sampleReference}`
+                );
+              }
+
               const { url, documentId } = await getUploadSignedUrlS3(
                 analyse.pdfFile.name
               );
@@ -148,25 +200,71 @@ export const checkEmails = async () => {
                 body: analyse.pdfFile
               });
               if (!uploadResult.ok) {
-                throw new ExtractError(`Impossible d'uploader le PDF sur le S3: HTTP ${uploadResult.status}`)
+                throw new ExtractError(
+                  `Impossible d'uploader le PDF sur le S3: HTTP ${uploadResult.status}`
+                );
               }
-              await kysely.transaction().execute(async (trx) => {
-                await trx
-                  .insertInto('documents')
-                  .values({
-                    id: documentId,
-                    filename: analyse.pdfFile.name,
-                    kind: 'AnalysisReportDocument',
-                    createdAt: new Date(),
-                    createdBy: null
-                  })
-                  .execute();
-              }).catch(async e => {
-                //Supprime le document du S3 si la transaction a échouée
-                await deleteDocumentS3(documentId, analyse.pdfFile.name)
-                throw e
-              });
-              console.log(JSON.stringify(data, null, 4));
+              try{
+              await kysely
+                .transaction()
+                .execute(async (trx) => {
+                  await trx
+                    .insertInto('documents')
+                    .values({
+                      id: documentId,
+                      filename: analyse.pdfFile.name,
+                      kind: 'AnalysisReportDocument',
+                      createdAt: new Date(),
+                      createdBy: null
+                    })
+                    .execute();
+
+                  //FIXME trop de colonnes nullable
+                  const { analysisId } = await trx
+                    .insertInto('analysis')
+                    .values({
+                      sampleId,
+                      reportDocumentId: documentId,
+                      //FIXME faut mettre quel status ?
+                      status: 'Completed',
+                      createdBy: null,
+                      createdAt: new Date(),
+                      //FIXME ou pas
+                      compliance: true,
+                      notesOnCompliance: analyse.notes,
+                      //FIXME ou pas ? Ça ne devrait pas être demandé dans la DAI ?
+                      kind: 'Mono'
+                    })
+                    .returning('analysis.id as analysisId')
+                    .executeTakeFirstOrThrow();
+
+                  //FIXME trop de colonnes nullable
+                  await trx.insertInto('analysisResidues').values(
+                    analyseResidue.map((a) => {
+
+                      const reference = a.substance.reference
+                      const { substance, ...rest} = a
+                      return {
+                        ...rest,
+                        reference,
+                        analysisId
+                      };
+                    })
+                  ).executeTakeFirstOrThrow();
+
+                  //FIXME apparemment faut mettre à jour le statut du sample, on ne peut pas mieux faire ?
+
+
+                  await trx.insertInto('residueAnalytes').values(
+                    residueAnalytes.map(r => ({...r, analysisId}))
+                  ).executeTakeFirstOrThrow()
+                })
+            }catch(e){
+                  //Supprime le document du S3 si la transaction a échouée
+                  await deleteDocumentS3(documentId, analyse.pdfFile.name);
+                  throw e;
+                }
+                
             }
           } catch (e: any) {
             console.error(
@@ -175,6 +273,13 @@ export const checkEmails = async () => {
             );
             //FIXME envoyer une notification (mattermost ? email ?) aux devs
           }
+
+          //FIXME trash pour ceux traités, sinon prévoir un répertoire pour ceux en erreur
+          // await client.messageMove(messageUid, config.inbox.trashboxName, {uid: true})
+
+
+
+          //FIXME si traité, on envoie une notification au préleveur ?!
         }
       }
     }
@@ -188,6 +293,3 @@ export const checkEmails = async () => {
   // log out and close connection
   await client.logout();
 };
-
-
-

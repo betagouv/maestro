@@ -32,19 +32,19 @@ export const getResidue = (
 
   for (const entry of entries(SimpleResidueLabels)) {
     if (entry[1].toLowerCase() === normalizedEnglishName) {
-      return { value: entry[0] as SimpleResidue, kind: 'SimpleResidue' };
+      return { reference: entry[0] as SimpleResidue, kind: 'SimpleResidue' };
     }
   }
 
   for (const entry of entries(ComplexResidueLabels)) {
     if (entry[1].toLowerCase() === normalizedEnglishName) {
-      return { value: entry[0] as ComplexResidue, kind: 'ComplexResidue' };
+      return { reference: entry[0] as ComplexResidue, kind: 'ComplexResidue' };
     }
   }
 
   for (const entry of entries(AnalyteLabels)) {
     if (entry[1].toLowerCase() === normalizedEnglishName) {
-      return { value: entry[0] as Analyte, kind: 'Analyte' };
+      return { reference: entry[0] as Analyte, kind: 'Analyte' };
     }
   }
 
@@ -56,7 +56,7 @@ export const getResidue = (
   } as const satisfies Record<ResidueCasNumber, SimpleResidue>
 
   if (casNumber in casToSSD2SimpleResidue) {
-    return { value: casToSSD2SimpleResidue[casNumber], kind: 'SimpleResidue'}
+    return { reference: casToSSD2SimpleResidue[casNumber], kind: 'SimpleResidue'}
   }
 
   //Pour ceux qui n'ont pas de CAS
@@ -65,7 +65,7 @@ export const getResidue = (
     }
 
     if (normalizedEnglishName in labelToSimpleResidue) {
-      return { value: labelToSimpleResidue[normalizedEnglishName], kind: 'SimpleResidue'}
+      return { reference: labelToSimpleResidue[normalizedEnglishName], kind: 'SimpleResidue'}
     }
 
   return null;
