@@ -1,4 +1,4 @@
-import fp from 'lodash';
+import { isNil, omit, omitBy } from 'lodash-es';
 import { z } from 'zod';
 import { PrescriptionSubstance } from '../../shared/schema/Prescription/PrescriptionSubstance';
 import {knexInstance as db} from './db';
@@ -80,7 +80,7 @@ const deleteMany = async (prescriptionId: string): Promise<void> => {
 export const formatPrescriptionSubstance = (
   prescriptionSubstance: PrescriptionSubstance
 ): PrescriptionSubstanceDbo => ({
-  ...fp.omit(prescriptionSubstance, ['substance']),
+  ...omit(prescriptionSubstance, ['substance']),
   substanceCode: prescriptionSubstance.substance.code,
 });
 
@@ -89,7 +89,7 @@ export const parsePrescriptionSubstance = (
 ): PrescriptionSubstance =>
   prescriptionSubstance &&
   PrescriptionSubstance.parse({
-    ...fp.omit(fp.omitBy(prescriptionSubstance, fp.isNil), [
+    ...omit(omitBy(prescriptionSubstance, isNil), [
       'substanceCode',
       'substanceLabel',
     ]),

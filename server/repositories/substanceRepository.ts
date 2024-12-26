@@ -1,4 +1,4 @@
-import fp from 'lodash';
+import { isNil, omit, omitBy } from 'lodash-es';
 import { FindSubstanceOptions } from '../../shared/schema/Substance/FindSubstanceOptions';
 import { Substance } from '../../shared/schema/Substance/Substance';
 import {knexInstance as db} from './db';
@@ -9,14 +9,14 @@ export const Substances = () => db(substancesTable);
 const findMany = async (findOptions: FindSubstanceOptions) => {
   console.info('Find substances', findOptions);
   return Substances()
-    .where(fp.omitBy(fp.omit(findOptions, 'q'), fp.isNil))
+    .where(omitBy(omit(findOptions, 'q'), isNil))
     .modify((builder) => {
       if (findOptions.q) {
         builder.where('label', 'like', `%${findOptions.q}%`);
       }
     })
     .then((substances) =>
-      substances.map((_: any) => Substance.parse(fp.omitBy(_, fp.isNil)))
+      substances.map((_: any) => Substance.parse(omitBy(_, isNil)))
     );
 };
 

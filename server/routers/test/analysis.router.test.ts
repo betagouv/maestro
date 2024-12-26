@@ -1,5 +1,5 @@
 import { constants } from 'http2';
-import fp from 'lodash';
+import { omit } from 'lodash-es';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -368,14 +368,14 @@ describe('Analysis router', () => {
 
       await expect(
         Analysis().where({ id: analysisWithoutResidue.id }).first()
-      ).resolves.toMatchObject(fp.omit(analysisUpdate, ['residues']));
+      ).resolves.toMatchObject(omit(analysisUpdate, ['residues']));
 
       await expect(
         AnalysisResidues().where({
           analysisId: analysisWithoutResidue.id,
         })
       ).resolves.toMatchObject(
-        analysisUpdate.residues.map((_) => fp.omit(_, ['analytes']))
+        analysisUpdate.residues.map((_) => omit(_, ['analytes']))
       );
 
       await expect(
@@ -409,7 +409,7 @@ describe('Analysis router', () => {
 
       await expect(
         Analysis().where({ id: analysisWithResidues.id }).first()
-      ).resolves.toMatchObject(fp.omit(analysisUpdate, ['residues']));
+      ).resolves.toMatchObject(omit(analysisUpdate, ['residues']));
 
       await expect(
         AnalysisResidues().where({

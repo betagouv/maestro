@@ -1,6 +1,6 @@
 import { constants } from 'http2';
 import { describe, test, expect, beforeAll, afterAll } from 'vitest';
-import _ from 'lodash';
+import { isEqual } from 'lodash-es';
 import fp from 'lodash/fp';
 import randomstring from 'randomstring';
 import request from 'supertest';
@@ -262,7 +262,7 @@ describe('Regional prescriptions router', () => {
         expect.arrayContaining(
           closedControlRegionalPrescriptions.map((regionalPrescription) => ({
             ...regionalPrescription,
-            comments: _.isEqual(
+            comments: isEqual(
               RegionalPrescriptionKey.parse(regionalPrescription),
               RegionalPrescriptionKey.parse(closedControlPrescriptionComment)
             )
@@ -276,7 +276,7 @@ describe('Regional prescriptions router', () => {
                   }
                 ]
               : [],
-            realizedSampleCount: _.isEqual(
+            realizedSampleCount: isEqual(
               RegionalPrescriptionKey.parse(regionalPrescription),
               RegionalPrescriptionKey.parse(sample)
             )
@@ -296,7 +296,7 @@ describe('Regional prescriptions router', () => {
     };
     const submittedRegionalPrescription =
       submittedControlRegionalPrescriptions.find((regionalPrescription) =>
-        _.isEqual(
+        isEqual(
           RegionalPrescriptionKey.parse(regionalPrescription),
           RegionalPrescriptionKey.parse({
             prescriptionId: submittedControlPrescription.id,
@@ -413,7 +413,7 @@ describe('Regional prescriptions router', () => {
       };
       const validatedRegionalPrescription =
         validatedControlRegionalPrescriptions.find((regionalPrescription) =>
-          _.isEqual(
+          isEqual(
             RegionalPrescriptionKey.parse(regionalPrescription),
             RegionalPrescriptionKey.parse({
               prescriptionId: validatedControlPrescription.id,
@@ -452,7 +452,7 @@ describe('Regional prescriptions router', () => {
       region: Region
     ) =>
       regionalPrescriptions.find((regionalPrescription) =>
-        _.isEqual(
+        isEqual(
           RegionalPrescriptionKey.parse(regionalPrescription),
           RegionalPrescriptionKey.parse({
             prescriptionId,

@@ -8,7 +8,7 @@ import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import { mockRequests } from '../../../test/requestTestUtils';
 import Header from './Header';
 
-import {describe, test, expect} from 'vitest';
+import { describe, test, expect, beforeEach } from 'vitest';
 const validatedProgrammingPlan = {
   ...genProgrammingPlan(),
   status: 'Validated',
