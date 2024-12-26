@@ -6,6 +6,11 @@
 import type { ColumnType } from "kysely";
 import { UserRole } from '../../shared/schema/User/UserRole';
 import { Region } from '../../shared/referential/Region';
+import { DocumentKind } from '../../shared/schema/Document/DocumentKind';
+import { AnalysisStatus } from '../../shared/schema/Analysis/AnalysisStatus';
+import { AnalysisKind } from '../../shared/schema/Analysis/AnalysisKind';
+import { ResidueCompliance } from '../../shared/schema/Analysis/Residue/ResidueCompliance';
+import { ResidueKind } from '../../shared/schema/Analysis/Residue/ResidueKind';
 
 export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   ? ColumnType<S, I | undefined, U>
@@ -33,17 +38,17 @@ export interface Analysis {
   createdAt: Generated<Timestamp | null>;
   createdBy: string | null;
   id: Generated<string>;
-  kind: string | null;
+  kind: AnalysisKind | null;
   notesOnCompliance: string | null;
   reportDocumentId: string | null;
   sampleId: string | null;
-  status: string;
+  status: AnalysisStatus;
 }
 
 export interface AnalysisResidues {
   analysisId: string;
-  compliance: string | null;
-  kind: string | null;
+  compliance: ResidueCompliance | null;
+  kind: ResidueKind | null;
   lmr: number | null;
   notesOnPollutionRisk: string | null;
   notesOnResult: string | null;
@@ -90,7 +95,7 @@ export interface Documents {
   createdBy: string | null;
   filename: string;
   id: Generated<string>;
-  kind: string;
+  kind: DocumentKind;
 }
 
 export interface KnexMigrations {
