@@ -8,7 +8,7 @@ import { SimpleResidue } from '../../../shared/referential/Residue/SimpleResidue
 import { Sample } from '../../../shared/schema/Sample/Sample';
 import { kysely } from '../../repositories/kysely';
 import config from '../../utils/config';
-import { getUploadSignedUrlS3 } from '../s3Service';
+import { deleteDocumentS3, getUploadSignedUrlS3 } from '../s3Service';
 import { girpaConf } from './girpa';
 
 const laboratoriesWithConf = ['GIR 49'] as const satisfies LaboratoryName[];
@@ -148,13 +148,7 @@ export const checkEmails = async () => {
                 body: analyse.pdfFile
               });
               if (!uploadResult.ok) {
-                //FIXME
-                // return {
-                //   error: {
-                //     status: uploadResult.status,
-                //     data: await uploadResult.json(),
-                //   } as FetchBaseQueryError,
-                // };
+                throw new ExtractError(`Impossible d'uploader le PDF sur le S3: HTTP ${uploadResult.status}`)
               }
               await kysely.transaction().execute(async (trx) => {
                 await trx
@@ -167,9 +161,12 @@ export const checkEmails = async () => {
                     createdBy: null
                   })
                   .execute();
+              }).catch(async e => {
+                //Supprime le document du S3 si la transaction a échouée
+                await deleteDocumentS3(documentId, analyse.pdfFile.name)
+                throw e
               });
               console.log(JSON.stringify(data, null, 4));
-              // createWriteStream(parsed.attachments[2].filename ?? '').write(parsed.attachments[2].content)
             }
           } catch (e: any) {
             console.error(

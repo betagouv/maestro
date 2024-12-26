@@ -1,5 +1,4 @@
 import {
-  DeleteObjectCommand,
   GetObjectCommand,
   S3,
 } from '@aws-sdk/client-s3';
@@ -15,7 +14,7 @@ import {
 import { hasPermission } from '../../shared/schema/User/User';
 import documentRepository from '../repositories/documentRepository';
 import config from '../utils/config';
-import { getUploadSignedUrlS3 } from '../services/s3Service';
+import { getUploadSignedUrlS3, deleteDocumentS3  } from '../services/s3Service';
 
 const getDocument = async (request: Request, response: Response) => {
   const { documentId } = request.params;
@@ -125,15 +124,7 @@ const deleteDocument = async (request: Request, response: Response) => {
     throw new DocumentMissingError(documentId);
   }
 
-  const client = new S3(config.s3.client);
-  const key = `${documentId}_${document.filename}`;
-
-  const command = new DeleteObjectCommand({
-    Bucket: config.s3.bucket,
-    Key: key,
-  });
-
-  await client.send(command);
+  await deleteDocumentS3(documentId, document.filename)
 
   await documentRepository.deleteOne(documentId);
 
