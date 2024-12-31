@@ -25,7 +25,6 @@ declare module '@codegouvfr/react-dsfr/spa' {
 startReactDsfr({ defaultColorScheme: 'light', Link });
 
 function AppWrapper() {
-
   const { MuiDsfrThemeProvider } = createMuiDsfrThemeProvider({
     augmentMuiTheme: ({ nonAugmentedMuiTheme }) => ({
       ...nonAugmentedMuiTheme
@@ -34,6 +33,18 @@ function AppWrapper() {
 
   return (
     <MuiDsfrThemeProvider>
+      {/*load icons for use from api*/}
+      <div className={cx('fr-hidden')}>
+        <span className={cx('fr-icon-government-line')}></span>
+        <span className={cx('fr-icon-user-line')}></span>
+        <span className={cx('fr-icon-seedling-line')}></span>
+        <span className={cx('fr-icon-road-map-line')}></span>
+        <span className={cx('fr-icon-restaurant-line')}></span>
+        <span className={cx('fr-icon-microscope-line')}></span>
+        <span className={cx('fr-icon-quote-line')}></span>
+        <span className={cx('fr-icon-error-warning-line')}></span>
+        <span className={cx('fr-icon-test-tube-line')}></span>
+      </div>
       <Provider store={store}>
         <ScrollToTop />
         <App />
