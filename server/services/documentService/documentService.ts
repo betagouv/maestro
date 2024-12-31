@@ -1,7 +1,9 @@
 import { format } from 'date-fns';
+import { default as fr } from 'date-fns/locale/fr';
 import handlebars from 'handlebars';
 import puppeteer from 'puppeteer';
 import ProgrammingPlanMissingError from '../../../shared/errors/programmingPlanMissingError';
+import { DepartmentLabels } from '../../../shared/referential/Department';
 import { MatrixLabels } from '../../../shared/referential/Matrix/MatrixLabels';
 import { MatrixPartLabels } from '../../../shared/referential/MatrixPart';
 import { QuantityUnitLabels } from '../../../shared/referential/QuantityUnit';
@@ -17,7 +19,7 @@ import programmingPlanRepository from '../../repositories/programmingPlanReposit
 import {
   Template,
   templateContent,
-  templateStylePath,
+  templateStylePath
 } from '../../templates/templates';
 import config from '../../utils/config';
 
@@ -26,7 +28,7 @@ const generateDocument = async (template: Template, data: any) => {
   const htmlContent = compiledTemplate(data);
 
   const browser = await puppeteer.launch({
-    args: ['--no-sandbox'],
+    args: ['--no-sandbox']
   });
   const page = await browser.newPage();
   await page.emulateMediaType('screen');
@@ -40,15 +42,15 @@ const generateDocument = async (template: Template, data: any) => {
     content: dsfrStyles.replaceAll(
       '@media (min-width: 62em)',
       '@media (min-width: 48em)'
-    ),
+    )
   });
 
   await page.addStyleTag({
-    path: templateStylePath(template),
+    path: templateStylePath(template)
   });
 
   const pdfBuffer = await page.pdf({
-    printBackground: true,
+    printBackground: true
   });
   await browser.close();
 
@@ -81,7 +83,6 @@ const generateSupportDocument = async (
     ...sampleItem,
     sampler,
     laboratory,
-    programmingPlan,
     monoSubstances: prescriptionSubstances
       ?.filter((substance) => substance.analysisKind === 'Mono')
       .map((substance) => substance.substance.label),
@@ -91,7 +92,9 @@ const generateSupportDocument = async (
     reference: [sample.reference, sampleItem?.itemNumber]
       .filter(isDefinedAndNotNull)
       .join('-'),
-    sampledAt: format(sample.sampledAt, 'dd/MM/yyyy'),
+    sampledAt: format(sample.sampledAt, "eeee dd MMMM yyyy à HH'h'mm", {
+      locale: fr
+    }),
     stage: StageLabels[sample.stage],
     matrix: MatrixLabels[sample.matrix],
     matrixDetails: sample.matrixDetails,
@@ -106,10 +109,12 @@ const generateSupportDocument = async (
         : 'Non'
       : '',
     dsfrLink: `${config.application.host}/dsfr/dsfr.min.css`,
+    assetsPath: `${config.application.host}/src/assets`,
     establishment: Regions[sample.region].establishment,
+    department: DepartmentLabels[sample.department]
   });
 };
 
 export default {
-  generateSupportDocument,
+  generateSupportDocument
 };
