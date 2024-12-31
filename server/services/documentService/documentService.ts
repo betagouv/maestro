@@ -1,7 +1,9 @@
 import { format } from 'date-fns';
+import { default as fr } from 'date-fns/locale/fr';
 import handlebars from 'handlebars';
 import puppeteer from 'puppeteer';
 import ProgrammingPlanMissingError from '../../../shared/errors/programmingPlanMissingError';
+import { DepartmentLabels } from '../../../shared/referential/Department';
 import { MatrixLabels } from '../../../shared/referential/Matrix/MatrixLabels';
 import { MatrixPartLabels } from '../../../shared/referential/MatrixPart';
 import { QuantityUnitLabels } from '../../../shared/referential/QuantityUnit';
@@ -81,7 +83,6 @@ const generateSupportDocument = async (
     ...sampleItem,
     sampler,
     laboratory,
-    programmingPlan,
     monoSubstances: prescriptionSubstances
       ?.filter((substance) => substance.analysisMethod === 'Mono')
       .map((substance) => substance.substance.label),
@@ -91,7 +92,9 @@ const generateSupportDocument = async (
     reference: [sample.reference, sampleItem?.itemNumber]
       .filter(isDefinedAndNotNull)
       .join('-'),
-    sampledAt: format(sample.sampledAt, 'dd/MM/yyyy'),
+    sampledAt: format(sample.sampledAt, "eeee dd MMMM yyyy à HH'h'mm", {
+      locale: fr
+    }),
     stage: StageLabels[sample.stage],
     matrix: MatrixLabels[sample.matrix],
     matrixDetails: sample.matrixDetails,
@@ -106,7 +109,9 @@ const generateSupportDocument = async (
         : 'Non'
       : '',
     dsfrLink: `${config.application.host}/dsfr/dsfr.min.css`,
-    establishment: Regions[sample.region].establishment
+    assetsPath: `${config.application.host}/src/assets`,
+    establishment: Regions[sample.region].establishment,
+    department: DepartmentLabels[sample.department]
   });
 };
 
