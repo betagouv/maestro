@@ -169,7 +169,7 @@ const ItemsStep = ({ partialSample }: Props) => {
             whenValid="Note correctement renseignée."
             data-testid="notes-input"
             label="Note additionnelle"
-            hintText="Champ facultatif pour précisions supplémentaires"
+            hintText="Champ facultatif pour spécifier une éventuelle déclaration du détenteur de la marchandise"
           />
         </div>
       </div>

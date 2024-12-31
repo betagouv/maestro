@@ -4,11 +4,13 @@ import handlebars from 'handlebars';
 import puppeteer from 'puppeteer';
 import ProgrammingPlanMissingError from '../../../shared/errors/programmingPlanMissingError';
 import { DepartmentLabels } from '../../../shared/referential/Department';
+import { LegalContextLabels } from '../../../shared/referential/LegalContext';
 import { MatrixLabels } from '../../../shared/referential/Matrix/MatrixLabels';
 import { MatrixPartLabels } from '../../../shared/referential/MatrixPart';
 import { QuantityUnitLabels } from '../../../shared/referential/QuantityUnit';
 import { Regions } from '../../../shared/referential/Region';
 import { StageLabels } from '../../../shared/referential/Stage';
+import { ContextLabels } from '../../../shared/schema/ProgrammingPlan/Context';
 import { Sample } from '../../../shared/schema/Sample/Sample';
 import { PartialSampleItem } from '../../../shared/schema/Sample/SampleItem';
 import { User } from '../../../shared/schema/User/User';
@@ -23,6 +25,8 @@ import {
 } from '../../templates/templates';
 import config from '../../utils/config';
 
+const dsfrLink = `${config.application.host}/node_modules/@codegouvfr/react-dsfr/main.css`;
+
 const generateDocument = async (template: Template, data: any) => {
   const compiledTemplate = handlebars.compile(templateContent(template));
   const htmlContent = compiledTemplate(data);
@@ -34,9 +38,7 @@ const generateDocument = async (template: Template, data: any) => {
   await page.emulateMediaType('screen');
   await page.setContent(htmlContent);
 
-  const dsfrStyles = await fetch(
-    `${config.application.host}/dsfr/dsfr.min.css`
-  ).then((response) => response.text());
+  const dsfrStyles = await fetch(dsfrLink).then((response) => response.text());
 
   await page.addStyleTag({
     content: dsfrStyles.replaceAll(
@@ -50,7 +52,16 @@ const generateDocument = async (template: Template, data: any) => {
   });
 
   const pdfBuffer = await page.pdf({
-    printBackground: true
+    printBackground: true,
+    displayHeaderFooter: true,
+    headerTemplate: '', //TODO move here header from content to repeat on each page
+    footerTemplate: `
+      <div style="text-align:center; width:100%; font-size:14px; line-height:1;">
+        <span class="pageNumber"></span> sur <span class="totalPages"></span>
+      </div>`,
+    margin: {
+      bottom: '30px'
+    }
   });
   await browser.close();
 
@@ -95,6 +106,10 @@ const generateSupportDocument = async (
     sampledAt: format(sample.sampledAt, "eeee dd MMMM yyyy à HH'h'mm", {
       locale: fr
     }),
+    sampledAtDate: format(sample.sampledAt, 'dd/MM/yyyy', { locale: fr }),
+    sampledAtTime: format(sample.sampledAt, 'HH:mm', { locale: fr }),
+    context: ContextLabels[sample.context],
+    legalContext: LegalContextLabels[sample.legalContext],
     stage: StageLabels[sample.stage],
     matrix: MatrixLabels[sample.matrix],
     matrixDetails: sample.matrixDetails,
@@ -105,10 +120,11 @@ const generateSupportDocument = async (
     releaseControl: sample.releaseControl ? 'Oui' : 'Non',
     compliance200263: sampleItem
       ? sampleItem.compliance200263
-        ? 'Oui'
-        : 'Non'
+        ? 'Respectée'
+        : 'Non respectée'
       : '',
-    dsfrLink: `${config.application.host}/dsfr/dsfr.min.css`,
+    isSecondSampleItem: sampleItem?.itemNumber === 2,
+    dsfrLink,
     assetsPath: `${config.application.host}/src/assets`,
     establishment: Regions[sample.region].establishment,
     department: DepartmentLabels[sample.department]
