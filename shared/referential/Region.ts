@@ -91,7 +91,7 @@ export const Regions: Record<
       '05'
     ],
     establishment: {
-      name: 'DRAAF Auvergne-Rhône-Alpes',
+      name: 'DRAAF / SRAL Auvergne-Rhône-Alpes',
       locality: 'Marmilhat',
       street: '16B Rue Aimé Rudel',
       postalCode: '63370',
@@ -121,7 +121,7 @@ export const Regions: Record<
       '01'
     ],
     establishment: {
-      name: 'DRAAF Bourgogne-Franche-Comté',
+      name: 'DRAAF / SRAL Bourgogne-Franche-Comté',
       street: '4 bis rue Hoche',
       postalCode: '21078',
       city: 'Dijon',
@@ -138,7 +138,7 @@ export const Regions: Record<
     departments: ['22', '29', '35', '56'],
     borderingDepartments: ['50', '53', '49', '44'],
     establishment: {
-      name: 'DRAAF Bretagne',
+      name: 'DRAAF / SRAL Bretagne',
       street: '15 avenue de Cucillé',
       postalCode: '35047',
       city: 'Rennes Cedex 9'
@@ -168,7 +168,7 @@ export const Regions: Record<
       '78'
     ],
     establishment: {
-      name: 'DRAAF Centre-Val de Loire',
+      name: 'DRAAF / SRAL Centre-Val de Loire',
       service: 'Cité Administrative Coligny - Bâtiment D',
       street: '131 Rue du Faubourg Bannier',
       postalCode: '45000',
@@ -184,7 +184,7 @@ export const Regions: Record<
     },
     departments: ['2A', '2B'],
     establishment: {
-      name: 'DRAAF Corse',
+      name: 'DRAAF / SRAL Corse',
       service: 'Service régional de l’alimentation (SRAL)',
       street: 'Le Solférino - 8 cours Napoléon',
       postalCode: '20704',
@@ -201,7 +201,7 @@ export const Regions: Record<
     departments: ['08', '10', '51', '52', '54', '55', '57', '67', '68', '88'],
     borderingDepartments: ['59', '02', '77', '89', '21', '70', '80'],
     establishment: {
-      name: 'DRAAF Grand Est',
+      name: 'DRAAF / SRAL Grand Est',
       locality: 'Parc technologique du Mont-Bernard',
       street: '4 Rue Dom Pierre Perignon',
       postalCode: '51000',
@@ -218,7 +218,7 @@ export const Regions: Record<
     departments: ['02', '59', '60', '62', '80'],
     borderingDepartments: ['08', '51', '77', '95', '27', '76'],
     establishment: {
-      name: 'DRAAF Hauts de France',
+      name: 'DRAAF / SRAL Hauts de France',
       street: '518 rue St Fuscien',
       postalCode: '80094',
       additionalAddress: 'CS 90069',
@@ -235,7 +235,7 @@ export const Regions: Record<
     departments: ['75', '77', '78', '91', '92', '93', '94'],
     borderingDepartments: ['60', '02', '51', '10', '89', '45', '28', '27'],
     establishment: {
-      name: 'DRIAAF Île de France',
+      name: 'DRIAAF / SRAL Île de France',
       service: 'Préfecture de Paris et d’Île-de-France',
       street: '5 rue Leblanc',
       postalCode: '75911',
@@ -262,7 +262,7 @@ export const Regions: Record<
       '35'
     ],
     establishment: {
-      name: 'DRAAF Normandie',
+      name: 'DRAAF / SRAL Normandie',
       street: '6 boulevard du général Vanier',
       postalCode: '14070',
       city: 'Caen Cedex 5',
@@ -305,7 +305,7 @@ export const Regions: Record<
       '65'
     ],
     establishment: {
-      name: 'DRAAF Nouvelle-Aquitaine',
+      name: 'DRAAF / SRAL Nouvelle-Aquitaine',
       street: '51 Rue Kiésel',
       postalCode: '33000',
       city: 'Bordeaux'
@@ -347,7 +347,7 @@ export const Regions: Record<
       '13'
     ],
     establishment: {
-      name: 'DRAAF Occitanie',
+      name: 'DRAAF / SRAL Occitanie',
       street: 'Rue de la Cité Administrative',
       postalCode: '31000',
       city: 'Toulouse'
@@ -374,7 +374,7 @@ export const Regions: Record<
       '17'
     ],
     establishment: {
-      name: 'DRAAF Pays de Loire',
+      name: 'DRAAF / SRAL Pays de la Loire',
       street: '5 rue Françoise Giroud',
       additionalAddress: 'CS 67516',
       postalCode: '44275',
@@ -391,7 +391,7 @@ export const Regions: Record<
     departments: ['04', '05', '06', '13', '83', '84'],
     borderingDepartments: ['73', '38', '26', '07', '30'],
     establishment: {
-      name: 'DRAAF Provence Alpes Cote d’azur',
+      name: 'DRAAF / SRAL Provence Alpes Cote d’azur',
       street: '132 Bd de Paris',
       postalCode: '13000',
       city: 'Marseille'
@@ -407,7 +407,7 @@ export const Regions: Record<
     departments: ['971'],
     isDrom: true,
     establishment: {
-      name: 'DAAF Guadeloupe',
+      name: 'DAAF / SALIM Guadeloupe',
       street: 'Rue Edmond Maurice Carlton - Saint Phy',
       postalCode: '97108',
       city: 'Basse Terre cedex'
@@ -423,7 +423,7 @@ export const Regions: Record<
     departments: ['972'],
     isDrom: true,
     establishment: {
-      name: 'DAAF Martinique',
+      name: 'DAAF / SALIM Martinique',
       street: 'Rue des Pionniers',
       postalCode: '97262',
       city: 'Fort-de-France cedex',
@@ -440,7 +440,7 @@ export const Regions: Record<
     departments: ['973'],
     isDrom: true,
     establishment: {
-      name: 'DAAF de Guyane',
+      name: 'DAAF / SALIM de Guyane',
       street: 'Parc Rebard',
       postalCode: '97305',
       city: 'Cayenne cedex',
@@ -457,7 +457,7 @@ export const Regions: Record<
     departments: ['974'],
     isDrom: true,
     establishment: {
-      name: 'DAAF de la Réunion',
+      name: 'DAAF / SALIM de la Réunion',
       street: '29 Boulevard de la Providence',
       postalCode: '97489',
       city: 'Saint Denis cedex'
@@ -473,7 +473,7 @@ export const Regions: Record<
     departments: ['976'],
     isDrom: true,
     establishment: {
-      name: 'DAAF Mayotte',
+      name: 'DAAF / SALIM Mayotte',
       street: '15 rue Mariaze',
       postalCode: '97600',
       city: 'Mamoudzou'
