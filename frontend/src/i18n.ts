@@ -29,10 +29,10 @@ i18n.use(initReactI18next).init({
         document_other: '{{count}} documents ressources',
         residue_zero: 'Aucun résidu',
         residue_one: 'Un résidu',
-        residue_other: '{{count}} résidus',
-      },
-    },
-  },
+        residue_other: '{{count}} résidus'
+      }
+    }
+  }
 });
 
 export default i18n;

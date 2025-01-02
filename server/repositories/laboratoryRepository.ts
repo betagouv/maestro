@@ -1,6 +1,6 @@
 import fp from 'lodash';
 import { Laboratory } from '../../shared/schema/Laboratory/Laboratory';
-import {knexInstance as db} from './db';
+import { knexInstance as db } from './db';
 
 const laboratoryTable = 'laboratories';
 
@@ -23,5 +23,5 @@ const findMany = async (): Promise<Laboratory[]> => {
 
 export default {
   findUnique,
-  findMany,
+  findMany
 };

@@ -8,25 +8,25 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
   Department,
   DepartmentLabels,
-  DepartmentList,
+  DepartmentList
 } from 'shared/referential/Department';
 import {
   LegalContext,
   LegalContextLabels,
-  LegalContextList,
+  LegalContextList
 } from 'shared/referential/LegalContext';
 import { Regions } from 'shared/referential/Region';
 import {
   Company,
   companyFromSearchResult,
-  companyToSearchResult,
+  companyToSearchResult
 } from 'shared/schema/Company/Company';
 import { Context, ContextLabels } from 'shared/schema/ProgrammingPlan/Context';
 import {
   isCreatedPartialSample,
   PartialSample,
   PartialSampleToCreate,
-  SampleContextData,
+  SampleContextData
 } from 'shared/schema/Sample/Sample';
 import { SampleStatus } from 'shared/schema/Sample/SampleStatus';
 import balance from 'src/assets/illustrations/balance.svg';
@@ -90,18 +90,18 @@ const ContextStep = ({ partialSample }: Props) => {
   const geolocation = z.object({
     geolocationX: z.number({
       required_error: 'Veuillez renseigner la latitude.',
-      invalid_type_error: 'Latitude invalide.',
+      invalid_type_error: 'Latitude invalide.'
     }),
     geolocationY: z.number({
       required_error: 'Veuillez renseigner la longitude.',
-      invalid_type_error: 'Longitude invalide.',
-    }),
+      invalid_type_error: 'Longitude invalide.'
+    })
   });
 
   const Form = SampleContextData.omit({
     programmingPlanId: true,
     geolocation: true,
-    company: true,
+    company: true
   })
     .merge(isOnline ? geolocation : geolocation.partial())
     .extend(
@@ -109,8 +109,8 @@ const ContextStep = ({ partialSample }: Props) => {
         ? { company: Company }
         : {
             companyOffline: z.string({
-              required_error: "Veuillez renseigner l'entité contrôlée.",
-            }),
+              required_error: "Veuillez renseigner l'entité contrôlée."
+            })
           }
     );
 
@@ -120,31 +120,31 @@ const ContextStep = ({ partialSample }: Props) => {
     userInfos?.region ? Regions[userInfos.region].departments : DepartmentList,
     {
       labels: DepartmentLabels,
-      defaultLabel: 'Sélectionner un département',
+      defaultLabel: 'Sélectionner un département'
     }
   );
 
   const borderingDepartments = selectOptionsFromList(
     userInfos?.region
-      ? Regions[userInfos.region].borderingDepartments?.sort((a, b) =>
+      ? (Regions[userInfos.region].borderingDepartments?.sort((a, b) =>
           a.localeCompare(b)
-        ) ?? []
+        ) ?? [])
       : [],
     {
       labels: DepartmentLabels,
-      withDefault: false,
+      withDefault: false
     }
   );
 
   const contextOptions = selectOptionsFromList(Object.keys(ContextLabels), {
     labels: ContextLabels,
     withDefault: false,
-    withSort: true,
+    withSort: true
   });
 
   const legalContextOptions = selectOptionsFromList(LegalContextList, {
     labels: LegalContextLabels,
-    withDefault: false,
+    withDefault: false
   });
 
   const id = useMemo(() => partialSample?.id ?? uuidv4(), [partialSample]);
@@ -157,7 +157,7 @@ const ContextStep = ({ partialSample }: Props) => {
       geolocationX && geolocationY
         ? {
             x: geolocationX as number,
-            y: geolocationY as number,
+            y: geolocationY as number
           }
         : undefined,
     parcel,
@@ -168,7 +168,7 @@ const ContextStep = ({ partialSample }: Props) => {
     companyOffline,
     resytalId: resytalId as string,
     notesOnCreation,
-    status: 'DraftMatrix' as SampleStatus,
+    status: 'DraftMatrix' as SampleStatus
   };
 
   const submit = async (e?: React.MouseEvent<HTMLElement>) => {
@@ -192,7 +192,7 @@ const ContextStep = ({ partialSample }: Props) => {
       await createOrUpdateSample({
         ...partialSample,
         ...formData,
-        status: status as SampleStatus,
+        status: status as SampleStatus
       });
     }
   };
@@ -224,7 +224,7 @@ const ContextStep = ({ partialSample }: Props) => {
     companyOffline,
     resytalId,
     notesOnCreation,
-    status: 'DraftMatrix',
+    status: 'DraftMatrix'
   };
 
   const form = useForm(Form, formInput, save);
@@ -261,12 +261,12 @@ const ContextStep = ({ partialSample }: Props) => {
             defaultValue={partialSample?.department || ''}
             optionsGroups={[
               {
-                options: departmentOptions,
+                options: departmentOptions
               },
               {
                 label: 'Départements limitrophes',
-                options: borderingDepartments,
-              },
+                options: borderingDepartments
+              }
             ]}
             onChange={(e) => setDepartment(e.target.value as Department)}
             inputForm={form}
@@ -364,7 +364,7 @@ const ContextStep = ({ partialSample }: Props) => {
             label,
             nativeInputProps: {
               checked: context === value,
-              onChange: () => setContext(value as Context),
+              onChange: () => setContext(value as Context)
             },
             illustration: (
               <img
@@ -372,7 +372,7 @@ const ContextStep = ({ partialSample }: Props) => {
                 alt=""
                 aria-hidden
               />
-            ),
+            )
           })) ?? []
         }
         colSm={6}
@@ -390,7 +390,7 @@ const ContextStep = ({ partialSample }: Props) => {
             label,
             nativeInputProps: {
               checked: legalContext === value,
-              onChange: () => setLegalContext(value as LegalContext),
+              onChange: () => setLegalContext(value as LegalContext)
             },
             illustration: (
               <img
@@ -398,7 +398,7 @@ const ContextStep = ({ partialSample }: Props) => {
                 alt=""
                 aria-hidden
               />
-            ),
+            )
           })) ?? []
         }
         colSm={6}
@@ -495,8 +495,8 @@ const ContextStep = ({ partialSample }: Props) => {
                 priority: 'tertiary',
                 onClick: navigateToSamples,
                 nativeButtonProps: {
-                  'data-testid': 'cancel-button',
-                },
+                  'data-testid': 'cancel-button'
+                }
               },
               {
                 children: 'Continuer',
@@ -504,9 +504,9 @@ const ContextStep = ({ partialSample }: Props) => {
                 iconId: 'fr-icon-arrow-right-line',
                 iconPosition: 'right',
                 nativeButtonProps: {
-                  'data-testid': 'submit-button',
-                },
-              },
+                  'data-testid': 'submit-button'
+                }
+              }
             ]}
           />
         </div>

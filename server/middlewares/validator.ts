@@ -4,24 +4,24 @@ import { AnyZodObject, z, ZodArray } from 'zod';
 
 export const body = (o: AnyZodObject | ZodArray<any>) =>
   z.object({
-    body: o,
+    body: o
   });
 
 export const params = (o: AnyZodObject) =>
   z.object({
-    params: o,
+    params: o
   });
 
 export const query = (o: AnyZodObject) =>
   z.object({
-    query: o,
+    query: o
   });
 
 export const uuidParam = (paramName: string) =>
   z.object({
     params: z.object({
-      [paramName]: z.string().uuid(),
-    }),
+      [paramName]: z.string().uuid()
+    })
   });
 
 const validate =
@@ -31,7 +31,7 @@ const validate =
       const parsedReq = await schema.parseAsync({
         body: req.body,
         query: req.query,
-        params: req.params,
+        params: req.params
       });
       ['body', 'cookies', 'headers', 'params', 'query'].forEach((location) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -46,5 +46,5 @@ const validate =
   };
 
 export default {
-  validate,
+  validate
 };

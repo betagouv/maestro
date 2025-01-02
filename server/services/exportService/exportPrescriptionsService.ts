@@ -3,11 +3,11 @@ import highland from 'highland';
 import {
   Region,
   RegionList,
-  Regions,
+  Regions
 } from '../../../shared/referential/Region';
 import {
   Prescription,
-  PrescriptionSort,
+  PrescriptionSort
 } from '../../../shared/schema/Prescription/Prescription';
 
 import _ from 'lodash';
@@ -16,7 +16,7 @@ import { StageLabels } from '../../../shared/referential/Stage';
 import { ProgrammingPlan } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   getCompletionRate,
-  RegionalPrescription,
+  RegionalPrescription
 } from '../../../shared/schema/RegionalPrescription/RegionalPrescription';
 import { isDefined } from '../../../shared/utils/utils';
 import laboratoryRepository from '../../repositories/laboratoryRepository';
@@ -34,7 +34,7 @@ const writeToWorkbook = async (
     programmingPlan,
     prescriptions,
     regionalPrescriptions,
-    exportedRegion,
+    exportedRegion
   }: PrescriptionWorkbookData,
   workbook: WorkbookWriter
 ) => {
@@ -52,51 +52,51 @@ const writeToWorkbook = async (
       ? {
           header: 'Total national\nProgrammés',
           key: 'sampleTotalCount',
-          width: 15,
+          width: 15
         }
       : undefined,
     !exportedRegion && programmingPlan.status === 'Validated'
       ? {
           header: 'Total national\nRéalisés',
           key: 'sentSampleTotalCount',
-          width: 15,
+          width: 15
         }
       : undefined,
     !exportedRegion && programmingPlan.status === 'Validated'
       ? {
           header: 'Total national\nTaux de réalisation',
           key: 'completionRate',
-          width: 15,
+          width: 15
         }
       : undefined,
     ...exportedRegions.map((region) => [
       {
         header: `${Regions[region].shortName}\nProgrammés`,
         key: `sampleCount-${region}`,
-        width: 10,
+        width: 10
       },
       programmingPlan.status === 'Validated'
         ? {
             header: `${Regions[region].shortName}\nRéalisés`,
             key: `realizedSampleCount-${region}`,
-            width: 10,
+            width: 10
           }
         : undefined,
       programmingPlan.status === 'Validated'
         ? {
             header: `${Regions[region].shortName}\nTaux de réalisation`,
             key: `completionRate-${region}`,
-            width: 10,
+            width: 10
           }
-        : undefined,
+        : undefined
     ]),
     exportedRegion
       ? {
           header: 'Laboratoire',
           key: 'laboratory',
-          width: 20,
+          width: 20
         }
-      : undefined,
+      : undefined
   ]
     .flat()
     .filter(isDefined);
@@ -107,8 +107,8 @@ const writeToWorkbook = async (
       filteredRegionalPrescriptions: [
         ...regionalPrescriptions.filter(
           (r) => r.prescriptionId === prescription.id
-        ),
-      ],
+        )
+      ]
     }))
     .each(({ prescription, filteredRegionalPrescriptions }) => {
       worksheet
@@ -134,14 +134,14 @@ const writeToWorkbook = async (
               [`completionRate-${region}`]: getCompletionRate(
                 filteredRegionalPrescriptions,
                 region
-              ),
+              )
             }),
             {}
           ),
           laboratory: laboratories.find(
             (laboratory) =>
               laboratory.id === filteredRegionalPrescriptions[0]?.laboratoryId
-          )?.name,
+          )?.name
         })
         .commit();
     })
@@ -168,15 +168,15 @@ const writeToWorkbook = async (
             [`completionRate-${region}`]: getCompletionRate(
               regionalPrescriptions.filter((r) => r.region === region),
               region
-            ),
+            )
           }),
           {}
-        ),
+        )
       });
       workbook.commit();
     });
 };
 
 export default {
-  writeToWorkbook,
+  writeToWorkbook
 };

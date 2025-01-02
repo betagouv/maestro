@@ -6,7 +6,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { store } from 'src/store/store';
 import ContextStep from 'src/views/SampleView/DraftSample/ContextStep/ContextStep';
 
-import {describe, test, expect} from 'vitest';
+import { describe, expect, test } from 'vitest';
 // const companySearchResult = genCompanySearchResult();
 // const companySearchRequest = {
 //   pathname: `/api/companies/search?q=Company`,

@@ -12,11 +12,11 @@ import { useForm } from 'src/hooks/useForm';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import {
   useCreateAnalysisMutation,
-  useUpdateAnalysisMutation,
+  useUpdateAnalysisMutation
 } from 'src/services/analysis.service';
 import {
   useCreateDocumentMutation,
-  useDeleteDocumentMutation,
+  useDeleteDocumentMutation
 } from 'src/services/document.service';
 import { z } from 'zod';
 
@@ -30,9 +30,9 @@ const AnalysisReportStep = ({ sampleId, partialAnalysis }: Props) => {
 
   const [
     createDocument,
-    { isLoading: isCreateLoading, isError: isCreateError },
+    { isLoading: isCreateLoading, isError: isCreateError }
   ] = useCreateDocumentMutation({
-    fixedCacheKey: 'createDocument',
+    fixedCacheKey: 'createDocument'
   });
   const [deleteDocument] = useDeleteDocumentMutation();
   const [createAnalysis] = useCreateAnalysisMutation();
@@ -46,19 +46,19 @@ const AnalysisReportStep = ({ sampleId, partialAnalysis }: Props) => {
   const acceptFileTypes = [
     'application/pdf',
     'image/jpeg',
-    'image/png',
+    'image/png'
   ] as const satisfies FileType[];
 
   const Form = z.object({
     hasReportDocument: z.boolean(),
-    fileInput: FileInput(acceptFileTypes).nullish(),
+    fileInput: FileInput(acceptFileTypes).nullish()
   });
 
   const FormRefinement = Form.refine(
     ({ hasReportDocument, fileInput }) => hasReportDocument || fileInput,
     {
       path: ['fileInput'],
-      message: 'Veuillez ajouter un fichier.',
+      message: 'Veuillez ajouter un fichier.'
     }
   );
 
@@ -78,14 +78,14 @@ const AnalysisReportStep = ({ sampleId, partialAnalysis }: Props) => {
         ? (partialAnalysis?.reportDocumentId as string)
         : await createDocument({
             file: fileInput as File,
-            kind: 'AnalysisReportDocument',
+            kind: 'AnalysisReportDocument'
           })
             .unwrap()
             .then((document) => document.id);
       if (!partialAnalysis) {
         await createAnalysis({
           sampleId,
-          reportDocumentId,
+          reportDocumentId
         });
       } else {
         if (partialAnalysis.reportDocumentId !== reportDocumentId) {
@@ -94,7 +94,7 @@ const AnalysisReportStep = ({ sampleId, partialAnalysis }: Props) => {
         await updateAnalysis({
           ...partialAnalysis,
           reportDocumentId,
-          status: 'Residues',
+          status: 'Residues'
         });
       }
       navigateToSample(sampleId, 2);
@@ -125,7 +125,7 @@ const AnalysisReportStep = ({ sampleId, partialAnalysis }: Props) => {
         <AppUpload<FormShape>
           label="Ajouter le rapport d'analyse"
           nativeInputProps={{
-            onChange: (event: any) => selectFile(event),
+            onChange: (event: any) => selectFile(event)
           }}
           disabled={isCreateLoading}
           acceptFileTypes={acceptFileTypes}

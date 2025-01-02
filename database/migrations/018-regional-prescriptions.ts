@@ -25,7 +25,7 @@ exports.up = async (knex: Knex) => {
         'programming_plan_id',
         'context',
         'matrix',
-        'stages',
+        'stages'
       ])
       .groupBy(['programming_plan_id', 'context', 'matrix', 'stages'])
   );
@@ -47,7 +47,7 @@ exports.up = async (knex: Knex) => {
     .where('regional_prescriptions.matrix', knex.ref('prescriptions.matrix'))
     .where('regional_prescriptions.stages', knex.ref('prescriptions.stages'))
     .update({
-      prescription_id: knex.ref('prescriptions.id'),
+      prescription_id: knex.ref('prescriptions.id')
     });
   await knex.schema.alterTable('regional_prescriptions', (table) => {
     table.dropColumn('id');
@@ -57,7 +57,7 @@ exports.up = async (knex: Knex) => {
     table.dropColumn('stages');
     table.uuid('prescription_id').notNullable().alter();
     table.primary(['prescription_id', 'region'], {
-      constraintName: 'regional_prescriptions_pkey',
+      constraintName: 'regional_prescriptions_pkey'
     });
   });
 };
@@ -79,7 +79,7 @@ exports.down = async (knex: Knex) => {
       programming_plan_id: knex.ref('prescriptions.programming_plan_id'),
       context: knex.ref('prescriptions.context'),
       matrix: knex.ref('prescriptions.matrix'),
-      stages: knex.ref('prescriptions.stages'),
+      stages: knex.ref('prescriptions.stages')
     });
   await knex.schema.alterTable('regional_prescriptions', (table) => {
     table.dropColumn('prescription_id');
@@ -98,7 +98,7 @@ exports.down = async (knex: Knex) => {
       'region',
       'matrix',
       'stages',
-      'context',
+      'context'
     ]);
   });
 };

@@ -9,13 +9,13 @@ export const userApi = api.injectEndpoints({
       query: (userId) => `users/${userId}/infos`,
       transformResponse: (response: any) => UserInfos.parse(response),
       providesTags: (_result, _error, userId) => [
-        { type: 'UserInfos', id: userId },
-      ],
+        { type: 'UserInfos', id: userId }
+      ]
     }),
     findUsers: builder.query<UserInfos[], FindUserOptions>({
       query: (findOptions) => ({
         url: `users`,
-        params: findOptions,
+        params: findOptions
       }),
       transformResponse: (response: any[]) =>
         response.map((_) => UserInfos.parse(fp.omitBy(_, fp.isNil))),
@@ -23,15 +23,15 @@ export const userApi = api.injectEndpoints({
         { type: 'UserInfos', id: 'LIST' },
         ...(result ?? []).map(({ id }) => ({
           type: 'UserInfos' as const,
-          id,
-        })),
-      ],
-    }),
-  }),
+          id
+        }))
+      ]
+    })
+  })
 });
 
 export const {
   useGetUserInfosQuery,
   useLazyGetUserInfosQuery,
-  useFindUsersQuery,
+  useFindUsersQuery
 } = userApi;

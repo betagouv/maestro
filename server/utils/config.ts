@@ -84,7 +84,7 @@ interface Config {
       url: string;
     };
   };
-  m2mBasicToken: string
+  m2mBasicToken: string;
 }
 
 const config = convict<Config>({

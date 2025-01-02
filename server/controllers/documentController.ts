@@ -2,7 +2,7 @@ import {
   DeleteObjectCommand,
   GetObjectCommand,
   PutObjectCommand,
-  S3,
+  S3
 } from '@aws-sdk/client-s3';
 import { getSignedUrl as getS3SignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Request, Response } from 'express';
@@ -12,7 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 import DocumentMissingError from '../../shared/errors/documentMissingError';
 import {
   Document,
-  DocumentToCreate,
+  DocumentToCreate
 } from '../../shared/schema/Document/Document';
 import { hasPermission } from '../../shared/schema/User/User';
 import documentRepository from '../repositories/documentRepository';
@@ -54,7 +54,7 @@ const getUploadSignedUrl = async (request: Request, response: Response) => {
 
   const command = new PutObjectCommand({
     Bucket: config.s3.bucket,
-    Key: key,
+    Key: key
   });
 
   const url = await getS3SignedUrl(client, command, { expiresIn: 3600 });
@@ -78,7 +78,7 @@ const getDownloadSignedUrl = async (request: Request, response: Response) => {
 
   const command = new GetObjectCommand({
     Bucket: config.s3.bucket,
-    Key: key,
+    Key: key
   });
 
   const url = await getS3SignedUrl(client, command, { expiresIn: 3600 });
@@ -108,7 +108,7 @@ const createDocument = async (request: Request, response: Response) => {
   const document: Document = {
     ...documentToCreate,
     createdAt: new Date(),
-    createdBy: user.id,
+    createdBy: user.id
   };
 
   await documentRepository.insert(document);
@@ -120,7 +120,7 @@ const findResources = async (request: Request, response: Response) => {
   console.info('Find documents');
 
   const documents = await documentRepository.findMany({
-    kind: 'Resource',
+    kind: 'Resource'
   });
 
   response.status(constants.HTTP_STATUS_OK).send(documents);
@@ -142,7 +142,7 @@ const deleteDocument = async (request: Request, response: Response) => {
 
   const command = new DeleteObjectCommand({
     Bucket: config.s3.bucket,
-    Key: key,
+    Key: key
   });
 
   await client.send(command);
@@ -158,5 +158,5 @@ export default {
   getDownloadSignedUrl,
   createDocument,
   findResources,
-  deleteDocument,
+  deleteDocument
 };

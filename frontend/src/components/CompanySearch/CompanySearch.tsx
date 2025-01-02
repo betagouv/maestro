@@ -20,7 +20,7 @@ const CompanySearch = ({
   department,
   onSelectCompany,
   state,
-  stateRelatedMessage,
+  stateRelatedMessage
 }: Props) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [companySearchResults, setCompanySearchResults] = useState<
@@ -41,7 +41,7 @@ const CompanySearch = ({
     if (value.length > 3) {
       await searchCompanies({
         query: value as string,
-        department,
+        department
       })
         .unwrap()
         .then((results) => {
@@ -141,7 +141,7 @@ const CompanySearch = ({
                 setCompany(null);
                 setSearchQuery('');
                 onSelectCompany(undefined);
-              },
+              }
             }}
           >
             {[company.siege.siret, company.nom_complet].join(' - ')}

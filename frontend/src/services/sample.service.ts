@@ -4,7 +4,7 @@ import { FindSampleOptions } from 'shared/schema/Sample/FindSampleOptions';
 import {
   isCreatedPartialSample,
   PartialSample,
-  PartialSampleToCreate,
+  PartialSampleToCreate
 } from 'shared/schema/Sample/Sample';
 import { api } from 'src/services/api.service';
 import { authParams } from 'src/services/auth-headers';
@@ -20,29 +20,29 @@ export const sampleApi = api.injectEndpoints({
       transformResponse: (response: any) =>
         PartialSample.parse(fp.omitBy(response, fp.isNil)),
       providesTags: (_result, _error, sampleId) => [
-        { type: 'Sample', id: sampleId },
-      ],
+        { type: 'Sample', id: sampleId }
+      ]
     }),
     findSamples: builder.query<PartialSample[], FindSampleOptions>({
       query: (findOptions) => ({
         url: 'samples',
-        params: findOptions,
+        params: findOptions
       }),
       transformResponse: (response: any[]) =>
         response.map((_) => PartialSample.parse(fp.omitBy(_, fp.isNil))),
       providesTags: (result) => [
         { type: 'Sample', id: 'LIST' },
-        ...(result ?? []).map(({ id }) => ({ type: 'Sample' as const, id })),
-      ],
+        ...(result ?? []).map(({ id }) => ({ type: 'Sample' as const, id }))
+      ]
     }),
     countSamples: builder.query<number, FindSampleOptions>({
       query: (findOptions) => ({
         url: 'samples/count',
-        params: findOptions,
+        params: findOptions
       }),
       transformResponse: (response: { count: number }) =>
         Number(response.count),
-      providesTags: ['SampleCount'],
+      providesTags: ['SampleCount']
     }),
     createOrUpdateSample: builder.mutation<
       PartialSample | PartialSampleToCreate,
@@ -54,7 +54,7 @@ export const sampleApi = api.injectEndpoints({
             ? `samples/${partialSample.id}`
             : 'samples',
           method: isCreatedPartialSample(partialSample) ? 'PUT' : 'POST',
-          body: partialSample,
+          body: partialSample
         });
 
         if (result.error) {
@@ -72,49 +72,49 @@ export const sampleApi = api.injectEndpoints({
         );
 
         return {
-          data: PartialSample.parse(fp.omitBy(result.data as any, fp.isNil)),
+          data: PartialSample.parse(fp.omitBy(result.data as any, fp.isNil))
         };
       },
       invalidatesTags: (_result, _error, { id }) => [
         { type: 'Sample', id: 'LIST' },
         { type: 'Sample', id },
-        'SampleCount',
-      ],
+        'SampleCount'
+      ]
     }),
     updateSample: builder.mutation<PartialSample, PartialSample>({
       query: (partialSample) => ({
         url: `samples/${partialSample.id}`,
         method: 'PUT',
-        body: partialSample,
+        body: partialSample
       }),
       transformResponse: (response: any) =>
         PartialSample.parse(fp.omitBy(response, fp.isNil)),
       invalidatesTags: (_result, _error, { id }) => [
         { type: 'Sample', id: 'LIST' },
         { type: 'Sample', id },
-        'SampleCount',
-      ],
+        'SampleCount'
+      ]
     }),
     updateSampleItems: builder.mutation<void, { id: string; items: any[] }>({
       query: ({ id, items }) => ({
         url: `samples/${id}/items`,
         method: 'PUT',
-        body: items,
+        body: items
       }),
-      invalidatesTags: (_result, _error, { id }) => [{ type: 'Sample', id }],
+      invalidatesTags: (_result, _error, { id }) => [{ type: 'Sample', id }]
     }),
     deleteSample: builder.mutation<void, string>({
       query: (id) => ({
         url: `samples/${id}`,
-        method: 'DELETE',
+        method: 'DELETE'
       }),
       invalidatesTags: (_result, _error, id) => [
         { type: 'Sample', id: 'LIST' },
         { type: 'Sample', id },
-        'SampleCount',
-      ],
-    }),
-  }),
+        'SampleCount'
+      ]
+    })
+  })
 });
 
 const supportDocumentURL = (sampleId: string, itemNumber: number) => {
@@ -125,7 +125,7 @@ const supportDocumentURL = (sampleId: string, itemNumber: number) => {
 const sampleListExportURL = (findOptions: FindSampleOptions) => {
   const params = getURLQuery({
     ...findOptions,
-    ...authParams(),
+    ...authParams()
   });
   return `${config.apiEndpoint}/api/samples/export${params}`;
 };
@@ -140,9 +140,9 @@ export const {
   useUpdateSampleMutation,
   useDeleteSampleMutation,
   getSupportDocumentURL,
-  getSampleListExportURL,
+  getSampleListExportURL
 } = {
   ...sampleApi,
   getSupportDocumentURL: supportDocumentURL,
-  getSampleListExportURL: sampleListExportURL,
+  getSampleListExportURL: sampleListExportURL
 };

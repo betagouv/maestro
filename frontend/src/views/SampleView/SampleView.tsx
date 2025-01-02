@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 import {
   PartialSample,
   PartialSampleToCreate,
-  Sample,
+  Sample
 } from 'shared/schema/Sample/Sample';
 import { DraftStatusList } from 'shared/schema/Sample/SampleStatus';
 import { useAppSelector } from 'src/hooks/useStore';
@@ -18,7 +18,7 @@ export const SampleStepTitles = (
   'Contexte du prélèvement',
   'Matrice contrôlée',
   pluralize(sample?.items?.length ?? 0)('Échantillon'),
-  'Récapitulatif',
+  'Récapitulatif'
 ];
 
 const SampleView = () => {
@@ -26,7 +26,7 @@ const SampleView = () => {
 
   const { pendingSamples } = useAppSelector((state) => state.samples);
   const { data } = useGetSampleQuery(sampleId as string, {
-    skip: !sampleId || sampleId in pendingSamples,
+    skip: !sampleId || sampleId in pendingSamples
   });
 
   const sample = pendingSamples[sampleId ?? ''] ?? data;

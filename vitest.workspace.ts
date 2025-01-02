@@ -1,4 +1,4 @@
-import { defineWorkspace } from 'vitest/config'
+import { defineWorkspace } from 'vitest/config';
 
 export default defineWorkspace([
   {
@@ -6,8 +6,8 @@ export default defineWorkspace([
       name: 'unit',
       setupFiles: [],
       include: ['shared/**/*.test.ts', 'server/**/*.test.ts'],
-      exclude: ['**/*.router.test.ts'],
-    },
+      exclude: ['**/*.router.test.ts']
+    }
   },
   {
     test: {
@@ -15,7 +15,7 @@ export default defineWorkspace([
       hookTimeout: 45000,
       root: 'server',
       setupFiles: ['./server/test/setupTests.ts'],
-      include: ['**/*.router.test.ts'],
-    },
-  },
-])
+      include: ['**/*.router.test.ts']
+    }
+  }
+]);

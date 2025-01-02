@@ -18,8 +18,8 @@ const authSlice = createSlice({
     signoutUser: (state) => {
       localStorage.removeItem('authUser');
       state.authUser = undefined;
-    },
-  },
+    }
+  }
 });
 
 export default authSlice;

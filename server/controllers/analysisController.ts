@@ -7,7 +7,7 @@ import SampleMissingError from '../../shared/errors/sampleMissingError';
 import {
   AnalysisToCreate,
   CreatedAnalysis,
-  PartialAnalysis,
+  PartialAnalysis
 } from '../../shared/schema/Analysis/Analysis';
 import analysisRepository from '../repositories/analysisRepository';
 import sampleRepository from '../repositories/sampleRepository';
@@ -40,13 +40,13 @@ const createAnalysis = async (request: Request, response: Response) => {
     createdAt: new Date(),
     createdBy: user.id,
     status: 'Residues',
-    ...analysisToCreate,
+    ...analysisToCreate
   };
   await analysisRepository.insert(analysis);
 
   await sampleRepository.update({
     ...sample,
-    status: 'Analysis',
+    status: 'Analysis'
   });
 
   response.status(constants.HTTP_STATUS_CREATED).send(analysis);
@@ -66,7 +66,7 @@ const updateAnalysis = async (request: Request, response: Response) => {
 
   const updatedAnalysis = {
     ...analysis,
-    ...analysisUpdate,
+    ...analysisUpdate
   };
   await analysisRepository.update(updatedAnalysis);
 
@@ -79,7 +79,7 @@ const updateAnalysis = async (request: Request, response: Response) => {
 
     await sampleRepository.update({
       ...sample,
-      status: analysisUpdate.compliance ? 'Completed' : 'CompletedNotConform',
+      status: analysisUpdate.compliance ? 'Completed' : 'CompletedNotConform'
     });
   }
 
@@ -89,5 +89,5 @@ const updateAnalysis = async (request: Request, response: Response) => {
 export default {
   getAnalysis,
   createAnalysis,
-  updateAnalysis,
+  updateAnalysis
 };

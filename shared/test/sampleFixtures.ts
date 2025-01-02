@@ -15,7 +15,7 @@ import {
   Geolocation,
   PartialSample,
   Sample,
-  SampleContextData,
+  SampleContextData
 } from '../schema/Sample/Sample';
 import { SampleItem } from '../schema/Sample/SampleItem';
 import { genCompany } from './companyFixtures';
@@ -29,7 +29,7 @@ export const genSampleContextData = (
   department: oneOf(Regions['44'].departments),
   geolocation: {
     x: 48.8566,
-    y: 2.3522,
+    y: 2.3522
   },
   programmingPlanId: uuidv4(),
   context: oneOf(ContextList),
@@ -38,12 +38,12 @@ export const genSampleContextData = (
     '23-' +
     randomstring.generate({
       length: 6,
-      charset: '123456789',
+      charset: '123456789'
     }),
   company: genCompany(),
   notesOnCreation: randomstring.generate(),
   status: 'Draft',
-  ...data,
+  ...data
 });
 export const genCreatedSampleData = (
   data?: Partial<CreatedSampleData>
@@ -55,11 +55,11 @@ export const genCreatedSampleData = (
   sampler: {
     id: uuidv4(),
     firstName: fakerFR.person.firstName(),
-    lastName: fakerFR.person.lastName(),
+    lastName: fakerFR.person.lastName()
   },
   createdAt: new Date(),
   lastUpdatedAt: new Date(),
-  ...data,
+  ...data
 });
 export const genCreatedPartialSample = (
   data?: Partial<PartialSample>
@@ -75,7 +75,7 @@ export const genCreatedPartialSample = (
     cultureKind: oneOf(CultureKindList),
     releaseControl: genBoolean(),
     items: [genSampleItem({ sampleId: contextData.id, itemNumber: 1 })],
-    ...data,
+    ...data
   };
 };
 export const genCreatedSample = (data?: Partial<Sample>): Sample => {
@@ -90,7 +90,7 @@ export const genCreatedSample = (data?: Partial<Sample>): Sample => {
     prescriptionId: uuidv4(),
     laboratoryId: uuidv4(),
     items: sample.items as SampleItem[],
-    ...data,
+    ...data
   };
 };
 export const genSampleItem = (data?: Partial<SampleItem>): SampleItem => ({
@@ -101,5 +101,5 @@ export const genSampleItem = (data?: Partial<SampleItem>): SampleItem => ({
   compliance200263: genBoolean(),
   sealId: randomstring.generate(),
   recipientKind: 'Laboratory',
-  ...data,
+  ...data
 });

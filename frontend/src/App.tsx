@@ -25,7 +25,6 @@ declare module '@codegouvfr/react-dsfr/spa' {
 startReactDsfr({ defaultColorScheme: 'light', Link });
 
 function AppWrapper() {
-
   const { MuiDsfrThemeProvider } = createMuiDsfrThemeProvider({
     augmentMuiTheme: ({ nonAugmentedMuiTheme }) => ({
       ...nonAugmentedMuiTheme

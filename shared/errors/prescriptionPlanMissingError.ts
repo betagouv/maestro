@@ -10,7 +10,7 @@ export default class PrescriptionMissingError
     super({
       name: 'PrescriptionMissingError',
       message: `Prescription ${id} missing`,
-      status: constants.HTTP_STATUS_NOT_FOUND,
+      status: constants.HTTP_STATUS_NOT_FOUND
     });
   }
 }

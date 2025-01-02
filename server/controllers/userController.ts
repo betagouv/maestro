@@ -28,7 +28,7 @@ const getUserInfos = async (request: Request, response: Response) => {
     'firstName',
     'lastName',
     'roles',
-    'region',
+    'region'
   ]);
 
   response.status(constants.HTTP_STATUS_OK).send(userInfos);
@@ -40,7 +40,7 @@ const findUsers = async (request: Request, response: Response) => {
 
   const findOptions = {
     ...queryFindOptions,
-    region: user.region ?? queryFindOptions.region,
+    region: user.region ?? queryFindOptions.region
   };
 
   console.info('Find users', findOptions);
@@ -52,5 +52,5 @@ const findUsers = async (request: Request, response: Response) => {
 
 export default {
   getUserInfos,
-  findUsers,
+  findUsers
 };

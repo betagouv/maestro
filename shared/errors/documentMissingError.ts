@@ -10,7 +10,7 @@ export default class DocumentMissingError
     super({
       name: 'DocumentMissingError',
       message: `Document ${id} missing`,
-      status: constants.HTTP_STATUS_NOT_FOUND,
+      status: constants.HTTP_STATUS_NOT_FOUND
     });
   }
 }

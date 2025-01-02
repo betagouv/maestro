@@ -13,8 +13,8 @@ export const Residue = z.object({
   kind: ResidueKind,
   reference: z.union([SimpleResidue, ComplexResidue], {
     errorMap: () => ({
-      message: 'Veuillez renseigner le résidu.',
-    }),
+      message: 'Veuillez renseigner le résidu.'
+    })
   }),
   resultKind: ResultKind.nullish(),
   result: z.number().min(0).nullish(),
@@ -26,16 +26,16 @@ export const Residue = z.object({
   pollutionRisk: OptionalBoolean.nullish(),
   notesOnPollutionRisk: z.string().nullish(),
   compliance: ResidueCompliance,
-  analytes: z.array(Analyte).nullish(),
+  analytes: z.array(Analyte).nullish()
 });
 
 export const PartialResidue = Residue.partial().merge(
   Residue.pick({
     analysisId: true,
-    residueNumber: true,
+    residueNumber: true
   }).merge(
     z.object({
-      analytes: z.array(PartialAnalyte).nullish(),
+      analytes: z.array(PartialAnalyte).nullish()
     })
   )
 );

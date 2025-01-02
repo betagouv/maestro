@@ -18,7 +18,6 @@ import { mockRequests } from '../../../../test/requestTestUtils';
 
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
-
 vi.mock(import('react-router-dom'), async (importOriginal) => {
   const original = await importOriginal();
   return {

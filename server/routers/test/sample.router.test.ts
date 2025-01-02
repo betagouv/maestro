@@ -4,37 +4,37 @@ import { default as fp } from 'lodash';
 import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
+import { MatrixList } from '../../../shared/referential/Matrix/Matrix';
+import { Region, Regions } from '../../../shared/referential/Region';
+import {
+  genCreatedPartialSample,
+  genSampleContextData,
+  genSampleItem
+} from '../../../shared/test/sampleFixtures';
+import { oneOf } from '../../../shared/test/testFixtures';
+import { SampleItems } from '../../repositories/sampleItemRepository';
+import { Samples } from '../../repositories/sampleRepository';
+import { createServer } from '../../server';
 import {
   NationalCoordinator,
   Sampler1Fixture,
-  Sampler2Fixture,
+  Sampler2Fixture
 } from '../../test/seed/001-users';
 import { ValidatedProgrammingPlanFixture } from '../../test/seed/002-programming-plans';
 import {
   Sample11Fixture,
   Sample12Fixture,
   Sample13Fixture,
-  Sample2Fixture,
+  Sample2Fixture
 } from '../../test/seed/004-samples';
-import { MatrixList } from '../../../shared/referential/Matrix/Matrix';
-import { Region, Regions } from '../../../shared/referential/Region';
-import {
-  genCreatedPartialSample,
-  genSampleContextData,
-  genSampleItem,
-} from '../../../shared/test/sampleFixtures';
-import { oneOf } from '../../../shared/test/testFixtures';
-import { SampleItems } from '../../repositories/sampleItemRepository';
-import { Samples } from '../../repositories/sampleRepository';
-import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
-import { describe, test, expect } from 'vitest';
+import { describe, expect, test } from 'vitest';
 describe('Sample router', () => {
   const { app } = createServer();
 
   const sample = genSampleContextData({
-    programmingPlanId: ValidatedProgrammingPlanFixture.id,
+    programmingPlanId: ValidatedProgrammingPlanFixture.id
   });
 
   describe('GET /samples/{sampleId}', () => {
@@ -77,7 +77,7 @@ describe('Sample router', () => {
         ...Sample11Fixture,
         createdAt: Sample11Fixture.createdAt.toISOString(),
         lastUpdatedAt: Sample11Fixture.lastUpdatedAt.toISOString(),
-        sampledAt: Sample11Fixture.sampledAt.toISOString(),
+        sampledAt: Sample11Fixture.sampledAt.toISOString()
       });
     });
   });
@@ -143,7 +143,7 @@ describe('Sample router', () => {
         .get(
           testRoute({
             programmingPlanId: ValidatedProgrammingPlanFixture.id,
-            status: 'DraftMatrix',
+            status: 'DraftMatrix'
           })
         )
         .use(tokenProvider(Sampler1Fixture))
@@ -154,8 +154,8 @@ describe('Sample router', () => {
           ...fp.omit(Sample11Fixture, ['items']),
           createdAt: Sample11Fixture.createdAt.toISOString(),
           lastUpdatedAt: Sample11Fixture.lastUpdatedAt.toISOString(),
-          sampledAt: Sample11Fixture.sampledAt.toISOString(),
-        },
+          sampledAt: Sample11Fixture.sampledAt.toISOString()
+        }
       ]);
     });
 
@@ -164,7 +164,7 @@ describe('Sample router', () => {
         .get(
           testRoute({
             programmingPlanId: ValidatedProgrammingPlanFixture.id,
-            status: 'DraftMatrix,Draft',
+            status: 'DraftMatrix,Draft'
           })
         )
         .use(tokenProvider(NationalCoordinator))
@@ -176,14 +176,14 @@ describe('Sample router', () => {
             ...fp.omit(Sample11Fixture, ['items']),
             createdAt: Sample11Fixture.createdAt.toISOString(),
             lastUpdatedAt: Sample11Fixture.lastUpdatedAt.toISOString(),
-            sampledAt: Sample11Fixture.sampledAt.toISOString(),
+            sampledAt: Sample11Fixture.sampledAt.toISOString()
           },
           expect.objectContaining({
-            id: Sample12Fixture.id,
+            id: Sample12Fixture.id
           }),
           expect.objectContaining({
-            id: Sample2Fixture.id,
-          }),
+            id: Sample2Fixture.id
+          })
         ])
       );
     });
@@ -211,7 +211,7 @@ describe('Sample router', () => {
         .get(
           testRoute({
             programmingPlanId: ValidatedProgrammingPlanFixture.id,
-            status: 'DraftMatrix',
+            status: 'DraftMatrix'
           })
         )
         .use(tokenProvider(Sampler1Fixture))
@@ -225,7 +225,7 @@ describe('Sample router', () => {
         .get(
           testRoute({
             programmingPlanId: ValidatedProgrammingPlanFixture.id,
-            status: 'DraftMatrix,Draft',
+            status: 'DraftMatrix,Draft'
           })
         )
         .use(tokenProvider(NationalCoordinator))
@@ -259,32 +259,32 @@ describe('Sample router', () => {
       await badRequestTest({
         ...genSampleContextData(),
         geolocation: {
-          latitude: undefined,
-        },
+          latitude: undefined
+        }
       });
       await badRequestTest({
         ...genSampleContextData(),
-        sampledAt: undefined,
+        sampledAt: undefined
       });
       await badRequestTest({
         ...genSampleContextData(),
-        programmingPlanId: '123',
+        programmingPlanId: '123'
       });
       await badRequestTest({
         ...genSampleContextData(),
-        legalContext: undefined,
+        legalContext: undefined
       });
       await badRequestTest({ ...genSampleContextData(), legalContext: '123' });
       await badRequestTest({
         ...genSampleContextData(),
-        department: undefined,
+        department: undefined
       });
       await badRequestTest({ ...genSampleContextData(), department: '123' });
       await badRequestTest({ ...genSampleContextData(), department: '' });
       await badRequestTest({ ...genSampleContextData(), department: 123 });
       await badRequestTest({
         ...genSampleContextData(),
-        sampledAt: 'invalid date',
+        sampledAt: 'invalid date'
       });
       await badRequestTest({ ...genSampleContextData(), sampledAt: null });
     });
@@ -304,23 +304,21 @@ describe('Sample router', () => {
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_CREATED);
 
-      expect(res.body).toMatchObject(
-        {
-          ...sample,
-          id: sample.id,
-          createdAt: expect.any(String),
-          sampler: {
-            id: Sampler1Fixture.id,
-            firstName: Sampler1Fixture.firstName,
-            lastName: Sampler1Fixture.lastName,
-          },
-          sampledAt: sample.sampledAt.toISOString(),
-          reference: `${Regions[Sampler1Fixture.region as Region].shortName}-${
-            sample.department
-          }-${format(new Date(), 'yy')}-0001-${sample.legalContext}`,
-          status: sample.status,
-        }
-      );
+      expect(res.body).toMatchObject({
+        ...sample,
+        id: sample.id,
+        createdAt: expect.any(String),
+        sampler: {
+          id: Sampler1Fixture.id,
+          firstName: Sampler1Fixture.firstName,
+          lastName: Sampler1Fixture.lastName
+        },
+        sampledAt: sample.sampledAt.toISOString(),
+        reference: `${Regions[Sampler1Fixture.region as Region].shortName}-${
+          sample.department
+        }-${format(new Date(), 'yy')}-0001-${sample.legalContext}`,
+        status: sample.status
+      });
 
       await expect(
         Samples().where({ id: res.body.id }).first()
@@ -376,22 +374,22 @@ describe('Sample router', () => {
           {
             ...genSampleItem({
               sampleId: Sample11Fixture.id,
-              itemNumber: 1,
+              itemNumber: 1
             }),
-            quantity: '123',
-          },
-        ],
+            quantity: '123'
+          }
+        ]
       });
       await badRequestTest({
         items: [
           {
             ...genSampleItem({
               sampleId: Sample11Fixture.id,
-              itemNumber: 1,
+              itemNumber: 1
             }),
-            quantityUnit: 123,
-          },
-        ],
+            quantityUnit: 123
+          }
+        ]
       });
     });
 
@@ -401,9 +399,9 @@ describe('Sample router', () => {
       items: [
         genSampleItem({
           sampleId: Sample11Fixture.id,
-          itemNumber: 1,
-        }),
-      ],
+          itemNumber: 1
+        })
+      ]
     };
 
     test('should fail if the user does not have the permission to update samples', async () => {
@@ -427,7 +425,7 @@ describe('Sample router', () => {
         lastUpdatedAt: expect.any(String),
         sampledAt: Sample11Fixture.sampledAt.toISOString(),
         matrix: validBody.matrix,
-        items: validBody.items,
+        items: validBody.items
       });
 
       await expect(
@@ -449,7 +447,7 @@ describe('Sample router', () => {
         .send({
           ...validBody,
           status: 'Analysis',
-          notesOnAdmissibility: 'Admissible',
+          notesOnAdmissibility: 'Admissible'
         })
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
@@ -457,12 +455,12 @@ describe('Sample router', () => {
       await expect(
         Samples()
           .where({
-            id: Sample11Fixture.id,
+            id: Sample11Fixture.id
           })
           .first()
       ).resolves.toMatchObject({
         status: 'Analysis',
-        notesOnAdmissibility: 'Admissible',
+        notesOnAdmissibility: 'Admissible'
       });
     });
   });

@@ -7,5 +7,5 @@ export const StorageConditionList: StorageCondition[] =
 
 export const StorageConditionLabels: Record<StorageCondition, string> = {
   STOCK1: 'Vrac',
-  STOCK2: 'Emballé et conditionné',
+  STOCK2: 'Emballé et conditionné'
 };

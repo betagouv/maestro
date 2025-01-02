@@ -39,14 +39,14 @@ const SendingModal = ({ modal, laboratory, onConfirm }: Props) => {
         {
           children: 'Annuler',
           priority: 'secondary',
-          disabled: isConfirmationPending,
+          disabled: isConfirmationPending
         },
         {
           children: "Confirmer l'envoi",
           onClick: submit,
           disabled: isConfirmationPending,
-          doClosesModal: false,
-        },
+          doClosesModal: false
+        }
       ]}
     >
       La demande d’analyse va être envoyée au laboratoire{' '}

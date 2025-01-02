@@ -2,7 +2,7 @@ import express from 'express';
 import z from 'zod';
 import {
   AnalysisToCreate,
-  PartialAnalysis,
+  PartialAnalysis
 } from '../../shared/schema/Analysis/Analysis';
 import analysisController from '../controllers/analysisController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';

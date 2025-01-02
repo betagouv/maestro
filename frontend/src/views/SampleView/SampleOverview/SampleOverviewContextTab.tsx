@@ -18,7 +18,7 @@ const SampleOverviewContextTab = ({ sample }: Props) => {
   const save = async () => {
     await updateSample({
       ...sample,
-      resytalId,
+      resytalId
     });
   };
 

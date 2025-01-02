@@ -11,7 +11,7 @@ export default class RegionalPrescriptionMissingError
     super({
       name: 'RegionalPrescriptionMissingError',
       message: `Prescription ${id} missing for region ${region}`,
-      status: constants.HTTP_STATUS_NOT_FOUND,
+      status: constants.HTTP_STATUS_NOT_FOUND
     });
   }
 }

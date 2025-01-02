@@ -8,7 +8,6 @@ import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import DocumentListView from 'src/views/DocumentListView/DocumentListView';
 import { mockRequests } from '../../../../test/requestTestUtils';
 
-
 vi.mock(import('react-router-dom'), async (importOriginal) => {
   const original = await importOriginal();
   return {
@@ -17,17 +16,17 @@ vi.mock(import('react-router-dom'), async (importOriginal) => {
   };
 });
 
-import { describe, test, expect, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 let store: Store;
 const authUser = genAuthUser();
 const nationalCoordinator = genUser({
   roles: ['NationalCoordinator'],
-  id: authUser.userId,
+  id: authUser.userId
 });
 
 const sampler = genUser({
   roles: ['Sampler'],
-  id: 'SamplerId',
+  id: 'SamplerId'
 });
 
 describe('DocumentListView', () => {
@@ -37,20 +36,20 @@ describe('DocumentListView', () => {
       reducer: applicationReducer,
       middleware: applicationMiddleware,
       preloadedState: {
-        auth: { authUser },
-      },
+        auth: { authUser }
+      }
     });
   });
 
   test('should render the document list view', async () => {
     const document = genDocument({
-      createdBy: nationalCoordinator.id,
+      createdBy: nationalCoordinator.id
     });
     mockRequests([
       {
         pathname: `/api/documents/resources`,
-        response: { body: JSON.stringify([document]) },
-      },
+        response: { body: JSON.stringify([document]) }
+      }
     ]);
 
     render(
@@ -74,8 +73,8 @@ describe('DocumentListView', () => {
     mockRequests([
       {
         pathname: `/api/users/${nationalCoordinator.id}/infos`,
-        response: { body: JSON.stringify(nationalCoordinator) },
-      },
+        response: { body: JSON.stringify(nationalCoordinator) }
+      }
     ]);
 
     render(
@@ -94,8 +93,8 @@ describe('DocumentListView', () => {
     mockRequests([
       {
         pathname: `/api/users/${sampler.id}/infos`,
-        response: { body: JSON.stringify(sampler) },
-      },
+        response: { body: JSON.stringify(sampler) }
+      }
     ]);
     render(
       <Provider store={store}>

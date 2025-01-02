@@ -17,9 +17,9 @@ export const FindPrescriptionOptions = z.object({
   includes: z
     .union([
       PrescriptionOptionsInclude,
-      coerceToArray(z.array(PrescriptionOptionsInclude)),
+      coerceToArray(z.array(PrescriptionOptionsInclude))
     ])
-    .nullish(),
+    .nullish()
 });
 
 export type FindPrescriptionOptions = z.infer<typeof FindPrescriptionOptions>;

@@ -6,7 +6,7 @@ import { useLazyFindPrescriptionsQuery } from 'src/services/prescription.service
 import {
   useCreateOrUpdateSampleMutation,
   useLazyFindSamplesQuery,
-  useLazyGetSampleQuery,
+  useLazyGetSampleQuery
 } from 'src/services/sample.service';
 
 export const useOnLine = () => {
@@ -50,7 +50,7 @@ export const useOnLine = () => {
             ContextList.map(async (context) =>
               findPrescriptions({
                 programmingPlanId: programmingPlan.id,
-                context,
+                context
               }).unwrap()
             )
           );
@@ -58,7 +58,7 @@ export const useOnLine = () => {
           const samples = await findSamples({
             programmingPlanId: programmingPlan?.id as string,
             page: 1,
-            perPage: 5,
+            perPage: 5
           }).unwrap();
 
           await Promise.all(
@@ -70,6 +70,6 @@ export const useOnLine = () => {
   }, [isOnline, isAuthenticated, pendingSamples]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
-    isOnline,
+    isOnline
   };
 };

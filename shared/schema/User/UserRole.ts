@@ -5,7 +5,7 @@ export const UserRole = z.enum([
   'Administrator',
   'NationalCoordinator',
   'RegionalCoordinator',
-  'Sampler',
+  'Sampler'
 ]);
 
 export type UserRole = z.infer<typeof UserRole>;
@@ -28,7 +28,7 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'createResource',
     'readDocuments',
     'deleteDocument',
-    'readCompanies',
+    'readCompanies'
   ],
   RegionalCoordinator: [
     'readProgrammingPlans',
@@ -39,7 +39,7 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'commentPrescription',
     'readSamples',
     'readDocuments',
-    'readCompanies',
+    'readCompanies'
   ],
   Sampler: [
     'readProgrammingPlans',
@@ -54,14 +54,14 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'readDocuments',
     'readCompanies',
     'createAnalysis',
-    'readAnalysis',
+    'readAnalysis'
   ],
-  Administrator: UserPermissionList,
+  Administrator: UserPermissionList
 };
 
 export const UserRoleLabels: Record<UserRole, string> = {
   NationalCoordinator: 'Coordinateur national',
   RegionalCoordinator: 'Coordinateur régional',
   Sampler: 'Préleveur',
-  Administrator: 'Administrateur',
+  Administrator: 'Administrateur'
 };

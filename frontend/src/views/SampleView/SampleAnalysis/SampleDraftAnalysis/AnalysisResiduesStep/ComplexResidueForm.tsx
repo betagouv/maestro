@@ -6,7 +6,7 @@ import { Analyte } from 'shared/referential/Residue/Analyte';
 import { AnalyteLabels } from 'shared/referential/Residue/AnalyteLabels';
 import {
   ComplexResidue,
-  ComplexResidueList,
+  ComplexResidueList
 } from 'shared/referential/Residue/ComplexResidue';
 import { ComplexResidueAnalytes } from 'shared/referential/Residue/ComplexResidueAnalytes';
 import { ComplexResidueLabels } from 'shared/referential/Residue/ComplexResidueLabels';
@@ -15,7 +15,7 @@ import { PartialResidue } from 'shared/schema/Analysis/Residue/Residue';
 import {
   ResultKind,
   ResultKindLabels,
-  ResultKindList,
+  ResultKindList
 } from 'shared/schema/Analysis/Residue/ResultKind';
 import { isDefinedAndNotNull } from 'shared/utils/utils';
 import ResidueResultAlert from 'src/components/ResidueResultAlert/ResidueResultAlert';
@@ -36,7 +36,7 @@ function ComplexResidueForm<T extends ZodRawShape>({
   form,
   residue,
   residueIndex,
-  changeResidue,
+  changeResidue
 }: Props) {
   const changeAnalyte = (analyte: PartialAnalyte, analyteIndex: number) => {
     const newAnalytes = [...(residue.analytes ?? [])];
@@ -49,7 +49,7 @@ function ComplexResidueForm<T extends ZodRawShape>({
     newAnalytes.push({
       analysisId: residue.analysisId,
       residueNumber: residue.residueNumber,
-      analyteNumber: newAnalytes.length + 1,
+      analyteNumber: newAnalytes.length + 1
     });
     changeResidue({ ...residue, analytes: newAnalytes }, residueIndex);
   };
@@ -58,9 +58,7 @@ function ComplexResidueForm<T extends ZodRawShape>({
     changeResidue(
       {
         ...residue,
-        analytes: residue.analytes?.filter(
-          (_, index) => index !== analyteIndex
-        ),
+        analytes: residue.analytes?.filter((_, index) => index !== analyteIndex)
       },
       residueIndex
     );
@@ -74,13 +72,13 @@ function ComplexResidueForm<T extends ZodRawShape>({
             value={residue.reference ?? ''}
             options={selectOptionsFromList(ComplexResidueList, {
               labels: ComplexResidueLabels,
-              withSort: true,
+              withSort: true
             })}
             onChange={(e) =>
               changeResidue(
                 {
                   ...residue,
-                  reference: e.target.value as ComplexResidue,
+                  reference: e.target.value as ComplexResidue
                 },
                 residueIndex
               )
@@ -124,7 +122,7 @@ function ComplexResidueForm<T extends ZodRawShape>({
                       ],
                       {
                         labels: AnalyteLabels,
-                        withSort: true,
+                        withSort: true
                       }
                     )}
                     onChange={(e) =>
@@ -139,7 +137,7 @@ function ComplexResidueForm<T extends ZodRawShape>({
                       residueIndex,
                       'analytes',
                       analyteIndex,
-                      'reference',
+                      'reference'
                     ]}
                     whenValid="Analyte correctement renseigné"
                     label="Analyte"
@@ -150,14 +148,14 @@ function ComplexResidueForm<T extends ZodRawShape>({
                   <AppSelect<T>
                     value={analyte.resultKind ?? ''}
                     options={selectOptionsFromList(ResultKindList, {
-                      labels: ResultKindLabels,
+                      labels: ResultKindLabels
                     })}
                     onChange={(e) =>
                       changeAnalyte(
                         {
                           ...analyte,
                           resultKind: e.target.value as ResultKind,
-                          result: undefined,
+                          result: undefined
                         },
                         analyteIndex
                       )
@@ -168,7 +166,7 @@ function ComplexResidueForm<T extends ZodRawShape>({
                       residueIndex,
                       'analytes',
                       analyteIndex,
-                      'resultKind',
+                      'resultKind'
                     ]}
                     whenValid="Type de résultat correctement renseigné"
                     label="Type de résultat de l'analyse"
@@ -194,7 +192,7 @@ function ComplexResidueForm<T extends ZodRawShape>({
                           residueIndex,
                           'analytes',
                           analyteIndex,
-                          'result',
+                          'result'
                         ]}
                         whenValid="Valeur correctement renseignée"
                         label="Valeur numérique du résultat"

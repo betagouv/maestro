@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { FindSampleOptions } from '../../shared/schema/Sample/FindSampleOptions';
 import {
   PartialSample,
-  PartialSampleToCreate,
+  PartialSampleToCreate
 } from '../../shared/schema/Sample/Sample';
 import sampleController from '../controllers/sampleController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
@@ -12,7 +12,7 @@ import validator, {
   body,
   params,
   query,
-  uuidParam,
+  uuidParam
 } from '../middlewares/validator';
 const router = express.Router();
 
@@ -47,7 +47,7 @@ router.get(
     params(
       z.object({
         sampleId: z.string().uuid(),
-        itemNumber: z.coerce.number().min(1),
+        itemNumber: z.coerce.number().min(1)
       })
     )
   ),

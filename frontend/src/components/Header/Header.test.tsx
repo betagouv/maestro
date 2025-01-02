@@ -8,7 +8,7 @@ import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import { mockRequests } from '../../../test/requestTestUtils';
 import Header from './Header';
 
-import {describe, test, expect} from 'vitest';
+import { describe, expect, test } from 'vitest';
 const validatedProgrammingPlan = {
   ...genProgrammingPlan(),
   status: 'Validated',
@@ -50,7 +50,7 @@ describe('Header', () => {
       const store = configureStore({
         reducer: applicationReducer,
         middleware: applicationMiddleware,
-        preloadedState: { auth: { authUser: undefined } },
+        preloadedState: { auth: { authUser: undefined } }
       });
 
       render(

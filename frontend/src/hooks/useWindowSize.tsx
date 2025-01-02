@@ -20,7 +20,7 @@ const useWindowSize = () => {
 
   return {
     width,
-    isMobile: width < breakpointsValues.sm,
+    isMobile: width < breakpointsValues.sm
   };
 };
 
