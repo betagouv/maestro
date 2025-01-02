@@ -1,10 +1,17 @@
 import { format } from 'date-fns';
 import exceljs from 'exceljs';
+import { CultureKindLabels } from '../../../shared/referential/CultureKind';
 import { LegalContextLabels } from '../../../shared/referential/LegalContext';
+import { MatrixLabels } from '../../../shared/referential/Matrix/MatrixLabels';
+import { MatrixPartLabels } from '../../../shared/referential/MatrixPart';
 import { Regions } from '../../../shared/referential/Region';
+import { StageLabels } from '../../../shared/referential/Stage';
+import { ContextLabels } from '../../../shared/schema/ProgrammingPlan/Context';
 import { Sample } from '../../../shared/schema/Sample/Sample';
 import { UserInfos } from '../../../shared/schema/User/User';
 import { isDefined } from '../../../shared/utils/utils';
+import laboratoryRepository from '../../repositories/laboratoryRepository';
+import prescriptionSubstanceRepository from '../../repositories/prescriptionSubstanceRepository';
 import Workbook = exceljs.Workbook;
 
 const writeToWorkbook = async (
@@ -21,66 +28,120 @@ const writeToWorkbook = async (
   //   throw new ProgrammingPlanMissingError(sample.programmingPlanId as string);
   // }
   //
-  // const laboratory = sample.laboratoryId
-  //   ? await laboratoryRepository.findUnique(sample.laboratoryId)
-  //   : null;
-  //
-  // const prescriptionSubstances = sample.prescriptionId
-  //   ? await prescriptionSubstanceRepository.findMany(sample.prescriptionId)
-  //   : undefined;
-  //
-  // const laboratories = await laboratoryRepository.findMany();
+  const laboratory = await laboratoryRepository.findUnique(sample.laboratoryId);
+
+  const prescriptionSubstances = await prescriptionSubstanceRepository.findMany(
+    sample.prescriptionId
+  );
 
   const establishment = Regions[sample.region].establishment;
 
   const worksheet = workbook.addWorksheet('Prélèvement');
-  const firstColumn = 'A';
-  const lastColumn = 'B';
 
   const headerRow = worksheet.addRow(["Demande d'Analyse Informatisée"]);
   headerRow.getCell(1).alignment = {
     horizontal: 'center'
   };
   headerRow.getCell(1).border = thickBorders;
-  worksheet.mergeCells(
-    `${firstColumn}${headerRow.number}:${lastColumn}${headerRow.number}`
-  );
+  mergeColumns(worksheet, headerRow.number, 1);
 
-  addEmptyRow(worksheet, firstColumn, lastColumn);
+  addEmptyRow(worksheet);
 
-  const establishmentHeaderRow = worksheet.addRow([
-    "Donneur d'ordre",
-    'Adresse'
-  ]);
-  addHeaderStyle(establishmentHeaderRow);
-  worksheet.addRow([
-    establishment?.name,
+  addHeaderRow(worksheet, ["Donneur d'ordre", 'Adresse']);
+  addRow(worksheet, [
+    establishment.name,
     [
-      establishment?.additionalAddress,
-      establishment?.street,
-      `${establishment?.postalCode} ${establishment?.city}`
+      establishment.additionalAddress,
+      establishment.street,
+      `${establishment.postalCode} ${establishment.city}`
     ]
       .filter(isDefined)
       .join('\n')
   ]);
 
-  addEmptyRow(worksheet, firstColumn, lastColumn);
+  addEmptyRow(worksheet);
 
-  const samplerHeaderRow = worksheet.addRow(['Préleveur', 'Email']);
-  addHeaderStyle(samplerHeaderRow);
-  worksheet.addRow([`${sampler.firstName} ${sampler.lastName}`, sampler.email]);
-
-  addEmptyRow(worksheet, firstColumn, lastColumn);
-
-  const sampleHeaderRow1 = worksheet.addRow([
-    'Date de prélèvement',
-    'Contexte juridique'
+  addHeaderRow(worksheet, ['Préleveur', 'Email']);
+  addRow(worksheet, [
+    `${sampler.firstName} ${sampler.lastName}`,
+    sampler.email
   ]);
-  addHeaderStyle(sampleHeaderRow1);
-  worksheet.addRow([
+
+  addEmptyRow(worksheet);
+
+  addHeaderRow(worksheet, [
+    'Date de prélèvement',
+    'Heure de prélèvement',
+    'Contexte du prélèvement'
+  ]);
+  addRow(worksheet, [
     format(sample.sampledAt, 'dd/MM/yyyy'),
+    format(sample.sampledAt, 'HH:mm'),
+    ContextLabels[sample.context]
+  ]);
+  addHeaderRow(worksheet, ['Numéro de prélèvement', 'Cadre juridique']);
+  addRow(worksheet, [
+    sample.reference,
     LegalContextLabels[sample.legalContext]
   ]);
+
+  addEmptyRow(worksheet);
+
+  addHeaderRow(worksheet, ['Entité contrôlée', 'Siret']);
+  addRow(worksheet, [sample.company.name, sample.company.siret]);
+  addHeaderRow(worksheet, ['Identifiant Resytal', 'Département']);
+  addRow(worksheet, [sample.resytalId, sample.department]);
+  addHeaderRow(worksheet, ['Adresse', 'N° ou appellation de la parcelle']);
+  addRow(worksheet, [
+    [
+      sample.company.address,
+      `${sample.company.postalCode} ${sample.company.city}`
+    ].join('\n'),
+    sample.parcel
+  ]);
+
+  //TODO note additionnelle ?
+
+  addEmptyRow(worksheet);
+
+  addHeaderRow(worksheet, ['Matrice', 'Code matrice']);
+  addRow(worksheet, [MatrixLabels[sample.matrix], sample.matrix]);
+  addHeaderRow(worksheet, [
+    'LMR/ Partie du végétal concernée',
+    'Détails de la matrice'
+  ]);
+  addRow(worksheet, [
+    MatrixPartLabels[sample.matrixPart],
+    sample.matrixDetails
+  ]);
+  addHeaderRow(worksheet, ['Type de culture', 'Stade de prélèvement']);
+  addRow(worksheet, [
+    sample.cultureKind ? CultureKindLabels[sample.cultureKind] : EmptyCell,
+    StageLabels[sample.stage]
+  ]);
+  addHeaderRow(worksheet, [
+    sample.releaseControl ? 'Type de contrôle' : EmptyCell,
+    'Laboratoire destinataire'
+  ]);
+  addRow(worksheet, [
+    sample.releaseControl ? 'Contrôle libératoire' : EmptyCell,
+    laboratory?.name
+  ]);
+
+  addEmptyRow(worksheet);
+
+  addHeaderRow(worksheet, ['Analyses mono-résidu']);
+  prescriptionSubstances
+    .filter((_) => _.analysisKind === 'Mono')
+    .forEach((prescriptionSubstance) => {
+      addRow(worksheet, [prescriptionSubstance.substance.label]);
+    });
+  addHeaderRow(worksheet, ['Analyses multi-résidus dont :']);
+  prescriptionSubstances
+    .filter((_) => _.analysisKind === 'Multi')
+    .forEach((prescriptionSubstance) => {
+      addRow(worksheet, [prescriptionSubstance.substance.label]);
+    });
 
   worksheet.eachRow((row) => {
     row.eachCell((cell) => {
@@ -88,8 +149,12 @@ const writeToWorkbook = async (
     });
   });
 
-  worksheet.getColumn(1).width = 50;
-  worksheet.getColumn(2).width = 50;
+  addEmptyRow(worksheet);
+
+  worksheet.getColumn(1).width = 25;
+  worksheet.getColumn(2).width = 25;
+  worksheet.getColumn(3).width = 25;
+  worksheet.getColumn(4).width = 25;
   worksheet.getRow(1).height = 50;
 };
 
@@ -113,22 +178,91 @@ const greyFill = {
   fgColor: { argb: 'FFD9D9D9' }
 } as exceljs.Fill;
 
-const addEmptyRow = (
-  worksheet: exceljs.Worksheet,
-  firstColumn: string,
-  lastColumn: string
-) => {
-  const emptyRow = worksheet.addRow([]);
-  worksheet.mergeCells(
-    `${firstColumn}${emptyRow.number}:${lastColumn}${emptyRow.number}`
-  );
-};
-
 const addHeaderStyle = (row: exceljs.Row) => {
   row.eachCell((cell) => {
     cell.border = thinBorders;
     cell.fill = greyFill;
   });
+};
+
+const EmptyCell = '';
+
+type CellRangeKey = 'AB' | 'CD' | 'AD';
+
+const CellRange: Record<
+  CellRangeKey,
+  {
+    start: string;
+    end: string;
+  }
+> = {
+  AB: {
+    start: 'A',
+    end: 'B'
+  },
+  CD: {
+    start: 'C',
+    end: 'D'
+  },
+  AD: {
+    start: 'A',
+    end: 'D'
+  }
+};
+
+const mergeCells = (
+  worksheet: exceljs.Worksheet,
+  rowNumber: number,
+  cellRangeKey: CellRangeKey
+) => {
+  worksheet.mergeCells(
+    `${CellRange[cellRangeKey].start}${rowNumber}:${CellRange[cellRangeKey].end}${rowNumber}`
+  );
+};
+
+const addEmptyRow = (worksheet: exceljs.Worksheet) => {
+  const emptyRow = worksheet.addRow([]);
+  mergeCells(worksheet, emptyRow.number, 'AD');
+};
+
+const completeColumns = (columns: string[]) =>
+  columns.length === 1
+    ? [columns[0], EmptyCell, EmptyCell, EmptyCell]
+    : columns.length === 2
+      ? [columns[0], EmptyCell, columns[1], EmptyCell]
+      : columns.length === 3
+        ? [columns[0], columns[1], columns[2], EmptyCell]
+        : columns;
+
+const mergeColumns = (
+  worksheet: exceljs.Worksheet,
+  rowNumber: number,
+  columnLength: number
+) => {
+  if (columnLength === 1) {
+    mergeCells(worksheet, rowNumber, 'AD');
+  } else if (columnLength === 2) {
+    mergeCells(worksheet, rowNumber, 'AB');
+    mergeCells(worksheet, rowNumber, 'CD');
+  } else if (columnLength === 3) {
+    mergeCells(worksheet, rowNumber, 'CD');
+  }
+};
+
+const addHeaderRow = (worksheet: exceljs.Worksheet, columns: string[]) => {
+  const headerRow = worksheet.addRow(completeColumns(columns));
+  addHeaderStyle(headerRow);
+  mergeColumns(worksheet, headerRow.number, columns.length);
+};
+
+const addRow = (
+  worksheet: exceljs.Worksheet,
+  columns: (string | null | undefined)[]
+) => {
+  const row = worksheet.addRow(
+    completeColumns(columns.map((_) => _ || EmptyCell))
+  );
+  mergeColumns(worksheet, row.number, columns.length);
 };
 
 export default {
