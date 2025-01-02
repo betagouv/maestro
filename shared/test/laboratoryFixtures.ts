@@ -7,5 +7,5 @@ export const genLaboratory = (data?: Partial<Laboratory>): Laboratory => ({
   id: uuidv4(),
   name: randomstring.generate(),
   email: fakerFR.internet.email(),
-  ...data,
+  ...data
 });

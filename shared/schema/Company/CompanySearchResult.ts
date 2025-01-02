@@ -17,9 +17,9 @@ export const CompanySearchResult = z.object({
     numero_voie: z.string().nullish(),
     region: z.string(),
     siret: z.string(),
-    type_voie: z.string().nullish(),
+    type_voie: z.string().nullish()
   }),
-  activite_principale: z.string(),
+  activite_principale: z.string()
 });
 
 export type CompanySearchResult = z.infer<typeof CompanySearchResult>;

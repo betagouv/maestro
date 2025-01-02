@@ -3,7 +3,7 @@ import { ComponentPropsWithoutRef, InputHTMLAttributes } from 'react';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
 import {
   AppSelectOption,
-  AppSelectOptionsGroup,
+  AppSelectOptionsGroup
 } from 'src/components/_app/AppSelect/AppSelectOption';
 import { useForm } from 'src/hooks/useForm';
 import { ZodRawShape } from 'zod';
@@ -47,15 +47,15 @@ function AppSelect<T extends ZodRawShape>(props: AppSelectProps<T>) {
       }
       hint={hint}
       nativeSelectProps={{
-        ...selectProps,
+        ...selectProps
       }}
       state={
         selectProps.required
           ? inputForm.messageType(String(inputKey), inputPathFromKey)
           : inputForm.messageType(String(inputKey), inputPathFromKey) ===
-            'error'
-          ? 'error'
-          : 'default'
+              'error'
+            ? 'error'
+            : 'default'
       }
       stateRelatedMessage={inputForm.message(
         String(inputKey),

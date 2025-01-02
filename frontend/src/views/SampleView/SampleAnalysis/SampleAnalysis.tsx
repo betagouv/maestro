@@ -9,7 +9,7 @@ import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadg
 import { usePartialSample } from 'src/hooks/usePartialSample';
 import {
   useGetSampleAnalysisQuery,
-  useUpdateAnalysisMutation,
+  useUpdateAnalysisMutation
 } from 'src/services/analysis.service';
 import { useUpdateSampleMutation } from 'src/services/sample.service';
 import SampleAdmissibility from 'src/views/SampleView/SampleAnalysis/SampleAdmissibility/SampleAdmissibility';
@@ -22,11 +22,11 @@ interface Props {
 const SampleAnalysis = ({ sample }: Props) => {
   const { laboratory } = usePartialSample(sample);
   const [, { isSuccess: isSendingSuccess }] = useUpdateSampleMutation({
-    fixedCacheKey: `sending-sample-${sample.id}`,
+    fixedCacheKey: `sending-sample-${sample.id}`
   });
   const [, { isSuccess: isCompletingAnalysisSuccess }] =
     useUpdateAnalysisMutation({
-      fixedCacheKey: `complete-analysis-${sample.id}`,
+      fixedCacheKey: `complete-analysis-${sample.id}`
     });
   const { data: analysis } = useGetSampleAnalysisQuery(sample.id);
 

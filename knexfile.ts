@@ -1,5 +1,5 @@
-import knexStringcase from 'knex-stringcase';
 import { Knex } from 'knex';
+import knexStringcase from 'knex-stringcase';
 
 const config: Knex.Config = {
   client: 'pg',
@@ -7,4 +7,4 @@ const config: Knex.Config = {
   ...knexStringcase()
 };
 
-export default config
+export default config;

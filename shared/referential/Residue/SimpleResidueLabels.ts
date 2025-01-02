@@ -814,5 +814,5 @@ export const SimpleResidueLabels: Record<SimpleResidue, string> = {
   'RF-00014542-PAR': 'Ethylene Chlorobromide',
   'RF-00014543-PAR': 'p-Chloronitrobenzene',
   'RF-00014544-PAR': 'Tetrachlorethane',
-  'RF-00014552-PAR': 'Imiprothrin',
+  'RF-00014552-PAR': 'Imiprothrin'
 };

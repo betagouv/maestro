@@ -6,20 +6,20 @@ import { QuantityUnitList } from 'shared/referential/QuantityUnit';
 import { SampleStatus } from 'shared/schema/Sample/SampleStatus';
 import {
   genCreatedSampleData,
-  genSampleContextData,
+  genSampleContextData
 } from 'shared/test/sampleFixtures';
 import { store } from 'src/store/store';
 import config from 'src/utils/config';
 import ItemsStep from 'src/views/SampleView/DraftSample/ItemsStep/ItemsStep';
+import { describe, expect, test } from 'vitest';
 import { getRequestCalls } from '../../../../../../test/requestTestUtils';
-import {describe, test, expect} from 'vitest';
 
 describe('SampleStepDraftItems', () => {
   const user = userEvent.setup();
   const draftSample = {
     ...genSampleContextData(),
     ...genCreatedSampleData(),
-    status: 'DraftItems' as SampleStatus,
+    status: 'DraftItems' as SampleStatus
   };
 
   test('should render form successfully with a default item without recipient kind choice', () => {
@@ -107,7 +107,7 @@ describe('SampleStepDraftItems', () => {
   });
 
   test('should save the items and the sample on change without handling errors', async () => {
-    fetchMock.resetMocks()
+    fetchMock.resetMocks();
     render(
       <Provider store={store}>
         <BrowserRouter>
@@ -141,7 +141,7 @@ describe('SampleStepDraftItems', () => {
   });
 
   test('should submit the items and update sample status', async () => {
-    fetchMock.resetMocks()
+    fetchMock.resetMocks();
     render(
       <Provider store={store}>
         <BrowserRouter>
@@ -184,10 +184,10 @@ describe('SampleStepDraftItems', () => {
             quantityUnit: QuantityUnitList[0],
             sampleId: draftSample.id,
             sealId: '12a',
-            recipientKind: 'Laboratory',
-          },
-        ],
-      },
+            recipientKind: 'Laboratory'
+          }
+        ]
+      }
     });
   });
 });

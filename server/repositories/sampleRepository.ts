@@ -5,7 +5,7 @@ import { defaultPerPage } from '../../shared/schema/commons/Pagination';
 import { FindSampleOptions } from '../../shared/schema/Sample/FindSampleOptions';
 import { PartialSample, Sample } from '../../shared/schema/Sample/Sample';
 import { companiesTable } from './companyRepository';
-import {knexInstance as db } from './db';
+import { knexInstance as db } from './db';
 import { usersTable } from './userRepository';
 
 export const samplesTable = 'samples';
@@ -15,12 +15,12 @@ const PartialSampleDbo = PartialSample.omit({
   items: true,
   company: true,
   sampler: true,
-  geolocation: true,
+  geolocation: true
 }).merge(
   z.object({
     companySiret: z.string().nullish(),
     geolocation: z.any().nullish(),
-    sampledBy: z.string().uuid(),
+    sampledBy: z.string().uuid()
   })
 );
 
@@ -35,7 +35,7 @@ const PartialSampleJoinedDbo = PartialSampleDbo.merge(
     companyNafCode: z.string().nullish(),
     samplerId: z.string().uuid(),
     samplerFirstName: z.string(),
-    samplerLastName: z.string(),
+    samplerLastName: z.string()
   })
 );
 
@@ -170,7 +170,7 @@ const getNextSequence = async (
     await db(sampleSequenceNumbers).insert({
       region,
       programmingPlanYear,
-      next_sequence: 1,
+      next_sequence: 1
     });
     return 1;
   }
@@ -208,11 +208,11 @@ export const formatPartialSample = (
   geolocation: partialSample.geolocation
     ? db.raw('Point(?, ?)', [
         partialSample.geolocation.x,
-        partialSample.geolocation.y,
+        partialSample.geolocation.y
       ])
     : null,
   companySiret: partialSample.company?.siret,
-  sampledBy: partialSample.sampler.id,
+  sampledBy: partialSample.sampler.id
 });
 
 export const parsePartialSample = (
@@ -223,7 +223,7 @@ export const parsePartialSample = (
     ...fp.omit(fp.omitBy(sample, fp.isNil), ['companyId']),
     geolocation: sample.geolocation && {
       x: sample.geolocation.x,
-      y: sample.geolocation.y,
+      y: sample.geolocation.y
     },
     company: sample.companySiret
       ? {
@@ -233,14 +233,14 @@ export const parsePartialSample = (
           address: sample.companyAddress ?? undefined,
           postalCode: sample.companyPostalCode ?? undefined,
           city: sample.companyCity ?? undefined,
-          nafCode: sample.companyNafCode ?? undefined,
+          nafCode: sample.companyNafCode ?? undefined
         }
       : undefined,
     sampler: {
       id: sample.samplerId,
       firstName: sample.samplerFirstName,
-      lastName: sample.samplerLastName,
-    },
+      lastName: sample.samplerLastName
+    }
   });
 
 export default {
@@ -250,5 +250,5 @@ export default {
   findMany,
   count,
   getNextSequence,
-  deleteOne,
+  deleteOne
 };

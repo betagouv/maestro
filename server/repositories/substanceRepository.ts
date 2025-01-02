@@ -1,7 +1,7 @@
 import fp from 'lodash';
 import { FindSubstanceOptions } from '../../shared/schema/Substance/FindSubstanceOptions';
 import { Substance } from '../../shared/schema/Substance/Substance';
-import {knexInstance as db} from './db';
+import { knexInstance as db } from './db';
 
 export const substancesTable = 'substances';
 export const Substances = () => db(substancesTable);
@@ -21,5 +21,5 @@ const findMany = async (findOptions: FindSubstanceOptions) => {
 };
 
 export default {
-  findMany,
+  findMany
 };

@@ -10,7 +10,7 @@ export default class AnalysisMissingError
     super({
       name: 'AnalysisMissingError',
       message: `Analysis ${id} missing`,
-      status: constants.HTTP_STATUS_NOT_FOUND,
+      status: constants.HTTP_STATUS_NOT_FOUND
     });
   }
 }

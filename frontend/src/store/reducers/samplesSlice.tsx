@@ -4,7 +4,7 @@ import { defaultPerPage } from 'shared/schema/commons/Pagination';
 import { FindSampleOptions } from 'shared/schema/Sample/FindSampleOptions';
 import {
   PartialSample,
-  PartialSampleToCreate,
+  PartialSampleToCreate
 } from 'shared/schema/Sample/Sample';
 import { SampleListDisplay } from 'src/views/SampleListView/SampleListView';
 import { z } from 'zod';
@@ -38,9 +38,9 @@ const samplesSlice = createSlice({
       department: undefined,
       status: undefined,
       programmingPlanId: undefined,
-      context: undefined,
+      context: undefined
     },
-    pendingSamples,
+    pendingSamples
   } as SamplesState,
   reducers: {
     changeListDisplay: (state, action: PayloadAction<SampleListDisplay>) => {
@@ -53,7 +53,7 @@ const samplesSlice = createSlice({
       state.findSampleOptions = fp.omitBy(
         {
           ...state.findSampleOptions,
-          ...action.payload,
+          ...action.payload
         },
         fp.isNil
       );
@@ -82,8 +82,8 @@ const samplesSlice = createSlice({
         'pendingSamples',
         JSON.stringify(Object.values(state.pendingSamples))
       );
-    },
-  },
+    }
+  }
 });
 
 export default samplesSlice;

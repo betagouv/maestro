@@ -1,5 +1,5 @@
 import { Knex } from 'knex';
-import { default as fp, default as _, isArray } from 'lodash';
+import { default as _, default as fp, isArray } from 'lodash';
 import {
   FindRegionalPrescriptionOptions,
   RegionalPrescriptionOptionsInclude
@@ -8,7 +8,7 @@ import {
   RegionalPrescription,
   RegionalPrescriptionKey
 } from '../../shared/schema/RegionalPrescription/RegionalPrescription';
-import {knexInstance as db} from './db';
+import { knexInstance as db } from './db';
 import { prescriptionsTable } from './prescriptionRepository';
 import { regionalPrescriptionCommentsTable } from './regionalPrescriptionCommentRepository';
 import { samplesTable } from './sampleRepository';

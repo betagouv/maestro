@@ -13,18 +13,13 @@ export const FileInput = (
       (file) => file?.size <= MaxFileSize,
       'Le fichier est trop volumineux.'
     )
-    .refine(
-      (file) => {
-        const {success, data: fileType} = FileType.safeParse(file?.type)
-        if( !success ){
-          return false
-        }
+    .refine((file) => {
+      const { success, data: fileType } = FileType.safeParse(file?.type);
+      if (!success) {
+        return false;
+      }
 
-        return acceptFileTypes.includes(fileType)
-
-      },
-      "Ce type de fichier n'est pas accepté."
-    )
-
+      return acceptFileTypes.includes(fileType);
+    }, "Ce type de fichier n'est pas accepté.");
 
 export type File = z.infer<ReturnType<typeof FileInput>>;

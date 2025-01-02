@@ -1,3 +1,5 @@
+import { Knex } from 'knex';
+import { setKnexInstance } from '../../../server/repositories/db';
 import { PrescriptionSubstances } from '../../../server/repositories/prescriptionSubstanceRepository';
 import { AnalysisKind } from '../../../shared/schema/Analysis/AnalysisKind';
 import {
@@ -31,13 +33,11 @@ import {
   pechesEtSimilaires,
   poireauxEtSimilaires,
   poires,
-  rizEtSimilaires,
+  rizEtSimilaires
 } from './004-prescriptions';
-import { Knex } from 'knex';
-import { setKnexInstance } from '../../../server/repositories/db';
 
 exports.seed = async function (knex: Knex) {
-  setKnexInstance(knex)
+  setKnexInstance(knex);
 
   const genSubstanceAnalysis = (
     prescriptionId: string,
@@ -47,7 +47,7 @@ exports.seed = async function (knex: Knex) {
     substanceCodes.map((substanceCode) => ({
       prescriptionId,
       substanceCode,
-      analysisKind,
+      analysisKind
     }));
 
   // prettier-ignore

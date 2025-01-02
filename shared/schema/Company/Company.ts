@@ -9,12 +9,12 @@ export const Company = z.object(
     address: z.string().nullish(),
     postalCode: z.string().nullish(),
     city: z.string().nullish(),
-    nafCode: z.string().nullish(),
+    nafCode: z.string().nullish()
   },
   {
     errorMap: () => ({
-      message: "Veuillez renseigner l'entité",
-    }),
+      message: "Veuillez renseigner l'entité"
+    })
   }
 );
 
@@ -30,13 +30,13 @@ export const companyFromSearchResult = (
     address: [
       companySearchResult.siege.numero_voie,
       companySearchResult.siege.type_voie,
-      companySearchResult.siege.libelle_commune,
+      companySearchResult.siege.libelle_commune
     ]
       .filter(isDefined)
       .join(' '),
     postalCode: companySearchResult.siege.code_postal,
     city: companySearchResult.siege.libelle_commune,
-    nafCode: companySearchResult.activite_principale,
+    nafCode: companySearchResult.activite_principale
   });
 
 export const companyToSearchResult = (company: Company) =>
@@ -56,7 +56,7 @@ export const companyToSearchResult = (company: Company) =>
       numero_voie: '',
       region: '',
       siret: company.siret,
-      type_voie: '',
+      type_voie: ''
     },
-    activite_principale: company.nafCode,
+    activite_principale: company.nafCode
   });

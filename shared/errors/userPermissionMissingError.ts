@@ -9,7 +9,7 @@ export default class UserPermissionMissingError
     super({
       name: 'UserPermissionMissingError',
       message: `User permission missing`,
-      status: constants.HTTP_STATUS_FORBIDDEN,
+      status: constants.HTTP_STATUS_FORBIDDEN
     });
   }
 }

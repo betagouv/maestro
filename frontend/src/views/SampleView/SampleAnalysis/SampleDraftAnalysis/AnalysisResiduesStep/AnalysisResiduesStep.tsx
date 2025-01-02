@@ -7,24 +7,24 @@ import React, { useState } from 'react';
 import {
   OptionalBoolean,
   OptionalBooleanLabels,
-  OptionalBooleanList,
+  OptionalBooleanList
 } from 'shared/referential/OptionnalBoolean';
 import { Analysis, PartialAnalysis } from 'shared/schema/Analysis/Analysis';
 import {
   AnalysisKind,
   AnalysisKindLabels,
-  AnalysisKindList,
+  AnalysisKindList
 } from 'shared/schema/Analysis/AnalysisKind';
 import { PartialResidue } from 'shared/schema/Analysis/Residue/Residue';
 import {
   ResidueCompliance,
   ResidueComplianceLabels,
-  ResidueComplianceList,
+  ResidueComplianceList
 } from 'shared/schema/Analysis/Residue/ResidueCompliance';
 import {
   ResidueKind,
   ResidueKindLabels,
-  ResidueKindList,
+  ResidueKindList
 } from 'shared/schema/Analysis/Residue/ResidueKind';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
@@ -55,7 +55,7 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
 
   const Form = Analysis.pick({
     kind: true,
-    residues: true,
+    residues: true
   });
 
   type FormShape = typeof Form.shape;
@@ -73,7 +73,7 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
         ...partialAnalysis,
         kind: analysisKind,
         residues,
-        status: 'Compliance',
+        status: 'Compliance'
       });
       navigateToSample(partialAnalysis.sampleId, 3);
     });
@@ -81,13 +81,13 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
 
   const form = useForm(Form, {
     kind: analysisKind,
-    residues,
+    residues
   });
 
   const ResidueComplianceIllustrations: Record<ResidueCompliance, any> = {
     Compliant: check,
     NonCompliant: close,
-    Other: warning,
+    Other: warning
   };
 
   return (
@@ -100,8 +100,8 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
             setResidues([
               {
                 analysisId: partialAnalysis.id,
-                residueNumber: 1,
-              },
+                residueNumber: 1
+              }
             ]);
           } else {
             setResidues([]);
@@ -118,14 +118,14 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
                 legend="Méthode d’analyse"
                 options={selectOptionsFromList(AnalysisKindList, {
                   labels: AnalysisKindLabels,
-                  withDefault: false,
+                  withDefault: false
                 }).map(({ label, value }) => ({
                   key: `analysisKind-option-${value}`,
                   label,
                   nativeInputProps: {
                     checked: analysisKind === value,
-                    onChange: () => setAnalysisKind(value as AnalysisKind),
-                  },
+                    onChange: () => setAnalysisKind(value as AnalysisKind)
+                  }
                 }))}
                 colSm={6}
                 inputForm={form}
@@ -175,7 +175,7 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
                       options={selectOptionsFromList(ResidueKindList, {
                         labels: ResidueKindLabels,
                         withDefault: false,
-                        withSort: false,
+                        withSort: false
                       }).map(({ label, value }) => ({
                         key: `residueKind-option-${value}`,
                         label,
@@ -193,14 +193,14 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
                                         {
                                           analysisId: partialAnalysis.id,
                                           residueNumber: residueIndex + 1,
-                                          analyteNumber: 1,
-                                        },
+                                          analyteNumber: 1
+                                        }
                                       ]
-                                    : null,
+                                    : null
                               },
                               residueIndex
-                            ),
-                        },
+                            )
+                        }
                       }))}
                       colSm={6}
                       inputForm={form}
@@ -244,14 +244,14 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
                         <AppSelect<FormShape>
                           value={residue.resultHigherThanArfd ?? ''}
                           options={selectOptionsFromList(OptionalBooleanList, {
-                            labels: OptionalBooleanLabels,
+                            labels: OptionalBooleanLabels
                           })}
                           onChange={(e) =>
                             changeResidue(
                               {
                                 ...residue,
                                 resultHigherThanArfd: e.target
-                                  .value as OptionalBoolean,
+                                  .value as OptionalBoolean
                               },
                               residueIndex
                             )
@@ -260,7 +260,7 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
                           inputKey="residues"
                           inputPathFromKey={[
                             residueIndex,
-                            'resultHigherThanArfd',
+                            'resultHigherThanArfd'
                           ]}
                           whenValid="Valeur correctement renseignée"
                           label="Résultat brut supérieur à l'Arfd ?"
@@ -286,14 +286,14 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
                         <AppSelect<FormShape>
                           value={residue.substanceApproved ?? ''}
                           options={selectOptionsFromList(OptionalBooleanList, {
-                            labels: OptionalBooleanLabels,
+                            labels: OptionalBooleanLabels
                           })}
                           onChange={(e) =>
                             changeResidue(
                               {
                                 ...residue,
                                 substanceApproved: e.target
-                                  .value as OptionalBoolean,
+                                  .value as OptionalBoolean
                               },
                               residueIndex
                             )
@@ -309,14 +309,14 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
                         <AppSelect<FormShape>
                           value={residue.substanceAuthorised ?? ''}
                           options={selectOptionsFromList(OptionalBooleanList, {
-                            labels: OptionalBooleanLabels,
+                            labels: OptionalBooleanLabels
                           })}
                           onChange={(e) =>
                             changeResidue(
                               {
                                 ...residue,
                                 substanceAuthorised: e.target
-                                  .value as OptionalBoolean,
+                                  .value as OptionalBoolean
                               },
                               residueIndex
                             )
@@ -325,7 +325,7 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
                           inputKey="residues"
                           inputPathFromKey={[
                             residueIndex,
-                            'substanceAuthorised',
+                            'substanceAuthorised'
                           ]}
                           whenValid="Valeur correctement renseignée"
                           label="Substance autorisée pour l'usage"
@@ -335,14 +335,13 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
                         <AppSelect<FormShape>
                           value={residue.pollutionRisk ?? ''}
                           options={selectOptionsFromList(OptionalBooleanList, {
-                            labels: OptionalBooleanLabels,
+                            labels: OptionalBooleanLabels
                           })}
                           onChange={(e) =>
                             changeResidue(
                               {
                                 ...residue,
-                                pollutionRisk: e.target
-                                  .value as OptionalBoolean,
+                                pollutionRisk: e.target.value as OptionalBoolean
                               },
                               residueIndex
                             )
@@ -361,7 +360,7 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
                             changeResidue(
                               {
                                 ...residue,
-                                notesOnPollutionRisk: e.target.value,
+                                notesOnPollutionRisk: e.target.value
                               },
                               residueIndex
                             )
@@ -370,7 +369,7 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
                           inputKey="residues"
                           inputPathFromKey={[
                             residueIndex,
-                            'notesOnPollutionRisk',
+                            'notesOnPollutionRisk'
                           ]}
                           whenValid="Note interne correctement renseignée"
                           label="Note interne"
@@ -387,7 +386,7 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
                             {
                               labels: ResidueComplianceLabels,
                               withDefault: false,
-                              withSort: false,
+                              withSort: false
                             }
                           ).map(({ label, value }) => ({
                             key: `residueCompliance-option-${value}`,
@@ -398,10 +397,10 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
                                 changeResidue(
                                   {
                                     ...residue,
-                                    compliance: value as ResidueCompliance,
+                                    compliance: value as ResidueCompliance
                                   },
                                   residueIndex
-                                ),
+                                )
                             },
                             illustration: (
                               <img
@@ -413,7 +412,7 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
                                 alt=""
                                 aria-hidden
                               />
-                            ),
+                            )
                           }))}
                           colSm={6}
                           inputForm={form}
@@ -453,13 +452,13 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
                       e.preventDefault();
                       await updateAnalysis({
                         ...partialAnalysis,
-                        status: 'Report',
+                        status: 'Report'
                       });
                       navigateToSample(partialAnalysis.sampleId, 1);
                     },
                     title: 'Retour',
-                    iconId: 'fr-icon-arrow-left-line',
-                  },
+                    iconId: 'fr-icon-arrow-left-line'
+                  }
                 ]}
               />
             </li>
@@ -479,17 +478,17 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
                               ...residues,
                               {
                                 analysisId: partialAnalysis.id,
-                                residueNumber: residues.length + 1,
-                              },
-                            ]),
+                                residueNumber: residues.length + 1
+                              }
+                            ])
                         }
                       : undefined,
                     {
                       children: 'Continuer',
                       onClick: submit,
                       iconId: 'fr-icon-arrow-right-line',
-                      iconPosition: 'right',
-                    },
+                      iconPosition: 'right'
+                    }
                   ].filter((_) => _ !== undefined) as any
                 }
               />

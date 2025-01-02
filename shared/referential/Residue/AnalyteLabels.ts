@@ -256,5 +256,5 @@ export const AnalyteLabels: Record<Analyte, string> = {
   'RF-00006827-PAR': 'Pinoxaden metabolite (SYN 505164)',
   'RF-0381-001-PPP': 'Quinmerac',
   'RF-00007283-PAR': '7-chloroquinoline-3,8-dicarboxylic acid',
-  'RF-00007284-PAR': '7-chloro-3-(hydroxymethyl)quinoline-8-carboxylic acid',
+  'RF-00007284-PAR': '7-chloro-3-(hydroxymethyl)quinoline-8-carboxylic acid'
 };

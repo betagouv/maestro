@@ -10,7 +10,7 @@ export default class ProgrammingPlanMissingError
     super({
       name: 'ProgrammingPlanMissingError',
       message: `ProgrammingPlan ${id} missing`,
-      status: constants.HTTP_STATUS_NOT_FOUND,
+      status: constants.HTTP_STATUS_NOT_FOUND
     });
   }
 }

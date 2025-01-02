@@ -6,7 +6,7 @@ export default class RouteNotFoundError extends HttpError implements HttpError {
     super({
       name: 'RouteNotFoundError',
       message: `Route not found`,
-      status: constants.HTTP_STATUS_NOT_FOUND,
+      status: constants.HTTP_STATUS_NOT_FOUND
     });
   }
 }

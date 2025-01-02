@@ -1,26 +1,24 @@
-import config from './utils/config';
 import { Knex } from 'knex';
-import defaultConfig from '../knexfile'
+import defaultConfig from '../knexfile';
+import config from './utils/config';
 
 const productionConfig: Knex.Config = {
   ...defaultConfig,
   connection: config.databaseUrl,
   migrations: {
     tableName: 'knex_migrations',
-    directory: '../database/migrations',
-  },
+    directory: '../database/migrations'
+  }
 };
 
 const dummyConfig: Knex.Config = {
   ...productionConfig,
   seeds: {
     directory: '../database/seeds/dummy',
-    extension: 'ts',
-  },
+    extension: 'ts'
+  }
 };
-
-
 
 export default config.databaseEnvironment === 'production'
   ? productionConfig
-  :  dummyConfig;
+  : dummyConfig;

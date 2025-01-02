@@ -160,7 +160,6 @@ function buildPathPlugin(): Plugin {
   };
 }
 
-
 // To resolve modules from node_modules, you can prefix paths with ~
 // https://create-react-app.dev/docs/adding-a-sass-stylesheet
 // Migration guide: Follow the guide below

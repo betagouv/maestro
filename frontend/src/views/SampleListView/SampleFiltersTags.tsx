@@ -11,7 +11,7 @@ import {
   DraftStatusList,
   RealizedStatusList,
   SampleStatus,
-  SampleStatusLabels,
+  SampleStatusLabels
 } from 'shared/schema/Sample/SampleStatus';
 import { UserInfos } from 'shared/schema/User/User';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -35,7 +35,7 @@ const SampleFiltersTags = ({ filters, onChange, samplers }: Props) => {
         <Tag
           dismissible
           nativeButtonProps={{
-            onClick: () => onChange({ matrix: undefined }),
+            onClick: () => onChange({ matrix: undefined })
           }}
         >
           {MatrixLabels[filters.matrix as Matrix]}
@@ -46,21 +46,21 @@ const SampleFiltersTags = ({ filters, onChange, samplers }: Props) => {
         <Tag
           dismissible
           nativeButtonProps={{
-            onClick: () => onChange({ status: undefined }),
+            onClick: () => onChange({ status: undefined })
           }}
         >
           {filters.status === DraftStatusList.join(',')
             ? 'Brouillon'
             : filters.status === RealizedStatusList.join(',')
-            ? 'Réalisé'
-            : SampleStatusLabels[filters.status as SampleStatus]}
+              ? 'Réalisé'
+              : SampleStatusLabels[filters.status as SampleStatus]}
         </Tag>
       )}
       {sampler && (
         <Tag
           dismissible
           nativeButtonProps={{
-            onClick: () => onChange({ sampledBy: undefined }),
+            onClick: () => onChange({ sampledBy: undefined })
           }}
         >
           {sampler.firstName} {sampler.lastName}
@@ -70,7 +70,7 @@ const SampleFiltersTags = ({ filters, onChange, samplers }: Props) => {
         <Tag
           dismissible
           nativeButtonProps={{
-            onClick: () => onChange({ sampledAt: undefined }),
+            onClick: () => onChange({ sampledAt: undefined })
           }}
         >
           {format(new Date(filters.sampledAt as string), 'dd/MM/yyyy')}
@@ -81,7 +81,7 @@ const SampleFiltersTags = ({ filters, onChange, samplers }: Props) => {
           dismissible
           nativeButtonProps={{
             onClick: () =>
-              onChange({ region: undefined, department: undefined }),
+              onChange({ region: undefined, department: undefined })
           }}
         >
           {Regions[filters.region as Region].name}
@@ -91,7 +91,7 @@ const SampleFiltersTags = ({ filters, onChange, samplers }: Props) => {
         <Tag
           dismissible
           nativeButtonProps={{
-            onClick: () => onChange({ department: undefined }),
+            onClick: () => onChange({ department: undefined })
           }}
         >
           {DepartmentLabels[filters.department as Department]}
@@ -101,7 +101,7 @@ const SampleFiltersTags = ({ filters, onChange, samplers }: Props) => {
         <Tag
           dismissible
           nativeButtonProps={{
-            onClick: () => onChange({ context: undefined }),
+            onClick: () => onChange({ context: undefined })
           }}
         >
           {ContextLabels[filters.context]}

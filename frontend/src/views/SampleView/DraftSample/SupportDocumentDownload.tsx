@@ -5,7 +5,7 @@ import React, { useMemo } from 'react';
 import {
   isCreatedPartialSample,
   PartialSample,
-  PartialSampleToCreate,
+  PartialSampleToCreate
 } from 'shared/schema/Sample/Sample';
 import AlertModal from 'src/components/AlertModal/AlertModal';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
@@ -21,7 +21,7 @@ interface Props {
 const SupportDocumentDownload = ({
   partialSample,
   missingData,
-  onConfirm,
+  onConfirm
 }: Props) => {
   const { isMobile } = useWindowSize();
 
@@ -29,7 +29,7 @@ const SupportDocumentDownload = ({
     () =>
       createModal({
         id: `document-download-modal-${partialSample.id}-${partialSample.status}`,
-        isOpenedByDefault: false,
+        isOpenedByDefault: false
       }),
     [partialSample]
   );
@@ -38,7 +38,7 @@ const SupportDocumentDownload = ({
     () =>
       createModal({
         id: `document-download-alert-modal-${partialSample.id}-${partialSample.status}`,
-        isOpenedByDefault: false,
+        isOpenedByDefault: false
       }),
     [partialSample]
   );
@@ -55,10 +55,10 @@ const SupportDocumentDownload = ({
         <Button
           onClick={async (e: React.MouseEvent) => {
             e.preventDefault();
-            if( missingData ) {
-              alertModal.open() }
-            else {
-              confirmationModal.open()
+            if (missingData) {
+              alertModal.open();
+            } else {
+              confirmationModal.open();
             }
           }}
           priority="tertiary no outline"

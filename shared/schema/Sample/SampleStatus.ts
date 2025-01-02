@@ -10,10 +10,10 @@ export const SampleStatus = z.enum(
     'NotAdmissible',
     'Analysis',
     'Completed',
-    'CompletedNotConform',
+    'CompletedNotConform'
   ],
   {
-    errorMap: () => ({ message: 'Statut non renseigné.' }),
+    errorMap: () => ({ message: 'Statut non renseigné.' })
   }
 );
 
@@ -24,19 +24,19 @@ export const SampleStatusList: SampleStatus[] = SampleStatus.options;
 export const DraftStatusList: SampleStatus[] = [
   'Draft',
   'DraftMatrix',
-  'DraftItems',
+  'DraftItems'
 ];
 
 export const CompletedStatusList: SampleStatus[] = [
   'Completed',
-  'CompletedNotConform',
+  'CompletedNotConform'
 ];
 
 export const RealizedStatusList: SampleStatus[] = [
   'Sent',
   'NotAdmissible',
   'Analysis',
-  ...CompletedStatusList,
+  ...CompletedStatusList
 ];
 
 export const SampleStatusLabels: Record<SampleStatus, string> = {
@@ -48,5 +48,5 @@ export const SampleStatusLabels: Record<SampleStatus, string> = {
   NotAdmissible: 'Non recevable',
   Analysis: 'En cours d’analyse',
   Completed: 'Terminé',
-  CompletedNotConform: 'Terminé non conforme',
+  CompletedNotConform: 'Terminé non conforme'
 };

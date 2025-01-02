@@ -8,14 +8,14 @@ export const Analyte = z.object({
   analyteNumber: z.number().int().positive(),
   reference: AnalyteReference,
   resultKind: ResultKind,
-  result: z.number().min(0).nullish(),
+  result: z.number().min(0).nullish()
 });
 
 export const PartialAnalyte = Analyte.partial().merge(
   Analyte.pick({
     analysisId: true,
     residueNumber: true,
-    analyteNumber: true,
+    analyteNumber: true
   })
 );
 

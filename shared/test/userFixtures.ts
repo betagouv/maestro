@@ -22,13 +22,13 @@ export const genUser = (data?: Partial<User>): User => {
       roles?.includes('NationalCoordinator') || roles?.includes('Administrator')
         ? null
         : oneOf(RegionList),
-    ...data,
+    ...data
   };
 };
 
 export function genAuthUser(): AuthUser {
   return {
     accessToken: randomstring.generate(),
-    userId: uuidv4(),
+    userId: uuidv4()
   };
 }

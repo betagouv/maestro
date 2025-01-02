@@ -21,13 +21,13 @@ const init = (app: Express): void => {
       tracesSampleRate: 1.0,
       integrations: [
         new Sentry.Integrations.Http({
-          tracing: true,
+          tracing: true
         }),
         new Sentry.Integrations.Express({
-          app,
+          app
         }),
-        new Sentry.Integrations.Postgres(),
-      ],
+        new Sentry.Integrations.Postgres()
+      ]
     });
 
     // RequestHandler creates a separate execution context using domains, so that every
@@ -51,5 +51,5 @@ const errorHandler = (app: Express): void => {
 
 export default {
   init,
-  errorHandler,
+  errorHandler
 };

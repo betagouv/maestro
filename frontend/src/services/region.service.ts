@@ -4,9 +4,9 @@ export const regionApi = api.injectEndpoints({
   endpoints: (builder) => ({
     getRegionsGeoJson: builder.query<JSON, void>({
       query: () => 'regions.geojson',
-      providesTags: ['Regions'],
-    }),
-  }),
+      providesTags: ['Regions']
+    })
+  })
 });
 
 export const { useGetRegionsGeoJsonQuery } = regionApi;

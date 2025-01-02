@@ -1,9 +1,9 @@
-import { Companies } from '../../../server/repositories/companyRepository';
 import { Knex } from 'knex';
+import { Companies } from '../../../server/repositories/companyRepository';
 import { setKnexInstance } from '../../../server/repositories/db';
 
 exports.seed = async function (knex: Knex) {
-  setKnexInstance(knex)
+  setKnexInstance(knex);
 
   await Companies().insert([
     {
@@ -13,7 +13,7 @@ exports.seed = async function (knex: Knex) {
       address: 'ESAT OCEANIS',
       postalCode: '44600',
       city: 'Saint-Nazaire',
-      nafCode: '88.10C',
+      nafCode: '88.10C'
     },
     {
       siret: '84159600000015',
@@ -22,7 +22,7 @@ exports.seed = async function (knex: Knex) {
       address: '120 ROUTE DE BEAU SOLEIL',
       postalCode: '44470',
       city: 'Mauves-sur-Loire',
-      nafCode: '01.50Z',
+      nafCode: '01.50Z'
     },
     {
       siret: '44876439900011',
@@ -31,7 +31,7 @@ exports.seed = async function (knex: Knex) {
       address: 'LES CHAILLEREAUX',
       postalCode: '44260',
       city: 'Malville',
-      nafCode: '01.30Z',
-    },
+      nafCode: '01.30Z'
+    }
   ]);
 };

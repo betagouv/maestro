@@ -11,13 +11,13 @@ interface RemoveDocumentProps {
 
 const RemoveDocument = ({
   document,
-  onRemoveDocument,
+  onRemoveDocument
 }: RemoveDocumentProps) => {
   const removeModal = useMemo(
     () =>
       createModal({
         id: `remove-modal-${document.id}`,
-        isOpenedByDefault: false,
+        isOpenedByDefault: false
       }),
     [document]
   );

@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const AddressSearchResult = z.object({
   geometry: z.object({
     type: z.string(),
-    coordinates: z.array(z.number()),
+    coordinates: z.array(z.number())
   }),
   properties: z.object({
     label: z.string(),
@@ -19,8 +19,8 @@ export const AddressSearchResult = z.object({
     city: z.string(),
     context: z.string(),
     importance: z.number(),
-    street: z.string().nullish(),
-  }),
+    street: z.string().nullish()
+  })
 });
 
 export const AddressSearchResults = z.object({
@@ -30,7 +30,7 @@ export const AddressSearchResults = z.object({
   attribution: z.string(),
   licence: z.string(),
   query: z.string(),
-  limit: z.number(),
+  limit: z.number()
 });
 
 export type AddressSearchResult = z.infer<typeof AddressSearchResult>;

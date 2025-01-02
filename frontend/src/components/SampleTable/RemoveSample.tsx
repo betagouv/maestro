@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import {
   isCreatedPartialSample,
   PartialSample,
-  PartialSampleToCreate,
+  PartialSampleToCreate
 } from 'shared/schema/Sample/Sample';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 import { useDeleteSampleMutation } from 'src/services/sample.service';
@@ -17,7 +17,7 @@ const RemoveSample = ({ sample }: RemoveSampleProps) => {
     () =>
       createModal({
         id: `remove-modal-${sample.id}`,
-        isOpenedByDefault: false,
+        isOpenedByDefault: false
       }),
     [sample]
   );

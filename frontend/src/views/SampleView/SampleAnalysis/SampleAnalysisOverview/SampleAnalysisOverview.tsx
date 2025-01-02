@@ -22,7 +22,7 @@ import DocumentLink from 'src/components/DocumentLink/DocumentLink';
 import ResidueResultAlert from 'src/components/ResidueResultAlert/ResidueResultAlert';
 import {
   useGetSampleAnalysisQuery,
-  useUpdateAnalysisMutation,
+  useUpdateAnalysisMutation
 } from 'src/services/analysis.service';
 import { useUpdateSampleMutation } from 'src/services/sample.service';
 import { pluralize, quote } from 'src/utils/stringUtils';
@@ -46,7 +46,7 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
     () =>
       createModal({
         id: `editing-confirmation-modal-${sample.id}`,
-        isOpenedByDefault: false,
+        isOpenedByDefault: false
       }),
     [sample.id]
   );
@@ -58,11 +58,11 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
   const editAnalysis = async () => {
     await updateSample({
       ...sample,
-      status: 'Analysis',
+      status: 'Analysis'
     });
     await updateAnalysis({
       ...analysis,
-      status: editingStatus,
+      status: editingStatus
     });
   };
 

@@ -20,10 +20,10 @@ import { useGetUserInfosQuery } from 'src/services/user.service';
 import DashboardView from 'src/views/DashboardView/DashboardView';
 import DocumentListView from 'src/views/DocumentListView/DocumentListView';
 import HomeView from 'src/views/HomeView/HomeView';
+import { OpenApiExplorerView } from 'src/views/OpenApiExplorer/OpenApiExplorerView';
 import PrescriptionListView from 'src/views/PrescriptionListView/PrescriptionListView';
 import SampleListView from 'src/views/SampleListView/SampleListView';
 import SampleView from 'src/views/SampleView/SampleView';
-import { OpenApiExplorerView } from 'src/views/OpenApiExplorer/OpenApiExplorerView';
 
 export const useAuthentication = () => {
   const { authUser } = useAppSelector((state) => state.auth);
@@ -132,12 +132,12 @@ export const useAuthentication = () => {
               key: 'documents_route',
               component: DocumentListView
             },
-          {
-            path:'/api-docs',
-            label: 'API Docs',
-            key:'api_docs',
-            component: OpenApiExplorerView
-          }
+            {
+              path: '/api-docs',
+              label: 'API Docs',
+              key: 'api_docs',
+              component: OpenApiExplorerView
+            }
           ]
         : [
             {

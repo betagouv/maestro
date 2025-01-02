@@ -1,14 +1,14 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import {
   SimpleResidue,
-  SimpleResidueList,
+  SimpleResidueList
 } from 'shared/referential/Residue/SimpleResidue';
 import { SimpleResidueLabels } from 'shared/referential/Residue/SimpleResidueLabels';
 import { PartialResidue } from 'shared/schema/Analysis/Residue/Residue';
 import {
   ResultKind,
   ResultKindLabels,
-  ResultKindList,
+  ResultKindList
 } from 'shared/schema/Analysis/Residue/ResultKind';
 import { isDefinedAndNotNull } from 'shared/utils/utils';
 import ResidueResultAlert from 'src/components/ResidueResultAlert/ResidueResultAlert';
@@ -30,7 +30,7 @@ function SimpleResidueForm<T extends ZodRawShape>({
   form,
   residue,
   residueIndex,
-  changeResidue,
+  changeResidue
 }: Props) {
   return (
     <>
@@ -40,19 +40,19 @@ function SimpleResidueForm<T extends ZodRawShape>({
             options={selectOptionsFromList(SimpleResidueList, {
               labels: SimpleResidueLabels,
               withSort: true,
-              withDefault: false,
+              withDefault: false
             })}
             value={residue.reference ?? ''}
             state={form.messageType('residues', [residueIndex, 'reference'])}
             stateRelatedMessage={form.message('residues', [
               residueIndex,
-              'reference',
+              'reference'
             ])}
             onSelect={(value) =>
               changeResidue(
                 {
                   ...residue,
-                  reference: value as SimpleResidue,
+                  reference: value as SimpleResidue
                 },
                 residueIndex
               )
@@ -68,7 +68,7 @@ function SimpleResidueForm<T extends ZodRawShape>({
           <AppSelect<T>
             value={residue.resultKind ?? ''}
             options={selectOptionsFromList(ResultKindList, {
-              labels: ResultKindLabels,
+              labels: ResultKindLabels
             })}
             onChange={(e) =>
               changeResidue(
@@ -76,7 +76,7 @@ function SimpleResidueForm<T extends ZodRawShape>({
                   ...residue,
                   resultKind: e.target.value as ResultKind,
                   result: undefined,
-                  lmr: undefined,
+                  lmr: undefined
                 },
                 residueIndex
               )

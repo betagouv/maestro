@@ -8,7 +8,7 @@ type ProgrammingPlanState = {
 const programmingPlanSlice = createSlice({
   name: 'programmingPlan',
   initialState: {
-    programmingPlan: undefined,
+    programmingPlan: undefined
   } as ProgrammingPlanState,
   reducers: {
     setProgrammingPlan: (
@@ -16,8 +16,8 @@ const programmingPlanSlice = createSlice({
       action: PayloadAction<ProgrammingPlan | undefined>
     ) => {
       state.programmingPlan = action.payload;
-    },
-  },
+    }
+  }
 });
 
 export default programmingPlanSlice;

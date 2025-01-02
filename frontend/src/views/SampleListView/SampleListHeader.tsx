@@ -19,7 +19,7 @@ interface Props {
 const SampleListHeader = ({
   findSampleOptions,
   changeFilter,
-  samplesCount,
+  samplesCount
 }: Props) => {
   const dispatch = useAppDispatch();
   const { isMobile } = useWindowSize();
@@ -29,7 +29,7 @@ const SampleListHeader = ({
 
   const changeReference = (e: React.ChangeEvent<HTMLInputElement>) => {
     changeFilter({
-      reference: e.target.value,
+      reference: e.target.value
     });
   };
 
@@ -47,7 +47,7 @@ const SampleListHeader = ({
             type: 'search',
             placeholder: 'N° de prélèvement',
             value: findSampleOptions.reference ?? '',
-            onChange: changeReference,
+            onChange: changeReference
           }}
           className={cx('fr-my-0', 'fr-ml-3w', 'fr-hidden', 'fr-unhidden-md')}
         />
@@ -64,8 +64,8 @@ const SampleListHeader = ({
                 nativeInputProps: {
                   checked: sampleListDisplay === 'cards',
                   onChange: () =>
-                    dispatch(samplesSlice.actions.changeListDisplay('cards')),
-                },
+                    dispatch(samplesSlice.actions.changeListDisplay('cards'))
+                }
               },
               {
                 label: 'Tableau',
@@ -73,9 +73,9 @@ const SampleListHeader = ({
                 nativeInputProps: {
                   checked: sampleListDisplay === 'table',
                   onChange: () =>
-                    dispatch(samplesSlice.actions.changeListDisplay('table')),
-                },
-              },
+                    dispatch(samplesSlice.actions.changeListDisplay('table'))
+                }
+              }
             ]}
             className={cx('fr-mr-3w')}
           />
@@ -89,7 +89,7 @@ const SampleListHeader = ({
                 ...findSampleOptions,
                 programmingPlanId: programmingPlan?.id as string,
                 perPage: undefined,
-                page: undefined,
+                page: undefined
               })
             )
           }
@@ -106,7 +106,7 @@ const SampleListHeader = ({
           type: 'search',
           placeholder: 'N° de prélèvement',
           value: findSampleOptions.reference ?? '',
-          onChange: changeReference,
+          onChange: changeReference
         }}
         className={clsx(cx('fr-hidden-md', 'fr-pt-2w'), 'flex-grow-1')}
       />

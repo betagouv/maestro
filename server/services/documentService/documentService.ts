@@ -17,7 +17,7 @@ import programmingPlanRepository from '../../repositories/programmingPlanReposit
 import {
   Template,
   templateContent,
-  templateStylePath,
+  templateStylePath
 } from '../../templates/templates';
 import config from '../../utils/config';
 
@@ -26,7 +26,7 @@ const generateDocument = async (template: Template, data: any) => {
   const htmlContent = compiledTemplate(data);
 
   const browser = await puppeteer.launch({
-    args: ['--no-sandbox'],
+    args: ['--no-sandbox']
   });
   const page = await browser.newPage();
   await page.emulateMediaType('screen');
@@ -40,15 +40,15 @@ const generateDocument = async (template: Template, data: any) => {
     content: dsfrStyles.replaceAll(
       '@media (min-width: 62em)',
       '@media (min-width: 48em)'
-    ),
+    )
   });
 
   await page.addStyleTag({
-    path: templateStylePath(template),
+    path: templateStylePath(template)
   });
 
   const pdfBuffer = await page.pdf({
-    printBackground: true,
+    printBackground: true
   });
   await browser.close();
 
@@ -106,10 +106,10 @@ const generateSupportDocument = async (
         : 'Non'
       : '',
     dsfrLink: `${config.application.host}/dsfr/dsfr.min.css`,
-    establishment: Regions[sample.region].establishment,
+    establishment: Regions[sample.region].establishment
   });
 };
 
 export default {
-  generateSupportDocument,
+  generateSupportDocument
 };

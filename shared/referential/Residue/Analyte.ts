@@ -245,12 +245,12 @@ export const Analyte = z.enum(
     'RF-00006827-PAR',
     'RF-0381-001-PPP',
     'RF-00007283-PAR',
-    'RF-00007284-PAR',
+    'RF-00007284-PAR'
   ],
   {
     errorMap: () => ({
-      message: "Veuillez renseigner l'analyte.",
-    }),
+      message: "Veuillez renseigner l'analyte."
+    })
   }
 );
 

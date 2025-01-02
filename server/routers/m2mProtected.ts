@@ -5,4 +5,4 @@ import { basicAuthCheck } from '../middlewares/checks/authCheck';
 export const m2mProtectedRouter = express.Router();
 
 m2mProtectedRouter.use(basicAuthCheck);
-m2mProtectedRouter.use('/checkLaboratoryEmails', checkLaboratoryEmails)
+m2mProtectedRouter.use('/checkLaboratoryEmails', checkLaboratoryEmails);

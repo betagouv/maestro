@@ -8,13 +8,13 @@ export const substanceApi = api.injectEndpoints({
       query: (query) => ({
         url: 'substances/search',
         params: {
-          q: query,
-        },
+          q: query
+        }
       }),
       transformResponse: (response: any[]) =>
-        response.map((_) => Substance.parse(fp.omitBy(_, fp.isNil))),
-    }),
-  }),
+        response.map((_) => Substance.parse(fp.omitBy(_, fp.isNil)))
+    })
+  })
 });
 
 export const { useLazySearchSubstancesQuery } = substanceApi;

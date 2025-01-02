@@ -7,7 +7,7 @@ export default class SampleMissingError extends HttpError implements HttpError {
     super({
       name: 'SampleMissingError',
       message: `Sample ${id} missing`,
-      status: constants.HTTP_STATUS_NOT_FOUND,
+      status: constants.HTTP_STATUS_NOT_FOUND
     });
   }
 }

@@ -3,11 +3,11 @@ import { Region } from 'shared/referential/Region';
 import { FindRegionalPrescriptionOptions } from 'shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import {
   RegionalPrescription,
-  RegionalPrescriptionUpdate,
+  RegionalPrescriptionUpdate
 } from 'shared/schema/RegionalPrescription/RegionalPrescription';
 import {
   RegionalPrescriptionComment,
-  RegionalPrescriptionCommentToCreate,
+  RegionalPrescriptionCommentToCreate
 } from 'shared/schema/RegionalPrescription/RegionalPrescriptionComment';
 import { api } from 'src/services/api.service';
 
@@ -19,7 +19,7 @@ export const prescriptionApi = api.injectEndpoints({
     >({
       query: (findOptions) => ({
         url: 'prescriptions/regions',
-        params: findOptions,
+        params: findOptions
       }),
       transformResponse: (response: any[]) =>
         response.map((_) => RegionalPrescription.parse(fp.omitBy(_, fp.isNil))),
@@ -27,9 +27,9 @@ export const prescriptionApi = api.injectEndpoints({
         { type: 'RegionalPrescription', id: 'LIST' },
         ...(result ?? []).map(({ prescriptionId }) => ({
           type: 'RegionalPrescription' as const,
-          id: prescriptionId,
-        })),
-      ],
+          id: prescriptionId
+        }))
+      ]
     }),
     updateRegionalPrescription: builder.mutation<
       RegionalPrescription,
@@ -42,13 +42,13 @@ export const prescriptionApi = api.injectEndpoints({
       query: ({ prescriptionId, region, prescriptionUpdate }) => ({
         url: `prescriptions/${prescriptionId}/regions/${region}`,
         method: 'PUT',
-        body: prescriptionUpdate,
+        body: prescriptionUpdate
       }),
       invalidatesTags: (_result, _error, { prescriptionId }) => [
         { type: 'RegionalPrescription', id: 'LIST' },
-        { type: 'RegionalPrescription', id: prescriptionId },
+        { type: 'RegionalPrescription', id: prescriptionId }
       ],
-      transformResponse: (response) => RegionalPrescription.parse(response),
+      transformResponse: (response) => RegionalPrescription.parse(response)
     }),
     commentRegionalPrescription: builder.mutation<
       RegionalPrescriptionComment,
@@ -61,21 +61,21 @@ export const prescriptionApi = api.injectEndpoints({
       query: ({ prescriptionId, region, commentToCreate }) => ({
         url: `prescriptions/${prescriptionId}/regions/${region}/comments`,
         method: 'POST',
-        body: commentToCreate,
+        body: commentToCreate
       }),
       transformResponse: (response) =>
         RegionalPrescriptionComment.parse(response),
       invalidatesTags: (_result, _error, { prescriptionId }) => [
-        { type: 'RegionalPrescription', id: prescriptionId },
-      ],
-    }),
-  }),
+        { type: 'RegionalPrescription', id: prescriptionId }
+      ]
+    })
+  })
 });
 
 export const {
   useFindRegionalPrescriptionsQuery,
   useCommentRegionalPrescriptionMutation,
-  useUpdateRegionalPrescriptionMutation,
+  useUpdateRegionalPrescriptionMutation
 } = {
-  ...prescriptionApi,
+  ...prescriptionApi
 };

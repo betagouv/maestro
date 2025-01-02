@@ -162,5 +162,5 @@ export const ComplexResidueLabels: Record<ComplexResidue, string> = {
   'RF-00014208-PAR':
     'Sum of M4 and M6 (both free and conjugated), expressed as pinoxaden',
   'RF-00014207-PAR':
-    'Quinmerac (sum of quinmerac and its metabolites BH 518-2 and BH 518-4 expressed as quinmerac)',
+    'Quinmerac (sum of quinmerac and its metabolites BH 518-2 and BH 518-4 expressed as quinmerac)'
 };

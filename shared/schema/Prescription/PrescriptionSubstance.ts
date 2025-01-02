@@ -4,7 +4,7 @@ import { Substance } from '../Substance/Substance';
 export const PrescriptionSubstance = z.object({
   prescriptionId: z.string().uuid(),
   analysisKind: AnalysisKind,
-  substance: Substance,
+  substance: Substance
 });
 
 export type PrescriptionSubstance = z.infer<typeof PrescriptionSubstance>;

@@ -2,24 +2,24 @@ import fp from 'lodash';
 import z from 'zod';
 import {
   CreatedAnalysis,
-  PartialAnalysis,
+  PartialAnalysis
 } from '../../shared/schema/Analysis/Analysis';
 import { PartialAnalyte } from '../../shared/schema/Analysis/Analyte';
 import { PartialResidue } from '../../shared/schema/Analysis/Residue/Residue';
 import { convertKeysToCamelCase } from '../../shared/utils/utils';
-import {knexInstance as db} from './db';
+import { knexInstance as db } from './db';
 
 const analysisTable = 'analysis';
 const analysisResiduesTable = 'analysis_residues';
 const residueAnalytesTable = 'residue_analytes';
 
 const PartialAnalysisDbo = PartialAnalysis.omit({
-  residues: true,
+  residues: true
 });
 
 const PartialAnalysisJoinedDbo = PartialAnalysisDbo.merge(
   z.object({
-    residues: z.array(PartialResidue).nullish(),
+    residues: z.array(PartialResidue).nullish()
   })
 );
 
@@ -77,7 +77,7 @@ const update = async (partialAnalysis: PartialAnalysis): Promise<void> => {
         .update(formatPartialAnalysis(partialAnalysis));
 
       await AnalysisResidues(transaction).delete().where({
-        analysisId: partialAnalysis.id,
+        analysisId: partialAnalysis.id
       });
 
       if (partialAnalysis.residues && partialAnalysis.residues.length > 0) {
@@ -100,13 +100,13 @@ const update = async (partialAnalysis: PartialAnalysis): Promise<void> => {
 export const formatPartialAnalysis = (
   partialAnalysis: PartialAnalysis
 ): PartialAnalysisDbo => ({
-  ...fp.omit(partialAnalysis, ['residues']),
+  ...fp.omit(partialAnalysis, ['residues'])
 });
 
 export const formatPartialResidue = (
   partialResidue: PartialResidue
 ): PartialResidue => ({
-  ...fp.omit(partialResidue, ['analytes']),
+  ...fp.omit(partialResidue, ['analytes'])
 });
 
 export const parsePartialAnalysis = (
@@ -116,7 +116,7 @@ export const parsePartialAnalysis = (
   PartialAnalysis.parse({
     ...fp.omit(fp.omitBy(partialAnalysisJoinedDbo, fp.isNil), [
       'residues',
-      'analytes',
+      'analytes'
     ]),
     residues: partialAnalysisJoinedDbo.residues?.map((residue) =>
       convertKeysToCamelCase(
@@ -125,16 +125,16 @@ export const parsePartialAnalysis = (
             ...residue,
             analytes: residue.analytes?.map((analyte) =>
               convertKeysToCamelCase(fp.omitBy(analyte, fp.isNil))
-            ),
+            )
           },
           fp.isNil
         )
       )
-    ),
+    )
   });
 
 export default {
   findUnique,
   insert,
-  update,
+  update
 };

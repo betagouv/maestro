@@ -24,7 +24,7 @@ const AddressSearch = ({ onSelectAddress }: Props) => {
 
     if (value.length > 3) {
       await searchAddresses({
-        query: value as string,
+        query: value as string
       })
         .unwrap()
         .then((results) => {

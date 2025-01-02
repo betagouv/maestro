@@ -3,7 +3,7 @@
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 
-import "@testing-library/jest-dom/vitest";
+import '@testing-library/jest-dom/vitest';
 import { vi } from 'vitest';
 import createFetchMock from 'vitest-fetch-mock';
 
@@ -19,6 +19,5 @@ global.navigator.geolocation = mockGeolocation;
 global.URL.createObjectURL = vi.fn();
 
 vi.mock('src/hooks/useOnLine', () => ({
-  useOnLine: () => ({ isOnline: true }),
+  useOnLine: () => ({ isOnline: true })
 }));
-

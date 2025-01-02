@@ -772,12 +772,12 @@ export const SimpleResidue = z.enum(
     'RF-00014542-PAR',
     'RF-00014543-PAR',
     'RF-00014544-PAR',
-    'RF-00014552-PAR',
+    'RF-00014552-PAR'
   ],
   {
     errorMap: () => ({
-      message: 'Veuillez renseigner le résidu.',
-    }),
+      message: 'Veuillez renseigner le résidu.'
+    })
   }
 );
 export type SimpleResidue = z.infer<typeof SimpleResidue>;

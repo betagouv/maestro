@@ -1,19 +1,19 @@
 import fp from 'lodash';
 import { z } from 'zod';
 import { PrescriptionSubstance } from '../../shared/schema/Prescription/PrescriptionSubstance';
-import {knexInstance as db} from './db';
+import { knexInstance as db } from './db';
 import { substancesTable } from './substanceRepository';
 
 export const prescriptionSubstanceTable = 'prescription_substances';
 
 const PrescriptionSubstanceDbo = PrescriptionSubstance.pick({
   prescriptionId: true,
-  analysisKind: true,
+  analysisKind: true
 }).merge(z.object({ substanceCode: z.string() }));
 
 const PrescriptionSubstanceJoinedDbo = PrescriptionSubstanceDbo.merge(
   z.object({
-    substanceLabel: z.string(),
+    substanceLabel: z.string()
   })
 );
 
@@ -81,7 +81,7 @@ export const formatPrescriptionSubstance = (
   prescriptionSubstance: PrescriptionSubstance
 ): PrescriptionSubstanceDbo => ({
   ...fp.omit(prescriptionSubstance, ['substance']),
-  substanceCode: prescriptionSubstance.substance.code,
+  substanceCode: prescriptionSubstance.substance.code
 });
 
 export const parsePrescriptionSubstance = (
@@ -91,17 +91,17 @@ export const parsePrescriptionSubstance = (
   PrescriptionSubstance.parse({
     ...fp.omit(fp.omitBy(prescriptionSubstance, fp.isNil), [
       'substanceCode',
-      'substanceLabel',
+      'substanceLabel'
     ]),
     substance: {
       code: prescriptionSubstance.substanceCode,
-      label: prescriptionSubstance.substanceLabel,
-    },
+      label: prescriptionSubstance.substanceLabel
+    }
   });
 
 export default {
   findMany,
   insert,
   insertMany,
-  deleteMany,
+  deleteMany
 };

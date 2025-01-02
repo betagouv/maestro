@@ -9,11 +9,11 @@ import helmet from 'helmet';
 import path from 'path';
 import RouteNotFoundError from './errors/routeNotFoundError';
 import errorHandler from './middlewares/error-handler';
-import {  protectedRouter } from './routers/protected';
+import { m2mProtectedRouter } from './routers/m2mProtected';
+import { protectedRouter } from './routers/protected';
 import unprotectedRouter from './routers/unprotected';
 import config from './utils/config';
 import sentry from './utils/sentry';
-import { m2mProtectedRouter } from './routers/m2mProtected';
 
 const PORT = config.serverPort;
 
@@ -36,13 +36,13 @@ export function createServer(): Server {
           scriptSrc: [
             "'self'",
             "'unsafe-inline'",
-            'https://stats.beta.gouv.fr',
+            'https://stats.beta.gouv.fr'
           ],
           frameSrc: [],
           styleSrc: [
             "'self'",
             "'unsafe-inline'",
-            'https://unpkg.com/maplibre-gl@4.1.2/dist/maplibre-gl.css',
+            'https://unpkg.com/maplibre-gl@4.1.2/dist/maplibre-gl.css'
           ],
           imgSrc: ["'self'", 'https://stats.beta.gouv.fr', 'data:'],
           fontSrc: ["'self'", 'data:'],
@@ -57,11 +57,11 @@ export function createServer(): Server {
             'https://api.maptiler.com',
             `https://${config.s3.bucket}.${
               config.s3.client.endpoint.split('//')[1]
-            }`,
+            }`
           ],
-          workerSrc: ["'self'", 'blob:'],
-        },
-      },
+          workerSrc: ["'self'", 'blob:']
+        }
+      }
     })
   );
 
@@ -76,7 +76,7 @@ export function createServer(): Server {
   const rateLimiter = rateLimit({
     windowMs: 5 * 60 * 1000, // 5 minutes window
     max: config.maxRate, // start blocking after X requests for windowMs time
-    message: 'Too many request from this address, try again later please.',
+    message: 'Too many request from this address, try again later please.'
   });
   app.use(rateLimiter);
   app.set('trust proxy', 1);
@@ -109,6 +109,6 @@ export function createServer(): Server {
 
   return {
     app,
-    start,
+    start
   };
 }

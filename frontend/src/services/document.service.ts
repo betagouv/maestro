@@ -9,7 +9,7 @@ export const documentApi = api.injectEndpoints({
       query: (documentId) => `documents/${documentId}`,
       transformResponse: (response: any) => Document.parse(response),
       providesTags: (result, _error, documentId) =>
-        result ? [{ type: 'Document', id: documentId }] : [],
+        result ? [{ type: 'Document', id: documentId }] : []
     }),
     createDocument: builder.mutation<
       Document,
@@ -24,7 +24,7 @@ export const documentApi = api.injectEndpoints({
         const signedUrlResult = await fetchWithBQ({
           url: 'documents/upload-signed-url',
           method: 'POST',
-          body: { filename: file.name, kind },
+          body: { filename: file.name, kind }
         });
         if (signedUrlResult.error) {
           return { error: signedUrlResult.error as FetchBaseQueryError };
@@ -37,14 +37,14 @@ export const documentApi = api.injectEndpoints({
 
         const uploadResult = await fetch(url, {
           method: 'PUT',
-          body: file,
+          body: file
         });
         if (!uploadResult.ok) {
           return {
             error: {
               status: uploadResult.status,
-              data: await uploadResult.json(),
-            } as FetchBaseQueryError,
+              data: await uploadResult.json()
+            } as FetchBaseQueryError
           };
         }
 
@@ -54,14 +54,14 @@ export const documentApi = api.injectEndpoints({
           body: {
             id: documentId,
             filename: file.name,
-            kind,
-          },
+            kind
+          }
         });
         return result.data
           ? { data: result.data as Document }
           : { error: result.error as FetchBaseQueryError };
       },
-      invalidatesTags: () => [{ type: 'Document', id: 'LIST' }],
+      invalidatesTags: () => [{ type: 'Document', id: 'LIST' }]
     }),
     findResources: builder.query<Document[], void>({
       query: () => 'documents/resources',
@@ -71,25 +71,25 @@ export const documentApi = api.injectEndpoints({
         { type: 'Document', id: 'LIST' },
         ...(result ?? []).map(({ id }) => ({
           type: 'Document' as const,
-          id,
-        })),
-      ],
+          id
+        }))
+      ]
     }),
     getDocumentDownloadSignedUrl: builder.query<string, string>({
       query: (documentId) => `documents/${documentId}/download-signed-url`,
-      transformResponse: (response: any) => response.url,
+      transformResponse: (response: any) => response.url
     }),
     deleteDocument: builder.mutation<void, string>({
       query: (documentId) => ({
         url: `documents/${documentId}`,
-        method: 'DELETE',
+        method: 'DELETE'
       }),
       invalidatesTags: (_result, _error, documentId) => [
         { type: 'Document', id: 'LIST' },
-        { type: 'Document', id: documentId },
-      ],
-    }),
-  }),
+        { type: 'Document', id: documentId }
+      ]
+    })
+  })
 });
 
 export const {
@@ -97,5 +97,5 @@ export const {
   useCreateDocumentMutation,
   useFindResourcesQuery,
   useDeleteDocumentMutation,
-  useLazyGetDocumentDownloadSignedUrlQuery,
+  useLazyGetDocumentDownloadSignedUrlQuery
 } = documentApi;

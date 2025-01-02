@@ -27,7 +27,7 @@ const AppSearchInput = ({
   required,
   hintText,
   placeholder,
-  whenValid,
+  whenValid
 }: Props) => {
   return (
     <div

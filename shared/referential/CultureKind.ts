@@ -9,12 +9,12 @@ export const CultureKind = z.enum(
     'PD09A',
     'Z0215',
     'Z0153',
-    'PD05A',
+    'PD05A'
   ],
   {
     errorMap: () => ({
-      message: 'Veuillez renseigner le type de culture.',
-    }),
+      message: 'Veuillez renseigner le type de culture.'
+    })
   }
 );
 
@@ -31,5 +31,5 @@ export const CultureKindLabels: Record<CultureKind, string> = {
   PD09A: 'Production non biologique',
   Z0215: 'Méthode inconnue',
   Z0153: 'Sauvages ou cueillis',
-  PD05A: 'Production en plein air',
+  PD05A: 'Production en plein air'
 };

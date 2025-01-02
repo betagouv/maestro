@@ -1,9 +1,9 @@
 import fp from 'lodash';
 import {
   PartialSampleItem,
-  SampleItemSort,
+  SampleItemSort
 } from '../../shared/schema/Sample/SampleItem';
-import { knexInstance as db} from './db';
+import { knexInstance as db } from './db';
 
 const sampleItemsTable = 'sample_items';
 
@@ -69,5 +69,5 @@ export default {
   findMany,
   insertMany,
   update,
-  updateMany,
+  updateMany
 };

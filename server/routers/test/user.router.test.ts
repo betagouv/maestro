@@ -1,9 +1,14 @@
 import { constants } from 'http2';
-import { describe, test, expect } from 'vitest';
+import { Selectable } from 'kysely';
 import fp from 'lodash';
 import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
+import { describe, expect, test } from 'vitest';
+import { Region } from '../../../shared/referential/Region';
+import { User } from '../../../shared/schema/User/User';
+import { DB } from '../../repositories/kysely.type';
+import { createServer } from '../../server';
 import {
   NationalCoordinator,
   RegionalCoordinator,
@@ -11,19 +16,14 @@ import {
   Sampler2Fixture,
   SamplerDromFixture
 } from '../../test/seed/001-users';
-import { Region } from '../../../shared/referential/Region';
-import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
-import { User } from '../../../shared/schema/User/User';
-import { Selectable } from 'kysely';
-import { DB } from '../../repositories/kysely.type';
 
 // Vérifie que le type généré par kysely correspond bien à notre type
 // À l'avenir mieux vaut utiliser vitest pour tester les types => https://vitest.dev/guide/testing-types.html
-const userShareToKysely = (v: User) : Selectable<DB['users']> => v
-const userKyselyToShare = (v:  Selectable<DB['users']>) :User => v
-console.log(userShareToKysely)
-console.log(userKyselyToShare)
+const userShareToKysely = (v: User): Selectable<DB['users']> => v;
+const userKyselyToShare = (v: Selectable<DB['users']>): User => v;
+console.log(userShareToKysely);
+console.log(userKyselyToShare);
 
 describe('User router', () => {
   const { app } = createServer();

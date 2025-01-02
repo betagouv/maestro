@@ -12,7 +12,7 @@ exports.up = async (knex: Knex) => {
       knex.raw('programming_plans.id')
     )
     .update({
-      context: knex.raw('programming_plans.kind'),
+      context: knex.raw('programming_plans.kind')
     });
   await knex.schema.alterTable('prescriptions', (table) => {
     table.string('context').notNullable().alter();
@@ -24,7 +24,7 @@ exports.up = async (knex: Knex) => {
       'region',
       'matrix',
       'stages',
-      'context',
+      'context'
     ]);
   });
 
@@ -35,7 +35,7 @@ exports.up = async (knex: Knex) => {
     .updateFrom('programming_plans')
     .where('samples.programming_plan_id', knex.raw('programming_plans.id'))
     .update({
-      context: knex.raw('programming_plans.kind'),
+      context: knex.raw('programming_plans.kind')
     });
   await knex.schema.alterTable('samples', (table) => {
     table.string('context').notNullable().alter();
@@ -102,7 +102,7 @@ export const down = async (knex: Knex) => {
       const surveillanceProgrammingPlan = {
         ...controlProgrammingPlan,
         id: uuidv4(),
-        kind: 'Surveillance',
+        kind: 'Surveillance'
       };
       await knex('programming_plans').insert(surveillanceProgrammingPlan);
       await knex('prescriptions')
@@ -122,7 +122,7 @@ export const down = async (knex: Knex) => {
       'region',
       'matrix',
       'stages',
-      'context',
+      'context'
     ]);
     table.unique(['programming_plan_id', 'region', 'matrix', 'stages']);
   });

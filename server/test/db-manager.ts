@@ -1,20 +1,20 @@
+import { deepClone } from '@vitest/utils';
 import knex, { Knex } from 'knex';
 import { spawnSync } from 'node:child_process';
 import { Client } from 'pg';
-import config from '../utils/config';
-import defaultKnexConfig from '../knex'
-import { deepClone } from '@vitest/utils';
+import defaultKnexConfig from '../knex';
 import { setKnexInstance } from '../repositories/db';
 import { initKysely, kysely } from '../repositories/kysely';
+import config from '../utils/config';
 
 class DbManager {
   private readonly dbName: string;
   private knexInstance: null | Knex = null;
-  private connectionUrl: string | null = null
+  private connectionUrl: string | null = null;
 
   public constructor() {
     this.dbName = `maestro_test_${(Math.random() + 1).toString(36).substring(7)}`;
-    console.log(`Base de données de test: ${this.dbName}`)
+    console.log(`Base de données de test: ${this.dbName}`);
   }
 
   private async init(): Promise<void> {
@@ -29,10 +29,9 @@ class DbManager {
     }
     await globalClient.end();
 
-
-    this.connectionUrl = `postgres://${globalClient.user}:${globalClient.password}@${globalClient.host}:${globalClient.port}/${this.dbName}`
+    this.connectionUrl = `postgres://${globalClient.user}:${globalClient.password}@${globalClient.host}:${globalClient.port}/${this.dbName}`;
     this.knexInstance = this.getKnex(this.connectionUrl);
-    initKysely(this.connectionUrl)
+    initKysely(this.connectionUrl);
     setKnexInstance(this.knexInstance!);
     const output = spawnSync(
       'npx',
@@ -48,19 +47,17 @@ class DbManager {
         encoding: 'utf-8',
         env: {
           ...process.env,
-          PATH: process.env.PATH,
+          PATH: process.env.PATH
         }
       }
     );
 
     console.log(output.stdout); // eslint-disable-line no-console
     console.log(output.stderr); // eslint-disable-line no-console
-
   }
 
   private getKnex(url: string): Knex {
-    const options = deepClone(defaultKnexConfig)
-
+    const options = deepClone(defaultKnexConfig);
 
     return knex({
       ...options,
@@ -86,7 +83,7 @@ class DbManager {
     DbManager.checkKnexInstance(this.knexInstance);
     await this.knexInstance.destroy();
 
-    await kysely.destroy()
+    await kysely.destroy();
     await this.end();
   }
 

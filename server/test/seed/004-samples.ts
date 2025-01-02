@@ -1,21 +1,21 @@
 import fp from 'lodash';
-import { SampleItems } from '../../repositories/sampleItemRepository';
-import {
-  formatPartialSample,
-  Samples,
-} from '../../repositories/sampleRepository';
 import { Regions } from '../../../shared/referential/Region';
 import { SampleStatus } from '../../../shared/schema/Sample/SampleStatus';
 import {
   genCreatedPartialSample,
-  genSampleItem,
+  genSampleItem
 } from '../../../shared/test/sampleFixtures';
 import { oneOf } from '../../../shared/test/testFixtures';
+import { SampleItems } from '../../repositories/sampleItemRepository';
+import {
+  formatPartialSample,
+  Samples
+} from '../../repositories/sampleRepository';
 import {
   Region1Fixture,
   Region2Fixture,
   Sampler1Fixture,
-  Sampler2Fixture,
+  Sampler2Fixture
 } from './001-users';
 import { ValidatedProgrammingPlanFixture } from './002-programming-plans';
 import { CompanyFixture } from './003-companies';
@@ -27,7 +27,7 @@ const Sample1Item1Fixture = genSampleItem({
   quantity: 534,
   quantityUnit: 'G185A',
   compliance200263: true,
-  sealId: '123456',
+  sealId: '123456'
 });
 export const Sample11Fixture = genCreatedPartialSample({
   id: Sample11FixtureId,
@@ -49,7 +49,7 @@ export const Sample11Fixture = genCreatedPartialSample({
   cultureKind: 'PD07A',
   releaseControl: false,
   stage: 'STADE7',
-  items: [Sample1Item1Fixture],
+  items: [Sample1Item1Fixture]
 });
 
 export const Sample12Fixture = genCreatedPartialSample({
@@ -60,7 +60,7 @@ export const Sample12Fixture = genCreatedPartialSample({
   id: '11111111-2222-2222-2222-222222222222',
   status: 'Draft' as SampleStatus,
   department: oneOf(Regions[Region1Fixture].departments),
-  reference: 'GES-08-24-314-A',
+  reference: 'GES-08-24-314-A'
 });
 
 export const Sample13Fixture = genCreatedPartialSample({
@@ -71,7 +71,7 @@ export const Sample13Fixture = genCreatedPartialSample({
   id: '11111111-3333-3333-3333-333333333333',
   status: 'Sent' as SampleStatus,
   department: oneOf(Regions[Region1Fixture].departments),
-  reference: 'GES-08-24-315-A',
+  reference: 'GES-08-24-315-A'
 });
 export const Sample2Fixture = genCreatedPartialSample({
   sampler: Sampler2Fixture,
@@ -81,15 +81,15 @@ export const Sample2Fixture = genCreatedPartialSample({
   id: '22222222-2222-2222-2222-222222222222',
   status: 'DraftMatrix' as SampleStatus,
   department: oneOf(Regions[Region2Fixture].departments),
-  reference: 'PDL-08-24-313-A',
+  reference: 'PDL-08-24-313-A'
 });
 
-export const seed = async () : Promise<void> => {
+export const seed = async (): Promise<void> => {
   await Samples().insert([
     formatPartialSample(Sample11Fixture),
     formatPartialSample(Sample12Fixture),
     formatPartialSample(Sample13Fixture),
-    formatPartialSample(Sample2Fixture),
+    formatPartialSample(Sample2Fixture)
   ]);
   await SampleItems().insert(Sample1Item1Fixture);
 };

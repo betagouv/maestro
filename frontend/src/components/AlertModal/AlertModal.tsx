@@ -26,8 +26,8 @@ const AlertModal = ({ modal, title, children, closeLabel }: Props) => {
           priority: 'secondary',
           onClick: (e) => {
             e.preventDefault();
-          },
-        },
+          }
+        }
       ]}
     >
       {children}

@@ -1,11 +1,15 @@
-import { extendZodWithOpenApi, OpenApiGeneratorV31, OpenAPIRegistry } from '@asteasolutions/zod-to-openapi';
-import { UserInfos } from '../../shared/schema/User/User';
-import { z } from 'zod';
+import {
+  extendZodWithOpenApi,
+  OpenApiGeneratorV31,
+  OpenAPIRegistry
+} from '@asteasolutions/zod-to-openapi';
 import { OpenAPIObject } from 'openapi3-ts/oas31';
+import { z } from 'zod';
+import { UserInfos } from '../../shared/schema/User/User';
 
 extendZodWithOpenApi(z);
 
-export const getOpenApiSchema = (): OpenAPIObject =>{
+export const getOpenApiSchema = (): OpenAPIObject => {
   const registry = new OpenAPIRegistry();
 
   registry.registerPath({
@@ -14,7 +18,7 @@ export const getOpenApiSchema = (): OpenAPIObject =>{
     description: 'Trouve un utilisateur par son identifiant unique',
     summary: 'getUserInfosById',
     request: {
-      params: z.object({userId: z.string().uuid()})
+      params: z.object({ userId: z.string().uuid() })
     },
     responses: {
       200: {
@@ -26,16 +30,15 @@ export const getOpenApiSchema = (): OpenAPIObject =>{
         }
       }
     }
-  })
+  });
 
-  const openApiGenerator = new OpenApiGeneratorV31(registry.definitions)
+  const openApiGenerator = new OpenApiGeneratorV31(registry.definitions);
 
   return openApiGenerator.generateDocument({
     info: {
       version: 'v1',
-      title: 'Maestro API',
+      title: 'Maestro API'
     },
     openapi: ''
-  })
-
-}
+  });
+};

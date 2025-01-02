@@ -14,5 +14,5 @@ const searchSubstances = async (request: Request, response: Response) => {
 };
 
 export default {
-  searchSubstances,
+  searchSubstances
 };

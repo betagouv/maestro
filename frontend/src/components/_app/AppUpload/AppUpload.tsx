@@ -4,7 +4,7 @@ import { MaxFileSize } from 'shared/schema/File/FileInput';
 import {
   FileType,
   FileTypeLabels,
-  FileTypeList,
+  FileTypeList
 } from 'shared/schema/File/FileType';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
 import { useForm } from 'src/hooks/useForm';
@@ -59,7 +59,7 @@ function AppUpload<T extends ZodRawShape>(props: AppUploadProps<T>) {
         }
         nativeInputProps={{
           ...nativeInputProps,
-          accept: (acceptFileTypes ?? FileTypeList).join(','),
+          accept: (acceptFileTypes ?? FileTypeList).join(',')
         }}
         state={
           state ?? inputForm.messageType(String(inputKey), inputPathFromKey)

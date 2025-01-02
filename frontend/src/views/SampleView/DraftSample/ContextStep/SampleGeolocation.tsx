@@ -4,7 +4,7 @@ import Map, {
   FullscreenControl,
   Marker,
   MarkerDragEvent,
-  NavigationControl,
+  NavigationControl
 } from 'react-map-gl/maplibre';
 import { Geolocation } from 'shared/schema/Sample/Sample';
 import AddressSearch from 'src/components/AddressSearch/AddressSearch';
@@ -18,7 +18,7 @@ type ViewStyle = 'map' | 'satellite';
 
 const ViewStyles: Record<ViewStyle, string | undefined> = {
   map: 'https://openmaptiles.geo.data.gouv.fr/styles/osm-bright/style.json',
-  satellite: config.satelliteStyle,
+  satellite: config.satelliteStyle
 };
 
 const SampleGeolocation = ({ location, onLocationChange }: Props) => {
@@ -36,7 +36,7 @@ const SampleGeolocation = ({ location, onLocationChange }: Props) => {
     return (
       location ?? {
         x: 46,
-        y: 2.3522,
+        y: 2.3522
       }
     );
   }, [location]);
@@ -44,7 +44,7 @@ const SampleGeolocation = ({ location, onLocationChange }: Props) => {
   const onMarkerDragEnd = (event: MarkerDragEvent) => {
     onLocationChange({
       x: Number(event.lngLat.lat.toFixed(6)),
-      y: Number(event.lngLat.lng.toFixed(6)),
+      y: Number(event.lngLat.lng.toFixed(6))
     });
   };
 
@@ -65,7 +65,7 @@ const SampleGeolocation = ({ location, onLocationChange }: Props) => {
         }}
         style={{
           minHeight: 375,
-          height: 'calc(100% - 40px)',
+          height: 'calc(100% - 40px)'
         }}
       >
         <NavigationControl position="bottom-right" showCompass={false} />
@@ -95,7 +95,7 @@ const SampleGeolocation = ({ location, onLocationChange }: Props) => {
               border: `white solid ${isSecondaryMapHovered ? '2px' : '1px'}`,
               bottom: 0,
               position: 'absolute',
-              cursor: 'grab',
+              cursor: 'grab'
             }}
             mapLib={maplibregl}
             mapStyle={ViewStyles[viewStyle === 'map' ? 'satellite' : 'map']}
@@ -113,7 +113,7 @@ const SampleGeolocation = ({ location, onLocationChange }: Props) => {
           if (address) {
             onLocationChange({
               x: address.geometry.coordinates[1],
-              y: address.geometry.coordinates[0],
+              y: address.geometry.coordinates[0]
             });
             setMapLongitude(address.geometry.coordinates[0]);
             setMapLatitude(address.geometry.coordinates[1]);

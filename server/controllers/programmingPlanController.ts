@@ -22,7 +22,7 @@ import prescriptionSubstanceRepository from '../repositories/prescriptionSubstan
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
 import userRepository from '../repositories/userRepository';
-import {mailService} from '../services/mailService';
+import { mailService } from '../services/mailService';
 import config from '../utils/config';
 
 const findProgrammingPlans = async (request: Request, response: Response) => {
@@ -145,7 +145,6 @@ const createProgrammingPlan = async (request: Request, response: Response) => {
       );
     })
   );
-
 
   response.status(constants.HTTP_STATUS_CREATED).send(newProgrammingPlan);
 };

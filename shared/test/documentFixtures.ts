@@ -7,7 +7,7 @@ import { oneOf } from './testFixtures';
 export const genDocumentToCreate = (): DocumentToCreate => ({
   id: uuidv4(),
   filename: randomstring.generate(),
-  kind: oneOf(DocumentKindList),
+  kind: oneOf(DocumentKindList)
 });
 
 export const genDocument = (data?: Partial<Document>): Document => ({
@@ -16,5 +16,5 @@ export const genDocument = (data?: Partial<Document>): Document => ({
   createdAt: new Date(),
   createdBy: uuidv4(),
   kind: oneOf(DocumentKindList),
-  ...data,
+  ...data
 });

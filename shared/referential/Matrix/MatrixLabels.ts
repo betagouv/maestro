@@ -3205,5 +3205,5 @@ export const MatrixLabels: Record<Matrix, string> = {
   A16FP: 'Cultures probiotiques',
   A048V: "Enzymes pour l'industrie alimentaire",
   A16PQ: "Nid d'oiseau (partie comestible)",
-  ...MatrixKindLabels,
+  ...MatrixKindLabels
 };

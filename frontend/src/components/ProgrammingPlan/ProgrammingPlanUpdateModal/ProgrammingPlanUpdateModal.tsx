@@ -115,9 +115,8 @@ const ProgrammingPlanUpdateModal = ({ programmingPlan }: Props) => {
         title={
           <div>
             Confirmez la
-            {nextStatus === 'Submitted'
-              ? '  soumission '
-              : ' validation '} du programme aux coordinateurs régionaux
+            {nextStatus === 'Submitted' ? '  soumission ' : ' validation '} du
+            programme aux coordinateurs régionaux
             {isDrom ? ' des DROM' : " de l'hexagone et de la Corse"}
           </div>
         }

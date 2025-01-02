@@ -6,7 +6,7 @@ export function pluralize(
     str
       .split(' ')
       .map((s) =>
-        count > 1 ? replacements?.find((_) => _.old === s)?.new ?? `${s}s` : s
+        count > 1 ? (replacements?.find((_) => _.old === s)?.new ?? `${s}s`) : s
       )
       .join(' ');
 }

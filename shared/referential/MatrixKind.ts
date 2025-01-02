@@ -90,12 +90,12 @@ export const MatrixKind = z.enum(
     'A046L',
     'A0EVE',
     'A0BXY',
-    'A16PP',
+    'A16PP'
   ],
   {
     errorMap: () => ({
-      message: 'Veuillez renseigner la catégorie de matrice.',
-    }),
+      message: 'Veuillez renseigner la catégorie de matrice.'
+    })
   }
 );
 
@@ -196,5 +196,5 @@ export const MatrixKindLabels: Record<MatrixKind, string> = {
   A0EVE:
     "Ingrédients pour la fortification/l'enrichissement des aliments et compléments",
   A0BXY: 'Ingrédients microbiologiques ou enzymatiques',
-  A16PP: 'Autres ingrédients comestibles à base produits animaux et végétaux',
+  A16PP: 'Autres ingrédients comestibles à base produits animaux et végétaux'
 };

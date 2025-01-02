@@ -1,11 +1,11 @@
 import { Knex } from 'knex';
-import { default as fp, default as _, isArray } from 'lodash';
+import { default as _, default as fp, isArray } from 'lodash';
 import {
   FindPrescriptionOptions,
-  PrescriptionOptionsInclude,
+  PrescriptionOptionsInclude
 } from '../../shared/schema/Prescription/FindPrescriptionOptions';
 import { Prescription } from '../../shared/schema/Prescription/Prescription';
-import {knexInstance as db} from './db';
+import { knexInstance as db } from './db';
 import { prescriptionSubstanceTable } from './prescriptionSubstanceRepository';
 export const prescriptionsTable = 'prescriptions';
 
@@ -60,7 +60,7 @@ const include = (opts?: FindPrescriptionOptions) => {
           `${prescriptionsTable}.id`
         )
         .groupBy(`${prescriptionsTable}.id`);
-    },
+    }
   };
 
   return (query: Knex.QueryBuilder) => {
@@ -95,5 +95,5 @@ export default {
   findMany,
   insert,
   update,
-  deleteOne,
+  deleteOne
 };

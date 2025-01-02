@@ -1,18 +1,10 @@
 import { constants } from 'http2';
-import { describe, test, expect, beforeAll, afterAll } from 'vitest';
 import _ from 'lodash';
 import fp from 'lodash/fp';
 import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  NationalCoordinator,
-  Region2Fixture,
-  RegionalCoordinator,
-  Sampler1Fixture
-} from '../../test/seed/001-users';
-import { CompanyFixture } from '../../test/seed/003-companies';
-import { LaboratoryFixture } from '../../test/seed/005-laboratories';
+import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { MatrixList } from '../../../shared/referential/Matrix/Matrix';
 import { Region, RegionList } from '../../../shared/referential/Region';
 import { StageList } from '../../../shared/referential/Stage';
@@ -44,6 +36,14 @@ import {
   Samples
 } from '../../repositories/sampleRepository';
 import { createServer } from '../../server';
+import {
+  NationalCoordinator,
+  Region2Fixture,
+  RegionalCoordinator,
+  Sampler1Fixture
+} from '../../test/seed/001-users';
+import { CompanyFixture } from '../../test/seed/003-companies';
+import { LaboratoryFixture } from '../../test/seed/005-laboratories';
 import { tokenProvider } from '../../test/testUtils';
 
 describe('Regional prescriptions router', () => {

@@ -13,7 +13,7 @@ import AnalysisResiduesStep from 'src/views/SampleView/SampleAnalysis/SampleDraf
 export const AnalysisStepTitles = [
   'Rapport d’analyse',
   'Résidus identifiés',
-  "Conformité de l'échantillon",
+  "Conformité de l'échantillon"
 ];
 
 interface Props {
@@ -23,7 +23,7 @@ interface Props {
 export const AnalysisStatusSteps: Partial<Record<AnalysisStatus, number>> = {
   Report: 1,
   Residues: 2,
-  Compliance: 3,
+  Compliance: 3
 };
 
 const SampleDraftAnalysis = ({ sample }: Props) => {

@@ -13,8 +13,8 @@ export const companyApi = api.injectEndpoints({
         url: 'companies/search',
         params: {
           departement: department,
-          q: query,
-        },
+          q: query
+        }
       }),
       transformResponse: (response: { results: CompanySearchResult[] }) =>
         response.results.map((_) =>
@@ -22,9 +22,9 @@ export const companyApi = api.injectEndpoints({
         ),
       transformErrorResponse: () => {
         return [];
-      },
-    }),
-  }),
+      }
+    })
+  })
 });
 
 export const { useLazySearchCompaniesQuery } = companyApi;

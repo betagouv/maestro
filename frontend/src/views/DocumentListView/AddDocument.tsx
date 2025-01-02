@@ -15,16 +15,16 @@ const AddDocument = () => {
     {
       isLoading: isCreateLoading,
       isSuccess: isCreateSuccess,
-      isError: isCreateError,
-    },
+      isError: isCreateError
+    }
   ] = useCreateDocumentMutation({
-    fixedCacheKey: 'createDocument',
+    fixedCacheKey: 'createDocument'
   });
 
   const [file, setFile] = useState<File | undefined>();
 
   const Form = z.object({
-    file: FileInput(),
+    file: FileInput()
   });
 
   const form = useForm(Form, { file });
@@ -51,13 +51,13 @@ const AddDocument = () => {
             ? fr.colors.decisions.border.disabled.grey.default
             : fr.colors.decisions.border.default.grey.default
         }`,
-        height: 'fit-content',
+        height: 'fit-content'
       }}
       data-testid="add-document"
     >
       <AppUpload<FormShape>
         nativeInputProps={{
-          onChange: (event: any) => selectFile(event),
+          onChange: (event: any) => selectFile(event)
         }}
         className={cx('fr-mb-2w')}
         disabled={isCreateLoading}
