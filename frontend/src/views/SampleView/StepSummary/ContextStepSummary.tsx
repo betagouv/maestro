@@ -8,7 +8,7 @@ import { ContextLabels } from 'shared/schema/ProgrammingPlan/Context';
 import {
   isCreatedSample,
   Sample,
-  SampleToCreate,
+  SampleToCreate
 } from 'shared/schema/Sample/Sample';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { quote } from 'src/utils/stringUtils';
@@ -23,7 +23,7 @@ interface Props {
 const ContextStepSummary = ({
   sample,
   showLabel,
-  onChangeResytalId,
+  onChangeResytalId
 }: Props) => {
   const { userInfos } = useAuthentication();
 
@@ -39,7 +39,7 @@ const ContextStepSummary = ({
       <div className="summary-item icon-text">
         <div className={cx('fr-icon-user-line')}></div>
         <div>
-          Prélèvement réalisé par 
+          Prélèvement réalisé par{' '}
           <b>
             {isCreatedSample(sample)
               ? `${sample.sampler.firstName} ${sample.sampler.lastName}`
@@ -112,7 +112,7 @@ const ContextStepSummary = ({
             hintText="Format AA-XXXXXX"
             nativeInputProps={{
               defaultValue: sample.resytalId || '',
-              onChange: (e) => onChangeResytalId?.(e.target.value),
+              onChange: (e) => onChangeResytalId?.(e.target.value)
             }}
           />
         </div>
