@@ -28,6 +28,14 @@ import config from '../../utils/config';
 const dsfrLink = `${config.application.host}/node_modules/@codegouvfr/react-dsfr/main.css`;
 
 const generateDocument = async (template: Template, data: any) => {
+  handlebars.registerHelper(
+    'breaklines',
+    (text) =>
+      new handlebars.SafeString(
+        handlebars.escapeExpression(text).replace(/(\r\n|\n|\r)/gm, '<br>')
+      )
+  );
+
   const compiledTemplate = handlebars.compile(templateContent(template));
   const htmlContent = compiledTemplate(data);
 
