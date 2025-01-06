@@ -1,4 +1,4 @@
-import { DeleteObjectCommand, PutObjectCommand, S3 } from '@aws-sdk/client-s3';
+import { DeleteObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { format } from 'date-fns';
 import { Request, Response } from 'express';
 import { AuthenticatedRequest, SampleRequest } from 'express-jwt';
@@ -26,6 +26,7 @@ import exportSamplesService from '../services/exportService/exportSamplesService
 import {mailService} from '../services/mailService';
 import config from '../utils/config';
 import workbookUtils from '../utils/workbookUtils';
+import { getS3Client } from '../services/s3Service';
 
 const getSample = async (request: Request, response: Response) => {
   const sample = (request as SampleRequest).sample;
@@ -247,7 +248,7 @@ const storeSampleItemDocument = async (
   sampleItem: SampleItem,
   sampler: UserInfos
 ) => {
-  const client = new S3(config.s3.client);
+  const client = getS3Client();
 
   const pdfBuffer = await documentService.generateSupportDocument(
     sample,
