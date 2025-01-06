@@ -8,11 +8,14 @@ import { TokenPayload } from '../../shared/schema/User/TokenPayload';
 import userRepository from '../repositories/userRepository';
 import { getAuthService } from '../services/authService';
 import config from '../utils/config';
+import { kysely } from '../repositories/kysely';
 
 const getAuthRedirectUrl = async (request: Request, response: Response) => {
   const authService = await getAuthService;
+  //Prénom given_name
+  //Nom usual_name
   const authRedirectUrl = authService.getAuthorizationUrl(
-    'openid profile email'
+    'openid profile email given_name usual_name'
   );
 
   response.status(200).send(authRedirectUrl);
@@ -25,12 +28,17 @@ const authenticate = async (request: Request, response: Response) => {
   console.log('authenticate', authRedirectUrl);
 
   try {
-    const { idToken, email } = await authService.authenticate(authRedirectUrl);
+    const { idToken, email, firstName, lastName } = await authService.authenticate(authRedirectUrl);
 
     const user = await userRepository.findOne(email);
     if (!user) {
       console.error('User not found', email);
       throw new Error('User not found');
+    }
+
+
+    if (user.firstName !== firstName || user.lastName !== lastName) {
+      await kysely.updateTable('users').set({firstName, lastName}).where('email', '=', email).execute()
     }
 
     const accessToken = jwt.sign(
