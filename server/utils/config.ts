@@ -15,7 +15,7 @@ convict.addFormat({
 });
 
 if (!process.env.API_PORT) {
-  dotenv.config({ path: path.join(__dirname, '../../.env') });
+  dotenv.config({ path: path.join(import.meta.dirname, '../../.env') });
 }
 export const isProduction = process.env.NODE_ENV === 'production';
 
@@ -45,7 +45,6 @@ interface Config {
     providerUrl: string | null;
     tokenAlgorithm: string;
   };
-  databaseEnvironment: string;
   databaseUrl: string;
   mail: {
     from: string;
@@ -150,11 +149,6 @@ const config = convict<Config>({
       format: String,
       default: 'RS256'
     }
-  },
-  databaseEnvironment: {
-    env: 'DATABASE_ENV',
-    format: String,
-    default: process.env.NODE_ENV ?? 'development'
   },
   databaseUrl: {
     env: 'DATABASE_URL',

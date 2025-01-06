@@ -1,4 +1,4 @@
-import fp from 'lodash';
+import { isArray, isNil, omit, omitBy } from 'lodash-es';
 import { FindProgrammingPlanOptions } from '../../shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import { ProgrammingPlan } from '../../shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {knexInstance as db} from './db';
@@ -13,7 +13,7 @@ const findUnique = async (id: string): Promise<ProgrammingPlan | undefined> => {
   return ProgrammingPlans()
     .where({ id })
     .first()
-    .then((_) => _ && ProgrammingPlan.parse(fp.omitBy(_, fp.isNil)));
+    .then((_) => _ && ProgrammingPlan.parse(omitBy(_, isNil)));
 };
 
 const findOne = async (year: number): Promise<ProgrammingPlan | undefined> => {
@@ -21,17 +21,17 @@ const findOne = async (year: number): Promise<ProgrammingPlan | undefined> => {
   return ProgrammingPlans()
     .where({ year })
     .first()
-    .then((_) => _ && ProgrammingPlan.parse(fp.omitBy(_, fp.isNil)));
+    .then((_) => _ && ProgrammingPlan.parse(omitBy(_, isNil)));
 };
 
 const findMany = async (
   findOptions: FindProgrammingPlanOptions
 ): Promise<ProgrammingPlan[]> => {
-  console.info('Find programming plans', fp.omitBy(findOptions, fp.isNil));
+  console.info('Find programming plans', omitBy(findOptions, isNil));
   return ProgrammingPlans()
-    .where(fp.omitBy(fp.omit(findOptions, 'status', 'isDrom'), fp.isNil))
+    .where(omitBy(omit(findOptions, 'status', 'isDrom'), isNil))
     .modify((builder) => {
-      if (fp.isArray(findOptions.status)) {
+      if (isArray(findOptions.status)) {
         builder.whereIn(
           findOptions.isDrom ? 'statusDrom' : 'status',
           findOptions.status
@@ -40,7 +40,7 @@ const findMany = async (
     })
     .then((programmingPlans) =>
       programmingPlans.map((_: any) =>
-        ProgrammingPlan.parse(fp.omitBy(_, fp.isNil))
+        ProgrammingPlan.parse(omitBy(_, isNil))
       )
     );
 };

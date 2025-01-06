@@ -1,4 +1,4 @@
-import fp from 'lodash';
+import { isNil, omit, omitBy } from 'lodash-es';
 import z from 'zod';
 import {
   CreatedAnalysis,
@@ -100,13 +100,13 @@ const update = async (partialAnalysis: PartialAnalysis): Promise<void> => {
 export const formatPartialAnalysis = (
   partialAnalysis: PartialAnalysis
 ): PartialAnalysisDbo => ({
-  ...fp.omit(partialAnalysis, ['residues']),
+  ...omit(partialAnalysis, ['residues']),
 });
 
 export const formatPartialResidue = (
   partialResidue: PartialResidue
 ): PartialResidue => ({
-  ...fp.omit(partialResidue, ['analytes']),
+  ...omit(partialResidue, ['analytes']),
 });
 
 export const parsePartialAnalysis = (
@@ -114,20 +114,20 @@ export const parsePartialAnalysis = (
 ): PartialAnalysis =>
   partialAnalysisJoinedDbo &&
   PartialAnalysis.parse({
-    ...fp.omit(fp.omitBy(partialAnalysisJoinedDbo, fp.isNil), [
+    ...omit(omitBy(partialAnalysisJoinedDbo, isNil), [
       'residues',
       'analytes',
     ]),
     residues: partialAnalysisJoinedDbo.residues?.map((residue) =>
       convertKeysToCamelCase(
-        fp.omitBy(
+        omitBy(
           {
             ...residue,
             analytes: residue.analytes?.map((analyte) =>
-              convertKeysToCamelCase(fp.omitBy(analyte, fp.isNil))
+              convertKeysToCamelCase(omitBy(analyte, isNil))
             ),
           },
-          fp.isNil
+          isNil
         )
       )
     ),

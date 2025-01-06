@@ -1,7 +1,7 @@
 import express, { NextFunction, Request, Response } from 'express';
 import { expressjwt } from 'express-jwt';
 
-import _ from 'lodash';
+import { intersection } from 'lodash-es';
 import AuthenticationMissingError from '../../../shared/errors/authenticationMissingError';
 import UserMissingError from '../../../shared/errors/userMissingError';
 import UserPermissionMissingError from '../../../shared/errors/userPermissionMissingError';
@@ -51,7 +51,7 @@ export const rolesCheck = (roles: UserRole[]) =>
       throw new AuthenticationMissingError();
     }
 
-    if (_.intersection(roles, request.user.roles).length === 0) {
+    if (intersection(roles, request.user.roles).length === 0) {
       throw new UserRoleMissingError();
     }
 

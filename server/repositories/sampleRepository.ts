@@ -1,4 +1,4 @@
-import fp from 'lodash';
+import { isArray, isNil, omit, omitBy } from 'lodash-es';
 import z from 'zod';
 import { Region, Regions } from '../../shared/referential/Region';
 import { defaultPerPage } from '../../shared/schema/commons/Pagination';
@@ -74,8 +74,8 @@ const findUnique = async (id: string): Promise<PartialSample | undefined> => {
 const findRequest = (findOptions: FindSampleOptions) =>
   Samples()
     .where(
-      fp.omitBy(
-        fp.omit(
+      omitBy(
+        omit(
           findOptions,
           'region',
           'sampledAt',
@@ -84,7 +84,7 @@ const findRequest = (findOptions: FindSampleOptions) =>
           'status',
           'reference'
         ),
-        (_) => fp.isNil(_) || fp.isArray(_)
+        (_) => isNil(_) || isArray(_)
       )
     )
     .modify((builder) => {
@@ -95,7 +95,7 @@ const findRequest = (findOptions: FindSampleOptions) =>
         );
       }
       if (findOptions.status) {
-        if (fp.isArray(findOptions.status)) {
+        if (isArray(findOptions.status)) {
           builder.whereIn('status', findOptions.status);
         } else {
           builder.where('status', findOptions.status);
@@ -115,7 +115,7 @@ const findRequest = (findOptions: FindSampleOptions) =>
 const findMany = async (
   findOptions: FindSampleOptions
 ): Promise<PartialSample[]> => {
-  console.info('Find samples', fp.omitBy(findOptions, fp.isNil));
+  console.info('Find samples', omitBy(findOptions, isNil));
   return findRequest(findOptions)
     .select(
       `${samplesTable}.*`,
@@ -150,7 +150,7 @@ const findMany = async (
 };
 
 const count = async (findOptions: FindSampleOptions): Promise<number> => {
-  console.info('Count samples', fp.omitBy(findOptions, fp.isNil));
+  console.info('Count samples', omitBy(findOptions, isNil));
   return findRequest(findOptions)
     .count()
     .then(([{ count }]) => Number(count));
@@ -204,7 +204,7 @@ const deleteOne = async (id: string): Promise<void> => {
 export const formatPartialSample = (
   partialSample: PartialSample | Sample
 ): PartialSampleDbo => ({
-  ...fp.omit(partialSample, ['items', 'company', 'sampler']),
+  ...omit(partialSample, ['items', 'company', 'sampler']),
   geolocation: partialSample.geolocation
     ? db.raw('Point(?, ?)', [
         partialSample.geolocation.x,
@@ -220,7 +220,7 @@ export const parsePartialSample = (
 ): PartialSample =>
   sample &&
   PartialSample.parse({
-    ...fp.omit(fp.omitBy(sample, fp.isNil), ['companyId']),
+    ...omit(omitBy(sample, isNil), ['companyId']),
     geolocation: sample.geolocation && {
       x: sample.geolocation.x,
       y: sample.geolocation.y,

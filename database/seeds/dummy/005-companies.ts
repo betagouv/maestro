@@ -1,9 +1,7 @@
 import { Companies } from '../../../server/repositories/companyRepository';
-import { Knex } from 'knex';
-import { setKnexInstance } from '../../../server/repositories/db';
 
-exports.seed = async function (knex: Knex) {
-  setKnexInstance(knex)
+export const seed = async function () {
+
 
   await Companies().insert([
     {

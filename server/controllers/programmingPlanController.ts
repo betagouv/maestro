@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { AuthenticatedRequest, ProgrammingPlanRequest } from 'express-jwt';
 import { constants } from 'http2';
-import _ from 'lodash';
+import { intersection } from 'lodash-es';
 import { v4 as uuidv4 } from 'uuid';
 import ProgrammingPlanMissingError from '../../shared/errors/programmingPlanMissingError';
 import { isDromRegion } from '../../shared/referential/Region';
@@ -41,7 +41,7 @@ const findProgrammingPlans = async (request: Request, response: Response) => {
 
   const programmingPlans = await programmingPlanRepository.findMany({
     ...findOptions,
-    status: _.intersection(
+    status: intersection(
       findOptionsStatus,
       userStatusAuthorized
     ) as ProgrammingPlanStatus[],
