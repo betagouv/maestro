@@ -26,9 +26,18 @@ const DashboardView = () => {
   const { hasUserPermission, userInfos } = useAuthentication();
   const { isOnline } = useOnLine();
 
-  const { data: programmingPlan } = useGetProgrammingPlanByYearQuery(
-    new Date().getFullYear()
+  const { data: programmingPlan, isLoading: isProgrammingPlanLoading } =
+    useGetProgrammingPlanByYearQuery(new Date().getFullYear());
+  const { data: previousProgrammingPlan } = useGetProgrammingPlanByYearQuery(
+    new Date().getFullYear() - 1,
+    { skip: isProgrammingPlanLoading || programmingPlan !== undefined }
   );
+
+  const currentProgrammingPlan = useMemo(
+    () => programmingPlan ?? previousProgrammingPlan,
+    [programmingPlan, previousProgrammingPlan]
+  );
+
   const [createProgrammingPlan] = useCreateProgrammingPlanMutation();
   const { pendingSamples } = useAppSelector((state) => state.samples);
 
@@ -49,11 +58,12 @@ const DashboardView = () => {
 
   const { data } = useFindSamplesQuery(
     {
-      programmingPlanId: programmingPlan?.id as string,
+      programmingPlanId: (currentProgrammingPlan?.id ??
+        previousProgrammingPlan?.id) as string,
       page: 1,
       perPage: 5
     },
-    { skip: !programmingPlan }
+    { skip: !currentProgrammingPlan }
   );
   const samples = _.unionBy(
     Object.values(pendingSamples),
@@ -61,7 +71,7 @@ const DashboardView = () => {
     (_) => _.id
   ).sort((s1, s2) => (isAfter(s2.sampledAt, s1.sampledAt) ? 1 : -1));
 
-  if (!userInfos || !programmingPlan) {
+  if (!userInfos || !currentProgrammingPlan) {
     return <></>;
   }
 
@@ -89,7 +99,7 @@ const DashboardView = () => {
                 <Button
                   size="large"
                   linkProps={{
-                    to: `/prelevements/${programmingPlan.year}/nouveau`,
+                    to: `/prelevements/${currentProgrammingPlan.year}/nouveau`,
                     target: '_self'
                   }}
                   iconId="fr-icon-microscope-line"
@@ -144,10 +154,10 @@ const DashboardView = () => {
           {ContextList.map((context) => (
             <div
               className={cx('fr-col-12', 'fr-col-md-6')}
-              key={`${programmingPlan.id}-${context}`}
+              key={`${currentProgrammingPlan.id}-${context}`}
             >
               <ProgrammingPlanCard
-                programmingPlan={programmingPlan}
+                programmingPlan={currentProgrammingPlan}
                 context={context}
               />
             </div>
@@ -155,7 +165,7 @@ const DashboardView = () => {
         </div>
       )}
 
-      {programmingPlan.status === 'Validated' && (
+      {currentProgrammingPlan.status === 'Validated' && (
         <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
           <div className={clsx(cx('fr-my-2w'), 'table-header')}>
             <h4 className={cx('fr-mb-0')}>Vos derniers prélèvements</h4>
@@ -169,7 +179,7 @@ const DashboardView = () => {
                   iconId={'fr-icon-arrow-right-line'}
                   iconPosition="right"
                   linkProps={{
-                    to: `/prelevements/${programmingPlan.year}`
+                    to: `/prelevements/${currentProgrammingPlan.year}`
                   }}
                 >
                   Tous les prélèvements

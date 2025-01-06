@@ -9,7 +9,7 @@ import { genPrescription } from 'shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'shared/test/programmingPlanFixtures';
 import {
   genCreatedSampleData,
-  genSampleContextData,
+  genSampleContextData
 } from 'shared/test/sampleFixtures';
 import { genAuthUser, genUser } from 'shared/test/userFixtures';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
@@ -17,32 +17,32 @@ import config from 'src/utils/config';
 import MatrixStep from 'src/views/SampleView/DraftSample/MatrixStep/MatrixStep';
 import {
   getRequestCalls,
-  mockRequests,
+  mockRequests
 } from '../../../../../../test/requestTestUtils';
 
-import {describe, test, expect} from 'vitest';
+import { beforeEach, describe, expect, test } from 'vitest';
 let store: Store;
 const authUser = genAuthUser();
 const sampler = genUser({
   roles: ['Sampler'],
-  id: authUser.userId,
+  id: authUser.userId
 });
 const userRequest = {
   pathname: `/api/users/${sampler.id}/infos`,
-  response: { body: JSON.stringify(sampler) },
+  response: { body: JSON.stringify(sampler) }
 };
 const programmingPlan = genProgrammingPlan();
 const prescription1 = genPrescription({
   programmingPlanId: programmingPlan.id,
-  context: 'Control',
+  context: 'Control'
 });
 const prescription2 = genPrescription({
   programmingPlanId: programmingPlan.id,
-  context: 'Control',
+  context: 'Control'
 });
 const prescriptionsRequest = {
   pathname: `/api/prescriptions?programmingPlanId=${programmingPlan.id}&context=Control`,
-  response: { body: JSON.stringify([prescription1, prescription2]) },
+  response: { body: JSON.stringify([prescription1, prescription2]) }
 };
 
 describe('SampleStepDraftInfos', () => {
@@ -52,8 +52,8 @@ describe('SampleStepDraftInfos', () => {
       reducer: applicationReducer,
       middleware: applicationMiddleware,
       preloadedState: {
-        auth: { authUser },
-      },
+        auth: { authUser }
+      }
     });
   });
 
@@ -68,9 +68,9 @@ describe('SampleStepDraftInfos', () => {
           <MatrixStep
             partialSample={{
               ...genSampleContextData({
-                programmingPlanId: programmingPlan.id,
+                programmingPlanId: programmingPlan.id
               }),
-              ...genCreatedSampleData({ sampler }),
+              ...genCreatedSampleData({ sampler })
             }}
           />
         </BrowserRouter>
@@ -103,9 +103,9 @@ describe('SampleStepDraftInfos', () => {
           <MatrixStep
             partialSample={{
               ...genSampleContextData({
-                programmingPlanId: programmingPlan.id,
+                programmingPlanId: programmingPlan.id
               }),
-              ...genCreatedSampleData({ sampler }),
+              ...genCreatedSampleData({ sampler })
             }}
           />
         </BrowserRouter>
@@ -134,9 +134,9 @@ describe('SampleStepDraftInfos', () => {
     const createdSample = {
       ...genSampleContextData({
         programmingPlanId: programmingPlan.id,
-        context: 'Control',
+        context: 'Control'
       }),
-      ...genCreatedSampleData({ sampler }),
+      ...genCreatedSampleData({ sampler })
     };
     mockRequests([
       userRequest,
@@ -144,8 +144,8 @@ describe('SampleStepDraftInfos', () => {
       {
         pathname: `/api/samples/${createdSample.id}`,
         method: 'PUT',
-        response: { body: JSON.stringify({}) },
-      },
+        response: { body: JSON.stringify({}) }
+      }
     ]);
 
     render(
@@ -193,10 +193,10 @@ describe('SampleStepDraftInfos', () => {
     const createdSample = {
       ...genSampleContextData({
         programmingPlanId: programmingPlan.id,
-        context: 'Control',
+        context: 'Control'
       }),
       ...genCreatedSampleData({ sampler }),
-      prescriptionId: prescription1.id,
+      prescriptionId: prescription1.id
     };
 
     mockRequests([
@@ -205,8 +205,8 @@ describe('SampleStepDraftInfos', () => {
       {
         pathname: `/api/samples/${createdSample.id}`,
         method: 'PUT',
-        response: { body: JSON.stringify(createdSample) },
-      },
+        response: { body: JSON.stringify(createdSample) }
+      }
     ]);
 
     render(
@@ -264,8 +264,8 @@ describe('SampleStepDraftInfos', () => {
         cultureKind: CultureKindList[0],
         stage: prescription1.stages[0],
         matrixDetails: 'Details',
-        notesOnMatrix: 'Comment',
-      },
+        notesOnMatrix: 'Comment'
+      }
     });
   });
 });

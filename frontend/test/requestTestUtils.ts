@@ -1,6 +1,6 @@
-import {
-  FetchMock, MockResponse
-} from 'vitest-fetch-mock';
+import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { User } from 'shared/schema/User/User';
+import { FetchMock, MockResponse } from 'vitest-fetch-mock';
 
 export interface RequestCall {
   url: string;
@@ -16,7 +16,7 @@ export const getRequestCalls = (fetchMock: FetchMock) =>
         return {
           url: request.url,
           method: request.method,
-          body,
+          body
         };
       }
     })
@@ -25,7 +25,7 @@ export const getRequestCalls = (fetchMock: FetchMock) =>
 export interface RequestMatch {
   pathname: string;
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-  response:  MockResponse;
+  response: MockResponse;
 }
 
 export const mockRequests = (matches: RequestMatch[]): void => {
@@ -33,12 +33,12 @@ export const mockRequests = (matches: RequestMatch[]): void => {
     return [
       (request: Request) => request.url.endsWith(match.pathname),
       (request: Request) =>
-        match.method ? request.method === match.method : true,
+        match.method ? request.method === match.method : true
       // Add predicates here to match more request properties
     ];
   }
 
-  fetchMock.mockResponse((request)  => {
+  fetchMock.mockResponse((request) => {
     const match = matches.find((match) => {
       return predicates(match).every((predicate) => predicate(request));
     });
@@ -46,7 +46,7 @@ export const mockRequests = (matches: RequestMatch[]): void => {
       throw new MockError(request);
     }
 
-    return match.response
+    return match.response;
   });
 };
 
@@ -56,3 +56,18 @@ class MockError extends Error {
     this.name = 'MockError';
   }
 }
+
+export const userRequestMock = (user: User) => ({
+  pathname: `/api/users/${user.id}/infos`,
+  response: { body: JSON.stringify(user) }
+});
+
+export const programmingPlanByYearRequestMock = (
+  year: number,
+  programmingPlan?: ProgrammingPlan
+) => ({
+  pathname: `/api/programming-plans/${year}`,
+  response: {
+    body: JSON.stringify(programmingPlan)
+  }
+});
