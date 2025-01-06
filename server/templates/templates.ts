@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-export type Template = 'supportDocument' | 'analysisReportDocument';
+export type Template = 'supportDocument';
 
 export const templateContent = (template: Template) =>
   fs.readFileSync(path.join(import.meta.dirname, template, `${template}.hbs`), 'utf8');
