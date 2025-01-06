@@ -7,6 +7,7 @@ import { createServer } from '../../server';
 import randomstring from 'randomstring';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { genAuthRedirectUrl } from '../../../shared/test/authFixtures';
+import { kysely } from '../../repositories/kysely';
 import { Sampler1Fixture } from '../../test/seed/001-users';
 import {
   mockAuthenticate,
@@ -77,9 +78,13 @@ describe('Auth routes', () => {
     });
 
     test('should authenticate a user', async () => {
+      const newFirstname = 'newFirstname';
+      const newLastname = 'newLastname';
       const mockedAuthenticate = Promise.resolve({
         idToken: randomstring.generate(),
-        email: Sampler1Fixture.email
+        email: Sampler1Fixture.email,
+        firstName: newFirstname,
+        lastName: newLastname
       });
       mockAuthenticate.mockResolvedValueOnce(mockedAuthenticate);
       const res = await request(app)
@@ -91,6 +96,16 @@ describe('Auth routes', () => {
         userId: Sampler1Fixture.id,
         accessToken: expect.any(String),
         userRoles: Sampler1Fixture.roles
+      });
+
+      const userInDb = await kysely
+        .selectFrom('users')
+        .selectAll()
+        .where('email', '=', Sampler1Fixture.email)
+        .executeTakeFirst();
+      expect(userInDb).toMatchObject({
+        lastName: newLastname,
+        firstName: newFirstname
       });
     });
   });
