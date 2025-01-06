@@ -21,9 +21,7 @@ describe('Auth routes', () => {
   const user = genUser();
 
   beforeAll(async () => {
-    await Users().insert({
-      ...user
-    });
+    await Users().insert(user);
   });
 
   afterAll(async () => {

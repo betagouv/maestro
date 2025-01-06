@@ -5,5 +5,7 @@ exports.up = async (knex: Knex) => {
   await knex.raw('alter table users drop column password')
 };
 
-exports.down = async (_knex: Knex) => {
+exports.down = async (knex: Knex) => {
+  await knex.raw('drop index public.users_email_index')
+  await knex.raw('alter table public.users add password varchar')
 };
