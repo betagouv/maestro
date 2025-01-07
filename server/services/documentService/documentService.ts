@@ -29,12 +29,6 @@ const imageUrlToBase64 = async (imageUrl: string): Promise<string> => {
   try {
     const response = await fetch(imageUrl);
 
-    if (!response.ok) {
-      throw new Error(
-        `Erreur lors de la récupération de l'image : ${response.statusText}`
-      );
-    }
-
     const buffer = await response.arrayBuffer();
 
     const base64 = Buffer.from(buffer).toString('base64');
