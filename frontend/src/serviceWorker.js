@@ -57,69 +57,69 @@ registerRoute(
   createHandlerBoundToURL(process.env.REACT_APP_PUBLIC_URL + '/index.html')
 );
 
-registerRoute(
-  ({ request, url }) =>
-    url.origin === self.location.origin &&
-    (request.destination === 'font' || request.destination === 'manifest'),
-  new CacheFirst({
-    cacheName: 'assets-cache',
-    plugins: [
-      new ExpirationPlugin({
-        maxEntries: 50, // Limite le nombre d'éléments dans le cache
-        maxAgeSeconds: 30 * 24 * 60 * 60, // Cache pendant 30 jours
-      }),
-      new CacheableResponsePlugin({
-        statuses: [0, 200], // Met en cache uniquement les réponses réussies
-      }),
-    ],
-  })
-);
-
-registerRoute(
-  ({ request, url }) =>
-    url.origin === self.location.origin &&
-    (request.destination === 'style' ||
-      request.destination === 'script' ||
-      request.destination === 'image'),
-  new NetworkFirst({
-    cacheName: 'assets-offline-cache',
-    plugins: [
-      new ExpirationPlugin({
-        maxEntries: 50, // Limite le nombre d'éléments dans le cache
-        maxAgeSeconds: 30 * 24 * 60 * 60, // Cache pendant 30 jours
-      }),
-      new CacheableResponsePlugin({
-        statuses: [0, 200], // Met en cache uniquement les réponses réussies
-      }),
-    ],
-  })
-);
-
-registerRoute(
-  ({ url, request }) =>
-    request.method === 'GET' &&
-    url.pathname.startsWith('/api') &&
-    !url.searchParams.has('x-access-token'),
-  new NetworkFirst({
-    cacheName: 'api-offline-cache',
-    plugins: [
-      new ExpirationPlugin({
-        maxEntries: 100, // Limite le nombre d'éléments dans le cache
-        maxAgeSeconds: 5 * 24 * 60 * 60, // Cache pendant 5 jours
-      }),
-      new CacheableResponsePlugin({
-        statuses: [0, 200], // Met en cache uniquement les réponses réussies
-      }),
-    ],
-  })
-);
-
-// This allows the web app to trigger skipWaiting via
-// registration.waiting.postMessage({type: 'SKIP_WAITING'})
-self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
-});
+// registerRoute(
+//   ({ request, url }) =>
+//     url.origin === self.location.origin &&
+//     (request.destination === 'font' || request.destination === 'manifest'),
+//   new CacheFirst({
+//     cacheName: 'assets-cache',
+//     plugins: [
+//       new ExpirationPlugin({
+//         maxEntries: 50, // Limite le nombre d'éléments dans le cache
+//         maxAgeSeconds: 30 * 24 * 60 * 60, // Cache pendant 30 jours
+//       }),
+//       new CacheableResponsePlugin({
+//         statuses: [0, 200], // Met en cache uniquement les réponses réussies
+//       }),
+//     ],
+//   })
+// );
+//
+// registerRoute(
+//   ({ request, url }) =>
+//     url.origin === self.location.origin &&
+//     (request.destination === 'style' ||
+//       request.destination === 'script' ||
+//       request.destination === 'image'),
+//   new NetworkFirst({
+//     cacheName: 'assets-offline-cache',
+//     plugins: [
+//       new ExpirationPlugin({
+//         maxEntries: 50, // Limite le nombre d'éléments dans le cache
+//         maxAgeSeconds: 30 * 24 * 60 * 60, // Cache pendant 30 jours
+//       }),
+//       new CacheableResponsePlugin({
+//         statuses: [0, 200], // Met en cache uniquement les réponses réussies
+//       }),
+//     ],
+//   })
+// );
+//
+// registerRoute(
+//   ({ url, request }) =>
+//     request.method === 'GET' &&
+//     url.pathname.startsWith('/api') &&
+//     !url.searchParams.has('x-access-token'),
+//   new NetworkFirst({
+//     cacheName: 'api-offline-cache',
+//     plugins: [
+//       new ExpirationPlugin({
+//         maxEntries: 100, // Limite le nombre d'éléments dans le cache
+//         maxAgeSeconds: 5 * 24 * 60 * 60, // Cache pendant 5 jours
+//       }),
+//       new CacheableResponsePlugin({
+//         statuses: [0, 200], // Met en cache uniquement les réponses réussies
+//       }),
+//     ],
+//   })
+// );
+//
+// // This allows the web app to trigger skipWaiting via
+// // registration.waiting.postMessage({type: 'SKIP_WAITING'})
+// self.addEventListener('message', (event) => {
+//   if (event.data && event.data.type === 'SKIP_WAITING') {
+//     self.skipWaiting();
+//   }
+// });
 
 // Any other custom service worker logic can go here.
