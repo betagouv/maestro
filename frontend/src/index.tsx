@@ -9,8 +9,11 @@ import { registerSW } from 'virtual:pwa-register'
 const intervalMS =  30 * 1000
 registerSW({immediate: true,
   onRegisteredSW(_s, r) {
+  console.log('try to register sw')
     if( r !== undefined ) {
+      console.log('subscribe update')
       setInterval(() => {
+        console.log('update')
         r.update()
       }, intervalMS)
     }
