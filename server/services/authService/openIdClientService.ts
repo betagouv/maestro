@@ -4,6 +4,9 @@ import { AuthRedirectUrl } from '../../../shared/schema/Auth/AuthRedirectUrl';
 import config from '../../utils/config';
 import { AuthService } from './authService';
 
+const loginCallbackUrl = `${config.application.host}/login-callback`
+const logoutCallbackUrl = `${config.application.host}/logout-callback`
+
 class OpenIdClientService implements AuthService {
   private client: any;
 
@@ -27,9 +30,7 @@ class OpenIdClientService implements AuthService {
     const client = new issuer.Client({
       client_id: config.auth.clientId,
       client_secret: config.auth.clientSecret,
-      redirect_uris: config.auth.loginCallbackUrl
-        ? [config.auth.loginCallbackUrl]
-        : [],
+      redirect_uris: [loginCallbackUrl],
       response_types: ['code'],
       id_token_signed_response_alg: config.auth.tokenAlgorithm,
       userinfo_signed_response_alg: config.auth.tokenAlgorithm
@@ -58,7 +59,7 @@ class OpenIdClientService implements AuthService {
   authenticate = async (authRedirectUrl: AuthRedirectUrl) => {
     const params = this.client.callbackParams(authRedirectUrl.url);
     const tokenSet = await this.client.callback(
-      config.auth.loginCallbackUrl as string,
+      loginCallbackUrl,
       params,
       {
         state: authRedirectUrl.state ?? '',
@@ -110,7 +111,7 @@ class OpenIdClientService implements AuthService {
     const logoutUrl = this.client.endSessionUrl({
       id_token_hint: idToken,
       state,
-      post_logout_redirect_uri: config.auth.logoutCallbackUrl as string
+      post_logout_redirect_uri: logoutCallbackUrl
     });
 
     return {
