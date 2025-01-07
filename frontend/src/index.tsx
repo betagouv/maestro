@@ -6,7 +6,7 @@ import './i18n';
 import { registerSW } from 'virtual:pwa-register'
 
 // Vérifie qu'il n'y a pas une nouvelle version du site toutes les 5min
-const intervalMS =  5 * 60 * 1000
+const intervalMS =  30 * 1000
 registerSW({immediate: true,
   onRegisteredSW(_s, r) {
     if( r !== undefined ) {
