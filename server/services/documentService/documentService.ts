@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { default as fr } from 'date-fns/locale/fr';
+import { fr } from 'date-fns/locale/fr';
 import handlebars from 'handlebars';
 import puppeteer from 'puppeteer';
 import ProgrammingPlanMissingError from '../../../shared/errors/programmingPlanMissingError';
@@ -25,7 +25,7 @@ import {
 } from '../../templates/templates';
 import config from '../../utils/config';
 
-const dsfrLink = `${config.application.host}/node_modules/@codegouvfr/react-dsfr/main.css`;
+const dsfrLink = `${config.application.host}//dsfr/dsfr.min.css`;
 
 const generateDocument = async (template: Template, data: any) => {
   handlebars.registerHelper(
