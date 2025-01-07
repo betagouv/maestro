@@ -12,6 +12,7 @@ registerSW({immediate: true,
   console.log('try to register sw')
     if( r !== undefined ) {
       console.log('subscribe update')
+      r.update()
       setInterval(() => {
         console.log('update')
         r.update()
