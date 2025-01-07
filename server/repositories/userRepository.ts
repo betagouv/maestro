@@ -49,8 +49,17 @@ const findMany = async (findOptions: FindUserOptions): Promise<UserInfos[]> => {
   return users.map((_: UserInfos) => UserInfos.parse(_))
 };
 
-export default {
+const updateNames = async (partialUser: Pick<UserInfos, 'email' | 'lastName' | 'firstName'>): Promise<void> => {
+  await kysely.updateTable('users').set({
+    firstName: partialUser.firstName,
+    lastName: partialUser.lastName
+  }).where('email', '=', partialUser.email).execute()
+}
+
+export const userRepository = {
   findUnique,
   findOne,
   findMany,
-};
+  updateNames
+}
+

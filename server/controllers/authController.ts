@@ -5,10 +5,9 @@ import jwt from 'jsonwebtoken';
 import AuthenticationFailedError from '../../shared/errors/authenticationFailedError';
 import { AuthRedirectUrl } from '../../shared/schema/Auth/AuthRedirectUrl';
 import { TokenPayload } from '../../shared/schema/User/TokenPayload';
-import userRepository from '../repositories/userRepository';
+import { userRepository } from '../repositories/userRepository';
 import { getAuthService } from '../services/authService';
 import config from '../utils/config';
-import { kysely } from '../repositories/kysely';
 
 const getAuthRedirectUrl = async (request: Request, response: Response) => {
   const authService = await getAuthService;
@@ -38,7 +37,7 @@ const authenticate = async (request: Request, response: Response) => {
 
 
     if (user.firstName !== firstName || user.lastName !== lastName) {
-      await kysely.updateTable('users').set({firstName, lastName}).where('email', '=', email).execute()
+      await userRepository.updateNames({email, firstName, lastName})
     }
 
     const accessToken = jwt.sign(
