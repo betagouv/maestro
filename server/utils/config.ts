@@ -34,6 +34,7 @@ interface Config {
     host: string;
   };
   environment: string;
+  serverUrl: string;
   serverPort: number;
   auth: {
     secret: string;
@@ -81,7 +82,7 @@ interface Config {
       url: string;
     };
   };
-  m2mBasicToken: string
+  m2mBasicToken: string;
 }
 
 const config = convict<Config>({
@@ -96,6 +97,12 @@ const config = convict<Config>({
     env: 'NODE_ENV',
     format: String,
     default: 'development'
+  },
+  serverUrl: {
+    env: 'REACT_APP_API_URL',
+    format: 'url',
+    nullable: false,
+    default: 'http://localhost:3001'
   },
   serverPort: {
     env: 'API_PORT',

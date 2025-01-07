@@ -25,7 +25,58 @@ import {
 } from '../../templates/templates';
 import config from '../../utils/config';
 
-const dsfrLink = `${config.application.host}//dsfr/dsfr.min.css`;
+const imageUrlToBase64 = async (imageUrl: string): Promise<string> => {
+  try {
+    const response = await fetch(imageUrl);
+
+    if (!response.ok) {
+      throw new Error(
+        `Erreur lors de la récupération de l'image : ${response.statusText}`
+      );
+    }
+
+    const buffer = await response.arrayBuffer();
+
+    const base64 = Buffer.from(buffer).toString('base64');
+
+    return `data:image/svg+xml;base64,${base64}`;
+  } catch (error: any) {
+    throw new Error(`Erreur lors de la conversion : ${error.message}`);
+  }
+};
+
+const loadIconSyles = async (initialStyle: string, icons: string[]) => {
+  const iconImages = await Promise.all(
+    icons.map(async (icon) => {
+      const iconPath = initialStyle.match(
+        new RegExp(
+          `url\\((\\.\\./)?icons/[a-zA-Z0-9\\-_/]+(/|fr--|fr-)${icon}\\.svg\\)`
+        )
+      );
+
+      if (!iconPath) {
+        return undefined;
+      }
+
+      const iconUrl = `http://localhost:3001/dsfr/dist/icons/${iconPath[0]
+        .replace('url(icons/', '')
+        .replace('url(../icons/', '')
+        .replace(')', '')}`;
+      const image64 = await imageUrlToBase64(iconUrl);
+      return {
+        iconPath: iconPath[0],
+        image64
+      };
+    })
+  );
+
+  return iconImages
+    .filter(isDefinedAndNotNull)
+    .reduce((acc, { iconPath, image64 }) => {
+      console.log(iconPath, image64);
+      return acc.replaceAll(iconPath, `url(${image64})`);
+    }, initialStyle);
+};
 
 const generateDocument = async (template: Template, data: any) => {
   handlebars.registerHelper(
@@ -46,13 +97,40 @@ const generateDocument = async (template: Template, data: any) => {
   await page.emulateMediaType('print');
   await page.setContent(htmlContent);
 
-  const dsfrStyles = await fetch(dsfrLink).then((response) => response.text());
+  const dsfrStyleSheet = await fetch(
+    `${config.serverUrl}/dsfr/dist/dsfr.min.css`
+  )
+    .then((response) => response.text())
+    .then((styleSheet) => loadIconSyles(styleSheet, ['warning-fill']));
+
+  const utilityStyleSheet = await fetch(
+    `${config.serverUrl}/dsfr/dist/utility/utility.min.css`
+  )
+    .then((response) => response.text())
+    .then((styleSheet) =>
+      loadIconSyles(styleSheet, [
+        'government-line',
+        'user-line',
+        'seedling-line',
+        'road-map-line',
+        'restaurant-line',
+        'microscope-line',
+        'quote-line',
+        'error-warning-line',
+        'test-tube-line',
+        'warning-fill',
+        'error-warning-line'
+      ])
+    );
 
   await page.addStyleTag({
-    content: dsfrStyles.replaceAll(
+    content: dsfrStyleSheet.replaceAll(
       '@media (min-width: 62em)',
       '@media (min-width: 48em)'
     )
+  });
+  await page.addStyleTag({
+    content: utilityStyleSheet
   });
 
   await page.addStyleTag({
@@ -139,7 +217,6 @@ const generateSupportDocument = async (
         : 'Non respectée'
       : '',
     isSecondSampleItem: sampleItem?.itemNumber === 2,
-    dsfrLink,
     assetsPath: `${config.application.host}/src/assets`,
     establishment: Regions[sample.region].establishment,
     department: DepartmentLabels[sample.department]
