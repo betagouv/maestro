@@ -35,7 +35,7 @@ const HomeView = () => {
       <div className={cx('fr-col-12', 'fr-col-md-6')}>
         <div className={clsx('sign-in')}>
           <h2 className={cx('fr-mb-2w')}>
-            Identifiez-vous pour accéder à votre espace maestro
+            Identifiez-vous pour accéder à vote espace maestro
           </h2>
           <div className={cx('fr-text--lg', 'fr-mb-5w')}>
             ProConnect est la solution proposée par l’État pour sécuriser et
