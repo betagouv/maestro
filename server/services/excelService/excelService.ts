@@ -1,33 +1,27 @@
 import { format } from 'date-fns';
-import exceljs from 'exceljs';
+import { default as exceljs, default as ExcelJS } from 'exceljs';
 import { CultureKindLabels } from '../../../shared/referential/CultureKind';
 import { LegalContextLabels } from '../../../shared/referential/LegalContext';
 import { MatrixLabels } from '../../../shared/referential/Matrix/MatrixLabels';
 import { MatrixPartLabels } from '../../../shared/referential/MatrixPart';
+import { QuantityUnitLabels } from '../../../shared/referential/QuantityUnit';
 import { Regions } from '../../../shared/referential/Region';
 import { StageLabels } from '../../../shared/referential/Stage';
 import { ContextLabels } from '../../../shared/schema/ProgrammingPlan/Context';
 import { Sample } from '../../../shared/schema/Sample/Sample';
+import { SampleItem } from '../../../shared/schema/Sample/SampleItem';
 import { UserInfos } from '../../../shared/schema/User/User';
 import { isDefined } from '../../../shared/utils/utils';
 import laboratoryRepository from '../../repositories/laboratoryRepository';
 import prescriptionSubstanceRepository from '../../repositories/prescriptionSubstanceRepository';
-import Workbook = exceljs.Workbook;
 
-const writeToWorkbook = async (
+const generateAnalysisRequestExcel = async (
   sample: Sample,
-  // sampleItem: SampleItem,
-  sampler: UserInfos,
-  workbook: Workbook
+  sampleItem: SampleItem,
+  sampler: UserInfos
 ) => {
-  // const programmingPlan = await programmingPlanRepository.findUnique(
-  //   sample.programmingPlanId as string
-  // );
-  //
-  // if (!programmingPlan) {
-  //   throw new ProgrammingPlanMissingError(sample.programmingPlanId as string);
-  // }
-  //
+  const workbook = new ExcelJS.Workbook();
+
   const laboratory = await laboratoryRepository.findUnique(sample.laboratoryId);
 
   const prescriptionSubstances = await prescriptionSubstanceRepository.findMany(
@@ -38,12 +32,11 @@ const writeToWorkbook = async (
 
   const worksheet = workbook.addWorksheet('Prélèvement');
 
-  const headerRow = worksheet.addRow(["Demande d'Analyse Informatisée"]);
-  headerRow.getCell(1).alignment = {
+  addRow(worksheet, ["Demande d'Analyse Informatisée"]);
+  worksheet.getRow(1).getCell(1).alignment = {
     horizontal: 'center'
   };
-  headerRow.getCell(1).border = thickBorders;
-  mergeColumns(worksheet, headerRow.number, 1);
+  worksheet.getRow(1).getCell(1).border = thickBorders;
 
   addEmptyRow(worksheet);
 
@@ -151,11 +144,29 @@ const writeToWorkbook = async (
 
   addEmptyRow(worksheet);
 
+  addHeaderRow(worksheet, [`Échantillon n°${sampleItem.itemNumber}`]);
+  addHeaderRow(worksheet, [
+    'Nombre',
+    'Unité de mesure',
+    'Numéro de scellé',
+    'Directive 2002/63'
+  ]);
+  addRow(worksheet, [
+    sampleItem.quantity.toString(),
+    QuantityUnitLabels[sampleItem.quantityUnit],
+    sampleItem.sealId,
+    sampleItem.compliance200263 ? 'Respectée' : 'Non respectée'
+  ]);
+
   worksheet.getColumn(1).width = 25;
   worksheet.getColumn(2).width = 25;
   worksheet.getColumn(3).width = 25;
   worksheet.getColumn(4).width = 25;
   worksheet.getRow(1).height = 50;
+
+  const buffer = await workbook.xlsx.writeBuffer();
+
+  return buffer;
 };
 
 const thickBorders = {
@@ -266,5 +277,5 @@ const addRow = (
 };
 
 export default {
-  writeToWorkbook
+  generateAnalysisRequestExcel
 };

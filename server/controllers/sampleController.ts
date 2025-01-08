@@ -1,11 +1,13 @@
-import { DeleteObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { format } from 'date-fns';
 import { Request, Response } from 'express';
 import { AuthenticatedRequest, SampleRequest } from 'express-jwt';
 import { constants } from 'http2';
 import { isNil, omitBy, pick } from 'lodash-es';
-import { v4 as uuidv4 } from 'uuid';
 import { Regions } from '../../shared/referential/Region';
+import {
+  getAnalysisReportDocumentFilename,
+  getSupportDocumentFilename
+} from '../../shared/schema/Document/DocumentKind';
 import { Laboratory } from '../../shared/schema/Laboratory/Laboratory';
 import { FindSampleOptions } from '../../shared/schema/Sample/FindSampleOptions';
 import {
@@ -17,14 +19,14 @@ import { SampleItem } from '../../shared/schema/Sample/SampleItem';
 import { DraftStatusList } from '../../shared/schema/Sample/SampleStatus';
 import { UserInfos } from '../../shared/schema/User/User';
 import companyRepository from '../repositories/companyRepository';
-import documentRepository from '../repositories/documentRepository';
 import laboratoryRepository from '../repositories/laboratoryRepository';
 import sampleItemRepository from '../repositories/sampleItemRepository';
 import sampleRepository from '../repositories/sampleRepository';
+import { documentService } from '../services/documentService/documentService';
+import excelService from '../services/excelService/excelService';
 import exportSamplesService from '../services/exportService/exportSamplesService';
 import { mailService } from '../services/mailService';
 import pdfService from '../services/pdfService/pdfService';
-import { getS3Client } from '../services/s3Service';
 import config from '../utils/config';
 import workbookUtils from '../utils/workbookUtils';
 
@@ -53,7 +55,7 @@ const getSampleItemDocument = async (request: Request, response: Response) => {
     itemNumber
   );
 
-  const pdfBuffer = await pdfService.generateSupportDocument(
+  const pdfBuffer = await pdfService.generateSampleSupportPDF(
     sample,
     sampleItem ?? null,
     user
@@ -62,7 +64,7 @@ const getSampleItemDocument = async (request: Request, response: Response) => {
   response.setHeader('Content-Type', 'application/pdf');
   response.setHeader(
     'Content-Disposition',
-    `inline; filename="DAP-${sample.reference}-${itemNumber}.pdf"`
+    `inline; filename="${getSupportDocumentFilename(sample, itemNumber)}"`
   );
   response.send(pdfBuffer);
 };
@@ -192,13 +194,20 @@ const updateSample = async (request: Request, response: Response) => {
 
     await Promise.all(
       sampleItems.map(async (sampleItem) => {
-        const doc = await storeSampleItemDocument(
+        const sampleSupportDoc = await generateAndStoreSampleSupportDocument(
           updatedSample as Sample,
           sampleItem as SampleItem,
           user
         );
 
         if (sampleItem.itemNumber === 1) {
+          const analysisRequestDoc =
+            await generateAndStoreAnalysisRequestDocument(
+              updatedSample as Sample,
+              sampleItem as SampleItem,
+              user
+            );
+
           const laboratory = (await laboratoryRepository.findUnique(
             updatedSample.laboratoryId as string
           )) as Laboratory;
@@ -212,8 +221,18 @@ const updateSample = async (request: Request, response: Response) => {
             },
             attachment: [
               {
-                name: `DAP-${updatedSample.reference}-${sampleItem.itemNumber}.pdf`,
-                content: doc.toString('base64')
+                name: `${getSupportDocumentFilename(
+                  updatedSample,
+                  sampleItem.itemNumber
+                )}`,
+                content: sampleSupportDoc.toString('base64')
+              },
+              {
+                name: `${getAnalysisReportDocumentFilename(
+                  updatedSample,
+                  sampleItem.itemNumber
+                )}`,
+                content: Buffer.from(analysisRequestDoc).toString('base64')
               }
             ]
           });
@@ -228,8 +247,11 @@ const updateSample = async (request: Request, response: Response) => {
             },
             attachment: [
               {
-                name: `DAP-${updatedSample.reference}-${sampleItem.itemNumber}.pdf`,
-                content: doc.toString('base64')
+                name: `${getSupportDocumentFilename(
+                  updatedSample,
+                  sampleItem.itemNumber
+                )}`,
+                content: sampleSupportDoc.toString('base64')
               }
             ]
           });
@@ -243,14 +265,12 @@ const updateSample = async (request: Request, response: Response) => {
   response.status(constants.HTTP_STATUS_OK).send(updatedSample);
 };
 
-const storeSampleItemDocument = async (
+const generateAndStoreSampleSupportDocument = async (
   sample: Sample,
   sampleItem: SampleItem,
   sampler: UserInfos
 ) => {
-  const client = getS3Client();
-
-  const pdfBuffer = await pdfService.generateSupportDocument(
+  const pdfBuffer = await pdfService.generateSampleSupportPDF(
     sample,
     sampleItem,
     sampler
@@ -258,44 +278,52 @@ const storeSampleItemDocument = async (
 
   if (sampleItem.supportDocumentId) {
     console.info('Delete previous document', sampleItem.supportDocumentId);
-    const deleteCommand = new DeleteObjectCommand({
-      Bucket: config.s3.bucket,
-      Key: sampleItem.supportDocumentId
-    });
-    await client.send(deleteCommand);
-
     await sampleItemRepository.update(sample.id, sampleItem.itemNumber, {
       ...sampleItem,
       supportDocumentId: null
     });
-
-    await documentRepository.deleteOne(sampleItem.supportDocumentId);
+    await documentService.deleteDocument(sampleItem.supportDocumentId);
   }
 
-  const filename = `DAP-${sample.reference}-${sampleItem.itemNumber}.pdf`;
-  const id = uuidv4();
-  const key = `${id}_${filename}`;
-  const command = new PutObjectCommand({
-    Bucket: config.s3.bucket,
-    Key: key,
-    Body: pdfBuffer
-  });
-  await client.send(command);
-
-  await documentRepository.insert({
-    id,
-    filename,
-    kind: 'SupportDocument',
-    createdBy: sample.sampler.id, //TODO : check if it's the right user
-    createdAt: new Date()
-  });
+  const documentId = await documentService.createDocument(
+    getSupportDocumentFilename(sample, sampleItem.itemNumber),
+    'SupportDocument',
+    pdfBuffer,
+    sampler.id
+  );
 
   await sampleItemRepository.update(sample.id, sampleItem.itemNumber, {
     ...sampleItem,
-    supportDocumentId: id
+    supportDocumentId: documentId
   });
 
   return pdfBuffer;
+};
+
+const generateAndStoreAnalysisRequestDocument = async (
+  sample: Sample,
+  sampleItem: SampleItem,
+  sampler: UserInfos
+) => {
+  const filename = getAnalysisReportDocumentFilename(
+    sample,
+    sampleItem.itemNumber
+  );
+
+  const excelBuffer = await excelService.generateAnalysisRequestExcel(
+    sample as Sample,
+    sampleItem as SampleItem,
+    sampler
+  );
+
+  await documentService.createDocument(
+    filename,
+    'AnalysisRequestDocument',
+    new Uint8Array(excelBuffer),
+    sampler.id
+  );
+
+  return excelBuffer;
 };
 
 const deleteSample = async (request: Request, response: Response) => {
