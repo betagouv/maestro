@@ -1,0 +1,14 @@
+#s3cmd --host http://localhost:9090 ls s3://maestro --no-ssl
+services:
+  s3mock:
+    image: adobe/s3mock:latest
+    container_name: maestro_s3
+    environment:
+      - debug=true
+      - retainFilesOnExit=true
+      - root=containers3root
+      - initialBuckets=maestro
+    ports:
+      - 9090:9090
+    volumes:
+      - ./locals3root:/containers3root

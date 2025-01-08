@@ -2,7 +2,6 @@ import {
   DeleteObjectCommand,
   GetObjectCommand,
   PutObjectCommand,
-  S3,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl as getS3SignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Request, Response } from 'express';
@@ -17,6 +16,7 @@ import {
 import { hasPermission } from '../../shared/schema/User/User';
 import documentRepository from '../repositories/documentRepository';
 import config from '../utils/config';
+import { getS3Client } from '../services/s3Service';
 
 const getDocument = async (request: Request, response: Response) => {
   const { documentId } = request.params;
@@ -48,7 +48,7 @@ const getUploadSignedUrl = async (request: Request, response: Response) => {
 
   console.log('Get signed url for file', filename);
 
-  const client = new S3(config.s3.client);
+  const client = getS3Client();
   const id = uuidv4();
   const key = `${id}_${filename}`;
 
@@ -73,7 +73,7 @@ const getDownloadSignedUrl = async (request: Request, response: Response) => {
     throw new DocumentMissingError(documentId);
   }
 
-  const client = new S3(config.s3.client);
+  const client = getS3Client();
   const key = `${documentId}_${document.filename}`;
 
   const command = new GetObjectCommand({
@@ -137,7 +137,7 @@ const deleteDocument = async (request: Request, response: Response) => {
     throw new DocumentMissingError(documentId);
   }
 
-  const client = new S3(config.s3.client);
+  const client = getS3Client();
   const key = `${documentId}_${document.filename}`;
 
   const command = new DeleteObjectCommand({

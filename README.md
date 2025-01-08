@@ -20,7 +20,9 @@ La création des tables et autres structures SQL se fera automatiquement lors du
 
 Pour le stockage des fichiers, l'application utilise un service S3. 
 En local et pour les tests, il est possible d'utiliser https://github.com/adobe/S3Mock
-
+```bash
+docker compose up -d
+```
 
 ### Installation de l'application
 
