@@ -81,6 +81,13 @@ export function createServer(): Server {
   app.use('/api', unprotectedRouter);
   app.use('/api', protectedRouter);
 
+  app.use(
+    '/dsfr/dist',
+    express.static(
+      path.join(import.meta.dirname, '../node_modules/@gouvfr/dsfr/dist')
+    )
+  );
+
   if (config.environment === 'production') {
     app.use(
       express.static(path.join(import.meta.dirname, '../frontend/build'))
@@ -91,13 +98,6 @@ export function createServer(): Server {
       );
     });
   }
-
-  app.use(
-    '/dsfr/dist',
-    express.static(
-      path.join(import.meta.dirname, '../node_modules/@gouvfr/dsfr/dist')
-    )
-  );
 
   app.all('*', () => {
     throw new RouteNotFoundError();
