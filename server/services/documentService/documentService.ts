@@ -218,5 +218,7 @@ const generateSupportDocument = async (
 };
 
 export default {
-  generateSupportDocument
+  generateSupportDocument,
+  loadIconSyles,
+  imageUrlToBase64
 };
