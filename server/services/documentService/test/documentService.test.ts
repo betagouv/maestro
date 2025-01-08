@@ -1,14 +1,16 @@
-import { describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import documentService from '../documentService';
 
 describe('loadIconSyles', () => {
-  test('should replace icon paths with base64 encoded images', async () => {
-    const initialStyle = 'url(../icons/test/fr-warning-fill.svg)';
-    const icons = ['warning-fill'];
-
+  beforeEach(() => {
     vi.spyOn(documentService, 'imageUrlToBase64').mockResolvedValue(
       'data:image/svg+xml;base64,mockedBase64String'
     );
+  });
+
+  test('should replace icon paths with base64 encoded images', async () => {
+    const initialStyle = 'url(../icons/test/fr-warning-fill.svg)';
+    const icons = ['warning-fill'];
 
     const result = await documentService.loadIconSyles(initialStyle, icons);
 
@@ -19,6 +21,7 @@ describe('loadIconSyles', () => {
     const initialStyle =
       'url(../icons/warning-fill.svg) url(../icons/test/user-line.svg)';
     const icons = ['warning-fill', 'user-line'];
+
     const result = await documentService.loadIconSyles(initialStyle, icons);
 
     expect(result).toContain('data:image/svg+xml;base64,');
