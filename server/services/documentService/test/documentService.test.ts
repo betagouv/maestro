@@ -3,7 +3,7 @@ import { documentService } from '../documentService';
 
 describe('loadIconSyles', () => {
   beforeEach(() => {
-    vi.mock('../iconUtils', () => ({
+    vi.mock('../assetsUtils', () => ({
       iconUrlToBase64: vi
         .fn()
         .mockResolvedValue('data:image/svg+xml;base64,mockedBase64String')

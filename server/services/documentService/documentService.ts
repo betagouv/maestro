@@ -24,7 +24,7 @@ import {
   templateStylePath
 } from '../../templates/templates';
 import config from '../../utils/config';
-import { iconUrlToBase64 } from './iconUtils';
+import { iconUrlToBase64, imageRelativePathToBase64 } from './assetsUtils';
 
 const loadIconSyles = async (initialStyle: string, icons: string[]) => {
   const iconImages = await Promise.all(
@@ -53,10 +53,11 @@ const loadIconSyles = async (initialStyle: string, icons: string[]) => {
 
   return iconImages
     .filter(isDefinedAndNotNull)
-    .reduce((acc, { iconPath, image64 }) => {
-      console.log(iconPath, image64);
-      return acc.replaceAll(iconPath, `url(${image64})`);
-    }, initialStyle);
+    .reduce(
+      (acc, { iconPath, image64 }) =>
+        acc.replaceAll(iconPath, `url(${image64})`),
+      initialStyle
+    );
 };
 
 const generateDocument = async (template: Template, data: any) => {
@@ -66,6 +67,10 @@ const generateDocument = async (template: Template, data: any) => {
       new handlebars.SafeString(
         handlebars.escapeExpression(text).replace(/(\r\n|\n|\r)/gm, '<br>')
       )
+  );
+
+  handlebars.registerHelper('inlineImage', (relativePath) =>
+    imageRelativePathToBase64(relativePath)
   );
 
   const compiledTemplate = handlebars.compile(templateContent(template));
@@ -198,7 +203,6 @@ const generateSupportDocument = async (
         : 'Non respectée'
       : '',
     isSecondSampleItem: sampleItem?.itemNumber === 2,
-    assetsPath: `${config.application.host}/src/assets`,
     establishment: Regions[sample.region].establishment,
     department: DepartmentLabels[sample.department]
   });
