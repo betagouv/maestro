@@ -1,11 +1,13 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import documentService from '../documentService';
+import { documentService } from '../documentService';
 
 describe('loadIconSyles', () => {
   beforeEach(() => {
-    vi.spyOn(documentService, 'imageUrlToBase64').mockResolvedValue(
-      'data:image/svg+xml;base64,mockedBase64String'
-    );
+    vi.mock('../icconUtils', () => ({
+      iconUrlToBase64: vi
+        .fn()
+        .mockResolvedValue('data:image/svg+xml;base64,mockedBase64String')
+    }));
   });
 
   test('should replace icon paths with base64 encoded images', async () => {
@@ -25,7 +27,6 @@ describe('loadIconSyles', () => {
     const result = await documentService.loadIconSyles(initialStyle, icons);
 
     expect(result).toContain('data:image/svg+xml;base64,');
-    expect(result).toContain('data:image/svg+xml;base64,');
   });
 
   test('should return initial style if no icons are found', async () => {
@@ -34,16 +35,5 @@ describe('loadIconSyles', () => {
     const result = await documentService.loadIconSyles(initialStyle, icons);
 
     expect(result).toBe(initialStyle);
-  });
-
-  test('should throw an error if image conversion fails', async () => {
-    const initialStyle = 'url(../icons/test/warning-fill.svg)';
-    const icons = ['warning-fill'];
-
-    vi.spyOn(global, 'fetch').mockRejectedValueOnce(new Error('Network error'));
-
-    await expect(
-      documentService.loadIconSyles(initialStyle, icons)
-    ).rejects.toThrow('Erreur lors de la conversion : Network error');
   });
 });

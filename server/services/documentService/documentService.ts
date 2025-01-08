@@ -24,20 +24,7 @@ import {
   templateStylePath
 } from '../../templates/templates';
 import config from '../../utils/config';
-
-const imageUrlToBase64 = async (imageUrl: string): Promise<string> => {
-  try {
-    const response = await fetch(imageUrl);
-
-    const buffer = await response.arrayBuffer();
-
-    const base64 = Buffer.from(buffer).toString('base64');
-
-    return `data:image/svg+xml;base64,${base64}`;
-  } catch (error: any) {
-    throw new Error(`Erreur lors de la conversion : ${error.message}`);
-  }
-};
+import { iconUrlToBase64 } from './iconUtils';
 
 const loadIconSyles = async (initialStyle: string, icons: string[]) => {
   const iconImages = await Promise.all(
@@ -52,11 +39,11 @@ const loadIconSyles = async (initialStyle: string, icons: string[]) => {
         return undefined;
       }
 
-      const iconUrl = `http://localhost:3001/dsfr/dist/icons/${iconPath[0]
+      const iconUrl = `${config.serverUrl}/dsfr/dist/icons/${iconPath[0]
         .replace('url(icons/', '')
         .replace('url(../icons/', '')
         .replace(')', '')}`;
-      const image64 = await imageUrlToBase64(iconUrl);
+      const image64 = await iconUrlToBase64(iconUrl);
       return {
         iconPath: iconPath[0],
         image64
@@ -217,8 +204,7 @@ const generateSupportDocument = async (
   });
 };
 
-export default {
+export const documentService = {
   generateSupportDocument,
-  loadIconSyles,
-  imageUrlToBase64
+  loadIconSyles
 };

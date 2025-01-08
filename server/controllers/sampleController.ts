@@ -21,7 +21,7 @@ import documentRepository from '../repositories/documentRepository';
 import laboratoryRepository from '../repositories/laboratoryRepository';
 import sampleItemRepository from '../repositories/sampleItemRepository';
 import sampleRepository from '../repositories/sampleRepository';
-import documentService from '../services/documentService/documentService';
+import { documentService } from '../services/documentService/documentService';
 import exportSamplesService from '../services/exportService/exportSamplesService';
 import { mailService } from '../services/mailService';
 import { getS3Client } from '../services/s3Service';
