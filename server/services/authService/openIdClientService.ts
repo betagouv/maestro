@@ -3,6 +3,7 @@ import { generators, Issuer } from 'openid-client';
 import { AuthRedirectUrl } from '../../../shared/schema/Auth/AuthRedirectUrl';
 import config from '../../utils/config';
 import { AuthService } from './authService';
+import { UserInfos } from '../../../shared/schema/User/User';
 
 const loginCallbackUrl = `${config.application.host}/login-callback`
 const logoutCallbackUrl = `${config.application.host}/logout-callback`
@@ -56,7 +57,7 @@ class OpenIdClientService implements AuthService {
     };
   };
 
-  authenticate = async (authRedirectUrl: AuthRedirectUrl) => {
+  authenticate = async (authRedirectUrl: AuthRedirectUrl): Promise<{idToken: string} & Pick<UserInfos, 'email' | 'firstName' | 'lastName'>> => {
     const params = this.client.callbackParams(authRedirectUrl.url);
     const tokenSet = await this.client.callback(
       loginCallbackUrl,
@@ -101,7 +102,9 @@ class OpenIdClientService implements AuthService {
 
     return {
       idToken,
-      email: userInfo.email
+      email: userInfo.email,
+      firstName: userInfo.given_name,
+      lastName: userInfo.usual_name
     };
   };
 

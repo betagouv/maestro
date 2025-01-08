@@ -21,7 +21,7 @@ import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
-import userRepository from '../repositories/userRepository';
+import {userRepository} from '../repositories/userRepository';
 import {mailService} from '../services/mailService';
 import config from '../utils/config';
 

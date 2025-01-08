@@ -4,7 +4,7 @@ import { constants } from 'http2';
 import { intersection, pick } from 'lodash-es';
 import { FindUserOptions } from '../../shared/schema/User/FindUserOptions';
 import { UserInfos, userRegions } from '../../shared/schema/User/User';
-import userRepository from '../repositories/userRepository';
+import {userRepository} from '../repositories/userRepository';
 
 const getUserInfos = async (request: Request, response: Response) => {
   const { userId } = request.params;

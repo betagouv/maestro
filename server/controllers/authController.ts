@@ -5,14 +5,16 @@ import jwt from 'jsonwebtoken';
 import AuthenticationFailedError from '../../shared/errors/authenticationFailedError';
 import { AuthRedirectUrl } from '../../shared/schema/Auth/AuthRedirectUrl';
 import { TokenPayload } from '../../shared/schema/User/TokenPayload';
-import userRepository from '../repositories/userRepository';
+import { userRepository } from '../repositories/userRepository';
 import { getAuthService } from '../services/authService';
 import config from '../utils/config';
 
 const getAuthRedirectUrl = async (request: Request, response: Response) => {
   const authService = await getAuthService;
+  //Prénom given_name
+  //Nom usual_name
   const authRedirectUrl = authService.getAuthorizationUrl(
-    'openid profile email'
+    'openid profile email given_name usual_name'
   );
 
   response.status(200).send(authRedirectUrl);
@@ -25,12 +27,17 @@ const authenticate = async (request: Request, response: Response) => {
   console.log('authenticate', authRedirectUrl);
 
   try {
-    const { idToken, email } = await authService.authenticate(authRedirectUrl);
+    const { idToken, email, firstName, lastName } = await authService.authenticate(authRedirectUrl);
 
     const user = await userRepository.findOne(email);
     if (!user) {
       console.error('User not found', email);
       throw new Error('User not found');
+    }
+
+
+    if (user.firstName !== firstName || user.lastName !== lastName) {
+      await userRepository.updateNames({email, firstName, lastName})
     }
 
     const accessToken = jwt.sign(

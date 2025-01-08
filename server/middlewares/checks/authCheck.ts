@@ -9,7 +9,7 @@ import UserRoleMissingError from '../../../shared/errors/userRoleMissingError';
 import { hasPermission } from '../../../shared/schema/User/User';
 import { UserPermission } from '../../../shared/schema/User/UserPermission';
 import { UserRole } from '../../../shared/schema/User/UserRole';
-import userRepository from '../../repositories/userRepository';
+import {userRepository} from '../../repositories/userRepository';
 import config from '../../utils/config';
 import { constants } from 'http2';
 

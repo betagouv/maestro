@@ -19,7 +19,7 @@ import {
 } from '../../shared/schema/RegionalPrescription/RegionalPrescriptionComment';
 import regionalPrescriptionCommentRepository from '../repositories/regionalPrescriptionCommentRepository';
 import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
-import userRepository from '../repositories/userRepository';
+import {userRepository} from '../repositories/userRepository';
 import {mailService} from '../services/mailService';
 import config from '../utils/config';
 const findRegionalPrescriptions = async (
