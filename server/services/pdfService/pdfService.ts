@@ -197,5 +197,5 @@ const generateSampleSupportPDF = async (
 };
 
 export const pdfService = {
-  generateSupportDocument: generateSampleSupportPDF
+  generateSampleSupportPDF
 };
