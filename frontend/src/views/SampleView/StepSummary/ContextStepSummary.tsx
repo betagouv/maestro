@@ -39,7 +39,7 @@ const ContextStepSummary = ({
       <div className="summary-item icon-text">
         <div className={cx('fr-icon-user-line')}></div>
         <div>
-          Prélèvement réalisé par 
+          Prélèvement réalisé par{' '}
           <b>
             {isCreatedSample(sample)
               ? `${sample.sampler.firstName} ${sample.sampler.lastName}`
