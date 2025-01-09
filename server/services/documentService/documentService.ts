@@ -1,5 +1,6 @@
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale/fr';
+import fs from 'fs';
 import handlebars from 'handlebars';
 import puppeteer from 'puppeteer';
 import ProgrammingPlanMissingError from '../../../shared/errors/programmingPlanMissingError';
@@ -19,47 +20,12 @@ import laboratoryRepository from '../../repositories/laboratoryRepository';
 import prescriptionSubstanceRepository from '../../repositories/prescriptionSubstanceRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
 import {
+  assetsPath,
   Template,
   templateContent,
   templateStylePath
 } from '../../templates/templates';
 import config from '../../utils/config';
-import { iconUrlToBase64, imageRelativePathToBase64 } from './assetsUtils';
-
-const loadIconSyles = async (initialStyle: string, icons: string[]) => {
-  const iconImages = await Promise.all(
-    icons.map(async (icon) => {
-      const iconPath = initialStyle.match(
-        new RegExp(
-          `url\\((\\.\\./)?icons/[a-zA-Z0-9\\-_/]+(/|fr--|fr-)${icon}\\.svg\\)`
-        )
-      );
-
-      if (!iconPath) {
-        return undefined;
-      }
-
-      const iconUrl = `${config.serverUrl}/dsfr/dist/icons/${iconPath[0]
-        .replace('url(icons/', '')
-        .replace('url(../icons/', '')
-        .replace(')', '')}`;
-      const image64 = await iconUrlToBase64(iconUrl);
-      return {
-        iconPath: iconPath[0],
-        image64
-      };
-    })
-  );
-
-  return iconImages
-    .filter(isDefinedAndNotNull)
-    .reduce(
-      (acc, { iconPath, image64 }) =>
-        acc.replaceAll(iconPath, `url(${image64})`),
-      initialStyle
-    );
-};
-
 const generateDocument = async (template: Template, data: any) => {
   handlebars.registerHelper(
     'breaklines',
@@ -69,44 +35,44 @@ const generateDocument = async (template: Template, data: any) => {
       )
   );
 
-  handlebars.registerHelper('inlineImage', (relativePath) =>
-    imageRelativePathToBase64(relativePath)
-  );
+  handlebars.registerHelper('inlineImage', (relativePath) => {
+    const imagePath = assetsPath(relativePath);
+    const imageBuffer = fs.readFileSync(imagePath);
+    const base64Image = imageBuffer.toString('base64');
+    return `data:image/svg+xml;base64,${base64Image}`;
+  });
 
   const compiledTemplate = handlebars.compile(templateContent(template));
   const htmlContent = compiledTemplate(data);
 
   const browser = await puppeteer.launch({
-    args: ['--no-sandbox']
+    args: ['--disable-web-security']
   });
   const page = await browser.newPage();
   await page.emulateMediaType('print');
   await page.setContent(htmlContent);
-
   const dsfrStyleSheet = await fetch(
     `${config.serverUrl}/dsfr/dist/dsfr.min.css`
   )
     .then((response) => response.text())
-    .then((styleSheet) => loadIconSyles(styleSheet, ['warning-fill']));
+    .then((utilityStyleSheet) =>
+      utilityStyleSheet
+        .replaceAll('../icons', `${config.serverUrl}/dsfr/dist/icons`)
+        .replaceAll(
+          'fonts/Marianne',
+          `${config.serverUrl}/dsfr/dist/fonts/Marianne`
+        )
+    );
 
   const utilityStyleSheet = await fetch(
     `${config.serverUrl}/dsfr/dist/utility/utility.min.css`
   )
     .then((response) => response.text())
-    .then((styleSheet) =>
-      loadIconSyles(styleSheet, [
-        'government-line',
-        'user-line',
-        'seedling-line',
-        'road-map-line',
-        'restaurant-line',
-        'microscope-line',
-        'quote-line',
-        'error-warning-line',
-        'test-tube-line',
-        'warning-fill',
-        'error-warning-line'
-      ])
+    .then((utilityStyleSheet) =>
+      utilityStyleSheet.replaceAll(
+        '../icons',
+        `${config.serverUrl}/dsfr/dist/icons`
+      )
     );
 
   await page.addStyleTag({
@@ -209,6 +175,5 @@ const generateSupportDocument = async (
 };
 
 export const documentService = {
-  generateSupportDocument,
-  loadIconSyles
+  generateSupportDocument
 };
