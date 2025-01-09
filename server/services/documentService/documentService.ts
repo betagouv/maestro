@@ -46,7 +46,7 @@ const generateDocument = async (template: Template, data: any) => {
   const htmlContent = compiledTemplate(data);
 
   const browser = await puppeteer.launch({
-    args: ['--disable-web-security']
+    args: ['--no-sandbox', '--disable-web-security']
   });
   const page = await browser.newPage();
   await page.emulateMediaType('print');
