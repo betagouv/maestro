@@ -65,7 +65,7 @@ const SupportDocumentDownload = ({
           iconId="fr-icon-printer-fill"
         >
           <div>
-            Générer le document 
+            Générer le document{' '}
             {isMobile && <br />}
             d'accompagnement
           </div>
@@ -95,7 +95,7 @@ const SupportDocumentDownload = ({
         >
           <b>
             Vous vous apprêtez à imprimer un document d’accompagnement
-            incomplet. 
+            incomplet.{' '}
           </b>
           {!isCreatedPartialSample(partialSample)
             ? 'Le prélèvement va être créé mais votre '
