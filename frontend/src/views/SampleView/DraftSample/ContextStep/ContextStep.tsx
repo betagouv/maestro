@@ -418,7 +418,7 @@ const ContextStep = ({ partialSample }: Props) => {
             )}
           >
             <span className="missing-data">
-              Entité saisie hors ligne à compléter : 
+              Entité saisie hors ligne à compléter :{' '}
             </span>
             {companyOffline}
           </div>

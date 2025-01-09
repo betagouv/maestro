@@ -15,7 +15,7 @@ const RegionalPrescriptionCommentAuthor = ({ userId }: Props) => {
       <b>
         {user?.firstName} {user?.lastName}
       </b>
-       - {user?.roles.map((role) => UserRoleLabels[role]).join(', ')} 
+       - {user?.roles.map((role) => UserRoleLabels[role]).join(', ')}{' '}
       {user?.region ? Regions[user.region].name : ''}
     </div>
   );

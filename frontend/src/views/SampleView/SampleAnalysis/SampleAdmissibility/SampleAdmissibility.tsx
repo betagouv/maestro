@@ -249,7 +249,7 @@ const SampleAdmissibility = ({ sample }: Props) => {
           {sample.receivedAt ? (
             <>
               <div className={cx('fr-text--md', 'fr-text--regular')}>
-                Prélèvement reçu par le laboratoire le 
+                Prélèvement reçu par le laboratoire le{' '}
                 {format(sample.receivedAt, 'dd MMMM yyyy', { locale: fr })}
               </div>
               <div>
