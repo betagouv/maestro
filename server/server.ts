@@ -32,17 +32,17 @@ export function createServer(): Server {
       crossOriginEmbedderPolicy: false,
       contentSecurityPolicy: {
         directives: {
-          defaultSrc: ["'self'"],
+          defaultSrc: ["'none'"],
           scriptSrc: [
             "'self'",
-            "'unsafe-inline'",
             'https://stats.beta.gouv.fr',
           ],
           frameSrc: [],
           styleSrc: [
             "'self'",
-            "'unsafe-inline'",
-            'https://unpkg.com/maplibre-gl@4.1.2/dist/maplibre-gl.css',
+            "https://unpkg.com/maplibre-gl@4.1.2/dist/maplibre-gl.css",
+            // https://github.com/mui/material-ui/issues/19938
+            "'unsafe-inline'"
           ],
           imgSrc: ["'self'", 'https://stats.beta.gouv.fr', 'data:'],
           fontSrc: ["'self'", 'data:'],
@@ -58,6 +58,7 @@ export function createServer(): Server {
             `https://${config.s3.client.endpoint.split('//')[1]}`
           ],
           workerSrc: ["'self'", 'blob:'],
+          manifestSrc: ["'self'"]
         },
       },
     })
