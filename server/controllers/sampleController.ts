@@ -231,7 +231,9 @@ const updateSample = async (request: Request, response: Response) => {
                   updatedSample,
                   sampleItem.itemNumber
                 )}`,
-                content: Buffer.from(analysisRequestDoc).toString('base64')
+                content: Buffer.from(analysisRequestDoc as Buffer).toString(
+                  'base64'
+                )
               }
             ]
           });
@@ -326,7 +328,7 @@ const generateAndStoreAnalysisRequestDocument = async (
   await documentService.createDocument(
     filename,
     'AnalysisRequestDocument',
-    new Uint8Array(excelBuffer),
+    new Uint8Array(excelBuffer as Buffer),
     sampler.id
   );
 

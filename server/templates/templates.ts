@@ -1,7 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 
-export type Template = 'supportDocument';
+export type Template =
+  | 'supportDocument'
+  | 'analysisReportDocument'
+  | 'analysisRequest';
 
 export const templateContent = (template: Template) =>
   fs.readFileSync(
