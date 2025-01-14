@@ -7,15 +7,12 @@ concurrency:
 jobs:
   prettier:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [22.x]
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '22.x'
           cache: npm
       - name: Server install
         run: npm ci
@@ -28,15 +25,12 @@ jobs:
           only_changed: True
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [22.x]
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '22.x'
           cache: npm
       - name: NPM install
         run: npm ci && npm --prefix frontend ci
@@ -44,9 +38,6 @@ jobs:
         run: npm run build
   server_test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [ 22.x ]
     services:
       postgres:
         image: postgis/postgis
@@ -69,10 +60,10 @@ jobs:
           initialBuckets: "maestro"
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '22.x'
           cache: npm
       - name: Server install
         run: npm ci
@@ -84,15 +75,12 @@ jobs:
           M2M_BASIC_TOKEN: fakeBasicToken
   frontend_test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [22.x]
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '22.x'
           cache: npm
       - name: NPM install
 #        TODO Attention le front dépend de certaines libs du serveur, à corriger lors du refactor avec les workspaces npm
