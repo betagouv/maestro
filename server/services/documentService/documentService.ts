@@ -57,7 +57,7 @@ const generateDocument = async (template: Template, data: any) => {
     .then((response) => response.text())
     .then((utilityStyleSheet) =>
       utilityStyleSheet
-        .replaceAll('../icons', `${config.serverUrl}/dsfr/dist/icons`)
+        .replaceAll('icons', `${config.serverUrl}/dsfr/dist/icons`)
         .replaceAll(
           'fonts/Marianne',
           `${config.serverUrl}/dsfr/dist/fonts/Marianne`
