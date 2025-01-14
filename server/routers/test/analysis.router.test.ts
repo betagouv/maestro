@@ -2,14 +2,6 @@ import { constants } from 'http2';
 import { omit } from 'lodash-es';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  NationalCoordinator,
-  Sampler1Fixture,
-} from '../../test/seed/001-users';
-import {
-  Sample11Fixture,
-  Sample2Fixture,
-} from '../../test/seed/004-samples';
 import { AnalyteList } from '../../../shared/referential/Residue/Analyte';
 import { PartialAnalyte } from '../../../shared/schema/Analysis/Analyte';
 import {
@@ -31,6 +23,8 @@ import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
 import { describe, test, expect, beforeAll, afterAll } from 'vitest';
+import { NationalCoordinator, Sampler1Fixture } from '../../../shared/test/userFixtures';
+import { Sample11Fixture, Sample2Fixture } from '../../../shared/test/sampleFixtures';
 describe('Analysis router', () => {
   const { app } = createServer();
 

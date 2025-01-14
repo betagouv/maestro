@@ -9,7 +9,7 @@ export const genCompany = (data?: Partial<Company>): Company => ({
   name: fakerFR.company.name(),
   address: faker.location.streetAddress({ useFullAddress: true }),
   postalCode: faker.location.zipCode(),
-  ...data,
+  ...data
 });
 
 export const genCompanySearchResult = (): CompanySearchResult => ({
@@ -28,7 +28,13 @@ export const genCompanySearchResult = (): CompanySearchResult => ({
     libelle_voie: fakerFR.location.street(),
     numero_voie: fakerFR.location.buildingNumber(),
     region: oneOf(RegionList),
-    siret: genSiret(),
+    siret: genSiret()
   },
-  activite_principale: faker.commerce.department(),
+  activite_principale: faker.commerce.department()
+});
+export const CompanyFixture = genCompany({
+  siret: '11111111111111',
+  name: 'Company 1',
+  address: '1 rue de la Paix',
+  postalCode: '75000'
 });

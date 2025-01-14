@@ -5,14 +5,6 @@ import fp from 'lodash/fp';
 import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  NationalCoordinator,
-  Region2Fixture,
-  RegionalCoordinator,
-  Sampler1Fixture
-} from '../../test/seed/001-users';
-import { CompanyFixture } from '../../test/seed/003-companies';
-import { LaboratoryFixture } from '../../test/seed/005-laboratories';
 import { MatrixList } from '../../../shared/referential/Matrix/Matrix';
 import { Region, RegionList } from '../../../shared/referential/Region';
 import { StageList } from '../../../shared/referential/Stage';
@@ -26,7 +18,7 @@ import {
   RegionalPrescriptionComment,
   RegionalPrescriptionCommentToCreate
 } from '../../../shared/schema/RegionalPrescription/RegionalPrescriptionComment';
-import { genLaboratory } from '../../../shared/test/laboratoryFixtures';
+import { genLaboratory, LaboratoryFixture } from '../../../shared/test/laboratoryFixtures';
 import {
   genPrescription,
   genRegionalPrescription
@@ -45,6 +37,13 @@ import {
 } from '../../repositories/sampleRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
+import {
+  NationalCoordinator,
+  Region2Fixture,
+  RegionalCoordinator,
+  Sampler1Fixture
+} from '../../../shared/test/userFixtures';
+import { CompanyFixture } from '../../../shared/test/companyFixtures';
 
 describe('Regional prescriptions router', () => {
   const { app } = createServer();
