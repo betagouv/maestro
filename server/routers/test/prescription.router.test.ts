@@ -3,11 +3,6 @@ import { describe, test, expect, beforeAll, afterAll } from 'vitest';
 import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  NationalCoordinator,
-  RegionalCoordinator,
-  Sampler1Fixture
-} from '../../test/seed/001-users';
 import { MatrixList } from '../../../shared/referential/Matrix/Matrix';
 import { StageList } from '../../../shared/referential/Stage';
 import { PrescriptionUpdate } from '../../../shared/schema/Prescription/Prescription';
@@ -28,6 +23,7 @@ import { RegionalPrescriptions } from '../../repositories/regionalPrescriptionRe
 import { Substances } from '../../repositories/substanceRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
+import { NationalCoordinator, RegionalCoordinator, Sampler1Fixture } from '../../../shared/test/userFixtures';
 describe('Prescriptions router', () => {
   const { app } = createServer();
 

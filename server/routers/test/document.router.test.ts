@@ -1,9 +1,5 @@
 import { constants } from 'http2';
 import request from 'supertest';
-import {
-  NationalCoordinator,
-  Sampler1Fixture,
-} from '../../test/seed/001-users';
 import { DocumentKind } from '../../../shared/schema/Document/DocumentKind';
 import {
   genDocument,
@@ -14,6 +10,7 @@ import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
 import { describe, test, expect, beforeAll, afterAll } from 'vitest';
+import { NationalCoordinator, Sampler1Fixture } from '../../../shared/test/userFixtures';
 describe('Document router', () => {
   const { app } = createServer();
 

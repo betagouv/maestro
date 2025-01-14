@@ -15,11 +15,20 @@ import {
   Geolocation,
   PartialSample,
   Sample,
-  SampleContextData,
+  SampleContextData
 } from '../schema/Sample/Sample';
 import { SampleItem } from '../schema/Sample/SampleItem';
-import { genCompany } from './companyFixtures';
+import { CompanyFixture, genCompany } from './companyFixtures';
 import { genBoolean, genNumber, oneOf } from './testFixtures';
+import { ValidatedProgrammingPlanFixture } from './programmingPlanFixtures';
+import { pick } from 'lodash-es';
+import {
+  Region1Fixture,
+  Region2Fixture,
+  Sampler1Fixture,
+  Sampler2Fixture
+} from './userFixtures';
+import { SampleStatus } from '../schema/Sample/SampleStatus';
 
 export const genSampleContextData = (
   data?: Partial<SampleContextData>
@@ -29,7 +38,7 @@ export const genSampleContextData = (
   department: oneOf(Regions['44'].departments),
   geolocation: {
     x: 48.8566,
-    y: 2.3522,
+    y: 2.3522
   },
   programmingPlanId: uuidv4(),
   context: oneOf(ContextList),
@@ -38,12 +47,12 @@ export const genSampleContextData = (
     '23-' +
     randomstring.generate({
       length: 6,
-      charset: '123456789',
+      charset: '123456789'
     }),
   company: genCompany(),
   notesOnCreation: randomstring.generate(),
   status: 'Draft',
-  ...data,
+  ...data
 });
 export const genCreatedSampleData = (
   data?: Partial<CreatedSampleData>
@@ -55,11 +64,11 @@ export const genCreatedSampleData = (
   sampler: {
     id: uuidv4(),
     firstName: fakerFR.person.firstName(),
-    lastName: fakerFR.person.lastName(),
+    lastName: fakerFR.person.lastName()
   },
   createdAt: new Date(),
   lastUpdatedAt: new Date(),
-  ...data,
+  ...data
 });
 export const genCreatedPartialSample = (
   data?: Partial<PartialSample>
@@ -75,7 +84,7 @@ export const genCreatedPartialSample = (
     cultureKind: oneOf(CultureKindList),
     releaseControl: genBoolean(),
     items: [genSampleItem({ sampleId: contextData.id, itemNumber: 1 })],
-    ...data,
+    ...data
   };
 };
 export const genCreatedSample = (data?: Partial<Sample>): Sample => {
@@ -90,7 +99,7 @@ export const genCreatedSample = (data?: Partial<Sample>): Sample => {
     prescriptionId: uuidv4(),
     laboratoryId: uuidv4(),
     items: sample.items as SampleItem[],
-    ...data,
+    ...data
   };
 };
 export const genSampleItem = (data?: Partial<SampleItem>): SampleItem => ({
@@ -101,5 +110,66 @@ export const genSampleItem = (data?: Partial<SampleItem>): SampleItem => ({
   compliance200263: genBoolean(),
   sealId: randomstring.generate(),
   recipientKind: 'Laboratory',
-  ...data,
+  ...data
+});
+const Sample11FixtureId = '11111111-1111-1111-1111-111111111111';
+export const Sample1Item1Fixture = genSampleItem({
+  sampleId: Sample11FixtureId,
+  itemNumber: 1,
+  quantity: 534,
+  quantityUnit: 'G185A',
+  compliance200263: true,
+  sealId: '123456'
+});
+export const Sample11Fixture = genCreatedPartialSample({
+  id: Sample11FixtureId,
+  sampledAt: new Date('2025-05-06'),
+  department: '08',
+  programmingPlanId: ValidatedProgrammingPlanFixture.id,
+  context: 'Control',
+  legalContext: 'A',
+  resytalId: '23-123456',
+  company: CompanyFixture,
+  notesOnCreation: 'notes on creation',
+  reference: 'GES-08-24-313-A',
+  sampler: pick(Sampler1Fixture, ['id', 'firstName', 'lastName']),
+  createdAt: new Date('2023-01-02'),
+  lastUpdatedAt: new Date('2024-03-04'),
+  status: 'DraftMatrix' as SampleStatus,
+  matrix: 'A06MS',
+  matrixPart: 'PART1',
+  cultureKind: 'PD07A',
+  releaseControl: false,
+  stage: 'STADE7',
+  items: [Sample1Item1Fixture]
+});
+export const Sample12Fixture = genCreatedPartialSample({
+  sampler: Sampler1Fixture,
+  programmingPlanId: ValidatedProgrammingPlanFixture.id,
+  context: 'Control',
+  company: CompanyFixture,
+  id: '11111111-2222-2222-2222-222222222222',
+  status: 'Draft' as SampleStatus,
+  department: oneOf(Regions[Region1Fixture].departments),
+  reference: 'GES-08-24-314-A'
+});
+export const Sample13Fixture = genCreatedPartialSample({
+  sampler: Sampler1Fixture,
+  programmingPlanId: ValidatedProgrammingPlanFixture.id,
+  context: 'Control',
+  company: CompanyFixture,
+  id: '11111111-3333-3333-3333-333333333333',
+  status: 'Sent' as SampleStatus,
+  department: oneOf(Regions[Region1Fixture].departments),
+  reference: 'GES-08-24-315-A'
+});
+export const Sample2Fixture = genCreatedPartialSample({
+  sampler: Sampler2Fixture,
+  programmingPlanId: ValidatedProgrammingPlanFixture.id,
+  context: 'Control',
+  company: CompanyFixture,
+  id: '22222222-2222-2222-2222-222222222222',
+  status: 'DraftMatrix' as SampleStatus,
+  department: oneOf(Regions[Region2Fixture].departments),
+  reference: 'PDL-08-24-313-A'
 });
