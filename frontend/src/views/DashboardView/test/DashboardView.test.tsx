@@ -2,7 +2,7 @@ import { configureStore, Store } from '@reduxjs/toolkit';
 import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
-import { genAuthUser, genUser } from 'shared/test/userFixtures';
+import { genAuthUser, genUser, Region1Fixture, Sampler1Fixture } from 'shared/test/userFixtures';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import { beforeEach } from 'vitest';
 import {
@@ -22,10 +22,6 @@ vi.mock(import('react-router-dom'), async (importOriginal) => {
 import { genProgrammingPlan } from 'shared/test/programmingPlanFixtures';
 import DashboardView from 'src/views/DashboardView/DashboardView';
 import { describe, expect, test, vi } from 'vitest';
-import {
-  Region1Fixture,
-  Sampler1Fixture
-} from '../../../../../server/test/seed/001-users';
 let store: Store;
 
 describe('DashboardView', () => {

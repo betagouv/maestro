@@ -3,19 +3,18 @@ import { describe, test, expect } from 'vitest';
 import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  NationalCoordinator,
-  RegionalCoordinator,
-  Sampler1Fixture,
-  Sampler2Fixture,
-  SamplerDromFixture
-} from '../../test/seed/001-users';
 import { Region } from '../../../shared/referential/Region';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 import { User } from '../../../shared/schema/User/User';
 import { Selectable } from 'kysely';
 import { DB } from '../../repositories/kysely.type';
+import {
+  NationalCoordinator,
+  RegionalCoordinator, Sampler1Fixture,
+  Sampler2Fixture,
+  SamplerDromFixture
+} from '../../../shared/test/userFixtures';
 
 // Vérifie que le type généré par kysely correspond bien à notre type
 // À l'avenir mieux vaut utiliser vitest pour tester les types => https://vitest.dev/guide/testing-types.html

@@ -2,13 +2,6 @@ import { constants } from 'http2';
 import { describe, test, expect, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  NationalCoordinator,
-  RegionalCoordinator,
-  RegionalDromCoordinator,
-  Sampler1Fixture,
-  SamplerDromFixture
-} from '../../test/seed/001-users';
 import { ProgrammingPlan } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatus } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { genPrescription } from '../../../shared/test/prescriptionFixtures';
@@ -17,6 +10,12 @@ import { Prescriptions } from '../../repositories/prescriptionRepository';
 import { ProgrammingPlans } from '../../repositories/programmingPlanRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
+import {
+  NationalCoordinator,
+  RegionalCoordinator,
+  RegionalDromCoordinator, Sampler1Fixture,
+  SamplerDromFixture
+} from '../../../shared/test/userFixtures';
 describe('ProgrammingPlan router', () => {
   const { app } = createServer();
 
