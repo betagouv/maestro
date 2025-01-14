@@ -24,6 +24,8 @@ jobs:
         with:
           prettier_options: --write **/*.{tsx,ts,jsx,js,md}
           only_changed: True
+      - name: Server linter
+        run: npm run lint
   build:
     runs-on: ubuntu-latest
     strategy:
@@ -74,8 +76,6 @@ jobs:
           cache: npm
       - name: Server install
         run: npm ci
-      - name: Server linter
-        run: npm run lint
       - name: Server tests
         run: npm run test
         env:
@@ -95,7 +95,8 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: npm
       - name: NPM install
-        run: npm --prefix frontend ci
+#        TODO Attention le front dépend de certaines libs du serveur, à corriger lors du refactor avec les workspaces npm
+        run: npm ci && npm --prefix frontend ci
       - name: Frontend linter
         run: npm --prefix frontend run lint
       - name: Frontend tests
