@@ -1,5 +1,5 @@
 import { Knex } from 'knex';
-import { AnalysisKindList } from '../../shared/schema/Analysis/AnalysisKind';
+import { AnalysisMethodList } from '../../shared/schema/Analysis/AnalysisMethod';
 
 export const up = async (knex: Knex) => {
   await knex.schema.createTable('substance_analysis', (table) => {
@@ -9,7 +9,7 @@ export const up = async (knex: Knex) => {
       .notNullable()
       .references('code')
       .inTable('substances');
-    table.enum('kind', AnalysisKindList).notNullable();
+    table.enum('kind', AnalysisMethodList).notNullable();
     table.integer('year').notNullable();
     table.primary(['matrix', 'substance_code']);
   });

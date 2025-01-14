@@ -5,9 +5,9 @@ import { Autocomplete } from '@mui/material';
 import { capitalize } from 'lodash';
 import { SyntheticEvent, useMemo, useState } from 'react';
 import {
-  AnalysisKind,
-  AnalysisKindLabels
-} from 'shared/schema/Analysis/AnalysisKind';
+  AnalysisMethod,
+  AnalysisMethodLabels
+} from 'shared/schema/Analysis/AnalysisMethod';
 import { PrescriptionSubstance } from 'shared/schema/Prescription/PrescriptionSubstance';
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { Substance } from 'shared/schema/Substance/Substance';
@@ -19,7 +19,7 @@ interface Props {
   programmingPlan: ProgrammingPlan;
   prescriptionId: string;
   prescriptionSubstances: PrescriptionSubstance[];
-  analysisKind: AnalysisKind;
+  analysisMethod: AnalysisMethod;
   onUpdatePrescriptionSubstances: (
     prescriptionId: string,
     prescriptionSubstances: PrescriptionSubstance[]
@@ -30,7 +30,7 @@ const PrescriptionSubstancesSelect = ({
   programmingPlan,
   prescriptionId,
   prescriptionSubstances,
-  analysisKind,
+  analysisMethod,
   onUpdatePrescriptionSubstances
 }: Props) => {
   const { hasUserPrescriptionPermission } = useAuthentication();
@@ -46,9 +46,9 @@ const PrescriptionSubstancesSelect = ({
   const filteredPrescriptionSubstances = useMemo(() => {
     return prescriptionSubstances.filter(
       (prescriptionSubstance) =>
-        prescriptionSubstance.analysisKind === analysisKind
+        prescriptionSubstance.analysisMethod === analysisMethod
     );
-  }, [prescriptionSubstances, analysisKind]);
+  }, [prescriptionSubstances, analysisMethod]);
 
   const handleInputChange = async (
     _event: SyntheticEvent<Element, Event>,
@@ -81,7 +81,7 @@ const PrescriptionSubstancesSelect = ({
       {
         prescriptionId,
         substance,
-        analysisKind
+        analysisMethod
       }
     ]);
     setNewSubstance(null);
@@ -97,7 +97,7 @@ const PrescriptionSubstancesSelect = ({
   return (
     <div>
       <label className={cx('fr-label', 'fr-mb-1w')}>
-        {capitalize(AnalysisKindLabels[analysisKind])}
+        {capitalize(AnalysisMethodLabels[analysisMethod])}
       </label>
       {hasUserPrescriptionPermission(programmingPlan)?.update && (
         <div className="d-flex-align-center">

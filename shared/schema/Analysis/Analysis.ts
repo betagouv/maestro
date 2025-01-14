@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { AnalysisKind } from './AnalysisKind';
 import { AnalysisStatus } from './AnalysisStatus';
 import { PartialResidue, Residue } from './Residue/Residue';
 
@@ -10,27 +9,27 @@ export const PartialAnalysis = z.object({
   createdBy: z.string().uuid(),
   status: AnalysisStatus,
   reportDocumentId: z.string().uuid(),
-  kind: AnalysisKind.optional(),
   residues: z.array(PartialResidue).nullish(),
-  compliance: z.boolean({
-    message: "Veuillez renseigner la conformité de l'échantillon.",
-  }).optional(),
-  notesOnCompliance: z.string().nullish(),
+  compliance: z
+    .boolean({
+      message: "Veuillez renseigner la conformité de l'échantillon."
+    })
+    .optional(),
+  notesOnCompliance: z.string().nullish()
 });
 
-export const Analysis = PartialAnalysis
-  .merge(PartialAnalysis.pick({
-  status: true,
-  kind: true,
-  compliance: true
-}).required())
-  .extend({
-    residues: z.array(Residue)
-  });
+export const Analysis = PartialAnalysis.merge(
+  PartialAnalysis.pick({
+    status: true,
+    compliance: true
+  }).required()
+).extend({
+  residues: z.array(Residue)
+});
 
 export const AnalysisToCreate = Analysis.pick({
   sampleId: true,
-  reportDocumentId: true,
+  reportDocumentId: true
 });
 
 export const CreatedAnalysis = AnalysisToCreate.merge(
@@ -38,10 +37,9 @@ export const CreatedAnalysis = AnalysisToCreate.merge(
     id: true,
     createdAt: true,
     createdBy: true,
-    status: true,
+    status: true
   })
 );
-
 
 export type Analysis = z.infer<typeof Analysis>;
 export type AnalysisToCreate = z.infer<typeof AnalysisToCreate>;

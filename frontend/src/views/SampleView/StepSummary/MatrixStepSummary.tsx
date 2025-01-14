@@ -23,12 +23,14 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
   );
 
   const monoSubstances = useMemo(() => {
-    return substances?.filter((substance) => substance.analysisKind === 'Mono');
+    return substances?.filter(
+      (substance) => substance.analysisMethod === 'Mono'
+    );
   }, [substances]);
 
   const multiSubstances = useMemo(() => {
     return substances?.filter(
-      (substance) => substance.analysisKind === 'Multi'
+      (substance) => substance.analysisMethod === 'Multi'
     );
   }, [substances]);
 
