@@ -2,7 +2,7 @@ import knex, { Knex } from 'knex';
 import { spawnSync } from 'node:child_process';
 import { Client } from 'pg';
 import config from '../utils/config';
-import defaultKnexConfig from '../knex'
+import defaultKnexConfig from '../knexfile'
 import { deepClone } from '@vitest/utils';
 import { setKnexInstance } from '../repositories/db';
 import { initKysely, kysely } from '../repositories/kysely';

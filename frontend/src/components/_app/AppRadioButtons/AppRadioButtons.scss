@@ -1,6 +1,6 @@
-@import '../../../constants';
+@use '../../../constants' as constants;
 
-@media (max-width: $breakpoint-md) {
+@media (max-width: constants.$breakpoint-md) {
   .fr-fieldset__content.fr-grid-row--gutters {
     margin: -0.5rem;
   }

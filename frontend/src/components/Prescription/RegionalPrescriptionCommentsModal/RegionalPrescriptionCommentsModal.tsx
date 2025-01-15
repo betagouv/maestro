@@ -4,7 +4,7 @@ import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import clsx from 'clsx';
 import { format } from 'date-fns';
-import { default as fr } from 'date-fns/locale/fr';
+import { fr } from 'date-fns/locale/fr';
 import React, { useEffect, useMemo, useState } from 'react';
 import { RegionalPrescriptionKey } from 'shared/schema/RegionalPrescription/RegionalPrescription';
 import { RegionalPrescriptionCommentToCreate } from 'shared/schema/RegionalPrescription/RegionalPrescriptionComment';

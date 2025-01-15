@@ -3,7 +3,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
 import { format, parse } from 'date-fns';
-import { default as fr } from 'date-fns/locale/fr';
+import { fr } from 'date-fns/locale/fr';
 import React, { useMemo, useState } from 'react';
 import { Sample } from 'shared/schema/Sample/Sample';
 import { CompletedStatusList } from 'shared/schema/Sample/SampleStatus';

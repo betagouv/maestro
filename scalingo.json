@@ -17,6 +17,6 @@
     }
   },
   "scripts": {
-    "first-deploy": "npm ci --production=false && npm run migrate-latest && npm run seed"
+    "first-deploy": "npm ci && npm run -w server migrate-latest && npm run -w server seed"
   }
 }

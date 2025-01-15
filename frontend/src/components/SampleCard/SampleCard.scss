@@ -1,8 +1,8 @@
-@import '../../constants';
+@use '../../constants' as constants;
 
 .sample-card {
   .fr-card__title {
-    @media (max-width: $breakpoint-md) {
+    @media (max-width: constants.$breakpoint-md) {
       margin-top: -0.75rem;
     }
   }

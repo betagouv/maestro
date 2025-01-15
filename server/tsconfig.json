@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "lib": ["esnext", "ESNext.Array"],
+    "noEmit": true,
+    "target": "esnext",
+    "allowJs": true,
+    "strict": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
+    "noUnusedLocals": true,
+    "sourceMap": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "typeRoots": ["node_modules/@types",
+      "../types"
+    ]
+  },
+  "include": ["**/*.ts", "**/*.js", "**/*.json",
+  ],
+  "exclude": [
+    "../node_modules", "**/*.d.ts", "dist", "node_modules"]
+}
