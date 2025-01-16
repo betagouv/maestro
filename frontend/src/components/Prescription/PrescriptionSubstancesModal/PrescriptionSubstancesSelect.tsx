@@ -72,6 +72,8 @@ const PrescriptionSubstancesSelect = ({
         .catch((error) => {
           console.error(error);
         });
+    } else {
+      setSubstanceSearchResults([]);
     }
   };
 
@@ -107,13 +109,15 @@ const PrescriptionSubstancesSelect = ({
             includeInputInList
             filterSelectedOptions
             value={newSubstance}
-            inputValue={searchQuery}
             onInputChange={handleInputChange}
             onChange={(_, value) => {
               if (value) {
                 setNewSubstance(value);
               }
             }}
+            isOptionEqualToValue={(option, value) =>
+              option.code === value?.code
+            }
             renderInput={(params) => (
               <div ref={params.InputProps.ref}>
                 <input

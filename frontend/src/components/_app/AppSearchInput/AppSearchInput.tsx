@@ -27,7 +27,7 @@ const AppSearchInput = ({
   required,
   hintText,
   placeholder,
-  whenValid,
+  whenValid
 }: Props) => {
   return (
     <div
@@ -58,13 +58,15 @@ const AppSearchInput = ({
         <Autocomplete
           autoComplete
           includeInputInList
-          value={options.find((option) => option.value === value)}
+          value={options.find((option) => option.value === value) ?? null}
           onChange={(_, option) => onSelect(option?.value)}
+          isOptionEqualToValue={(option, value) =>
+            option.value === value?.value
+          }
           renderInput={(params) => (
             <div ref={params.InputProps.ref}>
               <input
                 {...params.inputProps}
-                defaultValue={value}
                 className="fr-input"
                 type="text"
                 placeholder={placeholder ?? 'Rechercher une valeur'}
