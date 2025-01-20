@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { MatrixList } from '../referential/Matrix/Matrix';
 import { RegionList } from '../referential/Region';
 import { StageList } from '../referential/Stage';
-import { AnalysisKindList } from '../schema/Analysis/AnalysisKind';
+import { AnalysisMethodList } from '../schema/Analysis/AnalysisMethod';
 import { Prescription } from '../schema/Prescription/Prescription';
 import { PrescriptionSubstance } from '../schema/Prescription/PrescriptionSubstance';
 import { ContextList } from '../schema/ProgrammingPlan/Context';
@@ -33,7 +33,7 @@ export const genPrescriptionSubstance = (
   data?: Partial<PrescriptionSubstance>
 ): PrescriptionSubstance => ({
   prescriptionId: uuidv4(),
-  analysisKind: oneOf(AnalysisKindList),
+  analysisMethod: oneOf(AnalysisMethodList),
   substance: genSubstance(),
   ...data
 });

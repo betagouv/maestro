@@ -28,7 +28,7 @@ export const PrescriptionUpdate = z.object({
   substances: z
     .array(
       PrescriptionSubstance.pick({
-        analysisKind: true,
+        analysisMethod: true,
         substance: true
       })
     )

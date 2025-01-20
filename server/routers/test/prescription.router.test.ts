@@ -1,8 +1,8 @@
 import { constants } from 'http2';
-import { describe, test, expect, beforeAll, afterAll } from 'vitest';
 import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
+import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { MatrixList } from '../../../shared/referential/Matrix/Matrix';
 import { StageList } from '../../../shared/referential/Stage';
 import { PrescriptionUpdate } from '../../../shared/schema/Prescription/Prescription';
@@ -13,6 +13,11 @@ import {
 } from '../../../shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from '../../../shared/test/programmingPlanFixtures';
 import { genSubstance, oneOf } from '../../../shared/test/testFixtures';
+import {
+  NationalCoordinator,
+  RegionalCoordinator,
+  Sampler1Fixture
+} from '../../../shared/test/userFixtures';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import {
   formatPrescriptionSubstance,
@@ -23,7 +28,6 @@ import { RegionalPrescriptions } from '../../repositories/regionalPrescriptionRe
 import { Substances } from '../../repositories/substanceRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
-import { NationalCoordinator, RegionalCoordinator, Sampler1Fixture } from '../../../shared/test/userFixtures';
 describe('Prescriptions router', () => {
   const { app } = createServer();
 
@@ -67,7 +71,7 @@ describe('Prescriptions router', () => {
   const inProgressControlPrescriptionSubstance = genPrescriptionSubstance({
     prescriptionId: inProgressControlPrescription.id,
     substance,
-    analysisKind: 'Mono'
+    analysisMethod: 'Mono'
   });
   const inProgressSurveillancePrescription = genPrescription({
     programmingPlanId: programmingPlanInProgress.id,

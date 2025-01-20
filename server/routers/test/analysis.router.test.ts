@@ -8,63 +8,69 @@ import {
   genAnalysisToCreate,
   genPartialAnalysis,
   genPartialAnalyte,
-  genPartialResidue,
+  genPartialResidue
 } from '../../../shared/test/analysisFixtures';
 import { genDocument } from '../../../shared/test/documentFixtures';
 import { oneOf } from '../../../shared/test/testFixtures';
 import {
   Analysis,
   AnalysisResidues,
-  ResidueAnalytes,
+  ResidueAnalytes
 } from '../../repositories/analysisRepository';
 import { Documents } from '../../repositories/documentRepository';
 import { Samples } from '../../repositories/sampleRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
-import { describe, test, expect, beforeAll, afterAll } from 'vitest';
-import { NationalCoordinator, Sampler1Fixture } from '../../../shared/test/userFixtures';
-import { Sample11Fixture, Sample2Fixture } from '../../../shared/test/sampleFixtures';
+import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+import {
+  Sample11Fixture,
+  Sample2Fixture
+} from '../../../shared/test/sampleFixtures';
+import {
+  NationalCoordinator,
+  Sampler1Fixture
+} from '../../../shared/test/userFixtures';
 describe('Analysis router', () => {
   const { app } = createServer();
 
   const document1 = genDocument({
     createdBy: Sampler1Fixture.id,
-    kind: 'AnalysisReportDocument',
+    kind: 'AnalysisReportDocument'
   });
   const document2 = genDocument({
     createdBy: Sampler1Fixture.id,
-    kind: 'AnalysisReportDocument',
+    kind: 'AnalysisReportDocument'
   });
   const analysisWithoutResidue = genPartialAnalysis({
     sampleId: Sample11Fixture.id,
     reportDocumentId: document1.id,
-    createdBy: Sampler1Fixture.id,
+    createdBy: Sampler1Fixture.id
   });
   const analysisWithResidues = genPartialAnalysis({
     sampleId: Sample2Fixture.id,
     reportDocumentId: document2.id,
-    createdBy: Sampler1Fixture.id,
+    createdBy: Sampler1Fixture.id
   });
   const residues = [
     genPartialResidue({
       analysisId: analysisWithResidues.id,
       residueNumber: 1,
-      kind: 'Simple',
+      kind: 'Simple'
     }),
     genPartialResidue({
       analysisId: analysisWithResidues.id,
       residueNumber: 2,
-      kind: 'Complex',
-    }),
+      kind: 'Complex'
+    })
   ];
   const complexResidueAnalytes = [
     genPartialAnalyte({
       analysisId: analysisWithResidues.id,
       residueNumber: 2,
       analyteNumber: 1,
-      reference: oneOf(AnalyteList),
-    }),
+      reference: oneOf(AnalyteList)
+    })
   ];
 
   beforeAll(async () => {
@@ -127,7 +133,7 @@ describe('Analysis router', () => {
 
       expect(res.body).toMatchObject({
         ...analysisWithoutResidue,
-        createdAt: analysisWithoutResidue.createdAt.toISOString(),
+        createdAt: analysisWithoutResidue.createdAt.toISOString()
       });
     });
 
@@ -144,9 +150,9 @@ describe('Analysis router', () => {
           residues[0],
           {
             ...residues[1],
-            analytes: complexResidueAnalytes,
-          },
-        ],
+            analytes: complexResidueAnalytes
+          }
+        ]
       });
     });
   });
@@ -172,22 +178,22 @@ describe('Analysis router', () => {
       await badRequestTest();
       await badRequestTest(
         genAnalysisToCreate({
-          sampleId: '123',
+          sampleId: '123'
         })
       );
       await badRequestTest(
         genAnalysisToCreate({
-          sampleId: undefined,
+          sampleId: undefined
         })
       );
       await badRequestTest(
         genAnalysisToCreate({
-          reportDocumentId: '123',
+          reportDocumentId: '123'
         })
       );
       await badRequestTest(
         genAnalysisToCreate({
-          reportDocumentId: undefined,
+          reportDocumentId: undefined
         })
       );
     });
@@ -203,7 +209,7 @@ describe('Analysis router', () => {
     test('should create an analysis and update the associated sample status', async () => {
       const analysis = genAnalysisToCreate({
         sampleId: Sample11Fixture.id,
-        reportDocumentId: document1.id,
+        reportDocumentId: document1.id
       });
 
       const res = await request(app)
@@ -217,7 +223,7 @@ describe('Analysis router', () => {
           ...analysis,
           id: expect.any(String),
           createdAt: expect.any(String),
-          createdBy: Sampler1Fixture.id,
+          createdBy: Sampler1Fixture.id
         })
       );
 
@@ -227,13 +233,13 @@ describe('Analysis router', () => {
         ...analysis,
         id: res.body.id,
         createdAt: expect.any(Date),
-        createdBy: Sampler1Fixture.id,
+        createdBy: Sampler1Fixture.id
       });
 
       await expect(
         Samples().where({ id: analysis.sampleId }).first()
       ).resolves.toMatchObject({
-        status: 'Analysis',
+        status: 'Analysis'
       });
 
       await Samples()
@@ -283,42 +289,50 @@ describe('Analysis router', () => {
       const validBody = genPartialAnalysis({
         id: analysisWithoutResidue.id,
         sampleId: Sample11Fixture.id,
-        reportDocumentId: document1.id,
+        reportDocumentId: document1.id
       });
       const badRequestTest = async (payload?: Record<string, unknown>) =>
         request(app)
           .put(testRoute(analysisWithoutResidue.id))
           .send({
             ...validBody,
-            ...payload,
+            ...payload
           })
           .use(tokenProvider(Sampler1Fixture))
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await badRequestTest({
-        sampleId: '123',
+        sampleId: '123'
       });
       await badRequestTest({
-        sampleId: undefined,
+        sampleId: undefined
       });
       await badRequestTest({
-        reportDocumentId: '123',
+        reportDocumentId: '123'
       });
       await badRequestTest({
-        reportDocumentId: undefined,
+        reportDocumentId: undefined
       });
       await badRequestTest({
-        kind: 'invalid',
-      });
-      await badRequestTest({
-        residues: 'invalid',
+        residues: 'invalid'
       });
       await badRequestTest({
         residues: [
           {
-            kind: 'invalid',
-          },
-        ],
+            ...genPartialResidue({
+              kind: 'invalid' as any
+            })
+          }
+        ]
+      });
+      await badRequestTest({
+        residues: [
+          {
+            ...genPartialResidue({
+              analysisMethod: 'invalid' as any
+            })
+          }
+        ]
       });
     });
 
@@ -329,7 +343,7 @@ describe('Analysis router', () => {
           genPartialResidue({
             analysisId: analysisWithoutResidue.id,
             residueNumber: 1,
-            kind: 'Simple',
+            kind: 'Simple'
           }),
           genPartialResidue({
             analysisId: analysisWithoutResidue.id,
@@ -340,11 +354,11 @@ describe('Analysis router', () => {
                 analysisId: analysisWithoutResidue.id,
                 residueNumber: 2,
                 analyteNumber: 1,
-                reference: oneOf(AnalyteList),
-              }),
-            ],
-          }),
-        ],
+                reference: oneOf(AnalyteList)
+              })
+            ]
+          })
+        ]
       };
 
       const res = await request(app)
@@ -356,7 +370,7 @@ describe('Analysis router', () => {
       expect(res.body).toMatchObject(
         expect.objectContaining({
           ...analysisUpdate,
-          createdAt: analysisUpdate.createdAt.toISOString(),
+          createdAt: analysisUpdate.createdAt.toISOString()
         })
       );
 
@@ -366,7 +380,7 @@ describe('Analysis router', () => {
 
       await expect(
         AnalysisResidues().where({
-          analysisId: analysisWithoutResidue.id,
+          analysisId: analysisWithoutResidue.id
         })
       ).resolves.toMatchObject(
         analysisUpdate.residues.map((_) => omit(_, ['analytes']))
@@ -375,7 +389,7 @@ describe('Analysis router', () => {
       await expect(
         ResidueAnalytes().where({
           analysisId: analysisWithoutResidue.id,
-          residueNumber: 2,
+          residueNumber: 2
         })
       ).resolves.toMatchObject(
         analysisUpdate.residues[1].analytes as PartialAnalyte[]
@@ -385,7 +399,7 @@ describe('Analysis router', () => {
     test('should update a analysis with removing residues', async () => {
       const analysisUpdate = {
         ...genPartialAnalysis(analysisWithResidues),
-        residues: [],
+        residues: []
       };
 
       const res = await request(app)
@@ -397,7 +411,7 @@ describe('Analysis router', () => {
       expect(res.body).toMatchObject(
         expect.objectContaining({
           ...analysisUpdate,
-          createdAt: analysisUpdate.createdAt.toISOString(),
+          createdAt: analysisUpdate.createdAt.toISOString()
         })
       );
 
@@ -407,7 +421,7 @@ describe('Analysis router', () => {
 
       await expect(
         AnalysisResidues().where({
-          analysisId: analysisWithResidues.id,
+          analysisId: analysisWithResidues.id
         })
       ).resolves.toMatchObject([]);
     });
@@ -416,7 +430,7 @@ describe('Analysis router', () => {
       const analysisUpdate = {
         ...genPartialAnalysis(analysisWithResidues),
         status: 'Completed',
-        compliance: true,
+        compliance: true
       };
 
       await request(app)
@@ -428,7 +442,7 @@ describe('Analysis router', () => {
       await expect(
         Samples().where({ id: analysisWithResidues.sampleId }).first()
       ).resolves.toMatchObject({
-        status: 'Completed',
+        status: 'Completed'
       });
       await Samples()
         .where({ id: analysisWithResidues.sampleId })
@@ -439,7 +453,7 @@ describe('Analysis router', () => {
       const analysisUpdate = {
         ...genPartialAnalysis(analysisWithResidues),
         status: 'Completed',
-        compliance: false,
+        compliance: false
       };
 
       await request(app)
@@ -451,7 +465,7 @@ describe('Analysis router', () => {
       await expect(
         Samples().where({ id: analysisWithResidues.sampleId }).first()
       ).resolves.toMatchObject({
-        status: 'CompletedNotConform',
+        status: 'CompletedNotConform'
       });
       await Samples()
         .where({ id: analysisWithResidues.sampleId })

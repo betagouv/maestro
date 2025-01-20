@@ -64,7 +64,7 @@ const PrescriptionSubstancesModal = ({
                 programmingPlan={programmingPlan}
                 prescriptionId={prescriptionAnalysisEditId}
                 prescriptionSubstances={prescriptionSubstances}
-                analysisKind="Mono"
+                analysisMethod="Mono"
                 onUpdatePrescriptionSubstances={onUpdatePrescriptionSubstances}
               />
               <hr className={cx('fr-mt-3w', 'fr-mb-2w')} />
@@ -72,7 +72,7 @@ const PrescriptionSubstancesModal = ({
                 programmingPlan={programmingPlan}
                 prescriptionId={prescriptionAnalysisEditId}
                 prescriptionSubstances={prescriptionSubstances}
-                analysisKind="Multi"
+                analysisMethod="Multi"
                 onUpdatePrescriptionSubstances={onUpdatePrescriptionSubstances}
               />
             </>

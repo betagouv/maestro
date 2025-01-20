@@ -24,7 +24,7 @@ const AddressSearch = ({ onSelectAddress }: Props) => {
 
     if (value.length > 3) {
       await searchAddresses({
-        query: value as string,
+        query: value as string
       })
         .unwrap()
         .then((results) => {
@@ -51,6 +51,9 @@ const AddressSearch = ({ onSelectAddress }: Props) => {
             onSelectAddress(value);
           }
         }}
+        isOptionEqualToValue={(option, value) =>
+          option.properties.id === value?.properties.id
+        }
         renderInput={(params) => (
           <div ref={params.InputProps.ref}>
             <input

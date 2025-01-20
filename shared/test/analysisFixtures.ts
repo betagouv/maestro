@@ -4,8 +4,9 @@ import { AnalyteList } from '../referential/Residue/Analyte';
 import {
   Analysis,
   AnalysisToCreate,
-  PartialAnalysis,
+  PartialAnalysis
 } from '../schema/Analysis/Analysis';
+import { AnalysisMethodList } from '../schema/Analysis/AnalysisMethod';
 import { AnalysisStatusList } from '../schema/Analysis/AnalysisStatus';
 import { Analyte, PartialAnalyte } from '../schema/Analysis/Analyte';
 import { PartialResidue, Residue } from '../schema/Analysis/Residue/Residue';
@@ -18,7 +19,7 @@ export const genAnalysisToCreate = (
 ): AnalysisToCreate => ({
   sampleId: uuidv4(),
   reportDocumentId: uuidv4(),
-  ...data,
+  ...data
 });
 
 export const genPartialAnalysis = (
@@ -29,7 +30,7 @@ export const genPartialAnalysis = (
   createdAt: new Date(),
   createdBy: uuidv4(),
   status: oneOf(AnalysisStatusList),
-  ...data,
+  ...data
 });
 
 export const genPartialResidue = (
@@ -37,6 +38,7 @@ export const genPartialResidue = (
 ): PartialResidue => ({
   analysisId: uuidv4(),
   residueNumber: genNumber(2),
+  analysisMethod: oneOf(AnalysisMethodList),
   kind: oneOf(ResidueKindList),
   result: genNumber(2),
   resultHigherThanArfd: oneOf(OptionalBooleanList),
@@ -44,7 +46,7 @@ export const genPartialResidue = (
   substanceAuthorised: oneOf(OptionalBooleanList),
   pollutionRisk: oneOf(OptionalBooleanList),
   compliance: oneOf(ResidueComplianceList),
-  ...data,
+  ...data
 });
 
 export const genPartialAnalyte = (data?: Partial<Analyte>): PartialAnalyte => ({
@@ -52,5 +54,5 @@ export const genPartialAnalyte = (data?: Partial<Analyte>): PartialAnalyte => ({
   residueNumber: genNumber(2),
   analyteNumber: genNumber(2),
   reference: oneOf(AnalyteList),
-  ...data,
+  ...data
 });

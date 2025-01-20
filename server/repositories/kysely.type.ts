@@ -3,13 +3,14 @@
  * Please do not edit it manually.
  */
 
-import type { ColumnType } from "kysely";
-import { UserRole } from '../../shared/schema/User/UserRole';
+import type { ColumnType } from 'kysely';
 import { Region } from '../../shared/referential/Region';
+import { UserRole } from '../../shared/schema/User/UserRole';
 
-export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
-  ? ColumnType<S, I | undefined, U>
-  : ColumnType<T, T | undefined, T>;
+export type Generated<T> =
+  T extends ColumnType<infer S, infer I, infer U>
+    ? ColumnType<S, I | undefined, U>
+    : ColumnType<T, T | undefined, T>;
 
 export type Point = {
   x: number;
@@ -120,7 +121,7 @@ export interface Prescriptions {
 }
 
 export interface PrescriptionSubstances {
-  analysisKind: string;
+  analysisMethod: string;
   prescriptionId: string;
   substanceCode: string;
 }

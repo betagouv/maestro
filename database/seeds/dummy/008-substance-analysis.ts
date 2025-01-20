@@ -1,5 +1,5 @@
 import { PrescriptionSubstances } from '../../../server/repositories/prescriptionSubstanceRepository';
-import { AnalysisKind } from '../../../shared/schema/Analysis/AnalysisKind';
+import { AnalysisMethod } from '../../../shared/schema/Analysis/AnalysisMethod';
 import {
   abricotsEtSimilaires,
   avocats,
@@ -31,21 +31,19 @@ import {
   pechesEtSimilaires,
   poireauxEtSimilaires,
   poires,
-  rizEtSimilaires,
+  rizEtSimilaires
 } from './004-prescriptions';
 
-
 export const seed = async function () {
-
   const genSubstanceAnalysis = (
     prescriptionId: string,
-    analysisKind: AnalysisKind,
+    analysisMethod: AnalysisMethod,
     ...substanceCodes: string[]
   ) =>
     substanceCodes.map((substanceCode) => ({
       prescriptionId,
       substanceCode,
-      analysisKind,
+      analysisMethod
     }));
 
   // prettier-ignore
