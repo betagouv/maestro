@@ -3,7 +3,7 @@ import { AnalysisMethodList } from '../../shared/schema/Analysis/AnalysisMethod'
 
 export const up = async (knex: Knex) => {
   await knex.schema.table('analysis_residues', (table) => {
-    table.enum('analysis_method', AnalysisMethodList).notNullable();
+    table.string('analysis_method');
   });
 
   await knex('analysis_residues')
@@ -12,6 +12,10 @@ export const up = async (knex: Knex) => {
     .update({
       analysis_method: knex.ref('analysis.kind')
     });
+
+  await knex.schema.table('analysis_residues', (table) => {
+    table.string('analysis_method').notNullable().alter();
+  });
 
   await knex.schema.table('analysis', (table) => {
     table.dropColumn('kind');
