@@ -1,5 +1,5 @@
 import { Knex } from 'knex';
-import { AnalysisKindList } from '../../shared/schema/Analysis/AnalysisKind';
+import { AnalysisMethodList } from '../../shared/schema/Analysis/AnalysisMethod';
 
 export const up = async (knex: Knex) => {
   await knex.schema.createTable('analysis', (table) => {
@@ -16,7 +16,7 @@ export const up = async (knex: Knex) => {
     table.uuid('created_by').references('id').inTable('users');
     table.string('status').notNullable();
     table.uuid('report_document_id').references('id').inTable('documents');
-    table.enum('kind', AnalysisKindList);
+    table.enum('kind', AnalysisMethodList);
     table.boolean('compliance');
     table.string('notes_on_compliance');
   });

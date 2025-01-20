@@ -14,7 +14,7 @@ import { ComplexResidueLabels } from 'shared/referential/Residue/ComplexResidueL
 import { SimpleResidue } from 'shared/referential/Residue/SimpleResidue';
 import { SimpleResidueLabels } from 'shared/referential/Residue/SimpleResidueLabels';
 import { Analysis } from 'shared/schema/Analysis/Analysis';
-import { AnalysisKindLabels } from 'shared/schema/Analysis/AnalysisKind';
+import { AnalysisMethodLabels } from 'shared/schema/Analysis/AnalysisMethod';
 import { ResidueKindLabels } from 'shared/schema/Analysis/Residue/ResidueKind';
 import { Sample } from 'shared/schema/Sample/Sample';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
@@ -22,7 +22,7 @@ import DocumentLink from 'src/components/DocumentLink/DocumentLink';
 import ResidueResultAlert from 'src/components/ResidueResultAlert/ResidueResultAlert';
 import {
   useGetSampleAnalysisQuery,
-  useUpdateAnalysisMutation,
+  useUpdateAnalysisMutation
 } from 'src/services/analysis.service';
 import { useUpdateSampleMutation } from 'src/services/sample.service';
 import { pluralize, quote } from 'src/utils/stringUtils';
@@ -46,7 +46,7 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
     () =>
       createModal({
         id: `editing-confirmation-modal-${sample.id}`,
-        isOpenedByDefault: false,
+        isOpenedByDefault: false
       }),
     [sample.id]
   );
@@ -58,11 +58,11 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
   const editAnalysis = async () => {
     await updateSample({
       ...sample,
-      status: 'Analysis',
+      status: 'Analysis'
     });
     await updateAnalysis({
       ...analysis,
-      status: editingStatus,
+      status: editingStatus
     });
   };
 
@@ -112,7 +112,6 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
             Éditer
           </Button>
         </h5>
-        Analyse {AnalysisKindLabels[analysis.kind]}
       </div>
       {analysis.residues?.map((residue, residueIndex) => (
         <div key={`residue-${residueIndex}`}>
@@ -129,6 +128,9 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
             </Tag>
           </h6>
           <div className={clsx(cx('fr-pl-4w'), 'step-summary')}>
+            <div>
+              Analyse <b>{AnalysisMethodLabels[residue.analysisMethod]}</b>
+            </div>
             {residue.kind === 'Simple' ? (
               <>
                 {residue.resultKind === 'Q' && (

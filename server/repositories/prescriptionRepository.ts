@@ -2,10 +2,10 @@ import { Knex } from 'knex';
 import { isArray, isNil, omit, omitBy, uniq } from 'lodash-es';
 import {
   FindPrescriptionOptions,
-  PrescriptionOptionsInclude,
+  PrescriptionOptionsInclude
 } from '../../shared/schema/Prescription/FindPrescriptionOptions';
 import { Prescription } from '../../shared/schema/Prescription/Prescription';
-import {knexInstance as db} from './db';
+import { knexInstance as db } from './db';
 import { prescriptionSubstanceTable } from './prescriptionSubstanceRepository';
 export const prescriptionsTable = 'prescriptions';
 
@@ -48,10 +48,10 @@ const include = (opts?: FindPrescriptionOptions) => {
       query
         .select(
           db.raw(
-            `count(substance_code) filter (where analysis_kind = 'Mono') as mono_analysis_count`
+            `count(substance_code) filter (where analysis_method = 'Mono') as mono_analysis_count`
           ),
           db.raw(
-            `count(substance_code) filter (where analysis_kind = 'Multi') as multi_analysis_count`
+            `count(substance_code) filter (where analysis_method = 'Multi') as multi_analysis_count`
           )
         )
         .leftJoin(
@@ -60,7 +60,7 @@ const include = (opts?: FindPrescriptionOptions) => {
           `${prescriptionsTable}.id`
         )
         .groupBy(`${prescriptionsTable}.id`);
-    },
+    }
   };
 
   return (query: Knex.QueryBuilder) => {
@@ -95,5 +95,5 @@ export default {
   findMany,
   insert,
   update,
-  deleteOne,
+  deleteOne
 };
