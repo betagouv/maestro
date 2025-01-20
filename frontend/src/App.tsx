@@ -10,6 +10,7 @@ import Footer from 'src/components/Footer/Footer';
 import Header from 'src/components/Header/Header';
 import ScrollToTop from 'src/components/ScrollToTop/ScrollToTop';
 import { useAuthentication } from 'src/hooks/useAuthentication';
+import useMatomoTagManager from 'src/hooks/useMatomoTagManager';
 import { useOnLine } from 'src/hooks/useOnLine';
 import { useAppSelector } from 'src/hooks/useStore';
 import LoginCallbackView from 'src/views/LoginCallbackView/LoginCallbackView';
@@ -25,12 +26,13 @@ declare module '@codegouvfr/react-dsfr/spa' {
 startReactDsfr({ defaultColorScheme: 'light', Link });
 
 function AppWrapper() {
-
   const { MuiDsfrThemeProvider } = createMuiDsfrThemeProvider({
     augmentMuiTheme: ({ nonAugmentedMuiTheme }) => ({
       ...nonAugmentedMuiTheme
     })
   });
+
+  useMatomoTagManager();
 
   return (
     <MuiDsfrThemeProvider>
