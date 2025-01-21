@@ -519,22 +519,25 @@
                                   </div>
                                 </div>
                               </div>
-
-                              {{#if notesOnOwnerAgreement}}
-                                    <div class='fr-grid-row fr-grid-row--gutters'>
-                                      <div class='fr-col-12 sample-section-item'>
-                                        <div class='label'>
-                                          Note additionnelle pour spécifier une éventuelle déclaration du détenteur
-                                        </div>
-                                        <div class='value'>
-                                          {{breaklines notesOnOwnerAgreement}}
-                                        </div>
-                                      </div>
-                                    </div>
-                              {{/if}}
-
                             </div>
                           </div>
+                          {{#if notesOnOwnerAgreement}}
+                            <div class='sample-section-block'>
+                              <span class='fr-icon-quote-line fr-icon--sm'></span>
+                              <div class='fr-container fr-pl-1w'>
+                                <div class='fr-grid-row fr-grid-row--gutters'>
+                                  <div class='fr-col-12 sample-section-item'>
+                                    <div class='label'>
+                                      Note additionnelle pour spécifier une éventuelle déclaration du détenteur
+                                    </div>
+                                    <div class='value'>
+                                      {{breaklines notesOnOwnerAgreement}}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          {{/if}}
                         </div>
                       {{/each}}
                       <div class='sample-section-block'>
