@@ -1,4 +1,5 @@
 import { fakerFR } from '@faker-js/faker';
+import { pick } from 'lodash-es';
 import randomstring from 'randomstring';
 import { v4 as uuidv4 } from 'uuid';
 import { CultureKindList } from '../referential/CultureKind';
@@ -18,17 +19,16 @@ import {
   SampleContextData
 } from '../schema/Sample/Sample';
 import { SampleItem } from '../schema/Sample/SampleItem';
+import { SampleStatus } from '../schema/Sample/SampleStatus';
 import { CompanyFixture, genCompany } from './companyFixtures';
-import { genBoolean, genNumber, oneOf } from './testFixtures';
 import { ValidatedProgrammingPlanFixture } from './programmingPlanFixtures';
-import { pick } from 'lodash-es';
+import { genBoolean, genNumber, oneOf } from './testFixtures';
 import {
   Region1Fixture,
   Region2Fixture,
   Sampler1Fixture,
   Sampler2Fixture
 } from './userFixtures';
-import { SampleStatus } from '../schema/Sample/SampleStatus';
 
 export const genSampleContextData = (
   data?: Partial<SampleContextData>
@@ -110,6 +110,7 @@ export const genSampleItem = (data?: Partial<SampleItem>): SampleItem => ({
   compliance200263: genBoolean(),
   sealId: randomstring.generate(),
   recipientKind: 'Laboratory',
+  ownerAgreement: genBoolean(),
   ...data
 });
 const Sample11FixtureId = '11111111-1111-1111-1111-111111111111';
