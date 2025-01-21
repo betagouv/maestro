@@ -21,8 +21,8 @@ import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
-import {userRepository} from '../repositories/userRepository';
-import {mailService} from '../services/mailService';
+import { userRepository } from '../repositories/userRepository';
+import { mailService } from '../services/mailService';
 import config from '../utils/config';
 
 const findProgrammingPlans = async (request: Request, response: Response) => {
@@ -57,6 +57,7 @@ const getProgrammingPlanByYear = async (
   request: Request,
   response: Response
 ) => {
+  const user = (request as AuthenticatedRequest).user;
   const year = parseInt(request.params.year);
 
   console.info('Get programming plan for year', year);
@@ -68,6 +69,19 @@ const getProgrammingPlanByYear = async (
   }
 
   console.info('Found programming plan', programmingPlan);
+
+  const userStatusAuthorized = Object.entries(ProgrammingPlanStatusPermissions)
+    .filter(([, permission]) => hasPermission(user, permission))
+    .map(([status]) => status);
+
+  if (
+    isDromRegion(user.region)
+      ? !userStatusAuthorized.includes(programmingPlan.statusDrom)
+      : !userStatusAuthorized.includes(programmingPlan.status)
+  ) {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
+
   response.status(constants.HTTP_STATUS_OK).send(programmingPlan);
 };
 
@@ -145,7 +159,6 @@ const createProgrammingPlan = async (request: Request, response: Response) => {
       );
     })
   );
-
 
   response.status(constants.HTTP_STATUS_CREATED).send(newProgrammingPlan);
 };

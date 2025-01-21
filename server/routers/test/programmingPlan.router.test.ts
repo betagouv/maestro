@@ -1,21 +1,22 @@
 import { constants } from 'http2';
-import { describe, test, expect, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
+import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { ProgrammingPlan } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatus } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { genPrescription } from '../../../shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from '../../../shared/test/programmingPlanFixtures';
+import {
+  NationalCoordinator,
+  RegionalCoordinator,
+  RegionalDromCoordinator,
+  Sampler1Fixture,
+  SamplerDromFixture
+} from '../../../shared/test/userFixtures';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import { ProgrammingPlans } from '../../repositories/programmingPlanRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
-import {
-  NationalCoordinator,
-  RegionalCoordinator,
-  RegionalDromCoordinator, Sampler1Fixture,
-  SamplerDromFixture
-} from '../../../shared/test/userFixtures';
 describe('ProgrammingPlan router', () => {
   const { app } = createServer();
 
@@ -222,6 +223,23 @@ describe('ProgrammingPlan router', () => {
         .get(testRoute('2025'))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
+    });
+
+    test('should fail if the user is not authorized to access the programming plan regarding the regional status', async () => {
+      await request(app)
+        .get(testRoute(inProgressProgrammingPlan.year.toString()))
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+
+      await request(app)
+        .get(testRoute(validatedDromProgrammingPlan.year.toString()))
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+
+      await request(app)
+        .get(testRoute(validatedDromProgrammingPlan.year.toString()))
+        .use(tokenProvider(SamplerDromFixture))
+        .expect(constants.HTTP_STATUS_OK);
     });
 
     test('should find the programmingPlan for the given year', async () => {
