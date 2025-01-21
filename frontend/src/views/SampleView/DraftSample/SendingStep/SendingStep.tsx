@@ -89,7 +89,7 @@ const SendingStep = ({ sample }: Props) => {
     });
   };
 
-  const changeItems = (item: SampleItem, index: number) => {
+  const changeItems = (item: PartialSampleItem, index: number) => {
     const newItems = [...items];
     newItems[index] = item;
     setItems(newItems);
