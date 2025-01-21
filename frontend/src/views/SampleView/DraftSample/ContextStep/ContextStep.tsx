@@ -479,7 +479,8 @@ const ContextStep = ({ partialSample }: Props) => {
             whenValid="Note correctement renseignée."
             data-testid="notes-input"
             label="Note additionnelle (ex : urgence, consignation...)"
-            hintText="Champ facultatif pour précisions supplémentaires"
+            hintText="Champ facultatif pour identification et qualité de la personne présente lors du contrôle.
+"
           />
         </div>
       </div>

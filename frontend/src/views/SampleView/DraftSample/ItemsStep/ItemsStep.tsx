@@ -55,7 +55,9 @@ const ItemsStep = ({ partialSample }: Props) => {
         SampleItem.omit({
           ownerFirstName: true,
           ownerLastName: true,
-          ownerEmail: true
+          ownerEmail: true,
+          ownerAgreement: true,
+          notesOnOwnerAgreement: true
         })
       )
       .min(1, { message: 'Veuillez renseigner au moins un échantillon.' })
@@ -168,8 +170,7 @@ const ItemsStep = ({ partialSample }: Props) => {
             inputKey="notesOnItems"
             whenValid="Note correctement renseignée."
             data-testid="notes-input"
-            label="Note additionnelle"
-            hintText="Champ facultatif pour spécifier une éventuelle déclaration du détenteur de la marchandise"
+            label="Note additionnelle concernant les échantillons"
           />
         </div>
       </div>

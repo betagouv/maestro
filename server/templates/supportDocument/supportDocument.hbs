@@ -21,7 +21,7 @@
                 </div>
                 <div class='fr-header__operator'>
                   <img
-                    src='{{inlineImage 'logo.svg'}}'
+                    src='{{inlineImage "logo.svg"}}'
                     style='max-height: 100px; max-width: 100px; margin-bottom: 1rem;'
                   />
                 </div>
@@ -59,11 +59,9 @@
                     </span>
                   </div>
 
-                  <section class="sample-section">
+                  <section class='sample-section'>
                     <div class='sample-section-header'>
-                      <img
-                        src='{{inlineImage 'programmation.svg'}}'
-                      />
+                      <img src='{{inlineImage "programmation.svg"}}' />
                       <span>Contexte du prélèvement</span>
                     </div>
                     <div class='sample-section-body'>
@@ -238,8 +236,9 @@
                             <div class='fr-grid-row fr-grid-row--gutters'>
                               <div class='fr-col-12 sample-section-item'>
                                 <div class='label'>
-                                  Note additionnelle (ex : urgence,
-                                  consignation...)
+                                  Note additionnelle pour identification et
+                                  qualité de la personne présente lors du
+                                  contrôle. (ex : urgence, consignation...)
                                 </div>
                                 <div class='value'>
                                   {{breaklines notesOnCreation}}
@@ -252,9 +251,9 @@
                     </div>
                   </section>
 
-                  <section class="sample-section">
+                  <section class='sample-section'>
                     <div class='sample-section-header'>
-                      <img src='{{inlineImage 'food.svg'}}' />
+                      <img src='{{inlineImage "food.svg"}}' />
                       <span>Matrice contrôlée</span>
                     </div>
                     <div class='sample-section-body'>
@@ -350,9 +349,9 @@
                         </div>
                       </div>
 
-                      <span
-                        class='fr-text--bold fr-text--sm fr-mt-3w fr-mb-0'
-                      >Analyses demandées</span>
+                      <div class='sample-section-subtitle fr-mt-3w'>
+                        Analyses demandées
+                      </div>
                       <div class='sample-section-block'>
                         <span
                           class='fr-icon-microscope-line fr-icon--sm'
@@ -436,9 +435,9 @@
                     </div>
                   </section>
 
-                  <section class="sample-section">
+                  <section class='sample-section'>
                     <div class='sample-section-header'>
-                      <img src='{{inlineImage 'hands.svg'}}' />
+                      <img src='{{inlineImage "hands.svg"}}' />
                       <span>Échantillons</span>
                     </div>
                     <div class='sample-section-body'>
@@ -452,71 +451,92 @@
                           d’ordre unique.
                         </div>
                       </div>
-                      <div class='fr-text--bold fr-text--sm fr-mb-0'><div
-                        >Échantillon n°{{itemNumber}}</div>
-                        {{#if isSecondSampleItem}}
-                          <span class='label'>
-                            Nous avons proposé de laisser l’échantillon n°1
-                            entre les mains de l'intéressé qui en a accepté le
-                            dépôt et s’est engagé à le conserver sous
-                            température négative.
-                          </span>
-                        {{/if}}
-                      </div>
-                      <div class='sample-section-block'>
-                        <span class='fr-icon-test-tube-line fr-icon--sm'></span>
-                        <div class='fr-container fr-pl-1w'>
-                          <div class='fr-grid-row fr-grid-row--gutters'>
-                            <div class='fr-col-3 sample-section-item'>
-                              <div class='label'>
-                                Nombre
+                      {{sampleItemNumber}}
+                      {{#each sampleItems}}
+                        <div class="sample-item {{#if currentItem}}current-item{{/if}}">
+                          <div class='sample-section-subtitle'>
+                            <div>Échantillon n°{{itemNumber}}</div>
+                            {{#if (eq itemNumber 2)}}
+                              <span class='label'>
+                                Nous avons proposé de laisser l’échantillon n°2
+                                entre les mains de l'intéressé qui en a accepté
+                                le dépôt et s’est engagé à le conserver sous
+                                température négative.
+                              </span>
+                            {{/if}}
+                          </div>
+                          <div class='sample-section-block'>
+                            <span
+                              class='fr-icon-test-tube-line fr-icon--sm'
+                            ></span>
+                            <div class='fr-container fr-pl-1w'>
+                              <div class='fr-grid-row fr-grid-row--gutters'>
+                                <div class='fr-col-3 sample-section-item'>
+                                  <div class='label'>
+                                    Nombre
+                                  </div>
+                                  <div class='value'>
+                                    {{quantity}}&nbsp;
+                                  </div>
+                                </div>
+                                <div class='fr-col-3 sample-section-item'>
+                                  <div class='label'>
+                                    Unité de mesure
+                                  </div>
+                                  <div class='value'>
+                                    {{quantityUnit}}&nbsp;
+                                  </div>
+                                </div>
+                                <div class='fr-col-3 sample-section-item'>
+                                  <div class='label'>
+                                    Numéro de scellé
+                                  </div>
+                                  <div class='value'>
+                                    {{sealId}}&nbsp;
+                                  </div>
+                                </div>
+                                <div class='fr-col-3 sample-section-item'>
+                                  <div class='label'>
+                                    Directive 2002/63
+                                  </div>
+                                  <div class='value'>
+                                    {{#if compliance200263}}
+                                      <input
+                                        type='checkbox'
+                                        class='fr-mr-1w'
+                                        checked
+                                      />{{compliance200263}}
+                                    {{else}}
+                                      <input
+                                        type='checkbox'
+                                        class='fr-mr-1w'
+                                      />Respectée
+                                      <br /><input
+                                        type='checkbox'
+                                        class='fr-mr-1w'
+                                      />Non respectée
+                                    {{/if}}
+                                  </div>
+                                </div>
                               </div>
-                              <div class='value'>
-                                {{quantity}}&nbsp;
-                              </div>
-                            </div>
-                            <div class='fr-col-3 sample-section-item'>
-                              <div class='label'>
-                                Unité de mesure
-                              </div>
-                              <div class='value'>
-                                {{quantityUnit}}&nbsp;
-                              </div>
-                            </div>
-                            <div class='fr-col-3 sample-section-item'>
-                              <div class='label'>
-                                Numéro de scellé
-                              </div>
-                              <div class='value'>
-                                {{sealId}}&nbsp;
-                              </div>
-                            </div>
-                            <div class='fr-col-3 sample-section-item'>
-                              <div class='label'>
-                                Directive 2002/63
-                              </div>
-                              <div class='value'>
-                                {{#if compliance200263}}
-                                  <input
-                                    type='checkbox'
-                                    class='fr-mr-1w'
-                                    checked
-                                  />{{compliance200263}}
-                                {{else}}
-                                  <input
-                                    type='checkbox'
-                                    class='fr-mr-1w'
-                                  />Respectée
-                                  <br /><input
-                                    type='checkbox'
-                                    class='fr-mr-1w'
-                                  />Non respectée
-                                {{/if}}
-                              </div>
+
+                              {{#if notesOnOwnerAgreement}}
+                                    <div class='fr-grid-row fr-grid-row--gutters'>
+                                      <div class='fr-col-12 sample-section-item'>
+                                        <div class='label'>
+                                          Note additionnelle pour spécifier une éventuelle déclaration du détenteur
+                                        </div>
+                                        <div class='value'>
+                                          {{breaklines notesOnOwnerAgreement}}
+                                        </div>
+                                      </div>
+                                    </div>
+                              {{/if}}
+
                             </div>
                           </div>
                         </div>
-                      </div>
+                      {{/each}}
                       <div class='sample-section-block'>
                         <span
                           class='fr-icon-error-warning-line fr-icon--xs fr-pt-1v'
@@ -540,8 +560,7 @@
                             <div class='fr-grid-row fr-grid-row--gutters'>
                               <div class='fr-col-12 sample-section-item'>
                                 <div class='label'>
-                                  Note additionnelle spécifiant une éventuelle
-                                  déclaration du détenteur de la marchandise
+                                  Note additionnelle concernant les échantillons
                                 </div>
                                 <div class='value'>
                                   {{breaklines notesOnItems}}
@@ -553,18 +572,19 @@
                       {{/if}}
                     </div>
                   </section>
-
-                  <div class='fr-alert fr-alert--warning fr-mt-8w'>
-                    <h3 class='fr-alert__title'>Conservation et
-                      transmission de l’échantillon</h3>
-                    <p>L'échantillon doit être conservé dans
-                      des conditions optimales pour préserver ses propriétés
-                      initiales. La personne qui accepte le dépôt de ce scellé
-                      est prévenue qu'elle assume l'entière responsabilité de sa
-                      conservation. Elle ne peut en faire aucun usage et doit le
-                      remettre à l'autorité judiciaire dès que celle-ci le lui
-                      réclame.</p>
-                  </div>
+                  {{#if hasNoteToSampler}}
+                    <div class='fr-alert fr-alert--warning fr-mt-8w'>
+                      <h3 class='fr-alert__title'>Conservation et transmission
+                        de l’échantillon</h3>
+                      <p>L'échantillon doit être conservé dans des conditions
+                        optimales pour préserver ses propriétés initiales. La
+                        personne qui accepte le dépôt de ce scellé est prévenue
+                        qu'elle assume l'entière responsabilité de sa
+                        conservation. Elle ne peut en faire aucun usage et doit
+                        le remettre à l'autorité judiciaire dès que celle-ci le
+                        lui réclame.</p>
+                    </div>
+                  {{/if}}
                 </div>
               </div>
             </td>

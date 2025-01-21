@@ -48,14 +48,12 @@ const getSampleItemDocument = async (request: Request, response: Response) => {
 
   console.info('Get sample document', sample.id);
 
-  const sampleItem = await sampleItemRepository.findUnique(
-    sample.id,
-    itemNumber
-  );
+  const sampleItems = await sampleItemRepository.findMany(sample.id);
 
   const pdfBuffer = await documentService.generateSupportDocument(
     sample,
-    sampleItem ?? null,
+    sampleItems,
+    itemNumber,
     user
   );
 
@@ -194,7 +192,8 @@ const updateSample = async (request: Request, response: Response) => {
       sampleItems.map(async (sampleItem) => {
         const doc = await storeSampleItemDocument(
           updatedSample as Sample,
-          sampleItem as SampleItem,
+          sampleItems as SampleItem[],
+          sampleItem.itemNumber,
           user
         );
 
@@ -238,23 +237,31 @@ const updateSample = async (request: Request, response: Response) => {
     );
   }
 
-  await sampleRepository.update(updatedSample);
+  // await sampleRepository.update(updatedSample);
 
   response.status(constants.HTTP_STATUS_OK).send(updatedSample);
 };
 
 const storeSampleItemDocument = async (
   sample: Sample,
-  sampleItem: SampleItem,
+  sampleItems: SampleItem[],
+  itemNumber: number,
   sampler: User
 ) => {
   const client = getS3Client();
 
   const pdfBuffer = await documentService.generateSupportDocument(
     sample,
-    sampleItem,
+    sampleItems,
+    itemNumber,
     sampler
   );
+
+  const sampleItem = sampleItems.find((item) => item.itemNumber === itemNumber);
+
+  if (!sampleItem) {
+    throw new Error(`Sample item ${itemNumber} not found`);
+  }
 
   if (sampleItem.supportDocumentId) {
     console.info('Delete previous document', sampleItem.supportDocumentId);

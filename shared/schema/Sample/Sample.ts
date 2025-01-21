@@ -16,17 +16,17 @@ import { SampleStatus } from './SampleStatus';
 export const Geolocation = z.object(
   {
     x: z.number(),
-    y: z.number(),
+    y: z.number()
   },
   {
-    required_error: 'Veuillez renseigner la localisation.',
+    required_error: 'Veuillez renseigner la localisation.'
   }
 );
 
 export const Sampler = User.pick({
   id: true,
   firstName: true,
-  lastName: true,
+  lastName: true
 });
 
 export const SampleContextData = z.object({
@@ -34,8 +34,8 @@ export const SampleContextData = z.object({
   sampledAt: z.union([z.string(), z.date()]).pipe(
     z.coerce.date({
       errorMap: () => ({
-        message: 'La date de prélèvement est invalide.',
-      }),
+        message: 'La date de prélèvement est invalide.'
+      })
     })
   ),
   department: Department,
@@ -48,7 +48,7 @@ export const SampleContextData = z.object({
   companyOffline: z.string().nullish(),
   resytalId: z.string().nullish(),
   notesOnCreation: z.string().nullish(),
-  status: SampleStatus,
+  status: SampleStatus
 });
 
 export const SampleMatrixData = z.object({
@@ -60,7 +60,7 @@ export const SampleMatrixData = z.object({
   releaseControl: z.boolean().nullish(),
   notesOnMatrix: z.string().nullish(),
   prescriptionId: z.string().uuid(),
-  laboratoryId: z.string().uuid().nullish(),
+  laboratoryId: z.string().uuid().nullish()
 });
 
 export const SampleItemsData = z.object({
@@ -71,7 +71,7 @@ export const SampleItemsData = z.object({
       (items) => _.uniqBy(items, (item) => item.sealId).length === items.length,
       'Les numéros de scellés doivent être uniques.'
     ),
-  notesOnItems: z.string().nullish(),
+  notesOnItems: z.string().nullish()
 });
 
 export const SampleAdmissibilityData = z.object({
@@ -81,12 +81,12 @@ export const SampleAdmissibilityData = z.object({
     .pipe(
       z.coerce.date({
         errorMap: () => ({
-          message: 'La date de réception est invalide.',
-        }),
+          message: 'La date de réception est invalide.'
+        })
       })
     )
     .nullish(),
-  notesOnAdmissibility: z.string().nullish(),
+  notesOnAdmissibility: z.string().nullish()
 });
 
 export const PartialSampleToCreate = z.object({
@@ -94,7 +94,7 @@ export const PartialSampleToCreate = z.object({
   ...SampleMatrixData.partial().shape,
   ...SampleItemsData.partial().shape,
   ...SampleAdmissibilityData.partial().shape,
-  items: z.array(PartialSampleItem).nullish(),
+  items: z.array(PartialSampleItem).nullish()
 });
 
 export const SampleToCreate = z.object({
@@ -102,6 +102,7 @@ export const SampleToCreate = z.object({
   ...SampleMatrixData.shape,
   ...SampleItemsData.shape,
   ...SampleAdmissibilityData.shape,
+  items: z.array(PartialSampleItem)
 });
 
 export const CreatedSampleData = z.object({
@@ -109,11 +110,11 @@ export const CreatedSampleData = z.object({
   region: Region,
   createdAt: z.coerce.date(),
   sampler: Sampler,
-  lastUpdatedAt: z.coerce.date(),
+  lastUpdatedAt: z.coerce.date()
 });
 
 export const PartialSample = PartialSampleToCreate.extend({
-  ...CreatedSampleData.shape,
+  ...CreatedSampleData.shape
 });
 
 export const Sample = SampleToCreate.extend({
@@ -121,6 +122,7 @@ export const Sample = SampleToCreate.extend({
   geolocation: Geolocation,
   company: Company,
   laboratoryId: z.string().uuid(),
+  items: z.array(SampleItem)
 });
 
 export type Geolocation = z.infer<typeof Geolocation>;

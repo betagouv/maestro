@@ -34,6 +34,10 @@ const generateDocument = async (template: Template, data: any) => {
         handlebars.escapeExpression(text).replace(/(\r\n|\n|\r)/gm, '<br>')
       )
   );
+  handlebars.registerHelper('eq', function (a, b) {
+    console.log('eq', a, b);
+    return a === b;
+  });
 
   handlebars.registerHelper('inlineImage', (relativePath) => {
     const imagePath = assetsPath(relativePath);
@@ -115,7 +119,8 @@ const generateDocument = async (template: Template, data: any) => {
 
 const generateSupportDocument = async (
   sample: Sample,
-  sampleItem: PartialSampleItem | null,
+  sampleItems: PartialSampleItem[],
+  itemNumber: number,
   sampler: User
 ) => {
   const programmingPlan = await programmingPlanRepository.findUnique(
@@ -136,7 +141,16 @@ const generateSupportDocument = async (
 
   return generateDocument('supportDocument', {
     ...sample,
-    ...sampleItem,
+    sampleItems: sampleItems.map((sampleItem) => ({
+      ...sampleItem,
+      quantityUnit: sampleItem?.quantityUnit
+        ? QuantityUnitLabels[sampleItem.quantityUnit]
+        : '',
+      compliance200263: sampleItem.compliance200263
+        ? 'Respectée'
+        : 'Non respectée',
+      currentItem: sampleItem.itemNumber === itemNumber
+    })),
     sampler,
     laboratory,
     monoSubstances: prescriptionSubstances
@@ -145,7 +159,7 @@ const generateSupportDocument = async (
     multiSubstances: prescriptionSubstances
       ?.filter((substance) => substance.analysisMethod === 'Multi')
       .map((substance) => substance.substance.label),
-    reference: [sample.reference, sampleItem?.itemNumber]
+    reference: [sample.reference, itemNumber]
       .filter(isDefinedAndNotNull)
       .join('-'),
     sampledAt: format(sample.sampledAt, "eeee dd MMMM yyyy à HH'h'mm", {
@@ -159,18 +173,12 @@ const generateSupportDocument = async (
     matrix: MatrixLabels[sample.matrix],
     matrixDetails: sample.matrixDetails,
     matrixPart: MatrixPartLabels[sample.matrixPart],
-    quantityUnit: sampleItem?.quantityUnit
-      ? QuantityUnitLabels[sampleItem.quantityUnit]
-      : '',
     releaseControl: sample.releaseControl ? 'Oui' : 'Non',
-    compliance200263: sampleItem
-      ? sampleItem.compliance200263
-        ? 'Respectée'
-        : 'Non respectée'
-      : '',
-    isSecondSampleItem: sampleItem?.itemNumber === 2,
     establishment: Regions[sample.region].establishment,
-    department: DepartmentLabels[sample.department]
+    department: DepartmentLabels[sample.department],
+    hasNoteToSampler: sampleItems.some(
+      (sampleItem) => sampleItem.recipientKind === 'Sampler'
+    )
   });
 };
 

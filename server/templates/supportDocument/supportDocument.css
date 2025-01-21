@@ -49,11 +49,17 @@ main {
     align-items: center;
     gap: 0.5rem;
     font-weight: bold;
-    font-size: 0.875rem;
+    font-size: 1rem;
 
     img {
       height: 3rem;
     }
+  }
+
+  .sample-section-subtitle {
+    font-size: 0.875rem;
+    font-weight: bold;
+    margin-bottom: 0;
   }
 
   .sample-section-body {
@@ -76,6 +82,21 @@ main {
 
       .fr-icon--sm {
         color: var(--text-mention-grey);
+      }
+    }
+
+    .sample-item {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+
+      &.current-item {
+        position: relative;
+        padding: 1rem;
+        left: -1rem;
+        width: calc(100% + 2rem);
+        background-color: var(--beige-gris-galet-975-75);
+        border: 1px solid var(--border-default-grey);
       }
     }
 

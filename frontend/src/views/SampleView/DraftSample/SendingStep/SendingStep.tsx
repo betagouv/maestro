@@ -10,7 +10,9 @@ import {
   Sample,
   SampleToCreate
 } from 'shared/schema/Sample/Sample';
-import { SampleItem } from 'shared/schema/Sample/SampleItem';
+import { PartialSampleItem, SampleItem } from 'shared/schema/Sample/SampleItem';
+import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
+import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
@@ -30,7 +32,7 @@ import ItemsStepSummary from 'src/views/SampleView/StepSummary/ItemsStepSummary'
 import MatrixStepSummary from 'src/views/SampleView/StepSummary/MatrixStepSummary';
 
 interface Props {
-  sample: Sample | SampleToCreate;
+  sample: (Sample | SampleToCreate) & { items: Partial<SampleItem[]> };
 }
 
 const SendingStep = ({ sample }: Props) => {
@@ -39,7 +41,7 @@ const SendingStep = ({ sample }: Props) => {
   const { isOnline } = useOnLine();
   const { laboratory } = usePartialSample(sample);
 
-  const [items, setItems] = useState<SampleItem[]>(sample.items);
+  const [items, setItems] = useState<PartialSampleItem[]>(sample.items);
   const [resytalId, setResytalId] = useState(sample.resytalId);
   const [isSaved, setIsSaved] = useState(false);
 
@@ -48,7 +50,7 @@ const SendingStep = ({ sample }: Props) => {
   });
 
   const isSendable = useMemo(
-    () => Sample.safeParse(sample).success && isOnline,
+    () => SampleToCreate.safeParse(sample).success && isOnline,
     [sample, isOnline]
   );
 
@@ -228,6 +230,59 @@ const SendingStep = ({ sample }: Props) => {
                       hintText="Le détenteur recevra une copie du procès verbal"
                     />
                   </div>
+                  <div className={cx('fr-col-12')}>
+                    <AppRadioButtons<FormShape>
+                      legend="Le détenteur accepte les informations portées au présent procès verbal"
+                      options={[
+                        {
+                          label: 'Oui',
+                          nativeInputProps: {
+                            checked: item.ownerAgreement === true,
+                            onChange: () => {
+                              changeItems(
+                                { ...item, ownerAgreement: true },
+                                itemIndex
+                              );
+                            }
+                          }
+                        },
+                        {
+                          label: 'Non',
+                          nativeInputProps: {
+                            checked: item.ownerAgreement === false,
+                            onChange: () => {
+                              changeItems(
+                                { ...item, ownerAgreement: false },
+                                itemIndex
+                              );
+                            }
+                          }
+                        }
+                      ]}
+                      inputForm={form}
+                      inputKey="items"
+                      inputPathFromKey={[itemIndex, 'ownerAgreement']}
+                      required
+                    />
+                  </div>
+                  <div className={cx('fr-col-12')}>
+                    <AppTextAreaInput<FormShape>
+                      rows={1}
+                      defaultValue={item.notesOnOwnerAgreement ?? ''}
+                      onChange={(e) =>
+                        changeItems(
+                          { ...item, notesOnOwnerAgreement: e.target.value },
+                          itemIndex
+                        )
+                      }
+                      inputForm={form}
+                      inputKey="items"
+                      inputPathFromKey={[itemIndex, 'notesOnOwnerAgreement']}
+                      whenValid="Note correctement renseignée."
+                      label="Note additionnelle"
+                      hintText="Champ facultatif pour spécifier une éventuelle déclaration du détenteur"
+                    />
+                  </div>
                 </div>
               </div>
             </>
@@ -240,7 +295,7 @@ const SendingStep = ({ sample }: Props) => {
               <>
                 En l’absence de connexion lors de la saisie, certaines
                 informations n’ont pu être validées (<b>entité contrôlée</b> et
-                <b> localisation de la parcelle</b>)
+                <b> localisation de la parcelle</b>)
                 <div>
                   <Link
                     to=""
