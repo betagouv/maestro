@@ -8,6 +8,7 @@ import { TokenPayload } from '../../shared/schema/User/TokenPayload';
 import { userRepository } from '../repositories/userRepository';
 import { getAuthService } from '../services/authService';
 import config from '../utils/config';
+import { AuthMaybeUnknownUser } from '../../shared/schema/User/AuthUser';
 
 const getAuthRedirectUrl = async (request: Request, response: Response) => {
   const authService = await getAuthService;
@@ -30,30 +31,25 @@ const authenticate = async (request: Request, response: Response) => {
     const { idToken, email, firstName, lastName } = await authService.authenticate(authRedirectUrl);
 
     const user = await userRepository.findOne(email);
-    if (!user) {
-      console.error('User not found', email);
-      throw new Error('User not found');
-    }
-
-
-    if (user.firstName !== firstName || user.lastName !== lastName) {
+    if (user && (user.firstName !== firstName || user.lastName !== lastName)) {
       await userRepository.updateNames({email, firstName, lastName})
     }
 
-    const accessToken = jwt.sign(
-      {
-        userId: user.id,
-        idToken
-      } as TokenPayload,
+    const tokenPayload: TokenPayload = {
+      userId: user?.id ?? null,
+      idToken
+    }
+    const accessToken = jwt.sign(tokenPayload,
       config.auth.secret,
       { expiresIn: config.auth.expiresIn }
     );
 
-    return response.status(constants.HTTP_STATUS_OK).json({
-      userId: user.id,
-      accessToken,
-      userRoles: user.roles
-    });
+    const result: AuthMaybeUnknownUser = {
+      userId: user?.id ?? null,
+      accessToken
+    }
+
+    return response.status(constants.HTTP_STATUS_OK).json(result);
   } catch (error) {
     console.error('Error while authenticating', error);
     throw new AuthenticationFailedError();

@@ -1,7 +1,7 @@
 import express from 'express';
 import { AuthRedirectUrl } from '../../shared/schema/Auth/AuthRedirectUrl';
 import authController from '../controllers/authController';
-import { jwtCheck, userCheck } from '../middlewares/checks/authCheck';
+import { jwtCheck } from '../middlewares/checks/authCheck';
 import validator, { body } from '../middlewares/validator';
 
 const authRouter = express.Router();
@@ -14,7 +14,6 @@ authRouter.post(
 );
 
 authRouter.use(jwtCheck(true));
-authRouter.use(userCheck(true));
 authRouter.post('/logout', authController.logout);
 
 export default authRouter;

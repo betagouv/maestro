@@ -5,13 +5,22 @@ import clsx from 'clsx';
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch } from 'src/hooks/useStore';
-import { useAuthenticateMutation } from 'src/services/auth.service';
+import {
+  useAuthenticateMutation,
+  useLogoutMutation
+} from 'src/services/auth.service';
 import authSlice from 'src/store/reducers/authSlice';
+import { appLogout } from 'src/store/store';
+
+
+export const SESSION_STORAGE_UNKNOWN_USER = 'UNKNOWN_MAESTRO_USER'
 
 export const LoginCallbackView = () => {
   const dispatch = useAppDispatch();
   const [authenticate, { isLoading, isSuccess, isError, data: authUser }] =
     useAuthenticateMutation();
+
+  const [logout] = useLogoutMutation();
   const navigate = useNavigate();
 
   const hasAuthenticatedRef = useRef(false);
@@ -30,9 +39,19 @@ export const LoginCallbackView = () => {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (isSuccess && authUser) {
+    if (isSuccess) {
       dispatch(authSlice.actions.signinUser({ authUser }));
-      navigate('/');
+      if (authUser.userId !== null) {
+        navigate('/');
+      } else {
+        const asyncLogout = async () => {
+          sessionStorage.setItem(SESSION_STORAGE_UNKNOWN_USER, 'User unknown')
+          const logoutRedirectUrl = await logout().unwrap();
+          await appLogout()(dispatch);
+          window.location.href = logoutRedirectUrl.url;
+        };
+        asyncLogout()
+      }
     }
   }, [
     isSuccess,
