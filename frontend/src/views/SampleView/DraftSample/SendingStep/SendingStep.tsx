@@ -71,21 +71,19 @@ const SendingStep = ({ sample }: Props) => {
   type FormShape = typeof Form.shape;
 
   const submit = async () => {
-    await save('Sent', () => {
+    await form.validate(async () => {
+      await save('Sent');
       navigateToSample(sample.id);
     });
   };
 
-  const save = async (status = sample.status, callback?: () => void) => {
+  const save = async (status = sample.status) => {
     setIsSaved(false);
-    await form.validate(async () => {
-      await createOrUpdateSample({
-        ...sample,
-        items,
-        resytalId,
-        status
-      });
-      callback?.();
+    await createOrUpdateSample({
+      ...sample,
+      items,
+      resytalId,
+      status
     });
   };
 
@@ -350,7 +348,8 @@ const SendingStep = ({ sample }: Props) => {
                           priority: 'tertiary',
                           onClick: async (e: React.MouseEvent<HTMLElement>) => {
                             e.preventDefault();
-                            await save(sample.status, () => setIsSaved(true));
+                            await save(sample.status);
+                            setIsSaved(true);
                           }
                         }
                       ] as any

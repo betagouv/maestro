@@ -229,25 +229,23 @@
                           </div>
                         </div>
                       </div>
-                      {{#if notesOnCreation}}
-                        <div class='sample-section-block'>
-                          <span class='fr-icon-quote-line fr-icon--sm'></span>
-                          <div class='fr-container fr-pl-1w'>
-                            <div class='fr-grid-row fr-grid-row--gutters'>
-                              <div class='fr-col-12 sample-section-item'>
-                                <div class='label'>
-                                  Note additionnelle pour identification et
-                                  qualité de la personne présente lors du
-                                  contrôle. (ex : urgence, consignation...)
-                                </div>
-                                <div class='value'>
-                                  {{breaklines notesOnCreation}}
-                                </div>
+                      <div class='sample-section-block'>
+                        <span class='fr-icon-quote-line fr-icon--sm'></span>
+                        <div class='fr-container fr-pl-1w'>
+                          <div class='fr-grid-row fr-grid-row--gutters'>
+                            <div class='fr-col-12 sample-section-item'>
+                              <div class='label'>
+                                Note additionnelle pour identification et
+                                qualité de la personne présente lors du
+                                contrôle. (ex : urgence, consignation...)
+                              </div>
+                              <div class='value'>
+                                {{breaklines notesOnCreation}}&nbsp;
                               </div>
                             </div>
                           </div>
                         </div>
-                      {{/if}}
+                      </div>
                     </div>
                   </section>
 
@@ -415,30 +413,30 @@
                           </div>
                         </div>
                       </div>
-                      {{#if notesOnMatrix}}
-                        <div class='sample-section-block'>
-                          <span class='fr-icon-quote-line fr-icon--sm'></span>
-                          <div class='fr-container fr-pl-1w'>
-                            <div class='fr-grid-row fr-grid-row--gutters'>
-                              <div class='fr-col-12 sample-section-item'>
-                                <div class='label'>
-                                  Note additionnelle
-                                </div>
-                                <div class='value'>
-                                  {{breaklines notesOnMatrix}}
-                                </div>
+                      <div class='sample-section-block'>
+                        <span class='fr-icon-quote-line fr-icon--sm'></span>
+                        <div class='fr-container fr-pl-1w'>
+                          <div class='fr-grid-row fr-grid-row--gutters'>
+                            <div class='fr-col-12 sample-section-item'>
+                              <div class='label'>
+                                Note additionnelle
+                              </div>
+                              <div class='value'>
+                                {{breaklines notesOnMatrix}}&nbsp;
                               </div>
                             </div>
                           </div>
                         </div>
-                      {{/if}}
+                      </div>
                     </div>
                   </section>
 
                   <section class='sample-section'>
                     <div class='sample-section-header'>
                       <img src='{{inlineImage "hands.svg"}}' />
-                      <span>Échantillons</span>
+                      <span>
+                        Échantillons
+                      </span>
                     </div>
                     <div class='sample-section-body'>
                       <div class='sample-section-block'>
@@ -451,7 +449,6 @@
                           d’ordre unique.
                         </div>
                       </div>
-                      {{sampleItemNumber}}
                       {{#each sampleItems}}
                         <div class="sample-item {{#if currentItem}}current-item{{/if}}">
                           <div class='sample-section-subtitle'>
@@ -496,48 +493,59 @@
                                   </div>
                                 </div>
                                 <div class='fr-col-3 sample-section-item'>
+                                    <div class='label'>
+                                      Directive 2002/63
+                                    </div>
+                                    {{#if compliance200263}}
+                                      <div class="fr-checkbox-group value">
+                                        <input type="checkbox" checked>
+                                        <label>
+                                          {{compliance200263}}
+                                        </label>
+                                      </div>
+                                    {{else}}
+                                      <div class='value'>
+                                        <input type='checkbox' class='fr-mr-1w'/>
+                                        Respectée
+                                        <br />
+                                        <input type='checkbox' class='fr-mr-1w'/>
+                                        Non Respectée
+                                      </div>
+                                    {{/if}}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class='sample-section-block'>
+                            <span class='fr-icon-user-line fr-icon--sm'></span>
+                            <div class='fr-container fr-pl-1w'>
+                              <fieldset class="fr-fieldset fr-px-0 fr-my-0">
+                                <legend class="fr-fieldset__legend fr-col-12 fr-pb-1w label">
+                                  Le détenteur accepte les informations portées au présent procès verbal
+                                </legend>
+                                <div class="fr-grid-row fr-grid-row--gutters fr-mx-0 fr-mb-2w">
+                                  <div class="fr-radio-group fr-col-12 fr-py-0">
+                                    <input type="radio" {{#if (eq ownerAgreement true)}}checked{{/if}}>
+                                    <label class="fr-label fr-pt-1v">Oui</label>
+                                  </div>
+                                  <div class="fr-radio-group fr-col-12 fr-py-0">
+                                    <input type="radio"{{#if (eq ownerAgreement false)}}checked{{/if}}>
+                                    <label class="fr-label fr-pt-1v">Non</label>
+                                  </div>
+                                </div>
+                              </fieldset>
+                              <div class='fr-grid-row fr-grid-row--gutters'>
+                                <div class='fr-col-12 sample-section-item'>
                                   <div class='label'>
-                                    Directive 2002/63
+                                    Déclaration du détenteur
                                   </div>
                                   <div class='value'>
-                                    {{#if compliance200263}}
-                                      <input
-                                        type='checkbox'
-                                        class='fr-mr-1w'
-                                        checked
-                                      />{{compliance200263}}
-                                    {{else}}
-                                      <input
-                                        type='checkbox'
-                                        class='fr-mr-1w'
-                                      />Respectée
-                                      <br /><input
-                                        type='checkbox'
-                                        class='fr-mr-1w'
-                                      />Non respectée
-                                    {{/if}}
+                                    {{breaklines notesOnOwnerAgreement}}&nbsp;
                                   </div>
                                 </div>
                               </div>
                             </div>
                           </div>
-                          {{#if notesOnOwnerAgreement}}
-                            <div class='sample-section-block'>
-                              <span class='fr-icon-quote-line fr-icon--sm'></span>
-                              <div class='fr-container fr-pl-1w'>
-                                <div class='fr-grid-row fr-grid-row--gutters'>
-                                  <div class='fr-col-12 sample-section-item'>
-                                    <div class='label'>
-                                      Note additionnelle pour spécifier une éventuelle déclaration du détenteur
-                                    </div>
-                                    <div class='value'>
-                                      {{breaklines notesOnOwnerAgreement}}
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          {{/if}}
                         </div>
                       {{/each}}
                       <div class='sample-section-block'>
@@ -579,13 +587,11 @@
                     <div class='fr-alert fr-alert--warning fr-mt-8w'>
                       <h3 class='fr-alert__title'>Conservation et transmission
                         de l’échantillon</h3>
-                      <p>L'échantillon doit être conservé dans des conditions
-                        optimales pour préserver ses propriétés initiales. La
-                        personne qui accepte le dépôt de ce scellé est prévenue
-                        qu'elle assume l'entière responsabilité de sa
-                        conservation. Elle ne peut en faire aucun usage et doit
-                        le remettre à l'autorité judiciaire dès que celle-ci le
-                        lui réclame.</p>
+                      <p>
+                        L'échantillon doit être conservé dans des conditions optimales pour préserver ses propriétés initiales.
+                        <br/>
+                        La personne qui accepte le dépôt de ce scellé est prévenue qu'elle assume l'entière responsabilité de sa conservation.
+                      </p>
                     </div>
                   {{/if}}
                 </div>

@@ -34,10 +34,7 @@ const generateDocument = async (template: Template, data: any) => {
         handlebars.escapeExpression(text).replace(/(\r\n|\n|\r)/gm, '<br>')
       )
   );
-  handlebars.registerHelper('eq', function (a, b) {
-    console.log('eq', a, b);
-    return a === b;
-  });
+  handlebars.registerHelper('eq', (a, b) => a === b);
 
   handlebars.registerHelper('inlineImage', (relativePath) => {
     const imagePath = assetsPath(relativePath);
@@ -139,18 +136,30 @@ const generateSupportDocument = async (
     ? await prescriptionSubstanceRepository.findMany(sample.prescriptionId)
     : undefined;
 
+  const emptySampleItems: PartialSampleItem[] = new Array(3)
+    .fill(null)
+    .map((_, index) => ({
+      sampleId: sample.id,
+      itemNumber: index + 1
+    }));
+
   return generateDocument('supportDocument', {
     ...sample,
-    sampleItems: sampleItems.map((sampleItem) => ({
-      ...sampleItem,
-      quantityUnit: sampleItem?.quantityUnit
-        ? QuantityUnitLabels[sampleItem.quantityUnit]
-        : '',
-      compliance200263: sampleItem.compliance200263
-        ? 'Respectée'
-        : 'Non respectée',
-      currentItem: sampleItem.itemNumber === itemNumber
-    })),
+    sampleItems: (sampleItems.length > 0 ? sampleItems : emptySampleItems).map(
+      (sampleItem) => ({
+        ...sampleItem,
+        quantityUnit: sampleItem?.quantityUnit
+          ? QuantityUnitLabels[sampleItem.quantityUnit]
+          : '',
+        compliance200263:
+          sampleItem.compliance200263 === true
+            ? 'Respectée'
+            : sampleItem.compliance200263 === false
+              ? 'Non respectée'
+              : undefined,
+        currentItem: sampleItem.itemNumber === itemNumber
+      })
+    ),
     sampler,
     laboratory,
     monoSubstances: prescriptionSubstances
@@ -176,9 +185,10 @@ const generateSupportDocument = async (
     releaseControl: sample.releaseControl ? 'Oui' : 'Non',
     establishment: Regions[sample.region].establishment,
     department: DepartmentLabels[sample.department],
-    hasNoteToSampler: sampleItems.some(
-      (sampleItem) => sampleItem.recipientKind === 'Sampler'
-    )
+    hasNoteToSampler:
+      sampleItems.some(
+        (sampleItem) => sampleItem.recipientKind === 'Sampler'
+      ) || sampleItems.length === 0
   });
 };
 
