@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { FunctionComponent, PropsWithChildren, useEffect } from 'react';
 
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ProConnectButton from '@codegouvfr/react-dsfr/ProConnectButton';
@@ -24,16 +24,7 @@ const HomeView = () => {
     }
   }, [authRedirectUrl]);
 
-  return (
-    <section
-      className={clsx(
-        cx('fr-grid-row', 'fr-grid-row--gutters'),
-        'home-section',
-        'd-flex-align-center'
-      )}
-    >
-      <div className={cx('fr-col-12', 'fr-col-md-6')}>
-        <div className={clsx('sign-in')}>
+  return <HomeViewContainer>
           <h2 className={cx('fr-mb-2w')}>
             Identifiez-vous pour accéder à votre espace maestro
           </h2>
@@ -42,29 +33,40 @@ const HomeView = () => {
             simplifier la connexion à vos services en ligne.
           </div>
           {authRedirectUrl && <ProConnectButton url={authRedirectUrl.url} />}
-        </div>
-      </div>
-      <div className={cx('fr-col-12', 'fr-col-md-6')}>
-        <div
-          style={{
-            backgroundImage: `url(${farmhand})`,
-            backgroundSize: 'cover'
-          }}
-        >
-          <div className={clsx('teaser')}>
-            <img src={foodGreen} aria-hidden alt="" />
-            <h1>
-              <b>Surveillance</b> et <b>contrôle</b> officiels sur la{' '}
-              <b>chaine alimentaire</b>
-            </h1>
-            <div className="title-additionnal">
-              permettant la circulation et l'accès en temps réel à une donnée
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
+  </HomeViewContainer>
 };
+
+export const HomeViewContainer: FunctionComponent<PropsWithChildren> = ({children}) =>  <section
+  className={clsx(
+    cx('fr-grid-row', 'fr-grid-row--gutters'),
+    'home-section',
+    'd-flex-align-center'
+  )}
+>
+  <div className={cx('fr-col-12', 'fr-col-md-6')}>
+    <div className={clsx('sign-in')}>
+      {children}
+    </div>
+  </div>
+  <div className={cx('fr-col-12', 'fr-col-md-6')}>
+    <div
+      style={{
+        backgroundImage: `url(${farmhand})`,
+        backgroundSize: 'cover'
+      }}
+    >
+      <div className={clsx('teaser')}>
+        <img src={foodGreen} aria-hidden alt="" />
+        <h1>
+          <b>Surveillance</b> et <b>contrôle</b> officiels sur la{' '}
+          <b>chaine alimentaire</b>
+        </h1>
+        <div className="title-additionnal">
+          permettant la circulation et l'accès en temps réel à une donnée
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 export default HomeView;
