@@ -64,16 +64,22 @@ describe('Auth routes', () => {
       });
     });
 
-    test('should fail when the user does not exist', async () => {
+    test('should set just an accessToken when the user does not exist', async () => {
       const mockedAuthenticate = Promise.resolve({
         idToken: randomstring.generate(),
         email: randomstring.generate()
       });
       mockAuthenticate.mockResolvedValueOnce(mockedAuthenticate);
-      await request(app)
+      const res = await request(app)
         .post(testRoute)
         .send(validBody)
-        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toMatchObject({
+        userId: null,
+        accessToken: expect.any(String),
+      });
+
     });
 
     test('should authenticate a user', async () => {
@@ -94,7 +100,6 @@ describe('Auth routes', () => {
       expect(res.body).toMatchObject({
         userId: Sampler1Fixture.id,
         accessToken: expect.any(String),
-        userRoles: Sampler1Fixture.roles
       });
 
       const userInDb = await kysely
