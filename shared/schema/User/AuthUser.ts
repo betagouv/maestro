@@ -13,5 +13,5 @@ const authUnknownUserValidator = z.object({
   userId: z.null(),
   accessToken: z.string()
 })
-export const authMaybeUnknownUserValidator = z.union([AuthUser, authUnknownUserValidator])
-export type AuthMaybeUnknownUser = z.infer<typeof authMaybeUnknownUserValidator>
+export const AuthMaybeUnknownUser = z.union([AuthUser, authUnknownUserValidator])
+export type AuthMaybeUnknownUser = z.infer<typeof AuthMaybeUnknownUser>
