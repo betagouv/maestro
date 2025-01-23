@@ -6,14 +6,18 @@ import { CultureKindLabels } from 'shared/referential/CultureKind';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
 import { MatrixPartLabels } from 'shared/referential/MatrixPart';
 import { StageLabels } from 'shared/referential/Stage';
-import { Sample, SampleToCreate } from 'shared/schema/Sample/Sample';
+import {
+  Sample,
+  SampleOwnerData,
+  SampleToCreate
+} from 'shared/schema/Sample/Sample';
 import { usePartialSample } from 'src/hooks/usePartialSample';
 import { useGetPrescriptionSubstancesQuery } from 'src/services/prescription.service';
 import { quote } from 'src/utils/stringUtils';
 import StepSummary from 'src/views/SampleView/StepSummary/StepSummary';
 
 interface Props {
-  sample: Sample | SampleToCreate;
+  sample: (Sample | SampleToCreate) & Partial<SampleOwnerData>;
   showLabel?: boolean;
 }
 const MatrixStepSummary = ({ sample, showLabel }: Props) => {

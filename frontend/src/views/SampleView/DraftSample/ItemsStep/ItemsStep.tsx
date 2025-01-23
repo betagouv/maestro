@@ -51,15 +51,7 @@ const ItemsStep = ({ partialSample }: Props) => {
 
   const Form = z.object({
     items: z
-      .array(
-        SampleItem.omit({
-          ownerFirstName: true,
-          ownerLastName: true,
-          ownerEmail: true,
-          ownerAgreement: true,
-          notesOnOwnerAgreement: true
-        })
-      )
+      .array(SampleItem)
       .min(1, { message: 'Veuillez renseigner au moins un échantillon.' })
       .refine(
         (items) =>

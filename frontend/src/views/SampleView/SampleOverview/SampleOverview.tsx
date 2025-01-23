@@ -1,13 +1,11 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import Select from '@codegouvfr/react-dsfr/Select';
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import clsx from 'clsx';
-import { useMemo, useState } from 'react';
 import { Sample } from 'shared/schema/Sample/Sample';
 import food from 'src/assets/illustrations/food.svg';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
-import { useDocument } from 'src/hooks/useDocument';
+import SupportDocumentSelect from 'src/components/SupportDocumentSelect/SupportDocumentSelect';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import SampleAnalysis from 'src/views/SampleView/SampleAnalysis/SampleAnalysis';
@@ -24,16 +22,6 @@ const SampleOverview = ({ sample }: Props) => {
   useDocumentTitle(`Prélèvement ${sample.reference}`);
 
   const { navigateToSamples } = useSamplesLink();
-  const { openDocument } = useDocument();
-
-  const itemsWithSupportDocument = useMemo(
-    () => sample.items.filter((item) => item.supportDocumentId),
-    [sample.items]
-  );
-
-  const [supportDocumentId, setSupportDocumentId] = useState<string>(
-    itemsWithSupportDocument[0]?.supportDocumentId ?? ''
-  );
 
   return (
     <section
@@ -44,47 +32,19 @@ const SampleOverview = ({ sample }: Props) => {
         subtitle="Consultez le récapitulatif du prélèvement réalisé"
         illustration={food}
         action={
-          itemsWithSupportDocument.length > 0 &&
-          (itemsWithSupportDocument.length === 1 ? (
-            <Button
-              priority="secondary"
-              onClick={() =>
-                openDocument(sample.items[0].supportDocumentId as string)
-              }
-              iconId="fr-icon-file-download-line"
-            >
-              Document d'accompagnement
-            </Button>
-          ) : (
-            <div className="select-with-button">
-              <Select
-                label="Document d'accompagnement"
-                nativeSelectProps={{
-                  onChange: (event) => setSupportDocumentId(event.target.value),
-                  value: supportDocumentId
-                }}
-              >
-                {itemsWithSupportDocument.map((item) =>
-                  item.supportDocumentId ? (
-                    <option
-                      key={item.supportDocumentId}
-                      value={item.supportDocumentId}
-                      label={`Echantillon n°${item.itemNumber}`}
-                    >
-                      {item.supportDocumentId}
-                    </option>
-                  ) : (
-                    <></>
-                  )
-                )}
-              </Select>
+          <SupportDocumentSelect
+            sampleId={sample.id}
+            sampleItems={sample.items.filter((item) => item.supportDocumentId)}
+            renderButtons={(onClick) => (
               <Button
+                priority="secondary"
                 iconId="fr-icon-file-download-line"
-                onClick={() => openDocument(supportDocumentId as string)}
-                title="Télécharger"
-              />
-            </div>
-          ))
+                onClick={onClick}
+              >
+                Document d'accompagnement
+              </Button>
+            )}
+          />
         }
       />
       <Tabs

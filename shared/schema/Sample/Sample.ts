@@ -89,11 +89,25 @@ export const SampleAdmissibilityData = z.object({
   notesOnAdmissibility: z.string().nullish()
 });
 
+export const SampleOwnerData = z.object({
+  ownerFirstName: z.string().nullish(),
+  ownerLastName: z.string().nullish(),
+  ownerEmail: z
+    .string()
+    .email("L'adresse email du détenteur est invalide.")
+    .nullish(),
+  ownerAgreement: z.boolean({
+    required_error: "Veuillez renseigner l'accord du détenteur."
+  }),
+  notesOnOwnerAgreement: z.string().nullish()
+});
+
 export const PartialSampleToCreate = z.object({
   ...SampleContextData.shape,
   ...SampleMatrixData.partial().shape,
   ...SampleItemsData.partial().shape,
   ...SampleAdmissibilityData.partial().shape,
+  ...SampleOwnerData.partial().shape,
   items: z.array(PartialSampleItem).nullish()
 });
 
@@ -102,7 +116,7 @@ export const SampleToCreate = z.object({
   ...SampleMatrixData.shape,
   ...SampleItemsData.shape,
   ...SampleAdmissibilityData.shape,
-  items: z.array(PartialSampleItem)
+  ...SampleOwnerData.shape
 });
 
 export const CreatedSampleData = z.object({
@@ -129,6 +143,7 @@ export type Geolocation = z.infer<typeof Geolocation>;
 export type SampleContextData = z.infer<typeof SampleContextData>;
 export type SampleMatrixData = z.infer<typeof SampleMatrixData>;
 export type SampleItemsData = z.infer<typeof SampleItemsData>;
+export type SampleOwnerData = z.infer<typeof SampleOwnerData>;
 export type CreatedSampleData = z.infer<typeof CreatedSampleData>;
 export type PartialSampleToCreate = z.infer<typeof PartialSampleToCreate>;
 export type PartialSample = z.infer<typeof PartialSample>;
