@@ -7,7 +7,7 @@ import { HomeViewContainer } from 'src/views/HomeView/HomeView';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import userUnknownSvg from '../../assets/illustrations/user-unknown.svg';
 
-const EMAIL_SUPPORT = 'manon@maestro.fr'
+const EMAIL_SUPPORT = 'manon@maestro.beta.gouv.fr'
 
 export const LogoutCallbackView = () => {
   const dispatch = useAppDispatch();
