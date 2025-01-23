@@ -54,7 +54,9 @@ const SendingStep = ({ sample }: Props) => {
   });
 
   const isSendable = useMemo(
-    () => SampleToCreate.safeParse(sample).success && isOnline,
+    () =>
+      SampleToCreate.merge(SampleOwnerData.partial()).safeParse(sample)
+        .success && isOnline,
     [sample, isOnline]
   );
 

@@ -20,7 +20,7 @@ const SupportDocumentSelect = ({
 }: Props) => {
   const { openDocument } = useDocument();
 
-  const [selectedItemNumber, setSelectedItemNumber] = useState(0);
+  const [selectedItemNumber, setSelectedItemNumber] = useState(1);
 
   if (sampleItems.length === 0) {
     return <></>;
@@ -57,7 +57,7 @@ const SupportDocumentSelect = ({
           </option>
         ))}
       </Select>
-      {renderButtons(() => getDocument(sampleItems[selectedItemNumber]))}
+      {renderButtons(() => getDocument(sampleItems[selectedItemNumber - 1]))}
     </div>
   );
 };
