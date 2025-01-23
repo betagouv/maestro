@@ -65,9 +65,10 @@ describe('Auth routes', () => {
     });
 
     test('should set just an accessToken when the user does not exist', async () => {
+      const email = randomstring.generate()
       const mockedAuthenticate = Promise.resolve({
         idToken: randomstring.generate(),
-        email: randomstring.generate()
+        email
       });
       mockAuthenticate.mockResolvedValueOnce(mockedAuthenticate);
       const res = await request(app)
@@ -78,6 +79,7 @@ describe('Auth routes', () => {
       expect(res.body).toMatchObject({
         userId: null,
         accessToken: expect.any(String),
+        userEmail: email
       });
 
     });

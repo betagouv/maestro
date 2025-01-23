@@ -13,7 +13,7 @@ import authSlice from 'src/store/reducers/authSlice';
 import { appLogout } from 'src/store/store';
 
 
-export const SESSION_STORAGE_UNKNOWN_USER = 'UNKNOWN_MAESTRO_USER'
+export const SESSION_STORAGE_UNKNOWN_USER_EMAIl = 'UNKNOWN_MAESTRO_USER_EMAIL'
 
 export const LoginCallbackView = () => {
   const dispatch = useAppDispatch();
@@ -45,7 +45,7 @@ export const LoginCallbackView = () => {
         navigate('/');
       } else {
         const asyncLogout = async () => {
-          sessionStorage.setItem(SESSION_STORAGE_UNKNOWN_USER, 'User unknown')
+          sessionStorage.setItem(SESSION_STORAGE_UNKNOWN_USER_EMAIl, authUser.userEmail)
           const logoutRedirectUrl = await logout().unwrap();
           await appLogout()(dispatch);
           window.location.href = logoutRedirectUrl.url;

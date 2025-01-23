@@ -44,8 +44,12 @@ const authenticate = async (request: Request, response: Response) => {
       { expiresIn: config.auth.expiresIn }
     );
 
-    const result: AuthMaybeUnknownUser = {
-      userId: user?.id ?? null,
+    const result: AuthMaybeUnknownUser = user !== undefined ? {
+      userId: user.id,
+      accessToken
+    } : {
+      userId: null,
+      userEmail: email,
       accessToken
     }
 
