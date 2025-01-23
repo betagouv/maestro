@@ -1,10 +1,10 @@
 import { constants } from 'http2';
-import { describe, test, expect, beforeAll, afterAll } from 'vitest';
 import { isEqual } from 'lodash-es';
 import fp from 'lodash/fp';
 import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
+import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { MatrixList } from '../../../shared/referential/Matrix/Matrix';
 import { Region, RegionList } from '../../../shared/referential/Region';
 import { StageList } from '../../../shared/referential/Stage';
@@ -18,7 +18,11 @@ import {
   RegionalPrescriptionComment,
   RegionalPrescriptionCommentToCreate
 } from '../../../shared/schema/RegionalPrescription/RegionalPrescriptionComment';
-import { genLaboratory, LaboratoryFixture } from '../../../shared/test/laboratoryFixtures';
+import { CompanyFixture } from '../../../shared/test/companyFixtures';
+import {
+  genLaboratory,
+  LaboratoryFixture
+} from '../../../shared/test/laboratoryFixtures';
 import {
   genPrescription,
   genRegionalPrescription
@@ -26,6 +30,12 @@ import {
 import { genProgrammingPlan } from '../../../shared/test/programmingPlanFixtures';
 import { genCreatedSample } from '../../../shared/test/sampleFixtures';
 import { oneOf } from '../../../shared/test/testFixtures';
+import {
+  NationalCoordinator,
+  Region2Fixture,
+  RegionalCoordinator,
+  Sampler1Fixture
+} from '../../../shared/test/userFixtures';
 import { Laboratories } from '../../repositories/laboratoryRepository';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import { ProgrammingPlans } from '../../repositories/programmingPlanRepository';
@@ -37,13 +47,6 @@ import {
 } from '../../repositories/sampleRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
-import {
-  NationalCoordinator,
-  Region2Fixture,
-  RegionalCoordinator,
-  Sampler1Fixture
-} from '../../../shared/test/userFixtures';
-import { CompanyFixture } from '../../../shared/test/companyFixtures';
 
 describe('Regional prescriptions router', () => {
   const { app } = createServer();
@@ -400,6 +403,39 @@ describe('Regional prescriptions router', () => {
         sampleCount: submittedRegionalPrescriptionUpdate.sampleCount
       });
 
+      await expect(
+        RegionalPrescriptions()
+          .where(RegionalPrescriptionKey.parse(res.body))
+          .first()
+      ).resolves.toEqual({
+        ...submittedRegionalPrescription,
+        sampleCount: submittedRegionalPrescriptionUpdate.sampleCount
+      });
+
+      const res1 = await request(app)
+        .put(testRoute())
+        .send({
+          ...submittedRegionalPrescriptionUpdate,
+          sampleCount: 0
+        })
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res1.body).toEqual({
+        ...submittedRegionalPrescription,
+        sampleCount: 0
+      });
+
+      await expect(
+        RegionalPrescriptions()
+          .where(RegionalPrescriptionKey.parse(res.body))
+          .first()
+      ).resolves.toEqual({
+        ...submittedRegionalPrescription,
+        sampleCount: 0
+      });
+
+      //Restore the initial value
       await RegionalPrescriptions()
         .where(RegionalPrescriptionKey.parse(res.body))
         .update({ sampleCount: submittedRegionalPrescription.sampleCount });
@@ -528,16 +564,6 @@ describe('Regional prescriptions router', () => {
     });
 
     test('should fail if the programming plan is validated', async () => {
-      console.log(
-        'TEST',
-        validatedControlRegionalPrescriptions,
-        getRegionalPrescription(
-          validatedControlRegionalPrescriptions,
-          validatedControlPrescription.id,
-          RegionalCoordinator.region as Region
-        )
-      );
-
       await request(app)
         .post(
           testRoute(

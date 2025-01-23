@@ -17,10 +17,11 @@ import {
   RegionalPrescriptionComment,
   RegionalPrescriptionCommentToCreate
 } from '../../shared/schema/RegionalPrescription/RegionalPrescriptionComment';
+import { isDefined } from '../../shared/utils/utils';
 import regionalPrescriptionCommentRepository from '../repositories/regionalPrescriptionCommentRepository';
 import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
-import {userRepository} from '../repositories/userRepository';
-import {mailService} from '../services/mailService';
+import { userRepository } from '../repositories/userRepository';
+import { mailService } from '../services/mailService';
 import config from '../utils/config';
 const findRegionalPrescriptions = async (
   request: Request,
@@ -73,7 +74,7 @@ const updateRegionalPrescription = async (
   const updatedRegionalPrescription = {
     ...regionalPrescription,
     sampleCount:
-      canUpdateSampleCount && regionalPrescriptionUpdate.sampleCount
+      canUpdateSampleCount && isDefined(regionalPrescriptionUpdate.sampleCount)
         ? regionalPrescriptionUpdate.sampleCount
         : regionalPrescription.sampleCount,
     laboratoryId: canUpdateLaboratory
