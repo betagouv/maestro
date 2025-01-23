@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { constants } from 'http2';
-import { FindSubstanceOptions } from '../../shared/schema/Substance/FindSubstanceOptions';
+import { FindSubstanceOptions } from 'maestro-shared/schema/Substance/FindSubstanceOptions';
 import substanceRepository from '../repositories/substanceRepository';
 
 const searchSubstances = async (request: Request, response: Response) => {

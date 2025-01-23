@@ -1,9 +1,9 @@
 import { Prescriptions } from '../../../repositories/prescriptionRepository';
 import { ProgrammingPlans } from '../../../repositories/programmingPlanRepository';
 import { RegionalPrescriptions } from '../../../repositories/regionalPrescriptionRepository';
-import { RegionList } from '../../../../shared/referential/Region';
-import { genPrescription } from '../../../../shared/test/prescriptionFixtures';
-import { oneOf } from '../../../../shared/test/testFixtures';
+import { RegionList } from 'maestro-shared/referential/Region';
+import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
+import { oneOf } from 'maestro-shared/test/testFixtures';
 import { validatedProgrammingPlanId } from './003-programming-plans';
 import { DummyLaboratoryIds } from './002-laboratories';
 

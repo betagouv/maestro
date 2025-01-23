@@ -4,13 +4,13 @@ import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import { Autocomplete } from '@mui/material';
 import React, { useState } from 'react';
-import { Matrix } from 'shared/referential/Matrix/Matrix';
-import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
-import { MatrixListByKind } from 'shared/referential/Matrix/MatrixListByKind';
+import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
+import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
 import {
   MatrixKindLabels,
   MatrixKindList
-} from 'shared/referential/MatrixKind';
+} from 'maestro-shared/referential/MatrixKind';
 import { isNil } from 'lodash-es';
 interface AddMatrixProps {
   excludedMatrixList: Matrix[];

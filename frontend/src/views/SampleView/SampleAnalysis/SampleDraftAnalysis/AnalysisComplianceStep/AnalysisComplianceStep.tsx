@@ -1,7 +1,7 @@
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import React, { useState } from 'react';
-import { Analysis, PartialAnalysis } from 'shared/schema/Analysis/Analysis';
+import { Analysis, PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useForm } from 'src/hooks/useForm';

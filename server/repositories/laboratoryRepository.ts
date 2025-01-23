@@ -1,5 +1,5 @@
 import { isNil, omitBy } from 'lodash-es';
-import { Laboratory } from '../../shared/schema/Laboratory/Laboratory';
+import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import {knexInstance as db} from './db';
 
 const laboratoryTable = 'laboratories';

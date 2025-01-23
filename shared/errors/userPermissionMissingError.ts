@@ -1,5 +1,5 @@
 import { constants } from 'http2';
-import { HttpError } from '../../server/errors/httpError';
+import { HttpError } from './httpError';
 
 export default class UserPermissionMissingError
   extends HttpError

@@ -1,5 +1,5 @@
 import { Knex } from 'knex';
-import { AnalysisMethodList } from '../../../shared/schema/Analysis/AnalysisMethod';
+import { AnalysisMethodList } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 
 export const up = async (knex: Knex) => {
   await knex.schema.createTable('substance_analysis', (table) => {

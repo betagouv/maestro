@@ -6,7 +6,7 @@ import Map, {
   MarkerDragEvent,
   NavigationControl,
 } from 'react-map-gl/maplibre';
-import { Geolocation } from 'shared/schema/Sample/Sample';
+import { Geolocation } from 'maestro-shared/schema/Sample/Sample';
 import AddressSearch from 'src/components/AddressSearch/AddressSearch';
 import config from 'src/utils/config';
 interface Props {

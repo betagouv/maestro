@@ -1,7 +1,7 @@
 import { decode } from 'jsonwebtoken';
 import { generators, Issuer } from 'openid-client';
-import { AuthRedirectUrl } from '../../../shared/schema/Auth/AuthRedirectUrl';
-import { User } from '../../../shared/schema/User/User';
+import { AuthRedirectUrl } from 'maestro-shared/schema/Auth/AuthRedirectUrl';
+import { User } from 'maestro-shared/schema/User/User';
 import config from '../../utils/config';
 import { AuthService } from './authService';
 

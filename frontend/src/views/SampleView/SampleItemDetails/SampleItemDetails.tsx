@@ -8,14 +8,14 @@ import {
   QuantityUnit,
   QuantityUnitLabels,
   SecondaryQuantityUnitList
-} from 'shared/referential/QuantityUnit';
-import { Laboratory } from 'shared/schema/Laboratory/Laboratory';
-import { Sample } from 'shared/schema/Sample/Sample';
-import { PartialSampleItem } from 'shared/schema/Sample/SampleItem';
+} from 'maestro-shared/referential/QuantityUnit';
+import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
+import { Sample } from 'maestro-shared/schema/Sample/Sample';
+import { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import {
   SampleItemRecipientKind,
   SampleItemRecipientKindLabels
-} from 'shared/schema/Sample/SampleItemRecipientKind';
+} from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppResponsiveButton from 'src/components/_app/AppResponsiveButton/AppResponsiveButton';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';

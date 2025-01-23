@@ -1,6 +1,6 @@
 import { isNil, omit, omitBy } from 'lodash-es';
-import { FindSubstanceOptions } from '../../shared/schema/Substance/FindSubstanceOptions';
-import { Substance } from '../../shared/schema/Substance/Substance';
+import { FindSubstanceOptions } from 'maestro-shared/schema/Substance/FindSubstanceOptions';
+import { Substance } from 'maestro-shared/schema/Substance/Substance';
 import {knexInstance as db} from './db';
 
 export const substancesTable = 'substances';

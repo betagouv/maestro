@@ -1,5 +1,5 @@
 import express from 'express';
-import { FindSubstanceOptions } from '../../shared/schema/Substance/FindSubstanceOptions';
+import { FindSubstanceOptions } from 'maestro-shared/schema/Substance/FindSubstanceOptions';
 import substanceController from '../controllers/substanceController';
 import validator, { query } from '../middlewares/validator';
 const router = express.Router();

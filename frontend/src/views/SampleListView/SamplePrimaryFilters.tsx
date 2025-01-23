@@ -2,17 +2,17 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Input from '@codegouvfr/react-dsfr/Input';
 import Select from '@codegouvfr/react-dsfr/Select';
 import { default as _ } from 'lodash';
-import { Matrix, MatrixList } from 'shared/referential/Matrix/Matrix';
-import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
-import { Prescription } from 'shared/schema/Prescription/Prescription';
-import { FindSampleOptions } from 'shared/schema/Sample/FindSampleOptions';
+import { Matrix, MatrixList } from 'maestro-shared/referential/Matrix/Matrix';
+import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   DraftStatusList,
   SampleStatus,
   SampleStatusLabels,
   SampleStatusList
-} from 'shared/schema/Sample/SampleStatus';
-import { User } from 'shared/schema/User/User';
+} from 'maestro-shared/schema/Sample/SampleStatus';
+import { User } from 'maestro-shared/schema/User/User';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 
 interface Props {

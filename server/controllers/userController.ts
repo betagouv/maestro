@@ -2,8 +2,8 @@ import { Request, Response } from 'express';
 import { AuthenticatedRequest } from 'express-jwt';
 import { constants } from 'http2';
 import { intersection } from 'lodash-es';
-import { FindUserOptions } from '../../shared/schema/User/FindUserOptions';
-import { userRegions } from '../../shared/schema/User/User';
+import { FindUserOptions } from 'maestro-shared/schema/User/FindUserOptions';
+import { userRegions } from 'maestro-shared/schema/User/User';
 import { userRepository } from '../repositories/userRepository';
 
 const getUser = async (request: Request, response: Response) => {

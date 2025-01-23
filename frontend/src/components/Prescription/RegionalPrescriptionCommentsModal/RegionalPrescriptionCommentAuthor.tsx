@@ -1,6 +1,6 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { Regions } from 'shared/referential/Region';
-import { UserRoleLabels } from 'shared/schema/User/UserRole';
+import { Regions } from 'maestro-shared/referential/Region';
+import { UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
 import { useGetUserQuery } from 'src/services/user.service';
 
 interface Props {

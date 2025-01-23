@@ -1,4 +1,4 @@
-import { DocumentToCreate } from '../../shared/schema/Document/Document';
+import { DocumentToCreate } from 'maestro-shared/schema/Document/Document';
 import {  PutObjectCommand,  S3Client, S3ClientConfig } from '@aws-sdk/client-s3';
 import config from '../utils/config';
 import { v4 as uuidv4 } from 'uuid';

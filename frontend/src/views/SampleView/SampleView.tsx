@@ -3,8 +3,8 @@ import {
   PartialSample,
   PartialSampleToCreate,
   Sample,
-} from 'shared/schema/Sample/Sample';
-import { DraftStatusList } from 'shared/schema/Sample/SampleStatus';
+} from 'maestro-shared/schema/Sample/Sample';
+import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
 import { useAppSelector } from 'src/hooks/useStore';
 import { useGetSampleQuery } from 'src/services/sample.service';
 import { pluralize } from 'src/utils/stringUtils';

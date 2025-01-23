@@ -1,6 +1,6 @@
 import { Autocomplete } from '@mui/material';
 import { SyntheticEvent, useState } from 'react';
-import { AddressSearchResult } from 'shared/schema/Address/AddressSearchResult';
+import { AddressSearchResult } from 'maestro-shared/schema/Address/AddressSearchResult';
 import { useLazySearchAddressesQuery } from 'src/services/address.service';
 
 interface Props {

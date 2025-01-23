@@ -7,10 +7,10 @@ import {
   Samples
 } from '../../../repositories/sampleRepository';
 import { Users } from '../../../repositories/userRepository';
-import { Region, Regions } from '../../../../shared/referential/Region';
-import { Sample } from '../../../../shared/schema/Sample/Sample';
-import { genCreatedSample } from '../../../../shared/test/sampleFixtures';
-import { oneOf } from '../../../../shared/test/testFixtures';
+import { Region, Regions } from 'maestro-shared/referential/Region';
+import { Sample } from 'maestro-shared/schema/Sample/Sample';
+import { genCreatedSample } from 'maestro-shared/test/sampleFixtures';
+import { oneOf } from 'maestro-shared/test/testFixtures';
 import { DummyLaboratoryIds } from './002-laboratories';
 import {
   abricotsEtSimilaires,
@@ -21,7 +21,7 @@ import {
   lentilles,
   oignons
 } from './004-prescriptions';
-import { Sampler1Fixture } from '../../../../shared/test/userFixtures';
+import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
 
 export const seed = async function () {
 

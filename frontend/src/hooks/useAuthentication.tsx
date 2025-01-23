@@ -2,17 +2,17 @@ import { ReactElement, useCallback, useMemo } from 'react';
 import {
   hasPrescriptionPermission,
   PrescriptionPermission
-} from 'shared/schema/Prescription/Prescription';
-import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
+} from 'maestro-shared/schema/Prescription/Prescription';
+import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   hasRegionalPrescriptionPermission,
   RegionalPrescription,
   RegionalPrescriptionPermission
-} from 'shared/schema/RegionalPrescription/RegionalPrescription';
-import { hasPermission } from 'shared/schema/User/User';
-import { UserPermission } from 'shared/schema/User/UserPermission';
-import { UserRole } from 'shared/schema/User/UserRole';
-import { isDefined } from 'shared/utils/utils';
+} from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
+import { hasPermission } from 'maestro-shared/schema/User/User';
+import { UserPermission } from 'maestro-shared/schema/User/UserPermission';
+import { UserRole } from 'maestro-shared/schema/User/UserRole';
+import { isDefined } from 'maestro-shared/utils/utils';
 import YearRoute from 'src/components/YearRoute/YearRoute';
 import { useAppSelector } from 'src/hooks/useStore';
 import DashboardView from 'src/views/DashboardView/DashboardView';

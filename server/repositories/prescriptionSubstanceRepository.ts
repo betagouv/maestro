@@ -1,6 +1,6 @@
 import { isNil, omit, omitBy } from 'lodash-es';
 import { z } from 'zod';
-import { PrescriptionSubstance } from '../../shared/schema/Prescription/PrescriptionSubstance';
+import { PrescriptionSubstance } from 'maestro-shared/schema/Prescription/PrescriptionSubstance';
 import { knexInstance as db } from './db';
 import { substancesTable } from './substanceRepository';
 

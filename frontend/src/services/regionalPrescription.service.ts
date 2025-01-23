@@ -1,14 +1,14 @@
 import fp from 'lodash';
-import { Region } from 'shared/referential/Region';
-import { FindRegionalPrescriptionOptions } from 'shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
+import { Region } from 'maestro-shared/referential/Region';
+import { FindRegionalPrescriptionOptions } from 'maestro-shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import {
   RegionalPrescription,
   RegionalPrescriptionUpdate,
-} from 'shared/schema/RegionalPrescription/RegionalPrescription';
+} from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import {
   RegionalPrescriptionComment,
   RegionalPrescriptionCommentToCreate,
-} from 'shared/schema/RegionalPrescription/RegionalPrescriptionComment';
+} from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionComment';
 import { api } from 'src/services/api.service';
 
 export const prescriptionApi = api.injectEndpoints({

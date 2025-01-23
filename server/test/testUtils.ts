@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
 import { Plugin } from 'superagent';
 import { Test } from 'supertest';
-import { TokenPayload } from '../../shared/schema/User/TokenPayload';
-import { User } from '../../shared/schema/User/User';
+import { TokenPayload } from 'maestro-shared/schema/User/TokenPayload';
+import { User } from 'maestro-shared/schema/User/User';
 import config from '../utils/config';
 
 export const accessTokenTest = (payload: TokenPayload) =>

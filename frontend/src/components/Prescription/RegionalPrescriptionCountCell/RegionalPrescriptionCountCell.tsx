@@ -1,6 +1,6 @@
 import Button from '@codegouvfr/react-dsfr/Button';
-import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { RegionalPrescription } from 'shared/schema/RegionalPrescription/RegionalPrescription';
+import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
 import EditableNumberCell from 'src/components/EditableNumberCell/EditableNumberCell';
 import { useAuthentication } from 'src/hooks/useAuthentication';

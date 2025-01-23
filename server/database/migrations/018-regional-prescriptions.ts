@@ -1,5 +1,5 @@
 import { Knex } from 'knex';
-import { Context } from '../../../shared/schema/ProgrammingPlan/Context';
+import { Context } from 'maestro-shared/schema/ProgrammingPlan/Context';
 
 export const up = async (knex: Knex) => {
   await knex.schema.alterTable('prescriptions', (table) => {

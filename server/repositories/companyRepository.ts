@@ -1,5 +1,5 @@
 import {omitBy, isNil} from 'lodash-es';
-import { Company } from '../../shared/schema/Company/Company';
+import { Company } from 'maestro-shared/schema/Company/Company';
 import {knexInstance as db} from './db';
 
 export const companiesTable = 'companies';

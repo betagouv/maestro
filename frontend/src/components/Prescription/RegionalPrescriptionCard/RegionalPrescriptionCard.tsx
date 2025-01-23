@@ -1,10 +1,10 @@
 import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
-import { Prescription } from 'shared/schema/Prescription/Prescription';
-import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { RegionalPrescription } from 'shared/schema/RegionalPrescription/RegionalPrescription';
+import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
 import PrescriptionStages from 'src/components/Prescription/PrescriptionStages/PrescriptionStages';
 import RegionalPrescriptionCommentsModalButton from 'src/components/Prescription/RegionalPrescriptionCommentsModal/RegionalPrescriptionCommentsModalButton';

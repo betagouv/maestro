@@ -8,24 +8,24 @@ import {
   OptionalBoolean,
   OptionalBooleanLabels,
   OptionalBooleanList
-} from 'shared/referential/OptionnalBoolean';
-import { Analysis, PartialAnalysis } from 'shared/schema/Analysis/Analysis';
+} from 'maestro-shared/referential/OptionnalBoolean';
+import { Analysis, PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import {
   AnalysisMethod,
   AnalysisMethodLabels,
   AnalysisMethodList
-} from 'shared/schema/Analysis/AnalysisMethod';
-import { PartialResidue } from 'shared/schema/Analysis/Residue/Residue';
+} from 'maestro-shared/schema/Analysis/AnalysisMethod';
+import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import {
   ResidueCompliance,
   ResidueComplianceLabels,
   ResidueComplianceList
-} from 'shared/schema/Analysis/Residue/ResidueCompliance';
+} from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import {
   ResidueKind,
   ResidueKindLabels,
   ResidueKindList
-} from 'shared/schema/Analysis/Residue/ResidueKind';
+} from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';

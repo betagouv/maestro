@@ -1,6 +1,6 @@
 import { Knex } from 'knex';
 import { v4 as uuidv4 } from 'uuid';
-import { Context } from '../../../shared/schema/ProgrammingPlan/Context';
+import { Context } from 'maestro-shared/schema/ProgrammingPlan/Context';
 export const up = async (knex: Knex) => {
   await knex.schema.alterTable('prescriptions', (table) => {
     table.enum('context', Context.options);

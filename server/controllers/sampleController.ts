@@ -5,17 +5,17 @@ import { AuthenticatedRequest, SampleRequest } from 'express-jwt';
 import { constants } from 'http2';
 import { isNil, omitBy, pick } from 'lodash-es';
 import { v4 as uuidv4 } from 'uuid';
-import { Regions } from '../../shared/referential/Region';
-import { Laboratory } from '../../shared/schema/Laboratory/Laboratory';
-import { FindSampleOptions } from '../../shared/schema/Sample/FindSampleOptions';
+import { Regions } from 'maestro-shared/referential/Region';
+import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
+import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   PartialSample,
   PartialSampleToCreate,
   Sample
-} from '../../shared/schema/Sample/Sample';
-import { SampleItem } from '../../shared/schema/Sample/SampleItem';
-import { DraftStatusList } from '../../shared/schema/Sample/SampleStatus';
-import { User } from '../../shared/schema/User/User';
+} from 'maestro-shared/schema/Sample/Sample';
+import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
+import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
+import { User } from 'maestro-shared/schema/User/User';
 import companyRepository from '../repositories/companyRepository';
 import { documentRepository } from '../repositories/documentRepository';
 import laboratoryRepository from '../repositories/laboratoryRepository';

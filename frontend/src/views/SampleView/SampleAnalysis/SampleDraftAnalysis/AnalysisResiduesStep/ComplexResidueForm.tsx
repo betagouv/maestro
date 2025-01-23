@@ -2,22 +2,22 @@ import Badge from '@codegouvfr/react-dsfr/Badge';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { Analyte } from 'shared/referential/Residue/Analyte';
-import { AnalyteLabels } from 'shared/referential/Residue/AnalyteLabels';
+import { Analyte } from 'maestro-shared/referential/Residue/Analyte';
+import { AnalyteLabels } from 'maestro-shared/referential/Residue/AnalyteLabels';
 import {
   ComplexResidue,
   ComplexResidueList
-} from 'shared/referential/Residue/ComplexResidue';
-import { ComplexResidueAnalytes } from 'shared/referential/Residue/ComplexResidueAnalytes';
-import { ComplexResidueLabels } from 'shared/referential/Residue/ComplexResidueLabels';
-import { PartialAnalyte } from 'shared/schema/Analysis/Analyte';
-import { PartialResidue } from 'shared/schema/Analysis/Residue/Residue';
+} from 'maestro-shared/referential/Residue/ComplexResidue';
+import { ComplexResidueAnalytes } from 'maestro-shared/referential/Residue/ComplexResidueAnalytes';
+import { ComplexResidueLabels } from 'maestro-shared/referential/Residue/ComplexResidueLabels';
+import { PartialAnalyte } from 'maestro-shared/schema/Analysis/Analyte';
+import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import {
   ResultKind,
   ResultKindLabels,
   ResultKindList
-} from 'shared/schema/Analysis/Residue/ResultKind';
-import { isDefinedAndNotNull } from 'shared/utils/utils';
+} from 'maestro-shared/schema/Analysis/Residue/ResultKind';
+import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import ResidueResultAlert from 'src/components/ResidueResultAlert/ResidueResultAlert';
 import AppSearchInput from 'src/components/_app/AppSearchInput/AppSearchInput';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';

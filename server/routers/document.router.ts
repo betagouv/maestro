@@ -1,5 +1,5 @@
 import express from 'express';
-import { DocumentToCreate } from '../../shared/schema/Document/Document';
+import { DocumentToCreate } from 'maestro-shared/schema/Document/Document';
 import documentController from '../controllers/documentController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
 import validator, { body, uuidParam } from '../middlewares/validator';

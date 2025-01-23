@@ -5,7 +5,7 @@ import {
 } from '@asteasolutions/zod-to-openapi';
 import { OpenAPIObject } from 'openapi3-ts/oas31';
 import { z } from 'zod';
-import { User } from '../../shared/schema/User/User';
+import { User } from 'maestro-shared/schema/User/User';
 
 extendZodWithOpenApi(z);
 

@@ -1,5 +1,5 @@
 import { Knex } from 'knex';
-import { RegionList } from '../../../shared/referential/Region';
+import { RegionList } from 'maestro-shared/referential/Region';
 
 export const up = async (knex: Knex) => {
   await knex.schema.createTable('sample_sequence_numbers', (table) => {

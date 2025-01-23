@@ -1,9 +1,9 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import React, { useMemo } from 'react';
-import { Matrix } from 'shared/referential/Matrix/Matrix';
-import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
-import { Stage, StageLabels } from 'shared/referential/Stage';
+import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
+import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+import { Stage, StageLabels } from 'maestro-shared/referential/Stage';
 interface RemoveMatrixProps {
   matrix: Matrix;
   stages: Stage[];

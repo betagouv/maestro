@@ -1,5 +1,5 @@
 import { Substances } from '../../../repositories/substanceRepository';
-import { Substance } from '../../../../shared/schema/Substance/Substance';
+import { Substance } from 'maestro-shared/schema/Substance/Substance';
 
 
 export const seed = async function () {

@@ -6,8 +6,8 @@ import { useMemo, useState } from 'react';
 import {
   getNextProgrammingPlanStatus,
   ProgrammingPlan
-} from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { ProgrammingPlanStatus } from 'shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useUpdateProgrammingPlanMutation } from 'src/services/programming-plan.service';

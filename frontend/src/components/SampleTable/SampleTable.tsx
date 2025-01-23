@@ -3,17 +3,17 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
 import { format } from 'date-fns';
 import { useMemo } from 'react';
-import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
-import { ContextLabels } from 'shared/schema/ProgrammingPlan/Context';
+import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   isCreatedPartialSample,
   PartialSample,
   PartialSampleToCreate
-} from 'shared/schema/Sample/Sample';
+} from 'maestro-shared/schema/Sample/Sample';
 import {
   DraftStatusList,
   SampleStatus
-} from 'shared/schema/Sample/SampleStatus';
+} from 'maestro-shared/schema/Sample/SampleStatus';
 import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import RemoveSample from 'src/components/SampleTable/RemoveSample';
 import { useAuthentication } from 'src/hooks/useAuthentication';

@@ -3,11 +3,11 @@ import { isArray, isNil, omit, omitBy, uniq } from 'lodash-es';
 import {
   FindRegionalPrescriptionOptions,
   RegionalPrescriptionOptionsInclude
-} from '../../shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
+} from 'maestro-shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import {
   RegionalPrescription,
   RegionalPrescriptionKey
-} from '../../shared/schema/RegionalPrescription/RegionalPrescription';
+} from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import {knexInstance as db} from './db';
 import { prescriptionsTable } from './prescriptionRepository';
 import { regionalPrescriptionCommentsTable } from './regionalPrescriptionCommentRepository';

@@ -1,5 +1,5 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
-import { isDefinedAndNotNull } from 'shared/utils/utils';
+import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 
 interface Props {
   result?: number | null;

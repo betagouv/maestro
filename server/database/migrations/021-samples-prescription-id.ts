@@ -1,5 +1,5 @@
 import { Knex } from 'knex';
-import { RegionList, Regions } from '../../../shared/referential/Region';
+import { RegionList, Regions } from 'maestro-shared/referential/Region';
 
 export const up = async (knex: Knex) => {
   await knex.schema.alterTable('samples', (table) => {

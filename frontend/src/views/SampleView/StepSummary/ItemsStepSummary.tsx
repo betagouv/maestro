@@ -5,7 +5,7 @@ import {
   Sample,
   SampleOwnerData,
   SampleToCreate
-} from 'shared/schema/Sample/Sample';
+} from 'maestro-shared/schema/Sample/Sample';
 import { usePartialSample } from 'src/hooks/usePartialSample';
 import { pluralize, quote } from 'src/utils/stringUtils';
 import SampleItemDetails from 'src/views/SampleView/SampleItemDetails/SampleItemDetails';

@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { AuthMaybeUnknownUser, AuthUser } from 'shared/schema/User/AuthUser';
+import { AuthMaybeUnknownUser, AuthUser } from 'maestro-shared/schema/User/AuthUser';
 
 const authUser = JSON.parse(localStorage.getItem('authUser') ?? '{}');
 

@@ -1,9 +1,9 @@
 import { sql } from 'kysely';
 import { isNil } from 'lodash-es';
-import { FindUserOptions } from '../../shared/schema/User/FindUserOptions';
-import { User } from '../../shared/schema/User/User';
-import { UserRole } from '../../shared/schema/User/UserRole';
-import { assertUnreachable } from '../../shared/utils/typescript';
+import { FindUserOptions } from 'maestro-shared/schema/User/FindUserOptions';
+import { User } from 'maestro-shared/schema/User/User';
+import { UserRole } from 'maestro-shared/schema/User/UserRole';
+import { assertUnreachable } from 'maestro-shared/utils/typescript';
 import { knexInstance as db } from './db';
 import { kysely } from './kysely';
 

@@ -1,5 +1,5 @@
 import { Knex } from 'knex';
-import { SampleItemRecipientKindList } from '../../../shared/schema/Sample/SampleItemRecipientKind';
+import { SampleItemRecipientKindList } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 
 export const up = async (knex: Knex) => {
   await knex.schema.createTable('sample_items', (table) => {

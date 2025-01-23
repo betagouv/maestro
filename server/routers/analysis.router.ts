@@ -3,7 +3,7 @@ import z from 'zod';
 import {
   AnalysisToCreate,
   PartialAnalysis,
-} from '../../shared/schema/Analysis/Analysis';
+} from 'maestro-shared/schema/Analysis/Analysis';
 import analysisController from '../controllers/analysisController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
 import validator, { body, query, uuidParam } from '../middlewares/validator';

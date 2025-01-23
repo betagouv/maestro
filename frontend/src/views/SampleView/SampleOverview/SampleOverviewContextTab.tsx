@@ -1,6 +1,6 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import React, { useState } from 'react';
-import { Sample } from 'shared/schema/Sample/Sample';
+import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { useUpdateSampleMutation } from 'src/services/sample.service';
 import SavedAlert from 'src/views/SampleView/SavedAlert';
 import ContextStepSummary from 'src/views/SampleView/StepSummary/ContextStepSummary';

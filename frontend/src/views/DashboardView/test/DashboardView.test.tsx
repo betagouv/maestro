@@ -6,7 +6,7 @@ import {
   genAuthUser,
   Region1Fixture,
   Sampler1Fixture
-} from 'shared/test/userFixtures';
+} from 'maestro-shared/test/userFixtures';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import { beforeEach } from 'vitest';
 import {
@@ -22,7 +22,7 @@ vi.mock(import('react-router-dom'), async (importOriginal) => {
   };
 });
 
-import { genProgrammingPlan } from 'shared/test/programmingPlanFixtures';
+import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import DashboardView from 'src/views/DashboardView/DashboardView';
 import { describe, expect, test, vi } from 'vitest';
 let store: Store;

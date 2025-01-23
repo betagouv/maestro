@@ -2,7 +2,7 @@ import fp from 'lodash';
 import {
   AnalysisToCreate,
   PartialAnalysis,
-} from 'shared/schema/Analysis/Analysis';
+} from 'maestro-shared/schema/Analysis/Analysis';
 import { api } from 'src/services/api.service';
 
 export const analysisApi = api.injectEndpoints({

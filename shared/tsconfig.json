@@ -1,20 +1,10 @@
 {
+  "extends": "../tsconfig.json",
   "compilerOptions": {
     "lib": ["esnext"],
-    "noEmit": true,
     "target": "esnext",
-    "allowJs": true,
-    "strict": true,
-    "module": "ESNext",
-    "moduleResolution": "Node",
-    "resolveJsonModule": true,
-    "noUnusedLocals": true,
-    "sourceMap": true,
-    "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true
   },
-  "include": ["**/*.ts", "**/*.js", "**/*.json",
+  "include": ["**/*.ts"
   ],
   "exclude": [
      "**/*.d.ts", "node_modules"]

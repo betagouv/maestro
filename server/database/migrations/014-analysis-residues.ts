@@ -1,8 +1,8 @@
 import { Knex } from 'knex';
-import { OptionalBooleanList } from '../../../shared/referential/OptionnalBoolean';
-import { ResidueComplianceList } from '../../../shared/schema/Analysis/Residue/ResidueCompliance';
-import { ResidueKindList } from '../../../shared/schema/Analysis/Residue/ResidueKind';
-import { ResultKindList } from '../../../shared/schema/Analysis/Residue/ResultKind';
+import { OptionalBooleanList } from 'maestro-shared/referential/OptionnalBoolean';
+import { ResidueComplianceList } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
+import { ResidueKindList } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
+import { ResultKindList } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 
 export const up = async (knex: Knex) => {
   await knex.schema.createTable('analysis_residues', (table) => {

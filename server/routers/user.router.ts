@@ -1,5 +1,5 @@
 import express from 'express';
-import { FindUserOptions } from '../../shared/schema/User/FindUserOptions';
+import { FindUserOptions } from 'maestro-shared/schema/User/FindUserOptions';
 import userController from '../controllers/userController';
 import validator, { query, uuidParam } from '../middlewares/validator';
 

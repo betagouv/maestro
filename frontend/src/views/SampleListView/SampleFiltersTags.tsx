@@ -1,19 +1,19 @@
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import { format } from 'date-fns';
 import { useMemo } from 'react';
-import { Department, DepartmentLabels } from 'shared/referential/Department';
-import { Matrix } from 'shared/referential/Matrix/Matrix';
-import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
-import { Region, Regions } from 'shared/referential/Region';
-import { ContextLabels } from 'shared/schema/ProgrammingPlan/Context';
-import { FindSampleOptions } from 'shared/schema/Sample/FindSampleOptions';
+import { Department, DepartmentLabels } from 'maestro-shared/referential/Department';
+import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
+import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+import { Region, Regions } from 'maestro-shared/referential/Region';
+import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   DraftStatusList,
   RealizedStatusList,
   SampleStatus,
   SampleStatusLabels
-} from 'shared/schema/Sample/SampleStatus';
-import { User } from 'shared/schema/User/User';
+} from 'maestro-shared/schema/Sample/SampleStatus';
+import { User } from 'maestro-shared/schema/User/User';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 
 interface Props {

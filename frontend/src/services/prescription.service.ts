@@ -1,11 +1,11 @@
 import fp from 'lodash';
-import { FindPrescriptionOptions } from 'shared/schema/Prescription/FindPrescriptionOptions';
+import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import {
   Prescription,
   PrescriptionToCreate,
   PrescriptionUpdate,
-} from 'shared/schema/Prescription/Prescription';
-import { PrescriptionSubstance } from 'shared/schema/Prescription/PrescriptionSubstance';
+} from 'maestro-shared/schema/Prescription/Prescription';
+import { PrescriptionSubstance } from 'maestro-shared/schema/Prescription/PrescriptionSubstance';
 import { api } from 'src/services/api.service';
 import { authParams } from 'src/services/auth-headers';
 import config from 'src/utils/config';

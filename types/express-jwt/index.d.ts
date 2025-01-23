@@ -1,11 +1,11 @@
 import express from 'express';
 import * as jwt from 'jsonwebtoken';
 import { MarkRequired } from 'ts-essentials';
-import { Prescription } from '../../shared/schema/Prescription/Prescription';
-import { ProgrammingPlan } from '../../shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { RegionalPrescription } from '../../shared/schema/RegionalPrescription/RegionalPrescription';
-import { TokenPayload } from '../../shared/schema/User/TokenPayload';
-import { User } from '../../shared/schema/User/User';
+import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
+import { TokenPayload } from 'maestro-shared/schema/User/TokenPayload';
+import { User } from 'maestro-shared/schema/User/User';
 
 declare global {
   namespace Express {

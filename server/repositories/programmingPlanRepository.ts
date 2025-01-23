@@ -1,6 +1,6 @@
 import { isArray, isNil, omit, omitBy } from 'lodash-es';
-import { FindProgrammingPlanOptions } from '../../shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
-import { ProgrammingPlan } from '../../shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
+import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {knexInstance as db} from './db';
 
 export const programmingPlansTable = 'programming_plans';
