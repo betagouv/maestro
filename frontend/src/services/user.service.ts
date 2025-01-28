@@ -1,37 +1,32 @@
 import fp from 'lodash';
 import { FindUserOptions } from 'shared/schema/User/FindUserOptions';
-import { UserInfos } from 'shared/schema/User/User';
+import { User } from 'shared/schema/User/User';
 import { api } from 'src/services/api.service';
 
 export const userApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    getUserInfos: builder.query<UserInfos, string>({
-      query: (userId) => `users/${userId}/infos`,
-      transformResponse: (response: any) => UserInfos.parse(response),
-      providesTags: (_result, _error, userId) => [
-        { type: 'UserInfos', id: userId },
-      ],
+    getUser: builder.query<User, string>({
+      query: (userId) => `users/${userId}`,
+      transformResponse: (response: any) => User.parse(response),
+      providesTags: (_result, _error, userId) => [{ type: 'User', id: userId }]
     }),
-    findUsers: builder.query<UserInfos[], FindUserOptions>({
+    findUsers: builder.query<User[], FindUserOptions>({
       query: (findOptions) => ({
         url: `users`,
-        params: findOptions,
+        params: findOptions
       }),
       transformResponse: (response: any[]) =>
-        response.map((_) => UserInfos.parse(fp.omitBy(_, fp.isNil))),
+        response.map((_) => User.parse(fp.omitBy(_, fp.isNil))),
       providesTags: (result) => [
-        { type: 'UserInfos', id: 'LIST' },
+        { type: 'User', id: 'LIST' },
         ...(result ?? []).map(({ id }) => ({
-          type: 'UserInfos' as const,
-          id,
-        })),
-      ],
-    }),
-  }),
+          type: 'User' as const,
+          id
+        }))
+      ]
+    })
+  })
 });
 
-export const {
-  useGetUserInfosQuery,
-  useLazyGetUserInfosQuery,
-  useFindUsersQuery,
-} = userApi;
+export const { useGetUserQuery, useLazyGetUserQuery, useFindUsersQuery } =
+  userApi;

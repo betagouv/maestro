@@ -11,11 +11,11 @@ import { FindSampleOptions } from '../../shared/schema/Sample/FindSampleOptions'
 import {
   PartialSample,
   PartialSampleToCreate,
-  Sample,
+  Sample
 } from '../../shared/schema/Sample/Sample';
 import { SampleItem } from '../../shared/schema/Sample/SampleItem';
 import { DraftStatusList } from '../../shared/schema/Sample/SampleStatus';
-import { UserInfos } from '../../shared/schema/User/User';
+import { User } from '../../shared/schema/User/User';
 import companyRepository from '../repositories/companyRepository';
 import documentRepository from '../repositories/documentRepository';
 import laboratoryRepository from '../repositories/laboratoryRepository';
@@ -23,10 +23,10 @@ import sampleItemRepository from '../repositories/sampleItemRepository';
 import sampleRepository from '../repositories/sampleRepository';
 import documentService from '../services/documentService/documentService';
 import exportSamplesService from '../services/exportService/exportSamplesService';
-import {mailService} from '../services/mailService';
+import { mailService } from '../services/mailService';
+import { getS3Client } from '../services/s3Service';
 import config from '../utils/config';
 import workbookUtils from '../utils/workbookUtils';
-import { getS3Client } from '../services/s3Service';
 
 const getSample = async (request: Request, response: Response) => {
   const sample = (request as SampleRequest).sample;
@@ -37,7 +37,7 @@ const getSample = async (request: Request, response: Response) => {
 
   response.status(constants.HTTP_STATUS_OK).send({
     ...sample,
-    items: sampleItems.map((item) => omitBy(item, isNil)),
+    items: sampleItems.map((item) => omitBy(item, isNil))
   });
 };
 
@@ -73,7 +73,7 @@ const findSamples = async (request: Request, response: Response) => {
 
   const findOptions = {
     ...queryFindOptions,
-    region: user.region ?? queryFindOptions.region,
+    region: user.region ?? queryFindOptions.region
   };
 
   console.info('Find samples for user', user.id, findOptions);
@@ -89,7 +89,7 @@ const countSamples = async (request: Request, response: Response) => {
 
   const findOptions = {
     ...queryFindOptions,
-    region: user.region ?? queryFindOptions.region,
+    region: user.region ?? queryFindOptions.region
   };
 
   console.info('Count samples for user', user.id, findOptions);
@@ -105,7 +105,7 @@ const exportSamples = async (request: Request, response: Response) => {
 
   const findOptions = {
     ...queryFindOptions,
-    region: user.region ?? queryFindOptions.region,
+    region: user.region ?? queryFindOptions.region
   };
 
   console.info('Export samples for user', user.id, findOptions);
@@ -151,7 +151,7 @@ const createSample = async (request: Request, response: Response) => {
     }`,
     sampler: pick(user, ['id', 'firstName', 'lastName']),
     createdAt: new Date(),
-    lastUpdatedAt: new Date(),
+    lastUpdatedAt: new Date()
   };
   await sampleRepository.insert(sample);
 
@@ -184,7 +184,7 @@ const updateSample = async (request: Request, response: Response) => {
   const updatedSample = {
     ...sample,
     ...sampleUpdate,
-    lastUpdatedAt: new Date(),
+    lastUpdatedAt: new Date()
   };
 
   if (sample.status === 'Submitted' && updatedSample.status === 'Sent') {
@@ -208,14 +208,14 @@ const updateSample = async (request: Request, response: Response) => {
             params: {
               region: user.region ? Regions[user.region].name : undefined,
               userMail: user.email,
-              sampledAt: format(updatedSample.sampledAt, 'dd/MM/yyyy'),
+              sampledAt: format(updatedSample.sampledAt, 'dd/MM/yyyy')
             },
             attachment: [
               {
                 name: `DAP-${updatedSample.reference}-${sampleItem.itemNumber}.pdf`,
-                content: doc.toString('base64'),
-              },
-            ],
+                content: doc.toString('base64')
+              }
+            ]
           });
         }
 
@@ -224,14 +224,14 @@ const updateSample = async (request: Request, response: Response) => {
             recipients: [sampleItem.ownerEmail, config.mail.from],
             params: {
               region: user.region ? Regions[user.region].name : undefined,
-              sampledAt: format(updatedSample.sampledAt, 'dd/MM/yyyy'),
+              sampledAt: format(updatedSample.sampledAt, 'dd/MM/yyyy')
             },
             attachment: [
               {
                 name: `DAP-${updatedSample.reference}-${sampleItem.itemNumber}.pdf`,
-                content: doc.toString('base64'),
-              },
-            ],
+                content: doc.toString('base64')
+              }
+            ]
           });
         }
       })
@@ -246,7 +246,7 @@ const updateSample = async (request: Request, response: Response) => {
 const storeSampleItemDocument = async (
   sample: Sample,
   sampleItem: SampleItem,
-  sampler: UserInfos
+  sampler: User
 ) => {
   const client = getS3Client();
 
@@ -260,13 +260,13 @@ const storeSampleItemDocument = async (
     console.info('Delete previous document', sampleItem.supportDocumentId);
     const deleteCommand = new DeleteObjectCommand({
       Bucket: config.s3.bucket,
-      Key: sampleItem.supportDocumentId,
+      Key: sampleItem.supportDocumentId
     });
     await client.send(deleteCommand);
 
     await sampleItemRepository.update(sample.id, sampleItem.itemNumber, {
       ...sampleItem,
-      supportDocumentId: null,
+      supportDocumentId: null
     });
 
     await documentRepository.deleteOne(sampleItem.supportDocumentId);
@@ -278,7 +278,7 @@ const storeSampleItemDocument = async (
   const command = new PutObjectCommand({
     Bucket: config.s3.bucket,
     Key: key,
-    Body: pdfBuffer,
+    Body: pdfBuffer
   });
   await client.send(command);
 
@@ -287,12 +287,12 @@ const storeSampleItemDocument = async (
     filename,
     kind: 'SupportDocument',
     createdBy: sample.sampler.id, //TODO : check if it's the right user
-    createdAt: new Date(),
+    createdAt: new Date()
   });
 
   await sampleItemRepository.update(sample.id, sampleItem.itemNumber, {
     ...sampleItem,
-    supportDocumentId: id,
+    supportDocumentId: id
   });
 
   return pdfBuffer;
@@ -320,5 +320,5 @@ export default {
   exportSamples,
   createSample,
   updateSample,
-  deleteSample,
+  deleteSample
 };

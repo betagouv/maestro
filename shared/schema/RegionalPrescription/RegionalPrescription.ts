@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { isDromRegion, Region, RegionSort } from '../../referential/Region';
 import { Prescription } from '../Prescription/Prescription';
 import { ProgrammingPlan } from '../ProgrammingPlan/ProgrammingPlans';
-import { hasPermission, User, UserInfos, userRegions } from '../User/User';
+import { hasPermission, User, userRegions } from '../User/User';
 import { RegionalPrescriptionComment } from './RegionalPrescriptionComment';
 
 export const RegionalPrescriptionKey = z.object({
@@ -92,7 +92,7 @@ export type RegionalPrescriptionPermission = z.infer<
 >;
 
 export const hasRegionalPrescriptionPermission = (
-  user: User | UserInfos,
+  user: User,
   programmingPlan: ProgrammingPlan,
   regionalPrescription: RegionalPrescription
 ): Record<RegionalPrescriptionPermission, boolean> => ({

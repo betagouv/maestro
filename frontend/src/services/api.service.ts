@@ -1,6 +1,6 @@
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { withAuthHeader } from 'src/services/auth-headers';
 import config from '../utils/config';
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export const tagTypes = [
   'AuthUser',
@@ -15,7 +15,7 @@ export const tagTypes = [
   'Sample',
   'SampleAnalysis',
   'SampleCount',
-  'UserInfos'
+  'User'
 ];
 
 export const api = createApi({

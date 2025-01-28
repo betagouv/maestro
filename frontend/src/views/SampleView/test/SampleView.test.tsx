@@ -34,7 +34,7 @@ const sampler = genUser({
   id: authUser.userId
 });
 const userRequest = {
-  pathname: `/api/users/${sampler.id}/infos`,
+  pathname: `/api/users/${sampler.id}`,
   response: { body: JSON.stringify(sampler) }
 };
 const programmingPlan1 = genProgrammingPlan();

@@ -8,7 +8,7 @@ import { ContextLabels } from 'shared/schema/ProgrammingPlan/Context';
 import {
   isCreatedSample,
   Sample,
-  SampleToCreate,
+  SampleToCreate
 } from 'shared/schema/Sample/Sample';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { quote } from 'src/utils/stringUtils';
@@ -23,9 +23,9 @@ interface Props {
 const ContextStepSummary = ({
   sample,
   showLabel,
-  onChangeResytalId,
+  onChangeResytalId
 }: Props) => {
-  const { userInfos } = useAuthentication();
+  const { user } = useAuthentication();
 
   return (
     <StepSummary
@@ -43,7 +43,7 @@ const ContextStepSummary = ({
           <b>
             {isCreatedSample(sample)
               ? `${sample.sampler.firstName} ${sample.sampler.lastName}`
-              : `${userInfos?.firstName} ${userInfos?.lastName}`}
+              : `${user?.firstName} ${user?.lastName}`}
           </b>
         </div>
       </div>
@@ -112,7 +112,7 @@ const ContextStepSummary = ({
             hintText="Format AA-XXXXXX"
             nativeInputProps={{
               defaultValue: sample.resytalId || '',
-              onChange: (e) => onChangeResytalId?.(e.target.value),
+              onChange: (e) => onChangeResytalId?.(e.target.value)
             }}
           />
         </div>

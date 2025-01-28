@@ -28,7 +28,7 @@ const sampler = genUser({
   id: authUser.userId
 });
 const userRequest = {
-  pathname: `/api/users/${sampler.id}/infos`,
+  pathname: `/api/users/${sampler.id}`,
   response: { body: JSON.stringify(sampler) }
 };
 const programmingPlan = genProgrammingPlan();
@@ -45,7 +45,7 @@ const prescriptionsRequest = {
   response: { body: JSON.stringify([prescription1, prescription2]) }
 };
 
-describe('SampleStepDraftInfos', () => {
+describe('SampleStepDraft', () => {
   beforeEach(() => {
     fetchMock.resetMocks();
     store = configureStore({

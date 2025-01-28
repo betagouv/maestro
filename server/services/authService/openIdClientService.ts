@@ -1,12 +1,12 @@
 import { decode } from 'jsonwebtoken';
 import { generators, Issuer } from 'openid-client';
 import { AuthRedirectUrl } from '../../../shared/schema/Auth/AuthRedirectUrl';
+import { User } from '../../../shared/schema/User/User';
 import config from '../../utils/config';
 import { AuthService } from './authService';
-import { UserInfos } from '../../../shared/schema/User/User';
 
-const loginCallbackUrl = `${config.application.host}/login-callback`
-const logoutCallbackUrl = `${config.application.host}/logout-callback`
+const loginCallbackUrl = `${config.application.host}/login-callback`;
+const logoutCallbackUrl = `${config.application.host}/logout-callback`;
 
 class OpenIdClientService implements AuthService {
   private client: any;
@@ -57,16 +57,16 @@ class OpenIdClientService implements AuthService {
     };
   };
 
-  authenticate = async (authRedirectUrl: AuthRedirectUrl): Promise<{idToken: string} & Pick<UserInfos, 'email' | 'firstName' | 'lastName'>> => {
+  authenticate = async (
+    authRedirectUrl: AuthRedirectUrl
+  ): Promise<
+    { idToken: string } & Pick<User, 'email' | 'firstName' | 'lastName'>
+  > => {
     const params = this.client.callbackParams(authRedirectUrl.url);
-    const tokenSet = await this.client.callback(
-      loginCallbackUrl,
-      params,
-      {
-        state: authRedirectUrl.state ?? '',
-        nonce: authRedirectUrl.nonce ?? ''
-      }
-    );
+    const tokenSet = await this.client.callback(loginCallbackUrl, params, {
+      state: authRedirectUrl.state ?? '',
+      nonce: authRedirectUrl.nonce ?? ''
+    });
 
     if (!tokenSet.access_token) {
       throw new Error('No access token received');

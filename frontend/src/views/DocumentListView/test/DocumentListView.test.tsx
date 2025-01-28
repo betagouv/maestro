@@ -73,7 +73,7 @@ describe('DocumentListView', () => {
   test('should render the upload form when the user has the permission', async () => {
     mockRequests([
       {
-        pathname: `/api/users/${nationalCoordinator.id}/infos`,
+        pathname: `/api/users/${nationalCoordinator.id}`,
         response: { body: JSON.stringify(nationalCoordinator) }
       }
     ]);
@@ -93,7 +93,7 @@ describe('DocumentListView', () => {
   test('should not render the upload form when the user does not have the permission', async () => {
     mockRequests([
       {
-        pathname: `/api/users/${sampler.id}/infos`,
+        pathname: `/api/users/${sampler.id}`,
         response: { body: JSON.stringify(sampler) }
       }
     ]);

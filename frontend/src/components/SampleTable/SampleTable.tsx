@@ -32,7 +32,7 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
   const { sampleLink, navigateToSample } = useSamplesLink();
   const { isOnline } = useOnLine();
 
-  const { hasUserPermission, userInfos } = useAuthentication();
+  const { hasUserPermission, user } = useAuthentication();
   const { isMobile } = useWindowSize();
 
   const { pendingSamples } = useAppSelector((state) => state.samples);
@@ -65,7 +65,7 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
               </>
             ) : (
               <>
-                {userInfos?.firstName} {userInfos?.lastName}
+                {user?.firstName} {user?.lastName}
               </>
             )}
           </div>,

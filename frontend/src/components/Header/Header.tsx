@@ -13,7 +13,7 @@ import logo from '../../assets/logo.svg';
 const Header = () => {
   const location = useLocation();
 
-  const { isAuthenticated, hasUserPermission, userInfos } = useAuthentication();
+  const { isAuthenticated, hasUserPermission, user } = useAuthentication();
 
   const { data: programmingPlans } = useFindProgrammingPlansQuery(
     {},
@@ -139,7 +139,7 @@ const Header = () => {
         isAuthenticated
           ? [
               <div>
-                {userInfos?.roles.map((role) => (
+                {user?.roles.map((role) => (
                   <div key={role} className={cx('fr-text--sm', 'fr-mr-2w')}>
                     {UserRoleLabels[role]}
                   </div>

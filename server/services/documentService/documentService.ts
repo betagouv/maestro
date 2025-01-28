@@ -9,7 +9,7 @@ import { Regions } from '../../../shared/referential/Region';
 import { StageLabels } from '../../../shared/referential/Stage';
 import { Sample } from '../../../shared/schema/Sample/Sample';
 import { PartialSampleItem } from '../../../shared/schema/Sample/SampleItem';
-import { UserInfos } from '../../../shared/schema/User/User';
+import { User } from '../../../shared/schema/User/User';
 import { isDefinedAndNotNull } from '../../../shared/utils/utils';
 import laboratoryRepository from '../../repositories/laboratoryRepository';
 import prescriptionSubstanceRepository from '../../repositories/prescriptionSubstanceRepository';
@@ -58,7 +58,7 @@ const generateDocument = async (template: Template, data: any) => {
 const generateSupportDocument = async (
   sample: Sample,
   sampleItem: PartialSampleItem | null,
-  sampler: UserInfos
+  sampler: User
 ) => {
   const programmingPlan = await programmingPlanRepository.findUnique(
     sample.programmingPlanId as string

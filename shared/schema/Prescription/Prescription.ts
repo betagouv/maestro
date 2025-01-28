@@ -4,7 +4,7 @@ import { MatrixLabels } from '../../referential/Matrix/MatrixLabels';
 import { Stage, StageLabels } from '../../referential/Stage';
 import { Context } from '../ProgrammingPlan/Context';
 import { ProgrammingPlan } from '../ProgrammingPlan/ProgrammingPlans';
-import { hasPermission, User, UserInfos } from '../User/User';
+import { hasPermission, User } from '../User/User';
 import { PrescriptionSubstance } from './PrescriptionSubstance';
 
 export const Prescription = z.object({
@@ -60,7 +60,7 @@ const PrescriptionPermission = z.enum(['create', 'update', 'delete']);
 export type PrescriptionPermission = z.infer<typeof PrescriptionPermission>;
 
 export const hasPrescriptionPermission = (
-  user: User | UserInfos,
+  user: User,
   programmingPlan: ProgrammingPlan
 ): Record<PrescriptionPermission, boolean> => ({
   create:

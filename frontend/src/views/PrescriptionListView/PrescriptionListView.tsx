@@ -64,7 +64,7 @@ const PrescriptionListView = () => {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const {
-    userInfos,
+    user,
     hasNationalView,
     hasUserPrescriptionPermission,
     hasUserRegionalPrescriptionPermission
@@ -85,9 +85,8 @@ const PrescriptionListView = () => {
     useCommentRegionalPrescriptionMutation();
 
   const region: Region = useMemo(
-    () =>
-      userInfos?.region ?? (searchParams.get('region') as Region) ?? undefined,
-    [userInfos, searchParams]
+    () => user?.region ?? (searchParams.get('region') as Region) ?? undefined,
+    [user, searchParams]
   );
 
   useEffect(() => {

@@ -23,7 +23,7 @@ import {
 import { useFindSamplesQuery } from 'src/services/sample.service';
 import ProgrammingPlanCard from 'src/views/DashboardView/ProgrammingPlanCard';
 const DashboardView = () => {
-  const { hasUserPermission, userInfos } = useAuthentication();
+  const { hasUserPermission, user } = useAuthentication();
   const { isOnline } = useOnLine();
 
   const { data: programmingPlan, isLoading: isProgrammingPlanLoading } =
@@ -71,7 +71,7 @@ const DashboardView = () => {
     (_) => _.id
   ).sort((s1, s2) => (isAfter(s2.sampledAt, s1.sampledAt) ? 1 : -1));
 
-  if (!userInfos || !currentProgrammingPlan) {
+  if (!user || !currentProgrammingPlan) {
     return <></>;
   }
 
@@ -86,8 +86,8 @@ const DashboardView = () => {
             'fr-px-2w'
           )}
         >
-          Espace de {userInfos.firstName} {userInfos.lastName}
-          {userInfos.region && <> - Région {Regions[userInfos.region].name}</>}
+          Espace de {user.firstName} {user.lastName}
+          {user.region && <> - Région {Regions[user.region].name}</>}
         </div>
         <SectionHeader
           title="Tableau de bord"

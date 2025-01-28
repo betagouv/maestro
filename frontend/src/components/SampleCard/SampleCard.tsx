@@ -27,7 +27,7 @@ interface Props {
 
 const SampleCard = ({ sample }: Props) => {
   const { sampleLink } = useSamplesLink();
-  const { userInfos, hasUserPermission } = useAuthentication();
+  const { user, hasUserPermission } = useAuthentication();
   const { isOnline } = useOnLine();
   const { isMobile } = useWindowSize();
 
@@ -118,7 +118,7 @@ const SampleCard = ({ sample }: Props) => {
                 <span className={cx('fr-icon-user-line', 'fr-icon--sm')}></span>
                 {isCreatedPartialSample(sample)
                   ? `${sample.sampler.firstName} ${sample.sampler.lastName}`
-                  : `${userInfos?.firstName} ${userInfos?.lastName}`}
+                  : `${user?.firstName} ${user?.lastName}`}
               </span>
             </>
           )}
