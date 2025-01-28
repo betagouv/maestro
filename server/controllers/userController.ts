@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
 import { AuthenticatedRequest } from 'express-jwt';
 import { constants } from 'http2';
-import { intersection, pick } from 'lodash-es';
+import { intersection } from 'lodash-es';
 import { FindUserOptions } from '../../shared/schema/User/FindUserOptions';
-import { UserInfos, userRegions } from '../../shared/schema/User/User';
-import {userRepository} from '../repositories/userRepository';
+import { userRegions } from '../../shared/schema/User/User';
+import { userRepository } from '../repositories/userRepository';
 
-const getUserInfos = async (request: Request, response: Response) => {
+const getUser = async (request: Request, response: Response) => {
   const { userId } = request.params;
   const authUser = (request as AuthenticatedRequest).user;
 
@@ -22,16 +22,7 @@ const getUserInfos = async (request: Request, response: Response) => {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
   }
 
-  const userInfos: UserInfos = pick(user, [
-    'id',
-    'email',
-    'firstName',
-    'lastName',
-    'roles',
-    'region',
-  ]);
-
-  response.status(constants.HTTP_STATUS_OK).send(userInfos);
+  response.status(constants.HTTP_STATUS_OK).send(user);
 };
 
 const findUsers = async (request: Request, response: Response) => {
@@ -40,7 +31,7 @@ const findUsers = async (request: Request, response: Response) => {
 
   const findOptions = {
     ...queryFindOptions,
-    region: user.region ?? queryFindOptions.region,
+    region: user.region ?? queryFindOptions.region
   };
 
   console.info('Find users', findOptions);
@@ -51,6 +42,6 @@ const findUsers = async (request: Request, response: Response) => {
 };
 
 export default {
-  getUserInfos,
-  findUsers,
+  getUser,
+  findUsers
 };

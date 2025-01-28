@@ -58,7 +58,7 @@ class MockError extends Error {
 }
 
 export const userRequestMock = (user: User) => ({
-  pathname: `/api/users/${user.id}/infos`,
+  pathname: `/api/users/${user.id}`,
   response: { body: JSON.stringify(user) }
 });
 

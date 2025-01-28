@@ -1,8 +1,8 @@
+import { intersection } from 'lodash-es';
 import { z } from 'zod';
 import { Region, RegionList, Regions } from '../../referential/Region';
 import { UserPermission } from './UserPermission';
 import { UserRole, UserRolePermissions } from './UserRole';
-import { intersection } from 'lodash-es';
 
 export const User = z.object({
   id: z.string().uuid(),
@@ -13,22 +13,12 @@ export const User = z.object({
   region: Region.nullable()
 });
 
-export const UserInfos = User.pick({
-  id: true,
-  email: true,
-  firstName: true,
-  lastName: true,
-  roles: true,
-  region: true
-});
-
 export type User = z.infer<typeof User>;
-export type UserInfos = z.infer<typeof UserInfos>;
 
-export const userRegions = (user?: User | UserInfos) =>
+export const userRegions = (user?: User) =>
   user ? (user.region ? [user.region] : RegionList) : [];
 
-export const userDepartments = (user?: User | UserInfos) =>
+export const userDepartments = (user?: User) =>
   user
     ? userRegions(user).flatMap((region) => [
         ...Regions[region].departments,
@@ -36,10 +26,7 @@ export const userDepartments = (user?: User | UserInfos) =>
       ])
     : [];
 
-export const hasPermission = (
-  user: User | UserInfos,
-  ...permissions: UserPermission[]
-) => {
+export const hasPermission = (user: User, ...permissions: UserPermission[]) => {
   const userPermissions = user.roles
     .map((role) => UserRolePermissions[role])
     .flat();

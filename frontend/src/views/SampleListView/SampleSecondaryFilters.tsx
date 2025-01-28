@@ -4,13 +4,13 @@ import { useMemo } from 'react';
 import {
   Department,
   DepartmentLabels,
-  DepartmentList,
+  DepartmentList
 } from 'shared/referential/Department';
 import { Region, RegionList, Regions } from 'shared/referential/Region';
 import {
   Context,
   ContextLabels,
-  ContextList,
+  ContextList
 } from 'shared/schema/ProgrammingPlan/Context';
 import { FindSampleOptions } from 'shared/schema/Sample/FindSampleOptions';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -21,21 +21,21 @@ interface Props {
 }
 
 const SampleSecondaryFilters = ({ filters, onChange }: Props) => {
-  const { hasNationalView, userInfos } = useAuthentication();
+  const { hasNationalView, user } = useAuthentication();
 
   const departmentOptions = useMemo(() => {
-    const region = userInfos?.region ?? filters.region;
+    const region = user?.region ?? filters.region;
     return region ? Regions[region as Region].departments : DepartmentList;
-  }, [userInfos?.region, filters.region]);
+  }, [user?.region, filters.region]);
 
   const borderingDepartments = useMemo(() => {
-    const region = userInfos?.region ?? filters.region;
+    const region = user?.region ?? filters.region;
     return region
-      ? Regions[region as Region].borderingDepartments?.sort((a, b) =>
+      ? (Regions[region as Region].borderingDepartments?.sort((a, b) =>
           a.localeCompare(b)
-        ) ?? []
+        ) ?? [])
       : [];
-  }, [userInfos?.region, filters.region]);
+  }, [user?.region, filters.region]);
 
   return (
     <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
@@ -48,8 +48,8 @@ const SampleSecondaryFilters = ({ filters, onChange }: Props) => {
               onChange: (e) =>
                 onChange({
                   region: e.target.value as Region,
-                  department: undefined,
-                }),
+                  department: undefined
+                })
             }}
           >
             <option value="">Toutes les régions</option>
@@ -68,8 +68,8 @@ const SampleSecondaryFilters = ({ filters, onChange }: Props) => {
             value: filters.department || '',
             onChange: (e) =>
               onChange({
-                department: e.target.value as Department,
-              }),
+                department: e.target.value as Department
+              })
           }}
         >
           <optgroup>
@@ -97,8 +97,8 @@ const SampleSecondaryFilters = ({ filters, onChange }: Props) => {
             onChange: (e) =>
               onChange({
                 context: e.target.value as Context,
-                matrix: undefined,
-              }),
+                matrix: undefined
+              })
           }}
         >
           <option value="">Tous</option>

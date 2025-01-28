@@ -7,21 +7,21 @@ import React, { useState } from 'react';
 import {
   CultureKind,
   CultureKindLabels,
-  CultureKindList,
+  CultureKindList
 } from 'shared/referential/CultureKind';
 import { Matrix, MatrixList } from 'shared/referential/Matrix/Matrix';
 import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
 import {
   MatrixPart,
   MatrixPartLabels,
-  MatrixPartList,
+  MatrixPartList
 } from 'shared/referential/MatrixPart';
 import { Stage, StageLabels, StageList } from 'shared/referential/Stage';
 import {
   isCreatedPartialSample,
   PartialSample,
   PartialSampleToCreate,
-  SampleMatrixData,
+  SampleMatrixData
 } from 'shared/schema/Sample/Sample';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
@@ -44,7 +44,7 @@ interface Props {
 
 const MatrixStep = ({ partialSample }: Props) => {
   const { navigateToSample } = useSamplesLink();
-  const { userInfos } = useAuthentication();
+  const { user } = useAuthentication();
 
   const [matrix, setMatrix] = useState(partialSample.matrix);
   const [matrixDetails, setMatrixDetails] = useState(
@@ -66,10 +66,10 @@ const MatrixStep = ({ partialSample }: Props) => {
   const { data: prescriptions } = useFindPrescriptionsQuery(
     {
       programmingPlanId: partialSample.programmingPlanId as string,
-      context: partialSample.context,
+      context: partialSample.context
     },
     {
-      skip: !partialSample.programmingPlanId || !partialSample.context,
+      skip: !partialSample.programmingPlanId || !partialSample.context
     }
   );
 
@@ -79,10 +79,10 @@ const MatrixStep = ({ partialSample }: Props) => {
       context: partialSample.context,
       region: isCreatedPartialSample(partialSample)
         ? partialSample.region
-        : userInfos?.region,
+        : user?.region
     },
     {
-      skip: !partialSample.programmingPlanId || !partialSample.context,
+      skip: !partialSample.programmingPlanId || !partialSample.context
     }
   );
 
@@ -118,7 +118,7 @@ const MatrixStep = ({ partialSample }: Props) => {
       status,
       prescriptionId: prescription?.id,
       laboratoryId:
-        regionalPrescription?.laboratoryId ?? partialSample.laboratoryId,
+        regionalPrescription?.laboratoryId ?? partialSample.laboratoryId
     });
   };
 
@@ -133,7 +133,7 @@ const MatrixStep = ({ partialSample }: Props) => {
       releaseControl,
       notesOnMatrix,
       prescriptionId: partialSample.prescriptionId,
-      laboratoryId: partialSample.laboratoryId,
+      laboratoryId: partialSample.laboratoryId
     },
     save
   );
@@ -151,7 +151,7 @@ const MatrixStep = ({ partialSample }: Props) => {
               ),
               {
                 labels: MatrixLabels,
-                defaultLabel: 'Sélectionner une matrice',
+                defaultLabel: 'Sélectionner une matrice'
               }
             )}
             onChange={(e) => setMatrix(e.target.value as Matrix)}
@@ -176,7 +176,7 @@ const MatrixStep = ({ partialSample }: Props) => {
               ),
               {
                 labels: StageLabels,
-                defaultLabel: 'Sélectionner un stade',
+                defaultLabel: 'Sélectionner un stade'
               }
             )}
             onChange={(e) => setStage(e.target.value as Stage)}
@@ -207,7 +207,7 @@ const MatrixStep = ({ partialSample }: Props) => {
             defaultValue={cultureKind ?? ''}
             options={selectOptionsFromList(CultureKindList, {
               labels: CultureKindLabels,
-              defaultLabel: 'Sélectionner un type de culture',
+              defaultLabel: 'Sélectionner un type de culture'
             })}
             onChange={(e) => setCultureKind(e.target.value as CultureKind)}
             inputForm={form}
@@ -222,7 +222,7 @@ const MatrixStep = ({ partialSample }: Props) => {
             defaultValue={matrixPart ?? ''}
             options={selectOptionsFromList(MatrixPartList, {
               labels: MatrixPartLabels,
-              defaultLabel: 'Sélectionner une partie du végétal',
+              defaultLabel: 'Sélectionner une partie du végétal'
             })}
             onChange={(e) => setMatrixPart(e.target.value as MatrixPart)}
             inputForm={form}
@@ -279,7 +279,7 @@ const MatrixStep = ({ partialSample }: Props) => {
                     PreviousButton({
                       sampleId: partialSample.id,
                       onSave: () => save('Draft'),
-                      currentStep: 2,
+                      currentStep: 2
                     }),
                     {
                       children: 'Enregistrer en brouillon',
@@ -291,9 +291,9 @@ const MatrixStep = ({ partialSample }: Props) => {
                         setIsSaved(true);
                       },
                       nativeButtonProps: {
-                        'data-testid': 'save-button',
-                      },
-                    },
+                        'data-testid': 'save-button'
+                      }
+                    }
                   ] as any
                 }
               />

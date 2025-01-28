@@ -18,7 +18,6 @@ import { mockRequests } from '../../../../test/requestTestUtils';
 
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
-
 vi.mock(import('react-router-dom'), async (importOriginal) => {
   const original = await importOriginal();
   return {
@@ -119,7 +118,7 @@ describe('PrescriptionListView', () => {
       id: authUser.userId
     });
     const userRequest = {
-      pathname: `/api/users/${nationalCoordinator.id}/infos`,
+      pathname: `/api/users/${nationalCoordinator.id}`,
       response: { body: JSON.stringify(nationalCoordinator) }
     };
 
@@ -185,7 +184,7 @@ describe('PrescriptionListView', () => {
       id: authUser.userId
     });
     const userRequest = {
-      pathname: `/api/users/${regionalCoordinator.id}/infos`,
+      pathname: `/api/users/${regionalCoordinator.id}`,
       response: { body: JSON.stringify(regionalCoordinator) }
     };
 

@@ -10,15 +10,15 @@ import {
   DraftStatusList,
   SampleStatus,
   SampleStatusLabels,
-  SampleStatusList,
+  SampleStatusList
 } from 'shared/schema/Sample/SampleStatus';
-import { UserInfos } from 'shared/schema/User/User';
+import { User } from 'shared/schema/User/User';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 
 interface Props {
   filters: Partial<FindSampleOptions>;
   onChange: (filters: Partial<FindSampleOptions>) => void;
-  samplers?: UserInfos[];
+  samplers?: User[];
   prescriptions?: Prescription[];
 }
 
@@ -26,7 +26,7 @@ const SamplePrimaryFilters = ({
   filters,
   onChange,
   samplers,
-  prescriptions,
+  prescriptions
 }: Props) => {
   return (
     <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
@@ -35,7 +35,7 @@ const SamplePrimaryFilters = ({
           label="Matrice"
           nativeSelectProps={{
             value: filters.matrix || '',
-            onChange: (e) => onChange({ matrix: e.target.value as Matrix }),
+            onChange: (e) => onChange({ matrix: e.target.value as Matrix })
           }}
         >
           <option value="">Toutes</option>
@@ -49,7 +49,7 @@ const SamplePrimaryFilters = ({
             ),
             {
               labels: MatrixLabels,
-              withDefault: false,
+              withDefault: false
             }
           ).map((option) => (
             <option key={option.value} value={option.value}>
@@ -65,8 +65,8 @@ const SamplePrimaryFilters = ({
             value: filters.status || '',
             onChange: (e) =>
               onChange({
-                status: e.target.value as SampleStatus,
-              }),
+                status: e.target.value as SampleStatus
+              })
           }}
         >
           <option value="">Tous</option>
@@ -83,7 +83,7 @@ const SamplePrimaryFilters = ({
           label="Préleveur"
           nativeSelectProps={{
             value: filters.sampledBy || '',
-            onChange: (e) => onChange({ sampledBy: e.target.value }),
+            onChange: (e) => onChange({ sampledBy: e.target.value })
           }}
         >
           <option value="">Tous</option>
@@ -101,7 +101,7 @@ const SamplePrimaryFilters = ({
           nativeInputProps={{
             value: filters.sampledAt ?? '',
             type: 'date',
-            onChange: (e) => onChange({ sampledAt: e.target.value }),
+            onChange: (e) => onChange({ sampledAt: e.target.value })
           }}
         />
       </div>

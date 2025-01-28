@@ -78,7 +78,7 @@ describe('Header', () => {
       mockRequests([
         programmingPlansRequest,
         {
-          pathname: `/api/users/${user.id}/infos`,
+          pathname: `/api/users/${user.id}`,
           response: { body: JSON.stringify(user) }
         }
       ]);

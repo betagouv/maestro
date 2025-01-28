@@ -50,7 +50,7 @@ const SampleListView = () => {
   const { isMobile } = useWindowSize();
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const { hasUserPermission, userInfos, hasNationalView } = useAuthentication();
+  const { hasUserPermission, user, hasNationalView } = useAuthentication();
   const { findSampleOptions, sampleListDisplay } = useAppSelector(
     (state) => state.samples
   );
@@ -64,9 +64,7 @@ const SampleListView = () => {
       samplesSlice.actions.changeFindOptions({
         context: searchParams.get('context') as Context,
         region:
-          userInfos?.region ??
-          (searchParams.get('region') as Region) ??
-          undefined,
+          user?.region ?? (searchParams.get('region') as Region) ?? undefined,
         department: (searchParams.get('department') as Department) ?? undefined,
         status: status === 'Draft' ? DraftStatusList : (status ?? undefined),
         matrix: searchParams.get('matrix') as Matrix,
@@ -77,7 +75,7 @@ const SampleListView = () => {
         perPage: defaultPerPage
       })
     );
-  }, [searchParams, userInfos?.region, sampleListDisplay]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [searchParams, user?.region, sampleListDisplay]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { data: samples } = useFindSamplesQuery(
     { ...findSampleOptions, programmingPlanId: programmingPlan?.id as string },
@@ -100,7 +98,7 @@ const SampleListView = () => {
     }
   );
   const { data: samplers } = useFindUsersQuery({
-    region: userInfos?.region,
+    region: user?.region,
     role: 'Sampler'
   });
 

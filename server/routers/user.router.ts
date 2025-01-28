@@ -6,9 +6,9 @@ import validator, { query, uuidParam } from '../middlewares/validator';
 const router = express.Router();
 
 router.get(
-  '/:userId/infos',
+  '/:userId',
   validator.validate(uuidParam('userId')),
-  userController.getUserInfos
+  userController.getUser
 );
 
 router.get(
