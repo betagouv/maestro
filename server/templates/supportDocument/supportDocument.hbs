@@ -450,7 +450,7 @@
                         </div>
                       </div>
                       {{#each sampleItems}}
-                        <div class="sample-item {{#if currentItem}}current-item{{/if}}">
+                        <div class="sample-item {{#if currentItem}}current-item indent-back{{/if}}">
                           <div class='sample-section-subtitle'>
                             <div>Échantillon n°{{itemNumber}}</div>
                             {{#if (eq itemNumber 2)}}
@@ -518,23 +518,7 @@
                           </div>
                         </div>
                       {{/each}}
-                      <div class='sample-section-block'>
-                        <span
-                          class='fr-icon-error-warning-line fr-icon--xs fr-pt-1v'
-                        ></span>
-                        <div class='fr-container fr-pl-1w'>
-                          <div class='fr-grid-row fr-grid-row--gutters'>
-                            <div class='fr-col-12 sample-section-item'>
-                              <div class='label'>
-                                En application de l’article R. 250-2 les
-                                échantillons prélevés ne donnent lieu à aucun
-                                remboursement.
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class='sample-section-block' style="position: relative;left: -1rem;">
+                      <div class='sample-section-block indent-back'>
                         <span class='fr-icon-quote-line fr-icon--sm'></span>
                         <div class='fr-container fr-pl-1w'>
                           <div class='fr-grid-row fr-grid-row--gutters'>
@@ -549,7 +533,23 @@
                           </div>
                         </div>
                       </div>
-                      <div class='sample-section-block' style="position: relative;left: -1rem;">
+                      <div class='sample-section-block indent-back'>
+                        <span
+                          class='fr-icon-error-warning-line fr-icon--sm'
+                        ></span>
+                        <div class='fr-container fr-pl-1w'>
+                          <div class='fr-grid-row fr-grid-row--gutters'>
+                            <div class='fr-col-12 sample-section-item'>
+                              <div class='label'>
+                                En application de l’article R. 250-2 les
+                                échantillons prélevés ne donnent lieu à aucun
+                                remboursement.
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class='sample-section-block indent-back'>
                         <span class='fr-icon-user-line fr-icon--sm'></span>
                         <div class='fr-container fr-pl-1w'>
                           <fieldset class="fr-fieldset fr-px-0 fr-my-0">
@@ -579,6 +579,20 @@
                           </div>
                         </div>
                       </div>
+                      {{#if ownerEmail}}
+                        <div class='sample-section-block indent-back'>
+                          <span class='fr-icon-mail-line fr-icon--sm'></span>
+                          <div class='fr-container fr-pl-1w'>
+                            <div class='fr-grid-row fr-grid-row--gutters'>
+                              <div class='fr-col-12 sample-section-item'>
+                                <div class='label'>
+                                  Le détenteur de la marchandise a reçu par e-mail le procès verbal du prélèvement
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      {{/if}}
                     </div>
                   </section>
                   {{#if hasNoteToSampler}}

@@ -94,13 +94,16 @@ main {
       overflow: hidden;
 
       &.current-item {
-        position: relative;
         padding: 1rem;
-        left: -1rem;
         width: calc(100% + 2rem);
         background-color: var(--beige-gris-galet-975-75);
         border: 1px solid var(--border-default-grey);
       }
+    }
+
+    .indent-back {
+      position: relative;
+      left: -1rem;
     }
 
     .label {
