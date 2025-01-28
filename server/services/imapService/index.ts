@@ -9,8 +9,9 @@ import config from '../../utils/config';
 import { mattermostService } from '../mattermostService';
 import { analysisHandler } from './analysis-handler';
 import { girpaConf } from './girpa';
+import { inovalysConf } from './inovalys';
 
-const laboratoriesWithConf = ['GIRPA'] as const satisfies string[];
+const laboratoriesWithConf = ['GIRPA', 'INOVALYS'] as const satisfies string[];
 type LaboratoryWithConf = (typeof laboratoriesWithConf)[number];
 
 export class ExtractError extends Error {
@@ -47,7 +48,8 @@ export type LaboratoryConf = {
   exportDataFromEmail: ExportDataFromEmail;
 };
 const laboratoriesConf = {
-  GIRPA: girpaConf
+  'GIRPA': girpaConf,
+  'INOVALYS': inovalysConf
 } as const satisfies {
   [name in LaboratoryWithConf]: LaboratoryConf;
 };
@@ -155,9 +157,13 @@ export const checkEmails = async () => {
 
           try {
             const analyzes =
-              laboratoriesConf[message.laboratoryName].exportDataFromEmail(
+             laboratoriesConf[message.laboratoryName].exportDataFromEmail(
                 parsed
               );
+
+            if (analyzes.length === 0) {
+              throw new ExtractError("Aucun résultat d'analyses trouvé dans cet email.")
+            }
 
             for (const analysis of analyzes) {
               await analysisHandler(analysis);
