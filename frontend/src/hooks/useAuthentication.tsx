@@ -16,51 +16,49 @@ import { UserRole } from 'shared/schema/User/UserRole';
 import { isDefined } from 'shared/utils/utils';
 import YearRoute from 'src/components/YearRoute/YearRoute';
 import { useAppSelector } from 'src/hooks/useStore';
-import { useGetUserInfosQuery } from 'src/services/user.service';
+import { useGetUserQuery } from 'src/services/user.service';
 import DashboardView from 'src/views/DashboardView/DashboardView';
 import DocumentListView from 'src/views/DocumentListView/DocumentListView';
 import HomeView from 'src/views/HomeView/HomeView';
+import { OpenApiExplorerView } from 'src/views/OpenApiExplorer/OpenApiExplorerView';
 import PrescriptionListView from 'src/views/PrescriptionListView/PrescriptionListView';
 import SampleListView from 'src/views/SampleListView/SampleListView';
 import SampleView from 'src/views/SampleView/SampleView';
-import { OpenApiExplorerView } from 'src/views/OpenApiExplorer/OpenApiExplorerView';
 
 export const useAuthentication = () => {
   const { authUser } = useAppSelector((state) => state.auth);
 
-  const { data: userInfos } = useGetUserInfosQuery(
-    authUser?.userId ?? skipToken
-  );
+  const { data: user } = useGetUserQuery(authUser?.userId ?? skipToken);
 
   const isAuthenticated = useMemo(() => !!authUser?.userId, [authUser]);
 
   const hasUserPermission = useCallback(
     (permission: UserPermission) =>
       isDefined(authUser?.userId) &&
-      isDefined(userInfos) &&
-      hasPermission(userInfos, permission),
-    [authUser, userInfos]
+      isDefined(user) &&
+      hasPermission(user, permission),
+    [authUser, user]
   );
 
   const hasRole = useCallback(
     (role: UserRole) => {
-      return isAuthenticated && userInfos && userInfos?.roles.includes(role);
+      return isAuthenticated && user && user?.roles.includes(role);
     },
-    [userInfos, isAuthenticated]
+    [user, isAuthenticated]
   );
 
   const hasNationalView = useMemo(() => {
-    return isAuthenticated && !userInfos?.region;
-  }, [userInfos, isAuthenticated]);
+    return isAuthenticated && !user?.region;
+  }, [user, isAuthenticated]);
 
   const hasUserPrescriptionPermission = useCallback(
     (
       programmingPlan: ProgrammingPlan
     ): Record<PrescriptionPermission, boolean> | null =>
-      isDefined(authUser?.userId) && isDefined(userInfos)
-        ? hasPrescriptionPermission(userInfos, programmingPlan)
+      isDefined(authUser?.userId) && isDefined(user)
+        ? hasPrescriptionPermission(user, programmingPlan)
         : null,
-    [authUser, userInfos]
+    [authUser, user]
   );
 
   const hasUserRegionalPrescriptionPermission = useCallback(
@@ -68,14 +66,14 @@ export const useAuthentication = () => {
       programmingPlan: ProgrammingPlan,
       regionalPrescription: RegionalPrescription
     ): Record<RegionalPrescriptionPermission, boolean> | null =>
-      isDefined(authUser?.userId) && isDefined(userInfos)
+      isDefined(authUser?.userId) && isDefined(user)
         ? hasRegionalPrescriptionPermission(
-            userInfos,
+            user,
             programmingPlan,
             regionalPrescription
           )
         : null,
-    [authUser, userInfos]
+    [authUser, user]
   );
 
   const availableRoutes: {
@@ -132,12 +130,12 @@ export const useAuthentication = () => {
               key: 'documents_route',
               component: DocumentListView
             },
-          {
-            path:'/api-docs',
-            label: 'API Docs',
-            key:'api_docs',
-            component: OpenApiExplorerView
-          }
+            {
+              path: '/api-docs',
+              label: 'API Docs',
+              key: 'api_docs',
+              component: OpenApiExplorerView
+            }
           ]
         : [
             {
@@ -151,7 +149,7 @@ export const useAuthentication = () => {
   }, [isAuthenticated, hasUserPermission]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
-    userInfos,
+    user,
     isAuthenticated,
     hasUserPermission,
     hasUserPrescriptionPermission,
