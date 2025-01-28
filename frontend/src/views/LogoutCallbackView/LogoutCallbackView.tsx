@@ -6,8 +6,8 @@ import { appLogout } from 'src/store/store';
 import { HomeViewContainer } from 'src/views/HomeView/HomeView';
 import { SESSION_STORAGE_UNKNOWN_USER_EMAIl } from 'src/views/LoginCallbackView/LoginCallbackView';
 import userUnknownSvg from '../../assets/illustrations/user-unknown.svg';
+import config from '../../utils/config';
 
-const EMAIL_SUPPORT = 'manon@maestro.beta.gouv.fr';
 
 export const LogoutCallbackView = () => {
   const dispatch = useAppDispatch();
@@ -39,13 +39,13 @@ export const LogoutCallbackView = () => {
       </h2>
       <div className={cx('fr-text--lg', 'fr-mb-5w')}>
         {isCertifiedAgent ? (
-          <>Contactez <a href={`mailto:${EMAIL_SUPPORT}`}>{EMAIL_SUPPORT}</a> pour obtenir votre habilitation.</>
+          <>Contactez <a href={`mailto:${config.supportEmail}`}>{config.supportEmail}</a> pour obtenir votre habilitation.</>
         ) : (
           <>
             L’outil est uniquement accessible aux agents de la Direction
             Générale de l’Alimentation.
             <br />
-            Contactez <a href={`mailto:${EMAIL_SUPPORT}`}>{EMAIL_SUPPORT}</a> en cas de besoin.
+            Contactez <a href={`mailto:${config.supportEmail}`}>{config.supportEmail}</a> en cas de besoin.
           </>
         )}
       </div>
