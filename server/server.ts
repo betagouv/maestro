@@ -92,7 +92,7 @@ export function createServer(): Server {
     app.use(
       express.static(path.join(import.meta.dirname, '../frontend/build'))
     );
-    app.get('*', function (req: any, res: { sendFile: (arg0: any) => void }) {
+    app.get('*', function (_req: any, res: { sendFile: (arg0: any) => void }) {
       res.sendFile(
         path.join(import.meta.dirname, '../frontend/build', 'index.html')
       );
