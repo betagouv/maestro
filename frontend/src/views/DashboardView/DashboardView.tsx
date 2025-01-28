@@ -76,10 +76,7 @@ const DashboardView = () => {
   }
 
   return (
-    <section
-      className={clsx(cx('fr-container'), 'main-section')}
-      style={{ height: '100%', flexGrow: 1 }}
-    >
+    <section className={clsx(cx('fr-container'), 'main-section')}>
       <div>
         <div
           className={cx(

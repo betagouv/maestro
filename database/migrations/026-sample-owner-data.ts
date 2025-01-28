@@ -13,7 +13,6 @@ export const up = async (knex: Knex) => {
 
   await Promise.all(
     samples.map(async (sample) => {
-      console.log('sample', sample.id);
       const sampleItem = await knex('sample_items')
         .where('sample_id', sample.id)
         .andWhere((builder) => {
@@ -23,7 +22,6 @@ export const up = async (knex: Knex) => {
             .orWhereNotNull('owner_email');
         })
         .orderBy('item_number')
-        .debug(true)
         .first();
 
       if (sampleItem) {

@@ -76,7 +76,7 @@ function App() {
         </div>
       )}
 
-      <main style={{ minHeight: 'calc(100vh - 440px)', display: 'flex' }}>
+      <main style={{ minHeight: 'calc(100vh - 440px)' }}>
         <Routes>
           {[
             ...availableRoutes.map((route) => (
