@@ -99,6 +99,7 @@ export const genCreatedSample = (data?: Partial<Sample>): Sample => {
     prescriptionId: uuidv4(),
     laboratoryId: uuidv4(),
     items: sample.items as SampleItem[],
+    ownerAgreement: genBoolean(),
     ...data
   };
 };
@@ -110,7 +111,6 @@ export const genSampleItem = (data?: Partial<SampleItem>): SampleItem => ({
   compliance200263: genBoolean(),
   sealId: randomstring.generate(),
   recipientKind: 'Laboratory',
-  ownerAgreement: genBoolean(),
   ...data
 });
 const Sample11FixtureId = '11111111-1111-1111-1111-111111111111';
