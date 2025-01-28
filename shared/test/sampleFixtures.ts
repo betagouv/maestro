@@ -1,4 +1,5 @@
 import { fakerFR } from '@faker-js/faker';
+import { pick } from 'lodash-es';
 import randomstring from 'randomstring';
 import { v4 as uuidv4 } from 'uuid';
 import { CultureKindList } from '../referential/CultureKind';
@@ -18,17 +19,16 @@ import {
   SampleContextData
 } from '../schema/Sample/Sample';
 import { SampleItem } from '../schema/Sample/SampleItem';
+import { SampleStatus } from '../schema/Sample/SampleStatus';
 import { CompanyFixture, genCompany } from './companyFixtures';
-import { genBoolean, genNumber, oneOf } from './testFixtures';
 import { ValidatedProgrammingPlanFixture } from './programmingPlanFixtures';
-import { pick } from 'lodash-es';
+import { genBoolean, genNumber, oneOf } from './testFixtures';
 import {
   Region1Fixture,
   Region2Fixture,
   Sampler1Fixture,
   Sampler2Fixture
 } from './userFixtures';
-import { SampleStatus } from '../schema/Sample/SampleStatus';
 
 export const genSampleContextData = (
   data?: Partial<SampleContextData>
@@ -99,6 +99,7 @@ export const genCreatedSample = (data?: Partial<Sample>): Sample => {
     prescriptionId: uuidv4(),
     laboratoryId: uuidv4(),
     items: sample.items as SampleItem[],
+    ownerAgreement: genBoolean(),
     ...data
   };
 };

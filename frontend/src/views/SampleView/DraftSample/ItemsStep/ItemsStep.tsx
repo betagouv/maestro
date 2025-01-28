@@ -51,13 +51,7 @@ const ItemsStep = ({ partialSample }: Props) => {
 
   const Form = z.object({
     items: z
-      .array(
-        SampleItem.omit({
-          ownerFirstName: true,
-          ownerLastName: true,
-          ownerEmail: true
-        })
-      )
+      .array(SampleItem)
       .min(1, { message: 'Veuillez renseigner au moins un échantillon.' })
       .refine(
         (items) =>
@@ -81,7 +75,10 @@ const ItemsStep = ({ partialSample }: Props) => {
     await createOrUpdateSample({
       ...partialSample,
       notesOnItems,
-      items,
+      items: items.map((item) => ({
+        ...item,
+        compliance200263: item.compliance200263 ?? false
+      })),
       status
     });
   };
@@ -168,8 +165,7 @@ const ItemsStep = ({ partialSample }: Props) => {
             inputKey="notesOnItems"
             whenValid="Note correctement renseignée."
             data-testid="notes-input"
-            label="Note additionnelle"
-            hintText="Champ facultatif pour précisions supplémentaires"
+            label="Note additionnelle concernant les échantillons"
           />
         </div>
       </div>

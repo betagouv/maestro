@@ -6,8 +6,9 @@ import { DepartmentLabels } from 'shared/referential/Department';
 import { LegalContextLabels } from 'shared/referential/LegalContext';
 import { ContextLabels } from 'shared/schema/ProgrammingPlan/Context';
 import {
-  isCreatedSample,
+  isCreatedPartialSample,
   Sample,
+  SampleOwnerData,
   SampleToCreate
 } from 'shared/schema/Sample/Sample';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -15,7 +16,7 @@ import { quote } from 'src/utils/stringUtils';
 import StepSummary from 'src/views/SampleView/StepSummary/StepSummary';
 
 interface Props {
-  sample: Sample | SampleToCreate;
+  sample: (Sample | SampleToCreate) & Partial<SampleOwnerData>;
   showLabel?: boolean;
   onChangeResytalId: (resytalId: string) => void;
 }
@@ -41,7 +42,7 @@ const ContextStepSummary = ({
         <div>
           Prélèvement réalisé par{' '}
           <b>
-            {isCreatedSample(sample)
+            {isCreatedPartialSample(sample)
               ? `${sample.sampler.firstName} ${sample.sampler.lastName}`
               : `${user?.firstName} ${user?.lastName}`}
           </b>

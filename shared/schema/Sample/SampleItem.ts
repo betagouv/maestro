@@ -7,33 +7,23 @@ export const SampleItem = z.object({
   itemNumber: z.number().int().positive(),
   quantity: z
     .number({
-      required_error: 'Veuillez renseigner la quantité.',
+      required_error: 'Veuillez renseigner la quantité.'
     })
     .nonnegative('La quantité doit être positive.'),
   quantityUnit: QuantityUnit,
   compliance200263: z.boolean().nullish(),
   sealId: z.string({
-    required_error: 'Veuillez renseigner le numéro de scellé.',
+    required_error: 'Veuillez renseigner le numéro de scellé.'
   }),
   supportDocumentId: z.string().uuid().nullish(),
-  recipientKind: SampleItemRecipientKind,
-  ownerFirstName: z.string().nullish(),
-  ownerLastName: z.string().nullish(),
-  ownerEmail: z
-    .string()
-    .email("L'adresse email du détenteur est invalide.")
-    .nullish(),
+  recipientKind: SampleItemRecipientKind
 });
 
 export const PartialSampleItem = SampleItem.partial().merge(
   SampleItem.pick({
     sampleId: true,
-    itemNumber: true,
-  }).merge(
-    z.object({
-      ownerEmail: z.string().nullish(),
-    })
-  )
+    itemNumber: true
+  })
 );
 
 export type SampleItem = z.infer<typeof SampleItem>;

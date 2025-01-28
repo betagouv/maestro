@@ -6,21 +6,22 @@ import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  isCreatedSample,
+  isCreatedPartialSample,
   Sample,
+  SampleOwnerData,
   SampleToCreate
 } from 'shared/schema/Sample/Sample';
-import { SampleItem } from 'shared/schema/Sample/SampleItem';
+import { isDefined } from 'shared/utils/utils';
+import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
+import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
+import SupportDocumentSelect from 'src/components/SupportDocumentSelect/SupportDocumentSelect';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
 import { useOnLine } from 'src/hooks/useOnLine';
 import { usePartialSample } from 'src/hooks/usePartialSample';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
-import {
-  getSupportDocumentURL,
-  useCreateOrUpdateSampleMutation
-} from 'src/services/sample.service';
+import { useCreateOrUpdateSampleMutation } from 'src/services/sample.service';
 import { pluralize } from 'src/utils/stringUtils';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SendingModal from 'src/views/SampleView/DraftSample/SendingStep/SendingModal';
@@ -30,7 +31,7 @@ import ItemsStepSummary from 'src/views/SampleView/StepSummary/ItemsStepSummary'
 import MatrixStepSummary from 'src/views/SampleView/StepSummary/MatrixStepSummary';
 
 interface Props {
-  sample: Sample | SampleToCreate;
+  sample: (Sample | SampleToCreate) & Partial<SampleOwnerData>;
 }
 
 const SendingStep = ({ sample }: Props) => {
@@ -39,8 +40,14 @@ const SendingStep = ({ sample }: Props) => {
   const { isOnline } = useOnLine();
   const { laboratory } = usePartialSample(sample);
 
-  const [items, setItems] = useState<SampleItem[]>(sample.items);
   const [resytalId, setResytalId] = useState(sample.resytalId);
+  const [ownerFirstName, setOwnerFirstName] = useState(sample.ownerFirstName);
+  const [ownerLastName, setOwnerLastName] = useState(sample.ownerLastName);
+  const [ownerEmail, setOwnerEmail] = useState(sample.ownerEmail);
+  const [ownerAgreement, setOwnerAgreement] = useState(sample.ownerAgreement);
+  const [notesOnOwnerAgreement, setNotesOnOwnerAgreement] = useState(
+    sample.notesOnOwnerAgreement
+  );
   const [isSaved, setIsSaved] = useState(false);
 
   const [createOrUpdateSample, { isError }] = useCreateOrUpdateSampleMutation({
@@ -48,7 +55,9 @@ const SendingStep = ({ sample }: Props) => {
   });
 
   const isSendable = useMemo(
-    () => Sample.safeParse(sample).success && isOnline,
+    () =>
+      SampleToCreate.merge(SampleOwnerData.partial()).safeParse(sample)
+        .success && isOnline,
     [sample, isOnline]
   );
 
@@ -62,42 +71,46 @@ const SendingStep = ({ sample }: Props) => {
   );
 
   const Form = Sample.pick({
-    items: true,
-    resytalId: true
+    resytalId: true,
+    ownerFirstName: true,
+    ownerLastName: true,
+    ownerEmail: true,
+    ownerAgreement: true,
+    notesOnOwnerAgreement: true
   });
 
   type FormShape = typeof Form.shape;
 
   const submit = async () => {
-    await save('Sent', () => {
+    await form.validate(async () => {
+      await save('Sent');
       navigateToSample(sample.id);
     });
   };
 
-  const save = async (status = sample.status, callback?: () => void) => {
+  const save = async (status = sample.status) => {
     setIsSaved(false);
-    await form.validate(async () => {
-      await createOrUpdateSample({
-        ...sample,
-        items,
-        resytalId,
-        status
-      });
-      callback?.();
+    await createOrUpdateSample({
+      ...sample,
+      resytalId,
+      ownerFirstName,
+      ownerLastName,
+      ownerEmail,
+      ownerAgreement,
+      notesOnOwnerAgreement,
+      status
     });
-  };
-
-  const changeItems = (item: SampleItem, index: number) => {
-    const newItems = [...items];
-    newItems[index] = item;
-    setItems(newItems);
   };
 
   const form = useForm(
     Form,
     {
-      items,
-      resytalId
+      resytalId,
+      ownerFirstName,
+      ownerLastName,
+      ownerEmail,
+      ownerAgreement,
+      notesOnOwnerAgreement
     },
     save
   );
@@ -107,7 +120,7 @@ const SendingStep = ({ sample }: Props) => {
       <div data-testid="sample_data" className="sample-form">
         <h3 className={cx('fr-m-0')}>
           Récapitulatif du prélèvement{' '}
-          {isCreatedSample(sample) && sample.reference}
+          {isCreatedPartialSample(sample) && sample.reference}
           {hasUserPermission('updateSample') && (
             <div className={cx('fr-text--md', 'fr-text--regular', 'fr-m-0')}>
               Vérifiez l’ensemble des informations avant de finaliser votre
@@ -119,22 +132,57 @@ const SendingStep = ({ sample }: Props) => {
         <hr className={cx('fr-mx-0', 'fr-hidden', 'fr-unhidden-sm')} />
         <MatrixStepSummary sample={sample} />
         <hr className={cx('fr-mx-0', 'fr-hidden', 'fr-unhidden-sm')} />
-        <h3 className={cx('fr-m-0')}>
-          {pluralize(sample.items.length)('Échantillon prélevé')}
-        </h3>
-        <ItemsStepSummary
-          sample={{
-            ...sample,
-            items
-          }}
-          itemChildren={(item, itemIndex) => (
-            <>
-              <hr className={cx('fr-m-0')} />
-              {isOnline ? (
-                <div>
-                  <h6>
-                    Document d'accompagnement du prélèvement / Procès verbal
-                  </h6>
+        <ItemsStepSummary sample={sample} />
+        <hr className={cx('fr-mx-0', 'fr-hidden', 'fr-unhidden-sm')} />
+        <h3 className={cx('fr-m-0')}>Consentement par le détenteur</h3>
+        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+          <div className={cx('fr-col-12')}>
+            <AppRadioButtons<FormShape>
+              legend="Le détenteur accepte les informations portées au présent procès verbal"
+              options={[
+                {
+                  label: 'Oui',
+                  nativeInputProps: {
+                    checked: ownerAgreement,
+                    onChange: () => setOwnerAgreement(true)
+                  }
+                },
+                {
+                  label: 'Non',
+                  nativeInputProps: {
+                    checked: isDefined(ownerAgreement) && !ownerAgreement,
+                    onChange: () => setOwnerAgreement(false)
+                  }
+                }
+              ]}
+              inputForm={form}
+              inputKey="ownerAgreement"
+              required
+            />
+          </div>
+        </div>
+
+        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+          <div className={cx('fr-col-12')}>
+            <AppTextAreaInput<FormShape>
+              rows={1}
+              defaultValue={notesOnOwnerAgreement ?? ''}
+              onChange={(e) => setNotesOnOwnerAgreement(e.target.value)}
+              inputForm={form}
+              inputKey="notesOnOwnerAgreement"
+              whenValid="Déclaration correctement renseignée."
+              label="Déclaration du détenteur"
+              hintText="Champ facultatif pour spécifier une éventuelle déclaration du détenteur"
+            />
+          </div>
+        </div>
+        {isOnline ? (
+          <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+            <div className={cx('fr-col-12')}>
+              <SupportDocumentSelect
+                label="Document d'accompagnement du prélèvement / Procès verbal"
+                sample={sample}
+                renderButtons={(onClick) => (
                   <ButtonsGroup
                     inlineLayoutWhen="always"
                     buttons={[
@@ -142,97 +190,74 @@ const SendingStep = ({ sample }: Props) => {
                         children: 'Aperçu',
                         iconId: 'fr-icon-external-link-line',
                         priority: 'secondary',
-                        onClick: () =>
-                          window.open(
-                            getSupportDocumentURL(sample.id, itemIndex + 1)
-                          )
+                        className: cx('fr-mb-0'),
+                        onClick
                       },
                       {
                         children: 'Imprimer',
                         iconId: 'fr-icon-file-pdf-line',
-                        onClick: () =>
-                          window.open(
-                            getSupportDocumentURL(sample.id, itemIndex + 1)
-                          )
+                        className: cx('fr-mb-0'),
+                        onClick
                       }
                     ]}
                   />
-                </div>
-              ) : (
-                <div className="d-flex-align-center">
-                  <span
-                    className={cx('fr-icon-warning-line', 'fr-mr-1w')}
-                  ></span>
-                  Le document d'accompagnement du prélèvement / Procès verbal
-                  sera disponible lorsque la connexion Internet sera rétablie.
-                </div>
-              )}
-              <hr className={cx('fr-m-0')} />
-              <div>
-                <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-                  <div className={cx('fr-col-12')}>
-                    <h6>
-                      Envoyer le procès verbal au détenteur de la marchandise
-                    </h6>
-                  </div>
-                </div>
-                <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-                  <div className={cx('fr-col-6', 'fr-col-sm-3')}>
-                    <AppTextInput<FormShape>
-                      value={item.ownerLastName ?? ''}
-                      onChange={(e) =>
-                        changeItems(
-                          { ...item, ownerLastName: e.target.value },
-                          itemIndex
-                        )
-                      }
-                      inputForm={form}
-                      inputKey="items"
-                      inputPathFromKey={[itemIndex, 'ownerLastName']}
-                      whenValid="Nom valide"
-                      label="Identité du détenteur"
-                      hintText="Nom"
-                    />
-                  </div>
-                  <div className={cx('fr-col-6', 'fr-col-sm-3')}>
-                    <AppTextInput<FormShape>
-                      value={item.ownerFirstName ?? ''}
-                      onChange={(e) =>
-                        changeItems(
-                          { ...item, ownerFirstName: e.target.value },
-                          itemIndex
-                        )
-                      }
-                      inputForm={form}
-                      inputKey="items"
-                      inputPathFromKey={[itemIndex, 'ownerFirstName']}
-                      whenValid="Prénom valide"
-                      hintText="Prénom"
-                    />
-                  </div>
-                  <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-                    <AppTextInput<FormShape>
-                      value={item.ownerEmail ?? ''}
-                      onChange={(e) =>
-                        changeItems(
-                          { ...item, ownerEmail: e.target.value },
-                          itemIndex
-                        )
-                      }
-                      type="email"
-                      inputForm={form}
-                      inputKey="items"
-                      inputPathFromKey={[itemIndex, 'ownerEmail']}
-                      whenValid="Email valide"
-                      label="E-mail du détenteur"
-                      hintText="Le détenteur recevra une copie du procès verbal"
-                    />
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
-        />
+                )}
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="d-flex-align-center">
+            <span className={cx('fr-icon-warning-line', 'fr-mr-1w')}></span>
+            Le document d'accompagnement du prélèvement / Procès verbal sera
+            disponible lorsque la connexion Internet sera rétablie.
+          </div>
+        )}
+        <div>
+          <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+            <div className={cx('fr-col-12', 'fr-mb-1w')}>
+              <h6 className={cx('fr-mb-0')}>
+                Envoyer le procès verbal au détenteur de la marchandise
+              </h6>
+              {sample.items.length}{' '}
+              {pluralize(sample.items.length)("document d'accompagnement")}
+            </div>
+          </div>
+          <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+            <div className={cx('fr-col-6', 'fr-col-sm-3')}>
+              <AppTextInput<FormShape>
+                value={ownerLastName ?? ''}
+                onChange={(e) => setOwnerLastName(e.target.value)}
+                inputForm={form}
+                inputKey="ownerLastName"
+                whenValid="Nom valide"
+                label="Identité du détenteur"
+                hintText="Nom"
+              />
+            </div>
+            <div className={cx('fr-col-6', 'fr-col-sm-3')}>
+              <AppTextInput<FormShape>
+                value={ownerFirstName ?? ''}
+                onChange={(e) => setOwnerFirstName(e.target.value)}
+                inputForm={form}
+                inputKey="ownerFirstName"
+                whenValid="Prénom valide"
+                hintText="Prénom"
+              />
+            </div>
+            <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+              <AppTextInput<FormShape>
+                value={ownerEmail ?? ''}
+                onChange={(e) => setOwnerEmail(e.target.value)}
+                type="email"
+                inputForm={form}
+                inputKey="ownerEmail"
+                whenValid="Email valide"
+                label="E-mail du détenteur"
+                hintText="Le détenteur recevra une copie du procès verbal"
+              />
+            </div>
+          </div>
+        </div>
         {!isSendable && (
           <Alert
             severity="warning"
@@ -240,7 +265,7 @@ const SendingStep = ({ sample }: Props) => {
               <>
                 En l’absence de connexion lors de la saisie, certaines
                 informations n’ont pu être validées (<b>entité contrôlée</b> et
-                <b> localisation de la parcelle</b>)
+                <b> localisation de la parcelle</b>)
                 <div>
                   <Link
                     to=""
@@ -295,7 +320,8 @@ const SendingStep = ({ sample }: Props) => {
                           priority: 'tertiary',
                           onClick: async (e: React.MouseEvent<HTMLElement>) => {
                             e.preventDefault();
-                            await save(sample.status, () => setIsSaved(true));
+                            await save(sample.status);
+                            setIsSaved(true);
                           }
                         }
                       ] as any

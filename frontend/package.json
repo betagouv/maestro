@@ -3,13 +3,9 @@
   "version": "0.0.1",
   "private": false,
   "type": "module",
-  "scriptsComments": {
-    "postinstall": "Permet à l'API d'utiliser le DSFR pour générer des PDF."
-  },
   "scripts": {
     "dev": "vite",
     "start": "vite",
-    "postinstall": "copy-dsfr-to-public",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest",

@@ -23,22 +23,6 @@
     }
   }
 
-  .select-with-button {
-    display: flex;
-    align-items: flex-end;
-
-    button {
-      margin-bottom: 1.5rem;
-    }
-
-    @media (max-width: $breakpoint-md) {
-      flex-grow: 1;
-      div {
-        flex-grow: 1;
-      }
-    }
-  }
-
   .sample-status {
     display: flex;
 

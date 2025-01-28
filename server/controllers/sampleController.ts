@@ -21,7 +21,7 @@ import documentRepository from '../repositories/documentRepository';
 import laboratoryRepository from '../repositories/laboratoryRepository';
 import sampleItemRepository from '../repositories/sampleItemRepository';
 import sampleRepository from '../repositories/sampleRepository';
-import documentService from '../services/documentService/documentService';
+import { documentService } from '../services/documentService/documentService';
 import exportSamplesService from '../services/exportService/exportSamplesService';
 import { mailService } from '../services/mailService';
 import { getS3Client } from '../services/s3Service';
@@ -48,14 +48,12 @@ const getSampleItemDocument = async (request: Request, response: Response) => {
 
   console.info('Get sample document', sample.id);
 
-  const sampleItem = await sampleItemRepository.findUnique(
-    sample.id,
-    itemNumber
-  );
+  const sampleItems = await sampleItemRepository.findMany(sample.id);
 
   const pdfBuffer = await documentService.generateSupportDocument(
     sample,
-    sampleItem ?? null,
+    sampleItems,
+    itemNumber,
     user
   );
 
@@ -194,7 +192,8 @@ const updateSample = async (request: Request, response: Response) => {
       sampleItems.map(async (sampleItem) => {
         const doc = await storeSampleItemDocument(
           updatedSample as Sample,
-          sampleItem as SampleItem,
+          sampleItems as SampleItem[],
+          sampleItem.itemNumber,
           user
         );
 
@@ -219,9 +218,9 @@ const updateSample = async (request: Request, response: Response) => {
           });
         }
 
-        if (sampleItem.ownerEmail) {
+        if (sample.ownerEmail) {
           await mailService.sendSupportDocumentCopyToOwner({
-            recipients: [sampleItem.ownerEmail, config.mail.from],
+            recipients: [sample.ownerEmail, config.mail.from],
             params: {
               region: user.region ? Regions[user.region].name : undefined,
               sampledAt: format(updatedSample.sampledAt, 'dd/MM/yyyy')
@@ -245,16 +244,24 @@ const updateSample = async (request: Request, response: Response) => {
 
 const storeSampleItemDocument = async (
   sample: Sample,
-  sampleItem: SampleItem,
+  sampleItems: SampleItem[],
+  itemNumber: number,
   sampler: User
 ) => {
   const client = getS3Client();
 
   const pdfBuffer = await documentService.generateSupportDocument(
     sample,
-    sampleItem,
+    sampleItems,
+    itemNumber,
     sampler
   );
+
+  const sampleItem = sampleItems.find((item) => item.itemNumber === itemNumber);
+
+  if (!sampleItem) {
+    throw new Error(`Sample item ${itemNumber} not found`);
+  }
 
   if (sampleItem.supportDocumentId) {
     console.info('Delete previous document', sampleItem.supportDocumentId);

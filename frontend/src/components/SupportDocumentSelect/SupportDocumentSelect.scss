@@ -1,0 +1,22 @@
+@import '../../constants';
+
+.select-with-button {
+  display: flex;
+  align-items: flex-end;
+
+  button {
+    margin-bottom: 0 !important;
+  }
+
+  .fr-select-group {
+    flex-grow: 1;
+    margin-bottom: 0;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    flex-grow: 1;
+    div {
+      flex-grow: 1;
+    }
+  }
+}

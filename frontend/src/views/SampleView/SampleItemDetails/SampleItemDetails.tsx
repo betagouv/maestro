@@ -7,14 +7,14 @@ import {
   PrimaryQuantityUnitList,
   QuantityUnit,
   QuantityUnitLabels,
-  SecondaryQuantityUnitList,
+  SecondaryQuantityUnitList
 } from 'shared/referential/QuantityUnit';
 import { Laboratory } from 'shared/schema/Laboratory/Laboratory';
 import { Sample } from 'shared/schema/Sample/Sample';
 import { PartialSampleItem } from 'shared/schema/Sample/SampleItem';
 import {
   SampleItemRecipientKind,
-  SampleItemRecipientKindLabels,
+  SampleItemRecipientKindLabels
 } from 'shared/schema/Sample/SampleItemRecipientKind';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppResponsiveButton from 'src/components/_app/AppResponsiveButton/AppResponsiveButton';
@@ -39,17 +39,16 @@ const SampleItemDetails = ({
   onRemoveItem,
   onChangeItem,
   itemsForm,
-  laboratory,
-  children,
+  laboratory
 }: Props) => {
   const Form = Sample.pick({
-    items: true,
+    items: true
   });
 
   type FormShape = typeof Form.shape;
 
   const fakeForm = useForm(Form, {
-    items: [],
+    items: []
   });
 
   const form = itemsForm ?? fakeForm;
@@ -108,18 +107,18 @@ const SampleItemDetails = ({
             value={item.quantityUnit ?? ''}
             options={[
               ...selectOptionsFromList(PrimaryQuantityUnitList, {
-                labels: QuantityUnitLabels,
+                labels: QuantityUnitLabels
               }),
               ...selectOptionsFromList(SecondaryQuantityUnitList, {
                 labels: QuantityUnitLabels,
-                withDefault: false,
-              }),
+                withDefault: false
+              })
             ]}
             onChange={(e) =>
               onChangeItem?.(
                 {
                   ...item,
-                  quantityUnit: e.target.value as QuantityUnit,
+                  quantityUnit: e.target.value as QuantityUnit
                 },
                 itemIndex
               )
@@ -141,7 +140,7 @@ const SampleItemDetails = ({
               onChangeItem?.(
                 {
                   ...item,
-                  sealId: e.target.value,
+                  sealId: e.target.value
                 },
                 itemIndex
               )
@@ -175,7 +174,7 @@ const SampleItemDetails = ({
               options={
                 selectOptionsFromList(['Sampler', 'Operator'], {
                   labels: SampleItemRecipientKindLabels,
-                  withDefault: false,
+                  withDefault: false
                 }).map(({ label, value }) => ({
                   key: `recipientKind-option-${value}`,
                   label,
@@ -185,11 +184,11 @@ const SampleItemDetails = ({
                       onChangeItem?.(
                         {
                           ...item,
-                          recipientKind: value as SampleItemRecipientKind,
+                          recipientKind: value as SampleItemRecipientKind
                         },
                         itemIndex
-                      ),
-                  },
+                      )
+                  }
                 })) ?? []
               }
               colSm={6}
@@ -223,7 +222,7 @@ const SampleItemDetails = ({
               <div
                 className={cx('fr-icon-bookmark-fill', {
                   'fr-label--error': !item.compliance200263,
-                  'fr-label--success': item.compliance200263,
+                  'fr-label--success': item.compliance200263
                 })}
               />
               <div>
@@ -234,7 +233,6 @@ const SampleItemDetails = ({
           )}
         </div>
       </div>
-      {children}
     </>
   );
 };

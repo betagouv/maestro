@@ -255,7 +255,7 @@ const MatrixStep = ({ partialSample }: Props) => {
             whenValid="Note correctement renseignée."
             data-testid="notes-input"
             label="Note additionnelle"
-            hintText="Champ facultatif pour précisions supplémentaires (date de semis, précédent cultural, traitements faits, etc.)"
+            hintText="Champ facultatif pour précisions supplémentaires (date de semis, précédent cultural, traitements faits, protocole de prélèvement et note inspecteur, etc.)"
           />
         </div>
       </div>
