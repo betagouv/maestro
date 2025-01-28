@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const TokenPayload = z.object({
-  userId: z.string().uuid(),
+  userId: z.string().uuid().nullable(),
   idToken: z.string()
 });
 

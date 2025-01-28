@@ -1,5 +1,5 @@
 import { AuthRedirectUrl } from 'shared/schema/Auth/AuthRedirectUrl';
-import { AuthUser } from 'shared/schema/User/AuthUser';
+import { AuthMaybeUnknownUser } from 'shared/schema/User/AuthUser';
 import { api } from 'src/services/api.service';
 
 export const authApi = api.injectEndpoints({
@@ -8,13 +8,13 @@ export const authApi = api.injectEndpoints({
       query: () => 'auth/redirect-url',
       transformResponse: (result: any) => AuthRedirectUrl.parse(result)
     }),
-    authenticate: builder.mutation<AuthUser, AuthRedirectUrl>({
+    authenticate: builder.mutation<AuthMaybeUnknownUser, AuthRedirectUrl>({
       query: (authRedirectUrl) => ({
         url: 'auth',
         method: 'POST',
         body: authRedirectUrl
       }),
-      transformResponse: (result: any) => AuthUser.parse(result),
+      transformResponse: (result: any) => AuthMaybeUnknownUser.parse(result),
       invalidatesTags: ['AuthUser']
     }),
     logout: builder.mutation<AuthRedirectUrl, void>({

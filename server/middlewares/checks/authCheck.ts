@@ -37,7 +37,7 @@ export const userCheck = (credentialsRequired: boolean) =>
 
       request.user = user;
     } else {
-      if (request.auth) {
+      if (request.auth && request.auth.userId) {
         request.user =
           (await userRepository.findUnique(request.auth.userId)) ?? undefined;
       }

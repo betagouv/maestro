@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { AuthUser } from 'shared/schema/User/AuthUser';
+import { AuthMaybeUnknownUser, AuthUser } from 'shared/schema/User/AuthUser';
 
 const authUser = JSON.parse(localStorage.getItem('authUser') ?? '{}');
 
@@ -11,9 +11,11 @@ const authSlice = createSlice({
   name: 'auth',
   initialState: { authUser } as AuthState,
   reducers: {
-    signinUser: (state, action: PayloadAction<{ authUser: AuthUser }>) => {
+    signinUser: (state, action: PayloadAction<{ authUser: AuthMaybeUnknownUser }>) => {
       localStorage.setItem('authUser', JSON.stringify(action.payload.authUser));
-      state.authUser = action.payload.authUser;
+      if( action.payload.authUser.userId !== null){
+        state.authUser = action.payload.authUser;
+      }
     },
     signoutUser: (state) => {
       localStorage.removeItem('authUser');
