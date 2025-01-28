@@ -7,6 +7,9 @@ import { PartialSample, Sample } from '../../shared/schema/Sample/Sample';
 import { companiesTable } from './companyRepository';
 import {knexInstance as db } from './db';
 import { usersTable } from './userRepository';
+import { SampleStatus } from '../../shared/schema/Sample/SampleStatus';
+import { KyselyMaestro } from './kysely.type';
+import { kysely } from './kysely';
 
 export const samplesTable = 'samples';
 const sampleSequenceNumbers = 'sample_sequence_numbers';
@@ -196,6 +199,10 @@ const update = async (partialSample: PartialSample): Promise<void> => {
   }
 };
 
+const updateStatus = async (sampleId: string, status: SampleStatus, trx: KyselyMaestro = kysely) => {
+  await trx.updateTable('samples').where('id', '=', sampleId).set('status', status).execute()
+}
+
 const deleteOne = async (id: string): Promise<void> => {
   console.info('Delete sample', id);
   await Samples().where({ id }).delete();
@@ -243,9 +250,10 @@ export const parsePartialSample = (
     },
   });
 
-export default {
+export const sampleRepository = {
   insert,
   update,
+  updateStatus,
   findUnique,
   findMany,
   count,

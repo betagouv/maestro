@@ -16,7 +16,7 @@ const getLaboratory = async (request: Request, response: Response) => {
   response.status(constants.HTTP_STATUS_OK).send(laboratory);
 };
 
-const findLaboratories = async (request: Request, response: Response) => {
+const findLaboratories = async (_request: Request, response: Response) => {
   console.info('Find laboratories');
 
   const laboratories = await laboratoryRepository.findMany();

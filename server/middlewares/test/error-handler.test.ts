@@ -12,7 +12,7 @@ describe('Error handler', () => {
 
     app.get(
       unexpectedErrorRoute,
-      async (request: Request, response: Response, next: NextFunction) => {
+      async (_request: Request, _response: Response, next: NextFunction) => {
         const error = new Error('Unexpected error');
         next(error);
       },

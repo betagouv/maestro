@@ -1,8 +1,8 @@
-import { CamelCasePlugin,  Kysely, PostgresDialect } from 'kysely';
-import { DB } from './kysely.type';
+import { CamelCasePlugin, Kysely, PostgresDialect, Transaction } from 'kysely';
+import { DB, KyselyMaestro } from './kysely.type';
 import pg from 'pg'
 
-export let kysely: Kysely<DB>
+export let kysely: KyselyMaestro
 
 export const initKysely = (connectionString: string) => ( kysely = new Kysely<DB>({
   dialect: new PostgresDialect({
@@ -15,3 +15,6 @@ export const initKysely = (connectionString: string) => ( kysely = new Kysely<DB
 }))
 
 
+export const executeTransaction = <T>(callback: (trx: Transaction<DB>) => Promise<T>): Promise<T> => {
+  return kysely.transaction().execute(trx => callback(trx))
+}

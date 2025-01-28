@@ -1,13 +1,14 @@
 import { isNil, omit, omitBy } from 'lodash-es';
 import z from 'zod';
 import {
-  CreatedAnalysis,
-  PartialAnalysis,
+  PartialAnalysis
 } from '../../shared/schema/Analysis/Analysis';
 import { PartialAnalyte } from '../../shared/schema/Analysis/Analyte';
 import { PartialResidue } from '../../shared/schema/Analysis/Residue/Residue';
 import { convertKeysToCamelCase } from '../../shared/utils/utils';
 import {knexInstance as db} from './db';
+import type { KyselyMaestro } from './kysely.type';
+import { kysely } from './kysely';
 
 const analysisTable = 'analysis';
 const analysisResiduesTable = 'analysis_residues';
@@ -63,9 +64,15 @@ const findUnique = async (
     .first()
     .then(parsePartialAnalysis);
 };
-const insert = async (createdAnalysis: CreatedAnalysis): Promise<void> => {
+const insert = async (createdAnalysis: Omit<PartialAnalysis, 'id'>, trx: KyselyMaestro = kysely): Promise<string> => {
   console.info('Insert analysis', createdAnalysis);
-  await Analysis().insert(formatPartialAnalysis(createdAnalysis));
+  const { analysisId } = await trx
+    .insertInto('analysis')
+    .values(createdAnalysis)
+    .returning('analysis.id as analysisId')
+    .executeTakeFirstOrThrow();
+
+  return analysisId
 };
 
 const update = async (partialAnalysis: PartialAnalysis): Promise<void> => {
@@ -133,7 +140,8 @@ export const parsePartialAnalysis = (
     ),
   });
 
-export default {
+
+export const analysisRepository = {
   findUnique,
   insert,
   update,

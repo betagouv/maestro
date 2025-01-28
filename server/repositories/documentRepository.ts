@@ -2,6 +2,8 @@ import { isNil, omitBy } from 'lodash-es';
 import { Document } from '../../shared/schema/Document/Document';
 import { FindDocumentOptions } from '../../shared/schema/Document/FindDocumentOptions';
 import {knexInstance as db} from './db';
+import { KyselyMaestro } from './kysely.type';
+import { kysely } from './kysely';
 
 const documentsTable = 'documents';
 
@@ -26,9 +28,9 @@ const findMany = async (
     );
 };
 
-const insert = async (document: Document): Promise<void> => {
+const insert = async (document: Document, trx: KyselyMaestro = kysely): Promise<void> => {
   console.info('Insert document', document.id);
-  await Documents().insert(document);
+  await trx.insertInto('documents').values(document).execute()
 };
 
 const deleteOne = async (id: string): Promise<void> => {
@@ -36,7 +38,7 @@ const deleteOne = async (id: string): Promise<void> => {
   await Documents().where({ id }).delete();
 };
 
-export default {
+export const documentRepository =  {
   insert,
   findMany,
   findUnique,

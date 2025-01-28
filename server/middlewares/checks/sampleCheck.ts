@@ -3,7 +3,7 @@ import { AuthenticatedRequest } from 'express-jwt';
 import { constants } from 'http2';
 import SampleMissingError from '../../../shared/errors/sampleMissingError';
 import { userDepartments } from '../../../shared/schema/User/User';
-import sampleRepository from '../../repositories/sampleRepository';
+import { sampleRepository } from '../../repositories/sampleRepository';
 
 export const sampleCheck =
   () => async (request: Request, response: Response, next: NextFunction) => {

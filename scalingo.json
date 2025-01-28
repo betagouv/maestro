@@ -11,6 +11,9 @@
     "REACT_APP_API_URL": {
       "generator": "url",
       "template": "%URL%"
+    },
+    "REVIEW_APP": {
+      "value": true
     }
   },
   "scripts": {

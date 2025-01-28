@@ -1,6 +1,6 @@
 import { defineWorkspace } from 'vitest/config'
 
-const integrationTestFiles = ['**/*.router.test.ts', '**/repositories/*.test.ts']
+const integrationTestFiles = ['**/*.router.test.ts', '**/repositories/*.test.ts', '**/*.integration.test.ts']
 export default defineWorkspace([
   {
     test: {

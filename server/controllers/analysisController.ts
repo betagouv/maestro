@@ -9,8 +9,8 @@ import {
   CreatedAnalysis,
   PartialAnalysis,
 } from '../../shared/schema/Analysis/Analysis';
-import analysisRepository from '../repositories/analysisRepository';
-import sampleRepository from '../repositories/sampleRepository';
+import { sampleRepository } from '../repositories/sampleRepository';
+import { analysisRepository } from '../repositories/analysisRepository';
 
 const getAnalysis = async (request: Request, response: Response) => {
   const { sampleId } = request.query as { sampleId: string };
