@@ -57,7 +57,7 @@ const updateSSD2Referential = async () => {
     }
   })
 
-  const columnNames = ['termCode','pestParamReportable', 'termExtendedName', 'otherNames', 'zooLabel','CAS'] as const
+  const columnNames = ['termCode','pestParamReportable', 'termExtendedName', 'otherNames', 'zooLabel','CAS', 'masterParentCode'] as const
   columnNames.forEach((name) => {
     if (!Object.keys(allColumnsIndex).includes(name)) {
       throw new Error(`impossible de trouver la colonne ${name}`)
@@ -70,7 +70,7 @@ const updateSSD2Referential = async () => {
   }, {} as Record<typeof columnNames[number], number>)
 
 
-  const rows: {reference: string, name: string, casNumber: string | null, otherNames: string[]}[] = []
+  const rows: {reference: string, name: string, casNumber: string | null, otherNames: string[], masterParentCode: string}[] = []
   worksheet.eachRow(function(row, rowNumber) {
     if (rowNumber !== 1 && row.getCell(columnsIndex['pestParamReportable']).value === '1') {
 
@@ -79,30 +79,39 @@ const updateSSD2Referential = async () => {
       }
 
       const name = `${row.getCell(columnsIndex['termExtendedName']).value}`
-
       rows.push({
         reference: `${row.getCell(columnsIndex['termCode']).value}`,
         name,
         casNumber:  getStringValueOrNull(row.getCell(columnsIndex['CAS']).value) ,
         otherNames: [getStringValueOrNull(row.getCell(columnsIndex['zooLabel']).value), ...getStringValueOrNull(row.getCell(columnsIndex['otherNames']).value)?.split('$') ?? []]
           .filter(s => s !== name)
-          .filter(s => s!==null)
+          .filter(s => s!==null),
+        masterParentCode: `${row.getCell(columnsIndex['masterParentCode']).value}`
       })
     }
   });
 
-  const ssd2File = path.join(process.cwd(), '../shared/referential/Residue/SSD2Referential.ts')
-  const data = readFileSync(ssd2File, {
-    encoding: 'utf-8',
-  })
+  const rowsWithAnalytes: (Omit<(typeof rows)[number], 'masterParentCode'> & {
+    analytes?: string[];
+  })[] = rows
+    .map((row) => {
+      const { masterParentCode, ...rest } = row;
+      if (row.name.includes('(sum')) {
 
-  const startComment = '// ----- ne pas supprimer cette ligne : début'
-  const stopComment = '// ----- ne pas supprimer cette ligne : fin'
-  const startIndex = data.indexOf(startComment)
-  const preCode = data.slice(0, startIndex + startComment.length + 1)
-  const postCode = data.slice(data.indexOf(stopComment) - 137)
+        const analytes =  rows.filter(
+          ({ masterParentCode }) => masterParentCode === row.reference
+        ).map(({ reference }) => reference)
+        if (analytes.length > 0) {
+          return {
+            ...rest,
+            analytes
+          };
+        }
+      }
+      return rest
+    });
 
-  const newRows = rows.reduce((acc, r) => {
+  const newRows = rowsWithAnalytes.reduce((acc, r) => {
     acc[r.reference] = r
     return acc
   }, {} as Record<string, unknown>)
@@ -112,18 +121,48 @@ const updateSSD2Referential = async () => {
   // et qui sont peut-être utilisées par notre bdd.
   const newReferential: Record<string, any> = {...SSD2Referential, ...newRows}
 
+
   for( const reference in newReferential ){
     if (!(reference in newRows)) {
       newReferential[reference].deprecated = true
     }
   }
-  const code = JSON.stringify(newReferential, null, 3)
 
-  writeFileSync(ssd2File, preCode + code + postCode)
-
-
+  updateReferentialFile(newReferential)
+  updateIdFile(Object.keys(newReferential))
 };
 
+const updateReferentialFile = (newReferential: Record<string, any>) => {
+
+  const ssd2ReferentialFile = path.join(process.cwd(), '../shared/referential/Residue/SSD2Referential.ts')
+  const referentialFileData = readFileSync(ssd2ReferentialFile, {
+    encoding: 'utf-8',
+  })
+
+  const startComment = '// ----- ne pas supprimer cette ligne : début'
+  const stopComment = '// ----- ne pas supprimer cette ligne : fin'
+  const startIndex = referentialFileData.indexOf(startComment)
+  const preCode = referentialFileData.slice(0, startIndex + startComment.length + 1)
+  const postCode = referentialFileData.slice(referentialFileData.indexOf(stopComment) - 32)
+
+  const code = JSON.stringify(newReferential, null, 3)
+
+  writeFileSync(ssd2ReferentialFile, preCode + code + postCode)
+}
+
+const updateIdFile = (newIds: string[]) => {
+
+  const idsFile = path.join(process.cwd(), '../shared/referential/Residue/SSD2Id.ts')
+  const referentialFileData = readFileSync(idsFile, {
+    encoding: 'utf-8',
+  })
+
+  const preCode = referentialFileData.slice(0, 40)
+
+  const code= newIds.map(id => `'${id}'`).join('|')
+
+  writeFileSync(idsFile, preCode + code)
+}
 export default updateSSD2Referential()
   .then(() => {
     process.exit();
