@@ -71,13 +71,13 @@ main {
     .sample-section-block {
       display: flex;
       flex-direction: row;
+      break-inside: avoid;
+      page-break-inside: avoid;
+      overflow: hidden;
 
       .sample-section-item {
         display: flex;
         flex-direction: column;
-        break-inside: avoid;
-        page-break-inside: avoid;
-        overflow: hidden;
       }
 
       .fr-icon--sm {

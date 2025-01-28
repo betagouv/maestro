@@ -516,36 +516,6 @@
                               </div>
                             </div>
                           </div>
-                          <div class='sample-section-block'>
-                            <span class='fr-icon-user-line fr-icon--sm'></span>
-                            <div class='fr-container fr-pl-1w'>
-                              <fieldset class="fr-fieldset fr-px-0 fr-my-0">
-                                <legend class="fr-fieldset__legend fr-col-12 fr-pb-1w label">
-                                  Le détenteur accepte les informations portées au présent procès verbal
-                                </legend>
-                                <div class="fr-grid-row fr-grid-row--gutters fr-mx-0 fr-mb-2w">
-                                  <div class="fr-radio-group fr-col-12 fr-py-0">
-                                    <input type="radio" {{#if (eq ownerAgreement true)}}checked{{/if}}>
-                                    <label class="fr-label fr-pt-1v">Oui</label>
-                                  </div>
-                                  <div class="fr-radio-group fr-col-12 fr-py-0">
-                                    <input type="radio"{{#if (eq ownerAgreement false)}}checked{{/if}}>
-                                    <label class="fr-label fr-pt-1v">Non</label>
-                                  </div>
-                                </div>
-                              </fieldset>
-                              <div class='fr-grid-row fr-grid-row--gutters'>
-                                <div class='fr-col-12 sample-section-item'>
-                                  <div class='label'>
-                                    Déclaration du détenteur
-                                  </div>
-                                  <div class='value'>
-                                    {{breaklines notesOnOwnerAgreement}}&nbsp;
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
                         </div>
                       {{/each}}
                       <div class='sample-section-block'>
@@ -564,23 +534,51 @@
                           </div>
                         </div>
                       </div>
-                      {{#if notesOnItems}}
-                        <div class='sample-section-block'>
-                          <span class='fr-icon-quote-line fr-icon--sm'></span>
-                          <div class='fr-container fr-pl-1w'>
-                            <div class='fr-grid-row fr-grid-row--gutters'>
-                              <div class='fr-col-12 sample-section-item'>
-                                <div class='label'>
-                                  Note additionnelle concernant les échantillons
-                                </div>
-                                <div class='value'>
-                                  {{breaklines notesOnItems}}
-                                </div>
+                      <div class='sample-section-block' style="position: relative;left: -1rem;">
+                        <span class='fr-icon-quote-line fr-icon--sm'></span>
+                        <div class='fr-container fr-pl-1w'>
+                          <div class='fr-grid-row fr-grid-row--gutters'>
+                            <div class='fr-col-12 sample-section-item'>
+                              <div class='label'>
+                                Note additionnelle concernant les échantillons
+                              </div>
+                              <div class='value'>
+                                {{breaklines notesOnItems}}&nbsp;
                               </div>
                             </div>
                           </div>
                         </div>
-                      {{/if}}
+                      </div>
+                      <div class='sample-section-block' style="position: relative;left: -1rem;">
+                        <span class='fr-icon-user-line fr-icon--sm'></span>
+                        <div class='fr-container fr-pl-1w'>
+                          <fieldset class="fr-fieldset fr-px-0 fr-my-0">
+                            <legend class="fr-fieldset__legend fr-col-12 fr-pb-1w label">
+                              Le détenteur accepte les informations portées au présent procès verbal
+                            </legend>
+                            <div class="fr-grid-row fr-grid-row--gutters fr-mx-0 fr-mb-2w">
+                              <div class="fr-radio-group fr-col-12 fr-py-0">
+                                <input type="radio" {{#if (eq ownerAgreement true)}}checked{{/if}}>
+                                <label class="fr-label fr-pt-1v">Oui</label>
+                              </div>
+                              <div class="fr-radio-group fr-col-12 fr-py-0">
+                                <input type="radio"{{#if (eq ownerAgreement false)}}checked{{/if}}>
+                                <label class="fr-label fr-pt-1v">Non</label>
+                              </div>
+                            </div>
+                          </fieldset>
+                          <div class='fr-grid-row fr-grid-row--gutters'>
+                            <div class='fr-col-12 sample-section-item'>
+                              <div class='label'>
+                                Déclaration du détenteur
+                              </div>
+                              <div class='value'>
+                                {{breaklines notesOnOwnerAgreement}}&nbsp;
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </section>
                   {{#if hasNoteToSampler}}

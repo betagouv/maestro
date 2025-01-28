@@ -218,9 +218,9 @@ const updateSample = async (request: Request, response: Response) => {
           });
         }
 
-        if (sampleItem.ownerEmail) {
+        if (sample.ownerEmail) {
           await mailService.sendSupportDocumentCopyToOwner({
-            recipients: [sampleItem.ownerEmail, config.mail.from],
+            recipients: [sample.ownerEmail, config.mail.from],
             params: {
               region: user.region ? Regions[user.region].name : undefined,
               sampledAt: format(updatedSample.sampledAt, 'dd/MM/yyyy')

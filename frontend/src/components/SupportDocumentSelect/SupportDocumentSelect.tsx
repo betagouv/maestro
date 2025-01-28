@@ -1,28 +1,28 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
+import clsx from 'clsx';
 import { useState } from 'react';
+import {
+  Sample,
+  SampleOwnerData,
+  SampleToCreate
+} from 'shared/schema/Sample/Sample';
 import { SampleItem } from 'shared/schema/Sample/SampleItem';
 import { useDocument } from 'src/hooks/useDocument';
 import { getSupportDocumentURL } from 'src/services/sample.service';
 import './SupportDocumentSelect.scss';
 export interface Props {
   label?: string;
-  sampleId: string;
-  sampleItems: SampleItem[];
+  sample: (Sample | SampleToCreate) & Partial<SampleOwnerData>;
   renderButtons: (onClick: () => void) => React.ReactElement;
 }
 
-const SupportDocumentSelect = ({
-  label,
-  sampleId,
-  sampleItems,
-  renderButtons
-}: Props) => {
+const SupportDocumentSelect = ({ label, sample, renderButtons }: Props) => {
   const { openDocument } = useDocument();
 
   const [selectedItemNumber, setSelectedItemNumber] = useState(1);
 
-  if (sampleItems.length === 0) {
+  if (sample.items.length === 0) {
     return <></>;
   }
 
@@ -30,12 +30,17 @@ const SupportDocumentSelect = ({
     if (sampleItem.supportDocumentId) {
       await openDocument(sampleItem.supportDocumentId);
     } else {
-      window.open(getSupportDocumentURL(sampleId, sampleItem.itemNumber));
+      window.open(getSupportDocumentURL(sample.id, sampleItem.itemNumber));
     }
   };
 
-  return sampleItems.length === 1 ? (
-    renderButtons(() => getDocument(sampleItems[0]))
+  return sample.items.length === 1 ? (
+    <div className="d-flex-align-center">
+      <label className={clsx(cx('fr-label'), 'flex-grow-1')}>
+        {label ?? "Document d'accompagnement"}
+      </label>
+      {renderButtons(() => getDocument(sample.items[0]))}
+    </div>
   ) : (
     <div className="select-with-button">
       <Select
@@ -47,7 +52,7 @@ const SupportDocumentSelect = ({
           value: selectedItemNumber
         }}
       >
-        {sampleItems.map((item) => (
+        {sample.items.map((item) => (
           <option
             key={`sample-item-${item.itemNumber}`}
             value={item.itemNumber}
@@ -57,7 +62,7 @@ const SupportDocumentSelect = ({
           </option>
         ))}
       </Select>
-      {renderButtons(() => getDocument(sampleItems[selectedItemNumber - 1]))}
+      {renderButtons(() => getDocument(sample.items[selectedItemNumber - 1]))}
     </div>
   );
 };

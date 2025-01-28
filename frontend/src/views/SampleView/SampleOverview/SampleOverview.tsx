@@ -33,17 +33,24 @@ const SampleOverview = ({ sample }: Props) => {
         illustration={food}
         action={
           <SupportDocumentSelect
-            sampleId={sample.id}
-            sampleItems={sample.items.filter((item) => item.supportDocumentId)}
-            renderButtons={(onClick) => (
-              <Button
-                priority="secondary"
-                iconId="fr-icon-file-download-line"
-                onClick={onClick}
-              >
-                Document d'accompagnement
-              </Button>
-            )}
+            sample={sample}
+            renderButtons={(onClick) =>
+              sample.items.length === 1 ? (
+                <Button
+                  priority="secondary"
+                  iconId="fr-icon-file-download-line"
+                  onClick={onClick}
+                >
+                  Document d'accompagnement
+                </Button>
+              ) : (
+                <Button
+                  iconId="fr-icon-file-download-line"
+                  onClick={onClick}
+                  title="Télécharger"
+                />
+              )
+            }
           />
         }
       />

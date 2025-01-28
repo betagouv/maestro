@@ -11,6 +11,7 @@ import {
   SampleOwnerData,
   SampleToCreate
 } from 'shared/schema/Sample/Sample';
+import { isDefined } from 'shared/utils/utils';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
@@ -142,14 +143,14 @@ const SendingStep = ({ sample }: Props) => {
                 {
                   label: 'Oui',
                   nativeInputProps: {
-                    checked: ownerAgreement === true,
+                    checked: ownerAgreement,
                     onChange: () => setOwnerAgreement(true)
                   }
                 },
                 {
                   label: 'Non',
                   nativeInputProps: {
-                    checked: ownerAgreement === false,
+                    checked: isDefined(ownerAgreement) && !ownerAgreement,
                     onChange: () => setOwnerAgreement(false)
                   }
                 }
@@ -169,8 +170,8 @@ const SendingStep = ({ sample }: Props) => {
               onChange={(e) => setNotesOnOwnerAgreement(e.target.value)}
               inputForm={form}
               inputKey="notesOnOwnerAgreement"
-              whenValid="Note correctement renseignée."
-              label="Note additionnelle"
+              whenValid="Déclaration correctement renseignée."
+              label="Déclaration du détenteur"
               hintText="Champ facultatif pour spécifier une éventuelle déclaration du détenteur"
             />
           </div>
@@ -180,8 +181,7 @@ const SendingStep = ({ sample }: Props) => {
             <div className={cx('fr-col-12')}>
               <SupportDocumentSelect
                 label="Document d'accompagnement du prélèvement / Procès verbal"
-                sampleId={sample.id}
-                sampleItems={sample.items}
+                sample={sample}
                 renderButtons={(onClick) => (
                   <ButtonsGroup
                     inlineLayoutWhen="always"
@@ -190,11 +190,13 @@ const SendingStep = ({ sample }: Props) => {
                         children: 'Aperçu',
                         iconId: 'fr-icon-external-link-line',
                         priority: 'secondary',
+                        className: cx('fr-mb-0'),
                         onClick
                       },
                       {
                         children: 'Imprimer',
                         iconId: 'fr-icon-file-pdf-line',
+                        className: cx('fr-mb-0'),
                         onClick
                       }
                     ]}

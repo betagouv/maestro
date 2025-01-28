@@ -75,7 +75,10 @@ const ItemsStep = ({ partialSample }: Props) => {
     await createOrUpdateSample({
       ...partialSample,
       notesOnItems,
-      items,
+      items: items.map((item) => ({
+        ...item,
+        compliance200263: item.compliance200263 ?? false
+      })),
       status
     });
   };
