@@ -36,9 +36,9 @@ const SupportDocumentSelect = ({ label, sample, renderButtons }: Props) => {
 
   return sample.items.length === 1 ? (
     <div className="d-flex-align-center">
-      <label className={clsx(cx('fr-label'), 'flex-grow-1')}>
-        {label ?? "Document d'accompagnement"}
-      </label>
+      {label && (
+        <label className={clsx(cx('fr-label'), 'flex-grow-1')}>{label}</label>
+      )}
       {renderButtons(() => getDocument(sample.items[0]))}
     </div>
   ) : (
