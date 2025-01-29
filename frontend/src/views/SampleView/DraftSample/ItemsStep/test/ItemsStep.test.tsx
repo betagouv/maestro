@@ -14,7 +14,7 @@ import ItemsStep from 'src/views/SampleView/DraftSample/ItemsStep/ItemsStep';
 import { describe, expect, test } from 'vitest';
 import { getRequestCalls } from '../../../../../../test/requestTestUtils';
 
-describe('SampleStepDraftItems', () => {
+describe('DraftSampleItemsStep', () => {
   const user = userEvent.setup();
   const draftSample = {
     ...genSampleContextData(),

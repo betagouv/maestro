@@ -72,9 +72,7 @@ export const NationalCoordinator = genUser({
   id: '55555555-5555-5555-5555-555555555555'
 });
 
-export function genAuthUser(): AuthUser {
-  return {
-    accessToken: randomstring.generate(),
-    userId: uuidv4()
-  };
-}
+export const genAuthUser = (data?: Partial<User>): AuthUser => ({
+  accessToken: randomstring.generate(),
+  user: genUser(data)
+});

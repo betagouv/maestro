@@ -98,36 +98,29 @@ const sampleRequest = (region?: Region) => ({
 
 describe('PrescriptionListView', () => {
   const user = userEvent.setup();
-  const authUser = genAuthUser();
   let store: Store;
 
-  beforeEach(() => {
-    fetchMock.resetMocks();
-    store = configureStore({
-      reducer: applicationReducer,
-      middleware: applicationMiddleware,
-      preloadedState: {
-        auth: { authUser }
-      }
-    });
-  });
-
   describe('for national coordinator', () => {
-    const nationalCoordinator = genUser({
-      roles: ['NationalCoordinator'],
-      id: authUser.userId
+    beforeEach(() => {
+      fetchMock.resetMocks();
+      store = configureStore({
+        reducer: applicationReducer,
+        middleware: applicationMiddleware,
+        preloadedState: {
+          auth: {
+            authUser: genAuthUser({
+              roles: ['NationalCoordinator']
+            })
+          }
+        }
+      });
     });
-    const userRequest = {
-      pathname: `/api/users/${nationalCoordinator.id}`,
-      response: { body: JSON.stringify(nationalCoordinator) }
-    };
 
     test('should render a table with prescriptions with editable cells for all matrix and region when in table view', async () => {
       mockRequests([
         programmingPlanRequest,
         prescriptionRequest(),
         regionalPrescriptionRequest(),
-        userRequest,
         sampleRequest()
       ]);
       vi.mocked(useParams).mockReturnValue({
@@ -180,19 +173,23 @@ describe('PrescriptionListView', () => {
 
   describe('for regional coordinator', () => {
     const regionalCoordinator = genUser({
-      roles: ['RegionalCoordinator'],
-      id: authUser.userId
+      roles: ['RegionalCoordinator']
     });
-    const userRequest = {
-      pathname: `/api/users/${regionalCoordinator.id}`,
-      response: { body: JSON.stringify(regionalCoordinator) }
-    };
+    beforeEach(() => {
+      fetchMock.resetMocks();
+      store = configureStore({
+        reducer: applicationReducer,
+        middleware: applicationMiddleware,
+        preloadedState: {
+          auth: {
+            authUser: genAuthUser(regionalCoordinator)
+          }
+        }
+      });
+    });
 
     test('should not display the addMatrix button', async () => {
-      mockRequests([
-        prescriptionRequest(regionalCoordinator.region as Region),
-        userRequest
-      ]);
+      mockRequests([prescriptionRequest(regionalCoordinator.region as Region)]);
       vi.mocked(useParams).mockReturnValue({
         programmingPlanId: programmingPlan.id
       });

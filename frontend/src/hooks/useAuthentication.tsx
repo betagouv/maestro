@@ -1,4 +1,3 @@
-import { skipToken } from '@reduxjs/toolkit/query';
 import { ReactElement, useCallback, useMemo } from 'react';
 import {
   hasPrescriptionPermission,
@@ -16,7 +15,6 @@ import { UserRole } from 'shared/schema/User/UserRole';
 import { isDefined } from 'shared/utils/utils';
 import YearRoute from 'src/components/YearRoute/YearRoute';
 import { useAppSelector } from 'src/hooks/useStore';
-import { useGetUserQuery } from 'src/services/user.service';
 import DashboardView from 'src/views/DashboardView/DashboardView';
 import DocumentListView from 'src/views/DocumentListView/DocumentListView';
 import HomeView from 'src/views/HomeView/HomeView';
@@ -28,37 +26,33 @@ import SampleView from 'src/views/SampleView/SampleView';
 export const useAuthentication = () => {
   const { authUser } = useAppSelector((state) => state.auth);
 
-  const { data: user } = useGetUserQuery(authUser?.userId ?? skipToken);
-
-  const isAuthenticated = useMemo(() => !!authUser?.userId, [authUser]);
+  const isAuthenticated = useMemo(() => !!authUser?.user, [authUser]);
 
   const hasUserPermission = useCallback(
     (permission: UserPermission) =>
-      isDefined(authUser?.userId) &&
-      isDefined(user) &&
-      hasPermission(user, permission),
-    [authUser, user]
+      isDefined(authUser?.user) && hasPermission(authUser.user, permission),
+    [authUser]
   );
 
   const hasRole = useCallback(
     (role: UserRole) => {
-      return isAuthenticated && user && user?.roles.includes(role);
+      return isAuthenticated && authUser?.user?.roles.includes(role);
     },
-    [user, isAuthenticated]
+    [authUser, isAuthenticated]
   );
 
   const hasNationalView = useMemo(() => {
-    return isAuthenticated && !user?.region;
-  }, [user, isAuthenticated]);
+    return isAuthenticated && !authUser?.user?.region;
+  }, [authUser, isAuthenticated]);
 
   const hasUserPrescriptionPermission = useCallback(
     (
       programmingPlan: ProgrammingPlan
     ): Record<PrescriptionPermission, boolean> | null =>
-      isDefined(authUser?.userId) && isDefined(user)
-        ? hasPrescriptionPermission(user, programmingPlan)
+      isDefined(authUser?.user)
+        ? hasPrescriptionPermission(authUser?.user, programmingPlan)
         : null,
-    [authUser, user]
+    [authUser]
   );
 
   const hasUserRegionalPrescriptionPermission = useCallback(
@@ -66,14 +60,14 @@ export const useAuthentication = () => {
       programmingPlan: ProgrammingPlan,
       regionalPrescription: RegionalPrescription
     ): Record<RegionalPrescriptionPermission, boolean> | null =>
-      isDefined(authUser?.userId) && isDefined(user)
+      isDefined(authUser?.user)
         ? hasRegionalPrescriptionPermission(
-            user,
+            authUser.user,
             programmingPlan,
             regionalPrescription
           )
         : null,
-    [authUser, user]
+    [authUser]
   );
 
   const availableRoutes: {
@@ -149,7 +143,7 @@ export const useAuthentication = () => {
   }, [isAuthenticated, hasUserPermission]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
-    user,
+    user: authUser?.user,
     isAuthenticated,
     hasUserPermission,
     hasUserPrescriptionPermission,

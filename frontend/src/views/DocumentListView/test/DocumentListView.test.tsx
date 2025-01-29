@@ -19,10 +19,8 @@ vi.mock(import('react-router-dom'), async (importOriginal) => {
 
 import { describe, expect, test, vi } from 'vitest';
 let store: Store;
-const authUser = genAuthUser();
 const nationalCoordinator = genUser({
-  roles: ['NationalCoordinator'],
-  id: authUser.userId
+  roles: ['NationalCoordinator']
 });
 
 const sampler = genUser({
@@ -31,81 +29,111 @@ const sampler = genUser({
 });
 
 describe('DocumentListView', () => {
-  beforeEach(() => {
-    fetchMock.resetMocks();
-    store = configureStore({
-      reducer: applicationReducer,
-      middleware: applicationMiddleware,
-      preloadedState: {
-        auth: { authUser }
-      }
+  describe('for national coordinator', () => {
+    beforeEach(() => {
+      fetchMock.resetMocks();
+      store = configureStore({
+        reducer: applicationReducer,
+        middleware: applicationMiddleware,
+        preloadedState: {
+          auth: { authUser: genAuthUser(nationalCoordinator) }
+        }
+      });
+    });
+
+    test('should render the document list view', async () => {
+      const document = genDocument({
+        createdBy: nationalCoordinator.id
+      });
+      mockRequests([
+        {
+          pathname: `/api/documents/resources`,
+          response: { body: JSON.stringify([document]) }
+        }
+      ]);
+
+      render(
+        <Provider store={store}>
+          <BrowserRouter>
+            <DocumentListView />
+          </BrowserRouter>
+        </Provider>
+      );
+
+      expect(screen.getByText('Ressources')).toBeInTheDocument();
+      await waitFor(async () => {
+        expect(screen.getByTestId('document-table')).toBeInTheDocument();
+      });
+      await waitFor(() => {
+        expect(screen.getByText(document.filename)).toBeInTheDocument();
+      });
+    });
+
+    test('should render the upload form', async () => {
+      render(
+        <Provider store={store}>
+          <BrowserRouter>
+            <DocumentListView />
+          </BrowserRouter>
+        </Provider>
+      );
+      await waitFor(() => {
+        expect(screen.getByTestId('add-document')).toBeInTheDocument();
+      });
     });
   });
 
-  test('should render the document list view', async () => {
-    const document = genDocument({
-      createdBy: nationalCoordinator.id
+  describe('for sampler', () => {
+    beforeEach(() => {
+      fetchMock.resetMocks();
+      store = configureStore({
+        reducer: applicationReducer,
+        middleware: applicationMiddleware,
+        preloadedState: {
+          auth: { authUser: genAuthUser(sampler) }
+        }
+      });
     });
-    mockRequests([
-      {
-        pathname: `/api/documents/resources`,
-        response: { body: JSON.stringify([document]) }
-      }
-    ]);
 
-    render(
-      <Provider store={store}>
-        <BrowserRouter>
-          <DocumentListView />
-        </BrowserRouter>
-      </Provider>
-    );
+    test('should render the document list view', async () => {
+      const document = genDocument({
+        createdBy: nationalCoordinator.id
+      });
+      mockRequests([
+        {
+          pathname: `/api/documents/resources`,
+          response: { body: JSON.stringify([document]) }
+        }
+      ]);
 
-    expect(screen.getByText('Ressources')).toBeInTheDocument();
-    await waitFor(async () => {
-      expect(screen.getByTestId('document-table')).toBeInTheDocument();
+      render(
+        <Provider store={store}>
+          <BrowserRouter>
+            <DocumentListView />
+          </BrowserRouter>
+        </Provider>
+      );
+
+      expect(screen.getByText('Ressources')).toBeInTheDocument();
+      await waitFor(async () => {
+        expect(screen.getByTestId('document-table')).toBeInTheDocument();
+      });
+      await waitFor(() => {
+        expect(screen.getByText(document.filename)).toBeInTheDocument();
+      });
     });
-    await waitFor(() => {
-      expect(screen.getByText(document.filename)).toBeInTheDocument();
-    });
-  });
 
-  test('should render the upload form when the user has the permission', async () => {
-    mockRequests([
-      {
-        pathname: `/api/users/${nationalCoordinator.id}`,
-        response: { body: JSON.stringify(nationalCoordinator) }
-      }
-    ]);
-
-    render(
-      <Provider store={store}>
-        <BrowserRouter>
-          <DocumentListView />
-        </BrowserRouter>
-      </Provider>
-    );
-    await waitFor(() => {
-      expect(screen.getByTestId('add-document')).toBeInTheDocument();
-    });
-  });
-
-  test('should not render the upload form when the user does not have the permission', async () => {
-    mockRequests([
-      {
-        pathname: `/api/users/${sampler.id}`,
-        response: { body: JSON.stringify(sampler) }
-      }
-    ]);
-    render(
-      <Provider store={store}>
-        <BrowserRouter>
-          <DocumentListView />
-        </BrowserRouter>
-      </Provider>
-    );
-    await waitFor(() => {
-      expect(screen.queryByTestId('add-document')).not.toBeInTheDocument();
+    test('should not render the upload form', async () => {
+      render(
+        <Provider store={store}>
+          <BrowserRouter>
+            <DocumentListView />
+          </BrowserRouter>
+        </Provider>
+      );
+      await waitFor(() => {
+        expect(screen.queryByTestId('add-document')).not.toBeInTheDocument();
+      });
     });
   });
 });

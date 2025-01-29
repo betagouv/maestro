@@ -11,17 +11,20 @@ const authSlice = createSlice({
   name: 'auth',
   initialState: { authUser } as AuthState,
   reducers: {
-    signinUser: (state, action: PayloadAction<{ authUser: AuthMaybeUnknownUser }>) => {
+    signinUser: (
+      state,
+      action: PayloadAction<{ authUser: AuthMaybeUnknownUser }>
+    ) => {
       localStorage.setItem('authUser', JSON.stringify(action.payload.authUser));
-      if( action.payload.authUser.userId !== null){
+      if (action.payload.authUser.user !== null) {
         state.authUser = action.payload.authUser;
       }
     },
     signoutUser: (state) => {
       localStorage.removeItem('authUser');
       state.authUser = undefined;
-    },
-  },
+    }
+  }
 });
 
 export default authSlice;
