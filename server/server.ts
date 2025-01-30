@@ -63,6 +63,14 @@ export function createServer(): Server {
 
   if (config.environment === 'development') {
     app.use(cors({ origin: 'http://localhost:3000' }));
+  } else if (config.environment === 'production') {
+    app.use(
+      cors({
+        origin: 'https://maestro.beta.gouv.fr',
+        methods: 'GET,HEAD',
+        allowedHeaders: ['Content-Type']
+      })
+    );
   }
 
   app.use(fileUpload());
