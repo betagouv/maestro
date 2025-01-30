@@ -40,23 +40,48 @@ const updateSSD2Referential = async () => {
     throw new Error('impossible de trouver une page term')
   }
 
-  const columnsIndex: Record<string, number>= {}
+  const allColumnsIndex: Record<string, number>= {}
   const firstLine = worksheet.getRow(1)
-  let pestParamReportableIndex
   firstLine.eachCell((cell, index) => {
     if( typeof cell.value === 'string') {
-      columnsIndex[cell.value] = index
+      allColumnsIndex[cell.value] = index
     }
   })
-  console.log('index', columnsIndex)
 
+  const columnNames = ['termCode','pestParamReportable', 'termExtendedName', 'otherNames', 'zooLabel','CAS'] as const
+  columnNames.forEach((name) => {
+    if (!Object.keys(allColumnsIndex).includes(name)) {
+      throw new Error(`impossible de trouver la colonne ${name}`)
+    }
+  })
+
+  const columnsIndex: Record<typeof columnNames[number], number> = columnNames.reduce((acc, name) => {
+    acc[name] = allColumnsIndex[name]
+    return acc
+  }, {} as Record<typeof columnNames[number], number>)
+
+
+  const rows: {reference: string, name: string, casNumber: string | null, otherNames: string[]}[] = []
   worksheet.eachRow(function(row, rowNumber) {
-    if (rowNumber === 1) {
+    if (rowNumber !== 1 && row.getCell(columnsIndex['pestParamReportable']).value === '1') {
 
-      console.log('Row ' + rowNumber + ' = ' + JSON.stringify(row.values));
+      const getStringValueOrNull = (value: ExcelJS.CellValue): string | null => {
+        return value !== '' ? `${value}` : null
+      }
+
+      const name = `${row.getCell(columnsIndex['termExtendedName']).value}`
+
+      rows.push({
+        reference: `${row.getCell(columnsIndex['termCode']).value}`,
+        name,
+        casNumber:  getStringValueOrNull(row.getCell(columnsIndex['CAS']).value) ,
+        otherNames: [getStringValueOrNull(row.getCell(columnsIndex['zooLabel']).value), ...getStringValueOrNull(row.getCell(columnsIndex['otherNames']).value)?.split('$') ?? []]
+          .filter(s => s !== name)
+          .filter(s => s!==null)
+      })
     }
   });
-  console.log(worksheet.getCell('A274').value);
+  console.log(rows);
   console.log(worksheet.rowCount)
 
 
