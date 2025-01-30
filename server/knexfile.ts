@@ -2,10 +2,10 @@ import { Knex } from 'knex';
 import knexStringcase from 'knex-stringcase';
 import config from './utils/config';
 
-//@ts-expect-error TS2239 https://github.com/Kequc/knex-stringcase/issues/28#issuecomment-2475324275
 const knexString =
   typeof knexStringcase === 'function'
     ? knexStringcase()
+    //@ts-expect-error TS2239 https://github.com/Kequc/knex-stringcase/issues/28#issuecomment-2475324275
     : knexStringcase.default();
 const knexConfig: Knex.Config = {
   client: 'pg',
