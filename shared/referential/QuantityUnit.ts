@@ -247,12 +247,12 @@ export const QuantityUnit = z.enum(
     'G260A',
     'G261A',
     'G281A',
-    'G282A',
+    'G282A'
   ],
   {
     errorMap: () => ({
-      message: "Veuillez renseigner l'unité de mesure.",
-    }),
+      message: "Veuillez renseigner l'unité de mesure."
+    })
   }
 );
 
@@ -265,7 +265,7 @@ const PrimaryQuantityUnits: QuantityUnit[] = [
   'G148A',
   'G155A',
   'G156A',
-  'G005A',
+  'G005A'
 ];
 export const PrimaryQuantityUnitList: QuantityUnit[] = QuantityUnit.extract(
   PrimaryQuantityUnits as [QuantityUnit, ...QuantityUnit[]]
@@ -521,5 +521,5 @@ export const QuantityUnitLabels: Record<QuantityUnit, string> = {
   G260A: 'mg/seed',
   G261A: 'mgeq/g',
   G281A: 'ng/cm2',
-  G282A: 'MU/mg',
+  G282A: 'MU/mg'
 };

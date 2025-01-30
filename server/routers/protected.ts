@@ -34,4 +34,3 @@ protectedRouter.get('/regions.geojson', (_req, res) => {
   res.setHeader('Content-Type', 'application/json');
   fs.createReadStream(import.meta.dirname + '/../data/regions.json').pipe(res);
 });
-

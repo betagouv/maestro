@@ -4,7 +4,6 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Skeleton } from '@mui/material';
 import clsx from 'clsx';
 import { format, parse } from 'date-fns';
-import React, { useEffect, useMemo, useState } from 'react';
 import {
   Department,
   DepartmentLabels,
@@ -21,7 +20,10 @@ import {
   companyFromSearchResult,
   companyToSearchResult
 } from 'maestro-shared/schema/Company/Company';
-import { Context, ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import {
+  Context,
+  ContextLabels
+} from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   isCreatedPartialSample,
   PartialSample,
@@ -29,6 +31,7 @@ import {
   SampleContextData
 } from 'maestro-shared/schema/Sample/Sample';
 import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
+import React, { useEffect, useMemo, useState } from 'react';
 import balance from 'src/assets/illustrations/balance.svg';
 import check from 'src/assets/illustrations/check.svg';
 import controle from 'src/assets/illustrations/controle.svg';

@@ -3,8 +3,6 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
-import React, { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
 import {
   isCreatedPartialSample,
   Sample,
@@ -12,6 +10,8 @@ import {
   SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import { isDefined } from 'maestro-shared/utils/utils';
+import React, { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';

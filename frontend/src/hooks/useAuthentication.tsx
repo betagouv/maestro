@@ -1,4 +1,3 @@
-import { ReactElement, useCallback, useMemo } from 'react';
 import {
   hasPrescriptionPermission,
   PrescriptionPermission
@@ -13,6 +12,7 @@ import { hasPermission } from 'maestro-shared/schema/User/User';
 import { UserPermission } from 'maestro-shared/schema/User/UserPermission';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { isDefined } from 'maestro-shared/utils/utils';
+import { ReactElement, useCallback, useMemo } from 'react';
 import YearRoute from 'src/components/YearRoute/YearRoute';
 import { useAppSelector } from 'src/hooks/useStore';
 import DashboardView from 'src/views/DashboardView/DashboardView';

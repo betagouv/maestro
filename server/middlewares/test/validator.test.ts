@@ -1,9 +1,9 @@
 import bodyParser from 'body-parser';
-import { describe, test } from 'vitest';
 import express, { Request, Response } from 'express';
 import { constants } from 'http2';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
+import { describe, test } from 'vitest';
 import { z } from 'zod';
 import validator from '../validator';
 
@@ -19,24 +19,24 @@ describe('Validator middleware', () => {
         z.object({
           body: z
             .object({
-              name: z.string().min(5),
+              name: z.string().min(5)
             })
             .optional(),
           header: z
             .object({
-              'custom-header': z.string().min(10).optional(),
+              'custom-header': z.string().min(10).optional()
             })
             .optional(),
           params: z
             .object({
-              id: z.string().uuid(),
+              id: z.string().uuid()
             })
             .optional(),
           query: z
             .object({
-              q: z.string().optional(),
+              q: z.string().optional()
             })
-            .optional(),
+            .optional()
         })
       ),
       (request: Request, response: Response) => {
@@ -68,7 +68,7 @@ describe('Validator middleware', () => {
       return request(app)
         .post(testRoute)
         .query({
-          q: 1234,
+          q: 1234
         })
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
@@ -78,7 +78,7 @@ describe('Validator middleware', () => {
         .post(testRoute)
         .send({
           name: '12345',
-          should: 'be removed',
+          should: 'be removed'
         })
         .expect(constants.HTTP_STATUS_CREATED)
         .expect({ name: '12345' });

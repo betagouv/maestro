@@ -84,16 +84,16 @@ interface Config {
     };
   };
   inbox: {
-    mailboxName: string
-    trashboxName: string
-    errorboxName: string
+    mailboxName: string;
+    trashboxName: string;
+    errorboxName: string;
     host: string | null;
     user: string | null;
     password: string | null;
     port: number;
   };
-  m2mBasicToken: string,
-  mattermostIncomingWebhook: string | null,
+  m2mBasicToken: string;
+  mattermostIncomingWebhook: string | null;
 }
 
 const config = convict<Config>({
@@ -335,7 +335,7 @@ const config = convict<Config>({
     format: String,
     sensitive: true,
     default: null
-},
+  },
   mattermostIncomingWebhook: {
     env: 'MATTERMOST_INCOMING_WEBHOOK',
     format: 'url',

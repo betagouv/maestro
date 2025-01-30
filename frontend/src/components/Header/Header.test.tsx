@@ -1,9 +1,9 @@
 import { configureStore, Store } from '@reduxjs/toolkit';
 import { render, screen, within } from '@testing-library/react';
-import { Provider } from 'react-redux';
-import { MemoryRouter } from 'react-router-dom';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import { genAuthUser } from 'maestro-shared/test/userFixtures';
+import { Provider } from 'react-redux';
+import { MemoryRouter } from 'react-router-dom';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import { mockRequests } from '../../../test/requestTestUtils';
 import Header from './Header';

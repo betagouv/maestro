@@ -1,7 +1,7 @@
 import { constants } from 'http2';
 
-import { HttpError } from './httpError';
 import { Region } from '../referential/Region';
+import { HttpError } from './httpError';
 
 export default class RegionalPrescriptionMissingError
   extends HttpError
@@ -11,7 +11,7 @@ export default class RegionalPrescriptionMissingError
     super({
       name: 'RegionalPrescriptionMissingError',
       message: `Prescription ${id} missing for region ${region}`,
-      status: constants.HTTP_STATUS_NOT_FOUND,
+      status: constants.HTTP_STATUS_NOT_FOUND
     });
   }
 }

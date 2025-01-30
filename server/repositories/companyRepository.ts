@@ -1,6 +1,6 @@
-import {omitBy, isNil} from 'lodash-es';
+import { isNil, omitBy } from 'lodash-es';
 import { Company } from 'maestro-shared/schema/Company/Company';
-import {knexInstance as db} from './db';
+import { knexInstance as db } from './db';
 
 export const companiesTable = 'companies';
 
@@ -10,7 +10,7 @@ const findUnique = async (siret: string): Promise<Company | undefined> => {
   console.info('Find company', siret);
   return Companies()
     .where({
-      siret,
+      siret
     })
     .first()
     .then((_) => _ && Company.parse(omitBy(_, isNil)));
@@ -27,5 +27,5 @@ const upsert = async (company: Company): Promise<Company> => {
 
 export default {
   findUnique,
-  upsert,
+  upsert
 };

@@ -1,7 +1,4 @@
 import { constants } from 'http2';
-import request from 'supertest';
-import { v4 as uuidv4 } from 'uuid';
-import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
@@ -13,6 +10,9 @@ import {
   Sampler1Fixture,
   SamplerDromFixture
 } from 'maestro-shared/test/userFixtures';
+import request from 'supertest';
+import { v4 as uuidv4 } from 'uuid';
+import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import { ProgrammingPlans } from '../../repositories/programmingPlanRepository';
 import { createServer } from '../../server';

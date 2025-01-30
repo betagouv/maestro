@@ -1,12 +1,12 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
-import React, { useMemo } from 'react';
 import {
   isCreatedPartialSample,
   PartialSample,
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
+import React, { useMemo } from 'react';
 import AlertModal from 'src/components/AlertModal/AlertModal';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 import useWindowSize from 'src/hooks/useWindowSize';

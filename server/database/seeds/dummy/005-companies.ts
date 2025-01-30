@@ -1,8 +1,6 @@
 import { Companies } from '../../../repositories/companyRepository';
 
 export const seed = async function () {
-
-
   await Companies().insert([
     {
       siret: '77560611400061',
@@ -11,7 +9,7 @@ export const seed = async function () {
       address: 'ESAT OCEANIS',
       postalCode: '44600',
       city: 'Saint-Nazaire',
-      nafCode: '88.10C',
+      nafCode: '88.10C'
     },
     {
       siret: '84159600000015',
@@ -20,7 +18,7 @@ export const seed = async function () {
       address: '120 ROUTE DE BEAU SOLEIL',
       postalCode: '44470',
       city: 'Mauves-sur-Loire',
-      nafCode: '01.50Z',
+      nafCode: '01.50Z'
     },
     {
       siret: '44876439900011',
@@ -29,7 +27,7 @@ export const seed = async function () {
       address: 'LES CHAILLEREAUX',
       postalCode: '44260',
       city: 'Malville',
-      nafCode: '01.30Z',
-    },
+      nafCode: '01.30Z'
+    }
   ]);
 };

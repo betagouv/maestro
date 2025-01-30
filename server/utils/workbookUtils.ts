@@ -10,10 +10,10 @@ const init = (fileName: string, response: Response) => {
   response.setHeader('Content-Disposition', 'attachment; filename=' + fileName);
 
   return new ExcelJS.stream.xlsx.WorkbookWriter({
-    stream: response,
+    stream: response
   });
 };
 
 export default {
-  init,
+  init
 };

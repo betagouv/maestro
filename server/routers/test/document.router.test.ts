@@ -1,27 +1,30 @@
 import { constants } from 'http2';
-import request from 'supertest';
 import { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import {
   genDocument,
-  genDocumentToCreate,
+  genDocumentToCreate
 } from 'maestro-shared/test/documentFixtures';
+import request from 'supertest';
 import { Documents } from '../../repositories/documentRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
-import { describe, test, expect, beforeAll, afterAll } from 'vitest';
-import { NationalCoordinator, Sampler1Fixture } from 'maestro-shared/test/userFixtures';
+import {
+  NationalCoordinator,
+  Sampler1Fixture
+} from 'maestro-shared/test/userFixtures';
+import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 describe('Document router', () => {
   const { app } = createServer();
 
   const analysisDocument = genDocument({
     createdBy: Sampler1Fixture.id,
-    kind: 'AnalysisReportDocument' as DocumentKind,
+    kind: 'AnalysisReportDocument' as DocumentKind
   });
 
   const resourceDocument = genDocument({
     createdBy: NationalCoordinator.id,
-    kind: 'Resource' as DocumentKind,
+    kind: 'Resource' as DocumentKind
   });
 
   beforeAll(async () => {
@@ -52,8 +55,8 @@ describe('Document router', () => {
       expect(res.body).toEqual([
         {
           ...resourceDocument,
-          createdAt: resourceDocument.createdAt.toISOString(),
-        },
+          createdAt: resourceDocument.createdAt.toISOString()
+        }
       ]);
     });
   });
@@ -62,7 +65,7 @@ describe('Document router', () => {
     const testRoute = '/api/documents';
     const validResourceBody = {
       ...genDocumentToCreate(),
-      kind: 'Resource',
+      kind: 'Resource'
     };
 
     test('should fail if the user is not authenticated', async () => {
@@ -83,7 +86,7 @@ describe('Document router', () => {
         .post(testRoute)
         .send({
           ...validResourceBody,
-          kind: 'AnalysisReportDocument',
+          kind: 'AnalysisReportDocument'
         })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
@@ -113,7 +116,7 @@ describe('Document router', () => {
         ...validResourceBody,
         createdAt: expect.any(String),
         createdBy: NationalCoordinator.id,
-        kind: 'Resource',
+        kind: 'Resource'
       });
 
       await expect(
@@ -122,14 +125,14 @@ describe('Document router', () => {
         ...validResourceBody,
         createdAt: expect.any(Date),
         createdBy: NationalCoordinator.id,
-        kind: 'Resource',
+        kind: 'Resource'
       });
     });
 
     test('should create an analysis document', async () => {
       const validAnalysisBody = {
         ...genDocumentToCreate(),
-        kind: 'AnalysisReportDocument',
+        kind: 'AnalysisReportDocument'
       };
 
       const res = await request(app)
@@ -142,7 +145,7 @@ describe('Document router', () => {
         ...validAnalysisBody,
         createdAt: expect.any(String),
         createdBy: Sampler1Fixture.id,
-        kind: 'AnalysisReportDocument',
+        kind: 'AnalysisReportDocument'
       });
 
       await expect(
@@ -151,7 +154,7 @@ describe('Document router', () => {
         ...validAnalysisBody,
         createdAt: expect.any(Date),
         createdBy: Sampler1Fixture.id,
-        kind: 'AnalysisReportDocument',
+        kind: 'AnalysisReportDocument'
       });
     });
   });

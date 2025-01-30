@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const SampleItemRecipientKind = z.enum(
   ['Laboratory', 'Sampler', 'Operator'],
   {
-    errorMap: () => ({ message: 'Destinataire non renseigné.' }),
+    errorMap: () => ({ message: 'Destinataire non renseigné.' })
   }
 );
 
@@ -18,5 +18,5 @@ export const SampleItemRecipientKindLabels: Record<
 > = {
   Laboratory: 'Laboratoire',
   Sampler: 'Préleveur',
-  Operator: 'Opérateur',
+  Operator: 'Opérateur'
 };

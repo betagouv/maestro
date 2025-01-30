@@ -1,7 +1,5 @@
 import { constants } from 'http2';
 import { omit } from 'lodash-es';
-import request from 'supertest';
-import { v4 as uuidv4 } from 'uuid';
 import { AnalyteList } from 'maestro-shared/referential/Residue/Analyte';
 import { PartialAnalyte } from 'maestro-shared/schema/Analysis/Analyte';
 import {
@@ -12,6 +10,8 @@ import {
 } from 'maestro-shared/test/analysisFixtures';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
+import request from 'supertest';
+import { v4 as uuidv4 } from 'uuid';
 import {
   Analysis,
   AnalysisResidues,
@@ -22,7 +22,6 @@ import { Samples } from '../../repositories/sampleRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
-import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import {
   Sample11Fixture,
   Sample2Fixture
@@ -31,6 +30,7 @@ import {
   NationalCoordinator,
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
+import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 describe('Analysis router', () => {
   const { app } = createServer();
 
@@ -219,12 +219,11 @@ describe('Analysis router', () => {
         .expect(constants.HTTP_STATUS_CREATED);
 
       expect(res.body).toMatchObject({
-          ...analysis,
-          id: expect.any(String),
-          createdAt: expect.any(String),
-          createdBy: Sampler1Fixture.id
-        }
-      );
+        ...analysis,
+        id: expect.any(String),
+        createdAt: expect.any(String),
+        createdBy: Sampler1Fixture.id
+      });
 
       await expect(
         Analysis().where({ id: res.body.id }).first()

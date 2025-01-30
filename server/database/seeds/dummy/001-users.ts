@@ -3,7 +3,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { Users } from '../../../repositories/userRepository';
 
 export const seed = async function () {
-
   await Users().insert([
     {
       id: uuidv4(),

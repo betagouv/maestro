@@ -6,7 +6,7 @@ export interface AuthService {
     idToken: string;
     email: string;
     firstName: string;
-    lastName: string
+    lastName: string;
   }>;
   getLogoutUrl(idToken: string): AuthRedirectUrl;
 }

@@ -11,4 +11,4 @@ const send = async (message: string) => {
   }
 };
 
-export const mattermostService= {send}
+export const mattermostService = { send };

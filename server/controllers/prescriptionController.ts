@@ -5,7 +5,6 @@ import {
   ProgrammingPlanRequest
 } from 'express-jwt';
 import { constants } from 'http2';
-import { v4 as uuidv4 } from 'uuid';
 import { RegionList } from 'maestro-shared/referential/Region';
 import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import {
@@ -15,6 +14,7 @@ import {
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { FindRegionalPrescriptionOptions } from 'maestro-shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
+import { v4 as uuidv4 } from 'uuid';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
 import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';

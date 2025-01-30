@@ -2,7 +2,6 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
 import clsx from 'clsx';
 import _ from 'lodash';
-import { useMemo } from 'react';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { Region, RegionList } from 'maestro-shared/referential/Region';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
@@ -11,6 +10,7 @@ import {
   RegionalPrescription,
   RegionalPrescriptionSort
 } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
+import { useMemo } from 'react';
 import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
 import RegionalPrescriptionCountCell from 'src/components/Prescription/RegionalPrescriptionCountCell/RegionalPrescriptionCountCell';
 import RegionHeaderCell from 'src/components/RegionHeaderCell/RegionHeaderCell';

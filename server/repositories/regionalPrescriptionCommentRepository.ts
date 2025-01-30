@@ -1,5 +1,5 @@
 import { RegionalPrescriptionComment } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionComment';
-import {knexInstance as db} from './db';
+import { knexInstance as db } from './db';
 
 export const regionalPrescriptionCommentsTable =
   'regional_prescription_comments';
@@ -15,5 +15,5 @@ const insert = async (
 };
 
 export default {
-  insert,
+  insert
 };

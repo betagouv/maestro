@@ -1,7 +1,10 @@
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import {
+  Analysis,
+  PartialAnalysis
+} from 'maestro-shared/schema/Analysis/Analysis';
 import React, { useState } from 'react';
-import { Analysis, PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useForm } from 'src/hooks/useForm';
@@ -18,7 +21,7 @@ const AnalysisComplianceStep = ({ partialAnalysis }: Props) => {
   const { navigateToSample } = useSamplesLink();
 
   const [updateAnalysis] = useUpdateAnalysisMutation({
-    fixedCacheKey: `complete-analysis-${partialAnalysis.sampleId}`,
+    fixedCacheKey: `complete-analysis-${partialAnalysis.sampleId}`
   });
 
   const [compliance, setCompliance] = useState(partialAnalysis.compliance);
@@ -28,7 +31,7 @@ const AnalysisComplianceStep = ({ partialAnalysis }: Props) => {
 
   const Form = Analysis.pick({
     compliance: true,
-    notesOnCompliance: true,
+    notesOnCompliance: true
   });
 
   type FormShape = typeof Form.shape;
@@ -40,7 +43,7 @@ const AnalysisComplianceStep = ({ partialAnalysis }: Props) => {
         ...partialAnalysis,
         compliance,
         notesOnCompliance,
-        status: 'Completed',
+        status: 'Completed'
       });
       navigateToSample(partialAnalysis.sampleId);
     });
@@ -48,7 +51,7 @@ const AnalysisComplianceStep = ({ partialAnalysis }: Props) => {
 
   const form = useForm(Form, {
     compliance,
-    notesOnCompliance,
+    notesOnCompliance
   });
 
   return (
@@ -61,18 +64,18 @@ const AnalysisComplianceStep = ({ partialAnalysis }: Props) => {
               label: 'Échantillon conforme',
               nativeInputProps: {
                 checked: compliance === true,
-                onChange: () => setCompliance(true),
+                onChange: () => setCompliance(true)
               },
-              illustration: <img src={check} alt="" aria-hidden />,
+              illustration: <img src={check} alt="" aria-hidden />
             },
             {
               label: 'Échantillon non conforme',
               nativeInputProps: {
                 checked: compliance === false,
-                onChange: () => setCompliance(false),
+                onChange: () => setCompliance(false)
               },
-              illustration: <img src={close} alt="" aria-hidden />,
-            },
+              illustration: <img src={close} alt="" aria-hidden />
+            }
           ]}
           colSm={6}
           inputForm={form}
@@ -104,18 +107,18 @@ const AnalysisComplianceStep = ({ partialAnalysis }: Props) => {
                 e.preventDefault();
                 await updateAnalysis({
                   ...partialAnalysis,
-                  status: 'Residues',
+                  status: 'Residues'
                 });
                 navigateToSample(partialAnalysis.sampleId, 2);
               },
               title: 'Retour',
-              iconId: 'fr-icon-arrow-left-line',
+              iconId: 'fr-icon-arrow-left-line'
             },
             {
               children: 'Enregistrer le résultat',
               iconId: 'fr-icon-save-line',
-              onClick: submit,
-            },
+              onClick: submit
+            }
           ]}
         />
       </div>

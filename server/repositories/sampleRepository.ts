@@ -1,15 +1,15 @@
 import { isArray, isNil, omit, omitBy } from 'lodash-es';
-import z from 'zod';
 import { Region, Regions } from 'maestro-shared/referential/Region';
 import { defaultPerPage } from 'maestro-shared/schema/commons/Pagination';
 import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import { PartialSample, Sample } from 'maestro-shared/schema/Sample/Sample';
-import { companiesTable } from './companyRepository';
-import {knexInstance as db } from './db';
-import { usersTable } from './userRepository';
 import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
-import { KyselyMaestro } from './kysely.type';
+import z from 'zod';
+import { companiesTable } from './companyRepository';
+import { knexInstance as db } from './db';
 import { kysely } from './kysely';
+import { KyselyMaestro } from './kysely.type';
+import { usersTable } from './userRepository';
 
 export const samplesTable = 'samples';
 const sampleSequenceNumbers = 'sample_sequence_numbers';
@@ -18,12 +18,12 @@ const PartialSampleDbo = PartialSample.omit({
   items: true,
   company: true,
   sampler: true,
-  geolocation: true,
+  geolocation: true
 }).merge(
   z.object({
     companySiret: z.string().nullish(),
     geolocation: z.any().nullish(),
-    sampledBy: z.string().uuid(),
+    sampledBy: z.string().uuid()
   })
 );
 
@@ -38,7 +38,7 @@ const PartialSampleJoinedDbo = PartialSampleDbo.merge(
     companyNafCode: z.string().nullish(),
     samplerId: z.string().uuid(),
     samplerFirstName: z.string(),
-    samplerLastName: z.string(),
+    samplerLastName: z.string()
   })
 );
 
@@ -173,7 +173,7 @@ const getNextSequence = async (
     await db(sampleSequenceNumbers).insert({
       region,
       programmingPlanYear,
-      next_sequence: 1,
+      next_sequence: 1
     });
     return 1;
   }
@@ -199,9 +199,17 @@ const update = async (partialSample: PartialSample): Promise<void> => {
   }
 };
 
-const updateStatus = async (sampleId: string, status: SampleStatus, trx: KyselyMaestro = kysely) => {
-  await trx.updateTable('samples').where('id', '=', sampleId).set('status', status).execute()
-}
+const updateStatus = async (
+  sampleId: string,
+  status: SampleStatus,
+  trx: KyselyMaestro = kysely
+) => {
+  await trx
+    .updateTable('samples')
+    .where('id', '=', sampleId)
+    .set('status', status)
+    .execute();
+};
 
 const deleteOne = async (id: string): Promise<void> => {
   console.info('Delete sample', id);
@@ -215,11 +223,11 @@ export const formatPartialSample = (
   geolocation: partialSample.geolocation
     ? db.raw('Point(?, ?)', [
         partialSample.geolocation.x,
-        partialSample.geolocation.y,
+        partialSample.geolocation.y
       ])
     : null,
   companySiret: partialSample.company?.siret,
-  sampledBy: partialSample.sampler.id,
+  sampledBy: partialSample.sampler.id
 });
 
 export const parsePartialSample = (
@@ -230,7 +238,7 @@ export const parsePartialSample = (
     ...omit(omitBy(sample, isNil), ['companyId']),
     geolocation: sample.geolocation && {
       x: sample.geolocation.x,
-      y: sample.geolocation.y,
+      y: sample.geolocation.y
     },
     company: sample.companySiret
       ? {
@@ -240,14 +248,14 @@ export const parsePartialSample = (
           address: sample.companyAddress ?? undefined,
           postalCode: sample.companyPostalCode ?? undefined,
           city: sample.companyCity ?? undefined,
-          nafCode: sample.companyNafCode ?? undefined,
+          nafCode: sample.companyNafCode ?? undefined
         }
       : undefined,
     sampler: {
       id: sample.samplerId,
       firstName: sample.samplerFirstName,
-      lastName: sample.samplerLastName,
-    },
+      lastName: sample.samplerLastName
+    }
   });
 
 export const sampleRepository = {
@@ -258,5 +266,5 @@ export const sampleRepository = {
   findMany,
   count,
   getNextSequence,
-  deleteOne,
+  deleteOne
 };

@@ -8,7 +8,7 @@ export const laboratoryNames = [
   'GIR 49',
   'CAP 29',
   'CER 30',
-  'FYT',
+  'FYT'
 ] as const satisfies string[];
 export const laboratoryNameValidator = z.enum(laboratoryNames);
 export type LaboratoryName = z.infer<typeof laboratoryNameValidator>;

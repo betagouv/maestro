@@ -1,12 +1,12 @@
 import { constants } from 'http2';
-import request from 'supertest';
 import { genUser, Sampler1Fixture } from 'maestro-shared/test/userFixtures';
+import request from 'supertest';
 import { Users } from '../../repositories/userRepository';
 import { createServer } from '../../server';
 
+import { genAuthRedirectUrl } from 'maestro-shared/test/authFixtures';
 import randomstring from 'randomstring';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
-import { genAuthRedirectUrl } from 'maestro-shared/test/authFixtures';
 import { kysely } from '../../repositories/kysely';
 import {
   mockAuthenticate,

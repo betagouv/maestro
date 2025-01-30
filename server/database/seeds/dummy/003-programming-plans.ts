@@ -1,12 +1,11 @@
+import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import { v4 as uuidv4 } from 'uuid';
 import { ProgrammingPlans } from '../../../repositories/programmingPlanRepository';
 import { Users } from '../../../repositories/userRepository';
-import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 
 export const validatedProgrammingPlanId = uuidv4();
 
-  export const seed = async function () {
-
+export const seed = async function () {
   const user = await Users()
     .where('email', 'coordinateur.national@maestro.beta.gouv.fr')
     .first();

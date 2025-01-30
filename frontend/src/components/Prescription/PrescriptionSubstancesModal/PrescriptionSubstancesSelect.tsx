@@ -3,7 +3,6 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import { Autocomplete } from '@mui/material';
 import { capitalize } from 'lodash';
-import { SyntheticEvent, useMemo, useState } from 'react';
 import {
   AnalysisMethod,
   AnalysisMethodLabels
@@ -11,6 +10,7 @@ import {
 import { PrescriptionSubstance } from 'maestro-shared/schema/Prescription/PrescriptionSubstance';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { Substance } from 'maestro-shared/schema/Substance/Substance';
+import { SyntheticEvent, useMemo, useState } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useLazySearchSubstancesQuery } from 'src/services/substance.service';
 import './PrescriptionSubstances.scss';
