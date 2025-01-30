@@ -9,8 +9,8 @@ export const laboratoryApi = api.injectEndpoints({
       transformResponse: (response: any) =>
         Laboratory.parse(fp.omitBy(response, fp.isNil)),
       providesTags: (_result, _error, laboratoryId) => [
-        { type: 'Laboratory', id: laboratoryId },
-      ],
+        { type: 'Laboratory', id: laboratoryId }
+      ]
     }),
     findLaboratories: builder.query<Laboratory[], void>({
       query: () => 'laboratories',
@@ -20,11 +20,11 @@ export const laboratoryApi = api.injectEndpoints({
         { type: 'Laboratory', id: 'LIST' },
         ...(result ?? []).map(({ id }) => ({
           type: 'Laboratory' as const,
-          id,
-        })),
-      ],
-    }),
-  }),
+          id
+        }))
+      ]
+    })
+  })
 });
 
 export const { useGetLaboratoryQuery, useFindLaboratoriesQuery } =

@@ -102,11 +102,11 @@ export const Department = z.enum(
     '972',
     '973',
     '974',
-    '976',
+    '976'
   ],
 
   {
-    errorMap: () => ({ message: 'Veuillez renseigner le département.' }),
+    errorMap: () => ({ message: 'Veuillez renseigner le département.' })
   }
 );
 
@@ -215,5 +215,5 @@ export const DepartmentLabels: Record<Department, string> = {
   '972': 'Martinique',
   '973': 'Guyane',
   '974': 'La Réunion',
-  '976': 'Mayotte',
+  '976': 'Mayotte'
 };

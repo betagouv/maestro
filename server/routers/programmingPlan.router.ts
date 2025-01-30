@@ -1,7 +1,7 @@
 import express from 'express';
-import { z } from 'zod';
 import { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import { ProgrammingPlanStatusUpdate } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { z } from 'zod';
 import programmingPlanController from '../controllers/programmingPlanController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
 import { programmingPlanCheck } from '../middlewares/checks/programmingPlanCheck';

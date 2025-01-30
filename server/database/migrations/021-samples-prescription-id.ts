@@ -17,7 +17,7 @@ export const up = async (knex: Knex) => {
     .where('samples.matrix', knex.ref('prescriptions.matrix'))
     .where(knex.raw('samples.stage = any(prescriptions.stages)'))
     .update({
-      prescription_id: knex.ref('prescriptions.id'),
+      prescription_id: knex.ref('prescriptions.id')
     });
 
   await knex('samples').update({
@@ -26,7 +26,7 @@ export const up = async (knex: Knex) => {
         (region) =>
           `when '${Regions[region].shortName}' = split_part(samples.reference, '-', 1) then '${region}'`
       ).join(' ')} end`
-    ),
+    )
   });
 
   await knex.schema.alterTable('samples', (table) => {

@@ -18,7 +18,7 @@ const StepSummary = ({ label, showLabel = true, children }: Props) => {
           label={label}
           className="sample-step-summary-accordion"
           classes={{
-            collapse: 'sample-step-summary',
+            collapse: 'sample-step-summary'
           }}
         >
           {children}

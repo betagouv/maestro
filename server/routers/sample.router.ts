@@ -1,10 +1,10 @@
 import express from 'express';
-import { z } from 'zod';
 import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   PartialSample,
-  PartialSampleToCreate,
+  PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
+import { z } from 'zod';
 import sampleController from '../controllers/sampleController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
 import { sampleCheck } from '../middlewares/checks/sampleCheck';
@@ -12,7 +12,7 @@ import validator, {
   body,
   params,
   query,
-  uuidParam,
+  uuidParam
 } from '../middlewares/validator';
 const router = express.Router();
 
@@ -47,7 +47,7 @@ router.get(
     params(
       z.object({
         sampleId: z.string().uuid(),
-        itemNumber: z.coerce.number().min(1),
+        itemNumber: z.coerce.number().min(1)
       })
     )
   ),

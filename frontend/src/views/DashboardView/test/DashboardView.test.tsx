@@ -1,12 +1,12 @@
 import { configureStore, Store } from '@reduxjs/toolkit';
 import { render, screen } from '@testing-library/react';
-import { Provider } from 'react-redux';
-import { BrowserRouter } from 'react-router-dom';
 import {
   genAuthUser,
   Region1Fixture,
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
+import { Provider } from 'react-redux';
+import { BrowserRouter } from 'react-router-dom';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import { beforeEach } from 'vitest';
 import {

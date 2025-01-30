@@ -3,7 +3,7 @@ import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/Find
 import {
   Prescription,
   PrescriptionToCreate,
-  PrescriptionUpdate,
+  PrescriptionUpdate
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { PrescriptionSubstance } from 'maestro-shared/schema/Prescription/PrescriptionSubstance';
 import { api } from 'src/services/api.service';
@@ -16,7 +16,7 @@ export const prescriptionApi = api.injectEndpoints({
     findPrescriptions: builder.query<Prescription[], FindPrescriptionOptions>({
       query: (findOptions) => ({
         url: `prescriptions`,
-        params: findOptions,
+        params: findOptions
       }),
       transformResponse: (response: any[]) =>
         response.map((_) => Prescription.parse(fp.omitBy(_, fp.isNil))),
@@ -24,22 +24,22 @@ export const prescriptionApi = api.injectEndpoints({
         { type: 'Prescription', id: 'LIST' },
         ...(result ?? []).map(({ id }) => ({
           type: 'Prescription' as const,
-          id,
-        })),
-      ],
+          id
+        }))
+      ]
     }),
     addPrescription: builder.mutation<Prescription, PrescriptionToCreate>({
       query: (prescriptionToCreate) => ({
         url: 'prescriptions',
         method: 'POST',
-        body: prescriptionToCreate,
+        body: prescriptionToCreate
       }),
       invalidatesTags: [
         { type: 'Prescription', id: 'LIST' },
-        { type: 'RegionalPrescription', id: 'LIST' },
+        { type: 'RegionalPrescription', id: 'LIST' }
       ],
       transformResponse: (response: any) =>
-        Prescription.parse(fp.omitBy(response, fp.isNil)),
+        Prescription.parse(fp.omitBy(response, fp.isNil))
     }),
     updatePrescription: builder.mutation<
       Prescription,
@@ -51,24 +51,24 @@ export const prescriptionApi = api.injectEndpoints({
       query: ({ prescriptionId, prescriptionUpdate }) => ({
         url: `prescriptions/${prescriptionId}`,
         method: 'PUT',
-        body: prescriptionUpdate,
+        body: prescriptionUpdate
       }),
       invalidatesTags: (_result, _error, { prescriptionId }) => [
         { type: 'Prescription', id: 'LIST' },
         { type: 'Prescription', id: prescriptionId },
-        { type: 'PrescriptionSubstance', id: prescriptionId },
+        { type: 'PrescriptionSubstance', id: prescriptionId }
       ],
-      transformResponse: (response) => Prescription.parse(response),
+      transformResponse: (response) => Prescription.parse(response)
     }),
     deletePrescription: builder.mutation<void, string>({
       query: (prescriptionId) => ({
         url: `prescriptions/${prescriptionId}`,
-        method: 'DELETE',
+        method: 'DELETE'
       }),
       invalidatesTags: [
         { type: 'Prescription', id: 'LIST' },
-        { type: 'RegionalPrescription', id: 'LIST' },
-      ],
+        { type: 'RegionalPrescription', id: 'LIST' }
+      ]
     }),
     getPrescriptionSubstances: builder.query<PrescriptionSubstance[], string>({
       query: (prescriptionId) => `prescriptions/${prescriptionId}/substances`,
@@ -77,16 +77,16 @@ export const prescriptionApi = api.injectEndpoints({
           PrescriptionSubstance.parse(fp.omitBy(_, fp.isNil))
         ),
       providesTags: (_result, _error, prescriptionId) => [
-        { type: 'PrescriptionSubstance', id: prescriptionId },
-      ],
-    }),
-  }),
+        { type: 'PrescriptionSubstance', id: prescriptionId }
+      ]
+    })
+  })
 });
 
 const prescriptionsExportURL = (findOptions: FindPrescriptionOptions) => {
   const params = getURLQuery({
     ...findOptions,
-    ...authParams(),
+    ...authParams()
   });
   return `${config.apiEndpoint}/api/prescriptions/export${params}`;
 };
@@ -98,8 +98,8 @@ export const {
   useAddPrescriptionMutation,
   useDeletePrescriptionMutation,
   getPrescriptionsExportURL,
-  useGetPrescriptionSubstancesQuery,
+  useGetPrescriptionSubstancesQuery
 } = {
   ...prescriptionApi,
-  getPrescriptionsExportURL: prescriptionsExportURL,
+  getPrescriptionsExportURL: prescriptionsExportURL
 };

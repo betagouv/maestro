@@ -1,7 +1,7 @@
 import { skipToken } from '@reduxjs/toolkit/query';
 import {
   PartialSample,
-  PartialSampleToCreate,
+  PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import { useGetLaboratoryQuery } from 'src/services/laboratory.service';
 
@@ -13,6 +13,6 @@ export const usePartialSample = (
   );
 
   return {
-    laboratory,
+    laboratory
   };
 };

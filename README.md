@@ -1,4 +1,4 @@
-# Maestro 
+# Maestro
 
 ## Développement
 
@@ -18,8 +18,9 @@ La création des tables et autres structures SQL se fera automatiquement lors du
 
 ### Stockage S3
 
-Pour le stockage des fichiers, l'application utilise un service S3. 
+Pour le stockage des fichiers, l'application utilise un service S3.
 En local et pour les tests, il est possible d'utiliser https://github.com/adobe/S3Mock
+
 ```bash
 docker compose up -d
 ```
@@ -29,7 +30,7 @@ docker compose up -d
 ```bash
 git clone https://github.com/betagouv/maestro.git
 
-cd maestro 
+cd maestro
 npm ci
 ```
 
@@ -73,9 +74,9 @@ REACT_APP_API_URL
 ```
 
 En local, elles peuvent être définies dans des fichiers `.env` :
+
 - un fichier dans le dossier `frontend` pour les variables d'environnement `REACT_APP...` nécessaires au frontend (voir `frontend/.env.example` pour un exemple)
 - un fichier à la racine du projet pour les autres variables d'environnement (voir `.env.example` pour un exemple)
-
 
 ### Chargement des données
 
@@ -99,6 +100,7 @@ L'application est accessible à l'adresse sur <http://localhost:3000>
 npm run test  #All tests
 npm run test -w server #Backend tests
 ```
+
 ## Démo
 
 La version de démo de l'application est accessible à l'adresse <https://maestro.incubateur.net>

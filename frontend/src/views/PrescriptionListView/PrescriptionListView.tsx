@@ -2,8 +2,6 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import clsx from 'clsx';
 import _, { default as fp } from 'lodash';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { Region, Regions } from 'maestro-shared/referential/Region';
@@ -27,6 +25,8 @@ import {
   RegionalPrescriptionKey,
   RegionalPrescriptionUpdate
 } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import AppToast from 'src/components/_app/AppToast/AppToast';
 import PrescriptionCard from 'src/components/Prescription/PrescriptionCard/PrescriptionCard';
 import PrescriptionSubstancesModal from 'src/components/Prescription/PrescriptionSubstancesModal/PrescriptionSubstancesModal';

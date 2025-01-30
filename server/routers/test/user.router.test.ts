@@ -1,9 +1,5 @@
 import { constants } from 'http2';
 import { Selectable } from 'kysely';
-import randomstring from 'randomstring';
-import request from 'supertest';
-import { v4 as uuidv4 } from 'uuid';
-import { describe, expect, test } from 'vitest';
 import { Region } from 'maestro-shared/referential/Region';
 import { User } from 'maestro-shared/schema/User/User';
 import {
@@ -13,6 +9,10 @@ import {
   Sampler2Fixture,
   SamplerDromFixture
 } from 'maestro-shared/test/userFixtures';
+import randomstring from 'randomstring';
+import request from 'supertest';
+import { v4 as uuidv4 } from 'uuid';
+import { describe, expect, test } from 'vitest';
 import { DB } from '../../repositories/kysely.type';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';

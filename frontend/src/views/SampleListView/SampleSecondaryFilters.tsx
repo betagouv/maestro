@@ -1,6 +1,5 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
-import { useMemo } from 'react';
 import {
   Department,
   DepartmentLabels,
@@ -13,6 +12,7 @@ import {
   ContextList
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
+import { useMemo } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 
 interface Props {

@@ -1,7 +1,7 @@
 import { isArray, isNil, omit, omitBy } from 'lodash-es';
 import { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import {knexInstance as db} from './db';
+import { knexInstance as db } from './db';
 
 export const programmingPlansTable = 'programming_plans';
 
@@ -39,9 +39,7 @@ const findMany = async (
       }
     })
     .then((programmingPlans) =>
-      programmingPlans.map((_: any) =>
-        ProgrammingPlan.parse(omitBy(_, isNil))
-      )
+      programmingPlans.map((_: any) => ProgrammingPlan.parse(omitBy(_, isNil)))
     );
 };
 

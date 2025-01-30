@@ -1,8 +1,4 @@
 import { constants } from 'http2';
-import randomstring from 'randomstring';
-import request from 'supertest';
-import { v4 as uuidv4 } from 'uuid';
-import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { MatrixList } from 'maestro-shared/referential/Matrix/Matrix';
 import { StageList } from 'maestro-shared/referential/Stage';
 import { PrescriptionUpdate } from 'maestro-shared/schema/Prescription/Prescription';
@@ -18,6 +14,10 @@ import {
   RegionalCoordinator,
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
+import randomstring from 'randomstring';
+import request from 'supertest';
+import { v4 as uuidv4 } from 'uuid';
+import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import {
   formatPrescriptionSubstance,

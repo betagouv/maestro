@@ -1,9 +1,12 @@
-import knexStringcase from 'knex-stringcase';
 import { Knex } from 'knex';
+import knexStringcase from 'knex-stringcase';
 import config from './utils/config';
 
 //@ts-expect-error TS2239 https://github.com/Kequc/knex-stringcase/issues/28#issuecomment-2475324275
-const knexString = typeof knexStringcase === 'function' ? knexStringcase() : knexStringcase.default()
+const knexString =
+  typeof knexStringcase === 'function'
+    ? knexStringcase()
+    : knexStringcase.default();
 const knexConfig: Knex.Config = {
   client: 'pg',
   acquireConnectionTimeout: 10000,
@@ -11,8 +14,8 @@ const knexConfig: Knex.Config = {
   connection: config.databaseUrl,
   migrations: {
     tableName: 'knex_migrations',
-    directory: 'database/migrations',
-  },
+    directory: 'database/migrations'
+  }
 };
 
-export default knexConfig
+export default knexConfig;

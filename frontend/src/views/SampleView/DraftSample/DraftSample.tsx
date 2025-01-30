@@ -1,8 +1,6 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Stepper from '@codegouvfr/react-dsfr/Stepper';
 import clsx from 'clsx';
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import {
   isCreatedPartialSample,
   PartialSample,
@@ -10,6 +8,8 @@ import {
   Sample
 } from 'maestro-shared/schema/Sample/Sample';
 import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import ContextStep from 'src/views/SampleView/DraftSample/ContextStep/ContextStep';

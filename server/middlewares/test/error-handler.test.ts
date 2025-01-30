@@ -1,8 +1,8 @@
 import express, { NextFunction, Request, Response } from 'express';
 import { constants } from 'http2';
 import request from 'supertest';
-import errorHandler from '../error-handler'
 import { describe, test } from 'vitest';
+import errorHandler from '../error-handler';
 
 describe('Error handler', () => {
   describe('Integration test', () => {
@@ -15,7 +15,7 @@ describe('Error handler', () => {
       async (_request: Request, _response: Response, next: NextFunction) => {
         const error = new Error('Unexpected error');
         next(error);
-      },
+      }
     );
     app.use(errorHandler());
 

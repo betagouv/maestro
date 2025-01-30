@@ -1,6 +1,6 @@
 import { ModalProps } from '@codegouvfr/react-dsfr/Modal';
-import React, { useState } from 'react';
 import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
+import React, { useState } from 'react';
 interface Props {
   modal: {
     buttonProps: {
@@ -39,14 +39,14 @@ const SendingModal = ({ modal, laboratory, onConfirm }: Props) => {
         {
           children: 'Annuler',
           priority: 'secondary',
-          disabled: isConfirmationPending,
+          disabled: isConfirmationPending
         },
         {
           children: "Confirmer l'envoi",
           onClick: submit,
           disabled: isConfirmationPending,
-          doClosesModal: false,
-        },
+          doClosesModal: false
+        }
       ]}
     >
       La demande d’analyse va être envoyée au laboratoire{' '}

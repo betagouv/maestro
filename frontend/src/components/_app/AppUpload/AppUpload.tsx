@@ -1,11 +1,11 @@
 import { Upload } from '@codegouvfr/react-dsfr/Upload';
-import { ComponentPropsWithoutRef } from 'react';
 import { MaxFileSize } from 'maestro-shared/schema/File/FileInput';
 import {
   FileType,
   FileTypeLabels,
-  FileTypeList,
+  FileTypeList
 } from 'maestro-shared/schema/File/FileType';
+import { ComponentPropsWithoutRef } from 'react';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
 import { useForm } from 'src/hooks/useForm';
 import { ZodRawShape } from 'zod';
@@ -59,7 +59,7 @@ function AppUpload<T extends ZodRawShape>(props: AppUploadProps<T>) {
         }
         nativeInputProps={{
           ...nativeInputProps,
-          accept: (acceptFileTypes ?? FileTypeList).join(','),
+          accept: (acceptFileTypes ?? FileTypeList).join(',')
         }}
         state={
           state ?? inputForm.messageType(String(inputKey), inputPathFromKey)

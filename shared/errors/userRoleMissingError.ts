@@ -9,7 +9,7 @@ export default class UserRoleMissingError
     super({
       name: 'UserRoleMissingError',
       message: `User role missing`,
-      status: constants.HTTP_STATUS_FORBIDDEN,
+      status: constants.HTTP_STATUS_FORBIDDEN
     });
   }
 }

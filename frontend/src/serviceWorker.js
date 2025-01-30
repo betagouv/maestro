@@ -14,7 +14,6 @@ import { createHandlerBoundToURL, precacheAndRoute } from 'workbox-precaching';
 import { registerRoute } from 'workbox-routing';
 import { CacheFirst, NetworkFirst } from 'workbox-strategies';
 
-
 self.skipWaiting();
 clientsClaim();
 
@@ -67,12 +66,12 @@ registerRoute(
     plugins: [
       new ExpirationPlugin({
         maxEntries: 50, // Limite le nombre d'éléments dans le cache
-        maxAgeSeconds: 30 * 24 * 60 * 60, // Cache pendant 30 jours
+        maxAgeSeconds: 30 * 24 * 60 * 60 // Cache pendant 30 jours
       }),
       new CacheableResponsePlugin({
-        statuses: [0, 200], // Met en cache uniquement les réponses réussies
-      }),
-    ],
+        statuses: [0, 200] // Met en cache uniquement les réponses réussies
+      })
+    ]
   })
 );
 
@@ -87,12 +86,12 @@ registerRoute(
     plugins: [
       new ExpirationPlugin({
         maxEntries: 50, // Limite le nombre d'éléments dans le cache
-        maxAgeSeconds: 30 * 24 * 60 * 60, // Cache pendant 30 jours
+        maxAgeSeconds: 30 * 24 * 60 * 60 // Cache pendant 30 jours
       }),
       new CacheableResponsePlugin({
-        statuses: [0, 200], // Met en cache uniquement les réponses réussies
-      }),
-    ],
+        statuses: [0, 200] // Met en cache uniquement les réponses réussies
+      })
+    ]
   })
 );
 
@@ -106,12 +105,12 @@ registerRoute(
     plugins: [
       new ExpirationPlugin({
         maxEntries: 100, // Limite le nombre d'éléments dans le cache
-        maxAgeSeconds: 5 * 24 * 60 * 60, // Cache pendant 5 jours
+        maxAgeSeconds: 5 * 24 * 60 * 60 // Cache pendant 5 jours
       }),
       new CacheableResponsePlugin({
-        statuses: [0, 200], // Met en cache uniquement les réponses réussies
-      }),
-    ],
+        statuses: [0, 200] // Met en cache uniquement les réponses réussies
+      })
+    ]
   })
 );
 

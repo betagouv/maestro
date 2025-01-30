@@ -1,7 +1,6 @@
 import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { skipToken } from '@reduxjs/toolkit/query';
-import { useMemo } from 'react';
 import { CultureKindLabels } from 'maestro-shared/referential/CultureKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { MatrixPartLabels } from 'maestro-shared/referential/MatrixPart';
@@ -11,6 +10,7 @@ import {
   SampleOwnerData,
   SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
+import { useMemo } from 'react';
 import { usePartialSample } from 'src/hooks/usePartialSample';
 import { useGetPrescriptionSubstancesQuery } from 'src/services/prescription.service';
 import { quote } from 'src/utils/stringUtils';

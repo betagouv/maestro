@@ -9,7 +9,7 @@ router.use(
   createProxyMiddleware({
     target: `${config.apis.company.url}/search`,
     changeOrigin: true,
-    pathRewrite: { '/?': '' },
+    pathRewrite: { '/?': '' }
   })
 );
 

@@ -4,7 +4,6 @@ import { Request, Response } from 'express';
 import { AuthenticatedRequest, SampleRequest } from 'express-jwt';
 import { constants } from 'http2';
 import { isNil, omitBy, pick } from 'lodash-es';
-import { v4 as uuidv4 } from 'uuid';
 import { Regions } from 'maestro-shared/referential/Region';
 import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
@@ -16,6 +15,7 @@ import {
 import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
 import { User } from 'maestro-shared/schema/User/User';
+import { v4 as uuidv4 } from 'uuid';
 import companyRepository from '../repositories/companyRepository';
 import { documentRepository } from '../repositories/documentRepository';
 import laboratoryRepository from '../repositories/laboratoryRepository';
@@ -23,10 +23,10 @@ import sampleItemRepository from '../repositories/sampleItemRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
 import { documentService } from '../services/documentService/documentService';
 import exportSamplesService from '../services/exportService/exportSamplesService';
-import {mailService} from '../services/mailService';
+import { mailService } from '../services/mailService';
+import { s3Service } from '../services/s3Service';
 import config from '../utils/config';
 import workbookUtils from '../utils/workbookUtils';
-import { s3Service } from '../services/s3Service';
 
 const getSample = async (request: Request, response: Response) => {
   const sample = (request as SampleRequest).sample;

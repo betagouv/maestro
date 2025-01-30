@@ -26,5 +26,5 @@ const findLaboratories = async (_request: Request, response: Response) => {
 
 export default {
   getLaboratory,
-  findLaboratories,
+  findLaboratories
 };

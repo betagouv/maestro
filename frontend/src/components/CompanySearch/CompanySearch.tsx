@@ -1,9 +1,9 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import { Autocomplete } from '@mui/material';
-import { ReactNode, SyntheticEvent, useState } from 'react';
 import { Department } from 'maestro-shared/referential/Department';
 import { CompanySearchResult } from 'maestro-shared/schema/Company/CompanySearchResult';
+import { ReactNode, SyntheticEvent, useState } from 'react';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
 import { useLazySearchCompaniesQuery } from 'src/services/company.service';
 
@@ -20,7 +20,7 @@ const CompanySearch = ({
   department,
   onSelectCompany,
   state,
-  stateRelatedMessage,
+  stateRelatedMessage
 }: Props) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [companySearchResults, setCompanySearchResults] = useState<
@@ -41,7 +41,7 @@ const CompanySearch = ({
     if (value.length > 3) {
       await searchCompanies({
         query: value as string,
-        department,
+        department
       })
         .unwrap()
         .then((results) => {
@@ -141,7 +141,7 @@ const CompanySearch = ({
                 setCompany(null);
                 setSearchQuery('');
                 onSelectCompany(undefined);
-              },
+              }
             }}
           >
             {[company.siege.siret, company.nom_complet].join(' - ')}

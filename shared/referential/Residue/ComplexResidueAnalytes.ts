@@ -9,7 +9,7 @@ export const ComplexResidueAnalytes: Record<ComplexResidue, Analyte[]> = {
     'RF-1078-004-PPP',
     'RF-1078-005-PPP',
     'RF-1078-006-PPP',
-    'RF-1078-007-PPP',
+    'RF-1078-007-PPP'
   ],
   'RF-00003018-PAR': ['RF-0303-002-PPP', 'RF-0303-003-PPP'],
   'RF-00003033-PAR': ['RF-00003032-PAR', 'RF-0044-001-PPP'],
@@ -21,7 +21,7 @@ export const ComplexResidueAnalytes: Record<ComplexResidue, Analyte[]> = {
     'RF-00003323-PAR',
     'RF-00003324-PAR',
     'RF-00003325-PAR',
-    'RF-0285-001-PPP',
+    'RF-0285-001-PPP'
   ],
   'RF-00003351-PAR': ['RF-0016-002-PPP', 'RF-0016-003-PPP'],
   'RF-00003367-PAR': ['RF-00003366-PAR', 'RF-0371-001-PPP'],
@@ -30,7 +30,7 @@ export const ComplexResidueAnalytes: Record<ComplexResidue, Analyte[]> = {
     'RF-0065-002-PPP',
     'RF-0065-003-PPP',
     'RF-0068-001-PPP',
-    'RF-0228-001-PPP',
+    'RF-0228-001-PPP'
   ],
   'RF-00004655-PAR': ['RF-0011-002-PPP', 'RF-0011-003-PPP', 'RF-0011-004-PPP'],
   'RF-00004659-PAR': ['RF-0126-002-PPP', 'RF-0126-003-PPP'],
@@ -41,7 +41,7 @@ export const ComplexResidueAnalytes: Record<ComplexResidue, Analyte[]> = {
     'RF-0235-003-PPP',
     'RF-0235-004-PPP',
     'RF-0235-006-PPP',
-    'RF-0235-007-PPP',
+    'RF-0235-007-PPP'
   ],
   'RF-00004681-PAR': ['RF-00004686-PAR', 'RF-0061-001-PPP'],
   'RF-00004683-PAR': ['RF-00003348-PAR', 'RF-00003349-PAR', 'RF-0194-002-PPP'],
@@ -55,7 +55,7 @@ export const ComplexResidueAnalytes: Record<ComplexResidue, Analyte[]> = {
     'RF-00000022-PAR',
     'RF-0197-002-PPP',
     'RF-0698-001-PPP',
-    'RF-0699-001-PPP',
+    'RF-0699-001-PPP'
   ],
   'RF-00007588-PAR': ['RF-00009870-PAR', 'RF-0088-001-PPP'],
   'RF-00007633-PAR': ['RF-0823-001-PPP', 'RF-0823-002-PPP'],
@@ -66,7 +66,7 @@ export const ComplexResidueAnalytes: Record<ComplexResidue, Analyte[]> = {
     'RF-0384-002-PPP',
     'RF-0384-004-PPP',
     'RF-0887-001-PPP',
-    'RF-0887-002-PPP',
+    'RF-0887-002-PPP'
   ],
   'RF-00012032-PAR': ['RF-00003328-PAR', 'RF-00003329-PAR', 'RF-0349-002-PPP'],
   'RF-00012293-PAR': ['RF-00002608-PAR', 'RF-0409-001-PPP'],
@@ -81,7 +81,7 @@ export const ComplexResidueAnalytes: Record<ComplexResidue, Analyte[]> = {
     'RF-0024-002-PPP',
     'RF-0024-003-PPP',
     'RF-0024-004-PPP',
-    'RF-0992-001-PPP',
+    'RF-0992-001-PPP'
   ],
   'RF-0034-001-PPP': ['RF-0034-002-PPP', 'RF-0034-003-PPP'],
   'RF-0041-001-PPP': ['RF-0041-002-PPP', 'RF-0041-003-PPP'],
@@ -94,7 +94,7 @@ export const ComplexResidueAnalytes: Record<ComplexResidue, Analyte[]> = {
     'RF-0096-005-PPP',
     'RF-0096-006-PPP',
     'RF-0096-007-PPP',
-    'RF-0096-009-PPP',
+    'RF-0096-009-PPP'
   ],
   'RF-00014256-PAR': ['RF-00006227-PAR', 'RF-00006240-PAR', 'RF-0106-002-PPP'],
   'RF-0112-001-PPP': [
@@ -102,14 +102,14 @@ export const ComplexResidueAnalytes: Record<ComplexResidue, Analyte[]> = {
     'RF-0112-002-PPP',
     'RF-0112-003-PPP',
     'RF-0112-004-PPP',
-    'RF-0112-005-PPP',
+    'RF-0112-005-PPP'
   ],
   'RF-0117-001-PPP': ['RF-00003320-PAR', 'RF-00003339-PAR'],
   'RF-0118-001-PPP': [
     'RF-00004632-PAR',
     'RF-00006293-PAR',
     'RF-0118-003-PPP',
-    'RF-0790-001-PPP',
+    'RF-0790-001-PPP'
   ],
   'RF-0119-001-PPP': [
     'RF-0119-002-PPP',
@@ -117,7 +117,7 @@ export const ComplexResidueAnalytes: Record<ComplexResidue, Analyte[]> = {
     'RF-0119-004-PPP',
     'RF-0119-005-PPP',
     'RF-0119-006-PPP',
-    'RF-0119-007-PPP',
+    'RF-0119-007-PPP'
   ],
   'RF-0130-001-PPP': ['RF-0130-002-PPP', 'RF-0130-003-PPP'],
   'RF-0143-001-PPP': [
@@ -126,7 +126,7 @@ export const ComplexResidueAnalytes: Record<ComplexResidue, Analyte[]> = {
     'RF-00007610-PAR',
     'RF-00007611-PAR',
     'RF-00007612-PAR',
-    'RF-0143-002-PPP',
+    'RF-0143-002-PPP'
   ],
   'RF-0149-001-PPP': ['RF-0149-002-PPP', 'RF-0149-003-PPP', 'RF-0149-004-PPP'],
   'RF-0155-001-PPP': ['RF-0155-002-PPP', 'RF-0155-003-PPP', 'RF-0155-004-PPP'],
@@ -139,7 +139,7 @@ export const ComplexResidueAnalytes: Record<ComplexResidue, Analyte[]> = {
     'RF-0187-004-PPP',
     'RF-0187-005-PPP',
     'RF-0187-006-PPP',
-    'RF-0187-007-PPP',
+    'RF-0187-007-PPP'
   ],
   'RF-0192-001-PPP': ['RF-0192-002-PPP', 'RF-0192-003-PPP'],
   'RF-0203-001-PPP': ['RF-00007615-PAR', 'RF-0203-002-PPP'],
@@ -149,13 +149,13 @@ export const ComplexResidueAnalytes: Record<ComplexResidue, Analyte[]> = {
     'RF-00003355-PAR',
     'RF-00003360-PAR',
     'RF-00003361-PAR',
-    'RF-0231-001-PPP',
+    'RF-0231-001-PPP'
   ],
   'RF-0236-001-PPP': [
     'RF-0236-004-PPP',
     'RF-0236-005-PPP',
     'RF-0236-007-PPP',
-    'RF-0236-008-PPP',
+    'RF-0236-008-PPP'
   ],
   'RF-0259-001-PPP': ['RF-00004677-PAR', 'RF-0259-002-PPP'],
   'RF-0266-001-PPP': ['RF-0266-002-PPP', 'RF-0266-003-PPP'],
@@ -172,7 +172,7 @@ export const ComplexResidueAnalytes: Record<ComplexResidue, Analyte[]> = {
     'RF-0336-004-PPP',
     'RF-0336-005-PPP',
     'RF-0336-006-PPP',
-    'RF-0336-007-PPP',
+    'RF-0336-007-PPP'
   ],
   'RF-0362-001-PPP': ['RF-00004648-PAR', 'RF-0362-002-PPP'],
   'RF-0374-001-PPP': [
@@ -181,7 +181,7 @@ export const ComplexResidueAnalytes: Record<ComplexResidue, Analyte[]> = {
     'RF-0374-004-PPP',
     'RF-0374-005-PPP',
     'RF-1066-002-PPP',
-    'RF-1066-003-PPP',
+    'RF-1066-003-PPP'
   ],
   'RF-0376-001-PPP': ['RF-0376-002-PPP', 'RF-0875-001-PPP'],
   'RF-0383-001-PPP': ['RF-0383-002-PPP', 'RF-0383-003-PPP'],
@@ -191,5 +191,5 @@ export const ComplexResidueAnalytes: Record<ComplexResidue, Analyte[]> = {
   'RF-0690-006-PPP': ['RF-0690-004-PPP', 'RF-0690-005-PPP'],
   'RF-1078-002-PPP': ['RF-00007489-PAR', 'RF-00007495-PAR', 'RF-00007627-PAR'],
   'RF-00014208-PAR': ['RF-00006819-PAR', 'RF-00006827-PAR'],
-  'RF-00014207-PAR': ['RF-0381-001-PPP', 'RF-00007283-PAR', 'RF-00007284-PAR'],
+  'RF-00014207-PAR': ['RF-0381-001-PPP', 'RF-00007283-PAR', 'RF-00007284-PAR']
 };

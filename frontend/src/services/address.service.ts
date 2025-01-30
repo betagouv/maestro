@@ -2,7 +2,7 @@ import fp from 'lodash';
 import { Department } from 'maestro-shared/referential/Department';
 import {
   AddressSearchResult,
-  AddressSearchResults,
+  AddressSearchResults
 } from 'maestro-shared/schema/Address/AddressSearchResult';
 import { api } from 'src/services/api.service';
 
@@ -16,8 +16,8 @@ export const addressApi = api.injectEndpoints({
         url: 'addresses/search',
         params: {
           // type: 'municipality',
-          q: query,
-        },
+          q: query
+        }
       }),
       transformResponse: (response: AddressSearchResults) =>
         response.features.map((_) =>
@@ -25,9 +25,9 @@ export const addressApi = api.injectEndpoints({
         ),
       transformErrorResponse: () => {
         return [];
-      },
-    }),
-  }),
+      }
+    })
+  })
 });
 
 export const { useLazySearchAddressesQuery } = addressApi;

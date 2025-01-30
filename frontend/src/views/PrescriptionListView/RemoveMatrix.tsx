@@ -1,9 +1,9 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
-import React, { useMemo } from 'react';
 import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { Stage, StageLabels } from 'maestro-shared/referential/Stage';
+import React, { useMemo } from 'react';
 interface RemoveMatrixProps {
   matrix: Matrix;
   stages: Stage[];
@@ -15,7 +15,7 @@ const RemoveMatrix = ({ matrix, stages, onRemove }: RemoveMatrixProps) => {
     () =>
       createModal({
         id: `remove-modal-${matrix}-${stages}`,
-        isOpenedByDefault: false,
+        isOpenedByDefault: false
       }),
     [matrix, stages]
   );
@@ -40,13 +40,13 @@ const RemoveMatrix = ({ matrix, stages, onRemove }: RemoveMatrixProps) => {
         buttons={[
           {
             children: 'Annuler',
-            priority: 'secondary',
+            priority: 'secondary'
           },
           {
             children: 'Supprimer',
             onClick: submit,
-            doClosesModal: false,
-          },
+            doClosesModal: false
+          }
         ]}
       >
         Êtes-vous sûr de vouloir supprimer cette ligne ?

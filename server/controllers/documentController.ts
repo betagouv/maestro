@@ -1,6 +1,4 @@
-import {
-  GetObjectCommand,
-} from '@aws-sdk/client-s3';
+import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl as getS3SignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Request, Response } from 'express';
 import { AuthenticatedRequest } from 'express-jwt';
@@ -8,12 +6,12 @@ import { constants } from 'http2';
 import DocumentMissingError from 'maestro-shared/errors/documentMissingError';
 import {
   Document,
-  DocumentToCreate,
+  DocumentToCreate
 } from 'maestro-shared/schema/Document/Document';
 import { hasPermission } from 'maestro-shared/schema/User/User';
 import { documentRepository } from '../repositories/documentRepository';
+import { s3Service } from '../services/s3Service';
 import config from '../utils/config';
-import {  s3Service  } from '../services/s3Service';
 
 const getDocument = async (request: Request, response: Response) => {
   const { documentId } = request.params;
@@ -34,19 +32,20 @@ const getUploadSignedUrl = async (request: Request, response: Response) => {
   const user = (request as AuthenticatedRequest).user;
 
   if (kind === 'Resource' && !hasPermission(user, 'createResource')) {
-    return { status: constants.HTTP_STATUS_FORBIDDEN}
+    return { status: constants.HTTP_STATUS_FORBIDDEN };
   }
   if (
     kind === 'AnalysisReportDocument' &&
     !hasPermission(user, 'createAnalysis')
   ) {
-    return { status: constants.HTTP_STATUS_FORBIDDEN }
+    return { status: constants.HTTP_STATUS_FORBIDDEN };
   }
 
-  const result: {url: string, documentId: string} = await s3Service.getUploadSignedUrl(filename )
+  const result: { url: string; documentId: string } =
+    await s3Service.getUploadSignedUrl(filename);
 
-  return response.status(200).json(result)
-}
+  return response.status(200).json(result);
+};
 
 const getDownloadSignedUrl = async (request: Request, response: Response) => {
   const { documentId } = request.params;
@@ -64,7 +63,7 @@ const getDownloadSignedUrl = async (request: Request, response: Response) => {
 
   const command = new GetObjectCommand({
     Bucket: config.s3.bucket,
-    Key: key,
+    Key: key
   });
 
   const url = await getS3SignedUrl(client, command, { expiresIn: 3600 });
@@ -94,7 +93,7 @@ const createDocument = async (request: Request, response: Response) => {
   const document: Document = {
     ...documentToCreate,
     createdAt: new Date(),
-    createdBy: user.id,
+    createdBy: user.id
   };
 
   await documentRepository.insert(document);
@@ -106,7 +105,7 @@ const findResources = async (_request: Request, response: Response) => {
   console.info('Find documents');
 
   const documents = await documentRepository.findMany({
-    kind: 'Resource',
+    kind: 'Resource'
   });
 
   response.status(constants.HTTP_STATUS_OK).send(documents);
@@ -123,7 +122,7 @@ const deleteDocument = async (request: Request, response: Response) => {
     throw new DocumentMissingError(documentId);
   }
 
-  await s3Service.deleteDocument(documentId, document.filename)
+  await s3Service.deleteDocument(documentId, document.filename);
 
   await documentRepository.deleteOne(documentId);
 
@@ -136,5 +135,5 @@ export default {
   getDownloadSignedUrl,
   createDocument,
   findResources,
-  deleteDocument,
+  deleteDocument
 };

@@ -4,8 +4,8 @@ export const ResidueCompliance = z.enum(
   ['Compliant', 'NonCompliant', 'Other'],
   {
     errorMap: () => ({
-      message: 'Veuillez renseigner la conformité.',
-    }),
+      message: 'Veuillez renseigner la conformité.'
+    })
   }
 );
 
@@ -17,5 +17,5 @@ export const ResidueComplianceList: ResidueCompliance[] =
 export const ResidueComplianceLabels: Record<ResidueCompliance, string> = {
   Compliant: 'Conforme',
   NonCompliant: 'Non conforme',
-  Other: 'Autre',
+  Other: 'Autre'
 };

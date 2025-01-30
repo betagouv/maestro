@@ -1,26 +1,24 @@
 import { isNil, omit, omitBy } from 'lodash-es';
-import z from 'zod';
-import {
-  PartialAnalysis
-} from 'maestro-shared/schema/Analysis/Analysis';
+import { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { PartialAnalyte } from 'maestro-shared/schema/Analysis/Analyte';
 import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { convertKeysToCamelCase } from 'maestro-shared/utils/utils';
-import {knexInstance as db} from './db';
-import type { KyselyMaestro } from './kysely.type';
+import z from 'zod';
+import { knexInstance as db } from './db';
 import { kysely } from './kysely';
+import type { KyselyMaestro } from './kysely.type';
 
 const analysisTable = 'analysis';
 const analysisResiduesTable = 'analysis_residues';
 const residueAnalytesTable = 'residue_analytes';
 
 const PartialAnalysisDbo = PartialAnalysis.omit({
-  residues: true,
+  residues: true
 });
 
 const PartialAnalysisJoinedDbo = PartialAnalysisDbo.merge(
   z.object({
-    residues: z.array(PartialResidue).nullish(),
+    residues: z.array(PartialResidue).nullish()
   })
 );
 
@@ -64,7 +62,10 @@ const findUnique = async (
     .first()
     .then(parsePartialAnalysis);
 };
-const insert = async (createdAnalysis: Omit<PartialAnalysis, 'id'>, trx: KyselyMaestro = kysely): Promise<string> => {
+const insert = async (
+  createdAnalysis: Omit<PartialAnalysis, 'id'>,
+  trx: KyselyMaestro = kysely
+): Promise<string> => {
   console.info('Insert analysis', createdAnalysis);
   const { analysisId } = await trx
     .insertInto('analysis')
@@ -72,7 +73,7 @@ const insert = async (createdAnalysis: Omit<PartialAnalysis, 'id'>, trx: KyselyM
     .returning('analysis.id as analysisId')
     .executeTakeFirstOrThrow();
 
-  return analysisId
+  return analysisId;
 };
 
 const update = async (partialAnalysis: PartialAnalysis): Promise<void> => {
@@ -84,7 +85,7 @@ const update = async (partialAnalysis: PartialAnalysis): Promise<void> => {
         .update(formatPartialAnalysis(partialAnalysis));
 
       await AnalysisResidues(transaction).delete().where({
-        analysisId: partialAnalysis.id,
+        analysisId: partialAnalysis.id
       });
 
       if (partialAnalysis.residues && partialAnalysis.residues.length > 0) {
@@ -107,13 +108,13 @@ const update = async (partialAnalysis: PartialAnalysis): Promise<void> => {
 export const formatPartialAnalysis = (
   partialAnalysis: PartialAnalysis
 ): PartialAnalysisDbo => ({
-  ...omit(partialAnalysis, ['residues']),
+  ...omit(partialAnalysis, ['residues'])
 });
 
 export const formatPartialResidue = (
   partialResidue: PartialResidue
 ): PartialResidue => ({
-  ...omit(partialResidue, ['analytes']),
+  ...omit(partialResidue, ['analytes'])
 });
 
 export const parsePartialAnalysis = (
@@ -121,10 +122,7 @@ export const parsePartialAnalysis = (
 ): PartialAnalysis =>
   partialAnalysisJoinedDbo &&
   PartialAnalysis.parse({
-    ...omit(omitBy(partialAnalysisJoinedDbo, isNil), [
-      'residues',
-      'analytes',
-    ]),
+    ...omit(omitBy(partialAnalysisJoinedDbo, isNil), ['residues', 'analytes']),
     residues: partialAnalysisJoinedDbo.residues?.map((residue) =>
       convertKeysToCamelCase(
         omitBy(
@@ -132,17 +130,16 @@ export const parsePartialAnalysis = (
             ...residue,
             analytes: residue.analytes?.map((analyte) =>
               convertKeysToCamelCase(omitBy(analyte, isNil))
-            ),
+            )
           },
           isNil
         )
       )
-    ),
+    )
   });
-
 
 export const analysisRepository = {
   findUnique,
   insert,
-  update,
+  update
 };

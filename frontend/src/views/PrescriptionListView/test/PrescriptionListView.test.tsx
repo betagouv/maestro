@@ -1,8 +1,6 @@
 import { configureStore, Store } from '@reduxjs/toolkit';
 import { act, render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import { Provider } from 'react-redux';
-import { BrowserRouter, MemoryRouter, useParams } from 'react-router-dom';
 import { Region, RegionList } from 'maestro-shared/referential/Region';
 import {
   genPrescription,
@@ -11,6 +9,8 @@ import {
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import { genCreatedPartialSample } from 'maestro-shared/test/sampleFixtures';
 import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
+import { Provider } from 'react-redux';
+import { BrowserRouter, MemoryRouter, useParams } from 'react-router-dom';
 import YearRoute from 'src/components/YearRoute/YearRoute';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import PrescriptionListView from 'src/views/PrescriptionListView/PrescriptionListView';

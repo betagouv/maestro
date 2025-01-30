@@ -1,7 +1,5 @@
 import { configureStore, Store } from '@reduxjs/toolkit';
 import { render, screen, waitFor } from '@testing-library/react';
-import { Provider } from 'react-redux';
-import { BrowserRouter, useParams } from 'react-router-dom';
 import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import {
@@ -10,6 +8,8 @@ import {
   genSampleContextData
 } from 'maestro-shared/test/sampleFixtures';
 import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
+import { Provider } from 'react-redux';
+import { BrowserRouter, useParams } from 'react-router-dom';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import SampleView from 'src/views/SampleView/SampleView';
 import {

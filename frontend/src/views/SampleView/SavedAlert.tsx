@@ -25,7 +25,7 @@ const SavedAlert = ({ isOpen, isDraft }: Props) => {
             iconId="fr-icon-arrow-right-line"
             iconPosition="right"
             linkProps={{
-              to: samplesLink,
+              to: samplesLink
             }}
             priority="tertiary no outline"
           >

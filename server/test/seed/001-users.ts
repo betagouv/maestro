@@ -1,4 +1,3 @@
-import { Users } from '../../repositories/userRepository';
 import {
   NationalCoordinator,
   RegionalCoordinator,
@@ -7,6 +6,7 @@ import {
   Sampler2Fixture,
   SamplerDromFixture
 } from 'maestro-shared/test/userFixtures';
+import { Users } from '../../repositories/userRepository';
 
 export const seed = async (): Promise<void> => {
   await Users().insert([

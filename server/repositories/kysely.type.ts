@@ -4,13 +4,13 @@
  */
 
 import { ColumnType, type Kysely } from 'kysely';
-import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { Region } from 'maestro-shared/referential/Region';
-import { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
+import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
 import { ResidueCompliance } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import { ResidueKind } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
-import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
+import { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
+import { UserRole } from 'maestro-shared/schema/User/UserRole';
 
 export type Generated<T> =
   T extends ColumnType<infer S, infer I, infer U>
@@ -257,4 +257,4 @@ export interface DB {
   substances: Substances;
   users: Users;
 }
-export type KyselyMaestro = Kysely<DB>
+export type KyselyMaestro = Kysely<DB>;

@@ -10,12 +10,12 @@ export const Stage = z.enum(
     'STADE6',
     'STADE7',
     'STADE8',
-    'STADE9',
+    'STADE9'
   ],
   {
     errorMap: () => ({
-      message: 'Veuillez renseigner le stade de prélèvement.',
-    }),
+      message: 'Veuillez renseigner le stade de prélèvement.'
+    })
   }
 );
 
@@ -32,5 +32,5 @@ export const StageLabels: Record<Stage, string> = {
   STADE6: 'Intrant (spécialité commerciale ou bouillie)',
   STADE7: 'Produit végétal transformé',
   STADE8: 'Substrat',
-  STADE9: 'Autre',
+  STADE9: 'Autre'
 };

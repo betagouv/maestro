@@ -5,7 +5,7 @@ import { Context } from '../ProgrammingPlan/Context';
 
 export const RegionalPrescriptionOptionsInclude = z.enum([
   'comments',
-  'realizedSampleCount',
+  'realizedSampleCount'
 ]);
 
 export type RegionalPrescriptionOptionsInclude = z.infer<
@@ -19,9 +19,9 @@ export const FindRegionalPrescriptionOptions = z.object({
   includes: z
     .union([
       RegionalPrescriptionOptionsInclude,
-      coerceToArray(z.array(RegionalPrescriptionOptionsInclude)),
+      coerceToArray(z.array(RegionalPrescriptionOptionsInclude))
     ])
-    .nullish(),
+    .nullish()
 });
 
 export type FindRegionalPrescriptionOptions = z.infer<

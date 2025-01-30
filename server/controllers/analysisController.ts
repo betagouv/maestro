@@ -1,16 +1,16 @@
 import { Request, Response } from 'express';
 import { AuthenticatedRequest } from 'express-jwt';
 import { constants } from 'http2';
-import { v4 as uuidv4 } from 'uuid';
 import AnalysisMissingError from 'maestro-shared/errors/analysisMissingError';
 import SampleMissingError from 'maestro-shared/errors/sampleMissingError';
 import {
   AnalysisToCreate,
   CreatedAnalysis,
-  PartialAnalysis,
+  PartialAnalysis
 } from 'maestro-shared/schema/Analysis/Analysis';
-import { sampleRepository } from '../repositories/sampleRepository';
+import { v4 as uuidv4 } from 'uuid';
 import { analysisRepository } from '../repositories/analysisRepository';
+import { sampleRepository } from '../repositories/sampleRepository';
 
 const getAnalysis = async (request: Request, response: Response) => {
   const { sampleId } = request.query as { sampleId: string };
@@ -40,13 +40,13 @@ const createAnalysis = async (request: Request, response: Response) => {
     createdAt: new Date(),
     createdBy: user.id,
     status: 'Residues',
-    ...analysisToCreate,
+    ...analysisToCreate
   };
   await analysisRepository.insert(analysis);
 
   await sampleRepository.update({
     ...sample,
-    status: 'Analysis',
+    status: 'Analysis'
   });
 
   response.status(constants.HTTP_STATUS_CREATED).send(analysis);
@@ -66,7 +66,7 @@ const updateAnalysis = async (request: Request, response: Response) => {
 
   const updatedAnalysis = {
     ...analysis,
-    ...analysisUpdate,
+    ...analysisUpdate
   };
   await analysisRepository.update(updatedAnalysis);
 
@@ -79,7 +79,7 @@ const updateAnalysis = async (request: Request, response: Response) => {
 
     await sampleRepository.update({
       ...sample,
-      status: analysisUpdate.compliance ? 'Completed' : 'CompletedNotConform',
+      status: analysisUpdate.compliance ? 'Completed' : 'CompletedNotConform'
     });
   }
 
@@ -89,5 +89,5 @@ const updateAnalysis = async (request: Request, response: Response) => {
 export default {
   getAnalysis,
   createAnalysis,
-  updateAnalysis,
+  updateAnalysis
 };
