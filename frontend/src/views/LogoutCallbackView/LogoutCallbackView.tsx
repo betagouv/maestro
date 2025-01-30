@@ -1,4 +1,5 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import { Brand } from 'maestro-shared/constants';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch } from 'src/hooks/useStore';
@@ -36,7 +37,7 @@ export const LogoutCallbackView = () => {
       </div>
       <h2 className={cx('fr-mb-2w')}>
         Vous ne disposez pas actuellement des autorisations nécessaires pour
-        accéder à Maestro.
+        accéder à {Brand}.
       </h2>
       <div className={cx('fr-text--lg', 'fr-mb-5w')}>
         {isCertifiedAgent ? (

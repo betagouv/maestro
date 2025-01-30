@@ -1,6 +1,7 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Header as DSFRHeader } from '@codegouvfr/react-dsfr/Header';
+import { Brand } from 'maestro-shared/constants';
 import { UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
 import { isDefined } from 'maestro-shared/utils/utils';
 import { useLocation } from 'react-router-dom';
@@ -48,7 +49,7 @@ const Header = () => {
       }}
       id="header"
       operatorLogo={{
-        alt: 'Logo maestro',
+        alt: `Logo ${Brand}`,
         imgUrl: logo,
         orientation: 'horizontal'
       }}
