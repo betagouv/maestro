@@ -12,8 +12,7 @@ import {
 import authSlice from 'src/store/reducers/authSlice';
 import { appLogout } from 'src/store/store';
 
-
-export const SESSION_STORAGE_UNKNOWN_USER_EMAIl = 'UNKNOWN_MAESTRO_USER_EMAIL'
+export const SESSION_STORAGE_UNKNOWN_USER_EMAIl = 'UNKNOWN_MAESTRO_USER_EMAIL';
 
 export const LoginCallbackView = () => {
   const dispatch = useAppDispatch();
@@ -41,16 +40,19 @@ export const LoginCallbackView = () => {
   useEffect(() => {
     if (isSuccess) {
       dispatch(authSlice.actions.signinUser({ authUser }));
-      if (authUser.userId !== null) {
+      if (authUser.user !== null) {
         navigate('/');
       } else {
         const asyncLogout = async () => {
-          sessionStorage.setItem(SESSION_STORAGE_UNKNOWN_USER_EMAIl, authUser.userEmail)
+          sessionStorage.setItem(
+            SESSION_STORAGE_UNKNOWN_USER_EMAIl,
+            authUser.userEmail
+          );
           const logoutRedirectUrl = await logout().unwrap();
           await appLogout()(dispatch);
           window.location.href = logoutRedirectUrl.url;
         };
-        asyncLogout()
+        asyncLogout();
       }
     }
   }, [

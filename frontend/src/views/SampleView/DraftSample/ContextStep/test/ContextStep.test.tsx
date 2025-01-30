@@ -13,7 +13,7 @@ import { beforeEach, describe, expect, test } from 'vitest';
 //   response: { body: JSON.stringify([companySearchResult]) },
 // };
 
-describe('SampleStepCreation', () => {
+describe('DraftSampleContextStep', () => {
   const user = userEvent.setup();
 
   beforeEach(() => {

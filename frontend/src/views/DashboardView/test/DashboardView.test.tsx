@@ -2,13 +2,16 @@ import { configureStore, Store } from '@reduxjs/toolkit';
 import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
-import { genAuthUser, genUser, Region1Fixture, Sampler1Fixture } from 'shared/test/userFixtures';
+import {
+  genAuthUser,
+  Region1Fixture,
+  Sampler1Fixture
+} from 'shared/test/userFixtures';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import { beforeEach } from 'vitest';
 import {
   mockRequests,
-  programmingPlanByYearRequestMock,
-  userRequestMock
+  programmingPlanByYearRequestMock
 } from '../../../../test/requestTestUtils';
 
 vi.mock(import('react-router-dom'), async (importOriginal) => {
@@ -26,23 +29,19 @@ let store: Store;
 
 describe('DashboardView', () => {
   describe('For a sampler', () => {
-    const authUser = {
-      ...genAuthUser(),
-      id: Sampler1Fixture.id
-    };
-    const sampler = genUser({
-      roles: ['Sampler'],
-      id: authUser.userId,
-      region: Region1Fixture
-    });
-
     beforeEach(() => {
       fetchMock.resetMocks();
       store = configureStore({
         reducer: applicationReducer,
         middleware: applicationMiddleware,
         preloadedState: {
-          auth: { authUser }
+          auth: {
+            authUser: genAuthUser({
+              roles: ['Sampler'],
+              region: Region1Fixture,
+              id: Sampler1Fixture.id
+            })
+          }
         }
       });
     });
@@ -53,7 +52,6 @@ describe('DashboardView', () => {
         year: new Date().getFullYear()
       });
       mockRequests([
-        userRequestMock(sampler),
         programmingPlanByYearRequestMock(
           new Date().getFullYear(),
           validatedProgrammingPlan
@@ -85,7 +83,6 @@ describe('DashboardView', () => {
         year: new Date().getFullYear() - 1
       });
       mockRequests([
-        userRequestMock(sampler),
         programmingPlanByYearRequestMock(
           new Date().getFullYear(),
           inProgressProgrammingPlan

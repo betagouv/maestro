@@ -22,15 +22,9 @@ import {
 
 import { beforeEach, describe, expect, test } from 'vitest';
 let store: Store;
-const authUser = genAuthUser();
 const sampler = genUser({
-  roles: ['Sampler'],
-  id: authUser.userId
+  roles: ['Sampler']
 });
-const userRequest = {
-  pathname: `/api/users/${sampler.id}`,
-  response: { body: JSON.stringify(sampler) }
-};
 const programmingPlan = genProgrammingPlan();
 const prescription1 = genPrescription({
   programmingPlanId: programmingPlan.id,
@@ -45,14 +39,14 @@ const prescriptionsRequest = {
   response: { body: JSON.stringify([prescription1, prescription2]) }
 };
 
-describe('SampleStepDraft', () => {
+describe('DraftSampleMatrixStep', () => {
   beforeEach(() => {
     fetchMock.resetMocks();
     store = configureStore({
       reducer: applicationReducer,
       middleware: applicationMiddleware,
       preloadedState: {
-        auth: { authUser }
+        auth: { authUser: genAuthUser(sampler) }
       }
     });
   });
@@ -60,7 +54,7 @@ describe('SampleStepDraft', () => {
   const user = userEvent.setup();
 
   test('should render form successfully', async () => {
-    mockRequests([userRequest, prescriptionsRequest]);
+    mockRequests([prescriptionsRequest]);
 
     render(
       <Provider store={store}>
@@ -95,7 +89,7 @@ describe('SampleStepDraft', () => {
   });
 
   test('should handle errors on submitting', async () => {
-    mockRequests([userRequest, prescriptionsRequest]);
+    mockRequests([prescriptionsRequest]);
 
     render(
       <Provider store={store}>
@@ -139,7 +133,6 @@ describe('SampleStepDraft', () => {
       ...genCreatedSampleData({ sampler })
     };
     mockRequests([
-      userRequest,
       prescriptionsRequest,
       {
         pathname: `/api/samples/${createdSample.id}`,
@@ -200,7 +193,6 @@ describe('SampleStepDraft', () => {
     };
 
     mockRequests([
-      userRequest,
       prescriptionsRequest,
       {
         pathname: `/api/samples/${createdSample.id}`,

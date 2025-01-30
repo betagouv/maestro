@@ -4,11 +4,11 @@ import { constants } from 'http2';
 import jwt from 'jsonwebtoken';
 import AuthenticationFailedError from '../../shared/errors/authenticationFailedError';
 import { AuthRedirectUrl } from '../../shared/schema/Auth/AuthRedirectUrl';
+import { AuthMaybeUnknownUser } from '../../shared/schema/User/AuthUser';
 import { TokenPayload } from '../../shared/schema/User/TokenPayload';
 import { userRepository } from '../repositories/userRepository';
 import { getAuthService } from '../services/authService';
 import config from '../utils/config';
-import { AuthMaybeUnknownUser } from '../../shared/schema/User/AuthUser';
 
 const getAuthRedirectUrl = async (_request: Request, response: Response) => {
   const authService = await getAuthService;
@@ -28,30 +28,33 @@ const authenticate = async (request: Request, response: Response) => {
   console.log('authenticate', authRedirectUrl);
 
   try {
-    const { idToken, email, firstName, lastName } = await authService.authenticate(authRedirectUrl);
+    const { idToken, email, firstName, lastName } =
+      await authService.authenticate(authRedirectUrl);
 
     const user = await userRepository.findOne(email);
     if (user && (user.firstName !== firstName || user.lastName !== lastName)) {
-      await userRepository.updateNames({email, firstName, lastName})
+      await userRepository.updateNames({ email, firstName, lastName });
     }
 
     const tokenPayload: TokenPayload = {
       userId: user?.id ?? null,
       idToken
-    }
-    const accessToken = jwt.sign(tokenPayload,
-      config.auth.secret,
-      { expiresIn: config.auth.expiresIn }
-    );
+    };
+    const accessToken = jwt.sign(tokenPayload, config.auth.secret, {
+      expiresIn: config.auth.expiresIn
+    });
 
-    const result: AuthMaybeUnknownUser = user !== undefined ? {
-      userId: user.id,
-      accessToken
-    } : {
-      userId: null,
-      userEmail: email,
-      accessToken
-    }
+    const result: AuthMaybeUnknownUser =
+      user !== undefined
+        ? {
+            user,
+            accessToken
+          }
+        : {
+            user: null,
+            userEmail: email,
+            accessToken
+          };
 
     return response.status(constants.HTTP_STATUS_OK).json(result);
   } catch (error) {

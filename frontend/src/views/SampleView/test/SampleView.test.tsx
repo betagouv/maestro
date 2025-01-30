@@ -28,15 +28,9 @@ vi.mock(import('react-router-dom'), async (importOriginal) => {
 });
 
 let store: Store;
-const authUser = genAuthUser();
 const sampler = genUser({
-  roles: ['Sampler'],
-  id: authUser.userId
+  roles: ['Sampler']
 });
-const userRequest = {
-  pathname: `/api/users/${sampler.id}`,
-  response: { body: JSON.stringify(sampler) }
-};
 const programmingPlan1 = genProgrammingPlan();
 const programmingPlan2 = genProgrammingPlan();
 const programmingPlanRequest = {
@@ -63,13 +57,12 @@ describe('SampleView', () => {
       reducer: applicationReducer,
       middleware: applicationMiddleware,
       preloadedState: {
-        auth: { authUser }
+        auth: { authUser: genAuthUser(sampler) }
       }
     });
   });
 
   test('should render the first step for a new sample', async () => {
-    mockRequests([userRequest]);
     vi.mocked(useParams).mockReturnValue({ sampleId: undefined });
 
     render(
@@ -98,7 +91,6 @@ describe('SampleView', () => {
       status: 'DraftMatrix'
     };
     mockRequests([
-      userRequest,
       prescriptionsRequest,
       {
         pathname: `/api/samples/${createdSample.id}`,
@@ -135,7 +127,6 @@ describe('SampleView', () => {
       status: 'DraftItems'
     };
     mockRequests([
-      userRequest,
       {
         pathname: `/api/samples/${draftSample.id}`,
         response: { body: JSON.stringify(draftSample) }
@@ -169,7 +160,6 @@ describe('SampleView', () => {
       status: 'Submitted'
     };
     mockRequests([
-      userRequest,
       programmingPlanRequest,
       {
         pathname: `/api/samples/${draftSample.id}`,

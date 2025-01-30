@@ -1,18 +1,20 @@
 import { z } from 'zod';
-
+import { User } from './User';
 
 export const AuthUser = z.object({
-  userId: z.string().uuid(),
-  accessToken: z.string(),
+  user: User,
+  accessToken: z.string()
 });
 
 export type AuthUser = z.infer<typeof AuthUser>;
 
-
 const authUnknownUserValidator = z.object({
-  userId: z.null(),
+  user: z.null(),
   userEmail: z.string(),
   accessToken: z.string()
-})
-export const AuthMaybeUnknownUser = z.union([AuthUser, authUnknownUserValidator])
-export type AuthMaybeUnknownUser = z.infer<typeof AuthMaybeUnknownUser>
+});
+export const AuthMaybeUnknownUser = z.union([
+  AuthUser,
+  authUnknownUserValidator
+]);
+export type AuthMaybeUnknownUser = z.infer<typeof AuthMaybeUnknownUser>;

@@ -1,5 +1,4 @@
 import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { User } from 'shared/schema/User/User';
 import { FetchMock, MockResponse } from 'vitest-fetch-mock';
 
 export interface RequestCall {
@@ -56,11 +55,6 @@ class MockError extends Error {
     this.name = 'MockError';
   }
 }
-
-export const userRequestMock = (user: User) => ({
-  pathname: `/api/users/${user.id}`,
-  response: { body: JSON.stringify(user) }
-});
 
 export const programmingPlanByYearRequestMock = (
   year: number,
