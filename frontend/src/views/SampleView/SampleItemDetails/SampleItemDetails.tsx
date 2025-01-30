@@ -2,7 +2,6 @@ import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
-import React from 'react';
 import {
   PrimaryQuantityUnitList,
   QuantityUnit,
@@ -16,6 +15,7 @@ import {
   SampleItemRecipientKind,
   SampleItemRecipientKindLabels
 } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
+import React from 'react';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppResponsiveButton from 'src/components/_app/AppResponsiveButton/AppResponsiveButton';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';

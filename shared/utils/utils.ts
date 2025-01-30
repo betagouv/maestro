@@ -1,4 +1,11 @@
-import { camelCase, chain, flow, isArray, isObject, isPlainObject } from 'lodash-es';
+import {
+  camelCase,
+  chain,
+  flow,
+  isArray,
+  isObject,
+  isPlainObject
+} from 'lodash-es';
 import { z, ZodObject } from 'zod';
 
 export const isDefined = <A>(a: A | undefined): a is A => a !== undefined;
@@ -19,25 +26,32 @@ export function coerceToArray<Schema extends z.ZodArray<z.ZodTypeAny>>(
 }
 
 export const convertKeysToCamelCase = (obj: unknown): unknown => {
-
   if (!isPlainObject(obj)) {
-    return obj
+    return obj;
   }
 
-  const transform = (o: any) => Object.keys(o).reduce((acc, k) => {
-    acc[camelCase(k)] = o[k]
-    return acc
-  }, {} as Record<string, unknown>);
+  const transform = (o: any) =>
+    Object.keys(o).reduce(
+      (acc, k) => {
+        acc[camelCase(k)] = o[k];
+        return acc;
+      },
+      {} as Record<string, unknown>
+    );
 
-  const deepTransform = (o: any) => Object.keys(o).reduce((acc, k) => {
-    const value = o[k]
-    acc[camelCase(k)] = isPlainObject(value)
-      ? convertKeysToCamelCase(value)
-      : isArray(value)
-        ? value.map(convertKeysToCamelCase)
-        : value
-    return acc
-  }, {} as Record<string, unknown>)
+  const deepTransform = (o: any) =>
+    Object.keys(o).reduce(
+      (acc, k) => {
+        const value = o[k];
+        acc[camelCase(k)] = isPlainObject(value)
+          ? convertKeysToCamelCase(value)
+          : isArray(value)
+            ? value.map(convertKeysToCamelCase)
+            : value;
+        return acc;
+      },
+      {} as Record<string, unknown>
+    );
 
   return flow(transform, deepTransform)(obj);
 };

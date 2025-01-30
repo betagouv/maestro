@@ -1,9 +1,9 @@
 import express from 'express';
-import z from 'zod';
 import {
   AnalysisToCreate,
-  PartialAnalysis,
+  PartialAnalysis
 } from 'maestro-shared/schema/Analysis/Analysis';
+import z from 'zod';
 import analysisController from '../controllers/analysisController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
 import validator, { body, query, uuidParam } from '../middlewares/validator';

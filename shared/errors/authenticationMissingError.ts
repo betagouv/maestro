@@ -9,7 +9,7 @@ export default class AuthenticationMissingError
     super({
       name: 'AuthenticationMissingError',
       message: `Authentication missing`,
-      status: constants.HTTP_STATUS_UNAUTHORIZED,
+      status: constants.HTTP_STATUS_UNAUTHORIZED
     });
   }
 }

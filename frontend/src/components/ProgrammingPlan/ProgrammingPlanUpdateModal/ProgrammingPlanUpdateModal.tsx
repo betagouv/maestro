@@ -2,12 +2,12 @@ import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
-import { useMemo, useState } from 'react';
 import {
   getNextProgrammingPlanStatus,
   ProgrammingPlan
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import { useMemo, useState } from 'react';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useUpdateProgrammingPlanMutation } from 'src/services/programming-plan.service';
@@ -115,9 +115,8 @@ const ProgrammingPlanUpdateModal = ({ programmingPlan }: Props) => {
         title={
           <div>
             Confirmez la
-            {nextStatus === 'Submitted'
-              ? '  soumission '
-              : ' validation '} du programme aux coordinateurs régionaux
+            {nextStatus === 'Submitted' ? '  soumission ' : ' validation '} du
+            programme aux coordinateurs régionaux
             {isDrom ? ' des DROM' : " de l'hexagone et de la Corse"}
           </div>
         }

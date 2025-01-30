@@ -1,10 +1,6 @@
 import { constants } from 'http2';
 import { isEqual } from 'lodash-es';
 import fp from 'lodash/fp';
-import randomstring from 'randomstring';
-import request from 'supertest';
-import { v4 as uuidv4 } from 'uuid';
-import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { MatrixList } from 'maestro-shared/referential/Matrix/Matrix';
 import { Region, RegionList } from 'maestro-shared/referential/Region';
 import { StageList } from 'maestro-shared/referential/Stage';
@@ -36,6 +32,10 @@ import {
   RegionalCoordinator,
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
+import randomstring from 'randomstring';
+import request from 'supertest';
+import { v4 as uuidv4 } from 'uuid';
+import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { Laboratories } from '../../repositories/laboratoryRepository';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import { ProgrammingPlans } from '../../repositories/programmingPlanRepository';

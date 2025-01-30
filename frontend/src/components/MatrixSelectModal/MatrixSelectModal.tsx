@@ -3,7 +3,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import { Autocomplete } from '@mui/material';
-import React, { useState } from 'react';
+import { isNil } from 'lodash-es';
 import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
@@ -11,7 +11,7 @@ import {
   MatrixKindLabels,
   MatrixKindList
 } from 'maestro-shared/referential/MatrixKind';
-import { isNil } from 'lodash-es';
+import React, { useState } from 'react';
 interface AddMatrixProps {
   excludedMatrixList: Matrix[];
   onSelect: (matrix: Matrix) => Promise<void>;
@@ -43,7 +43,7 @@ const MatrixSelectModal = ({
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
 
-    if( !isNil(selectedOption)) {
+    if (!isNil(selectedOption)) {
       await onSelect(selectedOption.value);
       matrixSelectModal.close();
     }

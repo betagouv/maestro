@@ -1,8 +1,3 @@
-import { SampleItems } from '../../repositories/sampleItemRepository';
-import {
-  formatPartialSample,
-  Samples
-} from '../../repositories/sampleRepository';
 import {
   Sample11Fixture,
   Sample12Fixture,
@@ -10,6 +5,11 @@ import {
   Sample1Item1Fixture,
   Sample2Fixture
 } from 'maestro-shared/test/sampleFixtures';
+import { SampleItems } from '../../repositories/sampleItemRepository';
+import {
+  formatPartialSample,
+  Samples
+} from '../../repositories/sampleRepository';
 
 export const seed = async (): Promise<void> => {
   await Samples().insert([

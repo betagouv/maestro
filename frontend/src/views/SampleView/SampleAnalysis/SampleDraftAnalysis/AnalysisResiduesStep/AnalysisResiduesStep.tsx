@@ -3,13 +3,15 @@ import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
-import React, { useState } from 'react';
 import {
   OptionalBoolean,
   OptionalBooleanLabels,
   OptionalBooleanList
 } from 'maestro-shared/referential/OptionnalBoolean';
-import { Analysis, PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
+import {
+  Analysis,
+  PartialAnalysis
+} from 'maestro-shared/schema/Analysis/Analysis';
 import {
   AnalysisMethod,
   AnalysisMethodLabels,
@@ -26,6 +28,7 @@ import {
   ResidueKindLabels,
   ResidueKindList
 } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
+import React, { useState } from 'react';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';

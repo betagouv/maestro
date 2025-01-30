@@ -10,7 +10,7 @@ export default class ActionForbiddenForUserError
     super({
       name: 'ActionForbiddenForUserError',
       message: `Action forbidden for user ${id}`,
-      status: constants.HTTP_STATUS_FORBIDDEN,
+      status: constants.HTTP_STATUS_FORBIDDEN
     });
   }
 }

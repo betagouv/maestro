@@ -5,7 +5,6 @@ import {
   RegionalPrescriptionRequest
 } from 'express-jwt';
 import { constants } from 'http2';
-import { v4 as uuidv4 } from 'uuid';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { FindRegionalPrescriptionOptions } from 'maestro-shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import {
@@ -18,6 +17,7 @@ import {
   RegionalPrescriptionCommentToCreate
 } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionComment';
 import { isDefined } from 'maestro-shared/utils/utils';
+import { v4 as uuidv4 } from 'uuid';
 import regionalPrescriptionCommentRepository from '../repositories/regionalPrescriptionCommentRepository';
 import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
 import { userRepository } from '../repositories/userRepository';

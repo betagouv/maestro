@@ -1,9 +1,9 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Header as DSFRHeader } from '@codegouvfr/react-dsfr/Header';
-import { useLocation } from 'react-router-dom';
 import { UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
 import { isDefined } from 'maestro-shared/utils/utils';
+import { useLocation } from 'react-router-dom';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppSelector } from 'src/hooks/useStore';
 import { useLogoutMutation } from 'src/services/auth.service';

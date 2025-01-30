@@ -1,5 +1,10 @@
 import type { FeatureCollection } from 'geojson';
 import _ from 'lodash';
+import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
+import {
+  getCompletionRate,
+  RegionalPrescription
+} from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import maplibregl, {
   MapGeoJSONFeature,
   Point,
@@ -14,11 +19,6 @@ import Map, {
   Source,
   SymbolLayer
 } from 'react-map-gl/maplibre';
-import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
-import {
-  getCompletionRate,
-  RegionalPrescription
-} from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { useGetRegionsGeoJsonQuery } from 'src/services/region.service';
 
 interface Props {

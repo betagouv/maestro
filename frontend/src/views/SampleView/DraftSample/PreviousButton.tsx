@@ -12,7 +12,7 @@ interface Props {
 const PreviousButton = ({
   sampleId,
   onSave,
-  currentStep,
+  currentStep
 }: Props): ButtonProps => {
   const { navigateToSample } = useSamplesLink();
   const { isMobile } = useWindowSize();
@@ -27,17 +27,17 @@ const PreviousButton = ({
       },
       title: 'Retour',
       nativeButtonProps: {
-        'data-testid': 'previous-button',
-      },
+        'data-testid': 'previous-button'
+      }
     },
     ...(isMobile
       ? {
           children: 'Retour',
-          className: cx('fr-hidden-md'),
+          className: cx('fr-hidden-md')
         }
       : {
-          iconId: 'fr-icon-arrow-left-line',
-        }),
+          iconId: 'fr-icon-arrow-left-line'
+        })
   };
 };
 

@@ -1,13 +1,13 @@
 import { constants } from 'http2';
+import { genLaboratory } from 'maestro-shared/test/laboratoryFixtures';
 import randomstring from 'randomstring';
 import request from 'supertest';
-import { genLaboratory } from 'maestro-shared/test/laboratoryFixtures';
 import { Laboratories } from '../../repositories/laboratoryRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
-import { describe, test, expect, beforeAll, afterAll } from 'vitest';
 import { NationalCoordinator } from 'maestro-shared/test/userFixtures';
+import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 describe('Laboratory router', () => {
   const { app } = createServer();
 

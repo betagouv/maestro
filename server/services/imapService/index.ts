@@ -1,15 +1,14 @@
 import { ImapFlow } from 'imapflow';
 import { isNull } from 'lodash-es';
-import { ParsedMail, simpleParser } from 'mailparser';
 import { Analyte } from 'maestro-shared/referential/Residue/Analyte';
 import { ComplexResidue } from 'maestro-shared/referential/Residue/ComplexResidue';
 import { SimpleResidue } from 'maestro-shared/referential/Residue/SimpleResidue';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
+import { ParsedMail, simpleParser } from 'mailparser';
 import config from '../../utils/config';
-import { girpaConf } from './girpa';
-import { analysisHandler } from './analysis-handler';
 import { mattermostService } from '../mattermostService';
-
+import { analysisHandler } from './analysis-handler';
+import { girpaConf } from './girpa';
 
 const laboratoriesWithConf = ['GIRPA'] as const satisfies string[];
 type LaboratoryWithConf = (typeof laboratoriesWithConf)[number];
@@ -48,7 +47,7 @@ export type LaboratoryConf = {
   exportDataFromEmail: ExportDataFromEmail;
 };
 const laboratoriesConf = {
-  'GIRPA': girpaConf
+  GIRPA: girpaConf
 } as const satisfies {
   [name in LaboratoryWithConf]: LaboratoryConf;
 };

@@ -2,7 +2,6 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
 import { format } from 'date-fns';
-import { useMemo } from 'react';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
@@ -14,6 +13,7 @@ import {
   DraftStatusList,
   SampleStatus
 } from 'maestro-shared/schema/Sample/SampleStatus';
+import { useMemo } from 'react';
 import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import RemoveSample from 'src/components/SampleTable/RemoveSample';
 import { useAuthentication } from 'src/hooks/useAuthentication';

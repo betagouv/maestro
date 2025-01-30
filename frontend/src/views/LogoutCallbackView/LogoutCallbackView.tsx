@@ -8,7 +8,6 @@ import { SESSION_STORAGE_UNKNOWN_USER_EMAIl } from 'src/views/LoginCallbackView/
 import userUnknownSvg from '../../assets/illustrations/user-unknown.svg';
 import config from '../../utils/config';
 
-
 export const LogoutCallbackView = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -32,20 +31,30 @@ export const LogoutCallbackView = () => {
   return (
     <HomeViewContainer>
       <img src={userUnknownSvg} height="100%" aria-hidden alt="" />
-      <div className={cx('fr-text--regular', 'fr-mb-2w')}>Email: {unknownUserEmail}</div>
+      <div className={cx('fr-text--regular', 'fr-mb-2w')}>
+        Email: {unknownUserEmail}
+      </div>
       <h2 className={cx('fr-mb-2w')}>
         Vous ne disposez pas actuellement des autorisations nécessaires pour
         accéder à Maestro.
       </h2>
       <div className={cx('fr-text--lg', 'fr-mb-5w')}>
         {isCertifiedAgent ? (
-          <>Contactez <a href={`mailto:${config.supportEmail}`}>{config.supportEmail}</a> pour obtenir votre habilitation.</>
+          <>
+            Contactez{' '}
+            <a href={`mailto:${config.supportEmail}`}>{config.supportEmail}</a>{' '}
+            pour obtenir votre habilitation.
+          </>
         ) : (
           <>
             L’outil est uniquement accessible aux agents de la Direction
             Générale de l’Alimentation.
             <br />
-            Contactez <a href={`mailto:${config.supportEmail}`}>{config.supportEmail}</a> en cas de besoin.
+            Contactez{' '}
+            <a href={`mailto:${config.supportEmail}`}>
+              {config.supportEmail}
+            </a>{' '}
+            en cas de besoin.
           </>
         )}
       </div>

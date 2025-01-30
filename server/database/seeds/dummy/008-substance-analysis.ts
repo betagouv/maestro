@@ -1,3 +1,5 @@
+import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
+import { PrescriptionSubstances } from '../../../repositories/prescriptionSubstanceRepository';
 import {
   abricotsEtSimilaires,
   avocats,
@@ -31,8 +33,6 @@ import {
   poires,
   rizEtSimilaires
 } from './004-prescriptions';
-import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
-import { PrescriptionSubstances } from '../../../repositories/prescriptionSubstanceRepository';
 
 export const seed = async function () {
   const genSubstanceAnalysis = (

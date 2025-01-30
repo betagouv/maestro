@@ -112,6 +112,6 @@ export function useForm<
     messageType,
     reset,
     validate,
-    input,
+    input
   };
 }

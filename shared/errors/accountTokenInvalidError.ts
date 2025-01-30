@@ -9,7 +9,7 @@ export default class AccountTokenInvalidError
     super({
       name: 'SignupLinkInvalidError',
       message: `Signup link missing or expired or already used`,
-      status: constants.HTTP_STATUS_UNAUTHORIZED,
+      status: constants.HTTP_STATUS_UNAUTHORIZED
     });
   }
 }

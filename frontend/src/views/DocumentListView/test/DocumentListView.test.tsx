@@ -1,9 +1,9 @@
 import { configureStore, Store } from '@reduxjs/toolkit';
 import { render, screen, waitFor } from '@testing-library/react';
-import { Provider } from 'react-redux';
-import { BrowserRouter } from 'react-router-dom';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
 import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
+import { Provider } from 'react-redux';
+import { BrowserRouter } from 'react-router-dom';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import DocumentListView from 'src/views/DocumentListView/DocumentListView';
 import { beforeEach } from 'vitest';

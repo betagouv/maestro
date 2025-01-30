@@ -1,6 +1,7 @@
 import express, { NextFunction, Request, Response } from 'express';
 import { expressjwt } from 'express-jwt';
 
+import { constants } from 'http2';
 import { intersection } from 'lodash-es';
 import AuthenticationMissingError from 'maestro-shared/errors/authenticationMissingError';
 import UserMissingError from 'maestro-shared/errors/userMissingError';
@@ -9,9 +10,8 @@ import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
 import { hasPermission } from 'maestro-shared/schema/User/User';
 import { UserPermission } from 'maestro-shared/schema/User/UserPermission';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
-import {userRepository} from '../../repositories/userRepository';
+import { userRepository } from '../../repositories/userRepository';
 import config from '../../utils/config';
-import { constants } from 'http2';
 
 export const jwtCheck = (credentialsRequired: boolean) =>
   expressjwt({
@@ -20,7 +20,7 @@ export const jwtCheck = (credentialsRequired: boolean) =>
     credentialsRequired,
     getToken: (request: Request) =>
       (request.headers['x-access-token'] ??
-        request.query['x-access-token']) as string,
+        request.query['x-access-token']) as string
   });
 
 export const userCheck = (credentialsRequired: boolean) =>
@@ -71,25 +71,26 @@ export const permissionsCheck = (permissions: UserPermission[]) =>
     next();
   };
 
-export const basicAuthCheck =
-  async (req: Request, res: express.Response, next: express.NextFunction) => {
-    try {
-      const token = req.headers.authorization
-      if (token !== config.m2mBasicToken) {
-        res.status(constants.HTTP_STATUS_UNAUTHORIZED);
-        res.send('Authentication Required');
-
-        return;
-      }
-
-    } catch (e) {
-      console.error(e);
-      res.status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
-      res.send('Internal error');
+export const basicAuthCheck = async (
+  req: Request,
+  res: express.Response,
+  next: express.NextFunction
+) => {
+  try {
+    const token = req.headers.authorization;
+    if (token !== config.m2mBasicToken) {
+      res.status(constants.HTTP_STATUS_UNAUTHORIZED);
+      res.send('Authentication Required');
 
       return;
     }
+  } catch (e) {
+    console.error(e);
+    res.status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
+    res.send('Internal error');
 
+    return;
+  }
 
-    next()
-  };
+  next();
+};

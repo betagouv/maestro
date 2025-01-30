@@ -19,53 +19,50 @@ export const DummyLaboratoryIds = [
   GIR49Id,
   CAP29Id,
   CER30Id,
-  FYTId,
+  FYTId
 ];
 
 export const seed = async function () {
-
-
-
   await Laboratories().insert([
     {
       id: SCL34Id,
       name: 'SCL 34',
-      email: fakerFR.internet.exampleEmail(),
+      email: fakerFR.internet.exampleEmail()
     },
     {
       id: LDA66Id,
       name: 'LDA 66',
-      email: fakerFR.internet.exampleEmail(),
+      email: fakerFR.internet.exampleEmail()
     },
     {
       id: LDA72Id,
       name: 'LDA 72',
-      email: fakerFR.internet.exampleEmail(),
+      email: fakerFR.internet.exampleEmail()
     },
     {
       id: SCL91Id,
       name: 'SCL 91',
-      email: fakerFR.internet.exampleEmail(),
+      email: fakerFR.internet.exampleEmail()
     },
     {
       id: GIR49Id,
       name: 'GIR 49',
-      email: fakerFR.internet.exampleEmail(),
+      email: fakerFR.internet.exampleEmail()
     },
     {
       id: CAP29Id,
       name: 'CAP 29',
-      email: fakerFR.internet.exampleEmail(),
+      email: fakerFR.internet.exampleEmail()
     },
     {
       id: CER30Id,
       name: 'CER 30',
-      email: fakerFR.internet.exampleEmail(),
+      email: fakerFR.internet.exampleEmail()
     },
     {
       id: FYTId,
       name: 'FYT',
-      email: fakerFR.internet.exampleEmail(),
-    },
+      email: fakerFR.internet.exampleEmail()
+    }
   ]);
 };

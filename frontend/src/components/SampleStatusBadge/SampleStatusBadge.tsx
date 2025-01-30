@@ -3,7 +3,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import type { AlertProps } from '@codegouvfr/react-dsfr/src/Alert';
 import {
   SampleStatus,
-  SampleStatusLabels,
+  SampleStatusLabels
 } from 'maestro-shared/schema/Sample/SampleStatus';
 
 type Props = Omit<BadgeProps, 'children'> & {
@@ -17,17 +17,17 @@ const SampleStatusBadge = ({ status, ...props }: Props) => {
     NotAdmissible: 'error',
     Analysis: 'info',
     Completed: 'success',
-    CompletedNotConform: 'error',
+    CompletedNotConform: 'error'
   };
 
   const ColorFamily: Partial<Record<SampleStatus, string>> = {
     Submitted: 'yellow-tournesol',
-    Sent: 'purple-glycine',
+    Sent: 'purple-glycine'
   };
 
   const Icon: Partial<Record<SampleStatus, string>> = {
     Completed: 'success',
-    CompletedNotConform: 'error',
+    CompletedNotConform: 'error'
   };
 
   return (
@@ -37,7 +37,7 @@ const SampleStatusBadge = ({ status, ...props }: Props) => {
       {...props}
       severity={(Severity[status] ?? undefined) as AlertProps.Severity}
       className={cx({
-        [`fr-badge--${ColorFamily[status]}`]: ColorFamily[status],
+        [`fr-badge--${ColorFamily[status]}`]: ColorFamily[status]
       })}
     >
       {label || 'Nouveau'}

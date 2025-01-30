@@ -1,8 +1,8 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
-import { useMemo } from 'react';
 import { Document } from 'maestro-shared/schema/Document/Document';
+import { useMemo } from 'react';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 interface RemoveDocumentProps {
   document: Document;
@@ -11,13 +11,13 @@ interface RemoveDocumentProps {
 
 const RemoveDocument = ({
   document,
-  onRemoveDocument,
+  onRemoveDocument
 }: RemoveDocumentProps) => {
   const removeModal = useMemo(
     () =>
       createModal({
         id: `remove-modal-${document.id}`,
-        isOpenedByDefault: false,
+        isOpenedByDefault: false
       }),
     [document]
   );

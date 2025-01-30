@@ -1,11 +1,11 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
-import { useMemo } from 'react';
 import {
   isCreatedPartialSample,
   PartialSample,
-  PartialSampleToCreate,
+  PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
+import { useMemo } from 'react';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 import { useDeleteSampleMutation } from 'src/services/sample.service';
 interface RemoveSampleProps {
@@ -17,7 +17,7 @@ const RemoveSample = ({ sample }: RemoveSampleProps) => {
     () =>
       createModal({
         id: `remove-modal-${sample.id}`,
-        isOpenedByDefault: false,
+        isOpenedByDefault: false
       }),
     [sample]
   );

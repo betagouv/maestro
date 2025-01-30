@@ -4,15 +4,15 @@ import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
 import { format, parse } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import React, { useMemo, useState } from 'react';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { CompletedStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
+import React, { useMemo, useState } from 'react';
 import check from 'src/assets/illustrations/check.svg';
 import warning from 'src/assets/illustrations/warning.svg';
-import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
+import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 import { useForm } from 'src/hooks/useForm';
 import { useUpdateSampleMutation } from 'src/services/sample.service';
 import z from 'zod';
@@ -38,8 +38,8 @@ const SampleAdmissibility = ({ sample }: Props) => {
     ['Analysis', ...CompletedStatusList].includes(sample.status)
       ? true
       : sample.status === 'NotAdmissible'
-      ? false
-      : undefined
+        ? false
+        : undefined
   );
   const [notesOnAdmissibility, setNotesOnAdmissibility] = useState(
     sample.notesOnAdmissibility
@@ -50,21 +50,21 @@ const SampleAdmissibility = ({ sample }: Props) => {
     () =>
       createModal({
         id: `non-admissible-confirmation-modal-${sample.id}`,
-        isOpenedByDefault: false,
+        isOpenedByDefault: false
       }),
     [sample.id]
   );
 
   const Form = Sample.pick({
     receivedAt: true,
-    notesOnAdmissibility: true,
+    notesOnAdmissibility: true
   }).merge(
     z.object({
       isReceived: z.boolean({
         message:
-          'Veuillez renseigner la notification de réception par le laboratoire.',
+          'Veuillez renseigner la notification de réception par le laboratoire.'
       }),
-      isAdmissible: z.boolean().nullish(),
+      isAdmissible: z.boolean().nullish()
     })
   );
 
@@ -72,13 +72,13 @@ const SampleAdmissibility = ({ sample }: Props) => {
     ({ isReceived, receivedAt }) => !isReceived || receivedAt,
     {
       path: ['receivedAt'],
-      message: 'Veuillez renseigner la date de réception.',
+      message: 'Veuillez renseigner la date de réception.'
     }
   ).refine(
     ({ isReceived, isAdmissible }) => !isReceived || isAdmissible !== undefined,
     {
       path: ['isAdmissible'],
-      message: 'Veuillez renseigner la recevabilité du prélèvement.',
+      message: 'Veuillez renseigner la recevabilité du prélèvement.'
     }
   );
 
@@ -86,7 +86,7 @@ const SampleAdmissibility = ({ sample }: Props) => {
     isReceived,
     receivedAt,
     isAdmissible,
-    notesOnAdmissibility,
+    notesOnAdmissibility
   });
 
   type FormShape = typeof Form.shape;
@@ -110,7 +110,7 @@ const SampleAdmissibility = ({ sample }: Props) => {
         ? parse(receivedAt, 'yyyy-MM-dd', new Date())
         : undefined,
       status: isAdmissible === false ? 'NotAdmissible' : 'Analysis',
-      notesOnAdmissibility,
+      notesOnAdmissibility
     } as Sample);
     form.reset();
   };
@@ -140,8 +140,8 @@ const SampleAdmissibility = ({ sample }: Props) => {
                   onChange: () => {
                     setIsReceived(true);
                     setReceivedAt(format(new Date(), 'yyyy-MM-dd'));
-                  },
-                },
+                  }
+                }
               },
               {
                 label: 'Notification non reçue',
@@ -152,9 +152,9 @@ const SampleAdmissibility = ({ sample }: Props) => {
                     setReceivedAt(undefined);
                     setIsAdmissible(undefined);
                     setNotesOnAdmissibility(undefined);
-                  },
-                },
-              },
+                  }
+                }
+              }
             ]}
             colSm={6}
             inputForm={form}
@@ -186,9 +186,9 @@ const SampleAdmissibility = ({ sample }: Props) => {
                     label: 'Recevable',
                     nativeInputProps: {
                       checked: isAdmissible === true,
-                      onChange: () => setIsAdmissible(true),
+                      onChange: () => setIsAdmissible(true)
                     },
-                    illustration: <img src={check} alt="" aria-hidden />,
+                    illustration: <img src={check} alt="" aria-hidden />
                   },
                   {
                     label: 'Non recevable',
@@ -197,10 +197,10 @@ const SampleAdmissibility = ({ sample }: Props) => {
                       onChange: () => {
                         setIsAdmissible(false);
                         setNotesOnAdmissibility(undefined);
-                      },
+                      }
                     },
-                    illustration: <img src={warning} alt="" aria-hidden />,
-                  },
+                    illustration: <img src={warning} alt="" aria-hidden />
+                  }
                 ]}
                 colSm={6}
                 inputForm={form}

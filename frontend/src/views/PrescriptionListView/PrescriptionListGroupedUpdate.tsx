@@ -2,8 +2,8 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
 import clsx from 'clsx';
-import React from 'react';
 import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
+import React from 'react';
 import {
   AppSelectOption,
   defaultAppSelectOption

@@ -8,7 +8,7 @@ import {
   RegionalPrescription,
   RegionalPrescriptionKey
 } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
-import {knexInstance as db} from './db';
+import { knexInstance as db } from './db';
 import { prescriptionsTable } from './prescriptionRepository';
 import { regionalPrescriptionCommentsTable } from './regionalPrescriptionCommentRepository';
 import { samplesTable } from './sampleRepository';
@@ -37,13 +37,7 @@ const findMany = async (
     .select(`${regionalPrescriptionsTable}.*`)
     .where(
       omitBy(
-        omit(
-          findOptions,
-          'programmingPlanId',
-          'context',
-          'includes',
-          'region'
-        ),
+        omit(findOptions, 'programmingPlanId', 'context', 'includes', 'region'),
         isNil
       )
     )

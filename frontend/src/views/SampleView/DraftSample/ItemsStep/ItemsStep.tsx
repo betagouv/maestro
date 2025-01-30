@@ -4,13 +4,16 @@ import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import _ from 'lodash';
-import React, { useState } from 'react';
 import {
   PartialSample,
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import { PartialSampleItem, SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
+import {
+  PartialSampleItem,
+  SampleItem
+} from 'maestro-shared/schema/Sample/SampleItem';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
+import React, { useState } from 'react';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import { useForm } from 'src/hooks/useForm';

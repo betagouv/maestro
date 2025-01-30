@@ -21,7 +21,7 @@ const ConfirmationModal = ({
   children,
   confirmLabel,
   onConfirm,
-  closeOnConfirm,
+  closeOnConfirm
 }: Props) => {
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
@@ -42,13 +42,13 @@ const ConfirmationModal = ({
           priority: 'secondary',
           onClick: (e) => {
             e.preventDefault();
-          },
+          }
         },
         {
           children: confirmLabel ?? 'Confirmer',
           onClick: submit,
-          doClosesModal: false,
-        },
+          doClosesModal: false
+        }
       ]}
     >
       {children}

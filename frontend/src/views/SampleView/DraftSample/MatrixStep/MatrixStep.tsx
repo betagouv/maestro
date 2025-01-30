@@ -3,7 +3,6 @@ import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
-import React, { useState } from 'react';
 import {
   CultureKind,
   CultureKindLabels,
@@ -16,13 +15,18 @@ import {
   MatrixPartLabels,
   MatrixPartList
 } from 'maestro-shared/referential/MatrixPart';
-import { Stage, StageLabels, StageList } from 'maestro-shared/referential/Stage';
+import {
+  Stage,
+  StageLabels,
+  StageList
+} from 'maestro-shared/referential/Stage';
 import {
   isCreatedPartialSample,
   PartialSample,
   PartialSampleToCreate,
   SampleMatrixData
 } from 'maestro-shared/schema/Sample/Sample';
+import React, { useState } from 'react';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';

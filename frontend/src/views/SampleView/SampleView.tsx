@@ -1,10 +1,10 @@
-import { useParams } from 'react-router-dom';
 import {
   PartialSample,
   PartialSampleToCreate,
-  Sample,
+  Sample
 } from 'maestro-shared/schema/Sample/Sample';
 import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
+import { useParams } from 'react-router-dom';
 import { useAppSelector } from 'src/hooks/useStore';
 import { useGetSampleQuery } from 'src/services/sample.service';
 import { pluralize } from 'src/utils/stringUtils';
@@ -18,7 +18,7 @@ export const SampleStepTitles = (
   'Contexte du prélèvement',
   'Matrice contrôlée',
   pluralize(sample?.items?.length ?? 0)('Échantillon'),
-  'Récapitulatif',
+  'Récapitulatif'
 ];
 
 const SampleView = () => {
@@ -26,7 +26,7 @@ const SampleView = () => {
 
   const { pendingSamples } = useAppSelector((state) => state.samples);
   const { data } = useGetSampleQuery(sampleId as string, {
-    skip: !sampleId || sampleId in pendingSamples,
+    skip: !sampleId || sampleId in pendingSamples
   });
 
   const sample = pendingSamples[sampleId ?? ''] ?? data;

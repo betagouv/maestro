@@ -1,8 +1,8 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { useMemo } from 'react';
 import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
+import { useMemo } from 'react';
 import { useAppDispatch } from 'src/hooks/useStore';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import { pluralize } from 'src/utils/stringUtils';

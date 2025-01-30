@@ -1,9 +1,7 @@
-import { Substances } from '../../../repositories/substanceRepository';
 import { Substance } from 'maestro-shared/schema/Substance/Substance';
-
+import { Substances } from '../../../repositories/substanceRepository';
 
 export const seed = async function () {
-
   const genSubstance = (code: string, label: string): Substance => ({
     code,
     label

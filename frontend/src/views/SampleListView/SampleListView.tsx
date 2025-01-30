@@ -5,8 +5,6 @@ import Pagination from '@codegouvfr/react-dsfr/Pagination';
 import { Skeleton } from '@mui/material';
 import clsx from 'clsx';
 import { default as fp } from 'lodash';
-import { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { Department } from 'maestro-shared/referential/Department';
 import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
 import { Region } from 'maestro-shared/referential/Region';
@@ -18,6 +16,8 @@ import {
   SampleStatus
 } from 'maestro-shared/schema/Sample/SampleStatus';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
+import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import SampleCard from 'src/components/SampleCard/SampleCard';
 import SampleTable from 'src/components/SampleTable/SampleTable';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';

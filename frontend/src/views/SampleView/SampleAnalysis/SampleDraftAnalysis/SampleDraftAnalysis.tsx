@@ -1,10 +1,10 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Stepper from '@codegouvfr/react-dsfr/Stepper';
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useGetSampleAnalysisQuery } from 'src/services/analysis.service';
 import AnalysisComplianceStep from 'src/views/SampleView/SampleAnalysis/SampleDraftAnalysis/AnalysisComplianceStep/AnalysisComplianceStep';
 import AnalysisReportStep from 'src/views/SampleView/SampleAnalysis/SampleDraftAnalysis/AnalysisReportStep/AnalysisReportStep';
@@ -13,7 +13,7 @@ import AnalysisResiduesStep from 'src/views/SampleView/SampleAnalysis/SampleDraf
 export const AnalysisStepTitles = [
   'Rapport d’analyse',
   'Résidus identifiés',
-  "Conformité de l'échantillon",
+  "Conformité de l'échantillon"
 ];
 
 interface Props {
@@ -23,7 +23,7 @@ interface Props {
 export const AnalysisStatusSteps: Partial<Record<AnalysisStatus, number>> = {
   Report: 1,
   Residues: 2,
-  Compliance: 3,
+  Compliance: 3
 };
 
 const SampleDraftAnalysis = ({ sample }: Props) => {

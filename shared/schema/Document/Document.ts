@@ -5,13 +5,13 @@ export const Document = z.object({
   filename: z.string(),
   createdAt: z.coerce.date(),
   createdBy: z.string().uuid().nullable(),
-  kind: DocumentKind,
+  kind: DocumentKind
 });
 
 export const DocumentToCreate = Document.pick({
   id: true,
   filename: true,
-  kind: true,
+  kind: true
 });
 
 export type Document = z.infer<typeof Document>;
