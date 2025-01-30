@@ -1,11 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import fp from 'lodash';
-import { defaultPerPage } from 'shared/schema/commons/Pagination';
-import { FindSampleOptions } from 'shared/schema/Sample/FindSampleOptions';
+import { defaultPerPage } from 'maestro-shared/schema/commons/Pagination';
+import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   PartialSample,
   PartialSampleToCreate,
-} from 'shared/schema/Sample/Sample';
+} from 'maestro-shared/schema/Sample/Sample';
 import { SampleListDisplay } from 'src/views/SampleListView/SampleListView';
 import { z } from 'zod';
 const pendingSamples = JSON.parse(

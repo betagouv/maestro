@@ -3,8 +3,8 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
 import clsx from 'clsx';
 import { useState } from 'react';
-import { Laboratory } from 'shared/schema/Laboratory/Laboratory';
-import { RegionalPrescription } from 'shared/schema/RegionalPrescription/RegionalPrescription';
+import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
+import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import {
   AppSelectOption,
   defaultAppSelectOption

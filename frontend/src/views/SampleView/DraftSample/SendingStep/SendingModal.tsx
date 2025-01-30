@@ -1,6 +1,6 @@
 import { ModalProps } from '@codegouvfr/react-dsfr/Modal';
 import React, { useState } from 'react';
-import { Laboratory } from 'shared/schema/Laboratory/Laboratory';
+import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 interface Props {
   modal: {
     buttonProps: {

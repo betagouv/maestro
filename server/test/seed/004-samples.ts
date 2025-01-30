@@ -9,7 +9,7 @@ import {
   Sample13Fixture,
   Sample1Item1Fixture,
   Sample2Fixture
-} from '../../../shared/test/sampleFixtures';
+} from 'maestro-shared/test/sampleFixtures';
 
 export const seed = async (): Promise<void> => {
   await Samples().insert([

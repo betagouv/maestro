@@ -1,9 +1,9 @@
 import fp from 'lodash';
-import { Department } from 'shared/referential/Department';
+import { Department } from 'maestro-shared/referential/Department';
 import {
   AddressSearchResult,
   AddressSearchResults,
-} from 'shared/schema/Address/AddressSearchResult';
+} from 'maestro-shared/schema/Address/AddressSearchResult';
 import { api } from 'src/services/api.service';
 
 export const addressApi = api.injectEndpoints({

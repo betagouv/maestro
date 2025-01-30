@@ -1,10 +1,10 @@
 import express from 'express';
 import { z } from 'zod';
-import { FindPrescriptionOptions } from '../../shared/schema/Prescription/FindPrescriptionOptions';
+import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import {
   PrescriptionToCreate,
   PrescriptionUpdate
-} from '../../shared/schema/Prescription/Prescription';
+} from 'maestro-shared/schema/Prescription/Prescription';
 import prescriptionController from '../controllers/prescriptionController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
 import { prescriptionCheck } from '../middlewares/checks/prescriptionCheck';

@@ -2,15 +2,15 @@ import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Input from '@codegouvfr/react-dsfr/Input';
 import { format } from 'date-fns';
-import { DepartmentLabels } from 'shared/referential/Department';
-import { LegalContextLabels } from 'shared/referential/LegalContext';
-import { ContextLabels } from 'shared/schema/ProgrammingPlan/Context';
+import { DepartmentLabels } from 'maestro-shared/referential/Department';
+import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
+import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   isCreatedPartialSample,
   Sample,
   SampleOwnerData,
   SampleToCreate
-} from 'shared/schema/Sample/Sample';
+} from 'maestro-shared/schema/Sample/Sample';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { quote } from 'src/utils/stringUtils';
 import StepSummary from 'src/views/SampleView/StepSummary/StepSummary';

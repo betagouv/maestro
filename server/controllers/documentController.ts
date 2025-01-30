@@ -5,12 +5,12 @@ import { getSignedUrl as getS3SignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Request, Response } from 'express';
 import { AuthenticatedRequest } from 'express-jwt';
 import { constants } from 'http2';
-import DocumentMissingError from '../../shared/errors/documentMissingError';
+import DocumentMissingError from 'maestro-shared/errors/documentMissingError';
 import {
   Document,
   DocumentToCreate,
-} from '../../shared/schema/Document/Document';
-import { hasPermission } from '../../shared/schema/User/User';
+} from 'maestro-shared/schema/Document/Document';
+import { hasPermission } from 'maestro-shared/schema/User/User';
 import { documentRepository } from '../repositories/documentRepository';
 import config from '../utils/config';
 import {  s3Service  } from '../services/s3Service';

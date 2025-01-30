@@ -16,8 +16,8 @@ jobs:
           cache: npm
       - name: Server install
         run: npm ci
-      - name: Server linter
-        run: npm run lint
+      - name: linter
+        run: npm run lint --workspaces
       - name: Prettify code
         uses: creyD/prettier_action@v4.3
         with:
@@ -33,9 +33,9 @@ jobs:
           node-version: '22.x'
           cache: npm
       - name: NPM install
-        run: npm ci && npm --prefix frontend ci
+        run: npm ci
       - name: build
-        run: npm run build
+        run: npm run build --workspaces
   server_test:
     runs-on: ubuntu-latest
     services:
@@ -68,7 +68,7 @@ jobs:
       - name: Server install
         run: npm ci
       - name: Server tests
-        run: npm run test
+        run: npm run test -w server
         env:
           AUTH_SECRET: abcd1234
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/maestro
@@ -83,9 +83,19 @@ jobs:
           node-version: '22.x'
           cache: npm
       - name: NPM install
-#        TODO Attention le front dépend de certaines libs du serveur, à corriger lors du refactor avec les workspaces npm
-        run: npm ci && npm --prefix frontend ci
-      - name: Frontend linter
-        run: npm --prefix frontend run lint
+        run: npm ci
       - name: Frontend tests
-        run: npm --prefix frontend test -- --test-timeout=30000
+        run: npm -w frontend test -- --test-timeout=30000
+  shared_test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: npm
+      - name: NPM install
+        run: npm ci
+      - name: Shared tests
+        run: npm -w shared test

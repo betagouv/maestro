@@ -10,8 +10,8 @@ import {
   Sample,
   SampleOwnerData,
   SampleToCreate
-} from 'shared/schema/Sample/Sample';
-import { isDefined } from 'shared/utils/utils';
+} from 'maestro-shared/schema/Sample/Sample';
+import { isDefined } from 'maestro-shared/utils/utils';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';

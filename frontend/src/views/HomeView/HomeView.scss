@@ -1,11 +1,11 @@
-@import '../../constants';
+@use '../../constants' as constants;
 
 main:has(.teaser) {
   background: none !important;
 }
 
 .home-section {
-  @media (min-width: $breakpoint-md) {
+  @media (min-width: constants.$breakpoint-md) {
     flex-direction: row-reverse;
   }
 }
@@ -20,7 +20,7 @@ main:has(.teaser) {
   );
   opacity: 0.9;
 
-  @media (max-width: $breakpoint-md) {
+  @media (max-width: constants.$breakpoint-md) {
     padding: 2rem 1rem;
   }
 
@@ -42,7 +42,7 @@ main:has(.teaser) {
 .sign-in {
   padding: 5rem 7.5rem;
 
-  @media (max-width: $breakpoint-md) {
+  @media (max-width: constants.$breakpoint-md) {
     padding: 2rem 1rem;
   }
 }

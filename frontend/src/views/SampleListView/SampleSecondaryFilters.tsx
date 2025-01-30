@@ -5,14 +5,14 @@ import {
   Department,
   DepartmentLabels,
   DepartmentList
-} from 'shared/referential/Department';
-import { Region, RegionList, Regions } from 'shared/referential/Region';
+} from 'maestro-shared/referential/Department';
+import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
 import {
   Context,
   ContextLabels,
   ContextList
-} from 'shared/schema/ProgrammingPlan/Context';
-import { FindSampleOptions } from 'shared/schema/Sample/FindSampleOptions';
+} from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 
 interface Props {

@@ -1,5 +1,5 @@
 import express from 'express';
-import { AuthRedirectUrl } from '../../shared/schema/Auth/AuthRedirectUrl';
+import { AuthRedirectUrl } from 'maestro-shared/schema/Auth/AuthRedirectUrl';
 import authController from '../controllers/authController';
 import { jwtCheck } from '../middlewares/checks/authCheck';
 import validator, { body } from '../middlewares/validator';

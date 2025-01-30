@@ -9,26 +9,26 @@ import {
   Department,
   DepartmentLabels,
   DepartmentList
-} from 'shared/referential/Department';
+} from 'maestro-shared/referential/Department';
 import {
   LegalContext,
   LegalContextLabels,
   LegalContextList
-} from 'shared/referential/LegalContext';
-import { Regions } from 'shared/referential/Region';
+} from 'maestro-shared/referential/LegalContext';
+import { Regions } from 'maestro-shared/referential/Region';
 import {
   Company,
   companyFromSearchResult,
   companyToSearchResult
-} from 'shared/schema/Company/Company';
-import { Context, ContextLabels } from 'shared/schema/ProgrammingPlan/Context';
+} from 'maestro-shared/schema/Company/Company';
+import { Context, ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   isCreatedPartialSample,
   PartialSample,
   PartialSampleToCreate,
   SampleContextData
-} from 'shared/schema/Sample/Sample';
-import { SampleStatus } from 'shared/schema/Sample/SampleStatus';
+} from 'maestro-shared/schema/Sample/Sample';
+import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
 import balance from 'src/assets/illustrations/balance.svg';
 import check from 'src/assets/illustrations/check.svg';
 import controle from 'src/assets/illustrations/controle.svg';

@@ -4,22 +4,22 @@ import  { omit } from 'lodash-es';
 import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
-import { MatrixList } from '../../../shared/referential/Matrix/Matrix';
-import { Region, Regions } from '../../../shared/referential/Region';
+import { MatrixList } from 'maestro-shared/referential/Matrix/Matrix';
+import { Region, Regions } from 'maestro-shared/referential/Region';
 import {
   genCreatedPartialSample,
   genSampleContextData,
   genSampleItem, Sample11Fixture, Sample12Fixture, Sample13Fixture, Sample2Fixture
-} from '../../../shared/test/sampleFixtures';
-import { oneOf } from '../../../shared/test/testFixtures';
+} from 'maestro-shared/test/sampleFixtures';
+import { oneOf } from 'maestro-shared/test/testFixtures';
 import { SampleItems } from '../../repositories/sampleItemRepository';
 import { Samples } from '../../repositories/sampleRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
 import { describe, test, expect } from 'vitest';
-import { NationalCoordinator, Sampler1Fixture, Sampler2Fixture } from '../../../shared/test/userFixtures';
-import { ValidatedProgrammingPlanFixture } from '../../../shared/test/programmingPlanFixtures';
+import { NationalCoordinator, Sampler1Fixture, Sampler2Fixture } from 'maestro-shared/test/userFixtures';
+import { ValidatedProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
 describe('Sample router', () => {
   const { app } = createServer();
 

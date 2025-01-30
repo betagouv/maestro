@@ -3,9 +3,9 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import { useState } from 'react';
-import { Stage, StageLabels, StageList } from 'shared/referential/Stage';
-import { Prescription } from 'shared/schema/Prescription/Prescription';
-import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { Stage, StageLabels, StageList } from 'maestro-shared/referential/Stage';
+import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 

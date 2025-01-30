@@ -1,16 +1,16 @@
 import { constants } from 'http2';
 import request from 'supertest';
-import { DocumentKind } from '../../../shared/schema/Document/DocumentKind';
+import { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import {
   genDocument,
   genDocumentToCreate,
-} from '../../../shared/test/documentFixtures';
+} from 'maestro-shared/test/documentFixtures';
 import { Documents } from '../../repositories/documentRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
 import { describe, test, expect, beforeAll, afterAll } from 'vitest';
-import { NationalCoordinator, Sampler1Fixture } from '../../../shared/test/userFixtures';
+import { NationalCoordinator, Sampler1Fixture } from 'maestro-shared/test/userFixtures';
 describe('Document router', () => {
   const { app } = createServer();
 

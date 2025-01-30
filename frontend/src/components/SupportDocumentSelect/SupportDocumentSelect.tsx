@@ -6,8 +6,8 @@ import {
   Sample,
   SampleOwnerData,
   SampleToCreate
-} from 'shared/schema/Sample/Sample';
-import { SampleItem } from 'shared/schema/Sample/SampleItem';
+} from 'maestro-shared/schema/Sample/Sample';
+import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { useDocument } from 'src/hooks/useDocument';
 import { getSupportDocumentURL } from 'src/services/sample.service';
 import './SupportDocumentSelect.scss';

@@ -30,13 +30,6 @@
         "ignoreRestSiblings": true
       }
     ],
-    "@typescript-eslint/no-var-requires": "off",
-    "no-restricted-globals": [
-      "error",
-      {
-        "name": "__dirname",
-        "message": "Use import.meta.dirname instead."
-      }
-    ]
+    "@typescript-eslint/no-var-requires": "off"
   }
 }

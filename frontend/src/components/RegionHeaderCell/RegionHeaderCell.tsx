@@ -1,4 +1,4 @@
-import { Region, Regions } from 'shared/referential/Region';
+import { Region, Regions } from 'maestro-shared/referential/Region';
 
 interface RegionHeaderCellProps {
   region: Region;

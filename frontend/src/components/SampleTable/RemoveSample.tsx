@@ -5,7 +5,7 @@ import {
   isCreatedPartialSample,
   PartialSample,
   PartialSampleToCreate,
-} from 'shared/schema/Sample/Sample';
+} from 'maestro-shared/schema/Sample/Sample';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 import { useDeleteSampleMutation } from 'src/services/sample.service';
 interface RemoveSampleProps {

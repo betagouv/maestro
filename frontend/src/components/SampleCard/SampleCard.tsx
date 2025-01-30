@@ -4,15 +4,15 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { format } from 'date-fns';
 import { useState } from 'react';
-import { DepartmentLabels } from 'shared/referential/Department';
-import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
-import { ContextLabels } from 'shared/schema/ProgrammingPlan/Context';
+import { DepartmentLabels } from 'maestro-shared/referential/Department';
+import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   isCreatedPartialSample,
   PartialSample,
   PartialSampleToCreate
-} from 'shared/schema/Sample/Sample';
-import { DraftStatusList } from 'shared/schema/Sample/SampleStatus';
+} from 'maestro-shared/schema/Sample/Sample';
+import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
 import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import RemoveSample from 'src/components/SampleTable/RemoveSample';
 import { useAuthentication } from 'src/hooks/useAuthentication';

@@ -1,4 +1,4 @@
-@import '../../../constants';
+@use '../../../constants' as constant;
 
 .sample-overview {
   .fr-tabs {
@@ -17,7 +17,7 @@
     padding-left: 12rem;
     padding-right: 12rem;
 
-    @media (max-width: $breakpoint-md) {
+    @media (max-width: constant.$breakpoint-md) {
       padding-left: 1rem;
       padding-right: 1rem;
     }

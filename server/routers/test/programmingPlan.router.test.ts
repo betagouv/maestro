@@ -2,17 +2,17 @@ import { constants } from 'http2';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
-import { ProgrammingPlan } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { ProgrammingPlanStatus } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { genPrescription } from '../../../shared/test/prescriptionFixtures';
-import { genProgrammingPlan } from '../../../shared/test/programmingPlanFixtures';
+import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
+import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   NationalCoordinator,
   RegionalCoordinator,
   RegionalDromCoordinator,
   Sampler1Fixture,
   SamplerDromFixture
-} from '../../../shared/test/userFixtures';
+} from 'maestro-shared/test/userFixtures';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import { ProgrammingPlans } from '../../repositories/programmingPlanRepository';
 import { createServer } from '../../server';

@@ -1,13 +1,13 @@
 import { isArray, isNil, omit, omitBy } from 'lodash-es';
 import z from 'zod';
-import { Region, Regions } from '../../shared/referential/Region';
-import { defaultPerPage } from '../../shared/schema/commons/Pagination';
-import { FindSampleOptions } from '../../shared/schema/Sample/FindSampleOptions';
-import { PartialSample, Sample } from '../../shared/schema/Sample/Sample';
+import { Region, Regions } from 'maestro-shared/referential/Region';
+import { defaultPerPage } from 'maestro-shared/schema/commons/Pagination';
+import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
+import { PartialSample, Sample } from 'maestro-shared/schema/Sample/Sample';
 import { companiesTable } from './companyRepository';
 import {knexInstance as db } from './db';
 import { usersTable } from './userRepository';
-import { SampleStatus } from '../../shared/schema/Sample/SampleStatus';
+import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
 import { KyselyMaestro } from './kysely.type';
 import { kysely } from './kysely';
 

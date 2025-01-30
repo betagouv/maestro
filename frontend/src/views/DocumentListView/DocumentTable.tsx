@@ -1,7 +1,7 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import Table from '@codegouvfr/react-dsfr/Table';
 import { format } from 'date-fns';
-import { Document } from 'shared/schema/Document/Document';
+import { Document } from 'maestro-shared/schema/Document/Document';
 import AppToast from 'src/components/_app/AppToast/AppToast';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocument } from 'src/hooks/useDocument';

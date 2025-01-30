@@ -1,10 +1,10 @@
 import express from 'express';
 import { z } from 'zod';
-import { FindSampleOptions } from '../../shared/schema/Sample/FindSampleOptions';
+import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   PartialSample,
   PartialSampleToCreate,
-} from '../../shared/schema/Sample/Sample';
+} from 'maestro-shared/schema/Sample/Sample';
 import sampleController from '../controllers/sampleController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
 import { sampleCheck } from '../middlewares/checks/sampleCheck';

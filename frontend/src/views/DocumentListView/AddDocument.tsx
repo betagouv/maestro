@@ -3,7 +3,7 @@ import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { useState } from 'react';
-import { FileInput } from 'shared/schema/File/FileInput';
+import { FileInput } from 'maestro-shared/schema/File/FileInput';
 import AppUpload from 'src/components/_app/AppUpload/AppUpload';
 import { useForm } from 'src/hooks/useForm';
 import { useCreateDocumentMutation } from 'src/services/document.service';

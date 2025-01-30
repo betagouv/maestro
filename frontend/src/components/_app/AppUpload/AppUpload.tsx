@@ -1,11 +1,11 @@
 import { Upload } from '@codegouvfr/react-dsfr/Upload';
 import { ComponentPropsWithoutRef } from 'react';
-import { MaxFileSize } from 'shared/schema/File/FileInput';
+import { MaxFileSize } from 'maestro-shared/schema/File/FileInput';
 import {
   FileType,
   FileTypeLabels,
   FileTypeList,
-} from 'shared/schema/File/FileType';
+} from 'maestro-shared/schema/File/FileType';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
 import { useForm } from 'src/hooks/useForm';
 import { ZodRawShape } from 'zod';

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { ContextList } from 'shared/schema/ProgrammingPlan/Context';
+import { ContextList } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppSelector } from 'src/hooks/useStore';
 import { useLazyFindPrescriptionsQuery } from 'src/services/prescription.service';

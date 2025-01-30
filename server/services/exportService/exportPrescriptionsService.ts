@@ -4,20 +4,20 @@ import {
   Region,
   RegionList,
   Regions,
-} from '../../../shared/referential/Region';
+} from 'maestro-shared/referential/Region';
 import {
   Prescription,
   PrescriptionSort,
-} from '../../../shared/schema/Prescription/Prescription';
+} from 'maestro-shared/schema/Prescription/Prescription';
 
-import { MatrixLabels } from '../../../shared/referential/Matrix/MatrixLabels';
-import { StageLabels } from '../../../shared/referential/Stage';
-import { ProgrammingPlan } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+import { StageLabels } from 'maestro-shared/referential/Stage';
+import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   getCompletionRate,
   RegionalPrescription,
-} from '../../../shared/schema/RegionalPrescription/RegionalPrescription';
-import { isDefined } from '../../../shared/utils/utils';
+} from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
+import { isDefined } from 'maestro-shared/utils/utils';
 import laboratoryRepository from '../../repositories/laboratoryRepository';
 import WorkbookWriter = exceljs.stream.xlsx.WorkbookWriter;
 import { sumBy } from 'lodash-es';

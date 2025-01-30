@@ -2,7 +2,7 @@ import { isNil, omitBy } from 'lodash-es';
 import {
   PartialSampleItem,
   SampleItemSort,
-} from '../../shared/schema/Sample/SampleItem';
+} from 'maestro-shared/schema/Sample/SampleItem';
 import { knexInstance as db} from './db';
 
 const sampleItemsTable = 'sample_items';

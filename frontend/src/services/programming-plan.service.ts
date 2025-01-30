@@ -1,9 +1,9 @@
 import fp from 'lodash';
-import { FindProgrammingPlanOptions } from 'shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
+import { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import {
   ProgrammingPlan,
   ProgrammingPlanStatusUpdate
-} from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { api } from 'src/services/api.service';
 
 export const programmingPlanApi = api.injectEndpoints({

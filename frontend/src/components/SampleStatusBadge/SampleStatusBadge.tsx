@@ -4,7 +4,7 @@ import type { AlertProps } from '@codegouvfr/react-dsfr/src/Alert';
 import {
   SampleStatus,
   SampleStatusLabels,
-} from 'shared/schema/Sample/SampleStatus';
+} from 'maestro-shared/schema/Sample/SampleStatus';
 
 type Props = Omit<BadgeProps, 'children'> & {
   status: SampleStatus;

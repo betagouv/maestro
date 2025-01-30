@@ -1,4 +1,4 @@
-import { isDefinedAndNotNull } from 'shared/utils/utils';
+import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 
 export interface AppSelectOption {
   label: string;

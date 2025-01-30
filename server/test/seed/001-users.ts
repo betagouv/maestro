@@ -6,7 +6,7 @@ import {
   Sampler1Fixture,
   Sampler2Fixture,
   SamplerDromFixture
-} from '../../../shared/test/userFixtures';
+} from 'maestro-shared/test/userFixtures';
 
 export const seed = async (): Promise<void> => {
   await Users().insert([

@@ -1,4 +1,4 @@
-import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { FetchMock, MockResponse } from 'vitest-fetch-mock';
 
 export interface RequestCall {

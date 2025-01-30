@@ -1,5 +1,5 @@
 import fp from 'lodash';
-import { Substance } from 'shared/schema/Substance/Substance';
+import { Substance } from 'maestro-shared/schema/Substance/Substance';
 import { api } from 'src/services/api.service';
 
 export const substanceApi = api.injectEndpoints({

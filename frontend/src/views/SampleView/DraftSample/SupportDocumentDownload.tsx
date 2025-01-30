@@ -6,7 +6,7 @@ import {
   isCreatedPartialSample,
   PartialSample,
   PartialSampleToCreate
-} from 'shared/schema/Sample/Sample';
+} from 'maestro-shared/schema/Sample/Sample';
 import AlertModal from 'src/components/AlertModal/AlertModal';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 import useWindowSize from 'src/hooks/useWindowSize';

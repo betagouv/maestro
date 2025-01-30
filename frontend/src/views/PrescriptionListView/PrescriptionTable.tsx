@@ -3,14 +3,14 @@ import Table from '@codegouvfr/react-dsfr/Table';
 import clsx from 'clsx';
 import _ from 'lodash';
 import { useMemo } from 'react';
-import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
-import { Region, RegionList } from 'shared/referential/Region';
-import { Prescription } from 'shared/schema/Prescription/Prescription';
-import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+import { Region, RegionList } from 'maestro-shared/referential/Region';
+import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   RegionalPrescription,
   RegionalPrescriptionSort
-} from 'shared/schema/RegionalPrescription/RegionalPrescription';
+} from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
 import RegionalPrescriptionCountCell from 'src/components/Prescription/RegionalPrescriptionCountCell/RegionalPrescriptionCountCell';
 import RegionHeaderCell from 'src/components/RegionHeaderCell/RegionHeaderCell';

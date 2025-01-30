@@ -4,29 +4,29 @@ import clsx from 'clsx';
 import _, { default as fp } from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Matrix } from 'shared/referential/Matrix/Matrix';
-import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
-import { Region, Regions } from 'shared/referential/Region';
-import { Stage } from 'shared/referential/Stage';
+import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
+import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+import { Region, Regions } from 'maestro-shared/referential/Region';
+import { Stage } from 'maestro-shared/referential/Stage';
 import {
   FindPrescriptionOptions,
   PrescriptionOptionsInclude
-} from 'shared/schema/Prescription/FindPrescriptionOptions';
+} from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import {
   PrescriptionSort,
   PrescriptionUpdate
-} from 'shared/schema/Prescription/Prescription';
-import { PrescriptionSubstance } from 'shared/schema/Prescription/PrescriptionSubstance';
+} from 'maestro-shared/schema/Prescription/Prescription';
+import { PrescriptionSubstance } from 'maestro-shared/schema/Prescription/PrescriptionSubstance';
 import {
   Context,
   ContextLabels,
   ContextList
-} from 'shared/schema/ProgrammingPlan/Context';
-import { NextProgrammingPlanStatus } from 'shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+} from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { NextProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import {
   RegionalPrescriptionKey,
   RegionalPrescriptionUpdate
-} from 'shared/schema/RegionalPrescription/RegionalPrescription';
+} from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import AppToast from 'src/components/_app/AppToast/AppToast';
 import PrescriptionCard from 'src/components/Prescription/PrescriptionCard/PrescriptionCard';
 import PrescriptionSubstancesModal from 'src/components/Prescription/PrescriptionSubstancesModal/PrescriptionSubstancesModal';

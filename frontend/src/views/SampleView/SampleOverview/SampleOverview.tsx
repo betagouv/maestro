@@ -4,7 +4,7 @@ import Input from '@codegouvfr/react-dsfr/Input';
 import RadioButtons from '@codegouvfr/react-dsfr/RadioButtons';
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import clsx from 'clsx';
-import { Sample } from 'shared/schema/Sample/Sample';
+import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import food from 'src/assets/illustrations/food.svg';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import SupportDocumentSelect from 'src/components/SupportDocumentSelect/SupportDocumentSelect';

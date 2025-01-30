@@ -2,7 +2,7 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useMemo } from 'react';
-import { Document } from 'shared/schema/Document/Document';
+import { Document } from 'maestro-shared/schema/Document/Document';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 interface RemoveDocumentProps {
   document: Document;

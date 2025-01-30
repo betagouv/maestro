@@ -1,6 +1,6 @@
 import fp from 'lodash';
-import { FindUserOptions } from 'shared/schema/User/FindUserOptions';
-import { User } from 'shared/schema/User/User';
+import { FindUserOptions } from 'maestro-shared/schema/User/FindUserOptions';
+import { User } from 'maestro-shared/schema/User/User';
 import { api } from 'src/services/api.service';
 
 export const userApi = api.injectEndpoints({
