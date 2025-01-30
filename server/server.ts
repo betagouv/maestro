@@ -66,7 +66,7 @@ export function createServer(): Server {
   } else if (config.environment === 'production') {
     app.use(
       cors({
-        origin: 'https://maestro.beta.gouv.fr',
+        origin: ['https://maestro.beta.gouv.fr', config.application.host],
         methods: 'GET,HEAD',
         allowedHeaders: ['Content-Type']
       })
