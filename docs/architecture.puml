@@ -1,0 +1,44 @@
+@startuml
+!include <tupadr3/common>
+!include <office/Databases/database>
+!include <office/Servers/application_server>
+!include <office/Servers/reverse_proxy>
+!include <office/Concepts/application_web>
+!include <office/Devices/device_laptop>
+!include <office/Servers/3rd_party_mail_server>
+!include <office/Servers/file_server>
+
+OFF_DEVICE_LAPTOP(Utilisateurs, Utilisateurs)
+
+package Gouvernement {
+  OFF_APPLICATION_SERVER(Sentry, Sentry)
+  OFF_APPLICATION_SERVER(Matomo, Matomo)
+  OFF_APPLICATION_SERVER(Entreprise, API Entreprise)
+  OFF_APPLICATION_SERVER(Adresse, API Adresse)
+  OFF_REVERSE_PROXY(ProConnect, ProConnect)
+}
+
+package Scalingo {
+  OFF_APPLICATION_WEB(UI, UI)
+  OFF_APPLICATION_SERVER(API, API)
+  OFF_DATABASE(Postgres, Postgres)
+  UI <--> API
+  Postgres <-- API
+}
+
+package Externes {
+  OFF_3RD_PARTY_MAIL_SERVER(Brevo, Brevo)
+  OFF_3RD_PARTY_MAIL_SERVER(OVH, OVH)
+  OFF_FILE_SERVER(S3, S3 Scaleway)
+}
+
+Utilisateurs --> UI
+API <--> ProConnect: authentification
+Utilisateurs --> Sentry: erreurs
+Utilisateurs --> Matomo: statistiques
+API --> Brevo: envoie mail
+API <-- OVH: reception analyses
+API <--> S3
+API --> Entreprise
+API --> Adresse
+@enduml
