@@ -31,9 +31,6 @@ git clone https://github.com/betagouv/maestro.git
 
 cd maestro 
 npm ci
-
-cd frontend
-npm ci
 ```
 
 ### Variables d'environnement
@@ -85,7 +82,7 @@ En local, elles peuvent être définies dans des fichiers `.env` :
 Vous pouvez injecter un jeu de données grâce au répertoire `/database/seeds/dummy`.
 
 ```bash
-npm run seed
+npm run seed -w server
 ```
 
 ### Lancement de l'application en local
@@ -98,18 +95,10 @@ L'application est accessible à l'adresse sur <http://localhost:3000>
 
 ### Lancement des tests
 
-**Frontend**
-
 ```bash
-npm run frontend:test
+npm run test  #All tests
+npm run test -w server #Backend tests
 ```
-
-**Backend**
-
-```bash
-npm run test
-```
-
 ## Démo
 
 La version de démo de l'application est accessible à l'adresse <https://maestro.incubateur.net>

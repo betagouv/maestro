@@ -1,5 +1,5 @@
 import knex, { Knex } from 'knex';
-import knexConfig from '../knex';
+import knexConfig from '../knexfile';
 import { cloneDeep } from 'lodash-es';
 
 

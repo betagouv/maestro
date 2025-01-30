@@ -3,8 +3,8 @@ import { isArray, isNil, omit, omitBy, uniq } from 'lodash-es';
 import {
   FindPrescriptionOptions,
   PrescriptionOptionsInclude
-} from '../../shared/schema/Prescription/FindPrescriptionOptions';
-import { Prescription } from '../../shared/schema/Prescription/Prescription';
+} from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
+import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { knexInstance as db } from './db';
 import { prescriptionSubstanceTable } from './prescriptionSubstanceRepository';
 export const prescriptionsTable = 'prescriptions';

@@ -2,10 +2,10 @@ import { isNil, omit, omitBy } from 'lodash-es';
 import z from 'zod';
 import {
   PartialAnalysis
-} from '../../shared/schema/Analysis/Analysis';
-import { PartialAnalyte } from '../../shared/schema/Analysis/Analyte';
-import { PartialResidue } from '../../shared/schema/Analysis/Residue/Residue';
-import { convertKeysToCamelCase } from '../../shared/utils/utils';
+} from 'maestro-shared/schema/Analysis/Analysis';
+import { PartialAnalyte } from 'maestro-shared/schema/Analysis/Analyte';
+import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
+import { convertKeysToCamelCase } from 'maestro-shared/utils/utils';
 import {knexInstance as db} from './db';
 import type { KyselyMaestro } from './kysely.type';
 import { kysely } from './kysely';

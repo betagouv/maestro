@@ -1,6 +1,6 @@
 import { isNil, omitBy } from 'lodash-es';
-import { Document } from '../../shared/schema/Document/Document';
-import { FindDocumentOptions } from '../../shared/schema/Document/FindDocumentOptions';
+import { Document } from 'maestro-shared/schema/Document/Document';
+import { FindDocumentOptions } from 'maestro-shared/schema/Document/FindDocumentOptions';
 import {knexInstance as db} from './db';
 import { KyselyMaestro } from './kysely.type';
 import { kysely } from './kysely';

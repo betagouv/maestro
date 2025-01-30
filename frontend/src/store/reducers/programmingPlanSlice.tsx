@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 
 type ProgrammingPlanState = {
   programmingPlan?: ProgrammingPlan;

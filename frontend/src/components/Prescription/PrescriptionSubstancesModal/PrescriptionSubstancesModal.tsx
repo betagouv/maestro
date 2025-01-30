@@ -3,7 +3,7 @@ import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import { skipToken } from '@reduxjs/toolkit/query';
 import { useEffect } from 'react';
-import { PrescriptionSubstance } from 'shared/schema/Prescription/PrescriptionSubstance';
+import { PrescriptionSubstance } from 'maestro-shared/schema/Prescription/PrescriptionSubstance';
 import PrescriptionSubstancesSelect from 'src/components/Prescription/PrescriptionSubstancesModal/PrescriptionSubstancesSelect';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import { useGetPrescriptionSubstancesQuery } from 'src/services/prescription.service';

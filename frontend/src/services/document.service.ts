@@ -1,6 +1,6 @@
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
-import { Document } from 'shared/schema/Document/Document';
-import { DocumentKind } from 'shared/schema/Document/DocumentKind';
+import { Document } from 'maestro-shared/schema/Document/Document';
+import { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import { api } from 'src/services/api.service';
 
 export const documentApi = api.injectEndpoints({

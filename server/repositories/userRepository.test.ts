@@ -1,6 +1,6 @@
 import { kysely } from './kysely';
 import { expect, test } from 'vitest';
-import { genUser } from '../../shared/test/userFixtures';
+import { genUser } from 'maestro-shared/test/userFixtures';
 import { userRepository } from './userRepository';
 
 test("impossible d'avoir 2 utilisateurs avec le même email", async () => {

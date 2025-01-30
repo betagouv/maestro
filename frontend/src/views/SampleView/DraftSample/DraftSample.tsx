@@ -8,8 +8,8 @@ import {
   PartialSample,
   PartialSampleToCreate,
   Sample
-} from 'shared/schema/Sample/Sample';
-import { SampleStatus } from 'shared/schema/Sample/SampleStatus';
+} from 'maestro-shared/schema/Sample/Sample';
+import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import ContextStep from 'src/views/SampleView/DraftSample/ContextStep/ContextStep';

@@ -3,21 +3,21 @@ import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
-import { MatrixList } from '../../../shared/referential/Matrix/Matrix';
-import { StageList } from '../../../shared/referential/Stage';
-import { PrescriptionUpdate } from '../../../shared/schema/Prescription/Prescription';
-import { ProgrammingPlanStatus } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import { MatrixList } from 'maestro-shared/referential/Matrix/Matrix';
+import { StageList } from 'maestro-shared/referential/Stage';
+import { PrescriptionUpdate } from 'maestro-shared/schema/Prescription/Prescription';
+import { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import {
   genPrescription,
   genPrescriptionSubstance
-} from '../../../shared/test/prescriptionFixtures';
-import { genProgrammingPlan } from '../../../shared/test/programmingPlanFixtures';
-import { genSubstance, oneOf } from '../../../shared/test/testFixtures';
+} from 'maestro-shared/test/prescriptionFixtures';
+import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
+import { genSubstance, oneOf } from 'maestro-shared/test/testFixtures';
 import {
   NationalCoordinator,
   RegionalCoordinator,
   Sampler1Fixture
-} from '../../../shared/test/userFixtures';
+} from 'maestro-shared/test/userFixtures';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import {
   formatPrescriptionSubstance,

@@ -2,15 +2,15 @@ import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { skipToken } from '@reduxjs/toolkit/query';
 import { useMemo } from 'react';
-import { CultureKindLabels } from 'shared/referential/CultureKind';
-import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
-import { MatrixPartLabels } from 'shared/referential/MatrixPart';
-import { StageLabels } from 'shared/referential/Stage';
+import { CultureKindLabels } from 'maestro-shared/referential/CultureKind';
+import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+import { MatrixPartLabels } from 'maestro-shared/referential/MatrixPart';
+import { StageLabels } from 'maestro-shared/referential/Stage';
 import {
   Sample,
   SampleOwnerData,
   SampleToCreate
-} from 'shared/schema/Sample/Sample';
+} from 'maestro-shared/schema/Sample/Sample';
 import { usePartialSample } from 'src/hooks/usePartialSample';
 import { useGetPrescriptionSubstancesQuery } from 'src/services/prescription.service';
 import { quote } from 'src/utils/stringUtils';

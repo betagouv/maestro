@@ -2,13 +2,13 @@ import { Request, Response } from 'express';
 import { AuthenticatedRequest } from 'express-jwt';
 import { constants } from 'http2';
 import { v4 as uuidv4 } from 'uuid';
-import AnalysisMissingError from '../../shared/errors/analysisMissingError';
-import SampleMissingError from '../../shared/errors/sampleMissingError';
+import AnalysisMissingError from 'maestro-shared/errors/analysisMissingError';
+import SampleMissingError from 'maestro-shared/errors/sampleMissingError';
 import {
   AnalysisToCreate,
   CreatedAnalysis,
   PartialAnalysis,
-} from '../../shared/schema/Analysis/Analysis';
+} from 'maestro-shared/schema/Analysis/Analysis';
 import { sampleRepository } from '../repositories/sampleRepository';
 import { analysisRepository } from '../repositories/analysisRepository';
 

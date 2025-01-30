@@ -2,7 +2,7 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Input from '@codegouvfr/react-dsfr/Input';
 import { useState } from 'react';
-import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 
 interface Props {

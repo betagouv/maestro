@@ -7,10 +7,10 @@ import { SyntheticEvent, useMemo, useState } from 'react';
 import {
   AnalysisMethod,
   AnalysisMethodLabels
-} from 'shared/schema/Analysis/AnalysisMethod';
-import { PrescriptionSubstance } from 'shared/schema/Prescription/PrescriptionSubstance';
-import { ProgrammingPlan } from 'shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { Substance } from 'shared/schema/Substance/Substance';
+} from 'maestro-shared/schema/Analysis/AnalysisMethod';
+import { PrescriptionSubstance } from 'maestro-shared/schema/Prescription/PrescriptionSubstance';
+import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { Substance } from 'maestro-shared/schema/Substance/Substance';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useLazySearchSubstancesQuery } from 'src/services/substance.service';
 import './PrescriptionSubstances.scss';

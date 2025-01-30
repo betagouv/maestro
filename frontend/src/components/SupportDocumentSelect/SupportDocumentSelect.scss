@@ -1,4 +1,5 @@
-@import '../../constants';
+@use '../../constants' as constants;
+
 
 .select-with-button {
   display: flex;
@@ -13,7 +14,7 @@
     margin-bottom: 0;
   }
 
-  @media (max-width: $breakpoint-md) {
+  @media (max-width: constants.$breakpoint-md) {
     flex-grow: 1;
     div {
       flex-grow: 1;

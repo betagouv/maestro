@@ -4,7 +4,7 @@ import { analysisHandler } from './analysis-handler';
 import { v4 as uuidv4 } from 'uuid';
 import { kysely } from '../../repositories/kysely';
 import { ExportAnalysis } from './index';
-import { Sample13Fixture } from '../../../shared/test/sampleFixtures';
+import { Sample13Fixture } from 'maestro-shared/test/sampleFixtures';
 
 let spyDeleteDocument = vi.spyOn(s3Service, 'deleteDocument')
 let spyUploadDocument = vi.spyOn(s3Service, 'uploadDocument')

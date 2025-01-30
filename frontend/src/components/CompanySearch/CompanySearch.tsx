@@ -2,8 +2,8 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import { Autocomplete } from '@mui/material';
 import { ReactNode, SyntheticEvent, useState } from 'react';
-import { Department } from 'shared/referential/Department';
-import { CompanySearchResult } from 'shared/schema/Company/CompanySearchResult';
+import { Department } from 'maestro-shared/referential/Department';
+import { CompanySearchResult } from 'maestro-shared/schema/Company/CompanySearchResult';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
 import { useLazySearchCompaniesQuery } from 'src/services/company.service';
 

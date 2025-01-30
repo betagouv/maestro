@@ -4,7 +4,7 @@ import Input from '@codegouvfr/react-dsfr/Input';
 import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import clsx from 'clsx';
 import { t } from 'i18next';
-import { FindSampleOptions } from 'shared/schema/Sample/FindSampleOptions';
+import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import useWindowSize from 'src/hooks/useWindowSize';
 import { getSampleListExportURL } from 'src/services/sample.service';

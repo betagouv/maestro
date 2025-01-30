@@ -3,20 +3,20 @@ import { AuthenticatedRequest, ProgrammingPlanRequest } from 'express-jwt';
 import { constants } from 'http2';
 import { intersection } from 'lodash-es';
 import { v4 as uuidv4 } from 'uuid';
-import ProgrammingPlanMissingError from '../../shared/errors/programmingPlanMissingError';
-import { isDromRegion } from '../../shared/referential/Region';
-import { ContextList } from '../../shared/schema/ProgrammingPlan/Context';
-import { FindProgrammingPlanOptions } from '../../shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
+import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
+import { isDromRegion } from 'maestro-shared/referential/Region';
+import { ContextList } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import {
   getNextProgrammingPlanStatus,
   ProgrammingPlanStatusUpdate
-} from '../../shared/schema/ProgrammingPlan/ProgrammingPlans';
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   ProgrammingPlanStatus,
   ProgrammingPlanStatusList,
   ProgrammingPlanStatusPermissions
-} from '../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { hasPermission } from '../../shared/schema/User/User';
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import { hasPermission } from 'maestro-shared/schema/User/User';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';

@@ -1,4 +1,4 @@
-@import '../../constants';
+@use '../../constants' as constants;
 
 .sample-stepper {
   display: flex;
@@ -8,7 +8,7 @@
   margin-bottom: 1.5rem;
   gap: 1.5rem;
 
-  @media (min-width: $breakpoint-md) {
+  @media (min-width: constants.$breakpoint-md) {
     padding-left: 4.375rem;
     padding-right: 12.75rem;
     margin-bottom: 2rem;
@@ -27,7 +27,7 @@
   padding-left: 1rem;
   padding-right: 1rem;
 
-  @media (max-width: $breakpoint-md) {
+  @media (max-width: constants.$breakpoint-md) {
     .fr-grid-row {
       .fr-col-12:not(:first-child):has(.fr-input-group, .fr-select-group) {
         margin-top: 0.75rem;
@@ -35,7 +35,7 @@
     }
   }
 
-  @media (min-width: $breakpoint-md) {
+  @media (min-width: constants.$breakpoint-md) {
     padding-left: 12.75rem;
     padding-right: 12.75rem;
     gap: 2.5rem;

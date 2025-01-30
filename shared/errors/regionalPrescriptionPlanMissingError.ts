@@ -1,6 +1,6 @@
 import { constants } from 'http2';
 
-import { HttpError } from '../../server/errors/httpError';
+import { HttpError } from './httpError';
 import { Region } from '../referential/Region';
 
 export default class RegionalPrescriptionMissingError

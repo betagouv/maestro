@@ -1,11 +1,11 @@
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import fp from 'lodash';
-import { FindSampleOptions } from 'shared/schema/Sample/FindSampleOptions';
+import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   isCreatedPartialSample,
   PartialSample,
   PartialSampleToCreate,
-} from 'shared/schema/Sample/Sample';
+} from 'maestro-shared/schema/Sample/Sample';
 import { api } from 'src/services/api.service';
 import { authParams } from 'src/services/auth-headers';
 import samplesSlice from 'src/store/reducers/samplesSlice';

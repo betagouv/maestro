@@ -1,5 +1,5 @@
 import fp from 'lodash';
-import { Laboratory } from 'shared/schema/Laboratory/Laboratory';
+import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { api } from 'src/services/api.service';
 
 export const laboratoryApi = api.injectEndpoints({

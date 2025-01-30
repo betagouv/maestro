@@ -3,7 +3,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
 import clsx from 'clsx';
 import React from 'react';
-import { Laboratory } from 'shared/schema/Laboratory/Laboratory';
+import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import {
   AppSelectOption,
   defaultAppSelectOption

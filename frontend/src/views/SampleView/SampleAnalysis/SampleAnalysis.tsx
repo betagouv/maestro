@@ -3,8 +3,8 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { useState } from 'react';
-import { Sample } from 'shared/schema/Sample/Sample';
-import { CompletedStatusList } from 'shared/schema/Sample/SampleStatus';
+import { Sample } from 'maestro-shared/schema/Sample/Sample';
+import { CompletedStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
 import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import { usePartialSample } from 'src/hooks/usePartialSample';
 import {

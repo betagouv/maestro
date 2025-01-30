@@ -1,11 +1,11 @@
 import { AnalysisResidues, ResidueAnalytes } from '../../repositories/kysely.type';
-import { ComplexResidueAnalytes } from '../../../shared/referential/Residue/ComplexResidueAnalytes';
+import { ComplexResidueAnalytes } from 'maestro-shared/referential/Residue/ComplexResidueAnalytes';
 import { executeTransaction, kysely } from '../../repositories/kysely';
 import { s3Service } from '../s3Service';
 import { ExportDataSubstance, ExportResidueAnalyte, ExportAnalysis, ExtractError } from './index';
 import { isEmpty } from 'lodash-es';
 import {  analysisRepository } from '../../repositories/analysisRepository';
-import { OmitDistributive } from '../../../shared/utils/typescript';
+import { OmitDistributive } from 'maestro-shared/utils/typescript';
 import { documentRepository } from '../../repositories/documentRepository';
 import { analysisResidueRepository } from '../../repositories/analysisResidueRepository';
 import { residueAnalyteRepository } from '../../repositories/residueAnalyteRepository';

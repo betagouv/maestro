@@ -8,9 +8,9 @@ import React, { useState } from 'react';
 import {
   PartialSample,
   PartialSampleToCreate
-} from 'shared/schema/Sample/Sample';
-import { PartialSampleItem, SampleItem } from 'shared/schema/Sample/SampleItem';
-import { isDefinedAndNotNull } from 'shared/utils/utils';
+} from 'maestro-shared/schema/Sample/Sample';
+import { PartialSampleItem, SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
+import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import { useForm } from 'src/hooks/useForm';

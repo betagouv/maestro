@@ -1,4 +1,4 @@
-@import '../../constants';
+@use '../../constants' as constants;
 
 .section-header {
   display: flex;
@@ -15,7 +15,7 @@
     }
   }
 
-  @media (max-width: $breakpoint-md) {
+  @media (max-width: constants.$breakpoint-md) {
     align-items: start;
     padding-left: 1rem;
     padding-right: 1rem;

@@ -7,17 +7,17 @@ import clsx from 'clsx';
 import { default as fp } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Department } from 'shared/referential/Department';
-import { Matrix } from 'shared/referential/Matrix/Matrix';
-import { Region } from 'shared/referential/Region';
-import { defaultPerPage } from 'shared/schema/commons/Pagination';
-import { Context } from 'shared/schema/ProgrammingPlan/Context';
-import { FindSampleOptions } from 'shared/schema/Sample/FindSampleOptions';
+import { Department } from 'maestro-shared/referential/Department';
+import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
+import { Region } from 'maestro-shared/referential/Region';
+import { defaultPerPage } from 'maestro-shared/schema/commons/Pagination';
+import { Context } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   DraftStatusList,
   SampleStatus
-} from 'shared/schema/Sample/SampleStatus';
-import { isDefinedAndNotNull } from 'shared/utils/utils';
+} from 'maestro-shared/schema/Sample/SampleStatus';
+import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import SampleCard from 'src/components/SampleCard/SampleCard';
 import SampleTable from 'src/components/SampleTable/SampleTable';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';

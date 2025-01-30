@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import { ProgrammingPlanRequest } from 'express-jwt';
 import { constants } from 'http2';
-import PrescriptionMissingError from '../../../shared/errors/prescriptionPlanMissingError';
-import ProgrammingPlanMissingError from '../../../shared/errors/programmingPlanMissingError';
+import PrescriptionMissingError from 'maestro-shared/errors/prescriptionPlanMissingError';
+import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
 import prescriptionRepository from '../../repositories/prescriptionRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
 

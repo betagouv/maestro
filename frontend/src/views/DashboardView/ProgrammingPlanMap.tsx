@@ -14,11 +14,11 @@ import Map, {
   Source,
   SymbolLayer
 } from 'react-map-gl/maplibre';
-import { Region, RegionList, Regions } from 'shared/referential/Region';
+import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
 import {
   getCompletionRate,
   RegionalPrescription
-} from 'shared/schema/RegionalPrescription/RegionalPrescription';
+} from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { useGetRegionsGeoJsonQuery } from 'src/services/region.service';
 
 interface Props {

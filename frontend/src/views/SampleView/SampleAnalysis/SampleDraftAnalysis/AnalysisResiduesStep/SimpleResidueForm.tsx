@@ -2,15 +2,15 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import {
   SimpleResidue,
   SimpleResidueList,
-} from 'shared/referential/Residue/SimpleResidue';
-import { SimpleResidueLabels } from 'shared/referential/Residue/SimpleResidueLabels';
-import { PartialResidue } from 'shared/schema/Analysis/Residue/Residue';
+} from 'maestro-shared/referential/Residue/SimpleResidue';
+import { SimpleResidueLabels } from 'maestro-shared/referential/Residue/SimpleResidueLabels';
+import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import {
   ResultKind,
   ResultKindLabels,
   ResultKindList,
-} from 'shared/schema/Analysis/Residue/ResultKind';
-import { isDefinedAndNotNull } from 'shared/utils/utils';
+} from 'maestro-shared/schema/Analysis/Residue/ResultKind';
+import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import ResidueResultAlert from 'src/components/ResidueResultAlert/ResidueResultAlert';
 import AppSearchInput from 'src/components/_app/AppSearchInput/AppSearchInput';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';

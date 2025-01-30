@@ -1,10 +1,10 @@
 import { ImapFlow } from 'imapflow';
 import { isNull } from 'lodash-es';
 import { ParsedMail, simpleParser } from 'mailparser';
-import { Analyte } from '../../../shared/referential/Residue/Analyte';
-import { ComplexResidue } from '../../../shared/referential/Residue/ComplexResidue';
-import { SimpleResidue } from '../../../shared/referential/Residue/SimpleResidue';
-import { Sample } from '../../../shared/schema/Sample/Sample';
+import { Analyte } from 'maestro-shared/referential/Residue/Analyte';
+import { ComplexResidue } from 'maestro-shared/referential/Residue/ComplexResidue';
+import { SimpleResidue } from 'maestro-shared/referential/Residue/SimpleResidue';
+import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import config from '../../utils/config';
 import { girpaConf } from './girpa';
 import { analysisHandler } from './analysis-handler';

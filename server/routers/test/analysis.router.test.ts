@@ -2,16 +2,16 @@ import { constants } from 'http2';
 import { omit } from 'lodash-es';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
-import { AnalyteList } from '../../../shared/referential/Residue/Analyte';
-import { PartialAnalyte } from '../../../shared/schema/Analysis/Analyte';
+import { AnalyteList } from 'maestro-shared/referential/Residue/Analyte';
+import { PartialAnalyte } from 'maestro-shared/schema/Analysis/Analyte';
 import {
   genAnalysisToCreate,
   genPartialAnalysis,
   genPartialAnalyte,
   genPartialResidue
-} from '../../../shared/test/analysisFixtures';
-import { genDocument } from '../../../shared/test/documentFixtures';
-import { oneOf } from '../../../shared/test/testFixtures';
+} from 'maestro-shared/test/analysisFixtures';
+import { genDocument } from 'maestro-shared/test/documentFixtures';
+import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
   Analysis,
   AnalysisResidues,
@@ -26,11 +26,11 @@ import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import {
   Sample11Fixture,
   Sample2Fixture
-} from '../../../shared/test/sampleFixtures';
+} from 'maestro-shared/test/sampleFixtures';
 import {
   NationalCoordinator,
   Sampler1Fixture
-} from '../../../shared/test/userFixtures';
+} from 'maestro-shared/test/userFixtures';
 describe('Analysis router', () => {
   const { app } = createServer();
 

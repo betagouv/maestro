@@ -1,7 +1,7 @@
 import { ErrorHandler, errors as compose, Next } from 'compose-middleware';
 import { Request, Response } from 'express';
 import { constants } from 'http2';
-import { isClientError, isHttpError } from '../errors/httpError';
+import { isClientError, isHttpError } from 'maestro-shared/errors/httpError';
 
 function log(
   error: Error,

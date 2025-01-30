@@ -1,4 +1,4 @@
-@import 'constants';
+@use 'constants' as constants;
 
 main {
   background-color: var(--beige-gris-galet-975-75);
@@ -121,7 +121,7 @@ main {
 }
 
 section.fr-container {
-  @media (max-width: $breakpoint-md) {
+  @media (max-width: constants.$breakpoint-md) {
     padding-left: 0;
     padding-right: 0;
   }
@@ -198,7 +198,7 @@ h6,
 }
 
 .fr-btns-group {
-  @media (max-width: $breakpoint-md) {
+  @media (max-width: constants.$breakpoint-md) {
     display: flex;
     flex-direction: column-reverse;
   }
@@ -207,7 +207,7 @@ h6,
     margin-left: 0;
     margin-right: 0;
 
-    @media (max-width: $breakpoint-md) {
+    @media (max-width: constants.$breakpoint-md) {
       flex-direction: column;
       margin-left: 0;
       margin-right: 0;

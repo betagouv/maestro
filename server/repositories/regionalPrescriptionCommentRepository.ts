@@ -1,4 +1,4 @@
-import { RegionalPrescriptionComment } from '../../shared/schema/RegionalPrescription/RegionalPrescriptionComment';
+import { RegionalPrescriptionComment } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionComment';
 import {knexInstance as db} from './db';
 
 export const regionalPrescriptionCommentsTable =

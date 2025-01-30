@@ -1,5 +1,5 @@
-import { AuthRedirectUrl } from 'shared/schema/Auth/AuthRedirectUrl';
-import { AuthMaybeUnknownUser } from 'shared/schema/User/AuthUser';
+import { AuthRedirectUrl } from 'maestro-shared/schema/Auth/AuthRedirectUrl';
+import { AuthMaybeUnknownUser } from 'maestro-shared/schema/User/AuthUser';
 import { api } from 'src/services/api.service';
 
 export const authApi = api.injectEndpoints({

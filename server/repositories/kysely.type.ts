@@ -4,13 +4,13 @@
  */
 
 import { ColumnType, type Kysely } from 'kysely';
-import { UserRole } from '../../shared/schema/User/UserRole';
-import { Region } from '../../shared/referential/Region';
-import { DocumentKind } from '../../shared/schema/Document/DocumentKind';
-import { AnalysisStatus } from '../../shared/schema/Analysis/AnalysisStatus';
-import { ResidueCompliance } from '../../shared/schema/Analysis/Residue/ResidueCompliance';
-import { ResidueKind } from '../../shared/schema/Analysis/Residue/ResidueKind';
-import { AnalysisMethod } from '../../shared/schema/Analysis/AnalysisMethod';
+import { UserRole } from 'maestro-shared/schema/User/UserRole';
+import { Region } from 'maestro-shared/referential/Region';
+import { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
+import { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
+import { ResidueCompliance } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
+import { ResidueKind } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
+import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 
 export type Generated<T> =
   T extends ColumnType<infer S, infer I, infer U>

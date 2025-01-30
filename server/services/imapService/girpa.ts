@@ -1,12 +1,12 @@
 import { XMLParser } from 'fast-xml-parser';
 import { entries } from 'lodash-es';
 import { z } from 'zod';
-import { Analyte } from '../../../shared/referential/Residue/Analyte';
-import { AnalyteLabels } from '../../../shared/referential/Residue/AnalyteLabels';
-import { ComplexResidue } from '../../../shared/referential/Residue/ComplexResidue';
-import { ComplexResidueLabels } from '../../../shared/referential/Residue/ComplexResidueLabels';
-import { SimpleResidue } from '../../../shared/referential/Residue/SimpleResidue';
-import { SimpleResidueLabels } from '../../../shared/referential/Residue/SimpleResidueLabels';
+import { Analyte } from 'maestro-shared/referential/Residue/Analyte';
+import { AnalyteLabels } from 'maestro-shared/referential/Residue/AnalyteLabels';
+import { ComplexResidue } from 'maestro-shared/referential/Residue/ComplexResidue';
+import { ComplexResidueLabels } from 'maestro-shared/referential/Residue/ComplexResidueLabels';
+import { SimpleResidue } from 'maestro-shared/referential/Residue/SimpleResidue';
+import { SimpleResidueLabels } from 'maestro-shared/referential/Residue/SimpleResidueLabels';
 import {
   ExportAnalysis,
   ExportDataFromEmail,

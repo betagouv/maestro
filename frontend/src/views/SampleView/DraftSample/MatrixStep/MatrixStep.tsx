@@ -8,21 +8,21 @@ import {
   CultureKind,
   CultureKindLabels,
   CultureKindList
-} from 'shared/referential/CultureKind';
-import { Matrix, MatrixList } from 'shared/referential/Matrix/Matrix';
-import { MatrixLabels } from 'shared/referential/Matrix/MatrixLabels';
+} from 'maestro-shared/referential/CultureKind';
+import { Matrix, MatrixList } from 'maestro-shared/referential/Matrix/Matrix';
+import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import {
   MatrixPart,
   MatrixPartLabels,
   MatrixPartList
-} from 'shared/referential/MatrixPart';
-import { Stage, StageLabels, StageList } from 'shared/referential/Stage';
+} from 'maestro-shared/referential/MatrixPart';
+import { Stage, StageLabels, StageList } from 'maestro-shared/referential/Stage';
 import {
   isCreatedPartialSample,
   PartialSample,
   PartialSampleToCreate,
   SampleMatrixData
-} from 'shared/schema/Sample/Sample';
+} from 'maestro-shared/schema/Sample/Sample';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';

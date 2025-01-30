@@ -5,37 +5,37 @@ import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
-import { MatrixList } from '../../../shared/referential/Matrix/Matrix';
-import { Region, RegionList } from '../../../shared/referential/Region';
-import { StageList } from '../../../shared/referential/Stage';
-import { ProgrammingPlanStatus } from '../../../shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import { MatrixList } from 'maestro-shared/referential/Matrix/Matrix';
+import { Region, RegionList } from 'maestro-shared/referential/Region';
+import { StageList } from 'maestro-shared/referential/Stage';
+import { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import {
   RegionalPrescription,
   RegionalPrescriptionKey,
   RegionalPrescriptionUpdate
-} from '../../../shared/schema/RegionalPrescription/RegionalPrescription';
+} from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import {
   RegionalPrescriptionComment,
   RegionalPrescriptionCommentToCreate
-} from '../../../shared/schema/RegionalPrescription/RegionalPrescriptionComment';
-import { CompanyFixture } from '../../../shared/test/companyFixtures';
+} from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionComment';
+import { CompanyFixture } from 'maestro-shared/test/companyFixtures';
 import {
   genLaboratory,
   LaboratoryFixture
-} from '../../../shared/test/laboratoryFixtures';
+} from 'maestro-shared/test/laboratoryFixtures';
 import {
   genPrescription,
   genRegionalPrescription
-} from '../../../shared/test/prescriptionFixtures';
-import { genProgrammingPlan } from '../../../shared/test/programmingPlanFixtures';
-import { genCreatedSample } from '../../../shared/test/sampleFixtures';
-import { oneOf } from '../../../shared/test/testFixtures';
+} from 'maestro-shared/test/prescriptionFixtures';
+import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
+import { genCreatedSample } from 'maestro-shared/test/sampleFixtures';
+import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
   NationalCoordinator,
   Region2Fixture,
   RegionalCoordinator,
   Sampler1Fixture
-} from '../../../shared/test/userFixtures';
+} from 'maestro-shared/test/userFixtures';
 import { Laboratories } from '../../repositories/laboratoryRepository';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import { ProgrammingPlans } from '../../repositories/programmingPlanRepository';

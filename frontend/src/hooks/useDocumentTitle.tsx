@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Brand } from 'shared/constants';
+import { Brand } from 'maestro-shared/constants';
 
 export function useDocumentTitle(title?: string) {
   useEffect(() => {
