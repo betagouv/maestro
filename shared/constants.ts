@@ -1,1 +1,1 @@
-export const Brand = 'maestro';
+export const Brand = 'Maestro';

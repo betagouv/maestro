@@ -2,6 +2,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Skeleton } from '@mui/material';
 import clsx from 'clsx';
 import { t } from 'i18next';
+import { Brand } from 'maestro-shared/constants';
 import ressources from 'src/assets/illustrations/ressources.svg';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import AppToast from 'src/components/_app/AppToast/AppToast';
@@ -33,7 +34,7 @@ const DocumentListView = () => {
       />
       <SectionHeader
         title="Ressources"
-        subtitle="Consultez les ressources mises à disposition des utilisateurs de maestro"
+        subtitle={`Consultez les ressources mises à disposition des utilisateurs de ${Brand}`}
         illustration={ressources}
       />
 
