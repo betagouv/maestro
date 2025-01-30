@@ -22,7 +22,7 @@ jobs:
         uses: creyD/prettier_action@v4.3
         with:
           prettier_options: --write **/*.{tsx,ts,jsx,js,md}
-          only_changed: True
+          only_changed: False
   build:
     runs-on: ubuntu-latest
     steps:
