@@ -1,9 +1,10 @@
-import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useCallback, useMemo } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppSelector } from 'src/hooks/useStore';
 
 export const useSamplesLink = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
 
   const sampleLink = useMemo(
@@ -12,7 +13,7 @@ export const useSamplesLink = () => {
         return '/';
       } else {
         return `/prelevements/${programmingPlan.year}/${sampleId}${
-          step ? `?etape=${step}` : ''
+          step ? `/etape/${step}` : ''
         }`;
       }
     },
@@ -32,5 +33,20 @@ export const useSamplesLink = () => {
     navigate(samplesLink);
   };
 
-  return { sampleLink, navigateToSample, samplesLink, navigateToSamples };
+  const getSampleStepParam = useCallback(() => {
+    const params = new URLSearchParams(location.search);
+    const stepParam = params.get('etape');
+    if (stepParam) {
+      return Number(stepParam);
+    }
+    return;
+  }, [location.search]);
+
+  return {
+    sampleLink,
+    navigateToSample,
+    samplesLink,
+    navigateToSamples,
+    getSampleStepParam
+  };
 };
