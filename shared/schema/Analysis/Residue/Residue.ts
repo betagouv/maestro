@@ -28,6 +28,7 @@ export const Residue = z.object({
   pollutionRisk: OptionalBoolean.nullish(),
   notesOnPollutionRisk: z.string().nullish(),
   compliance: ResidueCompliance,
+  otherCompliance: z.string().nullish(),
   analytes: z.array(Analyte).nullish()
 });
 
