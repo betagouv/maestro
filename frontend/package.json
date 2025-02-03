@@ -11,7 +11,7 @@
     "preview": "vite preview",
     "test": "vitest",
     "lint": "eslint . --ext .ts,.tsx",
-    "predev": "react-dsfr update-icons",
+    "predev": "cp -r ../node_modules/@codegouvfr ./node_modules/ && react-dsfr update-icons",
     "prestart": "react-dsfr update-icons",
     "prebuild": "react-dsfr update-icons"
   },
