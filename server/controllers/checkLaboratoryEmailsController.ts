@@ -7,7 +7,7 @@ export const checkLaboratoryEmails = async (
   _request: Request,
   response: Response
 ): Promise<void> => {
-  if (!config.application.isReviewApp) {
+  if (config.application.isReviewApp) {
     console.info('Checking emails feature is disabled for Review App.');
   } else {
     console.info('Checking emails...');
