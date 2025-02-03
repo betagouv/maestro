@@ -114,6 +114,13 @@ export const checkEmails = async () => {
           messageUid: number;
           laboratoryName: LaboratoryWithConf;
         }[] = [];
+
+        const messagesInError: {
+          messageUid: string,
+          sender: string,
+          subject: string,
+          error: string
+        }[] = []
         for await (const message of client.fetch('1:*', {
           envelope: true,
           bodyStructure: true
@@ -131,14 +138,11 @@ export const checkEmails = async () => {
             messagesToRead.push({ messageUid: message.uid, laboratoryName });
             console.log('   =====>  ', laboratoryName);
           } else {
-            await moveMessageToErrorbox(
-              message.envelope.subject,
-              message.envelope.sender[0].address ?? '',
-              "Impossible d'identifier le laboratoire émetteur de cet email",
-              `${message.uid}`,
-              client
-            );
+            messagesInError.push({ messageUid: `${message.uid}`,  sender: message.envelope.sender[0].address ?? '', error: "Impossible d'identifier le laboratoire émetteur de cet email", subject: message.envelope.subject})
           }
+        }
+        for (const messageInError of messagesInError){
+          await moveMessageToErrorbox(messageInError.subject, messageInError.sender, messageInError.error, messageInError.messageUid, client)
         }
         for (const message of messagesToRead) {
           const messageUid: string = `${message.messageUid}`;

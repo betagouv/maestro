@@ -12,8 +12,11 @@ export const checkLaboratoryEmails = async (
   } else {
     console.info('Checking emails...');
 
-    //Pas d'await pour ne pas bloquer le thread inutilement
-    checkEmails();
+    try {
+      await checkEmails();
+    }catch (e){
+      console.error('Impossible de lire la boite mail', e)
+    }
   }
 
   response.status(constants.HTTP_STATUS_OK).send('OK');
