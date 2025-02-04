@@ -1,6 +1,6 @@
 
 
-export const referentielSSD2 =
+export const SSD2Referential =
 // ----- ne pas supprimer cette ligne : début
 {
    "RF-00000007-PAR": {
@@ -10474,9 +10474,9 @@ export const referentielSSD2 =
 } as const satisfies Record<string, { reference:string, name: string, casNumber: string | null, otherNames: string[], deprecated?: true}>
 // ----- ne pas supprimer cette ligne : fin
 
-const values = Object.values(referentielSSD2)
+const values = Object.values(SSD2Referential)
 
-export type SSD2Id = keyof typeof referentielSSD2
+export type SSD2Id = keyof typeof SSD2Referential
 
 export const getSSD2IdByCasNumber = (potentialCasNumber: string): SSD2Id | null => {
    return values.find(({casNumber}) => casNumber === potentialCasNumber)?.reference ?? null

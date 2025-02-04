@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { getSSD2IdByCasNumber } from './ssd2';
+import { getSSD2IdByCasNumber } from './SSD2Referential';
 
 test('getSSD2IdByCasNumber', () => {
   expect(getSSD2IdByCasNumber('wrongCasNumber')).toEqual(null)

@@ -3,7 +3,7 @@ import path from 'path';
 import { readFileSync } from 'fs';
 import { writeFileSync } from 'node:fs';
 import { isNil } from 'lodash-es';
-import { referentielSSD2 } from 'maestro-shared/referential/Residue/ssd2';
+import { SSD2Referential } from 'maestro-shared/referential/Residue/SSD2Referential';
 
 const updateSSD2Referential = async () => {
 
@@ -91,7 +91,7 @@ const updateSSD2Referential = async () => {
     }
   });
 
-  const ssd2File = path.join(process.cwd(), '../shared/referential/Residue/ssd2.ts')
+  const ssd2File = path.join(process.cwd(), '../shared/referential/Residue/SSD2Referential.ts')
   const data = readFileSync(ssd2File, {
     encoding: 'utf-8',
   })
@@ -110,7 +110,7 @@ const updateSSD2Referential = async () => {
   // On aggrège l'ancienne version du référentiel avec la nouvelle,
   // pour ne pas faire disparaître les références qui sont devenues Deprecated
   // et qui sont peut-être utilisées par notre bdd.
-  const newReferential: Record<string, any> = {...referentielSSD2, ...newRows}
+  const newReferential: Record<string, any> = {...SSD2Referential, ...newRows}
 
   for( const reference in newReferential ){
     if (!(reference in newRows)) {
