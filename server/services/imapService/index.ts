@@ -10,8 +10,9 @@ import { mattermostService } from '../mattermostService';
 import { analysisHandler } from './analysis-handler';
 import { girpaConf } from './girpa';
 import { inovalysConf } from './inovalys';
+import { capinovConf } from './capinov';
 
-const laboratoriesWithConf = ['GIRPA', 'INOVALYS'] as const satisfies string[];
+const laboratoriesWithConf = ['GIRPA', 'INOVALYS', 'CAPINOV'] as const satisfies string[];
 type LaboratoryWithConf = (typeof laboratoriesWithConf)[number];
 
 export class ExtractError extends Error {
@@ -49,7 +50,8 @@ export type LaboratoryConf = {
 };
 const laboratoriesConf = {
   'GIRPA': girpaConf,
-  'INOVALYS': inovalysConf
+  'INOVALYS': inovalysConf,
+  'CAPINOV': capinovConf
 } as const satisfies {
   [name in LaboratoryWithConf]: LaboratoryConf;
 };

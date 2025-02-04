@@ -1,4 +1,3 @@
-import {  tail, zipObject } from 'lodash-es';
 import { z } from 'zod';
 import {
   ExportAnalysis,
@@ -7,6 +6,7 @@ import {
   IsSender,
   LaboratoryConf
 } from './index';
+import { csvToJson } from './utils';
 
 //TODO AUTO_LABO en attente de la réception du 1er email + test
 const isSender: IsSender = (_emailSender) => false;
@@ -83,14 +83,6 @@ export const extractAnalyzes = (
 
 };
 
-const csvToJson = (csv: string): Record<string, string>[] => {
-  const separator = ';'
-  const content = csv.split('\n');
-  const header = content[0].split(separator);
-  return tail(content).map((row) => {
-    return zipObject(header, row.split(separator));
-  });
-};
 
 type InovalysCSVFile = { fileName: string; content: Record<string, string>[] };
 const exportDataFromEmail: ExportDataFromEmail = (email) => {
@@ -107,7 +99,7 @@ const exportDataFromEmail: ExportDataFromEmail = (email) => {
   const inovalysCSVFiles: InovalysCSVFile[] = csvFiles.map((file) => {
     return {
       fileName: file.filename ?? '',
-      content: csvToJson(file.content.toString('latin1'))
+      content: csvToJson(file.content.toString('latin1'), ';')
     };
   });
   const analyzes = extractAnalyzes(inovalysCSVFiles);
