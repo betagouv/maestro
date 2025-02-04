@@ -16,7 +16,7 @@ import {
 import AddDocument from 'src/views/DocumentListView/AddDocument';
 import DocumentTable from 'src/views/DocumentListView/DocumentTable';
 const DocumentListView = () => {
-  useDocumentTitle('Liste des resources ressources');
+  useDocumentTitle('Liste des documents ressources');
   const { isOnline } = useOnLine();
 
   const { hasUserPermission } = useAuthentication();
