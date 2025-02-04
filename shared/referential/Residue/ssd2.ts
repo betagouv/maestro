@@ -222,7 +222,9 @@ export const referentielSSD2 =
       "reference": "RF-00000051-NTR",
       "name": "cholecalciferol",
       "casNumber": "67-97-0",
-      "otherNames": []
+      "otherNames": [
+         "Colecalciferol"
+      ]
    },
    "RF-00000052-ADD": {
       "reference": "RF-00000052-ADD",
@@ -314,10 +316,10 @@ export const referentielSSD2 =
    },
    "RF-00000161-VET": {
       "reference": "RF-00000161-VET",
-      "name": "Cypermethrin, alpha-",
+      "name": "Alpha-cypermethrin",
       "casNumber": "67375-30-8",
       "otherNames": [
-         "Cypermethrin-Alpha"
+         "(S)-α-cyano-3-phenoxybenzyl (1R,3R)-3-(2,2-dichlorovinyl)-2,2-dimethylcyclopropanecarboxylate"
       ]
    },
    "RF-00000167-ADD": {
@@ -511,9 +513,11 @@ export const referentielSSD2 =
    },
    "RF-00001606-PAR": {
       "reference": "RF-00001606-PAR",
-      "name": "Sintofen (aka cintofen)",
+      "name": "Sintofen",
       "casNumber": "130561-48-7",
-      "otherNames": []
+      "otherNames": [
+         "Cintofen"
+      ]
    },
    "RF-00001608-PAR": {
       "reference": "RF-00001608-PAR",
@@ -615,7 +619,8 @@ export const referentielSSD2 =
       "reference": "RF-00002591-PAR",
       "name": "Cyflumetofen",
       "casNumber": "400882-07-7",
-      "otherNames": []
+      "otherNames": [],
+      "deprecated": true
    },
    "RF-00002592-PAR": {
       "reference": "RF-00002592-PAR",
@@ -633,7 +638,9 @@ export const referentielSSD2 =
       "reference": "RF-00002596-PAR",
       "name": "Bromadiolone",
       "casNumber": "28772-56-7",
-      "otherNames": []
+      "otherNames": [
+         "3-[3-(4'-Bromo[1,1'-biphenyl]-4-yl)-3-hydroxy-1-phenylpropyl]-4-hydroxy-2H-1-benzopyran-2-one"
+      ]
    },
    "RF-00002605-PAR": {
       "reference": "RF-00002605-PAR",
@@ -905,7 +912,7 @@ export const referentielSSD2 =
    "RF-00003331-PAR": {
       "reference": "RF-00003331-PAR",
       "name": "BYI08330-enol (cis-3-(2,5-dimethylphenyl)-4-hydroxy-8-methoxy-1-azaspiro[4.5]dec-3-en-2-one)",
-      "casNumber": null,
+      "casNumber": "382608-09-5",
       "otherNames": [
          "BYI08330 enol-glucoside"
       ]
@@ -1123,7 +1130,7 @@ export const referentielSSD2 =
    "RF-00003362-PAR": {
       "reference": "RF-00003362-PAR",
       "name": "Penflufen",
-      "casNumber": null,
+      "casNumber": "494793-67-8",
       "otherNames": [
          "N-acetylglufosinate"
       ]
@@ -1140,11 +1147,7 @@ export const referentielSSD2 =
       "reference": "RF-00003365-PAR",
       "name": "Pymetrozine, 6-hydroxymethylpymetrozine and its phosphate conjugate, expressed as pymetrozine",
       "casNumber": null,
-      "otherNames": [
-         "Propamocarb N-oxide",
-         "AE B155306",
-         "N,N-dimethyl-3-(propoxycarbonylamino)propan-1-amine oxide"
-      ]
+      "otherNames": []
    },
    "RF-00003366-PAR": {
       "reference": "RF-00003366-PAR",
@@ -1211,7 +1214,7 @@ export const referentielSSD2 =
    "RF-00003378-PAR": {
       "reference": "RF-00003378-PAR",
       "name": "Cyhalofop-butyl",
-      "casNumber": null,
+      "casNumber": "122008-85-9",
       "otherNames": []
    },
    "RF-00003379-PAR": {
@@ -1222,9 +1225,11 @@ export const referentielSSD2 =
    },
    "RF-00003380-PAR": {
       "reference": "RF-00003380-PAR",
-      "name": "CGA 321113 ((E, E)-methoxyimino- {2-[1-(3-trifluoromethyl-phenyl)-ethylideneamino-oxymethyl]-phenyl}-acetic acid)",
-      "casNumber": null,
-      "otherNames": []
+      "name": "Trifloxystrobin metabolite (CGA 321113)",
+      "casNumber": "252913-85-2",
+      "otherNames": [
+         "M5"
+      ]
    },
    "RF-00003386-PAR": {
       "reference": "RF-00003386-PAR",
@@ -1617,7 +1622,9 @@ export const referentielSSD2 =
       "reference": "RF-00004827-PAR",
       "name": "24-Epibrassinolide",
       "casNumber": "78821-43-9",
-      "otherNames": []
+      "otherNames": [
+         "(3aS,5S,6R,7aR,7bS,9aS,10R,12aS,12bS)-10-[(2S,3R,4R,5R)-3,4-dihydroxy-5,6-dimethylheptan-2-yl]-5,6-dihydroxy-7a,9a-dimethylhexadecahydro-3H-benzo[c]indeno[5,4-e]oxepin-3-one"
+      ]
    },
    "RF-00004850-PAR": {
       "reference": "RF-00004850-PAR",
@@ -1811,7 +1818,7 @@ export const referentielSSD2 =
    "RF-00005784-PAR": {
       "reference": "RF-00005784-PAR",
       "name": "Orange oil",
-      "casNumber": null,
+      "casNumber": "8026-46-8",
       "otherNames": []
    },
    "RF-00005787-PAR": {
@@ -1907,9 +1914,11 @@ export const referentielSSD2 =
    },
    "RF-00006771-PAR": {
       "reference": "RF-00006771-PAR",
-      "name": "6-(hydroxymethyl)-4-{[(E)-pyridin-3-ylmethylene]amino}-4,5-dihydro-1,2,4-triazin-3(2H)-one",
+      "name": "6-hydroxymethyl-pymetrozine",
       "casNumber": null,
-      "otherNames": []
+      "otherNames": [
+         "CGA313124"
+      ]
    },
    "RF-00006809-PAR": {
       "reference": "RF-00006809-PAR",
@@ -2001,7 +2010,7 @@ export const referentielSSD2 =
    },
    "RF-00007588-PAR": {
       "reference": "RF-00007588-PAR",
-      "name": "Sum of chlorpyrifos-methyl and desmethyl chlorpyrifos-methyl",
+      "name": "sum of chlorpyrifos-methyl and desmethyl chlorpyrifos-methyl, expressed as chlorpyrifos-methyl",
       "casNumber": null,
       "otherNames": []
    },
@@ -2266,7 +2275,9 @@ export const referentielSSD2 =
       "reference": "RF-00008904-PAR",
       "name": "Flutianil",
       "casNumber": "958647-10-4",
-      "otherNames": []
+      "otherNames": [
+         "(2Z)-2-[2-fluoro-5-(trifluoromethyl)phenyl]sulfanyl-2-[3-(2-methoxyphenyl)-1,3-thiazolidin-2-ylidene]acetonitrile"
+      ]
    },
    "RF-00008948-PAR": {
       "reference": "RF-00008948-PAR",
@@ -2336,7 +2347,7 @@ export const referentielSSD2 =
    },
    "RF-00009403-PAR": {
       "reference": "RF-00009403-PAR",
-      "name": "White mineral oil with medium viscosity (kinematic viscosity between 8.5 - 11 mm²/s at 100 °C)",
+      "name": "White mineral oil (petroleum)",
       "casNumber": "8042-47-5",
       "otherNames": [
          "white mineral oils, paraffinic, derived from petroleum-based hydrocarbon feedstocks"
@@ -2361,7 +2372,7 @@ export const referentielSSD2 =
    "RF-00009593-PAR": {
       "reference": "RF-00009593-PAR",
       "name": "Z-13-hexadecen-11-yn-1-yl acetate",
-      "casNumber": null,
+      "casNumber": "78617-58-0",
       "otherNames": []
    },
    "RF-00009781-PAR": {
@@ -2579,7 +2590,9 @@ export const referentielSSD2 =
       "reference": "RF-00011610-PAR",
       "name": "Lavandulyl senecioate",
       "casNumber": "23960-07-8",
-      "otherNames": []
+      "otherNames": [
+         "(RS)-5-methyl-2-(prop-1-en-2-yl)hex-4-en-1-yl 3-methylbut-2-enoate"
+      ]
    },
    "RF-00011881-PAR": {
       "reference": "RF-00011881-PAR",
@@ -2596,7 +2609,7 @@ export const referentielSSD2 =
    "RF-00011965-PAR": {
       "reference": "RF-00011965-PAR",
       "name": "Emamectin benzoate B1b",
-      "casNumber": null,
+      "casNumber": "138511-98-5",
       "otherNames": []
    },
    "RF-00011995-PAR": {
@@ -3143,7 +3156,8 @@ export const referentielSSD2 =
       "reference": "RF-00014210-PAR",
       "name": "Pinoxaden metabolite (SYN 505164)",
       "casNumber": "881376-41-6",
-      "otherNames": []
+      "otherNames": [],
+      "deprecated": true
    },
    "RF-00014211-PAR": {
       "reference": "RF-00014211-PAR",
@@ -3603,7 +3617,9 @@ export const referentielSSD2 =
       "reference": "RF-0044-001-PPP",
       "name": "Bifenazate",
       "casNumber": "149877-41-8",
-      "otherNames": []
+      "otherNames": [
+         "propan-2-yl N-(2-methoxy-5-phenylanilino)carbamate"
+      ]
    },
    "RF-0045-001-PPP": {
       "reference": "RF-0045-001-PPP",
@@ -3627,7 +3643,9 @@ export const referentielSSD2 =
       "reference": "RF-0048-001-PPP",
       "name": "Bitertanol (sum of isomers)",
       "casNumber": "55179-31-2",
-      "otherNames": []
+      "otherNames": [
+         "β-([1,1'-biphenyl]-4-yloxy)-α-tert-butyl-1H-1,2,4-triazol-1-ethanol"
+      ]
    },
    "RF-0049-001-PPP": {
       "reference": "RF-0049-001-PPP",
@@ -3756,7 +3774,9 @@ export const referentielSSD2 =
       "reference": "RF-0065-003-PPP",
       "name": "Carbofuran",
       "casNumber": "1563-66-2",
-      "otherNames": []
+      "otherNames": [
+         "2,3-dihydro-2,2-dimethylbenzofuran-7-yl methylcarbamate"
+      ]
    },
    "RF-0067-001-PPP": {
       "reference": "RF-0067-001-PPP",
@@ -3796,9 +3816,12 @@ export const referentielSSD2 =
    },
    "RF-0072-001-PPP": {
       "reference": "RF-0072-001-PPP",
-      "name": "Chlorantraniliprole (DPX E-2Y45)",
+      "name": "Chlorantraniliprole",
       "casNumber": "500008-45-7",
-      "otherNames": []
+      "otherNames": [
+         "3-bromo-N-[4-chloro-2-methyl-6-[(methylamino)carbonyl]phenyl]-1-(3-chloro-2-pyridinyl)-1H-pyrazole-5-carboxamide",
+         "(DPX E-2Y45)"
+      ]
    },
    "RF-0073-001-PPP": {
       "reference": "RF-0073-001-PPP",
@@ -3903,7 +3926,7 @@ export const referentielSSD2 =
    "RF-0086-003-PPP": {
       "reference": "RF-0086-003-PPP",
       "name": "Chlorpropham",
-      "casNumber": null,
+      "casNumber": "101-21-3",
       "otherNames": []
    },
    "RF-0086-004-PPP": {
@@ -4061,7 +4084,7 @@ export const referentielSSD2 =
    "RF-0102-001-PPP": {
       "reference": "RF-0102-001-PPP",
       "name": "Copper",
-      "casNumber": null,
+      "casNumber": "7440-50-8",
       "otherNames": []
    },
    "RF-0103-001-PPP": {
@@ -4088,7 +4111,8 @@ export const referentielSSD2 =
       "reference": "RF-0106-001-PPP",
       "name": "Cycloxydim including degradation and reaction products which can be determined as 3-(3-thianyl)glutaric acid S-dioxide (BH 517-TGSO2) and/or 3-hydroxy-3-(3-thianyl)glutaric acid S-dioxide (BH 517-5-OH-TGSO2) or methyl esters thereof, calculated in total a",
       "casNumber": null,
-      "otherNames": []
+      "otherNames": [],
+      "deprecated": true
    },
    "RF-0106-002-PPP": {
       "reference": "RF-0106-002-PPP",
@@ -4126,11 +4150,9 @@ export const referentielSSD2 =
    },
    "RF-0112-003-PPP": {
       "reference": "RF-0112-003-PPP",
-      "name": "Cypermethrin, beta-",
+      "name": "Beta-cypermethrin",
       "casNumber": "65731-84-2",
-      "otherNames": [
-         "Beta-cypermethrin"
-      ]
+      "otherNames": []
    },
    "RF-0112-004-PPP": {
       "reference": "RF-0112-004-PPP",
@@ -4140,8 +4162,8 @@ export const referentielSSD2 =
    },
    "RF-0112-005-PPP": {
       "reference": "RF-0112-005-PPP",
-      "name": "Cypermethrin, zeta-",
-      "casNumber": null,
+      "name": "Zeta-cypermethrin",
+      "casNumber": "1315501-18-8",
       "otherNames": [
          "Zeta-Cypermethrin"
       ]
@@ -4150,7 +4172,9 @@ export const referentielSSD2 =
       "reference": "RF-0113-001-PPP",
       "name": "Cyproconazole",
       "casNumber": "94361-06-5",
-      "otherNames": []
+      "otherNames": [
+         "(2RS,3RS;2RS,3SR)-2-(4-chlorophenyl)-3-cyclopropyl-1-(1H-1,2,4-triazol-1-yl)butan-2-ol"
+      ]
    },
    "RF-0114-001-PPP": {
       "reference": "RF-0114-001-PPP",
@@ -4194,7 +4218,8 @@ export const referentielSSD2 =
       "otherNames": [
          "Dazomet (Methylisothiocyanate resulting from the use of dazomet and metam)",
          "Dazomet (Methylisothiocyanate resulting from the use of dazomet and metam)"
-      ]
+      ],
+      "deprecated": true
    },
    "RF-0119-001-PPP": {
       "reference": "RF-0119-001-PPP",
@@ -4405,7 +4430,7 @@ export const referentielSSD2 =
    "RF-0140-001-PPP": {
       "reference": "RF-0140-001-PPP",
       "name": "Dimethomorph (sum of isomers)",
-      "casNumber": "110488-70-5",
+      "casNumber": null,
       "otherNames": [
          "Dimethomorph",
          "(2)-3-(4-chlorophenyl)-3-(3,4-dimethoxyphenyl)-1-(morpholin-4-yl)prop-2-en-1-one",
@@ -4712,7 +4737,9 @@ export const referentielSSD2 =
       "reference": "RF-0177-001-PPP",
       "name": "Fenbutatin oxide",
       "casNumber": "13356-08-6",
-      "otherNames": []
+      "otherNames": [
+         "bis[tris(2-methyl-2-phenylpropyl)tin] oxide"
+      ]
    },
    "RF-0178-001-PPP": {
       "reference": "RF-0178-001-PPP",
@@ -4903,7 +4930,9 @@ export const referentielSSD2 =
       "reference": "RF-0199-001-PPP",
       "name": "Flubendiamide",
       "casNumber": "272451-65-7",
-      "otherNames": []
+      "otherNames": [
+         "N2-[1,1-dimethyl-2-(methylsulfonyl)ethyl]-3-iodo-N1-[2-methyl-4-[1,2,2,2-tetrafluoro-1-(trifluoromethyl)ethyl]phenyl]-1,2-benzenedicarboxamide"
+      ]
    },
    "RF-0200-001-PPP": {
       "reference": "RF-0200-001-PPP",
@@ -4947,7 +4976,7 @@ export const referentielSSD2 =
    },
    "RF-0206-001-PPP": {
       "reference": "RF-0206-001-PPP",
-      "name": "Flumioxazine",
+      "name": "Flumioxazin",
       "casNumber": "103361-09-7",
       "otherNames": []
    },
@@ -4987,7 +5016,9 @@ export const referentielSSD2 =
       "reference": "RF-0212-001-PPP",
       "name": "Flupyrsulfuron-methyl",
       "casNumber": "144740-54-5",
-      "otherNames": []
+      "otherNames": [
+         "flupyrsulfuron-methyl-sodium"
+      ]
    },
    "RF-0213-001-PPP": {
       "reference": "RF-0213-001-PPP",
@@ -5009,7 +5040,7 @@ export const referentielSSD2 =
    },
    "RF-0216-001-PPP": {
       "reference": "RF-0216-001-PPP",
-      "name": "Flurprimidole",
+      "name": "Flurprimidol",
       "casNumber": "56425-91-3",
       "otherNames": []
    },
@@ -5056,7 +5087,9 @@ export const referentielSSD2 =
       "reference": "RF-0222-001-PPP",
       "name": "Foramsulfuron",
       "casNumber": "173159-57-4",
-      "otherNames": []
+      "otherNames": [
+         "1-(4,6-dimethoxypyrimidin-2-yl)-3-(2-dimethylcarbamoyl-5-formamidophenylsulfonyl)urea"
+      ]
    },
    "RF-0223-001-PPP": {
       "reference": "RF-0223-001-PPP",
@@ -5294,7 +5327,9 @@ export const referentielSSD2 =
       "reference": "RF-0254-001-PPP",
       "name": "Ipconazole",
       "casNumber": "125225-28-7",
-      "otherNames": []
+      "otherNames": [
+         "(1RS,2SR,5RS;1RS,2SR,5SR)-2-(4-chlorobenzyl)-5-isopropyl-1-(1H-1,2,4-triazol-1-ylmethyl)cyclopentanol"
+      ]
    },
    "RF-0255-001-PPP": {
       "reference": "RF-0255-001-PPP",
@@ -5306,7 +5341,9 @@ export const referentielSSD2 =
       "reference": "RF-0256-001-PPP",
       "name": "Iprovalicarb",
       "casNumber": "140923-17-7",
-      "otherNames": []
+      "otherNames": [
+         "isopropyl [(2S)-3-methyl-1-{[1-(4-methylphenyl)ethyl]amino}-1-oxobutan-2-yl]carbamate"
+      ]
    },
    "RF-0257-001-PPP": {
       "reference": "RF-0257-001-PPP",
@@ -5330,7 +5367,9 @@ export const referentielSSD2 =
       "reference": "RF-0259-002-PPP",
       "name": "Isoxaflutole",
       "casNumber": "141112-29-0",
-      "otherNames": []
+      "otherNames": [
+         "(5-cyclopropyl-4-isoxazolyl)[2-(methylsulfonyl)-4-(trifluoromethyl)phenyl]methanone"
+      ]
    },
    "RF-0260-001-PPP": {
       "reference": "RF-0260-001-PPP",
@@ -5615,7 +5654,9 @@ export const referentielSSD2 =
       "reference": "RF-0299-001-PPP",
       "name": "Metrafenone",
       "casNumber": "220899-03-6",
-      "otherNames": []
+      "otherNames": [
+         "(3-Bromo-6-methoxy-2-methylphenyl)-(2,3,4-trimethoxy-6-methylphenyl)methanone"
+      ]
    },
    "RF-0300-001-PPP": {
       "reference": "RF-0300-001-PPP",
@@ -5697,7 +5738,8 @@ export const referentielSSD2 =
       "reference": "RF-0313-001-PPP",
       "name": "Novaluron",
       "casNumber": "116714-46-6",
-      "otherNames": []
+      "otherNames": [],
+      "deprecated": true
    },
    "RF-0315-001-PPP": {
       "reference": "RF-0315-001-PPP",
@@ -5742,7 +5784,9 @@ export const referentielSSD2 =
       "reference": "RF-0321-001-PPP",
       "name": "Oxasulfuron",
       "casNumber": "144651-06-9",
-      "otherNames": []
+      "otherNames": [
+         "3-oxetanyl 2-[[[[(4,6-dimethyl-2-pyrimidinyl)amino]carbonyl]amino]sulfonyl]benzoate"
+      ]
    },
    "RF-0322-001-PPP": {
       "reference": "RF-0322-001-PPP",
@@ -5954,7 +5998,8 @@ export const referentielSSD2 =
       "reference": "RF-0346-001-PPP",
       "name": "Pinoxaden",
       "casNumber": "243973-20-8",
-      "otherNames": []
+      "otherNames": [],
+      "deprecated": true
    },
    "RF-0347-001-PPP": {
       "reference": "RF-0347-001-PPP",
@@ -6031,18 +6076,16 @@ export const referentielSSD2 =
    "RF-0354-003-PPP": {
       "reference": "RF-0354-003-PPP",
       "name": "N-desmethyl propamocarb",
-      "casNumber": "25606-41-1",
-      "otherNames": [
-         "Propamocarb hydrochloride",
-         "propyl 3-(dimethylamino)propylcarbamate hydrochloride",
-         "propyl (3-(dimethylamino)propyl)carbamate monohydrochloride"
-      ]
+      "casNumber": "1392231-41-2",
+      "otherNames": []
    },
    "RF-0355-001-PPP": {
       "reference": "RF-0355-001-PPP",
       "name": "Propanil",
       "casNumber": "709-98-8",
-      "otherNames": []
+      "otherNames": [
+         "3′,4′-dichloropropionanilide"
+      ]
    },
    "RF-0356-001-PPP": {
       "reference": "RF-0356-001-PPP",
@@ -6482,7 +6525,8 @@ export const referentielSSD2 =
       "reference": "RF-0414-001-PPP",
       "name": "Tetraconazole",
       "casNumber": "112281-77-3",
-      "otherNames": []
+      "otherNames": [],
+      "deprecated": true
    },
    "RF-0415-001-PPP": {
       "reference": "RF-0415-001-PPP",
@@ -6638,7 +6682,7 @@ export const referentielSSD2 =
    "RF-0440-002-PPP": {
       "reference": "RF-0440-002-PPP",
       "name": "Triflumizole",
-      "casNumber": "99387-89-0",
+      "casNumber": "68694-11-1",
       "otherNames": []
    },
    "RF-0441-001-PPP": {
@@ -7005,8 +7049,8 @@ export const referentielSSD2 =
    },
    "RF-0507-001-PPP": {
       "reference": "RF-0507-001-PPP",
-      "name": "Bispyribac",
-      "casNumber": "125401-75-4",
+      "name": "Bispyribac (sum of bispyribac, its salts and its esters, expressed as bispyribac)",
+      "casNumber": null,
       "otherNames": []
    },
    "RF-0508-001-PPP": {
@@ -7816,7 +7860,8 @@ export const referentielSSD2 =
       "reference": "RF-0648-001-PPP",
       "name": "Emamectin benzoate B1a, expressed as emamectin",
       "casNumber": null,
-      "otherNames": []
+      "otherNames": [],
+      "deprecated": true
    },
    "RF-0651-001-PPP": {
       "reference": "RF-0651-001-PPP",
@@ -8391,13 +8436,17 @@ export const referentielSSD2 =
       "reference": "RF-0743-001-PPP",
       "name": "Imazapic",
       "casNumber": "104098-48-8",
-      "otherNames": []
+      "otherNames": [
+         "2-[4,5-dihydro-4-methyl-4-(1-methylethyl)-5-oxo-1H-imidazol-2-yl]-5-methyl-3-pyridinecarboxylic acid"
+      ]
    },
    "RF-0744-001-PPP": {
       "reference": "RF-0744-001-PPP",
       "name": "Imazapyr",
       "casNumber": "81334-34-1",
-      "otherNames": []
+      "otherNames": [
+         "2-[(RS)-4-isopropyl-4-methyl-5-oxo-2-imidazolin-2-yl]nicotinic acid"
+      ]
    },
    "RF-0745-001-PPP": {
       "reference": "RF-0745-001-PPP",
@@ -9926,7 +9975,9 @@ export const referentielSSD2 =
       "reference": "RF-1020-001-PPP",
       "name": "Glyphosate",
       "casNumber": "1071-83-6",
-      "otherNames": []
+      "otherNames": [
+         "N-(Phosphonomethyl)glycine"
+      ]
    },
    "RF-1022-001-PPP": {
       "reference": "RF-1022-001-PPP",
@@ -10110,9 +10161,11 @@ export const referentielSSD2 =
    },
    "RF-1054-001-PPP": {
       "reference": "RF-1054-001-PPP",
-      "name": "Propylethiourea",
+      "name": "Propylenethiourea",
       "casNumber": "2122-19-2",
-      "otherNames": []
+      "otherNames": [
+         "Propylethiourea"
+      ]
    },
    "RF-1055-001-PPP": {
       "reference": "RF-1055-001-PPP",
@@ -10290,6 +10343,132 @@ export const referentielSSD2 =
       "reference": "RF-1078-007-PPP",
       "name": "BAC 18",
       "casNumber": null,
+      "otherNames": []
+   },
+   "RF-00005835-PAR": {
+      "reference": "RF-00005835-PAR",
+      "name": "2-ethylhexyl (2,4-dichlorophenoxy)acetate",
+      "casNumber": "1928-43-4",
+      "otherNames": []
+   },
+   "RF-00006326-PAR": {
+      "reference": "RF-00006326-PAR",
+      "name": "Trifluoroacetic acid",
+      "casNumber": "76-05-1",
+      "otherNames": []
+   },
+   "RF-00006827-PAR": {
+      "reference": "RF-00006827-PAR",
+      "name": "Pinoxaden metabolite (SYN 505164)",
+      "casNumber": "881376-41-6",
+      "otherNames": []
+   },
+   "RF-00008854-PAR": {
+      "reference": "RF-00008854-PAR",
+      "name": "Valifenalate acid (IR5839)",
+      "casNumber": null,
+      "otherNames": []
+   },
+   "RF-00012298-PAR": {
+      "reference": "RF-00012298-PAR",
+      "name": "EDTA",
+      "casNumber": "139-33-3",
+      "otherNames": []
+   },
+   "RF-00013218-PAR": {
+      "reference": "RF-00013218-PAR",
+      "name": "Lemon, ext.",
+      "casNumber": "84929-31-7",
+      "otherNames": []
+   },
+   "RF-00013414-PAR": {
+      "reference": "RF-00013414-PAR",
+      "name": "Fluazaindolizine",
+      "casNumber": "1254304-22-7",
+      "otherNames": []
+   },
+   "RF-00013741-PAR": {
+      "reference": "RF-00013741-PAR",
+      "name": "Yucca schidigera, ext.",
+      "casNumber": "223749-05-1",
+      "otherNames": []
+   },
+   "RF-00014539-PAR": {
+      "reference": "RF-00014539-PAR",
+      "name": "RPA 104615",
+      "casNumber": "209248-72-6",
+      "otherNames": [
+         "5-amino-3-cyano-1-[2,6-dichloro-4-(trifluoromethyl)phenyl]-1H-pyrazole-4-sulfonic acid"
+      ]
+   },
+   "RF-00014542-PAR": {
+      "reference": "RF-00014542-PAR",
+      "name": "Ethylene Chlorobromide",
+      "casNumber": "107-04-0",
+      "otherNames": []
+   },
+   "RF-00014543-PAR": {
+      "reference": "RF-00014543-PAR",
+      "name": "p-Chloronitrobenzene",
+      "casNumber": "100-00-5",
+      "otherNames": [
+         "p-Nitrochlorobenzene"
+      ]
+   },
+   "RF-00014544-PAR": {
+      "reference": "RF-00014544-PAR",
+      "name": "Tetrachlorethane",
+      "casNumber": "79-34-5",
+      "otherNames": []
+   },
+   "RF-00014551-PAR": {
+      "reference": "RF-00014551-PAR",
+      "name": "Iprodione metabolite",
+      "casNumber": "27387-87-7",
+      "otherNames": []
+   },
+   "RF-00014552-PAR": {
+      "reference": "RF-00014552-PAR",
+      "name": "Imiprothrin",
+      "casNumber": "72963-72-5",
+      "otherNames": []
+   },
+   "RF-00015306-PAR": {
+      "reference": "RF-00015306-PAR",
+      "name": "Potassium permanganate",
+      "casNumber": "7722-64-7",
+      "otherNames": []
+   },
+   "RF-00015695-PAR": {
+      "reference": "RF-00015695-PAR",
+      "name": "Sum of metalaxyl (sum of enantiomers) and metabolites (free + conjugated) M3 (N- (2,6-dimethylphenyl)-N-(hydroxyacetyl)alanine methyl ester) and M8 (N-(2-hydroxymethyl-6- methylphenyl)-N-(methoxyacetyl)alanine methyl ester (sum of enantiomers), expressed as metalaxyl",
+      "casNumber": null,
+      "otherNames": []
+   },
+   "RF-00015696-PAR": {
+      "reference": "RF-00015696-PAR",
+      "name": "Metalaxyl Metabolite M3",
+      "casNumber": "66637-79-4",
+      "otherNames": []
+   },
+   "RF-00015697-PAR": {
+      "reference": "RF-00015697-PAR",
+      "name": "Metalaxyl Metabolite M8",
+      "casNumber": "85933-49-9",
+      "otherNames": []
+   },
+   "RF-0203-002-PPP": {
+      "reference": "RF-0203-002-PPP",
+      "name": "Flufenacet",
+      "casNumber": "142459-58-3",
+      "otherNames": [
+         "N-(4-fluorophenyl)-N-(1-methylethyl)-2-[[5-(trifluoromethyl)-1,3,4-thiadiazol-2-yl]oxy]acetamide"
+      ]
+   },
+   "RF-0649-001-PPP": {
+      "reference": "RF-0649-001-PPP",
+      "name": "Emamectin B1a",
+      "casNumber": "121124-29-6",
       "otherNames": []
    }
 } as const satisfies Record<string, { reference:string, name: string, casNumber: string | null, otherNames: string[], deprecated?: true}>
