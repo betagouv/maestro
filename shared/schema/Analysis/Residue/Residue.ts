@@ -8,7 +8,7 @@ import { ResidueCompliance } from './ResidueCompliance';
 import { ResidueKind } from './ResidueKind';
 import { ResultKind } from './ResultKind';
 
-export const Residue = z.object({
+const ResidueBase = z.object({
   analysisId: z.string().uuid(),
   residueNumber: z.number().int().positive(),
   analysisMethod: AnalysisMethod,
@@ -28,11 +28,25 @@ export const Residue = z.object({
   pollutionRisk: OptionalBoolean.nullish(),
   notesOnPollutionRisk: z.string().nullish(),
   compliance: ResidueCompliance,
+  otherCompliance: z.string().nullish(),
   analytes: z.array(Analyte).nullish()
 });
 
-export const PartialResidue = Residue.partial().merge(
-  Residue.pick({
+export const Residue = ResidueBase.refine(
+  (data) => {
+    if (data.compliance === 'Other') {
+      return data.otherCompliance;
+    }
+    return true;
+  },
+  {
+    message: 'Veuillez préciser la conformité la conformité “Autre”.',
+    path: ['otherCompliance']
+  }
+);
+
+export const PartialResidue = ResidueBase.partial().merge(
+  ResidueBase.pick({
     analysisId: true,
     residueNumber: true
   }).merge(

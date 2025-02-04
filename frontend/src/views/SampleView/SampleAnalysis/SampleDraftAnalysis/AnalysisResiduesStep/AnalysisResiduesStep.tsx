@@ -42,6 +42,7 @@ import { undefined } from 'zod';
 import check from '../../../../../assets/illustrations/check.svg';
 import close from '../../../../../assets/illustrations/close.svg';
 import warning from '../../../../../assets/illustrations/warning.svg';
+import AppTextAreaInput from '../../../../../components/_app/AppTextAreaInput/AppTextAreaInput';
 import '../SampleDraftAnalysis.scss';
 interface Props {
   partialAnalysis: PartialAnalysis;
@@ -400,7 +401,8 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
                                 changeResidue(
                                   {
                                     ...residue,
-                                    compliance: value as ResidueCompliance
+                                    compliance: value as ResidueCompliance,
+                                    otherCompliance: null
                                   },
                                   residueIndex
                                 )
@@ -425,6 +427,30 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
                           required
                         />
                       </div>
+                      {residue.compliance === 'Other' && (
+                        <div className={cx('fr-col-12')}>
+                          <AppTextAreaInput<FormShape>
+                            rows={1}
+                            defaultValue={residue.otherCompliance ?? ''}
+                            onChange={(e) =>
+                              changeResidue(
+                                {
+                                  ...residue,
+                                  otherCompliance: e.target.value
+                                },
+                                residueIndex
+                              )
+                            }
+                            inputForm={form}
+                            inputKey="residues"
+                            inputPathFromKey={[residueIndex, 'otherCompliance']}
+                            whenValid="Valeur correctement renseignée"
+                            label="Précisions supplémentaires"
+                            hintText="Champ obligatoire pour expliquer la conformité “Autre”"
+                            required
+                          />
+                        </div>
+                      )}
                     </div>
                   </>
                 )}
