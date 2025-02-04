@@ -1,5 +1,7 @@
 import ExcelJS from 'exceljs';
 import path from 'path';
+import { readFileSync } from 'fs';
+import { writeFileSync } from 'node:fs';
 
 const updateSSD2Referential = async () => {
 
@@ -7,7 +9,7 @@ const updateSSD2Referential = async () => {
 
 
   let workbook = new ExcelJS.Workbook();
-  const filePath = path.join(import.meta.dirname,  "PARAM.xlsx")
+  const filePath = "./PARAM.xlsx"
   workbook = await workbook.xlsx.readFile(filePath, {
     ignoreNodes: [
       "sheetPr",
@@ -81,10 +83,24 @@ const updateSSD2Referential = async () => {
       })
     }
   });
-  console.log(rows);
-  console.log(worksheet.rowCount)
 
+  const ssd2File = path.join(process.cwd(), '../shared/referential/Residue/ssd2.ts')
+  const data = readFileSync(ssd2File, {
+    encoding: 'utf-8',
+  })
 
+  const startComment = '// ----- ne pas supprimer cette ligne : début'
+  const stopComment = '// ----- ne pas supprimer cette ligne : fin'
+  const startIndex = data.indexOf(startComment)
+  const preCode = data.slice(0, startIndex + startComment.length + 1)
+  const postCode = data.slice(data.indexOf(stopComment) - 116)
+
+  const code = JSON.stringify(rows.reduce((acc, r) => {
+    acc[r.reference] = r
+    return acc
+  }, {} as Record<string, unknown>), null, 3)
+
+  writeFileSync(ssd2File, preCode + code + postCode)
 
 
 };
