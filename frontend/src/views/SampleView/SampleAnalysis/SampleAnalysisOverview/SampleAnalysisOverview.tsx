@@ -286,6 +286,11 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
                   )}
                 />
                 Conformité du résidu <b>autre</b>
+                {residue.otherCompliance && (
+                  <div className={cx('fr-pl-4w')}>
+                    <b>{quote(residue.otherCompliance)}</b>
+                  </div>
+                )}
               </div>
             )}
           </div>
