@@ -1,6 +1,6 @@
 
 
-const referentielSSD2 = 
+export const referentielSSD2 =
 // ----- ne pas supprimer cette ligne : début
 {
    "RF-00000007-PAR": {
@@ -10292,7 +10292,7 @@ const referentielSSD2 =
       "casNumber": null,
       "otherNames": []
    }
-} as const satisfies Record<string, { reference:string, name: string, casNumber: string | null, otherNames: string[]}>
+} as const satisfies Record<string, { reference:string, name: string, casNumber: string | null, otherNames: string[], deprecated?: true}>
 // ----- ne pas supprimer cette ligne : fin
 
 const values = Object.values(referentielSSD2)
