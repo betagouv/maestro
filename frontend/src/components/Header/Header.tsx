@@ -10,6 +10,7 @@ import { useAppSelector } from 'src/hooks/useStore';
 import { useLogoutMutation } from 'src/services/auth.service';
 import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.service';
 import logo from '../../assets/logo.svg';
+import config from '../../utils/config';
 
 const Header = () => {
   const location = useLocation();
@@ -136,28 +137,36 @@ const Header = () => {
           ]
         : []
       ).filter(isDefined)}
-      quickAccessItems={
-        isAuthenticated
-          ? [
-              <div>
-                {user?.roles.map((role) => (
-                  <div key={role} className={cx('fr-text--sm', 'fr-mr-2w')}>
-                    {UserRoleLabels[role]}
-                  </div>
-                ))}
-                <Button
-                  iconId="fr-icon-logout-box-r-line"
-                  onClick={async () => {
-                    const logoutRedirectUrl = await logout().unwrap();
-                    window.location.href = logoutRedirectUrl.url;
-                  }}
-                >
-                  Se déconnecter
-                </Button>
+      quickAccessItems={[
+        {
+          iconId: 'fr-icon-question-fill' as const,
+          buttonProps: {
+            onClick: () => {
+              window.open(`${config.websiteUrl}/aides`);
+            }
+          },
+          text: 'Aides'
+        },
+        isAuthenticated ? (
+          <div>
+            <Button
+              iconId="fr-icon-logout-box-r-line"
+              onClick={async () => {
+                const logoutRedirectUrl = await logout().unwrap();
+                window.location.href = logoutRedirectUrl.url;
+              }}
+              className={cx('fr-mb-0')}
+            >
+              Se déconnecter
+            </Button>
+            {user?.roles.map((role) => (
+              <div key={role} className={cx('fr-text--sm', 'fr-mr-2w')}>
+                {UserRoleLabels[role]}
               </div>
-            ].filter(isDefined)
-          : []
-      }
+            ))}
+          </div>
+        ) : undefined
+      ].filter(isDefined)}
     />
   );
 };
