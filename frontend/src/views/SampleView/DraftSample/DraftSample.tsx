@@ -18,6 +18,7 @@ import MatrixStep from 'src/views/SampleView/DraftSample/MatrixStep/MatrixStep';
 import SendingStep from 'src/views/SampleView/DraftSample/SendingStep/SendingStep';
 import { SampleStepTitles } from 'src/views/SampleView/SampleView';
 import audit from '../../../assets/illustrations/audit.svg';
+import { useSamplesLink } from '../../../hooks/useSamplesLink';
 import '../SampleView.scss';
 
 interface Props {
@@ -26,6 +27,7 @@ interface Props {
 
 const SampleView = ({ sample }: Props) => {
   useDocumentTitle("Saisie d'un prélèvement");
+  const { getSampleStepParam } = useSamplesLink();
 
   const { hasUserPermission } = useAuthentication();
 
@@ -41,11 +43,7 @@ const SampleView = ({ sample }: Props) => {
 
   useEffect(() => {
     if (sample) {
-      if (searchParams.get('etape')) {
-        setStep(Number(searchParams.get('etape')));
-      } else {
-        setStep(SampleStatusSteps[sample.status]);
-      }
+      setStep(getSampleStepParam() ?? SampleStatusSteps[sample.status]);
     } else {
       setStep(1);
     }

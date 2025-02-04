@@ -9,6 +9,7 @@ import { useGetSampleAnalysisQuery } from 'src/services/analysis.service';
 import AnalysisComplianceStep from 'src/views/SampleView/SampleAnalysis/SampleDraftAnalysis/AnalysisComplianceStep/AnalysisComplianceStep';
 import AnalysisReportStep from 'src/views/SampleView/SampleAnalysis/SampleDraftAnalysis/AnalysisReportStep/AnalysisReportStep';
 import AnalysisResiduesStep from 'src/views/SampleView/SampleAnalysis/SampleDraftAnalysis/AnalysisResiduesStep/AnalysisResiduesStep';
+import { useSamplesLink } from '../../../../hooks/useSamplesLink';
 
 export const AnalysisStepTitles = [
   'Rapport d’analyse',
@@ -27,6 +28,7 @@ export const AnalysisStatusSteps: Partial<Record<AnalysisStatus, number>> = {
 };
 
 const SampleDraftAnalysis = ({ sample }: Props) => {
+  const { getSampleStepParam } = useSamplesLink();
   const { data: partialAnalysis, isFetching } = useGetSampleAnalysisQuery(
     sample.id
   );
@@ -37,11 +39,9 @@ const SampleDraftAnalysis = ({ sample }: Props) => {
   useEffect(() => {
     if (!isFetching) {
       if (partialAnalysis) {
-        if (searchParams.get('etape')) {
-          setStep(Number(searchParams.get('etape')));
-        } else {
-          setStep(AnalysisStatusSteps[partialAnalysis.status]);
-        }
+        setStep(
+          getSampleStepParam() ?? AnalysisStatusSteps[partialAnalysis.status]
+        );
       } else {
         setStep(1);
       }
