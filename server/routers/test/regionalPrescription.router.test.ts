@@ -82,7 +82,13 @@ describe('Regional prescriptions router', () => {
     matrix: oneOf(MatrixList),
     stages: [oneOf(StageList)]
   });
-  const submittedControlPrescription = genPrescription({
+  const submittedControlPrescription1 = genPrescription({
+    programmingPlanId: programmingPlanSubmitted.id,
+    context: 'Control',
+    matrix: oneOf(MatrixList),
+    stages: [oneOf(StageList)]
+  });
+  const submittedControlPrescription2 = genPrescription({
     programmingPlanId: programmingPlanSubmitted.id,
     context: 'Control',
     matrix: oneOf(MatrixList),
@@ -104,12 +110,21 @@ describe('Regional prescriptions router', () => {
         laboratoryId: laboratory.id
       })
     }));
-  const submittedControlRegionalPrescriptions: RegionalPrescription[] =
+  const submittedControlRegionalPrescriptions1: RegionalPrescription[] =
     RegionList.map((region) => ({
       ...genRegionalPrescription({
-        prescriptionId: submittedControlPrescription.id,
+        prescriptionId: submittedControlPrescription1.id,
         region,
         laboratoryId: laboratory.id
+      })
+    }));
+  const submittedControlRegionalPrescriptions2: RegionalPrescription[] =
+    RegionList.map((region) => ({
+      ...genRegionalPrescription({
+        prescriptionId: submittedControlPrescription2.id,
+        region,
+        laboratoryId: laboratory.id,
+        sampleCount: 0
       })
     }));
   const closedControlPrescriptionComment: RegionalPrescriptionComment = {
@@ -139,13 +154,15 @@ describe('Regional prescriptions router', () => {
     await Prescriptions().insert([
       closedControlPrescription,
       validatedControlPrescription,
-      submittedControlPrescription
+      submittedControlPrescription1,
+      submittedControlPrescription2
     ]);
     await RegionalPrescriptions().insert(
       [
         ...closedControlRegionalPrescriptions,
         ...validatedControlRegionalPrescriptions,
-        ...submittedControlRegionalPrescriptions
+        ...submittedControlRegionalPrescriptions1,
+        ...submittedControlRegionalPrescriptions2
       ].map((_) => fp.omit('realizedSampleCount')(_))
     );
     await RegionalPrescriptionComments().insert([
@@ -220,9 +237,10 @@ describe('Regional prescriptions router', () => {
 
       expect(res.body).toMatchObject(
         expect.arrayContaining(
-          submittedControlRegionalPrescriptions.map(
-            fp.omit('realizedSampleCount')
-          )
+          [
+            ...submittedControlRegionalPrescriptions1,
+            ...submittedControlRegionalPrescriptions2
+          ].map(fp.omit('realizedSampleCount'))
         )
       );
       expect(res.body).not.toMatchObject(
@@ -232,7 +250,7 @@ describe('Regional prescriptions router', () => {
       );
     });
 
-    test('should find the regional prescriptions of the programmingPlan with Control context for a regional role', async () => {
+    test('should find the non empty regional prescriptions of the programmingPlan with Control context for a regional role', async () => {
       const res = await request(app)
         .get(testRoute)
         .query({
@@ -243,7 +261,7 @@ describe('Regional prescriptions router', () => {
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toEqual(
-        submittedControlRegionalPrescriptions
+        submittedControlRegionalPrescriptions1
           .filter(({ region }) => region === RegionalCoordinator.region)
           .map(fp.omit('realizedSampleCount'))
       );
@@ -297,11 +315,11 @@ describe('Regional prescriptions router', () => {
       laboratoryId: LaboratoryFixture.id
     };
     const submittedRegionalPrescription =
-      submittedControlRegionalPrescriptions.find((regionalPrescription) =>
+      submittedControlRegionalPrescriptions1.find((regionalPrescription) =>
         isEqual(
           RegionalPrescriptionKey.parse(regionalPrescription),
           RegionalPrescriptionKey.parse({
-            prescriptionId: submittedControlPrescription.id,
+            prescriptionId: submittedControlPrescription1.id,
             region: RegionalCoordinator.region as Region
           })
         )
@@ -326,7 +344,7 @@ describe('Regional prescriptions router', () => {
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await request(app)
-        .put(testRoute(submittedControlPrescription.id, 'invalid'))
+        .put(testRoute(submittedControlPrescription1.id, 'invalid'))
         .send(submittedRegionalPrescriptionUpdate)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
@@ -497,8 +515,8 @@ describe('Regional prescriptions router', () => {
       ) as RegionalPrescription;
 
     const regionalSubmittedPrescription = getRegionalPrescription(
-      submittedControlRegionalPrescriptions,
-      submittedControlPrescription.id,
+      submittedControlRegionalPrescriptions1,
+      submittedControlPrescription1.id,
       RegionalCoordinator.region as Region
     );
 
@@ -551,8 +569,8 @@ describe('Regional prescriptions router', () => {
         .post(
           testRoute(
             getRegionalPrescription(
-              submittedControlRegionalPrescriptions,
-              submittedControlPrescription.id,
+              submittedControlRegionalPrescriptions1,
+              submittedControlPrescription1.id,
               Region2Fixture
             ).prescriptionId,
             Region2Fixture

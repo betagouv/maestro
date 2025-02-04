@@ -53,10 +53,9 @@ const findMany = async (
     .where(`${prescriptionsTable}.context`, findOptions.context)
     .modify((builder) => {
       if (findOptions.region) {
-        builder.where(
-          `${regionalPrescriptionsTable}.region`,
-          findOptions.region
-        );
+        builder
+          .where(`${regionalPrescriptionsTable}.region`, findOptions.region)
+          .andWhereNot(`${regionalPrescriptionsTable}.sampleCount`, 0);
       }
     })
     .modify(include(findOptions))
