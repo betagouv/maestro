@@ -1,7 +1,7 @@
 import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
@@ -48,7 +48,7 @@ const RegionalPrescriptionCard = ({
           <div className={cx('fr-card__content')}>
             <h3 className={clsx(cx('fr-card__title'), 'd-flex-align-center')}>
               <div className="flex-grow-1">
-                {MatrixLabels[prescription.matrix]}
+                {MatrixKindLabels[prescription.matrixKind]}
               </div>
               {hasUserRegionalPrescriptionPermission(
                 programmingPlan,

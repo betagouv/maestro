@@ -12,7 +12,7 @@ export type PrescriptionOptionsInclude = z.infer<
 export const FindPrescriptionOptions = z.object({
   programmingPlanId: z.string().uuid(),
   context: Context,
-  matrix: z.string().nullish(),
+  matrixKind: z.string().nullish(),
   stage: Stage.nullish(),
   includes: z
     .union([

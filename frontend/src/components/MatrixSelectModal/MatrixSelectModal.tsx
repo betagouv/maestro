@@ -5,12 +5,12 @@ import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import { Autocomplete } from '@mui/material';
 import { isNil } from 'lodash-es';
 import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
-import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
-import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
 import {
   MatrixKindLabels,
   MatrixKindList
-} from 'maestro-shared/referential/MatrixKind';
+} from 'maestro-shared/referential/Matrix/MatrixKind';
+import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
 import React, { useState } from 'react';
 interface AddMatrixProps {
   excludedMatrixList: Matrix[];

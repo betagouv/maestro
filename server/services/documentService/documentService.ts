@@ -6,7 +6,7 @@ import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMi
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
-import { MatrixPartLabels } from 'maestro-shared/referential/MatrixPart';
+import { MatrixPartLabels } from 'maestro-shared/referential/Matrix/MatrixPart';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
 import { Regions } from 'maestro-shared/referential/Region';
 import { StageLabels } from 'maestro-shared/referential/Stage';

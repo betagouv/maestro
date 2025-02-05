@@ -313,7 +313,7 @@ describe('ProgrammingPlan router', () => {
             id: expect.any(String),
             context: 'Control',
             programmingPlanId: res.body.id,
-            matrix: controlPrescriptionValidatedPlan.matrix,
+            matrixKind: controlPrescriptionValidatedPlan.matrixKind,
             stages: controlPrescriptionValidatedPlan.stages,
             notes: null
           }
@@ -329,7 +329,7 @@ describe('ProgrammingPlan router', () => {
             id: expect.any(String),
             context: 'Surveillance',
             programmingPlanId: res.body.id,
-            matrix: surveillancePrescriptionValidatedPlan.matrix,
+            matrixKind: surveillancePrescriptionValidatedPlan.matrixKind,
             stages: surveillancePrescriptionValidatedPlan.stages,
             notes: null
           }

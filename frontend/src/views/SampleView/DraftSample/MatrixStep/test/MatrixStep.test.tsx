@@ -2,7 +2,6 @@ import { configureStore, Store } from '@reduxjs/toolkit';
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { CultureKindList } from 'maestro-shared/referential/CultureKind';
-import { MatrixPartList } from 'maestro-shared/referential/MatrixPart';
 import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import {
@@ -12,6 +11,7 @@ import {
 import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
+import { MatrixPartList } from 'shared/referential/Matrix/MatrixPart';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import config from 'src/utils/config';
 import MatrixStep from 'src/views/SampleView/DraftSample/MatrixStep/MatrixStep';

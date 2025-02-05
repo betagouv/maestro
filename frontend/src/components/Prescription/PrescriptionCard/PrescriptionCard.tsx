@@ -3,7 +3,7 @@ import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import clsx from 'clsx';
 import { t } from 'i18next';
 import _ from 'lodash';
-import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, RegionList } from 'maestro-shared/referential/Region';
 import { Stage } from 'maestro-shared/referential/Stage';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
@@ -56,7 +56,7 @@ const PrescriptionCard = ({
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             <div className={cx('fr-col-12', 'fr-col-md-5')}>
               <h3 className={cx('fr-card__title')}>
-                {MatrixLabels[prescription.matrix]}
+                {MatrixKindLabels[prescription.matrixKind]}
               </h3>
               <hr className={cx('fr-mt-2w', 'fr-mb-3w')} />
               <Tabs

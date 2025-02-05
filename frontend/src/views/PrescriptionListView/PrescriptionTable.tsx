@@ -2,7 +2,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
 import clsx from 'clsx';
 import _ from 'lodash';
-import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, RegionList } from 'maestro-shared/referential/Region';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -58,7 +58,7 @@ const PrescriptionTable = ({
           data-testid={`matrix-${prescription.matrix}`}
           key={`matrix-${prescription.matrix}`}
         >
-          {MatrixLabels[prescription.matrix]}
+          {MatrixKindLabels[prescription.matrixKind]}
         </div>,
         <div
           className={clsx(cx('fr-text--bold'), 'border-left', 'sample-count')}

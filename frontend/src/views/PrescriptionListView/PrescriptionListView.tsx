@@ -3,7 +3,7 @@ import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import clsx from 'clsx';
 import _, { default as fp } from 'lodash';
 import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
-import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, Regions } from 'maestro-shared/referential/Region';
 import { Stage } from 'maestro-shared/referential/Stage';
 import {
@@ -120,7 +120,7 @@ const PrescriptionListView = () => {
     return allPrescriptions
       ?.filter((p) =>
         matrixQuery
-          ? MatrixLabels[p.matrix]
+          ? MatrixKindLabels[p.matrixKind]
               .toLowerCase()
               .includes(matrixQuery.toLowerCase())
           : true

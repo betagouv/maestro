@@ -3,7 +3,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { skipToken } from '@reduxjs/toolkit/query';
 import { CultureKindLabels } from 'maestro-shared/referential/CultureKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
-import { MatrixPartLabels } from 'maestro-shared/referential/MatrixPart';
+import { MatrixPartLabels } from 'maestro-shared/referential/Matrix/MatrixPart';
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import {
   Sample,
