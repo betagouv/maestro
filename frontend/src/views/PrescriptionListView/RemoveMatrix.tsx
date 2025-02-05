@@ -1,23 +1,25 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
-import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
-import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+import {
+  MatrixKind,
+  MatrixKindLabels
+} from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Stage, StageLabels } from 'maestro-shared/referential/Stage';
 import React, { useMemo } from 'react';
 interface RemoveMatrixProps {
-  matrix: Matrix;
+  matrixKind: MatrixKind;
   stages: Stage[];
   onRemove: () => Promise<void>;
 }
 
-const RemoveMatrix = ({ matrix, stages, onRemove }: RemoveMatrixProps) => {
+const RemoveMatrix = ({ matrixKind, stages, onRemove }: RemoveMatrixProps) => {
   const removeModal = useMemo(
     () =>
       createModal({
-        id: `remove-modal-${matrix}-${stages}`,
+        id: `remove-modal-${matrixKind}-${stages}`,
         isOpenedByDefault: false
       }),
-    [matrix, stages]
+    [matrixKind, stages]
   );
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
@@ -52,7 +54,7 @@ const RemoveMatrix = ({ matrix, stages, onRemove }: RemoveMatrixProps) => {
         Êtes-vous sûr de vouloir supprimer cette ligne ?
         <ul>
           <li>
-            <b>Matrice</b> : {MatrixLabels[matrix]}
+            <b>Matrice</b> : {MatrixKindLabels[matrixKind]}
           </li>
           <li>
             <b>Stade(s) de prélèvement</b> :{' '}

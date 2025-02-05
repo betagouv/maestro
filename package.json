@@ -12,6 +12,7 @@
     "npm": "10"
   },
   "scripts": {
+    "build": "npm run build --workspaces",
     "start-local": "run-p server-local frontend-local",
     "server-local": "npm run dev -w server",
     "frontend-local": "npm run dev -w frontend",

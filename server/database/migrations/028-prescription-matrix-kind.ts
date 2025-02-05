@@ -1,5 +1,11 @@
 import { Knex } from 'knex';
 export const up = async (knex: Knex) => {
+  await knex.schema.alterTable('samples', (table) => {
+    table.string('matrix_kind');
+  });
+
+  await knex('samples').update({ matrix_kind: knex.raw('matrix') });
+
   await knex.schema.alterTable('prescriptions', (table) => {
     table.renameColumn('matrix', 'matrix_kind');
   });
@@ -32,12 +38,10 @@ export const up = async (knex: Knex) => {
 
   await Promise.all(
     changes.map(([matrixKind, oldMatrixKind]) =>
-      knex('prescriptions')
-        .update({ matrix_kind: matrixKind })
-        .where({
-          matrix_kind: oldMatrixKind,
-          programming_plan_id: lastProgrammingPlanId.id
-        })
+      knex('prescriptions').update({ matrix_kind: matrixKind }).where({
+        matrix_kind: oldMatrixKind,
+        programming_plan_id: lastProgrammingPlanId.id
+      })
     )
   );
 };

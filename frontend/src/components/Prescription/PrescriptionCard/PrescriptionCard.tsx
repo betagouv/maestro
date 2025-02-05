@@ -118,7 +118,7 @@ const PrescriptionCard = ({
                 </span>
                 {hasUserPrescriptionPermission(programmingPlan)?.delete && (
                   <RemoveMatrix
-                    matrix={prescription.matrix}
+                    matrixKind={prescription.matrixKind}
                     stages={prescription.stages}
                     onRemove={() => removeMatrix(prescription.id)}
                   />

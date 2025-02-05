@@ -4,6 +4,7 @@ import Select from '@codegouvfr/react-dsfr/Select';
 import { default as _ } from 'lodash';
 import { Matrix, MatrixList } from 'maestro-shared/referential/Matrix/Matrix';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
@@ -45,7 +46,9 @@ const SamplePrimaryFilters = ({
                 !filters.programmingPlanId ||
                 !filters.context ||
                 !prescriptions ||
-                prescriptions.find((p) => p.matrix === matrix)
+                prescriptions.find((p) =>
+                  MatrixListByKind[p.matrixKind].includes(matrix)
+                )
             ),
             {
               labels: MatrixLabels,

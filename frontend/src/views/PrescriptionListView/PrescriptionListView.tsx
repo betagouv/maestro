@@ -2,8 +2,10 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import clsx from 'clsx';
 import _, { default as fp } from 'lodash';
-import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
-import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
+import {
+  MatrixKind,
+  MatrixKindLabels
+} from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, Regions } from 'maestro-shared/referential/Region';
 import { Stage } from 'maestro-shared/referential/Stage';
 import {
@@ -160,11 +162,11 @@ const PrescriptionListView = () => {
   );
 
   const addMatrix = useCallback(
-    async (programmingPlanId: string, matrix: Matrix) => {
+    async (programmingPlanId: string, matrixKind: MatrixKind) => {
       await addPrescription({
         programmingPlanId,
         context: prescriptionListContext,
-        matrix,
+        matrixKind,
         stages: []
       });
     },
@@ -354,7 +356,9 @@ const PrescriptionListView = () => {
                   programmingPlan={programmingPlan}
                   findPrescriptionOptions={findPrescriptionOptions}
                   prescriptions={prescriptions}
-                  addMatrix={(matrix) => addMatrix(programmingPlan.id, matrix)}
+                  addMatrixKind={(matrixKind) =>
+                    addMatrix(programmingPlan.id, matrixKind)
+                  }
                   sampleCount={_.sumBy(regionalPrescriptions, 'sampleCount')}
                   hasGroupedUpdatePermission={regionalPrescriptions.some(
                     (regionalPrescription) =>

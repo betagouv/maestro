@@ -55,14 +55,14 @@ const PrescriptionTable = ({
       prescriptions.map((prescription) => [
         <div
           className={cx('fr-text--bold')}
-          data-testid={`matrix-${prescription.matrix}`}
-          key={`matrix-${prescription.matrix}`}
+          data-testid={`matrix-${prescription.matrixKind}`}
+          key={`matrix-${prescription.matrixKind}`}
         >
           {MatrixKindLabels[prescription.matrixKind]}
         </div>,
         <div
           className={clsx(cx('fr-text--bold'), 'border-left', 'sample-count')}
-          key={`total-${prescription.matrix}`}
+          key={`total-${prescription.matrixKind}`}
         >
           <div>
             {_.sumBy(
@@ -93,8 +93,8 @@ const PrescriptionTable = ({
           .map((regionalPrescription) => (
             <div
               className="border-left"
-              data-testid={`cell-${prescription.matrix}`}
-              key={`cell-${prescription.matrix}-${regionalPrescription.region}`}
+              data-testid={`cell-${prescription.matrixKind}`}
+              key={`cell-${prescription.matrixKind}-${regionalPrescription.region}`}
             >
               <RegionalPrescriptionCountCell
                 programmingPlan={programmingPlan}

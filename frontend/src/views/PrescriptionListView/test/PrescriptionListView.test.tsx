@@ -156,13 +156,13 @@ describe('PrescriptionListView', () => {
       ).toBeInTheDocument();
 
       expect(
-        await screen.findByTestId(`matrix-${prescription1.matrix}`)
+        await screen.findByTestId(`matrix-${prescription1.matrixKind}`)
       ).toBeInTheDocument();
       expect(
-        await screen.findByTestId(`matrix-${prescription2.matrix}`)
+        await screen.findByTestId(`matrix-${prescription2.matrixKind}`)
       ).toBeInTheDocument();
       expect(
-        await screen.findAllByTestId(`cell-${prescription1.matrix}`)
+        await screen.findAllByTestId(`cell-${prescription1.matrixKind}`)
       ).toHaveLength(RegionList.length);
 
       expect(

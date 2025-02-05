@@ -106,7 +106,7 @@ const SampleCard = ({ sample }: Props) => {
                 ></span>
                 {ContextLabels[sample.context]}
               </span>
-              {sample.matrix && (
+              {sample.matrixKind && (
                 <span className="icon-text">
                   <span
                     className={cx('fr-icon-restaurant-line', 'fr-icon--sm')}
