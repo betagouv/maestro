@@ -1,13 +1,14 @@
 import { z } from 'zod';
 import {
   ExportAnalysis,
-  ExportDataFromEmail,
+  ExportDataFromEmail, ExportDataSubstance,
   ExtractError,
   IsSender,
   LaboratoryConf
 } from './index';
 import { csvToJson } from './utils';
 import { groupBy } from 'lodash-es';
+import { OmitDistributive } from 'maestro-shared/utils/typescript';
 
 //TODO AUTO_LABO en attente de la réception du 1er email + test
 const isSender: IsSender = (_emailSender) => true;
@@ -15,7 +16,7 @@ const isSender: IsSender = (_emailSender) => true;
 
 // Visible for testing
 export const extractAnalyzes = (
-  fileContent: Record<string, string | undefined>[]
+  fileContent: Record<string, string>[]
 ): Omit<ExportAnalysis, 'pdfFile'>[] => {
 
   const fileValidator = z.array(z.object({
@@ -56,10 +57,40 @@ export const extractAnalyzes = (
       notes: '',
       residues: []
     }
+
+    for(const residue of resultsBySample[sampleReference]){
+      if (
+        residue.RESULTAT_VALTEXTE !== 'nd' &&
+        residue.RESULTAT_VALTEXTE !== '0'
+      ) {
+
+
+        const result: OmitDistributive<ExportDataSubstance, 'residue'> = residue.RESULTAT_VALTEXTE === 'd, NQ' ? {
+          result_kind: 'NQ',
+          result: null,
+          lmr: null
+          } : {
+          result_kind: 'Q',
+          result: residue.RESULTAT_VALNUM,
+          lmr: residue.LMR_NUM
+        }
+        analysis.residues.push({
+          residue: {
+            kind: 'SimpleResidue',
+            reference: 'RF-0002-001-PPP'
+          },
+          ...result
+        })
+      }
+    }
+
     result.push(analysis)
   }
 
-  return result
+  console.log(JSON.stringify(result.filter(r => r.residues.length), null, 2))
+
+  //FIXME
+  return []
 
 };
 
