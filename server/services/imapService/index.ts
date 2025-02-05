@@ -1,8 +1,5 @@
 import { ImapFlow } from 'imapflow';
 import { isNull } from 'lodash-es';
-import { Analyte } from 'maestro-shared/referential/Residue/Analyte';
-import { ComplexResidue } from 'maestro-shared/referential/Residue/ComplexResidue';
-import { SimpleResidue } from 'maestro-shared/referential/Residue/SimpleResidue';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { ParsedMail, simpleParser } from 'mailparser';
 import config from '../../utils/config';
@@ -11,6 +8,7 @@ import { analysisHandler } from './analysis-handler';
 import { girpaConf } from './girpa';
 import { inovalysConf } from './inovalys';
 import { capinovConf } from './capinov';
+import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Referential';
 
 const laboratoriesWithConf = ['GIRPA', 'INOVALYS', 'CAPINOV'] as const satisfies string[];
 type LaboratoryWithConf = (typeof laboratoriesWithConf)[number];
@@ -21,13 +19,13 @@ export class ExtractError extends Error {
   }
 }
 
-export type ExportResidueAnalyte = { reference: Analyte; kind: 'Analyte' };
 export type ExportResidue =
-  | { reference: SimpleResidue; kind: 'SimpleResidue' }
-  | { reference: ComplexResidue; kind: 'ComplexResidue' }
-  | ExportResidueAnalyte;
+  | { reference: SSD2Id; kind: 'SimpleResidue' }
+  | { reference: SSD2Id; kind: 'ComplexResidue', analytes: ({
+    reference: SSD2Id,
+  } & ({result_kind: 'NQ', result: null} | {result_kind: 'Q', result: number}))[] }
 
-export type ExportDataSubstance = { residue: ExportResidue } & (
+export type ExportDataSubstance = ExportResidue & (
   | { result_kind: 'NQ'; result: null; lmr: null }
   | {
       result_kind: 'Q';
