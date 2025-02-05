@@ -23,8 +23,8 @@ describe('Parse correctement le fichier CSV', () => {
       'LMR_NUM': '0.01'}
     expect(() => extractAnalyzes([line])).not.toThrowError()
     expect(() => extractAnalyzes([{...line, RESULTAT_VALTEXTE: '0.0004'}])).not.toThrowError()
-    expect(() => extractAnalyzes([{...line, LIMITE_LQ: undefined}])).not.toThrowError()
-    expect(() => extractAnalyzes([{...line, INCERTITUDE: undefined}])).not.toThrowError()
-    expect(() => extractAnalyzes([{...line, LMR_NUM: undefined}])).not.toThrowError()
+    expect(() => extractAnalyzes([{...line, LIMITE_LQ: ''}])).not.toThrowError()
+    expect(() => extractAnalyzes([{...line, INCERTITUDE: ''}])).not.toThrowError()
+    expect(() => extractAnalyzes([{...line, LMR_NUM: ''}])).not.toThrowError()
   })
 })
