@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { SSD2Id } from './SSD2Referential';
 export const SimpleResidue = z.enum(
   [
     'RF-00000024-PAR',
@@ -44,7 +45,7 @@ export const SimpleResidue = z.enum(
     'RF-00004664-PAR',
     'RF-00004668-PAR',
     'RF-00004671-PAR',
-    'RF-00004678-PAR',
+    // 'RF-00004678-PAR',
     'RF-00004679-PAR',
     'RF-0061-001-PPP',
     'RF-00004728-PAR',
@@ -773,7 +774,7 @@ export const SimpleResidue = z.enum(
     'RF-00014543-PAR',
     'RF-00014544-PAR',
     'RF-00014552-PAR'
-  ],
+  ] as const satisfies SSD2Id[],
   {
     errorMap: () => ({
       message: 'Veuillez renseigner le résidu.'

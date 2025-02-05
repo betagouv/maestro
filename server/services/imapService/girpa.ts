@@ -1,11 +1,4 @@
 import { XMLParser } from 'fast-xml-parser';
-import { entries } from 'lodash-es';
-import { Analyte } from 'maestro-shared/referential/Residue/Analyte';
-import { AnalyteLabels } from 'maestro-shared/referential/Residue/AnalyteLabels';
-import { ComplexResidue } from 'maestro-shared/referential/Residue/ComplexResidue';
-import { ComplexResidueLabels } from 'maestro-shared/referential/Residue/ComplexResidueLabels';
-import { SimpleResidue } from 'maestro-shared/referential/Residue/SimpleResidue';
-import { SimpleResidueLabels } from 'maestro-shared/referential/Residue/SimpleResidueLabels';
 import { z } from 'zod';
 import {
   ExportAnalysis,
@@ -16,6 +9,7 @@ import {
   IsSender,
   LaboratoryConf
 } from './index';
+import { getSSD2IdByCasNumber } from 'maestro-shared/referential/Residue/SSD2Referential';
 
 //TODO AUTO_LABO en attente de la réception du 1er email + test
 const isSender: IsSender = (_emailSender) => false;
@@ -29,50 +23,49 @@ export const getResidue = (
     .toLowerCase()
     .replace(' according reg.', '');
 
-  for (const entry of entries(SimpleResidueLabels)) {
-    if (entry[1].toLowerCase() === normalizedEnglishName) {
-      return { reference: entry[0] as SimpleResidue, kind: 'SimpleResidue' };
-    }
-  }
+  const kind: ExportResidue['kind'] = normalizedEnglishName.includes('(sum')
+    ? 'ComplexResidue'
+    : 'SimpleResidue';
 
-  for (const entry of entries(ComplexResidueLabels)) {
-    if (entry[1].toLowerCase() === normalizedEnglishName) {
-      return { reference: entry[0] as ComplexResidue, kind: 'ComplexResidue' };
-    }
-  }
-
-  for (const entry of entries(AnalyteLabels)) {
-    if (entry[1].toLowerCase() === normalizedEnglishName) {
-      return { reference: entry[0] as Analyte, kind: 'Analyte' };
-    }
-  }
-
-  //En attendant d'avoir un référentiel CAS => SSD2
-  const casToSSD2SimpleResidue: Record<ResidueCasNumber, SimpleResidue> = {
-    ['120983-64-4' as ResidueCasNumber]: 'RF-0868-001-PPP',
-    ['15299-99-7' as ResidueCasNumber]: 'RF-00012802-PAR'
-  } as const satisfies Record<ResidueCasNumber, SimpleResidue>;
-
-  if (casNumber in casToSSD2SimpleResidue) {
-    return {
-      reference: casToSSD2SimpleResidue[casNumber],
-      kind: 'SimpleResidue'
-    };
-  }
-
-  //Pour ceux qui n'ont pas de CAS
-  const labelToSimpleResidue: Record<string, SimpleResidue> = {
-    metobromuron: 'RF-00014532-PAR'
-  };
-
-  if (normalizedEnglishName in labelToSimpleResidue) {
-    return {
-      reference: labelToSimpleResidue[normalizedEnglishName],
-      kind: 'SimpleResidue'
-    };
-  }
-
-  return null;
+  const ssd2Id = getSSD2IdByCasNumber(casNumber);
+  return ssd2Id != null ? { reference: ssd2Id, kind } : null;
+  // for (const entry of entries(SimpleResidueLabels)) {
+  //   if (entry[1].toLowerCase() === normalizedEnglishName) {
+  //     return { reference: entry[0] as SimpleResidue, kind: 'SimpleResidue' };
+  //   }
+  // }
+  //
+  // for (const entry of entries(ComplexResidueLabels)) {
+  //   if (entry[1].toLowerCase() === normalizedEnglishName) {
+  //     return { reference: entry[0] as ComplexResidue, kind: 'ComplexResidue' };
+  //   }
+  // }
+  // //En attendant d'avoir un référentiel CAS => SSD2
+  // const casToSSD2SimpleResidue: Record<ResidueCasNumber, SimpleResidue> = {
+  //   ['120983-64-4' as ResidueCasNumber]: 'RF-0868-001-PPP',
+  //   ['15299-99-7' as ResidueCasNumber]: 'RF-00012802-PAR'
+  // } as const satisfies Record<ResidueCasNumber, SimpleResidue>;
+  //
+  // if (casNumber in casToSSD2SimpleResidue) {
+  //   return {
+  //     reference: casToSSD2SimpleResidue[casNumber],
+  //     kind: 'SimpleResidue'
+  //   };
+  // }
+  //
+  // //Pour ceux qui n'ont pas de CAS
+  // const labelToSimpleResidue: Record<string, SimpleResidue> = {
+  //   metobromuron: 'RF-00014532-PAR'
+  // };
+  //
+  // if (normalizedEnglishName in labelToSimpleResidue) {
+  //   return {
+  //     reference: labelToSimpleResidue[normalizedEnglishName],
+  //     kind: 'SimpleResidue'
+  //   };
+  // }
+  //
+  // return null;
 };
 
 const frenchNumberStringValidator = z
@@ -138,9 +131,9 @@ export const extractAnalyzes = (
               result_kind: 'NQ',
               result: null,
               lmr: null,
-              residue
+              ...residue
             }
-          : { result_kind: 'Q', result: a.Résultat, lmr: a.LMR, residue };
+          : { result_kind: 'Q', result: a.Résultat, lmr: a.LMR, ...residue };
       })
       .filter((s): s is ExportDataSubstance => s !== null);
     return {
