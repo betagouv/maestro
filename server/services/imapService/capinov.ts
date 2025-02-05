@@ -65,7 +65,7 @@ export const extractAnalyzes = (
       ) {
 
 
-        const result: OmitDistributive<ExportDataSubstance, 'residue'> = residue.RESULTAT_VALTEXTE === 'd, NQ' ? {
+        const result: OmitDistributive<ExportDataSubstance, 'kind' | 'reference'> = residue.RESULTAT_VALTEXTE === 'd, NQ' ? {
           result_kind: 'NQ',
           result: null,
           lmr: null
@@ -75,10 +75,8 @@ export const extractAnalyzes = (
           lmr: residue.LMR_NUM
         }
         analysis.residues.push({
-          residue: {
             kind: 'SimpleResidue',
-            reference: 'RF-0002-001-PPP'
-          },
+            reference: 'RF-0002-001-PPP',
           ...result
         })
       }

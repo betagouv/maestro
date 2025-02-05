@@ -10481,3 +10481,13 @@ export type SSD2Id = keyof typeof SSD2Referential
 export const getSSD2IdByCasNumber = (potentialCasNumber: string): SSD2Id | null => {
    return values.find(({casNumber}) => casNumber === potentialCasNumber)?.reference ?? null
 }
+export const getSSD2IdByLabel = (label: string): SSD2Id | null => {
+   const labelLowerCase = label.toLowerCase()
+   const ssd2Id =  values.find(({name}) => name.toLowerCase() === labelLowerCase)?.reference ?? null
+
+   if (ssd2Id !== null) {
+      return ssd2Id
+   }
+
+   return values.find(({otherNames}) => otherNames.map(n => n.toLowerCase()).includes(labelLowerCase))?.reference ?? null
+}
