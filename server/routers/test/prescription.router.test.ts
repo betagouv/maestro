@@ -248,8 +248,8 @@ describe('Prescriptions router', () => {
       });
       await badRequestTest({ ...validBody, context: undefined });
       await badRequestTest({ ...validBody, context: 'invalid' });
-      await badRequestTest({ ...validBody, matrix: undefined });
-      await badRequestTest({ ...validBody, matrix: 'invalid' });
+      await badRequestTest({ ...validBody, matrixKind: undefined });
+      await badRequestTest({ ...validBody, matrixKind: 'invalid' });
       await badRequestTest({ ...validBody, stages: undefined });
       await badRequestTest({ ...validBody, stages: 'invalid' });
     });
