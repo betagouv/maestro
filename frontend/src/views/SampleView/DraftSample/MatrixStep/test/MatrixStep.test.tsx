@@ -133,7 +133,9 @@ describe('DraftSampleMatrixStep', () => {
       await user.click(screen.getByTestId('submit-button'));
     });
     expect(
-      screen.getByText('Veuillez renseigner la catégorie de matrice.')
+      screen.getByText(
+        'Veuillez renseigner la catégorie de matrice programmée.'
+      )
     ).toBeInTheDocument();
     expect(
       screen.getByText('Veuillez renseigner la matrice.')
@@ -188,7 +190,9 @@ describe('DraftSampleMatrixStep', () => {
       await user.click(stageSelect);
     });
     expect(
-      screen.queryByText('Veuillez renseigner la catégorie de matrice.')
+      screen.queryByText(
+        'Veuillez renseigner la catégorie de matrice programmée.'
+      )
     ).not.toBeInTheDocument();
     expect(
       screen.queryByText('Veuillez renseigner la matrice.')

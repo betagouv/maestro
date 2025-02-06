@@ -187,7 +187,7 @@ const MatrixStep = ({ partialSample }: Props) => {
             inputKey="matrixKind"
             whenValid="Type de matrice correctement renseignée."
             data-testid="matrix-kind-select"
-            label="Catégorie de matrice"
+            label="Catégorie de matrice programmée"
             required
           />
         </div>

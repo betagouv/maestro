@@ -51,7 +51,8 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
       <div className="summary-item icon-text">
         <div className={cx('fr-icon-restaurant-line')}></div>
         <div>
-          Catégorie de matrice : <b>{MatrixKindLabels[sample.matrixKind]}</b>
+          Catégorie de matrice programmée :{' '}
+          <b>{MatrixKindLabels[sample.matrixKind]}</b>
           <div>
             Matrice : <b>{MatrixLabels[sample.matrix]}</b>
           </div>

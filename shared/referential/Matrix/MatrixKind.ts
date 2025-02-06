@@ -37,7 +37,7 @@ export const MatrixKind = z.enum(
   [...MatrixDeprecated.options, ...MatrixKindEffective.options],
   {
     errorMap: () => ({
-      message: 'Veuillez renseigner la catégorie de matrice.'
+      message: 'Veuillez renseigner la catégorie de matrice programmée.'
     })
   }
 );
