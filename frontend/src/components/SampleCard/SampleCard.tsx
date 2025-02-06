@@ -4,7 +4,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { format } from 'date-fns';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
-import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   isCreatedPartialSample,
@@ -106,12 +106,12 @@ const SampleCard = ({ sample }: Props) => {
                 ></span>
                 {ContextLabels[sample.context]}
               </span>
-              {sample.matrix && (
+              {sample.matrixKind && (
                 <span className="icon-text">
                   <span
                     className={cx('fr-icon-restaurant-line', 'fr-icon--sm')}
                   ></span>
-                  {MatrixLabels[sample.matrix]}
+                  {MatrixKindLabels[sample.matrixKind]}
                 </span>
               )}
               <span className="icon-text">

@@ -4,7 +4,7 @@ import highland from 'highland';
 import { CultureKindLabels } from 'maestro-shared/referential/CultureKind';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
-import { MatrixPartLabels } from 'maestro-shared/referential/MatrixPart';
+import { MatrixPartLabels } from 'maestro-shared/referential/Matrix/MatrixPart';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';

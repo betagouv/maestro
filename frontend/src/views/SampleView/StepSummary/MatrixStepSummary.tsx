@@ -2,8 +2,9 @@ import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { skipToken } from '@reduxjs/toolkit/query';
 import { CultureKindLabels } from 'maestro-shared/referential/CultureKind';
+import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
-import { MatrixPartLabels } from 'maestro-shared/referential/MatrixPart';
+import { MatrixPartLabels } from 'maestro-shared/referential/Matrix/MatrixPart';
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import {
   Sample,
@@ -50,7 +51,10 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
       <div className="summary-item icon-text">
         <div className={cx('fr-icon-restaurant-line')}></div>
         <div>
-          Matrice : <b>{MatrixLabels[sample.matrix]}</b>
+          Catégorie de matrice : <b>{MatrixKindLabels[sample.matrixKind]}</b>
+          <div>
+            Matrice : <b>{MatrixLabels[sample.matrix]}</b>
+          </div>
           <div>
             LMR/ Partie du végétal concernée :{' '}
             <b>{MatrixPartLabels[sample.matrixPart]}</b>

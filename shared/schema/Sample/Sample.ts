@@ -4,7 +4,8 @@ import { CultureKind } from '../../referential/CultureKind';
 import { Department } from '../../referential/Department';
 import { LegalContext } from '../../referential/LegalContext';
 import { Matrix } from '../../referential/Matrix/Matrix';
-import { MatrixPart } from '../../referential/MatrixPart';
+import { MatrixKind } from '../../referential/Matrix/MatrixKind';
+import { MatrixPart } from '../../referential/Matrix/MatrixPart';
 import { Region } from '../../referential/Region';
 import { Stage } from '../../referential/Stage';
 import { Company } from '../Company/Company';
@@ -52,6 +53,7 @@ export const SampleContextData = z.object({
 });
 
 export const SampleMatrixData = z.object({
+  matrixKind: MatrixKind,
   matrix: Matrix,
   matrixDetails: z.string().nullish(),
   matrixPart: MatrixPart,

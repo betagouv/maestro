@@ -5,7 +5,7 @@ import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import clsx from 'clsx';
 import { t } from 'i18next';
 import _ from 'lodash';
-import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
+import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -22,7 +22,7 @@ interface Props {
   programmingPlan: ProgrammingPlan;
   findPrescriptionOptions: FindPrescriptionOptions;
   prescriptions: Prescription[];
-  addMatrix: (matrix: Matrix) => Promise<void>;
+  addMatrixKind: (matrixKind: MatrixKind) => Promise<void>;
   sampleCount?: number;
   hasGroupedUpdatePermission?: boolean;
   selectedCount?: number;
@@ -34,7 +34,7 @@ const PrescriptionListHeader = ({
   programmingPlan,
   findPrescriptionOptions,
   prescriptions,
-  addMatrix,
+  addMatrixKind,
   sampleCount,
   hasGroupedUpdatePermission,
   selectedCount,
@@ -60,8 +60,10 @@ const PrescriptionListHeader = ({
         </h4>
         {hasUserPrescriptionPermission(programmingPlan)?.create && (
           <MatrixSelectModal
-            excludedMatrixList={_.uniq(prescriptions.map((p) => p.matrix))}
-            onSelect={addMatrix}
+            excludedMatrixKindList={_.uniq(
+              prescriptions.map((p) => p.matrixKind)
+            )}
+            onSelect={addMatrixKind}
           />
         )}
         <Input

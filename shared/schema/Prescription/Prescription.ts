@@ -1,6 +1,8 @@
 import { z } from 'zod';
-import { Matrix } from '../../referential/Matrix/Matrix';
-import { MatrixLabels } from '../../referential/Matrix/MatrixLabels';
+import {
+  MatrixKind,
+  MatrixKindLabels
+} from '../../referential/Matrix/MatrixKind';
 import { Stage, StageLabels } from '../../referential/Stage';
 import { Context } from '../ProgrammingPlan/Context';
 import { ProgrammingPlan } from '../ProgrammingPlan/ProgrammingPlans';
@@ -11,7 +13,7 @@ export const Prescription = z.object({
   id: z.string().uuid(),
   programmingPlanId: z.string().uuid(),
   context: Context,
-  matrix: Matrix,
+  matrixKind: MatrixKind,
   stages: z.array(Stage),
   monoAnalysisCount: z.coerce.number().nullish(),
   multiAnalysisCount: z.coerce.number().nullish(),
@@ -43,14 +45,14 @@ export type PrescriptionUpdate = z.infer<typeof PrescriptionUpdate>;
 export const PrescriptionSort = (a: Prescription, b: Prescription) =>
   [
     a.programmingPlanId,
-    MatrixLabels[a.matrix],
+    MatrixKindLabels[a.matrixKind],
     ...a.stages.map((_) => StageLabels[_])
   ]
     .join()
     .localeCompare(
       [
         b.programmingPlanId,
-        MatrixLabels[b.matrix],
+        MatrixKindLabels[b.matrixKind],
         ...b.stages.map((_) => StageLabels[_])
       ].join()
     );

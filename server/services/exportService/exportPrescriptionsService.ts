@@ -7,7 +7,7 @@ import {
 } from 'maestro-shared/schema/Prescription/Prescription';
 
 import { sumBy } from 'lodash-es';
-import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
@@ -109,7 +109,7 @@ const writeToWorkbook = async (
     .each(({ prescription, filteredRegionalPrescriptions }) => {
       worksheet
         .addRow({
-          matrix: MatrixLabels[prescription.matrix],
+          matrix: MatrixKindLabels[prescription.matrixKind],
           stages: prescription.stages
             .map((stage) => StageLabels[stage])
             .join('\n'),

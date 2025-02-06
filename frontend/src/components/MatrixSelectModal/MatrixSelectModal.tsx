@@ -4,17 +4,15 @@ import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import { Autocomplete } from '@mui/material';
 import { isNil } from 'lodash-es';
-import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
-import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
-import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
 import {
+  MatrixKind,
   MatrixKindLabels,
   MatrixKindList
-} from 'maestro-shared/referential/MatrixKind';
+} from 'maestro-shared/referential/Matrix/MatrixKind';
 import React, { useState } from 'react';
 interface AddMatrixProps {
-  excludedMatrixList: Matrix[];
-  onSelect: (matrix: Matrix) => Promise<void>;
+  excludedMatrixKindList: MatrixKind[];
+  onSelect: (matrixKind: MatrixKind) => Promise<void>;
   buttonTitle?: string;
 }
 
@@ -24,7 +22,7 @@ const matrixSelectModal = createModal({
 });
 
 const MatrixSelectModal = ({
-  excludedMatrixList,
+  excludedMatrixKindList,
   onSelect,
   buttonTitle
 }: AddMatrixProps) => {
@@ -37,7 +35,7 @@ const MatrixSelectModal = ({
   const isOpen = useIsModalOpen(matrixSelectModal);
   const [selectedOption, setSelectedOption] = useState<{
     label: string;
-    value: Matrix;
+    value: MatrixKind;
   } | null>(null);
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
@@ -91,7 +89,9 @@ const MatrixSelectModal = ({
             }}
             onChange={(_, value) => {
               if (value) {
-                setSelectedOption(value as { label: string; value: Matrix });
+                setSelectedOption(
+                  value as { label: string; value: MatrixKind }
+                );
               }
             }}
             renderInput={(params) => (
@@ -105,14 +105,14 @@ const MatrixSelectModal = ({
               </div>
             )}
             getOptionKey={(option) => option.value}
-            options={MatrixKindList.map((kind) =>
-              MatrixListByKind[kind].map((matrix) => ({
-                label: `${MatrixLabels[matrix]} (${MatrixKindLabels[kind]})`,
-                value: matrix
-              }))
-            )
+            options={MatrixKindList.map((matrixKind) => ({
+              label: `${MatrixKindLabels[matrixKind]}`,
+              value: matrixKind
+            }))
               .flat()
-              .filter((option) => !excludedMatrixList.includes(option.value))
+              .filter(
+                (option) => !excludedMatrixKindList.includes(option.value)
+              )
               .sort((a, b) => a.label.localeCompare(b.label))}
             loadingText={`Recherche en cours...`}
             getOptionLabel={(option) => option.label}

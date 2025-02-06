@@ -2,7 +2,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
 import clsx from 'clsx';
 import _ from 'lodash';
-import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, RegionList } from 'maestro-shared/referential/Region';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -55,14 +55,14 @@ const PrescriptionTable = ({
       prescriptions.map((prescription) => [
         <div
           className={cx('fr-text--bold')}
-          data-testid={`matrix-${prescription.matrix}`}
-          key={`matrix-${prescription.matrix}`}
+          data-testid={`matrix-${prescription.matrixKind}`}
+          key={`matrix-${prescription.matrixKind}`}
         >
-          {MatrixLabels[prescription.matrix]}
+          {MatrixKindLabels[prescription.matrixKind]}
         </div>,
         <div
           className={clsx(cx('fr-text--bold'), 'border-left', 'sample-count')}
-          key={`total-${prescription.matrix}`}
+          key={`total-${prescription.matrixKind}`}
         >
           <div>
             {_.sumBy(
@@ -93,8 +93,8 @@ const PrescriptionTable = ({
           .map((regionalPrescription) => (
             <div
               className="border-left"
-              data-testid={`cell-${prescription.matrix}`}
-              key={`cell-${prescription.matrix}-${regionalPrescription.region}`}
+              data-testid={`cell-${prescription.matrixKind}`}
+              key={`cell-${prescription.matrixKind}-${regionalPrescription.region}`}
             >
               <RegionalPrescriptionCountCell
                 programmingPlan={programmingPlan}

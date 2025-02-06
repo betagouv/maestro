@@ -5,7 +5,7 @@ import {
   RegionalPrescriptionRequest
 } from 'express-jwt';
 import { constants } from 'http2';
-import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { FindRegionalPrescriptionOptions } from 'maestro-shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import {
   hasRegionalPrescriptionPermission,
@@ -140,7 +140,7 @@ const commentRegionalPrescription = async (
       config.mail.from
     ],
     params: {
-      matrix: MatrixLabels[prescription?.matrix],
+      matrix: MatrixKindLabels[prescription?.matrixKind],
       sampleCount: regionalPrescription.sampleCount,
       comment: draftPrescriptionComment.comment,
       author: `${user.firstName} ${user.lastName}`

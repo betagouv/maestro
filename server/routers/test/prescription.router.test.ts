@@ -1,5 +1,5 @@
 import { constants } from 'http2';
-import { MatrixList } from 'maestro-shared/referential/Matrix/Matrix';
+import { MatrixKindList } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { StageList } from 'maestro-shared/referential/Stage';
 import { PrescriptionUpdate } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
@@ -52,19 +52,19 @@ describe('Prescriptions router', () => {
   const closedControlPrescription = genPrescription({
     programmingPlanId: programmingPlanClosed.id,
     context: 'Control',
-    matrix: oneOf(MatrixList),
+    matrixKind: oneOf(MatrixKindList),
     stages: [oneOf(StageList)]
   });
   const submittedControlPrescription = genPrescription({
     programmingPlanId: programmingPlanSubmitted.id,
     context: 'Control',
-    matrix: oneOf(MatrixList),
+    matrixKind: oneOf(MatrixKindList),
     stages: [oneOf(StageList)]
   });
   const inProgressControlPrescription = genPrescription({
     programmingPlanId: programmingPlanInProgress.id,
     context: 'Control',
-    matrix: oneOf(MatrixList),
+    matrixKind: oneOf(MatrixKindList),
     stages: [oneOf(StageList)]
   });
   const substance = genSubstance();
@@ -76,7 +76,7 @@ describe('Prescriptions router', () => {
   const inProgressSurveillancePrescription = genPrescription({
     programmingPlanId: programmingPlanInProgress.id,
     context: 'Surveillance',
-    matrix: oneOf(MatrixList),
+    matrixKind: oneOf(MatrixKindList),
     stages: [oneOf(StageList)]
   });
 
@@ -248,8 +248,8 @@ describe('Prescriptions router', () => {
       });
       await badRequestTest({ ...validBody, context: undefined });
       await badRequestTest({ ...validBody, context: 'invalid' });
-      await badRequestTest({ ...validBody, matrix: undefined });
-      await badRequestTest({ ...validBody, matrix: 'invalid' });
+      await badRequestTest({ ...validBody, matrixKind: undefined });
+      await badRequestTest({ ...validBody, matrixKind: 'invalid' });
       await badRequestTest({ ...validBody, stages: undefined });
       await badRequestTest({ ...validBody, stages: 'invalid' });
     });

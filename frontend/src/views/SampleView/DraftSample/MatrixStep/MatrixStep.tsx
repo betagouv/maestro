@@ -8,13 +8,19 @@ import {
   CultureKindLabels,
   CultureKindList
 } from 'maestro-shared/referential/CultureKind';
-import { Matrix, MatrixList } from 'maestro-shared/referential/Matrix/Matrix';
+import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
+import {
+  MatrixKind,
+  MatrixKindLabels,
+  MatrixKindList
+} from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
 import {
   MatrixPart,
   MatrixPartLabels,
   MatrixPartList
-} from 'maestro-shared/referential/MatrixPart';
+} from 'maestro-shared/referential/Matrix/MatrixPart';
 import {
   Stage,
   StageLabels,
@@ -26,7 +32,7 @@ import {
   PartialSampleToCreate,
   SampleMatrixData
 } from 'maestro-shared/schema/Sample/Sample';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
@@ -50,6 +56,7 @@ const MatrixStep = ({ partialSample }: Props) => {
   const { navigateToSample } = useSamplesLink();
   const { user } = useAuthentication();
 
+  const [matrixKind, setMatrixKind] = useState(partialSample.matrixKind);
   const [matrix, setMatrix] = useState(partialSample.matrix);
   const [matrixDetails, setMatrixDetails] = useState(
     partialSample.matrixDetails
@@ -67,7 +74,7 @@ const MatrixStep = ({ partialSample }: Props) => {
 
   const [createOrUpdate] = useCreateOrUpdateSampleMutation();
 
-  const { data: prescriptions } = useFindPrescriptionsQuery(
+  const { data: prescriptionsData } = useFindPrescriptionsQuery(
     {
       programmingPlanId: partialSample.programmingPlanId as string,
       context: partialSample.context
@@ -90,6 +97,12 @@ const MatrixStep = ({ partialSample }: Props) => {
     }
   );
 
+  const prescriptions = useMemo(() => {
+    return prescriptionsData?.filter((p) =>
+      regionalPrescriptions?.find((rp) => rp.prescriptionId === p.id)
+    );
+  }, [prescriptionsData, regionalPrescriptions]);
+
   const Form = SampleMatrixData;
 
   type FormShape = typeof Form.shape;
@@ -104,7 +117,11 @@ const MatrixStep = ({ partialSample }: Props) => {
 
   const save = async (status = partialSample.status) => {
     const prescription = prescriptions?.find(
-      (p) => matrix && stage && p.matrix === matrix && p.stages.includes(stage)
+      (p) =>
+        matrix &&
+        stage &&
+        p.matrixKind === matrixKind &&
+        p.stages.includes(stage)
     );
     const regionalPrescription = regionalPrescriptions?.find(
       (rp) => rp.prescriptionId === prescription?.id
@@ -113,6 +130,7 @@ const MatrixStep = ({ partialSample }: Props) => {
     await createOrUpdate({
       ...partialSample,
       matrixDetails,
+      matrixKind,
       matrix,
       matrixPart,
       stage,
@@ -129,6 +147,7 @@ const MatrixStep = ({ partialSample }: Props) => {
   const form = useForm(
     Form,
     {
+      matrixKind,
       matrix,
       matrixDetails,
       matrixPart,
@@ -148,11 +167,37 @@ const MatrixStep = ({ partialSample }: Props) => {
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
           <AppSelect<FormShape>
+            value={matrixKind ?? ''}
+            options={selectOptionsFromList(
+              MatrixKindList.filter((matrixKind) =>
+                prescriptions?.find((p) => p.matrixKind === matrixKind)
+              ),
+              {
+                labels: MatrixKindLabels,
+                defaultLabel: 'Sélectionner une catégorie',
+                withSort: true
+              }
+            )}
+            onChange={(e) => {
+              setMatrixKind(e.target.value as MatrixKind);
+              setMatrix(undefined);
+              setStage(undefined);
+            }}
+            inputForm={form}
+            inputKey="matrixKind"
+            whenValid="Type de matrice correctement renseignée."
+            data-testid="matrix-kind-select"
+            label="Catégorie de matrice"
+            required
+          />
+        </div>
+        <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+          <AppSelect<FormShape>
             value={matrix ?? ''}
             options={selectOptionsFromList(
-              MatrixList.filter((matrix) =>
-                prescriptions?.find((p) => p.matrix === matrix)
-              ),
+              matrixKind
+                ? (MatrixListByKind[matrixKind as MatrixKind] ?? matrixKind)
+                : [],
               {
                 labels: MatrixLabels,
                 defaultLabel: 'Sélectionner une matrice'
@@ -169,13 +214,14 @@ const MatrixStep = ({ partialSample }: Props) => {
         </div>
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
           <AppSelect<FormShape>
-            defaultValue={stage ?? ''}
+            value={stage ?? ''}
             options={selectOptionsFromList(
               StageList.filter(
                 (stage) =>
                   !prescriptions ||
                   prescriptions.find(
-                    (p) => p.matrix === matrix && p.stages.includes(stage)
+                    (p) =>
+                      p.matrixKind === matrixKind && p.stages.includes(stage)
                   )
               ),
               {

@@ -2,8 +2,11 @@ import { configureStore, Store } from '@reduxjs/toolkit';
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { CultureKindList } from 'maestro-shared/referential/CultureKind';
-import { MatrixPartList } from 'maestro-shared/referential/MatrixPart';
-import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
+import { MatrixPartList } from 'maestro-shared/referential/Matrix/MatrixPart';
+import {
+  genPrescription,
+  genRegionalPrescription
+} from 'maestro-shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   genCreatedSampleData,
@@ -20,6 +23,8 @@ import {
   mockRequests
 } from '../../../../../../test/requestTestUtils';
 
+import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
+import { Region } from 'maestro-shared/referential/Region';
 import { beforeEach, describe, expect, test } from 'vitest';
 let store: Store;
 const sampler = genUser({
@@ -34,10 +39,24 @@ const prescription2 = genPrescription({
   programmingPlanId: programmingPlan.id,
   context: 'Control'
 });
+const regionalPrescription1 = genRegionalPrescription({
+  prescriptionId: prescription1.id
+});
+const regionalPrescription2 = genRegionalPrescription({
+  prescriptionId: prescription2.id
+});
 const prescriptionsRequest = {
   pathname: `/api/prescriptions?programmingPlanId=${programmingPlan.id}&context=Control`,
   response: { body: JSON.stringify([prescription1, prescription2]) }
 };
+const regionalPrescriptionRequest = (region: Region) => ({
+  pathname: `/api/prescriptions/regions?programmingPlanId=${
+    programmingPlan.id
+  }&context=Control&region=${region}`,
+  response: {
+    body: JSON.stringify([regionalPrescription1, regionalPrescription2])
+  }
+});
 
 describe('DraftSampleMatrixStep', () => {
   beforeEach(() => {
@@ -114,6 +133,9 @@ describe('DraftSampleMatrixStep', () => {
       await user.click(screen.getByTestId('submit-button'));
     });
     expect(
+      screen.getByText('Veuillez renseigner la catégorie de matrice.')
+    ).toBeInTheDocument();
+    expect(
       screen.getByText('Veuillez renseigner la matrice.')
     ).toBeInTheDocument();
     expect(
@@ -134,6 +156,7 @@ describe('DraftSampleMatrixStep', () => {
     };
     mockRequests([
       prescriptionsRequest,
+      regionalPrescriptionRequest(createdSample.region),
       {
         pathname: `/api/samples/${createdSample.id}`,
         method: 'PUT',
@@ -153,17 +176,20 @@ describe('DraftSampleMatrixStep', () => {
       expect(screen.getByTestId('submit-button')).toBeInTheDocument();
     });
 
-    const matrixSelect = screen.getAllByTestId('matrix-select')[1];
+    const matrixKindSelect = screen.getAllByTestId('matrix-kind-select')[1];
     const stageSelect = screen.getAllByTestId('stage-select')[1];
 
     await waitFor(async () => {
-      expect(within(matrixSelect).getAllByRole('option').length).toBe(3);
+      expect(within(matrixKindSelect).getAllByRole('option').length).toBe(3);
     });
 
     await act(async () => {
-      await user.selectOptions(matrixSelect, prescription1.matrix);
+      await user.selectOptions(matrixKindSelect, prescription1.matrixKind);
       await user.click(stageSelect);
     });
+    expect(
+      screen.queryByText('Veuillez renseigner la catégorie de matrice.')
+    ).not.toBeInTheDocument();
     expect(
       screen.queryByText('Veuillez renseigner la matrice.')
     ).not.toBeInTheDocument();
@@ -194,6 +220,7 @@ describe('DraftSampleMatrixStep', () => {
 
     mockRequests([
       prescriptionsRequest,
+      regionalPrescriptionRequest(createdSample.region),
       {
         pathname: `/api/samples/${createdSample.id}`,
         method: 'PUT',
@@ -213,6 +240,7 @@ describe('DraftSampleMatrixStep', () => {
       expect(screen.getByTestId('submit-button')).toBeInTheDocument();
     });
 
+    const matrixKindSelect = screen.getAllByTestId('matrix-kind-select')[1];
     const matrixSelect = screen.getAllByTestId('matrix-select')[1];
     const stageSelect = screen.getAllByTestId('stage-select')[1];
     const matrixDetailsInput = screen.getAllByTestId('matrixdetails-input')[1];
@@ -222,11 +250,15 @@ describe('DraftSampleMatrixStep', () => {
     const submitButton = screen.getByTestId('submit-button');
 
     await waitFor(async () => {
-      expect(within(matrixSelect).getAllByRole('option').length).toBe(3);
+      expect(within(matrixKindSelect).getAllByRole('option').length).toBe(3);
     });
 
     await act(async () => {
-      await user.selectOptions(matrixSelect, prescription1.matrix); //1 call
+      await user.selectOptions(matrixKindSelect, prescription1.matrixKind); //1 call
+      await user.selectOptions(
+        matrixSelect,
+        MatrixListByKind[prescription1.matrixKind][0]
+      ); //1 call
       await user.selectOptions(stageSelect, prescription1.stages[0]); //1 call
       await user.type(matrixDetailsInput, 'Details'); //7 calls
       await user.selectOptions(cultureKindSelect, CultureKindList[0]); //1 call
@@ -240,7 +272,7 @@ describe('DraftSampleMatrixStep', () => {
       calls.filter((call) =>
         call?.url.endsWith(`/api/samples/${createdSample.id}`)
       )
-    ).toHaveLength(19);
+    ).toHaveLength(20);
 
     expect(calls).toContainEqual({
       url: `${config.apiEndpoint}/api/samples/${createdSample.id}`,
@@ -251,7 +283,8 @@ describe('DraftSampleMatrixStep', () => {
         lastUpdatedAt: createdSample.lastUpdatedAt.toISOString(),
         sampledAt: createdSample.sampledAt.toISOString(),
         status: 'DraftItems',
-        matrix: prescription1.matrix,
+        matrixKind: prescription1.matrixKind,
+        matrix: MatrixListByKind[prescription1.matrixKind][0],
         matrixPart: MatrixPartList[0],
         cultureKind: CultureKindList[0],
         stage: prescription1.stages[0],

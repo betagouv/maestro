@@ -1,7 +1,7 @@
 import { constants } from 'http2';
 import { isEqual } from 'lodash-es';
 import fp from 'lodash/fp';
-import { MatrixList } from 'maestro-shared/referential/Matrix/Matrix';
+import { MatrixKindList } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, RegionList } from 'maestro-shared/referential/Region';
 import { StageList } from 'maestro-shared/referential/Stage';
 import { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
@@ -73,25 +73,25 @@ describe('Regional prescriptions router', () => {
   const closedControlPrescription = genPrescription({
     programmingPlanId: programmingPlanClosed.id,
     context: 'Control',
-    matrix: oneOf(MatrixList),
+    matrixKind: oneOf(MatrixKindList),
     stages: [oneOf(StageList)]
   });
   const validatedControlPrescription = genPrescription({
     programmingPlanId: programmingPlanValidated.id,
     context: 'Control',
-    matrix: oneOf(MatrixList),
+    matrixKind: oneOf(MatrixKindList),
     stages: [oneOf(StageList)]
   });
   const submittedControlPrescription1 = genPrescription({
     programmingPlanId: programmingPlanSubmitted.id,
     context: 'Control',
-    matrix: oneOf(MatrixList),
+    matrixKind: oneOf(MatrixKindList),
     stages: [oneOf(StageList)]
   });
   const submittedControlPrescription2 = genPrescription({
     programmingPlanId: programmingPlanSubmitted.id,
     context: 'Control',
-    matrix: oneOf(MatrixList),
+    matrixKind: oneOf(MatrixKindList),
     stages: [oneOf(StageList)]
   });
   const closedControlRegionalPrescriptions: RegionalPrescription[] =
