@@ -130,6 +130,7 @@ const MatrixStep = ({ partialSample }: Props) => {
     await createOrUpdate({
       ...partialSample,
       matrixDetails,
+      matrixKind,
       matrix,
       matrixPart,
       stage,

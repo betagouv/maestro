@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { MatrixKindList } from '../referential/Matrix/MatrixKind';
+import { MatrixKindEffective } from '../referential/Matrix/MatrixKind';
 import { RegionList } from '../referential/Region';
 import { StageList } from '../referential/Stage';
 import { AnalysisMethodList } from '../schema/Analysis/AnalysisMethod';
@@ -15,7 +15,7 @@ export const genPrescription = (
   id: uuidv4(),
   programmingPlanId: uuidv4(),
   context: oneOf(ContextList),
-  matrixKind: oneOf(MatrixKindList),
+  matrixKind: oneOf(MatrixKindEffective.options),
   stages: [oneOf(StageList)],
   ...data
 });
