@@ -178,7 +178,11 @@ const MatrixStep = ({ partialSample }: Props) => {
                 withSort: true
               }
             )}
-            onChange={(e) => setMatrixKind(e.target.value as MatrixKind)}
+            onChange={(e) => {
+              setMatrixKind(e.target.value as MatrixKind);
+              setMatrix(undefined);
+              setStage(undefined);
+            }}
             inputForm={form}
             inputKey="matrixKind"
             whenValid="Type de matrice correctement renseignée."
@@ -210,7 +214,7 @@ const MatrixStep = ({ partialSample }: Props) => {
         </div>
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
           <AppSelect<FormShape>
-            defaultValue={stage ?? ''}
+            value={stage ?? ''}
             options={selectOptionsFromList(
               StageList.filter(
                 (stage) =>
