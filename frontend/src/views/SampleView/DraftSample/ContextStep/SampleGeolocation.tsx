@@ -1,3 +1,5 @@
+import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import clsx from 'clsx';
 import { Geolocation } from 'maestro-shared/schema/Sample/Sample';
 import maplibregl from 'maplibre-gl';
 import { useMemo, useState } from 'react';
@@ -50,6 +52,21 @@ const SampleGeolocation = ({ location, onLocationChange }: Props) => {
 
   return (
     <>
+      <div className={clsx(cx('fr-p-2w'), 'white-container')}>
+        <AddressSearch
+          onSelectAddress={(address) => {
+            if (address) {
+              onLocationChange({
+                x: address.geometry.coordinates[1],
+                y: address.geometry.coordinates[0]
+              });
+              setMapLongitude(address.geometry.coordinates[0]);
+              setMapLatitude(address.geometry.coordinates[1]);
+              setMapZoom(12);
+            }
+          }}
+        />
+      </div>
       <Map
         attributionControl={false}
         id="sampleLocationMap"
@@ -108,19 +125,6 @@ const SampleGeolocation = ({ location, onLocationChange }: Props) => {
           />
         )}
       </Map>
-      <AddressSearch
-        onSelectAddress={(address) => {
-          if (address) {
-            onLocationChange({
-              x: address.geometry.coordinates[1],
-              y: address.geometry.coordinates[0]
-            });
-            setMapLongitude(address.geometry.coordinates[0]);
-            setMapLatitude(address.geometry.coordinates[1]);
-            setMapZoom(12);
-          }
-        }}
-      />
     </>
   );
 };
