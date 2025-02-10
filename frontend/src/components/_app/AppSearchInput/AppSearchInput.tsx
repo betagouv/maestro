@@ -15,6 +15,7 @@ interface Props {
   hintText?: string;
   placeholder?: string;
   whenValid?: string;
+  inputProps?: any;
 }
 
 const AppSearchInput = ({
@@ -27,7 +28,8 @@ const AppSearchInput = ({
   required,
   hintText,
   placeholder,
-  whenValid
+  whenValid,
+  inputProps
 }: Props) => {
   return (
     <div
@@ -67,6 +69,7 @@ const AppSearchInput = ({
             <div ref={params.InputProps.ref}>
               <input
                 {...params.inputProps}
+                {...inputProps}
                 className="fr-input"
                 type="text"
                 placeholder={placeholder ?? 'Rechercher une valeur'}

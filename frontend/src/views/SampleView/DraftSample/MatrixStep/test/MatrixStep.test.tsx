@@ -23,9 +23,14 @@ import {
   mockRequests
 } from '../../../../../../test/requestTestUtils';
 
+import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
+import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
 import { Region } from 'maestro-shared/referential/Region';
+import { StageList } from 'maestro-shared/referential/Stage';
+import { oneOf } from 'maestro-shared/test/testFixtures';
 import { beforeEach, describe, expect, test } from 'vitest';
+
 let store: Store;
 const sampler = genUser({
   roles: ['Sampler']
@@ -33,7 +38,9 @@ const sampler = genUser({
 const programmingPlan = genProgrammingPlan();
 const prescription1 = genPrescription({
   programmingPlanId: programmingPlan.id,
-  context: 'Control'
+  context: 'Control',
+  matrixKind: 'A001M',
+  stages: [oneOf(StageList), oneOf(StageList)]
 });
 const prescription2 = genPrescription({
   programmingPlanId: programmingPlan.id,
@@ -94,7 +101,8 @@ describe('DraftSampleMatrixStep', () => {
       expect(screen.getByTestId('submit-button')).toBeInTheDocument();
     });
 
-    expect(screen.getAllByTestId('matrix-select')).toHaveLength(2);
+    expect(screen.getAllByTestId('matrix-kind-select')).toHaveLength(1);
+    expect(screen.getAllByTestId('matrix-select')).toHaveLength(1);
     expect(screen.getAllByTestId('stage-select')).toHaveLength(2);
     expect(screen.getAllByTestId('matrixdetails-input')).toHaveLength(2);
     expect(screen.getAllByTestId('culturekind-select')).toHaveLength(2);
@@ -178,15 +186,24 @@ describe('DraftSampleMatrixStep', () => {
       expect(screen.getByTestId('submit-button')).toBeInTheDocument();
     });
 
-    const matrixKindSelect = screen.getAllByTestId('matrix-kind-select')[1];
+    const matrixKindInput = screen.getAllByTestId('matrix-kind-select')[0];
     const stageSelect = screen.getAllByTestId('stage-select')[1];
 
+    await act(async () => {
+      await user.click(matrixKindInput);
+    });
+
+    const matrixKindListbox = await screen.findByRole('listbox');
+    expect(matrixKindListbox).toBeInTheDocument();
     await waitFor(async () => {
-      expect(within(matrixKindSelect).getAllByRole('option').length).toBe(3);
+      expect(within(matrixKindListbox).getAllByRole('option').length).toBe(2);
     });
 
     await act(async () => {
-      await user.selectOptions(matrixKindSelect, prescription1.matrixKind);
+      await user.selectOptions(
+        matrixKindListbox,
+        MatrixKindLabels[prescription1.matrixKind]
+      );
       await user.click(stageSelect);
     });
     expect(
@@ -244,8 +261,8 @@ describe('DraftSampleMatrixStep', () => {
       expect(screen.getByTestId('submit-button')).toBeInTheDocument();
     });
 
-    const matrixKindSelect = screen.getAllByTestId('matrix-kind-select')[1];
-    const matrixSelect = screen.getAllByTestId('matrix-select')[1];
+    const matrixKindInput = screen.getAllByTestId('matrix-kind-select')[0];
+    const matrixInput = screen.getAllByTestId('matrix-select')[0];
     const stageSelect = screen.getAllByTestId('stage-select')[1];
     const matrixDetailsInput = screen.getAllByTestId('matrixdetails-input')[1];
     const cultureKindSelect = screen.getAllByTestId('culturekind-select')[1];
@@ -253,17 +270,30 @@ describe('DraftSampleMatrixStep', () => {
     const notesInput = screen.getAllByTestId('notes-input')[1];
     const submitButton = screen.getByTestId('submit-button');
 
-    await waitFor(async () => {
-      expect(within(matrixKindSelect).getAllByRole('option').length).toBe(3);
+    await act(async () => {
+      await user.click(matrixKindInput);
+    });
+    const matrixKindListbox = await screen.findByRole('listbox');
+
+    await act(async () => {
+      await user.selectOptions(
+        matrixKindListbox,
+        MatrixKindLabels[prescription1.matrixKind]
+      ); //1 call
+      await user.click(matrixInput);
+    });
+
+    const matrixListbox = await screen.findByRole('listbox');
+
+    await act(async () => {
+      await user.selectOptions(
+        matrixListbox,
+        MatrixLabels[MatrixListByKind[prescription1.matrixKind][1]]
+      ); //1 call
     });
 
     await act(async () => {
-      await user.selectOptions(matrixKindSelect, prescription1.matrixKind); //1 call
-      await user.selectOptions(
-        matrixSelect,
-        MatrixListByKind[prescription1.matrixKind][0]
-      ); //1 call
-      await user.selectOptions(stageSelect, prescription1.stages[0]); //1 call
+      await user.selectOptions(stageSelect, prescription1.stages[1]); //1 call
       await user.type(matrixDetailsInput, 'Details'); //7 calls
       await user.selectOptions(cultureKindSelect, CultureKindList[0]); //1 call
       await user.selectOptions(matrixPartSelect, MatrixPartList[0]); //1 call
@@ -288,10 +318,10 @@ describe('DraftSampleMatrixStep', () => {
         sampledAt: createdSample.sampledAt.toISOString(),
         status: 'DraftItems',
         matrixKind: prescription1.matrixKind,
-        matrix: MatrixListByKind[prescription1.matrixKind][0],
+        matrix: MatrixListByKind[prescription1.matrixKind][1],
         matrixPart: MatrixPartList[0],
         cultureKind: CultureKindList[0],
-        stage: prescription1.stages[0],
+        stage: prescription1.stages[1],
         matrixDetails: 'Details',
         notesOnMatrix: 'Comment'
       }

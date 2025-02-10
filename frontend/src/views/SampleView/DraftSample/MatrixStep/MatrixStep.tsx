@@ -47,6 +47,7 @@ import { useCreateOrUpdateSampleMutation } from 'src/services/sample.service';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SupportDocumentDownload from 'src/views/SampleView/DraftSample/SupportDocumentDownload';
 import SavedAlert from 'src/views/SampleView/SavedAlert';
+import AppSearchInput from '../../../../components/_app/AppSearchInput/AppSearchInput';
 
 interface Props {
   partialSample: PartialSample | PartialSampleToCreate;
@@ -166,7 +167,7 @@ const MatrixStep = ({ partialSample }: Props) => {
       <AppRequiredText />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-          <AppSelect<FormShape>
+          <AppSearchInput
             value={matrixKind ?? ''}
             options={selectOptionsFromList(
               MatrixKindList.filter((matrixKind) =>
@@ -174,25 +175,28 @@ const MatrixStep = ({ partialSample }: Props) => {
               ),
               {
                 labels: MatrixKindLabels,
-                defaultLabel: 'Sélectionner une catégorie',
-                withSort: true
+                withSort: true,
+                withDefault: false
               }
             )}
-            onChange={(e) => {
-              setMatrixKind(e.target.value as MatrixKind);
+            placeholder="Sélectionner une catégorie"
+            onSelect={(value) => {
+              setMatrixKind(value as MatrixKind);
               setMatrix(undefined);
               setStage(undefined);
             }}
-            inputForm={form}
-            inputKey="matrixKind"
+            state={form.messageType('matrixKind')}
+            stateRelatedMessage={form.message('matrixKind')}
             whenValid="Type de matrice correctement renseignée."
-            data-testid="matrix-kind-select"
             label="Catégorie de matrice programmée"
             required
+            inputProps={{
+              'data-testid': 'matrix-kind-select'
+            }}
           />
         </div>
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-          <AppSelect<FormShape>
+          <AppSearchInput
             value={matrix ?? ''}
             options={selectOptionsFromList(
               matrixKind
@@ -200,16 +204,23 @@ const MatrixStep = ({ partialSample }: Props) => {
                 : [],
               {
                 labels: MatrixLabels,
-                defaultLabel: 'Sélectionner une matrice'
+                withSort: true,
+                withDefault: false
               }
             )}
-            onChange={(e) => setMatrix(e.target.value as Matrix)}
-            inputForm={form}
-            inputKey="matrix"
+            placeholder="Sélectionner une matrice"
+            onSelect={(value) => {
+              setMatrix(value as Matrix);
+            }}
+            state={form.messageType('matrix')}
+            stateRelatedMessage={form.message('matrix')}
             whenValid="Matrice correctement renseignée."
             data-testid="matrix-select"
             label="Matrice"
             required
+            inputProps={{
+              'data-testid': 'matrix-select'
+            }}
           />
         </div>
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
