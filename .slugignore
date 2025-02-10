@@ -1,5 +1,5 @@
 /docs
 /frontend/node_modules
-/node_modules/@gouvfr/example
-/node_modules/@gouvfr/src
-/node_modules/@gouvfr/storybook
+/node_modules/@gouvfr/dsfr/example
+/node_modules/@gouvfr/dsfr/src
+/node_modules/@gouvfr/dsfr/storybook
