@@ -4,7 +4,6 @@ import fp from 'lodash/fp';
 import { MatrixKindList } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, RegionList } from 'maestro-shared/referential/Region';
 import { StageList } from 'maestro-shared/referential/Stage';
-import { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import {
   RegionalPrescription,
   RegionalPrescriptionKey,
@@ -38,7 +37,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { Laboratories } from '../../repositories/laboratoryRepository';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
-import { ProgrammingPlans } from '../../repositories/programmingPlanRepository';
+import {
+  formatProgrammingPlan,
+  ProgrammingPlanRegionalStatus,
+  ProgrammingPlans
+} from '../../repositories/programmingPlanRepository';
 import { RegionalPrescriptionComments } from '../../repositories/regionalPrescriptionCommentRepository';
 import { RegionalPrescriptions } from '../../repositories/regionalPrescriptionRepository';
 import {
@@ -53,20 +56,26 @@ describe('Regional prescriptions router', () => {
 
   const programmingPlanClosed = genProgrammingPlan({
     createdBy: NationalCoordinator.id,
-    status: 'Closed' as ProgrammingPlanStatus,
-    statusDrom: 'Closed' as ProgrammingPlanStatus,
+    regionalStatus: RegionList.map((region) => ({
+      region,
+      status: 'Closed'
+    })),
     year: 1919
   });
   const programmingPlanValidated = genProgrammingPlan({
     createdBy: NationalCoordinator.id,
-    status: 'Validated' as ProgrammingPlanStatus,
-    statusDrom: 'Validated' as ProgrammingPlanStatus,
+    regionalStatus: RegionList.map((region) => ({
+      region,
+      status: 'Validated'
+    })),
     year: 1920
   });
   const programmingPlanSubmitted = genProgrammingPlan({
     createdBy: NationalCoordinator.id,
-    status: 'Submitted' as ProgrammingPlanStatus,
-    statusDrom: 'Submitted' as ProgrammingPlanStatus,
+    regionalStatus: RegionList.map((region) => ({
+      region,
+      status: 'Submitted'
+    })),
     year: 1921
   });
   const laboratory = genLaboratory();
@@ -145,11 +154,25 @@ describe('Regional prescriptions router', () => {
   });
 
   beforeAll(async () => {
-    await ProgrammingPlans().insert([
-      programmingPlanClosed,
-      programmingPlanValidated,
-      programmingPlanSubmitted
-    ]);
+    await ProgrammingPlans().insert(
+      [
+        programmingPlanClosed,
+        programmingPlanValidated,
+        programmingPlanSubmitted
+      ].map(formatProgrammingPlan)
+    );
+    await ProgrammingPlanRegionalStatus().insert(
+      [
+        programmingPlanClosed,
+        programmingPlanValidated,
+        programmingPlanSubmitted
+      ].flatMap((programmingPlan) =>
+        programmingPlan.regionalStatus.map((regionalStatus) => ({
+          ...regionalStatus,
+          programmingPlanId: programmingPlan.id
+        }))
+      )
+    );
     await Laboratories().insert(laboratory);
     await Prescriptions().insert([
       closedControlPrescription,

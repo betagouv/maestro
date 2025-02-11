@@ -1,6 +1,6 @@
 import express from 'express';
 import { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
-import { ProgrammingPlanStatusUpdate } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanRegionalStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanRegionalStatus';
 import { z } from 'zod';
 import programmingPlanController from '../controllers/programmingPlanController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
@@ -46,7 +46,7 @@ router.post(
 router.put(
   '/:programmingPlanId',
   validator.validate(
-    uuidParam('programmingPlanId').merge(body(ProgrammingPlanStatusUpdate))
+    uuidParam('programmingPlanId').merge(body(ProgrammingPlanRegionalStatus))
   ),
   permissionsCheck(['manageProgrammingPlan']),
   programmingPlanCheck(),

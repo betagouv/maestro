@@ -67,14 +67,17 @@ export const hasPrescriptionPermission = (
 ): Record<PrescriptionPermission, boolean> => ({
   create:
     hasPermission(user, 'createPrescription') &&
-    (programmingPlan.status !== 'Closed' ||
-      programmingPlan.statusDrom !== 'Closed'),
+    programmingPlan.regionalStatus.some(
+      (regionalStatus) => regionalStatus.status !== 'Closed'
+    ),
   update:
     hasPermission(user, 'updatePrescription') &&
-    (programmingPlan.status !== 'Closed' ||
-      programmingPlan.statusDrom !== 'Closed'),
+    programmingPlan.regionalStatus.some(
+      (regionalStatus) => regionalStatus.status !== 'Closed'
+    ),
   delete:
     hasPermission(user, 'deletePrescription') &&
-    (programmingPlan.status !== 'Closed' ||
-      programmingPlan.statusDrom !== 'Closed')
+    programmingPlan.regionalStatus.some(
+      (regionalStatus) => regionalStatus.status !== 'Closed'
+    )
 });

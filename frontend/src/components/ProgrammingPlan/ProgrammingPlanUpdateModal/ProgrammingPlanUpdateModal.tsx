@@ -1,11 +1,7 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
-import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
-import {
-  getNextProgrammingPlanStatus,
-  ProgrammingPlan
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { useMemo, useState } from 'react';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
@@ -30,8 +26,7 @@ const ProgrammingPlanUpdateModal = ({ programmingPlan }: Props) => {
   const [updateProgrammingPlan] = useUpdateProgrammingPlanMutation();
 
   const [isError, setIsError] = useState(false);
-  const [isDrom, setIsDrom] = useState<boolean>();
-  const [nextStatus, setNextStatus] = useState<ProgrammingPlanStatus>();
+  // const [nextStatus, setNextStatus] = useState<ProgrammingPlanStatus>();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   if (!hasUserPermission('manageProgrammingPlan')) {
@@ -53,61 +48,61 @@ const ProgrammingPlanUpdateModal = ({ programmingPlan }: Props) => {
         >
           Notifier les régions
         </Button>
-        {isMenuOpen && (
-          <div
-            className={cx('fr-menu', 'fr-collapse')}
-            id="notify-regions-menu"
-          >
-            <ul className="fr-menu__list">
-              {getNextProgrammingPlanStatus(programmingPlan, true) && (
-                <li>
-                  <Button
-                    className={cx('fr-nav__link')}
-                    priority="secondary"
-                    onClick={() => {
-                      setIsDrom(true);
-                      setNextStatus(
-                        getNextProgrammingPlanStatus(
-                          programmingPlan,
-                          true
-                        ) as ProgrammingPlanStatus
-                      );
-                      submissionModal.open();
-                    }}
-                  >
-                    {getNextProgrammingPlanStatus(programmingPlan, true) ===
-                    'Submitted'
-                      ? 'Soumettre DROM'
-                      : 'Valider DROM'}
-                  </Button>
-                </li>
-              )}
-              {getNextProgrammingPlanStatus(programmingPlan, false) && (
-                <li>
-                  <Button
-                    className={cx('fr-nav__link')}
-                    priority="secondary"
-                    onClick={() => {
-                      setIsDrom(false);
-                      setNextStatus(
-                        getNextProgrammingPlanStatus(
-                          programmingPlan,
-                          false
-                        ) as ProgrammingPlanStatus
-                      );
-                      submissionModal.open();
-                    }}
-                  >
-                    {getNextProgrammingPlanStatus(programmingPlan, false) ===
-                    'Submitted'
-                      ? 'Soumettre hexagone et Corse'
-                      : 'Valider hexagone et Corse'}
-                  </Button>
-                </li>
-              )}
-            </ul>
-          </div>
-        )}
+        {/*{isMenuOpen && (*/}
+        {/*  <div*/}
+        {/*    className={cx('fr-menu', 'fr-collapse')}*/}
+        {/*    id="notify-regions-menu"*/}
+        {/*  >*/}
+        {/*    <ul className="fr-menu__list">*/}
+        {/*      {getNextProgrammingPlanStatus(programmingPlan, true) && (*/}
+        {/*        <li>*/}
+        {/*          <Button*/}
+        {/*            className={cx('fr-nav__link')}*/}
+        {/*            priority="secondary"*/}
+        {/*            onClick={() => {*/}
+        {/*              setIsDrom(true);*/}
+        {/*              setNextStatus(*/}
+        {/*                getNextProgrammingPlanStatus(*/}
+        {/*                  programmingPlan,*/}
+        {/*                  true*/}
+        {/*                ) as ProgrammingPlanStatus*/}
+        {/*              );*/}
+        {/*              submissionModal.open();*/}
+        {/*            }}*/}
+        {/*          >*/}
+        {/*            {getNextProgrammingPlanStatus(programmingPlan, true) ===*/}
+        {/*            'Submitted'*/}
+        {/*              ? 'Soumettre DROM'*/}
+        {/*              : 'Valider DROM'}*/}
+        {/*          </Button>*/}
+        {/*        </li>*/}
+        {/*      )}*/}
+        {/*      {getNextProgrammingPlanStatus(programmingPlan, false) && (*/}
+        {/*        <li>*/}
+        {/*          <Button*/}
+        {/*            className={cx('fr-nav__link')}*/}
+        {/*            priority="secondary"*/}
+        {/*            onClick={() => {*/}
+        {/*              setIsDrom(false);*/}
+        {/*              setNextStatus(*/}
+        {/*                getNextProgrammingPlanStatus(*/}
+        {/*                  programmingPlan,*/}
+        {/*                  false*/}
+        {/*                ) as ProgrammingPlanStatus*/}
+        {/*              );*/}
+        {/*              submissionModal.open();*/}
+        {/*            }}*/}
+        {/*          >*/}
+        {/*            {getNextProgrammingPlanStatus(programmingPlan, false) ===*/}
+        {/*            'Submitted'*/}
+        {/*              ? 'Soumettre hexagone et Corse'*/}
+        {/*              : 'Valider hexagone et Corse'}*/}
+        {/*          </Button>*/}
+        {/*        </li>*/}
+        {/*      )}*/}
+        {/*    </ul>*/}
+        {/*  </div>*/}
+        {/*)}*/}
       </div>
 
       <ConfirmationModal
@@ -115,8 +110,9 @@ const ProgrammingPlanUpdateModal = ({ programmingPlan }: Props) => {
         title={
           <div>
             Confirmez la
-            {nextStatus === 'Submitted' ? '  soumission ' : ' validation '} du
-            programme aux coordinateurs régionaux
+            {nextStatus === 'Submitted'
+              ? '  soumission '
+              : ' validation '} du programme aux coordinateurs régionaux
             {isDrom ? ' des DROM' : " de l'hexagone et de la Corse"}
           </div>
         }
