@@ -3,7 +3,7 @@ import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMi
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
 
 export const programmingPlanCheck =
-  () => async (request: Request, response: Response, next: NextFunction) => {
+  () => async (request: Request, _response: Response, next: NextFunction) => {
     const programmingPlanId =
       request.params?.programmingPlanId ||
       request.query?.programmingPlanId ||
