@@ -70,23 +70,17 @@ const PrescriptionTable = ({
               ({ sampleCount }) => sampleCount
             )}
           </div>
-          {programmingPlan.status === 'Validated' && (
-            <>
-              <div>
-                {_.sumBy(
-                  getRegionalPrescriptions(prescription.id),
-                  'realizedSampleCount'
-                )}
-              </div>
-              <div>
-                <CompletionBadge
-                  regionalPrescriptions={getRegionalPrescriptions(
-                    prescription.id
-                  )}
-                />
-              </div>
-            </>
-          )}
+          <div>
+            {_.sumBy(
+              getRegionalPrescriptions(prescription.id),
+              'realizedSampleCount'
+            )}
+          </div>
+          <div>
+            <CompletionBadge
+              regionalPrescriptions={getRegionalPrescriptions(prescription.id)}
+            />
+          </div>
         </div>,
         ...getRegionalPrescriptions(prescription.id)
           .sort(RegionalPrescriptionSort)
@@ -118,12 +112,8 @@ const PrescriptionTable = ({
       <b>Total</b>,
       <div className="border-left fr-text--bold">
         <div>{_.sumBy(regionalPrescriptions, 'sampleCount')}</div>
-        {programmingPlan.status === 'Validated' && (
-          <>
-            <div>{_.sumBy(regionalPrescriptions, 'realizedSampleCount')}</div>
-            <CompletionBadge regionalPrescriptions={regionalPrescriptions} />
-          </>
-        )}
+        <div>{_.sumBy(regionalPrescriptions, 'realizedSampleCount')}</div>
+        <CompletionBadge regionalPrescriptions={regionalPrescriptions} />
       </div>,
       ...RegionList.map((region) => [
         <div key={`total-${region}`} className="border-left fr-text--bold">
@@ -133,7 +123,8 @@ const PrescriptionTable = ({
               'sampleCount'
             )}
           </div>
-          {programmingPlan.status === 'Validated' && (
+          {programmingPlan.regionalStatus.find((_) => _.region === region)
+            ?.status === 'Validated' && (
             <>
               <div>
                 {_.sumBy(

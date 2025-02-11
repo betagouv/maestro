@@ -35,7 +35,9 @@ const RegionalPrescriptionCountCell = ({
         <div className="sample-count-container">
           <div className="sample-count">
             <div>{regionalPrescription.sampleCount}</div>
-            {programmingPlan.status === 'Validated' && (
+            {programmingPlan.regionalStatus.find(
+              (_) => _.region === regionalPrescription.region
+            )?.status === 'Validated' && (
               <>
                 <div>{regionalPrescription.realizedSampleCount}</div>
                 <CompletionBadge regionalPrescriptions={regionalPrescription} />
