@@ -56,12 +56,12 @@ export const down = async (knex: Knex) => {
             (regionalStatus) =>
               regionalStatus.programmingPlanId === programmingPlan.id &&
               !isDromRegion(regionalStatus.region)
-          ).status,
+          )?.status,
           status_drom: programmingPlansRegionalStatus.find(
             (regionalStatus) =>
               regionalStatus.programmingPlanId === programmingPlan.id &&
               isDromRegion(regionalStatus.region)
-          ).status
+          )?.status
         })
         .where({ id: programmingPlan.id });
     })

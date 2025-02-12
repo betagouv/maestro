@@ -2,6 +2,7 @@ import { RegionList } from 'maestro-shared/referential/Region';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   formatProgrammingPlan,
+  ProgrammingPlanRegionalStatus,
   ProgrammingPlans
 } from '../../../repositories/programmingPlanRepository';
 import { Users } from '../../../repositories/userRepository';
@@ -31,5 +32,13 @@ export const seed = async function () {
         year: new Date().getFullYear()
       })
     )
+  );
+
+  await ProgrammingPlanRegionalStatus().insert(
+    RegionList.map((region) => ({
+      programmingPlanId: validatedProgrammingPlanId,
+      region,
+      status: 'Validated'
+    }))
   );
 };
