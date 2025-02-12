@@ -3,6 +3,7 @@ import { FunctionComponent, PropsWithChildren, useEffect } from 'react';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ProConnectButton from '@codegouvfr/react-dsfr/ProConnectButton';
 import clsx from 'clsx';
+import { Brand } from 'maestro-shared/constants';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useGetAuthRedirectUrlQuery } from 'src/services/auth.service';
 import farmhand from '../../assets/farmland.webp';
@@ -27,7 +28,7 @@ const HomeView = () => {
   return (
     <HomeViewContainer>
       <h2 className={cx('fr-mb-2w')}>
-        Identifiez-vous pour accéder à votre espace maestro
+        Identifiez-vous pour accéder à votre espace {Brand}
       </h2>
       <div className={cx('fr-text--lg', 'fr-mb-5w')}>
         ProConnect est la solution proposée par l’État pour sécuriser et
