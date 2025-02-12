@@ -1,6 +1,7 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
+import { Brand } from 'maestro-shared/constants';
 import {
   isCreatedPartialSample,
   PartialSample,
@@ -97,7 +98,7 @@ const SupportDocumentDownload = ({
           {!isCreatedPartialSample(partialSample)
             ? 'Le prélèvement va être créé mais votre '
             : 'Votre '}
-          saisie devra être complétée sur maestro pour l’envoi de la demande
+          saisie devra être complétée sur ${Brand} pour l’envoi de la demande
           d’analyse au laboratoire.
         </ConfirmationModal>
       )}
