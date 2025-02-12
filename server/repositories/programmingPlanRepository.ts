@@ -1,8 +1,8 @@
 import { isArray, isNil, omit, omitBy } from 'lodash-es';
 import { Region } from 'maestro-shared/referential/Region';
 import { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
+import { ProgrammingPlanRegionalStatus as ProgrammingPlanRegionalStatusType } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanRegionalStatus';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { ProgrammingPlanRegionalStatus as ProgrammingPlanRegionalStatusType } from 'maestro-shared/schema/ProgrammingPlanRegionalStatus/ProgrammingPlanRegionalStatus';
 import z from 'zod';
 import { knexInstance as db } from './db';
 export const programmingPlansTable = 'programming_plans';
@@ -15,10 +15,19 @@ const ProgrammingPlanDbo = ProgrammingPlan.omit({
 
 type ProgrammingPlanDbo = z.infer<typeof ProgrammingPlanDbo>;
 
+const ProgrammingPlanRegionalStatusDbo =
+  ProgrammingPlanRegionalStatusType.extend({
+    programmingPlanId: z.string()
+  });
+
+type ProgrammingPlanRegionalStatusDbo = z.infer<
+  typeof ProgrammingPlanRegionalStatusDbo
+>;
+
 export const ProgrammingPlans = (transaction = db) =>
   transaction<ProgrammingPlanDbo>(programmingPlansTable);
 export const ProgrammingPlanRegionalStatus = (transaction = db) =>
-  transaction<ProgrammingPlanRegionalStatusType>(
+  transaction<ProgrammingPlanRegionalStatusDbo>(
     programmingPlanRegionalStatusTable
   );
 
