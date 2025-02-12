@@ -452,26 +452,28 @@ describe('ProgrammingPlan router', () => {
     });
   });
 
-  describe('PUT /programming-plans/:year', () => {
-    const programmingPlanRegionalStatus = {
-      status: 'Validated',
-      region: oneOf(RegionList)
-    };
+  describe('PUT /programming-plans/:programmingPlanId/regional-status', () => {
+    const programmingPlanRegionalStatusList = [
+      {
+        status: 'Validated',
+        region: oneOf(RegionList)
+      }
+    ];
 
     const testRoute = (programmingPlanId: string) =>
-      `/api/programming-plans/${programmingPlanId}`;
+      `/api/programming-plans/${programmingPlanId}/regional-status`;
 
     test('should fail if the user is not authenticated', async () => {
       await request(app)
         .put(testRoute(validatedProgrammingPlan.id))
-        .send(programmingPlanRegionalStatus)
+        .send(programmingPlanRegionalStatusList)
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
     test('should fail if the user is not authorized', async () => {
       await request(app)
         .put(testRoute(validatedProgrammingPlan.id))
-        .send(programmingPlanRegionalStatus)
+        .send(programmingPlanRegionalStatusList)
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
@@ -479,7 +481,7 @@ describe('ProgrammingPlan router', () => {
     test('should fail if the programming plan does not exist', async () => {
       await request(app)
         .put(testRoute(uuidv4()))
-        .send(programmingPlanRegionalStatus)
+        .send(programmingPlanRegionalStatusList)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
@@ -488,7 +490,7 @@ describe('ProgrammingPlan router', () => {
       const badRequestTest = async (payload?: Record<string, unknown>) =>
         request(app)
           .put(testRoute(validatedProgrammingPlan.id))
-          .send({ ...programmingPlanRegionalStatus, ...payload })
+          .send({ ...programmingPlanRegionalStatusList, ...payload })
           .use(tokenProvider(NationalCoordinator))
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
@@ -520,7 +522,7 @@ describe('ProgrammingPlan router', () => {
     test('should update a Submitted programming plan to Validated', async () => {
       const res = await request(app)
         .put(testRoute(submittedProgrammingPlan.id))
-        .send(programmingPlanRegionalStatus)
+        .send(programmingPlanRegionalStatusList)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
@@ -529,8 +531,9 @@ describe('ProgrammingPlan router', () => {
           ...submittedProgrammingPlan,
           regionalStatus: submittedProgrammingPlan.regionalStatus.map(
             (regionalStatus) =>
-              regionalStatus.region === programmingPlanRegionalStatus.region
-                ? programmingPlanRegionalStatus
+              regionalStatus.region ===
+              programmingPlanRegionalStatusList[0].region
+                ? programmingPlanRegionalStatusList[0]
                 : regionalStatus
           )
         })
@@ -540,11 +543,11 @@ describe('ProgrammingPlan router', () => {
         ProgrammingPlanRegionalStatus()
           .where({
             programmingPlanId: submittedProgrammingPlan.id,
-            region: programmingPlanRegionalStatus.region
+            region: programmingPlanRegionalStatusList[0].region
           })
           .first()
       ).resolves.toMatchObject({
-        region: programmingPlanRegionalStatus.region,
+        region: programmingPlanRegionalStatusList[0].region,
         status: 'Validated'
       });
 

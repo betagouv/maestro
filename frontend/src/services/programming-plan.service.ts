@@ -39,23 +39,20 @@ export const programmingPlanApi = api.injectEndpoints({
         ProgrammingPlan.parse(fp.omitBy(response, fp.isNil)),
       invalidatesTags: (_result, _error) => [{ type: 'ProgrammingPlan' }]
     }),
-    updateProgrammingPlan: builder.mutation<
+    updateProgrammingPlanRegionalStatus: builder.mutation<
       ProgrammingPlan,
       {
         programmingPlanId: string;
-        programmingPlanRegionalStatus: ProgrammingPlanRegionalStatus;
+        programmingPlanRegionalStatusList: ProgrammingPlanRegionalStatus[];
       }
     >({
-      query: ({ programmingPlanId, programmingPlanRegionalStatus }) => ({
-        url: `programming-plans/${programmingPlanId}`,
+      query: ({ programmingPlanId, programmingPlanRegionalStatusList }) => ({
+        url: `programming-plans/${programmingPlanId}/regional-status`,
         method: 'PUT',
-        body: programmingPlanRegionalStatus
+        body: programmingPlanRegionalStatusList
       }),
       transformResponse: (response: any) =>
-        ProgrammingPlan.parse(fp.omitBy(response, fp.isNil)),
-      invalidatesTags: (_result, _error, { programmingPlanId }) => [
-        { type: 'ProgrammingPlan', id: programmingPlanId }
-      ]
+        ProgrammingPlan.parse(fp.omitBy(response, fp.isNil))
     })
   })
 });
@@ -64,5 +61,5 @@ export const {
   useFindProgrammingPlansQuery,
   useGetProgrammingPlanByYearQuery,
   useCreateProgrammingPlanMutation,
-  useUpdateProgrammingPlanMutation
+  useUpdateProgrammingPlanRegionalStatusMutation
 } = programmingPlanApi;

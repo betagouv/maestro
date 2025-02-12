@@ -44,13 +44,15 @@ router.post(
   programmingPlanController.createProgrammingPlan
 );
 router.put(
-  '/:programmingPlanId',
+  '/:programmingPlanId/regional-status',
   validator.validate(
-    uuidParam('programmingPlanId').merge(body(ProgrammingPlanRegionalStatus))
+    uuidParam('programmingPlanId').merge(
+      body(z.array(ProgrammingPlanRegionalStatus))
+    )
   ),
   permissionsCheck(['manageProgrammingPlan']),
   programmingPlanCheck(),
-  programmingPlanController.updateProgrammingPlan
+  programmingPlanController.updateRegionalStatus
 );
 
 export default router;

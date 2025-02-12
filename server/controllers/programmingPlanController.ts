@@ -169,58 +169,66 @@ const createProgrammingPlan = async (request: Request, response: Response) => {
   response.status(constants.HTTP_STATUS_CREATED).send(newProgrammingPlan);
 };
 
-const updateProgrammingPlan = async (request: Request, response: Response) => {
+const updateRegionalStatus = async (request: Request, response: Response) => {
   const { programmingPlan } = request as ProgrammingPlanRequest;
-  const programmingPlanRegionalStatus =
-    request.body as ProgrammingPlanRegionalStatus;
+  const programmingPlanRegionalStatusList =
+    request.body as ProgrammingPlanRegionalStatus[];
 
   console.info(
     'Update programming plan regional status',
     programmingPlan.id,
-    programmingPlanRegionalStatus
+    programmingPlanRegionalStatusList
   );
 
-  const regionalCoordinators = await userRepository.findMany({
-    role: 'RegionalCoordinator',
-    region: programmingPlanRegionalStatus.region
-  });
-
-  const nextProgrammingPlanStatus =
-    NextProgrammingPlanStatus[
-      programmingPlan.regionalStatus.find(
-        (_) => _.region === programmingPlanRegionalStatus.region
-      )?.status as ProgrammingPlanStatus
-    ];
-
-  if (programmingPlanRegionalStatus.status !== nextProgrammingPlanStatus) {
+  if (
+    programmingPlanRegionalStatusList.some(
+      (programmingPlanRegionalStatus) =>
+        NextProgrammingPlanStatus[
+          programmingPlan.regionalStatus.find(
+            (_) => _.region === programmingPlanRegionalStatus.region
+          )?.status as ProgrammingPlanStatus
+        ] !== programmingPlanRegionalStatus.status
+    )
+  ) {
     return response.sendStatus(constants.HTTP_STATUS_BAD_REQUEST);
   }
 
-  if (nextProgrammingPlanStatus === 'Submitted') {
-    await mailService.sendSubmittedProgrammingPlan({
-      recipients: [
-        ...regionalCoordinators.map(
-          (regionalCoordinator) => regionalCoordinator.email
-        ),
-        config.mail.from
-      ]
-    });
-  } else if (nextProgrammingPlanStatus === 'Validated') {
-    await mailService.sendValidatedProgrammingPlan({
-      recipients: [
-        ...regionalCoordinators.map(
-          (regionalCoordinator) => regionalCoordinator.email
-        ),
-        config.mail.from
-      ]
-    });
-  } else {
-    return response.sendStatus(constants.HTTP_STATUS_BAD_REQUEST);
-  }
+  await Promise.all(
+    programmingPlanRegionalStatusList.map(
+      async (programmingPlanRegionalStatus) => {
+        const regionalCoordinators = await userRepository.findMany({
+          role: 'RegionalCoordinator',
+          region: programmingPlanRegionalStatus.region
+        });
 
-  await programmingPlanRepository.updateRegionalStatus(
-    programmingPlan.id,
-    programmingPlanRegionalStatus
+        if (programmingPlanRegionalStatus.status === 'Submitted') {
+          await mailService.sendSubmittedProgrammingPlan({
+            recipients: [
+              ...regionalCoordinators.map(
+                (regionalCoordinator) => regionalCoordinator.email
+              ),
+              config.mail.from
+            ]
+          });
+        } else if (programmingPlanRegionalStatus.status === 'Validated') {
+          await mailService.sendValidatedProgrammingPlan({
+            recipients: [
+              ...regionalCoordinators.map(
+                (regionalCoordinator) => regionalCoordinator.email
+              ),
+              config.mail.from
+            ]
+          });
+        } else {
+          return response.sendStatus(constants.HTTP_STATUS_BAD_REQUEST);
+        }
+
+        await programmingPlanRepository.updateRegionalStatus(
+          programmingPlan.id,
+          programmingPlanRegionalStatus
+        );
+      }
+    )
   );
 
   const updatedProgrammingPlan = await programmingPlanRepository.findUnique(
@@ -234,5 +242,5 @@ export default {
   getProgrammingPlanByYear,
   findProgrammingPlans,
   createProgrammingPlan,
-  updateProgrammingPlan
+  updateRegionalStatus
 };
