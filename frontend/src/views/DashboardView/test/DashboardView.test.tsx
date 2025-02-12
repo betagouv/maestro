@@ -22,6 +22,7 @@ vi.mock(import('react-router-dom'), async (importOriginal) => {
   };
 });
 
+import { RegionList } from 'maestro-shared/referential/Region';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import DashboardView from 'src/views/DashboardView/DashboardView';
 import { describe, expect, test, vi } from 'vitest';
@@ -48,8 +49,11 @@ describe('DashboardView', () => {
 
     test('should render the current programming plan if validated', async () => {
       const validatedProgrammingPlan = genProgrammingPlan({
-        status: 'Validated',
-        year: new Date().getFullYear()
+        year: new Date().getFullYear(),
+        regionalStatus: RegionList.map((region) => ({
+          region,
+          status: 'Validated'
+        }))
       });
       mockRequests([
         programmingPlanByYearRequestMock(
@@ -79,8 +83,11 @@ describe('DashboardView', () => {
     test('should render the previous programming plan of the year if current is not validated', async () => {
       const inProgressProgrammingPlan = undefined;
       const validatedProgrammingPlan = genProgrammingPlan({
-        status: 'Validated',
-        year: new Date().getFullYear() - 1
+        year: new Date().getFullYear() - 1,
+        regionalStatus: RegionList.map((region) => ({
+          region,
+          status: 'Validated'
+        }))
       });
       mockRequests([
         programmingPlanByYearRequestMock(

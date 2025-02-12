@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
 import PrescriptionStages from 'src/components/Prescription/PrescriptionStages/PrescriptionStages';
@@ -106,7 +107,9 @@ const RegionalPrescriptionCard = ({
               <hr className={cx('fr-my-2w')} />
               <div>
                 {['InProgress', 'Submitted'].includes(
-                  programmingPlan.status
+                  programmingPlan.regionalStatus.find(
+                    (_) => _.region === regionalPrescription.region
+                  )?.status as ProgrammingPlanStatus
                 ) ? (
                   <span className={cx('fr-text--bold')}>
                     {regionalPrescription.sampleCount ?? 0}{' '}

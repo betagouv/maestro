@@ -1,9 +1,7 @@
 import fp from 'lodash';
 import { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
-import {
-  ProgrammingPlan,
-  ProgrammingPlanStatusUpdate
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanRegionalStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanRegionalStatus';
+import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { api } from 'src/services/api.service';
 
 export const programmingPlanApi = api.injectEndpoints({
@@ -45,13 +43,13 @@ export const programmingPlanApi = api.injectEndpoints({
       ProgrammingPlan,
       {
         programmingPlanId: string;
-        programmingPlanUpdate: ProgrammingPlanStatusUpdate;
+        programmingPlanRegionalStatus: ProgrammingPlanRegionalStatus;
       }
     >({
-      query: ({ programmingPlanId, programmingPlanUpdate }) => ({
+      query: ({ programmingPlanId, programmingPlanRegionalStatus }) => ({
         url: `programming-plans/${programmingPlanId}`,
         method: 'PUT',
-        body: programmingPlanUpdate
+        body: programmingPlanRegionalStatus
       }),
       transformResponse: (response: any) =>
         ProgrammingPlan.parse(fp.omitBy(response, fp.isNil)),
