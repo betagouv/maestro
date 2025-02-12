@@ -13,6 +13,7 @@ import {
 } from '../../../repositories/sampleRepository';
 import { Users } from '../../../repositories/userRepository';
 import { DummyLaboratoryIds } from './002-laboratories';
+import { validatedProgrammingPlanId } from './003-programming-plans';
 import {
   abricotsEtSimilaires,
   avoineEtSimilaires,
@@ -25,7 +26,7 @@ import {
 
 export const seed = async function () {
   const validatedProgrammingPlan = await ProgrammingPlans()
-    .where({ status: 'Validated' })
+    .where({ id: validatedProgrammingPlanId })
     .first();
 
   const sampler = await Users()

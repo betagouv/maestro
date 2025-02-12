@@ -1,13 +1,13 @@
 import { RegionList } from 'maestro-shared/referential/Region';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
-import { v4 as uuidv4 } from 'uuid';
 import {
   formatProgrammingPlan,
   ProgrammingPlans
 } from '../../../repositories/programmingPlanRepository';
 import { Users } from '../../../repositories/userRepository';
 
-export const validatedProgrammingPlanId = uuidv4();
+export const validatedProgrammingPlanId =
+  'f5d510ef-ab78-449a-acd6-392895a1994f';
 
 export const seed = async function () {
   const user = await Users()
