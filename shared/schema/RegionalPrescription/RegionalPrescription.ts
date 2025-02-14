@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { z } from 'zod';
-import { isDromRegion, Region, RegionSort } from '../../referential/Region';
+import { Region, RegionSort } from '../../referential/Region';
 import { Prescription } from '../Prescription/Prescription';
 import { ProgrammingPlan } from '../ProgrammingPlan/ProgrammingPlans';
 import { hasPermission, User, userRegions } from '../User/User';
@@ -99,19 +99,19 @@ export const hasRegionalPrescriptionPermission = (
   updateSampleCount:
     hasPermission(user, 'updatePrescription') &&
     userRegions(user).includes(regionalPrescription.region) &&
-    (isDromRegion(regionalPrescription.region)
-      ? programmingPlan.statusDrom !== 'Closed'
-      : programmingPlan.status !== 'Closed'),
+    programmingPlan.regionalStatus.find(
+      (regionStatus) => regionStatus.region === regionalPrescription.region
+    )?.status !== 'Closed',
   comment:
     hasPermission(user, 'commentPrescription') &&
     userRegions(user).includes(regionalPrescription.region) &&
-    (isDromRegion(regionalPrescription.region)
-      ? programmingPlan.statusDrom === 'Submitted'
-      : programmingPlan.status === 'Submitted'),
+    programmingPlan.regionalStatus.find(
+      (regionStatus) => regionStatus.region === regionalPrescription.region
+    )?.status === 'Submitted',
   updateLaboratory:
     hasPermission(user, 'updatePrescriptionLaboratory') &&
     userRegions(user).includes(regionalPrescription.region) &&
-    (isDromRegion(regionalPrescription.region)
-      ? programmingPlan.statusDrom === 'Validated'
-      : programmingPlan.status === 'Validated')
+    programmingPlan.regionalStatus.find(
+      (regionStatus) => regionStatus.region === regionalPrescription.region
+    )?.status === 'Validated'
 });

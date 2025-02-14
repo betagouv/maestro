@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import {
   camelCase,
   chain,
@@ -75,3 +76,16 @@ export const objToUrlParams = (obj: any) =>
       .mapValues((o) => (isObject(o) ? JSON.stringify(o) : o))
       .value()
   );
+
+export function toArray<T>(value: T | T[]): T[] {
+  return Array.isArray(value) ? value : [value];
+}
+
+export function withISOStringDates(obj: any): any {
+  return _.cloneDeepWith(obj, (value) => {
+    if (_.isDate(value)) {
+      return value.toISOString();
+    }
+    return undefined;
+  });
+}

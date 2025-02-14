@@ -3,14 +3,12 @@ import { AuthenticatedRequest, ProgrammingPlanRequest } from 'express-jwt';
 import { constants } from 'http2';
 import { intersection } from 'lodash-es';
 import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
-import { isDromRegion } from 'maestro-shared/referential/Region';
+import { RegionList } from 'maestro-shared/referential/Region';
 import { ContextList } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
+import { ProgrammingPlanRegionalStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanRegionalStatus';
 import {
-  getNextProgrammingPlanStatus,
-  ProgrammingPlanStatusUpdate
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import {
+  NextProgrammingPlanStatus,
   ProgrammingPlanStatus,
   ProgrammingPlanStatusList,
   ProgrammingPlanStatusPermissions
@@ -45,7 +43,7 @@ const findProgrammingPlans = async (request: Request, response: Response) => {
       findOptionsStatus,
       userStatusAuthorized
     ) as ProgrammingPlanStatus[],
-    isDrom: findOptions.isDrom || isDromRegion(user.region)
+    region: user.region || findOptions.region
   });
 
   console.info('Found programmingPlans', programmingPlans);
@@ -62,7 +60,10 @@ const getProgrammingPlanByYear = async (
 
   console.info('Get programming plan for year', year);
 
-  const programmingPlan = await programmingPlanRepository.findOne(year);
+  const programmingPlan = await programmingPlanRepository.findOne(
+    year,
+    user.region
+  );
 
   if (!programmingPlan) {
     throw new ProgrammingPlanMissingError(String(year));
@@ -74,15 +75,18 @@ const getProgrammingPlanByYear = async (
     .filter(([, permission]) => hasPermission(user, permission))
     .map(([status]) => status);
 
-  if (
-    isDromRegion(user.region)
-      ? !userStatusAuthorized.includes(programmingPlan.statusDrom)
-      : !userStatusAuthorized.includes(programmingPlan.status)
-  ) {
+  const filterProgrammingPlanStatus = programmingPlan.regionalStatus.filter(
+    (_) => userStatusAuthorized.includes(_.status)
+  );
+
+  if (filterProgrammingPlanStatus.length === 0) {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
   }
 
-  response.status(constants.HTTP_STATUS_OK).send(programmingPlan);
+  response.status(constants.HTTP_STATUS_OK).send({
+    ...programmingPlan,
+    regionalStatus: filterProgrammingPlanStatus
+  });
 };
 
 const createProgrammingPlan = async (request: Request, response: Response) => {
@@ -95,7 +99,7 @@ const createProgrammingPlan = async (request: Request, response: Response) => {
 
   if (
     !previousProgrammingPlan ||
-    previousProgrammingPlan.status !== 'Validated'
+    previousProgrammingPlan.regionalStatus.some((_) => _.status !== 'Validated')
   ) {
     throw new ProgrammingPlanMissingError(String(year - 1));
   }
@@ -105,8 +109,10 @@ const createProgrammingPlan = async (request: Request, response: Response) => {
     createdAt: new Date(),
     createdBy: user.id,
     year,
-    status: 'InProgress' as ProgrammingPlanStatus,
-    statusDrom: 'InProgress' as ProgrammingPlanStatus
+    regionalStatus: RegionList.map((region) => ({
+      region,
+      status: 'InProgress' as ProgrammingPlanStatus
+    }))
   };
 
   await programmingPlanRepository.insert(newProgrammingPlan);
@@ -163,82 +169,71 @@ const createProgrammingPlan = async (request: Request, response: Response) => {
   response.status(constants.HTTP_STATUS_CREATED).send(newProgrammingPlan);
 };
 
-const updateProgrammingPlan = async (request: Request, response: Response) => {
+const updateRegionalStatus = async (request: Request, response: Response) => {
   const { programmingPlan } = request as ProgrammingPlanRequest;
-  const programmingPlanUpdate = request.body as ProgrammingPlanStatusUpdate;
+  const programmingPlanRegionalStatusList =
+    request.body as ProgrammingPlanRegionalStatus[];
 
-  console.info('Update programming plan', programmingPlan.id);
-
-  const regionalCoordinators = await userRepository.findMany({
-    role: 'RegionalCoordinator'
-  });
+  console.info(
+    'Update programming plan regional status',
+    programmingPlan.id,
+    programmingPlanRegionalStatusList
+  );
 
   if (
-    programmingPlanUpdate.status !==
-    getNextProgrammingPlanStatus(programmingPlan, programmingPlanUpdate.isDrom)
+    programmingPlanRegionalStatusList.some(
+      (programmingPlanRegionalStatus) =>
+        NextProgrammingPlanStatus[
+          programmingPlan.regionalStatus.find(
+            (_) => _.region === programmingPlanRegionalStatus.region
+          )?.status as ProgrammingPlanStatus
+        ] !== programmingPlanRegionalStatus.status
+    )
   ) {
     return response.sendStatus(constants.HTTP_STATUS_BAD_REQUEST);
   }
 
-  if (
-    getNextProgrammingPlanStatus(
-      programmingPlan,
-      programmingPlanUpdate.isDrom
-    ) === 'Submitted'
-  ) {
-    await mailService.sendSubmittedProgrammingPlan({
-      recipients: [
-        ...regionalCoordinators
-          .filter(
-            (regionalCoordinator) =>
-              regionalCoordinator.region &&
-              ((programmingPlanUpdate.isDrom &&
-                isDromRegion(regionalCoordinator.region)) ||
-                (!programmingPlanUpdate.isDrom &&
-                  !isDromRegion(regionalCoordinator.region)))
-          )
-          .map((regionalCoordinator) => regionalCoordinator.email),
-        config.mail.from
-      ]
-    });
-  } else if (
-    getNextProgrammingPlanStatus(
-      programmingPlan,
-      programmingPlanUpdate.isDrom
-    ) === 'Validated'
-  ) {
-    await mailService.sendValidatedProgrammingPlan({
-      recipients: [
-        ...regionalCoordinators
-          .filter(
-            (regionalCoordinator) =>
-              regionalCoordinator.region &&
-              ((programmingPlanUpdate.isDrom &&
-                isDromRegion(regionalCoordinator.region)) ||
-                (!programmingPlanUpdate.isDrom &&
-                  !isDromRegion(regionalCoordinator.region)))
-          )
-          .map((regionalCoordinator) => regionalCoordinator.email),
-        config.mail.from
-      ]
-    });
-  } else {
-    return response.sendStatus(constants.HTTP_STATUS_BAD_REQUEST);
-  }
+  await Promise.all(
+    programmingPlanRegionalStatusList.map(
+      async (programmingPlanRegionalStatus) => {
+        const regionalCoordinators = await userRepository.findMany({
+          role: 'RegionalCoordinator',
+          region: programmingPlanRegionalStatus.region
+        });
 
-  const updatedProgrammingPlan = {
-    ...programmingPlan,
-    status: !programmingPlanUpdate.isDrom
-      ? programmingPlanUpdate.status
-      : programmingPlan.status,
-    statusDrom: programmingPlanUpdate.isDrom
-      ? programmingPlanUpdate.status
-      : programmingPlan.statusDrom
-  };
+        if (programmingPlanRegionalStatus.status === 'Submitted') {
+          await mailService.sendSubmittedProgrammingPlan({
+            recipients: [
+              ...regionalCoordinators.map(
+                (regionalCoordinator) => regionalCoordinator.email
+              ),
+              config.mail.from
+            ]
+          });
+        } else if (programmingPlanRegionalStatus.status === 'Validated') {
+          await mailService.sendValidatedProgrammingPlan({
+            recipients: [
+              ...regionalCoordinators.map(
+                (regionalCoordinator) => regionalCoordinator.email
+              ),
+              config.mail.from
+            ]
+          });
+        } else {
+          return response.sendStatus(constants.HTTP_STATUS_BAD_REQUEST);
+        }
 
-  console.info('Updated programming plan', updatedProgrammingPlan);
+        await programmingPlanRepository.updateRegionalStatus(
+          programmingPlan.id,
+          programmingPlanRegionalStatus
+        );
+      }
+    )
+  );
 
-  await programmingPlanRepository.update(updatedProgrammingPlan);
+  const updatedProgrammingPlan = await programmingPlanRepository.findUnique(
+    programmingPlan.id
+  );
 
   response.status(constants.HTTP_STATUS_OK).send(updatedProgrammingPlan);
 };
@@ -247,5 +242,5 @@ export default {
   getProgrammingPlanByYear,
   findProgrammingPlans,
   createProgrammingPlan,
-  updateProgrammingPlan
+  updateRegionalStatus
 };

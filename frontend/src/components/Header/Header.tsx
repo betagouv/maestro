@@ -23,8 +23,8 @@ const Header = () => {
   );
   const [logout] = useLogoutMutation();
 
-  const validatedProgrammingPlans = programmingPlans?.filter(
-    (pp) => pp.status === 'Validated'
+  const validatedProgrammingPlans = programmingPlans?.filter((pp) =>
+    pp.regionalStatus.some((rs) => rs.status === 'Validated')
   );
 
   const { programmingPlan } = useAppSelector((state) => state.programmingPlan);

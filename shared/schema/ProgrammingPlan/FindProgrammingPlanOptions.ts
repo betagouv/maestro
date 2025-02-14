@@ -1,10 +1,11 @@
 import { z } from 'zod';
+import { Region } from '../../referential/Region';
 import { coerceToArray } from '../../utils/utils';
 import { ProgrammingPlanStatus } from './ProgrammingPlanStatus';
 export const FindProgrammingPlanOptions = z.object({
   year: z.number().int().nullish(),
   status: coerceToArray(z.array(ProgrammingPlanStatus)).nullish(),
-  isDrom: z.boolean().nullish()
+  region: Region.nullish()
 });
 
 export type FindProgrammingPlanOptions = z.infer<

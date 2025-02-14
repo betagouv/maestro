@@ -1,9 +1,7 @@
 import fp from 'lodash';
 import { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
-import {
-  ProgrammingPlan,
-  ProgrammingPlanStatusUpdate
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanRegionalStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanRegionalStatus';
+import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { api } from 'src/services/api.service';
 
 export const programmingPlanApi = api.injectEndpoints({
@@ -41,23 +39,20 @@ export const programmingPlanApi = api.injectEndpoints({
         ProgrammingPlan.parse(fp.omitBy(response, fp.isNil)),
       invalidatesTags: (_result, _error) => [{ type: 'ProgrammingPlan' }]
     }),
-    updateProgrammingPlan: builder.mutation<
+    updateProgrammingPlanRegionalStatus: builder.mutation<
       ProgrammingPlan,
       {
         programmingPlanId: string;
-        programmingPlanUpdate: ProgrammingPlanStatusUpdate;
+        programmingPlanRegionalStatusList: ProgrammingPlanRegionalStatus[];
       }
     >({
-      query: ({ programmingPlanId, programmingPlanUpdate }) => ({
-        url: `programming-plans/${programmingPlanId}`,
+      query: ({ programmingPlanId, programmingPlanRegionalStatusList }) => ({
+        url: `programming-plans/${programmingPlanId}/regional-status`,
         method: 'PUT',
-        body: programmingPlanUpdate
+        body: programmingPlanRegionalStatusList
       }),
       transformResponse: (response: any) =>
-        ProgrammingPlan.parse(fp.omitBy(response, fp.isNil)),
-      invalidatesTags: (_result, _error, { programmingPlanId }) => [
-        { type: 'ProgrammingPlan', id: programmingPlanId }
-      ]
+        ProgrammingPlan.parse(fp.omitBy(response, fp.isNil))
     })
   })
 });
@@ -66,5 +61,5 @@ export const {
   useFindProgrammingPlansQuery,
   useGetProgrammingPlanByYearQuery,
   useCreateProgrammingPlanMutation,
-  useUpdateProgrammingPlanMutation
+  useUpdateProgrammingPlanRegionalStatusMutation
 } = programmingPlanApi;

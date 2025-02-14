@@ -51,14 +51,16 @@ const writeToWorkbook = async (
           width: 15
         }
       : undefined,
-    !exportedRegion && programmingPlan.status === 'Validated'
+    !exportedRegion &&
+    programmingPlan.regionalStatus.some((_) => _.status === 'Validated')
       ? {
           header: 'Total national\nRéalisés',
           key: 'sentSampleTotalCount',
           width: 15
         }
       : undefined,
-    !exportedRegion && programmingPlan.status === 'Validated'
+    !exportedRegion &&
+    programmingPlan.regionalStatus.some((_) => _.status === 'Validated')
       ? {
           header: 'Total national\nTaux de réalisation',
           key: 'completionRate',
@@ -71,14 +73,14 @@ const writeToWorkbook = async (
         key: `sampleCount-${region}`,
         width: 10
       },
-      programmingPlan.status === 'Validated'
+      programmingPlan.regionalStatus.some((_) => _.status === 'Validated')
         ? {
             header: `${Regions[region].shortName}\nRéalisés`,
             key: `realizedSampleCount-${region}`,
             width: 10
           }
         : undefined,
-      programmingPlan.status === 'Validated'
+      programmingPlan.regionalStatus.some((_) => _.status === 'Validated')
         ? {
             header: `${Regions[region].shortName}\nTaux de réalisation`,
             key: `completionRate-${region}`,

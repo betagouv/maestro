@@ -250,7 +250,7 @@ export const graineDeTournesol2 = genPrescription({
 });
 export const seed = async function () {
   const validatedProgrammingPlan = await ProgrammingPlans()
-    .where({ status: 'Validated' })
+    .where({ id: validatedProgrammingPlanId })
     .first();
 
   if (!validatedProgrammingPlan) {

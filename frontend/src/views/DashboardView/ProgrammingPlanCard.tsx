@@ -54,14 +54,16 @@ const ProgrammingPlanCard = ({
       end={
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12', 'fr-pt-0')}>
-            {programmingPlan.status === 'Validated' ? (
+            {programmingPlan.regionalStatus.some(
+              (_) => _.status === 'Validated'
+            ) ? (
               <Badge severity="success" noIcon>
                 Taux de réalisation :{' '}
                 {getCompletionRate(regionalPrescriptions ?? [])}%
               </Badge>
             ) : (
               <Badge severity="warning" noIcon>
-                {ProgrammingPlanStatusLabels[programmingPlan.status]}
+                {ProgrammingPlanStatusLabels['InProgress']}
               </Badge>
             )}
           </div>
@@ -77,7 +79,9 @@ const ProgrammingPlanCard = ({
               className={'fr-card--xs'}
             />
           </div>
-          {programmingPlan.status === 'Validated' && (
+          {programmingPlan.regionalStatus.some(
+            (_) => _.status === 'Validated'
+          ) && (
             <div className={cx('fr-col-12', 'fr-col-md-6')}>
               <Card
                 background

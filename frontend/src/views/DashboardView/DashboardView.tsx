@@ -165,7 +165,9 @@ const DashboardView = () => {
         </div>
       )}
 
-      {currentProgrammingPlan.status === 'Validated' && (
+      {currentProgrammingPlan.regionalStatus.some(
+        (_) => _.status === 'Validated'
+      ) && (
         <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
           <div className={clsx(cx('fr-my-2w'), 'table-header')}>
             <h4 className={cx('fr-mb-0')}>Vos derniers prélèvements</h4>

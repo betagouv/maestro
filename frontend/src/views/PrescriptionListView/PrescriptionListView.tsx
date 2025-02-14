@@ -22,7 +22,10 @@ import {
   ContextLabels,
   ContextList
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { NextProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import {
+  NextProgrammingPlanStatus,
+  ProgrammingPlanStatus
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import {
   RegionalPrescriptionKey,
   RegionalPrescriptionUpdate
@@ -34,7 +37,6 @@ import PrescriptionCard from 'src/components/Prescription/PrescriptionCard/Presc
 import PrescriptionSubstancesModal from 'src/components/Prescription/PrescriptionSubstancesModal/PrescriptionSubstancesModal';
 import RegionalPrescriptionCard from 'src/components/Prescription/RegionalPrescriptionCard/RegionalPrescriptionCard';
 import RegionalPrescriptionCommentsModal from 'src/components/Prescription/RegionalPrescriptionCommentsModal/RegionalPrescriptionCommentsModal';
-import ProgrammingPlanUpdateModal from 'src/components/ProgrammingPlan/ProgrammingPlanUpdateModal/ProgrammingPlanUpdateModal';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
@@ -54,6 +56,7 @@ import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import PrescriptionListHeader from 'src/views/PrescriptionListView/PrescriptionListHeader';
 import PrescriptionTable from 'src/views/PrescriptionListView/PrescriptionTable';
 import programmation from '../../assets/illustrations/programmation.svg';
+import ProgrammingPlanUpdateModal from '../../components/ProgrammingPlan/ProgrammingPlanUpdateModal/ProgrammingPlanUpdateModal';
 
 export type PrescriptionListDisplay = 'table' | 'cards';
 
@@ -318,9 +321,14 @@ const PrescriptionListView = () => {
                 }
               />
               {programmingPlan &&
-                NextProgrammingPlanStatus[programmingPlan.status] &&
-                ['Submitted', 'Validated'].includes(
-                  NextProgrammingPlanStatus[programmingPlan.status] as string
+                programmingPlan.regionalStatus.some(
+                  (regionalStatus) =>
+                    NextProgrammingPlanStatus[regionalStatus.status] &&
+                    ['Submitted', 'Validated'].includes(
+                      NextProgrammingPlanStatus[
+                        regionalStatus.status
+                      ] as ProgrammingPlanStatus
+                    )
                 ) && (
                   <ProgrammingPlanUpdateModal
                     programmingPlan={programmingPlan}
