@@ -96,11 +96,7 @@ const ProgrammingPlanUpdateModal = ({ programmingPlan }: Props) => {
       </div>
 
       <submissionModal.Component
-        title={
-          isSuccess
-            ? 'Notification envoyée'
-            : 'Notifier les régions au sujet des plans de surveillance et de contrôle 2025'
-        }
+        title={isSuccess ? 'Notification envoyée' : 'Notifier les régions'}
         buttons={
           isSuccess
             ? [
@@ -127,8 +123,8 @@ const ProgrammingPlanUpdateModal = ({ programmingPlan }: Props) => {
       >
         {isSuccess ? (
           <>
-            La soumission de la programmation a bien été envoyée
-            {regionsToNotify.length > 1 ? ' aux régions ' : ' à la région '}
+            La programmation est désormais validée pour
+            {regionsToNotify.length > 1 ? ' les régions ' : ' la région '}
             {regionsToNotify.map((region) => Regions[region].name).join(', ')}.
           </>
         ) : (
@@ -143,7 +139,8 @@ const ProgrammingPlanUpdateModal = ({ programmingPlan }: Props) => {
                     onChange: () => {
                       setStatus('InProgress');
                       setRegionsToNotify([]);
-                    }
+                    },
+                    disabled: getRegionsByStatus('InProgress').length === 0
                   }
                 },
                 {
@@ -153,7 +150,8 @@ const ProgrammingPlanUpdateModal = ({ programmingPlan }: Props) => {
                     onChange: () => {
                       setStatus('Submitted');
                       setRegionsToNotify([]);
-                    }
+                    },
+                    disabled: getRegionsByStatus('Submitted').length === 0
                   }
                 }
               ]}
