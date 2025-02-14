@@ -98,7 +98,7 @@ const SupportDocumentDownload = ({
           {!isCreatedPartialSample(partialSample)
             ? 'Le prélèvement va être créé mais votre '
             : 'Votre '}
-          saisie devra être complétée sur ${Brand} pour l’envoi de la demande
+          saisie devra être complétée sur {Brand} pour l’envoi de la demande
           d’analyse au laboratoire.
         </ConfirmationModal>
       )}
