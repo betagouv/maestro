@@ -11,7 +11,7 @@ import { ResidueCompliance } from 'maestro-shared/schema/Analysis/Residue/Residu
 import { ResidueKind } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
 import { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
-import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Referential';
+import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 
 export type Generated<T> =
   T extends ColumnType<infer S, infer I, infer U>

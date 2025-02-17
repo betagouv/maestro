@@ -28,7 +28,15 @@ export const getResidue = (
     : 'SimpleResidue';
 
   const ssd2Id = getSSD2IdByCasNumber(casNumber);
-  return ssd2Id != null ? { reference: ssd2Id, kind } : null;
+
+  if (ssd2Id === null) {
+    return null
+  }
+  if (kind === 'ComplexResidue') {
+    return {kind, reference: ssd2Id, analytes: []};
+  }
+  return {kind, reference: ssd2Id};
+
   // for (const entry of entries(SimpleResidueLabels)) {
   //   if (entry[1].toLowerCase() === normalizedEnglishName) {
   //     return { reference: entry[0] as SimpleResidue, kind: 'SimpleResidue' };

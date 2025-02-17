@@ -8,7 +8,7 @@ import { analysisHandler } from './analysis-handler';
 import { girpaConf } from './girpa';
 import { inovalysConf } from './inovalys';
 import { capinovConf } from './capinov';
-import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Referential';
+import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 
 const laboratoriesWithConf = ['GIRPA', 'INOVALYS', 'CAPINOV'] as const satisfies string[];
 type LaboratoryWithConf = (typeof laboratoriesWithConf)[number];

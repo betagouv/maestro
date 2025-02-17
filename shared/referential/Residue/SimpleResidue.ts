@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SSD2Id } from './SSD2Referential';
+import { type SSD2Id } from './SSD2Id';
 export const SimpleResidue = z.enum(
   [
     'RF-00000024-PAR',
