@@ -5,7 +5,7 @@ import {
   RegionalPrescriptionRequest
 } from 'express-jwt';
 import { constants } from 'http2';
-import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
+import { NewRegionalPrescriptionCommentNotification } from 'maestro-shared/schema/Notification/Notification';
 import { FindRegionalPrescriptionOptions } from 'maestro-shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import {
   hasRegionalPrescriptionPermission,
@@ -21,8 +21,7 @@ import { v4 as uuidv4 } from 'uuid';
 import regionalPrescriptionCommentRepository from '../repositories/regionalPrescriptionCommentRepository';
 import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
 import { userRepository } from '../repositories/userRepository';
-import { mailService } from '../services/mailService';
-import config from '../utils/config';
+import { notificationService } from '../services/notificationService';
 const findRegionalPrescriptions = async (
   request: Request,
   response: Response
@@ -134,18 +133,17 @@ const commentRegionalPrescription = async (
         }
   );
 
-  await mailService.sendNewRegionalPrescriptionComment({
-    recipients: [
-      ...recipients.map((recipient) => recipient.email),
-      config.mail.from
-    ],
-    params: {
-      matrix: MatrixKindLabels[prescription?.matrixKind],
+  await notificationService.sendNotification<NewRegionalPrescriptionCommentNotification>(
+    {
+      category: 'NewRegionalPrescriptionComment',
+      matrixKind: prescription.matrixKind,
       sampleCount: regionalPrescription.sampleCount,
       comment: draftPrescriptionComment.comment,
-      author: `${user.firstName} ${user.lastName}`
-    }
-  });
+      message: `Nouveau commentaire sur la prescription régionale ${prescription.id}`, //TODO
+      author: user
+    },
+    recipients
+  );
 
   response.status(constants.HTTP_STATUS_CREATED).send(prescriptionComment);
 };
