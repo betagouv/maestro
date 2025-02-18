@@ -45,7 +45,6 @@ export const SimpleResidue = z.enum(
     'RF-00004664-PAR',
     'RF-00004668-PAR',
     'RF-00004671-PAR',
-    // 'RF-00004678-PAR',
     'RF-00004679-PAR',
     'RF-0061-001-PPP',
     'RF-00004728-PAR',
