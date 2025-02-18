@@ -10,9 +10,10 @@ import {
 } from './index';
 import {
   getSSD2IdByCasNumber,
-  getSSD2IdByLabel,
+  getSSD2IdByLabel
 } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import { frenchNumberStringValidator } from './utils';
 
 //TODO AUTO_LABO en attente de la réception du 1er email + test
 const isSender: IsSender = (_emailSender) => false;
@@ -26,33 +27,25 @@ export const getReference = (
     .toLowerCase()
     .replace(' according reg.', '');
 
-
   let ssd2Id = getSSD2IdByCasNumber(casNumber);
 
   if (ssd2Id === null) {
-    ssd2Id = getSSD2IdByLabel(normalizedEnglishName)
+    ssd2Id = getSSD2IdByLabel(normalizedEnglishName);
   }
 
   if (ssd2Id === null) {
     const girpaReferences: Record<string, SSD2Id> = {
       'prothioconazole: prothioconazole-desthio': 'RF-0868-001-PPP',
-      'napropamide': 'RF-00012802-PAR'
-    }
-    ssd2Id = girpaReferences[normalizedEnglishName] ?? null
+      napropamide: 'RF-00012802-PAR'
+    };
+    ssd2Id = girpaReferences[normalizedEnglishName] ?? null;
   }
 
   if (ssd2Id === null) {
-    return null
+    return null;
   }
   return ssd2Id;
-
-
 };
-
-const frenchNumberStringValidator = z
-  .string()
-  .transform((val) => Number(`${val}`.replace(',', '.')))
-  .pipe(z.number());
 
 export const residueCasNumberValidator = z.string().brand('CAS number');
 type ResidueCasNumber = z.infer<typeof residueCasNumberValidator>;
@@ -112,7 +105,7 @@ export const extractAnalyzes = (
               result_kind: 'NQ',
               result: null,
               lmr: null,
-               reference
+              reference
             }
           : { result_kind: 'Q', result: a.Résultat, lmr: a.LMR, reference };
       })

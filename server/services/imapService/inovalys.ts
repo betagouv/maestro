@@ -6,8 +6,9 @@ import {
   IsSender,
   LaboratoryConf
 } from './index';
-import { csvToJson } from './utils';
+import { csvToJson, frenchNumberStringValidator } from './utils';
 import { getSSD2IdByCasNumber, getSSD2IdByLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
+import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 
 //TODO AUTO_LABO en attente de la réception du 1er email + test
 const isSender: IsSender = (_emailSender) => false;
@@ -92,11 +93,19 @@ export const extractAnalyzes = (
           reference = getSSD2IdByLabel(r['Détermination'])
         }
 
-        if( reference === null){
-          throw new ExtractError(`Impossible d'identifier le résidu ${r.Détermination}`)
+        if (reference === null) {
+          const inovalysReferential: Record<string, SSD2Id> = {
+            'Prothioconazole : prothioconazole-desthio (somme des isomères)': 'RF-0868-001-PPP'
+          }
+
+          reference = inovalysReferential[r['Détermination']] ?? null
         }
 
-        const resultatAsNumber = z.coerce.number().safeParse(r['Résultat 1'])
+        if( reference === null){
+          throw new ExtractError(`Impossible d'identifier le résidu ${r.Détermination}`);
+        }
+
+        const resultatAsNumber = frenchNumberStringValidator.safeParse(r['Résultat 1'])
 
        const result: ExportResultQuantifiable | ExportResultNonQuantifiable = resultatAsNumber.success ? {
           result: resultatAsNumber.data,
@@ -131,7 +140,7 @@ export const extractAnalyzes = (
 type InovalysCSVFile = { fileName: string; content: Record<string, string>[] };
 const exportDataFromEmail: ExportDataFromEmail = (email) => {
   const csvFiles = email.attachments.filter(
-    ({ contentType }) => contentType === 'text/csv'
+    ({ filename }) => (filename ?? '').endsWith('.csv')
   );
 
   if (csvFiles?.length !== 3) {
