@@ -40,7 +40,9 @@ const sendNotification = async <T extends NotificationToCreate>(
         matrix: MatrixKindLabels[notification.matrixKind as MatrixKind],
         sampleCount: notification.sampleCount,
         comment: notification.comment,
-        author: `${notification.author.firstName} ${notification.author.lastName}`
+        author: notification.author
+          ? `${notification.author.firstName} ${notification.author.lastName}`
+          : 'Anonyme'
       }
     });
   }
