@@ -9,7 +9,12 @@ import {
   IsSender,
   LaboratoryConf
 } from './index';
-import { getSSD2IdByCasNumber } from 'maestro-shared/referential/Residue/SSD2Referential';
+import {
+  getSSD2IdByCasNumber,
+  getSSD2IdByLabel,
+  SSD2Referential
+} from 'maestro-shared/referential/Residue/SSD2Referential';
+import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 
 //TODO AUTO_LABO en attente de la réception du 1er email + test
 const isSender: IsSender = (_emailSender) => false;
@@ -23,54 +28,27 @@ export const getResidue = (
     .toLowerCase()
     .replace(' according reg.', '');
 
-  const kind: ExportResidue['kind'] = normalizedEnglishName.includes('(sum')
-    ? 'ComplexResidue'
-    : 'SimpleResidue';
 
-  const ssd2Id = getSSD2IdByCasNumber(casNumber);
+  let ssd2Id = getSSD2IdByCasNumber(casNumber);
+
+  if (ssd2Id === null) {
+    ssd2Id = getSSD2IdByLabel(normalizedEnglishName)
+  }
+
+  if (ssd2Id === null) {
+    const girpaReferences: Record<string, SSD2Id> = {
+      'prothioconazole: prothioconazole-desthio': 'RF-0868-001-PPP',
+      'napropamide': 'RF-00012802-PAR'
+    }
+    ssd2Id = girpaReferences[normalizedEnglishName] ?? null
+  }
 
   if (ssd2Id === null) {
     return null
   }
-  return {kind, reference: ssd2Id};
+  return {kind: 'analytes' in SSD2Referential[ssd2Id] ? 'ComplexResidue' : 'SimpleResidue', reference: ssd2Id};
 
-  // for (const entry of entries(SimpleResidueLabels)) {
-  //   if (entry[1].toLowerCase() === normalizedEnglishName) {
-  //     return { reference: entry[0] as SimpleResidue, kind: 'SimpleResidue' };
-  //   }
-  // }
-  //
-  // for (const entry of entries(ComplexResidueLabels)) {
-  //   if (entry[1].toLowerCase() === normalizedEnglishName) {
-  //     return { reference: entry[0] as ComplexResidue, kind: 'ComplexResidue' };
-  //   }
-  // }
-  // //En attendant d'avoir un référentiel CAS => SSD2
-  // const casToSSD2SimpleResidue: Record<ResidueCasNumber, SimpleResidue> = {
-  //   ['120983-64-4' as ResidueCasNumber]: 'RF-0868-001-PPP',
-  //   ['15299-99-7' as ResidueCasNumber]: 'RF-00012802-PAR'
-  // } as const satisfies Record<ResidueCasNumber, SimpleResidue>;
-  //
-  // if (casNumber in casToSSD2SimpleResidue) {
-  //   return {
-  //     reference: casToSSD2SimpleResidue[casNumber],
-  //     kind: 'SimpleResidue'
-  //   };
-  // }
-  //
-  // //Pour ceux qui n'ont pas de CAS
-  // const labelToSimpleResidue: Record<string, SimpleResidue> = {
-  //   metobromuron: 'RF-00014532-PAR'
-  // };
-  //
-  // if (normalizedEnglishName in labelToSimpleResidue) {
-  //   return {
-  //     reference: labelToSimpleResidue[normalizedEnglishName],
-  //     kind: 'SimpleResidue'
-  //   };
-  // }
-  //
-  // return null;
+
 };
 
 const frenchNumberStringValidator = z

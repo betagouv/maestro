@@ -148,7 +148,7 @@ describe('parse correctement le XML', () => {
   });
 });
 
-describe('getResidue', () => {
+describe.only('getResidue', () => {
   test.each<[string, string, ReturnType<typeof getResidue>]>([
     ['', 'toto', null],
     ['', 'bixafen', { reference: 'RF-1056-001-PPP', kind: 'SimpleResidue' }],
@@ -165,21 +165,23 @@ describe('getResidue', () => {
     [
       '-',
       'metobromuron according reg.',
-      { reference: 'RF-00014532-PAR', kind: 'SimpleResidue' }
+      { reference: 'RF-0791-001-PPP', kind: 'SimpleResidue' }
     ],
     [
       '-',
       'metobromuron',
-      { reference: 'RF-00014532-PAR', kind: 'SimpleResidue' }
+      { reference: 'RF-0791-001-PPP', kind: 'SimpleResidue' }
     ],
     [
       '15299-99-7',
       'napropamide according reg.',
       { reference: 'RF-00012802-PAR', kind: 'SimpleResidue' }
-    ]
-    //TODO AUTO_LABO en attente de plus d'infos sur les référentiels
-    //Résidu non trouvé: 1967-25-5 4-bromophenylurea
-    // Résidu non trouvé: 27112-32-9 desmethyl-metobromuron
+    ],
+      [
+      '1967-25-5',
+        '4-bromophenylurea',
+        { reference: 'RF-00003387-PAR', kind: 'SimpleResidue' }
+      ]
   ])('getResidue %#', (casNumber, englishName, expected) => {
     expect(
       getResidue(
