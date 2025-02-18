@@ -65,11 +65,9 @@ describe('parse correctement le XML', () => {
           "notes": "Une note",
           "residues": [
             {
+              "kind": "SimpleResidue",
               "lmr": 10,
-              "residue": {
-                "kind": "SimpleResidue",
-                "reference": "RF-1056-001-PPP",
-              },
+              "reference": "RF-1056-001-PPP",
               "result": 5.2,
               "result_kind": "Q",
             },
@@ -117,29 +115,23 @@ describe('parse correctement le XML', () => {
     ).toMatchInlineSnapshot(`
       [
         {
+          "kind": "SimpleResidue",
           "lmr": 10,
-          "residue": {
-            "kind": "SimpleResidue",
-            "reference": "RF-1056-001-PPP",
-          },
+          "reference": "RF-00003387-PAR",
           "result": 0.3,
           "result_kind": "Q",
         },
         {
+          "kind": "SimpleResidue",
           "lmr": 10,
-          "residue": {
-            "kind": "Analyte",
-            "reference": "RF-0215-003-PPP",
-          },
+          "reference": "RF-0215-003-PPP",
           "result": 10.1,
           "result_kind": "Q",
         },
         {
+          "kind": "SimpleResidue",
           "lmr": null,
-          "residue": {
-            "kind": "SimpleResidue",
-            "reference": "RF-00000024-PAR",
-          },
+          "reference": "RF-00000024-PAR",
           "result": null,
           "result_kind": "NQ",
         },
@@ -148,7 +140,7 @@ describe('parse correctement le XML', () => {
   });
 });
 
-describe.only('getResidue', () => {
+describe('getResidue', () => {
   test.each<[string, string, ReturnType<typeof getResidue>]>([
     ['', 'toto', null],
     ['', 'bixafen', { reference: 'RF-1056-001-PPP', kind: 'SimpleResidue' }],
