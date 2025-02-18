@@ -29,8 +29,9 @@ export const analysisHandler = async (
     );
   }
   
-  const complexResidues = analyse.residues.filter(({kind}) => kind === 'ComplexResidue')
-  const simpleResidues = analyse.residues.filter(({kind}) => kind === 'SimpleResidue')
+  const complexResidues = analyse.residues.filter(({reference}) => 'analytes' in SSD2Referential[reference])
+  const simpleResidues =  analyse.residues.filter(({reference}) => !('analytes' in SSD2Referential[reference]))
+
   const residuesIndex: Record<SSD2Id, ExportDataSubstance & {analytes: ExportDataSubstance[]}> = complexResidues.reduce((acc, r) => {
     acc[r.reference] = {...r, analytes: []}
     return acc
@@ -54,7 +55,9 @@ export const analysisHandler = async (
   }
 
   const residues = Object.values(residuesIndex)
-  residues.filter(({kind}) => kind === 'ComplexResidue').forEach(({analytes, reference}) => {
+  residues
+    .filter(({reference}) => 'analytes' in SSD2Referential[reference])
+    .forEach(({analytes, reference}) => {
     if (analytes.length === 0) {
       throw new ExtractError(`Le résidue complexe ${reference} est présent, mais n'a aucune analyte`)
     }
@@ -116,7 +119,7 @@ export const analysisHandler = async (
           trx
         );
 
-        if (residue.kind === 'ComplexResidue') {
+        if ('analytes' in residue && residue.analytes.length > 0) {
           await residueAnalyteRepository.insert(
             residue.analytes.map((analyte, j) => ({   reference: analyte.reference,
               residueNumber,

@@ -32,8 +32,7 @@ test("Le fichier est updloadé sur le S3, n'est pas supprimé du S3 et est en bd
     sampleReference: Sample13Fixture.reference,
     residues: [
       {
-          kind: 'SimpleResidue',
-          reference: 'RF-0002-001-PPP',
+        reference: 'RF-0002-001-PPP',
         lmr: null,
         result: null,
         result_kind: 'NQ'
@@ -124,7 +123,6 @@ test("Si une erreur intervient après l'upload sur le S3, on supprime le documen
       sampleReference: Sample13Fixture.reference,
       residues: [
         {
-          kind: 'SimpleResidue',
           reference: 'RF-0002-001-PPP' ,
           lmr: null,
           result: null,
@@ -148,7 +146,7 @@ test("Impossible d'enregistrer l'analyse si on trouve un résidu complexe sans a
       sampleReference: Sample13Fixture.reference,
       residues: [
         {
-           kind: 'ComplexResidue', reference: 'RF-0006-001-PPP' ,
+          reference: 'RF-0008-001-PPP' ,
           result_kind: 'NQ',
           lmr: null,
           result: null
@@ -156,7 +154,7 @@ test("Impossible d'enregistrer l'analyse si on trouve un résidu complexe sans a
       ]
     })
   ).rejects.toThrowErrorMatchingInlineSnapshot(
-    `[Error: Le résidue complexe RF-0006-001-PPP est présent, mais n'a aucune analyte]`
+    `[Error: Le résidue complexe RF-0008-001-PPP est présent, mais n'a aucune analyte]`
   );
 
   expect(spyUploadDocument).toHaveBeenCalledTimes(0);
@@ -170,21 +168,18 @@ test('Peut enregistrer une analyse avec un résidue complexe et ses analytes ass
     sampleReference: Sample13Fixture.reference,
     residues: [
       {
-          kind: 'SimpleResidue',
           reference: 'RF-00002588-PAR',
         lmr: null,
         result_kind: 'NQ',
         result: null
       },
       {
-          kind: 'ComplexResidue',
           reference: 'RF-0008-001-PPP',
         lmr: null,
         result: null,
         result_kind: 'NQ'
       },
       {
-          kind: 'SimpleResidue',
           reference: 'RF-00004646-PAR',
         lmr: null,
         result_kind: 'NQ',

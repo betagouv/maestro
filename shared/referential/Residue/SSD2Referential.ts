@@ -10724,8 +10724,11 @@ type Referential = { [key in SSD2Id] : { reference:key, name: string, casNumber:
 const values = Object.values(SSD2Referential)
 
 
-export const getSSD2IdByCasNumber = (potentialCasNumber: string): SSD2Id | null => {
-   return values.find(({casNumber}) => casNumber === potentialCasNumber)?.reference ?? null
+export const getSSD2IdByCasNumber = (potentialCasNumber: string | undefined): SSD2Id | null => {
+   if (potentialCasNumber === undefined) {
+      return null
+   }
+   return values.find(({casNumber}) => casNumber === potentialCasNumber)?.reference ?? null;
 }
 export const getSSD2IdByLabel = (label: string): SSD2Id | null => {
    const labelLowerCase = label.toLowerCase()

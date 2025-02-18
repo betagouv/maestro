@@ -4,7 +4,6 @@ import {
   ExportAnalysis,
   ExportDataFromEmail,
   ExportDataSubstance,
-  ExportResidue,
   ExtractError,
   IsSender,
   LaboratoryConf
@@ -12,7 +11,6 @@ import {
 import {
   getSSD2IdByCasNumber,
   getSSD2IdByLabel,
-  SSD2Referential
 } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 
@@ -20,10 +18,10 @@ import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 const isSender: IsSender = (_emailSender) => false;
 
 // Visible for testing
-export const getResidue = (
+export const getReference = (
   casNumber: ResidueCasNumber,
   englishName: ResidueEnglishName
-): ExportResidue | null => {
+): SSD2Id | null => {
   const normalizedEnglishName = englishName
     .toLowerCase()
     .replace(' according reg.', '');
@@ -46,7 +44,7 @@ export const getResidue = (
   if (ssd2Id === null) {
     return null
   }
-  return {kind: 'analytes' in SSD2Referential[ssd2Id] ? 'ComplexResidue' : 'SimpleResidue', reference: ssd2Id};
+  return ssd2Id;
 
 
 };
@@ -99,11 +97,11 @@ export const extractAnalyzes = (
         a.Résultat >= a.Limite_de_quantification / 3
     )
       .map((a) => {
-        const residue = getResidue(
+        const reference = getReference(
           a.Substance_active_CAS,
           a.Substance_active_anglais
         );
-        if (residue === null) {
+        if (reference === null) {
           throw new ExtractError(
             `Résidu non trouvé:, ${a.Substance_active_CAS}, ${a.Substance_active_anglais}`
           );
@@ -114,9 +112,9 @@ export const extractAnalyzes = (
               result_kind: 'NQ',
               result: null,
               lmr: null,
-              ...residue
+               reference
             }
-          : { result_kind: 'Q', result: a.Résultat, lmr: a.LMR, ...residue };
+          : { result_kind: 'Q', result: a.Résultat, lmr: a.LMR, reference };
       })
       .filter((s): s is ExportDataSubstance => s !== null);
     return {

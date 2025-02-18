@@ -19,17 +19,15 @@ export class ExtractError extends Error {
   }
 }
 
-export type ExportResidue =
-  | { reference: SSD2Id; kind: 'SimpleResidue' }
-  | { reference: SSD2Id; kind: 'ComplexResidue' }
-
-export type ExportDataSubstance = ExportResidue & (
-  | { result_kind: 'NQ'; result: null; lmr: null }
-  | {
-      result_kind: 'Q';
-      result: number;
-      lmr: number;
-    }
+export type ExportResultQuantifiable = {
+  result_kind: 'Q';
+  result: number;
+  lmr: number;
+}
+export type ExportResultNonQuantifiable ={ result_kind: 'NQ'; result: null; lmr: null }
+export type ExportDataSubstance = { reference: SSD2Id} & (
+  | ExportResultNonQuantifiable
+  | ExportResultQuantifiable
 );
 export type IsSender = (senderAddress: string) => boolean;
 export type ExportAnalysis = {

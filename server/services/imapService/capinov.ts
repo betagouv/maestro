@@ -75,7 +75,6 @@ export const extractAnalyzes = (
           lmr: residue.LMR_NUM
         }
         analysis.residues.push({
-            kind: 'SimpleResidue',
             reference: 'RF-0002-001-PPP',
           ...result
         })

@@ -3,7 +3,7 @@ import { z } from 'zod';
 import {
   analyseXmlValidator,
   extractAnalyzes,
-  getResidue,
+  getReference,
   residueCasNumberValidator,
   residueEnglishNameValidator
 } from './girpa';
@@ -65,7 +65,6 @@ describe('parse correctement le XML', () => {
           "notes": "Une note",
           "residues": [
             {
-              "kind": "SimpleResidue",
               "lmr": 10,
               "reference": "RF-1056-001-PPP",
               "result": 5.2,
@@ -115,21 +114,18 @@ describe('parse correctement le XML', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "kind": "SimpleResidue",
           "lmr": 10,
           "reference": "RF-00003387-PAR",
           "result": 0.3,
           "result_kind": "Q",
         },
         {
-          "kind": "SimpleResidue",
           "lmr": 10,
           "reference": "RF-0215-003-PPP",
           "result": 10.1,
           "result_kind": "Q",
         },
         {
-          "kind": "SimpleResidue",
           "lmr": null,
           "reference": "RF-00000024-PAR",
           "result": null,
@@ -141,42 +137,42 @@ describe('parse correctement le XML', () => {
 });
 
 describe('getResidue', () => {
-  test.each<[string, string, ReturnType<typeof getResidue>]>([
+  test.each<[string, string, ReturnType<typeof getReference>]>([
     ['', 'toto', null],
-    ['', 'bixafen', { reference: 'RF-1056-001-PPP', kind: 'SimpleResidue' }],
+    ['', 'bixafen','RF-1056-001-PPP'],
     [
       '',
       'bixafen according reg.',
-      { reference: 'RF-1056-001-PPP', kind: 'SimpleResidue' }
+      'RF-1056-001-PPP'
     ],
     [
       '120983-64-4',
       'prothioconazole: prothioconazole-desthio',
-      { reference: 'RF-0868-001-PPP', kind: 'SimpleResidue' }
+      'RF-0868-001-PPP'
     ],
     [
       '-',
       'metobromuron according reg.',
-      { reference: 'RF-0791-001-PPP', kind: 'SimpleResidue' }
+      'RF-0791-001-PPP'
     ],
     [
       '-',
       'metobromuron',
-      { reference: 'RF-0791-001-PPP', kind: 'SimpleResidue' }
+      'RF-0791-001-PPP'
     ],
     [
       '15299-99-7',
       'napropamide according reg.',
-      { reference: 'RF-00012802-PAR', kind: 'SimpleResidue' }
+      'RF-00012802-PAR'
     ],
       [
       '1967-25-5',
         '4-bromophenylurea',
-        { reference: 'RF-00003387-PAR', kind: 'SimpleResidue' }
+        'RF-00003387-PAR'
       ]
   ])('getResidue %#', (casNumber, englishName, expected) => {
     expect(
-      getResidue(
+      getReference(
         casNumber as z.infer<typeof residueCasNumberValidator>,
         englishName as z.infer<typeof residueEnglishNameValidator>
       )

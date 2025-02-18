@@ -1,12 +1,13 @@
 import { z } from 'zod';
 import {
   ExportAnalysis,
-  ExportDataFromEmail,
+  ExportDataFromEmail, ExportDataSubstance, ExportResultNonQuantifiable, ExportResultQuantifiable,
   ExtractError,
   IsSender,
   LaboratoryConf
 } from './index';
 import { csvToJson } from './utils';
+import { getSSD2IdByCasNumber, getSSD2IdByLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 
 //TODO AUTO_LABO en attente de la réception du 1er email + test
 const isSender: IsSender = (_emailSender) => false;
@@ -56,8 +57,9 @@ export const extractAnalyzes = (
     'Limite Quant. 1': z.string(),
     'Code Sandre': z.string().optional(),
     'Incertitude': z.string().optional(),
-    //FIXME ajout du CAS number ?!
-    //FIXME il manque la LMR
+    //LMR
+    'Spécification 1': z.coerce.number().optional().transform((v) => v ?? 0),
+    'Numéro CAS': z.string().optional()
   }));
 
 
@@ -71,15 +73,57 @@ export const extractAnalyzes = (
 
 
 
-  const sampleWithResultats = samplesData.reduce<{sample: z.infer<typeof sampleFileValidator>[number], resultats: z.infer<typeof resultatsFileValidator>}[]>((acc, sample) => {
+  const samplesWithResultats = samplesData.reduce<{sample: z.infer<typeof sampleFileValidator>[number], resultats: z.infer<typeof resultatsFileValidator>}[]>((acc, sample) => {
     acc.push({sample, resultats: resultatsData.filter(({Dossier, Echantillon}) => Dossier === sample.Dossier && Echantillon === sample.Echant)})
     return acc
   }, [])
 
-  console.log(sampleWithResultats)
 
-  //FIXME
-  return []
+ const result:  Omit<ExportAnalysis, 'pdfFile'>[] = []
+  for (const sampleWithResultat of samplesWithResultats) {
+
+    const residues: ExportDataSubstance[] = sampleWithResultat.resultats
+      .filter((r) => r['Limite Quant. 1'].startsWith('<'))
+      .filter(r =>  r['Spécification 1'] > 0)
+      .map(r => {
+
+        let reference = getSSD2IdByCasNumber(r['Numéro CAS'])
+        if (reference === null) {
+          reference = getSSD2IdByLabel(r['Détermination'])
+        }
+
+        if( reference === null){
+          throw new ExtractError(`Impossible d'identifier le résidu ${r.Détermination}`)
+        }
+
+        const resultatAsNumber = z.coerce.number().safeParse(r['Résultat 1'])
+
+       const result: ExportResultQuantifiable | ExportResultNonQuantifiable = resultatAsNumber.success ? {
+          result: resultatAsNumber.data,
+          result_kind: 'Q',
+         lmr: r['Spécification 1'],
+
+        } : {
+          result: null,
+         lmr: null,
+         result_kind: 'NQ'
+       }
+
+        return {
+          reference,
+          ...result
+        };
+      })
+
+
+    result.push({
+      sampleReference: sampleWithResultat.sample['Réf Client'],
+      notes: sampleWithResultat.sample.Commentaire,
+      residues
+    })
+  }
+
+  return result
 
 };
 
