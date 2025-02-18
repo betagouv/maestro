@@ -1,0 +1,29 @@
+.notifications-day-container {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+
+  .fr-tile__desc {
+    width: 100%;
+  }
+
+  .fr-tile__title a::after {
+    display: none;
+  }
+
+  .fr-tile__detail {
+    margin-top: 1rem !important;
+  }
+
+  .avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-default-grey);
+    margin-right: 1rem;
+  }
+}

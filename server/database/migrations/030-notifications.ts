@@ -14,6 +14,11 @@ export const up = async (knex: Knex) => {
     table.string('message').notNullable();
     table.string('link');
     table.boolean('read').defaultTo(false);
+    table
+      .uuid('author_id')
+      .references('users.id')
+      .onUpdate('CASCADE')
+      .onDelete('SET NULL');
   });
 };
 

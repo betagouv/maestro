@@ -10,26 +10,31 @@ export const Notification = z.object({
   category: NotificationCategory,
   message: z.string(),
   link: z.string().nullish(),
-  read: z.boolean()
+  read: z.boolean(),
+  author: User.nullish()
 });
 
 export const NotificationToCreate = Notification.pick({
   category: true,
   message: true,
-  link: true
+  link: true,
+  author: true
 });
 
 export const NewRegionalPrescriptionCommentNotification =
   NotificationToCreate.extend({
-    category: z.literal('NewRegionalPrescriptionComment'),
     matrixKind: MatrixKind,
     sampleCount: z.number(),
-    comment: z.string(),
-    author: User
+    comment: z.string()
   });
+
+export const NotificationUpdate = Notification.pick({
+  read: true
+});
 
 export type Notification = z.infer<typeof Notification>;
 export type NotificationToCreate = z.infer<typeof NotificationToCreate>;
 export type NewRegionalPrescriptionCommentNotification = z.infer<
   typeof NewRegionalPrescriptionCommentNotification
 >;
+export type NotificationUpdate = z.infer<typeof NotificationUpdate>;

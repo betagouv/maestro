@@ -1,8 +1,10 @@
 import { z } from 'zod';
 
 export const FindNotificationOptions = z.object({
-  userId: z.string().uuid(),
-  read: z.boolean().optional()
+  recipientId: z.string().uuid(),
+  read: z
+    .preprocess((val) => val === true || val === 'true', z.boolean())
+    .nullish()
 });
 
 export type FindNotificationOptions = z.infer<typeof FindNotificationOptions>;

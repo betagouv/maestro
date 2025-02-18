@@ -5,6 +5,7 @@ import {
   RegionalPrescriptionRequest
 } from 'express-jwt';
 import { constants } from 'http2';
+import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { NewRegionalPrescriptionCommentNotification } from 'maestro-shared/schema/Notification/Notification';
 import { FindRegionalPrescriptionOptions } from 'maestro-shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import {
@@ -135,11 +136,11 @@ const commentRegionalPrescription = async (
 
   await notificationService.sendNotification<NewRegionalPrescriptionCommentNotification>(
     {
-      category: 'NewRegionalPrescriptionComment',
+      category: prescription.context,
       matrixKind: prescription.matrixKind,
       sampleCount: regionalPrescription.sampleCount,
       comment: draftPrescriptionComment.comment,
-      message: `Nouveau commentaire sur la prescription régionale ${prescription.id}`, //TODO
+      message: `Nouveau commentaire sur la matrice <b>${MatrixKindLabels[prescription.matrixKind].toLowerCase()}</b>`,
       author: user
     },
     recipients
