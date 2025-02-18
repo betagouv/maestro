@@ -6,9 +6,11 @@ import { residueAnalyteRepository } from '../../repositories/residueAnalyteRepos
 import { sampleRepository } from '../../repositories/sampleRepository';
 import { s3Service } from '../s3Service';
 import {
-  ExportAnalysis,
+  ExportAnalysis, ExportDataSubstance,
   ExtractError
 } from './index';
+import { SSD2Referential } from 'maestro-shared/referential/Residue/SSD2Referential';
+import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 
 export const analysisHandler = async (
   analyse: ExportAnalysis
@@ -26,7 +28,37 @@ export const analysisHandler = async (
       `Une analyse est déjà présente pour cet échantillon : ${analyse.sampleReference}`
     );
   }
+  
+  const complexResidues = analyse.residues.filter(({kind}) => kind === 'ComplexResidue')
+  const simpleResidues = analyse.residues.filter(({kind}) => kind === 'SimpleResidue')
+  const residuesIndex: Record<SSD2Id, ExportDataSubstance & {analytes: ExportDataSubstance[]}> = complexResidues.reduce((acc, r) => {
+    acc[r.reference] = {...r, analytes: []}
+    return acc
+  }, {} as Record<SSD2Id, ExportDataSubstance & {analytes: ExportDataSubstance[]}>)
+  for (const residue of simpleResidues) {
+      const complexResidue = complexResidues.find(({ reference }) => {
+        const r=  SSD2Referential[reference];
+        if ('analytes' in r) {
+          const analytes: SSD2Id[] = r.analytes
+            return analytes.includes(residue.reference)
+        }
+        return false
+      });
 
+
+    if (complexResidue !== undefined) {
+      residuesIndex[complexResidue.reference].analytes.push(residue)
+    }else{
+      residuesIndex[residue.reference] = {...residue, analytes: []}
+    }
+  }
+
+  const residues = Object.values(residuesIndex)
+  residues.filter(({kind}) => kind === 'ComplexResidue').forEach(({analytes, reference}) => {
+    if (analytes.length === 0) {
+      throw new ExtractError(`Le résidue complexe ${reference} est présent, mais n'a aucune analyte`)
+    }
+  })
   const { documentId, valid, error } = await s3Service.uploadDocument(
     analyse.pdfFile
   );
@@ -66,8 +98,8 @@ export const analysisHandler = async (
 
       await sampleRepository.updateStatus(sampleId, 'Analysis', trx);
 
-      for (let i = 0; i < analyse.residues.length; i++){
-        const residue = analyse.residues[i];
+      for (let i = 0; i < residues.length; i++){
+        const residue = residues[i];
         const residueNumber = i + 1
         await analysisResidueRepository.insert(
           [{

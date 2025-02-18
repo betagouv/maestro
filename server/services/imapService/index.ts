@@ -21,9 +21,7 @@ export class ExtractError extends Error {
 
 export type ExportResidue =
   | { reference: SSD2Id; kind: 'SimpleResidue' }
-  | { reference: SSD2Id; kind: 'ComplexResidue', analytes: ({
-    reference: SSD2Id,
-  } & ({result_kind: 'NQ', result: null} | {result_kind: 'Q', result: number}))[] }
+  | { reference: SSD2Id; kind: 'ComplexResidue' }
 
 export type ExportDataSubstance = ExportResidue & (
   | { result_kind: 'NQ'; result: null; lmr: null }

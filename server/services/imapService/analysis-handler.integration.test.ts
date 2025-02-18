@@ -139,6 +139,30 @@ test("Si une erreur intervient après l'upload sur le S3, on supprime le documen
   expect(spyUploadDocument).toHaveBeenCalledOnce();
   expect(spyDeleteDocument).toHaveBeenCalledOnce();
 });
+
+test("Impossible d'enregistrer l'analyse si on trouve un résidu complexe sans analyte", async () => {
+  await expect(async () =>
+    analysisHandler({
+      notes: '',
+      pdfFile: new File([], 'fileName'),
+      sampleReference: Sample13Fixture.reference,
+      residues: [
+        {
+           kind: 'ComplexResidue', reference: 'RF-0006-001-PPP' ,
+          result_kind: 'NQ',
+          lmr: null,
+          result: null
+        }
+      ]
+    })
+  ).rejects.toThrowErrorMatchingInlineSnapshot(
+    `[Error: Le résidue complexe RF-0006-001-PPP est présent, mais n'a aucune analyte]`
+  );
+
+  expect(spyUploadDocument).toHaveBeenCalledTimes(0);
+  expect(spyDeleteDocument).toHaveBeenCalledTimes(0);
+});
+
 test('Peut enregistrer une analyse avec un résidue complexe et ses analytes associées', async () => {
   const analysisToSave = {
     notes: '',
@@ -146,25 +170,29 @@ test('Peut enregistrer une analyse avec un résidue complexe et ses analytes ass
     sampleReference: Sample13Fixture.reference,
     residues: [
       {
+          kind: 'SimpleResidue',
+          reference: 'RF-00002588-PAR',
+        lmr: null,
+        result_kind: 'NQ',
+        result: null
+      },
+      {
           kind: 'ComplexResidue',
-          reference: 'RF-0002-001-PPP',
+          reference: 'RF-0008-001-PPP',
         lmr: null,
         result: null,
+        result_kind: 'NQ'
+      },
+      {
+          kind: 'SimpleResidue',
+          reference: 'RF-00004646-PAR',
+        lmr: null,
         result_kind: 'NQ',
-        analytes: [
-          {
-            reference: 'RF-0004-001-PPP' ,
-            result_kind: 'NQ',
-            result: null
-          }, {
-           reference: 'RF-0001-001-PPP' ,
-            result_kind: 'NQ',
-            result: null
-          },
-        ]
+        result: null
       }
     ]
   } as const satisfies ExportAnalysis;
+
   const analysisId = await analysisHandler(analysisToSave);
 
   const analysisResidue = await kysely
@@ -172,9 +200,9 @@ test('Peut enregistrer une analyse avec un résidue complexe et ses analytes ass
     .where('analysisId', '=', analysisId)
     .selectAll()
     .execute();
-  expect(analysisResidue).toHaveLength(1);
+  expect(analysisResidue).toHaveLength(2);
   expect(analysisResidue[0].reference).toBe(
-    analysisToSave.residues[0].reference
+    analysisToSave.residues[1].reference
   );
 
   const analysisResidueAnalytes = await kysely
@@ -183,12 +211,9 @@ test('Peut enregistrer une analyse avec un résidue complexe et ses analytes ass
     .where('analysisId', '=', analysisId)
     .orderBy('analyteNumber asc')
     .execute();
-  expect(analysisResidueAnalytes).toHaveLength(2);
+  expect(analysisResidueAnalytes).toHaveLength(1);
   expect(analysisResidueAnalytes[0].reference).toBe(
-    analysisToSave.residues[0].analytes[0].reference
-  );
-  expect(analysisResidueAnalytes[1].reference).toBe(
-    analysisToSave.residues[0].analytes[1].reference
+    analysisToSave.residues[2].reference
 
   );
 });

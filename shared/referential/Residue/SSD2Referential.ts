@@ -10720,7 +10720,7 @@ export const SSD2Referential =
 } as const satisfies Referential
 // ----- ne pas supprimer cette ligne : fin
 
-type Referential = { [key in SSD2Id] : { reference:key, name: string, casNumber: string | null, otherNames: string[], deprecated?: true, analytes?: SSD2Id[]} }
+type Referential = { [key in SSD2Id] : { reference:key, name: string, casNumber: string | null, otherNames: string[], deprecated?: true, analytes?: [SSD2Id, ...SSD2Id[]]} }
 const values = Object.values(SSD2Referential)
 
 

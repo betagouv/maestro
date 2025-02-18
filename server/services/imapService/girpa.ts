@@ -32,9 +32,6 @@ export const getResidue = (
   if (ssd2Id === null) {
     return null
   }
-  if (kind === 'ComplexResidue') {
-    return {kind, reference: ssd2Id, analytes: []};
-  }
   return {kind, reference: ssd2Id};
 
   // for (const entry of entries(SimpleResidueLabels)) {
