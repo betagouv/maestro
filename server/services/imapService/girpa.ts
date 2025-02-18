@@ -41,9 +41,6 @@ export const getReference = (
     ssd2Id = girpaReferences[normalizedEnglishName] ?? null;
   }
 
-  if (ssd2Id === null) {
-    return null;
-  }
   return ssd2Id;
 };
 
