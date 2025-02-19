@@ -140,7 +140,7 @@ const commentRegionalPrescription = async (
       matrixKind: prescription.matrixKind,
       sampleCount: regionalPrescription.sampleCount,
       comment: draftPrescriptionComment.comment,
-      message: `Nouveau commentaire sur la matrice <b>${MatrixKindLabels[prescription.matrixKind].toLowerCase()}</b>`,
+      message: `Nouveau commentaire sur la matrice **${MatrixKindLabels[prescription.matrixKind].toLowerCase()}**`,
       author: user,
       link: `/prescriptions/${programmingPlan.year}?context=${prescription.context}&prescriptionId=${prescription.id}&commentsRegion=${regionalPrescription.region}`
     },

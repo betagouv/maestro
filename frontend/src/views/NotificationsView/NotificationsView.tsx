@@ -16,6 +16,7 @@ import {
 } from 'maestro-shared/schema/Notification/NotificationCategory';
 import { UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
 import { useMemo, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { useNavigate } from 'react-router-dom';
 import notificationsImg from 'src/assets/illustrations/notifications.svg';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
@@ -117,12 +118,14 @@ const NotificationsView = () => {
           .slice(0, visibleDays)
           .map(([day, notifications]) => (
             <div
+              key={day}
               className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}
             >
-              <div key={day} className={clsx('notifications-day-container')}>
+              <div className={clsx('notifications-day-container')}>
                 <h4 className={cx('fr-mb-0')}>{capitalize(day)}</h4>
                 {notifications.map((notification) => (
                   <Tile
+                    key={notification.id}
                     buttonProps={{
                       onClick: () => onNotificationClick(notification)
                     }}
@@ -159,12 +162,11 @@ const NotificationsView = () => {
                         }}
                       >
                         <div>
-                          <div
-                            className={cx('fr-text--md')}
-                            dangerouslySetInnerHTML={{
-                              __html: notification.message
-                            }}
-                          />
+                          <div className={cx('fr-text--md')}>
+                            <ReactMarkdown components={{ p: 'span' }}>
+                              {notification.message}
+                            </ReactMarkdown>
+                          </div>
                           {notification.author && (
                             <div
                               className={clsx(

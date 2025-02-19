@@ -8,10 +8,12 @@ import {
   SubmittedProgrammingPlanNotification,
   ValidatedProgrammingPlanNotification
 } from 'maestro-shared/schema/Notification/Notification';
+import { NotificationCategoryTitles } from 'maestro-shared/schema/Notification/NotificationCategory';
 import { User } from 'maestro-shared/schema/User/User';
 import { v4 as uuidv4 } from 'uuid';
 import notificationRepository from '../repositories/notificationRepository';
 import { mailService } from './mailService';
+import { mattermostService } from './mattermostService';
 const sendNotification = async <T extends NotificationToCreate>(
   notificationToCreate: T,
   recipients: User[]
@@ -28,8 +30,9 @@ const sendNotification = async <T extends NotificationToCreate>(
     })
   );
 
-  //TODO
-  // Mattermost notification
+  await mattermostService.send(
+    `[${NotificationCategoryTitles[notificationToCreate.category]}] ${notificationToCreate.message}`
+  );
 
   if (
     NewRegionalPrescriptionCommentNotification.safeParse(notificationToCreate)

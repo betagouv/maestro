@@ -77,5 +77,8 @@
     "vitest-fetch-mock": "^0.4.2",
     "whatwg-fetch": "^3.6.20",
     "workbox-webpack-plugin": "^7.1.0"
+  },
+  "dependencies": {
+    "react-markdown": "^9.0.3"
   }
 }
