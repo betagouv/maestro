@@ -161,7 +161,7 @@ const PrescriptionListView = () => {
         setSearchParams(searchParams, { replace: true });
       }, 1000);
     }
-  }, [searchParams, regionalPrescriptions]);
+  }, [searchParams, regionalPrescriptions]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const changeFilter = useCallback(
     (findFilter: Partial<FindPrescriptionOptions>) => {
