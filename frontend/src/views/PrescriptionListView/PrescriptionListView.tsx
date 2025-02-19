@@ -159,7 +159,7 @@ const PrescriptionListView = () => {
         searchParams.delete('prescriptionId');
         searchParams.delete('commentsRegion');
         setSearchParams(searchParams, { replace: true });
-      }, 100);
+      }, 1000);
     }
   }, [searchParams, regionalPrescriptions]);
 
