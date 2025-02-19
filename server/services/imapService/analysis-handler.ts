@@ -9,8 +9,8 @@ import {
   ExportAnalysis, ExportDataSubstance,
   ExtractError
 } from './index';
-import { SSD2Referential } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import { getAnalytes, hasAnalytes } from 'maestro-shared/referential/Residue/SSD2Hierachy';
 
 export const analysisHandler = async (
   analyse: ExportAnalysis
@@ -29,8 +29,8 @@ export const analysisHandler = async (
     );
   }
   
-  const complexResidues = analyse.residues.filter(({reference}) => 'analytes' in SSD2Referential[reference])
-  const simpleResidues =  analyse.residues.filter(({reference}) => !('analytes' in SSD2Referential[reference]))
+  const complexResidues = analyse.residues.filter(({reference}) => hasAnalytes(reference))
+  const simpleResidues =  analyse.residues.filter(({reference}) => !hasAnalytes(reference))
 
   const residuesIndex: Record<SSD2Id, ExportDataSubstance & {analytes: ExportDataSubstance[]}> = complexResidues.reduce((acc, r) => {
     acc[r.reference] = {...r, analytes: []}
@@ -38,10 +38,9 @@ export const analysisHandler = async (
   }, {} as Record<SSD2Id, ExportDataSubstance & {analytes: ExportDataSubstance[]}>)
   for (const residue of simpleResidues) {
       const complexResidue = complexResidues.find(({ reference }) => {
-        const r=  SSD2Referential[reference];
-        if ('analytes' in r) {
-          const analytes: SSD2Id[] = r.analytes
-            return analytes.includes(residue.reference)
+        const referenceAnalytes = getAnalytes(reference)
+        if (referenceAnalytes.length > 0) {
+          return referenceAnalytes.includes(residue.reference)
         }
         return false
       });
@@ -56,7 +55,7 @@ export const analysisHandler = async (
 
   const residues = Object.values(residuesIndex)
   residues
-    .filter(({reference}) => 'analytes' in SSD2Referential[reference])
+    .filter(({reference}) => hasAnalytes(reference))
     .forEach(({analytes, reference}) => {
     if (analytes.length === 0) {
       throw new ExtractError(`Le résidue complexe ${reference} est présent, mais n'a aucune analyte`)

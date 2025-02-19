@@ -86,49 +86,64 @@ export const extractAnalyzes = (
 
     const residues: ExportDataSubstance[] = sampleWithResultat.resultats
       .filter((r) => r['Limite Quant. 1'].startsWith('<'))
-      .filter(r =>  r['Spécification 1'] > 0)
-      .map(r => {
-
-        let reference = getSSD2IdByCasNumber(r['Numéro CAS'])
+      .filter((r) => {
+        if (r['Spécification 1'] > 0) {
+          return true
+        }
+        const resultatAsNumber = frenchNumberStringValidator.safeParse(r['Résultat 1'])
+        return resultatAsNumber.success;
+      })
+      .map((r) => {
+        let reference = getSSD2IdByCasNumber(r['Numéro CAS']);
         if (reference === null) {
-          reference = getSSD2IdByLabel(r['Détermination'])
+          reference = getSSD2IdByLabel(r['Détermination']);
         }
 
-        const codeSandre = r['Code Sandre']
+        const codeSandre = r['Code Sandre'];
         if (reference === null && codeSandre !== undefined) {
-          reference = SandreToSSD2[codeSandre] ?? null
+          reference = SandreToSSD2[codeSandre] ?? null;
         }
 
         if (reference === null) {
           const inovalysReferential: Record<string, SSD2Id> = {
-            'Prothioconazole : prothioconazole-desthio (somme des isomères)': 'RF-0868-001-PPP'
-          }
+            'Prothioconazole : prothioconazole-desthio (somme des isomères)':
+              'RF-0868-001-PPP',
+            'Fosetyl (+ ac. phosphoreux)': 'RF-0225-001-PPP',
+            'Captane (+ THPI)': 'RF-00004681-PAR',
+            Méfentrifluconazole: 'RF-00009360-PAR'
+          };
 
-          reference = inovalysReferential[r['Détermination']] ?? null
+          reference = inovalysReferential[r['Détermination']] ?? null;
         }
 
-        if( reference === null){
-          throw new ExtractError(`Impossible d'identifier le résidu ${r.Détermination}`);
+        if (reference === null) {
+          throw new ExtractError(
+            `Impossible d'identifier le résidu ${r.Détermination}`
+          );
         }
 
-        const resultatAsNumber = frenchNumberStringValidator.safeParse(r['Résultat 1'])
+        const resultatAsNumber = frenchNumberStringValidator.safeParse(
+          r['Résultat 1']
+        );
 
-       const result: ExportResultQuantifiable | ExportResultNonQuantifiable = resultatAsNumber.success ? {
-          result: resultatAsNumber.data,
-          result_kind: 'Q',
-         lmr: r['Spécification 1'],
-
-        } : {
-          result: null,
-         lmr: null,
-         result_kind: 'NQ'
-       }
+        const result: ExportResultQuantifiable | ExportResultNonQuantifiable =
+          resultatAsNumber.success
+            ? {
+                result: resultatAsNumber.data,
+                result_kind: 'Q',
+                lmr: r['Spécification 1']
+              }
+            : {
+                result: null,
+                lmr: null,
+                result_kind: 'NQ'
+              };
 
         return {
           reference,
           ...result
         };
-      })
+      });
 
 
     result.push({
