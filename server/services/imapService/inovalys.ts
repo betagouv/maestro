@@ -9,6 +9,7 @@ import {
 import { csvToJson, frenchNumberStringValidator } from './utils';
 import { getSSD2IdByCasNumber, getSSD2IdByLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import { SandreToSSD2 } from 'maestro-shared/referential/Residue/SandreToSSD2';
 
 //TODO AUTO_LABO en attente de la réception du 1er email + test
 const isSender: IsSender = (_emailSender) => false;
@@ -91,6 +92,11 @@ export const extractAnalyzes = (
         let reference = getSSD2IdByCasNumber(r['Numéro CAS'])
         if (reference === null) {
           reference = getSSD2IdByLabel(r['Détermination'])
+        }
+
+        const codeSandre = r['Code Sandre']
+        if (reference === null && codeSandre !== undefined) {
+          reference = SandreToSSD2[codeSandre] ?? null
         }
 
         if (reference === null) {

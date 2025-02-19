@@ -185,7 +185,6 @@ describe('Parse correctement les fichiers CSV', () => {
             "Incertitude ": "0.005",
             "Code Sandre": "1951",
             "N° mélange": "",
-            "Numéro CAS": "131860-33-8",
             "": ""
           },
           {
@@ -216,7 +215,6 @@ describe('Parse correctement les fichiers CSV', () => {
             "Incertitude ": "0.005",
             "Code Sandre": "1951",
             "N° mélange": "",
-            "Numéro CAS": "131860-33-8",
             "": ""
           },        ]
       }])).toMatchInlineSnapshot(`

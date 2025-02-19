@@ -11,7 +11,7 @@ import { groupBy } from 'lodash-es';
 import { OmitDistributive } from 'maestro-shared/utils/typescript';
 
 //TODO AUTO_LABO en attente de la réception du 1er email + test
-const isSender: IsSender = (_emailSender) => true;
+const isSender: IsSender = (_emailSender) => false;
 
 
 // Visible for testing
