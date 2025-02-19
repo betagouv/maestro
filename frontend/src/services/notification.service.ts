@@ -35,9 +35,28 @@ export const notificationApi = api.injectEndpoints({
       }),
       transformResponse: (response: any) => Notification.parse(response),
       invalidatesTags: [{ type: 'Notification', id: 'LIST' }]
+    }),
+    updateNotifications: builder.mutation<
+      Notification[],
+      FindNotificationOptions & {
+        notificationUpdate: NotificationUpdate;
+      }
+    >({
+      query: ({ notificationUpdate, ...findNotificationOptions }) => ({
+        url: `/notifications`,
+        params: findNotificationOptions,
+        method: 'PUT',
+        body: notificationUpdate
+      }),
+      transformResponse: (response: any[]) =>
+        response.map((_) => Notification.parse(fp.omitBy(_, fp.isNil))),
+      invalidatesTags: [{ type: 'Notification', id: 'LIST' }]
     })
   })
 });
 
-export const { useFindNotificationsQuery, useUpdateNotificationMutation } =
-  notificationApi;
+export const {
+  useFindNotificationsQuery,
+  useUpdateNotificationMutation,
+  useUpdateNotificationsMutation
+} = notificationApi;

@@ -30,6 +30,19 @@ const update = async (notification: Notification): Promise<void> => {
     .update(formatNotification(notification));
 };
 
+const updateMany = async (notifications: Notification[]): Promise<void> => {
+  console.info(
+    'Update notifications',
+    notifications.map((_) => _.id)
+  );
+  if (notifications.length > 0) {
+    await Notifications()
+      .insert(notifications.map(formatNotification))
+      .onConflict('id')
+      .merge();
+  }
+};
+
 const selectNotifications = () =>
   Notifications()
     .select(
@@ -57,7 +70,6 @@ const findMany = async (
   return selectNotifications()
     .where(omitBy(findOptions, isNil))
     .orderBy('created_at', 'desc')
-    .debug(true)
     .then((notifications) => notifications.map(parseNotification));
 };
 
@@ -99,6 +111,7 @@ export const parseNotification = (
 export default {
   insert,
   update,
+  updateMany,
   findUnique,
   findMany
 };

@@ -25,19 +25,24 @@ describe('Notification router', () => {
     read: false
   });
   const notification2 = genNotification({
+    recipientId: Sampler1Fixture.id,
+    author: NationalCoordinator,
+    read: false
+  });
+  const notification3 = genNotification({
     recipientId: NationalCoordinator.id
   });
 
   beforeAll(async () => {
     await Notifications().insert(
-      [notification1, notification2].map(formatNotification)
+      [notification1, notification2, notification3].map(formatNotification)
     );
   });
 
   afterAll(async () => {
     await Notifications()
       .delete()
-      .whereIn('id', [notification1.id, notification2.id]);
+      .whereIn('id', [notification1.id, notification2.id, notification3.id]);
   });
 
   describe('GET /notifications', () => {
@@ -49,7 +54,7 @@ describe('Notification router', () => {
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    test('should get a valid body', async () => {
+    test('should get a valid query', async () => {
       await request(app)
         .get(testRoute)
         .query({ recipientId: undefined })
@@ -64,7 +69,10 @@ describe('Notification router', () => {
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res1.body).toEqual([withISOStringDates(notification1)]);
+      expect(res1.body).toEqual([
+        withISOStringDates(notification1),
+        withISOStringDates(notification2)
+      ]);
 
       const res2 = await request(app)
         .get(testRoute)
@@ -72,7 +80,7 @@ describe('Notification router', () => {
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res2.body).toEqual([withISOStringDates(notification2)]);
+      expect(res2.body).toEqual([withISOStringDates(notification3)]);
     });
   });
 
@@ -105,7 +113,7 @@ describe('Notification router', () => {
 
     test('should fail if the user is not the recipient of the notification', async () => {
       await request(app)
-        .put(testRoute(notification2.id))
+        .put(testRoute(notification3.id))
         .use(tokenProvider(Sampler1Fixture))
         .send({ read: true })
         .expect(constants.HTTP_STATUS_FORBIDDEN);
@@ -120,6 +128,51 @@ describe('Notification router', () => {
 
       expect(res.body).toEqual(
         withISOStringDates({ ...notification1, read: true })
+      );
+    });
+  });
+
+  describe('PUT /notifications', () => {
+    const testRoute = '/api/notifications';
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .put(testRoute)
+        .query({ recipientId: Sampler1Fixture.id })
+        .send({ read: true })
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should get a valid body', async () => {
+      await request(app)
+        .put(testRoute)
+        .query({ recipientId: Sampler1Fixture.id })
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    test('should get a valid query', async () => {
+      await request(app)
+        .put(testRoute)
+        .query({ recipientId: undefined })
+        .use(tokenProvider(Sampler1Fixture))
+        .send({ read: true })
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    test('should update the notifications related to the user', async () => {
+      const res = await request(app)
+        .put(testRoute)
+        .query({ recipientId: Sampler1Fixture.id })
+        .use(tokenProvider(Sampler1Fixture))
+        .send({ read: true })
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toMatchObject(
+        expect.arrayContaining([
+          withISOStringDates({ ...notification1, read: true }),
+          withISOStringDates({ ...notification2, read: true })
+        ])
       );
     });
   });

@@ -11,7 +11,7 @@ export const up = async (knex: Knex) => {
       .onUpdate('CASCADE')
       .onDelete('CASCADE');
     table.string('category').notNullable();
-    table.string('message').notNullable();
+    table.text('message').notNullable();
     table.string('link');
     table.boolean('read').defaultTo(false);
     table

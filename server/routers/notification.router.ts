@@ -19,5 +19,12 @@ router.put(
   ),
   notificationController.updateNotification
 );
+router.put(
+  '/',
+  validator.validate(
+    query(FindNotificationOptions).merge(body(NotificationUpdate))
+  ),
+  notificationController.updateNotifications
+);
 
 export default router;

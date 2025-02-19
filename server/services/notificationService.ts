@@ -4,7 +4,9 @@ import {
 } from 'maestro-shared/referential/Matrix/MatrixKind';
 import {
   NewRegionalPrescriptionCommentNotification,
-  NotificationToCreate
+  NotificationToCreate,
+  SubmittedProgrammingPlanNotification,
+  ValidatedProgrammingPlanNotification
 } from 'maestro-shared/schema/Notification/Notification';
 import { User } from 'maestro-shared/schema/User/User';
 import { v4 as uuidv4 } from 'uuid';
@@ -31,6 +33,7 @@ const sendNotification = async <T extends NotificationToCreate>(
 
   if (
     NewRegionalPrescriptionCommentNotification.safeParse(notificationToCreate)
+      .success
   ) {
     const notification =
       NewRegionalPrescriptionCommentNotification.parse(notificationToCreate);
@@ -44,6 +47,22 @@ const sendNotification = async <T extends NotificationToCreate>(
           ? `${notification.author.firstName} ${notification.author.lastName}`
           : 'Anonyme'
       }
+    });
+  }
+
+  if (
+    SubmittedProgrammingPlanNotification.safeParse(notificationToCreate).success
+  ) {
+    await mailService.sendSubmittedProgrammingPlan({
+      recipients: recipients.map((recipient) => recipient.email)
+    });
+  }
+
+  if (
+    ValidatedProgrammingPlanNotification.safeParse(notificationToCreate).success
+  ) {
+    await mailService.sendValidatedProgrammingPlan({
+      recipients: recipients.map((recipient) => recipient.email)
     });
   }
 };

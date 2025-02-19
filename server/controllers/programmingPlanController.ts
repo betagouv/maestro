@@ -4,6 +4,10 @@ import { constants } from 'http2';
 import { intersection } from 'lodash-es';
 import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
 import { RegionList } from 'maestro-shared/referential/Region';
+import {
+  SubmittedProgrammingPlanNotification,
+  ValidatedProgrammingPlanNotification
+} from 'maestro-shared/schema/Notification/Notification';
 import { ContextList } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import { ProgrammingPlanRegionalStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanRegionalStatus';
@@ -20,8 +24,7 @@ import prescriptionSubstanceRepository from '../repositories/prescriptionSubstan
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
 import { userRepository } from '../repositories/userRepository';
-import { mailService } from '../services/mailService';
-import config from '../utils/config';
+import { notificationService } from '../services/notificationService';
 
 const findProgrammingPlans = async (request: Request, response: Response) => {
   const user = (request as AuthenticatedRequest).user;
@@ -202,23 +205,31 @@ const updateRegionalStatus = async (request: Request, response: Response) => {
         });
 
         if (programmingPlanRegionalStatus.status === 'Submitted') {
-          await mailService.sendSubmittedProgrammingPlan({
-            recipients: [
-              ...regionalCoordinators.map(
-                (regionalCoordinator) => regionalCoordinator.email
-              ),
-              config.mail.from
-            ]
-          });
+          await notificationService.sendNotification<SubmittedProgrammingPlanNotification>(
+            {
+              category: 'ProgrammingPlanSubmitted',
+              message: `Maestro vient d’être mis à jour ! 
+                        <br/><br/>
+                        Une proposition de programmation pour la prochaine campagne de surveillance / contrôle officielle a été déposée sur Maestro par la coordination nationale. 
+                        <br/><br/>
+                        Merci de prendre connaissance de ces nouveaux éléments et y réagir le cas échéant.`,
+              link: `/prescriptions/${programmingPlan.year}`
+            },
+            regionalCoordinators
+          );
         } else if (programmingPlanRegionalStatus.status === 'Validated') {
-          await mailService.sendValidatedProgrammingPlan({
-            recipients: [
-              ...regionalCoordinators.map(
-                (regionalCoordinator) => regionalCoordinator.email
-              ),
-              config.mail.from
-            ]
-          });
+          await notificationService.sendNotification<ValidatedProgrammingPlanNotification>(
+            {
+              category: 'ProgrammingPlanValidated',
+              message: `L’étape de programmation a été clôturée par la coordination nationale. 
+                        <br/><br/>         
+                        En tant que coordinateur régional, vous pouvez dorénavant vous connecter à Maestro sur l’espace "programmation" afin d’attribuer le/les laboratoires responsables des analyses officielles en lien avec les matrices programmées pour la prochaine campagne du dispositif PSPC dans votre région.
+                        <br/><br/>
+                        Une fois le/les laboratoires attribués, la campagne sera officiellement lancée et les inspecteurs/préleveurs de vos régions pourront initier leurs prélèvements.`,
+              link: `/prescriptions/${programmingPlan.year}`
+            },
+            regionalCoordinators
+          );
         } else {
           return response.sendStatus(constants.HTTP_STATUS_BAD_REQUEST);
         }
