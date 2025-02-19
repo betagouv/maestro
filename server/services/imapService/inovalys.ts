@@ -14,6 +14,104 @@ import { SandreToSSD2 } from 'maestro-shared/referential/Residue/SandreToSSD2';
 //TODO AUTO_LABO en attente de la réception du 1er email + test
 const isSender: IsSender = (_emailSender) => false;
 
+export const getSSD2Id = (casNumber: string | undefined, codeSandre: string | undefined, label: string): SSD2Id | null => {
+  const inovalysReferential: Record<string, SSD2Id> = {
+    '· Avermectine B1a': 'RF-0011-003-PPP',
+    '· Avermectine B1b': 'RF-0011-004-PPP',
+    '· 8,9-Z-Avermectine B1a': 'RF-0011-002-PPP',
+    '· Bénomyl': 'RF-0041-003-PPP',
+    '· Benfuracarb': 'RF-0040-001-PPP',
+    '· Carbofurane': 'RF-0065-003-PPP',
+    '· Carbofurane-3-hydroxy': 'RF-0065-002-PPP',
+    '· Carbosulfane': 'RF-0068-001-PPP',
+    '· Furathiocarb': 'RF-0228-001-PPP',
+    '· Carboxine sulfone': 'RF-0069-001-PPP',
+    '· Carboxine sulfoxyde': 'RF-00005982-PAR',
+    '· Clethodim': '',
+    '· Séthoxydim': '',
+    "· DDT 4,4 (p,p')": '',
+    "· DDT 2,4 (o,p')": '',
+    "· DDE 4,4 (p,p')": '',
+    "· DDD 4,4 (p,p')": '',
+    "· Dicofol (p,p')": '',
+    "· Dicofol  (o,p')": '',
+    '· Fenamiphos': '',
+    '· Fenamiphos sulfone': '',
+    '· Fenamiphos sulfoxide': '',
+    '· Fenchlorphos oxon': '',
+    '· TFNA': '',
+    '· TFNG': '',
+    '· Halauxifen': '',
+    '· Halauxifen méthyl': '',
+    '· MCPA (L)': '',
+    '· MCPB (L)': '',
+    '· Méthiocarb': '',
+    '· Méthiocarb sulfone': '',
+    '· Méthiocarb sulfoxide': '',
+    '· 4-Bromophénylurée': '',
+    '· Déméton-S-méthyl sulfone': '',
+    '· Oxydéméton méthyl': '',
+    '· Phosmet oxon': '',
+    '· BTS 44595 (métabolite du prochloraz)': '',
+    '· BTS 44596 (métabolite du prochloraz)': ''
+    'Abamectine (B1a + B1b + 8,9-Z)': 'RF-00004655-PAR',
+    'Aldicarbe (+ sulfone + sulfoxyde)': 'RF-0020-001-PPP',
+    'Captane (+ THPI)': 'RF-00004681-PAR',
+    'Carbendazim (+ bénomyl)': 'RF-0041-001-PPP',
+    'Carbofurane (+ carbofurane-OH)': 'RF-00003374-PAR',
+    'Carboxine (+ sulfone + sulfoxyde)': 'RF-00011559-PAR',
+    'Clethodim (+ Séthoxydim)': 'RF-0096-001-PPP',
+    'DDT(DDT 4,4 + DDT 2,4 + DDE 4,4 + DDD 4,4)': 'RF-0119-001-PPP',
+    'Diclofop (+ diclofop méthyl)': 'RF-00012875-PAR',
+    'Dicofol (p,p´ + o,p´)': 'RF-0130-001-PPP',
+    'Dieldrine (+ aldrine)': 'RF-0021-001-PPP',
+    'Disulfoton (+ sulfone + sulfoxide)': 'RF-0149-001-PPP',
+    'Endosulfan (alpha + bêta + endosulfan)': 'RF-0155-001-PPP',
+    'Fenamiphos (+ sulfone + sulfoxide)': 'RF-0173-001-PPP',
+    'Fenchlorphos (+ oxon)': 'RF-0178-001-PPP',
+    'Fenthion (+ sulf + sulfox + oxon + oxon-sulf + oxon-sulfox)': 'RF-0187-001-PPP',
+    'Fenvalérate (somme des isomères + esfenvalerate)': 'RF-0690-006-PPP',
+    'Fipronil (+ sulfone)': 'RF-0192-001-PPP',
+    'Flonicamide (+ TFNA + TFNG)': 'RF-00004683-PAR',
+    'Folpel (+ phtalimide)': 'RF-00004687-PAR',
+    'Fosetyl (+ ac. phosphoreux)': 'RF-0225-001-PPP',
+    'Halauxifen méthyl (+ halauxifen)': 'RF-00004666-PAR',
+    'Heptachlore (+ heptachlore epoxide)': 'RF-0236-001-PPP',
+    'Malathion (+ malaoxon)': 'RF-0266-001-PPP',
+    'MCPA+MCPB (L)': 'RF-0271-004-PPP',
+    'Méfentrifluconazole': 'RF-00009360-PAR',
+    'Méthiocarb (+ sulfone + sulfoxide)': 'RF-0291-001-PPP',
+    'Métobromuron (+4-Bromophénylurée)': 'RF-00014532-PAR',
+    'Oxydéméton méthyl (+ déméton-S-méthyl sulf.)': 'RF-0323-001-PPP',
+    'Parathion méthyl (+ paraoxon méthyl)': 'RF-0328-001-PPP',
+    'Phorate (+ oxon + sulfone + sulfoxide)': 'RF-0336-001-PPP',
+    'Phosmet (+ phosmet oxon)': 'RF-0338-001-PPP',
+    'Pirimicarbe (+ desméthyl)': 'RF-0347-001-PPP',
+    'Prochloraz (+ BTS 44595 + BTS 44596)': 'RF-00012032-PAR',
+    'Prothioconazole : prothioconazole-desthio (somme des isomères)': 'RF-0868-001-PPP',
+    'Quintozène (+ pentachloroaniline)': 'RF-0383-001-PPP',
+    'Spinetoram (J+L)': 'RF-00013247-PAR',
+    'Spirotétramat (+ enol)': 'RF-00000030-PAR',
+    'Tolylfluanide (+ DMST)': 'RF-0425-001-PPP'
+
+  };
+
+  let reference: SSD2Id | null = inovalysReferential[label] ?? null;
+
+  if (reference === null) {
+    reference = getSSD2IdByCasNumber(casNumber);
+  }
+
+  if (reference === null && codeSandre !== undefined) {
+    reference = SandreToSSD2[codeSandre] ?? null;
+  }
+
+  if (reference === null) {
+    reference = getSSD2IdByLabel(label);
+  }
+
+  return reference
+}
 
 // Visible for testing
 export const extractAnalyzes = (
@@ -94,27 +192,7 @@ export const extractAnalyzes = (
         return resultatAsNumber.success;
       })
       .map((r) => {
-        let reference = getSSD2IdByCasNumber(r['Numéro CAS']);
-        if (reference === null) {
-          reference = getSSD2IdByLabel(r['Détermination']);
-        }
-
-        const codeSandre = r['Code Sandre'];
-        if (reference === null && codeSandre !== undefined) {
-          reference = SandreToSSD2[codeSandre] ?? null;
-        }
-
-        if (reference === null) {
-          const inovalysReferential: Record<string, SSD2Id> = {
-            'Prothioconazole : prothioconazole-desthio (somme des isomères)':
-              'RF-0868-001-PPP',
-            'Fosetyl (+ ac. phosphoreux)': 'RF-0225-001-PPP',
-            'Captane (+ THPI)': 'RF-00004681-PAR',
-            Méfentrifluconazole: 'RF-00009360-PAR'
-          };
-
-          reference = inovalysReferential[r['Détermination']] ?? null;
-        }
+        const reference = getSSD2Id(r['Numéro CAS'], r['Code Sandre'], r.Détermination)
 
         if (reference === null) {
           throw new ExtractError(
