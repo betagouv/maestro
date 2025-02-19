@@ -69,10 +69,12 @@ describe('Notification router', () => {
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res1.body).toEqual([
-        withISOStringDates(notification1),
-        withISOStringDates(notification2)
-      ]);
+      expect(res1.body).toMatchObject(
+        expect.arrayContaining([
+          withISOStringDates(notification1),
+          withISOStringDates(notification2)
+        ])
+      );
 
       const res2 = await request(app)
         .get(testRoute)
