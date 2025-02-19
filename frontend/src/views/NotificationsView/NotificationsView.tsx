@@ -15,6 +15,7 @@ import {
 } from 'maestro-shared/schema/Notification/NotificationCategory';
 import { UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
 import { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import notificationsImg from 'src/assets/illustrations/notifications.svg';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
@@ -27,6 +28,7 @@ import './NotificationsView.scss';
 
 const NotificationsView = () => {
   useDocumentTitle('Centre de notifications');
+  const navigate = useNavigate();
   const { user } = useAuthentication();
 
   const { data: notifications } = useFindNotificationsQuery(
@@ -61,6 +63,18 @@ const NotificationsView = () => {
     [notifications]
   );
 
+  const onNotificationClick = async (notification: Notification) => {
+    await updateNotification({
+      notificationId: notification.id,
+      notificationUpdate: {
+        read: true
+      }
+    });
+    if (notification.link) {
+      navigate(notification.link);
+    }
+  };
+
   const Icon: Partial<Record<NotificationCategory, string>> = {
     Surveillance: 'fr-icon-line-chart-fill',
     Control: 'fr-icon-line-chart-fill',
@@ -75,22 +89,15 @@ const NotificationsView = () => {
         illustration={notificationsImg}
       />
 
-      <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
-        {notificationsByDay &&
-          Object.entries(notificationsByDay).map(([day, notifications]) => (
+      {notificationsByDay &&
+        Object.entries(notificationsByDay).map(([day, notifications]) => (
+          <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
             <div key={day} className={clsx('notifications-day-container')}>
               <h4 className={cx('fr-mb-0')}>{capitalize(day)}</h4>
               {notifications.map((notification) => (
                 <Tile
                   buttonProps={{
-                    onClick: async () => {
-                      await updateNotification({
-                        notificationId: notification.id,
-                        notificationUpdate: {
-                          read: true
-                        }
-                      });
-                    }
+                    onClick: () => onNotificationClick(notification)
                   }}
                   orientation="horizontal"
                   start={
@@ -125,9 +132,12 @@ const NotificationsView = () => {
                       }}
                     >
                       <div>
-                        <div className={cx('fr-text--md')}>
-                          {notification.message}
-                        </div>
+                        <div
+                          className={cx('fr-text--md')}
+                          dangerouslySetInnerHTML={{
+                            __html: notification.message
+                          }}
+                        />
                         {notification.author && (
                           <div
                             className={clsx(
@@ -196,8 +206,8 @@ const NotificationsView = () => {
                 />
               ))}
             </div>
-          ))}
-      </div>
+          </div>
+        ))}
     </section>
   );
 };

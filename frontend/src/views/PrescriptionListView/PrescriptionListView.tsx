@@ -94,16 +94,6 @@ const PrescriptionListView = () => {
     [user, searchParams]
   );
 
-  useEffect(() => {
-    if (searchParams.get('context')) {
-      dispatch(
-        prescriptionsSlice.actions.changeListContext(
-          searchParams.get('context') as Context
-        )
-      );
-    }
-  }, [searchParams, dispatch]);
-
   const findPrescriptionOptions = useMemo(
     () => ({
       programmingPlanId: programmingPlan?.id as string,
@@ -142,6 +132,31 @@ const PrescriptionListView = () => {
       skip: !programmingPlan
     }
   );
+
+  useEffect(() => {
+    if (searchParams.get('context')) {
+      dispatch(
+        prescriptionsSlice.actions.changeListContext(
+          searchParams.get('context') as Context
+        )
+      );
+    }
+    if (
+      searchParams.get('prescriptionId') &&
+      searchParams.get('commentsRegion')
+    ) {
+      dispatch(
+        prescriptionsSlice.actions.setRegionalPrescriptionComments(
+          regionalPrescriptions?.find(
+            (regionalPrescription) =>
+              regionalPrescription.prescriptionId ===
+                searchParams.get('prescriptionId') &&
+              regionalPrescription.region === searchParams.get('commentsRegion')
+          )
+        )
+      );
+    }
+  }, [searchParams, regionalPrescriptions]);
 
   const changeFilter = useCallback(
     (findFilter: Partial<FindPrescriptionOptions>) => {

@@ -4,6 +4,10 @@
   flex-direction: column;
   gap: 2.5rem;
 
+  .fr-tile__start {
+    margin-bottom: 0 !important;
+  }
+
   .fr-tile__desc {
     width: 100%;
   }
