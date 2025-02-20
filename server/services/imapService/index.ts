@@ -6,7 +6,7 @@ import config from '../../utils/config';
 import { mattermostService } from '../mattermostService';
 import { analysisHandler } from './analysis-handler';
 import { girpaConf } from './girpa';
-import { inovalysConf } from './inovalys';
+import { inovalysConf } from './inovalys/inovalys';
 import { capinovConf } from './capinov';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { getSSD2Id } from 'maestro-shared/referential/Residue/SSD2Referential';
