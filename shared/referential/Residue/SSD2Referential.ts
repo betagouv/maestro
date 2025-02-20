@@ -1,4 +1,5 @@
 import { SSD2Id } from './SSD2Id';
+import { SandreToSSD2 } from './SandreToSSD2';
 
 export const SSD2Referential =
 // ----- ne pas supprimer cette ligne : début
@@ -10724,13 +10725,10 @@ type Referential = { [key in SSD2Id] : { reference:key, name: string, casNumber:
 const values = Object.values(SSD2Referential)
 
 
-export const getSSD2IdByCasNumber = (potentialCasNumber: string | undefined): SSD2Id | null => {
-   if (potentialCasNumber === undefined) {
-      return null
-   }
+const getSSD2IdByCasNumber = (potentialCasNumber: string): SSD2Id | null => {
    return values.find(({casNumber}) => casNumber === potentialCasNumber)?.reference ?? null;
 }
-export const getSSD2IdByLabel = (label: string): SSD2Id | null => {
+const getSSD2IdByLabel = (label: string): SSD2Id | null => {
    const labelLowerCase = label.toLowerCase()
    const ssd2Id =  values.find(({name}) => name.toLowerCase() === labelLowerCase)?.reference ?? null
 
@@ -10739,4 +10737,22 @@ export const getSSD2IdByLabel = (label: string): SSD2Id | null => {
    }
 
    return values.find(({otherNames}) => otherNames.map(n => n.toLowerCase()).includes(labelLowerCase))?.reference ?? null
+}
+
+export const getSSD2Id = (label: string, codeSandre: string | null, casNumber: string | null, laboratoryReferential: Record<string, SSD2Id>) => {
+   let ssd2Id: SSD2Id | null = laboratoryReferential[label] ?? null;
+
+   if (ssd2Id === null && casNumber !== null) {
+      ssd2Id = getSSD2IdByCasNumber(casNumber);
+   }
+
+   if (ssd2Id === null && codeSandre !== null) {
+      ssd2Id = SandreToSSD2[codeSandre] ?? null;
+   }
+
+   if (ssd2Id === null) {
+      ssd2Id = getSSD2IdByLabel(label);
+   }
+
+   return ssd2Id
 }

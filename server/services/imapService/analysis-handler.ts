@@ -6,14 +6,15 @@ import { residueAnalyteRepository } from '../../repositories/residueAnalyteRepos
 import { sampleRepository } from '../../repositories/sampleRepository';
 import { s3Service } from '../s3Service';
 import {
-  ExportAnalysis, ExportDataSubstance,
+  ExportAnalysis,  ExportDataSubstanceWithSSD2Id,
   ExtractError
 } from './index';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { getAnalytes, hasAnalytes } from 'maestro-shared/referential/Residue/SSD2Hierachy';
 
+export type AnalysisWithResidueWithSSD2Id =  Omit<ExportAnalysis, 'residues'> & { residues: ExportDataSubstanceWithSSD2Id[]}
 export const analysisHandler = async (
-  analyse: ExportAnalysis
+  analyse: AnalysisWithResidueWithSSD2Id
 ): Promise<string> => {
 
   const { sampleId, analyseId } = await kysely
@@ -29,36 +30,36 @@ export const analysisHandler = async (
     );
   }
   
-  const complexResidues = analyse.residues.filter(({reference}) => hasAnalytes(reference))
-  const simpleResidues =  analyse.residues.filter(({reference}) => !hasAnalytes(reference))
+  const complexResidues = analyse.residues.filter(({ssd2Id}) => hasAnalytes(ssd2Id))
+  const simpleResidues =  analyse.residues.filter(({ssd2Id}) => !hasAnalytes(ssd2Id))
 
-  const residuesIndex: Record<SSD2Id, ExportDataSubstance & {analytes: ExportDataSubstance[]}> = complexResidues.reduce((acc, r) => {
-    acc[r.reference] = {...r, analytes: []}
+  const residuesIndex: Record<SSD2Id, ExportDataSubstanceWithSSD2Id & {analytes: ExportDataSubstanceWithSSD2Id[]}> = complexResidues.reduce((acc, r) => {
+    acc[r.ssd2Id] = {...r, analytes: []}
     return acc
-  }, {} as Record<SSD2Id, ExportDataSubstance & {analytes: ExportDataSubstance[]}>)
+  }, {} as Record<SSD2Id, ExportDataSubstanceWithSSD2Id & {analytes: ExportDataSubstanceWithSSD2Id[]}>)
   for (const residue of simpleResidues) {
-      const complexResidue = complexResidues.find(({ reference }) => {
-        const referenceAnalytes = getAnalytes(reference)
-        if (referenceAnalytes.length > 0) {
-          return referenceAnalytes.includes(residue.reference)
+      const complexResidue = complexResidues.find(({ ssd2Id }) => {
+        const referenceAnalytes = getAnalytes(ssd2Id)
+        if (referenceAnalytes.size > 0) {
+          return referenceAnalytes.has(residue.ssd2Id)
         }
         return false
       });
 
 
     if (complexResidue !== undefined) {
-      residuesIndex[complexResidue.reference].analytes.push(residue)
+      residuesIndex[complexResidue.ssd2Id].analytes.push(residue)
     }else{
-      residuesIndex[residue.reference] = {...residue, analytes: []}
+      residuesIndex[residue.ssd2Id] = {...residue, analytes: []}
     }
   }
 
   const residues = Object.values(residuesIndex)
   residues
-    .filter(({reference}) => hasAnalytes(reference))
-    .forEach(({analytes, reference}) => {
+    .filter(({ssd2Id}) => hasAnalytes(ssd2Id))
+    .forEach(({analytes, ssd2Id}) => {
     if (analytes.length === 0) {
-      throw new ExtractError(`Le résidue complexe ${reference} est présent, mais n'a aucune analyte`)
+      throw new ExtractError(`Le résidue complexe ${ssd2Id} est présent, mais n'a aucune analyte`)
     }
   })
   const { documentId, valid, error } = await s3Service.uploadDocument(
@@ -105,14 +106,14 @@ export const analysisHandler = async (
         const residueNumber = i + 1
         await analysisResidueRepository.insert(
           [{
-            result: residue.result,
+            result: 'result' in residue ? residue.result : null,
             resultKind: residue.result_kind,
-            lmr: residue.lmr,
+            lmr: 'lmr' in residue ? residue.lmr : null,
             analysisId,
             //TODO AUTO_LABO je ne sais pas comment récupérer cette info
             analysisMethod: 'Mono',
             residueNumber,
-            reference: residue.reference
+            reference: residue.ssd2Id
           }]
           ,
           trx
@@ -120,11 +121,11 @@ export const analysisHandler = async (
 
         if ('analytes' in residue && residue.analytes.length > 0) {
           await residueAnalyteRepository.insert(
-            residue.analytes.map((analyte, j) => ({   reference: analyte.reference,
+            residue.analytes.map((analyte, j) => ({   reference: analyte.ssd2Id,
               residueNumber,
               analyteNumber: j + 1,
               resultKind: analyte.result_kind,
-              result: analyte.result ,
+              result: 'result' in analyte ?  analyte.result : null,
             analysisId})),
             trx
           );

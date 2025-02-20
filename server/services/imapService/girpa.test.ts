@@ -3,10 +3,10 @@ import { z } from 'zod';
 import {
   analyseXmlValidator,
   extractAnalyzes,
-  getReference,
-  residueCasNumberValidator,
-  residueEnglishNameValidator
+   girpaConf,
 } from './girpa';
+import { getSSD2Id } from 'maestro-shared/referential/Residue/SSD2Referential';
+import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 
 const girpaXMLExample = (analyses: z.input<typeof analyseXmlValidator>[]) => ({
   Rapport: {
@@ -137,7 +137,7 @@ describe('parse correctement le XML', () => {
 });
 
 describe('getResidue', () => {
-  test.each<[string, string, ReturnType<typeof getReference>]>([
+  test.each<[string, string, SSD2Id | null]>([
     ['', 'toto', null],
     ['', 'bixafen','RF-1056-001-PPP'],
     [
@@ -172,9 +172,11 @@ describe('getResidue', () => {
       ]
   ])('getResidue %#', (casNumber, englishName, expected) => {
     expect(
-      getReference(
-        casNumber as z.infer<typeof residueCasNumberValidator>,
-        englishName as z.infer<typeof residueEnglishNameValidator>
+      getSSD2Id(
+        englishName,
+        null,
+        casNumber,
+        girpaConf.ssd2IdByLabel
       )
     ).toEqual(expected);
   });

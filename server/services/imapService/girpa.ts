@@ -8,49 +8,23 @@ import {
   IsSender,
   LaboratoryConf
 } from './index';
-import {
-  getSSD2IdByCasNumber,
-  getSSD2IdByLabel
-} from 'maestro-shared/referential/Residue/SSD2Referential';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { frenchNumberStringValidator } from './utils';
 
 //TODO AUTO_LABO en attente de la réception du 1er email + test
 const isSender: IsSender = (_emailSender) => false;
 
-// Visible for testing
-export const getReference = (
-  casNumber: ResidueCasNumber,
-  englishName: ResidueEnglishName
-): SSD2Id | null => {
-  const normalizedEnglishName = englishName
-    .toLowerCase()
-    .replace(' according reg.', '');
-
-  let ssd2Id = getSSD2IdByCasNumber(casNumber);
-
-  if (ssd2Id === null) {
-    ssd2Id = getSSD2IdByLabel(normalizedEnglishName);
-  }
-
-  if (ssd2Id === null) {
-    const girpaReferences: Record<string, SSD2Id> = {
-      'prothioconazole: prothioconazole-desthio': 'RF-0868-001-PPP',
-      napropamide: 'RF-00012802-PAR'
-    };
-    ssd2Id = girpaReferences[normalizedEnglishName] ?? null;
-  }
-
-  return ssd2Id;
+const girpaReferences: Record<string, SSD2Id> = {
+  'prothioconazole: prothioconazole-desthio': 'RF-0868-001-PPP',
+  napropamide: 'RF-00012802-PAR'
 };
 
+
 export const residueCasNumberValidator = z.string().brand('CAS number');
-type ResidueCasNumber = z.infer<typeof residueCasNumberValidator>;
 
 export const residueEnglishNameValidator = z
   .string()
   .brand('ResidueEnglishName');
-type ResidueEnglishName = z.infer<typeof residueEnglishNameValidator>;
 
 export const analyseXmlValidator = z.object({
   Résultat: frenchNumberStringValidator,
@@ -80,33 +54,25 @@ export const extractAnalyzes = (
   const result = validator.parse(obj);
 
   return result.Rapport.Echantillon.map((echantillon) => {
-    const residues: ExportDataSubstance[] = echantillon.Analyse.filter(
-      (a) =>
-        a.LMR === '-' ||
-        a.Résultat > a.LMR ||
-        a.Résultat >= a.Limite_de_quantification / 3
-    )
+    const residues: ExportDataSubstance[] = echantillon.Analyse
       .map((a) => {
-        const reference = getReference(
-          a.Substance_active_CAS,
-          a.Substance_active_anglais
-        );
-        if (reference === null) {
-          throw new ExtractError(
-            `Résidu non trouvé:, ${a.Substance_active_CAS}, ${a.Substance_active_anglais}`
-          );
-        }
+        const isDetectable =  a.LMR === '-' ||
+          a.Résultat > a.LMR ||
+          a.Résultat >= a.Limite_de_quantification / 3
 
+        const commonData = {
+          codeSandre: null,
+          casNumber: a.Substance_active_CAS,
+          label: a.Substance_active_anglais.toLowerCase()
+            .replace(' according reg.', '')
+        }
         return a.LMR === '-'
           ? {
-              result_kind: 'NQ',
-              result: null,
-              lmr: null,
-              reference
+              result_kind: isDetectable ? 'NQ' : 'ND',
+             ...commonData
             }
-          : { result_kind: 'Q', result: a.Résultat, lmr: a.LMR, reference };
+          : { result_kind: 'Q', result: a.Résultat, lmr: a.LMR, ...commonData };
       })
-      .filter((s): s is ExportDataSubstance => s !== null);
     return {
       sampleReference: echantillon['Code_échantillon'],
       notes: echantillon.Commentaire,
@@ -157,5 +123,6 @@ const exportDataFromEmail: ExportDataFromEmail = (email) => {
 
 export const girpaConf: LaboratoryConf = {
   isSender,
-  exportDataFromEmail
+  exportDataFromEmail,
+  ssd2IdByLabel: girpaReferences
 };

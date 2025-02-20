@@ -3,8 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { kysely } from '../../repositories/kysely';
 import { s3Service } from '../s3Service';
-import { analysisHandler } from './analysis-handler';
-import { ExportAnalysis } from './index';
+import { analysisHandler, AnalysisWithResidueWithSSD2Id } from './analysis-handler';
 
 let spyDeleteDocument = vi.spyOn(s3Service, 'deleteDocument');
 let spyUploadDocument = vi.spyOn(s3Service, 'uploadDocument');
@@ -32,13 +31,11 @@ test("Le fichier est updloadé sur le S3, n'est pas supprimé du S3 et est en bd
     sampleReference: Sample13Fixture.reference,
     residues: [
       {
-        reference: 'RF-0002-001-PPP',
-        lmr: null,
-        result: null,
+        ssd2Id: 'RF-0002-001-PPP',
         result_kind: 'NQ'
       }
     ]
-  } as const satisfies ExportAnalysis;
+  } as const satisfies AnalysisWithResidueWithSSD2Id;
   const analysisId = await analysisHandler(analysisToSave);
 
   expect(spyUploadDocument).toHaveBeenCalledOnce();
@@ -65,7 +62,7 @@ test("Le fichier est updloadé sur le S3, n'est pas supprimé du S3 et est en bd
     .execute();
   expect(analysisResidue).toHaveLength(1);
   expect(analysisResidue[0].reference).toBe(
-    analysisToSave.residues[0].reference
+    analysisToSave.residues[0].ssd2Id
   );
 });
 
@@ -123,9 +120,7 @@ test("Si une erreur intervient après l'upload sur le S3, on supprime le documen
       sampleReference: Sample13Fixture.reference,
       residues: [
         {
-          reference: 'RF-0002-001-PPP' ,
-          lmr: null,
-          result: null,
+          ssd2Id: 'RF-0002-001-PPP' ,
           result_kind: 'NQ'
         }
       ]
@@ -146,10 +141,8 @@ test("Impossible d'enregistrer l'analyse si on trouve un résidu complexe sans a
       sampleReference: Sample13Fixture.reference,
       residues: [
         {
-          reference: 'RF-0008-001-PPP' ,
+          ssd2Id: 'RF-0008-001-PPP' ,
           result_kind: 'NQ',
-          lmr: null,
-          result: null
         }
       ]
     })
@@ -168,25 +161,19 @@ test('Peut enregistrer une analyse avec un résidue complexe et ses analytes ass
     sampleReference: Sample13Fixture.reference,
     residues: [
       {
-          reference: 'RF-00002588-PAR',
-        lmr: null,
+          ssd2Id: 'RF-00002588-PAR',
         result_kind: 'NQ',
-        result: null
       },
       {
-          reference: 'RF-0008-001-PPP',
-        lmr: null,
-        result: null,
+          ssd2Id: 'RF-0008-001-PPP',
         result_kind: 'NQ'
       },
       {
-          reference: 'RF-00004646-PAR',
-        lmr: null,
+          ssd2Id: 'RF-00004646-PAR',
         result_kind: 'NQ',
-        result: null
       }
     ]
-  } as const satisfies ExportAnalysis;
+  } as const satisfies AnalysisWithResidueWithSSD2Id;
 
   const analysisId = await analysisHandler(analysisToSave);
 
@@ -197,7 +184,7 @@ test('Peut enregistrer une analyse avec un résidue complexe et ses analytes ass
     .execute();
   expect(analysisResidue).toHaveLength(2);
   expect(analysisResidue[0].reference).toBe(
-    analysisToSave.residues[1].reference
+    analysisToSave.residues[1].ssd2Id
   );
 
   const analysisResidueAnalytes = await kysely
@@ -208,7 +195,7 @@ test('Peut enregistrer une analyse avec un résidue complexe et ses analytes ass
     .execute();
   expect(analysisResidueAnalytes).toHaveLength(1);
   expect(analysisResidueAnalytes[0].reference).toBe(
-    analysisToSave.residues[2].reference
+    analysisToSave.residues[2].ssd2Id
 
   );
 });

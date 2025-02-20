@@ -7,14 +7,11 @@ import {
   LaboratoryConf
 } from './index';
 import { csvToJson, frenchNumberStringValidator } from './utils';
-import { getSSD2IdByCasNumber, getSSD2IdByLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
-import { SandreToSSD2 } from 'maestro-shared/referential/Residue/SandreToSSD2';
 
 //TODO AUTO_LABO en attente de la réception du 1er email + test
 const isSender: IsSender = (_emailSender) => false;
 
-export const getSSD2Id = (casNumber: string | undefined, codeSandre: string | undefined, label: string): SSD2Id | null => {
   const inovalysReferential: Record<string, SSD2Id> = {
     '· Avermectine B1a': 'RF-0011-003-PPP',
     '· Avermectine B1b': 'RF-0011-004-PPP',
@@ -27,33 +24,33 @@ export const getSSD2Id = (casNumber: string | undefined, codeSandre: string | un
     '· Furathiocarb': 'RF-0228-001-PPP',
     '· Carboxine sulfone': 'RF-0069-001-PPP',
     '· Carboxine sulfoxyde': 'RF-00005982-PAR',
-    '· Clethodim': '',
-    '· Séthoxydim': '',
-    "· DDT 4,4 (p,p')": '',
-    "· DDT 2,4 (o,p')": '',
-    "· DDE 4,4 (p,p')": '',
-    "· DDD 4,4 (p,p')": '',
-    "· Dicofol (p,p')": '',
-    "· Dicofol  (o,p')": '',
-    '· Fenamiphos': '',
-    '· Fenamiphos sulfone': '',
-    '· Fenamiphos sulfoxide': '',
-    '· Fenchlorphos oxon': '',
-    '· TFNA': '',
-    '· TFNG': '',
-    '· Halauxifen': '',
-    '· Halauxifen méthyl': '',
-    '· MCPA (L)': '',
-    '· MCPB (L)': '',
-    '· Méthiocarb': '',
-    '· Méthiocarb sulfone': '',
-    '· Méthiocarb sulfoxide': '',
-    '· 4-Bromophénylurée': '',
-    '· Déméton-S-méthyl sulfone': '',
-    '· Oxydéméton méthyl': '',
-    '· Phosmet oxon': '',
-    '· BTS 44595 (métabolite du prochloraz)': '',
-    '· BTS 44596 (métabolite du prochloraz)': ''
+    // '· Clethodim': '',
+    // '· Séthoxydim': '',
+    // "· DDT 4,4 (p,p')": '',
+    // "· DDT 2,4 (o,p')": '',
+    // "· DDE 4,4 (p,p')": '',
+    // "· DDD 4,4 (p,p')": '',
+    // "· Dicofol (p,p')": '',
+    // "· Dicofol  (o,p')": '',
+    // '· Fenamiphos': '',
+    // '· Fenamiphos sulfone': '',
+    // '· Fenamiphos sulfoxide': '',
+    // '· Fenchlorphos oxon': '',
+    // '· TFNA': '',
+    // '· TFNG': '',
+    // '· Halauxifen': '',
+    // '· Halauxifen méthyl': '',
+    // '· MCPA (L)': '',
+    // '· MCPB (L)': '',
+    // '· Méthiocarb': '',
+    // '· Méthiocarb sulfone': '',
+    // '· Méthiocarb sulfoxide': '',
+    // '· 4-Bromophénylurée': '',
+    // '· Déméton-S-méthyl sulfone': '',
+    // '· Oxydéméton méthyl': '',
+    // '· Phosmet oxon': '',
+    // '· BTS 44595 (métabolite du prochloraz)': '',
+    // '· BTS 44596 (métabolite du prochloraz)': ''
     'Abamectine (B1a + B1b + 8,9-Z)': 'RF-00004655-PAR',
     'Aldicarbe (+ sulfone + sulfoxyde)': 'RF-0020-001-PPP',
     'Captane (+ THPI)': 'RF-00004681-PAR',
@@ -96,22 +93,6 @@ export const getSSD2Id = (casNumber: string | undefined, codeSandre: string | un
 
   };
 
-  let reference: SSD2Id | null = inovalysReferential[label] ?? null;
-
-  if (reference === null) {
-    reference = getSSD2IdByCasNumber(casNumber);
-  }
-
-  if (reference === null && codeSandre !== undefined) {
-    reference = SandreToSSD2[codeSandre] ?? null;
-  }
-
-  if (reference === null) {
-    reference = getSSD2IdByLabel(label);
-  }
-
-  return reference
-}
 
 // Visible for testing
 export const extractAnalyzes = (
@@ -171,8 +152,6 @@ export const extractAnalyzes = (
     throw new ExtractError(`Aucune donnée trouvée dans le fichier de résultats`)
   }
 
-
-
   const samplesWithResultats = samplesData.reduce<{sample: z.infer<typeof sampleFileValidator>[number], resultats: z.infer<typeof resultatsFileValidator>}[]>((acc, sample) => {
     acc.push({sample, resultats: resultatsData.filter(({Dossier, Echantillon}) => Dossier === sample.Dossier && Echantillon === sample.Echant)})
     return acc
@@ -184,22 +163,7 @@ export const extractAnalyzes = (
 
     const residues: ExportDataSubstance[] = sampleWithResultat.resultats
       .filter((r) => r['Limite Quant. 1'].startsWith('<'))
-      .filter((r) => {
-        if (r['Spécification 1'] > 0) {
-          return true
-        }
-        const resultatAsNumber = frenchNumberStringValidator.safeParse(r['Résultat 1'])
-        return resultatAsNumber.success;
-      })
       .map((r) => {
-        const reference = getSSD2Id(r['Numéro CAS'], r['Code Sandre'], r.Détermination)
-
-        if (reference === null) {
-          throw new ExtractError(
-            `Impossible d'identifier le résidu ${r.Détermination}`
-          );
-        }
-
         const resultatAsNumber = frenchNumberStringValidator.safeParse(
           r['Résultat 1']
         );
@@ -212,15 +176,15 @@ export const extractAnalyzes = (
                 lmr: r['Spécification 1']
               }
             : {
-                result: null,
-                lmr: null,
-                result_kind: 'NQ'
+                result_kind: r['Spécification 1'] > 0 ? 'NQ' : 'ND'
               };
 
         return {
-          reference,
-          ...result
-        };
+          ...result,
+          label: r['Détermination'].replace('· ', ''),
+          casNumber: r['Numéro CAS'] ?? null,
+          codeSandre: r['Code Sandre'] ?? null
+        }
       });
 
 
@@ -283,5 +247,6 @@ const exportDataFromEmail: ExportDataFromEmail = (email) => {
 
 export const inovalysConf: LaboratoryConf = {
   isSender,
-  exportDataFromEmail
+  exportDataFromEmail,
+  ssd2IdByLabel: inovalysReferential
 };

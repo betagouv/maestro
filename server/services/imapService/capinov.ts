@@ -1,18 +1,19 @@
 import { z } from 'zod';
 import {
   ExportAnalysis,
-  ExportDataFromEmail, ExportDataSubstance,
+  ExportDataFromEmail,  ExportResultNonQuantifiable, ExportResultQuantifiable,
   ExtractError,
   IsSender,
   LaboratoryConf
 } from './index';
 import { csvToJson } from './utils';
 import { groupBy } from 'lodash-es';
-import { OmitDistributive } from 'maestro-shared/utils/typescript';
+import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 
 //TODO AUTO_LABO en attente de la réception du 1er email + test
 const isSender: IsSender = (_emailSender) => false;
 
+const capinovReferential: Record<string, SSD2Id> = {}
 
 // Visible for testing
 export const extractAnalyzes = (
@@ -27,7 +28,7 @@ export const extractAnalyzes = (
     'PARAMETRE_LIBELLE': z.string(),
     'LIMITE_LQ': z.string(),
     'INCERTITUDE': z.string(),
-    'CAS_NUMBER': z.string(),
+    'CAS_NUMBER': z.string().transform(r => r === '' ? null : r),
     'TECHNIQUE': z.string(),
     'LMR_NUM': z.coerce.number()
   }))
@@ -59,27 +60,23 @@ export const extractAnalyzes = (
     }
 
     for(const residue of resultsBySample[sampleReference]){
-      if (
-        residue.RESULTAT_VALTEXTE !== 'nd' &&
+      const isDetectable =  residue.RESULTAT_VALTEXTE !== 'nd' &&
         residue.RESULTAT_VALTEXTE !== '0'
-      ) {
 
-
-        const result: OmitDistributive<ExportDataSubstance, 'kind' | 'reference'> = residue.RESULTAT_VALTEXTE === 'd, NQ' ? {
-          result_kind: 'NQ',
-          result: null,
-          lmr: null
+        const result: ExportResultQuantifiable | ExportResultNonQuantifiable = residue.RESULTAT_VALTEXTE === 'd, NQ' ? {
+          result_kind: isDetectable ? 'NQ' : 'ND',
           } : {
           result_kind: 'Q',
           result: residue.RESULTAT_VALNUM,
           lmr: residue.LMR_NUM
         }
         analysis.residues.push({
-            reference: 'RF-0002-001-PPP',
-          ...result
+          ...result,
+          label: residue.PARAMETRE_NOM,
+          casNumber: residue.CAS_NUMBER,
+          codeSandre: null
         })
       }
-    }
 
     result.push(analysis)
   }
@@ -133,5 +130,6 @@ const exportDataFromEmail: ExportDataFromEmail = (email) => {
 
 export const capinovConf: LaboratoryConf = {
   isSender,
-  exportDataFromEmail
+  exportDataFromEmail,
+  ssd2IdByLabel: capinovReferential
 };
