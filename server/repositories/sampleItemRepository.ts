@@ -4,6 +4,8 @@ import {
   SampleItemSort
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { knexInstance as db } from './db';
+import { kysely } from './kysely';
+import { KyselyMaestro } from './kysely.type';
 
 const sampleItemsTable = 'sample_items';
 
@@ -58,10 +60,16 @@ const updateMany = async (
 const update = async (
   sampleId: string,
   itemNumber: number,
-  partialSampleItem: PartialSampleItem
+  partialSampleItem: PartialSampleItem,
+  trx: KyselyMaestro = kysely
 ): Promise<void> => {
   console.info('Update sampleItem', sampleId, itemNumber, partialSampleItem);
-  await SampleItems().where({ sampleId, itemNumber }).update(partialSampleItem);
+  await trx
+    .updateTable('sampleItems')
+    .where('sampleId', '=', sampleId)
+    .where('itemNumber', '=', itemNumber)
+    .set(partialSampleItem)
+    .execute();
 };
 
 export default {

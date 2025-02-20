@@ -294,17 +294,27 @@ const generateAndStoreSampleSupportDocument = async (
     await documentService.deleteDocument(sampleItem.supportDocumentId);
   }
 
-  const documentId = await documentService.createDocument(
+  const file = new File(
+    [pdfBuffer],
     getSupportDocumentFilename(sample, sampleItem.itemNumber),
-    'SupportDocument',
-    pdfBuffer,
-    sampler.id
+    { type: 'application/pdf' }
   );
 
-  await sampleItemRepository.update(sample.id, sampleItem.itemNumber, {
-    ...sampleItem,
-    supportDocumentId: documentId
-  });
+  await documentService.createDocument<void>(
+    file,
+    'SupportDocument',
+    sampler.id,
+    (documentId, trx) =>
+      sampleItemRepository.update(
+        sample.id,
+        sampleItem.itemNumber,
+        {
+          ...sampleItem,
+          supportDocumentId: documentId
+        },
+        trx
+      )
+  );
 
   return pdfBuffer;
 };
@@ -325,12 +335,11 @@ const generateAndStoreAnalysisRequestDocument = async (
     sampler
   );
 
-  await documentService.createDocument(
-    filename,
-    'AnalysisRequestDocument',
-    new Uint8Array(excelBuffer as Buffer),
-    sampler.id
-  );
+  const file = new File([new Uint8Array(excelBuffer as Buffer)], filename, {
+    type: 'application/pdf'
+  });
+
+  await documentService.createDocument(file, 'SupportDocument', sampler.id);
 
   return excelBuffer;
 };

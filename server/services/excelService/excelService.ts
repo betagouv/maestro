@@ -1,19 +1,20 @@
 import carbone from 'carbone';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale/fr';
-import { CultureKindLabels } from '../../../shared/referential/CultureKind';
-import { DepartmentLabels } from '../../../shared/referential/Department';
-import { LegalContextLabels } from '../../../shared/referential/LegalContext';
-import { MatrixLabels } from '../../../shared/referential/Matrix/MatrixLabels';
-import { MatrixPartLabels } from '../../../shared/referential/MatrixPart';
-import { QuantityUnitLabels } from '../../../shared/referential/QuantityUnit';
-import { Regions } from '../../../shared/referential/Region';
-import { StageLabels } from '../../../shared/referential/Stage';
-import { ContextLabels } from '../../../shared/schema/ProgrammingPlan/Context';
-import { Sample } from '../../../shared/schema/Sample/Sample';
-import { SampleItem } from '../../../shared/schema/Sample/SampleItem';
-import { UserInfos } from '../../../shared/schema/User/User';
-import { isDefinedAndNotNull } from '../../../shared/utils/utils';
+import { CultureKindLabels } from 'maestro-shared/referential/CultureKind';
+import { DepartmentLabels } from 'maestro-shared/referential/Department';
+import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
+import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
+import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+import { MatrixPartLabels } from 'maestro-shared/referential/Matrix/MatrixPart';
+import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
+import { Regions } from 'maestro-shared/referential/Region';
+import { StageLabels } from 'maestro-shared/referential/Stage';
+import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { Sample } from 'maestro-shared/schema/Sample/Sample';
+import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
+import { User } from 'maestro-shared/schema/User/User';
+import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import laboratoryRepository from '../../repositories/laboratoryRepository';
 import prescriptionSubstanceRepository from '../../repositories/prescriptionSubstanceRepository';
 import { templatePath } from '../../templates/templates';
@@ -21,7 +22,7 @@ import { templatePath } from '../../templates/templates';
 const generateAnalysisRequestExcel = async (
   sample: Sample,
   sampleItem: SampleItem,
-  sampler: UserInfos
+  sampler: User
 ) => {
   const laboratory = await laboratoryRepository.findUnique(sample.laboratoryId);
 
@@ -55,10 +56,10 @@ const generateAnalysisRequestExcel = async (
     company,
     laboratory,
     monoSubstances: prescriptionSubstances
-      ?.filter((substance) => substance.analysisKind === 'Mono')
+      ?.filter((substance) => substance.analysisMethod === 'Mono')
       .map((substance) => substance.substance),
     multiSubstances: prescriptionSubstances
-      ?.filter((substance) => substance.analysisKind === 'Multi')
+      ?.filter((substance) => substance.analysisMethod === 'Multi')
       .map((substance) => substance.substance),
     reference: [sample.reference, sampleItem?.itemNumber]
       .filter(isDefinedAndNotNull)
@@ -71,6 +72,7 @@ const generateAnalysisRequestExcel = async (
     context: ContextLabels[sample.context],
     legalContext: LegalContextLabels[sample.legalContext],
     stage: StageLabels[sample.stage],
+    matrixKindLabel: MatrixKindLabels[sample.matrixKind],
     matrixLabel: MatrixLabels[sample.matrix],
     matrixDetails: sample.matrixDetails,
     matrixPart: MatrixPartLabels[sample.matrixPart],

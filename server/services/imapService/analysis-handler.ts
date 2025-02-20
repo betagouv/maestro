@@ -3,15 +3,14 @@ import { ComplexResidueAnalytes } from 'maestro-shared/referential/Residue/Compl
 import { OmitDistributive } from 'maestro-shared/utils/typescript';
 import { analysisRepository } from '../../repositories/analysisRepository';
 import { analysisResidueRepository } from '../../repositories/analysisResidueRepository';
-import { documentRepository } from '../../repositories/documentRepository';
-import { executeTransaction, kysely } from '../../repositories/kysely';
+import { kysely } from '../../repositories/kysely';
 import {
   AnalysisResidues,
   ResidueAnalytes
 } from '../../repositories/kysely.type';
 import { residueAnalyteRepository } from '../../repositories/residueAnalyteRepository';
 import { sampleRepository } from '../../repositories/sampleRepository';
-import { s3Service } from '../s3Service';
+import { documentService } from '../documentService/documentService';
 import {
   ExportAnalysis,
   ExportDataSubstance,
@@ -92,28 +91,11 @@ export const analysisHandler = async (
     );
   }
 
-  const { documentId, valid, error } = await s3Service.uploadDocument(
-    analyse.pdfFile
-  );
-
-  if (!valid) {
-    throw new ExtractError(
-      `Impossible d'uploader le PDF sur le S3: HTTP ${error}`
-    );
-  }
-  try {
-    return await executeTransaction(async (trx) => {
-      await documentRepository.insert(
-        {
-          id: documentId,
-          filename: analyse.pdfFile.name,
-          kind: 'AnalysisReportDocument',
-          createdAt: new Date(),
-          createdBy: null
-        },
-        trx
-      );
-
+  return await documentService.createDocument<string>(
+    analyse.pdfFile,
+    'AnalysisReportDocument',
+    null,
+    async (documentId, trx) => {
       const analysisId = await analysisRepository.insert(
         {
           sampleId,
@@ -156,10 +138,6 @@ export const analysisHandler = async (
       }
 
       return analysisId;
-    });
-  } catch (e) {
-    //Supprime le document du S3 si la transaction a échouée
-    await s3Service.deleteDocument(documentId, analyse.pdfFile.name);
-    throw e;
-  }
+    }
+  );
 };
