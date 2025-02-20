@@ -3,11 +3,19 @@
  * Please do not edit it manually.
  */
 
-import type { ColumnType } from "kysely";
+import { ColumnType, type Kysely } from 'kysely';
+import { type Region } from 'maestro-shared/referential/Region';
+import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
+import { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
+import { ResidueCompliance } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
+import { ResidueKind } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
+import { type DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
+import { UserRole } from 'maestro-shared/schema/User/UserRole';
 
-export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
-  ? ColumnType<S, I | undefined, U>
-  : ColumnType<T, T | undefined, T>;
+export type Generated<T> =
+  T extends ColumnType<infer S, infer I, infer U>
+    ? ColumnType<S, I | undefined, U>
+    : ColumnType<T, T | undefined, T>;
 
 export type Point = {
   x: number;
@@ -15,6 +23,16 @@ export type Point = {
 };
 
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
+
+export interface _MatrixReferential {
+  code: string | null;
+  label: string | null;
+}
+
+export interface _Referential {
+  code: string | null;
+  label: string | null;
+}
 
 export interface Analysis {
   compliance: boolean | null;
@@ -24,21 +42,38 @@ export interface Analysis {
   notesOnCompliance: string | null;
   reportDocumentId: string | null;
   sampleId: string | null;
-  status: string;
+  status: AnalysisStatus;
 }
 
 export interface AnalysisResidues {
   analysisId: string;
-  analysisMethod: string;
+  analysisMethod: AnalysisMethod;
+  compliance: ResidueCompliance | null;
+  kind: ResidueKind | null;
+  lmr: number | null;
+  notesOnPollutionRisk: string | null;
+  notesOnResult: string | null;
+  pollutionRisk: string | null;
+  reference: string | null;
+  residueNumber: number;
+  result: number | null;
+  resultHigherThanArfd: string | null;
+  resultKind: string | null;
+  substanceApproved: string | null;
+  substanceAuthorised: string | null;
+}
+
+export interface AnalysisResiduesTmp {
+  analysisId: string | null;
   compliance: string | null;
   kind: string | null;
   lmr: number | null;
   notesOnPollutionRisk: string | null;
   notesOnResult: string | null;
-  otherCompliance: string | null;
+  originalName: string | null;
   pollutionRisk: string | null;
   reference: string | null;
-  residueNumber: number;
+  residueNumber: number | null;
   result: number | null;
   resultHigherThanArfd: string | null;
   resultKind: string | null;
@@ -61,7 +96,7 @@ export interface Documents {
   createdBy: string | null;
   filename: string;
   id: Generated<string>;
-  kind: string;
+  kind: DocumentKind;
 }
 
 export interface KnexMigrations {
@@ -85,7 +120,7 @@ export interface Laboratories {
 export interface Prescriptions {
   context: string | null;
   id: Generated<string>;
-  matrixKind: string | null;
+  matrix: string | null;
   notes: string | null;
   programmingPlanId: string | null;
   stages: string[] | null;
@@ -97,16 +132,12 @@ export interface PrescriptionSubstances {
   substanceCode: string;
 }
 
-export interface ProgrammingPlanRegionalStatus {
-  programmingPlanId: string;
-  region: string;
-  status: string | null;
-}
-
 export interface ProgrammingPlans {
   createdAt: Generated<Timestamp | null>;
   createdBy: string | null;
   id: Generated<string>;
+  status: string;
+  statusDrom: string | null;
   year: number;
 }
 
@@ -138,6 +169,9 @@ export interface ResidueAnalytes {
 export interface SampleItems {
   compliance200263: boolean | null;
   itemNumber: number;
+  ownerEmail: string | null;
+  ownerFirstName: string | null;
+  ownerLastName: string | null;
   quantity: number | null;
   quantityUnit: string | null;
   recipientKind: string | null;
@@ -160,17 +194,11 @@ export interface Samples {
   legalContext: string;
   matrix: string | null;
   matrixDetails: string | null;
-  matrixKind: string | null;
   matrixPart: string | null;
   notesOnAdmissibility: string | null;
   notesOnCreation: string | null;
   notesOnItems: string | null;
   notesOnMatrix: string | null;
-  notesOnOwnerAgreement: string | null;
-  ownerAgreement: boolean | null;
-  ownerEmail: string | null;
-  ownerFirstName: string | null;
-  ownerLastName: string | null;
   parcel: string | null;
   prescriptionId: string | null;
   programmingPlanId: string | null;
@@ -202,13 +230,16 @@ export interface Users {
   firstName: string;
   id: Generated<string>;
   lastName: string;
-  region: string | null;
-  roles: string[];
+  region: Region | null;
+  roles: UserRole[];
 }
 
 export interface DB {
+  _MatrixReferential: _MatrixReferential;
+  _Referential: _Referential;
   analysis: Analysis;
   analysisResidues: AnalysisResidues;
+  analysisResiduesTmp: AnalysisResiduesTmp;
   companies: Companies;
   documents: Documents;
   knexMigrations: KnexMigrations;
@@ -216,7 +247,6 @@ export interface DB {
   laboratories: Laboratories;
   prescriptions: Prescriptions;
   prescriptionSubstances: PrescriptionSubstances;
-  programmingPlanRegionalStatus: ProgrammingPlanRegionalStatus;
   programmingPlans: ProgrammingPlans;
   regionalPrescriptionComments: RegionalPrescriptionComments;
   regionalPrescriptions: RegionalPrescriptions;
@@ -227,3 +257,4 @@ export interface DB {
   substances: Substances;
   users: Users;
 }
+export type KyselyMaestro = Kysely<DB>;
