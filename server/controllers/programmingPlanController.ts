@@ -208,10 +208,10 @@ const updateRegionalStatus = async (request: Request, response: Response) => {
           await notificationService.sendNotification<SubmittedProgrammingPlanNotification>(
             {
               category: 'ProgrammingPlanSubmitted',
-              message: `Maestro vient d’être mis à jour ! 
-                        <br><br>
+              message: `Maestro vient d’être mis à jour !
+
                         Une proposition de programmation pour la prochaine campagne de surveillance / contrôle officielle a été déposée sur Maestro par la coordination nationale. 
-                        <br><br>
+                        
                         Merci de prendre connaissance de ces nouveaux éléments et y réagir le cas échéant.`,
               link: `/prescriptions/${programmingPlan.year}`
             },
@@ -222,9 +222,9 @@ const updateRegionalStatus = async (request: Request, response: Response) => {
             {
               category: 'ProgrammingPlanValidated',
               message: `L’étape de programmation a été clôturée par la coordination nationale. 
-                        <br><br>         
+                                 
                         En tant que coordinateur régional, vous pouvez dorénavant vous connecter à Maestro sur l’espace "programmation" afin d’attribuer le/les laboratoires responsables des analyses officielles en lien avec les matrices programmées pour la prochaine campagne du dispositif PSPC dans votre région.
-                        <br><br>
+                        
                         Une fois le/les laboratoires attribués, la campagne sera officiellement lancée et les inspecteurs/préleveurs de vos régions pourront initier leurs prélèvements.`,
               link: `/prescriptions/${programmingPlan.year}`
             },
