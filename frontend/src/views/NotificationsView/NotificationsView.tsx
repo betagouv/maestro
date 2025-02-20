@@ -85,8 +85,7 @@ const NotificationsView = () => {
     Surveillance: 'fr-icon-line-chart-fill',
     Control: 'fr-icon-line-chart-fill',
     ProgrammingPlanSubmitted: 'fr-icon-line-chart-fill',
-    ProgrammingPlanValidated: 'fr-icon-line-chart-fill',
-    Sample: 'fr-icon-microscope-line'
+    ProgrammingPlanValidated: 'fr-icon-line-chart-fill'
   };
 
   return (
