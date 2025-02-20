@@ -4,12 +4,12 @@
  */
 
 import { ColumnType, type Kysely } from 'kysely';
-import { Region } from 'maestro-shared/referential/Region';
+import { type Region } from 'maestro-shared/referential/Region';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
 import { ResidueCompliance } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import { ResidueKind } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
-import { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
+import { type DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
 
 export type Generated<T> =

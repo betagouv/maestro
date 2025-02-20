@@ -10,6 +10,7 @@ import {
 } from 'maestro-shared/schema/Document/Document';
 import { hasPermission } from 'maestro-shared/schema/User/User';
 import { documentRepository } from '../repositories/documentRepository';
+import { documentService } from '../services/documentService/documentService';
 import { s3Service } from '../services/s3Service';
 import config from '../utils/config';
 
@@ -116,15 +117,7 @@ const deleteDocument = async (request: Request, response: Response) => {
 
   console.log('Delete document', documentId);
 
-  const document = await documentRepository.findUnique(documentId);
-
-  if (!document) {
-    throw new DocumentMissingError(documentId);
-  }
-
-  await s3Service.deleteDocument(documentId, document.filename);
-
-  await documentRepository.deleteOne(documentId);
+  await documentService.deleteDocument(documentId);
 
   response.sendStatus(constants.HTTP_STATUS_NO_CONTENT);
 };
