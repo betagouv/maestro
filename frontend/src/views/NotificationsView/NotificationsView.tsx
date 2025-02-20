@@ -161,8 +161,8 @@ const NotificationsView = () => {
                         }}
                       >
                         <div>
-                          <div className={cx('fr-text--md')}>
-                            <ReactMarkdown components={{ p: 'span' }}>
+                          <div className={cx('fr-text--md', 'fr-mr-8w')}>
+                            <ReactMarkdown components={{ p: 'div' }}>
                               {notification.message}
                             </ReactMarkdown>
                           </div>
