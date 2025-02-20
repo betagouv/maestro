@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { SSD2Id } from './SSD2Id';
 
 export const Analyte = z.enum(
   [
@@ -134,15 +135,12 @@ export const Analyte = z.enum(
     'RF-00006240-PAR',
     'RF-0106-002-PPP',
     'RF-00000161-VET',
-    'RF-0112-002-PPP',
     'RF-0112-003-PPP',
     'RF-0112-004-PPP',
     'RF-0112-005-PPP',
     'RF-00003320-PAR',
     'RF-00003339-PAR',
-    'RF-00004632-PAR',
     'RF-00006293-PAR',
-    'RF-0118-003-PPP',
     'RF-0790-001-PPP',
     'RF-0119-002-PPP',
     'RF-0119-003-PPP',
@@ -246,7 +244,7 @@ export const Analyte = z.enum(
     'RF-0381-001-PPP',
     'RF-00007283-PAR',
     'RF-00007284-PAR'
-  ],
+  ] as const satisfies SSD2Id[],
   {
     errorMap: () => ({
       message: "Veuillez renseigner l'analyte."
