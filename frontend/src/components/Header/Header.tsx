@@ -1,6 +1,7 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Header as DSFRHeader } from '@codegouvfr/react-dsfr/Header';
+import { Badge } from '@mui/material';
 import { Brand } from 'maestro-shared/constants';
 import { UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
 import { isDefined } from 'maestro-shared/utils/utils';
@@ -10,6 +11,7 @@ import { useAppSelector } from 'src/hooks/useStore';
 import { useLogoutMutation } from 'src/services/auth.service';
 import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.service';
 import logo from '../../assets/logo.svg';
+import { useFindNotificationsQuery } from '../../services/notification.service';
 import config from '../../utils/config';
 
 const Header = () => {
@@ -20,6 +22,15 @@ const Header = () => {
   const { data: programmingPlans } = useFindProgrammingPlansQuery(
     {},
     { skip: !isAuthenticated }
+  );
+  const { data: unReadNotifications } = useFindNotificationsQuery(
+    {
+      recipientId: user?.id as string,
+      read: false
+    },
+    {
+      skip: !isAuthenticated || !user
+    }
   );
   const [logout] = useLogoutMutation();
 
@@ -147,26 +158,51 @@ const Header = () => {
           },
           text: 'Aides'
         },
-        isAuthenticated ? (
-          <div>
-            <Button
-              iconId="fr-icon-logout-box-r-line"
-              onClick={async () => {
-                const logoutRedirectUrl = await logout().unwrap();
-                window.location.href = logoutRedirectUrl.url;
-              }}
-              className={cx('fr-mb-0')}
-            >
-              Se déconnecter
-            </Button>
-            {user?.roles.map((role) => (
-              <div key={role} className={cx('fr-text--sm', 'fr-mr-2w')}>
-                {UserRoleLabels[role]}
+        ...(isAuthenticated
+          ? [
+              <Badge
+                key="notifications"
+                variant="dot"
+                color="error"
+                overlap="circular"
+                invisible={!unReadNotifications?.length}
+                sx={{
+                  '& .MuiBadge-dot': {
+                    right: 15,
+                    top: 10
+                  }
+                }}
+              >
+                <Button
+                  iconId="fr-icon-notification-3-line"
+                  linkProps={{
+                    to: '/notifications'
+                  }}
+                  className={cx('fr-btn--icon-left', 'fr-pr-0')}
+                  priority="tertiary no outline"
+                  title="Notifications"
+                />
+              </Badge>,
+              <div key="logout">
+                <Button
+                  iconId="fr-icon-logout-box-r-line"
+                  onClick={async () => {
+                    const logoutRedirectUrl = await logout().unwrap();
+                    window.location.href = logoutRedirectUrl.url;
+                  }}
+                  className={cx('fr-mb-0')}
+                >
+                  Se déconnecter
+                </Button>
+                {user?.roles.map((role) => (
+                  <div key={role} className={cx('fr-text--sm', 'fr-mr-2w')}>
+                    {UserRoleLabels[role]}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        ) : undefined
-      ].filter(isDefined)}
+            ]
+          : [])
+      ]}
     />
   );
 };

@@ -22,6 +22,7 @@ import { OpenApiExplorerView } from 'src/views/OpenApiExplorer/OpenApiExplorerVi
 import PrescriptionListView from 'src/views/PrescriptionListView/PrescriptionListView';
 import SampleListView from 'src/views/SampleListView/SampleListView';
 import SampleView from 'src/views/SampleView/SampleView';
+import NotificationsView from '../views/NotificationsView/NotificationsView';
 
 export const useAuthentication = () => {
   const { authUser } = useAppSelector((state) => state.auth);
@@ -84,6 +85,12 @@ export const useAuthentication = () => {
               label: 'Tableau de bord',
               key: 'dashboard_route',
               component: DashboardView
+            },
+            {
+              path: '/notifications',
+              label: 'Notifications',
+              key: 'notifications_route',
+              component: NotificationsView
             },
             hasUserPermission('readPrescriptions')
               ? {
