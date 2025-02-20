@@ -1,45 +1,53 @@
-import { DeleteObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
-import { StreamingBlobPayloadInputTypes } from '@smithy/types';
-import { v4 as uuidv4 } from 'uuid';
-import { DocumentKind } from '../../../shared/schema/Document/DocumentKind';
-import documentRepository from '../../repositories/documentRepository';
-import config from '../../utils/config';
-import { getS3Client } from '../s3Service';
+import { Transaction } from 'kysely';
+import { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
+import { documentRepository } from '../../repositories/documentRepository';
+import { executeTransaction } from '../../repositories/kysely';
+import { DB } from '../../repositories/kysely.type';
+import { ExtractError } from '../imapService';
+import { s3Service } from '../s3Service';
 
-const client = getS3Client();
-
-const createDocument = async (
-  filename: string,
+const createDocument = async <T>(
+  file: File,
   documentKind: DocumentKind,
-  streamingPayload: StreamingBlobPayloadInputTypes,
-  userId: string
+  userId: string | null,
+  callback?: (documentId: string, trx: Transaction<DB>) => Promise<T>
 ) => {
-  const id = uuidv4();
-  const key = `${id}_${filename}`;
-  const command = new PutObjectCommand({
-    Bucket: config.s3.bucket,
-    Key: key,
-    Body: streamingPayload
-  });
-  await client.send(command);
+  const { documentId, valid, error } = await s3Service.uploadDocument(file);
 
-  await documentRepository.insert({
-    id,
-    filename,
-    kind: documentKind,
-    createdBy: userId,
-    createdAt: new Date()
-  });
+  if (!valid) {
+    throw new ExtractError(
+      `Impossible d'uploader le PDF sur le S3: HTTP ${error}`
+    );
+  }
+  try {
+    return await executeTransaction(async (trx) => {
+      await documentRepository.insert(
+        {
+          id: documentId,
+          filename: file.name,
+          kind: documentKind,
+          createdBy: userId,
+          createdAt: new Date()
+        },
+        trx
+      );
 
-  return id;
+      return callback?.(documentId, trx) ?? documentId;
+    });
+  } catch (e) {
+    await s3Service.deleteDocument(documentId, file.name);
+    throw e;
+  }
 };
 
 const deleteDocument = async (documentId: string) => {
-  const deleteCommand = new DeleteObjectCommand({
-    Bucket: config.s3.bucket,
-    Key: documentId
-  });
-  await client.send(deleteCommand);
+  const document = await documentRepository.findUnique(documentId);
+
+  if (!document) {
+    return;
+  }
+
+  await s3Service.deleteDocument(documentId, document.filename);
 
   await documentRepository.deleteOne(documentId);
 };
