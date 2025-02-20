@@ -183,7 +183,11 @@ export const checkEmails = async () => {
               residues.forEach((r) => {
                 if (r.codeSandre !== null) {
                   if ( SandreToSSD2[r.codeSandre] === undefined) {
-                    warnings.add(`Nouveau code Sandre détecté : ${r.label} ${r.codeSandre}`)
+                    if (r.ssd2Id !== null) {
+                      warnings.add(`Nouveau code Sandre détecté : ${r.label} ${r.codeSandre} => ${r.ssd2Id}`);
+                    }else{
+                      warnings.add(`Nouveau code Sandre détecté : ${r.label} ${r.codeSandre}`);
+                    }
                   }
                 }
                 if (r.ssd2Id === null) {

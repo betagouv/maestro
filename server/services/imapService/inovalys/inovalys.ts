@@ -55,11 +55,11 @@ export const extractAnalyzes = (
     'Résultat 1': z.string(),
     //FIXME attention pour le moment on a tout en double, une ligne pour la LD et une autre pour la LQ, mais ça va surement changer
     'Limite Quant. 1': z.string(),
-    'Code Sandre': z.string().optional(),
+    'Code Sandre': z.string().transform(v => v === '' ? null : v),
     'Incertitude': z.string().optional(),
     //LMR
     'Spécification 1': z.coerce.number().optional().transform((v) => v ?? 0),
-    'Numéro CAS': z.string().optional()
+    'Numéro CAS': z.string().transform(v => v === '' ? null : v),
   }));
 
 
