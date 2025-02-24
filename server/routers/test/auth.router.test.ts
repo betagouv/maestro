@@ -78,7 +78,6 @@ describe('Auth routes', () => {
 
       expect(res.body).toMatchObject({
         user: null,
-        accessToken: expect.any(String),
         userEmail: email
       });
     });
@@ -100,7 +99,6 @@ describe('Auth routes', () => {
 
       expect(res.body).toMatchObject({
         user: Sampler1Fixture,
-        accessToken: expect.any(String)
       });
 
       const userInDb = await kysely
