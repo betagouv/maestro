@@ -21,8 +21,7 @@ export const jwtCheck = (credentialsRequired: boolean) =>
     credentialsRequired,
     getToken: (request: Request) => {
 
-      return (request.headers['x-access-token'] ??
-        request.cookies?.[COOKIE_MAESTRO_ACCESS_TOKEN]) as string;
+      return (request.cookies?.[COOKIE_MAESTRO_ACCESS_TOKEN]) as string;
     }
   });
 
