@@ -12,7 +12,8 @@ import { UserPermission } from 'maestro-shared/schema/User/UserPermission';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { userRepository } from '../../repositories/userRepository';
 import config from '../../utils/config';
-import { COOKIE_MAESTRO_ACCESS_TOKEN } from '../../controllers/authController';
+
+import { COOKIE_MAESTRO_ACCESS_TOKEN } from '../../utils/constants';
 
 export const jwtCheck = (credentialsRequired: boolean) =>
   expressjwt({
