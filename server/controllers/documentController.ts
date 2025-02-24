@@ -10,7 +10,7 @@ import {
 } from 'maestro-shared/schema/Document/Document';
 import { hasPermission } from 'maestro-shared/schema/User/User';
 import { documentRepository } from '../repositories/documentRepository';
-import { documentService } from '../services/documentService/documentService';
+import { documentService } from '../services/documentService';
 import { s3Service } from '../services/s3Service';
 import config from '../utils/config';
 

@@ -1,10 +1,25 @@
 import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 import { Request, Response } from 'express';
 import { AuthenticatedRequest, SampleRequest } from 'express-jwt';
 import { constants } from 'http2';
 import { isNil, omitBy, pick } from 'lodash-es';
+import { CultureKindLabels } from 'maestro-shared/referential/CultureKind';
+import { DepartmentLabels } from 'maestro-shared/referential/Department';
+import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
+import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
+import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+import { MatrixPartLabels } from 'maestro-shared/referential/Matrix/MatrixPart';
+import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
 import { Regions } from 'maestro-shared/referential/Region';
+import { StageLabels } from 'maestro-shared/referential/Stage';
+import { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequestData';
+import {
+  getAnalysisReportDocumentFilename,
+  getSupportDocumentFilename
+} from 'maestro-shared/schema/Document/DocumentKind';
 import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
+import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   PartialSample,
@@ -14,15 +29,14 @@ import {
 import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
 import { User } from 'maestro-shared/schema/User/User';
-import {
-  getAnalysisReportDocumentFilename,
-  getSupportDocumentFilename
-} from 'maestro-shared/schema/Document/DocumentKind';
+import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import companyRepository from '../repositories/companyRepository';
 import laboratoryRepository from '../repositories/laboratoryRepository';
+import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
 import sampleItemRepository from '../repositories/sampleItemRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
-import { documentService } from '../services/documentService/documentService';
+import csvService from '../services/csvService/csvService';
+import { documentService } from '../services/documentService';
 import excelService from '../services/excelService/excelService';
 import exportSamplesService from '../services/exportService/exportSamplesService';
 import { mailService } from '../services/mailService';
@@ -181,35 +195,103 @@ const updateSample = async (request: Request, response: Response) => {
   }
 
   //TODO update only the fields concerned in relation to the status
-  const updatedSample = {
+  const updatedPartialSample = {
     ...sample,
     ...sampleUpdate,
     lastUpdatedAt: new Date()
   };
 
-  if (sample.status === 'Submitted' && updatedSample.status === 'Sent') {
+  if (sample.status === 'Submitted' && updatedPartialSample.status === 'Sent') {
+    const updatedSample = Sample.parse(updatedPartialSample);
     const sampleItems = await sampleItemRepository.findMany(sample.id);
 
     await Promise.all(
       sampleItems.map(async (sampleItem) => {
         const sampleSupportDoc = await generateAndStoreSampleSupportDocument(
-          updatedSample as Sample,
+          updatedSample,
           sampleItems as SampleItem[],
           sampleItem.itemNumber,
           user
         );
 
         if (sampleItem.itemNumber === 1) {
-          const analysisRequestDoc =
-            await generateAndStoreAnalysisRequestDocument(
-              updatedSample as Sample,
-              sampleItem as SampleItem,
-              user
-            );
-
           const laboratory = (await laboratoryRepository.findUnique(
             updatedSample.laboratoryId as string
           )) as Laboratory;
+
+          const prescriptionSubstances =
+            await prescriptionSubstanceRepository.findMany(
+              updatedSample.prescriptionId
+            );
+
+          const establishment = {
+            name: Regions[updatedSample.region].establishment.name,
+            fullAddress: [
+              Regions[updatedSample.region].establishment.additionalAddress,
+              Regions[updatedSample.region].establishment.street,
+              `${Regions[updatedSample.region].establishment.postalCode} ${Regions[updatedSample.region].establishment.city}`
+            ]
+              .filter(Boolean)
+              .join('\n')
+          };
+
+          const company = {
+            ...updatedSample.company,
+            fullAddress: [
+              updatedSample.company.address,
+              `${updatedSample.company.postalCode} ${updatedSample.company.city}`
+            ].join('\n')
+          };
+
+          const analysisRequestDocs =
+            await generateAndStoreAnalysisRequestDocuments({
+              ...updatedSample,
+              ...(sampleItem as SampleItem),
+              sampler: user,
+              company,
+              laboratory,
+              monoSubstances: prescriptionSubstances
+                ?.filter((substance) => substance.analysisMethod === 'Mono')
+                .map((substance) => substance.substance),
+              multiSubstances: prescriptionSubstances
+                ?.filter((substance) => substance.analysisMethod === 'Multi')
+                .map((substance) => substance.substance),
+              reference: [updatedSample.reference, sampleItem?.itemNumber]
+                .filter(isDefinedAndNotNull)
+                .join('-'),
+              sampledAt: format(
+                updatedSample.sampledAt,
+                "eeee dd MMMM yyyy à HH'h'mm",
+                {
+                  locale: fr
+                }
+              ),
+              sampledAtDate: format(updatedSample.sampledAt, 'dd/MM/yyyy', {
+                locale: fr
+              }),
+              sampledAtTime: format(updatedSample.sampledAt, 'HH:mm', {
+                locale: fr
+              }),
+              context: ContextLabels[updatedSample.context],
+              legalContext: LegalContextLabels[updatedSample.legalContext],
+              stage: StageLabels[updatedSample.stage],
+              matrixKindLabel: MatrixKindLabels[updatedSample.matrixKind],
+              matrixLabel: MatrixLabels[updatedSample.matrix],
+              matrixPart: MatrixPartLabels[updatedSample.matrixPart],
+              quantityUnit: sampleItem?.quantityUnit
+                ? QuantityUnitLabels[sampleItem.quantityUnit]
+                : '',
+              cultureKind: updatedSample.cultureKind
+                ? CultureKindLabels[updatedSample.cultureKind]
+                : undefined,
+              compliance200263: sampleItem
+                ? sampleItem.compliance200263
+                  ? 'Respectée'
+                  : 'Non respectée'
+                : '',
+              establishment,
+              department: DepartmentLabels[updatedSample.department]
+            });
 
           await mailService.sendAnalysisRequest({
             recipients: [laboratory?.email, config.mail.from],
@@ -219,21 +301,16 @@ const updateSample = async (request: Request, response: Response) => {
               sampledAt: format(updatedSample.sampledAt, 'dd/MM/yyyy')
             },
             attachment: [
+              ...analysisRequestDocs.map((doc) => ({
+                name: doc.filename,
+                content: Buffer.from(doc.buffer as Buffer).toString('base64')
+              })),
               {
                 name: `${getSupportDocumentFilename(
                   updatedSample,
                   sampleItem.itemNumber
                 )}`,
                 content: sampleSupportDoc.toString('base64')
-              },
-              {
-                name: `${getAnalysisReportDocumentFilename(
-                  updatedSample,
-                  sampleItem.itemNumber
-                )}`,
-                content: Buffer.from(analysisRequestDoc as Buffer).toString(
-                  'base64'
-                )
               }
             ]
           });
@@ -261,9 +338,9 @@ const updateSample = async (request: Request, response: Response) => {
     );
   }
 
-  await sampleRepository.update(updatedSample);
+  // await sampleRepository.update(updatedPartialSample);
 
-  response.status(constants.HTTP_STATUS_OK).send(updatedSample);
+  response.status(constants.HTTP_STATUS_OK).send(updatedPartialSample);
 };
 
 const generateAndStoreSampleSupportDocument = async (
@@ -319,29 +396,59 @@ const generateAndStoreSampleSupportDocument = async (
   return pdfBuffer;
 };
 
-const generateAndStoreAnalysisRequestDocument = async (
-  sample: Sample,
-  sampleItem: SampleItem,
-  sampler: User
+const generateAndStoreAnalysisRequestDocuments = async (
+  analysisRequestData: AnalysisRequestData
 ) => {
-  const filename = getAnalysisReportDocumentFilename(
-    sample,
-    sampleItem.itemNumber
+  const excelBuffer =
+    await excelService.generateAnalysisRequestExcel(analysisRequestData);
+
+  const excelFilename = getAnalysisReportDocumentFilename(
+    analysisRequestData,
+    analysisRequestData.itemNumber,
+    'xlsx'
   );
 
-  const excelBuffer = await excelService.generateAnalysisRequestExcel(
-    sample as Sample,
-    sampleItem as SampleItem,
-    sampler
+  await documentService.createDocument(
+    new File([new Uint8Array(excelBuffer as Buffer)], excelFilename, {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    }),
+    'SupportDocument',
+    analysisRequestData.sampler.id
   );
 
-  const file = new File([new Uint8Array(excelBuffer as Buffer)], filename, {
-    type: 'application/pdf'
-  });
+  const csvBuffer =
+    await csvService.generateAnalysisRequestCsv(analysisRequestData);
 
-  await documentService.createDocument(file, 'SupportDocument', sampler.id);
+  const csvFilename = getAnalysisReportDocumentFilename(
+    analysisRequestData,
+    analysisRequestData.itemNumber,
+    'csv'
+  );
 
-  return excelBuffer;
+  await documentService.createDocument(
+    new File(
+      [csvBuffer],
+      getAnalysisReportDocumentFilename(
+        analysisRequestData,
+        analysisRequestData.itemNumber,
+        'xlsx'
+      ),
+      { type: 'text/csv' }
+    ),
+    'SupportDocument',
+    analysisRequestData.sampler.id
+  );
+
+  return [
+    {
+      buffer: excelBuffer,
+      filename: excelFilename
+    },
+    {
+      buffer: csvBuffer,
+      filename: csvFilename
+    }
+  ];
 };
 
 const deleteSample = async (request: Request, response: Response) => {

@@ -1,10 +1,10 @@
 import { Transaction } from 'kysely';
 import { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
-import { documentRepository } from '../../repositories/documentRepository';
-import { executeTransaction } from '../../repositories/kysely';
-import { DB } from '../../repositories/kysely.type';
-import { ExtractError } from '../imapService';
-import { s3Service } from '../s3Service';
+import { documentRepository } from '../repositories/documentRepository';
+import { executeTransaction } from '../repositories/kysely';
+import { DB } from '../repositories/kysely.type';
+import { ExtractError } from './imapService';
+import { s3Service } from './s3Service';
 
 const createDocument = async <T>(
   file: File,

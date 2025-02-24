@@ -10,7 +10,7 @@ import {
 } from '../../repositories/kysely.type';
 import { residueAnalyteRepository } from '../../repositories/residueAnalyteRepository';
 import { sampleRepository } from '../../repositories/sampleRepository';
-import { documentService } from '../documentService/documentService';
+import { documentService } from '../documentService';
 import {
   ExportAnalysis,
   ExportDataSubstance,
