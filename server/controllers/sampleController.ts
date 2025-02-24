@@ -338,7 +338,7 @@ const updateSample = async (request: Request, response: Response) => {
     );
   }
 
-  // await sampleRepository.update(updatedPartialSample);
+  await sampleRepository.update(updatedPartialSample);
 
   response.status(constants.HTTP_STATUS_OK).send(updatedPartialSample);
 };
