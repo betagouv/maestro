@@ -12,15 +12,18 @@ import { UserPermission } from 'maestro-shared/schema/User/UserPermission';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { userRepository } from '../../repositories/userRepository';
 import config from '../../utils/config';
+import { COOKIE_MAESTRO_ACCESS_TOKEN } from '../../controllers/authController';
 
 export const jwtCheck = (credentialsRequired: boolean) =>
   expressjwt({
     secret: config.auth.secret,
     algorithms: ['HS256'],
     credentialsRequired,
-    getToken: (request: Request) =>
-      (request.headers['x-access-token'] ??
-        request.query['x-access-token']) as string
+    getToken: (request: Request) => {
+
+      return (request.headers['x-access-token'] ??
+        request.cookies?.[COOKIE_MAESTRO_ACCESS_TOKEN]) as string;
+    }
   });
 
 export const userCheck = (credentialsRequired: boolean) =>

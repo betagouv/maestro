@@ -1,5 +1,4 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { withAuthHeader } from 'src/services/auth-headers';
 import config from '../utils/config';
 
 export const tagTypes = [
@@ -22,7 +21,7 @@ export const tagTypes = [
 export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${config.apiEndpoint}/api`,
-    prepareHeaders: withAuthHeader
+    credentials: 'include'
   }),
   tagTypes,
   endpoints: () => ({})

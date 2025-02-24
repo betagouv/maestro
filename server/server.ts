@@ -14,6 +14,7 @@ import { protectedRouter } from './routers/protected';
 import unprotectedRouter from './routers/unprotected';
 import config from './utils/config';
 import sentry from './utils/sentry';
+import cookieParser from 'cookie-parser'
 
 const PORT = config.serverPort;
 
@@ -28,6 +29,7 @@ export function createServer(): Server {
   sentry.init(app);
 
   app.use(
+    cookieParser(),
     helmet({
       crossOriginEmbedderPolicy: false,
       contentSecurityPolicy: {
@@ -62,13 +64,14 @@ export function createServer(): Server {
   );
 
   if (config.environment === 'development') {
-    app.use(cors({ origin: 'http://localhost:3000' }));
+    app.use(cors({ origin: 'http://localhost:3000' , credentials: true}));
   } else if (config.environment === 'production') {
     app.use(
       cors({
         origin: ['https://maestro.beta.gouv.fr', config.application.host],
         methods: 'GET,HEAD',
-        allowedHeaders: ['Content-Type']
+        allowedHeaders: ['Content-Type'],
+        credentials: true
       })
     );
   }
