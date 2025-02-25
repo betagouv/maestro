@@ -6681,6 +6681,27 @@ export const SSD2Referential =
       "casNumber": "119168-77-3",
       "otherNames": []
    },
+   "RF-00009261-PAR": {
+      "reference": "RF-00009261-PAR",
+      "name": "Spirotetramat-monohydroxy",
+      "otherNames": [],
+      "casNumber": null,
+      "deprecated": true
+   },
+   "RF-00009258-PAR": {
+      "reference": "RF-00009258-PAR",
+      "name": "Spirotetramat-ketohydroxy",
+      "otherNames": [],
+      "casNumber": null,
+      "deprecated": true
+   },
+   "RF-0402-001-PPP": {
+      "reference": "RF-0402-001-PPP",
+      "name": "Tau-fluvalinate",
+      "otherNames": [],
+      "casNumber": null,
+      "deprecated": true
+   },
    "RF-0406-001-PPP": {
       "reference": "RF-0406-001-PPP",
       "name": "Tecnazene",
