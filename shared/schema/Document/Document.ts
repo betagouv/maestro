@@ -5,7 +5,8 @@ export const Document = z.object({
   filename: z.string(),
   createdAt: z.coerce.date(),
   createdBy: z.string().uuid().nullable(),
-  kind: DocumentKind
+  kind: DocumentKind,
+  legend: z.string().nullish()
 });
 
 export const DocumentToCreate = Document.pick({

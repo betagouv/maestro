@@ -12,6 +12,7 @@ import { KyselyMaestro } from './kysely.type';
 import { usersTable } from './userRepository';
 
 export const samplesTable = 'samples';
+export const sampleAttachmentsTable = 'sample_attachments';
 const sampleSequenceNumbers = 'sample_sequence_numbers';
 
 const PartialSampleDbo = PartialSample.omit({
@@ -61,7 +62,10 @@ const findUnique = async (id: string): Promise<PartialSample | undefined> => {
       `${companiesTable}.naf_code as company_naf_code`,
       `${usersTable}.id as sampler_id`,
       `${usersTable}.first_name as sampler_first_name`,
-      `${usersTable}.last_name as sampler_last_name`
+      `${usersTable}.last_name as sampler_last_name`,
+      db.raw(
+        `array_agg(${sampleAttachmentsTable}.document_id) as attachmentIds`
+      )
     )
     .where(`${samplesTable}.id`, id)
     .leftJoin(
@@ -70,6 +74,16 @@ const findUnique = async (id: string): Promise<PartialSample | undefined> => {
       `${companiesTable}.siret`
     )
     .join(usersTable, `${samplesTable}.sampled_by`, `${usersTable}.id`)
+    .leftJoin(
+      sampleAttachmentsTable,
+      `${samplesTable}.id`,
+      `${sampleAttachmentsTable}.sample_id`
+    )
+    .groupBy(
+      `${samplesTable}.id`,
+      `${companiesTable}.siret`,
+      `${usersTable}.id`
+    )
     .first()
     .then(parsePartialSample);
 };
@@ -131,7 +145,10 @@ const findMany = async (
       `${companiesTable}.naf_code as company_naf_code`,
       `${usersTable}.id as sampler_id`,
       `${usersTable}.first_name as sampler_first_name`,
-      `${usersTable}.last_name as sampler_last_name`
+      `${usersTable}.last_name as sampler_last_name`,
+      db.raw(
+        `array_agg(${sampleAttachmentsTable}.document_id) as attachmentIds`
+      )
     )
     .leftJoin(
       companiesTable,
@@ -139,6 +156,16 @@ const findMany = async (
       `${companiesTable}.siret`
     )
     .join(usersTable, `${samplesTable}.sampled_by`, `${usersTable}.id`)
+    .leftJoin(
+      sampleAttachmentsTable,
+      `${samplesTable}.id`,
+      `${sampleAttachmentsTable}.sample_id`
+    )
+    .groupBy(
+      `${samplesTable}.id`,
+      `${companiesTable}.siret`,
+      `${usersTable}.id`
+    )
     .modify((builder) => {
       if (findOptions.page) {
         builder
@@ -219,7 +246,7 @@ const deleteOne = async (id: string): Promise<void> => {
 export const formatPartialSample = (
   partialSample: PartialSample | Sample
 ): PartialSampleDbo => ({
-  ...omit(partialSample, ['items', 'company', 'sampler']),
+  ...omit(partialSample, ['items', 'company', 'sampler', 'attachmentIds']),
   geolocation: partialSample.geolocation
     ? db.raw('Point(?, ?)', [
         partialSample.geolocation.x,
