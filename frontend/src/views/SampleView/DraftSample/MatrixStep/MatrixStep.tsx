@@ -26,6 +26,8 @@ import {
   StageLabels,
   StageList
 } from 'maestro-shared/referential/Stage';
+import { FileInput } from 'maestro-shared/schema/File/FileInput';
+import { FileTypeList } from 'maestro-shared/schema/File/FileType';
 import {
   isCreatedPartialSample,
   PartialSample,
@@ -33,6 +35,7 @@ import {
   SampleMatrixData
 } from 'maestro-shared/schema/Sample/Sample';
 import React, { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
@@ -47,7 +50,10 @@ import { useCreateOrUpdateSampleMutation } from 'src/services/sample.service';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SupportDocumentDownload from 'src/views/SampleView/DraftSample/SupportDocumentDownload';
 import SavedAlert from 'src/views/SampleView/SavedAlert';
+import { z } from 'zod';
 import AppSearchInput from '../../../../components/_app/AppSearchInput/AppSearchInput';
+import AppUpload from '../../../../components/_app/AppUpload/AppUpload';
+import { useCreateDocumentMutation } from '../../../../services/document.service';
 
 interface Props {
   partialSample: PartialSample | PartialSampleToCreate;
@@ -68,12 +74,23 @@ const MatrixStep = ({ partialSample }: Props) => {
   const [releaseControl, setReleaseControl] = useState(
     partialSample.releaseControl
   );
+  const [attachments, setAttachments] = useState<
+    {
+      file: File;
+      preview: string;
+      legend?: string;
+    }[]
+  >([]);
+  const [attachmentIds, setAttachmentIds] = useState(
+    partialSample.attachmentIds
+  );
   const [notesOnMatrix, setNotesOnMatrix] = useState(
     partialSample.notesOnMatrix
   );
   const [isSaved, setIsSaved] = useState(false);
 
   const [createOrUpdate] = useCreateOrUpdateSampleMutation();
+  const [createDocument] = useCreateDocumentMutation();
 
   const { data: prescriptionsData } = useFindPrescriptionsQuery(
     {
@@ -106,11 +123,29 @@ const MatrixStep = ({ partialSample }: Props) => {
 
   const Form = SampleMatrixData;
 
+  const FilesForm = z.object({
+    files: FileInput(FileTypeList, true)
+  });
+
   type FormShape = typeof Form.shape;
+  type FilesFormShape = typeof FilesForm.shape;
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     await form.validate(async () => {
+      const newAttachmentIds = await Promise.all(
+        attachments.map(async (attachment) => {
+          const document = await createDocument({
+            file: attachment.file,
+            kind: 'SampleAttachment'
+          }).unwrap();
+
+          return document.id;
+        })
+      );
+
+      setAttachmentIds(newAttachmentIds);
+
       await save('DraftItems');
       navigateToSample(partialSample.id, 3);
     });
@@ -137,6 +172,7 @@ const MatrixStep = ({ partialSample }: Props) => {
       stage,
       cultureKind,
       releaseControl,
+      attachmentIds,
       notesOnMatrix,
       status,
       prescriptionId: prescription?.id,
@@ -155,12 +191,23 @@ const MatrixStep = ({ partialSample }: Props) => {
       stage,
       cultureKind,
       releaseControl,
+      attachmentIds,
       notesOnMatrix,
       prescriptionId: partialSample.prescriptionId,
       laboratoryId: partialSample.laboratoryId
     },
     save
   );
+
+  const selectFiles = (event?: any) => {
+    const selectedFiles = Array.from(event?.target?.files) as File[];
+    setAttachments(
+      selectedFiles.map((file) => ({
+        file,
+        preview: URL.createObjectURL(file)
+      }))
+    );
+  };
 
   return (
     <form data-testid="draft_sample_matrix_form" className="sample-form">
@@ -305,6 +352,66 @@ const MatrixStep = ({ partialSample }: Props) => {
           />
         </div>
       </div>
+      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+        <div className={cx('fr-col-12')}>
+          <span className={cx('fr-text--md', 'fr-text--bold')}>
+            Compléments
+          </span>
+          <AppUpload<FilesFormShape>
+            label="Pièces jointes"
+            hint="Ajoutez si besoin un document ou une photo pour accompagner votre prélèvement JPG, PNG, PDF (10Mo maximum)"
+            nativeInputProps={{
+              onChange: (event: any) => selectFiles(event)
+            }}
+            className={cx('fr-mb-2w')}
+            inputForm={form}
+            inputKey="files"
+            whenValid="fichiers valides"
+            multiple
+          />
+        </div>
+      </div>
+      {attachments.map((attachment, index) => (
+        <div
+          className={cx('fr-grid-row', 'fr-grid-row--gutters')}
+          key={`preview-${index}`}
+        >
+          <div className={cx('fr-col-4')}>
+            <img
+              src={attachment.preview}
+              alt="Aperçu"
+              style={{ width: '100%', height: 'auto' }}
+            />
+          </div>
+          <div className={cx('fr-col-4')}>
+            <Link
+              onClick={(e) => {
+                e.preventDefault();
+                window.open(URL.createObjectURL(attachment.file));
+              }}
+              to="#"
+            >
+              {attachment.file.name}
+              <span
+                className={cx('fr-icon-eye-line', 'fr-ml-1w', 'fr-icon--sm')}
+              ></span>
+            </Link>
+          </div>
+          <div className={cx('fr-col-4')}>
+            <Button
+              title="Supprimer"
+              onClick={(e) => {
+                e.preventDefault();
+                setAttachments(attachments.filter((_, i) => i !== index));
+              }}
+              iconId="fr-icon-delete-line"
+              priority="tertiary"
+              className="float-right"
+            />
+          </div>
+        </div>
+      ))}
+      <hr />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>
           <AppTextAreaInput<FormShape>

@@ -5,7 +5,8 @@ export const DocumentKind = z.enum([
   'Resource',
   'SupportDocument',
   'AnalysisReportDocument',
-  'AnalysisRequestDocument'
+  'AnalysisRequestDocument',
+  'SampleAttachment'
 ]);
 
 export const getSupportDocumentFilename = (
