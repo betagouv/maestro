@@ -7,7 +7,6 @@ import {
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import { api } from 'src/services/api.service';
-import { authParams } from 'src/services/auth-headers';
 import samplesSlice from 'src/store/reducers/samplesSlice';
 import { store } from 'src/store/store';
 import config from 'src/utils/config';
@@ -118,15 +117,11 @@ export const sampleApi = api.injectEndpoints({
 });
 
 const supportDocumentURL = (sampleId: string, itemNumber: number) => {
-  const params = getURLQuery(authParams());
-  return `${config.apiEndpoint}/api/samples/${sampleId}/items/${itemNumber}/document${params}`;
+  return `${config.apiEndpoint}/api/samples/${sampleId}/items/${itemNumber}/document`;
 };
 
 const sampleListExportURL = (findOptions: FindSampleOptions) => {
-  const params = getURLQuery({
-    ...findOptions,
-    ...authParams()
-  });
+  const params = getURLQuery(findOptions);
   return `${config.apiEndpoint}/api/samples/export${params}`;
 };
 

@@ -7,7 +7,6 @@ import {
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { PrescriptionSubstance } from 'maestro-shared/schema/Prescription/PrescriptionSubstance';
 import { api } from 'src/services/api.service';
-import { authParams } from 'src/services/auth-headers';
 import config from 'src/utils/config';
 import { getURLQuery } from 'src/utils/fetchUtils';
 
@@ -84,10 +83,7 @@ export const prescriptionApi = api.injectEndpoints({
 });
 
 const prescriptionsExportURL = (findOptions: FindPrescriptionOptions) => {
-  const params = getURLQuery({
-    ...findOptions,
-    ...authParams()
-  });
+  const params = getURLQuery(findOptions);
   return `${config.apiEndpoint}/api/prescriptions/export${params}`;
 };
 

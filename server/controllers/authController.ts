@@ -9,6 +9,7 @@ import { TokenPayload } from 'maestro-shared/schema/User/TokenPayload';
 import { userRepository } from '../repositories/userRepository';
 import { getAuthService } from '../services/authService';
 import config from '../utils/config';
+import { COOKIE_MAESTRO_ACCESS_TOKEN } from '../utils/constants';
 
 const getAuthRedirectUrl = async (_request: Request, response: Response) => {
   const authService = await getAuthService;
@@ -47,16 +48,20 @@ const authenticate = async (request: Request, response: Response) => {
     const result: AuthMaybeUnknownUser =
       user !== undefined
         ? {
-            user,
-            accessToken
+            user
           }
         : {
             user: null,
-            userEmail: email,
-            accessToken
+            userEmail: email
           };
 
-    return response.status(constants.HTTP_STATUS_OK).json(result);
+    return response
+      .cookie(COOKIE_MAESTRO_ACCESS_TOKEN, accessToken, {
+        httpOnly: true,
+        secure: config.environment === 'production'
+      })
+      .status(constants.HTTP_STATUS_OK)
+      .json(result);
   } catch (error) {
     console.error('Error while authenticating', error);
     throw new AuthenticationFailedError();
@@ -68,6 +73,8 @@ const logout = async (request: Request, response: Response) => {
   const authService = await getAuthService;
 
   const logoutUrl = authService.getLogoutUrl(idToken);
+
+  response.clearCookie(COOKIE_MAESTRO_ACCESS_TOKEN);
 
   return response.status(constants.HTTP_STATUS_OK).json(logoutUrl);
 };

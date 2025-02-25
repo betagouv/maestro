@@ -1,5 +1,4 @@
 import { fakerFR } from '@faker-js/faker';
-import randomstring from 'randomstring';
 import { v4 as uuidv4 } from 'uuid';
 import { Region, RegionList } from '../referential/Region';
 import { AuthUser } from '../schema/User/AuthUser';
@@ -73,6 +72,5 @@ export const NationalCoordinator = genUser({
 });
 
 export const genAuthUser = (data?: Partial<User>): AuthUser => ({
-  accessToken: randomstring.generate(),
   user: genUser(data)
 });

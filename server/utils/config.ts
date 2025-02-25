@@ -34,7 +34,7 @@ interface Config {
     host: string;
     isReviewApp: boolean;
   };
-  environment: string;
+  environment: 'production' | 'development';
   serverUrl: string;
   serverPort: number;
   auth: {
