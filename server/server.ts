@@ -64,7 +64,7 @@ export function createServer(): Server {
   );
 
   if (config.environment === 'development') {
-    app.use(cors({ origin: 'http://localhost:3000' , credentials: true}));
+    app.use(cors({ origin: config.application.host , credentials: true}));
   } else if (config.environment === 'production') {
     app.use(
       cors({
