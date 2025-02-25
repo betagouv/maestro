@@ -46,7 +46,7 @@ export type ExportDataFromEmail = (email: ParsedMail) => ExportAnalysis[];
 export type LaboratoryConf = {
   isSender: IsSender;
   exportDataFromEmail: ExportDataFromEmail;
-  ssd2IdByLabel: Record<string, SSD2Id>
+  ssd2IdByLabel: Record<string, SSD2Id | null>
 };
 const laboratoriesConf = {
   'GIRPA': girpaConf,
@@ -172,11 +172,10 @@ export const checkEmails = async () => {
             for (const analysis of analyzes) {
 
               const residues = analysis.residues.map(r => {
-
                 return {
                   ...r,
                   ssd2Id: getSSD2Id(r.label, r.codeSandre, r.casNumber, laboratoriesConf[message.laboratoryName].ssd2IdByLabel)
-                }
+                };
               })
               
               //On créer une liste de warnings avec les résidues introuvables dans SSD2

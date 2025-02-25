@@ -10760,7 +10760,7 @@ const getSSD2IdByLabel = (label: string): SSD2Id | null => {
    return values.find(({otherNames}) => otherNames.map(n => n.toLowerCase()).includes(labelLowerCase))?.reference ?? null
 }
 
-export const getSSD2Id = (label: string, codeSandre: string | null, casNumber: string | null, laboratoryReferential: Record<string, SSD2Id>) => {
+export const getSSD2Id = (label: string, codeSandre: string | null, casNumber: string | null, laboratoryReferential: Record<string, SSD2Id | null>): SSD2Id | null => {
    let ssd2Id: SSD2Id | null = laboratoryReferential[label] ?? null;
 
    if (ssd2Id === null && casNumber !== null) {

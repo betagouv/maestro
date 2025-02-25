@@ -59,7 +59,7 @@ export const extractAnalyzes = (
     'Incertitude': z.string().optional(),
     //LMR
     'Spécification 1': z.coerce.number().optional().transform((v) => v ?? 0),
-    'Numéro CAS': z.string().transform(v => v === '' ? null : v),
+    'Numéro CAS': z.string().optional().transform(v => v === '' || v === undefined ? null : v),
   }));
 
 

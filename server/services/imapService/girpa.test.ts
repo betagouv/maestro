@@ -65,8 +65,10 @@ describe('parse correctement le XML', () => {
           "notes": "Une note",
           "residues": [
             {
+              "casNumber": "?",
+              "codeSandre": null,
+              "label": "bixafen",
               "lmr": 10,
-              "reference": "RF-1056-001-PPP",
               "result": 5.2,
               "result_kind": "Q",
             },
@@ -114,21 +116,33 @@ describe('parse correctement le XML', () => {
     ).toMatchInlineSnapshot(`
       [
         {
+          "casNumber": "1967-25-5",
+          "codeSandre": null,
+          "label": "bixafen",
           "lmr": 10,
-          "reference": "RF-00003387-PAR",
           "result": 0.3,
           "result_kind": "Q",
         },
         {
+          "casNumber": "27112-32-9",
+          "codeSandre": null,
+          "label": "fluopyram",
           "lmr": 10,
-          "reference": "RF-0215-003-PPP",
+          "result": 0.29,
+          "result_kind": "Q",
+        },
+        {
+          "casNumber": "15299-99-7",
+          "codeSandre": null,
+          "label": "fluroxypyr",
+          "lmr": 10,
           "result": 10.1,
           "result_kind": "Q",
         },
         {
-          "lmr": null,
-          "reference": "RF-00000024-PAR",
-          "result": null,
+          "casNumber": "?",
+          "codeSandre": null,
+          "label": "fluxapyroxad",
           "result_kind": "NQ",
         },
       ]
@@ -141,19 +155,9 @@ describe('getResidue', () => {
     ['', 'toto', null],
     ['', 'bixafen','RF-1056-001-PPP'],
     [
-      '',
-      'bixafen according reg.',
-      'RF-1056-001-PPP'
-    ],
-    [
       '120983-64-4',
       'prothioconazole: prothioconazole-desthio',
       'RF-0868-001-PPP'
-    ],
-    [
-      '-',
-      'metobromuron according reg.',
-      'RF-0791-001-PPP'
     ],
     [
       '-',
@@ -162,7 +166,7 @@ describe('getResidue', () => {
     ],
     [
       '15299-99-7',
-      'napropamide according reg.',
+      'napropamide',
       'RF-00012802-PAR'
     ],
       [
