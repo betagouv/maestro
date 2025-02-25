@@ -3,7 +3,7 @@ import { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequ
 const escapeCsvValue = (value: any) => {
   if (value === undefined || value === null) return '';
   const str = String(value).replace(/"/g, '""');
-  if (str.includes('\n') || str.includes(',')) {
+  if (str.includes('\n') || str.includes(',') || str.includes(';')) {
     return `"${str}"`;
   }
   return str;

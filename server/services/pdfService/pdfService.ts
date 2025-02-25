@@ -28,7 +28,7 @@ import {
 } from '../../templates/templates';
 import config from '../../utils/config';
 
-const generatePDF = async (template: Template, data: any) => {
+const generatePDF = async (template: Template, data: unknown) => {
   handlebars.registerHelper(
     'breaklines',
     (text) =>
