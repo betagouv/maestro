@@ -17,7 +17,6 @@
     "migrate-rollback-one": "NODE_OPTIONS='--import @swc-node/register/esm-register' knex migrate:down",
     "migrate-rollback-all": "NODE_OPTIONS='--import @swc-node/register/esm-register' knex migrate:rollback --all",
     "seed": "node --import @swc-node/register/esm-register database/seeds/dummy/index.ts",
-    "kysely-generate": "kysely-codegen --camel-case --out-file repositories/kysely.type.ts",
     "ssd2-generate": "node --import @swc-node/register/esm-register ./scripts/updateSSD2Referential.ts",
     "check:emails": "node --import @swc-node/register/esm-register ./services/imapService/script.ts"
   },
@@ -84,7 +83,6 @@
     "@types/pg": "^8.11.10",
     "@types/supertest": "^2.0.12",
     "@types/validator": "^13.7.7",
-    "kysely-codegen": "^0.17.0",
     "supertest": "^6.2.4",
     "ts-essentials": "^9.3.0",
     "type-fest": "^3.5.0"
