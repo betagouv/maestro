@@ -2,6 +2,7 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
+import { Upload } from '@codegouvfr/react-dsfr/Upload';
 import clsx from 'clsx';
 import {
   CultureKind,
@@ -26,8 +27,6 @@ import {
   StageLabels,
   StageList
 } from 'maestro-shared/referential/Stage';
-import { FileInput } from 'maestro-shared/schema/File/FileInput';
-import { FileTypeList } from 'maestro-shared/schema/File/FileType';
 import {
   isCreatedPartialSample,
   PartialSample,
@@ -49,15 +48,12 @@ import { useCreateOrUpdateSampleMutation } from 'src/services/sample.service';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SupportDocumentDownload from 'src/views/SampleView/DraftSample/SupportDocumentDownload';
 import SavedAlert from 'src/views/SampleView/SavedAlert';
-import { z } from 'zod';
 import AppSearchInput from '../../../../components/_app/AppSearchInput/AppSearchInput';
-import AppUpload from '../../../../components/_app/AppUpload/AppUpload';
 import {
   useCreateDocumentMutation,
   useDeleteDocumentMutation
 } from '../../../../services/document.service';
 import SampleDocument from './SampleDocument';
-
 interface Props {
   partialSample: PartialSample | PartialSampleToCreate;
 }
@@ -119,12 +115,7 @@ const MatrixStep = ({ partialSample }: Props) => {
 
   const Form = SampleMatrixData;
 
-  const FilesForm = z.object({
-    files: FileInput(FileTypeList, true)
-  });
-
   type FormShape = typeof Form.shape;
-  type FilesFormShape = typeof FilesForm.shape;
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
@@ -352,16 +343,13 @@ const MatrixStep = ({ partialSample }: Props) => {
           <span className={cx('fr-text--md', 'fr-text--bold')}>
             Compléments
           </span>
-          <AppUpload<FilesFormShape>
+          <Upload
             label="Pièces jointes"
             hint="Ajoutez si besoin un document ou une photo pour accompagner votre prélèvement JPG, PNG, PDF (10Mo maximum)"
             nativeInputProps={{
               onChange: (event: any) => selectFiles(event)
             }}
             className={cx('fr-mb-2w')}
-            inputForm={form}
-            inputKey="files"
-            whenValid="fichiers valides"
             multiple
           />
         </div>
