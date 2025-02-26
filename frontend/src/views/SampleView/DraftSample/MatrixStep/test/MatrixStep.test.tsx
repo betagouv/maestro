@@ -1,5 +1,5 @@
 import { configureStore, Store } from '@reduxjs/toolkit';
-import {  render, screen, waitFor, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { CultureKindList } from 'maestro-shared/referential/CultureKind';
 import { MatrixPartList } from 'maestro-shared/referential/Matrix/MatrixPart';
@@ -29,8 +29,8 @@ import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListBy
 import { Region } from 'maestro-shared/referential/Region';
 import { StageList } from 'maestro-shared/referential/Stage';
 import { oneOf } from 'maestro-shared/test/testFixtures';
-import { beforeEach, describe, expect, test } from 'vitest';
 import { act } from 'react';
+import { beforeEach, describe, expect, test } from 'vitest';
 
 let store: Store;
 const sampler = genUser({
@@ -45,7 +45,8 @@ const prescription1 = genPrescription({
 });
 const prescription2 = genPrescription({
   programmingPlanId: programmingPlan.id,
-  context: 'Control'
+  context: 'Control',
+  matrixKind: 'A00TQ'
 });
 const regionalPrescription1 = genRegionalPrescription({
   prescriptionId: prescription1.id
