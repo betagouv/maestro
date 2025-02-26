@@ -1,10 +1,11 @@
-import { act, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { format } from 'date-fns';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { store } from 'src/store/store';
 import ContextStep from 'src/views/SampleView/DraftSample/ContextStep/ContextStep';
+import { act } from 'react'
 
 import { beforeEach, describe, expect, test } from 'vitest';
 // const companySearchResult = genCompanySearchResult();

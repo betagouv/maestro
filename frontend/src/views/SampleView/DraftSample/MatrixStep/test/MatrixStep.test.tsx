@@ -1,5 +1,5 @@
 import { configureStore, Store } from '@reduxjs/toolkit';
-import { act, render, screen, waitFor, within } from '@testing-library/react';
+import {  render, screen, waitFor, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { CultureKindList } from 'maestro-shared/referential/CultureKind';
 import { MatrixPartList } from 'maestro-shared/referential/Matrix/MatrixPart';
@@ -30,6 +30,7 @@ import { Region } from 'maestro-shared/referential/Region';
 import { StageList } from 'maestro-shared/referential/Stage';
 import { oneOf } from 'maestro-shared/test/testFixtures';
 import { beforeEach, describe, expect, test } from 'vitest';
+import { act } from 'react';
 
 let store: Store;
 const sampler = genUser({
