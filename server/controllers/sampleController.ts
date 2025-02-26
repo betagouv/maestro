@@ -44,6 +44,7 @@ import { pdfService } from '../services/pdfService/pdfService';
 import config from '../utils/config';
 import workbookUtils from '../utils/workbookUtils';
 
+import { isEqual } from 'lodash-es';
 const getSample = async (request: Request, response: Response) => {
   const sample = (request as SampleRequest).sample;
 
@@ -192,6 +193,13 @@ const updateSample = async (request: Request, response: Response) => {
 
   if (sampleUpdate.items) {
     await sampleItemRepository.updateMany(sample.id, sampleUpdate.items);
+  }
+
+  if (!isEqual(sample.documentIds, sampleUpdate.documentIds)) {
+    await sampleRepository.updateDocumentIds(
+      sample.id,
+      sampleUpdate.documentIds ?? []
+    );
   }
 
   //TODO update only the fields concerned in relation to the status

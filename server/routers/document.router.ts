@@ -1,5 +1,8 @@
 import express from 'express';
-import { DocumentToCreate } from 'maestro-shared/schema/Document/Document';
+import {
+  DocumentToCreate,
+  DocumentUpdate
+} from 'maestro-shared/schema/Document/Document';
 import documentController from '../controllers/documentController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
 import validator, { body, uuidParam } from '../middlewares/validator';
@@ -9,14 +12,14 @@ const router = express.Router();
 router.post(
   '/upload-signed-url',
   validator.validate(body(DocumentToCreate.omit({ id: true }))),
-  permissionsCheck(['createResource', 'createAnalysis']),
+  permissionsCheck(['createResource', 'createAnalysis', 'createSample']),
   documentController.getUploadSignedUrl
 );
 
 router.post(
   '',
   validator.validate(body(DocumentToCreate)),
-  permissionsCheck(['createResource', 'createAnalysis']),
+  permissionsCheck(['createResource', 'createAnalysis', 'createSample']),
   documentController.createDocument
 );
 
@@ -40,10 +43,17 @@ router.get(
   documentController.getDownloadSignedUrl
 );
 
+router.put(
+  '/:documentId',
+  validator.validate(uuidParam('documentId').merge(body(DocumentUpdate))),
+  permissionsCheck(['createSample']),
+  documentController.updateDocument
+);
+
 router.delete(
   '/:documentId',
   validator.validate(uuidParam('documentId')),
-  permissionsCheck(['deleteDocument']),
+  permissionsCheck(['deleteDocument', 'deleteSampleDocument']),
   documentController.deleteDocument
 );
 

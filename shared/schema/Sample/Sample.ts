@@ -63,7 +63,7 @@ export const SampleMatrixData = z.object({
   notesOnMatrix: z.string().nullish(),
   prescriptionId: z.string().uuid(),
   laboratoryId: z.string().uuid().nullish(),
-  attachmentIds: z.array(z.string().uuid()).nullish()
+  documentIds: z.array(z.string().uuid()).nullish()
 });
 
 export const SampleItemsData = z.object({

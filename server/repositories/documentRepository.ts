@@ -36,6 +36,18 @@ const insert = async (
   await trx.insertInto('documents').values(document).execute();
 };
 
+const update = async (
+  document: Document,
+  trx: KyselyMaestro = kysely
+): Promise<void> => {
+  console.info('Update document', document.id);
+  await trx
+    .updateTable('documents')
+    .set(document)
+    .where('id', '=', document.id)
+    .execute();
+};
+
 const deleteOne = async (id: string): Promise<void> => {
   console.info('Delete document', id);
   await Documents().where({ id }).delete();
@@ -43,6 +55,7 @@ const deleteOne = async (id: string): Promise<void> => {
 
 export const documentRepository = {
   insert,
+  update,
   findMany,
   findUnique,
   deleteOne

@@ -22,6 +22,7 @@ export const UserPermission = z.enum([
   'createResource',
   'readDocuments',
   'deleteDocument',
+  'deleteSampleDocument',
   'readCompanies',
   'createAnalysis',
   'readAnalysis'
