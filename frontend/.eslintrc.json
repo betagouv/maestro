@@ -13,6 +13,13 @@
       "ignoreRestSiblings": true
     }
   ],
-    "no-irregular-whitespace": "off"
+    "no-irregular-whitespace": "off",
+    "no-restricted-imports": ["error", {
+      "paths": [{
+        "name": "@testing-library/react",
+        "importNames": ["act"],
+        "message": "Please use act from react instead"
+      }]
+    }]
   }
 }
