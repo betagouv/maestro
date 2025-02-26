@@ -6,7 +6,7 @@ export const DocumentKind = z.enum([
   'SupportDocument',
   'AnalysisReportDocument',
   'AnalysisRequestDocument',
-  'SampleAttachment'
+  'SampleDocument'
 ]);
 
 export const getSupportDocumentFilename = (
@@ -21,5 +21,11 @@ export const getAnalysisReportDocumentFilename = (
 ) => `DAI-${sample.reference}-${itemNumber}.${extension}`;
 
 export const DocumentKindList: DocumentKind[] = DocumentKind.options;
+
+export const UploadDocumentKindList: DocumentKind[] = [
+  'Resource',
+  'AnalysisReportDocument',
+  'SampleDocument'
+];
 
 export type DocumentKind = z.infer<typeof DocumentKind>;

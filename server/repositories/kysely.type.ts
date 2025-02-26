@@ -235,6 +235,11 @@ export interface Users {
   roles: UserRole[];
 }
 
+export interface SampleDocuments {
+  documentId: string;
+  sampleId: string;
+}
+
 export interface DB {
   _MatrixReferential: _MatrixReferential;
   _Referential: _Referential;
@@ -252,6 +257,7 @@ export interface DB {
   regionalPrescriptionComments: RegionalPrescriptionComments;
   regionalPrescriptions: RegionalPrescriptions;
   residueAnalytes: ResidueAnalytes;
+  sampleDocuments: SampleDocuments;
   sampleItems: SampleItems;
   samples: Samples;
   sampleSequenceNumbers: SampleSequenceNumbers;

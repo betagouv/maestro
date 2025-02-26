@@ -35,7 +35,6 @@ import {
   SampleMatrixData
 } from 'maestro-shared/schema/Sample/Sample';
 import React, { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
@@ -53,7 +52,11 @@ import SavedAlert from 'src/views/SampleView/SavedAlert';
 import { z } from 'zod';
 import AppSearchInput from '../../../../components/_app/AppSearchInput/AppSearchInput';
 import AppUpload from '../../../../components/_app/AppUpload/AppUpload';
-import { useCreateDocumentMutation } from '../../../../services/document.service';
+import {
+  useCreateDocumentMutation,
+  useDeleteDocumentMutation
+} from '../../../../services/document.service';
+import SampleDocument from './SampleDocument';
 
 interface Props {
   partialSample: PartialSample | PartialSampleToCreate;
@@ -74,16 +77,8 @@ const MatrixStep = ({ partialSample }: Props) => {
   const [releaseControl, setReleaseControl] = useState(
     partialSample.releaseControl
   );
-  const [attachments, setAttachments] = useState<
-    {
-      file: File;
-      preview: string;
-      legend?: string;
-    }[]
-  >([]);
-  const [attachmentIds, setAttachmentIds] = useState(
-    partialSample.attachmentIds
-  );
+
+  const [documentIds, setDocumentIds] = useState(partialSample.documentIds);
   const [notesOnMatrix, setNotesOnMatrix] = useState(
     partialSample.notesOnMatrix
   );
@@ -91,6 +86,7 @@ const MatrixStep = ({ partialSample }: Props) => {
 
   const [createOrUpdate] = useCreateOrUpdateSampleMutation();
   const [createDocument] = useCreateDocumentMutation();
+  const [deleteDocument] = useDeleteDocumentMutation();
 
   const { data: prescriptionsData } = useFindPrescriptionsQuery(
     {
@@ -133,19 +129,6 @@ const MatrixStep = ({ partialSample }: Props) => {
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     await form.validate(async () => {
-      const newAttachmentIds = await Promise.all(
-        attachments.map(async (attachment) => {
-          const document = await createDocument({
-            file: attachment.file,
-            kind: 'SampleAttachment'
-          }).unwrap();
-
-          return document.id;
-        })
-      );
-
-      setAttachmentIds(newAttachmentIds);
-
       await save('DraftItems');
       navigateToSample(partialSample.id, 3);
     });
@@ -172,7 +155,7 @@ const MatrixStep = ({ partialSample }: Props) => {
       stage,
       cultureKind,
       releaseControl,
-      attachmentIds,
+      documentIds,
       notesOnMatrix,
       status,
       prescriptionId: prescription?.id,
@@ -191,7 +174,7 @@ const MatrixStep = ({ partialSample }: Props) => {
       stage,
       cultureKind,
       releaseControl,
-      attachmentIds,
+      documentIds,
       notesOnMatrix,
       prescriptionId: partialSample.prescriptionId,
       laboratoryId: partialSample.laboratoryId
@@ -199,14 +182,26 @@ const MatrixStep = ({ partialSample }: Props) => {
     save
   );
 
-  const selectFiles = (event?: any) => {
+  const selectFiles = async (event?: any) => {
     const selectedFiles = Array.from(event?.target?.files) as File[];
-    setAttachments(
-      selectedFiles.map((file) => ({
-        file,
-        preview: URL.createObjectURL(file)
-      }))
+
+    const newDocumentIds = await Promise.all(
+      selectedFiles.map(async (file) => {
+        const document = await createDocument({
+          file,
+          kind: 'SampleDocument'
+        }).unwrap();
+
+        return document.id;
+      })
     );
+
+    setDocumentIds([...(documentIds ?? []), ...newDocumentIds]);
+  };
+
+  const removeDocument = async (documentId: string) => {
+    await deleteDocument(documentId);
+    setDocumentIds((documentIds ?? []).filter((id) => id !== documentId));
   };
 
   return (
@@ -371,46 +366,14 @@ const MatrixStep = ({ partialSample }: Props) => {
           />
         </div>
       </div>
-      {attachments.map((attachment, index) => (
-        <div
-          className={cx('fr-grid-row', 'fr-grid-row--gutters')}
-          key={`preview-${index}`}
-        >
-          <div className={cx('fr-col-4')}>
-            <img
-              src={attachment.preview}
-              alt="Aperçu"
-              style={{ width: '100%', height: 'auto' }}
-            />
-          </div>
-          <div className={cx('fr-col-4')}>
-            <Link
-              onClick={(e) => {
-                e.preventDefault();
-                window.open(URL.createObjectURL(attachment.file));
-              }}
-              to="#"
-            >
-              {attachment.file.name}
-              <span
-                className={cx('fr-icon-eye-line', 'fr-ml-1w', 'fr-icon--sm')}
-              ></span>
-            </Link>
-          </div>
-          <div className={cx('fr-col-4')}>
-            <Button
-              title="Supprimer"
-              onClick={(e) => {
-                e.preventDefault();
-                setAttachments(attachments.filter((_, i) => i !== index));
-              }}
-              iconId="fr-icon-delete-line"
-              priority="tertiary"
-              className="float-right"
-            />
-          </div>
-        </div>
+      {documentIds?.map((documentId) => (
+        <SampleDocument
+          key={`document-${documentId}`}
+          documentId={documentId}
+          onRemove={removeDocument}
+        />
       ))}
+
       <hr />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>

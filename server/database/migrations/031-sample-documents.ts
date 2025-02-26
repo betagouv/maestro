@@ -1,12 +1,18 @@
 import { Knex } from 'knex';
 export const up = async (knex: Knex) => {
-  await knex.schema.createTable('sample_attachments', (table) => {
-    table.uuid('sample_id').notNullable().references('id').inTable('samples');
+  await knex.schema.createTable('sample_documents', (table) => {
+    table
+      .uuid('sample_id')
+      .notNullable()
+      .references('id')
+      .inTable('samples')
+      .onDelete('CASCADE');
     table
       .uuid('document_id')
       .notNullable()
       .references('id')
-      .inTable('documents');
+      .inTable('documents')
+      .onDelete('CASCADE');
   });
 
   await knex.schema.alterTable('documents', (table) => {
@@ -19,5 +25,5 @@ export const down = async (knex: Knex) => {
     table.dropColumn('legend');
   });
 
-  await knex.schema.dropTable('sample_attachments');
+  await knex.schema.dropTable('sample_documents');
 };

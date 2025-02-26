@@ -174,7 +174,8 @@ describe('Sample router', () => {
             ...omit(Sample11Fixture, ['items']),
             createdAt: Sample11Fixture.createdAt.toISOString(),
             lastUpdatedAt: Sample11Fixture.lastUpdatedAt.toISOString(),
-            sampledAt: Sample11Fixture.sampledAt.toISOString()
+            sampledAt: Sample11Fixture.sampledAt.toISOString(),
+            documentIds: []
           },
           expect.objectContaining({
             id: Sample12Fixture.id
