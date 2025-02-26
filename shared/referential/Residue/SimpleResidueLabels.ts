@@ -48,7 +48,6 @@ export const SimpleResidueLabels: Record<SimpleResidue, string> = {
   'RF-00004664-PAR': 'Guazatine (guazatine acetate, sum of components)',
   'RF-00004668-PAR': 'Indolylbutyric acid',
   'RF-00004671-PAR': 'Mandestrobin',
-  'RF-00004678-PAR': 'Sedaxane',
   'RF-00004679-PAR': 'Sulfoxaflor (sum of isomers)',
   'RF-0061-001-PPP': 'Captan',
   'RF-00004728-PAR': '1,4-Dimethylnaphthalene',

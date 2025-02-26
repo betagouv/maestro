@@ -1,16 +1,19 @@
 import { ImapFlow } from 'imapflow';
 import { isNull } from 'lodash-es';
-import { Analyte } from 'maestro-shared/referential/Residue/Analyte';
-import { ComplexResidue } from 'maestro-shared/referential/Residue/ComplexResidue';
-import { SimpleResidue } from 'maestro-shared/referential/Residue/SimpleResidue';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { ParsedMail, simpleParser } from 'mailparser';
 import config from '../../utils/config';
 import { mattermostService } from '../mattermostService';
 import { analysisHandler } from './analysis-handler';
 import { girpaConf } from './girpa';
+import { inovalysConf } from './inovalys/inovalys';
+import { capinovConf } from './capinov';
+import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import { getSSD2Id } from 'maestro-shared/referential/Residue/SSD2Referential';
+import { SandreToSSD2 } from 'maestro-shared/referential/Residue/SandreToSSD2';
+import { OmitDistributive } from 'maestro-shared/utils/typescript';
 
-const laboratoriesWithConf = ['GIRPA'] as const satisfies string[];
+const laboratoriesWithConf = ['GIRPA', 'INOVALYS', 'CAPINOV'] as const satisfies string[];
 type LaboratoryWithConf = (typeof laboratoriesWithConf)[number];
 
 export class ExtractError extends Error {
@@ -19,20 +22,18 @@ export class ExtractError extends Error {
   }
 }
 
-export type ExportResidueAnalyte = { reference: Analyte; kind: 'Analyte' };
-export type ExportResidue =
-  | { reference: SimpleResidue; kind: 'SimpleResidue' }
-  | { reference: ComplexResidue; kind: 'ComplexResidue' }
-  | ExportResidueAnalyte;
-
-export type ExportDataSubstance = { residue: ExportResidue } & (
-  | { result_kind: 'NQ'; result: null; lmr: null }
-  | {
-      result_kind: 'Q';
-      result: number;
-      lmr: number;
-    }
+export type ExportResultQuantifiable = {
+  result_kind: 'Q';
+  result: number;
+  lmr: number;
+}
+export type ExportResultNonQuantifiable ={ result_kind: 'NQ' | 'ND' }
+export type ExportDataSubstance = { label: string, casNumber: string | null, codeSandre: string | null} & (
+  | ExportResultNonQuantifiable
+  | ExportResultQuantifiable
 );
+export type ExportDataSubstanceWithSSD2Id = OmitDistributive<ExportDataSubstance, 'casNumber' | 'label' | 'codeSandre'> & {ssd2Id: SSD2Id}
+
 export type IsSender = (senderAddress: string) => boolean;
 export type ExportAnalysis = {
   sampleReference: Sample['reference'];
@@ -45,9 +46,12 @@ export type ExportDataFromEmail = (email: ParsedMail) => ExportAnalysis[];
 export type LaboratoryConf = {
   isSender: IsSender;
   exportDataFromEmail: ExportDataFromEmail;
+  ssd2IdByLabel: Record<string, SSD2Id | null>
 };
 const laboratoriesConf = {
-  GIRPA: girpaConf
+  'GIRPA': girpaConf,
+  'INOVALYS': inovalysConf,
+  'CAPINOV': capinovConf
 } as const satisfies {
   [name in LaboratoryWithConf]: LaboratoryConf;
 };
@@ -79,6 +83,7 @@ const moveMessageToErrorbox = async (
 
   await mattermostService.send(error);
 };
+
 
 export const checkEmails = async () => {
   if (
@@ -144,6 +149,7 @@ export const checkEmails = async () => {
         for (const messageInError of messagesInError){
           await moveMessageToErrorbox(messageInError.subject, messageInError.sender, messageInError.error, messageInError.messageUid, client)
         }
+        const warnings = new Set<string>()
         for (const message of messagesToRead) {
           const messageUid: string = `${message.messageUid}`;
           //undefined permet de récupérer tout l'email
@@ -155,12 +161,51 @@ export const checkEmails = async () => {
 
           try {
             const analyzes =
-              laboratoriesConf[message.laboratoryName].exportDataFromEmail(
+             laboratoriesConf[message.laboratoryName].exportDataFromEmail(
                 parsed
               );
 
+            if (analyzes.length === 0) {
+              throw new ExtractError("Aucun résultat d'analyses trouvé dans cet email.")
+            }
+
             for (const analysis of analyzes) {
-              await analysisHandler(analysis);
+
+              const residues = analysis.residues.map(r => {
+                return {
+                  ...r,
+                  ssd2Id: getSSD2Id(r.label, r.codeSandre, r.casNumber, laboratoriesConf[message.laboratoryName].ssd2IdByLabel)
+                };
+              })
+              
+              //On créer une liste de warnings avec les résidues introuvables dans SSD2
+              residues.forEach((r) => {
+                if (r.codeSandre !== null) {
+                  if ( SandreToSSD2[r.codeSandre] === undefined) {
+                    if (r.ssd2Id !== null) {
+                      warnings.add(`Nouveau code Sandre détecté : ${r.label} ${r.codeSandre} => ${r.ssd2Id}`);
+                    }else{
+                      warnings.add(`Nouveau code Sandre détecté : ${r.label} ${r.codeSandre}`);
+                    }
+                  }
+                }
+                if (r.ssd2Id === null) {
+                  warnings.add(`Impossible d'identifier le résidue : ${r.label}`)
+                }
+              });
+              
+              //On garde que les résidues intéressants
+              const interestingResidues = residues.filter(r => r.result_kind !== 'ND')
+
+              //Erreur si un résidue intéressant n'a pas de SSD2Id
+              interestingResidues.forEach((r) => {
+                if (r.ssd2Id === null) {
+                 throw new ExtractError(`Résidue non identifiable : ${r.label}`)
+                }
+              });
+              await analysisHandler({...analysis, residues: interestingResidues
+                  .map( ({casNumber, codeSandre, label, ...rest}) => rest)
+                  .filter((residue): residue is ExportDataSubstanceWithSSD2Id => residue.ssd2Id !== null)});
             }
             await client.messageMove(messageUid, config.inbox.trashboxName, {
               uid: true
@@ -175,6 +220,12 @@ export const checkEmails = async () => {
               messageUid,
               client
             );
+          }finally {
+            if (warnings.size > 0) {
+              const warningMessage = Array.from(warnings).join('\n -')
+              console.warn(warningMessage)
+              await mattermostService.send(warningMessage)
+            }
           }
         }
       }

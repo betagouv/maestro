@@ -8,7 +8,6 @@ import {
   ComplexResidue,
   ComplexResidueList
 } from 'maestro-shared/referential/Residue/ComplexResidue';
-import { ComplexResidueAnalytes } from 'maestro-shared/referential/Residue/ComplexResidueAnalytes';
 import { ComplexResidueLabels } from 'maestro-shared/referential/Residue/ComplexResidueLabels';
 import { PartialAnalyte } from 'maestro-shared/schema/Analysis/Analyte';
 import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
@@ -25,6 +24,8 @@ import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOp
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useForm } from 'src/hooks/useForm';
 import { ZodRawShape } from 'zod';
+import { getAnalytes } from 'maestro-shared/referential/Residue/SSD2Hierachy';
+import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 
 interface Props {
   form: ReturnType<typeof useForm>;
@@ -120,9 +121,9 @@ function ComplexResidueForm<T extends ZodRawShape>({
                 <div className={cx('fr-col-12')}>
                   <AppSearchInput
                     options={selectOptionsFromList(
-                      ComplexResidueAnalytes[
-                        residue.reference as ComplexResidue
-                      ],
+                      Array.from(getAnalytes(
+                        residue.reference as SSD2Id
+                      )),
                       {
                         labels: AnalyteLabels,
                         withSort: true,

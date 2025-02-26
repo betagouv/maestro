@@ -1,82 +1,20 @@
-import { isEmpty } from 'lodash-es';
-import { ComplexResidueAnalytes } from 'maestro-shared/referential/Residue/ComplexResidueAnalytes';
-import { OmitDistributive } from 'maestro-shared/utils/typescript';
 import { analysisRepository } from '../../repositories/analysisRepository';
 import { analysisResidueRepository } from '../../repositories/analysisResidueRepository';
-import { kysely } from '../../repositories/kysely';
-import {
-  AnalysisResidues,
-  ResidueAnalytes
-} from '../../repositories/kysely.type';
+import {  kysely } from '../../repositories/kysely';
 import { residueAnalyteRepository } from '../../repositories/residueAnalyteRepository';
 import { sampleRepository } from '../../repositories/sampleRepository';
 import { documentService } from '../documentService';
 import {
-  ExportAnalysis,
-  ExportDataSubstance,
-  ExportResidueAnalyte,
+  ExportAnalysis,  ExportDataSubstanceWithSSD2Id,
   ExtractError
 } from './index';
+import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import { getAnalytes, hasAnalytes } from 'maestro-shared/referential/Residue/SSD2Hierachy';
 
+export type AnalysisWithResidueWithSSD2Id =  Omit<ExportAnalysis, 'residues'> & { residues: ExportDataSubstanceWithSSD2Id[]}
 export const analysisHandler = async (
-  analyse: ExportAnalysis
+  analyse: AnalysisWithResidueWithSSD2Id
 ): Promise<string> => {
-  const analyseResidue: (Pick<
-    AnalysisResidues,
-    'result' | 'lmr' | 'resultKind' | 'residueNumber'
-  > & { residue: ExportDataSubstance['residue'] })[] = [];
-
-  analyse.residues
-    .filter(
-      (s) =>
-        s.residue.kind === 'SimpleResidue' ||
-        s.residue.kind === 'ComplexResidue'
-    )
-    .forEach((s, index) => {
-      analyseResidue.push({
-        residue: s.residue,
-        result: s.result,
-        resultKind: s.result_kind,
-        lmr: s.lmr,
-        residueNumber: index + 1
-      });
-    });
-
-  const residueAnalytes: Pick<
-    ResidueAnalytes,
-    'residueNumber' | 'result' | 'resultKind' | 'analyteNumber' | 'reference'
-  >[] = [];
-  const analytes = analyse.residues.filter(
-    (
-      s
-    ): s is OmitDistributive<ExportDataSubstance, 'residue'> & {
-      residue: ExportResidueAnalyte;
-    } => s.residue.kind === 'Analyte'
-  );
-
-  for (let i = 0; i < analytes.length; i++) {
-    const analyte = analytes[i];
-    const complexResidue = analyseResidue.find(
-      (aR) =>
-        aR.residue.kind === 'ComplexResidue' &&
-        ComplexResidueAnalytes[aR.residue.reference].includes(
-          analyte.residue.reference
-        )
-    );
-    if (complexResidue === undefined) {
-      throw new ExtractError(
-        `Impossible de trouver le résidu complexe pour l'analyte ${analyte.residue.reference}`
-      );
-    }
-
-    residueAnalytes.push({
-      reference: analyte.residue.reference,
-      residueNumber: complexResidue.residueNumber,
-      analyteNumber: i + 1,
-      resultKind: analyte.result_kind,
-      result: analyte.result
-    });
-  }
 
   const { sampleId, analyseId } = await kysely
     .selectFrom('samples')
@@ -90,12 +28,50 @@ export const analysisHandler = async (
       `Une analyse est déjà présente pour cet échantillon : ${analyse.sampleReference}`
     );
   }
+  
+  const complexResidues = analyse.residues.filter(({ssd2Id}) => hasAnalytes(ssd2Id))
+  const simpleResidues =  analyse.residues.filter(({ssd2Id}) => !hasAnalytes(ssd2Id))
 
-  return await documentService.createDocument<string>(
-    analyse.pdfFile,
-    'AnalysisReportDocument',
-    null,
-    async (documentId, trx) => {
+
+  
+      const residuesIndex: Record<SSD2Id, ExportDataSubstanceWithSSD2Id & {analytes: ExportDataSubstanceWithSSD2Id[]}> = complexResidues.reduce((acc, r) => {
+    acc[r.ssd2Id] = {...r, analytes: []}
+    return acc
+  }, {} as Record<SSD2Id, ExportDataSubstanceWithSSD2Id & {analytes: ExportDataSubstanceWithSSD2Id[]}>)
+  for (const residue of simpleResidues) {
+      const complexResidue = complexResidues.find(({ ssd2Id }) => {
+        const referenceAnalytes = getAnalytes(ssd2Id)
+        if (referenceAnalytes.size > 0) {
+          return referenceAnalytes.has(residue.ssd2Id)
+        }
+        return false
+      });
+
+
+    if (complexResidue !== undefined) {
+      residuesIndex[complexResidue.ssd2Id].analytes.push(residue)
+    }else{
+      residuesIndex[residue.ssd2Id] = {...residue, analytes: []}
+    }
+  }
+
+  const residues = Object.values(residuesIndex)
+  residues
+    .filter(({ssd2Id}) => hasAnalytes(ssd2Id))
+    .forEach(({analytes, ssd2Id}) => {
+    if (analytes.length === 0) {
+      throw new ExtractError(`Le résidue complexe ${ssd2Id} est présent, mais n'a aucune analyte`)
+    }
+  })
+
+  return    await documentService.createDocument<string>(
+        analyse.pdfFile,
+        'AnalysisReportDocument',
+        null,
+        async (documentId, trx) => {
+
+
+
       const analysisId = await analysisRepository.insert(
         {
           sampleId,
@@ -113,28 +89,36 @@ export const analysisHandler = async (
 
       await sampleRepository.updateStatus(sampleId, 'Analysis', trx);
 
-      if (!isEmpty(analyseResidue)) {
+      for (let i = 0; i < residues.length; i++){
+        const residue = residues[i];
+        const residueNumber = i + 1
         await analysisResidueRepository.insert(
-          analyseResidue.map((a) => {
-            const reference = a.residue.reference;
-            const { residue, ...rest } = a;
-            return {
-              ...rest,
-              reference,
-              analysisId,
-              //TODO AUTO_LABO je ne sais pas comment récupérer cette info
-              analysisMethod: 'Mono'
-            };
-          }),
+          [{
+            result: 'result' in residue ? residue.result : null,
+            resultKind: residue.result_kind,
+            lmr: 'lmr' in residue ? residue.lmr : null,
+            analysisId,
+            //TODO AUTO_LABO je ne sais pas comment récupérer cette info
+            analysisMethod: 'Mono',
+            residueNumber,
+            reference: residue.ssd2Id
+          }]
+          ,
           trx
         );
-      }
 
-      if (!isEmpty(residueAnalytes)) {
-        await residueAnalyteRepository.insert(
-          residueAnalytes.map((r) => ({ ...r, analysisId })),
-          trx
-        );
+        if ('analytes' in residue && residue.analytes.length > 0) {
+          await residueAnalyteRepository.insert(
+            residue.analytes.map((analyte, j) => ({   reference: analyte.ssd2Id,
+              residueNumber,
+              analyteNumber: j + 1,
+              resultKind: analyte.result_kind,
+              result: 'result' in analyte ?  analyte.result : null,
+            analysisId})),
+            trx
+          );
+
+        }
       }
 
       return analysisId;

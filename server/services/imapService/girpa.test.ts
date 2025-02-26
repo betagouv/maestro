@@ -3,10 +3,10 @@ import { z } from 'zod';
 import {
   analyseXmlValidator,
   extractAnalyzes,
-  getResidue,
-  residueCasNumberValidator,
-  residueEnglishNameValidator
+   girpaConf,
 } from './girpa';
+import { getSSD2Id } from 'maestro-shared/referential/Residue/SSD2Referential';
+import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 
 const girpaXMLExample = (analyses: z.input<typeof analyseXmlValidator>[]) => ({
   Rapport: {
@@ -65,11 +65,10 @@ describe('parse correctement le XML', () => {
           "notes": "Une note",
           "residues": [
             {
+              "casNumber": "?",
+              "codeSandre": null,
+              "label": "bixafen",
               "lmr": 10,
-              "residue": {
-                "kind": "SimpleResidue",
-                "reference": "RF-1056-001-PPP",
-              },
               "result": 5.2,
               "result_kind": "Q",
             },
@@ -117,30 +116,33 @@ describe('parse correctement le XML', () => {
     ).toMatchInlineSnapshot(`
       [
         {
+          "casNumber": "1967-25-5",
+          "codeSandre": null,
+          "label": "bixafen",
           "lmr": 10,
-          "residue": {
-            "kind": "SimpleResidue",
-            "reference": "RF-1056-001-PPP",
-          },
           "result": 0.3,
           "result_kind": "Q",
         },
         {
+          "casNumber": "27112-32-9",
+          "codeSandre": null,
+          "label": "fluopyram",
           "lmr": 10,
-          "residue": {
-            "kind": "Analyte",
-            "reference": "RF-0215-003-PPP",
-          },
+          "result": 0.29,
+          "result_kind": "Q",
+        },
+        {
+          "casNumber": "15299-99-7",
+          "codeSandre": null,
+          "label": "fluroxypyr",
+          "lmr": 10,
           "result": 10.1,
           "result_kind": "Q",
         },
         {
-          "lmr": null,
-          "residue": {
-            "kind": "SimpleResidue",
-            "reference": "RF-00000024-PAR",
-          },
-          "result": null,
+          "casNumber": "?",
+          "codeSandre": null,
+          "label": "fluxapyroxad",
           "result_kind": "NQ",
         },
       ]
@@ -149,42 +151,36 @@ describe('parse correctement le XML', () => {
 });
 
 describe('getResidue', () => {
-  test.each<[string, string, ReturnType<typeof getResidue>]>([
+  test.each<[string, string, SSD2Id | null]>([
     ['', 'toto', null],
-    ['', 'bixafen', { reference: 'RF-1056-001-PPP', kind: 'SimpleResidue' }],
-    [
-      '',
-      'bixafen according reg.',
-      { reference: 'RF-1056-001-PPP', kind: 'SimpleResidue' }
-    ],
+    ['', 'bixafen','RF-1056-001-PPP'],
     [
       '120983-64-4',
       'prothioconazole: prothioconazole-desthio',
-      { reference: 'RF-0868-001-PPP', kind: 'SimpleResidue' }
-    ],
-    [
-      '-',
-      'metobromuron according reg.',
-      { reference: 'RF-00014532-PAR', kind: 'SimpleResidue' }
+      'RF-0868-001-PPP'
     ],
     [
       '-',
       'metobromuron',
-      { reference: 'RF-00014532-PAR', kind: 'SimpleResidue' }
+      'RF-0791-001-PPP'
     ],
     [
       '15299-99-7',
-      'napropamide according reg.',
-      { reference: 'RF-00012802-PAR', kind: 'SimpleResidue' }
-    ]
-    //TODO AUTO_LABO en attente de plus d'infos sur les référentiels
-    //Résidu non trouvé: 1967-25-5 4-bromophenylurea
-    // Résidu non trouvé: 27112-32-9 desmethyl-metobromuron
+      'napropamide',
+      'RF-00012802-PAR'
+    ],
+      [
+      '1967-25-5',
+        '4-bromophenylurea',
+        'RF-00003387-PAR'
+      ]
   ])('getResidue %#', (casNumber, englishName, expected) => {
     expect(
-      getResidue(
-        casNumber as z.infer<typeof residueCasNumberValidator>,
-        englishName as z.infer<typeof residueEnglishNameValidator>
+      getSSD2Id(
+        englishName,
+        null,
+        casNumber,
+        girpaConf.ssd2IdByLabel
       )
     ).toEqual(expected);
   });
