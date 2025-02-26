@@ -38,7 +38,7 @@ Utilisateurs --> Sentry: erreurs
 Utilisateurs --> Matomo: statistiques
 API --> Brevo: envoie mail
 API <-- OVH: reception analyses
-API <--> S3
+API <--> S3: stockage des documents
 API --> Entreprise
 API --> Adresse
 @enduml
