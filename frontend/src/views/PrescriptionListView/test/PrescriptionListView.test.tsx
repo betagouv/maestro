@@ -1,5 +1,5 @@
 import { configureStore, Store } from '@reduxjs/toolkit';
-import { act, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { Region, RegionList } from 'maestro-shared/referential/Region';
 import {
@@ -17,6 +17,7 @@ import PrescriptionListView from 'src/views/PrescriptionListView/PrescriptionLis
 import { mockRequests } from '../../../../test/requestTestUtils';
 
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { act } from 'react'
 
 vi.mock(import('react-router-dom'), async (importOriginal) => {
   const original = await importOriginal();

@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { QuantityUnitList } from 'maestro-shared/referential/QuantityUnit';
 import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
@@ -13,6 +13,7 @@ import config from 'src/utils/config';
 import ItemsStep from 'src/views/SampleView/DraftSample/ItemsStep/ItemsStep';
 import { describe, expect, test } from 'vitest';
 import { getRequestCalls } from '../../../../../../test/requestTestUtils';
+import { act } from 'react'
 
 describe('DraftSampleItemsStep', () => {
   const user = userEvent.setup();
