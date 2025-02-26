@@ -182,7 +182,7 @@ test('Peut enregistrer une analyse avec un résidue complexe et ses analytes ass
     .where('analysisId', '=', analysisId)
     .selectAll()
     .execute();
-  expect(analysisResidue).toHaveLength(2);
+  expect(analysisResidue).toHaveLength(1);
   expect(analysisResidue[0].reference).toBe(
     analysisToSave.residues[1].ssd2Id
   );
@@ -193,9 +193,11 @@ test('Peut enregistrer une analyse avec un résidue complexe et ses analytes ass
     .where('analysisId', '=', analysisId)
     .orderBy('analyteNumber asc')
     .execute();
-  expect(analysisResidueAnalytes).toHaveLength(1);
+  expect(analysisResidueAnalytes).toHaveLength(2);
   expect(analysisResidueAnalytes[0].reference).toBe(
+    analysisToSave.residues[0].ssd2Id
+  );
+  expect(analysisResidueAnalytes[1].reference).toBe(
     analysisToSave.residues[2].ssd2Id
-
   );
 });

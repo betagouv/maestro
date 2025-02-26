@@ -9,4 +9,10 @@ test('getAnalytes', () => {
       "RF-0061-001-PPP",
     }
   `)
+  expect(getAnalytes('RF-0008-001-PPP')).toMatchInlineSnapshot(`
+    Set {
+      "RF-00004646-PAR",
+      "RF-00002588-PAR",
+    }
+  `)
 })
