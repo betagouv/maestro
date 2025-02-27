@@ -45,6 +45,7 @@ import config from '../utils/config';
 import workbookUtils from '../utils/workbookUtils';
 
 import { isEqual } from 'lodash-es';
+import { Readable } from 'node:stream';
 const getSample = async (request: Request, response: Response) => {
   const sample = (request as SampleRequest).sample;
 
@@ -301,6 +302,21 @@ const updateSample = async (request: Request, response: Response) => {
               department: DepartmentLabels[updatedSample.department]
             });
 
+          const sampleDocuments = await Promise.all(
+            (updatedSample.documentIds ?? []).map((documentId) =>
+              documentService.getDocument(documentId)
+            )
+          );
+
+          const sampleAttachments = await Promise.all(
+            sampleDocuments
+              .filter((document) => document !== undefined)
+              .map(async (document) => ({
+                name: document.filename,
+                content: await streamToBase64(document.file as Readable)
+              }))
+          );
+
           await mailService.sendAnalysisRequest({
             recipients: [laboratory?.email, config.mail.from],
             params: {
@@ -309,6 +325,7 @@ const updateSample = async (request: Request, response: Response) => {
               sampledAt: format(updatedSample.sampledAt, 'dd/MM/yyyy')
             },
             attachment: [
+              ...sampleAttachments,
               ...analysisRequestDocs.map((doc) => ({
                 name: doc.filename,
                 content: Buffer.from(doc.buffer as Buffer).toString('base64')
@@ -349,6 +366,15 @@ const updateSample = async (request: Request, response: Response) => {
   await sampleRepository.update(updatedPartialSample);
 
   response.status(constants.HTTP_STATUS_OK).send(updatedPartialSample);
+};
+
+const streamToBase64 = async (stream: Readable): Promise<string> => {
+  const chunks: any[] = [];
+  return new Promise((resolve, reject) => {
+    stream.on('data', (chunk) => chunks.push(chunk));
+    stream.on('end', () => resolve(Buffer.concat(chunks).toString('base64')));
+    stream.on('error', reject);
+  });
 };
 
 const generateAndStoreSampleSupportDocument = async (
