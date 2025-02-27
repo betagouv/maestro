@@ -8,7 +8,8 @@ import {
   genPrescriptionSubstance
 } from 'maestro-shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
-import { genSubstance, oneOf } from 'maestro-shared/test/testFixtures';
+import { genSubstance } from 'maestro-shared/test/substanceFixtures';
+import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
   NationalCoordinator,
   RegionalCoordinator,
