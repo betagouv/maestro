@@ -52,11 +52,11 @@ import SavedAlert from 'src/views/SampleView/SavedAlert';
 import { z } from 'zod';
 import AppSearchInput from '../../../../components/_app/AppSearchInput/AppSearchInput';
 import AppUpload from '../../../../components/_app/AppUpload/AppUpload';
+import SampleDocument from '../../../../components/SampleDocument/SampleDocument';
 import {
   useCreateDocumentMutation,
   useDeleteDocumentMutation
 } from '../../../../services/document.service';
-import SampleDocument from './SampleDocument';
 interface Props {
   partialSample: PartialSample | PartialSampleToCreate;
 }
