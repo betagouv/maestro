@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { HomeViewContainer } from './HomeView';
 
 const meta: Meta<typeof HomeViewContainer> = {
-  title: 'Example/HomeViewContainer',
+  title: 'Views/HomeViewContainer',
   component: HomeViewContainer,
 
 };

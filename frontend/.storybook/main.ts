@@ -15,7 +15,8 @@ const config: StorybookConfig = {
   ],
   "addons": [
     getAbsolutePath('@storybook/addon-essentials'),
-    getAbsolutePath("@storybook/experimental-addon-test")
+    getAbsolutePath("@storybook/experimental-addon-test"),
+    getAbsolutePath("storybook-addon-remix-react-router")
   ],
   "framework": {
     "name": getAbsolutePath('@storybook/react-vite'),
