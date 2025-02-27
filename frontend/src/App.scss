@@ -257,3 +257,9 @@ h6,
 .link-underline {
   text-decoration: underline;
 }
+
+.d-sm-none {
+  @media (max-width: constants.$breakpoint-md) {
+    display: none;
+  }
+}
