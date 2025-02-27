@@ -19,3 +19,9 @@ export const FileTypeLabels = {
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'XLXS',
   'application/vnd.ms-excel': 'XLS'
 } as const satisfies Record<FileType, string>;
+
+export const SampleDocumentTypeList = [
+  'application/pdf',
+  'image/jpeg',
+  'image/png'
+] as const satisfies Readonly<FileType[]>;
