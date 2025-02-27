@@ -23,7 +23,8 @@ export const jwtCheck = (credentialsRequired: boolean) =>
     getToken: (request: Request) => {
 
       return (request.cookies?.[COOKIE_MAESTRO_ACCESS_TOKEN]) as string;
-    }
+    },
+    ignoreExpiration: !credentialsRequired
   });
 
 export const userCheck = (credentialsRequired: boolean) =>
