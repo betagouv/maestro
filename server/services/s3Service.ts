@@ -1,5 +1,6 @@
 import {
   DeleteObjectCommand,
+  GetObjectCommand,
   PutObjectCommand,
   S3Client,
   S3ClientConfig
@@ -67,9 +68,22 @@ const uploadDocument = async (
   return { valid: false, error: uploadResult.statusText };
 };
 
+const downloadDocument = async (documentId: string, filename: string) => {
+  const client = getS3Client();
+  const command = new GetObjectCommand({
+    Bucket: config.s3.bucket,
+    Key: getKey(documentId, filename)
+  });
+
+  const response = await client.send(command);
+
+  return response.Body;
+};
+
 export const s3Service = {
   uploadDocument,
   deleteDocument,
   getClient: getS3Client,
-  getUploadSignedUrl: getUploadSignedUrlS3
+  getUploadSignedUrl: getUploadSignedUrlS3,
+  downloadDocument
 };

@@ -49,7 +49,12 @@ export function createServer(): Server {
               // https://github.com/mui/material-ui/issues/19938
               "'unsafe-inline'"
             ],
-            imgSrc: ["'self'", 'https://stats.beta.gouv.fr', 'data:'],
+            imgSrc: [
+              "'self'",
+              'https://stats.beta.gouv.fr',
+              `https://${config.s3.client.endpoint.split('//')[1]}`,
+              'data:'
+            ],
             fontSrc: ["'self'", 'data:'],
             objectSrc: ["'self'"],
             mediaSrc: ["'self'"],

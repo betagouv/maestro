@@ -1,5 +1,8 @@
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
-import { Document } from 'maestro-shared/schema/Document/Document';
+import {
+  Document,
+  DocumentUpdate
+} from 'maestro-shared/schema/Document/Document';
 import { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import { api } from 'src/services/api.service';
 
@@ -13,10 +16,10 @@ export const documentApi = api.injectEndpoints({
     }),
     createDocument: builder.mutation<
       Document,
-      { file: File; kind: DocumentKind }
+      { file: File; kind: DocumentKind; legend?: string }
     >({
       queryFn: async (
-        { file, kind },
+        { file, kind, legend },
         _queryApi,
         _extraOptions,
         fetchWithBQ
@@ -54,7 +57,8 @@ export const documentApi = api.injectEndpoints({
           body: {
             id: documentId,
             filename: file.name,
-            kind
+            kind,
+            legend
           }
         });
         return result.data
@@ -62,6 +66,20 @@ export const documentApi = api.injectEndpoints({
           : { error: result.error as FetchBaseQueryError };
       },
       invalidatesTags: () => [{ type: 'Document', id: 'LIST' }]
+    }),
+    updateDocument: builder.mutation<
+      Document,
+      DocumentUpdate & { documentId: string }
+    >({
+      query: ({ documentId, ...document }) => ({
+        url: `documents/${documentId}`,
+        method: 'PUT',
+        body: document
+      }),
+      transformResponse: (response: any) => Document.parse(response),
+      invalidatesTags: (_result, _error, { documentId }) => [
+        { type: 'Document', documentId }
+      ]
     }),
     findResources: builder.query<Document[], void>({
       query: () => 'documents/resources',
@@ -97,5 +115,7 @@ export const {
   useCreateDocumentMutation,
   useFindResourcesQuery,
   useDeleteDocumentMutation,
-  useLazyGetDocumentDownloadSignedUrlQuery
+  useGetDocumentDownloadSignedUrlQuery,
+  useLazyGetDocumentDownloadSignedUrlQuery,
+  useUpdateDocumentMutation
 } = documentApi;

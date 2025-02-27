@@ -9,11 +9,16 @@ import { Documents } from '../../repositories/documentRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
+import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
 import {
+  AdminFixture,
   NationalCoordinator,
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
+import { withISOStringDates } from 'maestro-shared/utils/utils';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+import { knexInstance as db } from '../../repositories/db';
+import { sampleDocumentsTable } from '../../repositories/sampleRepository';
 describe('Document router', () => {
   const { app } = createServer();
 
@@ -27,14 +32,31 @@ describe('Document router', () => {
     kind: 'Resource' as DocumentKind
   });
 
+  const sampleDocument = genDocument({
+    createdBy: Sampler1Fixture.id,
+    kind: 'SampleDocument' as DocumentKind
+  });
+
   beforeAll(async () => {
-    await Documents().insert([analysisDocument, resourceDocument]);
+    await Documents().insert([
+      analysisDocument,
+      resourceDocument,
+      sampleDocument
+    ]);
+    await db(sampleDocumentsTable).insert({
+      sampleId: Sample11Fixture.id,
+      documentId: sampleDocument.id
+    });
   });
 
   afterAll(async () => {
     await Documents()
       .delete()
-      .where('id', 'in', [analysisDocument.id, resourceDocument.id]);
+      .where('id', 'in', [
+        analysisDocument.id,
+        resourceDocument.id,
+        sampleDocument.id
+      ]);
   });
 
   describe('GET /documents/resources', () => {
@@ -78,6 +100,15 @@ describe('Document router', () => {
     test('should fail if the user has not the right permissions', async () => {
       await request(app)
         .post(testRoute)
+        .send({
+          ...validResourceBody,
+          kind: 'SupportDocument'
+        })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+
+      await request(app)
+        .post(testRoute)
         .send(validResourceBody)
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
@@ -87,6 +118,15 @@ describe('Document router', () => {
         .send({
           ...validResourceBody,
           kind: 'AnalysisReportDocument'
+        })
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+
+      await request(app)
+        .post(testRoute)
+        .send({
+          ...validResourceBody,
+          kind: 'SampleDocument'
         })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
@@ -125,7 +165,8 @@ describe('Document router', () => {
         ...validResourceBody,
         createdAt: expect.any(Date),
         createdBy: NationalCoordinator.id,
-        kind: 'Resource'
+        kind: 'Resource',
+        legend: null
       });
     });
 
@@ -154,7 +195,92 @@ describe('Document router', () => {
         ...validAnalysisBody,
         createdAt: expect.any(Date),
         createdBy: Sampler1Fixture.id,
-        kind: 'AnalysisReportDocument'
+        kind: 'AnalysisReportDocument',
+        legend: null
+      });
+    });
+
+    test('should create a sample document', async () => {
+      const validSampleBody = {
+        ...genDocumentToCreate(),
+        kind: 'SampleDocument'
+      };
+
+      const res = await request(app)
+        .post(testRoute)
+        .send(validSampleBody)
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_CREATED);
+
+      expect(res.body).toEqual({
+        ...validSampleBody,
+        createdAt: expect.any(String),
+        createdBy: Sampler1Fixture.id,
+        kind: 'SampleDocument'
+      });
+
+      await expect(
+        Documents().where({ id: validSampleBody.id }).first()
+      ).resolves.toEqual({
+        ...validSampleBody,
+        createdAt: expect.any(Date),
+        createdBy: Sampler1Fixture.id,
+        kind: 'SampleDocument',
+        legend: null
+      });
+    });
+  });
+
+  describe('PUT /documents/:documentId', () => {
+    const testRoute = (id: string) => `/api/documents/${id}`;
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .put(testRoute(analysisDocument.id))
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should fail if the user has not the right permissions', async () => {
+      await request(app)
+        .put(testRoute(analysisDocument.id))
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should get a valid document id', async () => {
+      await request(app)
+        .put(testRoute('invalid-id'))
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    test('should fail if the document is not a sample document', async () => {
+      await request(app)
+        .put(testRoute(resourceDocument.id))
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should update the document', async () => {
+      const updatedLegend = 'test';
+      const res = await request(app)
+        .put(testRoute(sampleDocument.id))
+        .send({ legend: updatedLegend })
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toEqual(
+        withISOStringDates({
+          ...sampleDocument,
+          legend: updatedLegend
+        })
+      );
+
+      await expect(
+        Documents().where({ id: sampleDocument.id }).first()
+      ).resolves.toEqual({
+        ...sampleDocument,
+        legend: updatedLegend
       });
     });
   });
