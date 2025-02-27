@@ -7,7 +7,8 @@ import { Prescription } from '../schema/Prescription/Prescription';
 import { PrescriptionSubstance } from '../schema/Prescription/PrescriptionSubstance';
 import { ContextList } from '../schema/ProgrammingPlan/Context';
 import { RegionalPrescription } from '../schema/RegionalPrescription/RegionalPrescription';
-import { genNumber, genSubstance, oneOf } from './testFixtures';
+import { genSubstance } from './substanceFixtures';
+import { genNumber, oneOf } from './testFixtures';
 
 export const genPrescription = (
   data?: Partial<Prescription>
