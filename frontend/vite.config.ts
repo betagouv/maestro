@@ -36,7 +36,6 @@ export default defineConfig(({ mode }) => {
       envPlugin(),
       devServerPlugin(),
       sourcemapPlugin(),
-      buildPathPlugin(),
       importPrefixPlugin(),
       htmlPlugin(mode),
       svgrPlugin(),
@@ -138,22 +137,6 @@ function sourcemapPlugin(): Plugin {
       return {
         build: {
           sourcemap: GENERATE_SOURCEMAP === 'true'
-        }
-      };
-    }
-  };
-}
-
-// Migration guide: Follow the guide below
-// https://vitejs.dev/config/build-options.html#build-outdir
-function buildPathPlugin(): Plugin {
-  return {
-    name: 'build-path-plugin',
-    config(_, { mode }) {
-      const { BUILD_PATH } = loadEnv(mode, '.', ['BUILD_PATH']);
-      return {
-        build: {
-          outDir: BUILD_PATH || 'build'
         }
       };
     }

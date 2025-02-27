@@ -1,2 +1,6 @@
 
 /public/dsfr/
+/dist/
+
+*storybook.log
+/storybook-static/
