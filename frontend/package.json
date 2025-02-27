@@ -85,6 +85,7 @@
     "react-scroll": "^1.8.9",
     "sass": "^1.51.0",
     "storybook": "^8.6.0",
+    "storybook-addon-remix-react-router": "^4.0.1",
     "vite": "^6.2.0",
     "vite-plugin-pwa": "^0.21.1",
     "vite-tsconfig-paths": "^5.1.4",

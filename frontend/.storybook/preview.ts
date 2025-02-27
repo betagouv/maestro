@@ -1,6 +1,7 @@
 import type { Preview } from '@storybook/react'
 import "@codegouvfr/react-dsfr/main.css";
 import { startReactDsfr } from '@codegouvfr/react-dsfr/spa';
+import { withRouter } from 'storybook-addon-remix-react-router';
 
 startReactDsfr({
   "defaultColorScheme": "system",
@@ -16,6 +17,7 @@ const preview: Preview = {
     },
     layout: 'centered'
   },
+  decorators: [withRouter]
 };
 
 export default preview;
