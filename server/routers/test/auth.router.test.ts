@@ -4,6 +4,7 @@ import request from 'supertest';
 import { Users } from '../../repositories/userRepository';
 import { createServer } from '../../server';
 
+import jwt from 'jsonwebtoken';
 import { genAuthRedirectUrl } from 'maestro-shared/test/authFixtures';
 import randomstring from 'randomstring';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
@@ -14,6 +15,8 @@ import {
   mockGetLogoutUrl
 } from '../../test/setupTests';
 import { tokenProvider } from '../../test/testUtils';
+import config from '../../utils/config';
+import { COOKIE_MAESTRO_ACCESS_TOKEN } from '../../utils/constants';
 
 describe('Auth routes', () => {
   const { app } = createServer();
@@ -36,6 +39,28 @@ describe('Auth routes', () => {
       mockGetAuthorizationUrl.mockReturnValueOnce(mockedAuthRedirectUrl);
       const res = await request(app)
         .get(testRoute)
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toEqual(mockedAuthRedirectUrl);
+    });
+    test('should return a redirect url when the accessToken is expired', async () => {
+      const mockedAuthRedirectUrl = genAuthRedirectUrl();
+      mockGetAuthorizationUrl.mockReturnValueOnce(mockedAuthRedirectUrl);
+      const res = await request(app)
+        .get(testRoute)
+        .use((request) => {
+          request.set(
+            'Cookie',
+            `${COOKIE_MAESTRO_ACCESS_TOKEN}=${jwt.sign(
+              {
+                userId: user.id,
+                idToken: 'idToken'
+              },
+              config.auth.secret,
+              { expiresIn: -10 }
+            )}`
+          );
+        })
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toEqual(mockedAuthRedirectUrl);
@@ -98,7 +123,7 @@ describe('Auth routes', () => {
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject({
-        user: Sampler1Fixture,
+        user: Sampler1Fixture
       });
 
       const userInDb = await kysely
