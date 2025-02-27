@@ -14,7 +14,7 @@ export function pluralize(
 export const quote = (str: string): string => `“ ${str} “`;
 
 export const cropFileName = (fileName: string, maxLength: number): string => {
-  const lastDotIndex = fileName.lastIndexOf('.');
+  const lastDotIndex = fileName.lastIndexOf('.') - 1;
 
   if (lastDotIndex === -1) {
     return fileName.length > maxLength
