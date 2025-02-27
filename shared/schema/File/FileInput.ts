@@ -24,7 +24,27 @@ export const FileInput = (
   if (multiple) {
     return z
       .array(fileSchema)
-      .nonempty('Veuillez sélectionner au moins un fichier.');
+      .nonempty('Veuillez sélectionner au moins un fichier.')
+      .superRefine((files, ctx) => {
+        files.forEach((file) => {
+          const { success: typeSuccess, data: fileType } = FileType.safeParse(
+            file.type
+          );
+          if (!typeSuccess || !acceptFileTypes.includes(fileType)) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: 'Un ou plusieurs fichiers ne sont pas acceptés.'
+            });
+          }
+
+          if (file.size > MaxFileSize) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: 'Un ou plusieurs fichiers sont trop volumineux.'
+            });
+          }
+        });
+      });
   }
 
   return fileSchema;

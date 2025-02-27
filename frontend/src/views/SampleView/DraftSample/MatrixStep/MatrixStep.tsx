@@ -2,7 +2,6 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
-import { Upload } from '@codegouvfr/react-dsfr/Upload';
 import clsx from 'clsx';
 import {
   CultureKind,
@@ -27,6 +26,8 @@ import {
   StageLabels,
   StageList
 } from 'maestro-shared/referential/Stage';
+import { FileInput } from 'maestro-shared/schema/File/FileInput';
+import { SampleDocumentTypeList } from 'maestro-shared/schema/File/FileType';
 import {
   isCreatedPartialSample,
   PartialSample,
@@ -48,7 +49,9 @@ import { useCreateOrUpdateSampleMutation } from 'src/services/sample.service';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SupportDocumentDownload from 'src/views/SampleView/DraftSample/SupportDocumentDownload';
 import SavedAlert from 'src/views/SampleView/SavedAlert';
+import { z } from 'zod';
 import AppSearchInput from '../../../../components/_app/AppSearchInput/AppSearchInput';
+import AppUpload from '../../../../components/_app/AppUpload/AppUpload';
 import {
   useCreateDocumentMutation,
   useDeleteDocumentMutation
@@ -73,7 +76,7 @@ const MatrixStep = ({ partialSample }: Props) => {
   const [releaseControl, setReleaseControl] = useState(
     partialSample.releaseControl
   );
-
+  const [files, setFiles] = useState<File[]>([]);
   const [documentIds, setDocumentIds] = useState(partialSample.documentIds);
   const [notesOnMatrix, setNotesOnMatrix] = useState(
     partialSample.notesOnMatrix
@@ -114,8 +117,12 @@ const MatrixStep = ({ partialSample }: Props) => {
   }, [prescriptionsData, regionalPrescriptions]);
 
   const Form = SampleMatrixData;
+  const FilesForm = z.object({
+    files: FileInput(SampleDocumentTypeList, true)
+  });
 
   type FormShape = typeof Form.shape;
+  type FilesFormShape = typeof FilesForm.shape;
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
@@ -172,23 +179,31 @@ const MatrixStep = ({ partialSample }: Props) => {
     },
     save
   );
+  const selectFiles = async () => {
+    await filesForm.validate(async () => {
+      const newDocumentIds = await Promise.all(
+        files.map(async (file) => {
+          const document = await createDocument({
+            file,
+            kind: 'SampleDocument'
+          }).unwrap();
 
-  const selectFiles = async (event?: any) => {
-    const selectedFiles = Array.from(event?.target?.files) as File[];
+          return document.id;
+        })
+      );
 
-    const newDocumentIds = await Promise.all(
-      selectedFiles.map(async (file) => {
-        const document = await createDocument({
-          file,
-          kind: 'SampleDocument'
-        }).unwrap();
-
-        return document.id;
-      })
-    );
-
-    setDocumentIds([...(documentIds ?? []), ...newDocumentIds]);
+      setDocumentIds([...(documentIds ?? []), ...newDocumentIds]);
+      filesForm.reset();
+    });
   };
+
+  const filesForm = useForm(
+    FilesForm,
+    {
+      files
+    },
+    selectFiles
+  );
 
   const removeDocument = async (documentId: string) => {
     await deleteDocument(documentId);
@@ -343,13 +358,17 @@ const MatrixStep = ({ partialSample }: Props) => {
           <span className={cx('fr-text--md', 'fr-text--bold')}>
             Compléments
           </span>
-          <Upload
+          <AppUpload<FilesFormShape>
             label="Pièces jointes"
             hint="Ajoutez si besoin un document ou une photo pour accompagner votre prélèvement JPG, PNG, PDF (10Mo maximum)"
             nativeInputProps={{
-              onChange: (event: any) => selectFiles(event)
+              onChange: (event: any) => setFiles(Array.from(event.target.files))
             }}
             className={cx('fr-mb-2w')}
+            inputForm={filesForm}
+            inputKey="files"
+            acceptFileTypes={[...SampleDocumentTypeList]}
+            whenValid="fichiers valides"
             multiple
           />
         </div>
