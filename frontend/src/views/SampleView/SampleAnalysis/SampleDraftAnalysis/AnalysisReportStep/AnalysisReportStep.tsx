@@ -19,6 +19,7 @@ import {
   useDeleteDocumentMutation
 } from 'src/services/document.service';
 import { z } from 'zod';
+import { apiClient } from '../../../../../services/apiClient';
 
 interface Props {
   sampleId: string;
@@ -107,7 +108,7 @@ const AnalysisReportStep = ({ sampleId, partialAnalysis }: Props) => {
         <>
           <div className={cx('fr-label')}>Ajouter le rapport d'analyse</div>
           <div>
-            <DocumentLink documentId={partialAnalysis?.reportDocumentId} />
+            <DocumentLink documentId={partialAnalysis?.reportDocumentId} apiClient={apiClient} />
             <Button
               title="Supprimer"
               iconId="fr-icon-delete-line"

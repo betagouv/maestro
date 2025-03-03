@@ -18,7 +18,6 @@ import { ResidueKindLabels } from 'maestro-shared/schema/Analysis/Residue/Residu
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { useMemo, useState } from 'react';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
-import DocumentLink from 'src/components/DocumentLink/DocumentLink';
 import ResidueResultAlert from 'src/components/ResidueResultAlert/ResidueResultAlert';
 import {
   useGetSampleAnalysisQuery,
@@ -27,6 +26,8 @@ import {
 import { useUpdateSampleMutation } from 'src/services/sample.service';
 import { pluralize, quote } from 'src/utils/stringUtils';
 import './SampleAnalysisOverview.scss';
+import { apiClient } from '../../../../services/apiClient';
+import { AnalysisDocumentPreview } from '../../components/AnalysisDocumentPreview';
 interface Props {
   sample: Sample;
 }
@@ -68,31 +69,19 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
 
   return (
     <>
-      <div>
-        <h6 className="d-flex-align-center">
-          <span
-            className={clsx(
-              cx('fr-icon-newspaper-line', 'fr-mr-1w'),
-              'icon-grey'
-            )}
-          ></span>
-          <div className="flex-grow-1">Document du rapport d’analyse</div>
-          <Button
-            priority="secondary"
-            iconId="fr-icon-edit-line"
-            className={cx('fr-mt-0')}
-            onClick={() => {
-              setEditingStatus('Report');
-              editingConfirmationModal.open();
-            }}
-          >
-            Éditer
-          </Button>
-        </h6>
-        <div className={cx('fr-pl-4w')}>
-          <DocumentLink documentId={analysis.reportDocumentId} />
-        </div>
-      </div>
+      <AnalysisDocumentPreview reportDocumentId={analysis.reportDocumentId} apiClient={apiClient}>
+        <Button
+          priority="secondary"
+          iconId="fr-icon-edit-line"
+          className={cx('fr-mt-0')}
+          onClick={() => {
+            setEditingStatus('Report');
+            editingConfirmationModal.open();
+          }}
+        >
+          Éditer
+        </Button>
+      </AnalysisDocumentPreview>
       <hr />
       <div>
         <h5 className="d-flex-align-center">

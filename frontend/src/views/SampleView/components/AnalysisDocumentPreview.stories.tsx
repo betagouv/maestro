@@ -1,34 +1,38 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
-import { Document } from 'maestro-shared/schema/Document/Document';
-import { AnalysisDocumentPreview } from './AnalysisDocumentPreview';
+import { AnalysisDocumentPreview  } from './AnalysisDocumentPreview';
+import Button from '@codegouvfr/react-dsfr/Button';
+import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import { mockApiClient } from '../../../services/mockApiClient';
 
-const meta: Meta<typeof AnalysisDocumentPreview> = {
+const meta = {
   title: 'Views/AnalysisDocumentPreview',
   component: AnalysisDocumentPreview
-};
+} satisfies  Meta<typeof AnalysisDocumentPreview>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const document: Document = {
-  createdAt: new Date(12345),
-  createdBy: 'Storybook',
-  id: '',
-  kind: 'AnalysisRequestDocument',
-  filename: 'analyses.pdf'
-};
-
 export const Default: Story = {
   args: {
     reportDocumentId: 'fakeDocumentId',
-    apiClient: {
-      useGetDocumentQuery: (_documentId) => {
-        return {
-          data: document
-        };
-      },
-      useLazyGetDocumentDownloadSignedUrlQuery: () => [() => ({ unwrap: async () => 'https://maestro.beta.gouv.fr'})]
-    }
+    apiClient: mockApiClient
+  }
+};
+
+export const DefaultWithChildren: Story = {
+  args: {
+    reportDocumentId: 'fakeDocumentId',
+    apiClient: mockApiClient,
+    children: (
+      <Button
+        priority="secondary"
+        iconId="fr-icon-edit-line"
+        className={cx('fr-mt-0')}
+        onClick={() => {}}
+      >
+        Éditer
+      </Button>
+    )
   }
 };

@@ -2,6 +2,7 @@ import type { Preview } from '@storybook/react'
 import "@codegouvfr/react-dsfr/main.css";
 import { startReactDsfr } from '@codegouvfr/react-dsfr/spa';
 import { withRouter } from 'storybook-addon-remix-react-router';
+import '../src/App.scss'
 
 startReactDsfr({
   "defaultColorScheme": "system",

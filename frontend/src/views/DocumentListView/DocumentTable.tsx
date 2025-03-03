@@ -7,6 +7,7 @@ import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocument } from 'src/hooks/useDocument';
 import { useDeleteDocumentMutation } from 'src/services/document.service';
 import RemoveDocument from 'src/views/DocumentListView/RemoveDocument';
+import { apiClient } from '../../services/apiClient';
 
 interface Props {
   documents: Document[];
@@ -18,7 +19,7 @@ const DocumentTable = ({ documents }: Props) => {
   const [deleteDocument, { isSuccess: isDeleteSuccess }] =
     useDeleteDocumentMutation();
 
-  const { openDocument } = useDocument();
+  const { openDocument } = useDocument(apiClient);
 
   return (
     <div data-testid="document-table">

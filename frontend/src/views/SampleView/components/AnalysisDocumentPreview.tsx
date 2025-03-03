@@ -5,12 +5,13 @@ import DocumentLink from '../../../components/DocumentLink/DocumentLink';
 import { ApiClient } from '../../../services/apiClient';
 import { assert, Equals } from 'tsafe';
 
-type Props = {
+export type Props = {
   reportDocumentId: string,
   apiClient: Pick<ApiClient, 'useGetDocumentQuery' | 'useLazyGetDocumentDownloadSignedUrlQuery'>
+  children?: JSX.Element
 }
 
-export const AnalysisDocumentPreview: FunctionComponent<Props> = ({reportDocumentId, apiClient,  ...rest}) => {
+export const AnalysisDocumentPreview: FunctionComponent<Props> = ({reportDocumentId, apiClient, children, ...rest}) => {
 
   assert<Equals<keyof typeof rest, never>>()
   return (
@@ -23,6 +24,7 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({reportDocumen
           )}
         ></span>
         <div className="flex-grow-1">Document du rapport d’analyse</div>
+        { children }
       </h6>
       <div className={cx('fr-pl-4w')}>
         <DocumentLink documentId={reportDocumentId} apiClient={apiClient} />
