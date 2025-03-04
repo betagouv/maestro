@@ -69,19 +69,23 @@ const SampleAdmissibility = ({ sample, apiClient }: Props) => {
     })
   );
 
-  const FormRefinement = Form.refine(
-    ({ isReceived, receivedAt }) => !isReceived || receivedAt,
-    {
-      path: ['receivedAt'],
-      message: 'Veuillez renseigner la date de réception.'
+  const FormRefinement = Form.superRefine((val, ctx) => {
+    if(val.isReceived && !val.receivedAt){
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Veuillez renseigner la date de réception.',
+        path: ['receivedAt'],
+      })
     }
-  ).refine(
-    ({ isReceived, isAdmissible }) => !isReceived || isAdmissible !== undefined,
-    {
-      path: ['isAdmissible'],
-      message: 'Veuillez renseigner la recevabilité du prélèvement.'
+    if( val.isReceived && val.isAdmissible === undefined){
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['isAdmissible'],
+        message: 'Veuillez renseigner la recevabilité du prélèvement.'
+      })
     }
-  );
+  }
+  )
 
   const form = useForm(FormRefinement, {
     isReceived,
