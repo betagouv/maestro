@@ -29,6 +29,7 @@ import SavedAlert from 'src/views/SampleView/SavedAlert';
 import ContextStepSummary from 'src/views/SampleView/StepSummary/ContextStepSummary';
 import ItemsStepSummary from 'src/views/SampleView/StepSummary/ItemsStepSummary';
 import MatrixStepSummary from 'src/views/SampleView/StepSummary/MatrixStepSummary';
+import { apiClient } from '../../../../services/apiClient';
 
 interface Props {
   sample: (Sample | SampleToCreate) & Partial<SampleOwnerData>;
@@ -38,7 +39,7 @@ const SendingStep = ({ sample }: Props) => {
   const { navigateToSample } = useSamplesLink();
   const { hasUserPermission } = useAuthentication();
   const { isOnline } = useOnLine();
-  const { laboratory } = usePartialSample(sample);
+  const { laboratory } = usePartialSample(sample, apiClient);
 
   const [resytalId, setResytalId] = useState(sample.resytalId);
   const [ownerFirstName, setOwnerFirstName] = useState(sample.ownerFirstName);

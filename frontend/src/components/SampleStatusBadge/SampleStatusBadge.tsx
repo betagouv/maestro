@@ -13,9 +13,10 @@ type Props = Omit<BadgeProps, 'children'> & {
 const SampleStatusBadge = ({ status, ...props }: Props) => {
   const label = SampleStatusLabels[status];
 
-  const Severity: Partial<Record<SampleStatus, string>> = {
+  const Severity: Partial<Record<SampleStatus, AlertProps.Severity>> = {
     NotAdmissible: 'error',
     Analysis: 'info',
+    ToValidate: 'warning',
     Completed: 'success',
     CompletedNotConform: 'error'
   };

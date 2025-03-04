@@ -10,6 +10,7 @@ import { usePartialSample } from 'src/hooks/usePartialSample';
 import { pluralize, quote } from 'src/utils/stringUtils';
 import SampleItemDetails from 'src/views/SampleView/SampleItemDetails/SampleItemDetails';
 import StepSummary from 'src/views/SampleView/StepSummary/StepSummary';
+import { apiClient } from '../../../services/apiClient';
 
 interface Props {
   sample: (Sample | SampleToCreate) & Partial<SampleOwnerData>;
@@ -17,7 +18,7 @@ interface Props {
 }
 
 const ItemsStepSummary = ({ sample, showLabel }: Props) => {
-  const { laboratory } = usePartialSample(sample);
+  const { laboratory } = usePartialSample(sample, apiClient);
 
   return (
     <StepSummary

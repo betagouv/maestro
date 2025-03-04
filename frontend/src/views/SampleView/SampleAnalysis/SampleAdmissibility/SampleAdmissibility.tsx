@@ -14,15 +14,16 @@ import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaIn
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 import { useForm } from 'src/hooks/useForm';
-import { useUpdateSampleMutation } from 'src/services/sample.service';
 import z from 'zod';
 import './SampleAdmissibility.scss';
+import { ApiClient } from '../../../../services/apiClient';
 
 interface Props {
   sample: Sample;
+  apiClient: Pick<ApiClient, 'useUpdateSampleMutation'>
 }
-const SampleAdmissibility = ({ sample }: Props) => {
-  const [updateSample] = useUpdateSampleMutation();
+const SampleAdmissibility = ({ sample, apiClient }: Props) => {
+  const [updateSample] = apiClient.useUpdateSampleMutation();
 
   const [isReceived, setIsReceived] = useState(
     ['Analysis', 'NotAdmissible', ...CompletedStatusList].includes(

@@ -17,6 +17,7 @@ import { SampleStepTitles } from 'src/views/SampleView/SampleView';
 import ItemsStepSummary from 'src/views/SampleView/StepSummary/ItemsStepSummary';
 import MatrixStepSummary from 'src/views/SampleView/StepSummary/MatrixStepSummary';
 import './SampleOverview.scss';
+import { apiClient } from '../../../services/apiClient';
 interface Props {
   sample: Sample;
 }
@@ -61,7 +62,7 @@ const SampleOverview = ({ sample }: Props) => {
         tabs={[
           {
             label: 'Suivi du prélèvement',
-            content: <SampleAnalysis sample={sample} />
+            content: <SampleAnalysis sample={sample} apiClient={apiClient} />
           },
           {
             label: SampleStepTitles(sample)[0],

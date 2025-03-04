@@ -76,18 +76,18 @@ export const analysisHandler = async (
         {
           sampleId,
           reportDocumentId: documentId,
-          //TODO AUTO_LABO Peut-être un nouveau statut « À vérifier » si on a un doute
+          //TODO AUTO_LABO pas certain, car il y a 2 statuts, 1 dans analysis et 1 dans sample
           status: 'Completed',
           createdBy: null,
           createdAt: new Date(),
-          //TODO AUTO_LABO  conforme / non conforme
-          compliance: true,
+          // Pour le moment on passe par une validation manuelle pour déterminer la conformité
+          // compliance: true,
           notesOnCompliance: analyse.notes
         },
         trx
       );
 
-      await sampleRepository.updateStatus(sampleId, 'Analysis', trx);
+      await sampleRepository.updateStatus(sampleId, 'ToValidate', trx);
 
       for (let i = 0; i < residues.length; i++){
         const residue = residues[i];
