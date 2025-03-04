@@ -12,10 +12,11 @@ import '../../SampleView.scss';
 import '../SampleDraftAnalysis/SampleDraftAnalysis.scss';
 import { ReviewWithoutResidu } from './ReviewWithoutResidu';
 import { AnalysisComplianceForm } from '../SampleDraftAnalysis/AnalysisComplianceStep/AnalysisComplianceForm';
+import { AnalysisResiduesForm } from '../SampleDraftAnalysis/AnalysisResiduesStep/AnalysisResiduesForm';
 
 export interface Props {
   sample: Sample;
-  partialAnalysis: Pick<PartialAnalysis, 'residues' | 'reportDocumentId'>;
+  partialAnalysis: Pick<PartialAnalysis, 'id' | 'residues' | 'reportDocumentId'>;
   apiClient: Pick<
     ApiClient,
     'useGetDocumentQuery' | 'useLazyGetDocumentDownloadSignedUrlQuery'
@@ -38,13 +39,16 @@ export const SampleAnalysisReview: FunctionComponent<Props> = ({
 }) => {
   assert<Equals<keyof typeof rest, never>>();
 
-  const analysis = Analysis.pick({
+
+
+  const [analysis, setAnalysis] = useState(Analysis.pick({
+    id:true,
     residues: true,
     reportDocumentId: true
   }).parse({
     ...partialAnalysis,
     residues: partialAnalysis.residues ?? []
-  });
+  }))
 
   const getInitialState = (residues: unknown[]) =>
     residues.length > 0 ? 'ReviewWithResidu' : 'ReviewWithoutResidu';
@@ -54,11 +58,18 @@ export const SampleAnalysisReview: FunctionComponent<Props> = ({
   );
 
   const onCorrectAnalysis = () => setReviewState('Correction');
-  const onCorrectAnalysisDone = async () =>
+  const onBackToFirstStep = async () =>
     setReviewState(getInitialState(analysis.residues));
-  const onValidateAnalysis = () => setReviewState('Interpretation');
+  const onValidateCorrection = async (newResidues: Analysis['residues']) => {
+    //FIXME on appel la bdd, on met tout dans un state ?!
+    setAnalysis({...analysis, residues: newResidues})
+    await onBackToFirstStep()
+  }
+  const onValidateAnalysis = () => {
+    //FIXME tout est ok, faut mettre à jour le statut de l'analyse et la compliance à true
+  }
   const onValidateInterpretation = async () => {
-    //TODO
+    //FIXME
   }
 
   return (
@@ -74,8 +85,9 @@ export const SampleAnalysisReview: FunctionComponent<Props> = ({
           onCorrectAnalysis={onCorrectAnalysis}
         />
       ) : null}
-      {reviewState === 'Interpretation' ? ( <AnalysisComplianceForm onBack={onCorrectAnalysisDone} onSave={onValidateInterpretation} partialAnalysis={{compliance: undefined, notesOnCompliance:undefined }}/>
+      {reviewState === 'Interpretation' ? ( <AnalysisComplianceForm onBack={onBackToFirstStep} onSave={onValidateInterpretation} partialAnalysis={{compliance: undefined, notesOnCompliance:undefined }}/>
     ) : null}
+      {reviewState === 'Correction' ? <AnalysisResiduesForm onBack={onBackToFirstStep} onValidate={onValidateCorrection} partialAnalysis={analysis} /> : null}
     </div>
   );
 };

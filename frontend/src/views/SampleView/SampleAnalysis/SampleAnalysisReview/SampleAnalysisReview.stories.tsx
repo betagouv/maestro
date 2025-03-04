@@ -24,7 +24,7 @@ const meta = {
           ),
           'sample-callout',
           'analysis-container',
-          'fr-mt-5w'
+          'fr-mt-5w',
         )}
       >
         <Story />
@@ -36,9 +36,10 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
+export const ReviewWithoutResidu: Story = {
   args: {
     partialAnalysis: {
+      id: uuidv4(),
       reportDocumentId: uuidv4(),
       residues: []
     },
@@ -48,7 +49,14 @@ export const Default: Story = {
 
 export const Interpretation: Story = {
   args: {
-    ...Default.args,
+    ...ReviewWithoutResidu.args,
     initialReviewState: 'Interpretation'
+  }
+};
+
+export const CorrectionWithoutResidu: Story = {
+  args: {
+    ...ReviewWithoutResidu.args,
+    initialReviewState: 'Correction'
   }
 };

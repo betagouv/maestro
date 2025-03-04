@@ -1,4 +1,3 @@
-import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import {
   Analysis,
   PartialAnalysis
