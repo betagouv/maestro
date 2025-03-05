@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { expect, fireEvent, userEvent, within } from '@storybook/test';
+import { fireEvent, userEvent, within } from '@storybook/test';
 import clsx from 'clsx';
 import { ResultKindList } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
@@ -9,9 +9,6 @@ import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
 import { v4 as uuidv4 } from 'uuid';
 import { mockApiClient } from '../../../../services/mockApiClient';
 import { SampleAnalysisReview } from './SampleAnalysisReview';
-import { genNumber, oneOf } from 'maestro-shared/test/testFixtures';
-import { AnalysisMethodList } from 'maestro-shared/schema/Analysis/AnalysisMethod';
-import { ResidueKindList } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
 
 const meta = {
   title: 'Views/SampleAnalysisReview',
@@ -55,16 +52,18 @@ export const ReviewWithResidues: Story = {
     partialAnalysis: {
       id: uuidv4(),
       reportDocumentId: uuidv4(),
-      residues: [{
-        analysisId: uuidv4(),
-        residueNumber: 1,
-        analysisMethod: 'Mono',
-        kind: 'Simple',
-        result: 2,
-        resultKind: 'Q',
-        lmr: 3
-      }]
-    },
+      residues: [
+        {
+          analysisId: uuidv4(),
+          residueNumber: 1,
+          analysisMethod: 'Mono',
+          kind: 'Simple',
+          result: 2,
+          resultKind: 'Q',
+          lmr: 3
+        }
+      ]
+    }
   }
 };
 
@@ -102,9 +101,11 @@ export const CorrectionWithoutResidu: Story = {
     const kindSelect = within(kindFieldset).getByRole('combobox');
     await userEvent.selectOptions(kindSelect, ResultKindList[0]);
 
-
-    await userEvent.type(canvas.getByLabelText(/Valeur numérique du résultat/), '2')
-    await userEvent.type(canvas.getByLabelText(/Valeur de la LMR/), '3')
+    await userEvent.type(
+      canvas.getByLabelText(/Valeur numérique du résultat/),
+      '2'
+    );
+    await userEvent.type(canvas.getByLabelText(/Valeur de la LMR/), '3');
 
     await userEvent.click(canvas.getByLabelText('Conforme'));
 
