@@ -32,9 +32,9 @@ export const AnalysisComplianceForm: FunctionComponent<Props> = ({
   partialAnalysis,
   onSave,
   onBack,
-  ...rest
+  ..._rest
 }) => {
-  assert<Equals<keyof typeof rest, never>>();
+  assert<Equals<keyof typeof _rest, never>>();
 
   const [compliance, setCompliance] = useState(partialAnalysis.compliance);
   const [notesOnCompliance, setNotesOnCompliance] = useState(
@@ -53,7 +53,7 @@ export const AnalysisComplianceForm: FunctionComponent<Props> = ({
     });
   };
   return (
-    <div {...rest} className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+    <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
       <div className={cx('fr-col-12')}>
         <AppRadioButtons<FormShape>
           legend="Conformité globale de l'échantillon"

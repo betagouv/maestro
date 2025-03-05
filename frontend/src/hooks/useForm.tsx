@@ -112,6 +112,7 @@ export function useForm<
     messageType,
     reset,
     validate,
+    schema,
     input
   };
 }

@@ -11,11 +11,11 @@ export type Props = {
   children?: JSX.Element
 }
 
-export const AnalysisDocumentPreview: FunctionComponent<Props> = ({reportDocumentId, apiClient, children, ...rest}) => {
+export const AnalysisDocumentPreview: FunctionComponent<Props> = ({reportDocumentId, apiClient, children, ..._rest}) => {
 
-  assert<Equals<keyof typeof rest, never>>()
+  assert<Equals<keyof typeof _rest, never>>()
   return (
-    <div {...rest}>
+    <div>
       <h6 className="d-flex-align-center">
         <span
           className={clsx(
