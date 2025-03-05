@@ -34,6 +34,7 @@ export const ReviewWithoutResidu: FunctionComponent<Props> = ({onValidateAnalysi
     <hr />
     <ButtonsGroup
       inlineLayoutWhen="always"
+      alignment="between"
       buttons={[
         {
           children: 'Corriger',

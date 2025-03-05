@@ -88,7 +88,7 @@ export const AnalysisResiduesForm: FunctionComponent<Props> = ({
   };
 
   return (
-    <div>
+    <>
       <ToggleSwitch
         label="Des résidus sont-ils identifiés dans ce prélèvement ?"
         checked={residues.length > 0}
@@ -118,7 +118,7 @@ export const AnalysisResiduesForm: FunctionComponent<Props> = ({
                 )}
               ></div>
               <div
-                className={clsx(cx('fr-container', 'fr-px-0'), 'residue-form')}
+                className={clsx(cx('fr-px-0'), 'residue-form')}
               >
                 <h5>
                   <div>Résidu n°{residueIndex + 1}</div>
@@ -308,6 +308,6 @@ export const AnalysisResiduesForm: FunctionComponent<Props> = ({
           </ul>
         </div>
       </div>
-    </div>
+    </>
   );
 };
