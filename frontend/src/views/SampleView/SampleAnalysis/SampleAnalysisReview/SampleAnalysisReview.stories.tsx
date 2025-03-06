@@ -115,7 +115,7 @@ export const CorrectionWithoutResidu: Story = {
     //FIXME Jerôme il n'y a pas de <form/> ?
     // await expect(
     //   canvas.getByText("Valider les données et l'interprétation")
-    // ).not.toBeInTheDocument();
+    // ).toBeInTheDocument();
   }
 };
 

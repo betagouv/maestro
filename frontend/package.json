@@ -17,6 +17,7 @@
     "prebuild": "react-dsfr update-icons",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
+    "test-storybook": "test-storybook",
     "prestorybook": "react-dsfr update-icons",
     "prebuild-storybook": "react-dsfr update-icons"
   },
@@ -50,6 +51,7 @@
     "@storybook/react": "^8.6.0",
     "@storybook/react-vite": "^8.6.0",
     "@storybook/test": "^8.6.0",
+    "@storybook/test-runner": "^0.22.0",
     "@svgr/core": "^8.1.0",
     "@svgr/plugin-jsx": "^8.1.0",
     "@testing-library/jest-dom": "^6.6.3",
