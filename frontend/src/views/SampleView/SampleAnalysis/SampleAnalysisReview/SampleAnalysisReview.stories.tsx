@@ -56,6 +56,7 @@ export const ReviewWithResidues: Story = {
         {
           analysisId: uuidv4(),
           residueNumber: 1,
+          reference: 'RF-0001-001-PPP',
           analysisMethod: 'Mono',
           kind: 'Simple',
           result: 2,

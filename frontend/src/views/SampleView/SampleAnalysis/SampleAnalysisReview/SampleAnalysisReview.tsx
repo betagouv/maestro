@@ -66,7 +66,6 @@ export const SampleAnalysisReview: FunctionComponent<Props> = ({
 
   const onValidateCorrection = async (newResidues: Analysis['residues']) => {
     //FIXME on appel la bdd, on met tout dans un state ?!
-    console.log('newResidues', newResidues);
     setAnalysis({ ...analysis, residues: newResidues });
     hasResidues.current = newResidues.length > 0;
     if (reviewState === 'Correction') {
