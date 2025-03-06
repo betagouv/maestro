@@ -1,9 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { fireEvent, userEvent, within } from '@storybook/test';
+import { userEvent, within, expect } from '@storybook/test';
 import clsx from 'clsx';
-import { ResultKindList } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
 import { v4 as uuidv4 } from 'uuid';
@@ -14,7 +13,8 @@ const meta = {
   title: 'Views/SampleAnalysisReview',
   component: SampleAnalysisReview,
   args: {
-    sample: Sample11Fixture as Sample
+    sample: Sample11Fixture as Sample,
+    apiClient: mockApiClient
   },
   decorators: [
     (Story) => (
@@ -41,14 +41,12 @@ export const ReviewWithoutResidue: Story = {
       id: uuidv4(),
       reportDocumentId: uuidv4(),
       residues: []
-    },
-    apiClient: mockApiClient
+    }
   }
 };
 
 export const ReviewWithResidues: Story = {
   args: {
-    ...ReviewWithoutResidue.args,
     partialAnalysis: {
       id: uuidv4(),
       reportDocumentId: uuidv4(),
@@ -68,54 +66,39 @@ export const ReviewWithResidues: Story = {
   }
 };
 
-export const Interpretation: Story = {
+export const Interpretation = {
   args: {
-    ...ReviewWithoutResidue.args,
-    initialReviewState: 'Interpretation'
-  }
-};
-
-export const CorrectionWithoutResidu: Story = {
-  args: {
-    ...ReviewWithoutResidue.args,
-    initialReviewState: 'Correction'
+    ...ReviewWithResidues.args
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await userEvent.click(canvas.getByRole('checkbox'));
-    await userEvent.click(canvas.getByLabelText('mono-résidu'));
-    await userEvent.click(canvas.getByLabelText('Simple'));
-
-    //FIXME extract select autocomplete
-    const autocomplete = canvas.getByText(
-      'Résidu selon définition'
-    ).parentElement!;
-    const input = within(autocomplete).getByRole('combobox');
-    await userEvent.click(input);
-    await fireEvent.keyDown(input, { key: 'ArrowDown' });
-    await fireEvent.keyDown(input, { key: 'Enter' });
-
-    const kindFieldset = canvas.getByText(
-      "Type de résultat de l'analyse"
-    ).parentElement!;
-    const kindSelect = within(kindFieldset).getByRole('combobox');
-    await userEvent.selectOptions(kindSelect, ResultKindList[0]);
-
-    await userEvent.type(
-      canvas.getByLabelText(/Valeur numérique du résultat/),
-      '2'
-    );
-    await userEvent.type(canvas.getByLabelText(/Valeur de la LMR/), '3');
-
     await userEvent.click(canvas.getByLabelText('Conforme'));
+    await userEvent.click(canvas.getByText("Finaliser l'interprétation"));
 
-    // await userEvent.click(canvas.getByText('Continuer'));
+    await expect(canvas.getByText("Valider l'interprétation")).toBeInTheDocument();
+  }
+} satisfies Story;
 
-    //FIXME Jerôme il n'y a pas de <form/> ?
-    // await expect(
-    //   canvas.getByText("Valider les données et l'interprétation")
-    // ).toBeInTheDocument();
+export const CorrectionWithResidues = {
+  args: {
+    ...ReviewWithResidues.args
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await userEvent.click(canvas.getByText('Corriger'));
+
+    await expect(canvas.getByText('Type de résidu')).toBeInTheDocument();
+  }
+} satisfies Story;
+
+export const CorrectionWithoutResidu: Story = {
+  args: {
+    ...ReviewWithoutResidue.args
+  },
+  play: async (context) => {
+    await CorrectionWithResidues.play(context);
   }
 };
 

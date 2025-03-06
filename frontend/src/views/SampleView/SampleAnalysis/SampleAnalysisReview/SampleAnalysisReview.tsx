@@ -3,6 +3,7 @@ import {
   Analysis,
   PartialAnalysis
 } from 'maestro-shared/schema/Analysis/Analysis';
+import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { FunctionComponent, useRef, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
@@ -14,7 +15,6 @@ import { AnalysisResiduesForm } from '../SampleDraftAnalysis/AnalysisResiduesSte
 import '../SampleDraftAnalysis/SampleDraftAnalysis.scss';
 import { ReviewWithoutResidu } from './ReviewWithoutResidu';
 import { ReviewWithResidues } from './ReviewWithResidues';
-import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 
 export interface Props {
   sample: Sample;
@@ -26,7 +26,6 @@ export interface Props {
     ApiClient,
     'useGetDocumentQuery' | 'useLazyGetDocumentDownloadSignedUrlQuery'
   >;
-  initialReviewState?: ReviewState;
 }
 
 type ReviewState = 'Review' | 'Correction' | 'Interpretation';
@@ -35,7 +34,6 @@ export const SampleAnalysisReview: FunctionComponent<Props> = ({
   sample,
   partialAnalysis,
   apiClient,
-  initialReviewState,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -51,17 +49,15 @@ export const SampleAnalysisReview: FunctionComponent<Props> = ({
     })
   );
 
-  const hasResidues = useRef<boolean>(!!analysis.residues && analysis.residues.length > 0);
-
-  const [reviewState, setReviewState] = useState<ReviewState>(
-    initialReviewState ?? 'Review'
+  const hasResidues = useRef<boolean>(
+    !!analysis.residues && analysis.residues.length > 0
   );
-  const onCorrectAnalysis = (residues?: PartialResidue[]) => {
-    if (residues !== undefined) {
-      setAnalysis({...analysis, residues })
-    }
+
+  const [reviewState, setReviewState] = useState<ReviewState>('Review');
+  const onCorrectAnalysis = (residues: PartialResidue[]) => {
+    setAnalysis({ ...analysis, residues });
     setReviewState('Correction');
-  }
+  };
   const onBackToFirstStep = async () => setReviewState('Review');
 
   const onValidateCorrection = async (newResidues: Analysis['residues']) => {
@@ -97,6 +93,7 @@ export const SampleAnalysisReview: FunctionComponent<Props> = ({
           />
         ) : (
           <ReviewWithoutResidu
+            partialAnalysis={partialAnalysis}
             onValidateAnalysis={onValidateAnalysis}
             onCorrectAnalysis={onCorrectAnalysis}
           />

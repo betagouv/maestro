@@ -3,14 +3,24 @@ import { assert, type Equals } from 'tsafe';
 import clsx from 'clsx';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
+import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
+import { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 
 type Props = {
+  partialAnalysis: Pick<PartialAnalysis, 'id'>
   onValidateAnalysis: () => void
-  onCorrectAnalysis: () => void
+  onCorrectAnalysis: (residues: PartialResidue[]) => void
 }
-export const ReviewWithoutResidu: FunctionComponent<Props> = ({onValidateAnalysis, onCorrectAnalysis, ..._rest}) => {
+export const ReviewWithoutResidu: FunctionComponent<Props> = ({partialAnalysis, onValidateAnalysis, onCorrectAnalysis, ..._rest}) => {
 
   assert<Equals<keyof typeof _rest, never>>();
+
+  const onCorrection = () => {
+    onCorrectAnalysis([ {
+      analysisId: partialAnalysis.id,
+      residueNumber: 1
+    }])
+  }
 
   return <>
     <div>
@@ -41,7 +51,7 @@ export const ReviewWithoutResidu: FunctionComponent<Props> = ({onValidateAnalysi
           iconId: 'fr-icon-edit-line',
           priority: 'secondary',
           className: cx('fr-mb-0', 'fr-mt-0'),
-          onClick: onCorrectAnalysis
+          onClick: onCorrection
         },
         {
           children: "Valider les données et l'interprétation",
