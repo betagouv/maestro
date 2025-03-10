@@ -12,7 +12,7 @@ const findMany = async (findOptions: FindSubstanceOptions) => {
     .where(omitBy(omit(findOptions, 'q'), isNil))
     .modify((builder) => {
       if (findOptions.q) {
-        builder.where('label', 'like', `%${findOptions.q}%`);
+        builder.where('label', 'ilike', `%${findOptions.q}%`);
       }
     })
     .then((substances) =>
