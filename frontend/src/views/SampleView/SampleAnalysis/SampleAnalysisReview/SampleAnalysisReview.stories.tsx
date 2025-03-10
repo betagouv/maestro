@@ -39,7 +39,11 @@ export const ReviewWithoutResidue: Story = {
   args: {
     partialAnalysis: {
       id: uuidv4(),
+      status: 'Residues',
+      createdAt: new Date(1234),
+      sampleId: uuidv4(),
       reportDocumentId: uuidv4(),
+      createdBy: null,
       residues: []
     }
   }
@@ -49,7 +53,11 @@ export const ReviewWithResidues: Story = {
   args: {
     partialAnalysis: {
       id: uuidv4(),
+      status: 'Residues',
+      createdAt: new Date(1234),
+      sampleId: uuidv4(),
       reportDocumentId: uuidv4(),
+      createdBy: null,
       residues: [
         {
           analysisId: uuidv4(),

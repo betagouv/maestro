@@ -5,7 +5,7 @@ import {
 } from 'maestro-shared/schema/Analysis/Analysis';
 import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
-import { FunctionComponent, useRef, useState } from 'react';
+import { FunctionComponent, useEffect, useRef, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { ApiClient } from '../../../../services/apiClient';
 import { AnalysisDocumentPreview } from '../../components/AnalysisDocumentPreview';
@@ -18,13 +18,12 @@ import { ReviewWithResidues } from './ReviewWithResidues';
 
 export interface Props {
   sample: Sample;
-  partialAnalysis: Pick<
-    PartialAnalysis,
-    'id' | 'residues' | 'reportDocumentId'
-  >;
+  partialAnalysis: PartialAnalysis;
   apiClient: Pick<
     ApiClient,
-    'useGetDocumentQuery' | 'useLazyGetDocumentDownloadSignedUrlQuery'
+    | 'useGetDocumentQuery'
+    | 'useLazyGetDocumentDownloadSignedUrlQuery'
+    | 'useUpdateAnalysisMutation'
   >;
 }
 
@@ -38,22 +37,35 @@ export const SampleAnalysisReview: FunctionComponent<Props> = ({
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
+  const [updateAnalysis] = apiClient.useUpdateAnalysisMutation({
+    fixedCacheKey: `review-analysis-${sample.id}`
+  });
+
   const [analysis, setAnalysis] = useState(
-    PartialAnalysis.pick({
-      id: true,
-      residues: true,
-      reportDocumentId: true
-    }).parse({
+    PartialAnalysis.parse({
       ...partialAnalysis,
       residues: partialAnalysis.residues ?? []
     })
   );
 
-  const hasResidues = useRef<boolean>(
+  const [hasResidues, setHasResidues] = useState<boolean>(
     !!analysis.residues && analysis.residues.length > 0
   );
 
   const [reviewState, setReviewState] = useState<ReviewState>('Review');
+
+  const containerRef = useRef<null | HTMLDivElement>(null);
+
+  const hasPageBeenRendered = useRef(false);
+  useEffect(() => {
+    if (hasPageBeenRendered.current) {
+      containerRef.current?.scrollIntoView(true);
+    }
+    setHasResidues((analysis.residues ?? []).length > 0);
+
+    hasPageBeenRendered.current = true;
+  }, [reviewState, analysis]);
+
   const onCorrectAnalysis = (residues: PartialResidue[]) => {
     setAnalysis({ ...analysis, residues });
     setReviewState('Correction');
@@ -61,31 +73,44 @@ export const SampleAnalysisReview: FunctionComponent<Props> = ({
   const onBackToFirstStep = async () => setReviewState('Review');
 
   const onValidateCorrection = async (newResidues: Analysis['residues']) => {
-    //FIXME on appel la bdd, on met tout dans un state ?!
     setAnalysis({ ...analysis, residues: newResidues });
-    hasResidues.current = newResidues.length > 0;
     if (reviewState === 'Correction') {
       await onBackToFirstStep();
     } else {
       setReviewState('Interpretation');
     }
   };
-  const onValidateAnalysis = () => {
-    //FIXME tout est ok, faut mettre à jour le statut de l'analyse et la compliance à true
+  const onValidateAnalysis = async () => {
+    setAnalysis({ ...analysis, compliance: true, status: 'Completed' });
+    await onSave();
   };
-  const onValidateInterpretation = async () => {
-    //FIXME
+  const onValidateInterpretation = async ({
+    compliance,
+    notesOnCompliance
+  }: Pick<Analysis, 'compliance' | 'notesOnCompliance'>) => {
+    setAnalysis({
+      ...analysis,
+      compliance,
+      status: 'Completed',
+      notesOnCompliance
+    });
+    await onSave();
+  };
+
+  const onSave = async (): Promise<void> => {
+    //FIXME cette méthode prend trop de params, le front peut par exemple modifier la date de création ou le sampleId :-/
+    await updateAnalysis(analysis);
   };
 
   return (
-    <div className={clsx('analysis-container')}>
+    <div className={clsx('analysis-container')} ref={containerRef}>
       <AnalysisDocumentPreview
         apiClient={apiClient}
         reportDocumentId={analysis.reportDocumentId}
       />
       <hr />
-      {reviewState === 'Review' ? (
-        hasResidues.current ? (
+      {reviewState === 'Review' &&
+        (hasResidues ? (
           <ReviewWithResidues
             analysis={analysis}
             onCorrectAnalysis={onCorrectAnalysis}
@@ -97,9 +122,8 @@ export const SampleAnalysisReview: FunctionComponent<Props> = ({
             onValidateAnalysis={onValidateAnalysis}
             onCorrectAnalysis={onCorrectAnalysis}
           />
-        )
-      ) : null}
-      {reviewState === 'Interpretation' ? (
+        ))}
+      {reviewState === 'Interpretation' && (
         <AnalysisComplianceForm
           onBack={onBackToFirstStep}
           onSave={onValidateInterpretation}
@@ -108,14 +132,14 @@ export const SampleAnalysisReview: FunctionComponent<Props> = ({
             notesOnCompliance: undefined
           }}
         />
-      ) : null}
-      {reviewState === 'Correction' ? (
+      )}
+      {reviewState === 'Correction' && (
         <AnalysisResiduesForm
           onBack={onBackToFirstStep}
           onValidate={onValidateCorrection}
           partialAnalysis={analysis}
         />
-      ) : null}
+      )}
     </div>
   );
 };
