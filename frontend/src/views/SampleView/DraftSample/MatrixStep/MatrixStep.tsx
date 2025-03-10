@@ -370,6 +370,7 @@ const MatrixStep = ({ partialSample }: Props) => {
             acceptFileTypes={[...SampleDocumentTypeList]}
             whenValid="fichiers valides"
             multiple
+            withPhoto={true}
           />
         </div>
       </div>
