@@ -1,5 +1,4 @@
 import ExcelJS from 'exceljs';
-import Row from 'exceljs/index';
 import { Response } from 'express';
 import { isArray } from 'lodash-es';
 
@@ -29,7 +28,7 @@ const sanitizeExcelData = (value: any) => {
 const addRowToWorksheet = (
   worksheet: ExcelJS.Worksheet,
   row: any[] | any
-): Row =>
+): ExcelJS.Row =>
   worksheet.addRow(
     isArray(row) ? row.map(sanitizeExcelData) : sanitizeExcelData(row)
   );
