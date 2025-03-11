@@ -102,30 +102,30 @@ function AppUpload<T extends ZodRawShape>(props: AppUploadProps<T>) {
         }
       />
 
-      {withPhoto && isCameraAvailable && (
-        <>
-          <Button
-            priority="tertiary"
-            iconId="fr-icon-camera-line"
-            onClick={(e) => {
-              e.preventDefault();
-              photoInputRef.current?.click();
-            }}
-            className={cx('fr-mr-2w')}
-          >
-            Prendre une photo
-          </Button>
+      {/*{withPhoto && isCameraAvailable && (*/}
+      <>
+        <Button
+          priority="tertiary"
+          iconId="fr-icon-camera-line"
+          onClick={(e) => {
+            e.preventDefault();
+            photoInputRef.current?.click();
+          }}
+          className={cx('fr-mr-2w', 'fr-mb-2w')}
+        >
+          Prendre une photo
+        </Button>
 
-          <input
-            {...nativeInputProps}
-            ref={photoInputRef}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            style={{ display: 'none' }}
-          />
-        </>
-      )}
+        <input
+          {...nativeInputProps}
+          ref={photoInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          style={{ display: 'none' }}
+        />
+      </>
+      {/*)}*/}
 
       <Button
         priority="tertiary"
