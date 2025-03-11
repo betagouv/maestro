@@ -6,7 +6,6 @@ import clsx from 'clsx';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
 import { v4 as uuidv4 } from 'uuid';
-import { mockApiClient } from '../../../../services/mockApiClient';
 import { SampleAnalysisReview } from './SampleAnalysisReview';
 import { ResultKindList } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 import {fn} from '@vitest/spy';
@@ -16,7 +15,6 @@ const meta = {
   component: SampleAnalysisReview,
   args: {
     sample: Sample11Fixture as Sample,
-    apiClient: mockApiClient,
     onReviewDone: fn()
   },
   decorators: [

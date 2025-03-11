@@ -4,23 +4,24 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { CompletedStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
-import { FunctionComponent, useState } from 'react';
+import { FunctionComponent, useContext, useState } from 'react';
 import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import { usePartialSample } from 'src/hooks/usePartialSample';
 import SampleAdmissibility from 'src/views/SampleView/SampleAnalysis/SampleAdmissibility/SampleAdmissibility';
 import SampleAnalysisOverview from 'src/views/SampleView/SampleAnalysis/SampleAnalysisOverview/SampleAnalysisOverview';
 import SampleDraftAnalysis from 'src/views/SampleView/SampleAnalysis/SampleDraftAnalysis/SampleDraftAnalysis';
-import { ApiClient } from '../../../services/apiClient';
 import { SampleAnalysisReview } from './SampleAnalysisReview/SampleAnalysisReview';
 import { useSamplesLink } from '../../../hooks/useSamplesLink';
+import { ApiClientContext } from '../../../services/apiClient';
 
 export interface Props {
   sample: Sample;
-  apiClient: ApiClient;
 }
 
-const SampleAnalysis: FunctionComponent<Props> = ({ sample, apiClient } ) => {
-  const { laboratory } = usePartialSample(sample, apiClient);
+const SampleAnalysis: FunctionComponent<Props> = ({ sample } ) => {
+  const apiClient = useContext(ApiClientContext)
+
+  const { laboratory } = usePartialSample(sample);
   const {navigateToSample} = useSamplesLink()
   const [, { isSuccess: isSendingSuccess }] = apiClient.useUpdateSampleMutation(
     {
@@ -97,7 +98,7 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample, apiClient } ) => {
         </div>
       </div>
       {analysis?.status !== 'InReview' ? (
-        <SampleAdmissibility sample={sample} apiClient={apiClient} />
+        <SampleAdmissibility sample={sample} />
       ) : null}
       {sample.status === 'Analysis' && !analysis && !continueToAnalysis ? (
         <Button
@@ -129,7 +130,6 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample, apiClient } ) => {
               {sample.status === 'Analysis' &&
                 (analysis?.status === 'InReview' ? <SampleAnalysisReview
                     sample={sample}
-                    apiClient={apiClient}
                     partialAnalysis={analysis}
                     onReviewDone={() => navigateToSample(sample.id)}
                   /> :

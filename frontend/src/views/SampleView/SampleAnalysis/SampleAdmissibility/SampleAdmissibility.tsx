@@ -6,7 +6,7 @@ import { format, parse } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { CompletedStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
-import React, { useMemo, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import check from 'src/assets/illustrations/check.svg';
 import warning from 'src/assets/illustrations/warning.svg';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
@@ -16,13 +16,14 @@ import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModa
 import { useForm } from 'src/hooks/useForm';
 import z from 'zod';
 import './SampleAdmissibility.scss';
-import { ApiClient } from '../../../../services/apiClient';
+import { ApiClientContext } from '../../../../services/apiClient';
 
 interface Props {
   sample: Sample;
-  apiClient: Pick<ApiClient, 'useUpdateSampleMutation'>
 }
-const SampleAdmissibility = ({ sample, apiClient }: Props) => {
+const SampleAdmissibility = ({ sample }: Props) => {
+  const apiClient = useContext(ApiClientContext)
+
   const [updateSample] = apiClient.useUpdateSampleMutation();
 
   const [isReceived, setIsReceived] = useState(

@@ -1,15 +1,16 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { skipToken } from '@reduxjs/toolkit/query';
 import { Link } from 'react-router-dom';
-import { ApiClient } from '../../services/apiClient';
+import { ApiClientContext } from '../../services/apiClient';
 import { useDocument } from '../../hooks/useDocument';
+import { useContext } from 'react';
 
 interface Props {
   documentId?: string;
-  apiClient: Pick<ApiClient, 'useGetDocumentQuery' | 'useLazyGetDocumentDownloadSignedUrlQuery'>
 }
 
-const DocumentLink = ({ documentId, apiClient }: Props) => {
+const DocumentLink = ({ documentId }: Props) => {
+  const apiClient = useContext(ApiClientContext)
   const { openDocument } = useDocument(apiClient);
 
   const { data: document } = apiClient.useGetDocumentQuery(documentId ?? skipToken);

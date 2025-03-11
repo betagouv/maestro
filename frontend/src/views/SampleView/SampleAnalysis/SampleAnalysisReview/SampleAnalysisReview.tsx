@@ -5,9 +5,9 @@ import {
 } from 'maestro-shared/schema/Analysis/Analysis';
 import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
-import { FunctionComponent, useEffect, useRef, useState } from 'react';
+import { FunctionComponent, useContext, useEffect, useRef, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
-import { ApiClient } from '../../../../services/apiClient';
+import { ApiClientContext } from '../../../../services/apiClient';
 import { AnalysisDocumentPreview } from '../../components/AnalysisDocumentPreview';
 import '../../SampleView.scss';
 import { AnalysisComplianceForm } from '../SampleDraftAnalysis/AnalysisComplianceStep/AnalysisComplianceForm';
@@ -20,12 +20,6 @@ export interface Props {
   sample: Sample;
   partialAnalysis: PartialAnalysis;
   onReviewDone: () => void;
-  apiClient: Pick<
-    ApiClient,
-    | 'useGetDocumentQuery'
-    | 'useLazyGetDocumentDownloadSignedUrlQuery'
-    | 'useUpdateAnalysisMutation'
-  >;
 }
 
 type ReviewState = 'Review' | 'Correction' | 'Interpretation';
@@ -33,11 +27,11 @@ type ReviewState = 'Review' | 'Correction' | 'Interpretation';
 export const SampleAnalysisReview: FunctionComponent<Props> = ({
   sample,
   partialAnalysis,
-  apiClient,
   onReviewDone,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
+  const apiClient = useContext(ApiClientContext)
 
   const [updateAnalysis] = apiClient.useUpdateAnalysisMutation({
     fixedCacheKey: `review-analysis-${sample.id}`
@@ -114,7 +108,6 @@ export const SampleAnalysisReview: FunctionComponent<Props> = ({
   return (
     <div className={clsx('analysis-container')} ref={containerRef}>
       <AnalysisDocumentPreview
-        apiClient={apiClient}
         reportDocumentId={analysis.reportDocumentId}
       />
       <hr />

@@ -15,7 +15,6 @@ import {
 } from 'src/services/analysis.service';
 import { useUpdateSampleMutation } from 'src/services/sample.service';
 import { pluralize, quote } from 'src/utils/stringUtils';
-import { apiClient } from '../../../../services/apiClient';
 import { AnalysisDocumentPreview } from '../../components/AnalysisDocumentPreview';
 import { ResidueResultOverview } from './ResidueResultOverview';
 import './SampleAnalysisOverview.scss';
@@ -63,7 +62,6 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
     <>
       <AnalysisDocumentPreview
         reportDocumentId={analysis.reportDocumentId}
-        apiClient={apiClient}
       >
         <Button
           priority="secondary"

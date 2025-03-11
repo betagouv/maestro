@@ -24,7 +24,6 @@ import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SampleItemDetails from 'src/views/SampleView/SampleItemDetails/SampleItemDetails';
 import SavedAlert from 'src/views/SampleView/SavedAlert';
 import { z } from 'zod';
-import { apiClient } from '../../../../services/apiClient';
 
 export const MaxItemCount = 3;
 
@@ -34,7 +33,7 @@ interface Props {
 
 const ItemsStep = ({ partialSample }: Props) => {
   const { navigateToSample } = useSamplesLink();
-  const { laboratory } = usePartialSample(partialSample, apiClient);
+  const { laboratory } = usePartialSample(partialSample);
 
   const [items, setItems] = useState<PartialSampleItem[]>(
     !isDefinedAndNotNull(partialSample.items) ||

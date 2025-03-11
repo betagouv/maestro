@@ -16,14 +16,13 @@ import { usePartialSample } from 'src/hooks/usePartialSample';
 import { useGetPrescriptionSubstancesQuery } from 'src/services/prescription.service';
 import { quote } from 'src/utils/stringUtils';
 import StepSummary from 'src/views/SampleView/StepSummary/StepSummary';
-import { apiClient } from '../../../services/apiClient';
 
 interface Props {
   sample: (Sample | SampleToCreate) & Partial<SampleOwnerData>;
   showLabel?: boolean;
 }
 const MatrixStepSummary = ({ sample, showLabel }: Props) => {
-  const { laboratory } = usePartialSample(sample, apiClient);
+  const { laboratory } = usePartialSample(sample);
   const { data: substances } = useGetPrescriptionSubstancesQuery(
     sample.prescriptionId ?? skipToken
   );

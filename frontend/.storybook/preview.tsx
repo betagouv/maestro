@@ -6,6 +6,8 @@ import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import '../src/App.scss';
 import { applicationReducer } from '../src/store/store';
+import { ApiClientContext } from '../src/services/apiClient';
+import { mockApiClient } from '../src/services/mockApiClient';
 
 const store = configureStore({
   reducer: applicationReducer
@@ -23,13 +25,18 @@ const preview: Preview = {
       }
     }
   },
-  decorators: (Story) => (
-    <MemoryRouter>
-      <Provider store={store}>
-        <Story />
-      </Provider>
-    </MemoryRouter>
-  )
+  decorators: (Story, { parameters }) => {
+    const { apiClient = mockApiClient } = parameters
+    return (
+      <MemoryRouter>
+        <Provider store={store}>
+          <ApiClientContext.Provider value={apiClient}>
+            <Story />
+          </ApiClientContext.Provider>
+        </Provider>
+      </MemoryRouter>
+    );
+  }
 };
 
 export default preview;

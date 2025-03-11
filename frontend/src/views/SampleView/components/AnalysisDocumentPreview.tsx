@@ -2,18 +2,17 @@ import { FunctionComponent } from 'react';
 import clsx from 'clsx';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import DocumentLink from '../../../components/DocumentLink/DocumentLink';
-import { ApiClient } from '../../../services/apiClient';
 import { assert, Equals } from 'tsafe';
 
 export type Props = {
   reportDocumentId: string,
-  apiClient: Pick<ApiClient, 'useGetDocumentQuery' | 'useLazyGetDocumentDownloadSignedUrlQuery'>
   children?: JSX.Element
 }
 
-export const AnalysisDocumentPreview: FunctionComponent<Props> = ({reportDocumentId, apiClient, children, ..._rest}) => {
+export const AnalysisDocumentPreview: FunctionComponent<Props> = ({reportDocumentId,  children, ..._rest}) => {
 
   assert<Equals<keyof typeof _rest, never>>()
+
   return (
     <div>
       <h6 className="d-flex-align-center">
@@ -27,7 +26,7 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({reportDocumen
         { children }
       </h6>
       <div className={cx('fr-pl-4w')}>
-        <DocumentLink documentId={reportDocumentId} apiClient={apiClient} />
+        <DocumentLink documentId={reportDocumentId} />
       </div>
     </div>
   );
