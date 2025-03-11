@@ -26,6 +26,8 @@ import {
   StageLabels,
   StageList
 } from 'maestro-shared/referential/Stage';
+import { FileInput } from 'maestro-shared/schema/File/FileInput';
+import { SampleDocumentTypeList } from 'maestro-shared/schema/File/FileType';
 import {
   isCreatedPartialSample,
   PartialSample,
@@ -47,8 +49,14 @@ import { useCreateOrUpdateSampleMutation } from 'src/services/sample.service';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SupportDocumentDownload from 'src/views/SampleView/DraftSample/SupportDocumentDownload';
 import SavedAlert from 'src/views/SampleView/SavedAlert';
+import { z } from 'zod';
 import AppSearchInput from '../../../../components/_app/AppSearchInput/AppSearchInput';
-
+import AppUpload from '../../../../components/_app/AppUpload/AppUpload';
+import SampleDocument from '../../../../components/SampleDocument/SampleDocument';
+import {
+  useCreateDocumentMutation,
+  useDeleteDocumentMutation
+} from '../../../../services/document.service';
 interface Props {
   partialSample: PartialSample | PartialSampleToCreate;
 }
@@ -68,12 +76,16 @@ const MatrixStep = ({ partialSample }: Props) => {
   const [releaseControl, setReleaseControl] = useState(
     partialSample.releaseControl
   );
+  const [files, setFiles] = useState<File[]>([]);
+  const [documentIds, setDocumentIds] = useState(partialSample.documentIds);
   const [notesOnMatrix, setNotesOnMatrix] = useState(
     partialSample.notesOnMatrix
   );
   const [isSaved, setIsSaved] = useState(false);
 
   const [createOrUpdate] = useCreateOrUpdateSampleMutation();
+  const [createDocument] = useCreateDocumentMutation();
+  const [deleteDocument] = useDeleteDocumentMutation();
 
   const { data: prescriptionsData } = useFindPrescriptionsQuery(
     {
@@ -105,8 +117,12 @@ const MatrixStep = ({ partialSample }: Props) => {
   }, [prescriptionsData, regionalPrescriptions]);
 
   const Form = SampleMatrixData;
+  const FilesForm = z.object({
+    files: FileInput(SampleDocumentTypeList, true)
+  });
 
   type FormShape = typeof Form.shape;
+  type FilesFormShape = typeof FilesForm.shape;
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
@@ -137,6 +153,7 @@ const MatrixStep = ({ partialSample }: Props) => {
       stage,
       cultureKind,
       releaseControl,
+      documentIds,
       notesOnMatrix,
       status,
       prescriptionId: prescription?.id,
@@ -155,12 +172,43 @@ const MatrixStep = ({ partialSample }: Props) => {
       stage,
       cultureKind,
       releaseControl,
+      documentIds,
       notesOnMatrix,
       prescriptionId: partialSample.prescriptionId,
       laboratoryId: partialSample.laboratoryId
     },
     save
   );
+  const selectFiles = async () => {
+    await filesForm.validate(async () => {
+      const newDocumentIds = await Promise.all(
+        files.map(async (file) => {
+          const document = await createDocument({
+            file,
+            kind: 'SampleDocument'
+          }).unwrap();
+
+          return document.id;
+        })
+      );
+
+      setDocumentIds([...(documentIds ?? []), ...newDocumentIds]);
+      filesForm.reset();
+    });
+  };
+
+  const filesForm = useForm(
+    FilesForm,
+    {
+      files
+    },
+    selectFiles
+  );
+
+  const removeDocument = async (documentId: string) => {
+    await deleteDocument(documentId);
+    setDocumentIds((documentIds ?? []).filter((id) => id !== documentId));
+  };
 
   return (
     <form data-testid="draft_sample_matrix_form" className="sample-form">
@@ -305,6 +353,36 @@ const MatrixStep = ({ partialSample }: Props) => {
           />
         </div>
       </div>
+      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+        <div className={cx('fr-col-12')}>
+          <span className={cx('fr-text--md', 'fr-text--bold')}>
+            Compléments
+          </span>
+          <AppUpload<FilesFormShape>
+            label="Pièces jointes"
+            hint="Ajoutez si besoin un document ou une photo pour accompagner votre prélèvement JPG, PNG, PDF (10Mo maximum)"
+            nativeInputProps={{
+              onChange: (event: any) => setFiles(Array.from(event.target.files))
+            }}
+            className={cx('fr-mb-2w')}
+            inputForm={filesForm}
+            inputKey="files"
+            acceptFileTypes={[...SampleDocumentTypeList]}
+            whenValid="fichiers valides"
+            multiple
+            withPhoto={true}
+          />
+        </div>
+      </div>
+      {documentIds?.map((documentId) => (
+        <SampleDocument
+          key={`document-${documentId}`}
+          documentId={documentId}
+          onRemove={removeDocument}
+        />
+      ))}
+
+      <hr />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>
           <AppTextAreaInput<FormShape>

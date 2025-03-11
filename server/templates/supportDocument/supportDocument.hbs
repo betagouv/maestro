@@ -352,6 +352,33 @@
                           </div>
                         </div>
                       </div>
+                      {{#if sampleDocuments}}
+                        <div class='sample-section-block'>
+                          <span class='fr-icon-attachment-line fr-icon--sm'></span>
+                          <div class='fr-container fr-pl-1w'>
+                            <div class='fr-grid-row fr-grid-row--gutters'>
+                              {{#each sampleDocuments}}
+                                <div class='fr-col-3 sample-section-item'>
+                                  <div class='label'>
+                                    Pièce jointe n°{{inc @index}}
+                                  </div>
+                                  <div class='value'>
+                                    {{filename}}&nbsp;
+                                  </div>
+                                </div>
+                                <div class='fr-col-3 sample-section-item'>
+                                  <div class='label'>
+                                    &nbsp;
+                                  </div>
+                                  <div class='value'>
+                                    {{legend}}&nbsp;
+                                  </div>
+                                </div>
+                              {{/each}}
+                            </div>
+                          </div>
+                        </div>
+                      {{/if}}
 
                       <div class='sample-section-subtitle fr-mt-3w'>
                         Analyses demandées

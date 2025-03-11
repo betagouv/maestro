@@ -17,6 +17,7 @@ import { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { User } from 'maestro-shared/schema/User/User';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import puppeteer from 'puppeteer';
+import { documentRepository } from '../../repositories/documentRepository';
 import laboratoryRepository from '../../repositories/laboratoryRepository';
 import prescriptionSubstanceRepository from '../../repositories/prescriptionSubstanceRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
@@ -43,6 +44,10 @@ const generatePDF = async (template: Template, data: unknown) => {
     const imageBuffer = fs.readFileSync(imagePath);
     const base64Image = imageBuffer.toString('base64');
     return `data:image/svg+xml;base64,${base64Image}`;
+  });
+
+  handlebars.registerHelper('inc', function (value) {
+    return parseInt(value) + 1;
   });
 
   const compiledTemplate = handlebars.compile(templateContent(template));
@@ -146,6 +151,10 @@ const generateSampleSupportPDF = async (
       itemNumber: index + 1
     }));
 
+  const sampleDocuments = await documentRepository.findMany({
+    sampleId: sample.id
+  });
+
   return generatePDF('supportDocument', {
     ...sample,
     sampleItems: (sampleItems.length > 0 ? sampleItems : emptySampleItems).map(
@@ -192,7 +201,8 @@ const generateSampleSupportPDF = async (
     hasNoteToSampler:
       sampleItems.some(
         (sampleItem) => sampleItem.recipientKind === 'Sampler'
-      ) || sampleItems.length === 0
+      ) || sampleItems.length === 0,
+    sampleDocuments
   });
 };
 

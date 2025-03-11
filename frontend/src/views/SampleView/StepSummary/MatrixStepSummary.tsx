@@ -16,6 +16,7 @@ import { usePartialSample } from 'src/hooks/usePartialSample';
 import { useGetPrescriptionSubstancesQuery } from 'src/services/prescription.service';
 import { quote } from 'src/utils/stringUtils';
 import StepSummary from 'src/views/SampleView/StepSummary/StepSummary';
+import SampleDocument from '../../../components/SampleDocument/SampleDocument';
 
 interface Props {
   sample: (Sample | SampleToCreate) & Partial<SampleOwnerData>;
@@ -136,6 +137,21 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
           </div>
         </div>
       )}
+      {sample.documentIds?.map((documentId) => (
+        <div className="summary-item icon-text">
+          <div className={cx('fr-icon-attachment-line')}></div>
+          <div className={cx('fr-col')}>
+            Pièces jointes :{' '}
+            <div className={cx('fr-mt-2w')}>
+              <SampleDocument
+                key={documentId}
+                documentId={documentId}
+                readonly
+              />
+            </div>
+          </div>
+        </div>
+      ))}
       {sample.notesOnMatrix && (
         <div className="summary-item icon-text">
           <div className={cx('fr-icon-quote-line')}></div>
