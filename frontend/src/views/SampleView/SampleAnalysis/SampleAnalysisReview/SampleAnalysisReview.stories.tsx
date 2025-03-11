@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { userEvent, within, expect, fn, fireEvent } from '@storybook/test';
+import { userEvent, within, expect,  fireEvent } from '@storybook/test';
 import clsx from 'clsx';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { mockApiClient } from '../../../../services/mockApiClient';
 import { SampleAnalysisReview } from './SampleAnalysisReview';
 import { ResultKindList } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
+import {fn} from '@vitest/spy';
 
 const meta = {
   title: 'Views/SampleAnalysisReview',
@@ -103,6 +104,7 @@ export const CorrectionWithResidues = {
     await userEvent.click(canvas.getByText('Corriger'));
 
     await expect(canvas.getByText('Type de résidu')).toBeInTheDocument();
+    await expect(meta.args.onReviewDone).not.toBeCalled()
   }
 } satisfies Story;
 
