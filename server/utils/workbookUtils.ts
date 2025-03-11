@@ -1,5 +1,5 @@
 import ExcelJS from 'exceljs';
-import { Row } from 'exceljs/index';
+import Row from 'exceljs/index';
 import { Response } from 'express';
 import { isArray } from 'lodash-es';
 
