@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { userEvent, within, expect } from '@storybook/test';
+import { userEvent, within, expect, fn } from '@storybook/test';
 import clsx from 'clsx';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
@@ -14,7 +14,8 @@ const meta = {
   component: SampleAnalysisReview,
   args: {
     sample: Sample11Fixture as Sample,
-    apiClient: mockApiClient
+    apiClient: mockApiClient,
+    onReviewDone: fn()
   },
   decorators: [
     (Story) => (
@@ -84,7 +85,10 @@ export const Interpretation = {
     await userEvent.click(canvas.getByLabelText('Conforme'));
     await userEvent.click(canvas.getByText("Finaliser l'interprétation"));
 
-    await expect(canvas.getByText("Valider l'interprétation")).toBeInTheDocument();
+    await userEvent.click(canvas.getByLabelText('Échantillon conforme'));
+    await userEvent.click(canvas.getByText("Valider l'interprétation"))
+    await expect(meta.args.onReviewDone).toBeCalled()
+
   }
 } satisfies Story;
 

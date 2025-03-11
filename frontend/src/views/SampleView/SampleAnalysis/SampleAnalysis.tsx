@@ -12,6 +12,7 @@ import SampleAnalysisOverview from 'src/views/SampleView/SampleAnalysis/SampleAn
 import SampleDraftAnalysis from 'src/views/SampleView/SampleAnalysis/SampleDraftAnalysis/SampleDraftAnalysis';
 import { ApiClient } from '../../../services/apiClient';
 import { SampleAnalysisReview } from './SampleAnalysisReview/SampleAnalysisReview';
+import { useSamplesLink } from '../../../hooks/useSamplesLink';
 
 export interface Props {
   sample: Sample;
@@ -20,6 +21,7 @@ export interface Props {
 
 const SampleAnalysis: FunctionComponent<Props> = ({ sample, apiClient } ) => {
   const { laboratory } = usePartialSample(sample, apiClient);
+  const {navigateToSample} = useSamplesLink()
   const [, { isSuccess: isSendingSuccess }] = apiClient.useUpdateSampleMutation(
     {
       fixedCacheKey: `sending-sample-${sample.id}`
@@ -135,6 +137,7 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample, apiClient } ) => {
                   sample={sample}
                   apiClient={apiClient}
                   partialAnalysis={analysis}
+                  onReviewDone={() => navigateToSample(sample.id)}
                 />
               )}
             </div>

@@ -19,6 +19,7 @@ import { ReviewWithResidues } from './ReviewWithResidues';
 export interface Props {
   sample: Sample;
   partialAnalysis: PartialAnalysis;
+  onReviewDone: () => void;
   apiClient: Pick<
     ApiClient,
     | 'useGetDocumentQuery'
@@ -33,6 +34,7 @@ export const SampleAnalysisReview: FunctionComponent<Props> = ({
   sample,
   partialAnalysis,
   apiClient,
+  onReviewDone,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -81,25 +83,32 @@ export const SampleAnalysisReview: FunctionComponent<Props> = ({
     }
   };
   const onValidateAnalysis = async () => {
-    setAnalysis({ ...analysis, compliance: true, status: 'Completed' });
-    await onSave();
+    const newAnalysis: PartialAnalysis = {
+      ...analysis,
+      compliance: true,
+      status: 'Completed'
+    };
+    setAnalysis(newAnalysis);
+    await onSave(newAnalysis);
   };
   const onValidateInterpretation = async ({
     compliance,
     notesOnCompliance
   }: Pick<Analysis, 'compliance' | 'notesOnCompliance'>) => {
-    setAnalysis({
+    const newAnalysis: PartialAnalysis = {
       ...analysis,
       compliance,
       status: 'Completed',
       notesOnCompliance
-    });
-    await onSave();
+    };
+    setAnalysis(newAnalysis);
+    await onSave(newAnalysis);
   };
 
-  const onSave = async (): Promise<void> => {
+  const onSave = async (analyseToSave: PartialAnalysis): Promise<void> => {
     //FIXME cette méthode prend trop de params, le front peut par exemple modifier la date de création ou le sampleId :-/
-    await updateAnalysis(analysis);
+    await updateAnalysis(analyseToSave);
+    onReviewDone();
   };
 
   return (
