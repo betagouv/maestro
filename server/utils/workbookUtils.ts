@@ -1,5 +1,6 @@
 import ExcelJS from 'exceljs';
 import { Response } from 'express';
+import { isArray } from 'lodash-es';
 
 const init = (fileName: string, response: Response) => {
   response.setHeader(
@@ -14,6 +15,23 @@ const init = (fileName: string, response: Response) => {
   });
 };
 
+const sanitizeExcelData = (value: any) => {
+  if (typeof value !== 'string') return value;
+
+  if (/^[=+\-@]/.test(value)) {
+    return `'${value}`;
+  }
+
+  return value;
+};
+
+const addRowToWorksheet = (worksheet: ExcelJS.Worksheet, row: any[] | any) =>
+  worksheet.addRow(
+    isArray(row) ? row.map(sanitizeExcelData) : sanitizeExcelData(row)
+  );
+
 export default {
-  init
+  init,
+  sanitizeExcelData,
+  addRowToWorksheet
 };

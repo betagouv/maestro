@@ -16,6 +16,7 @@ import {
 } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { isDefined } from 'maestro-shared/utils/utils';
 import laboratoryRepository from '../../repositories/laboratoryRepository';
+import workbookUtils from '../../utils/workbookUtils';
 import WorkbookWriter = exceljs.stream.xlsx.WorkbookWriter;
 
 interface PrescriptionWorkbookData {
@@ -109,8 +110,8 @@ const writeToWorkbook = async (
       ]
     }))
     .each(({ prescription, filteredRegionalPrescriptions }) => {
-      worksheet
-        .addRow({
+      workbookUtils
+        .addRowToWorksheet(worksheet, {
           matrix: MatrixKindLabels[prescription.matrixKind],
           stages: prescription.stages
             .map((stage) => StageLabels[stage])
@@ -141,7 +142,7 @@ const writeToWorkbook = async (
         .commit();
     })
     .done(() => {
-      worksheet.addRow({
+      workbookUtils.addRowToWorksheet(worksheet, {
         matrix: 'Total',
         sampleTotalCount: sumBy(regionalPrescriptions, 'sampleCount'),
         sentSampleTotalCount: sumBy(

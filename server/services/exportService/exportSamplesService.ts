@@ -15,6 +15,7 @@ import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { analysisRepository } from '../../repositories/analysisRepository';
 import laboratoryRepository from '../../repositories/laboratoryRepository';
 import sampleItemRepository from '../../repositories/sampleItemRepository';
+import workbookUtils from '../../utils/workbookUtils';
 import WorkbookWriter = exceljs.stream.xlsx.WorkbookWriter;
 
 const writeToWorkbook = async (
@@ -88,8 +89,8 @@ const writeToWorkbook = async (
       )
     )
     .tap(({ sample, items, analysis }) => {
-      worksheet
-        .addRow({
+      workbookUtils
+        .addRowToWorksheet(worksheet, {
           reference: sample.reference,
           department: sample.department,
           sampler: `${sample.sampler.firstName} ${sample.sampler.lastName}`,
