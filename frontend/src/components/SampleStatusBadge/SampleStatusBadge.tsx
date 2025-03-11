@@ -16,7 +16,6 @@ const SampleStatusBadge = ({ status, ...props }: Props) => {
   const Severity: Partial<Record<SampleStatus, AlertProps.Severity>> = {
     NotAdmissible: 'error',
     Analysis: 'info',
-    ToValidate: 'warning',
     Completed: 'success',
     CompletedNotConform: 'error'
   };

@@ -76,8 +76,7 @@ export const analysisHandler = async (
         {
           sampleId,
           reportDocumentId: documentId,
-          //TODO AUTO_LABO pas certain, car il y a 2 statuts, 1 dans analysis et 1 dans sample
-          status: 'Completed',
+          status: 'InReview',
           createdBy: null,
           createdAt: new Date(),
           // Pour le moment on passe par une validation manuelle pour déterminer la conformité
@@ -87,7 +86,7 @@ export const analysisHandler = async (
         trx
       );
 
-      await sampleRepository.updateStatus(sampleId, 'ToValidate', trx);
+      await sampleRepository.updateStatus(sampleId, 'Analysis', trx);
 
       for (let i = 0; i < residues.length; i++){
         const residue = residues[i];

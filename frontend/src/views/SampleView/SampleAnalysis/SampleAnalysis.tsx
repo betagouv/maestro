@@ -70,9 +70,9 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample, apiClient } ) => {
                 <SampleStatusBadge status={sample.status} />
               </div>
             </div>
-            {![...CompletedStatusList, 'NotAdmissible', 'ToValidate'].includes(
+            {![...CompletedStatusList, 'NotAdmissible'].includes(
               sample.status
-            ) && (
+            ) && analysis?.status !== 'InReview' && (
               <div
                 className={cx('fr-text--lg', 'fr-text--regular', 'fr-mb-1w')}
               >
@@ -96,7 +96,7 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample, apiClient } ) => {
           </h3>
         </div>
       </div>
-      {sample.status !== 'ToValidate' ? (
+      {analysis?.status !== 'InReview' ? (
         <SampleAdmissibility sample={sample} apiClient={apiClient} />
       ) : null}
       {sample.status === 'Analysis' && !analysis && !continueToAnalysis ? (
@@ -110,14 +110,14 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample, apiClient } ) => {
         </Button>
       ) : (
         <>
-          {['Analysis', 'ToValidate', ...CompletedStatusList].includes(
+          {['Analysis',  ...CompletedStatusList].includes(
             sample.status
           ) && (
             <div
               className={clsx(
                 cx(
                   'fr-callout',
-                  [...CompletedStatusList, 'ToValidate'].includes(sample.status)
+                  CompletedStatusList.includes(sample.status) || analysis?.status === 'InReview'
                     ? 'fr-callout--green-emeraude'
                     : 'fr-callout--pink-tuile'
                 ),
@@ -126,19 +126,17 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample, apiClient } ) => {
                 'fr-mt-5w'
               )}
             >
-              {sample.status === 'Analysis' && (
+              {sample.status === 'Analysis' &&
+                (analysis?.status === 'InReview' ? <SampleAnalysisReview
+                    sample={sample}
+                    apiClient={apiClient}
+                    partialAnalysis={analysis}
+                    onReviewDone={() => navigateToSample(sample.id)}
+                  /> :
                 <SampleDraftAnalysis sample={sample} />
               )}
               {CompletedStatusList.includes(sample.status) && (
                 <SampleAnalysisOverview sample={sample} />
-              )}
-              {sample.status === 'ToValidate' && analysis?.reportDocumentId && (
-                <SampleAnalysisReview
-                  sample={sample}
-                  apiClient={apiClient}
-                  partialAnalysis={analysis}
-                  onReviewDone={() => navigateToSample(sample.id)}
-                />
               )}
             </div>
           )}

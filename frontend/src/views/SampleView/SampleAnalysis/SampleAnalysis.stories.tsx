@@ -22,7 +22,7 @@ type Story = StoryObj<typeof meta>;
 
 export const ReviewWithoutResidu: Story = {
   args: {
-    sample: {...Sample11Fixture, status: 'ToValidate', receivedAt: new Date(12345)} as Sample,
+    sample: {...Sample11Fixture, status: 'Analysis', receivedAt: new Date(12345)} as Sample,
     apiClient: getMockApi<ApiClient>({
       ...defaultMockApiClientConf,
       useUpdateSampleMutation: [async () => fn(), { isSuccess: false }]

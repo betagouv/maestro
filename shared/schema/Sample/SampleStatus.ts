@@ -9,7 +9,6 @@ export const SampleStatus = z.enum(
     'Sent',
     'NotAdmissible',
     'Analysis',
-    'ToValidate',
     'Completed',
     'CompletedNotConform'
   ],
@@ -37,7 +36,6 @@ export const RealizedStatusList: SampleStatus[] = [
   'Sent',
   'NotAdmissible',
   'Analysis',
-  'ToValidate',
   ...CompletedStatusList
 ];
 
@@ -49,7 +47,6 @@ export const SampleStatusLabels: Record<SampleStatus, string> = {
   Sent: 'Transmis au labo',
   NotAdmissible: 'Non recevable',
   Analysis: 'En cours d’analyse',
-  ToValidate: 'À valider',
   Completed: 'Terminé',
   CompletedNotConform: 'Terminé non conforme'
 };

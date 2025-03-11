@@ -65,7 +65,8 @@ export const defaultMockApiClientConf : MockApi<ApiClient> = {
   useGetSampleAnalysisQuery: {
     data: genPartialAnalysis({
       sampleId: Sample11Fixture.id,
-      createdBy: Sampler1Fixture.id
+      createdBy: Sampler1Fixture.id,
+      status: 'InReview'
     })
   }
 }
