@@ -82,6 +82,14 @@ describe('Validator middleware', () => {
         })
         .expect(constants.HTTP_STATUS_CREATED)
         .expect({ name: '12345' });
+
+      await request(app)
+        .post(testRoute)
+        .send({
+          name: '<script>12345</script>67890'
+        })
+        .expect(constants.HTTP_STATUS_CREATED)
+        .expect({ name: '67890' });
     });
   });
 });

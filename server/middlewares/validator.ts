@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { constants } from 'http2';
+import sanitizeHtml from 'sanitize-html';
 import { AnyZodObject, z, ZodArray } from 'zod';
-
 export const body = (o: AnyZodObject | ZodArray<any>) =>
   z.object({
     body: o
@@ -24,14 +24,41 @@ export const uuidParam = (paramName: string) =>
     })
   });
 
+export const sanitizeObject = (obj: unknown): any => {
+  if (typeof obj === 'string') {
+    return sanitizeHtml(obj, {
+      allowedTags: [],
+      allowedAttributes: {}
+    }).trim();
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map(sanitizeObject);
+  }
+
+  if (typeof obj === 'object' && obj !== null) {
+    return Object.keys(obj).reduce(
+      (acc, key) => {
+        return {
+          ...acc,
+          [key]: sanitizeObject((obj as Record<string, unknown>)[key])
+        };
+      },
+      {} as Record<string, unknown>
+    );
+  }
+
+  return obj;
+};
+
 const validate =
   (schema: AnyZodObject) =>
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const parsedReq = await schema.parseAsync({
-        body: req.body,
-        query: req.query,
-        params: req.params
+        body: sanitizeObject(req.body),
+        query: sanitizeObject(req.query),
+        params: sanitizeObject(req.params)
       });
       ['body', 'cookies', 'headers', 'params', 'query'].forEach((location) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
