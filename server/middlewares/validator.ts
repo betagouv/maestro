@@ -52,13 +52,18 @@ export const sanitizeObject = (obj: unknown): any => {
 };
 
 const validate =
-  (schema: AnyZodObject) =>
+  (
+    schema: AnyZodObject,
+    options: { skipSanitization: boolean } = { skipSanitization: false }
+  ) =>
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const parsedReq = await schema.parseAsync({
-        body: sanitizeObject(req.body),
-        query: sanitizeObject(req.query),
-        params: sanitizeObject(req.params)
+        body: options.skipSanitization ? req.body : sanitizeObject(req.body),
+        query: options.skipSanitization ? req.query : sanitizeObject(req.query),
+        params: options.skipSanitization
+          ? req.params
+          : sanitizeObject(req.params)
       });
       ['body', 'cookies', 'headers', 'params', 'query'].forEach((location) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
