@@ -68,6 +68,26 @@ export const ReviewWithResidues: Story = {
           result: 2,
           resultKind: 'Q',
           lmr: 3
+        },
+        {
+          analysisId: uuidv4(),
+          residueNumber: 2,
+          reference: 'RF-00003351-PAR',
+          analysisMethod: 'Multi',
+          kind: 'Complex',
+          result: null,
+          resultKind: 'NQ',
+          lmr: null,
+          analytes: [
+            {
+              analysisId: uuidv4(),
+              residueNumber: 2,
+              analyteNumber: 1,
+              reference: 'RF-0016-002-PPP',
+              resultKind: 'NQ',
+              result: null
+            }
+          ]
         }
       ]
     }

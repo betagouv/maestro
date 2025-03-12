@@ -39,7 +39,7 @@ export const ReviewWithResidues: FunctionComponent<Props> = ({
 
   return (
     <div className={'analysis-container'}>
-      <div className={clsx('residue-container')}>
+      <div className={clsx('analysis-container', 'residue-container')}>
         {residues.map((residue, residueIndex) => (
           <div key={`residue-${residueIndex}`} className={clsx('residue-form')}>
             <ResidueResultOverview

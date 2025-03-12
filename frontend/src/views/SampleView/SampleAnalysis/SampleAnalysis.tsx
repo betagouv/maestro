@@ -10,19 +10,19 @@ import { usePartialSample } from 'src/hooks/usePartialSample';
 import SampleAdmissibility from 'src/views/SampleView/SampleAnalysis/SampleAdmissibility/SampleAdmissibility';
 import SampleAnalysisOverview from 'src/views/SampleView/SampleAnalysis/SampleAnalysisOverview/SampleAnalysisOverview';
 import SampleDraftAnalysis from 'src/views/SampleView/SampleAnalysis/SampleDraftAnalysis/SampleDraftAnalysis';
-import { SampleAnalysisReview } from './SampleAnalysisReview/SampleAnalysisReview';
 import { useSamplesLink } from '../../../hooks/useSamplesLink';
 import { ApiClientContext } from '../../../services/apiClient';
+import { SampleAnalysisReview } from './SampleAnalysisReview/SampleAnalysisReview';
 
 export interface Props {
   sample: Sample;
 }
 
-const SampleAnalysis: FunctionComponent<Props> = ({ sample } ) => {
-  const apiClient = useContext(ApiClientContext)
+const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
+  const apiClient = useContext(ApiClientContext);
 
   const { laboratory } = usePartialSample(sample);
-  const {navigateToSample} = useSamplesLink()
+  const { navigateToSample } = useSamplesLink();
   const [, { isSuccess: isSendingSuccess }] = apiClient.useUpdateSampleMutation(
     {
       fixedCacheKey: `sending-sample-${sample.id}`
@@ -34,9 +34,9 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample } ) => {
     });
   const { data: analysis } = apiClient.useGetSampleAnalysisQuery(sample.id);
 
-  const dateFormat = new Intl.DateTimeFormat("fr-FR", {
-    dateStyle: "long",
-  })
+  const dateFormat = new Intl.DateTimeFormat('fr-FR', {
+    dateStyle: 'long'
+  });
   const [receivedAt] = useState(
     sample.receivedAt ? dateFormat.format(sample.receivedAt) : undefined
   );
@@ -73,27 +73,41 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample } ) => {
             </div>
             {![...CompletedStatusList, 'NotAdmissible'].includes(
               sample.status
-            ) && analysis?.status !== 'InReview' && (
-              <div
-                className={cx('fr-text--lg', 'fr-text--regular', 'fr-mb-1w')}
-              >
-                Renseignez ci-dessous le suivi d’analyse par le laboratoire
-              </div>
-            )}
-            <div className={clsx(cx('fr-mb-1w'), 'd-flex-align-center')}>
-              <span
-                className={cx(
-                  'fr-icon-success-fill',
-                  'fr-label--success',
-                  'fr-mr-1w'
+            ) && (
+              <>
+                {analysis?.status !== 'InReview' ? (
+                  <div
+                    className={cx(
+                      'fr-text--lg',
+                      'fr-text--regular',
+                      'fr-mb-1w'
+                    )}
+                  >
+                    Renseignez ci-dessous le suivi d’analyse par le laboratoire
+                  </div>
+                ) : (
+                  <div className={clsx(cx('fr-mb-1w'), 'd-flex-align-center')}>
+                    <span
+                      className={cx(
+                        'fr-icon-success-fill',
+                        'fr-label--success',
+                        'fr-mr-1w'
+                      )}
+                    />
+                    <span
+                      className={cx(
+                        'fr-text--lg',
+                        'fr-text--regular',
+                        'fr-mb-0'
+                      )}
+                    >
+                      Échantillon recevable et reçu par le laboratoire le{' '}
+                      {receivedAt}
+                    </span>
+                  </div>
                 )}
-              />
-              <span
-                className={cx('fr-text--lg', 'fr-text--regular', 'fr-mb-0')}
-              >
-                Échantillon recevable et reçu par le laboratoire le {receivedAt}
-              </span>
-            </div>
+              </>
+            )}
           </h3>
         </div>
       </div>
@@ -111,14 +125,13 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample } ) => {
         </Button>
       ) : (
         <>
-          {['Analysis',  ...CompletedStatusList].includes(
-            sample.status
-          ) && (
+          {['Analysis', ...CompletedStatusList].includes(sample.status) && (
             <div
               className={clsx(
                 cx(
                   'fr-callout',
-                  CompletedStatusList.includes(sample.status) || analysis?.status === 'InReview'
+                  CompletedStatusList.includes(sample.status) ||
+                    analysis?.status === 'InReview'
                     ? 'fr-callout--green-emeraude'
                     : 'fr-callout--pink-tuile'
                 ),
@@ -128,13 +141,15 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample } ) => {
               )}
             >
               {sample.status === 'Analysis' &&
-                (analysis?.status === 'InReview' ? <SampleAnalysisReview
+                (analysis?.status === 'InReview' ? (
+                  <SampleAnalysisReview
                     sample={sample}
                     partialAnalysis={analysis}
                     onReviewDone={() => navigateToSample(sample.id)}
-                  /> :
-                <SampleDraftAnalysis sample={sample} />
-              )}
+                  />
+                ) : (
+                  <SampleDraftAnalysis sample={sample} />
+                ))}
               {CompletedStatusList.includes(sample.status) && (
                 <SampleAnalysisOverview sample={sample} />
               )}
