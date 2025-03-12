@@ -9,6 +9,7 @@ import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
 import { ResidueCompliance } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import { type DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
+import { Domain } from 'maestro-shared/schema/ProgrammingPlan/Domain';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
@@ -212,7 +213,8 @@ export interface Users {
   lastName: string;
   region: Region | null;
   role: UserRole;
-  loggedSecrets: ColumnType<string[], string[] | null, string[]>
+  loggedSecrets: ColumnType<string[], string[] | null, string[]>;
+  domain: Domain;
 }
 
 export interface SampleDocuments {
