@@ -5,13 +5,14 @@
 
 import { ColumnType, type Kysely } from 'kysely';
 import { type Region } from 'maestro-shared/referential/Region';
+import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
+import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { ResidueCompliance } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import { type DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
+import { Domain } from 'maestro-shared/schema/ProgrammingPlan/Domain';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
-import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
-import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 
 export type Generated<T> =
   T extends ColumnType<infer S, infer I, infer U>
@@ -65,9 +66,11 @@ export interface AnalysisResidues {
 
 export interface AnalysisErrors {
   analysisId: string;
-  residues: { old: Omit<PartialResidue, 'analysisId'>[], new: Omit<PartialResidue, 'analysisId'>[] }
+  residues: {
+    old: Omit<PartialResidue, 'analysisId'>[];
+    new: Omit<PartialResidue, 'analysisId'>[];
+  };
 }
-
 
 export interface AnalysisResiduesTmp {
   analysisId: string | null;
@@ -238,6 +241,7 @@ export interface Users {
   lastName: string;
   region: Region | null;
   roles: UserRole[];
+  domain: Domain;
 }
 
 export interface SampleDocuments {
