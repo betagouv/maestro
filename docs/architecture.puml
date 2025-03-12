@@ -28,16 +28,24 @@ package Scalingo {
 
 package Externes {
   OFF_3RD_PARTY_MAIL_SERVER(Brevo, Brevo)
-  OFF_3RD_PARTY_MAIL_SERVER(OVH, OVH)
+  OFF_3RD_PARTY_MAIL_SERVER(OVH_EMAIL, OVH Email)
+  OFF_FILE_SERVER(OVH_FTP, OVH FTP)
   OFF_FILE_SERVER(S3, S3 Scaleway)
+}
+
+package Laboratoires {
+    OFF_APPLICATION_SERVER(LIMS, LIMS)
 }
 
 Utilisateurs --> UI
 API <--> ProConnect: authentification
 Utilisateurs --> Sentry: erreurs
 Utilisateurs --> Matomo: statistiques
-API --> Brevo: envoie mail
-API <-- OVH: reception analyses
+API --> Brevo: envoi mail
+API <-- OVH_EMAIL: reception analyses
+API <-- OVH_FTP: reception analyses
+LIMS --> OVH_EMAIL: envoi analyses
+LIMS --> OVH_FTP: envoi analyses
 API <--> S3: stockage des documents
 API --> Entreprise
 API --> Adresse
