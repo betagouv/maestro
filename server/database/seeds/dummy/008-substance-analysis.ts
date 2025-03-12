@@ -32,7 +32,7 @@ import {
   poireauxEtSimilaires,
   poires,
   rizEtSimilaires
-} from './004-prescriptions';
+} from './004-prescriptions-ppv';
 
 export const seed = async function () {
   const genSubstanceAnalysis = (
