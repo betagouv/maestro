@@ -47,6 +47,7 @@ const findProgrammingPlans = async (request: Request, response: Response) => {
       findOptionsStatus,
       userStatusAuthorized
     ) as ProgrammingPlanStatus[],
+    domain: user.domain,
     region: user.region || findOptions.region
   });
 
@@ -66,6 +67,7 @@ const getProgrammingPlanByYear = async (
 
   const programmingPlan = await programmingPlanRepository.findOne(
     year,
+    user.domain,
     user.region
   );
 
@@ -98,7 +100,8 @@ const createProgrammingPlan = async (request: Request, response: Response) => {
   const year = parseInt(request.params.year);
 
   const previousProgrammingPlan = await programmingPlanRepository.findOne(
-    year - 1
+    year - 1,
+    user.domain
   );
 
   if (
@@ -112,6 +115,8 @@ const createProgrammingPlan = async (request: Request, response: Response) => {
     id: uuidv4(),
     createdAt: new Date(),
     createdBy: user.id,
+    domain: previousProgrammingPlan.domain,
+    contexts: previousProgrammingPlan.contexts,
     year,
     regionalStatus: RegionList.map((region) => ({
       region,
