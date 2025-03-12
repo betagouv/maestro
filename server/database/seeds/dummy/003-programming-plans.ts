@@ -7,8 +7,10 @@ import {
 } from '../../../repositories/programmingPlanRepository';
 import { Users } from '../../../repositories/userRepository';
 
-export const validatedProgrammingPlanId =
+export const ppvValidatedProgrammingPlanId =
   'f5d510ef-ab78-449a-acd6-392895a1994f';
+export const pfasValidatedProgrammingPlanId =
+  'd78fb3eb-1998-482b-9014-282d51ae30b8';
 
 export const seed = async function () {
   const user = await Users()
@@ -20,9 +22,23 @@ export const seed = async function () {
   }
 
   await ProgrammingPlans().insert(
-    formatProgrammingPlan(
+    [
       genProgrammingPlan({
-        id: validatedProgrammingPlanId,
+        id: ppvValidatedProgrammingPlanId,
+        domain: 'PPV',
+        contexts: ['Control', 'Surveillance'],
+        createdAt: new Date(),
+        createdBy: user.id,
+        regionalStatus: RegionList.map((region) => ({
+          region,
+          status: 'Validated'
+        })),
+        year: new Date().getFullYear()
+      }),
+      genProgrammingPlan({
+        id: pfasValidatedProgrammingPlanId,
+        domain: 'PFAS',
+        contexts: ['Control'],
         createdAt: new Date(),
         createdBy: user.id,
         regionalStatus: RegionList.map((region) => ({
@@ -31,14 +47,17 @@ export const seed = async function () {
         })),
         year: new Date().getFullYear()
       })
-    )
+    ].map(formatProgrammingPlan)
   );
 
   await ProgrammingPlanRegionalStatus().insert(
-    RegionList.map((region) => ({
-      programmingPlanId: validatedProgrammingPlanId,
-      region,
-      status: 'Validated'
-    }))
+    [ppvValidatedProgrammingPlanId, pfasValidatedProgrammingPlanId].flatMap(
+      (id) =>
+        RegionList.map((region) => ({
+          programmingPlanId: id,
+          region,
+          status: 'Validated'
+        }))
+    )
   );
 };

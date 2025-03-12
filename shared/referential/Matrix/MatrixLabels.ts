@@ -107,5 +107,7 @@ export const MatrixLabels: Record<Matrix, string> = {
   A000R: 'Grain de quinoa',
   A000L: 'Sarrasin/Quinoa',
   A00HQ: 'Tomates',
-  A00HY: 'Tomates cerises'
+  A00HY: 'Tomates cerises',
+  A031G: 'Oeufs de poule',
+  A031K: 'Oeufs de caille'
 };

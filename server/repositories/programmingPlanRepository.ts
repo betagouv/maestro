@@ -1,5 +1,6 @@
 import { isArray, isNil, omit, omitBy } from 'lodash-es';
 import { Region } from 'maestro-shared/referential/Region';
+import { Domain } from 'maestro-shared/schema/ProgrammingPlan/Domain';
 import { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import { ProgrammingPlanRegionalStatus as ProgrammingPlanRegionalStatusType } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanRegionalStatus';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -56,11 +57,12 @@ const findUnique = async (id: string): Promise<ProgrammingPlan | undefined> => {
 
 const findOne = async (
   year: number,
+  domain: Domain,
   region?: Region | null
 ): Promise<ProgrammingPlan | undefined> => {
   console.info('Find programming plan', year);
   return ProgrammingPlanQuery()
-    .where({ year })
+    .where({ year, domain })
     .modify((builder) => {
       if (region) {
         builder.where('region', region);

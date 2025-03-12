@@ -9,6 +9,7 @@ export const seed = async function () {
       email: 'admin@maestro.beta.gouv.fr',
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
+      domain: 'PPV',
       role: 'Administrator'
     },
     {
@@ -16,6 +17,7 @@ export const seed = async function () {
       email: 'coordinateur.national@maestro.beta.gouv.fr',
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
+      domain: 'PPV',
       role: 'NationalCoordinator'
     },
     {
@@ -23,6 +25,7 @@ export const seed = async function () {
       email: 'coordinateur.regional@maestro.beta.gouv.fr',
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
+      domain: 'PPV',
       role: 'RegionalCoordinator',
       region: '44'
     },
@@ -31,6 +34,7 @@ export const seed = async function () {
       email: 'coordinateur.regional.drom@maestro.beta.gouv.fr',
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
+      domain: 'PPV',
       role: 'RegionalCoordinator',
       region: '01'
     },
@@ -39,6 +43,7 @@ export const seed = async function () {
       email: 'preleveur@maestro.beta.gouv.fr',
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
+      domain: 'PPV',
       role: 'Sampler',
       region: '44'
     },
@@ -47,6 +52,7 @@ export const seed = async function () {
       email: 'preleveur.drom@maestro.beta.gouv.fr',
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
+      domain: 'PPV',
       role: 'Sampler',
       region: '01'
     },
@@ -72,6 +78,15 @@ export const seed = async function () {
       lastName: fakerFR.person.lastName(),
       role: 'SamplerAndNationalObserver',
       region: '44'
+    },
+    {
+      id: uuidv4(),
+      email: 'preleveur.pfas@maestro.beta.gouv.fr',
+      firstName: fakerFR.person.firstName(),
+      lastName: fakerFR.person.lastName(),
+      domain: 'PFAS',
+      role: 'Sampler',
+      region: '75'
     }
   ]);
 };

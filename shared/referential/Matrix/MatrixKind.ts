@@ -30,7 +30,9 @@ export const MatrixKindEffective = z.enum([
   'A01DV',
   'A001D',
   'A000L',
-  'A00HQ'
+  'A00HQ',
+  'A031G',
+  'A031K'
 ]);
 
 export const MatrixKind = z.enum(
@@ -84,5 +86,7 @@ export const MatrixKindLabels: Record<MatrixKind, string> = {
   A01DV: 'Raisins',
   A001D: 'Riz',
   A000L: 'Sarrasin/Quinoa',
-  A00HQ: 'Tomates'
+  A00HQ: 'Tomates',
+  A031G: 'Oeufs de poule',
+  A031K: 'Oeufs de caille'
 };

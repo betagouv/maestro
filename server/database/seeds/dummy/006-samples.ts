@@ -13,7 +13,7 @@ import {
 } from '../../../repositories/sampleRepository';
 import { Users } from '../../../repositories/userRepository';
 import { DummyLaboratoryIds } from './002-laboratories';
-import { validatedProgrammingPlanId } from './003-programming-plans';
+import { ppvValidatedProgrammingPlanId } from './003-programming-plans';
 import {
   abricotsEtSimilaires,
   avoineEtSimilaires,
@@ -22,11 +22,11 @@ import {
   fevesDeSoja,
   lentilles,
   oignons
-} from './004-prescriptions';
+} from './004-prescriptions-ppv';
 
 export const seed = async function () {
   const validatedProgrammingPlan = await ProgrammingPlans()
-    .where({ id: validatedProgrammingPlanId })
+    .where({ id: ppvValidatedProgrammingPlanId })
     .first();
 
   const sampler = await Users()
