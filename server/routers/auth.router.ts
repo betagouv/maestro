@@ -9,7 +9,9 @@ const authRouter = express.Router();
 authRouter.get('/redirect-url', authController.getAuthRedirectUrl);
 authRouter.post(
   '/',
-  validator.validate(body(AuthRedirectUrl)),
+  validator.validate(body(AuthRedirectUrl), {
+    skipSanitization: true
+  }),
   authController.authenticate
 );
 
