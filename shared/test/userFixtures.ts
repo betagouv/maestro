@@ -1,6 +1,7 @@
 import { fakerFR } from '@faker-js/faker';
 import { v4 as uuidv4 } from 'uuid';
 import { Region, RegionList } from '../referential/Region';
+import { DomainList } from '../schema/ProgrammingPlan/Domain';
 import { AuthUser } from '../schema/User/AuthUser';
 import { User } from '../schema/User/User';
 import { UserRoleList } from '../schema/User/UserRole';
@@ -13,6 +14,7 @@ export const genUser = (data?: Partial<User>): User => {
     email: fakerFR.internet.email(),
     firstName: fakerFR.person.firstName(),
     lastName: fakerFR.person.lastName(),
+    domain: oneOf(DomainList),
     role,
     region: ['NationalCoordinator', 'Administrator'].includes(role)
       ? null
@@ -28,6 +30,7 @@ export const RegionDromFixture = '01' as Region;
 export const Sampler1Fixture = genUser({
   role: 'Sampler',
   id: '11111111-1111-1111-1111-111111111111',
+  domain: 'PPV',
   region: Region1Fixture,
   firstName: 'John',
   lastName: 'Doe',
@@ -36,6 +39,7 @@ export const Sampler1Fixture = genUser({
 export const Sampler2Fixture = genUser({
   role: 'Sampler',
   id: '22222222-2222-2222-2222-222222222222',
+  domain: 'PPV',
   region: Region2Fixture,
   firstName: 'Jane',
   lastName: 'Austen',
@@ -44,6 +48,7 @@ export const Sampler2Fixture = genUser({
 export const SamplerDromFixture = genUser({
   role: 'Sampler',
   id: '66666666-6666-6666-6666-666666666666',
+  domain: 'PPV',
   region: RegionDromFixture,
   firstName: 'Jack',
   lastName: 'Sparrow',
@@ -52,6 +57,7 @@ export const SamplerDromFixture = genUser({
 export const RegionalCoordinator = genUser({
   role: 'RegionalCoordinator',
   id: '33333333-3333-3333-3333-333333333333',
+  domain: 'PPV',
   region: Region1Fixture,
   firstName: 'Alice',
   lastName: 'Wonderland',
@@ -60,6 +66,7 @@ export const RegionalCoordinator = genUser({
 export const RegionalDromCoordinator = genUser({
   role: 'RegionalCoordinator',
   id: '44444444-4444-4444-4444-444444444444',
+  domain: 'PPV',
   region: RegionDromFixture,
   firstName: 'Bob',
   lastName: 'Marley',
@@ -67,6 +74,7 @@ export const RegionalDromCoordinator = genUser({
 });
 export const NationalCoordinator = genUser({
   role: 'NationalCoordinator',
+  domain: 'PPV',
   id: '55555555-5555-5555-5555-555555555555'
 });
 export const AdminFixture = genUser({
