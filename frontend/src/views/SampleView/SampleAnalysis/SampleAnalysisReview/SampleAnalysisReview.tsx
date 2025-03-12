@@ -100,7 +100,6 @@ export const SampleAnalysisReview: FunctionComponent<Props> = ({
   };
 
   const onSave = async (analyseToSave: PartialAnalysis): Promise<void> => {
-    //FIXME cette méthode prend trop de params, le front peut par exemple modifier la date de création ou le sampleId :-/
     await updateAnalysis(analyseToSave);
     onReviewDone();
   };
