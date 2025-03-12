@@ -7,14 +7,14 @@ import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
 import { v4 as uuidv4 } from 'uuid';
 import { SampleAnalysisReview } from './SampleAnalysisReview';
-import { Mocked } from 'vitest';
 
+const onReviewDoneMock = fn()
 const meta = {
   title: 'Views/SampleAnalysisReview',
   component: SampleAnalysisReview,
   args: {
     sample: Sample11Fixture as Sample,
-    onReviewDone: fn() as Mocked<any>
+    onReviewDone: onReviewDoneMock
   },
   decorators: [
     (Story) => (
@@ -30,6 +30,12 @@ const meta = {
       </div>
     )
   ]
+  ,
+  async beforeEach() {
+    return () => {
+      onReviewDoneMock.mockReset()
+    };
+  },
 } satisfies Meta<typeof SampleAnalysisReview>;
 
 export default meta;
@@ -101,7 +107,9 @@ export const Interpretation = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await userEvent.click(canvas.getByLabelText('Conforme'));
+    for (const conformeButton of canvas.getAllByText('Conforme')) {
+      await userEvent.click(conformeButton);
+    }
     await userEvent.click(canvas.getByText("Finaliser l'interprétation"));
 
     await userEvent.click(canvas.getByLabelText('Échantillon conforme'));
@@ -119,7 +127,9 @@ export const CorrectionWithResidues = {
 
     await userEvent.click(canvas.getByText('Corriger'));
 
-    await expect(canvas.getByText('Type de résidu')).toBeInTheDocument();
+    const firstResiduContainer = within(canvas.getByText('Résidu n°1').parentElement!.parentElement!)
+
+    await expect(firstResiduContainer.getByText('Type de résidu')).toBeInTheDocument();
     await expect(meta.args.onReviewDone).not.toBeCalled();
   }
 } satisfies Story;
