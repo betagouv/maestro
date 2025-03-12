@@ -1,13 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { userEvent, within, expect,  fireEvent, fn } from '@storybook/test';
+import { expect, fn, userEvent, within } from '@storybook/test';
 import clsx from 'clsx';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
 import { v4 as uuidv4 } from 'uuid';
 import { SampleAnalysisReview } from './SampleAnalysisReview';
-import { ResultKindList } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 import { Mocked } from 'vitest';
 
 const meta = {
@@ -86,9 +85,8 @@ export const Interpretation = {
     await userEvent.click(canvas.getByText("Finaliser l'interprétation"));
 
     await userEvent.click(canvas.getByLabelText('Échantillon conforme'));
-    await userEvent.click(canvas.getByText("Valider l'interprétation"))
-    await expect(meta.args.onReviewDone).toBeCalled()
-
+    await userEvent.click(canvas.getByText("Valider l'interprétation"));
+    await expect(meta.args.onReviewDone).toBeCalled();
   }
 } satisfies Story;
 
@@ -102,7 +100,7 @@ export const CorrectionWithResidues = {
     await userEvent.click(canvas.getByText('Corriger'));
 
     await expect(canvas.getByText('Type de résidu')).toBeInTheDocument();
-    await expect(meta.args.onReviewDone).not.toBeCalled()
+    await expect(meta.args.onReviewDone).not.toBeCalled();
   }
 } satisfies Story;
 
