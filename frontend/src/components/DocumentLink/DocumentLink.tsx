@@ -11,7 +11,7 @@ interface Props {
 
 const DocumentLink = ({ documentId }: Props) => {
   const apiClient = useContext(ApiClientContext)
-  const { openDocument } = useDocument(apiClient);
+  const { openDocument } = useDocument();
 
   const { data: document } = apiClient.useGetDocumentQuery(documentId ?? skipToken);
 

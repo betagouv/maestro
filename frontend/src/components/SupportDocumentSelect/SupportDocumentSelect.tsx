@@ -11,7 +11,6 @@ import { useState } from 'react';
 import { useDocument } from 'src/hooks/useDocument';
 import { getSupportDocumentURL } from 'src/services/sample.service';
 import './SupportDocumentSelect.scss';
-import { apiClient } from '../../services/apiClient';
 export interface Props {
   label?: string;
   sample: (Sample | SampleToCreate) & Partial<SampleOwnerData>;
@@ -19,7 +18,7 @@ export interface Props {
 }
 
 const SupportDocumentSelect = ({ label, sample, renderButtons }: Props) => {
-  const { openDocument } = useDocument(apiClient);
+  const { openDocument } = useDocument();
 
   const [selectedItemNumber, setSelectedItemNumber] = useState(1);
 

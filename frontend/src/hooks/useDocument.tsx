@@ -1,6 +1,9 @@
-import { ApiClient } from '../services/apiClient';
+import { ApiClientContext } from '../services/apiClient';
+import { useContext } from 'react';
 
-export const useDocument = (apiClient: Pick<ApiClient, 'useLazyGetDocumentDownloadSignedUrlQuery'>) => {
+export const useDocument = () => {
+  const apiClient = useContext(ApiClientContext)
+
   const [getDocumentUrl] = apiClient.useLazyGetDocumentDownloadSignedUrlQuery();
 
   const openDocument = async (documentId: string) => {
