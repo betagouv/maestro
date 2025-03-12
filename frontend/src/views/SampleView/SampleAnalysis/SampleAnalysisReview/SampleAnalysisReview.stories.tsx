@@ -1,21 +1,21 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { userEvent, within, expect,  fireEvent } from '@storybook/test';
+import { userEvent, within, expect,  fireEvent, fn } from '@storybook/test';
 import clsx from 'clsx';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
 import { v4 as uuidv4 } from 'uuid';
 import { SampleAnalysisReview } from './SampleAnalysisReview';
 import { ResultKindList } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
-import {fn} from '@vitest/spy';
+import { Mocked } from 'vitest';
 
 const meta = {
   title: 'Views/SampleAnalysisReview',
   component: SampleAnalysisReview,
   args: {
     sample: Sample11Fixture as Sample,
-    onReviewDone: fn()
+    onReviewDone: fn() as Mocked<any>
   },
   decorators: [
     (Story) => (
