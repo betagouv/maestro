@@ -8,6 +8,7 @@ import {
   RegionalPrescription,
   RegionalPrescriptionKey
 } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
+import { RealizedStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
 import { knexInstance as db } from './db';
 import { prescriptionsTable } from './prescriptionRepository';
 import { regionalPrescriptionCommentsTable } from './regionalPrescriptionCommentRepository';
@@ -116,6 +117,10 @@ const include = (opts?: FindRegionalPrescriptionOptions) => {
             .andOn(
               `${samplesTable}.region`,
               `${regionalPrescriptionsTable}.region`
+            )
+            .andOn(
+              `${samplesTable}.status`,
+              db.raw(`any(?)`, [RealizedStatusList])
             )
         )
         .groupBy(
