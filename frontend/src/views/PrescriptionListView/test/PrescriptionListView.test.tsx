@@ -10,7 +10,7 @@ import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures'
 import { genCreatedPartialSample } from 'maestro-shared/test/sampleFixtures';
 import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
 import { Provider } from 'react-redux';
-import { BrowserRouter, MemoryRouter, useParams } from 'react-router-dom';
+import { MemoryRouter, useParams } from 'react-router-dom';
 import YearRoute from 'src/components/YearRoute/YearRoute';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import PrescriptionListView from 'src/views/PrescriptionListView/PrescriptionListView';
@@ -18,6 +18,7 @@ import { mockRequests } from '../../../../test/requestTestUtils';
 
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { act } from 'react'
+import { ProviderTest } from '../../../../test/ProviderTest';
 
 vi.mock(import('react-router-dom'), async (importOriginal) => {
   const original = await importOriginal();
@@ -196,11 +197,9 @@ describe('PrescriptionListView', () => {
       });
 
       render(
-        <Provider store={store}>
-          <BrowserRouter>
+        <ProviderTest store={store}>
             <PrescriptionListView />
-          </BrowserRouter>
-        </Provider>
+        </ProviderTest>
       );
 
       expect(screen.queryByTestId('add-matrix-button')).not.toBeInTheDocument();

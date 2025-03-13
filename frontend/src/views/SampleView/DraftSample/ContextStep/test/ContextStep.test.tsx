@@ -1,13 +1,12 @@
 import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { format } from 'date-fns';
-import { Provider } from 'react-redux';
-import { BrowserRouter } from 'react-router-dom';
 import { store } from 'src/store/store';
 import ContextStep from 'src/views/SampleView/DraftSample/ContextStep/ContextStep';
 import { act } from 'react'
 
 import { beforeEach, describe, expect, test } from 'vitest';
+import { ProviderTest } from '../../../../../../test/ProviderTest';
 // const companySearchResult = genCompanySearchResult();
 // const companySearchRequest = {
 //   pathname: `/api/companies/search?q=Company`,
@@ -23,11 +22,9 @@ describe('DraftSampleContextStep', () => {
 
   test('should render form successfully', () => {
     render(
-      <Provider store={store}>
-        <BrowserRouter>
+      <ProviderTest store={store}>
           <ContextStep />
-        </BrowserRouter>
-      </Provider>
+      </ProviderTest>
     );
 
     expect(
@@ -50,11 +47,9 @@ describe('DraftSampleContextStep', () => {
 
   test('should set inputs with default values', () => {
     render(
-      <Provider store={store}>
-        <BrowserRouter>
+      <ProviderTest store={store}>
           <ContextStep />
-        </BrowserRouter>
-      </Provider>
+      </ProviderTest>
     );
 
     const dateInput = screen.getAllByTestId('sampledAt-input')[1];
@@ -64,11 +59,9 @@ describe('DraftSampleContextStep', () => {
 
   test('should handle errors on submitting', async () => {
     render(
-      <Provider store={store}>
-        <BrowserRouter>
+      <ProviderTest store={store}>
           <ContextStep />
-        </BrowserRouter>
-      </Provider>
+      </ProviderTest>
     );
 
     await act(async () => {

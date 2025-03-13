@@ -2,8 +2,6 @@ import { configureStore, Store } from '@reduxjs/toolkit';
 import { render, screen, waitFor } from '@testing-library/react';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
 import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
-import { Provider } from 'react-redux';
-import { BrowserRouter } from 'react-router-dom';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import DocumentListView from 'src/views/DocumentListView/DocumentListView';
 import { beforeEach } from 'vitest';
@@ -18,6 +16,7 @@ vi.mock(import('react-router-dom'), async (importOriginal) => {
 });
 
 import { describe, expect, test, vi } from 'vitest';
+import { ProviderTest } from '../../../../test/ProviderTest';
 let store: Store;
 const nationalCoordinator = genUser({
   roles: ['NationalCoordinator']
@@ -53,11 +52,9 @@ describe('DocumentListView', () => {
       ]);
 
       render(
-        <Provider store={store}>
-          <BrowserRouter>
+        <ProviderTest store={store}>
             <DocumentListView />
-          </BrowserRouter>
-        </Provider>
+        </ProviderTest>
       );
 
       expect(screen.getByText('Ressources')).toBeInTheDocument();
@@ -71,11 +68,9 @@ describe('DocumentListView', () => {
 
     test('should render the upload form', async () => {
       render(
-        <Provider store={store}>
-          <BrowserRouter>
+        <ProviderTest store={store}>
             <DocumentListView />
-          </BrowserRouter>
-        </Provider>
+        </ProviderTest>
       );
       await waitFor(() => {
         expect(screen.getByTestId('add-document')).toBeInTheDocument();
@@ -107,11 +102,9 @@ describe('DocumentListView', () => {
       ]);
 
       render(
-        <Provider store={store}>
-          <BrowserRouter>
+        <ProviderTest store={store}>
             <DocumentListView />
-          </BrowserRouter>
-        </Provider>
+        </ProviderTest>
       );
 
       expect(screen.getByText('Ressources')).toBeInTheDocument();
@@ -125,11 +118,9 @@ describe('DocumentListView', () => {
 
     test('should not render the upload form', async () => {
       render(
-        <Provider store={store}>
-          <BrowserRouter>
+        <ProviderTest store={store}>
             <DocumentListView />
-          </BrowserRouter>
-        </Provider>
+        </ProviderTest>
       );
       await waitFor(() => {
         expect(screen.queryByTestId('add-document')).not.toBeInTheDocument();

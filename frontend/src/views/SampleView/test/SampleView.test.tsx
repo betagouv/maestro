@@ -8,8 +8,7 @@ import {
   genSampleContextData
 } from 'maestro-shared/test/sampleFixtures';
 import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
-import { Provider } from 'react-redux';
-import { BrowserRouter, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import SampleView from 'src/views/SampleView/SampleView';
 import {
@@ -18,6 +17,7 @@ import {
 } from '../../../../test/requestTestUtils';
 
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { ProviderTest } from '../../../../test/ProviderTest';
 
 vi.mock(import('react-router-dom'), async (importOriginal) => {
   const original = await importOriginal();
@@ -66,11 +66,9 @@ describe('SampleView', () => {
     vi.mocked(useParams).mockReturnValue({ sampleId: undefined });
 
     render(
-      <Provider store={store}>
-        <BrowserRouter>
-          <SampleView />
-        </BrowserRouter>
-      </Provider>
+      <ProviderTest store={store}>
+        <SampleView />
+      </ProviderTest>
     );
 
     await waitFor(async () => {
@@ -100,11 +98,9 @@ describe('SampleView', () => {
     vi.mocked(useParams).mockReturnValue({ sampleId: createdSample.id });
 
     render(
-      <Provider store={store}>
-        <BrowserRouter>
-          <SampleView />
-        </BrowserRouter>
-      </Provider>
+      <ProviderTest store={store}>
+        <SampleView />
+      </ProviderTest>
     );
 
     await waitFor(async () => {
@@ -135,11 +131,9 @@ describe('SampleView', () => {
     vi.mocked(useParams).mockReturnValue({ sampleId: draftSample.id });
 
     render(
-      <Provider store={store}>
-        <BrowserRouter>
-          <SampleView />
-        </BrowserRouter>
-      </Provider>
+      <ProviderTest store={store}>
+        <SampleView />
+      </ProviderTest>
     );
 
     await waitFor(async () => {
@@ -169,11 +163,9 @@ describe('SampleView', () => {
     vi.mocked(useParams).mockReturnValue({ sampleId: draftSample.id });
 
     render(
-      <Provider store={store}>
-        <BrowserRouter>
-          <SampleView />
-        </BrowserRouter>
-      </Provider>
+      <ProviderTest store={store}>
+        <SampleView />
+      </ProviderTest>
     );
 
     await waitFor(async () => {

@@ -6,14 +6,13 @@ import {
   genCreatedSampleData,
   genSampleContextData
 } from 'maestro-shared/test/sampleFixtures';
-import { Provider } from 'react-redux';
-import { BrowserRouter } from 'react-router-dom';
 import { store } from 'src/store/store';
 import config from 'src/utils/config';
 import ItemsStep from 'src/views/SampleView/DraftSample/ItemsStep/ItemsStep';
 import { describe, expect, test } from 'vitest';
 import { getRequestCalls } from '../../../../../../test/requestTestUtils';
 import { act } from 'react'
+import { ProviderTest } from '../../../../../../test/ProviderTest';
 
 describe('DraftSampleItemsStep', () => {
   const user = userEvent.setup();
@@ -25,11 +24,9 @@ describe('DraftSampleItemsStep', () => {
 
   test('should render form successfully with a default item without recipient kind choice', () => {
     render(
-      <Provider store={store}>
-        <BrowserRouter>
+      <ProviderTest store={store}>
           <ItemsStep partialSample={draftSample} />
-        </BrowserRouter>
-      </Provider>
+      </ProviderTest>
     );
 
     expect(screen.getAllByTestId('item-quantity-input-0')).toHaveLength(2);
@@ -48,11 +45,9 @@ describe('DraftSampleItemsStep', () => {
 
   test('should add an item with recipient kind choice', async () => {
     render(
-      <Provider store={store}>
-        <BrowserRouter>
+      <ProviderTest store={store}>
           <ItemsStep partialSample={draftSample} />
-        </BrowserRouter>
-      </Provider>
+      </ProviderTest>
     );
 
     await user.click(screen.getByTestId('add-item-button'));
@@ -68,11 +63,9 @@ describe('DraftSampleItemsStep', () => {
 
   test('should remove an item', async () => {
     render(
-      <Provider store={store}>
-        <BrowserRouter>
+      <ProviderTest store={store}>
           <ItemsStep partialSample={draftSample} />
-        </BrowserRouter>
-      </Provider>
+      </ProviderTest>
     );
 
     await user.click(screen.getByTestId('add-item-button'));
@@ -85,11 +78,9 @@ describe('DraftSampleItemsStep', () => {
 
   test('should handle errors on submitting', async () => {
     render(
-      <Provider store={store}>
-        <BrowserRouter>
+      <ProviderTest store={store}>
           <ItemsStep partialSample={draftSample} />
-        </BrowserRouter>
-      </Provider>
+      </ProviderTest>
     );
 
     await act(async () => {
@@ -110,11 +101,9 @@ describe('DraftSampleItemsStep', () => {
   test('should save the items and the sample on change without handling errors', async () => {
     fetchMock.resetMocks();
     render(
-      <Provider store={store}>
-        <BrowserRouter>
+      <ProviderTest store={store}>
           <ItemsStep partialSample={draftSample} />
-        </BrowserRouter>
-      </Provider>
+      </ProviderTest>
     );
 
     const quantityInput = screen.getAllByTestId('item-quantity-input-0')[1];
@@ -144,11 +133,9 @@ describe('DraftSampleItemsStep', () => {
   test('should submit the items and update sample status', async () => {
     fetchMock.resetMocks();
     render(
-      <Provider store={store}>
-        <BrowserRouter>
+      <ProviderTest store={store}>
           <ItemsStep partialSample={draftSample} />
-        </BrowserRouter>
-      </Provider>
+      </ProviderTest>
     );
 
     const quantityInput = screen.getAllByTestId('item-quantity-input-0')[1];

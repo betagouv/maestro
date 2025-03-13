@@ -5,8 +5,6 @@ import {
   Region1Fixture,
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
-import { Provider } from 'react-redux';
-import { BrowserRouter } from 'react-router-dom';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import { beforeEach } from 'vitest';
 import {
@@ -26,6 +24,7 @@ import { RegionList } from 'maestro-shared/referential/Region';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import DashboardView from 'src/views/DashboardView/DashboardView';
 import { describe, expect, test, vi } from 'vitest';
+import { ProviderTest } from '../../../../test/ProviderTest';
 let store: Store;
 
 describe('DashboardView', () => {
@@ -62,11 +61,9 @@ describe('DashboardView', () => {
         )
       ]);
       render(
-        <Provider store={store}>
-          <BrowserRouter>
+        <ProviderTest store={store}>
             <DashboardView />
-          </BrowserRouter>
-        </Provider>
+        </ProviderTest>
       );
 
       expect(await screen.findByText('Tableau de bord')).toBeInTheDocument();
@@ -100,11 +97,9 @@ describe('DashboardView', () => {
         )
       ]);
       render(
-        <Provider store={store}>
-          <BrowserRouter>
+        <ProviderTest store={store}>
             <DashboardView />
-          </BrowserRouter>
-        </Provider>
+        </ProviderTest>
       );
 
       expect(await screen.findByText('Tableau de bord')).toBeInTheDocument();

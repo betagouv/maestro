@@ -1,17 +1,19 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { skipToken } from '@reduxjs/toolkit/query';
 import { Link } from 'react-router-dom';
-import { useDocument } from 'src/hooks/useDocument';
-import { useGetDocumentQuery } from 'src/services/document.service';
+import { ApiClientContext } from '../../services/apiClient';
+import { useDocument } from '../../hooks/useDocument';
+import { useContext } from 'react';
 
 interface Props {
   documentId?: string;
 }
 
 const DocumentLink = ({ documentId }: Props) => {
+  const apiClient = useContext(ApiClientContext)
   const { openDocument } = useDocument();
 
-  const { data: document } = useGetDocumentQuery(documentId ?? skipToken);
+  const { data: document } = apiClient.useGetDocumentQuery(documentId ?? skipToken);
 
   if (!document) {
     return <></>;

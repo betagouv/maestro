@@ -37,28 +37,28 @@ export const LoginCallbackView = () => {
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    if (isSuccess) {
-      dispatch(authSlice.actions.signinUser({ authUser }));
-      if (authUser.user !== null) {
-        navigate('/');
-      } else {
-        const asyncLogout = async () => {
-          sessionStorage.setItem(
-            SESSION_STORAGE_UNKNOWN_USER_EMAIl,
-            authUser.userEmail
-          );
-          const logoutRedirectUrl = await logout().unwrap();
-          await appLogout()(dispatch);
-          window.location.href = logoutRedirectUrl.url;
-        };
-        asyncLogout();
+  useEffect(
+    () => {
+      if (isSuccess) {
+        dispatch(authSlice.actions.signinUser({ authUser }));
+        if (authUser.user !== null) {
+          navigate('/');
+        } else {
+          const asyncLogout = async () => {
+            sessionStorage.setItem(
+              SESSION_STORAGE_UNKNOWN_USER_EMAIl,
+              authUser.userEmail
+            );
+            const logoutRedirectUrl = await logout().unwrap();
+            await appLogout()(dispatch);
+            window.location.href = logoutRedirectUrl.url;
+          };
+          asyncLogout();
+        }
       }
-    }
-  }, [
-    isSuccess,
-    authUser
-  ]) /* eslint-disable-line react-hooks/exhaustive-deps */;
+    },
+    [isSuccess, authUser] // eslint-disable-line react-hooks/exhaustive-deps
+  );
 
   return (
     <section className={clsx(cx('fr-container-sm'), 'main-section')}>

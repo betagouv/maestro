@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { AuthenticatedRequest } from 'express-jwt';
 import { constants } from 'http2';
+import { isEqual } from 'lodash-es';
 import AnalysisMissingError from 'maestro-shared/errors/analysisMissingError';
 import SampleMissingError from 'maestro-shared/errors/sampleMissingError';
 import {
@@ -8,9 +9,12 @@ import {
   CreatedAnalysis,
   PartialAnalysis
 } from 'maestro-shared/schema/Analysis/Analysis';
+import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { v4 as uuidv4 } from 'uuid';
+import { analysisErrorsRepository } from '../repositories/analysisErrorsRepository';
 import { analysisRepository } from '../repositories/analysisRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
+import { mattermostService } from '../services/mattermostService';
 
 const getAnalysis = async (request: Request, response: Response) => {
   const { sampleId } = request.query as { sampleId: string };
@@ -62,6 +66,44 @@ const updateAnalysis = async (request: Request, response: Response) => {
 
   if (!analysis) {
     throw new AnalysisMissingError(analysisId);
+  }
+
+  if (
+    analysis.status === 'InReview' &&
+    analysisUpdate.status === 'Completed'
+  ) {
+    const getResiduesWithoutInterpretation = (
+      residues: PartialResidue[] | undefined | null
+    ) =>
+      residues?.map(
+        ({
+          analysisId,
+          compliance,
+          resultHigherThanArfd,
+          notesOnResult,
+          substanceApproved,
+          substanceAuthorised,
+          pollutionRisk,
+          notesOnPollutionRisk,
+          otherCompliance,
+          ...rest
+        }) => rest
+      ) ?? [];
+
+    const oldResidues = getResiduesWithoutInterpretation(analysis.residues);
+    const newResidues = getResiduesWithoutInterpretation(
+      analysisUpdate.residues
+    );
+    if (!isEqual(oldResidues, newResidues)) {
+      await mattermostService.send(
+        `Une analyse vient d'être corrigée par un préleveur : SampleId ${analysisUpdate.sampleId}`
+      );
+      await analysisErrorsRepository.insert(
+        analysis.id,
+        oldResidues,
+        newResidues
+      );
+    }
   }
 
   const updatedAnalysis = {

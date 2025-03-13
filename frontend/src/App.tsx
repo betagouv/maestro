@@ -17,6 +17,7 @@ import LoginCallbackView from 'src/views/LoginCallbackView/LoginCallbackView';
 import LogoutCallbackView from 'src/views/LogoutCallbackView/LogoutCallbackView';
 import './App.scss';
 import { store } from './store/store';
+import {  apiClient, ApiClientContext } from './services/apiClient';
 
 declare module '@codegouvfr/react-dsfr/spa' {
   interface RegisterLink {
@@ -24,6 +25,7 @@ declare module '@codegouvfr/react-dsfr/spa' {
   }
 }
 startReactDsfr({ defaultColorScheme: 'light', Link });
+
 
 function AppWrapper() {
   const { MuiDsfrThemeProvider } = createMuiDsfrThemeProvider({
@@ -37,8 +39,10 @@ function AppWrapper() {
   return (
     <MuiDsfrThemeProvider>
       <Provider store={store}>
-        <ScrollToTop />
-        <App />
+        <ApiClientContext.Provider value={apiClient}>
+          <ScrollToTop />
+          <App />
+        </ApiClientContext.Provider>
       </Provider>
     </MuiDsfrThemeProvider>
   );
