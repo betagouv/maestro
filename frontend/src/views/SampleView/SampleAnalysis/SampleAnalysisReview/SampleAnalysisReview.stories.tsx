@@ -139,7 +139,11 @@ export const CorrectionWithoutResidu: Story = {
     ...ReviewWithoutResidue.args
   },
   play: async (context) => {
+    const {canvas} = context
     await CorrectionWithResidues.play(context);
+    await userEvent.click(canvas.getByTitle('Retour'))
+
+    await expect(canvas.queryByText('Résidu n°1')).not.toBeInTheDocument()
   }
 };
 

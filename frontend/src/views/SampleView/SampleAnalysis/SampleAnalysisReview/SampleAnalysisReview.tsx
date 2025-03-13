@@ -66,12 +66,15 @@ export const SampleAnalysisReview: FunctionComponent<Props> = ({
     setAnalysis({ ...analysis, residues });
     setReviewState('Correction');
   };
-  const onBackToFirstStep = async () => setReviewState('Review');
+  const onBackToFirstStep = async () => {
+    setAnalysis({...analysis, residues: analysis.residues?.filter(({analysisMethod}) => analysisMethod !== undefined) ?? []})
+    setReviewState('Review');
+  };
 
   const onValidateCorrection = async (newResidues: Analysis['residues']) => {
     setAnalysis({ ...analysis, residues: newResidues });
     if (reviewState === 'Correction') {
-      await onBackToFirstStep();
+      setReviewState('Review');
     } else {
       setReviewState('Interpretation');
     }
