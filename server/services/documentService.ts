@@ -22,7 +22,7 @@ const createDocument = async <T>(
   file: File,
   documentKind: DocumentKind,
   userId: string | null,
-  callback?: (documentId: string, trx: Transaction<DB>) => Promise<T>
+  callback: (documentId: string, trx: Transaction<DB>) => Promise<T>
 ) => {
   const { documentId, valid, error } = await s3Service.uploadDocument(file);
 
@@ -44,7 +44,7 @@ const createDocument = async <T>(
         trx
       );
 
-      return callback?.(documentId, trx) ?? documentId;
+      return callback(documentId, trx);
     });
   } catch (e) {
     await s3Service.deleteDocument(documentId, file.name);
