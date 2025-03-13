@@ -52,7 +52,8 @@ describe('DashboardView', () => {
         regionalStatus: RegionList.map((region) => ({
           region,
           status: 'Validated'
-        }))
+        })),
+        contexts: ['Control', 'Surveillance']
       });
       mockRequests([
         programmingPlanByYearRequestMock(
@@ -84,7 +85,8 @@ describe('DashboardView', () => {
         regionalStatus: RegionList.map((region) => ({
           region,
           status: 'Validated'
-        }))
+        })),
+        contexts: ['Control', 'Surveillance']
       });
       mockRequests([
         programmingPlanByYearRequestMock(
