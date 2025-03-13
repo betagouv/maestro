@@ -1,18 +1,24 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import { Autocomplete } from '@mui/material';
+import { EggCompanies } from 'maestro-shared/referential/Company/EggsCompany';
 import { Department } from 'maestro-shared/referential/Department';
-import { CompanySearchResult } from 'maestro-shared/schema/Company/CompanySearchResult';
-import { ReactNode, SyntheticEvent, useState } from 'react';
+import {
+  Company,
+  companyFromSearchResult
+} from 'maestro-shared/schema/Company/Company';
+import { Domain } from 'maestro-shared/schema/ProgrammingPlan/Domain';
+import { ReactNode, SyntheticEvent, useCallback, useState } from 'react';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
-import { useLazySearchCompaniesQuery } from 'src/services/company.service';
+import { useLazySearchCompaniesQuery } from '../../services/company.service';
 
 interface Props {
-  initialCompany?: CompanySearchResult;
+  initialCompany?: Company;
   department?: Department;
-  onSelectCompany: (company?: CompanySearchResult) => void;
+  onSelectCompany: (company?: Company) => void;
   state?: 'success' | 'error' | 'default';
   stateRelatedMessage?: ReactNode;
+  domain: Domain;
 }
 
 const CompanySearch = ({
@@ -20,16 +26,34 @@ const CompanySearch = ({
   department,
   onSelectCompany,
   state,
-  stateRelatedMessage
+  stateRelatedMessage,
+  domain
 }: Props) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [companySearchResults, setCompanySearchResults] = useState<
-    CompanySearchResult[]
-  >([]);
+  const [companyResults, setCompanyResults] = useState<Company[]>([]);
   const [searchCompanies, { isLoading, isFetching }] =
     useLazySearchCompaniesQuery();
-  const [company, setCompany] = useState<CompanySearchResult | null>(
+  const [company, setCompany] = useState<Company | null>(
     initialCompany ?? null
+  );
+
+  const search = useCallback(
+    async (value: string) =>
+      domain === 'PFAS'
+        ? Promise.resolve(
+            EggCompanies.filter(
+              (company) =>
+                company.name.toLowerCase().includes(value.toLowerCase()) &&
+                (department ? company.department === department : true)
+            )
+          )
+        : await searchCompanies({
+            query: value,
+            department
+          })
+            .unwrap()
+            .then((results) => results.map(companyFromSearchResult)),
+    [domain]
   );
 
   const handleInputChange = async (
@@ -39,13 +63,9 @@ const CompanySearch = ({
     setSearchQuery(value);
 
     if (value.length > 3) {
-      await searchCompanies({
-        query: value as string,
-        department
-      })
-        .unwrap()
+      await search(value)
         .then((results) => {
-          setCompanySearchResults(results);
+          setCompanyResults(results);
         })
         .catch((error) => {
           console.error(error);
@@ -101,10 +121,8 @@ const CompanySearch = ({
           loading={isLoading || isFetching}
           loadingText={`Recherche en cours...`}
           filterOptions={(x) => x}
-          options={companySearchResults}
-          getOptionLabel={(option) =>
-            [option.siege.siret, option.nom_complet].join(' - ')
-          }
+          options={companyResults}
+          getOptionLabel={(option) => [option.siret, option.name].join(' - ')}
           noOptionsText={
             searchQuery.length > 3
               ? 'Aucun résultat'
@@ -144,7 +162,7 @@ const CompanySearch = ({
               }
             }}
           >
-            {[company.siege.siret, company.nom_complet].join(' - ')}
+            {[company.siret, company.name].join(' - ')}
           </Tag>
         </>
       )}

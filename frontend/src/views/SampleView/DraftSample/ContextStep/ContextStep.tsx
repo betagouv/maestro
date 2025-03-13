@@ -15,11 +15,7 @@ import {
   LegalContextList
 } from 'maestro-shared/referential/LegalContext';
 import { Regions } from 'maestro-shared/referential/Region';
-import {
-  Company,
-  companyFromSearchResult,
-  companyToSearchResult
-} from 'maestro-shared/schema/Company/Company';
+import { Company } from 'maestro-shared/schema/Company/Company';
 import {
   Context,
   ContextLabels
@@ -139,11 +135,14 @@ const ContextStep = ({ partialSample }: Props) => {
     }
   );
 
-  const contextOptions = selectOptionsFromList(Object.keys(ContextLabels), {
-    labels: ContextLabels,
-    withDefault: false,
-    withSort: true
-  });
+  const contextOptions = selectOptionsFromList(
+    programmingPlan?.contexts ?? [],
+    {
+      labels: ContextLabels,
+      withDefault: false,
+      withSort: true
+    }
+  );
 
   const legalContextOptions = selectOptionsFromList(LegalContextList, {
     labels: LegalContextLabels,
@@ -231,6 +230,10 @@ const ContextStep = ({ partialSample }: Props) => {
   };
 
   const form = useForm(Form, formInput, save);
+
+  if (!programmingPlan) {
+    return <></>;
+  }
 
   return (
     <form data-testid="draft_sample_creation_form" className="sample-form">
@@ -429,14 +432,11 @@ const ContextStep = ({ partialSample }: Props) => {
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
           {isOnline ? (
             <CompanySearch
-              initialCompany={
-                company ? companyToSearchResult(company) : undefined
-              }
+              initialCompany={company ?? undefined}
               department={department}
+              domain={programmingPlan.domain}
               onSelectCompany={(result) => {
-                setCompany(
-                  result ? companyFromSearchResult(result) : undefined
-                );
+                setCompany(result);
               }}
               state={form.messageType('company')}
               stateRelatedMessage={
