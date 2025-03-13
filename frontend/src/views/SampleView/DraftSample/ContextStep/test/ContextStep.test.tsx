@@ -4,11 +4,7 @@ import { format } from 'date-fns';
 import { act } from 'react';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
-import {
-  applicationMiddleware,
-  applicationReducer,
-  store
-} from 'src/store/store';
+import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import ContextStep from 'src/views/SampleView/DraftSample/ContextStep/ContextStep';
 
 import { configureStore, Store } from '@reduxjs/toolkit';
