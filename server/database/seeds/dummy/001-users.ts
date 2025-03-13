@@ -81,7 +81,7 @@ export const seed = async function () {
     },
     {
       id: uuidv4(),
-      email: 'preleveur.pfas@maestro.beta.gouv.fr',
+      email: 'preleveur-pfas@maestro.beta.gouv.fr',
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
       domain: 'PFAS',

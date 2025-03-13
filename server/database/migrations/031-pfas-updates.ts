@@ -33,7 +33,24 @@ export const down = async (knex: Knex) => {
     table.dropColumn('domain');
   });
 
-  await knex('programming_plans').delete().whereNot('domain', 'PPV');
+  const deletedProgrammingPlans = await knex('programming_plans').whereNot(
+    'domain',
+    'PPV'
+  );
+
+  await knex('prescriptions')
+    .whereIn(
+      'programming_plan_id',
+      deletedProgrammingPlans.map((pp) => pp.id)
+    )
+    .delete();
+
+  await knex('programming_plans')
+    .whereIn(
+      'id',
+      deletedProgrammingPlans.map((pp) => pp.id)
+    )
+    .delete();
 
   await knex.schema.alterTable('programming_plans', (table) => {
     table.dropUnique(['domain', 'year']);
