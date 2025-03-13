@@ -23,7 +23,6 @@ test("peut ajouter une erreur d'analyse en base", async () => {
        [
         {
           reference: 'RF-00000024-PAR',
-          analysisId,
           residueNumber: 0,
           analysisMethod: 'Mono',
           kind: 'Simple'
