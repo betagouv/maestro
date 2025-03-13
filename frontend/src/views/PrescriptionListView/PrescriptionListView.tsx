@@ -16,8 +16,7 @@ import {
 import { PrescriptionSubstance } from 'maestro-shared/schema/Prescription/PrescriptionSubstance';
 import {
   Context,
-  ContextLabels,
-  ContextList
+  ContextLabels
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   NextProgrammingPlanStatus,
@@ -305,6 +304,10 @@ const PrescriptionListView = () => {
     [programmingPlan] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
+  if (!programmingPlan) {
+    return <></>;
+  }
+
   return (
     <section className="main-section">
       <AppToast open={isAddSuccess} description="Matrice ajoutée" />
@@ -316,7 +319,7 @@ const PrescriptionListView = () => {
       <AppToast open={isCommentSuccess} description="Commentaire ajouté" />
       <div className={cx('fr-container')}>
         <SectionHeader
-          title={`Programmation ${programmingPlan?.year}`}
+          title={`Programmation ${programmingPlan.year}`}
           subtitle={region && Regions[region]?.name}
           illustration={programmation}
           action={
@@ -325,7 +328,7 @@ const PrescriptionListView = () => {
                 hideLegend
                 legend="Contexte"
                 segments={
-                  ContextList.map((context) => ({
+                  programmingPlan.contexts.map((context) => ({
                     label: ContextLabels[context],
                     nativeInputProps: {
                       checked: context === findPrescriptionOptions.context,
