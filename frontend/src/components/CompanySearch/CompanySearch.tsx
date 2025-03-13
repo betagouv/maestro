@@ -53,7 +53,7 @@ const CompanySearch = ({
           })
             .unwrap()
             .then((results) => results.map(companyFromSearchResult)),
-    [domain]
+    [domain, department, searchCompanies]
   );
 
   const handleInputChange = async (
