@@ -118,8 +118,11 @@ const include = (opts?: FindRegionalPrescriptionOptions) => {
               `${samplesTable}.region`,
               `${regionalPrescriptionsTable}.region`
             )
+            .andOn(
+              `${samplesTable}.status`,
+              db.raw(`any(?)`, [RealizedStatusList])
+            )
         )
-        .whereIn('status', RealizedStatusList)
         .groupBy(
           `${regionalPrescriptionsTable}.prescription_id`,
           `${regionalPrescriptionsTable}.region`

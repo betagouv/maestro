@@ -150,7 +150,8 @@ describe('Regional prescriptions router', () => {
     region: Sampler1Fixture.region as Region,
     company: CompanyFixture,
     sampler: Sampler1Fixture,
-    laboratoryId: LaboratoryFixture.id
+    laboratoryId: LaboratoryFixture.id,
+    status: 'Sent'
   });
 
   beforeAll(async () => {
