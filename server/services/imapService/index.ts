@@ -12,6 +12,7 @@ import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { getSSD2Id } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { SandreToSSD2 } from 'maestro-shared/referential/Residue/SandreToSSD2';
 import { OmitDistributive } from 'maestro-shared/utils/typescript';
+import { notificationService } from '../notificationService';
 
 const laboratoriesWithConf = ['GIRPA', 'INOVALYS', 'CAPINOV'] as const satisfies string[];
 type LaboratoryWithConf = (typeof laboratoriesWithConf)[number];
@@ -203,15 +204,21 @@ export const checkEmails = async () => {
                  throw new ExtractError(`Résidue non identifiable : ${r.label}`)
                 }
               });
-              await analysisHandler({...analysis, residues: interestingResidues
+              const {analysisId, programmingPlansYear, samplerId, samplerEmail} = await analysisHandler({...analysis, residues: interestingResidues
                   .map( ({casNumber, codeSandre, label, ...rest}) => rest)
                   .filter((residue): residue is ExportDataSubstanceWithSSD2Id => residue.ssd2Id !== null)});
+
+              await notificationService.sendNotification({
+                category: 'AnalysisReviewTodo',
+                link: `prelevements/${programmingPlansYear}/${analysisId}`,
+                //FIXME on met quoi comme texte
+                message: "Un rapport d'analyse de l'un de vos prélèvements vient d'être reçu par Maestro. Veuillez-vous connecter, faire la vérification de celui-ci et réaliser l'interprétation.",
+              }, [{id: samplerId, email: samplerEmail}])
             }
             await client.messageMove(messageUid, config.inbox.trashboxName, {
               uid: true
             });
 
-            //TODO AUTO_LABO si traité, on envoie une notification au préleveur ?!
           } catch (e: any) {
             await moveMessageToErrorbox(
               parsed.subject ?? '',

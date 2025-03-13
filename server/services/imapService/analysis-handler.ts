@@ -14,13 +14,15 @@ import { getAnalytes, hasAnalytes } from 'maestro-shared/referential/Residue/SSD
 export type AnalysisWithResidueWithSSD2Id =  Omit<ExportAnalysis, 'residues'> & { residues: ExportDataSubstanceWithSSD2Id[]}
 export const analysisHandler = async (
   analyse: AnalysisWithResidueWithSSD2Id
-): Promise<string> => {
+): Promise<{samplerId: string, analysisId: string, programmingPlansYear: number, samplerEmail: string}> => {
 
-  const { sampleId, analyseId } = await kysely
+  const { sampleId, samplerId, analyseId, programmingPlansYear, samplerEmail} = await kysely
     .selectFrom('samples')
+    .innerJoin('programmingPlans', 'samples.programmingPlanId', 'programmingPlans.id')
+    .innerJoin('users', 'samples.sampledBy', 'users.id')
     .leftJoin('analysis', 'samples.id', 'analysis.sampleId')
     .where('reference', '=', analyse.sampleReference)
-    .select(['samples.id as sampleId', 'analysis.id as analyseId'])
+    .select(['samples.id as sampleId', 'analysis.id as analyseId', 'programmingPlans.year as programmingPlansYear', 'users.email as samplerEmail', 'users.id as samplerId'])
     .executeTakeFirstOrThrow();
 
   if (analyseId !== null) {
@@ -28,12 +30,11 @@ export const analysisHandler = async (
       `Une analyse est déjà présente pour cet échantillon : ${analyse.sampleReference}`
     );
   }
-  
+
   const complexResidues = analyse.residues.filter(({ssd2Id}) => hasAnalytes(ssd2Id))
   const simpleResidues =  analyse.residues.filter(({ssd2Id}) => !hasAnalytes(ssd2Id))
 
 
-  
       const residuesIndex: Record<SSD2Id, ExportDataSubstanceWithSSD2Id & {analytes: ExportDataSubstanceWithSSD2Id[]}> = complexResidues.reduce((acc, r) => {
     acc[r.ssd2Id] = {...r, analytes: []}
     return acc
@@ -64,7 +65,7 @@ export const analysisHandler = async (
     }
   })
 
-  return    await documentService.createDocument<string>(
+  return await documentService.createDocument(
         analyse.pdfFile,
         'AnalysisReportDocument',
         null,
@@ -120,7 +121,7 @@ export const analysisHandler = async (
         }
       }
 
-      return analysisId;
+      return { samplerId, analysisId, programmingPlansYear, samplerEmail };
     }
   );
 };

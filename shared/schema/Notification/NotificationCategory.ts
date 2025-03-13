@@ -4,6 +4,7 @@ import { Context, ContextLabels } from '../ProgrammingPlan/Context';
 export const NotificationCategory = z.enum([
   'ProgrammingPlanSubmitted',
   'ProgrammingPlanValidated',
+  'AnalysisReviewTodo',
   ...Context.options
 ]);
 
@@ -15,7 +16,8 @@ export const NotificationCategoryTitles: Record<NotificationCategory, string> =
   {
     ...ContextLabels,
     ProgrammingPlanSubmitted: 'Nouveau plan de programmation disponible',
-    ProgrammingPlanValidated: 'Lancement de la campagne de prélèvements'
+    ProgrammingPlanValidated: 'Lancement de la campagne de prélèvements',
+    AnalysisReviewTodo: 'Analyse reçue, interprétation à faire',
   };
 
 export const NotificationCategoryMessages: Partial<

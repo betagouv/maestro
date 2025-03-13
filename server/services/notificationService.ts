@@ -16,7 +16,7 @@ import { mailService } from './mailService';
 import { mattermostService } from './mattermostService';
 const sendNotification = async <T extends NotificationToCreate>(
   notificationToCreate: T,
-  recipients: User[]
+  recipients: Pick<User, 'id' | 'email'>[]
 ) => {
   await Promise.all(
     recipients.map(async (recipient) => {
