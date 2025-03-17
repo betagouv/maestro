@@ -28,6 +28,7 @@ import {
   useUpdateNotificationsMutation
 } from '../../services/notification.service';
 import './NotificationsView.scss';
+import { FrIconClassName } from '@codegouvfr/react-dsfr';
 
 const NotificationsView = () => {
   useDocumentTitle('Centre de notifications');
@@ -81,11 +82,12 @@ const NotificationsView = () => {
     }
   };
 
-  const Icon: Record<NotificationCategory, string> = {
+  const Icon: Record<NotificationCategory, FrIconClassName> = {
     Surveillance: 'fr-icon-line-chart-fill',
     Control: 'fr-icon-line-chart-fill',
     ProgrammingPlanSubmitted: 'fr-icon-line-chart-fill',
-    ProgrammingPlanValidated: 'fr-icon-line-chart-fill'
+    ProgrammingPlanValidated: 'fr-icon-line-chart-fill',
+    AnalysisReviewTodo: 'fr-icon-edit-box-line'
   };
 
   return (

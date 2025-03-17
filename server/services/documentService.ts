@@ -6,6 +6,14 @@ import { DB } from '../repositories/kysely.type';
 import { ExtractError } from './imapService';
 import { s3Service } from './s3Service';
 
+const insertDocument = async (
+  file: File,
+  documentKind: DocumentKind,
+  userId: string | null,
+) => {
+  await createDocument(file, documentKind, userId, () => Promise.resolve())
+};
+
 const getDocument = async (documentId: string) => {
   const document = await documentRepository.findUnique(documentId);
 
@@ -65,6 +73,7 @@ const deleteDocument = async (documentId: string) => {
 };
 
 export const documentService = {
+  insertDocument,
   createDocument,
   deleteDocument,
   getDocument

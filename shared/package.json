@@ -4,7 +4,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "tsc ",
+    "build": "tsc",
+    "tsc": "tsc",
     "test": "vitest",
     "lint": "eslint . --ext .js,.ts"
   },
