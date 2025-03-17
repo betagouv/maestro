@@ -1,8 +1,10 @@
 import { initKysely } from '../../repositories/kysely.js';
 import config from '../../utils/config.js';
 import { checkEmails } from './index.js';
+import { initKnex } from '../../repositories/db';
 
 const launchExtractEmail = async () => {
+  initKnex()
   initKysely(config.databaseUrl);
   await checkEmails();
 };

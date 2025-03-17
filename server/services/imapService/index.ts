@@ -13,6 +13,7 @@ import { getSSD2Id } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { SandreToSSD2 } from 'maestro-shared/referential/Residue/SandreToSSD2';
 import { OmitDistributive } from 'maestro-shared/utils/typescript';
 import { notificationService } from '../notificationService';
+import { NotificationCategoryMessages } from 'maestro-shared/schema/Notification/NotificationCategory';
 
 const laboratoriesWithConf = ['GIRPA', 'INOVALYS', 'CAPINOV'] as const satisfies string[];
 type LaboratoryWithConf = (typeof laboratoriesWithConf)[number];
@@ -210,9 +211,10 @@ export const checkEmails = async () => {
 
               await notificationService.sendNotification({
                 category: 'AnalysisReviewTodo',
-                link: `prelevements/${programmingPlansYear}/${analysisId}`,
-                //FIXME on met quoi comme texte
-                message: "Un rapport d'analyse de l'un de vos prélèvements vient d'être reçu par Maestro. Veuillez-vous connecter, faire la vérification de celui-ci et réaliser l'interprétation.",
+                link: `/prelevements/${programmingPlansYear}/${analysisId}`,
+                message: NotificationCategoryMessages[
+                  'ProgrammingPlanSubmitted'
+                ]
               }, [{id: samplerId, email: samplerEmail}])
             }
             await client.messageMove(messageUid, config.inbox.trashboxName, {

@@ -75,4 +75,4 @@ export const getAnalytes = (ssd2Id: SSD2Id) : Set<SSD2Id> => {
   return new Set(analytes)
 }
 
-export const hasAnalytes = (ssd2Id: SSD2Id) : boolean => getAnalytes(ssd2Id).size > 0
+export const isComplex = (ssd2Id: SSD2Id) : boolean => getAnalytes(ssd2Id).size > 0

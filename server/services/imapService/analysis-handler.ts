@@ -9,7 +9,7 @@ import {
   ExtractError
 } from './index';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
-import { getAnalytes, hasAnalytes } from 'maestro-shared/referential/Residue/SSD2Hierachy';
+import { getAnalytes, isComplex } from 'maestro-shared/referential/Residue/SSD2Hierachy';
 
 export type AnalysisWithResidueWithSSD2Id =  Omit<ExportAnalysis, 'residues'> & { residues: ExportDataSubstanceWithSSD2Id[]}
 export const analysisHandler = async (
@@ -31,8 +31,8 @@ export const analysisHandler = async (
     );
   }
 
-  const complexResidues = analyse.residues.filter(({ssd2Id}) => hasAnalytes(ssd2Id))
-  const simpleResidues =  analyse.residues.filter(({ssd2Id}) => !hasAnalytes(ssd2Id))
+  const complexResidues = analyse.residues.filter(({ssd2Id}) => isComplex(ssd2Id))
+  const simpleResidues =  analyse.residues.filter(({ssd2Id}) => !isComplex(ssd2Id))
 
 
       const residuesIndex: Record<SSD2Id, ExportDataSubstanceWithSSD2Id & {analytes: ExportDataSubstanceWithSSD2Id[]}> = complexResidues.reduce((acc, r) => {
@@ -58,7 +58,7 @@ export const analysisHandler = async (
 
   const residues = Object.values(residuesIndex)
   residues
-    .filter(({ssd2Id}) => hasAnalytes(ssd2Id))
+    .filter(({ssd2Id}) => isComplex(ssd2Id))
     .forEach(({analytes, ssd2Id}) => {
     if (analytes.length === 0) {
       throw new ExtractError(`Le résidue complexe ${ssd2Id} est présent, mais n'a aucune analyte`)

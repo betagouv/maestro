@@ -20,9 +20,7 @@ export const NotificationCategoryTitles: Record<NotificationCategory, string> =
     AnalysisReviewTodo: 'Analyse reçue, interprétation à faire',
   };
 
-export const NotificationCategoryMessages: Partial<
-  Record<NotificationCategory, string>
-> = {
+export const NotificationCategoryMessages = {
   ProgrammingPlanSubmitted: `
 Maestro vient d’être mis à jour !  
 
@@ -34,5 +32,6 @@ L’étape de programmation a été clôturée par la coordination nationale.
 
 En tant que coordinateur régional, vous pouvez dorénavant vous connecter à Maestro sur l’espace "programmation" afin d’attribuer le/les laboratoires responsables des analyses officielles en lien avec les matrices programmées pour la prochaine campagne du dispositif PSPC dans votre région.  
 
-Une fois le/les laboratoires attribués, la campagne sera officiellement lancée et les inspecteurs/préleveurs de vos régions pourront initier leurs prélèvements.`
-};
+Une fois le/les laboratoires attribués, la campagne sera officiellement lancée et les inspecteurs/préleveurs de vos régions pourront initier leurs prélèvements.`,
+  AnalysisReviewTodo: "Un rapport d'analyse de l'un de vos prélèvements vient d'être reçu par Maestro. Veuillez-vous connecter, faire la vérification des données issues de celui-ci et réaliser l'interprétation globale pour finaliser vos actions sur ce prélèvement."
+} as const satisfies Partial<Record<NotificationCategory, string>>

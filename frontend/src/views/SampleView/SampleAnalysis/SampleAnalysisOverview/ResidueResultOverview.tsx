@@ -13,10 +13,11 @@ import { ResidueKindLabels } from 'maestro-shared/schema/Analysis/Residue/Residu
 import { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import ResidueResultAlert from '../../../../components/ResidueResultAlert/ResidueResultAlert';
+import { isComplex } from 'maestro-shared/referential/Residue/SSD2Hierachy';
 
 export type Props = {
   residueIndex: number;
-  residue: PartialResidue;
+  residue: Omit<PartialResidue, 'kind'>;
   children?: JSX.Element;
 };
 export const ResidueResultOverview: FunctionComponent<Props> = ({
@@ -26,6 +27,8 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
+
+  const kind: 'Simple' | 'Complex' = residue.reference !== undefined && isComplex(residue.reference) ? 'Complex' : 'Simple'
   return (
     <div>
       <h6 className={clsx(cx('fr-mb-2w'), 'd-flex-align-center')}>
@@ -37,14 +40,14 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
         ></span>
         <span>Résidu n°{residueIndex + 1}</span>
         <Tag className={cx('fr-ml-1w', 'fr-text--regular')}>
-          {residue.kind ? ResidueKindLabels[residue.kind] : ''}
+          {ResidueKindLabels[kind]}
         </Tag>
       </h6>
       <div className={clsx(cx('fr-pl-4w'), 'step-summary')}>
         <div>
           Analyse <b>{residue.analysisMethod ? AnalysisMethodLabels[residue.analysisMethod] : ''}</b>
         </div>
-        {residue.kind === 'Simple' ? (
+        {kind === 'Simple' ? (
           <>
             {residue.resultKind === 'Q' && (
               <>
