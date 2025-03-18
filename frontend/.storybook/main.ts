@@ -26,7 +26,11 @@ const config: StorybookConfig = {
     enableCrashReports: false
   },
   async viteFinal(config){
-    const { mergeConfig } = await import('vite')
+
+    if (process.env.REACT_APP_MODE === 'test') {
+      return config
+    }
+    const { mergeConfig } = await import('vite');
     return mergeConfig(config, {
       base: '/storybook',
     })

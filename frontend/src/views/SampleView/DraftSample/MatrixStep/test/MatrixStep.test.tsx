@@ -13,8 +13,6 @@ import {
   genSampleContextData
 } from 'maestro-shared/test/sampleFixtures';
 import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
-import { Provider } from 'react-redux';
-import { BrowserRouter } from 'react-router-dom';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import config from 'src/utils/config';
 import MatrixStep from 'src/views/SampleView/DraftSample/MatrixStep/MatrixStep';
@@ -31,6 +29,7 @@ import { StageList } from 'maestro-shared/referential/Stage';
 import { oneOf } from 'maestro-shared/test/testFixtures';
 import { act } from 'react';
 import { beforeEach, describe, expect, test } from 'vitest';
+import { ProviderTest } from '../../../../../../test/ProviderTest';
 
 let store: Store;
 const sampler = genUser({
@@ -85,8 +84,7 @@ describe('DraftSampleMatrixStep', () => {
     mockRequests([prescriptionsRequest]);
 
     render(
-      <Provider store={store}>
-        <BrowserRouter>
+      <ProviderTest store={store}>
           <MatrixStep
             partialSample={{
               ...genSampleContextData({
@@ -95,8 +93,7 @@ describe('DraftSampleMatrixStep', () => {
               ...genCreatedSampleData({ sampler })
             }}
           />
-        </BrowserRouter>
-      </Provider>
+      </ProviderTest>
     );
 
     await waitFor(async () => {
@@ -121,8 +118,7 @@ describe('DraftSampleMatrixStep', () => {
     mockRequests([prescriptionsRequest]);
 
     render(
-      <Provider store={store}>
-        <BrowserRouter>
+      <ProviderTest store={store}>
           <MatrixStep
             partialSample={{
               ...genSampleContextData({
@@ -131,8 +127,7 @@ describe('DraftSampleMatrixStep', () => {
               ...genCreatedSampleData({ sampler })
             }}
           />
-        </BrowserRouter>
-      </Provider>
+      </ProviderTest>
     );
 
     await waitFor(async () => {
@@ -177,11 +172,9 @@ describe('DraftSampleMatrixStep', () => {
     ]);
 
     render(
-      <Provider store={store}>
-        <BrowserRouter>
+      <ProviderTest store={store}>
           <MatrixStep partialSample={createdSample} />
-        </BrowserRouter>
-      </Provider>
+      </ProviderTest>
     );
 
     await waitFor(async () => {
@@ -252,11 +245,9 @@ describe('DraftSampleMatrixStep', () => {
     ]);
 
     render(
-      <Provider store={store}>
-        <BrowserRouter>
+      <ProviderTest store={store}>
           <MatrixStep partialSample={createdSample} />
-        </BrowserRouter>
-      </Provider>
+      </ProviderTest>
     );
 
     await waitFor(async () => {
