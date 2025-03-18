@@ -1,4 +1,5 @@
 import {
+  AdminFixture,
   NationalCoordinator,
   RegionalCoordinator,
   RegionalDromCoordinator,
@@ -15,6 +16,7 @@ export const seed = async (): Promise<void> => {
     SamplerDromFixture,
     RegionalCoordinator,
     RegionalDromCoordinator,
-    NationalCoordinator
+    NationalCoordinator,
+    AdminFixture
   ]);
 };

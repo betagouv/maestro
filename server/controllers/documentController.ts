@@ -6,8 +6,10 @@ import { constants } from 'http2';
 import DocumentMissingError from 'maestro-shared/errors/documentMissingError';
 import {
   Document,
-  DocumentToCreate
+  DocumentToCreate,
+  DocumentUpdate
 } from 'maestro-shared/schema/Document/Document';
+import { UploadDocumentKindList } from 'maestro-shared/schema/Document/DocumentKind';
 import { hasPermission } from 'maestro-shared/schema/User/User';
 import { documentRepository } from '../repositories/documentRepository';
 import { documentService } from '../services/documentService';
@@ -76,6 +78,10 @@ const createDocument = async (request: Request, response: Response) => {
   const user = (request as AuthenticatedRequest).user;
   const documentToCreate = DocumentToCreate.parse(request.body);
 
+  if (!UploadDocumentKindList.includes(documentToCreate.kind)) {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
+
   if (
     documentToCreate.kind === 'Resource' &&
     !hasPermission(user, 'createResource')
@@ -85,6 +91,12 @@ const createDocument = async (request: Request, response: Response) => {
   if (
     documentToCreate.kind === 'AnalysisReportDocument' &&
     !hasPermission(user, 'createAnalysis')
+  ) {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
+  if (
+    documentToCreate.kind === 'SampleDocument' &&
+    !hasPermission(user, 'createSample')
   ) {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
   }
@@ -112,8 +124,51 @@ const findResources = async (_request: Request, response: Response) => {
   response.status(constants.HTTP_STATUS_OK).send(documents);
 };
 
-const deleteDocument = async (request: Request, response: Response) => {
+const updateDocument = async (request: Request, response: Response) => {
+  const user = (request as AuthenticatedRequest).user;
   const { documentId } = request.params;
+  const documentUpdate = DocumentUpdate.parse(request.body);
+
+  const document = await documentRepository.findUnique(documentId);
+
+  if (
+    document?.kind !== 'SampleDocument' ||
+    !hasPermission(user, 'updateSample')
+  ) {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
+
+  console.log('Update document', documentId);
+
+  const updatedDocument = {
+    ...document,
+    ...documentUpdate
+  };
+
+  await documentRepository.update(updatedDocument);
+
+  response.status(constants.HTTP_STATUS_OK).send(updatedDocument);
+};
+
+const deleteDocument = async (request: Request, response: Response) => {
+  const user = (request as AuthenticatedRequest).user;
+  const { documentId } = request.params;
+
+  const document = await documentRepository.findUnique(documentId);
+
+  if (!document?.kind || !UploadDocumentKindList.includes(document?.kind)) {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
+
+  if (document?.kind === 'Resource' && !hasPermission(user, 'deleteDocument')) {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
+  if (
+    document?.kind === 'SampleDocument' &&
+    !hasPermission(user, 'deleteSampleDocument')
+  ) {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
 
   console.log('Delete document', documentId);
 
@@ -127,6 +182,7 @@ export default {
   getUploadSignedUrl,
   getDownloadSignedUrl,
   createDocument,
+  updateDocument,
   findResources,
   deleteDocument
 };

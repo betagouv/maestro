@@ -70,6 +70,10 @@ export const NationalCoordinator = genUser({
   roles: ['NationalCoordinator'],
   id: '55555555-5555-5555-5555-555555555555'
 });
+export const AdminFixture = genUser({
+  roles: ['Administrator'],
+  id: '77777777-7777-7777-7777-777777777777'
+});
 
 export const genAuthUser = (data?: Partial<User>): AuthUser => ({
   user: genUser(data)

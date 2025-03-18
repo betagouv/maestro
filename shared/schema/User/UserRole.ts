@@ -39,6 +39,7 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'commentPrescription',
     'readSamples',
     'readDocuments',
+    'deleteDocument',
     'readCompanies'
   ],
   Sampler: [
@@ -54,7 +55,8 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'readDocuments',
     'readCompanies',
     'createAnalysis',
-    'readAnalysis'
+    'readAnalysis',
+    'deleteSampleDocument'
   ],
   Administrator: UserPermissionList
 };

@@ -94,7 +94,10 @@ const SupportDocumentDownload = ({
           confirmLabel="Télécharger"
           closeOnConfirm
         >
-          <b>incomplet.{' '}</b>
+          <b>
+            Vous vous apprêtez à imprimer un document d’accompagnement
+            incomplet.{' '}
+          </b>
           {!isCreatedPartialSample(partialSample)
             ? 'Le prélèvement va être créé mais votre '
             : 'Votre '}
