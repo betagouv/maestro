@@ -6,6 +6,7 @@ import {
 import { User } from 'maestro-shared/schema/User/User';
 import { OpenAPIObject } from 'openapi3-ts/oas31';
 import { z } from 'zod';
+import { Brand } from 'maestro-shared/constants';
 
 extendZodWithOpenApi(z);
 
@@ -37,7 +38,7 @@ export const getOpenApiSchema = (): OpenAPIObject => {
   return openApiGenerator.generateDocument({
     info: {
       version: 'v1',
-      title: 'Maestro API'
+      title: `${Brand} API`
     },
     openapi: ''
   });

@@ -9,7 +9,7 @@ import { SimpleResidue } from 'maestro-shared/referential/Residue/SimpleResidue'
 import { SimpleResidueLabels } from 'maestro-shared/referential/Residue/SimpleResidueLabels';
 import { AnalysisMethodLabels } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
-import { ResidueKindLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
+import { ResidueKind, ResidueKindLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
 import { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import ResidueResultAlert from '../../../../components/ResidueResultAlert/ResidueResultAlert';
@@ -28,7 +28,7 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  const kind: 'Simple' | 'Complex' = residue.reference !== undefined && isComplex(residue.reference) ? 'Complex' : 'Simple'
+  const kind: ResidueKind = residue.reference !== undefined && isComplex(residue.reference) ? 'Complex' : 'Simple'
   return (
     <div>
       <h6 className={clsx(cx('fr-mb-2w'), 'd-flex-align-center')}>
