@@ -14,6 +14,7 @@ import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import {
   Analysis,
+  analysisRepository,
   AnalysisResidues,
   ResidueAnalytes
 } from '../../repositories/analysisRepository';
@@ -30,7 +31,9 @@ import {
   NationalCoordinator,
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
-import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test } from 'vitest';
+import { kysely } from '../../repositories/kysely';
+
 describe('Analysis router', () => {
   const { app } = createServer();
 
@@ -73,14 +76,14 @@ describe('Analysis router', () => {
     })
   ];
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     await Documents().insert([document1, document2]);
     await Analysis().insert([analysisWithoutResidue, analysisWithResidues]);
     await AnalysisResidues().insert(residues);
     await ResidueAnalytes().insert(complexResidueAnalytes);
   });
 
-  afterAll(async () => {
+  afterEach(async () => {
     await Analysis()
       .delete()
       .where('sampleId', 'in', [Sample11Fixture.id, Sample2Fixture.id]);
@@ -239,10 +242,6 @@ describe('Analysis router', () => {
       ).resolves.toMatchObject({
         status: 'Analysis'
       });
-
-      await Samples()
-        .where({ id: analysis.sampleId })
-        .update({ status: Sample11Fixture.status });
     });
   });
 
@@ -468,6 +467,59 @@ describe('Analysis router', () => {
       await Samples()
         .where({ id: analysisWithResidues.sampleId })
         .update({ status: Sample2Fixture.status });
+    });
+
+    test('should update the sample when the reviewed analysis is completed and add diff in db', async () => {
+      await kysely
+        .updateTable('analysis')
+        .where('id', '=', analysisWithResidues.id)
+        .set('status', 'InReview')
+        .execute();
+      const analysis = await analysisRepository.findUnique(
+        analysisWithResidues.id
+      );
+      const analysisUpdate = {
+        ...genPartialAnalysis(analysisWithResidues),
+        status: 'Completed',
+        compliance: true,
+        residues: analysis?.residues
+      };
+      await request(app)
+        .put(testRoute(analysisWithResidues.id))
+        .send(analysisUpdate)
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_OK);
+      let analysisErrors = await kysely
+        .selectFrom('analysisErrors')
+        .selectAll()
+        .execute();
+      expect(analysisErrors).toHaveLength(0);
+
+      await kysely
+        .updateTable('analysis')
+        .where('id', '=', analysisWithResidues.id)
+        .set('status', 'InReview')
+        .execute();
+      await request(app)
+        .put(testRoute(analysisWithResidues.id))
+        .send({ ...analysisUpdate, residues: [] })
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_OK);
+      analysisErrors = await kysely
+        .selectFrom('analysisErrors')
+        .selectAll()
+        .execute();
+      expect(analysisErrors).toHaveLength(1);
+      expect(analysisErrors[0].residues.new).toHaveLength(0);
+      expect(analysisErrors[0].residues.old).toEqual(
+        analysis?.residues?.map(({ kind,  analysisMethod, residueNumber, result, analytes }) => ({
+          kind,
+          analysisMethod,
+          residueNumber,
+          result,
+          analytes
+        }))
+      );
     });
   });
 });

@@ -76,12 +76,11 @@ export const analysisHandler = async (
         {
           sampleId,
           reportDocumentId: documentId,
-          //TODO AUTO_LABO Peut-être un nouveau statut « À vérifier » si on a un doute
-          status: 'Completed',
+          status: 'InReview',
           createdBy: null,
           createdAt: new Date(),
-          //TODO AUTO_LABO  conforme / non conforme
-          compliance: true,
+          // Pour le moment on passe par une validation manuelle pour déterminer la conformité
+          // compliance: true,
           notesOnCompliance: analyse.notes
         },
         trx

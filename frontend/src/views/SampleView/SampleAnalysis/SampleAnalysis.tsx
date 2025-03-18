@@ -4,31 +4,42 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { CompletedStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
-import { useState } from 'react';
+import { FunctionComponent, useContext, useState } from 'react';
 import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import { usePartialSample } from 'src/hooks/usePartialSample';
-import {
-  useGetSampleAnalysisQuery,
-  useUpdateAnalysisMutation
-} from 'src/services/analysis.service';
-import { useUpdateSampleMutation } from 'src/services/sample.service';
 import SampleAdmissibility from 'src/views/SampleView/SampleAnalysis/SampleAdmissibility/SampleAdmissibility';
 import SampleAnalysisOverview from 'src/views/SampleView/SampleAnalysis/SampleAnalysisOverview/SampleAnalysisOverview';
 import SampleDraftAnalysis from 'src/views/SampleView/SampleAnalysis/SampleDraftAnalysis/SampleDraftAnalysis';
+import { useSamplesLink } from '../../../hooks/useSamplesLink';
+import { ApiClientContext } from '../../../services/apiClient';
+import { SampleAnalysisReview } from './SampleAnalysisReview/SampleAnalysisReview';
 
-interface Props {
+export interface Props {
   sample: Sample;
 }
-const SampleAnalysis = ({ sample }: Props) => {
+
+const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
+  const apiClient = useContext(ApiClientContext);
+
   const { laboratory } = usePartialSample(sample);
-  const [, { isSuccess: isSendingSuccess }] = useUpdateSampleMutation({
-    fixedCacheKey: `sending-sample-${sample.id}`
-  });
+  const { navigateToSample } = useSamplesLink();
+  const [, { isSuccess: isSendingSuccess }] = apiClient.useUpdateSampleMutation(
+    {
+      fixedCacheKey: `sending-sample-${sample.id}`
+    }
+  );
   const [, { isSuccess: isCompletingAnalysisSuccess }] =
-    useUpdateAnalysisMutation({
+    apiClient.useUpdateAnalysisMutation({
       fixedCacheKey: `complete-analysis-${sample.id}`
     });
-  const { data: analysis } = useGetSampleAnalysisQuery(sample.id);
+  const { data: analysis } = apiClient.useGetSampleAnalysisQuery(sample.id);
+
+  const dateFormat = new Intl.DateTimeFormat('fr-FR', {
+    dateStyle: 'long'
+  });
+  const [receivedAt] = useState(
+    sample.receivedAt ? dateFormat.format(sample.receivedAt) : undefined
+  );
 
   const [continueToAnalysis, setContinueToAnalysis] = useState(false);
 
@@ -63,16 +74,46 @@ const SampleAnalysis = ({ sample }: Props) => {
             {![...CompletedStatusList, 'NotAdmissible'].includes(
               sample.status
             ) && (
-              <div
-                className={cx('fr-text--lg', 'fr-text--regular', 'fr-mb-1w')}
-              >
-                Renseignez ci-dessous le suivi d’analyse par le laboratoire
-              </div>
+              <>
+                {analysis?.status !== 'InReview' ? (
+                  <div
+                    className={cx(
+                      'fr-text--lg',
+                      'fr-text--regular',
+                      'fr-mb-1w'
+                    )}
+                  >
+                    Renseignez ci-dessous le suivi d’analyse par le laboratoire
+                  </div>
+                ) : (
+                  <div className={clsx(cx('fr-mb-1w'), 'd-flex-align-center')}>
+                    <span
+                      className={cx(
+                        'fr-icon-success-fill',
+                        'fr-label--success',
+                        'fr-mr-1w'
+                      )}
+                    />
+                    <span
+                      className={cx(
+                        'fr-text--lg',
+                        'fr-text--regular',
+                        'fr-mb-0'
+                      )}
+                    >
+                      Échantillon recevable et reçu par le laboratoire le{' '}
+                      {receivedAt}
+                    </span>
+                  </div>
+                )}
+              </>
             )}
           </h3>
         </div>
       </div>
-      <SampleAdmissibility sample={sample} />
+      {analysis?.status !== 'InReview' ? (
+        <SampleAdmissibility sample={sample} />
+      ) : null}
       {sample.status === 'Analysis' && !analysis && !continueToAnalysis ? (
         <Button
           iconId="fr-icon-arrow-down-line"
@@ -89,7 +130,8 @@ const SampleAnalysis = ({ sample }: Props) => {
               className={clsx(
                 cx(
                   'fr-callout',
-                  CompletedStatusList.includes(sample.status)
+                  CompletedStatusList.includes(sample.status) ||
+                    analysis?.status === 'InReview'
                     ? 'fr-callout--green-emeraude'
                     : 'fr-callout--pink-tuile'
                 ),
@@ -98,9 +140,16 @@ const SampleAnalysis = ({ sample }: Props) => {
                 'fr-mt-5w'
               )}
             >
-              {sample.status === 'Analysis' && (
-                <SampleDraftAnalysis sample={sample} />
-              )}
+              {sample.status === 'Analysis' &&
+                (analysis?.status === 'InReview' ? (
+                  <SampleAnalysisReview
+                    sample={sample}
+                    partialAnalysis={analysis}
+                    onReviewDone={() => navigateToSample(sample.id)}
+                  />
+                ) : (
+                  <SampleDraftAnalysis sample={sample} />
+                ))}
               {CompletedStatusList.includes(sample.status) && (
                 <SampleAnalysisOverview sample={sample} />
               )}

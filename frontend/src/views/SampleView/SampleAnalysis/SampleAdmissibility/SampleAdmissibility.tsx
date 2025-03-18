@@ -6,7 +6,7 @@ import { format, parse } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { CompletedStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
-import React, { useMemo, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import check from 'src/assets/illustrations/check.svg';
 import warning from 'src/assets/illustrations/warning.svg';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
@@ -14,15 +14,17 @@ import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaIn
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 import { useForm } from 'src/hooks/useForm';
-import { useUpdateSampleMutation } from 'src/services/sample.service';
 import z from 'zod';
 import './SampleAdmissibility.scss';
+import { ApiClientContext } from '../../../../services/apiClient';
 
 interface Props {
   sample: Sample;
 }
 const SampleAdmissibility = ({ sample }: Props) => {
-  const [updateSample] = useUpdateSampleMutation();
+  const apiClient = useContext(ApiClientContext)
+
+  const [updateSample] = apiClient.useUpdateSampleMutation();
 
   const [isReceived, setIsReceived] = useState(
     ['Analysis', 'NotAdmissible', ...CompletedStatusList].includes(
@@ -68,19 +70,23 @@ const SampleAdmissibility = ({ sample }: Props) => {
     })
   );
 
-  const FormRefinement = Form.refine(
-    ({ isReceived, receivedAt }) => !isReceived || receivedAt,
-    {
-      path: ['receivedAt'],
-      message: 'Veuillez renseigner la date de réception.'
+  const FormRefinement = Form.superRefine((val, ctx) => {
+    if(val.isReceived && !val.receivedAt){
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Veuillez renseigner la date de réception.',
+        path: ['receivedAt'],
+      })
     }
-  ).refine(
-    ({ isReceived, isAdmissible }) => !isReceived || isAdmissible !== undefined,
-    {
-      path: ['isAdmissible'],
-      message: 'Veuillez renseigner la recevabilité du prélèvement.'
+    if( val.isReceived && val.isAdmissible === undefined){
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['isAdmissible'],
+        message: 'Veuillez renseigner la recevabilité du prélèvement.'
+      })
     }
-  );
+  }
+  )
 
   const form = useForm(FormRefinement, {
     isReceived,
