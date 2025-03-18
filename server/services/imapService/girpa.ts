@@ -10,6 +10,7 @@ import {
 } from './index';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { frenchNumberStringValidator } from './utils';
+import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 
 //TODO AUTO_LABO en attente de la réception du 1er email + test
 const isSender: IsSender = (_emailSender) => false;
@@ -19,6 +20,17 @@ const girpaReferences: Record<string, SSD2Id> = {
   napropamide: 'RF-00012802-PAR'
 };
 
+const codeMethods = ['M1', 'M26', 'M3', 'M18', 'M21', 'M23', 'M27'] as const
+const codeMethodsAnalyseMethod = {
+  'M1': 'Multi',
+  'M26': 'Multi',
+  'M3': 'Mono',
+  'M18': 'Mono',
+  'M21': 'Mono',
+  'M23': 'Mono',
+  'M27': 'Mono'
+} as const satisfies Record<typeof codeMethods[number], AnalysisMethod>
+const isCodeMethod = (code: string): code is typeof codeMethods[number] => (codeMethods as Readonly<string[]>).includes(code)
 
 export const residueCasNumberValidator = z.string().brand('CAS number');
 
@@ -31,7 +43,10 @@ export const analyseXmlValidator = z.object({
   Limite_de_quantification: frenchNumberStringValidator,
   LMR: z.union([z.literal('-'), z.number(), frenchNumberStringValidator]),
   Substance_active_CAS: residueCasNumberValidator,
-  Substance_active_anglais: residueEnglishNameValidator
+  Substance_active_anglais: residueEnglishNameValidator,
+  Code_méthode: z.string()
+    .transform(s => s.endsWith('*') ? s.substring(0, s.length - 1) : s)
+    .refine(s => isCodeMethod(s))
 });
 // Visible for testing
 export const extractAnalyzes = (
@@ -61,6 +76,7 @@ export const extractAnalyzes = (
           a.Résultat >= a.Limite_de_quantification / 3
 
         const commonData = {
+          analysisMethod: codeMethodsAnalyseMethod[a.Code_méthode],
           codeSandre: null,
           casNumber: a.Substance_active_CAS,
           label: a.Substance_active_anglais.toLowerCase()

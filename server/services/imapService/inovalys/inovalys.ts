@@ -102,7 +102,9 @@ export const extractAnalyzes = (
           ...result,
           label: r['Détermination'].replace('· ', ''),
           casNumber: r['Numéro CAS'] ?? null,
-          codeSandre: r['Code Sandre'] ?? null
+          codeSandre: r['Code Sandre'] ?? null,
+          //FIXME
+          analysisMethod: 'Mono'
         }
       });
 

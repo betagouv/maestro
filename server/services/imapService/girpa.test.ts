@@ -55,7 +55,8 @@ describe('parse correctement le XML', () => {
             Limite_de_quantification: '1,1',
             Résultat: '5,2',
             Substance_active_CAS: '?',
-            Substance_active_anglais: 'bixafen'
+            Substance_active_anglais: 'bixafen',
+            Code_méthode: 'M1'
           }
         ])
       )
@@ -65,6 +66,7 @@ describe('parse correctement le XML', () => {
           "notes": "Une note",
           "residues": [
             {
+              "analysisMethod": "Multi",
               "casNumber": "?",
               "codeSandre": null,
               "label": "bixafen",
@@ -88,34 +90,39 @@ describe('parse correctement le XML', () => {
             Limite_de_quantification: '0,9',
             Résultat: '0,3',
             Substance_active_CAS: '1967-25-5',
-            Substance_active_anglais: 'bixafen'
+            Substance_active_anglais: 'bixafen',
+            Code_méthode: 'M1*'
           },
           {
             LMR: 10,
             Limite_de_quantification: '0,9',
             Résultat: '0,29',
             Substance_active_CAS: '27112-32-9',
-            Substance_active_anglais: 'fluopyram'
+            Substance_active_anglais: 'fluopyram',
+            Code_méthode: 'M3'
           },
           {
             LMR: 10,
             Limite_de_quantification: '1',
             Résultat: '10,1',
             Substance_active_CAS: '15299-99-7',
-            Substance_active_anglais: 'fluroxypyr'
+            Substance_active_anglais: 'fluroxypyr',
+            Code_méthode: 'M21'
           },
           {
             LMR: '-',
             Limite_de_quantification: '1',
             Résultat: '8',
             Substance_active_CAS: '?',
-            Substance_active_anglais: 'fluxapyroxad'
+            Substance_active_anglais: 'fluxapyroxad',
+            Code_méthode: 'M1'
           }
         ])
       )![0].residues
     ).toMatchInlineSnapshot(`
       [
         {
+          "analysisMethod": "Multi",
           "casNumber": "1967-25-5",
           "codeSandre": null,
           "label": "bixafen",
@@ -124,6 +131,7 @@ describe('parse correctement le XML', () => {
           "result_kind": "Q",
         },
         {
+          "analysisMethod": "Mono",
           "casNumber": "27112-32-9",
           "codeSandre": null,
           "label": "fluopyram",
@@ -132,6 +140,7 @@ describe('parse correctement le XML', () => {
           "result_kind": "Q",
         },
         {
+          "analysisMethod": "Mono",
           "casNumber": "15299-99-7",
           "codeSandre": null,
           "label": "fluroxypyr",
@@ -140,6 +149,7 @@ describe('parse correctement le XML', () => {
           "result_kind": "Q",
         },
         {
+          "analysisMethod": "Multi",
           "casNumber": "?",
           "codeSandre": null,
           "label": "fluxapyroxad",
