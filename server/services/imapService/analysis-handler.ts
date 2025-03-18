@@ -98,8 +98,7 @@ export const analysisHandler = async (
             resultKind: residue.result_kind,
             lmr: 'lmr' in residue ? residue.lmr : null,
             analysisId,
-            //TODO AUTO_LABO je ne sais pas comment récupérer cette info
-            analysisMethod: 'Mono',
+            analysisMethod: residue.analysisMethod,
             residueNumber,
             reference: residue.ssd2Id
           }]
