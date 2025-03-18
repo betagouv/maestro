@@ -82,8 +82,10 @@ export const genCreatedPartialSample = (
     matrix: oneOf(MatrixList),
     matrixPart: oneOf(MatrixPartList),
     stage: oneOf(StageList),
-    cultureKind: oneOf(CultureKindList),
-    releaseControl: genBoolean(),
+    specificData: {
+      cultureKind: oneOf(CultureKindList),
+      releaseControl: genBoolean()
+    },
     items: [genSampleItem({ sampleId: contextData.id, itemNumber: 1 })],
     ...data
   };
@@ -141,8 +143,10 @@ export const Sample11Fixture = genCreatedPartialSample({
   status: 'DraftMatrix' as SampleStatus,
   matrix: 'A00GZ',
   matrixPart: 'PART1',
-  cultureKind: 'PD07A',
-  releaseControl: false,
+  specificData: {
+    cultureKind: 'PD07A',
+    releaseControl: false
+  },
   stage: 'STADE7',
   items: [Sample1Item1Fixture]
 });
