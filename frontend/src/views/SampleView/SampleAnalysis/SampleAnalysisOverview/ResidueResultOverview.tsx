@@ -17,7 +17,7 @@ import { isComplex } from 'maestro-shared/referential/Residue/SSD2Hierachy';
 
 export type Props = {
   residueIndex: number;
-  residue: PartialResidue;
+  residue: Omit<PartialResidue, 'kind'>;
   children?: JSX.Element;
 };
 export const ResidueResultOverview: FunctionComponent<Props> = ({
