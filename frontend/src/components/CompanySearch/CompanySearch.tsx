@@ -43,7 +43,8 @@ const CompanySearch = ({
         ? Promise.resolve(
             EggCompanies.filter(
               (company) =>
-                company.name.toLowerCase().includes(value.toLowerCase()) &&
+                (company.name.toLowerCase().includes(value.toLowerCase()) ||
+                  company.siret.toLowerCase().includes(value.toLowerCase())) &&
                 (department ? company.department === department : true)
             )
           )
