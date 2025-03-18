@@ -72,9 +72,11 @@ const MatrixStep = ({ partialSample }: Props) => {
   );
   const [matrixPart, setMatrixPart] = useState(partialSample.matrixPart);
   const [stage, setStage] = useState(partialSample.stage);
-  const [cultureKind, setCultureKind] = useState(partialSample.cultureKind);
+  const [cultureKind, setCultureKind] = useState(
+    partialSample.specificData?.cultureKind ?? null
+  );
   const [releaseControl, setReleaseControl] = useState(
-    partialSample.releaseControl
+    partialSample.specificData?.releaseControl
   );
   const [files, setFiles] = useState<File[]>([]);
   const [documentIds, setDocumentIds] = useState(partialSample.documentIds);
@@ -124,6 +126,14 @@ const MatrixStep = ({ partialSample }: Props) => {
   type FormShape = typeof Form.shape;
   type FilesFormShape = typeof FilesForm.shape;
 
+  const specificData = useMemo(
+    () => ({
+      cultureKind,
+      releaseControl
+    }),
+    [cultureKind, releaseControl]
+  );
+
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     await form.validate(async () => {
@@ -151,8 +161,7 @@ const MatrixStep = ({ partialSample }: Props) => {
       matrix,
       matrixPart,
       stage,
-      cultureKind,
-      releaseControl,
+      specificData,
       documentIds,
       notesOnMatrix,
       status,
@@ -170,8 +179,7 @@ const MatrixStep = ({ partialSample }: Props) => {
       matrixDetails,
       matrixPart,
       stage,
-      cultureKind,
-      releaseControl,
+      specificData,
       documentIds,
       notesOnMatrix,
       prescriptionId: partialSample.prescriptionId,
@@ -320,7 +328,8 @@ const MatrixStep = ({ partialSample }: Props) => {
             })}
             onChange={(e) => setCultureKind(e.target.value as CultureKind)}
             inputForm={form}
-            inputKey="cultureKind"
+            inputKey="specificData"
+            inputPathFromKey={['cultureKind']}
             whenValid="Type de culture correctement renseigné."
             data-testid="culturekind-select"
             label="Type de culture"

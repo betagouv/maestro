@@ -85,14 +85,14 @@ describe('DraftSampleMatrixStep', () => {
 
     render(
       <ProviderTest store={store}>
-          <MatrixStep
-            partialSample={{
-              ...genSampleContextData({
-                programmingPlanId: programmingPlan.id
-              }),
-              ...genCreatedSampleData({ sampler })
-            }}
-          />
+        <MatrixStep
+          partialSample={{
+            ...genSampleContextData({
+              programmingPlanId: programmingPlan.id
+            }),
+            ...genCreatedSampleData({ sampler })
+          }}
+        />
       </ProviderTest>
     );
 
@@ -119,14 +119,14 @@ describe('DraftSampleMatrixStep', () => {
 
     render(
       <ProviderTest store={store}>
-          <MatrixStep
-            partialSample={{
-              ...genSampleContextData({
-                programmingPlanId: programmingPlan.id
-              }),
-              ...genCreatedSampleData({ sampler })
-            }}
-          />
+        <MatrixStep
+          partialSample={{
+            ...genSampleContextData({
+              programmingPlanId: programmingPlan.id
+            }),
+            ...genCreatedSampleData({ sampler })
+          }}
+        />
       </ProviderTest>
     );
 
@@ -173,7 +173,7 @@ describe('DraftSampleMatrixStep', () => {
 
     render(
       <ProviderTest store={store}>
-          <MatrixStep partialSample={createdSample} />
+        <MatrixStep partialSample={createdSample} />
       </ProviderTest>
     );
 
@@ -246,7 +246,7 @@ describe('DraftSampleMatrixStep', () => {
 
     render(
       <ProviderTest store={store}>
-          <MatrixStep partialSample={createdSample} />
+        <MatrixStep partialSample={createdSample} />
       </ProviderTest>
     );
 
@@ -313,7 +313,9 @@ describe('DraftSampleMatrixStep', () => {
         matrixKind: prescription1.matrixKind,
         matrix: MatrixListByKind[prescription1.matrixKind][1],
         matrixPart: MatrixPartList[0],
-        cultureKind: CultureKindList[0],
+        specificData: {
+          cultureKind: CultureKindList[0]
+        },
         stage: prescription1.stages[1],
         matrixDetails: 'Details',
         notesOnMatrix: 'Comment'
