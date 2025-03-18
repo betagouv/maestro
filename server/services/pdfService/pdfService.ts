@@ -221,10 +221,10 @@ const generateSampleSupportPDF = async (
     matrix: MatrixLabels[sample.matrix],
     matrixDetails: sample.matrixDetails,
     matrixPart: MatrixPartLabels[sample.matrixPart],
-    cultureKind: sample.cultureKind
-      ? CultureKindLabels[sample.cultureKind]
+    cultureKind: sample.specificData?.cultureKind
+      ? CultureKindLabels[sample.specificData.cultureKind]
       : undefined,
-    releaseControl: sample.releaseControl ? 'Oui' : 'Non',
+    releaseControl: sample.specificData?.releaseControl ? 'Oui' : 'Non',
     establishment: Regions[sample.region].establishment,
     department: DepartmentLabels[sample.department],
     hasNoteToSampler:
