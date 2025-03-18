@@ -74,6 +74,8 @@ export const extractAnalyzes = (
           ...result,
           label: residue.PARAMETRE_NOM,
           casNumber: residue.CAS_NUMBER,
+          //FIXME
+          analysisMethod: 'Multi' as const,
           codeSandre: null
         })
       }

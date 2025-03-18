@@ -61,6 +61,8 @@ export const extractAnalyzes = (
           a.Résultat >= a.Limite_de_quantification / 3
 
         const commonData = {
+          //FIXME
+          analysisMethod: 'Multi' as const,
           codeSandre: null,
           casNumber: a.Substance_active_CAS,
           label: a.Substance_active_anglais.toLowerCase()

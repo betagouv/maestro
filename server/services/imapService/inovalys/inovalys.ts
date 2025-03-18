@@ -60,6 +60,8 @@ export const extractAnalyzes = (
     //LMR
     'Spécification 1': z.coerce.number().optional().transform((v) => v ?? 0),
     'Numéro CAS': z.string().optional().transform(v => v === '' || v === undefined ? null : v),
+    //Méthode d'analyse
+    Bilan: z.string(),
   }));
 
 
@@ -102,7 +104,8 @@ export const extractAnalyzes = (
           ...result,
           label: r['Détermination'].replace('· ', ''),
           casNumber: r['Numéro CAS'] ?? null,
-          codeSandre: r['Code Sandre'] ?? null
+          codeSandre: r['Code Sandre'] ?? null,
+          analysisMethod: r['Bilan'] === 'Analyses à la carte' ? 'Mono' as const : 'Multi' as const
         }
       });
 

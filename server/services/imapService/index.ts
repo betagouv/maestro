@@ -14,6 +14,7 @@ import { SandreToSSD2 } from 'maestro-shared/referential/Residue/SandreToSSD2';
 import { OmitDistributive } from 'maestro-shared/utils/typescript';
 import { notificationService } from '../notificationService';
 import { NotificationCategoryMessages } from 'maestro-shared/schema/Notification/NotificationCategory';
+import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 
 const laboratoriesWithConf = ['GIRPA', 'INOVALYS', 'CAPINOV'] as const satisfies string[];
 type LaboratoryWithConf = (typeof laboratoriesWithConf)[number];
@@ -30,7 +31,7 @@ export type ExportResultQuantifiable = {
   lmr: number;
 }
 export type ExportResultNonQuantifiable ={ result_kind: 'NQ' | 'ND' }
-export type ExportDataSubstance = { label: string, casNumber: string | null, codeSandre: string | null} & (
+export type ExportDataSubstance = { label: string, casNumber: string | null, codeSandre: string | null, analysisMethod: AnalysisMethod} & (
   | ExportResultNonQuantifiable
   | ExportResultQuantifiable
 );

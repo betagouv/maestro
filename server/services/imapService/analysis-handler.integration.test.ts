@@ -32,7 +32,8 @@ test("Le fichier est updloadé sur le S3, n'est pas supprimé du S3 et est en bd
     residues: [
       {
         ssd2Id: 'RF-0002-001-PPP',
-        result_kind: 'NQ'
+        result_kind: 'NQ',
+        analysisMethod: 'Multi'
       }
     ]
   } as const satisfies AnalysisWithResidueWithSSD2Id;
@@ -121,7 +122,8 @@ test("Si une erreur intervient après l'upload sur le S3, on supprime le documen
       residues: [
         {
           ssd2Id: 'RF-0002-001-PPP' ,
-          result_kind: 'NQ'
+          result_kind: 'NQ',
+          analysisMethod: 'Multi'
         }
       ]
     })
@@ -143,6 +145,7 @@ test("Impossible d'enregistrer l'analyse si on trouve un résidu complexe sans a
         {
           ssd2Id: 'RF-0008-001-PPP' ,
           result_kind: 'NQ',
+          analysisMethod: 'Multi'
         }
       ]
     })
@@ -163,14 +166,17 @@ test('Peut enregistrer une analyse avec un résidue complexe et ses analytes ass
       {
           ssd2Id: 'RF-00002588-PAR',
         result_kind: 'NQ',
+        analysisMethod: 'Multi'
       },
       {
           ssd2Id: 'RF-0008-001-PPP',
-        result_kind: 'NQ'
+        result_kind: 'NQ',
+        analysisMethod: 'Multi'
       },
       {
           ssd2Id: 'RF-00004646-PAR',
         result_kind: 'NQ',
+        analysisMethod: 'Multi'
       }
     ]
   } as const satisfies AnalysisWithResidueWithSSD2Id;

@@ -169,7 +169,7 @@ describe('Parse correctement les fichiers CSV', () => {
             "Lib Méthode": "LC/MS/MS",
             "Réf Méthode": "M-ARCO/M/021",
             "Cofrac": "N",
-            "Bilan": "MULTIPEST-COMPLET",
+            "Bilan": "Analyses à la carte",
             "Unité Tech": "MARCO",
             "Date Analyse": "23/10/2024",
             "Date Validation": "24/10/2024",
@@ -199,7 +199,7 @@ describe('Parse correctement les fichiers CSV', () => {
             "Lib Méthode": "LC/MS/MS",
             "Réf Méthode": "M-ARCO/M/021",
             "Cofrac": "N",
-            "Bilan": "MULTIPEST-COMPLET",
+            "Bilan": "Analyses à la carte",
             "Unité Tech": "MARCO",
             "Date Analyse": "23/10/2024",
             "Date Validation": "24/10/2024",
@@ -223,6 +223,7 @@ describe('Parse correctement les fichiers CSV', () => {
             "notes": "Respect de la Directive 2002/63 CE sur les quantités nécessaires ",
             "residues": [
               {
+                "analysisMethod": "Multi",
                 "casNumber": "107534-96-3",
                 "codeSandre": "1694",
                 "label": "Tébuconazole",
@@ -231,12 +232,14 @@ describe('Parse correctement les fichiers CSV', () => {
                 "result_kind": "Q",
               },
               {
+                "analysisMethod": "Multi",
                 "casNumber": null,
                 "codeSandre": null,
                 "label": "Prothioconazole : prothioconazole-desthio (somme des isomères)",
                 "result_kind": "NQ",
               },
               {
+                "analysisMethod": "Mono",
                 "casNumber": null,
                 "codeSandre": "1951",
                 "label": "Azoxystrobine",
