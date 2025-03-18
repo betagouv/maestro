@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "start": "vite",
+    "tsc": "tsc",
     "build": "tsc && vite build",
     "build-vite": "vite build",
     "scalingo-postbuild": "run-p build-vite build-storybook",
