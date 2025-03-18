@@ -55,7 +55,11 @@ const ContextStep = ({ partialSample }: Props) => {
   const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
 
   const [resytalId, setResytalId] = useState(partialSample?.resytalId);
-  const [context, setContext] = useState(partialSample?.context);
+  const [context, setContext] = useState(
+    (partialSample?.context ?? programmingPlan?.contexts.length === 1)
+      ? programmingPlan?.contexts[0]
+      : undefined
+  );
   const [legalContext, setLegalContext] = useState(partialSample?.legalContext);
   const [geolocationX, setGeolocationX] = useState(
     partialSample?.geolocation?.x

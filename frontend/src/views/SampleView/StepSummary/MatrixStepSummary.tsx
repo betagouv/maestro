@@ -68,11 +68,12 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
           )}
         </div>
       </div>
-      {sample.cultureKind && (
+      {sample.specificData?.cultureKind && (
         <div className="summary-item icon-text">
           <div className={cx('fr-icon-seedling-line')}></div>
           <div>
-            Type de culture : <b>{CultureKindLabels[sample.cultureKind]}</b>
+            Type de culture :{' '}
+            <b>{CultureKindLabels[sample.specificData.cultureKind]}</b>
           </div>
         </div>
       )}
@@ -82,7 +83,7 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
           Stade de prélèvement : <b>{StageLabels[sample.stage]}</b>
         </div>
       </div>
-      {sample.releaseControl && (
+      {sample.specificData?.releaseControl && (
         <div className="summary-item icon-text">
           <div className={cx('fr-icon-checkbox-circle-line')}></div>
           <div>

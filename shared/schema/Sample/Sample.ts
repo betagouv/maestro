@@ -52,18 +52,22 @@ export const SampleContextData = z.object({
   status: SampleStatus
 });
 
+export const SampleMatrixSpecificdata = z.object({
+  cultureKind: CultureKind.nullish(),
+  releaseControl: z.boolean().nullish()
+});
+
 export const SampleMatrixData = z.object({
   matrixKind: MatrixKind,
   matrix: Matrix,
   matrixDetails: z.string().nullish(),
   matrixPart: MatrixPart,
   stage: Stage,
-  cultureKind: CultureKind.nullish(),
-  releaseControl: z.boolean().nullish(),
   notesOnMatrix: z.string().nullish(),
   prescriptionId: z.string().uuid(),
   laboratoryId: z.string().uuid().nullish(),
-  documentIds: z.array(z.string().uuid()).nullish()
+  documentIds: z.array(z.string().uuid()).nullish(),
+  specificData: SampleMatrixSpecificdata.nullish()
 });
 
 export const SampleItemsData = z.object({
