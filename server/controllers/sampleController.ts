@@ -442,7 +442,7 @@ const generateAndStoreAnalysisRequestDocuments = async (
     'xlsx'
   );
 
-  await documentService.createDocument(
+  await documentService.insertDocument(
     new File([new Uint8Array(excelBuffer as Buffer)], excelFilename, {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     }),
@@ -459,7 +459,7 @@ const generateAndStoreAnalysisRequestDocuments = async (
     'csv'
   );
 
-  await documentService.createDocument(
+  await documentService.insertDocument(
     new File(
       [csvBuffer],
       getAnalysisReportDocumentFilename(

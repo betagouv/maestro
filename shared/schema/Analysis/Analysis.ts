@@ -6,7 +6,7 @@ export const PartialAnalysis = z.object({
   id: z.string().uuid(),
   sampleId: z.string().uuid(),
   createdAt: z.coerce.date(),
-  createdBy: z.string().uuid().nullable(),
+  createdBy: z.string().uuid().nullish(),
   status: AnalysisStatus,
   reportDocumentId: z.string().uuid(),
   residues: z.array(PartialResidue).nullish(),

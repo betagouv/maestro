@@ -36,7 +36,7 @@ test("Le fichier est updloadé sur le S3, n'est pas supprimé du S3 et est en bd
       }
     ]
   } as const satisfies AnalysisWithResidueWithSSD2Id;
-  const analysisId = await analysisHandler(analysisToSave);
+  const { analysisId } = await analysisHandler(analysisToSave);
 
   expect(spyUploadDocument).toHaveBeenCalledOnce();
   expect(spyDeleteDocument).toHaveBeenCalledTimes(0);
@@ -175,7 +175,7 @@ test('Peut enregistrer une analyse avec un résidue complexe et ses analytes ass
     ]
   } as const satisfies AnalysisWithResidueWithSSD2Id;
 
-  const analysisId = await analysisHandler(analysisToSave);
+  const { analysisId } = await analysisHandler(analysisToSave);
 
   const analysisResidue = await kysely
     .selectFrom('analysisResidues')

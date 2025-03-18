@@ -6,6 +6,14 @@ import { DB } from '../repositories/kysely.type';
 import { ExtractError } from './imapService';
 import { s3Service } from './s3Service';
 
+const insertDocument = async (
+  file: File,
+  documentKind: DocumentKind,
+  userId: string | null,
+) => {
+  await createDocument(file, documentKind, userId, () => Promise.resolve())
+};
+
 const getDocument = async (documentId: string) => {
   const document = await documentRepository.findUnique(documentId);
 
@@ -22,7 +30,7 @@ const createDocument = async <T>(
   file: File,
   documentKind: DocumentKind,
   userId: string | null,
-  callback?: (documentId: string, trx: Transaction<DB>) => Promise<T>
+  callback: (documentId: string, trx: Transaction<DB>) => Promise<T>
 ) => {
   const { documentId, valid, error } = await s3Service.uploadDocument(file);
 
@@ -44,7 +52,7 @@ const createDocument = async <T>(
         trx
       );
 
-      return callback?.(documentId, trx) ?? documentId;
+      return callback(documentId, trx);
     });
   } catch (e) {
     await s3Service.deleteDocument(documentId, file.name);
@@ -65,6 +73,7 @@ const deleteDocument = async (documentId: string) => {
 };
 
 export const documentService = {
+  insertDocument,
   createDocument,
   deleteDocument,
   getDocument

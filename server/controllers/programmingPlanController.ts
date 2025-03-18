@@ -211,7 +211,7 @@ const updateRegionalStatus = async (request: Request, response: Response) => {
               category: 'ProgrammingPlanSubmitted',
               message: NotificationCategoryMessages[
                 'ProgrammingPlanSubmitted'
-              ] as string,
+              ],
               link: `/prescriptions/${programmingPlan.year}`
             },
             regionalCoordinators
@@ -222,7 +222,7 @@ const updateRegionalStatus = async (request: Request, response: Response) => {
               category: 'ProgrammingPlanValidated',
               message: NotificationCategoryMessages[
                 'ProgrammingPlanValidated'
-              ] as string,
+              ],
               link: `/prescriptions/${programmingPlan.year}`
             },
             regionalCoordinators

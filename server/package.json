@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "npm run migrate-latest && node --import @swc-node/register/esm-register --watch --inspect ./index.ts",
     "build": "tsc",
+    "tsc": "tsc",
     "start": "npm run migrate-latest && node --import @swc-node/register/esm-register ./index.ts",
     "test": "vitest",
     "test:integration": "vitest --project integration",
