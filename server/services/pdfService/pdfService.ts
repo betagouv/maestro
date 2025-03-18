@@ -3,6 +3,7 @@ import { fr } from 'date-fns/locale';
 import fs from 'fs';
 import handlebars from 'handlebars';
 import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
+import { CultureKindLabels } from 'maestro-shared/referential/CultureKind';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
@@ -195,6 +196,9 @@ const generateSampleSupportPDF = async (
     matrix: MatrixLabels[sample.matrix],
     matrixDetails: sample.matrixDetails,
     matrixPart: MatrixPartLabels[sample.matrixPart],
+    cultureKind: sample.cultureKind
+      ? CultureKindLabels[sample.cultureKind]
+      : undefined,
     releaseControl: sample.releaseControl ? 'Oui' : 'Non',
     establishment: Regions[sample.region].establishment,
     department: DepartmentLabels[sample.department],
