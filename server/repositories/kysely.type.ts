@@ -12,6 +12,7 @@ import { ResidueKind } from 'maestro-shared/schema/Analysis/Residue/ResidueKind'
 import { type DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 
 export type Generated<T> =
   T extends ColumnType<infer S, infer I, infer U>
@@ -63,6 +64,12 @@ export interface AnalysisResidues {
   substanceApproved: string | null;
   substanceAuthorised: string | null;
 }
+
+export interface AnalysisErrors {
+  analysisId: string;
+  residues: { old: Omit<PartialResidue, 'analysisId'>[], new: Omit<PartialResidue, 'analysisId'>[] }
+}
+
 
 export interface AnalysisResiduesTmp {
   analysisId: string | null;
@@ -245,6 +252,7 @@ export interface DB {
   _Referential: _Referential;
   analysis: Analysis;
   analysisResidues: AnalysisResidues;
+  analysisErrors: AnalysisErrors;
   analysisResiduesTmp: AnalysisResiduesTmp;
   companies: Companies;
   documents: Documents;

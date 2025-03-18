@@ -3,12 +3,15 @@ import {
   PartialSample,
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import { useGetLaboratoryQuery } from 'src/services/laboratory.service';
+import { useContext } from 'react';
+import { ApiClientContext } from '../services/apiClient';
 
 export const usePartialSample = (
   partialSample: PartialSample | PartialSampleToCreate
 ) => {
-  const { data: laboratory } = useGetLaboratoryQuery(
+
+  const apiClient = useContext(ApiClientContext)
+  const { data: laboratory } = apiClient.useGetLaboratoryQuery(
     partialSample.laboratoryId ?? skipToken
   );
 

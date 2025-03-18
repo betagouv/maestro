@@ -7,5 +7,5 @@
     "jsx": "react-jsx",
     "noUnusedLocals": false,
   },
-  "include": ["src", "test"]
+  "include": ["src", "test", ".storybook"]
 }
