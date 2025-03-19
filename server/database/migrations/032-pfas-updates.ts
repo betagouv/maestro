@@ -32,7 +32,7 @@ export const up = async (knex: Knex) => {
 
   await knex.raw(`
     UPDATE samples
-    SET specific_data = json_build_object('cultureKind', culture_kind, 'releaseControl', release_control)
+    SET specific_data = json_build_object('domain', 'PPV', 'cultureKind', culture_kind, 'releaseControl', release_control)
   `);
 };
 
@@ -49,6 +49,13 @@ export const down = async (knex: Knex) => {
     'domain',
     'PPV'
   );
+
+  await knex('samples')
+    .whereIn(
+      'programming_plan_id',
+      deletedProgrammingPlans.map((pp) => pp.id)
+    )
+    .delete();
 
   await knex('prescriptions')
     .whereIn(
