@@ -11,7 +11,6 @@ import { AnalysisStatusList } from '../schema/Analysis/AnalysisStatus';
 import { Analyte, PartialAnalyte } from '../schema/Analysis/Analyte';
 import { PartialResidue, Residue } from '../schema/Analysis/Residue/Residue';
 import { ResidueComplianceList } from '../schema/Analysis/Residue/ResidueCompliance';
-import { ResidueKindList } from '../schema/Analysis/Residue/ResidueKind';
 import { genNumber, oneOf } from './testFixtures';
 
 export const genAnalysisToCreate = (
@@ -39,7 +38,6 @@ export const genPartialResidue = (
   analysisId: uuidv4(),
   residueNumber: genNumber(2),
   analysisMethod: oneOf(AnalysisMethodList),
-  kind: oneOf(ResidueKindList),
   result: genNumber(2),
   resultHigherThanArfd: oneOf(OptionalBooleanList),
   substanceApproved: oneOf(OptionalBooleanList),

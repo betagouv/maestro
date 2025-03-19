@@ -172,48 +172,7 @@ export const AnalysisResiduesForm: FunctionComponent<Props> = ({
                     />
                   </div>
                 </div>
-                <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-                  <div className={cx('fr-col-12')}>
-                    <AppRadioButtons<FormShape>
-                      legend="Type de résidu"
-                      options={selectOptionsFromList(ResidueKindList, {
-                        labels: ResidueKindLabels,
-                        withDefault: false,
-                        withSort: false
-                      }).map(({ label, value }) => ({
-                        key: `residue-${residueIndex}-kind-option-${value}`,
-                        label,
-                        nativeInputProps: {
-                          checked: residue.kind === value,
-                          onChange: () =>
-                            changeResidue(
-                              {
-                                ...residue,
-                                kind: value as ResidueKind,
-                                analytes:
-                                  value === 'Complex'
-                                    ? [
-                                        {
-                                          analysisId: partialAnalysis.id,
-                                          residueNumber: residueIndex + 1,
-                                          analyteNumber: 1
-                                        }
-                                      ]
-                                    : null
-                              },
-                              residueIndex
-                            )
-                        }
-                      }))}
-                      colSm={6}
-                      inputForm={form}
-                      inputKey="residues"
-                      inputPathFromKey={[residueIndex, 'kind']}
-                      whenValid="Type de résidu correctement renseigné"
-                      required
-                    />
-                  </div>
-                </div>
+
                 {residue.kind === 'Simple' && (
                   <SimpleResidueForm<FormShape>
                     form={form}

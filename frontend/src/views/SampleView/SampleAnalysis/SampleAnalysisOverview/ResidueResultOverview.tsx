@@ -2,11 +2,6 @@ import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
-import { AnalyteLabels } from 'maestro-shared/referential/Residue/AnalyteLabels';
-import { ComplexResidue } from 'maestro-shared/referential/Residue/ComplexResidue';
-import { ComplexResidueLabels } from 'maestro-shared/referential/Residue/ComplexResidueLabels';
-import { SimpleResidue } from 'maestro-shared/referential/Residue/SimpleResidue';
-import { SimpleResidueLabels } from 'maestro-shared/referential/Residue/SimpleResidueLabels';
 import { AnalysisMethodLabels } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { ResidueKind, ResidueKindLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
@@ -14,6 +9,7 @@ import { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import ResidueResultAlert from '../../../../components/ResidueResultAlert/ResidueResultAlert';
 import { isComplex } from 'maestro-shared/referential/Residue/SSD2Hierachy';
+import { SSD2Referential } from 'maestro-shared/referential/Residue/SSD2Referential';
 
 export type Props = {
   residueIndex: number;
@@ -51,7 +47,7 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
           <>
             {residue.resultKind === 'Q' && (
               <>
-                {SimpleResidueLabels[residue.reference as SimpleResidue]}
+                {residue.reference !== undefined ? SSD2Referential[residue.reference].name : ''}
                 <div className="d-flex-align-center">
                   Valeur du résultat
                   <div className="border-middle"></div>
@@ -68,7 +64,7 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
             {residue.resultKind === 'NQ' && (
               <>
                 <div className="d-flex-align-center">
-                  {SimpleResidueLabels[residue.reference as SimpleResidue]}
+                  {residue.reference !== undefined ? SSD2Referential[residue.reference].name : ''}
                   <div className="border-middle"></div>
                   <b>Détecté, non quantifié</b>
                 </div>
@@ -77,14 +73,14 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
           </>
         ) : (
           <>
-            {ComplexResidueLabels[residue.reference as ComplexResidue]}
+            {residue.reference !== undefined ? SSD2Referential[residue.reference].name : ''}
             {residue.analytes?.map((analyte, analyteIndex) => (
               <div key={`analyte-${analyteIndex}`}>
                 <Badge severity="warning" noIcon className={cx('fr-mb-2w')}>
                   Analyte n°{analyteIndex + 1} du résidu complexe
                 </Badge>
                 <div className="d-flex-align-center">
-                  {analyte.reference ? AnalyteLabels[analyte.reference] : ''}
+                  {analyte.reference ? SSD2Referential[analyte.reference].name : ''}
                   <div className="border-middle"></div>
                   {analyte.resultKind === 'Q' ? (
                     <b>{analyte.result} mg/kg</b>
