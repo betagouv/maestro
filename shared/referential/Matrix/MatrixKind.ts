@@ -31,8 +31,12 @@ export const MatrixKindEffective = z.enum([
   'A001D',
   'A000L',
   'A00HQ',
-  'A031G',
-  'A031K'
+  'A01QX',
+  'A01RJ',
+  'A01RL',
+  'A01RG',
+  'A01SN',
+  'A031E'
 ]);
 
 export const MatrixKind = z.enum(
@@ -87,6 +91,10 @@ export const MatrixKindLabels: Record<MatrixKind, string> = {
   A001D: 'Riz',
   A000L: 'Sarrasin/Quinoa',
   A00HQ: 'Tomates',
-  A031G: 'Oeufs de poule',
-  A031K: 'Oeufs de caille'
+  A01QX: 'Viande bovine',
+  A01RJ: 'Viande ovine',
+  A01RL: 'Viande caprine',
+  A01RG: 'Viande porcine',
+  A01SN: 'Viande de volaille',
+  A031E: 'Œufs et ovoproduits'
 };

@@ -3,12 +3,12 @@ import {
   TypedUseMutation,
   TypedUseQuery
 } from '@reduxjs/toolkit/dist/query/react';
-import { ApiClient } from './apiClient';
 import { fn } from '@storybook/test';
-import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
 import { genPartialAnalysis } from 'maestro-shared/test/analysisFixtures';
-import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
+import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
+import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
+import { ApiClient } from './apiClient';
 
 type MockApi<T extends Partial<ApiClient>> = {
   [Key in keyof T]: T[Key] extends TypedUseQuery<infer D, any, any>
@@ -24,7 +24,7 @@ export const getMockApi = <T extends Partial<ApiClient>>(
   mockApi: MockApi<T>
 ): T => {
   return Object.keys(mockApi).reduce((acc, key) => {
-    if (key.startsWith('useGet')) {
+    if (key.startsWith('useGet') || key.startsWith('useFind')) {
       // @ts-expect-error TS7053
       acc[key] = () => mockApi[key];
     } else if (key.startsWith('useLazyGet')) {
@@ -35,15 +35,19 @@ export const getMockApi = <T extends Partial<ApiClient>>(
           unwrap: async () => mockApi[key]
         })
       ];
-    } else if (key.startsWith('useUpdate')){
+    } else if (
+      key.startsWith('useCreate') ||
+      key.startsWith('useUpdate') ||
+      key.startsWith('useDelete')
+    ) {
       // @ts-expect-error TS7053
-      acc[key] = () => mockApi[key]
+      acc[key] = () => mockApi[key];
     }
     return acc;
   }, {} as T);
 };
 
-export const defaultMockApiClientConf : MockApi<ApiClient> = {
+export const defaultMockApiClientConf: MockApi<ApiClient> = {
   useGetDocumentQuery: {
     data: genDocument({
       createdAt: new Date(12345),
@@ -62,13 +66,18 @@ export const defaultMockApiClientConf : MockApi<ApiClient> = {
   },
   useUpdateSampleMutation: [async () => fn(), { isSuccess: true }],
   useUpdateAnalysisMutation: [async () => fn(), { isSuccess: true }],
+  useCreateOrUpdateSampleMutation: [async () => fn(), { isSuccess: true }],
+  useCreateDocumentMutation: [async () => fn(), { isSuccess: true }],
+  useDeleteDocumentMutation: [async () => fn(), { isSuccess: true }],
   useGetSampleAnalysisQuery: {
     data: genPartialAnalysis({
       sampleId: Sample11Fixture.id,
       createdBy: Sampler1Fixture.id,
       status: 'Residues'
     })
-  }
-}
+  },
+  useFindPrescriptionsQuery: { data: [] },
+  useFindRegionalPrescriptionsQuery: { data: [] }
+};
 
 export const mockApiClient = getMockApi<ApiClient>(defaultMockApiClientConf);

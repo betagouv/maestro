@@ -346,9 +346,11 @@ const updateSample = async (request: Request, response: Response) => {
               quantityUnit: sampleItem?.quantityUnit
                 ? QuantityUnitLabels[sampleItem.quantityUnit]
                 : '',
-              cultureKind: updatedSample.specificData?.cultureKind
-                ? CultureKindLabels[updatedSample.specificData.cultureKind]
-                : undefined,
+              cultureKind:
+                updatedSample.specificData?.domain === 'PPV' &&
+                updatedSample.specificData.cultureKind
+                  ? CultureKindLabels[updatedSample.specificData.cultureKind]
+                  : undefined,
               compliance200263: sampleItem
                 ? sampleItem.compliance200263
                   ? 'Respectée'

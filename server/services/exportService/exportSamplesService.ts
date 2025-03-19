@@ -125,10 +125,17 @@ const writeToWorkbook = async (
             ? MatrixPartLabels[sample.matrixPart]
             : undefined,
           stage: sample.stage ? StageLabels[sample.stage] : undefined,
-          cultureKind: sample.cultureKind
-            ? CultureKindLabels[sample.cultureKind]
-            : undefined,
-          releaseControl: sample.releaseControl ? 'Oui' : 'Non',
+          cultureKind:
+            sample.specificData?.domain === 'PPV' &&
+            sample.specificData.cultureKind
+              ? CultureKindLabels[sample.specificData.cultureKind]
+              : undefined,
+          releaseControl:
+            sample.specificData?.domain === 'PPV'
+              ? sample.specificData.releaseControl
+                ? 'Oui'
+                : 'Non'
+              : undefined,
           notesOnMatrix: sample.notesOnMatrix,
           ...items.reduce(
             (acc, item, index) => ({

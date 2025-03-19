@@ -80,6 +80,7 @@ export const genCreatedPartialSample = (
     matrixPart: oneOf(MatrixPartList),
     stage: oneOf(StageList),
     specificData: {
+      domain: 'PPV',
       cultureKind: oneOf(CultureKindList),
       releaseControl: fakerFR.datatype.boolean()
     },
@@ -142,6 +143,7 @@ export const Sample11Fixture = genCreatedPartialSample({
   matrix: 'A00GZ',
   matrixPart: 'PART1',
   specificData: {
+    domain: 'PPV',
     cultureKind: 'PD07A',
     releaseControl: false
   },
