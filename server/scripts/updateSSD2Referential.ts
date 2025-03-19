@@ -143,16 +143,18 @@ const updateReferentialFile = (newReferential: Record<string, any>) => {
 
 const updateIdFile = (newIds: string[]) => {
 
+  const startComment = '// ----- ne pas supprimer cette ligne : début'
+  const stopComment = '// ----- ne pas supprimer cette ligne : fin'
   const idsFile = path.join(process.cwd(), '../shared/referential/Residue/SSD2Id.ts')
-  const referentialFileData = readFileSync(idsFile, {
+  const idsFileData = readFileSync(idsFile, {
     encoding: 'utf-8',
   })
 
-  const preCode = referentialFileData.slice(0, 40)
+  const startIndex = idsFileData.indexOf(startComment)
+  const preCode = idsFileData.slice(0, startIndex + startComment.length + 3 + 40)
+  const postCode = idsFileData.slice(idsFileData.indexOf(stopComment) - 10)
 
-  const code= newIds.map(id => `'${id}'`).join('|')
-
-  writeFileSync(idsFile, preCode + code)
+  writeFileSync(idsFile, preCode + JSON.stringify(newIds) + postCode)
 }
 export default updateSSD2Referential()
   .then(() => {

@@ -193,7 +193,7 @@ export const checkEmails = async () => {
                     }
                   }
                 }
-                if (r.ssd2Id === null) {
+                if (r.ssd2Id === null && !laboratoriesConf[message.laboratoryName].unknownReferences.includes(r.label)) {
                   warnings.add(`Impossible d'identifier le résidue : ${r.label}`)
                 }
               });

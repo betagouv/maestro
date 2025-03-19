@@ -70,7 +70,6 @@ export const ReviewWithResidues: Story = {
           residueNumber: 1,
           reference: 'RF-0001-001-PPP',
           analysisMethod: 'Mono',
-          kind: 'Simple',
           result: 2,
           resultKind: 'Q',
           lmr: 3
@@ -80,7 +79,6 @@ export const ReviewWithResidues: Story = {
           residueNumber: 2,
           reference: 'RF-00003351-PAR',
           analysisMethod: 'Multi',
-          kind: 'Complex',
           result: null,
           resultKind: 'NQ',
           lmr: null,
