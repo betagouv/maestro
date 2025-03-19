@@ -7,6 +7,7 @@ import { Matrix } from '../../referential/Matrix/Matrix';
 import { MatrixKind } from '../../referential/Matrix/MatrixKind';
 import { MatrixPart } from '../../referential/Matrix/MatrixPart';
 import { Region } from '../../referential/Region';
+import { Species } from '../../referential/Species';
 import { Stage } from '../../referential/Stage';
 import { Company } from '../Company/Company';
 import { Context } from '../ProgrammingPlan/Context';
@@ -52,10 +53,21 @@ export const SampleContextData = z.object({
   status: SampleStatus
 });
 
-export const SampleMatrixSpecificdata = z.object({
+export const SampleMatrixSpecificDataPPV = z.object({
+  domain: z.literal('PPV'),
   cultureKind: CultureKind.nullish(),
   releaseControl: z.boolean().nullish()
 });
+
+export const SampleMatrixSpecificDataPFAS = z.object({
+  domain: z.literal('PFAS'),
+  species: Species
+});
+
+const SampleMatrixSpecificData = z.discriminatedUnion('domain', [
+  SampleMatrixSpecificDataPPV,
+  SampleMatrixSpecificDataPFAS
+]);
 
 export const SampleMatrixData = z.object({
   matrixKind: MatrixKind,
@@ -67,7 +79,7 @@ export const SampleMatrixData = z.object({
   prescriptionId: z.string().uuid(),
   laboratoryId: z.string().uuid().nullish(),
   documentIds: z.array(z.string().uuid()).nullish(),
-  specificData: SampleMatrixSpecificdata.nullish()
+  specificData: SampleMatrixSpecificData.nullish()
 });
 
 export const SampleItemsData = z.object({
@@ -153,6 +165,7 @@ export const Sample = SampleToCreate.extend({
 
 export type Geolocation = z.infer<typeof Geolocation>;
 export type SampleContextData = z.infer<typeof SampleContextData>;
+export type SampleMatrixSpecificData = z.infer<typeof SampleMatrixSpecificData>;
 export type SampleMatrixData = z.infer<typeof SampleMatrixData>;
 export type SampleItemsData = z.infer<typeof SampleItemsData>;
 export type SampleOwnerData = z.infer<typeof SampleOwnerData>;
