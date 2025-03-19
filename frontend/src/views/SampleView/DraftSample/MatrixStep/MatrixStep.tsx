@@ -251,7 +251,7 @@ const MatrixStep = ({ partialSample }: Props) => {
     <form data-testid="draft_sample_matrix_form" className="sample-form">
       <AppRequiredText />
 
-      {programmingPlan?.domain === 'PFAS' && (
+      {specificData?.domain === 'PFAS' && (
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
             <AppSelect<FormShape>
@@ -371,7 +371,7 @@ const MatrixStep = ({ partialSample }: Props) => {
             hintText="Champ facultatif pour précisions supplémentaires"
           />
         </div>
-        {programmingPlan?.domain === 'PPV' && (
+        {specificData?.domain === 'PPV' && (
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
             <AppSelect<FormShape>
               defaultValue={cultureKind ?? ''}
@@ -406,7 +406,7 @@ const MatrixStep = ({ partialSample }: Props) => {
           />
         </div>
       </div>
-      {programmingPlan?.domain === 'PPV' && (
+      {specificData?.domain === 'PPV' && (
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
             <ToggleSwitch
