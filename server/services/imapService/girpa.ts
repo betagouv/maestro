@@ -15,6 +15,8 @@ import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 //TODO AUTO_LABO en attente de la réception du 1er email + test
 const isSender: IsSender = (_emailSender) => false;
 
+
+const girpaUnknownReferences: string[] = []
 const girpaReferences: Record<string, SSD2Id> = {
   'prothioconazole: prothioconazole-desthio': 'RF-0868-001-PPP',
   napropamide: 'RF-00012802-PAR'
@@ -140,5 +142,6 @@ const exportDataFromEmail: ExportDataFromEmail = (email) => {
 export const girpaConf: LaboratoryConf = {
   isSender,
   exportDataFromEmail,
-  ssd2IdByLabel: girpaReferences
+  ssd2IdByLabel: girpaReferences,
+  unknownReferences: girpaUnknownReferences
 };

@@ -1,5 +1,6 @@
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 
+export const inovalysUnknownReferences: string[] = []
 export const inovalysReferential: Record<string, SSD2Id | null> = {
   'DDD 4,4 (p,p\')': 'RF-0119-004-PPP',
   'DDE 4,4 (p,p\')': 'RF-0119-002-PPP',
