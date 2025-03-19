@@ -7,19 +7,11 @@ import { RegionalPrescriptions } from '../../../repositories/regionalPrescriptio
 import { DummyLaboratoryIds } from './002-laboratories';
 import { pfasValidatedProgrammingPlanId } from './003-programming-plans';
 
-export const oeufsDeCaille = genPrescription({
+export const oeufs = genPrescription({
   id: '1ac599c4-1241-445e-a4eb-09d353810e10',
   programmingPlanId: pfasValidatedProgrammingPlanId,
   context: 'Control',
-  matrixKind: 'A031K',
-  stages: ['STADE1']
-});
-
-export const oeufsDePoule = genPrescription({
-  id: 'f0343ecb-754b-4132-b643-76b0b9d14200',
-  programmingPlanId: pfasValidatedProgrammingPlanId,
-  context: 'Control',
-  matrixKind: 'A031G',
+  matrixKind: 'A031E',
   stages: ['STADE1']
 });
 
@@ -43,16 +35,12 @@ export const seed = async function () {
       laboratoryId: oneOf(DummyLaboratoryIds)
     }));
 
-  await Prescriptions().insert([oeufsDePoule, oeufsDeCaille]);
+  await Prescriptions().insert([oeufs]);
 
   await RegionalPrescriptions().insert([
     ...genRegionalPrescriptions(
-      oeufsDePoule.id,
+      oeufs.id,
       [2, 54, 3, 0, 10, 15, 3, 11, 6, 4, 1, 27, 1, 0, 0, 1, 0]
-    ),
-    ...genRegionalPrescriptions(
-      oeufsDeCaille.id,
-      [1, 0, 4, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0]
     )
   ]);
 };
