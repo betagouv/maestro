@@ -1,15 +1,19 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { expect, userEvent, within } from '@storybook/test';
+import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { StageList } from 'maestro-shared/referential/Stage';
-import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
+import {
+  genPrescription,
+  genRegionalPrescription
+} from 'maestro-shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   genCreatedSampleData,
   genSampleContextData
 } from 'maestro-shared/test/sampleFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
-import { genUser } from 'maestro-shared/test/userFixtures';
+import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
 import { ApiClient } from '../../../../../services/apiClient';
 import {
   defaultMockApiClientConf,
@@ -31,7 +35,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const sampler = genUser({
-  roles: ['Sampler']
+  role: 'Sampler'
 });
 const programmingPlan = genProgrammingPlan({
   domain: 'PPV'
@@ -47,8 +51,14 @@ const prescription2 = genPrescription({
   context: 'Control',
   matrixKind: 'A00TQ'
 });
+const regionalPrescription1 = genRegionalPrescription({
+  prescriptionId: prescription1.id
+});
+const regionalPrescription2 = genRegionalPrescription({
+  prescriptionId: prescription2.id
+});
 
-export const MatrixStepPPV: Story = {
+const story: Pick<Story, 'args' | 'parameters'> = {
   args: {
     partialSample: {
       ...genSampleContextData({
@@ -61,15 +71,23 @@ export const MatrixStepPPV: Story = {
     preloadedState: {
       programmingPlan: {
         programmingPlan
-      }
+      },
+      auth: { authUser: genAuthUser(sampler) }
     },
     apiClient: getMockApi<ApiClient>({
       ...defaultMockApiClientConf,
       useFindPrescriptionsQuery: {
         data: [prescription1, prescription2]
+      },
+      useFindRegionalPrescriptionsQuery: {
+        data: [regionalPrescription1, regionalPrescription2]
       }
     })
-  },
+  }
+};
+
+export const MatrixStepPPV: Story = {
+  ...story,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
@@ -91,44 +109,141 @@ export const MatrixStepPPV: Story = {
 };
 
 export const MatrixStepPPVSubmittingErrors: Story = {
-  args: {
-    partialSample: {
-      ...genSampleContextData({
-        programmingPlanId: programmingPlan.id
-      }),
-      ...genCreatedSampleData({ sampler })
-    }
-  },
-  parameters: {
-    preloadedState: {
-      programmingPlan: {
-        programmingPlan
-      }
-    },
-    apiClient: getMockApi<ApiClient>({
-      ...defaultMockApiClientConf,
-      useFindPrescriptionsQuery: {
-        data: [prescription1, prescription2]
-      }
-    })
-  },
+  ...story,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
     await userEvent.click(canvas.getByTestId('submit-button'));
-    expect(
+    await expect(
       canvas.getByText(
         'Veuillez renseigner la catégorie de matrice programmée.'
       )
     ).toBeInTheDocument();
-    expect(
+    await expect(
       canvas.getByText('Veuillez renseigner la matrice.')
     ).toBeInTheDocument();
-    expect(
+    await expect(
       canvas.getByText('Veuillez renseigner la partie du végétal.')
     ).toBeInTheDocument();
-    expect(
+    await expect(
       canvas.getByText('Veuillez renseigner le stade de prélèvement.')
     ).toBeInTheDocument();
   }
 };
+
+export const MatrixStepPPVSaveOnBlurWithoutHandlingErrors: Story = {
+  ...story,
+  play: async ({ canvasElement, parameters }) => {
+    const canvas = within(canvasElement);
+
+    const matrixKindInput = canvas.getAllByTestId('matrix-kind-select')[0];
+    const stageSelect = canvas.getAllByTestId('stage-select')[1];
+
+    await userEvent.click(matrixKindInput);
+
+    const matrixKindListbox = await canvas.findByRole('listbox');
+
+    expect(matrixKindListbox).toBeInTheDocument();
+    await expect(within(matrixKindListbox).getAllByRole('option').length).toBe(
+      2
+    );
+
+    await userEvent.selectOptions(
+      matrixKindListbox,
+      MatrixKindLabels[prescription1.matrixKind]
+    );
+    await userEvent.click(stageSelect);
+    console.log('API Client mock:', parameters.apiClient);
+    await expect(
+      canvas.queryByText(
+        'Veuillez renseigner la catégorie de matrice programmée.'
+      )
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByText('Veuillez renseigner la matrice.')
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByText('Veuillez renseigner le stade de prélèvement.')
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByText('Veuillez renseigner la partie du végétal.')
+    ).not.toBeInTheDocument();
+
+    //TODO
+    // await expect(
+    //   parameters.apiClient.useCreateOrUpdateSampleMutation[0]
+    // ).toHaveBeenCalled();
+  }
+};
+
+// export const MatrixStepPPVSubmitSampleAndUpdatingStatus: Story = {
+//   ...story,
+//   play: async ({ canvasElement, parameters }) => {
+//     const canvas = within(canvasElement);
+//
+//     const matrixKindInput = canvas.getAllByTestId('matrix-kind-select')[0];
+//     const matrixInput = canvas.getAllByTestId('matrix-select')[0];
+//     const stageSelect = canvas.getAllByTestId('stage-select')[1];
+//     const matrixDetailsInput = canvas.getAllByTestId('matrixdetails-input')[1];
+//     const cultureKindSelect = canvas.getAllByTestId('culturekind-select')[1];
+//     const matrixPartSelect = canvas.getAllByTestId('matrixpart-select')[1];
+//     const notesInput = canvas.getAllByTestId('notes-input')[1];
+//     const submitButton = canvas.getByTestId('submit-button');
+//
+//     await userEvent.click(matrixKindInput);
+//
+//     const matrixKindListbox = await canvas.findByRole('listbox');
+//
+//     await userEvent.selectOptions(
+//       matrixKindListbox,
+//       MatrixKindLabels[prescription1.matrixKind]
+//     ); //1 call
+//     await userEvent.click(matrixInput);
+//
+//     const matrixListbox = await canvas.findByRole('listbox');
+//
+//     await act(async () => {
+//       await userEvent.selectOptions(
+//         matrixListbox,
+//         MatrixLabels[MatrixListByKind[prescription1.matrixKind][1]]
+//       ); //1 call
+//     });
+//
+//     await act(async () => {
+//       await userEvent.selectOptions(stageSelect, prescription1.stages[1]); //1 call
+//       await userEvent.type(matrixDetailsInput, 'Details'); //7 calls
+//       await userEvent.selectOptions(cultureKindSelect, CultureKindList[0]); //1 call
+//       await userEvent.selectOptions(matrixPartSelect, MatrixPartList[0]); //1 call
+//       await userEvent.type(notesInput, 'Comment'); //7 calls
+//       await userEvent.click(submitButton); //1 call
+//     });
+//     //
+//     // const calls = await getRequestCalls(fetchMock);
+//     // expect(
+//     //   calls.filter((call) =>
+//     //     call?.url.endsWith(`/api/samples/${createdSample.id}`)
+//     //   )
+//     // ).toHaveLength(20);
+//     //
+//     // expect(calls).toContainEqual({
+//     //   url: `${config.apiEndpoint}/api/samples/${createdSample.id}`,
+//     //   method: 'PUT',
+//     //   body: {
+//     //     ...createdSample,
+//     //     createdAt: createdSample.createdAt.toISOString(),
+//     //     lastUpdatedAt: createdSample.lastUpdatedAt.toISOString(),
+//     //     sampledAt: createdSample.sampledAt.toISOString(),
+//     //     status: 'DraftItems',
+//     //     matrixKind: prescription1.matrixKind,
+//     //     matrix: MatrixListByKind[prescription1.matrixKind][1],
+//     //     matrixPart: MatrixPartList[0],
+//     //     specificData: {
+//     //       cultureKind: CultureKindList[0]
+//     //     },
+//     //     stage: prescription1.stages[1],
+//     //     matrixDetails: 'Details',
+//     //     notesOnMatrix: 'Comment'
+//     //   }
+//     // });
+//   }
+// };

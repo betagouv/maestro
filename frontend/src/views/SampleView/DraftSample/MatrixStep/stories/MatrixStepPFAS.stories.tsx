@@ -9,7 +9,7 @@ import {
   genSampleContextData
 } from 'maestro-shared/test/sampleFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
-import { genUser } from 'maestro-shared/test/userFixtures';
+import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
 import { ApiClient } from '../../../../../services/apiClient';
 import {
   defaultMockApiClientConf,
@@ -31,7 +31,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const sampler = genUser({
-  roles: ['Sampler']
+  role: 'Sampler'
 });
 const programmingPlan = genProgrammingPlan({
   domain: 'PFAS'
@@ -56,7 +56,8 @@ export const MatrixStepPFAS: Story = {
     preloadedState: {
       programmingPlan: {
         programmingPlan
-      }
+      },
+      auth: { authUser: genAuthUser(sampler) }
     },
     apiClient: getMockApi<ApiClient>({
       ...defaultMockApiClientConf,

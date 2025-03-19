@@ -5,6 +5,7 @@ import { CultureKindLabels } from 'maestro-shared/referential/CultureKind';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { MatrixPartLabels } from 'maestro-shared/referential/Matrix/MatrixPart';
+import { SpeciesLabels } from 'maestro-shared/referential/Species';
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import {
   Sample,
@@ -52,8 +53,16 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
       <div className="summary-item icon-text">
         <div className={cx('fr-icon-restaurant-line')}></div>
         <div>
-          Catégorie de matrice programmée :{' '}
-          <b>{MatrixKindLabels[sample.matrixKind]}</b>
+          {sample.specificData?.domain === 'PFAS' && (
+            <div>
+              Espèce animale :{' '}
+              <b>{SpeciesLabels[sample.specificData.species]}</b>
+            </div>
+          )}
+          <div>
+            Catégorie de matrice programmée :{' '}
+            <b>{MatrixKindLabels[sample.matrixKind]}</b>
+          </div>
           <div>
             Matrice : <b>{MatrixLabels[sample.matrix]}</b>
           </div>
@@ -68,29 +77,31 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
           )}
         </div>
       </div>
-      {sample.specificData?.cultureKind && (
-        <div className="summary-item icon-text">
-          <div className={cx('fr-icon-seedling-line')}></div>
-          <div>
-            Type de culture :{' '}
-            <b>{CultureKindLabels[sample.specificData.cultureKind]}</b>
+      {sample.specificData?.domain === 'PPV' &&
+        sample.specificData?.cultureKind && (
+          <div className="summary-item icon-text">
+            <div className={cx('fr-icon-seedling-line')}></div>
+            <div>
+              Type de culture :{' '}
+              <b>{CultureKindLabels[sample.specificData.cultureKind]}</b>
+            </div>
           </div>
-        </div>
-      )}
+        )}
       <div className="summary-item icon-text">
         <div className={cx('fr-icon-sip-line')}></div>
         <div>
           Stade de prélèvement : <b>{StageLabels[sample.stage]}</b>
         </div>
       </div>
-      {sample.specificData?.releaseControl && (
-        <div className="summary-item icon-text">
-          <div className={cx('fr-icon-checkbox-circle-line')}></div>
-          <div>
-            <b>Contrôle libératoire</b>
+      {sample.specificData?.domain === 'PPV' &&
+        sample.specificData?.releaseControl && (
+          <div className="summary-item icon-text">
+            <div className={cx('fr-icon-checkbox-circle-line')}></div>
+            <div>
+              <b>Contrôle libératoire</b>
+            </div>
           </div>
-        </div>
-      )}
+        )}
       <div className="summary-item icon-text">
         <div className={cx('fr-icon-mental-health-line')}></div>
         <div>
