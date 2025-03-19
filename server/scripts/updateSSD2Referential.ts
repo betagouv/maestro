@@ -70,9 +70,11 @@ const updateSSD2Referential = async () => {
   }, {} as Record<typeof columnNames[number], number>)
 
 
-  const rows: {reference: string, name: string, casNumber: string | null, otherNames: string[], masterParentCode: string}[] = []
+  const rows: {reference: string, name: string, casNumber: string | null, otherNames: string[], masterParentCode: string, reportable: boolean}[] = []
+  const currentSSD2Ids = Object.keys(SSD2Referential)
   worksheet.eachRow(function(row, rowNumber) {
-    if (rowNumber !== 1 && row.getCell(columnsIndex['pestParamReportable']).value === '1') {
+    const isKnownId = currentSSD2Ids.includes(`${row.getCell(columnsIndex['termCode'])?.value}`)
+    if (rowNumber !== 1 && row.getCell(columnsIndex['pestParamReportable']).value === '1' || isKnownId) {
 
       const getStringValueOrNull = (value: ExcelJS.CellValue): string | null => {
         return !isNil(value) && value !== '' ? `${value}` : null
@@ -86,7 +88,8 @@ const updateSSD2Referential = async () => {
         otherNames: [getStringValueOrNull(row.getCell(columnsIndex['zooLabel']).value), ...getStringValueOrNull(row.getCell(columnsIndex['otherNames']).value)?.split('$') ?? []]
           .filter(s => s !== name)
           .filter(s => s!==null),
-        masterParentCode: `${row.getCell(columnsIndex['masterParentCode']).value}`
+        masterParentCode: `${row.getCell(columnsIndex['masterParentCode']).value}`,
+        reportable:  row.getCell(columnsIndex['pestParamReportable']).value === '1'
       })
     }
   });
@@ -116,20 +119,8 @@ const updateSSD2Referential = async () => {
     return acc
   }, {} as Record<string, unknown>)
 
-  // On aggrège l'ancienne version du référentiel avec la nouvelle,
-  // pour ne pas faire disparaître les références qui sont devenues Deprecated
-  // et qui sont peut-être utilisées par notre bdd.
-  const newReferential: Record<string, any> = {...SSD2Referential, ...newRows}
-
-
-  for( const reference in newReferential ){
-    if (!(reference in newRows)) {
-      newReferential[reference].deprecated = true
-    }
-  }
-
-  updateReferentialFile(newReferential)
-  updateIdFile(Object.keys(newReferential))
+  updateReferentialFile(newRows)
+  updateIdFile(Object.keys(newRows))
 };
 
 const updateReferentialFile = (newReferential: Record<string, any>) => {

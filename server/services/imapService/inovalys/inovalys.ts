@@ -7,7 +7,7 @@ import {
   LaboratoryConf
 } from '../index';
 import { csvToJson, frenchNumberStringValidator } from '../utils';
-import { inovalysReferential } from './inovalysReferential';
+import { inovalysReferential, inovalysUnknownReferences } from './inovalysReferential';
 
 //TODO AUTO_LABO en attente de la réception du 1er email + test
 const isSender: IsSender = (_emailSender) => false;
@@ -169,5 +169,6 @@ const exportDataFromEmail: ExportDataFromEmail = (email) => {
 export const inovalysConf: LaboratoryConf = {
   isSender,
   exportDataFromEmail,
-  ssd2IdByLabel: inovalysReferential
+  ssd2IdByLabel: inovalysReferential,
+  unknownReferences: inovalysUnknownReferences
 };
