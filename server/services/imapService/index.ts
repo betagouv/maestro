@@ -50,6 +50,7 @@ export type LaboratoryConf = {
   isSender: IsSender;
   exportDataFromEmail: ExportDataFromEmail;
   ssd2IdByLabel: Record<string, SSD2Id | null>
+  unknownReferences: string[]
 };
 const laboratoriesConf = {
   'GIRPA': girpaConf,
