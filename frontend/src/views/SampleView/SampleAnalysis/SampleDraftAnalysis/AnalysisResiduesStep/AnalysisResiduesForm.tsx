@@ -8,7 +8,7 @@ import {
   PartialAnalysis
 } from 'maestro-shared/schema/Analysis/Analysis';
 import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
-import { UseForm, useForm } from '../../../../../hooks/useForm';
+import { useForm } from '../../../../../hooks/useForm';
 import { AnalysisResidueForm } from './AnalysisResidueForm';
 
 export type Props = {

@@ -13,7 +13,7 @@ import {
 import { csvToJson } from './utils';
 
 //TODO AUTO_LABO en attente de la réception du 1er email + test
-const isSender: IsSender = (_emailSender) => true;
+const isSender: IsSender = (_emailSender) => false;
 
 const unknownReferences = [
   'Cyprosulfamide',
@@ -287,7 +287,9 @@ const exportDataFromEmail: ExportDataFromEmail = (email) => {
 
   for (const analysis of analyzes) {
     const pdfAttachment = email.attachments.find(
-      ({ contentType, filename }) => contentType === 'application/pdf'
+      ({ contentType, filename }) =>
+        contentType === 'application/pdf' &&
+        filename?.startsWith(analysis.sampleReference)
     );
 
     if (pdfAttachment === undefined) {
