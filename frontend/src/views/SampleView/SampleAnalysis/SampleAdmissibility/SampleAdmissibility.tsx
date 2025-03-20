@@ -136,7 +136,7 @@ const SampleAdmissibility = ({ sample }: Props) => {
       {sample.status === 'Sent' && (
         <>
           <h4 className={cx('fr-mb-0')}>Recevabilité par le laboratoire</h4>
-          <AppRadioButtons<FormShape>
+          <AppRadioButtons
             legend="Notification de réception par le laboratoire"
             options={[
               {
@@ -185,7 +185,7 @@ const SampleAdmissibility = ({ sample }: Props) => {
                   />
                 </div>
               </div>
-              <AppRadioButtons<FormShape>
+              <AppRadioButtons
                 legend="Échantillon"
                 options={[
                   {

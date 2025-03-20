@@ -359,7 +359,7 @@ const ContextStep = ({ partialSample }: Props) => {
           </div>
         </div>
       </div>
-      <AppRadioButtons<FormShape>
+      <AppRadioButtons
         legend="Contexte du prélèvement"
         options={
           contextOptions?.map(({ label, value }) => ({
@@ -385,7 +385,7 @@ const ContextStep = ({ partialSample }: Props) => {
         required
         data-testid="context-radio"
       />
-      <AppRadioButtons<FormShape>
+      <AppRadioButtons
         legend="Cadre juridique"
         options={
           legalContextOptions?.map(({ label, value }) => ({

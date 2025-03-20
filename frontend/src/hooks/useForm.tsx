@@ -4,11 +4,16 @@ import { z, ZodEffects, ZodObject, ZodRawShape } from 'zod';
 
 type MessageType = 'error' | 'success' | 'default';
 
+export type UseFormShape<T extends ZodRawShape> = UseForm<ZodObject<T> | ZodEffects<ZodObject<T>>>
+export type UseForm<T extends ZodObject<any> | ZodEffects<ZodObject<any>>> = ReturnType<
+  typeof useForm<T>
+>;
+
 export function useForm<
-  T extends ZodRawShape,
-  U extends Record<keyof T, unknown>
+  T extends ZodObject<ZodRawShape> | ZodEffects<ZodObject<ZodRawShape>>,
+  U extends object = Record<keyof z.infer<T>, unknown>
 >(
-  schema: ZodObject<T> | ZodEffects<ZodObject<T>>,
+  schema: T,
   input: U,
   onInputChange?: () => Promise<void>
 ) {
@@ -61,9 +66,9 @@ export function useForm<
     return 'default';
   }
 
-  const validate = async (onValid?: (validInput: z.infer<ZodObject<T>> ) => Promise<void>) => {
+  const validate = async (onValid?: (validInput: z.infer<T> ) => Promise<void>) => {
     try {
-      const validInput: z.infer<ZodObject<T>> = await schema.parseAsync(input);
+      const validInput: z.infer<T> = await schema.parseAsync(input);
       await onValid?.(validInput);
       setIsTouched(true);
       setError(undefined);
