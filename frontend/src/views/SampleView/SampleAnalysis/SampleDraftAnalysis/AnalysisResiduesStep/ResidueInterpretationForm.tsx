@@ -24,6 +24,8 @@ import close from '../../../../../assets/illustrations/close.svg';
 import warning from '../../../../../assets/illustrations/warning.svg';
 import { Form } from './AnalysisResiduesForm';
 
+type FormShape = Form['shape']
+
 export type Props = {
 
   form: UseForm<Form>;
@@ -38,8 +40,6 @@ const ResidueComplianceIllustrations: Record<ResidueCompliance, any> = {
   Other: warning
 };
 
-type SchemaFormType = Props['form']['schema']
-type FormShape = SchemaFormType extends {shape: unknown} ? SchemaFormType['shape'] :  SchemaFormType['_type']
 
 export const ResidueInterpretationForm: FunctionComponent<Props> = ({ form, residue, residueIndex, onChangeResidue,  ..._rest }) => {
   assert<Equals<keyof typeof _rest, never>>();

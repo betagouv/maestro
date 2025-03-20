@@ -50,7 +50,6 @@ export const analysisApi = api.injectEndpoints({
 });
 
 export const {
-  useGetSampleAnalysisQuery,
   useCreateAnalysisMutation,
   useUpdateAnalysisMutation
 } = {

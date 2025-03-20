@@ -38,16 +38,16 @@ export const Residue = ResidueBase.refine(
   }
 );
 
-export const PartialResidue = ResidueBase.partial().merge(
-  ResidueBase.pick({
-    analysisId: true,
-    residueNumber: true
-  }).merge(
-    z.object({
-      analytes: z.array(PartialAnalyte).nullish()
-    })
-  )
-);
+export const PartialResidue = z.object({
+  ...ResidueBase.partial().shape,
+ ...ResidueBase.pick({
+   analysisId: true,
+   residueNumber: true
+ }).shape,
+
+  analytes: z.array(PartialAnalyte).nullish()
+})
+
 
 export type Residue = z.infer<typeof Residue>;
 export type PartialResidue = z.infer<typeof PartialResidue>;

@@ -19,8 +19,8 @@ import SimpleResidueForm from './SimpleResidueForm';
 import ComplexResidueForm from './ComplexResidueForm';
 import { ResidueInterpretationForm } from './ResidueInterpretationForm';
 import AppSearchInput from '../../../../../components/_app/AppSearchInput/AppSearchInput';
-import { ComplexResidue } from 'maestro-shared/referential/Residue/ComplexResidue';
-import { SSD2Referential } from 'maestro-shared/referential/Residue/SSD2Referential';
+import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
+import { SSD2Id, SSD2Ids } from 'maestro-shared/referential/Residue/SSD2Id';
 
 const _validator = Analysis.pick({ residues: true });
 export type Props = {
@@ -102,14 +102,8 @@ export const AnalysisResidueForm: FunctionComponent<Props> = ({
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
             <AppSearchInput
-              options={selectOptionsFromList(Object.keys(SSD2Referential), {
-                labels: Object.values(SSD2Referential).reduce(
-                  (acc, { reference, name }) => {
-                    acc[reference] = name;
-                    return acc;
-                  },
-                  {} as Record<string, string>
-                ),
+              options={selectOptionsFromList([...SSD2Ids], {
+                labels: SSD2IdLabel,
                 withSort: true,
                 withDefault: false
               })}
@@ -123,7 +117,7 @@ export const AnalysisResidueForm: FunctionComponent<Props> = ({
                 changeResidue(
                   {
                     ...residue,
-                    reference: value as ComplexResidue
+                    reference: value as SSD2Id
                   },
                   residueIndex
                 )
@@ -144,10 +138,11 @@ export const AnalysisResidueForm: FunctionComponent<Props> = ({
                 changeResidue={changeResidue}
               />
             )}
-            {kind === 'Complex' && (
+            {kind === 'Complex'  && (
               <ComplexResidueForm
                 form={form}
                 residue={residue}
+                residueReference={residue.reference}
                 residueIndex={residueIndex}
                 changeResidue={changeResidue}
               />
