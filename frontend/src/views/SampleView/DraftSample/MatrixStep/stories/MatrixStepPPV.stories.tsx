@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
-import { expect, userEvent, within } from '@storybook/test';
+import { expect, fn, userEvent, within } from '@storybook/test';
 import { screen } from '@storybook/testing-library';
+import fp from 'lodash';
 import { CultureKindList } from 'maestro-shared/referential/CultureKind';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
@@ -26,6 +27,7 @@ import {
 } from '../../../../../services/mockApiClient';
 import MatrixStep from '../MatrixStep';
 
+const createOrUpdateMock = fn();
 const meta = {
   title: 'Views/MatrixStep',
   component: MatrixStep,
@@ -33,7 +35,12 @@ const meta = {
     <div className="sample-overview">
       <Story />
     </div>
-  )
+  ),
+  async beforeEach() {
+    return () => {
+      createOrUpdateMock.mockReset();
+    };
+  }
 } satisfies Meta<typeof MatrixStep>;
 
 export default meta;
@@ -138,6 +145,18 @@ export const MatrixStepPPVSubmittingErrors: Story = {
 
 export const MatrixStepPPVSaveOnBlurWithoutHandlingErrors: Story = {
   ...story,
+  parameters: {
+    ...story.parameters,
+    apiClient: {
+      ...story.parameters?.apiClient,
+      ...getMockApi<Pick<ApiClient, 'useCreateOrUpdateSampleMutation'>>({
+        useCreateOrUpdateSampleMutation: [
+          createOrUpdateMock,
+          { isSuccess: false }
+        ]
+      })
+    }
+  },
   play: async ({ canvasElement, parameters }) => {
     const canvas = within(canvasElement);
 
@@ -174,10 +193,7 @@ export const MatrixStepPPVSaveOnBlurWithoutHandlingErrors: Story = {
       canvas.queryByText('Veuillez renseigner la partie du végétal.')
     ).not.toBeInTheDocument();
 
-    //TODO
-    // await expect(
-    //   parameters.apiClient.useCreateOrUpdateSampleMutation[0]
-    // ).toHaveBeenCalled();
+    await expect(createOrUpdateMock).toHaveBeenCalled();
   }
 };
 
@@ -196,7 +212,8 @@ export const MatrixStepPPVSubmitSampleAndUpdatingStatus: Story = {
     ...story.args,
     partialSample: createdSample
   },
-  play: async ({ canvasElement, parameters }) => {
+  parameters: MatrixStepPPVSaveOnBlurWithoutHandlingErrors.parameters,
+  play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
     const matrixKindInput = canvas.getAllByTestId('matrix-kind-select')[0];
@@ -232,24 +249,28 @@ export const MatrixStepPPVSubmitSampleAndUpdatingStatus: Story = {
     await userEvent.type(notesInput, 'Comment'); //7 calls
     await userEvent.click(submitButton); //1 call
 
-    //TODO
-    // await expect(
-    //   parameters.apiClient.useCreateOrUpdateSampleMutation[0]
-    // ).toHaveBeenNthCalledWith(20, {
-    //   ...createdSample,
-    //   createdAt: createdSample.createdAt.toISOString(),
-    //   lastUpdatedAt: createdSample.lastUpdatedAt.toISOString(),
-    //   sampledAt: createdSample.sampledAt.toISOString(),
-    //   status: 'DraftItems',
-    //   matrixKind: prescription1.matrixKind,
-    //   matrix: MatrixListByKind[prescription1.matrixKind][1],
-    //   matrixPart: MatrixPartList[0],
-    //   specificData: {
-    //     cultureKind: CultureKindList[0]
-    //   },
-    //   stage: prescription1.stages[1],
-    //   matrixDetails: 'Details',
-    //   notesOnMatrix: 'Comment'
-    // });
+    await expect(createOrUpdateMock).toHaveBeenCalledTimes(20);
+    await expect(createOrUpdateMock).toHaveBeenLastCalledWith(
+      fp.omitBy(
+        {
+          ...createdSample,
+          createdAt: createdSample.createdAt,
+          lastUpdatedAt: createdSample.lastUpdatedAt,
+          sampledAt: createdSample.sampledAt,
+          status: 'DraftItems',
+          matrixKind: prescription1.matrixKind,
+          matrix: MatrixListByKind[prescription1.matrixKind][1],
+          matrixPart: MatrixPartList[0],
+          specificData: {
+            domain: 'PPV',
+            cultureKind: CultureKindList[0]
+          },
+          stage: prescription1.stages[1],
+          matrixDetails: 'Details',
+          notesOnMatrix: 'Comment'
+        },
+        fp.isNil
+      )
+    );
   }
 };
