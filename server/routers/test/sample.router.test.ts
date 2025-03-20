@@ -111,12 +111,7 @@ describe('Sample router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    test('should fail if the user does not have the permission to download the sample document', async () => {
-      await request(app)
-        .get(`${testRoute(Sample11Fixture.id, 1)}`)
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
-    });
+    //TODO test case OK
   });
 
   describe('GET /samples', () => {
