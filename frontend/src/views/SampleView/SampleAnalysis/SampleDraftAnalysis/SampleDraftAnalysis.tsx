@@ -5,11 +5,11 @@ import { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useGetSampleAnalysisQuery } from 'src/services/analysis.service';
 import AnalysisComplianceStep from 'src/views/SampleView/SampleAnalysis/SampleDraftAnalysis/AnalysisComplianceStep/AnalysisComplianceStep';
 import AnalysisReportStep from 'src/views/SampleView/SampleAnalysis/SampleDraftAnalysis/AnalysisReportStep/AnalysisReportStep';
 import AnalysisResiduesStep from 'src/views/SampleView/SampleAnalysis/SampleDraftAnalysis/AnalysisResiduesStep/AnalysisResiduesStep';
 import { useSamplesLink } from '../../../../hooks/useSamplesLink';
+import { analysisApi } from '../../../../services/analysis.service';
 
 export const AnalysisStepTitles = [
   'Rapport d’analyse',
@@ -29,7 +29,7 @@ export const AnalysisStatusSteps: Partial<Record<AnalysisStatus, number>> = {
 
 const SampleDraftAnalysis = ({ sample }: Props) => {
   const { getSampleStepParam } = useSamplesLink();
-  const { data: partialAnalysis, isFetching } = useGetSampleAnalysisQuery(
+  const { data: partialAnalysis, isFetching } = analysisApi.useGetSampleAnalysisQuery(
     sample.id
   );
 

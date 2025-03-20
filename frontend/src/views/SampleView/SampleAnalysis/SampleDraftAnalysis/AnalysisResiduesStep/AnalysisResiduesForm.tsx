@@ -32,7 +32,7 @@ export const useResiduesForm = (
     setResidues(newResidues);
   };
 
-  const form: UseForm<typeof analysisResiduesValidator> = useForm(analysisResiduesValidator, {
+  const form = useForm(analysisResiduesValidator, {
     residues
   });
 

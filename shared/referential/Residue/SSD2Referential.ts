@@ -12455,6 +12455,15 @@ export const SSD2Referential =
 // ----- ne pas supprimer cette ligne : fin
 
 type Referential = { [key in SSD2Id] : { reference:key, name: string, casNumber: string | null, otherNames: string[], reportable: boolean, analytes?: [SSD2Id, ...SSD2Id[]]} }
+
+export const SSD2IdLabel = Object.values(SSD2Referential).reduce(
+  (acc, { reference, name }) => {
+     acc[reference] = name;
+     return acc;
+  },
+  {} as Record<SSD2Id, string>
+)
+
 const values = Object.values(SSD2Referential)
 
 

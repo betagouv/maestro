@@ -10,7 +10,7 @@ import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { useMemo, useState } from 'react';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 import {
-  useGetSampleAnalysisQuery,
+  analysisApi,
   useUpdateAnalysisMutation
 } from 'src/services/analysis.service';
 import { useUpdateSampleMutation } from 'src/services/sample.service';
@@ -24,7 +24,7 @@ interface Props {
 }
 
 const SampleAnalysisOverview = ({ sample }: Props) => {
-  const { data } = useGetSampleAnalysisQuery(sample.id);
+  const { data } = analysisApi.useGetSampleAnalysisQuery(sample.id);
   const analysis = data as Analysis | undefined;
 
   const [updateAnalysis] = useUpdateAnalysisMutation();
