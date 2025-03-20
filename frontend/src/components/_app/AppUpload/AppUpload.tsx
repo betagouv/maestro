@@ -9,13 +9,13 @@ import {
 } from 'maestro-shared/schema/File/FileType';
 import { ComponentPropsWithoutRef, useEffect, useRef, useState } from 'react';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
-import { useForm } from 'src/hooks/useForm';
+import { UseFormShape } from 'src/hooks/useForm';
 import { ZodRawShape } from 'zod';
 
 type AppUploadProps<T extends ZodRawShape> = Partial<
   ComponentPropsWithoutRef<typeof Upload>
 > & {
-  inputForm: ReturnType<typeof useForm>;
+  inputForm: UseFormShape<T>;
   inputKey: keyof T;
   inputPathFromKey?: (string | number)[];
   whenValid?: string;

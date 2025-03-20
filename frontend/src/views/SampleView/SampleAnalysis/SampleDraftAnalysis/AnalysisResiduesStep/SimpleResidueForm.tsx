@@ -1,9 +1,4 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import {
-  SimpleResidue,
-  SimpleResidueList
-} from 'maestro-shared/referential/Residue/SimpleResidue';
-import { SimpleResidueLabels } from 'maestro-shared/referential/Residue/SimpleResidueLabels';
 import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import {
   ResultKind,
@@ -12,21 +7,19 @@ import {
 } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import ResidueResultAlert from 'src/components/ResidueResultAlert/ResidueResultAlert';
-import AppSearchInput from 'src/components/_app/AppSearchInput/AppSearchInput';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
-import { useForm } from 'src/hooks/useForm';
-import { ZodRawShape } from 'zod';
+import { Props as AnalysisResidueForm } from './AnalysisResidueForm';
 
 interface Props {
-  form: ReturnType<typeof useForm>;
+  form: AnalysisResidueForm['form'];
   residue: PartialResidue;
   residueIndex: number;
   changeResidue: (residue: PartialResidue, residueIndex: number) => void;
 }
 
-function SimpleResidueForm<T extends ZodRawShape>({
+function SimpleResidueForm({
   form,
   residue,
   residueIndex,
@@ -36,36 +29,7 @@ function SimpleResidueForm<T extends ZodRawShape>({
     <>
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>
-          <AppSearchInput
-            options={selectOptionsFromList(SimpleResidueList, {
-              labels: SimpleResidueLabels,
-              withSort: true,
-              withDefault: false
-            })}
-            value={residue.reference ?? ''}
-            state={form.messageType('residues', [residueIndex, 'reference'])}
-            stateRelatedMessage={form.message('residues', [
-              residueIndex,
-              'reference'
-            ])}
-            onSelect={(value) =>
-              changeResidue(
-                {
-                  ...residue,
-                  reference: value as SimpleResidue
-                },
-                residueIndex
-              )
-            }
-            label="Résidu selon définition"
-            whenValid={`Résidu correctement renseigné`}
-            required
-          />
-        </div>
-      </div>
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={cx('fr-col-12')}>
-          <AppSelect<T>
+          <AppSelect
             value={residue.resultKind ?? ''}
             options={selectOptionsFromList(ResultKindList, {
               labels: ResultKindLabels
@@ -92,7 +56,7 @@ function SimpleResidueForm<T extends ZodRawShape>({
         {residue.resultKind === 'Q' && (
           <>
             <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-              <AppTextInput<T>
+              <AppTextInput
                 value={residue.result ?? ''}
                 onChange={(e) =>
                   changeResidue(
@@ -112,7 +76,7 @@ function SimpleResidueForm<T extends ZodRawShape>({
               />
             </div>
             <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-              <AppTextInput<T>
+              <AppTextInput
                 value={residue.lmr ?? ''}
                 onChange={(e) =>
                   changeResidue(

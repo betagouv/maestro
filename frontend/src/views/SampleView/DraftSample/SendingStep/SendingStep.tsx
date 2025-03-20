@@ -137,7 +137,7 @@ const SendingStep = ({ sample }: Props) => {
         <h3 className={cx('fr-m-0')}>Consentement par le détenteur</h3>
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
-            <AppRadioButtons<FormShape>
+            <AppRadioButtons
               legend="Le détenteur accepte les informations portées au présent procès verbal"
               options={[
                 {

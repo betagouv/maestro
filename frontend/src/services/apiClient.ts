@@ -5,7 +5,14 @@ import { useGetSampleAnalysisQuery, useUpdateAnalysisMutation } from './analysis
 import { createContext } from 'react';
 
 export type ApiClient = typeof apiClient
-export const apiClient = {
+export const apiClient : {
+  useGetDocumentQuery: typeof useGetDocumentQuery,
+  useLazyGetDocumentDownloadSignedUrlQuery : typeof useLazyGetDocumentDownloadSignedUrlQuery,
+  useGetLaboratoryQuery : typeof useGetLaboratoryQuery,
+  useUpdateSampleMutation : typeof useUpdateSampleMutation,
+  useUpdateAnalysisMutation : typeof useUpdateAnalysisMutation,
+  useGetSampleAnalysisQuery : typeof useGetSampleAnalysisQuery,
+}= {
   useGetDocumentQuery,
   useLazyGetDocumentDownloadSignedUrlQuery,
   useGetLaboratoryQuery,

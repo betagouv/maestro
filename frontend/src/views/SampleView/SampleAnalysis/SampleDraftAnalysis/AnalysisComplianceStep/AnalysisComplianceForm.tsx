@@ -26,8 +26,6 @@ export const Form = Analysis.pick({
   notesOnCompliance: true
 });
 
-type FormShape = typeof Form.shape;
-
 export const AnalysisComplianceForm: FunctionComponent<Props> = ({
   partialAnalysis,
   onSave,
@@ -55,7 +53,7 @@ export const AnalysisComplianceForm: FunctionComponent<Props> = ({
   return (
     <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
       <div className={cx('fr-col-12')}>
-        <AppRadioButtons<FormShape>
+        <AppRadioButtons
           legend="Conformité globale de l'échantillon"
           options={[
             {
@@ -83,7 +81,7 @@ export const AnalysisComplianceForm: FunctionComponent<Props> = ({
         />
       </div>
       <div className={cx('fr-col-12')}>
-        <AppTextInput<FormShape>
+        <AppTextInput
           value={notesOnCompliance ?? ''}
           onChange={(e) => setNotesOnCompliance(e.target.value)}
           inputForm={form}
