@@ -9,7 +9,6 @@ import {
   SecondaryQuantityUnitList
 } from 'maestro-shared/referential/QuantityUnit';
 import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
-import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import {
   SampleItemRecipientKind,
@@ -21,14 +20,17 @@ import AppResponsiveButton from 'src/components/_app/AppResponsiveButton/AppResp
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
-import { useForm } from 'src/hooks/useForm';
+import { UseForm, useForm } from 'src/hooks/useForm';
+import { z } from 'zod';
+
+const Form = z.object({items: z.array(z.object({})).refine(() => ({}))})
 
 interface Props {
   item: PartialSampleItem;
   itemIndex: number;
   onRemoveItem?: (itemIndex: number) => void;
   onChangeItem?: (item: PartialSampleItem, itemIndex: number) => void;
-  itemsForm?: ReturnType<typeof useForm>;
+  itemsForm?: UseForm<typeof Form>;
   laboratory?: Laboratory;
   children?: React.ReactNode;
 }
@@ -41,10 +43,6 @@ const SampleItemDetails = ({
   itemsForm,
   laboratory
 }: Props) => {
-  const Form = Sample.pick({
-    items: true
-  });
-
   type FormShape = typeof Form.shape;
 
   const fakeForm = useForm(Form, {
@@ -169,7 +167,7 @@ const SampleItemDetails = ({
               )}
             </>
           ) : (
-            <AppRadioButtons<FormShape>
+            <AppRadioButtons
               legend="Destinataire de l’échantillon"
               options={
                 selectOptionsFromList(['Sampler', 'Operator'], {

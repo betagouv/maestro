@@ -18,28 +18,31 @@ export const PartialAnalysis = z.object({
   notesOnCompliance: z.string().nullish()
 });
 
-export const Analysis = PartialAnalysis.merge(
-  PartialAnalysis.pick({
+export const Analysis = z.object({
+  ...PartialAnalysis.shape,
+  ...PartialAnalysis.pick({
     status: true,
     compliance: true
-  }).required()
-).extend({
+  }).required().shape,
   residues: z.array(Residue)
-});
+})
 
 export const AnalysisToCreate = Analysis.pick({
   sampleId: true,
   reportDocumentId: true
 });
 
-export const CreatedAnalysis = AnalysisToCreate.merge(
-  Analysis.pick({
+
+export const CreatedAnalysis = z.object({
+  ...AnalysisToCreate.shape,
+  ...Analysis.pick({
     id: true,
     createdAt: true,
     createdBy: true,
     status: true
-  })
-);
+  }).shape
+})
+
 
 export type Analysis = z.infer<typeof Analysis>;
 export type AnalysisToCreate = z.infer<typeof AnalysisToCreate>;

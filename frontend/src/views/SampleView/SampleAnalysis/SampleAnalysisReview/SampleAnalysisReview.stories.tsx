@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { expect, fn, userEvent, within } from '@storybook/test';
+import { expect,  fn, userEvent, within } from '@storybook/test';
 import clsx from 'clsx';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
@@ -70,7 +70,6 @@ export const ReviewWithResidues: Story = {
           residueNumber: 1,
           reference: 'RF-0001-001-PPP',
           analysisMethod: 'Mono',
-          kind: 'Simple',
           result: 2,
           resultKind: 'Q',
           lmr: 3
@@ -80,7 +79,6 @@ export const ReviewWithResidues: Story = {
           residueNumber: 2,
           reference: 'RF-00003351-PAR',
           analysisMethod: 'Multi',
-          kind: 'Complex',
           result: null,
           resultKind: 'NQ',
           lmr: null,
@@ -129,7 +127,7 @@ export const CorrectionWithResidues = {
 
     const firstResiduContainer = within(canvas.getByText('Résidu n°1').parentElement!.parentElement!)
 
-    await expect(firstResiduContainer.getByText('Type de résidu')).toBeInTheDocument();
+    await expect(firstResiduContainer.getByText("Méthode d’analyse")).toBeInTheDocument();
     await expect(meta.args.onReviewDone).not.toBeCalled();
   }
 } satisfies Story;
@@ -158,10 +156,9 @@ export const CorrectionWithoutResidu: Story = {
 //     const canvas = within(context.canvasElement);
 //
 //     await userEvent.click(canvas.getByLabelText('mono-résidu'));
-//     await userEvent.click(canvas.getByLabelText('Simple'));
 //
 //     const autocomplete = canvas.getByText(
-//       'Résidu selon définition'
+//       'Résidu'
 //     ).parentElement!;
 //     const input = within(autocomplete).getByRole('combobox');
 //     await userEvent.click(input);

@@ -1,7 +1,7 @@
 import Input from '@codegouvfr/react-dsfr/Input';
 import { ComponentPropsWithoutRef, TextareaHTMLAttributes } from 'react';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
-import { useForm } from 'src/hooks/useForm';
+import { UseFormShape } from 'src/hooks/useForm';
 import { ZodRawShape } from 'zod';
 
 type AppTextInputProps<T extends ZodRawShape> = Partial<
@@ -11,7 +11,7 @@ type AppTextInputProps<T extends ZodRawShape> = Partial<
   >
 > &
   TextareaHTMLAttributes<HTMLTextAreaElement> & {
-    inputForm: ReturnType<typeof useForm>;
+    inputForm: UseFormShape<T>;
     inputKey: keyof T;
     inputPathFromKey?: (string | number)[];
     whenValid?: string;

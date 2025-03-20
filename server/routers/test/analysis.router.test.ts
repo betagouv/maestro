@@ -59,12 +59,10 @@ describe('Analysis router', () => {
     genPartialResidue({
       analysisId: analysisWithResidues.id,
       residueNumber: 1,
-      kind: 'Simple'
     }),
     genPartialResidue({
       analysisId: analysisWithResidues.id,
       residueNumber: 2,
-      kind: 'Complex'
     })
   ];
   const complexResidueAnalytes = [
@@ -317,15 +315,6 @@ describe('Analysis router', () => {
         residues: [
           {
             ...genPartialResidue({
-              kind: 'invalid' as any
-            })
-          }
-        ]
-      });
-      await badRequestTest({
-        residues: [
-          {
-            ...genPartialResidue({
               analysisMethod: 'invalid' as any
             })
           }
@@ -340,12 +329,10 @@ describe('Analysis router', () => {
           genPartialResidue({
             analysisId: analysisWithoutResidue.id,
             residueNumber: 1,
-            kind: 'Simple'
           }),
           genPartialResidue({
             analysisId: analysisWithoutResidue.id,
             residueNumber: 2,
-            kind: 'Complex',
             analytes: [
               genPartialAnalyte({
                 analysisId: analysisWithoutResidue.id,
@@ -512,8 +499,7 @@ describe('Analysis router', () => {
       expect(analysisErrors).toHaveLength(1);
       expect(analysisErrors[0].residues.new).toHaveLength(0);
       expect(analysisErrors[0].residues.old).toEqual(
-        analysis?.residues?.map(({ kind,  analysisMethod, residueNumber, result, analytes }) => ({
-          kind,
+        analysis?.residues?.map(({  analysisMethod, residueNumber, result, analytes }) => ({
           analysisMethod,
           residueNumber,
           result,
