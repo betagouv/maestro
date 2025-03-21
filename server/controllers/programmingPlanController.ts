@@ -47,6 +47,7 @@ const findProgrammingPlans = async (request: Request, response: Response) => {
       findOptionsStatus,
       userStatusAuthorized
     ) as ProgrammingPlanStatus[],
+    kinds: user.programmingPlanKinds,
     region: user.region || findOptions.region
   });
 
@@ -66,6 +67,7 @@ const getProgrammingPlanByYear = async (
 
   const programmingPlan = await programmingPlanRepository.findOne(
     year,
+    user.programmingPlanKinds,
     user.region
   );
 
@@ -98,7 +100,8 @@ const createProgrammingPlan = async (request: Request, response: Response) => {
   const year = parseInt(request.params.year);
 
   const previousProgrammingPlan = await programmingPlanRepository.findOne(
-    year - 1
+    year - 1,
+    user.programmingPlanKinds
   );
 
   if (
@@ -112,6 +115,8 @@ const createProgrammingPlan = async (request: Request, response: Response) => {
     id: uuidv4(),
     createdAt: new Date(),
     createdBy: user.id,
+    kinds: previousProgrammingPlan.kinds,
+    contexts: previousProgrammingPlan.contexts,
     year,
     regionalStatus: RegionList.map((region) => ({
       region,
@@ -209,9 +214,7 @@ const updateRegionalStatus = async (request: Request, response: Response) => {
           await notificationService.sendNotification<SubmittedProgrammingPlanNotification>(
             {
               category: 'ProgrammingPlanSubmitted',
-              message: NotificationCategoryMessages[
-                'ProgrammingPlanSubmitted'
-              ],
+              message: NotificationCategoryMessages['ProgrammingPlanSubmitted'],
               link: `/prescriptions/${programmingPlan.year}`
             },
             regionalCoordinators
@@ -220,9 +223,7 @@ const updateRegionalStatus = async (request: Request, response: Response) => {
           await notificationService.sendNotification<ValidatedProgrammingPlanNotification>(
             {
               category: 'ProgrammingPlanValidated',
-              message: NotificationCategoryMessages[
-                'ProgrammingPlanValidated'
-              ],
+              message: NotificationCategoryMessages['ProgrammingPlanValidated'],
               link: `/prescriptions/${programmingPlan.year}`
             },
             regionalCoordinators

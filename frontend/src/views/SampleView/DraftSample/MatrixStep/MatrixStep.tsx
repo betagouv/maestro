@@ -22,19 +22,27 @@ import {
   MatrixPartList
 } from 'maestro-shared/referential/Matrix/MatrixPart';
 import {
+  Species,
+  SpeciesLabels,
+  SpeciesList
+} from 'maestro-shared/referential/Species';
+import {
   Stage,
   StageLabels,
   StageList
 } from 'maestro-shared/referential/Stage';
 import { FileInput } from 'maestro-shared/schema/File/FileInput';
 import { SampleDocumentTypeList } from 'maestro-shared/schema/File/FileType';
+import { PFASKindList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
+  getPartialSampleSpecificDataField,
   isCreatedPartialSample,
   PartialSample,
   PartialSampleToCreate,
-  SampleMatrixData
+  SampleMatrixData,
+  SampleMatrixSpecificData
 } from 'maestro-shared/schema/Sample/Sample';
-import React, { useMemo, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
@@ -43,9 +51,6 @@ import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
-import { useFindPrescriptionsQuery } from 'src/services/prescription.service';
-import { useFindRegionalPrescriptionsQuery } from 'src/services/regionalPrescription.service';
-import { useCreateOrUpdateSampleMutation } from 'src/services/sample.service';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SupportDocumentDownload from 'src/views/SampleView/DraftSample/SupportDocumentDownload';
 import SavedAlert from 'src/views/SampleView/SavedAlert';
@@ -53,29 +58,143 @@ import { z } from 'zod';
 import AppSearchInput from '../../../../components/_app/AppSearchInput/AppSearchInput';
 import AppUpload from '../../../../components/_app/AppUpload/AppUpload';
 import SampleDocument from '../../../../components/SampleDocument/SampleDocument';
-import {
-  useCreateDocumentMutation,
-  useDeleteDocumentMutation
-} from '../../../../services/document.service';
-interface Props {
+import { ApiClientContext } from '../../../../services/apiClient';
+
+export interface Props {
   partialSample: PartialSample | PartialSampleToCreate;
 }
 
 const MatrixStep = ({ partialSample }: Props) => {
+  const apiClient = useContext(ApiClientContext);
   const { navigateToSample } = useSamplesLink();
   const { user } = useAuthentication();
 
   const [matrixKind, setMatrixKind] = useState(partialSample.matrixKind);
   const [matrix, setMatrix] = useState(partialSample.matrix);
+
   const [matrixDetails, setMatrixDetails] = useState(
-    partialSample.matrixDetails
+    getPartialSampleSpecificDataField(partialSample, 'PPV', 'matrixDetails')
   );
-  const [matrixPart, setMatrixPart] = useState(partialSample.matrixPart);
-  const [stage, setStage] = useState(partialSample.stage);
-  const [cultureKind, setCultureKind] = useState(partialSample.cultureKind);
+  const [matrixPart, setMatrixPart] = useState(
+    getPartialSampleSpecificDataField(partialSample, 'PPV', 'matrixPart')
+  );
+  const [stage, setStage] = useState(
+    getPartialSampleSpecificDataField(partialSample, 'PPV', 'stage') ||
+      getPartialSampleSpecificDataField(partialSample, 'PFAS_EGGS', 'stage')
+  );
+  const [cultureKind, setCultureKind] = useState(
+    getPartialSampleSpecificDataField(partialSample, 'PPV', 'cultureKind')
+  );
   const [releaseControl, setReleaseControl] = useState(
-    partialSample.releaseControl
+    getPartialSampleSpecificDataField(partialSample, 'PPV', 'releaseControl')
   );
+
+  const [species, setSpecies] = useState(
+    getPartialSampleSpecificDataField(partialSample, 'PFAS_EGGS', 'species') ||
+      getPartialSampleSpecificDataField(partialSample, 'PFAS_MEAT', 'species')
+  );
+
+  // const [killingCode, setKillingCode] = useState(
+  //   getPartialSampleSpecificDataField(partialSample, 'PFAS_MEAT', 'killingCode')
+  // );
+  //
+  // const [targetingCriteria, setTargetingCriteria] = useState(
+  //   getPartialSampleSpecificDataField(
+  //     partialSample,
+  //     'PFAS_EGGS',
+  //     'targetingCriteria'
+  //   ) ||
+  //     getPartialSampleSpecificDataField(
+  //       partialSample,
+  //       'PFAS_MEAT',
+  //       'targetingCriteria'
+  //     )
+  // );
+  // const [notesOnTargetingCriteria, setNotesOnTargetingCriteria] = useState(
+  //   getPartialSampleSpecificDataField(
+  //     partialSample,
+  //     'PFAS_EGGS',
+  //     'notesOnTargetingCriteria'
+  //   ) ||
+  //     getPartialSampleSpecificDataField(
+  //       partialSample,
+  //       'PFAS_MEAT',
+  //       'notesOnTargetingCriteria'
+  //     )
+  // );
+  // const [animalKind, setAnimalKind] = useState(
+  //   getPartialSampleSpecificDataField(
+  //     partialSample,
+  //     'PFAS_EGGS',
+  //     'animalKind'
+  //   ) ||
+  //     getPartialSampleSpecificDataField(
+  //       partialSample,
+  //       'PFAS_MEAT',
+  //       'animalKind'
+  //     )
+  // );
+  // const [productionKind, setProductionKind] = useState(
+  //   getPartialSampleSpecificDataField(
+  //     partialSample,
+  //     'PFAS_EGGS',
+  //     'productionKind'
+  //   ) ||
+  //     getPartialSampleSpecificDataField(
+  //       partialSample,
+  //       'PFAS_MEAT',
+  //       'productionKind'
+  //     )
+  // );
+  // const [identifier, setIdentifier] = useState(
+  //   getPartialSampleSpecificDataField(
+  //     partialSample,
+  //     'PFAS_EGGS',
+  //     'identifier'
+  //   ) ||
+  //     getPartialSampleSpecificDataField(
+  //       partialSample,
+  //       'PFAS_MEAT',
+  //       'identifier'
+  //     )
+  // );
+  // const [breedingMethod, setBreedingMethod] = useState(
+  //   getPartialSampleSpecificDataField(
+  //     partialSample,
+  //     'PFAS_EGGS',
+  //     'breedingMethod'
+  //   ) ||
+  //     getPartialSampleSpecificDataField(
+  //       partialSample,
+  //       'PFAS_MEAT',
+  //       'breedingMethod'
+  //     )
+  // );
+  // const [age, setAge] = useState(
+  //   getPartialSampleSpecificDataField(partialSample, 'PFAS_EGGS', 'age') ||
+  //     getPartialSampleSpecificDataField(partialSample, 'PFAS_MEAT', 'age')
+  // );
+  // const [sex, setSex] = useState(
+  //   getPartialSampleSpecificDataField(partialSample, 'PFAS_EGGS', 'sex') ||
+  //     getPartialSampleSpecificDataField(partialSample, 'PFAS_MEAT', 'sex')
+  // );
+  // const [seizure, setSeizure] = useState(
+  //   getPartialSampleSpecificDataField(partialSample, 'PFAS_EGGS', 'seizure') ||
+  //     getPartialSampleSpecificDataField(partialSample, 'PFAS_MEAT', 'seizure')
+  // );
+  // const [outdoorAccess, setOutdoorAccess] = useState(
+  //   getPartialSampleSpecificDataField(
+  //     partialSample,
+  //     'PFAS_EGGS',
+  //     'outdoorAccess'
+  //   ) ||
+  //     getPartialSampleSpecificDataField(
+  //       partialSample,
+  //       'PFAS_MEAT',
+  //       'outdoorAccess'
+  //     )
+  // );
+
   const [files, setFiles] = useState<File[]>([]);
   const [documentIds, setDocumentIds] = useState(partialSample.documentIds);
   const [notesOnMatrix, setNotesOnMatrix] = useState(
@@ -83,11 +202,11 @@ const MatrixStep = ({ partialSample }: Props) => {
   );
   const [isSaved, setIsSaved] = useState(false);
 
-  const [createOrUpdate] = useCreateOrUpdateSampleMutation();
-  const [createDocument] = useCreateDocumentMutation();
-  const [deleteDocument] = useDeleteDocumentMutation();
+  const [createOrUpdate] = apiClient.useCreateOrUpdateSampleMutation();
+  const [createDocument] = apiClient.useCreateDocumentMutation();
+  const [deleteDocument] = apiClient.useDeleteDocumentMutation();
 
-  const { data: prescriptionsData } = useFindPrescriptionsQuery(
+  const { data: prescriptionsData } = apiClient.useFindPrescriptionsQuery(
     {
       programmingPlanId: partialSample.programmingPlanId as string,
       context: partialSample.context
@@ -97,18 +216,19 @@ const MatrixStep = ({ partialSample }: Props) => {
     }
   );
 
-  const { data: regionalPrescriptions } = useFindRegionalPrescriptionsQuery(
-    {
-      programmingPlanId: partialSample.programmingPlanId as string,
-      context: partialSample.context,
-      region: isCreatedPartialSample(partialSample)
-        ? partialSample.region
-        : user?.region
-    },
-    {
-      skip: !partialSample.programmingPlanId || !partialSample.context
-    }
-  );
+  const { data: regionalPrescriptions } =
+    apiClient.useFindRegionalPrescriptionsQuery(
+      {
+        programmingPlanId: partialSample.programmingPlanId as string,
+        context: partialSample.context,
+        region: isCreatedPartialSample(partialSample)
+          ? partialSample.region
+          : user?.region
+      },
+      {
+        skip: !partialSample.programmingPlanId || !partialSample.context
+      }
+    );
 
   const prescriptions = useMemo(() => {
     return prescriptionsData?.filter((p) =>
@@ -117,12 +237,42 @@ const MatrixStep = ({ partialSample }: Props) => {
   }, [prescriptionsData, regionalPrescriptions]);
 
   const Form = SampleMatrixData;
+
+  type FormShape = typeof Form.shape;
+  type FilesFormShape = typeof FilesForm.shape;
+
   const FilesForm = z.object({
     files: FileInput(SampleDocumentTypeList, true)
   });
 
-  type FormShape = typeof Form.shape;
-  type FilesFormShape = typeof FilesForm.shape;
+  const specificData = useMemo(() => {
+    const kind = partialSample.specificData?.programmingPlanKind;
+    const data = (() => {
+      if (PFASKindList.includes(kind)) {
+        return { species };
+      }
+      if (kind === 'PPV') {
+        return {
+          stage,
+          matrixPart,
+          matrixDetails,
+          cultureKind,
+          releaseControl
+        };
+      }
+      return {};
+    })();
+
+    return { programmingPlanKind: kind, ...data } as SampleMatrixSpecificData;
+  }, [
+    partialSample.specificData?.programmingPlanKind,
+    species,
+    stage,
+    matrixPart,
+    matrixDetails,
+    cultureKind,
+    releaseControl
+  ]);
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
@@ -146,13 +296,9 @@ const MatrixStep = ({ partialSample }: Props) => {
 
     await createOrUpdate({
       ...partialSample,
-      matrixDetails,
       matrixKind,
       matrix,
-      matrixPart,
-      stage,
-      cultureKind,
-      releaseControl,
+      specificData,
       documentIds,
       notesOnMatrix,
       status,
@@ -170,8 +316,7 @@ const MatrixStep = ({ partialSample }: Props) => {
       matrixDetails,
       matrixPart,
       stage,
-      cultureKind,
-      releaseControl,
+      specificData,
       documentIds,
       notesOnMatrix,
       prescriptionId: partialSample.prescriptionId,
@@ -210,9 +355,36 @@ const MatrixStep = ({ partialSample }: Props) => {
     setDocumentIds((documentIds ?? []).filter((id) => id !== documentId));
   };
 
+  if (!specificData) {
+    return <></>;
+  }
+
   return (
     <form data-testid="draft_sample_matrix_form" className="sample-form">
       <AppRequiredText />
+
+      {PFASKindList.includes(specificData.programmingPlanKind) && (
+        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+            <AppSelect<FormShape>
+              value={species ?? ''}
+              options={selectOptionsFromList(SpeciesList, {
+                labels: SpeciesLabels,
+                defaultLabel: 'Sélectionner une espèce',
+                withSort: true
+              })}
+              onChange={(e) => setSpecies(e.target.value as Species)}
+              inputForm={form}
+              inputKey="specificData"
+              inputPathFromKey={['species']}
+              whenValid="Expèce animale correctement renseigné."
+              data-testid="species-select"
+              label="Espèce animale"
+              required
+            />
+          </div>
+        </div>
+      )}
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
           <AppSearchInput
@@ -271,88 +443,102 @@ const MatrixStep = ({ partialSample }: Props) => {
             }}
           />
         </div>
-        <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-          <AppSelect<FormShape>
-            value={stage ?? ''}
-            options={selectOptionsFromList(
-              StageList.filter(
-                (stage) =>
-                  !prescriptions ||
-                  prescriptions.find(
-                    (p) =>
-                      p.matrixKind === matrixKind && p.stages.includes(stage)
-                  )
-              ),
-              {
-                labels: StageLabels,
-                defaultLabel: 'Sélectionner un stade'
-              }
-            )}
-            onChange={(e) => setStage(e.target.value as Stage)}
-            inputForm={form}
-            inputKey="stage"
-            whenValid="Stade de prélèvement correctement renseigné."
-            data-testid="stage-select"
-            label="Stade de prélèvement"
-            required
-          />
-        </div>
+        {specificData.programmingPlanKind === 'PPV' && (
+          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+            <AppSelect<FormShape>
+              value={stage ?? ''}
+              options={selectOptionsFromList(
+                StageList.filter(
+                  (stage) =>
+                    !prescriptions ||
+                    prescriptions.find(
+                      (p) =>
+                        p.matrixKind === matrixKind && p.stages.includes(stage)
+                    )
+                ),
+                {
+                  labels: StageLabels,
+                  defaultLabel: 'Sélectionner un stade'
+                }
+              )}
+              onChange={(e) => setStage(e.target.value as Stage)}
+              inputForm={form}
+              inputKey="specificData"
+              inputPathFromKey={['stage']}
+              whenValid="Stade de prélèvement correctement renseigné."
+              data-testid="stage-select"
+              label="Stade de prélèvement"
+              required
+            />
+          </div>
+        )}
       </div>
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={cx('fr-col-12')}>
-          <AppTextInput<FormShape>
-            defaultValue={matrixDetails ?? ''}
-            onChange={(e) => setMatrixDetails(e.target.value)}
-            inputForm={form}
-            inputKey="matrixDetails"
-            whenValid="Détail de la matrice correctement renseigné."
-            data-testid="matrixdetails-input"
-            label="Détail de la matrice"
-            hintText="Champ facultatif pour précisions supplémentaires"
-          />
-        </div>
-        <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-          <AppSelect<FormShape>
-            defaultValue={cultureKind ?? ''}
-            options={selectOptionsFromList(CultureKindList, {
-              labels: CultureKindLabels,
-              defaultLabel: 'Sélectionner un type de culture'
-            })}
-            onChange={(e) => setCultureKind(e.target.value as CultureKind)}
-            inputForm={form}
-            inputKey="cultureKind"
-            whenValid="Type de culture correctement renseigné."
-            data-testid="culturekind-select"
-            label="Type de culture"
-          />
-        </div>
-        <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-          <AppSelect<FormShape>
-            defaultValue={matrixPart ?? ''}
-            options={selectOptionsFromList(MatrixPartList, {
-              labels: MatrixPartLabels,
-              defaultLabel: 'Sélectionner une partie du végétal'
-            })}
-            onChange={(e) => setMatrixPart(e.target.value as MatrixPart)}
-            inputForm={form}
-            inputKey="matrixPart"
-            whenValid="Partie du végétal correctement renseignée."
-            data-testid="matrixpart-select"
-            label="LMR / Partie du végétal concernée"
-            required
-          />
-        </div>
+        {specificData.programmingPlanKind === 'PPV' && (
+          <div className={cx('fr-col-12')}>
+            <AppTextInput<FormShape>
+              defaultValue={matrixDetails ?? ''}
+              onChange={(e) => setMatrixDetails(e.target.value)}
+              inputForm={form}
+              inputKey="specificData"
+              inputPathFromKey={['matrixDetails']}
+              whenValid="Détail de la matrice correctement renseigné."
+              data-testid="matrixdetails-input"
+              label="Détail de la matrice"
+              hintText="Champ facultatif pour précisions supplémentaires"
+            />
+          </div>
+        )}
+        {specificData.programmingPlanKind === 'PPV' && (
+          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+            <AppSelect<FormShape>
+              defaultValue={cultureKind ?? ''}
+              options={selectOptionsFromList(CultureKindList, {
+                labels: CultureKindLabels,
+                defaultLabel: 'Sélectionner un type de culture'
+              })}
+              onChange={(e) => setCultureKind(e.target.value as CultureKind)}
+              inputForm={form}
+              inputKey="specificData"
+              inputPathFromKey={['cultureKind']}
+              whenValid="Type de culture correctement renseigné."
+              data-testid="culturekind-select"
+              label="Type de culture"
+            />
+          </div>
+        )}
+        {specificData.programmingPlanKind === 'PPV' && (
+          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+            <AppSelect<FormShape>
+              defaultValue={matrixPart ?? ''}
+              options={selectOptionsFromList(MatrixPartList, {
+                labels: MatrixPartLabels,
+                defaultLabel: 'Sélectionner une partie du végétal'
+              })}
+              onChange={(e) => setMatrixPart(e.target.value as MatrixPart)}
+              inputForm={form}
+              inputKey="specificData"
+              inputPathFromKey={['matrixPart']}
+              whenValid="Partie du végétal correctement renseignée."
+              data-testid="matrixpart-select"
+              label="LMR / Partie du végétal concernée"
+              required
+            />
+          </div>
+        )}
       </div>
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={cx('fr-col-12')}>
-          <ToggleSwitch
-            label="Contrôle libératoire"
-            checked={releaseControl ?? false}
-            onChange={(checked) => setReleaseControl(checked)}
-            showCheckedHint={false}
-          />
+      {specificData.programmingPlanKind === 'PPV' && (
+        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+          <div className={cx('fr-col-12')}>
+            <ToggleSwitch
+              label="Contrôle libératoire"
+              checked={releaseControl ?? false}
+              onChange={(checked) => setReleaseControl(checked)}
+              showCheckedHint={false}
+            />
+          </div>
         </div>
-      </div>
+      )}
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>
           <span className={cx('fr-text--md', 'fr-text--bold')}>

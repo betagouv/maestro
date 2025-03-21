@@ -5,6 +5,7 @@ import { CultureKindLabels } from 'maestro-shared/referential/CultureKind';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { MatrixPartLabels } from 'maestro-shared/referential/Matrix/MatrixPart';
+import { SpeciesLabels } from 'maestro-shared/referential/Species';
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import {
   Sample,
@@ -52,44 +53,63 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
       <div className="summary-item icon-text">
         <div className={cx('fr-icon-restaurant-line')}></div>
         <div>
-          Catégorie de matrice programmée :{' '}
-          <b>{MatrixKindLabels[sample.matrixKind]}</b>
+          {sample.specificData?.programmingPlanKind === 'PFAS_EGGS' ||
+            (sample.specificData?.programmingPlanKind === 'PFAS_MEAT' && (
+              <div>
+                Espèce animale :{' '}
+                <b>{SpeciesLabels[sample.specificData.species]}</b>
+              </div>
+            ))}
+          <div>
+            Catégorie de matrice programmée :{' '}
+            <b>{MatrixKindLabels[sample.matrixKind]}</b>
+          </div>
           <div>
             Matrice : <b>{MatrixLabels[sample.matrix]}</b>
           </div>
-          <div>
-            LMR/ Partie du végétal concernée :{' '}
-            <b>{MatrixPartLabels[sample.matrixPart]}</b>
-          </div>
-          {sample.matrixDetails && (
+          {sample.specificData?.programmingPlanKind === 'PPV' && (
             <div>
-              Détails de la matrice : <b>{sample.matrixDetails}</b>
+              LMR/ Partie du végétal concernée :{' '}
+              <b>{MatrixPartLabels[sample.specificData.matrixPart]}</b>
             </div>
           )}
+          {sample.specificData?.programmingPlanKind === 'PPV' &&
+            sample.specificData.matrixDetails && (
+              <div>
+                Détails de la matrice :{' '}
+                <b>{sample.specificData.matrixDetails}</b>
+              </div>
+            )}
         </div>
       </div>
-      {sample.cultureKind && (
+      {sample.specificData?.programmingPlanKind === 'PPV' &&
+        sample.specificData?.cultureKind && (
+          <div className="summary-item icon-text">
+            <div className={cx('fr-icon-seedling-line')}></div>
+            <div>
+              Type de culture :{' '}
+              <b>{CultureKindLabels[sample.specificData.cultureKind]}</b>
+            </div>
+          </div>
+        )}
+      {sample.specificData?.programmingPlanKind === 'PPV' && (
         <div className="summary-item icon-text">
-          <div className={cx('fr-icon-seedling-line')}></div>
+          <div className={cx('fr-icon-sip-line')}></div>
           <div>
-            Type de culture : <b>{CultureKindLabels[sample.cultureKind]}</b>
+            Stade de prélèvement :{' '}
+            <b>{StageLabels[sample.specificData.stage]}</b>
           </div>
         </div>
       )}
-      <div className="summary-item icon-text">
-        <div className={cx('fr-icon-sip-line')}></div>
-        <div>
-          Stade de prélèvement : <b>{StageLabels[sample.stage]}</b>
-        </div>
-      </div>
-      {sample.releaseControl && (
-        <div className="summary-item icon-text">
-          <div className={cx('fr-icon-checkbox-circle-line')}></div>
-          <div>
-            <b>Contrôle libératoire</b>
+      {sample.specificData?.programmingPlanKind === 'PPV' &&
+        sample.specificData?.releaseControl && (
+          <div className="summary-item icon-text">
+            <div className={cx('fr-icon-checkbox-circle-line')}></div>
+            <div>
+              <b>Contrôle libératoire</b>
+            </div>
           </div>
-        </div>
-      )}
+        )}
       <div className="summary-item icon-text">
         <div className={cx('fr-icon-mental-health-line')}></div>
         <div>

@@ -7,9 +7,11 @@ import { Matrix } from '../../referential/Matrix/Matrix';
 import { MatrixKind } from '../../referential/Matrix/MatrixKind';
 import { MatrixPart } from '../../referential/Matrix/MatrixPart';
 import { Region } from '../../referential/Region';
+import { Species } from '../../referential/Species';
 import { Stage } from '../../referential/Stage';
 import { Company } from '../Company/Company';
 import { Context } from '../ProgrammingPlan/Context';
+import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { User } from '../User/User';
 import { PartialSampleItem, SampleItem } from './SampleItem';
 import { SampleStatus } from './SampleStatus';
@@ -30,6 +32,74 @@ export const Sampler = User.pick({
   lastName: true
 });
 
+export const SampleMatrixSpecificDataPPV = z.object({
+  programmingPlanKind: z.literal(ProgrammingPlanKind.Values.PPV),
+  matrixDetails: z.string().nullish(),
+  matrixPart: MatrixPart,
+  stage: Stage,
+  cultureKind: CultureKind.nullish(),
+  releaseControl: z.boolean().nullish()
+});
+
+export const SampleMatrixSpecificDataPFAS = z.object({
+  programmingPlanKind: z
+    .literal(ProgrammingPlanKind.Values.PFAS_EGGS)
+    .or(z.literal(ProgrammingPlanKind.Values.PFAS_MEAT)),
+  species: Species,
+  targetingCriteria: z.string(),
+  notesOnTargetingCriteria: z.string().nullish(),
+  animalKind: z.string(),
+  productionKind: z.string(),
+  identifier: z.string(),
+  breedingMethod: z.string(),
+  age: z.string(),
+  sex: z.string(),
+  seizure: z.boolean().nullish(),
+  outdoorAccess: z.boolean().nullish()
+});
+
+export const SampleMatrixSpecificDataPFASEggs =
+  SampleMatrixSpecificDataPFAS.extend({
+    programmingPlanKind: z.literal(ProgrammingPlanKind.Values.PFAS_EGGS),
+    stage: Stage
+  });
+
+export const SampleMatrixSpecificDataPFASMeat =
+  SampleMatrixSpecificDataPFAS.extend({
+    programmingPlanKind: z.literal(ProgrammingPlanKind.Values.PFAS_MEAT),
+    killingCode: z.string()
+  });
+
+const SampleMatrixSpecificData = z.discriminatedUnion(
+  'programmingPlanKind',
+  [
+    SampleMatrixSpecificDataPPV,
+    SampleMatrixSpecificDataPFASEggs,
+    SampleMatrixSpecificDataPFASMeat
+  ],
+  {
+    errorMap: () => ({ message: 'Veuillez renseigner le type de plan.' })
+  }
+);
+
+const PartialSampleMatrixSpecificData = z.discriminatedUnion(
+  'programmingPlanKind',
+  [
+    SampleMatrixSpecificDataPPV.partial().required({
+      programmingPlanKind: true
+    }),
+    SampleMatrixSpecificDataPFASEggs.partial().required({
+      programmingPlanKind: true
+    }),
+    SampleMatrixSpecificDataPFASMeat.partial().required({
+      programmingPlanKind: true
+    })
+  ],
+  {
+    errorMap: () => ({ message: 'Veuillez renseigner le type de plan.' })
+  }
+);
+
 export const SampleContextData = z.object({
   id: z.string().uuid(),
   sampledAt: z.union([z.string(), z.date()]).pipe(
@@ -49,21 +119,18 @@ export const SampleContextData = z.object({
   companyOffline: z.string().nullish(),
   resytalId: z.string().nullish(),
   notesOnCreation: z.string().nullish(),
-  status: SampleStatus
+  status: SampleStatus,
+  specificData: PartialSampleMatrixSpecificData
 });
 
 export const SampleMatrixData = z.object({
   matrixKind: MatrixKind,
   matrix: Matrix,
-  matrixDetails: z.string().nullish(),
-  matrixPart: MatrixPart,
-  stage: Stage,
-  cultureKind: CultureKind.nullish(),
-  releaseControl: z.boolean().nullish(),
   notesOnMatrix: z.string().nullish(),
   prescriptionId: z.string().uuid(),
   laboratoryId: z.string().uuid().nullish(),
-  documentIds: z.array(z.string().uuid()).nullish()
+  documentIds: z.array(z.string().uuid()).nullish(),
+  specificData: SampleMatrixSpecificData
 });
 
 export const SampleItemsData = z.object({
@@ -108,6 +175,7 @@ export const SampleOwnerData = z.object({
 export const PartialSampleToCreate = z.object({
   ...SampleContextData.shape,
   ...SampleMatrixData.partial().shape,
+  specificData: PartialSampleMatrixSpecificData,
   ...SampleItemsData.partial().shape,
   ...SampleAdmissibilityData.partial().shape,
   ...SampleOwnerData.partial().shape,
@@ -144,6 +212,7 @@ export const Sample = SampleToCreate.extend({
 
 export type Geolocation = z.infer<typeof Geolocation>;
 export type SampleContextData = z.infer<typeof SampleContextData>;
+export type SampleMatrixSpecificData = z.infer<typeof SampleMatrixSpecificData>;
 export type SampleMatrixData = z.infer<typeof SampleMatrixData>;
 export type SampleItemsData = z.infer<typeof SampleItemsData>;
 export type SampleOwnerData = z.infer<typeof SampleOwnerData>;
@@ -152,6 +221,9 @@ export type PartialSampleToCreate = z.infer<typeof PartialSampleToCreate>;
 export type PartialSample = z.infer<typeof PartialSample>;
 export type SampleToCreate = z.infer<typeof SampleToCreate>;
 export type Sample = z.infer<typeof Sample>;
+export type PartialSampleMatrixSpecificData = z.infer<
+  typeof PartialSampleMatrixSpecificData
+>;
 
 export const isCreatedPartialSample = (
   partialSample?: PartialSample | PartialSampleToCreate
@@ -162,3 +234,22 @@ export const isCreatedPartialSample = (
 export const isCreatedSample = (
   sample?: Sample | SampleToCreate
 ): sample is Sample => CreatedSampleData.safeParse(sample).success;
+
+export function getPartialSampleSpecificDataField<
+  K extends ProgrammingPlanKind,
+  D extends Extract<
+    PartialSampleMatrixSpecificData,
+    { programmingPlanKind: K }
+  >,
+  T extends keyof D
+>(
+  sample: PartialSample | PartialSampleToCreate,
+  kind: K,
+  field: T
+): D[T] | undefined {
+  const data = sample.specificData;
+  if (!data || data.programmingPlanKind !== kind) {
+    return;
+  }
+  return (data as D)[field];
+}

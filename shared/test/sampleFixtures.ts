@@ -6,10 +6,10 @@ import { CultureKindList } from '../referential/CultureKind';
 import { LegalContextList } from '../referential/LegalContext';
 import { Matrix, MatrixList } from '../referential/Matrix/Matrix';
 import { MatrixKind } from '../referential/Matrix/MatrixKind';
-import { MatrixPart, MatrixPartList } from '../referential/Matrix/MatrixPart';
+import { MatrixPartList } from '../referential/Matrix/MatrixPart';
 import { QuantityUnitList } from '../referential/QuantityUnit';
 import { Regions } from '../referential/Region';
-import { Stage, StageList } from '../referential/Stage';
+import { StageList } from '../referential/Stage';
 import { Company } from '../schema/Company/Company';
 import { ContextList } from '../schema/ProgrammingPlan/Context';
 import {
@@ -53,6 +53,9 @@ export const genSampleContextData = (
   company: genCompany(),
   notesOnCreation: randomstring.generate(),
   status: 'Draft',
+  specificData: {
+    programmingPlanKind: 'PPV'
+  },
   ...data
 });
 export const genCreatedSampleData = (
@@ -80,30 +83,31 @@ export const genCreatedPartialSample = (
     ...genCreatedSampleData(data),
     company: genCompany(),
     matrix: oneOf(MatrixList),
-    matrixPart: oneOf(MatrixPartList),
-    stage: oneOf(StageList),
-    cultureKind: oneOf(CultureKindList),
-    releaseControl: genBoolean(),
+    specificData: {
+      programmingPlanKind: 'PPV',
+      matrixPart: oneOf(MatrixPartList),
+      stage: oneOf(StageList),
+      cultureKind: oneOf(CultureKindList),
+      releaseControl: genBoolean()
+    },
     items: [genSampleItem({ sampleId: contextData.id, itemNumber: 1 })],
     ...data
   };
 };
 export const genCreatedSample = (data?: Partial<Sample>): Sample => {
   const sample = genCreatedPartialSample(data);
-  return {
+  return Sample.parse({
     ...sample,
     geolocation: sample.geolocation as Geolocation,
     company: sample.company as Company,
     matrixKind: sample.matrix as MatrixKind,
     matrix: sample.matrix as Matrix,
-    matrixPart: sample.matrixPart as MatrixPart,
-    stage: sample.stage as Stage,
     prescriptionId: uuidv4(),
     laboratoryId: uuidv4(),
     items: sample.items as SampleItem[],
     ownerAgreement: genBoolean(),
     ...data
-  };
+  });
 };
 export const genSampleItem = (data?: Partial<SampleItem>): SampleItem => ({
   sampleId: uuidv4(),
@@ -140,10 +144,13 @@ export const Sample11Fixture = genCreatedPartialSample({
   lastUpdatedAt: new Date('2024-03-04'),
   status: 'DraftMatrix' as SampleStatus,
   matrix: 'A00GZ',
-  matrixPart: 'PART1',
-  cultureKind: 'PD07A',
-  releaseControl: false,
-  stage: 'STADE7',
+  specificData: {
+    programmingPlanKind: 'PPV',
+    matrixPart: 'PART1',
+    stage: 'STADE7',
+    cultureKind: 'PD07A',
+    releaseControl: false
+  },
   items: [Sample1Item1Fixture]
 });
 export const Sample12Fixture = genCreatedPartialSample({
