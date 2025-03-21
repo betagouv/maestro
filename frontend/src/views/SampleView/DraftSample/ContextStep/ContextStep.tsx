@@ -362,6 +362,7 @@ const ContextStep = ({ partialSample }: Props) => {
           data-testid="programmingPlanKind-select"
           label="Type de plan"
           required
+          className={cx('fr-mb-0')}
         />
       )}
       {contextOptions.length > 1 && (

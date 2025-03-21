@@ -1,12 +1,12 @@
 import { format } from 'date-fns';
 import exceljs from 'exceljs';
 import highland from 'highland';
-import { CultureKindLabels } from 'maestro-shared/referential/CultureKind';
+import { getCultureKindLabel } from 'maestro-shared/referential/CultureKind';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
-import { MatrixPartLabels } from 'maestro-shared/referential/Matrix/MatrixPart';
+import { getMatrixPartLabel } from 'maestro-shared/referential/Matrix/MatrixPart';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
-import { StageLabels } from 'maestro-shared/referential/Stage';
+import { getStageLabel } from 'maestro-shared/referential/Stage';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { PartialSample } from 'maestro-shared/schema/Sample/Sample';
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
@@ -120,16 +120,13 @@ const writeToWorkbook = async (
           resytalId: sample.resytalId,
           notesOnCreation: sample.notesOnCreation,
           matrix: sample.matrix ? MatrixLabels[sample.matrix] : undefined,
-          matrixDetails: sample.matrixDetails,
-          matrixPart: sample.matrixPart
-            ? MatrixPartLabels[sample.matrixPart]
-            : undefined,
-          stage: sample.stage ? StageLabels[sample.stage] : undefined,
-          cultureKind:
-            sample.specificData?.programmingPlanKind === 'PPV' &&
-            sample.specificData.cultureKind
-              ? CultureKindLabels[sample.specificData.cultureKind]
+          matrixDetails:
+            sample.specificData?.programmingPlanKind === 'PPV'
+              ? sample.specificData?.matrixDetails
               : undefined,
+          matrixPart: getMatrixPartLabel(sample),
+          stage: getStageLabel(sample),
+          cultureKind: getCultureKindLabel(sample),
           releaseControl:
             sample.specificData?.programmingPlanKind === 'PPV'
               ? sample.specificData.releaseControl
