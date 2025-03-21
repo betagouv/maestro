@@ -126,12 +126,12 @@ const writeToWorkbook = async (
             : undefined,
           stage: sample.stage ? StageLabels[sample.stage] : undefined,
           cultureKind:
-            sample.specificData?.domain === 'PPV' &&
+            sample.specificData?.programmingPlanKind === 'PPV' &&
             sample.specificData.cultureKind
               ? CultureKindLabels[sample.specificData.cultureKind]
               : undefined,
           releaseControl:
-            sample.specificData?.domain === 'PPV'
+            sample.specificData?.programmingPlanKind === 'PPV'
               ? sample.specificData.releaseControl
                 ? 'Oui'
                 : 'Non'

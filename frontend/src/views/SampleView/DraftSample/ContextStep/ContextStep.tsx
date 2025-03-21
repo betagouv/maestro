@@ -15,6 +15,7 @@ import {
   Context,
   ContextLabels
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   PartialSample,
   PartialSampleToCreate,
@@ -58,6 +59,9 @@ const ContextStep = ({ partialSample }: Props) => {
     (partialSample?.context ?? programmingPlan?.contexts.length === 1)
       ? programmingPlan?.contexts[0]
       : undefined
+  );
+  const [programmingPlanKind, _setProgrammingPlanKind] = useState(
+    programmingPlan?.kinds[0]
   );
   const [legalContext, setLegalContext] = useState(partialSample?.legalContext);
   const [geolocationX, setGeolocationX] = useState(
@@ -140,6 +144,7 @@ const ContextStep = ({ partialSample }: Props) => {
         : undefined,
     parcel,
     programmingPlanId: programmingPlan?.id as string,
+    programmingPlanKind: programmingPlanKind as ProgrammingPlanKind,
     context: context as Context,
     legalContext: legalContext as LegalContext,
     company,
@@ -195,6 +200,7 @@ const ContextStep = ({ partialSample }: Props) => {
     geolocationX,
     geolocationY,
     parcel,
+    programmingPlanKind,
     context,
     legalContext,
     company,
@@ -386,7 +392,11 @@ const ContextStep = ({ partialSample }: Props) => {
           {isOnline ? (
             <CompanySearch
               initialCompany={company ?? undefined}
+<<<<<<< HEAD
               domain={programmingPlan.domain}
+=======
+              department={department}
+>>>>>>> 66e0d2a9 (Introduction des types de plans dans un plan de programmation)
               onSelectCompany={(result) => {
                 setCompany(result);
               }}
