@@ -1,53 +1,62 @@
 import { Knex } from 'knex';
 export const up = async (knex: Knex) => {
   await knex.schema.alterTable('programming_plans', (table) => {
-    table.text('domain');
+    table.specificType('kinds', 'text[]');
     table.specificType('contexts', 'text[]');
   });
 
   await knex('programming_plans').update({
-    domain: 'PPV',
+    kinds: ['PPV'],
     contexts: ['Control', 'Surveillance']
   });
 
   await knex.schema.alterTable('programming_plans', (table) => {
-    table.string('domain').notNullable().alter();
+    table.specificType('kinds', 'text[]').notNullable().alter();
     table.specificType('contexts', 'text[]').notNullable().alter();
     table.dropUnique(['year']);
-    table.unique(['domain', 'year']);
   });
 
   await knex.schema.alterTable('users', (table) => {
-    table.string('domain');
+    table.specificType('programming_plan_kinds', 'text[]');
   });
 
-  await knex('users').update({ domain: 'PPV' });
+  await knex('users').update({ programming_plan_kinds: ['PPV'] });
 
   await knex.schema.alterTable('users', (table) => {
-    table.string('domain').notNullable().alter();
+    table
+      .specificType('programming_plan_kinds', 'text[]')
+      .notNullable()
+      .alter();
   });
   await knex.schema.alterTable('samples', (table) => {
+    table.string('programming_plan_kind');
     table.json('specific_data');
   });
 
   await knex.raw(`
     UPDATE samples
-    SET specific_data = json_build_object('domain', 'PPV', 'cultureKind', culture_kind, 'releaseControl', release_control)
+    SET specific_data = json_build_object('programming_plan_kind', 'PPV', 'cultureKind', culture_kind, 'releaseControl', release_control), programming_plan_kind = 'PPV'
   `);
+
+  await knex.schema.alterTable('samples', (table) => {
+    table.string('programming_plan_kind').notNullable().alter();
+  });
 };
 
 export const down = async (knex: Knex) => {
   await knex.schema.alterTable('samples', (table) => {
+    table.dropColumn('programming_plan_kind');
     table.dropColumn('specific_data');
   });
 
   await knex.schema.alterTable('users', (table) => {
-    table.dropColumn('domain');
+    table.dropColumn('programming_plan_kinds');
   });
 
   const deletedProgrammingPlans = await knex('programming_plans').whereNot(
-    'domain',
-    'PPV'
+    'kinds',
+    '@>',
+    ['PPV']
   );
 
   await knex('samples')
@@ -72,8 +81,7 @@ export const down = async (knex: Knex) => {
     .delete();
 
   await knex.schema.alterTable('programming_plans', (table) => {
-    table.dropUnique(['domain', 'year']);
-    table.dropColumn('domain');
+    table.dropColumn('kinds');
     table.dropColumn('contexts');
     table.unique(['year']);
   });
