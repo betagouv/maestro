@@ -30,7 +30,11 @@ const generateAnalysisRequestCsv = async (data: AnalysisRequestData) => {
     `Catégorie de matrice programmée;${escapeCsvValue(data.matrixKindLabel)};${escapeCsvValue(data.matrixKind)}`,
     `Matrice;${escapeCsvValue(data.matrixLabel)};${escapeCsvValue(data.matrix)}`,
     `LMR/ Partie du végétal concernée;${escapeCsvValue(data.matrixPart)}`,
-    `Détails de la matrice;${escapeCsvValue(data.matrixDetails)}`,
+    `Détails de la matrice;${escapeCsvValue(
+      data.specificData?.programmingPlanKind === 'PPV'
+        ? data.specificData?.matrixDetails
+        : undefined
+    )}`,
     `Type de culture;${escapeCsvValue(data.cultureKind)}`,
     `Stade de prélèvement;${escapeCsvValue(data.stage)}`,
     `${data.specificData?.programmingPlanKind === 'PPV' && data.specificData?.releaseControl ? 'Type de contrôle;Contrôle libératoire' : ''}`,

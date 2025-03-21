@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { PartialSample } from '../schema/Sample/Sample';
 
 export const Stage = z.enum(
   [
@@ -34,3 +35,9 @@ export const StageLabels: Record<Stage, string> = {
   STADE8: 'Substrat',
   STADE9: 'Autre'
 };
+
+export const getStageLabel = (partialSample: PartialSample) =>
+  partialSample.specificData?.programmingPlanKind === 'PPV' &&
+  partialSample.specificData.stage
+    ? StageLabels[partialSample.specificData.stage]
+    : undefined;
