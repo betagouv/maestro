@@ -42,6 +42,7 @@ export const genSampleContextData = (
     y: 2.3522
   },
   programmingPlanId: uuidv4(),
+  programmingPlanKind: 'PPV',
   context: oneOf(ContextList),
   legalContext: oneOf(LegalContextList),
   resytalId:
@@ -83,7 +84,7 @@ export const genCreatedPartialSample = (
     matrixPart: oneOf(MatrixPartList),
     stage: oneOf(StageList),
     specificData: {
-      domain: 'PPV',
+      programmingPlanKind: 'PPV',
       cultureKind: oneOf(CultureKindList),
       releaseControl: genBoolean()
     },
@@ -145,7 +146,7 @@ export const Sample11Fixture = genCreatedPartialSample({
   matrix: 'A00GZ',
   matrixPart: 'PART1',
   specificData: {
-    domain: 'PPV',
+    programmingPlanKind: 'PPV',
     cultureKind: 'PD07A',
     releaseControl: false
   },

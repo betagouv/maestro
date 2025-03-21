@@ -34,7 +34,7 @@ const sampler = genUser({
   roles: ['Sampler']
 });
 const programmingPlan = genProgrammingPlan({
-  domain: 'PFAS'
+  kinds: ['PFAS_EGGS', 'PFAS_MEAT']
 });
 const prescription1 = genPrescription({
   programmingPlanId: programmingPlan.id,

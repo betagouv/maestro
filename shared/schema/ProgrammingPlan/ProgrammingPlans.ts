@@ -1,11 +1,11 @@
 import { z } from 'zod';
 import { Context } from './Context';
-import { Domain } from './Domain';
+import { ProgrammingPlanKind } from './ProgrammingPlanKind';
 import { ProgrammingPlanRegionalStatus } from './ProgrammingPlanRegionalStatus';
 
 export const ProgrammingPlan = z.object({
   id: z.string().uuid(),
-  domain: Domain,
+  kinds: z.array(ProgrammingPlanKind),
   contexts: z.array(Context),
   createdAt: z.coerce.date(),
   createdBy: z.string(),
