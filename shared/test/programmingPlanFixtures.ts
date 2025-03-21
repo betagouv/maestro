@@ -10,7 +10,7 @@ export const genProgrammingPlan = (
   data?: Partial<ProgrammingPlan>
 ): ProgrammingPlan => ({
   id: uuidv4(),
-  domain: 'PPV',
+  kinds: ['PPV'],
   contexts: [oneOf(ContextList)],
   createdAt: new Date(),
   createdBy: uuidv4(),
@@ -25,7 +25,7 @@ export const ValidatedProgrammingPlanFixture = genProgrammingPlan({
   createdBy: NationalCoordinator.id,
   createdAt: new Date('2024-01-01'),
   id: '11111111-1111-1111-1111-111111111111',
-  domain: 'PPV',
+  kinds: ['PPV'],
   contexts: ['Control', 'Surveillance'],
   regionalStatus: RegionList.map((region) => ({
     region,

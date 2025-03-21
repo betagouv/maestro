@@ -11,7 +11,7 @@ import { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
 import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { ResidueCompliance } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import { type DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
-import { Domain } from 'maestro-shared/schema/ProgrammingPlan/Domain';
+import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
 
 export type Generated<T> =
@@ -242,7 +242,7 @@ export interface Users {
   region: Region | null;
   role: UserRole;
   loggedSecrets: ColumnType<string[], string[] | null, string[]>;
-  domain: Domain;
+  programmingPlanKinds: ProgrammingPlanKind[];
 }
 
 export interface SampleDocuments {
