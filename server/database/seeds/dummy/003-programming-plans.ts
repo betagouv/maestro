@@ -25,7 +25,7 @@ export const seed = async function () {
     [
       genProgrammingPlan({
         id: ppvValidatedProgrammingPlanId,
-        domain: 'PPV',
+        kinds: ['PPV'],
         contexts: ['Control', 'Surveillance'],
         createdAt: new Date(),
         createdBy: user.id,
@@ -37,7 +37,7 @@ export const seed = async function () {
       }),
       genProgrammingPlan({
         id: pfasValidatedProgrammingPlanId,
-        domain: 'PFAS',
+        kinds: ['PFAS_EGGS', 'PFAS_MEAT'],
         contexts: ['Control'],
         createdAt: new Date(),
         createdBy: user.id,

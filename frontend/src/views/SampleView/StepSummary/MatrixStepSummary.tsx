@@ -53,12 +53,13 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
       <div className="summary-item icon-text">
         <div className={cx('fr-icon-restaurant-line')}></div>
         <div>
-          {sample.specificData?.domain === 'PFAS' && (
-            <div>
-              Espèce animale :{' '}
-              <b>{SpeciesLabels[sample.specificData.species]}</b>
-            </div>
-          )}
+          {sample.specificData?.programmingPlanKind === 'PFAS_EGGS' ||
+            (sample.specificData?.programmingPlanKind === 'PFAS_MEAT' && (
+              <div>
+                Espèce animale :{' '}
+                <b>{SpeciesLabels[sample.specificData.species]}</b>
+              </div>
+            ))}
           <div>
             Catégorie de matrice programmée :{' '}
             <b>{MatrixKindLabels[sample.matrixKind]}</b>
@@ -77,7 +78,7 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
           )}
         </div>
       </div>
-      {sample.specificData?.domain === 'PPV' &&
+      {sample.specificData?.programmingPlanKind === 'PPV' &&
         sample.specificData?.cultureKind && (
           <div className="summary-item icon-text">
             <div className={cx('fr-icon-seedling-line')}></div>
@@ -93,7 +94,7 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
           Stade de prélèvement : <b>{StageLabels[sample.stage]}</b>
         </div>
       </div>
-      {sample.specificData?.domain === 'PPV' &&
+      {sample.specificData?.programmingPlanKind === 'PPV' &&
         sample.specificData?.releaseControl && (
           <div className="summary-item icon-text">
             <div className={cx('fr-icon-checkbox-circle-line')}></div>

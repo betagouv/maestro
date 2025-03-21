@@ -50,7 +50,7 @@ const sampler = genUser({
   role: 'Sampler'
 });
 const programmingPlan = genProgrammingPlan({
-  domain: 'PPV'
+  kinds: ['PPV']
 });
 const prescription1 = genPrescription({
   programmingPlanId: programmingPlan.id,
@@ -262,7 +262,7 @@ export const MatrixStepPPVSubmitSampleAndUpdatingStatus: Story = {
           matrix: MatrixListByKind[prescription1.matrixKind][1],
           matrixPart: MatrixPartList[0],
           specificData: {
-            domain: 'PPV',
+            programmingPlanKind: 'PPV',
             cultureKind: CultureKindList[0]
           },
           stage: prescription1.stages[1],

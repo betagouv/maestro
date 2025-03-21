@@ -34,14 +34,13 @@ import {
 import { FileInput } from 'maestro-shared/schema/File/FileInput';
 import { SampleDocumentTypeList } from 'maestro-shared/schema/File/FileType';
 import { Context } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { PFASKindList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   isCreatedPartialSample,
   PartialSample,
   PartialSampleToCreate,
   SampleMatrixData,
-  SampleMatrixSpecificData,
-  SampleMatrixSpecificDataPFAS,
-  SampleMatrixSpecificDataPPV
+  SampleMatrixSpecificData
 } from 'maestro-shared/schema/Sample/Sample';
 import React, { useContext, useMemo, useState } from 'react';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
@@ -60,7 +59,6 @@ import AppSearchInput from '../../../../components/_app/AppSearchInput/AppSearch
 import AppUpload from '../../../../components/_app/AppUpload/AppUpload';
 import SampleDocument from '../../../../components/SampleDocument/SampleDocument';
 import { usePartialSample } from '../../../../hooks/usePartialSample';
-import { useAppSelector } from '../../../../hooks/useStore';
 import { ApiClientContext } from '../../../../services/apiClient';
 import NextButton from '../NextButton';
 
@@ -73,7 +71,6 @@ const MatrixStep = ({ partialSample }: Props) => {
   const { navigateToSample } = useSamplesLink();
   const { user } = useAuthentication();
   const { readonly } = usePartialSample(partialSample);
-  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
 
   const [matrixKind, setMatrixKind] = useState(partialSample.matrixKind);
   const [matrix, setMatrix] = useState(partialSample.matrix);
@@ -84,20 +81,19 @@ const MatrixStep = ({ partialSample }: Props) => {
   const [stage, setStage] = useState(partialSample.stage);
 
   const [species, setSpecies] = useState(
-    SampleMatrixSpecificDataPFAS.safeParse(partialSample.specificData).success
-      ? SampleMatrixSpecificDataPFAS.parse(partialSample.specificData).species
+    partialSample.specificData?.programmingPlanKind === 'PFAS_EGGS' ||
+      partialSample.specificData?.programmingPlanKind === 'PFAS_MEAT'
+      ? partialSample.specificData?.species
       : undefined
   );
   const [cultureKind, setCultureKind] = useState(
-    SampleMatrixSpecificDataPPV.safeParse(partialSample.specificData).success
-      ? SampleMatrixSpecificDataPPV.parse(partialSample.specificData)
-          .cultureKind
+    partialSample.specificData?.programmingPlanKind === 'PPV'
+      ? partialSample.specificData?.cultureKind
       : undefined
   );
   const [releaseControl, setReleaseControl] = useState(
-    SampleMatrixSpecificDataPPV.safeParse(partialSample.specificData).success
-      ? SampleMatrixSpecificDataPPV.parse(partialSample.specificData)
-          .releaseControl
+    partialSample.specificData?.programmingPlanKind === 'PPV'
+      ? partialSample.specificData?.releaseControl
       : undefined
   );
   const [files, setFiles] = useState<File[]>([]);
@@ -151,21 +147,21 @@ const MatrixStep = ({ partialSample }: Props) => {
   });
 
   const specificData = useMemo(() => {
-    const domain = programmingPlan?.domain;
-    if (!domain) {
+    const kind = partialSample.programmingPlanKind;
+    if (!kind) {
       return;
     }
     const data = (() => {
-      if (domain === 'PFAS') {
+      if (PFASKindList.includes(kind)) {
         return { species };
       }
-      if (domain === 'PPV') {
+      if (kind === 'PPV') {
         return { cultureKind, releaseControl };
       }
     })();
 
-    return { domain, ...data } as SampleMatrixSpecificData;
-  }, [programmingPlan, species, cultureKind, releaseControl]);
+    return { programmingPlanKind: kind, ...data } as SampleMatrixSpecificData;
+  }, [partialSample.programmingPlanKind, species, cultureKind, releaseControl]);
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
@@ -251,11 +247,15 @@ const MatrixStep = ({ partialSample }: Props) => {
     setDocumentIds((documentIds ?? []).filter((id) => id !== documentId));
   };
 
+  if (!specificData) {
+    return <></>;
+  }
+
   return (
     <form data-testid="draft_sample_matrix_form" className="sample-form">
       <AppRequiredText />
 
-      {specificData?.domain === 'PFAS' && (
+      {PFASKindList.includes(specificData.programmingPlanKind) && (
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
             <AppSelect<FormShape>
@@ -379,7 +379,7 @@ const MatrixStep = ({ partialSample }: Props) => {
             disabled={readonly}
           />
         </div>
-        {specificData?.domain === 'PPV' && (
+        {specificData.programmingPlanKind === 'PPV' && (
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
             <AppSelect<FormShape>
               defaultValue={cultureKind ?? ''}
@@ -416,7 +416,7 @@ const MatrixStep = ({ partialSample }: Props) => {
           />
         </div>
       </div>
-      {specificData?.domain === 'PPV' && (
+      {specificData.programmingPlanKind === 'PPV' && (
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
             <ToggleSwitch

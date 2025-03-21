@@ -347,7 +347,7 @@ const updateSample = async (request: Request, response: Response) => {
                 ? QuantityUnitLabels[sampleItem.quantityUnit]
                 : '',
               cultureKind:
-                updatedSample.specificData?.domain === 'PPV' &&
+                updatedSample.specificData?.programmingPlanKind === 'PPV' &&
                 updatedSample.specificData.cultureKind
                   ? CultureKindLabels[updatedSample.specificData.cultureKind]
                   : undefined,

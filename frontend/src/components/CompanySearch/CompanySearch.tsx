@@ -1,13 +1,11 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import { Autocomplete } from '@mui/material';
-import { EggCompanies } from 'maestro-shared/referential/Company/EggsCompany';
 import { Department } from 'maestro-shared/referential/Department';
 import {
   Company,
   companyFromSearchResult
 } from 'maestro-shared/schema/Company/Company';
-import { Domain } from 'maestro-shared/schema/ProgrammingPlan/Domain';
 import { ReactNode, SyntheticEvent, useCallback, useState } from 'react';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
 import { useLazySearchCompaniesQuery } from '../../services/company.service';
@@ -18,7 +16,6 @@ interface Props {
   onSelectCompany: (company?: Company) => void;
   state?: 'success' | 'error' | 'default';
   stateRelatedMessage?: ReactNode;
-  domain: Domain;
 }
 
 const CompanySearch = ({
@@ -26,8 +23,7 @@ const CompanySearch = ({
   department,
   onSelectCompany,
   state,
-  stateRelatedMessage,
-  domain
+  stateRelatedMessage
 }: Props) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [companyResults, setCompanyResults] = useState<Company[]>([]);
@@ -39,22 +35,13 @@ const CompanySearch = ({
 
   const search = useCallback(
     async (value: string) =>
-      domain === 'PFAS'
-        ? Promise.resolve(
-            EggCompanies.filter(
-              (company) =>
-                (company.name.toLowerCase().includes(value.toLowerCase()) ||
-                  company.siret.toLowerCase().includes(value.toLowerCase())) &&
-                (department ? company.department === department : true)
-            )
-          )
-        : await searchCompanies({
-            query: value,
-            department
-          })
-            .unwrap()
-            .then((results) => results.map(companyFromSearchResult)),
-    [domain, department, searchCompanies]
+      await searchCompanies({
+        query: value,
+        department
+      })
+        .unwrap()
+        .then((results) => results.map(companyFromSearchResult)),
+    [department, searchCompanies]
   );
 
   const handleInputChange = async (

@@ -11,6 +11,7 @@ import { Species } from '../../referential/Species';
 import { Stage } from '../../referential/Stage';
 import { Company } from '../Company/Company';
 import { Context } from '../ProgrammingPlan/Context';
+import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { BaseUser } from '../User/User';
 import { PartialSampleItem, SampleItem } from './SampleItem';
 import { SampleStatus } from './SampleStatus';
@@ -44,6 +45,7 @@ export const SampleContextData = z.object({
   geolocation: Geolocation.nullish(),
   parcel: z.string().nullish(),
   programmingPlanId: z.string().uuid(),
+  programmingPlanKind: ProgrammingPlanKind,
   context: Context,
   legalContext: LegalContext,
   company: Company.nullish(),
@@ -54,19 +56,30 @@ export const SampleContextData = z.object({
 });
 
 export const SampleMatrixSpecificDataPPV = z.object({
-  domain: z.literal('PPV'),
+  programmingPlanKind: z.literal('PPV'),
   cultureKind: CultureKind.nullish(),
   releaseControl: z.boolean().nullish()
 });
 
 export const SampleMatrixSpecificDataPFAS = z.object({
-  domain: z.literal('PFAS'),
+  programmingPlanKind: z.literal('PFAS_EGGS').or(z.literal('PFAS_MEAT')),
   species: Species
 });
 
-const SampleMatrixSpecificData = z.discriminatedUnion('domain', [
+export const SampleMatrixSpecificDataPFASEggs =
+  SampleMatrixSpecificDataPFAS.extend({
+    programmingPlanKind: z.literal('PFAS_EGGS')
+  });
+
+export const SampleMatrixSpecificDataPFASMeat =
+  SampleMatrixSpecificDataPFAS.extend({
+    programmingPlanKind: z.literal('PFAS_MEAT')
+  });
+
+const SampleMatrixSpecificData = z.discriminatedUnion('programmingPlanKind', [
   SampleMatrixSpecificDataPPV,
-  SampleMatrixSpecificDataPFAS
+  SampleMatrixSpecificDataPFASEggs,
+  SampleMatrixSpecificDataPFASMeat
 ]);
 
 export const SampleMatrixData = z.object({
