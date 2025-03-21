@@ -147,10 +147,7 @@ const MatrixStep = ({ partialSample }: Props) => {
   });
 
   const specificData = useMemo(() => {
-    const kind = partialSample.programmingPlanKind;
-    if (!kind) {
-      return;
-    }
+    const kind = partialSample.specificData?.programmingPlanKind;
     const data = (() => {
       if (PFASKindList.includes(kind)) {
         return { species };
@@ -158,10 +155,16 @@ const MatrixStep = ({ partialSample }: Props) => {
       if (kind === 'PPV') {
         return { cultureKind, releaseControl };
       }
+      return {};
     })();
 
     return { programmingPlanKind: kind, ...data } as SampleMatrixSpecificData;
-  }, [partialSample.programmingPlanKind, species, cultureKind, releaseControl]);
+  }, [
+    partialSample.specificData?.programmingPlanKind,
+    species,
+    cultureKind,
+    releaseControl
+  ]);
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();

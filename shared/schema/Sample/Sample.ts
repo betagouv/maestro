@@ -11,7 +11,6 @@ import { Species } from '../../referential/Species';
 import { Stage } from '../../referential/Stage';
 import { Company } from '../Company/Company';
 import { Context } from '../ProgrammingPlan/Context';
-import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { BaseUser } from '../User/User';
 import { PartialSampleItem, SampleItem } from './SampleItem';
 import { SampleStatus } from './SampleStatus';
@@ -30,29 +29,6 @@ export const Sampler = BaseUser.pick({
   id: true,
   firstName: true,
   lastName: true
-});
-
-export const SampleContextData = z.object({
-  id: z.string().uuid(),
-  sampledAt: z.union([z.string(), z.date()]).pipe(
-    z.coerce.date({
-      errorMap: () => ({
-        message: 'La date de prélèvement est invalide.'
-      })
-    })
-  ),
-  department: Department,
-  geolocation: Geolocation.nullish(),
-  parcel: z.string().nullish(),
-  programmingPlanId: z.string().uuid(),
-  programmingPlanKind: ProgrammingPlanKind,
-  context: Context,
-  legalContext: LegalContext,
-  company: Company.nullish(),
-  companyOffline: z.string().nullish(),
-  resytalId: z.string().nullish(),
-  notesOnCreation: z.string().nullish(),
-  status: SampleStatus
 });
 
 export const SampleMatrixSpecificDataPPV = z.object({
@@ -76,11 +52,58 @@ export const SampleMatrixSpecificDataPFASMeat =
     programmingPlanKind: z.literal('PFAS_MEAT')
   });
 
-const SampleMatrixSpecificData = z.discriminatedUnion('programmingPlanKind', [
-  SampleMatrixSpecificDataPPV,
-  SampleMatrixSpecificDataPFASEggs,
-  SampleMatrixSpecificDataPFASMeat
-]);
+const SampleMatrixSpecificData = z.discriminatedUnion(
+  'programmingPlanKind',
+  [
+    SampleMatrixSpecificDataPPV,
+    SampleMatrixSpecificDataPFASEggs,
+    SampleMatrixSpecificDataPFASMeat
+  ],
+  {
+    errorMap: () => ({ message: 'Veuillez renseigner le type de plan.' })
+  }
+);
+
+const PartialSampleMatrixSpecificData = z.discriminatedUnion(
+  'programmingPlanKind',
+  [
+    SampleMatrixSpecificDataPPV.partial().required({
+      programmingPlanKind: true
+    }),
+    SampleMatrixSpecificDataPFASEggs.partial().required({
+      programmingPlanKind: true
+    }),
+    SampleMatrixSpecificDataPFASMeat.partial().required({
+      programmingPlanKind: true
+    })
+  ],
+  {
+    errorMap: () => ({ message: 'Veuillez renseigner le type de plan.' })
+  }
+);
+
+export const SampleContextData = z.object({
+  id: z.string().uuid(),
+  sampledAt: z.union([z.string(), z.date()]).pipe(
+    z.coerce.date({
+      errorMap: () => ({
+        message: 'La date de prélèvement est invalide.'
+      })
+    })
+  ),
+  department: Department,
+  geolocation: Geolocation.nullish(),
+  parcel: z.string().nullish(),
+  programmingPlanId: z.string().uuid(),
+  context: Context,
+  legalContext: LegalContext,
+  company: Company.nullish(),
+  companyOffline: z.string().nullish(),
+  resytalId: z.string().nullish(),
+  notesOnCreation: z.string().nullish(),
+  status: SampleStatus,
+  specificData: PartialSampleMatrixSpecificData
+});
 
 export const SampleMatrixData = z.object({
   matrixKind: MatrixKind,
@@ -92,7 +115,7 @@ export const SampleMatrixData = z.object({
   prescriptionId: z.string().uuid(),
   laboratoryId: z.string().uuid().nullish(),
   documentIds: z.array(z.string().uuid()).nullish(),
-  specificData: SampleMatrixSpecificData.nullish()
+  specificData: SampleMatrixSpecificData
 });
 
 export const SampleItemsData = z.object({
@@ -142,6 +165,7 @@ export const PartialSampleToCreate = z.object({
   }).shape,
   sampledAt: SampleContextData.shape.sampledAt.nullish(),
   ...SampleMatrixData.partial().shape,
+  specificData: PartialSampleMatrixSpecificData,
   ...SampleItemsData.partial().shape,
   ...SampleAdmissibilityData.partial().shape,
   ...SampleOwnerData.partial().shape,
@@ -187,6 +211,9 @@ export type PartialSampleToCreate = z.infer<typeof PartialSampleToCreate>;
 export type PartialSample = z.infer<typeof PartialSample>;
 export type SampleToCreate = z.infer<typeof SampleToCreate>;
 export type Sample = z.infer<typeof Sample>;
+export type PartialSampleMatrixSpecificData = z.infer<
+  typeof PartialSampleMatrixSpecificData
+>;
 
 export const isCreatedPartialSample = (
   partialSample?: PartialSample | PartialSampleToCreate

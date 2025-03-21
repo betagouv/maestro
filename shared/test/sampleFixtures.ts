@@ -43,13 +43,15 @@ export const genSampleContextData = (
     y: 2.3522
   },
   programmingPlanId: uuidv4(),
-  programmingPlanKind: 'PPV',
   context: oneOf(ContextList),
   legalContext: oneOf(LegalContextList),
   resytalId: '23-' + fakerFR.string.numeric(6),
   company: genCompany(),
   notesOnCreation: fakerFR.string.alphanumeric(32),
   status: 'Draft',
+  specificData: {
+    programmingPlanKind: 'PPV'
+  },
   ...data
 });
 export const genCreatedSampleData = (

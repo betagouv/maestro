@@ -29,23 +29,17 @@ export const up = async (knex: Knex) => {
       .alter();
   });
   await knex.schema.alterTable('samples', (table) => {
-    table.string('programming_plan_kind');
     table.json('specific_data');
   });
 
   await knex.raw(`
     UPDATE samples
-    SET specific_data = json_build_object('programming_plan_kind', 'PPV', 'cultureKind', culture_kind, 'releaseControl', release_control), programming_plan_kind = 'PPV'
+    SET specific_data = json_build_object('programmingPlanKind', 'PPV', 'cultureKind', culture_kind, 'releaseControl', release_control)
   `);
-
-  await knex.schema.alterTable('samples', (table) => {
-    table.string('programming_plan_kind').notNullable().alter();
-  });
 };
 
 export const down = async (knex: Knex) => {
   await knex.schema.alterTable('samples', (table) => {
-    table.dropColumn('programming_plan_kind');
     table.dropColumn('specific_data');
   });
 
