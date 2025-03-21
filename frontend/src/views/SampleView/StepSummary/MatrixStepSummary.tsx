@@ -67,15 +67,19 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
           <div>
             Matrice : <b>{MatrixLabels[sample.matrix]}</b>
           </div>
-          <div>
-            LMR/ Partie du végétal concernée :{' '}
-            <b>{MatrixPartLabels[sample.matrixPart]}</b>
-          </div>
-          {sample.matrixDetails && (
+          {sample.specificData?.programmingPlanKind === 'PPV' && (
             <div>
-              Détails de la matrice : <b>{sample.matrixDetails}</b>
+              LMR/ Partie du végétal concernée :{' '}
+              <b>{MatrixPartLabels[sample.specificData.matrixPart]}</b>
             </div>
           )}
+          {sample.specificData?.programmingPlanKind === 'PPV' &&
+            sample.specificData.matrixDetails && (
+              <div>
+                Détails de la matrice :{' '}
+                <b>{sample.specificData.matrixDetails}</b>
+              </div>
+            )}
         </div>
       </div>
       {sample.specificData?.programmingPlanKind === 'PPV' &&
@@ -88,12 +92,15 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
             </div>
           </div>
         )}
-      <div className="summary-item icon-text">
-        <div className={cx('fr-icon-sip-line')}></div>
-        <div>
-          Stade de prélèvement : <b>{StageLabels[sample.stage]}</b>
+      {sample.specificData?.programmingPlanKind === 'PPV' && (
+        <div className="summary-item icon-text">
+          <div className={cx('fr-icon-sip-line')}></div>
+          <div>
+            Stade de prélèvement :{' '}
+            <b>{StageLabels[sample.specificData.stage]}</b>
+          </div>
         </div>
-      </div>
+      )}
       {sample.specificData?.programmingPlanKind === 'PPV' &&
         sample.specificData?.releaseControl && (
           <div className="summary-item icon-text">

@@ -11,6 +11,7 @@ import { Species } from '../../referential/Species';
 import { Stage } from '../../referential/Stage';
 import { Company } from '../Company/Company';
 import { Context } from '../ProgrammingPlan/Context';
+import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { BaseUser } from '../User/User';
 import { PartialSampleItem, SampleItem } from './SampleItem';
 import { SampleStatus } from './SampleStatus';
@@ -32,24 +33,41 @@ export const Sampler = BaseUser.pick({
 });
 
 export const SampleMatrixSpecificDataPPV = z.object({
-  programmingPlanKind: z.literal('PPV'),
+  programmingPlanKind: z.literal(ProgrammingPlanKind.Values.PPV),
+  matrixDetails: z.string().nullish(),
+  matrixPart: MatrixPart,
+  stage: Stage,
   cultureKind: CultureKind.nullish(),
   releaseControl: z.boolean().nullish()
 });
 
 export const SampleMatrixSpecificDataPFAS = z.object({
-  programmingPlanKind: z.literal('PFAS_EGGS').or(z.literal('PFAS_MEAT')),
-  species: Species
+  programmingPlanKind: z
+    .literal(ProgrammingPlanKind.Values.PFAS_EGGS)
+    .or(z.literal(ProgrammingPlanKind.Values.PFAS_MEAT)),
+  species: Species,
+  targetingCriteria: z.string(),
+  notesOnTargetingCriteria: z.string().nullish(),
+  animalKind: z.string(),
+  productionKind: z.string(),
+  identifier: z.string(),
+  breedingMethod: z.string(),
+  age: z.string(),
+  sex: z.string(),
+  seizure: z.boolean().nullish(),
+  outdoorAccess: z.boolean().nullish()
 });
 
 export const SampleMatrixSpecificDataPFASEggs =
   SampleMatrixSpecificDataPFAS.extend({
-    programmingPlanKind: z.literal('PFAS_EGGS')
+    programmingPlanKind: z.literal(ProgrammingPlanKind.Values.PFAS_EGGS),
+    stage: Stage
   });
 
 export const SampleMatrixSpecificDataPFASMeat =
   SampleMatrixSpecificDataPFAS.extend({
-    programmingPlanKind: z.literal('PFAS_MEAT')
+    programmingPlanKind: z.literal(ProgrammingPlanKind.Values.PFAS_MEAT),
+    killingCode: z.string()
   });
 
 const SampleMatrixSpecificData = z.discriminatedUnion(
@@ -108,9 +126,6 @@ export const SampleContextData = z.object({
 export const SampleMatrixData = z.object({
   matrixKind: MatrixKind,
   matrix: Matrix,
-  matrixDetails: z.string().nullish(),
-  matrixPart: MatrixPart,
-  stage: Stage,
   notesOnMatrix: z.string().nullish(),
   prescriptionId: z.string().uuid(),
   laboratoryId: z.string().uuid().nullish(),
@@ -224,3 +239,22 @@ export const isCreatedPartialSample = (
 export const isCreatedSample = (
   sample?: Sample | SampleToCreate
 ): sample is Sample => CreatedSampleData.safeParse(sample).success;
+
+export function getPartialSampleSpecificDataField<
+  K extends ProgrammingPlanKind,
+  D extends Extract<
+    PartialSampleMatrixSpecificData,
+    { programmingPlanKind: K }
+  >,
+  T extends keyof D
+>(
+  sample: PartialSample | PartialSampleToCreate,
+  kind: K,
+  field: T
+): D[T] | undefined {
+  const data = sample.specificData;
+  if (!data || data.programmingPlanKind !== kind) {
+    return;
+  }
+  return (data as D)[field];
+}

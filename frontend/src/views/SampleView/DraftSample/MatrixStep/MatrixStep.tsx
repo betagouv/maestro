@@ -36,6 +36,7 @@ import { SampleDocumentTypeList } from 'maestro-shared/schema/File/FileType';
 import { Context } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { PFASKindList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
+  getPartialSampleSpecificDataField,
   isCreatedPartialSample,
   PartialSample,
   PartialSampleToCreate,
@@ -74,28 +75,130 @@ const MatrixStep = ({ partialSample }: Props) => {
 
   const [matrixKind, setMatrixKind] = useState(partialSample.matrixKind);
   const [matrix, setMatrix] = useState(partialSample.matrix);
-  const [matrixDetails, setMatrixDetails] = useState(
-    partialSample.matrixDetails
-  );
-  const [matrixPart, setMatrixPart] = useState(partialSample.matrixPart);
-  const [stage, setStage] = useState(partialSample.stage);
 
-  const [species, setSpecies] = useState(
-    partialSample.specificData?.programmingPlanKind === 'PFAS_EGGS' ||
-      partialSample.specificData?.programmingPlanKind === 'PFAS_MEAT'
-      ? partialSample.specificData?.species
-      : undefined
+  const [matrixDetails, setMatrixDetails] = useState(
+    getPartialSampleSpecificDataField(partialSample, 'PPV', 'matrixDetails')
+  );
+  const [matrixPart, setMatrixPart] = useState(
+    getPartialSampleSpecificDataField(partialSample, 'PPV', 'matrixPart')
+  );
+  const [stage, setStage] = useState(
+    getPartialSampleSpecificDataField(partialSample, 'PPV', 'stage') ||
+      getPartialSampleSpecificDataField(partialSample, 'PFAS_EGGS', 'stage')
   );
   const [cultureKind, setCultureKind] = useState(
-    partialSample.specificData?.programmingPlanKind === 'PPV'
-      ? partialSample.specificData?.cultureKind
-      : undefined
+    getPartialSampleSpecificDataField(partialSample, 'PPV', 'cultureKind')
   );
   const [releaseControl, setReleaseControl] = useState(
-    partialSample.specificData?.programmingPlanKind === 'PPV'
-      ? partialSample.specificData?.releaseControl
-      : undefined
+    getPartialSampleSpecificDataField(partialSample, 'PPV', 'releaseControl')
   );
+
+  const [species, setSpecies] = useState(
+    getPartialSampleSpecificDataField(partialSample, 'PFAS_EGGS', 'species') ||
+      getPartialSampleSpecificDataField(partialSample, 'PFAS_MEAT', 'species')
+  );
+
+  // const [killingCode, setKillingCode] = useState(
+  //   getPartialSampleSpecificDataField(partialSample, 'PFAS_MEAT', 'killingCode')
+  // );
+  //
+  // const [targetingCriteria, setTargetingCriteria] = useState(
+  //   getPartialSampleSpecificDataField(
+  //     partialSample,
+  //     'PFAS_EGGS',
+  //     'targetingCriteria'
+  //   ) ||
+  //     getPartialSampleSpecificDataField(
+  //       partialSample,
+  //       'PFAS_MEAT',
+  //       'targetingCriteria'
+  //     )
+  // );
+  // const [notesOnTargetingCriteria, setNotesOnTargetingCriteria] = useState(
+  //   getPartialSampleSpecificDataField(
+  //     partialSample,
+  //     'PFAS_EGGS',
+  //     'notesOnTargetingCriteria'
+  //   ) ||
+  //     getPartialSampleSpecificDataField(
+  //       partialSample,
+  //       'PFAS_MEAT',
+  //       'notesOnTargetingCriteria'
+  //     )
+  // );
+  // const [animalKind, setAnimalKind] = useState(
+  //   getPartialSampleSpecificDataField(
+  //     partialSample,
+  //     'PFAS_EGGS',
+  //     'animalKind'
+  //   ) ||
+  //     getPartialSampleSpecificDataField(
+  //       partialSample,
+  //       'PFAS_MEAT',
+  //       'animalKind'
+  //     )
+  // );
+  // const [productionKind, setProductionKind] = useState(
+  //   getPartialSampleSpecificDataField(
+  //     partialSample,
+  //     'PFAS_EGGS',
+  //     'productionKind'
+  //   ) ||
+  //     getPartialSampleSpecificDataField(
+  //       partialSample,
+  //       'PFAS_MEAT',
+  //       'productionKind'
+  //     )
+  // );
+  // const [identifier, setIdentifier] = useState(
+  //   getPartialSampleSpecificDataField(
+  //     partialSample,
+  //     'PFAS_EGGS',
+  //     'identifier'
+  //   ) ||
+  //     getPartialSampleSpecificDataField(
+  //       partialSample,
+  //       'PFAS_MEAT',
+  //       'identifier'
+  //     )
+  // );
+  // const [breedingMethod, setBreedingMethod] = useState(
+  //   getPartialSampleSpecificDataField(
+  //     partialSample,
+  //     'PFAS_EGGS',
+  //     'breedingMethod'
+  //   ) ||
+  //     getPartialSampleSpecificDataField(
+  //       partialSample,
+  //       'PFAS_MEAT',
+  //       'breedingMethod'
+  //     )
+  // );
+  // const [age, setAge] = useState(
+  //   getPartialSampleSpecificDataField(partialSample, 'PFAS_EGGS', 'age') ||
+  //     getPartialSampleSpecificDataField(partialSample, 'PFAS_MEAT', 'age')
+  // );
+  // const [sex, setSex] = useState(
+  //   getPartialSampleSpecificDataField(partialSample, 'PFAS_EGGS', 'sex') ||
+  //     getPartialSampleSpecificDataField(partialSample, 'PFAS_MEAT', 'sex')
+  // );
+  // const [seizure, setSeizure] = useState(
+  //   getPartialSampleSpecificDataField(partialSample, 'PFAS_EGGS', 'seizure') ||
+  //     getPartialSampleSpecificDataField(partialSample, 'PFAS_MEAT', 'seizure')
+  // );
+  // const [outdoorAccess, setOutdoorAccess] = useState(
+  //   getPartialSampleSpecificDataField(
+  //     partialSample,
+  //     'PFAS_EGGS',
+  //     'outdoorAccess'
+  //   ) ||
+  //     getPartialSampleSpecificDataField(
+  //       partialSample,
+  //       'PFAS_MEAT',
+  //       'outdoorAccess'
+  //     )
+  // );
+
   const [files, setFiles] = useState<File[]>([]);
   const [documentIds, setDocumentIds] = useState(partialSample.documentIds);
   const [notesOnMatrix, setNotesOnMatrix] = useState(
@@ -153,7 +256,13 @@ const MatrixStep = ({ partialSample }: Props) => {
         return { species };
       }
       if (kind === 'PPV') {
-        return { cultureKind, releaseControl };
+        return {
+          stage,
+          matrixPart,
+          matrixDetails,
+          cultureKind,
+          releaseControl
+        };
       }
       return {};
     })();
@@ -162,6 +271,9 @@ const MatrixStep = ({ partialSample }: Props) => {
   }, [
     partialSample.specificData?.programmingPlanKind,
     species,
+    stage,
+    matrixPart,
+    matrixDetails,
     cultureKind,
     releaseControl
   ]);
@@ -188,11 +300,8 @@ const MatrixStep = ({ partialSample }: Props) => {
 
     await createOrUpdate({
       ...partialSample,
-      matrixDetails,
       matrixKind,
       matrix,
-      matrixPart,
-      stage,
       specificData,
       documentIds,
       notesOnMatrix,
@@ -340,48 +449,54 @@ const MatrixStep = ({ partialSample }: Props) => {
             }}
           />
         </div>
-        <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-          <AppSelect<FormShape>
-            value={stage ?? ''}
-            options={selectOptionsFromList(
-              StageList.filter(
-                (stage) =>
-                  !prescriptions ||
-                  prescriptions.find(
-                    (p) =>
-                      p.matrixKind === matrixKind && p.stages.includes(stage)
-                  )
-              ),
-              {
-                labels: StageLabels,
-                defaultLabel: 'Sélectionner un stade'
-              }
-            )}
-            onChange={(e) => setStage(e.target.value as Stage)}
-            inputForm={form}
-            inputKey="stage"
-            whenValid="Stade de prélèvement correctement renseigné."
-            data-testid="stage-select"
-            label="Stade de prélèvement"
-            required
-            disabled={readonly}
-          />
-        </div>
+        {specificData.programmingPlanKind === 'PPV' && (
+          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+            <AppSelect<FormShape>
+              value={stage ?? ''}
+              options={selectOptionsFromList(
+                StageList.filter(
+                  (stage) =>
+                    !prescriptions ||
+                    prescriptions.find(
+                      (p) =>
+                        p.matrixKind === matrixKind && p.stages.includes(stage)
+                    )
+                ),
+                {
+                  labels: StageLabels,
+                  defaultLabel: 'Sélectionner un stade'
+                }
+              )}
+              onChange={(e) => setStage(e.target.value as Stage)}
+              inputForm={form}
+              inputKey="specificData"
+              inputPathFromKey={['stage']}
+              whenValid="Stade de prélèvement correctement renseigné."
+              data-testid="stage-select"
+              label="Stade de prélèvement"
+              required
+              disabled={readonly}
+            />
+          </div>
+        )}
       </div>
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={cx('fr-col-12')}>
-          <AppTextInput<FormShape>
-            defaultValue={matrixDetails ?? ''}
-            onChange={(e) => setMatrixDetails(e.target.value)}
-            inputForm={form}
-            inputKey="matrixDetails"
-            whenValid="Détail de la matrice correctement renseigné."
-            data-testid="matrixdetails-input"
-            label="Détail de la matrice"
-            hintText="Champ facultatif pour précisions supplémentaires"
-            disabled={readonly}
-          />
-        </div>
+        {specificData.programmingPlanKind === 'PPV' && (
+          <div className={cx('fr-col-12')}>
+            <AppTextInput<FormShape>
+              defaultValue={matrixDetails ?? ''}
+              onChange={(e) => setMatrixDetails(e.target.value)}
+              inputForm={form}
+              inputKey="specificData"
+              inputPathFromKey={['matrixDetails']}
+              whenValid="Détail de la matrice correctement renseigné."
+              data-testid="matrixdetails-input"
+              label="Détail de la matrice"
+              hintText="Champ facultatif pour précisions supplémentaires"
+              disabled={readonly}
+            />
+          </div>
+        )}
         {specificData.programmingPlanKind === 'PPV' && (
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
             <AppSelect<FormShape>
@@ -401,23 +516,26 @@ const MatrixStep = ({ partialSample }: Props) => {
             />
           </div>
         )}
-        <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-          <AppSelect<FormShape>
-            defaultValue={matrixPart ?? ''}
-            options={selectOptionsFromList(MatrixPartList, {
-              labels: MatrixPartLabels,
-              defaultLabel: 'Sélectionner une partie du végétal'
-            })}
-            onChange={(e) => setMatrixPart(e.target.value as MatrixPart)}
-            inputForm={form}
-            inputKey="matrixPart"
-            whenValid="Partie du végétal correctement renseignée."
-            data-testid="matrixpart-select"
-            label="LMR / Partie du végétal concernée"
-            required
-            disabled={readonly}
-          />
-        </div>
+        {specificData.programmingPlanKind === 'PPV' && (
+          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+            <AppSelect<FormShape>
+              defaultValue={matrixPart ?? ''}
+              options={selectOptionsFromList(MatrixPartList, {
+                labels: MatrixPartLabels,
+                defaultLabel: 'Sélectionner une partie du végétal'
+              })}
+              onChange={(e) => setMatrixPart(e.target.value as MatrixPart)}
+              inputForm={form}
+              inputKey="specificData"
+              inputPathFromKey={['matrixPart']}
+              whenValid="Partie du végétal correctement renseignée."
+              data-testid="matrixpart-select"
+              label="LMR / Partie du végétal concernée"
+              required
+              disabled={readonly}
+            />
+          </div>
+        )}
       </div>
       {specificData.programmingPlanKind === 'PPV' && (
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>

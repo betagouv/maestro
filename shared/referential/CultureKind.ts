@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { PartialSample } from '../schema/Sample/Sample';
 export const CultureKind = z.enum(
   [
     'Z0211',
@@ -33,3 +34,9 @@ export const CultureKindLabels: Record<CultureKind, string> = {
   Z0153: 'Sauvages ou cueillis',
   PD05A: 'Production en plein air'
 };
+
+export const getCultureKindLabel = (partialSample: PartialSample) =>
+  partialSample.specificData?.programmingPlanKind === 'PPV' &&
+  partialSample.specificData.cultureKind
+    ? CultureKindLabels[partialSample.specificData.cultureKind]
+    : undefined;

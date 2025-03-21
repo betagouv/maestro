@@ -34,7 +34,15 @@ export const up = async (knex: Knex) => {
 
   await knex.raw(`
     UPDATE samples
-    SET specific_data = json_build_object('programmingPlanKind', 'PPV', 'cultureKind', culture_kind, 'releaseControl', release_control)
+    SET specific_data = 
+        json_build_object(
+            'programmingPlanKind', 'PPV', 
+            'matrixDetails', matrix_details,
+            'matrixPart', matrix_part,
+            'stage', stage,
+            'cultureKind', culture_kind, 
+            'releaseControl', release_control
+        )
   `);
 };
 

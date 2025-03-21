@@ -5,15 +5,15 @@ import handlebars from 'handlebars';
 import PdfGenerationError from 'maestro-shared/errors/pdfGenerationError';
 import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
 import UserMissingError from 'maestro-shared/errors/userMissingError';
-import { CultureKindLabels } from 'maestro-shared/referential/CultureKind';
+import { getCultureKindLabel } from 'maestro-shared/referential/CultureKind';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
-import { MatrixPartLabels } from 'maestro-shared/referential/Matrix/MatrixPart';
+import { getMatrixPartLabel } from 'maestro-shared/referential/Matrix/MatrixPart';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
 import { Regions } from 'maestro-shared/referential/Region';
-import { StageLabels } from 'maestro-shared/referential/Stage';
+import { getStageLabel } from 'maestro-shared/referential/Stage';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
@@ -216,16 +216,15 @@ const generateSampleSupportPDF = async (
       : {}),
     context: ContextLabels[sample.context],
     legalContext: LegalContextLabels[sample.legalContext],
-    stage: StageLabels[sample.stage],
+    stage: getStageLabel(sample),
     matrixKind: MatrixKindLabels[sample.matrixKind],
     matrix: MatrixLabels[sample.matrix],
-    matrixDetails: sample.matrixDetails,
-    matrixPart: MatrixPartLabels[sample.matrixPart],
-    cultureKind:
-      sample.specificData?.programmingPlanKind === 'PPV' &&
-      sample.specificData.cultureKind
-        ? CultureKindLabels[sample.specificData.cultureKind]
+    matrixDetails:
+      sample.specificData?.programmingPlanKind === 'PPV'
+        ? sample.specificData?.matrixDetails
         : undefined,
+    matrixPart: getMatrixPartLabel(sample),
+    cultureKind: getCultureKindLabel(sample),
     releaseControl:
       sample.specificData?.programmingPlanKind === 'PPV'
         ? sample.specificData.releaseControl

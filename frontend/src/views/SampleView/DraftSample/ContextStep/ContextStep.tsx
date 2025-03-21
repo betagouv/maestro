@@ -369,6 +369,7 @@ const ContextStep = ({ partialSample }: Props) => {
           label="Type de plan"
           disabled={readonly}
           required
+          className={cx('fr-mb-0')}
         />
       )}
       {contextOptions.length > 1 && (
