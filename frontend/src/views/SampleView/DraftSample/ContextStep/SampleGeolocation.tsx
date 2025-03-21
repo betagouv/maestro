@@ -82,7 +82,7 @@ const SampleGeolocation = ({ location, onLocationChange }: Props) => {
         }}
         style={{
           minHeight: 375,
-          height: 'calc(100% - 40px)'
+          height: 'calc(100% - 80px)'
         }}
       >
         <NavigationControl position="bottom-right" showCompass={false} />

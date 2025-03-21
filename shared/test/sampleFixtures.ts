@@ -42,7 +42,6 @@ export const genSampleContextData = (
     y: 2.3522
   },
   programmingPlanId: uuidv4(),
-  programmingPlanKind: 'PPV',
   context: oneOf(ContextList),
   legalContext: oneOf(LegalContextList),
   resytalId:
@@ -54,6 +53,9 @@ export const genSampleContextData = (
   company: genCompany(),
   notesOnCreation: randomstring.generate(),
   status: 'Draft',
+  specificData: {
+    programmingPlanKind: 'PPV'
+  },
   ...data
 });
 export const genCreatedSampleData = (
@@ -94,7 +96,7 @@ export const genCreatedPartialSample = (
 };
 export const genCreatedSample = (data?: Partial<Sample>): Sample => {
   const sample = genCreatedPartialSample(data);
-  return {
+  return Sample.parse({
     ...sample,
     geolocation: sample.geolocation as Geolocation,
     company: sample.company as Company,
@@ -107,7 +109,7 @@ export const genCreatedSample = (data?: Partial<Sample>): Sample => {
     items: sample.items as SampleItem[],
     ownerAgreement: genBoolean(),
     ...data
-  };
+  });
 };
 export const genSampleItem = (data?: Partial<SampleItem>): SampleItem => ({
   sampleId: uuidv4(),
