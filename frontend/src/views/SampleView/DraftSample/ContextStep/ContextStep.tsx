@@ -20,10 +20,14 @@ import {
   Context,
   ContextLabels
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import {
+  ProgrammingPlanKind,
+  ProgrammingPlanKindLabels
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   isCreatedPartialSample,
   PartialSample,
+  PartialSampleMatrixSpecificData,
   PartialSampleToCreate,
   SampleContextData
 } from 'maestro-shared/schema/Sample/Sample';
@@ -62,13 +66,9 @@ const ContextStep = ({ partialSample }: Props) => {
   const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
 
   const [resytalId, setResytalId] = useState(partialSample?.resytalId);
-  const [context, setContext] = useState(
-    (partialSample?.context ?? programmingPlan?.contexts.length === 1)
-      ? programmingPlan?.contexts[0]
-      : undefined
-  );
-  const [programmingPlanKind, _setProgrammingPlanKind] = useState(
-    programmingPlan?.kinds[0]
+  const [context, setContext] = useState(partialSample?.context);
+  const [programmingPlanKind, setProgrammingPlanKind] = useState(
+    partialSample?.specificData.programmingPlanKind ?? ''
   );
   const [legalContext, setLegalContext] = useState(partialSample?.legalContext);
   const [geolocationX, setGeolocationX] = useState(
@@ -104,6 +104,24 @@ const ContextStep = ({ partialSample }: Props) => {
       invalid_type_error: 'Longitude invalide.'
     })
   });
+
+  useEffect(() => {
+    if (programmingPlan?.contexts.length === 1) {
+      setContext(programmingPlan?.contexts[0]);
+    }
+    if (programmingPlan?.kinds.length === 1) {
+      setProgrammingPlanKind(programmingPlan?.kinds[0]);
+    }
+  }, [programmingPlan]);
+
+  const specificData = useMemo(() => {
+    const kind = partialSample?.specificData?.programmingPlanKind;
+    if (programmingPlanKind !== kind) {
+      return { programmingPlanKind };
+    } else {
+      return partialSample?.specificData;
+    }
+  }, [programmingPlanKind, partialSample?.specificData]);
 
   const Form = SampleContextData.omit({
     programmingPlanId: true,
@@ -157,6 +175,15 @@ const ContextStep = ({ partialSample }: Props) => {
     withDefault: false
   });
 
+  const programmingPlanKindOptions = selectOptionsFromList(
+    programmingPlan?.kinds ?? [],
+    {
+      labels: ProgrammingPlanKindLabels,
+      withDefault: true,
+      withSort: true
+    }
+  );
+
   const id = useMemo(() => partialSample?.id ?? uuidv4(), [partialSample]);
 
   const formData = {
@@ -172,14 +199,14 @@ const ContextStep = ({ partialSample }: Props) => {
         : undefined,
     parcel,
     programmingPlanId: programmingPlan?.id as string,
-    programmingPlanKind: programmingPlanKind as ProgrammingPlanKind,
     context: context as Context,
     legalContext: legalContext as LegalContext,
     company,
     companyOffline,
     resytalId: resytalId as string,
     notesOnCreation,
-    status: 'DraftMatrix' as SampleStatus
+    status: 'DraftMatrix' as SampleStatus,
+    specificData: specificData as PartialSampleMatrixSpecificData
   };
 
   const submit = async (e?: React.MouseEvent<HTMLElement>) => {
@@ -229,14 +256,14 @@ const ContextStep = ({ partialSample }: Props) => {
     geolocationX,
     geolocationY,
     parcel,
-    programmingPlanKind,
     context,
     legalContext,
     company,
     companyOffline,
     resytalId,
     notesOnCreation,
-    status: 'DraftMatrix'
+    status: 'DraftMatrix',
+    specificData
   };
 
   const form = useForm(Form, formInput, save);
@@ -372,32 +399,50 @@ const ContextStep = ({ partialSample }: Props) => {
           </div>
         </div>
       </div>
-      <AppRadioButtons
-        legend="Contexte du prélèvement"
-        options={
-          contextOptions?.map(({ label, value }) => ({
-            key: `context-option-${value}`,
-            label,
-            nativeInputProps: {
-              checked: context === value,
-              onChange: () => setContext(value as Context)
-            },
-            illustration: (
-              <img
-                src={value === 'Control' ? check : leaf}
-                alt=""
-                aria-hidden
-              />
-            )
-          })) ?? []
-        }
-        colSm={6}
-        inputForm={form}
-        inputKey="context"
-        whenValid="Contexte du prélèvement correctement renseigné."
-        required
-        data-testid="context-radio"
-      />
+      {programmingPlanKindOptions.length > 2 && (
+        <AppSelect<FormShape>
+          defaultValue={programmingPlanKind}
+          options={programmingPlanKindOptions}
+          onChange={(e) =>
+            setProgrammingPlanKind(e.target.value as ProgrammingPlanKind)
+          }
+          inputForm={form}
+          inputKey="specificData"
+          inputPathFromKey={['programmingPlanKind']}
+          whenValid="Type de plan correctement renseigné."
+          data-testid="programmingPlanKind-select"
+          label="Type de plan"
+          required
+        />
+      )}
+      {contextOptions.length > 1 && (
+        <AppRadioButtons
+          legend="Contexte du prélèvement"
+          options={
+            contextOptions?.map(({ label, value }) => ({
+              key: `context-option-${value}`,
+              label,
+              nativeInputProps: {
+                checked: context === value,
+                onChange: () => setContext(value as Context)
+              },
+              illustration: (
+                <img
+                  src={value === 'Control' ? check : leaf}
+                  alt=""
+                  aria-hidden
+                />
+              )
+            })) ?? []
+          }
+          colSm={6}
+          inputForm={form}
+          inputKey="context"
+          whenValid="Contexte du prélèvement correctement renseigné."
+          required
+          data-testid="context-radio"
+        />
+      )}
       <AppRadioButtons
         legend="Cadre juridique"
         options={
