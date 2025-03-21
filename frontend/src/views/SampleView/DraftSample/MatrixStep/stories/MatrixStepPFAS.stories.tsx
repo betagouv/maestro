@@ -48,7 +48,9 @@ export const MatrixStepPFAS: Story = {
     partialSample: {
       ...genSampleContextData({
         programmingPlanId: programmingPlan.id,
-        programmingPlanKind: 'PFAS_EGGS'
+        specificData: {
+          programmingPlanKind: 'PFAS_EGGS'
+        }
       }),
       ...genCreatedSampleData({ sampler })
     }
