@@ -8,10 +8,30 @@ import {
 } from '../index';
 import { csvToJson, frenchNumberStringValidator } from '../utils';
 import { inovalysReferential, inovalysUnknownReferences } from './inovalysReferential';
+import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 
 //TODO AUTO_LABO en attente de la réception du 1er email + test
 const isSender: IsSender = (_emailSender) => false;
 
+
+const codeMethods = [
+  'M-ARCO/M/021', 'M-ARCO/M/022', 'M-ARCO/M/023', 'M-ARCO/M/024', 'M-ARCO/M/031', 'M-ARCO/M/033', 'M-ARCO/M/045', 'M-ARCO/M/056', 'M-ARCO/M/059', 'M-ARCO/M/060', 'M-ARCO/M/064', 'M-ARCO/M/065', 'M-ARCO/M/066',
+] as const
+const codeMethodsAnalyseMethod = {
+  'M-ARCO/M/021': 'Multi',
+  'M-ARCO/M/022': 'Mono',
+  'M-ARCO/M/023': 'Mono',
+  'M-ARCO/M/024': 'Mono',
+  'M-ARCO/M/031': 'Mono',
+  'M-ARCO/M/033': 'Mono',
+  'M-ARCO/M/045': 'Mono',
+  'M-ARCO/M/056': 'Mono',
+  'M-ARCO/M/059': 'Mono',
+  'M-ARCO/M/060': 'Mono',
+  'M-ARCO/M/064': 'Mono',
+  'M-ARCO/M/065': 'Mono',
+  'M-ARCO/M/066': 'Mono',
+} as const satisfies Record<typeof codeMethods[number], AnalysisMethod>
 
 // Visible for testing
 export const extractAnalyzes = (
@@ -52,6 +72,7 @@ export const extractAnalyzes = (
     Echantillon: echantillonValidator,
     'Détermination': z.string(),
     'Code Méth': z.string(),
+    'Réf Méthode': z.enum(codeMethods),
     'Résultat 1': z.string(),
     //FIXME attention pour le moment on a tout en double, une ligne pour la LD et une autre pour la LQ, mais ça va surement changer
     'Limite Quant. 1': z.string(),
@@ -103,8 +124,7 @@ export const extractAnalyzes = (
           label: r['Détermination'].replace('· ', ''),
           casNumber: r['Numéro CAS'] ?? null,
           codeSandre: r['Code Sandre'] ?? null,
-          //FIXME
-          analysisMethod: 'Mono'
+          analysisMethod: codeMethodsAnalyseMethod[r['Réf Méthode']]
         }
       });
 

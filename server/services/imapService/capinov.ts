@@ -11,6 +11,7 @@ import {
   LaboratoryConf
 } from './index';
 import { csvToJson } from './utils';
+import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 
 //TODO AUTO_LABO en attente de la réception du 1er email + test
 const isSender: IsSender = (_emailSender) => false;
@@ -189,6 +190,43 @@ const capinovReferential: Record<string, SSD2Id> = {
   'Tritosulfuron-metabolite (AMTT)': 'RF-00005711-PAR'
 };
 
+const codeMethods = [
+'GC/MS/MS','M.I. LC-MS/MS','MI GC-MS/MS','MI HPLC/UV','MI LC-MS/MS','MI LC-MS/MS screening','MI M28 GC-MS/MS','MI MO-PC-003','MI MO-PC-019 LC-MS/MS','MI MO-PC-02','MI MO-PC-036','MI MO-PC-044 LC-MS/MS','MI MO-PC-047 LC-MS/MS','MI MO-PC-049 LC-MS/MS','MI MO-PC-058 LC-MS/MS','MI MO-PC-065 LC-MS/MS','MI MO-PC-067 LC-MS/MS','MI MO-PC-068 LC-MS/MS','MI MO-PC-073 LC-MS/MS','MI MO-PC-076','MI MO-PC-077','MI MO-PC-079','MI MO-PC-081 LC-MS/MS','MI MO-PC-083 LC-MS/MS','MI MO-PC-087 LC-MS/MS','MI MS/MS','NF EN 12393','NF EN 12396-1 (Keppel)','NF EN 12396-3','NF12393',
+] as const
+
+const codeMethodsAnalyseMethod = {
+'GC/MS/MS' 	: 'Multi',
+'M.I. LC-MS/MS' 	: 'Multi',
+'MI GC-MS/MS' 	: 'Multi',
+'MI HPLC/UV' 	: 'Mono',
+'MI LC-MS/MS' 	: 'Multi',
+'MI LC-MS/MS screening' 	: 'Multi',
+'MI M28 GC-MS/MS' 	: 'Mono',
+'MI MO-PC-003' 	: 'Multi',
+'MI MO-PC-019 LC-MS/MS' 	: 'Mono',
+'MI MO-PC-02' 	: 'Multi',
+'MI MO-PC-036' 	: 'Multi',
+'MI MO-PC-044 LC-MS/MS' 	: 'Mono',
+'MI MO-PC-047 LC-MS/MS' 	: 'Mono',
+'MI MO-PC-049 LC-MS/MS' 	: 'Mono',
+'MI MO-PC-058 LC-MS/MS' 	: 'Mono',
+'MI MO-PC-065 LC-MS/MS' 	: 'Multi',
+'MI MO-PC-067 LC-MS/MS' 	: 'Mono',
+'MI MO-PC-068 LC-MS/MS' 	: 'Mono',
+'MI MO-PC-073 LC-MS/MS' 	: 'Mono',
+'MI MO-PC-076' 	: 'Multi',
+'MI MO-PC-077' 	: 'Multi',
+'MI MO-PC-079' 	: 'Multi',
+'MI MO-PC-081 LC-MS/MS' 	: 'Mono',
+'MI MO-PC-083 LC-MS/MS' 	: 'Mono',
+'MI MO-PC-087 LC-MS/MS' 	: 'Mono',
+'MI MS/MS' 	: 'Multi',
+'NF EN 12393' 	: 'Multi',
+'NF EN 12396-1 (Keppel)' 	: 'Mono',
+'NF EN 12396-3' 	: 'Mono',
+'NF12393' 	: 'Multi',
+} as const satisfies Record<typeof codeMethods[number], AnalysisMethod>
+
 // Visible for testing
 export const extractAnalyzes = (
   fileContent: Record<string, string>[]
@@ -203,7 +241,7 @@ export const extractAnalyzes = (
       LIMITE_LQ: z.string(),
       INCERTITUDE: z.string(),
       CAS_NUMBER: z.string().transform((r) => (r === '' ? null : r)),
-      TECHNIQUE: z.string(),
+      TECHNIQUE: z.enum(codeMethods),
       LMR_NUM: z.coerce.number()
     })
   );
@@ -255,8 +293,7 @@ export const extractAnalyzes = (
         ...result,
         label: residue.PARAMETRE_LIBELLE,
         casNumber: residue.CAS_NUMBER,
-        //FIXME
-        analysisMethod: 'Multi' as const,
+        analysisMethod: codeMethodsAnalyseMethod[residue.TECHNIQUE],
         codeSandre: null
       });
     }
