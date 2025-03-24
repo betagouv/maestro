@@ -260,13 +260,14 @@ export const MatrixStepPPVSubmitSampleAndUpdatingStatus: Story = {
           status: 'DraftItems',
           matrixKind: prescription1.matrixKind,
           matrix: MatrixListByKind[prescription1.matrixKind][1],
-          matrixPart: MatrixPartList[0],
           specificData: {
+            matrixPart: MatrixPartList[0],
+            matrixDetails: 'Details',
             programmingPlanKind: 'PPV',
-            cultureKind: CultureKindList[0]
+            cultureKind: CultureKindList[0],
+            releaseControl: undefined,
+            stage: prescription1.stages[1]
           },
-          stage: prescription1.stages[1],
-          matrixDetails: 'Details',
           notesOnMatrix: 'Comment'
         },
         fp.isNil
