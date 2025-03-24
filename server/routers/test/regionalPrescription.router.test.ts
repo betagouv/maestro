@@ -25,7 +25,7 @@ import {
   genRegionalPrescription
 } from 'maestro-shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
-import { genCreatedSample } from 'maestro-shared/test/sampleFixtures';
+import { genCreatedPartialSample } from 'maestro-shared/test/sampleFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
   AdminFixture,
@@ -158,14 +158,17 @@ describe('Regional prescriptions router', () => {
     createdBy: NationalCoordinator.id,
     createdAt: new Date()
   };
-  const sample = genCreatedSample({
+  const sample = genCreatedPartialSample({
     programmingPlanId: programmingPlanClosed.id,
     prescriptionId: closedControlPrescription.id,
     region: Sampler1Fixture.region as Region,
     company: CompanyFixture,
     sampler: Sampler1Fixture,
     laboratoryId: LaboratoryFixture.id,
-    status: 'Sent'
+    status: 'Sent',
+    specificData: {
+      programmingPlanKind: 'PPV'
+    }
   });
 
   beforeAll(async () => {
