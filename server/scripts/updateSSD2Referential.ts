@@ -3,8 +3,7 @@ import path from 'path';
 import { readFileSync } from 'fs';
 import { writeFileSync } from 'node:fs';
 import { isNil, uniq } from 'lodash-es';
-import { SSD2Referential } from 'maestro-shared/referential/Residue/SSD2Referential';
-import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import { SSD2Id, SSD2Ids } from 'maestro-shared/referential/Residue/SSD2Id';
 import { SSD2Hierarchy } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
 
 const updateSSD2Referential = async () => {
@@ -73,9 +72,8 @@ const updateSSD2Referential = async () => {
 
 
   const rows: {reference: string, name: string, casNumber: string | null, otherNames: string[], masterParentCode: string, reportable: boolean}[] = []
-  const currentSSD2Ids = Object.keys(SSD2Referential)
   worksheet.eachRow(function(row, rowNumber) {
-    const isKnownId = currentSSD2Ids.includes(`${row.getCell(columnsIndex['termCode'])?.value}`)
+    const isKnownId = SSD2Ids.includes(`${row.getCell(columnsIndex['termCode'])?.value}` as SSD2Id)
     if (rowNumber !== 1 && row.getCell(columnsIndex['pestParamReportable']).value === '1' || isKnownId) {
 
       const getStringValueOrNull = (value: ExcelJS.CellValue): string | null => {

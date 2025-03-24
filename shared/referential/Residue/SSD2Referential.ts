@@ -504,12 +504,40 @@ export const SSD2Referential =
       "otherNames": [],
       "reportable": true
    },
+   "RF-00000353-ORG": {
+      "reference": "RF-00000353-ORG",
+      "name": "Perfluorohexane sulfonate",
+      "casNumber": null,
+      "otherNames": [],
+      "reportable": false
+   },
+   "RF-00000354-ORG": {
+      "reference": "RF-00000354-ORG",
+      "name": "Perfluorooctane sulfonate",
+      "casNumber": "45298-90-6",
+      "otherNames": [],
+      "reportable": false
+   },
+   "RF-00000360-ORG": {
+      "reference": "RF-00000360-ORG",
+      "name": "Perfluorononanoic acid",
+      "casNumber": "375-95-1",
+      "otherNames": [],
+      "reportable": false
+   },
    "RF-00000361-NTR": {
       "reference": "RF-00000361-NTR",
       "name": "phosphatidyl choline (lecithin)",
       "casNumber": null,
       "otherNames": [],
       "reportable": true
+   },
+   "RF-00000370-ORG": {
+      "reference": "RF-00000370-ORG",
+      "name": "PFAS-like (C4-C15)",
+      "casNumber": null,
+      "otherNames": [],
+      "reportable": false
    },
    "RF-00000543-VET": {
       "reference": "RF-00000543-VET",
