@@ -13,7 +13,7 @@ import {
 import { type PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { UseForm } from '../../../../../hooks/useForm';
 import { Analysis } from 'maestro-shared/schema/Analysis/Analysis';
-import { ResidueKind } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
+import { ResidueKind, ResidueKindLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
 import { isComplex } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
 import SimpleResidueForm from './SimpleResidueForm';
 import ComplexResidueForm from './ComplexResidueForm';
@@ -21,6 +21,8 @@ import { ResidueInterpretationForm } from './ResidueInterpretationForm';
 import AppSearchInput from '../../../../../components/_app/AppSearchInput/AppSearchInput';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { SSD2Id, SSD2Ids } from 'maestro-shared/referential/Residue/SSD2Id';
+import { Box } from '@mui/material';
+import Tag from '@codegouvfr/react-dsfr/Tag';
 
 const _validator = Analysis.pick({ residues: true });
 export type Props = {
@@ -122,6 +124,25 @@ export const AnalysisResidueForm: FunctionComponent<Props> = ({
                   residueIndex
                 )
               }
+              renderOption={(props, option) => {
+                const { key, ...optionProps } = props;
+                return (
+                  <Box
+                    key={key}
+                    component="li"
+                    style={{display: 'flex'}}
+                    {...optionProps}
+                  >
+                    <span>
+                      {option.label}
+                    </span>
+                    <Tag className={cx('fr-text--regular')} style={{marginLeft: 'auto'}}>
+                      {ResidueKindLabels[isComplex(option.value as SSD2Id) ? 'Complex' : 'Simple']}
+                    </Tag>
+                  </Box>
+                );
+
+              }}
               label="Résidu"
               whenValid={`Résidu correctement renseigné`}
               required
