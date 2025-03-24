@@ -159,7 +159,7 @@ const updateHierarchyFile = (ssd2WithAnalytes: Record<string, any>) => {
     const value = ssd2WithAnalytes[id]
     if (id in SSD2Hierarchy) {
       const oldValues = SSD2Hierarchy[id] ?? []
-      newHierarchy[id] = [...oldValues, ...value ].filter(uniq) as SSD2Id[]
+      newHierarchy[id] = uniq([...oldValues, ...value ]) as SSD2Id[]
     }else {
       newHierarchy[id] = value
     }
