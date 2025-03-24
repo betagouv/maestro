@@ -14,7 +14,7 @@ import { type PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Resi
 import { UseForm } from '../../../../../hooks/useForm';
 import { Analysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { ResidueKind } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
-import { isComplex } from 'maestro-shared/referential/Residue/SSD2Hierachy';
+import { isComplex } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
 import SimpleResidueForm from './SimpleResidueForm';
 import ComplexResidueForm from './ComplexResidueForm';
 import { ResidueInterpretationForm } from './ResidueInterpretationForm';

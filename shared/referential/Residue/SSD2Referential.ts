@@ -32,10 +32,7 @@ export const SSD2Referential =
       "name": "Bixafen (sum of bixafen and desmethyl-bixafen, expressed as bixafen)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-1056-001-PPP"
-      ]
+      "reportable": true
    },
    "RF-00000011-PAR": {
       "reference": "RF-00000011-PAR",
@@ -138,10 +135,7 @@ export const SSD2Referential =
       "name": "Fluopyram (sum fluopyram and fluopyram-benzamide (M25) expressed as fluopyram)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-1071-001-PPP"
-      ]
+      "reportable": true
    },
    "RF-00000024-PAR": {
       "reference": "RF-00000024-PAR",
@@ -215,10 +209,7 @@ export const SSD2Referential =
       "name": "Trifloxystrobin (sum of trifloxystrobin and its metabolite (E, E)-methoxyimino- {2-[1-(3-trifluoromethyl-phenyl)-ethylideneamino-oxymethyl]-phenyl}-acetic acid (CGA 321113))",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-0439-001-PPP"
-      ]
+      "reportable": true
    },
    "RF-00000033-ADD": {
       "reference": "RF-00000033-ADD",
@@ -875,11 +866,7 @@ export const SSD2Referential =
       "otherNames": [
          "(6R,25R)-5-O-demethyl-28-deoxy-6,28-epoxy-25-ethylmilbemycin B mixture with (6R,25R)-5-O-demethyl-28-deoxy-6,28-epoxy-25-methylmilbemycin B"
       ],
-      "reportable": true,
-      "analytes": [
-         "RF-0303-002-PPP",
-         "RF-0303-003-PPP"
-      ]
+      "reportable": true
    },
    "RF-00003031-PAR": {
       "reference": "RF-00003031-PAR",
@@ -1238,10 +1225,7 @@ export const SSD2Referential =
       "otherNames": [
          "Fludioxonil (sum of fludioxonil and its metabolites oxidized to metabolite 2,2-difluoro-benzo[1,3]dioxole-4 carboxylic acid)"
       ],
-      "reportable": true,
-      "analytes": [
-         "RF-00004643-PAR"
-      ]
+      "reportable": true
    },
    "RF-00003353-PAR": {
       "reference": "RF-00003353-PAR",
@@ -1865,10 +1849,7 @@ export const SSD2Referential =
       "name": "Saflufenacil (sum of saflufenacil, M800H11 and M800H35, expressed as saflufenacil)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-00004816-PAR"
-      ]
+      "reportable": true
    },
    "RF-00004818-PAR": {
       "reference": "RF-00004818-PAR",
@@ -3040,10 +3021,7 @@ export const SSD2Referential =
       "name": "Ioxynil (sum of ioxynil and its salts, expressed as ioxynil)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-0253-003-PPP"
-      ]
+      "reportable": true
    },
    "RF-00011590-PAR": {
       "reference": "RF-00011590-PAR",
@@ -3648,11 +3626,7 @@ export const SSD2Referential =
       "name": "Spinetoram (sum of spinetoram-J and spinetoram-L)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-00009240-PAR",
-         "RF-00010375-PAR"
-      ]
+      "reportable": true
    },
    "RF-00013315-PAR": {
       "reference": "RF-00013315-PAR",
@@ -3750,11 +3724,7 @@ export const SSD2Referential =
       "name": "Quinmerac (sum of quinmerac and its metabolites BH 518-2 and BH 518-4 expressed as quinmerac)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-00007283-PAR",
-         "RF-00007284-PAR"
-      ]
+      "reportable": true
    },
    "RF-00014208-PAR": {
       "reference": "RF-00014208-PAR",
@@ -3916,11 +3886,7 @@ export const SSD2Referential =
       "name": "Sum of metalaxyl (sum of enantiomers) and metabolites (free + conjugated) M3 (N- (2,6-dimethylphenyl)-N-(hydroxyacetyl)alanine methyl ester) and M8 (N-(2-hydroxymethyl-6- methylphenyl)-N-(methoxyacetyl)alanine methyl ester (sum of enantiomers), expressed as metalaxyl",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-00015696-PAR",
-         "RF-00015697-PAR"
-      ]
+      "reportable": true
    },
    "RF-00015696-PAR": {
       "reference": "RF-00015696-PAR",
@@ -3986,10 +3952,7 @@ export const SSD2Referential =
       "name": "2,4-DB (sum of 2,4-DB, its salts, its esters and its conjugates, expressed as 2,4-DB)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-00004646-PAR"
-      ]
+      "reportable": true
    },
    "RF-0009-001-PPP": {
       "reference": "RF-0009-001-PPP",
@@ -4005,11 +3968,7 @@ export const SSD2Referential =
       "otherNames": [
          "2,4-D (sum of 2,4-D and its esters expressed as 2,4-D)"
       ],
-      "reportable": true,
-      "analytes": [
-         "RF-0010-002-PPP",
-         "RF-0010-003-PPP"
-      ]
+      "reportable": true
    },
    "RF-0010-002-PPP": {
       "reference": "RF-0010-002-PPP",
@@ -4118,12 +4077,7 @@ export const SSD2Referential =
       "name": "Aldicarb (sum of Aldicarb, its sulfoxide and its sulfone, expressed as Aldicarb)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-0020-002-PPP",
-         "RF-0020-003-PPP",
-         "RF-0020-004-PPP"
-      ]
+      "reportable": true
    },
    "RF-0020-002-PPP": {
       "reference": "RF-0020-002-PPP",
@@ -4281,11 +4235,7 @@ export const SSD2Referential =
       "name": "Azocyclotin and Cyhexatin (sum of azocyclotin and cyhexatin expressed as cyhexatin)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-0034-002-PPP",
-         "RF-0034-003-PPP"
-      ]
+      "reportable": true
    },
    "RF-0034-002-PPP": {
       "reference": "RF-0034-002-PPP",
@@ -4351,13 +4301,7 @@ export const SSD2Referential =
       "name": "Carbendazim and benomyl (sum of benomyl and carbendazim expressed as carbendazim)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-0041-002-PPP",
-         "RF-0041-003-PPP",
-         "RF-0422-001-PPP",
-         "RF-1002-001-PPP"
-      ]
+      "reportable": true
    },
    "RF-0041-002-PPP": {
       "reference": "RF-0041-002-PPP",
@@ -4665,12 +4609,7 @@ export const SSD2Referential =
       "name": "Chlordane (sum of cis- and trans-chlordane)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-0075-003-PPP",
-         "RF-0075-004-PPP",
-         "RF-0075-005-PPP"
-      ]
+      "reportable": true
    },
    "RF-0075-003-PPP": {
       "reference": "RF-0075-003-PPP",
@@ -4691,10 +4630,7 @@ export const SSD2Referential =
       "name": "Chlordane (sum of cis- and trans-isomers and oxychlordane expressed as chlordane)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-0827-001-PPP"
-      ]
+      "reportable": true
    },
    "RF-0076-001-PPP": {
       "reference": "RF-0076-001-PPP",
@@ -4860,16 +4796,7 @@ export const SSD2Referential =
       "name": "Clethodim (sum of Sethoxydim and Clethodim including degradation products calculated as Sethoxydim)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-0096-002-PPP",
-         "RF-0096-003-PPP",
-         "RF-0096-004-PPP",
-         "RF-0096-005-PPP",
-         "RF-0096-006-PPP",
-         "RF-0096-007-PPP",
-         "RF-0096-009-PPP"
-      ]
+      "reportable": true
    },
    "RF-0096-002-PPP": {
       "reference": "RF-0096-002-PPP",
@@ -4939,10 +4866,7 @@ export const SSD2Referential =
       "name": "Clofentezine (sum of all compounds containing the 2-chlorobenzoyl moiety expressed as clofentezine)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-0098-001-PPP"
-      ]
+      "reportable": true
    },
    "RF-0099-001-PPP": {
       "reference": "RF-0099-001-PPP",
@@ -5039,13 +4963,7 @@ export const SSD2Referential =
       "name": "Cypermethrin (Cypermethrin including other mixtures of constituent isomers (sum of isomers))",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-00000161-VET",
-         "RF-0112-003-PPP",
-         "RF-0112-004-PPP",
-         "RF-0112-005-PPP"
-      ]
+      "reportable": true
    },
    "RF-0112-003-PPP": {
       "reference": "RF-0112-003-PPP",
@@ -5094,11 +5012,7 @@ export const SSD2Referential =
       "name": "Cyprodinil (sum of cyprodinil and CGA 304075 (free), expressed as cyprodinil)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-00003334-PAR",
-         "RF-0114-001-PPP"
-      ]
+      "reportable": true
    },
    "RF-0115-001-PPP": {
       "reference": "RF-0115-001-PPP",
@@ -5121,11 +5035,7 @@ export const SSD2Referential =
       "otherNames": [
          "Daminozide (sum of daminozide and 1,1-dimethyl-hydrazine, expressed as daminazide)"
       ],
-      "reportable": true,
-      "analytes": [
-         "RF-00003320-PAR",
-         "RF-00003339-PAR"
-      ]
+      "reportable": true
    },
    "RF-0118-001-PPP": {
       "reference": "RF-0118-001-PPP",
@@ -5149,15 +5059,7 @@ export const SSD2Referential =
       "name": "DDT (sum of p,p'-DDT, o,p'-DDT, p-p'-DDE and p,p'-TDE (DDD) expressed as DDT)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-0119-002-PPP",
-         "RF-0119-003-PPP",
-         "RF-0119-004-PPP",
-         "RF-0119-005-PPP",
-         "RF-0119-006-PPP",
-         "RF-0119-007-PPP"
-      ]
+      "reportable": true
    },
    "RF-0119-002-PPP": {
       "reference": "RF-0119-002-PPP",
@@ -5294,11 +5196,7 @@ export const SSD2Referential =
       "name": "Dicofol (sum of p, p' and o,p' isomers)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-0130-002-PPP",
-         "RF-0130-003-PPP"
-      ]
+      "reportable": true
    },
    "RF-0130-002-PPP": {
       "reference": "RF-0130-002-PPP",
@@ -5346,11 +5244,7 @@ export const SSD2Referential =
       "name": "Diflubenzuron (sum of Diflubenzuron and 4-chlorophenylurea expressed as Diflubenzuron)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-00004651-PAR",
-         "RF-0134-001-PPP"
-      ]
+      "reportable": true
    },
    "RF-0135-001-PPP": {
       "reference": "RF-0135-001-PPP",
@@ -5430,13 +5324,7 @@ export const SSD2Referential =
       "name": "Dinocap (sum of dinocap isomers and their corresponding phenols expressed as dinocap)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-00007610-PAR",
-         "RF-00007611-PAR",
-         "RF-00007612-PAR",
-         "RF-0143-002-PPP"
-      ]
+      "reportable": true
    },
    "RF-0143-002-PPP": {
       "reference": "RF-0143-002-PPP",
@@ -5478,12 +5366,7 @@ export const SSD2Referential =
       "name": "Disulfoton (sum of disulfoton, disulfoton sulfoxide and disulfoton sulfone expressed as disulfoton)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-0149-002-PPP",
-         "RF-0149-003-PPP",
-         "RF-0149-004-PPP"
-      ]
+      "reportable": true
    },
    "RF-0149-002-PPP": {
       "reference": "RF-0149-002-PPP",
@@ -5557,12 +5440,7 @@ export const SSD2Referential =
       "otherNames": [
          "Endosulfan (sum of alpha- and beta-isomers and endosulfan-sulphate expresses as endosulfan)"
       ],
-      "reportable": true,
-      "analytes": [
-         "RF-00000019-PAR",
-         "RF-00000020-PAR",
-         "RF-0155-002-PPP"
-      ]
+      "reportable": true
    },
    "RF-0155-002-PPP": {
       "reference": "RF-0155-002-PPP",
@@ -5675,11 +5553,7 @@ export const SSD2Referential =
       "name": "Ethylene oxide (sum of ethylene oxide and 2-chloro-ethanol expressed as ethylene oxide)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-0167-002-PPP",
-         "RF-0167-003-PPP"
-      ]
+      "reportable": true
    },
    "RF-0167-002-PPP": {
       "reference": "RF-0167-002-PPP",
@@ -5735,12 +5609,7 @@ export const SSD2Referential =
       "name": "Fenamiphos (sum of fenamiphos and its sulphoxide and sulphone expressed as fenamiphos)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-0173-002-PPP",
-         "RF-0173-003-PPP",
-         "RF-0173-004-PPP"
-      ]
+      "reportable": true
    },
    "RF-0173-002-PPP": {
       "reference": "RF-0173-002-PPP",
@@ -5791,11 +5660,7 @@ export const SSD2Referential =
       "name": "Fenchlorphos (sum of fenchlorphos and fenchlorphos oxon expressed as fenchlorphos)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-0178-002-PPP",
-         "RF-0178-003-PPP"
-      ]
+      "reportable": true
    },
    "RF-0178-002-PPP": {
       "reference": "RF-0178-002-PPP",
@@ -5851,11 +5716,7 @@ export const SSD2Referential =
       "name": "Fenpropidin (sum of fenpropidin and its salts, expressed as fenpropidin)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-00003034-PAR",
-         "RF-00007586-PAR"
-      ]
+      "reportable": true
    },
    "RF-0184-002-PPP": {
       "reference": "RF-0184-002-PPP",
@@ -5865,10 +5726,7 @@ export const SSD2Referential =
          "Fenpropidin (sum of fenpropidin, 2-methyl-2-[4-(2-methyl-3- piperidin-1-yl-propyl)-phenyl]propionic acid, and their salts, expressed as fenpropidin",
          "Fenpropidin (sum of fenpropidin and CGA289267 expressed as fenpropidin)"
       ],
-      "reportable": true,
-      "analytes": [
-         "RF-0184-001-PPP"
-      ]
+      "reportable": true
    },
    "RF-0185-001-PPP": {
       "reference": "RF-0185-001-PPP",
@@ -5950,12 +5808,7 @@ export const SSD2Referential =
       "otherNames": [
          "Fipronil (sum Fipronil and sulfone metabolite (MB46136) expressed as Fipronil)"
       ],
-      "reportable": true,
-      "analytes": [
-         "RF-0192-002-PPP",
-         "RF-0192-003-PPP",
-         "RF-0692-002-PPP"
-      ]
+      "reportable": true
    },
    "RF-0192-002-PPP": {
       "reference": "RF-0192-002-PPP",
@@ -6055,13 +5908,7 @@ export const SSD2Referential =
       "otherNames": [
          "Flufenacet (sum of all compounds containing the N fluorophenyl-N-isopropyl moiety expressed as flufenacet equivalent)"
       ],
-      "reportable": true,
-      "analytes": [
-         "RF-00014293-PAR",
-         "RF-00014294-PAR",
-         "RF-00014452-PAR",
-         "RF-0203-002-PPP"
-      ]
+      "reportable": true
    },
    "RF-0203-002-PPP": {
       "reference": "RF-0203-002-PPP",
@@ -6186,11 +6033,7 @@ export const SSD2Referential =
       "name": "Flusilazole (sum of flusilazole and its metabolite IN-F7321 ([bis-(4-fluorophenyl)methyl]silanol) expressed as flusilazole)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-00003379-PAR",
-         "RF-0218-001-PPP"
-      ]
+      "reportable": true
    },
    "RF-0219-001-PPP": {
       "reference": "RF-0219-001-PPP",
@@ -6253,11 +6096,7 @@ export const SSD2Referential =
       "name": "Fosetyl-Al (sum of fosetyl, phosphonic acid and their salts, expressed as fosetyl)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-00004675-PAR",
-         "RF-1059-001-PPP"
-      ]
+      "reportable": true
    },
    "RF-0226-001-PPP": {
       "reference": "RF-0226-001-PPP",
@@ -6308,13 +6147,7 @@ export const SSD2Referential =
       "otherNames": [
          "Glufosinate-ammonium (sum of glufosinate, its salts, MPP and NAG expressed as glufosinate equivalents)"
       ],
-      "reportable": true,
-      "analytes": [
-         "RF-00003355-PAR",
-         "RF-00003360-PAR",
-         "RF-00003361-PAR",
-         "RF-0231-001-PPP"
-      ]
+      "reportable": true
    },
    "RF-0233-001-PPP": {
       "reference": "RF-0233-001-PPP",
@@ -6370,13 +6203,7 @@ export const SSD2Referential =
       "name": "Heptachlor (sum of heptachlor and heptachlor epoxide expressed as heptachlor)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-0236-004-PPP",
-         "RF-0236-005-PPP",
-         "RF-0236-007-PPP",
-         "RF-0236-008-PPP"
-      ]
+      "reportable": true
    },
    "RF-0236-004-PPP": {
       "reference": "RF-0236-004-PPP",
@@ -6555,11 +6382,7 @@ export const SSD2Referential =
       "name": "Isoxaflutole (sum of isoxaflutole and its diketonitrile-metabolite, expressed as isoxaflutole)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-00004677-PAR",
-         "RF-0259-002-PPP"
-      ]
+      "reportable": true
    },
    "RF-0259-002-PPP": {
       "reference": "RF-0259-002-PPP",
@@ -6626,11 +6449,7 @@ export const SSD2Referential =
       "name": "Malathion (sum of malathion and malaoxon expressed as malathion)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-0266-002-PPP",
-         "RF-0266-003-PPP"
-      ]
+      "reportable": true
    },
    "RF-0266-002-PPP": {
       "reference": "RF-0266-002-PPP",
@@ -6714,10 +6533,7 @@ export const SSD2Referential =
       "name": "Mecoprop (sum of mecoprop-p and mecoprop expressed as mecoprop)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-00002583-PAR"
-      ]
+      "reportable": true
    },
    "RF-0274-002-PPP": {
       "reference": "RF-0274-002-PPP",
@@ -6738,12 +6554,7 @@ export const SSD2Referential =
       "name": "Meptyldinocap (sum of 2,4 DNOPC and 2,4 DNOP expressed as meptyldinocap)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-00002838-PAR",
-         "RF-00004644-PAR",
-         "RF-00004645-PAR"
-      ]
+      "reportable": true
    },
    "RF-0277-001-PPP": {
       "reference": "RF-0277-001-PPP",
@@ -6764,11 +6575,7 @@ export const SSD2Referential =
       "name": "Metaflumizone (sum of E- and Z- isomers)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-00007589-PAR",
-         "RF-00007590-PAR"
-      ]
+      "reportable": true
    },
    "RF-0281-001-PPP": {
       "reference": "RF-0281-001-PPP",
@@ -6777,10 +6584,7 @@ export const SSD2Referential =
       "otherNames": [
          "Metalaxyl including other mixtures of constituent isomers including metalaxyl-M (sum of isomers)"
       ],
-      "reportable": true,
-      "analytes": [
-         "RF-00015695-PAR"
-      ]
+      "reportable": true
    },
    "RF-0282-001-PPP": {
       "reference": "RF-0282-001-PPP",
@@ -6847,12 +6651,7 @@ export const SSD2Referential =
       "name": "Methiocarb (sum of methiocarb and methiocarb sulfoxide and sulfone, expressed as methiocarb)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-0291-002-PPP",
-         "RF-0291-003-PPP",
-         "RF-0291-004-PPP"
-      ]
+      "reportable": true
    },
    "RF-0291-002-PPP": {
       "reference": "RF-0291-002-PPP",
@@ -6949,11 +6748,7 @@ export const SSD2Referential =
       "name": "Mevinphos (sum of E- and Z-isomers)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-00004672-PAR",
-         "RF-00004673-PAR"
-      ]
+      "reportable": true
    },
    "RF-0303-002-PPP": {
       "reference": "RF-0303-002-PPP",
@@ -7093,11 +6888,7 @@ export const SSD2Referential =
       "name": "Oxydemeton-methyl (sum of oxydemeton-methyl and demeton-S-methylsulfone expressed as oxydemeton-methyl)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-0323-003-PPP",
-         "RF-0323-004-PPP"
-      ]
+      "reportable": true
    },
    "RF-0323-003-PPP": {
       "reference": "RF-0323-003-PPP",
@@ -7139,11 +6930,7 @@ export const SSD2Referential =
       "name": "Parathion-methyl (sum of Parathion-methyl and paraoxon-methyl expressed as Parathion-methyl)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-0328-002-PPP",
-         "RF-0328-003-PPP"
-      ]
+      "reportable": true
    },
    "RF-0328-002-PPP": {
       "reference": "RF-0328-002-PPP",
@@ -7217,15 +7004,7 @@ export const SSD2Referential =
       "name": "Phorate (sum of phorate, its oxygen analogue and their sulfones expressed as phorate)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-0336-002-PPP",
-         "RF-0336-003-PPP",
-         "RF-0336-004-PPP",
-         "RF-0336-005-PPP",
-         "RF-0336-006-PPP",
-         "RF-0336-007-PPP"
-      ]
+      "reportable": true
    },
    "RF-0336-002-PPP": {
       "reference": "RF-0336-002-PPP",
@@ -7348,11 +7127,7 @@ export const SSD2Referential =
       "name": "Pirimicarb (sum of Pirimicarb and Desmethyl pirimicarb expressed as Pirimicarb)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-0347-002-PPP",
-         "RF-0347-003-PPP"
-      ]
+      "reportable": true
    },
    "RF-0347-002-PPP": {
       "reference": "RF-0347-002-PPP",
@@ -7522,10 +7297,7 @@ export const SSD2Referential =
       "name": "Propyzamide (sum of propyzamide and all metabolites containing the 3,5-dichlorobenzoic acid fraction expressed as propyzamide)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-0364-001-PPP"
-      ]
+      "reportable": true
    },
    "RF-0365-001-PPP": {
       "reference": "RF-0365-001-PPP",
@@ -7635,10 +7407,7 @@ export const SSD2Referential =
       "name": "Pyridate (sum of pyridate, its hydrolysis product CL 9673 (6-chloro-4-hydroxy-3-phenylpyridazin) and hydrolysable conjugates of CL 9673 expressed as pyridate)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-0376-002-PPP"
-      ]
+      "reportable": true
    },
    "RF-0376-002-PPP": {
       "reference": "RF-0376-002-PPP",
@@ -7700,11 +7469,7 @@ export const SSD2Referential =
       "name": "Quintozene (sum of quintozene and pentachloro-aniline expressed as quintozene)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-0383-002-PPP",
-         "RF-0383-003-PPP"
-      ]
+      "reportable": true
    },
    "RF-0383-002-PPP": {
       "reference": "RF-0383-002-PPP",
@@ -8197,10 +7962,7 @@ export const SSD2Referential =
       "name": "Trinexapac (sum of trinexapac (acid) and its salts, expressed as trinexapac)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-00007587-PAR"
-      ]
+      "reportable": true
    },
    "RF-0447-001-PPP": {
       "reference": "RF-0447-001-PPP",
@@ -9613,12 +9375,7 @@ export const SSD2Referential =
       "name": "Ethiofencarb (sum)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-0660-001-PPP",
-         "RF-0662-001-PPP",
-         "RF-0663-001-PPP"
-      ]
+      "reportable": true
    },
    "RF-0662-001-PPP": {
       "reference": "RF-0662-001-PPP",
@@ -10870,10 +10627,7 @@ export const SSD2Referential =
       "name": "Permethrin (sum of isomers)",
       "casNumber": null,
       "otherNames": [],
-      "reportable": true,
-      "analytes": [
-         "RF-0842-002-PPP"
-      ]
+      "reportable": true
    },
    "RF-0842-002-PPP": {
       "reference": "RF-0842-002-PPP",
@@ -11962,10 +11716,7 @@ export const SSD2Referential =
       "otherNames": [
          "Spiroxamine carboxylic acid expressed as spiroxamine"
       ],
-      "reportable": true,
-      "analytes": [
-         "RF-0397-001-PPP"
-      ]
+      "reportable": true
    },
    "RF-1008-001-PPP": {
       "reference": "RF-1008-001-PPP",
@@ -12454,7 +12205,7 @@ export const SSD2Referential =
 } as const satisfies Referential
 // ----- ne pas supprimer cette ligne : fin
 
-type Referential = { [key in SSD2Id] : { reference:key, name: string, casNumber: string | null, otherNames: string[], reportable: boolean, analytes?: [SSD2Id, ...SSD2Id[]]} }
+type Referential = { [key in SSD2Id] : { reference:key, name: string, casNumber: string | null, otherNames: string[], reportable: boolean} }
 
 export const SSD2IdLabel = Object.values(SSD2Referential).reduce(
   (acc, { reference, name }) => {

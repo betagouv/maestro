@@ -16,7 +16,7 @@ import AppSearchInput from 'src/components/_app/AppSearchInput/AppSearchInput';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
-import { getAnalytes } from 'maestro-shared/referential/Residue/SSD2Hierachy';
+import { getAnalytes } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
 import { Props as AnalysisResidueForm } from './AnalysisResidueForm'
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';

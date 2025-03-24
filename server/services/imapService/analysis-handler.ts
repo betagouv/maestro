@@ -9,7 +9,7 @@ import {
   ExtractError
 } from './index';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
-import { getAnalytes, isComplex } from 'maestro-shared/referential/Residue/SSD2Hierachy';
+import { isComplex, getAnalytes } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
 
 export type AnalysisWithResidueWithSSD2Id =  Omit<ExportAnalysis, 'residues'> & { residues: ExportDataSubstanceWithSSD2Id[]}
 export const analysisHandler = async (

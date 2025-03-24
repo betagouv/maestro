@@ -2,8 +2,10 @@ import ExcelJS from 'exceljs';
 import path from 'path';
 import { readFileSync } from 'fs';
 import { writeFileSync } from 'node:fs';
-import { isNil } from 'lodash-es';
+import { isNil, uniq } from 'lodash-es';
 import { SSD2Referential } from 'maestro-shared/referential/Residue/SSD2Referential';
+import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import { SSD2Hierarchy } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
 
 const updateSSD2Referential = async () => {
 
@@ -94,33 +96,32 @@ const updateSSD2Referential = async () => {
     }
   });
 
-  const rowsWithAnalytes: (Omit<(typeof rows)[number], 'masterParentCode'> & {
-    analytes?: string[];
-  })[] = rows
-    .map((row) => {
-      const { masterParentCode, ...rest } = row;
-      if (row.name.includes('(sum')) {
-
-        const analytes =  rows.filter(
-          ({ masterParentCode }) => masterParentCode === row.reference
-        ).map(({ reference }) => reference)
-        if (analytes.length > 0) {
-          return {
-            ...rest,
-            analytes
-          };
-        }
-      }
-      return rest
-    });
-
-  const newRows = rowsWithAnalytes.reduce((acc, r) => {
-    acc[r.reference] = r
+  const newRows = rows.reduce((acc, r) => {
+    const {masterParentCode, ...rest } = r
+    acc[r.reference] = rest
     return acc
   }, {} as Record<string, unknown>)
 
   updateReferentialFile(newRows)
   updateIdFile(Object.keys(newRows))
+
+  const rowsWithAnalytes: Record<SSD2Id, SSD2Id[]> = rows
+    .reduce((acc, row) => {
+      if (row.name.includes('(sum')) {
+
+        const analytes = rows.filter(
+          ({ masterParentCode }) => masterParentCode === row.reference
+        ).map(({ reference }) => reference)
+        if (analytes.length > 0) {
+          acc[row.reference as SSD2Id] = analytes as SSD2Id[]
+        }
+      }
+      return acc
+
+    }, {} as  Record<SSD2Id, SSD2Id[]>)
+
+  updateHierarchyFile(rowsWithAnalytes)
+
 };
 
 const updateReferentialFile = (newReferential: Record<string, any>) => {
@@ -139,6 +140,36 @@ const updateReferentialFile = (newReferential: Record<string, any>) => {
   const code = JSON.stringify(newReferential, null, 3)
 
   writeFileSync(ssd2ReferentialFile, preCode + code + postCode)
+}
+
+const updateHierarchyFile = (ssd2WithAnalytes: Record<string, any>) => {
+
+  const ssd2HierarchyFile = path.join(process.cwd(), '../shared/referential/Residue/SSD2Hierarchy.ts')
+  const hierarchyFileData = readFileSync(ssd2HierarchyFile, {
+    encoding: 'utf-8',
+  })
+
+  const startComment = '// ----- ne pas supprimer cette ligne : début'
+  const stopComment = '// ----- ne pas supprimer cette ligne : fin'
+  const startIndex =  hierarchyFileData.indexOf(startComment)
+  const preCode =  hierarchyFileData.slice(0, startIndex + startComment.length + 1)
+  const postCode =  hierarchyFileData.slice( hierarchyFileData.indexOf(stopComment) - 1)
+
+  const newHierarchy: { [key in SSD2Id]?: SSD2Id[]} = { ...SSD2Hierarchy }
+  Object.keys(ssd2WithAnalytes).forEach(key => {
+    const id: SSD2Id = key as SSD2Id
+    const value = ssd2WithAnalytes[id]
+    if (id in SSD2Hierarchy) {
+      const oldValues = SSD2Hierarchy[id] ?? []
+      newHierarchy[id] = [...oldValues, ...value ].filter(uniq) as SSD2Id[]
+    }else {
+      newHierarchy[id] = value
+    }
+  })
+
+  const code = JSON.stringify(newHierarchy, null, 3)
+
+  writeFileSync(ssd2HierarchyFile, preCode + code + postCode)
 }
 
 const updateIdFile = (newIds: string[]) => {

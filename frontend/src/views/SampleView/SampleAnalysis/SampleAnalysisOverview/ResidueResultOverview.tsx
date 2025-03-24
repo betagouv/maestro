@@ -8,7 +8,7 @@ import { ResidueKind, ResidueKindLabels } from 'maestro-shared/schema/Analysis/R
 import { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import ResidueResultAlert from '../../../../components/ResidueResultAlert/ResidueResultAlert';
-import { isComplex } from 'maestro-shared/referential/Residue/SSD2Hierachy';
+import { isComplex } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
 import { SSD2Referential } from 'maestro-shared/referential/Residue/SSD2Referential';
 
 export type Props = {
