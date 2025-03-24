@@ -239,22 +239,3 @@ export const isCreatedPartialSample = (
 export const isCreatedSample = (
   sample?: Sample | SampleToCreate
 ): sample is Sample => CreatedSampleData.safeParse(sample).success;
-
-export function getPartialSampleSpecificDataField<
-  K extends ProgrammingPlanKind,
-  D extends Extract<
-    PartialSampleMatrixSpecificData,
-    { programmingPlanKind: K }
-  >,
-  T extends keyof D
->(
-  sample: PartialSample | PartialSampleToCreate,
-  kind: K,
-  field: T
-): D[T] | undefined {
-  const data = sample.specificData;
-  if (!data || data.programmingPlanKind !== kind) {
-    return;
-  }
-  return (data as D)[field];
-}
