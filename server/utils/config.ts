@@ -85,7 +85,7 @@ interface Config {
   };
   inbox: {
     mailboxName: string;
-    trashboxName: string;
+    successboxName: string;
     errorboxName: string;
     host: string | null;
     user: string | null;
@@ -295,8 +295,8 @@ const config = convict<Config>({
       format: String,
       default: 'Inbox'
     },
-    trashboxName: {
-      env: 'INBOX_TRASHBOX_NAME',
+    successboxName: {
+      env: 'INBOX_SUCCESSBOX_NAME',
       format: String,
       default: 'Trash'
     },

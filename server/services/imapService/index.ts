@@ -219,7 +219,7 @@ export const checkEmails = async () => {
                 ]
               }, [{id: samplerId, email: samplerEmail}])
             }
-            await client.messageMove(messageUid, config.inbox.trashboxName, {
+            await client.messageMove(messageUid, config.inbox.successboxName, {
               uid: true
             });
 
