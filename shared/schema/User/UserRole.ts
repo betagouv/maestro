@@ -12,6 +12,23 @@ export type UserRole = z.infer<typeof UserRole>;
 
 export const UserRoleList: UserRole[] = UserRole.options;
 
+const UserSamplerPermissionsList = [
+  'readProgrammingPlans',
+  'readProgrammingPlanValidated',
+  'readPrescriptions',
+  'downloadSupportDocument',
+  'createSample',
+  'readSamples',
+  'updateSample',
+  'deleteSample',
+  'downloadAnalysisRequestDocument',
+  'readDocuments',
+  'readCompanies',
+  'createAnalysis',
+  'readAnalysis',
+  'deleteSampleDocument'
+] as const satisfies UserPermission[]
+
 export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
   NationalCoordinator: [
     'manageProgrammingPlan',
@@ -32,34 +49,13 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'readCompanies'
   ],
   RegionalCoordinator: [
-    'readProgrammingPlans',
+    ...UserSamplerPermissionsList,
     'readProgrammingPlanSubmitted',
-    'readProgrammingPlanValidated',
-    'readPrescriptions',
     'updatePrescriptionLaboratory',
     'commentPrescription',
-    'downloadSupportDocument',
-    'readSamples',
-    'readDocuments',
     'deleteDocument',
-    'readCompanies'
   ],
-  Sampler: [
-    'readProgrammingPlans',
-    'readProgrammingPlanValidated',
-    'readPrescriptions',
-    'createSample',
-    'readSamples',
-    'updateSample',
-    'deleteSample',
-    'downloadSupportDocument',
-    'downloadAnalysisRequestDocument',
-    'readDocuments',
-    'readCompanies',
-    'createAnalysis',
-    'readAnalysis',
-    'deleteSampleDocument'
-  ],
+  Sampler: UserSamplerPermissionsList,
   Administrator: UserPermissionList
 };
 
