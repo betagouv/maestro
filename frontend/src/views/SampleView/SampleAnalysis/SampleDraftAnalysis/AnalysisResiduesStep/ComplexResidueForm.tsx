@@ -3,12 +3,6 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { Analyte } from 'maestro-shared/referential/Residue/Analyte';
-import { AnalyteLabels } from 'maestro-shared/referential/Residue/AnalyteLabels';
-import {
-  ComplexResidue,
-  ComplexResidueList
-} from 'maestro-shared/referential/Residue/ComplexResidue';
-import { ComplexResidueLabels } from 'maestro-shared/referential/Residue/ComplexResidueLabels';
 import { PartialAnalyte } from 'maestro-shared/schema/Analysis/Analyte';
 import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import {
@@ -22,23 +16,25 @@ import AppSearchInput from 'src/components/_app/AppSearchInput/AppSearchInput';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
-import { useForm } from 'src/hooks/useForm';
-import { ZodRawShape } from 'zod';
-import { getAnalytes } from 'maestro-shared/referential/Residue/SSD2Hierachy';
+import { getAnalytes } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
+import { Props as AnalysisResidueForm } from './AnalysisResidueForm'
+import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 
 interface Props {
-  form: ReturnType<typeof useForm>;
-  residue: PartialResidue;
+  form: AnalysisResidueForm['form']
+  residue: Omit<PartialResidue, 'reference'> ;
   residueIndex: number;
-  changeResidue: (residue: PartialResidue, residueIndex: number) => void;
+  residueReference: SSD2Id;
+  changeResidue: (residue: Props['residue'], residueIndex: number) => void;
 }
 
-function ComplexResidueForm<T extends ZodRawShape>({
+function ComplexResidueForm({
   form,
   residue,
   residueIndex,
-  changeResidue
+  changeResidue,
+  residueReference
 }: Props) {
   const changeAnalyte = (analyte: PartialAnalyte, analyteIndex: number) => {
     const newAnalytes = [...(residue.analytes ?? [])];
@@ -68,37 +64,6 @@ function ComplexResidueForm<T extends ZodRawShape>({
 
   return (
     <>
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={cx('fr-col-12')}>
-          <AppSearchInput
-            options={selectOptionsFromList(ComplexResidueList, {
-              labels: ComplexResidueLabels,
-              withSort: true,
-              withDefault: false
-            })}
-            value={residue.reference ?? ''}
-            state={form.messageType('residues', [residueIndex, 'reference'])}
-            stateRelatedMessage={form.message('residues', [
-              residueIndex,
-              'reference'
-            ])}
-            onSelect={(value) =>
-              changeResidue(
-                {
-                  ...residue,
-                  reference: value as ComplexResidue
-                },
-                residueIndex
-              )
-            }
-            label="Résidu complexe"
-            whenValid={`Résidu correctement renseigné`}
-            required
-          />
-        </div>
-      </div>
-      {residue.reference !== undefined && (
-        <>
           {residue.analytes?.map((analyte, analyteIndex) => (
             <div key={`analyte-${analyteIndex}`} className="analyte-form">
               <div className="d-flex-align-center">
@@ -122,10 +87,10 @@ function ComplexResidueForm<T extends ZodRawShape>({
                   <AppSearchInput
                     options={selectOptionsFromList(
                       Array.from(getAnalytes(
-                        residue.reference as SSD2Id
+                        residueReference
                       )),
                       {
-                        labels: AnalyteLabels,
+                        labels: SSD2IdLabel,
                         withSort: true,
                         withDefault: false
                       }
@@ -155,7 +120,7 @@ function ComplexResidueForm<T extends ZodRawShape>({
                   />
                 </div>
                 <div className={cx('fr-col-6')}>
-                  <AppSelect<T>
+                  <AppSelect
                     value={analyte.resultKind ?? ''}
                     options={selectOptionsFromList(ResultKindList, {
                       labels: ResultKindLabels
@@ -187,7 +152,7 @@ function ComplexResidueForm<T extends ZodRawShape>({
                 {analyte.resultKind === 'Q' && (
                   <>
                     <div className={cx('fr-col-6')}>
-                      <AppTextInput<T>
+                      <AppTextInput
                         value={analyte.result ?? ''}
                         onChange={(e) =>
                           changeAnalyte(
@@ -238,7 +203,7 @@ function ComplexResidueForm<T extends ZodRawShape>({
           </h6>
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-              <AppTextInput<T>
+              <AppTextInput
                 value={residue.result ?? ''}
                 onChange={(e) =>
                   changeResidue(
@@ -258,7 +223,7 @@ function ComplexResidueForm<T extends ZodRawShape>({
               />
             </div>
             <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-              <AppTextInput<T>
+              <AppTextInput
                 value={residue.lmr ?? ''}
                 onChange={(e) =>
                   changeResidue(
@@ -288,8 +253,6 @@ function ComplexResidueForm<T extends ZodRawShape>({
               )}
           </div>
         </>
-      )}
-    </>
   );
 }
 

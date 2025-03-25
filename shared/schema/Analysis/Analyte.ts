@@ -1,23 +1,25 @@
 import { z } from 'zod';
-import { Analyte as AnalyteReference } from '../../referential/Residue/Analyte';
 import { ResultKind } from './Residue/ResultKind';
+import { SSD2Id } from '../../referential/Residue/SSD2Id';
 
 export const Analyte = z.object({
   analysisId: z.string().uuid(),
   residueNumber: z.number().int().positive(),
   analyteNumber: z.number().int().positive(),
-  reference: AnalyteReference,
+  reference: SSD2Id,
   resultKind: ResultKind,
   result: z.number().min(0).nullish()
 });
 
-export const PartialAnalyte = Analyte.partial().merge(
-  Analyte.pick({
-    analysisId: true,
-    residueNumber: true,
-    analyteNumber: true
-  })
-);
+export const PartialAnalyte = z.object({
+  ...Analyte.partial().shape,
+ ...Analyte.pick({
+   analysisId: true,
+   residueNumber: true,
+   analyteNumber: true
+ }).shape
+})
+
 
 export type Analyte = z.infer<typeof Analyte>;
 export type PartialAnalyte = z.infer<typeof PartialAnalyte>;

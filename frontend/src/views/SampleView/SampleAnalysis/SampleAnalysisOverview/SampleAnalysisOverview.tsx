@@ -7,27 +7,25 @@ import { t } from 'i18next';
 import { OptionalBooleanLabels } from 'maestro-shared/referential/OptionnalBoolean';
 import { Analysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
-import { useMemo, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
-import {
-  useGetSampleAnalysisQuery,
-  useUpdateAnalysisMutation
-} from 'src/services/analysis.service';
 import { useUpdateSampleMutation } from 'src/services/sample.service';
 import { pluralize, quote } from 'src/utils/stringUtils';
 import { AnalysisDocumentPreview } from '../../components/AnalysisDocumentPreview';
 import { ResidueResultOverview } from './ResidueResultOverview';
 import './SampleAnalysisOverview.scss';
+import { ApiClientContext } from '../../../../services/apiClient';
 
 interface Props {
   sample: Sample;
 }
 
 const SampleAnalysisOverview = ({ sample }: Props) => {
-  const { data } = useGetSampleAnalysisQuery(sample.id);
+  const apiClient = useContext(ApiClientContext)
+  const { data } = apiClient.useGetSampleAnalysisQuery(sample.id);
   const analysis = data as Analysis | undefined;
 
-  const [updateAnalysis] = useUpdateAnalysisMutation();
+  const [updateAnalysis] = apiClient.useUpdateAnalysisMutation();
   const [updateSample] = useUpdateSampleMutation();
 
   const [editingStatus, setEditingStatus] = useState(

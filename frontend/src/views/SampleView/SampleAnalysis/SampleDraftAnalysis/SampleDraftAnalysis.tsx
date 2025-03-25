@@ -3,13 +3,13 @@ import Stepper from '@codegouvfr/react-dsfr/Stepper';
 import { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useGetSampleAnalysisQuery } from 'src/services/analysis.service';
 import AnalysisComplianceStep from 'src/views/SampleView/SampleAnalysis/SampleDraftAnalysis/AnalysisComplianceStep/AnalysisComplianceStep';
 import AnalysisReportStep from 'src/views/SampleView/SampleAnalysis/SampleDraftAnalysis/AnalysisReportStep/AnalysisReportStep';
 import AnalysisResiduesStep from 'src/views/SampleView/SampleAnalysis/SampleDraftAnalysis/AnalysisResiduesStep/AnalysisResiduesStep';
 import { useSamplesLink } from '../../../../hooks/useSamplesLink';
+import { ApiClientContext } from '../../../../services/apiClient';
 
 export const AnalysisStepTitles = [
   'Rapport d’analyse',
@@ -28,8 +28,9 @@ export const AnalysisStatusSteps: Partial<Record<AnalysisStatus, number>> = {
 };
 
 const SampleDraftAnalysis = ({ sample }: Props) => {
-  const { getSampleStepParam } = useSamplesLink();
-  const { data: partialAnalysis, isFetching } = useGetSampleAnalysisQuery(
+  const { getSampleStepParam } = useSamplesLink()
+  const apiClient = useContext(ApiClientContext)
+  const { data: partialAnalysis, isFetching } = apiClient.useGetSampleAnalysisQuery(
     sample.id
   );
 

@@ -9,7 +9,7 @@ import {
   ExtractError
 } from './index';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
-import { getAnalytes, isComplex } from 'maestro-shared/referential/Residue/SSD2Hierachy';
+import { isComplex, getAnalytes } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
 
 export type AnalysisWithResidueWithSSD2Id =  Omit<ExportAnalysis, 'residues'> & { residues: ExportDataSubstanceWithSSD2Id[]}
 export const analysisHandler = async (
@@ -23,7 +23,7 @@ export const analysisHandler = async (
     .leftJoin('analysis', 'samples.id', 'analysis.sampleId')
     .where('reference', '=', analyse.sampleReference)
     .select(['samples.id as sampleId', 'analysis.id as analyseId', 'programmingPlans.year as programmingPlansYear', 'users.email as samplerEmail', 'users.id as samplerId'])
-    .executeTakeFirstOrThrow();
+    .executeTakeFirstOrThrow(() => new Error(`Impossible de trouver le prélèvement avec la référence ${analyse.sampleReference}`));
 
   if (analyseId !== null) {
     throw new ExtractError(

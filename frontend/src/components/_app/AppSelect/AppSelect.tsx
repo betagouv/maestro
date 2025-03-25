@@ -5,8 +5,8 @@ import {
   AppSelectOption,
   AppSelectOptionsGroup
 } from 'src/components/_app/AppSelect/AppSelectOption';
-import { useForm } from 'src/hooks/useForm';
-import { ZodRawShape } from 'zod';
+import { UseForm } from 'src/hooks/useForm';
+import { ZodObject, ZodRawShape } from 'zod';
 
 type AppSelectProps<T extends ZodRawShape> = Partial<
   Pick<ComponentPropsWithoutRef<typeof Select>, 'label' | 'hint'>
@@ -14,7 +14,7 @@ type AppSelectProps<T extends ZodRawShape> = Partial<
   InputHTMLAttributes<HTMLSelectElement> & {
     options?: AppSelectOption[];
     optionsGroups?: AppSelectOptionsGroup[];
-    inputForm: ReturnType<typeof useForm>;
+    inputForm: UseForm<ZodObject<T>>;
     inputKey: keyof T;
     inputPathFromKey?: (string | number)[];
     whenValid?: string;

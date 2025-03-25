@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { getAnalytes } from './SSD2Hierachy';
+import { getAnalytes } from './SSD2Hierarchy';
 
 test('getAnalytes', () => {
   expect(getAnalytes('RF-0004-001-PPP')).toMatchInlineSnapshot(`Set {}`)
@@ -11,8 +11,8 @@ test('getAnalytes', () => {
   `)
   expect(getAnalytes('RF-0008-001-PPP')).toMatchInlineSnapshot(`
     Set {
-      "RF-00004646-PAR",
       "RF-00002588-PAR",
+      "RF-00004646-PAR",
     }
   `)
 })

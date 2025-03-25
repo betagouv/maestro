@@ -17,15 +17,18 @@ import {
   ResidueComplianceList
 } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import AppTextAreaInput from '../../../../../components/_app/AppTextAreaInput/AppTextAreaInput';
-import { useForm } from '../../../../../hooks/useForm';
+import { UseForm } from '../../../../../hooks/useForm';
 import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import check from '../../../../../assets/illustrations/check.svg';
 import close from '../../../../../assets/illustrations/close.svg';
 import warning from '../../../../../assets/illustrations/warning.svg';
+import { Form } from './AnalysisResiduesForm';
+
+type FormShape = Form['shape']
 
 export type Props = {
 
-  form: ReturnType<typeof useForm>;
+  form: UseForm<Form>;
   residue: PartialResidue
   residueIndex: number
   onChangeResidue: (residue: PartialResidue, index: number) => void
@@ -37,8 +40,6 @@ const ResidueComplianceIllustrations: Record<ResidueCompliance, any> = {
   Other: warning
 };
 
-type SchemaFormType = Props['form']['schema']
-type FormShape = SchemaFormType extends {shape: unknown} ? SchemaFormType['shape'] :  SchemaFormType['_type']
 
 export const ResidueInterpretationForm: FunctionComponent<Props> = ({ form, residue, residueIndex, onChangeResidue,  ..._rest }) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -193,7 +194,7 @@ export const ResidueInterpretationForm: FunctionComponent<Props> = ({ form, resi
       <hr />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>
-          <AppRadioButtons<FormShape>
+          <AppRadioButtons
             legend="Conformité pour le résidu"
             options={selectOptionsFromList(
               ResidueComplianceList,

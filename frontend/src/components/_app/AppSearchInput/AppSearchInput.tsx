@@ -1,11 +1,16 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Autocomplete } from '@mui/material';
+import * as React from 'react';
 import { ReactNode } from 'react';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
 import { AppSelectOption } from 'src/components/_app/AppSelect/AppSelectOption';
 
 interface Props {
   options: AppSelectOption[];
+  renderOption?: (
+    props: React.HTMLAttributes<HTMLLIElement> & { key: string },
+    option: AppSelectOption
+  ) => ReactNode;
   value: string;
   state?: 'success' | 'error' | 'default';
   stateRelatedMessage?: ReactNode;
@@ -20,6 +25,7 @@ interface Props {
 
 const AppSearchInput = ({
   options,
+  renderOption,
   value,
   state,
   stateRelatedMessage,
@@ -76,6 +82,7 @@ const AppSearchInput = ({
               />
             </div>
           )}
+          renderOption={renderOption}
           options={options}
           noOptionsText={'Aucun résultat'}
         />

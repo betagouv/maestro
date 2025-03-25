@@ -8,7 +8,6 @@ import { type Region } from 'maestro-shared/referential/Region';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
 import { ResidueCompliance } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
-import { ResidueKind } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
 import { type DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
@@ -51,7 +50,6 @@ export interface AnalysisResidues {
   analysisId: string;
   analysisMethod: AnalysisMethod;
   compliance: ResidueCompliance | null;
-  kind: ResidueKind | null;
   lmr: number | null;
   notesOnPollutionRisk: string | null;
   notesOnResult: string | null;

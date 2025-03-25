@@ -49,7 +49,8 @@ export type ExportDataFromEmail = (email: ParsedMail) => ExportAnalysis[];
 export type LaboratoryConf = {
   isSender: IsSender;
   exportDataFromEmail: ExportDataFromEmail;
-  ssd2IdByLabel: Record<string, SSD2Id | null>
+  ssd2IdByLabel: Record<string, SSD2Id>
+  unknownReferences: string[]
 };
 const laboratoriesConf = {
   'GIRPA': girpaConf,
@@ -192,7 +193,7 @@ export const checkEmails = async () => {
                     }
                   }
                 }
-                if (r.ssd2Id === null) {
+                if (r.ssd2Id === null && !laboratoriesConf[message.laboratoryName].unknownReferences.includes(r.label)) {
                   warnings.add(`Impossible d'identifier le résidue : ${r.label}`)
                 }
               });
@@ -218,7 +219,7 @@ export const checkEmails = async () => {
                 ]
               }, [{id: samplerId, email: samplerEmail}])
             }
-            await client.messageMove(messageUid, config.inbox.trashboxName, {
+            await client.messageMove(messageUid, config.inbox.successboxName, {
               uid: true
             });
 
