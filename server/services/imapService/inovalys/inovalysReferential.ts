@@ -1,6 +1,15 @@
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 
-export const inovalysUnknownReferences: string[] = []
+export const inovalysUnknownReferences: string[] = [
+  "Chlorophacinone",
+  "2,6-Difluorobenzamide (métabolite du diflubenzuron)",
+  "DCPMU (métabolite du diuron)",
+  "DCPU (métabolite du diuron)",
+  "DMPF (N-2,4-Diméthylphényl-N'-méthylformamidine)",
+  "IPPMU (métabolite isoproturon)",
+  "IPPU (métabolite isoproturon)",
+  "Desméthyl métobromuron",
+]
 export const inovalysReferential: Record<string, SSD2Id | null> = {
   'DDD 4,4 (p,p\')': 'RF-0119-004-PPP',
   'DDE 4,4 (p,p\')': 'RF-0119-002-PPP',

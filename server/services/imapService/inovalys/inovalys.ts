@@ -15,10 +15,11 @@ const isSender: IsSender = (_emailSender) => false;
 
 
 const codeMethods = [
-  'M-ARCO/M/021', 'M-ARCO/M/022', 'M-ARCO/M/023', 'M-ARCO/M/024', 'M-ARCO/M/031', 'M-ARCO/M/033', 'M-ARCO/M/045', 'M-ARCO/M/056', 'M-ARCO/M/059', 'M-ARCO/M/060', 'M-ARCO/M/064', 'M-ARCO/M/065', 'M-ARCO/M/066',
+  'M-ARCO/M/021', 'M-ARCO/M021', 'M-ARCO/M/022', 'M-ARCO/M/023', 'M-ARCO/M/024', 'M-ARCO/M/031', 'M-ARCO/M/033', 'M-ARCO/M/045', 'M-ARCO/M/056', 'M-ARCO/M/059', 'M-ARCO/M/060', 'M-ARCO/M/064', 'M-ARCO/M/065', 'M-ARCO/M/066', 'Méthode interne'
 ] as const
 const codeMethodsAnalyseMethod = {
   'M-ARCO/M/021': 'Multi',
+  'M-ARCO/M021': 'Multi',
   'M-ARCO/M/022': 'Mono',
   'M-ARCO/M/023': 'Mono',
   'M-ARCO/M/024': 'Mono',
@@ -31,6 +32,7 @@ const codeMethodsAnalyseMethod = {
   'M-ARCO/M/064': 'Mono',
   'M-ARCO/M/065': 'Mono',
   'M-ARCO/M/066': 'Mono',
+  'Méthode interne': 'Mono'
 } as const satisfies Record<typeof codeMethods[number], AnalysisMethod>
 
 // Visible for testing
@@ -84,7 +86,7 @@ export const extractAnalyzes = (
   }));
 
 
-  const {data: resultatsData, error: resultatsError} = resultatsFileValidator.safeParse(resultatsFile.content.filter(row => row.Dossier !== '' && row.Dossier !== undefined))
+  const {data: resultatsData, error: resultatsError} = resultatsFileValidator.safeParse(resultatsFile.content.filter(row => row.Dossier !== '' && row.Dossier !== undefined && row['Détermination'] !== ''))
   if (resultatsError) {
     throw new ExtractError(`Impossible d'extraire les données du fichier des résultats: ${resultatsError}`)
   }
