@@ -12,7 +12,7 @@ test("peut ajouter une erreur d'analyse en base", async () => {
     {
      sampleId: Sample13Fixture.id,
      id: analysisId,
-     status: 'InReview'
+     status: 'Completed'
     }
   ]).execute()
 

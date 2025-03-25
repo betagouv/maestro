@@ -68,8 +68,14 @@ const updateAnalysis = async (request: Request, response: Response) => {
     throw new AnalysisMissingError(analysisId);
   }
 
+  const sample = await sampleRepository.findUnique(analysisUpdate.sampleId);
+
+  if (!sample) {
+    throw new SampleMissingError(analysisUpdate.sampleId);
+  }
+
   if (
-    analysis.status === 'InReview' &&
+    sample.status === 'InReview' &&
     analysisUpdate.status === 'Completed'
   ) {
     const getResiduesWithoutInterpretation = (
