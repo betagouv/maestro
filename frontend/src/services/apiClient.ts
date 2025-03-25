@@ -1,8 +1,5 @@
 import { createContext } from 'react';
-import {
-  useGetSampleAnalysisQuery,
-  useUpdateAnalysisMutation
-} from './analysis.service';
+import { analysisApi, useUpdateAnalysisMutation } from './analysis.service';
 import {
   useCreateDocumentMutation,
   useDeleteDocumentMutation,
@@ -26,7 +23,7 @@ export const apiClient: {
   useFindRegionalPrescriptionsQuery: typeof useFindRegionalPrescriptionsQuery;
   useGetDocumentQuery: typeof useGetDocumentQuery;
   useGetLaboratoryQuery: typeof useGetLaboratoryQuery;
-  useGetSampleAnalysisQuery: typeof useGetSampleAnalysisQuery;
+  useGetSampleAnalysisQuery: (typeof analysisApi)['useGetSampleAnalysisQuery'];
   useLazyGetDocumentDownloadSignedUrlQuery: typeof useLazyGetDocumentDownloadSignedUrlQuery;
   useUpdateAnalysisMutation: typeof useUpdateAnalysisMutation;
   useUpdateSampleMutation: typeof useUpdateSampleMutation;
@@ -38,7 +35,7 @@ export const apiClient: {
   useFindRegionalPrescriptionsQuery,
   useGetDocumentQuery,
   useGetLaboratoryQuery,
-  useGetSampleAnalysisQuery,
+  useGetSampleAnalysisQuery: analysisApi.useGetSampleAnalysisQuery,
   useLazyGetDocumentDownloadSignedUrlQuery,
   useUpdateAnalysisMutation,
   useUpdateSampleMutation
