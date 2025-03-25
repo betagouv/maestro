@@ -126,18 +126,14 @@ describe('parse correctement le XML', () => {
           "casNumber": "1967-25-5",
           "codeSandre": null,
           "label": "bixafen",
-          "lmr": 10,
-          "result": 0.3,
-          "result_kind": "Q",
+          "result_kind": "NQ",
         },
         {
           "analysisMethod": "Mono",
           "casNumber": "27112-32-9",
           "codeSandre": null,
           "label": "fluopyram",
-          "lmr": 10,
-          "result": 0.29,
-          "result_kind": "Q",
+          "result_kind": "ND",
         },
         {
           "analysisMethod": "Mono",
@@ -153,7 +149,9 @@ describe('parse correctement le XML', () => {
           "casNumber": "?",
           "codeSandre": null,
           "label": "fluxapyroxad",
-          "result_kind": "NQ",
+          "lmr": 0,
+          "result": 8,
+          "result_kind": "Q",
         },
       ]
     `);

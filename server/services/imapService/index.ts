@@ -49,7 +49,7 @@ export type ExportDataFromEmail = (email: ParsedMail) => ExportAnalysis[];
 export type LaboratoryConf = {
   isSender: IsSender;
   exportDataFromEmail: ExportDataFromEmail;
-  ssd2IdByLabel: Record<string, SSD2Id | null>
+  ssd2IdByLabel: Record<string, SSD2Id>
   unknownReferences: string[]
 };
 const laboratoriesConf = {
