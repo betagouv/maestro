@@ -1,14 +1,21 @@
 import _ from 'lodash';
 import { z } from 'zod';
+import { AnimalKind } from '../../referential/AnimalKind';
+import { AnimalSex } from '../../referential/AnimalSex';
+import { BreedingMethod } from '../../referential/BreedingMethod';
 import { CultureKind } from '../../referential/CultureKind';
 import { Department } from '../../referential/Department';
 import { LegalContext } from '../../referential/LegalContext';
 import { Matrix } from '../../referential/Matrix/Matrix';
 import { MatrixKind } from '../../referential/Matrix/MatrixKind';
 import { MatrixPart } from '../../referential/Matrix/MatrixPart';
+import { OutdoorAccess } from '../../referential/OutdoorAccess';
+import { ProductionKind } from '../../referential/ProductionKind';
 import { Region } from '../../referential/Region';
+import { Seizure } from '../../referential/Seizure';
 import { Species } from '../../referential/Species';
 import { Stage } from '../../referential/Stage';
+import { TargetingCriteria } from '../../referential/TargetingCriteria';
 import { Company } from '../Company/Company';
 import { Context } from '../ProgrammingPlan/Context';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
@@ -46,16 +53,19 @@ export const SampleMatrixSpecificDataPFAS = z.object({
     .literal(ProgrammingPlanKind.Values.PFAS_EGGS)
     .or(z.literal(ProgrammingPlanKind.Values.PFAS_MEAT)),
   species: Species,
-  targetingCriteria: z.string(),
+  targetingCriteria: TargetingCriteria,
   notesOnTargetingCriteria: z.string().nullish(),
-  animalKind: z.string(),
-  productionKind: z.string(),
-  identifier: z.string(),
-  breedingMethod: z.string(),
-  age: z.string(),
-  sex: z.string(),
-  seizure: z.boolean().nullish(),
-  outdoorAccess: z.boolean().nullish()
+  animalKind: AnimalKind,
+  animalIdentifier: z.string({
+    required_error: "Veuillez renseigner l'identifiant du lot ou de l'animal."
+  }),
+  breedingMethod: BreedingMethod,
+  age: z.string({
+    required_error: "Veuillez renseigner l'âge de l'animal."
+  }),
+  sex: AnimalSex,
+  seizure: Seizure.nullish(),
+  outdoorAccess: OutdoorAccess
 });
 
 export const SampleMatrixSpecificDataPFASEggs =
@@ -67,7 +77,8 @@ export const SampleMatrixSpecificDataPFASEggs =
 export const SampleMatrixSpecificDataPFASMeat =
   SampleMatrixSpecificDataPFAS.extend({
     programmingPlanKind: z.literal(ProgrammingPlanKind.Values.PFAS_MEAT),
-    killingCode: z.string()
+    killingCode: z.string(),
+    productionKind: ProductionKind
   });
 
 const SampleMatrixSpecificData = z.discriminatedUnion(
