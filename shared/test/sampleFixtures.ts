@@ -9,7 +9,7 @@ import { MatrixKind } from '../referential/Matrix/MatrixKind';
 import { MatrixPartList } from '../referential/Matrix/MatrixPart';
 import { QuantityUnitList } from '../referential/QuantityUnit';
 import { Regions } from '../referential/Region';
-import { StageList } from '../referential/Stage';
+import { StagesByProgrammingPlanKind } from '../referential/Stage';
 import { Company } from '../schema/Company/Company';
 import { ContextList } from '../schema/ProgrammingPlan/Context';
 import {
@@ -86,7 +86,7 @@ export const genCreatedPartialSample = (
     specificData: {
       programmingPlanKind: 'PPV',
       matrixPart: oneOf(MatrixPartList),
-      stage: oneOf(StageList),
+      stage: oneOf(StagesByProgrammingPlanKind['PPV']),
       cultureKind: oneOf(CultureKindList),
       releaseControl: genBoolean()
     },

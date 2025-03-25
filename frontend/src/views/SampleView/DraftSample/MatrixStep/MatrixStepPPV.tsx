@@ -21,7 +21,7 @@ import {
 import {
   Stage,
   StageLabels,
-  StageList
+  StagesByProgrammingPlanKind
 } from 'maestro-shared/referential/Stage';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import {
@@ -56,12 +56,15 @@ const SampleMatrixPPVData = SampleMatrixData.omit({
 
 type SampleMatrixPPVData = z.infer<typeof SampleMatrixPPVData>;
 
+export type PartialSamplePPV = (PartialSample | PartialSampleToCreate) & {
+  specificData: Extract<
+    PartialSampleMatrixSpecificData,
+    { programmingPlanKind: 'PPV' }
+  >;
+};
+
 export interface Props {
-  partialSample: (PartialSample | PartialSampleToCreate) & {
-    specificData: PartialSampleMatrixSpecificData & {
-      programmingPlanKind: 'PPV';
-    };
-  };
+  partialSample: PartialSamplePPV;
   prescriptions: Prescription[];
   onSave: (sampleMatrixData: SampleMatrixPPVData) => Promise<void>;
   onSubmit: () => Promise<void>;
@@ -205,7 +208,7 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
             <AppSelect<FormShape>
               value={stage ?? ''}
               options={selectOptionsFromList(
-                StageList.filter(
+                StagesByProgrammingPlanKind['PPV'].filter(
                   (stage) =>
                     !prescriptions ||
                     prescriptions.find(
