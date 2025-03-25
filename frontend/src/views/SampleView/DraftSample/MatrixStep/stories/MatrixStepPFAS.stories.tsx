@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { expect, within } from '@storybook/test';
-import { StageList } from 'maestro-shared/referential/Stage';
+import { StagesByProgrammingPlanKind } from 'maestro-shared/referential/Stage';
 import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import {
@@ -40,7 +40,10 @@ const prescription1 = genPrescription({
   programmingPlanId: programmingPlan.id,
   context: 'Control',
   matrixKind: 'A031E',
-  stages: [oneOf(StageList), oneOf(StageList)]
+  stages: [
+    oneOf(StagesByProgrammingPlanKind['PFAS_MEAT']),
+    oneOf(StagesByProgrammingPlanKind['PFAS_MEAT'])
+  ]
 });
 
 export const MatrixStepPFAS: Story = {

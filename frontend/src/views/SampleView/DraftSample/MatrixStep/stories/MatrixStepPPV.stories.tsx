@@ -8,7 +8,7 @@ import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
 import { MatrixPartList } from 'maestro-shared/referential/Matrix/MatrixPart';
-import { StageList } from 'maestro-shared/referential/Stage';
+import { StagesByProgrammingPlanKind } from 'maestro-shared/referential/Stage';
 import {
   genPrescription,
   genRegionalPrescription
@@ -56,7 +56,10 @@ const prescription1 = genPrescription({
   programmingPlanId: programmingPlan.id,
   context: 'Control',
   matrixKind: 'A001M',
-  stages: [oneOf(StageList), oneOf(StageList)]
+  stages: [
+    oneOf(StagesByProgrammingPlanKind['PPV']),
+    oneOf(StagesByProgrammingPlanKind['PPV'])
+  ]
 });
 const prescription2 = genPrescription({
   programmingPlanId: programmingPlan.id,

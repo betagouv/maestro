@@ -1,4 +1,19 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import {
+  AnimalKind,
+  AnimalKindLabels,
+  AnimalKindsByProgrammingPlanKind
+} from 'maestro-shared/referential/AnimalKind';
+import {
+  AnimalSex,
+  AnimalSexLabels,
+  AnimalSexList
+} from 'maestro-shared/referential/AnimalSex';
+import {
+  BreedingMethod,
+  BreedingMethodLabels,
+  BreedingMethodList
+} from 'maestro-shared/referential/BreedingMethod';
 import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
 import {
   MatrixKind,
@@ -8,15 +23,35 @@ import {
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
 import {
+  OutdoorAccess,
+  OutdoorAccessLabels,
+  OutdoorAccessList
+} from 'maestro-shared/referential/OutdoorAccess';
+import {
+  ProductionKind,
+  ProductionKindLabels,
+  ProductionKindsByProgrammingPlanKind
+} from 'maestro-shared/referential/ProductionKind';
+import {
+  Seizure,
+  SeizureLabels,
+  SeizureList
+} from 'maestro-shared/referential/Seizure';
+import {
   Species,
-  SpeciesLabels,
-  SpeciesList
+  SpeciesByProgrammingPlanKind,
+  SpeciesLabels
 } from 'maestro-shared/referential/Species';
 import {
   Stage,
   StageLabels,
-  StageList
+  StagesByProgrammingPlanKind
 } from 'maestro-shared/referential/Stage';
+import {
+  TargetingCriteria,
+  TargetingCriteriaLabels,
+  TargetingCriteriaList
+} from 'maestro-shared/referential/TargetingCriteria';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import {
   PartialSample,
@@ -51,12 +86,15 @@ const SampleMatrixPFASData = SampleMatrixData.omit({
 
 type SampleMatrixPFASData = z.infer<typeof SampleMatrixPFASData>;
 
+export type PartialSamplePFAS = (PartialSample | PartialSampleToCreate) & {
+  specificData: Extract<
+    PartialSampleMatrixSpecificData,
+    { programmingPlanKind: 'PFAS_EGGS' | 'PFAS_MEAT' }
+  >;
+};
+
 export interface Props {
-  partialSample: (PartialSample | PartialSampleToCreate) & {
-    specificData: PartialSampleMatrixSpecificData & {
-      programmingPlanKind: 'PFAS_EGGS' | 'PFAS_MEAT';
-    };
-  };
+  partialSample: PartialSamplePFAS;
   prescriptions: Prescription[];
   onSave: (sampleMatrixData: SampleMatrixPFASData) => Promise<void>;
   onSubmit: () => Promise<void>;
@@ -92,10 +130,12 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
       partialSample.specificData.animalKind
     );
     const [productionKind, setProductionKind] = useState(
-      partialSample.specificData.productionKind
+      partialSample.specificData.programmingPlanKind === 'PFAS_MEAT'
+        ? partialSample.specificData.productionKind
+        : undefined
     );
-    const [identifier, setIdentifier] = useState(
-      partialSample.specificData.identifier
+    const [animalIdentifier, setAnimalIdentifier] = useState(
+      partialSample.specificData.animalIdentifier
     );
     const [breedingMethod, setBreedingMethod] = useState(
       partialSample.specificData.breedingMethod
@@ -118,23 +158,33 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
       () => ({
         programmingPlanKind: partialSample.specificData.programmingPlanKind,
         species,
+        stage,
+        killingCode,
         targetingCriteria,
         notesOnTargetingCriteria,
         animalKind,
         productionKind,
-        identifier,
+        animalIdentifier,
         breedingMethod,
-        age
+        age,
+        sex,
+        seizure,
+        outdoorAccess
       }),
       [
         species,
+        stage,
+        killingCode,
         targetingCriteria,
         notesOnTargetingCriteria,
         animalKind,
         productionKind,
-        identifier,
+        animalIdentifier,
         breedingMethod,
-        age
+        age,
+        sex,
+        seizure,
+        outdoorAccess
       ]
     );
 
@@ -144,10 +194,8 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
         matrix,
         specificData,
         notesOnMatrix,
-        prescriptionId: prescriptions?.find(
-          (p) =>
-            p.matrixKind === matrixKind && stage && p.stages.includes(stage)
-        )?.id
+        prescriptionId: prescriptions?.find((p) => p.matrixKind === matrixKind)
+          ?.id
       } as SampleMatrixPFASData);
 
     const form = useForm(
@@ -174,14 +222,25 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
     return (
       <>
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+          <div
+            className={cx(
+              'fr-col-12',
+              'fr-col-sm-6',
+              'fr-col-offset-sm-6--right'
+            )}
+          >
             <AppSelect<FormShape>
               value={species ?? ''}
-              options={selectOptionsFromList(SpeciesList, {
-                labels: SpeciesLabels,
-                defaultLabel: 'Sélectionner une espèce',
-                withSort: true
-              })}
+              options={selectOptionsFromList(
+                SpeciesByProgrammingPlanKind[
+                  partialSample.specificData.programmingPlanKind
+                ] ?? [],
+                {
+                  labels: SpeciesLabels,
+                  defaultLabel: 'Sélectionner une espèce',
+                  withSort: true
+                }
+              )}
               onChange={(e) => setSpecies(e.target.value as Species)}
               inputForm={form}
               inputKey="specificData"
@@ -249,30 +308,236 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
               }}
             />
           </div>
+          <div
+            className={cx(
+              'fr-col-12',
+              'fr-col-sm-6',
+              'fr-col-offset-sm-6--right'
+            )}
+          >
+            {partialSample.specificData.programmingPlanKind === 'PFAS_EGGS' && (
+              <AppSelect<FormShape>
+                value={stage ?? ''}
+                options={selectOptionsFromList(
+                  StagesByProgrammingPlanKind[
+                    partialSample.specificData.programmingPlanKind
+                  ],
+                  {
+                    labels: StageLabels,
+                    defaultLabel: 'Sélectionner un stade'
+                  }
+                )}
+                onChange={(e) => setStage(e.target.value as Stage)}
+                inputForm={form}
+                inputKey="specificData"
+                inputPathFromKey={['stage']}
+                whenValid="Stade de prélèvement correctement renseigné."
+                data-testid="stage-select"
+                label="Stade de prélèvement"
+                required
+              />
+            )}
+
+            {partialSample.specificData.programmingPlanKind === 'PFAS_MEAT' && (
+              <AppTextAreaInput<FormShape>
+                rows={1}
+                defaultValue={killingCode ?? ''}
+                onChange={(e) => setKillingCode(e.target.value)}
+                inputForm={form}
+                inputKey="specificData"
+                inputPathFromKey={['killingCode']}
+                whenValid="Code tuerie correctement renseigné."
+                label="Code tuerie"
+              />
+            )}
+          </div>
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
             <AppSelect<FormShape>
-              value={stage ?? ''}
-              options={selectOptionsFromList(
-                StageList.filter(
-                  (stage) =>
-                    !prescriptions ||
-                    prescriptions.find(
-                      (p) =>
-                        p.matrixKind === matrixKind && p.stages.includes(stage)
-                    )
-                ),
-                {
-                  labels: StageLabels,
-                  defaultLabel: 'Sélectionner un stade'
-                }
-              )}
-              onChange={(e) => setStage(e.target.value as Stage)}
+              value={targetingCriteria ?? ''}
+              options={selectOptionsFromList(TargetingCriteriaList, {
+                labels: TargetingCriteriaLabels,
+                defaultLabel: 'Sélectionner un critère de ciblage'
+              })}
+              onChange={(e) =>
+                setTargetingCriteria(e.target.value as TargetingCriteria)
+              }
               inputForm={form}
               inputKey="specificData"
-              inputPathFromKey={['stage']}
-              whenValid="Stade de prélèvement correctement renseigné."
-              data-testid="stage-select"
-              label="Stade de prélèvement"
+              inputPathFromKey={['targetingCriteria']}
+              whenValid="Critère de ciblage correctement renseigné."
+              data-testid="targeting-criteria-select"
+              label="Critère de ciblage"
+              required
+            />
+          </div>
+          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+            <AppTextAreaInput<FormShape>
+              rows={1}
+              defaultValue={notesOnTargetingCriteria ?? ''}
+              onChange={(e) => setNotesOnTargetingCriteria(e.target.value)}
+              inputForm={form}
+              inputKey="specificData"
+              inputPathFromKey={['notesOnTargetingCriteria']}
+              whenValid="Précisions correctement renseignées."
+              label="Précisions critère de ciblage"
+            />
+          </div>
+        </div>
+
+        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+          <div className={cx('fr-col-12', 'fr-pb-0')}>
+            <span className={cx('fr-text--md', 'fr-text--bold')}>Animal</span>
+          </div>
+          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+            <AppSelect<FormShape>
+              value={animalKind ?? ''}
+              options={selectOptionsFromList(
+                AnimalKindsByProgrammingPlanKind[
+                  partialSample.specificData.programmingPlanKind
+                ] ?? [],
+                {
+                  labels: AnimalKindLabels,
+                  defaultLabel: "Sélectionner un type d'animal"
+                }
+              )}
+              onChange={(e) => setAnimalKind(e.target.value as AnimalKind)}
+              inputForm={form}
+              inputKey="specificData"
+              inputPathFromKey={['animalKind']}
+              whenValid="Type d'animal correctement renseigné."
+              data-testid="animal-kind-select"
+              label="Type d'animal"
+              required
+            />
+          </div>
+          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+            {partialSample.specificData.programmingPlanKind === 'PFAS_MEAT' && (
+              <AppSelect<FormShape>
+                value={productionKind ?? ''}
+                options={selectOptionsFromList(
+                  ProductionKindsByProgrammingPlanKind[
+                    partialSample.specificData.programmingPlanKind
+                  ] ?? [],
+                  {
+                    labels: ProductionKindLabels,
+                    defaultLabel: 'Sélectionner un type de production'
+                  }
+                )}
+                onChange={(e) =>
+                  setProductionKind(e.target.value as ProductionKind)
+                }
+                inputForm={form}
+                inputKey="specificData"
+                inputPathFromKey={['productionKind']}
+                whenValid="Type de production correctement renseigné."
+                data-testid="production-kind-select"
+                label="Type de production"
+                required
+              />
+            )}
+          </div>
+          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+            <AppTextAreaInput<FormShape>
+              rows={1}
+              defaultValue={animalIdentifier}
+              onChange={(e) => setAnimalIdentifier(e.target.value)}
+              inputForm={form}
+              inputKey="specificData"
+              inputPathFromKey={['animalIdentifier']}
+              whenValid="Identifiant correctement renseigné."
+              label="Identifiant du lot ou de l'animal"
+              required
+            />
+          </div>
+          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+            <AppSelect<FormShape>
+              value={breedingMethod ?? ''}
+              options={selectOptionsFromList(BreedingMethodList, {
+                labels: BreedingMethodLabels,
+                defaultLabel: 'Sélectionner une méthode d’élevage'
+              })}
+              onChange={(e) =>
+                setBreedingMethod(e.target.value as BreedingMethod)
+              }
+              inputForm={form}
+              inputKey="specificData"
+              inputPathFromKey={['breedingMethod']}
+              whenValid="Méthode d'élevage correctement renseignée."
+              data-testid="breeding-method-select"
+              label="Méthode d'élevage"
+              required
+            />
+          </div>
+          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+            <AppSelect<FormShape>
+              value={age ?? ''}
+              options={selectOptionsFromList(
+                Array.from({ length: 24 }, (_, i) => i + 1).map(
+                  (i) => `${i} mois`
+                ),
+                {
+                  defaultLabel: 'Sélectionner un age'
+                }
+              )}
+              onChange={(e) => setAge(e.target.value)}
+              inputForm={form}
+              inputKey="specificData"
+              inputPathFromKey={['age']}
+              whenValid="Âge correctement renseigné."
+              data-testid="age-select"
+              label="Âge"
+              required
+            />
+          </div>
+          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+            <AppSelect<FormShape>
+              value={sex ?? ''}
+              options={selectOptionsFromList(AnimalSexList, {
+                labels: AnimalSexLabels,
+                defaultLabel: 'Sélectionner un sexe'
+              })}
+              onChange={(e) => setSex(e.target.value as AnimalSex)}
+              inputForm={form}
+              inputKey="specificData"
+              inputPathFromKey={['sex']}
+              whenValid="Sexe correctement renseigné."
+              data-testid="sex-select"
+              label="Sexe"
+              required
+            />
+          </div>
+          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+            <AppSelect<FormShape>
+              value={seizure ?? ''}
+              options={selectOptionsFromList(SeizureList, {
+                labels: SeizureLabels,
+                defaultLabel: 'Sélectionner une saisie'
+              })}
+              onChange={(e) => setSeizure(e.target.value as Seizure)}
+              inputForm={form}
+              inputKey="specificData"
+              inputPathFromKey={['seizure']}
+              whenValid="Saisie correctement renseignée."
+              data-testid="seizure-select"
+              label="Saisie"
+            />
+          </div>
+          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+            <AppSelect<FormShape>
+              value={outdoorAccess ?? ''}
+              options={selectOptionsFromList(OutdoorAccessList, {
+                labels: OutdoorAccessLabels,
+                defaultLabel: "Sélectionner un accès à l'extérieur"
+              })}
+              onChange={(e) =>
+                setOutdoorAccess(e.target.value as OutdoorAccess)
+              }
+              inputForm={form}
+              inputKey="specificData"
+              inputPathFromKey={['outdoorAccess']}
+              whenValid="Accès extérieur correctement renseigné."
+              data-testid="outdoor-access-select"
+              label="Accès à l'extérieur des animaux de l'élevage"
               required
             />
           </div>

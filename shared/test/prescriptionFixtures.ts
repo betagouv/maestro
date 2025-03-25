@@ -2,7 +2,7 @@ import { fakerFR } from '@faker-js/faker';
 import { v4 as uuidv4 } from 'uuid';
 import { MatrixKindEffective } from '../referential/Matrix/MatrixKind';
 import { RegionList } from '../referential/Region';
-import { StageList } from '../referential/Stage';
+import { StagesByProgrammingPlanKind } from '../referential/Stage';
 import { AnalysisMethodList } from '../schema/Analysis/AnalysisMethod';
 import { Prescription } from '../schema/Prescription/Prescription';
 import { PrescriptionSubstance } from '../schema/Prescription/PrescriptionSubstance';
@@ -18,7 +18,7 @@ export const genPrescription = (
   programmingPlanId: uuidv4(),
   context: oneOf(ContextList),
   matrixKind: oneOf(MatrixKindEffective.options),
-  stages: [oneOf(StageList)],
+  stages: [oneOf(StagesByProgrammingPlanKind['PPV'])],
   ...data
 });
 

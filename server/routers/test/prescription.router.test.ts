@@ -2,7 +2,7 @@ import { fakerFR } from '@faker-js/faker';
 import { constants } from 'http2';
 import { MatrixKindEffective } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { RegionList } from 'maestro-shared/referential/Region';
-import { StageList } from 'maestro-shared/referential/Stage';
+import { StagesByProgrammingPlanKind } from 'maestro-shared/referential/Stage';
 import { PrescriptionUpdate } from 'maestro-shared/schema/Prescription/Prescription';
 import { User } from 'maestro-shared/schema/User/User';
 import {
@@ -69,19 +69,19 @@ describe('Prescriptions router', () => {
     programmingPlanId: programmingPlanClosed.id,
     context: 'Control',
     matrixKind: oneOf(MatrixKindEffective.options),
-    stages: [oneOf(StageList)]
+    stages: [oneOf(StagesByProgrammingPlanKind['PPV'])]
   });
   const submittedControlPrescription = genPrescription({
     programmingPlanId: programmingPlanSubmitted.id,
     context: 'Control',
     matrixKind: oneOf(MatrixKindEffective.options),
-    stages: [oneOf(StageList)]
+    stages: [oneOf(StagesByProgrammingPlanKind['PPV'])]
   });
   const inProgressControlPrescription = genPrescription({
     programmingPlanId: programmingPlanInProgress.id,
     context: 'Control',
     matrixKind: oneOf(MatrixKindEffective.options),
-    stages: [oneOf(StageList)]
+    stages: [oneOf(StagesByProgrammingPlanKind['PPV'])]
   });
   const substance = genSubstance();
   const inProgressControlPrescriptionSubstance = genPrescriptionSubstance({
@@ -93,7 +93,7 @@ describe('Prescriptions router', () => {
     programmingPlanId: programmingPlanInProgress.id,
     context: 'Surveillance',
     matrixKind: oneOf(MatrixKindEffective.options),
-    stages: [oneOf(StageList)]
+    stages: [oneOf(StagesByProgrammingPlanKind['PPV'])]
   });
 
   beforeAll(async () => {
@@ -345,7 +345,7 @@ describe('Prescriptions router', () => {
   describe('PUT /prescriptions/{prescriptionId}', () => {
     const prescriptionUpdate: PrescriptionUpdate = {
       programmingPlanId: programmingPlanInProgress.id,
-      stages: [oneOf(StageList)],
+      stages: [oneOf(StagesByProgrammingPlanKind['PPV'])],
       notes: fakerFR.string.alphanumeric(32)
     };
     const testRoute = (

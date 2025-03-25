@@ -5,7 +5,7 @@ import Tag from '@codegouvfr/react-dsfr/Tag';
 import {
   Stage,
   StageLabels,
-  StageList
+  StagesByProgrammingPlanKind
 } from 'maestro-shared/referential/Stage';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -50,7 +50,9 @@ const PrescriptionStages = ({
             className={cx('fr-mb-1w')}
           >
             {selectOptionsFromList(
-              StageList.filter((s) => !prescription.stages.includes(s)),
+              programmingPlan.kinds
+                .flatMap((kind) => StagesByProgrammingPlanKind[kind])
+                .filter((s) => !prescription.stages.includes(s)),
               {
                 defaultLabel: 'Sélectionner',
                 labels: StageLabels,

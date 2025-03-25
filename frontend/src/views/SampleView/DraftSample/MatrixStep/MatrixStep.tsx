@@ -29,6 +29,8 @@ import { ApiClientContext } from '../../../../services/apiClient';
 import NextButton from '../NextButton';
 import MatrixStepPFAS from './MatrixStepPFAS';
 import MatrixStepPPV from './MatrixStepPPV';
+import MatrixStepPFAS, { PartialSamplePFAS } from './MatrixStepPFAS';
+import MatrixStepPPV, { PartialSamplePPV } from './MatrixStepPPV';
 
 export type MatrixStepRef = {
   submit: () => Promise<void>;
@@ -41,7 +43,7 @@ export interface Props {
 const MatrixStep = ({ partialSample }: Props) => {
   const apiClient = useContext(ApiClientContext);
   const { navigateToSample } = useSamplesLink();
-  const { user } = useAuthentication();
+  const { user, hasUserPermission } = useAuthentication();
   const { readonly } = usePartialSample(partialSample);
 
   const [matrixKind, setMatrixKind] = useState(partialSample.matrixKind);
@@ -321,7 +323,7 @@ const MatrixStep = ({ partialSample }: Props) => {
       {partialSample.specificData.programmingPlanKind === 'PPV' && (
         <MatrixStepPPV
           ref={stepRef}
-          partialSample={partialSample}
+          partialSample={partialSample as PartialSamplePPV}
           prescriptions={prescriptions ?? []}
           onSave={(sampleMatrixData) => save('DraftMatrix', sampleMatrixData)}
           onSubmit={async () => {
@@ -337,7 +339,7 @@ const MatrixStep = ({ partialSample }: Props) => {
       ) && (
         <MatrixStepPFAS
           ref={stepRef}
-          partialSample={partialSample}
+          partialSample={partialSample as PartialSamplePFAS}
           prescriptions={prescriptions ?? []}
           onSave={(sampleMatrixData) => save('DraftMatrix', sampleMatrixData)}
           onSubmit={async () => {
@@ -347,161 +349,6 @@ const MatrixStep = ({ partialSample }: Props) => {
           renderSampleAttachments={renderSampleAttachments}
         />
       )}
-
-      {/*<div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>*/}
-      {/*  <div className={cx('fr-col-12', 'fr-col-sm-6')}>*/}
-      {/*    <AppSearchInput*/}
-      {/*      value={matrixKind ?? ''}*/}
-      {/*      options={selectOptionsFromList(*/}
-      {/*        MatrixKindList.filter((matrixKind) =>*/}
-      {/*          prescriptions?.find((p) => p.matrixKind === matrixKind)*/}
-      {/*        ),*/}
-      {/*        {*/}
-      {/*          labels: MatrixKindLabels,*/}
-      {/*          withSort: true,*/}
-      {/*          withDefault: false*/}
-      {/*        }*/}
-      {/*      )}*/}
-      {/*      placeholder="Sélectionner une catégorie"*/}
-      {/*      onSelect={(value) => {*/}
-      {/*        setMatrixKind(value as MatrixKind);*/}
-      {/*        setMatrix(undefined);*/}
-      {/*        setStage(undefined);*/}
-      {/*      }}*/}
-      {/*      state={form.messageType('matrixKind')}*/}
-      {/*      stateRelatedMessage={form.message('matrixKind')}*/}
-      {/*      whenValid="Type de matrice correctement renseignée."*/}
-      {/*      label="Catégorie de matrice programmée"*/}
-      {/*      required*/}
-      {/*      inputProps={{*/}
-      {/*        'data-testid': 'matrix-kind-select'*/}
-      {/*      }}*/}
-      {/*    />*/}
-      {/*  </div>*/}
-      {/*  <div className={cx('fr-col-12', 'fr-col-sm-6')}>*/}
-      {/*    <AppSearchInput*/}
-      {/*      value={matrix ?? ''}*/}
-      {/*      options={selectOptionsFromList(*/}
-      {/*        matrixKind*/}
-      {/*          ? (MatrixListByKind[matrixKind as MatrixKind] ?? matrixKind)*/}
-      {/*          : [],*/}
-      {/*        {*/}
-      {/*          labels: MatrixLabels,*/}
-      {/*          withSort: true,*/}
-      {/*          withDefault: false*/}
-      {/*        }*/}
-      {/*      )}*/}
-      {/*      placeholder="Sélectionner une matrice"*/}
-      {/*      onSelect={(value) => {*/}
-      {/*        setMatrix(value as Matrix);*/}
-      {/*      }}*/}
-      {/*      state={form.messageType('matrix')}*/}
-      {/*      stateRelatedMessage={form.message('matrix')}*/}
-      {/*      whenValid="Matrice correctement renseignée."*/}
-      {/*      data-testid="matrix-select"*/}
-      {/*      label="Matrice"*/}
-      {/*      required*/}
-      {/*      inputProps={{*/}
-      {/*        'data-testid': 'matrix-select'*/}
-      {/*      }}*/}
-      {/*    />*/}
-      {/*  </div>*/}
-      {/*  {specificData.programmingPlanKind === 'PPV' && (*/}
-      {/*    <div className={cx('fr-col-12', 'fr-col-sm-6')}>*/}
-      {/*      <AppSelect<FormShape>*/}
-      {/*        value={stage ?? ''}*/}
-      {/*        options={selectOptionsFromList(*/}
-      {/*          StageList.filter(*/}
-      {/*            (stage) =>*/}
-      {/*              !prescriptions ||*/}
-      {/*              prescriptions.find(*/}
-      {/*                (p) =>*/}
-      {/*                  p.matrixKind === matrixKind && p.stages.includes(stage)*/}
-      {/*              )*/}
-      {/*          ),*/}
-      {/*          {*/}
-      {/*            labels: StageLabels,*/}
-      {/*            defaultLabel: 'Sélectionner un stade'*/}
-      {/*          }*/}
-      {/*        )}*/}
-      {/*        onChange={(e) => setStage(e.target.value as Stage)}*/}
-      {/*        inputForm={form}*/}
-      {/*        inputKey="specificData"*/}
-      {/*        inputPathFromKey={['stage']}*/}
-      {/*        whenValid="Stade de prélèvement correctement renseigné."*/}
-      {/*        data-testid="stage-select"*/}
-      {/*        label="Stade de prélèvement"*/}
-      {/*        required*/}
-      {/*      />*/}
-      {/*    </div>*/}
-      {/*  )}*/}
-      {/*</div>*/}
-      {/*<div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>*/}
-      {/*  {specificData.programmingPlanKind === 'PPV' && (*/}
-      {/*    <div className={cx('fr-col-12')}>*/}
-      {/*      <AppTextInput<FormShape>*/}
-      {/*        defaultValue={matrixDetails ?? ''}*/}
-      {/*        onChange={(e) => setMatrixDetails(e.target.value)}*/}
-      {/*        inputForm={form}*/}
-      {/*        inputKey="specificData"*/}
-      {/*        inputPathFromKey={['matrixDetails']}*/}
-      {/*        whenValid="Détail de la matrice correctement renseigné."*/}
-      {/*        data-testid="matrixdetails-input"*/}
-      {/*        label="Détail de la matrice"*/}
-      {/*        hintText="Champ facultatif pour précisions supplémentaires"*/}
-      {/*      />*/}
-      {/*    </div>*/}
-      {/*  )}*/}
-      {/*  {specificData.programmingPlanKind === 'PPV' && (*/}
-      {/*    <div className={cx('fr-col-12', 'fr-col-sm-6')}>*/}
-      {/*      <AppSelect<FormShape>*/}
-      {/*        defaultValue={cultureKind ?? ''}*/}
-      {/*        options={selectOptionsFromList(CultureKindList, {*/}
-      {/*          labels: CultureKindLabels,*/}
-      {/*          defaultLabel: 'Sélectionner un type de culture'*/}
-      {/*        })}*/}
-      {/*        onChange={(e) => setCultureKind(e.target.value as CultureKind)}*/}
-      {/*        inputForm={form}*/}
-      {/*        inputKey="specificData"*/}
-      {/*        inputPathFromKey={['cultureKind']}*/}
-      {/*        whenValid="Type de culture correctement renseigné."*/}
-      {/*        data-testid="culturekind-select"*/}
-      {/*        label="Type de culture"*/}
-      {/*      />*/}
-      {/*    </div>*/}
-      {/*  )}*/}
-      {/*  {specificData.programmingPlanKind === 'PPV' && (*/}
-      {/*    <div className={cx('fr-col-12', 'fr-col-sm-6')}>*/}
-      {/*      <AppSelect<FormShape>*/}
-      {/*        defaultValue={matrixPart ?? ''}*/}
-      {/*        options={selectOptionsFromList(MatrixPartList, {*/}
-      {/*          labels: MatrixPartLabels,*/}
-      {/*          defaultLabel: 'Sélectionner une partie du végétal'*/}
-      {/*        })}*/}
-      {/*        onChange={(e) => setMatrixPart(e.target.value as MatrixPart)}*/}
-      {/*        inputForm={form}*/}
-      {/*        inputKey="specificData"*/}
-      {/*        inputPathFromKey={['matrixPart']}*/}
-      {/*        whenValid="Partie du végétal correctement renseignée."*/}
-      {/*        data-testid="matrixpart-select"*/}
-      {/*        label="LMR / Partie du végétal concernée"*/}
-      {/*        required*/}
-      {/*      />*/}
-      {/*    </div>*/}
-      {/*  )}*/}
-      {/*</div>*/}
-      {/*{specificData.programmingPlanKind === 'PPV' && (*/}
-      {/*  <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>*/}
-      {/*    <div className={cx('fr-col-12')}>*/}
-      {/*      <ToggleSwitch*/}
-      {/*        label="Contrôle libératoire"*/}
-      {/*        checked={releaseControl ?? false}*/}
-      {/*        onChange={(checked) => setReleaseControl(checked)}*/}
-      {/*        showCheckedHint={false}*/}
-      {/*      />*/}
-      {/*    </div>*/}
-      {/*  </div>*/}
-      {/*)}*/}
 
       <hr className={cx('fr-mx-0')} />
       {hasUserPermission('updateSample') && (
