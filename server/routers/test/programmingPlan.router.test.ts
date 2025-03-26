@@ -423,6 +423,8 @@ describe('ProgrammingPlan router', () => {
             programmingPlanId: res.body.id,
             matrixKind: controlPrescriptionValidatedPlan.matrixKind,
             stages: controlPrescriptionValidatedPlan.stages,
+            programmingPlanKind:
+              controlPrescriptionValidatedPlan.programmingPlanKind,
             notes: null
           }
         ])
@@ -439,6 +441,8 @@ describe('ProgrammingPlan router', () => {
             programmingPlanId: res.body.id,
             matrixKind: surveillancePrescriptionValidatedPlan.matrixKind,
             stages: surveillancePrescriptionValidatedPlan.stages,
+            programmingPlanKind:
+              controlPrescriptionValidatedPlan.programmingPlanKind,
             notes: null
           }
         ])

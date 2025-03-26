@@ -13,7 +13,7 @@ import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { getMatrixPartLabel } from 'maestro-shared/referential/Matrix/MatrixPart';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
 import { Regions } from 'maestro-shared/referential/Region';
-import { getStageLabel } from 'maestro-shared/referential/Stage';
+import { StageLabels } from 'maestro-shared/referential/Stage';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
@@ -216,7 +216,7 @@ const generateSampleSupportPDF = async (
       : {}),
     context: ContextLabels[sample.context],
     legalContext: LegalContextLabels[sample.legalContext],
-    stage: getStageLabel(sample),
+    stage: StageLabels[sample.stage],
     matrixKind: MatrixKindLabels[sample.matrixKind],
     matrix: MatrixLabels[sample.matrix],
     matrixDetails:

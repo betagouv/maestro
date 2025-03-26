@@ -45,7 +45,7 @@ import {
 import {
   Stage,
   StageLabels,
-  StagesByProgrammingPlanKind
+  StageList
 } from 'maestro-shared/referential/Stage';
 import {
   TargetingCriteria,
@@ -110,6 +110,7 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
   ) => {
     const [matrixKind, setMatrixKind] = useState(partialSample.matrixKind);
     const [matrix, setMatrix] = useState(partialSample.matrix);
+    const [stage, setStage] = useState(partialSample.stage);
     const [notesOnMatrix, setNotesOnMatrix] = useState(
       partialSample.notesOnMatrix
     );
@@ -148,11 +149,6 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
     const [outdoorAccess, setOutdoorAccess] = useState(
       partialSample.specificData.outdoorAccess
     );
-    const [stage, setStage] = useState(
-      partialSample.specificData.programmingPlanKind === 'PFAS_EGGS'
-        ? partialSample.specificData.stage
-        : undefined
-    );
 
     type FormShape = typeof SampleMatrixPFASData.shape;
 
@@ -160,7 +156,6 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
       () => ({
         programmingPlanKind: partialSample.specificData.programmingPlanKind,
         species,
-        stage,
         killingCode,
         targetingCriteria,
         notesOnTargetingCriteria,
@@ -175,7 +170,6 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
       }),
       [
         species,
-        stage,
         killingCode,
         targetingCriteria,
         notesOnTargetingCriteria,
@@ -194,10 +188,16 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
       onSave({
         matrixKind,
         matrix,
+        stage,
         specificData,
         notesOnMatrix,
-        prescriptionId: prescriptions?.find((p) => p.matrixKind === matrixKind)
-          ?.id
+        prescriptionId: prescriptions?.find(
+          (p) =>
+            p.programmingPlanKind === specificData.programmingPlanKind &&
+            p.matrixKind === matrixKind &&
+            stage &&
+            p.stages.includes(stage)
+        )?.id
       } as SampleMatrixPFASData);
 
     const form = useForm(
@@ -205,6 +205,7 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
       {
         matrixKind,
         matrix,
+        stage,
         specificData,
         notesOnMatrix,
         prescriptionId: partialSample.prescriptionId
@@ -258,7 +259,12 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
               value={matrixKind ?? ''}
               options={selectOptionsFromList(
                 MatrixKindList.filter((matrixKind) =>
-                  prescriptions?.find((p) => p.matrixKind === matrixKind)
+                  prescriptions?.find(
+                    (p) =>
+                      p.programmingPlanKind ===
+                        specificData.programmingPlanKind &&
+                      p.matrixKind === matrixKind
+                  )
                 ),
                 {
                   labels: MatrixKindLabels,
@@ -310,36 +316,37 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
               }}
             />
           </div>
-          <div
-            className={cx(
-              'fr-col-12',
-              'fr-col-sm-6',
-              'fr-col-offset-sm-6--right'
-            )}
-          >
-            {partialSample.specificData.programmingPlanKind === 'PFAS_EGGS' && (
-              <AppSelect<FormShape>
-                value={stage ?? ''}
-                options={selectOptionsFromList(
-                  StagesByProgrammingPlanKind[
-                    partialSample.specificData.programmingPlanKind
-                  ],
-                  {
-                    labels: StageLabels,
-                    defaultLabel: 'Sélectionner un stade'
-                  }
-                )}
-                onChange={(e) => setStage(e.target.value as Stage)}
-                inputForm={form}
-                inputKey="specificData"
-                inputPathFromKey={['stage']}
-                whenValid="Stade de prélèvement correctement renseigné."
-                data-testid="stage-select"
-                label="Stade de prélèvement"
-                required
-              />
-            )}
-
+          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+            <AppSelect<FormShape>
+              value={stage ?? ''}
+              options={selectOptionsFromList(
+                StageList.filter(
+                  (stage) =>
+                    !prescriptions ||
+                    prescriptions.find(
+                      (p) =>
+                        p.programmingPlanKind ===
+                          specificData.programmingPlanKind &&
+                        p.matrixKind === matrixKind &&
+                        p.stages.includes(stage)
+                    )
+                ),
+                {
+                  labels: StageLabels,
+                  defaultLabel: 'Sélectionner un stade'
+                }
+              )}
+              onChange={(e) => setStage(e.target.value as Stage)}
+              inputForm={form}
+              inputKey="specificData"
+              inputPathFromKey={['stage']}
+              whenValid="Stade de prélèvement correctement renseigné."
+              data-testid="stage-select"
+              label="Stade de prélèvement"
+              required
+            />
+          </div>
+          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
             {partialSample.specificData.programmingPlanKind === 'PFAS_MEAT' && (
               <AppTextAreaInput<FormShape>
                 rows={1}
@@ -350,6 +357,7 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
                 inputPathFromKey={['killingCode']}
                 whenValid="Code tuerie correctement renseigné."
                 label="Code tuerie"
+                required
               />
             )}
           </div>

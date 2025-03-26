@@ -16,6 +16,16 @@ export const up = async (knex: Knex) => {
     table.dropUnique(['year']);
   });
 
+  await knex.schema.alterTable('prescriptions', (table) => {
+    table.string('programming_plan_kind');
+  });
+
+  await knex('prescriptions').update({ programming_plan_kind: 'PPV' });
+
+  await knex.schema.alterTable('prescriptions', (table) => {
+    table.string('programming_plan_kind').notNullable().alter();
+  });
+
   await knex.schema.alterTable('users', (table) => {
     table.specificType('programming_plan_kinds', 'text[]');
   });
@@ -39,16 +49,23 @@ export const up = async (knex: Knex) => {
             'programmingPlanKind', 'PPV', 
             'matrixDetails', matrix_details,
             'matrixPart', matrix_part,
-            'stage', stage,
             'cultureKind', culture_kind, 
             'releaseControl', release_control
         )
   `);
+
+  await knex.schema.alterTable('samples', (table) => {
+    table.json('specific_data').notNullable().alter();
+  });
 };
 
 export const down = async (knex: Knex) => {
   await knex.schema.alterTable('samples', (table) => {
     table.dropColumn('specific_data');
+  });
+
+  await knex.schema.alterTable('prescriptions', (table) => {
+    table.dropColumn('programming_plan_kind');
   });
 
   await knex.schema.alterTable('users', (table) => {

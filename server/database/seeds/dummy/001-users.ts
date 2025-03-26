@@ -86,7 +86,7 @@ export const seed = async function () {
       lastName: fakerFR.person.lastName(),
       programmingPlanKinds: ['PFAS_EGGS', 'PFAS_MEAT'],
       role: 'Sampler',
-      region: '75'
+      region: '84'
     }
   ]);
 };

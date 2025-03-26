@@ -6,7 +6,7 @@ import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { getMatrixPartLabel } from 'maestro-shared/referential/Matrix/MatrixPart';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
-import { getStageLabel } from 'maestro-shared/referential/Stage';
+import { StageLabels } from 'maestro-shared/referential/Stage';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { PartialSample } from 'maestro-shared/schema/Sample/Sample';
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
@@ -125,7 +125,7 @@ const writeToWorkbook = async (
               ? sample.specificData?.matrixDetails
               : undefined,
           matrixPart: getMatrixPartLabel(sample),
-          stage: getStageLabel(sample),
+          stage: sample.stage ? StageLabels[sample.stage] : undefined,
           cultureKind: getCultureKindLabel(sample),
           releaseControl:
             sample.specificData?.programmingPlanKind === 'PPV'
