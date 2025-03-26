@@ -169,6 +169,7 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
         outdoorAccess
       }),
       [
+        partialSample.specificData.programmingPlanKind,
         species,
         killingCode,
         targetingCriteria,
