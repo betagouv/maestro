@@ -3,6 +3,7 @@ import { fr } from 'date-fns/locale';
 import fs from 'fs';
 import handlebars from 'handlebars';
 import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
+import UserMissingError from 'maestro-shared/errors/userMissingError';
 import { CultureKindLabels } from 'maestro-shared/referential/CultureKind';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
@@ -15,13 +16,13 @@ import { StageLabels } from 'maestro-shared/referential/Stage';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
-import { User } from 'maestro-shared/schema/User/User';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import puppeteer from 'puppeteer';
 import { documentRepository } from '../../repositories/documentRepository';
 import laboratoryRepository from '../../repositories/laboratoryRepository';
 import prescriptionSubstanceRepository from '../../repositories/prescriptionSubstanceRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
+import { userRepository } from '../../repositories/userRepository';
 import {
   assetsPath,
   Template,
@@ -126,8 +127,7 @@ const generatePDF = async (template: Template, data: unknown) => {
 const generateSampleSupportPDF = async (
   sample: Sample,
   sampleItems: PartialSampleItem[],
-  itemNumber: number,
-  sampler: User
+  itemNumber: number
 ) => {
   const programmingPlan = await programmingPlanRepository.findUnique(
     sample.programmingPlanId as string
@@ -135,6 +135,11 @@ const generateSampleSupportPDF = async (
 
   if (!programmingPlan) {
     throw new ProgrammingPlanMissingError(sample.programmingPlanId as string);
+  }
+
+  const sampler = await userRepository.findUnique(sample.sampler.id);
+  if (!sampler) {
+    throw new UserMissingError(sample.sampler.id);
   }
 
   const laboratory = sample.laboratoryId
