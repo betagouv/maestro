@@ -35,7 +35,7 @@ export type ExportDataSubstance = { label: string, casNumber: string | null, cod
   | ExportResultNonQuantifiable
   | ExportResultQuantifiable
 );
-export type ExportDataSubstanceWithSSD2Id = OmitDistributive<ExportDataSubstance, 'casNumber' | 'label' | 'codeSandre'> & {ssd2Id: SSD2Id}
+export type ExportDataSubstanceWithSSD2Id = OmitDistributive<ExportDataSubstance, 'casNumber' | 'label' | 'codeSandre'> & {ssd2Id: SSD2Id | null, unknown_label: string | null}
 
 export type IsSender = (senderAddress: string) => boolean;
 export type ExportAnalysis = {
@@ -207,9 +207,19 @@ export const checkEmails = async () => {
                  throw new ExtractError(`Résidue non identifiable : ${r.label}`)
                 }
               });
-              const {analysisId, programmingPlansYear, samplerId, samplerEmail} = await analysisHandler({...analysis, residues: interestingResidues
-                  .map( ({casNumber, codeSandre, label, ...rest}) => rest)
-                  .filter((residue): residue is ExportDataSubstanceWithSSD2Id => residue.ssd2Id !== null)});
+              const {
+                analysisId,
+                programmingPlansYear,
+                samplerId,
+                samplerEmail
+              } = await analysisHandler({
+                ...analysis,
+                residues: interestingResidues
+                  .map(({ casNumber, codeSandre, label, ...rest }) => {
+                    const unknown_label = rest.ssd2Id === null ? label : null
+                    return { ...rest, unknown_label }
+                  })
+              });
 
               await notificationService.sendNotification({
                 category: 'AnalysisReviewTodo',
