@@ -3,7 +3,7 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
-import { CompletedStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
+import { CompletedStatusList, SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
 import { FunctionComponent, useContext, useState } from 'react';
 import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import { usePartialSample } from 'src/hooks/usePartialSample';
@@ -80,7 +80,7 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
                   priority="secondary"
                          className="fr-mr-1w"
                          onClick={setAnalysisToReview}>
-                  Review
+                  { SampleStatusLabels['InReview'] }
                 </Button> }
                 <SampleStatusBadge status={sample.status} />
               </div>
