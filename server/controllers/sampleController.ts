@@ -12,7 +12,6 @@ import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { getMatrixPartLabel } from 'maestro-shared/referential/Matrix/MatrixPart';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
 import { Regions } from 'maestro-shared/referential/Region';
-import { getStageLabel } from 'maestro-shared/referential/Stage';
 import { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequestData';
 import {
   getAnalysisReportDocumentFilename,
@@ -45,6 +44,7 @@ import workbookUtils from '../utils/workbookUtils';
 
 import { isEqual } from 'lodash-es';
 import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
+import { StageLabels } from 'maestro-shared/referential/Stage';
 import { Readable } from 'node:stream';
 const getSample = async (request: Request, response: Response) => {
   const sample = (request as SampleRequest).sample;
@@ -286,7 +286,7 @@ const updateSample = async (request: Request, response: Response) => {
               sampledAtTime: formatWithTz(updatedSample.sampledAt, 'HH:mm'),
               context: ContextLabels[updatedSample.context],
               legalContext: LegalContextLabels[updatedSample.legalContext],
-              stage: getStageLabel(updatedSample) as string,
+              stage: StageLabels[updatedSample.stage],
               matrixKindLabel: MatrixKindLabels[updatedSample.matrixKind],
               matrixLabel: MatrixLabels[updatedSample.matrix],
               matrixPart: getMatrixPartLabel(updatedSample) as string,

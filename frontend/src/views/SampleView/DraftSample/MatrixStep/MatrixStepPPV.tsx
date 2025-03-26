@@ -21,7 +21,7 @@ import {
 import {
   Stage,
   StageLabels,
-  StagesByProgrammingPlanKind
+  StageList
 } from 'maestro-shared/referential/Stage';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import {
@@ -78,6 +78,10 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
   ) => {
     const [matrixKind, setMatrixKind] = useState(partialSample.matrixKind);
     const [matrix, setMatrix] = useState(partialSample.matrix);
+    const [stage, setStage] = useState(partialSample.stage);
+    const [notesOnMatrix, setNotesOnMatrix] = useState(
+      partialSample.notesOnMatrix
+    );
 
     const [matrixDetails, setMatrixDetails] = useState(
       partialSample.specificData.matrixDetails
@@ -85,7 +89,6 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
     const [matrixPart, setMatrixPart] = useState(
       partialSample.specificData.matrixPart
     );
-    const [stage, setStage] = useState(partialSample.specificData.stage);
     const [cultureKind, setCultureKind] = useState(
       partialSample.specificData.cultureKind
     );
@@ -93,33 +96,32 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
       partialSample.specificData.releaseControl
     );
 
-    const [notesOnMatrix, setNotesOnMatrix] = useState(
-      partialSample.notesOnMatrix
-    );
-
     type FormShape = typeof SampleMatrixPPVData.shape;
 
     const specificData = useMemo(
       () => ({
         programmingPlanKind: 'PPV',
-        stage,
         matrixPart,
         matrixDetails,
         cultureKind,
         releaseControl
       }),
-      [stage, matrixPart, matrixDetails, cultureKind, releaseControl]
+      [matrixPart, matrixDetails, cultureKind, releaseControl]
     );
 
     const save = async () =>
       onSave({
         matrixKind,
         matrix,
+        stage,
         specificData,
         notesOnMatrix,
         prescriptionId: prescriptions?.find(
           (p) =>
-            p.matrixKind === matrixKind && stage && p.stages.includes(stage)
+            p.programmingPlanKind === specificData.programmingPlanKind &&
+            p.matrixKind === matrixKind &&
+            stage &&
+            p.stages.includes(stage)
         )?.id
       } as SampleMatrixPPVData);
 
@@ -128,6 +130,7 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
       {
         matrixKind,
         matrix,
+        stage,
         specificData,
         notesOnMatrix,
         prescriptionId: partialSample.prescriptionId
@@ -151,7 +154,12 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
               value={matrixKind ?? ''}
               options={selectOptionsFromList(
                 MatrixKindList.filter((matrixKind) =>
-                  prescriptions?.find((p) => p.matrixKind === matrixKind)
+                  prescriptions?.find(
+                    (p) =>
+                      p.programmingPlanKind ===
+                        specificData.programmingPlanKind &&
+                      p.matrixKind === matrixKind
+                  )
                 ),
                 {
                   labels: MatrixKindLabels,
@@ -207,12 +215,15 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
             <AppSelect<FormShape>
               value={stage ?? ''}
               options={selectOptionsFromList(
-                StagesByProgrammingPlanKind['PPV'].filter(
+                StageList.filter(
                   (stage) =>
                     !prescriptions ||
                     prescriptions.find(
                       (p) =>
-                        p.matrixKind === matrixKind && p.stages.includes(stage)
+                        p.programmingPlanKind ===
+                          specificData.programmingPlanKind &&
+                        p.matrixKind === matrixKind &&
+                        p.stages.includes(stage)
                     )
                 ),
                 {
