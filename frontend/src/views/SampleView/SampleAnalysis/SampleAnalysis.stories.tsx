@@ -29,7 +29,7 @@ export const ReviewWithoutResidu: Story = {
   args: {
     sample: {
       ...Sample11Fixture,
-      status: 'Analysis',
+      status: 'InReview',
       receivedAt: new Date(12345)
     } as Sample
   },

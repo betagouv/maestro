@@ -3,7 +3,7 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
-import { CompletedStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
+import { CompletedStatusList, SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
 import { FunctionComponent, useContext, useState } from 'react';
 import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import { usePartialSample } from 'src/hooks/usePartialSample';
@@ -13,6 +13,7 @@ import SampleDraftAnalysis from 'src/views/SampleView/SampleAnalysis/SampleDraft
 import { useSamplesLink } from '../../../hooks/useSamplesLink';
 import { ApiClientContext } from '../../../services/apiClient';
 import { SampleAnalysisReview } from './SampleAnalysisReview/SampleAnalysisReview';
+import { useAuthentication } from '../../../hooks/useAuthentication';
 
 export interface Props {
   sample: Sample;
@@ -20,10 +21,11 @@ export interface Props {
 
 const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
   const apiClient = useContext(ApiClientContext);
+  const { hasRole } = useAuthentication()
 
   const { laboratory } = usePartialSample(sample);
   const { navigateToSample } = useSamplesLink();
-  const [, { isSuccess: isSendingSuccess }] = apiClient.useUpdateSampleMutation(
+  const [updateSample, { isSuccess: isSendingSuccess }] = apiClient.useUpdateSampleMutation(
     {
       fixedCacheKey: `sending-sample-${sample.id}`
     }
@@ -33,6 +35,10 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
       fixedCacheKey: `complete-analysis-${sample.id}`
     });
   const { data: analysis } = apiClient.useGetSampleAnalysisQuery(sample.id);
+
+  const setAnalysisToReview = () => {
+      updateSample({...sample, status: 'InReview'});
+  }
 
   const dateFormat = new Intl.DateTimeFormat('fr-FR', {
     dateStyle: 'long'
@@ -45,7 +51,7 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
 
   return (
     <div>
-      {isSendingSuccess && laboratory && (
+      {isSendingSuccess && laboratory && sample.status !== 'InReview' && (
         <Alert
           severity="info"
           small
@@ -68,6 +74,14 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
             <div className="sample-status">
               <div>Suivi du prélèvement</div>
               <div>
+                { sample.status === 'Completed' && hasRole('Administrator') && <Button
+                  iconId="fr-icon-arrow-go-back-fill"
+                         iconPosition="left"
+                  priority="secondary"
+                         className="fr-mr-1w"
+                         onClick={setAnalysisToReview}>
+                  { SampleStatusLabels['InReview'] }
+                </Button> }
                 <SampleStatusBadge status={sample.status} />
               </div>
             </div>
@@ -75,7 +89,7 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
               sample.status
             ) && (
               <>
-                {analysis?.status !== 'InReview' ? (
+                {sample.status !== 'InReview' ? (
                   <div
                     className={cx(
                       'fr-text--lg',
@@ -111,7 +125,7 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
           </h3>
         </div>
       </div>
-      {analysis?.status !== 'InReview' ? (
+      {sample.status !== 'InReview' ? (
         <SampleAdmissibility sample={sample} />
       ) : null}
       {sample.status === 'Analysis' && !analysis && !continueToAnalysis ? (
@@ -125,13 +139,12 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
         </Button>
       ) : (
         <>
-          {['Analysis', ...CompletedStatusList].includes(sample.status) && (
+          {['Analysis', 'InReview', ...CompletedStatusList].includes(sample.status) && (
             <div
               className={clsx(
                 cx(
                   'fr-callout',
-                  CompletedStatusList.includes(sample.status) ||
-                    analysis?.status === 'InReview'
+                  [...CompletedStatusList, 'InReview'].includes(sample.status)
                     ? 'fr-callout--green-emeraude'
                     : 'fr-callout--pink-tuile'
                 ),
@@ -140,8 +153,8 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
                 'fr-mt-5w'
               )}
             >
-              {sample.status === 'Analysis' &&
-                (analysis?.status === 'InReview' ? (
+              {sample.status === 'InReview' &&
+                (analysis !== undefined ? (
                   <SampleAnalysisReview
                     sample={sample}
                     partialAnalysis={analysis}

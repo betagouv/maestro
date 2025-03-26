@@ -460,8 +460,12 @@ describe('Analysis router', () => {
       await kysely
         .updateTable('analysis')
         .where('id', '=', analysisWithResidues.id)
-        .set('status', 'InReview')
+        .set('status', 'Compliance')
         .execute();
+      await kysely.updateTable('samples')
+        .where('id', '=', analysisWithResidues.sampleId)
+        .set('status', 'InReview')
+        .execute()
       const analysis = await analysisRepository.findUnique(
         analysisWithResidues.id
       );
@@ -485,8 +489,12 @@ describe('Analysis router', () => {
       await kysely
         .updateTable('analysis')
         .where('id', '=', analysisWithResidues.id)
-        .set('status', 'InReview')
+        .set('status', 'Compliance')
         .execute();
+      await kysely.updateTable('samples')
+        .where('id', '=', analysisWithResidues.sampleId)
+        .set('status', 'InReview')
+        .execute()
       await request(app)
         .put(testRoute(analysisWithResidues.id))
         .send({ ...analysisUpdate, residues: [] })

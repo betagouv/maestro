@@ -77,7 +77,7 @@ export const analysisHandler = async (
         {
           sampleId,
           reportDocumentId: documentId,
-          status: 'InReview',
+          status: 'Compliance',
           createdBy: null,
           createdAt: new Date(),
           // Pour le moment on passe par une validation manuelle pour déterminer la conformité
@@ -87,7 +87,7 @@ export const analysisHandler = async (
         trx
       );
 
-      await sampleRepository.updateStatus(sampleId, 'Analysis', trx);
+      await sampleRepository.updateStatus(sampleId, 'InReview', trx);
 
       for (let i = 0; i < residues.length; i++){
         const residue = residues[i];

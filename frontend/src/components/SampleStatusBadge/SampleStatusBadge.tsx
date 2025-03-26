@@ -17,6 +17,7 @@ const SampleStatusBadge = ({ status, ...props }: Props) => {
     NotAdmissible: 'error',
     Analysis: 'info',
     Completed: 'success',
+    InReview: 'warning',
     CompletedNotConform: 'error'
   };
 
