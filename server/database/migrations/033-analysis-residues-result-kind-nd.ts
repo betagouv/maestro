@@ -14,7 +14,6 @@ export const up = async (knex: Knex) => {
     table.string('unknown_label')
   });
 
-  //FIXME ajouter les index
 };
 
 export const down = async (knex: Knex) => {
