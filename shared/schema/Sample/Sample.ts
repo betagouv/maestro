@@ -183,10 +183,14 @@ export const SampleOwnerData = z.object({
   notesOnOwnerAgreement: z.string().nullish()
 });
 
+export const PartialSampleMatrixData = z.object({
+  ...SampleMatrixData.partial().shape,
+  specificData: PartialSampleMatrixSpecificData
+});
+
 export const PartialSampleToCreate = z.object({
   ...SampleContextData.shape,
-  ...SampleMatrixData.partial().shape,
-  specificData: PartialSampleMatrixSpecificData,
+  ...PartialSampleMatrixData.shape,
   ...SampleItemsData.partial().shape,
   ...SampleAdmissibilityData.partial().shape,
   ...SampleOwnerData.partial().shape,
@@ -228,6 +232,7 @@ export type SampleMatrixData = z.infer<typeof SampleMatrixData>;
 export type SampleItemsData = z.infer<typeof SampleItemsData>;
 export type SampleOwnerData = z.infer<typeof SampleOwnerData>;
 export type CreatedSampleData = z.infer<typeof CreatedSampleData>;
+export type PartialSampleMatrixData = z.infer<typeof PartialSampleMatrixData>;
 export type PartialSampleToCreate = z.infer<typeof PartialSampleToCreate>;
 export type PartialSample = z.infer<typeof PartialSample>;
 export type SampleToCreate = z.infer<typeof SampleToCreate>;
