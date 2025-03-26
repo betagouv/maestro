@@ -233,8 +233,7 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
               )}
               onChange={(e) => setStage(e.target.value as Stage)}
               inputForm={form}
-              inputKey="specificData"
-              inputPathFromKey={['stage']}
+              inputKey="stage"
               whenValid="Stade de prélèvement correctement renseigné."
               data-testid="stage-select"
               label="Stade de prélèvement"
