@@ -26,16 +26,6 @@ export type Point = {
 
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
-export interface _MatrixReferential {
-  code: string | null;
-  label: string | null;
-}
-
-export interface _Referential {
-  code: string | null;
-  label: string | null;
-}
-
 export interface Analysis {
   compliance: boolean | null;
   createdAt: Generated<Timestamp | null>;
@@ -62,6 +52,7 @@ export interface AnalysisResidues {
   resultKind: ResultKind | null;
   substanceApproved: string | null;
   substanceAuthorised: string | null;
+  unknown_label: string | null
 }
 
 export interface AnalysisErrors {
@@ -69,24 +60,6 @@ export interface AnalysisErrors {
   residues: { old: Omit<PartialResidue, 'analysisId'>[], new: Omit<PartialResidue, 'analysisId'>[] }
 }
 
-
-export interface AnalysisResiduesTmp {
-  analysisId: string | null;
-  compliance: string | null;
-  kind: string | null;
-  lmr: number | null;
-  notesOnPollutionRisk: string | null;
-  notesOnResult: string | null;
-  originalName: string | null;
-  pollutionRisk: string | null;
-  reference: string | null;
-  residueNumber: number | null;
-  result: number | null;
-  resultHigherThanArfd: string | null;
-  resultKind: string | null;
-  substanceApproved: string | null;
-  substanceAuthorised: string | null;
-}
 
 export interface Companies {
   address: string | null;
@@ -113,10 +86,6 @@ export interface KnexMigrations {
   name: string | null;
 }
 
-export interface KnexMigrationsLock {
-  index: Generated<number>;
-  isLocked: number | null;
-}
 
 export interface Laboratories {
   email: string;
@@ -247,16 +216,12 @@ export interface SampleDocuments {
 }
 
 export interface DB {
-  _MatrixReferential: _MatrixReferential;
-  _Referential: _Referential;
   analysis: Analysis;
   analysisResidues: AnalysisResidues;
   analysisErrors: AnalysisErrors;
-  analysisResiduesTmp: AnalysisResiduesTmp;
   companies: Companies;
   documents: Documents;
   knexMigrations: KnexMigrations;
-  knexMigrationsLock: KnexMigrationsLock;
   laboratories: Laboratories;
   prescriptions: Prescriptions;
   prescriptionSubstances: PrescriptionSubstances;

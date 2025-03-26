@@ -507,11 +507,12 @@ describe('Analysis router', () => {
       expect(analysisErrors).toHaveLength(1);
       expect(analysisErrors[0].residues.new).toHaveLength(0);
       expect(analysisErrors[0].residues.old).toEqual(
-        analysis?.residues?.map(({  analysisMethod, residueNumber, result, analytes }) => ({
+        analysis?.residues?.map(({  analysisMethod, residueNumber, result, analytes, resultKind }) => ({
           analysisMethod,
           residueNumber,
           result,
-          analytes
+          analytes,
+          resultKind
         }))
       );
     });
