@@ -12,6 +12,7 @@ import { type DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
+import { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 
 export type Generated<T> =
   T extends ColumnType<infer S, infer I, infer U>
@@ -58,7 +59,7 @@ export interface AnalysisResidues {
   residueNumber: number;
   result: number | null;
   resultHigherThanArfd: string | null;
-  resultKind: string | null;
+  resultKind: ResultKind | null;
   substanceApproved: string | null;
   substanceAuthorised: string | null;
 }
