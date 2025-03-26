@@ -1,3 +1,6 @@
+import { format } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
+import { fr } from 'date-fns/locale';
 import _ from 'lodash';
 import {
   camelCase,
@@ -89,3 +92,8 @@ export function withISOStringDates(obj: any): any {
     return undefined;
   });
 }
+
+export const formatWithTz = (date: Date, formatStr: string) =>
+  format(toZonedTime(date, 'Europe/Paris'), formatStr, {
+    locale: fr
+  });

@@ -28,8 +28,7 @@ import {
 } from 'maestro-shared/schema/Sample/Sample';
 import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
-import { User } from 'maestro-shared/schema/User/User';
-import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
+import { formatWithTz, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import companyRepository from '../repositories/companyRepository';
 import laboratoryRepository from '../repositories/laboratoryRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
@@ -45,8 +44,8 @@ import config from '../utils/config';
 import workbookUtils from '../utils/workbookUtils';
 
 import { isEqual } from 'lodash-es';
-import { Readable } from 'node:stream';
 import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
+import { Readable } from 'node:stream';
 const getSample = async (request: Request, response: Response) => {
   const sample = (request as SampleRequest).sample;
 
@@ -63,7 +62,6 @@ const getSample = async (request: Request, response: Response) => {
 const getSampleItemDocument = async (request: Request, response: Response) => {
   const sample: Sample = (request as SampleRequest).sample;
   const itemNumber = Number(request.params.itemNumber);
-  const { user } = request as AuthenticatedRequest;
 
   console.info('Get sample document', sample.id);
 
@@ -72,8 +70,7 @@ const getSampleItemDocument = async (request: Request, response: Response) => {
   const pdfBuffer = await pdfService.generateSampleSupportPDF(
     sample,
     sampleItems,
-    itemNumber,
-    user
+    itemNumber
   );
 
   response.setHeader('Content-Type', 'application/pdf');
@@ -186,8 +183,12 @@ const updateSample = async (request: Request, response: Response) => {
 
   console.info('Update sample', sample.id, sampleUpdate);
 
-  if( !user.roles.includes('Administrator') && sampleUpdate.status === 'InReview' && sample.status !== 'InReview'){
-    throw new UserRoleMissingError()
+  if (
+    !user.roles.includes('Administrator') &&
+    sampleUpdate.status === 'InReview' &&
+    sample.status !== 'InReview'
+  ) {
+    throw new UserRoleMissingError();
   }
 
   if (
@@ -224,8 +225,7 @@ const updateSample = async (request: Request, response: Response) => {
         const sampleSupportDoc = await generateAndStoreSampleSupportDocument(
           updatedSample,
           sampleItems as SampleItem[],
-          sampleItem.itemNumber,
-          user
+          sampleItem.itemNumber
         );
 
         if (sampleItem.itemNumber === 1) {
@@ -283,9 +283,7 @@ const updateSample = async (request: Request, response: Response) => {
               sampledAtDate: format(updatedSample.sampledAt, 'dd/MM/yyyy', {
                 locale: fr
               }),
-              sampledAtTime: format(updatedSample.sampledAt, 'HH:mm', {
-                locale: fr
-              }),
+              sampledAtTime: formatWithTz(updatedSample.sampledAt, 'HH:mm'),
               context: ContextLabels[updatedSample.context],
               legalContext: LegalContextLabels[updatedSample.legalContext],
               stage: StageLabels[updatedSample.stage],
@@ -385,14 +383,12 @@ const streamToBase64 = async (stream: Readable): Promise<string> => {
 const generateAndStoreSampleSupportDocument = async (
   sample: Sample,
   sampleItems: SampleItem[],
-  itemNumber: number,
-  sampler: User
+  itemNumber: number
 ) => {
   const pdfBuffer = await pdfService.generateSampleSupportPDF(
     sample,
     sampleItems,
-    itemNumber,
-    sampler
+    itemNumber
   );
 
   const sampleItem = sampleItems.find((item) => item.itemNumber === itemNumber);
@@ -419,7 +415,7 @@ const generateAndStoreSampleSupportDocument = async (
   await documentService.createDocument<void>(
     file,
     'SupportDocument',
-    sampler.id,
+    sample.sampler.id,
     (documentId, trx) =>
       sampleItemRepository.update(
         sample.id,
