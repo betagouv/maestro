@@ -28,7 +28,7 @@ import {
 } from 'maestro-shared/schema/Sample/Sample';
 import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
-import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
+import { formatWithTz, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import companyRepository from '../repositories/companyRepository';
 import laboratoryRepository from '../repositories/laboratoryRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
@@ -284,9 +284,7 @@ const updateSample = async (request: Request, response: Response) => {
               sampledAtDate: format(updatedSample.sampledAt, 'dd/MM/yyyy', {
                 locale: fr
               }),
-              sampledAtTime: format(updatedSample.sampledAt, 'HH:mm', {
-                locale: fr
-              }),
+              sampledAtTime: formatWithTz(updatedSample.sampledAt, 'HH:mm'),
               context: ContextLabels[updatedSample.context],
               legalContext: LegalContextLabels[updatedSample.legalContext],
               stage: StageLabels[updatedSample.stage],

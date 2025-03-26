@@ -11,7 +11,7 @@ import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { PartialSample } from 'maestro-shared/schema/Sample/Sample';
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import { SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
-import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
+import { formatWithTz, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { analysisRepository } from '../../repositories/analysisRepository';
 import laboratoryRepository from '../../repositories/laboratoryRepository';
 import sampleItemRepository from '../../repositories/sampleItemRepository';
@@ -94,10 +94,10 @@ const writeToWorkbook = async (
           reference: sample.reference,
           department: sample.department,
           sampler: `${sample.sampler.firstName} ${sample.sampler.lastName}`,
-          sampledAt: format(sample.sampledAt, 'dd/MM/yyyy HH:mm'),
+          sampledAt: formatWithTz(sample.sampledAt, 'dd/MM/yyyy HH:mm'),
           status: SampleStatusLabels[sample.status],
           sentAt: sample.sentAt
-            ? format(sample.sentAt, 'dd/MM/yyyy HH:mm')
+            ? formatWithTz(sample.sentAt, 'dd/MM/yyyy HH:mm')
             : '',
           receivedAt: sample.receivedAt
             ? format(sample.receivedAt, 'dd/MM/yyyy')

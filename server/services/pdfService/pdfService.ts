@@ -16,7 +16,7 @@ import { StageLabels } from 'maestro-shared/referential/Stage';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
-import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
+import { formatWithTz, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import puppeteer from 'puppeteer';
 import { documentRepository } from '../../repositories/documentRepository';
 import laboratoryRepository from '../../repositories/laboratoryRepository';
@@ -193,7 +193,7 @@ const generateSampleSupportPDF = async (
       locale: fr
     }),
     sampledAtDate: format(sample.sampledAt, 'dd/MM/yyyy', { locale: fr }),
-    sampledAtTime: format(sample.sampledAt, 'HH:mm', { locale: fr }),
+    sampledAtTime: formatWithTz(sample.sampledAt, 'HH:mm'),
     context: ContextLabels[sample.context],
     legalContext: LegalContextLabels[sample.legalContext],
     stage: StageLabels[sample.stage],
