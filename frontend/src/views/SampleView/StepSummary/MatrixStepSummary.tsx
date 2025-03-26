@@ -1,12 +1,19 @@
 import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { skipToken } from '@reduxjs/toolkit/query';
+import { AnimalKindLabels } from 'maestro-shared/referential/AnimalKind';
+import { AnimalSexLabels } from 'maestro-shared/referential/AnimalSex';
+import { BreedingMethodLabels } from 'maestro-shared/referential/BreedingMethod';
 import { CultureKindLabels } from 'maestro-shared/referential/CultureKind';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { MatrixPartLabels } from 'maestro-shared/referential/Matrix/MatrixPart';
+import { OutdoorAccessLabels } from 'maestro-shared/referential/OutdoorAccess';
+import { ProductionKindLabels } from 'maestro-shared/referential/ProductionKind';
+import { SeizureLabels } from 'maestro-shared/referential/Seizure';
 import { SpeciesLabels } from 'maestro-shared/referential/Species';
 import { StageLabels } from 'maestro-shared/referential/Stage';
+import { TargetingCriteriaLabels } from 'maestro-shared/referential/TargetingCriteria';
 import {
   Sample,
   SampleOwnerData,
@@ -53,13 +60,13 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
       <div className="summary-item icon-text">
         <div className={cx('fr-icon-restaurant-line')}></div>
         <div>
-          {sample.specificData?.programmingPlanKind === 'PFAS_EGGS' ||
-            (sample.specificData?.programmingPlanKind === 'PFAS_MEAT' && (
-              <div>
-                Espèce animale :{' '}
-                <b>{SpeciesLabels[sample.specificData.species]}</b>
-              </div>
-            ))}
+          {(sample.specificData.programmingPlanKind === 'PFAS_EGGS' ||
+            sample.specificData.programmingPlanKind === 'PFAS_MEAT') && (
+            <div>
+              Espèce animale :{' '}
+              <b>{SpeciesLabels[sample.specificData.species]}</b>
+            </div>
+          )}
           <div>
             Catégorie de matrice programmée :{' '}
             <b>{MatrixKindLabels[sample.matrixKind]}</b>
@@ -67,23 +74,43 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
           <div>
             Matrice : <b>{MatrixLabels[sample.matrix]}</b>
           </div>
-          {sample.specificData?.programmingPlanKind === 'PPV' && (
-            <div>
-              LMR/ Partie du végétal concernée :{' '}
-              <b>{MatrixPartLabels[sample.specificData.matrixPart]}</b>
-            </div>
-          )}
-          {sample.specificData?.programmingPlanKind === 'PPV' &&
-            sample.specificData.matrixDetails && (
+          {sample.specificData.programmingPlanKind === 'PPV' && (
+            <>
+              <div>
+                LMR/ Partie du végétal concernée :{' '}
+                <b>{MatrixPartLabels[sample.specificData.matrixPart]}</b>
+              </div>
               <div>
                 Détails de la matrice :{' '}
                 <b>{sample.specificData.matrixDetails}</b>
               </div>
-            )}
+            </>
+          )}
+
+          {(sample.specificData.programmingPlanKind === 'PFAS_EGGS' ||
+            sample.specificData.programmingPlanKind === 'PFAS_MEAT') && (
+            <>
+              <div>
+                Critère de ciblage :{' '}
+                <b>
+                  {
+                    TargetingCriteriaLabels[
+                      sample.specificData.targetingCriteria
+                    ]
+                  }
+                </b>
+              </div>
+              <div>
+                Précisions critère de ciblage :{' '}
+                <b>{sample.specificData.notesOnTargetingCriteria}</b>
+              </div>
+            </>
+          )}
         </div>
       </div>
-      {sample.specificData?.programmingPlanKind === 'PPV' &&
-        sample.specificData?.cultureKind && (
+
+      {sample.specificData.programmingPlanKind === 'PPV' &&
+        sample.specificData.cultureKind && (
           <div className="summary-item icon-text">
             <div className={cx('fr-icon-seedling-line')}></div>
             <div>
@@ -92,7 +119,8 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
             </div>
           </div>
         )}
-      {sample.specificData?.programmingPlanKind === 'PPV' && (
+      {(sample.specificData.programmingPlanKind === 'PPV' ||
+        sample.specificData.programmingPlanKind === 'PFAS_EGGS') && (
         <div className="summary-item icon-text">
           <div className={cx('fr-icon-sip-line')}></div>
           <div>
@@ -101,8 +129,52 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
           </div>
         </div>
       )}
-      {sample.specificData?.programmingPlanKind === 'PPV' &&
-        sample.specificData?.releaseControl && (
+
+      {(sample.specificData.programmingPlanKind === 'PFAS_EGGS' ||
+        sample.specificData.programmingPlanKind === 'PFAS_MEAT') && (
+        <div className="summary-item icon-text">
+          <div className={cx('fr-icon-bug-line')}></div>
+          <div>
+            <div>
+              Type d'animal :{' '}
+              <b>{AnimalKindLabels[sample.specificData.animalKind]}</b>
+            </div>
+            {sample.specificData.programmingPlanKind === 'PFAS_MEAT' && (
+              <div>
+                Type de production :{' '}
+                <b>
+                  {ProductionKindLabels[sample.specificData.productionKind]}
+                </b>
+              </div>
+            )}
+            <div>
+              Identifiant du lot ou de l'animal :{' '}
+              <b>{sample.specificData.animalIdentifier}</b>
+            </div>
+            <div>
+              Mode d'élevage :{' '}
+              <b>{BreedingMethodLabels[sample.specificData.breedingMethod]}</b>
+            </div>
+            <div>
+              Âge : <b>{sample.specificData.age}</b>
+            </div>
+            <div>
+              Sexe : <b>{AnimalSexLabels[sample.specificData.sex]}</b>
+            </div>
+            {sample.specificData.seizure && (
+              <div>
+                Saisie : <b>{SeizureLabels[sample.specificData.seizure]}</b>
+              </div>
+            )}
+            <div>
+              Accès à l'extérieur des animaux de l'élevage :{' '}
+              <b>{OutdoorAccessLabels[sample.specificData.outdoorAccess]}</b>
+            </div>
+          </div>
+        </div>
+      )}
+      {sample.specificData.programmingPlanKind === 'PPV' &&
+        sample.specificData.releaseControl && (
           <div className="summary-item icon-text">
             <div className={cx('fr-icon-checkbox-circle-line')}></div>
             <div>
@@ -121,41 +193,47 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
           )}
         </div>
       </div>
-      {!monoSubstances?.length && !multiSubstances?.length && (
-        <div className="summary-item icon-text">
-          <div className={cx('fr-icon-list-ordered')}></div>
-          <div className="missing-data">Méthode d'analyse non disponible</div>
-        </div>
-      )}
-      {monoSubstances && monoSubstances.length > 0 && (
-        <div className="summary-item icon-text">
-          <div className={cx('fr-icon-list-ordered')}></div>
-          <div>
-            Analyses mono-résidu :{' '}
-            <ul>
-              {monoSubstances.map((analysis) => (
-                <li key={analysis.substance.code}>
-                  {analysis.substance.label}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      )}
-      {multiSubstances && multiSubstances.length > 0 && (
-        <div className="summary-item icon-text">
-          <div className={cx('fr-icon-list-ordered')}></div>
-          <div>
-            Analyses multi-résidus dont :{' '}
-            <ul>
-              {multiSubstances.map((analysis) => (
-                <li key={analysis.substance.code}>
-                  {analysis.substance.label}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
+      {sample.specificData.programmingPlanKind === 'PPV' && (
+        <>
+          {!monoSubstances?.length && !multiSubstances?.length && (
+            <div className="summary-item icon-text">
+              <div className={cx('fr-icon-list-ordered')}></div>
+              <div className="missing-data">
+                Méthode d'analyse non disponible
+              </div>
+            </div>
+          )}
+          {monoSubstances && monoSubstances.length > 0 && (
+            <div className="summary-item icon-text">
+              <div className={cx('fr-icon-list-ordered')}></div>
+              <div>
+                Analyses mono-résidu :{' '}
+                <ul>
+                  {monoSubstances.map((analysis) => (
+                    <li key={analysis.substance.code}>
+                      {analysis.substance.label}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
+          {multiSubstances && multiSubstances.length > 0 && (
+            <div className="summary-item icon-text">
+              <div className={cx('fr-icon-list-ordered')}></div>
+              <div>
+                Analyses multi-résidus dont :{' '}
+                <ul>
+                  {multiSubstances.map((analysis) => (
+                    <li key={analysis.substance.code}>
+                      {analysis.substance.label}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
+        </>
       )}
       {sample.documentIds?.map((documentId) => (
         <div className="summary-item icon-text">
