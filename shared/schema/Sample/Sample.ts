@@ -43,7 +43,6 @@ export const SampleMatrixSpecificDataPPV = z.object({
   programmingPlanKind: z.literal(ProgrammingPlanKind.Values.PPV),
   matrixDetails: z.string().nullish(),
   matrixPart: MatrixPart,
-  stage: Stage,
   cultureKind: CultureKind.nullish(),
   releaseControl: z.boolean().nullish()
 });
@@ -70,14 +69,15 @@ export const SampleMatrixSpecificDataPFAS = z.object({
 
 export const SampleMatrixSpecificDataPFASEggs =
   SampleMatrixSpecificDataPFAS.extend({
-    programmingPlanKind: z.literal(ProgrammingPlanKind.Values.PFAS_EGGS),
-    stage: Stage
+    programmingPlanKind: z.literal(ProgrammingPlanKind.Values.PFAS_EGGS)
   });
 
 export const SampleMatrixSpecificDataPFASMeat =
   SampleMatrixSpecificDataPFAS.extend({
     programmingPlanKind: z.literal(ProgrammingPlanKind.Values.PFAS_MEAT),
-    killingCode: z.string(),
+    killingCode: z.string({
+      required_error: 'Veuillez renseigner le code tuerie.'
+    }),
     productionKind: ProductionKind
   });
 
@@ -137,6 +137,7 @@ export const SampleContextData = z.object({
 export const SampleMatrixData = z.object({
   matrixKind: MatrixKind,
   matrix: Matrix,
+  stage: Stage,
   notesOnMatrix: z.string().nullish(),
   prescriptionId: z.string().uuid(),
   laboratoryId: z.string().uuid().nullish(),

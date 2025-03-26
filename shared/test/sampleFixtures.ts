@@ -9,7 +9,6 @@ import { MatrixKind } from '../referential/Matrix/MatrixKind';
 import { MatrixPartList } from '../referential/Matrix/MatrixPart';
 import { QuantityUnitList } from '../referential/QuantityUnit';
 import { Regions } from '../referential/Region';
-import { StagesByProgrammingPlanKind } from '../referential/Stage';
 import { Company } from '../schema/Company/Company';
 import { ContextList } from '../schema/ProgrammingPlan/Context';
 import {
@@ -83,10 +82,10 @@ export const genCreatedPartialSample = (
     ...genCreatedSampleData(data),
     company: genCompany(),
     matrix: oneOf(MatrixList),
+    stage: 'STADE1',
     specificData: {
       programmingPlanKind: 'PPV',
       matrixPart: oneOf(MatrixPartList),
-      stage: oneOf(StagesByProgrammingPlanKind['PPV']),
       cultureKind: oneOf(CultureKindList),
       releaseControl: genBoolean()
     },
@@ -144,10 +143,10 @@ export const Sample11Fixture = genCreatedPartialSample({
   lastUpdatedAt: new Date('2024-03-04'),
   status: 'DraftMatrix' as SampleStatus,
   matrix: 'A00GZ',
+  stage: 'STADE7',
   specificData: {
     programmingPlanKind: 'PPV',
     matrixPart: 'PART1',
-    stage: 'STADE7',
     cultureKind: 'PD07A',
     releaseControl: false
   },
