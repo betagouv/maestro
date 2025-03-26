@@ -138,7 +138,6 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
     useImperativeHandle(ref, () => ({
       submit: async () => {
         await form.validate(async () => {
-          await save();
           await onSubmit();
         });
       }
