@@ -9,8 +9,8 @@ import { PFASKindList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingP
 import {
   isCreatedPartialSample,
   PartialSample,
-  PartialSampleToCreate,
-  SampleMatrixData
+  PartialSampleMatrixData,
+  PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
 import React, { useContext, useMemo, useRef, useState } from 'react';
@@ -227,9 +227,9 @@ const MatrixStep = ({ partialSample }: Props) => {
   const save = async (
     status: SampleStatus,
     sampleMatrixData: Omit<
-      SampleMatrixData,
+      PartialSampleMatrixData,
       'documentIds' | 'laboratoryId'
-    > = SampleMatrixData.parse(partialSample)
+    > = PartialSampleMatrixData.parse(partialSample)
   ) => {
     const regionalPrescription = regionalPrescriptions?.find(
       (rp) =>

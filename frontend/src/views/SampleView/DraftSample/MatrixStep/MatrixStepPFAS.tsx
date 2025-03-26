@@ -80,8 +80,10 @@ const SampleMatrixPFASData = SampleMatrixData.omit({
   documentIds: true,
   laboratoryId: true
 }).extend({
-  specificData:
-    SampleMatrixSpecificDataPFASEggs || SampleMatrixSpecificDataPFASMeat
+  specificData: z.discriminatedUnion('programmingPlanKind', [
+    SampleMatrixSpecificDataPFASEggs,
+    SampleMatrixSpecificDataPFASMeat
+  ])
 });
 
 type SampleMatrixPFASData = z.infer<typeof SampleMatrixPFASData>;
@@ -454,7 +456,7 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
               value={breedingMethod ?? ''}
               options={selectOptionsFromList(BreedingMethodList, {
                 labels: BreedingMethodLabels,
-                defaultLabel: 'Sélectionner une méthode d’élevage'
+                defaultLabel: 'Sélectionner un mode d’élevage'
               })}
               onChange={(e) =>
                 setBreedingMethod(e.target.value as BreedingMethod)
@@ -462,9 +464,9 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
               inputForm={form}
               inputKey="specificData"
               inputPathFromKey={['breedingMethod']}
-              whenValid="Méthode d'élevage correctement renseignée."
+              whenValid="Mode d'élevage correctement renseignée."
               data-testid="breeding-method-select"
-              label="Méthode d'élevage"
+              label="Mode d'élevage"
               required
             />
           </div>

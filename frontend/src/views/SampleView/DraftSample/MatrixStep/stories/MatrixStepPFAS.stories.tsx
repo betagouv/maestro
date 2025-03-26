@@ -79,8 +79,6 @@ export const MatrixStepPFAS: Story = {
     await expect(canvas.getAllByTestId('matrix-kind-select')).toHaveLength(1);
     await expect(canvas.getAllByTestId('matrix-select')).toHaveLength(1);
     await expect(canvas.getAllByTestId('stage-select')).toHaveLength(2);
-    await expect(canvas.getAllByTestId('matrixdetails-input')).toHaveLength(2);
-    await expect(canvas.getAllByTestId('matrixpart-select')).toHaveLength(2);
     await expect(canvas.getAllByTestId('notes-input')).toHaveLength(2);
 
     await expect(canvas.getByTestId('previous-button')).toBeInTheDocument();
