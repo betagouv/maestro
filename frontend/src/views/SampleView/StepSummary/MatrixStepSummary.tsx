@@ -119,16 +119,12 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
             </div>
           </div>
         )}
-      {(sample.specificData.programmingPlanKind === 'PPV' ||
-        sample.specificData.programmingPlanKind === 'PFAS_EGGS') && (
-        <div className="summary-item icon-text">
-          <div className={cx('fr-icon-sip-line')}></div>
-          <div>
-            Stade de prélèvement :{' '}
-            <b>{StageLabels[sample.specificData.stage]}</b>
-          </div>
+      <div className="summary-item icon-text">
+        <div className={cx('fr-icon-sip-line')}></div>
+        <div>
+          Stade de prélèvement : <b>{StageLabels[sample.stage]}</b>
         </div>
-      )}
+      </div>
 
       {(sample.specificData.programmingPlanKind === 'PFAS_EGGS' ||
         sample.specificData.programmingPlanKind === 'PFAS_MEAT') && (
