@@ -3,7 +3,6 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { expect, fn, userEvent, within } from '@storybook/test';
 import { screen } from '@storybook/testing-library';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
-import { StagesByProgrammingPlanKind } from 'maestro-shared/referential/Stage';
 import {
   genPrescription,
   genRegionalPrescription
@@ -13,7 +12,6 @@ import {
   genCreatedSampleData,
   genSampleContextData
 } from 'maestro-shared/test/sampleFixtures';
-import { oneOf } from 'maestro-shared/test/testFixtures';
 import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
 import { ApiClient } from '../../../../../services/apiClient';
 import {
@@ -51,10 +49,7 @@ const prescription1 = genPrescription({
   programmingPlanId: programmingPlan.id,
   context: 'Control',
   matrixKind: 'A001M',
-  stages: [
-    oneOf(StagesByProgrammingPlanKind['PPV']),
-    oneOf(StagesByProgrammingPlanKind['PPV'])
-  ]
+  stages: ['STADE1', 'STADE5']
 });
 const prescription2 = genPrescription({
   programmingPlanId: programmingPlan.id,
