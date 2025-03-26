@@ -18,6 +18,7 @@ import {
   Context,
   ContextLabels
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   NextProgrammingPlanStatus,
   ProgrammingPlanStatus
@@ -181,9 +182,14 @@ const PrescriptionListView = () => {
   );
 
   const addMatrix = useCallback(
-    async (programmingPlanId: string, matrixKind: MatrixKind) => {
+    async (
+      programmingPlanId: string,
+      programmingPlanKind: ProgrammingPlanKind,
+      matrixKind: MatrixKind
+    ) => {
       await addPrescription({
         programmingPlanId,
+        programmingPlanKind,
         context: prescriptionListContext,
         matrixKind,
         stages: []
@@ -385,7 +391,11 @@ const PrescriptionListView = () => {
                   findPrescriptionOptions={findPrescriptionOptions}
                   prescriptions={prescriptions}
                   addMatrixKind={(matrixKind) =>
-                    addMatrix(programmingPlan.id, matrixKind)
+                    addMatrix(
+                      programmingPlan.id,
+                      programmingPlan.kinds[0],
+                      matrixKind
+                    )
                   }
                   sampleCount={_.sumBy(regionalPrescriptions, 'sampleCount')}
                   hasGroupedUpdatePermission={regionalPrescriptions.some(
