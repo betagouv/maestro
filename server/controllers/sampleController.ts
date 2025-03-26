@@ -62,7 +62,6 @@ const getSample = async (request: Request, response: Response) => {
 const getSampleItemDocument = async (request: Request, response: Response) => {
   const sample: Sample = (request as SampleRequest).sample;
   const itemNumber = Number(request.params.itemNumber);
-  const { user } = request as AuthenticatedRequest;
 
   console.info('Get sample document', sample.id);
 
@@ -416,7 +415,7 @@ const generateAndStoreSampleSupportDocument = async (
   await documentService.createDocument<void>(
     file,
     'SupportDocument',
-    sampler.id,
+    sample.sampler.id,
     (documentId, trx) =>
       sampleItemRepository.update(
         sample.id,
