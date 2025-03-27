@@ -15,7 +15,7 @@ import { OmitDistributive } from 'maestro-shared/utils/typescript';
 export type AnalysisWithResidueWithSSD2Id =  Omit<ExportAnalysis, 'residues'> & { residues: ExportDataSubstanceWithSSD2Id[]}
 export const analysisHandler = async (
   analyse: AnalysisWithResidueWithSSD2Id
-): Promise<{samplerId: string, analysisId: string, programmingPlansYear: number, samplerEmail: string}> => {
+): Promise<{samplerId: string, sampleId: string, analysisId: string, programmingPlansYear: number, samplerEmail: string}> => {
 
   const { sampleId, samplerId, analyseId, programmingPlansYear, samplerEmail} = await kysely
     .selectFrom('samples')
@@ -124,7 +124,7 @@ export const analysisHandler = async (
         }
       }
 
-      return { samplerId, analysisId, programmingPlansYear, samplerEmail };
+      return { samplerId, sampleId, analysisId, programmingPlansYear, samplerEmail };
     }
   );
 };
