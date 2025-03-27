@@ -1,11 +1,45 @@
-export type TemplateId = string | number;
+import { z, ZodType } from 'zod';
 
-export interface SendOptions {
+export const Templates = {
+  SampleAnalysisRequestTemplate: {
+    id: 1,
+    params: z.object({
+      region: z.string().optional(),
+      userMail: z.string(),
+      sampledAt: z.string()
+    })
+  },
+  SupportDocumentCopyToOwnerTemplate: {
+    id: 2,
+    params: z.object({
+      region: z.string().optional(),
+      sampledAt: z.string()
+    })
+  },
+  SubmittedProgrammingPlanTemplate: { id: 3, params: z.undefined() },
+  ValidatedProgrammingPlanTemplate: { id: 4, params: z.undefined() },
+  NewRegionalPrescriptionCommentTemplate: {
+    id: 5,
+    params: z.object({
+      matrix: z.string(),
+      sampleCount: z.number(),
+      comment: z.string(),
+      author: z.string()
+    })
+  }
+} as const satisfies {
+  [templateName: string]: {
+    id: number;
+    params: ZodType;
+  };
+};
+
+export type TemplateName = keyof typeof Templates;
+
+export interface SendOptions<T extends TemplateName> {
   recipients: string[];
-  subject?: string;
-  content?: string;
-  templateId?: TemplateId;
-  params?: any;
+  templateName: T;
+  params: z.infer<(typeof Templates)[T]['params']>;
   attachment?: {
     content: string;
     name: string;
@@ -13,10 +47,5 @@ export interface SendOptions {
 }
 
 export interface MailService {
-  send(options: SendOptions): Promise<void>;
-  sendAnalysisRequest(options: SendOptions): Promise<void>;
-  sendSupportDocumentCopyToOwner(options: SendOptions): Promise<void>;
-  sendSubmittedProgrammingPlan(options: SendOptions): Promise<void>;
-  sendValidatedProgrammingPlan(options: SendOptions): Promise<void>;
-  sendNewRegionalPrescriptionComment(options: SendOptions): Promise<void>;
+  send<T extends TemplateName>(options: SendOptions<T>): Promise<void>;
 }

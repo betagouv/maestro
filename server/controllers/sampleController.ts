@@ -320,7 +320,8 @@ const updateSample = async (request: Request, response: Response) => {
               }))
           );
 
-          await mailService.sendAnalysisRequest({
+          await mailService.send({
+            templateName: 'SampleAnalysisRequestTemplate',
             recipients: [laboratory?.email, config.mail.from],
             params: {
               region: user.region ? Regions[user.region].name : undefined,
@@ -345,7 +346,8 @@ const updateSample = async (request: Request, response: Response) => {
         }
 
         if (sample.ownerEmail) {
-          await mailService.sendSupportDocumentCopyToOwner({
+          await mailService.send({
+            templateName: 'SupportDocumentCopyToOwnerTemplate',
             recipients: [sample.ownerEmail, config.mail.from],
             params: {
               region: user.region ? Regions[user.region].name : undefined,

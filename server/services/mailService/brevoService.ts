@@ -1,12 +1,6 @@
 import * as Brevo from '@getbrevo/brevo';
 import config from '../../utils/config';
-import { MailService, SendOptions } from './mailService';
-
-const SampleAnalysisRequestTemplateId = 1;
-const SupportDocumentCopyToOwnerTemplateId = 2;
-const SubmittedProgrammingPlanTemplateId = 3;
-const ValidatedProgrammingPlanTemplateId = 4;
-const NewRegionalPrescriptionCommentTemplateId = 5;
+import { MailService, SendOptions, TemplateName, Templates } from './mailService';
 
 class BrevoService implements MailService {
   private emailsApi: Brevo.TransactionalEmailsApi;
@@ -23,53 +17,16 @@ class BrevoService implements MailService {
     );
   }
 
-  async send(options: SendOptions): Promise<void> {
+  async send<T extends TemplateName>(options: SendOptions<T>): Promise<void> {
     await this.emailsApi.sendTransacEmail({
       ...options,
-      templateId: Number(options.templateId),
+      templateId: Templates[options.templateName].id,
       to: options.recipients.map((recipient) => ({
         email: recipient
       }))
     });
   }
 
-  async sendAnalysisRequest(options: SendOptions): Promise<void> {
-    return this.send({
-      ...options,
-      templateId: SampleAnalysisRequestTemplateId,
-      params: options.params
-    });
-  }
-
-  async sendSupportDocumentCopyToOwner(options: SendOptions): Promise<void> {
-    return this.send({
-      ...options,
-      templateId: SupportDocumentCopyToOwnerTemplateId
-    });
-  }
-
-  async sendSubmittedProgrammingPlan(options: SendOptions): Promise<void> {
-    return this.send({
-      ...options,
-      templateId: SubmittedProgrammingPlanTemplateId
-    });
-  }
-
-  async sendValidatedProgrammingPlan(options: SendOptions): Promise<void> {
-    return this.send({
-      ...options,
-      templateId: ValidatedProgrammingPlanTemplateId
-    });
-  }
-
-  async sendNewRegionalPrescriptionComment(
-    options: SendOptions
-  ): Promise<void> {
-    return this.send({
-      ...options,
-      templateId: NewRegionalPrescriptionCommentTemplateId
-    });
-  }
 }
 
 export default function createNodemailerService(): MailService {
