@@ -1,3 +1,4 @@
+import { fakerFR } from '@faker-js/faker';
 import { v4 as uuidv4 } from 'uuid';
 import { MatrixKindEffective } from '../referential/Matrix/MatrixKind';
 import { RegionList } from '../referential/Region';
@@ -8,7 +9,7 @@ import { PrescriptionSubstance } from '../schema/Prescription/PrescriptionSubsta
 import { ContextList } from '../schema/ProgrammingPlan/Context';
 import { RegionalPrescription } from '../schema/RegionalPrescription/RegionalPrescription';
 import { genSubstance } from './substanceFixtures';
-import { genNumber, oneOf } from './testFixtures';
+import { oneOf } from './testFixtures';
 
 export const genPrescription = (
   data?: Partial<Prescription>
@@ -26,7 +27,10 @@ export const genRegionalPrescription = (
 ): RegionalPrescription => ({
   prescriptionId: uuidv4(),
   region: oneOf(RegionList),
-  sampleCount: genNumber(1),
+  sampleCount: fakerFR.number.int({
+    min: 1,
+    max: 50
+  }),
   ...data
 });
 
