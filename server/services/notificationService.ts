@@ -40,8 +40,9 @@ const sendNotification = async <T extends NotificationToCreate>(
   ) {
     const notification =
       NewRegionalPrescriptionCommentNotification.parse(notificationToCreate);
-    mailService.sendNewRegionalPrescriptionComment({
+    await mailService.send({
       recipients: recipients.map((recipient) => recipient.email),
+      templateName: 'NewRegionalPrescriptionCommentTemplate',
       params: {
         matrix: MatrixKindLabels[notification.matrixKind as MatrixKind],
         sampleCount: notification.sampleCount,
@@ -56,7 +57,9 @@ const sendNotification = async <T extends NotificationToCreate>(
   if (
     SubmittedProgrammingPlanNotification.safeParse(notificationToCreate).success
   ) {
-    await mailService.sendSubmittedProgrammingPlan({
+    await mailService.send({
+      templateName: 'SubmittedProgrammingPlanTemplate',
+      params: undefined,
       recipients: recipients.map((recipient) => recipient.email)
     });
   }
@@ -64,7 +67,9 @@ const sendNotification = async <T extends NotificationToCreate>(
   if (
     ValidatedProgrammingPlanNotification.safeParse(notificationToCreate).success
   ) {
-    await mailService.sendValidatedProgrammingPlan({
+    await mailService.send({
+      templateName: 'ValidatedProgrammingPlanTemplate',
+      params: undefined,
       recipients: recipients.map((recipient) => recipient.email)
     });
   }
