@@ -251,7 +251,8 @@ const ContextStep = ({ partialSample }: Props) => {
           title=""
           small
           closable
-          description="Autorisez le partage de votre position pour faciliter la localisation de la parcelle"
+          description={`Autorisez le partage de votre position pour faciliter la localisation 
+            ${programmingPlanKind === 'PPV' ? ' de la parcelle' : ' du contrôle'}.`}
         />
       )}
       <AppRequiredText />
@@ -274,7 +275,10 @@ const ContextStep = ({ partialSample }: Props) => {
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12', 'fr-pb-0')}>
           <div className={cx('fr-text--bold')}>
-            Emplacement de la parcelle contrôlée
+            Emplacement{' '}
+            {programmingPlanKind === 'PPV'
+              ? 'de la parcelle contrôlée'
+              : 'du contrôle'}
           </div>
           <div className={cx('fr-text--light')}>
             Placez votre repère sur la zone correspondante ou renseignez
@@ -333,18 +337,20 @@ const ContextStep = ({ partialSample }: Props) => {
                 max={180}
               />
             </div>
-            <div className={cx('fr-col-12')}>
-              <AppTextInput<FormShape>
-                defaultValue={parcel ?? ''}
-                onChange={(e) => setParcel(e.target.value)}
-                inputForm={form}
-                inputKey="parcel"
-                whenValid="Parcelle correctement renseignée."
-                data-testid="parcel-input"
-                label="N° ou appellation de la parcelle"
-                hintText="Facultatif"
-              />
-            </div>
+            {programmingPlanKind === 'PPV' && (
+              <div className={cx('fr-col-12')}>
+                <AppTextInput<FormShape>
+                  defaultValue={parcel ?? ''}
+                  onChange={(e) => setParcel(e.target.value)}
+                  inputForm={form}
+                  inputKey="parcel"
+                  whenValid="Parcelle correctement renseignée."
+                  data-testid="parcel-input"
+                  label="N° ou appellation de la parcelle"
+                  hintText="Facultatif"
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
