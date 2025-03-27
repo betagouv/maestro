@@ -2,7 +2,6 @@ import { Knex } from 'knex';
 import { OptionalBooleanList } from 'maestro-shared/referential/OptionnalBoolean';
 import { ResidueComplianceList } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import { ResidueKindList } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
-import { ResultKindList } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 
 export const up = async (knex: Knex) => {
   await knex.schema.createTable('analysis_residues', (table) => {
@@ -15,7 +14,7 @@ export const up = async (knex: Knex) => {
     table.integer('residue_number').notNullable();
     table.enum('kind', ResidueKindList);
     table.string('reference');
-    table.enum('result_kind', ResultKindList);
+    table.enum('result_kind',  ['Q', 'NQ']);
     table.double('result');
     table.double('lmr');
     table.enum('result_higher_than_arfd', OptionalBooleanList);

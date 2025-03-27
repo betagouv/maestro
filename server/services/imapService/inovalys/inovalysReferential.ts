@@ -1,4 +1,4 @@
-import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+  import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 
 export const inovalysUnknownReferences: string[] = [
   "Chlorophacinone",
@@ -9,6 +9,10 @@ export const inovalysUnknownReferences: string[] = [
   "IPPMU (métabolite isoproturon)",
   "IPPU (métabolite isoproturon)",
   "Desméthyl métobromuron",
+  'Métaflumizone (somme des isomères)',// Je pensais que c'était RF-0280-001-PPP, mais dans le rapport d'Inovalys ce n'est pas un résidu complexe
+  'Mevinphos (somme des isomères)', // idem  'RF-0302-001-PPP',
+  'Pyréthrines', //idem 'RF-0374-001-PPP',
+  'Spinosad (A + D)', //idem 'RF-0393-001-PPP',
 ]
 export const inovalysReferential: Record<string, SSD2Id> = {
   'DDD 4,4 (p,p\')': 'RF-0119-004-PPP',
@@ -85,7 +89,7 @@ export const inovalysReferential: Record<string, SSD2Id> = {
   'TFNA': 'RF-00003348-PAR',
   'TFNG': 'RF-00003349-PAR',
   'Tolylfluanide (+ DMST)': 'RF-0425-001-PPP',
-  '2,4,5-T (L)': 'RF-00003041-PAR',
+  '2,4,5-T (L)': 'RF-0009-001-PPP',
   '2,4-D (L)': 'RF-0010-003-PPP',
   '2,4-DB (L)': 'RF-00004646-PAR',
   '2-Phénylphénol (L)': 'RF-0823-001-PPP',
@@ -111,7 +115,7 @@ export const inovalysReferential: Record<string, SSD2Id> = {
   'Cyflufénamid (somme des isomères)': 'RF-0107-001-PPP',
   'Cyfluthrine (somme des isomères)': 'RF-0108-001-PPP',
   'Cyhalofop butyl': 'RF-00003378-PAR',
-  'Cyperméthrine (somme des isomères)': 'RF-0112-001-PPP',
+  'Cyperméthrine (somme des isomères)': 'RF-0112-004-PPP',
   'Déméton-S-méthyl': 'RF-0323-003-PPP',
   'Dichlofluanide': 'RF-0453-001-PPP',
   'Dichlorprop (L)': 'RF-0126-002-PPP',
@@ -134,7 +138,7 @@ export const inovalysReferential: Record<string, SSD2Id> = {
   'Fipronil sulfide': 'RF-0693-001-PPP',
   'TFNA-AM': 'RF-00003347-PAR',
   'Fluazifop-P (L)': 'RF-00000022-PAR',
-  'Flufénacet (L)': 'RF-0203-001-PPP',
+  'Flufénacet (L)': 'RF-0203-002-PPP',
   'Fluoxastrobine (somme des isomères)': 'RF-00005720-PAR',
   'Fluroxypyr (L)': 'RF-0215-003-PPP',
   'Haloxyfop (L)': 'RF-0235-004-PPP',
@@ -152,7 +156,6 @@ export const inovalysReferential: Record<string, SSD2Id> = {
   'Lufénuron (Somme des isomères)': 'RF-0265-001-PPP',
   'Mécoprop (dont mécoprop-p)': 'RF-0273-001-PPP',
   'Méptyldinocap (L)': 'RF-00002838-PAR',
-  'Métaflumizone (somme des isomères)': 'RF-0280-001-PPP',
   'Métalaxyl + métalaxyl-M (somme d\'isomères)': 'RF-0281-001-PPP',
 'Métazachlor (L)': 'RF-0285-001-PPP',
   'Metconazole (somme d\'isomères)': 'RF-0286-001-PPP',
@@ -162,7 +165,6 @@ export const inovalysReferential: Record<string, SSD2Id> = {
   'Méthoxyfenozide': 'RF-0296-001-PPP',
   'Métolachlore + S-metolachlor (somme des isomères)': 'RF-00002611-PAR',
   'Métrafenone': 'RF-0299-001-PPP',
-  'Mevinphos (somme des isomères)': 'RF-0302-001-PPP',
   'Napropamide (somme des isomères)': 'RF-00012802-PAR',
   'Oxathiapiproline': 'RF-00008949-PAR',
   'Pencycuron (L)': 'RF-0330-001-PPP',
@@ -173,12 +175,10 @@ export const inovalysReferential: Record<string, SSD2Id> = {
   'Propiconazole (sommes des isomères)': 'RF-0358-001-PPP',
   'Propoxycarbazone (L)': 'RF-0362-002-PPP',
   'Pydiflumétofen': 'RF-00009486-PAR',
-  'Pyréthrines': 'RF-0374-001-PPP',
   'Pyridate (L)': 'RF-0376-002-PPP',
   'Pyriofénone': 'RF-00003031-PAR',
   'Resméthrine (somme des isomères)': 'RF-0385-001-PPP',
   'Sedaxane (somme des isomères)': 'RF-00012869-PAR',
-  'Spinosad (A + D)': 'RF-0393-001-PPP',
   'Spiromésifen': 'RF-0395-001-PPP',
   'Spirotétramat-BYI08330-enol-glucoside': 'RF-00012871-PAR',
   'Spirotétramat-BYI08330-ketohydroxy': 'RF-00009258-PAR',

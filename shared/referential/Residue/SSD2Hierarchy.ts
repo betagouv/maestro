@@ -314,9 +314,6 @@ export const SSD2Hierarchy: {[reference in SSD2Id]?: SSD2Id[]} =
    "RF-00003352-PAR": [
       "RF-00004643-PAR"
    ],
-   "RF-00011560-PAR": [
-      "RF-0253-003-PPP"
-   ],
    "RF-00015695-PAR": [
       "RF-00015696-PAR",
       "RF-00015697-PAR"
@@ -408,12 +405,9 @@ export const SSD2Hierarchy: {[reference in SSD2Id]?: SSD2Id[]} =
       "RF-0178-002-PPP",
       "RF-0178-003-PPP"
    ],
-   "RF-0184-001-PPP": [
-      "RF-00003034-PAR",
-      "RF-00007586-PAR"
-   ],
    "RF-0184-002-PPP": [
-      "RF-0184-001-PPP"
+      "RF-0184-001-PPP",
+      "RF-00003034-PAR",
    ],
    "RF-0192-001-PPP": [
       "RF-0192-002-PPP",
@@ -448,9 +442,6 @@ export const SSD2Hierarchy: {[reference in SSD2Id]?: SSD2Id[]} =
       "RF-0266-002-PPP",
       "RF-0266-003-PPP"
    ],
-   "RF-0273-001-PPP": [
-      "RF-00002583-PAR"
-   ],
    "RF-0276-001-PPP": [
       "RF-00002838-PAR",
       "RF-00004644-PAR",
@@ -459,9 +450,6 @@ export const SSD2Hierarchy: {[reference in SSD2Id]?: SSD2Id[]} =
    "RF-0280-001-PPP": [
       "RF-00007589-PAR",
       "RF-00007590-PAR"
-   ],
-   "RF-0281-001-PPP": [
-      "RF-00015695-PAR"
    ],
    "RF-0291-001-PPP": [
       "RF-0291-002-PPP",
@@ -499,16 +487,10 @@ export const SSD2Hierarchy: {[reference in SSD2Id]?: SSD2Id[]} =
       "RF-0383-002-PPP",
       "RF-0383-003-PPP"
    ],
-   "RF-0446-001-PPP": [
-      "RF-00007587-PAR"
-   ],
    "RF-0661-001-PPP": [
       "RF-0660-001-PPP",
       "RF-0662-001-PPP",
       "RF-0663-001-PPP"
-   ],
-   "RF-0842-001-PPP": [
-      "RF-0842-002-PPP"
    ],
    "RF-1006-001-PPP": [
       "RF-0397-001-PPP"

@@ -12,6 +12,7 @@ import { type DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
+import { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 
 export type Generated<T> =
   T extends ColumnType<infer S, infer I, infer U>
@@ -24,16 +25,6 @@ export type Point = {
 };
 
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
-
-export interface _MatrixReferential {
-  code: string | null;
-  label: string | null;
-}
-
-export interface _Referential {
-  code: string | null;
-  label: string | null;
-}
 
 export interface Analysis {
   compliance: boolean | null;
@@ -58,9 +49,10 @@ export interface AnalysisResidues {
   residueNumber: number;
   result: number | null;
   resultHigherThanArfd: string | null;
-  resultKind: string | null;
+  resultKind: ResultKind | null;
   substanceApproved: string | null;
   substanceAuthorised: string | null;
+  unknown_label: string | null
 }
 
 export interface AnalysisErrors {
@@ -68,24 +60,6 @@ export interface AnalysisErrors {
   residues: { old: Omit<PartialResidue, 'analysisId'>[], new: Omit<PartialResidue, 'analysisId'>[] }
 }
 
-
-export interface AnalysisResiduesTmp {
-  analysisId: string | null;
-  compliance: string | null;
-  kind: string | null;
-  lmr: number | null;
-  notesOnPollutionRisk: string | null;
-  notesOnResult: string | null;
-  originalName: string | null;
-  pollutionRisk: string | null;
-  reference: string | null;
-  residueNumber: number | null;
-  result: number | null;
-  resultHigherThanArfd: string | null;
-  resultKind: string | null;
-  substanceApproved: string | null;
-  substanceAuthorised: string | null;
-}
 
 export interface Companies {
   address: string | null;
@@ -112,10 +86,6 @@ export interface KnexMigrations {
   name: string | null;
 }
 
-export interface KnexMigrationsLock {
-  index: Generated<number>;
-  isLocked: number | null;
-}
 
 export interface Laboratories {
   email: string;
@@ -169,7 +139,7 @@ export interface ResidueAnalytes {
   reference: SSD2Id | null;
   residueNumber: number;
   result: number | null;
-  resultKind: string | null;
+  resultKind: ResultKind | null;
 }
 
 export interface SampleItems {
@@ -246,16 +216,12 @@ export interface SampleDocuments {
 }
 
 export interface DB {
-  _MatrixReferential: _MatrixReferential;
-  _Referential: _Referential;
   analysis: Analysis;
   analysisResidues: AnalysisResidues;
   analysisErrors: AnalysisErrors;
-  analysisResiduesTmp: AnalysisResiduesTmp;
   companies: Companies;
   documents: Documents;
   knexMigrations: KnexMigrations;
-  knexMigrationsLock: KnexMigrationsLock;
   laboratories: Laboratories;
   prescriptions: Prescriptions;
   prescriptionSubstances: PrescriptionSubstances;

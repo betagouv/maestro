@@ -48,14 +48,16 @@ const findUnique = async (
                     from ${residueAnalytesTable}
                     where ${residueAnalytesTable}.analysis_id = analysis_residues.analysis_id
                     and ${residueAnalytesTable}.residue_number = analysis_residues.residue_number
+                    and ${residueAnalytesTable}.result_kind in ('Q', 'NQ')
                   ))::jsonb
                  ) end as residues`
       )
     )
     .leftJoin(
-      analysisResiduesTable,
-      `${analysisResiduesTable}.analysis_id`,
-      `${analysisTable}.id`
+      analysisResiduesTable, function () {
+        this.on(`${analysisResiduesTable}.analysis_id`, '=', `${analysisTable}.id`)
+          .andOnIn(`${analysisResiduesTable}.result_kind`, ['Q', 'NQ'])
+      },
     )
     .where(typeof key === 'string' ? { id: key } : { sampleId: key.sampleId })
     .groupBy(`${analysisTable}.id`)
