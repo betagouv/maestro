@@ -21,7 +21,7 @@ export interface Props {
 
 const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
   const apiClient = useContext(ApiClientContext);
-  const { hasRole } = useAuthentication()
+  const { hasUserPermission } = useAuthentication()
 
   const { laboratory } = usePartialSample(sample);
   const { navigateToSample } = useSamplesLink();
@@ -74,7 +74,7 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
             <div className="sample-status">
               <div>Suivi du prélèvement</div>
               <div>
-                { sample.status === 'Completed' && hasRole('Administrator') && <Button
+                { sample.status === 'Completed' && hasUserPermission('restoreSampleToReview') && <Button
                   iconId="fr-icon-arrow-go-back-fill"
                          iconPosition="left"
                   priority="secondary"
