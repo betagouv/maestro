@@ -114,6 +114,7 @@ const ItemsStep = ({ partialSample }: Props) => {
             key={`item-${itemIndex}`}
           >
             <SampleItemDetails
+              partialSample={partialSample}
               item={item}
               itemIndex={itemIndex}
               onRemoveItem={(index) => {
