@@ -1,29 +1,46 @@
 import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { format } from 'date-fns';
-import { store } from 'src/store/store';
+import { act } from 'react';
 import ContextStep from 'src/views/SampleView/DraftSample/ContextStep/ContextStep';
-import { act } from 'react'
 
+import { configureStore, Store } from '@reduxjs/toolkit';
+import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
 import { beforeEach, describe, expect, test } from 'vitest';
 import { ProviderTest } from '../../../../../../test/ProviderTest';
+import {
+  applicationMiddleware,
+  applicationReducer
+} from '../../../../../store/store';
 // const companySearchResult = genCompanySearchResult();
 // const companySearchRequest = {
 //   pathname: `/api/companies/search?q=Company`,
 //   response: { body: JSON.stringify([companySearchResult]) },
 // };
 
+let store: Store;
+const sampler = genUser({
+  roles: ['Sampler']
+});
+
 describe('DraftSampleContextStep', () => {
   const user = userEvent.setup();
 
   beforeEach(() => {
     fetchMock.resetMocks();
+    store = configureStore({
+      reducer: applicationReducer,
+      middleware: applicationMiddleware,
+      preloadedState: {
+        auth: { authUser: genAuthUser(sampler) }
+      }
+    });
   });
 
   test('should render form successfully', () => {
     render(
       <ProviderTest store={store}>
-          <ContextStep />
+        <ContextStep />
       </ProviderTest>
     );
 
@@ -48,7 +65,7 @@ describe('DraftSampleContextStep', () => {
   test('should set inputs with default values', () => {
     render(
       <ProviderTest store={store}>
-          <ContextStep />
+        <ContextStep />
       </ProviderTest>
     );
 
@@ -60,7 +77,7 @@ describe('DraftSampleContextStep', () => {
   test('should handle errors on submitting', async () => {
     render(
       <ProviderTest store={store}>
-          <ContextStep />
+        <ContextStep />
       </ProviderTest>
     );
 

@@ -1,3 +1,4 @@
+import { configureStore, Store } from '@reduxjs/toolkit';
 import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { QuantityUnitList } from 'maestro-shared/referential/QuantityUnit';
@@ -6,13 +7,19 @@ import {
   genCreatedSampleData,
   genSampleContextData
 } from 'maestro-shared/test/sampleFixtures';
-import { store } from 'src/store/store';
+import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
+import { act } from 'react';
+import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import config from 'src/utils/config';
 import ItemsStep from 'src/views/SampleView/DraftSample/ItemsStep/ItemsStep';
-import { describe, expect, test } from 'vitest';
-import { getRequestCalls } from '../../../../../../test/requestTestUtils';
-import { act } from 'react'
+import { beforeEach, describe, expect, test } from 'vitest';
 import { ProviderTest } from '../../../../../../test/ProviderTest';
+import { getRequestCalls } from '../../../../../../test/requestTestUtils';
+
+let store: Store;
+const sampler = genUser({
+  roles: ['Sampler']
+});
 
 describe('DraftSampleItemsStep', () => {
   const user = userEvent.setup();
@@ -22,10 +29,21 @@ describe('DraftSampleItemsStep', () => {
     status: 'DraftItems' as SampleStatus
   };
 
+  beforeEach(() => {
+    fetchMock.resetMocks();
+    store = configureStore({
+      reducer: applicationReducer,
+      middleware: applicationMiddleware,
+      preloadedState: {
+        auth: { authUser: genAuthUser(sampler) }
+      }
+    });
+  });
+
   test('should render form successfully with a default item without recipient kind choice', () => {
     render(
       <ProviderTest store={store}>
-          <ItemsStep partialSample={draftSample} />
+        <ItemsStep partialSample={draftSample} />
       </ProviderTest>
     );
 
@@ -46,7 +64,7 @@ describe('DraftSampleItemsStep', () => {
   test('should add an item with recipient kind choice', async () => {
     render(
       <ProviderTest store={store}>
-          <ItemsStep partialSample={draftSample} />
+        <ItemsStep partialSample={draftSample} />
       </ProviderTest>
     );
 
@@ -64,7 +82,7 @@ describe('DraftSampleItemsStep', () => {
   test('should remove an item', async () => {
     render(
       <ProviderTest store={store}>
-          <ItemsStep partialSample={draftSample} />
+        <ItemsStep partialSample={draftSample} />
       </ProviderTest>
     );
 
@@ -79,7 +97,7 @@ describe('DraftSampleItemsStep', () => {
   test('should handle errors on submitting', async () => {
     render(
       <ProviderTest store={store}>
-          <ItemsStep partialSample={draftSample} />
+        <ItemsStep partialSample={draftSample} />
       </ProviderTest>
     );
 
@@ -102,7 +120,7 @@ describe('DraftSampleItemsStep', () => {
     fetchMock.resetMocks();
     render(
       <ProviderTest store={store}>
-          <ItemsStep partialSample={draftSample} />
+        <ItemsStep partialSample={draftSample} />
       </ProviderTest>
     );
 
@@ -134,7 +152,7 @@ describe('DraftSampleItemsStep', () => {
     fetchMock.resetMocks();
     render(
       <ProviderTest store={store}>
-          <ItemsStep partialSample={draftSample} />
+        <ItemsStep partialSample={draftSample} />
       </ProviderTest>
     );
 
