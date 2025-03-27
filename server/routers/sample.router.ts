@@ -64,7 +64,7 @@ router.post(
 router.put(
   '/:sampleId',
   validator.validate(uuidParam('sampleId').merge(body(PartialSample))),
-  permissionsCheck(['updateSample']),
+  permissionsCheck(['updateSample', 'restoreSampleToReview']),
   sampleCheck(),
   sampleController.updateSample
 );

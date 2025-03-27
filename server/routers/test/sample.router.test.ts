@@ -23,6 +23,7 @@ import { tokenProvider } from '../../test/testUtils';
 
 import { ValidatedProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
 import {
+  AdminFixture,
   NationalCoordinator,
   Sampler1Fixture,
   Sampler2Fixture
@@ -289,6 +290,12 @@ describe('Sample router', () => {
         .send(genSampleContextData())
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
+
+      await request(app)
+        .post(testRoute)
+        .send(genSampleContextData())
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     test('should create a sample', async () => {
@@ -346,7 +353,7 @@ describe('Sample router', () => {
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
-    test('should fail if the sample does not belong to the user', async () => {
+    test('should fail if the sample region does not match the user region', async () => {
       await request(app)
         .put(`${testRoute(Sample11Fixture.id)}`)
         .send(Sample11Fixture)
@@ -356,8 +363,8 @@ describe('Sample router', () => {
 
     test('should fail if the user does not have the permission to set the status to InReview', async () => {
       await request(app)
-       .put(`${testRoute(Sample11Fixture.id)}`)
-        .send({...Sample11Fixture, status: 'InReview'})
+        .put(`${testRoute(Sample11Fixture.id)}`)
+        .send({ ...Sample11Fixture, status: 'InReview' })
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
@@ -411,6 +418,12 @@ describe('Sample router', () => {
         .put(`${testRoute(Sample11Fixture.id)}`)
         .send(validBody)
         .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+
+      await request(app)
+        .put(`${testRoute(Sample11Fixture.id)}`)
+        .send(validBody)
+        .use(tokenProvider(AdminFixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
