@@ -152,7 +152,7 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
               <b>{BreedingMethodLabels[sample.specificData.breedingMethod]}</b>
             </div>
             <div>
-              Âge : <b>{sample.specificData.age}</b>
+              Âge (en mois) : <b>{sample.specificData.age}</b>
             </div>
             <div>
               Sexe : <b>{AnimalSexLabels[sample.specificData.sex]}</b>

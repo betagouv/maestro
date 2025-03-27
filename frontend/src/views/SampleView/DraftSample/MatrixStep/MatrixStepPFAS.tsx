@@ -1,6 +1,7 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import {
   AnimalKind,
+  AnimalKindAgeLimit,
   AnimalKindLabels,
   AnimalKindsByProgrammingPlanKind
 } from 'maestro-shared/referential/AnimalKind';
@@ -73,6 +74,7 @@ import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOp
 import { z } from 'zod';
 import AppSearchInput from '../../../../components/_app/AppSearchInput/AppSearchInput';
 import AppTextAreaInput from '../../../../components/_app/AppTextAreaInput/AppTextAreaInput';
+import AppTextInput from '../../../../components/_app/AppTextInput/AppTextInput';
 import { useForm } from '../../../../hooks/useForm';
 import { MatrixStepRef } from './MatrixStep';
 
@@ -150,6 +152,20 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
       partialSample.specificData.outdoorAccess
     );
 
+    const FormRefinement = SampleMatrixPFASData.superRefine((val, ctx) => {
+      const ageLimit = AnimalKindAgeLimit[val.specificData.animalKind];
+      if (
+        (ageLimit?.min && val.specificData.age < ageLimit.min) ||
+        (ageLimit?.max && val.specificData.age > ageLimit.max)
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Cet âge n'est pas autorisé pour le type d'animal sélectionné.`,
+          path: ['specificData', 'age']
+        });
+      }
+    });
+
     type FormShape = typeof SampleMatrixPFASData.shape;
 
     const specificData = useMemo(
@@ -202,7 +218,7 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
       } as SampleMatrixPFASData);
 
     const form = useForm(
-      SampleMatrixPFASData,
+      FormRefinement,
       {
         matrixKind,
         matrix,
@@ -479,23 +495,16 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
             />
           </div>
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-            <AppSelect<FormShape>
-              value={age ?? ''}
-              options={selectOptionsFromList(
-                Array.from({ length: 24 }, (_, i) => i + 1).map(
-                  (i) => `${i} mois`
-                ),
-                {
-                  defaultLabel: 'Sélectionner un age'
-                }
-              )}
-              onChange={(e) => setAge(e.target.value)}
+            <AppTextInput<FormShape>
+              type="number"
+              defaultValue={age ?? ''}
+              onChange={(e) => setAge(Number(e.target.value))}
               inputForm={form}
               inputKey="specificData"
               inputPathFromKey={['age']}
               whenValid="Âge correctement renseigné."
-              data-testid="age-select"
-              label="Âge"
+              data-testid="age-input"
+              label="Âge (en mois)"
               required
             />
           </div>
