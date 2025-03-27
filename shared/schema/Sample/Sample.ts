@@ -55,13 +55,19 @@ export const SampleMatrixSpecificDataPFAS = z.object({
   targetingCriteria: TargetingCriteria,
   notesOnTargetingCriteria: z.string().nullish(),
   animalKind: AnimalKind,
-  animalIdentifier: z.string({
-    required_error: "Veuillez renseigner l'identifiant du lot ou de l'animal."
-  }),
+  animalIdentifier: z
+    .string({
+      required_error: "Veuillez renseigner l'identifiant du lot ou de l'animal."
+    })
+    .min(1, "Veuillez renseigner l'identifiant du lot ou de l'animal."),
   breedingMethod: BreedingMethod,
-  age: z.string({
-    required_error: "Veuillez renseigner l'âge de l'animal."
-  }),
+  age: z.coerce
+    .number({
+      invalid_type_error: "Veuillez renseigner l'âge de l'animal.",
+      required_error: "Veuillez renseigner l'âge de l'animal."
+    })
+    .int()
+    .nonnegative(),
   sex: AnimalSex,
   seizure: Seizure.nullish(),
   outdoorAccess: OutdoorAccess
@@ -75,9 +81,11 @@ export const SampleMatrixSpecificDataPFASEggs =
 export const SampleMatrixSpecificDataPFASMeat =
   SampleMatrixSpecificDataPFAS.extend({
     programmingPlanKind: z.literal(ProgrammingPlanKind.Values.PFAS_MEAT),
-    killingCode: z.string({
-      required_error: 'Veuillez renseigner le code tuerie.'
-    }),
+    killingCode: z
+      .string({
+        required_error: 'Veuillez renseigner le code tuerie.'
+      })
+      .min(1, 'Veuillez renseigner le code tuerie.'),
     productionKind: ProductionKind
   });
 
