@@ -70,6 +70,7 @@ describe('Analysis router', () => {
       analysisId: analysisWithResidues.id,
       residueNumber: 2,
       analyteNumber: 1,
+      resultKind: 'Q',
       reference: oneOf(AnalyteList)
     })
   ];

@@ -141,7 +141,7 @@ export interface ResidueAnalytes {
   reference: SSD2Id | null;
   residueNumber: number;
   result: number | null;
-  resultKind: string | null;
+  resultKind: ResultKind | null;
 }
 
 export interface SampleItems {

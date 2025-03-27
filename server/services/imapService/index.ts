@@ -208,13 +208,13 @@ export const checkEmails = async () => {
                 }
               });
               const {
-                analysisId,
+                sampleId,
                 programmingPlansYear,
                 samplerId,
                 samplerEmail
               } = await analysisHandler({
                 ...analysis,
-                residues: interestingResidues
+                residues: residues
                   .map(({ casNumber, codeSandre, label, ...rest }) => {
                     const unknown_label = rest.ssd2Id === null ? label : null
                     return { ...rest, unknown_label }
@@ -223,9 +223,9 @@ export const checkEmails = async () => {
 
               await notificationService.sendNotification({
                 category: 'AnalysisReviewTodo',
-                link: `/prelevements/${programmingPlansYear}/${analysisId}`,
+                link: `/prelevements/${programmingPlansYear}/${sampleId}`,
                 message: NotificationCategoryMessages[
-                  'ProgrammingPlanSubmitted'
+                  'AnalysisReviewTodo'
                 ]
               }, [{id: samplerId, email: samplerEmail}])
             }
