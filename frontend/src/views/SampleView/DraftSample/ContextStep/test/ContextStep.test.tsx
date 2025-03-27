@@ -1,10 +1,13 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { format } from 'date-fns';
-import { store } from 'src/store/store';
+import { act } from 'react';
+import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import ContextStep from 'src/views/SampleView/DraftSample/ContextStep/ContextStep';
-import { act } from 'react'
 
+import { configureStore, Store } from '@reduxjs/toolkit';
+import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
+import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
 import { beforeEach, describe, expect, test } from 'vitest';
 import { ProviderTest } from '../../../../../../test/ProviderTest';
 // const companySearchResult = genCompanySearchResult();
@@ -13,23 +16,41 @@ import { ProviderTest } from '../../../../../../test/ProviderTest';
 //   response: { body: JSON.stringify([companySearchResult]) },
 // };
 
+let store: Store;
+const sampler = genUser({
+  roles: ['Sampler']
+});
+const programmingPlan1 = genProgrammingPlan({
+  contexts: ['Control', 'Surveillance']
+});
+
 describe('DraftSampleContextStep', () => {
   const user = userEvent.setup();
 
   beforeEach(() => {
     fetchMock.resetMocks();
+    store = configureStore({
+      reducer: applicationReducer,
+      middleware: applicationMiddleware,
+      preloadedState: {
+        auth: { authUser: genAuthUser(sampler) },
+        programmingPlan: { programmingPlan: programmingPlan1 }
+      }
+    });
   });
 
-  test('should render form successfully', () => {
+  test('should render form successfully', async () => {
     render(
       <ProviderTest store={store}>
-          <ContextStep />
+        <ContextStep />
       </ProviderTest>
     );
 
-    expect(
-      screen.getByTestId('draft_sample_creation_form')
-    ).toBeInTheDocument();
+    await waitFor(async () => {
+      expect(
+        screen.getByTestId('draft_sample_creation_form')
+      ).toBeInTheDocument();
+    });
     expect(screen.getAllByTestId('sampledAt-input')).toHaveLength(2);
     expect(screen.getAllByTestId('department-select')).toHaveLength(2);
     expect(screen.getAllByTestId('geolocationX-input')).toHaveLength(2);
@@ -48,7 +69,7 @@ describe('DraftSampleContextStep', () => {
   test('should set inputs with default values', () => {
     render(
       <ProviderTest store={store}>
-          <ContextStep />
+        <ContextStep />
       </ProviderTest>
     );
 
@@ -60,7 +81,7 @@ describe('DraftSampleContextStep', () => {
   test('should handle errors on submitting', async () => {
     render(
       <ProviderTest store={store}>
-          <ContextStep />
+        <ContextStep />
       </ProviderTest>
     );
 

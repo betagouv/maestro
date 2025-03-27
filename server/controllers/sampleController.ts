@@ -4,15 +4,14 @@ import { Request, Response } from 'express';
 import { AuthenticatedRequest, SampleRequest } from 'express-jwt';
 import { constants } from 'http2';
 import { isNil, omitBy, pick } from 'lodash-es';
-import { CultureKindLabels } from 'maestro-shared/referential/CultureKind';
+import { getCultureKindLabel } from 'maestro-shared/referential/CultureKind';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
-import { MatrixPartLabels } from 'maestro-shared/referential/Matrix/MatrixPart';
+import { getMatrixPartLabel } from 'maestro-shared/referential/Matrix/MatrixPart';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
 import { Regions } from 'maestro-shared/referential/Region';
-import { StageLabels } from 'maestro-shared/referential/Stage';
 import { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequestData';
 import {
   getAnalysisReportDocumentFilename,
@@ -45,6 +44,7 @@ import workbookUtils from '../utils/workbookUtils';
 
 import { isEqual } from 'lodash-es';
 import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
+import { StageLabels } from 'maestro-shared/referential/Stage';
 import { Readable } from 'node:stream';
 const getSample = async (request: Request, response: Response) => {
   const sample = (request as SampleRequest).sample;
@@ -289,13 +289,11 @@ const updateSample = async (request: Request, response: Response) => {
               stage: StageLabels[updatedSample.stage],
               matrixKindLabel: MatrixKindLabels[updatedSample.matrixKind],
               matrixLabel: MatrixLabels[updatedSample.matrix],
-              matrixPart: MatrixPartLabels[updatedSample.matrixPart],
+              matrixPart: getMatrixPartLabel(updatedSample) as string,
               quantityUnit: sampleItem?.quantityUnit
                 ? QuantityUnitLabels[sampleItem.quantityUnit]
                 : '',
-              cultureKind: updatedSample.cultureKind
-                ? CultureKindLabels[updatedSample.cultureKind]
-                : undefined,
+              cultureKind: getCultureKindLabel(updatedSample) as string,
               compliance200263: sampleItem
                 ? sampleItem.compliance200263
                   ? 'Respectée'

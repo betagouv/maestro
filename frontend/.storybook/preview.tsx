@@ -5,13 +5,16 @@ import type { Preview } from '@storybook/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import '../src/App.scss';
-import { applicationReducer } from '../src/store/store';
 import { ApiClientContext } from '../src/services/apiClient';
 import { mockApiClient } from '../src/services/mockApiClient';
+import { applicationReducer } from '../src/store/store';
 
-const store = configureStore({
-  reducer: applicationReducer
-});
+const createStore = (preloadedState = {}) =>
+  configureStore({
+    reducer: applicationReducer,
+    preloadedState
+  });
+
 startReactDsfr({
   defaultColorScheme: 'system',
   useLang: () => 'fr'
@@ -26,7 +29,8 @@ const preview: Preview = {
     }
   },
   decorators: (Story, { parameters }) => {
-    const { apiClient = mockApiClient } = parameters
+    const { apiClient = mockApiClient, preloadedState = {} } = parameters;
+    const store = createStore(preloadedState);
     return (
       <MemoryRouter>
         <Provider store={store}>
