@@ -15,14 +15,14 @@ import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 import { useForm } from 'src/hooks/useForm';
 import z from 'zod';
-import './SampleAdmissibility.scss';
 import { ApiClientContext } from '../../../../services/apiClient';
+import './SampleAdmissibility.scss';
 
 interface Props {
   sample: Sample;
 }
 const SampleAdmissibility = ({ sample }: Props) => {
-  const apiClient = useContext(ApiClientContext)
+  const apiClient = useContext(ApiClientContext);
 
   const [updateSample] = apiClient.useUpdateSampleMutation();
 
@@ -71,22 +71,21 @@ const SampleAdmissibility = ({ sample }: Props) => {
   );
 
   const FormRefinement = Form.superRefine((val, ctx) => {
-    if(val.isReceived && !val.receivedAt){
+    if (val.isReceived && !val.receivedAt) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Veuillez renseigner la date de réception.',
-        path: ['receivedAt'],
-      })
+        path: ['receivedAt']
+      });
     }
-    if( val.isReceived && val.isAdmissible === undefined){
+    if (val.isReceived && val.isAdmissible === undefined) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['isAdmissible'],
         message: 'Veuillez renseigner la recevabilité du prélèvement.'
-      })
+      });
     }
-  }
-  )
+  });
 
   const form = useForm(FormRefinement, {
     isReceived,
