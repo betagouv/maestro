@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { AuthenticatedRequest } from 'express-jwt';
 import { constants } from 'http2';
 import SampleMissingError from 'maestro-shared/errors/sampleMissingError';
-import { userDepartments } from 'maestro-shared/schema/User/User';
+import { userRegions } from 'maestro-shared/schema/User/User';
 import { sampleRepository } from '../../repositories/sampleRepository';
 
 export const sampleCheck =
@@ -16,7 +16,7 @@ export const sampleCheck =
       throw new SampleMissingError(sampleId);
     }
 
-    if (!userDepartments(user).includes(sample.department)) {
+    if (!userRegions(user).includes(sample.region)) {
       return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
     }
 

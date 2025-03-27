@@ -27,7 +27,7 @@ const UserSamplerPermissionsList = [
   'createAnalysis',
   'readAnalysis',
   'deleteSampleDocument'
-] as const satisfies UserPermission[]
+] as const satisfies UserPermission[];
 
 export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
   NationalCoordinator: [
@@ -53,10 +53,12 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'readProgrammingPlanSubmitted',
     'updatePrescriptionLaboratory',
     'commentPrescription',
-    'deleteDocument',
+    'deleteDocument'
   ],
   Sampler: UserSamplerPermissionsList,
-  Administrator: UserPermissionList
+  Administrator: UserPermissionList.filter(
+    (permission) => !['createSample', 'updateSample'].includes(permission)
+  )
 };
 
 export const UserRoleLabels: Record<UserRole, string> = {

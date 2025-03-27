@@ -45,6 +45,7 @@ import workbookUtils from '../utils/workbookUtils';
 
 import { isEqual } from 'lodash-es';
 import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
+import { hasPermission } from 'maestro-shared/schema/User/User';
 import { Readable } from 'node:stream';
 const getSample = async (request: Request, response: Response) => {
   const sample = (request as SampleRequest).sample;
@@ -183,11 +184,11 @@ const updateSample = async (request: Request, response: Response) => {
 
   console.info('Update sample', sample.id, sampleUpdate);
 
-  if (
-    !user.roles.includes('Administrator') &&
-    sampleUpdate.status === 'InReview' &&
-    sample.status !== 'InReview'
-  ) {
+  if (sample.status !== 'InReview' && sampleUpdate.status === 'InReview') {
+    if (!hasPermission(user, 'restoreSampleToReview')) {
+      throw new UserRoleMissingError();
+    }
+  } else if (!hasPermission(user, 'updateSample')) {
     throw new UserRoleMissingError();
   }
 
