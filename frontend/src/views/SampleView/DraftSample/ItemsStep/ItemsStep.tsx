@@ -24,6 +24,7 @@ import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SampleItemDetails from 'src/views/SampleView/SampleItemDetails/SampleItemDetails';
 import SavedAlert from 'src/views/SampleView/SavedAlert';
 import { z } from 'zod';
+import { useAuthentication } from '../../../../hooks/useAuthentication';
 
 export const MaxItemCount = 3;
 
@@ -33,6 +34,7 @@ interface Props {
 
 const ItemsStep = ({ partialSample }: Props) => {
   const { navigateToSample } = useSamplesLink();
+  const { hasUserPermission } = useAuthentication();
   const { laboratory } = usePartialSample(partialSample);
 
   const [items, setItems] = useState<PartialSampleItem[]>(
@@ -173,53 +175,55 @@ const ItemsStep = ({ partialSample }: Props) => {
         </div>
       </div>
       <hr className={cx('fr-mx-0')} />
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={clsx(cx('fr-col-12'), 'sample-actions')}>
-          <ul
-            className={cx(
-              'fr-btns-group',
-              'fr-btns-group--inline-md',
-              'fr-btns-group--between',
-              'fr-btns-group--icon-left'
-            )}
-          >
-            <li>
-              <ButtonsGroup
-                alignment="left"
-                inlineLayoutWhen="md and up"
-                buttons={
-                  [
-                    PreviousButton({
-                      sampleId: partialSample.id,
-                      onSave: async () => save('DraftMatrix'),
-                      currentStep: 3
-                    }),
-                    {
-                      children: 'Enregistrer en brouillon',
-                      iconId: 'fr-icon-save-line',
-                      priority: 'tertiary',
-                      onClick: async (e: React.MouseEvent<HTMLElement>) => {
-                        e.preventDefault();
-                        await save();
-                        setIsSaved(true);
+      {hasUserPermission('updateSample') && (
+        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+          <div className={clsx(cx('fr-col-12'), 'sample-actions')}>
+            <ul
+              className={cx(
+                'fr-btns-group',
+                'fr-btns-group--inline-md',
+                'fr-btns-group--between',
+                'fr-btns-group--icon-left'
+              )}
+            >
+              <li>
+                <ButtonsGroup
+                  alignment="left"
+                  inlineLayoutWhen="md and up"
+                  buttons={
+                    [
+                      PreviousButton({
+                        sampleId: partialSample.id,
+                        onSave: async () => save('DraftMatrix'),
+                        currentStep: 3
+                      }),
+                      {
+                        children: 'Enregistrer en brouillon',
+                        iconId: 'fr-icon-save-line',
+                        priority: 'tertiary',
+                        onClick: async (e: React.MouseEvent<HTMLElement>) => {
+                          e.preventDefault();
+                          await save();
+                          setIsSaved(true);
+                        }
                       }
-                    }
-                  ] as any
-                }
-              />
-            </li>
-            <li>
-              <Button
-                children="Continuer"
-                onClick={submit}
-                iconId="fr-icon-arrow-right-line"
-                iconPosition="right"
-                data-testid="submit-button"
-              />
-            </li>
-          </ul>
+                    ] as any
+                  }
+                />
+              </li>
+              <li>
+                <Button
+                  children="Continuer"
+                  onClick={submit}
+                  iconId="fr-icon-arrow-right-line"
+                  iconPosition="right"
+                  data-testid="submit-button"
+                />
+              </li>
+            </ul>
+          </div>
         </div>
-      </div>
+      )}
       <SavedAlert isOpen={isSaved} isDraft />
     </form>
   );

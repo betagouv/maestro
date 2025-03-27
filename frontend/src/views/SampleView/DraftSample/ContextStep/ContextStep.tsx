@@ -59,7 +59,7 @@ interface Props {
 
 const ContextStep = ({ partialSample }: Props) => {
   const { navigateToSample, navigateToSamples } = useSamplesLink();
-  const { user } = useAuthentication();
+  const { user, hasUserPermission } = useAuthentication();
   const { isOnline } = useOnLine();
 
   const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
@@ -488,42 +488,44 @@ const ContextStep = ({ partialSample }: Props) => {
         </div>
       </div>
       <hr className={cx('fr-mx-0')} />
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={clsx(cx('fr-col-12'), 'sample-actions')}>
-          <ButtonsGroup
-            alignment="between"
-            inlineLayoutWhen="md and up"
-            buttons={[
-              {
-                children: 'Abandonner la saisie',
-                priority: 'tertiary',
-                onClick: navigateToSamples,
-                nativeButtonProps: {
-                  'data-testid': 'cancel-button'
+      {hasUserPermission('updateSample') && (
+        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+          <div className={clsx(cx('fr-col-12'), 'sample-actions')}>
+            <ButtonsGroup
+              alignment="between"
+              inlineLayoutWhen="md and up"
+              buttons={[
+                {
+                  children: 'Abandonner la saisie',
+                  priority: 'tertiary',
+                  onClick: navigateToSamples,
+                  nativeButtonProps: {
+                    'data-testid': 'cancel-button'
+                  }
+                },
+                {
+                  children: 'Continuer',
+                  onClick: submit,
+                  iconId: 'fr-icon-arrow-right-line',
+                  iconPosition: 'right',
+                  nativeButtonProps: {
+                    'data-testid': 'submit-button'
+                  }
                 }
-              },
-              {
-                children: 'Continuer',
-                onClick: submit,
-                iconId: 'fr-icon-arrow-right-line',
-                iconPosition: 'right',
-                nativeButtonProps: {
-                  'data-testid': 'submit-button'
-                }
+              ]}
+            />
+          </div>
+          {isOnline && (
+            <SupportDocumentDownload
+              partialSample={partialSample ?? formData}
+              missingData={Form.safeParse(formInput).success === false}
+              onConfirm={
+                isCreatedPartialSample(partialSample) ? undefined : submit
               }
-            ]}
-          />
+            />
+          )}
         </div>
-        {isOnline && (
-          <SupportDocumentDownload
-            partialSample={partialSample ?? formData}
-            missingData={Form.safeParse(formInput).success === false}
-            onConfirm={
-              isCreatedPartialSample(partialSample) ? undefined : submit
-            }
-          />
-        )}
-      </div>
+      )}
     </form>
   );
 };
