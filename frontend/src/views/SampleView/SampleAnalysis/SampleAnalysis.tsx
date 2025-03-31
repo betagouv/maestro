@@ -153,16 +153,14 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
                 'fr-mt-5w'
               )}
             >
-              {sample.status === 'InReview' &&
-                (analysis !== undefined ? (
+              {sample.status === 'InReview' && analysis !== undefined ? (
                   <SampleAnalysisReview
                     sample={sample}
                     partialAnalysis={analysis}
                     onReviewDone={() => navigateToSample(sample.id)}
                   />
-                ) : (
-                  <SampleDraftAnalysis sample={sample} />
-                ))}
+                ) : <SampleDraftAnalysis sample={sample} />
+                }
               {CompletedStatusList.includes(sample.status) && (
                 <SampleAnalysisOverview sample={sample} />
               )}

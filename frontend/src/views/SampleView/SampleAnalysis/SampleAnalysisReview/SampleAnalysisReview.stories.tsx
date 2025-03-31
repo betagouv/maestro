@@ -1,14 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { expect,  fn, userEvent, within } from '@storybook/test';
+import { expect, fn, userEvent, within } from '@storybook/test';
 import clsx from 'clsx';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
 import { v4 as uuidv4 } from 'uuid';
 import { SampleAnalysisReview } from './SampleAnalysisReview';
 
-const onReviewDoneMock = fn()
+const onReviewDoneMock = fn();
 const meta = {
   title: 'Views/SampleAnalysisReview',
   component: SampleAnalysisReview,
@@ -18,24 +18,25 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <div
-        className={clsx(
-          cx('fr-callout', 'fr-callout--green-emeraude'),
-          'sample-callout',
-          'analysis-container',
-          'fr-mx-5w'
-        )}
-      >
-        <Story />
+      <div className={clsx(cx('fr-container'))}>
+        <div
+          className={clsx(
+            cx('fr-callout', 'fr-callout--green-emeraude'),
+            'sample-callout',
+            'analysis-container',
+            'fr-mx-5w'
+          )}
+        >
+          <Story />
+        </div>
       </div>
     )
-  ]
-  ,
+  ],
   async beforeEach() {
     return () => {
-      onReviewDoneMock.mockReset()
+      onReviewDoneMock.mockReset();
     };
-  },
+  }
 } satisfies Meta<typeof SampleAnalysisReview>;
 
 export default meta;
@@ -125,9 +126,13 @@ export const CorrectionWithResidues = {
 
     await userEvent.click(canvas.getByText('Corriger'));
 
-    const firstResiduContainer = within(canvas.getByText('Résidu n°1').parentElement!.parentElement!)
+    const firstResiduContainer = within(
+      canvas.getByText('Résidu n°1').parentElement!.parentElement!
+    );
 
-    await expect(firstResiduContainer.getByText("Méthode d’analyse")).toBeInTheDocument();
+    await expect(
+      firstResiduContainer.getByText('Méthode d’analyse')
+    ).toBeInTheDocument();
     await expect(meta.args.onReviewDone).not.toBeCalled();
   }
 } satisfies Story;
@@ -137,11 +142,11 @@ export const CorrectionWithoutResidu: Story = {
     ...ReviewWithoutResidue.args
   },
   play: async (context) => {
-    const {canvas} = context
+    const { canvas } = context;
     await CorrectionWithResidues.play(context);
-    await userEvent.click(canvas.getByTitle('Retour'))
+    await userEvent.click(canvas.getByTitle('Retour'));
 
-    await expect(canvas.queryByText('Résidu n°1')).not.toBeInTheDocument()
+    await expect(canvas.queryByText('Résidu n°1')).not.toBeInTheDocument();
   }
 };
 

@@ -136,7 +136,7 @@ export const AnalysisResidueForm: FunctionComponent<Props> = ({
                     <span>
                       {option.label}
                     </span>
-                    <Tag className={cx('fr-text--regular')} style={{marginLeft: 'auto'}}>
+                    <Tag className={cx('fr-text--regular')} style={{marginLeft: 'auto', flexShrink: 0}}>
                       {ResidueKindLabels[isComplex(option.value as SSD2Id) ? 'Complex' : 'Simple']}
                     </Tag>
                   </Box>
