@@ -102,8 +102,16 @@ npm run test  #All tests
 npm run test -w server #Backend tests
 ```
 
+### Commits
+
+Semantic-release est utilisé pour générer les versions de Maestro.
+Il faut donc mettre des messages respectant une certaine structure pour commiter.
+<https://github.com/angular/angular/blob/main/contributing-docs/commit-message-guidelines.md>
+
 ## Démo
 
 La version de démo de l'application est accessible à l'adresse <https://maestro.incubateur.net>
 
 ## Production
+
+La version de production de l'application est accessible à l'adresse <https://maestro.beta.gouv.fr>
