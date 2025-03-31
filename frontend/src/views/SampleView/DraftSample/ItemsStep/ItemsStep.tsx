@@ -139,7 +139,9 @@ const ItemsStep = ({ partialSample }: Props) => {
                 ...items,
                 {
                   sampleId: partialSample.id,
-                  itemNumber: items.length + 1
+                  itemNumber: items.length + 1,
+                  quantity: items[items.length - 1]?.quantity,
+                  quantityUnit: items[items.length - 1]?.quantityUnit
                 }
               ]);
             }}
