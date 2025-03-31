@@ -1,3 +1,4 @@
+import { FrIconClassName } from '@codegouvfr/react-dsfr';
 import Badge from '@codegouvfr/react-dsfr/Badge';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx, FrCxArg } from '@codegouvfr/react-dsfr/fr/cx';
@@ -14,7 +15,6 @@ import {
   NotificationCategory,
   NotificationCategoryTitles
 } from 'maestro-shared/schema/Notification/NotificationCategory';
-import { UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
 import { useMemo, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useNavigate } from 'react-router-dom';
@@ -28,7 +28,6 @@ import {
   useUpdateNotificationsMutation
 } from '../../services/notification.service';
 import './NotificationsView.scss';
-import { FrIconClassName } from '@codegouvfr/react-dsfr';
 
 const NotificationsView = () => {
   useDocumentTitle('Centre de notifications');
@@ -202,9 +201,7 @@ const NotificationsView = () => {
                                       'fr-mr-1w'
                                     )}
                                   />
-                                  {notification.author.roles
-                                    .map((role) => UserRoleLabels[role])
-                                    .join(', ')}
+                                  {UserRoleLabels[notification.author.role]}
                                   {notification.author.region && (
                                     <>
                                       <span

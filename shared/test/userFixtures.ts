@@ -7,17 +7,16 @@ import { UserRoleList } from '../schema/User/UserRole';
 import { oneOf } from './testFixtures';
 
 export const genUser = (data?: Partial<User>): User => {
-  const roles = data?.roles ?? [oneOf(UserRoleList)];
+  const role = data?.role ?? oneOf(UserRoleList);
   return {
     id: uuidv4(),
     email: fakerFR.internet.email(),
     firstName: fakerFR.person.firstName(),
     lastName: fakerFR.person.lastName(),
-    roles,
-    region:
-      roles?.includes('NationalCoordinator') || roles?.includes('Administrator')
-        ? null
-        : oneOf(RegionList),
+    role,
+    region: ['NationalCoordinator', 'Administrator'].includes(role)
+      ? null
+      : oneOf(RegionList),
     ...data
   };
 };
@@ -27,7 +26,7 @@ export const Region2Fixture = '52' as Region;
 export const RegionDromFixture = '01' as Region;
 
 export const Sampler1Fixture = genUser({
-  roles: ['Sampler'],
+  role: 'Sampler',
   id: '11111111-1111-1111-1111-111111111111',
   region: Region1Fixture,
   firstName: 'John',
@@ -35,7 +34,7 @@ export const Sampler1Fixture = genUser({
   email: 'john.doe@example.net'
 });
 export const Sampler2Fixture = genUser({
-  roles: ['Sampler'],
+  role: 'Sampler',
   id: '22222222-2222-2222-2222-222222222222',
   region: Region2Fixture,
   firstName: 'Jane',
@@ -43,7 +42,7 @@ export const Sampler2Fixture = genUser({
   email: 'jane.austen@example.net'
 });
 export const SamplerDromFixture = genUser({
-  roles: ['Sampler'],
+  role: 'Sampler',
   id: '66666666-6666-6666-6666-666666666666',
   region: RegionDromFixture,
   firstName: 'Jack',
@@ -51,7 +50,7 @@ export const SamplerDromFixture = genUser({
   email: 'jack.sparrow@example.net'
 });
 export const RegionalCoordinator = genUser({
-  roles: ['RegionalCoordinator'],
+  role: 'RegionalCoordinator',
   id: '33333333-3333-3333-3333-333333333333',
   region: Region1Fixture,
   firstName: 'Alice',
@@ -59,7 +58,7 @@ export const RegionalCoordinator = genUser({
   email: 'alice.wonderland@example.net'
 });
 export const RegionalDromCoordinator = genUser({
-  roles: ['RegionalCoordinator'],
+  role: 'RegionalCoordinator',
   id: '44444444-4444-4444-4444-444444444444',
   region: RegionDromFixture,
   firstName: 'Bob',
@@ -67,11 +66,11 @@ export const RegionalDromCoordinator = genUser({
   email: 'bob.marley@example.net'
 });
 export const NationalCoordinator = genUser({
-  roles: ['NationalCoordinator'],
+  role: 'NationalCoordinator',
   id: '55555555-5555-5555-5555-555555555555'
 });
 export const AdminFixture = genUser({
-  roles: ['Administrator'],
+  role: 'Administrator',
   id: '77777777-7777-7777-7777-777777777777'
 });
 

@@ -76,7 +76,7 @@ describe('Header', () => {
         preloadedState: {
           auth: {
             authUser: genAuthUser({
-              roles: ['NationalCoordinator']
+              role: 'NationalCoordinator'
             })
           },
           programmingPlan: { programmingPlan: validatedProgrammingPlan }

@@ -29,7 +29,7 @@ vi.mock(import('react-router-dom'), async (importOriginal) => {
 
 let store: Store;
 const sampler = genUser({
-  roles: ['Sampler']
+  role: 'Sampler'
 });
 const programmingPlan1 = genProgrammingPlan();
 const programmingPlan2 = genProgrammingPlan();

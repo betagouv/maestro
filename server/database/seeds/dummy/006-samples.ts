@@ -30,7 +30,7 @@ export const seed = async function () {
     .first();
 
   const sampler = await Users()
-    .where({ roles: ['Sampler'], region: Sampler1Fixture.region })
+    .where({ role: 'Sampler', region: Sampler1Fixture.region })
     .first();
 
   const companies = await Companies();

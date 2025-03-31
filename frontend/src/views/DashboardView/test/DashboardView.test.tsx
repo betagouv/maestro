@@ -37,7 +37,7 @@ describe('DashboardView', () => {
         preloadedState: {
           auth: {
             authUser: genAuthUser({
-              roles: ['Sampler'],
+              role: 'Sampler',
               region: Region1Fixture,
               id: Sampler1Fixture.id
             })
@@ -62,7 +62,7 @@ describe('DashboardView', () => {
       ]);
       render(
         <ProviderTest store={store}>
-            <DashboardView />
+          <DashboardView />
         </ProviderTest>
       );
 
@@ -98,7 +98,7 @@ describe('DashboardView', () => {
       ]);
       render(
         <ProviderTest store={store}>
-            <DashboardView />
+          <DashboardView />
         </ProviderTest>
       );
 

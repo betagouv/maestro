@@ -124,7 +124,7 @@ const commentRegionalPrescription = async (
   await regionalPrescriptionCommentRepository.insert(prescriptionComment);
 
   const recipients = await userRepository.findMany(
-    user.roles.includes('NationalCoordinator')
+    user.role === 'NationalCoordinator'
       ? {
           region: regionalPrescription.region,
           role: 'RegionalCoordinator'

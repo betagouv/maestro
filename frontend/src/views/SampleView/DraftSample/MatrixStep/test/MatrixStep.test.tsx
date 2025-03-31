@@ -33,7 +33,7 @@ import { ProviderTest } from '../../../../../../test/ProviderTest';
 
 let store: Store;
 const sampler = genUser({
-  roles: ['Sampler']
+  role: 'Sampler'
 });
 const programmingPlan = genProgrammingPlan();
 const prescription1 = genPrescription({
@@ -85,14 +85,14 @@ describe('DraftSampleMatrixStep', () => {
 
     render(
       <ProviderTest store={store}>
-          <MatrixStep
-            partialSample={{
-              ...genSampleContextData({
-                programmingPlanId: programmingPlan.id
-              }),
-              ...genCreatedSampleData({ sampler })
-            }}
-          />
+        <MatrixStep
+          partialSample={{
+            ...genSampleContextData({
+              programmingPlanId: programmingPlan.id
+            }),
+            ...genCreatedSampleData({ sampler })
+          }}
+        />
       </ProviderTest>
     );
 
@@ -119,14 +119,14 @@ describe('DraftSampleMatrixStep', () => {
 
     render(
       <ProviderTest store={store}>
-          <MatrixStep
-            partialSample={{
-              ...genSampleContextData({
-                programmingPlanId: programmingPlan.id
-              }),
-              ...genCreatedSampleData({ sampler })
-            }}
-          />
+        <MatrixStep
+          partialSample={{
+            ...genSampleContextData({
+              programmingPlanId: programmingPlan.id
+            }),
+            ...genCreatedSampleData({ sampler })
+          }}
+        />
       </ProviderTest>
     );
 
@@ -173,7 +173,7 @@ describe('DraftSampleMatrixStep', () => {
 
     render(
       <ProviderTest store={store}>
-          <MatrixStep partialSample={createdSample} />
+        <MatrixStep partialSample={createdSample} />
       </ProviderTest>
     );
 
@@ -246,7 +246,7 @@ describe('DraftSampleMatrixStep', () => {
 
     render(
       <ProviderTest store={store}>
-          <MatrixStep partialSample={createdSample} />
+        <MatrixStep partialSample={createdSample} />
       </ProviderTest>
     );
 
