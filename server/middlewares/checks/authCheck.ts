@@ -2,7 +2,6 @@ import express, { NextFunction, Request, Response } from 'express';
 import { expressjwt } from 'express-jwt';
 
 import { constants } from 'http2';
-import { intersection } from 'lodash-es';
 import AuthenticationMissingError from 'maestro-shared/errors/authenticationMissingError';
 import UserMissingError from 'maestro-shared/errors/userMissingError';
 import UserPermissionMissingError from 'maestro-shared/errors/userPermissionMissingError';
@@ -21,8 +20,7 @@ export const jwtCheck = (credentialsRequired: boolean) =>
     algorithms: ['HS256'],
     credentialsRequired,
     getToken: (request: Request) => {
-
-      return (request.cookies?.[COOKIE_MAESTRO_ACCESS_TOKEN]) as string;
+      return request.cookies?.[COOKIE_MAESTRO_ACCESS_TOKEN] as string;
     },
     ignoreExpiration: !credentialsRequired
   });
@@ -49,13 +47,13 @@ export const userCheck = (credentialsRequired: boolean) =>
     next();
   };
 
-export const rolesCheck = (roles: UserRole[]) =>
+export const roleCheck = (roles: UserRole[]) =>
   async function (request: Request, _response: Response, next: NextFunction) {
     if (!request.user) {
       throw new AuthenticationMissingError();
     }
 
-    if (intersection(roles, request.user.roles).length === 0) {
+    if (!roles.includes(request.user.role)) {
       throw new UserRoleMissingError();
     }
 

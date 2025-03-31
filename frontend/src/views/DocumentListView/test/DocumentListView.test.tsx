@@ -19,11 +19,11 @@ import { describe, expect, test, vi } from 'vitest';
 import { ProviderTest } from '../../../../test/ProviderTest';
 let store: Store;
 const nationalCoordinator = genUser({
-  roles: ['NationalCoordinator']
+  role: 'NationalCoordinator'
 });
 
 const sampler = genUser({
-  roles: ['Sampler'],
+  role: 'Sampler',
   id: 'SamplerId'
 });
 
@@ -53,7 +53,7 @@ describe('DocumentListView', () => {
 
       render(
         <ProviderTest store={store}>
-            <DocumentListView />
+          <DocumentListView />
         </ProviderTest>
       );
 
@@ -69,7 +69,7 @@ describe('DocumentListView', () => {
     test('should render the upload form', async () => {
       render(
         <ProviderTest store={store}>
-            <DocumentListView />
+          <DocumentListView />
         </ProviderTest>
       );
       await waitFor(() => {
@@ -103,7 +103,7 @@ describe('DocumentListView', () => {
 
       render(
         <ProviderTest store={store}>
-            <DocumentListView />
+          <DocumentListView />
         </ProviderTest>
       );
 
@@ -119,7 +119,7 @@ describe('DocumentListView', () => {
     test('should not render the upload form', async () => {
       render(
         <ProviderTest store={store}>
-            <DocumentListView />
+          <DocumentListView />
         </ProviderTest>
       );
       await waitFor(() => {

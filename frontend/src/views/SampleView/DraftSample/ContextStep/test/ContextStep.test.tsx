@@ -20,7 +20,7 @@ import {
 
 let store: Store;
 const sampler = genUser({
-  roles: ['Sampler']
+  role: 'Sampler'
 });
 
 describe('DraftSampleContextStep', () => {

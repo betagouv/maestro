@@ -10,14 +10,18 @@ interface Props {
 const RegionalPrescriptionCommentAuthor = ({ userId }: Props) => {
   const { data: user } = useGetUserQuery(userId);
 
+  if (!user) {
+    return <></>;
+  }
+
   return (
     <div className={cx('fr-text--sm', 'fr-mb-0')}>
       <b>
-        {user?.firstName} {user?.lastName}
+        {user.firstName} {user.lastName}
       </b>
-       - {user?.roles.map((role) => UserRoleLabels[role]).join(', ')}
+       - {UserRoleLabels[user.role]}
       {' '}
-      {user?.region ? Regions[user.region].name : ''}
+      {user.region ? Regions[user.region].name : ''}
     </div>
   );
 };

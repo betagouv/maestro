@@ -9,7 +9,7 @@ export const User = z.object({
   email: z.string().email(),
   firstName: z.string(),
   lastName: z.string(),
-  roles: z.array(UserRole),
+  role: UserRole,
   region: Region.nullable()
 });
 
@@ -26,10 +26,5 @@ export const userDepartments = (user?: User) =>
       ])
     : [];
 
-export const hasPermission = (user: User, ...permissions: UserPermission[]) => {
-  const userPermissions = user.roles
-    .map((role) => UserRolePermissions[role])
-    .flat();
-
-  return intersection(permissions, userPermissions).length > 0;
-};
+export const hasPermission = (user: User, ...permissions: UserPermission[]) =>
+  intersection(permissions, UserRolePermissions[user.role]).length > 0;

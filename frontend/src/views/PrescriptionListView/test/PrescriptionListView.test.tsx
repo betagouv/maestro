@@ -16,8 +16,8 @@ import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import PrescriptionListView from 'src/views/PrescriptionListView/PrescriptionListView';
 import { mockRequests } from '../../../../test/requestTestUtils';
 
+import { act } from 'react';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { act } from 'react'
 import { ProviderTest } from '../../../../test/ProviderTest';
 
 vi.mock(import('react-router-dom'), async (importOriginal) => {
@@ -111,7 +111,7 @@ describe('PrescriptionListView', () => {
         preloadedState: {
           auth: {
             authUser: genAuthUser({
-              roles: ['NationalCoordinator']
+              role: 'NationalCoordinator'
             })
           }
         }
@@ -175,7 +175,7 @@ describe('PrescriptionListView', () => {
 
   describe('for regional coordinator', () => {
     const regionalCoordinator = genUser({
-      roles: ['RegionalCoordinator']
+      role: 'RegionalCoordinator'
     });
     beforeEach(() => {
       fetchMock.resetMocks();
@@ -198,7 +198,7 @@ describe('PrescriptionListView', () => {
 
       render(
         <ProviderTest store={store}>
-            <PrescriptionListView />
+          <PrescriptionListView />
         </ProviderTest>
       );
 

@@ -66,7 +66,7 @@ describe('User router', () => {
         email: Sampler1Fixture.email,
         firstName: Sampler1Fixture.firstName,
         lastName: Sampler1Fixture.lastName,
-        roles: Sampler1Fixture.roles,
+        role: Sampler1Fixture.role,
         region: Sampler1Fixture.region
       });
     });

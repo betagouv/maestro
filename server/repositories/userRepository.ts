@@ -1,8 +1,6 @@
-import { sql } from 'kysely';
 import { isNil } from 'lodash-es';
 import { FindUserOptions } from 'maestro-shared/schema/User/FindUserOptions';
 import { User } from 'maestro-shared/schema/User/User';
-import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { assertUnreachable } from 'maestro-shared/utils/typescript';
 import { knexInstance as db } from './db';
 import { kysely } from './kysely';
@@ -45,11 +43,7 @@ const findMany = async (findOptions: FindUserOptions): Promise<User[]> => {
         break;
       case 'role':
         if (!isNil(findOptions.role)) {
-          query = query.where(
-            'roles',
-            '@>',
-            sql<UserRole[]>`ARRAY[${findOptions.role}]`
-          );
+          query = query.where('role', '=', findOptions.role);
         }
         break;
       default:

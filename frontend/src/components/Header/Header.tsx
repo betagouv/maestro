@@ -194,11 +194,11 @@ const Header = () => {
                 >
                   Se déconnecter
                 </Button>
-                {user?.roles.map((role) => (
-                  <div key={role} className={cx('fr-text--sm', 'fr-mr-2w')}>
-                    {UserRoleLabels[role]}
+                {user?.role && (
+                  <div className={cx('fr-text--sm', 'fr-mr-2w')}>
+                    {UserRoleLabels[user.role]}
                   </div>
-                ))}
+                )}
               </div>
             ]
           : [])

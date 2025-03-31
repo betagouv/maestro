@@ -18,7 +18,7 @@ import { getRequestCalls } from '../../../../../../test/requestTestUtils';
 
 let store: Store;
 const sampler = genUser({
-  roles: ['Sampler']
+  role: 'Sampler'
 });
 
 describe('DraftSampleItemsStep', () => {

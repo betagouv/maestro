@@ -9,21 +9,21 @@ export const seed = async function () {
       email: 'admin@maestro.beta.gouv.fr',
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
-      roles: ['Administrator']
+      role: 'Administrator'
     },
     {
       id: uuidv4(),
       email: 'coordinateur.national@maestro.beta.gouv.fr',
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
-      roles: ['NationalCoordinator']
+      role: 'NationalCoordinator'
     },
     {
       id: uuidv4(),
       email: 'coordinateur.regional@maestro.beta.gouv.fr',
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
-      roles: ['RegionalCoordinator'],
+      role: 'RegionalCoordinator',
       region: '44'
     },
     {
@@ -31,7 +31,7 @@ export const seed = async function () {
       email: 'coordinateur.regional.drom@maestro.beta.gouv.fr',
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
-      roles: ['RegionalCoordinator'],
+      role: 'RegionalCoordinator',
       region: '01'
     },
     {
@@ -39,7 +39,7 @@ export const seed = async function () {
       email: 'preleveur@maestro.beta.gouv.fr',
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
-      roles: ['Sampler'],
+      role: 'Sampler',
       region: '44'
     },
     {
@@ -47,7 +47,7 @@ export const seed = async function () {
       email: 'preleveur.drom@maestro.beta.gouv.fr',
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
-      roles: ['Sampler'],
+      role: 'Sampler',
       region: '01'
     }
   ]);
