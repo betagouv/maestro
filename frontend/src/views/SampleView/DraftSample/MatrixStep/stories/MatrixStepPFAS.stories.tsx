@@ -7,7 +7,7 @@ import {
   genCreatedSampleData,
   genSampleContextData
 } from 'maestro-shared/test/sampleFixtures';
-import { genUser } from 'maestro-shared/test/userFixtures';
+import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
 import { ApiClient } from '../../../../../services/apiClient';
 import {
   defaultMockApiClientConf,
@@ -55,6 +55,7 @@ export const MatrixStepPFAS: Story = {
   },
   parameters: {
     preloadedState: {
+      auth: { authUser: genAuthUser(sampler) },
       programmingPlan: {
         programmingPlan
       }
