@@ -72,6 +72,7 @@ import {
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import { z } from 'zod';
+import AppRadioButtons from '../../../../components/_app/AppRadioButtons/AppRadioButtons';
 import AppSearchInput from '../../../../components/_app/AppSearchInput/AppSearchInput';
 import AppTextAreaInput from '../../../../components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from '../../../../components/_app/AppTextInput/AppTextInput';
@@ -542,22 +543,27 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
             />
           </div>
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-            <AppSelect<FormShape>
-              value={outdoorAccess ?? ''}
-              options={selectOptionsFromList(OutdoorAccessList, {
-                labels: OutdoorAccessLabels,
-                defaultLabel: "Sélectionner un accès à l'extérieur"
-              })}
-              onChange={(e) =>
-                setOutdoorAccess(e.target.value as OutdoorAccess)
+            <AppRadioButtons
+              legend="Accès à l'extérieur des animaux de l'élevage"
+              options={
+                selectOptionsFromList(OutdoorAccessList, {
+                  labels: OutdoorAccessLabels,
+                  withDefault: false
+                }).map(({ label, value }) => ({
+                  key: `outdoorAccess-option-${value}`,
+                  label,
+                  nativeInputProps: {
+                    checked: outdoorAccess === value,
+                    onChange: (e) => setOutdoorAccess(value as OutdoorAccess)
+                  }
+                })) ?? []
               }
+              colSm={4}
               inputForm={form}
               inputKey="specificData"
               inputPathFromKey={['outdoorAccess']}
-              whenValid="Accès extérieur correctement renseigné."
-              data-testid="outdoor-access-select"
-              label="Accès à l'extérieur des animaux de l'élevage"
               required
+              data-testid={`outdoor-access-radio`}
             />
           </div>
         </div>
