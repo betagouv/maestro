@@ -55,6 +55,7 @@ export const MatrixStepPFAS: Story = {
   },
   parameters: {
     preloadedState: {
+      auth: { authUser: genAuthUser(sampler) },
       programmingPlan: {
         programmingPlan
       },

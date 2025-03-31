@@ -74,6 +74,7 @@ const story: Pick<Story, 'args' | 'parameters'> = {
   },
   parameters: {
     preloadedState: {
+      auth: { authUser: genAuthUser(sampler) },
       programmingPlan: {
         programmingPlan
       },
