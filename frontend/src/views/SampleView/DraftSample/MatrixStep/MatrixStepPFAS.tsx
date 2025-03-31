@@ -554,7 +554,7 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
                   label,
                   nativeInputProps: {
                     checked: outdoorAccess === value,
-                    onChange: (e) => setOutdoorAccess(value as OutdoorAccess)
+                    onChange: () => setOutdoorAccess(value as OutdoorAccess)
                   }
                 })) ?? []
               }
