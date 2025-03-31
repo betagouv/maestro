@@ -15,6 +15,7 @@ import {
   NotificationCategory,
   NotificationCategoryTitles
 } from 'maestro-shared/schema/Notification/NotificationCategory';
+import { UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
 import { useMemo, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useNavigate } from 'react-router-dom';

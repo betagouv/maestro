@@ -194,7 +194,7 @@ const Header = () => {
                 >
                   Se déconnecter
                 </Button>
-                {user.role && (
+                {user?.role && (
                   <div className={cx('fr-text--sm', 'fr-mr-2w')}>
                     {UserRoleLabels[user.role]}
                   </div>
