@@ -29,7 +29,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const sampler = genUser({
-  roles: ['Sampler']
+  role: 'Sampler'
 });
 const programmingPlan = genProgrammingPlan({
   kinds: ['PFAS_EGGS', 'PFAS_MEAT']
