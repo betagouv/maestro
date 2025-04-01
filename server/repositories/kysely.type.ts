@@ -240,6 +240,7 @@ export interface Users {
   lastName: string;
   region: Region | null;
   role: UserRole;
+  loggedSecrets: ColumnType<string[], string[] | null, string[]>
 }
 
 export interface SampleDocuments {

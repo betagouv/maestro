@@ -6,6 +6,22 @@ export let kysely: KyselyMaestro;
 
 export const initKysely = (connectionString: string) =>
   (kysely = new Kysely<DB>({
+    // log(event) {
+    //   if (event.level === "error") {
+    //     console.error("Query failed : ", {
+    //       durationMs: event.queryDurationMillis,
+    //       error: event.error,
+    //       sql: event.query.sql,
+    //       params: event.query.parameters,
+    //     });
+    //   } else { // `'query'`
+    //     console.log("Query executed : ", {
+    //       durationMs: event.queryDurationMillis,
+    //       sql: event.query.sql,
+    //       params: event.query.parameters,
+    //     });
+    //   }
+    // },
     dialect: new PostgresDialect({
       pool: new pg.Pool({
         connectionString,
