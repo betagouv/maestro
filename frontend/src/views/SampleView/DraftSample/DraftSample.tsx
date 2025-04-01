@@ -75,7 +75,8 @@ const SampleView = ({ sample }: Props) => {
                   {SampleStepTitles(sample)[step - 1]}
                   {sample && isCreatedPartialSample(sample) && (
                     <span className={cx('fr-text--regular')}>
-                       • Prélèvement {sample.reference}
+                      {' '}
+                      • Prélèvement {sample.reference}
                     </span>
                   )}
                 </div>

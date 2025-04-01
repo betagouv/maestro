@@ -75,7 +75,9 @@ const ContextStep = ({ partialSample }: Props) => {
   );
   const [isBrowserGeolocation, setIsBrowserGeolocation] = useState(false);
   const [sampledAt, setSampledAt] = useState(
-    format(partialSample?.sampledAt ?? new Date(), 'yyyy-MM-dd HH:mm')
+    partialSample?.sampledAt
+      ? format(partialSample?.sampledAt, 'yyyy-MM-dd HH:mm')
+      : ''
   );
 
   const [department, setDepartment] = useState(partialSample?.department);
@@ -171,23 +173,23 @@ const ContextStep = ({ partialSample }: Props) => {
     companyOffline,
     resytalId: resytalId as string,
     notesOnCreation,
-    status: 'DraftMatrix' as SampleStatus
+    status: 'Draft' as SampleStatus
   };
 
   const submit = async (e?: React.MouseEvent<HTMLElement>) => {
     e?.preventDefault();
-    await form.validate(async () => {
-      if (partialSample) {
+    if (partialSample) {
+      await form.validate(async () => {
         await save('DraftMatrix');
         navigateToSample(partialSample.id);
-      } else {
-        await createOrUpdateSample(formData)
-          .unwrap()
-          .then((result) => {
-            navigateToSample(result.id);
-          });
-      }
-    });
+      });
+    } else {
+      await createOrUpdateSample(formData)
+        .unwrap()
+        .then((result) => {
+          navigateToSample(result.id);
+        });
+    }
   };
 
   const save = async (status = partialSample?.status) => {
@@ -518,7 +520,6 @@ const ContextStep = ({ partialSample }: Props) => {
           {isOnline && (
             <SupportDocumentDownload
               partialSample={partialSample ?? formData}
-              missingData={Form.safeParse(formInput).success === false}
               onConfirm={
                 isCreatedPartialSample(partialSample) ? undefined : submit
               }

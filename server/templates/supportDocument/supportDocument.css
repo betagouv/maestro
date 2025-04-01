@@ -40,9 +40,16 @@ main {
 }
 
 .sample-section {
-  page-break-inside: avoid;
-  break-inside: avoid;
   display: block;
+
+  &.full-version {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  &:not(.full-version) + .sample-section {
+    margin-top: 1rem;
+  }
 
   .sample-section-header {
     display: flex;
