@@ -52,6 +52,10 @@ const generatePDF = async (template: Template, data: unknown) => {
     return parseInt(value) + 1;
   });
 
+  handlebars.registerHelper('or', function (a, b) {
+    return a || b;
+  });
+
   const compiledTemplate = handlebars.compile(templateContent(template));
   const htmlContent = compiledTemplate(data);
 
@@ -127,7 +131,8 @@ const generatePDF = async (template: Template, data: unknown) => {
 const generateSampleSupportPDF = async (
   sample: Sample,
   sampleItems: PartialSampleItem[],
-  itemNumber: number
+  itemNumber: number,
+  fullVersion: boolean = false
 ) => {
   const programmingPlan = await programmingPlanRepository.findUnique(
     sample.programmingPlanId as string
@@ -162,6 +167,7 @@ const generateSampleSupportPDF = async (
   });
 
   return generatePDF('supportDocument', {
+    fullVersion,
     ...sample,
     sampleItems: (sampleItems.length > 0 ? sampleItems : emptySampleItems).map(
       (sampleItem) => ({
@@ -189,9 +195,15 @@ const generateSampleSupportPDF = async (
     reference: [sample.reference, itemNumber]
       .filter(isDefinedAndNotNull)
       .join('-'),
-    sampledAt: formatWithTz(sample.sampledAt, "eeee dd MMMM yyyy à HH'h'mm"),
-    sampledAtDate: format(sample.sampledAt, 'dd/MM/yyyy', { locale: fr }),
-    sampledAtTime: formatWithTz(sample.sampledAt, 'HH:mm'),
+    ...(sample.sampledAt
+      ? {
+          sampledAt: format(sample.sampledAt, "eeee dd MMMM yyyy à HH'h'mm", {
+            locale: fr
+          }),
+          sampledAtDate: format(sample.sampledAt, 'dd/MM/yyyy', { locale: fr }),
+          sampledAtTime: formatWithTz(sample.sampledAt, 'HH:mm')
+        }
+      : {}),
     context: ContextLabels[sample.context],
     legalContext: LegalContextLabels[sample.legalContext],
     stage: StageLabels[sample.stage],
