@@ -520,7 +520,7 @@
                           </div>
                         </div>
                       {{#each sampleItems}}
-                        {{#if (or fullVersion currentItem)}}
+                        {{#if (or ../fullVersion currentItem)}}
                           <div class="sample-item {{#if currentItem}}current-item indent-back{{/if}}">
                             <div class='sample-section-subtitle'>
                               <div>Échantillon n°{{itemNumber}}</div>
@@ -567,54 +567,46 @@
                                       <div class='label'>
                                         Directive 2002/63
                                       </div>
-                                      {{#if compliance200263}}
-                                        <div class="fr-checkbox-group value">
-                                          <input type="checkbox" checked>
-                                          <label>
-                                            {{compliance200263}}
-                                          </label>
-                                        </div>
-                                      {{else}}
-                                        <div class='value'>
-                                          <input type='checkbox' class='fr-mr-1w'/>
-                                          Respectée
-                                          <br />
-                                          <input type='checkbox' class='fr-mr-1w'/>
-                                          Non Respectée
-                                        </div>
-                                      {{/if}}
+                                      <div class='value'>
+                                        <input type='checkbox' class='fr-mr-1w' {{#if (and ../fullVersion (eq compliance200263 true))}}checked{{/if}}/>
+                                        Respectée
+                                        <br />
+                                        <input type='checkbox' class='fr-mr-1w' {{#if (and ../fullVersion (eq compliance200263 false))}}checked{{/if}}/>
+                                        Non Respectée
+                                      </div>
                                   </div>
                                 </div>
                               </div>
                             </div>
-                          {{#unless fullVersion}}
-                            <div class='sample-section-block' style="margin-top: -2rem;">
-                              <span
-                                class='fr-icon-send-plane-line fr-icon--sm'
-                              ></span>
-                              <div class='fr-container fr-pl-1w'>
-                                <fieldset class="fr-fieldset fr-px-0 fr-my-0">
-                                  <legend class="fr-fieldset__legend fr-col-12 fr-pb-1w label">
-                                    Destinataire de l'échantillon
-                                  </legend>
-                                  <div class="fr-grid-row fr-grid-row--gutters fr-mx-0 fr-mb-2w">
-                                    <div class="fr-radio-group fr-col-12 fr-py-0">
-                                      <input type="radio">
-                                      <label class="fr-label fr-pt-1v">Laboratoire</label>
+                            {{#unless ../fullVersion}}
+                              <div class='sample-section-block' style="margin-top: -2rem;">
+                                <span
+                                  class='fr-icon-send-plane-line fr-icon--sm'
+                                ></span>
+                                <div class='fr-container fr-pl-1w'>
+                                  <fieldset class="fr-fieldset fr-px-0 fr-my-0">
+                                    <legend class="fr-fieldset__legend fr-col-12 fr-pb-1w label">
+                                      Destinataire de l'échantillon
+                                    </legend>
+                                    <div class="fr-grid-row fr-grid-row--gutters fr-mx-0 fr-mb-2w">
+                                      <div class="fr-radio-group fr-col-12 fr-py-0">
+                                        <input type="radio">
+                                        <label class="fr-label fr-pt-1v">Laboratoire</label>
+                                      </div>
+                                      <div class="fr-radio-group fr-col-12 fr-py-0">
+                                        <input type="radio">
+                                        <label class="fr-label fr-pt-1v">Opérateur</label>
+                                      </div>
+                                      <div class="fr-radio-group fr-col-12 fr-py-0">
+                                        <input type="radio">
+                                        <label class="fr-label fr-pt-1v">Préleveur</label>
+                                      </div>
                                     </div>
-                                    <div class="fr-radio-group fr-col-12 fr-py-0">
-                                      <input type="radio">
-                                      <label class="fr-label fr-pt-1v">Opérateur</label>
-                                    </div>
-                                    <div class="fr-radio-group fr-col-12 fr-py-0">
-                                      <input type="radio">
-                                      <label class="fr-label fr-pt-1v">Préleveur</label>
-                                    </div>
-                                  </div>
-                                </fieldset>
+                                  </fieldset>
+                                </div>
                               </div>
-                            </div>
-                          {{/unless}}
+                            {{/unless}}
+                          </div>
                         {{/if}}
                       {{/each}}
                       {{#if fullVersion}}
