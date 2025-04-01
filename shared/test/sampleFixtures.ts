@@ -74,7 +74,7 @@ export const genCreatedSampleData = (
 export const genCreatedPartialSample = (
   data?: Partial<PartialSample>
 ): PartialSample => {
-  const contextData = genSampleContextData(data);
+  const contextData = genSampleContextData(SampleContextData.parse(data));
   return {
     ...contextData,
     ...genCreatedSampleData(data),
@@ -90,7 +90,7 @@ export const genCreatedPartialSample = (
 };
 export const genCreatedSample = (data?: Partial<Sample>): Sample => {
   const sample = genCreatedPartialSample(data);
-  return {
+  return Sample.parse({
     ...sample,
     geolocation: sample.geolocation as Geolocation,
     company: sample.company as Company,
@@ -103,7 +103,7 @@ export const genCreatedSample = (data?: Partial<Sample>): Sample => {
     items: sample.items as SampleItem[],
     ownerAgreement: genBoolean(),
     ...data
-  };
+  });
 };
 export const genSampleItem = (data?: Partial<SampleItem>): SampleItem => ({
   sampleId: uuidv4(),
