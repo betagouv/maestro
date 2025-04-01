@@ -232,7 +232,7 @@ export const Regions: Record<
       latitude: 48.7,
       longitude: 2.5
     },
-    departments: ['75', '77', '78', '91', '92', '93', '94'],
+    departments: ['75', '77', '78', '91', '92', '93', '94', '95'],
     borderingDepartments: ['60', '02', '51', '10', '89', '45', '28', '27'],
     establishment: {
       name: 'DRIAAF / SRAL Île de France',
