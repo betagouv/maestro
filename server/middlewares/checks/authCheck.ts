@@ -14,7 +14,6 @@ import config from '../../utils/config';
 
 import { COOKIE_MAESTRO_ACCESS_TOKEN } from '../../utils/constants';
 import AuthenticationFailedError from 'maestro-shared/errors/authenticationFailedError';
-import { TEST_LOGGED_SECRET } from '../../test/testUtils';
 
 export const jwtCheck = (credentialsRequired: boolean) =>
   expressjwt({
@@ -39,7 +38,7 @@ export const userCheck = (credentialsRequired: boolean) =>
         throw new UserMissingError(request.auth.userId);
       }
 
-      if (!user.loggedSecrets.includes(request.auth.loggedSecret) && request.auth.loggedSecret !== TEST_LOGGED_SECRET) {
+      if (!user.loggedSecrets.includes(request.auth.loggedSecret)) {
         throw new AuthenticationFailedError()
       }
 

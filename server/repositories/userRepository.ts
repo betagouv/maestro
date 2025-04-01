@@ -75,7 +75,7 @@ const update = async (
 const addLoggedSecret = async (secret: string, id: User['id']): Promise<void> => {
   await kysely
     .updateTable('users')
-    .set( { loggedSecrets: sql`logged_secrets || '["${sql.raw(secret)}"]'::jsonb`})
+    .set( { loggedSecrets: sql`logged_secrets || '{"${sql.raw(secret)}"}'`})
     .where('id', '=', id)
     .execute();
 }
@@ -83,9 +83,7 @@ const addLoggedSecret = async (secret: string, id: User['id']): Promise<void> =>
 const deleteLoggedSecret = async (secret: string, id: User['id']): Promise<void> => {
   await kysely
     .updateTable('users')
-    .set((eb) => ({
-      loggedSecrets: eb('loggedSecrets', '-', [secret])
-    }))
+    .set({ loggedSecrets: sql`array_remove(logged_secrets, '${sql.raw(secret)}')` })
     .where('id', '=', id)
     .execute();
 }
