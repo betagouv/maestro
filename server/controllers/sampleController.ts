@@ -63,6 +63,7 @@ const getSample = async (request: Request, response: Response) => {
 const getSampleItemDocument = async (request: Request, response: Response) => {
   const sample: Sample = (request as SampleRequest).sample;
   const itemNumber = Number(request.params.itemNumber);
+  const fullVersion = request.query.fullVersion as boolean | undefined;
 
   console.info('Get sample document', sample.id);
 
@@ -71,7 +72,8 @@ const getSampleItemDocument = async (request: Request, response: Response) => {
   const pdfBuffer = await pdfService.generateSampleSupportPDF(
     sample,
     sampleItems,
-    itemNumber
+    itemNumber,
+    fullVersion ?? false
   );
 
   response.setHeader('Content-Type', 'application/pdf');
@@ -387,7 +389,8 @@ const generateAndStoreSampleSupportDocument = async (
   const pdfBuffer = await pdfService.generateSampleSupportPDF(
     sample,
     sampleItems,
-    itemNumber
+    itemNumber,
+    true
   );
 
   const sampleItem = sampleItems.find((item) => item.itemNumber === itemNumber);

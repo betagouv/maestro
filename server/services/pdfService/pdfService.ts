@@ -56,6 +56,10 @@ const generatePDF = async (template: Template, data: unknown) => {
     return a || b;
   });
 
+  handlebars.registerHelper('and', function (a, b) {
+    return a && b;
+  });
+
   const compiledTemplate = handlebars.compile(templateContent(template));
   const htmlContent = compiledTemplate(data);
 
@@ -132,7 +136,7 @@ const generateSampleSupportPDF = async (
   sample: Sample,
   sampleItems: PartialSampleItem[],
   itemNumber: number,
-  fullVersion: boolean = false
+  fullVersion: boolean
 ) => {
   const programmingPlan = await programmingPlanRepository.findUnique(
     sample.programmingPlanId as string
@@ -175,12 +179,6 @@ const generateSampleSupportPDF = async (
         quantityUnit: sampleItem?.quantityUnit
           ? QuantityUnitLabels[sampleItem.quantityUnit]
           : '',
-        compliance200263:
-          sampleItem.compliance200263 === true
-            ? 'Respectée'
-            : sampleItem.compliance200263 === false
-              ? 'Non respectée'
-              : undefined,
         currentItem: sampleItem.itemNumber === itemNumber
       })
     ),
