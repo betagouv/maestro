@@ -49,7 +49,7 @@ export interface AnalysisResidues {
   residueNumber: number;
   result: number | null;
   resultHigherThanArfd: string | null;
-  resultKind: ResultKind | null;
+  resultKind: ColumnType<ResultKind, ResultKind | 'ND', ResultKind | 'ND'> | null;
   substanceApproved: string | null;
   substanceAuthorised: string | null;
   unknown_label: string | null
@@ -141,7 +141,7 @@ export interface ResidueAnalytes {
   reference: SSD2Id | null;
   residueNumber: number;
   result: number | null;
-  resultKind: ResultKind | null;
+  resultKind: ColumnType<ResultKind, ResultKind | 'ND', ResultKind | 'ND'> | null;
 }
 
 export interface SampleItems {
