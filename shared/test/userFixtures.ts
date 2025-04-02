@@ -1,6 +1,6 @@
 import { fakerFR } from '@faker-js/faker';
 import { v4 as uuidv4 } from 'uuid';
-import { Region, RegionList } from '../referential/Region';
+import { RegionList } from '../referential/Region';
 import { AuthUser } from '../schema/User/AuthUser';
 import { User } from '../schema/User/User';
 import { UserRoleList } from '../schema/User/UserRole';
@@ -21,9 +21,9 @@ export const genUser = (data?: Partial<User>): User => {
   };
 };
 
-export const Region1Fixture = '44' as Region;
-export const Region2Fixture = '52' as Region;
-export const RegionDromFixture = '01' as Region;
+export const Region1Fixture = '44' as const;
+export const Region2Fixture = '52' as const;
+export const RegionDromFixture = '01' as const;
 
 export const Sampler1Fixture = genUser({
   role: 'Sampler',
