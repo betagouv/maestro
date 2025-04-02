@@ -7,14 +7,10 @@ import {
   ExportResultNonQuantifiable,
   ExportResultQuantifiable,
   ExtractError,
-  IsSender,
   LaboratoryConf
 } from './index';
 import { csvToJson } from './utils';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
-
-//TODO AUTO_LABO en attente de la réception du 1er email + test
-const isSender: IsSender = (_emailSender) => false;
 
 const unknownReferences = [
   'Cyprosulfamide',
@@ -346,7 +342,6 @@ const exportDataFromEmail: ExportDataFromEmail = (email) => {
 };
 
 export const capinovConf: LaboratoryConf = {
-  isSender,
   exportDataFromEmail,
   ssd2IdByLabel: capinovReferential,
   unknownReferences

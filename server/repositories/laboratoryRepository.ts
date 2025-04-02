@@ -1,6 +1,7 @@
 import { isNil, omitBy } from 'lodash-es';
 import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { knexInstance as db } from './db';
+import { kysely } from './kysely';
 
 const laboratoryTable = 'laboratories';
 
@@ -21,7 +22,11 @@ const findMany = async (): Promise<Laboratory[]> => {
   );
 };
 
-export default {
+const findByEmailSender = async (email_result_analysis: string) => {
+  return kysely.selectFrom('laboratories').select('name').where('email_analysis_result', '=', email_result_analysis).executeTakeFirst()
+}
+export const laboratoryRepository = {
   findUnique,
-  findMany
+  findMany,
+  findByEmailSender
 };

@@ -19,7 +19,7 @@ import { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { formatWithTz, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import puppeteer from 'puppeteer';
 import { documentRepository } from '../../repositories/documentRepository';
-import laboratoryRepository from '../../repositories/laboratoryRepository';
+import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import prescriptionSubstanceRepository from '../../repositories/prescriptionSubstanceRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
 import { userRepository } from '../../repositories/userRepository';

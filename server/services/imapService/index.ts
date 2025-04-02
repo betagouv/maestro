@@ -15,9 +15,8 @@ import { OmitDistributive } from 'maestro-shared/utils/typescript';
 import { notificationService } from '../notificationService';
 import { NotificationCategoryMessages } from 'maestro-shared/schema/Notification/NotificationCategory';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
-
-const laboratoriesWithConf = ['GIRPA', 'INOVALYS', 'CAPINOV'] as const satisfies string[];
-type LaboratoryWithConf = (typeof laboratoriesWithConf)[number];
+import { laboratoryRepository } from '../../repositories/laboratoryRepository';
+import { LaboratoryName } from 'maestro-shared/referential/Laboratory';
 
 export class ExtractError extends Error {
   constructor(message: string) {
@@ -47,27 +46,32 @@ export type ExportAnalysis = {
 export type ExportDataFromEmail = (email: ParsedMail) => ExportAnalysis[];
 
 export type LaboratoryConf = {
-  isSender: IsSender;
   exportDataFromEmail: ExportDataFromEmail;
   ssd2IdByLabel: Record<string, SSD2Id>
   unknownReferences: string[]
 };
+
+type LaboratoryWithConf = Extract<LaboratoryName, 'GIR 49' | 'LDA 72' | 'CAP 29'>
 const laboratoriesConf = {
-  'GIRPA': girpaConf,
-  'INOVALYS': inovalysConf,
-  'CAPINOV': capinovConf
+  'GIR 49': girpaConf,
+  'LDA 72': inovalysConf,
+  'CAP 29': capinovConf
 } as const satisfies {
   [name in LaboratoryWithConf]: LaboratoryConf;
 };
 
-export const getLaboratoryNameBySender = (
+export const getLaboratoryNameBySender = async (
   senderAddress: string
-): null | LaboratoryWithConf => {
-  for (const laboratory of laboratoriesWithConf) {
-    if (laboratoriesConf[laboratory].isSender(senderAddress)) {
-      return laboratory;
-    }
+): Promise<null | LaboratoryWithConf> => {
+
+  const laboratory = await laboratoryRepository.findByEmailSender(senderAddress.toLowerCase())
+
+  const laboratoryName = laboratory?.name
+
+  if (laboratoryName !== undefined && laboratoryName in laboratoriesConf) {
+    return laboratoryName as LaboratoryWithConf
   }
+
   return null;
 };
 
@@ -141,7 +145,7 @@ export const checkEmails = async () => {
           );
 
           const laboratoryName: LaboratoryWithConf | null =
-            getLaboratoryNameBySender(message.envelope.sender[0].address ?? '');
+            await getLaboratoryNameBySender(message.envelope.sender[0].address ?? '');
 
           if (laboratoryName !== null) {
             messagesToRead.push({ messageUid: message.uid, laboratoryName });

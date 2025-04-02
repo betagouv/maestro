@@ -3,16 +3,11 @@ import {
   ExportAnalysis,
   ExportDataFromEmail, ExportDataSubstance, ExportResultNonQuantifiable, ExportResultQuantifiable,
   ExtractError,
-  IsSender,
   LaboratoryConf
 } from '../index';
 import { csvToJson, frenchNumberStringValidator } from '../utils';
 import { inovalysReferential, inovalysUnknownReferences } from './inovalysReferential';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
-
-//TODO AUTO_LABO en attente de la réception du 1er email + test
-const isSender: IsSender = (_emailSender) => false;
-
 
 const codeMethods = [
   'M-ARCO/M/021', 'M-ARCO/M021', 'M-ARCO/M/022', 'M-ARCO/M/023', 'M-ARCO/M/024', 'M-ARCO/M/031', 'M-ARCO/M/033', 'M-ARCO/M/045', 'M-ARCO/M/056', 'M-ARCO/M/059', 'M-ARCO/M/060', 'M-ARCO/M/064', 'M-ARCO/M/065', 'M-ARCO/M/066', 'Méthode interne'
@@ -189,7 +184,6 @@ const exportDataFromEmail: ExportDataFromEmail = (email) => {
 };
 
 export const inovalysConf: LaboratoryConf = {
-  isSender,
   exportDataFromEmail,
   ssd2IdByLabel: inovalysReferential,
   unknownReferences: inovalysUnknownReferences
