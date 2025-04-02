@@ -28,11 +28,16 @@
               </div>
             </div>
             <div class='document-title'>
-              {{#if fullVersion}}
-                Document d'accompagnement du prélèvement
-              {{else}}
-                Étiquette du prélèvement
-              {{/if}}
+              <b>
+                {{#if fullVersion}}
+                  Document d'accompagnement du prélèvement
+                {{else}}
+                  Étiquette du prélèvement
+                {{/if}}
+              </b>
+              <br />
+              Prélèvement
+              <b>{{reference}}</b>
             </div>
           </div>
         </div>

@@ -46,11 +46,7 @@ const SupportDocumentDownload = ({ partialSample, onConfirm }: Props) => {
           priority="tertiary no outline"
           iconId="fr-icon-printer-fill"
         >
-          <div>
-            Générer le document{' '}
-            {isMobile && <br />}
-            d'accompagnement
-          </div>
+          <div>Générer une étiquette</div>
         </Button>
         {!isMobile && <div className="border-middle"></div>}
       </div>
