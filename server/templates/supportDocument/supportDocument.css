@@ -20,8 +20,8 @@ main {
   .document-title {
     text-wrap: nowrap;
     font-size: 0.875rem;
-    font-weight: bold;
     margin-right: 1.5rem;
+    text-align: right;
   }
 }
 
