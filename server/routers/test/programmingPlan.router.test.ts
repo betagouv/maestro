@@ -389,7 +389,7 @@ describe('ProgrammingPlan router', () => {
         year: 2020,
         regionalStatus: RegionList.map((region) => ({
           region,
-          status: 'InProgress' as ProgrammingPlanStatus
+          status: 'InProgress' as const
         }))
       });
 

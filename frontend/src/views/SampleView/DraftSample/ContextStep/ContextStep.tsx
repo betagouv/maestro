@@ -173,7 +173,7 @@ const ContextStep = ({ partialSample }: Props) => {
     companyOffline,
     resytalId: resytalId as string,
     notesOnCreation,
-    status: 'Draft' as SampleStatus
+    status: 'Draft' as const
   };
 
   const submit = async (e?: React.MouseEvent<HTMLElement>) => {
