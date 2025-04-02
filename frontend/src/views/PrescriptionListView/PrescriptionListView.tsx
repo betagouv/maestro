@@ -8,10 +8,7 @@ import {
 } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, Regions } from 'maestro-shared/referential/Region';
 import { Stage } from 'maestro-shared/referential/Stage';
-import {
-  FindPrescriptionOptions,
-  PrescriptionOptionsInclude
-} from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
+import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import {
   PrescriptionSort,
   PrescriptionUpdate
@@ -99,7 +96,7 @@ const PrescriptionListView = () => {
       programmingPlanId: programmingPlan?.id as string,
       context: prescriptionListContext,
       region,
-      includes: ['substanceCount' as PrescriptionOptionsInclude]
+      includes: ['substanceCount' as const]
     }),
     [programmingPlan, prescriptionListContext, region]
   );
