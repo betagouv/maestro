@@ -23,7 +23,7 @@ const findMany = async (): Promise<Laboratory[]> => {
 };
 
 const findByEmailSender = async (email_result_analysis: string) => {
-  return kysely.selectFrom('laboratories').select('name').where('email_analysis_result', '=', email_result_analysis).executeTakeFirst()
+  return kysely.selectFrom('laboratories').select('name').where('emailAnalysisResult', '=', email_result_analysis).executeTakeFirst()
 }
 export const laboratoryRepository = {
   findUnique,

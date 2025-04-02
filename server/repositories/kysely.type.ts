@@ -94,7 +94,7 @@ export interface Laboratories {
   email: string;
   id: Generated<string>;
   name: LaboratoryName;
-  email_analysis_result: string | null
+  emailAnalysisResult: string | null
 }
 
 export interface Prescriptions {
