@@ -13,6 +13,7 @@ import { userRepository } from '../../repositories/userRepository';
 import config from '../../utils/config';
 
 import { COOKIE_MAESTRO_ACCESS_TOKEN } from '../../utils/constants';
+import AuthenticationFailedError from 'maestro-shared/errors/authenticationFailedError';
 
 export const jwtCheck = (credentialsRequired: boolean) =>
   expressjwt({
@@ -28,13 +29,17 @@ export const jwtCheck = (credentialsRequired: boolean) =>
 export const userCheck = (credentialsRequired: boolean) =>
   async function (request: Request, _response: Response, next: NextFunction) {
     if (credentialsRequired) {
-      if (!request.auth || !request.auth.userId) {
+      if (!request.auth || !request.auth.userId || !request.auth.loggedSecret) {
         throw new AuthenticationMissingError();
       }
 
       const user = await userRepository.findUnique(request.auth.userId);
       if (!user) {
         throw new UserMissingError(request.auth.userId);
+      }
+
+      if (!user.loggedSecrets.includes(request.auth.loggedSecret)) {
+        throw new AuthenticationFailedError()
       }
 
       request.user = user;

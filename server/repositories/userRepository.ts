@@ -1,6 +1,8 @@
+import { sql } from 'kysely';
 import { isNil } from 'lodash-es';
 import { FindUserOptions } from 'maestro-shared/schema/User/FindUserOptions';
 import { User } from 'maestro-shared/schema/User/User';
+import { Users as KyselyUser } from './kysely.type';
 import { assertUnreachable } from 'maestro-shared/utils/typescript';
 import { knexInstance as db } from './db';
 import { kysely } from './kysely';
@@ -8,15 +10,15 @@ import { kysely } from './kysely';
 export const usersTable = 'users';
 
 export const Users = () => db<User>(usersTable);
-const findUnique = async (userId: string): Promise<User | undefined> => {
+const findUnique = async (userId: string): Promise<User & { loggedSecrets: string[]} | undefined> => {
   console.log('Get User with id', userId);
-  const user: User | undefined = await kysely
+
+  return kysely
     .selectFrom('users')
     .selectAll()
     .where('id', '=', userId)
     .executeTakeFirst();
 
-  return User.optional().parse(user);
 };
 
 const findOne = async (email: string): Promise<User | undefined> => {
@@ -56,22 +58,40 @@ const findMany = async (findOptions: FindUserOptions): Promise<User[]> => {
   return users.map((_: User) => User.parse(_));
 };
 
-const updateNames = async (
-  partialUser: Pick<User, 'email' | 'lastName' | 'firstName'>
+
+
+const update = async (
+  partialUser: Partial<Omit<KyselyUser, 'id' | 'loggedSecrets'>>,
+  id: User['id']
 ): Promise<void> => {
   await kysely
     .updateTable('users')
-    .set({
-      firstName: partialUser.firstName,
-      lastName: partialUser.lastName
-    })
-    .where('email', '=', partialUser.email)
+    .set(partialUser)
+    .where('id', '=', id)
     .execute();
 };
 
+
+const addLoggedSecret = async (secret: string, id: User['id']): Promise<void> => {
+  await kysely
+    .updateTable('users')
+    .set( { loggedSecrets: sql`logged_secrets || '{"${sql.raw(secret)}"}'`})
+    .where('id', '=', id)
+    .execute();
+}
+
+const deleteLoggedSecret = async (secret: string, id: User['id']): Promise<void> => {
+  await kysely
+    .updateTable('users')
+    .set({ loggedSecrets: sql`array_remove(logged_secrets, '${sql.raw(secret)}')` })
+    .where('id', '=', id)
+    .execute();
+}
 export const userRepository = {
   findUnique,
   findOne,
   findMany,
-  updateNames
+  update,
+  addLoggedSecret,
+  deleteLoggedSecret
 };

@@ -3,7 +3,7 @@ import { AuthenticatedRequest } from 'express-jwt';
 import { constants } from 'http2';
 import { intersection } from 'lodash-es';
 import { FindUserOptions } from 'maestro-shared/schema/User/FindUserOptions';
-import { userRegions } from 'maestro-shared/schema/User/User';
+import { User, userRegions } from 'maestro-shared/schema/User/User';
 import { userRepository } from '../repositories/userRepository';
 
 const getUser = async (request: Request, response: Response) => {
@@ -22,7 +22,7 @@ const getUser = async (request: Request, response: Response) => {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
   }
 
-  response.status(constants.HTTP_STATUS_OK).send(user);
+  response.status(constants.HTTP_STATUS_OK).send(User.parse(user));
 };
 
 const findUsers = async (request: Request, response: Response) => {

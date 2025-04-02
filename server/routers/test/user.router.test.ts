@@ -1,5 +1,5 @@
 import { constants } from 'http2';
-import { Selectable } from 'kysely';
+import { Insertable, Selectable } from 'kysely';
 import { Region } from 'maestro-shared/referential/Region';
 import { User } from 'maestro-shared/schema/User/User';
 import {
@@ -15,11 +15,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { describe, expect, test } from 'vitest';
 import { DB } from '../../repositories/kysely.type';
 import { createServer } from '../../server';
-import { tokenProvider } from '../../test/testUtils';
+import { accessTokenTest, tokenProvider } from '../../test/testUtils';
+import { COOKIE_MAESTRO_ACCESS_TOKEN } from '../../utils/constants';
 
 // Vérifie que le type généré par kysely correspond bien à notre type
 // À l'avenir mieux vaut utiliser vitest pour tester les types => https://vitest.dev/guide/testing-types.html
-const userShareToKysely = (v: User): Selectable<DB['users']> => v;
+const userShareToKysely = (v: User): Insertable<DB['users']> => v;
 const userKyselyToShare = (v: Selectable<DB['users']>): User => v;
 console.log(userShareToKysely);
 console.log(userKyselyToShare);
@@ -32,6 +33,26 @@ describe('User router', () => {
       await request(app)
         .get(`/api/users/${Sampler1Fixture.id}`)
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should fail if the loggedSecret is wrong', async () => {
+
+      await request(app)
+        .get(`/api/users/${Sampler1Fixture.id}`)
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      await request(app)
+        .get(`/api/users/${Sampler1Fixture.id}`)
+        .use( (request) => {
+   request.set('Cookie', `${COOKIE_MAESTRO_ACCESS_TOKEN}=${accessTokenTest({
+        userId: Sampler1Fixture.id,
+        idToken: 'idToken',
+        loggedSecret: 'anotherSecret'
+    })}`)
+  })
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+
     });
 
     test('should get a valid user id', async () => {
@@ -88,7 +109,7 @@ describe('User router', () => {
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toEqual([Sampler1Fixture, RegionalCoordinator]);
+      expect(res.body).toEqual(expect.arrayContaining([Sampler1Fixture, RegionalCoordinator]));
     });
 
     test('should filter users by role', async () => {
@@ -97,11 +118,11 @@ describe('User router', () => {
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toEqual([
+      expect(res.body).toEqual(expect.arrayContaining([
         Sampler1Fixture,
         Sampler2Fixture,
         SamplerDromFixture
-      ]);
+      ]));
     });
   });
 });

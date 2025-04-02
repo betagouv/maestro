@@ -10,7 +10,7 @@ export const User = z.object({
   firstName: z.string(),
   lastName: z.string(),
   role: UserRole,
-  region: Region.nullable()
+  region: Region.nullable(),
 });
 
 export type User = z.infer<typeof User>;

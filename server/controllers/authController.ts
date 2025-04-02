@@ -10,6 +10,7 @@ import { userRepository } from '../repositories/userRepository';
 import { getAuthService } from '../services/authService';
 import config from '../utils/config';
 import { COOKIE_MAESTRO_ACCESS_TOKEN } from '../utils/constants';
+import { v4 as uuidv4 } from 'uuid';
 
 const getAuthRedirectUrl = async (_request: Request, response: Response) => {
   const authService = await getAuthService;
@@ -34,17 +35,21 @@ const authenticate = async (request: Request, response: Response) => {
 
     const user = await userRepository.findOne(email);
     if (user && (user.firstName !== firstName || user.lastName !== lastName)) {
-      await userRepository.updateNames({ email, firstName, lastName });
+      await userRepository.update({ firstName, lastName }, user.id);
     }
 
+    const loggedSecret = uuidv4()
     const tokenPayload: TokenPayload = {
       userId: user?.id ?? null,
+      loggedSecret: user?.id ? loggedSecret : null,
       idToken
     };
     const accessToken = jwt.sign(tokenPayload, config.auth.secret, {
       expiresIn: config.auth.expiresIn
     });
-
+    if (user) {
+      await userRepository.addLoggedSecret(loggedSecret, user.id);
+    }
     const result: AuthMaybeUnknownUser =
       user !== undefined
         ? {
@@ -69,12 +74,16 @@ const authenticate = async (request: Request, response: Response) => {
 };
 
 const logout = async (request: Request, response: Response) => {
-  const { idToken } = (request as AuthenticatedRequest).auth;
+  const { idToken, userId, loggedSecret } = (request as AuthenticatedRequest).auth;
   const authService = await getAuthService;
 
   const logoutUrl = authService.getLogoutUrl(idToken);
 
   response.clearCookie(COOKIE_MAESTRO_ACCESS_TOKEN);
+
+  if (userId && loggedSecret) {
+    await userRepository.deleteLoggedSecret(loggedSecret, userId);
+  }
 
   return response.status(constants.HTTP_STATUS_OK).json(logoutUrl);
 };
