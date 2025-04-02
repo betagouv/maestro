@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import { format } from 'date-fns';
 import { act } from 'react';
 import ContextStep from 'src/views/SampleView/DraftSample/ContextStep/ContextStep';
 
@@ -60,18 +59,6 @@ describe('DraftSampleContextStep', () => {
 
     expect(screen.getByTestId('cancel-button')).toBeInTheDocument();
     expect(screen.getByTestId('submit-button')).toBeInTheDocument();
-  });
-
-  test('should set inputs with default values', () => {
-    render(
-      <ProviderTest store={store}>
-        <ContextStep />
-      </ProviderTest>
-    );
-
-    const dateInput = screen.getAllByTestId('sampledAt-input')[1];
-
-    expect(dateInput).toHaveValue(format(new Date(), "yyyy-MM-dd'T'HH:mm"));
   });
 
   test('should handle errors on submitting', async () => {

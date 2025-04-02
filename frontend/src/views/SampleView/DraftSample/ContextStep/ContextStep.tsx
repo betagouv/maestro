@@ -178,18 +178,18 @@ const ContextStep = ({ partialSample }: Props) => {
 
   const submit = async (e?: React.MouseEvent<HTMLElement>) => {
     e?.preventDefault();
-    if (partialSample) {
-      await form.validate(async () => {
+    await form.validate(async () => {
+      if (partialSample) {
         await save('DraftMatrix');
         navigateToSample(partialSample.id);
-      });
-    } else {
-      await createOrUpdateSample(formData)
-        .unwrap()
-        .then((result) => {
-          navigateToSample(result.id);
-        });
-    }
+      } else {
+        await createOrUpdateSample(formData)
+          .unwrap()
+          .then((result) => {
+            navigateToSample(result.id);
+          });
+      }
+    });
   };
 
   const save = async (status = partialSample?.status) => {
@@ -521,7 +521,15 @@ const ContextStep = ({ partialSample }: Props) => {
             <SupportDocumentDownload
               partialSample={partialSample ?? formData}
               onConfirm={
-                isCreatedPartialSample(partialSample) ? undefined : submit
+                isCreatedPartialSample(partialSample)
+                  ? undefined
+                  : async () => {
+                      await createOrUpdateSample(formData)
+                        .unwrap()
+                        .then((result) => {
+                          navigateToSample(result.id);
+                        });
+                    }
               }
             />
           )}
