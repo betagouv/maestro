@@ -39,6 +39,7 @@ export const genPartialResidue = (
   residueNumber: genNumber(2),
   analysisMethod: oneOf(AnalysisMethodList),
   result: genNumber(2),
+  resultKind: 'Q',
   resultHigherThanArfd: oneOf(OptionalBooleanList),
   substanceApproved: oneOf(OptionalBooleanList),
   substanceAuthorised: oneOf(OptionalBooleanList),

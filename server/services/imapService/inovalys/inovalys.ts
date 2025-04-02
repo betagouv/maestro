@@ -76,7 +76,7 @@ export const extractAnalyzes = (
     'Code Méth': z.string(),
     'Réf Méthode': z.enum(codeMethods),
     'Résultat 1': z.string(),
-    //FIXME attention pour le moment on a tout en double, une ligne pour la LD et une autre pour la LQ, mais ça va surement changer
+    // attention pour le moment on a tout en double, une ligne pour la LD et une autre pour la LQ, mais ça va surement changer
     'Limite Quant. 1': z.string(),
     'Code Sandre': z.string().transform(v => v === '' ? null : v),
     'Incertitude': z.string().optional(),
