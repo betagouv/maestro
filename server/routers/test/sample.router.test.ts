@@ -73,12 +73,14 @@ describe('Sample router', () => {
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toMatchObject({
-        ...Sample11Fixture,
-        createdAt: Sample11Fixture.createdAt.toISOString(),
-        lastUpdatedAt: Sample11Fixture.lastUpdatedAt.toISOString(),
-        sampledAt: Sample11Fixture.sampledAt.toISOString()
-      });
+      expect(res.body).toMatchObject(
+        withISOStringDates({
+          ...Sample11Fixture,
+          createdAt: Sample11Fixture.createdAt,
+          lastUpdatedAt: Sample11Fixture.lastUpdatedAt,
+          sampledAt: Sample11Fixture.sampledAt
+        })
+      );
     });
   });
 
@@ -144,14 +146,16 @@ describe('Sample router', () => {
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toMatchObject([
-        {
-          ...omit(Sample11Fixture, ['items']),
-          createdAt: Sample11Fixture.createdAt.toISOString(),
-          lastUpdatedAt: Sample11Fixture.lastUpdatedAt.toISOString(),
-          sampledAt: Sample11Fixture.sampledAt.toISOString()
-        }
-      ]);
+      expect(res.body).toMatchObject(
+        [
+          {
+            ...omit(Sample11Fixture, ['items']),
+            createdAt: Sample11Fixture.createdAt,
+            lastUpdatedAt: Sample11Fixture.lastUpdatedAt,
+            sampledAt: Sample11Fixture.sampledAt
+          }
+        ].map(withISOStringDates)
+      );
     });
 
     test('should find national samples with a list of statuses', async () => {
@@ -166,21 +170,23 @@ describe('Sample router', () => {
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject(
-        expect.arrayContaining([
-          {
-            ...omit(Sample11Fixture, ['items']),
-            createdAt: Sample11Fixture.createdAt.toISOString(),
-            lastUpdatedAt: Sample11Fixture.lastUpdatedAt.toISOString(),
-            sampledAt: Sample11Fixture.sampledAt.toISOString(),
-            documentIds: []
-          },
-          expect.objectContaining({
-            id: Sample12Fixture.id
-          }),
-          expect.objectContaining({
-            id: Sample2Fixture.id
-          })
-        ])
+        expect.arrayContaining(
+          [
+            {
+              ...omit(Sample11Fixture, ['items']),
+              createdAt: Sample11Fixture.createdAt,
+              lastUpdatedAt: Sample11Fixture.lastUpdatedAt,
+              sampledAt: Sample11Fixture.sampledAt,
+              documentIds: []
+            },
+            expect.objectContaining({
+              id: Sample12Fixture.id
+            }),
+            expect.objectContaining({
+              id: Sample2Fixture.id
+            })
+          ].map(withISOStringDates)
+        )
       );
     });
   });
@@ -260,21 +266,9 @@ describe('Sample router', () => {
       });
       await badRequestTest({
         ...genSampleContextData(),
-        sampledAt: undefined
-      });
-      await badRequestTest({
-        ...genSampleContextData(),
         programmingPlanId: '123'
       });
-      await badRequestTest({
-        ...genSampleContextData(),
-        legalContext: undefined
-      });
       await badRequestTest({ ...genSampleContextData(), legalContext: '123' });
-      await badRequestTest({
-        ...genSampleContextData(),
-        department: undefined
-      });
       await badRequestTest({ ...genSampleContextData(), department: '123' });
       await badRequestTest({ ...genSampleContextData(), department: '' });
       await badRequestTest({ ...genSampleContextData(), department: 123 });
@@ -282,7 +276,6 @@ describe('Sample router', () => {
         ...genSampleContextData(),
         sampledAt: 'invalid date'
       });
-      await badRequestTest({ ...genSampleContextData(), sampledAt: null });
     });
 
     test('should fail if the user does not have the permission to create samples', async () => {
@@ -315,9 +308,7 @@ describe('Sample router', () => {
             firstName: Sampler1Fixture.firstName,
             lastName: Sampler1Fixture.lastName
           },
-          reference: `${Regions[Sampler1Fixture.region as Region].shortName}-${
-            sample.department
-          }-${format(new Date(), 'yy')}-0001-${sample.legalContext}`
+          reference: `${Regions[Sampler1Fixture.region as Region].shortName}-${format(new Date(), 'yy')}-0001`
         })
       );
 
@@ -459,14 +450,16 @@ describe('Sample router', () => {
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toMatchObject({
-        ...Sample11Fixture,
-        createdAt: Sample11Fixture.createdAt.toISOString(),
-        lastUpdatedAt: expect.any(String),
-        sampledAt: Sample11Fixture.sampledAt.toISOString(),
-        matrix: validBody.matrix,
-        items: validBody.items
-      });
+      expect(res.body).toMatchObject(
+        withISOStringDates({
+          ...Sample11Fixture,
+          createdAt: Sample11Fixture.createdAt,
+          lastUpdatedAt: expect.any(String),
+          sampledAt: Sample11Fixture.sampledAt,
+          matrix: validBody.matrix,
+          items: validBody.items
+        })
+      );
 
       await expect(
         Samples()

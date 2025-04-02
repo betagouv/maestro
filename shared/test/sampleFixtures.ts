@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { CultureKindList } from '../referential/CultureKind';
 import { LegalContextList } from '../referential/LegalContext';
 import { Matrix, MatrixList } from '../referential/Matrix/Matrix';
-import { MatrixKind } from '../referential/Matrix/MatrixKind';
+import { MatrixKind, MatrixKindList } from '../referential/Matrix/MatrixKind';
 import { MatrixPart, MatrixPartList } from '../referential/Matrix/MatrixPart';
 import { QuantityUnitList } from '../referential/QuantityUnit';
 import { Regions } from '../referential/Region';
@@ -66,11 +66,14 @@ export const genCreatedSampleData = (
 export const genCreatedPartialSample = (
   data?: Partial<PartialSample>
 ): PartialSample => {
-  const contextData = genSampleContextData(SampleContextData.parse(data));
+  const contextData = genSampleContextData(
+    SampleContextData.partial().parse(data ?? {})
+  );
   return {
     ...contextData,
     ...genCreatedSampleData(data),
     company: genCompany(),
+    matrixKind: oneOf(MatrixKindList),
     matrix: oneOf(MatrixList),
     matrixPart: oneOf(MatrixPartList),
     stage: oneOf(StageList),
