@@ -3,7 +3,6 @@ import { isEqual } from 'lodash-es';
 import fp from 'lodash/fp';
 import { MatrixKindList } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, RegionList } from 'maestro-shared/referential/Region';
-import { StageList } from 'maestro-shared/referential/Stage';
 import {
   RegionalPrescription,
   RegionalPrescriptionKey,
@@ -23,7 +22,7 @@ import {
   genRegionalPrescription
 } from 'maestro-shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
-import { genCreatedSample } from 'maestro-shared/test/sampleFixtures';
+import { genCreatedPartialSample } from 'maestro-shared/test/sampleFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
   NationalCoordinator,
@@ -83,25 +82,25 @@ describe('Regional prescriptions router', () => {
     programmingPlanId: programmingPlanClosed.id,
     context: 'Control',
     matrixKind: oneOf(MatrixKindList),
-    stages: [oneOf(StageList)]
+    stages: ['STADE1']
   });
   const validatedControlPrescription = genPrescription({
     programmingPlanId: programmingPlanValidated.id,
     context: 'Control',
     matrixKind: oneOf(MatrixKindList),
-    stages: [oneOf(StageList)]
+    stages: ['STADE2']
   });
   const submittedControlPrescription1 = genPrescription({
     programmingPlanId: programmingPlanSubmitted.id,
     context: 'Control',
     matrixKind: oneOf(MatrixKindList),
-    stages: [oneOf(StageList)]
+    stages: ['STADE3', 'STADE4']
   });
   const submittedControlPrescription2 = genPrescription({
     programmingPlanId: programmingPlanSubmitted.id,
     context: 'Control',
     matrixKind: oneOf(MatrixKindList),
-    stages: [oneOf(StageList)]
+    stages: ['STADE5', 'STADE6', 'STADE8']
   });
   const closedControlRegionalPrescriptions: RegionalPrescription[] =
     RegionList.map((region) => ({
@@ -144,14 +143,17 @@ describe('Regional prescriptions router', () => {
     createdBy: RegionalCoordinator.id,
     createdAt: new Date()
   };
-  const sample = genCreatedSample({
+  const sample = genCreatedPartialSample({
     programmingPlanId: programmingPlanClosed.id,
     prescriptionId: closedControlPrescription.id,
     region: Sampler1Fixture.region as Region,
     company: CompanyFixture,
     sampler: Sampler1Fixture,
     laboratoryId: LaboratoryFixture.id,
-    status: 'Sent'
+    status: 'Sent',
+    specificData: {
+      programmingPlanKind: 'PPV'
+    }
   });
 
   beforeAll(async () => {
