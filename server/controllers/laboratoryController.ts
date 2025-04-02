@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { constants } from 'http2';
-import laboratoryRepository from '../repositories/laboratoryRepository';
+import { laboratoryRepository } from '../repositories/laboratoryRepository';
 
 const getLaboratory = async (request: Request, response: Response) => {
   console.info('Get laboratory');

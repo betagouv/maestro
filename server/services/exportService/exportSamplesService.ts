@@ -13,7 +13,7 @@ import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/Samp
 import { SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
 import { formatWithTz, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { analysisRepository } from '../../repositories/analysisRepository';
-import laboratoryRepository from '../../repositories/laboratoryRepository';
+import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import sampleItemRepository from '../../repositories/sampleItemRepository';
 import workbookUtils from '../../utils/workbookUtils';
 import WorkbookWriter = exceljs.stream.xlsx.WorkbookWriter;

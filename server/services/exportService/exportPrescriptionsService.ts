@@ -15,7 +15,7 @@ import {
   RegionalPrescription
 } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { isDefined } from 'maestro-shared/utils/utils';
-import laboratoryRepository from '../../repositories/laboratoryRepository';
+import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import workbookUtils from '../../utils/workbookUtils';
 import WorkbookWriter = exceljs.stream.xlsx.WorkbookWriter;
 

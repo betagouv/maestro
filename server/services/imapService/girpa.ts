@@ -5,16 +5,11 @@ import {
   ExportDataFromEmail,
   ExportDataSubstance,
   ExtractError,
-  IsSender,
   LaboratoryConf
 } from './index';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { frenchNumberStringValidator } from './utils';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
-
-//TODO AUTO_LABO en attente de la réception du 1er email + test
-const isSender: IsSender = (_emailSender) => false;
-
 
 const girpaUnknownReferences: string[] = [
   "dmpf",
@@ -212,7 +207,6 @@ const exportDataFromEmail: ExportDataFromEmail = (email) => {
 };
 
 export const girpaConf: LaboratoryConf = {
-  isSender,
   exportDataFromEmail,
   ssd2IdByLabel: girpaReferences,
   unknownReferences: girpaUnknownReferences

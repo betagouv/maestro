@@ -30,7 +30,7 @@ import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
 import { formatWithTz, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import companyRepository from '../repositories/companyRepository';
-import laboratoryRepository from '../repositories/laboratoryRepository';
+import { laboratoryRepository } from '../repositories/laboratoryRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
 import sampleItemRepository from '../repositories/sampleItemRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
