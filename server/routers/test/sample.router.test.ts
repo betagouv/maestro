@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
 import { constants } from 'http2';
 import { omit } from 'lodash-es';
-import { MatrixList } from 'maestro-shared/referential/Matrix/Matrix';
+import { MatrixEffective } from 'maestro-shared/referential/Matrix/Matrix';
 import { Region, Regions } from 'maestro-shared/referential/Region';
 import {
   genCreatedPartialSample,
@@ -420,7 +420,7 @@ describe('Sample router', () => {
 
     const validBody = {
       ...Sample11Fixture,
-      matrix: oneOf(MatrixList),
+      matrix: oneOf(MatrixEffective.options),
       items: [
         genSampleItem({
           sampleId: Sample11Fixture.id,

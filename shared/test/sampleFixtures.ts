@@ -3,8 +3,11 @@ import { pick } from 'lodash-es';
 import { v4 as uuidv4 } from 'uuid';
 import { CultureKindList } from '../referential/CultureKind';
 import { LegalContextList } from '../referential/LegalContext';
-import { Matrix, MatrixList } from '../referential/Matrix/Matrix';
-import { MatrixKind, MatrixKindList } from '../referential/Matrix/MatrixKind';
+import { Matrix, MatrixEffective } from '../referential/Matrix/Matrix';
+import {
+  MatrixKind,
+  MatrixKindEffective
+} from '../referential/Matrix/MatrixKind';
 import { MatrixPart, MatrixPartList } from '../referential/Matrix/MatrixPart';
 import { QuantityUnitList } from '../referential/QuantityUnit';
 import { Regions } from '../referential/Region';
@@ -73,8 +76,8 @@ export const genCreatedPartialSample = (
     ...contextData,
     ...genCreatedSampleData(data),
     company: genCompany(),
-    matrixKind: oneOf(MatrixKindList),
-    matrix: oneOf(MatrixList),
+    matrixKind: oneOf(MatrixKindEffective.options),
+    matrix: oneOf(MatrixEffective.options),
     matrixPart: oneOf(MatrixPartList),
     stage: oneOf(StageList),
     cultureKind: oneOf(CultureKindList),
@@ -89,7 +92,7 @@ export const genCreatedSample = (data?: Partial<Sample>): Sample => {
     ...sample,
     geolocation: sample.geolocation as Geolocation,
     company: sample.company as Company,
-    matrixKind: sample.matrix as MatrixKind,
+    matrixKind: sample.matrixKind as MatrixKind,
     matrix: sample.matrix as Matrix,
     matrixPart: sample.matrixPart as MatrixPart,
     stage: sample.stage as Stage,
