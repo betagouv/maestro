@@ -1,6 +1,5 @@
 import { fakerFR } from '@faker-js/faker';
 import { pick } from 'lodash-es';
-import randomstring from 'randomstring';
 import { v4 as uuidv4 } from 'uuid';
 import { CultureKindList } from '../referential/CultureKind';
 import { LegalContextList } from '../referential/LegalContext';
@@ -23,7 +22,7 @@ import { SampleItem } from '../schema/Sample/SampleItem';
 import { SampleStatus } from '../schema/Sample/SampleStatus';
 import { CompanyFixture, genCompany } from './companyFixtures';
 import { ValidatedProgrammingPlanFixture } from './programmingPlanFixtures';
-import { genBoolean, genNumber, oneOf } from './testFixtures';
+import { oneOf } from './testFixtures';
 import {
   Region1Fixture,
   Region2Fixture,
@@ -44,14 +43,9 @@ export const genSampleContextData = (
   programmingPlanId: uuidv4(),
   context: oneOf(ContextList),
   legalContext: oneOf(LegalContextList),
-  resytalId:
-    '23-' +
-    randomstring.generate({
-      length: 6,
-      charset: '123456789'
-    }),
+  resytalId: '23-' + fakerFR.string.numeric(6),
   company: genCompany(),
-  notesOnCreation: randomstring.generate(),
+  notesOnCreation: fakerFR.string.alphanumeric(32),
   status: 'Draft',
   ...data
 });
@@ -59,9 +53,7 @@ export const genCreatedSampleData = (
   data?: Partial<CreatedSampleData>
 ): CreatedSampleData => ({
   region: '44',
-  reference: `GES-${oneOf(Regions['44'].departments)}-24-${genNumber(
-    4
-  )}-${oneOf(LegalContextList)}`,
+  reference: `GES-${oneOf(Regions['44'].departments)}-24-${fakerFR.number.int(9999)}-${oneOf(LegalContextList)}`,
   sampler: {
     id: uuidv4(),
     firstName: fakerFR.person.firstName(),
@@ -83,7 +75,7 @@ export const genCreatedPartialSample = (
     matrixPart: oneOf(MatrixPartList),
     stage: oneOf(StageList),
     cultureKind: oneOf(CultureKindList),
-    releaseControl: genBoolean(),
+    releaseControl: fakerFR.datatype.boolean(),
     items: [genSampleItem({ sampleId: contextData.id, itemNumber: 1 })],
     ...data
   };
@@ -101,17 +93,17 @@ export const genCreatedSample = (data?: Partial<Sample>): Sample => {
     prescriptionId: uuidv4(),
     laboratoryId: uuidv4(),
     items: sample.items as SampleItem[],
-    ownerAgreement: genBoolean(),
+    ownerAgreement: fakerFR.datatype.boolean(),
     ...data
   };
 };
 export const genSampleItem = (data?: Partial<SampleItem>): SampleItem => ({
   sampleId: uuidv4(),
-  itemNumber: genNumber(2),
-  quantity: genNumber(3),
+  itemNumber: fakerFR.number.int(99),
+  quantity: fakerFR.number.int(999),
   quantityUnit: oneOf(QuantityUnitList),
-  compliance200263: genBoolean(),
-  sealId: randomstring.generate(),
+  compliance200263: fakerFR.datatype.boolean(),
+  sealId: fakerFR.string.alphanumeric(32),
   recipientKind: 'Laboratory',
   ...data
 });

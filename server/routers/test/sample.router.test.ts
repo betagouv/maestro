@@ -13,7 +13,6 @@ import {
   Sample2Fixture
 } from 'maestro-shared/test/sampleFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
-import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { SampleItems } from '../../repositories/sampleItemRepository';
@@ -29,6 +28,7 @@ import {
   Sampler2Fixture
 } from 'maestro-shared/test/userFixtures';
 import { describe, expect, test } from 'vitest';
+import { fakerFR } from '@faker-js/faker';
 describe('Sample router', () => {
   const { app } = createServer();
 
@@ -47,7 +47,7 @@ describe('Sample router', () => {
 
     test('should get a valid sample id', async () => {
       await request(app)
-        .get(`${testRoute(randomstring.generate())}`)
+        .get(`${testRoute(fakerFR.string.alphanumeric(32))}`)
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
@@ -93,7 +93,7 @@ describe('Sample router', () => {
 
     test('should get a valid sample id', async () => {
       await request(app)
-        .get(`${testRoute(randomstring.generate(), 1)}`)
+        .get(`${testRoute(fakerFR.string.alphanumeric(32), 1)}`)
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
@@ -339,7 +339,7 @@ describe('Sample router', () => {
 
     test('should get a valid sample id', async () => {
       await request(app)
-        .put(`${testRoute(randomstring.generate())}`)
+        .put(`${testRoute(fakerFR.string.alphanumeric(32))}`)
         .send({})
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
@@ -491,7 +491,7 @@ describe('Sample router', () => {
 
     test('should get a valid sample id', async () => {
       await request(app)
-        .delete(testRoute(randomstring.generate()))
+        .delete(testRoute(fakerFR.string.alphanumeric(32)))
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });

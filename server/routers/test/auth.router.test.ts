@@ -6,7 +6,6 @@ import { createServer } from '../../server';
 
 import jwt from 'jsonwebtoken';
 import { genAuthRedirectUrl } from 'maestro-shared/test/authFixtures';
-import randomstring from 'randomstring';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { kysely } from '../../repositories/kysely';
 import {
@@ -17,6 +16,7 @@ import {
 import { tokenProvider } from '../../test/testUtils';
 import config from '../../utils/config';
 import { COOKIE_MAESTRO_ACCESS_TOKEN } from '../../utils/constants';
+import { fakerFR } from '@faker-js/faker';
 
 describe('Auth routes', () => {
   const { app } = createServer();
@@ -85,14 +85,14 @@ describe('Auth routes', () => {
       });
       await badRequestTest({
         ...validBody,
-        url: randomstring.generate()
+        url: fakerFR.string.alphanumeric(32)
       });
     });
 
     test('should set just an accessToken when the user does not exist', async () => {
-      const email = randomstring.generate();
+      const email = fakerFR.string.alphanumeric(32);
       const mockedAuthenticate = Promise.resolve({
-        idToken: randomstring.generate(),
+        idToken: fakerFR.string.alphanumeric(32),
         email
       });
       mockAuthenticate.mockResolvedValueOnce(mockedAuthenticate);
@@ -111,7 +111,7 @@ describe('Auth routes', () => {
       const newFirstname = 'newFirstname';
       const newLastname = 'newLastname';
       const mockedAuthenticate = Promise.resolve({
-        idToken: randomstring.generate(),
+        idToken: fakerFR.string.alphanumeric(32),
         email: Sampler1Fixture.email,
         firstName: newFirstname,
         lastName: newLastname
