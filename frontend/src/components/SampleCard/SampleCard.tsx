@@ -92,19 +92,33 @@ const SampleCard = ({ sample }: Props) => {
                 <span
                   className={cx('fr-icon-calendar-event-line', 'fr-icon--sm')}
                 ></span>
-                {format(sample.sampledAt, 'dd/MM/yyyy')}
+                {sample.sampledAt ? (
+                  format(sample.sampledAt, 'dd/MM/yyyy')
+                ) : (
+                  <div className="missing-data">Information à compléter</div>
+                )}
               </span>
               <span className="icon-text">
                 <span
                   className={cx('fr-icon-road-map-line', 'fr-icon--sm')}
                 ></span>
-                {DepartmentLabels[sample.department]} ({sample.department})
+                {sample.department ? (
+                  <>
+                    {DepartmentLabels[sample.department]} ({sample.department})
+                  </>
+                ) : (
+                  <div className="missing-data">Information à compléter</div>
+                )}
               </span>
               <span className="icon-text">
                 <span
                   className={cx('fr-icon-microscope-line', 'fr-icon--sm')}
                 ></span>
-                {ContextLabels[sample.context]}
+                {sample.context ? (
+                  ContextLabels[sample.context]
+                ) : (
+                  <div className="missing-data">Information à compléter</div>
+                )}
               </span>
               {sample.matrixKind && (
                 <span className="icon-text">

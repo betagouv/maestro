@@ -28,6 +28,7 @@ import {
 } from 'maestro-shared/referential/Stage';
 import { FileInput } from 'maestro-shared/schema/File/FileInput';
 import { SampleDocumentTypeList } from 'maestro-shared/schema/File/FileType';
+import { Context } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   isCreatedPartialSample,
   PartialSample,
@@ -90,7 +91,7 @@ const MatrixStep = ({ partialSample }: Props) => {
   const { data: prescriptionsData } = useFindPrescriptionsQuery(
     {
       programmingPlanId: partialSample.programmingPlanId as string,
-      context: partialSample.context
+      context: partialSample.context as Context
     },
     {
       skip: !partialSample.programmingPlanId || !partialSample.context
@@ -100,7 +101,7 @@ const MatrixStep = ({ partialSample }: Props) => {
   const { data: regionalPrescriptions } = useFindRegionalPrescriptionsQuery(
     {
       programmingPlanId: partialSample.programmingPlanId as string,
-      context: partialSample.context,
+      context: partialSample.context as Context,
       region: isCreatedPartialSample(partialSample)
         ? partialSample.region
         : user?.region

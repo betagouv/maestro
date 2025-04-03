@@ -38,7 +38,9 @@ import SampleFiltersTags from 'src/views/SampleListView/SampleFiltersTags';
 import SampleListHeader from 'src/views/SampleListView/SampleListHeader';
 import SamplePrimaryFilters from 'src/views/SampleListView/SamplePrimaryFilters';
 import SampleSecondaryFilters from 'src/views/SampleListView/SampleSecondaryFilters';
+import { v4 as uuidv4 } from 'uuid';
 import food from '../../assets/illustrations/food.svg';
+import SupportDocumentDownload from '../SampleView/DraftSample/SupportDocumentDownload';
 import './SampleList.scss';
 
 export type SampleListDisplay = 'table' | 'cards';
@@ -143,15 +145,25 @@ const SampleListView = () => {
         action={
           <>
             {hasUserPermission('createSample') && (
-              <Button
-                linkProps={{
-                  to: `/prelevements/${programmingPlan?.year}/nouveau`,
-                  target: '_self'
-                }}
-                iconId="fr-icon-microscope-line"
-              >
-                Saisir un prélèvement
-              </Button>
+              <div>
+                <Button
+                  linkProps={{
+                    to: `/prelevements/${programmingPlan?.year}/nouveau`,
+                    target: '_self'
+                  }}
+                  iconId="fr-icon-microscope-line"
+                  className={cx('fr-mb-1w')}
+                >
+                  Saisir un prélèvement
+                </Button>
+                <SupportDocumentDownload
+                  partialSample={{
+                    id: uuidv4(),
+                    status: 'Draft' as const,
+                    programmingPlanId: programmingPlan?.id as string
+                  }}
+                />
+              </div>
             )}
           </>
         }

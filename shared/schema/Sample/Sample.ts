@@ -106,7 +106,12 @@ export const SampleOwnerData = z.object({
 });
 
 export const PartialSampleToCreate = z.object({
-  ...SampleContextData.shape,
+  ...SampleContextData.partial().required({
+    id: true,
+    programmingPlanId: true,
+    status: true
+  }).shape,
+  sampledAt: SampleContextData.shape.sampledAt.nullish(),
   ...SampleMatrixData.partial().shape,
   ...SampleItemsData.partial().shape,
   ...SampleAdmissibilityData.partial().shape,

@@ -18,5 +18,5 @@ export const SampleItemRecipientKindLabels: Record<
 > = {
   Laboratory: 'Laboratoire',
   Sampler: 'Préleveur',
-  Operator: 'Opérateur'
+  Operator: 'Détenteur'
 };

@@ -115,7 +115,7 @@ const createProgrammingPlan = async (request: Request, response: Response) => {
     year,
     regionalStatus: RegionList.map((region) => ({
       region,
-      status: 'InProgress' as ProgrammingPlanStatus
+      status: 'InProgress' as const
     }))
   };
 
@@ -209,9 +209,7 @@ const updateRegionalStatus = async (request: Request, response: Response) => {
           await notificationService.sendNotification<SubmittedProgrammingPlanNotification>(
             {
               category: 'ProgrammingPlanSubmitted',
-              message: NotificationCategoryMessages[
-                'ProgrammingPlanSubmitted'
-              ],
+              message: NotificationCategoryMessages['ProgrammingPlanSubmitted'],
               link: `/prescriptions/${programmingPlan.year}`
             },
             regionalCoordinators
@@ -220,9 +218,7 @@ const updateRegionalStatus = async (request: Request, response: Response) => {
           await notificationService.sendNotification<ValidatedProgrammingPlanNotification>(
             {
               category: 'ProgrammingPlanValidated',
-              message: NotificationCategoryMessages[
-                'ProgrammingPlanValidated'
-              ],
+              message: NotificationCategoryMessages['ProgrammingPlanValidated'],
               link: `/prescriptions/${programmingPlan.year}`
             },
             regionalCoordinators

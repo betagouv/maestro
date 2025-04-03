@@ -49,7 +49,7 @@ router.get(
         sampleId: z.string().uuid(),
         itemNumber: z.coerce.number().min(1)
       })
-    )
+    ).merge(query(z.object({ fullVersion: z.coerce.boolean().nullish() })))
   ),
   permissionsCheck(['downloadSupportDocument']),
   sampleCheck(),

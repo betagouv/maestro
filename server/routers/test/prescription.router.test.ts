@@ -1,5 +1,5 @@
 import { constants } from 'http2';
-import { MatrixKindList } from 'maestro-shared/referential/Matrix/MatrixKind';
+import { MatrixKindEffective } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { RegionList } from 'maestro-shared/referential/Region';
 import { StageList } from 'maestro-shared/referential/Stage';
 import { PrescriptionUpdate } from 'maestro-shared/schema/Prescription/Prescription';
@@ -63,19 +63,19 @@ describe('Prescriptions router', () => {
   const closedControlPrescription = genPrescription({
     programmingPlanId: programmingPlanClosed.id,
     context: 'Control',
-    matrixKind: oneOf(MatrixKindList),
+    matrixKind: oneOf(MatrixKindEffective.options),
     stages: [oneOf(StageList)]
   });
   const submittedControlPrescription = genPrescription({
     programmingPlanId: programmingPlanSubmitted.id,
     context: 'Control',
-    matrixKind: oneOf(MatrixKindList),
+    matrixKind: oneOf(MatrixKindEffective.options),
     stages: [oneOf(StageList)]
   });
   const inProgressControlPrescription = genPrescription({
     programmingPlanId: programmingPlanInProgress.id,
     context: 'Control',
-    matrixKind: oneOf(MatrixKindList),
+    matrixKind: oneOf(MatrixKindEffective.options),
     stages: [oneOf(StageList)]
   });
   const substance = genSubstance();
@@ -87,7 +87,7 @@ describe('Prescriptions router', () => {
   const inProgressSurveillancePrescription = genPrescription({
     programmingPlanId: programmingPlanInProgress.id,
     context: 'Surveillance',
-    matrixKind: oneOf(MatrixKindList),
+    matrixKind: oneOf(MatrixKindEffective.options),
     stages: [oneOf(StageList)]
   });
 

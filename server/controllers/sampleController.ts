@@ -63,6 +63,7 @@ const getSample = async (request: Request, response: Response) => {
 const getSampleItemDocument = async (request: Request, response: Response) => {
   const sample: Sample = (request as SampleRequest).sample;
   const itemNumber = Number(request.params.itemNumber);
+  const fullVersion = request.query.fullVersion as boolean | undefined;
 
   console.info('Get sample document', sample.id);
 
@@ -71,7 +72,8 @@ const getSampleItemDocument = async (request: Request, response: Response) => {
   const pdfBuffer = await pdfService.generateSampleSupportPDF(
     sample,
     sampleItems,
-    itemNumber
+    itemNumber,
+    fullVersion ?? false
   );
 
   response.setHeader('Content-Type', 'application/pdf');
@@ -159,11 +161,7 @@ const createSample = async (request: Request, response: Response) => {
   const sample = {
     ...sampleToCreate,
     region: user.region,
-    reference: `${Regions[user.region].shortName}-${
-      sampleToCreate.department
-    }-${format(new Date(), 'yy')}-${String(serial).padStart(4, '0')}-${
-      sampleToCreate.legalContext
-    }`,
+    reference: `${Regions[user.region].shortName}-${format(new Date(), 'yy')}-${String(serial).padStart(4, '0')}`,
     sampler: pick(user, ['id', 'firstName', 'lastName']),
     createdAt: new Date(),
     lastUpdatedAt: new Date()
@@ -391,7 +389,8 @@ const generateAndStoreSampleSupportDocument = async (
   const pdfBuffer = await pdfService.generateSampleSupportPDF(
     sample,
     sampleItems,
-    itemNumber
+    itemNumber,
+    true
   );
 
   const sampleItem = sampleItems.find((item) => item.itemNumber === itemNumber);

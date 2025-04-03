@@ -20,15 +20,15 @@ main {
   .document-title {
     text-wrap: nowrap;
     font-size: 0.875rem;
-    font-weight: bold;
     margin-right: 1.5rem;
+    text-align: right;
   }
 }
 
 .fr-header,
 .header-space {
   height: 120px;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .sample-reference {
@@ -36,13 +36,20 @@ main {
   padding-top: 1rem;
   padding-bottom: 1rem;
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.25rem;
 }
 
 .sample-section {
-  page-break-inside: avoid;
-  break-inside: avoid;
   display: block;
+
+  &.full-version {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  &:not(.full-version) + .sample-section {
+    margin-top: 1rem;
+  }
 
   .sample-section-header {
     display: flex;
@@ -66,7 +73,7 @@ main {
     padding-left: 3.5rem;
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1.25rem;
 
     .sample-section-block {
       display: flex;
@@ -88,7 +95,7 @@ main {
     .sample-item {
       display: flex;
       flex-direction: column;
-      gap: 1.5rem;
+      gap: 1.4rem;
       break-inside: avoid;
       page-break-inside: avoid;
       overflow: hidden;
@@ -132,19 +139,19 @@ main {
 
     .fr-radio-group input[type='radio'] + label {
       background-image: radial-gradient(
-              transparent 8px,
-              #000091 9px,
-              transparent 10px
+              transparent 6px,
+              #000091 7px,
+              transparent 8px
       );
     }
 
     .fr-radio-group input[type='radio']:checked + label {
       background-image: radial-gradient(
-              transparent 8px,
-              #000091 9px,
-              transparent 10px
+              transparent 6px,
+              #000091 7px,
+              transparent 8px
       ),
-      radial-gradient(#000091 5px, transparent 6px);
+      radial-gradient(#000091 3px, transparent 5px);
     }
 
     .fr-checkbox-group input[type=checkbox] + label::before {
