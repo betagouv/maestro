@@ -31,7 +31,6 @@ import {
   RegionalCoordinator,
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
-import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
@@ -50,6 +49,7 @@ import {
 } from '../../repositories/sampleRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
+import { fakerFR } from '@faker-js/faker';
 
 describe('Regional prescriptions router', () => {
   const { app } = createServer();
@@ -140,7 +140,7 @@ describe('Regional prescriptions router', () => {
     id: uuidv4(),
     prescriptionId: closedControlPrescription.id,
     region: RegionalCoordinator.region as Region,
-    comment: randomstring.generate(),
+    comment: fakerFR.string.alphanumeric(32),
     createdBy: RegionalCoordinator.id,
     createdAt: new Date()
   };
@@ -231,7 +231,7 @@ describe('Regional prescriptions router', () => {
       await request(app)
         .get(testRoute)
         .query({
-          programmingPlanId: randomstring.generate(),
+          programmingPlanId: fakerFR.string.alphanumeric(32),
           context: 'Control'
         })
         .use(tokenProvider(NationalCoordinator))
@@ -362,7 +362,7 @@ describe('Regional prescriptions router', () => {
 
     test('should receive valid prescriptionId and region', async () => {
       await request(app)
-        .put(testRoute(randomstring.generate()))
+        .put(testRoute(fakerFR.string.alphanumeric(32)))
         .send(submittedRegionalPrescriptionUpdate)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
@@ -384,7 +384,7 @@ describe('Regional prescriptions router', () => {
 
       await badRequestTest();
       await badRequestTest({ programmingPlanId: undefined });
-      await badRequestTest({ programmingPlanId: randomstring.generate() });
+      await badRequestTest({ programmingPlanId: fakerFR.string.alphanumeric(32) });
       await badRequestTest({ sampleCount: undefined });
       await badRequestTest({ sampleCount: '' });
       await badRequestTest({ sampleCount: 123 });
@@ -520,7 +520,7 @@ describe('Regional prescriptions router', () => {
   describe('POST /{prescriptionId}/regions/{region}/comments', () => {
     const validComment: RegionalPrescriptionCommentToCreate = {
       programmingPlanId: programmingPlanSubmitted.id,
-      comment: randomstring.generate()
+      comment: fakerFR.string.alphanumeric(32)
     };
 
     const getRegionalPrescription = (
@@ -574,7 +574,7 @@ describe('Regional prescriptions router', () => {
 
       await badRequestTest();
       await badRequestTest({ programmingPlanId: undefined });
-      await badRequestTest({ programmingPlanId: randomstring.generate() });
+      await badRequestTest({ programmingPlanId: fakerFR.string.alphanumeric(32) });
       await badRequestTest({ comment: undefined });
       await badRequestTest({ comment: '' });
       await badRequestTest({ comment: 123 });

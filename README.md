@@ -102,6 +102,12 @@ npm run test  #All tests
 npm run test -w server #Backend tests
 ```
 
+Pour reproduire les tests avec la même Seed que sur la CI :
+
+```bash
+TEST_SEED=1231212 npm run test -w server
+```
+
 ### Commits
 
 Semantic-release est utilisé pour générer les versions de Maestro.

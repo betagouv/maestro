@@ -15,7 +15,6 @@ import {
   RegionalCoordinator,
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
-import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
@@ -33,6 +32,7 @@ import { RegionalPrescriptions } from '../../repositories/regionalPrescriptionRe
 import { Substances } from '../../repositories/substanceRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
+import { fakerFR } from '@faker-js/faker';
 describe('Prescriptions router', () => {
   const { app } = createServer();
 
@@ -158,7 +158,7 @@ describe('Prescriptions router', () => {
       await request(app)
         .get(testRoute)
         .query({
-          programmingPlanId: randomstring.generate(),
+          programmingPlanId: fakerFR.string.alphanumeric(32),
           context: 'Control'
         })
         .use(tokenProvider(NationalCoordinator))
@@ -223,7 +223,7 @@ describe('Prescriptions router', () => {
 
     test('should get a valid programmingPlan id', async () => {
       await request(app)
-        .get(`${testRoute(randomstring.generate(), 'Control')}`)
+        .get(`${testRoute(fakerFR.string.alphanumeric(32), 'Control')}`)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
@@ -269,7 +269,7 @@ describe('Prescriptions router', () => {
       await badRequestTest({ ...validBody, programmingPlanId: undefined });
       await badRequestTest({
         ...validBody,
-        programmingPlanId: randomstring.generate()
+        programmingPlanId: fakerFR.string.alphanumeric(32)
       });
       await badRequestTest({ ...validBody, context: undefined });
       await badRequestTest({ ...validBody, context: 'invalid' });
@@ -333,7 +333,7 @@ describe('Prescriptions router', () => {
     const prescriptionUpdate: PrescriptionUpdate = {
       programmingPlanId: programmingPlanInProgress.id,
       stages: [oneOf(StageList)],
-      notes: randomstring.generate()
+      notes: fakerFR.string.alphanumeric(32)
     };
     const testRoute = (
       prescriptionId: string = inProgressControlPrescription.id
@@ -351,13 +351,13 @@ describe('Prescriptions router', () => {
         .put(testRoute())
         .send({
           ...prescriptionUpdate,
-          programmingPlanId: randomstring.generate()
+          programmingPlanId: fakerFR.string.alphanumeric(32)
         })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await request(app)
-        .put(testRoute(randomstring.generate()))
+        .put(testRoute(fakerFR.string.alphanumeric(32)))
         .send(prescriptionUpdate)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);

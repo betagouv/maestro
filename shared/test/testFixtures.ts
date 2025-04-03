@@ -1,22 +1,7 @@
-import randomstring from 'randomstring';
+import { fakerFR } from '@faker-js/faker';
 
-export const genNumber = (length = 10) => {
-  return Number(
-    randomstring.generate({
-      length,
-      charset: 'numeric'
-    })
-  );
-};
-
-export const genBoolean = () => Math.random() < 0.5;
-
-export const genSiret = () =>
-  randomstring.generate({
-    length: 14,
-    charset: '123456789'
-  });
+export const genSiret = () => fakerFR.string.numeric(14)
 
 export function oneOf<T>(array: Array<T>): T {
-  return array[Math.floor(Math.random() * array.length)];
+  return fakerFR.helpers.arrayElement(array)
 }

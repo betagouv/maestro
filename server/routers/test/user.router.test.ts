@@ -9,7 +9,6 @@ import {
   Sampler2Fixture,
   SamplerDromFixture
 } from 'maestro-shared/test/userFixtures';
-import randomstring from 'randomstring';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { describe, expect, test } from 'vitest';
@@ -17,6 +16,7 @@ import { DB } from '../../repositories/kysely.type';
 import { createServer } from '../../server';
 import { accessTokenTest, tokenProvider } from '../../test/testUtils';
 import { COOKIE_MAESTRO_ACCESS_TOKEN } from '../../utils/constants';
+import { fakerFR } from '@faker-js/faker';
 
 // Vérifie que le type généré par kysely correspond bien à notre type
 // À l'avenir mieux vaut utiliser vitest pour tester les types => https://vitest.dev/guide/testing-types.html
@@ -57,7 +57,7 @@ describe('User router', () => {
 
     test('should get a valid user id', async () => {
       await request(app)
-        .get(`/api/users/${randomstring.generate()}`)
+        .get(`/api/users/${fakerFR.string.alphanumeric(32)}`)
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });

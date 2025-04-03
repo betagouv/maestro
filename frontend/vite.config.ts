@@ -10,6 +10,7 @@ import {
 } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import tsconfigPaths from 'vite-tsconfig-paths';
+import RandomSeed from '../test/vitest-random-seed';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -22,7 +23,7 @@ export default defineConfig(({ mode }) => {
     test: {
       globals: true,
       environment: 'jsdom',
-      setupFiles: ['./src/setupTests.ts'],
+      setupFiles: ['../test/setupFakerJS.ts', './src/setupTests.ts'],
       env: {
         REACT_APP_API_URL: 'http://localhost:3001'
       }
@@ -31,6 +32,7 @@ export default defineConfig(({ mode }) => {
       port: 3000
     },
     plugins: [
+      RandomSeed(),
       react(),
       tsconfigPaths(),
       envPlugin(),

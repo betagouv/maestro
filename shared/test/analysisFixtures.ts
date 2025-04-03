@@ -11,7 +11,8 @@ import { AnalysisStatusList } from '../schema/Analysis/AnalysisStatus';
 import { Analyte, PartialAnalyte } from '../schema/Analysis/Analyte';
 import { PartialResidue, Residue } from '../schema/Analysis/Residue/Residue';
 import { ResidueComplianceList } from '../schema/Analysis/Residue/ResidueCompliance';
-import { genNumber, oneOf } from './testFixtures';
+import { oneOf } from './testFixtures';
+import { fakerFR } from '@faker-js/faker';
 
 export const genAnalysisToCreate = (
   data?: Partial<AnalysisToCreate>
@@ -36,9 +37,9 @@ export const genPartialResidue = (
   data?: Partial<Omit<Residue, 'analytes'>> & { analytes?: PartialAnalyte[] }
 ): PartialResidue => ({
   analysisId: uuidv4(),
-  residueNumber: genNumber(2),
+  residueNumber: fakerFR.number.int(99),
   analysisMethod: oneOf(AnalysisMethodList),
-  result: genNumber(2),
+  result: fakerFR.number.int(99),
   resultKind: 'Q',
   resultHigherThanArfd: oneOf(OptionalBooleanList),
   substanceApproved: oneOf(OptionalBooleanList),
@@ -50,8 +51,8 @@ export const genPartialResidue = (
 
 export const genPartialAnalyte = (data?: Partial<Analyte>): PartialAnalyte => ({
   analysisId: uuidv4(),
-  residueNumber: genNumber(2),
-  analyteNumber: genNumber(2),
+  residueNumber: fakerFR.number.int(99),
+  analyteNumber: fakerFR.number.int(99),
   reference: oneOf(AnalyteList),
   ...data
 });

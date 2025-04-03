@@ -6,7 +6,7 @@
       "../types"
     ]
   },
-  "include": ["**/*.ts", "**/*.js", "**/*.json",
+  "include": ["**/*.ts", "**/*.js", "**/*.json",  "../test/vitest-random-seed.ts"
   ],
   "exclude": [
     "**/*.d.ts", "dist", "node_modules"]

@@ -1,4 +1,5 @@
 import { defineWorkspace } from 'vitest/config';
+import RandomSeed from '../test/vitest-random-seed';
 
 const integrationTestFiles = [
   '**/*.router.test.ts',
@@ -7,18 +8,21 @@ const integrationTestFiles = [
 ];
 export default defineWorkspace([
   {
+    plugins: [RandomSeed()],
     test: {
       name: 'unit',
-      setupFiles: [],
+      setupFiles: ['../test/setupFakerJS.ts'],
       include: ['**/*.test.ts'],
-      exclude: integrationTestFiles
+      exclude: integrationTestFiles,
+
     }
   },
   {
+    plugins: [RandomSeed()],
     test: {
       name: 'integration',
       hookTimeout: 45000,
-      setupFiles: ['./test/setupTests.ts'],
+      setupFiles: ['../test/setupFakerJS.ts', './test/setupTests.ts'],
       include: integrationTestFiles
     }
   }
