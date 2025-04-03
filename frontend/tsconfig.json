@@ -7,5 +7,6 @@
     "jsx": "react-jsx",
     "noUnusedLocals": false,
   },
-  "include": ["src", "test", ".storybook"]
+  "include": ["src", "test", ".storybook", "../test/vitest-random-seed.ts"
+  ]
 }

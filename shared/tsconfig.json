@@ -4,8 +4,7 @@
     "lib": ["esnext"],
     "target": "esnext",
   },
-  "include": ["**/*.ts"
-  ],
+  "include": ["**/*.ts", "../test/vitest-random-seed.ts"],
   "exclude": [
      "**/*.d.ts", "node_modules"]
 }
