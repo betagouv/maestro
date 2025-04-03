@@ -560,7 +560,7 @@
                                       {{quantityUnit}}&nbsp;
                                     </div>
                                   </div>
-                                  <div class='fr-col-3 sample-section-item'>
+                                  <div class='fr-col-6 sample-section-item'>
                                     <div class='label'>
                                       Numéro de scellé
                                     </div>
@@ -568,49 +568,64 @@
                                       {{sealId}}&nbsp;
                                     </div>
                                   </div>
-                                  <div class='fr-col-3 sample-section-item'>
+                                </div>
+                              </div>
+                            </div>
+                            <div class='sample-section-block'>
+                              <span
+                                class='fr-icon-send-plane-line fr-icon--sm'
+                              ></span>
+                              <div class='fr-container fr-pl-1w'>
+                                <div class='fr-grid-row fr-grid-row--gutters'>
+                                  <div class='fr-col-6 sample-section-item'>
+                                    {{#if (eq itemNumber 1)}}
                                       <div class='label'>
-                                        Directive 2002/63
+                                        Destinataire de l'échantillon
                                       </div>
                                       <div class='value'>
-                                        <input type='checkbox' class='fr-mr-1w' {{#if (and ../fullVersion (eq compliance200263 true))}}checked{{/if}}/>
-                                        Respectée
-                                        <br />
-                                        <input type='checkbox' class='fr-mr-1w' {{#if (and ../fullVersion (eq compliance200263 false))}}checked{{/if}}/>
-                                        Non Respectée
+                                        Laboratoire
                                       </div>
+                                    {{/if}}
+                                    {{#if (or (eq itemNumber 2) (eq itemNumber 3))}}
+                                      <fieldset class="fr-fieldset fr-px-1v">
+                                        <legend class="fr-fieldset__legend fr-col-12 fr-pb-1w label">
+                                          Destinataire de l'échantillon
+                                        </legend>
+                                        <div class="fr-grid-row fr-grid-row--gutters fr-mx-0">
+                                          <div class="fr-radio-group fr-col-12 fr-py-0">
+                                            <input type="radio">
+                                            <label class="fr-label fr-pt-1v fr-pl-3w">Détenteur</label>
+                                          </div>
+                                          <div class="fr-radio-group fr-col-12 fr-py-0">
+                                            <input type="radio">
+                                            <label class="fr-label fr-pt-1v fr-pl-3w">Préleveur</label>
+                                          </div>
+                                        </div>
+                                      </fieldset>
+                                    {{/if}}
+                                  </div>
+                                  <div class='fr-col-6 sample-section-item'>
+                                    <div class='fr-container fr-pl-1w'>
+                                      <fieldset class="fr-fieldset fr-px-0">
+                                        <legend class="fr-fieldset__legend fr-col-12 fr-pb-1w label">
+                                          Directive 2002/63
+                                        </legend>
+                                        <div class="fr-grid-row fr-grid-row--gutters fr-mx-0">
+                                          <div class="fr-radio-group fr-col-12 fr-py-0">
+                                            <input type="radio" {{#if (and ../fullVersion (eq compliance200263 true))}}checked{{/if}}>
+                                            <label class="fr-label fr-pt-1v fr-pl-3w">Respectée</label>
+                                          </div>
+                                          <div class="fr-radio-group fr-col-12 fr-py-0">
+                                            <input type="radio" {{#if (and ../fullVersion (eq compliance200263 false))}}checked{{/if}}>
+                                            <label class="fr-label fr-pt-1v fr-pl-3w">Non Respectée</label>
+                                          </div>
+                                        </div>
+                                      </fieldset>
+                                    </div>
                                   </div>
                                 </div>
                               </div>
                             </div>
-                            {{#unless ../fullVersion}}
-                              <div class='sample-section-block' style="margin-top: -2rem;">
-                                <span
-                                  class='fr-icon-send-plane-line fr-icon--sm'
-                                ></span>
-                                <div class='fr-container fr-pl-1w'>
-                                  <fieldset class="fr-fieldset fr-px-0 fr-my-0">
-                                    <legend class="fr-fieldset__legend fr-col-12 fr-pb-1w label">
-                                      Destinataire de l'échantillon
-                                    </legend>
-                                    <div class="fr-grid-row fr-grid-row--gutters fr-mx-0 fr-mb-2w">
-                                      <div class="fr-radio-group fr-col-12 fr-py-0">
-                                        <input type="radio">
-                                        <label class="fr-label fr-pt-1v">Laboratoire</label>
-                                      </div>
-                                      <div class="fr-radio-group fr-col-12 fr-py-0">
-                                        <input type="radio">
-                                        <label class="fr-label fr-pt-1v">Opérateur</label>
-                                      </div>
-                                      <div class="fr-radio-group fr-col-12 fr-py-0">
-                                        <input type="radio">
-                                        <label class="fr-label fr-pt-1v">Préleveur</label>
-                                      </div>
-                                    </div>
-                                  </fieldset>
-                                </div>
-                              </div>
-                            {{/unless}}
                           </div>
                         {{/if}}
                       {{/each}}

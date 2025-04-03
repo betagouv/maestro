@@ -10,15 +10,19 @@ import {
 import React, { useMemo } from 'react';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 import useWindowSize from 'src/hooks/useWindowSize';
-import { getSupportDocumentURL } from 'src/services/sample.service';
+import {
+  getSupportDocumentURL,
+  useCreateOrUpdateSampleMutation
+} from 'src/services/sample.service';
+import { useSamplesLink } from '../../../hooks/useSamplesLink';
 
 interface Props {
   partialSample: PartialSample | PartialSampleToCreate;
-  onConfirm?: () => Promise<void>;
 }
 
-const SupportDocumentDownload = ({ partialSample, onConfirm }: Props) => {
+const SupportDocumentDownload = ({ partialSample }: Props) => {
   const { isMobile } = useWindowSize();
+  const { navigateToSample } = useSamplesLink();
 
   const confirmationModal = useMemo(
     () =>
@@ -28,6 +32,8 @@ const SupportDocumentDownload = ({ partialSample, onConfirm }: Props) => {
       }),
     [partialSample]
   );
+
+  const [createOrUpdateSample] = useCreateOrUpdateSampleMutation();
 
   return (
     <>
@@ -46,7 +52,7 @@ const SupportDocumentDownload = ({ partialSample, onConfirm }: Props) => {
           priority="tertiary no outline"
           iconId="fr-icon-printer-fill"
         >
-          <div>Générer une étiquette</div>
+          <div>Générer les étiquettes</div>
         </Button>
         {!isMobile && <div className="border-middle"></div>}
       </div>
@@ -54,16 +60,19 @@ const SupportDocumentDownload = ({ partialSample, onConfirm }: Props) => {
         modal={confirmationModal}
         title="A noter à ce stade de la saisie"
         onConfirm={async () => {
-          await onConfirm?.();
-          window.open(getSupportDocumentURL(partialSample?.id, 1), '_blank');
+          if (!isCreatedPartialSample(partialSample)) {
+            await createOrUpdateSample(partialSample);
+          }
+          navigateToSample(partialSample.id);
+          window.open(getSupportDocumentURL(partialSample.id, 1), '_blank');
+          window.open(getSupportDocumentURL(partialSample.id, 2), '_blank');
+          window.open(getSupportDocumentURL(partialSample.id, 3), '_blank');
         }}
         confirmLabel="Télécharger"
         closeOnConfirm
       >
-        <b>
-          Vous vous apprêtez à imprimer un document d’accompagnement incomplet.
-          {' '}
-        </b>
+        <b>Vous vous apprêtez à imprimer des étiquettes incomplètes.</b>
+        <br />
         {!isCreatedPartialSample(partialSample)
           ? 'Le prélèvement va être créé mais votre '
           : 'Votre '}
