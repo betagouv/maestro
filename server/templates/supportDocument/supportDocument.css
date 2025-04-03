@@ -139,19 +139,19 @@ main {
 
     .fr-radio-group input[type='radio'] + label {
       background-image: radial-gradient(
-              transparent 8px,
-              #000091 9px,
-              transparent 10px
+              transparent 6px,
+              #000091 7px,
+              transparent 8px
       );
     }
 
     .fr-radio-group input[type='radio']:checked + label {
       background-image: radial-gradient(
-              transparent 8px,
-              #000091 9px,
-              transparent 10px
+              transparent 6px,
+              #000091 7px,
+              transparent 8px
       ),
-      radial-gradient(#000091 5px, transparent 6px);
+      radial-gradient(#000091 3px, transparent 5px);
     }
 
     .fr-checkbox-group input[type=checkbox] + label::before {
