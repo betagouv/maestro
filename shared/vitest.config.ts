@@ -1,10 +1,13 @@
-import { defineConfig } from 'vitest/config';
-import RandomSeed from '../test/vitest-random-seed';
+import { defineConfig, ViteUserConfig } from 'vitest/config';
+import { RandomSeed } from '../test/vitest-random-seed';
 
-export default defineConfig({
+const config: ViteUserConfig = defineConfig({
   plugins: [RandomSeed()],
   test: {
     setupFiles: ['../test/setupFakerJS.ts']
   }
 
 })
+
+
+export default config

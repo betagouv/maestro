@@ -3,6 +3,8 @@
   "compilerOptions": {
     "lib": ["esnext"],
     "target": "esnext",
+    "isolatedDeclarations": true,
+    "allowJs": false
   },
   "include": ["**/*.ts", "../test/vitest-random-seed.ts"],
   "exclude": [

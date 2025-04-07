@@ -10,7 +10,7 @@ import {
 } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import tsconfigPaths from 'vite-tsconfig-paths';
-import RandomSeed from '../test/vitest-random-seed';
+import { RandomSeed } from '../test/vitest-random-seed';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {

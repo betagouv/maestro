@@ -3,7 +3,7 @@ import type { Plugin } from 'vite';
 
 let seed: number;
 
-export default function RandomSeed(options?: RandomSeedPluginOptions) {
+export const RandomSeed = (options?: RandomSeedPluginOptions): Plugin => {
   seed ??= options?.seed ?? getEnvSeed() ?? getRandomSeed();
   return {
     name: 'random-seed',
@@ -16,7 +16,7 @@ export default function RandomSeed(options?: RandomSeedPluginOptions) {
         },
       };
     },
-  } satisfies Plugin;
+  }
 }
 
 export interface RandomSeedPluginOptions {

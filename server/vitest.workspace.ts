@@ -1,5 +1,5 @@
 import { defineWorkspace } from 'vitest/config';
-import RandomSeed from '../test/vitest-random-seed';
+import { RandomSeed } from '../test/vitest-random-seed';
 
 const integrationTestFiles = [
   '**/*.router.test.ts',
