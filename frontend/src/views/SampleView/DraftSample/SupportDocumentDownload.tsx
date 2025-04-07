@@ -60,13 +60,19 @@ const SupportDocumentDownload = ({ partialSample }: Props) => {
         modal={confirmationModal}
         title="A noter à ce stade de la saisie"
         onConfirm={async () => {
-          if (!isCreatedPartialSample(partialSample)) {
-            await createOrUpdateSample(partialSample);
-          }
-          navigateToSample(partialSample.id);
-          window.open(getSupportDocumentURL(partialSample.id, 1), '_blank');
-          window.open(getSupportDocumentURL(partialSample.id, 2), '_blank');
-          window.open(getSupportDocumentURL(partialSample.id, 3), '_blank');
+          const win1 = window.open('', '_blank');
+          const win2 = window.open('', '_blank');
+          const win3 = window.open('', '_blank');
+
+          await (async () => {
+            if (!isCreatedPartialSample(partialSample)) {
+              await createOrUpdateSample(partialSample);
+            }
+            win1?.location?.replace(getSupportDocumentURL(partialSample.id, 1));
+            win2?.location?.replace(getSupportDocumentURL(partialSample.id, 2));
+            win3?.location?.replace(getSupportDocumentURL(partialSample.id, 3));
+            navigateToSample(partialSample.id);
+          })();
         }}
         confirmLabel="Télécharger"
         closeOnConfirm
