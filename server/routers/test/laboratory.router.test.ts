@@ -1,6 +1,5 @@
 import { constants } from 'http2';
 import { genLaboratory } from 'maestro-shared/test/laboratoryFixtures';
-import randomstring from 'randomstring';
 import request from 'supertest';
 import { Laboratories } from '../../repositories/laboratoryRepository';
 import { createServer } from '../../server';
@@ -8,6 +7,7 @@ import { tokenProvider } from '../../test/testUtils';
 
 import { NationalCoordinator } from 'maestro-shared/test/userFixtures';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+import { fakerFR } from '@faker-js/faker';
 describe('Laboratory router', () => {
   const { app } = createServer();
 
@@ -33,7 +33,7 @@ describe('Laboratory router', () => {
 
     test('should get a valid laboratory id', async () => {
       await request(app)
-        .get(testRoute(randomstring.generate()))
+        .get(testRoute(fakerFR.string.alphanumeric(32)))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
