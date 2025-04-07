@@ -13,6 +13,7 @@ import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
+import { LaboratoryName } from 'maestro-shared/referential/Laboratory';
 
 export type Generated<T> =
   T extends ColumnType<infer S, infer I, infer U>
@@ -92,7 +93,8 @@ export interface KnexMigrations {
 export interface Laboratories {
   email: string;
   id: Generated<string>;
-  name: string;
+  name: LaboratoryName;
+  emailAnalysisResult: string | null
 }
 
 export interface Prescriptions {
