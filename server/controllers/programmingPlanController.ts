@@ -4,10 +4,6 @@ import { constants } from 'http2';
 import { intersection } from 'lodash-es';
 import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
 import { RegionList } from 'maestro-shared/referential/Region';
-import {
-  SubmittedProgrammingPlanNotification,
-  ValidatedProgrammingPlanNotification
-} from 'maestro-shared/schema/Notification/Notification';
 import { NotificationCategoryMessages } from 'maestro-shared/schema/Notification/NotificationCategory';
 import { ContextList } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
@@ -206,26 +202,24 @@ const updateRegionalStatus = async (request: Request, response: Response) => {
         });
 
         if (programmingPlanRegionalStatus.status === 'Submitted') {
-          await notificationService.sendNotification<SubmittedProgrammingPlanNotification>(
+          await notificationService.sendNotification(
             {
               category: 'ProgrammingPlanSubmitted',
-              message: NotificationCategoryMessages[
-                'ProgrammingPlanSubmitted'
-              ],
+              message: NotificationCategoryMessages['ProgrammingPlanSubmitted'],
               link: `/prescriptions/${programmingPlan.year}`
             },
-            regionalCoordinators
+            regionalCoordinators,
+            undefined
           );
         } else if (programmingPlanRegionalStatus.status === 'Validated') {
-          await notificationService.sendNotification<ValidatedProgrammingPlanNotification>(
+          await notificationService.sendNotification(
             {
               category: 'ProgrammingPlanValidated',
-              message: NotificationCategoryMessages[
-                'ProgrammingPlanValidated'
-              ],
+              message: NotificationCategoryMessages['ProgrammingPlanValidated'],
               link: `/prescriptions/${programmingPlan.year}`
             },
-            regionalCoordinators
+            regionalCoordinators,
+            undefined
           );
         } else {
           return response.sendStatus(constants.HTTP_STATUS_BAD_REQUEST);

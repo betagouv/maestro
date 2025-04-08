@@ -5,8 +5,7 @@ import {
   RegionalPrescriptionRequest
 } from 'express-jwt';
 import { constants } from 'http2';
-import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
-import { NewRegionalPrescriptionCommentNotification } from 'maestro-shared/schema/Notification/Notification';
+import { MatrixKind, MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { FindRegionalPrescriptionOptions } from 'maestro-shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import {
   hasRegionalPrescriptionPermission,
@@ -134,17 +133,22 @@ const commentRegionalPrescription = async (
         }
   );
 
-  await notificationService.sendNotification<NewRegionalPrescriptionCommentNotification>(
+  await notificationService.sendNotification(
     {
       category: prescription.context,
-      matrixKind: prescription.matrixKind,
-      sampleCount: regionalPrescription.sampleCount,
-      comment: draftPrescriptionComment.comment,
       message: `Nouveau commentaire sur la matrice **${MatrixKindLabels[prescription.matrixKind].toLowerCase()}**`,
       author: user,
       link: `/prescriptions/${programmingPlan.year}?context=${prescription.context}&prescriptionId=${prescription.id}&commentsRegion=${regionalPrescription.region}`
     },
-    recipients
+    recipients,
+    {
+      matrix: MatrixKindLabels[prescription.matrixKind as MatrixKind],
+      sampleCount: regionalPrescription.sampleCount,
+      comment: draftPrescriptionComment.comment,
+      author: user
+        ? `${user.firstName} ${user.lastName}`
+        : 'Anonyme'
+    }
   );
 
   response.status(constants.HTTP_STATUS_CREATED).send(prescriptionComment);
