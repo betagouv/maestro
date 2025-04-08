@@ -20,7 +20,6 @@ export const down = async (knex: Knex) => {
   });
 
   await knex('laboratories').update({ email: knex.raw(`emails[1]`) });
-  await knex('laboratories').update({ email_analysis_result: knex.raw(`email_analysis_result[1]`) });
 
   await knex.schema.alterTable('laboratories', (table) => {
     table.dropColumn('emails');
