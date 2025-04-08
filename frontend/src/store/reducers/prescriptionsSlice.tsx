@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Context } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
-import { PrescriptionListDisplay } from 'src/views/PrescriptionListView/PrescriptionListView';
+import { PrescriptionListDisplay } from 'src/views/ProgrammingPlanView/ProgrammingPlanPrescriptionList/ProgrammingPlanPrescriptionList';
 
 type PrescriptionsState = {
   prescriptionListContext: Context;

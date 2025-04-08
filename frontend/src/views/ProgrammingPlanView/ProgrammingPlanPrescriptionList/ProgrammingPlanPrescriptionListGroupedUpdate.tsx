@@ -10,7 +10,7 @@ import {
 } from 'src/components/_app/AppSelect/AppSelectOption';
 import { useFindLaboratoriesQuery } from 'src/services/laboratory.service';
 import { pluralize } from 'src/utils/stringUtils';
-import './PrescriptionListView.scss';
+import './ProgrammingPlanPrescriptionList.scss';
 interface Props {
   selectedCount: number;
   totalCount: number;
@@ -19,7 +19,7 @@ interface Props {
   onSelectAll: () => void;
 }
 
-const PrescriptionListGroupedUpdate = ({
+const ProgrammingPlanPrescriptionListGroupedUpdate = ({
   selectedCount,
   totalCount,
   onSubmit,
@@ -106,4 +106,4 @@ const PrescriptionListGroupedUpdate = ({
   );
 };
 
-export default PrescriptionListGroupedUpdate;
+export default ProgrammingPlanPrescriptionListGroupedUpdate;
