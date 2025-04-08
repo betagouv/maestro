@@ -231,7 +231,7 @@ export const checkEmails = async () => {
                 message: NotificationCategoryMessages[
                   'AnalysisReviewTodo'
                 ]
-              }, [{id: samplerId, email: samplerEmail}])
+              }, [{id: samplerId, email: samplerEmail}], undefined)
             }
             await client.messageMove(messageUid, config.inbox.successboxName, {
               uid: true

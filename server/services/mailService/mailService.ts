@@ -26,7 +26,8 @@ export const Templates = {
       comment: z.string(),
       author: z.string()
     })
-  }
+  },
+  AnalysisReviewTodoTemplate: { id: 11, params: z.undefined() }
 } as const satisfies {
   [templateName: string]: {
     id: number;

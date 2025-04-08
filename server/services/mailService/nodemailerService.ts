@@ -22,6 +22,10 @@ const TemplateData = {
   NewRegionalPrescriptionCommentTemplate: {
     subject: 'Nouveau commentaire',
     content: 'Un nouveau commentaire a été ajouté'
+  },
+  AnalysisReviewTodoTemplate: {
+    subject: "Rapport d'analyse reçu",
+    content: "Un de vos rapports d'analyse vient d'être reçu"
   }
 } as const satisfies Record<TemplateName, {
   subject: string,
