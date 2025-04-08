@@ -30,9 +30,7 @@ const SupportDocumentSelect = ({ label, sample, renderButtons }: Props) => {
     if (sampleItem.supportDocumentId) {
       await openDocument(sampleItem.supportDocumentId);
     } else {
-      window.open(
-        getSupportDocumentURL(sample.id, sampleItem.itemNumber, true)
-      );
+      window.open(getSupportDocumentURL(sample.id, sampleItem.itemNumber));
     }
   };
 

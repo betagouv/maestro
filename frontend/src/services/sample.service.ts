@@ -116,12 +116,8 @@ export const sampleApi = api.injectEndpoints({
   })
 });
 
-const supportDocumentURL = (
-  sampleId: string,
-  itemNumber: number,
-  fullVersion?: boolean
-) => {
-  return `${config.apiEndpoint}/api/samples/${sampleId}/items/${itemNumber}/document${fullVersion ? `?fullVersion=${fullVersion}` : ''}`;
+const supportDocumentURL = (sampleId: string, itemNumber?: number) => {
+  return `${config.apiEndpoint}/api/samples/${sampleId}${itemNumber ? `/items/${itemNumber}` : ''}/document`;
 };
 
 const sampleListExportURL = (findOptions: FindSampleOptions) => {

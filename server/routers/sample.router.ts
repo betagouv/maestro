@@ -42,6 +42,12 @@ router.get(
   sampleController.getSample
 );
 router.get(
+  '/:sampleId/document',
+  permissionsCheck(['downloadSupportDocument']),
+  sampleCheck(),
+  sampleController.getSampleDocument
+);
+router.get(
   '/:sampleId/items/:itemNumber/document',
   validator.validate(
     params(
@@ -49,7 +55,7 @@ router.get(
         sampleId: z.string().uuid(),
         itemNumber: z.coerce.number().min(1)
       })
-    ).merge(query(z.object({ fullVersion: z.coerce.boolean().nullish() })))
+    )
   ),
   permissionsCheck(['downloadSupportDocument']),
   sampleCheck(),

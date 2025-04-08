@@ -5,7 +5,8 @@ import { Brand } from 'maestro-shared/constants';
 import {
   isCreatedPartialSample,
   PartialSample,
-  PartialSampleToCreate
+  PartialSampleToCreate,
+  Sample
 } from 'maestro-shared/schema/Sample/Sample';
 import React, { useMemo } from 'react';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
@@ -47,12 +48,18 @@ const SupportDocumentDownload = ({ partialSample }: Props) => {
         <Button
           onClick={async (e: React.MouseEvent) => {
             e.preventDefault();
-            confirmationModal.open();
+            if (Sample.safeParse(partialSample).success) {
+              window.open(getSupportDocumentURL(partialSample.id), '_blank');
+            } else {
+              confirmationModal.open();
+            }
           }}
           priority="tertiary no outline"
           iconId="fr-icon-printer-fill"
         >
-          <div>Générer les étiquettes</div>
+          <div>{`${
+            Sample.safeParse(partialSample).success ? 'Imprimer' : 'Générer'
+          } les étiquettes`}</div>
         </Button>
         {!isMobile && <div className="border-middle"></div>}
       </div>
@@ -60,19 +67,11 @@ const SupportDocumentDownload = ({ partialSample }: Props) => {
         modal={confirmationModal}
         title="A noter à ce stade de la saisie"
         onConfirm={async () => {
-          const win1 = window.open('', '_blank');
-          const win2 = window.open('', '_blank');
-          const win3 = window.open('', '_blank');
-
-          await (async () => {
-            if (!isCreatedPartialSample(partialSample)) {
-              await createOrUpdateSample(partialSample);
-            }
-            win1?.location?.replace(getSupportDocumentURL(partialSample.id, 1));
-            win2?.location?.replace(getSupportDocumentURL(partialSample.id, 2));
-            win3?.location?.replace(getSupportDocumentURL(partialSample.id, 3));
-            navigateToSample(partialSample.id);
-          })();
+          if (!isCreatedPartialSample(partialSample)) {
+            await createOrUpdateSample(partialSample);
+          }
+          navigateToSample(partialSample.id);
+          window.open(getSupportDocumentURL(partialSample.id), '_blank');
         }}
         confirmLabel="Télécharger"
         closeOnConfirm

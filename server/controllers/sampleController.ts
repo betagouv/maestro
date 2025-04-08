@@ -47,6 +47,7 @@ import { isEqual } from 'lodash-es';
 import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
 import { hasPermission } from 'maestro-shared/schema/User/User';
 import { Readable } from 'node:stream';
+import { PDFDocument } from 'pdf-lib';
 const getSample = async (request: Request, response: Response) => {
   const sample = (request as SampleRequest).sample;
 
@@ -60,10 +61,46 @@ const getSample = async (request: Request, response: Response) => {
   });
 };
 
+const getSampleDocument = async (request: Request, response: Response) => {
+  const sample: Sample = (request as SampleRequest).sample;
+
+  console.info('Get sample document', sample.id);
+
+  const sampleItems = await sampleItemRepository.findMany(sample.id);
+
+  const pdfBuffers = await Promise.all(
+    [1, 2, 3].map((itemNumber) =>
+      pdfService.generateSampleSupportPDF(
+        sample,
+        sampleItems,
+        itemNumber,
+        false
+      )
+    )
+  );
+
+  const mergedPdf = await PDFDocument.create();
+
+  for (const buffer of pdfBuffers) {
+    const pdf = await PDFDocument.load(buffer);
+    const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+    copiedPages.forEach((page) => mergedPdf.addPage(page));
+  }
+
+  const mergedPdfBuffer = await mergedPdf.save();
+  const pdfBuffer = Buffer.from(mergedPdfBuffer);
+
+  response.setHeader('Content-Type', 'application/pdf');
+  response.setHeader(
+    'Content-Disposition',
+    `inline; filename="Etiquettes-${sample.reference}.pdf"`
+  );
+  response.send(pdfBuffer);
+};
+
 const getSampleItemDocument = async (request: Request, response: Response) => {
   const sample: Sample = (request as SampleRequest).sample;
   const itemNumber = Number(request.params.itemNumber);
-  const fullVersion = request.query.fullVersion as boolean | undefined;
 
   console.info('Get sample document', sample.id);
 
@@ -73,7 +110,7 @@ const getSampleItemDocument = async (request: Request, response: Response) => {
     sample,
     sampleItems,
     itemNumber,
-    fullVersion ?? false
+    true
   );
 
   response.setHeader('Content-Type', 'application/pdf');
@@ -504,6 +541,7 @@ const deleteSample = async (request: Request, response: Response) => {
 
 export default {
   getSample,
+  getSampleDocument,
   getSampleItemDocument,
   findSamples,
   countSamples,

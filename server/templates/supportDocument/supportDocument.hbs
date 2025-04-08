@@ -76,12 +76,42 @@
                       <span>Contexte du prélèvement</span>
                     </div>
                     <div class='sample-section-body'>
-                      {{#unless fullVersion}}
+                      {{#if fullVersion}}
+                        <div class='sample-section-block'>
+                          <span
+                            class='fr-icon-government-line fr-icon--sm'
+                          ></span>
+                          <div class='fr-container fr-pl-1w'>
+                            <div class='fr-grid-row fr-grid-row--gutters'>
+                              <div class='fr-col-6 sample-section-item'>
+                                <div class='label'>
+                                  Donneur d'ordre
+                                </div>
+                                <div class='value'>
+                                  {{establishment.name}}
+                                </div>
+                              </div>
+                              <div class='fr-col-6 sample-section-item'>
+                                <div class='label'>
+                                  Adresse
+                                </div>
+                                <div class='value'>
+                                  {{#if establishment.additionalLine}}
+                                    {{establishment.additionalLine}}<br />
+                                  {{/if}}
+                                  {{establishment.street}}<br />
+                                  {{establishment.postalCode}} {{establishment.city}}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      {{else}}
                         <div class='sample-section-block'>
                           <span class='fr-icon-time-line fr-icon--sm'></span>
                           <div class='fr-container fr-pl-1w'>
                             <div class='fr-grid-row fr-grid-row--gutters'>
-                              <div class='fr-col-6 sample-section-item'>
+                              <div class='fr-col-3 sample-section-item'>
                                 <div class='label'>
                                   Date de prélèvement
                                 </div>
@@ -89,7 +119,7 @@
                                   {{sampledAtDate}}&nbsp;
                                 </div>
                               </div>
-                              <div class='fr-col-6 sample-section-item'>
+                              <div class='fr-col-3 sample-section-item'>
                                 <div class='label'>
                                   Heure de prélèvement
                                 </div>
@@ -97,39 +127,18 @@
                                   {{sampledAtTime}}&nbsp;
                                 </div>
                               </div>
-                            </div>
-                          </div>
-                        </div>
-                      {{/unless}}
-                      <div class='sample-section-block'>
-                        <span
-                          class='fr-icon-government-line fr-icon--sm'
-                        ></span>
-                        <div class='fr-container fr-pl-1w'>
-                          <div class='fr-grid-row fr-grid-row--gutters'>
-                            <div class='fr-col-6 sample-section-item'>
-                              <div class='label'>
-                                Donneur d'ordre
-                              </div>
-                              <div class='value'>
-                                {{establishment.name}}
-                              </div>
-                            </div>
-                            <div class='fr-col-6 sample-section-item'>
-                              <div class='label'>
-                                Adresse
-                              </div>
-                              <div class='value'>
-                                {{#if establishment.additionalLine}}
-                                  {{establishment.additionalLine}}<br />
-                                {{/if}}
-                                {{establishment.street}}<br />
-                                {{establishment.postalCode}} {{establishment.city}}
+                              <div class='fr-col-6 sample-section-item'>
+                                <div class='label'>
+                                  Donneur d'ordre
+                                </div>
+                                <div class='value'>
+                                  {{establishment.name}}
+                                </div>
                               </div>
                             </div>
                           </div>
                         </div>
-                      </div>
+                      {{/if}}
                       <div class='sample-section-block'>
                         <span class='fr-icon-user-line fr-icon--sm'></span>
                         <div class='fr-container fr-pl-1w'>
@@ -175,14 +184,14 @@
                                   {{sampledAtTime}}&nbsp;
                                 </div>
                               </div>
-                                <div class='fr-col-6 sample-section-item'>
-                                  <div class='label'>
-                                    Contexte du prélèvement
-                                  </div>
-                                  <div class='value'>
-                                    {{context}}
-                                  </div>
+                              <div class='fr-col-6 sample-section-item'>
+                                <div class='label'>
+                                  Contexte du prélèvement
                                 </div>
+                                <div class='value'>
+                                  {{context}}
+                                </div>
+                              </div>
                             </div>
                             <div class='fr-grid-row fr-grid-row--gutters'>
                               <div class='fr-col-6 sample-section-item'>
