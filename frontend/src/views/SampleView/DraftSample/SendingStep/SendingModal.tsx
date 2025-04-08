@@ -50,7 +50,7 @@ const SendingModal = ({ modal, laboratory, onConfirm }: Props) => {
       ]}
     >
       La demande d’analyse va être envoyée au laboratoire{' '}
-      <b>{laboratory.name}</b> par e-mail à l’adresse <b>{laboratory.email}</b>.
+      <b>{laboratory.name}</b> par e-mail à {laboratory.emails.map( email => <b>{email}</b>).join(', ')}.
     </modal.Component>
   );
 };
