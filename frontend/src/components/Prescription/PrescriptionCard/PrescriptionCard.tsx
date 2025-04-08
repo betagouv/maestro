@@ -15,7 +15,7 @@ import PrescriptionStages from 'src/components/Prescription/PrescriptionStages/P
 import PrescriptionSubstancesModalButtons from 'src/components/Prescription/PrescriptionSubstancesModal/PrescriptionSubstancesModalButtons';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { pluralize } from 'src/utils/stringUtils';
-import RemoveMatrix from 'src/views/PrescriptionListView/RemoveMatrix';
+import RemoveMatrix from 'src/views/ProgrammingPlanView/ProgrammingPlanPrescriptionList/RemoveMatrix';
 import './PrescriptionCard.scss';
 
 interface Props {
