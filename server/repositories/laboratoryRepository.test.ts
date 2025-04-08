@@ -10,7 +10,7 @@ describe('findByEmailSender', async () => {
 
     await kysely.updateTable('laboratories')
       .set({
-        emailAnalysisResult: email
+        emailsAnalysisResult: [email]
       })
       .where('name', '=', LaboratoryFixture.name)
       .execute()

@@ -57,7 +57,7 @@ export const defaultMockApiClientConf : MockApi<ApiClient> = {
     data: {
       id: 'fakeLaboratoryId',
       name: 'SCL 34',
-      email: 'fakeEmail@gouv.fr'
+      emails: ['fakeEmail@gouv.fr']
     }
   },
   useUpdateSampleMutation: [async () => fn(), { isSuccess: true }],

@@ -323,7 +323,7 @@ const updateSample = async (request: Request, response: Response) => {
 
           await mailService.send({
             templateName: 'SampleAnalysisRequestTemplate',
-            recipients: [laboratory?.email, config.mail.from],
+            recipients: [...(laboratory?.emails ?? []), config.mail.from],
             params: {
               region: user.region ? Regions[user.region].name : undefined,
               userMail: user.email,

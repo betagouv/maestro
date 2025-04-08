@@ -91,10 +91,10 @@ export interface KnexMigrations {
 
 
 export interface Laboratories {
-  email: string;
+  emails: string[];
   id: Generated<string>;
   name: LaboratoryName;
-  emailAnalysisResult: string | null
+  emailsAnalysisResult: string[]
 }
 
 export interface Prescriptions {

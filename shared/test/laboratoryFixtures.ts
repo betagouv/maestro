@@ -5,7 +5,7 @@ import { Laboratory } from '../schema/Laboratory/Laboratory';
 export const genLaboratory = (data?: Partial<Laboratory>): Laboratory => ({
   id: uuidv4(),
   name: 'GIR 49',
-  email: fakerFR.internet.email(),
+  emails: [fakerFR.internet.email()],
   ...data
 });
 export const LaboratoryFixture = genLaboratory({
