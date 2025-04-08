@@ -107,7 +107,9 @@ const include = (opts?: FindRegionalPrescriptionOptions) => {
     },
     realizedSampleCount: (query) => {
       query
-        .select(db.raw(`count(${samplesTable}.id) as realized_sample_count`))
+        .select(
+          db.raw(`count(distinct(${samplesTable}.id)) as realized_sample_count`)
+        )
         .leftJoin(samplesTable, (query) =>
           query
             .on(

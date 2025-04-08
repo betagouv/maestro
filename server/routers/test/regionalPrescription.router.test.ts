@@ -1,3 +1,4 @@
+import { fakerFR } from '@faker-js/faker';
 import { constants } from 'http2';
 import { isEqual } from 'lodash-es';
 import fp from 'lodash/fp';
@@ -31,6 +32,7 @@ import {
   RegionalCoordinator,
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
+import { withISOStringDates } from 'maestro-shared/utils/utils';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
@@ -49,7 +51,6 @@ import {
 } from '../../repositories/sampleRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
-import { fakerFR } from '@faker-js/faker';
 
 describe('Regional prescriptions router', () => {
   const { app } = createServer();
@@ -136,12 +137,20 @@ describe('Regional prescriptions router', () => {
         sampleCount: 0
       })
     }));
-  const closedControlPrescriptionComment: RegionalPrescriptionComment = {
+  const closedControlPrescriptionComment1: RegionalPrescriptionComment = {
     id: uuidv4(),
     prescriptionId: closedControlPrescription.id,
     region: RegionalCoordinator.region as Region,
     comment: fakerFR.string.alphanumeric(32),
     createdBy: RegionalCoordinator.id,
+    createdAt: new Date()
+  };
+  const closedControlPrescriptionComment2: RegionalPrescriptionComment = {
+    id: uuidv4(),
+    prescriptionId: closedControlPrescription.id,
+    region: RegionalCoordinator.region as Region,
+    comment: fakerFR.string.alphanumeric(32),
+    createdBy: NationalCoordinator.id,
     createdAt: new Date()
   };
   const sample = genCreatedSample({
@@ -190,7 +199,8 @@ describe('Regional prescriptions router', () => {
       ].map((_) => fp.omit('realizedSampleCount')(_))
     );
     await RegionalPrescriptionComments().insert([
-      closedControlPrescriptionComment
+      closedControlPrescriptionComment1,
+      closedControlPrescriptionComment2
     ]);
     await Samples().insert(formatPartialSample(sample));
   });
@@ -308,17 +318,22 @@ describe('Regional prescriptions router', () => {
             ...regionalPrescription,
             comments: isEqual(
               RegionalPrescriptionKey.parse(regionalPrescription),
-              RegionalPrescriptionKey.parse(closedControlPrescriptionComment)
+              RegionalPrescriptionKey.parse(closedControlPrescriptionComment1)
             )
               ? [
                   {
-                    id: closedControlPrescriptionComment.id,
-                    comment: closedControlPrescriptionComment.comment,
-                    createdBy: closedControlPrescriptionComment.createdBy,
-                    createdAt:
-                      closedControlPrescriptionComment.createdAt.toISOString()
+                    id: closedControlPrescriptionComment1.id,
+                    comment: closedControlPrescriptionComment1.comment,
+                    createdBy: closedControlPrescriptionComment1.createdBy,
+                    createdAt: closedControlPrescriptionComment1.createdAt
+                  },
+                  {
+                    id: closedControlPrescriptionComment2.id,
+                    comment: closedControlPrescriptionComment2.comment,
+                    createdBy: closedControlPrescriptionComment2.createdBy,
+                    createdAt: closedControlPrescriptionComment2.createdAt
                   }
-                ]
+                ].map(withISOStringDates)
               : [],
             realizedSampleCount: isEqual(
               RegionalPrescriptionKey.parse(regionalPrescription),
@@ -384,7 +399,9 @@ describe('Regional prescriptions router', () => {
 
       await badRequestTest();
       await badRequestTest({ programmingPlanId: undefined });
-      await badRequestTest({ programmingPlanId: fakerFR.string.alphanumeric(32) });
+      await badRequestTest({
+        programmingPlanId: fakerFR.string.alphanumeric(32)
+      });
       await badRequestTest({ sampleCount: undefined });
       await badRequestTest({ sampleCount: '' });
       await badRequestTest({ sampleCount: 123 });
@@ -574,7 +591,9 @@ describe('Regional prescriptions router', () => {
 
       await badRequestTest();
       await badRequestTest({ programmingPlanId: undefined });
-      await badRequestTest({ programmingPlanId: fakerFR.string.alphanumeric(32) });
+      await badRequestTest({
+        programmingPlanId: fakerFR.string.alphanumeric(32)
+      });
       await badRequestTest({ comment: undefined });
       await badRequestTest({ comment: '' });
       await badRequestTest({ comment: 123 });
