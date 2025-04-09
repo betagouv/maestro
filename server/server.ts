@@ -18,10 +18,10 @@ import sentry from './utils/sentry';
 
 const PORT = config.serverPort;
 
-export interface Server {
+interface Server {
   app: Application;
 
-  start(): Promise<void>;
+  start(): void;
 }
 
 export function createServer(): Server {
@@ -142,14 +142,9 @@ export function createServer(): Server {
   sentry.errorHandler(app);
   app.use(errorHandler());
 
-  function start(): Promise<void> {
-    return new Promise((resolve) => {
-      app.listen(PORT, () => {
-        console.log(`Server listening on ${PORT}`);
-        resolve();
-      });
-    });
-  }
+  const start = () => app.listen(PORT, () => {
+    console.log(`Server listening on ${PORT}`);
+  })
 
   return {
     app,
