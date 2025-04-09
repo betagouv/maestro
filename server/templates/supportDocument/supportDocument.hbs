@@ -532,20 +532,16 @@
                             l'emballage placé sous scellé porteur d’un numéro
                             d’ordre unique.
                           </div>
+                          <div class='label'>
+                            Dans le cas où un des échantillons a été remis au détenteur, ce dernier en a accepté le dépôt et s’est
+                            engagé à le conserver sous température négative.
+                          </div>
                         </div>
                       {{#each sampleItems}}
                         {{#if (or ../fullVersion currentItem)}}
                           <div class="sample-item {{#if currentItem}}current-item indent-back{{/if}}">
                             <div class='sample-section-subtitle'>
                               <div>Échantillon n°{{itemNumber}}</div>
-                              {{#if (eq itemNumber 2)}}
-                                <span class='label'>
-                                  Nous avons proposé de laisser l’échantillon n°2
-                                  entre les mains de l'intéressé qui en a accepté
-                                  le dépôt et s’est engagé à le conserver sous
-                                  température négative.
-                                </span>
-                              {{/if}}
                             </div>
                             <div class='sample-section-block'>
                               <span
