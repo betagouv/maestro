@@ -200,7 +200,7 @@ const getNextSequence = async (
     await db(sampleSequenceNumbers).insert({
       region,
       programmingPlanYear,
-      next_sequence: 1
+      next_sequence: 2
     });
     return 1;
   }

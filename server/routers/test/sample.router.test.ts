@@ -20,6 +20,7 @@ import { Samples } from '../../repositories/sampleRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
+import { fakerFR } from '@faker-js/faker';
 import { ValidatedProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   AdminFixture,
@@ -27,8 +28,8 @@ import {
   Sampler1Fixture,
   Sampler2Fixture
 } from 'maestro-shared/test/userFixtures';
+import { withISOStringDates } from 'maestro-shared/utils/utils';
 import { describe, expect, test } from 'vitest';
-import { fakerFR } from '@faker-js/faker';
 describe('Sample router', () => {
   const { app } = createServer();
 
@@ -298,32 +299,56 @@ describe('Sample router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    test('should create a sample', async () => {
+    test('should create a sample with incremental reference', async () => {
       const res = await request(app)
         .post(testRoute)
         .send(sample)
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_CREATED);
 
-      expect(res.body).toMatchObject({
-        ...sample,
-        id: sample.id,
-        createdAt: expect.any(String),
-        sampler: {
-          id: Sampler1Fixture.id,
-          firstName: Sampler1Fixture.firstName,
-          lastName: Sampler1Fixture.lastName
-        },
-        sampledAt: sample.sampledAt.toISOString(),
-        reference: `${Regions[Sampler1Fixture.region as Region].shortName}-${
-          sample.department
-        }-${format(new Date(), 'yy')}-0001-${sample.legalContext}`,
-        status: sample.status
-      });
+      expect(res.body).toMatchObject(
+        withISOStringDates({
+          ...sample,
+          createdAt: expect.any(String),
+          sampler: {
+            id: Sampler1Fixture.id,
+            firstName: Sampler1Fixture.firstName,
+            lastName: Sampler1Fixture.lastName
+          },
+          reference: `${Regions[Sampler1Fixture.region as Region].shortName}-${
+            sample.department
+          }-${format(new Date(), 'yy')}-0001-${sample.legalContext}`
+        })
+      );
 
       await expect(
         Samples().where({ id: res.body.id }).first()
       ).resolves.toBeDefined();
+
+      const anotherSample = genSampleContextData({
+        programmingPlanId: ValidatedProgrammingPlanFixture.id
+      });
+
+      const res2 = await request(app)
+        .post(testRoute)
+        .send(anotherSample)
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_CREATED);
+
+      expect(res2.body).toMatchObject(
+        withISOStringDates({
+          ...anotherSample,
+          createdAt: expect.any(String),
+          sampler: {
+            id: Sampler1Fixture.id,
+            firstName: Sampler1Fixture.firstName,
+            lastName: Sampler1Fixture.lastName
+          },
+          reference: `${Regions[Sampler1Fixture.region as Region].shortName}-${
+            anotherSample.department
+          }-${format(new Date(), 'yy')}-0002-${anotherSample.legalContext}`
+        })
+      );
     });
   });
 
