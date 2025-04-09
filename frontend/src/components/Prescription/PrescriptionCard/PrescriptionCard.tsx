@@ -126,6 +126,7 @@ const PrescriptionCard = ({
               </div>
               <PrescriptionCardPartialTable
                 programmingPlan={programmingPlan}
+                matrixKind={prescription.matrixKind}
                 regionalPrescriptions={regionalPrescriptions}
                 onChangeRegionalPrescriptionCount={
                   onChangeRegionalPrescriptionCount
@@ -135,6 +136,7 @@ const PrescriptionCard = ({
               />
               <PrescriptionCardPartialTable
                 programmingPlan={programmingPlan}
+                matrixKind={prescription.matrixKind}
                 regionalPrescriptions={regionalPrescriptions}
                 onChangeRegionalPrescriptionCount={
                   onChangeRegionalPrescriptionCount

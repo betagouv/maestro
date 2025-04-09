@@ -7,7 +7,7 @@ interface Props {
   userId: string;
 }
 
-const RegionalPrescriptionCommentAuthor = ({ userId }: Props) => {
+const PrescriptionCommentAuthor = ({ userId }: Props) => {
   const { data: user } = useGetUserQuery(userId);
 
   if (!user) {
@@ -18,12 +18,11 @@ const RegionalPrescriptionCommentAuthor = ({ userId }: Props) => {
     <div className={cx('fr-text--sm', 'fr-mb-0')}>
       <b>
         {user.firstName} {user.lastName}
-      </b>
-       - {UserRoleLabels[user.role]}
-      {' '}
+      </b>{' '}
+      - {UserRoleLabels[user.role]}{' '}
       {user.region ? Regions[user.region].name : ''}
     </div>
   );
 };
 
-export default RegionalPrescriptionCommentAuthor;
+export default PrescriptionCommentAuthor;

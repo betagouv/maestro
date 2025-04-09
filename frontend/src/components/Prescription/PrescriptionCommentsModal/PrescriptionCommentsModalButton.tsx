@@ -1,20 +1,26 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
+import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { useMemo } from 'react';
 import { useAppDispatch } from 'src/hooks/useStore';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import { pluralize } from 'src/utils/stringUtils';
-import './RegionalPrescriptionCommentsModal.scss';
+import { assert, type Equals } from 'tsafe';
+import './PrescriptionCommentsModal.scss';
 
 interface Props {
+  matrixKind: MatrixKind;
   regionalPrescription: RegionalPrescription;
 }
 
-const RegionalPrescriptionCommentsModalButton = ({
-  regionalPrescription
+const PrescriptionCommentsModalButton = ({
+  matrixKind,
+  regionalPrescription,
+  ..._rest
 }: Props) => {
+  assert<Equals<keyof typeof _rest, never>>();
   const dispatch = useAppDispatch();
 
   const comments = useMemo(() => {
@@ -28,9 +34,10 @@ const RegionalPrescriptionCommentsModalButton = ({
       className={clsx(cx('fr-link--sm', 'fr-mt-1w'), 'link-underline')}
       onClick={() =>
         dispatch(
-          prescriptionsSlice.actions.setRegionalPrescriptionComments(
-            regionalPrescription
-          )
+          prescriptionsSlice.actions.setPrescriptionCommentsData({
+            matrixKind,
+            regionalPrescriptions: [regionalPrescription]
+          })
         )
       }
     >
@@ -48,4 +55,4 @@ const RegionalPrescriptionCommentsModalButton = ({
   );
 };
 
-export default RegionalPrescriptionCommentsModalButton;
+export default PrescriptionCommentsModalButton;
