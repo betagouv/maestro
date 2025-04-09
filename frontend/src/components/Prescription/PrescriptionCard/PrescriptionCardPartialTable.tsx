@@ -1,5 +1,6 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
+import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
@@ -7,10 +8,12 @@ import {
   RegionalPrescriptionSort
 } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import RegionalPrescriptionCountCell from 'src/components/Prescription/RegionalPrescriptionCountCell/RegionalPrescriptionCountCell';
+import { assert, type Equals } from 'tsafe';
 import './PrescriptionCard.scss';
 
 interface Props {
   programmingPlan: ProgrammingPlan;
+  matrixKind: MatrixKind;
   regionalPrescriptions: RegionalPrescription[];
   onChangeRegionalPrescriptionCount: (
     prescriptionId: string,
@@ -23,11 +26,14 @@ interface Props {
 
 const PrescriptionCardPartialTable = ({
   programmingPlan,
+  matrixKind,
   regionalPrescriptions,
   onChangeRegionalPrescriptionCount,
   start,
-  end
+  end,
+  ..._rest
 }: Props) => {
+  assert<Equals<keyof typeof _rest, never>>();
   if (!regionalPrescriptions) {
     return <></>;
   }
@@ -50,6 +56,7 @@ const PrescriptionCardPartialTable = ({
           .map((regionalPrescription) => (
             <RegionalPrescriptionCountCell
               programmingPlan={programmingPlan}
+              matrixKind={matrixKind}
               regionalPrescription={regionalPrescription}
               onChange={async (value) =>
                 onChangeRegionalPrescriptionCount(

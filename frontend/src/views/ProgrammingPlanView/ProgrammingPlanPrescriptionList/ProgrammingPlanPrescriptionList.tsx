@@ -14,17 +14,13 @@ import {
 import { PrescriptionSubstance } from 'maestro-shared/schema/Prescription/PrescriptionSubstance';
 import { Context } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import {
-  RegionalPrescriptionKey,
-  RegionalPrescriptionUpdate
-} from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
+import { RegionalPrescriptionUpdate } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import AppToast from 'src/components/_app/AppToast/AppToast';
 import PrescriptionCard from 'src/components/Prescription/PrescriptionCard/PrescriptionCard';
 import PrescriptionSubstancesModal from 'src/components/Prescription/PrescriptionSubstancesModal/PrescriptionSubstancesModal';
 import RegionalPrescriptionCard from 'src/components/Prescription/RegionalPrescriptionCard/RegionalPrescriptionCard';
-import RegionalPrescriptionCommentsModal from 'src/components/Prescription/RegionalPrescriptionCommentsModal/RegionalPrescriptionCommentsModal';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import {
@@ -34,7 +30,6 @@ import {
   useUpdatePrescriptionMutation
 } from 'src/services/prescription.service';
 import {
-  useCommentRegionalPrescriptionMutation,
   useFindRegionalPrescriptionsQuery,
   useUpdateRegionalPrescriptionMutation
 } from 'src/services/regionalPrescription.service';
@@ -81,8 +76,6 @@ const ProgrammingPlanPrescriptionList = ({
     useUpdateRegionalPrescriptionMutation();
   const [deletePrescription, { isSuccess: isDeleteSuccess }] =
     useDeletePrescriptionMutation();
-  const [commentRegionalPrescription, { isSuccess: isCommentSuccess }] =
-    useCommentRegionalPrescriptionMutation();
 
   const findPrescriptionOptions = useMemo(
     () => ({
@@ -120,16 +113,23 @@ const ProgrammingPlanPrescriptionList = ({
       searchParams.get('prescriptionId') &&
       searchParams.get('commentsRegion')
     ) {
-      dispatch(
-        prescriptionsSlice.actions.setRegionalPrescriptionComments(
-          regionalPrescriptions?.find(
-            (regionalPrescription) =>
-              regionalPrescription.prescriptionId ===
-                searchParams.get('prescriptionId') &&
-              regionalPrescription.region === searchParams.get('commentsRegion')
-          )
-        )
+      const prescription = (prescriptions ?? []).find(
+        (prescription) => prescription.id === searchParams.get('prescriptionId')
       );
+      const regionalPrescription = regionalPrescriptions?.find(
+        (regionalPrescription) =>
+          regionalPrescription.prescriptionId ===
+            searchParams.get('prescriptionId') &&
+          regionalPrescription.region === searchParams.get('commentsRegion')
+      );
+      if (prescription && regionalPrescription) {
+        dispatch(
+          prescriptionsSlice.actions.setPrescriptionCommentsData({
+            matrixKind: prescription.matrixKind,
+            regionalPrescriptions: [regionalPrescription]
+          })
+        );
+      }
       setTimeout(() => {
         searchParams.delete('prescriptionId');
         searchParams.delete('commentsRegion');
@@ -242,23 +242,6 @@ const ProgrammingPlanPrescriptionList = ({
     [changeRegionalPrescription, region] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
-  const submitRegionalPrescriptionComment = useCallback(
-    async (
-      regionalPrescriptionKey: RegionalPrescriptionKey,
-      comment: string
-    ) => {
-      await commentRegionalPrescription({
-        prescriptionId: regionalPrescriptionKey.prescriptionId,
-        region: regionalPrescriptionKey.region,
-        commentToCreate: {
-          programmingPlanId: programmingPlan.id,
-          comment
-        }
-      });
-    },
-    [programmingPlan] // eslint-disable-line react-hooks/exhaustive-deps
-  );
-
   return (
     <>
       <AppToast open={isAddSuccess} description="Matrice ajoutée" />
@@ -267,7 +250,6 @@ const ProgrammingPlanPrescriptionList = ({
         description="Modification enregistrée"
       />
       <AppToast open={isDeleteSuccess} description="Matrice supprimée" />
-      <AppToast open={isCommentSuccess} description="Commentaire ajouté" />
 
       {prescriptions && regionalPrescriptions && (
         <>
@@ -382,9 +364,6 @@ const ProgrammingPlanPrescriptionList = ({
       )}
       <PrescriptionSubstancesModal
         onUpdatePrescriptionSubstances={updatePrescriptionSubstances}
-      />
-      <RegionalPrescriptionCommentsModal
-        onSubmitRegionalPrescriptionComment={submitRegionalPrescriptionComment}
       />
     </>
   );

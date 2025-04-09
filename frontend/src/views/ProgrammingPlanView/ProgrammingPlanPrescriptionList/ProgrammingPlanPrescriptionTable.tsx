@@ -92,6 +92,7 @@ const ProgrammingPlanPrescriptionTable = ({
             >
               <RegionalPrescriptionCountCell
                 programmingPlan={programmingPlan}
+                matrixKind={prescription.matrixKind}
                 regionalPrescription={regionalPrescription}
                 onChange={async (value) =>
                   onChangeRegionalPrescriptionCount(

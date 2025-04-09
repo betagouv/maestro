@@ -7,8 +7,8 @@ import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/Programmi
 import { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
+import PrescriptionCommentsModalButton from 'src/components/Prescription/PrescriptionCommentsModal/PrescriptionCommentsModalButton';
 import PrescriptionStages from 'src/components/Prescription/PrescriptionStages/PrescriptionStages';
-import RegionalPrescriptionCommentsModalButton from 'src/components/Prescription/RegionalPrescriptionCommentsModal/RegionalPrescriptionCommentsModalButton';
 import RegionalPrescriptionLaboratory from 'src/components/Prescription/RegionalPrescriptionLaboratory/RegionalPrescriptionLaboratory';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { pluralize } from 'src/utils/stringUtils';
@@ -90,7 +90,8 @@ const RegionalPrescriptionCard = ({
                 regionalPrescription
               )?.comment && (
                 <div className="fr-card__end">
-                  <RegionalPrescriptionCommentsModalButton
+                  <PrescriptionCommentsModalButton
+                    matrixKind={prescription.matrixKind}
                     regionalPrescription={regionalPrescription}
                   />
                 </div>
