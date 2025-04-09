@@ -34,6 +34,14 @@ const SupportDocumentDownload = ({ partialSample }: Props) => {
     [partialSample]
   );
 
+  const isCompleted = useMemo(
+    () =>
+      Sample.omit({
+        ownerAgreement: true
+      }).safeParse(partialSample).success,
+    [partialSample]
+  );
+
   const [createOrUpdateSample] = useCreateOrUpdateSampleMutation();
 
   return (
@@ -48,7 +56,7 @@ const SupportDocumentDownload = ({ partialSample }: Props) => {
         <Button
           onClick={async (e: React.MouseEvent) => {
             e.preventDefault();
-            if (Sample.safeParse(partialSample).success) {
+            if (isCompleted) {
               window.open(getSupportDocumentURL(partialSample.id), '_blank');
             } else {
               confirmationModal.open();
@@ -57,9 +65,7 @@ const SupportDocumentDownload = ({ partialSample }: Props) => {
           priority="tertiary no outline"
           iconId="fr-icon-printer-fill"
         >
-          <div>{`${
-            Sample.safeParse(partialSample).success ? 'Imprimer' : 'Générer'
-          } les étiquettes`}</div>
+          <div>{`${isCompleted ? 'Imprimer' : 'Générer'} les étiquettes`}</div>
         </Button>
         {!isMobile && <div className="border-middle"></div>}
       </div>

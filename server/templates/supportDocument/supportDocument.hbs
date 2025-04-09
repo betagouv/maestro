@@ -602,11 +602,11 @@
                                         </legend>
                                         <div class="fr-grid-row fr-grid-row--gutters fr-mx-0">
                                           <div class="fr-radio-group fr-col-12 fr-py-0">
-                                            <input type="radio">
+                                            <input type="radio" {{#if (eq recipientKind 'Operator')}}checked{{/if}}>
                                             <label class="fr-label fr-pt-1v fr-pl-3w">Détenteur</label>
                                           </div>
                                           <div class="fr-radio-group fr-col-12 fr-py-0">
-                                            <input type="radio">
+                                            <input type="radio" {{#if (eq recipientKind 'Sampler')}}checked{{/if}}>
                                             <label class="fr-label fr-pt-1v fr-pl-3w">Préleveur</label>
                                           </div>
                                         </div>
@@ -621,11 +621,11 @@
                                         </legend>
                                         <div class="fr-grid-row fr-grid-row--gutters fr-mx-0">
                                           <div class="fr-radio-group fr-col-12 fr-py-0">
-                                            <input type="radio" {{#if (and ../fullVersion (eq compliance200263 true))}}checked{{/if}}>
+                                            <input type="radio" {{#if (eq compliance200263 true)}}checked{{/if}}>
                                             <label class="fr-label fr-pt-1v fr-pl-3w">Respectée</label>
                                           </div>
                                           <div class="fr-radio-group fr-col-12 fr-py-0">
-                                            <input type="radio" {{#if (and ../fullVersion (eq compliance200263 false))}}checked{{/if}}>
+                                            <input type="radio" {{#if (eq compliance200263 false)}}checked{{/if}}>
                                             <label class="fr-label fr-pt-1v fr-pl-3w">Non Respectée</label>
                                           </div>
                                         </div>
