@@ -195,9 +195,10 @@ const generateSampleSupportPDF = async (
       .join('-'),
     ...(sample.sampledAt
       ? {
-          sampledAt: format(sample.sampledAt, "eeee dd MMMM yyyy à HH'h'mm", {
-            locale: fr
-          }),
+          sampledAt: formatWithTz(
+            sample.sampledAt,
+            "eeee dd MMMM yyyy à HH'h'mm"
+          ),
           sampledAtDate: format(sample.sampledAt, 'dd/MM/yyyy', { locale: fr }),
           sampledAtTime: formatWithTz(sample.sampledAt, 'HH:mm')
         }
