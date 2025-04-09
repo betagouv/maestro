@@ -2,6 +2,7 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Input from '@codegouvfr/react-dsfr/Input';
 import Select from '@codegouvfr/react-dsfr/Select';
+import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
 import { t } from 'i18next';
 import { sumBy } from 'lodash';
@@ -134,57 +135,75 @@ const ProgrammingPlanCommentList = ({
             }}
           />
         </div>
-        <div className={clsx(cx('fr-mt-2w'), 'border')}>
-          {filteredPrescriptions.map((prescription, prescriptionIndex) => (
-            <div key={`prescription-${prescriptionIndex}`}>
-              <div className={cx('fr-m-2w')}>
-                <div className={clsx('d-flex-align-center')}>
-                  <h6 className="flex-grow-1">
-                    {' '}
-                    {MatrixKindLabels[prescription.matrixKind]}
-                  </h6>
-                  <Button
-                    priority="secondary"
-                    onClick={() => {
-                      dispatch(
-                        prescriptionsSlice.actions.setPrescriptionCommentsData({
-                          matrixKind: prescription.matrixKind,
-                          regionalPrescriptions:
-                            prescription.regionalCommentedPrescriptions
-                        })
-                      );
-                    }}
-                  >
-                    {sumBy(
-                      prescription.regionalCommentedPrescriptions,
-                      (rcp) => (rcp.comments ?? []).length
-                    )}{' '}
-                    {pluralize(
-                      sumBy(
+        <div>
+          {regionFilter && (
+            <Tag
+              dismissible
+              nativeButtonProps={{
+                onClick: () => setRegionFilter(undefined)
+              }}
+            >
+              {Regions[regionFilter].name}
+            </Tag>
+          )}
+        </div>
+        {filteredPrescriptions.length > 0 && (
+          <div className={clsx(cx('fr-mt-2w'), 'border')}>
+            {filteredPrescriptions.map((prescription, prescriptionIndex) => (
+              <div key={`prescription-${prescriptionIndex}`}>
+                <div className={cx('fr-m-2w')}>
+                  <div className={clsx('d-flex-align-center')}>
+                    <h6 className="flex-grow-1">
+                      {' '}
+                      {MatrixKindLabels[prescription.matrixKind]}
+                    </h6>
+                    <Button
+                      priority="secondary"
+                      onClick={() => {
+                        dispatch(
+                          prescriptionsSlice.actions.setPrescriptionCommentsData(
+                            {
+                              matrixKind: prescription.matrixKind,
+                              regionalPrescriptions:
+                                prescription.regionalCommentedPrescriptions
+                            }
+                          )
+                        );
+                      }}
+                    >
+                      {sumBy(
                         prescription.regionalCommentedPrescriptions,
                         (rcp) => (rcp.comments ?? []).length
+                      )}{' '}
+                      {pluralize(
+                        sumBy(
+                          prescription.regionalCommentedPrescriptions,
+                          (rcp) => (rcp.comments ?? []).length
+                        )
+                      )('commentaire')}
+                    </Button>
+                  </div>
+                  <div>
+                    Régions :
+                    {prescription.regionalCommentedPrescriptions.map(
+                      (regionalPrescription) => (
+                        <span
+                          className={cx('fr-mx-1w')}
+                          key={`region-${regionalPrescription}`}
+                        >
+                          {Regions[regionalPrescription.region].name}
+                        </span>
                       )
-                    )('commentaire')}
-                  </Button>
+                    )}
+                  </div>
                 </div>
-                <div>
-                  Régions :
-                  {prescription.regionalCommentedPrescriptions.map(
-                    (regionalPrescription) => (
-                      <span
-                        className={cx('fr-mx-1w')}
-                        key={`region-${regionalPrescription}`}
-                      >
-                        {Regions[regionalPrescription.region].name}
-                      </span>
-                    )
-                  )}
-                </div>
+                {prescriptionIndex !== filteredPrescriptions.length - 1 && (
+                  <hr />
+                )}
               </div>
-              {prescriptionIndex !== filteredPrescriptions.length - 1 && <hr />}
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </>
   );
