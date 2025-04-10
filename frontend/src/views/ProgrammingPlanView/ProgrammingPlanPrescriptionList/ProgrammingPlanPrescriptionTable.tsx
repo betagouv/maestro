@@ -26,7 +26,7 @@ interface Props {
   ) => void;
 }
 
-const PrescriptionTable = ({
+const ProgrammingPlanPrescriptionTable = ({
   programmingPlan,
   prescriptions,
   regionalPrescriptions,
@@ -92,6 +92,7 @@ const PrescriptionTable = ({
             >
               <RegionalPrescriptionCountCell
                 programmingPlan={programmingPlan}
+                matrixKind={prescription.matrixKind}
                 regionalPrescription={regionalPrescription}
                 onChange={async (value) =>
                   onChangeRegionalPrescriptionCount(
@@ -161,4 +162,4 @@ const PrescriptionTable = ({
   );
 };
 
-export default PrescriptionTable;
+export default ProgrammingPlanPrescriptionTable;

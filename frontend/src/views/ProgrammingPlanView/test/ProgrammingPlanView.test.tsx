@@ -13,12 +13,12 @@ import { Provider } from 'react-redux';
 import { MemoryRouter, useParams } from 'react-router-dom';
 import YearRoute from 'src/components/YearRoute/YearRoute';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
-import PrescriptionListView from 'src/views/PrescriptionListView/PrescriptionListView';
 import { mockRequests } from '../../../../test/requestTestUtils';
 
 import { act } from 'react';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { ProviderTest } from '../../../../test/ProviderTest';
+import ProgrammingPlanView from '../ProgrammingPlanView';
 
 vi.mock(import('react-router-dom'), async (importOriginal) => {
   const original = await importOriginal();
@@ -98,7 +98,7 @@ const sampleRequest = (region?: Region) => ({
   }
 });
 
-describe('PrescriptionListView', () => {
+describe('PrescriptionList', () => {
   const user = userEvent.setup();
   let store: Store;
 
@@ -134,10 +134,10 @@ describe('PrescriptionListView', () => {
         <Provider store={store}>
           <MemoryRouter
             initialEntries={[
-              `/prescriptions/${programmingPlan.year}/${searchParams}`
+              `/programmation/${programmingPlan.year}/${searchParams}`
             ]}
           >
-            <YearRoute element={PrescriptionListView} />
+            <YearRoute element={ProgrammingPlanView} />
           </MemoryRouter>
         </Provider>
       );
@@ -198,7 +198,7 @@ describe('PrescriptionListView', () => {
 
       render(
         <ProviderTest store={store}>
-          <PrescriptionListView />
+          <ProgrammingPlanView />
         </ProviderTest>
       );
 

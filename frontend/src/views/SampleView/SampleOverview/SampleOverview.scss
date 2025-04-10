@@ -1,12 +1,7 @@
 @use '../../../constants' as constant;
 
 .sample-overview {
-  .fr-tabs {
-    padding-top: 9px !important;
-  }
-
   .fr-tabs__panel {
-    margin-top: -1px;
     gap: 2rem;
     display: flex;
     flex-direction: column;
