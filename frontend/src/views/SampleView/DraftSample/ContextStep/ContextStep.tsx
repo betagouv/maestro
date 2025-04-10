@@ -151,14 +151,13 @@ const ContextStep = ({ partialSample }: Props) => {
     await form.validate(async () => {
       if (partialSample) {
         await save('DraftMatrix');
-        navigateToSample(partialSample.id);
       } else {
-        await createOrUpdateSample(formData)
-          .unwrap()
-          .then((result) => {
-            navigateToSample(result.id);
-          });
+        await createOrUpdateSample({
+          ...formData,
+          status: 'DraftMatrix'
+        });
       }
+      navigateToSample(formData.id);
     });
   };
 

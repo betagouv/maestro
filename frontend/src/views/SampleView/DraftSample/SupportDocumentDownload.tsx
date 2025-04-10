@@ -5,9 +5,9 @@ import { Brand } from 'maestro-shared/constants';
 import {
   isCreatedPartialSample,
   PartialSample,
-  PartialSampleToCreate,
-  Sample
+  PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
+import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
 import React, { useMemo } from 'react';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 import useWindowSize from 'src/hooks/useWindowSize';
@@ -35,10 +35,7 @@ const SupportDocumentDownload = ({ partialSample }: Props) => {
   );
 
   const isCompleted = useMemo(
-    () =>
-      Sample.omit({
-        ownerAgreement: true
-      }).safeParse(partialSample).success,
+    () => !DraftStatusList.includes(partialSample.status),
     [partialSample]
   );
 
