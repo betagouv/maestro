@@ -187,10 +187,11 @@ const capinovReferential: Record<string, SSD2Id> = {
 };
 
 const codeMethods = [
-'GC/MS/MS','M.I. LC-MS/MS','MI GC-MS/MS','MI HPLC/UV','MI LC-MS/MS','MI LC-MS/MS screening','MI M28 GC-MS/MS','MI MO-PC-003','MI MO-PC-019 LC-MS/MS','MI MO-PC-02','MI MO-PC-036','MI MO-PC-044 LC-MS/MS','MI MO-PC-047 LC-MS/MS','MI MO-PC-049 LC-MS/MS','MI MO-PC-058 LC-MS/MS','MI MO-PC-065 LC-MS/MS','MI MO-PC-067 LC-MS/MS','MI MO-PC-068 LC-MS/MS','MI MO-PC-073 LC-MS/MS','MI MO-PC-076','MI MO-PC-077','MI MO-PC-079','MI MO-PC-081 LC-MS/MS','MI MO-PC-083 LC-MS/MS','MI MO-PC-087 LC-MS/MS','MI MS/MS','NF EN 12393','NF EN 12396-1 (Keppel)','NF EN 12396-3','NF12393',
+  'LC/MS/MS ou GC/MS/MS', 'GC/MS/MS','M.I. LC-MS/MS','MI GC-MS/MS','MI HPLC/UV','MI LC-MS/MS','MI LC-MS/MS screening','MI M28 GC-MS/MS','MI MO-PC-003','MI MO-PC-019 LC-MS/MS','MI MO-PC-02','MI MO-PC-036','MI MO-PC-044 LC-MS/MS','MI MO-PC-047 LC-MS/MS','MI MO-PC-049 LC-MS/MS','MI MO-PC-058 LC-MS/MS','MI MO-PC-065 LC-MS/MS','MI MO-PC-067 LC-MS/MS','MI MO-PC-068 LC-MS/MS','MI MO-PC-073 LC-MS/MS','MI MO-PC-076','MI MO-PC-077','MI MO-PC-079','MI MO-PC-081 LC-MS/MS','MI MO-PC-083 LC-MS/MS','MI MO-PC-087 LC-MS/MS','MI MS/MS','NF EN 12393','NF EN 12396-1 (Keppel)','NF EN 12396-3','NF12393',
 ] as const
 
 const codeMethodsAnalyseMethod = {
+  'LC/MS/MS ou GC/MS/MS': 'Multi',
 'GC/MS/MS' 	: 'Multi',
 'M.I. LC-MS/MS' 	: 'Multi',
 'MI GC-MS/MS' 	: 'Multi',
@@ -237,7 +238,7 @@ export const extractAnalyzes = (
       LIMITE_LQ: z.string(),
       INCERTITUDE: z.string(),
       CAS_NUMBER: z.string().transform((r) => (r === '' ? null : r)),
-      TECHNIQUE: z.enum(codeMethods),
+      TECHNIQUE: z.enum([...codeMethods, 'Calcul']),
       LMR_NUM: z.coerce.number()
     })
   );
@@ -285,11 +286,12 @@ export const extractAnalyzes = (
                 result: residue.RESULTAT_VALNUM,
                 lmr: residue.LMR_NUM
               };
+      const previousResidu = analysis.residues[analysis.residues.length - 1]
       analysis.residues.push({
         ...result,
         label: residue.PARAMETRE_LIBELLE,
         casNumber: residue.CAS_NUMBER,
-        analysisMethod: codeMethodsAnalyseMethod[residue.TECHNIQUE],
+        analysisMethod: residue.TECHNIQUE === 'Calcul'? previousResidu.analysisMethod : codeMethodsAnalyseMethod[residue.TECHNIQUE],
         codeSandre: null
       });
     }
