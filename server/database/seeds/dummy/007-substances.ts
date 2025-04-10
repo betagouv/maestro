@@ -1,8 +1,9 @@
 import { Substance } from 'maestro-shared/schema/Substance/Substance';
 import { Substances } from '../../../repositories/substanceRepository';
+import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 
 export const seed = async function () {
-  const genSubstance = (code: string, label: string): Substance => ({
+  const genSubstance = (code: SSD2Id, label: string): Substance => ({
     code,
     label
   });
@@ -418,7 +419,6 @@ export const seed = async function () {
     genSubstance('RF-0241-001-PPP', "Hexaconazole"),
     genSubstance('RF-0738-001-PPP', "Hexaflumuron"),
     genSubstance('RF-0739-001-PPP', "Hexazinone"),
-    genSubstance('RF-0242-001-PPP', "Hexythiazox"),
     genSubstance('RF-0740-001-PPP', "Hydramethylnon"),
     genSubstance('RF-0243-001-PPP', "Hydrogen cyanide (cyanides expressed as hydrogen cyanide)"),
     genSubstance('RF-00002580-PAR', "Hydrolysed proteins"),
@@ -534,7 +534,6 @@ export const seed = async function () {
     genSubstance('RF-0307-001-PPP', "Monuron"),
     genSubstance('RF-00012801-PAR', "Myclobutanil (sum of constituent isomers)"),
     genSubstance('RF-00007714-PAR', "Myrcenol"),
-    genSubstance('RF-00010010-PAR', "Myrtenal"),
     genSubstance('RF-0799-001-PPP', "Nabam"),
     genSubstance('RF-0800-001-PPP', "Naled"),
     genSubstance('RF-00012802-PAR', "Napropamide (sum of isomers)"),
@@ -689,7 +688,6 @@ export const seed = async function () {
     genSubstance('RF-00001703-PAR', "Sea-algae extract"),
     genSubstance('RF-0893-001-PPP', "Secbumeton"),
     genSubstance('RF-00008085-PAR', "sec-Butylamine"),
-    genSubstance('RF-00004678-PAR', "Sedaxane"),
     genSubstance('RF-0894-001-PPP', "Siduron"),
     genSubstance('RF-0895-001-PPP', "Silafluofen"),
     genSubstance('RF-0389-001-PPP', "Silthiofam"),
@@ -702,7 +700,6 @@ export const seed = async function () {
     genSubstance('RF-00009913-PAR', "Sodium tetraborate"),
     genSubstance('RF-0391-001-PPP', "Sodium tetrathiocarbonate"),
     genSubstance('RF-00010739-PAR', "Soybean oil"),
-    genSubstance('RF-0392-001-PPP', "Spinetoram"),
     genSubstance('RF-0393-001-PPP', "Spinosad (spinosad, sum of spinosyn A and spinosyn D)"),
     genSubstance('RF-0394-001-PPP', "Spirodiclofen"),
     genSubstance('RF-0395-001-PPP', "Spiromesifen"),
@@ -728,7 +725,6 @@ export const seed = async function () {
     genSubstance('RF-0909-001-PPP', "Tebuthiuron"),
     genSubstance('RF-0406-001-PPP', "Tecnazene"),
     genSubstance('RF-0407-001-PPP', "Teflubenzuron"),
-    genSubstance('RF-0408-001-PPP', "Tefluthrin"),
     genSubstance('RF-00012293-PAR', "Tembotrione (sum of parent tembotrione (AE 0172747) and its metabolite M5 (4,6-dihydroxy tembotrione), expressed as tembotrione)"),
     genSubstance('RF-0911-001-PPP', "Temephos"),
     genSubstance('RF-0410-001-PPP', "TEPP"),
