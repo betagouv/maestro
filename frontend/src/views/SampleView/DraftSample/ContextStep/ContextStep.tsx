@@ -47,6 +47,7 @@ import SampleGeolocation from 'src/views/SampleView/DraftSample/ContextStep/Samp
 import SupportDocumentDownload from 'src/views/SampleView/DraftSample/SupportDocumentDownload';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
+import AppSelect from '../../../../components/_app/AppSelect/AppSelect';
 interface Props {
   partialSample?: PartialSample | PartialSampleToCreate;
 }
