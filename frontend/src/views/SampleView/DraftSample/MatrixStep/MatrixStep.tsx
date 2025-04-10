@@ -4,11 +4,8 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { FileInput } from 'maestro-shared/schema/File/FileInput';
 import { SampleDocumentTypeList } from 'maestro-shared/schema/File/FileType';
-<<<<<<< HEAD
 import { Context } from 'maestro-shared/schema/ProgrammingPlan/Context';
-=======
 import { PFASKindList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
->>>>>>> 66e0d2a9 (Introduction des types de plans dans un plan de programmation)
 import {
   isCreatedPartialSample,
   PartialSample,
