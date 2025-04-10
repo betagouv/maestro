@@ -47,8 +47,8 @@ export type LaboratoryConf = {
   normalizeLabel: (label: string) => string
 };
 
-type LaboratoryWithConf = Extract<LaboratoryName, 'GIR 49' | 'LDA 72' | 'CAP 29'>
-const laboratoriesConf = {
+export type LaboratoryWithConf = Extract<LaboratoryName, 'GIR 49' | 'LDA 72' | 'CAP 29'>
+export const laboratoriesConf = {
   'GIR 49': girpaConf,
   'LDA 72': inovalysConf,
   'CAP 29': capinovConf
