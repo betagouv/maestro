@@ -48,6 +48,9 @@ import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
 import { hasPermission } from 'maestro-shared/schema/User/User';
 import { Readable } from 'node:stream';
 import { PDFDocument } from 'pdf-lib';
+import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import { laboratoriesConf, LaboratoryWithConf } from '../services/imapService';
+import { Substance } from 'maestro-shared/schema/Substance/Substance';
 const getSample = async (request: Request, response: Response) => {
   const sample = (request as SampleRequest).sample;
 
@@ -252,7 +255,7 @@ const updateSample = async (request: Request, response: Response) => {
     lastUpdatedAt: new Date()
   };
 
-  if (sample.status === 'Submitted' && updatedPartialSample.status === 'Sent') {
+    if (sample.status === 'Submitted' && updatedPartialSample.status === 'Sent') {
     const updatedSample = Sample.parse(updatedPartialSample);
     const sampleItems = await sampleItemRepository.findMany(sample.id);
 
@@ -293,6 +296,21 @@ const updateSample = async (request: Request, response: Response) => {
             ].join('\n')
           };
 
+          const substanceToLaboratorySubstance = (substance: Substance): Substance => {
+
+            let laboratoryLabel: string | null = null
+            if (laboratory.name in laboratoriesConf) {
+              const laboratoryName = laboratory.name as LaboratoryWithConf
+              laboratoryLabel = Object.entries(laboratoriesConf[laboratoryName].ssd2IdByLabel).find(([_label, value]) => value === ssd2Id)?.[0] ?? null
+            }
+            return {
+              //FIXME on change le code par celui de Sandre ? On le laisse ? On l'enlève ?
+              code: substance.code,
+              label: laboratoryLabel ?? substance.label
+            }
+
+          }
+
           const analysisRequestDocs =
             await generateAndStoreAnalysisRequestDocuments({
               ...updatedSample,
@@ -302,10 +320,10 @@ const updateSample = async (request: Request, response: Response) => {
               laboratory,
               monoSubstances: prescriptionSubstances
                 ?.filter((substance) => substance.analysisMethod === 'Mono')
-                .map((substance) => substance.substance),
+                .map(({substance}) => substanceToLaboratorySubstance(substance)),
               multiSubstances: prescriptionSubstances
                 ?.filter((substance) => substance.analysisMethod === 'Multi')
-                .map((substance) => substance.substance),
+                .map(({substance}) => substanceToLaboratorySubstance(substance)),
               reference: [updatedSample.reference, sampleItem?.itemNumber]
                 .filter(isDefinedAndNotNull)
                 .join('-'),

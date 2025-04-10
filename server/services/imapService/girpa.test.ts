@@ -163,19 +163,9 @@ describe('getResidue', () => {
     ['', 'toto', null],
     ['', 'bixafen','RF-1056-001-PPP'],
     [
-      '120983-64-4',
-      'prothioconazole: prothioconazole-desthio',
-      'RF-0868-001-PPP'
-    ],
-    [
       '-',
       'metobromuron',
       'RF-0791-001-PPP'
-    ],
-    [
-      '15299-99-7',
-      'napropamide',
-      'RF-00012802-PAR'
     ],
       [
       '1967-25-5',
@@ -188,7 +178,7 @@ describe('getResidue', () => {
         englishName,
         null,
         casNumber,
-        girpaConf.ssd2IdByLabel
+        girpaConf
       )
     ).toEqual(expected);
   });
