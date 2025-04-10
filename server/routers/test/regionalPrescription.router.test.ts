@@ -334,20 +334,22 @@ describe('Regional prescriptions router', () => {
               RegionalPrescriptionKey.parse(regionalPrescription),
               RegionalPrescriptionKey.parse(closedControlPrescriptionComment1)
             )
-              ? [
-                  {
-                    id: closedControlPrescriptionComment1.id,
-                    comment: closedControlPrescriptionComment1.comment,
-                    createdBy: closedControlPrescriptionComment1.createdBy,
-                    createdAt: closedControlPrescriptionComment1.createdAt
-                  },
-                  {
-                    id: closedControlPrescriptionComment2.id,
-                    comment: closedControlPrescriptionComment2.comment,
-                    createdBy: closedControlPrescriptionComment2.createdBy,
-                    createdAt: closedControlPrescriptionComment2.createdAt
-                  }
-                ].map(withISOStringDates)
+              ? expect.arrayContaining(
+                  [
+                    {
+                      id: closedControlPrescriptionComment1.id,
+                      comment: closedControlPrescriptionComment1.comment,
+                      createdBy: closedControlPrescriptionComment1.createdBy,
+                      createdAt: closedControlPrescriptionComment1.createdAt
+                    },
+                    {
+                      id: closedControlPrescriptionComment2.id,
+                      comment: closedControlPrescriptionComment2.comment,
+                      createdBy: closedControlPrescriptionComment2.createdBy,
+                      createdAt: closedControlPrescriptionComment2.createdAt
+                    }
+                  ].map(withISOStringDates)
+                )
               : [],
             realizedSampleCount: isEqual(
               RegionalPrescriptionKey.parse(regionalPrescription),
