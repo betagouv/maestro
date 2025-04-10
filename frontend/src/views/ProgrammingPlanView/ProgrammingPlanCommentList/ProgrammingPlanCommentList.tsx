@@ -111,7 +111,7 @@ const ProgrammingPlanCommentList = ({
             label="Région"
             className={cx('fr-mr-2w')}
             nativeSelectProps={{
-              value: regionFilter,
+              value: regionFilter ?? '',
               onChange: (e) => setRegionFilter(e.target.value as Region)
             }}
           >
@@ -187,12 +187,23 @@ const ProgrammingPlanCommentList = ({
                     Régions :
                     {prescription.regionalCommentedPrescriptions.map(
                       (regionalPrescription) => (
-                        <span
+                        <Button
                           className={cx('fr-mx-1w')}
                           key={`region-${regionalPrescription}`}
+                          priority="tertiary no outline"
+                          onClick={() => {
+                            dispatch(
+                              prescriptionsSlice.actions.setPrescriptionCommentsData(
+                                {
+                                  matrixKind: prescription.matrixKind,
+                                  regionalPrescriptions: [regionalPrescription]
+                                }
+                              )
+                            );
+                          }}
                         >
                           {Regions[regionalPrescription.region].name}
-                        </span>
+                        </Button>
                       )
                     )}
                   </div>
