@@ -236,7 +236,7 @@ h6,
 .icon-text {
   display: flex;
 
-  & > :first-child {
+  & > :first-child:not(.fr-label--error):not(.fr-label--success) {
     margin-right: 0.75rem;
     color: var(--text-mention-grey);
   }
