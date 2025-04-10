@@ -12,9 +12,9 @@
 
 ### Base de données
 
-Créer une base de données vide pour l'application (par exemple `maestro`) et une autre pour les tests (par exemple `test_maestro`).
+Créer une base de données vide pour l'application (par exemple `maestro`).
 
-La création des tables et autres structures SQL se fera automatiquement lors du lancement de l'application via les migrations [KnexJS](http://knexjs.org/#Migrations) contenues dans le répertoire `/database/migrations`
+La création des tables et autres structures SQL se fera automatiquement lors du lancement de l'application via les migrations [KnexJS](http://knexjs.org/#Migrations) contenues dans le répertoire `/server//database/migrations`
 
 ### Stockage S3
 
@@ -36,43 +36,8 @@ npm ci
 
 ### Variables d'environnement
 
-L'application utilise les variables d'environnement suivantes :
+L'application utilise les variables d'environnement spécifiées dans le fichier `/server/utils/config.ts` pour le backend et dans le fichier `/frontend/src/utils/config.ts` pour le frontend.
 
-```
-APPLICATION_HOST
-NODE_ENV
-API_PORT
-AUTH_SECRET
-AUTH_EXPIRES_IN
-DATABASE_URL
-MAILER_PROVIDER
-MAILER_HOST
-MAILER_PORT
-MAILER_USER
-MAILER_PASSWORD
-MAILER_API_KEY
-MAILER_EVENT_API_KEY
-MAILER_SECURE
-MAX_RATE
-S3_ENDPOINT
-S3_REGION
-S3_ACCESS_KEY_ID
-S3_SECRET_ACCESS_KEY
-S3_BUCKET
-S3_FILE_PATH
-INBOX_MAILBOX_NAME
-INBOX_SUCCESSBOX_NAME
-INBOX_ERRORBOX_NAME
-INBOX_HOST
-INBOX_PORT
-INBOX_USER
-INBOX_PASSWORD
-M2M_BASIC_TOKEN
-
-REACT_APP_WEBSITE_URL
-REACT_APP_PUBLIC_URL
-REACT_APP_API_URL
-```
 
 En local, elles peuvent être définies dans des fichiers `.env` :
 
@@ -81,7 +46,7 @@ En local, elles peuvent être définies dans des fichiers `.env` :
 
 ### Chargement des données
 
-Vous pouvez injecter un jeu de données grâce au répertoire `/database/seeds/dummy`.
+Vous pouvez injecter un jeu de données grâce au répertoire `/server/database/seeds/dummy`.
 
 ```bash
 npm run seed -w server
@@ -120,4 +85,4 @@ La version de démo de l'application est accessible à l'adresse <https://maestr
 
 ## Production
 
-La version de production de l'application est accessible à l'adresse <https://maestro.beta.gouv.fr>
+La version de production de l'application est accessible à l'adresse <https://app.maestro.beta.gouv.fr>
