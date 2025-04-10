@@ -17,12 +17,7 @@ import { NotificationCategoryMessages } from 'maestro-shared/schema/Notification
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import { LaboratoryName } from 'maestro-shared/referential/Laboratory';
-
-export class ExtractError extends Error {
-  constructor(message: string) {
-    super(message);
-  }
-}
+import { ExtractError } from './extractError';
 
 export type ExportResultQuantifiable = {
   result_kind: 'Q';
@@ -49,6 +44,7 @@ export type LaboratoryConf = {
   exportDataFromEmail: ExportDataFromEmail;
   ssd2IdByLabel: Record<string, SSD2Id>
   unknownReferences: string[]
+  normalizeLabel: (label: string) => string
 };
 
 type LaboratoryWithConf = Extract<LaboratoryName, 'GIR 49' | 'LDA 72' | 'CAP 29'>
@@ -169,7 +165,7 @@ export const checkEmails = async () => {
 
           try {
             const analyzes =
-             laboratoriesConf[message.laboratoryName].exportDataFromEmail(
+              laboratoriesConf[message.laboratoryName].exportDataFromEmail(
                 parsed
               );
 
@@ -178,30 +174,49 @@ export const checkEmails = async () => {
             }
 
             for (const analysis of analyzes) {
-
-              const residues = analysis.residues.map(r => {
+              const residues = analysis.residues.map((r) => {
                 return {
                   ...r,
-                  ssd2Id: getSSD2Id(r.label, r.codeSandre, r.casNumber, laboratoriesConf[message.laboratoryName].ssd2IdByLabel)
+                  ssd2Id:
+                    laboratoriesConf[message.laboratoryName].ssd2IdByLabel[
+                      r.label
+                    ]
                 };
-              })
-              
+              });
+
               //On créer une liste de warnings avec les résidues introuvables dans SSD2
               residues.forEach((r) => {
                 if (r.codeSandre !== null) {
-                  if ( SandreToSSD2[r.codeSandre] === undefined) {
+                  if (SandreToSSD2[r.codeSandre] === undefined) {
                     if (r.ssd2Id !== null) {
-                      warnings.add(`Nouveau code Sandre détecté : ${r.label} ${r.codeSandre} => ${r.ssd2Id}`);
-                    }else{
-                      warnings.add(`Nouveau code Sandre détecté : ${r.label} ${r.codeSandre}`);
+                      warnings.add(
+                        `Nouveau code Sandre détecté : ${r.label} ${r.codeSandre} => ${r.ssd2Id}`
+                      );
+                    } else {
+                      warnings.add(
+                        `Nouveau code Sandre détecté : ${r.label} ${r.codeSandre}`
+                      );
                     }
                   }
                 }
-                if (r.ssd2Id === null && !laboratoriesConf[message.laboratoryName].unknownReferences.includes(r.label)) {
-                  warnings.add(`Impossible d'identifier le résidue : ${r.label}`)
+                if (
+                  r.ssd2Id === null &&
+                  !laboratoriesConf[
+                    message.laboratoryName
+                  ].unknownReferences.includes(r.label)
+                ) {
+                  const potentialSSD2Id = getSSD2Id(
+                    r.label,
+                    r.codeSandre,
+                    r.casNumber,
+                    laboratoriesConf[message.laboratoryName]
+                  );
+                  warnings.add(
+                    `Impossible d'identifier le résidue : ${r.label} ${potentialSSD2Id !== null ? 'ssd2Id potentiel:' + potentialSSD2Id : ''}`
+                  );
                 }
               });
-              
+
               //On garde que les résidues intéressants
               const interestingResidues = residues.filter(r => r.result_kind !== 'ND')
 
@@ -245,7 +260,7 @@ export const checkEmails = async () => {
               messageUid,
               client
             );
-          }finally {
+          } finally {
             if (warnings.size > 0) {
               const warningMessage = Array.from(warnings).join('\n -')
               console.warn(warningMessage)

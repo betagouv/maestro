@@ -6,11 +6,11 @@ import {
   ExportDataFromEmail,
   ExportResultNonQuantifiable,
   ExportResultQuantifiable,
-  ExtractError,
   LaboratoryConf
 } from './index';
 import { csvToJson } from './utils';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
+import { ExtractError } from './extractError';
 
 const unknownReferences = [
   'Cyprosulfamide',
@@ -344,5 +344,6 @@ const exportDataFromEmail: ExportDataFromEmail = (email) => {
 export const capinovConf: LaboratoryConf = {
   exportDataFromEmail,
   ssd2IdByLabel: capinovReferential,
-  unknownReferences
+  unknownReferences,
+  normalizeLabel: (label) => label
 };

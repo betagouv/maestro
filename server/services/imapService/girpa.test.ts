@@ -188,7 +188,7 @@ describe('getResidue', () => {
         englishName,
         null,
         casNumber,
-        girpaConf.ssd2IdByLabel
+        girpaConf
       )
     ).toEqual(expected);
   });

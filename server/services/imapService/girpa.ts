@@ -4,12 +4,12 @@ import {
   ExportAnalysis,
   ExportDataFromEmail,
   ExportDataSubstance,
-  ExtractError,
   LaboratoryConf
 } from './index';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { frenchNumberStringValidator } from './utils';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
+import { ExtractError } from './extractError';
 
 const girpaUnknownReferences: string[] = [
   "dmpf",
@@ -148,8 +148,7 @@ export const extractAnalyzes = (
           analysisMethod: codeMethodsAnalyseMethod[a.Code_méthode],
           codeSandre: null,
           casNumber: a.Substance_active_CAS,
-          label: a.Substance_active_anglais.toLowerCase()
-            .replace(' according reg.', '')
+          label: a.Substance_active_anglais
         };
         return isNQ || isND
           ? {
@@ -209,5 +208,7 @@ const exportDataFromEmail: ExportDataFromEmail = (email) => {
 export const girpaConf: LaboratoryConf = {
   exportDataFromEmail,
   ssd2IdByLabel: girpaReferences,
-  unknownReferences: girpaUnknownReferences
+  unknownReferences: girpaUnknownReferences,
+  normalizeLabel: (label) => label.toLowerCase()
+    .replace(' according reg.', '')
 };
