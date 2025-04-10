@@ -335,9 +335,7 @@ describe('Sample router', () => {
             firstName: Sampler1Fixture.firstName,
             lastName: Sampler1Fixture.lastName
           },
-          reference: `${Regions[Sampler1Fixture.region as Region].shortName}-${
-            anotherSample.department
-          }-${format(new Date(), 'yy')}-0002-${anotherSample.legalContext}`
+          reference: `${Regions[Sampler1Fixture.region as Region].shortName}-${format(new Date(), 'yy')}-0002`
         })
       );
     });
