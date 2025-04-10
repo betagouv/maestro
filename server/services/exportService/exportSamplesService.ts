@@ -94,7 +94,9 @@ const writeToWorkbook = async (
           reference: sample.reference,
           department: sample.department,
           sampler: `${sample.sampler.firstName} ${sample.sampler.lastName}`,
-          sampledAt: formatWithTz(sample.sampledAt, 'dd/MM/yyyy HH:mm'),
+          sampledAt: sample.sampledAt
+            ? formatWithTz(sample.sampledAt, 'dd/MM/yyyy HH:mm')
+            : '',
           status: SampleStatusLabels[sample.status],
           sentAt: sample.sentAt
             ? formatWithTz(sample.sentAt, 'dd/MM/yyyy HH:mm')
@@ -105,8 +107,10 @@ const writeToWorkbook = async (
           latitude: sample.geolocation?.x,
           longitude: sample.geolocation?.y,
           parcel: sample.parcel,
-          context: ContextLabels[sample.context],
-          legalContext: LegalContextLabels[sample.legalContext],
+          context: sample.context ? ContextLabels[sample.context] : undefined,
+          legalContext: sample.legalContext
+            ? LegalContextLabels[sample.legalContext]
+            : undefined,
           company: sample.company?.name,
           companyAddress: [
             sample.company?.address,

@@ -3,8 +3,11 @@ import { pick } from 'lodash-es';
 import { v4 as uuidv4 } from 'uuid';
 import { CultureKindList } from '../referential/CultureKind';
 import { LegalContextList } from '../referential/LegalContext';
-import { Matrix, MatrixList } from '../referential/Matrix/Matrix';
-import { MatrixKind } from '../referential/Matrix/MatrixKind';
+import { Matrix, MatrixEffective } from '../referential/Matrix/Matrix';
+import {
+  MatrixKind,
+  MatrixKindEffective
+} from '../referential/Matrix/MatrixKind';
 import { MatrixPart, MatrixPartList } from '../referential/Matrix/MatrixPart';
 import { QuantityUnitList } from '../referential/QuantityUnit';
 import { Regions } from '../referential/Region';
@@ -19,7 +22,6 @@ import {
   SampleContextData
 } from '../schema/Sample/Sample';
 import { SampleItem } from '../schema/Sample/SampleItem';
-import { SampleStatus } from '../schema/Sample/SampleStatus';
 import { CompanyFixture, genCompany } from './companyFixtures';
 import { ValidatedProgrammingPlanFixture } from './programmingPlanFixtures';
 import { oneOf } from './testFixtures';
@@ -66,12 +68,15 @@ export const genCreatedSampleData = (
 export const genCreatedPartialSample = (
   data?: Partial<PartialSample>
 ): PartialSample => {
-  const contextData = genSampleContextData(data);
+  const contextData = genSampleContextData(
+    SampleContextData.partial().parse(data ?? {})
+  );
   return {
     ...contextData,
     ...genCreatedSampleData(data),
     company: genCompany(),
-    matrix: oneOf(MatrixList),
+    matrixKind: oneOf(MatrixKindEffective.options),
+    matrix: oneOf(MatrixEffective.options),
     matrixPart: oneOf(MatrixPartList),
     stage: oneOf(StageList),
     cultureKind: oneOf(CultureKindList),
@@ -82,11 +87,11 @@ export const genCreatedPartialSample = (
 };
 export const genCreatedSample = (data?: Partial<Sample>): Sample => {
   const sample = genCreatedPartialSample(data);
-  return {
+  return Sample.parse({
     ...sample,
     geolocation: sample.geolocation as Geolocation,
     company: sample.company as Company,
-    matrixKind: sample.matrix as MatrixKind,
+    matrixKind: sample.matrixKind as MatrixKind,
     matrix: sample.matrix as Matrix,
     matrixPart: sample.matrixPart as MatrixPart,
     stage: sample.stage as Stage,
@@ -95,7 +100,7 @@ export const genCreatedSample = (data?: Partial<Sample>): Sample => {
     items: sample.items as SampleItem[],
     ownerAgreement: fakerFR.datatype.boolean(),
     ...data
-  };
+  });
 };
 export const genSampleItem = (data?: Partial<SampleItem>): SampleItem => ({
   sampleId: uuidv4(),
@@ -130,7 +135,7 @@ export const Sample11Fixture = genCreatedPartialSample({
   sampler: pick(Sampler1Fixture, ['id', 'firstName', 'lastName']),
   createdAt: new Date('2023-01-02'),
   lastUpdatedAt: new Date('2024-03-04'),
-  status: 'DraftMatrix' as SampleStatus,
+  status: 'DraftMatrix' as const,
   matrix: 'A00GZ',
   matrixPart: 'PART1',
   cultureKind: 'PD07A',
@@ -144,7 +149,7 @@ export const Sample12Fixture = genCreatedPartialSample({
   context: 'Control',
   company: CompanyFixture,
   id: '11111111-2222-2222-2222-222222222222',
-  status: 'Draft' as SampleStatus,
+  status: 'Draft' as const,
   department: oneOf(Regions[Region1Fixture].departments),
   reference: 'GES-08-24-314-A'
 });
@@ -154,7 +159,7 @@ export const Sample13Fixture = genCreatedPartialSample({
   context: 'Control',
   company: CompanyFixture,
   id: '11111111-3333-3333-3333-333333333333',
-  status: 'Sent' as SampleStatus,
+  status: 'Sent' as const,
   department: oneOf(Regions[Region1Fixture].departments),
   reference: 'GES-08-24-315-A'
 });
@@ -164,7 +169,7 @@ export const Sample2Fixture = genCreatedPartialSample({
   context: 'Control',
   company: CompanyFixture,
   id: '22222222-2222-2222-2222-222222222222',
-  status: 'DraftMatrix' as SampleStatus,
+  status: 'DraftMatrix' as const,
   department: oneOf(Regions[Region2Fixture].departments),
   reference: 'PDL-08-24-313-A'
 });

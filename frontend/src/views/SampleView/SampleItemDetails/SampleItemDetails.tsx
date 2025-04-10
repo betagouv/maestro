@@ -23,7 +23,7 @@ import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { UseForm, useForm } from 'src/hooks/useForm';
 import { z } from 'zod';
 
-const Form = z.object({items: z.array(z.object({})).refine(() => ({}))})
+const Form = z.object({ items: z.array(z.object({})).refine(() => ({})) });
 
 interface Props {
   item: PartialSampleItem;
@@ -170,7 +170,7 @@ const SampleItemDetails = ({
             <AppRadioButtons
               legend="Destinataire de l’échantillon"
               options={
-                selectOptionsFromList(['Sampler', 'Operator'], {
+                selectOptionsFromList(['Operator', 'Sampler'], {
                   labels: SampleItemRecipientKindLabels,
                   withDefault: false
                 }).map(({ label, value }) => ({

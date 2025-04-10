@@ -29,6 +29,7 @@ import SavedAlert from 'src/views/SampleView/SavedAlert';
 import ContextStepSummary from 'src/views/SampleView/StepSummary/ContextStepSummary';
 import ItemsStepSummary from 'src/views/SampleView/StepSummary/ItemsStepSummary';
 import MatrixStepSummary from 'src/views/SampleView/StepSummary/MatrixStepSummary';
+import SupportDocumentDownload from '../SupportDocumentDownload';
 
 interface Props {
   sample: (Sample | SampleToCreate) & Partial<SampleOwnerData>;
@@ -292,6 +293,7 @@ const SendingStep = ({ sample }: Props) => {
         ) : (
           <hr className={cx('fr-mx-0')} />
         )}
+        <SupportDocumentDownload partialSample={sample} />
         {hasUserPermission('updateSample') && (
           <>
             <div className="sample-actions">

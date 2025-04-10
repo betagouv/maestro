@@ -1,5 +1,4 @@
 import { constants } from 'http2';
-import { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import {
   genDocument,
   genDocumentToCreate
@@ -24,17 +23,17 @@ describe('Document router', () => {
 
   const analysisDocument = genDocument({
     createdBy: Sampler1Fixture.id,
-    kind: 'AnalysisReportDocument' as DocumentKind
+    kind: 'AnalysisReportDocument' as const
   });
 
   const resourceDocument = genDocument({
     createdBy: NationalCoordinator.id,
-    kind: 'Resource' as DocumentKind
+    kind: 'Resource' as const
   });
 
   const sampleDocument = genDocument({
     createdBy: Sampler1Fixture.id,
-    kind: 'SampleDocument' as DocumentKind
+    kind: 'SampleDocument' as const
   });
 
   beforeAll(async () => {

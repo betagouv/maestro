@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import { format } from 'date-fns';
 import { act } from 'react';
 import ContextStep from 'src/views/SampleView/DraftSample/ContextStep/ContextStep';
 
@@ -48,7 +47,6 @@ describe('DraftSampleContextStep', () => {
       screen.getByTestId('draft_sample_creation_form')
     ).toBeInTheDocument();
     expect(screen.getAllByTestId('sampledAt-input')).toHaveLength(2);
-    expect(screen.getAllByTestId('department-select')).toHaveLength(2);
     expect(screen.getAllByTestId('geolocationX-input')).toHaveLength(2);
     expect(screen.getAllByTestId('geolocationY-input')).toHaveLength(2);
     expect(screen.getAllByTestId('parcel-input')).toHaveLength(2);
@@ -62,18 +60,6 @@ describe('DraftSampleContextStep', () => {
     expect(screen.getByTestId('submit-button')).toBeInTheDocument();
   });
 
-  test('should set inputs with default values', () => {
-    render(
-      <ProviderTest store={store}>
-        <ContextStep />
-      </ProviderTest>
-    );
-
-    const dateInput = screen.getAllByTestId('sampledAt-input')[1];
-
-    expect(dateInput).toHaveValue(format(new Date(), "yyyy-MM-dd'T'HH:mm"));
-  });
-
   test('should handle errors on submitting', async () => {
     render(
       <ProviderTest store={store}>
@@ -84,9 +70,6 @@ describe('DraftSampleContextStep', () => {
     await act(async () => {
       await user.click(screen.getByTestId('submit-button'));
     });
-    expect(
-      screen.getByText('Veuillez renseigner le département.')
-    ).toBeInTheDocument();
     expect(
       screen.getByText('Veuillez renseigner la latitude.')
     ).toBeInTheDocument();
@@ -123,7 +106,6 @@ describe('DraftSampleContextStep', () => {
   //     </Provider>
   //   );
   //
-  //   const departmentSelect = screen.getAllByTestId('department-select')[1];
   //   const programmingPlan1Radio = await within(
   //     screen.getByTestId('context-radio')
   //   ).findByLabelText(
@@ -153,16 +135,12 @@ describe('DraftSampleContextStep', () => {
   //     );
   //   });
   //   await act(async () => {
-  //     await user.selectOptions(departmentSelect, '08');
   //     await user.click(programmingPlan1Radio);
   //     await user.click(legalContextARadio);
   //     await user.type(resytalIdInput, '22123456');
   //     await user.type(notesInput, 'Comment');
   //     await user.click(screen.getByTestId('submit-button'));
   //   });
-  //   expect(
-  //     screen.queryByText('Veuillez renseigner le département.')
-  //   ).not.toBeInTheDocument();
   //   expect(
   //     screen.queryByText('Veuillez renseigner le contexte.')
   //   ).not.toBeInTheDocument();

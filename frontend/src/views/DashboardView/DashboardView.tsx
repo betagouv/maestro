@@ -69,7 +69,9 @@ const DashboardView = () => {
     Object.values(pendingSamples),
     data ?? [],
     (_) => _.id
-  ).sort((s1, s2) => (isAfter(s2.sampledAt, s1.sampledAt) ? 1 : -1));
+  ).sort((s1, s2) =>
+    isAfter(s2.sampledAt ?? new Date(), s1.sampledAt ?? new Date()) ? 1 : -1
+  );
 
   if (!user || !currentProgrammingPlan) {
     return <></>;

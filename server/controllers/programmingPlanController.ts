@@ -111,7 +111,7 @@ const createProgrammingPlan = async (request: Request, response: Response) => {
     year,
     regionalStatus: RegionList.map((region) => ({
       region,
-      status: 'InProgress' as ProgrammingPlanStatus
+      status: 'InProgress' as const
     }))
   };
 

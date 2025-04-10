@@ -176,6 +176,7 @@ const findMany = async (
       }
     })
     .orderBy('sampled_at', 'desc')
+    .orderBy('created_at', 'desc')
     .then((samples) => samples.map(parsePartialSample));
 };
 

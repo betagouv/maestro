@@ -2,7 +2,6 @@ import { configureStore, Store } from '@reduxjs/toolkit';
 import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { QuantityUnitList } from 'maestro-shared/referential/QuantityUnit';
-import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
 import {
   genCreatedSampleData,
   genSampleContextData
@@ -26,7 +25,7 @@ describe('DraftSampleItemsStep', () => {
   const draftSample = {
     ...genSampleContextData(),
     ...genCreatedSampleData(),
-    status: 'DraftItems' as SampleStatus
+    status: 'DraftItems' as const
   };
 
   beforeEach(() => {

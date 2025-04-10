@@ -42,6 +42,12 @@ router.get(
   sampleController.getSample
 );
 router.get(
+  '/:sampleId/document',
+  permissionsCheck(['downloadSupportDocument']),
+  sampleCheck(),
+  sampleController.getSampleDocument
+);
+router.get(
   '/:sampleId/items/:itemNumber/document',
   validator.validate(
     params(

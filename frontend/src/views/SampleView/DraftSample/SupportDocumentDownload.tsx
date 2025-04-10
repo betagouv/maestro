@@ -7,24 +7,23 @@ import {
   PartialSample,
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
+import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
 import React, { useMemo } from 'react';
-import AlertModal from 'src/components/AlertModal/AlertModal';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 import useWindowSize from 'src/hooks/useWindowSize';
-import { getSupportDocumentURL } from 'src/services/sample.service';
+import {
+  getSupportDocumentURL,
+  useCreateOrUpdateSampleMutation
+} from 'src/services/sample.service';
+import { useSamplesLink } from '../../../hooks/useSamplesLink';
 
 interface Props {
   partialSample: PartialSample | PartialSampleToCreate;
-  missingData?: boolean;
-  onConfirm?: () => void;
 }
 
-const SupportDocumentDownload = ({
-  partialSample,
-  missingData,
-  onConfirm
-}: Props) => {
+const SupportDocumentDownload = ({ partialSample }: Props) => {
   const { isMobile } = useWindowSize();
+  const { navigateToSample } = useSamplesLink();
 
   const confirmationModal = useMemo(
     () =>
@@ -35,14 +34,12 @@ const SupportDocumentDownload = ({
     [partialSample]
   );
 
-  const alertModal = useMemo(
-    () =>
-      createModal({
-        id: `document-download-alert-modal-${partialSample.id}-${partialSample.status}`,
-        isOpenedByDefault: false
-      }),
+  const isCompleted = useMemo(
+    () => !DraftStatusList.includes(partialSample.status),
     [partialSample]
   );
+
+  const [createOrUpdateSample] = useCreateOrUpdateSampleMutation();
 
   return (
     <>
@@ -56,8 +53,8 @@ const SupportDocumentDownload = ({
         <Button
           onClick={async (e: React.MouseEvent) => {
             e.preventDefault();
-            if (missingData) {
-              alertModal.open();
+            if (isCompleted) {
+              window.open(getSupportDocumentURL(partialSample.id), '_blank');
             } else {
               confirmationModal.open();
             }
@@ -65,46 +62,31 @@ const SupportDocumentDownload = ({
           priority="tertiary no outline"
           iconId="fr-icon-printer-fill"
         >
-          <div>
-            Générer le document{' '}
-            {isMobile && <br />}
-            d'accompagnement
-          </div>
+          <div>{`${isCompleted ? 'Imprimer' : 'Générer'} les étiquettes`}</div>
         </Button>
         {!isMobile && <div className="border-middle"></div>}
       </div>
-
-      {missingData ? (
-        <AlertModal
-          modal={alertModal}
-          title="Informations manquantes"
-          closeLabel="J'ai compris"
-        >
-          Il manque des informations liées au contexte du prélèvement pour
-          générer le document d’accompagnement.
-        </AlertModal>
-      ) : (
-        <ConfirmationModal
-          modal={confirmationModal}
-          title="A noter à ce stade de la saisie"
-          onConfirm={async () => {
-            await onConfirm?.();
-            window.open(getSupportDocumentURL(partialSample?.id, 1), '_blank');
-          }}
-          confirmLabel="Télécharger"
-          closeOnConfirm
-        >
-          <b>
-            Vous vous apprêtez à imprimer un document d’accompagnement
-            incomplet.{' '}
-          </b>
-          {!isCreatedPartialSample(partialSample)
-            ? 'Le prélèvement va être créé mais votre '
-            : 'Votre '}
-          saisie devra être complétée sur {Brand} pour l’envoi de la demande
-          d’analyse au laboratoire.
-        </ConfirmationModal>
-      )}
+      <ConfirmationModal
+        modal={confirmationModal}
+        title="A noter à ce stade de la saisie"
+        onConfirm={async () => {
+          if (!isCreatedPartialSample(partialSample)) {
+            await createOrUpdateSample(partialSample);
+          }
+          navigateToSample(partialSample.id);
+          window.open(getSupportDocumentURL(partialSample.id), '_blank');
+        }}
+        confirmLabel="Télécharger"
+        closeOnConfirm
+      >
+        <b>Vous vous apprêtez à imprimer des étiquettes incomplètes.</b>
+        <br />
+        {!isCreatedPartialSample(partialSample)
+          ? 'Le prélèvement va être créé mais votre '
+          : 'Votre '}
+        saisie devra être complétée sur {Brand} pour l’envoi de la demande
+        d’analyse au laboratoire.
+      </ConfirmationModal>
     </>
   );
 };

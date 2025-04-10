@@ -4,17 +4,12 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Skeleton } from '@mui/material';
 import clsx from 'clsx';
 import { format, parse } from 'date-fns';
-import {
-  Department,
-  DepartmentLabels,
-  DepartmentList
-} from 'maestro-shared/referential/Department';
+import { Department } from 'maestro-shared/referential/Department';
 import {
   LegalContext,
   LegalContextLabels,
   LegalContextList
 } from 'maestro-shared/referential/LegalContext';
-import { Regions } from 'maestro-shared/referential/Region';
 import {
   Company,
   companyFromSearchResult,
@@ -25,7 +20,6 @@ import {
   ContextLabels
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
-  isCreatedPartialSample,
   PartialSample,
   PartialSampleToCreate,
   SampleContextData
@@ -39,7 +33,6 @@ import leaf from 'src/assets/illustrations/leaf.svg';
 import CompanySearch from 'src/components/CompanySearch/CompanySearch';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
-import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
@@ -59,7 +52,7 @@ interface Props {
 
 const ContextStep = ({ partialSample }: Props) => {
   const { navigateToSample, navigateToSamples } = useSamplesLink();
-  const { user, hasUserPermission } = useAuthentication();
+  const { hasUserPermission } = useAuthentication();
   const { isOnline } = useOnLine();
 
   const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
@@ -78,7 +71,6 @@ const ContextStep = ({ partialSample }: Props) => {
     format(partialSample?.sampledAt ?? new Date(), 'yyyy-MM-dd HH:mm')
   );
 
-  const [department, setDepartment] = useState(partialSample?.department);
   const [parcel, setParcel] = useState(partialSample?.parcel);
   const [company, setCompany] = useState(partialSample?.company);
   const [companyOffline, setCompanyOffline] = useState(
@@ -119,26 +111,6 @@ const ContextStep = ({ partialSample }: Props) => {
 
   type FormShape = typeof Form.shape;
 
-  const departmentOptions = selectOptionsFromList(
-    user?.region ? Regions[user.region].departments : DepartmentList,
-    {
-      labels: DepartmentLabels,
-      defaultLabel: 'Sélectionner un département'
-    }
-  );
-
-  const borderingDepartments = selectOptionsFromList(
-    user?.region
-      ? (Regions[user.region].borderingDepartments?.sort((a, b) =>
-          a.localeCompare(b)
-        ) ?? [])
-      : [],
-    {
-      labels: DepartmentLabels,
-      withDefault: false
-    }
-  );
-
   const contextOptions = selectOptionsFromList(Object.keys(ContextLabels), {
     labels: ContextLabels,
     withDefault: false,
@@ -155,7 +127,7 @@ const ContextStep = ({ partialSample }: Props) => {
   const formData = {
     id,
     sampledAt: parse(sampledAt, 'yyyy-MM-dd HH:mm', new Date()),
-    department: department as Department,
+    department: company?.postalCode?.slice(0, 2) as Department,
     geolocation:
       geolocationX && geolocationY
         ? {
@@ -171,7 +143,7 @@ const ContextStep = ({ partialSample }: Props) => {
     companyOffline,
     resytalId: resytalId as string,
     notesOnCreation,
-    status: 'DraftMatrix' as SampleStatus
+    status: 'Draft' as const
   };
 
   const submit = async (e?: React.MouseEvent<HTMLElement>) => {
@@ -179,14 +151,13 @@ const ContextStep = ({ partialSample }: Props) => {
     await form.validate(async () => {
       if (partialSample) {
         await save('DraftMatrix');
-        navigateToSample(partialSample.id);
       } else {
-        await createOrUpdateSample(formData)
-          .unwrap()
-          .then((result) => {
-            navigateToSample(result.id);
-          });
+        await createOrUpdateSample({
+          ...formData,
+          status: 'DraftMatrix'
+        });
       }
+      navigateToSample(formData.id);
     });
   };
 
@@ -217,7 +188,7 @@ const ContextStep = ({ partialSample }: Props) => {
   const formInput = {
     id,
     sampledAt,
-    department,
+    department: company?.postalCode?.slice(0, 2) as Department,
     geolocationX,
     geolocationY,
     parcel,
@@ -256,28 +227,6 @@ const ContextStep = ({ partialSample }: Props) => {
             data-testid="sampledAt-input"
             label="Date et heure de prélèvement"
             hintText="Format attendu › JJ/MM/AAAA HH:MM"
-            required
-          />
-        </div>
-        <div className={cx('fr-col-12', 'fr-col-sm-4')}>
-          <AppSelect<FormShape>
-            defaultValue={partialSample?.department || ''}
-            optionsGroups={[
-              {
-                options: departmentOptions
-              },
-              {
-                label: 'Départements limitrophes',
-                options: borderingDepartments
-              }
-            ]}
-            onChange={(e) => setDepartment(e.target.value as Department)}
-            inputForm={form}
-            inputKey="department"
-            whenValid="Département correctement renseigné."
-            data-testid="department-select"
-            label="Département"
-            hint="Zone géographique de prélèvement"
             required
           />
         </div>
@@ -432,7 +381,6 @@ const ContextStep = ({ partialSample }: Props) => {
               initialCompany={
                 company ? companyToSearchResult(company) : undefined
               }
-              department={department}
               onSelectCompany={(result) => {
                 setCompany(
                   result ? companyFromSearchResult(result) : undefined
@@ -481,7 +429,7 @@ const ContextStep = ({ partialSample }: Props) => {
             inputKey="notesOnCreation"
             whenValid="Note correctement renseignée."
             data-testid="notes-input"
-            label="Note additionnelle (ex : urgence, consignation...)"
+            label="Note additionnelle"
             hintText="Champ facultatif pour identification et qualité de la personne présente lors du contrôle
 "
           />
@@ -518,10 +466,6 @@ const ContextStep = ({ partialSample }: Props) => {
           {isOnline && (
             <SupportDocumentDownload
               partialSample={partialSample ?? formData}
-              missingData={Form.safeParse(formInput).success === false}
-              onConfirm={
-                isCreatedPartialSample(partialSample) ? undefined : submit
-              }
             />
           )}
         </div>
