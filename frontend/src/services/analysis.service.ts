@@ -49,9 +49,6 @@ export const analysisApi = api.injectEndpoints({
   })
 });
 
-export const {
-  useCreateAnalysisMutation,
-  useUpdateAnalysisMutation
-} = {
+export const { useCreateAnalysisMutation, useUpdateAnalysisMutation } = {
   ...analysisApi
 };

@@ -67,5 +67,16 @@ export const MatrixListByKind: Record<MatrixKind, Matrix[]> = {
   A01DV: Matrix.extract(['A01DX', 'A01DY']).options,
   A001D: Matrix.extract(['A001D']).options,
   A000L: Matrix.extract(['A000N', 'A000R', 'A000L']).options,
-  A00HQ: Matrix.extract(['A00HQ', 'A00HY']).options
+  A00HQ: Matrix.extract(['A00HQ', 'A00HY']).options,
+  A01QX: Matrix.extract(['A01QV#F28.A0C0S']).options,
+  A01RJ: Matrix.extract(['A01RJ#F28.A0C0S']).options,
+  A01RL: Matrix.extract(['A01RL#F28.A0C0S']).options,
+  A01RG: Matrix.extract(['A01RG#F28.A0C0S']).options,
+  A01SN: Matrix.extract([
+    'A01SP#F28.A0C0S',
+    'A01SP#F31.A0CSD',
+    'A01SQ#F28.A0C0S',
+    'A01SN#F26.A07XE'
+  ]).options,
+  A031E: Matrix.extract(['A031G', 'A031K']).options
 };
