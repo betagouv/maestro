@@ -14,7 +14,7 @@
 
 Créer une base de données vide pour l'application (par exemple `maestro`).
 
-La création des tables et autres structures SQL se fera automatiquement lors du lancement de l'application via les migrations [KnexJS](http://knexjs.org/#Migrations) contenues dans le répertoire `/server//database/migrations`
+La création des tables et autres structures SQL se fera automatiquement lors du lancement de l'application via les migrations [KnexJS](http://knexjs.org/#Migrations) contenues dans le répertoire `/server/database/migrations`
 
 ### Stockage S3
 
