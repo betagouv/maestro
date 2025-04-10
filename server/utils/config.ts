@@ -1,7 +1,6 @@
 import convict from 'convict';
 import formats from 'convict-format-with-validator';
 import dotenv from 'dotenv';
-import path from 'path';
 import { z } from 'zod';
 
 convict.addFormats(formats);
@@ -15,7 +14,7 @@ convict.addFormat({
 });
 
 if (!process.env.API_PORT) {
-  dotenv.config({ path: path.join(import.meta.dirname, '../../.env') });
+  dotenv.config({ path: '/home/vmaubert/GIT/maestro/.env' });
 }
 export const isProduction = process.env.NODE_ENV === 'production';
 

@@ -1,13 +1,13 @@
 import { z } from 'zod';
-import {
+import type {
   ExportAnalysis,
   ExportDataFromEmail, ExportDataSubstance, ExportResultNonQuantifiable, ExportResultQuantifiable,
-  ExtractError,
   LaboratoryConf
 } from '../index';
 import { csvToJson, frenchNumberStringValidator } from '../utils';
 import { inovalysReferential, inovalysUnknownReferences } from './inovalysReferential';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
+import { ExtractError } from '../extractError';
 
 const codeMethods = [
   'M-ARCO/M/021', 'M-ARCO/M021', 'M-ARCO/M/022', 'M-ARCO/M/023', 'M-ARCO/M/024', 'M-ARCO/M/031', 'M-ARCO/M/033', 'M-ARCO/M/045', 'M-ARCO/M/056', 'M-ARCO/M/059', 'M-ARCO/M/060', 'M-ARCO/M/064', 'M-ARCO/M/065', 'M-ARCO/M/066', 'Méthode interne'
@@ -118,7 +118,7 @@ export const extractAnalyzes = (
 
         return {
           ...result,
-          label: r['Détermination'].replace('· ', ''),
+          label: r['Détermination'],
           casNumber: r['Numéro CAS'] ?? null,
           codeSandre: r['Code Sandre'] ?? null,
           analysisMethod: codeMethodsAnalyseMethod[r['Réf Méthode']]
@@ -186,5 +186,6 @@ const exportDataFromEmail: ExportDataFromEmail = (email) => {
 export const inovalysConf: LaboratoryConf = {
   exportDataFromEmail,
   ssd2IdByLabel: inovalysReferential,
-  unknownReferences: inovalysUnknownReferences
+  unknownReferences: inovalysUnknownReferences,
+  normalizeLabel: (label: string) => label.replace('· ', '')
 };

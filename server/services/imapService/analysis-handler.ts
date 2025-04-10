@@ -5,12 +5,12 @@ import { residueAnalyteRepository } from '../../repositories/residueAnalyteRepos
 import { sampleRepository } from '../../repositories/sampleRepository';
 import { documentService } from '../documentService';
 import {
-  ExportAnalysis,  ExportDataSubstanceWithSSD2Id,
-  ExtractError
+  ExportAnalysis,  ExportDataSubstanceWithSSD2Id
 } from './index';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { isComplex, getAnalytes } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
 import { OmitDistributive } from 'maestro-shared/utils/typescript';
+import { ExtractError } from './extractError';
 
 export type AnalysisWithResidueWithSSD2Id =  Omit<ExportAnalysis, 'residues'> & { residues: ExportDataSubstanceWithSSD2Id[]}
 export const analysisHandler = async (
