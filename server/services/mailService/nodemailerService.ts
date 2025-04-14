@@ -55,7 +55,8 @@ class NodemailerService implements MailService {
 
       attachments: options.attachment?.map(a => ({
         filename: a.name,
-        content: a.content
+        content: a.content,
+        encoding: 'base64'
       }))
     });
   }
