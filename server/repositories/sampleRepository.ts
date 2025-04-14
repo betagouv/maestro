@@ -36,6 +36,7 @@ const PartialSampleJoinedDbo = PartialSampleDbo.merge(
     companyAddress: z.string().nullish(),
     companyPostalCode: z.string().nullish(),
     companyCity: z.string().nullish(),
+    companyDepartment: z.string().nullish(),
     companyNafCode: z.string().nullish(),
     samplerId: z.string().uuid(),
     samplerFirstName: z.string(),
@@ -59,6 +60,7 @@ const findUnique = async (id: string): Promise<PartialSample | undefined> => {
       `${companiesTable}.address as company_address`,
       `${companiesTable}.postal_code as company_postal_code`,
       `${companiesTable}.city as company_city`,
+      `${companiesTable}.department as company_department`,
       `${companiesTable}.naf_code as company_naf_code`,
       `${usersTable}.id as sampler_id`,
       `${usersTable}.first_name as sampler_first_name`,
@@ -142,6 +144,7 @@ const findMany = async (
       `${companiesTable}.address as company_address`,
       `${companiesTable}.postal_code as company_postal_code`,
       `${companiesTable}.city as company_city`,
+      `${companiesTable}.department as company_department`,
       `${companiesTable}.naf_code as company_naf_code`,
       `${usersTable}.id as sampler_id`,
       `${usersTable}.first_name as sampler_first_name`,
@@ -293,6 +296,7 @@ export const parsePartialSample = (
           address: sample.companyAddress ?? undefined,
           postalCode: sample.companyPostalCode ?? undefined,
           city: sample.companyCity ?? undefined,
+          department: sample.companyDepartment ?? undefined,
           nafCode: sample.companyNafCode ?? undefined
         }
       : undefined,
