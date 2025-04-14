@@ -375,7 +375,7 @@ const updateSample = async (request: Request, response: Response) => {
                   updatedSample,
                   sampleItem.itemNumber
                 )}`,
-                content: sampleSupportDoc.toString()
+                content: sampleSupportDoc.toString('base64')
               }
             ]
           });
@@ -395,7 +395,7 @@ const updateSample = async (request: Request, response: Response) => {
                   updatedSample,
                   sampleItem.itemNumber
                 )}`,
-                content: sampleSupportDoc.toString()
+                content: sampleSupportDoc.toString('base64')
               }
             ]
           });
