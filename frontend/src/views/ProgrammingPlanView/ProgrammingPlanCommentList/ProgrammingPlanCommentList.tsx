@@ -188,7 +188,7 @@ const ProgrammingPlanCommentList = ({
                     {prescription.regionalCommentedPrescriptions.map(
                       (regionalPrescription) => (
                         <Button
-                          className={cx('fr-mx-1w')}
+                          className={clsx('link-underline')}
                           key={`${prescription.id}-region-${regionalPrescription.region}`}
                           priority="tertiary no outline"
                           onClick={() => {
