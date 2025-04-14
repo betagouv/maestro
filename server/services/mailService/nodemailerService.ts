@@ -51,7 +51,13 @@ class NodemailerService implements MailService {
       from: config.mail.from,
       to: options.recipients.join(','),
       subject: TemplateData[options.templateName].subject,
-      html: TemplateData[options.templateName].content
+      html: TemplateData[options.templateName].content,
+
+      attachments: options.attachment?.map(a => ({
+        filename: a.name,
+        content: a.content,
+        encoding: 'base64'
+      }))
     });
   }
 }

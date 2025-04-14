@@ -12,3 +12,9 @@ services:
       - 9090:9090
     volumes:
       - ./locals3root:/containers3root
+  maildev:
+    image: soulteary/maildev
+    container_name: maestro_maildev
+    ports:
+      - 1025:1025
+      - 1080:1080
