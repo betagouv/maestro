@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
+import { Region } from 'maestro-shared/referential/Region';
 import { Context } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { PrescriptionListDisplay } from 'src/views/ProgrammingPlanView/ProgrammingPlanPrescriptionList/ProgrammingPlanPrescriptionList';
@@ -7,6 +8,7 @@ import { PrescriptionListDisplay } from 'src/views/ProgrammingPlanView/Programmi
 type PrescriptionCommentsData = {
   matrixKind: MatrixKind;
   regionalPrescriptions: RegionalPrescription[];
+  currentRegion?: Region;
 };
 
 type PrescriptionsState = {

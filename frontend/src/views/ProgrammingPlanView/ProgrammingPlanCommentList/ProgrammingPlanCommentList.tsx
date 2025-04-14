@@ -117,7 +117,7 @@ const ProgrammingPlanCommentList = ({
           >
             <option value="">Toutes les régions</option>
             {RegionList.map((region) => (
-              <option key={`region-${region}`} value={region}>
+              <option key={`select-region-${region}`} value={region}>
                 {Regions[region].name}
               </option>
             ))}
@@ -189,14 +189,16 @@ const ProgrammingPlanCommentList = ({
                       (regionalPrescription) => (
                         <Button
                           className={cx('fr-mx-1w')}
-                          key={`region-${regionalPrescription}`}
+                          key={`${prescription.id}-region-${regionalPrescription.region}`}
                           priority="tertiary no outline"
                           onClick={() => {
                             dispatch(
                               prescriptionsSlice.actions.setPrescriptionCommentsData(
                                 {
                                   matrixKind: prescription.matrixKind,
-                                  regionalPrescriptions: [regionalPrescription]
+                                  regionalPrescriptions:
+                                    prescription.regionalCommentedPrescriptions,
+                                  currentRegion: regionalPrescription.region
                                 }
                               )
                             );

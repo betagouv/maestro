@@ -7,7 +7,7 @@ import clsx from 'clsx';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
-import { Region, Regions } from 'maestro-shared/referential/Region';
+import { Regions } from 'maestro-shared/referential/Region';
 import { RegionalPrescriptionKey } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { RegionalPrescriptionCommentToCreate } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionComment';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -43,7 +43,7 @@ const PrescriptionCommentsModal = ({
   const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
 
   const [comment, setComment] = useState('');
-  const [region, setRegion] = useState<Region>();
+  const [region, setRegion] = useState(prescriptionCommentsData?.currentRegion);
 
   const Form = RegionalPrescriptionCommentToCreate.pick({
     comment: true
@@ -67,7 +67,10 @@ const PrescriptionCommentsModal = ({
 
   useEffect(() => {
     if (prescriptionCommentsData) {
-      setRegion(prescriptionCommentsData.regionalPrescriptions[0].region);
+      setRegion(
+        prescriptionCommentsData.currentRegion ??
+          prescriptionCommentsData.regionalPrescriptions[0].region
+      );
       prescriptionCommentsModal.open();
     }
   }, [prescriptionCommentsData]);
@@ -117,6 +120,7 @@ const PrescriptionCommentsModal = ({
               <SegmentedControl
                 hideLegend
                 legend="Région"
+                small
                 segments={
                   prescriptionCommentsData.regionalPrescriptions.map(
                     (regionalPrescription) => ({
