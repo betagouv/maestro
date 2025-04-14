@@ -48,7 +48,6 @@ import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
 import { hasPermission } from 'maestro-shared/schema/User/User';
 import { Readable } from 'node:stream';
 import { PDFDocument } from 'pdf-lib';
-import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { laboratoriesConf, LaboratoryWithConf } from '../services/imapService';
 import { Substance } from 'maestro-shared/schema/Substance/Substance';
 const getSample = async (request: Request, response: Response) => {
@@ -301,7 +300,7 @@ const updateSample = async (request: Request, response: Response) => {
             let laboratoryLabel: string | null = null
             if (laboratory.name in laboratoriesConf) {
               const laboratoryName = laboratory.name as LaboratoryWithConf
-              laboratoryLabel = Object.entries(laboratoriesConf[laboratoryName].ssd2IdByLabel).find(([_label, value]) => value === ssd2Id)?.[0] ?? null
+              laboratoryLabel = Object.entries(laboratoriesConf[laboratoryName].ssd2IdByLabel).find(([_label, value]) => value === substance.code)?.[0] ?? null
             }
             return {
               //FIXME on change le code par celui de Sandre ? On le laisse ? On l'enlève ?
