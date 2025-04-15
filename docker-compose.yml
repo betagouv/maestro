@@ -12,3 +12,11 @@ services:
       - 9090:9090
     volumes:
       - ./locals3root:/containers3root
+  browserless:
+    image: ghcr.io/browserless/chromium
+    container_name: maestro_browserless
+    network_mode: 'host'
+    environment:
+      - TOKEN=1234512345
+      - CONCURRENT=1
+      - PORT=3002

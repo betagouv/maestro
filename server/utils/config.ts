@@ -94,6 +94,7 @@ interface Config {
   };
   m2mBasicToken: string;
   mattermostIncomingWebhook: string | null;
+  browserlessUrl: string
 }
 
 const config = convict<Config>({
@@ -342,6 +343,13 @@ const config = convict<Config>({
     sensitive: true,
     nullable: true,
     default: null
+  },
+  browserlessUrl: {
+    env: 'BROWSERLESS_URL',
+    format: String,
+    sensitive: true,
+    nullable: false,
+    default:  isProduction ? null : 'ws://localhost:3002?token=1234512345'
   }
 })
   .validate({ allowed: 'strict' })

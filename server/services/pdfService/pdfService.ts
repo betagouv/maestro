@@ -17,7 +17,7 @@ import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { formatWithTz, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
 import { documentRepository } from '../../repositories/documentRepository';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import prescriptionSubstanceRepository from '../../repositories/prescriptionSubstanceRepository';
@@ -63,8 +63,11 @@ const generatePDF = async (template: Template, data: unknown) => {
   const compiledTemplate = handlebars.compile(templateContent(template));
   const htmlContent = compiledTemplate(data);
 
-  const browser = await puppeteer.launch({
-    args: ['--no-sandbox', '--disable-web-security']
+  const launchArgs = JSON.stringify({
+    args: ["--disable-web-security"],
+  });
+  const browser = await puppeteer.connect({
+    browserWSEndpoint: `${config.browserlessUrl}&launch=${launchArgs}`
   });
   const page = await browser.newPage();
   await page.emulateMediaType('print');
@@ -108,7 +111,7 @@ const generatePDF = async (template: Template, data: unknown) => {
     path: templateStylePath(template)
   });
 
-  const pdfBuffer = await page.pdf({
+  const pdfBuffer = Buffer.from(await page.pdf({
     printBackground: true,
     displayHeaderFooter: true,
     footerTemplate: `
@@ -126,7 +129,7 @@ const generatePDF = async (template: Template, data: unknown) => {
     margin: {
       bottom: '40px'
     }
-  });
+  }));
   await browser.close();
 
   return pdfBuffer;
