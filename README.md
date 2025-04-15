@@ -8,7 +8,7 @@
 - npm
 - serveur Postgres (sur macOS, possible d'utiliser [postgresapp](https://postgresapp.com>))
 - service de stockage S3
-- serveur mail 
+- serveur mail (par exemple mailDev)
 
 ### Base de données
 
@@ -24,11 +24,6 @@ En local et pour les tests, il est possible d'utiliser https://github.com/adobe/
 ```bash
 docker compose up -d
 ```
-
-### Emails
-
-La commande `docker compose` ci-dessus, démarre également un service `maildev` qui est accessible directement via http://localhost:1080
-
 
 ### Installation de l'application
 

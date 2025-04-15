@@ -108,7 +108,7 @@ const generatePDF = async (template: Template, data: unknown) => {
     path: templateStylePath(template)
   });
 
-  const pdfBuffer = Buffer.from(await page.pdf({
+  const pdfBuffer = await page.pdf({
     printBackground: true,
     displayHeaderFooter: true,
     footerTemplate: `
@@ -126,7 +126,7 @@ const generatePDF = async (template: Template, data: unknown) => {
     margin: {
       bottom: '40px'
     }
-  }));
+  });
   await browser.close();
 
   return pdfBuffer;
