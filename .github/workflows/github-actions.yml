@@ -1,0 +1,101 @@
+name: Node.js CI
+
+on: [push]
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+jobs:
+  prettier:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+          cache: npm
+      - name: Server install
+        run: npm ci
+      - name: linter
+        run: npm run lint --workspaces
+      - name: Prettify code
+        uses: creyD/prettier_action@v4.3
+        with:
+          prettier_options: --write **/*.{tsx,ts,jsx,js,md}
+          only_changed: True
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+          cache: npm
+      - name: NPM install
+        run: npm ci
+      - name: build
+        run: npm run build --workspaces
+  server_test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgis/postgis
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: maestro
+        ports:
+          - 5432:5432
+        options:
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      s3:
+        image: adobe/s3mock:3.5.2
+        ports:
+          - 9090:9090
+        env:
+          initialBuckets: "maestro"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+          cache: npm
+      - name: Server install
+        run: npm ci
+      - name: Server tests
+        run: npm run test -w server
+        env:
+          AUTH_SECRET: abcd1234
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/maestro
+          M2M_BASIC_TOKEN: fakeBasicToken
+  frontend_test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+          cache: npm
+      - name: NPM install
+        run: npm ci
+      - name: Frontend tests
+        run: npm -w frontend test -- --test-timeout=30000
+  shared_test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+          cache: npm
+      - name: NPM install
+        run: npm ci
+      - name: Shared tests
+        run: npm -w shared test
