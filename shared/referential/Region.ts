@@ -306,7 +306,8 @@ export const Regions: Record<
     ],
     establishment: {
       name: 'DRAAF / SRAL Nouvelle-Aquitaine',
-      street: '51 Rue Kiésel',
+      service: 'Cité Administrative de Bordeaux',
+      street: '2 rue Jules Ferry',
       postalCode: '33000',
       city: 'Bordeaux'
     }
