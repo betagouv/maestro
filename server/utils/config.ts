@@ -349,7 +349,7 @@ const config = convict<Config>({
     format: String,
     sensitive: true,
     nullable: false,
-    default: null
+    default:  isProduction ? null : 'ws://localhost:3002?token=1234512345'
   }
 })
   .validate({ allowed: 'strict' })
