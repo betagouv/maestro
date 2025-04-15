@@ -20,5 +20,3 @@ services:
       - TOKEN=1234512345
       - CONCURRENT=1
       - PORT=3002
-    ports:
-      - 3002:3002
