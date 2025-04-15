@@ -1,16 +1,26 @@
 import { z } from 'zod';
 import { UserPermission, UserPermissionList } from './UserPermission';
 
-export const UserRole = z.enum([
+export const NationalUserRole = z.enum([
   'Administrator',
   'NationalCoordinator',
-  'RegionalCoordinator',
   'NationalObserver',
+  'SamplerAndNationalObserver'
+]);
+
+export const RegionalUserRole = z.enum([
+  'RegionalCoordinator',
   'RegionalObserver',
-  'SamplerAndNationalObserver',
   'Sampler'
 ]);
 
+export const UserRole = z.enum([
+  ...NationalUserRole.options,
+  ...RegionalUserRole.options
+]);
+
+export type NationalUserRole = z.infer<typeof NationalUserRole>;
+export type RegionalUserRole = z.infer<typeof RegionalUserRole>;
 export type UserRole = z.infer<typeof UserRole>;
 
 export const UserRoleList: UserRole[] = UserRole.options;

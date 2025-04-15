@@ -8,7 +8,10 @@ import {
   RegionalPrescription,
   RegionalPrescriptionPermission
 } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
-import { hasPermission } from 'maestro-shared/schema/User/User';
+import {
+  hasNationalRole,
+  hasPermission
+} from 'maestro-shared/schema/User/User';
 import { UserPermission } from 'maestro-shared/schema/User/UserPermission';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { isDefined } from 'maestro-shared/utils/utils';
@@ -43,7 +46,7 @@ export const useAuthentication = () => {
   );
 
   const hasNationalView = useMemo(() => {
-    return isAuthenticated && !authUser?.user?.region;
+    return isAuthenticated && authUser && hasNationalRole(authUser.user);
   }, [authUser, isAuthenticated]);
 
   const hasUserPrescriptionPermission = useCallback(

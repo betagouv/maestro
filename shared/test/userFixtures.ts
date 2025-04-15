@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { RegionList } from '../referential/Region';
 import { AuthUser } from '../schema/User/AuthUser';
 import { User } from '../schema/User/User';
-import { UserRoleList } from '../schema/User/UserRole';
+import { NationalUserRole, UserRoleList } from '../schema/User/UserRole';
 import { oneOf } from './testFixtures';
 
 export const genUser = (data?: Partial<User>): User => {
@@ -14,11 +14,9 @@ export const genUser = (data?: Partial<User>): User => {
     firstName: fakerFR.person.firstName(),
     lastName: fakerFR.person.lastName(),
     role,
-    region: ['NationalCoordinator', 'Administrator'].includes(role)
-      ? null
-      : oneOf(RegionList),
+    region: NationalUserRole.safeParse(role).success ? null : oneOf(RegionList),
     ...data
-  };
+  } as User;
 };
 
 export const Region1Fixture = '44' as const;

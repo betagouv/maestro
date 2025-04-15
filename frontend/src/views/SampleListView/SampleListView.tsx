@@ -65,8 +65,9 @@ const SampleListView = () => {
     dispatch(
       samplesSlice.actions.changeFindOptions({
         context: searchParams.get('context') as Context,
-        region:
-          user?.region ?? (searchParams.get('region') as Region) ?? undefined,
+        region: hasNationalView
+          ? (searchParams.get('region') as Region)
+          : user?.region,
         department: (searchParams.get('department') as Department) ?? undefined,
         status: status === 'Draft' ? DraftStatusList : (status ?? undefined),
         matrix: searchParams.get('matrix') as Matrix,
