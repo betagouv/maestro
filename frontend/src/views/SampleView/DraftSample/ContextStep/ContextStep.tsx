@@ -46,6 +46,7 @@ import SampleGeolocation from 'src/views/SampleView/DraftSample/ContextStep/Samp
 import SupportDocumentDownload from 'src/views/SampleView/DraftSample/SupportDocumentDownload';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
+import NextButton from '../NextButton';
 interface Props {
   partialSample?: PartialSample | PartialSampleToCreate;
 }
@@ -203,9 +204,14 @@ const ContextStep = ({ partialSample }: Props) => {
 
   const form = useForm(Form, formInput, save);
 
+  const readonly = useMemo(
+    () => !hasUserPermission('updateSample'),
+    [hasUserPermission]
+  );
+
   return (
     <form data-testid="draft_sample_creation_form" className="sample-form">
-      {!isBrowserGeolocation && (
+      {!isBrowserGeolocation && !readonly && (
         <Alert
           severity="info"
           title=""
@@ -228,6 +234,7 @@ const ContextStep = ({ partialSample }: Props) => {
             label="Date et heure de prélèvement"
             hintText="Format attendu › JJ/MM/AAAA HH:MM"
             required
+            disabled={readonly}
           />
         </div>
       </div>
@@ -242,7 +249,7 @@ const ContextStep = ({ partialSample }: Props) => {
           </div>
         </div>
         <div className={cx('fr-col-12', 'fr-col-sm-8')}>
-          {isOnline ? (
+          {isOnline && !readonly ? (
             <SampleGeolocation
               key={`geolocation-${isBrowserGeolocation}`}
               location={
@@ -275,6 +282,7 @@ const ContextStep = ({ partialSample }: Props) => {
                 required={isOnline}
                 min={-90}
                 max={90}
+                disabled={readonly}
               />
             </div>
             <div className={cx('fr-col-12')}>
@@ -291,6 +299,7 @@ const ContextStep = ({ partialSample }: Props) => {
                 required={isOnline}
                 min={-180}
                 max={180}
+                disabled={readonly}
               />
             </div>
             <div className={cx('fr-col-12')}>
@@ -303,6 +312,7 @@ const ContextStep = ({ partialSample }: Props) => {
                 data-testid="parcel-input"
                 label="N° ou appellation de la parcelle"
                 hintText="Facultatif"
+                disabled={readonly}
               />
             </div>
           </div>
@@ -332,6 +342,7 @@ const ContextStep = ({ partialSample }: Props) => {
         inputKey="context"
         whenValid="Contexte du prélèvement correctement renseigné."
         required
+        disabled={readonly}
         data-testid="context-radio"
       />
       <AppRadioButtons
@@ -358,6 +369,7 @@ const ContextStep = ({ partialSample }: Props) => {
         inputKey="legalContext"
         whenValid="Cadre juridique correctement renseigné."
         required
+        disabled={readonly}
         data-testid="legalContext-radio"
       />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
@@ -376,7 +388,7 @@ const ContextStep = ({ partialSample }: Props) => {
           </div>
         )}
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-          {isOnline ? (
+          {isOnline && !readonly ? (
             <CompanySearch
               initialCompany={
                 company ? companyToSearchResult(company) : undefined
@@ -402,6 +414,7 @@ const ContextStep = ({ partialSample }: Props) => {
               label="Entité contrôlée"
               hintText="Saisissez le nom, un SIRET ou un SIREN"
               required
+              disabled={readonly}
             />
           )}
         </div>
@@ -415,6 +428,7 @@ const ContextStep = ({ partialSample }: Props) => {
             whenValid="Identifiant Resytal correctement renseigné."
             data-testid="resytalId-input"
             label="Identifiant Resytal"
+            disabled={readonly}
             hintText="Format AA-XXXXXX"
           />
         </div>
@@ -430,15 +444,15 @@ const ContextStep = ({ partialSample }: Props) => {
             whenValid="Note correctement renseignée."
             data-testid="notes-input"
             label="Note additionnelle"
-            hintText="Champ facultatif pour identification et qualité de la personne présente lors du contrôle
-"
+            hintText="Champ facultatif pour identification et qualité de la personne présente lors du contrôle"
+            disabled={readonly}
           />
         </div>
       </div>
       <hr className={cx('fr-mx-0')} />
-      {hasUserPermission('updateSample') && (
-        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={clsx(cx('fr-col-12'), 'sample-actions')}>
+      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+        <div className={clsx(cx('fr-col-12'), 'sample-actions')}>
+          {!readonly ? (
             <ButtonsGroup
               alignment="between"
               inlineLayoutWhen="md and up"
@@ -462,14 +476,25 @@ const ContextStep = ({ partialSample }: Props) => {
                 }
               ]}
             />
-          </div>
-          {isOnline && (
-            <SupportDocumentDownload
-              partialSample={partialSample ?? formData}
-            />
+          ) : (
+            <ul
+              className={cx(
+                'fr-btns-group',
+                'fr-btns-group--inline-md',
+                'fr-btns-group--right',
+                'fr-btns-group--icon-left'
+              )}
+            >
+              <li>
+                <NextButton partialSample={partialSample} currentStep={1} />
+              </li>
+            </ul>
           )}
         </div>
-      )}
+        {isOnline && !readonly && (
+          <SupportDocumentDownload partialSample={partialSample ?? formData} />
+        )}
+      </div>
     </form>
   );
 };

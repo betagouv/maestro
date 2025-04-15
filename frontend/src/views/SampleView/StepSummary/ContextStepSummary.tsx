@@ -26,7 +26,7 @@ const ContextStepSummary = ({
   showLabel,
   onChangeResytalId
 }: Props) => {
-  const { user } = useAuthentication();
+  const { user, hasUserPermission } = useAuthentication();
 
   return (
     <StepSummary
@@ -115,6 +115,7 @@ const ContextStepSummary = ({
               defaultValue: sample.resytalId || '',
               onChange: (e) => onChangeResytalId?.(e.target.value)
             }}
+            disabled={!hasUserPermission('updateSample')}
           />
         </div>
       </div>

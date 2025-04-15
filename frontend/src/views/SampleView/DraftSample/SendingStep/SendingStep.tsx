@@ -116,6 +116,11 @@ const SendingStep = ({ sample }: Props) => {
     save
   );
 
+  const readonly = useMemo(
+    () => !hasUserPermission('updateSample'),
+    [hasUserPermission]
+  );
+
   return (
     <>
       <div data-testid="sample_data" className="sample-form">
@@ -159,6 +164,7 @@ const SendingStep = ({ sample }: Props) => {
               inputForm={form}
               inputKey="ownerAgreement"
               required
+              disabled={readonly}
             />
           </div>
         </div>
@@ -174,6 +180,7 @@ const SendingStep = ({ sample }: Props) => {
               whenValid="Déclaration correctement renseignée."
               label="Déclaration du détenteur"
               hintText="Champ facultatif pour spécifier une éventuelle déclaration du détenteur"
+              disabled={readonly}
             />
           </div>
         </div>
@@ -233,6 +240,7 @@ const SendingStep = ({ sample }: Props) => {
                 whenValid="Nom valide"
                 label="Identité du détenteur"
                 hintText="Nom"
+                disabled={readonly}
               />
             </div>
             <div className={cx('fr-col-6', 'fr-col-sm-3')}>
@@ -243,6 +251,7 @@ const SendingStep = ({ sample }: Props) => {
                 inputKey="ownerFirstName"
                 whenValid="Prénom valide"
                 hintText="Prénom"
+                disabled={readonly}
               />
             </div>
             <div className={cx('fr-col-12', 'fr-col-sm-6')}>
@@ -255,6 +264,7 @@ const SendingStep = ({ sample }: Props) => {
                 whenValid="Email valide"
                 label="E-mail du détenteur"
                 hintText="Le détenteur recevra une copie du procès verbal"
+                disabled={readonly}
               />
             </div>
           </div>
@@ -293,24 +303,23 @@ const SendingStep = ({ sample }: Props) => {
         ) : (
           <hr className={cx('fr-mx-0')} />
         )}
-        <SupportDocumentDownload partialSample={sample} />
-        {hasUserPermission('updateSample') && (
-          <>
-            <div className="sample-actions">
-              <ul
-                className={cx(
-                  'fr-btns-group',
-                  'fr-btns-group--inline-md',
-                  'fr-btns-group--between',
-                  'fr-btns-group--icon-left'
-                )}
-              >
-                <li>
-                  <ButtonsGroup
-                    alignment="left"
-                    inlineLayoutWhen="md and up"
-                    buttons={
-                      [
+        {!readonly && <SupportDocumentDownload partialSample={sample} />}
+        <div className="sample-actions">
+          <ul
+            className={cx(
+              'fr-btns-group',
+              'fr-btns-group--inline-md',
+              'fr-btns-group--between',
+              'fr-btns-group--icon-left'
+            )}
+          >
+            <li>
+              <ButtonsGroup
+                alignment="left"
+                inlineLayoutWhen="md and up"
+                buttons={
+                  !readonly
+                    ? [
                         PreviousButton({
                           sampleId: sample.id,
                           onSave: async () => save('DraftItems'),
@@ -326,32 +335,34 @@ const SendingStep = ({ sample }: Props) => {
                             setIsSaved(true);
                           }
                         }
-                      ] as any
-                    }
-                  />
-                </li>
-                <li>
-                  {laboratory && (
-                    <Button
-                      iconId="fr-icon-send-plane-fill"
-                      iconPosition="right"
-                      priority="primary"
-                      onClick={async () => {
-                        await form.validate(async () =>
-                          sendingSampleModal.open()
-                        );
-                      }}
-                      disabled={!isSendable}
-                    >
-                      Envoyer la demande d’analyse
-                    </Button>
-                  )}
-                </li>
-              </ul>
-            </div>
-            <SavedAlert isOpen={isSaved} />
-          </>
-        )}
+                      ]
+                    : [
+                        PreviousButton({
+                          sampleId: sample.id,
+                          currentStep: 4
+                        })
+                      ]
+                }
+              />
+            </li>
+            <li>
+              {laboratory && !readonly && (
+                <Button
+                  iconId="fr-icon-send-plane-fill"
+                  iconPosition="right"
+                  priority="primary"
+                  onClick={async () => {
+                    await form.validate(async () => sendingSampleModal.open());
+                  }}
+                  disabled={!isSendable}
+                >
+                  Envoyer la demande d’analyse
+                </Button>
+              )}
+            </li>
+          </ul>
+        </div>
+        <SavedAlert isOpen={isSaved} />
       </div>
       {laboratory && (
         <SendingModal

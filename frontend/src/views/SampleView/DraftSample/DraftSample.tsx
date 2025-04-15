@@ -7,7 +7,7 @@ import {
   PartialSampleToCreate,
   Sample
 } from 'maestro-shared/schema/Sample/Sample';
-import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
+import { SampleStatusSteps } from 'maestro-shared/schema/Sample/SampleStatus';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -33,13 +33,6 @@ const SampleView = ({ sample }: Props) => {
 
   const [searchParams] = useSearchParams();
   const [step, setStep] = useState<number>();
-
-  const SampleStatusSteps: Partial<Record<SampleStatus, number>> = {
-    Draft: 1,
-    DraftMatrix: 2,
-    DraftItems: 3,
-    Submitted: 4
-  };
 
   useEffect(() => {
     if (sample) {

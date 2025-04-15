@@ -5,6 +5,9 @@ export const UserRole = z.enum([
   'Administrator',
   'NationalCoordinator',
   'RegionalCoordinator',
+  'NationalObserver',
+  'RegionalObserver',
+  'SamplerAndNationalObserver',
   'Sampler'
 ]);
 
@@ -27,6 +30,20 @@ const UserSamplerPermissionsList = [
   'createAnalysis',
   'readAnalysis',
   'deleteSampleDocument'
+] as const satisfies UserPermission[];
+
+const ObserverPermissionsList = [
+  'readSamples',
+  'downloadSupportDocument',
+  'downloadAnalysisRequestDocument',
+  'readProgrammingPlans',
+  'readProgrammingPlansInProgress',
+  'readProgrammingPlanSubmitted',
+  'readProgrammingPlanValidated',
+  'readProgrammingPlanClosed',
+  'readPrescriptions',
+  'readDocuments',
+  'readAnalysis'
 ] as const satisfies UserPermission[];
 
 export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
@@ -55,6 +72,12 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'commentPrescription',
     'deleteDocument'
   ],
+  NationalObserver: ObserverPermissionsList,
+  RegionalObserver: ObserverPermissionsList,
+  SamplerAndNationalObserver: [
+    ...ObserverPermissionsList,
+    ...UserSamplerPermissionsList
+  ],
   Sampler: UserSamplerPermissionsList,
   Administrator: UserPermissionList.filter(
     (permission) => !['createSample', 'updateSample'].includes(permission)
@@ -64,6 +87,9 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
 export const UserRoleLabels: Record<UserRole, string> = {
   NationalCoordinator: 'Coordinateur national',
   RegionalCoordinator: 'Coordinateur régional',
+  NationalObserver: 'Suivi national',
+  RegionalObserver: 'Suivi régional',
+  SamplerAndNationalObserver: 'Personne ressource',
   Sampler: 'Préleveur',
   Administrator: 'Administrateur'
 };

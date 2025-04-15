@@ -14,7 +14,7 @@ import {
   SampleItemRecipientKind,
   SampleItemRecipientKindLabels
 } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
-import React from 'react';
+import React, { useMemo } from 'react';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppResponsiveButton from 'src/components/_app/AppResponsiveButton/AppResponsiveButton';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
@@ -33,6 +33,7 @@ interface Props {
   itemsForm?: UseForm<typeof Form>;
   laboratory?: Laboratory;
   children?: React.ReactNode;
+  readonly?: boolean;
 }
 
 const SampleItemDetails = ({
@@ -41,7 +42,8 @@ const SampleItemDetails = ({
   onRemoveItem,
   onChangeItem,
   itemsForm,
-  laboratory
+  laboratory,
+  readonly: forceReadonly
 }: Props) => {
   type FormShape = typeof Form.shape;
 
@@ -50,6 +52,11 @@ const SampleItemDetails = ({
   });
 
   const form = itemsForm ?? fakeForm;
+
+  const readonly = useMemo(
+    () => !itemsForm || forceReadonly,
+    [itemsForm, forceReadonly]
+  );
 
   return (
     <>
@@ -60,7 +67,7 @@ const SampleItemDetails = ({
           </Badge>
         </div>
         <div className={cx('fr-col-4')}>
-          {itemIndex > 0 && itemsForm && (
+          {itemIndex > 0 && !readonly && (
             <AppResponsiveButton
               children="Supprimer"
               title="Supprimer"
@@ -96,7 +103,7 @@ const SampleItemDetails = ({
             label="Quantité prélevée"
             hintText="Nombre"
             min={0}
-            disabled={!itemsForm}
+            disabled={readonly}
             required
           />
         </div>
@@ -127,7 +134,7 @@ const SampleItemDetails = ({
             whenValid="Unité de quantité correctement renseignée."
             data-testid={`item-unit-select-${itemIndex}`}
             hint="Unité de mesure"
-            disabled={!itemsForm}
+            disabled={readonly}
             required
           />
         </div>
@@ -150,7 +157,7 @@ const SampleItemDetails = ({
             data-testid={`item-sealid-input-${itemIndex}`}
             label="Numéro de scellé"
             hintText="Inscrit sur le lien autobloquant de scellé"
-            disabled={!itemsForm}
+            disabled={readonly}
             required
           />
         </div>
@@ -193,7 +200,7 @@ const SampleItemDetails = ({
               inputForm={form}
               inputKey="items"
               inputPathFromKey={[itemIndex, 'recipientKind']}
-              disabled={!itemsForm}
+              disabled={readonly}
               required
               data-testid={`recipientKind-radio-${itemIndex}`}
             />
@@ -213,7 +220,7 @@ const SampleItemDetails = ({
                 )
               }
               showCheckedHint={false}
-              disabled={!itemsForm}
+              disabled={readonly}
             />
           ) : (
             <div className="icon-text">
