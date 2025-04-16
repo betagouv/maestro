@@ -1,6 +1,7 @@
 import { intersection } from 'lodash-es';
 import { z } from 'zod';
 import { Region, RegionList, Regions } from '../../referential/Region';
+import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { UserPermission } from './UserPermission';
 import { UserRole, UserRolePermissions } from './UserRole';
 
@@ -9,6 +10,7 @@ export const User = z.object({
   email: z.string().email(),
   firstName: z.string(),
   lastName: z.string(),
+  programmingPlanKinds: z.array(ProgrammingPlanKind),
   role: UserRole,
   region: Region.nullable(),
 });

@@ -38,6 +38,7 @@ const ItemsStepSummary = ({ sample, showLabel }: Props) => {
             key={`item-${itemIndex}`}
           >
             <SampleItemDetails
+              partialSample={sample}
               item={item}
               itemIndex={itemIndex}
               laboratory={laboratory}
