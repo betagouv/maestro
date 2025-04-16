@@ -3,8 +3,8 @@ import { Company } from '../Company/Company';
 import { Laboratory } from '../Laboratory/Laboratory';
 import { Sample } from '../Sample/Sample';
 import { SampleItem } from '../Sample/SampleItem';
-import { Substance } from '../Substance/Substance';
 import { User } from '../User/User';
+import { Substance } from '../Substance/Substance';
 
 export const AnalysisRequestData = z.object({
   ...Sample.shape,
@@ -15,8 +15,8 @@ export const AnalysisRequestData = z.object({
     fullAddress: z.string()
   }),
   laboratory: Laboratory,
-  monoSubstances: z.array(Substance).nullish(),
-  multiSubstances: z.array(Substance).nullish(),
+  monoSubstances: z.array(Substance.pick({label: true})),
+  multiSubstances: z.array(Substance.pick({label: true})),
   reference: z.string(),
   sampledAt: z.string(),
   sampledAtDate: z.string(),

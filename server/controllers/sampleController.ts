@@ -295,18 +295,14 @@ const updateSample = async (request: Request, response: Response) => {
             ].join('\n')
           };
 
-          const substanceToLaboratorySubstance = (substance: Substance): Substance => {
+          const substanceToLaboratorySubstance = (substance: Substance):  Pick<Substance, 'label'>=> {
 
             let laboratoryLabel: string | null = null
             if (laboratory.name in laboratoriesConf) {
               const laboratoryName = laboratory.name as LaboratoryWithConf
               laboratoryLabel = Object.entries(laboratoriesConf[laboratoryName].ssd2IdByLabel).find(([_label, value]) => value === substance.code)?.[0] ?? null
             }
-            return {
-              //FIXME on change le code par celui de Sandre ? On le laisse ? On l'enlève ?
-              code: substance.code,
-              label: laboratoryLabel ?? substance.label
-            }
+            return { label: laboratoryLabel ?? substance.label }
 
           }
 
@@ -318,10 +314,10 @@ const updateSample = async (request: Request, response: Response) => {
               company,
               laboratory,
               monoSubstances: prescriptionSubstances
-                ?.filter((substance) => substance.analysisMethod === 'Mono')
+                .filter((substance) => substance.analysisMethod === 'Mono')
                 .map(({substance}) => substanceToLaboratorySubstance(substance)),
               multiSubstances: prescriptionSubstances
-                ?.filter((substance) => substance.analysisMethod === 'Multi')
+                .filter((substance) => substance.analysisMethod === 'Multi')
                 .map(({substance}) => substanceToLaboratorySubstance(substance)),
               reference: [updatedSample.reference, sampleItem?.itemNumber]
                 .filter(isDefinedAndNotNull)
