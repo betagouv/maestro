@@ -3,7 +3,7 @@ import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import React, { useState } from 'react';
 import { useUpdateSampleMutation } from 'src/services/sample.service';
 import ContextStepSummary from 'src/views/SampleView/StepSummary/ContextStepSummary';
-import { useAuthentication } from '../../../hooks/useAuthentication';
+import { usePartialSample } from '../../../hooks/usePartialSample';
 import SavedAlert from '../SavedAlert';
 import './SampleOverview.scss';
 interface Props {
@@ -11,7 +11,7 @@ interface Props {
 }
 
 const SampleOverviewContextTab = ({ sample }: Props) => {
-  const { hasUserPermission } = useAuthentication();
+  const { readonly } = usePartialSample(sample);
 
   const [resytalId, setResytalId] = useState(sample.resytalId);
   const [isSaved, setIsSaved] = useState(false);
@@ -32,7 +32,7 @@ const SampleOverviewContextTab = ({ sample }: Props) => {
         showLabel={false}
         onChangeResytalId={setResytalId}
       />
-      {hasUserPermission('updateSample') && (
+      {!readonly && (
         <>
           <hr />
           <div>

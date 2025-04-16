@@ -13,7 +13,7 @@ import {
   SampleItem
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import { useForm } from 'src/hooks/useForm';
@@ -24,7 +24,6 @@ import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SampleItemDetails from 'src/views/SampleView/SampleItemDetails/SampleItemDetails';
 import SavedAlert from 'src/views/SampleView/SavedAlert';
 import { z } from 'zod';
-import { useAuthentication } from '../../../../hooks/useAuthentication';
 import NextButton from '../NextButton';
 
 export const MaxItemCount = 3;
@@ -35,8 +34,7 @@ interface Props {
 
 const ItemsStep = ({ partialSample }: Props) => {
   const { navigateToSample } = useSamplesLink();
-  const { hasUserPermission } = useAuthentication();
-  const { laboratory } = usePartialSample(partialSample);
+  const { laboratory, readonly } = usePartialSample(partialSample);
 
   const [items, setItems] = useState<PartialSampleItem[]>(
     !isDefinedAndNotNull(partialSample.items) ||
@@ -102,11 +100,6 @@ const ItemsStep = ({ partialSample }: Props) => {
       notesOnItems
     },
     save
-  );
-
-  const readonly = useMemo(
-    () => !hasUserPermission('updateSample'),
-    [hasUserPermission]
   );
 
   return (

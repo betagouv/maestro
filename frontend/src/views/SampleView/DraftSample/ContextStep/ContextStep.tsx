@@ -36,7 +36,6 @@ import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
-import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
 import { useOnLine } from 'src/hooks/useOnLine';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
@@ -46,6 +45,7 @@ import SampleGeolocation from 'src/views/SampleView/DraftSample/ContextStep/Samp
 import SupportDocumentDownload from 'src/views/SampleView/DraftSample/SupportDocumentDownload';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
+import { usePartialSample } from '../../../../hooks/usePartialSample';
 import NextButton from '../NextButton';
 interface Props {
   partialSample?: PartialSample | PartialSampleToCreate;
@@ -53,8 +53,8 @@ interface Props {
 
 const ContextStep = ({ partialSample }: Props) => {
   const { navigateToSample, navigateToSamples } = useSamplesLink();
-  const { hasUserPermission } = useAuthentication();
   const { isOnline } = useOnLine();
+  const { readonly } = usePartialSample(partialSample);
 
   const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
 
@@ -203,11 +203,6 @@ const ContextStep = ({ partialSample }: Props) => {
   };
 
   const form = useForm(Form, formInput, save);
-
-  const readonly = useMemo(
-    () => !hasUserPermission('updateSample'),
-    [hasUserPermission]
-  );
 
   return (
     <form data-testid="draft_sample_creation_form" className="sample-form">

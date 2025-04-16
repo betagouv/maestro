@@ -16,7 +16,6 @@ import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import SupportDocumentSelect from 'src/components/SupportDocumentSelect/SupportDocumentSelect';
-import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
 import { useOnLine } from 'src/hooks/useOnLine';
 import { usePartialSample } from 'src/hooks/usePartialSample';
@@ -37,9 +36,8 @@ interface Props {
 
 const SendingStep = ({ sample }: Props) => {
   const { navigateToSample } = useSamplesLink();
-  const { hasUserPermission } = useAuthentication();
   const { isOnline } = useOnLine();
-  const { laboratory } = usePartialSample(sample);
+  const { laboratory, readonly } = usePartialSample(sample);
 
   const [resytalId, setResytalId] = useState(sample.resytalId);
   const [ownerFirstName, setOwnerFirstName] = useState(sample.ownerFirstName);
@@ -116,18 +114,13 @@ const SendingStep = ({ sample }: Props) => {
     save
   );
 
-  const readonly = useMemo(
-    () => !hasUserPermission('updateSample'),
-    [hasUserPermission]
-  );
-
   return (
     <>
       <div data-testid="sample_data" className="sample-form">
         <h3 className={cx('fr-m-0')}>
           Récapitulatif du prélèvement{' '}
           {isCreatedPartialSample(sample) && sample.reference}
-          {hasUserPermission('updateSample') && (
+          {!readonly && (
             <div className={cx('fr-text--md', 'fr-text--regular', 'fr-m-0')}>
               Vérifiez l’ensemble des informations avant de finaliser votre
               envoi

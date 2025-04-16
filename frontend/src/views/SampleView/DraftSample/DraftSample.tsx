@@ -10,7 +10,6 @@ import {
 import { SampleStatusSteps } from 'maestro-shared/schema/Sample/SampleStatus';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import ContextStep from 'src/views/SampleView/DraftSample/ContextStep/ContextStep';
 import ItemsStep from 'src/views/SampleView/DraftSample/ItemsStep/ItemsStep';
@@ -18,6 +17,7 @@ import MatrixStep from 'src/views/SampleView/DraftSample/MatrixStep/MatrixStep';
 import SendingStep from 'src/views/SampleView/DraftSample/SendingStep/SendingStep';
 import { SampleStepTitles } from 'src/views/SampleView/SampleView';
 import audit from '../../../assets/illustrations/audit.svg';
+import { usePartialSample } from '../../../hooks/usePartialSample';
 import { useSamplesLink } from '../../../hooks/useSamplesLink';
 import '../SampleView.scss';
 
@@ -28,8 +28,7 @@ interface Props {
 const SampleView = ({ sample }: Props) => {
   useDocumentTitle("Saisie d'un prélèvement");
   const { getSampleStepParam } = useSamplesLink();
-
-  const { hasUserPermission } = useAuthentication();
+  const { readonly } = usePartialSample(sample);
 
   const [searchParams] = useSearchParams();
   const [step, setStep] = useState<number>();
@@ -50,7 +49,7 @@ const SampleView = ({ sample }: Props) => {
           'white-container'
         )}
       >
-        {hasUserPermission('updateSample') && step && (
+        {!readonly && step && (
           <div className="sample-stepper">
             <img
               src={audit}

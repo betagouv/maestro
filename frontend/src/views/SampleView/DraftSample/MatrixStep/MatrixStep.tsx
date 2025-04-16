@@ -54,6 +54,7 @@ import { z } from 'zod';
 import AppSearchInput from '../../../../components/_app/AppSearchInput/AppSearchInput';
 import AppUpload from '../../../../components/_app/AppUpload/AppUpload';
 import SampleDocument from '../../../../components/SampleDocument/SampleDocument';
+import { usePartialSample } from '../../../../hooks/usePartialSample';
 import {
   useCreateDocumentMutation,
   useDeleteDocumentMutation
@@ -65,7 +66,8 @@ interface Props {
 
 const MatrixStep = ({ partialSample }: Props) => {
   const { navigateToSample } = useSamplesLink();
-  const { user, hasUserPermission } = useAuthentication();
+  const { user } = useAuthentication();
+  const { readonly } = usePartialSample(partialSample);
 
   const [matrixKind, setMatrixKind] = useState(partialSample.matrixKind);
   const [matrix, setMatrix] = useState(partialSample.matrix);
@@ -211,11 +213,6 @@ const MatrixStep = ({ partialSample }: Props) => {
     await deleteDocument(documentId);
     setDocumentIds((documentIds ?? []).filter((id) => id !== documentId));
   };
-
-  const readonly = useMemo(
-    () => !hasUserPermission('updateSample'),
-    [hasUserPermission]
-  );
 
   return (
     <form data-testid="draft_sample_matrix_form" className="sample-form">
