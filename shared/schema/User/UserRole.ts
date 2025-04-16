@@ -90,7 +90,8 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
   ],
   Sampler: UserSamplerPermissionsList,
   Administrator: UserPermissionList.filter(
-    (permission) => !['createSample', 'updateSample'].includes(permission)
+    (permission) =>
+      !['createSample', 'updateSample', 'deleteSample'].includes(permission)
   )
 };
 

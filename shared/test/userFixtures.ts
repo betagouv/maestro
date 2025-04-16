@@ -16,7 +16,7 @@ export const genUser = (data?: Partial<User>): User => {
     role,
     region: NationalUserRole.safeParse(role).success ? null : oneOf(RegionList),
     ...data
-  } as User;
+  };
 };
 
 export const Region1Fixture = '44' as const;
@@ -70,6 +70,20 @@ export const NationalCoordinator = genUser({
 export const AdminFixture = genUser({
   role: 'Administrator',
   id: '77777777-7777-7777-7777-777777777777'
+});
+export const RegionalObserver = genUser({
+  role: 'RegionalObserver',
+  id: '88888888-8888-8888-8888-888888888888',
+  region: Region1Fixture
+});
+export const NationalObserver = genUser({
+  role: 'NationalObserver',
+  id: '99999999-9999-9999-9999-999999999999'
+});
+export const SamplerAndNationalObserver = genUser({
+  role: 'SamplerAndNationalObserver',
+  id: '10101010-1010-1010-1010-101010101010',
+  region: Region1Fixture
 });
 
 export const genAuthUser = (data?: Partial<User>): AuthUser => ({

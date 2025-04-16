@@ -91,7 +91,7 @@ const PrescriptionListView = () => {
       hasNationalView
         ? ((searchParams.get('region') as Region) ?? undefined)
         : user?.region,
-    [user, searchParams]
+    [hasNationalView, user, searchParams]
   );
 
   const findPrescriptionOptions = useMemo(

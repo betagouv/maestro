@@ -35,7 +35,7 @@ const SampleSecondaryFilters = ({ filters, onChange }: Props) => {
           a.localeCompare(b)
         ) ?? [])
       : [];
-  }, [user?.region, filters.region]);
+  }, [hasNationalView, user?.region, filters.region]);
 
   return (
     <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
