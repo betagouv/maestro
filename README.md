@@ -8,7 +8,8 @@
 - npm
 - serveur Postgres (sur macOS, possible d'utiliser [postgresapp](https://postgresapp.com>))
 - service de stockage S3
-- serveur mail (par exemple mailDev)
+- serveur mail 
+- browserless
 
 ### Base de données
 
@@ -25,6 +26,19 @@ En local et pour les tests, il est possible d'utiliser https://github.com/adobe/
 docker compose up -d
 ```
 
+### Emails
+
+La commande `docker compose` ci-dessus, démarre également un service `maildev` qui est accessible directement via http://localhost:1080
+
+### Browserless
+
+La commande `docker compose` ci-dessus, démarre également un service `browserless` qui est accessible directement via http://localhost:3002/docs 
+
+Ce service permet de générer les pdfs.
+Voici la commande suivante qui permet de démarrer ce service sur n'import quel serveur avec docker :
+```bash
+docker run -p 3000:3000 --restart unless-stopped -e TOKEN=MONTOKEN -e CONCURRENT=1 --name=maestro_browserless -t ghcr.io/browserless/chromium
+```
 ### Installation de l'application
 
 ```bash
