@@ -222,16 +222,14 @@ const updateSample = async (request: Request, response: Response) => {
 
   console.info('Update sample', sample.id, sampleUpdate);
 
-  if (sample.region !== user.region) {
-    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
-  }
-
   if (sample.status !== 'InReview' && sampleUpdate.status === 'InReview') {
     if (!hasPermission(user, 'restoreSampleToReview')) {
       throw new UserRoleMissingError();
     }
   } else if (!hasPermission(user, 'updateSample')) {
     throw new UserRoleMissingError();
+  } else if (sample.region !== user.region) {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
   }
 
   if (
