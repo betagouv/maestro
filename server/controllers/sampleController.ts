@@ -46,13 +46,12 @@ import workbookUtils from '../utils/workbookUtils';
 import { isEqual } from 'lodash-es';
 import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
 import {
-  hasNationalRole,
-  hasPermission
-} from 'maestro-shared/schema/User/User';
+  hasNationalRole, hasPermission, User } from 'maestro-shared/schema/User/User';
 import { Readable } from 'node:stream';
 import { PDFDocument } from 'pdf-lib';
 import { laboratoriesConf, LaboratoryWithConf } from '../services/imapService';
 import { Substance } from 'maestro-shared/schema/Substance/Substance';
+import { z } from 'zod';
 const getSample = async (request: Request, response: Response) => {
   const sample = (request as SampleRequest).sample;
 
@@ -520,17 +519,58 @@ const generateAndStoreAnalysisRequestDocuments = async (
   await documentService.insertDocument(
     new File(
       [csvBuffer],
-      getAnalysisReportDocumentFilename(
-        analysisRequestData,
-        analysisRequestData.itemNumber,
-        'xlsx'
-      ),
+      csvFilename,
       { type: 'text/csv' }
     ),
     'SupportDocument',
     analysisRequestData.sampler.id
   );
 
+  const jsonValidator = AnalysisRequestData.pick({
+    sampledAtDate: true,
+    sampledAtTime: true,
+    department: true,
+    geolocation: true,
+    context: true,
+    legalContext: true,
+    company: true,
+    matrixPart: true,
+    stage: true,
+    reference: true,
+    region: true,
+    itemNumber: true,
+    quantity: true,
+    quantityUnit: true,
+    compliance200263: true,
+    sealId: true,
+    monoSubstances: true,
+    multiSubstances: true,
+    matrixKindLabel: true,
+    matrixLabel: true,
+    establishment: true
+  }).merge(z.object({sampler: User.pick({
+    email: true,
+      firstName: true,
+      lastName: true
+    })}))
+  const jsonBuffer = Buffer.from(JSON.stringify(jsonValidator.parse(analysisRequestData)))
+
+
+  const jsonFilename = getAnalysisReportDocumentFilename(
+    analysisRequestData,
+    analysisRequestData.itemNumber,
+    'json'
+  );
+
+  await documentService.insertDocument(
+    new File(
+      [jsonBuffer],
+      jsonFilename,
+      { type: 'application/json' }
+    ),
+    'SupportDocument',
+    analysisRequestData.sampler.id
+  );
   return [
     {
       buffer: excelBuffer,
@@ -539,6 +579,10 @@ const generateAndStoreAnalysisRequestDocuments = async (
     {
       buffer: csvBuffer,
       filename: csvFilename
+    },
+    {
+      buffer: jsonBuffer,
+      filename: jsonFilename
     }
   ];
 };
