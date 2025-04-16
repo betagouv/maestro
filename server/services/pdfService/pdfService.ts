@@ -2,6 +2,7 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import fs from 'fs';
 import handlebars from 'handlebars';
+import PdfGenerationError from 'maestro-shared/errors/pdfGenerationError';
 import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
 import UserMissingError from 'maestro-shared/errors/userMissingError';
 import { CultureKindLabels } from 'maestro-shared/referential/CultureKind';
@@ -64,57 +65,60 @@ const generatePDF = async (template: Template, data: unknown) => {
   const htmlContent = compiledTemplate(data);
 
   const launchArgs = JSON.stringify({
-    args: ["--disable-web-security"],
+    args: ['--disable-web-security']
   });
-  const browser = await puppeteer.connect({
-    browserWSEndpoint: `${config.browserlessUrl}&launch=${launchArgs}`
-  });
-  const page = await browser.newPage();
-  await page.emulateMediaType('print');
-  await page.setContent(htmlContent);
-  const dsfrStyleSheet = await fetch(
-    `${config.serverUrl}/dsfr/dist/dsfr.min.css`
-  )
-    .then((response) => response.text())
-    .then((utilityStyleSheet) =>
-      utilityStyleSheet
-        .replaceAll('icons', `${config.serverUrl}/dsfr/dist/icons`)
-        .replaceAll(
-          'fonts/Marianne',
-          `${config.serverUrl}/dsfr/dist/fonts/Marianne`
-        )
-    );
 
-  const utilityStyleSheet = await fetch(
-    `${config.serverUrl}/dsfr/dist/utility/utility.min.css`
-  )
-    .then((response) => response.text())
-    .then((utilityStyleSheet) =>
-      utilityStyleSheet.replaceAll(
-        '../icons',
-        `${config.serverUrl}/dsfr/dist/icons`
-      )
-    );
-
-  await page.addStyleTag({
-    content: dsfrStyleSheet.replaceAll(
-      '@media (min-width: 62em)',
-      '@media (min-width: 48em)'
+  try {
+    const browser = await puppeteer.connect({
+      browserWSEndpoint: `${config.browserlessUrl}&launch=${launchArgs}`
+    });
+    const page = await browser.newPage();
+    await page.emulateMediaType('print');
+    await page.setContent(htmlContent);
+    const dsfrStyleSheet = await fetch(
+      `${config.serverUrl}/dsfr/dist/dsfr.min.css`
     )
-  });
+      .then((response) => response.text())
+      .then((utilityStyleSheet) =>
+        utilityStyleSheet
+          .replaceAll('icons', `${config.serverUrl}/dsfr/dist/icons`)
+          .replaceAll(
+            'fonts/Marianne',
+            `${config.serverUrl}/dsfr/dist/fonts/Marianne`
+          )
+      );
 
-  await page.addStyleTag({
-    content: utilityStyleSheet
-  });
+    const utilityStyleSheet = await fetch(
+      `${config.serverUrl}/dsfr/dist/utility/utility.min.css`
+    )
+      .then((response) => response.text())
+      .then((utilityStyleSheet) =>
+        utilityStyleSheet.replaceAll(
+          '../icons',
+          `${config.serverUrl}/dsfr/dist/icons`
+        )
+      );
 
-  await page.addStyleTag({
-    path: templateStylePath(template)
-  });
+    await page.addStyleTag({
+      content: dsfrStyleSheet.replaceAll(
+        '@media (min-width: 62em)',
+        '@media (min-width: 48em)'
+      )
+    });
 
-  const pdfBuffer = Buffer.from(await page.pdf({
-    printBackground: true,
-    displayHeaderFooter: true,
-    footerTemplate: `
+    await page.addStyleTag({
+      content: utilityStyleSheet
+    });
+
+    await page.addStyleTag({
+      path: templateStylePath(template)
+    });
+
+    const pdfBuffer = Buffer.from(
+      await page.pdf({
+        printBackground: true,
+        displayHeaderFooter: true,
+        footerTemplate: `
       <style>
         footer {
           text-align: center;
@@ -126,13 +130,17 @@ const generatePDF = async (template: Template, data: unknown) => {
       <footer>
         <span class="pageNumber"></span> sur <span class="totalPages"></span>
       </footer>`,
-    margin: {
-      bottom: '40px'
-    }
-  }));
-  await browser.close();
-
-  return pdfBuffer;
+        margin: {
+          bottom: '40px'
+        }
+      })
+    );
+    await browser.close();
+    return pdfBuffer;
+  } catch (e: any) {
+    console.error(e);
+    throw new PdfGenerationError();
+  }
 };
 
 const generateSampleSupportPDF = async (

@@ -20,3 +20,9 @@ services:
       - TOKEN=1234512345
       - CONCURRENT=1
       - PORT=3002
+  maildev:
+    image: soulteary/maildev
+    container_name: maestro_maildev
+    ports:
+      - 1025:1025
+      - 1080:1080
