@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { UserPermission, UserPermissionList } from './UserPermission';
+import { UserPermission } from './UserPermission';
 
 export const NationalUserRole = z.enum([
   'Administrator',
@@ -53,6 +53,7 @@ const ObserverPermissionsList = [
   'readProgrammingPlanClosed',
   'readPrescriptions',
   'readDocuments',
+  'readCompanies',
   'readAnalysis'
 ] as const satisfies UserPermission[];
 
@@ -73,7 +74,8 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'createResource',
     'readDocuments',
     'deleteDocument',
-    'readCompanies'
+    'readCompanies',
+    'readAnalysis'
   ],
   RegionalCoordinator: [
     ...UserSamplerPermissionsList,
@@ -89,10 +91,24 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     ...UserSamplerPermissionsList
   ],
   Sampler: UserSamplerPermissionsList,
-  Administrator: UserPermissionList.filter(
-    (permission) =>
-      !['createSample', 'updateSample', 'deleteSample'].includes(permission)
-  )
+  Administrator: [
+    'readSamples',
+    'downloadSupportDocument',
+    'downloadAnalysisRequestDocument',
+    'manageProgrammingPlan',
+    'readProgrammingPlans',
+    'readProgrammingPlansInProgress',
+    'readProgrammingPlanSubmitted',
+    'readProgrammingPlanValidated',
+    'readProgrammingPlanClosed',
+    'readPrescriptions',
+    'createResource',
+    'readDocuments',
+    'deleteDocument',
+    'readCompanies',
+    'readAnalysis',
+    'restoreSampleToReview'
+  ]
 };
 
 export const UserRoleLabels: Record<UserRole, string> = {

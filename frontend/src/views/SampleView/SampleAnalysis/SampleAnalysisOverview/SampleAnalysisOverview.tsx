@@ -11,18 +11,20 @@ import { useContext, useMemo, useState } from 'react';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 import { useUpdateSampleMutation } from 'src/services/sample.service';
 import { pluralize, quote } from 'src/utils/stringUtils';
+import { useAuthentication } from '../../../../hooks/useAuthentication';
+import { ApiClientContext } from '../../../../services/apiClient';
 import { AnalysisDocumentPreview } from '../../components/AnalysisDocumentPreview';
 import { ResidueResultOverview } from './ResidueResultOverview';
 import './SampleAnalysisOverview.scss';
-import { ApiClientContext } from '../../../../services/apiClient';
 
 interface Props {
   sample: Sample;
 }
 
 const SampleAnalysisOverview = ({ sample }: Props) => {
-  const apiClient = useContext(ApiClientContext)
+  const apiClient = useContext(ApiClientContext);
   const { data } = apiClient.useGetSampleAnalysisQuery(sample.id);
+  const { hasUserPermission, user } = useAuthentication();
   const analysis = data as Analysis | undefined;
 
   const [updateAnalysis] = apiClient.useUpdateAnalysisMutation();
@@ -39,6 +41,12 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
         isOpenedByDefault: false
       }),
     [sample.id]
+  );
+
+  const readonly = useMemo(
+    () =>
+      !hasUserPermission('createAnalysis') || sample.region !== user?.region,
+    [hasUserPermission, sample, user?.region]
   );
 
   if (!analysis) {
@@ -58,20 +66,22 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
 
   return (
     <>
-      <AnalysisDocumentPreview
-        reportDocumentId={analysis.reportDocumentId}
-      >
-        <Button
-          priority="secondary"
-          iconId="fr-icon-edit-line"
-          className={cx('fr-mt-0')}
-          onClick={() => {
-            setEditingStatus('Report');
-            editingConfirmationModal.open();
-          }}
-        >
-          Éditer
-        </Button>
+      <AnalysisDocumentPreview reportDocumentId={analysis.reportDocumentId}>
+        {!readonly ? (
+          <Button
+            priority="secondary"
+            iconId="fr-icon-edit-line"
+            className={cx('fr-mt-0')}
+            onClick={() => {
+              setEditingStatus('Report');
+              editingConfirmationModal.open();
+            }}
+          >
+            Éditer
+          </Button>
+        ) : (
+          <></>
+        )}
       </AnalysisDocumentPreview>
       <hr />
       <div>
@@ -80,17 +90,19 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
             {t('residue', { count: analysis.residues?.length || 0 })}
             {pluralize(analysis.residues?.length || 0)(' identifié')}
           </div>
-          <Button
-            priority="secondary"
-            iconId="fr-icon-edit-line"
-            className={cx('fr-mt-0')}
-            onClick={() => {
-              setEditingStatus('Residues');
-              editingConfirmationModal.open();
-            }}
-          >
-            Éditer
-          </Button>
+          {!readonly && (
+            <Button
+              priority="secondary"
+              iconId="fr-icon-edit-line"
+              className={cx('fr-mt-0')}
+              onClick={() => {
+                setEditingStatus('Residues');
+                editingConfirmationModal.open();
+              }}
+            >
+              Éditer
+            </Button>
+          )}
         </h5>
       </div>
       {analysis.residues?.map((residue, residueIndex) => (
@@ -204,17 +216,19 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
             className={clsx(cx('fr-icon-survey-line', 'fr-mr-1w'), 'icon-grey')}
           ></span>
           <div className="flex-grow-1">Conformité globale de l'échantillon</div>
-          <Button
-            priority="secondary"
-            iconId="fr-icon-edit-line"
-            className={cx('fr-mt-0')}
-            onClick={() => {
-              setEditingStatus('Compliance');
-              editingConfirmationModal.open();
-            }}
-          >
-            Éditer
-          </Button>
+          {!readonly && (
+            <Button
+              priority="secondary"
+              iconId="fr-icon-edit-line"
+              className={cx('fr-mt-0')}
+              onClick={() => {
+                setEditingStatus('Compliance');
+                editingConfirmationModal.open();
+              }}
+            >
+              Éditer
+            </Button>
+          )}
         </h6>
         <div className={clsx(cx('fr-pl-4w'), 'step-summary')}>
           {analysis.compliance ? (
