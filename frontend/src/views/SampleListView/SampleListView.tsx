@@ -101,7 +101,7 @@ const SampleListView = () => {
     }
   );
   const { data: samplers } = useFindUsersQuery({
-    region: user?.region,
+    region: findSampleOptions.region,
     role: 'Sampler'
   });
 
