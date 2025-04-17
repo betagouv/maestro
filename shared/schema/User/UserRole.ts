@@ -4,9 +4,10 @@ import { UserPermission } from './UserPermission';
 export const NationalUserRole = z.enum([
   'Administrator',
   'NationalCoordinator',
-  'NationalObserver',
-  'SamplerAndNationalObserver'
+  'NationalObserver'
 ]);
+
+export const RegionalAndNationUserRole = z.enum(['SamplerAndNationalObserver']);
 
 export const RegionalUserRole = z.enum([
   'RegionalCoordinator',
@@ -16,6 +17,7 @@ export const RegionalUserRole = z.enum([
 
 export const UserRole = z.enum([
   ...NationalUserRole.options,
+  ...RegionalAndNationUserRole.options,
   ...RegionalUserRole.options
 ]);
 

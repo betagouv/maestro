@@ -4,6 +4,7 @@ import { Region, RegionList } from '../../referential/Region';
 import { UserPermission } from './UserPermission';
 import {
   NationalUserRole,
+  RegionalAndNationUserRole,
   RegionalUserRole,
   UserRole,
   UserRolePermissions
@@ -19,7 +20,11 @@ export const BaseUser = z.object({
 });
 
 export const User = BaseUser.superRefine((user, ctx) => {
-  if (RegionalUserRole.safeParse(user.role).success && !user.region) {
+  if (
+    !user.region &&
+    (RegionalUserRole.safeParse(user.role).success ||
+      RegionalAndNationUserRole.safeParse(user.role).success)
+  ) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       message: 'La région est obligatoire pour ce rôle'
@@ -37,4 +42,5 @@ export const hasPermission = (user: User, ...permissions: UserPermission[]) =>
   intersection(permissions, UserRolePermissions[user.role]).length > 0;
 
 export const hasNationalRole = (user: Pick<User, 'role'>) =>
-  NationalUserRole.safeParse(user.role).success;
+  NationalUserRole.safeParse(user.role).success ||
+  RegionalAndNationUserRole.safeParse(user.role).success;
