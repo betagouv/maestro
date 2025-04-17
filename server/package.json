@@ -50,7 +50,7 @@
     "handlebars": "^4.7.8",
     "helmet": "^5.0.2",
     "highland": "^2.13.5",
-    "http-proxy-middleware": "^3.0.3",
+    "http-proxy-middleware": "^3.0.5",
     "imapflow": "^1.0.179",
     "jsonwebtoken": "^9.0.0",
     "knex": "^2.4.2",
