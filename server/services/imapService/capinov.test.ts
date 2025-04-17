@@ -27,4 +27,66 @@ describe('Parse correctement le fichier CSV', () => {
     expect(() => extractAnalyzes([{...line, INCERTITUDE: ''}])).not.toThrowError()
     expect(() => extractAnalyzes([{...line, LMR_NUM: ''}])).not.toThrowError()
   })
+
+
+  test("la méthode d'analyse d'un calcul est récupérée sur le résidu précédent", () => {
+
+    const defaultLine = { 'DEMANDE_NUMERO': '1',
+      'PARAMETRE_NOM': 'SAP00010',
+      'RESULTAT_VALTEXTE': 'nd',
+      'RESULTAT_VALNUM': '0',
+      'PARAMETRE_LIBELLE': 'Acephate',
+      'LIMITE_LQ': '0.01',
+      'INCERTITUDE': '0',
+      'CAS_NUMBER': '135158-54-2',
+      'TECHNIQUE': 'MI MO-PC-077',
+      'LMR_NUM': '0.01'}
+
+    const lines = [
+      {...defaultLine, 'TECHNIQUE': 'MI GC-MS/MS'},
+      {...defaultLine, 'TECHNIQUE': 'Calcul'},
+      {...defaultLine, 'TECHNIQUE': 'MI HPLC/UV'},
+      {...defaultLine, 'TECHNIQUE': 'Calcul'},
+    ]
+
+
+    expect( extractAnalyzes(lines)).toMatchInlineSnapshot(`
+      [
+        {
+          "notes": "",
+          "residues": [
+            {
+              "analysisMethod": "Multi",
+              "casNumber": "135158-54-2",
+              "codeSandre": null,
+              "label": "Acephate",
+              "result_kind": "ND",
+            },
+            {
+              "analysisMethod": "Multi",
+              "casNumber": "135158-54-2",
+              "codeSandre": null,
+              "label": "Acephate",
+              "result_kind": "ND",
+            },
+            {
+              "analysisMethod": "Mono",
+              "casNumber": "135158-54-2",
+              "codeSandre": null,
+              "label": "Acephate",
+              "result_kind": "ND",
+            },
+            {
+              "analysisMethod": "Mono",
+              "casNumber": "135158-54-2",
+              "codeSandre": null,
+              "label": "Acephate",
+              "result_kind": "ND",
+            },
+          ],
+          "sampleReference": "1",
+        },
+      ]
+    `)
+  })
 })
