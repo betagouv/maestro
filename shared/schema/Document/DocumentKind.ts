@@ -14,10 +14,11 @@ export const getSupportDocumentFilename = (
   itemNumber: number
 ) => `DAP-${sample.reference}-${itemNumber}.pdf`;
 
+export type AnalysisReportDocumentExtension = 'xlsx' | 'csv' | 'json'
 export const getAnalysisReportDocumentFilename = (
   sample: CreatedSampleData,
   itemNumber: number,
-  extension: 'xlsx' | 'csv' | 'json'
+  extension: AnalysisReportDocumentExtension
 ) => `DAI-${sample.reference}-${itemNumber}.${extension}`;
 
 export const DocumentKindList: DocumentKind[] = DocumentKind.options;

@@ -15,6 +15,7 @@ import { Regions } from 'maestro-shared/referential/Region';
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequestData';
 import {
+  AnalysisReportDocumentExtension,
   getAnalysisReportDocumentFilename,
   getSupportDocumentFilename
 } from 'maestro-shared/schema/Document/DocumentKind';
@@ -45,13 +46,18 @@ import workbookUtils from '../utils/workbookUtils';
 
 import { isEqual } from 'lodash-es';
 import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
+import { LaboratoryName } from 'maestro-shared/referential/Laboratory';
+import { Substance } from 'maestro-shared/schema/Substance/Substance';
 import {
-  hasNationalRole, hasPermission, User } from 'maestro-shared/schema/User/User';
+  BaseUser,
+  hasNationalRole,
+  hasPermission
+} from 'maestro-shared/schema/User/User';
 import { Readable } from 'node:stream';
 import { PDFDocument } from 'pdf-lib';
-import { laboratoriesConf, LaboratoryWithConf } from '../services/imapService';
-import { Substance } from 'maestro-shared/schema/Substance/Substance';
 import { z } from 'zod';
+import { laboratoriesConf, LaboratoryWithConf } from '../services/imapService';
+
 const getSample = async (request: Request, response: Response) => {
   const sample = (request as SampleRequest).sample;
 
@@ -258,7 +264,7 @@ const updateSample = async (request: Request, response: Response) => {
     lastUpdatedAt: new Date()
   };
 
-    if (sample.status === 'Submitted' && updatedPartialSample.status === 'Sent') {
+  if (sample.status === 'Submitted' && updatedPartialSample.status === 'Sent') {
     const updatedSample = Sample.parse(updatedPartialSample);
     const sampleItems = await sampleItemRepository.findMany(sample.id);
 
@@ -299,16 +305,20 @@ const updateSample = async (request: Request, response: Response) => {
             ].join('\n')
           };
 
-          const substanceToLaboratorySubstance = (substance: Substance):  Pick<Substance, 'label'>=> {
-
-            let laboratoryLabel: string | null = null
+          const substanceToLaboratorySubstance = (
+            substance: Substance
+          ): Pick<Substance, 'label'> => {
+            let laboratoryLabel: string | null = null;
             if (laboratory.name in laboratoriesConf) {
-              const laboratoryName = laboratory.name as LaboratoryWithConf
-              laboratoryLabel = Object.entries(laboratoriesConf[laboratoryName].ssd2IdByLabel).find(([_label, value]) => value === substance.code)?.[0] ?? null
+              const laboratoryName = laboratory.name as LaboratoryWithConf;
+              laboratoryLabel =
+                Object.entries(
+                  laboratoriesConf[laboratoryName].ssd2IdByLabel
+                ).find(([_label, value]) => value === substance.code)?.[0] ??
+                null;
             }
-            return { label: laboratoryLabel ?? substance.label }
-
-          }
+            return { label: laboratoryLabel ?? substance.label };
+          };
 
           const analysisRequestDocs =
             await generateAndStoreAnalysisRequestDocuments({
@@ -319,10 +329,14 @@ const updateSample = async (request: Request, response: Response) => {
               laboratory,
               monoSubstances: prescriptionSubstances
                 .filter((substance) => substance.analysisMethod === 'Mono')
-                .map(({substance}) => substanceToLaboratorySubstance(substance)),
+                .map(({ substance }) =>
+                  substanceToLaboratorySubstance(substance)
+                ),
               multiSubstances: prescriptionSubstances
                 .filter((substance) => substance.analysisMethod === 'Multi')
-                .map(({substance}) => substanceToLaboratorySubstance(substance)),
+                .map(({ substance }) =>
+                  substanceToLaboratorySubstance(substance)
+                ),
               reference: [updatedSample.reference, sampleItem?.itemNumber]
                 .filter(isDefinedAndNotNull)
                 .join('-'),
@@ -489,102 +503,117 @@ const generateAndStoreSampleSupportDocument = async (
 
 const generateAndStoreAnalysisRequestDocuments = async (
   analysisRequestData: AnalysisRequestData
-) => {
-  const excelBuffer =
-    await excelService.generateAnalysisRequestExcel(analysisRequestData);
+): Promise<{ buffer: Buffer; filename: string }[]> => {
+  const laboratoryConf: Record<
+    LaboratoryName,
+    Set<AnalysisReportDocumentExtension>
+  > = {
+    'GIR 49': new Set(['xlsx'] as const),
+    'CAP 29': new Set(['json'] as const),
+    'CER 30': new Set([] as const),
+    'LDA 72': new Set(['csv', 'json'] as const),
+    'LDA 66': new Set([] as const),
+    'SCL 34': new Set([] as const),
+    'SCL 91': new Set([] as const),
+    FYT: new Set([] as const)
+  };
 
-  const excelFilename = getAnalysisReportDocumentFilename(
-    analysisRequestData,
-    analysisRequestData.itemNumber,
-    'xlsx'
-  );
+  const attachments: { buffer: Buffer; filename: string }[] = [];
+  const currentConf = laboratoryConf[analysisRequestData.laboratory.name];
 
-  await documentService.insertDocument(
-    new File([new Uint8Array(excelBuffer as Buffer)], excelFilename, {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    }),
-    'SupportDocument',
-    analysisRequestData.sampler.id
-  );
+  if (currentConf.has('xlsx')) {
+    const excelBuffer =
+      await excelService.generateAnalysisRequestExcel(analysisRequestData);
 
-  const csvBuffer =
-    await csvService.generateAnalysisRequestCsv(analysisRequestData);
+    const excelFilename = getAnalysisReportDocumentFilename(
+      analysisRequestData,
+      analysisRequestData.itemNumber,
+      'xlsx'
+    );
 
-  const csvFilename = getAnalysisReportDocumentFilename(
-    analysisRequestData,
-    analysisRequestData.itemNumber,
-    'csv'
-  );
+    await documentService.insertDocument(
+      new File([new Uint8Array(excelBuffer as Buffer)], excelFilename, {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      }),
+      'SupportDocument',
+      analysisRequestData.sampler.id
+    );
 
-  await documentService.insertDocument(
-    new File(
-      [csvBuffer],
-      csvFilename,
-      { type: 'text/csv' }
-    ),
-    'SupportDocument',
-    analysisRequestData.sampler.id
-  );
-
-  const jsonValidator = AnalysisRequestData.pick({
-    sampledAtDate: true,
-    sampledAtTime: true,
-    department: true,
-    geolocation: true,
-    context: true,
-    legalContext: true,
-    company: true,
-    matrixPart: true,
-    stage: true,
-    reference: true,
-    region: true,
-    itemNumber: true,
-    quantity: true,
-    quantityUnit: true,
-    compliance200263: true,
-    sealId: true,
-    monoSubstances: true,
-    multiSubstances: true,
-    matrixKindLabel: true,
-    matrixLabel: true,
-    establishment: true
-  }).merge(z.object({sampler: User.pick({
-    email: true,
-      firstName: true,
-      lastName: true
-    })}))
-  const jsonBuffer = Buffer.from(JSON.stringify(jsonValidator.parse(analysisRequestData)))
-
-
-  const jsonFilename = getAnalysisReportDocumentFilename(
-    analysisRequestData,
-    analysisRequestData.itemNumber,
-    'json'
-  );
-
-  await documentService.insertDocument(
-    new File(
-      [jsonBuffer],
-      jsonFilename,
-      { type: 'application/json' }
-    ),
-    'SupportDocument',
-    analysisRequestData.sampler.id
-  );
-  return [
-    {
+    attachments.push({
       buffer: excelBuffer,
       filename: excelFilename
-    },
-    {
-      buffer: csvBuffer,
-      filename: csvFilename
-    },
-    {
-      buffer: jsonBuffer,
-      filename: jsonFilename
-    }
-  ];
+    });
+  }
+
+  if (currentConf.has('csv')) {
+    const csvBuffer =
+      await csvService.generateAnalysisRequestCsv(analysisRequestData);
+
+    const csvFilename = getAnalysisReportDocumentFilename(
+      analysisRequestData,
+      analysisRequestData.itemNumber,
+      'csv'
+    );
+    await documentService.insertDocument(
+      new File([csvBuffer], csvFilename, { type: 'text/csv' }),
+      'SupportDocument',
+      analysisRequestData.sampler.id
+    );
+
+    attachments.push({ buffer: csvBuffer, filename: csvFilename });
+  }
+
+  if (currentConf.has('json')) {
+    const jsonValidator = AnalysisRequestData.pick({
+      sampledAtDate: true,
+      sampledAtTime: true,
+      department: true,
+      geolocation: true,
+      context: true,
+      legalContext: true,
+      company: true,
+      matrixPart: true,
+      stage: true,
+      reference: true,
+      region: true,
+      itemNumber: true,
+      quantity: true,
+      quantityUnit: true,
+      compliance200263: true,
+      sealId: true,
+      monoSubstances: true,
+      multiSubstances: true,
+      matrixKindLabel: true,
+      matrixLabel: true,
+      establishment: true
+    }).merge(
+      z.object({
+        sampler: BaseUser.pick({
+          email: true,
+          firstName: true,
+          lastName: true
+        })
+      })
+    );
+    const jsonBuffer = Buffer.from(
+      JSON.stringify(jsonValidator.parse(analysisRequestData))
+    );
+
+    const jsonFilename = getAnalysisReportDocumentFilename(
+      analysisRequestData,
+      analysisRequestData.itemNumber,
+      'json'
+    );
+
+    await documentService.insertDocument(
+      new File([jsonBuffer], jsonFilename, { type: 'application/json' }),
+      'SupportDocument',
+      analysisRequestData.sampler.id
+    );
+    attachments.push({ buffer: jsonBuffer, filename: jsonFilename });
+  }
+  
+  return attachments;
 };
 
 const deleteSample = async (request: Request, response: Response) => {
