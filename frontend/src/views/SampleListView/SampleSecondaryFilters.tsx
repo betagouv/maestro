@@ -24,18 +24,18 @@ const SampleSecondaryFilters = ({ filters, onChange }: Props) => {
   const { hasNationalView, user } = useAuthentication();
 
   const departmentOptions = useMemo(() => {
-    const region = user?.region ?? filters.region;
+    const region = hasNationalView ? filters.region : user?.region;
     return region ? Regions[region as Region].departments : DepartmentList;
-  }, [user?.region, filters.region]);
+  }, [hasNationalView, user?.region, filters.region]);
 
   const borderingDepartments = useMemo(() => {
-    const region = user?.region ?? filters.region;
+    const region = hasNationalView ? filters.region : user?.region;
     return region
       ? (Regions[region as Region].borderingDepartments?.sort((a, b) =>
           a.localeCompare(b)
         ) ?? [])
       : [];
-  }, [user?.region, filters.region]);
+  }, [hasNationalView, user?.region, filters.region]);
 
   return (
     <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>

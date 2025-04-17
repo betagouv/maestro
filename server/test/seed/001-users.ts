@@ -1,10 +1,13 @@
 import {
   AdminFixture,
   NationalCoordinator,
+  NationalObserver,
   RegionalCoordinator,
   RegionalDromCoordinator,
+  RegionalObserver,
   Sampler1Fixture,
   Sampler2Fixture,
+  SamplerAndNationalObserver,
   SamplerDromFixture
 } from 'maestro-shared/test/userFixtures';
 import { Users } from '../../repositories/userRepository';
@@ -19,7 +22,10 @@ export const seed = async (): Promise<void> => {
       RegionalCoordinator,
       RegionalDromCoordinator,
       NationalCoordinator,
-      AdminFixture
+      AdminFixture,
+      RegionalObserver,
+      NationalObserver,
+      SamplerAndNationalObserver
     ].map((u) => ({
       ...u,
       loggedSecrets: [TEST_LOGGED_SECRET]

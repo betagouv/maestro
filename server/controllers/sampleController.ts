@@ -45,7 +45,10 @@ import workbookUtils from '../utils/workbookUtils';
 
 import { isEqual } from 'lodash-es';
 import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
-import { hasPermission } from 'maestro-shared/schema/User/User';
+import {
+  hasNationalRole,
+  hasPermission
+} from 'maestro-shared/schema/User/User';
 import { Readable } from 'node:stream';
 import { PDFDocument } from 'pdf-lib';
 const getSample = async (request: Request, response: Response) => {
@@ -127,7 +130,7 @@ const findSamples = async (request: Request, response: Response) => {
 
   const findOptions = {
     ...queryFindOptions,
-    region: user.region ?? queryFindOptions.region
+    region: hasNationalRole(user) ? queryFindOptions.region : user.region
   };
 
   console.info('Find samples for user', user.id, findOptions);
@@ -143,7 +146,7 @@ const countSamples = async (request: Request, response: Response) => {
 
   const findOptions = {
     ...queryFindOptions,
-    region: user.region ?? queryFindOptions.region
+    region: hasNationalRole(user) ? queryFindOptions.region : user.region
   };
 
   console.info('Count samples for user', user.id, findOptions);
@@ -225,6 +228,8 @@ const updateSample = async (request: Request, response: Response) => {
     }
   } else if (!hasPermission(user, 'updateSample')) {
     throw new UserRoleMissingError();
+  } else if (sample.region !== user.region) {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
   }
 
   if (

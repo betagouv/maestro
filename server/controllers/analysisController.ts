@@ -57,6 +57,7 @@ const createAnalysis = async (request: Request, response: Response) => {
 };
 
 const updateAnalysis = async (request: Request, response: Response) => {
+  const { user } = request as AuthenticatedRequest;
   const analysisId = request.params.analysisId;
   const analysisUpdate = request.body as PartialAnalysis;
 
@@ -74,10 +75,11 @@ const updateAnalysis = async (request: Request, response: Response) => {
     throw new SampleMissingError(analysisUpdate.sampleId);
   }
 
-  if (
-    sample.status === 'InReview' &&
-    analysisUpdate.status === 'Completed'
-  ) {
+  if (sample.region !== user.region) {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
+
+  if (sample.status === 'InReview' && analysisUpdate.status === 'Completed') {
     const getResiduesWithoutInterpretation = (
       residues: PartialResidue[] | undefined | null
     ) =>

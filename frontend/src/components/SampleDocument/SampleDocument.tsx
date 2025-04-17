@@ -53,7 +53,7 @@ const SampleDocument = ({ documentId, readonly, onRemove }: Props) => {
             className={cx('fr-icon-eye-line', 'fr-ml-1w', 'fr-icon--sm')}
           ></span>
         </Link>
-        {onRemove && (
+        {onRemove && !readonly && (
           <Button
             title="Supprimer"
             onClick={async (e) => {
@@ -87,7 +87,7 @@ const SampleDocument = ({ documentId, readonly, onRemove }: Props) => {
           </div>
         )}
       </div>
-      {onRemove && (
+      {onRemove && !readonly && (
         <div
           className={clsx(
             cx('fr-col-sm-3', 'fr-col-md-3', 'fr-col-lg-5', 'fr-mt-5w'),

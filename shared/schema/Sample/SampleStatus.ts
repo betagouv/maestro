@@ -52,3 +52,10 @@ export const SampleStatusLabels: Record<SampleStatus, string> = {
   Completed: 'Terminé',
   CompletedNotConform: 'Terminé non conforme'
 };
+
+export const SampleStatusSteps: Partial<Record<SampleStatus, number>> = {
+  Draft: 1,
+  DraftMatrix: 2,
+  DraftItems: 3,
+  Submitted: 4
+};

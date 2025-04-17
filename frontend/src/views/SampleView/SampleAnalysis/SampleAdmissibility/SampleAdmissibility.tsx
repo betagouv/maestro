@@ -15,14 +15,16 @@ import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 import { useForm } from 'src/hooks/useForm';
 import z from 'zod';
-import './SampleAdmissibility.scss';
+import { useAuthentication } from '../../../../hooks/useAuthentication';
 import { ApiClientContext } from '../../../../services/apiClient';
+import './SampleAdmissibility.scss';
 
 interface Props {
   sample: Sample;
 }
 const SampleAdmissibility = ({ sample }: Props) => {
-  const apiClient = useContext(ApiClientContext)
+  const apiClient = useContext(ApiClientContext);
+  const { hasUserPermission } = useAuthentication();
 
   const [updateSample] = apiClient.useUpdateSampleMutation();
 
@@ -71,22 +73,21 @@ const SampleAdmissibility = ({ sample }: Props) => {
   );
 
   const FormRefinement = Form.superRefine((val, ctx) => {
-    if(val.isReceived && !val.receivedAt){
+    if (val.isReceived && !val.receivedAt) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Veuillez renseigner la date de réception.',
-        path: ['receivedAt'],
-      })
+        path: ['receivedAt']
+      });
     }
-    if( val.isReceived && val.isAdmissible === undefined){
+    if (val.isReceived && val.isAdmissible === undefined) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['isAdmissible'],
         message: 'Veuillez renseigner la recevabilité du prélèvement.'
-      })
+      });
     }
-  }
-  )
+  });
 
   const form = useForm(FormRefinement, {
     isReceived,
@@ -120,6 +121,11 @@ const SampleAdmissibility = ({ sample }: Props) => {
     } as Sample);
     form.reset();
   };
+
+  const readonly = useMemo(
+    () => !hasUserPermission('createAnalysis'),
+    [hasUserPermission]
+  );
 
   return (
     <form
@@ -166,6 +172,7 @@ const SampleAdmissibility = ({ sample }: Props) => {
             inputForm={form}
             inputKey="isReceived"
             whenValid="Notification de réception correctement renseignée."
+            disabled={readonly}
             required
           />
           {isReceived && (
@@ -181,6 +188,7 @@ const SampleAdmissibility = ({ sample }: Props) => {
                     whenValid="Date de réception correctement renseignée."
                     label="Date de réception"
                     hintText="Format attendu › JJ/MM/AAAA"
+                    disabled={readonly}
                     required
                   />
                 </div>
@@ -212,7 +220,7 @@ const SampleAdmissibility = ({ sample }: Props) => {
                 inputForm={form}
                 inputKey="isAdmissible"
                 whenValid="Recevabilité correctement renseignée."
-                disabled={sample.receivedAt !== undefined}
+                disabled={readonly || sample.receivedAt !== undefined}
                 required
               />
               {isAdmissible === false && (
@@ -227,24 +235,29 @@ const SampleAdmissibility = ({ sample }: Props) => {
                       whenValid="Motif de non-recevabilité correctement renseigné."
                       label="Motif de non-recevabilité"
                       hintText="Champ facultatif pour précisions supplémentaires"
+                      disabled={readonly}
                     />
                   </div>
                 </div>
               )}
             </>
           )}
-          <Button type="submit" className="fr-m-0" onClick={submit}>
-            Enregistrer
-          </Button>
-          <ConfirmationModal
-            modal={nonAdmissibleConfirmationModal}
-            title="Confirmez que l’échantillon est non-recevable"
-            onConfirm={save}
-            closeOnConfirm
-          >
-            La notification du laboratoire vous informe que l’échantillon reçu
-            est non-recevable pour l’analyse.
-          </ConfirmationModal>
+          {!readonly && (
+            <>
+              <Button type="submit" className="fr-m-0" onClick={submit}>
+                Enregistrer
+              </Button>
+              <ConfirmationModal
+                modal={nonAdmissibleConfirmationModal}
+                title="Confirmez que l’échantillon est non-recevable"
+                onConfirm={save}
+                closeOnConfirm
+              >
+                La notification du laboratoire vous informe que l’échantillon
+                reçu est non-recevable pour l’analyse.
+              </ConfirmationModal>
+            </>
+          )}
         </>
       )}
       {['Analysis', 'NotAdmissible', ...CompletedStatusList].includes(

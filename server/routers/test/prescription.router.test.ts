@@ -1,8 +1,10 @@
+import { fakerFR } from '@faker-js/faker';
 import { constants } from 'http2';
 import { MatrixKindEffective } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { RegionList } from 'maestro-shared/referential/Region';
 import { StageList } from 'maestro-shared/referential/Stage';
 import { PrescriptionUpdate } from 'maestro-shared/schema/Prescription/Prescription';
+import { User } from 'maestro-shared/schema/User/User';
 import {
   genPrescription,
   genPrescriptionSubstance
@@ -11,9 +13,13 @@ import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures'
 import { genSubstance } from 'maestro-shared/test/substanceFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
+  AdminFixture,
   NationalCoordinator,
+  NationalObserver,
   RegionalCoordinator,
-  Sampler1Fixture
+  RegionalObserver,
+  Sampler1Fixture,
+  SamplerAndNationalObserver
 } from 'maestro-shared/test/userFixtures';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
@@ -32,7 +38,6 @@ import { RegionalPrescriptions } from '../../repositories/regionalPrescriptionRe
 import { Substances } from '../../repositories/substanceRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
-import { fakerFR } from '@faker-js/faker';
 describe('Prescriptions router', () => {
   const { app } = createServer();
 
@@ -280,11 +285,19 @@ describe('Prescriptions router', () => {
     });
 
     test('should fail if the user does not have the permission to create prescriptions', async () => {
-      await request(app)
-        .post(testRoute)
-        .send(validBody)
-        .use(tokenProvider(RegionalCoordinator))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
+      const forbiddenRequestTest = async (user: User) =>
+        request(app)
+          .post(testRoute)
+          .send(validBody)
+          .use(tokenProvider(user))
+          .expect(constants.HTTP_STATUS_FORBIDDEN);
+
+      await forbiddenRequestTest(Sampler1Fixture);
+      await forbiddenRequestTest(RegionalObserver);
+      await forbiddenRequestTest(RegionalCoordinator);
+      await forbiddenRequestTest(NationalObserver);
+      await forbiddenRequestTest(SamplerAndNationalObserver);
+      await forbiddenRequestTest(AdminFixture);
     });
 
     test('should fail if the programming plan is closed', async () => {
@@ -383,11 +396,19 @@ describe('Prescriptions router', () => {
     });
 
     test('should fail if the user does not have the permission to update prescriptions', async () => {
-      await request(app)
-        .put(testRoute())
-        .send(prescriptionUpdate)
-        .use(tokenProvider(Sampler1Fixture))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
+      const forbiddenRequestTest = async (user: User) =>
+        request(app)
+          .put(testRoute())
+          .send(prescriptionUpdate)
+          .use(tokenProvider(user))
+          .expect(constants.HTTP_STATUS_FORBIDDEN);
+
+      await forbiddenRequestTest(Sampler1Fixture);
+      await forbiddenRequestTest(RegionalObserver);
+      await forbiddenRequestTest(RegionalCoordinator);
+      await forbiddenRequestTest(NationalObserver);
+      await forbiddenRequestTest(SamplerAndNationalObserver);
+      await forbiddenRequestTest(AdminFixture);
     });
 
     test('should fail if the programming plan is closed', async () => {
@@ -469,10 +490,18 @@ describe('Prescriptions router', () => {
     });
 
     test('should fail if the user does not have the permission to delete prescriptions', async () => {
-      await request(app)
-        .delete(testRoute(inProgressControlPrescription.id))
-        .use(tokenProvider(RegionalCoordinator))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
+      const forbiddenRequestTest = async (user: User) =>
+        request(app)
+          .delete(testRoute(inProgressControlPrescription.id))
+          .use(tokenProvider(user))
+          .expect(constants.HTTP_STATUS_FORBIDDEN);
+
+      await forbiddenRequestTest(Sampler1Fixture);
+      await forbiddenRequestTest(RegionalObserver);
+      await forbiddenRequestTest(RegionalCoordinator);
+      await forbiddenRequestTest(NationalObserver);
+      await forbiddenRequestTest(SamplerAndNationalObserver);
+      await forbiddenRequestTest(AdminFixture);
     });
 
     test('should fail if the programming plan is closed', async () => {

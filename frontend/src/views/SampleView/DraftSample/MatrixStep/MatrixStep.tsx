@@ -54,17 +54,20 @@ import { z } from 'zod';
 import AppSearchInput from '../../../../components/_app/AppSearchInput/AppSearchInput';
 import AppUpload from '../../../../components/_app/AppUpload/AppUpload';
 import SampleDocument from '../../../../components/SampleDocument/SampleDocument';
+import { usePartialSample } from '../../../../hooks/usePartialSample';
 import {
   useCreateDocumentMutation,
   useDeleteDocumentMutation
 } from '../../../../services/document.service';
+import NextButton from '../NextButton';
 interface Props {
   partialSample: PartialSample | PartialSampleToCreate;
 }
 
 const MatrixStep = ({ partialSample }: Props) => {
   const { navigateToSample } = useSamplesLink();
-  const { user, hasUserPermission } = useAuthentication();
+  const { user } = useAuthentication();
+  const { readonly } = usePartialSample(partialSample);
 
   const [matrixKind, setMatrixKind] = useState(partialSample.matrixKind);
   const [matrix, setMatrix] = useState(partialSample.matrix);
@@ -240,6 +243,7 @@ const MatrixStep = ({ partialSample }: Props) => {
             label="Catégorie de matrice programmée"
             required
             inputProps={{
+              disabled: readonly,
               'data-testid': 'matrix-kind-select'
             }}
           />
@@ -268,6 +272,7 @@ const MatrixStep = ({ partialSample }: Props) => {
             label="Matrice"
             required
             inputProps={{
+              disabled: readonly,
               'data-testid': 'matrix-select'
             }}
           />
@@ -296,6 +301,7 @@ const MatrixStep = ({ partialSample }: Props) => {
             data-testid="stage-select"
             label="Stade de prélèvement"
             required
+            disabled={readonly}
           />
         </div>
       </div>
@@ -310,6 +316,7 @@ const MatrixStep = ({ partialSample }: Props) => {
             data-testid="matrixdetails-input"
             label="Détail de la matrice"
             hintText="Champ facultatif pour précisions supplémentaires"
+            disabled={readonly}
           />
         </div>
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
@@ -325,6 +332,7 @@ const MatrixStep = ({ partialSample }: Props) => {
             whenValid="Type de culture correctement renseigné."
             data-testid="culturekind-select"
             label="Type de culture"
+            disabled={readonly}
           />
         </div>
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
@@ -341,6 +349,7 @@ const MatrixStep = ({ partialSample }: Props) => {
             data-testid="matrixpart-select"
             label="LMR / Partie du végétal concernée"
             required
+            disabled={readonly}
           />
         </div>
       </div>
@@ -351,35 +360,40 @@ const MatrixStep = ({ partialSample }: Props) => {
             checked={releaseControl ?? false}
             onChange={(checked) => setReleaseControl(checked)}
             showCheckedHint={false}
+            disabled={readonly}
           />
         </div>
       </div>
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={cx('fr-col-12')}>
-          <span className={cx('fr-text--md', 'fr-text--bold')}>
-            Compléments
-          </span>
-          <AppUpload<FilesFormShape>
-            label="Pièces jointes"
-            hint="Ajoutez si besoin un document ou une photo pour accompagner votre prélèvement JPG, PNG, PDF (10Mo maximum)"
-            nativeInputProps={{
-              onChange: (event: any) => setFiles(Array.from(event.target.files))
-            }}
-            className={cx('fr-mb-2w')}
-            inputForm={filesForm}
-            inputKey="files"
-            acceptFileTypes={[...SampleDocumentTypeList]}
-            whenValid="fichiers valides"
-            multiple
-            withPhoto={true}
-          />
+      {!readonly && (
+        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+          <div className={cx('fr-col-12')}>
+            <span className={cx('fr-text--md', 'fr-text--bold')}>
+              Compléments
+            </span>
+            <AppUpload<FilesFormShape>
+              label="Pièces jointes"
+              hint="Ajoutez si besoin un document ou une photo pour accompagner votre prélèvement JPG, PNG, PDF (10Mo maximum)"
+              nativeInputProps={{
+                onChange: (event: any) =>
+                  setFiles(Array.from(event.target.files))
+              }}
+              className={cx('fr-mb-2w')}
+              inputForm={filesForm}
+              inputKey="files"
+              acceptFileTypes={[...SampleDocumentTypeList]}
+              whenValid="fichiers valides"
+              multiple
+              withPhoto={true}
+            />
+          </div>
         </div>
-      </div>
+      )}
       {documentIds?.map((documentId) => (
         <SampleDocument
           key={`document-${documentId}`}
           documentId={documentId}
           onRemove={removeDocument}
+          readonly={readonly}
         />
       ))}
 
@@ -396,50 +410,58 @@ const MatrixStep = ({ partialSample }: Props) => {
             data-testid="notes-input"
             label="Note additionnelle"
             hintText="Champ facultatif pour précisions supplémentaires (date de semis, précédent cultural, traitements faits, protocole de prélèvement et note inspecteur, etc.)"
+            disabled={readonly}
           />
         </div>
       </div>
       <hr className={cx('fr-mx-0')} />
-      {hasUserPermission('updateSample') && (
-        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={clsx(cx('fr-col-12'), 'sample-actions')}>
-            <ul
-              className={cx(
-                'fr-btns-group',
-                'fr-btns-group--inline-md',
-                'fr-btns-group--between',
-                'fr-btns-group--icon-left'
-              )}
-            >
-              <li>
-                <ButtonsGroup
-                  alignment="left"
-                  inlineLayoutWhen="md and up"
-                  buttons={
-                    [
-                      PreviousButton({
-                        sampleId: partialSample.id,
-                        onSave: () => save('Draft'),
-                        currentStep: 2
-                      }),
-                      {
-                        children: 'Enregistrer en brouillon',
-                        iconId: 'fr-icon-save-line',
-                        priority: 'tertiary',
-                        onClick: async (e: React.MouseEvent<HTMLElement>) => {
-                          e.preventDefault();
-                          await save();
-                          setIsSaved(true);
-                        },
-                        nativeButtonProps: {
-                          'data-testid': 'save-button'
+      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+        <div className={clsx(cx('fr-col-12'), 'sample-actions')}>
+          <ul
+            className={cx(
+              'fr-btns-group',
+              'fr-btns-group--inline-md',
+              'fr-btns-group--between',
+              'fr-btns-group--icon-left'
+            )}
+          >
+            <li>
+              <ButtonsGroup
+                alignment="left"
+                inlineLayoutWhen="md and up"
+                buttons={
+                  !readonly
+                    ? [
+                        PreviousButton({
+                          sampleId: partialSample.id,
+                          onSave: () => save('Draft'),
+                          currentStep: 2
+                        }),
+                        {
+                          children: 'Enregistrer en brouillon',
+                          iconId: 'fr-icon-save-line',
+                          priority: 'tertiary',
+                          onClick: async (e: React.MouseEvent<HTMLElement>) => {
+                            e.preventDefault();
+                            await save();
+                            setIsSaved(true);
+                          },
+                          nativeButtonProps: {
+                            'data-testid': 'save-button'
+                          }
                         }
-                      }
-                    ] as any
-                  }
-                />
-              </li>
-              <li>
+                      ]
+                    : [
+                        PreviousButton({
+                          sampleId: partialSample.id,
+                          currentStep: 2
+                        })
+                      ]
+                }
+              />
+            </li>
+            <li>
+              {!readonly ? (
                 <Button
                   children="Continuer"
                   onClick={submit}
@@ -447,14 +469,16 @@ const MatrixStep = ({ partialSample }: Props) => {
                   iconPosition="right"
                   data-testid="submit-button"
                 />
-              </li>
-            </ul>
-          </div>
-          {isCreatedPartialSample(partialSample) && (
-            <SupportDocumentDownload partialSample={partialSample} />
-          )}
+              ) : (
+                <NextButton partialSample={partialSample} currentStep={2} />
+              )}
+            </li>
+          </ul>
         </div>
-      )}
+        {isCreatedPartialSample(partialSample) && !readonly && (
+          <SupportDocumentDownload partialSample={partialSample} />
+        )}
+      </div>
       <SavedAlert isOpen={isSaved} isDraft />
     </form>
   );

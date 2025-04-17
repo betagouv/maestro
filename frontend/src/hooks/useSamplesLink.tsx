@@ -13,7 +13,7 @@ export const useSamplesLink = () => {
         return '/';
       } else {
         return `/prelevements/${programmingPlan.year}/${sampleId}${
-          step ? `/etape/${step}` : ''
+          step ? `?etape=${step}` : ''
         }`;
       }
     },

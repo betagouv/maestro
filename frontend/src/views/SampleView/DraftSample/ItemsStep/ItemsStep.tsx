@@ -24,7 +24,7 @@ import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SampleItemDetails from 'src/views/SampleView/SampleItemDetails/SampleItemDetails';
 import SavedAlert from 'src/views/SampleView/SavedAlert';
 import { z } from 'zod';
-import { useAuthentication } from '../../../../hooks/useAuthentication';
+import NextButton from '../NextButton';
 
 export const MaxItemCount = 3;
 
@@ -34,8 +34,7 @@ interface Props {
 
 const ItemsStep = ({ partialSample }: Props) => {
   const { navigateToSample } = useSamplesLink();
-  const { hasUserPermission } = useAuthentication();
-  const { laboratory } = usePartialSample(partialSample);
+  const { laboratory, readonly } = usePartialSample(partialSample);
 
   const [items, setItems] = useState<PartialSampleItem[]>(
     !isDefinedAndNotNull(partialSample.items) ||
@@ -126,10 +125,11 @@ const ItemsStep = ({ partialSample }: Props) => {
               onChangeItem={changeItems}
               itemsForm={form}
               laboratory={laboratory}
+              readonly={readonly}
             />
           </div>
         ))}
-        {items.length < MaxItemCount && (
+        {items.length < MaxItemCount && !readonly && (
           <Button
             iconId="fr-icon-add-line"
             priority="secondary"
@@ -173,47 +173,55 @@ const ItemsStep = ({ partialSample }: Props) => {
             whenValid="Note correctement renseignée."
             data-testid="notes-input"
             label="Note additionnelle concernant les échantillons"
+            disabled={readonly}
           />
         </div>
       </div>
       <hr className={cx('fr-mx-0')} />
-      {hasUserPermission('updateSample') && (
-        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={clsx(cx('fr-col-12'), 'sample-actions')}>
-            <ul
-              className={cx(
-                'fr-btns-group',
-                'fr-btns-group--inline-md',
-                'fr-btns-group--between',
-                'fr-btns-group--icon-left'
-              )}
-            >
-              <li>
-                <ButtonsGroup
-                  alignment="left"
-                  inlineLayoutWhen="md and up"
-                  buttons={
-                    [
-                      PreviousButton({
-                        sampleId: partialSample.id,
-                        onSave: async () => save('DraftMatrix'),
-                        currentStep: 3
-                      }),
-                      {
-                        children: 'Enregistrer en brouillon',
-                        iconId: 'fr-icon-save-line',
-                        priority: 'tertiary',
-                        onClick: async (e: React.MouseEvent<HTMLElement>) => {
-                          e.preventDefault();
-                          await save();
-                          setIsSaved(true);
+      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+        <div className={clsx(cx('fr-col-12'), 'sample-actions')}>
+          <ul
+            className={cx(
+              'fr-btns-group',
+              'fr-btns-group--inline-md',
+              'fr-btns-group--between',
+              'fr-btns-group--icon-left'
+            )}
+          >
+            <li>
+              <ButtonsGroup
+                alignment="left"
+                inlineLayoutWhen="md and up"
+                buttons={
+                  !readonly
+                    ? [
+                        PreviousButton({
+                          sampleId: partialSample.id,
+                          onSave: async () => save('DraftMatrix'),
+                          currentStep: 3
+                        }),
+                        {
+                          children: 'Enregistrer en brouillon',
+                          iconId: 'fr-icon-save-line',
+                          priority: 'tertiary',
+                          onClick: async (e: React.MouseEvent<HTMLElement>) => {
+                            e.preventDefault();
+                            await save();
+                            setIsSaved(true);
+                          }
                         }
-                      }
-                    ] as any
-                  }
-                />
-              </li>
-              <li>
+                      ]
+                    : [
+                        PreviousButton({
+                          sampleId: partialSample.id,
+                          currentStep: 3
+                        })
+                      ]
+                }
+              />
+            </li>
+            <li>
+              {!readonly ? (
                 <Button
                   children="Continuer"
                   onClick={submit}
@@ -221,11 +229,13 @@ const ItemsStep = ({ partialSample }: Props) => {
                   iconPosition="right"
                   data-testid="submit-button"
                 />
-              </li>
-            </ul>
-          </div>
+              ) : (
+                <NextButton partialSample={partialSample} currentStep={3} />
+              )}
+            </li>
+          </ul>
         </div>
-      )}
+      </div>
       <SavedAlert isOpen={isSaved} isDraft />
     </form>
   );

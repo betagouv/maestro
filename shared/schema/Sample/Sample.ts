@@ -10,7 +10,7 @@ import { Region } from '../../referential/Region';
 import { Stage } from '../../referential/Stage';
 import { Company } from '../Company/Company';
 import { Context } from '../ProgrammingPlan/Context';
-import { User } from '../User/User';
+import { BaseUser } from '../User/User';
 import { PartialSampleItem, SampleItem } from './SampleItem';
 import { SampleStatus } from './SampleStatus';
 
@@ -24,7 +24,7 @@ export const Geolocation = z.object(
   }
 );
 
-export const Sampler = User.pick({
+export const Sampler = BaseUser.pick({
   id: true,
   firstName: true,
   lastName: true

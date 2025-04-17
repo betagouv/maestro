@@ -23,13 +23,20 @@ import { Samples } from '../../repositories/sampleRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
+import { User } from 'maestro-shared/schema/User/User';
 import {
   Sample11Fixture,
   Sample2Fixture
 } from 'maestro-shared/test/sampleFixtures';
 import {
+  AdminFixture,
   NationalCoordinator,
-  Sampler1Fixture
+  NationalObserver,
+  RegionalCoordinator,
+  RegionalObserver,
+  Sampler1Fixture,
+  Sampler2Fixture,
+  SamplerAndNationalObserver
 } from 'maestro-shared/test/userFixtures';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import { kysely } from '../../repositories/kysely';
@@ -58,11 +65,11 @@ describe('Analysis router', () => {
   const residues = [
     genPartialResidue({
       analysisId: analysisWithResidues.id,
-      residueNumber: 1,
+      residueNumber: 1
     }),
     genPartialResidue({
       analysisId: analysisWithResidues.id,
-      residueNumber: 2,
+      residueNumber: 2
     })
   ];
   const complexResidueAnalytes = [
@@ -99,13 +106,6 @@ describe('Analysis router', () => {
       await request(app)
         .get(testRoute(analysisWithoutResidue.sampleId))
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
-    });
-
-    test('should fail if the user does not have the permission to read analysis', async () => {
-      await request(app)
-        .get(testRoute(analysisWithoutResidue.sampleId))
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     test('should get a valid sample id', async () => {
@@ -201,11 +201,17 @@ describe('Analysis router', () => {
     });
 
     test('should fail if the user does not have the permission to create analysis', async () => {
-      await request(app)
-        .post(testRoute)
-        .send(genAnalysisToCreate())
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
+      const forbiddenRequestTest = async (user: User) =>
+        request(app)
+          .post(testRoute)
+          .send(genAnalysisToCreate())
+          .use(tokenProvider(user))
+          .expect(constants.HTTP_STATUS_FORBIDDEN);
+
+      await forbiddenRequestTest(RegionalObserver);
+      await forbiddenRequestTest(NationalObserver);
+      await forbiddenRequestTest(NationalCoordinator);
+      await forbiddenRequestTest(AdminFixture);
     });
 
     test('should create an analysis and update the associated sample status', async () => {
@@ -274,11 +280,30 @@ describe('Analysis router', () => {
     });
 
     test('should fail if the user does not have the permission to update analysis', async () => {
-      await request(app)
-        .put(testRoute(analysisWithoutResidue.id))
-        .send(genPartialAnalysis())
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
+      const forbiddenRequestTest = async (user: User) =>
+        request(app)
+          .put(testRoute(analysisWithoutResidue.id))
+          .send(genPartialAnalysis())
+          .use(tokenProvider(user))
+          .expect(constants.HTTP_STATUS_FORBIDDEN);
+
+      await forbiddenRequestTest(RegionalObserver);
+      await forbiddenRequestTest(NationalObserver);
+      await forbiddenRequestTest(NationalCoordinator);
+      await forbiddenRequestTest(AdminFixture);
+    });
+
+    test('should fail if the analysis does not belong to the user region', async () => {
+      const forbiddenRequestTest = async (user: User) =>
+        request(app)
+          .put(testRoute(analysisWithResidues.id))
+          .send(genPartialAnalysis(analysisWithResidues))
+          .use(tokenProvider(user))
+          .expect(constants.HTTP_STATUS_FORBIDDEN);
+
+      await forbiddenRequestTest(Sampler1Fixture);
+      await forbiddenRequestTest(RegionalCoordinator);
+      await forbiddenRequestTest(SamplerAndNationalObserver);
     });
 
     test('should get a valid body', async () => {
@@ -329,7 +354,7 @@ describe('Analysis router', () => {
         residues: [
           genPartialResidue({
             analysisId: analysisWithoutResidue.id,
-            residueNumber: 1,
+            residueNumber: 1
           }),
           genPartialResidue({
             analysisId: analysisWithoutResidue.id,
@@ -390,7 +415,7 @@ describe('Analysis router', () => {
       const res = await request(app)
         .put(testRoute(analysisWithResidues.id))
         .send(analysisUpdate)
-        .use(tokenProvider(Sampler1Fixture))
+        .use(tokenProvider(Sampler2Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject(
@@ -421,7 +446,7 @@ describe('Analysis router', () => {
       await request(app)
         .put(testRoute(analysisWithResidues.id))
         .send(analysisUpdate)
-        .use(tokenProvider(Sampler1Fixture))
+        .use(tokenProvider(Sampler2Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
       await expect(
@@ -444,7 +469,7 @@ describe('Analysis router', () => {
       await request(app)
         .put(testRoute(analysisWithResidues.id))
         .send(analysisUpdate)
-        .use(tokenProvider(Sampler1Fixture))
+        .use(tokenProvider(Sampler2Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
       await expect(
@@ -463,10 +488,11 @@ describe('Analysis router', () => {
         .where('id', '=', analysisWithResidues.id)
         .set('status', 'Compliance')
         .execute();
-      await kysely.updateTable('samples')
+      await kysely
+        .updateTable('samples')
         .where('id', '=', analysisWithResidues.sampleId)
         .set('status', 'InReview')
-        .execute()
+        .execute();
       const analysis = await analysisRepository.findUnique(
         analysisWithResidues.id
       );
@@ -479,7 +505,7 @@ describe('Analysis router', () => {
       await request(app)
         .put(testRoute(analysisWithResidues.id))
         .send(analysisUpdate)
-        .use(tokenProvider(Sampler1Fixture))
+        .use(tokenProvider(Sampler2Fixture))
         .expect(constants.HTTP_STATUS_OK);
       let analysisErrors = await kysely
         .selectFrom('analysisErrors')
@@ -492,14 +518,15 @@ describe('Analysis router', () => {
         .where('id', '=', analysisWithResidues.id)
         .set('status', 'Compliance')
         .execute();
-      await kysely.updateTable('samples')
+      await kysely
+        .updateTable('samples')
         .where('id', '=', analysisWithResidues.sampleId)
         .set('status', 'InReview')
-        .execute()
+        .execute();
       await request(app)
         .put(testRoute(analysisWithResidues.id))
         .send({ ...analysisUpdate, residues: [] })
-        .use(tokenProvider(Sampler1Fixture))
+        .use(tokenProvider(Sampler2Fixture))
         .expect(constants.HTTP_STATUS_OK);
       analysisErrors = await kysely
         .selectFrom('analysisErrors')
@@ -508,13 +535,21 @@ describe('Analysis router', () => {
       expect(analysisErrors).toHaveLength(1);
       expect(analysisErrors[0].residues.new).toHaveLength(0);
       expect(analysisErrors[0].residues.old).toEqual(
-        analysis?.residues?.map(({  analysisMethod, residueNumber, result, analytes, resultKind }) => ({
-          analysisMethod,
-          residueNumber,
-          result,
-          analytes,
-          resultKind
-        }))
+        analysis?.residues?.map(
+          ({
+            analysisMethod,
+            residueNumber,
+            result,
+            analytes,
+            resultKind
+          }) => ({
+            analysisMethod,
+            residueNumber,
+            result,
+            analytes,
+            resultKind
+          })
+        )
       );
     });
   });

@@ -14,6 +14,7 @@ import {
   RegionalPrescriptionComment,
   RegionalPrescriptionCommentToCreate
 } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionComment';
+import { User } from 'maestro-shared/schema/User/User';
 import { CompanyFixture } from 'maestro-shared/test/companyFixtures';
 import {
   genLaboratory,
@@ -27,10 +28,14 @@ import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures'
 import { genCreatedSample } from 'maestro-shared/test/sampleFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
+  AdminFixture,
   NationalCoordinator,
+  NationalObserver,
   Region2Fixture,
   RegionalCoordinator,
-  Sampler1Fixture
+  RegionalObserver,
+  Sampler1Fixture,
+  SamplerAndNationalObserver
 } from 'maestro-shared/test/userFixtures';
 import { withISOStringDates } from 'maestro-shared/utils/utils';
 import request from 'supertest';
@@ -260,45 +265,54 @@ describe('Regional prescriptions router', () => {
     });
 
     test('should find all the regional prescriptions for a national role', async () => {
-      const res = await request(app)
-        .get(testRoute)
-        .query({
-          programmingPlanId: programmingPlanSubmitted.id,
-          context: 'Control'
-        })
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_OK);
+      const successRequestTest = async (user: User) => {
+        const res = await request(app)
+          .get(testRoute)
+          .query({
+            programmingPlanId: programmingPlanSubmitted.id,
+            context: 'Control'
+          })
+          .use(tokenProvider(user))
+          .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toMatchObject(
-        expect.arrayContaining(
-          [
-            ...submittedControlRegionalPrescriptions1,
-            ...submittedControlRegionalPrescriptions2
-          ].map(fp.omit('realizedSampleCount'))
-        )
-      );
-      expect(res.body).not.toMatchObject(
-        expect.arrayContaining(
-          closedControlRegionalPrescriptions.map(fp.omit('realizedSampleCount'))
-        )
-      );
+        const expectRegionalPrescriptions = [
+          ...submittedControlRegionalPrescriptions1,
+          ...submittedControlRegionalPrescriptions2
+        ].map(fp.omit('realizedSampleCount'));
+
+        expect(res.body).toHaveLength(expectRegionalPrescriptions.length);
+        expect(res.body).toEqual(
+          expect.arrayContaining(expectRegionalPrescriptions)
+        );
+      };
+
+      await successRequestTest(NationalCoordinator);
+      await successRequestTest(NationalObserver);
+      await successRequestTest(SamplerAndNationalObserver);
+      await successRequestTest(AdminFixture);
     });
 
     test('should find the non empty regional prescriptions of the programmingPlan with Control context for a regional role', async () => {
-      const res = await request(app)
-        .get(testRoute)
-        .query({
-          programmingPlanId: programmingPlanSubmitted.id,
-          context: 'Control'
-        })
-        .use(tokenProvider(RegionalCoordinator))
-        .expect(constants.HTTP_STATUS_OK);
+      const successRequestTest = async (user: User) => {
+        const res = await request(app)
+          .get(testRoute)
+          .query({
+            programmingPlanId: programmingPlanSubmitted.id,
+            context: 'Control'
+          })
+          .use(tokenProvider(user))
+          .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toEqual(
-        submittedControlRegionalPrescriptions1
-          .filter(({ region }) => region === RegionalCoordinator.region)
-          .map(fp.omit('realizedSampleCount'))
-      );
+        expect(res.body).toEqual(
+          submittedControlRegionalPrescriptions1
+            .filter(({ region }) => region === user.region)
+            .map(fp.omit('realizedSampleCount'))
+        );
+      };
+
+      await successRequestTest(Sampler1Fixture);
+      await successRequestTest(RegionalCoordinator);
+      await successRequestTest(RegionalObserver);
     });
 
     test('should retrieve the comments of the prescriptions and realized samples count if requested', async () => {
@@ -427,11 +441,19 @@ describe('Regional prescriptions router', () => {
     });
 
     test('should fail if the user does not have the permission to update prescriptions', async () => {
-      await request(app)
-        .put(testRoute())
-        .send(submittedRegionalPrescriptionUpdate)
-        .use(tokenProvider(Sampler1Fixture))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
+      const forbiddenRequestTest = async (user: User) =>
+        request(app)
+          .put(testRoute())
+          .send(submittedRegionalPrescriptionUpdate)
+          .use(tokenProvider(user))
+          .expect(constants.HTTP_STATUS_FORBIDDEN);
+
+      await forbiddenRequestTest(Sampler1Fixture);
+      await forbiddenRequestTest(RegionalObserver);
+      await forbiddenRequestTest(RegionalCoordinator);
+      await forbiddenRequestTest(NationalObserver);
+      await forbiddenRequestTest(SamplerAndNationalObserver);
+      await forbiddenRequestTest(AdminFixture);
     });
 
     test('should fail if the programming plan is closed', async () => {
@@ -600,11 +622,18 @@ describe('Regional prescriptions router', () => {
     });
 
     test('should fail if the user does not have the permission to comment prescriptions', async () => {
-      await request(app)
-        .post(testRoute())
-        .send(validComment)
-        .use(tokenProvider(Sampler1Fixture))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
+      const forbiddenRequestTest = async (user: User) =>
+        await request(app)
+          .post(testRoute())
+          .send(validComment)
+          .use(tokenProvider(user))
+          .expect(constants.HTTP_STATUS_FORBIDDEN);
+
+      await forbiddenRequestTest(Sampler1Fixture);
+      await forbiddenRequestTest(RegionalObserver);
+      await forbiddenRequestTest(NationalObserver);
+      await forbiddenRequestTest(SamplerAndNationalObserver);
+      await forbiddenRequestTest(AdminFixture);
     });
 
     test('should fail if the prescription does not belong to the user region', async () => {

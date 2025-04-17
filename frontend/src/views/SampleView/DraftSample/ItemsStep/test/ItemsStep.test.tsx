@@ -25,6 +25,7 @@ describe('DraftSampleItemsStep', () => {
   const draftSample = {
     ...genSampleContextData(),
     ...genCreatedSampleData(),
+    region: sampler.region,
     status: 'DraftItems' as const
   };
 

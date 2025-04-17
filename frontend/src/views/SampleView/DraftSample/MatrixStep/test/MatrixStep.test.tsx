@@ -90,7 +90,8 @@ describe('DraftSampleMatrixStep', () => {
             ...genSampleContextData({
               programmingPlanId: programmingPlan.id
             }),
-            ...genCreatedSampleData({ sampler })
+            ...genCreatedSampleData({ sampler }),
+            region: sampler.region as Region
           }}
         />
       </ProviderTest>
@@ -124,7 +125,8 @@ describe('DraftSampleMatrixStep', () => {
             ...genSampleContextData({
               programmingPlanId: programmingPlan.id
             }),
-            ...genCreatedSampleData({ sampler })
+            ...genCreatedSampleData({ sampler }),
+            region: sampler.region as Region
           }}
         />
       </ProviderTest>
@@ -159,7 +161,8 @@ describe('DraftSampleMatrixStep', () => {
         programmingPlanId: programmingPlan.id,
         context: 'Control'
       }),
-      ...genCreatedSampleData({ sampler })
+      ...genCreatedSampleData({ sampler }),
+      region: sampler.region as Region
     };
     mockRequests([
       prescriptionsRequest,
@@ -231,7 +234,8 @@ describe('DraftSampleMatrixStep', () => {
         context: 'Control'
       }),
       ...genCreatedSampleData({ sampler }),
-      prescriptionId: prescription1.id
+      prescriptionId: prescription1.id,
+      region: sampler.region as Region
     };
 
     mockRequests([

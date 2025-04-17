@@ -5,7 +5,7 @@ import useWindowSize from 'src/hooks/useWindowSize';
 
 interface Props {
   sampleId: string;
-  onSave: () => Promise<void>;
+  onSave?: () => Promise<void>;
   currentStep: number;
 }
 
@@ -22,7 +22,7 @@ const PreviousButton = ({
       priority: 'tertiary',
       onClick: async (e) => {
         e.preventDefault();
-        await onSave();
+        await onSave?.();
         navigateToSample(sampleId, currentStep - 1);
       },
       title: 'Retour',

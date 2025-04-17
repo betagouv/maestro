@@ -49,6 +49,29 @@ export const seed = async function () {
       lastName: fakerFR.person.lastName(),
       role: 'Sampler',
       region: '01'
+    },
+    {
+      id: uuidv4(),
+      email: 'suivi.national@maestro.beta.gouv.fr',
+      firstName: fakerFR.person.firstName(),
+      lastName: fakerFR.person.lastName(),
+      role: 'NationalObserver'
+    },
+    {
+      id: uuidv4(),
+      email: 'suivi.regional@maestro.beta.gouv.fr',
+      firstName: fakerFR.person.firstName(),
+      lastName: fakerFR.person.lastName(),
+      role: 'RegionalObserver',
+      region: '44'
+    },
+    {
+      id: uuidv4(),
+      email: 'preleveur.ressource@maestro.beta.gouv.fr',
+      firstName: fakerFR.person.firstName(),
+      lastName: fakerFR.person.lastName(),
+      role: 'SamplerAndNationalObserver',
+      region: '44'
     }
   ]);
 };

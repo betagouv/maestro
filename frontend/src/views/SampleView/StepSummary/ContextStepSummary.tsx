@@ -14,6 +14,7 @@ import {
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { quote } from 'src/utils/stringUtils';
 import StepSummary from 'src/views/SampleView/StepSummary/StepSummary';
+import { usePartialSample } from '../../../hooks/usePartialSample';
 
 interface Props {
   sample: (Sample | SampleToCreate) & Partial<SampleOwnerData>;
@@ -27,6 +28,7 @@ const ContextStepSummary = ({
   onChangeResytalId
 }: Props) => {
   const { user } = useAuthentication();
+  const { readonly } = usePartialSample(sample);
 
   return (
     <StepSummary
@@ -115,6 +117,7 @@ const ContextStepSummary = ({
               defaultValue: sample.resytalId || '',
               onChange: (e) => onChangeResytalId?.(e.target.value)
             }}
+            disabled={readonly}
           />
         </div>
       </div>

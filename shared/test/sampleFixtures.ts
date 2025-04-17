@@ -125,6 +125,7 @@ export const Sample11Fixture = genCreatedPartialSample({
   id: Sample11FixtureId,
   sampledAt: new Date('2025-05-06'),
   department: '08',
+  region: '44',
   programmingPlanId: ValidatedProgrammingPlanFixture.id,
   context: 'Control',
   legalContext: 'A',
@@ -151,6 +152,7 @@ export const Sample12Fixture = genCreatedPartialSample({
   id: '11111111-2222-2222-2222-222222222222',
   status: 'Draft' as const,
   department: oneOf(Regions[Region1Fixture].departments),
+  region: Region1Fixture,
   reference: 'GES-08-24-314-A'
 });
 export const Sample13Fixture = genCreatedPartialSample({
@@ -161,6 +163,7 @@ export const Sample13Fixture = genCreatedPartialSample({
   id: '11111111-3333-3333-3333-333333333333',
   status: 'Sent' as const,
   department: oneOf(Regions[Region1Fixture].departments),
+  region: Region1Fixture,
   reference: 'GES-08-24-315-A'
 });
 export const Sample2Fixture = genCreatedPartialSample({
@@ -171,5 +174,6 @@ export const Sample2Fixture = genCreatedPartialSample({
   id: '22222222-2222-2222-2222-222222222222',
   status: 'DraftMatrix' as const,
   department: oneOf(Regions[Region2Fixture].departments),
+  region: Region2Fixture,
   reference: 'PDL-08-24-313-A'
 });

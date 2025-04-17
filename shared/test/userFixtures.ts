@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { RegionList } from '../referential/Region';
 import { AuthUser } from '../schema/User/AuthUser';
 import { User } from '../schema/User/User';
-import { UserRoleList } from '../schema/User/UserRole';
+import { NationalUserRole, UserRoleList } from '../schema/User/UserRole';
 import { oneOf } from './testFixtures';
 
 export const genUser = (data?: Partial<User>): User => {
@@ -14,9 +14,7 @@ export const genUser = (data?: Partial<User>): User => {
     firstName: fakerFR.person.firstName(),
     lastName: fakerFR.person.lastName(),
     role,
-    region: ['NationalCoordinator', 'Administrator'].includes(role)
-      ? null
-      : oneOf(RegionList),
+    region: NationalUserRole.safeParse(role).success ? null : oneOf(RegionList),
     ...data
   };
 };
@@ -72,6 +70,20 @@ export const NationalCoordinator = genUser({
 export const AdminFixture = genUser({
   role: 'Administrator',
   id: '77777777-7777-7777-7777-777777777777'
+});
+export const RegionalObserver = genUser({
+  role: 'RegionalObserver',
+  id: '88888888-8888-8888-8888-888888888888',
+  region: Region1Fixture
+});
+export const NationalObserver = genUser({
+  role: 'NationalObserver',
+  id: '99999999-9999-9999-9999-999999999999'
+});
+export const SamplerAndNationalObserver = genUser({
+  role: 'SamplerAndNationalObserver',
+  id: '10101010-1010-1010-1010-101010101010',
+  region: Region1Fixture
 });
 
 export const genAuthUser = (data?: Partial<User>): AuthUser => ({

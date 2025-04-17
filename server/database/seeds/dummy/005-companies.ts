@@ -9,6 +9,7 @@ export const seed = async function () {
       address: 'ESAT OCEANIS',
       postalCode: '44600',
       city: 'Saint-Nazaire',
+      department: '44',
       nafCode: '88.10C'
     },
     {
@@ -18,6 +19,7 @@ export const seed = async function () {
       address: '120 ROUTE DE BEAU SOLEIL',
       postalCode: '44470',
       city: 'Mauves-sur-Loire',
+      department: '44',
       nafCode: '01.50Z'
     },
     {
@@ -27,6 +29,7 @@ export const seed = async function () {
       address: 'LES CHAILLEREAUX',
       postalCode: '44260',
       city: 'Malville',
+      department: '44',
       nafCode: '01.30Z'
     }
   ]);

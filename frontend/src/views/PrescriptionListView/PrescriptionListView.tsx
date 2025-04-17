@@ -86,9 +86,12 @@ const PrescriptionListView = () => {
   const [commentRegionalPrescription, { isSuccess: isCommentSuccess }] =
     useCommentRegionalPrescriptionMutation();
 
-  const region: Region = useMemo(
-    () => user?.region ?? (searchParams.get('region') as Region) ?? undefined,
-    [user, searchParams]
+  const region = useMemo(
+    () =>
+      hasNationalView
+        ? ((searchParams.get('region') as Region) ?? undefined)
+        : user?.region,
+    [hasNationalView, user, searchParams]
   );
 
   const findPrescriptionOptions = useMemo(
@@ -276,13 +279,15 @@ const PrescriptionListView = () => {
 
   const changeRegionalPrescriptionsLaboratory = useCallback(
     async (prescriptionIds: string[], laboratoryId?: string) => {
-      await Promise.all(
-        prescriptionIds.map((prescriptionId) =>
-          changeRegionalPrescription(prescriptionId, region, {
-            laboratoryId
-          })
-        )
-      );
+      if (region) {
+        await Promise.all(
+          prescriptionIds.map((prescriptionId) =>
+            changeRegionalPrescription(prescriptionId, region, {
+              laboratoryId
+            })
+          )
+        );
+      }
       return;
     },
     [changeRegionalPrescription, region] // eslint-disable-line react-hooks/exhaustive-deps
@@ -317,7 +322,7 @@ const PrescriptionListView = () => {
       <div className={cx('fr-container')}>
         <SectionHeader
           title={`Programmation ${programmingPlan?.year}`}
-          subtitle={region && Regions[region]?.name}
+          subtitle={Regions[region as Region]?.name}
           illustration={programmation}
           action={
             <>
