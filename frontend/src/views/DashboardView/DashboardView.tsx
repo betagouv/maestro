@@ -117,7 +117,7 @@ const DashboardView = () => {
                       small
                       orientation="horizontal"
                       linkProps={{
-                        to: `/prescriptions/${nextProgrammingPlan.year}`
+                        to: `/programmation/${nextProgrammingPlan.year}`
                       }}
                       start={
                         <Badge

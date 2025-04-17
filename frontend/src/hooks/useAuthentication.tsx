@@ -22,10 +22,10 @@ import DashboardView from 'src/views/DashboardView/DashboardView';
 import DocumentListView from 'src/views/DocumentListView/DocumentListView';
 import HomeView from 'src/views/HomeView/HomeView';
 import { OpenApiExplorerView } from 'src/views/OpenApiExplorer/OpenApiExplorerView';
-import PrescriptionListView from 'src/views/PrescriptionListView/PrescriptionListView';
 import SampleListView from 'src/views/SampleListView/SampleListView';
 import SampleView from 'src/views/SampleView/SampleView';
 import NotificationsView from '../views/NotificationsView/NotificationsView';
+import ProgrammingPlanView from '../views/ProgrammingPlanView/ProgrammingPlanView';
 
 export const useAuthentication = () => {
   const { authUser } = useAppSelector((state) => state.auth);
@@ -95,12 +95,21 @@ export const useAuthentication = () => {
               key: 'notifications_route',
               component: NotificationsView
             },
+            //A conserver pour compatabilité des notifications
             hasUserPermission('readPrescriptions')
               ? {
                   path: '/prescriptions/:year',
                   label: 'Prescriptions',
                   key: 'prescription_route',
-                  component: () => <YearRoute element={PrescriptionListView} />
+                  component: () => <YearRoute element={ProgrammingPlanView} />
+                }
+              : undefined,
+            hasUserPermission('readPrescriptions')
+              ? {
+                  path: '/programmation/:year',
+                  label: 'Programmation',
+                  key: 'programmation_route',
+                  component: () => <YearRoute element={ProgrammingPlanView} />
                 }
               : undefined,
             hasUserPermission('readSamples')

@@ -16,8 +16,8 @@ import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import useWindowSize from 'src/hooks/useWindowSize';
 import { getPrescriptionsExportURL } from 'src/services/prescription.service';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
-import PrescriptionListGroupedUpdate from 'src/views/PrescriptionListView/PrescriptionListGroupedUpdate';
-import './PrescriptionListView.scss';
+import ProgrammingPlanPrescriptionListGroupedUpdate from 'src/views/ProgrammingPlanView/ProgrammingPlanPrescriptionList/ProgrammingPlanPrescriptionListGroupedUpdate';
+import './ProgrammingPlanPrescriptionList.scss';
 interface Props {
   programmingPlan: ProgrammingPlan;
   findPrescriptionOptions: FindPrescriptionOptions;
@@ -30,7 +30,7 @@ interface Props {
   onSelectAll: () => void;
 }
 
-const PrescriptionListHeader = ({
+const ProgrammingPlanPrescriptionListHeader = ({
   programmingPlan,
   findPrescriptionOptions,
   prescriptions,
@@ -142,7 +142,7 @@ const PrescriptionListHeader = ({
         />
       </div>
       {isGroupedUpdate && onGroupedUpdate && (
-        <PrescriptionListGroupedUpdate
+        <ProgrammingPlanPrescriptionListGroupedUpdate
           selectedCount={selectedCount ?? 0}
           totalCount={prescriptions.length}
           onSubmit={async (laboratoryId) => {
@@ -157,4 +157,4 @@ const PrescriptionListHeader = ({
   );
 };
 
-export default PrescriptionListHeader;
+export default ProgrammingPlanPrescriptionListHeader;
