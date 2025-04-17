@@ -162,7 +162,7 @@ const exportSamples = async (request: Request, response: Response) => {
 
   const findOptions = {
     ...queryFindOptions,
-    region: user.region ?? queryFindOptions.region
+    region: hasNationalRole(user) ? queryFindOptions.region : user.region
   };
 
   console.info('Export samples for user', user.id, findOptions);

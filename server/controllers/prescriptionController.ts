@@ -14,6 +14,7 @@ import {
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { FindRegionalPrescriptionOptions } from 'maestro-shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
+import { hasNationalRole } from 'maestro-shared/schema/User/User';
 import { v4 as uuidv4 } from 'uuid';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
@@ -37,7 +38,9 @@ const exportPrescriptions = async (request: Request, response: Response) => {
     FindRegionalPrescriptionOptions,
     'includes'
   >;
-  const exportedRegion = user.region ?? queryFindOptions.region ?? undefined;
+  const exportedRegion =
+    (hasNationalRole(user) ? queryFindOptions.region : user.region) ??
+    undefined;
 
   const findOptions = {
     ...queryFindOptions,
