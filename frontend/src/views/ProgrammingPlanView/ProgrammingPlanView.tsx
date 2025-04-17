@@ -118,7 +118,7 @@ const ProgrammingPlanView = () => {
         <div className={cx('fr-container')}>
           <SectionHeader
             title={`Programmation ${programmingPlan?.year}`}
-            subtitle={region && Regions[region as Region]?.name}
+            subtitle={Regions[region as Region]?.name}
             illustration={programmation}
             action={
               <>
@@ -171,7 +171,7 @@ const ProgrammingPlanView = () => {
                       <ProgrammingPlanPrescriptionList
                         programmingPlan={programmingPlan}
                         context={prescriptionListContext}
-                        region={region}
+                        region={region ?? undefined}
                       />
                     )
                   },
@@ -182,7 +182,7 @@ const ProgrammingPlanView = () => {
                           <ProgrammingPlanCommentList
                             programmingPlan={programmingPlan}
                             context={prescriptionListContext}
-                            region={region}
+                            region={region ?? undefined}
                           />
                         ),
                         iconId: 'fr-icon-chat-3-line'
