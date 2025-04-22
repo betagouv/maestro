@@ -95,7 +95,7 @@ export const useAuthentication = () => {
               key: 'notifications_route',
               component: NotificationsView
             },
-            //A conserver pour compatabilité des notifications
+            //A conserver pour compatibilité des notifications
             hasUserPermission('readPrescriptions')
               ? {
                   path: '/prescriptions/:year',
