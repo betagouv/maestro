@@ -130,7 +130,7 @@ const ProgrammingPlanCard = ({
         <Button
           className={cx('fr-mr-2w')}
           linkProps={{
-            to: `/prescriptions/${programmingPlan.year}?context=${context}`
+            to: `/programmation/${programmingPlan.year}?context=${context}`
           }}
           priority="secondary"
           iconId="fr-icon-table-2"

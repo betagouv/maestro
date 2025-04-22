@@ -1,14 +1,22 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
+import { Region } from 'maestro-shared/referential/Region';
 import { Context } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
-import { PrescriptionListDisplay } from 'src/views/PrescriptionListView/PrescriptionListView';
+import { PrescriptionListDisplay } from 'src/views/ProgrammingPlanView/ProgrammingPlanPrescriptionList/ProgrammingPlanPrescriptionList';
+
+type PrescriptionCommentsData = {
+  matrixKind: MatrixKind;
+  regionalPrescriptions: RegionalPrescription[];
+  currentRegion?: Region;
+};
 
 type PrescriptionsState = {
   prescriptionListContext: Context;
   prescriptionListDisplay: PrescriptionListDisplay;
   matrixQuery?: string;
   prescriptionAnalysisEditId?: string;
-  regionalPrescriptionComments?: RegionalPrescription;
+  prescriptionCommentsData?: PrescriptionCommentsData;
 };
 const initialState: PrescriptionsState = {
   prescriptionListContext: 'Control',
@@ -37,11 +45,11 @@ const prescriptionsSlice = createSlice({
     ) => {
       state.prescriptionAnalysisEditId = action.payload;
     },
-    setRegionalPrescriptionComments: (
+    setPrescriptionCommentsData: (
       state,
-      action: PayloadAction<RegionalPrescription | undefined>
+      action: PayloadAction<PrescriptionCommentsData | undefined>
     ) => {
-      state.regionalPrescriptionComments = action.payload;
+      state.prescriptionCommentsData = action.payload;
     },
     reset(): PrescriptionsState {
       return initialState;

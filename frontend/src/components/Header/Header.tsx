@@ -110,29 +110,29 @@ const Header = () => {
                 }
               : undefined,
             {
-              isActive: isActive('/prescriptions'),
+              isActive: isActive('/programmation'),
               ...(programmingPlans?.length === 1
                 ? {
                     text: 'Programmation',
                     linkProps: {
-                      to: `/prescriptions/${programmingPlans[0].year}`,
+                      to: `/programmation/${programmingPlans[0].year}`,
                       target: '_self'
                     }
                   }
                 : {
                     text: `Programmation ${
-                      isActive('/prescriptions') && programmingPlan
+                      isActive('/programmation') && programmingPlan
                         ? programmingPlan.year
                         : ''
                     }`,
                     menuLinks: (programmingPlans ?? []).map((pp) => ({
                       linkProps: {
-                        to: `/prescriptions/${pp.year}`,
+                        to: `/programmation/${pp.year}`,
                         target: '_self'
                       },
                       text: `Campagne ${pp.year}`,
                       isActive:
-                        isActive('/prescriptions') &&
+                        isActive('/programmation') &&
                         pp.id === programmingPlan?.id
                     }))
                   })
