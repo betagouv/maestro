@@ -85,6 +85,19 @@ const ProgrammingPlanCommentList = ({
         prescription.regionalCommentedPrescriptions.some(
           (regionalPrescription) => regionalPrescription.region === regionFilter
         )
+    )
+    .map((prescription) =>
+      regionFilter
+        ? {
+            ...prescription,
+            regionalCommentedPrescriptions: (
+              prescription.regionalCommentedPrescriptions ?? []
+            ).filter(
+              (regionalPrescription) =>
+                regionalPrescription.region === regionFilter
+            )
+          }
+        : prescription
     );
 
   if (!allPrescriptions || !regionalPrescriptions) {
@@ -183,32 +196,34 @@ const ProgrammingPlanCommentList = ({
                       )('commentaire')}
                     </Button>
                   </div>
-                  <div>
-                    Régions :
-                    {prescription.regionalCommentedPrescriptions.map(
-                      (regionalPrescription) => (
-                        <Button
-                          className={clsx('link-underline')}
-                          key={`${prescription.id}-region-${regionalPrescription.region}`}
-                          priority="tertiary no outline"
-                          onClick={() => {
-                            dispatch(
-                              prescriptionsSlice.actions.setPrescriptionCommentsData(
-                                {
-                                  matrixKind: prescription.matrixKind,
-                                  regionalPrescriptions:
-                                    prescription.regionalCommentedPrescriptions,
-                                  currentRegion: regionalPrescription.region
-                                }
-                              )
-                            );
-                          }}
-                        >
-                          {Regions[regionalPrescription.region].name}
-                        </Button>
-                      )
-                    )}
-                  </div>
+                  {!regionFilter && (
+                    <div>
+                      Régions :
+                      {prescription.regionalCommentedPrescriptions.map(
+                        (regionalPrescription) => (
+                          <Button
+                            className={clsx('link-underline')}
+                            key={`${prescription.id}-region-${regionalPrescription.region}`}
+                            priority="tertiary no outline"
+                            onClick={() => {
+                              dispatch(
+                                prescriptionsSlice.actions.setPrescriptionCommentsData(
+                                  {
+                                    matrixKind: prescription.matrixKind,
+                                    regionalPrescriptions:
+                                      prescription.regionalCommentedPrescriptions,
+                                    currentRegion: regionalPrescription.region
+                                  }
+                                )
+                              );
+                            }}
+                          >
+                            {Regions[regionalPrescription.region].name}
+                          </Button>
+                        )
+                      )}
+                    </div>
+                  )}
                 </div>
                 {prescriptionIndex !== filteredPrescriptions.length - 1 && (
                   <hr />
