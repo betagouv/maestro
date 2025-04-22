@@ -8,6 +8,7 @@ export const mockGetAuthorizationUrl = vi.fn();
 export const mockAuthenticate = vi.fn();
 export const mockGetLogoutUrl = vi.fn();
 export const mockGenerateSampleSupportPDF = vi.fn();
+export const mockGenerateAnalysisRequestExcel = vi.fn();
 vi.mock('../services/authService', () => ({
   getAuthService: Promise.resolve({
     getAuthorizationUrl: () => mockGetAuthorizationUrl(),
@@ -21,6 +22,11 @@ vi.mock('../services/pdfService/pdfService', () => ({
   }
 }));
 
+vi.mock('../services/excelService/excelService', () => ({
+  excelService: {
+    generateAnalysisRequestExcel : () => mockGenerateAnalysisRequestExcel()
+  }
+}));
 beforeAll(async () => {
   await dbManager.populateDb();
   await dbSeed();
