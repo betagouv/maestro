@@ -21,6 +21,6 @@ const generateAnalysisRequestExcel = async (data: AnalysisRequestData) => {
   });
 };
 
-export default {
+export const excelService = {
   generateAnalysisRequestExcel
 };

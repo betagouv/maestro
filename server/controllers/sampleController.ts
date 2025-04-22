@@ -36,7 +36,7 @@ import sampleItemRepository from '../repositories/sampleItemRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
 import csvService from '../services/csvService/csvService';
 import { documentService } from '../services/documentService';
-import excelService from '../services/excelService/excelService';
+import { excelService } from '../services/excelService/excelService';
 import exportSamplesService from '../services/exportService/exportSamplesService';
 import { mailService } from '../services/mailService';
 import { pdfService } from '../services/pdfService/pdfService';
