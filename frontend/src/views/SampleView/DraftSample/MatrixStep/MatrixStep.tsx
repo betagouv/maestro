@@ -27,8 +27,6 @@ import SampleDocument from '../../../../components/SampleDocument/SampleDocument
 import { usePartialSample } from '../../../../hooks/usePartialSample';
 import { ApiClientContext } from '../../../../services/apiClient';
 import NextButton from '../NextButton';
-import MatrixStepPFAS from './MatrixStepPFAS';
-import MatrixStepPPV from './MatrixStepPPV';
 import MatrixStepPFAS, { PartialSamplePFAS } from './MatrixStepPFAS';
 import MatrixStepPPV, { PartialSamplePPV } from './MatrixStepPPV';
 
@@ -43,7 +41,7 @@ export interface Props {
 const MatrixStep = ({ partialSample }: Props) => {
   const apiClient = useContext(ApiClientContext);
   const { navigateToSample } = useSamplesLink();
-  const { user, hasUserPermission } = useAuthentication();
+  const { user } = useAuthentication();
   const { readonly } = usePartialSample(partialSample);
 
   const stepRef = useRef<MatrixStepRef>(null);
@@ -100,7 +98,7 @@ const MatrixStep = ({ partialSample }: Props) => {
   };
 
   const save = async (
-    status: SampleStatus,
+    status: SampleStatus = partialSample.status,
     sampleMatrixData: Omit<
       PartialSampleMatrixData,
       'documentIds' | 'laboratoryId'
@@ -226,39 +224,40 @@ const MatrixStep = ({ partialSample }: Props) => {
       )}
 
       <hr className={cx('fr-mx-0')} />
-      {hasUserPermission('updateSample') && (
-        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={clsx(cx('fr-col-12'), 'sample-actions')}>
-            <ul
-              className={cx(
-                'fr-btns-group',
-                'fr-btns-group--inline-md',
-                'fr-btns-group--between',
-                'fr-btns-group--icon-left'
-              )}
-            >
-              <li>
-                <ButtonsGroup
-                  alignment="left"
-                  inlineLayoutWhen="md and up"
-                  buttons={
-                    [
-                      PreviousButton({
-                        sampleId: partialSample.id,
-                        onSave: () => save('Draft'),
-                        currentStep: 2
-                      }),
-                      {
-                        children: 'Enregistrer en brouillon',
-                        iconId: 'fr-icon-save-line',
-                        priority: 'tertiary',
-                        onClick: async (e: React.MouseEvent<HTMLElement>) => {
-                          e.preventDefault();
-                          await save('DraftMatrix');
-                          setIsSaved(true);
-                        },
-                        nativeButtonProps: {
-                          'data-testid': 'save-button'
+      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+        <div className={clsx(cx('fr-col-12'), 'sample-actions')}>
+          <ul
+            className={cx(
+              'fr-btns-group',
+              'fr-btns-group--inline-md',
+              'fr-btns-group--between',
+              'fr-btns-group--icon-left'
+            )}
+          >
+            <li>
+              <ButtonsGroup
+                alignment="left"
+                inlineLayoutWhen="md and up"
+                buttons={
+                  !readonly
+                    ? [
+                        PreviousButton({
+                          sampleId: partialSample.id,
+                          onSave: () => save('Draft'),
+                          currentStep: 2
+                        }),
+                        {
+                          children: 'Enregistrer en brouillon',
+                          iconId: 'fr-icon-save-line',
+                          priority: 'tertiary',
+                          onClick: async (e: React.MouseEvent<HTMLElement>) => {
+                            e.preventDefault();
+                            await save();
+                            setIsSaved(true);
+                          },
+                          nativeButtonProps: {
+                            'data-testid': 'save-button'
+                          }
                         }
                       ]
                     : [

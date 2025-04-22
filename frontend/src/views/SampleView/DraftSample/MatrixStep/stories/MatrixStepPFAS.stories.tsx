@@ -58,8 +58,7 @@ export const MatrixStepPFAS: Story = {
       auth: { authUser: genAuthUser(sampler) },
       programmingPlan: {
         programmingPlan
-      },
-      auth: { authUser: genAuthUser(sampler) }
+      }
     },
     apiClient: getMockApi<ApiClient>({
       ...defaultMockApiClientConf,
