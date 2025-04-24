@@ -1,3 +1,5 @@
+import { parse } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
 import { XMLParser } from 'fast-xml-parser';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
@@ -717,6 +719,14 @@ export const analyseXmlValidator = z.object({
     .transform((a) => (a === '-' ? 0 : a)),
   Substance_active_CAS: residueCasNumberValidator,
   Substance_active_anglais: residueEnglishNameValidator,
+  Date_analyse: z.string().transform((d) => {
+    //'16/04/2025 21:09:28'
+    return parse(
+      d,
+      'dd/MM/yyyy HH:mm:ss',
+      toZonedTime(new Date(), 'Europe/Paris')
+    );
+  }),
   Code_méthode: z
     .string()
     .transform((s) => (s.endsWith('*') ? s.substring(0, s.length - 1) : s))
@@ -774,7 +784,8 @@ export const extractAnalyzes = (obj: unknown): GirpaAnaysis[] => {
         analysisMethod: codeMethodsAnalyseMethod[a.Code_méthode],
         codeSandre: null,
         casNumber: a.Substance_active_CAS,
-        label: a.Substance_active_anglais
+        label: a.Substance_active_anglais,
+        dateAnalysis: a.Date_analyse
       };
       return isNQ || isND
         ? {

@@ -30,6 +30,7 @@ export type ExportDataSubstance = {
   casNumber: string | null;
   codeSandre: string | null;
   analysisMethod: AnalysisMethod;
+  dateAnalysis: Date;
 } & (ExportResultNonQuantifiable | ExportResultQuantifiable);
 export type ExportDataSubstanceWithSSD2Id = OmitDistributive<
   ExportDataSubstance,
@@ -264,8 +265,8 @@ export const checkEmails = async () => {
               await notificationService.sendNotification(
                 {
                   category: 'AnalysisReviewTodo',
-                  link: AppRouteLinks.SampleRoute.link(sampleId),
-              },
+                  link: AppRouteLinks.SampleRoute.link(sampleId)
+                },
                 [{ id: samplerId, email: samplerEmail }],
                 undefined
               );

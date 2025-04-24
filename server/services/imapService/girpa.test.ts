@@ -57,7 +57,8 @@ describe('parse correctement le XML', () => {
             Résultat: '5,2',
             Substance_active_CAS: '?',
             Substance_active_anglais: 'bixafen',
-            Code_méthode: 'M1'
+            Code_méthode: 'M1',
+            Date_analyse: '16/04/2025 21:09:28'
           }
         ])
       )
@@ -65,6 +66,7 @@ describe('parse correctement le XML', () => {
       [
         {
           "girpaReference": "La référence",
+          "dateAnalysis": 2025-04-16T19:09:28.000Z,
           "notes": "Une note",
           "residues": [
             {
@@ -93,7 +95,8 @@ describe('parse correctement le XML', () => {
             Résultat: '0,3',
             Substance_active_CAS: '1967-25-5',
             Substance_active_anglais: 'bixafen',
-            Code_méthode: 'M1*'
+            Code_méthode: 'M1*',
+            Date_analyse: '16/04/2025 21:09:28'
           },
           {
             LMR: 10,
@@ -101,7 +104,8 @@ describe('parse correctement le XML', () => {
             Résultat: '0,29',
             Substance_active_CAS: '27112-32-9',
             Substance_active_anglais: 'fluopyram',
-            Code_méthode: 'M3'
+            Code_méthode: 'M3',
+            Date_analyse: '16/04/2025 21:09:28'
           },
           {
             LMR: 10,
@@ -109,7 +113,8 @@ describe('parse correctement le XML', () => {
             Résultat: '10,1',
             Substance_active_CAS: '15299-99-7',
             Substance_active_anglais: 'fluroxypyr',
-            Code_méthode: 'M21'
+            Code_méthode: 'M21',
+            Date_analyse: '16/04/2025 21:09:28'
           },
           {
             LMR: '-',
@@ -117,7 +122,8 @@ describe('parse correctement le XML', () => {
             Résultat: '8',
             Substance_active_CAS: '?',
             Substance_active_anglais: 'fluxapyroxad',
-            Code_méthode: 'M1'
+            Code_méthode: 'M1',
+            Date_analyse: '16/04/2025 21:09:28'
           }
         ])
       )![0].residues

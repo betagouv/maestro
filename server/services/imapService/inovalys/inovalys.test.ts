@@ -255,6 +255,7 @@ describe('Parse correctement les fichiers CSV', () => {
     ).toMatchInlineSnapshot(`
         [
           {
+            "dateAnalysis": 2024-10-22T22:00:00.000Z,
             "notes": "Respect de la Directive 2002/63 CE sur les quantités nécessaires ",
             "residues": [
               {

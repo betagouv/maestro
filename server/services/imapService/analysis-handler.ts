@@ -122,6 +122,9 @@ export const analysisHandler = async (
           status: 'Compliance',
           createdBy: null,
           createdAt: new Date(),
+          //FIXME ajouter la date d'analyse
+          // date: analyse.dateAnalysis,
+
           // Pour le moment on passe par une validation manuelle pour déterminer la conformité
           // compliance: true,
           notesOnCompliance: analyse.notes

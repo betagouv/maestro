@@ -10,6 +10,11 @@ import type {
   LaboratoryConf
 } from '../index';
 import { csvToJson, frenchNumberStringValidator } from '../utils';
+import { inovalysReferential, inovalysUnknownReferences } from './inovalysReferential';
+import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
+import { ExtractError } from '../extractError';
+import { parse } from 'date-fns'
+import { toZonedTime } from 'date-fns-tz';
 import {
   inovalysReferential,
   inovalysUnknownReferences
@@ -114,9 +119,11 @@ export const extractAnalyzes = (
       'Numéro CAS': z
         .string()
         .optional()
-        .transform((v) => (v === '' || v === undefined ? null : v))
+        .transform((v) => (v === '' || v === undefined ? null : v)),
+    'Date Analyse': z.string().transform(d => {
+      return parse(d, 'dd/MM/yyyy',  toZonedTime(new Date(), 'Europe/Paris') )
     })
-  );
+  }));
 
   const { data: resultatsData, error: resultatsError } =
     resultatsFileValidator.safeParse(
