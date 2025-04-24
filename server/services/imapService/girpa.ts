@@ -711,12 +711,14 @@ export const analyseXmlValidator = z.object({
     .transform(s => s.endsWith('*') ? s.substring(0, s.length - 1) : s)
     .refine(s => isCodeMethod(s) || s === '-')
 });
+
+export const girpaCodeEchantillonValidator = z.string().transform(l => l.replaceAll(' ', '-').substring(0, l.length - 3));
 // Visible for testing
 export const extractAnalyzes = (
   obj: unknown
 ): Omit<ExportAnalysis, 'pdfFile'>[] => {
   const echantillonValidator = z.object({
-    Code_échantillon: z.string(),
+    Code_échantillon: girpaCodeEchantillonValidator,
     Commentaire: z.string(),
     Analyse: z.array(analyseXmlValidator)
   });

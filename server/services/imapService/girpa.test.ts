@@ -2,8 +2,8 @@ import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import {
   analyseXmlValidator,
-  extractAnalyzes,
-   girpaConf,
+  extractAnalyzes, girpaCodeEchantillonValidator,
+  girpaConf
 } from './girpa';
 import { getSSD2Id } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
@@ -40,7 +40,7 @@ describe('parse correctement le XML', () => {
         {
           "notes": "Une note",
           "residues": [],
-          "sampleReference": "La référence",
+          "sampleReference": "La-référe",
         },
       ]
     `);
@@ -75,7 +75,7 @@ describe('parse correctement le XML', () => {
               "result_kind": "Q",
             },
           ],
-          "sampleReference": "La référence",
+          "sampleReference": "La-référe",
         },
       ]
     `);
@@ -182,4 +182,8 @@ describe('getResidue', () => {
       )
     ).toEqual(expected);
   });
+});
+
+test('girpaCodeEchantillonValidator', () => {
+    expect(girpaCodeEchantillonValidator.parse('IDF 75 22 0001 A 01')).toMatchInlineSnapshot(`"IDF-75-22-0001-A"`);
 });
