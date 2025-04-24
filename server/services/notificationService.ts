@@ -16,6 +16,7 @@ import { mattermostService } from './mattermostService';
 const categoryToEmailTemplate = {
   AnalysisReviewTodo: 'AnalysisReviewTodoTemplate',
   ProgrammingPlanSubmitted: 'SubmittedProgrammingPlanTemplate',
+  ProgrammingPlanApproved: 'ApprovedProgrammingPlanTemplate',
   ProgrammingPlanValidated: 'ValidatedProgrammingPlanTemplate',
   Control: 'NewRegionalPrescriptionCommentTemplate',
   Surveillance: 'NewRegionalPrescriptionCommentTemplate'

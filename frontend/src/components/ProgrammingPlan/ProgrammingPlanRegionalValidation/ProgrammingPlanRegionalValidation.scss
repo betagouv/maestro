@@ -1,0 +1,18 @@
+.step-container {
+  display: flex;
+  flex-direction: row;
+  gap: 1.5rem;
+
+  .step-number {
+    font-size: 3rem;
+    line-height: 3rem;
+    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .step-content {
+    flex-grow: 1;
+  }
+}

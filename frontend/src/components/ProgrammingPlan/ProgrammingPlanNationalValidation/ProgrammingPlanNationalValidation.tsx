@@ -16,12 +16,12 @@ import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch } from '../../../hooks/useStore';
 import { api } from '../../../services/api.service';
 import { useUpdateProgrammingPlanRegionalStatusMutation } from '../../../services/programming-plan.service';
-import './ProgrammingPlanUpdateModal.scss';
+import './ProgrammingPlanNationalValidation.scss';
 interface Props {
   programmingPlan: ProgrammingPlan;
 }
 
-const ProgrammingPlanUpdateModal = ({ programmingPlan }: Props) => {
+const ProgrammingPlanNationalValidation = ({ programmingPlan }: Props) => {
   const dispatch = useAppDispatch();
   const { hasUserPermission } = useAuthentication();
   const submissionModal = useMemo(
@@ -35,7 +35,7 @@ const ProgrammingPlanUpdateModal = ({ programmingPlan }: Props) => {
 
   const [updateRegionalStatus] =
     useUpdateProgrammingPlanRegionalStatusMutation();
-  //
+
   const [isSuccess, setIsSuccess] = useState(false);
   const [isError, setIsError] = useState(false);
   const [status, setStatus] = useState<ProgrammingPlanStatus>('InProgress');
@@ -146,12 +146,12 @@ const ProgrammingPlanUpdateModal = ({ programmingPlan }: Props) => {
                 {
                   label: 'Valider la programmation',
                   nativeInputProps: {
-                    checked: status === 'Submitted',
+                    checked: status === 'Approved',
                     onChange: () => {
-                      setStatus('Submitted');
+                      setStatus('Approved');
                       setRegionsToNotify([]);
                     },
-                    disabled: getRegionsByStatus('Submitted').length === 0
+                    disabled: getRegionsByStatus('Approved').length === 0
                   }
                 }
               ]}
@@ -199,4 +199,4 @@ const ProgrammingPlanUpdateModal = ({ programmingPlan }: Props) => {
   );
 };
 
-export default ProgrammingPlanUpdateModal;
+export default ProgrammingPlanNationalValidation;

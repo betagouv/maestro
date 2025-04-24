@@ -17,6 +17,12 @@ export const Templates = {
     })
   },
   SubmittedProgrammingPlanTemplate: { id: 3, params: z.undefined() },
+  ApprovedProgrammingPlanTemplate: {
+    id: 12, //TODO
+    params: z.object({
+      region: z.string().optional()
+    })
+  },
   ValidatedProgrammingPlanTemplate: { id: 4, params: z.undefined() },
   NewRegionalPrescriptionCommentTemplate: {
     id: 5,
