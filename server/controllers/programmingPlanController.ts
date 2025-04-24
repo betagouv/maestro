@@ -214,6 +214,7 @@ const createProgrammingPlan = async (request: Request, response: Response) => {
 };
 
 const updateRegionalStatus = async (request: Request, response: Response) => {
+  const { user } = request as AuthenticatedRequest;
   const { programmingPlan } = request as ProgrammingPlanRequest;
   const programmingPlanRegionalStatusList =
     request.body as ProgrammingPlanRegionalStatus[];
@@ -237,19 +238,40 @@ const updateRegionalStatus = async (request: Request, response: Response) => {
     return response.sendStatus(constants.HTTP_STATUS_BAD_REQUEST);
   }
 
+  if (
+    hasPermission(user, 'approveProgrammingPlan') &&
+    !hasPermission(user, 'manageProgrammingPlan') &&
+    programmingPlanRegionalStatusList.some(
+      (programmingPlanRegionalStatus) =>
+        programmingPlanRegionalStatus.status !== 'Approved' ||
+        !userRegions(user).includes(programmingPlanRegionalStatus.region)
+    )
+  ) {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
+
   await Promise.all(
     programmingPlanRegionalStatusList.map(
       async (programmingPlanRegionalStatus) => {
-        const regionalCoordinators = await userRepository.findMany({
-          roles: ['RegionalCoordinator'],
-          region: programmingPlanRegionalStatus.region
-        });
+        if (
+          ['Submitted', 'Validated'].includes(
+            programmingPlanRegionalStatus.status
+          )
+        ) {
+          const regionalCoordinators = await userRepository.findMany({
+            roles: ['RegionalCoordinator'],
+            region: programmingPlanRegionalStatus.region
+          });
 
-        if (programmingPlanRegionalStatus.status === 'Submitted') {
+          const category =
+            programmingPlanRegionalStatus.status === 'Submitted'
+              ? 'ProgrammingPlanSubmitted'
+              : 'ProgrammingPlanValidated';
+
           await notificationService.sendNotification(
             {
-              category: 'ProgrammingPlanSubmitted',
-              message: NotificationCategoryMessages['ProgrammingPlanSubmitted'],
+              category,
+              message: NotificationCategoryMessages[category],
               link: AppRouteLinks.ProgrammationByYearRoute.link(
                 programmingPlan.year
               )
@@ -257,17 +279,25 @@ const updateRegionalStatus = async (request: Request, response: Response) => {
             regionalCoordinators,
             undefined
           );
-        } else if (programmingPlanRegionalStatus.status === 'Validated') {
+        } else if (programmingPlanRegionalStatus.status === 'Approved') {
+          const nationalCoordinators = await userRepository.findMany({
+            roles: ['NationalCoordinator']
+          });
+
           await notificationService.sendNotification(
             {
-              category: 'ProgrammingPlanValidated',
-              message: NotificationCategoryMessages['ProgrammingPlanValidated'],
+              category: 'ProgrammingPlanApproved',
+              message: NotificationCategoryMessages['ProgrammingPlanApproved'](
+                programmingPlanRegionalStatus.region
+              ),
               link: AppRouteLinks.ProgrammationByYearRoute.link(
                 programmingPlan.year
               )
             },
-            regionalCoordinators,
-            undefined
+            nationalCoordinators,
+            {
+              region: programmingPlanRegionalStatus.region
+            }
           );
         } else {
           return response.sendStatus(constants.HTTP_STATUS_BAD_REQUEST);

@@ -58,7 +58,11 @@ export const programmingPlanApi = api.injectEndpoints({
         body: programmingPlanRegionalStatusList
       }),
       transformResponse: (response: any) =>
-        ProgrammingPlan.parse(fp.omitBy(response, fp.isNil))
+        ProgrammingPlan.parse(fp.omitBy(response, fp.isNil)),
+      invalidatesTags: (_result, _error, { programmingPlanId }) => [
+        { type: 'ProgrammingPlan', id: programmingPlanId },
+        { type: 'ProgrammingPlan', id: 'LIST' }
+      ]
     })
   })
 });
