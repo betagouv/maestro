@@ -18,28 +18,30 @@ class BrevoService implements MailService {
   }
 
   async send<T extends TemplateName>(options: SendOptions<T>): Promise<void> {
-    const brevoUrl = 'https://api.brevo.com/v3/smtp/email';
-    const body = {
-      ...options,
-      templateId: Templates[options.templateName].id,
-      to: options.recipients.map((recipient) => ({
-        email: recipient
-      }))
-    };
+    if (options.recipients.length > 0) {
+      const brevoUrl = 'https://api.brevo.com/v3/smtp/email';
+      const body = {
+        ...options,
+        templateId: Templates[options.templateName].id,
+        to: options.recipients.map((recipient) => ({
+          email: recipient
+        }))
+      };
 
-    const response = await fetch(brevoUrl, {
-      method: 'POST',
-      headers: {
-        accept: 'application/json',
-        'api-key': this.apiKey,
-        'content-type': 'application/json'
-      },
-      body: JSON.stringify(body)
-    });
+      const response = await fetch(brevoUrl, {
+        method: 'POST',
+        headers: {
+          accept: 'application/json',
+          'api-key': this.apiKey,
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
 
-    if (!response.ok) {
-      console.error(response.statusText)
-      throw new SendEmailError();
+      if (!response.ok) {
+        console.error(response.statusText);
+        throw new SendEmailError();
+      }
     }
   }
 }
