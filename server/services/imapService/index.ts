@@ -36,6 +36,7 @@ export type ExportAnalysis = {
   sampleReference: Sample['reference'];
   notes: string;
   pdfFile: File;
+  dateAnalysis: Date,
   residues: ExportDataSubstance[];
 };
 export type ExportDataFromEmail = (email: ParsedMail) => ExportAnalysis[];

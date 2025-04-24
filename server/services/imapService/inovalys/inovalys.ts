@@ -8,6 +8,8 @@ import { csvToJson, frenchNumberStringValidator } from '../utils';
 import { inovalysReferential, inovalysUnknownReferences } from './inovalysReferential';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { ExtractError } from '../extractError';
+import { parse } from 'date-fns'
+import { toZonedTime } from 'date-fns-tz';
 
 const codeMethods = [
   'M-ARCO/M/021', 'M-ARCO/M021', 'M-ARCO/M/022', 'M-ARCO/M/023', 'M-ARCO/M/024', 'M-ARCO/M/031', 'M-ARCO/M/033', 'M-ARCO/M/045', 'M-ARCO/M/056', 'M-ARCO/M/059', 'M-ARCO/M/060', 'M-ARCO/M/064', 'M-ARCO/M/065', 'M-ARCO/M/066', 'Méthode interne'
@@ -78,6 +80,9 @@ export const extractAnalyzes = (
     //LMR
     'Spécification 1': z.coerce.number().optional().transform((v) => v ?? 0),
     'Numéro CAS': z.string().optional().transform(v => v === '' || v === undefined ? null : v),
+    'Date Analyse': z.string().transform(d => {
+      return parse(d, 'dd/MM/yyyy',  toZonedTime(new Date(), 'Europe/Paris') )
+    })
   }));
 
 
@@ -96,6 +101,7 @@ export const extractAnalyzes = (
 
 
  const result:  Omit<ExportAnalysis, 'pdfFile'>[] = []
+  let dateAnalysis: Date | null = null
   for (const sampleWithResultat of samplesWithResultats) {
 
     const residues: ExportDataSubstance[] = sampleWithResultat.resultats
@@ -105,6 +111,9 @@ export const extractAnalyzes = (
           r['Résultat 1']
         );
 
+        if (dateAnalysis === null) {
+          dateAnalysis = r['Date Analyse'];
+        }
         const result: ExportResultQuantifiable | ExportResultNonQuantifiable =
           resultatAsNumber.success
             ? {
@@ -125,12 +134,14 @@ export const extractAnalyzes = (
         }
       });
 
-
+    if (dateAnalysis !== null) {
     result.push({
       sampleReference: sampleWithResultat.sample['Réf Client'],
       notes: sampleWithResultat.sample.Commentaire,
-      residues
-    })
+      residues,
+      dateAnalysis
+    });
+    }
   }
 
   return result

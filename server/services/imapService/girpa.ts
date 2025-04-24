@@ -10,6 +10,8 @@ import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { frenchNumberStringValidator } from './utils';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { ExtractError } from './extractError';
+import { parse } from 'date-fns'
+import { toZonedTime } from 'date-fns-tz';
 
 const girpaUnknownReferences: string[] = [
   "dmpf",
@@ -701,12 +703,17 @@ export const residueEnglishNameValidator = z
   .string()
   .brand('ResidueEnglishName');
 
+
 export const analyseXmlValidator = z.object({
   Résultat: frenchNumberStringValidator,
   Limite_de_quantification: frenchNumberStringValidator,
   LMR: z.union([z.literal('-'), z.number(), frenchNumberStringValidator]).transform(a => a === '-' ? 0 : a),
   Substance_active_CAS: residueCasNumberValidator,
   Substance_active_anglais: residueEnglishNameValidator,
+  Date_analyse: z.string().transform(d =>{
+    //'16/04/2025 21:09:28'
+    return parse(d, 'dd/MM/yyyy HH:mm:ss', toZonedTime(new Date(), 'Europe/Paris'));
+  }),
   Code_méthode: z.string()
     .transform(s => s.endsWith('*') ? s.substring(0, s.length - 1) : s)
     .refine(s => isCodeMethod(s) || s === '-')
@@ -731,6 +738,8 @@ export const extractAnalyzes = (
 
   const result = validator.parse(obj);
 
+  let dateAnalysis: Date | null = null
+
   return result.Rapport.Echantillon.map((echantillon) => {
     const residues: ExportDataSubstance[] = echantillon.Analyse
       .filter((a) => a.Substance_active_anglais !== 'impression étiquettes')
@@ -739,8 +748,12 @@ export const extractAnalyzes = (
         const isND = a.Résultat < a.Limite_de_quantification / 3
         const isNQ = !isND && a.Résultat < a.Limite_de_quantification
 
+        if (dateAnalysis === null) {
+          dateAnalysis = a.Date_analyse
+        }
+
         if (a.Code_méthode === '-') {
-          throw new ExtractError(`Le code méthode est incorrect, la valeur « - » est réservée pour l'entête`)
+          throw new ExtractError(`Le code méthode est incorrect, la valeur « - » est réservée pour l'entête`);
         }
 
         const commonData = {
@@ -756,9 +769,15 @@ export const extractAnalyzes = (
             }
           : { result_kind: 'Q', result: a.Résultat, lmr: a.LMR, ...commonData };
       })
+
+    if (dateAnalysis === null) {
+      throw new ExtractError(`Impossible de récupérer la date de l'analyse`);
+    }
+
     return {
       sampleReference: echantillon['Code_échantillon'],
       notes: echantillon.Commentaire,
+      dateAnalysis,
       residues
     };
   });
