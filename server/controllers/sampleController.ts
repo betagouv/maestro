@@ -40,7 +40,6 @@ import { excelService } from '../services/excelService/excelService';
 import exportSamplesService from '../services/exportService/exportSamplesService';
 import { mailService } from '../services/mailService';
 import { pdfService } from '../services/pdfService/pdfService';
-import config from '../utils/config';
 import workbookUtils from '../utils/workbookUtils';
 
 import { isEqual } from 'lodash-es';
@@ -376,7 +375,7 @@ const updateSample = async (request: Request, response: Response) => {
 
           await mailService.send({
             templateName: 'SampleAnalysisRequestTemplate',
-            recipients: [...(laboratory?.emails ?? []), config.mail.from],
+            recipients: laboratory?.emails ?? [],
             params: {
               region: user.region ? Regions[user.region].name : undefined,
               userMail: user.email,
@@ -402,7 +401,7 @@ const updateSample = async (request: Request, response: Response) => {
         if (sample.ownerEmail) {
           await mailService.send({
             templateName: 'SupportDocumentCopyToOwnerTemplate',
-            recipients: [sample.ownerEmail, config.mail.from],
+            recipients: [sample.ownerEmail],
             params: {
               region: user.region ? Regions[user.region].name : undefined,
               sampledAt: format(updatedSample.sampledAt, 'dd/MM/yyyy')
