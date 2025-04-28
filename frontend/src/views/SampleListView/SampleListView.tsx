@@ -42,6 +42,7 @@ import { v4 as uuidv4 } from 'uuid';
 import food from '../../assets/illustrations/food.svg';
 import SupportDocumentDownload from '../SampleView/DraftSample/SupportDocumentDownload';
 import './SampleList.scss';
+import { UserRoleList, UserRolePermissions } from 'maestro-shared/schema/User/UserRole';
 
 export type SampleListDisplay = 'table' | 'cards';
 
@@ -102,7 +103,10 @@ const SampleListView = () => {
   );
   const { data: samplers } = useFindUsersQuery({
     region: findSampleOptions.region,
-    role: 'Sampler'
+    roles: UserRoleList.filter((r) => {
+      const permissions = UserRolePermissions[r]
+      return permissions.includes('createSample') || permissions.includes('updateSample')
+    })
   });
 
   const changeFilter = (findFilter: Partial<FindSampleOptions>) => {

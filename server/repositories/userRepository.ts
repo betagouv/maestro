@@ -43,9 +43,9 @@ const findMany = async (findOptions: FindUserOptions): Promise<User[]> => {
           query = query.where('region', '=', findOptions.region);
         }
         break;
-      case 'role':
-        if (!isNil(findOptions.role)) {
-          query = query.where('role', '=', findOptions.role);
+      case 'roles':
+        if (!isNil(findOptions.roles) && findOptions.roles.length > 0) {
+          query = query.where('role', 'in', findOptions.roles);
         }
         break;
       default:
