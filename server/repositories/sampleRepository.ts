@@ -101,7 +101,8 @@ const findRequest = (findOptions: FindSampleOptions) =>
           'page',
           'perPage',
           'status',
-          'reference'
+          'reference',
+          'department'
         ),
         (_) => isNil(_) || isArray(_)
       )
@@ -128,6 +129,11 @@ const findRequest = (findOptions: FindSampleOptions) =>
       }
       if (findOptions.reference) {
         builder.whereILike('reference', `%${findOptions.reference}%`);
+      }
+      if (findOptions.department) {
+        builder.where(
+          `${samplesTable}.department`, findOptions.department
+        )
       }
     });
 
@@ -180,6 +186,7 @@ const findMany = async (
     })
     .orderBy('sampled_at', 'desc')
     .orderBy('created_at', 'desc')
+    .orderBy(`${samplesTable}.id`)
     .then((samples) => samples.map(parsePartialSample));
 };
 
