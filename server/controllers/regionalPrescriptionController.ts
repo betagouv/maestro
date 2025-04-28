@@ -130,10 +130,10 @@ const commentRegionalPrescription = async (
     user.role === 'NationalCoordinator'
       ? {
           region: regionalPrescription.region,
-          role: 'RegionalCoordinator'
+          roles: ['RegionalCoordinator']
         }
       : {
-          role: 'NationalCoordinator'
+          roles: ['NationalCoordinator']
         }
   );
 

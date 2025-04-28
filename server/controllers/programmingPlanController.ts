@@ -197,7 +197,7 @@ const updateRegionalStatus = async (request: Request, response: Response) => {
     programmingPlanRegionalStatusList.map(
       async (programmingPlanRegionalStatus) => {
         const regionalCoordinators = await userRepository.findMany({
-          role: 'RegionalCoordinator',
+          roles: ['RegionalCoordinator'],
           region: programmingPlanRegionalStatus.region
         });
 
