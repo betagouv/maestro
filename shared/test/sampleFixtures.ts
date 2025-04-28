@@ -151,7 +151,7 @@ export const Sample12Fixture = genCreatedPartialSample({
   company: CompanyFixture,
   id: '11111111-2222-2222-2222-222222222222',
   status: 'Draft' as const,
-  department: oneOf(Regions[Region1Fixture].departments),
+  department: '88',
   region: Region1Fixture,
   reference: 'GES-08-24-314-A'
 });
@@ -162,7 +162,7 @@ export const Sample13Fixture = genCreatedPartialSample({
   company: CompanyFixture,
   id: '11111111-3333-3333-3333-333333333333',
   status: 'Sent' as const,
-  department: oneOf(Regions[Region1Fixture].departments),
+  department: '88',
   region: Region1Fixture,
   reference: 'GES-08-24-315-A'
 });
@@ -173,7 +173,7 @@ export const Sample2Fixture = genCreatedPartialSample({
   company: CompanyFixture,
   id: '22222222-2222-2222-2222-222222222222',
   status: 'DraftMatrix' as const,
-  department: oneOf(Regions[Region2Fixture].departments),
+  department: '53',
   region: Region2Fixture,
   reference: 'PDL-08-24-313-A'
 });
