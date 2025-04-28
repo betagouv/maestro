@@ -13,18 +13,18 @@ import { sampleRepository } from '../repositories/sampleRepository';
 import { mattermostService } from '../services/mattermostService';
 import { MaestroRouteMethod } from '../routers/analysis.router';
 
-const getAnalysis: MaestroRouteMethod<'GET /'> = async (request, response) => {
+const getAnalysis: MaestroRouteMethod<'GET /'> = async (request) => {
   const { sampleId } = request.query
   const analysis = await analysisRepository.findUnique({ sampleId });
 
   if (!analysis) {
-    return response.sendStatus(constants.HTTP_STATUS_NOT_FOUND);
+    return { status: constants.HTTP_STATUS_NOT_FOUND }
   }
 
-  response.send(analysis);
+  return {response: analysis}
 };
 
-const createAnalysis: MaestroRouteMethod<'POST /'>  = async (request, response) => {
+const createAnalysis: MaestroRouteMethod<'POST /'>  = async (request) => {
   const { user } = request;
   const analysisToCreate = request.body;
 
@@ -50,10 +50,13 @@ const createAnalysis: MaestroRouteMethod<'POST /'>  = async (request, response) 
     status: 'Analysis'
   });
 
-  response.status(constants.HTTP_STATUS_CREATED).send(analysis);
+  return {
+    status: constants.HTTP_STATUS_CREATED,
+    response: analysis
+  }
 };
 
-const updateAnalysis: MaestroRouteMethod<'PUT /:analysisId'> = async (request, response) => {
+const updateAnalysis: MaestroRouteMethod<'PUT /:analysisId'> = async (request) => {
   const { user } = request;
   const analysisId = request.params.analysisId;
   const analysisUpdate = request.body;
@@ -73,7 +76,7 @@ const updateAnalysis: MaestroRouteMethod<'PUT /:analysisId'> = async (request, r
   }
 
   if (sample.region !== user.region) {
-    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+    return { status: constants.HTTP_STATUS_FORBIDDEN}
   }
 
   if (sample.status === 'InReview' && analysisUpdate.status === 'Completed') {
@@ -130,7 +133,7 @@ const updateAnalysis: MaestroRouteMethod<'PUT /:analysisId'> = async (request, r
     });
   }
 
-  response.send(updatedAnalysis);
+  return { response: updatedAnalysis }
 };
 
 export default {
