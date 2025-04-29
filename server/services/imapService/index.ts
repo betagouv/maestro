@@ -174,13 +174,13 @@ export const checkEmails = async () => {
             }
 
             for (const analysis of analyzes) {
-              const residues = analysis.residues.map((r) => {
+              const residues: (ExportDataSubstance & {ssd2Id: SSD2Id | null})[] = analysis.residues.map((r) => {
                 return {
                   ...r,
                   ssd2Id:
                     laboratoriesConf[message.laboratoryName].ssd2IdByLabel[
                       r.label
-                    ]
+                    ] ?? null
                 };
               });
 
