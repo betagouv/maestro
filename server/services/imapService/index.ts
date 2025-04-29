@@ -253,6 +253,7 @@ export const checkEmails = async () => {
             });
 
           } catch (e: any) {
+            console.error(e)
             await moveMessageToErrorbox(
               parsed.subject ?? '',
               parsed.from?.value[0].address ?? '',

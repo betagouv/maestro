@@ -60,7 +60,6 @@ const girpaReferences: Record<string, SSD2Id> = {
   "metazachlor metabolite 479M16": "RF-00003325-PAR",
   "methiocarb sulfoxide": "RF-0291-003-PPP",
   "metolachlor and S-metolachlor according reg.": "RF-00002611-PAR",
-  "mevinphos according reg.": "RF-0302-001-PPP",
   "milbemectin according reg.": "RF-00003018-PAR",
   "myclobutanil according reg.": "RF-00012801-PAR",
   "napropamide according reg.": "RF-00012802-PAR",
@@ -75,7 +74,6 @@ const girpaReferences: Record<string, SSD2Id> = {
   "resmethrin according reg.": "RF-0385-001-PPP",
   "sedaxane according reg.": "RF-00012869-PAR",
   "spinetoram (XDE-175, sum J and L isomers)": "RF-00013247-PAR",
-  "spinosad according reg.": "RF-0393-001-PPP",
   "spirotetramat-enol": "RF-00012871-PAR",
   "sulfoxaflor according reg.": "RF-00004679-PAR",
   "tefluthrin": "RF-00013463-PAR",
@@ -712,7 +710,12 @@ export const analyseXmlValidator = z.object({
     .refine(s => isCodeMethod(s) || s === '-')
 });
 
-export const girpaCodeEchantillonValidator = z.string().transform(l => l.replaceAll(' ', '-').substring(0, l.length - 3));
+export const girpaCodeEchantillonValidator = z.string().transform(l => l
+  .trim()
+  .substring(0, l.length - 2)
+  .trim()
+  .replaceAll(' ', '-'));
+
 // Visible for testing
 export const extractAnalyzes = (
   obj: unknown

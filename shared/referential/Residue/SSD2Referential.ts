@@ -3466,6 +3466,20 @@ export const SSD2Referential =
       "otherNames": [],
       "reportable": true
    },
+   "RF-00012328-PAR": {
+      "reference": "RF-00012328-PAR",
+      "name": "Mevinphos",
+      "casNumber": "7786-34-7",
+      "otherNames": [],
+      "reportable": false
+   },
+   "RF-00012333-PAR": {
+      "reference": "RF-00012333-PAR",
+      "name": "Spinosad",
+      "casNumber": "168316-95-8",
+      "otherNames": [],
+      "reportable": false
+   },
    "RF-00012362-PAR": {
       "reference": "RF-00012362-PAR",
       "name": "Ethaboxam",
