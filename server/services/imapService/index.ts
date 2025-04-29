@@ -44,7 +44,6 @@ export type LaboratoryConf = {
   exportDataFromEmail: ExportDataFromEmail;
   ssd2IdByLabel: Record<string, SSD2Id>
   unknownReferences: string[]
-  normalizeLabel: (label: string) => string
 };
 
 export type LaboratoryWithConf = Extract<LaboratoryName, 'GIR 49' | 'LDA 72' | 'CAP 29'>
@@ -208,8 +207,7 @@ export const checkEmails = async () => {
                   const potentialSSD2Id = getSSD2Id(
                     r.label,
                     r.codeSandre,
-                    r.casNumber,
-                    laboratoriesConf[message.laboratoryName]
+                    r.casNumber
                   );
                   warnings.add(
                     `Impossible d'identifier le résidue : ${r.label} ${potentialSSD2Id !== null ? 'ssd2Id potentiel:' + potentialSSD2Id : ''}`
