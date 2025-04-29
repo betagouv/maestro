@@ -40,7 +40,7 @@ describe('parse correctement le XML', () => {
         {
           "notes": "Une note",
           "residues": [],
-          "sampleReference": "La-référe",
+          "sampleReference": "La-référen",
         },
       ]
     `);
@@ -75,7 +75,7 @@ describe('parse correctement le XML', () => {
               "result_kind": "Q",
             },
           ],
-          "sampleReference": "La-référe",
+          "sampleReference": "La-référen",
         },
       ]
     `);
@@ -186,4 +186,5 @@ describe('getResidue', () => {
 
 test('girpaCodeEchantillonValidator', () => {
     expect(girpaCodeEchantillonValidator.parse('IDF 75 22 0001 A 01')).toMatchInlineSnapshot(`"IDF-75-22-0001-A"`);
+    expect(girpaCodeEchantillonValidator.parse('PAC-04-25-0001-A01')).toMatchInlineSnapshot(`"PAC-04-25-0001-A"`)
 });
