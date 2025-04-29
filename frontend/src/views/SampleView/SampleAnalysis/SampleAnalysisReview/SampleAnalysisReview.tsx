@@ -133,7 +133,7 @@ export const SampleAnalysisReview: FunctionComponent<Props> = ({
           onSave={onValidateInterpretation}
           partialAnalysis={{
             compliance: undefined,
-            notesOnCompliance: undefined
+            notesOnCompliance: partialAnalysis.notesOnCompliance
           }}
         />
       )}
