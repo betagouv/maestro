@@ -219,10 +219,10 @@ export const Regions: Record<
     borderingDepartments: ['08', '51', '77', '95', '27', '76'],
     establishment: {
       name: 'DRAAF / SRAL Hauts de France',
-      street: '518 rue St Fuscien',
-      postalCode: '80094',
-      additionalAddress: 'CS 90069',
-      city: 'Amiens Cedex 3'
+      service: 'Cité Administrative - Bâtiment A',
+      street: '53, rue de la vallée',
+      postalCode: '80000',
+      city: 'Amiens'
     }
   },
   '11': {
