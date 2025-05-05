@@ -186,6 +186,7 @@ const SampleListView = () => {
                   onChange={changeFilter}
                   samplers={samplers}
                   prescriptions={prescriptions}
+                  currentUserId={user?.id}
                 />
                 <SampleSecondaryFilters
                   filters={findSampleOptions}
@@ -204,6 +205,7 @@ const SampleListView = () => {
                     onChange={changeFilter}
                     samplers={samplers}
                     prescriptions={prescriptions}
+                    currentUserId={user?.id}
                   />
                   {isFilterExpanded && (
                     <SampleSecondaryFilters

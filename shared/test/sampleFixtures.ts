@@ -132,7 +132,7 @@ export const Sample11Fixture = genCreatedPartialSample({
   resytalId: '23-123456',
   company: CompanyFixture,
   notesOnCreation: 'notes on creation',
-  reference: 'GES-08-24-313-A',
+  reference: 'GS-08-24-313-A',
   sampler: pick(Sampler1Fixture, ['id', 'firstName', 'lastName']),
   createdAt: new Date('2023-01-02'),
   lastUpdatedAt: new Date('2024-03-04'),

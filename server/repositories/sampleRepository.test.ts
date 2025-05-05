@@ -17,6 +17,14 @@ describe('count samples', async () => {
     count = await sampleRepository.count({programmingPlanId: Sample11Fixture.programmingPlanId,  department: Sample11Fixture.department})
     expect(count).toEqual(1);
   })
+
+  test('count with region option', async () => {
+    let count = await sampleRepository.count({programmingPlanId: Sample11Fixture.programmingPlanId,  region: '01'})
+    expect(count).toEqual(0);
+
+    count = await sampleRepository.count({programmingPlanId: Sample11Fixture.programmingPlanId,  region: Sample11Fixture.region})
+    expect(count).toEqual(3);
+  })
 });
 
 describe('findMany samples', async () => {

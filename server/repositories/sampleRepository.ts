@@ -1,5 +1,5 @@
 import { isArray, isNil, omit, omitBy } from 'lodash-es';
-import { Region, Regions } from 'maestro-shared/referential/Region';
+import { Region } from 'maestro-shared/referential/Region';
 import { defaultPerPage } from 'maestro-shared/schema/commons/Pagination';
 import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import { PartialSample, Sample } from 'maestro-shared/schema/Sample/Sample';
@@ -109,9 +109,9 @@ const findRequest = (findOptions: FindSampleOptions) =>
     )
     .modify((builder) => {
       if (findOptions.region) {
-        builder.whereILike(
-          'reference',
-          `${Regions[findOptions.region].shortName}-%`
+        builder.where(
+          `${samplesTable}.region`,
+          findOptions.region
         );
       }
       if (findOptions.status) {

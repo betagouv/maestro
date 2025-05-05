@@ -21,13 +21,15 @@ interface Props {
   onChange: (filters: Partial<FindSampleOptions>) => void;
   samplers?: User[];
   prescriptions?: Prescription[];
+  currentUserId: string | undefined
 }
 
 const SamplePrimaryFilters = ({
   filters,
   onChange,
   samplers,
-  prescriptions
+  prescriptions,
+  currentUserId
 }: Props) => {
   return (
     <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
@@ -90,11 +92,22 @@ const SamplePrimaryFilters = ({
           }}
         >
           <option value="">Tous</option>
-          {samplers?.map((user) => (
-            <option key={`user-${user.id}`} value={user.id}>
-              {user.firstName} {user.lastName}
-            </option>
-          ))}
+          {samplers
+            ?.filter(({ firstName }) => firstName !== '-')
+            .sort((a, b) => {
+              if( a.id === currentUserId){
+                return -1
+              }
+              if( b.id === currentUserId){
+                return 1
+              }
+              return a.firstName.localeCompare(b.firstName);
+            })
+            .map((user) => (
+              <option key={`user-${user.id}`} value={user.id}>
+                {user.firstName} {user.lastName}
+              </option>
+            ))}
         </Select>
       </div>
 
