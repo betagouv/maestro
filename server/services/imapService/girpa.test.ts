@@ -3,7 +3,6 @@ import { z } from 'zod';
 import {
   analyseXmlValidator,
   extractAnalyzes, girpaCodeEchantillonValidator,
-  girpaConf
 } from './girpa';
 import { getSSD2Id } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
@@ -178,7 +177,6 @@ describe('getResidue', () => {
         englishName,
         null,
         casNumber,
-        girpaConf
       )
     ).toEqual(expected);
   });
