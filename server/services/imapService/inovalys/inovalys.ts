@@ -187,5 +187,4 @@ export const inovalysConf: LaboratoryConf = {
   exportDataFromEmail,
   ssd2IdByLabel: inovalysReferential,
   unknownReferences: inovalysUnknownReferences,
-  normalizeLabel: (label: string) => label.replace('· ', '')
 };

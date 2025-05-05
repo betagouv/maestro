@@ -1,6 +1,5 @@
 import { SSD2Id } from './SSD2Id';
 import { SandreToSSD2 } from './SandreToSSD2';
-import { LaboratoryConf } from 'maestro-server/services/imapService';
 
 export const SSD2Referential =
 // ----- ne pas supprimer cette ligne : début
@@ -12275,7 +12274,7 @@ const getSSD2IdByLabel = (label: string): SSD2Id | null => {
    return values.find(({otherNames}) => otherNames.map(n => n.toLowerCase()).includes(labelLowerCase))?.reference ?? null
 }
 
-export const getSSD2Id = (label: string, codeSandre: string | null, casNumber: string | null, laboratoryConf: Pick<LaboratoryConf, 'normalizeLabel'>): SSD2Id | null => {
+export const getSSD2Id = (label: string, codeSandre: string | null, casNumber: string | null): SSD2Id | null => {
    let ssd2Id: SSD2Id | null = null
 
    if (casNumber !== null) {
@@ -12287,7 +12286,7 @@ export const getSSD2Id = (label: string, codeSandre: string | null, casNumber: s
    }
 
    if (ssd2Id === null) {
-      ssd2Id = getSSD2IdByLabel(laboratoryConf.normalizeLabel(label));
+      ssd2Id = getSSD2IdByLabel(label);
    }
 
    return ssd2Id

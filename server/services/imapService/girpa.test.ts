@@ -3,7 +3,6 @@ import { z } from 'zod';
 import {
   analyseXmlValidator,
   extractAnalyzes, girpaCodeEchantillonValidator,
-  girpaConf
 } from './girpa';
 import { getSSD2Id } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
@@ -38,6 +37,7 @@ describe('parse correctement le XML', () => {
     ).toMatchInlineSnapshot(`
       [
         {
+          "girpaReference": "La référence",
           "notes": "Une note",
           "residues": [],
           "sampleReference": "La-référen",
@@ -63,6 +63,7 @@ describe('parse correctement le XML', () => {
     ).toMatchInlineSnapshot(`
       [
         {
+          "girpaReference": "La référence",
           "notes": "Une note",
           "residues": [
             {
@@ -178,7 +179,6 @@ describe('getResidue', () => {
         englishName,
         null,
         casNumber,
-        girpaConf
       )
     ).toEqual(expected);
   });

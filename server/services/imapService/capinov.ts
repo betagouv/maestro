@@ -836,5 +836,4 @@ export const capinovConf: LaboratoryConf = {
   exportDataFromEmail,
   ssd2IdByLabel: capinovReferential,
   unknownReferences,
-  normalizeLabel: (label) => label
 };
