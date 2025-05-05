@@ -37,6 +37,7 @@ describe('parse correctement le XML', () => {
     ).toMatchInlineSnapshot(`
       [
         {
+          "girpaReference": "La référence",
           "notes": "Une note",
           "residues": [],
           "sampleReference": "La-référen",
@@ -62,6 +63,7 @@ describe('parse correctement le XML', () => {
     ).toMatchInlineSnapshot(`
       [
         {
+          "girpaReference": "La référence",
           "notes": "Une note",
           "residues": [
             {
