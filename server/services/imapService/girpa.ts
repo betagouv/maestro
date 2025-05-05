@@ -12,7 +12,7 @@ import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { ExtractError } from './extractError';
 
 const girpaUnknownReferences: string[] = [
-  "dmpf",
+  "DMPF",
   "cyprosulfamide",
   "methoxychlor, o,p'-",
   "methoxychlor, p,p'-",
@@ -723,12 +723,13 @@ export const girpaCodeEchantillonValidator = z.string().transform(l => l
   .trim()
   .replaceAll(' ', '-'));
 
+type GirpaAnaysis = Omit<ExportAnalysis, 'pdfFile'> & {girpaReference: string}
 // Visible for testing
 export const extractAnalyzes = (
   obj: unknown
-): Omit<ExportAnalysis, 'pdfFile'>[] => {
+): GirpaAnaysis[] => {
   const echantillonValidator = z.object({
-    Code_échantillon: girpaCodeEchantillonValidator,
+    Code_échantillon: z.string(),
     Commentaire: z.string(),
     Analyse: z.array(analyseXmlValidator)
   });
@@ -769,7 +770,8 @@ export const extractAnalyzes = (
           : { result_kind: 'Q', result: a.Résultat, lmr: a.LMR, ...commonData };
       })
     return {
-      sampleReference: echantillon['Code_échantillon'],
+      sampleReference: girpaCodeEchantillonValidator.parse(echantillon['Code_échantillon']),
+      girpaReference: echantillon['Code_échantillon'],
       notes: echantillon.Commentaire,
       residues
     };
@@ -794,7 +796,7 @@ const exportDataFromEmail: ExportDataFromEmail = (email) => {
       const pdfAttachment = email.attachments.find(
         ({ contentType, filename }) =>
           contentType === 'application/pdf' &&
-          filename?.startsWith(analysis.sampleReference)
+          filename?.startsWith(analysis.girpaReference)
       );
 
       if (pdfAttachment === undefined) {
