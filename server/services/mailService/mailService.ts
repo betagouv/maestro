@@ -18,7 +18,7 @@ export const Templates = {
   },
   SubmittedProgrammingPlanTemplate: { id: 3, params: z.undefined() },
   ApprovedProgrammingPlanTemplate: {
-    id: 12, //TODO
+    id: 13,
     params: z.object({
       region: z.string().optional()
     })
