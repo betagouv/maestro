@@ -3,7 +3,7 @@ import { AuthenticatedRequest, ProgrammingPlanRequest } from 'express-jwt';
 import { constants } from 'http2';
 import { intersection } from 'lodash-es';
 import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
-import { RegionList } from 'maestro-shared/referential/Region';
+import { RegionList, Regions } from 'maestro-shared/referential/Region';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { NotificationCategoryMessages } from 'maestro-shared/schema/Notification/NotificationCategory';
 import { ContextList } from 'maestro-shared/schema/ProgrammingPlan/Context';
@@ -296,7 +296,7 @@ const updateRegionalStatus = async (request: Request, response: Response) => {
             },
             nationalCoordinators,
             {
-              region: programmingPlanRegionalStatus.region
+              region: Regions[programmingPlanRegionalStatus.region].name
             }
           );
         } else {
