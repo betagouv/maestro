@@ -9,7 +9,7 @@ export const Notification = z
     recipientId: z.string().uuid(),
     read: z.boolean(),
     message: z.string(),
-    link: z.string().nullish(),
+    link: z.string(),
     author: User.nullish(),
     category: NotificationCategory
   })
