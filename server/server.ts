@@ -72,8 +72,9 @@ export function createServer(): Server {
           }
         }
       })(req, res, next);
+    }else {
+      next()
     }
-    next();
   });
 
   if (config.environment === 'development') {
