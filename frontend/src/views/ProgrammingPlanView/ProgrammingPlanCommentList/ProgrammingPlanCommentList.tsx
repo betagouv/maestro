@@ -164,7 +164,8 @@ const ProgrammingPlanCommentList = ({
                           prescriptionsSlice.actions.setPrescriptionCommentsData(
                             {
                               viewBy: 'MatrixKind',
-                              prescription,
+                              prescriptionId: prescription.id,
+                              matrixKind: prescription.matrixKind,
                               regionalComments:
                                 prescription.regionalCommentedPrescriptions.map(
                                   (rcp) => ({
@@ -202,7 +203,8 @@ const ProgrammingPlanCommentList = ({
                               prescriptionsSlice.actions.setPrescriptionCommentsData(
                                 {
                                   viewBy: 'MatrixKind',
-                                  prescription,
+                                  prescriptionId: prescription.id,
+                                  matrixKind: prescription.matrixKind,
                                   currentRegion: regionalPrescription.region,
                                   regionalComments:
                                     prescription.regionalCommentedPrescriptions.map(
