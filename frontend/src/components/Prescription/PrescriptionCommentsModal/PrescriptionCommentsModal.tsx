@@ -115,7 +115,7 @@ const PrescriptionCommentsModal = ({
       await form.validate(async () => {
         await onSubmitRegionalPrescriptionComment(
           {
-            prescriptionId: prescriptionCommentsData.prescription.id,
+            prescriptionId: prescriptionCommentsData.prescriptionId,
             region: segment as Region
           },
           comment
@@ -131,9 +131,7 @@ const PrescriptionCommentsModal = ({
         title={
           prescriptionCommentsData
             ? prescriptionCommentsData.viewBy === 'MatrixKind'
-              ? MatrixKindLabels[
-                  prescriptionCommentsData.prescription.matrixKind
-                ]
+              ? MatrixKindLabels[prescriptionCommentsData.matrixKind]
               : `Région ${Regions[prescriptionCommentsData.region].name}`
             : ''
         }

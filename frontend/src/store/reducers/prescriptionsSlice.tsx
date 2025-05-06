@@ -1,7 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region } from 'maestro-shared/referential/Region';
-import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { Context } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { RegionalPrescriptionComment } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionComment';
 import { PrescriptionListDisplay } from 'src/views/ProgrammingPlanView/ProgrammingPlanPrescriptionList/ProgrammingPlanPrescriptionList';
@@ -10,7 +9,8 @@ import { z } from 'zod';
 const PrescriptionCommentsData = z.discriminatedUnion('viewBy', [
   z.object({
     viewBy: z.literal('MatrixKind'),
-    prescription: Prescription,
+    prescriptionId: z.string().uuid(),
+    matrixKind: MatrixKind,
     currentRegion: Region.nullish(),
     regionalComments: z.array(
       z.object({
