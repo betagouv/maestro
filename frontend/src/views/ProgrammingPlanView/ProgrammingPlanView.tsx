@@ -14,7 +14,6 @@ import {
   ProgrammingPlanStatus
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { RegionalPrescriptionKey } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
-import { isDefined } from 'maestro-shared/utils/utils';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 import programmation from '../../assets/illustrations/programmation.svg';
@@ -30,6 +29,7 @@ import { useCommentRegionalPrescriptionMutation } from '../../services/regionalP
 import prescriptionsSlice from '../../store/reducers/prescriptionsSlice';
 import ProgrammingPlanCommentList from './ProgrammingPlanCommentList/ProgrammingPlanCommentList';
 import ProgrammingPlanPrescriptionList from './ProgrammingPlanPrescriptionList/ProgrammingPlanPrescriptionList';
+import ProgrammingPlanRegionalValidationList from './ProgrammingPlanRegionalValidationList/ProgrammingPlanApprovalList';
 
 const ProgrammingPlanView = () => {
   const dispatch = useAppDispatch();
@@ -187,20 +187,33 @@ const ProgrammingPlanView = () => {
                           />
                         )
                       },
-                      hasNationalView
-                        ? {
-                            label: 'Commentaires',
-                            content: (
-                              <ProgrammingPlanCommentList
-                                programmingPlan={programmingPlan}
-                                context={prescriptionListContext}
-                                region={region ?? undefined}
-                              />
-                            ),
-                            iconId: 'fr-icon-chat-3-line'
-                          }
-                        : undefined
-                    ].filter(isDefined) as any
+                      ...(hasNationalView
+                        ? [
+                            {
+                              label: 'Phase de consultation',
+                              content: (
+                                <ProgrammingPlanRegionalValidationList
+                                  programmingPlan={programmingPlan}
+                                  context={prescriptionListContext}
+                                  region={region ?? undefined}
+                                />
+                              ),
+                              iconId: 'fr-icon-chat-check-line'
+                            },
+                            {
+                              label: 'Commentaires',
+                              content: (
+                                <ProgrammingPlanCommentList
+                                  programmingPlan={programmingPlan}
+                                  context={prescriptionListContext}
+                                  region={region ?? undefined}
+                                />
+                              ),
+                              iconId: 'fr-icon-chat-3-line'
+                            }
+                          ]
+                        : [])
+                    ] as any
                   }
                 />
               </div>

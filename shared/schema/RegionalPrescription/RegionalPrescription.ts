@@ -94,7 +94,7 @@ export type RegionalPrescriptionPermission = z.infer<
 export const hasRegionalPrescriptionPermission = (
   user: User,
   programmingPlan: ProgrammingPlan,
-  regionalPrescription: RegionalPrescription
+  regionalPrescription: { region: Region }
 ): Record<RegionalPrescriptionPermission, boolean> => ({
   updateSampleCount:
     hasPermission(user, 'updatePrescription') &&

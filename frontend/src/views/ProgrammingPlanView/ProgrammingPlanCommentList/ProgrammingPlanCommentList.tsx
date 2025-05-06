@@ -163,9 +163,15 @@ const ProgrammingPlanCommentList = ({
                         dispatch(
                           prescriptionsSlice.actions.setPrescriptionCommentsData(
                             {
-                              matrixKind: prescription.matrixKind,
-                              regionalPrescriptions:
-                                prescription.regionalCommentedPrescriptions
+                              viewBy: 'MatrixKind',
+                              prescription,
+                              regionalComments:
+                                prescription.regionalCommentedPrescriptions.map(
+                                  (rcp) => ({
+                                    region: rcp.region,
+                                    comments: rcp.comments ?? []
+                                  })
+                                )
                             }
                           )
                         );
@@ -195,10 +201,16 @@ const ProgrammingPlanCommentList = ({
                             dispatch(
                               prescriptionsSlice.actions.setPrescriptionCommentsData(
                                 {
-                                  matrixKind: prescription.matrixKind,
-                                  regionalPrescriptions:
-                                    prescription.regionalCommentedPrescriptions,
-                                  currentRegion: regionalPrescription.region
+                                  viewBy: 'MatrixKind',
+                                  prescription,
+                                  currentRegion: regionalPrescription.region,
+                                  regionalComments:
+                                    prescription.regionalCommentedPrescriptions.map(
+                                      (rcp) => ({
+                                        region: rcp.region,
+                                        comments: rcp.comments ?? []
+                                      })
+                                    )
                                 }
                               )
                             );
