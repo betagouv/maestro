@@ -30,7 +30,7 @@ export function createServer(): Server {
   sentry.init(app);
 
   app.use(cookieParser());
-  app.use((req, _res, next) => {
+  app.use((req, res, next) => {
     if (!req.originalUrl.startsWith('/storybook')) {
       helmet({
         crossOriginEmbedderPolicy: false,
@@ -39,8 +39,7 @@ export function createServer(): Server {
             defaultSrc: ["'none'"],
             scriptSrc: [
               "'self'",
-              'https://stats.beta.gouv.fr',
-              'http://localhost:3001'
+              'https://stats.beta.gouv.fr'
             ],
             frameSrc: [],
             styleSrc: [
@@ -71,9 +70,10 @@ export function createServer(): Server {
             manifestSrc: ["'self'"]
           }
         }
-      });
+      })(req, res, next);
+    }else {
+      next()
     }
-    next();
   });
 
   if (config.environment === 'development') {
