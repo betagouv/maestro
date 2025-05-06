@@ -1,3 +1,4 @@
+import { Region } from 'maestro-shared/referential/Region';
 import {
   hasPrescriptionPermission,
   PrescriptionPermission
@@ -5,7 +6,6 @@ import {
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   hasRegionalPrescriptionPermission,
-  RegionalPrescription,
   RegionalPrescriptionPermission
 } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import {
@@ -57,7 +57,7 @@ export const useAuthentication = () => {
   const hasUserRegionalPrescriptionPermission = useCallback(
     (
       programmingPlan: ProgrammingPlan,
-      regionalPrescription: RegionalPrescription
+      regionalPrescription: { region: Region }
     ): Record<RegionalPrescriptionPermission, boolean> | null =>
       isDefined(authUser?.user)
         ? hasRegionalPrescriptionPermission(
