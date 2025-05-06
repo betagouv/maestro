@@ -39,8 +39,7 @@ export function createServer(): Server {
             defaultSrc: ["'none'"],
             scriptSrc: [
               "'self'",
-              'https://stats.beta.gouv.fr',
-              'http://localhost:3001'
+              'https://stats.beta.gouv.fr'
             ],
             frameSrc: [],
             styleSrc: [
