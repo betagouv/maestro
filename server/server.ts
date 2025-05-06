@@ -30,7 +30,7 @@ export function createServer(): Server {
   sentry.init(app);
 
   app.use(cookieParser());
-  app.use((req, _res, next) => {
+  app.use((req, res, next) => {
     if (!req.originalUrl.startsWith('/storybook')) {
       helmet({
         crossOriginEmbedderPolicy: false,
@@ -71,7 +71,7 @@ export function createServer(): Server {
             manifestSrc: ["'self'"]
           }
         }
-      });
+      })(req, res, next);
     }
     next();
   });
