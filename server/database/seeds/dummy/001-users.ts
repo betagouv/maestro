@@ -61,6 +61,7 @@ export const seed = async function () {
       email: 'suivi.national@maestro.beta.gouv.fr',
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
+      programmingPlanKinds: ['PPV'],
       role: 'NationalObserver'
     },
     {
@@ -68,6 +69,7 @@ export const seed = async function () {
       email: 'suivi.regional@maestro.beta.gouv.fr',
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
+      programmingPlanKinds: ['PPV'],
       role: 'RegionalObserver',
       region: '44'
     },
@@ -76,6 +78,7 @@ export const seed = async function () {
       email: 'preleveur.ressource@maestro.beta.gouv.fr',
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
+      programmingPlanKinds: ['PPV'],
       role: 'SamplerAndNationalObserver',
       region: '44'
     },

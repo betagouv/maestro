@@ -13,6 +13,7 @@ import {
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { PrescriptionSubstance } from 'maestro-shared/schema/Prescription/PrescriptionSubstance';
 import { Context } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { RegionalPrescriptionUpdate } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -139,9 +140,14 @@ const ProgrammingPlanPrescriptionList = ({
   }, [searchParams, regionalPrescriptions]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const addMatrix = useCallback(
-    async (programmingPlanId: string, matrixKind: MatrixKind) => {
+    async (
+      programmingPlanId: string,
+      programmingPlanKind: ProgrammingPlanKind,
+      matrixKind: MatrixKind
+    ) => {
       await addPrescription({
         programmingPlanId,
+        programmingPlanKind,
         context,
         matrixKind,
         stages: []
@@ -265,7 +271,11 @@ const ProgrammingPlanPrescriptionList = ({
                 findPrescriptionOptions={findPrescriptionOptions}
                 prescriptions={prescriptions}
                 addMatrixKind={(matrixKind) =>
-                  addMatrix(programmingPlan.id, matrixKind)
+                  addMatrix(
+                    programmingPlan.id,
+                    programmingPlan.kinds[0],
+                    matrixKind
+                  )
                 }
                 sampleCount={_.sumBy(regionalPrescriptions, 'sampleCount')}
                 hasGroupedUpdatePermission={regionalPrescriptions.some(
