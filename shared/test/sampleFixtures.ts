@@ -4,14 +4,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { CultureKindList } from '../referential/CultureKind';
 import { LegalContextList } from '../referential/LegalContext';
 import { Matrix, MatrixEffective } from '../referential/Matrix/Matrix';
-import {
-  MatrixKind,
-  MatrixKindEffective
-} from '../referential/Matrix/MatrixKind';
-import { MatrixPart, MatrixPartList } from '../referential/Matrix/MatrixPart';
+import { MatrixKind } from '../referential/Matrix/MatrixKind';
+import { MatrixPartList } from '../referential/Matrix/MatrixPart';
 import { QuantityUnitList } from '../referential/QuantityUnit';
 import { Regions } from '../referential/Region';
-import { Stage, StageList } from '../referential/Stage';
 import { Company } from '../schema/Company/Company';
 import { ContextList } from '../schema/ProgrammingPlan/Context';
 import {
@@ -49,6 +45,9 @@ export const genSampleContextData = (
   company: genCompany(),
   notesOnCreation: fakerFR.string.alphanumeric(32),
   status: 'Draft',
+  specificData: {
+    programmingPlanKind: 'PPV'
+  },
   ...data
 });
 export const genCreatedSampleData = (
@@ -75,12 +74,14 @@ export const genCreatedPartialSample = (
     ...contextData,
     ...genCreatedSampleData(data),
     company: genCompany(),
-    matrixKind: oneOf(MatrixKindEffective.options),
     matrix: oneOf(MatrixEffective.options),
-    matrixPart: oneOf(MatrixPartList),
-    stage: oneOf(StageList),
-    cultureKind: oneOf(CultureKindList),
-    releaseControl: fakerFR.datatype.boolean(),
+    stage: 'STADE1',
+    specificData: {
+      programmingPlanKind: 'PPV',
+      matrixPart: oneOf(MatrixPartList),
+      cultureKind: oneOf(CultureKindList),
+      releaseControl: fakerFR.datatype.boolean()
+    },
     items: [genSampleItem({ sampleId: contextData.id, itemNumber: 1 })],
     ...data
   };
@@ -93,8 +94,6 @@ export const genCreatedSample = (data?: Partial<Sample>): Sample => {
     company: sample.company as Company,
     matrixKind: sample.matrixKind as MatrixKind,
     matrix: sample.matrix as Matrix,
-    matrixPart: sample.matrixPart as MatrixPart,
-    stage: sample.stage as Stage,
     prescriptionId: uuidv4(),
     laboratoryId: uuidv4(),
     items: sample.items as SampleItem[],
@@ -138,10 +137,13 @@ export const Sample11Fixture = genCreatedPartialSample({
   lastUpdatedAt: new Date('2024-03-04'),
   status: 'DraftMatrix' as const,
   matrix: 'A00GZ',
-  matrixPart: 'PART1',
-  cultureKind: 'PD07A',
-  releaseControl: false,
   stage: 'STADE7',
+  specificData: {
+    programmingPlanKind: 'PPV',
+    matrixPart: 'PART1',
+    cultureKind: 'PD07A',
+    releaseControl: false
+  },
   items: [Sample1Item1Fixture]
 });
 export const Sample12Fixture = genCreatedPartialSample({

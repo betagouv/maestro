@@ -9,6 +9,10 @@ import {
   SecondaryQuantityUnitList
 } from 'maestro-shared/referential/QuantityUnit';
 import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
+import {
+  PartialSample,
+  PartialSampleToCreate
+} from 'maestro-shared/schema/Sample/Sample';
 import { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import {
   SampleItemRecipientKind,
@@ -26,6 +30,7 @@ import { z } from 'zod';
 const Form = z.object({ items: z.array(z.object({})).refine(() => ({})) });
 
 interface Props {
+  partialSample: PartialSample | PartialSampleToCreate;
   item: PartialSampleItem;
   itemIndex: number;
   onRemoveItem?: (itemIndex: number) => void;
@@ -37,6 +42,7 @@ interface Props {
 }
 
 const SampleItemDetails = ({
+  partialSample,
   item,
   itemIndex,
   onRemoveItem,
@@ -207,37 +213,39 @@ const SampleItemDetails = ({
           )}
         </div>
       </div>
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={cx('fr-col-12')}>
-          {itemsForm ? (
-            <ToggleSwitch
-              label="Respect directive 2002/63"
-              checked={item.compliance200263 ?? false}
-              onChange={(checked) =>
-                onChangeItem?.(
-                  { ...item, compliance200263: checked },
-                  itemIndex
-                )
-              }
-              showCheckedHint={false}
-              disabled={readonly}
-            />
-          ) : (
-            <div className="icon-text">
-              <div
-                className={cx('fr-icon-bookmark-fill', {
-                  'fr-label--error': !item.compliance200263,
-                  'fr-label--success': item.compliance200263
-                })}
+      {partialSample.specificData.programmingPlanKind === 'PPV' && (
+        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+          <div className={cx('fr-col-12')}>
+            {itemsForm ? (
+              <ToggleSwitch
+                label="Respect directive 2002/63"
+                checked={item.compliance200263 ?? false}
+                onChange={(checked) =>
+                  onChangeItem?.(
+                    { ...item, compliance200263: checked },
+                    itemIndex
+                  )
+                }
+                showCheckedHint={false}
+                disabled={readonly}
               />
-              <div>
-                Directive 2002/63{' '}
-                <b> {!item.compliance200263 && 'non '}respectée</b>
+            ) : (
+              <div className="icon-text">
+                <div
+                  className={cx('fr-icon-bookmark-fill', {
+                    'fr-label--error': !item.compliance200263,
+                    'fr-label--success': item.compliance200263
+                  })}
+                />
+                <div>
+                  Directive 2002/63{' '}
+                  <b> {!item.compliance200263 && 'non '}respectée</b>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 };
