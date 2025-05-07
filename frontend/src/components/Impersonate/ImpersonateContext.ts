@@ -7,7 +7,10 @@ import authSlice from '../../store/reducers/authSlice';
 export const ImpersonateContext = createContext<{
   impersonateUserId: string | null;
   setImpersonateUserId: (value: string | null) => void;
-}>(null as never);
+}>({
+  impersonateUserId: null,
+  setImpersonateUserId: () => ({})
+});
 
 export const useImpersonate = () => {
   const dispatch = useAppDispatch();
