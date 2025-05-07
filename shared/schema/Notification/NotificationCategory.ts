@@ -1,5 +1,4 @@
 import { z } from 'zod';
-
 import { Context, ContextLabels } from '../ProgrammingPlan/Context';
 
 export const NotificationCategory = z.enum([
