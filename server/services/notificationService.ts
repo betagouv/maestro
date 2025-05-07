@@ -22,7 +22,7 @@ const categoryToEmailTemplate = {
   Surveillance: 'NewRegionalPrescriptionCommentTemplate'
 } as const satisfies Record<NotificationCategory, TemplateName | null>;
 
-type TemplateParams<
+export type TemplateParams<
   T extends OmitDistributive<
     Notification,
     'id' | 'recipientId' | 'createdAt' | 'read'
