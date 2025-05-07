@@ -3,8 +3,7 @@ import { AuthenticatedRequest, ProgrammingPlanRequest } from 'express-jwt';
 import { constants } from 'http2';
 import { intersection } from 'lodash-es';
 import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
-import { RegionList } from 'maestro-shared/referential/Region';
-import { NotificationCategoryMessages } from 'maestro-shared/schema/Notification/NotificationCategory';
+import { RegionList, Regions } from 'maestro-shared/referential/Region';
 import { ContextList } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import { ProgrammingPlanRegionalStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanRegionalStatus';
@@ -14,7 +13,7 @@ import {
   ProgrammingPlanStatusList,
   ProgrammingPlanStatusPermissions
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { hasPermission } from 'maestro-shared/schema/User/User';
+import { hasPermission, userRegions } from 'maestro-shared/schema/User/User';
 import { v4 as uuidv4 } from 'uuid';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
@@ -170,6 +169,7 @@ const createProgrammingPlan = async (request: Request, response: Response) => {
 };
 
 const updateRegionalStatus = async (request: Request, response: Response) => {
+  const { user } = request as AuthenticatedRequest;
   const { programmingPlan } = request as ProgrammingPlanRequest;
   const programmingPlanRegionalStatusList =
     request.body as ProgrammingPlanRegionalStatus[];
@@ -193,33 +193,58 @@ const updateRegionalStatus = async (request: Request, response: Response) => {
     return response.sendStatus(constants.HTTP_STATUS_BAD_REQUEST);
   }
 
+  if (
+    hasPermission(user, 'approveProgrammingPlan') &&
+    !hasPermission(user, 'manageProgrammingPlan') &&
+    programmingPlanRegionalStatusList.some(
+      (programmingPlanRegionalStatus) =>
+        programmingPlanRegionalStatus.status !== 'Approved' ||
+        !userRegions(user).includes(programmingPlanRegionalStatus.region)
+    )
+  ) {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
+
   await Promise.all(
     programmingPlanRegionalStatusList.map(
       async (programmingPlanRegionalStatus) => {
-        const regionalCoordinators = await userRepository.findMany({
-          roles: ['RegionalCoordinator'],
-          region: programmingPlanRegionalStatus.region
-        });
+        if (
+          ['Submitted', 'Validated'].includes(
+            programmingPlanRegionalStatus.status
+          )
+        ) {
+          const regionalCoordinators = await userRepository.findMany({
+            roles: ['RegionalCoordinator'],
+            region: programmingPlanRegionalStatus.region
+          });
 
-        if (programmingPlanRegionalStatus.status === 'Submitted') {
+          const category =
+            programmingPlanRegionalStatus.status === 'Submitted'
+              ? 'ProgrammingPlanSubmitted'
+              : 'ProgrammingPlanValidated';
+
           await notificationService.sendNotification(
             {
-              category: 'ProgrammingPlanSubmitted',
-              message: NotificationCategoryMessages['ProgrammingPlanSubmitted'],
+              category,
               link: `/prescriptions/${programmingPlan.year}`
             },
             regionalCoordinators,
             undefined
           );
-        } else if (programmingPlanRegionalStatus.status === 'Validated') {
+        } else if (programmingPlanRegionalStatus.status === 'Approved') {
+          const nationalCoordinators = await userRepository.findMany({
+            roles: ['NationalCoordinator']
+          });
+
           await notificationService.sendNotification(
             {
-              category: 'ProgrammingPlanValidated',
-              message: NotificationCategoryMessages['ProgrammingPlanValidated'],
+              category: 'ProgrammingPlanApproved',
               link: `/prescriptions/${programmingPlan.year}`
             },
-            regionalCoordinators,
-            undefined
+            nationalCoordinators,
+            {
+              region: Regions[programmingPlanRegionalStatus.region].name
+            }
           );
         } else {
           return response.sendStatus(constants.HTTP_STATUS_BAD_REQUEST);

@@ -125,8 +125,13 @@ const ProgrammingPlanPrescriptionList = ({
       if (prescription && regionalPrescription) {
         dispatch(
           prescriptionsSlice.actions.setPrescriptionCommentsData({
+            viewBy: 'MatrixKind',
+            prescriptionId: regionalPrescription.prescriptionId,
             matrixKind: prescription.matrixKind,
-            regionalPrescriptions: [regionalPrescription]
+            regionalComments: [regionalPrescription].map((rcp) => ({
+              region: rcp.region,
+              comments: rcp.comments ?? []
+            }))
           })
         );
       }

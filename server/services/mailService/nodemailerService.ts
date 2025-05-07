@@ -15,6 +15,10 @@ const TemplateData = {
     subject: 'Plan de programmation',
     content: 'Le plan de programmation a été soumis'
   },
+  ApprovedProgrammingPlanTemplate: {
+    subject: 'Plan de programmation approuvé',
+    content: 'Le plan de programmation a été approuvé'
+  },
   ValidatedProgrammingPlanTemplate: {
     subject: 'Plan de programmation validé',
     content: 'Le plan de programmation a été validé'
@@ -27,10 +31,13 @@ const TemplateData = {
     subject: "Rapport d'analyse reçu",
     content: "Un de vos rapports d'analyse vient d'être reçu"
   }
-} as const satisfies Record<TemplateName, {
-  subject: string,
-  content: string
-}>
+} as const satisfies Record<
+  TemplateName,
+  {
+    subject: string;
+    content: string;
+  }
+>;
 class NodemailerService implements MailService {
   private transport: nodemailer.Transporter<nodemailer.SentMessageInfo>;
 

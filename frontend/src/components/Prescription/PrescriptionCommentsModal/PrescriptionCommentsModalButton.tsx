@@ -35,8 +35,13 @@ const PrescriptionCommentsModalButton = ({
       onClick={() =>
         dispatch(
           prescriptionsSlice.actions.setPrescriptionCommentsData({
+            viewBy: 'MatrixKind',
+            prescriptionId: regionalPrescription.prescriptionId,
             matrixKind,
-            regionalPrescriptions: [regionalPrescription]
+            regionalComments: [regionalPrescription].map((rcp) => ({
+              region: rcp.region,
+              comments: rcp.comments ?? []
+            }))
           })
         )
       }
