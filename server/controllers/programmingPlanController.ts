@@ -4,7 +4,6 @@ import { constants } from 'http2';
 import { intersection } from 'lodash-es';
 import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
 import { RegionList, Regions } from 'maestro-shared/referential/Region';
-import { NotificationCategoryMessages } from 'maestro-shared/schema/Notification/NotificationCategory';
 import { ContextList } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import { ProgrammingPlanRegionalStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanRegionalStatus';
@@ -227,7 +226,6 @@ const updateRegionalStatus = async (request: Request, response: Response) => {
           await notificationService.sendNotification(
             {
               category,
-              message: NotificationCategoryMessages[category],
               link: `/prescriptions/${programmingPlan.year}`
             },
             regionalCoordinators,
@@ -241,9 +239,6 @@ const updateRegionalStatus = async (request: Request, response: Response) => {
           await notificationService.sendNotification(
             {
               category: 'ProgrammingPlanApproved',
-              message: NotificationCategoryMessages['ProgrammingPlanApproved'](
-                programmingPlanRegionalStatus.region
-              ),
               link: `/prescriptions/${programmingPlan.year}`
             },
             nationalCoordinators,
