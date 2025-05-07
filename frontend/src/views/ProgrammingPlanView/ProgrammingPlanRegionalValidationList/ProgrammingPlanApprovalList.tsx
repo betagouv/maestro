@@ -100,7 +100,7 @@ const ProgrammingPlanApprovalList = ({
                 regionalStatus.status === statusFilter
             ))
       ),
-    [regionFilter, statusFilter]
+    [regionFilter, statusFilter, programmingPlan]
   );
 
   if (!allPrescriptions || !regionalPrescriptions) {
