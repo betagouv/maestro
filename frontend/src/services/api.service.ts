@@ -21,6 +21,22 @@ export const tagTypes = [
 export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${config.apiEndpoint}/api`,
+    prepareHeaders: (headers: Headers) => {
+      const isImpersonateEnable = !!localStorage.getItem('administratorId');
+      if (isImpersonateEnable) {
+        const authUser = localStorage.getItem('authUser');
+        if (authUser) {
+          const impersonateId = JSON.parse(authUser).id;
+          if (impersonateId) {
+            const newHeaders = new Headers(headers);
+            newHeaders.append('X-IMPERSONATE-ID', impersonateId);
+            return newHeaders;
+          } else {
+            return headers;
+          }
+        }
+      }
+    },
     credentials: 'include'
   }),
   tagTypes,

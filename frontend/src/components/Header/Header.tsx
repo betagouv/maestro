@@ -13,6 +13,7 @@ import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.serv
 import logo from '../../assets/logo.svg';
 import { useFindNotificationsQuery } from '../../services/notification.service';
 import config from '../../utils/config';
+import { ImpersonateInput } from '../Impersonate/ImpersonateInput';
 
 const Header = () => {
   const location = useLocation();
@@ -195,8 +196,10 @@ const Header = () => {
                   Se déconnecter
                 </Button>
                 {user?.role && (
-                  <div className={cx('fr-text--sm', 'fr-mr-2w')}>
+                  <div className={cx('fr-text--sm', 'fr-mr-2w', 'd-flex-align-center')} style={{gap: '1rem'}}>
                     {UserRoleLabels[user.role]}
+
+                    <ImpersonateInput/>
                   </div>
                 )}
               </div>
