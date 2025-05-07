@@ -197,7 +197,6 @@ const ProgrammingPlanView = () => {
                                 <ProgrammingPlanRegionalValidationList
                                   programmingPlan={programmingPlan}
                                   context={prescriptionListContext}
-                                  region={region ?? undefined}
                                 />
                               ),
                               iconId: 'fr-icon-chat-check-line'
@@ -208,7 +207,6 @@ const ProgrammingPlanView = () => {
                                 <ProgrammingPlanCommentList
                                   programmingPlan={programmingPlan}
                                   context={prescriptionListContext}
-                                  region={region ?? undefined}
                                 />
                               ),
                               iconId: 'fr-icon-chat-3-line'

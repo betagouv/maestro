@@ -1,6 +1,5 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import Input from '@codegouvfr/react-dsfr/Input';
 import Select from '@codegouvfr/react-dsfr/Select';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
@@ -13,7 +12,11 @@ import {
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
 import { Context } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { ChangeEvent, useCallback, useMemo, useState } from 'react';
+import {
+  ProgrammingPlanStatus,
+  ProgrammingPlanStatusLabels
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import { useCallback, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { useAppDispatch } from '../../../hooks/useStore';
 import { useFindPrescriptionsQuery } from '../../../services/prescription.service';
@@ -24,28 +27,25 @@ import { pluralize } from '../../../utils/stringUtils';
 interface Props {
   programmingPlan: ProgrammingPlan;
   context: Context;
-  region?: Region;
 }
 
 const ProgrammingPlanApprovalList = ({
   programmingPlan,
-  region,
   context,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
   const dispatch = useAppDispatch();
 
-  const [matrixQuery, setMatrixQuery] = useState('');
   const [regionFilter, setRegionFilter] = useState<Region>();
+  const [statusFilter, setStatusFilter] = useState<ProgrammingPlanStatus>();
 
   const findPrescriptionOptions = useMemo(
     () => ({
       programmingPlanId: programmingPlan?.id as string,
-      context,
-      region
+      context
     }),
-    [programmingPlan, context, region]
+    [programmingPlan, context]
   );
 
   const { data: allPrescriptions } = useFindPrescriptionsQuery(
@@ -88,6 +88,21 @@ const ProgrammingPlanApprovalList = ({
     [programmingPlan.regionalStatus]
   );
 
+  const filteredRegions = useMemo(
+    () =>
+      RegionList.filter(
+        (region) =>
+          (!regionFilter || regionFilter === region) &&
+          (!statusFilter ||
+            programmingPlan.regionalStatus.some(
+              (regionalStatus) =>
+                regionalStatus.region === region &&
+                regionalStatus.status === statusFilter
+            ))
+      ),
+    [regionFilter, statusFilter]
+  );
+
   if (!allPrescriptions || !regionalPrescriptions) {
     return <></>;
   }
@@ -105,33 +120,45 @@ const ProgrammingPlanApprovalList = ({
               count: validatedRegions.length
             })}
           </h4>
-          <Select
-            label="Région"
-            className={cx('fr-mr-2w')}
-            nativeSelectProps={{
-              value: regionFilter ?? '',
-              onChange: (e) => setRegionFilter(e.target.value as Region)
-            }}
-          >
-            <option value="">Toutes les régions</option>
-            {RegionList.map((region) => (
-              <option key={`select-region-${region}`} value={region}>
-                {Regions[region].name}
-              </option>
-            ))}
-          </Select>
-          <Input
-            iconId="fr-icon-search-line"
-            hideLabel
-            label="Matrice"
-            nativeInputProps={{
-              type: 'search',
-              placeholder: 'Matrice',
-              value: matrixQuery ?? '',
-              onChange: (e: ChangeEvent<HTMLInputElement>) =>
-                setMatrixQuery(e.target.value)
-            }}
-          />
+          <div className={cx('fr-mr-2w')}>
+            <Select
+              label="Région"
+              nativeSelectProps={{
+                value: regionFilter ?? '',
+                onChange: (e) => setRegionFilter(e.target.value as Region)
+              }}
+            >
+              <option value="">Toutes les régions</option>
+              {RegionList.map((region) => (
+                <option key={`select-region-${region}`} value={region}>
+                  {Regions[region].name}
+                </option>
+              ))}
+            </Select>
+          </div>
+          <div>
+            <Select
+              label="Status"
+              nativeSelectProps={{
+                value: statusFilter ?? '',
+                onChange: (e) =>
+                  setStatusFilter(e.target.value as ProgrammingPlanStatus)
+              }}
+            >
+              <option value="">Tous les status</option>
+              {['Submitted', 'Approved', 'Validated', 'Closed'].map(
+                (status) => (
+                  <option key={`select-status-${status}`} value={status}>
+                    {
+                      ProgrammingPlanStatusLabels[
+                        status as ProgrammingPlanStatus
+                      ]
+                    }
+                  </option>
+                )
+              )}
+            </Select>
+          </div>
         </div>
         <div>
           {regionFilter && (
@@ -144,9 +171,19 @@ const ProgrammingPlanApprovalList = ({
               {Regions[regionFilter].name}
             </Tag>
           )}
+          {statusFilter && (
+            <Tag
+              dismissible
+              nativeButtonProps={{
+                onClick: () => setStatusFilter(undefined)
+              }}
+            >
+              {ProgrammingPlanStatusLabels[statusFilter]}
+            </Tag>
+          )}
         </div>
         <div className={clsx(cx('fr-mt-2w'), 'border')}>
-          {RegionList.map((region, regionIndex) => (
+          {filteredRegions.map((region, regionIndex) => (
             <div key={`region-${regionIndex}`}>
               <div className={cx('fr-m-2w')}>
                 <div className={clsx('d-flex-align-center')}>
@@ -247,7 +284,7 @@ const ProgrammingPlanApprovalList = ({
                   ))}
                 </div>
               </div>
-              {regionIndex !== RegionList.length - 1 && <hr />}
+              {regionIndex !== filteredRegions.length - 1 && <hr />}
             </div>
           ))}
         </div>
