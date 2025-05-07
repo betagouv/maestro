@@ -6,7 +6,6 @@ import { getSSD2Id } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { SandreToSSD2 } from 'maestro-shared/referential/Residue/SandreToSSD2';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
-import { NotificationCategoryMessages } from 'maestro-shared/schema/Notification/NotificationCategory';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { OmitDistributive } from 'maestro-shared/utils/typescript';
 import { ParsedMail, simpleParser } from 'mailparser';
@@ -266,8 +265,7 @@ export const checkEmails = async () => {
                 {
                   category: 'AnalysisReviewTodo',
                   link: AppRouteLinks.SampleRoute.link(sampleId),
-                  message: NotificationCategoryMessages['AnalysisReviewTodo']
-                },
+              },
                 [{ id: samplerId, email: samplerEmail }],
                 undefined
               );

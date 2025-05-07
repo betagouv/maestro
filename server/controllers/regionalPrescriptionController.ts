@@ -141,7 +141,6 @@ const commentRegionalPrescription = async (
   await notificationService.sendNotification(
     {
       category: prescription.context,
-      message: `Nouveau commentaire sur la matrice **${MatrixKindLabels[prescription.matrixKind].toLowerCase()}**`,
       author: user,
       link: `${AppRouteLinks.ProgrammationByYearRoute.link(
         programmingPlan.year

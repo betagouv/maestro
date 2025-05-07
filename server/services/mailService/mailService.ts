@@ -20,7 +20,7 @@ export const Templates = {
   ApprovedProgrammingPlanTemplate: {
     id: 13,
     params: z.object({
-      region: z.string().optional()
+      region: z.string()
     })
   },
   ValidatedProgrammingPlanTemplate: { id: 4, params: z.undefined() },
