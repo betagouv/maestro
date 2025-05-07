@@ -10,12 +10,12 @@ type Props = Record<never, never>;
 export const ImpersonateInput: FunctionComponent<Props> = ({ ..._rest }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  const { user } = useAuthentication();
+  const { hasRole } = useAuthentication();
   const { setImpersonateUserId } = useContext(ImpersonateContext)
 
   return (
     <>
-      {user?.role === 'Administrator' && (
+      {hasRole('Administrator') && (
         <UsersSearchInput setImpersonateId={setImpersonateUserId} />
       )}
     </>
@@ -31,7 +31,6 @@ const UsersSearchInput: FunctionComponent<{
 
   return (
     <>
-      {' '}
       {users && (
         <AppSearchInput
           options={selectOptionsFromList(
