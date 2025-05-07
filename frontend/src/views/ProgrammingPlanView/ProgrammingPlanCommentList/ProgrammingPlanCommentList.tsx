@@ -21,12 +21,10 @@ import { pluralize } from '../../../utils/stringUtils';
 interface Props {
   programmingPlan: ProgrammingPlan;
   context: Context;
-  region?: Region;
 }
 
 const ProgrammingPlanCommentList = ({
   programmingPlan,
-  region,
   context,
   ..._rest
 }: Props) => {
@@ -39,10 +37,9 @@ const ProgrammingPlanCommentList = ({
   const findPrescriptionOptions = useMemo(
     () => ({
       programmingPlanId: programmingPlan?.id as string,
-      context,
-      region
+      context
     }),
-    [programmingPlan, context, region]
+    [programmingPlan, context]
   );
 
   const { data: allPrescriptions } = useFindPrescriptionsQuery(
