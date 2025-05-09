@@ -2,7 +2,7 @@ import carbone from 'carbone';
 import { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequestData';
 import { templatePath } from '../../templates/templates';
 
-const generateAnalysisRequestExcel = async (data: AnalysisRequestData) => {
+const generateAnalysisRequestExcel = async (data: AnalysisRequestData): Promise<Buffer> => {
   return new Promise((resolve, reject) => {
     carbone.render(
       templatePath('analysisRequest'),
@@ -14,7 +14,7 @@ const generateAnalysisRequestExcel = async (data: AnalysisRequestData) => {
         if (err) {
           reject(err);
         } else {
-          resolve(result);
+          resolve(result as Buffer);
         }
       }
     );
