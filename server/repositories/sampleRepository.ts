@@ -109,10 +109,7 @@ const findRequest = (findOptions: FindSampleOptions) =>
     )
     .modify((builder) => {
       if (findOptions.region) {
-        builder.where(
-          `${samplesTable}.region`,
-          findOptions.region
-        );
+        builder.where(`${samplesTable}.region`, findOptions.region);
       }
       if (findOptions.status) {
         if (isArray(findOptions.status)) {
@@ -131,9 +128,7 @@ const findRequest = (findOptions: FindSampleOptions) =>
         builder.whereILike('reference', `%${findOptions.reference}%`);
       }
       if (findOptions.department) {
-        builder.where(
-          `${samplesTable}.department`, findOptions.department
-        )
+        builder.where(`${samplesTable}.department`, findOptions.department);
       }
     });
 
@@ -311,7 +306,8 @@ export const parsePartialSample = (
       id: sample.samplerId,
       firstName: sample.samplerFirstName,
       lastName: sample.samplerLastName
-    }
+    },
+    specificData: omitBy(sample.specificData, isNil)
   });
 
 export const sampleRepository = {
