@@ -6,6 +6,6 @@ beforeAll(async () => {
   await departmentsSeed()
 })
 test('getDepartment', async () => {
-  const departement = await departmentRepository.getDepartement(0.352688,47.757038)
+  const departement = await departmentRepository.getDepartement(47.757038,0.352688)
   expect(departement).toBe('72')
 })

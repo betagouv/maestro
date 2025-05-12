@@ -38,8 +38,13 @@ import {
   SamplerAndNationalObserver
 } from 'maestro-shared/test/userFixtures';
 import { withISOStringDates } from 'maestro-shared/utils/utils';
-import { describe, expect, test } from 'vitest';
+import { beforeAll, describe, expect, test } from 'vitest';
 import { mockGenerateSampleSupportPDF } from '../../test/setupTests';
+import { departmentsSeed } from '../../database/seeds/departments/departmentsSeed';
+
+beforeAll(async () => {
+  await departmentsSeed()
+})
 describe('Sample router', () => {
   const { app } = createServer();
 
@@ -363,7 +368,7 @@ describe('Sample router', () => {
       await forbiddenRequestTest(AdminFixture);
     });
 
-    test('should create a sample with incremental reference', async () => {
+    test.only('should create a sample with incremental reference', async () => {
       const successRequestTest = async (
         user: User,
         expectedIncrement: string

@@ -70,7 +70,7 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
             )}
           </div>,
           sample.sampledAt ? format(sample.sampledAt, 'dd/MM/yyyy') : '',
-          sample.department,
+          'department' in sample ? sample.department : '',
           sample.company?.name ?? '',
           sample.context ? ContextLabels[sample.context] : '',
           <SampleStatusBadge status={sample?.status as SampleStatus} />

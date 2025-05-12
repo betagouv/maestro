@@ -163,7 +163,6 @@ const ContextStep = ({ partialSample }: Props) => {
   const formData = {
     id,
     sampledAt: parse(sampledAt, 'yyyy-MM-dd HH:mm', new Date()),
-    department: company?.postalCode?.slice(0, 2) as Department,
     geolocation:
       geolocationX && geolocationY
         ? {
@@ -225,7 +224,6 @@ const ContextStep = ({ partialSample }: Props) => {
   const formInput = {
     id,
     sampledAt,
-    department: company?.postalCode?.slice(0, 2) as Department,
     geolocationX,
     geolocationY,
     parcel,
