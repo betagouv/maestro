@@ -128,7 +128,6 @@ export const SampleContextData = z.object({
       })
     })
   ),
-  department: Department,
   geolocation: Geolocation.nullish(),
   parcel: z.string().nullish(),
   programmingPlanId: z.string().uuid(),
@@ -222,6 +221,7 @@ export const SampleToCreate = z.object({
 export const CreatedSampleData = z.object({
   reference: z.string(),
   region: Region,
+  department: Department,
   createdAt: z.coerce.date(),
   sampler: Sampler,
   lastUpdatedAt: z.coerce.date()
