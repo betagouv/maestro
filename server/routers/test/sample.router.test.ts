@@ -368,7 +368,7 @@ describe('Sample router', () => {
       await forbiddenRequestTest(AdminFixture);
     });
 
-    test.only('should create a sample with incremental reference', async () => {
+    test('should create a sample with incremental reference', async () => {
       const successRequestTest = async (
         user: User,
         expectedIncrement: string
