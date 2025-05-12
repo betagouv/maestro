@@ -115,7 +115,6 @@ export const MatrixEffective = z.enum([
   'A00HQ',
   'A00HY',
   'A01QV#F28.A0C0S',
-  'A01QV#F28.A0C0S',
   'A01RJ#F28.A0C0S',
   'A01RL#F28.A0C0S',
   'A01RG#F28.A0C0S',
