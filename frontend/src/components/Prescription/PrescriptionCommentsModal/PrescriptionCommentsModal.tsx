@@ -7,10 +7,10 @@ import clsx from 'clsx';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
-import { Regions } from 'maestro-shared/referential/Region';
+import { Region, Regions } from 'maestro-shared/referential/Region';
 import { RegionalPrescriptionKey } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { RegionalPrescriptionCommentToCreate } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionComment';
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import PrescriptionCommentAuthor from 'src/components/Prescription/PrescriptionCommentsModal/PrescriptionCommentAuthor';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -43,7 +43,11 @@ const PrescriptionCommentsModal = ({
   const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
 
   const [comment, setComment] = useState('');
-  const [region, setRegion] = useState(prescriptionCommentsData?.currentRegion);
+  const [segment, setSegment] = useState(
+    prescriptionCommentsData?.viewBy === 'MatrixKind'
+      ? prescriptionCommentsData.currentRegion
+      : prescriptionCommentsData?.currentMatrixKind
+  );
 
   const Form = RegionalPrescriptionCommentToCreate.pick({
     comment: true
@@ -67,39 +71,58 @@ const PrescriptionCommentsModal = ({
 
   useEffect(() => {
     if (prescriptionCommentsData) {
-      setRegion(
-        prescriptionCommentsData.currentRegion ??
-          prescriptionCommentsData.regionalPrescriptions[0].region
-      );
+      if (prescriptionCommentsData.viewBy === 'MatrixKind') {
+        setSegment(
+          prescriptionCommentsData.currentRegion ??
+            prescriptionCommentsData.regionalComments[0].region
+        );
+      } else {
+        setSegment(
+          prescriptionCommentsData.currentMatrixKind ??
+            prescriptionCommentsData.matrixKindsComments[0].matrixKind
+        );
+      }
       prescriptionCommentsModal.open();
     }
   }, [prescriptionCommentsData]);
 
-  const currentRegionalPrescription = useMemo(
+  const segmentedComments = useMemo(
     () =>
-      (prescriptionCommentsData?.regionalPrescriptions ?? []).find(
-        (_) => _.region === region
-      ),
-    [prescriptionCommentsData?.regionalPrescriptions, region]
+      prescriptionCommentsData?.viewBy === 'MatrixKind'
+        ? prescriptionCommentsData?.regionalComments.find(
+            (_) => _.region === segment
+          )
+        : prescriptionCommentsData?.matrixKindsComments.find(
+            (_) => _.matrixKind === segment
+          ),
+    [segment, prescriptionCommentsData]
   );
 
   const { commentsArray, hasComments } = useMemo(() => {
-    const commentsArray = currentRegionalPrescription?.comments ?? [];
+    const commentsArray = segmentedComments?.comments ?? [];
     const hasComments = commentsArray.length > 0;
 
     return { commentsArray, hasComments };
-  }, [currentRegionalPrescription]);
+  }, [segmentedComments]);
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
 
-    await form.validate(async () => {
-      await onSubmitRegionalPrescriptionComment(
-        RegionalPrescriptionKey.parse(currentRegionalPrescription),
-        comment
-      );
-      prescriptionCommentsModal.close();
-    });
+    if (
+      prescriptionCommentsData?.viewBy === 'MatrixKind' &&
+      Region.safeParse(segment).success
+    ) {
+      await form.validate(async () => {
+        await onSubmitRegionalPrescriptionComment(
+          {
+            prescriptionId: prescriptionCommentsData.prescriptionId,
+            region: segment as Region
+          },
+          comment
+        );
+        prescriptionCommentsModal.close();
+      });
+    }
   };
 
   return (
@@ -107,7 +130,9 @@ const PrescriptionCommentsModal = ({
       <prescriptionCommentsModal.Component
         title={
           prescriptionCommentsData
-            ? MatrixKindLabels[prescriptionCommentsData.matrixKind]
+            ? prescriptionCommentsData.viewBy === 'MatrixKind'
+              ? MatrixKindLabels[prescriptionCommentsData.matrixKind]
+              : `Région ${Regions[prescriptionCommentsData.region].name}`
             : ''
         }
         concealingBackdrop={false}
@@ -116,21 +141,35 @@ const PrescriptionCommentsModal = ({
       >
         {prescriptionCommentsData && (
           <>
-            {prescriptionCommentsData.regionalPrescriptions.length > 1 && (
+            {(prescriptionCommentsData?.viewBy === 'MatrixKind'
+              ? prescriptionCommentsData.regionalComments
+              : prescriptionCommentsData.matrixKindsComments
+            ).length > 1 && (
               <SegmentedControl
                 hideLegend
                 legend="Région"
                 small
                 segments={
-                  prescriptionCommentsData.regionalPrescriptions.map(
-                    (regionalPrescription) => ({
-                      label: Regions[regionalPrescription.region].name,
-                      nativeInputProps: {
-                        checked: region === regionalPrescription.region,
-                        onChange: () => setRegion(regionalPrescription.region)
-                      }
-                    })
-                  ) as any
+                  prescriptionCommentsData?.viewBy === 'MatrixKind'
+                    ? prescriptionCommentsData.regionalComments.map(
+                        (regionalComment) => ({
+                          label: Regions[regionalComment.region].name,
+                          nativeInputProps: {
+                            checked: segment === regionalComment.region,
+                            onChange: () => setSegment(regionalComment.region)
+                          }
+                        })
+                      )
+                    : (prescriptionCommentsData.matrixKindsComments.map(
+                        (matrixKindComment) => ({
+                          label: MatrixKindLabels[matrixKindComment.matrixKind],
+                          nativeInputProps: {
+                            checked: segment === matrixKindComment.matrixKind,
+                            onChange: () =>
+                              setSegment(matrixKindComment.matrixKind)
+                          }
+                        })
+                      ) as any)
                 }
                 className={cx('fr-mb-2w')}
               />
@@ -139,7 +178,7 @@ const PrescriptionCommentsModal = ({
               <div className="comments-container">
                 {commentsArray.map((comment, index) => (
                   <div
-                    key={`${comment.id}-${index}`}
+                    key={`comment-${index}`}
                     className="prescription-comment"
                   >
                     <PrescriptionCommentAuthor userId={comment.createdBy} />
@@ -171,11 +210,10 @@ const PrescriptionCommentsModal = ({
               </div>
             )}
             {programmingPlan &&
-              currentRegionalPrescription &&
-              hasUserRegionalPrescriptionPermission(
-                programmingPlan,
-                currentRegionalPrescription
-              )?.comment && (
+              Region.safeParse(segment).success &&
+              hasUserRegionalPrescriptionPermission(programmingPlan, {
+                region: segment as Region
+              })?.comment && (
                 <div className={clsx(cx('fr-mt-2w'), 'd-flex-justify-center')}>
                   <form id="login_form">
                     <AppTextAreaInput<FormShape>

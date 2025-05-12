@@ -13,7 +13,6 @@ import { getSSD2Id } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { SandreToSSD2 } from 'maestro-shared/referential/Residue/SandreToSSD2';
 import { OmitDistributive } from 'maestro-shared/utils/typescript';
 import { notificationService } from '../notificationService';
-import { NotificationCategoryMessages } from 'maestro-shared/schema/Notification/NotificationCategory';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import { LaboratoryName } from 'maestro-shared/referential/Laboratory';
@@ -241,9 +240,6 @@ export const checkEmails = async () => {
               await notificationService.sendNotification({
                 category: 'AnalysisReviewTodo',
                 link: `/prelevements/${programmingPlansYear}/${sampleId}`,
-                message: NotificationCategoryMessages[
-                  'AnalysisReviewTodo'
-                ]
               }, [{id: samplerId, email: samplerEmail}], undefined)
             }
             await client.messageMove(messageUid, config.inbox.successboxName, {
