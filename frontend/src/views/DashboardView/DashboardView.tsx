@@ -6,7 +6,6 @@ import clsx from 'clsx';
 import { isAfter } from 'date-fns';
 import { default as _ } from 'lodash';
 import { Regions } from 'maestro-shared/referential/Region';
-import { ContextList } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { useMemo } from 'react';
 import dashboard from 'src/assets/illustrations/dashboard.svg';
 import SampleTable from 'src/components/SampleTable/SampleTable';
@@ -153,7 +152,7 @@ const DashboardView = () => {
 
       {isOnline && (
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          {ContextList.map((context) => (
+          {currentProgrammingPlan.contexts.map((context) => (
             <div
               className={cx('fr-col-12', 'fr-col-md-6')}
               key={`${currentProgrammingPlan.id}-${context}`}

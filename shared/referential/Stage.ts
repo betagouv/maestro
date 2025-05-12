@@ -10,7 +10,10 @@ export const Stage = z.enum(
     'STADE6',
     'STADE7',
     'STADE8',
-    'STADE9'
+    'STADE9',
+    'STADE10',
+    'STADE11',
+    'STADE12'
   ],
   {
     errorMap: () => ({
@@ -21,7 +24,7 @@ export const Stage = z.enum(
 
 export type Stage = z.infer<typeof Stage>;
 
-export const StageList: Stage[] = Stage.options;
+export const StageList = Stage.options;
 
 export const StageLabels: Record<Stage, string> = {
   STADE1: 'Végétal au stade récolte',
@@ -32,5 +35,8 @@ export const StageLabels: Record<Stage, string> = {
   STADE6: 'Intrant (spécialité commerciale ou bouillie)',
   STADE7: 'Produit végétal transformé',
   STADE8: 'Substrat',
-  STADE9: 'Autre'
+  STADE9: 'Autre',
+  STADE10: 'Abattoir',
+  STADE11: 'Elevage pondeuse',
+  STADE12: "Centre d'emballage"
 };

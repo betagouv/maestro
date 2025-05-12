@@ -107,5 +107,15 @@ export const MatrixLabels: Record<Matrix, string> = {
   A000R: 'Grain de quinoa',
   A000L: 'Sarrasin/Quinoa',
   A00HQ: 'Tomates',
-  A00HY: 'Tomates cerises'
+  A00HY: 'Tomates cerises',
+  'A01QV#F28.A0C0S': 'Viande de bovin  non transformée',
+  'A01RJ#F28.A0C0S': "Viande d'ovin non transformée",
+  'A01RL#F28.A0C0S': 'Viande de caprin non transformée',
+  'A01RG#F28.A0C0S': 'Viande de porcin non transformée',
+  'A01SP#F28.A0C0S': 'Viande de poulets de chair non transformée',
+  'A01SP#F31.A0CSD': 'Viande de poule de réforme non transformée',
+  'A01SQ#F28.A0C0S': 'Viande de dinde non transformée',
+  'A01SN#F26.A07XE': "Viande d'autres volailles non transformée",
+  A031G: 'Oeuf de poule',
+  A031K: 'Oeuf de caille'
 };

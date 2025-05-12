@@ -31,8 +31,12 @@ let store: Store;
 const sampler = genUser({
   role: 'Sampler'
 });
-const programmingPlan1 = genProgrammingPlan();
-const programmingPlan2 = genProgrammingPlan();
+const programmingPlan1 = genProgrammingPlan({
+  contexts: ['Control', 'Surveillance']
+});
+const programmingPlan2 = genProgrammingPlan({
+  contexts: ['Control', 'Surveillance']
+});
 const programmingPlanRequest = {
   pathname: `/api/programming-plans?status=Validated`,
   response: {
@@ -57,12 +61,14 @@ describe('SampleView', () => {
       reducer: applicationReducer,
       middleware: applicationMiddleware,
       preloadedState: {
-        auth: { authUser: genAuthUser(sampler) }
+        auth: { authUser: genAuthUser(sampler) },
+        programmingPlan: { programmingPlan: programmingPlan1 }
       }
     });
   });
 
   test('should render the first step for a new sample', async () => {
+    mockRequests([programmingPlanRequest]);
     vi.mocked(useParams).mockReturnValue({ sampleId: undefined });
 
     render(

@@ -1,6 +1,7 @@
 import { intersection } from 'lodash-es';
 import { z } from 'zod';
 import { Region, RegionList } from '../../referential/Region';
+import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { UserPermission } from './UserPermission';
 import {
   NationalUserRole,
@@ -15,6 +16,7 @@ export const BaseUser = z.object({
   email: z.string().email(),
   firstName: z.string(),
   lastName: z.string(),
+  programmingPlanKinds: z.array(ProgrammingPlanKind),
   role: UserRole,
   region: Region.nullable()
 });

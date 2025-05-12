@@ -10,17 +10,18 @@ import {
   LegalContextLabels,
   LegalContextList
 } from 'maestro-shared/referential/LegalContext';
-import {
-  Company,
-  companyFromSearchResult,
-  companyToSearchResult
-} from 'maestro-shared/schema/Company/Company';
+import { Company } from 'maestro-shared/schema/Company/Company';
 import {
   Context,
   ContextLabels
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
+  ProgrammingPlanKind,
+  ProgrammingPlanKindLabels
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import {
   PartialSample,
+  PartialSampleMatrixSpecificData,
   PartialSampleToCreate,
   SampleContextData
 } from 'maestro-shared/schema/Sample/Sample';
@@ -45,6 +46,7 @@ import SampleGeolocation from 'src/views/SampleView/DraftSample/ContextStep/Samp
 import SupportDocumentDownload from 'src/views/SampleView/DraftSample/SupportDocumentDownload';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
+import AppSelect from '../../../../components/_app/AppSelect/AppSelect';
 import { usePartialSample } from '../../../../hooks/usePartialSample';
 import NextButton from '../NextButton';
 interface Props {
@@ -60,6 +62,9 @@ const ContextStep = ({ partialSample }: Props) => {
 
   const [resytalId, setResytalId] = useState(partialSample?.resytalId);
   const [context, setContext] = useState(partialSample?.context);
+  const [programmingPlanKind, setProgrammingPlanKind] = useState(
+    partialSample?.specificData.programmingPlanKind ?? ''
+  );
   const [legalContext, setLegalContext] = useState(partialSample?.legalContext);
   const [geolocationX, setGeolocationX] = useState(
     partialSample?.geolocation?.x
@@ -94,6 +99,24 @@ const ContextStep = ({ partialSample }: Props) => {
     })
   });
 
+  useEffect(() => {
+    if (programmingPlan?.contexts.length === 1) {
+      setContext(programmingPlan?.contexts[0]);
+    }
+    if (programmingPlan?.kinds.length === 1) {
+      setProgrammingPlanKind(programmingPlan?.kinds[0]);
+    }
+  }, [programmingPlan]);
+
+  const specificData = useMemo(() => {
+    const kind = partialSample?.specificData?.programmingPlanKind;
+    if (programmingPlanKind !== kind) {
+      return { programmingPlanKind };
+    } else {
+      return partialSample?.specificData;
+    }
+  }, [programmingPlanKind, partialSample?.specificData]);
+
   const Form = SampleContextData.omit({
     programmingPlanId: true,
     geolocation: true,
@@ -112,16 +135,28 @@ const ContextStep = ({ partialSample }: Props) => {
 
   type FormShape = typeof Form.shape;
 
-  const contextOptions = selectOptionsFromList(Object.keys(ContextLabels), {
-    labels: ContextLabels,
-    withDefault: false,
-    withSort: true
-  });
+  const contextOptions = selectOptionsFromList(
+    programmingPlan?.contexts ?? [],
+    {
+      labels: ContextLabels,
+      withDefault: false,
+      withSort: true
+    }
+  );
 
   const legalContextOptions = selectOptionsFromList(LegalContextList, {
     labels: LegalContextLabels,
     withDefault: false
   });
+
+  const programmingPlanKindOptions = selectOptionsFromList(
+    programmingPlan?.kinds ?? [],
+    {
+      labels: ProgrammingPlanKindLabels,
+      withDefault: true,
+      withSort: true
+    }
+  );
 
   const id = useMemo(() => partialSample?.id ?? uuidv4(), [partialSample]);
 
@@ -144,7 +179,8 @@ const ContextStep = ({ partialSample }: Props) => {
     companyOffline,
     resytalId: resytalId as string,
     notesOnCreation,
-    status: 'Draft' as const
+    status: 'Draft' as const,
+    specificData: specificData as PartialSampleMatrixSpecificData
   };
 
   const submit = async (e?: React.MouseEvent<HTMLElement>) => {
@@ -199,10 +235,15 @@ const ContextStep = ({ partialSample }: Props) => {
     companyOffline,
     resytalId,
     notesOnCreation,
-    status: 'DraftMatrix'
+    status: 'DraftMatrix',
+    specificData
   };
 
   const form = useForm(Form, formInput, save);
+
+  if (!programmingPlan) {
+    return <></>;
+  }
 
   return (
     <form data-testid="draft_sample_creation_form" className="sample-form">
@@ -212,7 +253,8 @@ const ContextStep = ({ partialSample }: Props) => {
           title=""
           small
           closable
-          description="Autorisez le partage de votre position pour faciliter la localisation de la parcelle"
+          description={`Autorisez le partage de votre position pour faciliter la localisation 
+            ${programmingPlanKind === 'PPV' ? ' de la parcelle' : ' du contrôle'}.`}
         />
       )}
       <AppRequiredText />
@@ -236,7 +278,10 @@ const ContextStep = ({ partialSample }: Props) => {
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12', 'fr-pb-0')}>
           <div className={cx('fr-text--bold')}>
-            Emplacement de la parcelle contrôlée
+            Emplacement{' '}
+            {programmingPlanKind === 'PPV'
+              ? 'de la parcelle contrôlée'
+              : 'du contrôle'}
           </div>
           <div className={cx('fr-text--light')}>
             Placez votre repère sur la zone correspondante ou renseignez
@@ -297,49 +342,71 @@ const ContextStep = ({ partialSample }: Props) => {
                 disabled={readonly}
               />
             </div>
-            <div className={cx('fr-col-12')}>
-              <AppTextInput<FormShape>
-                defaultValue={parcel ?? ''}
-                onChange={(e) => setParcel(e.target.value)}
-                inputForm={form}
-                inputKey="parcel"
-                whenValid="Parcelle correctement renseignée."
-                data-testid="parcel-input"
-                label="N° ou appellation de la parcelle"
-                hintText="Facultatif"
-                disabled={readonly}
-              />
-            </div>
+            {programmingPlanKind === 'PPV' && (
+              <div className={cx('fr-col-12')}>
+                <AppTextInput<FormShape>
+                  defaultValue={parcel ?? ''}
+                  onChange={(e) => setParcel(e.target.value)}
+                  inputForm={form}
+                  inputKey="parcel"
+                  whenValid="Parcelle correctement renseignée."
+                  data-testid="parcel-input"
+                  label="N° ou appellation de la parcelle"
+                  hintText="Facultatif"
+                  disabled={readonly}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
-      <AppRadioButtons
-        legend="Contexte du prélèvement"
-        options={
-          contextOptions?.map(({ label, value }) => ({
-            key: `context-option-${value}`,
-            label,
-            nativeInputProps: {
-              checked: context === value,
-              onChange: () => setContext(value as Context)
-            },
-            illustration: (
-              <img
-                src={value === 'Control' ? check : leaf}
-                alt=""
-                aria-hidden
-              />
-            )
-          })) ?? []
-        }
-        colSm={6}
-        inputForm={form}
-        inputKey="context"
-        whenValid="Contexte du prélèvement correctement renseigné."
-        required
-        disabled={readonly}
-        data-testid="context-radio"
-      />
+      {programmingPlanKindOptions.length > 2 && (
+        <AppSelect<FormShape>
+          defaultValue={programmingPlanKind}
+          options={programmingPlanKindOptions}
+          onChange={(e) =>
+            setProgrammingPlanKind(e.target.value as ProgrammingPlanKind)
+          }
+          inputForm={form}
+          inputKey="specificData"
+          inputPathFromKey={['programmingPlanKind']}
+          whenValid="Type de plan correctement renseigné."
+          data-testid="programmingPlanKind-select"
+          label="Type de plan"
+          disabled={readonly}
+          required
+          className={cx('fr-mb-0')}
+        />
+      )}
+      {contextOptions.length > 1 && (
+        <AppRadioButtons
+          legend="Contexte du prélèvement"
+          options={
+            contextOptions?.map(({ label, value }) => ({
+              key: `context-option-${value}`,
+              label,
+              nativeInputProps: {
+                checked: context === value,
+                onChange: () => setContext(value as Context)
+              },
+              illustration: (
+                <img
+                  src={value === 'Control' ? check : leaf}
+                  alt=""
+                  aria-hidden
+                />
+              )
+            })) ?? []
+          }
+          colSm={6}
+          inputForm={form}
+          inputKey="context"
+          whenValid="Contexte du prélèvement correctement renseigné."
+          required
+          disabled={readonly}
+          data-testid="context-radio"
+        />
+      )}
       <AppRadioButtons
         legend="Cadre juridique"
         options={
@@ -385,13 +452,9 @@ const ContextStep = ({ partialSample }: Props) => {
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
           {isOnline && !readonly ? (
             <CompanySearch
-              initialCompany={
-                company ? companyToSearchResult(company) : undefined
-              }
+              initialCompany={company ?? undefined}
               onSelectCompany={(result) => {
-                setCompany(
-                  result ? companyFromSearchResult(result) : undefined
-                );
+                setCompany(result);
               }}
               state={form.messageType('company')}
               stateRelatedMessage={

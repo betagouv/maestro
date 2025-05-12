@@ -53,6 +53,7 @@
     "@storybook/react-vite": "^8.6.4",
     "@storybook/test": "^8.6.4",
     "@storybook/test-runner": "^0.22.0",
+    "@storybook/testing-library": "^0.2.1",
     "@svgr/core": "^8.1.0",
     "@svgr/plugin-jsx": "^8.1.0",
     "@testing-library/jest-dom": "^6.6.3",
