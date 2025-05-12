@@ -9,7 +9,6 @@ export const Company = z.object(
     address: z.string().nullish(),
     postalCode: z.string().nullish(),
     city: z.string().nullish(),
-    department: z.string(),
     nafCode: z.string().nullish()
   },
   {
@@ -37,7 +36,6 @@ export const companyFromSearchResult = (
       .join(' '),
     postalCode: companySearchResult.siege.code_postal,
     city: companySearchResult.siege.libelle_commune,
-    department: companySearchResult.siege.departement,
     nafCode: companySearchResult.activite_principale
   });
 
@@ -52,7 +50,7 @@ export const companyToSearchResult = (company: Company) =>
       adresse: company.address ?? '',
       code_postal: company.postalCode ?? '',
       commune: company.city ?? '',
-      departement: company.department ?? '',
+      departement: '',
       libelle_commune: company.city ?? '',
       libelle_voie: '',
       numero_voie: '',
