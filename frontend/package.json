@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "@codegouvfr/react-dsfr": "1.14.2",
+    "@codegouvfr/react-dsfr": "^1.23.3",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@mui/material": "^5.15.20",
