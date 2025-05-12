@@ -4,7 +4,6 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Skeleton } from '@mui/material';
 import clsx from 'clsx';
 import { format, parse } from 'date-fns';
-import { Department } from 'maestro-shared/referential/Department';
 import {
   LegalContext,
   LegalContextLabels,
