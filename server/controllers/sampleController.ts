@@ -4,15 +4,14 @@ import { Request, Response } from 'express';
 import { AuthenticatedRequest, SampleRequest } from 'express-jwt';
 import { constants } from 'http2';
 import { isNil, omitBy, pick } from 'lodash-es';
-import { CultureKindLabels } from 'maestro-shared/referential/CultureKind';
+import { getCultureKindLabel } from 'maestro-shared/referential/CultureKind';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
-import { MatrixPartLabels } from 'maestro-shared/referential/Matrix/MatrixPart';
+import { getMatrixPartLabel } from 'maestro-shared/referential/Matrix/MatrixPart';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
 import { Regions } from 'maestro-shared/referential/Region';
-import { StageLabels } from 'maestro-shared/referential/Stage';
 import { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequestData';
 import {
   getAnalysisReportDocumentFilename,
@@ -44,6 +43,8 @@ import workbookUtils from '../utils/workbookUtils';
 
 import { isEqual } from 'lodash-es';
 import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
+import { StageLabels } from 'maestro-shared/referential/Stage';
+import { Substance } from 'maestro-shared/schema/Substance/Substance';
 import {
   hasNationalRole,
   hasPermission
@@ -51,7 +52,6 @@ import {
 import { Readable } from 'node:stream';
 import { PDFDocument } from 'pdf-lib';
 import { laboratoriesConf, LaboratoryWithConf } from '../services/imapService';
-import { Substance } from 'maestro-shared/schema/Substance/Substance';
 const getSample = async (request: Request, response: Response) => {
   const sample = (request as SampleRequest).sample;
 
@@ -258,7 +258,7 @@ const updateSample = async (request: Request, response: Response) => {
     lastUpdatedAt: new Date()
   };
 
-    if (sample.status === 'Submitted' && updatedPartialSample.status === 'Sent') {
+  if (sample.status === 'Submitted' && updatedPartialSample.status === 'Sent') {
     const updatedSample = Sample.parse(updatedPartialSample);
     const sampleItems = await sampleItemRepository.findMany(sample.id);
 
@@ -299,16 +299,20 @@ const updateSample = async (request: Request, response: Response) => {
             ].join('\n')
           };
 
-          const substanceToLaboratorySubstance = (substance: Substance):  Pick<Substance, 'label'>=> {
-
-            let laboratoryLabel: string | null = null
+          const substanceToLaboratorySubstance = (
+            substance: Substance
+          ): Pick<Substance, 'label'> => {
+            let laboratoryLabel: string | null = null;
             if (laboratory.name in laboratoriesConf) {
-              const laboratoryName = laboratory.name as LaboratoryWithConf
-              laboratoryLabel = Object.entries(laboratoriesConf[laboratoryName].ssd2IdByLabel).find(([_label, value]) => value === substance.code)?.[0] ?? null
+              const laboratoryName = laboratory.name as LaboratoryWithConf;
+              laboratoryLabel =
+                Object.entries(
+                  laboratoriesConf[laboratoryName].ssd2IdByLabel
+                ).find(([_label, value]) => value === substance.code)?.[0] ??
+                null;
             }
-            return { label: laboratoryLabel ?? substance.label }
-
-          }
+            return { label: laboratoryLabel ?? substance.label };
+          };
 
           const analysisRequestDocs =
             await generateAndStoreAnalysisRequestDocuments({
@@ -319,10 +323,14 @@ const updateSample = async (request: Request, response: Response) => {
               laboratory,
               monoSubstances: prescriptionSubstances
                 .filter((substance) => substance.analysisMethod === 'Mono')
-                .map(({substance}) => substanceToLaboratorySubstance(substance)),
+                .map(({ substance }) =>
+                  substanceToLaboratorySubstance(substance)
+                ),
               multiSubstances: prescriptionSubstances
                 .filter((substance) => substance.analysisMethod === 'Multi')
-                .map(({substance}) => substanceToLaboratorySubstance(substance)),
+                .map(({ substance }) =>
+                  substanceToLaboratorySubstance(substance)
+                ),
               reference: [updatedSample.reference, sampleItem?.itemNumber]
                 .filter(isDefinedAndNotNull)
                 .join('-'),
@@ -342,13 +350,11 @@ const updateSample = async (request: Request, response: Response) => {
               stage: StageLabels[updatedSample.stage],
               matrixKindLabel: MatrixKindLabels[updatedSample.matrixKind],
               matrixLabel: MatrixLabels[updatedSample.matrix],
-              matrixPart: MatrixPartLabels[updatedSample.matrixPart],
+              matrixPart: getMatrixPartLabel(updatedSample) as string,
               quantityUnit: sampleItem?.quantityUnit
                 ? QuantityUnitLabels[sampleItem.quantityUnit]
                 : '',
-              cultureKind: updatedSample.cultureKind
-                ? CultureKindLabels[updatedSample.cultureKind]
-                : undefined,
+              cultureKind: getCultureKindLabel(updatedSample) as string,
               compliance200263: sampleItem
                 ? sampleItem.compliance200263
                   ? 'Respectée'

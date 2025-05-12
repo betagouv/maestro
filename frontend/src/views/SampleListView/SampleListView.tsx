@@ -165,7 +165,10 @@ const SampleListView = () => {
                   partialSample={{
                     id: uuidv4(),
                     status: 'Draft' as const,
-                    programmingPlanId: programmingPlan?.id as string
+                    programmingPlanId: programmingPlan?.id as string,
+                    specificData: {
+                      programmingPlanKind: programmingPlan?.kinds[0]
+                    }
                   }}
                 />
               </div>

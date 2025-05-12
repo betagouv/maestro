@@ -2,7 +2,6 @@ import { fakerFR } from '@faker-js/faker';
 import { constants } from 'http2';
 import { MatrixKindEffective } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { RegionList } from 'maestro-shared/referential/Region';
-import { StageList } from 'maestro-shared/referential/Stage';
 import { PrescriptionUpdate } from 'maestro-shared/schema/Prescription/Prescription';
 import { User } from 'maestro-shared/schema/User/User';
 import {
@@ -69,19 +68,19 @@ describe('Prescriptions router', () => {
     programmingPlanId: programmingPlanClosed.id,
     context: 'Control',
     matrixKind: oneOf(MatrixKindEffective.options),
-    stages: [oneOf(StageList)]
+    stages: ['STADE1']
   });
   const submittedControlPrescription = genPrescription({
     programmingPlanId: programmingPlanSubmitted.id,
     context: 'Control',
     matrixKind: oneOf(MatrixKindEffective.options),
-    stages: [oneOf(StageList)]
+    stages: ['STADE2']
   });
   const inProgressControlPrescription = genPrescription({
     programmingPlanId: programmingPlanInProgress.id,
     context: 'Control',
     matrixKind: oneOf(MatrixKindEffective.options),
-    stages: [oneOf(StageList)]
+    stages: ['STADE3', 'STADE4']
   });
   const substance = genSubstance();
   const inProgressControlPrescriptionSubstance = genPrescriptionSubstance({
@@ -93,7 +92,7 @@ describe('Prescriptions router', () => {
     programmingPlanId: programmingPlanInProgress.id,
     context: 'Surveillance',
     matrixKind: oneOf(MatrixKindEffective.options),
-    stages: [oneOf(StageList)]
+    stages: ['STADE5', 'STADE6', 'STADE8']
   });
 
   beforeAll(async () => {
@@ -345,7 +344,7 @@ describe('Prescriptions router', () => {
   describe('PUT /prescriptions/{prescriptionId}', () => {
     const prescriptionUpdate: PrescriptionUpdate = {
       programmingPlanId: programmingPlanInProgress.id,
-      stages: [oneOf(StageList)],
+      stages: ['STADE7'],
       notes: fakerFR.string.alphanumeric(32)
     };
     const testRoute = (

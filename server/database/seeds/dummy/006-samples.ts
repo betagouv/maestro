@@ -13,7 +13,7 @@ import {
 } from '../../../repositories/sampleRepository';
 import { Users } from '../../../repositories/userRepository';
 import { DummyLaboratoryIds } from './002-laboratories';
-import { validatedProgrammingPlanId } from './003-programming-plans';
+import { ppvValidatedProgrammingPlanId } from './003-programming-plans';
 import {
   abricotsEtSimilaires,
   avoineEtSimilaires,
@@ -22,11 +22,11 @@ import {
   fevesDeSoja,
   lentilles,
   oignons
-} from './004-prescriptions';
+} from './004-prescriptions-ppv';
 
 export const seed = async function () {
   const validatedProgrammingPlan = await ProgrammingPlans()
-    .where({ id: validatedProgrammingPlanId })
+    .where({ id: ppvValidatedProgrammingPlanId })
     .first();
 
   const sampler = await Users()
@@ -48,8 +48,8 @@ export const seed = async function () {
           sampler,
           programmingPlanId: validatedProgrammingPlan.id,
           context: 'Control',
+          matrixKind: 'A0DVX',
           matrix: 'A0DVX',
-          stage: 'STADE1',
           status: 'Sent',
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
@@ -65,8 +65,8 @@ export const seed = async function () {
           sampler,
           programmingPlanId: validatedProgrammingPlan.id,
           context: 'Control',
+          matrixKind: 'A000F',
           matrix: 'A000F',
-          stage: 'STADE1',
           status: 'Sent',
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
@@ -82,8 +82,8 @@ export const seed = async function () {
           sampler,
           programmingPlanId: validatedProgrammingPlan.id,
           context: 'Control',
+          matrixKind: 'A00QH',
           matrix: 'A00QH',
-          stage: 'STADE1',
           status: 'Sent',
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
@@ -99,8 +99,8 @@ export const seed = async function () {
           sampler,
           programmingPlanId: validatedProgrammingPlan.id,
           context: 'Control',
+          matrixKind: 'A01GG',
           matrix: 'A01GG',
-          stage: 'STADE1',
           status: 'Sent',
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
@@ -116,8 +116,8 @@ export const seed = async function () {
           sampler,
           programmingPlanId: validatedProgrammingPlan.id,
           context: 'Control',
+          matrixKind: 'A00HC',
           matrix: 'A00HC',
-          stage: 'STADE1',
           status: 'Sent',
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
@@ -133,8 +133,8 @@ export const seed = async function () {
           sampler,
           programmingPlanId: validatedProgrammingPlan.id,
           context: 'Control',
+          matrixKind: 'A013Q',
           matrix: 'A013Q',
-          stage: 'STADE1',
           status: 'Sent',
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
@@ -150,8 +150,8 @@ export const seed = async function () {
           sampler,
           programmingPlanId: validatedProgrammingPlan.id,
           context: 'Control',
+          matrixKind: 'A0DFR',
           matrix: 'A0DFR',
-          stage: 'STADE1',
           status: 'Sent',
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),

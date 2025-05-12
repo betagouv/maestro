@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { ProgrammingPlanKindLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   isCreatedPartialSample,
   Sample,
@@ -15,6 +16,7 @@ import { useAuthentication } from 'src/hooks/useAuthentication';
 import { quote } from 'src/utils/stringUtils';
 import StepSummary from 'src/views/SampleView/StepSummary/StepSummary';
 import { usePartialSample } from '../../../hooks/usePartialSample';
+import { useAppSelector } from '../../../hooks/useStore';
 
 interface Props {
   sample: (Sample | SampleToCreate) & Partial<SampleOwnerData>;
@@ -29,6 +31,7 @@ const ContextStepSummary = ({
 }: Props) => {
   const { user } = useAuthentication();
   const { readonly } = usePartialSample(sample);
+  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
 
   return (
     <StepSummary
@@ -79,12 +82,29 @@ const ContextStepSummary = ({
           )}
         </div>
       </div>
-      <div className="summary-item icon-text">
-        <div className={cx('fr-icon-microscope-line')}></div>
-        <div>
-          Contexte : <b>{ContextLabels[sample.context]}</b>
+      {(programmingPlan?.contexts ?? []).length > 1 && (
+        <div className="summary-item icon-text">
+          <div className={cx('fr-icon-microscope-line')}></div>
+          <div>
+            Contexte : <b>{ContextLabels[sample.context]}</b>
+          </div>
         </div>
-      </div>
+      )}
+      {(programmingPlan?.kinds ?? []).length > 1 && (
+        <div className="summary-item icon-text">
+          <div className={cx('fr-icon-microscope-line')}></div>
+          <div>
+            Type de plan :{' '}
+            <b>
+              {
+                ProgrammingPlanKindLabels[
+                  sample.specificData.programmingPlanKind
+                ]
+              }
+            </b>
+          </div>
+        </div>
+      )}
       <div className="summary-item icon-text">
         <div className={cx('fr-icon-scales-3-line')}></div>
         <div>
