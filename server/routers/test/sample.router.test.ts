@@ -342,6 +342,13 @@ describe('Sample router', () => {
       });
       await badRequestTest({
         ...genSampleContextData(),
+        geolocation: {
+          x:0,
+          y:0
+        }
+      });
+      await badRequestTest({
+        ...genSampleContextData(),
         programmingPlanId: '123'
       });
       await badRequestTest({ ...genSampleContextData(), legalContext: '123' });
