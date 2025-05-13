@@ -2,7 +2,7 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Input from '@codegouvfr/react-dsfr/Input';
 import clsx from 'clsx';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import {
   useGetDocumentDownloadSignedUrlQuery,
   useGetDocumentQuery,

@@ -1,7 +1,7 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Brand } from 'maestro-shared/constants';
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useAppDispatch } from 'src/hooks/useStore';
 import { appLogout } from 'src/store/store';
 import { HomeViewContainer } from 'src/views/HomeView/HomeView';

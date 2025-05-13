@@ -17,7 +17,7 @@ import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/Progr
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { RegionalPrescriptionUpdate } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import AppToast from 'src/components/_app/AppToast/AppToast';
 import PrescriptionCard from 'src/components/Prescription/PrescriptionCard/PrescriptionCard';
 import PrescriptionSubstancesModal from 'src/components/Prescription/PrescriptionSubstancesModal/PrescriptionSubstancesModal';

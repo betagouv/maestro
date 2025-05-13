@@ -8,7 +8,7 @@ import {
   genSampleContextData
 } from 'maestro-shared/test/sampleFixtures';
 import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import SampleView from 'src/views/SampleView/SampleView';
 import {
@@ -19,7 +19,7 @@ import {
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { ProviderTest } from '../../../../test/ProviderTest';
 
-vi.mock(import('react-router-dom'), async (importOriginal) => {
+vi.mock(import('react-router'), async (importOriginal) => {
   const original = await importOriginal();
   return {
     ...original,

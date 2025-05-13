@@ -9,7 +9,7 @@ import {
 } from 'maestro-shared/schema/Sample/Sample';
 import { SampleStatusSteps } from 'maestro-shared/schema/Sample/SampleStatus';
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import ContextStep from 'src/views/SampleView/DraftSample/ContextStep/ContextStep';
 import ItemsStep from 'src/views/SampleView/DraftSample/ItemsStep/ItemsStep';

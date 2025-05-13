@@ -18,7 +18,7 @@ import {
 import { UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
 import { useMemo, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import notificationsImg from 'src/assets/illustrations/notifications.svg';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';

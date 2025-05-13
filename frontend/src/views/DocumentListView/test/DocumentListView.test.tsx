@@ -7,7 +7,7 @@ import DocumentListView from 'src/views/DocumentListView/DocumentListView';
 import { beforeEach } from 'vitest';
 import { mockRequests } from '../../../../test/requestTestUtils';
 
-vi.mock(import('react-router-dom'), async (importOriginal) => {
+vi.mock(import('react-router'), async (importOriginal) => {
   const original = await importOriginal();
   return {
     ...original,

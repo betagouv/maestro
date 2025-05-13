@@ -17,7 +17,7 @@ import {
 } from 'maestro-shared/schema/Sample/SampleStatus';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import SampleCard from 'src/components/SampleCard/SampleCard';
 import SampleTable from 'src/components/SampleTable/SampleTable';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';

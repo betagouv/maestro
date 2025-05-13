@@ -5,7 +5,7 @@ import { Badge } from '@mui/material';
 import { Brand } from 'maestro-shared/constants';
 import { UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
 import { isDefined } from 'maestro-shared/utils/utils';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppSelector } from 'src/hooks/useStore';
 import { useLogoutMutation } from 'src/services/auth.service';

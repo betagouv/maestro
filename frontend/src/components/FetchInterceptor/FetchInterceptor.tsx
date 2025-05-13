@@ -1,5 +1,5 @@
 import fetchIntercept from 'fetch-intercept';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useAppDispatch } from 'src/hooks/useStore';
 import { appLogout } from 'src/store/store';
 

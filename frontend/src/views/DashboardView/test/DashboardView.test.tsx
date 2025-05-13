@@ -12,7 +12,7 @@ import {
   programmingPlanByYearRequestMock
 } from '../../../../test/requestTestUtils';
 
-vi.mock(import('react-router-dom'), async (importOriginal) => {
+vi.mock(import('react-router'), async (importOriginal) => {
   const original = await importOriginal();
   return {
     ...original,
