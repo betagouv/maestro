@@ -16,8 +16,8 @@ export const ImpersonateNotice: FunctionComponent<Props> = ({ ..._rest }) => {
       {user && impersonateUserId && (
         <Notice
           title={`Connecté en tant que ${user.firstName} ${user.lastName}`}
-          // description="Fermer pour retrouver votre identité"
-          // severity="warning"
+          description="Fermer pour retrouver votre identité"
+          severity="warning"
           isClosable={true}
           onClose={() => {
             setImpersonateUserId(null);
