@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { includes } from 'lodash-es';
 import { z } from 'zod';
 import { AnimalKind } from '../../referential/AnimalKind';
 import { AnimalSex } from '../../referential/AnimalSex';
@@ -17,7 +18,10 @@ import { Species } from '../../referential/Species';
 import { Stage } from '../../referential/Stage';
 import { TargetingCriteria } from '../../referential/TargetingCriteria';
 import { Company } from '../Company/Company';
-import { Context } from '../ProgrammingPlan/Context';
+import {
+  Context,
+  ProgrammingPlanContextList
+} from '../ProgrammingPlan/Context';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { BaseUser } from '../User/User';
 import { PartialSampleItem, SampleItem } from './SampleItem';
@@ -264,3 +268,7 @@ export const isCreatedPartialSample = (
 export const isCreatedSample = (
   sample?: Sample | SampleToCreate
 ): sample is Sample => CreatedSampleData.safeParse(sample).success;
+
+export const isProgrammingPlanSample = (
+  partialSample: PartialSample | PartialSampleToCreate
+) => includes(ProgrammingPlanContextList, partialSample.context);

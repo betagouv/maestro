@@ -21,10 +21,11 @@ import {
 import {
   Stage,
   StageLabels,
-  StageList
+  StagesByProgrammingPlanKind
 } from 'maestro-shared/referential/Stage';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import {
+  isProgrammingPlanSample,
   PartialSample,
   PartialSampleMatrixSpecificData,
   PartialSampleToCreate,
@@ -153,13 +154,15 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
             <AppSearchInput
               value={matrixKind ?? ''}
               options={selectOptionsFromList(
-                MatrixKindList.filter((matrixKind) =>
-                  prescriptions?.find(
-                    (p) =>
-                      p.programmingPlanKind ===
-                        specificData.programmingPlanKind &&
-                      p.matrixKind === matrixKind
-                  )
+                MatrixKindList.filter(
+                  (matrixKind) =>
+                    !isProgrammingPlanSample(partialSample) ||
+                    prescriptions?.find(
+                      (p) =>
+                        p.programmingPlanKind ===
+                          specificData.programmingPlanKind &&
+                        p.matrixKind === matrixKind
+                    )
                 ),
                 {
                   labels: MatrixKindLabels,
@@ -215,9 +218,11 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
             <AppSelect<FormShape>
               value={stage ?? ''}
               options={selectOptionsFromList(
-                StageList.filter(
+                StagesByProgrammingPlanKind[
+                  partialSample.specificData.programmingPlanKind
+                ].filter(
                   (stage) =>
-                    !prescriptions ||
+                    !isProgrammingPlanSample(partialSample) ||
                     prescriptions.find(
                       (p) =>
                         p.programmingPlanKind ===
