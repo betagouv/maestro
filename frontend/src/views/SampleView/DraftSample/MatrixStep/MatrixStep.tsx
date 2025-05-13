@@ -8,6 +8,7 @@ import { Context } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { PFASKindList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   isCreatedPartialSample,
+  isProgrammingPlanSample,
   PartialSample,
   PartialSampleMatrixData,
   PartialSampleToCreate
@@ -60,7 +61,9 @@ const MatrixStep = ({ partialSample }: Props) => {
       context: partialSample.context as Context
     },
     {
-      skip: !partialSample.programmingPlanId || !partialSample.context
+      skip:
+        !partialSample.programmingPlanId ||
+        !isProgrammingPlanSample(partialSample)
     }
   );
 
@@ -74,7 +77,9 @@ const MatrixStep = ({ partialSample }: Props) => {
           : user?.region
       },
       {
-        skip: !partialSample.programmingPlanId || !partialSample.context
+        skip:
+          !partialSample.programmingPlanId ||
+          !isProgrammingPlanSample(partialSample)
       }
     );
 
