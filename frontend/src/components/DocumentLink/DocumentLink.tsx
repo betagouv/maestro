@@ -1,6 +1,6 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { skipToken } from '@reduxjs/toolkit/query';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { ApiClientContext } from '../../services/apiClient';
 import { useDocument } from '../../hooks/useDocument';
 import { useContext } from 'react';

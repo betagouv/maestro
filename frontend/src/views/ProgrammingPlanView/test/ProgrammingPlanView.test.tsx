@@ -10,7 +10,7 @@ import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures'
 import { genCreatedPartialSample } from 'maestro-shared/test/sampleFixtures';
 import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
 import { Provider } from 'react-redux';
-import { MemoryRouter, useParams } from 'react-router-dom';
+import { MemoryRouter, useParams } from 'react-router';
 import YearRoute from 'src/components/YearRoute/YearRoute';
 import { applicationMiddleware, applicationReducer } from 'src/store/store';
 import { mockRequests } from '../../../../test/requestTestUtils';
@@ -20,7 +20,7 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { ProviderTest } from '../../../../test/ProviderTest';
 import ProgrammingPlanView from '../ProgrammingPlanView';
 
-vi.mock(import('react-router-dom'), async (importOriginal) => {
+vi.mock(import('react-router'), async (importOriginal) => {
   const original = await importOriginal();
   return {
     ...original,

@@ -1,6 +1,6 @@
 import { FunctionComponent, ReactNode } from 'react';
 import { Provider } from 'react-redux';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter } from 'react-router';
 import { assert, type Equals } from 'tsafe';
 import { apiClient, ApiClientContext } from '../src/services/apiClient';
 import { Store } from '@reduxjs/toolkit';

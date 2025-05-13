@@ -4,7 +4,7 @@ import { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { useContext, useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import AnalysisComplianceStep from 'src/views/SampleView/SampleAnalysis/SampleDraftAnalysis/AnalysisComplianceStep/AnalysisComplianceStep';
 import AnalysisReportStep from 'src/views/SampleView/SampleAnalysis/SampleDraftAnalysis/AnalysisReportStep/AnalysisReportStep';
 import AnalysisResiduesStep from 'src/views/SampleView/SampleAnalysis/SampleDraftAnalysis/AnalysisResiduesStep/AnalysisResiduesStep';
