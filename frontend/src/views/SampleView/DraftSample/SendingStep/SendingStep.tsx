@@ -10,8 +10,8 @@ import {
   SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import { isDefined } from 'maestro-shared/utils/utils';
-import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router';
+import React, { FunctionComponent, useContext, useMemo, useState } from 'react';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
@@ -20,7 +20,6 @@ import { useForm } from 'src/hooks/useForm';
 import { useOnLine } from 'src/hooks/useOnLine';
 import { usePartialSample } from 'src/hooks/usePartialSample';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
-import { useCreateOrUpdateSampleMutation } from 'src/services/sample.service';
 import { pluralize } from 'src/utils/stringUtils';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SendingModal from 'src/views/SampleView/DraftSample/SendingStep/SendingModal';
@@ -29,15 +28,17 @@ import ContextStepSummary from 'src/views/SampleView/StepSummary/ContextStepSumm
 import ItemsStepSummary from 'src/views/SampleView/StepSummary/ItemsStepSummary';
 import MatrixStepSummary from 'src/views/SampleView/StepSummary/MatrixStepSummary';
 import SupportDocumentDownload from '../SupportDocumentDownload';
+import { ApiClientContext } from '../../../../services/apiClient';
 
-interface Props {
+export interface Props {
   sample: (Sample | SampleToCreate) & Partial<SampleOwnerData>;
 }
 
-const SendingStep = ({ sample }: Props) => {
+const SendingStep: FunctionComponent<Props> = ({ sample }) => {
   const { navigateToSample } = useSamplesLink();
   const { isOnline } = useOnLine();
   const { laboratory, readonly } = usePartialSample(sample);
+  const { useCreateOrUpdateSampleMutation }  = useContext(ApiClientContext)
 
   const [resytalId, setResytalId] = useState(sample.resytalId);
   const [ownerFirstName, setOwnerFirstName] = useState(sample.ownerFirstName);

@@ -19,19 +19,21 @@ import {
   SampleOwnerData,
   SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import { useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import { usePartialSample } from 'src/hooks/usePartialSample';
-import { useGetPrescriptionSubstancesQuery } from 'src/services/prescription.service';
 import { quote } from 'src/utils/stringUtils';
 import StepSummary from 'src/views/SampleView/StepSummary/StepSummary';
 import SampleDocument from '../../../components/SampleDocument/SampleDocument';
+import { ApiClientContext } from '../../../services/apiClient';
 
 interface Props {
   sample: (Sample | SampleToCreate) & Partial<SampleOwnerData>;
   showLabel?: boolean;
 }
 const MatrixStepSummary = ({ sample, showLabel }: Props) => {
-  const { laboratory } = usePartialSample(sample);
+  const { laboratory } = usePartialSample(sample)
+  const { useGetPrescriptionSubstancesQuery }  = useContext(ApiClientContext)
+
   const { data: substances } = useGetPrescriptionSubstancesQuery(
     sample.prescriptionId ?? skipToken
   );

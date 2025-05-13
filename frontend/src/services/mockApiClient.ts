@@ -77,7 +77,8 @@ export const defaultMockApiClientConf: MockApi<ApiClient> = {
     })
   },
   useFindPrescriptionsQuery: { data: [] },
-  useFindRegionalPrescriptionsQuery: { data: [] }
+  useFindRegionalPrescriptionsQuery: { data: [] },
+  useGetPrescriptionSubstancesQuery: { data: [] }
 };
 
 export const mockApiClient = getMockApi<ApiClient>(defaultMockApiClientConf);

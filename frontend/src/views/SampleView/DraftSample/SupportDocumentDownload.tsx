@@ -8,14 +8,12 @@ import {
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
-import React, { useMemo } from 'react';
+import React, { useContext, useMemo } from 'react';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 import useWindowSize from 'src/hooks/useWindowSize';
-import {
-  getSupportDocumentURL,
-  useCreateOrUpdateSampleMutation
-} from 'src/services/sample.service';
 import { useSamplesLink } from '../../../hooks/useSamplesLink';
+import { ApiClientContext } from '../../../services/apiClient';
+import { getSupportDocumentURL } from '../../../services/sample.service';
 
 interface Props {
   partialSample: PartialSample | PartialSampleToCreate;
@@ -24,6 +22,8 @@ interface Props {
 const SupportDocumentDownload = ({ partialSample }: Props) => {
   const { isMobile } = useWindowSize();
   const { navigateToSample } = useSamplesLink();
+
+  const { useCreateOrUpdateSampleMutation }  = useContext(ApiClientContext)
 
   const confirmationModal = useMemo(
     () =>
