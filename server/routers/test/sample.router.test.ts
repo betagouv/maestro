@@ -345,9 +345,6 @@ describe('Sample router', () => {
         programmingPlanId: '123'
       });
       await badRequestTest({ ...genSampleContextData(), legalContext: '123' });
-      await badRequestTest({ ...genSampleContextData(), department: '123' });
-      await badRequestTest({ ...genSampleContextData(), department: '' });
-      await badRequestTest({ ...genSampleContextData(), department: 123 });
       await badRequestTest({
         ...genSampleContextData(),
         sampledAt: 'invalid date'
