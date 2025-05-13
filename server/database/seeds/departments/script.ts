@@ -2,15 +2,14 @@ import { departmentsSeed } from './departmentsSeed';
 import { initKysely } from '../../../repositories/kysely';
 import config from '../../../utils/config';
 
-const launchDepartementsSeed = async () => {
+const launchDepartmentsSeed = async () => {
   initKysely(config.databaseUrl);
 
 
   await departmentsSeed()
 }
 
-
-export default launchDepartementsSeed()
+export default launchDepartmentsSeed()
   .then(() => {
     process.exit();
   })

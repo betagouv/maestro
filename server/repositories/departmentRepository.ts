@@ -3,16 +3,13 @@ import { kysely } from './kysely';
 import { sql } from 'kysely';
 
 
-const getDepartement = async (x: number | undefined, y: number | undefined) : Promise<Department | null> => {
+const getDepartment = async (x: number | undefined, y: number | undefined) : Promise<Department | null> => {
 
   if (x === undefined || y === undefined) {
     return null
   }
 
-  const d = await kysely.selectFrom('departments').select('id').execute()
-  console.log(d)
-
-  const departement = await kysely
+  const department = await kysely
     .selectFrom('departments')
     .select('id')
     .where(({eb}) => {
@@ -20,10 +17,10 @@ const getDepartement = async (x: number | undefined, y: number | undefined) : Pr
     })
     .executeTakeFirst();
 
-  return Department.safeParse(departement?.id).data ?? null
+  return Department.safeParse(department?.id).data ?? null
 
 }
 
 export const departmentRepository = {
-  getDepartement
+  getDepartment
 }
