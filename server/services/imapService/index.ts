@@ -16,7 +16,7 @@ import { notificationService } from '../notificationService';
 import { NotificationCategoryMessages } from 'maestro-shared/schema/Notification/NotificationCategory';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
-import { LaboratoryName } from 'maestro-shared/referential/Laboratory';
+import { LaboratoryWithAutomation } from 'maestro-shared/referential/Laboratory';
 import { ExtractError } from './extractError';
 
 export type ExportResultQuantifiable = {
@@ -46,7 +46,7 @@ export type LaboratoryConf = {
   unknownReferences: string[]
 };
 
-export type LaboratoryWithConf = Extract<LaboratoryName, 'GIR 49' | 'LDA 72' | 'CAP 29'>
+export type LaboratoryWithConf = typeof LaboratoryWithAutomation[number]
 export const laboratoriesConf = {
   'GIR 49': girpaConf,
   'LDA 72': inovalysConf,

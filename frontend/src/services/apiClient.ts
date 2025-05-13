@@ -4,14 +4,14 @@ import {
   useCreateDocumentMutation,
   useDeleteDocumentMutation,
   useGetDocumentQuery,
-  useLazyGetDocumentDownloadSignedUrlQuery
+  useLazyGetDocumentDownloadSignedUrlQuery,
 } from './document.service';
 import { useGetLaboratoryQuery } from './laboratory.service';
-import { useFindPrescriptionsQuery } from './prescription.service';
+import { useFindPrescriptionsQuery, useGetPrescriptionSubstancesQuery } from './prescription.service';
 import { useFindRegionalPrescriptionsQuery } from './regionalPrescription.service';
 import {
   useCreateOrUpdateSampleMutation,
-  useUpdateSampleMutation
+  useUpdateSampleMutation,
 } from './sample.service';
 
 export type ApiClient = typeof apiClient;
@@ -27,6 +27,7 @@ export const apiClient: {
   useLazyGetDocumentDownloadSignedUrlQuery: typeof useLazyGetDocumentDownloadSignedUrlQuery;
   useUpdateAnalysisMutation: typeof useUpdateAnalysisMutation;
   useUpdateSampleMutation: typeof useUpdateSampleMutation;
+  useGetPrescriptionSubstancesQuery: typeof useGetPrescriptionSubstancesQuery
 } = {
   useCreateDocumentMutation,
   useCreateOrUpdateSampleMutation,
@@ -38,7 +39,8 @@ export const apiClient: {
   useGetSampleAnalysisQuery: analysisApi.useGetSampleAnalysisQuery,
   useLazyGetDocumentDownloadSignedUrlQuery,
   useUpdateAnalysisMutation,
-  useUpdateSampleMutation
+  useUpdateSampleMutation,
+  useGetPrescriptionSubstancesQuery,
 };
 
 export const ApiClientContext = createContext<ApiClient>(undefined as never);

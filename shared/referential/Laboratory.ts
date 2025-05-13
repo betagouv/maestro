@@ -12,3 +12,5 @@ export const laboratoryNames = [
 ] as const satisfies string[];
 export const laboratoryNameValidator = z.enum(laboratoryNames);
 export type LaboratoryName = z.infer<typeof laboratoryNameValidator>;
+
+export const LaboratoryWithAutomation = ['GIR 49', 'LDA 72', 'CAP 29'] as const satisfies LaboratoryName[]
