@@ -1,10 +1,11 @@
 import { z } from 'zod';
 import { OptionalBoolean } from '../../../referential/OptionnalBoolean';
+import { SSD2Id } from '../../../referential/Residue/SSD2Id';
 import { AnalysisMethod } from '../AnalysisMethod';
 import { Analyte, PartialAnalyte } from '../Analyte';
 import { ResidueCompliance } from './ResidueCompliance';
 import { ResultKind } from './ResultKind';
-import { SSD2Id } from '../../../referential/Residue/SSD2Id';
+import { isNil } from 'lodash-es';
 
 const ResidueBase = z.object({
   analysisId: z.string().uuid(),
@@ -25,29 +26,41 @@ const ResidueBase = z.object({
   analytes: z.array(Analyte).nullish()
 });
 
-export const Residue = ResidueBase.refine(
-  (data) => {
-    if (data.compliance === 'Other') {
-      return data.otherCompliance;
-    }
-    return true;
-  },
-  {
-    message: 'Veuillez préciser la conformité la conformité “Autre”.',
-    path: ['otherCompliance']
+export const Residue = ResidueBase.superRefine((residu, ctx) => {
+  if (residu.compliance === 'Other' && !residu.otherCompliance) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Veuillez préciser la conformité la conformité “Autre”.',
+      path: ['otherCompliance']
+    });
   }
-);
+  if (residu.resultKind === 'Q') {
+    if (isNil(residu.result) || residu.result === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Veuillez préciser le résultat',
+        path: ['result']
+      });
+    }
+    if (isNil(residu.lmr) || residu.lmr === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Veuillez préciser la LMR',
+        path: ['lmr']
+      });
+    }
+  }
+});
 
 export const PartialResidue = z.object({
   ...ResidueBase.partial().shape,
- ...ResidueBase.pick({
-   analysisId: true,
-   residueNumber: true
- }).shape,
+  ...ResidueBase.pick({
+    analysisId: true,
+    residueNumber: true
+  }).shape,
 
   analytes: z.array(PartialAnalyte).nullish()
-})
-
+});
 
 export type Residue = z.infer<typeof Residue>;
 export type PartialResidue = z.infer<typeof PartialResidue>;
