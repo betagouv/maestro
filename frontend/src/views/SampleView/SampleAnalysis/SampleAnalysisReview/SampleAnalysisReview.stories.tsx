@@ -1,12 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { expect, fn, userEvent, within } from '@storybook/test';
+import { expect, fireEvent, fn, userEvent, within } from '@storybook/test';
 import clsx from 'clsx';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
 import { v4 as uuidv4 } from 'uuid';
 import { SampleAnalysisReview } from './SampleAnalysisReview';
+import { ResultKindList } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 
 const onReviewDoneMock = fn();
 const meta = {
@@ -150,38 +151,37 @@ export const CorrectionWithoutResidu: Story = {
   }
 };
 
-//TODO si on ne remplit pas le résultat on peut quand même passer à l'étape d'après
-// export const CorrectionWithRequiredResult: Story = {
-//   args: {
-//     ...CorrectionWithoutResidu.args,
-//   },
-//   play: async (context) => {
-//     await CorrectionWithResidues.play(context);
-//
-//     const canvas = within(context.canvasElement);
-//
-//     await userEvent.click(canvas.getByLabelText('mono-résidu'));
-//
-//     const autocomplete = canvas.getByText(
-//       'Résidu'
-//     ).parentElement!;
-//     const input = within(autocomplete).getByRole('combobox');
-//     await userEvent.click(input);
-//     await fireEvent.keyDown(input, { key: 'ArrowDown' });
-//     await fireEvent.keyDown(input, { key: 'Enter' });
-//
-//     const kindFieldset = canvas.getByText(
-//       "Type de résultat de l'analyse"
-//     ).parentElement!;
-//     const kindSelect = within(kindFieldset).getByRole('combobox');
-//     await userEvent.selectOptions(kindSelect, ResultKindList[0]);
-//
-//     await userEvent.click(canvas.getByLabelText('Conforme'));
-//
-//     await userEvent.click(canvas.getByText('Continuer'));
-//
-//     await expect(
-//       canvas.getByText("Finaliser l'interprétation")
-//     ).not.toBeInTheDocument();
-//   }
-// };
+export const CorrectionWithRequiredResult: Story = {
+  args: {
+    ...CorrectionWithoutResidu.args,
+  },
+  play: async (context) => {
+    await CorrectionWithResidues.play(context);
+
+    const canvas = within(context.canvasElement);
+
+    await userEvent.click(canvas.getByLabelText('mono-résidu'));
+
+    const autocomplete = canvas.getByText(
+      'Résidu'
+    ).parentElement!;
+    const input = within(autocomplete).getByRole('combobox');
+    await userEvent.click(input);
+    await fireEvent.keyDown(input, { key: 'ArrowDown' });
+    await fireEvent.keyDown(input, { key: 'Enter' });
+
+    const kindFieldset = canvas.getByText(
+      "Type de résultat de l'analyse"
+    ).parentElement!;
+    const kindSelect = within(kindFieldset).getByRole('combobox');
+    await userEvent.selectOptions(kindSelect, ResultKindList[0]);
+
+    await userEvent.click(canvas.getByLabelText('Conforme'));
+
+    await userEvent.click(canvas.getByText('Continuer'));
+
+    await expect(
+      canvas.queryByText("Finaliser l'interprétation")
+    ).not.toBeInTheDocument();
+  }
+};
