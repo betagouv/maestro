@@ -22,14 +22,14 @@ export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${config.apiEndpoint}/api`,
     prepareHeaders: (headers: Headers) => {
-      const isImpersonateEnable = !!localStorage.getItem('administratorId');
-      if (isImpersonateEnable) {
+      const isMascaradeEnable = !!localStorage.getItem('administratorId');
+      if (isMascaradeEnable) {
         const authUser = localStorage.getItem('authUser');
         if (authUser) {
-          const impersonateId = JSON.parse(authUser).id;
-          if (impersonateId) {
+          const mascaradeId = JSON.parse(authUser).id;
+          if (mascaradeId) {
             const newHeaders = new Headers(headers);
-            newHeaders.append('X-IMPERSONATE-ID', impersonateId);
+            newHeaders.append('X-MASCARADE-ID', mascaradeId);
             return newHeaders;
           } else {
             return headers;

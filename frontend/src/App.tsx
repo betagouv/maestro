@@ -16,10 +16,10 @@ import { useAppSelector } from 'src/hooks/useStore';
 import LoginCallbackView from 'src/views/LoginCallbackView/LoginCallbackView';
 import LogoutCallbackView from 'src/views/LogoutCallbackView/LogoutCallbackView';
 import './App.scss';
-import { ImpersonateContext, useImpersonate } from './components/Impersonate/ImpersonateContext';
+import { MascaradeContext, useMascarade } from './components/Mascarade/MascaradeContext';
 import { apiClient, ApiClientContext } from './services/apiClient';
 import { store } from './store/store';
-import { ImpersonateNotice } from './components/Impersonate/ImpersonateNotice';
+import { MascaradeNotice } from './components/Mascarade/MascaradeNotice';
 
 declare module '@codegouvfr/react-dsfr/spa' {
   interface RegisterLink {
@@ -60,12 +60,12 @@ function App() {
 
   FetchInterceptor();
 
-  const {impersonateUserId, setImpersonateUserId} = useImpersonate()
+  const {mascaradeUserId, setMascaradeUserId} = useMascarade()
 
   return (
     <React.Suspense fallback={<></>}>
-      <ImpersonateContext.Provider value={{impersonateUserId, setImpersonateUserId}}>
-        <ImpersonateNotice/>
+      <MascaradeContext.Provider value={{ mascaradeUserId, setMascaradeUserId}}>
+        <MascaradeNotice/>
         <Header />
         {isSomeQueryPending && (
           <div className="toast">Chargement en cours...</div>
@@ -114,7 +114,7 @@ function App() {
           </Routes>
         </main>
         <Footer />
-      </ImpersonateContext.Provider>
+      </MascaradeContext.Provider>
     </React.Suspense>
   );
 }

@@ -29,11 +29,11 @@ export const jwtCheck = (credentialsRequired: boolean) =>
 const setUser = async (request: Request, user: User | undefined): Promise<void> => {
 
   if (user?.role === 'Administrator') {
-    const impersonateUserId = request.header('X-IMPERSONATE-ID');
-    if (impersonateUserId !==  undefined) {
-      const impersonateUser = await userRepository.findUnique(impersonateUserId)
-      if (impersonateUser !== undefined) {
-        request.user = impersonateUser
+    const mascaradeUserId = request.header('X-MASCARADE-ID');
+    if (mascaradeUserId !==  undefined) {
+      const mascaradeUser = await userRepository.findUnique(mascaradeUserId)
+      if (mascaradeUser !== undefined) {
+        request.user = mascaradeUser
         return
       }
     }

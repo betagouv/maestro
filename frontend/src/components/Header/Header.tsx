@@ -1,6 +1,7 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Header as DSFRHeader } from '@codegouvfr/react-dsfr/Header';
+import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { Badge } from '@mui/material';
 import { Brand } from 'maestro-shared/constants';
 import { UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
@@ -13,8 +14,13 @@ import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.serv
 import logo from '../../assets/logo.svg';
 import { useFindNotificationsQuery } from '../../services/notification.service';
 import config from '../../utils/config';
-import { ImpersonateInput } from '../Impersonate/ImpersonateInput';
-import clsx from 'clsx';
+import { MascaradeButton } from '../Mascarade/MascaradeButton';
+import { MascaradeModal } from '../Mascarade/MascaradeModal';
+
+const mascaradeModal = createModal({
+  id: `mascarade-modale-id`,
+  isOpenedByDefault: false
+});
 
 const Header = () => {
   const location = useLocation();
@@ -45,169 +51,173 @@ const Header = () => {
   const isActive = (path: string) => location.pathname.startsWith(path);
 
   return (
-    <DSFRHeader
-      brandTop={
-        <>
-          Ministère
-          <br />
-          de l'Agriculture
-          <br />
-          et de la Souveraineté
-          <br />
-          alimentaire
-        </>
-      }
-      homeLinkProps={{
-        to: '/',
-        title: 'Accueil'
-      }}
-      id="header"
-      operatorLogo={{
-        alt: `Logo ${Brand}`,
-        imgUrl: logo,
-        orientation: 'horizontal'
-      }}
-      navigation={(isAuthenticated
-        ? [
-            {
-              linkProps: {
-                to: '/',
-                target: '_self'
-              },
-              text: 'Tableau de bord',
-              isActive:
-                location.pathname === '/' ||
-                location.pathname.startsWith('/plans')
-            },
-            hasUserPermission('readSamples')
-              ? {
-                  isActive: isActive('/prelevements'),
-                  ...(validatedProgrammingPlans?.length === 1
-                    ? {
-                        text: 'Prélèvements',
-                        linkProps: {
-                          to: `/prelevements/${validatedProgrammingPlans[0].year}`,
-                          target: '_self'
-                        }
-                      }
-                    : {
-                        text: `Prélèvements ${
-                          isActive('/prelevements') && programmingPlan
-                            ? programmingPlan.year
-                            : ''
-                        }`,
-                        menuLinks: (validatedProgrammingPlans ?? []).map(
-                          (pp) => ({
-                            linkProps: {
-                              to: `/prelevements/${pp.year}`,
-                              target: '_self'
-                            },
-                            text: pp.year,
-                            isActive:
-                              isActive('/prelevements') &&
-                              pp.id === programmingPlan?.id
-                          })
-                        )
-                      })
-                }
-              : undefined,
-            {
-              isActive: isActive('/programmation'),
-              ...(programmingPlans?.length === 1
-                ? {
-                    text: 'Programmation',
-                    linkProps: {
-                      to: `/programmation/${programmingPlans[0].year}`,
-                      target: '_self'
-                    }
-                  }
-                : {
-                    text: `Programmation ${
-                      isActive('/programmation') && programmingPlan
-                        ? programmingPlan.year
-                        : ''
-                    }`,
-                    menuLinks: (programmingPlans ?? []).map((pp) => ({
-                      linkProps: {
-                        to: `/programmation/${pp.year}`,
-                        target: '_self'
-                      },
-                      text: `Campagne ${pp.year}`,
-                      isActive:
-                        isActive('/programmation') &&
-                        pp.id === programmingPlan?.id
-                    }))
-                  })
-            },
-            {
-              linkProps: {
-                to: '/documents',
-                target: '_self'
-              },
-              text: 'Documents ressources',
-              isActive: location.pathname.startsWith('/documents')
-            }
-          ]
-        : []
-      ).filter(isDefined)}
-      quickAccessItems={[
-        {
-          iconId: 'fr-icon-question-fill' as const,
-          buttonProps: {
-            onClick: () => {
-              window.open(`${config.websiteUrl}/aides`);
-            }
-          },
-          text: 'Aides'
-        },
-        ...(isAuthenticated
+    <>
+      <DSFRHeader
+        brandTop={
+          <>
+            Ministère
+            <br />
+            de l'Agriculture
+            <br />
+            et de la Souveraineté
+            <br />
+            alimentaire
+          </>
+        }
+        homeLinkProps={{
+          to: '/',
+          title: 'Accueil'
+        }}
+        id="header"
+        operatorLogo={{
+          alt: `Logo ${Brand}`,
+          imgUrl: logo,
+          orientation: 'horizontal'
+        }}
+        navigation={(isAuthenticated
           ? [
-              <Badge
-                key="notifications"
-                variant="dot"
-                color="error"
-                overlap="circular"
-                invisible={!unReadNotifications?.length}
-                sx={{
-                  '& .MuiBadge-dot': {
-                    right: 15,
-                    top: 10
+              {
+                linkProps: {
+                  to: '/',
+                  target: '_self'
+                },
+                text: 'Tableau de bord',
+                isActive:
+                  location.pathname === '/' ||
+                  location.pathname.startsWith('/plans')
+              },
+              hasUserPermission('readSamples')
+                ? {
+                    isActive: isActive('/prelevements'),
+                    ...(validatedProgrammingPlans?.length === 1
+                      ? {
+                          text: 'Prélèvements',
+                          linkProps: {
+                            to: `/prelevements/${validatedProgrammingPlans[0].year}`,
+                            target: '_self'
+                          }
+                        }
+                      : {
+                          text: `Prélèvements ${
+                            isActive('/prelevements') && programmingPlan
+                              ? programmingPlan.year
+                              : ''
+                          }`,
+                          menuLinks: (validatedProgrammingPlans ?? []).map(
+                            (pp) => ({
+                              linkProps: {
+                                to: `/prelevements/${pp.year}`,
+                                target: '_self'
+                              },
+                              text: pp.year,
+                              isActive:
+                                isActive('/prelevements') &&
+                                pp.id === programmingPlan?.id
+                            })
+                          )
+                        })
                   }
-                }}
-              >
-                <Button
-                  iconId="fr-icon-notification-3-line"
-                  linkProps={{
-                    to: '/notifications'
-                  }}
-                  className={cx('fr-btn--icon-left', 'fr-pr-0')}
-                  priority="tertiary no outline"
-                  title="Notifications"
-                />
-              </Badge>,
-              <div key="logout">
-                <Button
-                  iconId="fr-icon-logout-box-r-line"
-                  onClick={async () => {
-                    const logoutRedirectUrl = await logout().unwrap();
-                    window.location.href = logoutRedirectUrl.url;
-                  }}
-                  className={cx('fr-mb-0')}
-                >
-                  Se déconnecter
-                </Button>
-                {user?.role && (
-                  <div className={clsx(cx('fr-text--sm', 'fr-mr-2w'), 'd-flex-align-center')} style={{gap: '1rem'}}>
-                    {UserRoleLabels[user.role]}
-
-                    <ImpersonateInput/>
-                  </div>
-                )}
-              </div>
+                : undefined,
+              {
+                isActive: isActive('/programmation'),
+                ...(programmingPlans?.length === 1
+                  ? {
+                      text: 'Programmation',
+                      linkProps: {
+                        to: `/programmation/${programmingPlans[0].year}`,
+                        target: '_self'
+                      }
+                    }
+                  : {
+                      text: `Programmation ${
+                        isActive('/programmation') && programmingPlan
+                          ? programmingPlan.year
+                          : ''
+                      }`,
+                      menuLinks: (programmingPlans ?? []).map((pp) => ({
+                        linkProps: {
+                          to: `/programmation/${pp.year}`,
+                          target: '_self'
+                        },
+                        text: `Campagne ${pp.year}`,
+                        isActive:
+                          isActive('/programmation') &&
+                          pp.id === programmingPlan?.id
+                      }))
+                    })
+              },
+              {
+                linkProps: {
+                  to: '/documents',
+                  target: '_self'
+                },
+                text: 'Documents ressources',
+                isActive: location.pathname.startsWith('/documents')
+              }
             ]
-          : [])
-      ]}
-    />
+          : []
+        ).filter(isDefined)}
+        quickAccessItems={[
+          {
+            iconId: 'fr-icon-question-fill' as const,
+            buttonProps: {
+              onClick: () => {
+                window.open(`${config.websiteUrl}/aides`);
+              }
+            },
+            text: 'Aides'
+          },
+          ...(isAuthenticated
+            ? [
+                <Badge
+                  key="notifications"
+                  variant="dot"
+                  color="error"
+                  overlap="circular"
+                  invisible={!unReadNotifications?.length}
+                  sx={{
+                    '& .MuiBadge-dot': {
+                      right: 15,
+                      top: 10
+                    }
+                  }}
+                >
+                  <Button
+                    iconId="fr-icon-notification-3-line"
+                    linkProps={{
+                      to: '/notifications'
+                    }}
+                    className={cx('fr-btn--icon-left', 'fr-pr-0')}
+                    priority="tertiary no outline"
+                    title="Notifications"
+                  />
+                </Badge>,
+                <div key="logout">
+                  <div>
+                    <Button
+                      iconId="fr-icon-logout-box-r-line"
+                      onClick={async () => {
+                        const logoutRedirectUrl = await logout().unwrap();
+                        window.location.href = logoutRedirectUrl.url;
+                      }}
+                      className={cx('fr-mb-0')}
+                    >
+                      Se déconnecter
+                    </Button>
+                    <MascaradeButton modal={mascaradeModal} />
+                  </div>
+                  {user?.role && (
+                    <div className={cx('fr-text--sm', 'fr-mr-2w')}>
+                      {UserRoleLabels[user.role]}
+                    </div>
+                  )}
+                </div>
+              ]
+            : [])
+        ]}
+      />
+      <MascaradeModal modal={mascaradeModal} />
+    </>
   );
 };
 

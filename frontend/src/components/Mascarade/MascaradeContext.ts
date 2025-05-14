@@ -4,27 +4,27 @@ import { useAppDispatch } from '../../hooks/useStore';
 import { useLazyGetUserQuery } from '../../services/user.service';
 import authSlice from '../../store/reducers/authSlice';
 
-export const ImpersonateContext = createContext<{
-  impersonateUserId: string | null;
-  setImpersonateUserId: (value: string | null) => void;
+export const MascaradeContext = createContext<{
+  mascaradeUserId: string | null;
+  setMascaradeUserId: (value: string | null) => void;
 }>({
-  impersonateUserId: null,
-  setImpersonateUserId: () => ({})
+  mascaradeUserId: null,
+  setMascaradeUserId: () => ({})
 });
 
-export const useImpersonate = () => {
+export const useMascarade = () => {
   const dispatch = useAppDispatch();
   const { user } = useAuthentication();
   const [getUser] = useLazyGetUserQuery();
 
-  const [impersonateUserId, setImpersonateUserId] = useState<null | string>(
+  const [mascaradeUserId, setMascaradeUserId] = useState<null | string>(
     localStorage.getItem('administratorId') && user ? user.id : null
   );
 
   useEffect(() => {
     let userToLoad: string | null = null;
-    if (impersonateUserId) {
-      userToLoad = impersonateUserId;
+    if (mascaradeUserId) {
+      userToLoad = mascaradeUserId;
       if (!localStorage.getItem('administratorId')) {
         localStorage.setItem('administratorId', user?.id ?? '');
       }
@@ -49,7 +49,7 @@ export const useImpersonate = () => {
     if (userToLoad) {
       updateUser(userToLoad);
     }
-  }, [impersonateUserId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [mascaradeUserId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return { impersonateUserId, setImpersonateUserId };
+  return { mascaradeUserId,  setMascaradeUserId };
 };
