@@ -92,7 +92,8 @@ export const {
   useAddPrescriptionMutation,
   useDeletePrescriptionMutation,
   getPrescriptionsExportURL,
-  useGetPrescriptionSubstancesQuery
+  useGetPrescriptionSubstancesQuery,
+  useLazyGetPrescriptionSubstancesQuery
 } = {
   ...prescriptionApi,
   getPrescriptionsExportURL: prescriptionsExportURL
