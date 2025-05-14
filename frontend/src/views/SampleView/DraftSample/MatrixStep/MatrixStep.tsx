@@ -269,7 +269,7 @@ const MatrixStep = ({ partialSample }: Props) => {
           defaultLabel: 'Sélectionner un stade'
         }
       ),
-    [partialSample, matrixKindOptions, prescriptions]
+    [partialSample, prescriptions]
   );
 
   return (

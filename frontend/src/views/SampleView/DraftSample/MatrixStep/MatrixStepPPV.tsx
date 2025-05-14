@@ -100,12 +100,12 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
     const [releaseControl, setReleaseControl] = useState(
       partialSample.specificData.releaseControl
     );
-    const [monoSubstances, setMonoSubstances] = useState(
+    const [monoSubstances, _setMonoSubstances] = useState(
       !isProgrammingPlanSample(partialSample)
         ? (partialSample.monoSubstances ?? [])
         : undefined
     );
-    const [multiSubstances, setMultiSubstances] = useState(
+    const [multiSubstances, _setMultiSubstances] = useState(
       !isProgrammingPlanSample(partialSample)
         ? (partialSample.multiSubstances ?? [])
         : undefined
