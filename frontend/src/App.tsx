@@ -16,8 +16,10 @@ import { useAppSelector } from 'src/hooks/useStore';
 import LoginCallbackView from 'src/views/LoginCallbackView/LoginCallbackView';
 import LogoutCallbackView from 'src/views/LogoutCallbackView/LogoutCallbackView';
 import './App.scss';
+import { MascaradeContext, useMascarade } from './components/Mascarade/MascaradeContext';
+import { apiClient, ApiClientContext } from './services/apiClient';
 import { store } from './store/store';
-import {  apiClient, ApiClientContext } from './services/apiClient';
+import { MascaradeNotice } from './components/Mascarade/MascaradeNotice';
 
 declare module '@codegouvfr/react-dsfr/spa' {
   interface RegisterLink {
@@ -25,7 +27,6 @@ declare module '@codegouvfr/react-dsfr/spa' {
   }
 }
 startReactDsfr({ defaultColorScheme: 'light', Link });
-
 
 function AppWrapper() {
   const { MuiDsfrThemeProvider } = createMuiDsfrThemeProvider({
@@ -59,56 +60,61 @@ function App() {
 
   FetchInterceptor();
 
+  const {mascaradeUserId, setMascaradeUserId} = useMascarade()
+
   return (
     <React.Suspense fallback={<></>}>
-      <Header />
-      {isSomeQueryPending && (
-        <div className="toast">Chargement en cours...</div>
-      )}
-      {!isOnline && (
-        <div className={cx('fr-badge--error')}>
-          <div
-            className={clsx(
-              cx('fr-container', 'fr-py-2w'),
-              'd-flex-align-center'
-            )}
-          >
-            <span className={cx('fr-icon-link-unlink', 'fr-mr-1w')}></span>
-            Votre connexion Internet est instable. Les données renseignées sont
-            conservées jusqu’au rétablissement de la connexion.
+      <MascaradeContext.Provider value={{ mascaradeUserId, setMascaradeUserId}}>
+        <MascaradeNotice/>
+        <Header />
+        {isSomeQueryPending && (
+          <div className="toast">Chargement en cours...</div>
+        )}
+        {!isOnline && (
+          <div className={cx('fr-badge--error')}>
+            <div
+              className={clsx(
+                cx('fr-container', 'fr-py-2w'),
+                'd-flex-align-center'
+              )}
+            >
+              <span className={cx('fr-icon-link-unlink', 'fr-mr-1w')}></span>
+              Votre connexion Internet est instable. Les données renseignées
+              sont conservées jusqu’au rétablissement de la connexion.
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      <main style={{ minHeight: 'calc(100vh - 440px)' }}>
-        <Routes>
-          {[
-            ...availableRoutes.map((route) => (
+        <main style={{ minHeight: 'calc(100vh - 440px)' }}>
+          <Routes>
+            {[
+              ...availableRoutes.map((route) => (
+                <Route
+                  path={route.path}
+                  element={<route.component />}
+                  key={route.key}
+                />
+              )),
               <Route
-                path={route.path}
-                element={<route.component />}
-                key={route.key}
+                path="/login-callback"
+                element={<LoginCallbackView />}
+                key="login_callback_route"
+              />,
+              <Route
+                path="/logout-callback"
+                element={<LogoutCallbackView />}
+                key="logout_callback_route"
+              />,
+              <Route
+                path="/*"
+                element={<Navigate replace to="/" />}
+                key="redirection_route"
               />
-            )),
-            <Route
-              path="/login-callback"
-              element={<LoginCallbackView />}
-              key="login_callback_route"
-            />,
-            <Route
-              path="/logout-callback"
-              element={<LogoutCallbackView />}
-              key="logout_callback_route"
-            />,
-            <Route
-              path="/*"
-              element={<Navigate replace to="/" />}
-              key="redirection_route"
-            />
-          ]}
-        </Routes>
-      </main>
-      <Footer />
+            ]}
+          </Routes>
+        </main>
+        <Footer />
+      </MascaradeContext.Provider>
     </React.Suspense>
   );
 }

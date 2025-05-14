@@ -18,7 +18,7 @@ export const BaseUser = z.object({
   lastName: z.string(),
   programmingPlanKinds: z.array(ProgrammingPlanKind),
   role: UserRole,
-  region: Region.nullable()
+  region: Region.nullish()
 });
 
 export const User = BaseUser.superRefine((user, ctx) => {

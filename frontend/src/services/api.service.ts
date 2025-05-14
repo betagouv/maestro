@@ -21,6 +21,22 @@ export const tagTypes = [
 export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${config.apiEndpoint}/api`,
+    prepareHeaders: (headers: Headers) => {
+      const isMascaradeEnable = !!localStorage.getItem('administratorId');
+      if (isMascaradeEnable) {
+        const authUser = localStorage.getItem('authUser');
+        if (authUser) {
+          const mascaradeId = JSON.parse(authUser).id;
+          if (mascaradeId) {
+            const newHeaders = new Headers(headers);
+            newHeaders.append('X-MASCARADE-ID', mascaradeId);
+            return newHeaders;
+          } else {
+            return headers;
+          }
+        }
+      }
+    },
     credentials: 'include'
   }),
   tagTypes,

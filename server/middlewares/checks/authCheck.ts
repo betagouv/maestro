@@ -6,7 +6,7 @@ import AuthenticationMissingError from 'maestro-shared/errors/authenticationMiss
 import UserMissingError from 'maestro-shared/errors/userMissingError';
 import UserPermissionMissingError from 'maestro-shared/errors/userPermissionMissingError';
 import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
-import { hasPermission } from 'maestro-shared/schema/User/User';
+import { hasPermission, User } from 'maestro-shared/schema/User/User';
 import { UserPermission } from 'maestro-shared/schema/User/UserPermission';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { userRepository } from '../../repositories/userRepository';
@@ -26,6 +26,22 @@ export const jwtCheck = (credentialsRequired: boolean) =>
     ignoreExpiration: !credentialsRequired
   });
 
+const setUser = async (request: Request, user: User | undefined): Promise<void> => {
+
+  if (user?.role === 'Administrator') {
+    const mascaradeUserId = request.header('X-MASCARADE-ID');
+    if (mascaradeUserId !==  undefined) {
+      const mascaradeUser = await userRepository.findUnique(mascaradeUserId)
+      if (mascaradeUser !== undefined) {
+        request.user = mascaradeUser
+        return
+      }
+    }
+  }
+
+  request.user = user
+}
+
 export const userCheck = (credentialsRequired: boolean) =>
   async function (request: Request, _response: Response, next: NextFunction) {
     if (credentialsRequired) {
@@ -42,11 +58,10 @@ export const userCheck = (credentialsRequired: boolean) =>
         throw new AuthenticationFailedError()
       }
 
-      request.user = user;
+      await setUser(request, user)
     } else {
       if (request.auth && request.auth.userId) {
-        request.user =
-          (await userRepository.findUnique(request.auth.userId)) ?? undefined;
+        await setUser(request, await userRepository.findUnique(request.auth.userId))
       }
     }
     next();
