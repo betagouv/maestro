@@ -2,6 +2,14 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
+import {
+  MatrixKindLabels,
+  MatrixKindList
+} from 'maestro-shared/referential/Matrix/MatrixKind';
+import {
+  StageLabels,
+  StagesByProgrammingPlanKind
+} from 'maestro-shared/referential/Stage';
 import { FileInput } from 'maestro-shared/schema/File/FileInput';
 import { SampleDocumentTypeList } from 'maestro-shared/schema/File/FileType';
 import { Context } from 'maestro-shared/schema/ProgrammingPlan/Context';
@@ -23,6 +31,7 @@ import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SupportDocumentDownload from 'src/views/SampleView/DraftSample/SupportDocumentDownload';
 import SavedAlert from 'src/views/SampleView/SavedAlert';
 import { z } from 'zod';
+import { selectOptionsFromList } from '../../../../components/_app/AppSelect/AppSelectOption';
 import AppUpload from '../../../../components/_app/AppUpload/AppUpload';
 import SampleDocument from '../../../../components/SampleDocument/SampleDocument';
 import { usePartialSample } from '../../../../hooks/usePartialSample';
@@ -54,6 +63,8 @@ const MatrixStep = ({ partialSample }: Props) => {
   const [createOrUpdate] = apiClient.useCreateOrUpdateSampleMutation();
   const [createDocument] = apiClient.useCreateDocumentMutation();
   const [deleteDocument] = apiClient.useDeleteDocumentMutation();
+  const [getPrescriptionSubstances] =
+    apiClient.useLazyGetPrescriptionSubstancesQuery();
 
   const { data: prescriptionsData } = apiClient.useFindPrescriptionsQuery(
     {
@@ -109,19 +120,40 @@ const MatrixStep = ({ partialSample }: Props) => {
       'documentIds' | 'laboratoryId'
     > = PartialSampleMatrixData.parse(partialSample)
   ) => {
+    const prescription = prescriptions?.find(
+      (p) =>
+        p.programmingPlanKind ===
+          partialSample.specificData.programmingPlanKind &&
+        p.matrixKind === partialSample.matrixKind &&
+        partialSample.stage &&
+        p.stages.includes(partialSample.stage)
+    );
     const regionalPrescription = regionalPrescriptions?.find(
       (rp) =>
         rp.prescriptionId ===
         (sampleMatrixData.prescriptionId ?? partialSample.prescriptionId)
     );
 
+    const prescriptionSubstances = await (prescription
+      ? getPrescriptionSubstances(prescription.id).unwrap()
+      : undefined);
+
     await createOrUpdate({
       ...partialSample,
       ...sampleMatrixData,
       documentIds,
       status,
+      prescriptionId: prescription?.id,
       laboratoryId:
-        regionalPrescription?.laboratoryId ?? partialSample.laboratoryId
+        regionalPrescription?.laboratoryId ?? partialSample.laboratoryId,
+      monoSubstances:
+        prescriptionSubstances
+          ?.filter((substance) => substance.analysisMethod === 'Mono')
+          .map((_) => _.substance.code) ?? partialSample.monoSubstances,
+      multiSubstances:
+        prescriptionSubstances
+          ?.filter((substance) => substance.analysisMethod === 'Multi')
+          .map((_) => _.substance.code) ?? partialSample.multiSubstances
     });
   };
 
@@ -194,6 +226,52 @@ const MatrixStep = ({ partialSample }: Props) => {
     [documentIds, filesForm] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
+  const matrixKindOptions = useMemo(
+    () =>
+      selectOptionsFromList(
+        MatrixKindList.filter(
+          (matrixKind) =>
+            !isProgrammingPlanSample(partialSample) ||
+            prescriptions?.find(
+              (p) =>
+                p.programmingPlanKind ===
+                  partialSample.specificData.programmingPlanKind &&
+                p.matrixKind === matrixKind
+            )
+        ),
+        {
+          labels: MatrixKindLabels,
+          withSort: true,
+          withDefault: false
+        }
+      ),
+    [prescriptions, partialSample]
+  );
+
+  const stageOptions = useMemo(
+    () =>
+      selectOptionsFromList(
+        StagesByProgrammingPlanKind[
+          partialSample.specificData.programmingPlanKind
+        ].filter(
+          (stage) =>
+            !isProgrammingPlanSample(partialSample) ||
+            prescriptions?.find(
+              (p) =>
+                p.programmingPlanKind ===
+                  partialSample.specificData.programmingPlanKind &&
+                p.matrixKind === partialSample.matrixKind &&
+                p.stages.includes(stage)
+            )
+        ),
+        {
+          labels: StageLabels,
+          defaultLabel: 'Sélectionner un stade'
+        }
+      ),
+    [partialSample, matrixKindOptions, prescriptions]
+  );
+
   return (
     <form data-testid="draft_sample_matrix_form" className="sample-form">
       <AppRequiredText />
@@ -202,7 +280,8 @@ const MatrixStep = ({ partialSample }: Props) => {
         <MatrixStepPPV
           ref={stepRef}
           partialSample={partialSample as PartialSamplePPV}
-          prescriptions={prescriptions ?? []}
+          matrixKindOptions={matrixKindOptions}
+          stageOptions={stageOptions}
           onSave={(sampleMatrixData) => save('DraftMatrix', sampleMatrixData)}
           onSubmit={async () => {
             await save('DraftItems');
@@ -218,7 +297,8 @@ const MatrixStep = ({ partialSample }: Props) => {
         <MatrixStepPFAS
           ref={stepRef}
           partialSample={partialSample as PartialSamplePFAS}
-          prescriptions={prescriptions ?? []}
+          matrixKindOptions={matrixKindOptions}
+          stageOptions={stageOptions}
           onSave={(sampleMatrixData) => save('DraftMatrix', sampleMatrixData)}
           onSubmit={async () => {
             await save('DraftItems');

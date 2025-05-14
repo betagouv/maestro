@@ -15,10 +15,12 @@ import { MatrixPart } from '../../referential/Matrix/MatrixPart';
 import { OutdoorAccess } from '../../referential/OutdoorAccess';
 import { ProductionKind } from '../../referential/ProductionKind';
 import { Region } from '../../referential/Region';
+import { SSD2Id } from '../../referential/Residue/SSD2Id';
 import { Seizure } from '../../referential/Seizure';
 import { Species } from '../../referential/Species';
 import { Stage } from '../../referential/Stage';
 import { TargetingCriteria } from '../../referential/TargetingCriteria';
+import { isDefined } from '../../utils/utils';
 import { Company } from '../Company/Company';
 import {
   Context,
@@ -153,11 +155,33 @@ export const SampleMatrixData = z.object({
   matrix: Matrix,
   stage: Stage,
   notesOnMatrix: z.string().nullish(),
-  prescriptionId: z.string().uuid(),
+  prescriptionId: z.string().uuid().nullish(),
   laboratoryId: z.string().uuid().nullish(),
+  monoSubstances: z.array(SSD2Id),
+  multiSubstances: z.array(SSD2Id),
   documentIds: z.array(z.string().uuid()).nullish(),
   specificData: SampleMatrixSpecificData
 });
+
+export const prescriptionSubstancesRefinement = (
+  data: {
+    prescriptionId?: string | null;
+    monoSubstances?: SSD2Id[];
+    multiSubstances?: SSD2Id[];
+  },
+  ctx: z.RefinementCtx
+) => {
+  if (
+    !isDefined(data.prescriptionId) &&
+    (!isDefined(data.monoSubstances) || !isDefined(data.multiSubstances))
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Veuillez préciser les substances à analyser.',
+      path: ['substances']
+    });
+  }
+};
 
 const SampleItemsData = z.object({
   items: z
