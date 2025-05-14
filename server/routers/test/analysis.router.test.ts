@@ -475,7 +475,7 @@ describe('Analysis router', () => {
       await expect(
         Samples().where({ id: analysisWithResidues.sampleId }).first()
       ).resolves.toMatchObject({
-        status: 'CompletedNotConform'
+        status: 'Completed'
       });
       await Samples()
         .where({ id: analysisWithResidues.sampleId })
