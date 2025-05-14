@@ -7,7 +7,10 @@ import {
   useLazyGetDocumentDownloadSignedUrlQuery
 } from './document.service';
 import { useGetLaboratoryQuery } from './laboratory.service';
-import { useFindPrescriptionsQuery } from './prescription.service';
+import {
+  useFindPrescriptionsQuery,
+  useLazyGetPrescriptionSubstancesQuery
+} from './prescription.service';
 import { useFindRegionalPrescriptionsQuery } from './regionalPrescription.service';
 import {
   useCreateOrUpdateSampleMutation,
@@ -25,6 +28,7 @@ export const apiClient: {
   useGetLaboratoryQuery: typeof useGetLaboratoryQuery;
   useGetSampleAnalysisQuery: (typeof analysisApi)['useGetSampleAnalysisQuery'];
   useLazyGetDocumentDownloadSignedUrlQuery: typeof useLazyGetDocumentDownloadSignedUrlQuery;
+  useLazyGetPrescriptionSubstancesQuery: typeof useLazyGetPrescriptionSubstancesQuery;
   useUpdateAnalysisMutation: typeof useUpdateAnalysisMutation;
   useUpdateSampleMutation: typeof useUpdateSampleMutation;
 } = {
@@ -37,6 +41,7 @@ export const apiClient: {
   useGetLaboratoryQuery,
   useGetSampleAnalysisQuery: analysisApi.useGetSampleAnalysisQuery,
   useLazyGetDocumentDownloadSignedUrlQuery,
+  useLazyGetPrescriptionSubstancesQuery,
   useUpdateAnalysisMutation,
   useUpdateSampleMutation
 };

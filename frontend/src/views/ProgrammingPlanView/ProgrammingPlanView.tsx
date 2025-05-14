@@ -7,7 +7,7 @@ import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/Find
 import {
   Context,
   ContextLabels,
-  ContextList
+  ProgrammingPlanContextList
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   NextProgrammingPlanStatus,
@@ -126,7 +126,7 @@ const ProgrammingPlanView = () => {
                   hideLegend
                   legend="Contexte"
                   segments={
-                    ContextList.map((context) => ({
+                    ProgrammingPlanContextList.map((context) => ({
                       label: ContextLabels[context],
                       nativeInputProps: {
                         checked: context === findPrescriptionOptions.context,
