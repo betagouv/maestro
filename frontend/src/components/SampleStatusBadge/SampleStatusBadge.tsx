@@ -18,7 +18,6 @@ const SampleStatusBadge = ({ status, ...props }: Props) => {
     Analysis: 'info',
     Completed: 'success',
     InReview: 'warning',
-    CompletedNotConform: 'error'
   };
 
   const ColorFamily: Partial<Record<SampleStatus, string>> = {
@@ -28,7 +27,6 @@ const SampleStatusBadge = ({ status, ...props }: Props) => {
 
   const Icon: Partial<Record<SampleStatus, string>> = {
     Completed: 'success',
-    CompletedNotConform: 'error'
   };
 
   return (
