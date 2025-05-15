@@ -48,7 +48,6 @@ import food from '../../assets/illustrations/food.svg';
 import SupportDocumentDownload from '../SampleView/DraftSample/SupportDocumentDownload';
 import './SampleList.scss';
 import { UserRoleList, UserRolePermissions } from 'maestro-shared/schema/User/UserRole';
-import { z } from 'zod';
 
 export type SampleListDisplay = 'table' | 'cards';
 
@@ -130,6 +129,7 @@ const SampleListView = () => {
       ),
       ['page', 'perPage']
     );
+
 
     const urlSearchParams = new URLSearchParams(
       filteredParams as Record<string, string>

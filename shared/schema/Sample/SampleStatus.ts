@@ -27,15 +27,12 @@ export const DraftStatusList: SampleStatus[] = [
   'DraftItems'
 ];
 
-export const CompletedStatusList: SampleStatus[] = [
-  'Completed',
-];
 
 export const RealizedStatusList: SampleStatus[] = [
   'Sent',
   'NotAdmissible',
   'Analysis',
-  ...CompletedStatusList
+  'Completed'
 ];
 
 export const SampleStatusLabels: Record<SampleStatus, string> = {

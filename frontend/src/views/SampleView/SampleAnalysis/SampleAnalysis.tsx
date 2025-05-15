@@ -61,7 +61,7 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
           className={cx('fr-mb-4w')}
         />
       )}
-      {CompletedStatusList.includes(sample.status) &&
+      {sample.status === 'Completed' &&
         isCompletingAnalysisSuccess && (
           <Alert
             severity="info"
@@ -91,7 +91,7 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
                 <SampleStatusBadge status={sample.status} />
               </div>
             </div>
-            {![...CompletedStatusList, 'NotAdmissible'].includes(
+            {!['Completed', 'NotAdmissible'].includes(
               sample.status
             ) && (
               <>
@@ -145,14 +145,12 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
         </Button>
       ) : (
         <>
-          {['Analysis', 'InReview', ...CompletedStatusList].includes(
-            sample.status
-          ) && (
+          {['Analysis', 'InReview', 'Completed'].includes(sample.status) && (
             <div
               className={clsx(
                 cx(
                   'fr-callout',
-                  [...CompletedStatusList, 'InReview'].includes(sample.status)
+                  ['Completed', 'InReview'].includes(sample.status)
                     ? 'fr-callout--green-emeraude'
                     : 'fr-callout--pink-tuile'
                 ),
@@ -162,15 +160,14 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
               )}
             >
               {sample.status === 'InReview' && analysis !== undefined ? (
-                <SampleAnalysisReview
-                  sample={sample}
-                  partialAnalysis={analysis}
-                  onReviewDone={() => navigateToSample(sample.id)}
-                />
-              ) : (
-                <SampleDraftAnalysis sample={sample} />
-              )}
-              {CompletedStatusList.includes(sample.status) && (
+                  <SampleAnalysisReview
+                    sample={sample}
+                    partialAnalysis={analysis}
+                    onReviewDone={() => navigateToSample(sample.id)}
+                  />
+                ) : <SampleDraftAnalysis sample={sample} />
+                }
+              {sample.status === 'Completed' && (
                 <SampleAnalysisOverview sample={sample} />
               )}
             </div>
