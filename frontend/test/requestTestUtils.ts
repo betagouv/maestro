@@ -60,7 +60,7 @@ export const programmingPlanByYearRequestMock = (
   year: number,
   programmingPlan?: ProgrammingPlan
 ) => ({
-  pathname: `/api/programming-plans/${year}`,
+  pathname: `/api/programming-plans/years/${year}`,
   response: {
     body: JSON.stringify(programmingPlan)
   }

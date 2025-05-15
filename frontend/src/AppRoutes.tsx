@@ -25,7 +25,7 @@ type AppRoute = AppRouteLink & {
 
 export const AuthenticatedAppRoutes = {
   DashboardRoute: {
-    ...AppRouteLinks.DocumentsRoute,
+    ...AppRouteLinks.DashboardRoute,
     path: '/',
     label: 'Tableau de bord',
     key: 'dashboard_route',
