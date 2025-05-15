@@ -296,8 +296,62 @@ describe('ProgrammingPlan router', () => {
     });
   });
 
-  describe('GET /programming-plans/:year', () => {
-    const testRoute = (year: string) => `/api/programming-plans/${year}`;
+  describe('GET /programming-plans/:programmingPlanId', () => {
+    const testRoute = (programmingPlanId: string) =>
+      `/api/programming-plans/${programmingPlanId}`;
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .get(testRoute('2025'))
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should get a valid programming plan id', async () => {
+      await request(app)
+        .get(testRoute('invalid'))
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    test('should fail if the programmingPlan does not exist', async () => {
+      await request(app)
+        .get(testRoute(uuidv4()))
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_NOT_FOUND);
+    });
+
+    test('should fail if the user is not authorized to access the programming plan regarding the regional status', async () => {
+      await request(app)
+        .get(testRoute(inProgressProgrammingPlan.id))
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+
+      await request(app)
+        .get(testRoute(validatedDromProgrammingPlan.id))
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+
+      await request(app)
+        .get(testRoute(validatedDromProgrammingPlan.id))
+        .use(tokenProvider(SamplerDromFixture))
+        .expect(constants.HTTP_STATUS_OK);
+    });
+
+    test('should find the programmingPlan', async () => {
+      const res = await request(app)
+        .get(testRoute(validatedProgrammingPlan.id))
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toMatchObject({
+        ...validatedProgrammingPlan,
+        createdAt: validatedProgrammingPlan.createdAt.toISOString()
+      });
+    });
+  });
+
+  describe('GET /programming-plans/years/:year', () => {
+    const testRoute = (year: string) => `/api/programming-plans/years/${year}`;
 
     test('should fail if the user is not authenticated', async () => {
       await request(app)
@@ -349,8 +403,8 @@ describe('ProgrammingPlan router', () => {
     });
   });
 
-  describe('POST /programming-plans/:year', () => {
-    const testRoute = (year: string) => `/api/programming-plans/${year}`;
+  describe('POST /programming-plans/years/:year', () => {
+    const testRoute = (year: string) => `/api/programming-plans/years/${year}`;
 
     test('should fail if the user is not authenticated', async () => {
       await request(app)

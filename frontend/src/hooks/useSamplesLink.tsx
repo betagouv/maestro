@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { useAppSelector } from 'src/hooks/useStore';
+import { AuthenticatedAppRoutes } from '../AppRoutes';
 
 export const useSamplesLink = () => {
   const navigate = useNavigate();
@@ -8,20 +9,18 @@ export const useSamplesLink = () => {
   const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
 
   const sampleLink = useMemo(
-    () => (sampleId: string, step?: number) => {
-      if (!programmingPlan) {
-        return '/';
-      } else {
-        return `/prelevements/${programmingPlan.year}/${sampleId}${
-          step ? `?etape=${step}` : ''
-        }`;
-      }
-    },
-    [programmingPlan]
+    () => (sampleId: string, step?: number) =>
+      `${AuthenticatedAppRoutes.SampleRoute.link(sampleId)}${step ? `?etape=${step}` : ''}`,
+    []
   );
 
   const samplesLink = useMemo(
-    () => `/prelevements/${programmingPlan?.year}`,
+    () =>
+      programmingPlan
+        ? AuthenticatedAppRoutes.ProgrammationByYearRoute.link(
+            programmingPlan.year
+          )
+        : undefined,
     [programmingPlan]
   );
 
@@ -30,7 +29,9 @@ export const useSamplesLink = () => {
   };
 
   const navigateToSamples = () => {
-    navigate(samplesLink);
+    if (samplesLink) {
+      navigate(samplesLink);
+    }
   };
 
   const getSampleStepParam = useCallback(() => {

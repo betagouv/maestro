@@ -24,15 +24,21 @@ export const programmingPlanApi = api.injectEndpoints({
         }))
       ]
     }),
+    getProgrammingPlan: builder.query<ProgrammingPlan, string>({
+      query: (programmingPlanId) => `programming-plans/${programmingPlanId}`,
+      transformResponse: (response: any) =>
+        ProgrammingPlan.parse(fp.omitBy(response, fp.isNil)),
+      providesTags: (result) => [{ type: 'ProgrammingPlan', id: result?.id }]
+    }),
     getProgrammingPlanByYear: builder.query<ProgrammingPlan, number>({
-      query: (year) => `programming-plans/${year}`,
+      query: (year) => `programming-plans/years/${year}`,
       transformResponse: (response: any) =>
         ProgrammingPlan.parse(fp.omitBy(response, fp.isNil)),
       providesTags: (result) => [{ type: 'ProgrammingPlan', id: result?.id }]
     }),
     createProgrammingPlan: builder.mutation<ProgrammingPlan, number>({
       query: (year) => ({
-        url: `programming-plans/${year}`,
+        url: `programming-plans/years/${year}`,
         method: 'POST'
       }),
       transformResponse: (response: any) =>
@@ -59,6 +65,7 @@ export const programmingPlanApi = api.injectEndpoints({
 
 export const {
   useFindProgrammingPlansQuery,
+  useGetProgrammingPlanQuery,
   useGetProgrammingPlanByYearQuery,
   useCreateProgrammingPlanMutation,
   useUpdateProgrammingPlanRegionalStatusMutation

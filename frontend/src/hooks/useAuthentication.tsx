@@ -15,17 +15,12 @@ import {
 import { UserPermission } from 'maestro-shared/schema/User/UserPermission';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { isDefined } from 'maestro-shared/utils/utils';
-import { ReactElement, useCallback, useMemo } from 'react';
-import YearRoute from 'src/components/YearRoute/YearRoute';
+import { useCallback, useMemo } from 'react';
 import { useAppSelector } from 'src/hooks/useStore';
-import DashboardView from 'src/views/DashboardView/DashboardView';
-import DocumentListView from 'src/views/DocumentListView/DocumentListView';
-import HomeView from 'src/views/HomeView/HomeView';
-import { OpenApiExplorerView } from 'src/views/OpenApiExplorer/OpenApiExplorerView';
-import SampleListView from 'src/views/SampleListView/SampleListView';
-import SampleView from 'src/views/SampleView/SampleView';
-import NotificationsView from '../views/NotificationsView/NotificationsView';
-import ProgrammingPlanView from '../views/ProgrammingPlanView/ProgrammingPlanView';
+import {
+  AuthenticatedAppRoutes,
+  NotAuthenticatedAppRoutes
+} from '../AppRoutes';
 
 export const useAuthentication = () => {
   const { authUser } = useAppSelector((state) => state.auth);
@@ -74,91 +69,29 @@ export const useAuthentication = () => {
     [authUser]
   );
 
-  const availableRoutes: {
-    path: string;
-    label: string;
-    key: string;
-    component: () => ReactElement;
-  }[] = useMemo(() => {
-    return [
-      ...(isAuthenticated
-        ? [
-            {
-              path: '/',
-              label: 'Tableau de bord',
-              key: 'dashboard_route',
-              component: DashboardView
-            },
-            {
-              path: '/notifications',
-              label: 'Notifications',
-              key: 'notifications_route',
-              component: NotificationsView
-            },
-            //A conserver pour compatibilité des notifications
+  const availableRoutes = useMemo(() => {
+    return isAuthenticated
+      ? (
+          [
+            'DashboardRoute',
+            'NotificationsRoute',
+            'DocumentsRoute',
+            'ApiDocsRoute',
+            'LogoutCallbackRoute',
             hasUserPermission('readPrescriptions')
-              ? {
-                  path: '/prescriptions/:year',
-                  label: 'Prescriptions',
-                  key: 'prescription_route',
-                  component: () => <YearRoute element={ProgrammingPlanView} />
-                }
+              ? 'ProgrammationByYearRoute'
               : undefined,
-            hasUserPermission('readPrescriptions')
-              ? {
-                  path: '/programmation/:year',
-                  label: 'Programmation',
-                  key: 'programmation_route',
-                  component: () => <YearRoute element={ProgrammingPlanView} />
-                }
-              : undefined,
-            hasUserPermission('readSamples')
-              ? {
-                  path: '/prelevements/:year',
-                  label: 'Prélèvements',
-                  key: 'samples_route',
-                  component: () => <YearRoute element={SampleListView} />
-                }
-              : undefined,
-            hasUserPermission('createSample')
-              ? {
-                  path: '/prelevements/:year/nouveau',
-                  label: 'Prélèvement',
-                  key: 'new_sample_route',
-                  component: () => <YearRoute element={SampleView} />
-                }
-              : undefined,
+            hasUserPermission('readSamples') ? 'SamplesByYearRoute' : undefined,
+            hasUserPermission('createSample') ? 'NewSampleRoute' : undefined,
             hasUserPermission('updateSample') ||
             hasUserPermission('readSamples')
-              ? {
-                  path: '/prelevements/:year/:sampleId/*',
-                  label: 'Prélèvement',
-                  key: 'sample_route',
-                  component: () => <YearRoute element={SampleView} />
-                }
-              : undefined,
-            {
-              path: '/documents',
-              label: 'Documents ressources',
-              key: 'documents_route',
-              component: DocumentListView
-            },
-            {
-              path: '/api-docs',
-              label: 'API Docs',
-              key: 'api_docs',
-              component: OpenApiExplorerView
-            }
-          ]
-        : [
-            {
-              path: '/',
-              label: 'Connexion',
-              key: 'signin_route',
-              component: HomeView
-            }
-          ])
-    ].filter(isDefined);
+              ? 'SampleRoute'
+              : undefined
+          ].filter(isDefined) as AuthenticatedAppRoutes[]
+        ).map((_) => AuthenticatedAppRoutes[_])
+      : (
+          ['LoginRoute', 'LoginCallbackRoute'] as NotAuthenticatedAppRoutes[]
+        ).map((_) => NotAuthenticatedAppRoutes[_]);
   }, [isAuthenticated, hasUserPermission]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {

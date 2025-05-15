@@ -9,6 +9,7 @@ import {
   MatrixKind,
   MatrixKindLabels
 } from 'maestro-shared/referential/Matrix/MatrixKind';
+import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { FindRegionalPrescriptionOptions } from 'maestro-shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import {
   hasRegionalPrescriptionPermission,
@@ -142,7 +143,9 @@ const commentRegionalPrescription = async (
       category: prescription.context,
       message: `Nouveau commentaire sur la matrice **${MatrixKindLabels[prescription.matrixKind].toLowerCase()}**`,
       author: user,
-      link: `/prescriptions/${programmingPlan.year}?context=${prescription.context}&prescriptionId=${prescription.id}&commentsRegion=${regionalPrescription.region}`
+      link: `${AppRouteLinks.ProgrammationByYearRoute.link(
+        programmingPlan.year
+      )}?context=${prescription.context}&prescriptionId=${prescription.id}&commentsRegion=${regionalPrescription.region}`
     },
     recipients,
     {

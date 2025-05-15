@@ -1,35 +1,41 @@
 import { ImapFlow } from 'imapflow';
 import { isNull } from 'lodash-es';
-import { Sample } from 'maestro-shared/schema/Sample/Sample';
-import { ParsedMail, simpleParser } from 'mailparser';
-import config from '../../utils/config';
-import { mattermostService } from '../mattermostService';
-import { analysisHandler } from './analysis-handler';
-import { girpaConf } from './girpa';
-import { inovalysConf } from './inovalys/inovalys';
-import { capinovConf } from './capinov';
+import { LaboratoryWithAutomation } from 'maestro-shared/referential/Laboratory';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { getSSD2Id } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { SandreToSSD2 } from 'maestro-shared/referential/Residue/SandreToSSD2';
-import { OmitDistributive } from 'maestro-shared/utils/typescript';
-import { notificationService } from '../notificationService';
-import { NotificationCategoryMessages } from 'maestro-shared/schema/Notification/NotificationCategory';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
+import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
+import { NotificationCategoryMessages } from 'maestro-shared/schema/Notification/NotificationCategory';
+import { Sample } from 'maestro-shared/schema/Sample/Sample';
+import { OmitDistributive } from 'maestro-shared/utils/typescript';
+import { ParsedMail, simpleParser } from 'mailparser';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
-import { LaboratoryWithAutomation } from 'maestro-shared/referential/Laboratory';
+import config from '../../utils/config';
+import { mattermostService } from '../mattermostService';
+import { notificationService } from '../notificationService';
+import { analysisHandler } from './analysis-handler';
+import { capinovConf } from './capinov';
 import { ExtractError } from './extractError';
+import { girpaConf } from './girpa';
+import { inovalysConf } from './inovalys/inovalys';
 
 export type ExportResultQuantifiable = {
   result_kind: 'Q';
   result: number;
   lmr: number;
-}
-export type ExportResultNonQuantifiable ={ result_kind: 'NQ' | 'ND' }
-export type ExportDataSubstance = { label: string, casNumber: string | null, codeSandre: string | null, analysisMethod: AnalysisMethod} & (
-  | ExportResultNonQuantifiable
-  | ExportResultQuantifiable
-);
-export type ExportDataSubstanceWithSSD2Id = OmitDistributive<ExportDataSubstance, 'casNumber' | 'label' | 'codeSandre'> & {ssd2Id: SSD2Id | null, unknown_label: string | null}
+};
+export type ExportResultNonQuantifiable = { result_kind: 'NQ' | 'ND' };
+export type ExportDataSubstance = {
+  label: string;
+  casNumber: string | null;
+  codeSandre: string | null;
+  analysisMethod: AnalysisMethod;
+} & (ExportResultNonQuantifiable | ExportResultQuantifiable);
+export type ExportDataSubstanceWithSSD2Id = OmitDistributive<
+  ExportDataSubstance,
+  'casNumber' | 'label' | 'codeSandre'
+> & { ssd2Id: SSD2Id | null; unknown_label: string | null };
 
 export type IsSender = (senderAddress: string) => boolean;
 export type ExportAnalysis = {
@@ -42,11 +48,11 @@ export type ExportDataFromEmail = (email: ParsedMail) => ExportAnalysis[];
 
 export type LaboratoryConf = {
   exportDataFromEmail: ExportDataFromEmail;
-  ssd2IdByLabel: Record<string, SSD2Id>
-  unknownReferences: string[]
+  ssd2IdByLabel: Record<string, SSD2Id>;
+  unknownReferences: string[];
 };
 
-export type LaboratoryWithConf = typeof LaboratoryWithAutomation[number]
+export type LaboratoryWithConf = (typeof LaboratoryWithAutomation)[number];
 export const laboratoriesConf = {
   'GIR 49': girpaConf,
   'LDA 72': inovalysConf,
@@ -58,13 +64,14 @@ export const laboratoriesConf = {
 export const getLaboratoryNameBySender = async (
   senderAddress: string
 ): Promise<null | LaboratoryWithConf> => {
+  const laboratory = await laboratoryRepository.findByEmailSender(
+    senderAddress.toLowerCase()
+  );
 
-  const laboratory = await laboratoryRepository.findByEmailSender(senderAddress.toLowerCase())
-
-  const laboratoryName = laboratory?.name
+  const laboratoryName = laboratory?.name;
 
   if (laboratoryName !== undefined && laboratoryName in laboratoriesConf) {
-    return laboratoryName as LaboratoryWithConf
+    return laboratoryName as LaboratoryWithConf;
   }
 
   return null;
@@ -86,7 +93,6 @@ const moveMessageToErrorbox = async (
 
   await mattermostService.send(error);
 };
-
 
 export const checkEmails = async () => {
   if (
@@ -124,11 +130,11 @@ export const checkEmails = async () => {
         }[] = [];
 
         const messagesInError: {
-          messageUid: string,
-          sender: string,
-          subject: string,
-          error: string
-        }[] = []
+          messageUid: string;
+          sender: string;
+          subject: string;
+          error: string;
+        }[] = [];
         for await (const message of client.fetch('1:*', {
           envelope: true,
           bodyStructure: true
@@ -140,19 +146,33 @@ export const checkEmails = async () => {
           );
 
           const laboratoryName: LaboratoryWithConf | null =
-            await getLaboratoryNameBySender(message.envelope.sender[0].address ?? '');
+            await getLaboratoryNameBySender(
+              message.envelope.sender[0].address ?? ''
+            );
 
           if (laboratoryName !== null) {
             messagesToRead.push({ messageUid: message.uid, laboratoryName });
             console.log('   =====>  ', laboratoryName);
           } else {
-            messagesInError.push({ messageUid: `${message.uid}`,  sender: message.envelope.sender[0].address ?? '', error: "Impossible d'identifier le laboratoire émetteur de cet email", subject: message.envelope.subject})
+            messagesInError.push({
+              messageUid: `${message.uid}`,
+              sender: message.envelope.sender[0].address ?? '',
+              error:
+                "Impossible d'identifier le laboratoire émetteur de cet email",
+              subject: message.envelope.subject
+            });
           }
         }
-        for (const messageInError of messagesInError){
-          await moveMessageToErrorbox(messageInError.subject, messageInError.sender, messageInError.error, messageInError.messageUid, client)
+        for (const messageInError of messagesInError) {
+          await moveMessageToErrorbox(
+            messageInError.subject,
+            messageInError.sender,
+            messageInError.error,
+            messageInError.messageUid,
+            client
+          );
         }
-        const warnings = new Set<string>()
+        const warnings = new Set<string>();
         for (const message of messagesToRead) {
           const messageUid: string = `${message.messageUid}`;
           //undefined permet de récupérer tout l'email
@@ -169,11 +189,15 @@ export const checkEmails = async () => {
               );
 
             if (analyzes.length === 0) {
-              throw new ExtractError("Aucun résultat d'analyses trouvé dans cet email.")
+              throw new ExtractError(
+                "Aucun résultat d'analyses trouvé dans cet email."
+              );
             }
 
             for (const analysis of analyzes) {
-              const residues: (ExportDataSubstance & {ssd2Id: SSD2Id | null})[] = analysis.residues.map((r) => {
+              const residues: (ExportDataSubstance & {
+                ssd2Id: SSD2Id | null;
+              })[] = analysis.residues.map((r) => {
                 return {
                   ...r,
                   ssd2Id:
@@ -216,42 +240,44 @@ export const checkEmails = async () => {
               });
 
               //On garde que les résidues intéressants
-              const interestingResidues = residues.filter(r => r.result_kind !== 'ND')
+              const interestingResidues = residues.filter(
+                (r) => r.result_kind !== 'ND'
+              );
 
               //Erreur si un résidue intéressant n'a pas de SSD2Id
               interestingResidues.forEach((r) => {
                 if (r.ssd2Id === null) {
-                 throw new ExtractError(`Résidue non identifiable : ${r.label}`)
+                  throw new ExtractError(
+                    `Résidue non identifiable : ${r.label}`
+                  );
                 }
               });
-              const {
-                sampleId,
-                programmingPlansYear,
-                samplerId,
-                samplerEmail
-              } = await analysisHandler({
-                ...analysis,
-                residues: residues
-                  .map(({ casNumber, codeSandre, label, ...rest }) => {
-                    const unknown_label = rest.ssd2Id === null ? label : null
-                    return { ...rest, unknown_label }
-                  })
-              });
+              const { sampleId, samplerId, samplerEmail } =
+                await analysisHandler({
+                  ...analysis,
+                  residues: residues.map(
+                    ({ casNumber, codeSandre, label, ...rest }) => {
+                      const unknown_label = rest.ssd2Id === null ? label : null;
+                      return { ...rest, unknown_label };
+                    }
+                  )
+                });
 
-              await notificationService.sendNotification({
-                category: 'AnalysisReviewTodo',
-                link: `/prelevements/${programmingPlansYear}/${sampleId}`,
-                message: NotificationCategoryMessages[
-                  'AnalysisReviewTodo'
-                ]
-              }, [{id: samplerId, email: samplerEmail}], undefined)
+              await notificationService.sendNotification(
+                {
+                  category: 'AnalysisReviewTodo',
+                  link: AppRouteLinks.SampleRoute.link(sampleId),
+                  message: NotificationCategoryMessages['AnalysisReviewTodo']
+                },
+                [{ id: samplerId, email: samplerEmail }],
+                undefined
+              );
             }
             await client.messageMove(messageUid, config.inbox.successboxName, {
               uid: true
             });
-
           } catch (e: any) {
-            console.error(e)
+            console.error(e);
             await moveMessageToErrorbox(
               parsed.subject ?? '',
               parsed.from?.value[0].address ?? '',
@@ -261,9 +287,9 @@ export const checkEmails = async () => {
             );
           } finally {
             if (warnings.size > 0) {
-              const warningMessage = Array.from(warnings).join('\n -')
-              console.warn(warningMessage)
-              await mattermostService.send(warningMessage)
+              const warningMessage = Array.from(warnings).join('\n -');
+              console.warn(warningMessage);
+              await mattermostService.send(warningMessage);
             }
           }
         }

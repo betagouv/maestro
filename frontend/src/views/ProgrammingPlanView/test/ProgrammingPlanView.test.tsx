@@ -18,6 +18,7 @@ import { mockRequests } from '../../../../test/requestTestUtils';
 import { act } from 'react';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { ProviderTest } from '../../../../test/ProviderTest';
+import { AuthenticatedAppRoutes } from '../../../AppRoutes';
 import ProgrammingPlanView from '../ProgrammingPlanView';
 
 vi.mock(import('react-router'), async (importOriginal) => {
@@ -134,7 +135,7 @@ describe('PrescriptionList', () => {
         <Provider store={store}>
           <MemoryRouter
             initialEntries={[
-              `/programmation/${programmingPlan.year}/${searchParams}`
+              `${AuthenticatedAppRoutes.SamplesByYearRoute.link(programmingPlan.year)}/${searchParams}`
             ]}
           >
             <YearRoute element={ProgrammingPlanView} />
