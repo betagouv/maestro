@@ -8,7 +8,7 @@ import { knexInstance as db } from './db';
 import { kysely } from './kysely';
 import type { KyselyMaestro } from './kysely.type';
 
-const analysisTable = 'analysis';
+export const analysisTable = 'analysis';
 const analysisResiduesTable = 'analysis_residues';
 const residueAnalytesTable = 'residue_analytes';
 

@@ -1,6 +1,11 @@
 import { describe, expect, test } from 'vitest';
 import { sampleRepository } from './sampleRepository';
-import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
+import { Sample11Fixture, Sample2Fixture } from 'maestro-shared/test/sampleFixtures';
+import { genPartialAnalysis } from 'maestro-shared/test/analysisFixtures';
+import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
+import { analysisRepository } from './analysisRepository';
+import { genDocument } from 'maestro-shared/test/documentFixtures';
+import { documentRepository } from './documentRepository';
 
 describe('count samples', async () => {
 
@@ -41,5 +46,48 @@ describe('findMany samples', async () => {
 
     samples = await sampleRepository.findMany({programmingPlanId: Sample11Fixture.programmingPlanId,  department: Sample11Fixture.department})
     expect(samples).toHaveLength(1);
+  })
+
+  test('find with compliance option', async () => {
+
+    const document = genDocument({
+      createdBy: Sampler1Fixture.id,
+      kind: 'AnalysisReportDocument'
+    });
+
+    await documentRepository.insert(document)
+
+
+    const analysisOK = genPartialAnalysis({
+      sampleId: Sample11Fixture.id,
+      reportDocumentId: document.id,
+      createdBy: Sampler1Fixture.id,
+      status: 'Completed',
+      compliance: true,
+    });
+
+    await analysisRepository.insert(analysisOK)
+
+    let samples = await sampleRepository.findMany({programmingPlanId: Sample11Fixture.programmingPlanId,  compliance: 'conform'})
+    expect(samples).toHaveLength(1);
+    expect(samples[0].id).toBe(analysisOK.sampleId)
+
+    const analysisKO = genPartialAnalysis({
+      sampleId: Sample2Fixture.id,
+      reportDocumentId: document.id,
+      createdBy: Sample2Fixture.id,
+      status: 'Completed',
+      compliance: false
+    });
+
+    await analysisRepository.insert(analysisKO)
+
+
+    samples = await sampleRepository.findMany({programmingPlanId: Sample11Fixture.programmingPlanId,  compliance: 'notConform'})
+    expect(samples).toHaveLength(1);
+    expect(samples[0].id).toBe(analysisKO.sampleId)
+
+    samples = await sampleRepository.findMany({programmingPlanId: Sample11Fixture.programmingPlanId})
+    expect(samples).not.toHaveLength(1);
   })
 });
