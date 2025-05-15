@@ -3,7 +3,7 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
-import { CompletedStatusList, SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
+import { SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
 import { FunctionComponent, useContext, useState } from 'react';
 import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import { usePartialSample } from 'src/hooks/usePartialSample';
@@ -59,7 +59,7 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
           className={cx('fr-mb-4w')}
         />
       )}
-      {CompletedStatusList.includes(sample.status) &&
+      {sample.status === 'Completed' &&
         isCompletingAnalysisSuccess && (
           <Alert
             severity="info"
@@ -85,7 +85,7 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
                 <SampleStatusBadge status={sample.status} />
               </div>
             </div>
-            {![...CompletedStatusList, 'NotAdmissible'].includes(
+            {!['Completed', 'NotAdmissible'].includes(
               sample.status
             ) && (
               <>
@@ -139,12 +139,12 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
         </Button>
       ) : (
         <>
-          {['Analysis', 'InReview', ...CompletedStatusList].includes(sample.status) && (
+          {['Analysis', 'InReview', 'Completed'].includes(sample.status) && (
             <div
               className={clsx(
                 cx(
                   'fr-callout',
-                  [...CompletedStatusList, 'InReview'].includes(sample.status)
+                  ['Completed', 'InReview'].includes(sample.status)
                     ? 'fr-callout--green-emeraude'
                     : 'fr-callout--pink-tuile'
                 ),
@@ -161,7 +161,7 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
                   />
                 ) : <SampleDraftAnalysis sample={sample} />
                 }
-              {CompletedStatusList.includes(sample.status) && (
+              {sample.status === 'Completed' && (
                 <SampleAnalysisOverview sample={sample} />
               )}
             </div>

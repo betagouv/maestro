@@ -43,7 +43,6 @@ import food from '../../assets/illustrations/food.svg';
 import SupportDocumentDownload from '../SampleView/DraftSample/SupportDocumentDownload';
 import './SampleList.scss';
 import { UserRoleList, UserRolePermissions } from 'maestro-shared/schema/User/UserRole';
-import { z } from 'zod';
 
 export type SampleListDisplay = 'table' | 'cards';
 
@@ -112,7 +111,6 @@ const SampleListView = () => {
   });
 
   const changeFilter = (findFilter: Partial<FindSampleOptions>) => {
-    console.log('coucou', findFilter)
     const filteredParams = fp.omit(
       fp.omitBy(
         {
@@ -124,8 +122,6 @@ const SampleListView = () => {
       ['page', 'perPage']
     );
 
-
-    console.log('coucou', filteredParams)
 
     const urlSearchParams = new URLSearchParams(
       filteredParams as Record<string, string>
