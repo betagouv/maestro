@@ -21,6 +21,7 @@ import {
 } from 'src/services/programming-plan.service';
 import { useFindSamplesQuery } from 'src/services/sample.service';
 import ProgrammingPlanCard from 'src/views/DashboardView/ProgrammingPlanCard';
+import { AuthenticatedAppRoutes } from '../../AppRoutes';
 const DashboardView = () => {
   const { hasUserPermission, user } = useAuthentication();
   const { isOnline } = useOnLine();
@@ -100,7 +101,9 @@ const DashboardView = () => {
                 <Button
                   size="large"
                   linkProps={{
-                    to: `/prelevements/${currentProgrammingPlan.year}/nouveau`,
+                    to: AuthenticatedAppRoutes.NewSampleRoute.link(
+                      currentProgrammingPlan.year
+                    ),
                     target: '_self'
                   }}
                   iconId="fr-icon-microscope-line"
@@ -116,7 +119,9 @@ const DashboardView = () => {
                       small
                       orientation="horizontal"
                       linkProps={{
-                        to: `/programmation/${nextProgrammingPlan.year}`
+                        to: AuthenticatedAppRoutes.ProgrammationByYearRoute.link(
+                          nextProgrammingPlan.year
+                        )
                       }}
                       start={
                         <Badge
@@ -182,7 +187,9 @@ const DashboardView = () => {
                   iconId={'fr-icon-arrow-right-line'}
                   iconPosition="right"
                   linkProps={{
-                    to: `/prelevements/${currentProgrammingPlan.year}`
+                    to: AuthenticatedAppRoutes.SamplesByYearRoute.link(
+                      currentProgrammingPlan.year
+                    )
                   }}
                 >
                   Tous les prélèvements
