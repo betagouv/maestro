@@ -10,6 +10,7 @@ import { seed as companiesSeed } from './005-companies';
 import { seed as samplesSeed } from './006-samples';
 import { seed as substancesSeed } from './007-substances';
 import { seed as substanceAnalysisSeed } from './008-substance-analysis';
+import { departmentsSeed } from '../departments/departmentsSeed';
 
 const run = async () => {
   initKnex();
@@ -24,6 +25,8 @@ const run = async () => {
   await samplesSeed();
   await substancesSeed();
   await substanceAnalysisSeed();
+
+  await departmentsSeed()
 };
 run()
   .then(() => {

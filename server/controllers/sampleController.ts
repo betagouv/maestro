@@ -52,6 +52,7 @@ import {
 import { Readable } from 'node:stream';
 import { PDFDocument } from 'pdf-lib';
 import { laboratoriesConf, LaboratoryWithConf } from '../services/imapService';
+import { departmentRepository } from '../repositories/departmentRepository';
 const getSample = async (request: Request, response: Response) => {
   const sample = (request as SampleRequest).sample;
 
@@ -186,7 +187,12 @@ const createSample = async (request: Request, response: Response) => {
 
   console.info('Create sample', sampleToCreate);
 
-  if (!user.region) {
+  const department = await departmentRepository.getDepartment(sampleToCreate.geolocation?.x, sampleToCreate.geolocation?.y)
+  if (department === null) {
+    return response.sendStatus(constants.HTTP_STATUS_BAD_REQUEST)
+  }
+
+  if (!user.region || ![...Regions[user.region].departments, ...Regions[user.region].borderingDepartments].includes(department) ) {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
   }
 
@@ -201,6 +207,7 @@ const createSample = async (request: Request, response: Response) => {
 
   const sample = {
     ...sampleToCreate,
+    department,
     region: user.region,
     reference: `${Regions[user.region].shortName}-${format(new Date(), 'yy')}-${String(serial).padStart(4, '0')}`,
     sampler: pick(user, ['id', 'firstName', 'lastName']),
@@ -251,10 +258,16 @@ const updateSample = async (request: Request, response: Response) => {
     );
   }
 
+  const department = await departmentRepository.getDepartment(sampleUpdate.geolocation?.x, sampleUpdate.geolocation?.y)
+  if (department === null) {
+    return response.sendStatus(constants.HTTP_STATUS_BAD_REQUEST)
+  }
+
   //TODO update only the fields concerned in relation to the status
   const updatedPartialSample = {
     ...sample,
     ...sampleUpdate,
+    department,
     lastUpdatedAt: new Date()
   };
 

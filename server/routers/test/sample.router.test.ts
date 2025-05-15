@@ -38,8 +38,13 @@ import {
   SamplerAndNationalObserver
 } from 'maestro-shared/test/userFixtures';
 import { withISOStringDates } from 'maestro-shared/utils/utils';
-import { describe, expect, test } from 'vitest';
+import { beforeAll, describe, expect, test } from 'vitest';
 import { mockGenerateSampleSupportPDF } from '../../test/setupTests';
+import { departmentsSeed } from '../../database/seeds/departments/departmentsSeed';
+
+beforeAll(async () => {
+  await departmentsSeed()
+})
 describe('Sample router', () => {
   const { app } = createServer();
 
@@ -337,12 +342,16 @@ describe('Sample router', () => {
       });
       await badRequestTest({
         ...genSampleContextData(),
+        geolocation: {
+          x:0,
+          y:0
+        }
+      });
+      await badRequestTest({
+        ...genSampleContextData(),
         programmingPlanId: '123'
       });
       await badRequestTest({ ...genSampleContextData(), legalContext: '123' });
-      await badRequestTest({ ...genSampleContextData(), department: '123' });
-      await badRequestTest({ ...genSampleContextData(), department: '' });
-      await badRequestTest({ ...genSampleContextData(), department: 123 });
       await badRequestTest({
         ...genSampleContextData(),
         sampledAt: 'invalid date'

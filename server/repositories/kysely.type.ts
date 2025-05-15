@@ -222,11 +222,17 @@ export interface SampleDocuments {
   sampleId: string;
 }
 
+export interface Departments {
+  id: string;
+  geometry: ColumnType<never, unknown, unknown>
+}
+
 export interface DB {
   analysis: Analysis;
   analysisResidues: AnalysisResidues;
   analysisErrors: AnalysisErrors;
   companies: Companies;
+  departments: Departments;
   documents: Documents;
   knexMigrations: KnexMigrations;
   laboratories: Laboratories;

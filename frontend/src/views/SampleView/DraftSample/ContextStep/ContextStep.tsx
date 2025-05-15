@@ -4,7 +4,6 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Skeleton } from '@mui/material';
 import clsx from 'clsx';
 import { format, parse } from 'date-fns';
-import { Department } from 'maestro-shared/referential/Department';
 import {
   LegalContext,
   LegalContextLabels,
@@ -163,7 +162,6 @@ const ContextStep = ({ partialSample }: Props) => {
   const formData = {
     id,
     sampledAt: parse(sampledAt, 'yyyy-MM-dd HH:mm', new Date()),
-    department: company?.department as Department,
     geolocation:
       geolocationX && geolocationY
         ? {
@@ -225,7 +223,6 @@ const ContextStep = ({ partialSample }: Props) => {
   const formInput = {
     id,
     sampledAt,
-    department: company?.department as Department,
     geolocationX,
     geolocationY,
     parcel,
