@@ -1,13 +1,16 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import SendingStep from './SendingStep';
-import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
-import { Sample } from 'maestro-shared/schema/Sample/Sample';
-import { defaultMockApiClientConf, getMockApi } from '../../../../services/mockApiClient';
-import { ApiClient } from '../../../../services/apiClient';
 import { fn, userEvent, within } from '@storybook/test';
-import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
+import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
+import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
+import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
 import { genAuthUser, Sampler1Fixture } from 'maestro-shared/test/userFixtures';
+import { ApiClient } from '../../../../services/apiClient';
+import {
+  defaultMockApiClientConf,
+  getMockApi
+} from '../../../../services/mockApiClient';
+import SendingStep from './SendingStep';
 
 const meta = {
   title: 'Views/SampleView/SendingStep',
@@ -44,6 +47,7 @@ export const Complet: Story = {
       ownerEmail: 'john.john@john.john',
       matrixKind: 'A0D9Y',
       prescriptionId: prescription1.id,
+      programmingPlanId: programmingPlan.id
     } as Sample
   },
   parameters: {
@@ -63,8 +67,8 @@ export const CompletConfirmation: Story = {
   ...Complet,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-      const sendButton = canvas.getByText('Envoyer la demande d’analyse');
+    const sendButton = canvas.getByText('Envoyer la demande d’analyse');
 
-      await userEvent.click(sendButton);
+    await userEvent.click(sendButton);
   }
 };
