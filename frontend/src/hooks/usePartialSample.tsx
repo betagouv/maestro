@@ -9,16 +9,25 @@ import { ApiClientContext } from '../services/apiClient';
 import { useGetProgrammingPlanQuery } from '../services/programming-plan.service';
 import programmingPlanSlice from '../store/reducers/programmingPlanSlice';
 import { useAuthentication } from './useAuthentication';
-import { useAppDispatch } from './useStore';
+import { useAppDispatch, useAppSelector } from './useStore';
 
 export const usePartialSample = (
   partialSample?: PartialSample | PartialSampleToCreate
 ) => {
   const dispatch = useAppDispatch();
   const { hasUserPermission, user } = useAuthentication();
+  const { programmingPlan: stateProgrammingPlan } = useAppSelector(
+    (state) => state.programmingPlan
+  );
 
   const { data: programmingPlan } = useGetProgrammingPlanQuery(
-    partialSample?.programmingPlanId ?? skipToken
+    partialSample?.programmingPlanId as string,
+    {
+      skip:
+        !partialSample?.programmingPlanId ||
+        (stateProgrammingPlan &&
+          stateProgrammingPlan.id === partialSample?.programmingPlanId)
+    }
   );
 
   const apiClient = useContext(ApiClientContext);
