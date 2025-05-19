@@ -28,9 +28,7 @@ const SampleAdmissibility = ({ sample }: Props) => {
   const [updateSample] = apiClient.useUpdateSampleMutation();
 
   const [isReceived, setIsReceived] = useState(
-    ['Analysis', 'NotAdmissible', 'Completed'].includes(
-      sample.status
-    )
+    ['Analysis', 'NotAdmissible', 'Completed'].includes(sample.status)
       ? sample.receivedAt !== undefined
       : undefined
   );
@@ -259,9 +257,7 @@ const SampleAdmissibility = ({ sample }: Props) => {
           )}
         </>
       )}
-      {['Analysis', 'NotAdmissible', 'Completed'].includes(
-        sample.status
-      ) && (
+      {['Analysis', 'NotAdmissible', 'Completed'].includes(sample.status) && (
         <div className="admissibility-result">
           <h4 className={cx('fr-mb-0')}>Recevabilité par le laboratoire</h4>
           {sample.receivedAt ? (

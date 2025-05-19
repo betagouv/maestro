@@ -3,10 +3,7 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
-import {
-  CompletedStatusList,
-  SampleStatusLabels
-} from 'maestro-shared/schema/Sample/SampleStatus';
+import { SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
 import { FunctionComponent, useContext, useState } from 'react';
 import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import { usePartialSample } from 'src/hooks/usePartialSample';
@@ -61,15 +58,14 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
           className={cx('fr-mb-4w')}
         />
       )}
-      {sample.status === 'Completed' &&
-        isCompletingAnalysisSuccess && (
-          <Alert
-            severity="info"
-            small
-            description="Les résultats d’analyse ont bien été enregistrés."
-            className={cx('fr-mb-4w')}
-          />
-        )}
+      {sample.status === 'Completed' && isCompletingAnalysisSuccess && (
+        <Alert
+          severity="info"
+          small
+          description="Les résultats d’analyse ont bien été enregistrés."
+          className={cx('fr-mb-4w')}
+        />
+      )}
       <div className="section-header">
         <div>
           <h3>
@@ -91,9 +87,7 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
                 <SampleStatusBadge status={sample.status} />
               </div>
             </div>
-            {!['Completed', 'NotAdmissible'].includes(
-              sample.status
-            ) && (
+            {!['Completed', 'NotAdmissible'].includes(sample.status) && (
               <>
                 {sample.status !== 'InReview' ? (
                   <div
@@ -160,13 +154,14 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
               )}
             >
               {sample.status === 'InReview' && analysis !== undefined ? (
-                  <SampleAnalysisReview
-                    sample={sample}
-                    partialAnalysis={analysis}
-                    onReviewDone={() => navigateToSample(sample.id)}
-                  />
-                ) : <SampleDraftAnalysis sample={sample} />
-                }
+                <SampleAnalysisReview
+                  sample={sample}
+                  partialAnalysis={analysis}
+                  onReviewDone={() => navigateToSample(sample.id)}
+                />
+              ) : (
+                <SampleDraftAnalysis sample={sample} />
+              )}
               {sample.status === 'Completed' && (
                 <SampleAnalysisOverview sample={sample} />
               )}

@@ -11,7 +11,10 @@ import {
   ContextLabels,
   ContextList
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { FindSampleOptions, SampleCompliance } from 'maestro-shared/schema/Sample/FindSampleOptions';
+import {
+  FindSampleOptions,
+  SampleCompliance
+} from 'maestro-shared/schema/Sample/FindSampleOptions';
 import { useMemo } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { z } from 'zod';
@@ -122,8 +125,8 @@ const SampleSecondaryFilters = ({ filters, onChange }: Props) => {
           }}
         >
           <option value="">Tous</option>
-          <option value='conform'>Conforme</option>
-          <option value='notConform'>Non conforme</option>
+          <option value="conform">Conforme</option>
+          <option value="notConform">Non conforme</option>
         </Select>
       </div>
     </div>

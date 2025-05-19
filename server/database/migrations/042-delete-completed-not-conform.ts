@@ -5,8 +5,7 @@ export const up = async (knex: Knex) => {
     update samples 
     set status = 'Completed'
     where status = 'CompletedNotConform'
-  `)
+  `);
 };
 
-export const down = async (knex: Knex) => {
-};
+export const down = async (knex: Knex) => {};

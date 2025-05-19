@@ -10,7 +10,10 @@ import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
 import { Region } from 'maestro-shared/referential/Region';
 import { defaultPerPage } from 'maestro-shared/schema/commons/Pagination';
 import { Context } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { FindSampleOptions, SampleCompliance } from 'maestro-shared/schema/Sample/FindSampleOptions';
+import {
+  FindSampleOptions,
+  SampleCompliance
+} from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   DraftStatusList,
   SampleStatus
@@ -47,7 +50,6 @@ import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import food from '../../assets/illustrations/food.svg';
 import SupportDocumentDownload from '../SampleView/DraftSample/SupportDocumentDownload';
 import './SampleList.scss';
-import { UserRoleList, UserRolePermissions } from 'maestro-shared/schema/User/UserRole';
 
 export type SampleListDisplay = 'table' | 'cards';
 
@@ -80,7 +82,9 @@ const SampleListView = () => {
         sampledBy: searchParams.get('sampledBy'),
         sampledAt: searchParams.get('sampledAt'),
         reference: searchParams.get('reference'),
-        compliance: SampleCompliance.safeParse(searchParams.get('compliance')).data ?? undefined,
+        compliance:
+          SampleCompliance.safeParse(searchParams.get('compliance')).data ??
+          undefined,
         page: Number(searchParams.get('page')) || 1,
         perPage: defaultPerPage
       })
@@ -129,7 +133,6 @@ const SampleListView = () => {
       ),
       ['page', 'perPage']
     );
-
 
     const urlSearchParams = new URLSearchParams(
       filteredParams as Record<string, string>
