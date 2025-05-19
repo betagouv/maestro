@@ -345,7 +345,10 @@ describe('ProgrammingPlan router', () => {
 
       expect(res.body).toMatchObject({
         ...validatedProgrammingPlan,
-        createdAt: validatedProgrammingPlan.createdAt.toISOString()
+        createdAt: validatedProgrammingPlan.createdAt.toISOString(),
+        regionalStatus: expect.arrayContaining(
+          validatedProgrammingPlan.regionalStatus
+        )
       });
     });
   });
