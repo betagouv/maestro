@@ -11,7 +11,10 @@ export type Context = z.infer<typeof Context>;
 
 export const ContextList: Context[] = Context.options;
 
-export const ProgrammingPlanContextList = ['Control', 'Surveillance'];
+export const ProgrammingPlanContextList: Context[] = [
+  'Control',
+  'Surveillance'
+];
 
 export const ContextLabels: Record<Context, string> = {
   Surveillance: 'Plan de surveillance',

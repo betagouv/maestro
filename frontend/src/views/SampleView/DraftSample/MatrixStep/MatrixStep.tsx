@@ -149,11 +149,11 @@ const MatrixStep = ({ partialSample }: Props) => {
       monoSubstances:
         prescriptionSubstances
           ?.filter((substance) => substance.analysisMethod === 'Mono')
-          .map((_) => _.substance.code) ?? sampleMatrixData.monoSubstances,
+          .map((_) => _.substance) ?? sampleMatrixData.monoSubstances,
       multiSubstances:
         prescriptionSubstances
           ?.filter((substance) => substance.analysisMethod === 'Multi')
-          .map((_) => _.substance.code) ?? sampleMatrixData.multiSubstances
+          .map((_) => _.substance) ?? sampleMatrixData.multiSubstances
     });
   };
 

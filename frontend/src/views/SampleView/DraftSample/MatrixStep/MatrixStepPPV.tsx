@@ -101,14 +101,10 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
       partialSample.specificData.releaseControl
     );
     const [monoSubstances, setMonoSubstances] = useState(
-      !isProgrammingPlanSample(partialSample)
-        ? (partialSample.monoSubstances ?? [])
-        : undefined
+      partialSample.monoSubstances ?? []
     );
     const [multiSubstances, setMultiSubstances] = useState(
-      !isProgrammingPlanSample(partialSample)
-        ? (partialSample.multiSubstances ?? [])
-        : undefined
+      partialSample.multiSubstances ?? []
     );
 
     type FormShape = typeof SampleMatrixPPVData.shape;
