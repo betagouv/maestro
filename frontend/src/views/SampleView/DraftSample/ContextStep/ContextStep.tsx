@@ -49,6 +49,7 @@ import { z } from 'zod';
 import AppSelect from '../../../../components/_app/AppSelect/AppSelect';
 import { usePartialSample } from '../../../../hooks/usePartialSample';
 import NextButton from '../NextButton';
+
 interface Props {
   partialSample?: PartialSample | PartialSampleToCreate;
 }
@@ -86,6 +87,7 @@ const ContextStep = ({ partialSample }: Props) => {
     partialSample?.notesOnCreation
   );
 
+  const [hasError, setHasError] = useState<boolean>(false);
   const [createOrUpdateSample] = useCreateOrUpdateSampleMutation();
 
   const geolocation = z.object({
@@ -186,13 +188,21 @@ const ContextStep = ({ partialSample }: Props) => {
   const submit = async (e?: React.MouseEvent<HTMLElement>) => {
     e?.preventDefault();
     await form.validate(async () => {
-      if (partialSample) {
-        await save('DraftMatrix');
-      } else {
-        await createOrUpdateSample({
-          ...formData,
-          status: 'DraftMatrix'
-        });
+      setHasError(false);
+      try {
+        if (partialSample) {
+          await save('DraftMatrix');
+        } else {
+          await createOrUpdateSample({
+            ...formData,
+            status: 'DraftMatrix'
+          }).unwrap();
+        }
+      } catch (e) {
+        console.log('error', e);
+        setHasError(true);
+
+        return;
       }
       navigateToSample(formData.id);
     });
@@ -200,11 +210,11 @@ const ContextStep = ({ partialSample }: Props) => {
 
   const save = async (status = partialSample?.status) => {
     if (partialSample) {
-      await createOrUpdateSample({
+      return createOrUpdateSample({
         ...partialSample,
         ...formData,
         status: status as SampleStatus
-      });
+      }).unwrap();
     }
   };
 
@@ -239,7 +249,7 @@ const ContextStep = ({ partialSample }: Props) => {
     specificData
   };
 
-  const form = useForm(Form, formInput, save);
+  const form = useForm(Form, formInput);
 
   if (!programmingPlan) {
     return <></>;
@@ -511,29 +521,34 @@ const ContextStep = ({ partialSample }: Props) => {
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={clsx(cx('fr-col-12'), 'sample-actions')}>
           {!readonly ? (
-            <ButtonsGroup
-              alignment="between"
-              inlineLayoutWhen="md and up"
-              buttons={[
-                {
-                  children: 'Abandonner la saisie',
-                  priority: 'tertiary',
-                  onClick: navigateToSamples,
-                  nativeButtonProps: {
-                    'data-testid': 'cancel-button'
+            <>
+              <ButtonsGroup
+                alignment="between"
+                inlineLayoutWhen="md and up"
+                buttons={[
+                  {
+                    children: 'Abandonner la saisie',
+                    priority: 'tertiary',
+                    onClick: navigateToSamples,
+                    nativeButtonProps: {
+                      'data-testid': 'cancel-button'
+                    }
+                  },
+                  {
+                    children: 'Continuer',
+                    onClick: submit,
+                    iconId: 'fr-icon-arrow-right-line',
+                    iconPosition: 'right',
+                    nativeButtonProps: {
+                      'data-testid': 'submit-button'
+                    }
                   }
-                },
-                {
-                  children: 'Continuer',
-                  onClick: submit,
-                  iconId: 'fr-icon-arrow-right-line',
-                  iconPosition: 'right',
-                  nativeButtonProps: {
-                    'data-testid': 'submit-button'
-                  }
-                }
-              ]}
-            />
+                ]}
+              />
+              {hasError && (
+                <Alert severity="error" small={true} description={'BOOM'} />
+              )}
+            </>
           ) : (
             <ul
               className={cx(
