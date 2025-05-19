@@ -1,13 +1,13 @@
-import React, { FunctionComponent, useState } from 'react';
-import { assert, type Equals } from 'tsafe';
+import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import {
   Analysis,
   PartialAnalysis
 } from 'maestro-shared/schema/Analysis/Analysis';
 import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
+import React, { FunctionComponent, useState } from 'react';
+import { assert, type Equals } from 'tsafe';
 import { useForm } from '../../../../../hooks/useForm';
 import { AnalysisResidueForm } from './AnalysisResidueForm';
 
@@ -17,14 +17,13 @@ export type Props = {
   onValidate: (residues: Analysis['residues']) => Promise<void>;
 };
 
-const analysisResiduesValidator = Analysis.pick({residues: true})
-export type Form = typeof analysisResiduesValidator
+const analysisResiduesValidator = Analysis.pick({ residues: true });
+export type Form = typeof analysisResiduesValidator;
 
 export const useResiduesForm = (
   partialAnalysis: Pick<PartialAnalysis, 'residues'>
 ) => {
   const [residues, setResidues] = useState(partialAnalysis.residues ?? []);
-
 
   const changeResidue = (residue: PartialResidue, index: number) => {
     const newResidues = [...residues];

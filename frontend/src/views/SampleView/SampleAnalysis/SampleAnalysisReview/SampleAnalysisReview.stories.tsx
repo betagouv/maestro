@@ -3,11 +3,11 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { expect, fireEvent, fn, userEvent, within } from '@storybook/test';
 import clsx from 'clsx';
+import { ResultKindList } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
 import { v4 as uuidv4 } from 'uuid';
 import { SampleAnalysisReview } from './SampleAnalysisReview';
-import { ResultKindList } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 
 const onReviewDoneMock = fn();
 const meta = {
@@ -153,7 +153,7 @@ export const CorrectionWithoutResidu: Story = {
 
 export const CorrectionWithRequiredResult: Story = {
   args: {
-    ...CorrectionWithoutResidu.args,
+    ...CorrectionWithoutResidu.args
   },
   play: async (context) => {
     await CorrectionWithResidues.play(context);
@@ -162,9 +162,7 @@ export const CorrectionWithRequiredResult: Story = {
 
     await userEvent.click(canvas.getByLabelText('mono-résidu'));
 
-    const autocomplete = canvas.getByText(
-      'Résidu'
-    ).parentElement!;
+    const autocomplete = canvas.getByText('Résidu').parentElement!;
     const input = within(autocomplete).getByRole('combobox');
     await userEvent.click(input);
     await fireEvent.keyDown(input, { key: 'ArrowDown' });

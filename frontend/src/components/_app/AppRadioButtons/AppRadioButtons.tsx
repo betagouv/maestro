@@ -2,11 +2,14 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import RadioButtons from '@codegouvfr/react-dsfr/RadioButtons';
 import { ComponentPropsWithoutRef } from 'react';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
-import { UseForm} from 'src/hooks/useForm';
+import { UseForm } from 'src/hooks/useForm';
 import { z, ZodEffects, ZodObject, ZodRawShape } from 'zod';
 import './AppRadioButtons.scss';
 
-type AppRadioButtonsProps<T extends ZodObject<ZodRawShape> | ZodEffects<ZodObject<ZodRawShape>>, U = UseForm<T>> = Pick<
+type AppRadioButtonsProps<
+  T extends ZodObject<ZodRawShape> | ZodEffects<ZodObject<ZodRawShape>>,
+  U = UseForm<T>
+> = Pick<
   ComponentPropsWithoutRef<typeof RadioButtons>,
   'legend' | 'options' | 'state' | 'stateRelatedMessage' | 'disabled'
 > & {
@@ -18,9 +21,9 @@ type AppRadioButtonsProps<T extends ZodObject<ZodRawShape> | ZodEffects<ZodObjec
   colSm?: 2 | 3 | 4 | 6 | 12;
 };
 
-function AppRadioButtons<T extends ZodObject<ZodRawShape>| ZodEffects<ZodObject<ZodRawShape>>>(
-  props: AppRadioButtonsProps<T>
-) {
+function AppRadioButtons<
+  T extends ZodObject<ZodRawShape> | ZodEffects<ZodObject<ZodRawShape>>
+>(props: AppRadioButtonsProps<T>) {
   const {
     inputKey,
     inputPathFromKey,

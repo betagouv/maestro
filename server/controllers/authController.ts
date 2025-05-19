@@ -6,11 +6,11 @@ import AuthenticationFailedError from 'maestro-shared/errors/authenticationFaile
 import { AuthRedirectUrl } from 'maestro-shared/schema/Auth/AuthRedirectUrl';
 import { AuthMaybeUnknownUser } from 'maestro-shared/schema/User/AuthUser';
 import { TokenPayload } from 'maestro-shared/schema/User/TokenPayload';
+import { v4 as uuidv4 } from 'uuid';
 import { userRepository } from '../repositories/userRepository';
 import { getAuthService } from '../services/authService';
 import config from '../utils/config';
 import { COOKIE_MAESTRO_ACCESS_TOKEN } from '../utils/constants';
-import { v4 as uuidv4 } from 'uuid';
 
 const getAuthRedirectUrl = async (_request: Request, response: Response) => {
   const authService = await getAuthService;
@@ -38,7 +38,7 @@ const authenticate = async (request: Request, response: Response) => {
       await userRepository.update({ firstName, lastName }, user.id);
     }
 
-    const loggedSecret = uuidv4()
+    const loggedSecret = uuidv4();
     const tokenPayload: TokenPayload = {
       userId: user?.id ?? null,
       loggedSecret: user?.id ? loggedSecret : null,
@@ -74,7 +74,8 @@ const authenticate = async (request: Request, response: Response) => {
 };
 
 const logout = async (request: Request, response: Response) => {
-  const { idToken, userId, loggedSecret } = (request as AuthenticatedRequest).auth;
+  const { idToken, userId, loggedSecret } = (request as AuthenticatedRequest)
+    .auth;
   const authService = await getAuthService;
 
   const logoutUrl = authService.getLogoutUrl(idToken);

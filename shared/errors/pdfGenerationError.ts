@@ -1,10 +1,7 @@
 import { constants } from 'http2';
 import { HttpError } from './httpError';
 
-export default class PdfGenerationError
-  extends HttpError
-  implements HttpError
-{
+export default class PdfGenerationError extends HttpError implements HttpError {
   constructor() {
     super({
       name: 'PdfGenerationError',

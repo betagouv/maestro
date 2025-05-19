@@ -24,7 +24,7 @@ vi.mock('../services/pdfService/pdfService', () => ({
 
 vi.mock('../services/excelService/excelService', () => ({
   excelService: {
-    generateAnalysisRequestExcel : () => mockGenerateAnalysisRequestExcel()
+    generateAnalysisRequestExcel: () => mockGenerateAnalysisRequestExcel()
   }
 }));
 beforeAll(async () => {

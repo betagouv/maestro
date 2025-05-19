@@ -27,9 +27,12 @@ export const Templates = {
       author: z.string()
     })
   },
-  AnalysisReviewTodoTemplate: { id: 11, params: z.object({
+  AnalysisReviewTodoTemplate: {
+    id: 11,
+    params: z.object({
       link: z.string().url()
-    }) }
+    })
+  }
 } as const satisfies {
   [templateName: string]: {
     id: number;

@@ -53,12 +53,13 @@ const findUnique = async (
                  ) end as residues`
       )
     )
-    .leftJoin(
-      analysisResiduesTable, function () {
-        this.on(`${analysisResiduesTable}.analysis_id`, '=', `${analysisTable}.id`)
-          .andOnIn(`${analysisResiduesTable}.result_kind`, ['Q', 'NQ'])
-      },
-    )
+    .leftJoin(analysisResiduesTable, function () {
+      this.on(
+        `${analysisResiduesTable}.analysis_id`,
+        '=',
+        `${analysisTable}.id`
+      ).andOnIn(`${analysisResiduesTable}.result_kind`, ['Q', 'NQ']);
+    })
     .where(typeof key === 'string' ? { id: key } : { sampleId: key.sampleId })
     .groupBy(`${analysisTable}.id`)
     .first()

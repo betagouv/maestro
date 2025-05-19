@@ -1,3 +1,4 @@
+import { isNil } from 'lodash-es';
 import { z } from 'zod';
 import { OptionalBoolean } from '../../../referential/OptionnalBoolean';
 import { SSD2Id } from '../../../referential/Residue/SSD2Id';
@@ -5,7 +6,6 @@ import { AnalysisMethod } from '../AnalysisMethod';
 import { Analyte, PartialAnalyte } from '../Analyte';
 import { ResidueCompliance } from './ResidueCompliance';
 import { ResultKind } from './ResultKind';
-import { isNil } from 'lodash-es';
 
 const ResidueBase = z.object({
   analysisId: z.string().uuid(),

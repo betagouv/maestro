@@ -2,15 +2,17 @@ import { sql } from 'kysely';
 import { isNil } from 'lodash-es';
 import { FindUserOptions } from 'maestro-shared/schema/User/FindUserOptions';
 import { User } from 'maestro-shared/schema/User/User';
-import { Users as KyselyUser } from './kysely.type';
 import { assertUnreachable } from 'maestro-shared/utils/typescript';
 import { knexInstance as db } from './db';
 import { kysely } from './kysely';
+import { Users as KyselyUser } from './kysely.type';
 
 export const usersTable = 'users';
 
 export const Users = () => db<User>(usersTable);
-const findUnique = async (userId: string): Promise<User & { loggedSecrets: string[]} | undefined> => {
+const findUnique = async (
+  userId: string
+): Promise<(User & { loggedSecrets: string[] }) | undefined> => {
   console.log('Get User with id', userId);
 
   return kysely
@@ -18,7 +20,6 @@ const findUnique = async (userId: string): Promise<User & { loggedSecrets: strin
     .selectAll()
     .where('id', '=', userId)
     .executeTakeFirst();
-
 };
 
 const findOne = async (email: string): Promise<User | undefined> => {
@@ -58,8 +59,6 @@ const findMany = async (findOptions: FindUserOptions): Promise<User[]> => {
   return users.map((_: User) => User.parse(_));
 };
 
-
-
 const update = async (
   partialUser: Partial<Omit<KyselyUser, 'id' | 'loggedSecrets'>>,
   id: User['id']
@@ -71,22 +70,29 @@ const update = async (
     .execute();
 };
 
-
-const addLoggedSecret = async (secret: string, id: User['id']): Promise<void> => {
+const addLoggedSecret = async (
+  secret: string,
+  id: User['id']
+): Promise<void> => {
   await kysely
     .updateTable('users')
-    .set( { loggedSecrets: sql`logged_secrets || '{"${sql.raw(secret)}"}'`})
+    .set({ loggedSecrets: sql`logged_secrets || '{"${sql.raw(secret)}"}'` })
     .where('id', '=', id)
     .execute();
-}
+};
 
-const deleteLoggedSecret = async (secret: string, id: User['id']): Promise<void> => {
+const deleteLoggedSecret = async (
+  secret: string,
+  id: User['id']
+): Promise<void> => {
   await kysely
     .updateTable('users')
-    .set({ loggedSecrets: sql`array_remove(logged_secrets, '${sql.raw(secret)}')` })
+    .set({
+      loggedSecrets: sql`array_remove(logged_secrets, '${sql.raw(secret)}')`
+    })
     .where('id', '=', id)
     .execute();
-}
+};
 export const userRepository = {
   findUnique,
   findOne,

@@ -1,11 +1,12 @@
+import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import { getSSD2Id } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import {
   analyseXmlValidator,
-  extractAnalyzes, girpaCodeEchantillonValidator,
+  extractAnalyzes,
+  girpaCodeEchantillonValidator
 } from './girpa';
-import { getSSD2Id } from 'maestro-shared/referential/Residue/SSD2Referential';
-import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 
 const girpaXMLExample = (analyses: z.input<typeof analyseXmlValidator>[]) => ({
   Rapport: {
@@ -162,29 +163,19 @@ describe('parse correctement le XML', () => {
 describe('getResidue', () => {
   test.each<[string, string, SSD2Id | null]>([
     ['', 'toto', null],
-    ['', 'bixafen','RF-1056-001-PPP'],
-    [
-      '-',
-      'metobromuron',
-      'RF-0791-001-PPP'
-    ],
-      [
-      '1967-25-5',
-        '4-bromophenylurea',
-        'RF-00003387-PAR'
-      ]
+    ['', 'bixafen', 'RF-1056-001-PPP'],
+    ['-', 'metobromuron', 'RF-0791-001-PPP'],
+    ['1967-25-5', '4-bromophenylurea', 'RF-00003387-PAR']
   ])('getResidue %#', (casNumber, englishName, expected) => {
-    expect(
-      getSSD2Id(
-        englishName,
-        null,
-        casNumber,
-      )
-    ).toEqual(expected);
+    expect(getSSD2Id(englishName, null, casNumber)).toEqual(expected);
   });
 });
 
 test('girpaCodeEchantillonValidator', () => {
-    expect(girpaCodeEchantillonValidator.parse('IDF 75 22 0001 A 01')).toMatchInlineSnapshot(`"IDF-75-22-0001-A"`);
-    expect(girpaCodeEchantillonValidator.parse('PAC-04-25-0001-A01')).toMatchInlineSnapshot(`"PAC-04-25-0001-A"`)
+  expect(
+    girpaCodeEchantillonValidator.parse('IDF 75 22 0001 A 01')
+  ).toMatchInlineSnapshot(`"IDF-75-22-0001-A"`);
+  expect(
+    girpaCodeEchantillonValidator.parse('PAC-04-25-0001-A01')
+  ).toMatchInlineSnapshot(`"PAC-04-25-0001-A"`);
 });

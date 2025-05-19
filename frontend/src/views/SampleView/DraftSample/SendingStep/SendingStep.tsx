@@ -10,8 +10,8 @@ import {
   SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import { isDefined } from 'maestro-shared/utils/utils';
-import { Link } from 'react-router';
 import React, { FunctionComponent, useContext, useMemo, useState } from 'react';
+import { Link } from 'react-router';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
@@ -27,8 +27,8 @@ import SavedAlert from 'src/views/SampleView/SavedAlert';
 import ContextStepSummary from 'src/views/SampleView/StepSummary/ContextStepSummary';
 import ItemsStepSummary from 'src/views/SampleView/StepSummary/ItemsStepSummary';
 import MatrixStepSummary from 'src/views/SampleView/StepSummary/MatrixStepSummary';
-import SupportDocumentDownload from '../SupportDocumentDownload';
 import { ApiClientContext } from '../../../../services/apiClient';
+import SupportDocumentDownload from '../SupportDocumentDownload';
 
 export interface Props {
   sample: (Sample | SampleToCreate) & Partial<SampleOwnerData>;
@@ -38,7 +38,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
   const { navigateToSample } = useSamplesLink();
   const { isOnline } = useOnLine();
   const { laboratory, readonly } = usePartialSample(sample);
-  const { useCreateOrUpdateSampleMutation }  = useContext(ApiClientContext)
+  const { useCreateOrUpdateSampleMutation } = useContext(ApiClientContext);
 
   const [resytalId, setResytalId] = useState(sample.resytalId);
   const [ownerFirstName, setOwnerFirstName] = useState(sample.ownerFirstName);

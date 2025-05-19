@@ -1,6 +1,6 @@
+import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { Substance } from 'maestro-shared/schema/Substance/Substance';
 import { Substances } from '../../../repositories/substanceRepository';
-import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 
 export const seed = async function () {
   const genSubstance = (code: SSD2Id, label: string): Substance => ({

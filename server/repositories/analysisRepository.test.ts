@@ -31,64 +31,70 @@ describe('findUnique', () => {
       ])
       .execute();
 
-    await kysely.insertInto('analysisResidues').values([
-      {
-        analysisId,
-        analysisMethod: 'Mono',
-        residueNumber: 1,
-        reference: 'RF-00000007-PAR',
-        lmr: 10,
-        result: 1,
-        resultKind: 'Q'
-      },
-      {
-        analysisId,
-        analysisMethod: 'Multi',
-        reference: 'RF-00000012-PAR',
-        residueNumber: 2,
-        resultKind: 'ND'
-      }
-    ]).execute()
+    await kysely
+      .insertInto('analysisResidues')
+      .values([
+        {
+          analysisId,
+          analysisMethod: 'Mono',
+          residueNumber: 1,
+          reference: 'RF-00000007-PAR',
+          lmr: 10,
+          result: 1,
+          resultKind: 'Q'
+        },
+        {
+          analysisId,
+          analysisMethod: 'Multi',
+          reference: 'RF-00000012-PAR',
+          residueNumber: 2,
+          resultKind: 'ND'
+        }
+      ])
+      .execute();
 
-    await kysely.insertInto('residueAnalytes').values([
-      {
-        analysisId,
-        reference: 'RF-00000013-PAR',
-        residueNumber: 1,
-        analyteNumber: 1,
-        resultKind: 'Q',
-        result: 2
-      }
-    ]).execute()
+    await kysely
+      .insertInto('residueAnalytes')
+      .values([
+        {
+          analysisId,
+          reference: 'RF-00000013-PAR',
+          residueNumber: 1,
+          analyteNumber: 1,
+          resultKind: 'Q',
+          result: 2
+        }
+      ])
+      .execute();
 
     const analysisInDb = await analysisRepository.findUnique(analysisId);
 
-    expect(analysisInDb).toMatchObject(
-      {
-        "id": analysisId,
-        "reportDocumentId": document.id,
-        "residues": [
-          {
-            "analysisId": analysisId,
-            "analysisMethod": "Mono",
-            "reference": "RF-00000007-PAR",
-            "residueNumber": 1,
-            lmr: 10,
-            result: 1,
-            resultKind: 'Q',
-            analytes: [{
+    expect(analysisInDb).toMatchObject({
+      id: analysisId,
+      reportDocumentId: document.id,
+      residues: [
+        {
+          analysisId: analysisId,
+          analysisMethod: 'Mono',
+          reference: 'RF-00000007-PAR',
+          residueNumber: 1,
+          lmr: 10,
+          result: 1,
+          resultKind: 'Q',
+          analytes: [
+            {
               analysisId,
               reference: 'RF-00000013-PAR',
               residueNumber: 1,
               analyteNumber: 1,
               resultKind: 'Q',
               result: 2
-            }]
-          },
-        ],
-        "sampleId": "11111111-3333-3333-3333-333333333333",
-        "status": "Completed",
-      }
-    );
-  })
-})
+            }
+          ]
+        }
+      ],
+      sampleId: '11111111-3333-3333-3333-333333333333',
+      status: 'Completed'
+    });
+  });
+});

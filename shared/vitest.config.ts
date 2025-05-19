@@ -6,5 +6,4 @@ export default defineConfig({
   test: {
     setupFiles: ['../test/setupFakerJS.ts']
   }
-
-})
+});

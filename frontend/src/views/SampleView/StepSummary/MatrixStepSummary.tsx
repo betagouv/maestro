@@ -31,8 +31,8 @@ interface Props {
   showLabel?: boolean;
 }
 const MatrixStepSummary = ({ sample, showLabel }: Props) => {
-  const { laboratory } = usePartialSample(sample)
-  const { useGetPrescriptionSubstancesQuery }  = useContext(ApiClientContext)
+  const { laboratory } = usePartialSample(sample);
+  const { useGetPrescriptionSubstancesQuery } = useContext(ApiClientContext);
 
   const { data: substances } = useGetPrescriptionSubstancesQuery(
     sample.prescriptionId ?? skipToken

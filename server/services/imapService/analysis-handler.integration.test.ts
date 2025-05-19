@@ -3,7 +3,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { kysely } from '../../repositories/kysely';
 import { s3Service } from '../s3Service';
-import { analysisHandler, AnalysisWithResidueWithSSD2Id } from './analysis-handler';
+import {
+  analysisHandler,
+  AnalysisWithResidueWithSSD2Id
+} from './analysis-handler';
 
 let spyDeleteDocument = vi.spyOn(s3Service, 'deleteDocument');
 let spyUploadDocument = vi.spyOn(s3Service, 'uploadDocument');
@@ -63,9 +66,7 @@ test("Le fichier est updloadé sur le S3, n'est pas supprimé du S3 et est en bd
     .selectAll()
     .execute();
   expect(analysisResidue).toHaveLength(1);
-  expect(analysisResidue[0].reference).toBe(
-    analysisToSave.residues[0].ssd2Id
-  );
+  expect(analysisResidue[0].reference).toBe(analysisToSave.residues[0].ssd2Id);
 });
 
 test("Retourne une erreur si l'upload a échoué", async () => {
@@ -109,8 +110,6 @@ test("Impossible d'ajouter une analyse à un échantillon avec déjà une analys
   expect(spyDeleteDocument).toHaveBeenCalledTimes(0);
 });
 
-
-
 test("Si une erreur intervient après l'upload sur le S3, on supprime le document du S3", async () => {
   spyUploadDocument = vi
     .spyOn(s3Service, 'uploadDocument')
@@ -122,7 +121,7 @@ test("Si une erreur intervient après l'upload sur le S3, on supprime le documen
       sampleReference: Sample13Fixture.reference,
       residues: [
         {
-          ssd2Id: 'RF-0002-001-PPP' ,
+          ssd2Id: 'RF-0002-001-PPP',
           result_kind: 'NQ',
           analysisMethod: 'Multi',
           unknown_label: null
@@ -145,7 +144,7 @@ test("Impossible d'enregistrer l'analyse si on trouve un résidu complexe sans a
       sampleReference: Sample13Fixture.reference,
       residues: [
         {
-          ssd2Id: 'RF-0008-001-PPP' ,
+          ssd2Id: 'RF-0008-001-PPP',
           result_kind: 'NQ',
           analysisMethod: 'Multi',
           unknown_label: null
@@ -167,19 +166,19 @@ test('Peut enregistrer une analyse avec un résidue complexe et ses analytes ass
     sampleReference: Sample13Fixture.reference,
     residues: [
       {
-          ssd2Id: 'RF-00002588-PAR',
+        ssd2Id: 'RF-00002588-PAR',
         result_kind: 'NQ',
         analysisMethod: 'Multi',
         unknown_label: null
       },
       {
-          ssd2Id: 'RF-0008-001-PPP',
+        ssd2Id: 'RF-0008-001-PPP',
         result_kind: 'NQ',
         analysisMethod: 'Multi',
         unknown_label: null
       },
       {
-          ssd2Id: 'RF-00004646-PAR',
+        ssd2Id: 'RF-00004646-PAR',
         result_kind: 'NQ',
         analysisMethod: 'Multi',
         unknown_label: null
@@ -195,9 +194,7 @@ test('Peut enregistrer une analyse avec un résidue complexe et ses analytes ass
     .selectAll()
     .execute();
   expect(analysisResidue).toHaveLength(1);
-  expect(analysisResidue[0].reference).toBe(
-    analysisToSave.residues[1].ssd2Id
-  );
+  expect(analysisResidue[0].reference).toBe(analysisToSave.residues[1].ssd2Id);
 
   const analysisResidueAnalytes = await kysely
     .selectFrom('residueAnalytes')

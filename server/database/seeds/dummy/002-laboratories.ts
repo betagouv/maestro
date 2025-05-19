@@ -32,7 +32,7 @@ export const seed = async function () {
     {
       id: LDA66Id,
       name: 'LDA 66',
-      emails:[fakerFR.internet.exampleEmail()]
+      emails: [fakerFR.internet.exampleEmail()]
     },
     {
       id: LDA72Id,

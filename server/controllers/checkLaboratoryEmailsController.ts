@@ -14,8 +14,8 @@ export const checkLaboratoryEmails = async (
 
     try {
       await checkEmails();
-    }catch (e){
-      console.error('Impossible de lire la boite mail', e)
+    } catch (e) {
+      console.error('Impossible de lire la boite mail', e);
     }
   }
 

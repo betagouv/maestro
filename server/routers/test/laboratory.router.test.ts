@@ -5,9 +5,9 @@ import { Laboratories } from '../../repositories/laboratoryRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
+import { fakerFR } from '@faker-js/faker';
 import { NationalCoordinator } from 'maestro-shared/test/userFixtures';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
-import { fakerFR } from '@faker-js/faker';
 describe('Laboratory router', () => {
   const { app } = createServer();
 

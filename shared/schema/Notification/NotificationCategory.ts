@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { Context, ContextLabels } from '../ProgrammingPlan/Context';
 import { Brand } from '../../constants';
+import { Context, ContextLabels } from '../ProgrammingPlan/Context';
 
 export const NotificationCategory = z.enum([
   'ProgrammingPlanSubmitted',
@@ -18,7 +18,7 @@ export const NotificationCategoryTitles: Record<NotificationCategory, string> =
     ...ContextLabels,
     ProgrammingPlanSubmitted: 'Nouveau plan de programmation disponible',
     ProgrammingPlanValidated: 'Lancement de la campagne de prélèvements',
-    AnalysisReviewTodo: 'Analyse reçue, interprétation à faire',
+    AnalysisReviewTodo: 'Analyse reçue, interprétation à faire'
   };
 
 export const NotificationCategoryMessages = {
@@ -35,4 +35,4 @@ En tant que coordinateur régional, vous pouvez dorénavant vous connecter à ${
 
 Une fois le/les laboratoires attribués, la campagne sera officiellement lancée et les inspecteurs/préleveurs de vos régions pourront initier leurs prélèvements.`,
   AnalysisReviewTodo: `Un rapport d'analyse de l'un de vos prélèvements vient d'être reçu par ${Brand}. Veuillez-vous connecter, faire la vérification des données issues de celui-ci et réaliser l'interprétation globale pour finaliser vos actions sur ce prélèvement.`
-} as const satisfies Partial<Record<NotificationCategory, string>>
+} as const satisfies Partial<Record<NotificationCategory, string>>;

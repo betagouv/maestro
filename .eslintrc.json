@@ -13,9 +13,7 @@
     "ecmaVersion": 13,
     "sourceType": "module"
   },
-  "plugins": [
-    "@typescript-eslint"
-  ],
+  "plugins": ["@typescript-eslint"],
   "rules": {
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-unused-vars": [
@@ -35,7 +33,7 @@
       "error",
       {
         "selector": "Literal[value=/^Maestro/]",
-        "message":"Use Brand instead."
+        "message": "Use Brand instead."
       }
     ]
   }

@@ -8,6 +8,6 @@ initKysely(config.databaseUrl);
 createServer().start();
 
 process.on('SIGINT', () => {
-  console.log( "\nGracefully shutting down from SIGINT (Ctrl-C)" );
+  console.log('\nGracefully shutting down from SIGINT (Ctrl-C)');
   process.exit();
 });

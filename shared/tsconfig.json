@@ -2,9 +2,8 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "lib": ["esnext"],
-    "target": "esnext",
+    "target": "esnext"
   },
   "include": ["**/*.ts", "../test/vitest-random-seed.ts"],
-  "exclude": [
-     "**/*.d.ts", "node_modules"]
+  "exclude": ["**/*.d.ts", "node_modules"]
 }

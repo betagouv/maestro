@@ -4,14 +4,14 @@ import {
   NotificationCategoryTitles
 } from 'maestro-shared/schema/Notification/NotificationCategory';
 import { User } from 'maestro-shared/schema/User/User';
-import { v4 as uuidv4 } from 'uuid';
-import notificationRepository from '../repositories/notificationRepository';
-import { mailService } from './mailService';
-import { mattermostService } from './mattermostService';
 import { OmitDistributive } from 'maestro-shared/utils/typescript';
-import { TemplateName, Templates } from './mailService/mailService';
+import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
+import notificationRepository from '../repositories/notificationRepository';
 import config from '../utils/config';
+import { mailService } from './mailService';
+import { TemplateName, Templates } from './mailService/mailService';
+import { mattermostService } from './mattermostService';
 
 const categoryToEmailTemplate = {
   AnalysisReviewTodo: 'AnalysisReviewTodoTemplate',
@@ -21,11 +21,18 @@ const categoryToEmailTemplate = {
   Surveillance: 'NewRegionalPrescriptionCommentTemplate'
 } as const satisfies Record<NotificationCategory, TemplateName | null>;
 
-type TemplateParams< T extends OmitDistributive<
+type TemplateParams<
+  T extends OmitDistributive<
     Notification,
     'id' | 'recipientId' | 'createdAt' | 'read'
-  >, U = Omit<z.infer<(typeof Templates)[(typeof categoryToEmailTemplate)[T['category']]]['params']>, 'link'>> = keyof U extends never ? undefined : U
-
+  >,
+  U = Omit<
+    z.infer<
+      (typeof Templates)[(typeof categoryToEmailTemplate)[T['category']]]['params']
+    >,
+    'link'
+  >
+> = keyof U extends never ? undefined : U;
 
 const sendNotification = async <
   T extends OmitDistributive<
@@ -49,14 +56,15 @@ const sendNotification = async <
     })
   );
 
-  const fullLink = `${config.application.host}${notificationToCreate.link}`
+  const fullLink = `${config.application.host}${notificationToCreate.link}`;
 
   await mattermostService.send(
     `[${NotificationCategoryTitles[notificationToCreate.category]}] ${notificationToCreate.message} ${fullLink}`
   );
 
-  const emailTemplateName =  categoryToEmailTemplate[notificationToCreate.category]
-  if( emailTemplateName !== null ) {
+  const emailTemplateName =
+    categoryToEmailTemplate[notificationToCreate.category];
+  if (emailTemplateName !== null) {
     await mailService.send({
       templateName: emailTemplateName,
       params: { ...params, link: fullLink },
@@ -65,4 +73,4 @@ const sendNotification = async <
   }
 };
 
-export const notificationService = {  sendNotification };
+export const notificationService = { sendNotification };

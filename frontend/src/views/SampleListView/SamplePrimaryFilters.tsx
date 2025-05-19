@@ -21,7 +21,7 @@ interface Props {
   onChange: (filters: Partial<FindSampleOptions>) => void;
   samplers?: User[];
   prescriptions?: Prescription[];
-  currentUserId: string | undefined
+  currentUserId: string | undefined;
 }
 
 const SamplePrimaryFilters = ({
@@ -95,11 +95,11 @@ const SamplePrimaryFilters = ({
           {samplers
             ?.filter(({ firstName }) => firstName !== '-')
             .sort((a, b) => {
-              if( a.id === currentUserId){
-                return -1
+              if (a.id === currentUserId) {
+                return -1;
               }
-              if( b.id === currentUserId){
-                return 1
+              if (b.id === currentUserId) {
+                return 1;
               }
               return a.firstName.localeCompare(b.firstName);
             })

@@ -12,9 +12,10 @@ router.use(
     pathRewrite: { '/?': '' },
     on: {
       proxyRes: (proxyRes) => {
-        proxyRes.headers['access-control-allow-origin'] =  config.application.host;
+        proxyRes.headers['access-control-allow-origin'] =
+          config.application.host;
       }
-    },
+    }
   })
 );
 

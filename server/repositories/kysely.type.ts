@@ -4,17 +4,17 @@
  */
 
 import { ColumnType, type Kysely } from 'kysely';
+import { LaboratoryName } from 'maestro-shared/referential/Laboratory';
 import { type Region } from 'maestro-shared/referential/Region';
+import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
+import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { ResidueCompliance } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
+import { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 import { type DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
-import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
-import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
-import { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
-import { LaboratoryName } from 'maestro-shared/referential/Laboratory';
 
 export type Generated<T> =
   T extends ColumnType<infer S, infer I, infer U>
@@ -51,10 +51,14 @@ export interface AnalysisResidues {
   residueNumber: number;
   result: number | null;
   resultHigherThanArfd: string | null;
-  resultKind: ColumnType<ResultKind, ResultKind | 'ND', ResultKind | 'ND'> | null;
+  resultKind: ColumnType<
+    ResultKind,
+    ResultKind | 'ND',
+    ResultKind | 'ND'
+  > | null;
   substanceApproved: string | null;
   substanceAuthorised: string | null;
-  unknown_label: string | null
+  unknown_label: string | null;
 }
 
 export interface AnalysisErrors {
@@ -90,12 +94,11 @@ export interface KnexMigrations {
   name: string | null;
 }
 
-
 export interface Laboratories {
   emails: string[];
   id: Generated<string>;
   name: LaboratoryName;
-  emailsAnalysisResult: string[]
+  emailsAnalysisResult: string[];
 }
 
 export interface Prescriptions {
@@ -144,7 +147,11 @@ export interface ResidueAnalytes {
   reference: SSD2Id | null;
   residueNumber: number;
   result: number | null;
-  resultKind: ColumnType<ResultKind, ResultKind | 'ND', ResultKind | 'ND'> | null;
+  resultKind: ColumnType<
+    ResultKind,
+    ResultKind | 'ND',
+    ResultKind | 'ND'
+  > | null;
 }
 
 export interface SampleItems {

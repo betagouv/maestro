@@ -94,7 +94,7 @@ interface Config {
   };
   m2mBasicToken: string;
   mattermostIncomingWebhook: string | null;
-  browserlessUrl: string
+  browserlessUrl: string;
 }
 
 const config = convict<Config>({
@@ -349,7 +349,7 @@ const config = convict<Config>({
     format: String,
     sensitive: true,
     nullable: false,
-    default:  isProduction ? null : 'ws://localhost:3002?token=1234512345'
+    default: isProduction ? null : 'ws://localhost:3002?token=1234512345'
   }
 })
   .validate({ allowed: 'strict' })

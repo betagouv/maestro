@@ -37,10 +37,7 @@ export function createServer(): Server {
         contentSecurityPolicy: {
           directives: {
             defaultSrc: ["'none'"],
-            scriptSrc: [
-              "'self'",
-              'https://stats.beta.gouv.fr'
-            ],
+            scriptSrc: ["'self'", 'https://stats.beta.gouv.fr'],
             frameSrc: [],
             styleSrc: [
               "'self'",
@@ -71,8 +68,8 @@ export function createServer(): Server {
           }
         }
       })(req, res, next);
-    }else {
-      next()
+    } else {
+      next();
     }
   });
 
@@ -142,9 +139,10 @@ export function createServer(): Server {
   sentry.errorHandler(app);
   app.use(errorHandler());
 
-  const start = () => app.listen(PORT, () => {
-    console.log(`Server listening on ${PORT}`);
-  })
+  const start = () =>
+    app.listen(PORT, () => {
+      console.log(`Server listening on ${PORT}`);
+    });
 
   return {
     app,

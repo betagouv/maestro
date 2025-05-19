@@ -4,7 +4,7 @@
     "moduleResolution": "Node",
     "composite": true,
     "incremental": true,
-    "strict":true,
+    "strict": true,
 
     "resolveJsonModule": true,
     "noUnusedLocals": true,
@@ -15,8 +15,5 @@
     "noEmit": true,
     "allowJs": true
   },
-  "include": [
-    "types/env.d.ts",
-    "test/*"
-  ]
+  "include": ["types/env.d.ts", "test/*"]
 }

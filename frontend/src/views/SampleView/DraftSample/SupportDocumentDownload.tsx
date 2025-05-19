@@ -23,7 +23,7 @@ const SupportDocumentDownload = ({ partialSample }: Props) => {
   const { isMobile } = useWindowSize();
   const { navigateToSample } = useSamplesLink();
 
-  const { useCreateOrUpdateSampleMutation }  = useContext(ApiClientContext)
+  const { useCreateOrUpdateSampleMutation } = useContext(ApiClientContext);
 
   const confirmationModal = useMemo(
     () =>
