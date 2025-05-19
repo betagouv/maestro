@@ -85,6 +85,9 @@ const NotificationsView = () => {
   const Icon: Record<NotificationCategory, FrIconClassName> = {
     Surveillance: 'fr-icon-line-chart-fill',
     Control: 'fr-icon-line-chart-fill',
+    LocalPlan: 'fr-icon-line-chart-fill',
+    Investigation: 'fr-icon-line-chart-fill',
+    ControlSupport: 'fr-icon-line-chart-fill',
     ProgrammingPlanSubmitted: 'fr-icon-line-chart-fill',
     ProgrammingPlanApproved: 'fr-icon-line-chart-fill',
     ProgrammingPlanValidated: 'fr-icon-line-chart-fill',

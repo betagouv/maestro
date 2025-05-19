@@ -30,7 +30,6 @@ import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
 import { formatWithTz, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import companyRepository from '../repositories/companyRepository';
 import { laboratoryRepository } from '../repositories/laboratoryRepository';
-import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
 import sampleItemRepository from '../repositories/sampleItemRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
 import csvService from '../services/csvService/csvService';
@@ -41,6 +40,8 @@ import { pdfService } from '../services/pdfService/pdfService';
 
 import { isEqual } from 'lodash-es';
 import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
+import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import { SSD2Referential } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import { Substance } from 'maestro-shared/schema/Substance/Substance';
 import {
@@ -288,11 +289,6 @@ const updateSample = async (request: Request, response: Response) => {
             updatedSample.laboratoryId as string
           )) as Laboratory;
 
-          const prescriptionSubstances =
-            await prescriptionSubstanceRepository.findMany(
-              updatedSample.prescriptionId
-            );
-
           const establishment = {
             name: Regions[updatedSample.region].establishment.name,
             fullAddress: [
@@ -313,7 +309,7 @@ const updateSample = async (request: Request, response: Response) => {
           };
 
           const substanceToLaboratorySubstance = (
-            substance: Substance
+            substance: SSD2Id
           ): Pick<Substance, 'label'> => {
             let laboratoryLabel: string | null = null;
             if (laboratory.name in laboratoriesConf) {
@@ -321,10 +317,11 @@ const updateSample = async (request: Request, response: Response) => {
               laboratoryLabel =
                 Object.entries(
                   laboratoriesConf[laboratoryName].ssd2IdByLabel
-                ).find(([_label, value]) => value === substance.code)?.[0] ??
-                null;
+                ).find(([_label, value]) => value === substance)?.[0] ?? null;
             }
-            return { label: laboratoryLabel ?? substance.label };
+            return {
+              label: laboratoryLabel ?? SSD2Referential[substance].name
+            };
           };
 
           const analysisRequestDocs =
@@ -334,16 +331,12 @@ const updateSample = async (request: Request, response: Response) => {
               sampler: user,
               company,
               laboratory,
-              monoSubstances: prescriptionSubstances
-                .filter((substance) => substance.analysisMethod === 'Mono')
-                .map(({ substance }) =>
-                  substanceToLaboratorySubstance(substance)
-                ),
-              multiSubstances: prescriptionSubstances
-                .filter((substance) => substance.analysisMethod === 'Multi')
-                .map(({ substance }) =>
-                  substanceToLaboratorySubstance(substance)
-                ),
+              monoSubstances: updatedSample.monoSubstances.map((substance) =>
+                substanceToLaboratorySubstance(substance)
+              ),
+              multiSubstances: updatedSample.multiSubstances.map((substance) =>
+                substanceToLaboratorySubstance(substance)
+              ),
               reference: [updatedSample.reference, sampleItem?.itemNumber]
                 .filter(isDefinedAndNotNull)
                 .join('-'),

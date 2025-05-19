@@ -8,6 +8,7 @@ import {
 } from './document.service';
 import { useGetLaboratoryQuery } from './laboratory.service';
 import {
+  prescriptionApi,
   useFindPrescriptionsQuery,
   useGetPrescriptionSubstancesQuery,
   useLazyGetPrescriptionSubstancesQuery
@@ -30,7 +31,8 @@ export const apiClient = {
   useGetLaboratoryQuery,
   useGetSampleAnalysisQuery: analysisApi.useGetSampleAnalysisQuery,
   useLazyGetDocumentDownloadSignedUrlQuery,
-  useLazyGetPrescriptionSubstancesQuery,
+  useLazyGetPrescriptionSubstancesQuery:
+    prescriptionApi.useLazyGetPrescriptionSubstancesQuery,
   useUpdateAnalysisMutation,
   useUpdateSampleMutation,
   useGetPrescriptionSubstancesQuery,

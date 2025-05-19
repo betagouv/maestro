@@ -15,6 +15,7 @@ import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { getMatrixPartLabel } from 'maestro-shared/referential/Matrix/MatrixPart';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
 import { Regions } from 'maestro-shared/referential/Region';
+import { SSD2Referential } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
@@ -23,7 +24,6 @@ import { formatWithTz, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import puppeteer from 'puppeteer-core';
 import { documentRepository } from '../../repositories/documentRepository';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
-import prescriptionSubstanceRepository from '../../repositories/prescriptionSubstanceRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
 import { userRepository } from '../../repositories/userRepository';
 import {
@@ -168,10 +168,6 @@ const generateSampleSupportPDF = async (
     ? await laboratoryRepository.findUnique(sample.laboratoryId)
     : null;
 
-  const prescriptionSubstances = sample.prescriptionId
-    ? await prescriptionSubstanceRepository.findMany(sample.prescriptionId)
-    : undefined;
-
   const emptySampleItems: PartialSampleItem[] = new Array(3)
     .fill(null)
     .map((_, index) => ({
@@ -202,12 +198,12 @@ const generateSampleSupportPDF = async (
           name: getLaboratoryFullname(laboratory.name)
         }
       : null,
-    monoSubstances: prescriptionSubstances
-      ?.filter((substance) => substance.analysisMethod === 'Mono')
-      .map((substance) => substance.substance.label),
-    multiSubstances: prescriptionSubstances
-      ?.filter((substance) => substance.analysisMethod === 'Multi')
-      .map((substance) => substance.substance.label),
+    monoSubstances: sample.monoSubstances.map(
+      (substance) => SSD2Referential[substance].name
+    ),
+    multiSubstances: sample.multiSubstances.map(
+      (substance) => SSD2Referential[substance].name
+    ),
     reference: [sample.reference, itemNumber]
       .filter(isDefinedAndNotNull)
       .join('-'),
