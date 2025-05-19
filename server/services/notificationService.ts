@@ -18,7 +18,10 @@ const categoryToEmailTemplate = {
   ProgrammingPlanSubmitted: 'SubmittedProgrammingPlanTemplate',
   ProgrammingPlanValidated: 'ValidatedProgrammingPlanTemplate',
   Control: 'NewRegionalPrescriptionCommentTemplate',
-  Surveillance: 'NewRegionalPrescriptionCommentTemplate'
+  Surveillance: 'NewRegionalPrescriptionCommentTemplate',
+  LocalPlan: 'NewRegionalPrescriptionCommentTemplate',
+  Investigation: 'NewRegionalPrescriptionCommentTemplate',
+  ControlSupport: 'NewRegionalPrescriptionCommentTemplate'
 } as const satisfies Record<NotificationCategory, TemplateName | null>;
 
 type TemplateParams<
