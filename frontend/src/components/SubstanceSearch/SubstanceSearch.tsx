@@ -3,38 +3,31 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import { Autocomplete } from '@mui/material';
 import { capitalize } from 'lodash-es';
+import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import { SSD2Referential } from 'maestro-shared/referential/Residue/SSD2Referential';
 import {
   AnalysisMethod,
   AnalysisMethodLabels
 } from 'maestro-shared/schema/Analysis/AnalysisMethod';
-import { PrescriptionSubstance } from 'maestro-shared/schema/Prescription/PrescriptionSubstance';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { Substance } from 'maestro-shared/schema/Substance/Substance';
-import { SyntheticEvent, useMemo, useState } from 'react';
-import { useAuthentication } from 'src/hooks/useAuthentication';
-import { useLazySearchSubstancesQuery } from 'src/services/substance.service';
-import './PrescriptionSubstances.scss';
+import { SyntheticEvent, useState } from 'react';
+import { useLazySearchSubstancesQuery } from '../../services/substance.service';
 
 interface Props {
-  programmingPlan: ProgrammingPlan;
-  prescriptionId: string;
-  prescriptionSubstances: PrescriptionSubstance[];
   analysisMethod: AnalysisMethod;
-  onUpdatePrescriptionSubstances: (
-    prescriptionId: string,
-    prescriptionSubstances: PrescriptionSubstance[]
-  ) => Promise<void>;
+  substances: SSD2Id[];
+  onChangeSubstances: (substances: SSD2Id[]) => void | Promise<void>;
+  readonly?: boolean;
+  addButtonMode?: 'icon' | 'text';
 }
 
-const PrescriptionSubstancesSelect = ({
-  programmingPlan,
-  prescriptionId,
-  prescriptionSubstances,
+const SubstanceSearch = ({
   analysisMethod,
-  onUpdatePrescriptionSubstances
+  substances,
+  onChangeSubstances,
+  readonly,
+  addButtonMode = 'icon'
 }: Props) => {
-  const { hasUserPrescriptionPermission } = useAuthentication();
-
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [substanceSearchResults, setSubstanceSearchResults] = useState<
     Substance[]
@@ -42,13 +35,6 @@ const PrescriptionSubstancesSelect = ({
   const [searchSubstances, { isLoading, isFetching }] =
     useLazySearchSubstancesQuery();
   const [newSubstance, setNewSubstance] = useState<Substance | null>(null);
-
-  const filteredPrescriptionSubstances = useMemo(() => {
-    return prescriptionSubstances.filter(
-      (prescriptionSubstance) =>
-        prescriptionSubstance.analysisMethod === analysisMethod
-    );
-  }, [prescriptionSubstances, analysisMethod]);
 
   const handleInputChange = async (
     _event: SyntheticEvent<Element, Event>,
@@ -62,10 +48,7 @@ const PrescriptionSubstancesSelect = ({
         .then((results) => {
           setSubstanceSearchResults(
             results.filter(
-              ({ code }) =>
-                !filteredPrescriptionSubstances.some(
-                  (_) => _.substance.code === code
-                )
+              ({ code }) => !substances.some((substance) => substance === code)
             )
           );
         })
@@ -77,23 +60,13 @@ const PrescriptionSubstancesSelect = ({
     }
   };
 
-  const addSubstance = async (substance: Substance) => {
-    await onUpdatePrescriptionSubstances(prescriptionId, [
-      ...prescriptionSubstances,
-      {
-        prescriptionId,
-        substance,
-        analysisMethod
-      }
-    ]);
+  const addSubstance = async (substance: SSD2Id) => {
+    await onChangeSubstances([...substances, substance]);
     setNewSubstance(null);
   };
 
-  const removeSubstance = async (substance: Substance) => {
-    await onUpdatePrescriptionSubstances(
-      prescriptionId,
-      prescriptionSubstances.filter((_) => _.substance.code !== substance.code)
-    );
+  const removeSubstance = async (substance: SSD2Id) => {
+    await onChangeSubstances(substances.filter((_) => _ !== substance));
   };
 
   return (
@@ -101,7 +74,7 @@ const PrescriptionSubstancesSelect = ({
       <label className={cx('fr-label', 'fr-mb-1w')}>
         {capitalize(AnalysisMethodLabels[analysisMethod])}
       </label>
-      {hasUserPrescriptionPermission(programmingPlan)?.update && (
+      {!readonly && (
         <div className="d-flex-align-center">
           <Autocomplete
             fullWidth
@@ -140,12 +113,13 @@ const PrescriptionSubstancesSelect = ({
             }
           />
           <Button
-            iconId="fr-icon-add-line"
+            iconId={addButtonMode === 'icon' ? 'fr-icon-add-line' : undefined}
             priority="secondary"
             title="Ajouter"
+            children={addButtonMode === 'text' ? 'Ajouter' : undefined}
             disabled={!newSubstance}
             onClick={async () => {
-              await addSubstance(newSubstance as Substance);
+              await addSubstance(newSubstance?.code as SSD2Id);
             }}
             className={cx('fr-ml-2w')}
           />
@@ -153,23 +127,23 @@ const PrescriptionSubstancesSelect = ({
       )}
 
       <div className="fr-mt-1w">
-        {filteredPrescriptionSubstances.map((prescriptionSubstance) => (
+        {substances.map((substance) => (
           <Tag
-            key={`${prescriptionSubstance.prescriptionId}-${prescriptionSubstance.substance.code}`}
-            dismissible={hasUserPrescriptionPermission(programmingPlan)?.update}
+            key={`${analysisMethod}-${substance}`}
+            dismissible={!readonly}
             small
             nativeButtonProps={
-              hasUserPrescriptionPermission(programmingPlan)?.update
+              !readonly
                 ? {
                     onClick: async () => {
-                      removeSubstance(prescriptionSubstance.substance);
+                      removeSubstance(substance);
                     }
                   }
                 : undefined
             }
             className={cx('fr-m-1v')}
           >
-            {prescriptionSubstance.substance.label}
+            {SSD2Referential[substance].name}
           </Tag>
         ))}
       </div>
@@ -177,4 +151,4 @@ const PrescriptionSubstancesSelect = ({
   );
 };
 
-export default PrescriptionSubstancesSelect;
+export default SubstanceSearch;
