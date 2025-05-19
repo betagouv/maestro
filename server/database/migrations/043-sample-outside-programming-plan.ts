@@ -40,9 +40,30 @@ export const up = async (knex: Knex) => {
     where samples.prescription_id = prescriptionMonoSubstances.prescription_id
       and samples.prescription_id = prescriptionMultiSubstances.prescription_id
   `);
+
+  const prescriptionSubstancesForeignCheck = await knex.raw(`
+      select exists (
+        select 1
+        FROM pg_constraint
+        WHERE conname = 'substance_analysis_substance_code_foreign'
+      ) as "exists"
+    `);
+
+  await knex.schema.alterTable('prescription_substances', (table) => {
+    if (prescriptionSubstancesForeignCheck.rows[0].exists) {
+      table.dropForeign(
+        'substance_code',
+        'substance_analysis_substance_code_foreign'
+      );
+    }
+    table.renameColumn('substance_code', 'substance');
+  });
 };
 
 export const down = async (knex: Knex) => {
+  await knex.schema.alterTable('prescription_substances', (table) => {
+    table.renameColumn('substance', 'substance_code');
+  });
   await knex.schema.alterTable('samples', (table) => {
     table.dropColumn('mono_substances');
     table.dropColumn('multi_substances');
