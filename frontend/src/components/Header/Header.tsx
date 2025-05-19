@@ -11,6 +11,7 @@ import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppSelector } from 'src/hooks/useStore';
 import { useLogoutMutation } from 'src/services/auth.service';
 import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.service';
+import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import logo from '../../assets/logo.svg';
 import { useFindNotificationsQuery } from '../../services/notification.service';
 import config from '../../utils/config';
@@ -65,7 +66,7 @@ const Header = () => {
           </>
         }
         homeLinkProps={{
-          to: '/',
+          to: AuthenticatedAppRoutes.DashboardRoute.link,
           title: 'Accueil'
         }}
         id="header"
@@ -78,12 +79,13 @@ const Header = () => {
           ? [
               {
                 linkProps: {
-                  to: '/',
+                  to: AuthenticatedAppRoutes.DashboardRoute.link,
                   target: '_self'
                 },
                 text: 'Tableau de bord',
                 isActive:
-                  location.pathname === '/' ||
+                  location.pathname ===
+                    AuthenticatedAppRoutes.DashboardRoute.link ||
                   location.pathname.startsWith('/plans')
               },
               hasUserPermission('readSamples')
@@ -93,7 +95,9 @@ const Header = () => {
                       ? {
                           text: 'Prélèvements',
                           linkProps: {
-                            to: `/prelevements/${validatedProgrammingPlans[0].year}`,
+                            to: AuthenticatedAppRoutes.SamplesByYearRoute.link(
+                              validatedProgrammingPlans[0].year
+                            ),
                             target: '_self'
                           }
                         }
@@ -106,7 +110,9 @@ const Header = () => {
                           menuLinks: (validatedProgrammingPlans ?? []).map(
                             (pp) => ({
                               linkProps: {
-                                to: `/prelevements/${pp.year}`,
+                                to: AuthenticatedAppRoutes.SamplesByYearRoute.link(
+                                  pp.year
+                                ),
                                 target: '_self'
                               },
                               text: pp.year,
@@ -124,7 +130,9 @@ const Header = () => {
                   ? {
                       text: 'Programmation',
                       linkProps: {
-                        to: `/programmation/${programmingPlans[0].year}`,
+                        to: AuthenticatedAppRoutes.ProgrammationByYearRoute.link(
+                          programmingPlans[0].year
+                        ),
                         target: '_self'
                       }
                     }
@@ -136,7 +144,9 @@ const Header = () => {
                       }`,
                       menuLinks: (programmingPlans ?? []).map((pp) => ({
                         linkProps: {
-                          to: `/programmation/${pp.year}`,
+                          to: AuthenticatedAppRoutes.ProgrammationByYearRoute.link(
+                            pp.year
+                          ),
                           target: '_self'
                         },
                         text: `Campagne ${pp.year}`,
@@ -148,7 +158,7 @@ const Header = () => {
               },
               {
                 linkProps: {
-                  to: '/documents',
+                  to: AuthenticatedAppRoutes.DocumentsRoute.link,
                   target: '_self'
                 },
                 text: 'Documents ressources',
@@ -185,7 +195,7 @@ const Header = () => {
                   <Button
                     iconId="fr-icon-notification-3-line"
                     linkProps={{
-                      to: '/notifications'
+                      to: AuthenticatedAppRoutes.NotificationsRoute.link
                     }}
                     className={cx('fr-btn--icon-left', 'fr-pr-0')}
                     priority="tertiary no outline"

@@ -15,6 +15,10 @@ import {
   DraftStatusList,
   SampleStatus
 } from 'maestro-shared/schema/Sample/SampleStatus';
+import {
+  UserRoleList,
+  UserRolePermissions
+} from 'maestro-shared/schema/User/UserRole';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
@@ -39,10 +43,10 @@ import SampleListHeader from 'src/views/SampleListView/SampleListHeader';
 import SamplePrimaryFilters from 'src/views/SampleListView/SamplePrimaryFilters';
 import SampleSecondaryFilters from 'src/views/SampleListView/SampleSecondaryFilters';
 import { v4 as uuidv4 } from 'uuid';
+import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import food from '../../assets/illustrations/food.svg';
 import SupportDocumentDownload from '../SampleView/DraftSample/SupportDocumentDownload';
 import './SampleList.scss';
-import { UserRoleList, UserRolePermissions } from 'maestro-shared/schema/User/UserRole';
 
 export type SampleListDisplay = 'table' | 'cards';
 
@@ -104,8 +108,11 @@ const SampleListView = () => {
   const { data: samplers } = useFindUsersQuery({
     region: findSampleOptions.region,
     roles: UserRoleList.filter((r) => {
-      const permissions = UserRolePermissions[r]
-      return permissions.includes('createSample') || permissions.includes('updateSample')
+      const permissions = UserRolePermissions[r];
+      return (
+        permissions.includes('createSample') ||
+        permissions.includes('updateSample')
+      );
     })
   });
 
@@ -144,7 +151,7 @@ const SampleListView = () => {
   return (
     <section className={clsx(cx('fr-container'), 'main-section')}>
       <SectionHeader
-        title={`Prélèvements ${programmingPlan?.year}`}
+        title={`Prélèvements ${programmingPlan.year}`}
         subtitle="Consultez les dossiers des prélèvements"
         illustration={food}
         action={
@@ -153,7 +160,9 @@ const SampleListView = () => {
               <div>
                 <Button
                   linkProps={{
-                    to: `/prelevements/${programmingPlan?.year}/nouveau`,
+                    to: AuthenticatedAppRoutes.NewSampleRoute.link(
+                      programmingPlan.year
+                    ),
                     target: '_self'
                   }}
                   iconId="fr-icon-microscope-line"
@@ -165,9 +174,9 @@ const SampleListView = () => {
                   partialSample={{
                     id: uuidv4(),
                     status: 'Draft' as const,
-                    programmingPlanId: programmingPlan?.id as string,
+                    programmingPlanId: programmingPlan.id as string,
                     specificData: {
-                      programmingPlanKind: programmingPlan?.kinds[0]
+                      programmingPlanKind: programmingPlan.kinds[0]
                     }
                   }}
                 />

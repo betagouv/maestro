@@ -13,13 +13,14 @@ import { useAuthentication } from 'src/hooks/useAuthentication';
 import useMatomoTagManager from 'src/hooks/useMatomoTagManager';
 import { useOnLine } from 'src/hooks/useOnLine';
 import { useAppSelector } from 'src/hooks/useStore';
-import LoginCallbackView from 'src/views/LoginCallbackView/LoginCallbackView';
-import LogoutCallbackView from 'src/views/LogoutCallbackView/LogoutCallbackView';
 import './App.scss';
-import { MascaradeContext, useMascarade } from './components/Mascarade/MascaradeContext';
+import {
+  MascaradeContext,
+  useMascarade
+} from './components/Mascarade/MascaradeContext';
+import { MascaradeNotice } from './components/Mascarade/MascaradeNotice';
 import { apiClient, ApiClientContext } from './services/apiClient';
 import { store } from './store/store';
-import { MascaradeNotice } from './components/Mascarade/MascaradeNotice';
 
 declare module '@codegouvfr/react-dsfr/spa' {
   interface RegisterLink {
@@ -60,12 +61,14 @@ function App() {
 
   FetchInterceptor();
 
-  const {mascaradeUserId, setMascaradeUserId} = useMascarade()
+  const { mascaradeUserId, setMascaradeUserId } = useMascarade();
 
   return (
     <React.Suspense fallback={<></>}>
-      <MascaradeContext.Provider value={{ mascaradeUserId, setMascaradeUserId}}>
-        <MascaradeNotice/>
+      <MascaradeContext.Provider
+        value={{ mascaradeUserId, setMascaradeUserId }}
+      >
+        <MascaradeNotice />
         <Header />
         {isSomeQueryPending && (
           <div className="toast">Chargement en cours...</div>
@@ -95,16 +98,6 @@ function App() {
                   key={route.key}
                 />
               )),
-              <Route
-                path="/login-callback"
-                element={<LoginCallbackView />}
-                key="login_callback_route"
-              />,
-              <Route
-                path="/logout-callback"
-                element={<LogoutCallbackView />}
-                key="logout_callback_route"
-              />,
               <Route
                 path="/*"
                 element={<Navigate replace to="/" />}

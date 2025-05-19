@@ -4,6 +4,7 @@ import { constants } from 'http2';
 import { intersection } from 'lodash-es';
 import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
 import { RegionList } from 'maestro-shared/referential/Region';
+import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { NotificationCategoryMessages } from 'maestro-shared/schema/Notification/NotificationCategory';
 import { ContextList } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
@@ -14,7 +15,7 @@ import {
   ProgrammingPlanStatusList,
   ProgrammingPlanStatusPermissions
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { hasPermission } from 'maestro-shared/schema/User/User';
+import { hasPermission, userRegions } from 'maestro-shared/schema/User/User';
 import { v4 as uuidv4 } from 'uuid';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
@@ -50,6 +51,44 @@ const findProgrammingPlans = async (request: Request, response: Response) => {
   console.info('Found programmingPlans', programmingPlans);
 
   response.status(constants.HTTP_STATUS_OK).send(programmingPlans);
+};
+
+const getProgrammingPlan = async (request: Request, response: Response) => {
+  const user = (request as AuthenticatedRequest).user;
+  const programmingPlanId = request.params.programmingPlanId;
+
+  console.info('Get programming plan', programmingPlanId);
+
+  const programmingPlan =
+    await programmingPlanRepository.findUnique(programmingPlanId);
+
+  if (!programmingPlan) {
+    throw new ProgrammingPlanMissingError(programmingPlanId);
+  }
+
+  console.info('Found programming plan', programmingPlan);
+
+  if (!intersection(user.programmingPlanKinds, programmingPlan.kinds)) {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
+
+  const userStatusAuthorized = Object.entries(ProgrammingPlanStatusPermissions)
+    .filter(([, permission]) => hasPermission(user, permission))
+    .map(([status]) => status);
+
+  const filterProgrammingPlanStatus = programmingPlan.regionalStatus.filter(
+    (_) =>
+      userStatusAuthorized.includes(_.status) &&
+      userRegions(user).includes(_.region)
+  );
+  if (filterProgrammingPlanStatus.length === 0) {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
+
+  response.status(constants.HTTP_STATUS_OK).send({
+    ...programmingPlan,
+    regionalStatus: filterProgrammingPlanStatus
+  });
 };
 
 const getProgrammingPlanByYear = async (
@@ -211,7 +250,9 @@ const updateRegionalStatus = async (request: Request, response: Response) => {
             {
               category: 'ProgrammingPlanSubmitted',
               message: NotificationCategoryMessages['ProgrammingPlanSubmitted'],
-              link: `/prescriptions/${programmingPlan.year}`
+              link: AppRouteLinks.ProgrammationByYearRoute.link(
+                programmingPlan.year
+              )
             },
             regionalCoordinators,
             undefined
@@ -221,7 +262,9 @@ const updateRegionalStatus = async (request: Request, response: Response) => {
             {
               category: 'ProgrammingPlanValidated',
               message: NotificationCategoryMessages['ProgrammingPlanValidated'],
-              link: `/prescriptions/${programmingPlan.year}`
+              link: AppRouteLinks.ProgrammationByYearRoute.link(
+                programmingPlan.year
+              )
             },
             regionalCoordinators,
             undefined
@@ -246,6 +289,7 @@ const updateRegionalStatus = async (request: Request, response: Response) => {
 };
 
 export default {
+  getProgrammingPlan,
   getProgrammingPlanByYear,
   findProgrammingPlans,
   createProgrammingPlan,

@@ -4,19 +4,44 @@ import {
   PartialSample,
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import { useContext, useMemo } from 'react';
+import { useContext, useEffect, useMemo } from 'react';
 import { ApiClientContext } from '../services/apiClient';
+import { useGetProgrammingPlanQuery } from '../services/programming-plan.service';
+import programmingPlanSlice from '../store/reducers/programmingPlanSlice';
 import { useAuthentication } from './useAuthentication';
+import { useAppDispatch, useAppSelector } from './useStore';
 
 export const usePartialSample = (
   partialSample?: PartialSample | PartialSampleToCreate
 ) => {
+  const dispatch = useAppDispatch();
   const { hasUserPermission, user } = useAuthentication();
+  const { programmingPlan: stateProgrammingPlan } = useAppSelector(
+    (state) => state.programmingPlan
+  );
+
+  const { data: programmingPlan } = useGetProgrammingPlanQuery(
+    partialSample?.programmingPlanId as string,
+    {
+      skip:
+        !partialSample?.programmingPlanId ||
+        (stateProgrammingPlan &&
+          stateProgrammingPlan.id === partialSample?.programmingPlanId)
+    }
+  );
 
   const apiClient = useContext(ApiClientContext);
   const { data: laboratory } = apiClient.useGetLaboratoryQuery(
     partialSample?.laboratoryId ?? skipToken
   );
+
+  useEffect(() => {
+    if (programmingPlan) {
+      dispatch(
+        programmingPlanSlice.actions.setProgrammingPlan(programmingPlan)
+      );
+    }
+  }, [programmingPlan]);
 
   const readonly = useMemo(
     () =>

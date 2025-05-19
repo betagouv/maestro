@@ -16,6 +16,7 @@ import { useFindRegionalPrescriptionsQuery } from 'src/services/regionalPrescrip
 import { useCountSamplesQuery } from 'src/services/sample.service';
 import { pluralize } from 'src/utils/stringUtils';
 import ProgrammingPlanMap from 'src/views/DashboardView/ProgrammingPlanMap';
+import { AuthenticatedAppRoutes } from '../../AppRoutes';
 
 interface ProgrammingPlanCardProps {
   programmingPlan: ProgrammingPlan;
@@ -94,7 +95,7 @@ const ProgrammingPlanCard = ({
                 className={'fr-card--xs'}
                 enlargeLink
                 linkProps={{
-                  to: `/prelevements/${programmingPlan.year}?status=${RealizedStatusList}&programmingPlanId=${programmingPlan.id}&context=${context}`
+                  to: `${AuthenticatedAppRoutes.SamplesByYearRoute.link(programmingPlan.year)}?status=${RealizedStatusList}&programmingPlanId=${programmingPlan.id}&context=${context}`
                 }}
               />
             </div>
@@ -119,7 +120,7 @@ const ProgrammingPlanCard = ({
                 className={'fr-card--xs'}
                 enlargeLink
                 linkProps={{
-                  to: `/prelevements/${programmingPlan.year}?status=Submitted&programmingPlanId=${programmingPlan.id}`
+                  to: `${AuthenticatedAppRoutes.SamplesByYearRoute.link(programmingPlan.year)}?status=Submitted&programmingPlanId=${programmingPlan.id}`
                 }}
               />
             </div>
@@ -130,7 +131,7 @@ const ProgrammingPlanCard = ({
         <Button
           className={cx('fr-mr-2w')}
           linkProps={{
-            to: `/programmation/${programmingPlan.year}?context=${context}`
+            to: `${AuthenticatedAppRoutes.ProgrammationByYearRoute.link(programmingPlan.year)}?context=${context}`
           }}
           priority="secondary"
           iconId="fr-icon-table-2"

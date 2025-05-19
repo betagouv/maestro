@@ -20,7 +20,13 @@ router.get(
   programmingPlanController.findProgrammingPlans
 );
 router.get(
-  '/:year',
+  '/:programmingPlanId',
+  validator.validate(uuidParam('programmingPlanId')),
+  permissionsCheck(['readProgrammingPlans']),
+  programmingPlanController.getProgrammingPlan
+);
+router.get(
+  '/years/:year',
   validator.validate(
     params(
       z.object({
@@ -32,7 +38,7 @@ router.get(
   programmingPlanController.getProgrammingPlanByYear
 );
 router.post(
-  '/:year',
+  '/years/:year',
   validator.validate(
     params(
       z.object({

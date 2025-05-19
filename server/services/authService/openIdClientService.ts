@@ -1,12 +1,13 @@
 import { decode } from 'jsonwebtoken';
+import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { AuthRedirectUrl } from 'maestro-shared/schema/Auth/AuthRedirectUrl';
 import { User } from 'maestro-shared/schema/User/User';
 import { generators, Issuer } from 'openid-client';
 import config from '../../utils/config';
 import { AuthService } from './authService';
 
-const loginCallbackUrl = `${config.application.host}/login-callback`;
-const logoutCallbackUrl = `${config.application.host}/logout-callback`;
+const loginCallbackUrl = `${config.application.host}${AppRouteLinks.LoginCallbackRoute.link}`;
+const logoutCallbackUrl = `${config.application.host}${AppRouteLinks.LogoutCallbackRoute.link}`;
 
 class OpenIdClientService implements AuthService {
   private client: any;
