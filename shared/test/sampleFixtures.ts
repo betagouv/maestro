@@ -53,7 +53,6 @@ export const genCreatedSampleData = (
   data?: Partial<CreatedSampleData>
 ): CreatedSampleData => ({
   region: '44',
-  department: '08',
   reference: `GES-${oneOf(Regions['44'].departments)}-24-${fakerFR.number.int(9999)}-${oneOf(LegalContextList)}`,
   sampler: {
     id: uuidv4(),

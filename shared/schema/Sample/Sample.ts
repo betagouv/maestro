@@ -129,6 +129,7 @@ export const SampleContextData = z.object({
     })
   ),
   geolocation: Geolocation.nullish(),
+  department: Department.nullish(),
   parcel: z.string().nullish(),
   programmingPlanId: z.string().uuid(),
   context: Context,
@@ -221,7 +222,6 @@ export const SampleToCreate = z.object({
 export const CreatedSampleData = z.object({
   reference: z.string(),
   region: Region,
-  department: Department,
   createdAt: z.coerce.date(),
   sampler: Sampler,
   lastUpdatedAt: z.coerce.date()
@@ -234,6 +234,7 @@ export const PartialSample = PartialSampleToCreate.extend({
 export const Sample = SampleToCreate.extend({
   ...CreatedSampleData.shape,
   geolocation: Geolocation,
+  department: Department,
   company: Company,
   laboratoryId: z.string().uuid(),
   items: z.array(SampleItem)

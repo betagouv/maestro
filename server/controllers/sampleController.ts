@@ -188,7 +188,7 @@ const createSample = async (request: Request, response: Response) => {
   console.info('Create sample', sampleToCreate);
 
   const department = await departmentRepository.getDepartment(sampleToCreate.geolocation?.x, sampleToCreate.geolocation?.y)
-  if (department === null) {
+  if (department === null && !isNil(sampleToCreate.geolocation)) {
     return response.sendStatus(constants.HTTP_STATUS_BAD_REQUEST)
   }
 
@@ -259,7 +259,7 @@ const updateSample = async (request: Request, response: Response) => {
   }
 
   const department = await departmentRepository.getDepartment(sampleUpdate.geolocation?.x, sampleUpdate.geolocation?.y)
-  if (department === null) {
+  if (department === null && !isNil(sampleUpdate.geolocation)) {
     return response.sendStatus(constants.HTTP_STATUS_BAD_REQUEST)
   }
 
