@@ -14,7 +14,6 @@ import {
   MatrixPartLabels,
   MatrixPartList
 } from 'maestro-shared/referential/Matrix/MatrixPart';
-import { SSD2Referential } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { Stage } from 'maestro-shared/referential/Stage';
 import {
   isProgrammingPlanSample,
@@ -41,6 +40,7 @@ import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { z } from 'zod';
 import AppSearchInput from '../../../../components/_app/AppSearchInput/AppSearchInput';
 import AppTextAreaInput from '../../../../components/_app/AppTextAreaInput/AppTextAreaInput';
+import SubstanceSearch from '../../../../components/SubstanceSearch/SubstanceSearch';
 import { useForm } from '../../../../hooks/useForm';
 import { MatrixStepRef } from './MatrixStep';
 
@@ -100,12 +100,12 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
     const [releaseControl, setReleaseControl] = useState(
       partialSample.specificData.releaseControl
     );
-    const [monoSubstances, _setMonoSubstances] = useState(
+    const [monoSubstances, setMonoSubstances] = useState(
       !isProgrammingPlanSample(partialSample)
         ? (partialSample.monoSubstances ?? [])
         : undefined
     );
-    const [multiSubstances, _setMultiSubstances] = useState(
+    const [multiSubstances, setMultiSubstances] = useState(
       !isProgrammingPlanSample(partialSample)
         ? (partialSample.multiSubstances ?? [])
         : undefined
@@ -130,7 +130,9 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
         matrix,
         stage,
         specificData,
-        notesOnMatrix
+        notesOnMatrix,
+        monoSubstances,
+        multiSubstances
       } as SampleMatrixPPVData);
 
     const form = useForm(
@@ -207,6 +209,34 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
               }}
             />
           </div>
+          {!isProgrammingPlanSample(partialSample) && (
+            <>
+              <div className={cx('fr-col-12', 'fr-mt-2w', 'fr-pb-1v')}>
+                <span className={cx('fr-text--md', 'fr-text--bold')}>
+                  Analyses mono-résidu et multi-résidus
+                </span>
+              </div>
+              <div className={cx('fr-col-12')}>
+                <SubstanceSearch
+                  analysisMethod="Mono"
+                  substances={monoSubstances ?? []}
+                  onChangeSubstances={setMonoSubstances}
+                  addButtonMode="text"
+                />
+              </div>
+              <div className={cx('fr-col-12')}>
+                <SubstanceSearch
+                  analysisMethod="Multi"
+                  substances={multiSubstances ?? []}
+                  onChangeSubstances={setMultiSubstances}
+                  addButtonMode="text"
+                />
+              </div>
+              <div className={cx('fr-col-12')}>
+                <hr />
+              </div>
+            </>
+          )}
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
             <AppSelect<FormShape>
               value={stage ?? ''}
@@ -282,31 +312,6 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
 
         {renderSampleAttachments?.()}
         <hr />
-        {!isProgrammingPlanSample(partialSample) && (
-          <>
-            TODO
-            <div>
-              Analyses mono-résidu :{' '}
-              <ul>
-                {monoSubstances?.map((substance) => (
-                  <li key={`Mono_${substance}`}>
-                    {SSD2Referential[substance].name}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              Analyses multi-résidus dont :{' '}
-              <ul>
-                {multiSubstances?.map((substance) => (
-                  <li key={`Multi_${substance}`}>
-                    {SSD2Referential[substance].name}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </>
-        )}
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
             <AppTextAreaInput<FormShape>
