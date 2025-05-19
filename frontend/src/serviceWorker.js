@@ -100,8 +100,7 @@ registerRoute(
 
 registerRoute(
   ({ url, request }) =>
-    request.method === 'GET' &&
-    url.pathname.startsWith('/api'),
+    request.method === 'GET' && url.pathname.startsWith('/api'),
   new NetworkFirst({
     cacheName: 'api-offline-cache',
     plugins: [

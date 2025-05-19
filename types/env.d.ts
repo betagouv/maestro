@@ -1,1 +1,1 @@
-declare const __SEED__: string
+declare const __SEED__: string;

@@ -12,7 +12,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "lts/*"
+          node-version: 'lts/*'
           cache: npm
       - name: Server install
         run: npm ci
@@ -21,7 +21,7 @@ jobs:
       - name: Prettify code
         uses: creyD/prettier_action@v4.3
         with:
-          prettier_options: --write **/*.{tsx,ts,jsx,js,md}
+          prettier_options: --write .
           only_changed: True
   build:
     runs-on: ubuntu-latest
@@ -30,7 +30,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "lts/*"
+          node-version: 'lts/*'
           cache: npm
       - name: NPM install
         run: npm ci
@@ -47,8 +47,7 @@ jobs:
           POSTGRES_DB: maestro
         ports:
           - 5432:5432
-        options:
-          --health-cmd pg_isready
+        options: --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -57,13 +56,13 @@ jobs:
         ports:
           - 9090:9090
         env:
-          initialBuckets: "maestro"
+          initialBuckets: 'maestro'
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "lts/*"
+          node-version: 'lts/*'
           cache: npm
       - name: Server install
         run: npm ci
@@ -80,7 +79,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "lts/*"
+          node-version: 'lts/*'
           cache: npm
       - name: NPM install
         run: npm ci
@@ -93,7 +92,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "lts/*"
+          node-version: 'lts/*'
           cache: npm
       - name: NPM install
         run: npm ci

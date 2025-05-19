@@ -25,13 +25,12 @@ export const Analysis = z.object({
     compliance: true
   }).required().shape,
   residues: z.array(Residue)
-})
+});
 
 export const AnalysisToCreate = Analysis.pick({
   sampleId: true,
   reportDocumentId: true
 });
-
 
 export const CreatedAnalysis = z.object({
   ...AnalysisToCreate.shape,
@@ -41,8 +40,7 @@ export const CreatedAnalysis = z.object({
     createdBy: true,
     status: true
   }).shape
-})
-
+});
 
 export type Analysis = z.infer<typeof Analysis>;
 export type AnalysisToCreate = z.infer<typeof AnalysisToCreate>;

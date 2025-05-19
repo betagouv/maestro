@@ -1,7 +1,7 @@
-import { Substance } from '../schema/Substance/Substance';
 import { fakerFR } from '@faker-js/faker';
-import { oneOf } from './testFixtures';
 import { SSD2Ids } from '../referential/Residue/SSD2Id';
+import { Substance } from '../schema/Substance/Substance';
+import { oneOf } from './testFixtures';
 
 export const genSubstance = (data?: Partial<Substance>): Substance => ({
   code: oneOf(SSD2Ids),

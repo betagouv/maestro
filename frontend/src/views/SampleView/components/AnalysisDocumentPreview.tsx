@@ -1,17 +1,20 @@
-import { FunctionComponent } from 'react';
-import clsx from 'clsx';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import DocumentLink from '../../../components/DocumentLink/DocumentLink';
+import clsx from 'clsx';
+import { FunctionComponent } from 'react';
 import { assert, Equals } from 'tsafe';
+import DocumentLink from '../../../components/DocumentLink/DocumentLink';
 
 export type Props = {
-  reportDocumentId: string,
-  children?: JSX.Element
-}
+  reportDocumentId: string;
+  children?: JSX.Element;
+};
 
-export const AnalysisDocumentPreview: FunctionComponent<Props> = ({reportDocumentId,  children, ..._rest}) => {
-
-  assert<Equals<keyof typeof _rest, never>>()
+export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
+  reportDocumentId,
+  children,
+  ..._rest
+}) => {
+  assert<Equals<keyof typeof _rest, never>>();
 
   return (
     <div>
@@ -23,11 +26,11 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({reportDocumen
           )}
         ></span>
         <div className="flex-grow-1">Document du rapport d’analyse</div>
-        { children }
+        {children}
       </h6>
       <div className={cx('fr-pl-4w')}>
         <DocumentLink documentId={reportDocumentId} />
       </div>
     </div>
   );
-}
+};

@@ -27,10 +27,13 @@ const TemplateData = {
     subject: "Rapport d'analyse reçu",
     content: "Un de vos rapports d'analyse vient d'être reçu"
   }
-} as const satisfies Record<TemplateName, {
-  subject: string,
-  content: string
-}>
+} as const satisfies Record<
+  TemplateName,
+  {
+    subject: string;
+    content: string;
+  }
+>;
 class NodemailerService implements MailService {
   private transport: nodemailer.Transporter<nodemailer.SentMessageInfo>;
 

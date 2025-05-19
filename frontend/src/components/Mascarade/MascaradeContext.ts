@@ -51,5 +51,5 @@ export const useMascarade = () => {
     }
   }, [mascaradeUserId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return { mascaradeUserId,  setMascaradeUserId };
+  return { mascaradeUserId, setMascaradeUserId };
 };

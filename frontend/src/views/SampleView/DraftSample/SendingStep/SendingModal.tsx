@@ -1,10 +1,10 @@
+import Alert from '@codegouvfr/react-dsfr/Alert';
+import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { ModalProps } from '@codegouvfr/react-dsfr/Modal';
+import { Brand } from 'maestro-shared/constants';
+import { LaboratoryWithAutomation } from 'maestro-shared/referential/Laboratory';
 import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import React, { useState } from 'react';
-import { LaboratoryWithAutomation } from 'maestro-shared/referential/Laboratory';
-import Alert from '@codegouvfr/react-dsfr/Alert';
-import { Brand } from 'maestro-shared/constants';
-import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 interface Props {
   modal: {
     buttonProps: {
@@ -54,8 +54,28 @@ const SendingModal = ({ modal, laboratory, onConfirm }: Props) => {
       ]}
     >
       La demande d’analyse va être envoyée au laboratoire{' '}
-      <b>{laboratory.name}</b> par e-mail à {laboratory.emails.map((email, index) => <><b>{email}</b>{index < laboratory.emails.length - 1 ? ', ' : '' }</>)}.
-      { !(LaboratoryWithAutomation as string[]).includes(laboratory.name) && <Alert className={cx('fr-mt-2w')} severity='info'  small={true} description={<>Le processus d’automatisation est en cours pour le laboratoire <b>{laboratory.name}</b>. Les résultats d’analyses restent à renseigner manuellement pour le moment dans {Brand}.</>}/> }
+      <b>{laboratory.name}</b> par e-mail à{' '}
+      {laboratory.emails.map((email, index) => (
+        <>
+          <b>{email}</b>
+          {index < laboratory.emails.length - 1 ? ', ' : ''}
+        </>
+      ))}
+      .
+      {!(LaboratoryWithAutomation as string[]).includes(laboratory.name) && (
+        <Alert
+          className={cx('fr-mt-2w')}
+          severity="info"
+          small={true}
+          description={
+            <>
+              Le processus d’automatisation est en cours pour le laboratoire{' '}
+              <b>{laboratory.name}</b>. Les résultats d’analyses restent à
+              renseigner manuellement pour le moment dans {Brand}.
+            </>
+          }
+        />
+      )}
     </modal.Component>
   );
 };

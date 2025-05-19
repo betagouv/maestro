@@ -1,5 +1,5 @@
-import { HttpError } from './httpError';
 import { constants } from 'http2';
+import { HttpError } from './httpError';
 
 export default class SendEmailError extends HttpError implements HttpError {
   constructor() {

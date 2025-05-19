@@ -1,8 +1,8 @@
+import { sql } from 'kysely';
 import { isNil, omitBy } from 'lodash-es';
 import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { knexInstance as db } from './db';
 import { kysely } from './kysely';
-import { sql } from 'kysely';
 
 const laboratoryTable = 'laboratories';
 
@@ -24,10 +24,14 @@ const findMany = async (): Promise<Laboratory[]> => {
 };
 
 const findByEmailSender = async (email_result_analysis: string) => {
-  return kysely.selectFrom('laboratories').select('name')
-    .where(({eb, fn}) => eb(sql.lit(email_result_analysis), '=', fn.any('emailsAnalysisResult')))
-    .executeTakeFirst()
-}
+  return kysely
+    .selectFrom('laboratories')
+    .select('name')
+    .where(({ eb, fn }) =>
+      eb(sql.lit(email_result_analysis), '=', fn.any('emailsAnalysisResult'))
+    )
+    .executeTakeFirst();
+};
 export const laboratoryRepository = {
   findUnique,
   findMany,

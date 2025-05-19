@@ -2,12 +2,13 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "lib": ["esnext", "ESNext.Array"],
-    "typeRoots": ["node_modules/@types",
-      "../types"
-    ]
+    "typeRoots": ["node_modules/@types", "../types"]
   },
-  "include": ["**/*.ts", "**/*.js", "**/*.json",  "../test/vitest-random-seed.ts"
+  "include": [
+    "**/*.ts",
+    "**/*.js",
+    "**/*.json",
+    "../test/vitest-random-seed.ts"
   ],
-  "exclude": [
-    "**/*.d.ts", "dist", "node_modules"]
+  "exclude": ["**/*.d.ts", "dist", "node_modules"]
 }

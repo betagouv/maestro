@@ -12,8 +12,8 @@ import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { userRepository } from '../../repositories/userRepository';
 import config from '../../utils/config';
 
-import { COOKIE_MAESTRO_ACCESS_TOKEN } from '../../utils/constants';
 import AuthenticationFailedError from 'maestro-shared/errors/authenticationFailedError';
+import { COOKIE_MAESTRO_ACCESS_TOKEN } from '../../utils/constants';
 
 export const jwtCheck = (credentialsRequired: boolean) =>
   expressjwt({
@@ -26,21 +26,23 @@ export const jwtCheck = (credentialsRequired: boolean) =>
     ignoreExpiration: !credentialsRequired
   });
 
-const setUser = async (request: Request, user: User | undefined): Promise<void> => {
-
+const setUser = async (
+  request: Request,
+  user: User | undefined
+): Promise<void> => {
   if (user?.role === 'Administrator') {
     const mascaradeUserId = request.header('X-MASCARADE-ID');
-    if (mascaradeUserId !==  undefined) {
-      const mascaradeUser = await userRepository.findUnique(mascaradeUserId)
+    if (mascaradeUserId !== undefined) {
+      const mascaradeUser = await userRepository.findUnique(mascaradeUserId);
       if (mascaradeUser !== undefined) {
-        request.user = mascaradeUser
-        return
+        request.user = mascaradeUser;
+        return;
       }
     }
   }
 
-  request.user = user
-}
+  request.user = user;
+};
 
 export const userCheck = (credentialsRequired: boolean) =>
   async function (request: Request, _response: Response, next: NextFunction) {
@@ -55,13 +57,16 @@ export const userCheck = (credentialsRequired: boolean) =>
       }
 
       if (!user.loggedSecrets.includes(request.auth.loggedSecret)) {
-        throw new AuthenticationFailedError()
+        throw new AuthenticationFailedError();
       }
 
-      await setUser(request, user)
+      await setUser(request, user);
     } else {
       if (request.auth && request.auth.userId) {
-        await setUser(request, await userRepository.findUnique(request.auth.userId))
+        await setUser(
+          request,
+          await userRepository.findUnique(request.auth.userId)
+        );
       }
     }
     next();

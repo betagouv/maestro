@@ -13,8 +13,7 @@ export default defineWorkspace([
       name: 'unit',
       setupFiles: ['../test/setupFakerJS.ts'],
       include: ['**/*.test.ts'],
-      exclude: integrationTestFiles,
-
+      exclude: integrationTestFiles
     }
   },
   {

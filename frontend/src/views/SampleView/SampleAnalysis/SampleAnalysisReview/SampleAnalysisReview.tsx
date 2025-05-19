@@ -5,7 +5,13 @@ import {
 } from 'maestro-shared/schema/Analysis/Analysis';
 import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
-import { FunctionComponent, useContext, useEffect, useRef, useState } from 'react';
+import {
+  FunctionComponent,
+  useContext,
+  useEffect,
+  useRef,
+  useState
+} from 'react';
 import { assert, type Equals } from 'tsafe';
 import { ApiClientContext } from '../../../../services/apiClient';
 import { AnalysisDocumentPreview } from '../../components/AnalysisDocumentPreview';
@@ -31,7 +37,7 @@ export const SampleAnalysisReview: FunctionComponent<Props> = ({
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
-  const apiClient = useContext(ApiClientContext)
+  const apiClient = useContext(ApiClientContext);
 
   const [updateAnalysis] = apiClient.useUpdateAnalysisMutation({
     fixedCacheKey: `review-analysis-${sample.id}`
@@ -67,7 +73,13 @@ export const SampleAnalysisReview: FunctionComponent<Props> = ({
     setReviewState('Correction');
   };
   const onBackToFirstStep = async () => {
-    setAnalysis({...analysis, residues: analysis.residues?.filter(({analysisMethod}) => analysisMethod !== undefined) ?? []})
+    setAnalysis({
+      ...analysis,
+      residues:
+        analysis.residues?.filter(
+          ({ analysisMethod }) => analysisMethod !== undefined
+        ) ?? []
+    });
     setReviewState('Review');
   };
 
@@ -109,9 +121,7 @@ export const SampleAnalysisReview: FunctionComponent<Props> = ({
 
   return (
     <div className={clsx('analysis-container')} ref={containerRef}>
-      <AnalysisDocumentPreview
-        reportDocumentId={analysis.reportDocumentId}
-      />
+      <AnalysisDocumentPreview reportDocumentId={analysis.reportDocumentId} />
       <hr />
       {reviewState === 'Review' &&
         (hasResidues ? (

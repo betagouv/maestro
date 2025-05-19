@@ -3,10 +3,10 @@ import {
   OpenApiGeneratorV31,
   OpenAPIRegistry
 } from '@asteasolutions/zod-to-openapi';
+import { Brand } from 'maestro-shared/constants';
 import { User } from 'maestro-shared/schema/User/User';
 import { OpenAPIObject } from 'openapi3-ts/oas31';
 import { z } from 'zod';
-import { Brand } from 'maestro-shared/constants';
 
 extendZodWithOpenApi(z);
 

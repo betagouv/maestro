@@ -1,8 +1,5 @@
 {
-  "extends": [
-    "plugin:react-hooks/recommended",
-    "plugin:storybook/recommended"
-  ],
+  "extends": ["plugin:react-hooks/recommended", "plugin:storybook/recommended"],
   "rules": {
     "@typescript-eslint/no-unused-vars": [
       "error",
@@ -23,9 +20,7 @@
         "paths": [
           {
             "name": "@testing-library/react",
-            "importNames": [
-              "act"
-            ],
+            "importNames": ["act"],
             "message": "Please use act from react instead"
           }
         ]

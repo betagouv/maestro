@@ -1,8 +1,8 @@
+import { fakerFR } from '@faker-js/faker';
 import { v4 as uuidv4 } from 'uuid';
 import { Document, DocumentToCreate } from '../schema/Document/Document';
 import { DocumentKindList } from '../schema/Document/DocumentKind';
 import { oneOf } from './testFixtures';
-import { fakerFR } from '@faker-js/faker';
 
 export const genDocumentToCreate = (): DocumentToCreate => ({
   id: uuidv4(),

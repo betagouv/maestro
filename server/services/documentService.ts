@@ -3,15 +3,15 @@ import { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import { documentRepository } from '../repositories/documentRepository';
 import { executeTransaction } from '../repositories/kysely';
 import { DB } from '../repositories/kysely.type';
-import { s3Service } from './s3Service';
 import { ExtractError } from './imapService/extractError';
+import { s3Service } from './s3Service';
 
 const insertDocument = async (
   file: File,
   documentKind: DocumentKind,
-  userId: string | null,
+  userId: string | null
 ) => {
-  await createDocument(file, documentKind, userId, () => Promise.resolve())
+  await createDocument(file, documentKind, userId, () => Promise.resolve());
 };
 
 const getDocument = async (documentId: string) => {

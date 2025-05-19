@@ -28,11 +28,10 @@ export const AnalysisStatusSteps: Partial<Record<AnalysisStatus, number>> = {
 };
 
 const SampleDraftAnalysis = ({ sample }: Props) => {
-  const { getSampleStepParam } = useSamplesLink()
-  const apiClient = useContext(ApiClientContext)
-  const { data: partialAnalysis, isFetching } = apiClient.useGetSampleAnalysisQuery(
-    sample.id
-  );
+  const { getSampleStepParam } = useSamplesLink();
+  const apiClient = useContext(ApiClientContext);
+  const { data: partialAnalysis, isFetching } =
+    apiClient.useGetSampleAnalysisQuery(sample.id);
 
   const [searchParams] = useSearchParams();
   const [step, setStep] = useState<number>();

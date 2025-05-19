@@ -2,14 +2,17 @@ import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
+import { isComplex } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
+import { SSD2Referential } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { AnalysisMethodLabels } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
-import { ResidueKind, ResidueKindLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
+import {
+  ResidueKind,
+  ResidueKindLabels
+} from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
 import { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import ResidueResultAlert from '../../../../components/ResidueResultAlert/ResidueResultAlert';
-import { isComplex } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
-import { SSD2Referential } from 'maestro-shared/referential/Residue/SSD2Referential';
 
 export type Props = {
   residueIndex: number;
@@ -24,7 +27,10 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  const kind: ResidueKind = residue.reference !== undefined && isComplex(residue.reference) ? 'Complex' : 'Simple'
+  const kind: ResidueKind =
+    residue.reference !== undefined && isComplex(residue.reference)
+      ? 'Complex'
+      : 'Simple';
   return (
     <div>
       <h6 className={clsx(cx('fr-mb-2w'), 'd-flex-align-center')}>
@@ -41,13 +47,20 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
       </h6>
       <div className={clsx(cx('fr-pl-4w'), 'step-summary')}>
         <div>
-          Analyse <b>{residue.analysisMethod ? AnalysisMethodLabels[residue.analysisMethod] : ''}</b>
+          Analyse{' '}
+          <b>
+            {residue.analysisMethod
+              ? AnalysisMethodLabels[residue.analysisMethod]
+              : ''}
+          </b>
         </div>
         {kind === 'Simple' ? (
           <>
             {residue.resultKind === 'Q' && (
               <>
-                {residue.reference !== undefined ? SSD2Referential[residue.reference].name : ''}
+                {residue.reference !== undefined
+                  ? SSD2Referential[residue.reference].name
+                  : ''}
                 <div className="d-flex-align-center">
                   Valeur du résultat
                   <div className="border-middle"></div>
@@ -64,7 +77,9 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
             {residue.resultKind === 'NQ' && (
               <>
                 <div className="d-flex-align-center">
-                  {residue.reference !== undefined ? SSD2Referential[residue.reference].name : ''}
+                  {residue.reference !== undefined
+                    ? SSD2Referential[residue.reference].name
+                    : ''}
                   <div className="border-middle"></div>
                   <b>Détecté, non quantifié</b>
                 </div>
@@ -73,14 +88,18 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
           </>
         ) : (
           <>
-            {residue.reference !== undefined ? SSD2Referential[residue.reference].name : ''}
+            {residue.reference !== undefined
+              ? SSD2Referential[residue.reference].name
+              : ''}
             {residue.analytes?.map((analyte, analyteIndex) => (
               <div key={`analyte-${analyteIndex}`}>
                 <Badge severity="warning" noIcon className={cx('fr-mb-2w')}>
                   Analyte n°{analyteIndex + 1} du résidu complexe
                 </Badge>
                 <div className="d-flex-align-center">
-                  {analyte.reference ? SSD2Referential[analyte.reference].name : ''}
+                  {analyte.reference
+                    ? SSD2Referential[analyte.reference].name
+                    : ''}
                   <div className="border-middle"></div>
                   {analyte.resultKind === 'Q' ? (
                     <b>{analyte.result} mg/kg</b>

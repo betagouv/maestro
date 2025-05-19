@@ -1,28 +1,31 @@
-import React, { FunctionComponent } from 'react';
-import { assert, type Equals } from 'tsafe';
-import clsx from 'clsx';
-import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Button from '@codegouvfr/react-dsfr/Button';
-import AppRadioButtons from '../../../../../components/_app/AppRadioButtons/AppRadioButtons';
-import { selectOptionsFromList } from '../../../../../components/_app/AppSelect/AppSelectOption';
+import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import Tag from '@codegouvfr/react-dsfr/Tag';
+import { Box } from '@mui/material';
+import clsx from 'clsx';
+import { isComplex } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
+import { SSD2Id, SSD2Ids } from 'maestro-shared/referential/Residue/SSD2Id';
+import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
+import { Analysis } from 'maestro-shared/schema/Analysis/Analysis';
 import {
   AnalysisMethod,
   AnalysisMethodLabels,
   AnalysisMethodList
 } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { type PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
+import {
+  ResidueKind,
+  ResidueKindLabels
+} from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
+import { FunctionComponent } from 'react';
+import { assert, type Equals } from 'tsafe';
+import AppRadioButtons from '../../../../../components/_app/AppRadioButtons/AppRadioButtons';
+import AppSearchInput from '../../../../../components/_app/AppSearchInput/AppSearchInput';
+import { selectOptionsFromList } from '../../../../../components/_app/AppSelect/AppSelectOption';
 import { UseForm } from '../../../../../hooks/useForm';
-import { Analysis } from 'maestro-shared/schema/Analysis/Analysis';
-import { ResidueKind, ResidueKindLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
-import { isComplex } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
-import SimpleResidueForm from './SimpleResidueForm';
 import ComplexResidueForm from './ComplexResidueForm';
 import { ResidueInterpretationForm } from './ResidueInterpretationForm';
-import AppSearchInput from '../../../../../components/_app/AppSearchInput/AppSearchInput';
-import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
-import { SSD2Id, SSD2Ids } from 'maestro-shared/referential/Residue/SSD2Id';
-import { Box } from '@mui/material';
-import Tag from '@codegouvfr/react-dsfr/Tag';
+import SimpleResidueForm from './SimpleResidueForm';
 
 const _validator = Analysis.pick({ residues: true });
 export type Props = {
@@ -130,18 +133,24 @@ export const AnalysisResidueForm: FunctionComponent<Props> = ({
                   <Box
                     key={key}
                     component="li"
-                    style={{display: 'flex'}}
+                    style={{ display: 'flex' }}
                     {...optionProps}
                   >
-                    <span>
-                      {option.label}
-                    </span>
-                    <Tag className={cx('fr-text--regular')} style={{marginLeft: 'auto', flexShrink: 0}}>
-                      {ResidueKindLabels[isComplex(option.value as SSD2Id) ? 'Complex' : 'Simple']}
+                    <span>{option.label}</span>
+                    <Tag
+                      className={cx('fr-text--regular')}
+                      style={{ marginLeft: 'auto', flexShrink: 0 }}
+                    >
+                      {
+                        ResidueKindLabels[
+                          isComplex(option.value as SSD2Id)
+                            ? 'Complex'
+                            : 'Simple'
+                        ]
+                      }
                     </Tag>
                   </Box>
                 );
-
               }}
               label="Résidu"
               whenValid={`Résidu correctement renseigné`}
@@ -159,7 +168,7 @@ export const AnalysisResidueForm: FunctionComponent<Props> = ({
                 changeResidue={changeResidue}
               />
             )}
-            {kind === 'Complex'  && (
+            {kind === 'Complex' && (
               <ComplexResidueForm
                 form={form}
                 residue={residue}

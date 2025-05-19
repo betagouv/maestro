@@ -8,6 +8,8 @@
 # production
 /build
 /frontend/build
+/frontend/dist
+/frontend/storybook-static
 
 # misc
 .DS_Store
@@ -26,3 +28,10 @@ yarn-error.log*
 
 # specific files
 
+
+/local/
+/locals3root
+**/*.tsbuildinfo
+PARAM.xlsx
+/backups
+*.hbs

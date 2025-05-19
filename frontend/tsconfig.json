@@ -5,8 +5,7 @@
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],
     "jsx": "react-jsx",
-    "noUnusedLocals": false,
+    "noUnusedLocals": false
   },
-  "include": ["src", "test", ".storybook", "../test/vitest-random-seed.ts"
-  ]
+  "include": ["src", "test", ".storybook", "../test/vitest-random-seed.ts"]
 }

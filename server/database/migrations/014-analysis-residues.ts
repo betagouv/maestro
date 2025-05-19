@@ -14,7 +14,7 @@ export const up = async (knex: Knex) => {
     table.integer('residue_number').notNullable();
     table.enum('kind', ResidueKindList);
     table.string('reference');
-    table.enum('result_kind',  ['Q', 'NQ']);
+    table.enum('result_kind', ['Q', 'NQ']);
     table.double('result');
     table.double('lmr');
     table.enum('result_higher_than_arfd', OptionalBooleanList);

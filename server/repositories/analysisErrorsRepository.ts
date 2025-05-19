@@ -6,7 +6,6 @@ const insert = async (
   oldResidues: Omit<PartialResidue, 'analysisId'>[],
   newResidues: Omit<PartialResidue, 'analysisId'>[]
 ) => {
-
   await kysely
     .insertInto('analysisErrors')
     .values({

@@ -1,7 +1,7 @@
+import { constants } from 'http2';
+import request from 'supertest';
 import { describe, expect, test, vi } from 'vitest';
 import { createServer } from './server';
-import request from 'supertest';
-import { constants } from 'http2';
 
 vi.mock('./services/authService', () => ({
   getAuthService: Promise.resolve({
@@ -16,8 +16,8 @@ describe('application', () => {
   test('les CSP sont présentes', async () => {
     const res = await request(app)
       .get('/api/api-docs')
-      .expect(constants.HTTP_STATUS_OK)
+      .expect(constants.HTTP_STATUS_OK);
 
-    expect(res.headers['content-security-policy']).toBeDefined()
-  })
-})
+    expect(res.headers['content-security-policy']).toBeDefined();
+  });
+});

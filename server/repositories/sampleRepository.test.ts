@@ -1,45 +1,63 @@
+import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
 import { describe, expect, test } from 'vitest';
 import { sampleRepository } from './sampleRepository';
-import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
 
 describe('count samples', async () => {
-
   test('count without options', async () => {
-    const count = await sampleRepository.count({programmingPlanId: Sample11Fixture.programmingPlanId})
+    const count = await sampleRepository.count({
+      programmingPlanId: Sample11Fixture.programmingPlanId
+    });
     expect(count).toEqual(4);
-  })
-
+  });
 
   test('count with department option', async () => {
-    let count = await sampleRepository.count({programmingPlanId: Sample11Fixture.programmingPlanId,  department: '72'})
+    let count = await sampleRepository.count({
+      programmingPlanId: Sample11Fixture.programmingPlanId,
+      department: '72'
+    });
     expect(count).toEqual(0);
 
-    count = await sampleRepository.count({programmingPlanId: Sample11Fixture.programmingPlanId,  department: Sample11Fixture.department})
+    count = await sampleRepository.count({
+      programmingPlanId: Sample11Fixture.programmingPlanId,
+      department: Sample11Fixture.department
+    });
     expect(count).toEqual(1);
-  })
+  });
 
   test('count with region option', async () => {
-    let count = await sampleRepository.count({programmingPlanId: Sample11Fixture.programmingPlanId,  region: '01'})
+    let count = await sampleRepository.count({
+      programmingPlanId: Sample11Fixture.programmingPlanId,
+      region: '01'
+    });
     expect(count).toEqual(0);
 
-    count = await sampleRepository.count({programmingPlanId: Sample11Fixture.programmingPlanId,  region: Sample11Fixture.region})
+    count = await sampleRepository.count({
+      programmingPlanId: Sample11Fixture.programmingPlanId,
+      region: Sample11Fixture.region
+    });
     expect(count).toEqual(3);
-  })
+  });
 });
 
 describe('findMany samples', async () => {
-
   test('find without options', async () => {
-    const samples = await sampleRepository.findMany({programmingPlanId: Sample11Fixture.programmingPlanId})
-    expect(samples).toHaveLength(4)
-  })
-
+    const samples = await sampleRepository.findMany({
+      programmingPlanId: Sample11Fixture.programmingPlanId
+    });
+    expect(samples).toHaveLength(4);
+  });
 
   test('find with department option', async () => {
-    let samples = await sampleRepository.findMany({programmingPlanId: Sample11Fixture.programmingPlanId,  department: '72'})
+    let samples = await sampleRepository.findMany({
+      programmingPlanId: Sample11Fixture.programmingPlanId,
+      department: '72'
+    });
     expect(samples).toEqual([]);
 
-    samples = await sampleRepository.findMany({programmingPlanId: Sample11Fixture.programmingPlanId,  department: Sample11Fixture.department})
+    samples = await sampleRepository.findMany({
+      programmingPlanId: Sample11Fixture.programmingPlanId,
+      department: Sample11Fixture.department
+    });
     expect(samples).toHaveLength(1);
-  })
+  });
 });

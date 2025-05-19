@@ -2,7 +2,6 @@ import {
   Analysis,
   PartialAnalysis
 } from 'maestro-shared/schema/Analysis/Analysis';
-import React from 'react';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import { useUpdateAnalysisMutation } from 'src/services/analysis.service';
 import '../SampleDraftAnalysis.scss';

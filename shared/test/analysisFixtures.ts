@@ -1,3 +1,4 @@
+import { fakerFR } from '@faker-js/faker';
 import { v4 as uuidv4 } from 'uuid';
 import { OptionalBooleanList } from '../referential/OptionnalBoolean';
 import { AnalyteList } from '../referential/Residue/Analyte';
@@ -12,7 +13,6 @@ import { Analyte, PartialAnalyte } from '../schema/Analysis/Analyte';
 import { PartialResidue, Residue } from '../schema/Analysis/Residue/Residue';
 import { ResidueComplianceList } from '../schema/Analysis/Residue/ResidueCompliance';
 import { oneOf } from './testFixtures';
-import { fakerFR } from '@faker-js/faker';
 
 export const genAnalysisToCreate = (
   data?: Partial<AnalysisToCreate>
