@@ -5,7 +5,6 @@ import clsx from 'clsx';
 import { format, parse } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
-import { CompletedStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
 import React, { useContext, useMemo, useState } from 'react';
 import check from 'src/assets/illustrations/check.svg';
 import warning from 'src/assets/illustrations/warning.svg';
@@ -29,9 +28,7 @@ const SampleAdmissibility = ({ sample }: Props) => {
   const [updateSample] = apiClient.useUpdateSampleMutation();
 
   const [isReceived, setIsReceived] = useState(
-    ['Analysis', 'NotAdmissible', ...CompletedStatusList].includes(
-      sample.status
-    )
+    ['Analysis', 'NotAdmissible', 'Completed'].includes(sample.status)
       ? sample.receivedAt !== undefined
       : undefined
   );
@@ -39,7 +36,7 @@ const SampleAdmissibility = ({ sample }: Props) => {
     sample.receivedAt ? format(sample.receivedAt, 'yyyy-MM-dd') : undefined
   );
   const [isAdmissible, setIsAdmissible] = useState(
-    ['Analysis', ...CompletedStatusList].includes(sample.status)
+    ['Analysis', 'Completed'].includes(sample.status)
       ? true
       : sample.status === 'NotAdmissible'
         ? false
@@ -132,7 +129,7 @@ const SampleAdmissibility = ({ sample }: Props) => {
       className={clsx(
         cx(
           'fr-callout',
-          ['Analysis', ...CompletedStatusList].includes(sample.status)
+          ['Analysis', 'Completed'].includes(sample.status)
             ? 'fr-callout--green-emeraude'
             : 'fr-callout--pink-tuile'
         ),
@@ -260,9 +257,7 @@ const SampleAdmissibility = ({ sample }: Props) => {
           )}
         </>
       )}
-      {['Analysis', 'NotAdmissible', ...CompletedStatusList].includes(
-        sample.status
-      ) && (
+      {['Analysis', 'NotAdmissible', 'Completed'].includes(sample.status) && (
         <div className="admissibility-result">
           <h4 className={cx('fr-mb-0')}>Recevabilité par le laboratoire</h4>
           {sample.receivedAt ? (

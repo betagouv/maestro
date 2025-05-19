@@ -10,8 +10,7 @@ export const SampleStatus = z.enum(
     'NotAdmissible',
     'Analysis',
     'InReview',
-    'Completed',
-    'CompletedNotConform'
+    'Completed'
   ],
   {
     errorMap: () => ({ message: 'Statut non renseigné.' })
@@ -28,16 +27,11 @@ export const DraftStatusList: SampleStatus[] = [
   'DraftItems'
 ];
 
-export const CompletedStatusList: SampleStatus[] = [
-  'Completed',
-  'CompletedNotConform'
-];
-
 export const RealizedStatusList: SampleStatus[] = [
   'Sent',
   'NotAdmissible',
   'Analysis',
-  ...CompletedStatusList
+  'Completed'
 ];
 
 export const SampleStatusLabels: Record<SampleStatus, string> = {
@@ -49,8 +43,7 @@ export const SampleStatusLabels: Record<SampleStatus, string> = {
   NotAdmissible: 'Non recevable',
   Analysis: 'En cours d’analyse',
   InReview: 'À valider',
-  Completed: 'Terminé',
-  CompletedNotConform: 'Terminé non conforme'
+  Completed: 'Terminé'
 };
 
 export const SampleStatusSteps: Partial<Record<SampleStatus, number>> = {

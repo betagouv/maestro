@@ -5,6 +5,7 @@ import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOption
 import { PartialSample, Sample } from 'maestro-shared/schema/Sample/Sample';
 import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
 import z from 'zod';
+import { analysisTable } from './analysisRepository';
 import { companiesTable } from './companyRepository';
 import { knexInstance as db } from './db';
 import { kysely } from './kysely';
@@ -102,7 +103,8 @@ const findRequest = (findOptions: FindSampleOptions) =>
           'perPage',
           'status',
           'reference',
-          'department'
+          'department',
+          'compliance'
         ),
         (_) => isNil(_) || isArray(_)
       )
@@ -129,6 +131,17 @@ const findRequest = (findOptions: FindSampleOptions) =>
       }
       if (findOptions.department) {
         builder.where(`${samplesTable}.department`, findOptions.department);
+      }
+      if (!isNil(findOptions.compliance)) {
+        builder.leftJoin(
+          analysisTable,
+          `${analysisTable}.sampleId`,
+          `${samplesTable}.id`
+        );
+        builder.where(
+          `${analysisTable}.compliance`,
+          findOptions.compliance === 'conform'
+        );
       }
     });
 

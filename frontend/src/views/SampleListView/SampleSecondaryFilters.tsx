@@ -11,9 +11,13 @@ import {
   ContextLabels,
   ContextList
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
+import {
+  FindSampleOptions,
+  SampleCompliance
+} from 'maestro-shared/schema/Sample/FindSampleOptions';
 import { useMemo } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
+import { z } from 'zod';
 
 interface Props {
   filters: Partial<FindSampleOptions>;
@@ -107,6 +111,22 @@ const SampleSecondaryFilters = ({ filters, onChange }: Props) => {
               {ContextLabels[context]}
             </option>
           ))}
+        </Select>
+      </div>
+      <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
+        <Select
+          label="Conformité"
+          nativeSelectProps={{
+            value: filters.compliance || '',
+            onChange: (e) =>
+              onChange({
+                compliance: e.target.value as z.infer<typeof SampleCompliance>
+              })
+          }}
+        >
+          <option value="">Tous</option>
+          <option value="conform">Conforme</option>
+          <option value="notConform">Non conforme</option>
         </Select>
       </div>
     </div>

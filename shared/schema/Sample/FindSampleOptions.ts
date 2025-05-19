@@ -7,6 +7,7 @@ import { Pagination } from '../commons/Pagination';
 import { Context } from '../ProgrammingPlan/Context';
 import { SampleStatus } from './SampleStatus';
 
+export const SampleCompliance = z.enum(['conform', 'notConform']).nullish();
 export const FindSampleOptions = z
   .object({
     programmingPlanId: z.string().uuid(),
@@ -19,7 +20,8 @@ export const FindSampleOptions = z
     matrix: Matrix.nullish(),
     sampledBy: z.string().uuid().nullish(),
     sampledAt: z.string().nullish(),
-    reference: z.string().nullish()
+    reference: z.string().nullish(),
+    compliance: SampleCompliance
   })
   .merge(Pagination.partial());
 

@@ -129,7 +129,7 @@ const updateAnalysis = async (request: Request, response: Response) => {
 
     await sampleRepository.update({
       ...sample,
-      status: analysisUpdate.compliance ? 'Completed' : 'CompletedNotConform'
+      status: 'Completed'
     });
   }
 
