@@ -61,13 +61,11 @@ type RouteValidator<
     : undefined
   : undefined;
 
-type MaestroResponse<key extends MaestroRoutes> = (typeof routes)[key] extends {
-  response: infer R;
-}
-  ? R extends ZodType
-    ? z.infer<R>
-    : void
-  : void;
+type MaestroResponse<
+  key extends MaestroRoutes,
+  method extends keyof (typeof routes)[key],
+  ResponseValidator = RouteValidator<key, method, 'response'>
+> = ResponseValidator extends undefined ? void : ResponseValidator;
 
 export type MaestroRouteMethod<
   key extends MaestroRoutes,
@@ -82,10 +80,10 @@ export type MaestroRouteMethod<
     user: User;
   }
 ) => Promise<
-  | { response: MaestroResponse<key>; status: number }
+  | { response: MaestroResponse<key, method>; status: number }
   | { status: number }
   | {
-      response: MaestroResponse<key>;
+      response: MaestroResponse<key, method>;
     }
 >;
 
