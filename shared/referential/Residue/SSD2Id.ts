@@ -17,4 +17,5 @@ export const SSD2Id = z
       });
     }
   });
+
 export type SSD2Id = z.infer<typeof SSD2Id>;

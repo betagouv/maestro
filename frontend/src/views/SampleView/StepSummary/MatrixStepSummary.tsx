@@ -10,7 +10,10 @@ import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { MatrixPartLabels } from 'maestro-shared/referential/Matrix/MatrixPart';
 import { OutdoorAccessLabels } from 'maestro-shared/referential/OutdoorAccess';
 import { ProductionKindLabels } from 'maestro-shared/referential/ProductionKind';
-import { SSD2Referential } from 'maestro-shared/referential/Residue/SSD2Referential';
+import {
+  Referential,
+  SSD2Referential
+} from 'maestro-shared/referential/Residue/SSD2Referential';
 import { SeizureLabels } from 'maestro-shared/referential/Seizure';
 import { SpeciesLabels } from 'maestro-shared/referential/Species';
 import { StageLabels } from 'maestro-shared/referential/Stage';
@@ -193,7 +196,7 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
                 <ul>
                   {sample.monoSubstances.map((substance) => (
                     <li key={`Mono_${substance}`}>
-                      {SSD2Referential[substance].name}
+                      {(SSD2Referential as Referential)[substance].name}
                     </li>
                   ))}
                 </ul>
@@ -208,7 +211,7 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
                 <ul>
                   {sample.multiSubstances.map((substance) => (
                     <li key={`Multi_${substance}`}>
-                      {SSD2Referential[substance].name}
+                      {(SSD2Referential as Referential)[substance].name}
                     </li>
                   ))}
                 </ul>
