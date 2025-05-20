@@ -17,9 +17,7 @@ export const useSamplesLink = () => {
   const samplesLink = useMemo(
     () =>
       programmingPlan
-        ? AuthenticatedAppRoutes.ProgrammationByYearRoute.link(
-            programmingPlan.year
-          )
+        ? AuthenticatedAppRoutes.SamplesByYearRoute.link(programmingPlan.year)
         : undefined,
     [programmingPlan]
   );
