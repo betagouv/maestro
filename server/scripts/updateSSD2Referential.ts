@@ -2,7 +2,8 @@ import ExcelJS from 'exceljs';
 import { readFileSync } from 'fs';
 import { isNil, uniq } from 'lodash-es';
 import { SSD2Hierarchy } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
-import { SSD2Id, SSD2Ids } from 'maestro-shared/referential/Residue/SSD2Id';
+import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import { SSD2Referential } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { writeFileSync } from 'node:fs';
 import path from 'path';
 
@@ -91,8 +92,8 @@ const updateSSD2Referential = async () => {
     reportable: boolean;
   }[] = [];
   worksheet.eachRow(function (row, rowNumber) {
-    const isKnownId = SSD2Ids.includes(
-      `${row.getCell(columnsIndex['termCode'])?.value}` as SSD2Id
+    const isKnownId = Object.keys(SSD2Referential).includes(
+      `${row.getCell(columnsIndex['termCode'])?.value}`
     );
     if (
       (rowNumber !== 1 &&
@@ -135,7 +136,6 @@ const updateSSD2Referential = async () => {
   );
 
   updateReferentialFile(newRows);
-  updateIdFile(Object.keys(newRows));
 
   const rowsWithAnalytes: Record<SSD2Id, SSD2Id[]> = rows.reduce(
     (acc, row) => {
@@ -217,26 +217,6 @@ const updateHierarchyFile = (ssd2WithAnalytes: Record<string, any>) => {
   writeFileSync(ssd2HierarchyFile, preCode + code + postCode);
 };
 
-const updateIdFile = (newIds: string[]) => {
-  const startComment = '// ----- ne pas supprimer cette ligne : début';
-  const stopComment = '// ----- ne pas supprimer cette ligne : fin';
-  const idsFile = path.join(
-    process.cwd(),
-    '../shared/referential/Residue/SSD2Id.ts'
-  );
-  const idsFileData = readFileSync(idsFile, {
-    encoding: 'utf-8'
-  });
-
-  const startIndex = idsFileData.indexOf(startComment);
-  const preCode = idsFileData.slice(
-    0,
-    startIndex + startComment.length + 3 + 40
-  );
-  const postCode = idsFileData.slice(idsFileData.indexOf(stopComment) - 10);
-
-  writeFileSync(idsFile, preCode + JSON.stringify(newIds) + postCode);
-};
 export default updateSSD2Referential()
   .then(() => {
     process.exit();
