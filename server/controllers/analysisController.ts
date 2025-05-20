@@ -8,10 +8,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { analysisErrorsRepository } from '../repositories/analysisErrorsRepository';
 import { analysisRepository } from '../repositories/analysisRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
-import { MaestroRouteMethod } from '../routers/analysis.router';
+import { MaestroRouteMethod } from '../routers/routes.type';
 import { mattermostService } from '../services/mattermostService';
 
-const getAnalysis: MaestroRouteMethod<'/', 'get'> = async (request) => {
+const getAnalysis: MaestroRouteMethod<'/analysis', 'get'> = async (request) => {
   const { sampleId } = request.query;
   const analysis = await analysisRepository.findUnique({ sampleId });
 
@@ -22,7 +22,9 @@ const getAnalysis: MaestroRouteMethod<'/', 'get'> = async (request) => {
   return { response: analysis };
 };
 
-const createAnalysis: MaestroRouteMethod<'/', 'post'> = async (request) => {
+const createAnalysis: MaestroRouteMethod<'/analysis', 'post'> = async (
+  request
+) => {
   const { user } = request;
   const analysisToCreate = request.body;
 
@@ -54,9 +56,10 @@ const createAnalysis: MaestroRouteMethod<'/', 'post'> = async (request) => {
   };
 };
 
-const updateAnalysis: MaestroRouteMethod<'/:analysisId', 'put'> = async (
-  request
-) => {
+const updateAnalysis: MaestroRouteMethod<
+  '/analysis/:analysisId',
+  'put'
+> = async (request) => {
   const { user } = request;
   const analysisId = request.params.analysisId;
   const analysisUpdate = request.body;
