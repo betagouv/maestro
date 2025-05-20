@@ -15,10 +15,7 @@ import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { getMatrixPartLabel } from 'maestro-shared/referential/Matrix/MatrixPart';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
 import { Regions } from 'maestro-shared/referential/Region';
-import {
-  Referential,
-  SSD2Referential
-} from 'maestro-shared/referential/Residue/SSD2Referential';
+import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
@@ -202,10 +199,10 @@ const generateSampleSupportPDF = async (
         }
       : null,
     monoSubstances: sample.monoSubstances.map(
-      (substance) => (SSD2Referential as Referential)[substance].name
+      (substance) => SSD2IdLabel[substance]
     ),
     multiSubstances: sample.multiSubstances.map(
-      (substance) => (SSD2Referential as Referential)[substance].name
+      (substance) => SSD2IdLabel[substance]
     ),
     reference: [sample.reference, itemNumber]
       .filter(isDefinedAndNotNull)
