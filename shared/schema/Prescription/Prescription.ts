@@ -4,7 +4,7 @@ import {
   MatrixKindLabels
 } from '../../referential/Matrix/MatrixKind';
 import { Stage, StageLabels } from '../../referential/Stage';
-import { Context } from '../ProgrammingPlan/Context';
+import { ProgrammingPlanContext } from '../ProgrammingPlan/Context';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlan } from '../ProgrammingPlan/ProgrammingPlans';
 import { hasPermission, User } from '../User/User';
@@ -14,7 +14,7 @@ export const Prescription = z.object({
   id: z.string().uuid(),
   programmingPlanId: z.string().uuid(),
   programmingPlanKind: ProgrammingPlanKind,
-  context: Context,
+  context: ProgrammingPlanContext,
   matrixKind: MatrixKind,
   stages: z.array(Stage),
   monoAnalysisCount: z.coerce.number().nullish(),
