@@ -2,29 +2,27 @@ import { constants } from 'http2';
 import { isEqual } from 'lodash-es';
 import AnalysisMissingError from 'maestro-shared/errors/analysisMissingError';
 import SampleMissingError from 'maestro-shared/errors/sampleMissingError';
-import {
-  CreatedAnalysis,
-} from 'maestro-shared/schema/Analysis/Analysis';
+import { CreatedAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { v4 as uuidv4 } from 'uuid';
 import { analysisErrorsRepository } from '../repositories/analysisErrorsRepository';
 import { analysisRepository } from '../repositories/analysisRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
-import { mattermostService } from '../services/mattermostService';
 import { MaestroRouteMethod } from '../routers/analysis.router';
+import { mattermostService } from '../services/mattermostService';
 
-const getAnalysis: MaestroRouteMethod<'GET /'> = async (request) => {
-  const { sampleId } = request.query
+const getAnalysis: MaestroRouteMethod<'/', 'get'> = async (request) => {
+  const { sampleId } = request.query;
   const analysis = await analysisRepository.findUnique({ sampleId });
 
   if (!analysis) {
-    return { status: constants.HTTP_STATUS_NOT_FOUND }
+    return { status: constants.HTTP_STATUS_NOT_FOUND };
   }
 
-  return {response: analysis}
+  return { response: analysis };
 };
 
-const createAnalysis: MaestroRouteMethod<'POST /'>  = async (request) => {
+const createAnalysis: MaestroRouteMethod<'/', 'post'> = async (request) => {
   const { user } = request;
   const analysisToCreate = request.body;
 
@@ -53,10 +51,12 @@ const createAnalysis: MaestroRouteMethod<'POST /'>  = async (request) => {
   return {
     status: constants.HTTP_STATUS_CREATED,
     response: analysis
-  }
+  };
 };
 
-const updateAnalysis: MaestroRouteMethod<'PUT /:analysisId'> = async (request) => {
+const updateAnalysis: MaestroRouteMethod<'/:analysisId', 'put'> = async (
+  request
+) => {
   const { user } = request;
   const analysisId = request.params.analysisId;
   const analysisUpdate = request.body;
@@ -76,7 +76,7 @@ const updateAnalysis: MaestroRouteMethod<'PUT /:analysisId'> = async (request) =
   }
 
   if (sample.region !== user.region) {
-    return { status: constants.HTTP_STATUS_FORBIDDEN}
+    return { status: constants.HTTP_STATUS_FORBIDDEN };
   }
 
   if (sample.status === 'InReview' && analysisUpdate.status === 'Completed') {
@@ -133,7 +133,7 @@ const updateAnalysis: MaestroRouteMethod<'PUT /:analysisId'> = async (request) =
     });
   }
 
-  return { response: updatedAnalysis }
+  return { response: updatedAnalysis };
 };
 
 export default {
