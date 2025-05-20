@@ -13,13 +13,17 @@ import {
 import { Company } from 'maestro-shared/schema/Company/Company';
 import {
   Context,
-  ContextLabels
+  ContextLabels,
+  OutsideProgrammingPlanContext,
+  ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   ProgrammingPlanKind,
   ProgrammingPlanKindLabels
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
+  isOutsideProgrammingPlanSample,
   PartialSample,
   PartialSampleMatrixSpecificData,
   PartialSampleToCreate,
@@ -31,6 +35,7 @@ import balance from 'src/assets/illustrations/balance.svg';
 import check from 'src/assets/illustrations/check.svg';
 import controle from 'src/assets/illustrations/controle.svg';
 import leaf from 'src/assets/illustrations/leaf.svg';
+import warning from 'src/assets/illustrations/warning.svg';
 import CompanySearch from 'src/components/CompanySearch/CompanySearch';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
@@ -40,7 +45,6 @@ import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useForm } from 'src/hooks/useForm';
 import { useOnLine } from 'src/hooks/useOnLine';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
-import { useAppSelector } from 'src/hooks/useStore';
 import { useCreateOrUpdateSampleMutation } from 'src/services/sample.service';
 import SampleGeolocation from 'src/views/SampleView/DraftSample/ContextStep/SampleGeolocation';
 import SupportDocumentDownload from 'src/views/SampleView/DraftSample/SupportDocumentDownload';
@@ -50,18 +54,29 @@ import AppSelect from '../../../../components/_app/AppSelect/AppSelect';
 import { usePartialSample } from '../../../../hooks/usePartialSample';
 import NextButton from '../NextButton';
 interface Props {
+  programmingPlan: ProgrammingPlan;
   partialSample?: PartialSample | PartialSampleToCreate;
 }
 
-const ContextStep = ({ partialSample }: Props) => {
+const ContextStep = ({ programmingPlan, partialSample }: Props) => {
   const { navigateToSample, navigateToSamples } = useSamplesLink();
   const { isOnline } = useOnLine();
   const { readonly } = usePartialSample(partialSample);
 
-  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
-
   const [resytalId, setResytalId] = useState(partialSample?.resytalId);
-  const [context, setContext] = useState(partialSample?.context);
+  const [context, setContext] = useState<
+    ProgrammingPlanContext | 'OutsideProgrammingPlan' | undefined
+  >(
+    isOutsideProgrammingPlanSample(partialSample)
+      ? 'OutsideProgrammingPlan'
+      : ProgrammingPlanContext.safeParse(partialSample?.context).data
+  );
+  const [outsideProgrammingPlanContext, setOutsideProgrammingPlanContext] =
+    useState<OutsideProgrammingPlanContext | undefined>(
+      isOutsideProgrammingPlanSample(partialSample)
+        ? OutsideProgrammingPlanContext.safeParse(partialSample?.context).data
+        : undefined
+    );
   const [programmingPlanKind, setProgrammingPlanKind] = useState(
     partialSample?.specificData.programmingPlanKind ?? ''
   );
@@ -100,11 +115,8 @@ const ContextStep = ({ partialSample }: Props) => {
   });
 
   useEffect(() => {
-    if (programmingPlan?.contexts.length === 1) {
-      setContext(programmingPlan?.contexts[0]);
-    }
-    if (programmingPlan?.kinds.length === 1) {
-      setProgrammingPlanKind(programmingPlan?.kinds[0]);
+    if (programmingPlan.kinds.length === 1) {
+      setProgrammingPlanKind(programmingPlan.kinds[0]);
     }
   }, [programmingPlan]);
 
@@ -120,9 +132,15 @@ const ContextStep = ({ partialSample }: Props) => {
   const Form = SampleContextData.omit({
     programmingPlanId: true,
     geolocation: true,
-    company: true
+    company: true,
+    context: true
   })
     .merge(isOnline ? geolocation : geolocation.partial())
+    .extend({
+      context: ProgrammingPlanContext.or(z.literal('OutsideProgrammingPlan')),
+      outsideProgrammingPlanContext:
+        context === 'OutsideProgrammingPlan' ? Context : z.undefined()
+    })
     .extend(
       isOnline
         ? { company: Company }
@@ -132,17 +150,52 @@ const ContextStep = ({ partialSample }: Props) => {
             })
           }
     );
+  //
+  // const FormRefinement = Form.superRefine((val, ctx) => {
+  //   if (
+  //     val.context === 'OutsideProgrammingPlan' &&
+  //     !val.outsideProgrammingPlanContext
+  //   ) {
+  //     ctx.addIssue({
+  //       code: z.ZodIssueCode.custom,
+  //       message:
+  //         'Veuillez renseigner la précision du contexte hors programmation.',
+  //       path: ['outsideProgrammingPlanContext']
+  //     });
+  //   }
+  // });
 
   type FormShape = typeof Form.shape;
 
   const contextOptions = selectOptionsFromList(
-    programmingPlan?.contexts ?? [],
+    [...(programmingPlan.contexts ?? []), 'OutsideProgrammingPlan'],
+    {
+      labels: {
+        ...ContextLabels,
+        OutsideProgrammingPlan: 'Hors programmation'
+      },
+      withDefault: false,
+      withSort: false
+    }
+  );
+
+  const outsideProgrammingPlanContextOptions = selectOptionsFromList(
+    OutsideProgrammingPlanContext.options,
     {
       labels: ContextLabels,
-      withDefault: false,
+      withDefault: true,
       withSort: true
     }
   );
+
+  const ContextIllustrations: Record<
+    ProgrammingPlanContext | 'OutsideProgrammingPlan',
+    any
+  > = {
+    Control: check,
+    Surveillance: leaf,
+    OutsideProgrammingPlan: warning
+  };
 
   const legalContextOptions = selectOptionsFromList(LegalContextList, {
     labels: LegalContextLabels,
@@ -150,7 +203,7 @@ const ContextStep = ({ partialSample }: Props) => {
   });
 
   const programmingPlanKindOptions = selectOptionsFromList(
-    programmingPlan?.kinds ?? [],
+    programmingPlan.kinds ?? [],
     {
       labels: ProgrammingPlanKindLabels,
       withDefault: true,
@@ -172,8 +225,11 @@ const ContextStep = ({ partialSample }: Props) => {
           }
         : undefined,
     parcel,
-    programmingPlanId: programmingPlan?.id as string,
-    context: context as Context,
+    programmingPlanId: programmingPlan.id as string,
+    context:
+      context === 'OutsideProgrammingPlan'
+        ? outsideProgrammingPlanContext
+        : context,
     legalContext: legalContext as LegalContext,
     company,
     companyOffline,
@@ -230,6 +286,7 @@ const ContextStep = ({ partialSample }: Props) => {
     geolocationY,
     parcel,
     context,
+    outsideProgrammingPlanContext,
     legalContext,
     company,
     companyOffline,
@@ -240,10 +297,6 @@ const ContextStep = ({ partialSample }: Props) => {
   };
 
   const form = useForm(Form, formInput, save);
-
-  if (!programmingPlan) {
-    return <></>;
-  }
 
   return (
     <form data-testid="draft_sample_creation_form" className="sample-form">
@@ -378,34 +431,59 @@ const ContextStep = ({ partialSample }: Props) => {
           className={cx('fr-mb-0')}
         />
       )}
-      {contextOptions.length > 1 && (
-        <AppRadioButtons
-          legend="Contexte du prélèvement"
-          options={
-            contextOptions?.map(({ label, value }) => ({
-              key: `context-option-${value}`,
-              label,
-              nativeInputProps: {
-                checked: context === value,
-                onChange: () => setContext(value as Context)
-              },
-              illustration: (
-                <img
-                  src={value === 'Control' ? check : leaf}
-                  alt=""
-                  aria-hidden
-                />
+      <AppRadioButtons
+        legend="Contexte du prélèvement"
+        options={[
+          ...contextOptions.map(({ label, value }) => ({
+            key: `context-option-${value}`,
+            label,
+            nativeInputProps: {
+              checked: context === value,
+              onChange: () =>
+                setContext(
+                  value as ProgrammingPlanContext | 'OutsideProgrammingPlan'
+                )
+            },
+            illustration: (
+              <img
+                src={
+                  ContextIllustrations[
+                    value as ProgrammingPlanContext | 'OutsideProgrammingPlan'
+                  ]
+                }
+                alt=""
+                aria-hidden
+              />
+            )
+          }))
+        ]}
+        colSm={6}
+        inputForm={form}
+        inputKey="context"
+        whenValid="Contexte du prélèvement correctement renseigné."
+        required
+        disabled={readonly}
+        data-testid="context-radio"
+      />
+      {context === 'OutsideProgrammingPlan' && (
+        <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+          <AppSelect<FormShape>
+            defaultValue={outsideProgrammingPlanContext}
+            options={outsideProgrammingPlanContextOptions}
+            onChange={(e) =>
+              setOutsideProgrammingPlanContext(
+                e.target.value as OutsideProgrammingPlanContext
               )
-            })) ?? []
-          }
-          colSm={6}
-          inputForm={form}
-          inputKey="context"
-          whenValid="Contexte du prélèvement correctement renseigné."
-          required
-          disabled={readonly}
-          data-testid="context-radio"
-        />
+            }
+            inputForm={form}
+            inputKey="outsideProgrammingPlanContext"
+            whenValid="Précision du contexte du prélèvement correctement renseignée."
+            label="Précision du contexte hors programmation"
+            disabled={readonly}
+            required
+            className={cx('fr-mb-0')}
+          />
+        </div>
       )}
       <AppRadioButtons
         legend="Cadre juridique"

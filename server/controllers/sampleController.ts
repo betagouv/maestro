@@ -43,7 +43,10 @@ import workbookUtils from '../utils/workbookUtils';
 import { isEqual } from 'lodash-es';
 import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
-import { SSD2Referential } from 'maestro-shared/referential/Residue/SSD2Referential';
+import {
+  Referential,
+  SSD2Referential
+} from 'maestro-shared/referential/Residue/SSD2Referential';
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import { Substance } from 'maestro-shared/schema/Substance/Substance';
 import {
@@ -307,7 +310,9 @@ const updateSample = async (request: Request, response: Response) => {
                 ).find(([_label, value]) => value === substance)?.[0] ?? null;
             }
             return {
-              label: laboratoryLabel ?? SSD2Referential[substance].name
+              label:
+                laboratoryLabel ??
+                (SSD2Referential as Referential)[substance].name
             };
           };
 
