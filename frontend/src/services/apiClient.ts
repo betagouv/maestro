@@ -11,6 +11,7 @@ import {
   useFindPrescriptionsQuery,
   useGetPrescriptionSubstancesQuery
 } from './prescription.service';
+import { useGetProgrammingPlanQuery } from './programming-plan.service';
 import { useFindRegionalPrescriptionsQuery } from './regionalPrescription.service';
 import {
   useCreateOrUpdateSampleMutation,
@@ -30,7 +31,8 @@ export const apiClient = {
   useLazyGetDocumentDownloadSignedUrlQuery,
   useUpdateAnalysisMutation,
   useUpdateSampleMutation,
-  useGetPrescriptionSubstancesQuery
+  useGetPrescriptionSubstancesQuery,
+  useGetProgrammingPlanQuery
 };
 
 export const ApiClientContext = createContext<ApiClient>(undefined as never);

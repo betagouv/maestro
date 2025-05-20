@@ -6,6 +6,7 @@ import {
 import { fn } from '@storybook/test';
 import { genPartialAnalysis } from 'maestro-shared/test/analysisFixtures';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
+import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
 import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
 import { ApiClient } from './apiClient';
@@ -78,6 +79,7 @@ export const defaultMockApiClientConf: MockApi<ApiClient> = {
   },
   useFindPrescriptionsQuery: { data: [] },
   useFindRegionalPrescriptionsQuery: { data: [] },
+  useGetProgrammingPlanQuery: { data: genProgrammingPlan() },
   useGetPrescriptionSubstancesQuery: { data: [] }
 };
 
