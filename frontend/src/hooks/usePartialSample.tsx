@@ -40,7 +40,7 @@ export const usePartialSample = (
         programmingPlanSlice.actions.setProgrammingPlan(programmingPlan)
       );
     }
-  }, [programmingPlan]);
+  }, [programmingPlan]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const readonly = useMemo(
     () =>
