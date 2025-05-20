@@ -4,7 +4,10 @@ import Tag from '@codegouvfr/react-dsfr/Tag';
 import { Autocomplete } from '@mui/material';
 import { capitalize } from 'lodash-es';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
-import { SSD2Referential } from 'maestro-shared/referential/Residue/SSD2Referential';
+import {
+  Referential,
+  SSD2Referential
+} from 'maestro-shared/referential/Residue/SSD2Referential';
 import {
   AnalysisMethod,
   AnalysisMethodLabels
@@ -143,7 +146,7 @@ const SubstanceSearch = ({
             }
             className={cx('fr-m-1v')}
           >
-            {SSD2Referential[substance].name}
+            {(SSD2Referential as Referential)[substance].name}
           </Tag>
         ))}
       </div>
