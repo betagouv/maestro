@@ -4,8 +4,11 @@ import Tag from '@codegouvfr/react-dsfr/Tag';
 import { Box } from '@mui/material';
 import clsx from 'clsx';
 import { isComplex } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
-import { SSD2Id, SSD2Ids } from 'maestro-shared/referential/Residue/SSD2Id';
-import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
+import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import {
+  SSD2IdLabel,
+  SSD2Referential
+} from 'maestro-shared/referential/Residue/SSD2Referential';
 import { Analysis } from 'maestro-shared/schema/Analysis/Analysis';
 import {
   AnalysisMethod,
@@ -107,7 +110,7 @@ export const AnalysisResidueForm: FunctionComponent<Props> = ({
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
             <AppSearchInput
-              options={selectOptionsFromList([...SSD2Ids], {
+              options={selectOptionsFromList(Object.keys(SSD2Referential), {
                 labels: SSD2IdLabel,
                 withSort: true,
                 withDefault: false

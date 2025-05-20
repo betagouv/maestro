@@ -3,7 +3,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
 import { isComplex } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
-import { SSD2Referential } from 'maestro-shared/referential/Residue/SSD2Referential';
+import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { AnalysisMethodLabels } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import {
@@ -59,7 +59,7 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
             {residue.resultKind === 'Q' && (
               <>
                 {residue.reference !== undefined
-                  ? SSD2Referential[residue.reference].name
+                  ? SSD2IdLabel[residue.reference]
                   : ''}
                 <div className="d-flex-align-center">
                   Valeur du résultat
@@ -78,7 +78,7 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
               <>
                 <div className="d-flex-align-center">
                   {residue.reference !== undefined
-                    ? SSD2Referential[residue.reference].name
+                    ? SSD2IdLabel[residue.reference]
                     : ''}
                   <div className="border-middle"></div>
                   <b>Détecté, non quantifié</b>
@@ -89,7 +89,7 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
         ) : (
           <>
             {residue.reference !== undefined
-              ? SSD2Referential[residue.reference].name
+              ? SSD2IdLabel[residue.reference]
               : ''}
             {residue.analytes?.map((analyte, analyteIndex) => (
               <div key={`analyte-${analyteIndex}`}>
@@ -97,9 +97,7 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
                   Analyte n°{analyteIndex + 1} du résidu complexe
                 </Badge>
                 <div className="d-flex-align-center">
-                  {analyte.reference
-                    ? SSD2Referential[analyte.reference].name
-                    : ''}
+                  {analyte.reference ? SSD2IdLabel[analyte.reference] : ''}
                   <div className="border-middle"></div>
                   {analyte.resultKind === 'Q' ? (
                     <b>{analyte.result} mg/kg</b>
