@@ -52,7 +52,6 @@ import {
 import { Readable } from 'node:stream';
 import { PDFDocument } from 'pdf-lib';
 import { laboratoriesConf, LaboratoryWithConf } from '../services/imapService';
-import { departmentRepository } from '../repositories/departmentRepository';
 const getSample = async (request: Request, response: Response) => {
   const sample = (request as SampleRequest).sample;
 
@@ -187,13 +186,10 @@ const createSample = async (request: Request, response: Response) => {
 
   console.info('Create sample', sampleToCreate);
 
-  const department = await departmentRepository.getDepartment(sampleToCreate.geolocation?.x, sampleToCreate.geolocation?.y)
-  if (department === null && !isNil(sampleToCreate.geolocation)) {
-    return response.sendStatus(constants.HTTP_STATUS_BAD_REQUEST)
-  }
-
-  if (!user.region || ![...Regions[user.region].departments, ...Regions[user.region].borderingDepartments].includes(department) ) {
-    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  if (!user.region) {
+    return response
+      .status(constants.HTTP_STATUS_FORBIDDEN)
+      .send(`Vous n'êtes accocié à aucune région.`);
   }
 
   if (sampleToCreate.company) {
@@ -207,7 +203,6 @@ const createSample = async (request: Request, response: Response) => {
 
   const sample = {
     ...sampleToCreate,
-    department,
     region: user.region,
     reference: `${Regions[user.region].shortName}-${format(new Date(), 'yy')}-${String(serial).padStart(4, '0')}`,
     sampler: pick(user, ['id', 'firstName', 'lastName']),
@@ -258,16 +253,10 @@ const updateSample = async (request: Request, response: Response) => {
     );
   }
 
-  const department = await departmentRepository.getDepartment(sampleUpdate.geolocation?.x, sampleUpdate.geolocation?.y)
-  if (department === null && !isNil(sampleUpdate.geolocation)) {
-    return response.sendStatus(constants.HTTP_STATUS_BAD_REQUEST)
-  }
-
   //TODO update only the fields concerned in relation to the status
   const updatedPartialSample = {
     ...sample,
     ...sampleUpdate,
-    department,
     lastUpdatedAt: new Date()
   };
 

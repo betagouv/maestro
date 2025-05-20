@@ -25,7 +25,7 @@ import {
   SampleContextData
 } from 'maestro-shared/schema/Sample/Sample';
 import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import balance from 'src/assets/illustrations/balance.svg';
 import check from 'src/assets/illustrations/check.svg';
 import controle from 'src/assets/illustrations/controle.svg';
@@ -47,6 +47,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import AppSelect from '../../../../components/_app/AppSelect/AppSelect';
 import { usePartialSample } from '../../../../hooks/usePartialSample';
+import { isErrorWithMessage } from '../../../../services/api.service';
 import NextButton from '../NextButton';
 
 interface Props {
@@ -85,9 +86,10 @@ const ContextStep = ({ partialSample }: Props) => {
   const [notesOnCreation, setNotesOnCreation] = useState(
     partialSample?.notesOnCreation
   );
+  const isSubmitting = useRef<boolean>(false);
 
-  const [hasError, setHasError] = useState<boolean>(false);
-  const [createOrUpdateSample] = useCreateOrUpdateSampleMutation();
+  const [createOrUpdateSample, createOrUpdateSampleCall] =
+    useCreateOrUpdateSampleMutation();
 
   const geolocation = z.object({
     geolocationX: z.number({
@@ -183,36 +185,43 @@ const ContextStep = ({ partialSample }: Props) => {
     specificData: specificData as PartialSampleMatrixSpecificData
   };
 
+  useEffect(() => {
+    if (isSubmitting.current && !createOrUpdateSampleCall.isLoading) {
+      isSubmitting.current = false;
+
+      if (createOrUpdateSampleCall.isSuccess) {
+        navigateToSample(formData.id);
+      }
+    }
+  }, [
+    createOrUpdateSampleCall.isSuccess,
+    createOrUpdateSampleCall.isLoading,
+    formData.id,
+    navigateToSample
+  ]);
+
   const submit = async (e?: React.MouseEvent<HTMLElement>) => {
     e?.preventDefault();
     await form.validate(async () => {
-      setHasError(false);
-      try {
-        if (partialSample) {
-          await save('DraftMatrix');
-        } else {
-          await createOrUpdateSample({
-            ...formData,
-            status: 'DraftMatrix'
-          }).unwrap();
-        }
-      } catch (e) {
-        console.log('error', e);
-        setHasError(true);
-
-        return;
+      isSubmitting.current = true;
+      if (partialSample) {
+        await save('DraftMatrix');
+      } else {
+        await createOrUpdateSample({
+          ...formData,
+          status: 'DraftMatrix'
+        });
       }
-      navigateToSample(formData.id);
     });
   };
 
   const save = async (status = partialSample?.status) => {
     if (partialSample) {
-      return createOrUpdateSample({
+      createOrUpdateSample({
         ...partialSample,
         ...formData,
         status: status as SampleStatus
-      }).unwrap();
+      });
     }
   };
 
@@ -246,7 +255,7 @@ const ContextStep = ({ partialSample }: Props) => {
     specificData
   };
 
-  const form = useForm(Form, formInput);
+  const form = useForm(Form, formInput, save);
 
   if (!programmingPlan) {
     return <></>;
@@ -519,6 +528,18 @@ const ContextStep = ({ partialSample }: Props) => {
         <div className={clsx(cx('fr-col-12'), 'sample-actions')}>
           {!readonly ? (
             <>
+              {createOrUpdateSampleCall.isError && (
+                <Alert
+                  severity="error"
+                  className={cx('fr-mb-2w')}
+                  small={true}
+                  description={
+                    isErrorWithMessage(createOrUpdateSampleCall.error)
+                      ? createOrUpdateSampleCall.error.data
+                      : ''
+                  }
+                />
+              )}
               <ButtonsGroup
                 alignment="between"
                 inlineLayoutWhen="md and up"
@@ -536,15 +557,13 @@ const ContextStep = ({ partialSample }: Props) => {
                     onClick: submit,
                     iconId: 'fr-icon-arrow-right-line',
                     iconPosition: 'right',
+                    disabled: createOrUpdateSampleCall.isLoading,
                     nativeButtonProps: {
                       'data-testid': 'submit-button'
                     }
                   }
                 ]}
               />
-              {hasError && (
-                <Alert severity="error" small={true} description={'BOOM'} />
-              )}
             </>
           ) : (
             <ul

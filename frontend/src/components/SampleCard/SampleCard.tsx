@@ -102,7 +102,7 @@ const SampleCard = ({ sample }: Props) => {
                 <span
                   className={cx('fr-icon-road-map-line', 'fr-icon--sm')}
                 ></span>
-                {'department' in sample && sample.department ? (
+                {sample.department ? (
                   <>
                     {DepartmentLabels[sample.department]} ({sample.department})
                   </>

@@ -30,7 +30,7 @@ const DocumentListView = () => {
     <section className={clsx(cx('fr-container'), 'main-section')}>
       <AppToast
         open={isCreateSuccess}
-        description="Ressources déposée avec succès."
+        description="Ressource déposée avec succès."
       />
       <SectionHeader
         title="Ressources"

@@ -1,4 +1,4 @@
-import { intersection } from 'lodash-es';
+import { intersection, isNil } from 'lodash-es';
 import { z } from 'zod';
 import { Region, RegionList } from '../../referential/Region';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
@@ -37,8 +37,14 @@ export const User = BaseUser.superRefine((user, ctx) => {
 export type BaseUser = z.infer<typeof BaseUser>;
 export type User = z.infer<typeof User>;
 
-export const userRegions = (user?: User) =>
-  user ? (hasNationalRole(user) ? RegionList : [user.region]) : [];
+export const userRegions = (user?: User): Region[] =>
+  user
+    ? hasNationalRole(user)
+      ? RegionList
+      : !isNil(user.region)
+        ? [user.region]
+        : []
+    : [];
 
 export const hasPermission = (user: User, ...permissions: UserPermission[]) =>
   intersection(permissions, UserRolePermissions[user.role]).length > 0;
