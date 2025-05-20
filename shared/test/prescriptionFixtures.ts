@@ -6,7 +6,7 @@ import { SSD2Ids } from '../referential/Residue/SSD2Id';
 import { AnalysisMethodList } from '../schema/Analysis/AnalysisMethod';
 import { Prescription } from '../schema/Prescription/Prescription';
 import { PrescriptionSubstance } from '../schema/Prescription/PrescriptionSubstance';
-import { ContextList } from '../schema/ProgrammingPlan/Context';
+import { ProgrammingPlanContextList } from '../schema/ProgrammingPlan/Context';
 import { RegionalPrescription } from '../schema/RegionalPrescription/RegionalPrescription';
 import { oneOf } from './testFixtures';
 
@@ -16,7 +16,7 @@ export const genPrescription = (
   id: uuidv4(),
   programmingPlanId: uuidv4(),
   programmingPlanKind: 'PPV',
-  context: oneOf(ContextList),
+  context: oneOf(ProgrammingPlanContextList),
   matrixKind: oneOf(MatrixKindEffective.options),
   stages: ['STADE1'],
   ...data

@@ -5,8 +5,8 @@ import { default as fp } from 'lodash';
 import { Region, Regions } from 'maestro-shared/referential/Region';
 import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import {
-  Context,
   ContextLabels,
+  ProgrammingPlanContext,
   ProgrammingPlanContextList
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
@@ -88,7 +88,7 @@ const ProgrammingPlanView = () => {
     if (searchParams.get('context')) {
       dispatch(
         prescriptionsSlice.actions.changeListContext(
-          searchParams.get('context') as Context
+          searchParams.get('context') as ProgrammingPlanContext
         )
       );
     }

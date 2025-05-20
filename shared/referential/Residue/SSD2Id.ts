@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { SSD2Referential } from './SSD2Referential';
 
-const SSD2Ids = Object.keys(SSD2Referential);
+export const SSD2Ids = Object.keys(SSD2Referential);
 
 export const SSD2Id = z
   .string({
