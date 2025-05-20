@@ -17,8 +17,7 @@ export const defaultAppSelectOption = (
   optionLabel?: string
 ): AppSelectOption => ({
   label: `${optionLabel ?? 'Sélectionner une valeur'}`,
-  value: '',
-  disabled: true
+  value: ''
 });
 
 const DefaultSelectOptionsFromListConfig = {

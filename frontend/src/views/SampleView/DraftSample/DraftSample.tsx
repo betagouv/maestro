@@ -19,6 +19,7 @@ import { SampleStepTitles } from 'src/views/SampleView/SampleView';
 import audit from '../../../assets/illustrations/audit.svg';
 import { usePartialSample } from '../../../hooks/usePartialSample';
 import { useSamplesLink } from '../../../hooks/useSamplesLink';
+import { useAppSelector } from '../../../hooks/useStore';
 import '../SampleView.scss';
 
 interface Props {
@@ -27,6 +28,8 @@ interface Props {
 
 const SampleView = ({ sample }: Props) => {
   useDocumentTitle("Saisie d'un prélèvement");
+
+  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
   const { getSampleStepParam } = useSamplesLink();
   const { readonly } = usePartialSample(sample);
 
@@ -40,6 +43,10 @@ const SampleView = ({ sample }: Props) => {
       setStep(1);
     }
   }, [sample, searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (!programmingPlan) {
+    return <></>;
+  }
 
   return (
     <section className={clsx(cx('fr-container'), 'main-section')}>
@@ -76,7 +83,12 @@ const SampleView = ({ sample }: Props) => {
             />
           </div>
         )}
-        {step === 1 && <ContextStep partialSample={sample} />}
+        {step === 1 && (
+          <ContextStep
+            programmingPlan={programmingPlan}
+            partialSample={sample}
+          />
+        )}
         {step === 2 && sample && <MatrixStep partialSample={sample} />}
         {step === 3 && sample && <ItemsStep partialSample={sample} />}
         {step === 4 && sample && <SendingStep sample={sample as Sample} />}
