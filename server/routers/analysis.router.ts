@@ -134,12 +134,13 @@ Object.keys(routes).forEach((path) => {
   }
   router[method](url, permissionsCheck(conf.permissions));
   router[method](url, async (request, response) => {
+    // @ts-expect-error TS2345 Impossible de faire mieux
     const result = await routesControllerMethod[route](request);
 
     if ('status' in result && !('response' in result)) {
       response.sendStatus(result.status);
     } else {
-      const strippedResult = conf.response.parse(result.response)
+      const strippedResult = conf.response.parse(result.response);
       if (!('status' in result) && 'response' in result) {
         response.send(strippedResult);
       } else {
