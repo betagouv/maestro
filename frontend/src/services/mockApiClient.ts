@@ -80,7 +80,7 @@ export const defaultMockApiClientConf: MockApi<ApiClient> = {
   useFindPrescriptionsQuery: { data: [] },
   useFindRegionalPrescriptionsQuery: { data: [] },
   useGetProgrammingPlanQuery: { data: genProgrammingPlan() },
-  useGetPrescriptionSubstancesQuery: { data: [] }
+  useGetPrescriptionSubstancesQuery: { data: [] },
   useLazyGetPrescriptionSubstancesQuery: []
 };
 
