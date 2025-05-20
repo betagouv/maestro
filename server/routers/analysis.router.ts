@@ -6,65 +6,61 @@ import {
 } from 'maestro-shared/schema/Analysis/Analysis';
 import { User } from 'maestro-shared/schema/User/User';
 import { UserPermission } from 'maestro-shared/schema/User/UserPermission';
-import z, { ZodObject, ZodType } from 'zod';
+import z, { AnyZodObject, ZodObject, ZodType } from 'zod';
 import analysisController from '../controllers/analysisController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
 import validator, { body, params, query } from '../middlewares/validator';
 
 type ToRoute = {
-  query?: ZodType;
-  params?: ZodType;
-  body?: ZodType;
+  query?: AnyZodObject;
+  params?: AnyZodObject;
+  body?: AnyZodObject;
   permissions: UserPermission[];
   response?: ZodType;
 };
 
-type METHOD = 'GET' | 'POST' | 'PUT';
+type Method = 'get' | 'post' | 'put';
 
 const routes = {
-  'GET /': {
-    query: z.object({ sampleId: z.string().uuid() }),
-    permissions: ['readAnalysis'],
-    response: PartialAnalysis
+  '/': {
+    get: {
+      query: z.object({ sampleId: z.string().uuid() }),
+      permissions: ['readAnalysis'],
+      response: PartialAnalysis
+    },
+    post: {
+      body: AnalysisToCreate,
+      permissions: ['createAnalysis'],
+      response: PartialAnalysis
+    }
   },
-  'POST /': {
-    body: AnalysisToCreate,
-    permissions: ['createAnalysis'],
-    response: PartialAnalysis
-  },
-  'PUT /:analysisId': {
-    body: PartialAnalysis,
-    params: z.object({
-      analysisId: z.string().uuid()
-    }),
-    //FIXME c'est bien ça?
-    permissions: ['createAnalysis'],
-    response: PartialAnalysis
+  '/:analysisId': {
+    put: {
+      body: PartialAnalysis,
+      params: z.object({
+        analysisId: z.string().uuid()
+      }),
+      //FIXME c'est bien ça?
+      permissions: ['createAnalysis'],
+      response: PartialAnalysis
+    }
   }
-} as const satisfies Record<`${METHOD} /${string}`, ToRoute>;
+} as const satisfies Record<string, { [method in Method]?: ToRoute }>;
 
 type MaestroRoutes = keyof typeof routes;
-type MaestroQuery<key extends MaestroRoutes> = (typeof routes)[key] extends {
-  query: infer Q;
-}
-  ? Q extends ZodType
-    ? z.infer<Q>
-    : undefined
-  : undefined;
-type MaestroParams<key extends MaestroRoutes> = (typeof routes)[key] extends {
-  params: infer P;
+
+type RouteValidator<
+  key extends MaestroRoutes,
+  method extends keyof (typeof routes)[key],
+  Z extends keyof ToRoute
+> = (typeof routes)[key][method] extends {
+  [z in Z]: infer P;
 }
   ? P extends ZodType
     ? z.infer<P>
     : undefined
   : undefined;
-type MaestroBody<key extends MaestroRoutes> = (typeof routes)[key] extends {
-  body: infer B;
-}
-  ? B extends ZodType
-    ? z.infer<B>
-    : undefined
-  : undefined;
+
 type MaestroResponse<key extends MaestroRoutes> = (typeof routes)[key] extends {
   response: infer R;
 }
@@ -73,12 +69,15 @@ type MaestroResponse<key extends MaestroRoutes> = (typeof routes)[key] extends {
     : void
   : void;
 
-export type MaestroRouteMethod<key extends MaestroRoutes> = (
+export type MaestroRouteMethod<
+  key extends MaestroRoutes,
+  method extends keyof (typeof routes)[key]
+> = (
   request: Request<
-    MaestroParams<key>,
+    RouteValidator<key, method, 'params'>,
     undefined,
-    MaestroBody<key>,
-    MaestroQuery<key>
+    RouteValidator<key, method, 'body'>,
+    RouteValidator<key, method, 'query'>
   > & {
     user: User;
   }
@@ -91,62 +90,65 @@ export type MaestroRouteMethod<key extends MaestroRoutes> = (
 >;
 
 const routesControllerMethod = {
-  'GET /': analysisController.getAnalysis,
-  'POST /': analysisController.createAnalysis,
-  'PUT /:analysisId': analysisController.updateAnalysis
-} as const satisfies { [key in MaestroRoutes]: MaestroRouteMethod<key> };
+  '/': {
+    get: analysisController.getAnalysis,
+    post: analysisController.createAnalysis
+  },
+  '/:analysisId': {
+    put: analysisController.updateAnalysis
+  }
+} as const satisfies {
+  [key in MaestroRoutes]: {
+    [method in keyof (typeof routes)[key]]: MaestroRouteMethod<key, method>;
+  };
+};
 
 const router = express.Router();
 
-Object.keys(routes).forEach((path) => {
-  const route = path as MaestroRoutes;
-  const conf = routes[route];
-  let toValidate: null | ZodObject<any> = null;
-  if ('params' in conf) {
-    toValidate = params(conf.params);
-  }
-  if ('body' in conf) {
-    const toValidateBody = body(conf.body);
-    if (toValidate === null) {
-      toValidate = toValidateBody;
-    } else {
-      toValidate = toValidate.merge(toValidateBody);
+(Object.keys(routes) as Array<keyof typeof routes>).forEach((route) => {
+  (Object.keys(routes[route]) as Array<Method>).forEach((method) => {
+    // @ts-expect-error TS7053
+    const conf = routes[route][method] as ToRoute;
+    let toValidate: null | ZodObject<any> = null;
+    if ('params' in conf && conf.params !== undefined) {
+      toValidate = params(conf.params);
     }
-  }
-  if ('query' in conf) {
-    const toValidateQuery = query(conf.query);
-    if (toValidate === null) {
-      toValidate = toValidateQuery;
-    } else {
-      toValidate = toValidate.merge(toValidateQuery);
-    }
-  }
-
-  const url = path.substring(path.indexOf(' ') + 1);
-  const method: 'get' | 'post' | 'put' = path.startsWith('GET')
-    ? 'get'
-    : path.startsWith('POST')
-      ? 'post'
-      : 'put';
-
-  if (toValidate !== null) {
-    router[method](url, validator.validate(toValidate));
-  }
-  router[method](url, permissionsCheck(conf.permissions));
-  router[method](url, async (request, response) => {
-    // @ts-expect-error TS2345 Impossible de faire mieux
-    const result = await routesControllerMethod[route](request);
-
-    if ('status' in result && !('response' in result)) {
-      response.sendStatus(result.status);
-    } else {
-      const strippedResult = conf.response.parse(result.response);
-      if (!('status' in result) && 'response' in result) {
-        response.send(strippedResult);
+    if ('body' in conf && conf.body !== undefined) {
+      const toValidateBody = body(conf.body);
+      if (toValidate === null) {
+        toValidate = toValidateBody;
       } else {
-        response.status(result.status).send(strippedResult);
+        toValidate = toValidate.merge(toValidateBody);
       }
     }
+    if ('query' in conf && conf.query !== undefined) {
+      const toValidateQuery = query(conf.query);
+      if (toValidate === null) {
+        toValidate = toValidateQuery;
+      } else {
+        toValidate = toValidate.merge(toValidateQuery);
+      }
+    }
+
+    if (toValidate !== null) {
+      router[method](route, validator.validate(toValidate));
+    }
+    router[method](route, permissionsCheck(conf.permissions));
+    router[method](route, async (request, response) => {
+      // @ts-expect-error TS2345 Impossible de faire mieux
+      const result = await routesControllerMethod[route][method](request);
+
+      if ('status' in result && !('response' in result)) {
+        response.sendStatus(result.status);
+      } else {
+        const strippedResult = conf.response?.parse(result.response);
+        if (!('status' in result) && 'response' in result) {
+          response.send(strippedResult);
+        } else {
+          response.status(result.status).send(strippedResult);
+        }
+      }
+    });
   });
 });
 
