@@ -33,7 +33,7 @@ Pour le stockage des fichiers, l'application utilise un service S3.
 
 Accessible directement via http://localhost:1080
 
-Ce servie permet de recevoir les emails envoyés par Maestro.
+Ce service permet de recevoir les emails envoyés par Maestro.
 
 ### Browserless
 
