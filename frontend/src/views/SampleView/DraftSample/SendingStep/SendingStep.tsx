@@ -6,6 +6,7 @@ import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import {
   isCreatedPartialSample,
   Sample,
+  SampleBase,
   SampleOwnerData,
   SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
@@ -70,7 +71,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
     [sample.id]
   );
 
-  const Form = Sample.pick({
+  const Form = SampleBase.pick({
     resytalId: true,
     ownerFirstName: true,
     ownerLastName: true,

@@ -39,6 +39,8 @@ export const MatrixKindEffective = z.enum([
   'A031E'
 ]);
 
+export const OtherMatrixKind = z.literal('Other');
+
 export const MatrixKind = z.enum(
   [...MatrixDeprecated.options, ...MatrixKindEffective.options],
   {
@@ -49,6 +51,7 @@ export const MatrixKind = z.enum(
 );
 
 export type MatrixKind = z.infer<typeof MatrixKind>;
+export type OtherMatrixKind = z.infer<typeof OtherMatrixKind>;
 
 export const MatrixKindList: MatrixKind[] = MatrixKind.options;
 
@@ -59,7 +62,7 @@ const MatrixDeprecatedLabels: Record<MatrixDeprecated, string> =
       .filter(([_, value]) => value !== undefined)
   );
 
-export const MatrixKindLabels: Record<MatrixKind, string> = {
+export const MatrixKindLabels: Record<MatrixKind | OtherMatrixKind, string> = {
   ...MatrixDeprecatedLabels,
   A00KR: 'Légumes-feuilles',
   A012R: 'Légumes secs (graines séchées de légumineuse)',
@@ -96,5 +99,6 @@ export const MatrixKindLabels: Record<MatrixKind, string> = {
   A01RL: 'Viande caprine',
   A01RG: 'Viande porcine',
   A01SN: 'Viande de volaille',
-  A031E: 'Œufs et ovoproduits'
+  A031E: 'Œufs et ovoproduits',
+  Other: 'Autre'
 };

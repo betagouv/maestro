@@ -4,7 +4,8 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import {
   MatrixKindLabels,
-  MatrixKindList
+  MatrixKindList,
+  OtherMatrixKind
 } from 'maestro-shared/referential/Matrix/MatrixKind';
 import {
   StageLabels,
@@ -12,7 +13,7 @@ import {
 } from 'maestro-shared/referential/Stage';
 import { FileInput } from 'maestro-shared/schema/File/FileInput';
 import { SampleDocumentTypeList } from 'maestro-shared/schema/File/FileType';
-import { Context } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { PFASKindList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   isCreatedPartialSample,
@@ -69,12 +70,10 @@ const MatrixStep = ({ partialSample }: Props) => {
   const { data: prescriptionsData } = apiClient.useFindPrescriptionsQuery(
     {
       programmingPlanId: partialSample.programmingPlanId as string,
-      context: partialSample.context as Context
+      context: ProgrammingPlanContext.safeParse(partialSample.context).data
     },
     {
-      skip:
-        !partialSample.programmingPlanId ||
-        !isProgrammingPlanSample(partialSample)
+      skip: !partialSample.programmingPlanId
     }
   );
 
@@ -82,15 +81,13 @@ const MatrixStep = ({ partialSample }: Props) => {
     apiClient.useFindRegionalPrescriptionsQuery(
       {
         programmingPlanId: partialSample.programmingPlanId as string,
-        context: partialSample.context as Context,
+        context: ProgrammingPlanContext.safeParse(partialSample.context).data,
         region: isCreatedPartialSample(partialSample)
           ? partialSample.region
           : user?.region
       },
       {
-        skip:
-          !partialSample.programmingPlanId ||
-          !isProgrammingPlanSample(partialSample)
+        skip: !partialSample.programmingPlanId
       }
     );
 
@@ -229,16 +226,27 @@ const MatrixStep = ({ partialSample }: Props) => {
   const matrixKindOptions = useMemo(
     () =>
       selectOptionsFromList(
-        MatrixKindList.filter(
-          (matrixKind) =>
-            !isProgrammingPlanSample(partialSample) ||
-            prescriptions?.find(
-              (p) =>
-                p.programmingPlanKind ===
-                  partialSample.specificData.programmingPlanKind &&
-                p.matrixKind === matrixKind
+        isProgrammingPlanSample(partialSample)
+          ? MatrixKindList.filter((matrixKind) =>
+              prescriptions?.some(
+                (p) =>
+                  p.programmingPlanKind ===
+                    partialSample.specificData.programmingPlanKind &&
+                  p.matrixKind === matrixKind
+              )
             )
-        ),
+          : [
+              ...MatrixKindList.filter(
+                (matrixKind) =>
+                  !prescriptions?.some(
+                    (p) =>
+                      p.programmingPlanKind ===
+                        partialSample.specificData.programmingPlanKind &&
+                      p.matrixKind === matrixKind
+                  )
+              ),
+              OtherMatrixKind.value
+            ],
         {
           labels: MatrixKindLabels,
           withSort: true,

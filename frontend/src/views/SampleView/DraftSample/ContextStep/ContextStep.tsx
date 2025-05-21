@@ -150,20 +150,6 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
             })
           }
     );
-  //
-  // const FormRefinement = Form.superRefine((val, ctx) => {
-  //   if (
-  //     val.context === 'OutsideProgrammingPlan' &&
-  //     !val.outsideProgrammingPlanContext
-  //   ) {
-  //     ctx.addIssue({
-  //       code: z.ZodIssueCode.custom,
-  //       message:
-  //         'Veuillez renseigner la précision du contexte hors programmation.',
-  //       path: ['outsideProgrammingPlanContext']
-  //     });
-  //   }
-  // });
 
   type FormShape = typeof Form.shape;
 
@@ -439,10 +425,14 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
             label,
             nativeInputProps: {
               checked: context === value,
-              onChange: () =>
+              onChange: () => {
                 setContext(
                   value as ProgrammingPlanContext | 'OutsideProgrammingPlan'
-                )
+                );
+                if (value !== 'OutsideProgrammingPlan') {
+                  setOutsideProgrammingPlanContext(undefined);
+                }
+              }
             },
             illustration: (
               <img

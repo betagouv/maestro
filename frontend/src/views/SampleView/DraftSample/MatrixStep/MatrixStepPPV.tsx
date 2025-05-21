@@ -6,7 +6,10 @@ import {
   CultureKindList
 } from 'maestro-shared/referential/CultureKind';
 import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
-import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
+import {
+  MatrixKind,
+  OtherMatrixKind
+} from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
 import {
@@ -22,6 +25,7 @@ import {
   PartialSampleToCreate,
   prescriptionSubstancesRefinement,
   SampleMatrixData,
+  sampleMatrixRefinement,
   SampleMatrixSpecificDataPPV
 } from 'maestro-shared/schema/Sample/Sample';
 import {
@@ -132,7 +136,10 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
       } as SampleMatrixPPVData);
 
     const form = useForm(
-      SampleMatrixPPVData.superRefine(prescriptionSubstancesRefinement),
+      SampleMatrixPPVData.superRefine((data, ctx) => {
+        prescriptionSubstancesRefinement(data, ctx);
+        sampleMatrixRefinement(data, ctx);
+      }),
       {
         matrixKind,
         matrix,
@@ -178,32 +185,44 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
             />
           </div>
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-            <AppSearchInput
-              value={matrix ?? ''}
-              options={selectOptionsFromList(
-                matrixKind
-                  ? (MatrixListByKind[matrixKind as MatrixKind] ?? matrixKind)
-                  : [],
-                {
-                  labels: MatrixLabels,
-                  withSort: true,
-                  withDefault: false
-                }
-              )}
-              placeholder="Sélectionner une matrice"
-              onSelect={(value) => {
-                setMatrix(value as Matrix);
-              }}
-              state={form.messageType('matrix')}
-              stateRelatedMessage={form.message('matrix')}
-              whenValid="Matrice correctement renseignée."
-              data-testid="matrix-select"
-              label="Matrice"
-              required
-              inputProps={{
-                'data-testid': 'matrix-select'
-              }}
-            />
+            {matrixKind === OtherMatrixKind.value ? (
+              <AppTextInput<FormShape>
+                defaultValue={matrix ?? ''}
+                onChange={(e) => setMatrix(e.target.value)}
+                inputForm={form}
+                inputKey="matrix"
+                whenValid="Matrice correctement renseignée."
+                required
+                label="Matrice"
+              />
+            ) : (
+              <AppSearchInput
+                value={matrix ?? ''}
+                options={selectOptionsFromList(
+                  matrixKind
+                    ? (MatrixListByKind[matrixKind as MatrixKind] ?? matrixKind)
+                    : [],
+                  {
+                    labels: MatrixLabels,
+                    withSort: true,
+                    withDefault: false
+                  }
+                )}
+                placeholder="Sélectionner une matrice"
+                onSelect={(value) => {
+                  setMatrix(value as Matrix);
+                }}
+                state={form.messageType('matrix')}
+                stateRelatedMessage={form.message('matrix')}
+                whenValid="Matrice correctement renseignée."
+                data-testid="matrix-select"
+                label="Matrice"
+                required
+                inputProps={{
+                  'data-testid': 'matrix-select'
+                }}
+              />
+            )}
           </div>
           {!isProgrammingPlanSample(partialSample) && (
             <>
