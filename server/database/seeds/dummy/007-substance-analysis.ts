@@ -1,3 +1,4 @@
+import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { PrescriptionSubstances } from '../../../repositories/prescriptionSubstanceRepository';
 import {
@@ -38,11 +39,11 @@ export const seed = async function () {
   const genSubstanceAnalysis = (
     prescriptionId: string,
     analysisMethod: AnalysisMethod,
-    ...substanceCodes: string[]
+    ...substances: SSD2Id[]
   ) =>
-    substanceCodes.map((substanceCode) => ({
+    substances.map((substance) => ({
       prescriptionId,
-      substanceCode,
+      substance,
       analysisMethod
     }));
 

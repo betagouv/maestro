@@ -76,6 +76,8 @@ export const genCreatedPartialSample = (
     ...genCreatedSampleData(data),
     company: genCompany(),
     matrix: oneOf(MatrixEffective.options),
+    monoSubstances: [],
+    multiSubstances: [],
     stage: 'STADE1',
     specificData: {
       programmingPlanKind: 'PPV',
