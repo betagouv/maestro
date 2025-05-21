@@ -4,14 +4,15 @@ import Tag from '@codegouvfr/react-dsfr/Tag';
 import { Autocomplete } from '@mui/material';
 import { capitalize } from 'lodash-es';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
-import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
+import {
+  searchSSD2IdByLabel,
+  SSD2IdLabel
+} from 'maestro-shared/referential/Residue/SSD2Referential';
 import {
   AnalysisMethod,
   AnalysisMethodLabels
 } from 'maestro-shared/schema/Analysis/AnalysisMethod';
-import { Substance } from 'maestro-shared/schema/Substance/Substance';
 import { SyntheticEvent, useState } from 'react';
-import { useLazySearchSubstancesQuery } from '../../services/substance.service';
 
 interface Props {
   analysisMethod: AnalysisMethod;
@@ -30,11 +31,12 @@ const SubstanceSearch = ({
 }: Props) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [substanceSearchResults, setSubstanceSearchResults] = useState<
-    Substance[]
+    { code: SSD2Id; label: string }[]
   >([]);
-  const [searchSubstances, { isLoading, isFetching }] =
-    useLazySearchSubstancesQuery();
-  const [newSubstance, setNewSubstance] = useState<Substance | null>(null);
+  const [newSubstance, setNewSubstance] = useState<{
+    code: SSD2Id;
+    label: string;
+  } | null>(null);
 
   const handleInputChange = async (
     _event: SyntheticEvent<Element, Event>,
@@ -43,18 +45,12 @@ const SubstanceSearch = ({
     setSearchQuery(value);
 
     if (value.length > 3) {
-      await searchSubstances(value as string)
-        .unwrap()
-        .then((results) => {
-          setSubstanceSearchResults(
-            results.filter(
-              ({ code }) => !substances.some((substance) => substance === code)
-            )
-          );
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+      setSubstanceSearchResults(
+        searchSSD2IdByLabel(value).map((ssd2Id) => ({
+          code: ssd2Id,
+          label: SSD2IdLabel[ssd2Id]
+        }))
+      );
     } else {
       setSubstanceSearchResults([]);
     }
@@ -101,8 +97,6 @@ const SubstanceSearch = ({
                 />
               </div>
             )}
-            loading={isLoading || isFetching}
-            loadingText={`Recherche en cours...`}
             filterOptions={(x) => x}
             options={substanceSearchResults}
             getOptionLabel={(option) => option.label}

@@ -12062,6 +12062,13 @@ const getSSD2IdByLabel = (label: string): SSD2Id | null => {
   );
 };
 
+export const searchSSD2IdByLabel = (query: string): SSD2Id[] => {
+  const queryLowerCase = query.toLowerCase();
+  return values
+    .filter(({ name }) => name.toLowerCase().includes(queryLowerCase))
+    .map(({ reference }) => reference);
+};
+
 export const getSSD2Id = (
   label: string,
   codeSandre: string | null,
