@@ -81,7 +81,7 @@ const SampleCard = ({ sample }: Props) => {
               ) : (
                 <>
                   {sample.companyOffline}
-                  <div className="missing-data">Information à compléter</div>
+                  <span className="missing-data">Information à compléter</span>
                 </>
               )}
             </span>
@@ -95,7 +95,7 @@ const SampleCard = ({ sample }: Props) => {
                 {sample.sampledAt ? (
                   format(sample.sampledAt, 'dd/MM/yyyy')
                 ) : (
-                  <div className="missing-data">Information à compléter</div>
+                  <span className="missing-data">Information à compléter</span>
                 )}
               </span>
               <span className="icon-text">
@@ -107,7 +107,7 @@ const SampleCard = ({ sample }: Props) => {
                     {DepartmentLabels[sample.department]} ({sample.department})
                   </>
                 ) : (
-                  <div className="missing-data">Information à compléter</div>
+                  <span className="missing-data">Information à compléter</span>
                 )}
               </span>
               <span className="icon-text">
@@ -117,7 +117,7 @@ const SampleCard = ({ sample }: Props) => {
                 {sample.context ? (
                   ContextLabels[sample.context]
                 ) : (
-                  <div className="missing-data">Information à compléter</div>
+                  <span className="missing-data">Information à compléter</span>
                 )}
               </span>
               {sample.matrixKind && (
