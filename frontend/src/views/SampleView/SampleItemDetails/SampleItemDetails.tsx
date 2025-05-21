@@ -20,7 +20,7 @@ import {
   SampleItemRecipientKind,
   SampleItemRecipientKindLabels
 } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
-import React, { useMemo } from 'react';
+import React, { useContext, useMemo } from 'react';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppResponsiveButton from 'src/components/_app/AppResponsiveButton/AppResponsiveButton';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
@@ -31,7 +31,7 @@ import {
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { UseForm, useForm } from 'src/hooks/useForm';
 import { z } from 'zod';
-import { useFindLaboratoriesQuery } from '../../../services/laboratory.service';
+import { ApiClientContext } from '../../../services/apiClient';
 
 const Form = z.object({
   items: z.array(z.object({})).refine(() => ({})),
@@ -62,6 +62,7 @@ const SampleItemDetails = ({
   laboratory,
   readonly: forceReadonly
 }: Props) => {
+  const apiClient = useContext(ApiClientContext);
   type FormShape = typeof Form.shape;
 
   const fakeForm = useForm(Form, {
@@ -76,7 +77,7 @@ const SampleItemDetails = ({
     [itemsForm, forceReadonly]
   );
 
-  const { data: laboratories } = useFindLaboratoriesQuery(undefined, {
+  const { data: laboratories } = apiClient.useFindLaboratoriesQuery(undefined, {
     skip: isProgrammingPlanSample(partialSample)
   });
 
