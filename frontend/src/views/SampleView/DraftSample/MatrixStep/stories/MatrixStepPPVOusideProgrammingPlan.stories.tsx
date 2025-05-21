@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { expect, fn, within } from '@storybook/test';
-import { MatrixKindList } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   genCreatedSampleData,
@@ -70,9 +69,7 @@ export const MatrixStepPPVOusideProgrammingPlan: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await expect(canvas.getAllByTestId('matrix-kind-select')).toHaveLength(
-      MatrixKindList.length
-    );
+    await expect(canvas.getAllByTestId('matrix-kind-select')).toHaveLength(1);
     await expect(canvas.getAllByTestId('matrix-select')).toHaveLength(1);
     await expect(canvas.getAllByTestId('stage-select')).toHaveLength(2);
     await expect(canvas.getAllByTestId('matrixdetails-input')).toHaveLength(2);
