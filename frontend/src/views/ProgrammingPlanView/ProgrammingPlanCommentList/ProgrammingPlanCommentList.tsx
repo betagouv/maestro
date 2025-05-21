@@ -8,7 +8,7 @@ import { t } from 'i18next';
 import { sumBy } from 'lodash-es';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
-import { Context } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ChangeEvent, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
@@ -20,7 +20,7 @@ import { pluralize } from '../../../utils/stringUtils';
 
 interface Props {
   programmingPlan: ProgrammingPlan;
-  context: Context;
+  context: ProgrammingPlanContext;
 }
 
 const ProgrammingPlanCommentList = ({

@@ -8,7 +8,6 @@ import { getCultureKindLabel } from 'maestro-shared/referential/CultureKind';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
-import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { getMatrixPartLabel } from 'maestro-shared/referential/Matrix/MatrixPart';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
 import { Regions } from 'maestro-shared/referential/Region';
@@ -21,6 +20,7 @@ import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
+  getSampleMatrixLabel,
   PartialSample,
   PartialSampleToCreate,
   Sample
@@ -355,7 +355,7 @@ const updateSample = async (request: Request, response: Response) => {
               legalContext: LegalContextLabels[updatedSample.legalContext],
               stage: StageLabels[updatedSample.stage],
               matrixKindLabel: MatrixKindLabels[updatedSample.matrixKind],
-              matrixLabel: MatrixLabels[updatedSample.matrix],
+              matrixLabel: getSampleMatrixLabel(updatedSample),
               matrixPart: getMatrixPartLabel(updatedSample) as string,
               quantityUnit: sampleItem?.quantityUnit
                 ? QuantityUnitLabels[sampleItem.quantityUnit]

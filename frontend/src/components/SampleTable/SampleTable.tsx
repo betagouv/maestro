@@ -2,9 +2,9 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
 import { format } from 'date-fns';
-import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
+  getSampleMatrixLabel,
   isCreatedPartialSample,
   PartialSample,
   PartialSampleToCreate
@@ -54,7 +54,7 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
       (samples ?? []).map((sample) => [
         ...[
           isCreatedPartialSample(sample) ? sample.reference : '',
-          (sample.matrix && MatrixLabels[sample.matrix]) ?? '',
+          getSampleMatrixLabel(sample),
           <div className="d-flex-align-center">
             {pendingSamples[sample.id] && (
               <span className="fr-icon-link-unlink fr-icon--sm fr-mr-1w"></span>
