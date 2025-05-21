@@ -11,6 +11,14 @@
 - serveur mail
 - browserless
 
+### Docker
+
+Avec la commande suivante, vous pouvez initialiser les différents composants de l'application.
+
+```bash
+docker compose up -d
+```
+
 ### Base de données
 
 Créer une base de données vide pour l'application (par exemple `maestro`).
@@ -20,26 +28,18 @@ La création des tables et autres structures SQL se fera automatiquement lors du
 ### Stockage S3
 
 Pour le stockage des fichiers, l'application utilise un service S3.
-En local et pour les tests, il est possible d'utiliser https://github.com/adobe/S3Mock
-
-```bash
-docker compose up -d
-```
 
 ### Emails
 
-La commande `docker compose` ci-dessus, démarre également un service `maildev` qui est accessible directement via http://localhost:1080
+Accessible directement via http://localhost:1080
+
+Ce servie permet de recevoir les emails envoyés par Maestro.
 
 ### Browserless
 
-La commande `docker compose` ci-dessus, démarre également un service `browserless` qui est accessible directement via http://localhost:3002/docs
+Accessible directement via http://localhost:3002/docs
 
 Ce service permet de générer les pdfs.
-Voici la commande suivante qui permet de démarrer ce service sur n'import quel serveur avec docker :
-
-```bash
-docker run -p 3000:3000 --restart unless-stopped -e TOKEN=MONTOKEN -e CONCURRENT=1 --name=maestro_browserless -t ghcr.io/browserless/chromium
-```
 
 ### Installation de l'application
 
