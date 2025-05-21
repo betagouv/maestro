@@ -5,7 +5,7 @@ import { intersection } from 'lodash-es';
 import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
 import { RegionList, Regions } from 'maestro-shared/referential/Region';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
-import { ContextList } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { ProgrammingPlanContextList } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import { ProgrammingPlanRegionalStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanRegionalStatus';
 import {
@@ -161,7 +161,7 @@ const createProgrammingPlan = async (request: Request, response: Response) => {
   await programmingPlanRepository.insert(newProgrammingPlan);
 
   await Promise.all(
-    ContextList.map(async (context) => {
+    ProgrammingPlanContextList.map(async (context) => {
       const previousPrescriptions = await prescriptionRepository.findMany({
         programmingPlanId: previousProgrammingPlan.id,
         context
