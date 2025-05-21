@@ -6,7 +6,6 @@ import { BreedingMethodLabels } from 'maestro-shared/referential/BreedingMethod'
 import { CultureKindLabels } from 'maestro-shared/referential/CultureKind';
 import { getLaboratoryFullname } from 'maestro-shared/referential/Laboratory';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
-import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { MatrixPartLabels } from 'maestro-shared/referential/Matrix/MatrixPart';
 import { OutdoorAccessLabels } from 'maestro-shared/referential/OutdoorAccess';
 import { ProductionKindLabels } from 'maestro-shared/referential/ProductionKind';
@@ -16,6 +15,7 @@ import { SpeciesLabels } from 'maestro-shared/referential/Species';
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import { TargetingCriteriaLabels } from 'maestro-shared/referential/TargetingCriteria';
 import {
+  getSampleMatrixLabel,
   Sample,
   SampleOwnerData,
   SampleToCreate
@@ -57,7 +57,7 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
             <b>{MatrixKindLabels[sample.matrixKind]}</b>
           </div>
           <div>
-            Matrice : <b>{MatrixLabels[sample.matrix]}</b>
+            Matrice : <b>{getSampleMatrixLabel(sample)}</b>
           </div>
           {sample.specificData.programmingPlanKind === 'PPV' && (
             <>
