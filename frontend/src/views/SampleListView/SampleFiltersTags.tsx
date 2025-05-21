@@ -1,14 +1,14 @@
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import { format } from 'date-fns';
-import {
-  Department,
-  DepartmentLabels
-} from 'maestro-shared/referential/Department';
-import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
+import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
-import { Region, Regions } from 'maestro-shared/referential/Region';
+import { Regions } from 'maestro-shared/referential/Region';
+import { Pagination } from 'maestro-shared/schema/commons/Pagination';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
+import {
+  FindSampleOptions,
+  SampleComplianceLabels
+} from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   DraftStatusList,
   RealizedStatusList,
@@ -25,6 +25,60 @@ interface Props {
   samplers?: User[];
 }
 
+const filtersConfig = {
+  matrix: {
+    prop: 'matrix',
+    getLabel: (value) => MatrixLabels[value]
+  },
+  status: {
+    prop: 'status',
+    getLabel: (value) =>
+      value === DraftStatusList.join(',')
+        ? 'Brouillon'
+        : value === RealizedStatusList.join(',')
+          ? 'Réalisé'
+          : SampleStatusLabels[value as SampleStatus]
+  },
+  sampledBy: {
+    prop: 'sampledBy',
+    getLabel: (_value, sampler) =>
+      sampler ? `${sampler.firstName} ${sampler.lastName}` : null
+  },
+  sampledAt: {
+    prop: 'sampledAt',
+    getLabel: (value) => format(new Date(value), 'dd/MM/yyyy')
+  },
+  region: {
+    prop: 'region',
+    getLabel: (value) => Regions[value].name,
+    getNewValue: () => ({ region: undefined, department: undefined })
+  },
+  department: {
+    prop: 'department',
+    getLabel: (value) => DepartmentLabels[value]
+  },
+  context: {
+    prop: 'context',
+    getLabel: (value) => ContextLabels[value]
+  },
+  compliance: {
+    prop: 'compliance',
+    getLabel: (value) => SampleComplianceLabels[value]
+  }
+} as const satisfies {
+  [key in keyof Omit<
+    FindSampleOptions,
+    keyof Pagination | 'programmingPlanId' | 'reference'
+  >]: {
+    prop: key;
+    getLabel: (
+      value: NonNullable<FindSampleOptions[key]>,
+      sampler: User
+    ) => string | null;
+    getNewValue?: () => Partial<FindSampleOptions>;
+  };
+};
+
 const SampleFiltersTags = ({ filters, onChange, samplers }: Props) => {
   const { hasNationalView } = useAuthentication();
   const sampler = useMemo(
@@ -34,82 +88,32 @@ const SampleFiltersTags = ({ filters, onChange, samplers }: Props) => {
 
   return (
     <>
-      {filters.matrix && (
-        <Tag
-          dismissible
-          nativeButtonProps={{
-            onClick: () => onChange({ matrix: undefined })
-          }}
-        >
-          {MatrixLabels[filters.matrix as Matrix]}
-        </Tag>
-      )}
+      {Object.values(filtersConfig).map((conf) => {
+        const value = filters[conf.prop];
 
-      {filters.status && (
-        <Tag
-          dismissible
-          nativeButtonProps={{
-            onClick: () => onChange({ status: undefined })
-          }}
-        >
-          {filters.status === DraftStatusList.join(',')
-            ? 'Brouillon'
-            : filters.status === RealizedStatusList.join(',')
-              ? 'Réalisé'
-              : SampleStatusLabels[filters.status as SampleStatus]}
-        </Tag>
-      )}
-      {sampler && (
-        <Tag
-          dismissible
-          nativeButtonProps={{
-            onClick: () => onChange({ sampledBy: undefined })
-          }}
-        >
-          {sampler.firstName} {sampler.lastName}
-        </Tag>
-      )}
-      {filters.sampledAt && (
-        <Tag
-          dismissible
-          nativeButtonProps={{
-            onClick: () => onChange({ sampledAt: undefined })
-          }}
-        >
-          {format(new Date(filters.sampledAt as string), 'dd/MM/yyyy')}
-        </Tag>
-      )}
-      {hasNationalView && filters.region && (
-        <Tag
-          dismissible
-          nativeButtonProps={{
-            onClick: () =>
-              onChange({ region: undefined, department: undefined })
-          }}
-        >
-          {Regions[filters.region as Region].name}
-        </Tag>
-      )}
-      {filters.department && (
-        <Tag
-          dismissible
-          nativeButtonProps={{
-            onClick: () => onChange({ department: undefined })
-          }}
-        >
-          {DepartmentLabels[filters.department as Department]}
-        </Tag>
-      )}
-      {filters.context && (
-        <Tag
-          dismissible
-          nativeButtonProps={{
-            onClick: () => onChange({ context: undefined })
-          }}
-        >
-          {ContextLabels[filters.context]}
-        </Tag>
-      )}
+        if (value && (hasNationalView || conf.prop !== 'region')) {
+          // @ts-expect-error TS2345 il est perdu
+          const label = conf.getLabel(value, sampler);
+          if (label) {
+            return (
+              <Tag
+                key={conf.prop}
+                dismissible
+                nativeButtonProps={{
+                  onClick: () =>
+                    onChange(
+                      'getNewValue' in conf
+                        ? conf.getNewValue()
+                        : { [conf.prop]: undefined }
+                    )
+                }}
+              >
+                {label}
+              </Tag>
+            );
+          }
+        }
+      })}
     </>
   );
 };

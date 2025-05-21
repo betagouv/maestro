@@ -115,19 +115,22 @@ const findRequest = (findOptions: FindSampleOptions) =>
       }
       if (findOptions.status) {
         if (isArray(findOptions.status)) {
-          builder.whereIn('status', findOptions.status);
+          builder.whereIn(`${samplesTable}.status`, findOptions.status);
         } else {
-          builder.where('status', findOptions.status);
+          builder.where(`${samplesTable}.status`, findOptions.status);
         }
       }
       if (findOptions.sampledAt) {
         builder.whereRaw(
-          `to_char(sampled_at, 'YYYY-MM-DD') = ?`,
+          `to_char(${samplesTable}.sampled_at, 'YYYY-MM-DD') = ?`,
           findOptions.sampledAt
         );
       }
       if (findOptions.reference) {
-        builder.whereILike('reference', `%${findOptions.reference}%`);
+        builder.whereILike(
+          `${samplesTable}.reference`,
+          `%${findOptions.reference}%`
+        );
       }
       if (findOptions.department) {
         builder.where(`${samplesTable}.department`, findOptions.department);

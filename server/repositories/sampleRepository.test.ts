@@ -106,7 +106,8 @@ describe('findMany samples', async () => {
 
     samples = await sampleRepository.findMany({
       programmingPlanId: Sample11Fixture.programmingPlanId,
-      compliance: 'notConform'
+      compliance: 'notConform',
+      status: 'DraftMatrix'
     });
     expect(samples).toHaveLength(1);
     expect(samples[0].id).toBe(analysisKO.sampleId);
