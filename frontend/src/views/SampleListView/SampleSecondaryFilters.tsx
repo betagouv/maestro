@@ -13,7 +13,8 @@ import {
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   FindSampleOptions,
-  SampleCompliance
+  SampleCompliance,
+  SampleComplianceLabels
 } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import { useMemo } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -125,8 +126,11 @@ const SampleSecondaryFilters = ({ filters, onChange }: Props) => {
           }}
         >
           <option value="">Tous</option>
-          <option value="conform">Conforme</option>
-          <option value="notConform">Non conforme</option>
+          {SampleCompliance.options.map((compliance) => (
+            <option key={`compliance-${compliance}`} value={compliance}>
+              {SampleComplianceLabels[compliance]}
+            </option>
+          ))}
         </Select>
       </div>
     </div>
