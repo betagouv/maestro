@@ -4,8 +4,8 @@ import Card from '@codegouvfr/react-dsfr/Card';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { sumBy } from 'lodash-es';
 import {
-  Context,
-  ContextLabels
+  ContextLabels,
+  ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatusLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
@@ -20,7 +20,7 @@ import { AuthenticatedAppRoutes } from '../../AppRoutes';
 
 interface ProgrammingPlanCardProps {
   programmingPlan: ProgrammingPlan;
-  context: Context;
+  context: ProgrammingPlanContext;
 }
 
 const ProgrammingPlanCard = ({

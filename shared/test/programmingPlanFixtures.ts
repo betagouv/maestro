@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { RegionList } from '../referential/Region';
-import { ContextList } from '../schema/ProgrammingPlan/Context';
+import { ProgrammingPlanContextList } from '../schema/ProgrammingPlan/Context';
 import { ProgrammingPlan } from '../schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatusList } from '../schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { oneOf } from './testFixtures';
@@ -11,7 +11,7 @@ export const genProgrammingPlan = (
 ): ProgrammingPlan => ({
   id: uuidv4(),
   kinds: ['PPV'],
-  contexts: [oneOf(ContextList)],
+  contexts: [oneOf(ProgrammingPlanContextList)],
   createdAt: new Date(),
   createdBy: uuidv4(),
   regionalStatus: RegionList.map((region) => ({
