@@ -56,7 +56,7 @@ router.put(
       body(z.array(ProgrammingPlanRegionalStatus))
     )
   ),
-  permissionsCheck(['manageProgrammingPlan']),
+  permissionsCheck(['manageProgrammingPlan', 'approveProgrammingPlan']),
   programmingPlanCheck(),
   programmingPlanController.updateRegionalStatus
 );
