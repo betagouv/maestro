@@ -3,12 +3,14 @@ import exceljs from 'exceljs';
 import highland from 'highland';
 import { getCultureKindLabel } from 'maestro-shared/referential/CultureKind';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
-import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { getMatrixPartLabel } from 'maestro-shared/referential/Matrix/MatrixPart';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { PartialSample } from 'maestro-shared/schema/Sample/Sample';
+import {
+  getSampleMatrixLabel,
+  PartialSample
+} from 'maestro-shared/schema/Sample/Sample';
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import { SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
 import { formatWithTz, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
@@ -119,7 +121,7 @@ const writeToWorkbook = async (
           companySiret: sample.company?.siret,
           resytalId: sample.resytalId,
           notesOnCreation: sample.notesOnCreation,
-          matrix: sample.matrix ? MatrixLabels[sample.matrix] : undefined,
+          matrix: getSampleMatrixLabel(sample),
           matrixDetails:
             sample.specificData?.programmingPlanKind === 'PPV'
               ? sample.specificData?.matrixDetails
