@@ -48,7 +48,7 @@ export const sampleLocalisationCheck =
     if (regions.length === 0) {
       return response
         .status(constants.HTTP_STATUS_FORBIDDEN)
-        .send(`Vous n'êtes accocié à aucune région.`);
+        .send(`Vous n'êtes associé à aucune région.`);
     }
 
     const departments = regions.flatMap((r) => [

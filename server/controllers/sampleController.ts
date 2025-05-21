@@ -189,7 +189,7 @@ const createSample = async (request: Request, response: Response) => {
   if (!user.region) {
     return response
       .status(constants.HTTP_STATUS_FORBIDDEN)
-      .send(`Vous n'êtes accocié à aucune région.`);
+      .send(`Vous n'êtes associé à aucune région.`);
   }
 
   if (sampleToCreate.company) {

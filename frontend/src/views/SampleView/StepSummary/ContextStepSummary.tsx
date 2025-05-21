@@ -60,10 +60,14 @@ const ContextStepSummary = ({
           à <b>{format(sample.sampledAt, "HH'h'mm")}</b>
         </div>
       </div>
-      { 'department' in sample && <div className="summary-item icon-text">
+      <div className="summary-item icon-text">
         <div className={cx('fr-icon-road-map-line')}></div>
         <div>
-          { sample.department ? (<>Département : <b>{DepartmentLabels[sample.department]}</b></>) : (
+          {sample.department ? (
+            <>
+              Département : <b>{DepartmentLabels[sample.department]}</b>
+            </>
+          ) : (
             <div>
               Département :{' '}
               <span className="missing-data">Informations à compléter</span>
@@ -86,7 +90,7 @@ const ContextStepSummary = ({
             </div>
           )}
         </div>
-      </div>}
+      </div>
       {(programmingPlan?.contexts ?? []).length > 1 && (
         <div className="summary-item icon-text">
           <div className={cx('fr-icon-microscope-line')}></div>
