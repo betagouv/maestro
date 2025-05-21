@@ -43,7 +43,6 @@ import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { StageLabels } from 'maestro-shared/referential/Stage';
-import { Substance } from 'maestro-shared/schema/Substance/Substance';
 import {
   hasNationalRole,
   hasPermission
@@ -308,9 +307,7 @@ const updateSample = async (request: Request, response: Response) => {
             ].join('\n')
           };
 
-          const substanceToLaboratorySubstance = (
-            substance: SSD2Id
-          ): Pick<Substance, 'label'> => {
+          const substanceToLaboratoryLabel = (substance: SSD2Id): string => {
             let laboratoryLabel: string | null = null;
             if (laboratory.name in laboratoriesConf) {
               const laboratoryName = laboratory.name as LaboratoryWithConf;
@@ -319,9 +316,7 @@ const updateSample = async (request: Request, response: Response) => {
                   laboratoriesConf[laboratoryName].ssd2IdByLabel
                 ).find(([_label, value]) => value === substance)?.[0] ?? null;
             }
-            return {
-              label: laboratoryLabel ?? SSD2IdLabel[substance]
-            };
+            return laboratoryLabel ?? SSD2IdLabel[substance];
           };
 
           const analysisRequestDocs =
@@ -331,11 +326,11 @@ const updateSample = async (request: Request, response: Response) => {
               sampler: user,
               company,
               laboratory,
-              monoSubstances: updatedSample.monoSubstances.map((substance) =>
-                substanceToLaboratorySubstance(substance)
+              monoSubstanceLabels: updatedSample.monoSubstances.map(
+                (substance) => substanceToLaboratoryLabel(substance)
               ),
-              multiSubstances: updatedSample.multiSubstances.map((substance) =>
-                substanceToLaboratorySubstance(substance)
+              multiSubstanceLabels: updatedSample.multiSubstances.map(
+                (substance) => substanceToLaboratoryLabel(substance)
               ),
               reference: [updatedSample.reference, sampleItem?.itemNumber]
                 .filter(isDefinedAndNotNull)

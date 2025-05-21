@@ -58,9 +58,15 @@ export const up = async (knex: Knex) => {
     }
     table.renameColumn('substance_code', 'substance');
   });
+
+  await knex.schema.dropTable('substances');
 };
 
 export const down = async (knex: Knex) => {
+  await knex.schema.createTable('substances', (table) => {
+    table.string('code').primary();
+    table.text('label').notNullable();
+  });
   await knex.schema.alterTable('prescription_substances', (table) => {
     table.renameColumn('substance', 'substance_code');
   });
