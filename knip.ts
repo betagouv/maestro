@@ -1,10 +1,18 @@
 export default {
-  entry: [
-    'server/database/migrations/*.ts',
-    'server/repositories/kysely.type.ts',
-    'frontend/src/index.tsx',
-    'frontend/src/serviceWorker.js'
-  ],
   ignore: ['types/**/*.d.ts'],
-  ignoreBinaries: ['playwright', 'concurrently', 'magenta,blue']
+  ignoreDependencies: ['vite', '@faker-js/faker'],
+  workspaces: {
+    '.': {
+      ignoreBinaries: ['concurrently', 'magenta,blue', 'playwright']
+    },
+    server: {
+      ignoreDependencies: ['body-parser', 'openapi3-ts', 'superagent'],
+      entry: ['database/migrations/*.ts', 'repositories/kysely.type.ts']
+    },
+    frontend: {
+      ignoreDependencies: ['geojson'],
+      entry: ['src/index.tsx'],
+      ignore: ['src/serviceWorker.js']
+    }
+  }
 };

@@ -1,5 +1,5 @@
-import { deepClone } from '@vitest/utils';
 import knex, { Knex } from 'knex';
+import { cloneDeep } from 'lodash-es';
 import { spawnSync } from 'node:child_process';
 import { Client } from 'pg';
 import defaultKnexConfig from '../knexfile';
@@ -58,7 +58,7 @@ class DbManager {
   }
 
   private getKnex(url: string): Knex {
-    const options = deepClone(defaultKnexConfig);
+    const options = cloneDeep(defaultKnexConfig);
 
     return knex({
       ...options,
