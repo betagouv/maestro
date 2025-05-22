@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { isEqual } from 'lodash-es';
 import { useEffect, useState } from 'react';
 import { z, ZodEffects, ZodObject, ZodRawShape } from 'zod';
 
@@ -24,7 +24,7 @@ export function useForm<
   ): z.ZodIssue | undefined {
     return isTouched && key
       ? error?.issues?.find((issue) =>
-          _.isEqual(issue.path, [key, ...(pathFromKey ?? [])])
+          isEqual(issue.path, [key, ...(pathFromKey ?? [])])
         )
       : error?.issues[0];
   }

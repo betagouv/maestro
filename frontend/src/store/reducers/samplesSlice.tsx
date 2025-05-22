@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import fp from 'lodash';
+import { isNil, omitBy } from 'lodash-es';
 import { defaultPerPage } from 'maestro-shared/schema/commons/Pagination';
 import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
@@ -8,13 +8,14 @@ import {
 } from 'maestro-shared/schema/Sample/Sample';
 import { SampleListDisplay } from 'src/views/SampleListView/SampleListView';
 import { z } from 'zod';
+
 const pendingSamples = JSON.parse(
   localStorage.getItem('pendingSamples') ?? '[]'
 ).reduce(
   (acc: Record<string, PartialSample | PartialSampleToCreate>, _: any) => {
     const sample = z
       .union([PartialSampleToCreate, PartialSample])
-      .parse(fp.omitBy(_, fp.isNil));
+      .parse(omitBy(_, isNil));
     acc[sample.id] = sample;
     return acc;
   },
@@ -50,12 +51,12 @@ const samplesSlice = createSlice({
       state,
       action: PayloadAction<Partial<FindSampleOptions>>
     ) => {
-      state.findSampleOptions = fp.omitBy(
+      state.findSampleOptions = omitBy(
         {
           ...state.findSampleOptions,
           ...action.payload
         },
-        fp.isNil
+        isNil
       );
     },
     addPendingSample: (

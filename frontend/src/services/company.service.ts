@@ -1,4 +1,4 @@
-import fp from 'lodash';
+import { isNil, omitBy } from 'lodash-es';
 import { Department } from 'maestro-shared/referential/Department';
 import { CompanySearchResult } from 'maestro-shared/schema/Company/CompanySearchResult';
 import { api } from 'src/services/api.service';
@@ -18,7 +18,7 @@ const companyApi = api.injectEndpoints({
       }),
       transformResponse: (response: { results: CompanySearchResult[] }) =>
         response.results.map((_) =>
-          CompanySearchResult.parse(fp.omitBy(_, fp.isNil))
+          CompanySearchResult.parse(omitBy(_, isNil))
         ),
       transformErrorResponse: () => {
         return [];

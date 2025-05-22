@@ -3,7 +3,7 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import _ from 'lodash';
+import { uniqBy } from 'lodash-es';
 import {
   PartialSample,
   PartialSampleToCreate
@@ -58,8 +58,7 @@ const ItemsStep = ({ partialSample }: Props) => {
       .array(SampleItem)
       .min(1, { message: 'Veuillez renseigner au moins un échantillon.' })
       .refine(
-        (items) =>
-          _.uniqBy(items, (item) => item.sealId).length === items.length,
+        (items) => uniqBy(items, (item) => item.sealId).length === items.length,
         'Les numéros de scellés doivent être uniques.'
       ),
     notesOnItems: z.string().nullish()

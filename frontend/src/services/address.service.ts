@@ -1,4 +1,4 @@
-import fp from 'lodash';
+import { isNil, omitBy } from 'lodash-es';
 import { Department } from 'maestro-shared/referential/Department';
 import {
   AddressSearchResult,
@@ -21,7 +21,7 @@ const addressApi = api.injectEndpoints({
       }),
       transformResponse: (response: AddressSearchResults) =>
         response.features.map((_) =>
-          AddressSearchResult.parse(fp.omitBy(_, fp.isNil))
+          AddressSearchResult.parse(omitBy(_, isNil))
         ),
       transformErrorResponse: () => {
         return [];

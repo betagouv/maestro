@@ -1,8 +1,14 @@
 import { format } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
 import { fr } from 'date-fns/locale';
-import _ from 'lodash';
-import { camelCase, flow, isArray, isPlainObject } from 'lodash-es';
+import {
+  camelCase,
+  cloneDeepWith,
+  flow,
+  isArray,
+  isDate,
+  isPlainObject
+} from 'lodash-es';
 import { z } from 'zod';
 
 export const isDefined = <A>(a: A | undefined): a is A => a !== undefined;
@@ -50,8 +56,8 @@ export const convertKeysToCamelCase = (obj: unknown): unknown => {
 };
 
 export function withISOStringDates(obj: any): any {
-  return _.cloneDeepWith(obj, (value) => {
-    if (_.isDate(value)) {
+  return cloneDeepWith(obj, (value) => {
+    if (isDate(value)) {
       return value.toISOString();
     }
     return undefined;

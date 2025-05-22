@@ -2,7 +2,7 @@ import Badge from '@codegouvfr/react-dsfr/Badge';
 import Button from '@codegouvfr/react-dsfr/Button';
 import Card from '@codegouvfr/react-dsfr/Card';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import _, { sumBy } from 'lodash';
+import { sumBy } from 'lodash-es';
 import {
   Context,
   ContextLabels
@@ -88,9 +88,9 @@ const ProgrammingPlanCard = ({
                 background
                 border
                 size="small"
-                title={_.sumBy(regionalPrescriptions, 'realizedSampleCount')}
+                title={sumBy(regionalPrescriptions, 'realizedSampleCount')}
                 desc={pluralize(
-                  _.sumBy(regionalPrescriptions, 'realizedSampleCount')
+                  sumBy(regionalPrescriptions, 'realizedSampleCount')
                 )('prélèvement réalisé')}
                 className={'fr-card--xs'}
                 enlargeLink

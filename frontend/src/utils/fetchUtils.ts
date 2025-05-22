@@ -1,19 +1,20 @@
-import fp from 'lodash/fp';
+import { flow, isBoolean, isEmpty, isNil, isNumber, pickBy } from 'lodash-es';
 
 export const getURLQuery = (params: object): string => {
-  if (fp.isEmpty(params)) {
+  if (isEmpty(params)) {
     return '';
   }
 
-  return fp.pipe(
-    // Faster than fp.omitBy
-    fp.pickBy((value) => {
-      return (
-        !fp.isNil(value) &&
-        (fp.isBoolean(value) || fp.isNumber(value) || !fp.isEmpty(value))
-      );
-    }),
+  return flow([
+    // Faster than omitBy
+    (params) =>
+      pickBy(params, (value) => {
+        return (
+          !isNil(value) &&
+          (isBoolean(value) || isNumber(value) || !isEmpty(value))
+        );
+      }),
     (params: Record<string, string>) => new URLSearchParams(params),
     (params) => (params.toString().length > 0 ? `?${params}` : '')
-  )(params);
+  ])(params);
 };

@@ -2,7 +2,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import clsx from 'clsx';
 import { t } from 'i18next';
-import _ from 'lodash';
+import { sumBy } from 'lodash-es';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, RegionList } from 'maestro-shared/referential/Region';
 import { Stage } from 'maestro-shared/referential/Stage';
@@ -113,7 +113,7 @@ const PrescriptionCard = ({
               <div className={clsx(cx('fr-mb-3w'), 'd-flex-align-center')}>
                 <span className="flex-grow-1">
                   {t('plannedSample', {
-                    count: _.sumBy(regionalPrescriptions, 'sampleCount')
+                    count: sumBy(regionalPrescriptions, 'sampleCount')
                   })}
                 </span>
                 {hasUserPrescriptionPermission(programmingPlan)?.delete && (

@@ -1,5 +1,5 @@
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
-import fp from 'lodash';
+import { isNil, omitBy } from 'lodash-es';
 import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   isCreatedPartialSample,
@@ -17,7 +17,7 @@ const sampleApi = api.injectEndpoints({
     getSample: builder.query<PartialSample, string>({
       query: (sampleId) => `samples/${sampleId}`,
       transformResponse: (response: any) =>
-        PartialSample.parse(fp.omitBy(response, fp.isNil)),
+        PartialSample.parse(omitBy(response, isNil)),
       providesTags: (_result, _error, sampleId) => [
         { type: 'Sample', id: sampleId }
       ]
@@ -28,7 +28,7 @@ const sampleApi = api.injectEndpoints({
         params: findOptions
       }),
       transformResponse: (response: any[]) =>
-        response.map((_) => PartialSample.parse(fp.omitBy(_, fp.isNil))),
+        response.map((_) => PartialSample.parse(omitBy(_, isNil))),
       providesTags: (result) => [
         { type: 'Sample', id: 'LIST' },
         ...(result ?? []).map(({ id }) => ({ type: 'Sample' as const, id }))
@@ -71,7 +71,7 @@ const sampleApi = api.injectEndpoints({
         );
 
         return {
-          data: PartialSample.parse(fp.omitBy(result.data as any, fp.isNil))
+          data: PartialSample.parse(omitBy(result.data as any, isNil))
         };
       },
       invalidatesTags: (_result, _error, { id }) => [
@@ -87,7 +87,7 @@ const sampleApi = api.injectEndpoints({
         body: partialSample
       }),
       transformResponse: (response: any) =>
-        PartialSample.parse(fp.omitBy(response, fp.isNil)),
+        PartialSample.parse(omitBy(response, isNil)),
       invalidatesTags: (_result, _error, { id }) => [
         { type: 'Sample', id: 'LIST' },
         { type: 'Sample', id },

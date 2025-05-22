@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { uniqBy } from 'lodash-es';
 import { z } from 'zod';
 import { AnimalKind } from '../../referential/AnimalKind';
 import { AnimalSex } from '../../referential/AnimalSex';
@@ -158,7 +158,7 @@ const SampleItemsData = z.object({
     .array(SampleItem)
     .min(1, { message: 'Veuillez renseigner au moins un échantillon.' })
     .refine(
-      (items) => _.uniqBy(items, (item) => item.sealId).length === items.length,
+      (items) => uniqBy(items, (item) => item.sealId).length === items.length,
       'Les numéros de scellés doivent être uniques.'
     ),
   notesOnItems: z.string().nullish()
@@ -259,7 +259,3 @@ export const isCreatedPartialSample = (
 ): partialSample is PartialSample =>
   partialSample !== undefined &&
   CreatedSampleData.safeParse(partialSample).success;
-
-const isCreatedSample = (
-  sample?: Sample | SampleToCreate
-): sample is Sample => CreatedSampleData.safeParse(sample).success;

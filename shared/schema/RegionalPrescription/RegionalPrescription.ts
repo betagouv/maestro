@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { sumBy } from 'lodash-es';
 import { z } from 'zod';
 import { Region, RegionSort } from '../../referential/Region';
 import { Prescription } from '../Prescription/Prescription';
@@ -57,14 +57,14 @@ export const getCompletionRate = (
     )
   }));
 
-  const totalSampleCount = _.sumBy(
+  const totalSampleCount = sumBy(
     regionalPrescriptionsWithLimitedSentCount.filter((_) =>
       region ? _.region === region : true
     ),
     'sampleCount'
   );
 
-  const totalRealizedSampleCount = _.sumBy(
+  const totalRealizedSampleCount = sumBy(
     regionalPrescriptionsWithLimitedSentCount.filter((_) =>
       region ? _.region === region : true
     ),

@@ -1,4 +1,4 @@
-import fp from 'lodash';
+import { isNil, omitBy } from 'lodash-es';
 import { FindNotificationOptions } from 'maestro-shared/schema/Notification/FindNotificationOptions';
 import {
   Notification,
@@ -15,7 +15,7 @@ const notificationApi = api.injectEndpoints({
         params: findOptions
       }),
       transformResponse: (response: any[]) =>
-        response.map((_) => Notification.parse(fp.omitBy(_, fp.isNil))),
+        response.map((_) => Notification.parse(omitBy(_, isNil))),
       providesTags: (result) => [
         { type: 'Notification', id: 'LIST' },
         ...(result ?? []).map(({ id }) => ({
@@ -49,7 +49,7 @@ const notificationApi = api.injectEndpoints({
         body: notificationUpdate
       }),
       transformResponse: (response: any[]) =>
-        response.map((_) => Notification.parse(fp.omitBy(_, fp.isNil))),
+        response.map((_) => Notification.parse(omitBy(_, isNil))),
       invalidatesTags: [{ type: 'Notification', id: 'LIST' }]
     })
   })

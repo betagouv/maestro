@@ -1,5 +1,5 @@
 import type { FeatureCollection } from 'geojson';
-import _ from 'lodash';
+import { sumBy } from 'lodash-es';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
 import {
   getCompletionRate,
@@ -66,7 +66,7 @@ const ProgrammingPlanMap = ({ regionalPrescriptions }: Props) => {
   }
 
   const getSampleCount = (region: Region) =>
-    _.sumBy(
+    sumBy(
       regionalPrescriptions.filter(
         (regionalPrescription) => regionalPrescription.region === region
       ),
@@ -74,7 +74,7 @@ const ProgrammingPlanMap = ({ regionalPrescriptions }: Props) => {
     );
 
   const getRealizedSampleCount = (region: Region) =>
-    _.sumBy(
+    sumBy(
       regionalPrescriptions.filter(
         (regionalPrescription) => regionalPrescription.region === region
       ),

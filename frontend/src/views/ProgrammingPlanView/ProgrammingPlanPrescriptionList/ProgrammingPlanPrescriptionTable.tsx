@@ -1,7 +1,7 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
 import clsx from 'clsx';
-import _ from 'lodash';
+import { sumBy } from 'lodash-es';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, RegionList } from 'maestro-shared/referential/Region';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
@@ -65,13 +65,13 @@ const ProgrammingPlanPrescriptionTable = ({
           key={`total-${prescription.matrixKind}`}
         >
           <div>
-            {_.sumBy(
+            {sumBy(
               getRegionalPrescriptions(prescription.id),
               ({ sampleCount }) => sampleCount
             )}
           </div>
           <div>
-            {_.sumBy(
+            {sumBy(
               getRegionalPrescriptions(prescription.id),
               'realizedSampleCount'
             )}
@@ -112,14 +112,14 @@ const ProgrammingPlanPrescriptionTable = ({
     () => [
       <b>Total</b>,
       <div className="border-left fr-text--bold">
-        <div>{_.sumBy(regionalPrescriptions, 'sampleCount')}</div>
-        <div>{_.sumBy(regionalPrescriptions, 'realizedSampleCount')}</div>
+        <div>{sumBy(regionalPrescriptions, 'sampleCount')}</div>
+        <div>{sumBy(regionalPrescriptions, 'realizedSampleCount')}</div>
         <CompletionBadge regionalPrescriptions={regionalPrescriptions} />
       </div>,
       ...RegionList.map((region) => [
         <div key={`total-${region}`} className="border-left fr-text--bold">
           <div>
-            {_.sumBy(
+            {sumBy(
               regionalPrescriptions.filter((r) => r.region === region),
               'sampleCount'
             )}
@@ -128,7 +128,7 @@ const ProgrammingPlanPrescriptionTable = ({
             ?.status === 'Validated' && (
             <>
               <div>
-                {_.sumBy(
+                {sumBy(
                   regionalPrescriptions.filter((r) => r.region === region),
                   'realizedSampleCount'
                 )}
