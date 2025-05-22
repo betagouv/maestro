@@ -12065,7 +12065,11 @@ const getSSD2IdByLabel = (label: string): SSD2Id | null => {
 export const searchSSD2IdByLabel = (query: string): SSD2Id[] => {
   const queryLowerCase = query.toLowerCase();
   return values
-    .filter(({ name }) => name.toLowerCase().includes(queryLowerCase))
+    .filter(({ name, otherNames }) =>
+      [name, ...otherNames].some((n) =>
+        n.toLowerCase().includes(queryLowerCase)
+      )
+    )
     .map(({ reference }) => reference);
 };
 
