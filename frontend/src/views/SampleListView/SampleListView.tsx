@@ -9,7 +9,10 @@ import { Department } from 'maestro-shared/referential/Department';
 import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
 import { Region } from 'maestro-shared/referential/Region';
 import { defaultPerPage } from 'maestro-shared/schema/commons/Pagination';
-import { Context } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import {
+  Context,
+  ProgrammingPlanContext
+} from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   FindSampleOptions,
   SampleCompliance
@@ -105,10 +108,12 @@ const SampleListView = () => {
   const { data: prescriptions } = useFindPrescriptionsQuery(
     {
       programmingPlanId: programmingPlan?.id as string,
-      context: findSampleOptions.context as Context
+      context: ProgrammingPlanContext.safeParse(findSampleOptions.context).data
     },
     {
-      skip: !programmingPlan?.id || !findSampleOptions.context
+      skip:
+        !programmingPlan?.id ||
+        !ProgrammingPlanContext.safeParse(findSampleOptions.context).success
     }
   );
   const { data: samplers } = useFindUsersQuery({

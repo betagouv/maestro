@@ -6,8 +6,12 @@ import {
   useGetDocumentQuery,
   useLazyGetDocumentDownloadSignedUrlQuery
 } from './document.service';
-import { useGetLaboratoryQuery } from './laboratory.service';
 import {
+  useFindLaboratoriesQuery,
+  useGetLaboratoryQuery
+} from './laboratory.service';
+import {
+  prescriptionApi,
   useFindPrescriptionsQuery,
   useGetPrescriptionSubstancesQuery
 } from './prescription.service';
@@ -25,10 +29,13 @@ export const apiClient = {
   useDeleteDocumentMutation,
   useFindPrescriptionsQuery,
   useFindRegionalPrescriptionsQuery,
+  useFindLaboratoriesQuery,
   useGetDocumentQuery,
   useGetLaboratoryQuery,
   useGetSampleAnalysisQuery: analysisApi.useGetSampleAnalysisQuery,
   useLazyGetDocumentDownloadSignedUrlQuery,
+  useLazyGetPrescriptionSubstancesQuery:
+    prescriptionApi.useLazyGetPrescriptionSubstancesQuery,
   useUpdateAnalysisMutation,
   useUpdateSampleMutation,
   useGetPrescriptionSubstancesQuery,

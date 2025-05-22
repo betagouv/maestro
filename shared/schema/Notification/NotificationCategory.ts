@@ -1,12 +1,15 @@
 import { z } from 'zod';
 import { Brand } from '../../constants';
-import { Context, ContextLabels } from '../ProgrammingPlan/Context';
+import {
+  ContextLabels,
+  ProgrammingPlanContextList
+} from '../ProgrammingPlan/Context';
 
 export const NotificationCategory = z.enum([
   'ProgrammingPlanSubmitted',
   'ProgrammingPlanValidated',
   'AnalysisReviewTodo',
-  ...Context.options
+  ...ProgrammingPlanContextList
 ]);
 
 export const NotificationCategoryList = NotificationCategory.options;

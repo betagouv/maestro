@@ -2,12 +2,12 @@ import { fakerFR } from '@faker-js/faker';
 import { v4 as uuidv4 } from 'uuid';
 import { MatrixKindEffective } from '../referential/Matrix/MatrixKind';
 import { RegionList } from '../referential/Region';
+import { SSD2Ids } from '../referential/Residue/SSD2Id';
 import { AnalysisMethodList } from '../schema/Analysis/AnalysisMethod';
 import { Prescription } from '../schema/Prescription/Prescription';
 import { PrescriptionSubstance } from '../schema/Prescription/PrescriptionSubstance';
-import { ContextList } from '../schema/ProgrammingPlan/Context';
+import { ProgrammingPlanContextList } from '../schema/ProgrammingPlan/Context';
 import { RegionalPrescription } from '../schema/RegionalPrescription/RegionalPrescription';
-import { genSubstance } from './substanceFixtures';
 import { oneOf } from './testFixtures';
 
 export const genPrescription = (
@@ -16,7 +16,7 @@ export const genPrescription = (
   id: uuidv4(),
   programmingPlanId: uuidv4(),
   programmingPlanKind: 'PPV',
-  context: oneOf(ContextList),
+  context: oneOf(ProgrammingPlanContextList),
   matrixKind: oneOf(MatrixKindEffective.options),
   stages: ['STADE1'],
   ...data
@@ -39,6 +39,6 @@ export const genPrescriptionSubstance = (
 ): PrescriptionSubstance => ({
   prescriptionId: uuidv4(),
   analysisMethod: oneOf(AnalysisMethodList),
-  substance: genSubstance(),
+  substance: oneOf(SSD2Ids),
   ...data
 });

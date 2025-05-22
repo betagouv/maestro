@@ -77,10 +77,12 @@ export const defaultMockApiClientConf: MockApi<ApiClient> = {
       status: 'Residues'
     })
   },
+  useFindLaboratoriesQuery: { data: [] },
   useFindPrescriptionsQuery: { data: [] },
   useFindRegionalPrescriptionsQuery: { data: [] },
   useGetProgrammingPlanQuery: { data: genProgrammingPlan() },
-  useGetPrescriptionSubstancesQuery: { data: [] }
+  useGetPrescriptionSubstancesQuery: { data: [] },
+  useLazyGetPrescriptionSubstancesQuery: []
 };
 
 export const mockApiClient = getMockApi<ApiClient>(defaultMockApiClientConf);

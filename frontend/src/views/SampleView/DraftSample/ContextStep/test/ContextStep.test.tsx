@@ -42,7 +42,7 @@ describe('DraftSampleContextStep', () => {
   test('should render form successfully', async () => {
     render(
       <ProviderTest store={store}>
-        <ContextStep />
+        <ContextStep programmingPlan={programmingPlan1} />
       </ProviderTest>
     );
 
@@ -68,7 +68,7 @@ describe('DraftSampleContextStep', () => {
   test('should handle errors on submitting', async () => {
     render(
       <ProviderTest store={store}>
-        <ContextStep />
+        <ContextStep programmingPlan={programmingPlan1} />
       </ProviderTest>
     );
 

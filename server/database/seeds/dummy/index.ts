@@ -8,8 +8,7 @@ import { seed as pfasPrescriptionsSeed } from './004-prescriptions-pfas';
 import { seed as ppvPrescriptionsSeed } from './004-prescriptions-ppv';
 import { seed as companiesSeed } from './005-companies';
 import { seed as samplesSeed } from './006-samples';
-import { seed as substancesSeed } from './007-substances';
-import { seed as substanceAnalysisSeed } from './008-substance-analysis';
+import { seed as substanceAnalysisSeed } from './007-substance-analysis';
 
 const run = async () => {
   initKnex();
@@ -22,7 +21,6 @@ const run = async () => {
   await pfasPrescriptionsSeed();
   await companiesSeed();
   await samplesSeed();
-  await substancesSeed();
   await substanceAnalysisSeed();
 };
 run()

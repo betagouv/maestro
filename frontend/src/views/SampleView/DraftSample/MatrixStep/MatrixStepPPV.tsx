@@ -8,8 +8,7 @@ import {
 import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
 import {
   MatrixKind,
-  MatrixKindLabels,
-  MatrixKindList
+  OtherMatrixKind
 } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
@@ -18,17 +17,15 @@ import {
   MatrixPartLabels,
   MatrixPartList
 } from 'maestro-shared/referential/Matrix/MatrixPart';
+import { Stage } from 'maestro-shared/referential/Stage';
 import {
-  Stage,
-  StageLabels,
-  StageList
-} from 'maestro-shared/referential/Stage';
-import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
-import {
+  isProgrammingPlanSample,
   PartialSample,
   PartialSampleMatrixSpecificData,
   PartialSampleToCreate,
+  prescriptionSubstancesRefinement,
   SampleMatrixData,
+  sampleMatrixRefinement,
   SampleMatrixSpecificDataPPV
 } from 'maestro-shared/schema/Sample/Sample';
 import {
@@ -39,11 +36,15 @@ import {
   useState
 } from 'react';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
-import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
+import {
+  AppSelectOption,
+  selectOptionsFromList
+} from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { z } from 'zod';
 import AppSearchInput from '../../../../components/_app/AppSearchInput/AppSearchInput';
 import AppTextAreaInput from '../../../../components/_app/AppTextAreaInput/AppTextAreaInput';
+import SubstanceSearch from '../../../../components/SubstanceSearch/SubstanceSearch';
 import { useForm } from '../../../../hooks/useForm';
 import { MatrixStepRef } from './MatrixStep';
 
@@ -65,7 +66,8 @@ export type PartialSamplePPV = (PartialSample | PartialSampleToCreate) & {
 
 export interface Props {
   partialSample: PartialSamplePPV;
-  prescriptions: Prescription[];
+  matrixKindOptions: AppSelectOption[];
+  stageOptions: AppSelectOption[];
   onSave: (sampleMatrixData: SampleMatrixPPVData) => Promise<void>;
   onSubmit: () => Promise<void>;
   renderSampleAttachments?: () => ReactNode;
@@ -73,7 +75,14 @@ export interface Props {
 
 const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
   (
-    { partialSample, prescriptions, onSave, onSubmit, renderSampleAttachments },
+    {
+      partialSample,
+      matrixKindOptions,
+      stageOptions,
+      onSave,
+      onSubmit,
+      renderSampleAttachments
+    },
     ref
   ) => {
     const [matrixKind, setMatrixKind] = useState(partialSample.matrixKind);
@@ -94,6 +103,12 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
     );
     const [releaseControl, setReleaseControl] = useState(
       partialSample.specificData.releaseControl
+    );
+    const [monoSubstances, setMonoSubstances] = useState(
+      partialSample.monoSubstances ?? []
+    );
+    const [multiSubstances, setMultiSubstances] = useState(
+      partialSample.multiSubstances ?? []
     );
 
     type FormShape = typeof SampleMatrixPPVData.shape;
@@ -116,24 +131,24 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
         stage,
         specificData,
         notesOnMatrix,
-        prescriptionId: prescriptions?.find(
-          (p) =>
-            p.programmingPlanKind === specificData.programmingPlanKind &&
-            p.matrixKind === matrixKind &&
-            stage &&
-            p.stages.includes(stage)
-        )?.id
+        monoSubstances,
+        multiSubstances
       } as SampleMatrixPPVData);
 
     const form = useForm(
-      SampleMatrixPPVData,
+      SampleMatrixPPVData.superRefine((data, ctx) => {
+        prescriptionSubstancesRefinement(data, ctx);
+        sampleMatrixRefinement(data, ctx);
+      }),
       {
         matrixKind,
         matrix,
         stage,
         specificData,
         notesOnMatrix,
-        prescriptionId: partialSample.prescriptionId
+        prescriptionId: partialSample.prescriptionId,
+        monoSubstances,
+        multiSubstances
       },
       save
     );
@@ -152,21 +167,7 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
             <AppSearchInput
               value={matrixKind ?? ''}
-              options={selectOptionsFromList(
-                MatrixKindList.filter((matrixKind) =>
-                  prescriptions?.find(
-                    (p) =>
-                      p.programmingPlanKind ===
-                        specificData.programmingPlanKind &&
-                      p.matrixKind === matrixKind
-                  )
-                ),
-                {
-                  labels: MatrixKindLabels,
-                  withSort: true,
-                  withDefault: false
-                }
-              )}
+              options={matrixKindOptions}
               placeholder="Sélectionner une catégorie"
               onSelect={(value) => {
                 setMatrixKind(value as MatrixKind);
@@ -184,53 +185,77 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
             />
           </div>
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-            <AppSearchInput
-              value={matrix ?? ''}
-              options={selectOptionsFromList(
-                matrixKind
-                  ? (MatrixListByKind[matrixKind as MatrixKind] ?? matrixKind)
-                  : [],
-                {
-                  labels: MatrixLabels,
-                  withSort: true,
-                  withDefault: false
-                }
-              )}
-              placeholder="Sélectionner une matrice"
-              onSelect={(value) => {
-                setMatrix(value as Matrix);
-              }}
-              state={form.messageType('matrix')}
-              stateRelatedMessage={form.message('matrix')}
-              whenValid="Matrice correctement renseignée."
-              data-testid="matrix-select"
-              label="Matrice"
-              required
-              inputProps={{
-                'data-testid': 'matrix-select'
-              }}
-            />
+            {matrixKind === OtherMatrixKind.value ? (
+              <AppTextInput<FormShape>
+                defaultValue={matrix ?? ''}
+                onChange={(e) => setMatrix(e.target.value)}
+                inputForm={form}
+                inputKey="matrix"
+                whenValid="Matrice correctement renseignée."
+                required
+                label="Matrice"
+              />
+            ) : (
+              <AppSearchInput
+                value={matrix ?? ''}
+                options={selectOptionsFromList(
+                  matrixKind
+                    ? (MatrixListByKind[matrixKind as MatrixKind] ?? matrixKind)
+                    : [],
+                  {
+                    labels: MatrixLabels,
+                    withSort: true,
+                    withDefault: false
+                  }
+                )}
+                placeholder="Sélectionner une matrice"
+                onSelect={(value) => {
+                  setMatrix(value as Matrix);
+                }}
+                state={form.messageType('matrix')}
+                stateRelatedMessage={form.message('matrix')}
+                whenValid="Matrice correctement renseignée."
+                data-testid="matrix-select"
+                label="Matrice"
+                required
+                inputProps={{
+                  'data-testid': 'matrix-select'
+                }}
+              />
+            )}
           </div>
+          {!isProgrammingPlanSample(partialSample) && (
+            <>
+              <div className={cx('fr-col-12', 'fr-mt-2w', 'fr-pb-1v')}>
+                <span className={cx('fr-text--md', 'fr-text--bold')}>
+                  Analyses mono-résidu et multi-résidus
+                </span>
+              </div>
+              <div className={cx('fr-col-12')}>
+                <SubstanceSearch
+                  analysisMethod="Mono"
+                  substances={monoSubstances ?? []}
+                  onChangeSubstances={setMonoSubstances}
+                  addButtonMode="text"
+                />
+              </div>
+              <div className={cx('fr-col-12')}>
+                <SubstanceSearch
+                  analysisMethod="Multi"
+                  substances={multiSubstances ?? []}
+                  onChangeSubstances={setMultiSubstances}
+                  addButtonMode="text"
+                />
+              </div>
+              <div className={cx('fr-col-12')}>
+                <hr />
+              </div>
+            </>
+          )}
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
             <AppSelect<FormShape>
               value={stage ?? ''}
-              options={selectOptionsFromList(
-                StageList.filter(
-                  (stage) =>
-                    !prescriptions ||
-                    prescriptions.find(
-                      (p) =>
-                        p.programmingPlanKind ===
-                          specificData.programmingPlanKind &&
-                        p.matrixKind === matrixKind &&
-                        p.stages.includes(stage)
-                    )
-                ),
-                {
-                  labels: StageLabels,
-                  defaultLabel: 'Sélectionner un stade'
-                }
-              )}
+              options={stageOptions}
               onChange={(e) => setStage(e.target.value as Stage)}
               inputForm={form}
               inputKey="stage"

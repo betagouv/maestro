@@ -12,7 +12,7 @@ import {
   PrescriptionUpdate
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { PrescriptionSubstance } from 'maestro-shared/schema/Prescription/PrescriptionSubstance';
-import { Context } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { RegionalPrescriptionUpdate } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
@@ -43,7 +43,7 @@ export type PrescriptionListDisplay = 'table' | 'cards';
 
 interface Props {
   programmingPlan: ProgrammingPlan;
-  context: Context;
+  context: ProgrammingPlanContext;
   region?: Region;
 }
 
