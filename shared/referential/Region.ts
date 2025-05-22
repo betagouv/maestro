@@ -41,7 +41,7 @@ export const Regions: Record<
       longitude: number;
     };
     departments: Department[];
-    borderingDepartments?: Department[];
+    borderingDepartments: Department[];
     establishment: {
       name: string;
       service?: string;
@@ -183,6 +183,7 @@ export const Regions: Record<
       longitude: 9.1
     },
     departments: ['2A', '2B'],
+    borderingDepartments: [],
     establishment: {
       name: 'DRAAF / SRAL Corse',
       service: 'Service régional de l’alimentation (SRAL)',
@@ -406,6 +407,7 @@ export const Regions: Record<
       longitude: -2.8
     },
     departments: ['971'],
+    borderingDepartments: [],
     isDrom: true,
     establishment: {
       name: 'DAAF / SALIM Guadeloupe',
@@ -422,6 +424,7 @@ export const Regions: Record<
       longitude: -5.8
     },
     departments: ['972'],
+    borderingDepartments: [],
     isDrom: true,
     establishment: {
       name: 'DAAF / SALIM Martinique',
@@ -439,6 +442,7 @@ export const Regions: Record<
       longitude: -5.8
     },
     departments: ['973'],
+    borderingDepartments: [],
     isDrom: true,
     establishment: {
       name: 'DAAF / SALIM de Guyane',
@@ -456,6 +460,7 @@ export const Regions: Record<
       longitude: -2.45
     },
     departments: ['974'],
+    borderingDepartments: [],
     isDrom: true,
     establishment: {
       name: 'DAAF / SALIM de la Réunion',
@@ -472,6 +477,7 @@ export const Regions: Record<
       longitude: -3.9
     },
     departments: ['976'],
+    borderingDepartments: [],
     isDrom: true,
     establishment: {
       name: 'DAAF / SALIM Mayotte',

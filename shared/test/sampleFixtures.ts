@@ -33,10 +33,9 @@ export const genSampleContextData = (
 ): SampleContextData => ({
   id: uuidv4(),
   sampledAt: new Date(),
-  department: oneOf(Regions['44'].departments),
   geolocation: {
-    x: 48.8566,
-    y: 2.3522
+    x: 49.788805,
+    y: 4.731044,
   },
   programmingPlanId: uuidv4(),
   context: oneOf(ContextList),
@@ -125,6 +124,10 @@ export const Sample11Fixture = genCreatedPartialSample({
   sampledAt: new Date('2025-05-06'),
   department: '08',
   region: '44',
+  geolocation: {
+    x: 49.788805,
+    y: 4.731044,
+  },
   programmingPlanId: ValidatedProgrammingPlanFixture.id,
   context: 'Control',
   legalContext: 'A',

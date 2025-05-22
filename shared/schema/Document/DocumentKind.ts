@@ -15,7 +15,7 @@ export const getSupportDocumentFilename = (
 ) => `DAP-${sample.reference}-${itemNumber}.pdf`;
 
 export const getAnalysisReportDocumentFilename = (
-  sample: CreatedSampleData,
+  sample: Pick<CreatedSampleData, 'reference'>,
   itemNumber: number,
   extension: 'xlsx' | 'csv'
 ) => `DAI-${sample.reference}-${itemNumber}.${extension}`;

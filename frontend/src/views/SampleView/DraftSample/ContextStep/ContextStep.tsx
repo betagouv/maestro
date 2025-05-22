@@ -4,7 +4,6 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Skeleton } from '@mui/material';
 import clsx from 'clsx';
 import { format, parse } from 'date-fns';
-import { Department } from 'maestro-shared/referential/Department';
 import {
   LegalContext,
   LegalContextLabels,
@@ -26,7 +25,7 @@ import {
   SampleContextData
 } from 'maestro-shared/schema/Sample/Sample';
 import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import balance from 'src/assets/illustrations/balance.svg';
 import check from 'src/assets/illustrations/check.svg';
 import controle from 'src/assets/illustrations/controle.svg';
@@ -48,7 +47,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import AppSelect from '../../../../components/_app/AppSelect/AppSelect';
 import { usePartialSample } from '../../../../hooks/usePartialSample';
+import { isErrorWithMessage } from '../../../../services/api.service';
 import NextButton from '../NextButton';
+
 interface Props {
   partialSample?: PartialSample | PartialSampleToCreate;
 }
@@ -85,8 +86,10 @@ const ContextStep = ({ partialSample }: Props) => {
   const [notesOnCreation, setNotesOnCreation] = useState(
     partialSample?.notesOnCreation
   );
+  const isSubmitting = useRef<boolean>(false);
 
-  const [createOrUpdateSample] = useCreateOrUpdateSampleMutation();
+  const [createOrUpdateSample, createOrUpdateSampleCall] =
+    useCreateOrUpdateSampleMutation();
 
   const geolocation = z.object({
     geolocationX: z.number({
@@ -163,7 +166,6 @@ const ContextStep = ({ partialSample }: Props) => {
   const formData = {
     id,
     sampledAt: parse(sampledAt, 'yyyy-MM-dd HH:mm', new Date()),
-    department: company?.department as Department,
     geolocation:
       geolocationX && geolocationY
         ? {
@@ -183,9 +185,25 @@ const ContextStep = ({ partialSample }: Props) => {
     specificData: specificData as PartialSampleMatrixSpecificData
   };
 
+  useEffect(() => {
+    if (isSubmitting.current && !createOrUpdateSampleCall.isLoading) {
+      isSubmitting.current = false;
+
+      if (createOrUpdateSampleCall.isSuccess) {
+        navigateToSample(formData.id);
+      }
+    }
+  }, [
+    createOrUpdateSampleCall.isSuccess,
+    createOrUpdateSampleCall.isLoading,
+    formData.id,
+    navigateToSample
+  ]);
+
   const submit = async (e?: React.MouseEvent<HTMLElement>) => {
     e?.preventDefault();
     await form.validate(async () => {
+      isSubmitting.current = true;
       if (partialSample) {
         await save('DraftMatrix');
       } else {
@@ -194,13 +212,12 @@ const ContextStep = ({ partialSample }: Props) => {
           status: 'DraftMatrix'
         });
       }
-      navigateToSample(formData.id);
     });
   };
 
   const save = async (status = partialSample?.status) => {
     if (partialSample) {
-      await createOrUpdateSample({
+      createOrUpdateSample({
         ...partialSample,
         ...formData,
         status: status as SampleStatus
@@ -225,7 +242,6 @@ const ContextStep = ({ partialSample }: Props) => {
   const formInput = {
     id,
     sampledAt,
-    department: company?.department as Department,
     geolocationX,
     geolocationY,
     parcel,
@@ -511,29 +527,44 @@ const ContextStep = ({ partialSample }: Props) => {
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={clsx(cx('fr-col-12'), 'sample-actions')}>
           {!readonly ? (
-            <ButtonsGroup
-              alignment="between"
-              inlineLayoutWhen="md and up"
-              buttons={[
-                {
-                  children: 'Abandonner la saisie',
-                  priority: 'tertiary',
-                  onClick: navigateToSamples,
-                  nativeButtonProps: {
-                    'data-testid': 'cancel-button'
+            <>
+              {createOrUpdateSampleCall.isError && (
+                <Alert
+                  severity="error"
+                  className={cx('fr-mb-2w')}
+                  small={true}
+                  description={
+                    isErrorWithMessage(createOrUpdateSampleCall.error)
+                      ? createOrUpdateSampleCall.error.data
+                      : ''
                   }
-                },
-                {
-                  children: 'Continuer',
-                  onClick: submit,
-                  iconId: 'fr-icon-arrow-right-line',
-                  iconPosition: 'right',
-                  nativeButtonProps: {
-                    'data-testid': 'submit-button'
+                />
+              )}
+              <ButtonsGroup
+                alignment="between"
+                inlineLayoutWhen="md and up"
+                buttons={[
+                  {
+                    children: 'Abandonner la saisie',
+                    priority: 'tertiary',
+                    onClick: navigateToSamples,
+                    nativeButtonProps: {
+                      'data-testid': 'cancel-button'
+                    }
+                  },
+                  {
+                    children: 'Continuer',
+                    onClick: submit,
+                    iconId: 'fr-icon-arrow-right-line',
+                    iconPosition: 'right',
+                    disabled: createOrUpdateSampleCall.isLoading,
+                    nativeButtonProps: {
+                      'data-testid': 'submit-button'
+                    }
                   }
-                }
-              ]}
-            />
+                ]}
+              />
+            </>
           ) : (
             <ul
               className={cx(

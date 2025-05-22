@@ -38,8 +38,13 @@ import {
   SamplerAndNationalObserver
 } from 'maestro-shared/test/userFixtures';
 import { withISOStringDates } from 'maestro-shared/utils/utils';
-import { describe, expect, test } from 'vitest';
+import { beforeAll, describe, expect, test } from 'vitest';
+import { departmentsSeed } from '../../database/seeds/departments/departmentsSeed';
 import { mockGenerateSampleSupportPDF } from '../../test/setupTests';
+
+beforeAll(async () => {
+  await departmentsSeed();
+});
 describe('Sample router', () => {
   const { app } = createServer();
 
@@ -335,14 +340,22 @@ describe('Sample router', () => {
           latitude: undefined
         }
       });
+      const badRequest = await badRequestTest({
+        ...genSampleContextData(),
+        geolocation: {
+          x: 0,
+          y: 0
+        }
+      });
+      expect(badRequest.text).toMatchInlineSnapshot(
+        `"Coordonnées GPS incorrectes."`
+      );
+
       await badRequestTest({
         ...genSampleContextData(),
         programmingPlanId: '123'
       });
       await badRequestTest({ ...genSampleContextData(), legalContext: '123' });
-      await badRequestTest({ ...genSampleContextData(), department: '123' });
-      await badRequestTest({ ...genSampleContextData(), department: '' });
-      await badRequestTest({ ...genSampleContextData(), department: 123 });
       await badRequestTest({
         ...genSampleContextData(),
         sampledAt: 'invalid date'
@@ -361,6 +374,10 @@ describe('Sample router', () => {
       await forbiddenRequestTest(NationalCoordinator);
       await forbiddenRequestTest(NationalObserver);
       await forbiddenRequestTest(AdminFixture);
+      const forbiddenRequest = await forbiddenRequestTest(Sampler2Fixture);
+      expect(forbiddenRequest.text).toMatchInlineSnapshot(
+        `"Vous n'avez pas les droits dans le département Ardennes"`
+      );
     });
 
     test('should create a sample with incremental reference', async () => {
@@ -490,6 +507,16 @@ describe('Sample router', () => {
           }
         ]
       });
+      const badRequest = await badRequestTest({
+        ...genSampleContextData(),
+        geolocation: {
+          x: 0,
+          y: 0
+        }
+      });
+      expect(badRequest.text).toMatchInlineSnapshot(
+        `"Coordonnées GPS incorrectes."`
+      );
     });
 
     const validBody = {

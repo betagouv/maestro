@@ -46,3 +46,15 @@ export const api = createApi({
   tagTypes,
   endpoints: () => ({})
 });
+
+/**
+ * Type predicate to narrow an unknown error to an object with a string 'data' property
+ */
+export function isErrorWithMessage(error: unknown): error is { data: string } {
+  return (
+    typeof error === 'object' &&
+    error != null &&
+    'data' in error &&
+    typeof (error as any).data === 'string'
+  );
+}

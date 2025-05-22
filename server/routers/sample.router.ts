@@ -7,7 +7,10 @@ import {
 import { z } from 'zod';
 import sampleController from '../controllers/sampleController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
-import { sampleCheck } from '../middlewares/checks/sampleCheck';
+import {
+  sampleCheck,
+  sampleLocalisationCheck
+} from '../middlewares/checks/sampleCheck';
 import validator, {
   body,
   params,
@@ -65,6 +68,7 @@ router.post(
   '',
   validator.validate(body(PartialSampleToCreate)),
   permissionsCheck(['createSample']),
+  sampleLocalisationCheck(),
   sampleController.createSample
 );
 router.put(
@@ -72,6 +76,7 @@ router.put(
   validator.validate(uuidParam('sampleId').merge(body(PartialSample))),
   permissionsCheck(['updateSample', 'restoreSampleToReview']),
   sampleCheck(),
+  sampleLocalisationCheck(),
   sampleController.updateSample
 );
 router.delete(
