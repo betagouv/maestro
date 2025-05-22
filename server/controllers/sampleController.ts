@@ -253,14 +253,18 @@ const updateSample = async (request: Request, response: Response) => {
     );
   }
 
+  const mustBeSent =
+    sample.status === 'Submitted' && sampleUpdate.status === 'Sent';
+
   //TODO update only the fields concerned in relation to the status
   const updatedPartialSample = {
     ...sample,
     ...sampleUpdate,
-    lastUpdatedAt: new Date()
+    lastUpdatedAt: new Date(),
+    sentAt: mustBeSent ? new Date() : sample.sentAt
   };
 
-  if (sample.status === 'Submitted' && updatedPartialSample.status === 'Sent') {
+  if (mustBeSent) {
     const updatedSample = Sample.parse(updatedPartialSample);
     const sampleItems = await sampleItemRepository.findMany(sample.id);
 
@@ -391,18 +395,22 @@ const updateSample = async (request: Request, response: Response) => {
             },
             attachment: [
               ...sampleAttachments,
-              ...analysisRequestDocs.map((doc) => ({
-                name: doc.filename,
-                content: Buffer.from(doc.buffer as Buffer).toString('base64')
-              })),
-              {
-                name: `${getSupportDocumentFilename(
-                  updatedSample,
-                  sampleItem.itemNumber
-                )}`,
-                content: sampleSupportDoc.toString('base64')
-              }
-            ]
+              ...analysisRequestDocs
+                .filter((doc) => !isNil(doc.buffer))
+                .map((doc) => ({
+                  name: doc.filename,
+                  content: Buffer.from(doc.buffer as Buffer).toString('base64')
+                })),
+              sampleSupportDoc
+                ? {
+                    name: `${getSupportDocumentFilename(
+                      updatedSample,
+                      sampleItem.itemNumber
+                    )}`,
+                    content: sampleSupportDoc.toString('base64')
+                  }
+                : undefined
+            ].filter((_) => !isNil(_))
           });
         }
 

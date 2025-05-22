@@ -581,6 +581,44 @@ describe('Sample router', () => {
       await successRequestTest(SamplerAndNationalObserver);
     });
 
+    test('should update the sample send date when sending the sample', async () => {
+      const successRequestTest = async (user: User) => {
+        await Samples()
+          .where({
+            id: Sample11Fixture.id
+          })
+          .update({
+            status: 'Submitted',
+            ownerAgreement: true,
+            sentAt: null
+          });
+
+        await request(app)
+          .put(`${testRoute(Sample11Fixture.id)}`)
+          .send({
+            ...validBody,
+            status: 'Sent'
+          })
+          .use(tokenProvider(user))
+          .expect(constants.HTTP_STATUS_OK);
+
+        await expect(
+          Samples()
+            .where({
+              id: Sample11Fixture.id
+            })
+            .first()
+        ).resolves.toMatchObject({
+          status: 'Sent',
+          sentAt: expect.any(Date)
+        });
+      };
+
+      await successRequestTest(Sampler1Fixture);
+      await successRequestTest(RegionalCoordinator);
+      await successRequestTest(SamplerAndNationalObserver);
+    });
+
     test('should update the sample compliance', async () => {
       const successRequestTest = async (user: User) => {
         await request(app)
