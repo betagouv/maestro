@@ -98,13 +98,13 @@ export type PartialSamplePFAS = (PartialSample | PartialSampleToCreate) & {
   >;
 };
 
-export interface Props {
+type Props = {
   partialSample: PartialSamplePFAS;
   prescriptions: Prescription[];
   onSave: (sampleMatrixData: SampleMatrixPFASData) => Promise<void>;
   onSubmit: () => Promise<void>;
   renderSampleAttachments?: () => ReactNode;
-}
+};
 
 const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
   (

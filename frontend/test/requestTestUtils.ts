@@ -1,11 +1,6 @@
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { FetchMock, MockResponse } from 'vitest-fetch-mock';
 
-export interface RequestCall {
-  url: string;
-  body: any;
-}
-
 export const getRequestCalls = (fetchMock: FetchMock) =>
   Promise.all(
     fetchMock.mock.calls.map(async (call) => {
@@ -21,7 +16,7 @@ export const getRequestCalls = (fetchMock: FetchMock) =>
     })
   );
 
-export interface RequestMatch {
+interface RequestMatch {
   pathname: string;
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   response: MockResponse;

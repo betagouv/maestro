@@ -2,24 +2,13 @@ import { format } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
 import { fr } from 'date-fns/locale';
 import _ from 'lodash';
-import {
-  camelCase,
-  chain,
-  flow,
-  isArray,
-  isObject,
-  isPlainObject
-} from 'lodash-es';
-import { z, ZodObject } from 'zod';
+import { camelCase, flow, isArray, isPlainObject } from 'lodash-es';
+import { z } from 'zod';
 
 export const isDefined = <A>(a: A | undefined): a is A => a !== undefined;
 
-export const isNotNull = <A>(a: A | null): a is A => a !== null;
-
 export const isDefinedAndNotNull = <A>(a: A | null | undefined): a is A =>
   a !== null && a !== undefined;
-
-export const isNotEmpty = <A>(a: any): a is A => Object.keys(a).length !== 0;
 
 export function coerceToArray<Schema extends z.ZodArray<z.ZodTypeAny>>(
   schema: Schema
@@ -59,30 +48,6 @@ export const convertKeysToCamelCase = (obj: unknown): unknown => {
 
   return flow(transform, deepTransform)(obj);
 };
-
-export function refineObject<T extends ZodObject<any>>(
-  schema: T,
-  refinement: (data: z.infer<T>) => boolean,
-  path: (string | number)[],
-  message: string
-): T {
-  return schema.refine(refinement, {
-    path,
-    message
-  }) as unknown as T;
-}
-
-export const objToUrlParams = (obj: any) =>
-  new URLSearchParams(
-    chain(obj)
-      .omitBy((v) => !v)
-      .mapValues((o) => (isObject(o) ? JSON.stringify(o) : o))
-      .value()
-  );
-
-export function toArray<T>(value: T | T[]): T[] {
-  return Array.isArray(value) ? value : [value];
-}
 
 export function withISOStringDates(obj: any): any {
   return _.cloneDeepWith(obj, (value) => {

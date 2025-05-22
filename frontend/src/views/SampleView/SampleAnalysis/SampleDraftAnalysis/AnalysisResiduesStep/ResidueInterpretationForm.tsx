@@ -26,7 +26,7 @@ import { Form } from './AnalysisResiduesForm';
 
 type FormShape = Form['shape'];
 
-export type Props = {
+type Props = {
   form: UseForm<Form>;
   residue: PartialResidue;
   residueIndex: number;

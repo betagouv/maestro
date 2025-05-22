@@ -34,9 +34,9 @@ export type MatrixStepRef = {
   submit: () => Promise<void>;
 };
 
-export interface Props {
+type Props = {
   partialSample: PartialSample | PartialSampleToCreate;
-}
+};
 
 const MatrixStep = ({ partialSample }: Props) => {
   const apiClient = useContext(ApiClientContext);

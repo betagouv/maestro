@@ -37,7 +37,6 @@ export type ExportDataSubstanceWithSSD2Id = OmitDistributive<
   'casNumber' | 'label' | 'codeSandre'
 > & { ssd2Id: SSD2Id | null; unknown_label: string | null };
 
-export type IsSender = (senderAddress: string) => boolean;
 export type ExportAnalysis = {
   sampleReference: Sample['reference'];
   notes: string;

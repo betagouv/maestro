@@ -12,7 +12,7 @@ import AppRadioButtons from '../../../../../components/_app/AppRadioButtons/AppR
 import AppTextInput from '../../../../../components/_app/AppTextInput/AppTextInput';
 import { useForm } from '../../../../../hooks/useForm';
 
-export type Props = {
+type Props = {
   partialAnalysis: Pick<PartialAnalysis, 'compliance' | 'notesOnCompliance'>;
   onSave: ({
     compliance,

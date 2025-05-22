@@ -242,9 +242,7 @@ export const Sample = SampleToCreate.extend({
 
 export type Geolocation = z.infer<typeof Geolocation>;
 export type SampleContextData = z.infer<typeof SampleContextData>;
-export type SampleMatrixSpecificData = z.infer<typeof SampleMatrixSpecificData>;
 export type SampleMatrixData = z.infer<typeof SampleMatrixData>;
-export type SampleItemsData = z.infer<typeof SampleItemsData>;
 export type SampleOwnerData = z.infer<typeof SampleOwnerData>;
 export type CreatedSampleData = z.infer<typeof CreatedSampleData>;
 export type PartialSampleMatrixData = z.infer<typeof PartialSampleMatrixData>;
