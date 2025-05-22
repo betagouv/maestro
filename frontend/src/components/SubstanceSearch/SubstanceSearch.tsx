@@ -3,7 +3,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import { Autocomplete } from '@mui/material';
 import { capitalize } from 'lodash-es';
-import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import { SSD2Id, SSD2IdSort } from 'maestro-shared/referential/Residue/SSD2Id';
 import {
   searchSSD2IdByLabel,
   SSD2IdLabel
@@ -46,10 +46,12 @@ const SubstanceSearch = ({
 
     if (value.length > 3) {
       setSubstanceSearchResults(
-        searchSSD2IdByLabel(value).map((ssd2Id) => ({
-          code: ssd2Id,
-          label: SSD2IdLabel[ssd2Id]
-        }))
+        searchSSD2IdByLabel(value)
+          .sort(SSD2IdSort)
+          .map((ssd2Id) => ({
+            code: ssd2Id,
+            label: SSD2IdLabel[ssd2Id]
+          }))
       );
     } else {
       setSubstanceSearchResults([]);
@@ -121,7 +123,7 @@ const SubstanceSearch = ({
       )}
 
       <div className="fr-mt-1w">
-        {substances.map((substance) => (
+        {substances.sort(SSD2IdSort).map((substance) => (
           <Tag
             key={`${analysisMethod}-${substance}`}
             dismissible={!readonly}

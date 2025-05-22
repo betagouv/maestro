@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SSD2Referential } from './SSD2Referential';
+import { SSD2IdLabel, SSD2Referential } from './SSD2Referential';
 
 export const SSD2Ids = Object.keys(SSD2Referential);
 
@@ -19,3 +19,6 @@ export const SSD2Id = z
   });
 
 export type SSD2Id = z.infer<typeof SSD2Id>;
+
+export const SSD2IdSort = (a: SSD2Id, b: SSD2Id) =>
+  SSD2IdLabel[a].localeCompare(SSD2IdLabel[b]);
