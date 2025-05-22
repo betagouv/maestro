@@ -19,6 +19,8 @@ import {
 } from '../schema/Sample/Sample';
 import { SampleItem } from '../schema/Sample/SampleItem';
 import { CompanyFixture, genCompany } from './companyFixtures';
+import { LaboratoryFixture } from './laboratoryFixtures';
+import { PrescriptionFixture } from './prescriptionFixtures';
 import { ValidatedProgrammingPlanFixture } from './programmingPlanFixtures';
 import { oneOf } from './testFixtures';
 import {
@@ -35,7 +37,7 @@ export const genSampleContextData = (
   sampledAt: new Date(),
   geolocation: {
     x: 49.788805,
-    y: 4.731044,
+    y: 4.731044
   },
   programmingPlanId: uuidv4(),
   context: oneOf(ContextList),
@@ -126,7 +128,7 @@ export const Sample11Fixture = genCreatedPartialSample({
   region: '44',
   geolocation: {
     x: 49.788805,
-    y: 4.731044,
+    y: 4.731044
   },
   programmingPlanId: ValidatedProgrammingPlanFixture.id,
   context: 'Control',
@@ -139,6 +141,7 @@ export const Sample11Fixture = genCreatedPartialSample({
   createdAt: new Date('2023-01-02'),
   lastUpdatedAt: new Date('2024-03-04'),
   status: 'DraftMatrix' as const,
+  matrixKind: 'A00GY',
   matrix: 'A00GZ',
   stage: 'STADE7',
   specificData: {
@@ -147,6 +150,8 @@ export const Sample11Fixture = genCreatedPartialSample({
     cultureKind: 'PD07A',
     releaseControl: false
   },
+  laboratoryId: LaboratoryFixture.id,
+  prescriptionId: PrescriptionFixture.id,
   items: [Sample1Item1Fixture]
 });
 export const Sample12Fixture = genCreatedPartialSample({
