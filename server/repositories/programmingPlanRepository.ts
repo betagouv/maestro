@@ -7,7 +7,7 @@ import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/Programmi
 import z from 'zod';
 import { knexInstance as db } from './db';
 export const programmingPlansTable = 'programming_plans';
-export const programmingPlanRegionalStatusTable =
+const programmingPlanRegionalStatusTable =
   'programming_plan_regional_status';
 
 const ProgrammingPlanDbo = ProgrammingPlan.omit({

@@ -11,7 +11,7 @@ import {
 } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionComment';
 import { api } from 'src/services/api.service';
 
-export const prescriptionApi = api.injectEndpoints({
+const prescriptionApi = api.injectEndpoints({
   endpoints: (builder) => ({
     findRegionalPrescriptions: builder.query<
       RegionalPrescription[],

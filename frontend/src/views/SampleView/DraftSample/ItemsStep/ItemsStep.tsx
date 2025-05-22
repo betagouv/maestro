@@ -26,7 +26,7 @@ import SavedAlert from 'src/views/SampleView/SavedAlert';
 import { z } from 'zod';
 import NextButton from '../NextButton';
 
-export const MaxItemCount = 3;
+const MaxItemCount = 3;
 
 interface Props {
   partialSample: PartialSample | PartialSampleToCreate;

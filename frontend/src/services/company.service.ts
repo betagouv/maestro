@@ -3,7 +3,7 @@ import { Department } from 'maestro-shared/referential/Department';
 import { CompanySearchResult } from 'maestro-shared/schema/Company/CompanySearchResult';
 import { api } from 'src/services/api.service';
 
-export const companyApi = api.injectEndpoints({
+const companyApi = api.injectEndpoints({
   endpoints: (builder) => ({
     searchCompanies: builder.query<
       CompanySearchResult[],

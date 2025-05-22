@@ -39,7 +39,7 @@ export const companyFromSearchResult = (
     nafCode: companySearchResult.activite_principale
   });
 
-export const companyToSearchResult = (company: Company) =>
+const companyToSearchResult = (company: Company) =>
   CompanySearchResult.parse({
     siren: company.siret.slice(0, 9),
     nom_complet: company.name,

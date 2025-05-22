@@ -17,7 +17,7 @@ convict.addFormat({
 if (!process.env.API_PORT) {
   dotenv.config({ path: path.join(import.meta.dirname, '../../.env') });
 }
-export const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = process.env.NODE_ENV === 'production';
 
 const MailProvider = z.enum(['fake', 'brevo', 'nodemailer']);
 export type MailProvider = z.infer<typeof MailProvider>;

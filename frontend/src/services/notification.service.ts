@@ -6,7 +6,7 @@ import {
 } from 'maestro-shared/schema/Notification/Notification';
 import { api } from 'src/services/api.service';
 
-export const notificationApi = api.injectEndpoints({
+const notificationApi = api.injectEndpoints({
   endpoints: (builder) => ({
     findNotifications: builder.query<Notification[], FindNotificationOptions>({
       query: (findOptions) => ({

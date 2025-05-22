@@ -108,19 +108,19 @@ const update = async (partialAnalysis: PartialAnalysis): Promise<void> => {
   });
 };
 
-export const formatPartialAnalysis = (
+const formatPartialAnalysis = (
   partialAnalysis: PartialAnalysis
 ): PartialAnalysisDbo => ({
   ...omit(partialAnalysis, ['residues'])
 });
 
-export const formatPartialResidue = (
+const formatPartialResidue = (
   partialResidue: PartialResidue
 ): PartialResidue => ({
   ...omit(partialResidue, ['analytes'])
 });
 
-export const parsePartialAnalysis = (
+const parsePartialAnalysis = (
   partialAnalysisJoinedDbo: PartialAnalysisJoinedDbo
 ): PartialAnalysis =>
   partialAnalysisJoinedDbo &&

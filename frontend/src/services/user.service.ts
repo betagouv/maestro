@@ -3,7 +3,7 @@ import { FindUserOptions } from 'maestro-shared/schema/User/FindUserOptions';
 import { User } from 'maestro-shared/schema/User/User';
 import { api } from 'src/services/api.service';
 
-export const userApi = api.injectEndpoints({
+const userApi = api.injectEndpoints({
   endpoints: (builder) => ({
     getUser: builder.query<User, string>({
       query: (userId) => `users/${userId}`,

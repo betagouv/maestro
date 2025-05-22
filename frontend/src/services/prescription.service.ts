@@ -10,7 +10,7 @@ import { api } from 'src/services/api.service';
 import config from 'src/utils/config';
 import { getURLQuery } from 'src/utils/fetchUtils';
 
-export const prescriptionApi = api.injectEndpoints({
+const prescriptionApi = api.injectEndpoints({
   endpoints: (builder) => ({
     findPrescriptions: builder.query<Prescription[], FindPrescriptionOptions>({
       query: (findOptions) => ({

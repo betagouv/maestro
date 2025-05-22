@@ -12,7 +12,7 @@ import { store } from 'src/store/store';
 import config from 'src/utils/config';
 import { getURLQuery } from 'src/utils/fetchUtils';
 
-export const sampleApi = api.injectEndpoints({
+const sampleApi = api.injectEndpoints({
   endpoints: (builder) => ({
     getSample: builder.query<PartialSample, string>({
       query: (sampleId) => `samples/${sampleId}`,

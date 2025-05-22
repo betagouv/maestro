@@ -6,7 +6,7 @@ import {
 } from 'maestro-shared/schema/Address/AddressSearchResult';
 import { api } from 'src/services/api.service';
 
-export const addressApi = api.injectEndpoints({
+const addressApi = api.injectEndpoints({
   endpoints: (builder) => ({
     searchAddresses: builder.query<
       AddressSearchResult[],

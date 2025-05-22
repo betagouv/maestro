@@ -21,7 +21,7 @@ type Props = {
   onBack: () => Promise<void>;
 };
 
-export const Form = Analysis.pick({
+const Form = Analysis.pick({
   compliance: true,
   notesOnCompliance: true
 });

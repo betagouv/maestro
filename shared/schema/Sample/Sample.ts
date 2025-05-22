@@ -33,7 +33,7 @@ export const Geolocation = z.object(
   }
 );
 
-export const Sampler = BaseUser.pick({
+const Sampler = BaseUser.pick({
   id: true,
   firstName: true,
   lastName: true
@@ -47,7 +47,7 @@ export const SampleMatrixSpecificDataPPV = z.object({
   releaseControl: z.boolean().nullish()
 });
 
-export const SampleMatrixSpecificDataPFAS = z.object({
+const SampleMatrixSpecificDataPFAS = z.object({
   programmingPlanKind: z
     .literal(ProgrammingPlanKind.Values.PFAS_EGGS)
     .or(z.literal(ProgrammingPlanKind.Values.PFAS_MEAT)),
@@ -153,7 +153,7 @@ export const SampleMatrixData = z.object({
   specificData: SampleMatrixSpecificData
 });
 
-export const SampleItemsData = z.object({
+const SampleItemsData = z.object({
   items: z
     .array(SampleItem)
     .min(1, { message: 'Veuillez renseigner au moins un échantillon.' })
@@ -164,7 +164,7 @@ export const SampleItemsData = z.object({
   notesOnItems: z.string().nullish()
 });
 
-export const SampleAdmissibilityData = z.object({
+const SampleAdmissibilityData = z.object({
   sentAt: z.coerce.date().nullish(),
   receivedAt: z
     .union([z.string(), z.date()])
@@ -260,6 +260,6 @@ export const isCreatedPartialSample = (
   partialSample !== undefined &&
   CreatedSampleData.safeParse(partialSample).success;
 
-export const isCreatedSample = (
+const isCreatedSample = (
   sample?: Sample | SampleToCreate
 ): sample is Sample => CreatedSampleData.safeParse(sample).success;

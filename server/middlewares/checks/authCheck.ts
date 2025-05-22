@@ -72,7 +72,7 @@ export const userCheck = (credentialsRequired: boolean) =>
     next();
   };
 
-export const roleCheck = (roles: UserRole[]) =>
+const roleCheck = (roles: UserRole[]) =>
   async function (request: Request, _response: Response, next: NextFunction) {
     if (!request.user) {
       throw new AuthenticationMissingError();

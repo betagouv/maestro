@@ -11,7 +11,7 @@ import AnalysisResiduesStep from 'src/views/SampleView/SampleAnalysis/SampleDraf
 import { useSamplesLink } from '../../../../hooks/useSamplesLink';
 import { ApiClientContext } from '../../../../services/apiClient';
 
-export const AnalysisStepTitles = [
+const AnalysisStepTitles = [
   'Rapport d’analyse',
   'Résidus identifiés',
   "Conformité de l'échantillon"
@@ -21,7 +21,7 @@ interface Props {
   sample: Sample;
 }
 
-export const AnalysisStatusSteps: Partial<Record<AnalysisStatus, number>> = {
+const AnalysisStatusSteps: Partial<Record<AnalysisStatus, number>> = {
   Report: 1,
   Residues: 2,
   Compliance: 3

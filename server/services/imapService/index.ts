@@ -60,7 +60,7 @@ export const laboratoriesConf = {
   [name in LaboratoryWithConf]: LaboratoryConf;
 };
 
-export const getLaboratoryNameBySender = async (
+const getLaboratoryNameBySender = async (
   senderAddress: string
 ): Promise<null | LaboratoryWithConf> => {
   const laboratory = await laboratoryRepository.findByEmailSender(

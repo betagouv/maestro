@@ -84,7 +84,7 @@ export const formatPrescriptionSubstance = (
   substanceCode: prescriptionSubstance.substance.code
 });
 
-export const parsePrescriptionSubstance = (
+const parsePrescriptionSubstance = (
   prescriptionSubstance: PrescriptionSubstanceJoinedDbo
 ): PrescriptionSubstance =>
   prescriptionSubstance &&

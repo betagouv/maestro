@@ -2,7 +2,7 @@ import fp from 'lodash';
 import { Substance } from 'maestro-shared/schema/Substance/Substance';
 import { api } from 'src/services/api.service';
 
-export const substanceApi = api.injectEndpoints({
+const substanceApi = api.injectEndpoints({
   endpoints: (builder) => ({
     searchSubstances: builder.query<Substance[], string>({
       query: (query) => ({

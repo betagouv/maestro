@@ -4,7 +4,7 @@ import { ProgrammingPlanRegionalStatus } from 'maestro-shared/schema/Programming
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { api } from 'src/services/api.service';
 
-export const programmingPlanApi = api.injectEndpoints({
+const programmingPlanApi = api.injectEndpoints({
   endpoints: (builder) => ({
     findProgrammingPlans: builder.query<
       ProgrammingPlan[],

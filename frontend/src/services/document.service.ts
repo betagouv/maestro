@@ -6,7 +6,7 @@ import {
 import { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import { api } from 'src/services/api.service';
 
-export const documentApi = api.injectEndpoints({
+const documentApi = api.injectEndpoints({
   endpoints: (builder) => ({
     getDocument: builder.query<Document, string>({
       query: (documentId) => `documents/${documentId}`,

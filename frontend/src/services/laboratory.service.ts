@@ -2,7 +2,7 @@ import fp from 'lodash';
 import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { api } from 'src/services/api.service';
 
-export const laboratoryApi = api.injectEndpoints({
+const laboratoryApi = api.injectEndpoints({
   endpoints: (builder) => ({
     getLaboratory: builder.query<Laboratory, string>({
       query: (laboratoryId) => `laboratories/${laboratoryId}`,

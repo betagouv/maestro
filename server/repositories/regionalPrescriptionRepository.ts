@@ -13,7 +13,7 @@ import { knexInstance as db } from './db';
 import { prescriptionsTable } from './prescriptionRepository';
 import { regionalPrescriptionCommentsTable } from './regionalPrescriptionCommentRepository';
 import { samplesTable } from './sampleRepository';
-export const regionalPrescriptionsTable = 'regional_prescriptions';
+const regionalPrescriptionsTable = 'regional_prescriptions';
 
 export const RegionalPrescriptions = () =>
   db<RegionalPrescription>(regionalPrescriptionsTable);

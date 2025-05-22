@@ -24,7 +24,7 @@ export const uuidParam = (paramName: string) =>
     })
   });
 
-export const sanitizeObject = (obj: unknown): any => {
+const sanitizeObject = (obj: unknown): any => {
   if (typeof obj === 'string') {
     return sanitizeHtml(obj, {
       allowedTags: [],
