@@ -1,3 +1,4 @@
+import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import {
@@ -19,6 +20,7 @@ import {
 } from 'maestro-shared/referential/Matrix/MatrixPart';
 import { Stage } from 'maestro-shared/referential/Stage';
 import {
+  isOutsideProgrammingPlanSample,
   isProgrammingPlanSample,
   PartialSample,
   PartialSampleMatrixSpecificData,
@@ -178,13 +180,41 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
               stateRelatedMessage={form.message('matrixKind')}
               whenValid="Type de matrice correctement renseignée."
               label="Catégorie de matrice programmée"
-              required
+              required={matrixKind !== OtherMatrixKind.value}
               inputProps={{
+                disabled: matrixKind === OtherMatrixKind.value,
                 'data-testid': 'matrix-kind-select'
               }}
             />
+            {isOutsideProgrammingPlanSample(partialSample) && (
+              <Checkbox
+                options={[
+                  {
+                    label: 'Autre matrice non répertoriée',
+                    nativeInputProps: {
+                      checked: matrixKind === OtherMatrixKind.value,
+                      onChange: (e) => {
+                        if (e.target.checked) {
+                          setMatrixKind(OtherMatrixKind.value);
+                        } else {
+                          setMatrixKind(undefined);
+                          setMatrix(undefined);
+                        }
+                      }
+                    }
+                  }
+                ]}
+                classes={{
+                  content: 'fr-mt-1v'
+                }}
+              />
+            )}
           </div>
-          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+          <div
+            className={cx('fr-col-12', 'fr-col-sm-6', {
+              'fr-mt-12w': matrixKind === OtherMatrixKind.value
+            })}
+          >
             {matrixKind === OtherMatrixKind.value ? (
               <AppTextInput<FormShape>
                 defaultValue={matrix ?? ''}
@@ -224,34 +254,6 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
               />
             )}
           </div>
-          {!isProgrammingPlanSample(partialSample) && (
-            <>
-              <div className={cx('fr-col-12', 'fr-mt-2w', 'fr-pb-1v')}>
-                <span className={cx('fr-text--md', 'fr-text--bold')}>
-                  Analyses mono-résidu et multi-résidus
-                </span>
-              </div>
-              <div className={cx('fr-col-12')}>
-                <SubstanceSearch
-                  analysisMethod="Mono"
-                  substances={monoSubstances ?? []}
-                  onChangeSubstances={setMonoSubstances}
-                  addButtonMode="text"
-                />
-              </div>
-              <div className={cx('fr-col-12')}>
-                <SubstanceSearch
-                  analysisMethod="Multi"
-                  substances={multiSubstances ?? []}
-                  onChangeSubstances={setMultiSubstances}
-                  addButtonMode="text"
-                />
-              </div>
-              <div className={cx('fr-col-12')}>
-                <hr />
-              </div>
-            </>
-          )}
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
             <AppSelect<FormShape>
               value={stage ?? ''}
@@ -313,9 +315,7 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
               required
             />
           </div>
-        </div>
-        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={cx('fr-col-12')}>
+          <div className={cx('fr-col-12', 'fr-mt-2w')}>
             <ToggleSwitch
               label="Contrôle libératoire"
               checked={releaseControl ?? false}
@@ -323,8 +323,35 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
               showCheckedHint={false}
             />
           </div>
+          {!isProgrammingPlanSample(partialSample) && (
+            <>
+              <div className={cx('fr-col-12', 'fr-mt-2w', 'fr-pb-1v')}>
+                <span className={cx('fr-text--md', 'fr-text--bold')}>
+                  Analyses mono-résidu et multi-résidus
+                </span>
+              </div>
+              <div className={cx('fr-col-12')}>
+                <SubstanceSearch
+                  analysisMethod="Mono"
+                  substances={monoSubstances ?? []}
+                  onChangeSubstances={setMonoSubstances}
+                  addButtonMode="none"
+                />
+              </div>
+              <div className={cx('fr-col-12')}>
+                <SubstanceSearch
+                  analysisMethod="Multi"
+                  substances={multiSubstances ?? []}
+                  onChangeSubstances={setMultiSubstances}
+                  addButtonMode="none"
+                />
+              </div>
+              <div className={cx('fr-col-12')}>
+                <hr />
+              </div>
+            </>
+          )}
         </div>
-
         {renderSampleAttachments?.()}
         <hr />
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
