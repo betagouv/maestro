@@ -4,8 +4,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import {
   MatrixKindLabels,
-  MatrixKindList,
-  OtherMatrixKind
+  MatrixKindList
 } from 'maestro-shared/referential/Matrix/MatrixKind';
 import {
   StageLabels,
@@ -235,18 +234,15 @@ const MatrixStep = ({ partialSample }: Props) => {
                   p.matrixKind === matrixKind
               )
             )
-          : [
-              ...MatrixKindList.filter(
-                (matrixKind) =>
-                  !prescriptions?.some(
-                    (p) =>
-                      p.programmingPlanKind ===
-                        partialSample.specificData.programmingPlanKind &&
-                      p.matrixKind === matrixKind
-                  )
-              ),
-              OtherMatrixKind.value
-            ],
+          : MatrixKindList.filter(
+              (matrixKind) =>
+                !prescriptions?.some(
+                  (p) =>
+                    p.programmingPlanKind ===
+                      partialSample.specificData.programmingPlanKind &&
+                    p.matrixKind === matrixKind
+                )
+            ),
         {
           labels: MatrixKindLabels,
           withSort: true,

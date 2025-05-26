@@ -19,7 +19,7 @@ interface Props {
   substances: SSD2Id[];
   onChangeSubstances: (substances: SSD2Id[]) => void | Promise<void>;
   readonly?: boolean;
-  addButtonMode?: 'icon' | 'text';
+  addButtonMode?: 'icon' | 'none';
 }
 
 const SubstanceSearch = ({
@@ -81,9 +81,12 @@ const SubstanceSearch = ({
             filterSelectedOptions
             value={newSubstance}
             onInputChange={handleInputChange}
-            onChange={(_, value) => {
+            onChange={async (_, value) => {
               if (value) {
                 setNewSubstance(value);
+                if (addButtonMode === 'none') {
+                  await addSubstance(value.code);
+                }
               }
             }}
             isOptionEqualToValue={(option, value) =>
@@ -108,17 +111,18 @@ const SubstanceSearch = ({
                 : 'Saisir au moins 4 caractères'
             }
           />
-          <Button
-            iconId={addButtonMode === 'icon' ? 'fr-icon-add-line' : undefined}
-            priority="secondary"
-            title="Ajouter"
-            children={addButtonMode === 'text' ? 'Ajouter' : undefined}
-            disabled={!newSubstance}
-            onClick={async () => {
-              await addSubstance(newSubstance?.code as SSD2Id);
-            }}
-            className={cx('fr-ml-2w')}
-          />
+          {addButtonMode !== 'none' && (
+            <Button
+              iconId="fr-icon-add-line"
+              priority="secondary"
+              title="Ajouter"
+              disabled={!newSubstance}
+              onClick={async () => {
+                await addSubstance(newSubstance?.code as SSD2Id);
+              }}
+              className={cx('fr-ml-2w')}
+            />
+          )}
         </div>
       )}
 
