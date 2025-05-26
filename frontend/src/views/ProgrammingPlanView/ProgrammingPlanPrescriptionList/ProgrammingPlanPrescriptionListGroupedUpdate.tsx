@@ -2,6 +2,7 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
 import clsx from 'clsx';
+import { getLaboratoryFullname } from 'maestro-shared/referential/Laboratory';
 import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import React from 'react';
 import {
@@ -35,7 +36,7 @@ const ProgrammingPlanPrescriptionListGroupedUpdate = ({
   ): AppSelectOption[] => [
     defaultAppSelectOption('Sélectionner un laboratoire'),
     ...laboratories.map((laboratory) => ({
-      label: laboratory.name,
+      label: getLaboratoryFullname(laboratory.name),
       value: laboratory.id
     }))
   ];

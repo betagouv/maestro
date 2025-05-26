@@ -5,6 +5,7 @@ import { AnimalKindLabels } from 'maestro-shared/referential/AnimalKind';
 import { AnimalSexLabels } from 'maestro-shared/referential/AnimalSex';
 import { BreedingMethodLabels } from 'maestro-shared/referential/BreedingMethod';
 import { CultureKindLabels } from 'maestro-shared/referential/CultureKind';
+import { getLaboratoryFullname } from 'maestro-shared/referential/Laboratory';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { MatrixPartLabels } from 'maestro-shared/referential/Matrix/MatrixPart';
@@ -185,7 +186,7 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
         <div>
           Laboratoire destinataire :{' '}
           {laboratory ? (
-            <b>{laboratory.name}</b>
+            <b>{getLaboratoryFullname(laboratory.name)}</b>
           ) : (
             <span className="missing-data">Information non disponible</span>
           )}

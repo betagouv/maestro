@@ -2,6 +2,7 @@ import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
+import { getLaboratoryFullname } from 'maestro-shared/referential/Laboratory';
 import {
   PrimaryQuantityUnitList,
   QuantityUnit,
@@ -174,7 +175,7 @@ const SampleItemDetails = ({
             <>
               Laboratoire destinataire :{' '}
               {laboratory ? (
-                <b>{laboratory.name}</b>
+                <b>{getLaboratoryFullname(laboratory.name)}</b>
               ) : (
                 <span className="missing-data">Information non disponible</span>
               )}

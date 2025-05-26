@@ -18,3 +18,17 @@ export const LaboratoryWithAutomation = [
   'LDA 72',
   'CAP 29'
 ] as const satisfies LaboratoryName[];
+
+const laboratoryLabel = {
+  'CAP 29': 'Capinov',
+  'CER 30': 'CERECO',
+  'GIR 49': 'GIRPA',
+  'LDA 66': 'CAMP',
+  'LDA 72': 'Inovalys',
+  'SCL 34': 'SCL Montpellier',
+  'SCL 91': "SCL d'Ile de France",
+  FYT: ''
+} as const satisfies Record<LaboratoryName, string>;
+
+export const getLaboratoryFullname = (name: LaboratoryName): string =>
+  `${name} - ${laboratoryLabel[name]}`;
