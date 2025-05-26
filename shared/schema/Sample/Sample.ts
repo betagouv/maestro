@@ -33,7 +33,7 @@ export const Geolocation = z.object(
   }
 );
 
-export const Sampler = BaseUser.pick({
+const Sampler = BaseUser.pick({
   id: true,
   firstName: true,
   lastName: true
