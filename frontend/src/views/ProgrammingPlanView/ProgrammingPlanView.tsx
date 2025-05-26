@@ -14,13 +14,13 @@ import {
   ProgrammingPlanStatus
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { RegionalPrescriptionKey } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
-import { isDefined } from 'maestro-shared/utils/utils';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 import programmation from '../../assets/illustrations/programmation.svg';
 import AppToast from '../../components/_app/AppToast/AppToast';
 import PrescriptionCommentsModal from '../../components/Prescription/PrescriptionCommentsModal/PrescriptionCommentsModal';
-import ProgrammingPlanUpdateModal from '../../components/ProgrammingPlan/ProgrammingPlanUpdateModal/ProgrammingPlanUpdateModal';
+import ProgrammingPlanNationalValidation from '../../components/ProgrammingPlan/ProgrammingPlanNationalValidation/ProgrammingPlanNationalValidation';
+import ProgrammingPlanRegionalValidation from '../../components/ProgrammingPlan/ProgrammingPlanRegionalValidation/ProgrammingPlanRegionalValidation';
 import SectionHeader from '../../components/SectionHeader/SectionHeader';
 import { useAuthentication } from '../../hooks/useAuthentication';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
@@ -29,6 +29,7 @@ import { useCommentRegionalPrescriptionMutation } from '../../services/regionalP
 import prescriptionsSlice from '../../store/reducers/prescriptionsSlice';
 import ProgrammingPlanCommentList from './ProgrammingPlanCommentList/ProgrammingPlanCommentList';
 import ProgrammingPlanPrescriptionList from './ProgrammingPlanPrescriptionList/ProgrammingPlanPrescriptionList';
+import ProgrammingPlanRegionalValidationList from './ProgrammingPlanRegionalValidationList/ProgrammingPlanApprovalList';
 
 const ProgrammingPlanView = () => {
   const dispatch = useAppDispatch();
@@ -146,7 +147,7 @@ const ProgrammingPlanView = () => {
                         ] as ProgrammingPlanStatus
                       )
                   ) && (
-                    <ProgrammingPlanUpdateModal
+                    <ProgrammingPlanNationalValidation
                       programmingPlan={programmingPlan}
                     />
                   )}
@@ -157,38 +158,64 @@ const ProgrammingPlanView = () => {
 
         {programmingPlan && (
           <div className={cx('fr-container')}>
-            <Tabs
-              classes={{
-                panel: 'white-container'
-              }}
-              tabs={
-                [
-                  {
-                    label: 'Programmation',
-                    content: (
-                      <ProgrammingPlanPrescriptionList
-                        programmingPlan={programmingPlan}
-                        context={prescriptionListContext}
-                        region={region ?? undefined}
-                      />
-                    )
-                  },
-                  hasNationalView
-                    ? {
-                        label: 'Commentaires',
+            <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+              {!hasNationalView &&
+                programmingPlan.regionalStatus.some(
+                  (regionalStatus) =>
+                    regionalStatus.region === region &&
+                    ['Submitted', 'Approved'].includes(regionalStatus.status)
+                ) && (
+                  <ProgrammingPlanRegionalValidation
+                    programmingPlan={programmingPlan}
+                    region={region as Region}
+                  />
+                )}
+              <div className={cx('fr-col-12')}>
+                <Tabs
+                  classes={{
+                    panel: 'white-container'
+                  }}
+                  tabs={
+                    [
+                      {
+                        label: 'Programmation',
                         content: (
-                          <ProgrammingPlanCommentList
+                          <ProgrammingPlanPrescriptionList
                             programmingPlan={programmingPlan}
                             context={prescriptionListContext}
                             region={region ?? undefined}
                           />
-                        ),
-                        iconId: 'fr-icon-chat-3-line'
-                      }
-                    : undefined
-                ].filter(isDefined) as any
-              }
-            />
+                        )
+                      },
+                      ...(hasNationalView
+                        ? [
+                            {
+                              label: 'Phase de consultation',
+                              content: (
+                                <ProgrammingPlanRegionalValidationList
+                                  programmingPlan={programmingPlan}
+                                  context={prescriptionListContext}
+                                />
+                              ),
+                              iconId: 'fr-icon-chat-check-line'
+                            },
+                            {
+                              label: 'Commentaires',
+                              content: (
+                                <ProgrammingPlanCommentList
+                                  programmingPlan={programmingPlan}
+                                  context={prescriptionListContext}
+                                />
+                              ),
+                              iconId: 'fr-icon-chat-3-line'
+                            }
+                          ]
+                        : [])
+                    ] as any
+                  }
+                />
+              </div>
+            </div>
             <PrescriptionCommentsModal
               onSubmitRegionalPrescriptionComment={
                 submitRegionalPrescriptionComment

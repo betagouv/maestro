@@ -15,6 +15,10 @@ const TemplateData = {
     subject: 'Plan de programmation',
     content: 'Le plan de programmation a été soumis'
   },
+  ApprovedProgrammingPlanTemplate: {
+    subject: 'Plan de programmation approuvé',
+    content: 'Le plan de programmation a été approuvé'
+  },
   ValidatedProgrammingPlanTemplate: {
     subject: 'Plan de programmation validé',
     content: 'Le plan de programmation a été validé'

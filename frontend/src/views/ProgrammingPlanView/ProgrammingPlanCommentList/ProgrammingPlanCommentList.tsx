@@ -21,12 +21,10 @@ import { pluralize } from '../../../utils/stringUtils';
 interface Props {
   programmingPlan: ProgrammingPlan;
   context: Context;
-  region?: Region;
 }
 
 const ProgrammingPlanCommentList = ({
   programmingPlan,
-  region,
   context,
   ..._rest
 }: Props) => {
@@ -39,10 +37,9 @@ const ProgrammingPlanCommentList = ({
   const findPrescriptionOptions = useMemo(
     () => ({
       programmingPlanId: programmingPlan?.id as string,
-      context,
-      region
+      context
     }),
-    [programmingPlan, context, region]
+    [programmingPlan, context]
   );
 
   const { data: allPrescriptions } = useFindPrescriptionsQuery(
@@ -163,9 +160,16 @@ const ProgrammingPlanCommentList = ({
                         dispatch(
                           prescriptionsSlice.actions.setPrescriptionCommentsData(
                             {
+                              viewBy: 'MatrixKind',
+                              prescriptionId: prescription.id,
                               matrixKind: prescription.matrixKind,
-                              regionalPrescriptions:
-                                prescription.regionalCommentedPrescriptions
+                              regionalComments:
+                                prescription.regionalCommentedPrescriptions.map(
+                                  (rcp) => ({
+                                    region: rcp.region,
+                                    comments: rcp.comments ?? []
+                                  })
+                                )
                             }
                           )
                         );
@@ -195,10 +199,17 @@ const ProgrammingPlanCommentList = ({
                             dispatch(
                               prescriptionsSlice.actions.setPrescriptionCommentsData(
                                 {
+                                  viewBy: 'MatrixKind',
+                                  prescriptionId: prescription.id,
                                   matrixKind: prescription.matrixKind,
-                                  regionalPrescriptions:
-                                    prescription.regionalCommentedPrescriptions,
-                                  currentRegion: regionalPrescription.region
+                                  currentRegion: regionalPrescription.region,
+                                  regionalComments:
+                                    prescription.regionalCommentedPrescriptions.map(
+                                      (rcp) => ({
+                                        region: rcp.region,
+                                        comments: rcp.comments ?? []
+                                      })
+                                    )
                                 }
                               )
                             );

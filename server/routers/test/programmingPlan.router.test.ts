@@ -44,7 +44,7 @@ describe('ProgrammingPlan router', () => {
     id: 'b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1',
     createdBy: NationalCoordinator.id,
     year: 2019,
-    regionalStatus: RegionList.map((region) => ({
+    regionalStatus: RegionList.toSorted().map((region) => ({
       region,
       status: 'Validated'
     }))
@@ -396,9 +396,12 @@ describe('ProgrammingPlan router', () => {
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toMatchObject({
+      expect(res.body).toEqual({
         ...validatedProgrammingPlan,
-        createdAt: validatedProgrammingPlan.createdAt.toISOString()
+        createdAt: validatedProgrammingPlan.createdAt.toISOString(),
+        regionalStatus: expect.arrayContaining(
+          validatedProgrammingPlan.regionalStatus
+        )
       });
     });
   });
@@ -513,7 +516,7 @@ describe('ProgrammingPlan router', () => {
   describe('PUT /programming-plans/:programmingPlanId/regional-status', () => {
     const programmingPlanRegionalStatusList = [
       {
-        status: 'Validated',
+        status: 'Approved' as const,
         region: oneOf(RegionList)
       }
     ];
@@ -569,15 +572,18 @@ describe('ProgrammingPlan router', () => {
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await badRequestTest(inProgressProgrammingPlan, 'InProgress');
+      await badRequestTest(inProgressProgrammingPlan, 'Approved');
       await badRequestTest(inProgressProgrammingPlan, 'Validated');
       await badRequestTest(submittedProgrammingPlan, 'Submitted');
       await badRequestTest(submittedProgrammingPlan, 'InProgress');
+      await badRequestTest(submittedProgrammingPlan, 'Validated');
       await badRequestTest(validatedProgrammingPlan, 'InProgress');
       await badRequestTest(validatedProgrammingPlan, 'Submitted');
       await badRequestTest(validatedProgrammingPlan, 'Validated');
+      await badRequestTest(validatedProgrammingPlan, 'Approved');
     });
 
-    test('should update a Submitted programming plan to Validated', async () => {
+    test('should update a Submitted programming plan to Approved', async () => {
       const res = await request(app)
         .put(testRoute(submittedProgrammingPlan.id))
         .send(programmingPlanRegionalStatusList)
@@ -587,12 +593,13 @@ describe('ProgrammingPlan router', () => {
       expect(res.body).toMatchObject(
         withISOStringDates({
           ...submittedProgrammingPlan,
-          regionalStatus: submittedProgrammingPlan.regionalStatus.map(
-            (regionalStatus) =>
+          regionalStatus: expect.arrayContaining(
+            submittedProgrammingPlan.regionalStatus.map((regionalStatus) =>
               regionalStatus.region ===
               programmingPlanRegionalStatusList[0].region
                 ? programmingPlanRegionalStatusList[0]
                 : regionalStatus
+            )
           )
         })
       );
@@ -606,7 +613,7 @@ describe('ProgrammingPlan router', () => {
           .first()
       ).resolves.toMatchObject({
         region: programmingPlanRegionalStatusList[0].region,
-        status: 'Validated'
+        status: 'Approved'
       });
 
       //Cleanup
