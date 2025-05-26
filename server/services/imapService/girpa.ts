@@ -330,6 +330,7 @@ const girpaReferences: Record<string, SSD2Id> = {
   EPTC: 'RF-0158-001-PPP',
   esprocarb: 'RF-0656-001-PPP',
   'ethametsulfuron-methyl': 'RF-0658-001-PPP',
+  ethephon: 'RF-0160-001-PPP',
   ethidimuron: 'RF-0659-001-PPP',
   ethiofencarb: 'RF-0660-001-PPP',
   ethion: 'RF-0161-001-PPP',
