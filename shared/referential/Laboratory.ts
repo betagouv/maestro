@@ -7,8 +7,7 @@ const laboratoryNames = [
   'SCL 91',
   'GIR 49',
   'CAP 29',
-  'CER 30',
-  'FYT'
+  'CER 30'
 ] as const satisfies string[];
 export const laboratoryNameValidator = z.enum(laboratoryNames);
 export type LaboratoryName = z.infer<typeof laboratoryNameValidator>;
@@ -26,8 +25,7 @@ const laboratoryLabel = {
   'LDA 66': 'CAMP',
   'LDA 72': 'Inovalys',
   'SCL 34': 'SCL Montpellier',
-  'SCL 91': "SCL d'Ile de France",
-  FYT: ''
+  'SCL 91': "SCL d'Ile de France"
 } as const satisfies Record<LaboratoryName, string>;
 
 export const getLaboratoryFullname = (name: LaboratoryName): string =>
