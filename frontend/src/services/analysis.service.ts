@@ -1,4 +1,4 @@
-import fp from 'lodash';
+import { isNil, omitBy } from 'lodash-es';
 import {
   AnalysisToCreate,
   PartialAnalysis
@@ -13,7 +13,7 @@ export const analysisApi = api.injectEndpoints({
         params: { sampleId }
       }),
       transformResponse: (response: any) =>
-        PartialAnalysis.parse(fp.omitBy(response, fp.isNil)),
+        PartialAnalysis.parse(omitBy(response, isNil)),
       providesTags: (_result, _error, sampleId) => [
         { type: 'SampleAnalysis', id: sampleId }
       ]
@@ -25,7 +25,7 @@ export const analysisApi = api.injectEndpoints({
         body: { ...draft }
       }),
       transformResponse: (response: any) =>
-        PartialAnalysis.parse(fp.omitBy(response, fp.isNil)),
+        PartialAnalysis.parse(omitBy(response, isNil)),
       invalidatesTags: (_result, _error, draft) => [
         { type: 'SampleAnalysis', id: draft.sampleId },
         { type: 'Sample' as const, id: draft.sampleId },
@@ -39,7 +39,7 @@ export const analysisApi = api.injectEndpoints({
         body: partialAnalysis
       }),
       transformResponse: (response: any) =>
-        PartialAnalysis.parse(fp.omitBy(response, fp.isNil)),
+        PartialAnalysis.parse(omitBy(response, isNil)),
       invalidatesTags: (_result, _error, draft) => [
         { type: 'SampleAnalysis', id: draft.sampleId },
         { type: 'Sample' as const, id: draft.sampleId },

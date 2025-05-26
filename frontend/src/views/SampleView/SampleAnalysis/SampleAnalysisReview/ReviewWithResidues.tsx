@@ -12,7 +12,7 @@ import { ResidueResultOverview } from '../SampleAnalysisOverview/ResidueResultOv
 import { useResiduesForm } from '../SampleDraftAnalysis/AnalysisResiduesStep/AnalysisResiduesForm';
 import { ResidueInterpretationForm } from '../SampleDraftAnalysis/AnalysisResiduesStep/ResidueInterpretationForm';
 
-export type Props = {
+type Props = {
   analysis: Pick<PartialAnalysis, 'residues'>;
   onGoToInterpretation: (residues: Analysis['residues']) => Promise<void>;
   onCorrectAnalysis: (residues: PartialResidue[]) => void;

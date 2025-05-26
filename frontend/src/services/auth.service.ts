@@ -2,7 +2,7 @@ import { AuthRedirectUrl } from 'maestro-shared/schema/Auth/AuthRedirectUrl';
 import { AuthMaybeUnknownUser } from 'maestro-shared/schema/User/AuthUser';
 import { api } from 'src/services/api.service';
 
-export const authApi = api.injectEndpoints({
+const authApi = api.injectEndpoints({
   endpoints: (builder) => ({
     getAuthRedirectUrl: builder.query<AuthRedirectUrl, void>({
       query: () => 'auth/redirect-url',

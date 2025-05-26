@@ -22,11 +22,11 @@ import '../SampleDraftAnalysis/SampleDraftAnalysis.scss';
 import { ReviewWithoutResidu } from './ReviewWithoutResidu';
 import { ReviewWithResidues } from './ReviewWithResidues';
 
-export interface Props {
+type Props = {
   sample: Sample;
   partialAnalysis: PartialAnalysis;
   onReviewDone: () => void;
-}
+};
 
 type ReviewState = 'Review' | 'Correction' | 'Interpretation';
 

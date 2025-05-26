@@ -1,7 +1,7 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
-import { default as fp } from 'lodash';
+import { isEmpty, mapValues, omitBy } from 'lodash-es';
 import { Region, Regions } from 'maestro-shared/referential/Region';
 import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import {
@@ -65,14 +65,12 @@ const ProgrammingPlanView = () => {
 
   const changeFilter = useCallback(
     (findFilter: Partial<FindPrescriptionOptions>) => {
-      const filteredParams = fp.omitBy(
+      const filteredParams = omitBy(
         {
-          ...fp.mapValues(findPrescriptionOptions, (value) =>
-            value?.toString()
-          ),
-          ...fp.mapValues(findFilter, (value) => value?.toString())
+          ...mapValues(findPrescriptionOptions, (value) => value?.toString()),
+          ...mapValues(findFilter, (value) => value?.toString())
         },
-        fp.isEmpty
+        isEmpty
       );
 
       const urlSearchParams = new URLSearchParams(

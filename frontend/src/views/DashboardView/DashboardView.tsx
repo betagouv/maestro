@@ -4,7 +4,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tile from '@codegouvfr/react-dsfr/Tile';
 import clsx from 'clsx';
 import { isAfter } from 'date-fns';
-import { default as _ } from 'lodash';
+import { unionBy } from 'lodash-es';
 import { Regions } from 'maestro-shared/referential/Region';
 import { useMemo } from 'react';
 import dashboard from 'src/assets/illustrations/dashboard.svg';
@@ -65,7 +65,7 @@ const DashboardView = () => {
     },
     { skip: !currentProgrammingPlan }
   );
-  const samples = _.unionBy(
+  const samples = unionBy(
     Object.values(pendingSamples),
     data ?? [],
     (_) => _.id

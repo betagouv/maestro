@@ -30,5 +30,3 @@ export const UserPermission = z.enum([
 ]);
 
 export type UserPermission = z.infer<typeof UserPermission>;
-
-export const UserPermissionList: UserPermission[] = UserPermission.options;

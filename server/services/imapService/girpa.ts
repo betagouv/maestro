@@ -705,9 +705,9 @@ const codeMethodsAnalyseMethod = {
 const isCodeMethod = (code: string): code is (typeof codeMethods)[number] =>
   (codeMethods as Readonly<string[]>).includes(code);
 
-export const residueCasNumberValidator = z.string().brand('CAS number');
+const residueCasNumberValidator = z.string().brand('CAS number');
 
-export const residueEnglishNameValidator = z
+const residueEnglishNameValidator = z
   .string()
   .brand('ResidueEnglishName');
 

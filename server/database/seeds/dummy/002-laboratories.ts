@@ -2,14 +2,14 @@ import { fakerFR } from '@faker-js/faker';
 import { v4 as uuidv4 } from 'uuid';
 import { Laboratories } from '../../../repositories/laboratoryRepository';
 
-export const SCL34Id = uuidv4();
-export const LDA66Id = uuidv4();
-export const LDA72Id = uuidv4();
-export const SCL91Id = uuidv4();
-export const GIR49Id = uuidv4();
-export const CAP29Id = uuidv4();
-export const CER30Id = uuidv4();
-export const FYTId = uuidv4();
+const SCL34Id = uuidv4();
+const LDA66Id = uuidv4();
+const LDA72Id = uuidv4();
+const SCL91Id = uuidv4();
+const GIR49Id = uuidv4();
+const CAP29Id = uuidv4();
+const CER30Id = uuidv4();
+const FYTId = uuidv4();
 
 export const DummyLaboratoryIds = [
   SCL34Id,

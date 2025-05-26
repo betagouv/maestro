@@ -245,7 +245,7 @@ export const MatrixStepPPVSaveOnBlurWithoutHandlingErrors: Story = {
 //
 //     await expect(createOrUpdateMock).toHaveBeenCalledTimes(20);
 //     await expect(createOrUpdateMock).toHaveBeenLastCalledWith(
-//       fp.omitBy(
+//       omitBy(
 //         {
 //           ...createdSample,
 //           createdAt: createdSample.createdAt,
@@ -264,7 +264,7 @@ export const MatrixStepPPVSaveOnBlurWithoutHandlingErrors: Story = {
 //           },
 //           notesOnMatrix: 'Comment'
 //         },
-//         fp.isNil
+//         isNil
 //       )
 //     );
 //   }

@@ -7,7 +7,7 @@ import { RegionalPrescriptions } from '../../../repositories/regionalPrescriptio
 import { DummyLaboratoryIds } from './002-laboratories';
 import { pfasValidatedProgrammingPlanId } from './003-programming-plans';
 
-export const bovin = genPrescription({
+const bovin = genPrescription({
   id: '1ac599c4-1241-445e-a4eb-09d353810e10',
   programmingPlanId: pfasValidatedProgrammingPlanId,
   programmingPlanKind: 'PFAS_MEAT',
@@ -15,7 +15,7 @@ export const bovin = genPrescription({
   matrixKind: 'A01QX',
   stages: ['STADE10']
 });
-export const caprin = genPrescription({
+const caprin = genPrescription({
   id: '2f133d43-c18d-4c15-bb78-22afa128ccfc',
   programmingPlanId: pfasValidatedProgrammingPlanId,
   programmingPlanKind: 'PFAS_MEAT',
@@ -23,7 +23,7 @@ export const caprin = genPrescription({
   matrixKind: 'A01RL',
   stages: ['STADE10']
 });
-export const ovin = genPrescription({
+const ovin = genPrescription({
   id: 'f3949b9e-1722-4e53-b4c1-758916560817',
   programmingPlanId: pfasValidatedProgrammingPlanId,
   programmingPlanKind: 'PFAS_MEAT',
@@ -31,7 +31,7 @@ export const ovin = genPrescription({
   matrixKind: 'A01RJ',
   stages: ['STADE10']
 });
-export const porcin = genPrescription({
+const porcin = genPrescription({
   id: 'a9229604-17ed-445b-b791-5e460abc5ccb',
   programmingPlanId: pfasValidatedProgrammingPlanId,
   programmingPlanKind: 'PFAS_MEAT',
@@ -39,7 +39,7 @@ export const porcin = genPrescription({
   matrixKind: 'A01RG',
   stages: ['STADE10']
 });
-export const volaille = genPrescription({
+const volaille = genPrescription({
   id: '3489e7d2-fd2d-4a66-873d-cab4dc81b89a',
   programmingPlanId: pfasValidatedProgrammingPlanId,
   programmingPlanKind: 'PFAS_MEAT',
@@ -47,7 +47,7 @@ export const volaille = genPrescription({
   matrixKind: 'A01SN',
   stages: ['STADE10']
 });
-export const oeufs = genPrescription({
+const oeufs = genPrescription({
   id: '7a6a847e-f2d1-472d-a7c9-9ad56e65e295',
   programmingPlanId: pfasValidatedProgrammingPlanId,
   programmingPlanKind: 'PFAS_EGGS',

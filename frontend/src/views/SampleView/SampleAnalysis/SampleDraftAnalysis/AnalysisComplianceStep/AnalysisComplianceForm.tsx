@@ -12,7 +12,7 @@ import AppRadioButtons from '../../../../../components/_app/AppRadioButtons/AppR
 import AppTextInput from '../../../../../components/_app/AppTextInput/AppTextInput';
 import { useForm } from '../../../../../hooks/useForm';
 
-export type Props = {
+type Props = {
   partialAnalysis: Pick<PartialAnalysis, 'compliance' | 'notesOnCompliance'>;
   onSave: ({
     compliance,
@@ -21,7 +21,7 @@ export type Props = {
   onBack: () => Promise<void>;
 };
 
-export const Form = Analysis.pick({
+const Form = Analysis.pick({
   compliance: true,
   notesOnCompliance: true
 });

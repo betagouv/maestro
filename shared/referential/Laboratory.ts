@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const laboratoryNames = [
+const laboratoryNames = [
   'SCL 34',
   'LDA 66',
   'LDA 72',

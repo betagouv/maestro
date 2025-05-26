@@ -11,7 +11,7 @@ import { assert, type Equals } from 'tsafe';
 import { useForm } from '../../../../../hooks/useForm';
 import { AnalysisResidueForm } from './AnalysisResidueForm';
 
-export type Props = {
+type Props = {
   partialAnalysis: Pick<PartialAnalysis, 'id' | 'residues'>;
   onBack: () => Promise<void>;
   onValidate: (residues: Analysis['residues']) => Promise<void>;

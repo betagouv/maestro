@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { uniqBy } from 'lodash-es';
 import { z } from 'zod';
 import { AnimalKind } from '../../referential/AnimalKind';
 import { AnimalSex } from '../../referential/AnimalSex';
@@ -33,7 +33,7 @@ export const Geolocation = z.object(
   }
 );
 
-export const Sampler = BaseUser.pick({
+const Sampler = BaseUser.pick({
   id: true,
   firstName: true,
   lastName: true
@@ -47,7 +47,7 @@ export const SampleMatrixSpecificDataPPV = z.object({
   releaseControl: z.boolean().nullish()
 });
 
-export const SampleMatrixSpecificDataPFAS = z.object({
+const SampleMatrixSpecificDataPFAS = z.object({
   programmingPlanKind: z
     .literal(ProgrammingPlanKind.Values.PFAS_EGGS)
     .or(z.literal(ProgrammingPlanKind.Values.PFAS_MEAT)),
@@ -153,18 +153,18 @@ export const SampleMatrixData = z.object({
   specificData: SampleMatrixSpecificData
 });
 
-export const SampleItemsData = z.object({
+const SampleItemsData = z.object({
   items: z
     .array(SampleItem)
     .min(1, { message: 'Veuillez renseigner au moins un échantillon.' })
     .refine(
-      (items) => _.uniqBy(items, (item) => item.sealId).length === items.length,
+      (items) => uniqBy(items, (item) => item.sealId).length === items.length,
       'Les numéros de scellés doivent être uniques.'
     ),
   notesOnItems: z.string().nullish()
 });
 
-export const SampleAdmissibilityData = z.object({
+const SampleAdmissibilityData = z.object({
   sentAt: z.coerce.date().nullish(),
   receivedAt: z
     .union([z.string(), z.date()])
@@ -242,9 +242,7 @@ export const Sample = SampleToCreate.extend({
 
 export type Geolocation = z.infer<typeof Geolocation>;
 export type SampleContextData = z.infer<typeof SampleContextData>;
-export type SampleMatrixSpecificData = z.infer<typeof SampleMatrixSpecificData>;
 export type SampleMatrixData = z.infer<typeof SampleMatrixData>;
-export type SampleItemsData = z.infer<typeof SampleItemsData>;
 export type SampleOwnerData = z.infer<typeof SampleOwnerData>;
 export type CreatedSampleData = z.infer<typeof CreatedSampleData>;
 export type PartialSampleMatrixData = z.infer<typeof PartialSampleMatrixData>;
@@ -261,7 +259,3 @@ export const isCreatedPartialSample = (
 ): partialSample is PartialSample =>
   partialSample !== undefined &&
   CreatedSampleData.safeParse(partialSample).success;
-
-export const isCreatedSample = (
-  sample?: Sample | SampleToCreate
-): sample is Sample => CreatedSampleData.safeParse(sample).success;

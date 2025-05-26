@@ -2,7 +2,7 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import { Autocomplete } from '@mui/material';
-import { capitalize } from 'lodash';
+import { capitalize } from 'lodash-es';
 import {
   AnalysisMethod,
   AnalysisMethodLabels

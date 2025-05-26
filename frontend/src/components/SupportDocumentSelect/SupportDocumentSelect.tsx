@@ -11,11 +11,11 @@ import { useState } from 'react';
 import { useDocument } from 'src/hooks/useDocument';
 import { getSupportDocumentURL } from 'src/services/sample.service';
 import './SupportDocumentSelect.scss';
-export interface Props {
+type Props = {
   label?: string;
   sample: (Sample | SampleToCreate) & Partial<SampleOwnerData>;
   renderButtons: (onClick: () => void) => React.ReactElement;
-}
+};
 
 const SupportDocumentSelect = ({ label, sample, renderButtons }: Props) => {
   const { openDocument } = useDocument();

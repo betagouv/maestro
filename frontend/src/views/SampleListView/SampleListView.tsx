@@ -4,7 +4,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Pagination from '@codegouvfr/react-dsfr/Pagination';
 import { Skeleton } from '@mui/material';
 import clsx from 'clsx';
-import { default as fp } from 'lodash';
+import { isEmpty, mapValues, omit, omitBy } from 'lodash-es';
 import { Department } from 'maestro-shared/referential/Department';
 import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
 import { Region } from 'maestro-shared/referential/Region';
@@ -97,7 +97,7 @@ const SampleListView = () => {
   );
   const { data: samplesCount } = useCountSamplesQuery(
     {
-      ...fp.omit(findSampleOptions, 'page', 'perPage'),
+      ...omit(findSampleOptions, 'page', 'perPage'),
       programmingPlanId: programmingPlan?.id as string
     },
     { skip: !programmingPlan }
@@ -123,13 +123,13 @@ const SampleListView = () => {
   });
 
   const changeFilter = (findFilter: Partial<FindSampleOptions>) => {
-    const filteredParams = fp.omit(
-      fp.omitBy(
+    const filteredParams = omit(
+      omitBy(
         {
-          ...fp.mapValues(findSampleOptions, (value) => value?.toString()),
-          ...fp.mapValues(findFilter, (value) => value?.toString())
+          ...mapValues(findSampleOptions, (value) => value?.toString()),
+          ...mapValues(findFilter, (value) => value?.toString())
         },
-        fp.isEmpty
+        isEmpty
       ),
       ['page', 'perPage']
     );
@@ -143,9 +143,9 @@ const SampleListView = () => {
 
   const hasFilter = useMemo(
     () =>
-      Object.values(
-        fp.omit(findSampleOptions, 'region', 'page', 'perPage')
-      ).some((value) => isDefinedAndNotNull(value) && value !== '') ||
+      Object.values(omit(findSampleOptions, 'region', 'page', 'perPage')).some(
+        (value) => isDefinedAndNotNull(value) && value !== ''
+      ) ||
       (findSampleOptions.region && hasNationalView),
     [findSampleOptions, hasNationalView]
   );

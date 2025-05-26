@@ -1,9 +1,9 @@
-import fp from 'lodash';
+import { isNil, omitBy } from 'lodash-es';
 import { FindUserOptions } from 'maestro-shared/schema/User/FindUserOptions';
 import { User } from 'maestro-shared/schema/User/User';
 import { api } from 'src/services/api.service';
 
-export const userApi = api.injectEndpoints({
+const userApi = api.injectEndpoints({
   endpoints: (builder) => ({
     getUser: builder.query<User, string>({
       query: (userId) => `users/${userId}`,
@@ -16,7 +16,7 @@ export const userApi = api.injectEndpoints({
         params: findOptions
       }),
       transformResponse: (response: any[]) =>
-        response.map((_) => User.parse(fp.omitBy(_, fp.isNil))),
+        response.map((_) => User.parse(omitBy(_, isNil))),
       providesTags: (result) => [
         { type: 'User', id: 'LIST' },
         ...(result ?? []).map(({ id }) => ({

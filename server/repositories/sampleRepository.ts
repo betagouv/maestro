@@ -293,7 +293,7 @@ export const formatPartialSample = (
   sampledBy: partialSample.sampler.id
 });
 
-export const parsePartialSample = (
+const parsePartialSample = (
   sample: PartialSampleJoinedDbo
 ): PartialSample =>
   sample &&

@@ -1,4 +1,4 @@
-import fp from 'lodash';
+import { isNil, omitBy } from 'lodash-es';
 import { Region } from 'maestro-shared/referential/Region';
 import { FindRegionalPrescriptionOptions } from 'maestro-shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import {
@@ -11,7 +11,7 @@ import {
 } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionComment';
 import { api } from 'src/services/api.service';
 
-export const prescriptionApi = api.injectEndpoints({
+const prescriptionApi = api.injectEndpoints({
   endpoints: (builder) => ({
     findRegionalPrescriptions: builder.query<
       RegionalPrescription[],
@@ -22,7 +22,7 @@ export const prescriptionApi = api.injectEndpoints({
         params: findOptions
       }),
       transformResponse: (response: any[]) =>
-        response.map((_) => RegionalPrescription.parse(fp.omitBy(_, fp.isNil))),
+        response.map((_) => RegionalPrescription.parse(omitBy(_, isNil))),
       providesTags: (result) => [
         { type: 'RegionalPrescription', id: 'LIST' },
         ...(result ?? []).map(({ prescriptionId }) => ({

@@ -109,5 +109,3 @@ export const LoginCallbackView = () => {
     </section>
   );
 };
-
-export default LoginCallbackView;

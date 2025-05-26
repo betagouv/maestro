@@ -37,7 +37,6 @@ export type ExportDataSubstanceWithSSD2Id = OmitDistributive<
   'casNumber' | 'label' | 'codeSandre'
 > & { ssd2Id: SSD2Id | null; unknown_label: string | null };
 
-export type IsSender = (senderAddress: string) => boolean;
 export type ExportAnalysis = {
   sampleReference: Sample['reference'];
   notes: string;
@@ -61,7 +60,7 @@ export const laboratoriesConf = {
   [name in LaboratoryWithConf]: LaboratoryConf;
 };
 
-export const getLaboratoryNameBySender = async (
+const getLaboratoryNameBySender = async (
   senderAddress: string
 ): Promise<null | LaboratoryWithConf> => {
   const laboratory = await laboratoryRepository.findByEmailSender(

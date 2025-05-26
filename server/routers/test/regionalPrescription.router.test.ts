@@ -1,7 +1,6 @@
 import { fakerFR } from '@faker-js/faker';
 import { constants } from 'http2';
-import { isEqual } from 'lodash-es';
-import fp from 'lodash/fp';
+import { isEqual, omit } from 'lodash-es';
 import { MatrixKindEffective } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, RegionList } from 'maestro-shared/referential/Region';
 import {
@@ -203,7 +202,7 @@ describe('Regional prescriptions router', () => {
         ...validatedControlRegionalPrescriptions,
         ...submittedControlRegionalPrescriptions1,
         ...submittedControlRegionalPrescriptions2
-      ].map((_) => fp.omit('realizedSampleCount')(_))
+      ].map((_) => omit(_, 'realizedSampleCount'))
     );
     await RegionalPrescriptionComments().insert([
       closedControlPrescriptionComment1,
@@ -280,7 +279,7 @@ describe('Regional prescriptions router', () => {
         const expectRegionalPrescriptions = [
           ...submittedControlRegionalPrescriptions1,
           ...submittedControlRegionalPrescriptions2
-        ].map(fp.omit('realizedSampleCount'));
+        ].map((_) => omit(_, 'realizedSampleCount'));
 
         expect(res.body).toHaveLength(expectRegionalPrescriptions.length);
         expect(res.body).toEqual(
@@ -308,7 +307,7 @@ describe('Regional prescriptions router', () => {
         expect(res.body).toEqual(
           submittedControlRegionalPrescriptions1
             .filter(({ region }) => region === user.region)
-            .map(fp.omit('realizedSampleCount'))
+            .map((_) => omit(_, 'realizedSampleCount'))
         );
       };
 

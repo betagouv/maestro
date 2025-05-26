@@ -49,5 +49,3 @@ export const FileInput = (
 
   return fileSchema;
 };
-
-export type File = z.infer<ReturnType<typeof FileInput>>;

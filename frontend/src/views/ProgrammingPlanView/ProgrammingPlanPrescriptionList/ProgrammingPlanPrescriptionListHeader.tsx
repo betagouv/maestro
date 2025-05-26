@@ -4,7 +4,7 @@ import Input from '@codegouvfr/react-dsfr/Input';
 import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import clsx from 'clsx';
 import { t } from 'i18next';
-import _ from 'lodash';
+import { uniq } from 'lodash-es';
 import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
@@ -60,7 +60,7 @@ const ProgrammingPlanPrescriptionListHeader = ({
         </h4>
         {hasUserPrescriptionPermission(programmingPlan)?.create && (
           <MatrixSelectModal
-            excludedMatrixKindList={_.uniq(
+            excludedMatrixKindList={uniq(
               prescriptions.map((p) => p.matrixKind)
             )}
             onSelect={addMatrixKind}

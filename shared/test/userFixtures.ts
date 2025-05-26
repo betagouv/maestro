@@ -23,7 +23,7 @@ export const genUser = (data?: Partial<User>): User => {
 
 export const Region1Fixture = '44' as const;
 export const Region2Fixture = '52' as const;
-export const RegionDromFixture = '01' as const;
+const RegionDromFixture = '01' as const;
 
 export const Sampler1Fixture = genUser({
   role: 'Sampler',

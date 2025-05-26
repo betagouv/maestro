@@ -11,4 +11,3 @@ export const initKnex = () => {
 };
 export { knexInstance };
 
-export default knexInstance;

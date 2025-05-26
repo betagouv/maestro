@@ -1,6 +1,6 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import _ from 'lodash';
+import { sumBy } from 'lodash-es';
 import {
   MatrixKind,
   MatrixKindLabels
@@ -277,7 +277,7 @@ const ProgrammingPlanPrescriptionList = ({
                     matrixKind
                   )
                 }
-                sampleCount={_.sumBy(regionalPrescriptions, 'sampleCount')}
+                sampleCount={sumBy(regionalPrescriptions, 'sampleCount')}
                 hasGroupedUpdatePermission={regionalPrescriptions.some(
                   (regionalPrescription) =>
                     hasUserRegionalPrescriptionPermission(

@@ -1,8 +1,8 @@
-import fp from 'lodash';
+import { isNil, omitBy } from 'lodash-es';
 import { Substance } from 'maestro-shared/schema/Substance/Substance';
 import { api } from 'src/services/api.service';
 
-export const substanceApi = api.injectEndpoints({
+const substanceApi = api.injectEndpoints({
   endpoints: (builder) => ({
     searchSubstances: builder.query<Substance[], string>({
       query: (query) => ({
@@ -12,7 +12,7 @@ export const substanceApi = api.injectEndpoints({
         }
       }),
       transformResponse: (response: any[]) =>
-        response.map((_) => Substance.parse(fp.omitBy(_, fp.isNil)))
+        response.map((_) => Substance.parse(omitBy(_, isNil)))
     })
   })
 });

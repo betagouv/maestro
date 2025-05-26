@@ -4,7 +4,7 @@ import { FunctionComponent } from 'react';
 import { assert, Equals } from 'tsafe';
 import DocumentLink from '../../../components/DocumentLink/DocumentLink';
 
-export type Props = {
+type Props = {
   reportDocumentId: string;
   children?: JSX.Element;
 };

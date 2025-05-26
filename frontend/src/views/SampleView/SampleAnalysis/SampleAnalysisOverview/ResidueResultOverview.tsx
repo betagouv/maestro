@@ -14,7 +14,7 @@ import { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import ResidueResultAlert from '../../../../components/ResidueResultAlert/ResidueResultAlert';
 
-export type Props = {
+type Props = {
   residueIndex: number;
   residue: Omit<PartialResidue, 'kind'>;
   children?: JSX.Element;

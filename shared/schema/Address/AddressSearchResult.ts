@@ -23,7 +23,7 @@ export const AddressSearchResult = z.object({
   })
 });
 
-export const AddressSearchResults = z.object({
+const AddressSearchResults = z.object({
   type: z.string(),
   version: z.string(),
   features: z.array(AddressSearchResult),

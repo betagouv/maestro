@@ -1,10 +1,10 @@
-import fp from 'lodash';
+import { isNil, omitBy } from 'lodash-es';
 import { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import { ProgrammingPlanRegionalStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanRegionalStatus';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { api } from 'src/services/api.service';
 
-export const programmingPlanApi = api.injectEndpoints({
+const programmingPlanApi = api.injectEndpoints({
   endpoints: (builder) => ({
     findProgrammingPlans: builder.query<
       ProgrammingPlan[],
@@ -15,7 +15,7 @@ export const programmingPlanApi = api.injectEndpoints({
         params: options
       }),
       transformResponse: (response: any[]) =>
-        response.map((_) => ProgrammingPlan.parse(fp.omitBy(_, fp.isNil))),
+        response.map((_) => ProgrammingPlan.parse(omitBy(_, isNil))),
       providesTags: (result) => [
         { type: 'ProgrammingPlan', id: 'LIST' },
         ...(result ?? []).map(({ id }) => ({
@@ -27,13 +27,13 @@ export const programmingPlanApi = api.injectEndpoints({
     getProgrammingPlan: builder.query<ProgrammingPlan, string>({
       query: (programmingPlanId) => `programming-plans/${programmingPlanId}`,
       transformResponse: (response: any) =>
-        ProgrammingPlan.parse(fp.omitBy(response, fp.isNil)),
+        ProgrammingPlan.parse(omitBy(response, isNil)),
       providesTags: (result) => [{ type: 'ProgrammingPlan', id: result?.id }]
     }),
     getProgrammingPlanByYear: builder.query<ProgrammingPlan, number>({
       query: (year) => `programming-plans/years/${year}`,
       transformResponse: (response: any) =>
-        ProgrammingPlan.parse(fp.omitBy(response, fp.isNil)),
+        ProgrammingPlan.parse(omitBy(response, isNil)),
       providesTags: (result) => [{ type: 'ProgrammingPlan', id: result?.id }]
     }),
     createProgrammingPlan: builder.mutation<ProgrammingPlan, number>({
@@ -42,7 +42,7 @@ export const programmingPlanApi = api.injectEndpoints({
         method: 'POST'
       }),
       transformResponse: (response: any) =>
-        ProgrammingPlan.parse(fp.omitBy(response, fp.isNil)),
+        ProgrammingPlan.parse(omitBy(response, isNil)),
       invalidatesTags: (_result, _error) => [{ type: 'ProgrammingPlan' }]
     }),
     updateProgrammingPlanRegionalStatus: builder.mutation<
@@ -58,7 +58,7 @@ export const programmingPlanApi = api.injectEndpoints({
         body: programmingPlanRegionalStatusList
       }),
       transformResponse: (response: any) =>
-        ProgrammingPlan.parse(fp.omitBy(response, fp.isNil))
+        ProgrammingPlan.parse(omitBy(response, isNil))
     })
   })
 });

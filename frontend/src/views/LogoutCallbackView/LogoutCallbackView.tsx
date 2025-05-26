@@ -62,5 +62,3 @@ export const LogoutCallbackView = () => {
     </HomeViewContainer>
   );
 };
-
-export default LogoutCallbackView;

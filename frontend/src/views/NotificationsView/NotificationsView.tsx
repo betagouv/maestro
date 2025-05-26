@@ -7,7 +7,7 @@ import { Badge as MuiBadge } from '@mui/material';
 import clsx from 'clsx';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { capitalize } from 'lodash';
+import { capitalize } from 'lodash-es';
 import { Brand } from 'maestro-shared/constants';
 import { Regions } from 'maestro-shared/referential/Region';
 import { Notification } from 'maestro-shared/schema/Notification/Notification';

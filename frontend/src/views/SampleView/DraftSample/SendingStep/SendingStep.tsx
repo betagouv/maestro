@@ -30,9 +30,9 @@ import MatrixStepSummary from 'src/views/SampleView/StepSummary/MatrixStepSummar
 import { ApiClientContext } from '../../../../services/apiClient';
 import SupportDocumentDownload from '../SupportDocumentDownload';
 
-export interface Props {
+type Props = {
   sample: (Sample | SampleToCreate) & Partial<SampleOwnerData>;
-}
+};
 
 const SendingStep: FunctionComponent<Props> = ({ sample }) => {
   const { navigateToSample } = useSamplesLink();

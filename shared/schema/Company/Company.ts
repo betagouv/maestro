@@ -38,25 +38,3 @@ export const companyFromSearchResult = (
     city: companySearchResult.siege.libelle_commune,
     nafCode: companySearchResult.activite_principale
   });
-
-export const companyToSearchResult = (company: Company) =>
-  CompanySearchResult.parse({
-    siren: company.siret.slice(0, 9),
-    nom_complet: company.name,
-    nom_raison_sociale: company.tradeName,
-    sigle: company.tradeName,
-    siege: {
-      activite_principale: company.nafCode,
-      adresse: company.address ?? '',
-      code_postal: company.postalCode ?? '',
-      commune: company.city ?? '',
-      departement: '',
-      libelle_commune: company.city ?? '',
-      libelle_voie: '',
-      numero_voie: '',
-      region: '',
-      siret: company.siret,
-      type_voie: ''
-    },
-    activite_principale: company.nafCode
-  });

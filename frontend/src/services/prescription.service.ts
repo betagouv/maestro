@@ -1,4 +1,4 @@
-import fp from 'lodash';
+import { isNil, omitBy } from 'lodash-es';
 import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import {
   Prescription,
@@ -10,7 +10,7 @@ import { api } from 'src/services/api.service';
 import config from 'src/utils/config';
 import { getURLQuery } from 'src/utils/fetchUtils';
 
-export const prescriptionApi = api.injectEndpoints({
+const prescriptionApi = api.injectEndpoints({
   endpoints: (builder) => ({
     findPrescriptions: builder.query<Prescription[], FindPrescriptionOptions>({
       query: (findOptions) => ({
@@ -18,7 +18,7 @@ export const prescriptionApi = api.injectEndpoints({
         params: findOptions
       }),
       transformResponse: (response: any[]) =>
-        response.map((_) => Prescription.parse(fp.omitBy(_, fp.isNil))),
+        response.map((_) => Prescription.parse(omitBy(_, isNil))),
       providesTags: (result) => [
         { type: 'Prescription', id: 'LIST' },
         ...(result ?? []).map(({ id }) => ({
@@ -38,7 +38,7 @@ export const prescriptionApi = api.injectEndpoints({
         { type: 'RegionalPrescription', id: 'LIST' }
       ],
       transformResponse: (response: any) =>
-        Prescription.parse(fp.omitBy(response, fp.isNil))
+        Prescription.parse(omitBy(response, isNil))
     }),
     updatePrescription: builder.mutation<
       Prescription,
@@ -72,9 +72,7 @@ export const prescriptionApi = api.injectEndpoints({
     getPrescriptionSubstances: builder.query<PrescriptionSubstance[], string>({
       query: (prescriptionId) => `prescriptions/${prescriptionId}/substances`,
       transformResponse: (response: any[]) =>
-        response.map((_) =>
-          PrescriptionSubstance.parse(fp.omitBy(_, fp.isNil))
-        ),
+        response.map((_) => PrescriptionSubstance.parse(omitBy(_, isNil))),
       providesTags: (_result, _error, prescriptionId) => [
         { type: 'PrescriptionSubstance', id: prescriptionId }
       ]

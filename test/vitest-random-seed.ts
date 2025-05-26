@@ -19,7 +19,7 @@ export default function RandomSeed(options?: RandomSeedPluginOptions) {
   } satisfies Plugin;
 }
 
-export interface RandomSeedPluginOptions {
+interface RandomSeedPluginOptions {
   seed?: number;
 }
 

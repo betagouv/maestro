@@ -86,7 +86,7 @@ export const formatNotification = (
     )
   );
 
-export const parseNotification = (
+const parseNotification = (
   notification: NotificationDbo & {
     notificationId: string;
     authorId: string | null;

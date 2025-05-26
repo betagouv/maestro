@@ -143,7 +143,7 @@ export const laituesEtSimilaires = genPrescription({
   matrixKind: 'A0DLB',
   stages: ['STADE1']
 });
-export const legumesSecs = genPrescription({
+const legumesSecs = genPrescription({
   id: 'c4eca56b-5b87-4152-a8c8-6e4f27e32e24',
   programmingPlanId: ppvValidatedProgrammingPlanId,
   programmingPlanKind: 'PPV',
@@ -263,7 +263,7 @@ export const graineDeTournesol1 = genPrescription({
   matrixKind: 'A0DBP',
   stages: ['STADE1', 'STADE3']
 });
-export const graineDeTournesol2 = genPrescription({
+const graineDeTournesol2 = genPrescription({
   id: 'da04a0f4-8a63-4e93-8725-4adf25e3fc3e',
   programmingPlanId: ppvValidatedProgrammingPlanId,
   programmingPlanKind: 'PPV',

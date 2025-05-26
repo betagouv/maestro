@@ -5,10 +5,8 @@ import { constants } from 'http2';
 import AuthenticationMissingError from 'maestro-shared/errors/authenticationMissingError';
 import UserMissingError from 'maestro-shared/errors/userMissingError';
 import UserPermissionMissingError from 'maestro-shared/errors/userPermissionMissingError';
-import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
 import { hasPermission, User } from 'maestro-shared/schema/User/User';
 import { UserPermission } from 'maestro-shared/schema/User/UserPermission';
-import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { userRepository } from '../../repositories/userRepository';
 import config from '../../utils/config';
 
@@ -69,19 +67,6 @@ export const userCheck = (credentialsRequired: boolean) =>
         );
       }
     }
-    next();
-  };
-
-export const roleCheck = (roles: UserRole[]) =>
-  async function (request: Request, _response: Response, next: NextFunction) {
-    if (!request.user) {
-      throw new AuthenticationMissingError();
-    }
-
-    if (!roles.includes(request.user.role)) {
-      throw new UserRoleMissingError();
-    }
-
     next();
   };
 

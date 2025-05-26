@@ -63,13 +63,13 @@ export type PartialSamplePPV = (PartialSample | PartialSampleToCreate) & {
   >;
 };
 
-export interface Props {
+type Props = {
   partialSample: PartialSamplePPV;
   prescriptions: Prescription[];
   onSave: (sampleMatrixData: SampleMatrixPPVData) => Promise<void>;
   onSubmit: () => Promise<void>;
   renderSampleAttachments?: () => ReactNode;
-}
+};
 
 const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
   (

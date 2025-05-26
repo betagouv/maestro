@@ -15,9 +15,9 @@ import { useSamplesLink } from '../../../hooks/useSamplesLink';
 import { ApiClientContext } from '../../../services/apiClient';
 import { SampleAnalysisReview } from './SampleAnalysisReview/SampleAnalysisReview';
 
-export interface Props {
+type Props = {
   sample: Sample;
-}
+};
 
 const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
   const apiClient = useContext(ApiClientContext);
