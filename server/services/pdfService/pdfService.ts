@@ -2,11 +2,13 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import fs from 'fs';
 import handlebars from 'handlebars';
+import { isNil } from 'lodash-es';
 import PdfGenerationError from 'maestro-shared/errors/pdfGenerationError';
 import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
 import UserMissingError from 'maestro-shared/errors/userMissingError';
 import { getCultureKindLabel } from 'maestro-shared/referential/CultureKind';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
+import { getLaboratoryFullname } from 'maestro-shared/referential/Laboratory';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
@@ -194,7 +196,12 @@ const generateSampleSupportPDF = async (
       })
     ),
     sampler,
-    laboratory,
+    laboratory: !isNil(laboratory)
+      ? {
+          ...laboratory,
+          name: getLaboratoryFullname(laboratory.name)
+        }
+      : null,
     monoSubstances: prescriptionSubstances
       ?.filter((substance) => substance.analysisMethod === 'Mono')
       .map((substance) => substance.substance.label),

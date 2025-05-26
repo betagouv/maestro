@@ -9,7 +9,6 @@ const SCL91Id = uuidv4();
 const GIR49Id = uuidv4();
 const CAP29Id = uuidv4();
 const CER30Id = uuidv4();
-const FYTId = uuidv4();
 
 export const DummyLaboratoryIds = [
   SCL34Id,
@@ -18,8 +17,7 @@ export const DummyLaboratoryIds = [
   SCL91Id,
   GIR49Id,
   CAP29Id,
-  CER30Id,
-  FYTId
+  CER30Id
 ];
 
 export const seed = async function () {
@@ -57,11 +55,6 @@ export const seed = async function () {
     {
       id: CER30Id,
       name: 'CER 30',
-      emails: [fakerFR.internet.exampleEmail()]
-    },
-    {
-      id: FYTId,
-      name: 'FYT',
       emails: [fakerFR.internet.exampleEmail()]
     }
   ]);

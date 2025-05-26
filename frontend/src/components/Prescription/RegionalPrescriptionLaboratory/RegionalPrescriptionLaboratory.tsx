@@ -2,6 +2,7 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
 import clsx from 'clsx';
+import { getLaboratoryFullname } from 'maestro-shared/referential/Laboratory';
 import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { useState } from 'react';
@@ -37,7 +38,7 @@ const RegionalPrescriptionLaboratory = ({
   ): AppSelectOption[] => [
     defaultAppSelectOption('Sélectionner un laboratoire'),
     ...laboratories.map((laboratory) => ({
-      label: laboratory.name,
+      label: getLaboratoryFullname(laboratory.name),
       value: laboratory.id
     }))
   ];
@@ -90,7 +91,7 @@ const RegionalPrescriptionLaboratory = ({
               <span
                 className={cx('fr-icon-edit-line', 'fr-icon--sm', 'fr-mr-1w')}
               />
-              Laboratoire {currentLaboratory.name}
+              Laboratoire {getLaboratoryFullname(currentLaboratory.name)}
             </>
           ) : (
             <>
