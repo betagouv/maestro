@@ -86,6 +86,7 @@
     "vite-plugin-pwa": "^0.21.1",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest-fetch-mock": "^0.4.4",
+    "whatwg-fetch": "^3.6.20",
     "workbox-webpack-plugin": "^7.1.0"
   },
   "overrides": {
