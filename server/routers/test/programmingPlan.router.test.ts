@@ -44,7 +44,7 @@ describe('ProgrammingPlan router', () => {
     id: 'b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1',
     createdBy: NationalCoordinator.id,
     year: 2019,
-    regionalStatus: RegionList.map((region) => ({
+    regionalStatus: RegionList.toSorted().map((region) => ({
       region,
       status: 'Validated'
     }))
