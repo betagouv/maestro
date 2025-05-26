@@ -5,7 +5,6 @@ import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/Programmi
 import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { TokenPayload } from 'maestro-shared/schema/User/TokenPayload';
 import { User } from 'maestro-shared/schema/User/User';
-import { MarkRequired } from 'ts-essentials';
 
 declare global {
   namespace Express {
@@ -19,6 +18,11 @@ declare global {
     }
   }
 }
+
+export declare type MarkRequired<
+  Type,
+  Keys extends keyof Type
+> = Type extends Type ? Omit<Type, Keys> & Required<Pick<Type, Keys>> : never;
 
 declare module 'express-jwt' {
   type AuthenticatedRequest = MarkRequired<express.Request, 'auth' | 'user'>;

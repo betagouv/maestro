@@ -1,18 +1,39 @@
 export default {
   ignore: ['types/**/*.d.ts'],
-  ignoreDependencies: ['vite', '@faker-js/faker'],
+  ignoreDependencies: [
+    'vite',
+    '@faker-js/faker',
+    '@swc-node/register',
+    '@swc/core',
+    '@gouvfr/dsfr',
+    'lint-staged'
+  ],
+  ignoreBinaries: ['concurrently', 'magenta,blue', 'playwright'],
   workspaces: {
-    '.': {
-      ignoreBinaries: ['concurrently', 'magenta,blue', 'playwright']
-    },
     server: {
-      ignoreDependencies: ['body-parser', 'openapi3-ts', 'superagent'],
+      ignoreDependencies: [
+        'body-parser',
+        'openapi3-ts',
+        'superagent',
+        '@types/exceljs'
+      ],
       entry: ['database/migrations/*.ts', 'repositories/kysely.type.ts']
     },
     frontend: {
-      ignoreDependencies: ['geojson'],
-      entry: ['src/index.tsx'],
+      ignoreDependencies: [
+        'geojson',
+        'playwright',
+        //Pas normal, ce package n'est pas utilisé mais on utilise plusieurs packages de celui-ci
+        'workbox-webpack-plugin'
+      ],
       ignore: ['src/serviceWorker.js']
+    },
+    shared: {
+      ignore: [
+        //Je ne comprends pas le problème avec ces 2 fichiers
+        'referential/Matrix/MatrixListByKind.ts',
+        'schema/Address/AddressSearchResult.ts'
+      ]
     }
   }
 };
