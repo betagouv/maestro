@@ -4,7 +4,7 @@ import Select from '@codegouvfr/react-dsfr/Select';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
 import { t } from 'i18next';
-import { sumBy } from 'lodash';
+import { sumBy } from 'lodash-es';
 import {
   MatrixKind,
   MatrixKindLabels
