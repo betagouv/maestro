@@ -36,10 +36,8 @@ import { sampleRepository } from '../repositories/sampleRepository';
 import csvService from '../services/csvService/csvService';
 import { documentService } from '../services/documentService';
 import { excelService } from '../services/excelService/excelService';
-import exportSamplesService from '../services/exportService/exportSamplesService';
 import { mailService } from '../services/mailService';
 import { pdfService } from '../services/pdfService/pdfService';
-import workbookUtils from '../utils/workbookUtils';
 
 import { isEqual } from 'lodash-es';
 import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
@@ -173,11 +171,20 @@ const exportSamples = async (request: Request, response: Response) => {
   const fileName = `prelevements-${format(
     new Date(),
     'yyyy-MM-dd-HH-mm-ss'
-  )}.xlsx`;
+  )}.xls`;
 
-  const workbook = workbookUtils.init(fileName, response);
+  const buffer = await excelService.generateSamplesExportExcel(samples);
 
-  await exportSamplesService.writeToWorkbook(samples, workbook);
+  response.header(
+    'Content-disposition',
+    `inline; filename=${encodeURIComponent(fileName)}`
+  );
+  response.header(
+    'Content-Type',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  );
+  response.header('Content-Length', `${buffer.length}`);
+  response.end(buffer);
 };
 
 const createSample = async (request: Request, response: Response) => {
