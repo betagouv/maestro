@@ -95,7 +95,15 @@ type SamplesExportExcelData = SetAttributesNullOrUndefined<{
     notesOnPollutionRisk: string;
     compliance: string;
     otherCompliance: string;
-    analytes: string;
+    analytes: SetAttributesNullOrUndefined<{
+      sampleReference: string;
+      residueNumber: number;
+      analyteNumber: number;
+      reference: string;
+      referenceLabel: string;
+      resultKind: string;
+      result: number;
+    }>[];
   }>[];
 }>;
 
@@ -238,23 +246,38 @@ const generateSamplesExportExcel = async (
             ? ResidueComplianceLabels[r.compliance]
             : undefined,
           otherCompliance: r.otherCompliance,
-          analytes: 'TODO'
+          analytes: (r.analytes ?? []).map((a) => ({
+            sampleReference: sample.reference,
+            residueNumber: a.residueNumber,
+            analyteNumber: a.analyteNumber,
+            reference: a.reference,
+            referenceLabel: a.reference ? SSD2IdLabel[a.reference] : undefined,
+            resultKind: a.resultKind
+              ? ResultKindLabels[a.resultKind]
+              : undefined,
+            result: a.result
+          }))
         }))
       };
 
       return data;
     })
     .collect()
-    .map((s) =>
-      carboneRender(
+    .map((s) => {
+      const residues = s.flatMap((r) => r.residues).filter((r) => !isNil(r));
+      const analytes = residues
+        .flatMap((r) => r.analytes)
+        .filter((a) => !isNil(a));
+      return carboneRender(
         'samplesExport',
         {
           samples: s,
-          residues: s.flatMap((r) => r.residues).filter((r) => !isNil(r))
+          residues,
+          analytes
         },
         {}
-      )
-    )
+      );
+    })
     .toPromise(Promise);
 };
 
