@@ -1,13 +1,21 @@
 import carbone, { RenderOptions } from 'carbone';
 import { format } from 'date-fns';
 import highland from 'highland';
+import { isNil } from 'lodash-es';
 import { getCultureKindLabel } from 'maestro-shared/referential/CultureKind';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { getMatrixPartLabel } from 'maestro-shared/referential/Matrix/MatrixPart';
+import { OptionalBoolean } from 'maestro-shared/referential/OptionnalBoolean';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
+import { isComplex } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
+import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { StageLabels } from 'maestro-shared/referential/Stage';
+import { AnalysisMethodLabels } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequestData';
+import { ResidueComplianceLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
+import { ResidueKindLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
+import { ResultKindLabels } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { PartialSample } from 'maestro-shared/schema/Sample/Sample';
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
@@ -21,6 +29,84 @@ import { Template, templatePath } from '../../templates/templates';
 const generateAnalysisRequestExcel = async (data: AnalysisRequestData) => {
   return carboneRender('analysisRequest', data, { convertTo: 'xlsx' });
 };
+
+type SetAttributesNullOrUndefined<T> = {
+  [key in keyof T]: T[key] | null | undefined;
+};
+
+type SamplesExportExcelData = SetAttributesNullOrUndefined<{
+  reference: string;
+  department: string;
+  sampler: string;
+  sampledAt: string;
+  status: string;
+  sentAt: string;
+  receivedAt: string;
+  latitude: number;
+  longitude: number;
+  parcel: string;
+  context: string;
+  legalContext: string;
+  company: string;
+  companyAddress: string;
+  companySiret: string;
+  resytalId: string;
+  notesOnCreation: string;
+  matrix: string;
+  matrixDetails: string;
+  matrixPart: string;
+  stage: string;
+  cultureKind: string;
+  releaseControl: string;
+  notesOnMatrix: string;
+  quantity1: string;
+  quantityUnit1: string;
+  sealId1: string;
+  recipient1: string;
+  compliance2002631: string;
+  quantity2: string;
+  quantityUnit2: string;
+  sealId2: string;
+  recipient2: string;
+  compliance2002632: string;
+  quantity3: string;
+  quantityUnit3: string;
+  sealId3: string;
+  recipient3: string;
+  compliance2002633: string;
+  notesOnItems: string;
+  notesOnAdmissibility: string;
+  compliance: string;
+  residues: SetAttributesNullOrUndefined<{
+    sampleReference: string;
+    reference: string;
+    kind: string;
+    referenceLabel: string;
+    residueNumber: number;
+    analysisMethod: string;
+    resultKind: string;
+    result: number;
+    lmr: number;
+    resultHigherThanArfd: string;
+    notesOnResult: string;
+    substanceApproved: string;
+    substanceAuthorised: string;
+    pollutionRisk: string;
+    notesOnPollutionRisk: string;
+    compliance: string;
+    otherCompliance: string;
+    analytes: string;
+  }>[];
+}>;
+
+const optionalBooleanToString = (
+  booleanValue: OptionalBoolean | null | undefined
+): string =>
+  booleanValue === 'true'
+    ? 'Oui'
+    : booleanValue === 'false'
+      ? 'Non'
+      : (booleanValue ?? '');
 
 const generateSamplesExportExcel = async (
   samples: PartialSample[]
@@ -37,7 +123,7 @@ const generateSamplesExportExcel = async (
       )
     )
     .map(({ sample, items, analysis }) => {
-      return {
+      const data: SamplesExportExcelData = {
         reference: sample.reference,
         department: sample.department,
         sampler: `${sample.sampler.firstName} ${sample.sampler.lastName}`,
@@ -100,7 +186,24 @@ const generateSamplesExportExcel = async (
               ? 'Oui'
               : 'Non'
           }),
-          {}
+          {} as Pick<
+            SamplesExportExcelData,
+            | 'quantity1'
+            | 'quantityUnit1'
+            | 'sealId1'
+            | 'recipient1'
+            | 'compliance2002631'
+            | 'quantity2'
+            | 'quantityUnit2'
+            | 'sealId2'
+            | 'recipient2'
+            | 'compliance2002632'
+            | 'quantity3'
+            | 'quantityUnit3'
+            | 'sealId3'
+            | 'recipient3'
+            | 'compliance2002633'
+          >
         ),
         notesOnItems: sample.notesOnItems,
         notesOnAdmissibility: sample.notesOnAdmissibility,
@@ -108,11 +211,50 @@ const generateSamplesExportExcel = async (
           ? analysis?.compliance
             ? 'Oui'
             : 'Non'
-          : ''
+          : '',
+        residues: (analysis?.residues ?? []).map((r) => ({
+          sampleReference: sample.reference,
+          referenceLabel: r.reference ? SSD2IdLabel[r.reference] : undefined,
+          kind: r.reference
+            ? isComplex(r.reference)
+              ? ResidueKindLabels['Complex']
+              : ResidueKindLabels['Simple']
+            : undefined,
+          reference: r.reference,
+          residueNumber: r.residueNumber,
+          analysisMethod: r.analysisMethod
+            ? AnalysisMethodLabels[r.analysisMethod]
+            : undefined,
+          resultKind: r.resultKind ? ResultKindLabels[r.resultKind] : undefined,
+          result: r.result,
+          lmr: r.lmr,
+          resultHigherThanArfd: optionalBooleanToString(r.resultHigherThanArfd),
+          notesOnResult: r.notesOnResult,
+          substanceApproved: optionalBooleanToString(r.substanceApproved),
+          substanceAuthorised: optionalBooleanToString(r.substanceAuthorised),
+          pollutionRisk: optionalBooleanToString(r.pollutionRisk),
+          notesOnPollutionRisk: r.notesOnPollutionRisk,
+          compliance: r.compliance
+            ? ResidueComplianceLabels[r.compliance]
+            : undefined,
+          otherCompliance: r.otherCompliance,
+          analytes: 'TODO'
+        }))
       };
+
+      return data;
     })
     .collect()
-    .map((s) => carboneRender('samplesExport', { samples: s }, {}))
+    .map((s) =>
+      carboneRender(
+        'samplesExport',
+        {
+          samples: s,
+          residues: s.flatMap((r) => r.residues).filter((r) => !isNil(r))
+        },
+        {}
+      )
+    )
     .toPromise(Promise);
 };
 
