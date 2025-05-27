@@ -381,6 +381,10 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
                     }
                   ]}
                 />
+                <span className={cx('fr-hint-text', 'fr-mt-1w')}>
+                  La liste des multi-résidus sera complétée par le laboratoire
+                  lors de l’analyse
+                </span>
               </div>
 
               {form.hasIssue('substances') && (
