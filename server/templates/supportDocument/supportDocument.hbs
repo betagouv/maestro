@@ -441,7 +441,7 @@
                             <div class='fr-grid-row fr-grid-row--gutters'>
                               <div class='fr-col-12 sample-section-item'>
                                 {{#if matrix}}
-                                  {{#if monoSubstances}}
+                                  {{#isDefinedArray monoSubstances}}
                                     <div class='label'>
                                       Analyse mono-résidu
                                     </div>
@@ -450,7 +450,7 @@
                                         {{this}}
                                       </div>
                                     {{/each}}
-                                  {{/if}}
+                                  {{/isDefinedArray}}
                                 {{else}}
                                   <div class='label'>
                                     Analyse mono-résidu
@@ -468,7 +468,7 @@
                               </div>
                               <div class='fr-col-12 sample-section-item'>
                                 {{#if matrix}}
-                                  {{#if multiSubstances}}
+                                  {{#isDefinedArray multiSubstances}}
                                     <div class='label'>
                                       Analyse multi-résidus dont :
                                     </div>
@@ -477,7 +477,7 @@
                                         {{this}}
                                       </div>
                                     {{/each}}
-                                  {{/if}}
+                                  {{/isDefinedArray}}
                                 {{else}}
                                   <div class='label'>
                                     Analyse multi-résidus

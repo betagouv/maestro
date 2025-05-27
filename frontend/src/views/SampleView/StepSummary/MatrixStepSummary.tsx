@@ -199,7 +199,7 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
               </div>
             </div>
           )}
-          {sample.multiSubstances && sample.multiSubstances.length > 0 && (
+          {sample.multiSubstances && (
             <div className="summary-item icon-text">
               <div className={cx('fr-icon-list-ordered')}></div>
               <div>
