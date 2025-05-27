@@ -44,7 +44,7 @@ import {
   selectOptionsFromList
 } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
-import { z } from 'zod';
+import { unknown, z } from 'zod';
 import AppSearchInput from '../../../../components/_app/AppSearchInput/AppSearchInput';
 import AppTextAreaInput from '../../../../components/_app/AppTextAreaInput/AppTextAreaInput';
 import SubstanceSearch from '../../../../components/SubstanceSearch/SubstanceSearch';
@@ -151,7 +151,8 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
         notesOnMatrix,
         prescriptionId: partialSample.prescriptionId,
         monoSubstances,
-        multiSubstances
+        multiSubstances,
+        substances: unknown
       },
       save
     );
@@ -381,17 +382,10 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
                   ]}
                 />
               </div>
-              {form.error?.issues?.some((issue) =>
-                issue.path.includes('substances')
-              ) && (
-                <div className={cx('fr-col-12')}>
-                  <span className={cx('fr-error-text', 'fr-mt-0')}>
-                    {
-                      form.error?.issues?.filter((issue) =>
-                        issue.path.includes('substances')
-                      )[0].message
-                    }
-                  </span>
+
+              {form.hasIssue('substances') && (
+                <div className={cx('fr-error-text', 'fr-mt-0')}>
+                  {form.message('substances')}
                 </div>
               )}
               <div className={cx('fr-col-12')}>
