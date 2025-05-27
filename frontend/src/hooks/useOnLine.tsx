@@ -1,4 +1,4 @@
-import { ContextList } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { ProgrammingPlanContextList } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import React, { useEffect } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppSelector } from 'src/hooks/useStore';
@@ -47,7 +47,7 @@ export const useOnLine = () => {
         //Load prescriptions and last samples from the server to made them available offline in order to create new samples
         if (programmingPlan) {
           await Promise.all(
-            ContextList.map(async (context) =>
+            ProgrammingPlanContextList.map(async (context) =>
               findPrescriptions({
                 programmingPlanId: programmingPlan.id,
                 context

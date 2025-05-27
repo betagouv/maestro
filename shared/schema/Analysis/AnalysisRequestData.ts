@@ -1,13 +1,12 @@
 import { z } from 'zod';
 import { Company } from '../Company/Company';
 import { Laboratory } from '../Laboratory/Laboratory';
-import { Sample } from '../Sample/Sample';
+import { SampleBase } from '../Sample/Sample';
 import { SampleItem } from '../Sample/SampleItem';
-import { Substance } from '../Substance/Substance';
 import { User } from '../User/User';
 
 export const AnalysisRequestData = z.object({
-  ...Sample.shape,
+  ...SampleBase.shape,
   ...SampleItem.shape,
   sampler: User,
   company: z.object({
@@ -15,8 +14,8 @@ export const AnalysisRequestData = z.object({
     fullAddress: z.string()
   }),
   laboratory: Laboratory,
-  monoSubstances: z.array(Substance.pick({ label: true })),
-  multiSubstances: z.array(Substance.pick({ label: true })),
+  monoSubstanceLabels: z.array(z.string()),
+  multiSubstanceLabels: z.array(z.string()),
   reference: z.string(),
   sampledAt: z.string(),
   sampledAtDate: z.string(),

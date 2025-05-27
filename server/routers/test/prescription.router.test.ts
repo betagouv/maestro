@@ -9,7 +9,6 @@ import {
   genPrescriptionSubstance
 } from 'maestro-shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
-import { genSubstance } from 'maestro-shared/test/substanceFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
   AdminFixture,
@@ -24,17 +23,13 @@ import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
-import {
-  formatPrescriptionSubstance,
-  PrescriptionSubstances
-} from '../../repositories/prescriptionSubstanceRepository';
+import { PrescriptionSubstances } from '../../repositories/prescriptionSubstanceRepository';
 import {
   formatProgrammingPlan,
   ProgrammingPlanRegionalStatus,
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
 import { RegionalPrescriptions } from '../../repositories/regionalPrescriptionRepository';
-import { Substances } from '../../repositories/substanceRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 describe('Prescriptions router', () => {
@@ -82,10 +77,8 @@ describe('Prescriptions router', () => {
     matrixKind: oneOf(MatrixKindEffective.options),
     stages: ['STADE3', 'STADE4']
   });
-  const substance = genSubstance();
   const inProgressControlPrescriptionSubstance = genPrescriptionSubstance({
     prescriptionId: inProgressControlPrescription.id,
-    substance,
     analysisMethod: 'Mono'
   });
   const inProgressSurveillancePrescription = genPrescription({
@@ -121,14 +114,12 @@ describe('Prescriptions router', () => {
       inProgressControlPrescription,
       inProgressSurveillancePrescription
     ]);
-    await Substances().insert(substance);
     await PrescriptionSubstances().insert(
-      formatPrescriptionSubstance(inProgressControlPrescriptionSubstance)
+      inProgressControlPrescriptionSubstance
     );
   });
 
   afterAll(async () => {
-    await Substances().where({ code: substance.code }).delete();
     await Prescriptions()
       .delete()
       .where('programmingPlanId', 'in', [

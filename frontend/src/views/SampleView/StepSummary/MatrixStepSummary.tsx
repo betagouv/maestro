@@ -1,31 +1,31 @@
 import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { skipToken } from '@reduxjs/toolkit/query';
 import { AnimalKindLabels } from 'maestro-shared/referential/AnimalKind';
 import { AnimalSexLabels } from 'maestro-shared/referential/AnimalSex';
 import { BreedingMethodLabels } from 'maestro-shared/referential/BreedingMethod';
 import { CultureKindLabels } from 'maestro-shared/referential/CultureKind';
 import { getLaboratoryFullname } from 'maestro-shared/referential/Laboratory';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
-import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { MatrixPartLabels } from 'maestro-shared/referential/Matrix/MatrixPart';
 import { OutdoorAccessLabels } from 'maestro-shared/referential/OutdoorAccess';
 import { ProductionKindLabels } from 'maestro-shared/referential/ProductionKind';
+import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { SeizureLabels } from 'maestro-shared/referential/Seizure';
 import { SpeciesLabels } from 'maestro-shared/referential/Species';
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import { TargetingCriteriaLabels } from 'maestro-shared/referential/TargetingCriteria';
 import {
+  getSampleMatrixLabel,
+  isProgrammingPlanSample,
   Sample,
   SampleOwnerData,
   SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import { useContext, useMemo } from 'react';
+
 import { usePartialSample } from 'src/hooks/usePartialSample';
-import { quote } from 'src/utils/stringUtils';
+import { pluralize, quote } from 'src/utils/stringUtils';
 import StepSummary from 'src/views/SampleView/StepSummary/StepSummary';
 import SampleDocument from '../../../components/SampleDocument/SampleDocument';
-import { ApiClientContext } from '../../../services/apiClient';
 
 interface Props {
   sample: (Sample | SampleToCreate) & Partial<SampleOwnerData>;
@@ -33,23 +33,6 @@ interface Props {
 }
 const MatrixStepSummary = ({ sample, showLabel }: Props) => {
   const { laboratory } = usePartialSample(sample);
-  const { useGetPrescriptionSubstancesQuery } = useContext(ApiClientContext);
-
-  const { data: substances } = useGetPrescriptionSubstancesQuery(
-    sample.prescriptionId ?? skipToken
-  );
-
-  const monoSubstances = useMemo(() => {
-    return substances?.filter(
-      (substance) => substance.analysisMethod === 'Mono'
-    );
-  }, [substances]);
-
-  const multiSubstances = useMemo(() => {
-    return substances?.filter(
-      (substance) => substance.analysisMethod === 'Multi'
-    );
-  }, [substances]);
 
   return (
     <StepSummary
@@ -75,7 +58,7 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
             <b>{MatrixKindLabels[sample.matrixKind]}</b>
           </div>
           <div>
-            Matrice : <b>{MatrixLabels[sample.matrix]}</b>
+            Matrice : <b>{getSampleMatrixLabel(sample)}</b>
           </div>
           {sample.specificData.programmingPlanKind === 'PPV' && (
             <>
@@ -194,39 +177,38 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
       </div>
       {sample.specificData.programmingPlanKind === 'PPV' && (
         <>
-          {!monoSubstances?.length && !multiSubstances?.length && (
-            <div className="summary-item icon-text">
-              <div className={cx('fr-icon-list-ordered')}></div>
-              <div className="missing-data">
-                Méthode d'analyse non disponible
+          {isProgrammingPlanSample(sample) &&
+            !sample.monoSubstances?.length &&
+            !sample.multiSubstances?.length && (
+              <div className="summary-item icon-text">
+                <div className={cx('fr-icon-list-ordered')}></div>
+                <div className="missing-data">
+                  Méthode d'analyse non disponible
+                </div>
               </div>
-            </div>
-          )}
-          {monoSubstances && monoSubstances.length > 0 && (
+            )}
+          {sample.monoSubstances && sample.monoSubstances.length > 0 && (
             <div className="summary-item icon-text">
               <div className={cx('fr-icon-list-ordered')}></div>
               <div>
-                Analyses mono-résidu :{' '}
+                {pluralize(sample.monoSubstances.length)('Analyse')}{' '}
+                mono-résidu :{' '}
                 <ul>
-                  {monoSubstances.map((analysis) => (
-                    <li key={analysis.substance.code}>
-                      {analysis.substance.label}
-                    </li>
+                  {sample.monoSubstances.map((substance) => (
+                    <li key={`Mono_${substance}`}>{SSD2IdLabel[substance]}</li>
                   ))}
                 </ul>
               </div>
             </div>
           )}
-          {multiSubstances && multiSubstances.length > 0 && (
+          {sample.multiSubstances && (
             <div className="summary-item icon-text">
               <div className={cx('fr-icon-list-ordered')}></div>
               <div>
                 Analyses multi-résidus dont :{' '}
                 <ul>
-                  {multiSubstances.map((analysis) => (
-                    <li key={analysis.substance.code}>
-                      {analysis.substance.label}
-                    </li>
+                  {sample.multiSubstances.map((substance) => (
+                    <li key={`Multi_${substance}`}>{SSD2IdLabel[substance]}</li>
                   ))}
                 </ul>
               </div>

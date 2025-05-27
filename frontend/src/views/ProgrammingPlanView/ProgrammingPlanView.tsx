@@ -5,9 +5,9 @@ import { isEmpty, mapValues, omitBy } from 'lodash-es';
 import { Region, Regions } from 'maestro-shared/referential/Region';
 import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import {
-  Context,
   ContextLabels,
-  ContextList
+  ProgrammingPlanContext,
+  ProgrammingPlanContextList
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   NextProgrammingPlanStatus,
@@ -87,7 +87,7 @@ const ProgrammingPlanView = () => {
     if (searchParams.get('context')) {
       dispatch(
         prescriptionsSlice.actions.changeListContext(
-          searchParams.get('context') as Context
+          searchParams.get('context') as ProgrammingPlanContext
         )
       );
     }
@@ -125,7 +125,7 @@ const ProgrammingPlanView = () => {
                   hideLegend
                   legend="Contexte"
                   segments={
-                    ContextList.map((context) => ({
+                    ProgrammingPlanContextList.map((context) => ({
                       label: ContextLabels[context],
                       nativeInputProps: {
                         checked: context === findPrescriptionOptions.context,

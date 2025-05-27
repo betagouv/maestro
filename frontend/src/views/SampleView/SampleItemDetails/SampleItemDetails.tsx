@@ -11,6 +11,7 @@ import {
 } from 'maestro-shared/referential/QuantityUnit';
 import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import {
+  isProgrammingPlanSample,
   PartialSample,
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
@@ -19,16 +20,23 @@ import {
   SampleItemRecipientKind,
   SampleItemRecipientKindLabels
 } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
-import React, { useMemo } from 'react';
+import React, { useContext, useMemo } from 'react';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppResponsiveButton from 'src/components/_app/AppResponsiveButton/AppResponsiveButton';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
-import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
+import {
+  defaultAppSelectOption,
+  selectOptionsFromList
+} from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { UseForm, useForm } from 'src/hooks/useForm';
 import { z } from 'zod';
+import { ApiClientContext } from '../../../services/apiClient';
 
-const Form = z.object({ items: z.array(z.object({})).refine(() => ({})) });
+const Form = z.object({
+  items: z.array(z.object({})).refine(() => ({})),
+  laboratoryId: z.string().nullish()
+});
 
 interface Props {
   partialSample: PartialSample | PartialSampleToCreate;
@@ -36,6 +44,7 @@ interface Props {
   itemIndex: number;
   onRemoveItem?: (itemIndex: number) => void;
   onChangeItem?: (item: PartialSampleItem, itemIndex: number) => void;
+  onChangeLaboratory?: (laboratoryId: string) => void;
   itemsForm?: UseForm<typeof Form>;
   laboratory?: Laboratory;
   children?: React.ReactNode;
@@ -48,14 +57,17 @@ const SampleItemDetails = ({
   itemIndex,
   onRemoveItem,
   onChangeItem,
+  onChangeLaboratory,
   itemsForm,
   laboratory,
   readonly: forceReadonly
 }: Props) => {
+  const apiClient = useContext(ApiClientContext);
   type FormShape = typeof Form.shape;
 
   const fakeForm = useForm(Form, {
-    items: []
+    items: [],
+    laboratoryId: partialSample.laboratoryId
   });
 
   const form = itemsForm ?? fakeForm;
@@ -64,6 +76,10 @@ const SampleItemDetails = ({
     () => !itemsForm || forceReadonly,
     [itemsForm, forceReadonly]
   );
+
+  const { data: laboratories } = apiClient.useFindLaboratoriesQuery(undefined, {
+    skip: isProgrammingPlanSample(partialSample)
+  });
 
   return (
     <>
@@ -173,11 +189,35 @@ const SampleItemDetails = ({
         <div className={cx('fr-col-12')}>
           {itemIndex === 0 ? (
             <>
-              Laboratoire destinataire :{' '}
-              {laboratory ? (
-                <b>{getLaboratoryFullname(laboratory.name)}</b>
+              {isProgrammingPlanSample(partialSample) ? (
+                <>
+                  Laboratoire destinataire :{' '}
+                  {laboratory ? (
+                    <b>{getLaboratoryFullname(laboratory.name)}</b>
+                  ) : (
+                    <span className="missing-data">
+                      Information non disponible
+                    </span>
+                  )}
+                </>
               ) : (
-                <span className="missing-data">Information non disponible</span>
+                <AppSelect<FormShape>
+                  value={laboratory?.id}
+                  options={[
+                    defaultAppSelectOption('Sélectionner un laboratoire'),
+                    ...(laboratories ?? []).map((laboratory) => ({
+                      label: laboratory.name,
+                      value: laboratory.id
+                    }))
+                  ]}
+                  onChange={(e) => onChangeLaboratory?.(e.target.value)}
+                  inputForm={form}
+                  inputKey="laboratoryId"
+                  whenValid="Laboratoire valide"
+                  label="Laboratoire"
+                  disabled={readonly}
+                  required
+                />
               )}
             </>
           ) : (
