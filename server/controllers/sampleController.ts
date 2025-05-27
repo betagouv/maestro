@@ -326,10 +326,10 @@ const updateSample = async (request: Request, response: Response) => {
               sampler: user,
               company,
               laboratory,
-              monoSubstanceLabels: updatedSample.monoSubstances.map(
+              monoSubstanceLabels: (updatedSample.monoSubstances ?? []).map(
                 (substance) => substanceToLaboratoryLabel(substance)
               ),
-              multiSubstanceLabels: updatedSample.multiSubstances.map(
+              multiSubstanceLabels: (updatedSample.multiSubstances ?? []).map(
                 (substance) => substanceToLaboratoryLabel(substance)
               ),
               reference: [updatedSample.reference, sampleItem?.itemNumber]

@@ -20,6 +20,7 @@ interface Props {
   onChangeSubstances: (substances: SSD2Id[]) => void | Promise<void>;
   readonly?: boolean;
   addButtonMode?: 'icon' | 'none';
+  label?: string;
 }
 
 const SubstanceSearch = ({
@@ -27,7 +28,8 @@ const SubstanceSearch = ({
   substances,
   onChangeSubstances,
   readonly,
-  addButtonMode = 'icon'
+  addButtonMode = 'icon',
+  label
 }: Props) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [substanceSearchResults, setSubstanceSearchResults] = useState<
@@ -70,7 +72,7 @@ const SubstanceSearch = ({
   return (
     <div>
       <label className={cx('fr-label', 'fr-mb-1w')}>
-        {capitalize(AnalysisMethodLabels[analysisMethod])}
+        {label ?? capitalize(AnalysisMethodLabels[analysisMethod])}
       </label>
       {!readonly && (
         <div className="d-flex-align-center">

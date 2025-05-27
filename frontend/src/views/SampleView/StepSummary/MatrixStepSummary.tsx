@@ -22,7 +22,7 @@ import {
 } from 'maestro-shared/schema/Sample/Sample';
 
 import { usePartialSample } from 'src/hooks/usePartialSample';
-import { quote } from 'src/utils/stringUtils';
+import { pluralize, quote } from 'src/utils/stringUtils';
 import StepSummary from 'src/views/SampleView/StepSummary/StepSummary';
 import SampleDocument from '../../../components/SampleDocument/SampleDocument';
 
@@ -189,7 +189,8 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
             <div className="summary-item icon-text">
               <div className={cx('fr-icon-list-ordered')}></div>
               <div>
-                Analyses mono-résidu :{' '}
+                {pluralize(sample.monoSubstances.length)('Analyse')}{' '}
+                mono-résidu :{' '}
                 <ul>
                   {sample.monoSubstances.map((substance) => (
                     <li key={`Mono_${substance}`}>{SSD2IdLabel[substance]}</li>

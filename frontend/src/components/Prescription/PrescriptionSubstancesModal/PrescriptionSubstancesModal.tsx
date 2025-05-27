@@ -63,7 +63,7 @@ const PrescriptionSubstancesModal = ({
   return (
     <div className="prescription-substances-modal">
       <prescriptionSubstancesModal.Component
-        title="Analyses mono-résidus et multi-résidus"
+        title="Analyses mono-résidu et multi-résidus"
         concealingBackdrop={false}
         topAnchor
       >
