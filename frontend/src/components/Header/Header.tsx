@@ -49,7 +49,10 @@ const Header = () => {
 
   const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
 
-  const isActive = (path: string) => location.pathname.startsWith(path);
+  const isActive = (path: string, strictPath = false) =>
+    strictPath
+      ? location.pathname === path
+      : location.pathname.startsWith(path);
 
   return (
     <>
@@ -90,7 +93,12 @@ const Header = () => {
               },
               hasUserPermission('readSamples')
                 ? {
-                    isActive: isActive('/prelevements'),
+                    isActive:
+                      validatedProgrammingPlans?.some((programmingPlan) =>
+                        isActive(
+                          `/programmation/${programmingPlan.year}/prelevements`
+                        )
+                      ) || isActive('/prelevements'),
                     ...(validatedProgrammingPlans?.length === 1
                       ? {
                           text: 'Prélèvements',
@@ -125,7 +133,9 @@ const Header = () => {
                   }
                 : undefined,
               {
-                isActive: isActive('/programmation'),
+                isActive: programmingPlans?.some((programmingPlan) =>
+                  isActive(`/programmation/${programmingPlan.year}`, true)
+                ),
                 ...(programmingPlans?.length === 1
                   ? {
                       text: 'Programmation',
