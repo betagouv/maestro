@@ -1,6 +1,7 @@
 import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
+import { isNil } from 'lodash-es';
 import {
   CultureKind,
   CultureKindLabels,
@@ -107,10 +108,10 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
       partialSample.specificData.releaseControl
     );
     const [monoSubstances, setMonoSubstances] = useState(
-      partialSample.monoSubstances ?? []
+      partialSample.monoSubstances ?? null
     );
     const [multiSubstances, setMultiSubstances] = useState(
-      partialSample.multiSubstances ?? []
+      partialSample.multiSubstances ?? null
     );
 
     type FormShape = typeof SampleMatrixPPVData.shape;
@@ -204,9 +205,6 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
                     }
                   }
                 ]}
-                classes={{
-                  content: 'fr-mt-1v'
-                }}
               />
             )}
           </div>
@@ -331,21 +329,71 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
                 </span>
               </div>
               <div className={cx('fr-col-12')}>
-                <SubstanceSearch
-                  analysisMethod="Mono"
-                  substances={monoSubstances ?? []}
-                  onChangeSubstances={setMonoSubstances}
-                  addButtonMode="none"
+                <Checkbox
+                  options={[
+                    {
+                      label: 'Mono-résidu',
+                      nativeInputProps: {
+                        checked: !isNil(monoSubstances),
+                        onChange: (e) => {
+                          if (e.target.checked) {
+                            setMonoSubstances([]);
+                          } else {
+                            setMonoSubstances(null);
+                          }
+                        }
+                      }
+                    }
+                  ]}
+                  className={cx('fr-mb-2w')}
                 />
+                {monoSubstances && (
+                  <SubstanceSearch
+                    label="Liste des mono-résidu"
+                    analysisMethod="Mono"
+                    substances={monoSubstances}
+                    onChangeSubstances={setMonoSubstances}
+                    addButtonMode="none"
+                  />
+                )}
+                {form.hasIssue('monoSubstances') && (
+                  <div className={cx('fr-error-text')}>
+                    {form.message('monoSubstances')}
+                  </div>
+                )}
               </div>
               <div className={cx('fr-col-12')}>
-                <SubstanceSearch
-                  analysisMethod="Multi"
-                  substances={multiSubstances ?? []}
-                  onChangeSubstances={setMultiSubstances}
-                  addButtonMode="none"
+                <Checkbox
+                  options={[
+                    {
+                      label: 'Multi-résidus',
+                      nativeInputProps: {
+                        checked: !isNil(multiSubstances),
+                        onChange: (e) => {
+                          if (e.target.checked) {
+                            setMultiSubstances([]);
+                          } else {
+                            setMultiSubstances(null);
+                          }
+                        }
+                      }
+                    }
+                  ]}
                 />
               </div>
+              {form.error?.issues?.some((issue) =>
+                issue.path.includes('substances')
+              ) && (
+                <div className={cx('fr-col-12')}>
+                  <span className={cx('fr-error-text', 'fr-mt-0')}>
+                    {
+                      form.error?.issues?.filter((issue) =>
+                        issue.path.includes('substances')
+                      )[0].message
+                    }
+                  </span>
+                </div>
+              )}
               <div className={cx('fr-col-12')}>
                 <hr />
               </div>

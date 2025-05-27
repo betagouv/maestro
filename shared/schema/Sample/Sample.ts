@@ -1,4 +1,4 @@
-import { uniqBy } from 'lodash-es';
+import { isNil, uniqBy } from 'lodash-es';
 
 import { z } from 'zod';
 import { AnimalKind } from '../../referential/AnimalKind';
@@ -164,8 +164,8 @@ export const SampleMatrixData = z.object({
   notesOnMatrix: z.string().nullish(),
   prescriptionId: z.string().uuid().nullish(),
   laboratoryId: z.string().uuid().nullish(),
-  monoSubstances: z.array(SSD2Id),
-  multiSubstances: z.array(SSD2Id),
+  monoSubstances: z.array(SSD2Id).nullish(),
+  multiSubstances: z.array(SSD2Id).nullish(),
   documentIds: z.array(z.string().uuid()).nullish(),
   specificData: SampleMatrixSpecificData
 });
@@ -190,20 +190,27 @@ export const sampleMatrixRefinement = (
 export const prescriptionSubstancesRefinement = (
   data: {
     prescriptionId?: string | null;
-    monoSubstances?: SSD2Id[];
-    multiSubstances?: SSD2Id[];
+    monoSubstances?: SSD2Id[] | null;
+    multiSubstances?: SSD2Id[] | null;
   },
   ctx: z.RefinementCtx
 ) => {
-  if (
-    !isDefined(data.prescriptionId) &&
-    (!isDefined(data.monoSubstances) || !isDefined(data.multiSubstances))
-  ) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'Veuillez préciser les substances à analyser.',
-      path: ['substances']
-    });
+  if (!isDefined(data.prescriptionId)) {
+    if (isNil(data.monoSubstances) && isNil(data.multiSubstances)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          'Veuillez préciser les substances mono-résidu et / ou multi-résidus à analyser.',
+        path: ['substances']
+      });
+    }
+    if (!isNil(data.monoSubstances) && data.monoSubstances.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Veuillez renseigner au moins une substance mono-résidu.',
+        path: ['monoSubstances']
+      });
+    }
   }
 };
 
