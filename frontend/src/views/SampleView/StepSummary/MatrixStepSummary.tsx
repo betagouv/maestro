@@ -176,15 +176,14 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
       </div>
       {sample.specificData.programmingPlanKind === 'PPV' && (
         <>
-          {!sample.monoSubstances?.length &&
-            !sample.multiSubstances?.length && (
-              <div className="summary-item icon-text">
-                <div className={cx('fr-icon-list-ordered')}></div>
-                <div className="missing-data">
-                  Méthode d'analyse non disponible
-                </div>
+          {!sample.monoSubstances && !sample.multiSubstances && (
+            <div className="summary-item icon-text">
+              <div className={cx('fr-icon-list-ordered')}></div>
+              <div className="missing-data">
+                Méthode d'analyse non disponible
               </div>
-            )}
+            </div>
+          )}
           {sample.monoSubstances && sample.monoSubstances.length > 0 && (
             <div className="summary-item icon-text">
               <div className={cx('fr-icon-list-ordered')}></div>
