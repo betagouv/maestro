@@ -65,9 +65,12 @@ const generatePDF = async (template: Template, data: unknown) => {
     return a && b;
   });
 
-  handlebars.registerHelper('isDefinedArray', function (arr, options) {
-    return Array.isArray(arr) ? options.fn(arr) : options.inverse(arr);
-  });
+  handlebars.registerHelper(
+    'isDefinedArray',
+    function (this: any, arr: any, options: any) {
+      return Array.isArray(arr) ? options.fn(this) : options.inverse(this);
+    }
+  );
 
   const compiledTemplate = handlebars.compile(templateContent(template));
   const htmlContent = compiledTemplate(data);
