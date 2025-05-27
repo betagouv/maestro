@@ -4,7 +4,8 @@ import path from 'path';
 export type Template =
   | 'supportDocument'
   | 'analysisReportDocument'
-  | 'analysisRequest';
+  | 'analysisRequest'
+  | 'samplesExport';
 
 export const templateContent = (template: Template) =>
   fs.readFileSync(
@@ -15,7 +16,8 @@ export const templateContent = (template: Template) =>
 const TemplateFileTypes: Record<Template, string> = {
   supportDocument: 'hbs',
   analysisReportDocument: 'hbs',
-  analysisRequest: 'xlsx'
+  analysisRequest: 'xlsx',
+  samplesExport: 'xls'
 };
 
 export const templatePath = (template: Template) =>
