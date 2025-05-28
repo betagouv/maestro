@@ -200,7 +200,7 @@ export const prescriptionSubstancesRefinement = (
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message:
-          'Veuillez préciser les substances mono-résidu et / ou multi-résidus à analyser.',
+          'Veuillez préciser les substances mono-résidu et/ou multi-résidus à analyser.',
         path: ['substances']
       });
     }

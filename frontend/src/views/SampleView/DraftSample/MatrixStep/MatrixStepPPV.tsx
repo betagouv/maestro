@@ -326,7 +326,7 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
             <>
               <div className={cx('fr-col-12', 'fr-mt-2w', 'fr-pb-1v')}>
                 <span className={cx('fr-text--md', 'fr-text--bold')}>
-                  Analyses mono-résidu et multi-résidus
+                  Analyses mono-résidu et/ou multi-résidus
                 </span>
               </div>
               <div className={cx('fr-col-12')}>
@@ -350,7 +350,7 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
                 />
                 {monoSubstances && (
                   <SubstanceSearch
-                    label="Liste des mono-résidu"
+                    label="Sélectionner la liste des mono-résidu"
                     analysisMethod="Mono"
                     substances={monoSubstances}
                     onChangeSubstances={setMonoSubstances}
@@ -381,10 +381,6 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
                     }
                   ]}
                 />
-                <span className={cx('fr-hint-text', 'fr-mt-1w')}>
-                  La liste des multi-résidus sera complétée par le laboratoire
-                  lors de l’analyse
-                </span>
               </div>
 
               {form.hasIssue('substances') && (
