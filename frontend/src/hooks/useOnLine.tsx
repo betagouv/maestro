@@ -8,11 +8,13 @@ import {
   useLazyFindSamplesQuery,
   useLazyGetSampleQuery
 } from 'src/services/sample.service';
+import { useAnalytics } from './useAnalytics';
 
 export const useOnLine = () => {
   const { isAuthenticated } = useAuthentication();
   const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
   const [isOnline, setIsOnline] = React.useState(navigator.onLine);
+  const { trackEvent } = useAnalytics();
 
   const { pendingSamples } = useAppSelector((state) => state.samples);
   const [createOrUpdateSample] = useCreateOrUpdateSampleMutation();
@@ -39,9 +41,10 @@ export const useOnLine = () => {
       (async () => {
         //Synchronize pending samples with the server
         await Promise.all(
-          Object.values(pendingSamples).map((sample) =>
-            createOrUpdateSample(sample)
-          )
+          Object.values(pendingSamples).map(async (sample) => {
+            const createdSample = await createOrUpdateSample(sample).unwrap();
+            trackEvent('sample', 'push_offline', createdSample.id);
+          })
         );
 
         //Load prescriptions and last samples from the server to made them available offline in order to create new samples

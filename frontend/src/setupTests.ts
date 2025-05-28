@@ -21,3 +21,8 @@ global.URL.createObjectURL = vi.fn();
 vi.mock('src/hooks/useOnLine', () => ({
   useOnLine: () => ({ isOnline: true })
 }));
+vi.mock('src/hooks/useAnalytics', () => ({
+  useAnalytics: () => ({
+    trackEvent: vi.fn()
+  })
+}));

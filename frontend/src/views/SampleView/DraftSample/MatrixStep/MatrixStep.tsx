@@ -13,7 +13,7 @@ import {
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
-import React, { useContext, useMemo, useRef, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
@@ -22,8 +22,10 @@ import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SupportDocumentDownload from 'src/views/SampleView/DraftSample/SupportDocumentDownload';
 import SavedAlert from 'src/views/SampleView/SavedAlert';
 import { z } from 'zod';
+import AppServiceErrorAlert from '../../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import AppUpload from '../../../../components/_app/AppUpload/AppUpload';
 import SampleDocument from '../../../../components/SampleDocument/SampleDocument';
+import { useAnalytics } from '../../../../hooks/useAnalytics';
 import { usePartialSample } from '../../../../hooks/usePartialSample';
 import { ApiClientContext } from '../../../../services/apiClient';
 import NextButton from '../NextButton';
@@ -43,14 +45,17 @@ const MatrixStep = ({ partialSample }: Props) => {
   const { navigateToSample } = useSamplesLink();
   const { user } = useAuthentication();
   const { readonly } = usePartialSample(partialSample);
+  const { trackEvent } = useAnalytics();
 
   const stepRef = useRef<MatrixStepRef>(null);
+  const isSubmittingRef = useRef<boolean>(false);
 
   const [files, setFiles] = useState<File[]>([]);
   const [documentIds, setDocumentIds] = useState(partialSample.documentIds);
   const [isSaved, setIsSaved] = useState(false);
 
-  const [createOrUpdate] = apiClient.useCreateOrUpdateSampleMutation();
+  const [createOrUpdateSample, createOrUpdateSampleCall] =
+    apiClient.useCreateOrUpdateSampleMutation();
   const [createDocument] = apiClient.useCreateDocumentMutation();
   const [deleteDocument] = apiClient.useDeleteDocumentMutation();
 
@@ -90,6 +95,25 @@ const MatrixStep = ({ partialSample }: Props) => {
     files: FileInput(SampleDocumentTypeList, true)
   });
 
+  useEffect(
+    () => {
+      if (isSubmittingRef.current && !createOrUpdateSampleCall.isLoading) {
+        isSubmittingRef.current = false;
+
+        if (createOrUpdateSampleCall.isSuccess) {
+          trackEvent('sample', 'submit_step_2', partialSample.id);
+          navigateToSample(partialSample.id, 3);
+        }
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      createOrUpdateSampleCall.isSuccess,
+      createOrUpdateSampleCall.isLoading,
+      partialSample.id
+    ]
+  );
+
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     if (stepRef.current) {
@@ -110,7 +134,7 @@ const MatrixStep = ({ partialSample }: Props) => {
         (sampleMatrixData.prescriptionId ?? partialSample.prescriptionId)
     );
 
-    await createOrUpdate({
+    await createOrUpdateSample({
       ...partialSample,
       ...sampleMatrixData,
       documentIds,
@@ -200,8 +224,8 @@ const MatrixStep = ({ partialSample }: Props) => {
           prescriptions={prescriptions ?? []}
           onSave={(sampleMatrixData) => save('DraftMatrix', sampleMatrixData)}
           onSubmit={async () => {
+            isSubmittingRef.current = true;
             await save('DraftItems');
-            navigateToSample(partialSample.id, 3);
           }}
           renderSampleAttachments={renderSampleAttachments}
         />
@@ -216,8 +240,8 @@ const MatrixStep = ({ partialSample }: Props) => {
           prescriptions={prescriptions ?? []}
           onSave={(sampleMatrixData) => save('DraftMatrix', sampleMatrixData)}
           onSubmit={async () => {
+            isSubmittingRef.current = true;
             await save('DraftItems');
-            navigateToSample(partialSample.id, 3);
           }}
           renderSampleAttachments={renderSampleAttachments}
         />
@@ -226,6 +250,7 @@ const MatrixStep = ({ partialSample }: Props) => {
       <hr className={cx('fr-mx-0')} />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={clsx(cx('fr-col-12'), 'sample-actions')}>
+          <AppServiceErrorAlert call={createOrUpdateSampleCall} />
           <ul
             className={cx(
               'fr-btns-group',

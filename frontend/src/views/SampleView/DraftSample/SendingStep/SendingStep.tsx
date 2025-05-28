@@ -10,7 +10,14 @@ import {
   SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import { isDefined } from 'maestro-shared/utils/utils';
-import React, { FunctionComponent, useContext, useMemo, useState } from 'react';
+import React, {
+  FunctionComponent,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { Link } from 'react-router';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
@@ -27,6 +34,8 @@ import SavedAlert from 'src/views/SampleView/SavedAlert';
 import ContextStepSummary from 'src/views/SampleView/StepSummary/ContextStepSummary';
 import ItemsStepSummary from 'src/views/SampleView/StepSummary/ItemsStepSummary';
 import MatrixStepSummary from 'src/views/SampleView/StepSummary/MatrixStepSummary';
+import AppServiceErrorAlert from '../../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
+import { useAnalytics } from '../../../../hooks/useAnalytics';
 import { ApiClientContext } from '../../../../services/apiClient';
 import SupportDocumentDownload from '../SupportDocumentDownload';
 
@@ -38,6 +47,10 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
   const { navigateToSample } = useSamplesLink();
   const { isOnline } = useOnLine();
   const { laboratory, readonly } = usePartialSample(sample);
+  const { trackEvent } = useAnalytics();
+
+  const isSubmittingRef = useRef<boolean>(false);
+
   const { useCreateOrUpdateSampleMutation } = useContext(ApiClientContext);
 
   const [resytalId, setResytalId] = useState(sample.resytalId);
@@ -50,9 +63,10 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
   );
   const [isSaved, setIsSaved] = useState(false);
 
-  const [createOrUpdateSample, { isError }] = useCreateOrUpdateSampleMutation({
-    fixedCacheKey: `sending-sample-${sample.id}`
-  });
+  const [createOrUpdateSample, createOrUpdateSampleCall] =
+    useCreateOrUpdateSampleMutation({
+      fixedCacheKey: `sending-sample-${sample.id}`
+    });
 
   const isSendable = useMemo(
     () =>
@@ -81,10 +95,29 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
 
   type FormShape = typeof Form.shape;
 
+  useEffect(
+    () => {
+      if (isSubmittingRef.current && !createOrUpdateSampleCall.isLoading) {
+        isSubmittingRef.current = false;
+
+        if (createOrUpdateSampleCall.isSuccess) {
+          trackEvent('sample', 'send', sample.id);
+          navigateToSample(sample.id);
+        }
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      createOrUpdateSampleCall.isSuccess,
+      createOrUpdateSampleCall.isLoading,
+      sample.id
+    ]
+  );
+
   const submit = async () => {
     await form.validate(async () => {
+      isSubmittingRef.current = true;
       await save('Sent');
-      navigateToSample(sample.id);
     });
   };
 
@@ -288,15 +321,8 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
             small
           />
         )}
-        {isError ? (
-          <Alert
-            severity="error"
-            description="Une erreur est survenue lors de l'envoi, veuillez réessayer."
-            small
-          />
-        ) : (
-          <hr className={cx('fr-mx-0')} />
-        )}
+        <AppServiceErrorAlert call={createOrUpdateSampleCall} />
+        {!createOrUpdateSampleCall.isError && <hr className={cx('fr-mx-0')} />}
         {!readonly && <SupportDocumentDownload partialSample={sample} />}
         <div className="sample-actions">
           <ul
