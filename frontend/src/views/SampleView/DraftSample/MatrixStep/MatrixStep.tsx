@@ -28,7 +28,6 @@ import SampleDocument from '../../../../components/SampleDocument/SampleDocument
 import { useAnalytics } from '../../../../hooks/useAnalytics';
 import { usePartialSample } from '../../../../hooks/usePartialSample';
 import { ApiClientContext } from '../../../../services/apiClient';
-import { useCreateOrUpdateSampleMutation } from '../../../../services/sample.service';
 import NextButton from '../NextButton';
 import MatrixStepPFAS, { PartialSamplePFAS } from './MatrixStepPFAS';
 import MatrixStepPPV, { PartialSamplePPV } from './MatrixStepPPV';
@@ -56,7 +55,7 @@ const MatrixStep = ({ partialSample }: Props) => {
   const [isSaved, setIsSaved] = useState(false);
 
   const [createOrUpdateSample, createOrUpdateSampleCall] =
-    useCreateOrUpdateSampleMutation();
+    apiClient.useCreateOrUpdateSampleMutation();
   const [createDocument] = apiClient.useCreateDocumentMutation();
   const [deleteDocument] = apiClient.useDeleteDocumentMutation();
 
