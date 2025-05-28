@@ -198,6 +198,7 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
                       onChange: (e) => {
                         if (e.target.checked) {
                           setMatrixKind(OtherMatrixKind.value);
+                          setMatrix(undefined);
                         } else {
                           setMatrixKind(undefined);
                           setMatrix(undefined);
