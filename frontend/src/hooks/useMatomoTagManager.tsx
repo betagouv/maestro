@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 declare global {
   interface Window {
     _mtm?: Array<{ [key: string]: any }>;
+    _paq?: Array<any>;
   }
 }
 
