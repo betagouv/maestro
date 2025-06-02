@@ -253,40 +253,42 @@ describe('Parse correctement les fichiers CSV', () => {
         }
       ])
     ).toMatchInlineSnapshot(`
-        [
-          {
-            "dateAnalysis": 2024-10-22T22:00:00.000Z,
-            "notes": "Respect de la Directive 2002/63 CE sur les quantités nécessaires ",
-            "residues": [
-              {
-                "analysisMethod": "Multi",
-                "casNumber": "107534-96-3",
-                "codeSandre": "1694",
-                "label": "Tébuconazole",
-                "lmr": 0.2,
-                "result": 0.025,
-                "result_kind": "Q",
-              },
-              {
-                "analysisMethod": "Multi",
-                "casNumber": null,
-                "codeSandre": null,
-                "label": "Prothioconazole : prothioconazole-desthio (somme des isomères)",
-                "result_kind": "NQ",
-              },
-              {
-                "analysisMethod": "Mono",
-                "casNumber": null,
-                "codeSandre": "1951",
-                "label": "Azoxystrobine",
-                "lmr": 0.15,
-                "result": 0.011,
-                "result_kind": "Q",
-              },
-            ],
-            "sampleReference": "Ref client",
-          },
-        ]
-      `);
+      [
+        {
+          "notes": "Respect de la Directive 2002/63 CE sur les quantités nécessaires ",
+          "residues": [
+            {
+              "analysisMethod": "Multi",
+              "casNumber": "107534-96-3",
+              "codeSandre": "1694",
+              "dateAnalysis": 2024-10-22T22:00:00.000Z,
+              "label": "Tébuconazole",
+              "lmr": 0.2,
+              "result": 0.025,
+              "result_kind": "Q",
+            },
+            {
+              "analysisMethod": "Multi",
+              "casNumber": null,
+              "codeSandre": null,
+              "dateAnalysis": 2024-10-22T22:00:00.000Z,
+              "label": "Prothioconazole : prothioconazole-desthio (somme des isomères)",
+              "result_kind": "NQ",
+            },
+            {
+              "analysisMethod": "Mono",
+              "casNumber": null,
+              "codeSandre": "1951",
+              "dateAnalysis": 2024-10-22T22:00:00.000Z,
+              "label": "Azoxystrobine",
+              "lmr": 0.15,
+              "result": 0.011,
+              "result_kind": "Q",
+            },
+          ],
+          "sampleReference": "Ref client",
+        },
+      ]
+    `);
   });
 });

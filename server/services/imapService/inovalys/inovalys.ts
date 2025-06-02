@@ -1,3 +1,5 @@
+import { parse } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { z } from 'zod';
 import { ExtractError } from '../extractError';
@@ -10,11 +12,6 @@ import type {
   LaboratoryConf
 } from '../index';
 import { csvToJson, frenchNumberStringValidator } from '../utils';
-import { inovalysReferential, inovalysUnknownReferences } from './inovalysReferential';
-import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
-import { ExtractError } from '../extractError';
-import { parse } from 'date-fns'
-import { toZonedTime } from 'date-fns-tz';
 import {
   inovalysReferential,
   inovalysUnknownReferences
@@ -120,10 +117,11 @@ export const extractAnalyzes = (
         .string()
         .optional()
         .transform((v) => (v === '' || v === undefined ? null : v)),
-    'Date Analyse': z.string().transform(d => {
-      return parse(d, 'dd/MM/yyyy',  toZonedTime(new Date(), 'Europe/Paris') )
+      'Date Analyse': z.string().transform((d) => {
+        return parse(d, 'dd/MM/yyyy', toZonedTime(new Date(), 'Europe/Paris'));
+      })
     })
-  }));
+  );
 
   const { data: resultatsData, error: resultatsError } =
     resultatsFileValidator.safeParse(
@@ -186,7 +184,8 @@ export const extractAnalyzes = (
           label: r['Détermination'],
           casNumber: r['Numéro CAS'] ?? null,
           codeSandre: r['Code Sandre'] ?? null,
-          analysisMethod: codeMethodsAnalyseMethod[r['Réf Méthode']]
+          analysisMethod: codeMethodsAnalyseMethod[r['Réf Méthode']],
+          analysisDate: r['Date Analyse']
         };
       });
 

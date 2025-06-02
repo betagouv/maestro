@@ -86,8 +86,10 @@ type SamplesExportExcelData = SetAttributesNullOrUndefined<{
     referenceLabel: string;
     residueNumber: number;
     analysisMethod: string;
+    analysisDate: string;
     resultKind: string;
     result: number;
+    resultUnit: string;
     lmr: number;
     resultHigherThanArfd: string;
     notesOnResult: string;
@@ -235,8 +237,12 @@ const generateSamplesExportExcel = async (
           analysisMethod: r.analysisMethod
             ? AnalysisMethodLabels[r.analysisMethod]
             : undefined,
+          analysisDate: r.analysisDate
+            ? format(r.analysisDate, 'dd/MM/yyyy')
+            : '',
           resultKind: r.resultKind ? ResultKindLabels[r.resultKind] : undefined,
           result: r.result,
+          resultUnit: 'mg/kg',
           lmr: r.lmr,
           resultHigherThanArfd: optionalBooleanToString(r.resultHigherThanArfd),
           notesOnResult: r.notesOnResult,

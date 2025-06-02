@@ -66,13 +66,13 @@ describe('parse correctement le XML', () => {
       [
         {
           "girpaReference": "La référence",
-          "dateAnalysis": 2025-04-16T19:09:28.000Z,
           "notes": "Une note",
           "residues": [
             {
               "analysisMethod": "Multi",
               "casNumber": "?",
               "codeSandre": null,
+              "dateAnalysis": 2025-04-16T19:09:28.000Z,
               "label": "bixafen",
               "lmr": 10,
               "result": 5.2,
@@ -133,6 +133,7 @@ describe('parse correctement le XML', () => {
           "analysisMethod": "Multi",
           "casNumber": "1967-25-5",
           "codeSandre": null,
+          "dateAnalysis": 2025-04-16T19:09:28.000Z,
           "label": "bixafen",
           "result_kind": "NQ",
         },
@@ -140,6 +141,7 @@ describe('parse correctement le XML', () => {
           "analysisMethod": "Mono",
           "casNumber": "27112-32-9",
           "codeSandre": null,
+          "dateAnalysis": 2025-04-16T19:09:28.000Z,
           "label": "fluopyram",
           "result_kind": "ND",
         },
@@ -147,6 +149,7 @@ describe('parse correctement le XML', () => {
           "analysisMethod": "Mono",
           "casNumber": "15299-99-7",
           "codeSandre": null,
+          "dateAnalysis": 2025-04-16T19:09:28.000Z,
           "label": "fluroxypyr",
           "lmr": 10,
           "result": 10.1,
@@ -156,6 +159,7 @@ describe('parse correctement le XML', () => {
           "analysisMethod": "Multi",
           "casNumber": "?",
           "codeSandre": null,
+          "dateAnalysis": 2025-04-16T19:09:28.000Z,
           "label": "fluxapyroxad",
           "lmr": 0,
           "result": 8,

@@ -11,6 +11,7 @@ const ResidueBase = z.object({
   analysisId: z.string().uuid(),
   residueNumber: z.number().int().positive(),
   analysisMethod: AnalysisMethod,
+  analysisDate: z.coerce.date().nullish(),
   reference: SSD2Id,
   resultKind: ResultKind.nullish(),
   result: z.number().min(0).nullish(),

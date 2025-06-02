@@ -122,8 +122,6 @@ export const analysisHandler = async (
           status: 'Compliance',
           createdBy: null,
           createdAt: new Date(),
-          //FIXME ajouter la date d'analyse
-          // date: analyse.dateAnalysis,
 
           // Pour le moment on passe par une validation manuelle pour déterminer la conformité
           // compliance: true,
@@ -147,6 +145,7 @@ export const analysisHandler = async (
               analysisMethod: residue.analysisMethod,
               residueNumber,
               reference: residue.ssd2Id,
+              analysisDate: residue.analysisDate,
               unknown_label:
                 residue.ssd2Id === null ? residue.unknown_label : null
             }

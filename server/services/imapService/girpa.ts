@@ -785,7 +785,7 @@ export const extractAnalyzes = (obj: unknown): GirpaAnaysis[] => {
         codeSandre: null,
         casNumber: a.Substance_active_CAS,
         label: a.Substance_active_anglais,
-        dateAnalysis: a.Date_analyse
+        analysisDate: a.Date_analyse
       };
       return isNQ || isND
         ? {

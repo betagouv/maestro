@@ -59,6 +59,7 @@ export interface AnalysisResidues {
   substanceApproved: string | null;
   substanceAuthorised: string | null;
   unknown_label: string | null;
+  analysisDate: Timestamp | null;
 }
 
 export interface AnalysisErrors {
@@ -226,7 +227,7 @@ export interface SampleDocuments {
 
 export interface Departments {
   id: string;
-  geometry: ColumnType<never, unknown, unknown>
+  geometry: ColumnType<never, unknown, unknown>;
 }
 
 export interface DB {

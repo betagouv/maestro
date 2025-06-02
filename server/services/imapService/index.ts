@@ -30,7 +30,7 @@ export type ExportDataSubstance = {
   casNumber: string | null;
   codeSandre: string | null;
   analysisMethod: AnalysisMethod;
-  dateAnalysis: Date;
+  analysisDate: Date | null;
 } & (ExportResultNonQuantifiable | ExportResultQuantifiable);
 export type ExportDataSubstanceWithSSD2Id = OmitDistributive<
   ExportDataSubstance,
