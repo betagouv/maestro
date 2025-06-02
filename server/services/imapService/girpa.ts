@@ -707,9 +707,7 @@ const isCodeMethod = (code: string): code is (typeof codeMethods)[number] =>
 
 const residueCasNumberValidator = z.string().brand('CAS number');
 
-const residueEnglishNameValidator = z
-  .string()
-  .brand('ResidueEnglishName');
+const residueEnglishNameValidator = z.string().brand('ResidueEnglishName');
 
 export const analyseXmlValidator = z.object({
   Résultat: frenchNumberStringValidator,
@@ -725,13 +723,18 @@ export const analyseXmlValidator = z.object({
     .refine((s) => isCodeMethod(s) || s === '-')
 });
 
-export const girpaCodeEchantillonValidator = z.string().transform((l) =>
-  l
+export const girpaCodeEchantillonValidator = z.string().transform((l) => {
+  const result = l
     .trim()
     .substring(0, l.length - 2)
     .trim()
-    .replaceAll(' ', '-')
-);
+    .replaceAll(' ', '-');
+
+  if (result.endsWith('-')) {
+    return result.substring(0, result.length - 1);
+  }
+  return result;
+});
 
 type GirpaAnaysis = Omit<ExportAnalysis, 'pdfFile'> & {
   girpaReference: string;

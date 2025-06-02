@@ -171,11 +171,10 @@ describe('getResidue', () => {
   });
 });
 
-test('girpaCodeEchantillonValidator', () => {
-  expect(
-    girpaCodeEchantillonValidator.parse('IDF 75 22 0001 A 01')
-  ).toMatchInlineSnapshot(`"IDF-75-22-0001-A"`);
-  expect(
-    girpaCodeEchantillonValidator.parse('PAC-04-25-0001-A01')
-  ).toMatchInlineSnapshot(`"PAC-04-25-0001-A"`);
+test.each<[string, string]>([
+  ['IDF 75 22 0001 A 01', 'IDF-75-22-0001-A'],
+  ['PAC-04-25-0001-A01', 'PAC-04-25-0001-A'],
+  ['OCC-25-0007-01', 'OCC-25-0007']
+])('girpaCodeEchantillonValidator', (value, expected) => {
+  expect(girpaCodeEchantillonValidator.parse(value)).toBe(expected);
 });
