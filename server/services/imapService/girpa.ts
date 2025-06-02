@@ -721,10 +721,9 @@ export const analyseXmlValidator = z.object({
   Substance_active_anglais: residueEnglishNameValidator,
   Date_analyse: z.string().transform((d) => {
     //'16/04/2025 21:09:28'
-    return parse(
-      d,
-      'dd/MM/yyyy HH:mm:ss',
-      toZonedTime(new Date(), 'Europe/Paris')
+    return toZonedTime(
+      parse(d, 'dd/MM/yyyy HH:mm:ss', new Date()),
+      'Europe/Paris'
     );
   }),
   Code_méthode: z
