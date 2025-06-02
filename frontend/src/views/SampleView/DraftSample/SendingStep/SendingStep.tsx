@@ -102,7 +102,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
         isSubmittingRef.current = false;
 
         if (createOrUpdateSampleCall.isSuccess) {
-          trackEvent('sample', 'send', sample.id);
+          trackEvent('sample', 'submit_Sent', sample.id);
           navigateToSample(sample.id);
         }
       }

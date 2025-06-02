@@ -13,20 +13,22 @@ export const trackEventAction = {
   geolocation: z.enum(['enable', 'disable']),
   sample: z.enum([
     'push_offline',
-    ...SampleStatus.options.map((status) => `submit_${status}`)
+    ...(SampleStatus.options.map(
+      (status) => `submit_${status}`
+    ) as `submit_${SampleStatus}`[])
   ]),
   support_document: z.enum(
     SampleStatus.options.map((status) => `download_${status}`) as [
-      string,
-      ...string[]
+      `download_${SampleStatus}`,
+      ...`download_${SampleStatus}`[]
     ]
   )
 } as const satisfies Record<TrackEventCategory, z.ZodEnum<any>>;
 
 export const useAnalytics = () => {
-  const trackEvent = (
-    category: TrackEventCategory,
-    action: z.infer<(typeof trackEventAction)[TrackEventCategory]>,
+  const trackEvent = <T extends TrackEventCategory>(
+    category: T,
+    action: z.infer<(typeof trackEventAction)[T]>,
     name?: string,
     value?: number
   ) => {
