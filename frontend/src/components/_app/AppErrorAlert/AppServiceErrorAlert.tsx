@@ -1,14 +1,24 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { isErrorWithMessage } from '../../../services/api.service';
 
 interface Props {
   call: {
     isError: boolean;
-    error?: any;
+    error?: unknown;
   };
 }
 
+/**
+ * Type predicate to narrow an unknown error to an object with a string 'data' property
+ */
+function isErrorWithMessage(error: unknown): error is { data: string } {
+  return (
+    typeof error === 'object' &&
+    error != null &&
+    'data' in error &&
+    typeof (error as any).data === 'string'
+  );
+}
 const AppServiceErrorAlert = ({ call }: Props) => {
   if (!call.isError) {
     return <></>;
