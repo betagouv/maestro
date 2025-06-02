@@ -16,11 +16,7 @@ import {
   BreedingMethodList
 } from 'maestro-shared/referential/BreedingMethod';
 import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
-import {
-  MatrixKind,
-  MatrixKindLabels,
-  MatrixKindList
-} from 'maestro-shared/referential/Matrix/MatrixKind';
+import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
 import {
@@ -43,21 +39,17 @@ import {
   SpeciesByProgrammingPlanKind,
   SpeciesLabels
 } from 'maestro-shared/referential/Species';
-import {
-  Stage,
-  StageLabels,
-  StageList
-} from 'maestro-shared/referential/Stage';
+import { Stage } from 'maestro-shared/referential/Stage';
 import {
   TargetingCriteria,
   TargetingCriteriaLabels,
   TargetingCriteriaList
 } from 'maestro-shared/referential/TargetingCriteria';
-import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import {
   PartialSample,
   PartialSampleMatrixSpecificData,
   PartialSampleToCreate,
+  prescriptionSubstancesRefinement,
   SampleMatrixData,
   SampleMatrixSpecificDataPFASEggs,
   SampleMatrixSpecificDataPFASMeat
@@ -70,7 +62,10 @@ import {
   useState
 } from 'react';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
-import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
+import {
+  AppSelectOption,
+  selectOptionsFromList
+} from 'src/components/_app/AppSelect/AppSelectOption';
 import { z } from 'zod';
 import AppRadioButtons from '../../../../components/_app/AppRadioButtons/AppRadioButtons';
 import AppSearchInput from '../../../../components/_app/AppSearchInput/AppSearchInput';
@@ -81,7 +76,9 @@ import { MatrixStepRef } from './MatrixStep';
 
 const SampleMatrixPFASData = SampleMatrixData.omit({
   documentIds: true,
-  laboratoryId: true
+  laboratoryId: true,
+  monoSubstances: true,
+  multiSubstances: true
 }).extend({
   specificData: z.discriminatedUnion('programmingPlanKind', [
     SampleMatrixSpecificDataPFASEggs,
@@ -100,7 +97,8 @@ export type PartialSamplePFAS = (PartialSample | PartialSampleToCreate) & {
 
 type Props = {
   partialSample: PartialSamplePFAS;
-  prescriptions: Prescription[];
+  matrixKindOptions: AppSelectOption[];
+  stageOptions: AppSelectOption[];
   onSave: (sampleMatrixData: SampleMatrixPFASData) => Promise<void>;
   onSubmit: () => Promise<void>;
   renderSampleAttachments?: () => ReactNode;
@@ -108,7 +106,14 @@ type Props = {
 
 const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
   (
-    { partialSample, prescriptions, onSave, onSubmit, renderSampleAttachments },
+    {
+      partialSample,
+      matrixKindOptions,
+      stageOptions,
+      onSave,
+      onSubmit,
+      renderSampleAttachments
+    },
     ref
   ) => {
     const [matrixKind, setMatrixKind] = useState(partialSample.matrixKind);
@@ -165,6 +170,7 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
           path: ['specificData', 'age']
         });
       }
+      prescriptionSubstancesRefinement(val, ctx);
     });
 
     type FormShape = typeof SampleMatrixPFASData.shape;
@@ -208,14 +214,7 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
         matrix,
         stage,
         specificData,
-        notesOnMatrix,
-        prescriptionId: prescriptions?.find(
-          (p) =>
-            p.programmingPlanKind === specificData.programmingPlanKind &&
-            p.matrixKind === matrixKind &&
-            stage &&
-            p.stages.includes(stage)
-        )?.id
+        notesOnMatrix
       } as SampleMatrixPFASData);
 
     const form = useForm(
@@ -275,21 +274,7 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
             <AppSearchInput
               value={matrixKind ?? ''}
-              options={selectOptionsFromList(
-                MatrixKindList.filter((matrixKind) =>
-                  prescriptions?.find(
-                    (p) =>
-                      p.programmingPlanKind ===
-                        specificData.programmingPlanKind &&
-                      p.matrixKind === matrixKind
-                  )
-                ),
-                {
-                  labels: MatrixKindLabels,
-                  withSort: true,
-                  withDefault: false
-                }
-              )}
+              options={matrixKindOptions}
               placeholder="Sélectionner une catégorie"
               onSelect={(value) => {
                 setMatrixKind(value as MatrixKind);
@@ -337,23 +322,7 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
             <AppSelect<FormShape>
               value={stage ?? ''}
-              options={selectOptionsFromList(
-                StageList.filter(
-                  (stage) =>
-                    !prescriptions ||
-                    prescriptions.find(
-                      (p) =>
-                        p.programmingPlanKind ===
-                          specificData.programmingPlanKind &&
-                        p.matrixKind === matrixKind &&
-                        p.stages.includes(stage)
-                    )
-                ),
-                {
-                  labels: StageLabels,
-                  defaultLabel: 'Sélectionner un stade'
-                }
-              )}
+              options={stageOptions}
               onChange={(e) => setStage(e.target.value as Stage)}
               inputForm={form}
               inputKey="stage"

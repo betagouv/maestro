@@ -113,7 +113,7 @@ export interface Prescriptions {
 export interface PrescriptionSubstances {
   analysisMethod: string;
   prescriptionId: string;
-  substanceCode: string;
+  substance: string;
 }
 
 export interface ProgrammingPlans {
@@ -208,11 +208,6 @@ export interface SampleSequenceNumbers {
   region: string;
 }
 
-export interface Substances {
-  code: string;
-  label: string;
-}
-
 export interface Users {
   email: string;
   firstName: string;
@@ -253,7 +248,6 @@ export interface DB {
   sampleItems: SampleItems;
   samples: Samples;
   sampleSequenceNumbers: SampleSequenceNumbers;
-  substances: Substances;
   users: Users;
 }
 export type KyselyMaestro = Kysely<DB>;

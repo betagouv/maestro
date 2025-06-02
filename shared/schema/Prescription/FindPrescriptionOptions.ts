@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { Stage } from '../../referential/Stage';
 import { coerceToArray } from '../../utils/utils';
-import { Context } from '../ProgrammingPlan/Context';
+import { ProgrammingPlanContext } from '../ProgrammingPlan/Context';
 
 export const PrescriptionOptionsInclude = z.enum(['substanceCount']);
 
@@ -11,7 +11,7 @@ export type PrescriptionOptionsInclude = z.infer<
 
 export const FindPrescriptionOptions = z.object({
   programmingPlanId: z.string().uuid(),
-  context: Context,
+  context: ProgrammingPlanContext.nullish(),
   matrixKind: z.string().nullish(),
   stage: Stage.nullish(),
   includes: z

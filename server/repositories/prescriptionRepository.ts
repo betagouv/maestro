@@ -48,10 +48,10 @@ const include = (opts?: FindPrescriptionOptions) => {
       query
         .select(
           db.raw(
-            `count(substance_code) filter (where analysis_method = 'Mono') as mono_analysis_count`
+            `count(substance) filter (where analysis_method = 'Mono') as mono_analysis_count`
           ),
           db.raw(
-            `count(substance_code) filter (where analysis_method = 'Multi') as multi_analysis_count`
+            `count(substance) filter (where analysis_method = 'Multi') as multi_analysis_count`
           )
         )
         .leftJoin(

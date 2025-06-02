@@ -10,7 +10,7 @@ import {
   MatrixKindLabels
 } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
-import { Context } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   ProgrammingPlanStatus,
@@ -26,7 +26,7 @@ import { pluralize } from '../../../utils/stringUtils';
 
 interface Props {
   programmingPlan: ProgrammingPlan;
-  context: Context;
+  context: ProgrammingPlanContext;
 }
 
 const ProgrammingPlanApprovalList = ({

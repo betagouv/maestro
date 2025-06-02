@@ -59,10 +59,10 @@ const SendingModal = ({ modal, laboratory, onConfirm }: Props) => {
       La demande d’analyse va être envoyée au laboratoire{' '}
       <b>{getLaboratoryFullname(laboratory.name)}</b> par e-mail à{' '}
       {laboratory.emails.map((email, index) => (
-        <>
+        <span key={`email-${index}`}>
           <b>{email}</b>
           {index < laboratory.emails.length - 1 ? ', ' : ''}
-        </>
+        </span>
       ))}
       .
       {!(LaboratoryWithAutomation as string[]).includes(laboratory.name) && (

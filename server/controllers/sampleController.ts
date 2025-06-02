@@ -8,7 +8,6 @@ import { getCultureKindLabel } from 'maestro-shared/referential/CultureKind';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
-import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { getMatrixPartLabel } from 'maestro-shared/referential/Matrix/MatrixPart';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
 import { Regions } from 'maestro-shared/referential/Region';
@@ -21,6 +20,7 @@ import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
+  getSampleMatrixLabel,
   PartialSample,
   PartialSampleToCreate,
   Sample
@@ -30,7 +30,6 @@ import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
 import { formatWithTz, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import companyRepository from '../repositories/companyRepository';
 import { laboratoryRepository } from '../repositories/laboratoryRepository';
-import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
 import sampleItemRepository from '../repositories/sampleItemRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
 import csvService from '../services/csvService/csvService';
@@ -41,8 +40,9 @@ import { pdfService } from '../services/pdfService/pdfService';
 
 import { isEqual } from 'lodash-es';
 import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
+import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { StageLabels } from 'maestro-shared/referential/Stage';
-import { Substance } from 'maestro-shared/schema/Substance/Substance';
 import {
   hasNationalRole,
   hasPermission
@@ -288,11 +288,6 @@ const updateSample = async (request: Request, response: Response) => {
             updatedSample.laboratoryId as string
           )) as Laboratory;
 
-          const prescriptionSubstances =
-            await prescriptionSubstanceRepository.findMany(
-              updatedSample.prescriptionId
-            );
-
           const establishment = {
             name: Regions[updatedSample.region].establishment.name,
             fullAddress: [
@@ -312,19 +307,16 @@ const updateSample = async (request: Request, response: Response) => {
             ].join('\n')
           };
 
-          const substanceToLaboratorySubstance = (
-            substance: Substance
-          ): Pick<Substance, 'label'> => {
+          const substanceToLaboratoryLabel = (substance: SSD2Id): string => {
             let laboratoryLabel: string | null = null;
             if (laboratory.name in laboratoriesConf) {
               const laboratoryName = laboratory.name as LaboratoryWithConf;
               laboratoryLabel =
                 Object.entries(
                   laboratoriesConf[laboratoryName].ssd2IdByLabel
-                ).find(([_label, value]) => value === substance.code)?.[0] ??
-                null;
+                ).find(([_label, value]) => value === substance)?.[0] ?? null;
             }
-            return { label: laboratoryLabel ?? substance.label };
+            return laboratoryLabel ?? SSD2IdLabel[substance];
           };
 
           const analysisRequestDocs =
@@ -334,16 +326,12 @@ const updateSample = async (request: Request, response: Response) => {
               sampler: user,
               company,
               laboratory,
-              monoSubstances: prescriptionSubstances
-                .filter((substance) => substance.analysisMethod === 'Mono')
-                .map(({ substance }) =>
-                  substanceToLaboratorySubstance(substance)
-                ),
-              multiSubstances: prescriptionSubstances
-                .filter((substance) => substance.analysisMethod === 'Multi')
-                .map(({ substance }) =>
-                  substanceToLaboratorySubstance(substance)
-                ),
+              monoSubstanceLabels: (updatedSample.monoSubstances ?? []).map(
+                (substance) => substanceToLaboratoryLabel(substance)
+              ),
+              multiSubstanceLabels: (updatedSample.multiSubstances ?? []).map(
+                (substance) => substanceToLaboratoryLabel(substance)
+              ),
               reference: [updatedSample.reference, sampleItem?.itemNumber]
                 .filter(isDefinedAndNotNull)
                 .join('-'),
@@ -362,7 +350,7 @@ const updateSample = async (request: Request, response: Response) => {
               legalContext: LegalContextLabels[updatedSample.legalContext],
               stage: StageLabels[updatedSample.stage],
               matrixKindLabel: MatrixKindLabels[updatedSample.matrixKind],
-              matrixLabel: MatrixLabels[updatedSample.matrix],
+              matrixLabel: getSampleMatrixLabel(updatedSample),
               matrixPart: getMatrixPartLabel(updatedSample) as string,
               quantityUnit: sampleItem?.quantityUnit
                 ? QuantityUnitLabels[sampleItem.quantityUnit]

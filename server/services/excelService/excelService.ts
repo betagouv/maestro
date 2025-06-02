@@ -4,7 +4,6 @@ import highland from 'highland';
 import { isNil } from 'lodash-es';
 import { getCultureKindLabel } from 'maestro-shared/referential/CultureKind';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
-import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { getMatrixPartLabel } from 'maestro-shared/referential/Matrix/MatrixPart';
 import { OptionalBoolean } from 'maestro-shared/referential/OptionnalBoolean';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
@@ -17,7 +16,10 @@ import { ResidueComplianceLabels } from 'maestro-shared/schema/Analysis/Residue/
 import { ResidueKindLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
 import { ResultKindLabels } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { PartialSample } from 'maestro-shared/schema/Sample/Sample';
+import {
+  getSampleMatrixLabel,
+  PartialSample
+} from 'maestro-shared/schema/Sample/Sample';
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import { SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
 import { formatWithTz, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
@@ -160,7 +162,7 @@ const generateSamplesExportExcel = async (
         companySiret: sample.company?.siret,
         resytalId: sample.resytalId,
         notesOnCreation: sample.notesOnCreation,
-        matrix: sample.matrix ? MatrixLabels[sample.matrix] : undefined,
+        matrix: sample.matrix ? getSampleMatrixLabel(sample) : undefined,
         matrixDetails:
           sample.specificData?.programmingPlanKind === 'PPV'
             ? sample.specificData?.matrixDetails

@@ -11,7 +11,6 @@ import prescriptionRouter from './prescription.router';
 import programmingPlanRouter from './programmingPlan.router';
 import regionalPrescriptionRouter from './regionalPrescription.router';
 import sampleRouter from './sample.router';
-import substanceRouter from './substance.router';
 import userRouter from './user.router';
 
 export const protectedRouter = express.Router();
@@ -29,7 +28,6 @@ protectedRouter.use('/prescriptions', prescriptionRouter);
 protectedRouter.use('/prescriptions', regionalPrescriptionRouter);
 protectedRouter.use('/programming-plans', programmingPlanRouter);
 protectedRouter.use('/samples', sampleRouter);
-protectedRouter.use('/substances', substanceRouter);
 protectedRouter.use('/users', userRouter);
 
 protectedRouter.get('/regions.geojson', (_req, res) => {

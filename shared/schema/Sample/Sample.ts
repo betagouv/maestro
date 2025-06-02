@@ -1,4 +1,5 @@
-import { uniqBy } from 'lodash-es';
+import { isNil, uniqBy } from 'lodash-es';
+
 import { z } from 'zod';
 import { AnimalKind } from '../../referential/AnimalKind';
 import { AnimalSex } from '../../referential/AnimalSex';
@@ -6,18 +7,28 @@ import { BreedingMethod } from '../../referential/BreedingMethod';
 import { CultureKind } from '../../referential/CultureKind';
 import { Department } from '../../referential/Department';
 import { LegalContext } from '../../referential/LegalContext';
-import { Matrix } from '../../referential/Matrix/Matrix';
-import { MatrixKind } from '../../referential/Matrix/MatrixKind';
+import { Matrix, MatrixList } from '../../referential/Matrix/Matrix';
+import {
+  MatrixKind,
+  OtherMatrixKind
+} from '../../referential/Matrix/MatrixKind';
+import { MatrixLabels } from '../../referential/Matrix/MatrixLabels';
 import { MatrixPart } from '../../referential/Matrix/MatrixPart';
 import { OutdoorAccess } from '../../referential/OutdoorAccess';
 import { ProductionKind } from '../../referential/ProductionKind';
 import { Region } from '../../referential/Region';
+import { SSD2Id } from '../../referential/Residue/SSD2Id';
 import { Seizure } from '../../referential/Seizure';
 import { Species } from '../../referential/Species';
 import { Stage } from '../../referential/Stage';
 import { TargetingCriteria } from '../../referential/TargetingCriteria';
+import { isDefined } from '../../utils/utils';
 import { Company } from '../Company/Company';
-import { Context } from '../ProgrammingPlan/Context';
+import {
+  Context,
+  OutsideProgrammingPlanContext,
+  ProgrammingPlanContext
+} from '../ProgrammingPlan/Context';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { BaseUser } from '../User/User';
 import { PartialSampleItem, SampleItem } from './SampleItem';
@@ -143,15 +154,65 @@ export const SampleContextData = z.object({
 });
 
 export const SampleMatrixData = z.object({
-  matrixKind: MatrixKind,
-  matrix: Matrix,
+  matrixKind: MatrixKind.or(OtherMatrixKind),
+  matrix: Matrix.or(
+    z.string().nonempty({
+      message: 'Veuillez renseigner la matrice.'
+    })
+  ),
   stage: Stage,
   notesOnMatrix: z.string().nullish(),
-  prescriptionId: z.string().uuid(),
+  prescriptionId: z.string().uuid().nullish(),
   laboratoryId: z.string().uuid().nullish(),
+  monoSubstances: z.array(SSD2Id).nullish(),
+  multiSubstances: z.array(SSD2Id).nullish(),
   documentIds: z.array(z.string().uuid()).nullish(),
   specificData: SampleMatrixSpecificData
 });
+
+export const sampleMatrixRefinement = (
+  data: {
+    matrixKind: MatrixKind | 'Other';
+    matrix: Matrix | string;
+  },
+  ctx: z.RefinementCtx
+) => {
+  if (data.matrixKind !== 'Other' && !Matrix.safeParse(data.matrix).success) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.invalid_enum_value,
+      received: data.matrix,
+      options: MatrixList,
+      path: ['matrix']
+    });
+  }
+};
+
+export const prescriptionSubstancesRefinement = (
+  data: {
+    prescriptionId?: string | null;
+    monoSubstances?: SSD2Id[] | null;
+    multiSubstances?: SSD2Id[] | null;
+  },
+  ctx: z.RefinementCtx
+) => {
+  if (!isDefined(data.prescriptionId)) {
+    if (isNil(data.monoSubstances) && isNil(data.multiSubstances)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          'Veuillez préciser les substances mono-résidu et/ou multi-résidus à analyser.',
+        path: ['substances']
+      });
+    }
+    if (!isNil(data.monoSubstances) && data.monoSubstances.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Veuillez renseigner au moins une substance mono-résidu.',
+        path: ['monoSubstances']
+      });
+    }
+  }
+};
 
 const SampleItemsData = z.object({
   items: z
@@ -231,13 +292,18 @@ export const PartialSample = PartialSampleToCreate.extend({
   ...CreatedSampleData.shape
 });
 
-export const Sample = SampleToCreate.extend({
+export const SampleBase = SampleToCreate.extend({
   ...CreatedSampleData.shape,
   geolocation: Geolocation,
   department: Department,
   company: Company,
   laboratoryId: z.string().uuid(),
   items: z.array(SampleItem)
+});
+
+export const Sample = SampleBase.superRefine((data, ctx) => {
+  prescriptionSubstancesRefinement(data, ctx);
+  sampleMatrixRefinement(data, ctx);
 });
 
 export type Geolocation = z.infer<typeof Geolocation>;
@@ -249,6 +315,7 @@ export type PartialSampleMatrixData = z.infer<typeof PartialSampleMatrixData>;
 export type PartialSampleToCreate = z.infer<typeof PartialSampleToCreate>;
 export type PartialSample = z.infer<typeof PartialSample>;
 export type SampleToCreate = z.infer<typeof SampleToCreate>;
+export type SampleBase = z.infer<typeof SampleBase>;
 export type Sample = z.infer<typeof Sample>;
 export type PartialSampleMatrixSpecificData = z.infer<
   typeof PartialSampleMatrixSpecificData
@@ -259,3 +326,18 @@ export const isCreatedPartialSample = (
 ): partialSample is PartialSample =>
   partialSample !== undefined &&
   CreatedSampleData.safeParse(partialSample).success;
+
+export const isProgrammingPlanSample = (
+  partialSample?: PartialSample | PartialSampleToCreate
+) => ProgrammingPlanContext.safeParse(partialSample?.context).success;
+
+export const isOutsideProgrammingPlanSample = (
+  partialSample?: PartialSample | PartialSampleToCreate
+) => OutsideProgrammingPlanContext.safeParse(partialSample?.context).success;
+
+export const getSampleMatrixLabel = (
+  partialSample: PartialSample | PartialSampleToCreate
+) =>
+  partialSample.matrixKind === OtherMatrixKind.value
+    ? (partialSample.matrix ?? '')
+    : MatrixLabels[partialSample.matrix as Matrix];

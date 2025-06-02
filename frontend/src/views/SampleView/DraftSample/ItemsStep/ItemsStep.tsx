@@ -5,6 +5,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { uniqBy } from 'lodash-es';
 import {
+  isProgrammingPlanSample,
   PartialSample,
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
@@ -12,7 +13,7 @@ import {
   PartialSampleItem,
   SampleItem
 } from 'maestro-shared/schema/Sample/SampleItem';
-import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
+import { isDefined, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import React, { useState } from 'react';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
@@ -48,6 +49,7 @@ const ItemsStep = ({ partialSample }: Props) => {
         ]
       : partialSample.items
   );
+  const [laboratoryId, setLaboratoryId] = useState(laboratory?.id);
   const [notesOnItems, setNotesOnItems] = useState(partialSample?.notesOnItems);
   const [isSaved, setIsSaved] = useState(false);
 
@@ -61,7 +63,18 @@ const ItemsStep = ({ partialSample }: Props) => {
         (items) => uniqBy(items, (item) => item.sealId).length === items.length,
         'Les numéros de scellés doivent être uniques.'
       ),
-    notesOnItems: z.string().nullish()
+    notesOnItems: z.string().nullish(),
+    laboratoryId: z.string().uuid().nullish()
+  });
+
+  const FormRefinement = Form.superRefine(({ laboratoryId }, ctx) => {
+    if (!isProgrammingPlanSample(partialSample) && !isDefined(laboratoryId)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['laboratoryId'],
+        message: 'Veuillez sélectionner un laboratoire.'
+      });
+    }
   });
 
   type FormShape = typeof Form.shape;
@@ -82,6 +95,7 @@ const ItemsStep = ({ partialSample }: Props) => {
         ...item,
         compliance200263: item.compliance200263 ?? false
       })),
+      laboratoryId,
       status
     });
   };
@@ -93,10 +107,11 @@ const ItemsStep = ({ partialSample }: Props) => {
   };
 
   const form = useForm(
-    Form,
+    FormRefinement,
     {
       items,
-      notesOnItems
+      notesOnItems,
+      laboratoryId
     },
     save
   );
@@ -123,6 +138,7 @@ const ItemsStep = ({ partialSample }: Props) => {
                 setItems(newItems);
               }}
               onChangeItem={changeItems}
+              onChangeLaboratory={setLaboratoryId}
               itemsForm={form}
               laboratory={laboratory}
               readonly={readonly}

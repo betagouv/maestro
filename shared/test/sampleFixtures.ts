@@ -9,7 +9,7 @@ import { MatrixPartList } from '../referential/Matrix/MatrixPart';
 import { QuantityUnitList } from '../referential/QuantityUnit';
 import { Regions } from '../referential/Region';
 import { Company } from '../schema/Company/Company';
-import { ContextList } from '../schema/ProgrammingPlan/Context';
+import { ProgrammingPlanContextList } from '../schema/ProgrammingPlan/Context';
 import {
   CreatedSampleData,
   Geolocation,
@@ -40,7 +40,7 @@ export const genSampleContextData = (
     y: 4.731044
   },
   programmingPlanId: uuidv4(),
-  context: oneOf(ContextList),
+  context: oneOf(ProgrammingPlanContextList),
   legalContext: oneOf(LegalContextList),
   resytalId: '23-' + fakerFR.string.numeric(6),
   company: genCompany(),
@@ -76,6 +76,8 @@ export const genCreatedPartialSample = (
     ...genCreatedSampleData(data),
     company: genCompany(),
     matrix: oneOf(MatrixEffective.options),
+    monoSubstances: [],
+    multiSubstances: [],
     stage: 'STADE1',
     specificData: {
       programmingPlanKind: 'PPV',

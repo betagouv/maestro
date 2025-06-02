@@ -51,8 +51,10 @@ const findMany = async (
       `${prescriptionsTable}.programming_plan_id`,
       findOptions.programmingPlanId
     )
-    .where(`${prescriptionsTable}.context`, findOptions.context)
     .modify((builder) => {
+      if (findOptions.context) {
+        builder.where(`${prescriptionsTable}.context`, findOptions.context);
+      }
       if (findOptions.region) {
         builder
           .where(`${regionalPrescriptionsTable}.region`, findOptions.region)
