@@ -235,7 +235,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
         isSubmittingRef.current = false;
 
         if (createOrUpdateSampleCall.isSuccess) {
-          trackEvent('sample', 'submit_step_1', formData.id);
+          trackEvent('sample', `submit_${formData.status}`, formData.id);
           navigateToSample(formData.id);
         }
       }

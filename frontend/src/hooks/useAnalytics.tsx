@@ -1,3 +1,4 @@
+import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
 import z from 'zod';
 
 export const TrackEventCategory = z.enum([
@@ -12,16 +13,14 @@ export const trackEventAction = {
   geolocation: z.enum(['enable', 'disable']),
   sample: z.enum([
     'push_offline',
-    'submit_step_1',
-    'submit_step_2',
-    'submit_step_3',
-    'send'
+    ...SampleStatus.options.map((status) => `submit_${status}`)
   ]),
-  support_document: z.enum([
-    'download_step_1',
-    'download_step_2',
-    'download_step_3'
-  ])
+  support_document: z.enum(
+    SampleStatus.options.map((status) => `download_${status}`) as [
+      string,
+      ...string[]
+    ]
+  )
 } as const satisfies Record<TrackEventCategory, z.ZodEnum<any>>;
 
 export const useAnalytics = () => {

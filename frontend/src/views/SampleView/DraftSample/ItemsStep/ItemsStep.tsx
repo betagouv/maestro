@@ -91,7 +91,11 @@ const ItemsStep = ({ partialSample }: Props) => {
         isSubmittingRef.current = false;
 
         if (createOrUpdateSampleCall.isSuccess) {
-          trackEvent('sample', 'submit_step_3', partialSample.id);
+          trackEvent(
+            'sample',
+            `submit_${partialSample.status}`,
+            partialSample.id
+          );
           navigateToSample(partialSample.id, 4);
         }
       }
