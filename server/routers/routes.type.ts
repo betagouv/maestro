@@ -10,7 +10,7 @@ import z, { ZodObject, ZodType } from 'zod';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
 import validator, { body, params, query } from '../middlewares/validator';
 
-type RouteValidator<
+export type RouteValidator<
   key extends MaestroRoutes,
   method extends keyof (typeof routes)[key],
   Z extends keyof ToRoute

@@ -7,7 +7,7 @@ export type ToRoute = {
   params?: AnyZodObject;
   body?: AnyZodObject;
   permissions: UserPermission[];
-  response?: ZodType;
+  response: ZodType;
 };
 
 export type RouteMethod = 'get' | 'post' | 'put';
@@ -31,7 +31,6 @@ export const routes = {
       params: z.object({
         analysisId: z.string().uuid()
       }),
-      //FIXME c'est bien ça?
       permissions: ['createAnalysis'],
       response: PartialAnalysis
     }
