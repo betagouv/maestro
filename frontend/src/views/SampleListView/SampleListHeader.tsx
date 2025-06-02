@@ -52,8 +52,8 @@ const SampleListHeader = ({
           className={cx('fr-my-0', 'fr-ml-3w', 'fr-hidden', 'fr-unhidden-md')}
         />
       </div>
-      <div>
-        {!isMobile && (
+      {!isMobile && (
+        <div>
           <SegmentedControl
             hideLegend
             legend="Légende"
@@ -79,37 +79,38 @@ const SampleListHeader = ({
             ]}
             className={cx('fr-mr-3w')}
           />
-        )}
-        <Button
-          iconId="fr-icon-file-download-line"
-          priority="secondary"
-          onClick={() =>
-            window.open(
-              getSampleListExportURL({
-                ...findSampleOptions,
-                programmingPlanId: programmingPlan?.id as string,
-                perPage: undefined,
-                page: undefined
-              })
-            )
-          }
-          title="Exporter"
-          children={isMobile ? undefined : 'Exporter'}
-          size={isMobile ? 'small' : 'medium'}
+          <Button
+            iconId="fr-icon-file-download-line"
+            priority="secondary"
+            onClick={() =>
+              window.open(
+                getSampleListExportURL({
+                  ...findSampleOptions,
+                  programmingPlanId: programmingPlan?.id as string,
+                  perPage: undefined,
+                  page: undefined
+                })
+              )
+            }
+            title="Exporter"
+            children={isMobile ? undefined : 'Exporter'}
+            size={isMobile ? 'small' : 'medium'}
+          />
+        </div>
+      )}
+      <div className={clsx(cx('fr-hidden-md', 'fr-pt-2w'))}>
+        <Input
+          iconId="fr-icon-search-line"
+          hideLabel
+          label="N° de prélèvement"
+          nativeInputProps={{
+            type: 'search',
+            placeholder: 'N° de prélèvement',
+            value: findSampleOptions.reference ?? '',
+            onChange: changeReference
+          }}
         />
       </div>
-      <Input
-        iconId="fr-icon-search-line"
-        hideLabel
-        label="N° de prélèvement"
-        nativeInputProps={{
-          type: 'search',
-          placeholder: 'N° de prélèvement',
-          value: findSampleOptions.reference ?? '',
-          onChange: changeReference
-        }}
-        className={clsx(cx('fr-hidden-md', 'fr-pt-2w'), 'flex-grow-1')}
-      />
     </>
   );
 };

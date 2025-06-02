@@ -1,9 +1,11 @@
 @use '../../constants' as constants;
 
 .table-header {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
+  @media (min-width: constants.$breakpoint-md) {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+  }
 
   & > div:first-child {
     flex: 1;

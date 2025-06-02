@@ -22,9 +22,11 @@ import {
 import { useFindSamplesQuery } from 'src/services/sample.service';
 import ProgrammingPlanCard from 'src/views/DashboardView/ProgrammingPlanCard';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
+import useWindowSize from '../../hooks/useWindowSize';
 const DashboardView = () => {
   const { hasUserPermission, user } = useAuthentication();
   const { isOnline } = useOnLine();
+  const { isMobile } = useWindowSize();
 
   const { data: programmingPlan, isLoading: isProgrammingPlanLoading } =
     useGetProgrammingPlanByYearQuery(new Date().getFullYear());
@@ -171,34 +173,35 @@ const DashboardView = () => {
         </div>
       )}
 
-      {currentProgrammingPlan.regionalStatus.some(
-        (_) => _.status === 'Validated'
-      ) && (
-        <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
-          <div className={clsx(cx('fr-my-2w'), 'table-header')}>
-            <h4 className={cx('fr-mb-0')}>Vos derniers prélèvements</h4>
+      {!isMobile &&
+        currentProgrammingPlan.regionalStatus.some(
+          (_) => _.status === 'Validated'
+        ) && (
+          <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
+            <div className={clsx(cx('fr-my-2w'), 'table-header')}>
+              <h4 className={cx('fr-mb-0')}>Vos derniers prélèvements</h4>
+            </div>
+            <SampleTable
+              samples={samples ?? []}
+              tableFooter={
+                isOnline && (
+                  <Button
+                    priority="secondary"
+                    iconId={'fr-icon-arrow-right-line'}
+                    iconPosition="right"
+                    linkProps={{
+                      to: AuthenticatedAppRoutes.SamplesByYearRoute.link(
+                        currentProgrammingPlan.year
+                      )
+                    }}
+                  >
+                    Tous les prélèvements
+                  </Button>
+                )
+              }
+            />
           </div>
-          <SampleTable
-            samples={samples ?? []}
-            tableFooter={
-              isOnline && (
-                <Button
-                  priority="secondary"
-                  iconId={'fr-icon-arrow-right-line'}
-                  iconPosition="right"
-                  linkProps={{
-                    to: AuthenticatedAppRoutes.SamplesByYearRoute.link(
-                      currentProgrammingPlan.year
-                    )
-                  }}
-                >
-                  Tous les prélèvements
-                </Button>
-              )
-            }
-          />
-        </div>
-      )}
+        )}
     </section>
   );
 };

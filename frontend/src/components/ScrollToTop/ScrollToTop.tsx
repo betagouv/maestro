@@ -6,7 +6,12 @@ export default function ScrollToTop() {
   const previousPath = useRef({ pathname, search });
 
   useEffect(() => {
-    if (previousPath.current.pathname !== pathname) {
+    if (
+      previousPath.current.pathname !== pathname ||
+      ((previousPath.current.search.includes('etape') ||
+        search.includes('etape')) &&
+        previousPath.current.search !== search)
+    ) {
       window.scrollTo(0, 0);
     }
     previousPath.current = { pathname, search };

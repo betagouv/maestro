@@ -13,6 +13,7 @@ import { useLogoutMutation } from 'src/services/auth.service';
 import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.service';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import logo from '../../assets/logo.svg';
+import useWindowSize from '../../hooks/useWindowSize';
 import { useFindNotificationsQuery } from '../../services/notification.service';
 import config from '../../utils/config';
 import { MascaradeButton } from '../Mascarade/MascaradeButton';
@@ -25,6 +26,7 @@ const mascaradeModal = createModal({
 
 const Header = () => {
   const location = useLocation();
+  const { isMobile } = useWindowSize();
 
   const { isAuthenticated, hasUserPermission, user } = useAuthentication();
 
@@ -210,6 +212,7 @@ const Header = () => {
                     className={cx('fr-btn--icon-left', 'fr-pr-0')}
                     priority="tertiary no outline"
                     title="Notifications"
+                    children={isMobile ? 'Notifications' : undefined}
                   />
                 </Badge>,
                 <div key="logout">
