@@ -27,7 +27,8 @@ import {
   PartialSample,
   PartialSampleMatrixSpecificData,
   PartialSampleToCreate,
-  SampleContextData
+  SampleContextData,
+  Sampler
 } from 'maestro-shared/schema/Sample/Sample';
 import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
 import {
@@ -105,7 +106,9 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
   const [sampledAt, setSampledAt] = useState(
     format(partialSample?.sampledAt ?? new Date(), 'yyyy-MM-dd HH:mm')
   );
-  const [sampler, setSampler] = useState(partialSample?.sampler);
+  const [sampler, setSampler] = useState<Sampler | undefined>(
+    partialSample?.sampler ?? user
+  );
 
   const [parcel, setParcel] = useState(partialSample?.parcel);
   const [company, setCompany] = useState(partialSample?.company);
@@ -245,7 +248,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
   const formData = {
     id,
     sampledAt: parse(sampledAt, 'yyyy-MM-dd HH:mm', new Date()),
-    sampler,
+    sampler: sampler as Sampler,
     geolocation:
       geolocationX && geolocationY
         ? {

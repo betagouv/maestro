@@ -87,11 +87,10 @@ describe('SampleView', () => {
   test('should render the second step for a draft sample', async () => {
     const createdSample = {
       ...genSampleContextData({
-        programmingPlanId: programmingPlan1.id
-      }),
-      ...genCreatedSampleData({
+        programmingPlanId: programmingPlan1.id,
         sampler
       }),
+      ...genCreatedSampleData(),
       status: 'DraftMatrix'
     };
     mockRequests([

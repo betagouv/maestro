@@ -49,9 +49,10 @@ export const MatrixStepPFAS: Story = {
         programmingPlanId: programmingPlan.id,
         specificData: {
           programmingPlanKind: 'PFAS_EGGS'
-        }
+        },
+        sampler
       }),
-      ...genCreatedSampleData({ sampler })
+      ...genCreatedSampleData()
     }
   },
   parameters: {

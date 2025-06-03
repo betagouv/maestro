@@ -35,6 +35,11 @@ export const genSampleContextData = (
 ): SampleContextData => ({
   id: uuidv4(),
   sampledAt: new Date(),
+  sampler: {
+    id: uuidv4(),
+    firstName: fakerFR.person.firstName(),
+    lastName: fakerFR.person.lastName()
+  },
   geolocation: {
     x: 49.788805,
     y: 4.731044
@@ -56,11 +61,6 @@ export const genCreatedSampleData = (
 ): CreatedSampleData => ({
   region: '44',
   reference: `GES-${oneOf(Regions['44'].departments)}-24-${fakerFR.number.int(9999)}-${oneOf(LegalContextList)}`,
-  sampler: {
-    id: uuidv4(),
-    firstName: fakerFR.person.firstName(),
-    lastName: fakerFR.person.lastName()
-  },
   createdAt: new Date(),
   lastUpdatedAt: new Date(),
   ...data
