@@ -860,7 +860,9 @@ export const extractAnalyzes = (
           residue.TECHNIQUE === 'Calcul'
             ? previousResidu.analysisMethod
             : codeMethodsAnalyseMethod[residue.TECHNIQUE],
-        codeSandre: null
+        codeSandre: null,
+        //FIXME en attente Capinov
+        analysisDate: null
       });
     }
 

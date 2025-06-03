@@ -1,4 +1,5 @@
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
+import { maestroDate } from 'maestro-shared/utils/date';
 import { z } from 'zod';
 import { ExtractError } from '../extractError';
 import type {
@@ -114,7 +115,15 @@ export const extractAnalyzes = (
       'Numéro CAS': z
         .string()
         .optional()
-        .transform((v) => (v === '' || v === undefined ? null : v))
+        .transform((v) => (v === '' || v === undefined ? null : v)),
+      'Date Analyse': z
+        .string()
+        .regex(/^\d{2}\/\d{2}\/\d{4}.*/)
+        .transform((date) => {
+          const [d, m, y] = date.substring(0, 10).split('/');
+          return `${y}-${m}-${d}`;
+        })
+        .pipe(maestroDate)
     })
   );
 
@@ -179,7 +188,8 @@ export const extractAnalyzes = (
           label: r['Détermination'],
           casNumber: r['Numéro CAS'] ?? null,
           codeSandre: r['Code Sandre'] ?? null,
-          analysisMethod: codeMethodsAnalyseMethod[r['Réf Méthode']]
+          analysisMethod: codeMethodsAnalyseMethod[r['Réf Méthode']],
+          analysisDate: r['Date Analyse']
         };
       });
 

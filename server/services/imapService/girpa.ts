@@ -1,6 +1,7 @@
 import { XMLParser } from 'fast-xml-parser';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
+import { maestroDate } from 'maestro-shared/utils/date';
 import { z } from 'zod';
 import { ExtractError } from './extractError';
 import {
@@ -717,6 +718,15 @@ export const analyseXmlValidator = z.object({
     .transform((a) => (a === '-' ? 0 : a)),
   Substance_active_CAS: residueCasNumberValidator,
   Substance_active_anglais: residueEnglishNameValidator,
+  //'16/04/2025 21:09:28'
+  Date_analyse: z
+    .string()
+    .regex(/^\d{2}\/\d{2}\/\d{4}.*/)
+    .transform((date) => {
+      const [d, m, y] = date.substring(0, 10).split('/');
+      return `${y}-${m}-${d}`;
+    })
+    .pipe(maestroDate),
   Code_méthode: z
     .string()
     .transform((s) => (s.endsWith('*') ? s.substring(0, s.length - 1) : s))
@@ -774,7 +784,8 @@ export const extractAnalyzes = (obj: unknown): GirpaAnaysis[] => {
         analysisMethod: codeMethodsAnalyseMethod[a.Code_méthode],
         codeSandre: null,
         casNumber: a.Substance_active_CAS,
-        label: a.Substance_active_anglais
+        label: a.Substance_active_anglais,
+        analysisDate: a.Date_analyse
       };
       return isNQ || isND
         ? {

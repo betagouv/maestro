@@ -2,6 +2,7 @@ import { isNil } from 'lodash-es';
 import { z } from 'zod';
 import { OptionalBoolean } from '../../../referential/OptionnalBoolean';
 import { SSD2Id } from '../../../referential/Residue/SSD2Id';
+import { maestroDate } from '../../../utils/date';
 import { AnalysisMethod } from '../AnalysisMethod';
 import { Analyte, PartialAnalyte } from '../Analyte';
 import { ResidueCompliance } from './ResidueCompliance';
@@ -11,6 +12,7 @@ const ResidueBase = z.object({
   analysisId: z.string().uuid(),
   residueNumber: z.number().int().positive(),
   analysisMethod: AnalysisMethod,
+  analysisDate: maestroDate.nullish(),
   reference: SSD2Id,
   resultKind: ResultKind.nullish(),
   result: z.number().min(0).nullish(),

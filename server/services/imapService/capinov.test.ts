@@ -73,6 +73,7 @@ describe('Parse correctement le fichier CSV', () => {
           "notes": "",
           "residues": [
             {
+              "analysisDate": null,
               "analysisMethod": "Multi",
               "casNumber": "135158-54-2",
               "codeSandre": null,
@@ -80,6 +81,7 @@ describe('Parse correctement le fichier CSV', () => {
               "result_kind": "ND",
             },
             {
+              "analysisDate": null,
               "analysisMethod": "Multi",
               "casNumber": "135158-54-2",
               "codeSandre": null,
@@ -87,6 +89,7 @@ describe('Parse correctement le fichier CSV', () => {
               "result_kind": "ND",
             },
             {
+              "analysisDate": null,
               "analysisMethod": "Mono",
               "casNumber": "135158-54-2",
               "codeSandre": null,
@@ -94,6 +97,7 @@ describe('Parse correctement le fichier CSV', () => {
               "result_kind": "ND",
             },
             {
+              "analysisDate": null,
               "analysisMethod": "Mono",
               "casNumber": "135158-54-2",
               "codeSandre": null,
