@@ -161,7 +161,7 @@ export const MatrixStepPPVSaveOnBlurWithoutHandlingErrors: Story = {
 
     const matrixKindListbox = await screen.findByRole('listbox');
 
-    expect(matrixKindListbox).toBeInTheDocument();
+    await expect(matrixKindListbox).toBeInTheDocument();
     await expect(within(matrixKindListbox).getAllByRole('option').length).toBe(
       2
     );

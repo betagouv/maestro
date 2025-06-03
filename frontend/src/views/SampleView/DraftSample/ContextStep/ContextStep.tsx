@@ -49,9 +49,10 @@ import SampleGeolocation from 'src/views/SampleView/DraftSample/ContextStep/Samp
 import SupportDocumentDownload from 'src/views/SampleView/DraftSample/SupportDocumentDownload';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
+import AppServiceErrorAlert from '../../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import AppSelect from '../../../../components/_app/AppSelect/AppSelect';
+import { useAnalytics } from '../../../../hooks/useAnalytics';
 import { usePartialSample } from '../../../../hooks/usePartialSample';
-import { isErrorWithMessage } from '../../../../services/api.service';
 import NextButton from '../NextButton';
 
 interface Props {
@@ -63,6 +64,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
   const { navigateToSample, navigateToSamples } = useSamplesLink();
   const { isOnline } = useOnLine();
   const { readonly } = usePartialSample(partialSample);
+  const { trackEvent } = useAnalytics();
 
   const [resytalId, setResytalId] = useState(partialSample?.resytalId);
   const [context, setContext] = useState<
@@ -101,7 +103,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
   const [notesOnCreation, setNotesOnCreation] = useState(
     partialSample?.notesOnCreation
   );
-  const isSubmitting = useRef<boolean>(false);
+  const isSubmittingRef = useRef<boolean>(false);
 
   const [createOrUpdateSample, createOrUpdateSampleCall] =
     useCreateOrUpdateSampleMutation();
@@ -227,33 +229,33 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
     specificData: specificData as PartialSampleMatrixSpecificData
   };
 
-  useEffect(() => {
-    if (isSubmitting.current && !createOrUpdateSampleCall.isLoading) {
-      isSubmitting.current = false;
+  useEffect(
+    () => {
+      if (isSubmittingRef.current && !createOrUpdateSampleCall.isLoading) {
+        isSubmittingRef.current = false;
 
-      if (createOrUpdateSampleCall.isSuccess) {
-        navigateToSample(formData.id);
+        if (createOrUpdateSampleCall.isSuccess) {
+          trackEvent('sample', `submit_${formData.status}`, formData.id);
+          navigateToSample(formData.id);
+        }
       }
-    }
-  }, [
-    createOrUpdateSampleCall.isSuccess,
-    createOrUpdateSampleCall.isLoading,
-    formData.id,
-    navigateToSample
-  ]);
+    }, // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      createOrUpdateSampleCall.isSuccess,
+      createOrUpdateSampleCall.isLoading,
+      formData.id
+    ]
+  );
 
   const submit = async (e?: React.MouseEvent<HTMLElement>) => {
     e?.preventDefault();
     await form.validate(async () => {
-      isSubmitting.current = true;
-      if (partialSample) {
-        await save('DraftMatrix');
-      } else {
-        await createOrUpdateSample({
-          ...formData,
-          status: 'DraftMatrix'
-        });
-      }
+      isSubmittingRef.current = true;
+      await createOrUpdateSample({
+        ...partialSample,
+        ...formData,
+        status: 'DraftMatrix'
+      });
     });
   };
 
@@ -275,9 +277,11 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
           setGeolocationY(position.coords.longitude);
         }
         setIsBrowserGeolocation(true);
+        trackEvent('geolocation', 'enable');
       });
     } else {
       setIsBrowserGeolocation(false);
+      trackEvent('geolocation', 'disable');
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -596,18 +600,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
         <div className={clsx(cx('fr-col-12'), 'sample-actions')}>
           {!readonly ? (
             <>
-              {createOrUpdateSampleCall.isError && (
-                <Alert
-                  severity="error"
-                  className={cx('fr-mb-2w')}
-                  small={true}
-                  description={
-                    isErrorWithMessage(createOrUpdateSampleCall.error)
-                      ? createOrUpdateSampleCall.error.data
-                      : ''
-                  }
-                />
-              )}
+              <AppServiceErrorAlert call={createOrUpdateSampleCall} />
               <ButtonsGroup
                 alignment="between"
                 inlineLayoutWhen="md and up"

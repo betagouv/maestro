@@ -155,6 +155,8 @@ const SampleListView = () => {
     [findSampleOptions, hasNationalView]
   );
 
+  const newPartialSampleId = useMemo(() => uuidv4(), []);
+
   if (!programmingPlan) {
     return <></>;
   }
@@ -183,7 +185,7 @@ const SampleListView = () => {
                 </Button>
                 <SupportDocumentDownload
                   partialSample={{
-                    id: uuidv4(),
+                    id: newPartialSampleId,
                     status: 'Draft' as const,
                     programmingPlanId: programmingPlan.id as string,
                     specificData: {

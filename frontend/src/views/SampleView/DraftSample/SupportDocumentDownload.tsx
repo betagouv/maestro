@@ -8,9 +8,10 @@ import {
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 import useWindowSize from 'src/hooks/useWindowSize';
+import { useAnalytics } from '../../../hooks/useAnalytics';
 import { useSamplesLink } from '../../../hooks/useSamplesLink';
 import { ApiClientContext } from '../../../services/apiClient';
 import { getSupportDocumentURL } from '../../../services/sample.service';
@@ -22,6 +23,10 @@ interface Props {
 const SupportDocumentDownload = ({ partialSample }: Props) => {
   const { isMobile } = useWindowSize();
   const { navigateToSample } = useSamplesLink();
+  const { trackEvent } = useAnalytics();
+
+  const isSubmittingRef = useRef<boolean>(false);
+  const [shouldProcessDownload, setShouldProcessDownload] = useState(false);
 
   const { useCreateOrUpdateSampleMutation } = useContext(ApiClientContext);
 
@@ -39,7 +44,41 @@ const SupportDocumentDownload = ({ partialSample }: Props) => {
     [partialSample]
   );
 
-  const [createOrUpdateSample] = useCreateOrUpdateSampleMutation();
+  const [createOrUpdateSample, createOrUpdateSampleCall] =
+    useCreateOrUpdateSampleMutation();
+
+  useEffect(
+    () => {
+      if (
+        shouldProcessDownload ||
+        (isSubmittingRef.current && !createOrUpdateSampleCall.isLoading)
+      ) {
+        console.log('partialSample', partialSample.id);
+
+        isSubmittingRef.current = false;
+        setShouldProcessDownload(false);
+
+        if (
+          isCreatedPartialSample(partialSample) ||
+          createOrUpdateSampleCall.isSuccess
+        ) {
+          trackEvent(
+            'support_document',
+            `download_${partialSample.status}`,
+            partialSample.id
+          );
+          navigateToSample(partialSample.id);
+          window.open(getSupportDocumentURL(partialSample.id), '_blank');
+        }
+      }
+    }, // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      shouldProcessDownload,
+      createOrUpdateSampleCall.isSuccess,
+      createOrUpdateSampleCall.isLoading,
+      partialSample
+    ]
+  );
 
   return (
     <>
@@ -71,10 +110,11 @@ const SupportDocumentDownload = ({ partialSample }: Props) => {
         title="A noter à ce stade de la saisie"
         onConfirm={async () => {
           if (!isCreatedPartialSample(partialSample)) {
+            isSubmittingRef.current = true;
             await createOrUpdateSample(partialSample);
+          } else {
+            setShouldProcessDownload(true);
           }
-          navigateToSample(partialSample.id);
-          window.open(getSupportDocumentURL(partialSample.id), '_blank');
         }}
         confirmLabel="Télécharger"
         closeOnConfirm

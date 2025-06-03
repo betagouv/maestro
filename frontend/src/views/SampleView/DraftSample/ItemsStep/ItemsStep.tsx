@@ -14,7 +14,7 @@ import {
   SampleItem
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { isDefined, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import { useForm } from 'src/hooks/useForm';
@@ -25,6 +25,8 @@ import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SampleItemDetails from 'src/views/SampleView/SampleItemDetails/SampleItemDetails';
 import SavedAlert from 'src/views/SampleView/SavedAlert';
 import { z } from 'zod';
+import AppServiceErrorAlert from '../../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
+import { useAnalytics } from '../../../../hooks/useAnalytics';
 import NextButton from '../NextButton';
 
 const MaxItemCount = 3;
@@ -36,6 +38,9 @@ interface Props {
 const ItemsStep = ({ partialSample }: Props) => {
   const { navigateToSample } = useSamplesLink();
   const { laboratory, readonly } = usePartialSample(partialSample);
+  const { trackEvent } = useAnalytics();
+
+  const isSubmittingRef = useRef<boolean>(false);
 
   const [items, setItems] = useState<PartialSampleItem[]>(
     !isDefinedAndNotNull(partialSample.items) ||
@@ -53,7 +58,8 @@ const ItemsStep = ({ partialSample }: Props) => {
   const [notesOnItems, setNotesOnItems] = useState(partialSample?.notesOnItems);
   const [isSaved, setIsSaved] = useState(false);
 
-  const [createOrUpdateSample] = useCreateOrUpdateSampleMutation();
+  const [createOrUpdateSample, createOrUpdateSampleCall] =
+    useCreateOrUpdateSampleMutation();
 
   const Form = z.object({
     items: z
@@ -79,11 +85,33 @@ const ItemsStep = ({ partialSample }: Props) => {
 
   type FormShape = typeof Form.shape;
 
+  useEffect(
+    () => {
+      if (isSubmittingRef.current && !createOrUpdateSampleCall.isLoading) {
+        isSubmittingRef.current = false;
+
+        if (createOrUpdateSampleCall.isSuccess) {
+          trackEvent(
+            'sample',
+            `submit_${partialSample.status}`,
+            partialSample.id
+          );
+          navigateToSample(partialSample.id, 4);
+        }
+      }
+    }, // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      createOrUpdateSampleCall.isSuccess,
+      createOrUpdateSampleCall.isLoading,
+      partialSample.id
+    ]
+  );
+
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     await form.validate(async () => {
+      isSubmittingRef.current = true;
       await save('Submitted');
-      navigateToSample(partialSample.id, 4);
     });
   };
 
@@ -196,6 +224,7 @@ const ItemsStep = ({ partialSample }: Props) => {
       <hr className={cx('fr-mx-0')} />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={clsx(cx('fr-col-12'), 'sample-actions')}>
+          <AppServiceErrorAlert call={createOrUpdateSampleCall} />
           <ul
             className={cx(
               'fr-btns-group',
