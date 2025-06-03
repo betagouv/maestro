@@ -1,3 +1,4 @@
+import { User } from 'maestro-shared/schema/User/User';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 
 export interface AppSelectOption {
@@ -53,3 +54,23 @@ export const selectOptionsFromList = (
       .sort((a, b) => (config.withSort ? a.label.localeCompare(b.label) : 0))
   ];
 };
+
+export const samplersOptions = (
+  samplers?: User[],
+  currentUserId?: string
+): AppSelectOption[] =>
+  (samplers ?? [])
+    .filter(({ firstName }) => firstName !== '-')
+    .sort((a, b) => {
+      if (a.id === currentUserId) {
+        return -1;
+      }
+      if (b.id === currentUserId) {
+        return 1;
+      }
+      return a.firstName.localeCompare(b.firstName);
+    })
+    .map((sampler) => ({
+      label: `${sampler.firstName} ${sampler.lastName}`,
+      value: sampler.id
+    }));

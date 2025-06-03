@@ -49,7 +49,8 @@ describe('Sample router', () => {
   const { app } = createServer();
 
   const sample = genSampleContextData({
-    programmingPlanId: ValidatedProgrammingPlanFixture.id
+    programmingPlanId: ValidatedProgrammingPlanFixture.id,
+    sampler: RegionalCoordinator
   });
 
   describe('GET /samples/{sampleId}', () => {
@@ -401,9 +402,9 @@ describe('Sample router', () => {
             id: sampleId,
             createdAt: expect.any(String),
             sampler: {
-              id: user.id,
-              firstName: user.firstName,
-              lastName: user.lastName
+              id: sample.sampler.id,
+              firstName: sample.sampler.firstName,
+              lastName: sample.sampler.lastName
             },
             reference: `${Regions[user.region as Region].shortName}-${format(new Date(), 'yy')}-000${expectedIncrement}`
           })

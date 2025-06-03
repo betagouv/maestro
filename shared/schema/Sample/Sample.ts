@@ -144,6 +144,7 @@ export const SampleContextData = z.object({
       error: () => 'La date de prélèvement est invalide.'
     })
   ),
+  sampler: Sampler,
   geolocation: Geolocation.nullish(),
   department: Department.nullish(),
   parcel: z.string().nullish(),
@@ -296,7 +297,6 @@ export const CreatedSampleData = z.object({
   reference: z.string(),
   region: Region,
   createdAt: z.coerce.date(),
-  sampler: Sampler,
   lastUpdatedAt: z.coerce.date()
 });
 
