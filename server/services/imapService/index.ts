@@ -7,6 +7,7 @@ import { SandreToSSD2 } from 'maestro-shared/referential/Residue/SandreToSSD2';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
+import { MaestroDate } from 'maestro-shared/utils/date';
 import { OmitDistributive } from 'maestro-shared/utils/typescript';
 import { ParsedMail, simpleParser } from 'mailparser';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
@@ -30,7 +31,7 @@ export type ExportDataSubstance = {
   casNumber: string | null;
   codeSandre: string | null;
   analysisMethod: AnalysisMethod;
-  analysisDate: Date | null;
+  analysisDate: MaestroDate | null;
 } & (ExportResultNonQuantifiable | ExportResultQuantifiable);
 export type ExportDataSubstanceWithSSD2Id = OmitDistributive<
   ExportDataSubstance,

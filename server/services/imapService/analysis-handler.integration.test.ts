@@ -38,7 +38,7 @@ test("Le fichier est updloadé sur le S3, n'est pas supprimé du S3 et est en bd
         result_kind: 'NQ',
         analysisMethod: 'Multi',
         unknown_label: null,
-        analysisDate: new Date(1)
+        analysisDate: null
       }
     ]
   } as const satisfies AnalysisWithResidueWithSSD2Id;
@@ -126,7 +126,7 @@ test("Si une erreur intervient après l'upload sur le S3, on supprime le documen
           result_kind: 'NQ',
           analysisMethod: 'Multi',
           unknown_label: null,
-          analysisDate: new Date(1)
+          analysisDate: null
         }
       ]
     })
@@ -150,7 +150,7 @@ test("Impossible d'enregistrer l'analyse si on trouve un résidu complexe sans a
           result_kind: 'NQ',
           analysisMethod: 'Multi',
           unknown_label: null,
-          analysisDate: new Date(1)
+          analysisDate: null
         }
       ]
     })
@@ -173,21 +173,21 @@ test('Peut enregistrer une analyse avec un résidue complexe et ses analytes ass
         result_kind: 'NQ',
         analysisMethod: 'Multi',
         unknown_label: null,
-        analysisDate: new Date(1)
+        analysisDate: null
       },
       {
         ssd2Id: 'RF-0008-001-PPP',
         result_kind: 'NQ',
         analysisMethod: 'Multi',
         unknown_label: null,
-        analysisDate: new Date(1)
+        analysisDate: null
       },
       {
         ssd2Id: 'RF-00004646-PAR',
         result_kind: 'NQ',
         analysisMethod: 'Multi',
         unknown_label: null,
-        analysisDate: new Date(1)
+        analysisDate: null
       }
     ]
   } as const satisfies AnalysisWithResidueWithSSD2Id;

@@ -69,7 +69,7 @@ describe('parse correctement le XML', () => {
           "notes": "Une note",
           "residues": [
             {
-              "analysisDate": 2025-04-16T19:09:28.000Z,
+              "analysisDate": "2025-04-16",
               "analysisMethod": "Multi",
               "casNumber": "?",
               "codeSandre": null,
@@ -130,7 +130,7 @@ describe('parse correctement le XML', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "analysisDate": 2025-04-16T19:09:28.000Z,
+          "analysisDate": "2025-04-16",
           "analysisMethod": "Multi",
           "casNumber": "1967-25-5",
           "codeSandre": null,
@@ -138,7 +138,7 @@ describe('parse correctement le XML', () => {
           "result_kind": "NQ",
         },
         {
-          "analysisDate": 2025-04-16T19:09:28.000Z,
+          "analysisDate": "2025-04-16",
           "analysisMethod": "Mono",
           "casNumber": "27112-32-9",
           "codeSandre": null,
@@ -146,7 +146,7 @@ describe('parse correctement le XML', () => {
           "result_kind": "ND",
         },
         {
-          "analysisDate": 2025-04-16T19:09:28.000Z,
+          "analysisDate": "2025-04-16",
           "analysisMethod": "Mono",
           "casNumber": "15299-99-7",
           "codeSandre": null,
@@ -156,7 +156,7 @@ describe('parse correctement le XML', () => {
           "result_kind": "Q",
         },
         {
-          "analysisDate": 2025-04-16T19:09:28.000Z,
+          "analysisDate": "2025-04-16",
           "analysisMethod": "Multi",
           "casNumber": "?",
           "codeSandre": null,

@@ -15,6 +15,7 @@ import { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 import { type DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
+import { MaestroDate } from 'maestro-shared/utils/date';
 
 export type Generated<T> =
   T extends ColumnType<infer S, infer I, infer U>
@@ -59,7 +60,7 @@ export interface AnalysisResidues {
   substanceApproved: string | null;
   substanceAuthorised: string | null;
   unknown_label: string | null;
-  analysisDate: Timestamp | null;
+  analysisDate: MaestroDate | null;
 }
 
 export interface AnalysisErrors {

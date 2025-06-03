@@ -1,6 +1,5 @@
-import { parse } from 'date-fns';
-import { toZonedTime } from 'date-fns-tz';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
+import { maestroDate } from 'maestro-shared/utils/date';
 import { z } from 'zod';
 import { ExtractError } from '../extractError';
 import type {
@@ -117,9 +116,14 @@ export const extractAnalyzes = (
         .string()
         .optional()
         .transform((v) => (v === '' || v === undefined ? null : v)),
-      'Date Analyse': z.string().transform((d) => {
-        return parse(d, 'dd/MM/yyyy', toZonedTime(new Date(), 'Europe/Paris'));
-      })
+      'Date Analyse': z
+        .string()
+        .regex(/^\d{2}\/\d{2}\/\d{4}.*/)
+        .transform((date) => {
+          const [d, m, y] = date.substring(0, 10).split('/');
+          return `${y}-${m}-${d}`;
+        })
+        .pipe(maestroDate)
     })
   );
 

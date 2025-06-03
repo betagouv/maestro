@@ -237,9 +237,7 @@ const generateSamplesExportExcel = async (
           analysisMethod: r.analysisMethod
             ? AnalysisMethodLabels[r.analysisMethod]
             : undefined,
-          analysisDate: r.analysisDate
-            ? format(r.analysisDate, 'dd/MM/yyyy')
-            : '',
+          analysisDate: r.analysisDate,
           resultKind: r.resultKind ? ResultKindLabels[r.resultKind] : undefined,
           result: r.result,
           resultUnit: 'mg/kg',

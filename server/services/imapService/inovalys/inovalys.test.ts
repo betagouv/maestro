@@ -258,7 +258,7 @@ describe('Parse correctement les fichiers CSV', () => {
           "notes": "Respect de la Directive 2002/63 CE sur les quantités nécessaires ",
           "residues": [
             {
-              "analysisDate": 2024-10-22T22:00:00.000Z,
+              "analysisDate": "2024-10-23",
               "analysisMethod": "Multi",
               "casNumber": "107534-96-3",
               "codeSandre": "1694",
@@ -268,7 +268,7 @@ describe('Parse correctement les fichiers CSV', () => {
               "result_kind": "Q",
             },
             {
-              "analysisDate": 2024-10-22T22:00:00.000Z,
+              "analysisDate": "2024-10-23",
               "analysisMethod": "Multi",
               "casNumber": null,
               "codeSandre": null,
@@ -276,7 +276,7 @@ describe('Parse correctement les fichiers CSV', () => {
               "result_kind": "NQ",
             },
             {
-              "analysisDate": 2024-10-22T22:00:00.000Z,
+              "analysisDate": "2024-10-23",
               "analysisMethod": "Mono",
               "casNumber": null,
               "codeSandre": "1951",
