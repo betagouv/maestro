@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 export const TargetingCriteria = z.enum(
   [
@@ -12,9 +12,7 @@ export const TargetingCriteria = z.enum(
     'CIBLAGE8'
   ],
   {
-    errorMap: () => ({
-      message: 'Veuillez renseigner le critère de ciblage.'
-    })
+    error: () => 'Veuillez renseigner le critère de ciblage.'
   }
 );
 

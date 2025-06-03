@@ -1,18 +1,18 @@
 import { NextFunction, Request, Response } from 'express';
 import { constants } from 'http2';
 import sanitizeHtml from 'sanitize-html';
-import { AnyZodObject, z, ZodArray } from 'zod';
-export const body = (o: AnyZodObject | ZodArray<any>) =>
+import { z, ZodArray, ZodObject } from 'zod/v4';
+export const body = (o: ZodObject | ZodArray<any>) =>
   z.object({
     body: o
   });
 
-export const params = (o: AnyZodObject) =>
+export const params = (o: ZodObject) =>
   z.object({
     params: o
   });
 
-export const query = (o: AnyZodObject) =>
+export const query = (o: ZodObject) =>
   z.object({
     query: o
   });
@@ -20,7 +20,7 @@ export const query = (o: AnyZodObject) =>
 export const uuidParam = (paramName: string) =>
   z.object({
     params: z.object({
-      [paramName]: z.string().uuid()
+      [paramName]: z.guid()
     })
   });
 
@@ -53,7 +53,7 @@ const sanitizeObject = (obj: unknown): any => {
 
 const validate =
   (
-    schema: AnyZodObject,
+    schema: ZodObject,
     options: { skipSanitization: boolean } = { skipSanitization: false }
   ) =>
   async (req: Request, res: Response, next: NextFunction) => {

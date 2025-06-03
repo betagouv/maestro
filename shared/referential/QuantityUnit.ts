@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 export const QuantityUnit = z.enum(
   [
@@ -250,9 +250,7 @@ export const QuantityUnit = z.enum(
     'G282A'
   ],
   {
-    errorMap: () => ({
-      message: "Veuillez renseigner l'unité de mesure."
-    })
+    error: () => "Veuillez renseigner l'unité de mesure."
   }
 );
 

@@ -1,9 +1,9 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 export const TokenPayload = z.object({
-  userId: z.string().uuid().nullable(),
+  userId: z.guid().nullable(),
   idToken: z.string(),
-  loggedSecret: z.string().uuid().nullable()
+  loggedSecret: z.guid().nullable()
 });
 
 export type TokenPayload = z.infer<typeof TokenPayload>;

@@ -1,9 +1,9 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 export const AnalysisStatus = z.enum(
   ['Report', 'Residues', 'Compliance', 'Completed'],
   {
-    errorMap: () => ({ message: 'Statut non renseigné.' })
+    error: () => 'Statut non renseigné.'
   }
 );
 

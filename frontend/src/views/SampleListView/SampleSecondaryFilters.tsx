@@ -18,7 +18,7 @@ import {
 } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import { useMemo } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 interface Props {
   filters: Partial<FindSampleOptions>;

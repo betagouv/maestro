@@ -1,7 +1,7 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 export const ProgrammingPlanKind = z.enum(['PPV', 'PFAS_EGGS', 'PFAS_MEAT'], {
-  errorMap: () => ({ message: 'Veuillez renseigner le type de plan.' })
+  error: () => 'Veuillez renseigner le type de plan.'
 });
 
 export type ProgrammingPlanKind = z.infer<typeof ProgrammingPlanKind>;

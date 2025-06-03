@@ -1,9 +1,7 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 export const ResidueKind = z.enum(['Simple', 'Complex'], {
-  errorMap: () => ({
-    message: 'Veuillez renseigner le type de résidu.'
-  })
+  error: () => 'Veuillez renseigner le type de résidu.'
 });
 
 export type ResidueKind = z.infer<typeof ResidueKind>;

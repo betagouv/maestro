@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { ProgrammingPlanKind } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 
 export const AnimalKind = z.enum(
@@ -19,9 +19,7 @@ export const AnimalKind = z.enum(
     'TYPEA14'
   ],
   {
-    errorMap: () => ({
-      message: "Veuillez renseigner le type d'animal."
-    })
+    error: () => "Veuillez renseigner le type d'animal."
   }
 );
 
@@ -70,7 +68,7 @@ export const AnimalKindAgeLimit: Record<
 export const AnimalKindsByProgrammingPlanKind: Partial<
   Record<ProgrammingPlanKind, AnimalKind[]>
 > = {
-  [ProgrammingPlanKind.Values.PFAS_MEAT]: [
+  [ProgrammingPlanKind.enum.PFAS_MEAT]: [
     'TYPEA1',
     'TYPEA2',
     'TYPEA3',
@@ -84,5 +82,5 @@ export const AnimalKindsByProgrammingPlanKind: Partial<
     'TYPEA11',
     'TYPEA12'
   ],
-  [ProgrammingPlanKind.Values.PFAS_EGGS]: ['TYPEA13', 'TYPEA14']
+  [ProgrammingPlanKind.enum.PFAS_EGGS]: ['TYPEA13', 'TYPEA14']
 };

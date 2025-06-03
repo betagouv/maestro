@@ -1,8 +1,6 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 export const OutdoorAccess = z.enum(['PAT1', 'PAT0', 'PATINCO'], {
-  errorMap: () => ({
-    message: "Veuillez renseigner l'accès à l'extérieur."
-  })
+  error: () => "Veuillez renseigner l'accès à l'extérieur."
 });
 
 export type OutdoorAccess = z.infer<typeof OutdoorAccess>;

@@ -4,7 +4,7 @@ import {
   PartialSample,
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import sampleController from '../controllers/sampleController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
 import {
@@ -55,7 +55,7 @@ router.get(
   validator.validate(
     params(
       z.object({
-        sampleId: z.string().uuid(),
+        sampleId: z.guid(),
         itemNumber: z.coerce.number().min(1)
       })
     )

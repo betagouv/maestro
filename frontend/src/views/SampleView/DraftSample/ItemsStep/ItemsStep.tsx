@@ -24,7 +24,7 @@ import { useCreateOrUpdateSampleMutation } from 'src/services/sample.service';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SampleItemDetails from 'src/views/SampleView/SampleItemDetails/SampleItemDetails';
 import SavedAlert from 'src/views/SampleView/SavedAlert';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import AppServiceErrorAlert from '../../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import { useAnalytics } from '../../../../hooks/useAnalytics';
 import NextButton from '../NextButton';
@@ -70,20 +70,20 @@ const ItemsStep = ({ partialSample }: Props) => {
         'Les numéros de scellés doivent être uniques.'
       ),
     notesOnItems: z.string().nullish(),
-    laboratoryId: z.string().uuid().nullish()
+    laboratoryId: z.guid().nullish()
   });
 
-  const FormRefinement = Form.superRefine(({ laboratoryId }, ctx) => {
+  const FormRefinement = Form.check((ctx) => {
+    const laboratoryId = ctx.value.laboratoryId;
     if (!isProgrammingPlanSample(partialSample) && !isDefined(laboratoryId)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+      ctx.issues.push({
+        code: 'custom',
         path: ['laboratoryId'],
+        input: laboratoryId,
         message: 'Veuillez sélectionner un laboratoire.'
       });
     }
   });
-
-  type FormShape = typeof Form.shape;
 
   useEffect(
     () => {
@@ -208,7 +208,7 @@ const ItemsStep = ({ partialSample }: Props) => {
       )}
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>
-          <AppTextAreaInput<FormShape>
+          <AppTextAreaInput
             rows={1}
             defaultValue={notesOnItems ?? ''}
             onChange={(e) => setNotesOnItems(e.target.value)}

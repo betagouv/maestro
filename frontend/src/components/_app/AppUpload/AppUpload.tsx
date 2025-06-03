@@ -9,14 +9,14 @@ import {
 } from 'maestro-shared/schema/File/FileType';
 import { ComponentPropsWithoutRef, useEffect, useRef, useState } from 'react';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
-import { UseFormShape } from 'src/hooks/useForm';
-import { ZodRawShape } from 'zod';
+import { UseForm } from 'src/hooks/useForm';
+import { z, ZodObject } from 'zod/v4';
 
-type AppUploadProps<T extends ZodRawShape> = Partial<
+type AppUploadProps<T extends ZodObject, U extends UseForm<T>> = Partial<
   ComponentPropsWithoutRef<typeof Upload>
 > & {
-  inputForm: UseFormShape<T>;
-  inputKey: keyof T;
+  inputForm: U;
+  inputKey: keyof NoInfer<z.infer<U['schema']>>;
   inputPathFromKey?: (string | number)[];
   whenValid?: string;
   acceptFileTypes?: FileType[];
@@ -25,7 +25,7 @@ type AppUploadProps<T extends ZodRawShape> = Partial<
   withPhoto?: boolean;
 };
 
-function AppUpload<T extends ZodRawShape>(props: AppUploadProps<T>) {
+function AppUpload<T extends ZodObject>(props: AppUploadProps<T, UseForm<T>>) {
   const {
     label,
     hint,
@@ -93,12 +93,10 @@ function AppUpload<T extends ZodRawShape>(props: AppUploadProps<T>) {
           accept: (acceptFileTypes ?? FileTypeList).join(','),
           style: { display: 'none' }
         }}
-        state={
-          state ?? inputForm.messageType(String(inputKey), inputPathFromKey)
-        }
+        state={state ?? inputForm.messageType(inputKey, inputPathFromKey)}
         stateRelatedMessage={
           stateRelatedMessage ??
-          inputForm.message(String(inputKey), inputPathFromKey, whenValid)
+          inputForm.message(inputKey, inputPathFromKey, whenValid)
         }
       />
 

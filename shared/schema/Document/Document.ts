@@ -1,10 +1,10 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { DocumentKind } from './DocumentKind';
 export const Document = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   filename: z.string(),
   createdAt: z.coerce.date(),
-  createdBy: z.string().uuid().nullish(),
+  createdBy: z.guid().nullish(),
   kind: DocumentKind,
   legend: z.string().nullish()
 });

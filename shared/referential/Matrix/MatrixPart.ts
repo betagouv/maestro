@@ -1,10 +1,8 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { PartialSample } from '../../schema/Sample/Sample';
 
 export const MatrixPart = z.enum(['PART1', 'PART2'], {
-  errorMap: () => ({
-    message: 'Veuillez renseigner la partie du végétal.'
-  })
+  error: () => 'Veuillez renseigner la partie du végétal.'
 });
 
 export type MatrixPart = z.infer<typeof MatrixPart>;

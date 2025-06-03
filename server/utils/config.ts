@@ -2,7 +2,7 @@ import convict from 'convict';
 import formats from 'convict-format-with-validator';
 import dotenv from 'dotenv';
 import path from 'path';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 convict.addFormats(formats);
 

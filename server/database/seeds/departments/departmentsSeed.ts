@@ -3,7 +3,7 @@ import {
   Department,
   DepartmentList
 } from 'maestro-shared/referential/Department';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { kysely } from '../../../repositories/kysely';
 
 const geojsonValidator = z.object({

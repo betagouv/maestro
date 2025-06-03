@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { MatrixLabels } from './MatrixLabels';
 
 export const MatrixDeprecated = z.enum([
@@ -129,9 +129,7 @@ export const MatrixEffective = z.enum([
 export const Matrix = z.enum(
   [...MatrixDeprecated.options, ...MatrixEffective.options],
   {
-    errorMap: () => ({
-      message: 'Veuillez renseigner la matrice.'
-    })
+    error: () => 'Veuillez renseigner la matrice.'
   }
 );
 

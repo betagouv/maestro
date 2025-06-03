@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { Stage } from '../../referential/Stage';
 import { coerceToArray } from '../../utils/utils';
 import { ProgrammingPlanContext } from '../ProgrammingPlan/Context';
@@ -10,7 +10,7 @@ export type PrescriptionOptionsInclude = z.infer<
 >;
 
 export const FindPrescriptionOptions = z.object({
-  programmingPlanId: z.string().uuid(),
+  programmingPlanId: z.guid(),
   context: ProgrammingPlanContext.nullish(),
   matrixKind: z.string().nullish(),
   stage: Stage.nullish(),

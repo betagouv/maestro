@@ -24,8 +24,6 @@ import AppTextInput from '../../../../../components/_app/AppTextInput/AppTextInp
 import { UseForm } from '../../../../../hooks/useForm';
 import { Form } from './AnalysisResiduesForm';
 
-type FormShape = Form['shape'];
-
 type Props = {
   form: UseForm<Form>;
   residue: PartialResidue;
@@ -60,7 +58,7 @@ export const ResidueInterpretationForm: FunctionComponent<Props> = ({
       </h6>
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-          <AppSelect<FormShape>
+          <AppSelect
             value={residue.resultHigherThanArfd ?? ''}
             options={selectOptionsFromList(OptionalBooleanList, {
               labels: OptionalBooleanLabels
@@ -82,7 +80,7 @@ export const ResidueInterpretationForm: FunctionComponent<Props> = ({
           />
         </div>
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-          <AppTextInput<FormShape>
+          <AppTextInput
             value={residue.notesOnResult ?? ''}
             onChange={(e) =>
               onChangeResidue(
@@ -98,7 +96,7 @@ export const ResidueInterpretationForm: FunctionComponent<Props> = ({
           />
         </div>
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-          <AppSelect<FormShape>
+          <AppSelect
             value={residue.substanceApproved ?? ''}
             options={selectOptionsFromList(OptionalBooleanList, {
               labels: OptionalBooleanLabels
@@ -120,7 +118,7 @@ export const ResidueInterpretationForm: FunctionComponent<Props> = ({
           />
         </div>
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-          <AppSelect<FormShape>
+          <AppSelect
             value={residue.substanceAuthorised ?? ''}
             options={selectOptionsFromList(OptionalBooleanList, {
               labels: OptionalBooleanLabels
@@ -142,7 +140,7 @@ export const ResidueInterpretationForm: FunctionComponent<Props> = ({
           />
         </div>
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-          <AppSelect<FormShape>
+          <AppSelect
             value={residue.pollutionRisk ?? ''}
             options={selectOptionsFromList(OptionalBooleanList, {
               labels: OptionalBooleanLabels
@@ -164,7 +162,7 @@ export const ResidueInterpretationForm: FunctionComponent<Props> = ({
           />
         </div>
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-          <AppTextInput<FormShape>
+          <AppTextInput
             value={residue.notesOnPollutionRisk ?? ''}
             onChange={(e) =>
               onChangeResidue(
@@ -227,7 +225,7 @@ export const ResidueInterpretationForm: FunctionComponent<Props> = ({
         </div>
         {residue.compliance === 'Other' && (
           <div className={cx('fr-col-12')}>
-            <AppTextAreaInput<FormShape>
+            <AppTextAreaInput
               rows={1}
               defaultValue={residue.otherCompliance ?? ''}
               onChange={(e) =>

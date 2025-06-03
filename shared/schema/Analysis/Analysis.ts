@@ -1,14 +1,14 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { AnalysisStatus } from './AnalysisStatus';
 import { PartialResidue, Residue } from './Residue/Residue';
 
 export const PartialAnalysis = z.object({
-  id: z.string().uuid(),
-  sampleId: z.string().uuid(),
+  id: z.guid(),
+  sampleId: z.guid(),
   createdAt: z.coerce.date(),
-  createdBy: z.string().uuid().nullish(),
+  createdBy: z.guid().nullish(),
   status: AnalysisStatus,
-  reportDocumentId: z.string().uuid(),
+  reportDocumentId: z.guid(),
   residues: z.array(PartialResidue).nullish(),
   compliance: z
     .boolean({
