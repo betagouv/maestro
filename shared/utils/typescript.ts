@@ -6,3 +6,6 @@ export const assertUnreachable = (value: never): never => {
 export type OmitDistributive<T, K extends string> = T extends unknown
   ? Omit<T, K>
   : never;
+
+export const isNotEmpty = <T>(items: T[]): items is [T, ...T[]] =>
+  items.length > 0;
