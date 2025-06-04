@@ -13,12 +13,15 @@ import {
 import {
   useFindPrescriptionsQuery,
   useGetPrescriptionSubstancesQuery,
+  useLazyFindPrescriptionsQuery,
   useLazyGetPrescriptionSubstancesQuery
 } from './prescription.service';
 import { useGetProgrammingPlanQuery } from './programming-plan.service';
 import { useFindRegionalPrescriptionsQuery } from './regionalPrescription.service';
 import {
   useCreateOrUpdateSampleMutation,
+  useLazyFindSamplesQuery,
+  useLazyGetSampleQuery,
   useUpdateSampleMutation
 } from './sample.service';
 
@@ -38,7 +41,10 @@ export const apiClient = {
   useUpdateAnalysisMutation,
   useUpdateSampleMutation,
   useGetPrescriptionSubstancesQuery,
-  useGetProgrammingPlanQuery
+  useGetProgrammingPlanQuery,
+  useLazyFindPrescriptionsQuery,
+  useLazyFindSamplesQuery,
+  useLazyGetSampleQuery
 };
 
 export const ApiClientContext = createContext<ApiClient>(undefined as never);
