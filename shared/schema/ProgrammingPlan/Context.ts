@@ -1,9 +1,9 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 export const Context = z.enum(
   ['Control', 'Surveillance', 'LocalPlan', 'Investigation', 'ControlSupport'],
   {
-    errorMap: () => ({ message: 'Veuillez renseigner le contexte.' })
+    error: () => 'Veuillez renseigner le contexte.'
   }
 );
 

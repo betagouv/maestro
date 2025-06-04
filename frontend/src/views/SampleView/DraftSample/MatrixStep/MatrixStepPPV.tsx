@@ -26,9 +26,9 @@ import {
   PartialSample,
   PartialSampleMatrixSpecificData,
   PartialSampleToCreate,
-  prescriptionSubstancesRefinement,
+  prescriptionSubstancesCheck,
+  sampleMatrixCheck,
   SampleMatrixData,
-  sampleMatrixRefinement,
   SampleMatrixSpecificDataPPV
 } from 'maestro-shared/schema/Sample/Sample';
 import {
@@ -44,7 +44,7 @@ import {
   selectOptionsFromList
 } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
-import { unknown, z } from 'zod';
+import { unknown, z } from 'zod/v4';
 import AppSearchInput from '../../../../components/_app/AppSearchInput/AppSearchInput';
 import AppTextAreaInput from '../../../../components/_app/AppTextAreaInput/AppTextAreaInput';
 import SubstanceSearch from '../../../../components/SubstanceSearch/SubstanceSearch';
@@ -114,8 +114,6 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
       partialSample.multiSubstances ?? null
     );
 
-    type FormShape = typeof SampleMatrixPPVData.shape;
-
     const specificData = useMemo(
       () => ({
         programmingPlanKind: 'PPV',
@@ -139,10 +137,7 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
       } as SampleMatrixPPVData);
 
     const form = useForm(
-      SampleMatrixPPVData.superRefine((data, ctx) => {
-        prescriptionSubstancesRefinement(data, ctx);
-        sampleMatrixRefinement(data, ctx);
-      }),
+      SampleMatrixPPVData.check(prescriptionSubstancesCheck, sampleMatrixCheck),
       {
         matrixKind,
         matrix,
@@ -216,7 +211,7 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
             })}
           >
             {matrixKind === OtherMatrixKind.value ? (
-              <AppTextInput<FormShape>
+              <AppTextInput
                 defaultValue={matrix ?? ''}
                 onChange={(e) => setMatrix(e.target.value)}
                 inputForm={form}
@@ -255,7 +250,7 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
             )}
           </div>
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-            <AppSelect<FormShape>
+            <AppSelect
               value={stage ?? ''}
               options={stageOptions}
               onChange={(e) => setStage(e.target.value as Stage)}
@@ -270,7 +265,7 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
         </div>
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
-            <AppTextInput<FormShape>
+            <AppTextInput
               defaultValue={matrixDetails ?? ''}
               onChange={(e) => setMatrixDetails(e.target.value)}
               inputForm={form}
@@ -283,7 +278,7 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
             />
           </div>
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-            <AppSelect<FormShape>
+            <AppSelect
               defaultValue={cultureKind ?? ''}
               options={selectOptionsFromList(CultureKindList, {
                 labels: CultureKindLabels,
@@ -299,7 +294,7 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
             />
           </div>
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-            <AppSelect<FormShape>
+            <AppSelect
               defaultValue={matrixPart ?? ''}
               options={selectOptionsFromList(MatrixPartList, {
                 labels: MatrixPartLabels,
@@ -399,7 +394,7 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
         <hr />
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
-            <AppTextAreaInput<FormShape>
+            <AppTextAreaInput
               rows={1}
               defaultValue={notesOnMatrix ?? ''}
               onChange={(e) => setNotesOnMatrix(e.target.value)}

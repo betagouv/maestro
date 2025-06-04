@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import {
   MatrixKind,
   MatrixKindLabels
@@ -11,8 +11,8 @@ import { hasPermission, User } from '../User/User';
 import { PrescriptionSubstance } from './PrescriptionSubstance';
 
 export const Prescription = z.object({
-  id: z.string().uuid(),
-  programmingPlanId: z.string().uuid(),
+  id: z.guid(),
+  programmingPlanId: z.guid(),
   programmingPlanKind: ProgrammingPlanKind,
   context: ProgrammingPlanContext,
   matrixKind: MatrixKind,
@@ -27,7 +27,7 @@ export const PrescriptionToCreate = Prescription.omit({
 });
 
 export const PrescriptionUpdate = z.object({
-  programmingPlanId: z.string().uuid(),
+  programmingPlanId: z.guid(),
   stages: z.array(Stage).nullish(),
   substances: z
     .array(

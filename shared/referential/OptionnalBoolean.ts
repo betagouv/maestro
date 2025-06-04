@@ -1,8 +1,6 @@
-import z from 'zod';
+import z from 'zod/v4';
 export const OptionalBoolean = z.enum(['true', 'false', 'NA'], {
-  errorMap: () => ({
-    message: 'Veuillez renseigner une valeur.'
-  })
+  error: () => 'Veuillez renseigner une valeur.'
 });
 
 export type OptionalBoolean = z.infer<typeof OptionalBoolean>;

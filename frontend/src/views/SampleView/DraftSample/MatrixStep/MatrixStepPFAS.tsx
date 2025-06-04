@@ -49,7 +49,7 @@ import {
   PartialSample,
   PartialSampleMatrixSpecificData,
   PartialSampleToCreate,
-  prescriptionSubstancesRefinement,
+  prescriptionSubstancesCheck,
   SampleMatrixData,
   SampleMatrixSpecificDataPFASEggs,
   SampleMatrixSpecificDataPFASMeat
@@ -66,7 +66,7 @@ import {
   AppSelectOption,
   selectOptionsFromList
 } from 'src/components/_app/AppSelect/AppSelectOption';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import AppRadioButtons from '../../../../components/_app/AppRadioButtons/AppRadioButtons';
 import AppSearchInput from '../../../../components/_app/AppSearchInput/AppSearchInput';
 import AppTextAreaInput from '../../../../components/_app/AppTextAreaInput/AppTextAreaInput';
@@ -158,22 +158,22 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
       partialSample.specificData.outdoorAccess
     );
 
-    const FormRefinement = SampleMatrixPFASData.superRefine((val, ctx) => {
+    const FormRefinement = SampleMatrixPFASData.check((ctx) => {
+      const val = ctx.value;
       const ageLimit = AnimalKindAgeLimit[val.specificData.animalKind];
       if (
         (ageLimit?.min && val.specificData.age < ageLimit.min) ||
         (ageLimit?.max && val.specificData.age > ageLimit.max)
       ) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+        ctx.issues.push({
+          code: 'custom',
           message: `Cet âge n'est pas autorisé pour le type d'animal sélectionné.`,
-          path: ['specificData', 'age']
+          path: ['specificData', 'age'],
+          input: val
         });
       }
-      prescriptionSubstancesRefinement(val, ctx);
+      prescriptionSubstancesCheck(ctx);
     });
-
-    type FormShape = typeof SampleMatrixPFASData.shape;
 
     const specificData = useMemo(
       () => ({
@@ -249,7 +249,7 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
               'fr-col-offset-sm-6--right'
             )}
           >
-            <AppSelect<FormShape>
+            <AppSelect
               value={species ?? ''}
               options={selectOptionsFromList(
                 SpeciesByProgrammingPlanKind[
@@ -320,7 +320,7 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
             />
           </div>
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-            <AppSelect<FormShape>
+            <AppSelect
               value={stage ?? ''}
               options={stageOptions}
               onChange={(e) => setStage(e.target.value as Stage)}
@@ -334,7 +334,7 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
           </div>
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
             {partialSample.specificData.programmingPlanKind === 'PFAS_MEAT' && (
-              <AppTextAreaInput<FormShape>
+              <AppTextAreaInput
                 rows={1}
                 defaultValue={killingCode ?? ''}
                 onChange={(e) => setKillingCode(e.target.value)}
@@ -348,7 +348,7 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
             )}
           </div>
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-            <AppSelect<FormShape>
+            <AppSelect
               value={targetingCriteria ?? ''}
               options={selectOptionsFromList(TargetingCriteriaList, {
                 labels: TargetingCriteriaLabels,
@@ -367,7 +367,7 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
             />
           </div>
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-            <AppTextAreaInput<FormShape>
+            <AppTextAreaInput
               rows={1}
               defaultValue={notesOnTargetingCriteria ?? ''}
               onChange={(e) => setNotesOnTargetingCriteria(e.target.value)}
@@ -385,7 +385,7 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
             <span className={cx('fr-text--md', 'fr-text--bold')}>Animal</span>
           </div>
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-            <AppSelect<FormShape>
+            <AppSelect
               value={animalKind ?? ''}
               options={selectOptionsFromList(
                 AnimalKindsByProgrammingPlanKind[
@@ -408,7 +408,7 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
           </div>
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
             {partialSample.specificData.programmingPlanKind === 'PFAS_MEAT' && (
-              <AppSelect<FormShape>
+              <AppSelect
                 value={productionKind ?? ''}
                 options={selectOptionsFromList(
                   ProductionKindsByProgrammingPlanKind[
@@ -433,7 +433,7 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
             )}
           </div>
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-            <AppTextAreaInput<FormShape>
+            <AppTextAreaInput
               rows={1}
               defaultValue={animalIdentifier}
               onChange={(e) => setAnimalIdentifier(e.target.value)}
@@ -446,7 +446,7 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
             />
           </div>
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-            <AppSelect<FormShape>
+            <AppSelect
               value={breedingMethod ?? ''}
               options={selectOptionsFromList(BreedingMethodList, {
                 labels: BreedingMethodLabels,
@@ -465,7 +465,7 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
             />
           </div>
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-            <AppTextInput<FormShape>
+            <AppTextInput
               type="number"
               defaultValue={age ?? ''}
               onChange={(e) => setAge(Number(e.target.value))}
@@ -479,7 +479,7 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
             />
           </div>
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-            <AppSelect<FormShape>
+            <AppSelect
               value={sex ?? ''}
               options={selectOptionsFromList(AnimalSexList, {
                 labels: AnimalSexLabels,
@@ -496,7 +496,7 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
             />
           </div>
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-            <AppSelect<FormShape>
+            <AppSelect
               value={seizure ?? ''}
               options={selectOptionsFromList(SeizureList, {
                 labels: SeizureLabels,
@@ -541,7 +541,7 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
         <hr />
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
-            <AppTextAreaInput<FormShape>
+            <AppTextAreaInput
               rows={1}
               defaultValue={notesOnMatrix ?? ''}
               onChange={(e) => setNotesOnMatrix(e.target.value)}

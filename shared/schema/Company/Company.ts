@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { isDefined } from '../../utils/utils';
 import { CompanySearchResult } from './CompanySearchResult';
 export const Company = z.object(
@@ -12,9 +12,7 @@ export const Company = z.object(
     nafCode: z.string().nullish()
   },
   {
-    errorMap: () => ({
-      message: "Veuillez renseigner l'entité"
-    })
+    error: () => "Veuillez renseigner l'entité"
   }
 );
 

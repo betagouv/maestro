@@ -1,11 +1,9 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 export const ResidueCompliance = z.enum(
   ['Compliant', 'NonCompliant', 'Other'],
   {
-    errorMap: () => ({
-      message: 'Veuillez renseigner la conformité.'
-    })
+    error: () => 'Veuillez renseigner la conformité.'
   }
 );
 

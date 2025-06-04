@@ -1,10 +1,8 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { ProgrammingPlanKind } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 
 export const ProductionKind = z.enum(['PROD_1', 'PROD_2', 'PROD_3', 'PROD_4'], {
-  errorMap: () => ({
-    message: 'Veuillez renseigner le type de production.'
-  })
+  error: () => 'Veuillez renseigner le type de production.'
 });
 
 export type ProductionKind = z.infer<typeof ProductionKind>;
@@ -19,10 +17,5 @@ export const ProductionKindLabels: Record<ProductionKind, string> = {
 export const ProductionKindsByProgrammingPlanKind: Partial<
   Record<ProgrammingPlanKind, ProductionKind[]>
 > = {
-  [ProgrammingPlanKind.Values.PFAS_MEAT]: [
-    'PROD_1',
-    'PROD_2',
-    'PROD_3',
-    'PROD_4'
-  ]
+  [ProgrammingPlanKind.enum.PFAS_MEAT]: ['PROD_1', 'PROD_2', 'PROD_3', 'PROD_4']
 };

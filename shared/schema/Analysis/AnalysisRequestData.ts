@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { Company } from '../Company/Company';
 import { Laboratory } from '../Laboratory/Laboratory';
 import { SampleBase } from '../Sample/Sample';

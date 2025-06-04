@@ -1,9 +1,9 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { SSD2Id } from '../../referential/Residue/SSD2Id';
 import { ResultKind } from './Residue/ResultKind';
 
 export const Analyte = z.object({
-  analysisId: z.string().uuid(),
+  analysisId: z.guid(),
   residueNumber: z.number().int().positive(),
   analyteNumber: z.number().int().positive(),
   reference: SSD2Id,

@@ -30,7 +30,7 @@ import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SupportDocumentDownload from 'src/views/SampleView/DraftSample/SupportDocumentDownload';
 import SavedAlert from 'src/views/SampleView/SavedAlert';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import AppServiceErrorAlert from '../../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import { selectOptionsFromList } from '../../../../components/_app/AppSelect/AppSelectOption';
 import AppUpload from '../../../../components/_app/AppUpload/AppUpload';
@@ -100,8 +100,6 @@ const MatrixStep = ({ partialSample }: Props) => {
       regionalPrescriptions?.find((rp) => rp.prescriptionId === p.id)
     );
   }, [prescriptionsData, regionalPrescriptions]);
-
-  type FilesFormShape = typeof FilesForm.shape;
 
   const FilesForm = z.object({
     files: FileInput(SampleDocumentTypeList, true)
@@ -220,7 +218,7 @@ const MatrixStep = ({ partialSample }: Props) => {
             <span className={cx('fr-text--md', 'fr-text--bold')}>
               Compléments
             </span>
-            <AppUpload<FilesFormShape>
+            <AppUpload
               label="Pièces jointes"
               hint="Ajoutez si besoin un document ou une photo pour accompagner votre prélèvement JPG, PNG, PDF (10Mo maximum)"
               nativeInputProps={{

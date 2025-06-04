@@ -2,7 +2,7 @@ import { XMLParser } from 'fast-xml-parser';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { maestroDate } from 'maestro-shared/utils/date';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { ExtractError } from './extractError';
 import {
   ExportAnalysis,
@@ -781,7 +781,10 @@ export const extractAnalyzes = (obj: unknown): GirpaAnaysis[] => {
       }
 
       const commonData = {
-        analysisMethod: codeMethodsAnalyseMethod[a.Code_méthode],
+        analysisMethod:
+          codeMethodsAnalyseMethod[
+            a.Code_méthode as (typeof codeMethods)[number]
+          ],
         codeSandre: null,
         casNumber: a.Substance_active_CAS,
         label: a.Substance_active_anglais,

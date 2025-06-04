@@ -1,10 +1,10 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { UserPermission } from '../User/UserPermission';
 
 export const ProgrammingPlanStatus = z.enum(
   ['InProgress', 'Submitted', 'Approved', 'Validated', 'Closed'],
   {
-    errorMap: () => ({ message: 'Statut non renseigné.' })
+    error: () => 'Statut non renseigné.'
   }
 );
 

@@ -4,11 +4,10 @@ import { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPla
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlanRegionalStatus as ProgrammingPlanRegionalStatusType } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanRegionalStatus';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import z from 'zod';
+import z from 'zod/v4';
 import { knexInstance as db } from './db';
 export const programmingPlansTable = 'programming_plans';
-const programmingPlanRegionalStatusTable =
-  'programming_plan_regional_status';
+const programmingPlanRegionalStatusTable = 'programming_plan_regional_status';
 
 const ProgrammingPlanDbo = ProgrammingPlan.omit({
   regionalStatus: true

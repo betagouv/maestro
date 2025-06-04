@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 export const SampleStatus = z.enum(
   [
@@ -13,7 +13,7 @@ export const SampleStatus = z.enum(
     'Completed'
   ],
   {
-    errorMap: () => ({ message: 'Statut non renseigné.' })
+    error: () => 'Statut non renseigné.'
   }
 );
 

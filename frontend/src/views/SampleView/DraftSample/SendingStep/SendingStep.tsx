@@ -94,7 +94,6 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
     notesOnOwnerAgreement: true
   });
 
-  type FormShape = typeof Form.shape;
 
   useEffect(
     () => {
@@ -199,7 +198,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
 
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
-            <AppTextAreaInput<FormShape>
+            <AppTextAreaInput
               rows={1}
               defaultValue={notesOnOwnerAgreement ?? ''}
               onChange={(e) => setNotesOnOwnerAgreement(e.target.value)}
@@ -260,7 +259,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
           </div>
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             <div className={cx('fr-col-6', 'fr-col-sm-3')}>
-              <AppTextInput<FormShape>
+              <AppTextInput
                 value={ownerLastName ?? ''}
                 onChange={(e) => setOwnerLastName(e.target.value)}
                 inputForm={form}
@@ -272,7 +271,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
               />
             </div>
             <div className={cx('fr-col-6', 'fr-col-sm-3')}>
-              <AppTextInput<FormShape>
+              <AppTextInput
                 value={ownerFirstName ?? ''}
                 onChange={(e) => setOwnerFirstName(e.target.value)}
                 inputForm={form}
@@ -283,7 +282,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
               />
             </div>
             <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-              <AppTextInput<FormShape>
+              <AppTextInput
                 value={ownerEmail ?? ''}
                 onChange={(e) => setOwnerEmail(e.target.value)}
                 type="email"

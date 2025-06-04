@@ -1,7 +1,7 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 export const FindNotificationOptions = z.object({
-  recipientId: z.string().uuid(),
+  recipientId: z.guid(),
   read: z
     .preprocess((val) => val === true || val === 'true', z.boolean())
     .nullish()

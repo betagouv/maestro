@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { PartialSample } from '../schema/Sample/Sample';
 export const CultureKind = z.enum(
   [
@@ -13,9 +13,7 @@ export const CultureKind = z.enum(
     'PD05A'
   ],
   {
-    errorMap: () => ({
-      message: 'Veuillez renseigner le type de culture.'
-    })
+    error: () => 'Veuillez renseigner le type de culture.'
   }
 );
 

@@ -1,9 +1,7 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 export const Seizure = z.enum(['EMPTY', 'PARTIAL', 'TOTAL'], {
-  errorMap: () => ({
-    message: 'Veuillez renseigner la saisie.'
-  })
+  error: () => 'Veuillez renseigner la saisie.'
 });
 
 export type Seizure = z.infer<typeof Seizure>;

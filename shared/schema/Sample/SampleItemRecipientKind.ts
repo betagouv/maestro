@@ -1,9 +1,9 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 export const SampleItemRecipientKind = z.enum(
   ['Laboratory', 'Sampler', 'Operator'],
   {
-    errorMap: () => ({ message: 'Destinataire non renseigné.' })
+    error: () => 'Destinataire non renseigné.'
   }
 );
 

@@ -1,9 +1,7 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 export const AnimalSex = z.enum(['SEX1', 'SEX2', 'SEX3', 'SEX4', 'SEX5'], {
-  errorMap: () => ({
-    message: 'Veuillez renseigner le sexe'
-  })
+  error: () => 'Veuillez renseigner le sexe'
 });
 
 export type AnimalSex = z.infer<typeof AnimalSex>;

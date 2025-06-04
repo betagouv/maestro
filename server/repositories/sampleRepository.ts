@@ -4,7 +4,7 @@ import { defaultPerPage } from 'maestro-shared/schema/commons/Pagination';
 import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import { PartialSample, Sample } from 'maestro-shared/schema/Sample/Sample';
 import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
-import z from 'zod';
+import z from 'zod/v4';
 import { analysisTable } from './analysisRepository';
 import { companiesTable } from './companyRepository';
 import { knexInstance as db } from './db';
@@ -25,7 +25,7 @@ const PartialSampleDbo = PartialSample.omit({
   z.object({
     companySiret: z.string().nullish(),
     geolocation: z.any().nullish(),
-    sampledBy: z.string().uuid()
+    sampledBy: z.guid()
   })
 );
 
@@ -38,7 +38,7 @@ const PartialSampleJoinedDbo = PartialSampleDbo.merge(
     companyPostalCode: z.string().nullish(),
     companyCity: z.string().nullish(),
     companyNafCode: z.string().nullish(),
-    samplerId: z.string().uuid(),
+    samplerId: z.guid(),
     samplerFirstName: z.string(),
     samplerLastName: z.string()
   })
@@ -293,9 +293,7 @@ export const formatPartialSample = (
   sampledBy: partialSample.sampler.id
 });
 
-const parsePartialSample = (
-  sample: PartialSampleJoinedDbo
-): PartialSample =>
+const parsePartialSample = (sample: PartialSampleJoinedDbo): PartialSample =>
   sample &&
   PartialSample.parse({
     ...omit(omitBy(sample, isNil), ['companyId']),

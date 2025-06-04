@@ -1,7 +1,7 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 export const LegalContext = z.enum(['A', 'B'], {
-  errorMap: () => ({ message: 'Veuillez renseigner le cadre juridique.' })
+  error: () => 'Veuillez renseigner le cadre juridique.'
 });
 
 export type LegalContext = z.infer<typeof LegalContext>;

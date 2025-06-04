@@ -1,12 +1,10 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { ProgrammingPlanKind } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 
 export const Species = z.enum(
   ['ESP1', 'ESP2', 'ESP3', 'ESP4', 'ESP5', 'ESP6'],
   {
-    errorMap: () => ({
-      message: "Veuillez renseigner l'espèce."
-    })
+    error: () => "Veuillez renseigner l'espèce."
   }
 );
 
@@ -24,6 +22,6 @@ export const SpeciesLabels: Record<Species, string> = {
 export const SpeciesByProgrammingPlanKind: Partial<
   Record<ProgrammingPlanKind, Species[]>
 > = {
-  [ProgrammingPlanKind.Values.PFAS_MEAT]: ['ESP1', 'ESP2', 'ESP3', 'ESP4'],
-  [ProgrammingPlanKind.Values.PFAS_EGGS]: ['ESP5', 'ESP6']
+  [ProgrammingPlanKind.enum.PFAS_MEAT]: ['ESP1', 'ESP2', 'ESP3', 'ESP4'],
+  [ProgrammingPlanKind.enum.PFAS_EGGS]: ['ESP5', 'ESP6']
 };

@@ -3,7 +3,7 @@ import {
   AnalysisToCreate,
   PartialAnalysis
 } from 'maestro-shared/schema/Analysis/Analysis';
-import z from 'zod';
+import z from 'zod/v4';
 import analysisController from '../controllers/analysisController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
 import validator, { body, query, uuidParam } from '../middlewares/validator';
@@ -11,7 +11,7 @@ const router = express.Router();
 
 router.get(
   '',
-  validator.validate(query(z.object({ sampleId: z.string().uuid() }))),
+  validator.validate(query(z.object({ sampleId: z.guid() }))),
   permissionsCheck(['readAnalysis']),
   analysisController.getAnalysis
 );

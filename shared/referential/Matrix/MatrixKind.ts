@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { MatrixDeprecated } from './Matrix';
 import { MatrixLabels } from './MatrixLabels';
 
@@ -44,9 +44,7 @@ export const OtherMatrixKind = z.literal('Other');
 export const MatrixKind = z.enum(
   [...MatrixDeprecated.options, ...MatrixKindEffective.options],
   {
-    errorMap: () => ({
-      message: 'Veuillez renseigner la catégorie de matrice programmée.'
-    })
+    error: () => 'Veuillez renseigner la catégorie de matrice programmée.'
   }
 );
 

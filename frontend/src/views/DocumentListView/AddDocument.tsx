@@ -7,7 +7,7 @@ import { useState } from 'react';
 import AppUpload from 'src/components/_app/AppUpload/AppUpload';
 import { useForm } from 'src/hooks/useForm';
 import { useCreateDocumentMutation } from 'src/services/document.service';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 const AddDocument = () => {
   const [
@@ -28,8 +28,6 @@ const AddDocument = () => {
   });
 
   const form = useForm(Form, { file });
-
-  type FormShape = typeof Form.shape;
 
   const selectFile = (event?: any) => {
     setFile(event?.target?.files?.[0]);
@@ -55,7 +53,7 @@ const AddDocument = () => {
       }}
       data-testid="add-document"
     >
-      <AppUpload<FormShape>
+      <AppUpload
         nativeInputProps={{
           onChange: (event: any) => selectFile(event)
         }}

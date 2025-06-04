@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { ProgrammingPlanKind } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 
 export const Stage = z.enum(
@@ -17,9 +17,7 @@ export const Stage = z.enum(
     'STADE12'
   ],
   {
-    errorMap: () => ({
-      message: 'Veuillez renseigner le stade de prélèvement.'
-    })
+    error: () => 'Veuillez renseigner le stade de prélèvement.'
   }
 );
 
@@ -44,7 +42,7 @@ export const StageLabels: Record<Stage, string> = {
 
 export const StagesByProgrammingPlanKind: Record<ProgrammingPlanKind, Stage[]> =
   {
-    [ProgrammingPlanKind.Values.PPV]: [
+    [ProgrammingPlanKind.enum.PPV]: [
       'STADE1',
       'STADE2',
       'STADE3',
@@ -55,6 +53,6 @@ export const StagesByProgrammingPlanKind: Record<ProgrammingPlanKind, Stage[]> =
       'STADE8',
       'STADE9'
     ],
-    [ProgrammingPlanKind.Values.PFAS_MEAT]: ['STADE10', 'STADE11', 'STADE12'],
-    [ProgrammingPlanKind.Values.PFAS_EGGS]: ['STADE10', 'STADE11', 'STADE12']
+    [ProgrammingPlanKind.enum.PFAS_MEAT]: ['STADE10', 'STADE11', 'STADE12'],
+    [ProgrammingPlanKind.enum.PFAS_EGGS]: ['STADE10', 'STADE11', 'STADE12']
   };

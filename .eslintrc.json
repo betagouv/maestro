@@ -35,6 +35,17 @@
         "selector": "Literal[value=/^Maestro/]",
         "message": "Use Brand instead."
       }
+    ],
+    "no-restricted-imports": [
+      "error",
+      {
+        "paths": [
+          {
+            "name": "zod",
+            "message": "Please use zod/v4 from react instead"
+          }
+        ]
+      }
     ]
   }
 }
