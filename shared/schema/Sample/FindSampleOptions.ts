@@ -19,7 +19,7 @@ export const FindSampleOptions = z
     programmingPlanId: z.guid(),
     context: Context.nullish(),
     region: Region.nullish(),
-    department: Department.nullish(),
+    departments: coerceToArray(z.array(Department)).nullish(),
     status: z
       .union([SampleStatus, coerceToArray(z.array(SampleStatus))])
       .nullish(),

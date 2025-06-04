@@ -53,9 +53,12 @@ const filtersConfig = {
     getLabel: (value) => Regions[value].name,
     getNewValue: () => ({ region: undefined, department: undefined })
   },
-  department: {
-    prop: 'department',
-    getLabel: (value) => DepartmentLabels[value]
+  departments: {
+    prop: 'departments',
+    getLabel: (value) =>
+      value.length === 1
+        ? DepartmentLabels[value[0]]
+        : `${value.length} départements`
   },
   context: {
     prop: 'context',

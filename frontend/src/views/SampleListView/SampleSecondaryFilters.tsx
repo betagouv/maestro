@@ -19,6 +19,7 @@ import {
 import { useMemo } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { z } from 'zod/v4';
+import { AppMultiSelect } from '../../components/_app/AppMultiSelect/AppMultiSelect';
 
 interface Props {
   filters: Partial<FindSampleOptions>;
@@ -53,7 +54,7 @@ const SampleSecondaryFilters = ({ filters, onChange }: Props) => {
               onChange: (e) =>
                 onChange({
                   region: e.target.value as Region,
-                  department: undefined
+                  departments: undefined
                 })
             }}
           >
@@ -67,33 +68,45 @@ const SampleSecondaryFilters = ({ filters, onChange }: Props) => {
         </div>
       )}
       <div className={cx('fr-col-12', 'fr-col-md-3')}>
-        <Select
+        <AppMultiSelect
+          id="filter-departments"
           label="Département"
-          nativeSelectProps={{
-            value: filters.department || '',
-            onChange: (e) =>
-              onChange({
-                department: e.target.value as Department
-              })
-          }}
-        >
-          <optgroup>
-            <option value="">Tous</option>
-            {departmentOptions.map((department) => (
-              <option key={`department-${department}`} value={department}>
-                {`${department} - ${DepartmentLabels[department]}`}
-              </option>
-            ))}
-          </optgroup>
-          <optgroup label={'Départements limitrophes'}>
-            {borderingDepartments.map((department) => (
-              <option key={`department-${department}`} value={department}>
-                {`${department} - ${DepartmentLabels[department]}`}
-              </option>
-            ))}
-          </optgroup>
-        </Select>
+          onSelect={(items) => onChange({ departments: items as Department[] })}
+          options={departmentOptions.map((department) => ({
+            value: department,
+            label: `${department} - ${DepartmentLabels[department]}`,
+            selected: filters.departments?.includes(department)
+          }))}
+        ></AppMultiSelect>
       </div>
+      {/*<div className={cx('fr-col-12', 'fr-col-md-3')}>*/}
+      {/*  <Select*/}
+      {/*    label="Département"*/}
+      {/*    nativeSelectProps={{*/}
+      {/*      value: filters.department || '',*/}
+      {/*      onChange: (e) =>*/}
+      {/*        onChange({*/}
+      {/*          department: e.target.value as Department*/}
+      {/*        })*/}
+      {/*    }}*/}
+      {/*  >*/}
+      {/*    <optgroup>*/}
+      {/*      <option value="">Tous</option>*/}
+      {/*      {departmentOptions.map((department) => (*/}
+      {/*        <option key={`department-${department}`} value={department}>*/}
+      {/*          {`${department} - ${DepartmentLabels[department]}`}*/}
+      {/*        </option>*/}
+      {/*      ))}*/}
+      {/*    </optgroup>*/}
+      {/*    <optgroup label={'Départements limitrophes'}>*/}
+      {/*      {borderingDepartments.map((department) => (*/}
+      {/*        <option key={`department-${department}`} value={department}>*/}
+      {/*          {`${department} - ${DepartmentLabels[department]}`}*/}
+      {/*        </option>*/}
+      {/*      ))}*/}
+      {/*    </optgroup>*/}
+      {/*  </Select>*/}
+      {/*</div>*/}
       <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
         <Select
           label="Contexte"
