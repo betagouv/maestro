@@ -45,84 +45,92 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
           {ResidueKindLabels[kind]}
         </Tag>
       </h6>
-      <div className={clsx(cx('fr-pl-4w'), 'step-summary')}>
-        <div>
-          Analyse{' '}
-          <b>
+      <div className="overview-container">
+        <div className="overview-header">
+          <div className="bullet" />
+          <Badge noIcon severity="info" className={cx('fr-ml-3w')}>
+            Analyse{' '}
             {residue.analysisMethod
               ? AnalysisMethodLabels[residue.analysisMethod]
               : ''}
-          </b>
+          </Badge>
         </div>
-        {kind === 'Simple' ? (
-          <>
-            {residue.resultKind === 'Q' && (
-              <>
-                {residue.reference !== undefined
-                  ? SSD2IdLabel[residue.reference]
-                  : ''}
-                <div className="d-flex-align-center">
-                  Valeur du résultat
-                  <div className="border-middle"></div>
-                  <b>{residue.result} mg/kg</b>
-                </div>
-                <div className="d-flex-align-center">
-                  Valeur de la LMR
-                  <div className="border-middle"></div>
-                  <b>{residue.lmr} mg/kg</b>
-                </div>
-                <ResidueResultAlert result={residue.result} lmr={residue.lmr} />
-              </>
-            )}
-            {residue.resultKind === 'NQ' && (
-              <>
-                <div className="d-flex-align-center">
-                  {residue.reference !== undefined
-                    ? SSD2IdLabel[residue.reference]
-                    : ''}
-                  <div className="border-middle"></div>
-                  <b>Détecté, non quantifié</b>
-                </div>
-              </>
-            )}
-          </>
-        ) : (
-          <>
-            {residue.reference !== undefined
-              ? SSD2IdLabel[residue.reference]
-              : ''}
-            {residue.analytes?.map((analyte, analyteIndex) => (
-              <div key={`analyte-${analyteIndex}`}>
-                <Badge severity="warning" noIcon className={cx('fr-mb-2w')}>
-                  Analyte n°{analyteIndex + 1} du résidu complexe
-                </Badge>
-                <div className="d-flex-align-center">
-                  {analyte.reference ? SSD2IdLabel[analyte.reference] : ''}
-                  <div className="border-middle"></div>
-                  {analyte.resultKind === 'Q' ? (
-                    <b>{analyte.result} mg/kg</b>
-                  ) : (
+        <div className={clsx('overview-content', 'border-left')}>
+          {kind === 'Simple' ? (
+            <>
+              {residue.resultKind === 'Q' && (
+                <>
+                  <span className={cx('fr-text--bold')}>
+                    {residue.reference !== undefined
+                      ? SSD2IdLabel[residue.reference]
+                      : ''}
+                  </span>
+                  <div className="d-flex-align-center">
+                    Valeur du résultat
+                    <div className="border-middle"></div>
+                    <b>{residue.result} mg/kg</b>
+                  </div>
+                  <div className="d-flex-align-center">
+                    Valeur de la LMR
+                    <div className="border-middle"></div>
+                    <b>{residue.lmr} mg/kg</b>
+                  </div>
+                  <ResidueResultAlert
+                    result={residue.result}
+                    lmr={residue.lmr}
+                  />
+                </>
+              )}
+              {residue.resultKind === 'NQ' && (
+                <>
+                  <div className="d-flex-align-center">
+                    {residue.reference !== undefined
+                      ? SSD2IdLabel[residue.reference]
+                      : ''}
+                    <div className="border-middle"></div>
                     <b>Détecté, non quantifié</b>
-                  )}
+                  </div>
+                </>
+              )}
+            </>
+          ) : (
+            <>
+              {residue.reference !== undefined
+                ? SSD2IdLabel[residue.reference]
+                : ''}
+              {residue.analytes?.map((analyte, analyteIndex) => (
+                <div key={`analyte-${analyteIndex}`}>
+                  <Badge severity="warning" noIcon className={cx('fr-mb-2w')}>
+                    Analyte n°{analyteIndex + 1} du résidu complexe
+                  </Badge>
+                  <div className="d-flex-align-center">
+                    {analyte.reference ? SSD2IdLabel[analyte.reference] : ''}
+                    <div className="border-middle"></div>
+                    {analyte.resultKind === 'Q' ? (
+                      <b>{analyte.result} mg/kg</b>
+                    ) : (
+                      <b>Détecté, non quantifié</b>
+                    )}
+                  </div>
                 </div>
+              ))}
+              <h6 className={cx('fr-mb-0', 'fr-mt-2w')}>Somme des analytes</h6>
+              <div className="d-flex-align-center">
+                Valeur du résultat
+                <div className="border-middle"></div>
+                <b>{residue.result} mg/kg</b>
               </div>
-            ))}
-            <h6 className={cx('fr-mb-0', 'fr-mt-2w')}>Somme des analytes</h6>
-            <div className="d-flex-align-center">
-              Valeur du résultat
-              <div className="border-middle"></div>
-              <b>{residue.result} mg/kg</b>
-            </div>
-            <div className="d-flex-align-center">
-              Valeur de la LMR
-              <div className="border-middle"></div>
-              <b>{residue.lmr} mg/kg</b>
-            </div>
-            <ResidueResultAlert result={residue.result} lmr={residue.lmr} />
-          </>
-        )}
-        {children}
+              <div className="d-flex-align-center">
+                Valeur de la LMR
+                <div className="border-middle"></div>
+                <b>{residue.lmr} mg/kg</b>
+              </div>
+              <ResidueResultAlert result={residue.result} lmr={residue.lmr} />
+            </>
+          )}
+        </div>
       </div>
+      {children}
     </div>
   );
 };

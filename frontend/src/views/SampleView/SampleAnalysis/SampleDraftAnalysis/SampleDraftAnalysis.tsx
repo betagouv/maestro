@@ -57,15 +57,17 @@ const SampleDraftAnalysis = ({ sample }: Props) => {
         </div>
       </h4>
       {step && (
-        <Stepper
-          currentStep={step}
-          nextTitle={AnalysisStepTitles[step]}
-          stepCount={3}
-          title={AnalysisStepTitles[step - 1]}
-          className={cx('fr-mb-0')}
-        />
+        <>
+          <Stepper
+            currentStep={step}
+            nextTitle={AnalysisStepTitles[step]}
+            stepCount={3}
+            title={AnalysisStepTitles[step - 1]}
+            className={cx('fr-mb-0')}
+          />
+          <hr />
+        </>
       )}
-      <hr />
       {step === 1 && (
         <AnalysisReportStep
           sampleId={sample.id}

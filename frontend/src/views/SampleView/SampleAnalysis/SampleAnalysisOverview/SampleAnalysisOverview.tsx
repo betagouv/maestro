@@ -11,6 +11,8 @@ import { useContext, useMemo, useState } from 'react';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 import { useUpdateSampleMutation } from 'src/services/sample.service';
 import { pluralize, quote } from 'src/utils/stringUtils';
+import check from '../../../../assets/illustrations/check.svg';
+import close from '../../../../assets/illustrations/close.svg';
 import { useAuthentication } from '../../../../hooks/useAuthentication';
 import { ApiClientContext } from '../../../../services/apiClient';
 import { AnalysisDocumentPreview } from '../../components/AnalysisDocumentPreview';
@@ -72,6 +74,7 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
             priority="secondary"
             iconId="fr-icon-edit-line"
             className={cx('fr-mt-0')}
+            size="small"
             onClick={() => {
               setEditingStatus('Report');
               editingConfirmationModal.open();
@@ -83,7 +86,6 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
           <></>
         )}
       </AnalysisDocumentPreview>
-      <hr />
       <div>
         <h5 className="d-flex-align-center">
           <div className="flex-grow-1">
@@ -95,6 +97,7 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
               priority="secondary"
               iconId="fr-icon-edit-line"
               className={cx('fr-mt-0')}
+              size="small"
               onClick={() => {
                 setEditingStatus('Residues');
                 editingConfirmationModal.open();
@@ -108,119 +111,122 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
       {analysis.residues?.map((residue, residueIndex) => (
         <div key={`residue-${residueIndex}`}>
           <ResidueResultOverview residueIndex={residueIndex} residue={residue}>
-            <>
-              <h6 className={cx('fr-mb-0', 'fr-mt-2w')}>
-                Interprétation du résultat
-              </h6>
-              <div className="d-flex-align-center">
-                Résultat brut supérieur à l'Arfd ?
-                <div className="border-middle"></div>
-                <b>
-                  {residue.resultHigherThanArfd
-                    ? OptionalBooleanLabels[residue.resultHigherThanArfd]
-                    : 'Non renseigné'}
-                </b>
+            <div className={clsx(cx('fr-mt-4w'), 'overview-container')}>
+              <div className="overview-header">
+                <div className="bullet" />
+                <h6 className={cx('fr-ml-3w', 'fr-mb-0')}>
+                  Interprétation du résultat
+                </h6>
               </div>
-              {residue.notesOnResult && (
-                <div className="analysis-note">
-                  <i>{quote(residue.notesOnResult)}</i>
+              <div className="overview-content">
+                <div className="d-flex-align-center">
+                  Résultat brut supérieur à l'Arfd ?
+                  <div className="border-middle"></div>
+                  <b>
+                    {residue.resultHigherThanArfd
+                      ? OptionalBooleanLabels[residue.resultHigherThanArfd]
+                      : 'Non renseigné'}
+                  </b>
                 </div>
-              )}
-              <div className="d-flex-align-center">
-                Substance approuvée dans l'UE
-                <div className="border-middle"></div>
-                <b>
-                  {residue.substanceApproved
-                    ? OptionalBooleanLabels[residue.substanceApproved]
-                    : 'Non renseigné'}
-                </b>
-              </div>
-              <div className="d-flex-align-center">
-                Substance autorisée pour l'usage
-                <div className="border-middle"></div>
-                <b>
-                  {residue.substanceAuthorised
-                    ? OptionalBooleanLabels[residue.substanceAuthorised]
-                    : 'Non renseigné'}
-                </b>
-              </div>
-              {residue.pollutionRisk && (
-                <>
-                  <div className="d-flex-align-center">
-                    Pollution environnementale probable
-                    <div className="border-middle"></div>
-                    <b>{OptionalBooleanLabels[residue.pollutionRisk]}</b>
+                {residue.notesOnResult && (
+                  <div className="analysis-note">
+                    <i>{quote(residue.notesOnResult)}</i>
                   </div>
-                  {residue.pollutionRisk === 'true' && (
-                    <Alert
-                      severity="warning"
-                      small
-                      description="Alerte risque consommateur"
-                    />
-                  )}
-                </>
-              )}
-              {residue.notesOnPollutionRisk && (
-                <div className="analysis-note">
-                  <i>{quote(residue.notesOnPollutionRisk)}</i>
+                )}
+                <div className="d-flex-align-center">
+                  Substance approuvée dans l'UE
+                  <div className="border-middle"></div>
+                  <b>
+                    {residue.substanceApproved
+                      ? OptionalBooleanLabels[residue.substanceApproved]
+                      : 'Non renseigné'}
+                  </b>
                 </div>
-              )}
-              {residue.compliance === 'Compliant' && (
-                <div>
-                  <span
-                    className={cx(
-                      'fr-icon-check-line',
-                      'fr-label--success',
-                      'fr-mr-1w'
-                    )}
-                  />
-                  <b>Conforme</b>
+                <div className="d-flex-align-center">
+                  Substance autorisée pour l'usage
+                  <div className="border-middle"></div>
+                  <b>
+                    {residue.substanceAuthorised
+                      ? OptionalBooleanLabels[residue.substanceAuthorised]
+                      : 'Non renseigné'}
+                  </b>
                 </div>
-              )}
-              {residue.compliance === 'NonCompliant' && (
-                <div>
-                  <span
-                    className={cx(
-                      'fr-icon-close-line',
-                      'fr-label--error',
-                      'fr-mr-1w'
-                    )}
-                  />
-                  <b>Non conforme</b>
-                </div>
-              )}
-              {residue.compliance === 'Other' && (
-                <div>
-                  <span
-                    className={clsx(
-                      cx('fr-icon-alert-line', 'fr-mr-1w'),
-                      'icon-grey'
-                    )}
-                  />
-                  Conformité du résidu <b>autre</b>
-                  {residue.otherCompliance && (
-                    <div className={cx('fr-pl-4w')}>
-                      <b>{quote(residue.otherCompliance)}</b>
+                {residue.pollutionRisk && (
+                  <>
+                    <div className="d-flex-align-center">
+                      Pollution environnementale probable
+                      <div className="border-middle"></div>
+                      <b>{OptionalBooleanLabels[residue.pollutionRisk]}</b>
                     </div>
-                  )}
-                </div>
-              )}
-            </>
+                    {residue.pollutionRisk === 'true' && (
+                      <Alert
+                        severity="warning"
+                        small
+                        description="Alerte risque consommateur"
+                      />
+                    )}
+                  </>
+                )}
+                {residue.notesOnPollutionRisk && (
+                  <div className="analysis-note">
+                    <i>{quote(residue.notesOnPollutionRisk)}</i>
+                  </div>
+                )}
+                {residue.compliance === 'Compliant' && (
+                  <div>
+                    <span
+                      className={cx(
+                        'fr-icon-check-line',
+                        'fr-label--success',
+                        'fr-mr-1w'
+                      )}
+                    />
+                    <b>Conforme</b>
+                  </div>
+                )}
+                {residue.compliance === 'NonCompliant' && (
+                  <div>
+                    <span
+                      className={cx(
+                        'fr-icon-close-line',
+                        'fr-label--error',
+                        'fr-mr-1w'
+                      )}
+                    />
+                    <b>Non conforme</b>
+                  </div>
+                )}
+                {residue.compliance === 'Other' && (
+                  <div>
+                    <span
+                      className={clsx(
+                        cx('fr-icon-alert-line', 'fr-mr-1w'),
+                        'icon-grey'
+                      )}
+                    />
+                    Conformité du résidu <b>autre</b>
+                    {residue.otherCompliance && (
+                      <div className={cx('fr-pl-4w')}>
+                        <b>{quote(residue.otherCompliance)}</b>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
           </ResidueResultOverview>
         </div>
       ))}
       <hr />
       <div>
-        <h6 className="d-flex-align-center">
-          <span
-            className={clsx(cx('fr-icon-survey-line', 'fr-mr-1w'), 'icon-grey')}
-          ></span>
+        <h4 className="d-flex-align-center">
           <div className="flex-grow-1">Conformité globale de l'échantillon</div>
           {!readonly && (
             <Button
               priority="secondary"
               iconId="fr-icon-edit-line"
               className={cx('fr-mt-0')}
+              size="small"
               onClick={() => {
                 setEditingStatus('Compliance');
                 editingConfirmationModal.open();
@@ -229,46 +235,24 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
               Éditer
             </Button>
           )}
-        </h6>
-        <div className={clsx(cx('fr-pl-4w'), 'step-summary')}>
+        </h4>
+        <div>
           {analysis.compliance ? (
-            <div>
-              <span
-                className={cx(
-                  'fr-icon-success-fill',
-                  'fr-label--success',
-                  'fr-mr-1w'
-                )}
-              />
+            <h6 className={cx('fr-mb-0')}>
+              <img src={check} alt="" className={cx('fr-mr-2w')} />
               Échantillon conforme
-            </div>
+            </h6>
           ) : (
-            <div>
-              <span
-                className={cx(
-                  'fr-icon-error-fill',
-                  'fr-label--error',
-                  'fr-mr-1w'
-                )}
-              />
+            <h6 className={cx('fr-mb-0')}>
+              <img src={close} alt="" className={cx('fr-mr-2w')} />
               Échantillon non conforme
-            </div>
+            </h6>
           )}
           {analysis.notesOnCompliance && (
-            <>
-              <div>
-                <span
-                  className={clsx(
-                    cx('fr-icon-quote-line', 'fr-mr-1w'),
-                    'icon-grey'
-                  )}
-                ></span>
-                Note additionnelle
-              </div>
-              <div className={cx('fr-pl-4w')}>
-                <b>{quote(analysis.notesOnCompliance)}</b>
-              </div>
-            </>
+            <div className={cx('fr-pl-9w', 'fr-text--lead')}>
+              <div>Note additionnelle</div>
+              <b>{quote(analysis.notesOnCompliance)}</b>
+            </div>
           )}
         </div>
       </div>

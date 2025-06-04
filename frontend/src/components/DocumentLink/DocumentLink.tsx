@@ -28,11 +28,9 @@ const DocumentLink = ({ documentId }: Props) => {
         await openDocument(document.id);
       }}
       to="#"
+      className={cx('fr-link--download', 'fr-link')}
     >
       {document.filename}
-      <span
-        className={cx('fr-icon-download-line', 'fr-ml-1w', 'fr-icon--sm')}
-      ></span>
     </Link>
   );
 };
