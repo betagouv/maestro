@@ -7,7 +7,10 @@ import { fn } from '@storybook/test';
 import { genPartialAnalysis } from 'maestro-shared/test/analysisFixtures';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
-import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
+import {
+  genCreatedPartialSample,
+  Sample11Fixture
+} from 'maestro-shared/test/sampleFixtures';
 import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
 import { ApiClient } from './apiClient';
 
@@ -28,7 +31,7 @@ export const getMockApi = <T extends Partial<ApiClient>>(
     if (key.startsWith('useGet') || key.startsWith('useFind')) {
       // @ts-expect-error TS7053
       acc[key] = () => mockApi[key];
-    } else if (key.startsWith('useLazyGet')) {
+    } else if (key.startsWith('useLazyGet') || key.startsWith('useLazyFind')) {
       // @ts-expect-error TS7053
       acc[key] = () => [
         () => ({
@@ -82,7 +85,10 @@ export const defaultMockApiClientConf: MockApi<ApiClient> = {
   useFindRegionalPrescriptionsQuery: { data: [] },
   useGetProgrammingPlanQuery: { data: genProgrammingPlan() },
   useGetPrescriptionSubstancesQuery: { data: [] },
-  useLazyGetPrescriptionSubstancesQuery: []
+  useLazyGetPrescriptionSubstancesQuery: [],
+  useLazyFindPrescriptionsQuery: [],
+  useLazyFindSamplesQuery: [],
+  useLazyGetSampleQuery: genCreatedPartialSample()
 };
 
 export const mockApiClient = getMockApi<ApiClient>(defaultMockApiClientConf);

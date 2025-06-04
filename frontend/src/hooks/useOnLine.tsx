@@ -1,13 +1,8 @@
 import { ProgrammingPlanContextList } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppSelector } from 'src/hooks/useStore';
-import { useLazyFindPrescriptionsQuery } from 'src/services/prescription.service';
-import {
-  useCreateOrUpdateSampleMutation,
-  useLazyFindSamplesQuery,
-  useLazyGetSampleQuery
-} from 'src/services/sample.service';
+import { ApiClientContext } from '../services/apiClient';
 import { useAnalytics } from './useAnalytics';
 
 export const useOnLine = () => {
@@ -17,8 +12,14 @@ export const useOnLine = () => {
   const { trackEvent } = useAnalytics();
 
   const { pendingSamples } = useAppSelector((state) => state.samples);
-  const [createOrUpdateSample] = useCreateOrUpdateSampleMutation();
+  const {
+    useLazyFindPrescriptionsQuery,
+    useCreateOrUpdateSampleMutation,
+    useLazyFindSamplesQuery,
+    useLazyGetSampleQuery
+  } = useContext(ApiClientContext);
 
+  const [createOrUpdateSample] = useCreateOrUpdateSampleMutation();
   const [findPrescriptions] = useLazyFindPrescriptionsQuery();
   const [getSample] = useLazyGetSampleQuery();
   const [findSamples] = useLazyFindSamplesQuery();
