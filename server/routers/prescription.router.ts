@@ -4,7 +4,7 @@ import {
   PrescriptionToCreate,
   PrescriptionUpdate
 } from 'maestro-shared/schema/Prescription/Prescription';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import prescriptionController from '../controllers/prescriptionController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
 import { prescriptionCheck } from '../middlewares/checks/prescriptionCheck';
@@ -44,7 +44,7 @@ router.put(
   validator.validate(
     params(
       z.object({
-        prescriptionId: z.string().uuid()
+        prescriptionId: z.guid()
       })
     ).merge(body(PrescriptionUpdate))
   ),

@@ -4,6 +4,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Skeleton } from '@mui/material';
 import clsx from 'clsx';
 import { format, parse } from 'date-fns';
+import { isNil } from 'lodash-es';
 import {
   LegalContext,
   LegalContextLabels,
@@ -48,7 +49,7 @@ import { useCreateOrUpdateSampleMutation } from 'src/services/sample.service';
 import SampleGeolocation from 'src/views/SampleView/DraftSample/ContextStep/SampleGeolocation';
 import SupportDocumentDownload from 'src/views/SampleView/DraftSample/SupportDocumentDownload';
 import { v4 as uuidv4 } from 'uuid';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import AppServiceErrorAlert from '../../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import AppSelect from '../../../../components/_app/AppSelect/AppSelect';
 import { useAnalytics } from '../../../../hooks/useAnalytics';
@@ -108,17 +109,6 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
   const [createOrUpdateSample, createOrUpdateSampleCall] =
     useCreateOrUpdateSampleMutation();
 
-  const geolocation = z.object({
-    geolocationX: z.number({
-      required_error: 'Veuillez renseigner la latitude.',
-      invalid_type_error: 'Latitude invalide.'
-    }),
-    geolocationY: z.number({
-      required_error: 'Veuillez renseigner la longitude.',
-      invalid_type_error: 'Longitude invalide.'
-    })
-  });
-
   useEffect(() => {
     if (programmingPlan.kinds.length === 1) {
       setProgrammingPlanKind(programmingPlan.kinds[0]);
@@ -138,11 +128,36 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
     programmingPlanId: true,
     geolocation: true,
     company: true,
-    context: true
+    context: true,
+    department: true
   })
-    .merge(isOnline ? geolocation : geolocation.partial())
     .extend({
-      context: ProgrammingPlanContext.or(z.literal('OutsideProgrammingPlan')),
+      geolocationX: z.number({
+        error: (issue) => {
+          return isNil(issue.input)
+            ? 'Veuillez renseigner la latitude.'
+            : 'Latitude invalide.';
+        }
+      }),
+      geolocationY: z.number({
+        error: (issue) => {
+          return isNil(issue.input)
+            ? 'Veuillez renseigner la longitude.'
+            : 'Latitude invalide.';
+        }
+      })
+    })
+    .partial(!isOnline ? { geolocationX: true, geolocationY: true } : {})
+    .extend({
+      context: z.enum(
+        [...ProgrammingPlanContext.options, 'OutsideProgrammingPlan'],
+        {
+          error: (issue) =>
+            isNil(issue.input)
+              ? 'Veuillez renseigner le contexte.'
+              : issue.message
+        }
+      ),
       outsideProgrammingPlanContext:
         context === 'OutsideProgrammingPlan' ? Context : z.undefined()
     })
@@ -151,12 +166,13 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
         ? { company: Company }
         : {
             companyOffline: z.string({
-              required_error: "Veuillez renseigner l'entité contrôlée."
+              error: (issue) =>
+                isNil(issue.input)
+                  ? "Veuillez renseigner l'entité contrôlée."
+                  : issue.message
             })
           }
     );
-
-  type FormShape = typeof Form.shape;
 
   const contextOptions = selectOptionsFromList(
     [...(programmingPlan.contexts ?? []), 'OutsideProgrammingPlan'],
@@ -319,7 +335,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
       <AppRequiredText />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12', 'fr-col-sm-8')}>
-          <AppTextInput<FormShape>
+          <AppTextInput
             type="datetime-local"
             defaultValue={sampledAt}
             onChange={(e) => setSampledAt(e.target.value.replace('T', ' '))}
@@ -368,7 +384,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
         <div className={cx('fr-col-12', 'fr-col-sm-4')}>
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             <div className={cx('fr-col-12')}>
-              <AppTextInput<FormShape>
+              <AppTextInput
                 type="number"
                 step={0.000001}
                 value={geolocationX ?? ''}
@@ -385,7 +401,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
               />
             </div>
             <div className={cx('fr-col-12')}>
-              <AppTextInput<FormShape>
+              <AppTextInput
                 type="number"
                 step={0.000001}
                 value={geolocationY ?? ''}
@@ -403,7 +419,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
             </div>
             {programmingPlanKind === 'PPV' && (
               <div className={cx('fr-col-12')}>
-                <AppTextInput<FormShape>
+                <AppTextInput
                   defaultValue={parcel ?? ''}
                   onChange={(e) => setParcel(e.target.value)}
                   inputForm={form}
@@ -420,7 +436,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
         </div>
       </div>
       {programmingPlanKindOptions.length > 2 && (
-        <AppSelect<FormShape>
+        <AppSelect
           defaultValue={programmingPlanKind}
           options={programmingPlanKindOptions}
           onChange={(e) =>
@@ -477,7 +493,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
       />
       {context === 'OutsideProgrammingPlan' && (
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-          <AppSelect<FormShape>
+          <AppSelect
             defaultValue={outsideProgrammingPlanContext}
             options={outsideProgrammingPlanContextOptions}
             onChange={(e) =>
@@ -550,7 +566,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
               }
             />
           ) : (
-            <AppTextInput<FormShape>
+            <AppTextInput
               type="text"
               defaultValue={companyOffline ?? ''}
               onChange={(e) => setCompanyOffline(e.target.value)}
@@ -565,7 +581,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
           )}
         </div>
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-          <AppTextInput<FormShape>
+          <AppTextInput
             type="text"
             defaultValue={partialSample?.resytalId || ''}
             onChange={(e) => setResytalId(e.target.value)}
@@ -581,7 +597,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
       </div>
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>
-          <AppTextAreaInput<FormShape>
+          <AppTextAreaInput
             rows={1}
             defaultValue={notesOnCreation ?? ''}
             onChange={(e) => setNotesOnCreation(e.target.value)}

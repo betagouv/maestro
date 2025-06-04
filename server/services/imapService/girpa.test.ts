@@ -1,7 +1,7 @@
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { getSSD2Id } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { describe, expect, test } from 'vitest';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import {
   analyseXmlValidator,
   extractAnalyzes,

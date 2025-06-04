@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { Department } from './Department';
 
 export const Region = z.enum(
@@ -23,7 +23,7 @@ export const Region = z.enum(
     '06'
   ],
   {
-    errorMap: () => ({ message: 'Veuillez renseigner la région' })
+    error: () => 'Veuillez renseigner la région'
   }
 );
 

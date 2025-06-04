@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { CreatedSampleData } from '../Sample/Sample';
 
 export const DocumentKind = z.enum([

@@ -1,17 +1,13 @@
 import { isEqual } from 'lodash-es';
 import { useEffect, useState } from 'react';
-import { z, ZodEffects, ZodObject, ZodRawShape } from 'zod';
+import { z, ZodObject } from 'zod/v4';
 
 type MessageType = 'error' | 'success' | 'default';
 
-export type UseFormShape<T extends ZodRawShape> = UseForm<
-  ZodObject<T> | ZodEffects<ZodObject<T>>
->;
-export type UseForm<T extends ZodObject<any> | ZodEffects<ZodObject<any>>> =
-  ReturnType<typeof useForm<T>>;
+export type UseForm<T extends ZodObject> = ReturnType<typeof useForm<T>>;
 
 export function useForm<
-  T extends ZodObject<ZodRawShape> | ZodEffects<ZodObject<ZodRawShape>>,
+  T extends ZodObject,
   U extends object = Record<keyof z.infer<T>, unknown>
 >(schema: T, input: U, onInputChange?: () => Promise<void>) {
   const [error, setError] = useState<z.ZodError>();
@@ -117,6 +113,7 @@ export function useForm<
     reset,
     validate,
     input,
-    error
+    error,
+    schema
   };
 }

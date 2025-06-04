@@ -1,5 +1,5 @@
 import { intersection, isNil } from 'lodash-es';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { Region, RegionList } from '../../referential/Region';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { UserPermission } from './UserPermission';
@@ -12,7 +12,7 @@ import {
 } from './UserRole';
 
 export const BaseUser = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   email: z.string().email(),
   firstName: z.string(),
   lastName: z.string(),
@@ -28,7 +28,7 @@ export const User = BaseUser.superRefine((user, ctx) => {
       RegionalAndNationUserRole.safeParse(user.role).success)
   ) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: 'custom',
       message: 'La région est obligatoire pour ce rôle'
     });
   }

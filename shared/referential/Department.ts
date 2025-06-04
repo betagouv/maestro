@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 export const Department = z.enum(
   [
@@ -106,7 +106,7 @@ export const Department = z.enum(
   ],
 
   {
-    errorMap: () => ({ message: 'Veuillez renseigner le département.' })
+    error: () => 'Veuillez renseigner le département.'
   }
 );
 

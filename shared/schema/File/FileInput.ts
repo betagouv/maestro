@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { FileType, FileTypeList } from './FileType';
 
 export const MaxFileSize = 20 * 1000 * 1000;
@@ -32,14 +32,14 @@ export const FileInput = (
           );
           if (!typeSuccess || !acceptFileTypes.includes(fileType)) {
             ctx.addIssue({
-              code: z.ZodIssueCode.custom,
+              code: 'custom',
               message: 'Un ou plusieurs fichiers ne sont pas acceptés.'
             });
           }
 
           if (file.size > MaxFileSize) {
             ctx.addIssue({
-              code: z.ZodIssueCode.custom,
+              code: 'custom',
               message: 'Un ou plusieurs fichiers sont trop volumineux.'
             });
           }

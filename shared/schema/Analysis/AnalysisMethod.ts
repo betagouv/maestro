@@ -1,9 +1,7 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 export const AnalysisMethod = z.enum(['Mono', 'Multi'], {
-  errorMap: () => ({
-    message: "Veuillez renseigner la méthode d'analyse."
-  })
+  error: () => "Veuillez renseigner la méthode d'analyse."
 });
 
 export type AnalysisMethod = z.infer<typeof AnalysisMethod>;

@@ -1,23 +1,25 @@
 import Input from '@codegouvfr/react-dsfr/Input';
 import { ComponentPropsWithoutRef, InputHTMLAttributes } from 'react';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
-import { UseFormShape } from 'src/hooks/useForm';
-import { ZodRawShape } from 'zod';
+import { UseForm } from 'src/hooks/useForm';
+import { z, ZodObject } from 'zod/v4';
 
-type AppTextInputProps<T extends ZodRawShape> = Partial<
+type AppTextInputProps<T extends ZodObject, U extends UseForm<T>> = Partial<
   Pick<
     ComponentPropsWithoutRef<typeof Input>,
     'label' | 'hintText' | 'state' | 'stateRelatedMessage'
   >
 > &
   InputHTMLAttributes<HTMLInputElement> & {
-    inputForm: UseFormShape<T>;
-    inputKey: keyof T;
+    inputForm: U;
+    inputKey: keyof NoInfer<z.infer<U['schema']>>;
     inputPathFromKey?: (string | number)[];
     whenValid?: string;
   };
 
-function AppTextInput<T extends ZodRawShape>(props: AppTextInputProps<T>) {
+function AppTextInput<T extends ZodObject>(
+  props: AppTextInputProps<T, UseForm<T>>
+) {
   const {
     inputKey,
     inputPathFromKey,
@@ -50,15 +52,14 @@ function AppTextInput<T extends ZodRawShape>(props: AppTextInputProps<T>) {
       hintText={hintText}
       state={
         (state ?? textInputProps.required)
-          ? inputForm.messageType(String(inputKey), inputPathFromKey)
-          : inputForm.messageType(String(inputKey), inputPathFromKey) ===
-              'error'
+          ? inputForm.messageType(inputKey, inputPathFromKey)
+          : inputForm.messageType(inputKey, inputPathFromKey) === 'error'
             ? 'error'
             : 'default'
       }
       stateRelatedMessage={
         stateRelatedMessage ??
-        inputForm.message(String(inputKey), inputPathFromKey, whenValid)
+        inputForm.message(inputKey, inputPathFromKey, whenValid)
       }
     />
   );

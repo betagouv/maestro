@@ -18,7 +18,7 @@ import {
   useCreateDocumentMutation,
   useDeleteDocumentMutation
 } from 'src/services/document.service';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 interface Props {
   sampleId: string;
@@ -63,8 +63,6 @@ const AnalysisReportStep = ({ sampleId, partialAnalysis }: Props) => {
   );
 
   const form = useForm(FormRefinement, { hasReportDocument, fileInput });
-
-  type FormShape = typeof Form.shape;
 
   const selectFile = (event?: any) => {
     setFileInput(event?.target?.files?.[0]);
@@ -122,7 +120,7 @@ const AnalysisReportStep = ({ sampleId, partialAnalysis }: Props) => {
           </div>
         </>
       ) : (
-        <AppUpload<FormShape>
+        <AppUpload
           label="Ajouter le rapport d'analyse"
           nativeInputProps={{
             onChange: (event: any) => selectFile(event)

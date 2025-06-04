@@ -6,7 +6,7 @@ import {
 import { Brand } from 'maestro-shared/constants';
 import { User } from 'maestro-shared/schema/User/User';
 import { OpenAPIObject } from 'openapi3-ts/oas31';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 extendZodWithOpenApi(z);
 
@@ -19,7 +19,7 @@ export const getOpenApiSchema = (): OpenAPIObject => {
     description: 'Trouve un utilisateur par son identifiant unique',
     summary: 'getUserById',
     request: {
-      params: z.object({ userId: z.string().uuid() })
+      params: z.object({ userId: z.guid() })
     },
     responses: {
       200: {

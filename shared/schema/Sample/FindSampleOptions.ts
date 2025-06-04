@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { Department } from '../../referential/Department';
 import { Matrix } from '../../referential/Matrix/Matrix';
 import { Region } from '../../referential/Region';
@@ -16,7 +16,7 @@ export const SampleComplianceLabels = {
 
 export const FindSampleOptions = z
   .object({
-    programmingPlanId: z.string().uuid(),
+    programmingPlanId: z.guid(),
     context: Context.nullish(),
     region: Region.nullish(),
     department: Department.nullish(),
@@ -24,7 +24,7 @@ export const FindSampleOptions = z
       .union([SampleStatus, coerceToArray(z.array(SampleStatus))])
       .nullish(),
     matrix: Matrix.nullish(),
-    sampledBy: z.string().uuid().nullish(),
+    sampledBy: z.guid().nullish(),
     sampledAt: z.string().nullish(),
     reference: z.string().nullish(),
     compliance: SampleCompliance.nullish()

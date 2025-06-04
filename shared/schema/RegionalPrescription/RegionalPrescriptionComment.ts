@@ -1,16 +1,22 @@
-import { z } from 'zod';
+import { isNil } from 'lodash-es';
+import { z } from 'zod/v4';
 import { Region } from '../../referential/Region';
 
 export const RegionalPrescriptionCommentToCreate = z.object({
-  programmingPlanId: z.string().uuid(),
+  programmingPlanId: z.guid(),
   comment: z
-    .string({ required_error: 'Veuillez renseigner un commentaire.' })
+    .string({
+      error: (issue) =>
+        isNil(issue.input)
+          ? 'Veuillez renseigner un commentaire.'
+          : issue.message
+    })
     .min(1, 'Veuillez renseigner un commentaire.')
 });
 
 export const RegionalPrescriptionComment = z.object({
-  id: z.string().uuid(),
-  prescriptionId: z.string().uuid(),
+  id: z.guid(),
+  prescriptionId: z.guid(),
   region: Region,
   comment: z.string(),
   createdAt: z.coerce.date(),

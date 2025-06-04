@@ -6,21 +6,21 @@ import {
   AppSelectOptionsGroup
 } from 'src/components/_app/AppSelect/AppSelectOption';
 import { UseForm } from 'src/hooks/useForm';
-import { ZodObject, ZodRawShape } from 'zod';
+import { z, ZodObject } from 'zod/v4';
 
-type AppSelectProps<T extends ZodRawShape> = Partial<
+type AppSelectProps<T extends ZodObject, U extends UseForm<T>> = Partial<
   Pick<ComponentPropsWithoutRef<typeof Select>, 'label' | 'hint'>
 > &
   InputHTMLAttributes<HTMLSelectElement> & {
     options?: AppSelectOption[];
     optionsGroups?: AppSelectOptionsGroup[];
-    inputForm: UseForm<ZodObject<T>>;
-    inputKey: keyof T;
+    inputForm: U;
+    inputKey: keyof NoInfer<z.infer<U['schema']>>;
     inputPathFromKey?: (string | number)[];
     whenValid?: string;
   };
 
-function AppSelect<T extends ZodRawShape>(props: AppSelectProps<T>) {
+function AppSelect<T extends ZodObject>(props: AppSelectProps<T, UseForm<T>>) {
   const {
     options,
     optionsGroups,
@@ -51,14 +51,13 @@ function AppSelect<T extends ZodRawShape>(props: AppSelectProps<T>) {
       }}
       state={
         selectProps.required
-          ? inputForm.messageType(String(inputKey), inputPathFromKey)
-          : inputForm.messageType(String(inputKey), inputPathFromKey) ===
-              'error'
+          ? inputForm.messageType(inputKey, inputPathFromKey)
+          : inputForm.messageType(inputKey, inputPathFromKey) === 'error'
             ? 'error'
             : 'default'
       }
       stateRelatedMessage={inputForm.message(
-        String(inputKey),
+        inputKey,
         inputPathFromKey,
         whenValid
       )}

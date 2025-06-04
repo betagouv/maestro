@@ -1,11 +1,11 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { User } from '../User/User';
 import { NotificationCategory } from './NotificationCategory';
 
 export const Notification = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   createdAt: z.coerce.date(),
-  recipientId: z.string().uuid(),
+  recipientId: z.guid(),
   read: z.boolean(),
   message: z.string(),
   link: z.string(),

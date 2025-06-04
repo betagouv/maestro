@@ -30,12 +30,12 @@ import {
 } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { UseForm, useForm } from 'src/hooks/useForm';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { ApiClientContext } from '../../../services/apiClient';
 
 const Form = z.object({
-  items: z.array(z.object({})).refine(() => ({})),
-  laboratoryId: z.string().nullish()
+  items: z.array(z.looseObject({})),
+  laboratoryId: z.guid().nullish()
 });
 
 interface Props {
@@ -63,7 +63,6 @@ const SampleItemDetails = ({
   readonly: forceReadonly
 }: Props) => {
   const apiClient = useContext(ApiClientContext);
-  type FormShape = typeof Form.shape;
 
   const fakeForm = useForm(Form, {
     items: [],
@@ -109,7 +108,7 @@ const SampleItemDetails = ({
       </div>
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-6', 'fr-col-sm-3')}>
-          <AppTextInput<FormShape>
+          <AppTextInput
             value={item.quantity ?? ''}
             onChange={(e) =>
               onChangeItem?.(
@@ -131,7 +130,7 @@ const SampleItemDetails = ({
           />
         </div>
         <div className={cx('fr-col-6', 'fr-col-sm-3')}>
-          <AppSelect<FormShape>
+          <AppSelect
             value={item.quantityUnit ?? ''}
             options={[
               ...selectOptionsFromList(PrimaryQuantityUnitList, {
@@ -162,7 +161,7 @@ const SampleItemDetails = ({
           />
         </div>
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-          <AppTextInput<FormShape>
+          <AppTextInput
             value={item.sealId ?? ''}
             onChange={(e) =>
               onChangeItem?.(
@@ -201,7 +200,7 @@ const SampleItemDetails = ({
                   )}
                 </>
               ) : (
-                <AppSelect<FormShape>
+                <AppSelect
                   value={laboratory?.id}
                   options={[
                     defaultAppSelectOption('Sélectionner un laboratoire'),

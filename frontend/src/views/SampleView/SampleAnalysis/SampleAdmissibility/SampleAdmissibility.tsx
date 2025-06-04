@@ -13,7 +13,7 @@ import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaIn
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 import { useForm } from 'src/hooks/useForm';
-import z from 'zod';
+import z from 'zod/v4';
 import { useAuthentication } from '../../../../hooks/useAuthentication';
 import { ApiClientContext } from '../../../../services/apiClient';
 import './SampleAdmissibility.scss';
@@ -69,17 +69,20 @@ const SampleAdmissibility = ({ sample }: Props) => {
     })
   );
 
-  const FormRefinement = Form.superRefine((val, ctx) => {
+  const FormRefinement = Form.check((ctx) => {
+    const val = ctx.value;
     if (val.isReceived && !val.receivedAt) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+      ctx.issues.push({
+        code: 'custom',
+        input: val,
         message: 'Veuillez renseigner la date de réception.',
         path: ['receivedAt']
       });
     }
     if (val.isReceived && val.isAdmissible === undefined) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+      ctx.issues.push({
+        code: 'custom',
+        input: val,
         path: ['isAdmissible'],
         message: 'Veuillez renseigner la recevabilité du prélèvement.'
       });
@@ -92,8 +95,6 @@ const SampleAdmissibility = ({ sample }: Props) => {
     isAdmissible,
     notesOnAdmissibility
   });
-
-  type FormShape = typeof Form.shape;
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
@@ -176,7 +177,7 @@ const SampleAdmissibility = ({ sample }: Props) => {
             <>
               <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
                 <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-                  <AppTextInput<FormShape>
+                  <AppTextInput
                     type="date"
                     defaultValue={receivedAt}
                     onChange={(e) => setReceivedAt(e.target.value)}
@@ -223,7 +224,7 @@ const SampleAdmissibility = ({ sample }: Props) => {
               {isAdmissible === false && (
                 <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
                   <div className={cx('fr-col-12')}>
-                    <AppTextAreaInput<FormShape>
+                    <AppTextAreaInput
                       rows={1}
                       defaultValue={notesOnAdmissibility ?? ''}
                       onChange={(e) => setNotesOnAdmissibility(e.target.value)}
@@ -295,7 +296,7 @@ const SampleAdmissibility = ({ sample }: Props) => {
                     >
                       {isEditingNotes ? (
                         <div className={cx('fr-mt-1w')}>
-                          <AppTextAreaInput<FormShape>
+                          <AppTextAreaInput
                             rows={1}
                             defaultValue={notesOnAdmissibility ?? ''}
                             onChange={(e) =>

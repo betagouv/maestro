@@ -1,5 +1,5 @@
 import { isNil } from 'lodash-es';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { OptionalBoolean } from '../../../referential/OptionnalBoolean';
 import { SSD2Id } from '../../../referential/Residue/SSD2Id';
 import { maestroDate } from '../../../utils/date';
@@ -9,7 +9,7 @@ import { ResidueCompliance } from './ResidueCompliance';
 import { ResultKind } from './ResultKind';
 
 const ResidueBase = z.object({
-  analysisId: z.string().uuid(),
+  analysisId: z.guid(),
   residueNumber: z.number().int().positive(),
   analysisMethod: AnalysisMethod,
   analysisDate: maestroDate.nullish(),
@@ -31,7 +31,7 @@ const ResidueBase = z.object({
 export const Residue = ResidueBase.superRefine((residu, ctx) => {
   if (residu.compliance === 'Other' && !residu.otherCompliance) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: 'custom',
       message: 'Veuillez préciser la conformité la conformité “Autre”.',
       path: ['otherCompliance']
     });
@@ -39,14 +39,14 @@ export const Residue = ResidueBase.superRefine((residu, ctx) => {
   if (residu.resultKind === 'Q') {
     if (isNil(residu.result) || residu.result === 0) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         message: 'Veuillez préciser le résultat',
         path: ['result']
       });
     }
     if (isNil(residu.lmr) || residu.lmr === 0) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         message: 'Veuillez préciser la LMR',
         path: ['lmr']
       });

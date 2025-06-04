@@ -57,8 +57,6 @@ const PrescriptionCommentsModal = ({
     comment
   });
 
-  type FormShape = typeof Form.shape;
-
   useIsModalOpen(prescriptionCommentsModal, {
     onConceal: () => {
       setComment('');
@@ -216,7 +214,7 @@ const PrescriptionCommentsModal = ({
               })?.comment && (
                 <div className={clsx(cx('fr-mt-2w'), 'd-flex-justify-center')}>
                   <form id="login_form">
-                    <AppTextAreaInput<FormShape>
+                    <AppTextAreaInput
                       value={comment}
                       onChange={(e) => setComment(e.target.value)}
                       inputForm={form}

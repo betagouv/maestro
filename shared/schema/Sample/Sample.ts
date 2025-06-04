@@ -1,6 +1,7 @@
 import { isNil, uniqBy } from 'lodash-es';
 
-import { z } from 'zod';
+import { CheckFn } from 'zod/dist/types/v4/core';
+import { z } from 'zod/v4';
 import { AnimalKind } from '../../referential/AnimalKind';
 import { AnimalSex } from '../../referential/AnimalSex';
 import { BreedingMethod } from '../../referential/BreedingMethod';
@@ -40,7 +41,10 @@ export const Geolocation = z.object(
     y: z.number()
   },
   {
-    required_error: 'Veuillez renseigner la localisation.'
+    error: (issue) =>
+      isNil(issue.input)
+        ? 'Veuillez renseigner la localisation.'
+        : issue.message
   }
 );
 
@@ -51,7 +55,7 @@ const Sampler = BaseUser.pick({
 });
 
 export const SampleMatrixSpecificDataPPV = z.object({
-  programmingPlanKind: z.literal(ProgrammingPlanKind.Values.PPV),
+  programmingPlanKind: z.literal(ProgrammingPlanKind.enum.PPV),
   matrixDetails: z.string().nullish(),
   matrixPart: MatrixPart,
   cultureKind: CultureKind.nullish(),
@@ -60,23 +64,23 @@ export const SampleMatrixSpecificDataPPV = z.object({
 
 const SampleMatrixSpecificDataPFAS = z.object({
   programmingPlanKind: z
-    .literal(ProgrammingPlanKind.Values.PFAS_EGGS)
-    .or(z.literal(ProgrammingPlanKind.Values.PFAS_MEAT)),
+    .literal(ProgrammingPlanKind.enum.PFAS_EGGS)
+    .or(z.literal(ProgrammingPlanKind.enum.PFAS_MEAT)),
   species: Species,
   targetingCriteria: TargetingCriteria,
   notesOnTargetingCriteria: z.string().nullish(),
   animalKind: AnimalKind,
   animalIdentifier: z
     .string({
-      required_error: "Veuillez renseigner l'identifiant du lot ou de l'animal."
+      error: (issue) =>
+        isNil(issue.input)
+          ? "Veuillez renseigner l'identifiant du lot ou de l'animal."
+          : issue.message
     })
     .min(1, "Veuillez renseigner l'identifiant du lot ou de l'animal."),
   breedingMethod: BreedingMethod,
   age: z.coerce
-    .number({
-      invalid_type_error: "Veuillez renseigner l'âge de l'animal.",
-      required_error: "Veuillez renseigner l'âge de l'animal."
-    })
+    .number({ error: "Veuillez renseigner l'âge de l'animal." })
     .int()
     .nonnegative(),
   sex: AnimalSex,
@@ -86,15 +90,18 @@ const SampleMatrixSpecificDataPFAS = z.object({
 
 export const SampleMatrixSpecificDataPFASEggs =
   SampleMatrixSpecificDataPFAS.extend({
-    programmingPlanKind: z.literal(ProgrammingPlanKind.Values.PFAS_EGGS)
+    programmingPlanKind: z.literal(ProgrammingPlanKind.enum.PFAS_EGGS)
   });
 
 export const SampleMatrixSpecificDataPFASMeat =
   SampleMatrixSpecificDataPFAS.extend({
-    programmingPlanKind: z.literal(ProgrammingPlanKind.Values.PFAS_MEAT),
+    programmingPlanKind: z.literal(ProgrammingPlanKind.enum.PFAS_MEAT),
     killingCode: z
       .string({
-        required_error: 'Veuillez renseigner le code tuerie.'
+        error: (issue) =>
+          isNil(issue.input)
+            ? 'Veuillez renseigner le code tuerie.'
+            : issue.message
       })
       .min(1, 'Veuillez renseigner le code tuerie.'),
     productionKind: ProductionKind
@@ -108,7 +115,7 @@ const SampleMatrixSpecificData = z.discriminatedUnion(
     SampleMatrixSpecificDataPFASMeat
   ],
   {
-    errorMap: () => ({ message: 'Veuillez renseigner le type de plan.' })
+    error: () => 'Veuillez renseigner le type de plan.'
   }
 );
 
@@ -126,23 +133,21 @@ const PartialSampleMatrixSpecificData = z.discriminatedUnion(
     })
   ],
   {
-    errorMap: () => ({ message: 'Veuillez renseigner le type de plan.' })
+    error: () => 'Veuillez renseigner le type de plan.'
   }
 );
 
 export const SampleContextData = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   sampledAt: z.union([z.string(), z.date()]).pipe(
     z.coerce.date({
-      errorMap: () => ({
-        message: 'La date de prélèvement est invalide.'
-      })
+      error: () => 'La date de prélèvement est invalide.'
     })
   ),
   geolocation: Geolocation.nullish(),
   department: Department.nullish(),
   parcel: z.string().nullish(),
-  programmingPlanId: z.string().uuid(),
+  programmingPlanId: z.guid(),
   context: Context,
   legalContext: LegalContext,
   company: Company.nullish(),
@@ -154,59 +159,65 @@ export const SampleContextData = z.object({
 });
 
 export const SampleMatrixData = z.object({
-  matrixKind: MatrixKind.or(OtherMatrixKind),
-  matrix: Matrix.or(
-    z.string().nonempty({
-      message: 'Veuillez renseigner la matrice.'
-    })
-  ),
+  matrixKind: z.union([MatrixKind, OtherMatrixKind], {
+    error: (issue) =>
+      isNil(issue.input)
+        ? 'Veuillez renseigner la catégorie de matrice programmée.'
+        : issue.message
+  }),
+  matrix: z.union([Matrix, z.string().nonempty()], {
+    error: (issue) =>
+      isNil(issue.input) ? 'Veuillez renseigner la matrice.' : issue.message
+  }),
   stage: Stage,
   notesOnMatrix: z.string().nullish(),
-  prescriptionId: z.string().uuid().nullish(),
-  laboratoryId: z.string().uuid().nullish(),
+  prescriptionId: z.guid().nullish(),
+  laboratoryId: z.guid().nullish(),
   monoSubstances: z.array(SSD2Id).nullish(),
   multiSubstances: z.array(SSD2Id).nullish(),
-  documentIds: z.array(z.string().uuid()).nullish(),
+  documentIds: z.array(z.guid()).nullish(),
   specificData: SampleMatrixSpecificData
 });
 
-export const sampleMatrixRefinement = (
-  data: {
-    matrixKind: MatrixKind | 'Other';
-    matrix: Matrix | string;
-  },
-  ctx: z.RefinementCtx
-) => {
-  if (data.matrixKind !== 'Other' && !Matrix.safeParse(data.matrix).success) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.invalid_enum_value,
-      received: data.matrix,
-      options: MatrixList,
+export const sampleMatrixCheck: CheckFn<{
+  matrixKind: MatrixKind | 'Other';
+  matrix: Matrix | string;
+}> = (ctx) => {
+  if (
+    ctx.value.matrixKind !== 'Other' &&
+    !Matrix.safeParse(ctx.value.matrix).success
+  ) {
+    ctx.issues.push({
+      input: ctx.value,
+      code: 'invalid_value',
+      values: MatrixList,
       path: ['matrix']
     });
   }
 };
 
-export const prescriptionSubstancesRefinement = (
-  data: {
-    prescriptionId?: string | null;
-    monoSubstances?: SSD2Id[] | null;
-    multiSubstances?: SSD2Id[] | null;
-  },
-  ctx: z.RefinementCtx
-) => {
-  if (!isDefined(data.prescriptionId)) {
-    if (isNil(data.monoSubstances) && isNil(data.multiSubstances)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+export const prescriptionSubstancesCheck: CheckFn<{
+  prescriptionId?: string | null;
+  monoSubstances?: SSD2Id[] | null;
+  multiSubstances?: SSD2Id[] | null;
+}> = (ctx) => {
+  if (!isDefined(ctx.value.prescriptionId)) {
+    if (isNil(ctx.value.monoSubstances) && isNil(ctx.value.multiSubstances)) {
+      ctx.issues.push({
+        input: ctx.value,
+        code: 'custom',
         message:
           'Veuillez préciser les substances mono-résidu et/ou multi-résidus à analyser.',
         path: ['substances']
       });
     }
-    if (!isNil(data.monoSubstances) && data.monoSubstances.length === 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+    if (
+      !isNil(ctx.value.monoSubstances) &&
+      ctx.value.monoSubstances.length === 0
+    ) {
+      ctx.issues.push({
+        input: ctx.value,
+        code: 'custom',
         message: 'Veuillez renseigner au moins une substance mono-résidu.',
         path: ['monoSubstances']
       });
@@ -231,9 +242,7 @@ const SampleAdmissibilityData = z.object({
     .union([z.string(), z.date()])
     .pipe(
       z.coerce.date({
-        errorMap: () => ({
-          message: 'La date de réception est invalide.'
-        })
+        error: () => 'La date de réception est invalide.'
       })
     )
     .nullish(),
@@ -248,7 +257,10 @@ export const SampleOwnerData = z.object({
     .email("L'adresse email du détenteur est invalide.")
     .nullish(),
   ownerAgreement: z.boolean({
-    required_error: "Veuillez renseigner l'accord du détenteur."
+    error: (issue) =>
+      isNil(issue.input)
+        ? "Veuillez renseigner l'accord du détenteur."
+        : issue.message
   }),
   notesOnOwnerAgreement: z.string().nullish()
 });
@@ -297,14 +309,14 @@ export const SampleBase = SampleToCreate.extend({
   geolocation: Geolocation,
   department: Department,
   company: Company,
-  laboratoryId: z.string().uuid(),
+  laboratoryId: z.guid(),
   items: z.array(SampleItem)
 });
 
-export const Sample = SampleBase.superRefine((data, ctx) => {
-  prescriptionSubstancesRefinement(data, ctx);
-  sampleMatrixRefinement(data, ctx);
-});
+export const Sample = SampleBase.check(
+  prescriptionSubstancesCheck,
+  sampleMatrixCheck
+);
 
 export type Geolocation = z.infer<typeof Geolocation>;
 export type SampleContextData = z.infer<typeof SampleContextData>;

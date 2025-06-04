@@ -1,5 +1,5 @@
 import { sumBy } from 'lodash-es';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { Region, RegionSort } from '../../referential/Region';
 import { Prescription } from '../Prescription/Prescription';
 import { ProgrammingPlan } from '../ProgrammingPlan/ProgrammingPlans';
@@ -7,7 +7,7 @@ import { hasPermission, User, userRegions } from '../User/User';
 import { RegionalPrescriptionComment } from './RegionalPrescriptionComment';
 
 export const RegionalPrescriptionKey = z.object({
-  prescriptionId: z.string().uuid(),
+  prescriptionId: z.guid(),
   region: Region
 });
 

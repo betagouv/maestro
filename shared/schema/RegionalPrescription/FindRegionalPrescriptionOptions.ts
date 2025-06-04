@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { Region } from '../../referential/Region';
 import { coerceToArray } from '../../utils/utils';
 import { ProgrammingPlanContext } from '../ProgrammingPlan/Context';
@@ -13,7 +13,7 @@ export type RegionalPrescriptionOptionsInclude = z.infer<
 >;
 
 export const FindRegionalPrescriptionOptions = z.object({
-  programmingPlanId: z.string().uuid(),
+  programmingPlanId: z.guid(),
   context: ProgrammingPlanContext.nullish(),
   region: Region.nullish(),
   includes: z

@@ -1,18 +1,22 @@
-import { z } from 'zod';
+import { isNil } from 'lodash-es';
+import { z } from 'zod/v4';
 import { SSD2IdLabel, SSD2Referential } from './SSD2Referential';
 
 export const SSD2Ids = Object.keys(SSD2Referential);
 
 export const SSD2Id = z
   .string({
-    required_error: 'Veuillez renseigner le résidu.'
+    error: (issue) =>
+      isNil(issue.input)
+        ? 'Veuillez renseigner le résidu.'
+        : "N'est pas une chaîne de caractères"
   })
-  .superRefine((value, ctx) => {
-    if (!SSD2Ids.includes(value)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.invalid_enum_value,
-        received: value,
-        options: SSD2Ids,
+  .check((ctx) => {
+    if (!SSD2Ids.includes(ctx.value)) {
+      ctx.issues.push({
+        code: 'invalid_value',
+        input: ctx.value,
+        values: SSD2Ids,
         message: 'Veuillez renseigner un identifiant valide.'
       });
     }

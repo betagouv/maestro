@@ -4,7 +4,7 @@ import { constants } from 'http2';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { describe, test } from 'vitest';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import validator from '../validator';
 
 describe('Validator middleware', () => {
@@ -29,7 +29,7 @@ describe('Validator middleware', () => {
             .optional(),
           params: z
             .object({
-              id: z.string().uuid()
+              id: z.guid()
             })
             .optional(),
           query: z

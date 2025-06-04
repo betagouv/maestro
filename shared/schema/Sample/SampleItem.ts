@@ -1,21 +1,26 @@
-import { z } from 'zod';
+import { isNil } from 'lodash-es';
+import { z } from 'zod/v4';
 import { QuantityUnit } from '../../referential/QuantityUnit';
 import { SampleItemRecipientKind } from './SampleItemRecipientKind';
 
 export const SampleItem = z.object({
-  sampleId: z.string().uuid(),
+  sampleId: z.guid(),
   itemNumber: z.number().int().positive(),
   quantity: z
     .number({
-      required_error: 'Veuillez renseigner la quantité.'
+      error: (issue) =>
+        isNil(issue.input) ? 'Veuillez renseigner la quantité.' : issue.message
     })
     .nonnegative('La quantité doit être positive.'),
   quantityUnit: QuantityUnit,
   compliance200263: z.boolean().nullish(),
   sealId: z.string({
-    required_error: 'Veuillez renseigner le numéro de scellé.'
+    error: (issue) =>
+      isNil(issue.input)
+        ? 'Veuillez renseigner le numéro de scellé.'
+        : issue.message
   }),
-  supportDocumentId: z.string().uuid().nullish(),
+  supportDocumentId: z.guid().nullish(),
   recipientKind: SampleItemRecipientKind
 });
 

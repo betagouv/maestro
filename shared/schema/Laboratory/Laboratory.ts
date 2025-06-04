@@ -1,8 +1,8 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { laboratoryNameValidator } from '../../referential/Laboratory';
 
 export const Laboratory = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   name: laboratoryNameValidator,
   emails: z.array(z.string().email())
 });
