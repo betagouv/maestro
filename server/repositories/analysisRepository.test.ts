@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { analysisRepository } from './analysisRepository';
 
 describe('findUnique', () => {
-  test('find only residues with result', async () => {
+  test('find only residues without ND result_kind', async () => {
     const document = await kysely
       .insertInto('documents')
       .values([
@@ -49,6 +49,15 @@ describe('findUnique', () => {
           reference: 'RF-00000012-PAR',
           residueNumber: 2,
           resultKind: 'ND'
+        },
+        {
+          analysisId,
+          analysisMethod: 'Mono',
+          residueNumber: 3,
+          reference: 'RF-00000010-PAR',
+          lmr: 10,
+          result: 1,
+          resultKind: null
         }
       ])
       .execute();
@@ -91,6 +100,14 @@ describe('findUnique', () => {
               result: 2
             }
           ]
+        },
+        {
+          analysisId: analysisId,
+          analysisMethod: 'Mono',
+          lmr: 10,
+          reference: 'RF-00000010-PAR',
+          residueNumber: 3,
+          result: 1
         }
       ],
       sampleId: '11111111-3333-3333-3333-333333333333',
