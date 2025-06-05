@@ -35,7 +35,7 @@ import {
   UserRoleList,
   UserRolePermissions
 } from 'maestro-shared/schema/User/UserRole';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import balance from 'src/assets/illustrations/balance.svg';
 import check from 'src/assets/illustrations/check.svg';
 import controle from 'src/assets/illustrations/controle.svg';
@@ -53,7 +53,6 @@ import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useForm } from 'src/hooks/useForm';
 import { useOnLine } from 'src/hooks/useOnLine';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
-import { useCreateOrUpdateSampleMutation } from 'src/services/sample.service';
 import SampleGeolocation from 'src/views/SampleView/DraftSample/ContextStep/SampleGeolocation';
 import SupportDocumentDownload from 'src/views/SampleView/DraftSample/SupportDocumentDownload';
 import { v4 as uuidv4 } from 'uuid';
@@ -63,7 +62,7 @@ import AppSelect from '../../../../components/_app/AppSelect/AppSelect';
 import { useAnalytics } from '../../../../hooks/useAnalytics';
 import { useAuthentication } from '../../../../hooks/useAuthentication';
 import { usePartialSample } from '../../../../hooks/usePartialSample';
-import { useFindUsersQuery } from '../../../../services/user.service';
+import { ApiClientContext } from '../../../../services/apiClient';
 import NextButton from '../NextButton';
 
 interface Props {
@@ -77,6 +76,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
   const { readonly } = usePartialSample(partialSample);
   const { trackEvent } = useAnalytics();
   const { user } = useAuthentication();
+  const apiClient = useContext(ApiClientContext);
 
   const [resytalId, setResytalId] = useState(partialSample?.resytalId);
   const [context, setContext] = useState<
@@ -121,7 +121,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
   const isSubmittingRef = useRef<boolean>(false);
 
   const [createOrUpdateSample, createOrUpdateSampleCall] =
-    useCreateOrUpdateSampleMutation();
+    apiClient.useCreateOrUpdateSampleMutation();
 
   useEffect(() => {
     if (programmingPlan.kinds.length === 1) {
@@ -138,7 +138,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
     }
   }, [programmingPlanKind, partialSample?.specificData]);
 
-  const { data: samplers } = useFindUsersQuery({
+  const { data: samplers } = apiClient.useFindUsersQuery({
     region: user?.region,
     roles: UserRoleList.filter((r) => {
       const permissions = UserRolePermissions[r];
