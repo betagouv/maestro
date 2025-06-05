@@ -16,7 +16,7 @@ import {
   SampleStatusLabels
 } from 'maestro-shared/schema/Sample/SampleStatus';
 import { User } from 'maestro-shared/schema/User/User';
-import { useMemo } from 'react';
+import { ReactNode, useMemo } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 
 interface Props {
@@ -50,15 +50,36 @@ const filtersConfig = {
   },
   region: {
     prop: 'region',
-    getLabel: (value) => Regions[value].name,
-    getNewValue: () => ({ region: undefined, department: undefined })
+    getComponent: (value, onChange) => (
+      <Tag
+        key={`tag-region`}
+        dismissible
+        nativeButtonProps={{
+          onClick: () => onChange({ region: undefined, departments: undefined })
+        }}
+      >
+        {Regions[value].name}
+      </Tag>
+    )
   },
   departments: {
     prop: 'departments',
-    getLabel: (value) =>
-      value.length === 1
-        ? DepartmentLabels[value[0]]
-        : `${value.length} départements`
+    getComponent: (value, onChange) => (
+      <>
+        {value.map((d) => (
+          <Tag
+            key={`tag-department-${d}`}
+            dismissible
+            nativeButtonProps={{
+              onClick: () =>
+                onChange({ departments: value.filter((v) => v !== d) })
+            }}
+          >
+            {DepartmentLabels[d]}
+          </Tag>
+        ))}
+      </>
+    )
   },
   context: {
     prop: 'context',
@@ -74,12 +95,22 @@ const filtersConfig = {
     keyof Pagination | 'programmingPlanId' | 'reference'
   >]: {
     prop: key;
-    getLabel: (
-      value: NonNullable<FindSampleOptions[key]>,
-      sampler: User
-    ) => string | null;
-    getNewValue?: () => Partial<FindSampleOptions>;
-  };
+  } & (
+    | {
+        getLabel: (
+          value: NonNullable<FindSampleOptions[key]>,
+          sampler: User
+        ) => string | null;
+        getComponent?: never;
+      }
+    | {
+        getComponent: (
+          value: NonNullable<FindSampleOptions[key]>,
+          onChange: (filters: Partial<FindSampleOptions>) => void
+        ) => ReactNode;
+        getLabel?: never;
+      }
+  );
 };
 
 const SampleFiltersTags = ({ filters, onChange, samplers }: Props) => {
@@ -95,25 +126,25 @@ const SampleFiltersTags = ({ filters, onChange, samplers }: Props) => {
         const value = filters[conf.prop];
 
         if (value && (hasNationalView || conf.prop !== 'region')) {
-          // @ts-expect-error TS2345 il est perdu
-          const label = conf.getLabel(value, sampler);
-          if (label) {
-            return (
-              <Tag
-                key={conf.prop}
-                dismissible
-                nativeButtonProps={{
-                  onClick: () =>
-                    onChange(
-                      'getNewValue' in conf
-                        ? conf.getNewValue()
-                        : { [conf.prop]: undefined }
-                    )
-                }}
-              >
-                {label}
-              </Tag>
-            );
+          if ('getComponent' in conf) {
+            // @ts-expect-error TS2345 il est perdu
+            return conf.getComponent(value, onChange);
+          } else {
+            // @ts-expect-error TS2345 il est perdu
+            const label = conf.getLabel(value, sampler);
+            if (label) {
+              return (
+                <Tag
+                  key={conf.prop}
+                  dismissible
+                  nativeButtonProps={{
+                    onClick: () => onChange({ [conf.prop]: undefined })
+                  }}
+                >
+                  {label}
+                </Tag>
+              );
+            }
           }
         }
       })}
