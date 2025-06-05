@@ -377,7 +377,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
           />
         </div>
         <div className={cx('fr-col-12', 'fr-col-sm-4')}>
-          <AppSelect<FormShape>
+          <AppSelect
             defaultValue={partialSample?.sampler?.id || ''}
             options={samplersOptions(samplers, user?.id)}
             onChange={(e) =>
@@ -386,7 +386,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
               )
             }
             inputForm={form}
-            inputKey="sampledBy"
+            inputKey="sampler"
             whenValid="Préleveur correctement renseigné."
             label="Le préleveur"
             hint="La personne qui réalise le prélevement"
