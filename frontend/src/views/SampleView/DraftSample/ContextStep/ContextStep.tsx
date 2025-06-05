@@ -27,10 +27,15 @@ import {
   PartialSample,
   PartialSampleMatrixSpecificData,
   PartialSampleToCreate,
-  SampleContextData
+  SampleContextData,
+  Sampler
 } from 'maestro-shared/schema/Sample/Sample';
 import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  UserRoleList,
+  UserRolePermissions
+} from 'maestro-shared/schema/User/UserRole';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import balance from 'src/assets/illustrations/balance.svg';
 import check from 'src/assets/illustrations/check.svg';
 import controle from 'src/assets/illustrations/controle.svg';
@@ -39,13 +44,15 @@ import warning from 'src/assets/illustrations/warning.svg';
 import CompanySearch from 'src/components/CompanySearch/CompanySearch';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
-import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
+import {
+  samplersOptions,
+  selectOptionsFromList
+} from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useForm } from 'src/hooks/useForm';
 import { useOnLine } from 'src/hooks/useOnLine';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
-import { useCreateOrUpdateSampleMutation } from 'src/services/sample.service';
 import SampleGeolocation from 'src/views/SampleView/DraftSample/ContextStep/SampleGeolocation';
 import SupportDocumentDownload from 'src/views/SampleView/DraftSample/SupportDocumentDownload';
 import { v4 as uuidv4 } from 'uuid';
@@ -53,7 +60,9 @@ import { z } from 'zod/v4';
 import AppServiceErrorAlert from '../../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import AppSelect from '../../../../components/_app/AppSelect/AppSelect';
 import { useAnalytics } from '../../../../hooks/useAnalytics';
+import { useAuthentication } from '../../../../hooks/useAuthentication';
 import { usePartialSample } from '../../../../hooks/usePartialSample';
+import { ApiClientContext } from '../../../../services/apiClient';
 import NextButton from '../NextButton';
 
 interface Props {
@@ -66,6 +75,8 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
   const { isOnline } = useOnLine();
   const { readonly } = usePartialSample(partialSample);
   const { trackEvent } = useAnalytics();
+  const { user } = useAuthentication();
+  const apiClient = useContext(ApiClientContext);
 
   const [resytalId, setResytalId] = useState(partialSample?.resytalId);
   const [context, setContext] = useState<
@@ -95,6 +106,9 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
   const [sampledAt, setSampledAt] = useState(
     format(partialSample?.sampledAt ?? new Date(), 'yyyy-MM-dd HH:mm')
   );
+  const [sampler, setSampler] = useState<Sampler | undefined>(
+    partialSample?.sampler ?? user
+  );
 
   const [parcel, setParcel] = useState(partialSample?.parcel);
   const [company, setCompany] = useState(partialSample?.company);
@@ -107,7 +121,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
   const isSubmittingRef = useRef<boolean>(false);
 
   const [createOrUpdateSample, createOrUpdateSampleCall] =
-    useCreateOrUpdateSampleMutation();
+    apiClient.useCreateOrUpdateSampleMutation();
 
   useEffect(() => {
     if (programmingPlan.kinds.length === 1) {
@@ -123,6 +137,17 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
       return partialSample?.specificData;
     }
   }, [programmingPlanKind, partialSample?.specificData]);
+
+  const { data: samplers } = apiClient.useFindUsersQuery({
+    region: user?.region,
+    roles: UserRoleList.filter((r) => {
+      const permissions = UserRolePermissions[r];
+      return (
+        permissions.includes('createSample') ||
+        permissions.includes('updateSample')
+      );
+    })
+  });
 
   const Form = SampleContextData.omit({
     programmingPlanId: true,
@@ -223,6 +248,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
   const formData = {
     id,
     sampledAt: parse(sampledAt, 'yyyy-MM-dd HH:mm', new Date()),
+    sampler: sampler as Sampler,
     geolocation:
       geolocationX && geolocationY
         ? {
@@ -304,6 +330,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
   const formInput = {
     id,
     sampledAt,
+    sampler,
     geolocationX,
     geolocationY,
     parcel,
@@ -347,6 +374,23 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
             hintText="Format attendu › JJ/MM/AAAA HH:MM"
             required
             disabled={readonly}
+          />
+        </div>
+        <div className={cx('fr-col-12', 'fr-col-sm-4')}>
+          <AppSelect
+            defaultValue={partialSample?.sampler?.id || ''}
+            options={samplersOptions(samplers, user?.id)}
+            onChange={(e) =>
+              setSampler(
+                samplers?.find((sampler) => sampler.id === e.target.value)
+              )
+            }
+            inputForm={form}
+            inputKey="sampler"
+            whenValid="Préleveur correctement renseigné."
+            label="Le préleveur"
+            hint="La personne qui réalise le prélevement"
+            required
           />
         </div>
       </div>

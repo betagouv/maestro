@@ -24,6 +24,7 @@ import {
   useLazyGetSampleQuery,
   useUpdateSampleMutation
 } from './sample.service';
+import { useFindUsersQuery } from './user.service';
 
 export type ApiClient = typeof apiClient;
 export const apiClient = {
@@ -33,6 +34,7 @@ export const apiClient = {
   useFindPrescriptionsQuery,
   useFindRegionalPrescriptionsQuery,
   useFindLaboratoriesQuery,
+  useFindUsersQuery,
   useGetDocumentQuery,
   useGetLaboratoryQuery,
   useGetSampleAnalysisQuery: analysisApi.useGetSampleAnalysisQuery,

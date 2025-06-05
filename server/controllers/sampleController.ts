@@ -3,7 +3,7 @@ import { fr } from 'date-fns/locale';
 import { Request, Response } from 'express';
 import { AuthenticatedRequest, SampleRequest } from 'express-jwt';
 import { constants } from 'http2';
-import { isNil, omitBy, pick } from 'lodash-es';
+import { isNil, omitBy } from 'lodash-es';
 import { getCultureKindLabel } from 'maestro-shared/referential/CultureKind';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
@@ -212,7 +212,6 @@ const createSample = async (request: Request, response: Response) => {
     ...sampleToCreate,
     region: user.region,
     reference: `${Regions[user.region].shortName}-${format(new Date(), 'yy')}-${String(serial).padStart(4, '0')}`,
-    sampler: pick(user, ['id', 'firstName', 'lastName']),
     createdAt: new Date(),
     lastUpdatedAt: new Date()
   };

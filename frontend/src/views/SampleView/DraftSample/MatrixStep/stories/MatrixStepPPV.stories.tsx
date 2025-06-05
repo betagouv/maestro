@@ -68,9 +68,10 @@ const story: Pick<Story, 'args' | 'parameters'> = {
   args: {
     partialSample: {
       ...genSampleContextData({
-        programmingPlanId: programmingPlan.id
+        programmingPlanId: programmingPlan.id,
+        sampler
       }),
-      ...genCreatedSampleData({ sampler })
+      ...genCreatedSampleData()
     }
   },
   parameters: {

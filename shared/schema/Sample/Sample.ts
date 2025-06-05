@@ -144,6 +144,7 @@ export const SampleContextData = z.object({
       error: () => 'La date de prélèvement est invalide.'
     })
   ),
+  sampler: Sampler,
   geolocation: Geolocation.nullish(),
   department: Department.nullish(),
   parcel: z.string().nullish(),
@@ -274,7 +275,8 @@ export const PartialSampleToCreate = z.object({
   ...SampleContextData.partial().required({
     id: true,
     programmingPlanId: true,
-    status: true
+    status: true,
+    sampler: true
   }).shape,
   sampledAt: SampleContextData.shape.sampledAt.nullish(),
   ...PartialSampleMatrixData.shape,
@@ -296,7 +298,6 @@ export const CreatedSampleData = z.object({
   reference: z.string(),
   region: Region,
   createdAt: z.coerce.date(),
-  sampler: Sampler,
   lastUpdatedAt: z.coerce.date()
 });
 
@@ -318,6 +319,7 @@ export const Sample = SampleBase.check(
   sampleMatrixCheck
 );
 
+export type Sampler = z.infer<typeof Sampler>;
 export type Geolocation = z.infer<typeof Geolocation>;
 export type SampleContextData = z.infer<typeof SampleContextData>;
 export type SampleMatrixData = z.infer<typeof SampleMatrixData>;

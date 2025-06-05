@@ -157,7 +157,7 @@ const SampleListView = () => {
 
   const newPartialSampleId = useMemo(() => uuidv4(), []);
 
-  if (!programmingPlan) {
+  if (!programmingPlan || !user) {
     return <></>;
   }
 
@@ -186,6 +186,7 @@ const SampleListView = () => {
                 <SupportDocumentDownload
                   partialSample={{
                     id: newPartialSampleId,
+                    sampler: user,
                     status: 'Draft' as const,
                     programmingPlanId: programmingPlan.id as string,
                     specificData: {

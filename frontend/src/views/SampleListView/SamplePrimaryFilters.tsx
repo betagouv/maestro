@@ -14,7 +14,10 @@ import {
   SampleStatusList
 } from 'maestro-shared/schema/Sample/SampleStatus';
 import { User } from 'maestro-shared/schema/User/User';
-import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
+import {
+  samplersOptions,
+  selectOptionsFromList
+} from 'src/components/_app/AppSelect/AppSelectOption';
 
 interface Props {
   filters: Partial<FindSampleOptions>;
@@ -92,22 +95,11 @@ const SamplePrimaryFilters = ({
           }}
         >
           <option value="">Tous</option>
-          {samplers
-            ?.filter(({ firstName }) => firstName !== '-')
-            .sort((a, b) => {
-              if (a.id === currentUserId) {
-                return -1;
-              }
-              if (b.id === currentUserId) {
-                return 1;
-              }
-              return a.firstName.localeCompare(b.firstName);
-            })
-            .map((user) => (
-              <option key={`user-${user.id}`} value={user.id}>
-                {user.firstName} {user.lastName}
-              </option>
-            ))}
+          {samplersOptions(samplers, currentUserId).map((option) => (
+            <option key={`sampler-${option.value}`} value={option.value}>
+              {option.label}
+            </option>
+          ))}
         </Select>
       </div>
 
