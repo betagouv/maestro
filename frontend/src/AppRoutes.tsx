@@ -3,12 +3,17 @@ import {
   AppRouteLink,
   AppRouteLinks
 } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
-import { ReactElement } from 'react';
+import { FunctionComponent, ReactElement } from 'react';
+import { Navigate } from 'react-router';
+import { assert, type Equals } from 'tsafe';
 import YearRoute from './components/YearRoute/YearRoute';
 import DashboardView from './views/DashboardView/DashboardView';
 import DocumentListView from './views/DocumentListView/DocumentListView';
 import HomeView from './views/HomeView/HomeView';
-import { LoginCallbackView } from './views/LoginCallbackView/LoginCallbackView';
+import {
+  LoginCallbackView,
+  SESSION_STORAGE_REDIRECT_URL
+} from './views/LoginCallbackView/LoginCallbackView';
 import { LogoutCallbackView } from './views/LogoutCallbackView/LogoutCallbackView';
 import NotificationsView from './views/NotificationsView/NotificationsView';
 import { OpenApiExplorerView } from './views/OpenApiExplorer/OpenApiExplorerView';
@@ -106,3 +111,14 @@ export const NotAuthenticatedAppRoutes = {
 
 export type AuthenticatedAppRoutes = keyof typeof AuthenticatedAppRoutes;
 export type NotAuthenticatedAppRoutes = keyof typeof NotAuthenticatedAppRoutes;
+
+export const RedirectRoute: FunctionComponent = ({ ..._rest }) => {
+  assert<Equals<keyof typeof _rest, never>>();
+
+  sessionStorage.setItem(
+    SESSION_STORAGE_REDIRECT_URL,
+    window.location.pathname
+  );
+
+  return <Navigate to="/" replace={true} />;
+};

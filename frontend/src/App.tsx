@@ -4,7 +4,7 @@ import { startReactDsfr } from '@codegouvfr/react-dsfr/spa';
 import clsx from 'clsx';
 import React from 'react';
 import { Provider } from 'react-redux';
-import { Link, Navigate, Route, Routes } from 'react-router';
+import { Link, Route, Routes } from 'react-router';
 import FetchInterceptor from 'src/components/FetchInterceptor/FetchInterceptor';
 import Footer from 'src/components/Footer/Footer';
 import Header from 'src/components/Header/Header';
@@ -14,6 +14,7 @@ import useMatomoTagManager from 'src/hooks/useMatomoTagManager';
 import { useOnLine } from 'src/hooks/useOnLine';
 import { useAppSelector } from 'src/hooks/useStore';
 import './App.scss';
+import { RedirectRoute } from './AppRoutes';
 import {
   MascaradeContext,
   useMascarade
@@ -100,7 +101,7 @@ function App() {
               )),
               <Route
                 path="/*"
-                element={<Navigate replace to="/" />}
+                element={<RedirectRoute />}
                 key="redirection_route"
               />
             ]}
