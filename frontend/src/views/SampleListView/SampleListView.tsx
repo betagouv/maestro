@@ -79,7 +79,9 @@ const SampleListView = () => {
         region: hasNationalView
           ? (searchParams.get('region') as Region)
           : user?.region,
-        department: (searchParams.get('department') as Department) ?? undefined,
+        departments:
+          (searchParams.get('departments')?.split(',') as Department[]) ??
+          undefined,
         status: status === 'Draft' ? DraftStatusList : (status ?? undefined),
         matrix: searchParams.get('matrix') as Matrix,
         sampledBy: searchParams.get('sampledBy'),

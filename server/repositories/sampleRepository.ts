@@ -130,8 +130,8 @@ const findRequest = (findOptions: FindSampleOptions) =>
           `%${findOptions.reference}%`
         );
       }
-      if (findOptions.department) {
-        builder.where(`${samplesTable}.department`, findOptions.department);
+      if (findOptions.departments) {
+        builder.whereIn(`${samplesTable}.department`, findOptions.departments);
       }
       if (!isNil(findOptions.compliance)) {
         builder.leftJoin(

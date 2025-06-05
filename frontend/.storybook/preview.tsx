@@ -1,4 +1,5 @@
 import '@codegouvfr/react-dsfr/main.css';
+import MuiDsfrThemeProvider from '@codegouvfr/react-dsfr/mui';
 import { startReactDsfr } from '@codegouvfr/react-dsfr/spa';
 import { configureStore } from '@reduxjs/toolkit';
 import type { Preview } from '@storybook/react';
@@ -32,13 +33,15 @@ const preview: Preview = {
     const { apiClient = mockApiClient, preloadedState = {} } = parameters;
     const store = createStore(preloadedState);
     return (
-      <MemoryRouter>
-        <Provider store={store}>
-          <ApiClientContext.Provider value={apiClient}>
-            <Story />
-          </ApiClientContext.Provider>
-        </Provider>
-      </MemoryRouter>
+      <MuiDsfrThemeProvider>
+        <MemoryRouter>
+          <Provider store={store}>
+            <ApiClientContext.Provider value={apiClient}>
+              <Story />
+            </ApiClientContext.Provider>
+          </Provider>
+        </MemoryRouter>
+      </MuiDsfrThemeProvider>
     );
   }
 };

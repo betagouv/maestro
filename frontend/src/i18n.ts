@@ -36,9 +36,11 @@ i18n.use(initReactI18next).init({
         document_other: '{{count}} documents ressources',
         residue_zero: 'Aucun résidu',
         residue_one: 'Un résidu',
-        residue_other: '{{count}} résidus'
+        residue_other: '{{count}} résidus',
+        department_zero: 'Aucun département',
+        department_one: 'Un département',
+        department_other: '{{count}} départements'
       }
     }
   }
 });
-
