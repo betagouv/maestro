@@ -395,7 +395,6 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
             <AppTextAreaInput
-              rows={1}
               defaultValue={notesOnMatrix ?? ''}
               onChange={(e) => setNotesOnMatrix(e.target.value)}
               inputForm={form}

@@ -209,7 +209,6 @@ const ItemsStep = ({ partialSample }: Props) => {
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>
           <AppTextAreaInput
-            rows={1}
             defaultValue={notesOnItems ?? ''}
             onChange={(e) => setNotesOnItems(e.target.value)}
             inputForm={form}

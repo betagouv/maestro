@@ -334,8 +334,7 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
           </div>
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
             {partialSample.specificData.programmingPlanKind === 'PFAS_MEAT' && (
-              <AppTextAreaInput
-                rows={1}
+              <AppTextInput
                 defaultValue={killingCode ?? ''}
                 onChange={(e) => setKillingCode(e.target.value)}
                 inputForm={form}
@@ -433,8 +432,7 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
             )}
           </div>
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-            <AppTextAreaInput
-              rows={1}
+            <AppTextInput
               defaultValue={animalIdentifier}
               onChange={(e) => setAnimalIdentifier(e.target.value)}
               inputForm={form}
@@ -542,7 +540,6 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
             <AppTextAreaInput
-              rows={1}
               defaultValue={notesOnMatrix ?? ''}
               onChange={(e) => setNotesOnMatrix(e.target.value)}
               inputForm={form}

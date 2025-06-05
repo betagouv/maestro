@@ -221,7 +221,6 @@ const PrescriptionCommentsModal = ({
                       inputKey="comment"
                       whenValid="Commentaire correctement renseigné."
                       label="Commentaire"
-                      rows={1}
                       required
                     />
                   </form>

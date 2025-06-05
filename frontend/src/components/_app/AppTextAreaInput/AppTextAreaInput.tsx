@@ -47,6 +47,7 @@ function AppTextAreaInput<T extends ZodObject>(
       }
       textArea
       nativeTextAreaProps={{
+        rows: 3,
         ...textInputProps,
         placeholder
       }}
