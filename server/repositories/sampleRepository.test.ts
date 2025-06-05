@@ -1,3 +1,4 @@
+import { Department } from 'maestro-shared/referential/Department';
 import { genPartialAnalysis } from 'maestro-shared/test/analysisFixtures';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
 import {
@@ -21,13 +22,13 @@ describe('count samples', async () => {
   test('count with department option', async () => {
     let count = await sampleRepository.count({
       programmingPlanId: Sample11Fixture.programmingPlanId,
-      department: '72'
+      departments: ['72']
     });
     expect(count).toEqual(0);
 
     count = await sampleRepository.count({
       programmingPlanId: Sample11Fixture.programmingPlanId,
-      department: Sample11Fixture.department
+      departments: [Sample11Fixture.department as Department]
     });
     expect(count).toEqual(1);
   });
@@ -58,13 +59,13 @@ describe('findMany samples', async () => {
   test('find with department option', async () => {
     let samples = await sampleRepository.findMany({
       programmingPlanId: Sample11Fixture.programmingPlanId,
-      department: '72'
+      departments: ['72']
     });
     expect(samples).toEqual([]);
 
     samples = await sampleRepository.findMany({
       programmingPlanId: Sample11Fixture.programmingPlanId,
-      department: Sample11Fixture.department
+      departments: [Sample11Fixture.department as Department]
     });
     expect(samples).toHaveLength(1);
   });
