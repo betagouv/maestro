@@ -226,7 +226,6 @@ export const ResidueInterpretationForm: FunctionComponent<Props> = ({
         {residue.compliance === 'Other' && (
           <div className={cx('fr-col-12')}>
             <AppTextAreaInput
-              rows={1}
               defaultValue={residue.otherCompliance ?? ''}
               onChange={(e) =>
                 onChangeResidue(

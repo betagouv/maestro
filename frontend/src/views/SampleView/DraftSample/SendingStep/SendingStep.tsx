@@ -94,7 +94,6 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
     notesOnOwnerAgreement: true
   });
 
-
   useEffect(
     () => {
       if (isSubmittingRef.current && !createOrUpdateSampleCall.isLoading) {
@@ -199,7 +198,6 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
             <AppTextAreaInput
-              rows={1}
               defaultValue={notesOnOwnerAgreement ?? ''}
               onChange={(e) => setNotesOnOwnerAgreement(e.target.value)}
               inputForm={form}

@@ -598,7 +598,6 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>
           <AppTextAreaInput
-            rows={1}
             defaultValue={notesOnCreation ?? ''}
             onChange={(e) => setNotesOnCreation(e.target.value)}
             inputForm={form}

@@ -225,7 +225,6 @@ const SampleAdmissibility = ({ sample }: Props) => {
                 <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
                   <div className={cx('fr-col-12')}>
                     <AppTextAreaInput
-                      rows={1}
                       defaultValue={notesOnAdmissibility ?? ''}
                       onChange={(e) => setNotesOnAdmissibility(e.target.value)}
                       inputForm={form}
@@ -297,7 +296,6 @@ const SampleAdmissibility = ({ sample }: Props) => {
                       {isEditingNotes ? (
                         <div className={cx('fr-mt-1w')}>
                           <AppTextAreaInput
-                            rows={1}
                             defaultValue={notesOnAdmissibility ?? ''}
                             onChange={(e) =>
                               setNotesOnAdmissibility(e.target.value)
