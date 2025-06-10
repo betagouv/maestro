@@ -95,16 +95,23 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
             </>
           ) : (
             <>
-              {residue.reference !== undefined
-                ? SSD2IdLabel[residue.reference]
-                : ''}
+              <span className={cx('fr-text--bold')}>
+                {residue.reference !== undefined
+                  ? SSD2IdLabel[residue.reference]
+                  : ''}
+              </span>
+              <hr />
               {residue.analytes?.map((analyte, analyteIndex) => (
                 <div key={`analyte-${analyteIndex}`}>
-                  <Badge severity="warning" noIcon className={cx('fr-mb-2w')}>
+                  <span className={cx('fr-text--bold', 'fr-mb-2w')}>
                     Analyte n°{analyteIndex + 1} du résidu complexe
-                  </Badge>
-                  <div className="d-flex-align-center">
-                    {analyte.reference ? SSD2IdLabel[analyte.reference] : ''}
+                  </span>
+                  <div
+                    className={clsx(cx('fr-text--lg'), 'd-flex-align-center')}
+                  >
+                    <span>
+                      {analyte.reference ? SSD2IdLabel[analyte.reference] : ''}
+                    </span>
                     <div className="border-middle"></div>
                     {analyte.resultKind === 'Q' ? (
                       <b>{analyte.result} mg/kg</b>
@@ -114,6 +121,7 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
                   </div>
                 </div>
               ))}
+              <hr className={cx('fr-mt-2w')} />
               <h6 className={cx('fr-mb-0', 'fr-mt-2w')}>Somme des analytes</h6>
               <div className="d-flex-align-center">
                 Valeur du résultat
