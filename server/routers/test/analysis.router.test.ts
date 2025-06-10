@@ -23,6 +23,7 @@ import { Samples } from '../../repositories/sampleRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
+import { SSD2Ids } from 'maestro-shared/referential/Residue/SSD2Id';
 import { User } from 'maestro-shared/schema/User/User';
 import {
   Sample11Fixture,
@@ -65,10 +66,12 @@ describe('Analysis router', () => {
   const residues = [
     genPartialResidue({
       analysisId: analysisWithResidues.id,
+      reference: 'RF-00012007-PAR',
       residueNumber: 1
     }),
     genPartialResidue({
       analysisId: analysisWithResidues.id,
+      reference: 'RF-00000030-PAR',
       residueNumber: 2
     })
   ];
@@ -354,10 +357,12 @@ describe('Analysis router', () => {
         residues: [
           genPartialResidue({
             analysisId: analysisWithoutResidue.id,
+            reference: oneOf(SSD2Ids),
             residueNumber: 1
           }),
           genPartialResidue({
             analysisId: analysisWithoutResidue.id,
+            reference: oneOf(SSD2Ids),
             residueNumber: 2,
             analytes: [
               genPartialAnalyte({
@@ -541,13 +546,15 @@ describe('Analysis router', () => {
             residueNumber,
             result,
             analytes,
-            resultKind
+            resultKind,
+            reference
           }) => ({
             analysisMethod,
             residueNumber,
             result,
             analytes,
-            resultKind
+            resultKind,
+            reference
           })
         )
       );

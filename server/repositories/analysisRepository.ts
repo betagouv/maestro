@@ -91,11 +91,37 @@ const update = async (partialAnalysis: PartialAnalysis): Promise<void> => {
         .where({ id: partialAnalysis.id })
         .update(formatPartialAnalysis(partialAnalysis));
 
-      await AnalysisResidues(transaction).delete().where({
-        analysisId: partialAnalysis.id
-      });
+      await AnalysisResidues(transaction)
+        .delete()
+        .where({
+          analysisId: partialAnalysis.id
+        })
+        .where((b) => {
+          const referencesToUpdate =
+            partialAnalysis.residues?.map(({ reference }) => reference) ?? [];
+
+          let q = b.where('resultKind', '<>', 'ND').orWhereNull('resultKind');
+          if (referencesToUpdate.length > 0) {
+            q = q.orWhereIn('reference', referencesToUpdate);
+          }
+          return q;
+        });
 
       if (partialAnalysis.residues && partialAnalysis.residues.length > 0) {
+        const maxResidueNumberResult = await AnalysisResidues(transaction)
+          .select<{ max: number }[]>(transaction.raw(`MAX(residue_number)`))
+          .where('analysisId', partialAnalysis.id);
+
+        const max = maxResidueNumberResult[0]?.max;
+
+        partialAnalysis.residues.forEach((r, index) => {
+          const newResidueNumber = max + index + 1;
+          r.residueNumber = newResidueNumber;
+          r.analytes?.forEach((a) => {
+            a.residueNumber = newResidueNumber;
+          });
+        });
+
         await AnalysisResidues(transaction).insert(
           partialAnalysis.residues.map(formatPartialResidue)
         );
