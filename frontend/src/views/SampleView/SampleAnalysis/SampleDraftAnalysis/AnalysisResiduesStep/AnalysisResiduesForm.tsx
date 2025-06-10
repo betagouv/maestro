@@ -80,7 +80,8 @@ export const AnalysisResiduesForm: FunctionComponent<Props> = ({
             setResidues([
               {
                 analysisId: partialAnalysis.id,
-                residueNumber: 1
+                residueNumber: 1,
+                resultKind: 'Q'
               }
             ]);
           } else {
@@ -149,7 +150,8 @@ export const AnalysisResiduesForm: FunctionComponent<Props> = ({
                               ...residues,
                               {
                                 analysisId: partialAnalysis.id,
-                                residueNumber: residues.length + 1
+                                residueNumber: residues.length + 1,
+                                resultKind: 'Q'
                               }
                             ])
                         }

@@ -14,7 +14,7 @@ const ResidueBase = z.object({
   analysisMethod: AnalysisMethod,
   analysisDate: maestroDate.nullish(),
   reference: SSD2Id,
-  resultKind: ResultKind.nullish(),
+  resultKind: ResultKind,
   result: z.number().min(0).nullish(),
   lmr: z.number().nullish(),
   resultHigherThanArfd: OptionalBoolean.nullish(),
@@ -58,7 +58,8 @@ export const PartialResidue = z.object({
   ...ResidueBase.partial().shape,
   ...ResidueBase.pick({
     analysisId: true,
-    residueNumber: true
+    residueNumber: true,
+    resultKind: true
   }).shape,
 
   analytes: z.array(PartialAnalyte).nullish()

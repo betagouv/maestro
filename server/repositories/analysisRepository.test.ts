@@ -57,7 +57,7 @@ describe('update', () => {
           reference: 'RF-00000010-PAR',
           lmr: 10,
           result: 1,
-          resultKind: null
+          resultKind: 'Q'
         }
       ])
       .execute();
@@ -101,7 +101,7 @@ describe('update', () => {
           reference: 'RF-00000010-PAR',
           lmr: 10,
           result: 1,
-          resultKind: null
+          resultKind: 'NQ'
         }
       ])
       .execute();
@@ -117,7 +117,7 @@ describe('update', () => {
           reference: 'RF-00000010-PAR',
           lmr: 10,
           result: 1,
-          resultKind: null
+          resultKind: 'Q'
         }
       ]
     });
@@ -189,7 +189,7 @@ describe('findUnique', () => {
           reference: 'RF-00000010-PAR',
           lmr: 10,
           result: 1,
-          resultKind: null
+          resultKind: 'NQ'
         }
       ])
       .execute();

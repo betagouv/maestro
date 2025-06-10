@@ -57,42 +57,7 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
         </div>
         <div className={clsx('overview-content', 'border-left')}>
           {kind === 'Simple' ? (
-            <>
-              {residue.resultKind === 'Q' && (
-                <>
-                  <span className={cx('fr-text--bold')}>
-                    {residue.reference !== undefined
-                      ? SSD2IdLabel[residue.reference]
-                      : ''}
-                  </span>
-                  <div className="d-flex-align-center">
-                    Valeur du résultat
-                    <div className="border-middle"></div>
-                    <b>{residue.result} mg/kg</b>
-                  </div>
-                  <div className="d-flex-align-center">
-                    Valeur de la LMR
-                    <div className="border-middle"></div>
-                    <b>{residue.lmr} mg/kg</b>
-                  </div>
-                  <ResidueResultAlert
-                    result={residue.result}
-                    lmr={residue.lmr}
-                  />
-                </>
-              )}
-              {residue.resultKind === 'NQ' && (
-                <>
-                  <div className="d-flex-align-center">
-                    {residue.reference !== undefined
-                      ? SSD2IdLabel[residue.reference]
-                      : ''}
-                    <div className="border-middle"></div>
-                    <b>Détecté, non quantifié</b>
-                  </div>
-                </>
-              )}
-            </>
+            <ResidueValueLabel residue={residue} />
           ) : (
             <>
               <span className={cx('fr-text--bold')}>
@@ -123,22 +88,50 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
               ))}
               <hr className={cx('fr-mt-2w')} />
               <h6 className={cx('fr-mb-0', 'fr-mt-2w')}>Somme des analytes</h6>
-              <div className="d-flex-align-center">
-                Valeur du résultat
-                <div className="border-middle"></div>
-                <b>{residue.result} mg/kg</b>
-              </div>
-              <div className="d-flex-align-center">
-                Valeur de la LMR
-                <div className="border-middle"></div>
-                <b>{residue.lmr} mg/kg</b>
-              </div>
-              <ResidueResultAlert result={residue.result} lmr={residue.lmr} />
+              <ResidueValueLabel residue={residue} />
             </>
           )}
         </div>
       </div>
       {children}
     </div>
+  );
+};
+
+const ResidueValueLabel = ({ residue }: Pick<Props, 'residue'>) => {
+  return (
+    <>
+      {residue.resultKind === 'Q' && (
+        <>
+          <span className={cx('fr-text--bold')}>
+            {residue.reference !== undefined
+              ? SSD2IdLabel[residue.reference]
+              : ''}
+          </span>
+          <div className="d-flex-align-center">
+            Valeur du résultat
+            <div className="border-middle"></div>
+            <b>{residue.result} mg/kg</b>
+          </div>
+          <div className="d-flex-align-center">
+            Valeur de la LMR
+            <div className="border-middle"></div>
+            <b>{residue.lmr} mg/kg</b>
+          </div>
+          <ResidueResultAlert result={residue.result} lmr={residue.lmr} />
+        </>
+      )}
+      {residue.resultKind === 'NQ' && (
+        <>
+          <div className="d-flex-align-center">
+            {residue.reference !== undefined
+              ? SSD2IdLabel[residue.reference]
+              : ''}
+            <div className="border-middle"></div>
+            <b>Détecté, non quantifié</b>
+          </div>
+        </>
+      )}
+    </>
   );
 };
