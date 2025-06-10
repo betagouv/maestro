@@ -46,8 +46,7 @@ export const ReviewWithResidues: FunctionComponent<Props> = ({
               residue={residue}
               residueIndex={residueIndex}
             />
-            <hr className={cx('fr-ml-4w')} />
-            <div className={clsx('residue-form', cx('fr-pl-4w'))}>
+            <div className={clsx('residue-form')}>
               <ResidueInterpretationForm
                 form={form}
                 onChangeResidue={changeResidue}

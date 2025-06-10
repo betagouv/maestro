@@ -181,15 +181,12 @@ export const AnalysisResidueForm: FunctionComponent<Props> = ({
               />
             )}
             {kind && (
-              <>
-                <hr />
-                <ResidueInterpretationForm
-                  form={form}
-                  onChangeResidue={changeResidue}
-                  residue={residue}
-                  residueIndex={residueIndex}
-                />
-              </>
+              <ResidueInterpretationForm
+                form={form}
+                onChangeResidue={changeResidue}
+                residue={residue}
+                residueIndex={residueIndex}
+              />
             )}{' '}
           </>
         ) : null}
