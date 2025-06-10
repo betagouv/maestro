@@ -127,13 +127,13 @@ describe('update', () => {
       .where('analysisId', '=', analysisId)
       .execute();
     expect(residuesInDb).toHaveLength(2);
-    expect(residuesInDb?.[0]).toMatchObject({
+    expect(residuesInDb?.[1]).toMatchObject({
       reference: 'RF-00000012-PAR',
       residueNumber: 2
     });
-    expect(residuesInDb?.[1]).toMatchObject({
+    expect(residuesInDb?.[0]).toMatchObject({
       reference: 'RF-00000010-PAR',
-      residueNumber: 3
+      residueNumber: 1
     });
   });
 });
