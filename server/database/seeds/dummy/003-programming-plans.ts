@@ -11,8 +11,7 @@ export const ppvValidatedProgrammingPlanId =
   'f5d510ef-ab78-449a-acd6-392895a1994f';
 export const pfasValidatedProgrammingPlanId =
   'd78fb3eb-1998-482b-9014-282d51ae30b8';
-export const ppvClosedProgrammingPlanId =
-  '95d0f5c9-8a48-4bfb-b896-08aae5a22be3';
+const ppvClosedProgrammingPlanId = '95d0f5c9-8a48-4bfb-b896-08aae5a22be3';
 
 export const seed = async function () {
   const user = await Users()
