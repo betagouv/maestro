@@ -52,11 +52,7 @@ export interface AnalysisResidues {
   residueNumber: number;
   result: number | null;
   resultHigherThanArfd: string | null;
-  resultKind: ColumnType<
-    ResultKind,
-    ResultKind | 'ND',
-    ResultKind | 'ND'
-  > | null;
+  resultKind: ColumnType<ResultKind, ResultKind | 'ND', ResultKind | 'ND'>;
   substanceApproved: string | null;
   substanceAuthorised: string | null;
   unknown_label: string | null;

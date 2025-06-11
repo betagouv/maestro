@@ -23,7 +23,8 @@ export const ReviewWithoutResidu: FunctionComponent<Props> = ({
     onCorrectAnalysis([
       {
         analysisId: partialAnalysis.id,
-        residueNumber: 1
+        residueNumber: 1,
+        resultKind: 'Q'
       }
     ]);
   };

@@ -58,11 +58,7 @@ const findUnique = async (
         `${analysisResiduesTable}.analysis_id`,
         '=',
         `${analysisTable}.id`
-      ).andOn((j) =>
-        j
-          .onVal(`${analysisResiduesTable}.result_kind`, '<>', 'ND')
-          .orOnNull(`${analysisResiduesTable}.result_kind`)
-      );
+      ).andOnVal(`${analysisResiduesTable}.result_kind`, '<>', 'ND');
     })
     .where(typeof key === 'string' ? { id: key } : { sampleId: key.sampleId })
     .groupBy(`${analysisTable}.id`)
@@ -100,7 +96,7 @@ const update = async (partialAnalysis: PartialAnalysis): Promise<void> => {
           const referencesToUpdate =
             partialAnalysis.residues?.map(({ reference }) => reference) ?? [];
 
-          let q = b.where('resultKind', '<>', 'ND').orWhereNull('resultKind');
+          let q = b.where('resultKind', '<>', 'ND');
           if (referencesToUpdate.length > 0) {
             q = q.orWhereIn('reference', referencesToUpdate);
           }
