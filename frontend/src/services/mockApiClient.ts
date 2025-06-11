@@ -81,7 +81,9 @@ export const defaultMockApiClientConf: MockApi<ApiClient> = {
     })
   },
   useFindLaboratoriesQuery: { data: [] },
+  useFindNotificationsQuery: { data: [] },
   useFindPrescriptionsQuery: { data: [] },
+  useFindProgrammingPlansQuery: { data: [] },
   useFindRegionalPrescriptionsQuery: { data: [] },
   useFindUsersQuery: { data: [] },
   useGetProgrammingPlanQuery: { data: genProgrammingPlan() },

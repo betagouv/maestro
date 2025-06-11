@@ -6,15 +6,15 @@ import { Badge } from '@mui/material';
 import { Brand } from 'maestro-shared/constants';
 import { UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
 import { isDefined } from 'maestro-shared/utils/utils';
+import { useContext } from 'react';
 import { useLocation } from 'react-router';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppSelector } from 'src/hooks/useStore';
 import { useLogoutMutation } from 'src/services/auth.service';
-import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.service';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import logo from '../../assets/logo.svg';
 import useWindowSize from '../../hooks/useWindowSize';
-import { useFindNotificationsQuery } from '../../services/notification.service';
+import { ApiClientContext } from '../../services/apiClient';
 import config from '../../utils/config';
 import { MascaradeButton } from '../Mascarade/MascaradeButton';
 import { MascaradeModal } from '../Mascarade/MascaradeModal';
@@ -27,14 +27,15 @@ const mascaradeModal = createModal({
 const Header = () => {
   const location = useLocation();
   const { isMobile } = useWindowSize();
+  const apiClient = useContext(ApiClientContext);
 
   const { isAuthenticated, hasUserPermission, user } = useAuthentication();
 
-  const { data: programmingPlans } = useFindProgrammingPlansQuery(
+  const { data: programmingPlans } = apiClient.useFindProgrammingPlansQuery(
     {},
     { skip: !isAuthenticated }
   );
-  const { data: unReadNotifications } = useFindNotificationsQuery(
+  const { data: unReadNotifications } = apiClient.useFindNotificationsQuery(
     {
       recipientId: user?.id as string,
       read: false
@@ -93,7 +94,8 @@ const Header = () => {
                     AuthenticatedAppRoutes.DashboardRoute.link ||
                   location.pathname.startsWith('/plans')
               },
-              hasUserPermission('readSamples')
+              hasUserPermission('readSamples') &&
+              validatedProgrammingPlans?.length
                 ? {
                     isActive:
                       validatedProgrammingPlans?.some((programmingPlan) =>
@@ -134,40 +136,42 @@ const Header = () => {
                         })
                   }
                 : undefined,
-              {
-                isActive: programmingPlans?.some((programmingPlan) =>
-                  isActive(`/programmation/${programmingPlan.year}`, true)
-                ),
-                ...(programmingPlans?.length === 1
-                  ? {
-                      text: 'Programmation',
-                      linkProps: {
-                        to: AuthenticatedAppRoutes.ProgrammationByYearRoute.link(
-                          programmingPlans[0].year
-                        ),
-                        target: '_self'
-                      }
-                    }
-                  : {
-                      text: `Programmation ${
-                        isActive('/programmation') && programmingPlan
-                          ? programmingPlan.year
-                          : ''
-                      }`,
-                      menuLinks: (programmingPlans ?? []).map((pp) => ({
-                        linkProps: {
-                          to: AuthenticatedAppRoutes.ProgrammationByYearRoute.link(
-                            pp.year
-                          ),
-                          target: '_self'
-                        },
-                        text: `Campagne ${pp.year}`,
-                        isActive:
-                          isActive('/programmation') &&
-                          pp.id === programmingPlan?.id
-                      }))
-                    })
-              },
+              validatedProgrammingPlans?.length
+                ? {
+                    isActive: programmingPlans?.some((programmingPlan) =>
+                      isActive(`/programmation/${programmingPlan.year}`, true)
+                    ),
+                    ...(programmingPlans?.length === 1
+                      ? {
+                          text: 'Programmation',
+                          linkProps: {
+                            to: AuthenticatedAppRoutes.ProgrammationByYearRoute.link(
+                              programmingPlans[0].year
+                            ),
+                            target: '_self'
+                          }
+                        }
+                      : {
+                          text: `Programmation ${
+                            isActive('/programmation') && programmingPlan
+                              ? programmingPlan.year
+                              : ''
+                          }`,
+                          menuLinks: (programmingPlans ?? []).map((pp) => ({
+                            linkProps: {
+                              to: AuthenticatedAppRoutes.ProgrammationByYearRoute.link(
+                                pp.year
+                              ),
+                              target: '_self'
+                            },
+                            text: `Campagne ${pp.year}`,
+                            isActive:
+                              isActive('/programmation') &&
+                              pp.id === programmingPlan?.id
+                          }))
+                        })
+                  }
+                : undefined,
               {
                 linkProps: {
                   to: AuthenticatedAppRoutes.DocumentsRoute.link,
