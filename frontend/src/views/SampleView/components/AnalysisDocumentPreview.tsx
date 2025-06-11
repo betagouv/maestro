@@ -17,7 +17,7 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
   assert<Equals<keyof typeof _rest, never>>();
 
   return (
-    <div>
+    <div className={clsx(cx('fr-py-4w', 'fr-px-5w'), 'border')}>
       <h6 className="d-flex-align-center">
         <span
           className={clsx(
