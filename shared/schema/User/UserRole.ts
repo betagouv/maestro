@@ -30,6 +30,7 @@ export const UserRoleList: UserRole[] = UserRole.options;
 const UserSamplerPermissionsList = [
   'readProgrammingPlans',
   'readProgrammingPlanValidated',
+  'readProgrammingPlanClosed',
   'readPrescriptions',
   'downloadSupportDocument',
   'createSample',
@@ -68,6 +69,7 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'readProgrammingPlanSubmitted',
     'readProgrammingPlanApproved',
     'readProgrammingPlanValidated',
+    'readProgrammingPlanClosed',
     'createPrescription',
     'readPrescriptions',
     'downloadSupportDocument',
