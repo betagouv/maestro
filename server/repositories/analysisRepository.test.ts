@@ -1,10 +1,142 @@
-import { describe, expect, test } from 'vitest';
+import { beforeAll, describe, expect, test } from 'vitest';
 import { kysely } from './kysely';
 
+import { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { Sample13Fixture } from 'maestro-shared/test/sampleFixtures';
 import { v4 as uuidv4 } from 'uuid';
 import { analysisRepository } from './analysisRepository';
 
+describe('update', () => {
+  let analysis: Omit<PartialAnalysis, 'id'> = null as unknown as never;
+
+  beforeAll(async () => {
+    const document = await kysely
+      .insertInto('documents')
+      .values([
+        {
+          filename: 'test',
+          kind: 'AnalysisReportDocument'
+        }
+      ])
+      .returningAll()
+      .executeTakeFirstOrThrow();
+    const reportDocumentId = document.id;
+    analysis = {
+      sampleId: Sample13Fixture.id,
+      status: 'Completed',
+      reportDocumentId,
+      createdAt: new Date()
+    };
+  });
+  test("don't delete the ND residues", async () => {
+    const analysisId = await analysisRepository.insert(analysis);
+
+    await kysely
+      .insertInto('analysisResidues')
+      .values([
+        {
+          analysisId,
+          analysisMethod: 'Mono',
+          residueNumber: 1,
+          reference: 'RF-00000007-PAR',
+          lmr: 10,
+          result: 1,
+          resultKind: 'Q'
+        },
+        {
+          analysisId,
+          analysisMethod: 'Multi',
+          reference: 'RF-00000012-PAR',
+          residueNumber: 2,
+          resultKind: 'ND'
+        },
+        {
+          analysisId,
+          analysisMethod: 'Mono',
+          residueNumber: 3,
+          reference: 'RF-00000010-PAR',
+          lmr: 10,
+          result: 1,
+          resultKind: null
+        }
+      ])
+      .execute();
+
+    await analysisRepository.update({ ...analysis, id: analysisId });
+    const residuesInDb = await kysely
+      .selectFrom('analysisResidues')
+      .select('reference')
+      .where('analysisId', '=', analysisId)
+      .execute();
+    expect(residuesInDb).toHaveLength(1);
+    expect(residuesInDb?.[0]?.reference).toBe('RF-00000012-PAR');
+  });
+
+  test('reorder correctly the residues', async () => {
+    const analysisId = await analysisRepository.insert(analysis);
+
+    await kysely
+      .insertInto('analysisResidues')
+      .values([
+        {
+          analysisId,
+          analysisMethod: 'Mono',
+          residueNumber: 1,
+          reference: 'RF-00000007-PAR',
+          lmr: 10,
+          result: 1,
+          resultKind: 'Q'
+        },
+        {
+          analysisId,
+          analysisMethod: 'Multi',
+          reference: 'RF-00000012-PAR',
+          residueNumber: 2,
+          resultKind: 'ND'
+        },
+        {
+          analysisId,
+          analysisMethod: 'Mono',
+          residueNumber: 3,
+          reference: 'RF-00000010-PAR',
+          lmr: 10,
+          result: 1,
+          resultKind: null
+        }
+      ])
+      .execute();
+
+    await analysisRepository.update({
+      ...analysis,
+      id: analysisId,
+      residues: [
+        {
+          analysisId,
+          analysisMethod: 'Mono',
+          residueNumber: 2,
+          reference: 'RF-00000010-PAR',
+          lmr: 10,
+          result: 1,
+          resultKind: null
+        }
+      ]
+    });
+    const residuesInDb = await kysely
+      .selectFrom('analysisResidues')
+      .select(['reference', 'residueNumber'])
+      .where('analysisId', '=', analysisId)
+      .execute();
+    expect(residuesInDb).toHaveLength(2);
+    expect(residuesInDb?.[1]).toMatchObject({
+      reference: 'RF-00000012-PAR',
+      residueNumber: 2
+    });
+    expect(residuesInDb?.[0]).toMatchObject({
+      reference: 'RF-00000010-PAR',
+      residueNumber: 1
+    });
+  });
+});
 describe('findUnique', () => {
   test('find only residues without ND result_kind', async () => {
     const document = await kysely
