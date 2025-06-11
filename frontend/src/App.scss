@@ -4,6 +4,13 @@ main {
   background-color: var(--beige-gris-galet-975-75);
 }
 
+.main-nologged{
+  display: flex;
+  @media (max-width: constants.$breakpoint-lg) {
+    display: unset;
+  }
+}
+
 .main-section {
   display: flex;
   flex-direction: column;
