@@ -204,24 +204,44 @@ const SampleListView = () => {
       {isOnline ? (
         <>
           {isMobile ? (
-            <Accordion
-              label="Filtrer les résultats"
-              className="sample-filters-accordion"
-            >
-              <div className={cx('fr-container')}>
-                <SamplePrimaryFilters
-                  filters={findSampleOptions}
-                  onChange={changeFilter}
-                  samplers={samplers}
-                  prescriptions={prescriptions}
-                  currentUserId={user?.id}
-                />
-                <SampleSecondaryFilters
-                  filters={findSampleOptions}
-                  onChange={changeFilter}
-                />
-              </div>
-            </Accordion>
+            <>
+              <Accordion
+                label="Filtrer les résultats"
+                className="sample-filters-accordion"
+              >
+                <div className={cx('fr-container')}>
+                  <SamplePrimaryFilters
+                    filters={findSampleOptions}
+                    onChange={changeFilter}
+                    samplers={samplers}
+                    prescriptions={prescriptions}
+                    currentUserId={user?.id}
+                  />
+                  <SampleSecondaryFilters
+                    filters={findSampleOptions}
+                    onChange={changeFilter}
+                  />
+                  {hasFilter && (
+                    <div className="d-flex-align-center">
+                      <SampleFiltersTags
+                        filters={findSampleOptions}
+                        samplers={samplers}
+                        onChange={changeFilter}
+                      />
+                    </div>
+                  )}
+                </div>
+              </Accordion>
+              {hasFilter && (
+                <div className="d-flex-align-center">
+                  <SampleFiltersTags
+                    filters={findSampleOptions}
+                    samplers={samplers}
+                    onChange={changeFilter}
+                  />
+                </div>
+              )}
+            </>
           ) : (
             <div
               className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}
@@ -241,6 +261,29 @@ const SampleListView = () => {
                       onChange={changeFilter}
                     />
                   )}
+                  {hasFilter && (
+                    <div
+                      className={clsx('d-flex-align-start', cx('fr-mt-3w'))}
+                      style={{ flexDirection: 'column' }}
+                    >
+                      <span
+                        className={cx(
+                          'fr-text--light',
+                          'fr-text--sm',
+                          'fr-mb-0'
+                        )}
+                      >
+                        Filtres actifs
+                      </span>
+                      <div className={cx('fr-mt-3v')}>
+                        <SampleFiltersTags
+                          filters={findSampleOptions}
+                          samplers={samplers}
+                          onChange={changeFilter}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <Button
                   onClick={() => setIsFilterExpanded(!isFilterExpanded)}
@@ -251,16 +294,6 @@ const SampleListView = () => {
                   {isFilterExpanded ? 'Fermer' : 'Plus de filtres'}
                 </Button>
               </div>
-            </div>
-          )}
-
-          {hasFilter && (
-            <div className="d-flex-align-center">
-              <SampleFiltersTags
-                filters={findSampleOptions}
-                samplers={samplers}
-                onChange={changeFilter}
-              />
             </div>
           )}
           <div
