@@ -28,6 +28,15 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const closedProgrammingPlan = {
+  ...genProgrammingPlan({
+    regionalStatus: RegionList.map((region) => ({
+      region,
+      status: 'Closed'
+    })),
+    year: new Date().getFullYear() - 1
+  })
+};
 const validatedProgrammingPlan = {
   ...genProgrammingPlan({
     regionalStatus: RegionList.map((region) => ({
@@ -83,7 +92,11 @@ export const Authenticated: Story = {
     apiClient: getMockApi<ApiClient>({
       ...defaultMockApiClientConf,
       useFindProgrammingPlansQuery: {
-        data: [validatedProgrammingPlan, inProgressProgrammingPlan]
+        data: [
+          closedProgrammingPlan,
+          validatedProgrammingPlan,
+          inProgressProgrammingPlan
+        ]
       }
     })
   },
@@ -96,11 +109,18 @@ export const Authenticated: Story = {
     await expect(
       within(navigation).getByText('Tableau de bord')
     ).toBeInTheDocument();
+
     await expect(
       within(navigation).getByText('Prélèvements')
     ).toBeInTheDocument();
+
     const programmingPlanMenu = within(navigation).getByText('Programmation');
     await expect(programmingPlanMenu).toBeInTheDocument();
+    await expect(
+      within(programmingPlanMenu.parentElement as HTMLElement).queryByText(
+        `Campagne ${closedProgrammingPlan.year}`
+      )
+    ).not.toBeInTheDocument();
     await expect(
       within(programmingPlanMenu.parentElement as HTMLElement).getByText(
         `Campagne ${validatedProgrammingPlan.year}`
@@ -111,8 +131,12 @@ export const Authenticated: Story = {
         `Campagne ${inProgressProgrammingPlan.year}`
       )
     ).toBeInTheDocument();
+
     await expect(
       within(navigation).getByText('Documents ressources')
     ).toBeInTheDocument();
+
+    const historyMenu = within(navigation).getByText('Historique');
+    await expect(historyMenu).toBeInTheDocument();
   }
 };

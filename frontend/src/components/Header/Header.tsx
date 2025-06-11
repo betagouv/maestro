@@ -6,7 +6,7 @@ import { Badge } from '@mui/material';
 import { Brand } from 'maestro-shared/constants';
 import { UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
 import { isDefined } from 'maestro-shared/utils/utils';
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import { useLocation } from 'react-router';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppSelector } from 'src/hooks/useStore';
@@ -46,8 +46,28 @@ const Header = () => {
   );
   const [logout] = useLogoutMutation();
 
-  const validatedProgrammingPlans = programmingPlans?.filter((pp) =>
-    pp.regionalStatus.some((rs) => rs.status === 'Validated')
+  const validatedProgrammingPlans = useMemo(
+    () =>
+      programmingPlans?.filter((pp) =>
+        pp.regionalStatus.some((rs) => rs.status === 'Validated')
+      ),
+    [programmingPlans]
+  );
+
+  const openedProgrammingPlans = useMemo(
+    () =>
+      programmingPlans?.filter((pp) =>
+        pp.regionalStatus.some((rs) => rs.status !== 'Closed')
+      ),
+    [programmingPlans]
+  );
+
+  const closedProgrammingPlans = useMemo(
+    () =>
+      programmingPlans?.filter((pp) =>
+        pp.regionalStatus.every((rs) => rs.status === 'Closed')
+      ),
+    [programmingPlans]
   );
 
   const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
@@ -114,11 +134,7 @@ const Header = () => {
                           }
                         }
                       : {
-                          text: `Prélèvements ${
-                            isActive('/prelevements') && programmingPlan
-                              ? programmingPlan.year
-                              : ''
-                          }`,
+                          text: 'Prélèvements',
                           menuLinks: (validatedProgrammingPlans ?? []).map(
                             (pp) => ({
                               linkProps: {
@@ -136,40 +152,77 @@ const Header = () => {
                         })
                   }
                 : undefined,
-              validatedProgrammingPlans?.length
+              openedProgrammingPlans?.length
                 ? {
-                    isActive: programmingPlans?.some((programmingPlan) =>
+                    isActive: openedProgrammingPlans?.some((programmingPlan) =>
                       isActive(`/programmation/${programmingPlan.year}`, true)
                     ),
-                    ...(programmingPlans?.length === 1
+                    ...(openedProgrammingPlans?.length === 1
                       ? {
                           text: 'Programmation',
                           linkProps: {
                             to: AuthenticatedAppRoutes.ProgrammationByYearRoute.link(
-                              programmingPlans[0].year
+                              openedProgrammingPlans[0].year
                             ),
                             target: '_self'
                           }
                         }
                       : {
-                          text: `Programmation ${
-                            isActive('/programmation') && programmingPlan
-                              ? programmingPlan.year
-                              : ''
-                          }`,
-                          menuLinks: (programmingPlans ?? []).map((pp) => ({
-                            linkProps: {
-                              to: AuthenticatedAppRoutes.ProgrammationByYearRoute.link(
-                                pp.year
-                              ),
-                              target: '_self'
-                            },
-                            text: `Campagne ${pp.year}`,
-                            isActive:
-                              isActive('/programmation') &&
-                              pp.id === programmingPlan?.id
-                          }))
+                          text: 'Programmation',
+                          menuLinks: (openedProgrammingPlans ?? []).map(
+                            (pp) => ({
+                              linkProps: {
+                                to: AuthenticatedAppRoutes.ProgrammationByYearRoute.link(
+                                  pp.year
+                                ),
+                                target: '_self'
+                              },
+                              text: `Campagne ${pp.year}`,
+                              isActive:
+                                isActive('/programmation') &&
+                                pp.id === programmingPlan?.id
+                            })
+                          )
                         })
+                  }
+                : undefined,
+              closedProgrammingPlans?.length
+                ? {
+                    isActive: closedProgrammingPlans?.some(
+                      (programmingPlan) =>
+                        isActive(
+                          `/programmation/${programmingPlan.year}`,
+                          true
+                        ) ||
+                        isActive(
+                          `/programmation/${programmingPlan.year}/prelevements`
+                        )
+                    ),
+                    text: 'Historique',
+                    menuLinks: (closedProgrammingPlans ?? []).flatMap((pp) => [
+                      {
+                        linkProps: {
+                          to: AuthenticatedAppRoutes.SamplesByYearRoute.link(
+                            pp.year
+                          ),
+                          target: '_self'
+                        },
+                        text: `Prélèvements ${pp.year}`,
+                        isActive: isActive(
+                          `/programmation/${pp.year}/prelevements`
+                        )
+                      },
+                      {
+                        linkProps: {
+                          to: AuthenticatedAppRoutes.ProgrammationByYearRoute.link(
+                            pp.year
+                          ),
+                          target: '_self'
+                        },
+                        text: `Programmation ${pp.year}`,
+                        isActive: isActive(`/programmation/${pp.year}`, true)
+                      }
+                    ])
                   }
                 : undefined,
               {
