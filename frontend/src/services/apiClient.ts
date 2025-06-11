@@ -10,13 +10,17 @@ import {
   useFindLaboratoriesQuery,
   useGetLaboratoryQuery
 } from './laboratory.service';
+import { useFindNotificationsQuery } from './notification.service';
 import {
   useFindPrescriptionsQuery,
   useGetPrescriptionSubstancesQuery,
   useLazyFindPrescriptionsQuery,
   useLazyGetPrescriptionSubstancesQuery
 } from './prescription.service';
-import { useGetProgrammingPlanQuery } from './programming-plan.service';
+import {
+  useFindProgrammingPlansQuery,
+  useGetProgrammingPlanQuery
+} from './programming-plan.service';
 import { useFindRegionalPrescriptionsQuery } from './regionalPrescription.service';
 import {
   useCreateOrUpdateSampleMutation,
@@ -31,9 +35,11 @@ export const apiClient = {
   useCreateDocumentMutation,
   useCreateOrUpdateSampleMutation,
   useDeleteDocumentMutation,
-  useFindPrescriptionsQuery,
-  useFindRegionalPrescriptionsQuery,
   useFindLaboratoriesQuery,
+  useFindNotificationsQuery,
+  useFindPrescriptionsQuery,
+  useFindProgrammingPlansQuery,
+  useFindRegionalPrescriptionsQuery,
   useFindUsersQuery,
   useGetDocumentQuery,
   useGetLaboratoryQuery,
