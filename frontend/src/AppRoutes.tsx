@@ -115,10 +115,12 @@ export type NotAuthenticatedAppRoutes = keyof typeof NotAuthenticatedAppRoutes;
 export const RedirectRoute: FunctionComponent = ({ ..._rest }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  sessionStorage.setItem(
-    SESSION_STORAGE_REDIRECT_URL,
-    window.location.pathname
-  );
+  if (window.location.pathname !== '/logout-callback') {
+    sessionStorage.setItem(
+      SESSION_STORAGE_REDIRECT_URL,
+      window.location.pathname
+    );
+  }
 
   return <Navigate to="/" replace={true} />;
 };
