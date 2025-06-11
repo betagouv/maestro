@@ -1,4 +1,3 @@
-import { fakerFR } from '@faker-js/faker';
 import { v4 as uuidv4 } from 'uuid';
 import { Laboratories } from '../../../repositories/laboratoryRepository';
 
@@ -20,42 +19,43 @@ export const DummyLaboratoryIds = [
   CER30Id
 ];
 
+const EMAIL_SANBOX = 'preleveur@maestro.beta.gouv.fr';
 export const seed = async function () {
   await Laboratories().insert([
     {
       id: SCL34Id,
       name: 'SCL 34',
-      emails: [fakerFR.internet.exampleEmail()]
+      emails: [EMAIL_SANBOX]
     },
     {
       id: LDA66Id,
       name: 'LDA 66',
-      emails: [fakerFR.internet.exampleEmail()]
+      emails: [EMAIL_SANBOX]
     },
     {
       id: LDA72Id,
       name: 'LDA 72',
-      emails: [fakerFR.internet.exampleEmail()]
+      emails: [EMAIL_SANBOX]
     },
     {
       id: SCL91Id,
       name: 'SCL 91',
-      emails: [fakerFR.internet.exampleEmail()]
+      emails: [EMAIL_SANBOX]
     },
     {
       id: GIR49Id,
       name: 'GIR 49',
-      emails: [fakerFR.internet.exampleEmail()]
+      emails: [EMAIL_SANBOX]
     },
     {
       id: CAP29Id,
       name: 'CAP 29',
-      emails: [fakerFR.internet.exampleEmail()]
+      emails: [EMAIL_SANBOX]
     },
     {
       id: CER30Id,
       name: 'CER 30',
-      emails: [fakerFR.internet.exampleEmail()]
+      emails: [EMAIL_SANBOX]
     }
   ]);
 };
