@@ -52,7 +52,7 @@ function AppWrapper() {
 }
 
 function App() {
-  const { availableRoutes } = useAuthentication();
+  const { availableRoutes, isAuthenticated } = useAuthentication();
   const isSomeQueryPending = useAppSelector((state) =>
     Object.values(state.api.queries).some(
       (query) => query?.status === 'pending'
@@ -89,7 +89,12 @@ function App() {
           </div>
         )}
 
-        <main style={{ minHeight: 'calc(100vh - 440px)' }}>
+        <main
+          className={clsx({ 'main-nologged': !isAuthenticated })}
+          style={{
+            minHeight: 'calc(100vh - 440px)'
+          }}
+        >
           <Routes>
             {[
               ...availableRoutes.map((route) => (

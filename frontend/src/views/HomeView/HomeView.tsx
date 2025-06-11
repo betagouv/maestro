@@ -52,11 +52,12 @@ export const HomeViewContainer: FunctionComponent<PropsWithChildren> = ({
     <div className={cx('fr-col-12', 'fr-col-md-6')}>
       <div className={clsx('sign-in')}>{children}</div>
     </div>
-    <div className={cx('fr-col-12', 'fr-col-md-6')}>
+    <div className={cx('fr-col-12', 'fr-col-md-6')} style={{ height: '100%' }}>
       <div
         style={{
           backgroundImage: `url(${farmhand})`,
-          backgroundSize: 'cover'
+          backgroundSize: 'cover',
+          height: '100%'
         }}
       >
         <div className={clsx('teaser')}>
