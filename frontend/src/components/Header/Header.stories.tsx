@@ -34,7 +34,8 @@ const closedProgrammingPlan = {
       region,
       status: 'Closed'
     })),
-    year: new Date().getFullYear() - 1
+    year: new Date().getFullYear() - 1,
+    closedAt: new Date()
   })
 };
 const validatedProgrammingPlan = {
