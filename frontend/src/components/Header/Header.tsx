@@ -4,6 +4,7 @@ import { Header as DSFRHeader } from '@codegouvfr/react-dsfr/Header';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { Badge } from '@mui/material';
 import { Brand } from 'maestro-shared/constants';
+import { isClosed } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
 import { isDefined } from 'maestro-shared/utils/utils';
 import { useContext, useMemo } from 'react';
@@ -63,7 +64,7 @@ const Header = () => {
   );
 
   const closedProgrammingPlans = useMemo(
-    () => programmingPlans?.filter((pp) => pp.closedAt),
+    () => programmingPlans?.filter(isClosed),
     [programmingPlans]
   );
 
