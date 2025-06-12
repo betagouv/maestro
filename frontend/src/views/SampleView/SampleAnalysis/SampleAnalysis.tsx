@@ -68,7 +68,7 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
         />
       )}
       <div className="section-header">
-        <div>
+        <div style={{ flex: 1 }}>
           <h3>
             <div className="sample-status">
               <div>Suivi du prélèvement</div>

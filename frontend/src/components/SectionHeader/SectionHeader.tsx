@@ -1,4 +1,5 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import clsx from 'clsx';
 import React from 'react';
 import './SectionHeader.scss';
 
@@ -13,8 +14,8 @@ const SectionHeader = ({ title, subtitle, illustration, action }: Props) => {
   return (
     <div className="section-header">
       <img src={illustration} height="100%" aria-hidden alt="" />
-      <div>
-        <h1>{title}</h1>
+      <div style={{ flex: 1 }}>
+        <h1 className={clsx('fr-mb-0')}>{title}</h1>
         <div
           className={cx(
             'fr-text--lg',
