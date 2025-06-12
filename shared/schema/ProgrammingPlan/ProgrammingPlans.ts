@@ -8,9 +8,11 @@ export const ProgrammingPlan = z.object({
   kinds: z.array(ProgrammingPlanKind),
   contexts: z.array(ProgrammingPlanContext),
   createdAt: z.coerce.date(),
-  createdBy: z.string(),
+  createdBy: z.guid(),
   year: z.number(),
-  regionalStatus: z.array(ProgrammingPlanRegionalStatus)
+  regionalStatus: z.array(ProgrammingPlanRegionalStatus),
+  closedAt: z.coerce.date().nullish(),
+  closedBy: z.guid().nullish()
 });
 
 export type ProgrammingPlan = z.infer<typeof ProgrammingPlan>;
