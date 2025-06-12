@@ -63,10 +63,7 @@ const Header = () => {
   );
 
   const closedProgrammingPlans = useMemo(
-    () =>
-      programmingPlans?.filter((pp) =>
-        pp.regionalStatus.every((rs) => rs.status === 'Closed')
-      ),
+    () => programmingPlans?.filter((pp) => pp.closedAt),
     [programmingPlans]
   );
 
