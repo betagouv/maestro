@@ -513,6 +513,124 @@ describe('ProgrammingPlan router', () => {
     });
   });
 
+  describe('PUT /programming-plans/:programmingPlanId', () => {
+    const testRoute = (programmingPlanId: string) =>
+      `/api/programming-plans/${programmingPlanId}`;
+
+    const validBody = {
+      status: 'Closed' as const
+    };
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .put(testRoute(validatedProgrammingPlan.id))
+        .send(validBody)
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should fail if the user is not authorized', async () => {
+      await request(app)
+        .put(testRoute(validatedProgrammingPlan.id))
+        .send(validBody)
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should fail if the programming plan does not exist', async () => {
+      await request(app)
+        .put(testRoute(uuidv4()))
+        .send(validBody)
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_NOT_FOUND);
+    });
+
+    test('should get a valid body', async () => {
+      const badRequestTest = async (payload?: Record<string, unknown>) =>
+        request(app)
+          .put(testRoute(validatedProgrammingPlan.id))
+          .send({ ...validBody, ...payload })
+          .use(tokenProvider(NationalCoordinator))
+          .expect(constants.HTTP_STATUS_BAD_REQUEST);
+
+      await badRequestTest({
+        status: 'Invalid'
+      });
+    });
+
+    test('should fail if the status update is forbidden', async () => {
+      const badRequestTest = async (
+        programmingPlan: ProgrammingPlan,
+        status: ProgrammingPlanStatus
+      ) =>
+        request(app)
+          .put(testRoute(programmingPlan.id))
+          .send({ status })
+          .use(tokenProvider(NationalCoordinator))
+          .expect(constants.HTTP_STATUS_BAD_REQUEST);
+
+      await badRequestTest(inProgressProgrammingPlan, 'InProgress');
+      await badRequestTest(inProgressProgrammingPlan, 'Approved');
+      await badRequestTest(inProgressProgrammingPlan, 'Validated');
+      await badRequestTest(inProgressProgrammingPlan, 'Closed');
+      await badRequestTest(submittedProgrammingPlan, 'Submitted');
+      await badRequestTest(submittedProgrammingPlan, 'InProgress');
+      await badRequestTest(submittedProgrammingPlan, 'Validated');
+      await badRequestTest(submittedProgrammingPlan, 'Closed');
+      await badRequestTest(validatedProgrammingPlan, 'InProgress');
+      await badRequestTest(validatedProgrammingPlan, 'Submitted');
+      await badRequestTest(validatedProgrammingPlan, 'Validated');
+      await badRequestTest(validatedProgrammingPlan, 'Approved');
+    });
+
+    test('should update a validated programming plan to closed', async () => {
+      const res = await request(app)
+        .put(testRoute(validatedProgrammingPlan.id))
+        .send(validBody)
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toMatchObject(
+        withISOStringDates({
+          ...validatedProgrammingPlan,
+          closedAt: expect.any(String),
+          closedBy: NationalCoordinator.id,
+          regionalStatus: expect.arrayContaining(
+            RegionList.map((region) => ({
+              region,
+              status: 'Closed' as const
+            }))
+          )
+        })
+      );
+
+      await expect(
+        ProgrammingPlanRegionalStatus().where({
+          programmingPlanId: validatedProgrammingPlan.id
+        })
+      ).resolves.toMatchObject(
+        expect.arrayContaining(
+          RegionList.map((region) => ({
+            programmingPlanId: validatedProgrammingPlan.id,
+            region,
+            status: 'Closed'
+          }))
+        )
+      );
+      await expect(
+        ProgrammingPlans().where('id', validatedProgrammingPlan.id).first()
+      ).resolves.toMatchObject({
+        id: validatedProgrammingPlan.id,
+        closedAt: expect.any(Date),
+        closedBy: NationalCoordinator.id
+      });
+
+      //Cleanup
+      await ProgrammingPlanRegionalStatus()
+        .where('programmingPlanId', submittedProgrammingPlan.id)
+        .update({ status: 'Submitted' });
+    });
+  });
+
   describe('PUT /programming-plans/:programmingPlanId/regional-status', () => {
     const programmingPlanRegionalStatusList = [
       {

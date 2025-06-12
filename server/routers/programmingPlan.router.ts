@@ -1,6 +1,7 @@
 import express from 'express';
 import { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import { ProgrammingPlanRegionalStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanRegionalStatus';
+import { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { z } from 'zod/v4';
 import programmingPlanController from '../controllers/programmingPlanController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
@@ -52,13 +53,30 @@ router.post(
 router.put(
   '/:programmingPlanId/regional-status',
   validator.validate(
-    uuidParam('programmingPlanId').merge(
-      body(z.array(ProgrammingPlanRegionalStatus))
-    )
+    z.object({
+      ...uuidParam('programmingPlanId').shape,
+      ...body(z.array(ProgrammingPlanRegionalStatus)).shape
+    })
   ),
   permissionsCheck(['manageProgrammingPlan', 'approveProgrammingPlan']),
   programmingPlanCheck(),
   programmingPlanController.updateRegionalStatus
+);
+router.put(
+  '/:programmingPlanId',
+  validator.validate(
+    z.object({
+      ...uuidParam('programmingPlanId').shape,
+      ...body(
+        z.object({
+          status: ProgrammingPlanStatus
+        })
+      ).shape
+    })
+  ),
+  permissionsCheck(['manageProgrammingPlan', 'approveProgrammingPlan']),
+  programmingPlanCheck(),
+  programmingPlanController.updateStatus
 );
 
 export default router;

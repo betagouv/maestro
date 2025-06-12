@@ -42,6 +42,6 @@ export const NextProgrammingPlanStatus: Record<
   InProgress: 'Submitted',
   Submitted: 'Approved',
   Approved: 'Validated',
-  Validated: null,
+  Validated: 'Closed',
   Closed: null
 };
