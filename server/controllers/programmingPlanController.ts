@@ -326,9 +326,15 @@ const updateStatus = async (request: Request, response: Response) => {
     newProgrammingPlanStatus
   );
 
-  //TODO check previous status
-  if (newProgrammingPlanStatus !== 'Closed') {
-    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  if (
+    newProgrammingPlanStatus !== 'Closed' ||
+    programmingPlan.regionalStatus.some(
+      (programmingPlanRegionalStatus) =>
+        NextProgrammingPlanStatus[programmingPlanRegionalStatus.status] !==
+        newProgrammingPlanStatus
+    )
+  ) {
+    return response.sendStatus(constants.HTTP_STATUS_BAD_REQUEST);
   }
 
   await Promise.all(
