@@ -50,13 +50,7 @@ export const ResidueInterpretationForm: FunctionComponent<Props> = ({
       <div className={clsx(cx('fr-mt-4w'), 'overview-container')}>
         <div className="overview-header">
           <div className="bullet" />
-          <h6 className={cx('fr-mb-0')}>
-            <span
-              className={clsx(
-                cx('fr-icon-test-tube-line', 'fr-mr-1w'),
-                'icon-grey'
-              )}
-            ></span>
+          <h6 className={cx('fr-mb-0', 'fr-ml-3w')}>
             Interprétation du résultat
           </h6>
         </div>
@@ -191,15 +185,7 @@ export const ResidueInterpretationForm: FunctionComponent<Props> = ({
       <div className={clsx(cx('fr-mt-4w'), 'overview-container')}>
         <div className="overview-header">
           <div className="bullet" />
-          <h6 className={cx('fr-mb-0')}>
-            <span
-              className={clsx(
-                cx('fr-icon-test-tube-line', 'fr-mr-1w'),
-                'icon-grey'
-              )}
-            ></span>
-            Conformité
-          </h6>
+          <h6 className={cx('fr-mb-0', 'fr-ml-3w')}>Conformité</h6>
         </div>
         <div className={clsx('overview-content')}>
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
