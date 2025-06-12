@@ -28,7 +28,7 @@ export const companyFromSearchResult = (
     address: [
       companySearchResult.siege.numero_voie,
       companySearchResult.siege.type_voie,
-      companySearchResult.siege.libelle_commune
+      companySearchResult.siege.libelle_voie
     ]
       .filter(isDefined)
       .join(' '),
