@@ -313,10 +313,51 @@ const updateRegionalStatus = async (request: Request, response: Response) => {
   response.status(constants.HTTP_STATUS_OK).send(updatedProgrammingPlan);
 };
 
+const updateStatus = async (request: Request, response: Response) => {
+  const { user } = request as AuthenticatedRequest;
+  const { programmingPlan } = request as ProgrammingPlanRequest;
+  const { status: newProgrammingPlanStatus } = request.body as {
+    status: ProgrammingPlanStatus;
+  };
+
+  console.info(
+    'Update programming plan status',
+    programmingPlan.id,
+    newProgrammingPlanStatus
+  );
+
+  //TODO check previous status
+  if (newProgrammingPlanStatus !== 'Closed') {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
+
+  await Promise.all(
+    RegionList.map((region) => {
+      programmingPlanRepository.updateRegionalStatus(programmingPlan.id, {
+        region,
+        status: newProgrammingPlanStatus
+      });
+    })
+  );
+
+  await programmingPlanRepository.update({
+    ...programmingPlan,
+    closedAt: new Date(),
+    closedBy: user.id
+  });
+
+  const updatedProgrammingPlan = await programmingPlanRepository.findUnique(
+    programmingPlan.id
+  );
+
+  response.status(constants.HTTP_STATUS_OK).send(updatedProgrammingPlan);
+};
+
 export default {
   getProgrammingPlan,
   getProgrammingPlanByYear,
   findProgrammingPlans,
   createProgrammingPlan,
+  updateStatus,
   updateRegionalStatus
 };

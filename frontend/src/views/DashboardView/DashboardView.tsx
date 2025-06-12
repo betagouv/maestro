@@ -17,7 +17,8 @@ import { useAppSelector } from 'src/hooks/useStore';
 import {
   useCreateProgrammingPlanMutation,
   useFindProgrammingPlansQuery,
-  useGetProgrammingPlanByYearQuery
+  useGetProgrammingPlanByYearQuery,
+  useUpdateProgrammingPlanStatusMutation
 } from 'src/services/programming-plan.service';
 import { useFindSamplesQuery } from 'src/services/sample.service';
 import ProgrammingPlanCard from 'src/views/DashboardView/ProgrammingPlanCard';
@@ -32,7 +33,11 @@ const DashboardView = () => {
     useGetProgrammingPlanByYearQuery(new Date().getFullYear());
   const { data: previousProgrammingPlan } = useGetProgrammingPlanByYearQuery(
     new Date().getFullYear() - 1,
-    { skip: isProgrammingPlanLoading || programmingPlan !== undefined }
+    {
+      skip:
+        !hasUserPermission('manageProgrammingPlan') &&
+        (isProgrammingPlanLoading || programmingPlan !== undefined)
+    }
   );
 
   const currentProgrammingPlan = useMemo(
@@ -41,6 +46,8 @@ const DashboardView = () => {
   );
 
   const [createProgrammingPlan] = useCreateProgrammingPlanMutation();
+  const [updateProgrammingPlanStatus] =
+    useUpdateProgrammingPlanStatusMutation();
   const { pendingSamples } = useAppSelector((state) => state.samples);
 
   useDocumentTitle('Tableau de bord');
@@ -60,8 +67,7 @@ const DashboardView = () => {
 
   const { data } = useFindSamplesQuery(
     {
-      programmingPlanId: (currentProgrammingPlan?.id ??
-        previousProgrammingPlan?.id) as string,
+      programmingPlanId: currentProgrammingPlan?.id as string,
       page: 1,
       perPage: 5
     },
@@ -113,6 +119,21 @@ const DashboardView = () => {
                   Saisir un prélèvement
                 </Button>
               )}
+              {hasUserPermission('manageProgrammingPlan') &&
+                previousProgrammingPlan &&
+                previousProgrammingPlan.id !== currentProgrammingPlan?.id &&
+                !previousProgrammingPlan.closedAt && (
+                  <Button
+                    onClick={async () => {
+                      await updateProgrammingPlanStatus({
+                        programmingPlanId: previousProgrammingPlan.id,
+                        status: 'Closed'
+                      });
+                    }}
+                  >
+                    Cloturer la programmation {previousProgrammingPlan.year}
+                  </Button>
+                )}
               {hasUserPermission('manageProgrammingPlan') &&
                 nextProgrammingPlan && (
                   <div>
