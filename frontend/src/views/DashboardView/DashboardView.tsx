@@ -6,6 +6,7 @@ import clsx from 'clsx';
 import { isAfter } from 'date-fns';
 import { unionBy } from 'lodash-es';
 import { Regions } from 'maestro-shared/referential/Region';
+import { isClosed } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useMemo } from 'react';
 import dashboard from 'src/assets/illustrations/dashboard.svg';
 import SampleTable from 'src/components/SampleTable/SampleTable';
@@ -122,7 +123,7 @@ const DashboardView = () => {
               {hasUserPermission('manageProgrammingPlan') &&
                 previousProgrammingPlan &&
                 previousProgrammingPlan.id !== currentProgrammingPlan?.id &&
-                !previousProgrammingPlan.closedAt && (
+                !isClosed(previousProgrammingPlan) && (
                   <Button
                     onClick={async () => {
                       await updateProgrammingPlanStatus({
