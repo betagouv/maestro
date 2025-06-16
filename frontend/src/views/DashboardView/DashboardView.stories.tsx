@@ -58,12 +58,12 @@ export const DashboardViewForSampler: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await expect(canvas.findByText('Tableau de bord')).toBeInTheDocument();
+    await expect(canvas.getByText('Tableau de bord')).toBeInTheDocument();
     await expect(
-      canvas.findByText(`Plan de contrôle ${new Date().getFullYear()}`)
+      canvas.getByText(`Plan de contrôle ${new Date().getFullYear()}`)
     ).toBeInTheDocument();
     await expect(
-      canvas.findByText(`Plan de surveillance ${new Date().getFullYear()}`)
+      canvas.getByText(`Plan de surveillance ${new Date().getFullYear()}`)
     ).toBeInTheDocument();
   }
 };
