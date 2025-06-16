@@ -5,11 +5,6 @@ import { registerSW } from 'virtual:pwa-register';
 import App from './App';
 import './i18n';
 
-// waiting https://github.com/colinhacks/zod/issues/4687
-if (typeof Error.captureStackTrace !== 'function') {
-  Error.captureStackTrace = () => ({});
-}
-
 // Vérifie qu'il n'y a pas une nouvelle version du site toutes les 5min
 const intervalMS = 5 * 60 * 1000;
 registerSW({
