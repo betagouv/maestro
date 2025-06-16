@@ -72,10 +72,10 @@ const updateAnalysis: MaestroRouteMethod<
     throw new AnalysisMissingError(analysisId);
   }
 
-  const sample = await sampleRepository.findUnique(analysisUpdate.sampleId);
+  const sample = await sampleRepository.findUnique(analysis.sampleId);
 
   if (!sample) {
-    throw new SampleMissingError(analysisUpdate.sampleId);
+    throw new SampleMissingError(analysis.sampleId);
   }
 
   if (sample.region !== user.region) {
@@ -107,7 +107,7 @@ const updateAnalysis: MaestroRouteMethod<
     );
     if (!isEqual(oldResidues, newResidues)) {
       await mattermostService.send(
-        `Une analyse vient d'être corrigée par un préleveur : SampleId ${analysisUpdate.sampleId}`
+        `Une analyse vient d'être corrigée par un préleveur : SampleId ${analysis.sampleId}`
       );
       await analysisErrorsRepository.insert(
         analysis.id,
