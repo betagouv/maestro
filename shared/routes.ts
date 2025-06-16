@@ -1,5 +1,9 @@
 import z, { ZodObject, ZodType } from 'zod/v4';
-import { AnalysisToCreate, PartialAnalysis } from './schema/Analysis/Analysis';
+import {
+  AnalysisToCreate,
+  AnalysisToUpdate,
+  PartialAnalysis
+} from './schema/Analysis/Analysis';
 import { UserPermission } from './schema/User/UserPermission';
 
 export type RouteValidator<
@@ -39,7 +43,7 @@ export const routes = {
   },
   '/analysis/:analysisId': {
     put: {
-      body: PartialAnalysis,
+      body: AnalysisToUpdate,
       params: z.object({
         analysisId: z.guid()
       }),
