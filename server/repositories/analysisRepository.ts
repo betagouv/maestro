@@ -104,23 +104,14 @@ const update = async (partialAnalysis: PartialAnalysis): Promise<void> => {
         });
 
       if (partialAnalysis.residues && partialAnalysis.residues.length > 0) {
-        await transaction.raw(
-          `
-              update analysis_residues
-              set residue_number = (select row_number() OVER(order by ar.residue_number ASC) + ?
-                                    from analysis_residues ar
-                                    where ar.analysis_id = ?)
-              where analysis_id = ?
-          `,
-          [
-            partialAnalysis.residues.length,
-            partialAnalysis.id,
-            partialAnalysis.id
-          ]
-        );
+        const maxResidueNumberResult = await AnalysisResidues(transaction)
+          .select<{ max: number }[]>(transaction.raw(`MAX(residue_number)`))
+          .where('analysisId', partialAnalysis.id);
+
+        const max = maxResidueNumberResult[0]?.max;
 
         partialAnalysis.residues.forEach((r, index) => {
-          const newResidueNumber = index + 1;
+          const newResidueNumber = max + index + 1;
           r.residueNumber = newResidueNumber;
           r.analytes?.forEach((a) => {
             a.residueNumber = newResidueNumber;

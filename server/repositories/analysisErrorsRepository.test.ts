@@ -22,7 +22,7 @@ test("peut ajouter une erreur d'analyse en base", async () => {
     .selectAll()
     .execute();
   expect(analysisErrorsInDb).toHaveLength(0);
-  await analysisErrorsRepository.insert(
+  await analysisErrorsRepository.upsert(
     analysisId,
     [
       {
@@ -41,5 +41,25 @@ test("peut ajouter une erreur d'analyse en base", async () => {
   expect(analysisErrorsInDb).toHaveLength(1);
   expect(analysisErrorsInDb[0].residues.old[0].reference).toEqual(
     'RF-00000024-PAR'
+  );
+  await analysisErrorsRepository.upsert(
+    analysisId,
+    [
+      {
+        reference: 'RF-00000025-PAR',
+        residueNumber: 0,
+        analysisMethod: 'Mono',
+        resultKind: 'NQ'
+      }
+    ],
+    []
+  );
+  analysisErrorsInDb = await kysely
+    .selectFrom('analysisErrors')
+    .selectAll()
+    .execute();
+  expect(analysisErrorsInDb).toHaveLength(1);
+  expect(analysisErrorsInDb[0].residues.old[0].reference).toEqual(
+    'RF-00000025-PAR'
   );
 });
