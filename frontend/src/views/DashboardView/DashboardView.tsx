@@ -7,7 +7,7 @@ import { isAfter } from 'date-fns';
 import { unionBy } from 'lodash-es';
 import { Regions } from 'maestro-shared/referential/Region';
 import { isClosed } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import dashboard from 'src/assets/illustrations/dashboard.svg';
 import SampleTable from 'src/components/SampleTable/SampleTable';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
@@ -15,45 +15,38 @@ import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useOnLine } from 'src/hooks/useOnLine';
 import { useAppSelector } from 'src/hooks/useStore';
-import {
-  useCreateProgrammingPlanMutation,
-  useFindProgrammingPlansQuery,
-  useGetProgrammingPlanByYearQuery,
-  useUpdateProgrammingPlanStatusMutation
-} from 'src/services/programming-plan.service';
-import { useFindSamplesQuery } from 'src/services/sample.service';
 import ProgrammingPlanCard from 'src/views/DashboardView/ProgrammingPlanCard';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import useWindowSize from '../../hooks/useWindowSize';
+import { ApiClientContext } from '../../services/apiClient';
 const DashboardView = () => {
+  const apiClient = useContext(ApiClientContext);
   const { hasUserPermission, user } = useAuthentication();
   const { isOnline } = useOnLine();
   const { isMobile } = useWindowSize();
 
   const { data: programmingPlan, isLoading: isProgrammingPlanLoading } =
-    useGetProgrammingPlanByYearQuery(new Date().getFullYear());
-  const { data: previousProgrammingPlan } = useGetProgrammingPlanByYearQuery(
-    new Date().getFullYear() - 1,
-    {
+    apiClient.useGetProgrammingPlanByYearQuery(new Date().getFullYear());
+  const { data: previousProgrammingPlan } =
+    apiClient.useGetProgrammingPlanByYearQuery(new Date().getFullYear() - 1, {
       skip:
         !hasUserPermission('manageProgrammingPlan') &&
         (isProgrammingPlanLoading || programmingPlan !== undefined)
-    }
-  );
+    });
 
   const currentProgrammingPlan = useMemo(
     () => programmingPlan ?? previousProgrammingPlan,
     [programmingPlan, previousProgrammingPlan]
   );
 
-  const [createProgrammingPlan] = useCreateProgrammingPlanMutation();
+  const [createProgrammingPlan] = apiClient.useCreateProgrammingPlanMutation();
   const [updateProgrammingPlanStatus] =
-    useUpdateProgrammingPlanStatusMutation();
+    apiClient.useUpdateProgrammingPlanStatusMutation();
   const { pendingSamples } = useAppSelector((state) => state.samples);
 
   useDocumentTitle('Tableau de bord');
 
-  const { data: nextProgrammingPlans } = useFindProgrammingPlansQuery(
+  const { data: nextProgrammingPlans } = apiClient.useFindProgrammingPlansQuery(
     {
       status: ['InProgress', 'Submitted']
     },
@@ -66,7 +59,7 @@ const DashboardView = () => {
     [nextProgrammingPlans]
   );
 
-  const { data } = useFindSamplesQuery(
+  const { data } = apiClient.useFindSamplesQuery(
     {
       programmingPlanId: currentProgrammingPlan?.id as string,
       page: 1,
