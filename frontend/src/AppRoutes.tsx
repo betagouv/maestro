@@ -70,7 +70,7 @@ export const AuthenticatedAppRoutes = {
   }
 } as const satisfies Partial<Record<AppRouteKeys, AppRoute>>;
 
-export const NotAuthenticatedAppRoutes = {
+const NotAuthenticatedAppRoutes = {
   LoginRoute: {
     ...AppRouteLinks.LoginRoute,
     path: '/',

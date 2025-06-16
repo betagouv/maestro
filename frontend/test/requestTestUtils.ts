@@ -1,4 +1,3 @@
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { FetchMock, MockResponse } from 'vitest-fetch-mock';
 
 export const getRequestCalls = (fetchMock: FetchMock) =>
@@ -50,13 +49,3 @@ class MockError extends Error {
     this.name = 'MockError';
   }
 }
-
-export const programmingPlanByYearRequestMock = (
-  year: number,
-  programmingPlan?: ProgrammingPlan
-) => ({
-  pathname: `/api/programming-plans/years/${year}`,
-  response: {
-    body: JSON.stringify(programmingPlan)
-  }
-});
