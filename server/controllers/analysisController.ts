@@ -106,7 +106,7 @@ const updateAnalysis = async (request: Request, response: Response) => {
       await mattermostService.send(
         `Une analyse vient d'être corrigée par un préleveur : SampleId ${analysisUpdate.sampleId}`
       );
-      await analysisErrorsRepository.insert(
+      await analysisErrorsRepository.upsert(
         analysis.id,
         oldResidues,
         newResidues
