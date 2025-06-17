@@ -159,6 +159,7 @@ const findRequest = (findOptions: FindSampleOptions) =>
               `${analysisTable}.sampleId`,
               knexInstance.raw(`${samplesTable}.id`)
             )
+            .whereNot(`${analysisResiduesTable}.resultKind`, 'ND')
             .limit(1)
         );
       }

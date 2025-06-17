@@ -2,7 +2,7 @@ import { z } from 'zod/v4';
 import { Department } from '../../referential/Department';
 import { Matrix } from '../../referential/Matrix/Matrix';
 import { Region } from '../../referential/Region';
-import { coerceToArray, coerceToBoolean } from '../../utils/utils';
+import { coerceToArray, coerceToBooleanNullish } from '../../utils/utils';
 import { Pagination } from '../commons/Pagination';
 import { Context } from '../ProgrammingPlan/Context';
 import { SampleStatus } from './SampleStatus';
@@ -28,7 +28,7 @@ export const FindSampleOptions = z
     sampledAt: z.string().nullish(),
     reference: z.string().nullish(),
     compliance: SampleCompliance.nullish(),
-    withAtLeastOneResidue: coerceToBoolean().nullish()
+    withAtLeastOneResidue: coerceToBooleanNullish()
   })
   .merge(Pagination.partial());
 

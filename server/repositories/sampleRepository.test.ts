@@ -1,4 +1,5 @@
 import { Department } from 'maestro-shared/referential/Department';
+import { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 import { genPartialAnalysis } from 'maestro-shared/test/analysisFixtures';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
 import {
@@ -135,6 +136,18 @@ describe('findMany samples', async () => {
       compliance: true
     });
     await analysisRepository.insert(analysisWithoutResidues);
+    await analysisRepository.update({
+      ...analysisWithoutResidues,
+      residues: [
+        {
+          resultKind: 'ND' as ResultKind,
+          analysisMethod: 'Mono',
+          reference: 'RF-00000010-CHE',
+          analysisId: analysisWithoutResidues.id,
+          residueNumber: 0
+        }
+      ]
+    });
 
     const analysisWithResidues = genPartialAnalysis({
       sampleId: Sample2Fixture.id,

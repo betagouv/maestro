@@ -26,7 +26,7 @@ import {
   UserRolePermissions
 } from 'maestro-shared/schema/User/UserRole';
 import {
-  coerceToBoolean,
+  coerceToBooleanNullish,
   isDefinedAndNotNull
 } from 'maestro-shared/utils/utils';
 import { useEffect, useMemo, useState } from 'react';
@@ -94,8 +94,9 @@ const SampleListView = () => {
           SampleCompliance.safeParse(searchParams.get('compliance')).data ??
           undefined,
         withAtLeastOneResidue:
-          coerceToBoolean().safeParse(searchParams.get('withAtLeastOneResidue'))
-            .data ?? undefined,
+          coerceToBooleanNullish().safeParse(
+            searchParams.get('withAtLeastOneResidue')
+          ).data ?? undefined,
         page: Number(searchParams.get('page')) || 1,
         perPage: defaultPerPage
       })
