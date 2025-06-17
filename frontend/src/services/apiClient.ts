@@ -1,53 +1,37 @@
 import { createContext } from 'react';
-import { analysisApi, useUpdateAnalysisMutation } from './analysis.service';
-import {
-  useCreateDocumentMutation,
-  useDeleteDocumentMutation,
-  useGetDocumentQuery,
-  useLazyGetDocumentDownloadSignedUrlQuery
-} from './document.service';
-import {
-  useFindLaboratoriesQuery,
-  useGetLaboratoryQuery
-} from './laboratory.service';
-import {
-  useFindPrescriptionsQuery,
-  useGetPrescriptionSubstancesQuery,
-  useLazyFindPrescriptionsQuery,
-  useLazyGetPrescriptionSubstancesQuery
-} from './prescription.service';
-import { useGetProgrammingPlanQuery } from './programming-plan.service';
-import { useFindRegionalPrescriptionsQuery } from './regionalPrescription.service';
-import {
-  useCreateOrUpdateSampleMutation,
-  useLazyFindSamplesQuery,
-  useLazyGetSampleQuery,
-  useUpdateSampleMutation
-} from './sample.service';
-import { useFindUsersQuery } from './user.service';
+import * as analysisApi from './analysis.service';
+import * as documentApi from './document.service';
+import * as laboratoryApi from './laboratory.service';
+import * as notificationApi from './notification.service';
+import * as prescriptionApi from './prescription.service';
+import * as programmingPlanApi from './programmingPlan.service';
+import * as regionApi from './region.service';
+import * as regionalPrescriptionApi from './regionalPrescription.service';
+import * as sampleApi from './sample.service';
+import * as userApi from './user.service';
 
-export type ApiClient = typeof apiClient;
-export const apiClient = {
-  useCreateDocumentMutation,
-  useCreateOrUpdateSampleMutation,
-  useDeleteDocumentMutation,
-  useFindPrescriptionsQuery,
-  useFindRegionalPrescriptionsQuery,
-  useFindLaboratoriesQuery,
-  useFindUsersQuery,
-  useGetDocumentQuery,
-  useGetLaboratoryQuery,
-  useGetSampleAnalysisQuery: analysisApi.useGetSampleAnalysisQuery,
-  useLazyGetSampleAnalysisQuery: analysisApi.useLazyGetSampleAnalysisQuery,
-  useLazyGetDocumentDownloadSignedUrlQuery,
-  useLazyGetPrescriptionSubstancesQuery: useLazyGetPrescriptionSubstancesQuery,
-  useUpdateAnalysisMutation,
-  useUpdateSampleMutation,
-  useGetPrescriptionSubstancesQuery,
-  useGetProgrammingPlanQuery,
-  useLazyFindPrescriptionsQuery,
-  useLazyFindSamplesQuery,
-  useLazyGetSampleQuery
+export type ApiClient = typeof analysisApi &
+  typeof documentApi &
+  typeof laboratoryApi &
+  typeof notificationApi &
+  typeof prescriptionApi &
+  typeof programmingPlanApi &
+  typeof regionApi &
+  typeof regionalPrescriptionApi &
+  typeof sampleApi &
+  typeof userApi;
+
+export const apiClient: ApiClient = {
+  ...analysisApi,
+  ...documentApi,
+  ...laboratoryApi,
+  ...notificationApi,
+  ...prescriptionApi,
+  ...programmingPlanApi,
+  ...regionalPrescriptionApi,
+  ...regionApi,
+  ...sampleApi,
+  ...userApi
 };
 
 export const ApiClientContext = createContext<ApiClient>(undefined as never);

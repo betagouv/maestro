@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useParams } from 'react-router';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch } from 'src/hooks/useStore';
-import { useFindProgrammingPlansQuery } from 'src/services/programming-plan.service';
+import { useFindProgrammingPlansQuery } from 'src/services/programmingPlan.service';
 import programmingPlanSlice from 'src/store/reducers/programmingPlanSlice';
 
 interface Props {

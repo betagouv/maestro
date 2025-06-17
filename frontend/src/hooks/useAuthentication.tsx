@@ -17,10 +17,6 @@ import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { isDefined } from 'maestro-shared/utils/utils';
 import { useCallback, useMemo } from 'react';
 import { useAppSelector } from 'src/hooks/useStore';
-import {
-  AuthenticatedAppRoutes,
-  NotAuthenticatedAppRoutes
-} from '../AppRoutes';
 
 export const useAuthentication = () => {
   const { authUser } = useAppSelector((state) => state.auth);
@@ -71,27 +67,22 @@ export const useAuthentication = () => {
 
   const availableRoutes = useMemo(() => {
     return isAuthenticated
-      ? (
-          [
-            'DashboardRoute',
-            'NotificationsRoute',
-            'DocumentsRoute',
-            'ApiDocsRoute',
-            'LogoutCallbackRoute',
-            hasUserPermission('readPrescriptions')
-              ? 'ProgrammationByYearRoute'
-              : undefined,
-            hasUserPermission('readSamples') ? 'SamplesByYearRoute' : undefined,
-            hasUserPermission('createSample') ? 'NewSampleRoute' : undefined,
-            hasUserPermission('updateSample') ||
-            hasUserPermission('readSamples')
-              ? 'SampleRoute'
-              : undefined
-          ].filter(isDefined) as AuthenticatedAppRoutes[]
-        ).map((_) => AuthenticatedAppRoutes[_])
-      : (
-          ['LoginRoute', 'LoginCallbackRoute'] as NotAuthenticatedAppRoutes[]
-        ).map((_) => NotAuthenticatedAppRoutes[_]);
+      ? [
+          'DashboardRoute',
+          'NotificationsRoute',
+          'DocumentsRoute',
+          'ApiDocsRoute',
+          'LogoutCallbackRoute',
+          hasUserPermission('readPrescriptions')
+            ? 'ProgrammationByYearRoute'
+            : undefined,
+          hasUserPermission('readSamples') ? 'SamplesByYearRoute' : undefined,
+          hasUserPermission('createSample') ? 'NewSampleRoute' : undefined,
+          hasUserPermission('updateSample') || hasUserPermission('readSamples')
+            ? 'SampleRoute'
+            : undefined
+        ].filter(isDefined)
+      : ['LoginRoute', 'LoginCallbackRoute'];
   }, [isAuthenticated, hasUserPermission]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {

@@ -12,11 +12,12 @@ import {
   Sample11Fixture
 } from 'maestro-shared/test/sampleFixtures';
 import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
+import regionsJson from '../../../server/data/regions.json';
 import { ApiClient } from './apiClient';
 
 type MockApi<T extends Partial<ApiClient>> = {
   [Key in keyof T]: T[Key] extends TypedUseQuery<infer D, any, any>
-    ? { data: D }
+    ? { data: D } | ((arg: any) => { data: D })
     : T[Key] extends TypedUseLazyQuery<infer E, any, any>
       ? E
       : T[Key] extends TypedUseMutation<any, any, any>
@@ -25,18 +26,29 @@ type MockApi<T extends Partial<ApiClient>> = {
 };
 
 export const getMockApi = <T extends Partial<ApiClient>>(
-  mockApi: MockApi<T>
+  mockApi: Partial<MockApi<T>>
 ): T => {
   return Object.keys(mockApi).reduce((acc, key) => {
-    if (key.startsWith('useGet') || key.startsWith('useFind')) {
+    if (
+      key.startsWith('useGet') ||
+      key.startsWith('useFind') ||
+      key.startsWith('useCount')
+    ) {
       // @ts-expect-error TS7053
-      acc[key] = () => mockApi[key];
+      acc[key] = (arg?: any) => {
+        // @ts-expect-error TS7053
+        const value = mockApi[key];
+        return typeof value === 'function' ? value(arg) : value;
+      };
     } else if (key.startsWith('useLazyGet') || key.startsWith('useLazyFind')) {
       // @ts-expect-error TS7053
       acc[key] = () => [
-        () => ({
-          // @ts-expect-error TS7053
-          unwrap: async () => mockApi[key]
+        (arg?: any) => ({
+          unwrap: async () => {
+            // @ts-expect-error TS7053
+            const value = mockApi[key];
+            return typeof value === 'function' ? value(arg) : value;
+          }
         })
       ];
     } else if (
@@ -51,7 +63,7 @@ export const getMockApi = <T extends Partial<ApiClient>>(
   }, {} as T);
 };
 
-export const defaultMockApiClientConf: MockApi<ApiClient> = {
+export const defaultMockApiClientConf: Partial<MockApi<ApiClient>> = {
   useGetDocumentQuery: {
     data: genDocument({
       createdAt: new Date(12345),
@@ -70,8 +82,17 @@ export const defaultMockApiClientConf: MockApi<ApiClient> = {
   },
   useUpdateSampleMutation: [async () => fn(), { isSuccess: true }],
   useUpdateAnalysisMutation: [async () => fn(), { isSuccess: true }],
+  useUpdateProgrammingPlanStatusMutation: [
+    async () => fn(),
+    { isSuccess: true }
+  ],
+  useUpdateProgrammingPlanRegionalStatusMutation: [
+    async () => fn(),
+    { isSuccess: true }
+  ],
   useCreateOrUpdateSampleMutation: [async () => fn(), { isSuccess: true }],
   useCreateDocumentMutation: [async () => fn(), { isSuccess: true }],
+  useCreateProgrammingPlanMutation: [async () => fn(), { isSuccess: true }],
   useDeleteDocumentMutation: [async () => fn(), { isSuccess: true }],
   useGetSampleAnalysisQuery: {
     data: genPartialAnalysis({
@@ -81,16 +102,37 @@ export const defaultMockApiClientConf: MockApi<ApiClient> = {
     })
   },
   useFindLaboratoriesQuery: { data: [] },
+  useFindNotificationsQuery: { data: [] },
   useFindPrescriptionsQuery: { data: [] },
+  useFindProgrammingPlansQuery: { data: [] },
   useFindRegionalPrescriptionsQuery: { data: [] },
+  useFindSamplesQuery: { data: [] },
   useFindUsersQuery: { data: [] },
   useGetProgrammingPlanQuery: { data: genProgrammingPlan() },
+  useGetProgrammingPlanByYearQuery: (year: number) => ({
+    data: genProgrammingPlan({
+      year
+    })
+  }),
   useGetPrescriptionSubstancesQuery: { data: [] },
+  useGetRegionsGeoJsonQuery: {
+    data: JSON.parse(JSON.stringify(regionsJson))
+  },
   useLazyGetPrescriptionSubstancesQuery: [],
   useLazyFindPrescriptionsQuery: [],
   useLazyFindSamplesQuery: [],
   useLazyGetSampleQuery: genCreatedPartialSample(),
-  useLazyGetSampleAnalysisQuery: genPartialAnalysis()
+  useLazyGetSampleAnalysisQuery: genPartialAnalysis(),
+  useCountSamplesQuery: {
+    data: 0
+  },
+  useGetSampleQuery: {
+    data: genCreatedPartialSample()
+  },
+  useDeleteSampleMutation: [async () => fn(), { isSuccess: true }],
+  useUpdatePrescriptionMutation: [async () => fn(), { isSuccess: true }],
+  useAddPrescriptionMutation: [async () => fn(), { isSuccess: true }],
+  useDeletePrescriptionMutation: [async () => fn(), { isSuccess: true }]
 };
 
 export const mockApiClient = getMockApi<ApiClient>(defaultMockApiClientConf);

@@ -7,7 +7,7 @@ import { Region } from 'maestro-shared/referential/Region';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import check from '../../../assets/illustrations/check.svg';
 import dialog from '../../../assets/illustrations/dialog.svg';
-import { useUpdateProgrammingPlanRegionalStatusMutation } from '../../../services/programming-plan.service';
+import { useUpdateProgrammingPlanRegionalStatusMutation } from '../../../services/programmingPlan.service';
 import ConfirmationModal from '../../ConfirmationModal/ConfirmationModal';
 import './ProgrammingPlanRegionalValidation.scss';
 

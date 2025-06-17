@@ -11,12 +11,12 @@ import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/Programmi
 import { ProgrammingPlanStatusLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { getCompletionRate } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { RealizedStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
+import { useContext } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import { useFindRegionalPrescriptionsQuery } from 'src/services/regionalPrescription.service';
-import { useCountSamplesQuery } from 'src/services/sample.service';
 import { pluralize } from 'src/utils/stringUtils';
 import ProgrammingPlanMap from 'src/views/DashboardView/ProgrammingPlanMap';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
+import { ApiClientContext } from '../../services/apiClient';
 
 interface ProgrammingPlanCardProps {
   programmingPlan: ProgrammingPlan;
@@ -27,15 +27,17 @@ const ProgrammingPlanCard = ({
   programmingPlan,
   context
 }: ProgrammingPlanCardProps) => {
+  const apiClient = useContext(ApiClientContext);
   const { hasNationalView } = useAuthentication();
 
-  const { data: regionalPrescriptions } = useFindRegionalPrescriptionsQuery({
-    programmingPlanId: programmingPlan.id,
-    context,
-    includes: ['realizedSampleCount']
-  });
+  const { data: regionalPrescriptions } =
+    apiClient.useFindRegionalPrescriptionsQuery({
+      programmingPlanId: programmingPlan.id,
+      context,
+      includes: ['realizedSampleCount']
+    });
 
-  const { data: samplesToSentCount } = useCountSamplesQuery(
+  const { data: samplesToSentCount } = apiClient.useCountSamplesQuery(
     {
       programmingPlanId: programmingPlan.id,
       context,

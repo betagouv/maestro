@@ -10,7 +10,7 @@ import maplibregl, {
   Point,
   StyleSpecification
 } from 'maplibre-gl';
-import { useMemo, useRef, useState } from 'react';
+import { useContext, useMemo, useRef, useState } from 'react';
 import Map, {
   CircleLayer,
   FillLayer,
@@ -19,13 +19,14 @@ import Map, {
   Source,
   SymbolLayer
 } from 'react-map-gl/maplibre';
-import { useGetRegionsGeoJsonQuery } from 'src/services/region.service';
+import { ApiClientContext } from '../../services/apiClient';
 
 interface Props {
   regionalPrescriptions: RegionalPrescription[];
 }
 
 const ProgrammingPlanMap = ({ regionalPrescriptions }: Props) => {
+  const apiClient = useContext(ApiClientContext);
   const ref = useRef<any>();
 
   const [hoverInfo, setHoverInfo] = useState<{
@@ -33,7 +34,7 @@ const ProgrammingPlanMap = ({ regionalPrescriptions }: Props) => {
     position: Point;
   }>();
 
-  const { data: regions } = useGetRegionsGeoJsonQuery();
+  const { data: regions } = apiClient.useGetRegionsGeoJsonQuery();
 
   const mapStyle: StyleSpecification = useMemo(
     () => ({

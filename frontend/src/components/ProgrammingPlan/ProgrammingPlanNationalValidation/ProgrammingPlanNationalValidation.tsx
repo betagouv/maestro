@@ -15,7 +15,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch } from '../../../hooks/useStore';
 import { api } from '../../../services/api.service';
-import { useUpdateProgrammingPlanRegionalStatusMutation } from '../../../services/programming-plan.service';
+import { useUpdateProgrammingPlanRegionalStatusMutation } from '../../../services/programmingPlan.service';
 import './ProgrammingPlanNationalValidation.scss';
 interface Props {
   programmingPlan: ProgrammingPlan;

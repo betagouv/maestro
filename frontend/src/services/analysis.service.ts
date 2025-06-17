@@ -5,7 +5,7 @@ import {
 } from 'maestro-shared/schema/Analysis/Analysis';
 import { api } from 'src/services/api.service';
 
-export const analysisApi = api.injectEndpoints({
+const analysisApi = api.injectEndpoints({
   endpoints: (builder) => ({
     getSampleAnalysis: builder.query<PartialAnalysis, string>({
       query: (sampleId) => ({
@@ -49,6 +49,9 @@ export const analysisApi = api.injectEndpoints({
   })
 });
 
-export const { useCreateAnalysisMutation, useUpdateAnalysisMutation } = {
-  ...analysisApi
-};
+export const {
+  useCreateAnalysisMutation,
+  useUpdateAnalysisMutation,
+  useGetSampleAnalysisQuery,
+  useLazyGetSampleAnalysisQuery
+} = analysisApi;

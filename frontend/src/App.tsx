@@ -2,7 +2,8 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createMuiDsfrThemeProvider } from '@codegouvfr/react-dsfr/mui';
 import { startReactDsfr } from '@codegouvfr/react-dsfr/spa';
 import clsx from 'clsx';
-import React from 'react';
+import { AppRouteKeys } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
+import React, { ReactElement } from 'react';
 import { Provider } from 'react-redux';
 import { Link, Route, Routes } from 'react-router';
 import FetchInterceptor from 'src/components/FetchInterceptor/FetchInterceptor';
@@ -14,7 +15,8 @@ import useMatomoTagManager from 'src/hooks/useMatomoTagManager';
 import { useOnLine } from 'src/hooks/useOnLine';
 import { useAppSelector } from 'src/hooks/useStore';
 import './App.scss';
-import { RedirectRoute } from './AppRoutes';
+import { AppRouteComponents } from './AppRouteComponents';
+import { AppRoutes, RedirectRoute } from './AppRoutes';
 import {
   MascaradeContext,
   useMascarade
@@ -30,13 +32,13 @@ declare module '@codegouvfr/react-dsfr/spa' {
 }
 startReactDsfr({ defaultColorScheme: 'light', Link });
 
-function AppWrapper() {
-  const { MuiDsfrThemeProvider } = createMuiDsfrThemeProvider({
-    augmentMuiTheme: ({ nonAugmentedMuiTheme }) => ({
-      ...nonAugmentedMuiTheme
-    })
-  });
+export const { MuiDsfrThemeProvider } = createMuiDsfrThemeProvider({
+  augmentMuiTheme: ({ nonAugmentedMuiTheme }) => ({
+    ...nonAugmentedMuiTheme
+  })
+});
 
+function AppWrapper() {
   useMatomoTagManager();
 
   return (
@@ -97,13 +99,21 @@ function App() {
         >
           <Routes>
             {[
-              ...availableRoutes.map((route) => (
-                <Route
-                  path={route.path}
-                  element={<route.component />}
-                  key={route.key}
-                />
-              )),
+              ...availableRoutes.map((routeKey) => {
+                const route = {
+                  ...AppRoutes[routeKey as AppRouteKeys],
+                  component: AppRouteComponents[
+                    routeKey as AppRouteKeys
+                  ] as () => ReactElement
+                };
+                return (
+                  <Route
+                    path={route.path}
+                    element={<route.component />}
+                    key={route.key}
+                  />
+                );
+              }),
               <Route
                 path="/*"
                 element={<RedirectRoute />}

@@ -106,6 +106,13 @@ const insert = async (programmingPlan: ProgrammingPlan): Promise<void> => {
   });
 };
 
+const update = async (programmingPlan: ProgrammingPlan): Promise<void> => {
+  console.info('Update programming plan with id', programmingPlan.id);
+  await ProgrammingPlans()
+    .where({ id: programmingPlan.id })
+    .update(formatProgrammingPlan(programmingPlan));
+};
+
 const updateRegionalStatus = async (
   programmingPlanId: string,
   regionalStatus: ProgrammingPlanRegionalStatusType
@@ -129,5 +136,6 @@ export default {
   findOne,
   findMany,
   insert,
+  update,
   updateRegionalStatus
 };
