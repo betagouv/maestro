@@ -1,8 +1,8 @@
 import express from 'express';
 import fs from 'fs';
+import { analysisRouter } from '../controllers/analysisController';
 import { jwtCheck, userCheck } from '../middlewares/checks/authCheck';
 import addressRouter from './address.router';
-import { analysisRouterMethods } from './analysis.router';
 import companyRouter from './company.router';
 import documentRouter from './document.router';
 import laboratoryRouter from './laboratory.router';
@@ -19,7 +19,7 @@ export const protectedRouter = express.Router();
 protectedRouter.use(jwtCheck(true));
 protectedRouter.use(userCheck(true));
 
-protectedRouter.use(generateRoutes(analysisRouterMethods));
+protectedRouter.use(generateRoutes(analysisRouter));
 protectedRouter.use('/addresses', addressRouter);
 protectedRouter.use('/companies', companyRouter);
 protectedRouter.use('/documents', documentRouter);

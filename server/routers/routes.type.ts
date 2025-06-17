@@ -17,7 +17,7 @@ type MaestroResponse<
   ResponseValidator = RouteValidator<key, method, 'response'>
 > = ResponseValidator extends undefined ? void : ResponseValidator;
 
-export type MaestroRouteMethod<
+type MaestroRouteMethod<
   key extends MaestroRoutes,
   method extends keyof (typeof routes)[key]
 > = (
