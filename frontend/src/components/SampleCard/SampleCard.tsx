@@ -13,7 +13,7 @@ import {
 } from 'maestro-shared/schema/Sample/Sample';
 import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
 import { useState } from 'react';
-import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
+import { SampleStatusBadge } from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import RemoveSample from 'src/components/SampleTable/RemoveSample';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useOnLine } from 'src/hooks/useOnLine';
@@ -39,7 +39,7 @@ const SampleCard = ({ sample }: Props) => {
       start={
         <div className={clsx('d-flex-align-start')}>
           <div className="flex-grow-1">
-            <SampleStatusBadge status={sample?.status} />
+            <SampleStatusBadge status={sample.status} sampleId={sample.id} />
           </div>
           {isMobile && (
             <>

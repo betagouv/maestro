@@ -9,12 +9,9 @@ import {
   PartialSample,
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import {
-  DraftStatusList,
-  SampleStatus
-} from 'maestro-shared/schema/Sample/SampleStatus';
+import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
 import { useMemo } from 'react';
-import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
+import { SampleStatusBadge } from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import RemoveSample from 'src/components/SampleTable/RemoveSample';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useOnLine } from 'src/hooks/useOnLine';
@@ -73,7 +70,7 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
           sample.department,
           sample.company?.name ?? '',
           sample.context ? ContextLabels[sample.context] : '',
-          <SampleStatusBadge status={sample?.status as SampleStatus} />
+          <SampleStatusBadge status={sample.status} sampleId={sample.id} />
         ].map((cell) => (
           <div
             onClick={() => navigateToSample(sample.id)}
