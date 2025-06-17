@@ -12,11 +12,12 @@ import {
   Sample11Fixture
 } from 'maestro-shared/test/sampleFixtures';
 import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
+import regionsJson from '../../../server/data/regions.json';
 import { ApiClient } from './apiClient';
 
 type MockApi<T extends Partial<ApiClient>> = {
   [Key in keyof T]: T[Key] extends TypedUseQuery<infer D, any, any>
-    ? { data: D }
+    ? { data: D } | ((arg: any) => { data: D })
     : T[Key] extends TypedUseLazyQuery<infer E, any, any>
       ? E
       : T[Key] extends TypedUseMutation<any, any, any>
@@ -34,13 +35,20 @@ export const getMockApi = <T extends Partial<ApiClient>>(
       key.startsWith('useCount')
     ) {
       // @ts-expect-error TS7053
-      acc[key] = () => mockApi[key];
+      acc[key] = (arg?: any) => {
+        // @ts-expect-error TS7053
+        const value = mockApi[key];
+        return typeof value === 'function' ? value(arg) : value;
+      };
     } else if (key.startsWith('useLazyGet') || key.startsWith('useLazyFind')) {
       // @ts-expect-error TS7053
       acc[key] = () => [
-        () => ({
-          // @ts-expect-error TS7053
-          unwrap: async () => mockApi[key]
+        (arg?: any) => ({
+          unwrap: async () => {
+            // @ts-expect-error TS7053
+            const value = mockApi[key];
+            return typeof value === 'function' ? value(arg) : value;
+          }
         })
       ];
     } else if (
@@ -101,8 +109,15 @@ export const defaultMockApiClientConf: Partial<MockApi<ApiClient>> = {
   useFindSamplesQuery: { data: [] },
   useFindUsersQuery: { data: [] },
   useGetProgrammingPlanQuery: { data: genProgrammingPlan() },
-  useGetProgrammingPlanByYearQuery: { data: genProgrammingPlan() },
+  useGetProgrammingPlanByYearQuery: (year: number) => ({
+    data: genProgrammingPlan({
+      year
+    })
+  }),
   useGetPrescriptionSubstancesQuery: { data: [] },
+  useGetRegionsGeoJsonQuery: {
+    data: JSON.parse(JSON.stringify(regionsJson))
+  },
   useLazyGetPrescriptionSubstancesQuery: [],
   useLazyFindPrescriptionsQuery: [],
   useLazyFindSamplesQuery: [],

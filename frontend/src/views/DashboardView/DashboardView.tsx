@@ -19,6 +19,7 @@ import ProgrammingPlanCard from 'src/views/DashboardView/ProgrammingPlanCard';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import useWindowSize from '../../hooks/useWindowSize';
 import { ApiClientContext } from '../../services/apiClient';
+import ProgrammingPlanClosing from './ProgrammingPlanClosing';
 const DashboardView = () => {
   const apiClient = useContext(ApiClientContext);
   const { hasUserPermission, user } = useAuthentication();
@@ -40,8 +41,6 @@ const DashboardView = () => {
   );
 
   const [createProgrammingPlan] = apiClient.useCreateProgrammingPlanMutation();
-  const [updateProgrammingPlanStatus] =
-    apiClient.useUpdateProgrammingPlanStatusMutation();
   const { pendingSamples } = useAppSelector((state) => state.samples);
 
   useDocumentTitle('Tableau de bord');
@@ -114,21 +113,6 @@ const DashboardView = () => {
                 </Button>
               )}
               {hasUserPermission('manageProgrammingPlan') &&
-                previousProgrammingPlan &&
-                previousProgrammingPlan.id !== currentProgrammingPlan?.id &&
-                !isClosed(previousProgrammingPlan) && (
-                  <Button
-                    onClick={async () => {
-                      await updateProgrammingPlanStatus({
-                        programmingPlanId: previousProgrammingPlan.id,
-                        status: 'Closed'
-                      });
-                    }}
-                  >
-                    Cloturer la programmation {previousProgrammingPlan.year}
-                  </Button>
-                )}
-              {hasUserPermission('manageProgrammingPlan') &&
                 nextProgrammingPlan && (
                   <div>
                     <Tile
@@ -171,6 +155,12 @@ const DashboardView = () => {
           }
         />
       </div>
+      {hasUserPermission('manageProgrammingPlan') &&
+        previousProgrammingPlan &&
+        previousProgrammingPlan.id !== currentProgrammingPlan?.id &&
+        !isClosed(previousProgrammingPlan) && (
+          <ProgrammingPlanClosing programmingPlan={previousProgrammingPlan} />
+        )}
 
       {isOnline && (
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
