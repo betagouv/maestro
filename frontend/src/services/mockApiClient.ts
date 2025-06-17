@@ -89,7 +89,8 @@ export const defaultMockApiClientConf: MockApi<ApiClient> = {
   useLazyGetPrescriptionSubstancesQuery: [],
   useLazyFindPrescriptionsQuery: [],
   useLazyFindSamplesQuery: [],
-  useLazyGetSampleQuery: genCreatedPartialSample()
+  useLazyGetSampleQuery: genCreatedPartialSample(),
+  useLazyGetSampleAnalysisQuery: genPartialAnalysis()
 };
 
 export const mockApiClient = getMockApi<ApiClient>(defaultMockApiClientConf);

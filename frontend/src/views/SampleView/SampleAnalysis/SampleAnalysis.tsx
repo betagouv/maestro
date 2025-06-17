@@ -6,7 +6,7 @@ import { getLaboratoryFullname } from 'maestro-shared/referential/Laboratory';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
 import { FunctionComponent, useContext, useState } from 'react';
-import SampleStatusBadge from 'src/components/SampleStatusBadge/SampleStatusBadge';
+import { SampleStatusBadge } from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import { usePartialSample } from 'src/hooks/usePartialSample';
 import SampleAdmissibility from 'src/views/SampleView/SampleAnalysis/SampleAdmissibility/SampleAdmissibility';
 import SampleAnalysisOverview from 'src/views/SampleView/SampleAnalysis/SampleAnalysisOverview/SampleAnalysisOverview';
@@ -85,7 +85,10 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
                       {SampleStatusLabels['InReview']}
                     </Button>
                   )}
-                <SampleStatusBadge status={sample.status} />
+                <SampleStatusBadge
+                  status={sample.status}
+                  sampleId={sample.id}
+                />
               </div>
             </div>
             {!['Completed', 'NotAdmissible'].includes(sample.status) && (

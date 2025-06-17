@@ -38,6 +38,7 @@ export const apiClient = {
   useGetDocumentQuery,
   useGetLaboratoryQuery,
   useGetSampleAnalysisQuery: analysisApi.useGetSampleAnalysisQuery,
+  useLazyGetSampleAnalysisQuery: analysisApi.useLazyGetSampleAnalysisQuery,
   useLazyGetDocumentDownloadSignedUrlQuery,
   useLazyGetPrescriptionSubstancesQuery: useLazyGetPrescriptionSubstancesQuery,
   useUpdateAnalysisMutation,

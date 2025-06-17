@@ -5,18 +5,47 @@ import {
   SampleStatus,
   SampleStatusLabels
 } from 'maestro-shared/schema/Sample/SampleStatus';
+import { useContext, useEffect, useState } from 'react';
+import { ApiClientContext } from '../../services/apiClient';
 
 type Props = Omit<BadgeProps, 'children'> & {
   status: SampleStatus;
+  sampleId: string;
 };
 
-const SampleStatusBadge = ({ status, ...props }: Props) => {
+export const SampleStatusBadge = ({ status, sampleId, ...props }: Props) => {
+  const apiClient = useContext(ApiClientContext);
+
+  const [getAnalysis] = apiClient.useLazyGetSampleAnalysisQuery();
+
+  const [compliance, setCompliance] = useState<boolean | undefined>(undefined);
+
+  useEffect(() => {
+    if (status === 'Completed') {
+      getAnalysis(sampleId)
+        .unwrap()
+        .then((analysis) => {
+          setCompliance(analysis?.compliance);
+        });
+    }
+    return setCompliance(undefined);
+  }, [sampleId, status]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return <StatusBadge status={status} compliance={compliance} {...props} />;
+};
+
+type StatusBadgeProps = Omit<BadgeProps, 'children'> & {
+  status: SampleStatus;
+  compliance: boolean | undefined;
+};
+
+const StatusBadge = ({ status, compliance, ...props }: StatusBadgeProps) => {
   const label = SampleStatusLabels[status];
 
   const Severity: Partial<Record<SampleStatus, AlertProps.Severity>> = {
     NotAdmissible: 'error',
     Analysis: 'info',
-    Completed: 'success',
+    Completed: compliance === false ? 'error' : 'success',
     InReview: 'warning'
   };
 
@@ -43,5 +72,3 @@ const SampleStatusBadge = ({ status, ...props }: Props) => {
     </Badge>
   );
 };
-
-export default SampleStatusBadge;
