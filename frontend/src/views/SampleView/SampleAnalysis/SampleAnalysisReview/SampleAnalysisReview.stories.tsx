@@ -74,6 +74,8 @@ export const ReviewWithResidues: Story = {
           analysisMethod: 'Mono',
           result: 2,
           resultKind: 'Q',
+          substanceAuthorised: 'true',
+          substanceApproved: 'true',
           lmr: 3
         },
         {
@@ -83,6 +85,8 @@ export const ReviewWithResidues: Story = {
           analysisMethod: 'Multi',
           result: null,
           resultKind: 'NQ',
+          substanceAuthorised: 'true',
+          substanceApproved: 'true',
           lmr: null,
           analytes: [
             {
