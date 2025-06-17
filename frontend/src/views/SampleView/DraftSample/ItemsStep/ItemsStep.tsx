@@ -14,28 +14,29 @@ import {
   SampleItem
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { isDefined, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import { useForm } from 'src/hooks/useForm';
 import { usePartialSample } from 'src/hooks/usePartialSample';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
-import { useCreateOrUpdateSampleMutation } from 'src/services/sample.service';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SampleItemDetails from 'src/views/SampleView/SampleItemDetails/SampleItemDetails';
 import SavedAlert from 'src/views/SampleView/SavedAlert';
 import { z } from 'zod/v4';
 import AppServiceErrorAlert from '../../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import { useAnalytics } from '../../../../hooks/useAnalytics';
+import { ApiClientContext } from '../../../../services/apiClient';
 import NextButton from '../NextButton';
 
 const MaxItemCount = 3;
 
-interface Props {
+export interface Props {
   partialSample: PartialSample | PartialSampleToCreate;
 }
 
 const ItemsStep = ({ partialSample }: Props) => {
+  const apiClient = useContext(ApiClientContext);
   const { navigateToSample } = useSamplesLink();
   const { laboratory, readonly } = usePartialSample(partialSample);
   const { trackEvent } = useAnalytics();
@@ -59,7 +60,7 @@ const ItemsStep = ({ partialSample }: Props) => {
   const [isSaved, setIsSaved] = useState(false);
 
   const [createOrUpdateSample, createOrUpdateSampleCall] =
-    useCreateOrUpdateSampleMutation();
+    apiClient.useCreateOrUpdateSampleMutation();
 
   const Form = z.object({
     items: z
@@ -119,10 +120,7 @@ const ItemsStep = ({ partialSample }: Props) => {
     await createOrUpdateSample({
       ...partialSample,
       notesOnItems,
-      items: items.map((item) => ({
-        ...item,
-        compliance200263: item.compliance200263 ?? false
-      })),
+      items,
       laboratoryId,
       status
     });

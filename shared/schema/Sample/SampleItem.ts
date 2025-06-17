@@ -13,7 +13,12 @@ export const SampleItem = z.object({
     })
     .nonnegative('La quantité doit être positive.'),
   quantityUnit: QuantityUnit,
-  compliance200263: z.boolean().nullish(),
+  compliance200263: z.boolean({
+    error: (issue) =>
+      isNil(issue.input)
+        ? "Veuillez renseigner si l'échantillon respecte la directive 2002/63"
+        : issue.message
+  }),
   sealId: z.string({
     error: (issue) =>
       isNil(issue.input)
