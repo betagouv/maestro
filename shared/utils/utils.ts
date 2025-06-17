@@ -24,6 +24,17 @@ export function coerceToArray<Schema extends z.ZodArray<z.ZodTypeAny>>(
     .pipe(schema);
 }
 
+export const coerceToBoolean = () =>
+  z.union([
+    z
+      .enum(['true', 'false'])
+      .nullish()
+      .transform((value) =>
+        value === 'true' ? true : value === 'false' ? false : value
+      ),
+    z.boolean().nullish()
+  ]);
+
 export const convertKeysToCamelCase = (obj: unknown): unknown => {
   if (!isPlainObject(obj)) {
     return obj;

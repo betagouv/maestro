@@ -118,4 +118,55 @@ describe('findMany samples', async () => {
     });
     expect(samples).not.toHaveLength(1);
   });
+
+  test('find with withAtLeastOneResidue option', async () => {
+    const document = genDocument({
+      createdBy: Sampler1Fixture.id,
+      kind: 'AnalysisReportDocument'
+    });
+
+    await documentRepository.insert(document);
+
+    const analysisWithoutResidues = genPartialAnalysis({
+      sampleId: Sample11Fixture.id,
+      reportDocumentId: document.id,
+      createdBy: Sampler1Fixture.id,
+      status: 'Completed',
+      compliance: true
+    });
+    await analysisRepository.insert(analysisWithoutResidues);
+
+    const analysisWithResidues = genPartialAnalysis({
+      sampleId: Sample2Fixture.id,
+      reportDocumentId: document.id,
+      createdBy: Sampler1Fixture.id,
+      status: 'Completed',
+      compliance: true
+    });
+    await analysisRepository.insert(analysisWithResidues);
+    await analysisRepository.update({
+      ...analysisWithResidues,
+      residues: [
+        {
+          resultKind: 'NQ',
+          analysisMethod: 'Mono',
+          reference: 'RF-00000010-CHE',
+          analysisId: analysisWithResidues.id,
+          residueNumber: 0
+        }
+      ]
+    });
+
+    let samples = await sampleRepository.findMany({
+      programmingPlanId: Sample11Fixture.programmingPlanId
+    });
+    expect(samples).not.toHaveLength(1);
+
+    samples = await sampleRepository.findMany({
+      programmingPlanId: Sample11Fixture.programmingPlanId,
+      withAtLeastOneResidue: true
+    });
+    expect(samples).toHaveLength(1);
+    expect(samples[0].id).toBe(analysisWithResidues.sampleId);
+  });
 });

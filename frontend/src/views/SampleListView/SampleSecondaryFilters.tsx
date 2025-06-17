@@ -1,5 +1,6 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
+import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
 import {
   Context,
@@ -96,6 +97,17 @@ const SampleSecondaryFilters = ({ filters, onChange }: Props) => {
             </option>
           ))}
         </Select>
+      </div>
+      <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
+        <ToggleSwitch
+          label="Avec au moins un résidu"
+          labelPosition="left"
+          inputTitle="filtre les prélèvements qui ont au moins un résidu"
+          defaultChecked={filters.withAtLeastOneResidue ?? false}
+          onChange={(checked) =>
+            onChange({ withAtLeastOneResidue: checked || undefined })
+          }
+        ></ToggleSwitch>
       </div>
     </div>
   );
