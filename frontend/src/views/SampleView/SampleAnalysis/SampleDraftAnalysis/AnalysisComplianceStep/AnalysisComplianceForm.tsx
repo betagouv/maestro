@@ -9,7 +9,7 @@ import { assert, type Equals } from 'tsafe';
 import check from '../../../../../assets/illustrations/check.svg';
 import close from '../../../../../assets/illustrations/close.svg';
 import AppRadioButtons from '../../../../../components/_app/AppRadioButtons/AppRadioButtons';
-import AppTextInput from '../../../../../components/_app/AppTextInput/AppTextInput';
+import AppTextAreaInput from '../../../../../components/_app/AppTextAreaInput/AppTextAreaInput';
 import { useForm } from '../../../../../hooks/useForm';
 
 type Props = {
@@ -81,7 +81,7 @@ export const AnalysisComplianceForm: FunctionComponent<Props> = ({
         />
       </div>
       <div className={cx('fr-col-12')}>
-        <AppTextInput
+        <AppTextAreaInput
           value={notesOnCompliance ?? ''}
           onChange={(e) => setNotesOnCompliance(e.target.value)}
           inputForm={form}
@@ -89,6 +89,7 @@ export const AnalysisComplianceForm: FunctionComponent<Props> = ({
           whenValid="Note additionnelle correctement renseignée"
           label="Note additionnelle"
           hintText="Champ facultatif pour précisions supplémentaires"
+          rows={5}
         />
       </div>
       <hr />

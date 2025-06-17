@@ -78,7 +78,7 @@ export const MatrixKindLabels: Record<MatrixKind | OtherMatrixKind, string> = {
   A00JN: 'Cucurbitacés à peau comestible',
   A00LD: 'Endives',
   A04MA: 'Fines herbes',
-  A01EA: 'fraises',
+  A01EA: 'Fraises',
   A012B: 'Haricots et pois écossés frais',
   A00PX: 'Haricots et pois non écossés frais',
   A01JT: 'Kiwis',
