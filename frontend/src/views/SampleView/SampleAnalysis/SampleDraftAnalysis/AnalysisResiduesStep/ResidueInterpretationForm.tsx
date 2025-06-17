@@ -114,6 +114,7 @@ export const ResidueInterpretationForm: FunctionComponent<Props> = ({
                 inputPathFromKey={[residueIndex, 'substanceApproved']}
                 whenValid="Valeur correctement renseignée"
                 label="Substance approuvée dans l'UE"
+                required
               />
             </div>
             <div className={cx('fr-col-12', 'fr-col-sm-6')}>
@@ -136,6 +137,7 @@ export const ResidueInterpretationForm: FunctionComponent<Props> = ({
                 inputPathFromKey={[residueIndex, 'substanceAuthorised']}
                 whenValid="Valeur correctement renseignée"
                 label="Substance autorisée pour l'usage"
+                required
               />
             </div>
             <div className={cx('fr-col-12', 'fr-col-sm-6')}>
