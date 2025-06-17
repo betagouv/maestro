@@ -5955,7 +5955,12 @@ export const SSD2Referential =
       name: 'Fosetyl-Al (sum of fosetyl, phosphonic acid and their salts, expressed as fosetyl)',
       casNumber: null,
       otherNames: [],
-      reportable: true
+      reportable: true,
+      //Le fosetyl a changé de définition le 29 avril 2025
+      //
+      // Avant: fosetyl-Al (somme du fosétyl, de l'acide phosphonique et de leurs sels, exprimée en fosétyl)
+      // Après: acide phosphonique et ses sels, exprimés en acide phosphonique
+      deprecated: true
     },
     'RF-0226-001-PPP': {
       reference: 'RF-0226-001-PPP',
@@ -12026,6 +12031,7 @@ type Referential = {
     casNumber: string | null;
     otherNames: string[];
     reportable: boolean;
+    deprecated?: true;
   };
 };
 

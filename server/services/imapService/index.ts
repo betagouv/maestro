@@ -2,7 +2,10 @@ import { ImapFlow } from 'imapflow';
 import { isNull } from 'lodash-es';
 import { LaboratoryWithAutomation } from 'maestro-shared/referential/Laboratory';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
-import { getSSD2Id } from 'maestro-shared/referential/Residue/SSD2Referential';
+import {
+  getSSD2Id,
+  SSD2Referential
+} from 'maestro-shared/referential/Residue/SSD2Referential';
 import { SandreToSSD2 } from 'maestro-shared/referential/Residue/SandreToSSD2';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
@@ -239,12 +242,21 @@ export const checkEmails = async () => {
                 }
               });
 
-              //On garde que les résidues intéressants
-              const interestingResidues = residues.filter(
-                (r) => r.result_kind !== 'ND'
-              );
+              //On garde que les résidus intéressants et on supprime les résidus deprecated
+              const interestingResidues = residues
+                .filter((r) => r.result_kind !== 'ND')
+                .filter((r) => {
+                  const ssd2Id = r.ssd2Id;
 
-              //Erreur si un résidue intéressant n'a pas de SSD2Id
+                  if (ssd2Id === null) {
+                    return true;
+                  }
+                  const reference =
+                    SSD2Referential[ssd2Id as keyof typeof SSD2Referential];
+                  return !('deprecated' in reference) || !reference.deprecated;
+                });
+
+              //Erreur si un résidu intéressant n'a pas de SSD2Id
               interestingResidues.forEach((r) => {
                 if (r.ssd2Id === null) {
                   throw new ExtractError(
@@ -252,6 +264,7 @@ export const checkEmails = async () => {
                   );
                 }
               });
+
               const { sampleId, samplerId, samplerEmail } =
                 await analysisHandler({
                   ...analysis,
