@@ -14,7 +14,11 @@ const ResidueResultAlert = ({ result, lmr }: Props) => {
   return (
     <>
       {result < lmr ? (
-        <Alert severity="success" small description="Résultat conforme" />
+        <Alert
+          severity="success"
+          small
+          description="Résultat conforme à la LMR"
+        />
       ) : (
         <>
           <Alert
@@ -26,7 +30,7 @@ const ResidueResultAlert = ({ result, lmr }: Props) => {
             <Alert
               severity="warning"
               small
-              description="Résultat  corrigé  supérieur à la LMR"
+              description="Résultat corrigé supérieur à la LMR"
             />
           )}
         </>
