@@ -19,8 +19,7 @@ import DashboardView from './DashboardView';
 const meta = {
   title: 'Views/DashboardView',
   component: DashboardView,
-  args: { onSelect: fn() },
-  decorators: [(Story) => <Story />]
+  args: { onSelect: fn() }
 } satisfies Meta<typeof DashboardView>;
 
 export default meta;
