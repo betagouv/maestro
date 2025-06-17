@@ -1,8 +1,8 @@
 import express from 'express';
 import fs from 'fs';
+import { analysisRouter } from '../controllers/analysisController';
 import { jwtCheck, userCheck } from '../middlewares/checks/authCheck';
 import addressRouter from './address.router';
-import analysisRouter from './analysis.router';
 import companyRouter from './company.router';
 import documentRouter from './document.router';
 import laboratoryRouter from './laboratory.router';
@@ -10,6 +10,7 @@ import notificationRouter from './notification.router';
 import prescriptionRouter from './prescription.router';
 import programmingPlanRouter from './programmingPlan.router';
 import regionalPrescriptionRouter from './regionalPrescription.router';
+import { generateRoutes } from './routes.type';
 import sampleRouter from './sample.router';
 import userRouter from './user.router';
 
@@ -18,7 +19,7 @@ export const protectedRouter = express.Router();
 protectedRouter.use(jwtCheck(true));
 protectedRouter.use(userCheck(true));
 
-protectedRouter.use('/analysis', analysisRouter);
+protectedRouter.use(generateRoutes(analysisRouter));
 protectedRouter.use('/addresses', addressRouter);
 protectedRouter.use('/companies', companyRouter);
 protectedRouter.use('/documents', documentRouter);

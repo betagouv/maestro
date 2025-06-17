@@ -32,6 +32,13 @@ export const AnalysisToCreate = Analysis.pick({
   reportDocumentId: true
 });
 
+export const AnalysisToUpdate = PartialAnalysis.omit({
+  id: true,
+  sampleId: true,
+  createdAt: true,
+  createdBy: true
+});
+
 export const CreatedAnalysis = z.object({
   ...AnalysisToCreate.shape,
   ...Analysis.pick({
