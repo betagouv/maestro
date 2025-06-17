@@ -31,7 +31,7 @@ import NextButton from '../NextButton';
 
 const MaxItemCount = 3;
 
-export interface Props {
+interface Props {
   partialSample: PartialSample | PartialSampleToCreate;
 }
 
