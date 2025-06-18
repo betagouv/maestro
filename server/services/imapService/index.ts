@@ -142,6 +142,9 @@ export const checkEmails = async () => {
           envelope: true,
           bodyStructure: true
         })) {
+          if (!message.envelope || !message.envelope.sender) {
+            throw new ExtractError("Impossible d'ouvrir l'email");
+          }
           console.log(
             'Email reçu',
             message.envelope.sender[0].address,
@@ -162,7 +165,7 @@ export const checkEmails = async () => {
               sender: message.envelope.sender[0].address ?? '',
               error:
                 "Impossible d'identifier le laboratoire émetteur de cet email",
-              subject: message.envelope.subject
+              subject: message.envelope.subject ?? ''
             });
           }
         }
