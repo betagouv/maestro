@@ -1,12 +1,12 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { FunctionComponent } from 'react';
+import React, { FunctionComponent } from 'react';
 import { assert, Equals } from 'tsafe';
 import DocumentLink from '../../../components/DocumentLink/DocumentLink';
 
 type Props = {
   reportDocumentId: string;
-  children?: JSX.Element;
+  children?: React.JSX.Element;
 };
 
 export const AnalysisDocumentPreview: FunctionComponent<Props> = ({

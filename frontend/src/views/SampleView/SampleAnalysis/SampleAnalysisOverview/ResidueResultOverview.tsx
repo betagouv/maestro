@@ -10,14 +10,14 @@ import {
   ResidueKind,
   ResidueKindLabels
 } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
-import { FunctionComponent } from 'react';
+import React, { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import ResidueResultAlert from '../../../../components/ResidueResultAlert/ResidueResultAlert';
 
 type Props = {
   residueIndex: number;
   residue: Omit<PartialResidue, 'kind'>;
-  children?: JSX.Element;
+  children?: React.JSX.Element;
 };
 export const ResidueResultOverview: FunctionComponent<Props> = ({
   residueIndex,

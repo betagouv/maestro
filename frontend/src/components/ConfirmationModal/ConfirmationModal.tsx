@@ -2,7 +2,7 @@ import { ModalProps } from '@codegouvfr/react-dsfr/Modal';
 import React, { type ReactNode } from 'react';
 interface Props {
   modal: {
-    Component: (props: ModalProps) => JSX.Element;
+    Component: (props: ModalProps) => React.JSX.Element;
     close: () => void;
     open: () => void;
     isOpenedByDefault: boolean;

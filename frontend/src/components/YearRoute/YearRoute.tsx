@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useParams } from 'react-router';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch } from 'src/hooks/useStore';
@@ -6,7 +6,7 @@ import { useFindProgrammingPlansQuery } from 'src/services/programmingPlan.servi
 import programmingPlanSlice from 'src/store/reducers/programmingPlanSlice';
 
 interface Props {
-  element: () => JSX.Element;
+  element: () => React.JSX.Element;
 }
 
 const YearRoute = ({ element }: Props) => {
