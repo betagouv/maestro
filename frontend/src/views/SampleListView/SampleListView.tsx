@@ -25,7 +25,10 @@ import {
   UserRoleList,
   UserRolePermissions
 } from 'maestro-shared/schema/User/UserRole';
-import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
+import {
+  coerceToBooleanNullish,
+  isDefinedAndNotNull
+} from 'maestro-shared/utils/utils';
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import SampleCard from 'src/components/SampleCard/SampleCard';
@@ -90,6 +93,10 @@ const SampleListView = () => {
         compliance:
           SampleCompliance.safeParse(searchParams.get('compliance')).data ??
           undefined,
+        withAtLeastOneResidue:
+          coerceToBooleanNullish().safeParse(
+            searchParams.get('withAtLeastOneResidue')
+          ).data ?? undefined,
         page: Number(searchParams.get('page')) || 1,
         perPage: defaultPerPage
       })

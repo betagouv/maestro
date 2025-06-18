@@ -9,7 +9,7 @@ import { kysely } from './kysely';
 import type { KyselyMaestro } from './kysely.type';
 
 export const analysisTable = 'analysis';
-const analysisResiduesTable = 'analysis_residues';
+export const analysisResiduesTable = 'analysis_residues';
 const residueAnalytesTable = 'residue_analytes';
 
 const PartialAnalysisDbo = PartialAnalysis.omit({

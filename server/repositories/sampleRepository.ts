@@ -5,9 +5,9 @@ import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOption
 import { PartialSample, Sample } from 'maestro-shared/schema/Sample/Sample';
 import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
 import z from 'zod/v4';
-import { analysisTable } from './analysisRepository';
+import { analysisResiduesTable, analysisTable } from './analysisRepository';
 import { companiesTable } from './companyRepository';
-import { knexInstance as db } from './db';
+import { knexInstance as db, knexInstance } from './db';
 import { kysely } from './kysely';
 import { KyselyMaestro } from './kysely.type';
 import { usersTable } from './userRepository';
@@ -102,7 +102,8 @@ const findRequest = (findOptions: FindSampleOptions) =>
           'status',
           'reference',
           'department',
-          'compliance'
+          'compliance',
+          'withAtLeastOneResidue'
         ),
         (_) => isNil(_) || isArray(_)
       )
@@ -142,6 +143,24 @@ const findRequest = (findOptions: FindSampleOptions) =>
         builder.where(
           `${analysisTable}.compliance`,
           findOptions.compliance === 'conform'
+        );
+      }
+      if (findOptions.withAtLeastOneResidue === true) {
+        builder.whereExists((c) =>
+          c
+            .select(knexInstance.raw(1))
+            .from(analysisTable)
+            .join(
+              analysisResiduesTable,
+              `${analysisResiduesTable}.analysisId`,
+              `${analysisTable}.id`
+            )
+            .where(
+              `${analysisTable}.sampleId`,
+              knexInstance.raw(`${samplesTable}.id`)
+            )
+            .whereNot(`${analysisResiduesTable}.resultKind`, 'ND')
+            .limit(1)
         );
       }
     });

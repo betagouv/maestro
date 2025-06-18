@@ -88,6 +88,10 @@ const filtersConfig = {
   compliance: {
     prop: 'compliance',
     getLabel: (value) => SampleComplianceLabels[value]
+  },
+  withAtLeastOneResidue: {
+    prop: 'withAtLeastOneResidue',
+    getLabel: () => 'Avec au moins un résidu'
   }
 } as const satisfies {
   [key in keyof Omit<
