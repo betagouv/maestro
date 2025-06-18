@@ -31,6 +31,7 @@ export const RealizedStatusList: SampleStatus[] = [
   'Sent',
   'NotAdmissible',
   'Analysis',
+  'InReview',
   'Completed'
 ];
 
