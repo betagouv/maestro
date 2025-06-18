@@ -31,9 +31,9 @@ import NextButton from '../NextButton';
 
 const MaxItemCount = 3;
 
-interface Props {
+type Props = {
   partialSample: PartialSample | PartialSampleToCreate;
-}
+};
 
 const ItemsStep = ({ partialSample }: Props) => {
   const apiClient = useContext(ApiClientContext);
