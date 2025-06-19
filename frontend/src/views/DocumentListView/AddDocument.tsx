@@ -2,6 +2,7 @@ import { fr } from '@codegouvfr/react-dsfr';
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import clsx from 'clsx';
 import { FileInput } from 'maestro-shared/schema/File/FileInput';
 import { useState } from 'react';
 import AppUpload from 'src/components/_app/AppUpload/AppUpload';
@@ -53,17 +54,45 @@ const AddDocument = () => {
       }}
       data-testid="add-document"
     >
-      <AppUpload
-        nativeInputProps={{
-          onChange: (event: any) => selectFile(event)
-        }}
-        className={cx('fr-mb-2w')}
-        disabled={isCreateLoading}
-        key={`upload-${isCreateSuccess}`}
-        inputForm={form}
-        inputKey="file"
-        whenValid="fichier valide"
-      />
+      {file ? (
+        <>
+          <div className={cx('fr-label')}>Déposer un nouveau document</div>
+          <div
+            className={clsx(
+              cx('fr-hint-text', 'fr-my-2w'),
+              'd-flex-align-center'
+            )}
+          >
+            <div className="flex-grow-1">
+              {file.name} <br />({Math.round(file.size / 1024)} Ko)
+            </div>
+            <Button
+              title="Supprimer"
+              iconId="fr-icon-delete-line"
+              priority="tertiary"
+              size="small"
+              onClick={(e) => {
+                e.preventDefault();
+                setFile(undefined);
+              }}
+              className={clsx('fr-ml-2w')}
+            />
+          </div>
+          <Button onClick={submitFile}>Déposer</Button>
+        </>
+      ) : (
+        <AppUpload
+          nativeInputProps={{
+            onChange: (event: any) => selectFile(event)
+          }}
+          className={cx('fr-mb-2w')}
+          disabled={isCreateLoading}
+          key={`upload-${isCreateSuccess}`}
+          inputForm={form}
+          inputKey="file"
+          whenValid="fichier valide"
+        />
+      )}
       {isCreateError && (
         <Alert
           className={cx('fr-mb-2w')}
@@ -72,7 +101,6 @@ const AddDocument = () => {
           small
         />
       )}
-      <Button onClick={submitFile}>Déposer</Button>
     </div>
   );
 };

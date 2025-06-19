@@ -119,6 +119,26 @@ const AnalysisReportStep = ({ sampleId, partialAnalysis }: Props) => {
             />
           </div>
         </>
+      ) : fileInput ? (
+        <div>
+          <div className={cx('fr-label')}>Ajouter le rapport d'analyse</div>
+          <div className={clsx(cx('fr-hint-text'), 'd-flex-align-center')}>
+            <div className="flex-grow-1">
+              {fileInput.name} ({Math.round(fileInput.size / 1024)} Ko)
+            </div>
+            <Button
+              title="Supprimer"
+              iconId="fr-icon-delete-line"
+              priority="tertiary"
+              size="small"
+              onClick={(e) => {
+                e.preventDefault();
+                setFileInput(undefined);
+              }}
+              className={clsx(cx('fr-mt-0'), 'float-right')}
+            />
+          </div>
+        </div>
       ) : (
         <AppUpload
           label="Ajouter le rapport d'analyse"
