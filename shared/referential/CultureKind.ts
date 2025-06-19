@@ -1,6 +1,6 @@
 import { z } from 'zod/v4';
 import { PartialSample } from '../schema/Sample/Sample';
-export const CultureKindDeprecated = z.enum([
+const CultureKindDeprecated = z.enum([
   'Z0211',
   'PD06A',
   'PD08A',
@@ -8,7 +8,7 @@ export const CultureKindDeprecated = z.enum([
   'Z0153',
   'PD05A'
 ]);
-export const CultureKindEffective = z.enum(['PD07A', 'PD09A', 'Z0215']);
+const CultureKindEffective = z.enum(['PD07A', 'PD09A', 'Z0215']);
 export const CultureKind = z.enum(
   [...CultureKindDeprecated.options, ...CultureKindEffective.options],
   {
