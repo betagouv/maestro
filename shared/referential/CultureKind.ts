@@ -1,17 +1,16 @@
 import { z } from 'zod/v4';
 import { PartialSample } from '../schema/Sample/Sample';
+export const CultureKindDeprecated = z.enum([
+  'Z0211',
+  'PD06A',
+  'PD08A',
+  'Z0216',
+  'Z0153',
+  'PD05A'
+]);
+export const CultureKindEffective = z.enum(['PD07A', 'PD09A', 'Z0215']);
 export const CultureKind = z.enum(
-  [
-    'Z0211',
-    'PD06A',
-    'PD08A',
-    'PD07A',
-    'Z0216',
-    'PD09A',
-    'Z0215',
-    'Z0153',
-    'PD05A'
-  ],
+  [...CultureKindDeprecated.options, ...CultureKindEffective.options],
   {
     error: () => 'Veuillez renseigner le type de culture.'
   }
@@ -19,7 +18,7 @@ export const CultureKind = z.enum(
 
 export type CultureKind = z.infer<typeof CultureKind>;
 
-export const CultureKindList: CultureKind[] = CultureKind.options;
+export const CultureKindList: CultureKind[] = CultureKindEffective.options;
 
 export const CultureKindLabels: Record<CultureKind, string> = {
   Z0211: 'Sous serre/conditions de croissance protégées',
