@@ -2,7 +2,7 @@ import { z, ZodType } from 'zod/v4';
 
 export const Templates = {
   SampleAnalysisRequestTemplate: {
-    id: 1,
+    id: 19,
     params: z.object({
       region: z.string().optional(),
       userMail: z.string(),
