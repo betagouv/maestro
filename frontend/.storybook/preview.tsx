@@ -30,11 +30,15 @@ const preview: Preview = {
     }
   },
   decorators: (Story, { parameters }) => {
-    const { apiClient = mockApiClient, preloadedState = {} } = parameters;
+    const {
+      apiClient = mockApiClient,
+      preloadedState = {},
+      initialEntries = ['/']
+    } = parameters;
     const store = createStore(preloadedState);
     return (
       <MuiDsfrThemeProvider>
-        <MemoryRouter>
+        <MemoryRouter initialEntries={initialEntries}>
           <Provider store={store}>
             <ApiClientContext.Provider value={apiClient}>
               <Story />
