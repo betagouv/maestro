@@ -4,4 +4,8 @@
   .fr-fieldset__content.fr-grid-row--gutters {
     margin: -0.5rem;
   }
+
+  .fr-radio-group.fr-col-12 {
+    max-width: calc(1200% / 12);
+  }
 }

@@ -22,7 +22,7 @@ import MatrixStep from '../MatrixStep';
 
 const createOrUpdateMock = fn();
 const meta = {
-  title: 'Views/MatrixStep',
+  title: 'Views/SampleView/MatrixStep',
   component: MatrixStep,
   decorators: (Story) => (
     <div className="sample-overview">

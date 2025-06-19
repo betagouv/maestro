@@ -16,7 +16,7 @@ import {
 import MatrixStep from '../MatrixStep';
 
 const meta = {
-  title: 'Views/MatrixStep',
+  title: 'Views/SampleView/MatrixStep',
   component: MatrixStep,
   decorators: (Story) => (
     <div className="sample-overview">

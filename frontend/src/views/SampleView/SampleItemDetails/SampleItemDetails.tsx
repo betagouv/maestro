@@ -1,6 +1,5 @@
 import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
 import { getLaboratoryFullname } from 'maestro-shared/referential/Laboratory';
 import {
@@ -21,6 +20,7 @@ import {
   SampleItemRecipientKindLabels
 } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import React, { useContext, useMemo } from 'react';
+import { Link } from 'react-router';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppResponsiveButton from 'src/components/_app/AppResponsiveButton/AppResponsiveButton';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
@@ -31,6 +31,7 @@ import {
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { UseForm, useForm } from 'src/hooks/useForm';
 import { z } from 'zod/v4';
+import useWindowSize from '../../../hooks/useWindowSize';
 import { ApiClientContext } from '../../../services/apiClient';
 
 const Form = z.object({
@@ -63,6 +64,7 @@ const SampleItemDetails = ({
   readonly: forceReadonly
 }: Props) => {
   const apiClient = useContext(ApiClientContext);
+  const { isMobile } = useWindowSize();
 
   const fakeForm = useForm(Form, {
     items: [],
@@ -255,19 +257,41 @@ const SampleItemDetails = ({
       </div>
       {partialSample.specificData.programmingPlanKind === 'PPV' && (
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={cx('fr-col-12')}>
+          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
             {itemsForm ? (
-              <ToggleSwitch
-                label="Respect directive 2002/63"
-                checked={item.compliance200263 ?? false}
-                onChange={(checked) =>
-                  onChangeItem?.(
-                    { ...item, compliance200263: checked },
-                    itemIndex
-                  )
-                }
-                showCheckedHint={false}
+              <AppRadioButtons
+                legend="Directive 2002/63"
+                options={[
+                  {
+                    label: 'Respectée',
+                    nativeInputProps: {
+                      checked: item.compliance200263 === true,
+                      onChange: () =>
+                        onChangeItem?.(
+                          { ...item, compliance200263: true },
+                          itemIndex
+                        )
+                    }
+                  },
+                  {
+                    label: 'Non respectée',
+                    nativeInputProps: {
+                      checked: item.compliance200263 === false,
+                      onChange: () =>
+                        onChangeItem?.(
+                          { ...item, compliance200263: false },
+                          itemIndex
+                        )
+                    }
+                  }
+                ]}
+                colSm={6}
+                inputForm={form}
+                inputKey="items"
+                inputPathFromKey={[itemIndex, 'compliance200263']}
+                whenValid="Directive 2002/63 correctement renseignée."
                 disabled={readonly}
+                required
               />
             ) : (
               <div className="icon-text">
@@ -283,6 +307,15 @@ const SampleItemDetails = ({
                 </div>
               </div>
             )}
+          </div>
+          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+            <Link
+              to="https://eur-lex.europa.eu/legal-content/FR/TXT/HTML/?uri=CELEX:02002L0063-20020723"
+              className={clsx(cx('fr-link'), { 'float-right': !isMobile })}
+              target="_blank"
+            >
+              Directive 2002/63
+            </Link>
           </div>
         </div>
       )}

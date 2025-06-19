@@ -6,6 +6,7 @@ import {
 import { fn } from '@storybook/test';
 import { genPartialAnalysis } from 'maestro-shared/test/analysisFixtures';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
+import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   genCreatedPartialSample,
@@ -74,11 +75,7 @@ export const defaultMockApiClientConf: Partial<MockApi<ApiClient>> = {
   },
   useLazyGetDocumentDownloadSignedUrlQuery: 'https://maestro.beta.gouv.fr',
   useGetLaboratoryQuery: {
-    data: {
-      id: 'fakeLaboratoryId',
-      name: 'SCL 34',
-      emails: ['fakeEmail@gouv.fr']
-    }
+    data: LaboratoryFixture
   },
   useUpdateSampleMutation: [async () => fn(), { isSuccess: true }],
   useUpdateAnalysisMutation: [async () => fn(), { isSuccess: true }],
