@@ -1,7 +1,7 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { expect, fireEvent, fn, userEvent, within } from '@storybook/test';
+import { expect, fireEvent, fn, userEvent, within } from 'storybook/test';
 import clsx from 'clsx';
 import { ResultKindList } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';

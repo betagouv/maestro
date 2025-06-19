@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { expect, fn, userEvent, within } from '@storybook/test';
+import { expect, fn, userEvent, within } from 'storybook/test';
 import { screen } from '@storybook/testing-library';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import {

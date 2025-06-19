@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { genPartialAnalysis } from 'maestro-shared/test/analysisFixtures';
 import { ApiClient } from '../../services/apiClient';
 import {

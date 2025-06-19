@@ -3,7 +3,6 @@ import {
   TypedUseMutation,
   TypedUseQuery
 } from '@reduxjs/toolkit/dist/query/react';
-import { fn } from '@storybook/test';
 import { genPartialAnalysis } from 'maestro-shared/test/analysisFixtures';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
@@ -13,6 +12,7 @@ import {
   Sample11Fixture
 } from 'maestro-shared/test/sampleFixtures';
 import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
+import { fn } from 'storybook/test';
 import regionsJson from '../../../server/data/regions.json';
 import { ApiClient } from './apiClient';
 
