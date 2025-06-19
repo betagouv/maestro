@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { expect, fn, within } from '@storybook/test';
+import { expect, fn, within } from 'storybook/test';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   genCreatedSampleData,
