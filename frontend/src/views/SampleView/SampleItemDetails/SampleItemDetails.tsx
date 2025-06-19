@@ -31,6 +31,7 @@ import {
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { UseForm, useForm } from 'src/hooks/useForm';
 import { z } from 'zod/v4';
+import useWindowSize from '../../../hooks/useWindowSize';
 import { ApiClientContext } from '../../../services/apiClient';
 
 const Form = z.object({
@@ -63,6 +64,7 @@ const SampleItemDetails = ({
   readonly: forceReadonly
 }: Props) => {
   const apiClient = useContext(ApiClientContext);
+  const { isMobile } = useWindowSize();
 
   const fakeForm = useForm(Form, {
     items: [],
@@ -255,20 +257,10 @@ const SampleItemDetails = ({
       </div>
       {partialSample.specificData.programmingPlanKind === 'PPV' && (
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={cx('fr-col-6')}>
+          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
             {itemsForm ? (
               <AppRadioButtons
-                legend={
-                  <>
-                    Directive 2002/63
-                    <Link
-                      to="https://eur-lex.europa.eu/legal-content/FR/TXT/HTML/?uri=CELEX:02002L0063-20020723"
-                      className={cx('fr-ml-1w')}
-                    >
-                      consulter
-                    </Link>
-                  </>
-                }
+                legend="Directive 2002/63"
                 options={[
                   {
                     label: 'Respectée',
@@ -315,6 +307,15 @@ const SampleItemDetails = ({
                 </div>
               </div>
             )}
+          </div>
+          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+            <Link
+              to="https://eur-lex.europa.eu/legal-content/FR/TXT/HTML/?uri=CELEX:02002L0063-20020723"
+              className={clsx(cx('fr-link'), { 'float-right': !isMobile })}
+              target="_blank"
+            >
+              Directive 2002/63
+            </Link>
           </div>
         </div>
       )}
