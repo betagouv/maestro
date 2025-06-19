@@ -27,7 +27,7 @@ interface Props {
 
 const ProgrammingPlanMap = ({ regionalPrescriptions }: Props) => {
   const apiClient = useContext(ApiClientContext);
-  const ref = useRef<any>();
+  const ref = useRef<any>(undefined);
 
   const [hoverInfo, setHoverInfo] = useState<{
     feature: MapGeoJSONFeature;

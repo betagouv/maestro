@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { reactEventListener } from 'openapi-explorer/dist/es/react';
 import config from 'src/utils/config';
 
-declare global {
+declare module 'react/jsx-runtime' {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace JSX {
     interface IntrinsicElements {

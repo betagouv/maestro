@@ -16,7 +16,7 @@ interface Props {
       'aria-controls': string;
       'data-fr-opened': boolean;
     };
-    Component: (props: ModalProps) => JSX.Element;
+    Component: (props: ModalProps) => React.JSX.Element;
     close: () => void;
     open: () => void;
     isOpenedByDefault: boolean;
