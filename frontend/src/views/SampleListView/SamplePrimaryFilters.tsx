@@ -18,6 +18,7 @@ import {
   samplersOptions,
   selectOptionsFromList
 } from 'src/components/_app/AppSelect/AppSelectOption';
+import { useAppSelector } from '../../hooks/useStore';
 
 interface Props {
   filters: Partial<FindSampleOptions>;
@@ -34,6 +35,7 @@ const SamplePrimaryFilters = ({
   prescriptions,
   currentUserId
 }: Props) => {
+  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
   return (
     <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
       <div className={cx('fr-col-12', 'fr-col-md-3')}>
@@ -107,8 +109,10 @@ const SamplePrimaryFilters = ({
         <Input
           label="Date"
           nativeInputProps={{
-            value: filters.sampledAt ?? '',
             type: 'date',
+            value: filters.sampledAt ?? '',
+            min: `${programmingPlan?.year}-01-01`,
+            max: `${programmingPlan?.year}-12-31`,
             onChange: (e) => onChange({ sampledAt: e.target.value })
           }}
         />
