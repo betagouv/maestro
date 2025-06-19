@@ -60,10 +60,7 @@ export const OneItem: Story = {
         programmingPlan
       }
     },
-    apiClient: getMockApi<ApiClient>({
-      ...defaultMockApiClientConf,
-      useUpdateSampleMutation: [async () => fn(), { isSuccess: false }]
-    })
+    apiClient: getMockApi<ApiClient>(defaultMockApiClientConf)
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
