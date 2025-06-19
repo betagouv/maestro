@@ -22,7 +22,7 @@ type MockApi<T extends Partial<ApiClient>> = {
     : T[Key] extends TypedUseLazyQuery<infer E, any, any>
       ? E
       : T[Key] extends TypedUseMutation<any, any, any>
-        ? [() => Promise<unknown>, { isSuccess: boolean }]
+        ? [() => Promise<unknown>, { isSuccess?: boolean }]
         : null;
 };
 
@@ -88,7 +88,7 @@ export const defaultMockApiClientConf: Partial<MockApi<ApiClient>> = {
     { isSuccess: true }
   ],
   useCreateOrUpdateSampleMutation: [async () => fn(), { isSuccess: true }],
-  useCreateDocumentMutation: [async () => fn(), { isSuccess: true }],
+  useCreateDocumentMutation: [async () => fn(), {}],
   useCreateProgrammingPlanMutation: [async () => fn(), { isSuccess: true }],
   useDeleteDocumentMutation: [async () => fn(), { isSuccess: true }],
   useGetSampleAnalysisQuery: {
@@ -105,6 +105,7 @@ export const defaultMockApiClientConf: Partial<MockApi<ApiClient>> = {
   useFindRegionalPrescriptionsQuery: { data: [] },
   useFindSamplesQuery: { data: [] },
   useFindUsersQuery: { data: [] },
+  useFindResourcesQuery: { data: [] },
   useGetProgrammingPlanQuery: { data: genProgrammingPlan() },
   useGetProgrammingPlanByYearQuery: (year: number) => ({
     data: genProgrammingPlan({

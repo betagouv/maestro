@@ -65,10 +65,10 @@ import { usePartialSample } from '../../../../hooks/usePartialSample';
 import { ApiClientContext } from '../../../../services/apiClient';
 import NextButton from '../NextButton';
 
-interface Props {
+type Props = {
   programmingPlan: ProgrammingPlan;
   partialSample?: PartialSample | PartialSampleToCreate;
-}
+};
 
 const ContextStep = ({ programmingPlan, partialSample }: Props) => {
   const { navigateToSample, navigateToSamples } = useSamplesLink();

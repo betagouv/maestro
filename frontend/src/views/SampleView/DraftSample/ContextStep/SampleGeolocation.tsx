@@ -81,8 +81,7 @@ const SampleGeolocation = ({ location, onLocationChange }: Props) => {
           setMapLongitude(e.viewState.longitude);
         }}
         style={{
-          minHeight: 375,
-          height: 'calc(100% - 80px)'
+          height: 375
         }}
       >
         <NavigationControl position="bottom-right" showCompass={false} />

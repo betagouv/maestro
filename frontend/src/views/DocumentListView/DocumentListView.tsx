@@ -3,28 +3,28 @@ import { Skeleton } from '@mui/material';
 import clsx from 'clsx';
 import { t } from 'i18next';
 import { Brand } from 'maestro-shared/constants';
+import { useContext } from 'react';
 import ressources from 'src/assets/illustrations/ressources.svg';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import AppToast from 'src/components/_app/AppToast/AppToast';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useOnLine } from 'src/hooks/useOnLine';
-import {
-  useCreateDocumentMutation,
-  useFindResourcesQuery
-} from 'src/services/document.service';
 import AddDocument from 'src/views/DocumentListView/AddDocument';
 import DocumentTable from 'src/views/DocumentListView/DocumentTable';
+import { ApiClientContext } from '../../services/apiClient';
 const DocumentListView = () => {
+  const apiClient = useContext(ApiClientContext);
   useDocumentTitle('Liste des documents ressources');
   const { isOnline } = useOnLine();
 
   const { hasUserPermission } = useAuthentication();
 
-  const { data: resources } = useFindResourcesQuery();
-  const [, { isSuccess: isCreateSuccess }] = useCreateDocumentMutation({
-    fixedCacheKey: 'createDocument'
-  });
+  const { data: resources } = apiClient.useFindResourcesQuery();
+  const [, { isSuccess: isCreateSuccess }] =
+    apiClient.useCreateDocumentMutation({
+      fixedCacheKey: 'createDocument'
+    });
 
   return (
     <section className={clsx(cx('fr-container'), 'main-section')}>
