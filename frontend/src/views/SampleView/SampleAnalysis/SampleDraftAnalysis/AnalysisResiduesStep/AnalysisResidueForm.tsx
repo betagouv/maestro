@@ -4,7 +4,7 @@ import Tag from '@codegouvfr/react-dsfr/Tag';
 import { Box } from '@mui/material';
 import clsx from 'clsx';
 import { isComplex } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
-import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import { SSD2Id, SSD2Ids } from 'maestro-shared/referential/Residue/SSD2Id';
 import {
   SSD2IdLabel,
   SSD2Referential
@@ -50,6 +50,15 @@ export const AnalysisResidueForm: FunctionComponent<Props> = ({
 
   const kind: ResidueKind =
     residue.reference && isComplex(residue.reference) ? 'Complex' : 'Simple';
+
+  const references = SSD2Ids.filter((id) => {
+    // Permet de modifier une référence deprecated mais déjà en bdd
+    if (id === residue.reference) {
+      return true;
+    }
+    const reference = SSD2Referential[id as keyof typeof SSD2Referential];
+    return !('deprecated' in reference) || !reference.deprecated;
+  });
 
   return (
     <>
@@ -110,7 +119,7 @@ export const AnalysisResidueForm: FunctionComponent<Props> = ({
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
             <AppSearchInput
-              options={selectOptionsFromList(Object.keys(SSD2Referential), {
+              options={selectOptionsFromList(references, {
                 labels: SSD2IdLabel,
                 withSort: true,
                 withDefault: false
