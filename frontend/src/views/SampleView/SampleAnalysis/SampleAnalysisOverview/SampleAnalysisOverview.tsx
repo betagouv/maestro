@@ -9,7 +9,6 @@ import { Analysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { useContext, useMemo, useState } from 'react';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
-import { useUpdateSampleMutation } from 'src/services/sample.service';
 import { pluralize, quote } from 'src/utils/stringUtils';
 import check from '../../../../assets/illustrations/check.svg';
 import close from '../../../../assets/illustrations/close.svg';
@@ -30,7 +29,7 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
   const analysis = data as Analysis | undefined;
 
   const [updateAnalysis] = apiClient.useUpdateAnalysisMutation();
-  const [updateSample] = useUpdateSampleMutation();
+  const [updateSample] = apiClient.useUpdateSampleMutation();
 
   const [editingStatus, setEditingStatus] = useState(
     analysis?.status ?? 'Report'

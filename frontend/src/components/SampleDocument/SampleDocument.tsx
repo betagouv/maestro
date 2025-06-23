@@ -2,12 +2,9 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Input from '@codegouvfr/react-dsfr/Input';
 import clsx from 'clsx';
+import { useContext } from 'react';
 import { Link } from 'react-router';
-import {
-  useGetDocumentDownloadSignedUrlQuery,
-  useGetDocumentQuery,
-  useUpdateDocumentMutation
-} from '../../services/document.service';
+import { ApiClientContext } from '../../services/apiClient';
 import { cropFileName, quote } from '../../utils/stringUtils';
 interface Props {
   documentId: string;
@@ -16,12 +13,13 @@ interface Props {
 }
 
 const SampleDocument = ({ documentId, readonly, onRemove }: Props) => {
-  const { data: document } = useGetDocumentQuery(documentId);
+  const apiClient = useContext(ApiClientContext);
+  const { data: document } = apiClient.useGetDocumentQuery(documentId);
 
   const { data: documentUrl } =
-    useGetDocumentDownloadSignedUrlQuery(documentId);
+    apiClient.useGetDocumentDownloadSignedUrlQuery(documentId);
 
-  const [updateDocument] = useUpdateDocumentMutation();
+  const [updateDocument] = apiClient.useUpdateDocumentMutation();
 
   if (!document) {
     return <></>;

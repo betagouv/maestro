@@ -4,13 +4,14 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { FileInput } from 'maestro-shared/schema/File/FileInput';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import AppUpload from 'src/components/_app/AppUpload/AppUpload';
 import { useForm } from 'src/hooks/useForm';
-import { useCreateDocumentMutation } from 'src/services/document.service';
 import { z } from 'zod/v4';
+import { ApiClientContext } from '../../services/apiClient';
 
 const AddDocument = () => {
+  const apiClient = useContext(ApiClientContext);
   const [
     createDocument,
     {
@@ -18,7 +19,7 @@ const AddDocument = () => {
       isSuccess: isCreateSuccess,
       isError: isCreateError
     }
-  ] = useCreateDocumentMutation({
+  ] = apiClient.useCreateDocumentMutation({
     fixedCacheKey: 'createDocument'
   });
 

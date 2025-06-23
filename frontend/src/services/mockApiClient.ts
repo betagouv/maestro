@@ -53,7 +53,9 @@ export const getMockApi = <T extends Partial<ApiClient>>(
         })
       ];
     } else if (
+      key.startsWith('useAdd') ||
       key.startsWith('useCreate') ||
+      key.startsWith('useComment') ||
       key.startsWith('useUpdate') ||
       key.startsWith('useDelete')
     ) {
@@ -130,7 +132,15 @@ export const defaultMockApiClientConf: Partial<MockApi<ApiClient>> = {
   useDeleteSampleMutation: [async () => fn(), { isSuccess: true }],
   useUpdatePrescriptionMutation: [async () => fn(), { isSuccess: true }],
   useAddPrescriptionMutation: [async () => fn(), { isSuccess: true }],
-  useDeletePrescriptionMutation: [async () => fn(), { isSuccess: true }]
+  useUpdateRegionalPrescriptionMutation: [
+    async () => fn(),
+    { isSuccess: true }
+  ],
+  useDeletePrescriptionMutation: [async () => fn(), { isSuccess: true }],
+  useCommentRegionalPrescriptionMutation: [
+    async () => fn(),
+    { isSuccess: true }
+  ]
 };
 
 export const mockApiClient = getMockApi<ApiClient>(defaultMockApiClientConf);

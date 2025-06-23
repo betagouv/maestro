@@ -4,11 +4,11 @@ import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import { skipToken } from '@reduxjs/toolkit/query';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { PrescriptionSubstance } from 'maestro-shared/schema/Prescription/PrescriptionSubstance';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useContext, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
-import { useGetPrescriptionSubstancesQuery } from 'src/services/prescription.service';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import { useAuthentication } from '../../../hooks/useAuthentication';
+import { ApiClientContext } from '../../../services/apiClient';
 import SubstanceSearch from '../../SubstanceSearch/SubstanceSearch';
 import './PrescriptionSubstances.scss';
 
@@ -27,6 +27,7 @@ interface Props {
 const PrescriptionSubstancesModal = ({
   onUpdatePrescriptionSubstances
 }: Props) => {
+  const apiClient = useContext(ApiClientContext);
   const dispatch = useAppDispatch();
   const { hasUserPrescriptionPermission } = useAuthentication();
   const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
@@ -34,9 +35,10 @@ const PrescriptionSubstancesModal = ({
     (state) => state.prescriptions
   );
 
-  const { data: prescriptionSubstances } = useGetPrescriptionSubstancesQuery(
-    prescriptionAnalysisEditId ?? skipToken
-  );
+  const { data: prescriptionSubstances } =
+    apiClient.useGetPrescriptionSubstancesQuery(
+      prescriptionAnalysisEditId ?? skipToken
+    );
 
   const getSubstancesByAnalysisMethod = useCallback(
     (analysisMethod: AnalysisMethod) =>

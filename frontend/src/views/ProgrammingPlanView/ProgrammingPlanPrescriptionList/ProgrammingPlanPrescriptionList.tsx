@@ -16,7 +16,7 @@ import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Co
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { RegionalPrescriptionUpdate } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import AppToast from 'src/components/_app/AppToast/AppToast';
 import PrescriptionCard from 'src/components/Prescription/PrescriptionCard/PrescriptionCard';
@@ -24,20 +24,11 @@ import PrescriptionSubstancesModal from 'src/components/Prescription/Prescriptio
 import RegionalPrescriptionCard from 'src/components/Prescription/RegionalPrescriptionCard/RegionalPrescriptionCard';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
-import {
-  useAddPrescriptionMutation,
-  useDeletePrescriptionMutation,
-  useFindPrescriptionsQuery,
-  useUpdatePrescriptionMutation
-} from 'src/services/prescription.service';
-import {
-  useFindRegionalPrescriptionsQuery,
-  useUpdateRegionalPrescriptionMutation
-} from 'src/services/regionalPrescription.service';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import ProgrammingPlanPrescriptionListHeader from 'src/views/ProgrammingPlanView/ProgrammingPlanPrescriptionList/ProgrammingPlanPrescriptionListHeader';
 import ProgrammingPlanPrescriptionTable from 'src/views/ProgrammingPlanView/ProgrammingPlanPrescriptionList/ProgrammingPlanPrescriptionTable';
 import { assert, type Equals } from 'tsafe';
+import { ApiClientContext } from '../../../services/apiClient';
 
 export type PrescriptionListDisplay = 'table' | 'cards';
 
@@ -54,6 +45,7 @@ const ProgrammingPlanPrescriptionList = ({
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
+  const apiClient = useContext(ApiClientContext);
   const dispatch = useAppDispatch();
   const { prescriptionListDisplay, matrixQuery } = useAppSelector(
     (state) => state.prescriptions
@@ -70,13 +62,13 @@ const ProgrammingPlanPrescriptionList = ({
     useState<string[]>([]);
 
   const [addPrescription, { isSuccess: isAddSuccess }] =
-    useAddPrescriptionMutation();
+    apiClient.useAddPrescriptionMutation();
   const [updatePrescription, { isSuccess: isUpdateSuccess }] =
-    useUpdatePrescriptionMutation();
+    apiClient.useUpdatePrescriptionMutation();
   const [updateRegionalPrescription, { isSuccess: isUpdateRegionalSuccess }] =
-    useUpdateRegionalPrescriptionMutation();
+    apiClient.useUpdateRegionalPrescriptionMutation();
   const [deletePrescription, { isSuccess: isDeleteSuccess }] =
-    useDeletePrescriptionMutation();
+    apiClient.useDeletePrescriptionMutation();
 
   const findPrescriptionOptions = useMemo(
     () => ({
@@ -88,7 +80,7 @@ const ProgrammingPlanPrescriptionList = ({
     [programmingPlan, context, region]
   );
 
-  const { data: allPrescriptions } = useFindPrescriptionsQuery(
+  const { data: allPrescriptions } = apiClient.useFindPrescriptionsQuery(
     findPrescriptionOptions
   );
 
@@ -104,10 +96,11 @@ const ProgrammingPlanPrescriptionList = ({
       .sort(PrescriptionSort);
   }, [allPrescriptions, matrixQuery]);
 
-  const { data: regionalPrescriptions } = useFindRegionalPrescriptionsQuery({
-    ...findPrescriptionOptions,
-    includes: ['comments', 'realizedSampleCount']
-  });
+  const { data: regionalPrescriptions } =
+    apiClient.useFindRegionalPrescriptionsQuery({
+      ...findPrescriptionOptions,
+      includes: ['comments', 'realizedSampleCount']
+    });
 
   useEffect(() => {
     if (

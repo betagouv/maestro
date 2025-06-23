@@ -6,9 +6,15 @@ import {
   Company,
   companyFromSearchResult
 } from 'maestro-shared/schema/Company/Company';
-import { ReactNode, SyntheticEvent, useCallback, useState } from 'react';
+import {
+  ReactNode,
+  SyntheticEvent,
+  useCallback,
+  useContext,
+  useState
+} from 'react';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
-import { useLazySearchCompaniesQuery } from '../../services/company.service';
+import { ApiClientContext } from '../../services/apiClient';
 
 interface Props {
   initialCompany?: Company;
@@ -25,10 +31,11 @@ const CompanySearch = ({
   state,
   stateRelatedMessage
 }: Props) => {
+  const apiClient = useContext(ApiClientContext);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [companyResults, setCompanyResults] = useState<Company[]>([]);
   const [searchCompanies, { isLoading, isFetching }] =
-    useLazySearchCompaniesQuery();
+    apiClient.useLazySearchCompaniesQuery();
   const [company, setCompany] = useState<Company | null>(
     initialCompany ?? null
   );

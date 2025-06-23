@@ -5,7 +5,7 @@ import { Brand } from 'maestro-shared/constants';
 import React, { FunctionComponent, useContext, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { useAuthentication } from '../../hooks/useAuthentication';
-import { useFindUsersQuery } from '../../services/user.service';
+import { ApiClientContext } from '../../services/apiClient';
 import AppSearchInput from '../_app/AppSearchInput/AppSearchInput';
 import { selectOptionsFromList } from '../_app/AppSelect/AppSelectOption';
 import { MascaradeContext } from './MascaradeContext';
@@ -63,8 +63,9 @@ const UsersSearchInput: FunctionComponent<{
   setUserId: (newValue: string | null) => void;
 }> = ({ setUserId, ..._rest }) => {
   assert<Equals<keyof typeof _rest, never>>();
+  const apiClient = useContext(ApiClientContext);
 
-  const { data: users } = useFindUsersQuery({});
+  const { data: users } = apiClient.useFindUsersQuery({});
 
   return (
     <>

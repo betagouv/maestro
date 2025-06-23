@@ -1,19 +1,20 @@
 import { Autocomplete } from '@mui/material';
 import { AddressSearchResult } from 'maestro-shared/schema/Address/AddressSearchResult';
-import { SyntheticEvent, useState } from 'react';
-import { useLazySearchAddressesQuery } from 'src/services/address.service';
+import { SyntheticEvent, useContext, useState } from 'react';
+import { ApiClientContext } from '../../services/apiClient';
 
 interface Props {
   onSelectAddress: (address?: AddressSearchResult) => void;
 }
 
 const AddressSearch = ({ onSelectAddress }: Props) => {
+  const apiClient = useContext(ApiClientContext);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [addressSearchResults, setAddressSearchResults] = useState<
     AddressSearchResult[]
   >([]);
   const [searchAddresses, { isLoading, isFetching }] =
-    useLazySearchAddressesQuery();
+    apiClient.useLazySearchAddressesQuery();
   const [address, setAddress] = useState<AddressSearchResult | null>(null);
 
   const handleInputChange = async (

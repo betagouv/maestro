@@ -50,7 +50,8 @@ const sample = genCreatedPartialSample({
 export const ProgrammingPlanViewForNationalCoordinator: Story = {
   parameters: {
     preloadedState: {
-      auth: { authUser: genAuthUser(NationalCoordinator) }
+      auth: { authUser: genAuthUser(NationalCoordinator) },
+      programmingPlan: { programmingPlan }
     },
     initialEntries: [
       `${AuthenticatedAppRoutes.SamplesByYearRoute.link(programmingPlan.year)}/?context=Control`

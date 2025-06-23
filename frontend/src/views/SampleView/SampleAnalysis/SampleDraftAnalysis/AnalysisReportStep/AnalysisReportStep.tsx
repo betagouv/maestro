@@ -5,20 +5,13 @@ import clsx from 'clsx';
 import { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { FileInput } from 'maestro-shared/schema/File/FileInput';
 import { FileType } from 'maestro-shared/schema/File/FileType';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import DocumentLink from 'src/components/DocumentLink/DocumentLink';
 import AppUpload from 'src/components/_app/AppUpload/AppUpload';
 import { useForm } from 'src/hooks/useForm';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
-import {
-  useCreateAnalysisMutation,
-  useUpdateAnalysisMutation
-} from 'src/services/analysis.service';
-import {
-  useCreateDocumentMutation,
-  useDeleteDocumentMutation
-} from 'src/services/document.service';
 import { z } from 'zod/v4';
+import { ApiClientContext } from '../../../../../services/apiClient';
 
 interface Props {
   sampleId: string;
@@ -27,16 +20,17 @@ interface Props {
 
 const AnalysisReportStep = ({ sampleId, partialAnalysis }: Props) => {
   const { navigateToSample } = useSamplesLink();
+  const apiClient = useContext(ApiClientContext);
 
   const [
     createDocument,
     { isLoading: isCreateLoading, isError: isCreateError }
-  ] = useCreateDocumentMutation({
+  ] = apiClient.useCreateDocumentMutation({
     fixedCacheKey: 'createDocument'
   });
-  const [deleteDocument] = useDeleteDocumentMutation();
-  const [createAnalysis] = useCreateAnalysisMutation();
-  const [updateAnalysis] = useUpdateAnalysisMutation();
+  const [deleteDocument] = apiClient.useDeleteDocumentMutation();
+  const [createAnalysis] = apiClient.useCreateAnalysisMutation();
+  const [updateAnalysis] = apiClient.useUpdateAnalysisMutation();
 
   const [fileInput, setFileInput] = useState<File | undefined>();
   const [hasReportDocument, setHasReportDocument] = useState(

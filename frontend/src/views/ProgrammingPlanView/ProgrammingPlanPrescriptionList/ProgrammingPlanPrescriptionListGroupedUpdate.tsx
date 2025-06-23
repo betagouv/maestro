@@ -4,13 +4,13 @@ import Select from '@codegouvfr/react-dsfr/Select';
 import clsx from 'clsx';
 import { getLaboratoryFullname } from 'maestro-shared/referential/Laboratory';
 import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
-import React from 'react';
+import React, { useContext } from 'react';
 import {
   AppSelectOption,
   defaultAppSelectOption
 } from 'src/components/_app/AppSelect/AppSelectOption';
-import { useFindLaboratoriesQuery } from 'src/services/laboratory.service';
 import { pluralize } from 'src/utils/stringUtils';
+import { ApiClientContext } from '../../../services/apiClient';
 import './ProgrammingPlanPrescriptionList.scss';
 interface Props {
   selectedCount: number;
@@ -27,9 +27,10 @@ const ProgrammingPlanPrescriptionListGroupedUpdate = ({
   onCancel,
   onSelectAll
 }: Props) => {
+  const apiClient = useContext(ApiClientContext);
   const [laboratoryId, setLaboratoryId] = React.useState<string>();
 
-  const { data: laboratories } = useFindLaboratoriesQuery();
+  const { data: laboratories } = apiClient.useFindLaboratoriesQuery();
 
   const laboratoriesOptions = (
     laboratories: Laboratory[] = []

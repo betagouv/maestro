@@ -16,11 +16,10 @@ import {
   ProgrammingPlanStatus,
   ProgrammingPlanStatusLabels
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useContext, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { useAppDispatch } from '../../../hooks/useStore';
-import { useFindPrescriptionsQuery } from '../../../services/prescription.service';
-import { useFindRegionalPrescriptionsQuery } from '../../../services/regionalPrescription.service';
+import { ApiClientContext } from '../../../services/apiClient';
 import prescriptionsSlice from '../../../store/reducers/prescriptionsSlice';
 import { pluralize } from '../../../utils/stringUtils';
 
@@ -36,6 +35,7 @@ const ProgrammingPlanApprovalList = ({
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
   const dispatch = useAppDispatch();
+  const apiClient = useContext(ApiClientContext);
 
   const [regionFilter, setRegionFilter] = useState<Region>();
   const [statusFilter, setStatusFilter] = useState<ProgrammingPlanStatus>();
@@ -48,14 +48,15 @@ const ProgrammingPlanApprovalList = ({
     [programmingPlan, context]
   );
 
-  const { data: allPrescriptions } = useFindPrescriptionsQuery(
+  const { data: allPrescriptions } = apiClient.useFindPrescriptionsQuery(
     findPrescriptionOptions
   );
 
-  const { data: regionalPrescriptions } = useFindRegionalPrescriptionsQuery({
-    ...findPrescriptionOptions,
-    includes: ['comments']
-  });
+  const { data: regionalPrescriptions } =
+    apiClient.useFindRegionalPrescriptionsQuery({
+      ...findPrescriptionOptions,
+      includes: ['comments']
+    });
 
   const regionalCommentedPrescriptions = useCallback(
     (region: Region) => {

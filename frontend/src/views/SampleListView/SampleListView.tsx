@@ -29,7 +29,7 @@ import {
   coerceToBooleanNullish,
   isDefinedAndNotNull
 } from 'maestro-shared/utils/utils';
-import { useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import SampleCard from 'src/components/SampleCard/SampleCard';
 import SampleTable from 'src/components/SampleTable/SampleTable';
@@ -39,12 +39,6 @@ import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useOnLine } from 'src/hooks/useOnLine';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import useWindowSize from 'src/hooks/useWindowSize';
-import { useFindPrescriptionsQuery } from 'src/services/prescription.service';
-import {
-  useCountSamplesQuery,
-  useFindSamplesQuery
-} from 'src/services/sample.service';
-import { useFindUsersQuery } from 'src/services/user.service';
 import samplesSlice from 'src/store/reducers/samplesSlice';
 import { getURLQuery } from 'src/utils/fetchUtils';
 import SampleFiltersTags from 'src/views/SampleListView/SampleFiltersTags';
@@ -54,6 +48,7 @@ import SampleSecondaryFilters from 'src/views/SampleListView/SampleSecondaryFilt
 import { v4 as uuidv4 } from 'uuid';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import food from '../../assets/illustrations/food.svg';
+import { ApiClientContext } from '../../services/apiClient';
 import SupportDocumentDownload from '../SampleView/DraftSample/SupportDocumentDownload';
 import './SampleList.scss';
 
@@ -61,6 +56,7 @@ export type SampleListDisplay = 'table' | 'cards';
 
 const SampleListView = () => {
   useDocumentTitle('Liste des prélèvements');
+  const apiClient = useContext(ApiClientContext);
   const dispatch = useAppDispatch();
   const { isOnline } = useOnLine();
   const { isMobile } = useWindowSize();
@@ -103,18 +99,18 @@ const SampleListView = () => {
     );
   }, [searchParams, user?.region, sampleListDisplay]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const { data: samples } = useFindSamplesQuery(
+  const { data: samples } = apiClient.useFindSamplesQuery(
     { ...findSampleOptions, programmingPlanId: programmingPlan?.id as string },
     { skip: !programmingPlan }
   );
-  const { data: samplesCount } = useCountSamplesQuery(
+  const { data: samplesCount } = apiClient.useCountSamplesQuery(
     {
       ...omit(findSampleOptions, 'page', 'perPage'),
       programmingPlanId: programmingPlan?.id as string
     },
     { skip: !programmingPlan }
   );
-  const { data: prescriptions } = useFindPrescriptionsQuery(
+  const { data: prescriptions } = apiClient.useFindPrescriptionsQuery(
     {
       programmingPlanId: programmingPlan?.id as string,
       context: ProgrammingPlanContext.safeParse(findSampleOptions.context).data
@@ -125,7 +121,7 @@ const SampleListView = () => {
         !ProgrammingPlanContext.safeParse(findSampleOptions.context).success
     }
   );
-  const { data: samplers } = useFindUsersQuery({
+  const { data: samplers } = apiClient.useFindUsersQuery({
     region: findSampleOptions.region,
     roles: UserRoleList.filter((r) => {
       const permissions = UserRolePermissions[r];

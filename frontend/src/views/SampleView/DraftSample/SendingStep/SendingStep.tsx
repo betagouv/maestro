@@ -45,6 +45,7 @@ type Props = {
 };
 
 const SendingStep: FunctionComponent<Props> = ({ sample }) => {
+  const apiClient = useContext(ApiClientContext);
   const { navigateToSample } = useSamplesLink();
   const { isOnline } = useOnLine();
   const { laboratory, readonly } = usePartialSample(sample);
@@ -65,7 +66,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
   const [isSaved, setIsSaved] = useState(false);
 
   const [createOrUpdateSample, createOrUpdateSampleCall] =
-    useCreateOrUpdateSampleMutation({
+    apiClient.useCreateOrUpdateSampleMutation({
       fixedCacheKey: `sending-sample-${sample.id}`
     });
 

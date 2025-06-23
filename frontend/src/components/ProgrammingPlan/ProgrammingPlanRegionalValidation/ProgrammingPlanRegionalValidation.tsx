@@ -5,9 +5,10 @@ import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
 import { Region } from 'maestro-shared/referential/Region';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { useContext } from 'react';
 import check from '../../../assets/illustrations/check.svg';
 import dialog from '../../../assets/illustrations/dialog.svg';
-import { useUpdateProgrammingPlanRegionalStatusMutation } from '../../../services/programmingPlan.service';
+import { ApiClientContext } from '../../../services/apiClient';
 import ConfirmationModal from '../../ConfirmationModal/ConfirmationModal';
 import './ProgrammingPlanRegionalValidation.scss';
 
@@ -20,13 +21,15 @@ const ProgrammingPlanRegionalValidation = ({
   programmingPlan,
   region
 }: Props) => {
+  const apiClient = useContext(ApiClientContext);
+
   const regionalValidationModal = createModal({
     id: `regional-validation-modal`,
     isOpenedByDefault: false
   });
 
   const [updateRegionalStatus] =
-    useUpdateProgrammingPlanRegionalStatusMutation();
+    apiClient.useUpdateProgrammingPlanRegionalStatusMutation();
 
   const submit = async () => {
     await updateRegionalStatus({

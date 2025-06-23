@@ -1,9 +1,9 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
-import React, { useState } from 'react';
-import { useUpdateSampleMutation } from 'src/services/sample.service';
+import React, { useContext, useState } from 'react';
 import ContextStepSummary from 'src/views/SampleView/StepSummary/ContextStepSummary';
 import { usePartialSample } from '../../../hooks/usePartialSample';
+import { ApiClientContext } from '../../../services/apiClient';
 import SavedAlert from '../SavedAlert';
 import './SampleOverview.scss';
 interface Props {
@@ -11,12 +11,13 @@ interface Props {
 }
 
 const SampleOverviewContextTab = ({ sample }: Props) => {
+  const apiClient = useContext(ApiClientContext);
   const { readonly } = usePartialSample(sample);
 
   const [resytalId, setResytalId] = useState(sample.resytalId);
   const [isSaved, setIsSaved] = useState(false);
 
-  const [updateSample] = useUpdateSampleMutation();
+  const [updateSample] = apiClient.useUpdateSampleMutation();
 
   const save = async () => {
     await updateSample({
