@@ -12,12 +12,6 @@ interface Props {
 }
 
 const SampleGeolocation = ({ location, onLocationChange }: Props) => {
-  const [mapLatitude, setMapLatitude] = useState<number>(
-    location ? location.x : 46
-  );
-  const [mapLongitude, setMapLongitude] = useState<number>(
-    location ? location.y : 2.3522
-  );
   const [mapZoom, setMapZoom] = useState<number>(location ? 15 : 5);
 
   const marker = useMemo(() => {
@@ -46,8 +40,6 @@ const SampleGeolocation = ({ location, onLocationChange }: Props) => {
                 x: address.geometry.coordinates[1],
                 y: address.geometry.coordinates[0]
               });
-              setMapLongitude(address.geometry.coordinates[0]);
-              setMapLatitude(address.geometry.coordinates[1]);
               setMapZoom(12);
             }
           }}
@@ -55,8 +47,8 @@ const SampleGeolocation = ({ location, onLocationChange }: Props) => {
       </div>
       <SampleMap
         location={{
-          x: mapLatitude,
-          y: mapLongitude
+          x: location?.x ?? 46,
+          y: location?.y ?? 2.3522
         }}
         mapZoom={mapZoom}
         markerX={marker.x}
