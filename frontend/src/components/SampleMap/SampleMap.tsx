@@ -94,7 +94,7 @@ export const SampleMap: FunctionComponent<Props> = ({
         latitude={markerX}
         anchor="bottom"
         draggable={markerDraggable}
-        onDrag={onMarkerDragEnd}
+        onDragEnd={onMarkerDragEnd}
       />
       {ViewStyles['satellite'] && (
         <Map
