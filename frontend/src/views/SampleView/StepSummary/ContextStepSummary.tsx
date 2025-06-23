@@ -15,6 +15,7 @@ import {
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { quote } from 'src/utils/stringUtils';
 import StepSummary from 'src/views/SampleView/StepSummary/StepSummary';
+import { SampleMap } from '../../../components/SampleMap/SampleMap';
 import { usePartialSample } from '../../../hooks/usePartialSample';
 import { useAppSelector } from '../../../hooks/useStore';
 
@@ -75,8 +76,14 @@ const ContextStepSummary = ({
           )}
           {sample.geolocation ? (
             <div>
-              Latitude : <b>{sample.geolocation.x}</b> Longitude :
-              <b>{sample.geolocation.y}</b>
+              <div>
+                Latitude : <b>{sample.geolocation.x}</b> Longitude :
+                <b>{sample.geolocation.y}</b>
+              </div>
+              <SampleMap
+                markerX={sample.geolocation.x}
+                markerY={sample.geolocation.y}
+              />
             </div>
           ) : (
             <div>
