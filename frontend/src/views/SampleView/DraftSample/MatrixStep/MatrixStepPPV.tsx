@@ -291,6 +291,7 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
               whenValid="Type de culture correctement renseigné."
               data-testid="culturekind-select"
               label="Type de culture"
+              required
             />
           </div>
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
