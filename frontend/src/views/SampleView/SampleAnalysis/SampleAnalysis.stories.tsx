@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
@@ -8,7 +8,7 @@ import {
 } from '../../../services/mockApiClient';
 import SampleAnalysis from './SampleAnalysis';
 
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 import { ApiClient } from '../../../services/apiClient';
 import '../SampleOverview/SampleOverview.scss';
 
