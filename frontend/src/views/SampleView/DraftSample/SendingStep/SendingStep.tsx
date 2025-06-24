@@ -53,8 +53,6 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
 
   const isSubmittingRef = useRef<boolean>(false);
 
-  const { useCreateOrUpdateSampleMutation } = useContext(ApiClientContext);
-
   const [resytalId, setResytalId] = useState(sample.resytalId);
   const [ownerFirstName, setOwnerFirstName] = useState(sample.ownerFirstName);
   const [ownerLastName, setOwnerLastName] = useState(sample.ownerLastName);
