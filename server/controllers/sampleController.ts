@@ -49,6 +49,7 @@ import {
 } from 'maestro-shared/schema/User/User';
 import { Readable } from 'node:stream';
 import { PDFDocument } from 'pdf-lib';
+import prescriptionRepository from '../repositories/prescriptionRepository';
 import { laboratoriesConf, LaboratoryWithConf } from '../services/imapService';
 const getSample = async (request: Request, response: Response) => {
   const sample = (request as SampleRequest).sample;
@@ -239,6 +240,15 @@ const updateSample = async (request: Request, response: Response) => {
     throw new UserRoleMissingError();
   } else if (sample.region !== user.region) {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
+
+  if (sample.prescriptionId) {
+    const prescription = await prescriptionRepository.findUnique(
+      sample.prescriptionId
+    );
+    if (!prescription || prescription.matrixKind !== sample.matrixKind) {
+      return response.sendStatus(constants.HTTP_STATUS_BAD_REQUEST);
+    }
   }
 
   if (

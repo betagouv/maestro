@@ -545,6 +545,22 @@ describe('Sample router', () => {
       await forbiddenRequestTest(AdminFixture);
     });
 
+    test('should fail if the prescription is not consistent with the sample', async () => {
+      const badRequestTest = async (user: User) =>
+        request(app)
+          .put(`${testRoute(Sample11Fixture.id)}`)
+          .send({
+            ...validBody,
+            prescriptionId: Sample12Fixture.prescriptionId
+          })
+          .use(tokenProvider(user))
+          .expect(constants.HTTP_STATUS_BAD_REQUEST);
+
+      await badRequestTest(Sampler1Fixture);
+      await badRequestTest(RegionalCoordinator);
+      await badRequestTest(SamplerAndNationalObserver);
+    });
+
     test('should update a partial sample', async () => {
       const successRequestTest = async (user: User) => {
         const res = await request(app)
