@@ -41,7 +41,11 @@ export const getMockApi = <T extends Partial<ApiClient>>(
         const value = mockApi[key];
         return typeof value === 'function' ? value(arg) : value;
       };
-    } else if (key.startsWith('useLazyGet') || key.startsWith('useLazyFind')) {
+    } else if (
+      key.startsWith('useLazyGet') ||
+      key.startsWith('useLazyFind') ||
+      key.startsWith('useLazySearch')
+    ) {
       // @ts-expect-error TS7053
       acc[key] = () => [
         (arg?: any) => ({
@@ -140,7 +144,14 @@ export const defaultMockApiClientConf: Partial<MockApi<ApiClient>> = {
   useCommentRegionalPrescriptionMutation: [
     async () => fn(),
     { isSuccess: true }
-  ]
+  ],
+  useLazySearchAddressesQuery: [],
+  useLazySearchCompaniesQuery: [],
+  useGetAuthRedirectUrlQuery: {
+    data: {
+      url: ''
+    }
+  }
 };
 
 export const mockApiClient = getMockApi<ApiClient>(defaultMockApiClientConf);
