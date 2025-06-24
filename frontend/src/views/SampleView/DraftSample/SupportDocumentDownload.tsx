@@ -18,9 +18,10 @@ import { getSupportDocumentURL } from '../../../services/sample.service';
 
 interface Props {
   partialSample: PartialSample | PartialSampleToCreate;
+  alignRight?: boolean;
 }
 
-const SupportDocumentDownload = ({ partialSample }: Props) => {
+const SupportDocumentDownload = ({ partialSample, alignRight }: Props) => {
   const { isMobile } = useWindowSize();
   const { navigateToSample } = useSamplesLink();
   const { trackEvent } = useAnalytics();
@@ -103,7 +104,7 @@ const SupportDocumentDownload = ({ partialSample }: Props) => {
         >
           <div>{`${isCompleted ? 'Imprimer' : 'Générer'} les étiquettes`}</div>
         </Button>
-        {!isMobile && <div className="border-middle"></div>}
+        {!isMobile && !alignRight && <div className="border-middle"></div>}
       </div>
       <ConfirmationModal
         modal={confirmationModal}

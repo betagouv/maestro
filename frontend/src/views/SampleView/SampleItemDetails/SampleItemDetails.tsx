@@ -308,15 +308,17 @@ const SampleItemDetails = ({
               </div>
             )}
           </div>
-          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-            <Link
-              to="https://eur-lex.europa.eu/legal-content/FR/TXT/HTML/?uri=CELEX:02002L0063-20020723"
-              className={clsx(cx('fr-link'), { 'float-right': !isMobile })}
-              target="_blank"
-            >
-              Directive 2002/63
-            </Link>
-          </div>
+          {itemsForm && (
+            <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+              <Link
+                to="https://eur-lex.europa.eu/legal-content/FR/TXT/HTML/?uri=CELEX:02002L0063-20020723"
+                className={clsx(cx('fr-link'), { 'float-right': !isMobile })}
+                target="_blank"
+              >
+                Directive 2002/63
+              </Link>
+            </div>
+          )}
         </div>
       )}
     </>

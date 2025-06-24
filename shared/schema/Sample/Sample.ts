@@ -58,7 +58,7 @@ export const SampleMatrixSpecificDataPPV = z.object({
   programmingPlanKind: z.literal(ProgrammingPlanKind.enum.PPV),
   matrixDetails: z.string().nullish(),
   matrixPart: MatrixPart,
-  cultureKind: CultureKind.nullish(),
+  cultureKind: CultureKind,
   releaseControl: z.boolean().nullish()
 });
 

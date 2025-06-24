@@ -202,6 +202,7 @@ const SampleListView = () => {
                       programmingPlanKind: programmingPlan.kinds[0]
                     }
                   }}
+                  alignRight
                 />
               </div>
             )}
