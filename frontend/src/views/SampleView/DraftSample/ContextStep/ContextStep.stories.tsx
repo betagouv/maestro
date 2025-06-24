@@ -1,8 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { expect, fn, userEvent, within } from '@storybook/test';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import { genSampleContextData } from 'maestro-shared/test/sampleFixtures';
 import { genAuthUser, Sampler1Fixture } from 'maestro-shared/test/userFixtures';
+import { expect, fn, userEvent, within } from 'storybook/test';
 import { ApiClient } from '../../../../services/apiClient';
 import {
   defaultMockApiClientConf,

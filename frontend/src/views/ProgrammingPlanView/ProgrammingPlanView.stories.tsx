@@ -1,6 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { expect, userEvent, within } from '@storybook/test';
-import { Region, RegionList } from 'maestro-shared/referential/Region';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { RegionList } from 'maestro-shared/referential/Region';
 import {
   genPrescription,
   genRegionalPrescription
@@ -12,6 +11,7 @@ import {
   NationalCoordinator,
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
+import { expect, userEvent, within } from 'storybook/test';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import { ApiClient } from '../../services/apiClient';
 import {
@@ -61,47 +61,44 @@ export const ProgrammingPlanViewForNationalCoordinator: Story = {
       useGetSampleQuery: { data: sample },
       useFindProgrammingPlansQuery: { data: [programmingPlan] },
       useFindPrescriptionsQuery: { data: [prescription1, prescription2] },
-      useFindRegionalPrescriptionsQuery: (region?: Region) => ({
-        data: region
-          ? [
-              genRegionalPrescription({
-                prescriptionId: prescription1.id,
-                region
-              })
-            ]
-          : RegionList.map((region) =>
-              genRegionalPrescription({
-                prescriptionId: prescription1.id,
-                region
-              })
-            )
-      })
+      useFindRegionalPrescriptionsQuery: {
+        data: RegionList.flatMap((region) => [
+          genRegionalPrescription({
+            prescriptionId: prescription1.id,
+            region
+          }),
+          genRegionalPrescription({
+            prescriptionId: prescription2.id,
+            region
+          })
+        ])
+      }
     })
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
     await expect(
-      canvas.findByTestId('prescriptions-cards-segment')
+      canvas.getByTestId('prescriptions-cards-segment')
     ).toBeInTheDocument();
     await expect(
-      canvas.findByTestId('prescriptions-table-segment')
+      canvas.getByTestId('prescriptions-table-segment')
     ).toBeInTheDocument();
 
     await userEvent.click(canvas.getByTestId('prescriptions-table-segment'));
 
-    await expect(canvas.findByTestId('prescription-table')).toBeInTheDocument();
+    await expect(canvas.getByTestId('prescription-table')).toBeInTheDocument();
 
     await expect(
-      canvas.findByTestId(`matrix-${prescription1.matrixKind}`)
+      canvas.getByTestId(`matrix-${prescription1.matrixKind}`)
     ).toBeInTheDocument();
     await expect(
-      canvas.findByTestId(`matrix-${prescription2.matrixKind}`)
+      canvas.getByTestId(`matrix-${prescription2.matrixKind}`)
     ).toBeInTheDocument();
     await expect(
-      canvas.findAllByTestId(`cell-${prescription1.matrixKind}`)
+      canvas.getAllByTestId(`cell-${prescription1.matrixKind}`)
     ).toHaveLength(RegionList.length);
 
-    await expect(canvas.findByTestId('add-matrix-button')).toBeInTheDocument();
+    await expect(canvas.getByTestId('add-matrix-button')).toBeInTheDocument();
   }
 };

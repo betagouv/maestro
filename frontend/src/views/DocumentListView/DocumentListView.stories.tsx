@@ -1,18 +1,17 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { expect, within } from '@storybook/test';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
 import {
   genAuthUser,
   NationalCoordinator,
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
+import { expect, within } from 'storybook/test';
 import { ApiClient } from '../../services/apiClient';
 import {
   defaultMockApiClientConf,
   getMockApi
 } from '../../services/mockApiClient';
 import DocumentListView from './DocumentListView';
-
 const meta = {
   title: 'Views/DocumentListView',
   component: DocumentListView
