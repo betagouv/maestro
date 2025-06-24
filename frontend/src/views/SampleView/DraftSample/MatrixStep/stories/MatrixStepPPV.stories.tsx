@@ -1,7 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { expect, fn, userEvent, within } from 'storybook/test';
-import { screen } from '@storybook/testing-library';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import {
   genPrescription,
@@ -13,6 +11,7 @@ import {
   genSampleContextData
 } from 'maestro-shared/test/sampleFixtures';
 import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
+import { expect, fn, userEvent, within } from 'storybook/test';
 import { ApiClient } from '../../../../../services/apiClient';
 import {
   defaultMockApiClientConf,
@@ -160,7 +159,7 @@ export const MatrixStepPPVSaveOnBlurWithoutHandlingErrors: Story = {
 
     await userEvent.click(matrixKindInput);
 
-    const matrixKindListbox = await screen.findByRole('listbox');
+    const matrixKindListbox = await canvas.findByRole('listbox');
 
     await expect(matrixKindListbox).toBeInTheDocument();
     await expect(within(matrixKindListbox).getAllByRole('option').length).toBe(

@@ -30,7 +30,10 @@ export const CompletedConform: Story = {
   parameters: {
     apiClient: getMockApi<ApiClient>({
       ...defaultMockApiClientConf,
-      useLazyGetSampleAnalysisQuery: genPartialAnalysis({ compliance: true })
+      useLazyGetSampleAnalysisQuery: [
+        genPartialAnalysis({ compliance: true }),
+        { isSuccess: true }
+      ]
     })
   }
 };
@@ -39,7 +42,10 @@ export const CompletedNonConform: Story = {
   parameters: {
     apiClient: getMockApi<ApiClient>({
       ...defaultMockApiClientConf,
-      useLazyGetSampleAnalysisQuery: genPartialAnalysis({ compliance: false })
+      useLazyGetSampleAnalysisQuery: [
+        genPartialAnalysis({ compliance: false }),
+        { isSuccess: true }
+      ]
     })
   }
 };

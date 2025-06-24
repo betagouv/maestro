@@ -20,9 +20,9 @@ type MockApi<T extends Partial<ApiClient>> = {
   [Key in keyof T]: T[Key] extends TypedUseQuery<infer D, any, any>
     ? { data: D } | ((arg: any) => { data: D })
     : T[Key] extends TypedUseLazyQuery<infer E, any, any>
-      ? E
+      ? [E, { isSuccess?: boolean; isLoading?: boolean }]
       : T[Key] extends TypedUseMutation<any, any, any>
-        ? [() => Promise<unknown>, { isSuccess?: boolean }]
+        ? [() => Promise<unknown>, { isSuccess?: boolean; isLoading?: boolean }]
         : null;
 };
 
@@ -51,10 +51,12 @@ export const getMockApi = <T extends Partial<ApiClient>>(
         (arg?: any) => ({
           unwrap: async () => {
             // @ts-expect-error TS7053
-            const value = mockApi[key];
+            const value = mockApi[key][0];
             return typeof value === 'function' ? value(arg) : value;
           }
-        })
+        }),
+        // @ts-expect-error TS7053
+        mockApi[key][1]
       ];
     } else if (
       key.startsWith('useAdd') ||
@@ -79,7 +81,10 @@ export const defaultMockApiClientConf: Partial<MockApi<ApiClient>> = {
       filename: 'analyses.pdf'
     })
   },
-  useLazyGetDocumentDownloadSignedUrlQuery: 'https://maestro.beta.gouv.fr',
+  useLazyGetDocumentDownloadSignedUrlQuery: [
+    'https://maestro.beta.gouv.fr',
+    { isSuccess: true }
+  ],
   useGetLaboratoryQuery: {
     data: LaboratoryFixture
   },
@@ -93,7 +98,10 @@ export const defaultMockApiClientConf: Partial<MockApi<ApiClient>> = {
     async () => fn(),
     { isSuccess: true }
   ],
-  useCreateOrUpdateSampleMutation: [async () => fn(), { isSuccess: true }],
+  useCreateOrUpdateSampleMutation: [
+    async () => fn(),
+    { isSuccess: true, isLoading: false }
+  ],
   useCreateDocumentMutation: [async () => fn(), {}],
   useCreateProgrammingPlanMutation: [async () => fn(), { isSuccess: true }],
   useDeleteDocumentMutation: [async () => fn(), { isSuccess: true }],
@@ -122,11 +130,11 @@ export const defaultMockApiClientConf: Partial<MockApi<ApiClient>> = {
   useGetRegionsGeoJsonQuery: {
     data: JSON.parse(JSON.stringify(regionsJson))
   },
-  useLazyGetPrescriptionSubstancesQuery: [],
-  useLazyFindPrescriptionsQuery: [],
-  useLazyFindSamplesQuery: [],
-  useLazyGetSampleQuery: genCreatedPartialSample(),
-  useLazyGetSampleAnalysisQuery: genPartialAnalysis(),
+  useLazyGetPrescriptionSubstancesQuery: [[], { isSuccess: true }],
+  useLazyFindPrescriptionsQuery: [[], { isSuccess: true }],
+  useLazyFindSamplesQuery: [[], { isSuccess: true }],
+  useLazyGetSampleQuery: [genCreatedPartialSample(), { isSuccess: true }],
+  useLazyGetSampleAnalysisQuery: [genPartialAnalysis(), { isSuccess: true }],
   useCountSamplesQuery: {
     data: 0
   },
@@ -145,8 +153,8 @@ export const defaultMockApiClientConf: Partial<MockApi<ApiClient>> = {
     async () => fn(),
     { isSuccess: true }
   ],
-  useLazySearchAddressesQuery: [],
-  useLazySearchCompaniesQuery: [],
+  useLazySearchAddressesQuery: [[], { isSuccess: true }],
+  useLazySearchCompaniesQuery: [[], { isSuccess: true }],
   useGetAuthRedirectUrlQuery: {
     data: {
       url: ''
