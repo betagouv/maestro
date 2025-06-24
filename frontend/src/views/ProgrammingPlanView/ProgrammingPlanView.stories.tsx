@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { RegionList } from 'maestro-shared/referential/Region';
+import { Region, RegionList } from 'maestro-shared/referential/Region';
 import {
   genPrescription,
   genRegionalPrescription
@@ -9,6 +9,7 @@ import { genCreatedPartialSample } from 'maestro-shared/test/sampleFixtures';
 import {
   genAuthUser,
   NationalCoordinator,
+  RegionalCoordinator,
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
 import { expect, userEvent, within } from 'storybook/test';
@@ -100,5 +101,49 @@ export const ProgrammingPlanViewForNationalCoordinator: Story = {
     ).toHaveLength(RegionList.length);
 
     await expect(canvas.getByTestId('add-matrix-button')).toBeInTheDocument();
+  }
+};
+
+export const ProgrammingPlanViewForRegionalCoordinator: Story = {
+  parameters: {
+    preloadedState: {
+      auth: { authUser: genAuthUser(RegionalCoordinator) },
+      programmingPlan: { programmingPlan }
+    },
+    initialEntries: [
+      `${AuthenticatedAppRoutes.SamplesByYearRoute.link(programmingPlan.year)}/?context=Control`
+    ],
+    apiClient: getMockApi<ApiClient>({
+      ...defaultMockApiClientConf,
+      useGetSampleQuery: { data: sample },
+      useFindProgrammingPlansQuery: { data: [programmingPlan] },
+      useFindPrescriptionsQuery: { data: [prescription1, prescription2] },
+      useFindRegionalPrescriptionsQuery: {
+        data: [
+          genRegionalPrescription({
+            prescriptionId: prescription1.id,
+            region: RegionalCoordinator.region as Region
+          }),
+          genRegionalPrescription({
+            prescriptionId: prescription2.id,
+            region: RegionalCoordinator.region as Region
+          })
+        ]
+      }
+    })
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(
+      canvas.queryByTestId('prescriptions-cards-segment')
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByTestId('prescriptions-table-segment')
+    ).not.toBeInTheDocument();
+
+    await expect(
+      canvas.queryByTestId('add-matrix-button')
+    ).not.toBeInTheDocument();
   }
 };
