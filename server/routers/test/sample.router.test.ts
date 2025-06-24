@@ -551,7 +551,7 @@ describe('Sample router', () => {
           .put(`${testRoute(Sample11Fixture.id)}`)
           .send({
             ...validBody,
-            prescriptionId: Sample12Fixture.prescriptionId
+            matrixKind: 'A01EA'
           })
           .use(tokenProvider(user))
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
