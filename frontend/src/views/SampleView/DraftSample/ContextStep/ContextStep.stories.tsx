@@ -32,8 +32,7 @@ export const EmptyForm: Story = {
   parameters: {
     preloadedState: {
       auth: { authUser: genAuthUser(Sampler1Fixture) }
-    },
-    apiClient: getMockApi<ApiClient>(defaultMockApiClientConf)
+    }
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -61,8 +60,7 @@ export const SubmittingErrors: Story = {
   parameters: {
     preloadedState: {
       auth: { authUser: genAuthUser(Sampler1Fixture) }
-    },
-    apiClient: getMockApi<ApiClient>(defaultMockApiClientConf)
+    }
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
