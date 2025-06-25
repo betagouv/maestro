@@ -159,7 +159,11 @@ export const defaultMockApiClientConf: Partial<MockApi<ApiClient>> = {
     { isSuccess: true }
   ],
   useUpdateSampleMutation: [async () => fn(), { isSuccess: true }],
-  useGetAnalysisReportDocumentIdsQuery: { data: ['fakeDocumentId'] }
+  useGetAnalysisReportDocumentIdsQuery: { data: ['fakeDocumentId'] },
+  useDeleteAnalysisReportDocumentMutation: [
+    async () => fn(),
+    { isSuccess: true }
+  ]
 };
 
 export const mockApiClient = getMockApi<ApiClient>(defaultMockApiClientConf);

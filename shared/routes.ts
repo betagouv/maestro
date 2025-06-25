@@ -13,7 +13,7 @@ export type ToRoute = {
   response: ZodType;
 };
 
-export type RouteMethod = 'get' | 'post' | 'put';
+export type RouteMethod = 'get' | 'post' | 'put' | 'delete';
 
 export const routes = {
   '/analysis': {
@@ -47,6 +47,11 @@ export const routes = {
       response: z.array(z.guid())
     },
     post: {
+      body: z.object({ documentId: z.guid() }),
+      permissions: ['createAnalysis'],
+      response: z.void()
+    },
+    delete: {
       body: z.object({ documentId: z.guid() }),
       permissions: ['createAnalysis'],
       response: z.void()

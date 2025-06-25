@@ -1,7 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import Button from '@codegouvfr/react-dsfr/Button';
-import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { ApiClient } from '../../../services/apiClient';
 import {
   defaultMockApiClientConf,
@@ -13,7 +11,9 @@ const meta = {
   title: 'Views/AnalysisDocumentPreview',
   component: AnalysisDocumentPreview,
   args: {
-    analysisId: 'fakeAnalysisId'
+    analysisId: 'fakeAnalysisId',
+    sampleId: 'fakeAnalysisId',
+    readonly: false
   }
 } satisfies Meta<typeof AnalysisDocumentPreview>;
 
@@ -22,18 +22,10 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 
-export const DefaultWithChildren: Story = {
+export const Readonly: Story = {
   args: {
-    children: (
-      <Button
-        priority="secondary"
-        iconId="fr-icon-edit-line"
-        className={cx('fr-mt-0')}
-        onClick={() => {}}
-      >
-        Éditer
-      </Button>
-    )
+    readonly: true,
+    onAddDocument: () => {}
   }
 };
 
