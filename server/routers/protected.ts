@@ -1,6 +1,7 @@
 import express from 'express';
 import fs from 'fs';
 import { analysisRouter } from '../controllers/analysisController';
+import { analysisReportDocumentsRouter } from '../controllers/analysisReportDocumentsController';
 import { jwtCheck, userCheck } from '../middlewares/checks/authCheck';
 import addressRouter from './address.router';
 import companyRouter from './company.router';
@@ -10,7 +11,7 @@ import notificationRouter from './notification.router';
 import prescriptionRouter from './prescription.router';
 import programmingPlanRouter from './programmingPlan.router';
 import regionalPrescriptionRouter from './regionalPrescription.router';
-import { generateRoutes } from './routes.type';
+import { generateRoutes, SubRouter } from './routes.type';
 import sampleRouter from './sample.router';
 import userRouter from './user.router';
 
@@ -19,7 +20,12 @@ export const protectedRouter = express.Router();
 protectedRouter.use(jwtCheck(true));
 protectedRouter.use(userCheck(true));
 
-protectedRouter.use(generateRoutes(analysisRouter));
+const router = {
+  ...analysisRouter,
+  ...analysisReportDocumentsRouter
+} as const satisfies Required<SubRouter>;
+
+protectedRouter.use(generateRoutes(router));
 protectedRouter.use('/addresses', addressRouter);
 protectedRouter.use('/companies', companyRouter);
 protectedRouter.use('/documents', documentRouter);

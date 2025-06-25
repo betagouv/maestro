@@ -10,21 +10,9 @@ describe('update', () => {
   let analysis: Omit<PartialAnalysis, 'id'> = null as unknown as never;
 
   beforeAll(async () => {
-    const document = await kysely
-      .insertInto('documents')
-      .values([
-        {
-          filename: 'test',
-          kind: 'AnalysisReportDocument'
-        }
-      ])
-      .returningAll()
-      .executeTakeFirstOrThrow();
-    const reportDocumentId = document.id;
     analysis = {
       sampleId: Sample13Fixture.id,
       status: 'Completed',
-      reportDocumentId,
       createdAt: new Date()
     };
   });
@@ -157,8 +145,7 @@ describe('findUnique', () => {
         {
           sampleId: Sample13Fixture.id,
           id: analysisId,
-          status: 'Completed',
-          reportDocumentId: document.id
+          status: 'Completed'
         }
       ])
       .execute();

@@ -81,7 +81,6 @@ describe('findMany samples', async () => {
 
     const analysisOK = genPartialAnalysis({
       sampleId: Sample11Fixture.id,
-      reportDocumentId: document.id,
       createdBy: Sampler1Fixture.id,
       status: 'Completed',
       compliance: true
@@ -98,7 +97,6 @@ describe('findMany samples', async () => {
 
     const analysisKO = genPartialAnalysis({
       sampleId: Sample2Fixture.id,
-      reportDocumentId: document.id,
       createdBy: Sample2Fixture.id,
       status: 'Completed',
       compliance: false
@@ -130,7 +128,6 @@ describe('findMany samples', async () => {
 
     const analysisWithoutResidues = genPartialAnalysis({
       sampleId: Sample11Fixture.id,
-      reportDocumentId: document.id,
       createdBy: Sampler1Fixture.id,
       status: 'Completed',
       compliance: true
@@ -151,7 +148,6 @@ describe('findMany samples', async () => {
 
     const analysisWithResidues = genPartialAnalysis({
       sampleId: Sample2Fixture.id,
-      reportDocumentId: document.id,
       createdBy: Sampler1Fixture.id,
       status: 'Completed',
       compliance: true
