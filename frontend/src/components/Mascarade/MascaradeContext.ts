@@ -1,7 +1,7 @@
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { useAuthentication } from '../../hooks/useAuthentication';
 import { useAppDispatch } from '../../hooks/useStore';
-import { useLazyGetUserQuery } from '../../services/user.service';
+import { ApiClientContext } from '../../services/apiClient';
 import authSlice from '../../store/reducers/authSlice';
 
 export const MascaradeContext = createContext<{
@@ -14,8 +14,9 @@ export const MascaradeContext = createContext<{
 
 export const useMascarade = () => {
   const dispatch = useAppDispatch();
+  const apiClient = useContext(ApiClientContext);
   const { user } = useAuthentication();
-  const [getUser] = useLazyGetUserQuery();
+  const [getUser] = apiClient.useLazyGetUserQuery();
 
   const [mascaradeUserId, setMascaradeUserId] = useState<null | string>(
     localStorage.getItem('administratorId') && user ? user.id : null

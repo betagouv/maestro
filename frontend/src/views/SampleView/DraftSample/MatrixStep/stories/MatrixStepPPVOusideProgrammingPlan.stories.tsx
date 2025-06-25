@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { expect, fn, within } from 'storybook/test';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   genCreatedSampleData,
   genSampleContextData
 } from 'maestro-shared/test/sampleFixtures';
 import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
+import { expect, fn, within } from 'storybook/test';
 import { ApiClient } from '../../../../../services/apiClient';
 import {
   defaultMockApiClientConf,
@@ -16,7 +16,7 @@ import MatrixStep from '../MatrixStep';
 
 const createOrUpdateMock = fn();
 const meta = {
-  title: 'Views/MatrixStep',
+  title: 'Views/SampleView/MatrixStep',
   component: MatrixStep,
   decorators: (Story) => (
     <div className="sample-overview">

@@ -11,11 +11,11 @@ import {
   NextProgrammingPlanStatus,
   ProgrammingPlanStatus
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch } from '../../../hooks/useStore';
 import { api } from '../../../services/api.service';
-import { useUpdateProgrammingPlanRegionalStatusMutation } from '../../../services/programmingPlan.service';
+import { ApiClientContext } from '../../../services/apiClient';
 import './ProgrammingPlanNationalValidation.scss';
 interface Props {
   programmingPlan: ProgrammingPlan;
@@ -23,6 +23,7 @@ interface Props {
 
 const ProgrammingPlanNationalValidation = ({ programmingPlan }: Props) => {
   const dispatch = useAppDispatch();
+  const apiClient = useContext(ApiClientContext);
   const { hasUserPermission } = useAuthentication();
   const submissionModal = useMemo(
     () =>
@@ -34,7 +35,7 @@ const ProgrammingPlanNationalValidation = ({ programmingPlan }: Props) => {
   );
 
   const [updateRegionalStatus] =
-    useUpdateProgrammingPlanRegionalStatusMutation();
+    apiClient.useUpdateProgrammingPlanRegionalStatusMutation();
 
   const [isSuccess, setIsSuccess] = useState(false);
   const [isError, setIsError] = useState(false);

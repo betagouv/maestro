@@ -1,14 +1,16 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Regions } from 'maestro-shared/referential/Region';
 import { UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
-import { useGetUserQuery } from 'src/services/user.service';
+import { useContext } from 'react';
+import { ApiClientContext } from '../../../services/apiClient';
 
 interface Props {
   userId: string;
 }
 
 const PrescriptionCommentAuthor = ({ userId }: Props) => {
-  const { data: user } = useGetUserQuery(userId);
+  const apiClient = useContext(ApiClientContext);
+  const { data: user } = apiClient.useGetUserQuery(userId);
 
   if (!user) {
     return <></>;

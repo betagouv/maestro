@@ -16,26 +16,23 @@ import {
   NotificationCategoryTitles
 } from 'maestro-shared/schema/Notification/NotificationCategory';
 import { UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
-import { useMemo, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useNavigate } from 'react-router';
 import notificationsImg from 'src/assets/illustrations/notifications.svg';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useAuthentication } from '../../hooks/useAuthentication';
-import {
-  useFindNotificationsQuery,
-  useUpdateNotificationMutation,
-  useUpdateNotificationsMutation
-} from '../../services/notification.service';
+import { ApiClientContext } from '../../services/apiClient';
 import './NotificationsView.scss';
 
 const NotificationsView = () => {
   useDocumentTitle('Centre de notifications');
+  const apiClient = useContext(ApiClientContext);
   const navigate = useNavigate();
   const { user } = useAuthentication();
 
-  const { data: notifications } = useFindNotificationsQuery(
+  const { data: notifications } = apiClient.useFindNotificationsQuery(
     {
       recipientId: user?.id as string
     },
@@ -43,8 +40,8 @@ const NotificationsView = () => {
       skip: !user
     }
   );
-  const [updateNotification] = useUpdateNotificationMutation();
-  const [updateNotifications] = useUpdateNotificationsMutation();
+  const [updateNotification] = apiClient.useUpdateNotificationMutation();
+  const [updateNotifications] = apiClient.useUpdateNotificationsMutation();
 
   const [visibleDays, setVisibleDays] = useState<number>(3);
 

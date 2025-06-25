@@ -1,18 +1,24 @@
-import { FunctionComponent, PropsWithChildren, useEffect } from 'react';
+import {
+  FunctionComponent,
+  PropsWithChildren,
+  useContext,
+  useEffect
+} from 'react';
 
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ProConnectButton from '@codegouvfr/react-dsfr/ProConnectButton';
 import clsx from 'clsx';
 import { Brand } from 'maestro-shared/constants';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
-import { useGetAuthRedirectUrlQuery } from 'src/services/auth.service';
 import farmhand from '../../assets/farmland.webp';
 import foodGreen from '../../assets/illustrations/food-green.svg';
+import { ApiClientContext } from '../../services/apiClient';
 import './HomeView.scss';
 
 const HomeView = () => {
   useDocumentTitle('Connexion');
-  const { data: authRedirectUrl } = useGetAuthRedirectUrlQuery();
+  const apiClient = useContext(ApiClientContext);
+  const { data: authRedirectUrl } = apiClient.useGetAuthRedirectUrlQuery();
 
   useEffect(() => {
     if (authRedirectUrl) {

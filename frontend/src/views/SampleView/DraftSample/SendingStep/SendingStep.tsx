@@ -45,14 +45,13 @@ type Props = {
 };
 
 const SendingStep: FunctionComponent<Props> = ({ sample }) => {
+  const apiClient = useContext(ApiClientContext);
   const { navigateToSample } = useSamplesLink();
   const { isOnline } = useOnLine();
   const { laboratory, readonly } = usePartialSample(sample);
   const { trackEvent } = useAnalytics();
 
   const isSubmittingRef = useRef<boolean>(false);
-
-  const { useCreateOrUpdateSampleMutation } = useContext(ApiClientContext);
 
   const [resytalId, setResytalId] = useState(sample.resytalId);
   const [ownerFirstName, setOwnerFirstName] = useState(sample.ownerFirstName);
@@ -65,7 +64,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
   const [isSaved, setIsSaved] = useState(false);
 
   const [createOrUpdateSample, createOrUpdateSampleCall] =
-    useCreateOrUpdateSampleMutation({
+    apiClient.useCreateOrUpdateSampleMutation({
       fixedCacheKey: `sending-sample-${sample.id}`
     });
 

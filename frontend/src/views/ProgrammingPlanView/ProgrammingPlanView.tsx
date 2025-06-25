@@ -14,7 +14,7 @@ import {
   ProgrammingPlanStatus
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { RegionalPrescriptionKey } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useContext, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 import programmation from '../../assets/illustrations/programmation.svg';
 import AppToast from '../../components/_app/AppToast/AppToast';
@@ -25,7 +25,7 @@ import SectionHeader from '../../components/SectionHeader/SectionHeader';
 import { useAuthentication } from '../../hooks/useAuthentication';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { useAppDispatch, useAppSelector } from '../../hooks/useStore';
-import { useCommentRegionalPrescriptionMutation } from '../../services/regionalPrescription.service';
+import { ApiClientContext } from '../../services/apiClient';
 import prescriptionsSlice from '../../store/reducers/prescriptionsSlice';
 import ProgrammingPlanCommentList from './ProgrammingPlanCommentList/ProgrammingPlanCommentList';
 import ProgrammingPlanPrescriptionList from './ProgrammingPlanPrescriptionList/ProgrammingPlanPrescriptionList';
@@ -33,6 +33,7 @@ import ProgrammingPlanRegionalValidationList from './ProgrammingPlanRegionalVali
 
 const ProgrammingPlanView = () => {
   const dispatch = useAppDispatch();
+  const apiClient = useContext(ApiClientContext);
   useDocumentTitle('Programmation');
 
   const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
@@ -52,7 +53,7 @@ const ProgrammingPlanView = () => {
   );
 
   const [commentRegionalPrescription, { isSuccess: isCommentSuccess }] =
-    useCommentRegionalPrescriptionMutation();
+    apiClient.useCommentRegionalPrescriptionMutation();
 
   const findPrescriptionOptions = useMemo(
     () => ({

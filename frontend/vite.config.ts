@@ -20,14 +20,6 @@ export default defineConfig(({ mode }) => {
       host: '0.0.0.0'
     },
     base: '/',
-    test: {
-      globals: true,
-      environment: 'jsdom',
-      setupFiles: ['../test/setupFakerJS.ts', './src/setupTests.ts'],
-      env: {
-        REACT_APP_API_URL: 'http://localhost:3001'
-      }
-    },
     preview: {
       port: 3000
     },

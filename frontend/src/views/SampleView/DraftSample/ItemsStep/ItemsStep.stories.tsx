@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, fn, userEvent, within } from 'storybook/test';
 import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { QuantityUnitList } from 'maestro-shared/referential/QuantityUnit';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
@@ -10,6 +9,7 @@ import {
   genSampleContextData
 } from 'maestro-shared/test/sampleFixtures';
 import { genAuthUser, Sampler1Fixture } from 'maestro-shared/test/userFixtures';
+import { expect, fn, userEvent, within } from 'storybook/test';
 import { ApiClient } from '../../../../services/apiClient';
 import {
   defaultMockApiClientConf,
@@ -59,11 +59,7 @@ export const OneItem: Story = {
       programmingPlan: {
         programmingPlan
       }
-    },
-    apiClient: getMockApi<ApiClient>({
-      ...defaultMockApiClientConf,
-      useUpdateSampleMutation: [async () => fn(), { isSuccess: false }]
-    })
+    }
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -95,8 +91,7 @@ export const AddItem: Story = {
       programmingPlan: {
         programmingPlan
       }
-    },
-    apiClient: getMockApi<ApiClient>(defaultMockApiClientConf)
+    }
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -129,8 +124,7 @@ export const RemoveItem: Story = {
       programmingPlan: {
         programmingPlan
       }
-    },
-    apiClient: getMockApi<ApiClient>(defaultMockApiClientConf)
+    }
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -161,8 +155,7 @@ export const SubmittingErrors: Story = {
       programmingPlan: {
         programmingPlan
       }
-    },
-    apiClient: getMockApi<ApiClient>(defaultMockApiClientConf)
+    }
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

@@ -2,8 +2,9 @@ import {
   Analysis,
   PartialAnalysis
 } from 'maestro-shared/schema/Analysis/Analysis';
+import { useContext } from 'react';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
-import { useUpdateAnalysisMutation } from 'src/services/analysis.service';
+import { ApiClientContext } from '../../../../../services/apiClient';
 import { AnalysisComplianceForm } from './AnalysisComplianceForm';
 
 interface Props {
@@ -11,9 +12,10 @@ interface Props {
 }
 
 const AnalysisComplianceStep = ({ partialAnalysis }: Props) => {
+  const apiClient = useContext(ApiClientContext);
   const { navigateToSample } = useSamplesLink();
 
-  const [updateAnalysis] = useUpdateAnalysisMutation({
+  const [updateAnalysis] = apiClient.useUpdateAnalysisMutation({
     fixedCacheKey: `complete-analysis-${partialAnalysis.sampleId}`
   });
 

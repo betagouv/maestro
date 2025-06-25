@@ -10,11 +10,10 @@ import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { ChangeEvent, useMemo, useState } from 'react';
+import { ChangeEvent, useContext, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { useAppDispatch } from '../../../hooks/useStore';
-import { useFindPrescriptionsQuery } from '../../../services/prescription.service';
-import { useFindRegionalPrescriptionsQuery } from '../../../services/regionalPrescription.service';
+import { ApiClientContext } from '../../../services/apiClient';
 import prescriptionsSlice from '../../../store/reducers/prescriptionsSlice';
 import { pluralize } from '../../../utils/stringUtils';
 
@@ -29,6 +28,7 @@ const ProgrammingPlanCommentList = ({
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
+  const apiClient = useContext(ApiClientContext);
   const dispatch = useAppDispatch();
 
   const [matrixQuery, setMatrixQuery] = useState('');
@@ -42,14 +42,15 @@ const ProgrammingPlanCommentList = ({
     [programmingPlan, context]
   );
 
-  const { data: allPrescriptions } = useFindPrescriptionsQuery(
+  const { data: allPrescriptions } = apiClient.useFindPrescriptionsQuery(
     findPrescriptionOptions
   );
 
-  const { data: regionalPrescriptions } = useFindRegionalPrescriptionsQuery({
-    ...findPrescriptionOptions,
-    includes: ['comments']
-  });
+  const { data: regionalPrescriptions } =
+    apiClient.useFindRegionalPrescriptionsQuery({
+      ...findPrescriptionOptions,
+      includes: ['comments']
+    });
 
   const commentedPrescriptions = useMemo(
     () =>

@@ -5,14 +5,15 @@ import {
   PartialSample,
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import { useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
-import { useDeleteSampleMutation } from 'src/services/sample.service';
+import { ApiClientContext } from '../../services/apiClient';
 interface RemoveSampleProps {
   sample: PartialSample | PartialSampleToCreate;
 }
 
 const RemoveSample = ({ sample }: RemoveSampleProps) => {
+  const apiClient = useContext(ApiClientContext);
   const removeModal = useMemo(
     () =>
       createModal({
@@ -22,7 +23,7 @@ const RemoveSample = ({ sample }: RemoveSampleProps) => {
     [sample]
   );
 
-  const [deleteSample] = useDeleteSampleMutation();
+  const [deleteSample] = apiClient.useDeleteSampleMutation();
 
   return (
     <>

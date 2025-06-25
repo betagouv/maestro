@@ -5,12 +5,12 @@ import clsx from 'clsx';
 import { getLaboratoryFullname } from 'maestro-shared/referential/Laboratory';
 import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import {
   AppSelectOption,
   defaultAppSelectOption
 } from 'src/components/_app/AppSelect/AppSelectOption';
-import { useFindLaboratoriesQuery } from 'src/services/laboratory.service';
+import { ApiClientContext } from '../../../services/apiClient';
 
 interface Props {
   regionalPrescription: RegionalPrescription;
@@ -21,10 +21,11 @@ const RegionalPrescriptionLaboratory = ({
   regionalPrescription,
   onChangeLaboratory
 }: Props) => {
+  const apiClient = useContext(ApiClientContext);
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(regionalPrescription.laboratoryId);
 
-  const { data: laboratories } = useFindLaboratoriesQuery();
+  const { data: laboratories } = apiClient.useFindLaboratoriesQuery();
 
   const submit = () => {
     if (value && value !== regionalPrescription.laboratoryId) {
