@@ -8,7 +8,7 @@ export const mockGetAuthorizationUrl = vi.fn();
 export const mockAuthenticate = vi.fn();
 export const mockGetLogoutUrl = vi.fn();
 export const mockGenerateSampleSupportPDF = vi.fn();
-export const mockGenerateAnalysisRequestExcel = vi.fn();
+const mockGenerateAnalysisRequestExcel = vi.fn();
 vi.mock('../services/authService', () => ({
   getAuthService: Promise.resolve({
     getAuthorizationUrl: () => mockGetAuthorizationUrl(),
