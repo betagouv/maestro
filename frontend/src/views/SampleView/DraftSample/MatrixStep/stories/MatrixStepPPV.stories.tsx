@@ -11,7 +11,7 @@ import {
   genSampleContextData
 } from 'maestro-shared/test/sampleFixtures';
 import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
-import { expect, fn, userEvent, within } from 'storybook/test';
+import { expect, fn, screen, userEvent, within } from 'storybook/test';
 import { ApiClient } from '../../../../../services/apiClient';
 import {
   defaultMockApiClientConf,
@@ -159,7 +159,7 @@ export const MatrixStepPPVSaveOnBlurWithoutHandlingErrors: Story = {
 
     await userEvent.click(matrixKindInput);
 
-    const matrixKindListbox = await canvas.findByRole('listbox');
+    const matrixKindListbox = await screen.findByRole('listbox');
 
     await expect(matrixKindListbox).toBeInTheDocument();
     await expect(within(matrixKindListbox).getAllByRole('option').length).toBe(
