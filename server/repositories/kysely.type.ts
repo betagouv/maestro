@@ -35,9 +35,13 @@ export interface Analysis {
   createdBy: string | null;
   id: Generated<string>;
   notesOnCompliance: string | null;
-  reportDocumentId: string | null;
   sampleId: string | null;
   status: AnalysisStatus;
+}
+
+export interface AnalysisReportDocuments {
+  analysisId: string;
+  documentId: string;
 }
 
 export interface AnalysisResidues {
@@ -229,6 +233,7 @@ export interface Departments {
 
 export interface DB {
   analysis: Analysis;
+  analysisReportDocuments: AnalysisReportDocuments;
   analysisResidues: AnalysisResidues;
   analysisErrors: AnalysisErrors;
   companies: Companies;

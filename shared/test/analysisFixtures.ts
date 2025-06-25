@@ -18,7 +18,6 @@ export const genAnalysisToCreate = (
   data?: Partial<AnalysisToCreate>
 ): AnalysisToCreate => ({
   sampleId: uuidv4(),
-  reportDocumentId: uuidv4(),
   ...data
 });
 

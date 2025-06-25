@@ -14,13 +14,13 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    reportDocumentId: 'fakeDocumentId'
+    reportDocumentIds: ['fakeDocumentId']
   }
 };
 
 export const DefaultWithChildren: Story = {
   args: {
-    reportDocumentId: 'fakeDocumentId',
+    reportDocumentIds: ['fakeDocumentId'],
     children: (
       <Button
         priority="secondary"
@@ -31,5 +31,11 @@ export const DefaultWithChildren: Story = {
         Éditer
       </Button>
     )
+  }
+};
+
+export const WithHistory: Story = {
+  args: {
+    reportDocumentIds: ['fakeDocumentId', 'fakeDocumentId2']
   }
 };

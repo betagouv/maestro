@@ -3,11 +3,10 @@ import {
   MaestroRoutes,
   RouteMethod,
   routes,
-  RouteValidator,
   ToRoute
 } from 'maestro-shared/routes';
 import { User } from 'maestro-shared/schema/User/User';
-import { ZodObject } from 'zod/v4';
+import z, { ZodObject, ZodType } from 'zod/v4';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
 import validator, { body, params, query } from '../middlewares/validator';
 
@@ -17,12 +16,30 @@ type MaestroResponse<
   ResponseValidator = RouteValidator<key, method, 'response'>
 > = ResponseValidator extends undefined ? void : ResponseValidator;
 
+type RouteValidator<
+  key extends MaestroRoutes,
+  method extends keyof (typeof routes)[key],
+  Z extends keyof ToRoute
+> = (typeof routes)[key][method] extends {
+  [z in Z]: infer P;
+}
+  ? P extends ZodType
+    ? z.infer<P>
+    : undefined
+  : undefined;
+
 type MaestroRouteMethod<
   key extends MaestroRoutes,
   method extends keyof (typeof routes)[key]
 > = (
   request: Request<
-    RouteValidator<key, method, 'params'>,
+    (typeof routes)[key] extends {
+      params: infer P;
+    }
+      ? P extends ZodType
+        ? z.infer<P>
+        : undefined
+      : undefined,
     undefined,
     RouteValidator<key, method, 'body'>,
     RouteValidator<key, method, 'query'>
@@ -38,8 +55,11 @@ type MaestroRouteMethod<
 >;
 
 export type SubRouter = {
-  [key in MaestroRoutes]: {
-    [method in keyof (typeof routes)[key]]: MaestroRouteMethod<key, method>;
+  [key in MaestroRoutes]?: {
+    [method in Exclude<
+      keyof (typeof routes)[key],
+      'params'
+    >]: MaestroRouteMethod<key, method>;
   };
 };
 
@@ -48,11 +68,12 @@ export const generateRoutes = (subRouter: SubRouter) => {
 
   (Object.keys(subRouter) as Array<keyof typeof routes>).forEach((route) => {
     (Object.keys(routes[route]) as Array<RouteMethod>).forEach((method) => {
+      const r = routes[route];
       // @ts-expect-error TS7053
-      const conf = routes[route][method] as ToRoute;
+      const conf = r[method] as ToRoute;
       let toValidate: null | ZodObject<any> = null;
-      if ('params' in conf && conf.params !== undefined) {
-        toValidate = params(conf.params);
+      if ('params' in r && r.params !== undefined) {
+        toValidate = params(r.params);
       }
       if ('body' in conf && conf.body !== undefined) {
         const toValidateBody = body(conf.body);

@@ -5,12 +5,12 @@ import { assert, Equals } from 'tsafe';
 import DocumentLink from '../../../components/DocumentLink/DocumentLink';
 
 type Props = {
-  reportDocumentId: string;
+  reportDocumentIds: [string, ...string[]];
   children?: React.JSX.Element;
 };
 
 export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
-  reportDocumentId,
+  reportDocumentIds,
   children,
   ..._rest
 }) => {
@@ -29,7 +29,38 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
         {children}
       </h6>
       <div className={cx('fr-pl-4w')}>
-        <DocumentLink documentId={reportDocumentId} />
+        {reportDocumentIds.length === 1 ? (
+          <DocumentLink documentId={reportDocumentIds[0]} />
+        ) : (
+          <div
+            className={'d-flex-align-start'}
+            style={{ flexDirection: 'column' }}
+          >
+            <span className={cx('fr-text--sm', 'fr-text--bold')}>
+              Dernière version du rapport
+            </span>
+            <span>
+              <DocumentLink documentId={reportDocumentIds[0]} />
+            </span>
+            <div
+              className={clsx('border-middle', cx('fr-mx-0', 'fr-mb-2w'))}
+              style={{ width: '100%' }}
+            ></div>
+            <span className={cx('fr-text--sm', 'fr-text--bold')}>
+              Historique des rapports téléversés
+            </span>
+            {reportDocumentIds.map((id, index) => {
+              if (index === 0) {
+                return null;
+              }
+              return (
+                <span>
+                  <DocumentLink documentId={id} />
+                </span>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -54,12 +54,12 @@ test("Le fichier est updloadé sur le S3, n'est pas supprimé du S3 et est en bd
     .executeTakeFirst();
   expect(document?.kind).toBe('AnalysisReportDocument');
 
-  const analysis = await kysely
-    .selectFrom('analysis')
-    .where('id', '=', analysisId)
+  const analysisReportDocument = await kysely
+    .selectFrom('analysisReportDocuments')
+    .where('analysisId', '=', analysisId)
     .selectAll()
     .executeTakeFirst();
-  expect(analysis?.reportDocumentId).toBe(documentId);
+  expect(analysisReportDocument).toBe(documentId);
 
   const analysisResidue = await kysely
     .selectFrom('analysisResidues')

@@ -55,12 +55,10 @@ describe('Analysis router', () => {
   });
   const analysisWithoutResidue = genPartialAnalysis({
     sampleId: Sample11Fixture.id,
-    reportDocumentId: document1.id,
     createdBy: Sampler1Fixture.id
   });
   const analysisWithResidues = genPartialAnalysis({
     sampleId: Sample2Fixture.id,
-    reportDocumentId: document2.id,
     createdBy: Sampler1Fixture.id
   });
   const residues = [
@@ -191,16 +189,6 @@ describe('Analysis router', () => {
           sampleId: undefined
         })
       );
-      await badRequestTest(
-        genAnalysisToCreate({
-          reportDocumentId: '123'
-        })
-      );
-      await badRequestTest(
-        genAnalysisToCreate({
-          reportDocumentId: undefined
-        })
-      );
     });
 
     test('should fail if the user does not have the permission to create analysis', async () => {
@@ -219,8 +207,7 @@ describe('Analysis router', () => {
 
     test('should create an analysis and update the associated sample status', async () => {
       const analysis = genAnalysisToCreate({
-        sampleId: Sample11Fixture.id,
-        reportDocumentId: document1.id
+        sampleId: Sample11Fixture.id
       });
 
       const res = await request(app)
@@ -312,8 +299,7 @@ describe('Analysis router', () => {
     test('should get a valid body', async () => {
       const validBody = genPartialAnalysis({
         id: analysisWithoutResidue.id,
-        sampleId: Sample11Fixture.id,
-        reportDocumentId: document1.id
+        sampleId: Sample11Fixture.id
       });
       const badRequestTest = async (payload?: Record<string, unknown>) =>
         request(app)
