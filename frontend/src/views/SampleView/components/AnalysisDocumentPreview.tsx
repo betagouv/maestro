@@ -1,26 +1,43 @@
+import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import React, { FunctionComponent, useContext } from 'react';
+import { FunctionComponent, useContext } from 'react';
 import { assert, Equals } from 'tsafe';
 import DocumentLink from '../../../components/DocumentLink/DocumentLink';
 import { ApiClientContext } from '../../../services/apiClient';
 
 type Props = {
   analysisId: string;
-  children?: React.JSX.Element;
-};
+  sampleId: string;
+} & (
+  | {
+      readonly?: false;
+      onAddDocument: () => void;
+    }
+  | { readonly: true; onAddDocument?: () => void }
+);
 
 export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
   analysisId,
-  children,
+  sampleId,
+  readonly,
+  onAddDocument,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  const { useGetAnalysisReportDocumentIdsQuery } = useContext(ApiClientContext);
+  const {
+    useGetAnalysisReportDocumentIdsQuery,
+    useDeleteAnalysisReportDocumentMutation
+  } = useContext(ApiClientContext);
 
   const { data: reportDocumentIds } =
     useGetAnalysisReportDocumentIdsQuery(analysisId);
+
+  const [deleteDocument] = useDeleteAnalysisReportDocumentMutation();
+  const onDeleteDocument = (documentId: string) => {
+    deleteDocument({ analysisId, sampleId, documentId });
+  };
   return (
     <div className={clsx(cx('fr-py-4w', 'fr-px-5w'), 'border')}>
       <h6 className="d-flex-align-center">
@@ -31,7 +48,21 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
           )}
         ></span>
         <div className="flex-grow-1">Document du rapport d’analyse</div>
-        {children}
+        {!readonly ? (
+          <Button
+            priority="secondary"
+            iconId="fr-icon-add-line"
+            className={cx('fr-mt-0')}
+            size="small"
+            onClick={() => {
+              onAddDocument?.();
+            }}
+          >
+            Ajouter
+          </Button>
+        ) : (
+          <></>
+        )}
       </h6>
       {reportDocumentIds && (
         <div className={cx('fr-pl-4w')}>
@@ -60,8 +91,24 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
                   return null;
                 }
                 return (
-                  <span>
-                    <DocumentLink documentId={id} />
+                  <span
+                    style={{
+                      display: 'flex',
+                      alignItems: 'baseline',
+                      gap: '1.5rem'
+                    }}
+                  >
+                    <span>
+                      <DocumentLink documentId={id} />
+                    </span>
+                    <Button
+                      iconId="fr-icon-delete-line"
+                      size={'small'}
+                      priority={'tertiary'}
+                      onClick={() => onDeleteDocument(id)}
+                    >
+                      Supprimer
+                    </Button>
                   </span>
                 );
               })}

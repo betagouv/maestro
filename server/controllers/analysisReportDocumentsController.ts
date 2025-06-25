@@ -20,6 +20,16 @@ export const analysisReportDocumentsRouter = {
       return {
         status: constants.HTTP_STATUS_CREATED
       };
+    },
+    delete: async (request) => {
+      const { analysisId } = request.params;
+      const { documentId } = request.body;
+
+      await analysisReportDocumentsRepository.deleteOne(analysisId, documentId);
+
+      return {
+        status: constants.HTTP_STATUS_OK
+      };
     }
   }
 } as const satisfies SubRouter;

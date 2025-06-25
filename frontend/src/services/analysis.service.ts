@@ -63,6 +63,19 @@ const analysisApi = api.injectEndpoints({
       invalidatesTags: (_result, _error, { sampleId }) => [
         { type: 'SampleAnalysis', id: sampleId }
       ]
+    }),
+    deleteAnalysisReportDocument: builder.mutation<
+      void,
+      { documentId: string; analysisId: string; sampleId: string }
+    >({
+      query: ({ documentId, analysisId }) => ({
+        url: `analysis/${analysisId}/reportDocuments`,
+        method: 'DELETE',
+        body: { documentId }
+      }),
+      invalidatesTags: (_result, _error, { sampleId }) => [
+        { type: 'SampleAnalysis', id: sampleId }
+      ]
     })
   })
 });
@@ -73,6 +86,6 @@ export const {
   useGetSampleAnalysisQuery,
   useLazyGetSampleAnalysisQuery,
   useCreateAnalysisReportDocumentMutation,
-  useLazyGetAnalysisReportDocumentIdsQuery,
-  useGetAnalysisReportDocumentIdsQuery
+  useGetAnalysisReportDocumentIdsQuery,
+  useDeleteAnalysisReportDocumentMutation
 } = analysisApi;

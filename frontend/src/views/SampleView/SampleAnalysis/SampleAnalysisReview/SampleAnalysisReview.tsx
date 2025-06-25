@@ -121,7 +121,11 @@ export const SampleAnalysisReview: FunctionComponent<Props> = ({
 
   return (
     <div className={clsx('analysis-container')} ref={containerRef}>
-      <AnalysisDocumentPreview analysisId={analysis.id} />
+      <AnalysisDocumentPreview
+        analysisId={analysis.id}
+        sampleId={sample.id}
+        readonly={true}
+      />
       {reviewState === 'Review' &&
         (hasResidues ? (
           <ReviewWithResidues
