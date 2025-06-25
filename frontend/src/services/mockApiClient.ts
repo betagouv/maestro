@@ -73,6 +73,36 @@ export const getMockApi = <T extends Partial<ApiClient>>(
 };
 
 export const defaultMockApiClientConf: Partial<MockApi<ApiClient>> = {
+  useAddPrescriptionMutation: [async () => fn(), { isSuccess: true }],
+  useCommentRegionalPrescriptionMutation: [
+    async () => fn(),
+    { isSuccess: true }
+  ],
+  useCountSamplesQuery: {
+    data: 0
+  },
+  useCreateDocumentMutation: [async () => fn(), {}],
+  useCreateOrUpdateSampleMutation: [
+    async () => fn(),
+    { isSuccess: true, isLoading: false }
+  ],
+  useCreateProgrammingPlanMutation: [async () => fn(), { isSuccess: true }],
+  useDeleteDocumentMutation: [async () => fn(), { isSuccess: true }],
+  useDeletePrescriptionMutation: [async () => fn(), { isSuccess: true }],
+  useDeleteSampleMutation: [async () => fn(), { isSuccess: true }],
+  useFindLaboratoriesQuery: { data: [] },
+  useFindNotificationsQuery: { data: [] },
+  useFindPrescriptionsQuery: { data: [] },
+  useFindProgrammingPlansQuery: { data: [] },
+  useFindRegionalPrescriptionsQuery: { data: [] },
+  useFindResourcesQuery: { data: [] },
+  useFindSamplesQuery: { data: [] },
+  useFindUsersQuery: { data: [] },
+  useGetAuthRedirectUrlQuery: {
+    data: {
+      url: ''
+    }
+  },
   useGetDocumentQuery: {
     data: genDocument({
       createdAt: new Date(12345),
@@ -81,30 +111,19 @@ export const defaultMockApiClientConf: Partial<MockApi<ApiClient>> = {
       filename: 'analyses.pdf'
     })
   },
-  useLazyGetDocumentDownloadSignedUrlQuery: [
-    'https://maestro.beta.gouv.fr',
-    { isSuccess: true }
-  ],
   useGetLaboratoryQuery: {
     data: LaboratoryFixture
   },
-  useUpdateSampleMutation: [async () => fn(), { isSuccess: true }],
-  useUpdateAnalysisMutation: [async () => fn(), { isSuccess: true }],
-  useUpdateProgrammingPlanStatusMutation: [
-    async () => fn(),
-    { isSuccess: true }
-  ],
-  useUpdateProgrammingPlanRegionalStatusMutation: [
-    async () => fn(),
-    { isSuccess: true }
-  ],
-  useCreateOrUpdateSampleMutation: [
-    async () => fn(),
-    { isSuccess: true, isLoading: false }
-  ],
-  useCreateDocumentMutation: [async () => fn(), {}],
-  useCreateProgrammingPlanMutation: [async () => fn(), { isSuccess: true }],
-  useDeleteDocumentMutation: [async () => fn(), { isSuccess: true }],
+  useGetPrescriptionSubstancesQuery: { data: [] },
+  useGetProgrammingPlanByYearQuery: (year: number) => ({
+    data: genProgrammingPlan({
+      year
+    })
+  }),
+  useGetProgrammingPlanQuery: { data: genProgrammingPlan() },
+  useGetRegionsGeoJsonQuery: {
+    data: JSON.parse(JSON.stringify(regionsJson))
+  },
   useGetSampleAnalysisQuery: {
     data: genPartialAnalysis({
       sampleId: Sample11Fixture.id,
@@ -112,54 +131,35 @@ export const defaultMockApiClientConf: Partial<MockApi<ApiClient>> = {
       status: 'Residues'
     })
   },
-  useFindLaboratoriesQuery: { data: [] },
-  useFindNotificationsQuery: { data: [] },
-  useFindPrescriptionsQuery: { data: [] },
-  useFindProgrammingPlansQuery: { data: [] },
-  useFindRegionalPrescriptionsQuery: { data: [] },
-  useFindSamplesQuery: { data: [] },
-  useFindUsersQuery: { data: [] },
-  useFindResourcesQuery: { data: [] },
-  useGetProgrammingPlanQuery: { data: genProgrammingPlan() },
-  useGetProgrammingPlanByYearQuery: (year: number) => ({
-    data: genProgrammingPlan({
-      year
-    })
-  }),
-  useGetPrescriptionSubstancesQuery: { data: [] },
-  useGetRegionsGeoJsonQuery: {
-    data: JSON.parse(JSON.stringify(regionsJson))
-  },
-  useLazyGetPrescriptionSubstancesQuery: [[], { isSuccess: true }],
-  useLazyFindPrescriptionsQuery: [[], { isSuccess: true }],
-  useLazyFindSamplesQuery: [[], { isSuccess: true }],
-  useLazyGetSampleQuery: [genCreatedPartialSample(), { isSuccess: true }],
-  useLazyGetSampleAnalysisQuery: [genPartialAnalysis(), { isSuccess: true }],
-  useCountSamplesQuery: {
-    data: 0
-  },
   useGetSampleQuery: {
     data: genCreatedPartialSample()
   },
-  useDeleteSampleMutation: [async () => fn(), { isSuccess: true }],
+  useLazyFindPrescriptionsQuery: [[], { isSuccess: true }],
+  useLazyFindSamplesQuery: [[], { isSuccess: true }],
+  useLazyGetDocumentDownloadSignedUrlQuery: [
+    'https://maestro.beta.gouv.fr',
+    { isSuccess: true }
+  ],
+  useLazyGetPrescriptionSubstancesQuery: [[], { isSuccess: true }],
+  useLazyGetSampleAnalysisQuery: [genPartialAnalysis(), { isSuccess: true }],
+  useLazyGetSampleQuery: [genCreatedPartialSample(), { isSuccess: true }],
+  useLazySearchAddressesQuery: [[], { isSuccess: true }],
+  useLazySearchCompaniesQuery: [[], { isSuccess: true }],
+  useUpdateAnalysisMutation: [async () => fn(), { isSuccess: true }],
   useUpdatePrescriptionMutation: [async () => fn(), { isSuccess: true }],
-  useAddPrescriptionMutation: [async () => fn(), { isSuccess: true }],
+  useUpdateProgrammingPlanRegionalStatusMutation: [
+    async () => fn(),
+    { isSuccess: true }
+  ],
+  useUpdateProgrammingPlanStatusMutation: [
+    async () => fn(),
+    { isSuccess: true }
+  ],
   useUpdateRegionalPrescriptionMutation: [
     async () => fn(),
     { isSuccess: true }
   ],
-  useDeletePrescriptionMutation: [async () => fn(), { isSuccess: true }],
-  useCommentRegionalPrescriptionMutation: [
-    async () => fn(),
-    { isSuccess: true }
-  ],
-  useLazySearchAddressesQuery: [[], { isSuccess: true }],
-  useLazySearchCompaniesQuery: [[], { isSuccess: true }],
-  useGetAuthRedirectUrlQuery: {
-    data: {
-      url: ''
-    }
-  }
+  useUpdateSampleMutation: [async () => fn(), { isSuccess: true }]
 };
 
 export const mockApiClient = getMockApi<ApiClient>(defaultMockApiClientConf);
