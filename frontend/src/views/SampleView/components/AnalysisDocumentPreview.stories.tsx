@@ -2,25 +2,28 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import { ApiClient } from '../../../services/apiClient';
+import {
+  defaultMockApiClientConf,
+  getMockApi
+} from '../../../services/mockApiClient';
 import { AnalysisDocumentPreview } from './AnalysisDocumentPreview';
 
 const meta = {
   title: 'Views/AnalysisDocumentPreview',
-  component: AnalysisDocumentPreview
+  component: AnalysisDocumentPreview,
+  args: {
+    analysisId: 'fakeAnalysisId'
+  }
 } satisfies Meta<typeof AnalysisDocumentPreview>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
-  args: {
-    reportDocumentIds: ['fakeDocumentId']
-  }
-};
+export const Default: Story = {};
 
 export const DefaultWithChildren: Story = {
   args: {
-    reportDocumentIds: ['fakeDocumentId'],
     children: (
       <Button
         priority="secondary"
@@ -35,7 +38,12 @@ export const DefaultWithChildren: Story = {
 };
 
 export const WithHistory: Story = {
-  args: {
-    reportDocumentIds: ['fakeDocumentId', 'fakeDocumentId2']
+  parameters: {
+    apiClient: getMockApi<ApiClient>({
+      ...defaultMockApiClientConf,
+      useGetAnalysisReportDocumentIdsQuery: {
+        data: ['document1Id', 'document2Id', 'document3Id']
+      }
+    })
   }
 };

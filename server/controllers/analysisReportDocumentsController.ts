@@ -8,6 +8,7 @@ export const analysisReportDocumentsRouter = {
       const { analysisId } = request.params;
       const result =
         await analysisReportDocumentsRepository.findByAnalysisId(analysisId);
+
       return { response: result };
     },
     post: async (request) => {

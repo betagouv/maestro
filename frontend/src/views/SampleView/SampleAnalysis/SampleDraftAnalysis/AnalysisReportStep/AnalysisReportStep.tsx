@@ -33,9 +33,7 @@ const AnalysisReportStep = ({ sampleId, partialAnalysis }: Props) => {
   const [updateAnalysis] = apiClient.useUpdateAnalysisMutation();
 
   const [fileInput, setFileInput] = useState<File | undefined>();
-  const [hasReportDocument, setHasReportDocument] = useState(
-    partialAnalysis?.reportDocumentId !== undefined
-  );
+  const [hasReportDocument, setHasReportDocument] = useState(false);
 
   const acceptFileTypes = [
     'application/pdf',
@@ -66,29 +64,29 @@ const AnalysisReportStep = ({ sampleId, partialAnalysis }: Props) => {
     e.preventDefault();
     await form.validate(async () => {
       form.reset();
-      const reportDocumentId = hasReportDocument
-        ? (partialAnalysis?.reportDocumentId as string)
-        : await createDocument({
-            file: fileInput as File,
-            kind: 'AnalysisReportDocument'
-          })
-            .unwrap()
-            .then((document) => document.id);
-      if (!partialAnalysis) {
-        await createAnalysis({
-          sampleId,
-          reportDocumentId
-        });
-      } else {
-        if (partialAnalysis.reportDocumentId !== reportDocumentId) {
-          await deleteDocument(partialAnalysis.reportDocumentId);
-        }
-        await updateAnalysis({
-          ...partialAnalysis,
-          reportDocumentId,
-          status: 'Residues'
-        });
-      }
+      // const reportDocumentId = hasReportDocument
+      //   ? (partialAnalysis?.reportDocumentId as string)
+      //   : await createDocument({
+      //       file: fileInput as File,
+      //       kind: 'AnalysisReportDocument'
+      //     })
+      //       .unwrap()
+      //       .then((document) => document.id);
+      // if (!partialAnalysis) {
+      //   await createAnalysis({
+      //     sampleId,
+      //     reportDocumentId
+      //   });
+      // } else {
+      //   if (partialAnalysis.reportDocumentId !== reportDocumentId) {
+      //     await deleteDocument(partialAnalysis.reportDocumentId);
+      //   }
+      //   await updateAnalysis({
+      //     ...partialAnalysis,
+      //     reportDocumentId,
+      //     status: 'Residues'
+      //   });
+      // }
       navigateToSample(sampleId, 2);
     });
   };
@@ -99,7 +97,7 @@ const AnalysisReportStep = ({ sampleId, partialAnalysis }: Props) => {
         <>
           <div className={cx('fr-label')}>Ajouter le rapport d'analyse</div>
           <div>
-            <DocumentLink documentId={partialAnalysis?.reportDocumentId} />
+            {/*<DocumentLink documentId={partialAnalysis?.reportDocumentId} />*/}
             <Button
               title="Supprimer"
               iconId="fr-icon-delete-line"

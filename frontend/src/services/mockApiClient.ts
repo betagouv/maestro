@@ -71,7 +71,6 @@ export const getMockApi = <T extends Partial<ApiClient>>(
     return acc;
   }, {} as T);
 };
-
 export const defaultMockApiClientConf: Partial<MockApi<ApiClient>> = {
   useAddPrescriptionMutation: [async () => fn(), { isSuccess: true }],
   useCommentRegionalPrescriptionMutation: [
@@ -159,7 +158,8 @@ export const defaultMockApiClientConf: Partial<MockApi<ApiClient>> = {
     async () => fn(),
     { isSuccess: true }
   ],
-  useUpdateSampleMutation: [async () => fn(), { isSuccess: true }]
+  useUpdateSampleMutation: [async () => fn(), { isSuccess: true }],
+  useGetAnalysisReportDocumentIdsQuery: { data: ['fakeDocumentId'] }
 };
 
 export const mockApiClient = getMockApi<ApiClient>(defaultMockApiClientConf);
