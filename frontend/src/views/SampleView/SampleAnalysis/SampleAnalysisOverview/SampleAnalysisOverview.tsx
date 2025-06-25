@@ -68,7 +68,7 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
 
   return (
     <>
-      <AnalysisDocumentPreview reportDocumentId={analysis.reportDocumentId}>
+      <AnalysisDocumentPreview analysisId={analysis.id}>
         {!readonly ? (
           <Button
             priority="secondary"

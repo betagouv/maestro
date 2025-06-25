@@ -45,6 +45,24 @@ const analysisApi = api.injectEndpoints({
         { type: 'Sample' as const, id: draft.sampleId },
         { type: 'Sample', id: 'LIST' }
       ]
+    }),
+    getAnalysisReportDocumentIds: builder.query<string[], string>({
+      query: (analysisId) => ({
+        url: `analysis/${analysisId}/reportDocuments`
+      })
+    }),
+    createAnalysisReportDocument: builder.mutation<
+      void,
+      { documentId: string; analysisId: string; sampleId: string }
+    >({
+      query: ({ documentId, analysisId }) => ({
+        url: `analysis/${analysisId}/reportDocuments`,
+        method: 'POST',
+        body: { documentId }
+      }),
+      invalidatesTags: (_result, _error, { sampleId }) => [
+        { type: 'SampleAnalysis', id: sampleId }
+      ]
     })
   })
 });
@@ -53,5 +71,8 @@ export const {
   useCreateAnalysisMutation,
   useUpdateAnalysisMutation,
   useGetSampleAnalysisQuery,
-  useLazyGetSampleAnalysisQuery
+  useLazyGetSampleAnalysisQuery,
+  useCreateAnalysisReportDocumentMutation,
+  useLazyGetAnalysisReportDocumentIdsQuery,
+  useGetAnalysisReportDocumentIdsQuery
 } = analysisApi;

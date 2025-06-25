@@ -63,7 +63,6 @@ export const getMockApi = <T extends Partial<ApiClient>>(
     return acc;
   }, {} as T);
 };
-
 export const defaultMockApiClientConf: Partial<MockApi<ApiClient>> = {
   useGetDocumentQuery: {
     data: genDocument({
@@ -129,7 +128,8 @@ export const defaultMockApiClientConf: Partial<MockApi<ApiClient>> = {
   useDeleteSampleMutation: [async () => fn(), { isSuccess: true }],
   useUpdatePrescriptionMutation: [async () => fn(), { isSuccess: true }],
   useAddPrescriptionMutation: [async () => fn(), { isSuccess: true }],
-  useDeletePrescriptionMutation: [async () => fn(), { isSuccess: true }]
+  useDeletePrescriptionMutation: [async () => fn(), { isSuccess: true }],
+  useGetAnalysisReportDocumentIdsQuery: { data: ['fakeDocumentId'] }
 };
 
 export const mockApiClient = getMockApi<ApiClient>(defaultMockApiClientConf);

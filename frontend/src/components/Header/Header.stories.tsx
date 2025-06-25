@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, fn, within } from 'storybook/test';
 import { RegionList } from 'maestro-shared/referential/Region';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import { genAuthUser } from 'maestro-shared/test/userFixtures';
+import { expect, fn, within } from 'storybook/test';
 import { undefined } from 'zod';
 import { MuiDsfrThemeProvider } from '../../App';
 import { ApiClient } from '../../services/apiClient';

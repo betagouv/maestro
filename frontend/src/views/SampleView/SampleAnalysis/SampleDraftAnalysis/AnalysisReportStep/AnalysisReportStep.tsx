@@ -6,7 +6,6 @@ import { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { FileInput } from 'maestro-shared/schema/File/FileInput';
 import { FileType } from 'maestro-shared/schema/File/FileType';
 import React, { useState } from 'react';
-import DocumentLink from 'src/components/DocumentLink/DocumentLink';
 import AppUpload from 'src/components/_app/AppUpload/AppUpload';
 import { useForm } from 'src/hooks/useForm';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
@@ -39,9 +38,7 @@ const AnalysisReportStep = ({ sampleId, partialAnalysis }: Props) => {
   const [updateAnalysis] = useUpdateAnalysisMutation();
 
   const [fileInput, setFileInput] = useState<File | undefined>();
-  const [hasReportDocument, setHasReportDocument] = useState(
-    partialAnalysis?.reportDocumentId !== undefined
-  );
+  const [hasReportDocument, setHasReportDocument] = useState(false);
 
   const acceptFileTypes = [
     'application/pdf',
@@ -72,29 +69,29 @@ const AnalysisReportStep = ({ sampleId, partialAnalysis }: Props) => {
     e.preventDefault();
     await form.validate(async () => {
       form.reset();
-      const reportDocumentId = hasReportDocument
-        ? (partialAnalysis?.reportDocumentId as string)
-        : await createDocument({
-            file: fileInput as File,
-            kind: 'AnalysisReportDocument'
-          })
-            .unwrap()
-            .then((document) => document.id);
-      if (!partialAnalysis) {
-        await createAnalysis({
-          sampleId,
-          reportDocumentId
-        });
-      } else {
-        if (partialAnalysis.reportDocumentId !== reportDocumentId) {
-          await deleteDocument(partialAnalysis.reportDocumentId);
-        }
-        await updateAnalysis({
-          ...partialAnalysis,
-          reportDocumentId,
-          status: 'Residues'
-        });
-      }
+      // const reportDocumentId = hasReportDocument
+      //   ? (partialAnalysis?.reportDocumentId as string)
+      //   : await createDocument({
+      //       file: fileInput as File,
+      //       kind: 'AnalysisReportDocument'
+      //     })
+      //       .unwrap()
+      //       .then((document) => document.id);
+      // if (!partialAnalysis) {
+      //   await createAnalysis({
+      //     sampleId,
+      //     reportDocumentId
+      //   });
+      // } else {
+      //   if (partialAnalysis.reportDocumentId !== reportDocumentId) {
+      //     await deleteDocument(partialAnalysis.reportDocumentId);
+      //   }
+      //   await updateAnalysis({
+      //     ...partialAnalysis,
+      //     reportDocumentId,
+      //     status: 'Residues'
+      //   });
+      // }
       navigateToSample(sampleId, 2);
     });
   };
@@ -105,7 +102,7 @@ const AnalysisReportStep = ({ sampleId, partialAnalysis }: Props) => {
         <>
           <div className={cx('fr-label')}>Ajouter le rapport d'analyse</div>
           <div>
-            <DocumentLink documentId={partialAnalysis?.reportDocumentId} />
+            {/*<DocumentLink documentId={partialAnalysis?.reportDocumentId} />*/}
             <Button
               title="Supprimer"
               iconId="fr-icon-delete-line"

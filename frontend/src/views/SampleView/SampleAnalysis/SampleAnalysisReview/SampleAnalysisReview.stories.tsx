@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { expect, fireEvent, fn, userEvent, within } from 'storybook/test';
 import clsx from 'clsx';
 import { ResultKindList } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
+import { expect, fireEvent, fn, userEvent, within } from 'storybook/test';
 import { v4 as uuidv4 } from 'uuid';
 import { SampleAnalysisReview } from './SampleAnalysisReview';
 
@@ -50,7 +50,6 @@ export const ReviewWithoutResidue: Story = {
       status: 'Residues',
       createdAt: new Date(1234),
       sampleId: uuidv4(),
-      reportDocumentId: uuidv4(),
       createdBy: null,
       residues: []
     }
@@ -64,7 +63,6 @@ export const ReviewWithResidues: Story = {
       status: 'Residues',
       createdAt: new Date(1234),
       sampleId: uuidv4(),
-      reportDocumentId: uuidv4(),
       createdBy: null,
       residues: [
         {
