@@ -11,7 +11,7 @@ import { sampleRepository } from '../repositories/sampleRepository';
 import { SubRouter } from '../routers/routes.type';
 import { mattermostService } from '../services/mattermostService';
 
-export const analysisRouter: SubRouter = {
+export const analysisRouter = {
   '/analysis': {
     get: async (request) => {
       const { sampleId } = request.query;
@@ -143,4 +143,4 @@ export const analysisRouter: SubRouter = {
       return { response: updatedAnalysis };
     }
   }
-};
+} as const satisfies SubRouter;
