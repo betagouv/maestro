@@ -108,10 +108,7 @@ export const SubmittingSuccess: Story = {
     apiClient: getMockApi<ApiClient>({
       ...defaultMockApiClientConf,
       useCreateOrUpdateSampleMutation: [
-        async (...args) => {
-          const result = await mockCreateOrUpdateSample(...args);
-          return result;
-        },
+        async (...args) => await mockCreateOrUpdateSample(...args),
         { isSuccess: true }
       ]
     })
