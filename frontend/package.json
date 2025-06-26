@@ -54,6 +54,7 @@
     "eslint-plugin-storybook": "^9.0.12",
     "fetch-intercept": "^2.4.0",
     "i18next": "^23.10.0",
+    "jsdom": "^26.1.0",
     "maestro-shared": "^0.0.1",
     "maplibre-gl": "^4.1.2",
     "openapi-explorer": "^2.2.734",
