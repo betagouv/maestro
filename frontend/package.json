@@ -11,16 +11,12 @@
     "build-vite": "vite build",
     "scalingo-postbuild": "run-p build-vite build-storybook",
     "preview": "vite preview",
-    "test": "vitest",
+    "test": "npx vitest run --reporter verbose  --passWithNoTests",
     "lint": "eslint . --ext .ts,.tsx",
     "predev": "cp -r ../node_modules/@codegouvfr ./node_modules/ && react-dsfr update-icons",
     "prestart": "react-dsfr update-icons",
     "prebuild": "react-dsfr update-icons",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build",
-    "test-storybook": "test-storybook",
-    "prestorybook": "react-dsfr update-icons",
-    "prebuild-storybook": "react-dsfr update-icons"
+    "storybook": "storybook dev -p 6006"
   },
   "license": "AGPL-3.0",
   "engines": {
@@ -45,8 +41,8 @@
     "@emotion/styled": "^11.11.5",
     "@mui/material": "^5.15.20",
     "@reduxjs/toolkit": "^2.4.0",
+    "@storybook/addon-vitest": "^9.0.13",
     "@storybook/react-vite": "^9.0.13",
-    "@storybook/test-runner": "^0.23.0",
     "@svgr/core": "^8.1.0",
     "@svgr/plugin-jsx": "^8.1.0",
     "@types/node": "^20.11.30",
