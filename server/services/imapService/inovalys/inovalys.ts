@@ -102,9 +102,7 @@ export const extractAnalyzes = (
       Détermination: z.string(),
       'Code Méth': z.string(),
       'Réf Méthode': z.enum(codeMethods),
-      'Résultat 1': z.string(),
-      // attention pour le moment on a tout en double, une ligne pour la LD et une autre pour la LQ, mais ça va surement changer
-      'Limite Quant. 1': z.string(),
+      'Résultat 1': z.union([z.literal('ND'), z.literal('<LQ'), z.literal('d<LQ'), frenchNumberStringValidator]),
       'Code Sandre': z.string().transform((v) => (v === '' ? null : v)),
       Incertitude: z.string().optional(),
       //LMR
@@ -166,22 +164,17 @@ export const extractAnalyzes = (
   const result: Omit<ExportAnalysis, 'pdfFile'>[] = [];
   for (const sampleWithResultat of samplesWithResultats) {
     const residues: ExportDataSubstance[] = sampleWithResultat.resultats
-      .filter((r) => r['Limite Quant. 1'].startsWith('<'))
       .map((r) => {
-        const resultatAsNumber = frenchNumberStringValidator.safeParse(
-          r['Résultat 1']
-        );
 
         const result: ExportResultQuantifiable | ExportResultNonQuantifiable =
-          resultatAsNumber.success
-            ? {
-                result: resultatAsNumber.data,
-                result_kind: 'Q',
-                lmr: r['Spécification 1']
-              }
-            : {
-                result_kind: r['Spécification 1'] > 0 ? 'NQ' : 'ND'
-              };
+         r['Résultat 1'] === 'ND' || r['Résultat 1'] === '<LQ'|| r['Résultat 1'] === 'd<LQ'
+            ?  {
+             result_kind: r['Résultat 1'] === 'ND' ? 'ND' : 'NQ'
+           }: {
+             result: r['Résultat 1'],
+             result_kind: 'Q',
+             lmr: r['Spécification 1']
+           }
 
         return {
           ...result,
