@@ -5,10 +5,8 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig(async (env: ConfigEnv) => {
   const configPath = path.resolve(__dirname, 'vite.config.ts');
 
-  const { config: viteConfig } = await loadConfigFromFile({
-    ...env,
-    configFile: configPath
-  });
+  const { config: viteConfig } =
+    (await loadConfigFromFile(env, configPath)) || {};
 
   return mergeConfig(viteConfig ?? {}, {
     test: {
