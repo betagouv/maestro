@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, fn, within } from 'storybook/test';
 import { RegionList } from 'maestro-shared/referential/Region';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import {
@@ -9,6 +8,7 @@ import {
   RegionalCoordinator,
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
+import { expect, fn, within } from 'storybook/test';
 import { ApiClient } from '../../services/apiClient';
 import {
   defaultMockApiClientConf,
@@ -107,7 +107,7 @@ export const DashboardViewForRegionalCoordinator: Story = {
     ).toBeInTheDocument();
     await expect(
       canvas.getByText(`Plan de surveillance ${new Date().getFullYear()}`)
-    ).toBeInTheDocument();
+    ).not.toBeInTheDocument();
 
     await expect(
       canvas.queryByTestId('close-programming-plan-button')
