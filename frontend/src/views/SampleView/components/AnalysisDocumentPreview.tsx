@@ -87,14 +87,16 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
                     <span>
                       <DocumentLink documentId={id} />
                     </span>
-                    <Button
-                      iconId="fr-icon-delete-line"
-                      size={'small'}
-                      priority={'tertiary'}
-                      onClick={() => onDeleteDocument(id)}
-                    >
-                      Supprimer
-                    </Button>
+                    {!readonly && (
+                      <Button
+                        iconId="fr-icon-delete-line"
+                        size={'small'}
+                        priority={'tertiary'}
+                        onClick={() => onDeleteDocument(id)}
+                      >
+                        Supprimer
+                      </Button>
+                    )}
                   </span>
                 );
               })}
