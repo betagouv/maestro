@@ -167,16 +167,8 @@ const parsePartialAnalysis = (
     )
   });
 
-const deleteById = async (
-  analysisId: string,
-  trx: KyselyMaestro = kysely
-): Promise<void> => {
-  await trx.deleteFrom('analysis').where('id', '=', analysisId).execute();
-};
-
 export const analysisRepository = {
   findUnique,
   insert,
-  update,
-  deleteById
+  update
 };

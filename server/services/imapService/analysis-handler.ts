@@ -3,6 +3,7 @@ import {
   isComplex
 } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { OmitDistributive } from 'maestro-shared/utils/typescript';
 import { analysisReportDocumentsRepository } from '../../repositories/analysisReportDocumentsRepository';
 import { analysisRepository } from '../../repositories/analysisRepository';
@@ -115,23 +116,24 @@ export const analysisHandler = async (
     'AnalysisReportDocument',
     null,
     async (documentId, trx) => {
+      const newAnalysis: Omit<PartialAnalysis, 'id'> = {
+        sampleId,
+        status: 'Compliance',
+        createdBy: null,
+        createdAt: new Date(),
+
+        // Pour le moment on passe par une validation manuelle pour déterminer la conformité
+        // compliance: true,
+        notesOnCompliance: analyse.notes
+      };
+
+      let analysisId;
       if (oldAnalyseId) {
-        await analysisRepository.deleteById(oldAnalyseId);
+        await analysisRepository.update({ ...newAnalysis, id: oldAnalyseId });
+        analysisId = oldAnalyseId;
+      } else {
+        analysisId = await analysisRepository.insert(newAnalysis, trx);
       }
-
-      const analysisId = await analysisRepository.insert(
-        {
-          sampleId,
-          status: 'Compliance',
-          createdBy: null,
-          createdAt: new Date(),
-
-          // Pour le moment on passe par une validation manuelle pour déterminer la conformité
-          // compliance: true,
-          notesOnCompliance: analyse.notes
-        },
-        trx
-      );
 
       await analysisReportDocumentsRepository.insert(
         analysisId,
