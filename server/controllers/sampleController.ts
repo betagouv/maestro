@@ -242,14 +242,11 @@ const updateSample = async (request: Request, response: Response) => {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
   }
 
-  const prescriptionId = sampleUpdate.prescriptionId ?? sample.prescriptionId;
+  const prescriptionId = sampleUpdate.prescriptionId;
   if (prescriptionId) {
     const prescription =
       await prescriptionRepository.findUnique(prescriptionId);
-    if (
-      !prescription ||
-      prescription.matrixKind !== (sampleUpdate.matrixKind ?? sample.matrixKind)
-    ) {
+    if (!prescription || prescription.matrixKind !== sampleUpdate.matrixKind) {
       return response.sendStatus(constants.HTTP_STATUS_BAD_REQUEST);
     }
   }

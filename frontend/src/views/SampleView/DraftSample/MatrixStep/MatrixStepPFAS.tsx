@@ -278,8 +278,8 @@ const MatrixStepPFAS = forwardRef<MatrixStepRef, Props>(
               placeholder="Sélectionner une catégorie"
               onSelect={(value) => {
                 setMatrixKind(value as MatrixKind);
-                setMatrix(undefined);
-                setStage(undefined);
+                setMatrix(null);
+                setStage(null);
               }}
               state={form.messageType('matrixKind')}
               stateRelatedMessage={form.message('matrixKind')}

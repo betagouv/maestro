@@ -146,14 +146,12 @@ const MatrixStep = ({ partialSample }: Props) => {
       (p) =>
         p.programmingPlanKind ===
           partialSample.specificData.programmingPlanKind &&
-        p.matrixKind === partialSample.matrixKind &&
-        partialSample.stage &&
-        p.stages.includes(partialSample.stage)
+        p.matrixKind === sampleMatrixData.matrixKind &&
+        sampleMatrixData.stage &&
+        p.stages.includes(sampleMatrixData.stage)
     );
     const regionalPrescription = regionalPrescriptions?.find(
-      (rp) =>
-        rp.prescriptionId ===
-        (sampleMatrixData.prescriptionId ?? partialSample.prescriptionId)
+      (rp) => rp.prescriptionId === prescription?.id
     );
 
     const prescriptionSubstances = await (prescription
@@ -165,9 +163,8 @@ const MatrixStep = ({ partialSample }: Props) => {
       ...sampleMatrixData,
       documentIds,
       status,
-      prescriptionId: prescription?.id,
-      laboratoryId:
-        regionalPrescription?.laboratoryId ?? partialSample.laboratoryId,
+      prescriptionId: prescription?.id || null,
+      laboratoryId: regionalPrescription?.laboratoryId || null,
       monoSubstances:
         prescriptionSubstances
           ?.filter((substance) => substance.analysisMethod === 'Mono')
