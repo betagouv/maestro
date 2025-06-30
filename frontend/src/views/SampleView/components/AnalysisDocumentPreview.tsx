@@ -1,8 +1,16 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
-import { FunctionComponent, ReactNode, useContext } from 'react';
+import {
+  FunctionComponent,
+  ReactNode,
+  useContext,
+  useMemo,
+  useRef
+} from 'react';
 import { assert, Equals } from 'tsafe';
+import ConfirmationModal from '../../../components/ConfirmationModal/ConfirmationModal';
 import DocumentLink from '../../../components/DocumentLink/DocumentLink';
 import { ApiClientContext } from '../../../services/apiClient';
 
@@ -35,9 +43,28 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
     useGetAnalysisReportDocumentIdsQuery(analysisId);
 
   const [deleteDocument] = useDeleteAnalysisReportDocumentMutation();
-  const onDeleteDocument = (documentId: string) => {
-    deleteDocument({ analysisId, sampleId, documentId });
+
+  const documentIdToDelete = useRef<null | string>(null);
+
+  const onDeleteDocument = async () => {
+    if (documentIdToDelete.current) {
+      await deleteDocument({
+        analysisId,
+        sampleId,
+        documentId: documentIdToDelete.current
+      });
+      documentIdToDelete.current = null;
+    }
   };
+  const deleteReportDocumentConfirmationModal = useMemo(
+    () =>
+      createModal({
+        id: `confirm-delete-report-document-${analysisId}`,
+        isOpenedByDefault: false
+      }),
+    [analysisId]
+  );
+
   return (
     <div className={clsx(cx('fr-py-4w', 'fr-px-5w'), 'border')}>
       <h6 className="d-flex-align-center">
@@ -92,11 +119,23 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
                         iconId="fr-icon-delete-line"
                         size={'small'}
                         priority={'tertiary'}
-                        onClick={() => onDeleteDocument(id)}
+                        onClick={() => {
+                          documentIdToDelete.current = id;
+                          deleteReportDocumentConfirmationModal.open();
+                        }}
                       >
                         Supprimer
                       </Button>
                     )}
+                    <ConfirmationModal
+                      modal={deleteReportDocumentConfirmationModal}
+                      title="Confirmez la suppression du rapport d'analyse"
+                      onConfirm={onDeleteDocument}
+                      closeOnConfirm
+                    >
+                      Attention le rapport d'analyse sera supprimé
+                      définitivement.
+                    </ConfirmationModal>
                   </span>
                 );
               })}
