@@ -1,6 +1,6 @@
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
-import { z } from 'zod/v4';
 import { maestroDate } from 'maestro-shared/utils/date';
+import { z } from 'zod/v4';
 import { ExtractError } from '../extractError';
 import type {
   ExportAnalysis,
@@ -51,6 +51,16 @@ const codeMethodsAnalyseMethod = {
   'Méthode interne': 'Mono'
 } as const satisfies Record<(typeof codeMethods)[number], AnalysisMethod>;
 
+export const inovalysRefClientValidator = z.string().transform((l) => {
+  const count = (l.match(/-/g) || []).length;
+
+  if (count === 3) {
+    return l.substring(0, l.lastIndexOf('-'));
+  }
+
+  return l;
+});
+
 // Visible for testing
 export const extractAnalyzes = (
   files: InovalysCSVFile[]
@@ -74,7 +84,7 @@ export const extractAnalyzes = (
     z.object({
       Dossier: dossierValidator,
       Echant: echantillonValidator,
-      'Réf Client': z.string(),
+      'Réf Client': inovalysRefClientValidator,
       Commentaire: z.string(),
       Conclusion: z.string()
     })
@@ -102,7 +112,12 @@ export const extractAnalyzes = (
       Détermination: z.string(),
       'Code Méth': z.string(),
       'Réf Méthode': z.enum(codeMethods),
-      'Résultat 1': z.union([z.literal('ND'), z.literal('<LQ'), z.literal('d<LQ'), frenchNumberStringValidator]),
+      'Résultat 1': z.union([
+        z.literal('ND'),
+        z.literal('<LQ'),
+        z.literal('d<LQ'),
+        frenchNumberStringValidator
+      ]),
       'Code Sandre': z.string().transform((v) => (v === '' ? null : v)),
       Incertitude: z.string().optional(),
       //LMR
@@ -163,18 +178,20 @@ export const extractAnalyzes = (
 
   const result: Omit<ExportAnalysis, 'pdfFile'>[] = [];
   for (const sampleWithResultat of samplesWithResultats) {
-    const residues: ExportDataSubstance[] = sampleWithResultat.resultats
-      .map((r) => {
-
+    const residues: ExportDataSubstance[] = sampleWithResultat.resultats.map(
+      (r) => {
         const result: ExportResultQuantifiable | ExportResultNonQuantifiable =
-         r['Résultat 1'] === 'ND' || r['Résultat 1'] === '<LQ'|| r['Résultat 1'] === 'd<LQ'
-            ?  {
-             result_kind: r['Résultat 1'] === 'ND' ? 'ND' : 'NQ'
-           }: {
-             result: r['Résultat 1'],
-             result_kind: 'Q',
-             lmr: r['Spécification 1']
-           }
+          r['Résultat 1'] === 'ND' ||
+          r['Résultat 1'] === '<LQ' ||
+          r['Résultat 1'] === 'd<LQ'
+            ? {
+                result_kind: r['Résultat 1'] === 'ND' ? 'ND' : 'NQ'
+              }
+            : {
+                result: r['Résultat 1'],
+                result_kind: 'Q',
+                lmr: r['Spécification 1']
+              };
 
         return {
           ...result,
@@ -184,7 +201,8 @@ export const extractAnalyzes = (
           analysisMethod: codeMethodsAnalyseMethod[r['Réf Méthode']],
           analysisDate: r['Date Analyse']
         };
-      });
+      }
+    );
 
     result.push({
       sampleReference: sampleWithResultat.sample['Réf Client'],

@@ -155,14 +155,14 @@ test("Impossible d'enregistrer l'analyse si on trouve un résidu complexe sans a
       ]
     })
   ).rejects.toThrowErrorMatchingInlineSnapshot(
-    `[Error: Le résidue complexe RF-0008-001-PPP est présent, mais n'a aucune analyte]`
+    `[Error: Le résidu complexe RF-0008-001-PPP est présent, mais n'a aucune analyte]`
   );
 
   expect(spyUploadDocument).toHaveBeenCalledTimes(0);
   expect(spyDeleteDocument).toHaveBeenCalledTimes(0);
 });
 
-test('Peut enregistrer une analyse avec un résidue complexe et ses analytes associées', async () => {
+test('Peut enregistrer une analyse avec un résidu complexe et ses analytes associées', async () => {
   const analysisToSave = {
     notes: '',
     pdfFile: new File([], 'fileName'),

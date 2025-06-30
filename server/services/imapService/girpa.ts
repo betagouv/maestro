@@ -469,6 +469,7 @@ const girpaReferences: Record<string, SSD2Id> = {
   linuron: 'RF-0264-001-PPP',
   malathion: 'RF-0266-003-PPP',
   malaoxon: 'RF-0266-002-PPP',
+  'maleic hydrazid': 'RF-0267-001-PPP',
   mandestrobin: 'RF-00004671-PAR',
   MCPA: 'RF-0271-005-PPP',
   MCPB: 'RF-0271-002-PPP',

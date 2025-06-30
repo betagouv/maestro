@@ -294,6 +294,7 @@ export const inovalysReferential: Record<string, SSD2Id> = {
   Dichlobenil: 'RF-0125-001-PPP',
   Dichlofenthion: 'RF-0599-001-PPP',
   '2,6 Dichlorobenzamide': 'RF-0602-001-PPP',
+  'Dichloroaniline 3,4': 'RF-00002584-PAR',
   Dichlorvos: 'RF-0127-001-PPP',
   '· Diclofop': 'RF-0128-002-PPP',
   '· Diclofop méthyl': 'RF-0128-003-PPP',
