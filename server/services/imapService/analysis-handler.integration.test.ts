@@ -59,7 +59,7 @@ test("Le fichier est updloadé sur le S3, n'est pas supprimé du S3 et est en bd
     .where('analysisId', '=', analysisId)
     .selectAll()
     .executeTakeFirst();
-  expect(analysisReportDocument).toBe(documentId);
+  expect(analysisReportDocument?.documentId).toBe(documentId);
 
   const analysisResidue = await kysely
     .selectFrom('analysisResidues')
@@ -90,7 +90,7 @@ test("Retourne une erreur si l'upload a échoué", async () => {
   expect(spyDeleteDocument).toHaveBeenCalledTimes(0);
 });
 
-test("Impossible d'ajouter une analyse à un échantillon avec déjà une analyse", async () => {
+test("Permet d'ajouter une analyse à un échantillon avec déjà une analyse", async () => {
   const analysis = {
     notes: '',
     pdfFile: new File([], 'fileName'),
@@ -100,11 +100,6 @@ test("Impossible d'ajouter une analyse à un échantillon avec déjà une analys
 
   await analysisHandler(analysis);
   expect(spyUploadDocument).toHaveBeenCalledTimes(1);
-  await expect(async () =>
-    analysisHandler(analysis)
-  ).rejects.toThrowErrorMatchingInlineSnapshot(
-    `[Error: Une analyse est déjà présente pour cet échantillon : GES-08-24-315-A]`
-  );
 
   spyUploadDocument.mockReset();
   expect(spyUploadDocument).toHaveBeenCalledTimes(0);

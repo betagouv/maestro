@@ -312,12 +312,6 @@ describe('Analysis router', () => {
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await badRequestTest({
-        reportDocumentId: '123'
-      });
-      await badRequestTest({
-        reportDocumentId: undefined
-      });
-      await badRequestTest({
         residues: 'invalid'
       });
       await badRequestTest({

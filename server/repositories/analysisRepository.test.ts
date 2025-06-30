@@ -127,17 +127,6 @@ describe('update', () => {
 });
 describe('findUnique', () => {
   test('find only residues without ND result_kind', async () => {
-    const document = await kysely
-      .insertInto('documents')
-      .values([
-        {
-          filename: 'test',
-          kind: 'AnalysisReportDocument'
-        }
-      ])
-      .returningAll()
-      .executeTakeFirstOrThrow();
-
     const analysisId = uuidv4();
     await kysely
       .insertInto('analysis')
@@ -199,7 +188,6 @@ describe('findUnique', () => {
 
     expect(analysisInDb).toMatchObject({
       id: analysisId,
-      reportDocumentId: document.id,
       residues: [
         {
           analysisId: analysisId,
