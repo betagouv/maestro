@@ -3,7 +3,9 @@ import {
   isComplex
 } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { OmitDistributive } from 'maestro-shared/utils/typescript';
+import { analysisReportDocumentsRepository } from '../../repositories/analysisReportDocumentsRepository';
 import { analysisRepository } from '../../repositories/analysisRepository';
 import { analysisResidueRepository } from '../../repositories/analysisResidueRepository';
 import { kysely } from '../../repositories/kysely';
@@ -24,7 +26,12 @@ export const analysisHandler = async (
   analysisId: string;
   samplerEmail: string;
 }> => {
-  const { sampleId, samplerId, analyseId, samplerEmail } = await kysely
+  const {
+    sampleId,
+    samplerId,
+    analyseId: oldAnalyseId,
+    samplerEmail
+  } = await kysely
     .selectFrom('samples')
     .innerJoin('users', 'samples.sampledBy', 'users.id')
     .leftJoin('analysis', 'samples.id', 'analysis.sampleId')
@@ -41,12 +48,6 @@ export const analysisHandler = async (
           `Impossible de trouver le prélèvement avec la référence ${analyse.sampleReference}`
         )
     );
-
-  if (analyseId !== null) {
-    throw new ExtractError(
-      `Une analyse est déjà présente pour cet échantillon : ${analyse.sampleReference}`
-    );
-  }
 
   const complexResidues = analyse.residues.filter(
     (
@@ -115,18 +116,28 @@ export const analysisHandler = async (
     'AnalysisReportDocument',
     null,
     async (documentId, trx) => {
-      const analysisId = await analysisRepository.insert(
-        {
-          sampleId,
-          reportDocumentId: documentId,
-          status: 'Compliance',
-          createdBy: null,
-          createdAt: new Date(),
+      const newAnalysis: Omit<PartialAnalysis, 'id'> = {
+        sampleId,
+        status: 'Compliance',
+        createdBy: null,
+        createdAt: new Date(),
 
-          // Pour le moment on passe par une validation manuelle pour déterminer la conformité
-          // compliance: true,
-          notesOnCompliance: analyse.notes
-        },
+        // Pour le moment on passe par une validation manuelle pour déterminer la conformité
+        // compliance: true,
+        notesOnCompliance: analyse.notes
+      };
+
+      let analysisId;
+      if (oldAnalyseId) {
+        await analysisRepository.update({ ...newAnalysis, id: oldAnalyseId });
+        analysisId = oldAnalyseId;
+      } else {
+        analysisId = await analysisRepository.insert(newAnalysis, trx);
+      }
+
+      await analysisReportDocumentsRepository.insert(
+        analysisId,
+        documentId,
         trx
       );
 

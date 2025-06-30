@@ -6,27 +6,14 @@ import {
 } from './schema/Analysis/Analysis';
 import { UserPermission } from './schema/User/UserPermission';
 
-export type RouteValidator<
-  key extends MaestroRoutes,
-  method extends keyof (typeof routes)[key],
-  Z extends keyof ToRoute
-> = (typeof routes)[key][method] extends {
-  [z in Z]: infer P;
-}
-  ? P extends ZodType
-    ? z.infer<P>
-    : undefined
-  : undefined;
-
 export type ToRoute = {
   query?: ZodObject;
-  params?: ZodObject;
   body?: ZodObject;
   permissions: UserPermission[];
   response: ZodType;
 };
 
-export type RouteMethod = 'get' | 'post' | 'put';
+export type RouteMethod = 'get' | 'post' | 'put' | 'delete';
 
 export const routes = {
   '/analysis': {
@@ -42,15 +29,39 @@ export const routes = {
     }
   },
   '/analysis/:analysisId': {
+    params: z.object({
+      analysisId: z.guid()
+    }),
     put: {
       body: AnalysisToUpdate,
-      params: z.object({
-        analysisId: z.guid()
-      }),
       permissions: ['createAnalysis'],
       response: PartialAnalysis
     }
+  },
+  '/analysis/:analysisId/reportDocuments': {
+    params: z.object({
+      analysisId: z.guid()
+    }),
+    get: {
+      permissions: ['readAnalysis'],
+      response: z.array(z.guid())
+    },
+    post: {
+      body: z.object({ documentId: z.guid() }),
+      permissions: ['createAnalysis'],
+      response: z.void()
+    },
+    delete: {
+      body: z.object({ documentId: z.guid() }),
+      permissions: ['createAnalysis'],
+      response: z.void()
+    }
   }
-} as const satisfies Record<string, { [method in RouteMethod]?: ToRoute }>;
+} as const satisfies Record<
+  string,
+  { [method in RouteMethod]?: ToRoute } & {
+    params?: ZodObject;
+  }
+>;
 
 export type MaestroRoutes = keyof typeof routes;

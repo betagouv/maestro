@@ -8,7 +8,6 @@ export const PartialAnalysis = z.object({
   createdAt: z.coerce.date(),
   createdBy: z.guid().nullish(),
   status: AnalysisStatus,
-  reportDocumentId: z.guid(),
   residues: z.array(PartialResidue).nullish(),
   compliance: z
     .boolean({
@@ -28,8 +27,7 @@ export const Analysis = z.object({
 });
 
 export const AnalysisToCreate = Analysis.pick({
-  sampleId: true,
-  reportDocumentId: true
+  sampleId: true
 });
 
 export const AnalysisToUpdate = PartialAnalysis.omit({
@@ -51,5 +49,6 @@ export const CreatedAnalysis = z.object({
 
 export type Analysis = z.infer<typeof Analysis>;
 export type AnalysisToCreate = z.infer<typeof AnalysisToCreate>;
+export type AnalysisToUpdate = z.infer<typeof AnalysisToUpdate>;
 export type CreatedAnalysis = z.infer<typeof CreatedAnalysis>;
 export type PartialAnalysis = z.infer<typeof PartialAnalysis>;

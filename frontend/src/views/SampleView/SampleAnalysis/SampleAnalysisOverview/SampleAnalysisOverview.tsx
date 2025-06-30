@@ -67,8 +67,11 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
 
   return (
     <>
-      <AnalysisDocumentPreview reportDocumentId={analysis.reportDocumentId}>
-        {!readonly ? (
+      <AnalysisDocumentPreview
+        analysisId={analysis.id}
+        sampleId={sample.id}
+        readonly={readonly}
+        button={
           <Button
             priority="secondary"
             iconId="fr-icon-edit-line"
@@ -81,10 +84,8 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
           >
             Éditer
           </Button>
-        ) : (
-          <></>
-        )}
-      </AnalysisDocumentPreview>
+        }
+      />
       <div>
         <h5 className="d-flex-align-center">
           <div className="flex-grow-1">
