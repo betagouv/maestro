@@ -1,11 +1,18 @@
 import { constants } from 'http2';
 import { analysisReportDocumentsRepository } from '../repositories/analysisReportDocumentsRepository';
+import { analysisRepository } from '../repositories/analysisRepository';
 import { SubRouter } from '../routers/routes.type';
 
 export const analysisReportDocumentsRouter = {
   '/analysis/:analysisId/reportDocuments': {
     get: async (request) => {
       const { analysisId } = request.params;
+
+      const analysis = await analysisRepository.findUnique(analysisId);
+      if (!analysis) {
+        return { status: constants.HTTP_STATUS_NOT_FOUND };
+      }
+
       const result =
         await analysisReportDocumentsRepository.findByAnalysisId(analysisId);
 
