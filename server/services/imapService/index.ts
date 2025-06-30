@@ -215,33 +215,34 @@ export const checkEmails = async () => {
 
               //On créer une liste de warnings avec les résidues introuvables dans SSD2
               residues.forEach((r) => {
-                if (r.codeSandre !== null) {
-                  if (SandreToSSD2[r.codeSandre] === undefined) {
-                    if (r.ssd2Id !== null) {
-                      warnings.add(
-                        `Nouveau code Sandre détecté : ${r.label} ${r.codeSandre} => ${r.ssd2Id}`
-                      );
-                    } else {
-                      warnings.add(
-                        `Nouveau code Sandre détecté : ${r.label} ${r.codeSandre}`
-                      );
-                    }
-                  }
-                }
                 if (
-                  r.ssd2Id === null &&
                   !laboratoriesConf[
                     message.laboratoryName
                   ].unknownReferences.includes(r.label)
                 ) {
-                  const potentialSSD2Id = getSSD2Id(
-                    r.label,
-                    r.codeSandre,
-                    r.casNumber
-                  );
-                  warnings.add(
-                    `Impossible d'identifier le résidue : ${r.label} ${potentialSSD2Id !== null ? 'ssd2Id potentiel:' + potentialSSD2Id : ''}`
-                  );
+                  if (r.codeSandre !== null) {
+                    if (SandreToSSD2[r.codeSandre] === undefined) {
+                      if (r.ssd2Id !== null) {
+                        warnings.add(
+                          `Nouveau code Sandre détecté : ${r.label} ${r.codeSandre} => ${r.ssd2Id}`
+                        );
+                      } else {
+                        warnings.add(
+                          `Nouveau code Sandre détecté : ${r.label} ${r.codeSandre}`
+                        );
+                      }
+                    }
+                  }
+                  if (r.ssd2Id === null) {
+                    const potentialSSD2Id = getSSD2Id(
+                      r.label,
+                      r.codeSandre,
+                      r.casNumber
+                    );
+                    warnings.add(
+                      `Impossible d'identifier le résidue : ${r.label} ${potentialSSD2Id !== null ? 'ssd2Id potentiel:' + potentialSSD2Id : ''}`
+                    );
+                  }
                 }
               });
 
@@ -262,9 +263,19 @@ export const checkEmails = async () => {
               //Erreur si un résidu intéressant n'a pas de SSD2Id
               interestingResidues.forEach((r) => {
                 if (r.ssd2Id === null) {
-                  throw new ExtractError(
-                    `Résidue non identifiable : ${r.label}`
-                  );
+                  if (
+                    laboratoriesConf[
+                      message.laboratoryName
+                    ].unknownReferences.includes(r.label)
+                  ) {
+                    warnings.add(
+                      `Attention un résidu inconnu a été détecté, il a été ignoré : ${r.label}`
+                    );
+                  } else {
+                    throw new ExtractError(
+                      `Résidu non identifiable : ${r.label}`
+                    );
+                  }
                 }
               });
 

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { extractAnalyzes } from './inovalys';
+import { extractAnalyzes, inovalysRefClientValidator } from './inovalys';
 
 describe('Parse correctement les fichiers CSV', () => {
   test('Vérifie la présence des fichiers CSV', () => {
@@ -155,7 +155,7 @@ describe('Parse correctement les fichiers CSV', () => {
               'Code Sandre': '1951',
               'N° mélange': '',
               '': ''
-            },
+            }
           ]
         }
       ])
@@ -198,4 +198,11 @@ describe('Parse correctement les fichiers CSV', () => {
       ]
     `);
   });
+});
+test.each<[string, string]>([
+  ['OCC-25-0007', 'OCC-25-0007'],
+  ['OCC-25-0007-01', 'OCC-25-0007'],
+  ['OCC-25-0007-1', 'OCC-25-0007']
+])('inovalysRefClientValidator', (value, expected) => {
+  expect(inovalysRefClientValidator.parse(value)).toBe(expected);
 });
