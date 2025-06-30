@@ -213,7 +213,7 @@ export const checkEmails = async () => {
                 };
               });
 
-              //On créer une liste de warnings avec les résidues introuvables dans SSD2
+              //On créer une liste de warnings avec les résidus introuvables dans SSD2
               residues.forEach((r) => {
                 if (
                   !laboratoriesConf[
@@ -240,7 +240,7 @@ export const checkEmails = async () => {
                       r.casNumber
                     );
                     warnings.add(
-                      `Impossible d'identifier le résidue : ${r.label} ${potentialSSD2Id !== null ? 'ssd2Id potentiel:' + potentialSSD2Id : ''}`
+                      `Impossible d'identifier le résidu : ${r.label} ${potentialSSD2Id !== null ? 'ssd2Id potentiel:' + potentialSSD2Id : ''}`
                     );
                   }
                 }

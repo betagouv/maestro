@@ -103,7 +103,7 @@ export const analysisHandler = async (
   Object.values(complexeResiduesIndex).forEach(({ analytes, ssd2Id }) => {
     if (analytes.length === 0) {
       throw new ExtractError(
-        `Le résidue complexe ${ssd2Id} est présent, mais n'a aucune analyte`
+        `Le résidu complexe ${ssd2Id} est présent, mais n'a aucune analyte`
       );
     }
   });
