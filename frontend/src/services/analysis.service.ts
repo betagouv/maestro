@@ -1,6 +1,8 @@
 import { isNil, omitBy } from 'lodash-es';
 import {
+  Analysis,
   AnalysisToCreate,
+  AnalysisToUpdate,
   PartialAnalysis
 } from 'maestro-shared/schema/Analysis/Analysis';
 import { api } from 'src/services/api.service';
@@ -32,7 +34,10 @@ const analysisApi = api.injectEndpoints({
         { type: 'Sample', id: 'LIST' }
       ]
     }),
-    updateAnalysis: builder.mutation<PartialAnalysis, PartialAnalysis>({
+    updateAnalysis: builder.mutation<
+      PartialAnalysis,
+      AnalysisToUpdate & Pick<Analysis, 'id' | 'sampleId'>
+    >({
       query: (partialAnalysis) => ({
         url: `analysis/${partialAnalysis.id}`,
         method: 'PUT',
@@ -87,5 +92,6 @@ export const {
   useLazyGetSampleAnalysisQuery,
   useCreateAnalysisReportDocumentMutation,
   useGetAnalysisReportDocumentIdsQuery,
+  useLazyGetAnalysisReportDocumentIdsQuery,
   useDeleteAnalysisReportDocumentMutation
 } = analysisApi;

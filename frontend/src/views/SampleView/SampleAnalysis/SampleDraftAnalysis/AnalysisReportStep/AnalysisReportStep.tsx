@@ -5,13 +5,13 @@ import clsx from 'clsx';
 import { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { FileInput } from 'maestro-shared/schema/File/FileInput';
 import { FileType } from 'maestro-shared/schema/File/FileType';
-import React, { useContext, useState } from 'react';
-import DocumentLink from 'src/components/DocumentLink/DocumentLink';
+import React, { useContext, useEffect, useState } from 'react';
 import AppUpload from 'src/components/_app/AppUpload/AppUpload';
 import { useForm } from 'src/hooks/useForm';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import { z } from 'zod/v4';
 import { ApiClientContext } from '../../../../../services/apiClient';
+import { AnalysisDocumentPreview } from '../../../components/AnalysisDocumentPreview';
 
 interface Props {
   sampleId: string;
@@ -28,12 +28,28 @@ const AnalysisReportStep = ({ sampleId, partialAnalysis }: Props) => {
   ] = apiClient.useCreateDocumentMutation({
     fixedCacheKey: 'createDocument'
   });
-  const [deleteDocument] = apiClient.useDeleteDocumentMutation();
   const [createAnalysis] = apiClient.useCreateAnalysisMutation();
   const [updateAnalysis] = apiClient.useUpdateAnalysisMutation();
+  const [getAnalysisReportDocumentIds] =
+    apiClient.useLazyGetAnalysisReportDocumentIdsQuery();
+  const [createAnalysisReportDocument] =
+    apiClient.useCreateAnalysisReportDocumentMutation();
 
   const [fileInput, setFileInput] = useState<File | undefined>();
   const [hasReportDocument, setHasReportDocument] = useState(false);
+  const [addingNewReportDocument, setAddingNewReportDocument] = useState(false);
+
+  useEffect(() => {
+    if (partialAnalysis) {
+      getAnalysisReportDocumentIds(partialAnalysis.id)
+        .unwrap()
+        .then((ids) => {
+          setHasReportDocument(ids.length > 0);
+        });
+    } else {
+      setHasReportDocument(false);
+    }
+  }, [partialAnalysis, getAnalysisReportDocumentIds]);
 
   const acceptFileTypes = [
     'application/pdf',
@@ -64,53 +80,60 @@ const AnalysisReportStep = ({ sampleId, partialAnalysis }: Props) => {
     e.preventDefault();
     await form.validate(async () => {
       form.reset();
-      // const reportDocumentId = hasReportDocument
-      //   ? (partialAnalysis?.reportDocumentId as string)
-      //   : await createDocument({
-      //       file: fileInput as File,
-      //       kind: 'AnalysisReportDocument'
-      //     })
-      //       .unwrap()
-      //       .then((document) => document.id);
-      // if (!partialAnalysis) {
-      //   await createAnalysis({
-      //     sampleId,
-      //     reportDocumentId
-      //   });
-      // } else {
-      //   if (partialAnalysis.reportDocumentId !== reportDocumentId) {
-      //     await deleteDocument(partialAnalysis.reportDocumentId);
-      //   }
-      //   await updateAnalysis({
-      //     ...partialAnalysis,
-      //     reportDocumentId,
-      //     status: 'Residues'
-      //   });
-      // }
+      if (fileInput) {
+        const reportDocumentId = await createDocument({
+          file: fileInput as File,
+          kind: 'AnalysisReportDocument'
+        })
+          .unwrap()
+          .then((document) => document.id);
+        let analysisId = partialAnalysis?.id;
+        if (!analysisId) {
+          const { data: analysis } = await createAnalysis({
+            sampleId
+          });
+          analysisId = analysis?.id;
+        }
+        if (analysisId) {
+          await createAnalysisReportDocument({
+            analysisId,
+            documentId: reportDocumentId,
+            sampleId
+          });
+          await updateAnalysis({
+            ...partialAnalysis,
+            id: analysisId,
+            sampleId,
+            status: 'Residues'
+          });
+        }
+      }
+
       navigateToSample(sampleId, 2);
     });
   };
 
   return (
     <>
-      {hasReportDocument ? (
-        <>
-          <div className={cx('fr-label')}>Ajouter le rapport d'analyse</div>
-          <div>
-            {/*<DocumentLink documentId={partialAnalysis?.reportDocumentId} />*/}
+      {hasReportDocument && partialAnalysis?.id && !addingNewReportDocument ? (
+        <AnalysisDocumentPreview
+          analysisId={partialAnalysis?.id}
+          sampleId={sampleId}
+          readonly={false}
+          button={
             <Button
-              title="Supprimer"
-              iconId="fr-icon-delete-line"
-              priority="tertiary"
+              priority="secondary"
+              iconId="fr-icon-add-line"
+              className={cx('fr-mt-0')}
               size="small"
-              onClick={(e) => {
-                e.preventDefault();
-                setHasReportDocument(false);
+              onClick={() => {
+                setAddingNewReportDocument(true);
               }}
-              className={clsx(cx('fr-mt-0'), 'float-right')}
-            />
-          </div>
-        </>
+            >
+              Ajouter
+            </Button>
+          }
+        />
       ) : fileInput ? (
         <div>
           <div className={cx('fr-label')}>Ajouter le rapport d'analyse</div>

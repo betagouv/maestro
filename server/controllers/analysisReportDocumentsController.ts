@@ -9,7 +9,7 @@ export const analysisReportDocumentsRouter = {
       const result =
         await analysisReportDocumentsRepository.findByAnalysisId(analysisId);
 
-      return { response: result };
+      return { response: result.reverse() };
     },
     post: async (request) => {
       const { analysisId } = request.params;

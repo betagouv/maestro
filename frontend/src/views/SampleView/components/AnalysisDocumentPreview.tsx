@@ -1,7 +1,7 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { FunctionComponent, useContext } from 'react';
+import { FunctionComponent, ReactNode, useContext } from 'react';
 import { assert, Equals } from 'tsafe';
 import DocumentLink from '../../../components/DocumentLink/DocumentLink';
 import { ApiClientContext } from '../../../services/apiClient';
@@ -12,16 +12,16 @@ type Props = {
 } & (
   | {
       readonly?: false;
-      onAddDocument: () => void;
+      button: ReactNode;
     }
-  | { readonly: true; onAddDocument?: () => void }
+  | { readonly: true; button?: ReactNode }
 );
 
 export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
   analysisId,
   sampleId,
   readonly,
-  onAddDocument,
+  button: actionButton,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -48,21 +48,7 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
           )}
         ></span>
         <div className="flex-grow-1">Document du rapport d’analyse</div>
-        {!readonly ? (
-          <Button
-            priority="secondary"
-            iconId="fr-icon-add-line"
-            className={cx('fr-mt-0')}
-            size="small"
-            onClick={() => {
-              onAddDocument?.();
-            }}
-          >
-            Ajouter
-          </Button>
-        ) : (
-          <></>
-        )}
+        {!readonly ? actionButton : <></>}
       </h6>
       {reportDocumentIds && (
         <div className={cx('fr-pl-4w')}>

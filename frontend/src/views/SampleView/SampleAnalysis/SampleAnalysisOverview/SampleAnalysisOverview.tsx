@@ -71,10 +71,20 @@ const SampleAnalysisOverview = ({ sample }: Props) => {
         analysisId={analysis.id}
         sampleId={sample.id}
         readonly={readonly}
-        onAddDocument={() => {
-          setEditingStatus('Report');
-          editingConfirmationModal.open();
-        }}
+        button={
+          <Button
+            priority="secondary"
+            iconId="fr-icon-edit-line"
+            className={cx('fr-mt-0')}
+            size="small"
+            onClick={() => {
+              setEditingStatus('Report');
+              editingConfirmationModal.open();
+            }}
+          >
+            Éditer
+          </Button>
+        }
       />
       <div>
         <h5 className="d-flex-align-center">

@@ -25,7 +25,7 @@ export const Default: Story = {};
 export const Readonly: Story = {
   args: {
     readonly: true,
-    onAddDocument: () => {}
+    onClickButton: () => {}
   }
 };
 

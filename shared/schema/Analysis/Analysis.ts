@@ -49,5 +49,6 @@ export const CreatedAnalysis = z.object({
 
 export type Analysis = z.infer<typeof Analysis>;
 export type AnalysisToCreate = z.infer<typeof AnalysisToCreate>;
+export type AnalysisToUpdate = z.infer<typeof AnalysisToUpdate>;
 export type CreatedAnalysis = z.infer<typeof CreatedAnalysis>;
 export type PartialAnalysis = z.infer<typeof PartialAnalysis>;
