@@ -133,7 +133,7 @@ export const Sample11Fixture = genCreatedPartialSample({
     y: 4.731044
   },
   programmingPlanId: ValidatedProgrammingPlanFixture.id,
-  context: 'Control',
+  context: ValidatedProgrammingPlanFixture.contexts[0],
   legalContext: 'A',
   resytalId: '23-123456',
   company: CompanyFixture,
@@ -143,11 +143,11 @@ export const Sample11Fixture = genCreatedPartialSample({
   createdAt: new Date('2023-01-02'),
   lastUpdatedAt: new Date('2024-03-04'),
   status: 'DraftMatrix' as const,
-  matrixKind: 'A00GY',
+  matrixKind: PrescriptionFixture.matrixKind,
   matrix: 'A00GZ',
-  stage: 'STADE7',
+  stage: PrescriptionFixture.stages[0],
   specificData: {
-    programmingPlanKind: 'PPV',
+    programmingPlanKind: ValidatedProgrammingPlanFixture.kinds[0],
     matrixPart: 'PART1',
     cultureKind: 'PD07A',
     releaseControl: false

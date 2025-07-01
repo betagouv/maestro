@@ -248,54 +248,48 @@ const updateSample = async (request: Request, response: Response) => {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
   }
 
-  let prescriptionData;
-  if (isProgrammingPlanSample(sampleUpdate)) {
-    if (!isNil(sampleUpdate.matrixKind) && !isNil(sampleUpdate.stage)) {
-      const prescription = await prescriptionRepository
-        .findMany({
-          programmingPlanId: sampleUpdate.programmingPlanId,
-          context: sampleUpdate.context as ProgrammingPlanContext,
-          matrixKind: sampleUpdate.matrixKind,
-          stage: sampleUpdate.stage
-        })
-        .then((_) => _?.[0]);
-
-      const regionalPrescription = prescription
-        ? await regionalPrescriptionRepository.findUnique({
-            prescriptionId: prescription.id,
-            region: sampleUpdate.region
+  const prescription =
+    isProgrammingPlanSample(sampleUpdate) &&
+    !isNil(sampleUpdate.context) &&
+    !isNil(sampleUpdate.matrixKind) &&
+    !isNil(sampleUpdate.stage)
+      ? await prescriptionRepository
+          .findMany({
+            programmingPlanId: sampleUpdate.programmingPlanId,
+            context: sampleUpdate.context as ProgrammingPlanContext,
+            matrixKind: sampleUpdate.matrixKind,
+            stage: sampleUpdate.stage
           })
-        : null;
+          .then((_) => _?.[0])
+      : undefined;
 
-      const prescriptionSubstances = prescription
-        ? await prescriptionSubstanceRepository.findMany(prescription.id)
-        : null;
+  const regionalPrescription = prescription
+    ? await regionalPrescriptionRepository.findUnique({
+        prescriptionId: prescription.id,
+        region: sampleUpdate.region
+      })
+    : undefined;
 
-      prescriptionData = {
-        prescriptionId: prescription?.id || null,
-        laboratoryId: regionalPrescription?.laboratoryId || null,
-        monoSubstances:
-          prescriptionSubstances
-            ?.filter((substance) => substance.analysisMethod === 'Mono')
-            .map((_) => _.substance) || null,
-        multiSubstances:
-          prescriptionSubstances
-            ?.filter((substance) => substance.analysisMethod === 'Multi')
-            .map((_) => _.substance) || null
-      };
-    } else {
-      prescriptionData = {
-        prescriptionId: null,
-        laboratoryId: null,
-        monoSubstances: null,
-        multiSubstances: null
-      };
-    }
-  } else {
-    prescriptionData = {
-      prescriptionId: null
-    };
-  }
+  const prescriptionSubstances = prescription
+    ? await prescriptionSubstanceRepository.findMany(prescription.id)
+    : undefined;
+
+  const prescriptionData =
+    isProgrammingPlanSample(sampleUpdate) ||
+    sample.context !== sampleUpdate.context
+      ? {
+          prescriptionId: prescription?.id || null,
+          laboratoryId: regionalPrescription?.laboratoryId || null,
+          monoSubstances:
+            prescriptionSubstances
+              ?.filter((substance) => substance.analysisMethod === 'Mono')
+              .map((_) => _.substance) || null,
+          multiSubstances:
+            prescriptionSubstances
+              ?.filter((substance) => substance.analysisMethod === 'Multi')
+              .map((_) => _.substance) || null
+        }
+      : updateSample;
 
   if (
     sampleUpdate.company?.siret &&

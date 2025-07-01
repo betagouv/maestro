@@ -9,6 +9,7 @@ import { Prescription } from '../schema/Prescription/Prescription';
 import { PrescriptionSubstance } from '../schema/Prescription/PrescriptionSubstance';
 import { ProgrammingPlanContextList } from '../schema/ProgrammingPlan/Context';
 import { RegionalPrescription } from '../schema/RegionalPrescription/RegionalPrescription';
+import { LaboratoryFixture } from './laboratoryFixtures';
 import { ValidatedProgrammingPlanFixture } from './programmingPlanFixtures';
 import { oneOf } from './testFixtures';
 
@@ -52,4 +53,11 @@ export const PrescriptionFixture = genPrescription({
   context: ValidatedProgrammingPlanFixture.contexts[0],
   matrixKind: 'A00GY',
   stages: StageList
+});
+
+export const RegionalPrescriptionFixture = genRegionalPrescription({
+  prescriptionId: PrescriptionFixture.id,
+  region: '44',
+  sampleCount: 1,
+  laboratoryId: LaboratoryFixture.id
 });
