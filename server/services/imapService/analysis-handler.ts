@@ -111,6 +111,13 @@ export const analysisHandler = async (
 
   residues.push(...Object.values(complexeResiduesIndex));
 
+  //Tous les résidus quantifiés doivent avoir une LMR
+  residues.forEach((r) => {
+    if (r.result_kind === 'Q' && r.lmr === 0) {
+      throw new ExtractError(`Le résidu ${r.ssd2Id} n'a pas de LMR`);
+    }
+  });
+
   return await documentService.createDocument(
     analyse.pdfFile,
     'AnalysisReportDocument',
@@ -130,6 +137,7 @@ export const analysisHandler = async (
       let analysisId;
       if (oldAnalyseId) {
         await analysisRepository.update({ ...newAnalysis, id: oldAnalyseId });
+        await analysisResidueRepository.deleteByAnalysisId(oldAnalyseId, trx);
         analysisId = oldAnalyseId;
       } else {
         analysisId = await analysisRepository.insert(newAnalysis, trx);

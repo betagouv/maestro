@@ -128,13 +128,15 @@ export const extractAnalyzes = (
         .optional()
         .transform((v) => (v === '' || v === undefined ? null : v)),
       'Date Analyse': z
-        .string()
-        .regex(/^\d{2}\/\d{2}\/\d{4}.*/)
+        .union([z.literal(''), z.string().regex(/^\d{2}\/\d{2}\/\d{4}.*/)])
         .transform((date) => {
+          if (date === '') {
+            return null;
+          }
           const [d, m, y] = date.substring(0, 10).split('/');
           return `${y}-${m}-${d}`;
         })
-        .pipe(maestroDate)
+        .pipe(maestroDate.nullable())
     })
   );
 
@@ -213,8 +215,8 @@ export const extractAnalyzes = (
 };
 
 type InovalysCSVFile = { fileName: string; content: Record<string, string>[] };
-const exportDataFromEmail: ExportDataFromEmail = (email) => {
-  const csvFiles = email.attachments.filter(({ filename }) =>
+const exportDataFromEmail: ExportDataFromEmail = (attachments) => {
+  const csvFiles = attachments.filter(({ filename }) =>
     (filename ?? '').endsWith('.csv')
   );
 
@@ -235,7 +237,7 @@ const exportDataFromEmail: ExportDataFromEmail = (email) => {
   const analyzesWithPdf: ExportAnalysis[] = [];
 
   for (const analysis of analyzes) {
-    const pdfAttachment = email.attachments.find(
+    const pdfAttachment = attachments.find(
       ({ contentType, filename }) =>
         contentType === 'application/pdf' &&
         filename?.includes(analysis.sampleReference)

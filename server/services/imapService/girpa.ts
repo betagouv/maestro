@@ -809,8 +809,8 @@ export const extractAnalyzes = (obj: unknown): GirpaAnaysis[] => {
   });
 };
 
-const exportDataFromEmail: ExportDataFromEmail = (email) => {
-  const xmlFile = email.attachments.find(
+const exportDataFromEmail: ExportDataFromEmail = (attachments) => {
+  const xmlFile = attachments.find(
     ({ contentType }) =>
       contentType === 'text/xml' || contentType === 'application/xml'
   );
@@ -824,7 +824,7 @@ const exportDataFromEmail: ExportDataFromEmail = (email) => {
     const analyzesWithPdf: ExportAnalysis[] = [];
 
     for (const analysis of analyzes) {
-      const pdfAttachment = email.attachments.find(
+      const pdfAttachment = attachments.find(
         ({ contentType, filename }) =>
           contentType === 'application/pdf' &&
           filename?.startsWith(analysis.girpaReference)

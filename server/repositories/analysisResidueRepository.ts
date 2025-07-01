@@ -9,6 +9,17 @@ const insert = async (
   await trx.insertInto('analysisResidues').values(analysisResidues).execute();
 };
 
+const deleteByAnalysisId = async (
+  analysisId: string,
+  trx: KyselyMaestro = kysely
+): Promise<void> => {
+  await trx
+    .deleteFrom('analysisResidues')
+    .where('analysisId', '=', analysisId)
+    .execute();
+};
+
 export const analysisResidueRepository = {
-  insert
+  insert,
+  deleteByAnalysisId
 };

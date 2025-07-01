@@ -872,8 +872,8 @@ export const extractAnalyzes = (
   return result;
 };
 
-const exportDataFromEmail: ExportDataFromEmail = (email) => {
-  const csvFiles = email.attachments.filter(
+const exportDataFromEmail: ExportDataFromEmail = (attachments) => {
+  const csvFiles = attachments.filter(
     ({ contentType, filename }) =>
       contentType === 'text/csv' ||
       (contentType === 'text/plain' && filename?.endsWith('.csv'))
@@ -891,7 +891,7 @@ const exportDataFromEmail: ExportDataFromEmail = (email) => {
   const analyzesWithPdf: ExportAnalysis[] = [];
 
   for (const analysis of analyzes) {
-    const pdfAttachment = email.attachments.find(
+    const pdfAttachment = attachments.find(
       ({ contentType, filename }) =>
         contentType === 'application/pdf' &&
         filename?.startsWith(analysis.sampleReference)
