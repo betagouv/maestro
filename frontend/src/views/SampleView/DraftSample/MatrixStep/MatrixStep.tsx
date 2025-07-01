@@ -68,8 +68,6 @@ const MatrixStep = ({ partialSample }: Props) => {
     apiClient.useCreateOrUpdateSampleMutation();
   const [createDocument] = apiClient.useCreateDocumentMutation();
   const [deleteDocument] = apiClient.useDeleteDocumentMutation();
-  const [getPrescriptionSubstances] =
-    apiClient.useLazyGetPrescriptionSubstancesQuery();
 
   const { data: prescriptionsData } = apiClient.useFindPrescriptionsQuery(
     {
@@ -142,37 +140,11 @@ const MatrixStep = ({ partialSample }: Props) => {
       'documentIds' | 'laboratoryId'
     > = PartialSampleMatrixData.parse(partialSample)
   ) => {
-    const prescription = prescriptions?.find(
-      (p) =>
-        p.programmingPlanKind ===
-          partialSample.specificData.programmingPlanKind &&
-        p.matrixKind === sampleMatrixData.matrixKind &&
-        sampleMatrixData.stage &&
-        p.stages.includes(sampleMatrixData.stage)
-    );
-    const regionalPrescription = regionalPrescriptions?.find(
-      (rp) => rp.prescriptionId === prescription?.id
-    );
-
-    const prescriptionSubstances = await (prescription
-      ? getPrescriptionSubstances(prescription.id).unwrap()
-      : undefined);
-
     await createOrUpdateSample({
       ...partialSample,
       ...sampleMatrixData,
       documentIds,
-      status,
-      prescriptionId: prescription?.id || null,
-      laboratoryId: regionalPrescription?.laboratoryId || null,
-      monoSubstances:
-        prescriptionSubstances
-          ?.filter((substance) => substance.analysisMethod === 'Mono')
-          .map((_) => _.substance) ?? sampleMatrixData.monoSubstances,
-      multiSubstances:
-        prescriptionSubstances
-          ?.filter((substance) => substance.analysisMethod === 'Multi')
-          .map((_) => _.substance) ?? sampleMatrixData.multiSubstances
+      status
     });
   };
 
