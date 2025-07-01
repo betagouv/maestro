@@ -16,7 +16,8 @@
     "predev": "cp -r ../node_modules/@codegouvfr ./node_modules/ && react-dsfr update-icons",
     "prestart": "react-dsfr update-icons",
     "prebuild": "react-dsfr update-icons",
-    "storybook": "storybook dev -p 6006"
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "license": "AGPL-3.0",
   "engines": {
