@@ -4,11 +4,11 @@
       "generator": "url",
       "template": "%URL%"
     },
-    "REACT_APP_PUBLIC_URL": {
+    "VITE_PUBLIC_URL": {
       "generator": "url",
       "template": "%URL%"
     },
-    "REACT_APP_API_URL": {
+    "VITE_API_URL": {
       "generator": "url",
       "template": "%URL%"
     },

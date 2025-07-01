@@ -116,7 +116,7 @@ const config = convict<Config>({
     default: 'development'
   },
   serverUrl: {
-    env: 'REACT_APP_API_URL',
+    env: 'VITE_API_URL',
     format: 'url',
     nullable: false,
     default: 'http://localhost:3001'

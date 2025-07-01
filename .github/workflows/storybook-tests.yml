@@ -20,7 +20,7 @@ jobs:
       - name: Install Playwright
         run: npx playwright install --with-deps chromium
       - name: Build Storybook
-        run: REACT_APP_MODE=test npm run build-storybook -w frontend
+        run: VITE_MODE=test npm run build-storybook -w frontend
       - name: Serve Storybook and run tests
         run: |
           npx concurrently -k -s first -n "SB,TEST" -c "magenta,blue" \

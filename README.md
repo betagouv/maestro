@@ -56,7 +56,7 @@ L'application utilise les variables d'environnement spécifiées dans le fichier
 
 En local, elles peuvent être définies dans des fichiers `.env` :
 
-- un fichier dans le dossier `frontend` pour les variables d'environnement `REACT_APP...` nécessaires au frontend (voir `frontend/.env.example` pour un exemple)
+- un fichier dans le dossier `frontend` pour les variables d'environnement `VITE...` nécessaires au frontend (voir `frontend/.env.example` pour un exemple)
 - un fichier à la racine du projet pour les autres variables d'environnement (voir `.env.example` pour un exemple)
 
 ### Chargement des données

@@ -1,0 +1,7 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react-jsx"
+  },
+  "include": ["preview.tsx", "main.ts", "../src", "../vite-env.d.ts"]
+}
