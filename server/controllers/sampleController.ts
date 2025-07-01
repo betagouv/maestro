@@ -248,7 +248,7 @@ const updateSample = async (request: Request, response: Response) => {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
   }
 
-  let prescriptionData = {};
+  let prescriptionData;
   if (isProgrammingPlanSample(sampleUpdate)) {
     if (!isNil(sampleUpdate.matrixKind) && !isNil(sampleUpdate.stage)) {
       const prescription = await prescriptionRepository
