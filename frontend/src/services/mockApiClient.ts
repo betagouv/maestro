@@ -11,24 +11,37 @@ import {
   genCreatedPartialSample,
   Sample11Fixture
 } from 'maestro-shared/test/sampleFixtures';
-import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
+import { genUser, Sampler1Fixture } from 'maestro-shared/test/userFixtures';
 import { fn } from 'storybook/test';
 import regionsJson from '../../../server/data/regions.json';
 import { ApiClient } from './apiClient';
 
-type MockApi<T extends Partial<ApiClient>> = {
-  [Key in keyof T]: T[Key] extends TypedUseQuery<infer D, any, any>
+type MockableApiKeys = Exclude<
+  keyof ApiClient,
+  | 'getPrescriptionsExportURL'
+  | 'getSupportDocumentURL'
+  | 'getSampleListExportURL'
+>;
+export type MockApi = {
+  [Key in MockableApiKeys]: ApiClient[Key] extends TypedUseQuery<
+    infer D,
+    any,
+    any
+  >
     ? { data: D } | ((arg: any) => { data: D })
-    : T[Key] extends TypedUseLazyQuery<infer E, any, any>
+    : ApiClient[Key] extends TypedUseLazyQuery<infer E, any, any>
       ? [E, { isSuccess?: boolean; isLoading?: boolean }]
-      : T[Key] extends TypedUseMutation<any, any, any>
+      : ApiClient[Key] extends TypedUseMutation<any, any, any>
         ? [() => Promise<unknown>, { isSuccess?: boolean; isLoading?: boolean }]
         : null;
 };
 
-export const getMockApi = <T extends Partial<ApiClient>>(
-  mockApi: Partial<MockApi<T>>
-): T => {
+export const getMockApi = (partialMock: Partial<MockApi>): ApiClient => {
+  const mockApi = {
+    ...defaultMockApiClientConf,
+    ...partialMock
+  };
+
   return Object.keys(mockApi).reduce((acc, key) => {
     if (
       key.startsWith('useGet') ||
@@ -69,9 +82,9 @@ export const getMockApi = <T extends Partial<ApiClient>>(
       acc[key] = () => mockApi[key];
     }
     return acc;
-  }, {} as T);
+  }, {} as ApiClient);
 };
-export const defaultMockApiClientConf: Partial<MockApi<ApiClient>> = {
+const defaultMockApiClientConf: MockApi = {
   useAddPrescriptionMutation: [async () => fn(), { isSuccess: true }],
   useCommentRegionalPrescriptionMutation: [
     async () => fn(),
@@ -80,7 +93,7 @@ export const defaultMockApiClientConf: Partial<MockApi<ApiClient>> = {
   useCountSamplesQuery: {
     data: 0
   },
-  useCreateDocumentMutation: [async () => fn(), {}],
+  useCreateDocumentMutation: [async () => fn(), { isSuccess: true }],
   useCreateOrUpdateSampleMutation: [
     async () => fn(),
     { isSuccess: true, isLoading: false }
@@ -163,7 +176,21 @@ export const defaultMockApiClientConf: Partial<MockApi<ApiClient>> = {
   useDeleteAnalysisReportDocumentMutation: [
     async () => fn(),
     { isSuccess: true }
-  ]
+  ],
+  useCreateAnalysisReportDocumentMutation: [
+    async () => fn(),
+    { isSuccess: true }
+  ],
+  useLazyGetAnalysisReportDocumentIdsQuery: [[], { isSuccess: true }],
+  useLogoutMutation: [async () => fn(), { isSuccess: true }],
+  useAuthenticateMutation: [async () => fn(), { isSuccess: true }],
+  useCreateAnalysisMutation: [async () => fn(), { isSuccess: true }],
+  useUpdateDocumentMutation: [async () => fn(), { isSuccess: true }],
+  useUpdateNotificationMutation: [async () => fn(), { isSuccess: true }],
+  useUpdateNotificationsMutation: [async () => fn(), { isSuccess: true }],
+  useGetDocumentDownloadSignedUrlQuery: { data: '' },
+  useGetUserQuery: { data: genUser() },
+  useLazyGetUserQuery: [genUser(), { isSuccess: true }]
 };
 
-export const mockApiClient = getMockApi<ApiClient>(defaultMockApiClientConf);
+export const mockApiClient = getMockApi({});

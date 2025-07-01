@@ -2,14 +2,10 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
-import {
-  defaultMockApiClientConf,
-  getMockApi
-} from '../../../services/mockApiClient';
+import { getMockApi } from '../../../services/mockApiClient';
 import SampleAnalysis from './SampleAnalysis';
 
 import { fn } from 'storybook/test';
-import { ApiClient } from '../../../services/apiClient';
 import '../SampleOverview/SampleOverview.scss';
 
 const meta = {
@@ -34,8 +30,7 @@ export const ReviewWithoutResidu: Story = {
     } as Sample
   },
   parameters: {
-    apiClient: getMockApi<ApiClient>({
-      ...defaultMockApiClientConf,
+    apiClient: getMockApi({
       useUpdateSampleMutation: [async () => fn(), { isSuccess: false }]
     })
   }

@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { expect, within } from 'storybook/test';
 import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import {
@@ -8,11 +7,8 @@ import {
   genSampleContextData
 } from 'maestro-shared/test/sampleFixtures';
 import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
-import { ApiClient } from '../../../../../services/apiClient';
-import {
-  defaultMockApiClientConf,
-  getMockApi
-} from '../../../../../services/mockApiClient';
+import { expect, within } from 'storybook/test';
+import { getMockApi } from '../../../../../services/mockApiClient';
 import MatrixStep from '../MatrixStep';
 
 const meta = {
@@ -62,8 +58,7 @@ export const MatrixStepPFAS: Story = {
         programmingPlan
       }
     },
-    apiClient: getMockApi<ApiClient>({
-      ...defaultMockApiClientConf,
+    apiClient: getMockApi({
       useFindPrescriptionsQuery: {
         data: [prescription1]
       }

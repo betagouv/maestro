@@ -110,6 +110,7 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
                       alignItems: 'baseline',
                       gap: '1.5rem'
                     }}
+                    key={id}
                   >
                     <span>
                       <DocumentLink documentId={id} />

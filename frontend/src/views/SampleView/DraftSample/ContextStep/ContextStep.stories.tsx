@@ -3,11 +3,7 @@ import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures'
 import { genSampleContextData } from 'maestro-shared/test/sampleFixtures';
 import { genAuthUser, Sampler1Fixture } from 'maestro-shared/test/userFixtures';
 import { expect, fn, userEvent, within } from 'storybook/test';
-import { ApiClient } from '../../../../services/apiClient';
-import {
-  defaultMockApiClientConf,
-  getMockApi
-} from '../../../../services/mockApiClient';
+import { getMockApi } from '../../../../services/mockApiClient';
 import ContextStep from './ContextStep';
 
 const meta = {
@@ -103,8 +99,7 @@ export const SubmittingSuccess: Story = {
     preloadedState: {
       auth: { authUser: genAuthUser(Sampler1Fixture) }
     },
-    apiClient: getMockApi<ApiClient>({
-      ...defaultMockApiClientConf,
+    apiClient: getMockApi({
       useCreateOrUpdateSampleMutation: [
         async (...args) => await mockCreateOrUpdateSample(...args),
         { isSuccess: true }

@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, fn, within } from 'storybook/test';
 import { RegionList } from 'maestro-shared/referential/Region';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import {
@@ -9,11 +8,8 @@ import {
   RegionalCoordinator,
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
-import { ApiClient } from '../../services/apiClient';
-import {
-  defaultMockApiClientConf,
-  getMockApi
-} from '../../services/mockApiClient';
+import { expect, fn, within } from 'storybook/test';
+import { getMockApi } from '../../services/mockApiClient';
 import DashboardView from './DashboardView';
 
 const meta = {
@@ -61,8 +57,7 @@ export const DashboardViewForSampler: Story = {
         })
       }
     },
-    apiClient: getMockApi<ApiClient>({
-      ...defaultMockApiClientConf,
+    apiClient: getMockApi({
       useGetProgrammingPlanByYearQuery: useGetProgrammingPlanByYearQueryMock
     })
   },
@@ -93,8 +88,7 @@ export const DashboardViewForRegionalCoordinator: Story = {
         })
       }
     },
-    apiClient: getMockApi<ApiClient>({
-      ...defaultMockApiClientConf,
+    apiClient: getMockApi({
       useGetProgrammingPlanByYearQuery: useGetProgrammingPlanByYearQueryMock
     })
   },
@@ -129,8 +123,7 @@ export const DashboardViewForNationalCoordinator: Story = {
         })
       }
     },
-    apiClient: getMockApi<ApiClient>({
-      ...defaultMockApiClientConf,
+    apiClient: getMockApi({
       useGetProgrammingPlanByYearQuery: useGetProgrammingPlanByYearQueryMock
     })
   },

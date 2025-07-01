@@ -12,11 +12,7 @@ import {
 } from 'maestro-shared/test/sampleFixtures';
 import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
 import { expect, fn, screen, userEvent, within } from 'storybook/test';
-import { ApiClient } from '../../../../../services/apiClient';
-import {
-  defaultMockApiClientConf,
-  getMockApi
-} from '../../../../../services/mockApiClient';
+import { getMockApi, MockApi } from '../../../../../services/mockApiClient';
 import MatrixStep from '../MatrixStep';
 
 const createOrUpdateMock = fn();
@@ -63,6 +59,15 @@ const regionalPrescription2 = genRegionalPrescription({
   prescriptionId: prescription2.id
 });
 
+const storyMockApi: Partial<MockApi> = {
+  useFindPrescriptionsQuery: {
+    data: [prescription1, prescription2]
+  },
+  useFindRegionalPrescriptionsQuery: {
+    data: [regionalPrescription1, regionalPrescription2]
+  }
+};
+
 const story: Pick<Story, 'args' | 'parameters'> = {
   args: {
     partialSample: {
@@ -80,15 +85,7 @@ const story: Pick<Story, 'args' | 'parameters'> = {
         programmingPlan
       }
     },
-    apiClient: getMockApi<ApiClient>({
-      ...defaultMockApiClientConf,
-      useFindPrescriptionsQuery: {
-        data: [prescription1, prescription2]
-      },
-      useFindRegionalPrescriptionsQuery: {
-        data: [regionalPrescription1, regionalPrescription2]
-      }
-    })
+    apiClient: getMockApi(storyMockApi)
   }
 };
 
@@ -142,8 +139,8 @@ export const MatrixStepPPVSaveOnBlurWithoutHandlingErrors: Story = {
   parameters: {
     ...story.parameters,
     apiClient: {
-      ...story.parameters?.apiClient,
-      ...getMockApi<Pick<ApiClient, 'useCreateOrUpdateSampleMutation'>>({
+      ...getMockApi({
+        ...storyMockApi,
         useCreateOrUpdateSampleMutation: [
           createOrUpdateMock,
           { isSuccess: false }
