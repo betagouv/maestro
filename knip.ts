@@ -8,7 +8,6 @@ export default {
     '@gouvfr/dsfr',
     'lint-staged'
   ],
-  ignoreBinaries: ['concurrently', 'magenta,blue', 'playwright'],
   workspaces: {
     server: {
       ignoreDependencies: [

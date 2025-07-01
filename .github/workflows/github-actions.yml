@@ -85,6 +85,8 @@ jobs:
           cache: npm
       - name: NPM install
         run: npm ci
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
       - name: Frontend tests
         run: npm -w frontend test -- --test-timeout=30000
   shared_test:
