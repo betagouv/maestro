@@ -65,14 +65,12 @@ export const inovalysRefClientValidator = z.string().transform((l) => {
 export const extractAnalyzes = (
   files: InovalysCSVFile[]
 ): Omit<ExportAnalysis, 'pdfFile'>[] => {
-  const resultatsFile = files.find((f) => f.fileName.endsWith('FICRES.csv'));
+  const resultatsFile = files.find((f) => f.fileName.endsWith('CO2.csv'));
   if (resultatsFile === undefined) {
     throw new ExtractError('Aucun fichier CSV pour les résultats de trouvé.');
   }
 
-  const sampleFile = files.find(({ fileName }) =>
-    fileName.endsWith('FICECH.csv')
-  );
+  const sampleFile = files.find(({ fileName }) => fileName.endsWith('CO1.csv'));
   if (sampleFile === undefined) {
     throw new ExtractError("Aucun fichier CSV pour l'échantillon de trouvé.");
   }
@@ -240,7 +238,7 @@ const exportDataFromEmail: ExportDataFromEmail = (email) => {
     const pdfAttachment = email.attachments.find(
       ({ contentType, filename }) =>
         contentType === 'application/pdf' &&
-        filename?.startsWith(analysis.sampleReference)
+        filename?.includes(analysis.sampleReference)
     );
 
     if (pdfAttachment === undefined) {

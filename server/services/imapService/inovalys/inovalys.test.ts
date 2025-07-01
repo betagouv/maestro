@@ -12,13 +12,13 @@ describe('Parse correctement les fichiers CSV', () => {
       `[Error: Aucun fichier CSV pour les résultats de trouvé.]`
     );
     expect(() =>
-      extractAnalyzes([{ fileName: 'FILE_FICRES.csv', content: [] }])
+      extractAnalyzes([{ fileName: 'FILE_CO2.csv', content: [] }])
     ).toThrowErrorMatchingInlineSnapshot(
       `[Error: Aucun fichier CSV pour l'échantillon de trouvé.]`
     );
     expect(() =>
       extractAnalyzes([
-        { fileName: 'FILE_FICRES.csv', content: [] },
+        { fileName: 'FILE_CO2.csv', content: [] },
         { fileName: 'test.csv', content: [] }
       ])
     ).toThrowErrorMatchingInlineSnapshot(
@@ -26,8 +26,8 @@ describe('Parse correctement les fichiers CSV', () => {
     );
     expect(() =>
       extractAnalyzes([
-        { fileName: 'FILE_FICRES.csv', content: [] },
-        { fileName: 'FILE_FICECH.csv', content: [] }
+        { fileName: 'FILE_CO2.csv', content: [] },
+        { fileName: 'FILE_CO1.csv', content: [] }
       ])
     ).toThrowErrorMatchingInlineSnapshot(
       `[Error: Aucune donnée trouvée dans le fichier d'échantillon]`
@@ -38,7 +38,7 @@ describe('Parse correctement les fichiers CSV', () => {
     expect(
       extractAnalyzes([
         {
-          fileName: 'FILE_FICECH.csv',
+          fileName: 'FILE_CO1.csv',
           content: [
             {
               Dossier: 'Dossier1',
@@ -61,7 +61,7 @@ describe('Parse correctement les fichiers CSV', () => {
           ]
         },
         {
-          fileName: 'FILE_FICRES.csv',
+          fileName: 'FILE_CO2.csv',
           content: [
             {
               Echantillon: 'Echant1',
