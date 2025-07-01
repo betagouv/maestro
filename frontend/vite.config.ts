@@ -1,7 +1,15 @@
+import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
 import react from '@vitejs/plugin-react';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { defineConfig, loadEnv } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import tsconfigPaths from 'vite-tsconfig-paths';
+
+const dirname =
+  typeof __dirname !== 'undefined'
+    ? __dirname
+    : path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
@@ -33,6 +41,38 @@ export default defineConfig(({ mode }) => {
           maximumFileSizeToCacheInBytes: 5 * 1024 * 1024
         }
       })
-    ]
+    ],
+    test: {
+      projects: [
+        {
+          name: 'unit',
+          include: ['test/**/*.test.ts?(x)', 'src/**/*.test.ts?(x)'],
+          environment: 'jsdom',
+          setupFiles: ['./vitest.setup.ts']
+        },
+        {
+          name: 'storybook',
+          extends: true,
+          optimizeDeps: {
+            include: ['react/jsx-dev-runtime']
+          },
+          plugins: [
+            react(),
+            tsconfigPaths(),
+            storybookTest({ configDir: path.join(dirname, '.storybook') })
+          ],
+          test: {
+            name: 'storybook/test',
+            browser: {
+              enabled: true,
+              headless: true,
+              provider: 'playwright',
+              instances: [{ browser: 'chromium' }]
+            },
+            setupFiles: ['.storybook/vitest.setup.ts']
+          }
+        }
+      ]
+    }
   };
 });
