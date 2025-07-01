@@ -1,6 +1,4 @@
-import { PrescriptionFixture } from 'maestro-shared/test/prescriptionFixtures';
 import { ValidatedProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
-import { Prescriptions } from '../../repositories/prescriptionRepository';
 import {
   formatProgrammingPlan,
   ProgrammingPlanRegionalStatus,
@@ -20,6 +18,4 @@ export const seed = async (): Promise<void> => {
       })
     )
   );
-
-  await Prescriptions().insert(PrescriptionFixture);
 };

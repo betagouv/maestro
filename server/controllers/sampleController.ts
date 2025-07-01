@@ -17,10 +17,14 @@ import {
   getSupportDocumentFilename
 } from 'maestro-shared/schema/Document/DocumentKind';
 import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
-import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import {
+  ContextLabels,
+  ProgrammingPlanContext
+} from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   getSampleMatrixLabel,
+  isProgrammingPlanSample,
   PartialSample,
   PartialSampleToCreate,
   Sample
@@ -50,6 +54,8 @@ import {
 import { Readable } from 'node:stream';
 import { PDFDocument } from 'pdf-lib';
 import prescriptionRepository from '../repositories/prescriptionRepository';
+import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
+import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
 import { laboratoriesConf, LaboratoryWithConf } from '../services/imapService';
 const getSample = async (request: Request, response: Response) => {
   const sample = (request as SampleRequest).sample;
@@ -242,17 +248,48 @@ const updateSample = async (request: Request, response: Response) => {
     return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
   }
 
-  const prescriptionId = sampleUpdate.prescriptionId ?? sample.prescriptionId;
-  if (prescriptionId) {
-    const prescription =
-      await prescriptionRepository.findUnique(prescriptionId);
-    if (
-      !prescription ||
-      prescription.matrixKind !== (sampleUpdate.matrixKind ?? sample.matrixKind)
-    ) {
-      return response.sendStatus(constants.HTTP_STATUS_BAD_REQUEST);
-    }
-  }
+  const prescription =
+    isProgrammingPlanSample(sampleUpdate) &&
+    !isNil(sampleUpdate.context) &&
+    !isNil(sampleUpdate.matrixKind) &&
+    !isNil(sampleUpdate.stage)
+      ? await prescriptionRepository
+          .findMany({
+            programmingPlanId: sampleUpdate.programmingPlanId,
+            context: sampleUpdate.context as ProgrammingPlanContext,
+            matrixKind: sampleUpdate.matrixKind,
+            stage: sampleUpdate.stage
+          })
+          .then((_) => _?.[0])
+      : undefined;
+
+  const regionalPrescription = prescription
+    ? await regionalPrescriptionRepository.findUnique({
+        prescriptionId: prescription.id,
+        region: sampleUpdate.region
+      })
+    : undefined;
+
+  const prescriptionSubstances = prescription
+    ? await prescriptionSubstanceRepository.findMany(prescription.id)
+    : undefined;
+
+  const prescriptionData =
+    isProgrammingPlanSample(sampleUpdate) ||
+    sample.context !== sampleUpdate.context
+      ? {
+          prescriptionId: prescription?.id || null,
+          laboratoryId: regionalPrescription?.laboratoryId || null,
+          monoSubstances:
+            prescriptionSubstances
+              ?.filter((substance) => substance.analysisMethod === 'Mono')
+              .map((_) => _.substance) || null,
+          multiSubstances:
+            prescriptionSubstances
+              ?.filter((substance) => substance.analysisMethod === 'Multi')
+              .map((_) => _.substance) || null
+        }
+      : updateSample;
 
   if (
     sampleUpdate.company?.siret &&
@@ -275,10 +312,10 @@ const updateSample = async (request: Request, response: Response) => {
   const mustBeSent =
     sample.status === 'Submitted' && sampleUpdate.status === 'Sent';
 
-  //TODO update only the fields concerned in relation to the status
   const updatedPartialSample = {
     ...sample,
     ...sampleUpdate,
+    ...prescriptionData,
     lastUpdatedAt: new Date(),
     sentAt: mustBeSent ? new Date() : sample.sentAt
   };

@@ -268,6 +268,9 @@ export const SampleOwnerData = z.object({
 
 export const PartialSampleMatrixData = z.object({
   ...SampleMatrixData.partial().shape,
+  matrixKind: z.union([MatrixKind, OtherMatrixKind]).nullish(),
+  matrix: z.union([Matrix, z.string().nonempty()]).nullish(),
+  stage: Stage.nullish(),
   specificData: PartialSampleMatrixSpecificData
 });
 

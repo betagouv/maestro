@@ -170,8 +170,8 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
               placeholder="Sélectionner une catégorie"
               onSelect={(value) => {
                 setMatrixKind(value as MatrixKind);
-                setMatrix(undefined);
-                setStage(undefined);
+                setMatrix(null);
+                setStage(null);
               }}
               state={form.messageType('matrixKind')}
               stateRelatedMessage={form.message('matrixKind')}
@@ -193,10 +193,10 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
                       onChange: (e) => {
                         if (e.target.checked) {
                           setMatrixKind(OtherMatrixKind.value);
-                          setMatrix(undefined);
+                          setMatrix(null);
                         } else {
-                          setMatrixKind(undefined);
-                          setMatrix(undefined);
+                          setMatrixKind(null);
+                          setMatrix(null);
                         }
                       }
                     }

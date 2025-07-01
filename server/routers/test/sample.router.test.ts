@@ -523,6 +523,7 @@ describe('Sample router', () => {
     const validBody = {
       ...Sample11Fixture,
       matrix: oneOf(MatrixEffective.options),
+      stage: null,
       items: [
         genSampleItem({
           sampleId: Sample11Fixture.id,
@@ -545,22 +546,6 @@ describe('Sample router', () => {
       await forbiddenRequestTest(AdminFixture);
     });
 
-    test('should fail if the prescription is not consistent with the sample', async () => {
-      const badRequestTest = async (user: User) =>
-        request(app)
-          .put(`${testRoute(Sample11Fixture.id)}`)
-          .send({
-            ...validBody,
-            matrixKind: 'A01EA'
-          })
-          .use(tokenProvider(user))
-          .expect(constants.HTTP_STATUS_BAD_REQUEST);
-
-      await badRequestTest(Sampler1Fixture);
-      await badRequestTest(RegionalCoordinator);
-      await badRequestTest(SamplerAndNationalObserver);
-    });
-
     test('should update a partial sample', async () => {
       const successRequestTest = async (user: User) => {
         const res = await request(app)
@@ -576,7 +561,12 @@ describe('Sample router', () => {
             lastUpdatedAt: expect.any(String),
             sampledAt: Sample11Fixture.sampledAt,
             matrix: validBody.matrix,
-            items: validBody.items
+            stage: validBody.stage,
+            items: validBody.items,
+            prescriptionId: null,
+            laboratoryId: null,
+            monoSubstances: null,
+            multiSubstances: null
           })
         );
 
@@ -613,7 +603,7 @@ describe('Sample router', () => {
         await request(app)
           .put(`${testRoute(Sample11Fixture.id)}`)
           .send({
-            ...validBody,
+            ...Sample11Fixture,
             status: 'Sent'
           })
           .use(tokenProvider(user))
