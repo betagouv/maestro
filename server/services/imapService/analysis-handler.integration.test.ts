@@ -211,3 +211,45 @@ test('Peut enregistrer une analyse avec un résidu complexe et ses analytes asso
     analysisToSave.residues[2].ssd2Id
   );
 });
+
+test('Un résidu complexe Non Quantifiable est enregistré en Non détecté si toutes ses analytes sont non détectées', async () => {
+  const analysisToSave = {
+    notes: '',
+    pdfFile: new File([], 'fileName'),
+    sampleReference: Sample13Fixture.reference,
+    residues: [
+      {
+        ssd2Id: 'RF-00002588-PAR',
+        result_kind: 'ND',
+        analysisMethod: 'Multi',
+        unknown_label: null,
+        analysisDate: null
+      },
+      {
+        ssd2Id: 'RF-0008-001-PPP',
+        result_kind: 'NQ',
+        analysisMethod: 'Multi',
+        unknown_label: null,
+        analysisDate: null
+      },
+      {
+        ssd2Id: 'RF-00004646-PAR',
+        result_kind: 'ND',
+        analysisMethod: 'Multi',
+        unknown_label: null,
+        analysisDate: null
+      }
+    ]
+  } as const satisfies AnalysisWithResidueWithSSD2Id;
+
+  const { analysisId } = await analysisHandler(analysisToSave);
+
+  const analysisResidue = await kysely
+    .selectFrom('analysisResidues')
+    .where('analysisId', '=', analysisId)
+    .selectAll()
+    .execute();
+  expect(analysisResidue).toHaveLength(1);
+  expect(analysisResidue[0].reference).toBe(analysisToSave.residues[1].ssd2Id);
+  expect(analysisResidue[0].resultKind).toBe('ND');
+});
