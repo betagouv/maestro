@@ -103,7 +103,7 @@ export const Authenticated: Story = {
     await expect(navigation).toBeInTheDocument();
 
     await expect(
-      within(navigation).getByText('Tableau de bord')
+      within(navigation).getByText('Tableau de bord123')
     ).toBeInTheDocument();
 
     await expect(
