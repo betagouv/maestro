@@ -2,11 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { ApiClient } from '../../../services/apiClient';
-import {
-  defaultMockApiClientConf,
-  getMockApi
-} from '../../../services/mockApiClient';
+import { getMockApi } from '../../../services/mockApiClient';
 import { AnalysisDocumentPreview } from './AnalysisDocumentPreview';
 
 const meta = {
@@ -43,8 +39,7 @@ export const NotReadonly: Story = {
 
 export const WithHistory: Story = {
   parameters: {
-    apiClient: getMockApi<ApiClient>({
-      ...defaultMockApiClientConf,
+    apiClient: getMockApi({
       useGetAnalysisReportDocumentIdsQuery: {
         data: ['document1Id', 'document2Id', 'document3Id']
       }

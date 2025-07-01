@@ -6,11 +6,7 @@ import {
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
 import { expect, within } from 'storybook/test';
-import { ApiClient } from '../../services/apiClient';
-import {
-  defaultMockApiClientConf,
-  getMockApi
-} from '../../services/mockApiClient';
+import { getMockApi } from '../../services/mockApiClient';
 import DocumentListView from './DocumentListView';
 const meta = {
   title: 'Views/DocumentListView',
@@ -29,8 +25,7 @@ export const DocumentListViewForNationalCoordinator: Story = {
     preloadedState: {
       auth: { authUser: genAuthUser(NationalCoordinator) }
     },
-    apiClient: getMockApi<ApiClient>({
-      ...defaultMockApiClientConf,
+    apiClient: getMockApi({
       useFindResourcesQuery: { data: [document] }
     })
   },
@@ -49,8 +44,7 @@ export const DocumentListViewForSampler: Story = {
     preloadedState: {
       auth: { authUser: genAuthUser(Sampler1Fixture) }
     },
-    apiClient: getMockApi<ApiClient>({
-      ...defaultMockApiClientConf,
+    apiClient: getMockApi({
       useFindResourcesQuery: { data: [document] }
     })
   },

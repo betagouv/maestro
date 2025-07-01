@@ -1,15 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { fn, userEvent, within } from 'storybook/test';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
 import { genAuthUser, Sampler1Fixture } from 'maestro-shared/test/userFixtures';
-import { ApiClient } from '../../../../services/apiClient';
-import {
-  defaultMockApiClientConf,
-  getMockApi
-} from '../../../../services/mockApiClient';
+import { fn, userEvent, within } from 'storybook/test';
+import { getMockApi } from '../../../../services/mockApiClient';
 import SendingStep from './SendingStep';
 
 const meta = {
@@ -57,8 +53,7 @@ export const Complet: Story = {
         programmingPlan
       }
     },
-    apiClient: getMockApi<ApiClient>({
-      ...defaultMockApiClientConf,
+    apiClient: getMockApi({
       useUpdateSampleMutation: [async () => fn(), { isSuccess: false }]
     })
   }

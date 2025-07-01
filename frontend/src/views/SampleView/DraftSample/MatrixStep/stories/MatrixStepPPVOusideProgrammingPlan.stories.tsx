@@ -7,11 +7,6 @@ import {
 } from 'maestro-shared/test/sampleFixtures';
 import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
 import { expect, fn, within } from 'storybook/test';
-import { ApiClient } from '../../../../../services/apiClient';
-import {
-  defaultMockApiClientConf,
-  getMockApi
-} from '../../../../../services/mockApiClient';
 import MatrixStep from '../MatrixStep';
 
 const createOrUpdateMock = fn();
@@ -58,10 +53,7 @@ const story: Pick<Story, 'args' | 'parameters'> = {
       programmingPlan: {
         programmingPlan
       }
-    },
-    apiClient: getMockApi<ApiClient>({
-      ...defaultMockApiClientConf
-    })
+    }
   }
 };
 

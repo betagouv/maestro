@@ -14,11 +14,7 @@ import {
 } from 'maestro-shared/test/userFixtures';
 import { expect, userEvent, within } from 'storybook/test';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
-import { ApiClient } from '../../services/apiClient';
-import {
-  defaultMockApiClientConf,
-  getMockApi
-} from '../../services/mockApiClient';
+import { getMockApi } from '../../services/mockApiClient';
 import ProgrammingPlanView from './ProgrammingPlanView';
 
 const meta = {
@@ -57,8 +53,7 @@ export const ProgrammingPlanViewForNationalCoordinator: Story = {
     initialEntries: [
       `${AuthenticatedAppRoutes.SamplesByYearRoute.link(programmingPlan.year)}/?context=Control`
     ],
-    apiClient: getMockApi<ApiClient>({
-      ...defaultMockApiClientConf,
+    apiClient: getMockApi({
       useGetSampleQuery: { data: sample },
       useFindProgrammingPlansQuery: { data: [programmingPlan] },
       useFindPrescriptionsQuery: { data: [prescription1, prescription2] },
@@ -113,8 +108,7 @@ export const ProgrammingPlanViewForRegionalCoordinator: Story = {
     initialEntries: [
       `${AuthenticatedAppRoutes.SamplesByYearRoute.link(programmingPlan.year)}/?context=Control`
     ],
-    apiClient: getMockApi<ApiClient>({
-      ...defaultMockApiClientConf,
+    apiClient: getMockApi({
       useGetSampleQuery: { data: sample },
       useFindProgrammingPlansQuery: { data: [programmingPlan] },
       useFindPrescriptionsQuery: { data: [prescription1, prescription2] },

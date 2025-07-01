@@ -10,11 +10,7 @@ import {
 } from 'maestro-shared/test/sampleFixtures';
 import { genAuthUser, Sampler1Fixture } from 'maestro-shared/test/userFixtures';
 import { expect, fn, userEvent, within } from 'storybook/test';
-import { ApiClient } from '../../../../services/apiClient';
-import {
-  defaultMockApiClientConf,
-  getMockApi
-} from '../../../../services/mockApiClient';
+import { getMockApi } from '../../../../services/mockApiClient';
 import ItemsStep from './ItemsStep';
 
 const meta = {
@@ -206,8 +202,7 @@ export const SubmittingSuccess: Story = {
         programmingPlan
       }
     },
-    apiClient: getMockApi<ApiClient>({
-      ...defaultMockApiClientConf,
+    apiClient: getMockApi({
       useCreateOrUpdateSampleMutation: [
         async (...args) => {
           const result = await mockCreateOrUpdateSample(...args);

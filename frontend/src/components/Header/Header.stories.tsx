@@ -5,11 +5,7 @@ import { genAuthUser } from 'maestro-shared/test/userFixtures';
 import { expect, fn, within } from 'storybook/test';
 import { undefined } from 'zod';
 import { MuiDsfrThemeProvider } from '../../App';
-import { ApiClient } from '../../services/apiClient';
-import {
-  defaultMockApiClientConf,
-  getMockApi
-} from '../../services/mockApiClient';
+import { getMockApi } from '../../services/mockApiClient';
 import Header from './Header';
 
 const meta = {
@@ -90,8 +86,7 @@ export const Authenticated: Story = {
         })
       }
     },
-    apiClient: getMockApi<ApiClient>({
-      ...defaultMockApiClientConf,
+    apiClient: getMockApi({
       useFindProgrammingPlansQuery: {
         data: [
           closedProgrammingPlan,
