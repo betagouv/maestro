@@ -47,7 +47,9 @@ export type ExportAnalysis = {
   pdfFile: File;
   residues: ExportDataSubstance[];
 };
-export type ExportDataFromEmail = (email: ParsedMail) => ExportAnalysis[];
+export type ExportDataFromEmail = (
+  attachments: ParsedMail['attachments']
+) => ExportAnalysis[];
 
 export type LaboratoryConf = {
   exportDataFromEmail: ExportDataFromEmail;
@@ -84,15 +86,17 @@ const moveMessageToErrorbox = async (
   subject: string,
   senderAddress: string,
   message: string,
-  messageUid: string,
+  messageUids: string[],
   client: ImapFlow
 ) => {
   const error = `Email "${subject}" from "${senderAddress}" ignoré => ${message} `;
   console.error(error);
 
-  await client.messageMove(messageUid, config.inbox.errorboxName, {
-    uid: true
-  });
+  for (const messageUid of messageUids) {
+    await client.messageMove(messageUid, config.inbox.errorboxName, {
+      uid: true
+    });
+  }
 
   await mattermostService.send(error);
 };
@@ -127,10 +131,13 @@ export const checkEmails = async () => {
       if (client.mailbox.exists === 0) {
         console.log('Aucun email à traiter');
       } else {
-        const messagesToRead: {
-          messageUid: number;
-          laboratoryName: LaboratoryWithConf;
-        }[] = [];
+        const messagesBySubjectToRead: Record<
+          string,
+          {
+            messageUid: number;
+            laboratoryName: LaboratoryWithConf;
+          }[]
+        > = {};
 
         const messagesInError: {
           messageUid: string;
@@ -138,6 +145,7 @@ export const checkEmails = async () => {
           subject: string;
           error: string;
         }[] = [];
+
         for await (const message of client.fetch('1:*', {
           envelope: true,
           bodyStructure: true
@@ -157,7 +165,13 @@ export const checkEmails = async () => {
             );
 
           if (laboratoryName !== null) {
-            messagesToRead.push({ messageUid: message.uid, laboratoryName });
+            if (!messagesBySubjectToRead[message.envelope.subject ?? '']) {
+              messagesBySubjectToRead[message.envelope.subject ?? ''] = [];
+            }
+            messagesBySubjectToRead[message.envelope.subject ?? ''].push({
+              messageUid: message.uid,
+              laboratoryName
+            });
             console.log('   =====>  ', laboratoryName);
           } else {
             messagesInError.push({
@@ -174,25 +188,34 @@ export const checkEmails = async () => {
             messageInError.subject,
             messageInError.sender,
             messageInError.error,
-            messageInError.messageUid,
+            [messageInError.messageUid],
             client
           );
         }
         const warnings = new Set<string>();
-        for (const message of messagesToRead) {
-          const messageUid: string = `${message.messageUid}`;
-          //undefined permet de récupérer tout l'email
-          const downloadObject = await client.download(messageUid, undefined, {
-            uid: true
-          });
 
-          const parsed = await simpleParser(downloadObject.content);
+        for (const messages of Object.values(messagesBySubjectToRead)) {
+          const parsedEmails: ParsedMail[] = [];
+          for (const message of messages) {
+            const messageUid: string = `${message.messageUid}`;
+            //undefined permet de récupérer tout l'email
+            const downloadObject = await client.download(
+              messageUid,
+              undefined,
+              {
+                uid: true
+              }
+            );
+            const parsed = await simpleParser(downloadObject.content);
+            parsedEmails.push(parsed);
+          }
+
+          const laboratoryName = messages[0].laboratoryName;
 
           try {
-            const analyzes =
-              laboratoriesConf[message.laboratoryName].exportDataFromEmail(
-                parsed
-              );
+            const analyzes = laboratoriesConf[
+              laboratoryName
+            ].exportDataFromEmail(parsedEmails.flatMap((p) => p.attachments));
 
             if (analyzes.length === 0) {
               throw new ExtractError(
@@ -207,18 +230,17 @@ export const checkEmails = async () => {
                 return {
                   ...r,
                   ssd2Id:
-                    laboratoriesConf[message.laboratoryName].ssd2IdByLabel[
-                      r.label
-                    ] ?? null
+                    laboratoriesConf[laboratoryName].ssd2IdByLabel[r.label] ??
+                    null
                 };
               });
 
               //On créer une liste de warnings avec les résidus introuvables dans SSD2
               residues.forEach((r) => {
                 if (
-                  !laboratoriesConf[
-                    message.laboratoryName
-                  ].unknownReferences.includes(r.label)
+                  !laboratoriesConf[laboratoryName].unknownReferences.includes(
+                    r.label
+                  )
                 ) {
                   if (r.codeSandre !== null) {
                     if (SandreToSSD2[r.codeSandre] === undefined) {
@@ -246,8 +268,19 @@ export const checkEmails = async () => {
                 }
               });
 
-              //On garde que les résidus intéressants et on supprime les résidus deprecated
-              const interestingResidues = residues
+              const residuesNotDeprecated = residues.filter((r) => {
+                const ssd2Id = r.ssd2Id;
+
+                if (ssd2Id === null) {
+                  return true;
+                }
+                const reference =
+                  SSD2Referential[ssd2Id as keyof typeof SSD2Referential];
+                return !('deprecated' in reference) || !reference.deprecated;
+              });
+
+              //On garde que les résidus intéressants
+              const interestingResidues = residuesNotDeprecated
                 .filter((r) => r.result_kind !== 'ND')
                 .filter((r) => {
                   const ssd2Id = r.ssd2Id;
@@ -264,9 +297,9 @@ export const checkEmails = async () => {
               interestingResidues.forEach((r) => {
                 if (r.ssd2Id === null) {
                   if (
-                    laboratoriesConf[
-                      message.laboratoryName
-                    ].unknownReferences.includes(r.label)
+                    laboratoriesConf[laboratoryName].unknownReferences.includes(
+                      r.label
+                    )
                   ) {
                     warnings.add(
                       `Attention un résidu inconnu a été détecté, il a été ignoré : ${r.label}`
@@ -282,7 +315,7 @@ export const checkEmails = async () => {
               const { sampleId, samplerId, samplerEmail } =
                 await analysisHandler({
                   ...analysis,
-                  residues: residues.map(
+                  residues: residuesNotDeprecated.map(
                     ({ casNumber, codeSandre, label, ...rest }) => {
                       const unknown_label = rest.ssd2Id === null ? label : null;
                       return { ...rest, unknown_label };
@@ -299,16 +332,23 @@ export const checkEmails = async () => {
                 undefined
               );
             }
-            await client.messageMove(messageUid, config.inbox.successboxName, {
-              uid: true
-            });
+            for (const message of messages) {
+              await client.messageMove(
+                `${message.messageUid}`,
+                config.inbox.successboxName,
+                {
+                  uid: true
+                }
+              );
+            }
           } catch (e: any) {
             console.error(e);
+            const parsed = parsedEmails[0];
             await moveMessageToErrorbox(
               parsed.subject ?? '',
               parsed.from?.value[0].address ?? '',
               e.message,
-              messageUid,
+              messages.map((message) => `${message.messageUid}`),
               client
             );
           } finally {

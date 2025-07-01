@@ -111,6 +111,13 @@ export const analysisHandler = async (
 
   residues.push(...Object.values(complexeResiduesIndex));
 
+  //Tous les résidus quantifiés doivent avoir une LMR
+  residues.forEach((r) => {
+    if (r.result_kind === 'Q' && r.lmr === 0) {
+      throw new ExtractError(`Le résidu ${r.ssd2Id} n'a pas de LMR`);
+    }
+  });
+
   return await documentService.createDocument(
     analyse.pdfFile,
     'AnalysisReportDocument',
@@ -130,6 +137,7 @@ export const analysisHandler = async (
       let analysisId;
       if (oldAnalyseId) {
         await analysisRepository.update({ ...newAnalysis, id: oldAnalyseId });
+        await analysisResidueRepository.deleteByAnalysisId(oldAnalyseId, trx);
         analysisId = oldAnalyseId;
       } else {
         analysisId = await analysisRepository.insert(newAnalysis, trx);
@@ -146,11 +154,22 @@ export const analysisHandler = async (
       for (let i = 0; i < residues.length; i++) {
         const residue = residues[i];
         const residueNumber = i + 1;
+
+        let resultKind = residue.result_kind;
+        // Si c'est un résidu complexe NQ et que toutes ses analytes sont ND alors le résidu complexe est aussi ND
+        if (
+          resultKind === 'NQ' &&
+          'analytes' in residue &&
+          residue.analytes?.every((a) => a.result_kind === 'ND')
+        ) {
+          resultKind = 'ND';
+        }
+
         await analysisResidueRepository.insert(
           [
             {
               result: 'result' in residue ? residue.result : null,
-              resultKind: residue.result_kind,
+              resultKind,
               lmr: 'lmr' in residue ? residue.lmr : null,
               analysisId,
               analysisMethod: residue.analysisMethod,

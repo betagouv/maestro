@@ -140,7 +140,7 @@ describe('Parse correctement les fichiers CSV', () => {
               Cofrac: 'N',
               Bilan: 'MULTIPEST-COMPLET',
               'Unité Tech': 'MARCO',
-              'Date Analyse': '23/10/2024',
+              'Date Analyse': '',
               'Date Validation': '24/10/2024',
               Statut: 'Completed',
               'Résultat 1': '0,011',
@@ -183,7 +183,7 @@ describe('Parse correctement les fichiers CSV', () => {
               "result_kind": "NQ",
             },
             {
-              "analysisDate": "2024-10-23",
+              "analysisDate": null,
               "analysisMethod": "Mono",
               "casNumber": null,
               "codeSandre": "1951",
