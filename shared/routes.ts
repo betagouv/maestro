@@ -13,7 +13,22 @@ export type ToRoute = {
   response: ZodType;
 };
 
+type ZodParseUrlParams<url> = url extends `${infer start}/${infer rest}`
+  ? ZodParseUrlParams<start> & ZodParseUrlParams<rest>
+  : url extends `:${infer param}`
+    ? { [k in param]: ZodType }
+    : Record<never, never>;
+
+type ZodUrlParams<url, Z = ZodParseUrlParams<url>> = keyof Z extends never
+  ? undefined
+  : Z;
+
 export type RouteMethod = 'get' | 'post' | 'put' | 'delete';
+
+export type MaestroRoutes =
+  | '/analysis'
+  | '/analysis/:analysisId'
+  | '/analysis/:analysisId/reportDocuments';
 
 export const routes = {
   '/analysis': {
@@ -29,9 +44,9 @@ export const routes = {
     }
   },
   '/analysis/:analysisId': {
-    params: z.object({
+    params: {
       analysisId: z.guid()
-    }),
+    },
     put: {
       body: AnalysisToUpdate,
       permissions: ['createAnalysis'],
@@ -39,9 +54,9 @@ export const routes = {
     }
   },
   '/analysis/:analysisId/reportDocuments': {
-    params: z.object({
+    params: {
       analysisId: z.guid()
-    }),
+    },
     get: {
       permissions: ['readAnalysis'],
       response: z.array(z.guid())
@@ -57,11 +72,8 @@ export const routes = {
       response: z.void()
     }
   }
-} as const satisfies Record<
-  string,
-  { [method in RouteMethod]?: ToRoute } & {
-    params?: ZodObject;
-  }
->;
-
-export type MaestroRoutes = keyof typeof routes;
+} as const satisfies {
+  [path in MaestroRoutes]: { [method in RouteMethod]?: ToRoute } & {
+    params?: ZodUrlParams<path>;
+  };
+};

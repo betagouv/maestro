@@ -6,7 +6,7 @@ import {
   ToRoute
 } from 'maestro-shared/routes';
 import { User } from 'maestro-shared/schema/User/User';
-import z, { ZodObject, ZodType } from 'zod/v4';
+import z, { ZodObject, ZodRawShape, ZodType } from 'zod/v4';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
 import validator, { body, params, query } from '../middlewares/validator';
 
@@ -36,8 +36,8 @@ type MaestroRouteMethod<
     (typeof routes)[key] extends {
       params: infer P;
     }
-      ? P extends ZodType
-        ? z.infer<P>
+      ? P extends ZodRawShape
+        ? z.infer<ZodObject<P>>
         : undefined
       : undefined,
     undefined,
@@ -78,7 +78,7 @@ export const generateRoutes = (subRouter: SubRouter) => {
         const conf = r[method] as ToRoute;
         let toValidate: null | ZodObject<any> = null;
         if ('params' in r && r.params !== undefined) {
-          toValidate = params(r.params);
+          toValidate = params(z.object(r.params));
         }
         if ('body' in conf && conf.body !== undefined) {
           const toValidateBody = body(conf.body);
