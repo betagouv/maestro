@@ -10,7 +10,6 @@ import {
   useLogoutMutation
 } from 'src/services/auth.service';
 import authSlice from 'src/store/reducers/authSlice';
-import { appLogout } from 'src/store/store';
 
 export const SESSION_STORAGE_UNKNOWN_USER_EMAIl = 'UNKNOWN_MAESTRO_USER_EMAIL';
 export const SESSION_STORAGE_REDIRECT_URL = 'REDIRECT_URL';
@@ -46,21 +45,22 @@ export const LoginCallbackView = () => {
         const goTo =
           sessionStorage.getItem(SESSION_STORAGE_REDIRECT_URL) ?? '/';
         sessionStorage.removeItem(SESSION_STORAGE_REDIRECT_URL);
-
-        if (authUser.user !== null) {
-          setTimeout(() => navigate(goTo, { replace: true }));
-        } else {
-          const asyncLogout = async () => {
-            sessionStorage.setItem(
-              SESSION_STORAGE_UNKNOWN_USER_EMAIl,
-              authUser.userEmail
-            );
-            const logoutRedirectUrl = await logout().unwrap();
-            await appLogout()(dispatch);
-            window.location.href = logoutRedirectUrl.url;
-          };
-          asyncLogout();
-        }
+        console.log(goTo);
+        console.log(authUser);
+        // if (authUser.user !== null) {
+        //   setTimeout(() => navigate(goTo, { replace: true }));
+        // } else {
+        //   const asyncLogout = async () => {
+        //     sessionStorage.setItem(
+        //       SESSION_STORAGE_UNKNOWN_USER_EMAIl,
+        //       authUser.userEmail
+        //     );
+        //     const logoutRedirectUrl = await logout().unwrap();
+        //     await appLogout()(dispatch);
+        //     window.location.href = logoutRedirectUrl.url;
+        //   };
+        //   asyncLogout();
+        // }
       }
     },
     [isSuccess, authUser] // eslint-disable-line react-hooks/exhaustive-deps
