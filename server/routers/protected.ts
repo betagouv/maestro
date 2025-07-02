@@ -2,6 +2,7 @@ import express from 'express';
 import fs from 'fs';
 import { analysisRouter } from '../controllers/analysisController';
 import { analysisReportDocumentsRouter } from '../controllers/analysisReportDocumentsController';
+import { programmingPlanR } from '../controllers/programmingPlanController';
 import { jwtCheck, userCheck } from '../middlewares/checks/authCheck';
 import addressRouter from './address.router';
 import companyRouter from './company.router';
@@ -22,7 +23,8 @@ protectedRouter.use(userCheck(true));
 
 const router = {
   ...analysisRouter,
-  ...analysisReportDocumentsRouter
+  ...analysisReportDocumentsRouter,
+  ...programmingPlanR
 } as const satisfies Required<SubRouter>;
 
 protectedRouter.use(generateRoutes(router));

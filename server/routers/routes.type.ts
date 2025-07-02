@@ -4,7 +4,7 @@ import {
   RouteMethod,
   routes,
   ToRoute
-} from 'maestro-shared/routes';
+} from 'maestro-shared/routes/routes';
 import { User } from 'maestro-shared/schema/User/User';
 import z, { ZodObject, ZodRawShape, ZodType } from 'zod/v4';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
