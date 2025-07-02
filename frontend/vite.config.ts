@@ -26,7 +26,6 @@ export default defineConfig(({ mode }) => {
       port: 3000
     },
     plugins: [
-      RandomSeed(),
       react(),
       tsconfigPaths(),
       VitePWA({
@@ -59,6 +58,7 @@ export default defineConfig(({ mode }) => {
             include: ['react/jsx-dev-runtime']
           },
           plugins: [
+            RandomSeed(),
             react(),
             tsconfigPaths(),
             storybookTest({ configDir: path.join(dirname, '.storybook') })
