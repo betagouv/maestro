@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { defineConfig, loadEnv } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import tsconfigPaths from 'vite-tsconfig-paths';
+import RandomSeed from '../test/vitest-random-seed';
 
 const dirname =
   typeof __dirname !== 'undefined'
@@ -25,6 +26,7 @@ export default defineConfig(({ mode }) => {
       port: 3000
     },
     plugins: [
+      RandomSeed(),
       react(),
       tsconfigPaths(),
       VitePWA({
