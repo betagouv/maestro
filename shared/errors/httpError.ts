@@ -4,10 +4,10 @@ interface HttpErrorOptions {
   status: number;
 }
 
-export abstract class HttpError extends Error implements HttpError {
+export class HttpError extends Error implements HttpError {
   status: number;
 
-  protected constructor(options: HttpErrorOptions) {
+  public constructor(options: HttpErrorOptions) {
     super(options.message);
     this.name = options.name;
     this.status = options.status;

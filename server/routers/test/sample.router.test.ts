@@ -349,7 +349,7 @@ describe('Sample router', () => {
         }
       });
       expect(badRequest.text).toMatchInlineSnapshot(
-        `"Coordonnées GPS incorrectes."`
+        `"{"name":"BadCoordinatesError","message":"Coordonnées GPS incorrectes."}"`
       );
 
       await badRequestTest({
@@ -377,7 +377,7 @@ describe('Sample router', () => {
       await forbiddenRequestTest(AdminFixture);
       const forbiddenRequest = await forbiddenRequestTest(Sampler2Fixture);
       expect(forbiddenRequest.text).toMatchInlineSnapshot(
-        `"Vous n'avez pas les droits dans le département Ardennes"`
+        `"{"name":"BadDepartmentError","message":"Vous n'avez pas les droits dans le département Ardennes"}"`
       );
     });
 
@@ -516,7 +516,7 @@ describe('Sample router', () => {
         }
       });
       expect(badRequest.text).toMatchInlineSnapshot(
-        `"Coordonnées GPS incorrectes."`
+        `"{"name":"BadCoordinatesError","message":"Coordonnées GPS incorrectes."}"`
       );
     });
 

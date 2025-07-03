@@ -53,10 +53,16 @@ import {
 } from 'maestro-shared/schema/User/User';
 import { Readable } from 'node:stream';
 import { PDFDocument } from 'pdf-lib';
+import {
+  getAndCheckSample,
+  getAndCheckSampleDepartement
+} from '../middlewares/checks/sampleCheck';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
 import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
+import { SubRouter } from '../routers/routes.type';
 import { laboratoriesConf, LaboratoryWithConf } from '../services/imapService';
+
 const getSample = async (request: Request, response: Response) => {
   const sample = (request as SampleRequest).sample;
 
@@ -231,265 +237,6 @@ const createSample = async (request: Request, response: Response) => {
   response.status(constants.HTTP_STATUS_CREATED).send(sample);
 };
 
-const updateSample = async (request: Request, response: Response) => {
-  const sample = (request as SampleRequest).sample as PartialSample;
-  const sampleUpdate = request.body as PartialSample;
-  const { user } = request as AuthenticatedRequest;
-
-  console.info('Update sample', sample.id, sampleUpdate);
-
-  if (sample.status !== 'InReview' && sampleUpdate.status === 'InReview') {
-    if (!hasPermission(user, 'restoreSampleToReview')) {
-      throw new UserRoleMissingError();
-    }
-  } else if (!hasPermission(user, 'updateSample')) {
-    throw new UserRoleMissingError();
-  } else if (sample.region !== user.region) {
-    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
-  }
-
-  const prescription =
-    isProgrammingPlanSample(sampleUpdate) &&
-    !isNil(sampleUpdate.context) &&
-    !isNil(sampleUpdate.matrixKind) &&
-    !isNil(sampleUpdate.stage)
-      ? await prescriptionRepository
-          .findMany({
-            programmingPlanId: sampleUpdate.programmingPlanId,
-            context: sampleUpdate.context as ProgrammingPlanContext,
-            matrixKind: sampleUpdate.matrixKind,
-            stage: sampleUpdate.stage
-          })
-          .then((_) => _?.[0])
-      : undefined;
-
-  const regionalPrescription = prescription
-    ? await regionalPrescriptionRepository.findUnique({
-        prescriptionId: prescription.id,
-        region: sampleUpdate.region
-      })
-    : undefined;
-
-  const prescriptionSubstances = prescription
-    ? await prescriptionSubstanceRepository.findMany(prescription.id)
-    : undefined;
-
-  const prescriptionData = (
-    isProgrammingPlanSample(sampleUpdate) ||
-    sample.context !== sampleUpdate.context
-      ? {
-          prescriptionId: prescription?.id || null,
-          laboratoryId: regionalPrescription?.laboratoryId || null,
-          monoSubstances:
-            prescriptionSubstances
-              ?.filter((substance) => substance.analysisMethod === 'Mono')
-              .map((_) => _.substance) || null,
-          multiSubstances:
-            prescriptionSubstances
-              ?.filter((substance) => substance.analysisMethod === 'Multi')
-              .map((_) => _.substance) || null
-        }
-      : sampleUpdate
-  ) satisfies Pick<
-    PartialSample,
-    'prescriptionId' | 'laboratoryId' | 'monoSubstances' | 'multiSubstances'
-  >;
-
-  if (
-    sampleUpdate.company?.siret &&
-    sample.company?.siret !== sampleUpdate.company?.siret
-  ) {
-    await companyRepository.upsert(sampleUpdate.company);
-  }
-
-  if (sampleUpdate.items) {
-    await sampleItemRepository.updateMany(sample.id, sampleUpdate.items);
-  }
-
-  if (!isEqual(sample.documentIds, sampleUpdate.documentIds)) {
-    await sampleRepository.updateDocumentIds(
-      sample.id,
-      sampleUpdate.documentIds ?? []
-    );
-  }
-
-  const mustBeSent =
-    sample.status === 'Submitted' && sampleUpdate.status === 'Sent';
-
-  const updatedPartialSample = {
-    ...sample,
-    ...sampleUpdate,
-    ...prescriptionData,
-    lastUpdatedAt: new Date(),
-    sentAt: mustBeSent ? new Date() : sample.sentAt
-  };
-
-  if (mustBeSent) {
-    const updatedSample = Sample.parse(updatedPartialSample);
-    const sampleItems = await sampleItemRepository.findMany(sample.id);
-
-    await Promise.all(
-      sampleItems.map(async (sampleItem) => {
-        const sampleSupportDoc = await generateAndStoreSampleSupportDocument(
-          updatedSample,
-          sampleItems as SampleItem[],
-          sampleItem.itemNumber
-        );
-
-        if (sampleItem.itemNumber === 1) {
-          const laboratory = (await laboratoryRepository.findUnique(
-            updatedSample.laboratoryId as string
-          )) as Laboratory;
-
-          const establishment = {
-            name: Regions[updatedSample.region].establishment.name,
-            fullAddress: [
-              Regions[updatedSample.region].establishment.additionalAddress,
-              Regions[updatedSample.region].establishment.street,
-              `${Regions[updatedSample.region].establishment.postalCode} ${Regions[updatedSample.region].establishment.city}`
-            ]
-              .filter(Boolean)
-              .join('\n')
-          };
-
-          const company = {
-            ...updatedSample.company,
-            fullAddress: [
-              updatedSample.company.address,
-              `${updatedSample.company.postalCode} ${updatedSample.company.city}`
-            ].join('\n')
-          };
-
-          const substanceToLaboratoryLabel = (substance: SSD2Id): string => {
-            let laboratoryLabel: string | null = null;
-            if (laboratory.name in laboratoriesConf) {
-              const laboratoryName = laboratory.name as LaboratoryWithConf;
-              laboratoryLabel =
-                Object.entries(
-                  laboratoriesConf[laboratoryName].ssd2IdByLabel
-                ).find(([_label, value]) => value === substance)?.[0] ?? null;
-            }
-            return laboratoryLabel ?? SSD2IdLabel[substance];
-          };
-
-          const analysisRequestDocs =
-            await generateAndStoreAnalysisRequestDocuments({
-              ...updatedSample,
-              ...(sampleItem as SampleItem),
-              sampler: user,
-              company,
-              laboratory,
-              monoSubstanceLabels: (updatedSample.monoSubstances ?? []).map(
-                (substance) => substanceToLaboratoryLabel(substance)
-              ),
-              multiSubstanceLabels: (updatedSample.multiSubstances ?? []).map(
-                (substance) => substanceToLaboratoryLabel(substance)
-              ),
-              reference: [updatedSample.reference, sampleItem?.itemNumber]
-                .filter(isDefinedAndNotNull)
-                .join('-'),
-              sampledAt: format(
-                updatedSample.sampledAt,
-                "eeee dd MMMM yyyy à HH'h'mm",
-                {
-                  locale: fr
-                }
-              ),
-              sampledAtDate: format(updatedSample.sampledAt, 'dd/MM/yyyy', {
-                locale: fr
-              }),
-              sampledAtTime: formatWithTz(updatedSample.sampledAt, 'HH:mm'),
-              context: ContextLabels[updatedSample.context],
-              legalContext: LegalContextLabels[updatedSample.legalContext],
-              stage: StageLabels[updatedSample.stage],
-              matrixKindLabel: MatrixKindLabels[updatedSample.matrixKind],
-              matrixLabel: getSampleMatrixLabel(updatedSample),
-              matrixPart: getMatrixPartLabel(updatedSample) as string,
-              quantityUnit: sampleItem?.quantityUnit
-                ? QuantityUnitLabels[sampleItem.quantityUnit]
-                : '',
-              cultureKind: getCultureKindLabel(updatedSample) as string,
-              compliance200263: sampleItem
-                ? sampleItem.compliance200263
-                  ? 'Respectée'
-                  : 'Non respectée'
-                : '',
-              establishment,
-              department: DepartmentLabels[updatedSample.department]
-            });
-
-          const sampleDocuments = await Promise.all(
-            (updatedSample.documentIds ?? []).map((documentId) =>
-              documentService.getDocument(documentId)
-            )
-          );
-
-          const sampleAttachments = await Promise.all(
-            sampleDocuments
-              .filter((document) => document !== undefined)
-              .map(async (document) => ({
-                name: document.filename,
-                content: await streamToBase64(document.file as Readable)
-              }))
-          );
-
-          await mailService.send({
-            templateName: 'SampleAnalysisRequestTemplate',
-            recipients: laboratory?.emails ?? [],
-            params: {
-              region: user.region ? Regions[user.region].name : undefined,
-              userMail: user.email,
-              sampledAt: format(updatedSample.sampledAt, 'dd/MM/yyyy')
-            },
-            attachment: [
-              ...sampleAttachments,
-              ...analysisRequestDocs
-                .filter((doc) => !isNil(doc.buffer))
-                .map((doc) => ({
-                  name: doc.filename,
-                  content: Buffer.from(doc.buffer as Buffer).toString('base64')
-                })),
-              sampleSupportDoc
-                ? {
-                    name: `${getSupportDocumentFilename(
-                      updatedSample,
-                      sampleItem.itemNumber
-                    )}`,
-                    content: sampleSupportDoc.toString('base64')
-                  }
-                : undefined
-            ].filter((_) => !isNil(_))
-          });
-        }
-
-        if (sample.ownerEmail) {
-          await mailService.send({
-            templateName: 'SupportDocumentCopyToOwnerTemplate',
-            recipients: [sample.ownerEmail],
-            params: {
-              region: user.region ? Regions[user.region].name : undefined,
-              sampledAt: format(updatedSample.sampledAt, 'dd/MM/yyyy')
-            },
-            attachment: [
-              {
-                name: `${getSupportDocumentFilename(
-                  updatedSample,
-                  sampleItem.itemNumber
-                )}`,
-                content: sampleSupportDoc.toString('base64')
-              }
-            ]
-          });
-        }
-      })
-    );
-  }
-
-  await sampleRepository.update(updatedPartialSample);
-
-  response.status(constants.HTTP_STATUS_OK).send(updatedPartialSample);
-};
-
 const streamToBase64 = async (stream: Readable): Promise<string> => {
   const chunks: any[] = [];
   return new Promise((resolve, reject) => {
@@ -620,6 +367,279 @@ const deleteSample = async (request: Request, response: Response) => {
   response.sendStatus(constants.HTTP_STATUS_NO_CONTENT);
 };
 
+export const sampleRou = {
+  '/samples/:sampleId': {
+    put: async ({ body: sampleUpdate, user }, { sampleId }) => {
+      const sample = await getAndCheckSample(sampleId, user);
+      console.info('Update sample', sample.id, sampleUpdate);
+
+      sampleUpdate.department = await getAndCheckSampleDepartement(
+        sampleUpdate,
+        user
+      );
+
+      if (sample.status !== 'InReview' && sampleUpdate.status === 'InReview') {
+        if (!hasPermission(user, 'restoreSampleToReview')) {
+          throw new UserRoleMissingError();
+        }
+      } else if (!hasPermission(user, 'updateSample')) {
+        throw new UserRoleMissingError();
+      } else if (sample.region !== user.region) {
+        return { status: constants.HTTP_STATUS_FORBIDDEN };
+      }
+
+      const prescription =
+        isProgrammingPlanSample(sampleUpdate) &&
+        !isNil(sampleUpdate.context) &&
+        !isNil(sampleUpdate.matrixKind) &&
+        !isNil(sampleUpdate.stage)
+          ? await prescriptionRepository
+              .findMany({
+                programmingPlanId: sampleUpdate.programmingPlanId,
+                context: sampleUpdate.context as ProgrammingPlanContext,
+                matrixKind: sampleUpdate.matrixKind,
+                stage: sampleUpdate.stage
+              })
+              .then((_) => _?.[0])
+          : undefined;
+
+      const regionalPrescription = prescription
+        ? await regionalPrescriptionRepository.findUnique({
+            prescriptionId: prescription.id,
+            region: sampleUpdate.region
+          })
+        : undefined;
+
+      const prescriptionSubstances = prescription
+        ? await prescriptionSubstanceRepository.findMany(prescription.id)
+        : undefined;
+
+      const prescriptionData: Pick<
+        PartialSample,
+        'prescriptionId' | 'laboratoryId' | 'monoSubstances' | 'multiSubstances'
+      > =
+        isProgrammingPlanSample(sampleUpdate) ||
+        sample.context !== sampleUpdate.context
+          ? {
+              prescriptionId: prescription?.id || null,
+              laboratoryId: regionalPrescription?.laboratoryId || null,
+              monoSubstances:
+                prescriptionSubstances
+                  ?.filter((substance) => substance.analysisMethod === 'Mono')
+                  .map((_) => _.substance) || null,
+              multiSubstances:
+                prescriptionSubstances
+                  ?.filter((substance) => substance.analysisMethod === 'Multi')
+                  .map((_) => _.substance) || null
+            }
+          : sampleUpdate;
+
+      if (
+        sampleUpdate.company?.siret &&
+        sample.company?.siret !== sampleUpdate.company?.siret
+      ) {
+        await companyRepository.upsert(sampleUpdate.company);
+      }
+
+      if (sampleUpdate.items) {
+        await sampleItemRepository.updateMany(sample.id, sampleUpdate.items);
+      }
+
+      if (!isEqual(sample.documentIds, sampleUpdate.documentIds)) {
+        await sampleRepository.updateDocumentIds(
+          sample.id,
+          sampleUpdate.documentIds ?? []
+        );
+      }
+
+      const mustBeSent =
+        sample.status === 'Submitted' && sampleUpdate.status === 'Sent';
+
+      const updatedPartialSample = {
+        ...sample,
+        ...sampleUpdate,
+        ...prescriptionData,
+        lastUpdatedAt: new Date(),
+        sentAt: mustBeSent ? new Date() : sample.sentAt
+      };
+
+      if (mustBeSent) {
+        const updatedSample = Sample.parse(updatedPartialSample);
+        const sampleItems = await sampleItemRepository.findMany(sample.id);
+
+        await Promise.all(
+          sampleItems.map(async (sampleItem) => {
+            const sampleSupportDoc =
+              await generateAndStoreSampleSupportDocument(
+                updatedSample,
+                sampleItems as SampleItem[],
+                sampleItem.itemNumber
+              );
+
+            if (sampleItem.itemNumber === 1) {
+              const laboratory = (await laboratoryRepository.findUnique(
+                updatedSample.laboratoryId as string
+              )) as Laboratory;
+
+              const establishment = {
+                name: Regions[updatedSample.region].establishment.name,
+                fullAddress: [
+                  Regions[updatedSample.region].establishment.additionalAddress,
+                  Regions[updatedSample.region].establishment.street,
+                  `${Regions[updatedSample.region].establishment.postalCode} ${Regions[updatedSample.region].establishment.city}`
+                ]
+                  .filter(Boolean)
+                  .join('\n')
+              };
+
+              const company = {
+                ...updatedSample.company,
+                fullAddress: [
+                  updatedSample.company.address,
+                  `${updatedSample.company.postalCode} ${updatedSample.company.city}`
+                ].join('\n')
+              };
+
+              const substanceToLaboratoryLabel = (
+                substance: SSD2Id
+              ): string => {
+                let laboratoryLabel: string | null = null;
+                if (laboratory.name in laboratoriesConf) {
+                  const laboratoryName = laboratory.name as LaboratoryWithConf;
+                  laboratoryLabel =
+                    Object.entries(
+                      laboratoriesConf[laboratoryName].ssd2IdByLabel
+                    ).find(([_label, value]) => value === substance)?.[0] ??
+                    null;
+                }
+                return laboratoryLabel ?? SSD2IdLabel[substance];
+              };
+
+              const analysisRequestDocs =
+                await generateAndStoreAnalysisRequestDocuments({
+                  ...updatedSample,
+                  ...(sampleItem as SampleItem),
+                  sampler: user,
+                  company,
+                  laboratory,
+                  monoSubstanceLabels: (updatedSample.monoSubstances ?? []).map(
+                    (substance) => substanceToLaboratoryLabel(substance)
+                  ),
+                  multiSubstanceLabels: (
+                    updatedSample.multiSubstances ?? []
+                  ).map((substance) => substanceToLaboratoryLabel(substance)),
+                  reference: [updatedSample.reference, sampleItem?.itemNumber]
+                    .filter(isDefinedAndNotNull)
+                    .join('-'),
+                  sampledAt: format(
+                    updatedSample.sampledAt,
+                    "eeee dd MMMM yyyy à HH'h'mm",
+                    {
+                      locale: fr
+                    }
+                  ),
+                  sampledAtDate: format(updatedSample.sampledAt, 'dd/MM/yyyy', {
+                    locale: fr
+                  }),
+                  sampledAtTime: formatWithTz(updatedSample.sampledAt, 'HH:mm'),
+                  context: ContextLabels[updatedSample.context],
+                  legalContext: LegalContextLabels[updatedSample.legalContext],
+                  stage: StageLabels[updatedSample.stage],
+                  matrixKindLabel: MatrixKindLabels[updatedSample.matrixKind],
+                  matrixLabel: getSampleMatrixLabel(updatedSample),
+                  matrixPart: getMatrixPartLabel(updatedSample) as string,
+                  quantityUnit: sampleItem?.quantityUnit
+                    ? QuantityUnitLabels[sampleItem.quantityUnit]
+                    : '',
+                  cultureKind: getCultureKindLabel(updatedSample) as string,
+                  compliance200263: sampleItem
+                    ? sampleItem.compliance200263
+                      ? 'Respectée'
+                      : 'Non respectée'
+                    : '',
+                  establishment,
+                  department: DepartmentLabels[updatedSample.department]
+                });
+
+              const sampleDocuments = await Promise.all(
+                (updatedSample.documentIds ?? []).map((documentId) =>
+                  documentService.getDocument(documentId)
+                )
+              );
+
+              const sampleAttachments = await Promise.all(
+                sampleDocuments
+                  .filter((document) => document !== undefined)
+                  .map(async (document) => ({
+                    name: document.filename,
+                    content: await streamToBase64(document.file as Readable)
+                  }))
+              );
+
+              await mailService.send({
+                templateName: 'SampleAnalysisRequestTemplate',
+                recipients: laboratory?.emails ?? [],
+                params: {
+                  region: user.region ? Regions[user.region].name : undefined,
+                  userMail: user.email,
+                  sampledAt: format(updatedSample.sampledAt, 'dd/MM/yyyy')
+                },
+                attachment: [
+                  ...sampleAttachments,
+                  ...analysisRequestDocs
+                    .filter((doc) => !isNil(doc.buffer))
+                    .map((doc) => ({
+                      name: doc.filename,
+                      content: Buffer.from(doc.buffer as Buffer).toString(
+                        'base64'
+                      )
+                    })),
+                  sampleSupportDoc
+                    ? {
+                        name: `${getSupportDocumentFilename(
+                          updatedSample,
+                          sampleItem.itemNumber
+                        )}`,
+                        content: sampleSupportDoc.toString('base64')
+                      }
+                    : undefined
+                ].filter((_) => !isNil(_))
+              });
+            }
+
+            if (sample.ownerEmail) {
+              await mailService.send({
+                templateName: 'SupportDocumentCopyToOwnerTemplate',
+                recipients: [sample.ownerEmail],
+                params: {
+                  region: user.region ? Regions[user.region].name : undefined,
+                  sampledAt: format(updatedSample.sampledAt, 'dd/MM/yyyy')
+                },
+                attachment: [
+                  {
+                    name: `${getSupportDocumentFilename(
+                      updatedSample,
+                      sampleItem.itemNumber
+                    )}`,
+                    content: sampleSupportDoc.toString('base64')
+                  }
+                ]
+              });
+            }
+          })
+        );
+      }
+
+      await sampleRepository.update(updatedPartialSample);
+
+      return {
+        status: constants.HTTP_STATUS_OK,
+        response: updatedPartialSample
+      };
+    }
+  }
+} as const satisfies SubRouter;
+
 export default {
   getSample,
   getSampleDocument,
@@ -628,6 +648,5 @@ export default {
   countSamples,
   exportSamples,
   createSample,
-  updateSample,
   deleteSample
 };

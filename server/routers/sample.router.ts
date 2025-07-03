@@ -1,9 +1,6 @@
 import express from 'express';
 import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
-import {
-  PartialSample,
-  PartialSampleToCreate
-} from 'maestro-shared/schema/Sample/Sample';
+import { PartialSampleToCreate } from 'maestro-shared/schema/Sample/Sample';
 import { z } from 'zod/v4';
 import sampleController from '../controllers/sampleController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
@@ -70,14 +67,6 @@ router.post(
   permissionsCheck(['createSample']),
   sampleLocalisationCheck(),
   sampleController.createSample
-);
-router.put(
-  '/:sampleId',
-  validator.validate(uuidParam('sampleId').merge(body(PartialSample))),
-  permissionsCheck(['updateSample', 'restoreSampleToReview']),
-  sampleCheck(),
-  sampleLocalisationCheck(),
-  sampleController.updateSample
 );
 router.delete(
   '/:sampleId',
