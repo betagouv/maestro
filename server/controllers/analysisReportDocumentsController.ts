@@ -16,7 +16,6 @@ export const analysisReportDocumentsRouter = {
 
       return { response: result.reverse() };
     },
-    //FIXME pas de user
     post: async (request, { analysisId }) => {
       const { documentId } = request.body;
 
@@ -26,7 +25,6 @@ export const analysisReportDocumentsRouter = {
         status: constants.HTTP_STATUS_CREATED
       };
     },
-    //FIXME pas de user
     delete: async (request, { analysisId }) => {
       const { documentId } = request.body;
 

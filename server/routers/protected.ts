@@ -2,7 +2,7 @@ import express from 'express';
 import fs from 'fs';
 import { analysisRouter } from '../controllers/analysisController';
 import { analysisReportDocumentsRouter } from '../controllers/analysisReportDocumentsController';
-import { programmingPlanR } from '../controllers/programmingPlanController';
+import { programmingPlanRouter } from '../controllers/programmingPlanController';
 import { jwtCheck, userCheck } from '../middlewares/checks/authCheck';
 import addressRouter from './address.router';
 import companyRouter from './company.router';
@@ -10,7 +10,6 @@ import documentRouter from './document.router';
 import laboratoryRouter from './laboratory.router';
 import notificationRouter from './notification.router';
 import prescriptionRouter from './prescription.router';
-import programmingPlanRouter from './programmingPlan.router';
 import regionalPrescriptionRouter from './regionalPrescription.router';
 import { generateRoutes, SubRouter } from './routes.type';
 import sampleRouter from './sample.router';
@@ -24,7 +23,7 @@ protectedRouter.use(userCheck(true));
 const router = {
   ...analysisRouter,
   ...analysisReportDocumentsRouter,
-  ...programmingPlanR
+  ...programmingPlanRouter
 } as const satisfies Required<SubRouter>;
 
 protectedRouter.use(generateRoutes(router));
@@ -35,7 +34,6 @@ protectedRouter.use('/laboratories', laboratoryRouter);
 protectedRouter.use('/notifications', notificationRouter);
 protectedRouter.use('/prescriptions', prescriptionRouter);
 protectedRouter.use('/prescriptions', regionalPrescriptionRouter);
-protectedRouter.use('/programming-plans', programmingPlanRouter);
 protectedRouter.use('/samples', sampleRouter);
 protectedRouter.use('/users', userRouter);
 

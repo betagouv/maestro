@@ -1,11 +1,21 @@
-import { ZodObject, ZodType } from 'zod/v4';
+import { ZodArray, ZodObject, ZodType } from 'zod/v4';
 import { UserPermission } from '../schema/User/UserPermission';
 import { analysisRoutes } from './analysis.routes';
 import { programmingPlansRoutes } from './programmingPlans.routes';
 
+export const MaestroRoutes = [
+  '/analysis',
+  '/analysis/:analysisId',
+  '/analysis/:analysisId/reportDocuments',
+  '/programming-plans',
+  '/programming-plans/:programmingPlanId',
+  '/programming-plans/:programmingPlanId/regional-status',
+  '/programming-plans/years/:year'
+] as const;
+
 export type ToRoute = {
   query?: ZodObject;
-  body?: ZodObject;
+  body?: ZodObject | ZodArray;
   permissions: UserPermission[];
   response: ZodType;
 };
@@ -16,21 +26,11 @@ type ZodParseUrlParams<url> = url extends `${infer start}/${infer rest}`
     ? { [k in param]: ZodType }
     : Record<never, never>;
 
-export type ZodUrlParams<
-  url,
-  Z = ZodParseUrlParams<url>
-> = keyof Z extends never ? undefined : Z;
+type ZodUrlParams<url, Z = ZodParseUrlParams<url>> = keyof Z extends never
+  ? undefined
+  : Z;
 
 export type RouteMethod = 'get' | 'post' | 'put' | 'delete';
-
-export const MaestroRoutes = [
-  '/analysis',
-  '/analysis/:analysisId',
-  '/analysis/:analysisId/reportDocuments',
-  '/programming-plans',
-  '/programming-plans/:programmingPlanId',
-  '/programming-plans/years/:year'
-] as const;
 
 export type MaestroRoutes = (typeof MaestroRoutes)[number];
 

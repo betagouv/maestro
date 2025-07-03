@@ -1,12 +1,9 @@
-import { Request, Response } from 'express';
-import { AuthenticatedRequest, ProgrammingPlanRequest } from 'express-jwt';
 import { constants } from 'http2';
 import { intersection } from 'lodash-es';
 import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
 import { RegionList, Regions } from 'maestro-shared/referential/Region';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { ProgrammingPlanContextList } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { ProgrammingPlanRegionalStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanRegionalStatus';
 import {
   NextProgrammingPlanStatus,
   ProgrammingPlanStatus,
@@ -24,108 +21,7 @@ import { userRepository } from '../repositories/userRepository';
 import { SubRouter } from '../routers/routes.type';
 import { notificationService } from '../services/notificationService';
 
-const updateRegionalStatus = async (request: Request, response: Response) => {
-  const { user } = request as AuthenticatedRequest;
-  const { programmingPlan } = request as ProgrammingPlanRequest;
-  const programmingPlanRegionalStatusList =
-    request.body as ProgrammingPlanRegionalStatus[];
-
-  console.info(
-    'Update programming plan regional status',
-    programmingPlan.id,
-    programmingPlanRegionalStatusList
-  );
-
-  if (
-    programmingPlanRegionalStatusList.some(
-      (programmingPlanRegionalStatus) =>
-        NextProgrammingPlanStatus[
-          programmingPlan.regionalStatus.find(
-            (_) => _.region === programmingPlanRegionalStatus.region
-          )?.status as ProgrammingPlanStatus
-        ] !== programmingPlanRegionalStatus.status
-    )
-  ) {
-    return response.sendStatus(constants.HTTP_STATUS_BAD_REQUEST);
-  }
-
-  if (
-    hasPermission(user, 'approveProgrammingPlan') &&
-    !hasPermission(user, 'manageProgrammingPlan') &&
-    programmingPlanRegionalStatusList.some(
-      (programmingPlanRegionalStatus) =>
-        programmingPlanRegionalStatus.status !== 'Approved' ||
-        !userRegions(user).includes(programmingPlanRegionalStatus.region)
-    )
-  ) {
-    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
-  }
-
-  await Promise.all(
-    programmingPlanRegionalStatusList.map(
-      async (programmingPlanRegionalStatus) => {
-        if (
-          ['Submitted', 'Validated'].includes(
-            programmingPlanRegionalStatus.status
-          )
-        ) {
-          const regionalCoordinators = await userRepository.findMany({
-            roles: ['RegionalCoordinator'],
-            region: programmingPlanRegionalStatus.region
-          });
-
-          const category =
-            programmingPlanRegionalStatus.status === 'Submitted'
-              ? 'ProgrammingPlanSubmitted'
-              : 'ProgrammingPlanValidated';
-
-          await notificationService.sendNotification(
-            {
-              category,
-              link: AppRouteLinks.ProgrammationByYearRoute.link(
-                programmingPlan.year
-              )
-            },
-            regionalCoordinators,
-            undefined
-          );
-        } else if (programmingPlanRegionalStatus.status === 'Approved') {
-          const nationalCoordinators = await userRepository.findMany({
-            roles: ['NationalCoordinator']
-          });
-
-          await notificationService.sendNotification(
-            {
-              category: 'ProgrammingPlanApproved',
-              link: AppRouteLinks.ProgrammationByYearRoute.link(
-                programmingPlan.year
-              )
-            },
-            nationalCoordinators,
-            {
-              region: Regions[programmingPlanRegionalStatus.region].name
-            }
-          );
-        } else {
-          return response.sendStatus(constants.HTTP_STATUS_BAD_REQUEST);
-        }
-
-        await programmingPlanRepository.updateRegionalStatus(
-          programmingPlan.id,
-          programmingPlanRegionalStatus
-        );
-      }
-    )
-  );
-
-  const updatedProgrammingPlan = await programmingPlanRepository.findUnique(
-    programmingPlan.id
-  );
-
-  response.status(constants.HTTP_STATUS_OK).send(updatedProgrammingPlan);
-};
-
-export const programmingPlanR = {
+export const programmingPlanRouter = {
   '/programming-plans': {
     get: async ({ query: findOptions, user }) => {
       console.info('Find programmingPlans for user', user.id, findOptions);
@@ -235,6 +131,111 @@ export const programmingPlanR = {
       const updatedProgrammingPlan = await programmingPlanRepository.findUnique(
         programmingPlan.id
       );
+
+      return {
+        status: constants.HTTP_STATUS_OK,
+        response: updatedProgrammingPlan
+      };
+    }
+  },
+  '/programming-plans/:programmingPlanId/regional-status': {
+    put: async (
+      { user, body: programmingPlanRegionalStatusList },
+      { programmingPlanId }
+    ) => {
+      const programmingPlan =
+        await getAndCheckProgrammingPlan(programmingPlanId);
+
+      console.info(
+        'Update programming plan regional status',
+        programmingPlanId,
+        programmingPlanRegionalStatusList
+      );
+
+      if (
+        programmingPlanRegionalStatusList.some(
+          (programmingPlanRegionalStatus) =>
+            NextProgrammingPlanStatus[
+              programmingPlan.regionalStatus.find(
+                (_) => _.region === programmingPlanRegionalStatus.region
+              )?.status as ProgrammingPlanStatus
+            ] !== programmingPlanRegionalStatus.status
+        )
+      ) {
+        return { status: constants.HTTP_STATUS_BAD_REQUEST };
+      }
+
+      if (
+        hasPermission(user, 'approveProgrammingPlan') &&
+        !hasPermission(user, 'manageProgrammingPlan') &&
+        programmingPlanRegionalStatusList.some(
+          (programmingPlanRegionalStatus) =>
+            programmingPlanRegionalStatus.status !== 'Approved' ||
+            !userRegions(user).includes(programmingPlanRegionalStatus.region)
+        )
+      ) {
+        return { status: constants.HTTP_STATUS_FORBIDDEN };
+      }
+
+      await Promise.all(
+        programmingPlanRegionalStatusList.map(
+          async (programmingPlanRegionalStatus) => {
+            if (
+              ['Submitted', 'Validated'].includes(
+                programmingPlanRegionalStatus.status
+              )
+            ) {
+              const regionalCoordinators = await userRepository.findMany({
+                roles: ['RegionalCoordinator'],
+                region: programmingPlanRegionalStatus.region
+              });
+
+              const category =
+                programmingPlanRegionalStatus.status === 'Submitted'
+                  ? 'ProgrammingPlanSubmitted'
+                  : 'ProgrammingPlanValidated';
+
+              await notificationService.sendNotification(
+                {
+                  category,
+                  link: AppRouteLinks.ProgrammationByYearRoute.link(
+                    programmingPlan.year
+                  )
+                },
+                regionalCoordinators,
+                undefined
+              );
+            } else if (programmingPlanRegionalStatus.status === 'Approved') {
+              const nationalCoordinators = await userRepository.findMany({
+                roles: ['NationalCoordinator']
+              });
+
+              await notificationService.sendNotification(
+                {
+                  category: 'ProgrammingPlanApproved',
+                  link: AppRouteLinks.ProgrammationByYearRoute.link(
+                    programmingPlan.year
+                  )
+                },
+                nationalCoordinators,
+                {
+                  region: Regions[programmingPlanRegionalStatus.region].name
+                }
+              );
+            } else {
+              return { status: constants.HTTP_STATUS_BAD_REQUEST };
+            }
+
+            await programmingPlanRepository.updateRegionalStatus(
+              programmingPlanId,
+              programmingPlanRegionalStatus
+            );
+          }
+        )
+      );
+
+      const updatedProgrammingPlan =
+        await programmingPlanRepository.findUnique(programmingPlanId);
 
       return {
         status: constants.HTTP_STATUS_OK,
@@ -366,7 +367,3 @@ export const programmingPlanR = {
     }
   }
 } as const satisfies SubRouter;
-
-export default {
-  updateRegionalStatus
-};
