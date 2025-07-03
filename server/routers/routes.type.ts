@@ -1,4 +1,5 @@
 import express, { Request } from 'express';
+import { constants } from 'http2';
 import {
   MaestroRoutes,
   RouteMethod,
@@ -8,7 +9,7 @@ import {
 import { User } from 'maestro-shared/schema/User/User';
 import z, { ZodObject, ZodRawShape, ZodType } from 'zod/v4';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
-import validator, { body, params, query } from '../middlewares/validator';
+import validator, { body, query } from '../middlewares/validator';
 
 type MaestroResponse<
   key extends MaestroRoutes,
@@ -33,19 +34,20 @@ type MaestroRouteMethod<
   method extends keyof (typeof routes)[key]
 > = (
   request: Request<
-    (typeof routes)[key] extends {
-      params: infer P;
-    }
-      ? P extends ZodRawShape
-        ? z.infer<ZodObject<P>>
-        : undefined
-      : undefined,
+    undefined,
     undefined,
     RouteValidator<key, method, 'body'>,
     RouteValidator<key, method, 'query'>
   > & {
     user: User;
+  },
+  params: (typeof routes)[key] extends {
+    params: infer P;
   }
+    ? P extends ZodRawShape
+      ? z.infer<ZodObject<P>>
+      : undefined
+    : undefined
 ) => Promise<
   | { response: MaestroResponse<key, method>; status: number }
   | { status: number }
@@ -77,16 +79,8 @@ export const generateRoutes = (subRouter: SubRouter) => {
         // @ts-expect-error TS7053
         const conf = r[method] as ToRoute;
         let toValidate: null | ZodObject<any> = null;
-        if ('params' in r && r.params !== undefined) {
-          toValidate = params(z.object(r.params));
-        }
         if ('body' in conf && conf.body !== undefined) {
-          const toValidateBody = body(conf.body);
-          if (toValidate === null) {
-            toValidate = toValidateBody;
-          } else {
-            toValidate = toValidate.merge(toValidateBody);
-          }
+          toValidate = body(conf.body);
         }
         if ('query' in conf && conf.query !== undefined) {
           const toValidateQuery = query(conf.query);
@@ -102,8 +96,20 @@ export const generateRoutes = (subRouter: SubRouter) => {
         }
         router[method](route, permissionsCheck(conf.permissions));
         router[method](route, async (request, response) => {
+          let p = {};
+          if ('params' in r && r.params !== undefined) {
+            try {
+              p = z.object(r.params).parse(request.params);
+            } catch (error) {
+              console.error(error);
+              return response
+                .status(constants.HTTP_STATUS_BAD_REQUEST)
+                .json(error);
+            }
+          }
+
           // @ts-expect-error TS2345 Impossible de faire mieux
-          const result = await subRouter[route][method](request);
+          const result = await subRouter[route][method](request, p);
 
           if ('status' in result && !('response' in result)) {
             response.sendStatus(result.status);

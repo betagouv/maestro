@@ -127,10 +127,7 @@ const updateRegionalStatus = async (request: Request, response: Response) => {
 
 export const programmingPlanR = {
   '/programming-plans': {
-    get: async (request) => {
-      const user = request.user;
-      const findOptions = request.query;
-
+    get: async ({ query: findOptions, user }) => {
       console.info('Find programmingPlans for user', user.id, findOptions);
 
       const userStatusAuthorized = Object.entries(
@@ -159,10 +156,7 @@ export const programmingPlanR = {
     }
   },
   '/programming-plans/:programmingPlanId': {
-    get: async (request) => {
-      const user = request.user;
-      const programmingPlanId = request.params.programmingPlanId;
-
+    get: async ({ user }, { programmingPlanId }) => {
       console.info('Get programming plan', programmingPlanId);
 
       const programmingPlan =
@@ -201,12 +195,10 @@ export const programmingPlanR = {
         }
       };
     },
-    put: async (request) => {
-      const user = request.user;
-      const programmingPlan = await getAndCheckProgrammingPlan(
-        request.params.programmingPlanId
-      );
-      const newProgrammingPlanStatus = request.body.status;
+    put: async ({ user, body }, { programmingPlanId }) => {
+      const programmingPlan =
+        await getAndCheckProgrammingPlan(programmingPlanId);
+      const newProgrammingPlanStatus = body.status;
 
       console.info(
         'Update programming plan status',
@@ -251,10 +243,7 @@ export const programmingPlanR = {
     }
   },
   '/programming-plans/years/:year': {
-    get: async (request) => {
-      const user = request.user;
-      const year = request.params.year;
-
+    get: async ({ user }, { year }) => {
       console.info('Get programming plan for year', year);
 
       const programmingPlan = await programmingPlanRepository.findOne(
@@ -291,10 +280,7 @@ export const programmingPlanR = {
         }
       };
     },
-    post: async (request) => {
-      const user = request.user;
-      const year = request.params.year;
-
+    post: async ({ user }, { year }) => {
       const previousProgrammingPlan = await programmingPlanRepository.findOne(
         year - 1,
         user.programmingPlanKinds

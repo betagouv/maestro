@@ -5,9 +5,7 @@ import { SubRouter } from '../routers/routes.type';
 
 export const analysisReportDocumentsRouter = {
   '/analysis/:analysisId/reportDocuments': {
-    get: async (request) => {
-      const { analysisId } = request.params;
-
+    get: async (_request, { analysisId }) => {
       const analysis = await analysisRepository.findUnique(analysisId);
       if (!analysis) {
         return { status: constants.HTTP_STATUS_NOT_FOUND };
@@ -18,8 +16,8 @@ export const analysisReportDocumentsRouter = {
 
       return { response: result.reverse() };
     },
-    post: async (request) => {
-      const { analysisId } = request.params;
+    //FIXME pas de user
+    post: async (request, { analysisId }) => {
       const { documentId } = request.body;
 
       await analysisReportDocumentsRepository.insert(analysisId, documentId);
@@ -28,8 +26,8 @@ export const analysisReportDocumentsRouter = {
         status: constants.HTTP_STATUS_CREATED
       };
     },
-    delete: async (request) => {
-      const { analysisId } = request.params;
+    //FIXME pas de user
+    delete: async (request, { analysisId }) => {
       const { documentId } = request.body;
 
       await analysisReportDocumentsRepository.deleteOne(analysisId, documentId);
