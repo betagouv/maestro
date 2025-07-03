@@ -33,11 +33,13 @@ const programmingPlan = {
 };
 const prescription1 = genPrescription({
   programmingPlanId: programmingPlan.id,
-  context: 'Control'
+  context: 'Control',
+  matrixKind: 'A0DEH'
 });
 const prescription2 = genPrescription({
   programmingPlanId: programmingPlan.id,
-  context: 'Control'
+  context: 'Control',
+  matrixKind: 'A0DQS'
 });
 
 export const ForNationalCoordinator: Story = {

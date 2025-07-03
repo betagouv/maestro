@@ -34,15 +34,18 @@ const programmingPlan = {
 };
 const prescription1 = genPrescription({
   programmingPlanId: programmingPlan.id,
-  context: 'Control'
+  context: 'Control',
+  matrixKind: 'A0DEH'
 });
 const prescription2 = genPrescription({
   programmingPlanId: programmingPlan.id,
-  context: 'Control'
+  context: 'Control',
+  matrixKind: 'A0DQS'
 });
 const prescription3 = genPrescription({
   programmingPlanId: programmingPlan.id,
-  context: 'Control'
+  context: 'Control',
+  matrixKind: 'A00FX'
 });
 
 const mockApiClient = getMockApi({
