@@ -274,7 +274,7 @@ const updateSample = async (request: Request, response: Response) => {
     ? await prescriptionSubstanceRepository.findMany(prescription.id)
     : undefined;
 
-  const prescriptionData =
+  const prescriptionData = (
     isProgrammingPlanSample(sampleUpdate) ||
     sample.context !== sampleUpdate.context
       ? {
@@ -289,7 +289,11 @@ const updateSample = async (request: Request, response: Response) => {
               ?.filter((substance) => substance.analysisMethod === 'Multi')
               .map((_) => _.substance) || null
         }
-      : updateSample;
+      : sampleUpdate
+  ) satisfies Pick<
+    PartialSample,
+    'prescriptionId' | 'laboratoryId' | 'monoSubstances' | 'multiSubstances'
+  >;
 
   if (
     sampleUpdate.company?.siret &&
