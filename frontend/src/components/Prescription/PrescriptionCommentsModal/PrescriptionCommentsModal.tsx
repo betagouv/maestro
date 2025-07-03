@@ -138,7 +138,7 @@ const PrescriptionCommentsModal = ({
         className="prescription-comments-modal"
       >
         {prescriptionCommentsData && (
-          <>
+          <div data-testid="prescription-comments-modal">
             {(prescriptionCommentsData?.viewBy === 'MatrixKind'
               ? prescriptionCommentsData.regionalComments
               : prescriptionCommentsData.matrixKindsComments
@@ -233,7 +233,7 @@ const PrescriptionCommentsModal = ({
                   </Button>
                 </div>
               )}
-          </>
+          </div>
         )}
       </prescriptionCommentsModal.Component>
     </>

@@ -21,7 +21,7 @@ import { SampleItem } from '../schema/Sample/SampleItem';
 import { CompanyFixture, genCompany } from './companyFixtures';
 import { LaboratoryFixture } from './laboratoryFixtures';
 import { PrescriptionFixture } from './prescriptionFixtures';
-import { ValidatedProgrammingPlanFixture } from './programmingPlanFixtures';
+import { PPVValidatedProgrammingPlanFixture } from './programmingPlanFixtures';
 import { oneOf } from './testFixtures';
 import {
   Region1Fixture,
@@ -132,8 +132,8 @@ export const Sample11Fixture = genCreatedPartialSample({
     x: 49.788805,
     y: 4.731044
   },
-  programmingPlanId: ValidatedProgrammingPlanFixture.id,
-  context: ValidatedProgrammingPlanFixture.contexts[0],
+  programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
+  context: PPVValidatedProgrammingPlanFixture.contexts[0],
   legalContext: 'A',
   resytalId: '23-123456',
   company: CompanyFixture,
@@ -147,7 +147,7 @@ export const Sample11Fixture = genCreatedPartialSample({
   matrix: 'A00GZ',
   stage: PrescriptionFixture.stages[0],
   specificData: {
-    programmingPlanKind: ValidatedProgrammingPlanFixture.kinds[0],
+    programmingPlanKind: PPVValidatedProgrammingPlanFixture.kinds[0],
     matrixPart: 'PART1',
     cultureKind: 'PD07A',
     releaseControl: false
@@ -158,7 +158,7 @@ export const Sample11Fixture = genCreatedPartialSample({
 });
 export const Sample12Fixture = genCreatedPartialSample({
   sampler: Sampler1Fixture,
-  programmingPlanId: ValidatedProgrammingPlanFixture.id,
+  programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
   context: 'Control',
   company: CompanyFixture,
   id: '11111111-2222-2222-2222-222222222222',
@@ -169,7 +169,7 @@ export const Sample12Fixture = genCreatedPartialSample({
 });
 export const Sample13Fixture = genCreatedPartialSample({
   sampler: Sampler1Fixture,
-  programmingPlanId: ValidatedProgrammingPlanFixture.id,
+  programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
   context: 'Control',
   company: CompanyFixture,
   id: '11111111-3333-3333-3333-333333333333',
@@ -180,7 +180,7 @@ export const Sample13Fixture = genCreatedPartialSample({
 });
 export const Sample2Fixture = genCreatedPartialSample({
   sampler: Sampler2Fixture,
-  programmingPlanId: ValidatedProgrammingPlanFixture.id,
+  programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
   context: 'Control',
   company: CompanyFixture,
   id: '22222222-2222-2222-2222-222222222222',

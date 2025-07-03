@@ -1,6 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { Region, Regions } from 'maestro-shared/referential/Region';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
+import { PPVValidatedProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
 import { genCreatedSample } from 'maestro-shared/test/sampleFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
 import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
@@ -13,7 +14,6 @@ import {
 } from '../../../repositories/sampleRepository';
 import { Users } from '../../../repositories/userRepository';
 import { DummyLaboratoryIds } from './002-laboratories';
-import { ppvValidatedProgrammingPlanId } from './003-programming-plans';
 import {
   abricotsEtSimilaires,
   avoineEtSimilaires,
@@ -26,7 +26,7 @@ import {
 
 export const seed = async function () {
   const validatedProgrammingPlan = await ProgrammingPlans()
-    .where({ id: ppvValidatedProgrammingPlanId })
+    .where({ id: PPVValidatedProgrammingPlanFixture.id })
     .first();
 
   const sampler = await Users()

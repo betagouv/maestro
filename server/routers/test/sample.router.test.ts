@@ -26,7 +26,7 @@ import { tokenProvider } from '../../test/testUtils';
 import { fakerFR } from '@faker-js/faker';
 import { User } from 'maestro-shared/schema/User/User';
 import { CompanyFixture } from 'maestro-shared/test/companyFixtures';
-import { ValidatedProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
+import { PPVValidatedProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   AdminFixture,
   NationalCoordinator,
@@ -49,7 +49,7 @@ describe('Sample router', () => {
   const { app } = createServer();
 
   const sample = genSampleContextData({
-    programmingPlanId: ValidatedProgrammingPlanFixture.id,
+    programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
     sampler: RegionalCoordinator
   });
 
@@ -193,7 +193,7 @@ describe('Sample router', () => {
         const res = await request(app)
           .get(
             testRoute({
-              programmingPlanId: ValidatedProgrammingPlanFixture.id,
+              programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
               status: 'DraftMatrix'
             })
           )
@@ -222,7 +222,7 @@ describe('Sample router', () => {
         const res = await request(app)
           .get(
             testRoute({
-              programmingPlanId: ValidatedProgrammingPlanFixture.id,
+              programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
               status: 'DraftMatrix,Draft'
             })
           )
@@ -277,7 +277,7 @@ describe('Sample router', () => {
         const res = await request(app)
           .get(
             testRoute({
-              programmingPlanId: ValidatedProgrammingPlanFixture.id,
+              programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
               status: 'DraftMatrix'
             })
           )
@@ -297,7 +297,7 @@ describe('Sample router', () => {
         const res = await request(app)
           .get(
             testRoute({
-              programmingPlanId: ValidatedProgrammingPlanFixture.id,
+              programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
               status: 'DraftMatrix,Draft'
             })
           )
@@ -715,7 +715,7 @@ describe('Sample router', () => {
               id: sampleId,
               sampler: user,
               region: user.region ?? undefined,
-              programmingPlanId: ValidatedProgrammingPlanFixture.id,
+              programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
               company: CompanyFixture
             })
           )

@@ -10,7 +10,7 @@ import { PrescriptionSubstance } from '../schema/Prescription/PrescriptionSubsta
 import { ProgrammingPlanContextList } from '../schema/ProgrammingPlan/Context';
 import { RegionalPrescription } from '../schema/RegionalPrescription/RegionalPrescription';
 import { LaboratoryFixture } from './laboratoryFixtures';
-import { ValidatedProgrammingPlanFixture } from './programmingPlanFixtures';
+import { PPVValidatedProgrammingPlanFixture } from './programmingPlanFixtures';
 import { oneOf } from './testFixtures';
 
 export const genPrescription = (
@@ -48,9 +48,9 @@ export const genPrescriptionSubstance = (
 
 export const PrescriptionFixture = genPrescription({
   id: '11111111-1111-1111-1111-111111111111',
-  programmingPlanId: ValidatedProgrammingPlanFixture.id,
-  programmingPlanKind: ValidatedProgrammingPlanFixture.kinds[0],
-  context: ValidatedProgrammingPlanFixture.contexts[0],
+  programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
+  programmingPlanKind: PPVValidatedProgrammingPlanFixture.kinds[0],
+  context: PPVValidatedProgrammingPlanFixture.contexts[0],
   matrixKind: 'A00GY',
   stages: StageList
 });

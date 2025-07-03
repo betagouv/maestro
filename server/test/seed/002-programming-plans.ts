@@ -1,4 +1,4 @@
-import { ValidatedProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
+import { PPVValidatedProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   formatProgrammingPlan,
   ProgrammingPlanRegionalStatus,
@@ -7,14 +7,14 @@ import {
 
 export const seed = async (): Promise<void> => {
   await ProgrammingPlans().insert(
-    formatProgrammingPlan(ValidatedProgrammingPlanFixture)
+    formatProgrammingPlan(PPVValidatedProgrammingPlanFixture)
   );
 
   await Promise.all(
-    ValidatedProgrammingPlanFixture.regionalStatus.map((regionalStatus) =>
+    PPVValidatedProgrammingPlanFixture.regionalStatus.map((regionalStatus) =>
       ProgrammingPlanRegionalStatus().insert({
         ...regionalStatus,
-        programmingPlanId: ValidatedProgrammingPlanFixture.id
+        programmingPlanId: PPVValidatedProgrammingPlanFixture.id
       })
     )
   );

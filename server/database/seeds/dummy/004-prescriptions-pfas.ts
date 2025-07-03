@@ -1,15 +1,15 @@
 import { RegionList } from 'maestro-shared/referential/Region';
 import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
+import { PFASValidatedProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
 import { Prescriptions } from '../../../repositories/prescriptionRepository';
 import { ProgrammingPlans } from '../../../repositories/programmingPlanRepository';
 import { RegionalPrescriptions } from '../../../repositories/regionalPrescriptionRepository';
 import { DummyLaboratoryIds } from './002-laboratories';
-import { pfasValidatedProgrammingPlanId } from './003-programming-plans';
 
 const bovin = genPrescription({
   id: '1ac599c4-1241-445e-a4eb-09d353810e10',
-  programmingPlanId: pfasValidatedProgrammingPlanId,
+  programmingPlanId: PFASValidatedProgrammingPlanFixture.id,
   programmingPlanKind: 'PFAS_MEAT',
   context: 'Control',
   matrixKind: 'A01QX',
@@ -17,7 +17,7 @@ const bovin = genPrescription({
 });
 const caprin = genPrescription({
   id: '2f133d43-c18d-4c15-bb78-22afa128ccfc',
-  programmingPlanId: pfasValidatedProgrammingPlanId,
+  programmingPlanId: PFASValidatedProgrammingPlanFixture.id,
   programmingPlanKind: 'PFAS_MEAT',
   context: 'Control',
   matrixKind: 'A01RL',
@@ -25,7 +25,7 @@ const caprin = genPrescription({
 });
 const ovin = genPrescription({
   id: 'f3949b9e-1722-4e53-b4c1-758916560817',
-  programmingPlanId: pfasValidatedProgrammingPlanId,
+  programmingPlanId: PFASValidatedProgrammingPlanFixture.id,
   programmingPlanKind: 'PFAS_MEAT',
   context: 'Control',
   matrixKind: 'A01RJ',
@@ -33,7 +33,7 @@ const ovin = genPrescription({
 });
 const porcin = genPrescription({
   id: 'a9229604-17ed-445b-b791-5e460abc5ccb',
-  programmingPlanId: pfasValidatedProgrammingPlanId,
+  programmingPlanId: PFASValidatedProgrammingPlanFixture.id,
   programmingPlanKind: 'PFAS_MEAT',
   context: 'Control',
   matrixKind: 'A01RG',
@@ -41,7 +41,7 @@ const porcin = genPrescription({
 });
 const volaille = genPrescription({
   id: '3489e7d2-fd2d-4a66-873d-cab4dc81b89a',
-  programmingPlanId: pfasValidatedProgrammingPlanId,
+  programmingPlanId: PFASValidatedProgrammingPlanFixture.id,
   programmingPlanKind: 'PFAS_MEAT',
   context: 'Control',
   matrixKind: 'A01SN',
@@ -49,7 +49,7 @@ const volaille = genPrescription({
 });
 const oeufs = genPrescription({
   id: '7a6a847e-f2d1-472d-a7c9-9ad56e65e295',
-  programmingPlanId: pfasValidatedProgrammingPlanId,
+  programmingPlanId: PFASValidatedProgrammingPlanFixture.id,
   programmingPlanKind: 'PFAS_EGGS',
   context: 'Control',
   matrixKind: 'A031E',
@@ -58,7 +58,7 @@ const oeufs = genPrescription({
 
 export const seed = async function () {
   const validatedProgrammingPlan = await ProgrammingPlans()
-    .where({ id: pfasValidatedProgrammingPlanId })
+    .where({ id: PFASValidatedProgrammingPlanFixture.id })
     .first();
 
   if (!validatedProgrammingPlan) {

@@ -5,20 +5,18 @@ import {
   genRegionalPrescription
 } from 'maestro-shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
-import { genCreatedPartialSample } from 'maestro-shared/test/sampleFixtures';
 import {
   genAuthUser,
   NationalCoordinator,
-  RegionalCoordinator,
-  Sampler1Fixture
+  RegionalCoordinator
 } from 'maestro-shared/test/userFixtures';
 import { expect, userEvent, within } from 'storybook/test';
-import { AuthenticatedAppRoutes } from '../../AppRoutes';
-import { getMockApi } from '../../services/mockApiClient';
-import ProgrammingPlanView from './ProgrammingPlanView';
+import { AuthenticatedAppRoutes } from '../../../AppRoutes';
+import { getMockApi } from '../../../services/mockApiClient';
+import ProgrammingPlanView from '../ProgrammingPlanView';
 
 const meta = {
-  title: 'Views/ProgrammingPlanView',
+  title: 'Views/ProgrammingPlanView/ValidatedProgrammingPlan',
   component: ProgrammingPlanView
 } satisfies Meta<typeof ProgrammingPlanView>;
 
@@ -26,25 +24,25 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const programmingPlan = {
-  ...genProgrammingPlan(),
-  status: 'InProgress',
-  statusDrom: 'InProgress'
+  ...genProgrammingPlan({
+    regionalStatus: RegionList.map((region) => ({
+      region,
+      status: 'Validated'
+    }))
+  })
 };
 const prescription1 = genPrescription({
   programmingPlanId: programmingPlan.id,
-  context: 'Control'
+  context: 'Control',
+  matrixKind: 'A0DEH'
 });
 const prescription2 = genPrescription({
   programmingPlanId: programmingPlan.id,
-  context: 'Control'
-});
-const sample = genCreatedPartialSample({
-  sampler: Sampler1Fixture,
-  programmingPlanId: programmingPlan.id,
-  context: 'Control'
+  context: 'Control',
+  matrixKind: 'A0DQS'
 });
 
-export const ProgrammingPlanViewForNationalCoordinator: Story = {
+export const ForNationalCoordinator: Story = {
   parameters: {
     preloadedState: {
       auth: { authUser: genAuthUser(NationalCoordinator) },
@@ -54,8 +52,6 @@ export const ProgrammingPlanViewForNationalCoordinator: Story = {
       `${AuthenticatedAppRoutes.SamplesByYearRoute.link(programmingPlan.year)}/?context=Control`
     ],
     apiClient: getMockApi({
-      useGetSampleQuery: { data: sample },
-      useFindProgrammingPlansQuery: { data: [programmingPlan] },
       useFindPrescriptionsQuery: { data: [prescription1, prescription2] },
       useFindRegionalPrescriptionsQuery: {
         data: RegionList.flatMap((region) => [
@@ -99,7 +95,7 @@ export const ProgrammingPlanViewForNationalCoordinator: Story = {
   }
 };
 
-export const ProgrammingPlanViewForRegionalCoordinator: Story = {
+export const ForRegionalCoordinator: Story = {
   parameters: {
     preloadedState: {
       auth: { authUser: genAuthUser(RegionalCoordinator) },
@@ -109,7 +105,6 @@ export const ProgrammingPlanViewForRegionalCoordinator: Story = {
       `${AuthenticatedAppRoutes.SamplesByYearRoute.link(programmingPlan.year)}/?context=Control`
     ],
     apiClient: getMockApi({
-      useGetSampleQuery: { data: sample },
       useFindProgrammingPlansQuery: { data: [programmingPlan] },
       useFindPrescriptionsQuery: { data: [prescription1, prescription2] },
       useFindRegionalPrescriptionsQuery: {
