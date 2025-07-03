@@ -3,6 +3,7 @@ import fs from 'fs';
 import { analysisRouter } from '../controllers/analysisController';
 import { analysisReportDocumentsRouter } from '../controllers/analysisReportDocumentsController';
 import { programmingPlanRouter } from '../controllers/programmingPlanController';
+import { sampleRou } from '../controllers/sampleController';
 import { jwtCheck, userCheck } from '../middlewares/checks/authCheck';
 import addressRouter from './address.router';
 import companyRouter from './company.router';
@@ -23,7 +24,8 @@ protectedRouter.use(userCheck(true));
 const router = {
   ...analysisRouter,
   ...analysisReportDocumentsRouter,
-  ...programmingPlanRouter
+  ...programmingPlanRouter,
+  ...sampleRou
 } as const satisfies Required<SubRouter>;
 
 protectedRouter.use(generateRoutes(router));
