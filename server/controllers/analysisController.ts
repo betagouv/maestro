@@ -23,10 +23,7 @@ export const analysisRouter = {
 
       return { response: analysis };
     },
-    post: async (request) => {
-      const { user } = request;
-      const analysisToCreate = request.body;
-
+    post: async ({ user, body: analysisToCreate }) => {
       const sample = await sampleRepository.findUnique(
         analysisToCreate.sampleId
       );
@@ -58,11 +55,7 @@ export const analysisRouter = {
     }
   },
   '/analysis/:analysisId': {
-    put: async (request) => {
-      const { user } = request;
-      const analysisId = request.params.analysisId;
-      const analysisUpdate = request.body;
-
+    put: async ({ user, body: analysisUpdate }, { analysisId }) => {
       console.info('Update analysis', analysisUpdate);
 
       const analysis = await analysisRepository.findUnique(analysisId);

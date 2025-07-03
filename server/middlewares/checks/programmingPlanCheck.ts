@@ -9,14 +9,18 @@ export const programmingPlanCheck =
       request.query?.programmingPlanId ||
       request.body?.programmingPlanId;
 
-    const programmingPlan =
-      await programmingPlanRepository.findUnique(programmingPlanId);
-
-    if (!programmingPlan) {
-      throw new ProgrammingPlanMissingError(programmingPlanId);
-    }
-
-    request.programmingPlan = programmingPlan;
+    request.programmingPlan =
+      await getAndCheckProgrammingPlan(programmingPlanId);
 
     next();
   };
+export const getAndCheckProgrammingPlan = async (programmingPlanId: string) => {
+  const programmingPlan =
+    await programmingPlanRepository.findUnique(programmingPlanId);
+
+  if (!programmingPlan) {
+    throw new ProgrammingPlanMissingError(programmingPlanId);
+  }
+
+  return programmingPlan;
+};
