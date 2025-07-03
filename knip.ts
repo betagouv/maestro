@@ -8,7 +8,7 @@ export default {
     '@gouvfr/dsfr',
     'lint-staged'
   ],
-  ignoreBinaries: ['concurrently', 'magenta,blue', 'playwright'],
+  ignoreBinaries: ['playwright'],
   workspaces: {
     server: {
       ignoreDependencies: [
@@ -23,6 +23,7 @@ export default {
       ignoreDependencies: [
         'geojson',
         'playwright',
+        '@vitest/coverage-v8',
         //Pas normal, ce package n'est pas utilisé mais on utilise plusieurs packages de celui-ci
         'workbox-webpack-plugin',
         //Utilisé de façon indirecte par fetch-intercept

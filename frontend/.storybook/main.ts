@@ -11,7 +11,7 @@ function getAbsolutePath(value: string): any {
 }
 const config: StorybookConfig = {
   stories: ['../src/**/*.stories.tsx'],
-  addons: [],
+  addons: [getAbsolutePath('@storybook/addon-vitest')],
   framework: {
     name: getAbsolutePath('@storybook/react-vite'),
     options: {}
@@ -19,15 +19,6 @@ const config: StorybookConfig = {
   core: {
     disableWhatsNewNotifications: true,
     enableCrashReports: false
-  },
-  async viteFinal(config) {
-    if (process.env.REACT_APP_MODE === 'test') {
-      return config;
-    }
-    const { mergeConfig } = await import('vite');
-    return mergeConfig(config, {
-      base: '/storybook'
-    });
   }
 };
 export default config;

@@ -1,4 +1,4 @@
-/* eslint-disable no-restricted-globals */
+/* eslint-env serviceworker */
 
 // This service worker can be customized!
 // See https://developers.google.com/web/tools/workbox/modules
@@ -57,7 +57,7 @@ registerRoute(
     // Return true to signal that we want to use the handler.
     return true;
   },
-  createHandlerBoundToURL(process.env.REACT_APP_PUBLIC_URL + '/index.html')
+  createHandlerBoundToURL(self.location.origin + '/index.html')
 );
 
 registerRoute(

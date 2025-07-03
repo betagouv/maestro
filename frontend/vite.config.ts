@@ -1,38 +1,33 @@
+import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
 import react from '@vitejs/plugin-react';
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
-import {
-  createFilter,
-  defineConfig,
-  loadEnv,
-  Plugin,
-  transformWithEsbuild
-} from 'vite';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { defineConfig, loadEnv } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import RandomSeed from '../test/vitest-random-seed';
 
-// https://vitejs.dev/config/
+const dirname =
+  typeof __dirname !== 'undefined'
+    ? __dirname
+    : path.dirname(fileURLToPath(import.meta.url));
+
 export default defineConfig(({ mode }) => {
-  setEnv(mode);
+  const env = loadEnv(mode, process.cwd());
+
   return {
-    server: {
-      host: '0.0.0.0'
-    },
     base: '/',
+    server: {
+      host: '0.0.0.0',
+      port: parseInt(env.VITE_PORT || '3000', 10),
+      open: true
+    },
     preview: {
       port: 3000
     },
     plugins: [
-      RandomSeed(),
       react(),
       tsconfigPaths(),
-      envPlugin(),
-      devServerPlugin(),
-      sourcemapPlugin(),
-      importPrefixPlugin(),
-      htmlPlugin(mode),
-      svgrPlugin(),
       VitePWA({
         injectRegister: 'auto',
         registerType: 'autoUpdate',
@@ -47,163 +42,39 @@ export default defineConfig(({ mode }) => {
           maximumFileSizeToCacheInBytes: 5 * 1024 * 1024
         }
       })
-    ]
+    ],
+    test: {
+      projects: [
+        {
+          name: 'unit',
+          include: ['test/**/*.test.ts?(x)', 'src/**/*.test.ts?(x)'],
+          environment: 'jsdom',
+          setupFiles: ['./vitest.setup.ts']
+        },
+        {
+          name: 'storybook',
+          extends: true,
+          optimizeDeps: {
+            include: ['react/jsx-dev-runtime']
+          },
+          plugins: [
+            RandomSeed(),
+            react(),
+            tsconfigPaths(),
+            storybookTest({ configDir: path.join(dirname, '.storybook') })
+          ],
+          test: {
+            name: 'storybook/test',
+            browser: {
+              enabled: true,
+              headless: true,
+              provider: 'playwright',
+              instances: [{ browser: 'chromium' }]
+            },
+            setupFiles: ['.storybook/vitest.setup.ts']
+          }
+        }
+      ]
+    }
   };
 });
-
-function setEnv(mode: string) {
-  Object.assign(
-    process.env,
-    loadEnv(mode, '.', ['REACT_APP_', 'NODE_ENV', 'PUBLIC_URL'])
-  );
-  process.env.NODE_ENV ||= mode;
-  const { homepage } = JSON.parse(readFileSync('package.json', 'utf-8'));
-  process.env.PUBLIC_URL ||= homepage
-    ? `${
-        homepage.startsWith('http') || homepage.startsWith('/')
-          ? homepage
-          : `/${homepage}`
-      }`.replace(/\/$/, '')
-    : '';
-}
-
-// Expose `process.env` environment variables to your client code
-// Migration guide: Follow the guide below to replace process.env with import.meta.env in your app, you may also need to rename your environment variable to a name that begins with VITE_ instead of REACT_APP_
-// https://vitejs.dev/guide/env-and-mode.html#env-variables
-function envPlugin(): Plugin {
-  return {
-    name: 'env-plugin',
-    config(_, { mode }) {
-      const env = loadEnv(mode, '.', ['REACT_APP_', 'NODE_ENV', 'PUBLIC_URL']);
-      return {
-        define: Object.fromEntries(
-          Object.entries(env).map(([key, value]) => [
-            `process.env.${key}`,
-            JSON.stringify(value)
-          ])
-        )
-      };
-    }
-  };
-}
-
-// Setup HOST, SSL, PORT
-// Migration guide: Follow the guides below
-// https://vitejs.dev/config/server-options.html#server-host
-// https://vitejs.dev/config/server-options.html#server-https
-// https://vitejs.dev/config/server-options.html#server-port
-function devServerPlugin(): Plugin {
-  return {
-    name: 'dev-server-plugin',
-    config(_, { mode }) {
-      const { HOST, PORT, HTTPS, SSL_CRT_FILE, SSL_KEY_FILE } = loadEnv(
-        mode,
-        '.',
-        ['HOST', 'PORT', 'HTTPS', 'SSL_CRT_FILE', 'SSL_KEY_FILE']
-      );
-      const https = HTTPS === 'true';
-      return {
-        server: {
-          host: HOST || '0.0.0.0',
-          port: parseInt(PORT || '3000', 10),
-          open: true,
-          ...(https &&
-            SSL_CRT_FILE &&
-            SSL_KEY_FILE && {
-              https: {
-                cert: readFileSync(resolve(SSL_CRT_FILE)),
-                key: readFileSync(resolve(SSL_KEY_FILE))
-              }
-            })
-        }
-      };
-    }
-  };
-}
-
-// Migration guide: Follow the guide below
-// https://vitejs.dev/config/build-options.html#build-sourcemap
-function sourcemapPlugin(): Plugin {
-  return {
-    name: 'sourcemap-plugin',
-    config(_, { mode }) {
-      const { GENERATE_SOURCEMAP } = loadEnv(mode, '.', ['GENERATE_SOURCEMAP']);
-      return {
-        build: {
-          sourcemap: GENERATE_SOURCEMAP === 'true'
-        }
-      };
-    }
-  };
-}
-
-// To resolve modules from node_modules, you can prefix paths with ~
-// https://create-react-app.dev/docs/adding-a-sass-stylesheet
-// Migration guide: Follow the guide below
-// https://vitejs.dev/config/shared-options.html#resolve-alias
-function importPrefixPlugin(): Plugin {
-  return {
-    name: 'import-prefix-plugin',
-    config() {
-      return {
-        resolve: {
-          alias: [{ find: /^~([^/])/, replacement: '$1' }]
-        }
-      };
-    }
-  };
-}
-
-// In Create React App, SVGs can be imported directly as React components. This is achieved by svgr libraries.
-// https://create-react-app.dev/docs/adding-images-fonts-and-files/#adding-svgs
-function svgrPlugin(): Plugin {
-  const filter = createFilter('**/*.svg');
-  const postfixRE = /[?#].*$/s;
-
-  return {
-    name: 'svgr-plugin',
-    async transform(code, id) {
-      if (filter(id)) {
-        const { transform } = await import('@svgr/core');
-        const { default: jsx } = await import('@svgr/plugin-jsx');
-
-        const filePath = id.replace(postfixRE, '');
-        const svgCode = readFileSync(filePath, 'utf8');
-
-        const componentCode = await transform(svgCode, undefined, {
-          filePath,
-          caller: {
-            previousExport: code,
-            defaultPlugins: [jsx]
-          }
-        });
-
-        const res = await transformWithEsbuild(componentCode, id, {
-          loader: 'jsx'
-        });
-
-        return {
-          code: res.code,
-          map: null
-        };
-      }
-    }
-  };
-}
-
-// Replace %ENV_VARIABLES% in index.html
-// https://vitejs.dev/guide/api-plugin.html#transformindexhtml
-// Migration guide: Follow the guide below, you may need to rename your environment variable to a name that begins with VITE_ instead of REACT_APP_
-// https://vitejs.dev/guide/env-and-mode.html#html-env-replacement
-function htmlPlugin(mode: string): Plugin {
-  const env = loadEnv(mode, '.', ['REACT_APP_', 'NODE_ENV', 'PUBLIC_URL']);
-  return {
-    name: 'html-plugin',
-    transformIndexHtml: {
-      order: 'pre',
-      handler(html) {
-        return html.replace(/%(.*?)%/g, (match, p1) => env[p1] ?? match);
-      }
-    }
-  };
-}
