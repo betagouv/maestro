@@ -158,5 +158,25 @@ export const ForRegionalCoordinator: Story = {
     await expect(
       canvas.queryByTestId('add-matrix-button')
     ).not.toBeInTheDocument();
+
+    const card1 = canvas.getByTestId(`card-${prescription1.matrixKind}`);
+    await expect(card1).toBeInTheDocument();
+    await expect(within(card1).getByText('2 commentaires')).toBeInTheDocument();
+
+    const card2 = canvas.getByTestId(`card-${prescription2.matrixKind}`);
+    await expect(card2).toBeInTheDocument();
+    await expect(within(card2).getByText('1 commentaire')).toBeInTheDocument();
+
+    const card3 = canvas.getByTestId(`card-${prescription3.matrixKind}`);
+    await expect(card3).toBeInTheDocument();
+    await expect(
+      within(card3).getByText('Échanger avec le coordinateur national')
+    ).toBeInTheDocument();
+
+    await userEvent.click(
+      within(card3).getByText('Échanger avec le coordinateur national')
+    );
+    const commentModal = canvas.getByTestId('prescription-comments-modal');
+    await expect(commentModal).toBeInTheDocument();
   }
 };
