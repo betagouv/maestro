@@ -368,7 +368,7 @@ describe('ProgrammingPlan router', () => {
 
     test('should fail if the programmingPlan does not exist', async () => {
       await request(app)
-        .get(testRoute('2025'))
+        .get(testRoute(String(new Date().getFullYear() + 10)))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
