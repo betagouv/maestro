@@ -341,6 +341,20 @@ const generateAndStoreAnalysisRequestDocuments = async (
 };
 
 export const sampleRou = {
+  '/samples': {
+    get: async ({ user, query }) => {
+      const findOptions = {
+        ...query,
+        region: hasNationalRole(user) ? query.region : user.region
+      };
+
+      console.info('Find samples for user', user.id, findOptions);
+
+      const samples = await sampleRepository.findMany(findOptions);
+
+      return { status: constants.HTTP_STATUS_OK, response: samples };
+    }
+  },
   '/samples/:sampleId': {
     get: async ({ user }, { sampleId }) => {
       const sample = await getAndCheckSample(sampleId, user);

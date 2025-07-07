@@ -12,12 +12,6 @@ import validator, { body, params, query } from '../middlewares/validator';
 const router = express.Router();
 
 router.get(
-  '',
-  validator.validate(query(FindSampleOptions)),
-  permissionsCheck(['readSamples']),
-  sampleController.findSamples
-);
-router.get(
   '/count',
   validator.validate(query(FindSampleOptions)),
   permissionsCheck(['readSamples']),

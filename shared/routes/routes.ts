@@ -12,6 +12,7 @@ export const MaestroRoutes = [
   '/programming-plans/:programmingPlanId',
   '/programming-plans/:programmingPlanId/regional-status',
   '/programming-plans/years/:year',
+  '/samples',
   '/samples/:sampleId'
 ] as const;
 

@@ -1,8 +1,16 @@
 import z from 'zod/v4';
+import { FindSampleOptions } from '../schema/Sample/FindSampleOptions';
 import { PartialSample } from '../schema/Sample/Sample';
 import { SubRoutes } from './routes';
 
 export const samplesRoutes = {
+  '/samples': {
+    get: {
+      query: FindSampleOptions,
+      permissions: ['readSamples'],
+      response: z.array(PartialSample)
+    }
+  },
   '/samples/:sampleId': {
     params: {
       sampleId: z.guid()
@@ -21,4 +29,4 @@ export const samplesRoutes = {
       response: z.void()
     }
   }
-} as const satisfies SubRoutes<'/samples/:sampleId'>;
+} as const satisfies SubRoutes<'/samples'>;
