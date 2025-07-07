@@ -1,14 +1,10 @@
 import express from 'express';
 import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
-import { PartialSampleToCreate } from 'maestro-shared/schema/Sample/Sample';
 import { z } from 'zod/v4';
 import sampleController from '../controllers/sampleController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
-import {
-  sampleCheck,
-  sampleLocalisationCheck
-} from '../middlewares/checks/sampleCheck';
-import validator, { body, params, query } from '../middlewares/validator';
+import { sampleCheck } from '../middlewares/checks/sampleCheck';
+import validator, { params, query } from '../middlewares/validator';
 const router = express.Router();
 
 router.get(
@@ -42,13 +38,6 @@ router.get(
   permissionsCheck(['downloadSupportDocument']),
   sampleCheck(),
   sampleController.getSampleItemDocument
-);
-router.post(
-  '',
-  validator.validate(body(PartialSampleToCreate)),
-  permissionsCheck(['createSample']),
-  sampleLocalisationCheck(),
-  sampleController.createSample
 );
 
 export default router;

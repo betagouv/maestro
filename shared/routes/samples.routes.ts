@@ -1,6 +1,6 @@
 import z from 'zod/v4';
 import { FindSampleOptions } from '../schema/Sample/FindSampleOptions';
-import { PartialSample } from '../schema/Sample/Sample';
+import { PartialSample, PartialSampleToCreate } from '../schema/Sample/Sample';
 import { SubRoutes } from './routes';
 
 export const samplesRoutes = {
@@ -9,6 +9,11 @@ export const samplesRoutes = {
       query: FindSampleOptions,
       permissions: ['readSamples'],
       response: z.array(PartialSample)
+    },
+    post: {
+      body: PartialSampleToCreate,
+      permissions: ['createSample'],
+      response: PartialSample
     }
   },
   '/samples/:sampleId': {

@@ -353,6 +353,44 @@ export const sampleRou = {
       const samples = await sampleRepository.findMany(findOptions);
 
       return { status: constants.HTTP_STATUS_OK, response: samples };
+    },
+    post: async ({ user, body: sampleToCreate }) => {
+      console.info('Create sample', sampleToCreate);
+      sampleToCreate.department = await getAndCheckSampleDepartement(
+        sampleToCreate,
+        user
+      );
+
+      if (!user.region) {
+        return {
+          status: constants.HTTP_STATUS_FORBIDDEN,
+          response: `Vous n'êtes associé à aucune région.`
+        };
+      }
+
+      if (sampleToCreate.company) {
+        await companyRepository.upsert(sampleToCreate.company);
+      }
+
+      const serial = await sampleRepository.getNextSequence(
+        user.region,
+        new Date().getFullYear()
+      );
+
+      const sample = {
+        ...sampleToCreate,
+        region: user.region,
+        reference: `${Regions[user.region].shortName}-${format(new Date(), 'yy')}-${String(serial).padStart(4, '0')}`,
+        createdAt: new Date(),
+        lastUpdatedAt: new Date()
+      };
+      await sampleRepository.insert(sample);
+
+      if (sampleToCreate.items) {
+        await sampleItemRepository.insertMany(sampleToCreate.items);
+      }
+
+      return { status: constants.HTTP_STATUS_CREATED, response: sample };
     }
   },
   '/samples/:sampleId': {
