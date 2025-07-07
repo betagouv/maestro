@@ -1,5 +1,3 @@
-import { NextFunction, Request, Response } from 'express';
-import { AuthenticatedRequest } from 'express-jwt';
 import { constants } from 'http2';
 import { isNil } from 'lodash-es';
 import { HttpError } from 'maestro-shared/errors/httpError';
@@ -14,15 +12,6 @@ import {
 import { User, userRegions } from 'maestro-shared/schema/User/User';
 import { departmentRepository } from '../../repositories/departmentRepository';
 import { sampleRepository } from '../../repositories/sampleRepository';
-
-export const sampleCheck =
-  () => async (request: Request, _response: Response, next: NextFunction) => {
-    const user = (request as AuthenticatedRequest).user;
-    const sampleId = request.params.sampleId;
-    request.sample = await getAndCheckSample(sampleId, user);
-
-    next();
-  };
 
 export const getAndCheckSample = async (
   sampleId: string,

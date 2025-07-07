@@ -1,7 +1,5 @@
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Request, Response } from 'express';
-import { SampleRequest } from 'express-jwt';
 import { constants } from 'http2';
 import { isNil } from 'lodash-es';
 import { getCultureKindLabel } from 'maestro-shared/referential/CultureKind';
@@ -61,29 +59,6 @@ import prescriptionSubstanceRepository from '../repositories/prescriptionSubstan
 import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
 import { SubRouter } from '../routers/routes.type';
 import { laboratoriesConf, LaboratoryWithConf } from '../services/imapService';
-
-const getSampleItemDocument = async (request: Request, response: Response) => {
-  const sample: Sample = (request as SampleRequest).sample;
-  const itemNumber = Number(request.params.itemNumber);
-
-  console.info('Get sample document', sample.id);
-
-  const sampleItems = await sampleItemRepository.findMany(sample.id);
-
-  const pdfBuffer = await pdfService.generateSampleSupportPDF(
-    sample,
-    sampleItems,
-    itemNumber,
-    true
-  );
-
-  response.setHeader('Content-Type', 'application/pdf');
-  response.setHeader(
-    'Content-Disposition',
-    `inline; filename="${getSupportDocumentFilename(sample, itemNumber)}"`
-  );
-  response.send(pdfBuffer);
-};
 
 const streamToBase64 = async (stream: Readable): Promise<string> => {
   const chunks: any[] = [];
@@ -201,7 +176,7 @@ const generateAndStoreAnalysisRequestDocuments = async (
   ];
 };
 
-export const sampleRou = {
+export const sampleRouter = {
   '/samples': {
     get: async ({ user, query }) => {
       const findOptions = {
@@ -331,6 +306,29 @@ export const sampleRou = {
       setHeader(
         'Content-Disposition',
         `inline; filename="Etiquettes-${sample.reference}.pdf"`
+      );
+      return { status: constants.HTTP_STATUS_OK, response: pdfBuffer };
+    }
+  },
+  '/samples/:sampleId/items/:itemNumber/document': {
+    get: async ({ user }, { sampleId, itemNumber }, { setHeader }) => {
+      const sample = await getAndCheckSample(sampleId, user);
+
+      console.info('Get sample document', sample.id);
+
+      const sampleItems = await sampleItemRepository.findMany(sample.id);
+
+      const pdfBuffer = await pdfService.generateSampleSupportPDF(
+        sample,
+        sampleItems,
+        itemNumber,
+        true
+      );
+
+      setHeader('Content-Type', 'application/pdf');
+      setHeader(
+        'Content-Disposition',
+        `inline; filename="${getSupportDocumentFilename(sample, itemNumber)}"`
       );
       return { status: constants.HTTP_STATUS_OK, response: pdfBuffer };
     }
@@ -632,7 +630,3 @@ export const sampleRou = {
     }
   }
 } as const satisfies SubRouter;
-
-export default {
-  getSampleItemDocument
-};
