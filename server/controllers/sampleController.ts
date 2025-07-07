@@ -369,6 +369,20 @@ const deleteSample = async (request: Request, response: Response) => {
 
 export const sampleRou = {
   '/samples/:sampleId': {
+    get: async ({ user }, { sampleId }) => {
+      const sample = await getAndCheckSample(sampleId, user);
+      console.info('Get sample', sample.id);
+
+      const sampleItems = await sampleItemRepository.findMany(sample.id);
+
+      return {
+        status: constants.HTTP_STATUS_OK,
+        response: {
+          ...sample,
+          items: sampleItems.map((item) => omitBy(item, isNil))
+        }
+      };
+    },
     put: async ({ body: sampleUpdate, user }, { sampleId }) => {
       const sample = await getAndCheckSample(sampleId, user);
       console.info('Update sample', sample.id, sampleUpdate);

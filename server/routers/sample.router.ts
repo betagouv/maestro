@@ -35,13 +35,6 @@ router.get(
   sampleController.exportSamples
 );
 router.get(
-  '/:sampleId',
-  validator.validate(uuidParam('sampleId')),
-  permissionsCheck(['readSamples']),
-  sampleCheck(),
-  sampleController.getSample
-);
-router.get(
   '/:sampleId/document',
   permissionsCheck(['downloadSupportDocument']),
   sampleCheck(),

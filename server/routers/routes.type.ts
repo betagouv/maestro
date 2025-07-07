@@ -95,7 +95,7 @@ export const generateRoutes = (subRouter: SubRouter) => {
           router[method](route, validator.validate(toValidate));
         }
         router[method](route, permissionsCheck(conf.permissions));
-        router[method](route, async (request, response, next) => {
+        router[method](route, async (request, response) => {
           let p = {};
           if ('params' in r && r.params !== undefined) {
             try {

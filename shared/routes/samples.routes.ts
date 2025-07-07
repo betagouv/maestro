@@ -7,6 +7,10 @@ export const samplesRoutes = {
     params: {
       sampleId: z.guid()
     },
+    get: {
+      permissions: ['readSamples'],
+      response: PartialSample
+    },
     put: {
       body: PartialSample,
       permissions: ['updateSample', 'restoreSampleToReview'],

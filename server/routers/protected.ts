@@ -28,7 +28,6 @@ const router = {
   ...sampleRou
 } as const satisfies Required<SubRouter>;
 
-protectedRouter.use(generateRoutes(router));
 protectedRouter.use('/addresses', addressRouter);
 protectedRouter.use('/companies', companyRouter);
 protectedRouter.use('/documents', documentRouter);
@@ -38,6 +37,7 @@ protectedRouter.use('/prescriptions', prescriptionRouter);
 protectedRouter.use('/prescriptions', regionalPrescriptionRouter);
 protectedRouter.use('/samples', sampleRouter);
 protectedRouter.use('/users', userRouter);
+protectedRouter.use(generateRoutes(router));
 
 protectedRouter.get('/regions.geojson', (_req, res) => {
   res.setHeader('Content-Type', 'application/json');
