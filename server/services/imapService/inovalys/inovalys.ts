@@ -180,18 +180,19 @@ export const extractAnalyzes = (
   for (const sampleWithResultat of samplesWithResultats) {
     const residues: ExportDataSubstance[] = sampleWithResultat.resultats.map(
       (r) => {
-        const result: ExportResultQuantifiable | ExportResultNonQuantifiable =
-          r['Résultat 1'] === 'ND' ||
-          r['Résultat 1'] === '<LQ' ||
-          r['Résultat 1'] === 'd<LQ'
-            ? {
-                result_kind: r['Résultat 1'] === 'ND' ? 'ND' : 'NQ'
-              }
-            : {
-                result: r['Résultat 1'],
-                result_kind: 'Q',
-                lmr: r['Spécification 1']
-              };
+        let result: ExportResultQuantifiable | ExportResultNonQuantifiable;
+        if (r['Résultat 1'] === 'ND') {
+          result = { result_kind: 'ND' };
+        } else if (r['Résultat 1'] === '<LQ' || r['Résultat 1'] === 'd<LQ') {
+          const resultKind = r['Code Méth'] === 'CALCUL' ? 'ND' : 'NQ';
+          result = { result_kind: resultKind };
+        } else {
+          result = {
+            result: r['Résultat 1'],
+            result_kind: 'Q',
+            lmr: r['Spécification 1']
+          };
+        }
 
         return {
           ...result,
