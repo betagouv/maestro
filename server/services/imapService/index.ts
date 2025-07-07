@@ -12,7 +12,7 @@ import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { MaestroDate } from 'maestro-shared/utils/date';
 import { OmitDistributive } from 'maestro-shared/utils/typescript';
-import { ParsedMail, simpleParser } from 'mailparser';
+import { Attachment, ParsedMail, simpleParser } from 'mailparser';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import config from '../../utils/config';
 import { mattermostService } from '../mattermostService';
@@ -48,7 +48,7 @@ export type ExportAnalysis = {
   residues: ExportDataSubstance[];
 };
 export type ExportDataFromEmail = (
-  attachments: ParsedMail['attachments']
+  attachments: Pick<Attachment, 'content' | 'filename' | 'contentType'>[]
 ) => ExportAnalysis[];
 
 export type LaboratoryConf = {
