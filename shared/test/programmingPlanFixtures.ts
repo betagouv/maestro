@@ -21,15 +21,42 @@ export const genProgrammingPlan = (
   year: new Date().getFullYear(),
   ...data
 });
-export const ValidatedProgrammingPlanFixture = genProgrammingPlan({
-  createdBy: NationalCoordinator.id,
-  createdAt: new Date('2024-01-01'),
-  id: '11111111-1111-1111-1111-111111111111',
+
+export const PPVClosedProgrammingPlanFixture = genProgrammingPlan({
+  id: 'f5d510ef-ab78-449a-acd6-392895a1994f',
   kinds: ['PPV'],
   contexts: ['Control', 'Surveillance'],
+  createdAt: new Date(),
+  createdBy: NationalCoordinator.id,
+  regionalStatus: RegionList.map((region) => ({
+    region,
+    status: 'Closed'
+  })),
+  year: new Date().getFullYear() - 1
+});
+
+export const PPVValidatedProgrammingPlanFixture = genProgrammingPlan({
+  id: 'd78fb3eb-1998-482b-9014-282d51ae30b8',
+  kinds: ['PPV'],
+  contexts: ['Control', 'Surveillance'],
+  createdAt: new Date(),
+  createdBy: NationalCoordinator.id,
   regionalStatus: RegionList.map((region) => ({
     region,
     status: 'Validated'
   })),
-  year: 2024
+  year: new Date().getFullYear()
+});
+
+export const PFASValidatedProgrammingPlanFixture = genProgrammingPlan({
+  id: '95d0f5c9-8a48-4bfb-b896-08aae5a22be3',
+  kinds: ['PFAS_EGGS', 'PFAS_MEAT'],
+  contexts: ['Control'],
+  createdAt: new Date(),
+  createdBy: NationalCoordinator.id,
+  regionalStatus: RegionList.map((region) => ({
+    region,
+    status: 'Validated'
+  })),
+  year: new Date().getFullYear()
 });

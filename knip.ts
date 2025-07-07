@@ -33,9 +33,10 @@ export default {
     },
     shared: {
       ignore: [
-        //Je ne comprends pas le problème avec ces 2 fichiers
+        //Je ne comprends pas le problème avec ces fichiers
         'referential/Matrix/MatrixListByKind.ts',
-        'schema/Address/AddressSearchResult.ts'
+        'schema/Address/AddressSearchResult.ts',
+        'test/regionalPrescriptionCommentFixture.ts'
       ]
     }
   }

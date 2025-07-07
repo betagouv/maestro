@@ -44,6 +44,7 @@ const RegionalPrescriptionCard = ({
           cx('fr-card', 'fr-card--sm'),
           'regional-prescription-card'
         )}
+        data-testid={`card-${prescription.matrixKind}`}
       >
         <div className={cx('fr-card__body')}>
           <div className={cx('fr-card__content')}>

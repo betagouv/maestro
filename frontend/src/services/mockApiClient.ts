@@ -3,6 +3,7 @@ import {
   TypedUseMutation,
   TypedUseQuery
 } from '@reduxjs/toolkit/dist/query/react';
+import { User } from 'maestro-shared/schema/User/User';
 import { genPartialAnalysis } from 'maestro-shared/test/analysisFixtures';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
@@ -11,7 +12,13 @@ import {
   genCreatedPartialSample,
   Sample11Fixture
 } from 'maestro-shared/test/sampleFixtures';
-import { genUser, Sampler1Fixture } from 'maestro-shared/test/userFixtures';
+import {
+  genUser,
+  NationalCoordinator,
+  RegionalCoordinator,
+  Sampler1Fixture,
+  Sampler2Fixture
+} from 'maestro-shared/test/userFixtures';
 import { fn } from 'storybook/test';
 import regionsJson from '../../../server/data/regions.json';
 import { ApiClient } from './apiClient';
@@ -85,23 +92,21 @@ export const getMockApi = (partialMock: Partial<MockApi>): ApiClient => {
   }, {} as ApiClient);
 };
 const defaultMockApiClientConf: MockApi = {
-  useAddPrescriptionMutation: [async () => fn(), { isSuccess: true }],
-  useCommentRegionalPrescriptionMutation: [
-    async () => fn(),
-    { isSuccess: true }
-  ],
+  useAddPrescriptionMutation: [async () => fn(), {}],
+  useAuthenticateMutation: [async () => fn(), {}],
+  useCommentRegionalPrescriptionMutation: [async () => fn(), {}],
   useCountSamplesQuery: {
     data: 0
   },
-  useCreateDocumentMutation: [async () => fn(), { isSuccess: true }],
-  useCreateOrUpdateSampleMutation: [
-    async () => fn(),
-    { isSuccess: true, isLoading: false }
-  ],
-  useCreateProgrammingPlanMutation: [async () => fn(), { isSuccess: true }],
-  useDeleteDocumentMutation: [async () => fn(), { isSuccess: true }],
-  useDeletePrescriptionMutation: [async () => fn(), { isSuccess: true }],
-  useDeleteSampleMutation: [async () => fn(), { isSuccess: true }],
+  useCreateAnalysisMutation: [async () => fn(), {}],
+  useCreateAnalysisReportDocumentMutation: [async () => fn(), {}],
+  useCreateDocumentMutation: [async () => fn(), {}],
+  useCreateOrUpdateSampleMutation: [async () => fn(), { isLoading: false }],
+  useCreateProgrammingPlanMutation: [async () => fn(), {}],
+  useDeleteAnalysisReportDocumentMutation: [async () => fn(), {}],
+  useDeleteDocumentMutation: [async () => fn(), {}],
+  useDeletePrescriptionMutation: [async () => fn(), {}],
+  useDeleteSampleMutation: [async () => fn(), {}],
   useFindLaboratoriesQuery: { data: [] },
   useFindNotificationsQuery: { data: [] },
   useFindPrescriptionsQuery: { data: [] },
@@ -110,11 +115,13 @@ const defaultMockApiClientConf: MockApi = {
   useFindResourcesQuery: { data: [] },
   useFindSamplesQuery: { data: [] },
   useFindUsersQuery: { data: [] },
+  useGetAnalysisReportDocumentIdsQuery: { data: ['fakeDocumentId'] },
   useGetAuthRedirectUrlQuery: {
     data: {
       url: ''
     }
   },
+  useGetDocumentDownloadSignedUrlQuery: { data: '' },
   useGetDocumentQuery: {
     data: genDocument({
       createdAt: new Date(12345),
@@ -146,51 +153,41 @@ const defaultMockApiClientConf: MockApi = {
   useGetSampleQuery: {
     data: genCreatedPartialSample()
   },
-  useLazyFindPrescriptionsQuery: [[], { isSuccess: true }],
-  useLazyFindSamplesQuery: [[], { isSuccess: true }],
+  useGetUserQuery: (id: string) => ({
+    data: ([
+      Sampler1Fixture,
+      Sample11Fixture,
+      Sampler2Fixture,
+      NationalCoordinator,
+      RegionalCoordinator
+    ].find((_) => _.id === id) ??
+      genUser({
+        id
+      })) as User
+  }),
+  useLazyFindPrescriptionsQuery: [[], {}],
+  useLazyFindSamplesQuery: [[], {}],
+  useLazyGetAnalysisReportDocumentIdsQuery: [[], {}],
   useLazyGetDocumentDownloadSignedUrlQuery: [
     'https://maestro.beta.gouv.fr',
-    { isSuccess: true }
+    {}
   ],
-  useLazyGetPrescriptionSubstancesQuery: [[], { isSuccess: true }],
-  useLazyGetSampleAnalysisQuery: [genPartialAnalysis(), { isSuccess: true }],
-  useLazyGetSampleQuery: [genCreatedPartialSample(), { isSuccess: true }],
-  useLazySearchAddressesQuery: [[], { isSuccess: true }],
-  useLazySearchCompaniesQuery: [[], { isSuccess: true }],
-  useUpdateAnalysisMutation: [async () => fn(), { isSuccess: true }],
-  useUpdatePrescriptionMutation: [async () => fn(), { isSuccess: true }],
-  useUpdateProgrammingPlanRegionalStatusMutation: [
-    async () => fn(),
-    { isSuccess: true }
-  ],
-  useUpdateProgrammingPlanStatusMutation: [
-    async () => fn(),
-    { isSuccess: true }
-  ],
-  useUpdateRegionalPrescriptionMutation: [
-    async () => fn(),
-    { isSuccess: true }
-  ],
-  useUpdateSampleMutation: [async () => fn(), { isSuccess: true }],
-  useGetAnalysisReportDocumentIdsQuery: { data: ['fakeDocumentId'] },
-  useDeleteAnalysisReportDocumentMutation: [
-    async () => fn(),
-    { isSuccess: true }
-  ],
-  useCreateAnalysisReportDocumentMutation: [
-    async () => fn(),
-    { isSuccess: true }
-  ],
-  useLazyGetAnalysisReportDocumentIdsQuery: [[], { isSuccess: true }],
-  useLogoutMutation: [async () => fn(), { isSuccess: true }],
-  useAuthenticateMutation: [async () => fn(), { isSuccess: true }],
-  useCreateAnalysisMutation: [async () => fn(), { isSuccess: true }],
-  useUpdateDocumentMutation: [async () => fn(), { isSuccess: true }],
-  useUpdateNotificationMutation: [async () => fn(), { isSuccess: true }],
-  useUpdateNotificationsMutation: [async () => fn(), { isSuccess: true }],
-  useGetDocumentDownloadSignedUrlQuery: { data: '' },
-  useGetUserQuery: { data: genUser() },
-  useLazyGetUserQuery: [genUser(), { isSuccess: true }]
+  useLazyGetPrescriptionSubstancesQuery: [[], {}],
+  useLazyGetSampleAnalysisQuery: [genPartialAnalysis(), {}],
+  useLazyGetSampleQuery: [genCreatedPartialSample(), {}],
+  useLazyGetUserQuery: [genUser(), {}],
+  useLazySearchAddressesQuery: [[], {}],
+  useLazySearchCompaniesQuery: [[], {}],
+  useLogoutMutation: [async () => fn(), {}],
+  useUpdateAnalysisMutation: [async () => fn(), {}],
+  useUpdateDocumentMutation: [async () => fn(), {}],
+  useUpdateNotificationMutation: [async () => fn(), {}],
+  useUpdateNotificationsMutation: [async () => fn(), {}],
+  useUpdatePrescriptionMutation: [async () => fn(), {}],
+  useUpdateProgrammingPlanRegionalStatusMutation: [async () => fn(), {}],
+  useUpdateProgrammingPlanStatusMutation: [async () => fn(), {}],
+  useUpdateRegionalPrescriptionMutation: [async () => fn(), {}],
+  useUpdateSampleMutation: [async () => fn(), {}]
 };
 
 export const mockApiClient = getMockApi({});
