@@ -119,10 +119,10 @@ export const extractAnalyzes = (
       'Code Sandre': z.string().transform((v) => (v === '' ? null : v)),
       Incertitude: z.string().optional(),
       //LMR
-      'Spécification 1': z.coerce
-        .number()
+      'Spécification 1': z
+        .union([frenchNumberStringValidator, z.string().startsWith('<')])
         .optional()
-        .transform((v) => v ?? 0),
+        .transform((v) => (typeof v === 'number' ? v : 0)),
       'Numéro CAS': z
         .string()
         .optional()

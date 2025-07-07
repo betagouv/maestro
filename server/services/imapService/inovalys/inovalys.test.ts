@@ -146,7 +146,7 @@ describe('Parse correctement les fichiers CSV', () => {
               'Résultat 1': '0,011',
               'Unité 1': 'mg/kg',
               'Limite Quant. 1': '>= 0.005',
-              'Spécification 1': '0.150',
+              'Spécification 1': '0,150',
               'Résultat 2': '',
               'Unité 2': '',
               'Limite Quant. 2': '',
@@ -199,6 +199,37 @@ describe('Parse correctement les fichiers CSV', () => {
     `);
   });
 });
+
+// test('Extrait avec des fichiers', () => {
+//   const getBuffer = (
+//     fileName: string
+//   ): Pick<Attachment, 'content' | 'filename' | 'contentType'> => {
+//     const fullPath = path.join(import.meta.dirname, 'tests', fileName);
+//     return {
+//       filename: fileName,
+//       content: fs.readFileSync(fullPath, {
+//         encoding: 'latin1'
+//       }) as unknown as Buffer,
+//       contentType: ''
+//     };
+//   };
+//   expect(
+//     inovalysConf.exportDataFromEmail([
+//       {
+//         filename: 'reference.pdf',
+//         content: Buffer.alloc(1),
+//         contentType: 'application/pdf'
+//       },
+//       {
+//         filename: 'dossier1_CO0.csv',
+//         content: Buffer.alloc(1),
+//         contentType: ''
+//       },
+//       getBuffer('CO1.csv'),
+//       getBuffer('CO2.csv')
+//     ])
+//   ).toMatchSnapshot();
+// });
 test.each<[string, string]>([
   ['OCC-25-0007', 'OCC-25-0007'],
   ['OCC-25-0007-01', 'OCC-25-0007'],
