@@ -15,6 +15,7 @@ export const MaestroRoutes = [
   '/samples',
   '/samples/count',
   '/samples/export',
+  '/samples/:sampleId/document',
   '/samples/:sampleId'
 ] as const;
 

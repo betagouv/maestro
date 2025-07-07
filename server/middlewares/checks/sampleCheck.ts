@@ -7,7 +7,10 @@ import NoRegionError from 'maestro-shared/errors/noRegionError';
 import SampleMissingError from 'maestro-shared/errors/sampleMissingError';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { Regions } from 'maestro-shared/referential/Region';
-import { PartialSampleToCreate } from 'maestro-shared/schema/Sample/Sample';
+import {
+  PartialSample,
+  PartialSampleToCreate
+} from 'maestro-shared/schema/Sample/Sample';
 import { User, userRegions } from 'maestro-shared/schema/User/User';
 import { departmentRepository } from '../../repositories/departmentRepository';
 import { sampleRepository } from '../../repositories/sampleRepository';
@@ -21,7 +24,10 @@ export const sampleCheck =
     next();
   };
 
-export const getAndCheckSample = async (sampleId: string, user: User) => {
+export const getAndCheckSample = async (
+  sampleId: string,
+  user: User
+): Promise<PartialSample> => {
   const sample = await sampleRepository.findUnique(sampleId);
 
   if (!sample) {

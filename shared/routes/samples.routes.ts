@@ -30,6 +30,15 @@ export const samplesRoutes = {
       response: z.custom<Buffer>()
     }
   },
+  '/samples/:sampleId/document': {
+    params: {
+      sampleId: z.guid()
+    },
+    get: {
+      permissions: ['downloadSupportDocument'],
+      response: z.custom<Buffer>()
+    }
+  },
   '/samples/:sampleId': {
     params: {
       sampleId: z.guid()

@@ -19,7 +19,7 @@ import { StageLabels } from 'maestro-shared/referential/Stage';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   getSampleMatrixLabel,
-  Sample
+  PartialSample
 } from 'maestro-shared/schema/Sample/Sample';
 import { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { formatWithTz, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
@@ -155,7 +155,7 @@ const generatePDF = async (template: Template, data: unknown) => {
 };
 
 const generateSampleSupportPDF = async (
-  sample: Sample,
+  sample: PartialSample,
   sampleItems: PartialSampleItem[],
   itemNumber: number,
   fullVersion: boolean
@@ -226,10 +226,12 @@ const generateSampleSupportPDF = async (
           sampledAtTime: formatWithTz(sample.sampledAt, 'HH:mm')
         }
       : {}),
-    context: ContextLabels[sample.context],
-    legalContext: LegalContextLabels[sample.legalContext],
-    stage: StageLabels[sample.stage],
-    matrixKind: MatrixKindLabels[sample.matrixKind],
+    context: sample.context ? ContextLabels[sample.context] : '',
+    legalContext: sample.legalContext
+      ? LegalContextLabels[sample.legalContext]
+      : '',
+    stage: sample.stage ? StageLabels[sample.stage] : '',
+    matrixKind: sample.matrixKind ? MatrixKindLabels[sample.matrixKind] : '',
     matrix: getSampleMatrixLabel(sample),
     matrixDetails:
       sample.specificData?.programmingPlanKind === 'PPV'
@@ -244,7 +246,7 @@ const generateSampleSupportPDF = async (
           : 'Non'
         : undefined,
     establishment: Regions[sample.region].establishment,
-    department: DepartmentLabels[sample.department],
+    department: sample.department ? DepartmentLabels[sample.department] : '',
     hasNoteToSampler:
       sampleItems.some(
         (sampleItem) => sampleItem.recipientKind === 'Sampler'

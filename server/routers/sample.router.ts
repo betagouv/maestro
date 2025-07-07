@@ -7,12 +7,6 @@ import validator, { params } from '../middlewares/validator';
 const router = express.Router();
 
 router.get(
-  '/:sampleId/document',
-  permissionsCheck(['downloadSupportDocument']),
-  sampleCheck(),
-  sampleController.getSampleDocument
-);
-router.get(
   '/:sampleId/items/:itemNumber/document',
   validator.validate(
     params(
