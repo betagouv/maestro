@@ -1,18 +1,11 @@
 import express from 'express';
-import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import { z } from 'zod/v4';
 import sampleController from '../controllers/sampleController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
 import { sampleCheck } from '../middlewares/checks/sampleCheck';
-import validator, { params, query } from '../middlewares/validator';
+import validator, { params } from '../middlewares/validator';
 const router = express.Router();
 
-router.get(
-  '/export',
-  validator.validate(query(FindSampleOptions)),
-  permissionsCheck(['readSamples']),
-  sampleController.exportSamples
-);
 router.get(
   '/:sampleId/document',
   permissionsCheck(['downloadSupportDocument']),

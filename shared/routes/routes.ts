@@ -14,6 +14,7 @@ export const MaestroRoutes = [
   '/programming-plans/years/:year',
   '/samples',
   '/samples/count',
+  '/samples/export',
   '/samples/:sampleId'
 ] as const;
 

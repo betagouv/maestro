@@ -1,4 +1,4 @@
-import express, { Request } from 'express';
+import express, { Request, Response } from 'express';
 import { constants } from 'http2';
 import {
   MaestroRoutes,
@@ -29,6 +29,7 @@ type RouteValidator<
     : undefined
   : undefined;
 
+type ResponseMethods = Pick<Response, 'setHeader' | 'clearCookie'>;
 type MaestroRouteMethod<
   key extends MaestroRoutes,
   method extends keyof (typeof routes)[key]
@@ -47,10 +48,13 @@ type MaestroRouteMethod<
     ? P extends ZodRawShape
       ? z.infer<ZodObject<P>>
       : undefined
-    : undefined
+    : undefined,
+  responseMethods: ResponseMethods
 ) => Promise<
-  | { response: MaestroResponse<key, method>; status: number }
-  | { status: number; response?: never }
+  { status: number } & (
+    | { response: MaestroResponse<key, method> }
+    | { response?: never }
+  )
 >;
 
 export type SubRouter = {
@@ -105,18 +109,23 @@ export const generateRoutes = (subRouter: SubRouter) => {
             }
           }
 
+          const responseMethods: ResponseMethods = {
+            setHeader: (key, value) => response.setHeader(key, value),
+            clearCookie: (key) => response.clearCookie(key)
+          };
+
           // @ts-expect-error TS2345 Impossible de faire mieux
-          const result = await subRouter[route][method](request, p);
+          const result = await subRouter[route][method](
+            request,
+            p,
+            responseMethods
+          );
 
           if ('status' in result && !('response' in result)) {
             response.sendStatus(result.status);
           } else {
             const strippedResult = conf.response?.parse(result.response);
-            if (!('status' in result) && 'response' in result) {
-              response.send(strippedResult);
-            } else {
-              response.status(result.status).send(strippedResult);
-            }
+            response.status(result.status).send(strippedResult);
           }
         });
       }

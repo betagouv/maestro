@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Request, Response } from 'express';
-import { AuthenticatedRequest, SampleRequest } from 'express-jwt';
+import { SampleRequest } from 'express-jwt';
 import { constants } from 'http2';
 import { isNil } from 'lodash-es';
 import { getCultureKindLabel } from 'maestro-shared/referential/CultureKind';
@@ -21,7 +21,6 @@ import {
   ContextLabels,
   ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   getSampleMatrixLabel,
   isProgrammingPlanSample,
@@ -123,37 +122,6 @@ const getSampleItemDocument = async (request: Request, response: Response) => {
   response.send(pdfBuffer);
 };
 
-const exportSamples = async (request: Request, response: Response) => {
-  const { user } = request as AuthenticatedRequest;
-  const queryFindOptions = FindSampleOptions.parse(request.query);
-
-  const findOptions = {
-    ...queryFindOptions,
-    region: hasNationalRole(user) ? queryFindOptions.region : user.region
-  };
-
-  console.info('Export samples for user', user.id, findOptions);
-
-  const samples = await sampleRepository.findMany(findOptions);
-
-  const fileName = `prelevements-${format(
-    new Date(),
-    'yyyy-MM-dd-HH-mm-ss'
-  )}.xls`;
-
-  const buffer = await excelService.generateSamplesExportExcel(samples);
-
-  response.header(
-    'Content-disposition',
-    `inline; filename=${encodeURIComponent(fileName)}`
-  );
-  response.header(
-    'Content-Type',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-  );
-  response.header('Content-Length', `${buffer.length}`);
-  response.end(buffer);
-};
 const streamToBase64 = async (stream: Readable): Promise<string> => {
   const chunks: any[] = [];
   return new Promise((resolve, reject) => {
@@ -332,6 +300,36 @@ export const sampleRou = {
       const count = await sampleRepository.count(findOptions);
 
       return { status: constants.HTTP_STATUS_OK, response: { count } };
+    }
+  },
+  '/samples/export': {
+    get: async ({ user, query: queryFindOptions }, _params, { setHeader }) => {
+      const findOptions = {
+        ...queryFindOptions,
+        region: hasNationalRole(user) ? queryFindOptions.region : user.region
+      };
+
+      console.info('Export samples for user', user.id, findOptions);
+
+      const samples = await sampleRepository.findMany(findOptions);
+
+      const fileName = `prelevements-${format(
+        new Date(),
+        'yyyy-MM-dd-HH-mm-ss'
+      )}.xls`;
+
+      const buffer = await excelService.generateSamplesExportExcel(samples);
+
+      setHeader(
+        'Content-disposition',
+        `inline; filename=${encodeURIComponent(fileName)}`
+      );
+      setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      );
+      setHeader('Content-Length', `${buffer.length}`);
+      return { status: constants.HTTP_STATUS_OK, response: buffer };
     }
   },
   '/samples/:sampleId': {
@@ -634,6 +632,5 @@ export const sampleRou = {
 
 export default {
   getSampleDocument,
-  getSampleItemDocument,
-  exportSamples
+  getSampleItemDocument
 };

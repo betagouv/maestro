@@ -23,6 +23,13 @@ export const samplesRoutes = {
       response: z.object({ count: z.number() })
     }
   },
+  '/samples/export': {
+    get: {
+      query: FindSampleOptions,
+      permissions: ['readSamples'],
+      response: z.custom<Buffer>()
+    }
+  },
   '/samples/:sampleId': {
     params: {
       sampleId: z.guid()
