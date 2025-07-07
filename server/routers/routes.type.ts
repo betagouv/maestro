@@ -51,10 +51,6 @@ type MaestroRouteMethod<
 ) => Promise<
   | { response: MaestroResponse<key, method>; status: number }
   | { status: number; response?: never }
-  | {
-      status?: never;
-      response: MaestroResponse<key, method>;
-    }
 >;
 
 export type SubRouter = {

@@ -21,7 +21,7 @@ export const analysisRouter = {
         return { status: constants.HTTP_STATUS_NOT_FOUND };
       }
 
-      return { response: analysis };
+      return { response: analysis, status: constants.HTTP_STATUS_OK };
     },
     post: async ({ user, body: analysisToCreate }) => {
       const sample = await sampleRepository.findUnique(
@@ -133,7 +133,7 @@ export const analysisRouter = {
         });
       }
 
-      return { response: updatedAnalysis };
+      return { response: updatedAnalysis, status: constants.HTTP_STATUS_OK };
     }
   }
 } as const satisfies SubRouter;

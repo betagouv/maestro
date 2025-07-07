@@ -39,15 +39,6 @@ export const getAndCheckSample = async (sampleId: string, user: User) => {
   return sample;
 };
 
-export const sampleLocalisationCheck =
-  () => async (request: Request, _response: Response, next: NextFunction) => {
-    const user = (request as AuthenticatedRequest).user;
-    const sample = request.body as PartialSampleToCreate;
-
-    request.body.department = await getAndCheckSampleDepartement(sample, user);
-
-    next();
-  };
 export const getAndCheckSampleDepartement = async (
   sample: PartialSampleToCreate,
   user: User
