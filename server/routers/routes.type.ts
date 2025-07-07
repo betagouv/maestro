@@ -50,8 +50,9 @@ type MaestroRouteMethod<
     : undefined
 ) => Promise<
   | { response: MaestroResponse<key, method>; status: number }
-  | { status: number }
+  | { status: number; response?: never }
   | {
+      status?: never;
       response: MaestroResponse<key, method>;
     }
 >;

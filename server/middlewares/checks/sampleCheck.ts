@@ -3,6 +3,7 @@ import { AuthenticatedRequest } from 'express-jwt';
 import { constants } from 'http2';
 import { isNil } from 'lodash-es';
 import { HttpError } from 'maestro-shared/errors/httpError';
+import NoRegionError from 'maestro-shared/errors/noRegionError';
 import SampleMissingError from 'maestro-shared/errors/sampleMissingError';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { Regions } from 'maestro-shared/referential/Region';
@@ -65,11 +66,7 @@ export const getAndCheckSampleDepartement = async (
 
   const regions = userRegions(user);
   if (regions.length === 0) {
-    throw new HttpError({
-      status: constants.HTTP_STATUS_FORBIDDEN,
-      name: 'NoRegionError',
-      message: `Vous êtes rattaché à aucune région`
-    });
+    throw new NoRegionError();
   }
 
   const departments = regions.flatMap((r) => [

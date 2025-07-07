@@ -3,7 +3,7 @@ import { fr } from 'date-fns/locale';
 import { Request, Response } from 'express';
 import { AuthenticatedRequest, SampleRequest } from 'express-jwt';
 import { constants } from 'http2';
-import { isNil, omitBy } from 'lodash-es';
+import { isNil } from 'lodash-es';
 import { getCultureKindLabel } from 'maestro-shared/referential/CultureKind';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
@@ -26,7 +26,6 @@ import {
   getSampleMatrixLabel,
   isProgrammingPlanSample,
   PartialSample,
-  PartialSampleToCreate,
   Sample
 } from 'maestro-shared/schema/Sample/Sample';
 import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
@@ -43,6 +42,7 @@ import { mailService } from '../services/mailService';
 import { pdfService } from '../services/pdfService/pdfService';
 
 import { isEqual } from 'lodash-es';
+import NoRegionError from 'maestro-shared/errors/noRegionError';
 import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
@@ -123,38 +123,6 @@ const getSampleItemDocument = async (request: Request, response: Response) => {
   response.send(pdfBuffer);
 };
 
-const findSamples = async (request: Request, response: Response) => {
-  const { user } = request as AuthenticatedRequest;
-  const queryFindOptions = FindSampleOptions.parse(request.query);
-
-  const findOptions = {
-    ...queryFindOptions,
-    region: hasNationalRole(user) ? queryFindOptions.region : user.region
-  };
-
-  console.info('Find samples for user', user.id, findOptions);
-
-  const samples = await sampleRepository.findMany(findOptions);
-
-  response.status(constants.HTTP_STATUS_OK).send(samples);
-};
-
-const countSamples = async (request: Request, response: Response) => {
-  const { user } = request as AuthenticatedRequest;
-  const queryFindOptions = FindSampleOptions.parse(request.query);
-
-  const findOptions = {
-    ...queryFindOptions,
-    region: hasNationalRole(user) ? queryFindOptions.region : user.region
-  };
-
-  console.info('Count samples for user', user.id, findOptions);
-
-  const count = await sampleRepository.count(findOptions);
-
-  response.status(constants.HTTP_STATUS_OK).send({ count });
-};
-
 const exportSamples = async (request: Request, response: Response) => {
   const { user } = request as AuthenticatedRequest;
   const queryFindOptions = FindSampleOptions.parse(request.query);
@@ -186,44 +154,6 @@ const exportSamples = async (request: Request, response: Response) => {
   response.header('Content-Length', `${buffer.length}`);
   response.end(buffer);
 };
-
-const createSample = async (request: Request, response: Response) => {
-  const { user } = request as AuthenticatedRequest;
-  const sampleToCreate = request.body as PartialSampleToCreate;
-
-  console.info('Create sample', sampleToCreate);
-
-  if (!user.region) {
-    return response
-      .status(constants.HTTP_STATUS_FORBIDDEN)
-      .send(`Vous n'êtes associé à aucune région.`);
-  }
-
-  if (sampleToCreate.company) {
-    await companyRepository.upsert(sampleToCreate.company);
-  }
-
-  const serial = await sampleRepository.getNextSequence(
-    user.region,
-    new Date().getFullYear()
-  );
-
-  const sample = {
-    ...sampleToCreate,
-    region: user.region,
-    reference: `${Regions[user.region].shortName}-${format(new Date(), 'yy')}-${String(serial).padStart(4, '0')}`,
-    createdAt: new Date(),
-    lastUpdatedAt: new Date()
-  };
-  await sampleRepository.insert(sample);
-
-  if (sampleToCreate.items) {
-    await sampleItemRepository.insertMany(sampleToCreate.items);
-  }
-
-  response.status(constants.HTTP_STATUS_CREATED).send(sample);
-};
-
 const streamToBase64 = async (stream: Readable): Promise<string> => {
   const chunks: any[] = [];
   return new Promise((resolve, reject) => {
@@ -362,10 +292,7 @@ export const sampleRou = {
       );
 
       if (!user.region) {
-        return {
-          status: constants.HTTP_STATUS_FORBIDDEN,
-          response: `Vous n'êtes associé à aucune région.`
-        };
+        throw new NoRegionError();
       }
 
       if (sampleToCreate.company) {
@@ -393,6 +320,20 @@ export const sampleRou = {
       return { status: constants.HTTP_STATUS_CREATED, response: sample };
     }
   },
+  '/samples/count': {
+    get: async ({ user, query: queryFindOptions }) => {
+      const findOptions = {
+        ...queryFindOptions,
+        region: hasNationalRole(user) ? queryFindOptions.region : user.region
+      };
+
+      console.info('Count samples for user', user.id, findOptions);
+
+      const count = await sampleRepository.count(findOptions);
+
+      return { status: constants.HTTP_STATUS_OK, response: { count } };
+    }
+  },
   '/samples/:sampleId': {
     get: async ({ user }, { sampleId }) => {
       const sample = await getAndCheckSample(sampleId, user);
@@ -404,7 +345,7 @@ export const sampleRou = {
         status: constants.HTTP_STATUS_OK,
         response: {
           ...sample,
-          items: sampleItems.map((item) => omitBy(item, isNil))
+          items: sampleItems
         }
       };
     },
@@ -694,8 +635,5 @@ export const sampleRou = {
 export default {
   getSampleDocument,
   getSampleItemDocument,
-  findSamples,
-  countSamples,
-  exportSamples,
-  createSample
+  exportSamples
 };

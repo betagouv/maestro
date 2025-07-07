@@ -16,6 +16,13 @@ export const samplesRoutes = {
       response: PartialSample
     }
   },
+  '/samples/count': {
+    get: {
+      query: FindSampleOptions,
+      permissions: ['readSamples'],
+      response: z.object({ count: z.number() })
+    }
+  },
   '/samples/:sampleId': {
     params: {
       sampleId: z.guid()
