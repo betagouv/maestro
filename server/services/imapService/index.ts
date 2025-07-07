@@ -299,7 +299,8 @@ export const checkEmails = async () => {
                   if (
                     laboratoriesConf[laboratoryName].unknownReferences.includes(
                       r.label
-                    )
+                    ) &&
+                    r.result_kind === 'ND'
                   ) {
                     warnings.add(
                       `Attention un résidu inconnu a été détecté, il a été ignoré : ${r.label}`
