@@ -63,19 +63,6 @@ import regionalPrescriptionRepository from '../repositories/regionalPrescription
 import { SubRouter } from '../routers/routes.type';
 import { laboratoriesConf, LaboratoryWithConf } from '../services/imapService';
 
-const getSample = async (request: Request, response: Response) => {
-  const sample = (request as SampleRequest).sample;
-
-  console.info('Get sample', sample.id);
-
-  const sampleItems = await sampleItemRepository.findMany(sample.id);
-
-  response.status(constants.HTTP_STATUS_OK).send({
-    ...sample,
-    items: sampleItems.map((item) => omitBy(item, isNil))
-  });
-};
-
 const getSampleDocument = async (request: Request, response: Response) => {
   const sample: Sample = (request as SampleRequest).sample;
 
@@ -351,20 +338,6 @@ const generateAndStoreAnalysisRequestDocuments = async (
       filename: csvFilename
     }
   ];
-};
-
-const deleteSample = async (request: Request, response: Response) => {
-  const sample = (request as SampleRequest).sample;
-
-  console.info('Delete sample', sample.id);
-
-  if (!DraftStatusList.includes(sample.status)) {
-    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
-  }
-
-  await sampleRepository.deleteOne(sample.id);
-
-  response.sendStatus(constants.HTTP_STATUS_NO_CONTENT);
 };
 
 export const sampleRou = {
@@ -650,17 +623,27 @@ export const sampleRou = {
         status: constants.HTTP_STATUS_OK,
         response: updatedPartialSample
       };
+    },
+    delete: async ({ user }, { sampleId }) => {
+      const sample = await getAndCheckSample(sampleId, user);
+      console.info('Delete sample', sample.id);
+
+      if (!DraftStatusList.includes(sample.status)) {
+        return { status: constants.HTTP_STATUS_FORBIDDEN };
+      }
+
+      await sampleRepository.deleteOne(sample.id);
+
+      return { status: constants.HTTP_STATUS_NO_CONTENT };
     }
   }
 } as const satisfies SubRouter;
 
 export default {
-  getSample,
   getSampleDocument,
   getSampleItemDocument,
   findSamples,
   countSamples,
   exportSamples,
-  createSample,
-  deleteSample
+  createSample
 };

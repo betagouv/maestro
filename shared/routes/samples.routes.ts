@@ -15,6 +15,10 @@ export const samplesRoutes = {
       body: PartialSample,
       permissions: ['updateSample', 'restoreSampleToReview'],
       response: PartialSample
+    },
+    delete: {
+      permissions: ['deleteSample'],
+      response: z.void()
     }
   }
 } as const satisfies SubRoutes<'/samples/:sampleId'>;

@@ -8,12 +8,7 @@ import {
   sampleCheck,
   sampleLocalisationCheck
 } from '../middlewares/checks/sampleCheck';
-import validator, {
-  body,
-  params,
-  query,
-  uuidParam
-} from '../middlewares/validator';
+import validator, { body, params, query } from '../middlewares/validator';
 const router = express.Router();
 
 router.get(
@@ -60,13 +55,6 @@ router.post(
   permissionsCheck(['createSample']),
   sampleLocalisationCheck(),
   sampleController.createSample
-);
-router.delete(
-  '/:sampleId',
-  validator.validate(uuidParam('sampleId')),
-  permissionsCheck(['deleteSample']),
-  sampleCheck(),
-  sampleController.deleteSample
 );
 
 export default router;
