@@ -15,14 +15,15 @@ import {
 } from 'react';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
 import { ApiClientContext } from '../../services/apiClient';
+import AppServiceErrorAlert from '../_app/AppErrorAlert/AppServiceErrorAlert';
 
-interface Props {
+type Props = {
   initialCompany?: Company;
   department?: Department;
   onSelectCompany: (company?: Company) => void;
   state?: 'success' | 'error' | 'default';
   stateRelatedMessage?: ReactNode;
-}
+};
 
 const CompanySearch = ({
   initialCompany,
@@ -34,7 +35,7 @@ const CompanySearch = ({
   const apiClient = useContext(ApiClientContext);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [companyResults, setCompanyResults] = useState<Company[]>([]);
-  const [searchCompanies, { isLoading, isFetching }] =
+  const [searchCompanies, { isLoading, isFetching, isError }] =
     apiClient.useLazySearchCompaniesQuery();
   const [company, setCompany] = useState<Company | null>(
     initialCompany ?? null
@@ -142,6 +143,13 @@ const CompanySearch = ({
           {stateRelatedMessage}
         </p>
       )}
+      <>
+        {isError && (
+          <AppServiceErrorAlert
+            message={`L'API Recherche d'entreprises semble inaccessible. Veuillez réessayer ultérieurement.`}
+          />
+        )}
+      </>
       {company && (
         <>
           <div className={cx('fr-hint-text', 'fr-my-1w')}>

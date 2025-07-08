@@ -37,9 +37,12 @@ export type MockApi = {
   >
     ? { data: D } | ((arg: any) => { data: D })
     : ApiClient[Key] extends TypedUseLazyQuery<infer E, any, any>
-      ? [E, { isSuccess?: boolean; isLoading?: boolean }]
+      ? [E, { isSuccess?: boolean; isLoading?: boolean; isError?: boolean }]
       : ApiClient[Key] extends TypedUseMutation<any, any, any>
-        ? [() => Promise<unknown>, { isSuccess?: boolean; isLoading?: boolean }]
+        ? [
+            () => Promise<unknown>,
+            { isSuccess?: boolean; isLoading?: boolean; isError?: boolean }
+          ]
         : null;
 };
 

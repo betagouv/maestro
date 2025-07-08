@@ -3,12 +3,15 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { HttpError } from 'maestro-shared/errors/httpError';
 import { z } from 'zod/v4';
 
-interface Props {
-  call: {
-    isError: boolean;
-    error?: unknown;
-  };
-}
+type Props =
+  | {
+      call: {
+        isError: boolean;
+        error?: unknown;
+      };
+      message?: never;
+    }
+  | { message: string; call?: never };
 
 function isErrorWithMessage(error: unknown): error is { data: HttpError } {
   return z
@@ -22,8 +25,8 @@ function isErrorWithMessage(error: unknown): error is { data: HttpError } {
     .safeParse(error).success;
 }
 
-const AppServiceErrorAlert = ({ call }: Props) => {
-  if (!call.isError) {
+const AppServiceErrorAlert = ({ call, message }: Props) => {
+  if (!call?.isError && !message) {
     return <></>;
   }
 
@@ -33,9 +36,11 @@ const AppServiceErrorAlert = ({ call }: Props) => {
       className={cx('fr-mb-2w')}
       small={true}
       description={
-        isErrorWithMessage(call.error)
-          ? call.error.data.message
-          : 'Une erreur est survenue, veuillez réessayer.'
+        message
+          ? message
+          : isErrorWithMessage(call?.error)
+            ? call.error.data.message
+            : 'Une erreur est survenue, veuillez réessayer.'
       }
     />
   );
