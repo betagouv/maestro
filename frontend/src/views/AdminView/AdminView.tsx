@@ -1,8 +1,8 @@
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { RootNotice } from 'maestro-shared/schema/RootNotice/RootNotice';
 import { useState } from 'react';
+import { Notice } from 'shared/schema/RootNotice/Notice';
 import warningImg from 'src/assets/illustrations/warning.svg';
 import AppTextAreaInput from '../../components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from '../../components/_app/AppTextInput/AppTextInput';
@@ -14,12 +14,12 @@ import { useForm } from '../../hooks/useForm';
 export const AdminView = () => {
   useDocumentTitle('Administration');
 
-  const [rootNotice, setRootNotice] = useState<RootNotice>({
+  const [rootNotice, setRootNotice] = useState<Notice>({
     title: 'TITLE',
     description: 'DESCR'
   });
 
-  const form = useForm(RootNotice, rootNotice);
+  const form = useForm(Notice, rootNotice);
 
   return (
     <section className={clsx(cx('fr-container'), 'main-section')}>

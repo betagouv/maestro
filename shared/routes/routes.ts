@@ -1,6 +1,7 @@
 import { ZodArray, ZodObject, ZodType } from 'zod/v4';
 import { UserPermission } from '../schema/User/UserPermission';
 import { analysisRoutes } from './analysis.routes';
+import { noticesRoutes } from './notices.routes';
 import { programmingPlansRoutes } from './programmingPlans.routes';
 import { samplesRoutes } from './samples.routes';
 
@@ -8,6 +9,7 @@ export const MaestroRoutes = [
   '/analysis',
   '/analysis/:analysisId',
   '/analysis/:analysisId/reportDocuments',
+  '/notices/:type',
   '/programming-plans',
   '/programming-plans/:programmingPlanId',
   '/programming-plans/:programmingPlanId/regional-status',
@@ -22,6 +24,7 @@ export const MaestroRoutes = [
 
 export const routes = {
   ...analysisRoutes,
+  ...noticesRoutes,
   ...programmingPlansRoutes,
   ...samplesRoutes
 } as const satisfies {

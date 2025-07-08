@@ -1,6 +1,6 @@
 import Notice from '@codegouvfr/react-dsfr/Notice';
-import { RootNotice as RootNoticeType } from 'maestro-shared/schema/RootNotice/RootNotice';
 import { FunctionComponent, useContext } from 'react';
+import { Notice as RootNoticeType } from 'shared/schema/RootNotice/Notice';
 import { assert, type Equals } from 'tsafe';
 import { ApiClientContext } from '../../services/apiClient';
 
