@@ -1,4 +1,4 @@
-import { Notice } from 'maestro-shared/schema/RootNotice/Notice';
+import { Notice } from 'maestro-shared/schema/Notice/Notice';
 import { kysely } from './kysely';
 import { Notices } from './kysely.type';
 

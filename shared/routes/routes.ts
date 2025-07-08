@@ -33,12 +33,80 @@ export const routes = {
   };
 };
 
+type MaestroRouteMethodIsUnprotected<
+  R extends MaestroRoutes,
+  M extends keyof (typeof routes)[R]
+> = (typeof routes)[R][M] extends { unprotected: true } ? true : false;
+
+type PickByValue<Obj, Condition> = FromEntries<
+  Extract<Entries<Obj>, [any, Condition]>
+>;
+
+type Entries<Obj> = {
+  [K in keyof Obj]: [K, Obj[K]];
+}[keyof Obj];
+
+type FromEntries<Entries extends [any, any]> = {
+  [Entry in Entries as Entry[0]]: Entry[1];
+};
+
+export type MaestroRouteUnprotectedMethod<T extends MaestroRoutes> =
+  keyof PickByValue<
+    {
+      [K in keyof (typeof routes)[T]]: MaestroRouteMethodIsUnprotected<T, K>;
+    },
+    true
+  >;
+
+export type MaestroRouteProtectedMethod<T extends MaestroRoutes> = Exclude<
+  keyof (typeof routes)[T],
+  MaestroRouteUnprotectedMethod<T>
+>;
+
+type MaestroRouteHasUnprotectedMethod<T> = T extends MaestroRoutes
+  ? MaestroRouteUnprotectedMethod<T> extends never
+    ? false
+    : true
+  : false;
+
+type MaestroRouteHasProtectedMethod<T> = T extends MaestroRoutes
+  ? MaestroRouteProtectedMethod<T> extends Record<never, never>
+    ? true
+    : false
+  : false;
+
+type FilterProtectedRoutes<R> =
+  R extends Readonly<[infer First, ...infer Rest]>
+    ? MaestroRouteHasProtectedMethod<First> extends true
+      ? [First, ...FilterProtectedRoutes<Rest>]
+      : FilterProtectedRoutes<Rest>
+    : [];
+
+type FilterUnprotectedRoutes<R> =
+  R extends Readonly<[infer First, ...infer Rest]>
+    ? MaestroRouteHasUnprotectedMethod<First> extends true
+      ? [First, ...FilterUnprotectedRoutes<Rest>]
+      : FilterUnprotectedRoutes<Rest>
+    : [];
+
+export type MaestroRoutes = (typeof MaestroRoutes)[number];
+export type ProtectedRoutes = FilterProtectedRoutes<
+  typeof MaestroRoutes
+>[number];
+export type UnprotectedRoutes = FilterUnprotectedRoutes<
+  typeof MaestroRoutes
+>[number];
+
 export type ToRoute = {
   query?: ZodObject;
   body?: ZodObject | ZodArray;
-  permissions: UserPermission[];
   response: ZodType;
-};
+} & (
+  | {
+      unprotected: true;
+    }
+  | { permissions: [UserPermission, ...UserPermission[]] }
+);
 
 type ZodParseUrlParams<url> = url extends `${infer start}/${infer rest}`
   ? ZodParseUrlParams<start> & ZodParseUrlParams<rest>
@@ -51,8 +119,6 @@ type ZodUrlParams<url, Z = ZodParseUrlParams<url>> = keyof Z extends never
   : Z;
 
 export type RouteMethod = 'get' | 'post' | 'put' | 'delete';
-
-export type MaestroRoutes = (typeof MaestroRoutes)[number];
 
 type FilterRoute<D extends string, R = typeof MaestroRoutes> =
   R extends Readonly<[infer First, ...infer Rest]>

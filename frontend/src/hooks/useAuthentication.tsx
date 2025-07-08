@@ -80,7 +80,8 @@ export const useAuthentication = () => {
           hasUserPermission('createSample') ? 'NewSampleRoute' : undefined,
           hasUserPermission('updateSample') || hasUserPermission('readSamples')
             ? 'SampleRoute'
-            : undefined
+            : undefined,
+          hasUserPermission('administrationMaestro') ? 'AdminRoute' : undefined
         ].filter(isDefined)
       : ['LoginRoute', 'LoginCallbackRoute'];
   }, [isAuthenticated, hasUserPermission]); // eslint-disable-line react-hooks/exhaustive-deps

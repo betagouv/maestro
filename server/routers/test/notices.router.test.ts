@@ -1,5 +1,5 @@
 import { constants } from 'http2';
-import { Notice } from 'maestro-shared/schema/RootNotice/Notice';
+import { Notice } from 'maestro-shared/schema/Notice/Notice';
 import { User } from 'maestro-shared/schema/User/User';
 import {
   AdminFixture,
@@ -30,7 +30,16 @@ describe('Notices router', () => {
         .get(testRoute('root'))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toMatchInlineSnapshot({});
+      expect(res.body).toMatchInlineSnapshot(
+        {},
+        `
+        {
+          "description": null,
+          "title": null,
+          "type": "root",
+        }
+      `
+      );
     });
   });
   describe('PUT /notices/:type', () => {

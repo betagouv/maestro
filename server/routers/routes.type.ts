@@ -1,10 +1,14 @@
 import express, { Request, Response } from 'express';
 import { constants } from 'http2';
 import {
+  MaestroRouteProtectedMethod,
   MaestroRoutes,
+  MaestroRouteUnprotectedMethod,
+  ProtectedRoutes,
   RouteMethod,
   routes,
-  ToRoute
+  ToRoute,
+  UnprotectedRoutes
 } from 'maestro-shared/routes/routes';
 import { User } from 'maestro-shared/schema/User/User';
 import z, { ZodObject, ZodRawShape, ZodType } from 'zod/v4';
@@ -32,16 +36,20 @@ type RouteValidator<
 type ResponseMethods = Pick<Response, 'setHeader' | 'clearCookie'>;
 type MaestroRouteMethod<
   key extends MaestroRoutes,
-  method extends keyof (typeof routes)[key]
+  method extends keyof (typeof routes)[key],
+  IsProtected extends boolean
 > = (
   request: Request<
     undefined,
     undefined,
     RouteValidator<key, method, 'body'>,
     RouteValidator<key, method, 'query'>
-  > & {
-    user: User;
-  },
+  > &
+    (IsProtected extends true
+      ? {
+          user: User;
+        }
+      : Record<never, never>),
   params: (typeof routes)[key] extends {
     params: infer P;
   }
@@ -57,16 +65,33 @@ type MaestroRouteMethod<
   )
 >;
 
-export type SubRouter = {
-  [key in MaestroRoutes]?: {
+export type ProtectedSubRouter = {
+  [key in ProtectedRoutes]?: {
     [method in Exclude<
-      keyof (typeof routes)[key],
+      MaestroRouteProtectedMethod<key>,
       'params'
-    >]: MaestroRouteMethod<key, method>;
+    >]: MaestroRouteMethod<key, method, true>;
   };
 };
 
-export const generateRoutes = (subRouter: SubRouter) => {
+export type UnprotectedSubRouter = {
+  [key in UnprotectedRoutes]?: {
+    [method in Exclude<
+      MaestroRouteUnprotectedMethod<key>,
+      'params'
+    >]: MaestroRouteMethod<key, method, false>;
+  };
+};
+
+export const generateRoutes = <
+  IsProtected extends boolean,
+  T extends ProtectedSubRouter | UnprotectedSubRouter = IsProtected extends true
+    ? ProtectedSubRouter
+    : UnprotectedSubRouter
+>(
+  subRouter: T,
+  isProtected: IsProtected
+) => {
   const router = express.Router();
 
   (Object.keys(subRouter) as Array<keyof typeof routes>).forEach((route) => {
@@ -79,6 +104,14 @@ export const generateRoutes = (subRouter: SubRouter) => {
         const r = routes[route];
         // @ts-expect-error TS7053
         const conf = r[method] as ToRoute;
+
+        if (isProtected && 'unprotected' in conf) {
+          return;
+        }
+        if (!isProtected && !('unprotected' in conf)) {
+          return;
+        }
+
         let toValidate: null | ZodObject<any> = null;
         if ('body' in conf && conf.body !== undefined) {
           toValidate = body(conf.body);
@@ -95,7 +128,9 @@ export const generateRoutes = (subRouter: SubRouter) => {
         if (toValidate !== null) {
           router[method](route, validator.validate(toValidate));
         }
-        router[method](route, permissionsCheck(conf.permissions));
+        if ('permissions' in conf) {
+          router[method](route, permissionsCheck(conf.permissions));
+        }
         router[method](route, async (request, response) => {
           let p = {};
           if ('params' in r && r.params !== undefined) {

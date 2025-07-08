@@ -1,6 +1,6 @@
 import Notice from '@codegouvfr/react-dsfr/Notice';
+import { Notice as NoticeType } from 'maestro-shared/schema/Notice/Notice';
 import { FunctionComponent, useContext } from 'react';
-import { Notice as RootNoticeType } from 'shared/schema/RootNotice/Notice';
 import { assert, type Equals } from 'tsafe';
 import { ApiClientContext } from '../../services/apiClient';
 
@@ -15,17 +15,19 @@ export const RootNotice: FunctionComponent<Props> = ({ ..._rest }) => {
   return data && <RootNoticeComponent notice={data} />;
 };
 export const RootNoticeComponent: FunctionComponent<{
-  notice: RootNoticeType;
+  notice: NoticeType;
 }> = ({ notice, ..._rest }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
   return (
-    <Notice
-      title={notice.title}
-      description={notice.description}
-      severity="warning"
-      iconDisplayed={true}
-      isClosable={true}
-    />
+    notice.title && (
+      <Notice
+        title={notice.title}
+        description={notice.description}
+        severity="warning"
+        iconDisplayed={true}
+        isClosable={true}
+      />
+    )
   );
 };

@@ -57,7 +57,7 @@ import {
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
 import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
-import { SubRouter } from '../routers/routes.type';
+import { ProtectedSubRouter } from '../routers/routes.type';
 import { laboratoriesConf, LaboratoryWithConf } from '../services/imapService';
 
 const streamToBase64 = async (stream: Readable): Promise<string> => {
@@ -629,4 +629,4 @@ export const sampleRouter = {
       return { status: constants.HTTP_STATUS_NO_CONTENT };
     }
   }
-} as const satisfies SubRouter;
+} as const satisfies ProtectedSubRouter;

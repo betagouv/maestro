@@ -1,5 +1,5 @@
 import z from 'zod/v4';
-import { Notice } from '../schema/RootNotice/Notice';
+import { Notice } from '../schema/Notice/Notice';
 import { SubRoutes } from './routes';
 
 export const noticesRoutes = {
@@ -8,8 +8,8 @@ export const noticesRoutes = {
       type: Notice.shape.type
     },
     get: {
-      permissions: [],
-      response: Notice
+      response: Notice,
+      unprotected: true
     },
     put: {
       body: Notice,

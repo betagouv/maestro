@@ -1,8 +1,8 @@
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { useState } from 'react';
-import { Notice } from 'shared/schema/RootNotice/Notice';
+import { Notice } from 'maestro-shared/schema/Notice/Notice';
+import { useContext, useState } from 'react';
 import warningImg from 'src/assets/illustrations/warning.svg';
 import AppTextAreaInput from '../../components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from '../../components/_app/AppTextInput/AppTextInput';
@@ -10,16 +10,32 @@ import { RootNoticeComponent } from '../../components/RootNotice/RootNotice';
 import SectionHeader from '../../components/SectionHeader/SectionHeader';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { useForm } from '../../hooks/useForm';
+import { ApiClientContext } from '../../services/apiClient';
 
 export const AdminView = () => {
   useDocumentTitle('Administration');
 
-  const [rootNotice, setRootNotice] = useState<Notice>({
-    title: 'TITLE',
-    description: 'DESCR'
-  });
+  const { useGetRootNoticeQuery, useUpdateRootNoticeMutation } =
+    useContext(ApiClientContext);
+
+  const { data } = useGetRootNoticeQuery();
+  const [updateRootNotice] = useUpdateRootNoticeMutation();
+
+  const [rootNotice, setRootNotice] = useState<Notice>(
+    data ?? { type: 'root', title: null, description: null }
+  );
 
   const form = useForm(Notice, rootNotice);
+
+  const save = () => {
+    form.validate(async (n) => {
+      updateRootNotice(n);
+    });
+  };
+  const deleteNotice = () => {
+    setRootNotice({ type: 'root', title: null, description: null });
+    updateRootNotice({ type: 'root', title: null, description: null });
+  };
 
   return (
     <section className={clsx(cx('fr-container'), 'main-section')}>
@@ -31,7 +47,7 @@ export const AdminView = () => {
 
       <form>
         <AppTextInput
-          defaultValue={''}
+          value={rootNotice.title ?? ''}
           onChange={(e) =>
             setRootNotice((n) => ({ ...n, title: e.target.value }))
           }
@@ -41,7 +57,7 @@ export const AdminView = () => {
           required
         />
         <AppTextAreaInput
-          defaultValue={''}
+          value={rootNotice.description ?? ''}
           onChange={(e) =>
             setRootNotice((n) => ({ ...n, description: e.target.value }))
           }
@@ -63,13 +79,15 @@ export const AdminView = () => {
           buttons={[
             {
               children: 'Supprimer',
+              type: 'button',
               priority: 'tertiary',
-              onClick: () => ({}),
+              onClick: () => deleteNotice(),
               iconId: 'fr-icon-delete-line'
             },
             {
               children: 'Enregistrer',
-              onClick: () => ({}),
+              type: 'button',
+              onClick: () => save(),
               iconId: 'fr-icon-save-line',
               iconPosition: 'right'
             }
