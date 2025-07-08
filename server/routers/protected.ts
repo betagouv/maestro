@@ -3,6 +3,7 @@ import fs from 'fs';
 import { analysisRouter } from '../controllers/analysisController';
 import { analysisReportDocumentsRouter } from '../controllers/analysisReportDocumentsController';
 import { programmingPlanRouter } from '../controllers/programmingPlanController';
+import { sampleRouter } from '../controllers/sampleController';
 import { jwtCheck, userCheck } from '../middlewares/checks/authCheck';
 import addressRouter from './address.router';
 import companyRouter from './company.router';
@@ -12,7 +13,6 @@ import notificationRouter from './notification.router';
 import prescriptionRouter from './prescription.router';
 import regionalPrescriptionRouter from './regionalPrescription.router';
 import { generateRoutes, SubRouter } from './routes.type';
-import sampleRouter from './sample.router';
 import userRouter from './user.router';
 
 export const protectedRouter = express.Router();
@@ -23,7 +23,8 @@ protectedRouter.use(userCheck(true));
 const router = {
   ...analysisRouter,
   ...analysisReportDocumentsRouter,
-  ...programmingPlanRouter
+  ...programmingPlanRouter,
+  ...sampleRouter
 } as const satisfies Required<SubRouter>;
 
 protectedRouter.use(generateRoutes(router));
@@ -34,7 +35,6 @@ protectedRouter.use('/laboratories', laboratoryRouter);
 protectedRouter.use('/notifications', notificationRouter);
 protectedRouter.use('/prescriptions', prescriptionRouter);
 protectedRouter.use('/prescriptions', regionalPrescriptionRouter);
-protectedRouter.use('/samples', sampleRouter);
 protectedRouter.use('/users', userRouter);
 
 protectedRouter.get('/regions.geojson', (_req, res) => {

@@ -14,7 +14,7 @@ export const analysisReportDocumentsRouter = {
       const result =
         await analysisReportDocumentsRepository.findByAnalysisId(analysisId);
 
-      return { response: result.reverse() };
+      return { response: result.reverse(), status: constants.HTTP_STATUS_OK };
     },
     post: async (request, { analysisId }) => {
       const { documentId } = request.body;
