@@ -103,6 +103,12 @@ export interface Laboratories {
   emailsAnalysisResult: string[];
 }
 
+export interface Notices {
+  type: 'root';
+  title: string | null;
+  description: string | null;
+}
+
 export interface Prescriptions {
   context: string | null;
   id: Generated<string>;
@@ -241,6 +247,7 @@ export interface DB {
   documents: Documents;
   knexMigrations: KnexMigrations;
   laboratories: Laboratories;
+  notices: Notices;
   prescriptions: Prescriptions;
   prescriptionSubstances: PrescriptionSubstances;
   programmingPlans: ProgrammingPlans;

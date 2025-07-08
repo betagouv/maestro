@@ -230,7 +230,18 @@ const Header = () => {
                 },
                 text: 'Documents ressources',
                 isActive: location.pathname.startsWith('/documents')
-              }
+              },
+
+              hasUserPermission('administrationMaestro')
+                ? {
+                    linkProps: {
+                      to: AuthenticatedAppRoutes.AdminRoute.link,
+                      target: '_self'
+                    },
+                    text: 'Administration',
+                    isActive: location.pathname.startsWith('/admin')
+                  }
+                : undefined
             ]
           : []
         ).filter(isDefined)}

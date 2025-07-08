@@ -190,7 +190,11 @@ const defaultMockApiClientConf: MockApi = {
   useUpdateProgrammingPlanRegionalStatusMutation: [async () => fn(), {}],
   useUpdateProgrammingPlanStatusMutation: [async () => fn(), {}],
   useUpdateRegionalPrescriptionMutation: [async () => fn(), {}],
-  useUpdateSampleMutation: [async () => fn(), {}]
+  useUpdateSampleMutation: [async () => fn(), {}],
+  useGetRootNoticeQuery: {
+    data: { type: 'root', title: 'titre', description: 'description' }
+  },
+  useUpdateRootNoticeMutation: [async () => fn(), {}]
 };
 
 export const mockApiClient = getMockApi({});

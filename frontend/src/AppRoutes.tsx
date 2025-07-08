@@ -67,6 +67,11 @@ export const AuthenticatedAppRoutes = {
     ...AppRouteLinks.LogoutCallbackRoute,
     path: '/logout-callback',
     key: 'logout_callback_route'
+  },
+  AdminRoute: {
+    ...AppRouteLinks.AdminRoute,
+    path: '/admin',
+    key: 'admin_route'
   }
 } as const satisfies Partial<Record<AppRouteKeys, AppRoute>>;
 

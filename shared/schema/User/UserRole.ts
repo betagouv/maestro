@@ -101,6 +101,7 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
   ],
   Sampler: UserSamplerPermissionsList,
   Administrator: [
+    'administrationMaestro',
     'readSamples',
     'downloadSupportDocument',
     'downloadAnalysisRequestDocument',

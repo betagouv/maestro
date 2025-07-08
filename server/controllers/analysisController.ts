@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { analysisErrorsRepository } from '../repositories/analysisErrorsRepository';
 import { analysisRepository } from '../repositories/analysisRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
-import { SubRouter } from '../routers/routes.type';
+import { ProtectedSubRouter } from '../routers/routes.type';
 import { mattermostService } from '../services/mattermostService';
 
 export const analysisRouter = {
@@ -136,4 +136,4 @@ export const analysisRouter = {
       return { response: updatedAnalysis, status: constants.HTTP_STATUS_OK };
     }
   }
-} as const satisfies SubRouter;
+} as const satisfies ProtectedSubRouter;

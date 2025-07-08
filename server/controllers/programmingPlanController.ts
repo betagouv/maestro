@@ -18,7 +18,7 @@ import prescriptionSubstanceRepository from '../repositories/prescriptionSubstan
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
 import { userRepository } from '../repositories/userRepository';
-import { SubRouter } from '../routers/routes.type';
+import { ProtectedSubRouter } from '../routers/routes.type';
 import { notificationService } from '../services/notificationService';
 
 export const programmingPlanRouter = {
@@ -366,4 +366,4 @@ export const programmingPlanRouter = {
       };
     }
   }
-} as const satisfies SubRouter;
+} as const satisfies ProtectedSubRouter;

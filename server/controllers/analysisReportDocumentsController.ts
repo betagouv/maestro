@@ -1,7 +1,7 @@
 import { constants } from 'http2';
 import { analysisReportDocumentsRepository } from '../repositories/analysisReportDocumentsRepository';
 import { analysisRepository } from '../repositories/analysisRepository';
-import { SubRouter } from '../routers/routes.type';
+import { ProtectedSubRouter } from '../routers/routes.type';
 
 export const analysisReportDocumentsRouter = {
   '/analysis/:analysisId/reportDocuments': {
@@ -35,4 +35,4 @@ export const analysisReportDocumentsRouter = {
       };
     }
   }
-} as const satisfies SubRouter;
+} as const satisfies ProtectedSubRouter;

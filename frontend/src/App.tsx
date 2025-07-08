@@ -22,6 +22,7 @@ import {
   useMascarade
 } from './components/Mascarade/MascaradeContext';
 import { MascaradeNotice } from './components/Mascarade/MascaradeNotice';
+import { RootNotice } from './components/RootNotice/RootNotice';
 import { apiClient, ApiClientContext } from './services/apiClient';
 import { store } from './store/store';
 
@@ -73,6 +74,7 @@ function App() {
       >
         <MascaradeNotice />
         <Header />
+        <RootNotice />
         {isSomeQueryPending && (
           <div className="toast">Chargement en cours...</div>
         )}
