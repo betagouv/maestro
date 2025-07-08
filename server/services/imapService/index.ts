@@ -39,7 +39,7 @@ export type ExportDataSubstance = {
 export type ExportDataSubstanceWithSSD2Id = OmitDistributive<
   ExportDataSubstance,
   'casNumber' | 'label' | 'codeSandre'
-> & { ssd2Id: SSD2Id | null; unknown_label: string | null };
+> & { ssd2Id: SSD2Id | null; unknownLabel: string | null };
 
 export type ExportAnalysis = {
   sampleReference: Sample['reference'];
@@ -318,8 +318,8 @@ export const checkEmails = async () => {
                   ...analysis,
                   residues: residuesNotDeprecated.map(
                     ({ casNumber, codeSandre, label, ...rest }) => {
-                      const unknown_label = rest.ssd2Id === null ? label : null;
-                      return { ...rest, unknown_label };
+                      const unknownLabel = rest.ssd2Id === null ? label : null;
+                      return { ...rest, unknownLabel };
                     }
                   )
                 });

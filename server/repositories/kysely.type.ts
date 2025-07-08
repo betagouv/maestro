@@ -59,7 +59,7 @@ export interface AnalysisResidues {
   resultKind: ColumnType<ResultKind, ResultKind | 'ND', ResultKind | 'ND'>;
   substanceApproved: string | null;
   substanceAuthorised: string | null;
-  unknown_label: string | null;
+  unknownLabel: string | null;
   analysisDate: MaestroDate | null;
 }
 

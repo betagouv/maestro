@@ -176,8 +176,8 @@ export const analysisHandler = async (
               residueNumber,
               reference: residue.ssd2Id,
               analysisDate: residue.analysisDate,
-              unknown_label:
-                residue.ssd2Id === null ? residue.unknown_label : null
+              unknownLabel:
+                residue.ssd2Id === null ? residue.unknownLabel : null
             }
           ],
           trx

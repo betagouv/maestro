@@ -33,7 +33,10 @@ export const genPartialAnalysis = (
 });
 
 export const genPartialResidue = (
-  data?: Partial<Omit<Residue, 'analytes'>> & { analytes?: PartialAnalyte[] }
+  data?: Partial<Omit<Residue, 'analytes'>> & {
+    analytes?: PartialAnalyte[];
+    unknownLabel?: string;
+  }
 ): PartialResidue => ({
   analysisId: uuidv4(),
   residueNumber: fakerFR.number.int(99),

@@ -37,7 +37,7 @@ test("Le fichier est updloadé sur le S3, n'est pas supprimé du S3 et est en bd
         ssd2Id: 'RF-0002-001-PPP',
         result_kind: 'NQ',
         analysisMethod: 'Multi',
-        unknown_label: null,
+        unknownLabel: null,
         analysisDate: null
       }
     ]
@@ -120,7 +120,7 @@ test("Si une erreur intervient après l'upload sur le S3, on supprime le documen
           ssd2Id: 'RF-0002-001-PPP',
           result_kind: 'NQ',
           analysisMethod: 'Multi',
-          unknown_label: null,
+          unknownLabel: null,
           analysisDate: null
         }
       ]
@@ -144,7 +144,7 @@ test("Impossible d'enregistrer l'analyse si on trouve un résidu complexe sans a
           ssd2Id: 'RF-0008-001-PPP',
           result_kind: 'NQ',
           analysisMethod: 'Multi',
-          unknown_label: null,
+          unknownLabel: null,
           analysisDate: null
         }
       ]
@@ -167,21 +167,21 @@ test('Peut enregistrer une analyse avec un résidu complexe et ses analytes asso
         ssd2Id: 'RF-00002588-PAR',
         result_kind: 'NQ',
         analysisMethod: 'Multi',
-        unknown_label: null,
+        unknownLabel: null,
         analysisDate: null
       },
       {
         ssd2Id: 'RF-0008-001-PPP',
         result_kind: 'NQ',
         analysisMethod: 'Multi',
-        unknown_label: null,
+        unknownLabel: null,
         analysisDate: null
       },
       {
         ssd2Id: 'RF-00004646-PAR',
         result_kind: 'NQ',
         analysisMethod: 'Multi',
-        unknown_label: null,
+        unknownLabel: null,
         analysisDate: null
       }
     ]
@@ -222,21 +222,21 @@ test('Un résidu complexe Non Quantifiable est enregistré en Non détecté si t
         ssd2Id: 'RF-00002588-PAR',
         result_kind: 'ND',
         analysisMethod: 'Multi',
-        unknown_label: null,
+        unknownLabel: null,
         analysisDate: null
       },
       {
         ssd2Id: 'RF-0008-001-PPP',
         result_kind: 'NQ',
         analysisMethod: 'Multi',
-        unknown_label: null,
+        unknownLabel: null,
         analysisDate: null
       },
       {
         ssd2Id: 'RF-00004646-PAR',
         result_kind: 'ND',
         analysisMethod: 'Multi',
-        unknown_label: null,
+        unknownLabel: null,
         analysisDate: null
       }
     ]
