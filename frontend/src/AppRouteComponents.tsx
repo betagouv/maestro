@@ -1,6 +1,7 @@
 import { AppRouteKeys } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { ReactElement } from 'react';
 import YearRoute from './components/YearRoute/YearRoute';
+import { AdminView } from './views/AdminView/AdminView';
 import DashboardView from './views/DashboardView/DashboardView';
 import DocumentListView from './views/DocumentListView/DocumentListView';
 import HomeView from './views/HomeView/HomeView';
@@ -23,5 +24,6 @@ export const AppRouteComponents = {
   ApiDocsRoute: OpenApiExplorerView,
   LogoutCallbackRoute: LogoutCallbackView,
   LoginRoute: HomeView,
-  LoginCallbackRoute: LoginCallbackView
+  LoginCallbackRoute: LoginCallbackView,
+  AdminRoute: AdminView
 } as const satisfies Record<AppRouteKeys, () => ReactElement>;

@@ -30,7 +30,8 @@ const Header = () => {
   const { isMobile } = useWindowSize();
   const apiClient = useContext(ApiClientContext);
 
-  const { isAuthenticated, hasUserPermission, user } = useAuthentication();
+  const { isAuthenticated, hasUserPermission, user, hasRole } =
+    useAuthentication();
 
   const { data: programmingPlans } = apiClient.useFindProgrammingPlansQuery(
     {},
@@ -230,7 +231,18 @@ const Header = () => {
                 },
                 text: 'Documents ressources',
                 isActive: location.pathname.startsWith('/documents')
-              }
+              },
+
+              hasRole('Administrator')
+                ? {
+                    linkProps: {
+                      to: AuthenticatedAppRoutes.AdminRoute.link,
+                      target: '_self'
+                    },
+                    text: 'Administration',
+                    isActive: location.pathname.startsWith('/admin')
+                  }
+                : undefined
             ]
           : []
         ).filter(isDefined)}

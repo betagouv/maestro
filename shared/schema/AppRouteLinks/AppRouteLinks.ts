@@ -35,6 +35,9 @@ export const AppRouteLinks = {
   },
   LogoutCallbackRoute: {
     link: '/logout-callback'
+  },
+  AdminRoute: {
+    link: '/admin'
   }
 } as const satisfies Record<string, AppRouteLink>;
 

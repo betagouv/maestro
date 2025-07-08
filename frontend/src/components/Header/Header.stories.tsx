@@ -136,3 +136,19 @@ export const Authenticated: Story = {
     await expect(historyMenu).toBeInTheDocument();
   }
 };
+
+export const Adiministrator: Story = {
+  args: {
+    id: 'id',
+    filters: {}
+  },
+  parameters: {
+    preloadedState: {
+      auth: {
+        authUser: genAuthUser({
+          role: 'Administrator'
+        })
+      }
+    }
+  }
+};
