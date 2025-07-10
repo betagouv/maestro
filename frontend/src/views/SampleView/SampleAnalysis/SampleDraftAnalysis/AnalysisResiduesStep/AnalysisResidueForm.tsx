@@ -30,6 +30,7 @@ import ComplexResidueForm from './ComplexResidueForm';
 import { ResidueInterpretationForm } from './ResidueInterpretationForm';
 import SimpleResidueForm from './SimpleResidueForm';
 
+//FIXME pour moi il faut faire évoluer ce form pour gérer la LMR correctement
 const _validator = Analysis.pick({ residues: true });
 export type Props = {
   residueIndex: number;

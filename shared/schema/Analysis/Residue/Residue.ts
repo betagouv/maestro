@@ -36,6 +36,7 @@ export const Residue = ResidueBase.superRefine((residu, ctx) => {
       path: ['otherCompliance']
     });
   }
+
   if (residu.resultKind === 'Q') {
     if (isNil(residu.result) || residu.result === 0) {
       ctx.addIssue({
@@ -44,6 +45,8 @@ export const Residue = ResidueBase.superRefine((residu, ctx) => {
         path: ['result']
       });
     }
+
+    //FIXME ce check est à revoir ou a supprimer. Apparemment on ne peut pas donner de context lors de l'appel à z.parse :-/
     if (isNil(residu.lmr) || residu.lmr === 0) {
       ctx.addIssue({
         code: 'custom',
