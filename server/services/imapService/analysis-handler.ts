@@ -1,3 +1,4 @@
+import { lmrIsRequired } from 'maestro-shared/checks/residues';
 import {
   getAnalytes,
   isComplex
@@ -28,8 +29,10 @@ export const analysisHandler = async (
 }> => {
   const {
     sampleId,
-    samplerId,
+    sampleMatrixPart,
+    sampleStage,
     analyseId: oldAnalyseId,
+    samplerId,
     samplerEmail
   } = await kysely
     .selectFrom('samples')
@@ -38,6 +41,8 @@ export const analysisHandler = async (
     .where('reference', '=', analyse.sampleReference)
     .select([
       'samples.id as sampleId',
+      'samples.stage as sampleStage',
+      'samples.matrixPart as sampleMatrixPart',
       'analysis.id as analyseId',
       'users.email as samplerEmail',
       'users.id as samplerId'
@@ -111,9 +116,10 @@ export const analysisHandler = async (
 
   residues.push(...Object.values(complexeResiduesIndex));
 
-  //Tous les résidus quantifiés doivent avoir une LMR
+  //Vérifie si la LMR est obligatoire
+  const isRequired = lmrIsRequired(sampleMatrixPart, sampleStage, 'Q');
   residues.forEach((r) => {
-    if (r.result_kind === 'Q' && r.lmr === 0) {
+    if (r.result_kind === 'Q' && isRequired && r.lmr === 0) {
       throw new ExtractError(`Le résidu ${r.ssd2Id} n'a pas de LMR`);
     }
   });
