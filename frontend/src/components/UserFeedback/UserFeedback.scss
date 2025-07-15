@@ -1,0 +1,12 @@
+.user-feedback-container {
+  width: 100%;
+  text-align: center;
+
+  a {
+    background-image: none;
+
+    &::after {
+      display: none;
+    }
+  }
+}
