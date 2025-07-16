@@ -22,10 +22,10 @@ import { selectOptionsFromList } from '../../../../../components/_app/AppSelect/
 import AppTextAreaInput from '../../../../../components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from '../../../../../components/_app/AppTextInput/AppTextInput';
 import { UseForm } from '../../../../../hooks/useForm';
-import { Form } from './AnalysisResiduesForm';
+import { AnalysisResiduesValidator } from './AnalysisResiduesForm';
 
 type Props = {
-  form: UseForm<Form>;
+  form: UseForm<AnalysisResiduesValidator>;
   residue: PartialResidue;
   residueIndex: number;
   onChangeResidue: (residue: PartialResidue, index: number) => void;

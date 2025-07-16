@@ -9,13 +9,12 @@ import {
   SSD2IdLabel,
   SSD2Referential
 } from 'maestro-shared/referential/Residue/SSD2Referential';
-import { Analysis } from 'maestro-shared/schema/Analysis/Analysis';
 import {
   AnalysisMethod,
   AnalysisMethodLabels,
   AnalysisMethodList
 } from 'maestro-shared/schema/Analysis/AnalysisMethod';
-import { type PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
+import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import {
   ResidueKind,
   ResidueKindLabels
@@ -26,16 +25,15 @@ import AppRadioButtons from '../../../../../components/_app/AppRadioButtons/AppR
 import AppSearchInput from '../../../../../components/_app/AppSearchInput/AppSearchInput';
 import { selectOptionsFromList } from '../../../../../components/_app/AppSelect/AppSelectOption';
 import { UseForm } from '../../../../../hooks/useForm';
+import { AnalysisResiduesValidator } from './AnalysisResiduesForm';
 import ComplexResidueForm from './ComplexResidueForm';
 import { ResidueInterpretationForm } from './ResidueInterpretationForm';
 import SimpleResidueForm from './SimpleResidueForm';
 
-//FIXME pour moi il faut faire évoluer ce form pour gérer la LMR correctement
-const _validator = Analysis.pick({ residues: true });
 export type Props = {
   residueIndex: number;
   residue: PartialResidue;
-  form: UseForm<typeof _validator>;
+  form: UseForm<AnalysisResiduesValidator>;
   onDeleteResidue: () => void;
   changeResidue: (residue: PartialResidue, residueIndex: number) => void;
 };

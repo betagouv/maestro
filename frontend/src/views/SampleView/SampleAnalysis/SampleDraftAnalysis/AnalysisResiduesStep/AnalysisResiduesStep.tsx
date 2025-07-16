@@ -2,6 +2,7 @@ import {
   Analysis,
   PartialAnalysis
 } from 'maestro-shared/schema/Analysis/Analysis';
+import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { useContext } from 'react';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import { ApiClientContext } from '../../../../../services/apiClient';
@@ -9,10 +10,11 @@ import '../SampleDraftAnalysis.scss';
 import { AnalysisResiduesForm } from './AnalysisResiduesForm';
 
 interface Props {
+  sample: Sample;
   partialAnalysis: PartialAnalysis;
 }
 
-const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
+const AnalysisResiduesStep = ({ sample, partialAnalysis }: Props) => {
   const apiClient = useContext(ApiClientContext);
   const { navigateToSample } = useSamplesLink();
   const [updateAnalysis] = apiClient.useUpdateAnalysisMutation();
@@ -36,6 +38,7 @@ const AnalysisResiduesStep = ({ partialAnalysis }: Props) => {
 
   return (
     <AnalysisResiduesForm
+      sample={sample}
       partialAnalysis={partialAnalysis}
       onValidate={onSubmit}
       onBack={onBack}

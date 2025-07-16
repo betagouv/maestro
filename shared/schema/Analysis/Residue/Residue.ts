@@ -1,8 +1,10 @@
 import { isNil } from 'lodash-es';
+import { CheckFn } from 'zod/dist/types/v4/core';
 import { z } from 'zod/v4';
 import { OptionalBoolean } from '../../../referential/OptionnalBoolean';
 import { SSD2Id } from '../../../referential/Residue/SSD2Id';
 import { maestroDate } from '../../../utils/date';
+import { Sample } from '../../Sample/Sample';
 import { AnalysisMethod } from '../AnalysisMethod';
 import { Analyte, PartialAnalyte } from '../Analyte';
 import { ResidueCompliance } from './ResidueCompliance';
@@ -28,34 +30,64 @@ const ResidueBase = z.object({
   analytes: z.array(Analyte).nullish()
 });
 
-export const Residue = ResidueBase.superRefine((residu, ctx) => {
-  if (residu.compliance === 'Other' && !residu.otherCompliance) {
-    ctx.addIssue({
+export const Residue = ResidueBase.check((ctx) => {
+  if (ctx.value.compliance === 'Other' && !ctx.value.otherCompliance) {
+    ctx.issues.push({
+      input: ctx.value,
       code: 'custom',
       message: 'Veuillez préciser la conformité la conformité “Autre”.',
       path: ['otherCompliance']
     });
   }
 
-  if (residu.resultKind === 'Q') {
-    if (isNil(residu.result) || residu.result === 0) {
-      ctx.addIssue({
+  if (ctx.value.resultKind === 'Q') {
+    if (isNil(ctx.value.result) || ctx.value.result === 0) {
+      ctx.issues.push({
+        input: ctx.value,
         code: 'custom',
         message: 'Veuillez préciser le résultat',
         path: ['result']
       });
     }
+  }
+});
 
-    //FIXME ce check est à revoir ou a supprimer. Apparemment on ne peut pas donner de context lors de l'appel à z.parse :-/
-    if (isNil(residu.lmr) || residu.lmr === 0) {
-      ctx.addIssue({
+export const sampleResidueLmrCheck: CheckFn<
+  Pick<Sample, 'stage' | 'specificData'> & Pick<Residue, 'resultKind' | 'lmr'>
+> = (ctx) => {
+  // La LMR est obligatoire lorsque les inspecteurs ont saisi dans la description du prélèvement:
+  // - Le résultat est quantifiable
+  // - Stade de prélèvement -> n'est pas « en cours de culture » (uniquement pour la PPV donc)
+  // - Et LMR / Partie du végétal concernée -> n'est pas « Partie non LMR »
+  if (
+    ctx.value.resultKind === 'Q' &&
+    ctx.value.specificData.programmingPlanKind === 'PPV' &&
+    ctx.value.specificData.matrixPart === 'PART1' &&
+    ctx.value.stage !== 'STADE2'
+  ) {
+    if (isNil(ctx.value.lmr) || ctx.value.lmr === 0) {
+      ctx.issues.push({
+        input: ctx.value,
         code: 'custom',
         message: 'Veuillez préciser la LMR',
         path: ['lmr']
       });
     }
   }
-});
+};
+
+export const LmrCheck = z
+  .object({
+    ...Sample.pick({
+      stage: true,
+      specificData: true
+    }).shape,
+    ...ResidueBase.pick({
+      resultKind: true,
+      lmr: true
+    }).shape
+  })
+  .check(sampleResidueLmrCheck);
 
 export const PartialResidue = z.object({
   ...ResidueBase.partial().shape,
@@ -68,5 +100,22 @@ export const PartialResidue = z.object({
   analytes: z.array(PartialAnalyte).nullish()
 });
 
+export const PartialResidueLmrCheck = z
+  .object({
+    ...PartialResidue.shape,
+    ...LmrCheck.shape
+  })
+  .check(sampleResidueLmrCheck);
+
+export const ResidueLmrCheck = z
+  .object({
+    ...Residue.shape,
+    ...LmrCheck.shape
+  })
+  .check(sampleResidueLmrCheck);
+
 export type Residue = z.infer<typeof Residue>;
 export type PartialResidue = z.infer<typeof PartialResidue>;
+export type LmrCheck = z.infer<typeof LmrCheck>;
+export type PartialResidueLmrCheck = z.infer<typeof PartialResidueLmrCheck>;
+export type ResidueLmrCheck = z.infer<typeof ResidueLmrCheck>;

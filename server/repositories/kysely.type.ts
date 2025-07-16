@@ -208,6 +208,7 @@ export interface Samples {
   sampledAt: Timestamp;
   sampledBy: string | null;
   sentAt: Timestamp | null;
+  specificData: JSON | null;
   stage: Stage | null;
   status: string;
 }

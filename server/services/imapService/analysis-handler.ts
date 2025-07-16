@@ -1,10 +1,11 @@
-import { lmrIsRequired } from 'maestro-shared/checks/residues';
 import {
   getAnalytes,
   isComplex
 } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import { Stage } from 'maestro-shared/referential/Stage';
 import { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
+import { LmrCheck } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { OmitDistributive } from 'maestro-shared/utils/typescript';
 import { analysisReportDocumentsRepository } from '../../repositories/analysisReportDocumentsRepository';
 import { analysisRepository } from '../../repositories/analysisRepository';
@@ -29,8 +30,8 @@ export const analysisHandler = async (
 }> => {
   const {
     sampleId,
-    sampleMatrixPart,
     sampleStage,
+    sampleSpecificData,
     analyseId: oldAnalyseId,
     samplerId,
     samplerEmail
@@ -42,7 +43,7 @@ export const analysisHandler = async (
     .select([
       'samples.id as sampleId',
       'samples.stage as sampleStage',
-      'samples.matrixPart as sampleMatrixPart',
+      'samples.specificData as sampleSpecificData',
       'analysis.id as analyseId',
       'users.email as samplerEmail',
       'users.id as samplerId'
@@ -117,9 +118,15 @@ export const analysisHandler = async (
   residues.push(...Object.values(complexeResiduesIndex));
 
   //Vérifie si la LMR est obligatoire
-  const isRequired = lmrIsRequired(sampleMatrixPart, sampleStage, 'Q');
   residues.forEach((r) => {
-    if (r.result_kind === 'Q' && isRequired && r.lmr === 0) {
+    if (
+      !LmrCheck.safeParse({
+        stage: sampleStage as Stage,
+        specificData: sampleSpecificData,
+        resultKind: r.result_kind,
+        lmr: r.result_kind === 'Q' ? r.lmr : null
+      }).success
+    ) {
       throw new ExtractError(`Le résidu ${r.ssd2Id} n'a pas de LMR`);
     }
   });
