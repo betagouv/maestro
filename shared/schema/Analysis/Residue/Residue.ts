@@ -100,13 +100,6 @@ export const PartialResidue = z.object({
   analytes: z.array(PartialAnalyte).nullish()
 });
 
-export const PartialResidueLmrCheck = z
-  .object({
-    ...PartialResidue.shape,
-    ...LmrCheck.shape
-  })
-  .check(sampleResidueLmrCheck);
-
 export const ResidueLmrCheck = z
   .object({
     ...Residue.shape,
