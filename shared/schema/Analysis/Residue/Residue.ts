@@ -52,7 +52,7 @@ export const Residue = ResidueBase.check((ctx) => {
   }
 });
 
-export const sampleResidueLmrCheck: CheckFn<
+const sampleResidueLmrCheck: CheckFn<
   Pick<Sample, 'stage' | 'specificData'> & Pick<Residue, 'resultKind' | 'lmr'>
 > = (ctx) => {
   // La LMR est obligatoire lorsque les inspecteurs ont saisi dans la description du prélèvement:
