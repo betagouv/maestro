@@ -117,5 +117,4 @@ export const ResidueLmrCheck = z
 export type Residue = z.infer<typeof Residue>;
 export type PartialResidue = z.infer<typeof PartialResidue>;
 export type LmrCheck = z.infer<typeof LmrCheck>;
-export type PartialResidueLmrCheck = z.infer<typeof PartialResidueLmrCheck>;
 export type ResidueLmrCheck = z.infer<typeof ResidueLmrCheck>;
