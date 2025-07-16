@@ -1,13 +1,12 @@
 import { expect, test } from 'vitest';
-import { genPartialResidue } from '../../../test/analysisFixtures';
-import { Sample11Fixture } from '../../../test/sampleFixtures';
-import { PartialResidueLmrCheck } from './Residue';
+import { LmrCheck } from './Residue';
 
 test('sampleResidueLmrCheck', () => {
   expect(
-    PartialResidueLmrCheck.safeParse({
+    LmrCheck.safeParse({
       stage: 'STADE1',
       specificData: {
+        cultureKind: 'PD06A',
         programmingPlanKind: 'PPV',
         matrixPart: 'PART1'
       },
@@ -16,183 +15,147 @@ test('sampleResidueLmrCheck', () => {
     }).success
   ).toEqual(true);
   expect(
-    PartialResidueLmrCheck.safeParse({
-      ...Sample11Fixture,
+    LmrCheck.safeParse({
       stage: 'STADE1',
       specificData: {
-        ...Sample11Fixture.specificData,
+        cultureKind: 'PD06A',
         programmingPlanKind: 'PPV',
         matrixPart: 'PART1'
       },
-      ...genPartialResidue({
-        resultKind: 'Q',
-        lmr: null
-      })
+      resultKind: 'Q',
+      lmr: null
     }).success
   ).toEqual(false);
   expect(
-    PartialResidueLmrCheck.safeParse({
-      ...Sample11Fixture,
+    LmrCheck.safeParse({
       stage: 'STADE1',
       specificData: {
-        ...Sample11Fixture.specificData,
+        cultureKind: 'PD06A',
         programmingPlanKind: 'PPV',
         matrixPart: 'PART1'
       },
-      ...genPartialResidue({
-        resultKind: 'Q',
-        lmr: 0
-      })
+      resultKind: 'Q',
+      lmr: 0
     }).success
   ).toEqual(false);
   expect(
-    PartialResidueLmrCheck.safeParse({
-      ...Sample11Fixture,
+    LmrCheck.safeParse({
       stage: 'STADE1',
       specificData: {
-        ...Sample11Fixture.specificData,
+        cultureKind: 'PD06A',
         programmingPlanKind: 'PPV',
         matrixPart: 'PART1'
       },
-      ...genPartialResidue({
-        resultKind: 'Q',
-        lmr: 0.5
-      })
+      resultKind: 'Q',
+      lmr: 0.5
     }).success
   ).toEqual(true);
   expect(
-    PartialResidueLmrCheck.safeParse({
-      ...Sample11Fixture,
+    LmrCheck.safeParse({
       stage: 'STADE2',
       specificData: {
-        ...Sample11Fixture.specificData,
+        cultureKind: 'PD06A',
         programmingPlanKind: 'PPV',
         matrixPart: 'PART1'
       },
-      ...genPartialResidue({
-        resultKind: 'Q',
-        lmr: null
-      })
+      resultKind: 'Q',
+      lmr: null
     }).success
   ).toEqual(true);
   expect(
-    PartialResidueLmrCheck.safeParse({
-      ...Sample11Fixture,
+    LmrCheck.safeParse({
       stage: 'STADE2',
       specificData: {
-        ...Sample11Fixture.specificData,
+        cultureKind: 'PD06A',
         programmingPlanKind: 'PPV',
         matrixPart: 'PART1'
       },
-      ...genPartialResidue({
-        resultKind: 'Q',
-        lmr: 0
-      })
+      resultKind: 'Q',
+      lmr: 0
     }).success
   ).toEqual(true);
   expect(
-    PartialResidueLmrCheck.safeParse({
-      ...Sample11Fixture,
+    LmrCheck.safeParse({
       stage: 'STADE2',
       specificData: {
-        ...Sample11Fixture.specificData,
+        cultureKind: 'PD06A',
         programmingPlanKind: 'PPV',
         matrixPart: 'PART1'
       },
-      ...genPartialResidue({
-        resultKind: 'Q',
-        lmr: 0.5
-      })
+      resultKind: 'Q',
+      lmr: 0.5
     }).success
   ).toEqual(true);
   expect(
-    PartialResidueLmrCheck.safeParse({
-      ...Sample11Fixture,
+    LmrCheck.safeParse({
       stage: 'STADE1',
       specificData: {
-        ...Sample11Fixture.specificData,
+        cultureKind: 'PD06A',
         programmingPlanKind: 'PPV',
         matrixPart: 'PART2'
       },
-      ...genPartialResidue({
-        resultKind: 'Q',
-        lmr: null
-      })
+      resultKind: 'Q',
+      lmr: null
     }).success
   ).toEqual(true);
   expect(
-    PartialResidueLmrCheck.safeParse({
-      ...Sample11Fixture,
+    LmrCheck.safeParse({
       stage: 'STADE1',
       specificData: {
-        ...Sample11Fixture.specificData,
+        cultureKind: 'PD06A',
         programmingPlanKind: 'PPV',
         matrixPart: 'PART2'
       },
-      ...genPartialResidue({
-        resultKind: 'Q',
-        lmr: 0
-      })
+      resultKind: 'Q',
+      lmr: 0
     }).success
   ).toEqual(true);
   expect(
-    PartialResidueLmrCheck.safeParse({
-      ...Sample11Fixture,
+    LmrCheck.safeParse({
       stage: 'STADE1',
       specificData: {
-        ...Sample11Fixture.specificData,
+        cultureKind: 'PD06A',
         programmingPlanKind: 'PPV',
         matrixPart: 'PART2'
       },
-      ...genPartialResidue({
-        resultKind: 'Q',
-        lmr: 0.5
-      })
+      resultKind: 'Q',
+      lmr: 0.5
     }).success
   ).toEqual(true);
   expect(
-    PartialResidueLmrCheck.safeParse({
-      ...Sample11Fixture,
+    LmrCheck.safeParse({
       stage: 'STADE2',
       specificData: {
-        ...Sample11Fixture.specificData,
+        cultureKind: 'PD06A',
         programmingPlanKind: 'PPV',
         matrixPart: 'PART2'
       },
-      ...genPartialResidue({
-        resultKind: 'Q',
-        lmr: null
-      })
+      resultKind: 'Q',
+      lmr: null
     }).success
   ).toEqual(true);
   expect(
-    PartialResidueLmrCheck.safeParse({
-      ...Sample11Fixture,
+    LmrCheck.safeParse({
       stage: 'STADE2',
       specificData: {
-        ...Sample11Fixture.specificData,
+        cultureKind: 'PD06A',
         programmingPlanKind: 'PPV',
         matrixPart: 'PART2'
       },
-      ...genPartialResidue({
-        resultKind: 'Q',
-        lmr: 0
-      })
+      resultKind: 'Q',
+      lmr: 0
     }).success
   ).toEqual(true);
   expect(
-    PartialResidueLmrCheck.safeParse({
-      ...Sample11Fixture,
+    LmrCheck.safeParse({
       stage: 'STADE2',
       specificData: {
-        ...Sample11Fixture.specificData,
+        cultureKind: 'PD06A',
         programmingPlanKind: 'PPV',
         matrixPart: 'PART2'
       },
-      ...genPartialResidue({
-        resultKind: 'Q',
-        lmr: 0.5
-      })
+      resultKind: 'Q',
+      lmr: 0.5
     }).success
   ).toEqual(true);
 });
