@@ -1,4 +1,5 @@
 import { fakerFR } from '@faker-js/faker';
+import { NationalCoordinator } from 'maestro-shared/test/userFixtures';
 import { v4 as uuidv4 } from 'uuid';
 import { Users } from '../../../repositories/userRepository';
 
@@ -13,7 +14,7 @@ export const seed = async function () {
       role: 'Administrator'
     },
     {
-      id: uuidv4(),
+      id: NationalCoordinator.id,
       email: 'coordinateur.national@maestro.beta.gouv.fr',
       firstName: fakerFR.person.firstName(),
       lastName: fakerFR.person.lastName(),
