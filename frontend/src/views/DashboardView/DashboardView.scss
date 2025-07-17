@@ -1,0 +1,60 @@
+@use '../../constants' as constants;
+
+.fr-callout {
+  border-bottom: 0;
+
+  .fr-quote {
+    background-image: none;
+    padding: 1rem;
+    text-align: center;
+
+    &::before {
+      width: 100%;
+    }
+
+    blockquote p {
+      font-size: 1.5rem;
+      line-height: 2rem;
+      font-weight: 400;
+    }
+
+    .fr-quote__author {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+
+      img {
+        border-radius: 50%;
+        width: 68px;
+      }
+
+      .manon {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  }
+}
+
+.links-container {
+  display: flex;
+  background-color: #fff;
+
+  @media (max-width: constants.$breakpoint-md) {
+    flex-direction: column;
+  }
+
+  & > div {
+    flex: 1;
+    border: 1px solid var(--border-default-grey);
+    justify-content: center;
+    padding: 1.5rem 0;
+    gap: 0.75rem;
+
+    &:first-child {
+      border-right: 0;
+    }
+  }
+}
