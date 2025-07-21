@@ -2,6 +2,8 @@ import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { Brand } from 'maestro-shared/constants';
+import { Regions } from 'maestro-shared/referential/Region';
+import { UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
 import React, { FunctionComponent, useContext, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { useAuthentication } from '../../hooks/useAuthentication';
@@ -78,7 +80,11 @@ const UsersSearchInput: FunctionComponent<{
             {
               labels: users.reduce(
                 (acc, u) => {
-                  acc[u.id] = `${u.firstName} ${u.lastName}`;
+                  let label = `${u.firstName} ${u.lastName} - ${UserRoleLabels[u.role]}`;
+                  if (u.region) {
+                    label += ` - ${Regions[u.region].name}`;
+                  }
+                  acc[u.id] = label;
                   return acc;
                 },
                 {} as Record<string, string>
