@@ -5,8 +5,10 @@
 
 import { ColumnType, type Kysely } from 'kysely';
 import { LaboratoryName } from 'maestro-shared/referential/Laboratory';
+import { MatrixPart } from 'maestro-shared/referential/Matrix/MatrixPart';
 import { type Region } from 'maestro-shared/referential/Region';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import { Stage } from 'maestro-shared/referential/Stage';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
 import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
@@ -190,7 +192,7 @@ export interface Samples {
   legalContext: string;
   matrix: string | null;
   matrixDetails: string | null;
-  matrixPart: string | null;
+  matrixPart: MatrixPart | null;
   notesOnAdmissibility: string | null;
   notesOnCreation: string | null;
   notesOnItems: string | null;
@@ -206,7 +208,8 @@ export interface Samples {
   sampledAt: Timestamp;
   sampledBy: string | null;
   sentAt: Timestamp | null;
-  stage: string | null;
+  specificData: JSON | null;
+  stage: Stage | null;
   status: string;
 }
 

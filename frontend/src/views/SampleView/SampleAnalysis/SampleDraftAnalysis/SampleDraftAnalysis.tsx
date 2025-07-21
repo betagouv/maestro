@@ -76,6 +76,7 @@ const SampleDraftAnalysis = ({ sample }: Props) => {
       )}
       {step === 2 && (
         <AnalysisResiduesStep
+          sample={sample}
           partialAnalysis={partialAnalysis as PartialAnalysis}
         />
       )}

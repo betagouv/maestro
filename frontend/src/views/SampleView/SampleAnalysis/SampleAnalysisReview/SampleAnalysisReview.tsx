@@ -129,6 +129,7 @@ export const SampleAnalysisReview: FunctionComponent<Props> = ({
       {reviewState === 'Review' &&
         (hasResidues ? (
           <ReviewWithResidues
+            sample={sample}
             analysis={analysis}
             onCorrectAnalysis={onCorrectAnalysis}
             onGoToInterpretation={onValidateCorrection}
@@ -152,6 +153,7 @@ export const SampleAnalysisReview: FunctionComponent<Props> = ({
       )}
       {reviewState === 'Correction' && (
         <AnalysisResiduesForm
+          sample={sample}
           onBack={onBackToFirstStep}
           onValidate={onValidateCorrection}
           partialAnalysis={analysis}

@@ -1,5 +1,9 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
+import {
+  LmrCheck,
+  PartialResidue,
+  ResidueLmrCheck
+} from 'maestro-shared/schema/Analysis/Residue/Residue';
 import {
   ResultKind,
   ResultKindLabels,
@@ -92,7 +96,12 @@ function SimpleResidueForm({
                 label="Valeur de la LMR"
                 hintText="En mg/kg"
                 min={0}
-                required
+                required={
+                  !LmrCheck.safeParse({
+                    ...(form.input.residues as ResidueLmrCheck[])[residueIndex],
+                    lmr: null
+                  }).success
+                }
               />
             </div>
             {isDefinedAndNotNull(residue.result) &&

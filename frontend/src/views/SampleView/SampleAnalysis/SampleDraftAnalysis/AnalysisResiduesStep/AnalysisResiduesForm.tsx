@@ -5,23 +5,32 @@ import {
   Analysis,
   PartialAnalysis
 } from 'maestro-shared/schema/Analysis/Analysis';
-import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
+import {
+  PartialResidue,
+  ResidueLmrCheck
+} from 'maestro-shared/schema/Analysis/Residue/Residue';
+import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import React, { FunctionComponent, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
+import { z } from 'zod/v4';
 import { useForm } from '../../../../../hooks/useForm';
 import { AnalysisResidueForm } from './AnalysisResidueForm';
 
 type Props = {
+  sample: Sample;
   partialAnalysis: Pick<PartialAnalysis, 'id' | 'residues'>;
   onBack: () => Promise<void>;
   onValidate: (residues: Analysis['residues']) => Promise<void>;
 };
 
-const analysisResiduesValidator = Analysis.pick({ residues: true });
-export type Form = typeof analysisResiduesValidator;
+const analysisResiduesValidator = z.object({
+  residues: z.array(ResidueLmrCheck)
+});
+export type AnalysisResiduesValidator = typeof analysisResiduesValidator;
 
 export const useResiduesForm = (
-  partialAnalysis: Pick<PartialAnalysis, 'residues'>
+  partialAnalysis: Pick<PartialAnalysis, 'residues'>,
+  sample: Sample
 ) => {
   const [residues, setResidues] = useState(partialAnalysis.residues ?? []);
 
@@ -32,18 +41,21 @@ export const useResiduesForm = (
   };
 
   const form = useForm(analysisResiduesValidator, {
-    residues
+    residues: residues.map((residue) => ({
+      ...sample,
+      ...residue
+    }))
   });
 
   return {
     residues,
     setResidues,
-    Form: analysisResiduesValidator,
     form,
     changeResidue
   };
 };
 export const AnalysisResiduesForm: FunctionComponent<Props> = ({
+  sample,
   partialAnalysis,
   onBack,
   onValidate,
@@ -51,13 +63,10 @@ export const AnalysisResiduesForm: FunctionComponent<Props> = ({
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  const {
-    residues,
-    setResidues,
-    Form: _Form,
-    form,
-    changeResidue
-  } = useResiduesForm(partialAnalysis);
+  const { residues, setResidues, form, changeResidue } = useResiduesForm(
+    partialAnalysis,
+    sample
+  );
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
