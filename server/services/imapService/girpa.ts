@@ -727,7 +727,7 @@ export const analyseXmlValidator = z.object({
   Limite_de_quantification: frenchNumberStringValidator,
   LMR: z
     .union([z.literal('-'), z.number(), frenchNumberStringValidator])
-    .transform((a) => (a === '-' ? 0 : a)),
+    .transform((a) => (a === '-' ? null : a)),
   Substance_active_CAS: residueCasNumberValidator,
   Substance_active_anglais: residueEnglishNameValidator,
   //'16/04/2025 21:09:28'

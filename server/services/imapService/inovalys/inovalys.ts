@@ -122,7 +122,7 @@ export const extractAnalyzes = (
       'Spécification 1': z
         .union([frenchNumberStringValidator, z.string().startsWith('<')])
         .optional()
-        .transform((v) => (typeof v === 'number' ? v : 0)),
+        .transform((v) => (typeof v === 'number' ? v : null)),
       'Numéro CAS': z
         .string()
         .optional()
