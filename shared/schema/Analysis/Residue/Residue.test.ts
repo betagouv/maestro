@@ -1,9 +1,9 @@
 import { expect, test } from 'vitest';
-import { LmrCheck } from './Residue';
+import { LmrIsValid } from './Residue';
 
-test('sampleResidueLmrCheck', () => {
+test('sampleResidueLmrIsValid', () => {
   expect(
-    LmrCheck.safeParse({
+    LmrIsValid({
       stage: 'STADE1',
       specificData: {
         cultureKind: 'PD06A',
@@ -12,10 +12,10 @@ test('sampleResidueLmrCheck', () => {
       },
       resultKind: 'NQ',
       lmr: null
-    }).success
+    })
   ).toEqual(true);
   expect(
-    LmrCheck.safeParse({
+    LmrIsValid({
       stage: 'STADE1',
       specificData: {
         cultureKind: 'PD06A',
@@ -24,10 +24,10 @@ test('sampleResidueLmrCheck', () => {
       },
       resultKind: 'Q',
       lmr: null
-    }).success
+    })
   ).toEqual(false);
   expect(
-    LmrCheck.safeParse({
+    LmrIsValid({
       stage: 'STADE1',
       specificData: {
         cultureKind: 'PD06A',
@@ -36,10 +36,10 @@ test('sampleResidueLmrCheck', () => {
       },
       resultKind: 'Q',
       lmr: 0
-    }).success
+    })
   ).toEqual(false);
   expect(
-    LmrCheck.safeParse({
+    LmrIsValid({
       stage: 'STADE1',
       specificData: {
         cultureKind: 'PD06A',
@@ -48,10 +48,10 @@ test('sampleResidueLmrCheck', () => {
       },
       resultKind: 'Q',
       lmr: 0.5
-    }).success
+    })
   ).toEqual(true);
   expect(
-    LmrCheck.safeParse({
+    LmrIsValid({
       stage: 'STADE2',
       specificData: {
         cultureKind: 'PD06A',
@@ -60,10 +60,10 @@ test('sampleResidueLmrCheck', () => {
       },
       resultKind: 'Q',
       lmr: null
-    }).success
+    })
   ).toEqual(true);
   expect(
-    LmrCheck.safeParse({
+    LmrIsValid({
       stage: 'STADE2',
       specificData: {
         cultureKind: 'PD06A',
@@ -72,10 +72,10 @@ test('sampleResidueLmrCheck', () => {
       },
       resultKind: 'Q',
       lmr: 0
-    }).success
+    })
   ).toEqual(true);
   expect(
-    LmrCheck.safeParse({
+    LmrIsValid({
       stage: 'STADE2',
       specificData: {
         cultureKind: 'PD06A',
@@ -84,10 +84,10 @@ test('sampleResidueLmrCheck', () => {
       },
       resultKind: 'Q',
       lmr: 0.5
-    }).success
+    })
   ).toEqual(true);
   expect(
-    LmrCheck.safeParse({
+    LmrIsValid({
       stage: 'STADE1',
       specificData: {
         cultureKind: 'PD06A',
@@ -96,10 +96,10 @@ test('sampleResidueLmrCheck', () => {
       },
       resultKind: 'Q',
       lmr: null
-    }).success
+    })
   ).toEqual(true);
   expect(
-    LmrCheck.safeParse({
+    LmrIsValid({
       stage: 'STADE1',
       specificData: {
         cultureKind: 'PD06A',
@@ -108,10 +108,10 @@ test('sampleResidueLmrCheck', () => {
       },
       resultKind: 'Q',
       lmr: 0
-    }).success
+    })
   ).toEqual(true);
   expect(
-    LmrCheck.safeParse({
+    LmrIsValid({
       stage: 'STADE1',
       specificData: {
         cultureKind: 'PD06A',
@@ -120,10 +120,10 @@ test('sampleResidueLmrCheck', () => {
       },
       resultKind: 'Q',
       lmr: 0.5
-    }).success
+    })
   ).toEqual(true);
   expect(
-    LmrCheck.safeParse({
+    LmrIsValid({
       stage: 'STADE2',
       specificData: {
         cultureKind: 'PD06A',
@@ -132,10 +132,10 @@ test('sampleResidueLmrCheck', () => {
       },
       resultKind: 'Q',
       lmr: null
-    }).success
+    })
   ).toEqual(true);
   expect(
-    LmrCheck.safeParse({
+    LmrIsValid({
       stage: 'STADE2',
       specificData: {
         cultureKind: 'PD06A',
@@ -144,10 +144,10 @@ test('sampleResidueLmrCheck', () => {
       },
       resultKind: 'Q',
       lmr: 0
-    }).success
+    })
   ).toEqual(true);
   expect(
-    LmrCheck.safeParse({
+    LmrIsValid({
       stage: 'STADE2',
       specificData: {
         cultureKind: 'PD06A',
@@ -156,6 +156,6 @@ test('sampleResidueLmrCheck', () => {
       },
       resultKind: 'Q',
       lmr: 0.5
-    }).success
+    })
   ).toEqual(true);
 });

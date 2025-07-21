@@ -7,6 +7,7 @@ import { ColumnType, type Kysely } from 'kysely';
 import { LaboratoryName } from 'maestro-shared/referential/Laboratory';
 import { type Region } from 'maestro-shared/referential/Region';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import { Stage } from 'maestro-shared/referential/Stage';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
 import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
@@ -14,9 +15,9 @@ import { ResidueCompliance } from 'maestro-shared/schema/Analysis/Residue/Residu
 import { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 import { type DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/Sample';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { MaestroDate } from 'maestro-shared/utils/date';
-import { Stage } from 'maestro-shared/referential/Stage';
 
 export type Generated<T> =
   T extends ColumnType<infer S, infer I, infer U>
@@ -203,7 +204,7 @@ export interface Samples {
   sampledAt: Timestamp;
   sampledBy: string | null;
   sentAt: Timestamp | null;
-  specificData: JSON | null;
+  specificData: SampleMatrixSpecificData;
   stage: Stage | null;
   status: string;
 }
