@@ -334,6 +334,7 @@ export type PartialSample = z.infer<typeof PartialSample>;
 export type SampleToCreate = z.infer<typeof SampleToCreate>;
 export type SampleBase = z.infer<typeof SampleBase>;
 export type Sample = z.infer<typeof Sample>;
+export type SampleMatrixSpecificData = z.infer<typeof SampleMatrixSpecificData>;
 export type PartialSampleMatrixSpecificData = z.infer<
   typeof PartialSampleMatrixSpecificData
 >;

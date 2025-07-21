@@ -76,7 +76,7 @@ const sampleResidueLmrCheck: CheckFn<
   }
 };
 
-export const LmrCheck = z
+const LmrCheck = z
   .object({
     ...Sample.pick({
       stage: true,
@@ -88,6 +88,9 @@ export const LmrCheck = z
     }).shape
   })
   .check(sampleResidueLmrCheck);
+
+export const LmrIsValid = (sample: z.infer<typeof LmrCheck>): boolean =>
+  LmrCheck.safeParse(sample).success;
 
 export const PartialResidue = z.object({
   ...ResidueBase.partial().shape,
@@ -109,5 +112,4 @@ export const ResidueLmrCheck = z
 
 export type Residue = z.infer<typeof Residue>;
 export type PartialResidue = z.infer<typeof PartialResidue>;
-export type LmrCheck = z.infer<typeof LmrCheck>;
 export type ResidueLmrCheck = z.infer<typeof ResidueLmrCheck>;

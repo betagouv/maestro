@@ -3,9 +3,8 @@ import {
   isComplex
 } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
-import { Stage } from 'maestro-shared/referential/Stage';
 import { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
-import { LmrCheck } from 'maestro-shared/schema/Analysis/Residue/Residue';
+import { LmrIsValid } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { OmitDistributive } from 'maestro-shared/utils/typescript';
 import { analysisReportDocumentsRepository } from '../../repositories/analysisReportDocumentsRepository';
 import { analysisRepository } from '../../repositories/analysisRepository';
@@ -55,6 +54,9 @@ export const analysisHandler = async (
         )
     );
 
+  if (sampleStage === null) {
+    throw new ExtractError(`Pas de stade de prélèvement`);
+  }
   const complexResidues = analyse.residues.filter(
     (
       r
@@ -120,12 +122,13 @@ export const analysisHandler = async (
   //Vérifie si la LMR est obligatoire
   residues.forEach((r) => {
     if (
-      !LmrCheck.safeParse({
-        stage: sampleStage as Stage,
+      r.result_kind !== 'ND' &&
+      !LmrIsValid({
+        stage: sampleStage,
         specificData: sampleSpecificData,
         resultKind: r.result_kind,
         lmr: r.result_kind === 'Q' ? r.lmr : null
-      }).success
+      })
     ) {
       throw new ExtractError(`Le résidu ${r.ssd2Id} n'a pas de LMR`);
     }
