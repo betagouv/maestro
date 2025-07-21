@@ -14,6 +14,7 @@ export const inovalysUnknownReferences: string[] = [
   'Pyréthrines', //idem 'RF-0374-001-PPP',
   'Spinosad (A + D)' //idem 'RF-0393-001-PPP',
 ];
+
 export const inovalysReferential: Record<string, SSD2Id> = {
   // Références associées manuellement
   '2,4,5-T (L)': 'RF-0009-001-PPP',
@@ -203,6 +204,9 @@ export const inovalysReferential: Record<string, SSD2Id> = {
   Tridémorphe: 'RF-0438-001-PPP',
   'Triflumizole (L)': 'RF-0440-002-PPP',
   'Trinexapac (+sels)': 'RF-0446-001-PPP',
+  'Chlorméquat (+ sels)': 'RF-00005727-PAR',
+  Formétanate: 'RF-0223-002-PPP',
+  'Mépiquat (+ sels)': 'RF-00005721-PAR',
 
   // Références associées automatiquement via label, cas number ou code Sandre
   'Trichlorophénol 2,4,6': 'RF-0993-001-PPP',
@@ -567,5 +571,36 @@ export const inovalysReferential: Record<string, SSD2Id> = {
   Tritosulfuron: 'RF-0448-001-PPP',
   Vamidothion: 'RF-0969-001-PPP',
   Vinchlozoline: 'RF-0450-003-PPP',
-  Zoxamide: 'RF-0452-001-PPP'
+  Zoxamide: 'RF-0452-001-PPP',
+  '1-Naphtyl acétamide ': 'RF-0006-001-PPP',
+  '4,4-Dichlorobenzophénone ': 'RF-0605-001-PPP',
+  '· DMF (N-2,4-Diméthylphénylformamide) ': 'RF-0024-003-PPP',
+  'Bendiocarbe ': 'RF-0489-001-PPP',
+  'Bensulfuron-méthyl ': 'RF-0494-001-PPP',
+  '· Bifenazate ': 'RF-0044-001-PPP',
+  '· Bifenazate-diazene ': 'RF-00003032-PAR',
+  'Cyromazine ': 'RF-0115-001-PPP',
+  'Diafenthiuron ': 'RF-0596-001-PPP',
+  'Dinotefurane ': 'RF-0633-001-PPP',
+  'Esbiothrine ': 'RF-0504-001-PPP',
+  'Ethiofencarb-sulfoxyde ': 'RF-0663-001-PPP',
+  'Forchlorfenuron ': 'RF-0196-001-PPP',
+  'Haloxyfop-2-ethoxyethyl ': 'RF-0235-003-PPP',
+  'Iprobenfos ': 'RF-0751-001-PPP',
+  'Isoprocarbe ': 'RF-0762-001-PPP',
+  'Méfénacet ': 'RF-0776-001-PPP',
+  'Mépronil ': 'RF-0780-001-PPP',
+  'DEET (= N,N Diéthyl-m-toluamide) (= N,N Diéthyl 3 méthylbenzamide) ':
+    'RF-0616-001-PPP',
+  'Nitenpyram ': 'RF-0810-001-PPP',
+  'Fenbutatin oxyde ': 'RF-0177-001-PPP',
+  'Paraoxon ': 'RF-0828-001-PPP',
+  'Phenmédiphame ': 'RF-0334-001-PPP',
+  '· Phorate oxon sulfone ': 'RF-0336-006-PPP',
+  'Pyridaphenthion ': 'RF-0877-001-PPP',
+  'Quinclorac ': 'RF-0885-001-PPP',
+  'Quinoclamine ': 'RF-0886-001-PPP',
+  'Thiométon ': 'RF-0936-001-PPP',
+  'Tolfenpyrad ': 'RF-0943-001-PPP',
+  'Valifénalate ': 'RF-1057-001-PPP'
 };
