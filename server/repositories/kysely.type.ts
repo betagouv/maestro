@@ -5,10 +5,8 @@
 
 import { ColumnType, type Kysely } from 'kysely';
 import { LaboratoryName } from 'maestro-shared/referential/Laboratory';
-import { MatrixPart } from 'maestro-shared/referential/Matrix/MatrixPart';
 import { type Region } from 'maestro-shared/referential/Region';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
-import { Stage } from 'maestro-shared/referential/Stage';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
 import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
@@ -18,6 +16,7 @@ import { type DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { MaestroDate } from 'maestro-shared/utils/date';
+import { Stage } from 'maestro-shared/referential/Stage';
 
 export type Generated<T> =
   T extends ColumnType<infer S, infer I, infer U>
@@ -183,7 +182,6 @@ export interface Samples {
   companySiret: string | null;
   context: string;
   createdAt: Generated<Timestamp | null>;
-  cultureKind: string | null;
   department: string | null;
   geolocation: Point | null;
   id: Generated<string>;
@@ -191,8 +189,6 @@ export interface Samples {
   lastUpdatedAt: Generated<Timestamp | null>;
   legalContext: string;
   matrix: string | null;
-  matrixDetails: string | null;
-  matrixPart: MatrixPart | null;
   notesOnAdmissibility: string | null;
   notesOnCreation: string | null;
   notesOnItems: string | null;
@@ -203,7 +199,6 @@ export interface Samples {
   receivedAt: Timestamp | null;
   reference: string;
   region: string;
-  releaseControl: boolean | null;
   resytalId: string | null;
   sampledAt: Timestamp;
   sampledBy: string | null;
