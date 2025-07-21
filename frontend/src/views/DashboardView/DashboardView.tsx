@@ -5,7 +5,6 @@ import Tile from '@codegouvfr/react-dsfr/Tile';
 import clsx from 'clsx';
 import { isAfter } from 'date-fns';
 import { unionBy } from 'lodash-es';
-import { Regions } from 'maestro-shared/referential/Region';
 import { isClosed } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useContext, useMemo } from 'react';
 import dashboard from 'src/assets/illustrations/dashboard.svg';
@@ -20,6 +19,7 @@ import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import useWindowSize from '../../hooks/useWindowSize';
 import { ApiClientContext } from '../../services/apiClient';
 import ProgrammingPlanClosing from './ProgrammingPlanClosing';
+
 const DashboardView = () => {
   const apiClient = useContext(ApiClientContext);
   const { hasUserPermission, user } = useAuthentication();
@@ -80,81 +80,68 @@ const DashboardView = () => {
 
   return (
     <section className={clsx(cx('fr-container'), 'main-section')}>
-      <div>
-        <div
-          className={cx(
-            'fr-text--sm',
-            'fr-text--bold',
-            'fr-hint-text',
-            'fr-px-2w'
-          )}
-        >
-          Espace de {user.firstName} {user.lastName}
-          {user.region && <> - Région {Regions[user.region].name}</>}
-        </div>
-        <SectionHeader
-          title="Tableau de bord"
-          subtitle="Un rapide coup d’oeil sur votre activité"
-          illustration={dashboard}
-          action={
-            <>
-              {hasUserPermission('createSample') && (
-                <Button
-                  size="large"
-                  linkProps={{
-                    to: AuthenticatedAppRoutes.NewSampleRoute.link(
-                      currentProgrammingPlan.year
-                    ),
-                    target: '_self'
-                  }}
-                  iconId="fr-icon-microscope-line"
-                >
-                  Saisir un prélèvement
-                </Button>
+      <SectionHeader
+        title="Tableau de bord"
+        subtitle="Un rapide coup d’oeil sur votre activité"
+        illustration={dashboard}
+        action={
+          <>
+            {hasUserPermission('createSample') && (
+              <Button
+                size="large"
+                linkProps={{
+                  to: AuthenticatedAppRoutes.NewSampleRoute.link(
+                    currentProgrammingPlan.year
+                  ),
+                  target: '_self'
+                }}
+                iconId="fr-icon-microscope-line"
+              >
+                Saisir un prélèvement
+              </Button>
+            )}
+            {hasUserPermission('manageProgrammingPlan') &&
+              nextProgrammingPlan && (
+                <div>
+                  <Tile
+                    detail="À compléter"
+                    small
+                    orientation="horizontal"
+                    linkProps={{
+                      to: AuthenticatedAppRoutes.ProgrammationByYearRoute.link(
+                        nextProgrammingPlan.year
+                      )
+                    }}
+                    start={
+                      <Badge
+                        noIcon
+                        className={cx('fr-badge--yellow-tournesol')}
+                      >
+                        Programmation {nextProgrammingPlan.year}
+                      </Badge>
+                    }
+                    title="Editer la programmation"
+                    titleAs="h3"
+                  />
+                </div>
               )}
-              {hasUserPermission('manageProgrammingPlan') &&
-                nextProgrammingPlan && (
-                  <div>
-                    <Tile
-                      detail="À compléter"
-                      small
-                      orientation="horizontal"
-                      linkProps={{
-                        to: AuthenticatedAppRoutes.ProgrammationByYearRoute.link(
-                          nextProgrammingPlan.year
-                        )
-                      }}
-                      start={
-                        <Badge
-                          noIcon
-                          className={cx('fr-badge--yellow-tournesol')}
-                        >
-                          Programmation {nextProgrammingPlan.year}
-                        </Badge>
-                      }
-                      title="Editer la programmation"
-                      titleAs="h3"
-                    />
-                  </div>
-                )}
-              {hasUserPermission('manageProgrammingPlan') &&
-                !nextProgrammingPlan && (
-                  <div>
-                    <Button
-                      onClick={async () => {
-                        await createProgrammingPlan(
-                          new Date().getFullYear() + 1
-                        ).unwrap();
-                      }}
-                    >
-                      Créer la programmation {new Date().getFullYear() + 1}
-                    </Button>
-                  </div>
-                )}
-            </>
-          }
-        />
-      </div>
+            {hasUserPermission('manageProgrammingPlan') &&
+              !nextProgrammingPlan && (
+                <div>
+                  <Button
+                    onClick={async () => {
+                      await createProgrammingPlan(
+                        new Date().getFullYear() + 1
+                      ).unwrap();
+                    }}
+                  >
+                    Créer la programmation {new Date().getFullYear() + 1}
+                  </Button>
+                </div>
+              )}
+          </>
+        }
+      />
       {hasUserPermission('manageProgrammingPlan') &&
         previousProgrammingPlan &&
         previousProgrammingPlan.id !== currentProgrammingPlan?.id &&

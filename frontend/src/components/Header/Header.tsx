@@ -5,7 +5,6 @@ import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { Badge } from '@mui/material';
 import { Brand } from 'maestro-shared/constants';
 import { isClosed } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
 import { isDefined } from 'maestro-shared/utils/utils';
 import { useContext, useMemo } from 'react';
 import { useLocation } from 'react-router';
@@ -297,7 +296,7 @@ const Header = () => {
                   </div>
                   {user?.role && (
                     <div className={cx('fr-text--sm', 'fr-mr-2w')}>
-                      {UserRoleLabels[user.role]}
+                      {user.lastName} {user.firstName}
                     </div>
                   )}
                 </div>
