@@ -48,6 +48,7 @@ export function createServer(): Server {
             imgSrc: [
               "'self'",
               'https://stats.beta.gouv.fr',
+              'https://jedonnemonavis.numerique.gouv.fr',
               `https://${config.s3.client.endpoint.split('//')[1]}`,
               'data:'
             ],

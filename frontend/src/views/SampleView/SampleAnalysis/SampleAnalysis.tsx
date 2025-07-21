@@ -11,6 +11,7 @@ import { usePartialSample } from 'src/hooks/usePartialSample';
 import SampleAdmissibility from 'src/views/SampleView/SampleAnalysis/SampleAdmissibility/SampleAdmissibility';
 import SampleAnalysisOverview from 'src/views/SampleView/SampleAnalysis/SampleAnalysisOverview/SampleAnalysisOverview';
 import SampleDraftAnalysis from 'src/views/SampleView/SampleAnalysis/SampleDraftAnalysis/SampleDraftAnalysis';
+import UserFeedback from '../../../components/UserFeedback/UserFeedback';
 import { useAuthentication } from '../../../hooks/useAuthentication';
 import { useSamplesLink } from '../../../hooks/useSamplesLink';
 import { ApiClientContext } from '../../../services/apiClient';
@@ -171,6 +172,7 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
               )}
             </div>
           )}
+          {sample.status === 'InReview' && <UserFeedback />}
         </>
       )}
     </div>
