@@ -26,7 +26,7 @@ import { inovalysConf } from './inovalys/inovalys';
 export type ExportResultQuantifiable = {
   result_kind: 'Q';
   result: number;
-  lmr: number;
+  lmr: number | null;
 };
 export type ExportResultNonQuantifiable = { result_kind: 'NQ' | 'ND' };
 export type ExportDataSubstance = {

@@ -161,7 +161,7 @@ describe('parse correctement le XML', () => {
           "casNumber": "?",
           "codeSandre": null,
           "label": "fluxapyroxad",
-          "lmr": 0,
+          "lmr": null,
           "result": 8,
           "result_kind": "Q",
         },
