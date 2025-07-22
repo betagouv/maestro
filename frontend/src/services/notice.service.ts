@@ -14,8 +14,25 @@ const noticeApi = api.injectEndpoints({
         body: notice
       }),
       invalidatesTags: (_result, _error) => ['RootNotice']
+    }),
+    getDashboardNotice: builder.query<Notice, void>({
+      query: () => '/notices/dashboard',
+      providesTags: ['DashboardNotice']
+    }),
+    updateDashboardNotice: builder.mutation<void, Notice>({
+      query: (notice) => ({
+        url: `/notices/dashboard`,
+        method: 'PUT',
+        body: notice
+      }),
+      invalidatesTags: (_result, _error) => ['DashboardNotice']
     })
   })
 });
 
-export const { useGetRootNoticeQuery, useUpdateRootNoticeMutation } = noticeApi;
+export const {
+  useGetRootNoticeQuery,
+  useUpdateRootNoticeMutation,
+  useGetDashboardNoticeQuery,
+  useUpdateDashboardNoticeMutation
+} = noticeApi;

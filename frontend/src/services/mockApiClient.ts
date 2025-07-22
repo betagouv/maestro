@@ -194,7 +194,11 @@ const defaultMockApiClientConf: MockApi = {
   useGetRootNoticeQuery: {
     data: { type: 'root', title: 'titre', description: 'description' }
   },
-  useUpdateRootNoticeMutation: [async () => fn(), {}]
+  useUpdateRootNoticeMutation: [async () => fn(), {}],
+  useGetDashboardNoticeQuery: {
+    data: { type: 'dashboard', title: 'titre', description: 'description' }
+  },
+  useUpdateDashboardNoticeMutation: [async () => fn(), {}]
 };
 
 export const mockApiClient = getMockApi({});

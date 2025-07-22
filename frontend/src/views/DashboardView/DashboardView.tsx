@@ -1,15 +1,12 @@
 import Badge from '@codegouvfr/react-dsfr/Badge';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import Quote from '@codegouvfr/react-dsfr/Quote';
 import Tile from '@codegouvfr/react-dsfr/Tile';
 import clsx from 'clsx';
 import { isAfter } from 'date-fns';
 import { unionBy } from 'lodash-es';
-import { Brand } from 'maestro-shared/constants';
 import { isClosed } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useContext, useMemo } from 'react';
-import { Link } from 'react-router';
 import dashboard from 'src/assets/illustrations/dashboard.svg';
 import SampleTable from 'src/components/SampleTable/SampleTable';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
@@ -19,11 +16,9 @@ import { useOnLine } from 'src/hooks/useOnLine';
 import { useAppSelector } from 'src/hooks/useStore';
 import ProgrammingPlanCard from 'src/views/DashboardView/ProgrammingPlanCard';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
-import manon from '../../assets/manon.jpg';
 import useWindowSize from '../../hooks/useWindowSize';
 import { ApiClientContext } from '../../services/apiClient';
-import config from '../../utils/config';
-import './DashboardView.scss';
+import { DashboardNotice } from './DashboardNotice';
 import ProgrammingPlanClosing from './ProgrammingPlanClosing';
 
 const DashboardView = () => {
@@ -40,7 +35,7 @@ const DashboardView = () => {
         !hasUserPermission('manageProgrammingPlan') &&
         (isProgrammingPlanLoading || programmingPlan !== undefined)
     });
-  const { data: notice } = apiClient.useGetRootNoticeQuery();
+  const { data: notice } = apiClient.useGetDashboardNoticeQuery();
 
   const currentProgrammingPlan = useMemo(
     () => programmingPlan ?? previousProgrammingPlan,
@@ -149,74 +144,13 @@ const DashboardView = () => {
           </>
         }
       />
-      <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-        {notice?.description && (
-          <div
-            className={clsx(
-              cx('fr-callout', 'fr-callout--green-emeraude', 'fr-mb-0'),
-              'white-container'
-            )}
-          >
-            <Quote
-              author={
-                <>
-                  <div>
-                    <img
-                      className="fr-responsive-img"
-                      alt=""
-                      src={manon}
-                      data-fr-js-ratio="true"
-                    />
-                  </div>
-                  <div className="manon">
-                    <span className={cx('fr-text--lead', 'fr-mb-0')}>
-                      Manon
-                    </span>
-                    <span className={cx('fr-text--regular', 'fr-text--light')}>
-                      de l'équipe {Brand}
-                    </span>
-                  </div>
-                </>
-              }
-              size="xlarge"
-              accentColor="green-emeraude"
-              text={notice.description}
-            />
-          </div>
-        )}
-        <div className="links-container">
-          <div className="d-flex-align-center">
-            <span className={clsx(cx('fr-icon-question-line'), 'icon-grey')} />
-            <div>
-              <div className={cx('fr-text--bold')}>Questions fréquentes</div>
-              <Link
-                to={`${config.websiteUrl}/aides`}
-                target="_blank"
-                className={cx('fr-link', 'fr-link--sm')}
-              >
-                Consulter notre FAQ
-              </Link>
-            </div>
-          </div>
-          <div className="d-flex-align-center">
-            <span
-              className={clsx(cx('fr-icon-sparkling-2-line'), 'icon-grey')}
-            />
-            <div>
-              <div className={cx('fr-text--bold')}>
-                Quoi de neuf sur Maestro ?
-              </div>
-              <Link
-                to={`${config.websiteUrl}/aides`} //TODO
-                target="_blank"
-                className={cx('fr-link', 'fr-link--sm')}
-              >
-                Consulter les nouveautés
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
+      {notice?.description && (
+        <DashboardNotice
+          description={notice.description}
+          className={cx('fr-col-12', 'fr-col-sm-6')}
+        />
+      )}
+
       {hasUserPermission('manageProgrammingPlan') &&
         previousProgrammingPlan &&
         previousProgrammingPlan.id !== currentProgrammingPlan?.id &&
