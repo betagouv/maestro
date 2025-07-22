@@ -124,7 +124,17 @@ export const DashboardViewForNationalCoordinator: Story = {
       }
     },
     apiClient: getMockApi({
-      useGetProgrammingPlanByYearQuery: useGetProgrammingPlanByYearQueryMock
+      useGetProgrammingPlanByYearQuery: useGetProgrammingPlanByYearQueryMock,
+      useFindRegionalPrescriptionsQuery: {
+        data: [
+          {
+            sampleCount: 10,
+            realizedSampleCount: 2,
+            prescriptionId: '',
+            region: '84'
+          }
+        ]
+      }
     })
   },
   play: async ({ canvasElement }) => {
