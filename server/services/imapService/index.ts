@@ -19,6 +19,7 @@ import { mattermostService } from '../mattermostService';
 import { notificationService } from '../notificationService';
 import { analysisHandler } from './analysis-handler';
 import { capinovConf } from './capinov';
+import { cerecoConf } from './cereco/cereco';
 import { ExtractError } from './extractError';
 import { girpaConf } from './girpa';
 import { inovalysConf } from './inovalys/inovalys';
@@ -49,7 +50,7 @@ export type ExportAnalysis = {
 };
 export type ExportDataFromEmail = (
   attachments: Pick<Attachment, 'content' | 'filename' | 'contentType'>[]
-) => ExportAnalysis[];
+) => Promise<ExportAnalysis[]>;
 
 export type LaboratoryConf = {
   exportDataFromEmail: ExportDataFromEmail;
@@ -61,7 +62,8 @@ export type LaboratoryWithConf = (typeof LaboratoryWithAutomation)[number];
 export const laboratoriesConf = {
   'GIR 49': girpaConf,
   'LDA 72': inovalysConf,
-  'CAP 29': capinovConf
+  'CAP 29': capinovConf,
+  'CER 30': cerecoConf
 } as const satisfies {
   [name in LaboratoryWithConf]: LaboratoryConf;
 };
@@ -213,7 +215,7 @@ export const checkEmails = async () => {
           const laboratoryName = messages[0].laboratoryName;
 
           try {
-            const analyzes = laboratoriesConf[
+            const analyzes = await laboratoriesConf[
               laboratoryName
             ].exportDataFromEmail(parsedEmails.flatMap((p) => p.attachments));
 

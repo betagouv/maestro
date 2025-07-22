@@ -216,7 +216,7 @@ export const extractAnalyzes = (
 };
 
 type InovalysCSVFile = { fileName: string; content: Record<string, string>[] };
-const exportDataFromEmail: ExportDataFromEmail = (attachments) => {
+const exportDataFromEmail: ExportDataFromEmail = async (attachments) => {
   const csvFiles = attachments.filter(({ filename }) =>
     (filename ?? '').endsWith('.csv')
   );
