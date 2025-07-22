@@ -106,7 +106,7 @@ export interface Laboratories {
 }
 
 export interface Notices {
-  type: 'root';
+  type: 'root' | 'dashboard';
   title: string | null;
   description: string | null;
 }
