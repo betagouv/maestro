@@ -1722,7 +1722,8 @@ export const SSD2Referential =
       name: 'THPI',
       casNumber: '85-40-5',
       otherNames: [],
-      reportable: true
+      reportable: true,
+      lmrCanBeOptional: true
     },
     'RF-00004687-PAR': {
       reference: 'RF-00004687-PAR',
