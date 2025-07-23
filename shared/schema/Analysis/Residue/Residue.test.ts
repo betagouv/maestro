@@ -5,6 +5,7 @@ test('sampleResidueLmrIsValid', () => {
   expect(
     LmrIsValid({
       stage: 'STADE1',
+      reference: 'RF-0847-001-PPP',
       specificData: {
         cultureKind: 'PD06A',
         programmingPlanKind: 'PPV',
@@ -17,6 +18,7 @@ test('sampleResidueLmrIsValid', () => {
   expect(
     LmrIsValid({
       stage: 'STADE1',
+      reference: 'RF-0847-001-PPP',
       specificData: {
         cultureKind: 'PD06A',
         programmingPlanKind: 'PPV',
@@ -29,6 +31,7 @@ test('sampleResidueLmrIsValid', () => {
   expect(
     LmrIsValid({
       stage: 'STADE1',
+      reference: 'RF-0847-001-PPP',
       specificData: {
         cultureKind: 'PD06A',
         programmingPlanKind: 'PPV',
@@ -41,6 +44,7 @@ test('sampleResidueLmrIsValid', () => {
   expect(
     LmrIsValid({
       stage: 'STADE1',
+      reference: 'RF-0847-001-PPP',
       specificData: {
         cultureKind: 'PD06A',
         programmingPlanKind: 'PPV',
@@ -53,6 +57,7 @@ test('sampleResidueLmrIsValid', () => {
   expect(
     LmrIsValid({
       stage: 'STADE2',
+      reference: 'RF-0847-001-PPP',
       specificData: {
         cultureKind: 'PD06A',
         programmingPlanKind: 'PPV',
@@ -65,6 +70,7 @@ test('sampleResidueLmrIsValid', () => {
   expect(
     LmrIsValid({
       stage: 'STADE2',
+      reference: 'RF-0847-001-PPP',
       specificData: {
         cultureKind: 'PD06A',
         programmingPlanKind: 'PPV',
@@ -77,6 +83,7 @@ test('sampleResidueLmrIsValid', () => {
   expect(
     LmrIsValid({
       stage: 'STADE2',
+      reference: 'RF-0847-001-PPP',
       specificData: {
         cultureKind: 'PD06A',
         programmingPlanKind: 'PPV',
@@ -89,6 +96,7 @@ test('sampleResidueLmrIsValid', () => {
   expect(
     LmrIsValid({
       stage: 'STADE1',
+      reference: 'RF-0847-001-PPP',
       specificData: {
         cultureKind: 'PD06A',
         programmingPlanKind: 'PPV',
@@ -101,6 +109,7 @@ test('sampleResidueLmrIsValid', () => {
   expect(
     LmrIsValid({
       stage: 'STADE1',
+      reference: 'RF-0847-001-PPP',
       specificData: {
         cultureKind: 'PD06A',
         programmingPlanKind: 'PPV',
@@ -113,6 +122,7 @@ test('sampleResidueLmrIsValid', () => {
   expect(
     LmrIsValid({
       stage: 'STADE1',
+      reference: 'RF-0847-001-PPP',
       specificData: {
         cultureKind: 'PD06A',
         programmingPlanKind: 'PPV',
@@ -125,6 +135,7 @@ test('sampleResidueLmrIsValid', () => {
   expect(
     LmrIsValid({
       stage: 'STADE2',
+      reference: 'RF-0847-001-PPP',
       specificData: {
         cultureKind: 'PD06A',
         programmingPlanKind: 'PPV',
@@ -137,6 +148,7 @@ test('sampleResidueLmrIsValid', () => {
   expect(
     LmrIsValid({
       stage: 'STADE2',
+      reference: 'RF-0847-001-PPP',
       specificData: {
         cultureKind: 'PD06A',
         programmingPlanKind: 'PPV',
@@ -149,6 +161,7 @@ test('sampleResidueLmrIsValid', () => {
   expect(
     LmrIsValid({
       stage: 'STADE2',
+      reference: 'RF-0847-001-PPP',
       specificData: {
         cultureKind: 'PD06A',
         programmingPlanKind: 'PPV',
@@ -156,6 +169,40 @@ test('sampleResidueLmrIsValid', () => {
       },
       resultKind: 'Q',
       lmr: 0.5
+    })
+  ).toEqual(true);
+});
+
+test('lmr can be optional for some reference', () => {
+  const sampleWithRequiredLmr = {
+    stage: 'STADE1',
+    specificData: {
+      cultureKind: 'PD06A',
+      programmingPlanKind: 'PPV',
+      matrixPart: 'PART1'
+    },
+    resultKind: 'Q',
+    lmr: null
+  } as const;
+
+  expect(
+    LmrIsValid({
+      ...sampleWithRequiredLmr,
+      reference: ''
+    })
+  ).toEqual(false);
+
+  expect(
+    LmrIsValid({
+      ...sampleWithRequiredLmr,
+      reference: 'RF-0847-001-PPP'
+    })
+  ).toEqual(false);
+
+  expect(
+    LmrIsValid({
+      ...sampleWithRequiredLmr,
+      reference: 'RF-0848-001-PPP'
     })
   ).toEqual(true);
 });

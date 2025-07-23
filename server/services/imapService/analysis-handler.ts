@@ -132,6 +132,7 @@ export const analysisHandler = async (
         stage: sampleStage,
         specificData: sampleSpecificData,
         resultKind: r.result_kind,
+        reference: r.ssd2Id ?? '',
         lmr: r.result_kind === 'Q' ? r.lmr : null
       })
     ) {
