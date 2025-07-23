@@ -62,7 +62,8 @@
     "pdf-lib": "^1.17.1",
     "pg": "^8.13.1",
     "puppeteer-core": "^24.10.0",
-    "sanitize-html": "^2.14.0"
+    "sanitize-html": "^2.14.0",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
     "@types/carbone": "^3.2.5",

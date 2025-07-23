@@ -3,6 +3,7 @@ import {
   isComplex
 } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import { SSD2Referential } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { LmrIsValid } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { OmitDistributive } from 'maestro-shared/utils/typescript';
@@ -109,13 +110,17 @@ export const analysisHandler = async (
     }
   }
 
-  Object.values(complexeResiduesIndex).forEach(({ analytes, ssd2Id }) => {
-    if (analytes.length === 0) {
-      throw new ExtractError(
-        `Le résidu complexe ${ssd2Id} est présent, mais n'a aucune analyte`
-      );
+  Object.values(complexeResiduesIndex).forEach(
+    ({ analytes, ssd2Id, result_kind }) => {
+      if (analytes.length === 0 && ssd2Id && result_kind !== 'ND') {
+        //@ts-expect-error TS7053
+        const name: string = SSD2Referential[ssd2Id].name;
+        throw new ExtractError(
+          `Le résidu complexe ${ssd2Id} ${name} est présent, mais n'a aucune analyte`
+        );
+      }
     }
-  });
+  );
 
   residues.push(...Object.values(complexeResiduesIndex));
 

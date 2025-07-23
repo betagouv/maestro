@@ -820,7 +820,7 @@ export const extractAnalyzes = (obj: unknown): GirpaAnaysis[] => {
   });
 };
 
-const exportDataFromEmail: ExportDataFromEmail = (attachments) => {
+const exportDataFromEmail: ExportDataFromEmail = async (attachments) => {
   const xmlFile = attachments.find(
     ({ contentType }) =>
       contentType === 'text/xml' || contentType === 'application/xml'

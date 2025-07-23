@@ -15,7 +15,8 @@ export type LaboratoryName = z.infer<typeof laboratoryNameValidator>;
 export const LaboratoryWithAutomation = [
   'GIR 49',
   'LDA 72',
-  'CAP 29'
+  'CAP 29',
+  'CER 30'
 ] as const satisfies LaboratoryName[];
 
 const laboratoryLabel = {

@@ -150,7 +150,7 @@ test("Impossible d'enregistrer l'analyse si on trouve un résidu complexe sans a
       ]
     })
   ).rejects.toThrowErrorMatchingInlineSnapshot(
-    `[Error: Le résidu complexe RF-0008-001-PPP est présent, mais n'a aucune analyte]`
+    `[Error: Le résidu complexe RF-0008-001-PPP 2,4-DB (sum of 2,4-DB, its salts, its esters and its conjugates, expressed as 2,4-DB) est présent, mais n'a aucune analyte]`
   );
 
   expect(spyUploadDocument).toHaveBeenCalledTimes(0);

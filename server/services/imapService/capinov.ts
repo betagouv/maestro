@@ -872,7 +872,7 @@ export const extractAnalyzes = (
   return result;
 };
 
-const exportDataFromEmail: ExportDataFromEmail = (attachments) => {
+const exportDataFromEmail: ExportDataFromEmail = async (attachments) => {
   const csvFiles = attachments.filter(
     ({ contentType, filename }) =>
       contentType === 'text/csv' ||
