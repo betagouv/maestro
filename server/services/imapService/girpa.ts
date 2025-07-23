@@ -628,6 +628,8 @@ const girpaReferences: Record<string, SSD2Id> = {
   rotenone: 'RF-0387-001-PPP',
   'S-421': 'RF-0889-001-PPP',
   saflufenacil: 'RF-00004816-PAR',
+  'saflufenacil-N,N-desmethyl': 'RF-00007622-PAR',
+  'saflufenacil-N-desmethyl-urea': 'RF-00007623-PAR',
   'saflufenacil according reg.': 'RF-00004816-PAR',
   silthiofam: 'RF-0389-001-PPP',
   simazine: 'RF-0390-001-PPP',
