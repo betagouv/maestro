@@ -2,7 +2,8 @@ import { isNil } from 'lodash-es';
 import { CheckFn } from 'zod/dist/types/v4/core';
 import { z } from 'zod/v4';
 import { OptionalBoolean } from '../../../referential/OptionnalBoolean';
-import { SSD2Id } from '../../../referential/Residue/SSD2Id';
+import { SSD2Id, SSD2Ids } from '../../../referential/Residue/SSD2Id';
+import { SSD2Referential } from '../../../referential/Residue/SSD2Referential';
 import { maestroDate } from '../../../utils/date';
 import { Sample } from '../../Sample/Sample';
 import { AnalysisMethod } from '../AnalysisMethod';
@@ -53,8 +54,15 @@ export const Residue = ResidueBase.check((ctx) => {
 });
 
 const sampleResidueLmrCheck: CheckFn<
-  Pick<Sample, 'stage' | 'specificData'> & Pick<Residue, 'resultKind' | 'lmr'>
+  Pick<Sample, 'stage' | 'specificData'> &
+    Pick<Residue, 'resultKind' | 'lmr' | 'reference'>
 > = (ctx) => {
+  let lmrCanBeOptional: boolean = false;
+  if (ctx.value.reference && SSD2Ids.includes(ctx.value.reference)) {
+    lmrCanBeOptional =
+      'lmrCanBeOptional' in
+      SSD2Referential[ctx.value.reference as keyof typeof SSD2Referential];
+  }
   // La LMR est obligatoire lorsque les inspecteurs ont saisi dans la description du prélèvement:
   // - Le résultat est quantifiable
   // - Stade de prélèvement -> n'est pas « en cours de culture » (uniquement pour la PPV donc)
@@ -63,7 +71,8 @@ const sampleResidueLmrCheck: CheckFn<
     ctx.value.resultKind === 'Q' &&
     ctx.value.specificData.programmingPlanKind === 'PPV' &&
     ctx.value.specificData.matrixPart === 'PART1' &&
-    ctx.value.stage !== 'STADE2'
+    ctx.value.stage !== 'STADE2' &&
+    !lmrCanBeOptional
   ) {
     if (isNil(ctx.value.lmr) || ctx.value.lmr === 0) {
       ctx.issues.push({
@@ -84,7 +93,8 @@ const LmrCheck = z
     }).shape,
     ...ResidueBase.pick({
       resultKind: true,
-      lmr: true
+      lmr: true,
+      reference: true
     }).shape
   })
   .check(sampleResidueLmrCheck);

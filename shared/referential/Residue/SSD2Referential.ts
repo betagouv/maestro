@@ -10507,7 +10507,8 @@ export const SSD2Referential =
       name: 'Piperonyl Butoxide',
       casNumber: '51-03-6',
       otherNames: [],
-      reportable: true
+      reportable: true,
+      lmrCanBeOptional: true
     },
     'RF-0849-001-PPP': {
       reference: 'RF-0849-001-PPP',
@@ -12032,6 +12033,7 @@ type Referential = {
     otherNames: string[];
     reportable: boolean;
     deprecated?: true;
+    lmrCanBeOptional?: true;
   };
 };
 
