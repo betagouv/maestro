@@ -367,6 +367,17 @@ export const sampleRouter = {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 
+      if (
+        sample.context !== sampleUpdate.context &&
+        DraftStatusList.includes(sampleUpdate.status)
+      ) {
+        //Les matrices sont différentes en fonction du contexte de prélèvement,
+        // donc si le contexte change il faut réinitialiser la matrice qui est dans l'étape d'après.
+        //Sinon l'utilisateur bloque tout le formulaire
+        sampleUpdate.matrixKind = null;
+        sampleUpdate.matrix = null;
+      }
+
       const prescription =
         isProgrammingPlanSample(sampleUpdate) &&
         !isNil(sampleUpdate.context) &&
