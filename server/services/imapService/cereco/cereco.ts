@@ -28,7 +28,7 @@ const fileValidator = z.array(
         return format(d, 'yyyy-MM-dd');
       })
       .pipe(maestroDate),
-    'Numéro (MS)': z.literal(['Multi-résidus', 'Mono résidus']),
+    Méthode: z.literal(['Multi-résidus', 'Mono résidus']),
     Paramètre: z.string(),
     Résultat: z.string(),
     LMR: z.coerce.number().optional(),
@@ -64,8 +64,7 @@ const extractAnalyzes = async (
           | 'label'
           | 'analysisDate'
         > = {
-          analysisMethod:
-            d['Numéro (MS)'] === 'Mono résidus' ? 'Mono' : 'Multi',
+          analysisMethod: d['Méthode'] === 'Mono résidus' ? 'Mono' : 'Multi',
           codeSandre: null,
           casNumber: null,
           label: d.Paramètre,
