@@ -18,6 +18,7 @@ import ProgrammingPlanCard from 'src/views/DashboardView/ProgrammingPlanCard';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import useWindowSize from '../../hooks/useWindowSize';
 import { ApiClientContext } from '../../services/apiClient';
+import { DashboardNotice } from './DashboardNotice';
 import ProgrammingPlanClosing from './ProgrammingPlanClosing';
 
 const DashboardView = () => {
@@ -34,6 +35,7 @@ const DashboardView = () => {
         !hasUserPermission('manageProgrammingPlan') &&
         (isProgrammingPlanLoading || programmingPlan !== undefined)
     });
+  const { data: notice } = apiClient.useGetDashboardNoticeQuery();
 
   const currentProgrammingPlan = useMemo(
     () => programmingPlan ?? previousProgrammingPlan,
@@ -142,6 +144,13 @@ const DashboardView = () => {
           </>
         }
       />
+      {notice?.description && (
+        <DashboardNotice
+          description={notice.description}
+          className={cx('fr-col-12', 'fr-col-sm-6')}
+        />
+      )}
+
       {hasUserPermission('manageProgrammingPlan') &&
         previousProgrammingPlan &&
         previousProgrammingPlan.id !== currentProgrammingPlan?.id &&
