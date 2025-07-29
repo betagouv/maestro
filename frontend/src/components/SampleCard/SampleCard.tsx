@@ -7,6 +7,7 @@ import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
+  getSampleMatrixLabel,
   isCreatedPartialSample,
   PartialSample,
   PartialSampleToCreate
@@ -21,9 +22,9 @@ import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import useWindowSize from 'src/hooks/useWindowSize';
 import './SampleCard.scss';
 
-interface Props {
+type Props = {
   sample: PartialSample | PartialSampleToCreate;
-}
+};
 
 const SampleCard = ({ sample }: Props) => {
   const { sampleLink } = useSamplesLink();
@@ -33,6 +34,14 @@ const SampleCard = ({ sample }: Props) => {
 
   const [isExpanded, setIsExpanded] = useState(!isMobile);
 
+  let matrixFullLabel: null | string = null;
+  if (sample.matrixKind) {
+    matrixFullLabel = MatrixKindLabels[sample.matrixKind];
+    const matrixLabel = getSampleMatrixLabel(sample);
+    if (matrixLabel !== '' && matrixLabel !== matrixFullLabel) {
+      matrixFullLabel += ` - ${matrixLabel}`;
+    }
+  }
   return (
     <Card
       className="sample-card"
@@ -120,12 +129,12 @@ const SampleCard = ({ sample }: Props) => {
                   <span className="missing-data">Information à compléter</span>
                 )}
               </span>
-              {sample.matrixKind && (
+              {matrixFullLabel && (
                 <span className="icon-text">
                   <span
                     className={cx('fr-icon-restaurant-line', 'fr-icon--sm')}
                   ></span>
-                  {MatrixKindLabels[sample.matrixKind]}
+                  {matrixFullLabel}
                 </span>
               )}
               <span className="icon-text">
