@@ -1,4 +1,5 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import Input from '@codegouvfr/react-dsfr/Input';
 import Select from '@codegouvfr/react-dsfr/Select';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
@@ -15,6 +16,7 @@ import {
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { z } from 'zod/v4';
 import { DepartmentsSelect } from '../../components/DepartmentsSelect/DepartmentsSelect';
+import { useAppSelector } from '../../hooks/useStore';
 
 interface Props {
   filters: Partial<FindSampleOptions>;
@@ -24,6 +26,7 @@ interface Props {
 const SampleSecondaryFilters = ({ filters, onChange }: Props) => {
   const { hasNationalView } = useAuthentication();
 
+  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
   return (
     <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
       {hasNationalView && (
@@ -57,6 +60,18 @@ const SampleSecondaryFilters = ({ filters, onChange }: Props) => {
               departments: [...(filters.departments ?? []), d]
             })
           }
+        />
+      </div>{' '}
+      <div className={cx('fr-col-12', 'fr-col-md-3')}>
+        <Input
+          label="Date"
+          nativeInputProps={{
+            type: 'date',
+            value: filters.sampledAt ?? '',
+            min: `${programmingPlan?.year}-01-01`,
+            max: `${programmingPlan?.year}-12-31`,
+            onChange: (e) => onChange({ sampledAt: e.target.value })
+          }}
         />
       </div>
       <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
