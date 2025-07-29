@@ -1,6 +1,7 @@
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import { format } from 'date-fns';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
+import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { Regions } from 'maestro-shared/referential/Region';
 import { Pagination } from 'maestro-shared/schema/commons/Pagination';
@@ -26,6 +27,10 @@ interface Props {
 }
 
 const filtersConfig = {
+  matrixKind: {
+    prop: 'matrixKind',
+    getLabel: (value) => MatrixKindLabels[value]
+  },
   matrix: {
     prop: 'matrix',
     getLabel: (value) => MatrixLabels[value]
@@ -94,10 +99,7 @@ const filtersConfig = {
     getLabel: () => 'Avec au moins un résidu'
   }
 } as const satisfies {
-  [key in keyof Omit<
-    FindSampleOptions,
-    keyof Pagination | 'programmingPlanId' | 'reference'
-  >]: {
+  [key in FilterableProp]: {
     prop: key;
   } & (
     | {
@@ -116,7 +118,10 @@ const filtersConfig = {
       }
   );
 };
-
+type FilterableProp = keyof Omit<
+  FindSampleOptions,
+  keyof Pagination | 'programmingPlanId' | 'reference'
+>;
 const SampleFiltersTags = ({ filters, onChange, samplers }: Props) => {
   const { hasNationalView } = useAuthentication();
   const sampler = useMemo(

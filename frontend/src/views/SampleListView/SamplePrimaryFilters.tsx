@@ -1,8 +1,12 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import Input from '@codegouvfr/react-dsfr/Input';
 import Select from '@codegouvfr/react-dsfr/Select';
 import { difference } from 'lodash-es';
 import { Matrix, MatrixList } from 'maestro-shared/referential/Matrix/Matrix';
+import {
+  MatrixKind,
+  MatrixKindLabels,
+  MatrixKindList
+} from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
@@ -18,7 +22,6 @@ import {
   samplersOptions,
   selectOptionsFromList
 } from 'src/components/_app/AppSelect/AppSelectOption';
-import { useAppSelector } from '../../hooks/useStore';
 
 interface Props {
   filters: Partial<FindSampleOptions>;
@@ -35,9 +38,38 @@ const SamplePrimaryFilters = ({
   prescriptions,
   currentUserId
 }: Props) => {
-  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
   return (
     <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+      <div className={cx('fr-col-12', 'fr-col-md-3')}>
+        <Select
+          label="Catégorie de matrice"
+          nativeSelectProps={{
+            value: filters.matrixKind || '',
+            onChange: (e) =>
+              onChange({ matrixKind: e.target.value as MatrixKind })
+          }}
+        >
+          <option value="">Toutes</option>
+          {selectOptionsFromList(
+            MatrixKindList.filter(
+              (matrixKind) =>
+                !filters.programmingPlanId ||
+                !filters.context ||
+                !prescriptions ||
+                prescriptions.find((p) => p.matrixKind === matrixKind)
+            ),
+            {
+              labels: MatrixKindLabels,
+              withDefault: false,
+              withSort: true
+            }
+          ).map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </Select>
+      </div>
       <div className={cx('fr-col-12', 'fr-col-md-3')}>
         <Select
           label="Matrice"
@@ -50,12 +82,14 @@ const SamplePrimaryFilters = ({
           {selectOptionsFromList(
             MatrixList.filter(
               (matrix) =>
-                !filters.programmingPlanId ||
-                !filters.context ||
-                !prescriptions ||
-                prescriptions.find((p) =>
-                  MatrixListByKind[p.matrixKind].includes(matrix)
-                )
+                (!filters.programmingPlanId ||
+                  !filters.context ||
+                  !prescriptions ||
+                  prescriptions.find((p) =>
+                    MatrixListByKind[p.matrixKind].includes(matrix)
+                  )) &&
+                (!filters.matrixKind ||
+                  MatrixListByKind[filters.matrixKind].includes(matrix))
             ),
             {
               labels: MatrixLabels,
@@ -103,19 +137,6 @@ const SamplePrimaryFilters = ({
             </option>
           ))}
         </Select>
-      </div>
-
-      <div className={cx('fr-col-12', 'fr-col-md-3')}>
-        <Input
-          label="Date"
-          nativeInputProps={{
-            type: 'date',
-            value: filters.sampledAt ?? '',
-            min: `${programmingPlan?.year}-01-01`,
-            max: `${programmingPlan?.year}-12-31`,
-            onChange: (e) => onChange({ sampledAt: e.target.value })
-          }}
-        />
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ import clsx from 'clsx';
 import { isEmpty, mapValues, omit, omitBy } from 'lodash-es';
 import { Department } from 'maestro-shared/referential/Department';
 import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
+import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region } from 'maestro-shared/referential/Region';
 import { defaultPerPage } from 'maestro-shared/schema/commons/Pagination';
 import {
@@ -83,6 +84,7 @@ const SampleListView = () => {
           undefined,
         status: status === 'Draft' ? DraftStatusList : (status ?? undefined),
         matrix: searchParams.get('matrix') as Matrix,
+        matrixKind: searchParams.get('matrixKind') as MatrixKind,
         sampledBy: searchParams.get('sampledBy'),
         sampledAt: searchParams.get('sampledAt'),
         reference: searchParams.get('reference'),

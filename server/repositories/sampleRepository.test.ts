@@ -1,4 +1,5 @@
 import { Department } from 'maestro-shared/referential/Department';
+import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 import { genPartialAnalysis } from 'maestro-shared/test/analysisFixtures';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
@@ -67,6 +68,20 @@ describe('findMany samples', async () => {
     samples = await sampleRepository.findMany({
       programmingPlanId: Sample11Fixture.programmingPlanId,
       departments: [Sample11Fixture.department as Department]
+    });
+    expect(samples).toHaveLength(1);
+  });
+
+  test('find with matrixKind option', async () => {
+    let samples = await sampleRepository.findMany({
+      programmingPlanId: Sample11Fixture.programmingPlanId,
+      matrixKind: 'A00PX'
+    });
+    expect(samples).toEqual([]);
+
+    samples = await sampleRepository.findMany({
+      programmingPlanId: Sample11Fixture.programmingPlanId,
+      matrixKind: Sample11Fixture.matrixKind as MatrixKind
     });
     expect(samples).toHaveLength(1);
   });

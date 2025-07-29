@@ -1,6 +1,7 @@
 import { z } from 'zod/v4';
 import { Department } from '../../referential/Department';
 import { Matrix } from '../../referential/Matrix/Matrix';
+import { MatrixKind } from '../../referential/Matrix/MatrixKind';
 import { Region } from '../../referential/Region';
 import { coerceToArray, coerceToBooleanNullish } from '../../utils/utils';
 import { Pagination } from '../commons/Pagination';
@@ -24,6 +25,7 @@ export const FindSampleOptions = z
       .union([SampleStatus, coerceToArray(z.array(SampleStatus))])
       .nullish(),
     matrix: Matrix.nullish(),
+    matrixKind: MatrixKind.nullish(),
     sampledBy: z.guid().nullish(),
     sampledAt: z.string().nullish(),
     reference: z.string().nullish(),
