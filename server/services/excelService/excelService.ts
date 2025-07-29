@@ -99,6 +99,7 @@ type SamplesExportExcelData = SetAttributesNullOrUndefined<{
     notesOnPollutionRisk: string;
     compliance: string;
     otherCompliance: string;
+    sampleCompliance: string;
     analytes: SetAttributesNullOrUndefined<{
       sampleReference: string;
       residueNumber: number;
@@ -252,6 +253,11 @@ const generateSamplesExportExcel = async (
             ? ResidueComplianceLabels[r.compliance]
             : undefined,
           otherCompliance: r.otherCompliance,
+          sampleCompliance: isDefinedAndNotNull(analysis?.compliance)
+            ? analysis?.compliance
+              ? 'Oui'
+              : 'Non'
+            : '',
           analytes: (r.analytes ?? []).map((a) => ({
             sampleReference: sample.reference,
             residueNumber: a.residueNumber,
