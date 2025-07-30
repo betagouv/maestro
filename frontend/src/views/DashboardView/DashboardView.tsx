@@ -3,20 +3,15 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tile from '@codegouvfr/react-dsfr/Tile';
 import clsx from 'clsx';
-import { isAfter } from 'date-fns';
-import { unionBy } from 'lodash-es';
 import { isClosed } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useContext, useMemo } from 'react';
 import dashboard from 'src/assets/illustrations/dashboard.svg';
-import SampleTable from 'src/components/SampleTable/SampleTable';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useOnLine } from 'src/hooks/useOnLine';
-import { useAppSelector } from 'src/hooks/useStore';
 import ProgrammingPlanCard from 'src/views/DashboardView/ProgrammingPlanCard';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
-import useWindowSize from '../../hooks/useWindowSize';
 import { ApiClientContext } from '../../services/apiClient';
 import { DashboardNotice } from './DashboardNotice';
 import { DashboardPriorityAction } from './DashboardPriorityAction';
@@ -26,7 +21,6 @@ const DashboardView = () => {
   const apiClient = useContext(ApiClientContext);
   const { hasUserPermission, user } = useAuthentication();
   const { isOnline } = useOnLine();
-  const { isMobile } = useWindowSize();
 
   const { data: programmingPlan, isLoading: isProgrammingPlanLoading } =
     apiClient.useGetProgrammingPlanByYearQuery(new Date().getFullYear());
@@ -44,7 +38,6 @@ const DashboardView = () => {
   );
 
   const [createProgrammingPlan] = apiClient.useCreateProgrammingPlanMutation();
-  const { pendingSamples } = useAppSelector((state) => state.samples);
 
   useDocumentTitle('Tableau de bord');
 
@@ -59,22 +52,6 @@ const DashboardView = () => {
   const nextProgrammingPlan = useMemo(
     () => nextProgrammingPlans?.[0],
     [nextProgrammingPlans]
-  );
-
-  const { data } = apiClient.useFindSamplesQuery(
-    {
-      programmingPlanId: currentProgrammingPlan?.id as string,
-      page: 1,
-      perPage: 5
-    },
-    { skip: !currentProgrammingPlan }
-  );
-  const samples = unionBy(
-    Object.values(pendingSamples),
-    data ?? [],
-    (_) => _.id
-  ).sort((s1, s2) =>
-    isAfter(s2.sampledAt ?? new Date(), s1.sampledAt ?? new Date()) ? 1 : -1
   );
 
   if (!user || !currentProgrammingPlan) {
@@ -182,36 +159,6 @@ const DashboardView = () => {
           ))}
         </div>
       )}
-
-      {!isMobile &&
-        currentProgrammingPlan.regionalStatus.some(
-          (_) => _.status === 'Validated'
-        ) && (
-          <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
-            <div className={clsx(cx('fr-my-2w'), 'table-header')}>
-              <h4 className={cx('fr-mb-0')}>Vos derniers prélèvements</h4>
-            </div>
-            <SampleTable
-              samples={samples ?? []}
-              tableFooter={
-                isOnline && (
-                  <Button
-                    priority="secondary"
-                    iconId={'fr-icon-arrow-right-line'}
-                    iconPosition="right"
-                    linkProps={{
-                      to: AuthenticatedAppRoutes.SamplesByYearRoute.link(
-                        currentProgrammingPlan.year
-                      )
-                    }}
-                  >
-                    Tous les prélèvements
-                  </Button>
-                )
-              }
-            />
-          </div>
-        )}
     </section>
   );
 };
