@@ -25,7 +25,8 @@ export const DashboardNotice: FunctionComponent<Props> = ({
       <div
         className={clsx(
           cx('fr-callout', 'fr-callout--green-emeraude', 'fr-mb-0'),
-          'white-container'
+          'white-container',
+          'full-height'
         )}
       >
         <Quote
@@ -73,7 +74,7 @@ export const DashboardNotice: FunctionComponent<Props> = ({
               Quoi de neuf sur Maestro ?
             </div>
             <Link
-              to={`${config.websiteUrl}/aides`} //TODO
+              to={`${config.websiteUrl}/suivez-le-guide`}
               target="_blank"
               className={cx('fr-link', 'fr-link--sm')}
             >

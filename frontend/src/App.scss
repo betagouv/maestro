@@ -28,6 +28,10 @@ main {
   background-color: #fff;
 }
 
+.full-height {
+  height: 100%;
+}
+
 .fr-table {
   &:not(.fr-table--layout-fixed) table {
     max-height: calc(100vh - 100px);
@@ -182,6 +186,11 @@ h6,
 .d-flex-justify-center {
   display: flex;
   justify-content: center;
+}
+
+.d-flex-column {
+  display: flex;
+  flex-direction: column;
 }
 
 .border {
