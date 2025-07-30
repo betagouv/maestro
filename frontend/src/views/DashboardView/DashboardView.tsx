@@ -19,7 +19,7 @@ import ProgrammingPlanClosing from './ProgrammingPlanClosing';
 
 const DashboardView = () => {
   const apiClient = useContext(ApiClientContext);
-  const { hasUserPermission, user } = useAuthentication();
+  const { hasUserPermission, user, hasNationalView } = useAuthentication();
   const { isOnline } = useOnLine();
 
   const { data: programmingPlan, isLoading: isProgrammingPlanLoading } =
@@ -146,17 +146,18 @@ const DashboardView = () => {
               />
             )}
 
-          {currentProgrammingPlan.contexts.map((context) => (
-            <div
-              className={cx('fr-col-12', 'fr-col-md-6')}
-              key={`${currentProgrammingPlan.id}-${context}`}
-            >
-              <ProgrammingPlanCard
-                programmingPlan={currentProgrammingPlan}
-                context={context}
-              />
-            </div>
-          ))}
+          {hasNationalView &&
+            currentProgrammingPlan.contexts.map((context) => (
+              <div
+                className={cx('fr-col-12', 'fr-col-md-6')}
+                key={`${currentProgrammingPlan.id}-${context}`}
+              >
+                <ProgrammingPlanCard
+                  programmingPlan={currentProgrammingPlan}
+                  context={context}
+                />
+              </div>
+            ))}
         </div>
       )}
     </section>
