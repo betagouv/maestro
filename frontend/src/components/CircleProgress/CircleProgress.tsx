@@ -15,7 +15,9 @@ export const CircleProgress: FunctionComponent<Props> = ({
   assert<Equals<keyof typeof _rest, never>>();
 
   const progress =
-    type === 'percentage' ? count : Math.round((count / total) * 100);
+    type === 'percentage'
+      ? Math.floor(count)
+      : Math.floor((count / total) * 100);
 
   const radius = 70;
   const width = 20;

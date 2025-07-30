@@ -19,6 +19,7 @@ import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import useWindowSize from '../../hooks/useWindowSize';
 import { ApiClientContext } from '../../services/apiClient';
 import { DashboardNotice } from './DashboardNotice';
+import { DashboardPriorityAction } from './DashboardPriorityAction';
 import ProgrammingPlanClosing from './ProgrammingPlanClosing';
 
 const DashboardView = () => {
@@ -144,22 +145,30 @@ const DashboardView = () => {
           </>
         }
       />
-      {notice?.description && (
-        <DashboardNotice
-          description={notice.description}
-          className={cx('fr-col-12', 'fr-col-sm-6')}
-        />
-      )}
-
-      {hasUserPermission('manageProgrammingPlan') &&
-        previousProgrammingPlan &&
-        previousProgrammingPlan.id !== currentProgrammingPlan?.id &&
-        !isClosed(previousProgrammingPlan) && (
-          <ProgrammingPlanClosing programmingPlan={previousProgrammingPlan} />
-        )}
-
       {isOnline && (
-        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+        <div className={clsx(cx('fr-grid-row', 'fr-grid-row--gutters'))}>
+          {notice?.description && (
+            <DashboardNotice
+              description={notice.description}
+              className={clsx(cx('fr-col-12', 'fr-col-sm-6'), 'd-flex-column')}
+            />
+          )}
+
+          {/*FIXME on affiche ça pour qui ?*/}
+          <DashboardPriorityAction
+            className={clsx(cx('fr-col-12', 'fr-col-sm-6'))}
+            programmingPlan={currentProgrammingPlan}
+          />
+
+          {hasUserPermission('manageProgrammingPlan') &&
+            previousProgrammingPlan &&
+            previousProgrammingPlan.id !== currentProgrammingPlan?.id &&
+            !isClosed(previousProgrammingPlan) && (
+              <ProgrammingPlanClosing
+                programmingPlan={previousProgrammingPlan}
+              />
+            )}
+
           {currentProgrammingPlan.contexts.map((context) => (
             <div
               className={cx('fr-col-12', 'fr-col-md-6')}
