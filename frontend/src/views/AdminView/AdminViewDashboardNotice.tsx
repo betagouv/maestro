@@ -42,7 +42,7 @@ export const AdminViewDashboardNotice: FunctionComponent<Props> = ({
   };
   return (
     <form className={clsx('bg-white', cx('fr-p-2w'))}>
-      <h3>Configuration de l'alerte du Tableau de bord</h3>
+      <h3>Configuration du message du Tableau de bord</h3>
       <AppTextAreaInput
         value={dashboardNotice.description ?? ''}
         onChange={(e) =>
@@ -50,7 +50,7 @@ export const AdminViewDashboardNotice: FunctionComponent<Props> = ({
         }
         inputForm={form}
         inputKey="description"
-        label="Description de l'alerte"
+        label="Description du message du tableau de bord"
         required
       />
 
