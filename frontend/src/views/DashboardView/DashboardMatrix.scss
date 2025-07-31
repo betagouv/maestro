@@ -1,0 +1,22 @@
+@use '../../constants' as constants;
+
+.matrix-list-container{
+  background-color: var(--border-default-grey);;
+  gap: 1px;
+  padding: 1px;
+}
+
+.matrix-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: white ;
+  flex: 1 0 250px;
+
+  background-image: none;
+
+}
+
+.matrix-name{
+  color: var(--text-action-high-blue-france);
+}
