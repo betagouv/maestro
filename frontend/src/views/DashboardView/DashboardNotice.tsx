@@ -32,20 +32,20 @@ export const DashboardNotice: FunctionComponent<Props> = ({
         <Quote
           author={
             <>
-              <div>
+              <span>
                 <img
                   className="fr-responsive-img"
                   alt=""
                   src={manon}
                   data-fr-js-ratio="true"
                 />
-              </div>
-              <div className="manon">
+              </span>
+              <span className="manon">
                 <span className={cx('fr-text--lead', 'fr-mb-0')}>Manon</span>
                 <span className={cx('fr-text--regular', 'fr-text--light')}>
                   de l'équipe {Brand}
                 </span>
-              </div>
+              </span>
             </>
           }
           size="xlarge"

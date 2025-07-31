@@ -13,6 +13,7 @@ import { useOnLine } from 'src/hooks/useOnLine';
 import ProgrammingPlanCard from 'src/views/DashboardView/ProgrammingPlanCard';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import { ApiClientContext } from '../../services/apiClient';
+import { DashboardMatrix } from './DashboardMatrix';
 import { DashboardNotice } from './DashboardNotice';
 import { DashboardPriorityAction } from './DashboardPriorityAction';
 import ProgrammingPlanClosing from './ProgrammingPlanClosing';
@@ -145,6 +146,9 @@ const DashboardView = () => {
                 programmingPlan={previousProgrammingPlan}
               />
             )}
+
+          {/*FIXME on affiche ça pour qui ?*/}
+          <DashboardMatrix className={clsx(cx('fr-col-12'))} />
 
           {hasNationalView &&
             currentProgrammingPlan.contexts.map((context) => (
