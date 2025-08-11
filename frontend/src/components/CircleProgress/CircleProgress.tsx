@@ -2,22 +2,17 @@ import { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 
 type Props = {
-  count: number;
+  progress: number;
   sizePx: number;
 } & ({ type: 'percentage'; total?: never } | { type: 'total'; total: number });
 export const CircleProgress: FunctionComponent<Props> = ({
-  count,
+  progress,
   sizePx,
   type,
   total,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
-
-  const progress =
-    type === 'percentage'
-      ? Math.floor(count)
-      : Math.floor((count / total) * 100);
 
   const radius = 70;
   const width = 20;
@@ -46,8 +41,7 @@ export const CircleProgress: FunctionComponent<Props> = ({
             fontSize: sizePx / 5
           }}
         >
-          {progress}
-          {type === 'percentage' ? `%` : null}
+          {type === 'percentage' ? `${progress} %` : total}
         </span>
       </span>
       <svg

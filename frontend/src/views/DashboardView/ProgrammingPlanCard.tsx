@@ -77,7 +77,7 @@ const ProgrammingPlanCard = ({
                 )}
               </span>
               <CircleProgress
-                count={getCompletionRate(regionalPrescriptions ?? [])}
+                progress={getCompletionRate(regionalPrescriptions ?? [])}
                 sizePx={110}
                 type={'percentage'}
               />
