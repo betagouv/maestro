@@ -12,7 +12,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    count: 10,
+    progress: 33,
     total: 30,
     sizePx: 100,
     type: 'total'
@@ -34,7 +34,7 @@ export const Small: Story = {
 };
 export const Percentage: Story = {
   args: {
-    count: 100,
+    progress: 100,
     sizePx: 100,
     type: 'percentage'
   }
