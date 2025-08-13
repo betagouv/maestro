@@ -202,7 +202,7 @@ describe('Regional prescriptions router', () => {
         ...validatedControlRegionalPrescriptions,
         ...submittedControlRegionalPrescriptions1,
         ...submittedControlRegionalPrescriptions2
-      ].map((_) => omit(_, 'realizedSampleCount'))
+      ].map((_) => omit(_, ['realizedSampleCount', 'inProgressSampleCount']))
     );
     await RegionalPrescriptionComments().insert([
       closedControlPrescriptionComment1,
@@ -279,7 +279,7 @@ describe('Regional prescriptions router', () => {
         const expectRegionalPrescriptions = [
           ...submittedControlRegionalPrescriptions1,
           ...submittedControlRegionalPrescriptions2
-        ].map((_) => omit(_, 'realizedSampleCount'));
+        ].map((_) => omit(_, ['realizedSampleCount', 'inProgressSampleCount']));
 
         expect(res.body).toHaveLength(expectRegionalPrescriptions.length);
         expect(res.body).toEqual(
@@ -307,7 +307,9 @@ describe('Regional prescriptions router', () => {
         expect(res.body).toEqual(
           submittedControlRegionalPrescriptions1
             .filter(({ region }) => region === user.region)
-            .map((_) => omit(_, 'realizedSampleCount'))
+            .map((_) =>
+              omit(_, ['realizedSampleCount', 'inProgressSampleCount'])
+            )
         );
       };
 
@@ -322,7 +324,7 @@ describe('Regional prescriptions router', () => {
         .query({
           programmingPlanId: programmingPlanClosed.id,
           context: 'Control',
-          includes: 'comments,realizedSampleCount'
+          includes: 'comments,sampleCounts'
         })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
@@ -357,7 +359,8 @@ describe('Regional prescriptions router', () => {
               RegionalPrescriptionKey.parse(sample)
             )
               ? 1
-              : 0
+              : 0,
+            inProgressSampleCount: 0
           }))
         )
       );
