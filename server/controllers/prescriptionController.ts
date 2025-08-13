@@ -52,7 +52,7 @@ const exportPrescriptions = async (request: Request, response: Response) => {
   const prescriptions = await prescriptionRepository.findMany(queryFindOptions);
   const regionalPrescriptions = await regionalPrescriptionRepository.findMany({
     ...findOptions,
-    includes: ['comments', 'realizedSampleCount']
+    includes: ['comments', 'sampleCounts']
   });
 
   const fileName = `prescriptions-${

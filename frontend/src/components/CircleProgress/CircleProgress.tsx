@@ -2,14 +2,20 @@ import { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 
 type Props = {
-  progress: number;
   sizePx: number;
-} & ({ type: 'percentage'; total?: never } | { type: 'total'; total: number });
+  progress: number;
+  colors?: string[];
+} & (
+  | { type: 'percentage'; values?: never; total?: never }
+  | { type: 'total'; values: number[]; total: number }
+);
 export const CircleProgress: FunctionComponent<Props> = ({
-  progress,
   sizePx,
   type,
+  progress,
+  values,
   total,
+  colors,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -17,14 +23,43 @@ export const CircleProgress: FunctionComponent<Props> = ({
   const radius = 70;
   const width = 20;
 
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference * ((100 - progress) / 100);
+  const circumference = Math.floor(2 * Math.PI * radius);
+
+  type Segment = { length: number; offset: number; color: string };
+
+  let segments: Segment[] = [];
+
+  if (type === 'percentage') {
+    segments = [
+      {
+        length:
+          (Math.max(0, Math.min(100, progress ?? 0)) / 100) * circumference,
+        offset: 0,
+        color: colors?.[0] ?? '#00A95F'
+      }
+    ];
+  } else {
+    const _colors = colors ?? ['#00A95F', '#E4794A', '#F3EDE5'];
+    segments = values.reduce((acc, step, index) => {
+      const length = Math.floor((step / total) * circumference);
+      const offset =
+        index === 0 ? 0 : acc[index - 1].offset - acc[index - 1].length;
+      return [
+        ...acc,
+        {
+          length: Math.abs(offset) >= circumference ? 0 : length,
+          offset,
+          color: _colors[index % _colors.length]
+        }
+      ];
+    }, [] as Segment[]);
+  }
 
   return (
     <div style={{ height: sizePx, width: sizePx }}>
       <span
         style={{
-          position: 'fixed',
+          position: 'absolute',
           zIndex: 2,
           width: sizePx,
           height: sizePx
@@ -41,7 +76,7 @@ export const CircleProgress: FunctionComponent<Props> = ({
             fontSize: sizePx / 5
           }}
         >
-          {type === 'percentage' ? `${progress} %` : total}
+          {progress}%
         </span>
       </span>
       <svg
@@ -55,19 +90,22 @@ export const CircleProgress: FunctionComponent<Props> = ({
           cx={radius + width}
           cy={radius + width}
           fill="transparent"
-          stroke="#f6f6f6"
+          stroke="#F3EDE5"
           strokeWidth={width}
         ></circle>
-        <circle
-          r={radius}
-          cx={radius + width}
-          cy={radius + width}
-          fill="transparent"
-          stroke="#4B9F6C"
-          strokeWidth={width}
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-        ></circle>
+        {segments.map((segment, index) => (
+          <circle
+            key={index}
+            r={radius}
+            cx={radius + width}
+            cy={radius + width}
+            fill="transparent"
+            stroke={segment.color}
+            strokeWidth={width}
+            strokeDasharray={`${segment.length} ${circumference - segment.length}`}
+            strokeDashoffset={segment.offset}
+          />
+        ))}
       </svg>
     </div>
   );

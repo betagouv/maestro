@@ -25,6 +25,7 @@ export const RegionalPrescription = z.object({
       })
     )
     .nullish(),
+  inProgressSampleCount: z.coerce.number().nullish(),
   realizedSampleCount: z.coerce.number().nullish()
 });
 

@@ -13,9 +13,8 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     progress: 33,
-    total: 30,
     sizePx: 100,
-    type: 'total'
+    type: 'percentage'
   }
 };
 
@@ -32,10 +31,20 @@ export const Small: Story = {
     sizePx: 50
   }
 };
-export const Percentage: Story = {
+export const Total: Story = {
   args: {
-    progress: 100,
-    sizePx: 100,
-    type: 'percentage'
+    ...Default.args,
+    type: 'total',
+    values: [40, 20, 40],
+    colors: ['#00A95F', '#E4794A', '#F3EDE5'],
+    total: 100
+  }
+};
+export const TotalExceeded: Story = {
+  args: {
+    ...Default.args,
+    type: 'total',
+    values: [6, 2],
+    total: 6
   }
 };

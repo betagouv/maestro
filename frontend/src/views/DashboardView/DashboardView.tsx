@@ -74,7 +74,7 @@ const DashboardView = () => {
     apiClient.useFindRegionalPrescriptionsQuery(
       {
         ...findPrescriptionOptions,
-        includes: ['realizedSampleCount']
+        includes: ['sampleCounts']
       },
       {
         skip: !findPrescriptionOptions.programmingPlanId

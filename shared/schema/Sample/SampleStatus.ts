@@ -27,6 +27,13 @@ export const DraftStatusList: SampleStatus[] = [
   'DraftItems'
 ];
 
+export const InProgressStatusList: SampleStatus[] = [
+  'Draft',
+  'DraftMatrix',
+  'DraftItems',
+  'Submitted'
+];
+
 export const RealizedStatusList: SampleStatus[] = [
   'Sent',
   'NotAdmissible',

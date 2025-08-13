@@ -14,11 +14,11 @@ import {
   RegionalPrescription
 } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { FunctionComponent, useState } from 'react';
-import { Link } from 'react-router';
 import { assert, type Equals } from 'tsafe';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import { CircleProgress } from '../../components/CircleProgress/CircleProgress';
-import './DashboardMatrix.scss';
+import { pluralize } from '../../utils/stringUtils';
+import './DashboardPrescription.scss';
 
 type Props = {
   programmingPlan: ProgrammingPlan;
@@ -52,95 +52,98 @@ export const DashboardPrescriptionsProgress: FunctionComponent<Props> = ({
 
   return (
     <div className={className}>
-      <Card
-        background
-        border
-        shadow
-        size="medium"
-        title="Détails par matrice"
-        desc="Objectifs de prélèvements par matrice"
-        titleAs="h2"
-        end={
-          <div
-            className={clsx(
-              'matrix-list-container',
-              cx('fr-grid-row', 'fr-grid-row--gutters')
-            )}
-          >
-            {sortedPrescriptions
-              .slice(
-                currentPage * itemsPerPage,
-                (currentPage + 1) * itemsPerPage
-              )
-              .map(({ prescription, regionalPrescription }) => (
-                <PrescriptionContainer
-                  key={prescription.id}
-                  programmingPlan={programmingPlan}
-                  prescription={prescription}
-                  regionalPrescription={
-                    regionalPrescription as RegionalPrescription
-                  }
-                />
-              ))}
-            {new Array(
-              sortedPrescriptions.slice(
-                currentPage * itemsPerPage,
-                (currentPage + 1) * itemsPerPage
-              ).length % 3
-            )
-              .fill(null)
-              .map((_) => (
-                <div
-                  className={cx('fr-hidden', 'fr-unhidden-sm', 'fr-col-sm-3')}
-                ></div>
-              ))}
-          </div>
-        }
-        footer={
-          <Pagination
-            defaultPage={currentPage + 1}
-            count={Math.ceil(sortedPrescriptions.length / itemsPerPage)}
-            getPageLinkProps={(page) => ({
-              onClick: () => setCurrentPage(page - 1),
-              href: '#'
-            })}
-          />
-        }
-      />
+      <div className={clsx('white-container', cx('fr-p-4w'))}>
+        <h5>Détails des prélèvements par matrice</h5>
+        <div className={cx('fr-grid-row')}>
+          {sortedPrescriptions
+            .slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage)
+            .map(({ prescription, regionalPrescription }) => (
+              <DashboardPrescriptionCard
+                key={prescription.id}
+                programmingPlan={programmingPlan}
+                prescription={prescription}
+                regionalPrescription={
+                  regionalPrescription as RegionalPrescription
+                }
+              />
+            ))}
+        </div>
+        <Pagination
+          className={cx('fr-mt-4w')}
+          defaultPage={currentPage + 1}
+          count={Math.ceil(sortedPrescriptions.length / itemsPerPage)}
+          getPageLinkProps={(page) => ({
+            onClick: () => setCurrentPage(page - 1),
+            href: '#'
+          })}
+        />
+      </div>
     </div>
   );
 };
 
-const PrescriptionContainer: FunctionComponent<{
+const DashboardPrescriptionCard: FunctionComponent<{
   programmingPlan: ProgrammingPlan;
   prescription: Prescription;
   regionalPrescription: RegionalPrescription;
 }> = ({ programmingPlan, prescription, regionalPrescription }) => {
-  const total = regionalPrescription.sampleCount;
-  const done = Math.min(
-    regionalPrescription.realizedSampleCount as number,
-    regionalPrescription.sampleCount
-  );
-
   return (
-    <Link
-      className={clsx('matrix-container', cx('fr-col-12', 'fr-col-sm-3'))}
-      to={`${AuthenticatedAppRoutes.SamplesByYearRoute.link(programmingPlan.year)}?programmingPlanId=${programmingPlan.id}&matrixKind=${prescription.matrixKind}`}
-    >
-      <div className={clsx('d-flex-column')}>
-        <span className={clsx('matrix-name', cx('fr-text--bold'))}>
-          {MatrixKindLabels[prescription.matrixKind]}
-        </span>
-        <span className={clsx(cx('fr-text--xs', 'fr-text--light'))}>
-          {total - done} restants à faire
-        </span>
-      </div>
-      <CircleProgress
-        progress={getCompletionRate(regionalPrescription)}
-        sizePx={80}
-        type="total"
-        total={total}
-      />
-    </Link>
+    <Card
+      className={clsx(
+        'dashboard-prescription-card',
+        cx('fr-col-12', 'fr-col-sm-3')
+      )}
+      linkProps={{
+        to: `${AuthenticatedAppRoutes.SamplesByYearRoute.link(programmingPlan.year)}?programmingPlanId=${programmingPlan.id}&matrixKind=${prescription.matrixKind}`
+      }}
+      background
+      border
+      enlargeLink
+      title={MatrixKindLabels[prescription.matrixKind]}
+      size="small"
+      desc={
+        <>
+          <CircleProgress
+            progress={getCompletionRate(regionalPrescription)}
+            sizePx={80}
+            type="total"
+            total={regionalPrescription.sampleCount}
+            values={[
+              regionalPrescription.realizedSampleCount as number,
+              regionalPrescription.inProgressSampleCount as number
+            ]}
+          />
+          <div className={cx('fr-pl-2w')}>
+            <div className={clsx('d-flex-align-center')}>
+              <div className={clsx('bullet', 'bullet-realized')}></div>
+              <span className={cx('fr-hint-text', 'fr-text--sm', 'fr-mb-0')}>
+                {regionalPrescription.realizedSampleCount}{' '}
+                {pluralize(regionalPrescription.realizedSampleCount ?? 0)(
+                  'réalisé'
+                )}
+              </span>
+            </div>
+            <div className={clsx('d-flex-align-center')}>
+              <div className={clsx('bullet', 'bullet-in-progress')}></div>
+              <span className={cx('fr-hint-text', 'fr-text--sm', 'fr-mb-0')}>
+                {regionalPrescription.inProgressSampleCount} en cours
+              </span>
+            </div>
+            <div className={clsx('d-flex-align-center')}>
+              <div className={clsx('bullet', 'bullet-remaining')}></div>
+              <span className={cx('fr-hint-text', 'fr-text--sm', 'fr-mb-0')}>
+                {Math.max(
+                  0,
+                  regionalPrescription.sampleCount -
+                    (regionalPrescription.realizedSampleCount ?? 0) -
+                    (regionalPrescription.inProgressSampleCount ?? 0)
+                )}{' '}
+                à faire
+              </span>
+            </div>
+          </div>
+        </>
+      }
+    ></Card>
   );
 };

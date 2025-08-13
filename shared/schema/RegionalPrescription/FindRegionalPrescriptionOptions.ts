@@ -5,7 +5,7 @@ import { ProgrammingPlanContext } from '../ProgrammingPlan/Context';
 
 export const RegionalPrescriptionOptionsInclude = z.enum([
   'comments',
-  'realizedSampleCount'
+  'sampleCounts'
 ]);
 
 export type RegionalPrescriptionOptionsInclude = z.infer<

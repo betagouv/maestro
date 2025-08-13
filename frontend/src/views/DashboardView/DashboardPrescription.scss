@@ -1,0 +1,47 @@
+@use '../../constants' as constants;
+
+.dashboard-prescription-card.fr-card.fr-enlarge-link {
+  height: auto;
+
+  .fr-card__content {
+    padding: 1rem;
+  }
+
+  .fr-card__title {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    font-size: 1rem;
+  }
+
+  .fr-card__desc {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .fr-card__start,
+  .fr-card__end {
+    display: none;
+  }
+
+  .bullet {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+    margin-bottom: 1px;
+
+    &.bullet-realized {
+      background-color: var(--green-emeraude-main-632);
+    }
+
+    &.bullet-in-progress {
+      background-color: var(--orange-terre-battue-main-645);
+    }
+
+    &.bullet-remaining {
+      background-color: var(--beige-gris-galet-950-100);
+    }
+  }
+}
