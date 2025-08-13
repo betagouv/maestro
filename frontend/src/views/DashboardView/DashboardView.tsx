@@ -12,9 +12,9 @@ import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useOnLine } from 'src/hooks/useOnLine';
 import ProgrammingPlanCard from 'src/views/DashboardView/ProgrammingPlanCard';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
+import { DashboardNotice } from '../../components/DashboardNotice/DashboardNotice';
 import { ApiClientContext } from '../../services/apiClient';
-import { DashboardNotice } from './DashboardNotice';
-import { DashboardPrescriptionsProgress } from './DashboardPrescriptionsProgress';
+import { DashboardPrescriptions } from './DashboardPrescriptions';
 import { DashboardPriorityAction } from './DashboardPriorityAction';
 import ProgrammingPlanClosing from './ProgrammingPlanClosing';
 
@@ -54,32 +54,6 @@ const DashboardView = () => {
     () => nextProgrammingPlans?.[0],
     [nextProgrammingPlans]
   );
-
-  const findPrescriptionOptions = useMemo(
-    () => ({
-      programmingPlanId: currentProgrammingPlan?.id as string,
-      region: user?.region
-    }),
-    [currentProgrammingPlan, user?.region]
-  );
-
-  const { data: prescriptions } = apiClient.useFindPrescriptionsQuery(
-    findPrescriptionOptions,
-    {
-      skip: !findPrescriptionOptions.programmingPlanId
-    }
-  );
-
-  const { data: regionalPrescriptions } =
-    apiClient.useFindRegionalPrescriptionsQuery(
-      {
-        ...findPrescriptionOptions,
-        includes: ['sampleCounts']
-      },
-      {
-        skip: !findPrescriptionOptions.programmingPlanId
-      }
-    );
 
   if (!user || !currentProgrammingPlan) {
     return <></>;
@@ -174,11 +148,9 @@ const DashboardView = () => {
             )}
 
           {/*FIXME on affiche ça pour qui ?*/}
-          {currentProgrammingPlan && prescriptions && regionalPrescriptions && (
-            <DashboardPrescriptionsProgress
+          {currentProgrammingPlan && (
+            <DashboardPrescriptions
               programmingPlan={currentProgrammingPlan}
-              prescriptions={prescriptions}
-              regionalPrescriptions={regionalPrescriptions}
               className={clsx(cx('fr-col-12'))}
             />
           )}

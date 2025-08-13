@@ -1,5 +1,24 @@
 @use '../../constants' as constants;
 
+.dashboard-prescriptions-progress-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  & > div {
+    flex-grow: 1;
+    justify-content: center;
+  }
+
+  .in-progress {
+    color: var(--orange-terre-battue-main-645);
+  }
+
+  .remaining {
+    color: var(--beige-gris-galet-950-100);
+  }
+}
+
 .dashboard-prescription-card.fr-card.fr-enlarge-link {
   height: auto;
 
@@ -14,14 +33,15 @@
     font-size: 1rem;
   }
 
-  .fr-card__desc {
+  .fr-card__end {
     display: flex;
     flex-direction: row;
+    justify-content: flex-start;
     align-items: center;
+    margin: 0;
   }
 
-  .fr-card__start,
-  .fr-card__end {
+  .fr-card__start {
     display: none;
   }
 
@@ -32,15 +52,15 @@
     margin-right: 0.5rem;
     margin-bottom: 1px;
 
-    &.bullet-realized {
+    &.realized {
       background-color: var(--green-emeraude-main-632);
     }
 
-    &.bullet-in-progress {
+    &.in-progress {
       background-color: var(--orange-terre-battue-main-645);
     }
 
-    &.bullet-remaining {
+    &.remaining {
       background-color: var(--beige-gris-galet-950-100);
     }
   }
