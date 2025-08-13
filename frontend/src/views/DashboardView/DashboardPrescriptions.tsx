@@ -128,7 +128,7 @@ export const DashboardPrescriptions: FunctionComponent<Props> = ({
           setCurrentPage(0);
         }}
         tabs={ProgrammingPlanContextList.map((context) => ({
-          label: ContextLabels[context],
+          label: `${ContextLabels[context]} ${programmingPlan.year}`,
           content: (
             <>
               <div className={clsx('dashboard-prescriptions-progress-header')}>

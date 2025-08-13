@@ -40,7 +40,7 @@ const ProgrammingPlanCard = ({
       border
       shadow
       size="medium"
-      title={[ContextLabels[context], programmingPlan.year].join(' ')}
+      title={ContextLabels[context]}
       titleAs="h2"
       end={
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>

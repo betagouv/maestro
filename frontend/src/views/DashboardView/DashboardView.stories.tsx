@@ -188,11 +188,12 @@ export const DashboardViewForNationalCoordinator: Story = {
 
     await expect(canvas.getByText('Tableau de bord')).toBeInTheDocument();
     await expect(
-      canvas.getByText(`Plan de contrôle ${new Date().getFullYear()}`)
-    ).toBeInTheDocument();
+      canvas.getAllByText(`Plan de contrôle ${new Date().getFullYear()}`).length
+    ).toBe(2);
     await expect(
-      canvas.getByText(`Plan de surveillance ${new Date().getFullYear()}`)
-    ).toBeInTheDocument();
+      canvas.getAllByText(`Plan de surveillance ${new Date().getFullYear()}`)
+        .length
+    ).toBe(2);
 
     await expect(
       canvas.getByTestId('close-programming-plan-button')
