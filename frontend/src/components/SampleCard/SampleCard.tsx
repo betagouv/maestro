@@ -85,10 +85,10 @@ const SampleCard = ({ sample, horizontal }: Props) => {
       classes={
         horizontal
           ? {
-              start: 'fr-hidden',
+              start: cx('fr-hidden'),
               link: 'flex-grow-1',
-              content: 'fr-p-2w fr-pb-5v',
-              desc: 'fr-mt-0'
+              content: cx('fr-p-2w', 'fr-pb-5v'),
+              desc: cx('fr-mt-0')
             }
           : {}
       }

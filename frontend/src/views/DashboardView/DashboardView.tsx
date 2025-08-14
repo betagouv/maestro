@@ -132,7 +132,6 @@ const DashboardView = () => {
             />
           )}
 
-          {/*FIXME on affiche ça pour qui ?*/}
           <DashboardPriorityActions
             className={clsx(cx('fr-col-12', 'fr-col-sm-6'))}
             programmingPlan={currentProgrammingPlan}
@@ -147,13 +146,6 @@ const DashboardView = () => {
               />
             )}
 
-          {currentProgrammingPlan && (
-            <DashboardPrescriptions
-              programmingPlan={currentProgrammingPlan}
-              className={clsx(cx('fr-col-12'))}
-            />
-          )}
-
           {hasNationalView &&
             currentProgrammingPlan.contexts.map((context) => (
               <div
@@ -166,6 +158,13 @@ const DashboardView = () => {
                 />
               </div>
             ))}
+
+          {currentProgrammingPlan && (
+            <DashboardPrescriptions
+              programmingPlan={currentProgrammingPlan}
+              className={clsx(cx('fr-col-12'))}
+            />
+          )}
         </div>
       )}
     </section>

@@ -41,10 +41,10 @@ const DashboardPriorityActions: FunctionComponent<Props> = ({
         className={clsx(
           'white-container',
           'dashboard-priority-actions-container',
-          cx('fr-p-3w')
+          cx('fr-px-4w', 'fr-py-3w')
         )}
       >
-        <h5 className={cx('fr-mb-1w')}>Rapports à terminer</h5>
+        <h4 className={cx('fr-mb-1w')}>Rapports à terminer</h4>
         {samplesInReview.length === 0 ? (
           <>Vous n'avez pas de rapport à terminer</>
         ) : (

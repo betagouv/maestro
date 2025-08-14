@@ -46,9 +46,10 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
   const findPrescriptionOptions = useMemo(
     () => ({
       programmingPlanId: programmingPlan.id,
-      context
+      context,
+      region: user?.region ?? undefined
     }),
-    [programmingPlan.id, context]
+    [programmingPlan.id, context, user?.region]
   );
 
   const { data: prescriptions } = apiClient.useFindPrescriptionsQuery(
@@ -130,12 +131,12 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
             <>
               <div className={clsx('dashboard-prescriptions-progress-header')}>
                 <div>
-                  <h5 className={cx('fr-mb-0')}>
+                  <h4 className={cx('fr-mb-0')}>
                     {sortedPrescriptions.length}{' '}
                     {pluralize(sortedPrescriptions.length)(
                       'matrice programmée'
                     )}
-                  </h5>
+                  </h4>
                   {sumBy(regionalPrescriptions, 'sampleCount')}{' '}
                   {pluralize(sumBy(regionalPrescriptions, 'sampleCount'))(
                     'prélèvement'

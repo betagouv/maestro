@@ -1,4 +1,4 @@
-import Card from '@codegouvfr/react-dsfr/Card';
+import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { sumBy } from 'lodash-es';
@@ -9,7 +9,6 @@ import {
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { getCompletionRate } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { useContext } from 'react';
-import { Link } from 'react-router';
 import { pluralize } from 'src/utils/stringUtils';
 import ProgrammingPlanMap from 'src/views/DashboardView/ProgrammingPlanMap';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
@@ -35,89 +34,85 @@ const ProgrammingPlanCard = ({
     });
 
   return (
-    <Card
-      background
-      border
-      shadow
-      size="medium"
-      title={ContextLabels[context]}
-      titleAs="h2"
-      end={
-        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={cx('fr-col-12', 'fr-pt-0')}>
-            {/*FIXME on vire tout ça ?*/}
-            {/*{programmingPlan.regionalStatus.some(*/}
-            {/*  (_) => _.status === 'Validated'*/}
-            {/*) ? (*/}
-            {/*  <Badge severity="success" noIcon>*/}
-            {/*    Taux de réalisation :{' '}*/}
-            {/*{getCompletionRate(*/}
-            {/*  regionalPrescriptions ?? []*/}
-            {/*)}%*/}
-            {/*  </Badge>*/}
-            {/*) : (*/}
-            {/*  <Badge severity="warning" noIcon>*/}
-            {/*    {ProgrammingPlanStatusLabels['InProgress']}*/}
-            {/*  </Badge>*/}
-            {/*)}*/}
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}
+    <>
+      <div
+        className={clsx(
+          'white-container',
+          cx('fr-px-4w', 'fr-pt-3w', 'fr-pb-2w')
+        )}
+        style={{
+          borderBottom: 'none'
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}
+        >
+          <div>
+            <span
+              className={cx(
+                'fr-label--success',
+                'fr-text--sm',
+                'fr-text--bold'
+              )}
             >
-              <span
-                className={cx('fr-text--bold')}
-                style={{ fontSize: '1.5rem' }}
-              >
-                {sumBy(regionalPrescriptions, 'sampleCount')}{' '}
-                {pluralize(sumBy(regionalPrescriptions, 'sampleCount'))(
-                  'prélèvement programmé'
-                )}
-              </span>
-              <CircleProgress
-                progress={getCompletionRate(regionalPrescriptions ?? [])}
-                sizePx={110}
-                type={'percentage'}
-              />
-            </div>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}
-            >
-              <span>
-                {sumBy(regionalPrescriptions, 'realizedSampleCount')}{' '}
-                {pluralize(sumBy(regionalPrescriptions, 'realizedSampleCount'))(
-                  'prélèvement réalisé'
-                )}
-              </span>
-              <span style={{ width: 110, textAlign: 'center' }}>
-                de l'objectif
-              </span>
-            </div>
+              {ContextLabels[context].toUpperCase()}
+            </span>
+            <h3>
+              {sumBy(regionalPrescriptions, 'sampleCount')}{' '}
+              {pluralize(sumBy(regionalPrescriptions, 'sampleCount'))(
+                'prélèvement'
+              )}
+              <br />
+              {pluralize(sumBy(regionalPrescriptions, 'sampleCount'))(
+                'programmé'
+              )}
+            </h3>
           </div>
-          <div className="border-middle" />
-          <div className={clsx('d-flex-justify-center', cx('fr-col-12'))}>
-            <Link
-              to={`${AuthenticatedAppRoutes.ProgrammationByYearRoute.link(programmingPlan.year)}?context=${context}`}
-              className={cx('fr-link', 'fr-link--sm')}
-            >
-              {[ContextLabels[context], programmingPlan.year].join(' ')}
-            </Link>
-          </div>
-
-          <div className={cx('fr-col-12')}>
-            <ProgrammingPlanMap
-              regionalPrescriptions={regionalPrescriptions ?? []}
-            />
-          </div>
+          <CircleProgress
+            progress={getCompletionRate(regionalPrescriptions ?? [])}
+            sizePx={110}
+            type={'percentage'}
+          />
         </div>
-      }
-    ></Card>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}
+        >
+          <span>
+            {sumBy(regionalPrescriptions, 'realizedSampleCount')}{' '}
+            {pluralize(sumBy(regionalPrescriptions, 'realizedSampleCount'))(
+              'prélèvement réalisé'
+            )}
+          </span>
+          <span style={{ width: 110, textAlign: 'center' }}>de l'objectif</span>
+        </div>
+        <hr className={cx('fr-mt-4w', 'fr-mb-2w')} />
+        <div className={clsx('d-flex-justify-center', cx('fr-col-12'))}>
+          <Button
+            priority="tertiary no outline"
+            iconId="fr-icon-bar-chart-box-line"
+            linkProps={{
+              to: `${AuthenticatedAppRoutes.ProgrammationByYearRoute.link(programmingPlan.year)}?context=${context}`
+            }}
+          >
+            {[ContextLabels[context], programmingPlan.year].join(' ')}
+          </Button>
+        </div>
+      </div>
+
+      <div className={clsx('border', cx('fr-p-2w'))}>
+        <ProgrammingPlanMap
+          regionalPrescriptions={regionalPrescriptions ?? []}
+        />
+      </div>
+    </>
   );
 };
 
