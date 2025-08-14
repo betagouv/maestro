@@ -1,10 +1,12 @@
 import Card from '@codegouvfr/react-dsfr/Card';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import Select from '@codegouvfr/react-dsfr/Select';
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import Tooltip from '@codegouvfr/react-dsfr/Tooltip';
 import clsx from 'clsx';
-import { isNil, sumBy } from 'lodash-es';
+import { sumBy } from 'lodash-es';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
+import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
 import {
   Prescription,
   PrescriptionSort
@@ -18,7 +20,13 @@ import {
   getCompletionRate,
   RegionalPrescription
 } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
-import { FunctionComponent, useContext, useMemo, useState } from 'react';
+import {
+  FunctionComponent,
+  useContext,
+  useEffect,
+  useMemo,
+  useState
+} from 'react';
 import { assert, type Equals } from 'tsafe';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import { CircleProgress } from '../../components/CircleProgress/CircleProgress';
@@ -38,18 +46,22 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
   const apiClient = useContext(ApiClientContext);
-  const { user } = useAuthentication();
+  const { user, hasNationalView } = useAuthentication();
 
   const [context, setContext] = useState(programmingPlan.contexts[0]);
-  const [region, _setRegion] = useState(user?.region);
+  const [regionFilter, setRegionFilter] = useState(user?.region);
+
+  useEffect(() => {
+    setRegionFilter(user?.region);
+  }, [user?.region]);
 
   const findPrescriptionOptions = useMemo(
     () => ({
       programmingPlanId: programmingPlan.id,
       context,
-      region: user?.region ?? undefined
+      region: Region.safeParse(regionFilter).success ? regionFilter : undefined
     }),
-    [programmingPlan.id, context, user?.region]
+    [programmingPlan.id, context, regionFilter]
   );
 
   const { data: prescriptions } = apiClient.useFindPrescriptionsQuery(
@@ -68,22 +80,25 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
         .sort(PrescriptionSort)
         .map((prescription) => ({
           prescription,
-          regionalPrescription: (regionalPrescriptions ?? []).find(
+          regionalPrescriptions: (regionalPrescriptions ?? []).filter(
             (regionalPrescription) =>
               regionalPrescription.prescriptionId === prescription.id
           )
         }))
-        .filter(({ regionalPrescription }) => !isNil(regionalPrescription)),
+        .filter(
+          ({ regionalPrescriptions }) => regionalPrescriptions.length > 0
+        ),
     [prescriptions, regionalPrescriptions]
   );
 
   const realizedPrescriptionsCount = useMemo(
     () =>
-      sortedPrescriptions.filter(
-        ({ regionalPrescription }) =>
-          ((regionalPrescription as RegionalPrescription)
-            .realizedSampleCount as number) >=
-          ((regionalPrescription as RegionalPrescription).sampleCount as number)
+      sortedPrescriptions.filter(({ regionalPrescriptions }) =>
+        regionalPrescriptions.every(
+          (regionalPrescription) =>
+            (regionalPrescription.realizedSampleCount as number) >=
+            regionalPrescription.sampleCount
+        )
       ).length,
     [sortedPrescriptions]
   );
@@ -91,13 +106,17 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
   const inProgressPrescriptionsCount = useMemo(
     () =>
       sortedPrescriptions.filter(
-        ({ regionalPrescription }) =>
-          ((regionalPrescription as RegionalPrescription)
-            .realizedSampleCount as number) <
-            ((regionalPrescription as RegionalPrescription)
-              .sampleCount as number) &&
-          ((regionalPrescription as RegionalPrescription)
-            .inProgressSampleCount as number) > 0
+        ({ regionalPrescriptions }) =>
+          regionalPrescriptions.some(
+            (regionalPrescription) =>
+              (regionalPrescription.realizedSampleCount as number) <
+              regionalPrescription.sampleCount
+          ) &&
+          regionalPrescriptions.some(
+            (regionalPrescription) =>
+              (regionalPrescription.inProgressSampleCount as number) > 0 ||
+              (regionalPrescription.realizedSampleCount as number) > 0
+          )
       ).length,
     [sortedPrescriptions]
   );
@@ -105,13 +124,17 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
   const remainingPrescriptionsCount = useMemo(
     () =>
       sortedPrescriptions.filter(
-        ({ regionalPrescription }) =>
-          ((regionalPrescription as RegionalPrescription)
-            .realizedSampleCount as number) <
-            ((regionalPrescription as RegionalPrescription)
-              .sampleCount as number) &&
-          ((regionalPrescription as RegionalPrescription)
-            .inProgressSampleCount as number) === 0
+        ({ regionalPrescriptions }) =>
+          regionalPrescriptions.every(
+            (regionalPrescription) =>
+              (regionalPrescription.inProgressSampleCount as number) === 0 &&
+              (regionalPrescription.realizedSampleCount as number) === 0
+          ) &&
+          regionalPrescriptions.some(
+            (regionalPrescription) =>
+              (regionalPrescription.realizedSampleCount as number) <
+              regionalPrescription.sampleCount
+          )
       ).length,
     [sortedPrescriptions]
   );
@@ -152,7 +175,7 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
                   <CircleProgress
                     progress={getCompletionRate(
                       regionalPrescriptions ?? [],
-                      region,
+                      regionFilter,
                       true
                     )}
                     sizePx={80}
@@ -239,17 +262,40 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
                       marginRight: '-2rem'
                     }}
                   />
-                  <h5>Détails des prélèvements par matrice</h5>
+                  <div className={clsx('d-flex-align-center', cx('fr-mb-4w'))}>
+                    <h5 className={clsx('flex-grow-1', 'fr-mb-0')}>
+                      Détails des prélèvements par matrice
+                    </h5>
+                    {hasNationalView && (
+                      <Select
+                        label={<div className={cx('fr-hidden')}>Région</div>}
+                        nativeSelectProps={{
+                          value: regionFilter ?? '',
+                          onChange: (e) =>
+                            setRegionFilter(e.target.value as Region),
+                          className: cx('fr-mt-0')
+                        }}
+                      >
+                        <option value="">Toutes les régions</option>
+                        {RegionList.map((region) => (
+                          <option
+                            key={`select-region-${region}`}
+                            value={region}
+                          >
+                            {Regions[region].name}
+                          </option>
+                        ))}
+                      </Select>
+                    )}
+                  </div>
                   <div className={cx('fr-grid-row')}>
                     {sortedPrescriptions.map(
-                      ({ prescription, regionalPrescription }) => (
+                      ({ prescription, regionalPrescriptions }) => (
                         <DashboardPrescriptionCard
                           key={prescription.id}
                           programmingPlan={programmingPlan}
                           prescription={prescription}
-                          regionalPrescription={
-                            regionalPrescription as RegionalPrescription
-                          }
+                          regionalPrescriptions={regionalPrescriptions}
                         />
                       )
                     )}
@@ -267,8 +313,8 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
 const DashboardPrescriptionCard: FunctionComponent<{
   programmingPlan: ProgrammingPlan;
   prescription: Prescription;
-  regionalPrescription: RegionalPrescription;
-}> = ({ programmingPlan, prescription, regionalPrescription }) => {
+  regionalPrescriptions: RegionalPrescription[];
+}> = ({ programmingPlan, prescription, regionalPrescriptions }) => {
   return (
     <Card
       className={clsx(
@@ -286,21 +332,21 @@ const DashboardPrescriptionCard: FunctionComponent<{
       end={
         <>
           <CircleProgress
-            progress={getCompletionRate(regionalPrescription)}
+            progress={getCompletionRate(regionalPrescriptions)}
             sizePx={80}
             type="total"
-            total={regionalPrescription.sampleCount}
+            total={sumBy(regionalPrescriptions, 'sampleCount')}
             values={[
-              regionalPrescription.realizedSampleCount as number,
-              regionalPrescription.inProgressSampleCount as number
+              sumBy(regionalPrescriptions, 'realizedSampleCount'),
+              sumBy(regionalPrescriptions, 'inProgressSampleCount')
             ]}
           />
           <div className={cx('fr-pl-2w')}>
             <div className={clsx('d-flex-align-center')}>
               <div className={clsx('bullet', 'realized')}></div>
               <span className={cx('fr-hint-text', 'fr-text--sm', 'fr-mb-0')}>
-                {regionalPrescription.realizedSampleCount}{' '}
-                {pluralize(regionalPrescription.realizedSampleCount ?? 0)(
+                {sumBy(regionalPrescriptions, 'realizedSampleCount')}{' '}
+                {pluralize(sumBy(regionalPrescriptions, 'realizedSampleCount'))(
                   'réalisé'
                 )}
               </span>
@@ -308,7 +354,7 @@ const DashboardPrescriptionCard: FunctionComponent<{
             <div className={clsx('d-flex-align-center')}>
               <div className={clsx('bullet', 'in-progress')}></div>
               <span className={cx('fr-hint-text', 'fr-text--sm', 'fr-mb-0')}>
-                {regionalPrescription.inProgressSampleCount} en cours
+                {sumBy(regionalPrescriptions, 'inProgressSampleCount')} en cours
               </span>
             </div>
             <div className={clsx('d-flex-align-center')}>
@@ -316,9 +362,9 @@ const DashboardPrescriptionCard: FunctionComponent<{
               <span className={cx('fr-hint-text', 'fr-text--sm', 'fr-mb-0')}>
                 {Math.max(
                   0,
-                  regionalPrescription.sampleCount -
-                    (regionalPrescription.realizedSampleCount ?? 0) -
-                    (regionalPrescription.inProgressSampleCount ?? 0)
+                  sumBy(regionalPrescriptions, 'sampleCount') -
+                    sumBy(regionalPrescriptions, 'realizedSampleCount') -
+                    sumBy(regionalPrescriptions, 'inProgressSampleCount')
                 )}{' '}
                 à faire
               </span>
