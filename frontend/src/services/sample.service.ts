@@ -77,7 +77,9 @@ const sampleApi = api.injectEndpoints({
       invalidatesTags: (_result, _error, { id }) => [
         { type: 'Sample', id: 'LIST' },
         { type: 'Sample', id },
-        'SampleCount'
+        'SampleCount',
+        { type: 'RegionalPrescription', id: 'LIST' },
+        { type: 'Prescription', id: 'LIST' }
       ]
     }),
     updateSample: builder.mutation<PartialSample, PartialSample>({
@@ -91,7 +93,9 @@ const sampleApi = api.injectEndpoints({
       invalidatesTags: (_result, _error, { id }) => [
         { type: 'Sample', id: 'LIST' },
         { type: 'Sample', id },
-        'SampleCount'
+        'SampleCount',
+        { type: 'RegionalPrescription', id: 'LIST' },
+        { type: 'Prescription', id: 'LIST' }
       ]
     }),
     updateSampleItems: builder.mutation<void, { id: string; items: any[] }>({
@@ -110,7 +114,9 @@ const sampleApi = api.injectEndpoints({
       invalidatesTags: (_result, _error, id) => [
         { type: 'Sample', id: 'LIST' },
         { type: 'Sample', id },
-        'SampleCount'
+        'SampleCount',
+        { type: 'RegionalPrescription', id: 'LIST' },
+        { type: 'Prescription', id: 'LIST' }
       ]
     })
   })

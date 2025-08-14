@@ -31,7 +31,9 @@ const DashboardPriorityActions: FunctionComponent<Props> = ({
     status: 'InReview'
   });
 
-  //FIXME on affiche quoi quand il n'y a pas de prélèvement ?
+  if (!samplesInReview) {
+    return <></>;
+  }
 
   return (
     <div className={className}>
@@ -43,15 +45,21 @@ const DashboardPriorityActions: FunctionComponent<Props> = ({
         )}
       >
         <h5 className={cx('fr-mb-1w')}>Rapports à terminer</h5>
-        {samplesInReview?.map((s) => <SampleCard sample={s} horizontal />)}
-        <div className={clsx('more-actions-link')}>
-          <Link
-            to={`${AuthenticatedAppRoutes.SamplesByYearRoute.link(programmingPlan.year)}?status=InReview`}
-            className={cx('fr-link', 'fr-link--sm')}
-          >
-            Tous les rapports à terminer
-          </Link>
-        </div>
+        {samplesInReview.length === 0 ? (
+          <>Vous n'avez pas de rapport à terminer</>
+        ) : (
+          <>
+            {samplesInReview?.map((s) => <SampleCard sample={s} horizontal />)}
+            <div className={clsx('more-actions-link')}>
+              <Link
+                to={`${AuthenticatedAppRoutes.SamplesByYearRoute.link(programmingPlan.year)}?status=InReview`}
+                className={cx('fr-link', 'fr-link--sm')}
+              >
+                Tous les rapports à terminer
+              </Link>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
