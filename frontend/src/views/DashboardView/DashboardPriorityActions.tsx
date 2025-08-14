@@ -1,4 +1,3 @@
-import Card from '@codegouvfr/react-dsfr/Card';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -7,22 +6,26 @@ import { Link } from 'react-router';
 import { assert, type Equals } from 'tsafe';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import SampleCard from '../../components/SampleCard/SampleCard';
+import { useAuthentication } from '../../hooks/useAuthentication';
 import { ApiClientContext } from '../../services/apiClient';
 
 type Props = {
   programmingPlan: ProgrammingPlan;
   className: string;
 };
-export const DashboardPriorityAction: FunctionComponent<Props> = ({
+const DashboardPriorityActions: FunctionComponent<Props> = ({
   programmingPlan,
   className,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
+  const { user } = useAuthentication();
+
   const { useFindSamplesQuery } = useContext(ApiClientContext);
   const { data: samplesInReview } = useFindSamplesQuery({
     programmingPlanId: programmingPlan.id,
+    region: user?.region ?? undefined,
     page: 1,
     perPage: 2,
     status: 'InReview'
@@ -32,33 +35,26 @@ export const DashboardPriorityAction: FunctionComponent<Props> = ({
 
   return (
     <div className={className}>
-      <Card
-        background
-        border
-        shadow
-        size="medium"
-        title="Rapports à terminer"
-        titleAs="h2"
-        end={
-          <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-            {samplesInReview?.map((s) => (
-              <div className={clsx(cx('fr-col-12', 'fr-col-sm-6'))}>
-                <SampleCard sample={s} />
-              </div>
-            ))}
-          </div>
-        }
-        footer={
-          <div className={clsx('d-flex-justify-center')}>
-            <Link
-              to={`${AuthenticatedAppRoutes.SamplesByYearRoute.link(programmingPlan.year)}?status=InReview`}
-              className={cx('fr-link', 'fr-link--sm')}
-            >
-              Tous les rapports à terminer
-            </Link>
-          </div>
-        }
-      ></Card>
+      <div
+        className={clsx(
+          'white-container',
+          'dashboard-priority-actions-container',
+          cx('fr-p-3w')
+        )}
+      >
+        <h5 className={cx('fr-mb-1w')}>Rapports à terminer</h5>
+        {samplesInReview?.map((s) => <SampleCard sample={s} horizontal />)}
+        <div className={clsx('more-actions-link')}>
+          <Link
+            to={`${AuthenticatedAppRoutes.SamplesByYearRoute.link(programmingPlan.year)}?status=InReview`}
+            className={cx('fr-link', 'fr-link--sm')}
+          >
+            Tous les rapports à terminer
+          </Link>
+        </div>
+      </div>
     </div>
   );
 };
+
+export default DashboardPriorityActions;

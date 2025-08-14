@@ -25,13 +25,13 @@ import { CircleProgress } from '../../components/CircleProgress/CircleProgress';
 import { useAuthentication } from '../../hooks/useAuthentication';
 import { ApiClientContext } from '../../services/apiClient';
 import { pluralize } from '../../utils/stringUtils';
-import './DashboardPrescriptions.scss';
+import './Dashboard.scss';
 
 type Props = {
   programmingPlan: ProgrammingPlan;
   className: string;
 };
-export const DashboardPrescriptions: FunctionComponent<Props> = ({
+const DashboardPrescriptions: FunctionComponent<Props> = ({
   programmingPlan,
   className,
   ..._rest
@@ -328,3 +328,5 @@ const DashboardPrescriptionCard: FunctionComponent<{
     ></Card>
   );
 };
+
+export default DashboardPrescriptions;

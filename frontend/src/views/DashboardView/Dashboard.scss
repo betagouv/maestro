@@ -65,3 +65,20 @@
     }
   }
 }
+
+.dashboard-priority-actions-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  height: 100%;
+
+  .fr-card {
+    height: fit-content;
+  }
+
+  .more-actions-link {
+    flex-grow: 1;
+    align-content: end;
+    align-self: center;
+  }
+}

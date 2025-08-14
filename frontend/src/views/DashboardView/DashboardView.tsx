@@ -14,8 +14,8 @@ import ProgrammingPlanCard from 'src/views/DashboardView/ProgrammingPlanCard';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import { DashboardNotice } from '../../components/DashboardNotice/DashboardNotice';
 import { ApiClientContext } from '../../services/apiClient';
-import { DashboardPrescriptions } from './DashboardPrescriptions';
-import { DashboardPriorityAction } from './DashboardPriorityAction';
+import DashboardPrescriptions from './DashboardPrescriptions';
+import DashboardPriorityActions from './DashboardPriorityActions';
 import ProgrammingPlanClosing from './ProgrammingPlanClosing';
 
 const DashboardView = () => {
@@ -133,7 +133,7 @@ const DashboardView = () => {
           )}
 
           {/*FIXME on affiche ça pour qui ?*/}
-          <DashboardPriorityAction
+          <DashboardPriorityActions
             className={clsx(cx('fr-col-12', 'fr-col-sm-6'))}
             programmingPlan={currentProgrammingPlan}
           />
@@ -147,7 +147,6 @@ const DashboardView = () => {
               />
             )}
 
-          {/*FIXME on affiche ça pour qui ?*/}
           {currentProgrammingPlan && (
             <DashboardPrescriptions
               programmingPlan={currentProgrammingPlan}

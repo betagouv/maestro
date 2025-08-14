@@ -74,7 +74,7 @@ export const DashboardNotice: FunctionComponent<Props> = ({
               Quoi de neuf sur Maestro ?
             </div>
             <Link
-              to={`${config.websiteUrl}/suivez-le-guide`}
+              to={`${config.websiteUrl}/nouveautes`}
               target="_blank"
               className={cx('fr-link', 'fr-link--sm')}
             >
