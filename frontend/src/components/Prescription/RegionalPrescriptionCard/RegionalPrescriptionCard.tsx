@@ -124,10 +124,11 @@ const RegionalPrescriptionCard = ({
                     <span className={cx('fr-text--bold')}>
                       {regionalPrescription.realizedSampleCount ?? 0}{' '}
                       {pluralize(regionalPrescription.realizedSampleCount ?? 0)(
-                        'prélèvement'
+                        'prélèvement réalisé'
                       )}
                     </span>
                     {' sur '}
+                    <br />
                     {regionalPrescription.sampleCount ?? 0}{' '}
                     {pluralize(regionalPrescription.sampleCount ?? 0)(
                       'programmé'

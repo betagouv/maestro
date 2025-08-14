@@ -1,6 +1,5 @@
 import Card from '@codegouvfr/react-dsfr/Card';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import Pagination from '@codegouvfr/react-dsfr/Pagination';
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import Tooltip from '@codegouvfr/react-dsfr/Tooltip';
 import clsx from 'clsx';
@@ -23,6 +22,7 @@ import { FunctionComponent, useContext, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import { CircleProgress } from '../../components/CircleProgress/CircleProgress';
+import { useAuthentication } from '../../hooks/useAuthentication';
 import { ApiClientContext } from '../../services/apiClient';
 import { pluralize } from '../../utils/stringUtils';
 import './DashboardPrescriptions.scss';
@@ -38,8 +38,10 @@ export const DashboardPrescriptions: FunctionComponent<Props> = ({
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
   const apiClient = useContext(ApiClientContext);
+  const { user } = useAuthentication();
 
   const [context, setContext] = useState(programmingPlan.contexts[0]);
+  const [region, _setRegion] = useState(user?.region);
 
   const findPrescriptionOptions = useMemo(
     () => ({
@@ -113,10 +115,6 @@ export const DashboardPrescriptions: FunctionComponent<Props> = ({
     [sortedPrescriptions]
   );
 
-  const itemsPerPage = 12;
-
-  const [currentPage, setCurrentPage] = useState(0);
-
   return (
     <div className={className}>
       <Tabs
@@ -125,7 +123,6 @@ export const DashboardPrescriptions: FunctionComponent<Props> = ({
         }}
         onTabChange={({ tabIndex }) => {
           setContext(programmingPlan.contexts[tabIndex]);
-          setCurrentPage(0);
         }}
         tabs={ProgrammingPlanContextList.map((context) => ({
           label: `${ContextLabels[context]} ${programmingPlan.year}`,
@@ -152,8 +149,10 @@ export const DashboardPrescriptions: FunctionComponent<Props> = ({
                   )}
                 >
                   <CircleProgress
-                    progress={Math.round(
-                      getCompletionRate(regionalPrescriptions ?? [])
+                    progress={getCompletionRate(
+                      regionalPrescriptions ?? [],
+                      region,
+                      true
                     )}
                     sizePx={80}
                     type={'percentage'}
@@ -179,7 +178,13 @@ export const DashboardPrescriptions: FunctionComponent<Props> = ({
                     aria-hidden="true"
                   ></span>
                   {realizedPrescriptionsCount}{' '}
-                  {pluralize(realizedPrescriptionsCount)('matrice terminée')}
+                  {pluralize(realizedPrescriptionsCount)('matrice réalisée')}
+                  <div className={cx('fr-pl-1w')}>
+                    <Tooltip
+                      kind="click"
+                      title="Transmis au labo, non recevable, en cours d'analyse, à valider, terminé"
+                    />
+                  </div>
                 </div>
                 <div
                   className={clsx(
@@ -197,10 +202,7 @@ export const DashboardPrescriptions: FunctionComponent<Props> = ({
                   ></span>
                   {inProgressPrescriptionsCount} en cours
                   <div className={cx('fr-pl-1w')}>
-                    <Tooltip
-                      kind="hover"
-                      title="Brouillon, à envoyer, transmis au labo"
-                    />
+                    <Tooltip kind="click" title="Brouillon, à envoyer" />
                   </div>
                 </div>
                 <div
@@ -238,12 +240,8 @@ export const DashboardPrescriptions: FunctionComponent<Props> = ({
                   />
                   <h5>Détails des prélèvements par matrice</h5>
                   <div className={cx('fr-grid-row')}>
-                    {sortedPrescriptions
-                      .slice(
-                        currentPage * itemsPerPage,
-                        (currentPage + 1) * itemsPerPage
-                      )
-                      .map(({ prescription, regionalPrescription }) => (
+                    {sortedPrescriptions.map(
+                      ({ prescription, regionalPrescription }) => (
                         <DashboardPrescriptionCard
                           key={prescription.id}
                           programmingPlan={programmingPlan}
@@ -252,17 +250,9 @@ export const DashboardPrescriptions: FunctionComponent<Props> = ({
                             regionalPrescription as RegionalPrescription
                           }
                         />
-                      ))}
+                      )
+                    )}
                   </div>
-                  <Pagination
-                    className={cx('fr-mt-4w')}
-                    defaultPage={currentPage + 1}
-                    count={Math.ceil(sortedPrescriptions.length / itemsPerPage)}
-                    getPageLinkProps={(page) => ({
-                      onClick: () => setCurrentPage(page - 1),
-                      href: '#'
-                    })}
-                  />
                 </>
               )}
             </>
