@@ -129,7 +129,7 @@ const SubstanceSearch = ({
       )}
 
       <div className="fr-mt-1w">
-        {substances.sort(SSD2IdSort).map((substance) => (
+        {[...substances].sort(SSD2IdSort).map((substance) => (
           <Tag
             key={`${analysisMethod}-${substance}`}
             dismissible={!readonly}
