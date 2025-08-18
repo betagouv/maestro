@@ -187,16 +187,13 @@ export const DashboardViewForNationalCoordinator: Story = {
     const canvas = within(canvasElement);
 
     await expect(canvas.getByText('Tableau de bord')).toBeInTheDocument();
-    await expect(
-      canvas.getAllByText(`Plan de contrôle ${new Date().getFullYear()}`).length
-    ).toBe(2);
-    await expect(
-      canvas.getAllByText(`Plan de surveillance ${new Date().getFullYear()}`)
-        .length
-    ).toBe(2);
+    await expect(canvas.getByText(`Plan de contrôle`)).toBeInTheDocument();
+    await expect(canvas.getByText(`Plan de surveillance`)).toBeInTheDocument();
 
     await expect(
-      canvas.getByTestId('close-programming-plan-button')
+      canvas.getByText(
+        `Clôturer la programmation ${new Date().getFullYear() - 1}`
+      )
     ).toBeInTheDocument();
   }
 };
