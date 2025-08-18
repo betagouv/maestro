@@ -32,6 +32,7 @@ import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import { CircleProgress } from '../../components/CircleProgress/CircleProgress';
 import { useAuthentication } from '../../hooks/useAuthentication';
 import { ApiClientContext } from '../../services/apiClient';
+import { getURLQuery } from '../../utils/fetchUtils';
 import { pluralize } from '../../utils/stringUtils';
 import './Dashboard.scss';
 
@@ -296,6 +297,7 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
                           programmingPlan={programmingPlan}
                           prescription={prescription}
                           regionalPrescriptions={regionalPrescriptions}
+                          region={regionFilter}
                         />
                       )
                     )}
@@ -314,7 +316,14 @@ const DashboardPrescriptionCard: FunctionComponent<{
   programmingPlan: ProgrammingPlan;
   prescription: Prescription;
   regionalPrescriptions: RegionalPrescription[];
-}> = ({ programmingPlan, prescription, regionalPrescriptions }) => {
+  region?: Region | null;
+}> = ({ programmingPlan, prescription, regionalPrescriptions, region }) => {
+  const linkQuery = getURLQuery({
+    programmingPlanId: programmingPlan.id,
+    matrixKind: prescription.matrixKind,
+    region: region
+  });
+
   return (
     <Card
       className={clsx(
@@ -322,7 +331,7 @@ const DashboardPrescriptionCard: FunctionComponent<{
         cx('fr-col-12', 'fr-col-sm-3')
       )}
       linkProps={{
-        to: `${AuthenticatedAppRoutes.SamplesByYearRoute.link(programmingPlan.year)}?programmingPlanId=${programmingPlan.id}&matrixKind=${prescription.matrixKind}`
+        to: `${AuthenticatedAppRoutes.SamplesByYearRoute.link(programmingPlan.year)}${linkQuery}`
       }}
       background
       border

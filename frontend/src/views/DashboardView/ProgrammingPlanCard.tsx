@@ -52,15 +52,7 @@ const ProgrammingPlanCard = ({
           }}
         >
           <div>
-            <span
-              className={cx(
-                'fr-label--success',
-                'fr-text--sm',
-                'fr-text--bold'
-              )}
-            >
-              {ContextLabels[context].toUpperCase()}
-            </span>
+            <h4>{ContextLabels[context]}</h4>
             <h3>
               {sumBy(regionalPrescriptions, 'sampleCount')}{' '}
               {pluralize(sumBy(regionalPrescriptions, 'sampleCount'))(
@@ -109,6 +101,8 @@ const ProgrammingPlanCard = ({
 
       <div className={clsx('border', cx('fr-p-2w'))}>
         <ProgrammingPlanMap
+          programmingPlan={programmingPlan}
+          context={context}
           regionalPrescriptions={regionalPrescriptions ?? []}
         />
       </div>
