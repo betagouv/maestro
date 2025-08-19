@@ -200,7 +200,12 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
     );
 
   const contextOptions = selectOptionsFromList(
-    [...(programmingPlan.contexts ?? []), 'OutsideProgrammingPlan'],
+    [
+      programmingPlan.contexts ?? [],
+      programmingPlan.samplesOutsidePlanAllowed
+        ? ['OutsideProgrammingPlan']
+        : []
+    ].flat(),
     {
       labels: {
         ...ContextLabels,

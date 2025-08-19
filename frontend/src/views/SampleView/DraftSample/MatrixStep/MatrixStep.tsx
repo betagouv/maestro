@@ -13,7 +13,10 @@ import {
 import { FileInput } from 'maestro-shared/schema/File/FileInput';
 import { SampleDocumentTypeList } from 'maestro-shared/schema/File/FileType';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { PFASKindList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import {
+  DAOAKindList,
+  PFASKindList
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   isCreatedPartialSample,
   isProgrammingPlanSample,
@@ -40,6 +43,7 @@ import { useAnalytics } from '../../../../hooks/useAnalytics';
 import { usePartialSample } from '../../../../hooks/usePartialSample';
 import { ApiClientContext } from '../../../../services/apiClient';
 import NextButton from '../NextButton';
+import MatrixStepDAOA, { PartialSampleDAOA } from './MatrixStepDAOA';
 import MatrixStepPFAS, { PartialSamplePFAS } from './MatrixStepPFAS';
 import MatrixStepPPV, { PartialSamplePPV } from './MatrixStepPPV';
 
@@ -293,6 +297,23 @@ const MatrixStep = ({ partialSample }: Props) => {
         <MatrixStepPFAS
           ref={stepRef}
           partialSample={partialSample as PartialSamplePFAS}
+          matrixKindOptions={matrixKindOptions}
+          stageOptions={stageOptions}
+          onSave={(sampleMatrixData) => save('DraftMatrix', sampleMatrixData)}
+          onSubmit={async () => {
+            isSubmittingRef.current = true;
+            await save('DraftItems');
+          }}
+          renderSampleAttachments={renderSampleAttachments}
+        />
+      )}
+
+      {DAOAKindList.includes(
+        partialSample.specificData.programmingPlanKind
+      ) && (
+        <MatrixStepDAOA
+          ref={stepRef}
+          partialSample={partialSample as PartialSampleDAOA}
           matrixKindOptions={matrixKindOptions}
           stageOptions={stageOptions}
           onSave={(sampleMatrixData) => save('DraftMatrix', sampleMatrixData)}

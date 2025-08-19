@@ -54,6 +54,27 @@ const Sampler = BaseUser.pick({
   lastName: true
 });
 
+const KillingCode = z
+  .string({
+    error: (issue) =>
+      isNil(issue.input) ? 'Veuillez renseigner le code tuerie.' : issue.message
+  })
+  .min(1, 'Veuillez renseigner le code tuerie.');
+
+const AnimalIdentifier = z
+  .string({
+    error: (issue) =>
+      isNil(issue.input)
+        ? "Veuillez renseigner l'identifiant du lot ou de l'animal."
+        : issue.message
+  })
+  .min(1, "Veuillez renseigner l'identifiant du lot ou de l'animal.");
+
+const AnimalAge = z.coerce
+  .number({ error: "Veuillez renseigner l'âge de l'animal." })
+  .int()
+  .nonnegative();
+
 export const SampleMatrixSpecificDataPPV = z.object({
   programmingPlanKind: z.literal(ProgrammingPlanKind.enum.PPV),
   matrixDetails: z.string().nullish(),
@@ -70,19 +91,9 @@ const SampleMatrixSpecificDataPFAS = z.object({
   targetingCriteria: TargetingCriteria,
   notesOnTargetingCriteria: z.string().nullish(),
   animalKind: AnimalKind,
-  animalIdentifier: z
-    .string({
-      error: (issue) =>
-        isNil(issue.input)
-          ? "Veuillez renseigner l'identifiant du lot ou de l'animal."
-          : issue.message
-    })
-    .min(1, "Veuillez renseigner l'identifiant du lot ou de l'animal."),
+  animalIdentifier: AnimalIdentifier,
   breedingMethod: BreedingMethod,
-  age: z.coerce
-    .number({ error: "Veuillez renseigner l'âge de l'animal." })
-    .int()
-    .nonnegative(),
+  age: AnimalAge,
   sex: AnimalSex,
   seizure: Seizure.nullish(),
   outdoorAccess: OutdoorAccess
@@ -96,15 +107,27 @@ export const SampleMatrixSpecificDataPFASEggs =
 export const SampleMatrixSpecificDataPFASMeat =
   SampleMatrixSpecificDataPFAS.extend({
     programmingPlanKind: z.literal(ProgrammingPlanKind.enum.PFAS_MEAT),
-    killingCode: z
-      .string({
-        error: (issue) =>
-          isNil(issue.input)
-            ? 'Veuillez renseigner le code tuerie.'
-            : issue.message
-      })
-      .min(1, 'Veuillez renseigner le code tuerie.'),
+    killingCode: KillingCode,
     productionKind: ProductionKind
+  });
+
+export const SampleMatrixSpecificDataDAOABreeding =
+  SampleMatrixSpecificDataPFAS.extend({
+    programmingPlanKind: z.literal(ProgrammingPlanKind.enum.DAOA_BREEDING),
+    killingCode: KillingCode,
+    species: Species,
+    animalIdentifier: AnimalIdentifier
+  });
+
+export const SampleMatrixSpecificDataDAOASlaughter =
+  SampleMatrixSpecificDataPFAS.extend({
+    programmingPlanKind: z.literal(ProgrammingPlanKind.enum.DAOA_SLAUGHTER),
+    killingCode: KillingCode,
+    animalKind: AnimalKind,
+    productionKind: ProductionKind,
+    animalIdentifier: AnimalIdentifier,
+    sex: AnimalSex,
+    age: AnimalAge
   });
 
 const SampleMatrixSpecificData = z.discriminatedUnion(
@@ -112,7 +135,9 @@ const SampleMatrixSpecificData = z.discriminatedUnion(
   [
     SampleMatrixSpecificDataPPV,
     SampleMatrixSpecificDataPFASEggs,
-    SampleMatrixSpecificDataPFASMeat
+    SampleMatrixSpecificDataPFASMeat,
+    SampleMatrixSpecificDataDAOABreeding,
+    SampleMatrixSpecificDataDAOASlaughter
   ],
   {
     error: () => 'Veuillez renseigner le type de plan.'
@@ -129,6 +154,12 @@ const PartialSampleMatrixSpecificData = z.discriminatedUnion(
       programmingPlanKind: true
     }),
     SampleMatrixSpecificDataPFASMeat.partial().required({
+      programmingPlanKind: true
+    }),
+    SampleMatrixSpecificDataDAOABreeding.partial().required({
+      programmingPlanKind: true
+    }),
+    SampleMatrixSpecificDataDAOASlaughter.partial().required({
       programmingPlanKind: true
     })
   ],

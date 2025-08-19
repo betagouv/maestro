@@ -82,5 +82,11 @@ export const AnimalKindsByProgrammingPlanKind: Partial<
     'TYPEA11',
     'TYPEA12'
   ],
-  [ProgrammingPlanKind.enum.PFAS_EGGS]: ['TYPEA13', 'TYPEA14']
+  [ProgrammingPlanKind.enum.PFAS_EGGS]: ['TYPEA13', 'TYPEA14'],
+  [ProgrammingPlanKind.enum.DAOA_SLAUGHTER]: [
+    'TYPEA1',
+    'TYPEA2',
+    'TYPEA3',
+    'TYPEA4'
+  ]
 };

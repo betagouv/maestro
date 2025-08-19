@@ -5,6 +5,7 @@ import { departmentsSeed } from '../departments/departmentsSeed';
 import { seed as usersSeed } from './001-users';
 import { seed as laboratoriesSeed } from './002-laboratories';
 import { seed as programmingPlansSeed } from './003-programming-plans';
+import { seed as daoaPrescriptionsSeed } from './004-prescriptions-daoa';
 import { seed as pfasPrescriptionsSeed } from './004-prescriptions-pfas';
 import { seed as ppvPrescriptionsSeed } from './004-prescriptions-ppv';
 import { seed as companiesSeed } from './005-companies';
@@ -20,6 +21,7 @@ const run = async () => {
   await programmingPlansSeed();
   await ppvPrescriptionsSeed();
   await pfasPrescriptionsSeed();
+  await daoaPrescriptionsSeed();
   await companiesSeed();
   await samplesSeed();
   await substanceAnalysisSeed();

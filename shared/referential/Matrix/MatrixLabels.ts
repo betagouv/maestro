@@ -117,5 +117,7 @@ export const MatrixLabels: Record<Matrix, string> = {
   'A01SQ#F28.A0C0S': 'Viande de dinde non transformée',
   'A01SN#F26.A07XE': "Viande d'autres volailles non transformée",
   A031G: 'Oeuf de poule',
-  A031K: 'Oeuf de caille'
+  A031K: 'Oeuf de caille',
+  TODO1: 'Foie de bovin',
+  TODO2: 'Chaire de volaille'
 };
