@@ -61,7 +61,7 @@ const DashboardPriorityActions: FunctionComponent<Props> = ({
           <>
             <h4 className={cx('fr-mb-1w')}>Rapports à terminer</h4>
             {samplesInReview.length === 0 ? (
-              <>Vous n'avez pas de rapport à terminer</>
+              <>Pas de rapports à terminer</>
             ) : (
               <>
                 {samplesInReview?.map((s) => (
@@ -123,7 +123,7 @@ const DashboardPriorityActions: FunctionComponent<Props> = ({
                 )}
               </>
             ) : (
-              <>Vous n'avez pas d'actions prioritaires à réaliser</>
+              <>Pas d’actions prioritaires identifiées</>
             )}
           </>
         )}
