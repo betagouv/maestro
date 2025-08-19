@@ -111,21 +111,25 @@ export const SampleMatrixSpecificDataPFASMeat =
     productionKind: ProductionKind
   });
 
+const SampleMatrixSpecificDataDAOA = z.object({
+  programmingPlanKind: z
+    .literal(ProgrammingPlanKind.enum.DAOA_SLAUGHTER)
+    .or(z.literal(ProgrammingPlanKind.enum.DAOA_BREEDING)),
+  killingCode: KillingCode,
+  animalIdentifier: AnimalIdentifier
+});
+
 export const SampleMatrixSpecificDataDAOABreeding =
-  SampleMatrixSpecificDataPFAS.extend({
+  SampleMatrixSpecificDataDAOA.extend({
     programmingPlanKind: z.literal(ProgrammingPlanKind.enum.DAOA_BREEDING),
-    killingCode: KillingCode,
-    species: Species,
-    animalIdentifier: AnimalIdentifier
+    species: Species
   });
 
 export const SampleMatrixSpecificDataDAOASlaughter =
-  SampleMatrixSpecificDataPFAS.extend({
+  SampleMatrixSpecificDataDAOA.extend({
     programmingPlanKind: z.literal(ProgrammingPlanKind.enum.DAOA_SLAUGHTER),
-    killingCode: KillingCode,
     animalKind: AnimalKind,
     productionKind: ProductionKind,
-    animalIdentifier: AnimalIdentifier,
     sex: AnimalSex,
     age: AnimalAge
   });
