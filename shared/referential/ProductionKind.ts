@@ -17,5 +17,11 @@ export const ProductionKindLabels: Record<ProductionKind, string> = {
 export const ProductionKindsByProgrammingPlanKind: Partial<
   Record<ProgrammingPlanKind, ProductionKind[]>
 > = {
-  [ProgrammingPlanKind.enum.PFAS_MEAT]: ['PROD_1', 'PROD_2', 'PROD_3', 'PROD_4']
+  [ProgrammingPlanKind.enum.PFAS_MEAT]: [
+    'PROD_1',
+    'PROD_2',
+    'PROD_3',
+    'PROD_4'
+  ],
+  [ProgrammingPlanKind.enum.DAOA_SLAUGHTER]: ['PROD_1', 'PROD_2', 'PROD_3']
 };

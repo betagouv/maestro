@@ -14,7 +14,10 @@ export const Stage = z.enum(
     'STADE9',
     'STADE10',
     'STADE11',
-    'STADE12'
+    'STADE12',
+    'STADE13',
+    'STADE14',
+    'STADE15'
   ],
   {
     error: () => 'Veuillez renseigner le stade de prélèvement.'
@@ -37,7 +40,10 @@ export const StageLabels: Record<Stage, string> = {
   STADE9: 'Autre',
   STADE10: 'Abattoir',
   STADE11: 'Elevage pondeuse',
-  STADE12: "Centre d'emballage"
+  STADE12: "Centre d'emballage",
+  STADE13: 'Biologique',
+  STADE14: 'Standard',
+  STADE15: 'Autre signe de qualité'
 };
 
 export const StagesByProgrammingPlanKind: Record<ProgrammingPlanKind, Stage[]> =
@@ -54,5 +60,7 @@ export const StagesByProgrammingPlanKind: Record<ProgrammingPlanKind, Stage[]> =
       'STADE9'
     ],
     [ProgrammingPlanKind.enum.PFAS_MEAT]: ['STADE10', 'STADE11', 'STADE12'],
-    [ProgrammingPlanKind.enum.PFAS_EGGS]: ['STADE10', 'STADE11', 'STADE12']
+    [ProgrammingPlanKind.enum.PFAS_EGGS]: ['STADE10', 'STADE11', 'STADE12'],
+    [ProgrammingPlanKind.enum.DAOA_BREEDING]: ['STADE13', 'STADE14', 'STADE15'],
+    [ProgrammingPlanKind.enum.DAOA_SLAUGHTER]: ['STADE13', 'STADE14', 'STADE15']
   };

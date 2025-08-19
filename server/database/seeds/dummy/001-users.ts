@@ -91,6 +91,15 @@ export const seed = async function () {
       programmingPlanKinds: ['PFAS_EGGS', 'PFAS_MEAT'],
       role: 'Sampler',
       region: '84'
+    },
+    {
+      id: uuidv4(),
+      email: 'preleveur.daoa@maestro.beta.gouv.fr',
+      firstName: fakerFR.person.firstName(),
+      lastName: fakerFR.person.lastName(),
+      programmingPlanKinds: ['DAOA_BREEDING', 'DAOA_SLAUGHTER'],
+      role: 'Sampler',
+      region: '44'
     }
   ]);
 };

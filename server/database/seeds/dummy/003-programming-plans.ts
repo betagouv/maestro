@@ -1,5 +1,6 @@
 import { RegionList } from 'maestro-shared/referential/Region';
 import {
+  DAOAValidatedProgrammingPlanFixture,
   PFASValidatedProgrammingPlanFixture,
   PPVClosedProgrammingPlanFixture,
   PPVValidatedProgrammingPlanFixture
@@ -24,7 +25,8 @@ export const seed = async function () {
     [
       PPVClosedProgrammingPlanFixture,
       PPVValidatedProgrammingPlanFixture,
-      PFASValidatedProgrammingPlanFixture
+      PFASValidatedProgrammingPlanFixture,
+      DAOAValidatedProgrammingPlanFixture
     ].map(formatProgrammingPlan)
   );
 
@@ -38,7 +40,8 @@ export const seed = async function () {
   await ProgrammingPlanRegionalStatus().insert(
     [
       PPVValidatedProgrammingPlanFixture.id,
-      PFASValidatedProgrammingPlanFixture.id
+      PFASValidatedProgrammingPlanFixture.id,
+      DAOAValidatedProgrammingPlanFixture.id
     ].flatMap((id) =>
       RegionList.map((region) => ({
         programmingPlanId: id,

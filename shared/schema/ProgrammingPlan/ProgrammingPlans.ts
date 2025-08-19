@@ -9,6 +9,7 @@ export const ProgrammingPlan = z
     id: z.guid(),
     kinds: z.array(ProgrammingPlanKind),
     contexts: z.array(ProgrammingPlanContext),
+    samplesOutsidePlanAllowed: z.boolean(),
     createdAt: z.coerce.date(),
     createdBy: z.guid(),
     year: z.number(),
