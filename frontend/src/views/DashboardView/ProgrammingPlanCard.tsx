@@ -1,21 +1,18 @@
-import Badge from '@codegouvfr/react-dsfr/Badge';
 import Button from '@codegouvfr/react-dsfr/Button';
-import Card from '@codegouvfr/react-dsfr/Card';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import clsx from 'clsx';
 import { sumBy } from 'lodash-es';
 import {
   ContextLabels,
   ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { ProgrammingPlanStatusLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { getCompletionRate } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
-import { RealizedStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
 import { useContext } from 'react';
-import { useAuthentication } from 'src/hooks/useAuthentication';
 import { pluralize } from 'src/utils/stringUtils';
 import ProgrammingPlanMap from 'src/views/DashboardView/ProgrammingPlanMap';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
+import { CircleProgress } from '../../components/CircleProgress/CircleProgress';
 import { ApiClientContext } from '../../services/apiClient';
 
 interface ProgrammingPlanCardProps {
@@ -28,120 +25,88 @@ const ProgrammingPlanCard = ({
   context
 }: ProgrammingPlanCardProps) => {
   const apiClient = useContext(ApiClientContext);
-  const { hasNationalView } = useAuthentication();
 
   const { data: regionalPrescriptions } =
     apiClient.useFindRegionalPrescriptionsQuery({
       programmingPlanId: programmingPlan.id,
       context,
-      includes: ['realizedSampleCount']
+      includes: ['sampleCounts']
     });
 
-  const { data: samplesToSentCount } = apiClient.useCountSamplesQuery(
-    {
-      programmingPlanId: programmingPlan.id,
-      context,
-      status: 'Submitted'
-    },
-    { skip: hasNationalView }
-  );
-
   return (
-    <Card
-      background
-      border
-      shadow
-      size="medium"
-      title={[ContextLabels[context], programmingPlan.year].join(' ')}
-      titleAs="h2"
-      end={
-        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={cx('fr-col-12', 'fr-pt-0')}>
-            {programmingPlan.regionalStatus.some(
-              (_) => _.status === 'Validated'
-            ) ? (
-              <Badge severity="success" noIcon>
-                Taux de réalisation :{' '}
-                {getCompletionRate(regionalPrescriptions ?? [])}%
-              </Badge>
-            ) : (
-              <Badge severity="warning" noIcon>
-                {ProgrammingPlanStatusLabels['InProgress']}
-              </Badge>
-            )}
-          </div>
-          <div className={cx('fr-col-12', 'fr-col-md-6')}>
-            <Card
-              background
-              border
-              size="small"
-              title={sumBy(regionalPrescriptions, 'sampleCount')}
-              desc={pluralize(sumBy(regionalPrescriptions, 'sampleCount'))(
-                'prélèvement programmé'
-              )}
-              className={'fr-card--xs'}
-            />
-          </div>
-          {programmingPlan.regionalStatus.some(
-            (_) => _.status === 'Validated'
-          ) && (
-            <div className={cx('fr-col-12', 'fr-col-md-6')}>
-              <Card
-                background
-                border
-                size="small"
-                title={sumBy(regionalPrescriptions, 'realizedSampleCount')}
-                desc={pluralize(
-                  sumBy(regionalPrescriptions, 'realizedSampleCount')
-                )('prélèvement réalisé')}
-                className={'fr-card--xs'}
-                enlargeLink
-                linkProps={{
-                  to: `${AuthenticatedAppRoutes.SamplesByYearRoute.link(programmingPlan.year)}?status=${RealizedStatusList}&programmingPlanId=${programmingPlan.id}&context=${context}`
-                }}
-              />
-            </div>
-          )}
-          {hasNationalView && (
-            <div className={cx('fr-col-12')}>
-              <ProgrammingPlanMap
-                regionalPrescriptions={regionalPrescriptions ?? []}
-              />
-            </div>
-          )}
-          {!hasNationalView && (samplesToSentCount ?? 0) > 0 && (
-            <div className={cx('fr-col-12', 'fr-col-md-6')}>
-              <Card
-                background
-                border
-                size="small"
-                title={samplesToSentCount}
-                desc={`${pluralize(samplesToSentCount ?? 0)(
-                  'prélèvement'
-                )}  à envoyer`}
-                className={'fr-card--xs'}
-                enlargeLink
-                linkProps={{
-                  to: `${AuthenticatedAppRoutes.SamplesByYearRoute.link(programmingPlan.year)}?status=Submitted&programmingPlanId=${programmingPlan.id}`
-                }}
-              />
-            </div>
-          )}
-        </div>
-      }
-      footer={
-        <Button
-          className={cx('fr-mr-2w')}
-          linkProps={{
-            to: `${AuthenticatedAppRoutes.ProgrammationByYearRoute.link(programmingPlan.year)}?context=${context}`
+    <>
+      <div
+        className={clsx(
+          'white-container',
+          cx('fr-px-4w', 'fr-pt-3w', 'fr-pb-2w')
+        )}
+        style={{
+          borderBottom: 'none'
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
           }}
-          priority="secondary"
-          iconId="fr-icon-table-2"
         >
-          {ContextLabels[context]}
-        </Button>
-      }
-    ></Card>
+          <div>
+            <h4>{ContextLabels[context]}</h4>
+            <h3>
+              {sumBy(regionalPrescriptions, 'sampleCount')}{' '}
+              {pluralize(sumBy(regionalPrescriptions, 'sampleCount'))(
+                'prélèvement'
+              )}
+              <br />
+              {pluralize(sumBy(regionalPrescriptions, 'sampleCount'))(
+                'programmé'
+              )}
+            </h3>
+          </div>
+          <CircleProgress
+            progress={getCompletionRate(regionalPrescriptions ?? [])}
+            sizePx={110}
+            type={'percentage'}
+          />
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}
+        >
+          <span>
+            {sumBy(regionalPrescriptions, 'realizedSampleCount')}{' '}
+            {pluralize(sumBy(regionalPrescriptions, 'realizedSampleCount'))(
+              'prélèvement réalisé'
+            )}
+          </span>
+          <span style={{ width: 110, textAlign: 'center' }}>de l'objectif</span>
+        </div>
+        <hr className={cx('fr-mt-4w', 'fr-mb-2w')} />
+        <div className={clsx('d-flex-justify-center', cx('fr-col-12'))}>
+          <Button
+            priority="tertiary no outline"
+            iconId="fr-icon-bar-chart-box-line"
+            linkProps={{
+              to: `${AuthenticatedAppRoutes.ProgrammationByYearRoute.link(programmingPlan.year)}?context=${context}`
+            }}
+          >
+            {[ContextLabels[context], programmingPlan.year].join(' ')}
+          </Button>
+        </div>
+      </div>
+
+      <div className={clsx('border', cx('fr-p-2w'))}>
+        <ProgrammingPlanMap
+          programmingPlan={programmingPlan}
+          context={context}
+          regionalPrescriptions={regionalPrescriptions ?? []}
+        />
+      </div>
+    </>
   );
 };
 

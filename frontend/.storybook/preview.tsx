@@ -3,6 +3,7 @@ import MuiDsfrThemeProvider from '@codegouvfr/react-dsfr/mui';
 import { startReactDsfr } from '@codegouvfr/react-dsfr/spa';
 import { configureStore } from '@reduxjs/toolkit';
 import type { Preview } from '@storybook/react-vite';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router';
 import '../src/App.scss';

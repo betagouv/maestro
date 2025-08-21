@@ -99,7 +99,7 @@ const ProgrammingPlanPrescriptionList = ({
   const { data: regionalPrescriptions } =
     apiClient.useFindRegionalPrescriptionsQuery({
       ...findPrescriptionOptions,
-      includes: ['comments', 'realizedSampleCount']
+      includes: ['comments', 'sampleCounts']
     });
 
   useEffect(() => {

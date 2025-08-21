@@ -8,7 +8,10 @@ import {
   RegionalPrescription,
   RegionalPrescriptionKey
 } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
-import { RealizedStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
+import {
+  InProgressStatusList,
+  RealizedStatusList
+} from 'maestro-shared/schema/Sample/SampleStatus';
 import { knexInstance as db } from './db';
 import { prescriptionsTable } from './prescriptionRepository';
 import { regionalPrescriptionCommentsTable } from './regionalPrescriptionCommentRepository';
@@ -107,10 +110,17 @@ const include = (opts?: FindRegionalPrescriptionOptions) => {
           `${regionalPrescriptionsTable}.region`
         );
     },
-    realizedSampleCount: (query) => {
+    sampleCounts: (query) => {
       query
         .select(
-          db.raw(`count(distinct(${samplesTable}.id)) as realized_sample_count`)
+          db.raw(
+            `count(distinct(${samplesTable}.id)) filter(where ${samplesTable}.status = any(?)) as in_progress_sample_count`,
+            [InProgressStatusList]
+          ),
+          db.raw(
+            `count(distinct(${samplesTable}.id)) filter(where ${samplesTable}.status = any(?)) as realized_sample_count`,
+            [RealizedStatusList]
+          )
         )
         .leftJoin(samplesTable, (query) =>
           query
@@ -121,10 +131,6 @@ const include = (opts?: FindRegionalPrescriptionOptions) => {
             .andOn(
               `${samplesTable}.region`,
               `${regionalPrescriptionsTable}.region`
-            )
-            .andOn(
-              `${samplesTable}.status`,
-              db.raw(`any(?)`, [RealizedStatusList])
             )
         )
         .groupBy(

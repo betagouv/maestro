@@ -1,6 +1,8 @@
 import type { FeatureCollection } from 'geojson';
 import { sumBy } from 'lodash-es';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
+import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   getCompletionRate,
   RegionalPrescription
@@ -19,15 +21,25 @@ import Map, {
   Source,
   SymbolLayer
 } from 'react-map-gl/maplibre';
+import { useNavigate } from 'react-router';
+import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import { ApiClientContext } from '../../services/apiClient';
+import { getURLQuery } from '../../utils/fetchUtils';
 
 interface Props {
+  programmingPlan: ProgrammingPlan;
+  context: ProgrammingPlanContext;
   regionalPrescriptions: RegionalPrescription[];
 }
 
-const ProgrammingPlanMap = ({ regionalPrescriptions }: Props) => {
+const ProgrammingPlanMap = ({
+  programmingPlan,
+  context,
+  regionalPrescriptions
+}: Props) => {
   const apiClient = useContext(ApiClientContext);
   const ref = useRef<any>(undefined);
+  const navigate = useNavigate();
 
   const [hoverInfo, setHoverInfo] = useState<{
     feature: MapGeoJSONFeature;
@@ -211,6 +223,19 @@ const ProgrammingPlanMap = ({ regionalPrescriptions }: Props) => {
     }
   };
 
+  const onClick = (e: maplibregl.MapLayerMouseEvent) => {
+    if (e.features && e.features.length > 0) {
+      const linkQuery = getURLQuery({
+        programmingPlanId: programmingPlan.id,
+        context,
+        region: hoveredRegion
+      });
+      navigate(
+        `${AuthenticatedAppRoutes.SamplesByYearRoute.link(programmingPlan.year)}${linkQuery}`
+      );
+    }
+  };
+
   return (
     <div data-testid="prescription-map">
       <Map
@@ -232,6 +257,7 @@ const ProgrammingPlanMap = ({ regionalPrescriptions }: Props) => {
         mapStyle={mapStyle}
         interactiveLayerIds={['regions-fill']}
         onMouseMove={onHover}
+        onClick={onClick}
         cursor="pointer"
       >
         {regions && (

@@ -1,0 +1,85 @@
+@use '../../constants' as constants;
+
+.dashboard-prescriptions-progress-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  & > div {
+    flex-grow: 1;
+    justify-content: center;
+  }
+
+  .in-progress {
+    color: var(--orange-terre-battue-main-645);
+  }
+
+  .remaining {
+    color: var(--beige-gris-galet-950-100);
+  }
+}
+
+.dashboard-prescription-card.fr-card.fr-enlarge-link {
+  height: auto;
+
+  .fr-card__content {
+    padding: 1rem;
+  }
+
+  .fr-card__title {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    font-size: 1rem;
+  }
+
+  .fr-card__end {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    margin: 0;
+  }
+
+  .fr-card__start {
+    display: none;
+  }
+
+  .bullet {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+    margin-bottom: 1px;
+
+    &.realized {
+      background-color: var(--green-emeraude-main-632);
+    }
+
+    &.in-progress {
+      background-color: var(--orange-terre-battue-main-645);
+    }
+
+    &.remaining {
+      background-color: var(--beige-gris-galet-950-100);
+    }
+  }
+}
+
+.dashboard-priority-actions-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  height: 100%;
+
+  .fr-card,
+  .fr-tile {
+    height: fit-content;
+  }
+
+  .more-actions-link {
+    flex-grow: 1;
+    align-content: end;
+    align-self: center;
+  }
+}

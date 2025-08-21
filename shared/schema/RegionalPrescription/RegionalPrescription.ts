@@ -25,6 +25,7 @@ export const RegionalPrescription = z.object({
       })
     )
     .nullish(),
+  inProgressSampleCount: z.coerce.number().nullish(),
   realizedSampleCount: z.coerce.number().nullish()
 });
 
@@ -43,7 +44,8 @@ export type RegionalPrescriptionUpdate = z.infer<
 
 export const getCompletionRate = (
   regionalPrescriptions: RegionalPrescription | RegionalPrescription[],
-  region?: Region
+  region?: Region | null,
+  limitedSentCount: boolean = false
 ) => {
   const regionalPrescriptionsWithLimitedSentCount: RegionalPrescription[] = (
     Array.isArray(regionalPrescriptions)
@@ -51,10 +53,12 @@ export const getCompletionRate = (
       : [regionalPrescriptions]
   ).map((regionalPrescription) => ({
     ...regionalPrescription,
-    realizedSampleCount: Math.min(
-      regionalPrescription.sampleCount,
-      regionalPrescription.realizedSampleCount ?? 0
-    )
+    realizedSampleCount: limitedSentCount
+      ? Math.min(
+          regionalPrescription.sampleCount,
+          regionalPrescription.realizedSampleCount ?? 0
+        )
+      : (regionalPrescription.realizedSampleCount ?? 0)
   }));
 
   const totalSampleCount = sumBy(
@@ -71,9 +75,11 @@ export const getCompletionRate = (
     'realizedSampleCount'
   );
 
-  return totalSampleCount
-    ? Number(((totalRealizedSampleCount / totalSampleCount) * 100).toFixed(2))
-    : 100;
+  return Math.floor(
+    totalSampleCount
+      ? Number(((totalRealizedSampleCount / totalSampleCount) * 100).toFixed(2))
+      : 100
+  );
 };
 
 export const RegionalPrescriptionSort = (

@@ -1,5 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { RegionList } from 'maestro-shared/referential/Region';
+import { Region, RegionList } from 'maestro-shared/referential/Region';
+import {
+  genPrescription,
+  genRegionalPrescription
+} from 'maestro-shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   genAuthUser,
@@ -21,25 +25,38 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const currentProgrammingPlan = genProgrammingPlan({
+  year: new Date().getFullYear(),
+  regionalStatus: RegionList.map((region) => ({
+    region,
+    status: 'InProgress'
+  })),
+  contexts: ['Control', 'Surveillance']
+});
+const previousProgrammingPlan = genProgrammingPlan({
+  year: new Date().getFullYear() - 1,
+  regionalStatus: RegionList.map((region) => ({
+    region,
+    status: 'InProgress'
+  })),
+  contexts: ['Control', 'Surveillance']
+});
+
 const useGetProgrammingPlanByYearQueryMock = (year: number) => ({
   data:
     year === new Date().getFullYear() - 1
-      ? genProgrammingPlan({
-          year,
-          regionalStatus: RegionList.map((region) => ({
-            region,
-            status: 'Validated'
-          })),
-          contexts: ['Control', 'Surveillance']
-        })
-      : genProgrammingPlan({
-          year,
-          regionalStatus: RegionList.map((region) => ({
-            region,
-            status: 'InProgress'
-          })),
-          contexts: ['Control', 'Surveillance']
-        })
+      ? previousProgrammingPlan
+      : currentProgrammingPlan
+});
+const prescription1 = genPrescription({
+  programmingPlanId: currentProgrammingPlan.id,
+  context: 'Control',
+  matrixKind: 'A0DEH'
+});
+const prescription2 = genPrescription({
+  programmingPlanId: currentProgrammingPlan.id,
+  context: 'Control',
+  matrixKind: 'A0DQS'
 });
 
 export const DashboardViewForSampler: Story = {
@@ -58,7 +75,20 @@ export const DashboardViewForSampler: Story = {
       }
     },
     apiClient: getMockApi({
-      useGetProgrammingPlanByYearQuery: useGetProgrammingPlanByYearQueryMock
+      useGetProgrammingPlanByYearQuery: useGetProgrammingPlanByYearQueryMock,
+      useFindPrescriptionsQuery: { data: [prescription1, prescription2] },
+      useFindRegionalPrescriptionsQuery: {
+        data: [
+          genRegionalPrescription({
+            prescriptionId: prescription1.id,
+            region: RegionalCoordinator.region as Region
+          }),
+          genRegionalPrescription({
+            prescriptionId: prescription2.id,
+            region: RegionalCoordinator.region as Region
+          })
+        ]
+      }
     })
   },
   play: async ({ canvasElement }) => {
@@ -89,7 +119,20 @@ export const DashboardViewForRegionalCoordinator: Story = {
       }
     },
     apiClient: getMockApi({
-      useGetProgrammingPlanByYearQuery: useGetProgrammingPlanByYearQueryMock
+      useGetProgrammingPlanByYearQuery: useGetProgrammingPlanByYearQueryMock,
+      useFindPrescriptionsQuery: { data: [prescription1, prescription2] },
+      useFindRegionalPrescriptionsQuery: {
+        data: [
+          genRegionalPrescription({
+            prescriptionId: prescription1.id,
+            region: RegionalCoordinator.region as Region
+          }),
+          genRegionalPrescription({
+            prescriptionId: prescription2.id,
+            region: RegionalCoordinator.region as Region
+          })
+        ]
+      }
     })
   },
   play: async ({ canvasElement }) => {
@@ -124,22 +167,33 @@ export const DashboardViewForNationalCoordinator: Story = {
       }
     },
     apiClient: getMockApi({
-      useGetProgrammingPlanByYearQuery: useGetProgrammingPlanByYearQueryMock
+      useGetProgrammingPlanByYearQuery: useGetProgrammingPlanByYearQueryMock,
+      useFindPrescriptionsQuery: { data: [prescription1, prescription2] },
+      useFindRegionalPrescriptionsQuery: {
+        data: RegionList.flatMap((region) => [
+          genRegionalPrescription({
+            prescriptionId: prescription1.id,
+            region
+          }),
+          genRegionalPrescription({
+            prescriptionId: prescription2.id,
+            region
+          })
+        ])
+      }
     })
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
     await expect(canvas.getByText('Tableau de bord')).toBeInTheDocument();
-    await expect(
-      canvas.getByText(`Plan de contrôle ${new Date().getFullYear()}`)
-    ).toBeInTheDocument();
-    await expect(
-      canvas.getByText(`Plan de surveillance ${new Date().getFullYear()}`)
-    ).toBeInTheDocument();
+    await expect(canvas.getByText(`Plan de contrôle`)).toBeInTheDocument();
+    await expect(canvas.getByText(`Plan de surveillance`)).toBeInTheDocument();
 
     await expect(
-      canvas.getByTestId('close-programming-plan-button')
+      canvas.getByText(
+        `Clôturer la programmation ${new Date().getFullYear() - 1}`
+      )
     ).toBeInTheDocument();
   }
 };
