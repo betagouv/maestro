@@ -25,10 +25,13 @@ const findMany = async (
   console.info('Find prescriptions', omitBy(findOptions, isNil));
   return Prescriptions()
     .select(`${prescriptionsTable}.*`)
-    .where(omitBy(omit(findOptions, 'stage', 'includes'), isNil))
+    .where(omitBy(omit(findOptions, 'stage', 'includes', 'contexts'), isNil))
     .modify((builder) => {
       if (findOptions.stage) {
         builder.where('stages', '@>', [findOptions.stage]);
+      }
+      if (findOptions.contexts) {
+        builder.whereIn('context', findOptions.contexts);
       }
     })
     .modify(include(findOptions))

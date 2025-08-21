@@ -75,7 +75,8 @@ const SampleListView = () => {
     const status = searchParams.get('status') as SampleStatus;
     dispatch(
       samplesSlice.actions.changeFindOptions({
-        context: searchParams.get('context') as Context,
+        contexts:
+          (searchParams.get('contexts')?.split(',') as Context[]) ?? undefined,
         region: hasNationalView
           ? (searchParams.get('region') as Region)
           : user?.region,
@@ -115,12 +116,14 @@ const SampleListView = () => {
   const { data: prescriptions } = apiClient.useFindPrescriptionsQuery(
     {
       programmingPlanId: programmingPlan?.id as string,
-      context: ProgrammingPlanContext.safeParse(findSampleOptions.context).data
+      contexts: findSampleOptions.contexts
+        ? (findSampleOptions.contexts.filter(
+            (context) => ProgrammingPlanContext.safeParse(context).success
+          ) as ProgrammingPlanContext[])
+        : undefined
     },
     {
-      skip:
-        !programmingPlan?.id ||
-        !ProgrammingPlanContext.safeParse(findSampleOptions.context).success
+      skip: !programmingPlan?.id
     }
   );
   const { data: samplers } = apiClient.useFindUsersQuery({

@@ -144,7 +144,7 @@ describe('Prescriptions router', () => {
         .get(testRoute)
         .query({
           programmingPlanId: programmingPlanInProgress.id,
-          context: 'Control'
+          contexts: 'Control'
         })
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
@@ -154,7 +154,7 @@ describe('Prescriptions router', () => {
         .get(testRoute)
         .query({
           programmingPlanId: fakerFR.string.alphanumeric(32),
-          context: 'Control'
+          contexts: 'Control'
         })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
@@ -165,7 +165,7 @@ describe('Prescriptions router', () => {
         .get(testRoute)
         .query({
           programmingPlanId: programmingPlanInProgress.id,
-          context: 'invalid'
+          contexts: 'invalid'
         })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
@@ -176,7 +176,7 @@ describe('Prescriptions router', () => {
         .get(testRoute)
         .query({
           programmingPlanId: programmingPlanInProgress.id,
-          context: 'Control'
+          contexts: 'Control'
         })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
@@ -190,7 +190,7 @@ describe('Prescriptions router', () => {
         .get(testRoute)
         .query({
           programmingPlanId: programmingPlanInProgress.id,
-          context: 'Control',
+          contexts: 'Control',
           includes: ['substanceCount']
         })
         .use(tokenProvider(NationalCoordinator))
@@ -207,8 +207,8 @@ describe('Prescriptions router', () => {
   });
 
   describe('GET /prescriptions/export', () => {
-    const testRoute = (programmingPlanId: string, context: string) =>
-      `/api/prescriptions/export?programmingPlanId=${programmingPlanId}&context=${context}`;
+    const testRoute = (programmingPlanId: string, contexts: string) =>
+      `/api/prescriptions/export?programmingPlanId=${programmingPlanId}&contexts=${contexts}`;
 
     test('should fail if the user is not authenticated', async () => {
       await request(app)

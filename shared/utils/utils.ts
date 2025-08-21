@@ -24,6 +24,10 @@ export function coerceToArray<Schema extends z.ZodArray<z.ZodTypeAny>>(
     .pipe(schema);
 }
 
+export function toArray<T>(value?: T | T[]): T[] | undefined {
+  return Array.isArray(value) ? value : value ? [value] : undefined;
+}
+
 export const coerceToBooleanNullish = () =>
   z
     .union([

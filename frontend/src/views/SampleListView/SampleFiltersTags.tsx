@@ -86,9 +86,24 @@ const filtersConfig = {
       </>
     )
   },
-  context: {
-    prop: 'context',
-    getLabel: (value) => ContextLabels[value]
+  contexts: {
+    prop: 'contexts',
+    getComponent: (value, onChange) => (
+      <>
+        {value.map((d) => (
+          <Tag
+            key={`tag-context-${d}`}
+            dismissible
+            nativeButtonProps={{
+              onClick: () =>
+                onChange({ contexts: value.filter((v) => v !== d) })
+            }}
+          >
+            {ContextLabels[d]}
+          </Tag>
+        ))}
+      </>
+    )
   },
   compliance: {
     prop: 'compliance',

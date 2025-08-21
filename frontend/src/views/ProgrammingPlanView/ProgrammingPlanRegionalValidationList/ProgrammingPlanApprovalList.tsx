@@ -43,7 +43,7 @@ const ProgrammingPlanApprovalList = ({
   const findPrescriptionOptions = useMemo(
     () => ({
       programmingPlanId: programmingPlan?.id as string,
-      context
+      contexts: [context]
     }),
     [programmingPlan, context]
   );
