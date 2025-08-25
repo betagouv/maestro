@@ -39,7 +39,7 @@ const samplesSlice = createSlice({
       department: undefined,
       status: undefined,
       programmingPlanId: undefined,
-      context: undefined
+      contexts: undefined
     },
     pendingSamples
   } as SamplesState,

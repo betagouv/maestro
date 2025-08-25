@@ -101,7 +101,8 @@ const findRequest = (findOptions: FindSampleOptions) =>
           'perPage',
           'status',
           'reference',
-          'department',
+          'contexts',
+          'departments',
           'compliance',
           'withAtLeastOneResidue'
         ),
@@ -130,6 +131,9 @@ const findRequest = (findOptions: FindSampleOptions) =>
           `${samplesTable}.reference`,
           `%${findOptions.reference}%`
         );
+      }
+      if (findOptions.contexts) {
+        builder.whereIn(`${samplesTable}.context`, findOptions.contexts);
       }
       if (findOptions.departments) {
         builder.whereIn(`${samplesTable}.department`, findOptions.departments);

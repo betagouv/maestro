@@ -73,7 +73,7 @@ const ProgrammingPlanPrescriptionList = ({
   const findPrescriptionOptions = useMemo(
     () => ({
       programmingPlanId: programmingPlan.id,
-      context,
+      contexts: [context],
       region,
       includes: ['substanceCount' as const]
     }),

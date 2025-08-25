@@ -2,6 +2,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Input from '@codegouvfr/react-dsfr/Input';
 import Select from '@codegouvfr/react-dsfr/Select';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
+import { t } from 'i18next';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
 import {
   Context,
@@ -78,16 +79,31 @@ const SampleSecondaryFilters = ({ filters, onChange }: Props) => {
         <Select
           label="Contexte"
           nativeSelectProps={{
-            value: filters.context || '',
+            value: '',
             onChange: (e) =>
               onChange({
-                context: e.target.value as Context,
-                matrix: undefined
+                contexts: [
+                  ...(filters.contexts ?? []),
+                  e.target.value as Context
+                ],
+                matrix: (filters.contexts ?? []).includes(
+                  e.target.value as Context
+                )
+                  ? filters.matrix
+                  : undefined
               })
           }}
         >
-          <option value="">Tous</option>
-          {ContextList.map((context) => (
+          <option value="">
+            {filters.contexts?.length
+              ? t('context', {
+                  count: filters.contexts?.length
+                })
+              : 'Tous'}
+          </option>
+          {ContextList.filter(
+            (context) => !filters.contexts?.includes(context)
+          ).map((context) => (
             <option key={`context-${context}`} value={context}>
               {ContextLabels[context]}
             </option>

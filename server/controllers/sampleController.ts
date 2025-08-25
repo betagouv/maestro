@@ -386,7 +386,7 @@ export const sampleRouter = {
           ? await prescriptionRepository
               .findMany({
                 programmingPlanId: sampleUpdate.programmingPlanId,
-                context: sampleUpdate.context as ProgrammingPlanContext,
+                contexts: [sampleUpdate.context as ProgrammingPlanContext],
                 matrixKind: sampleUpdate.matrixKind,
                 stage: sampleUpdate.stage
               })

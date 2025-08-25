@@ -132,7 +132,7 @@ const ProgrammingPlanView = () => {
                         checked: context === findPrescriptionOptions.context,
                         onChange: () =>
                           changeFilter({
-                            context
+                            contexts: [context]
                           })
                       }
                     })) as any

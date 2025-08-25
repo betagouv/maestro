@@ -54,7 +54,7 @@ const SamplePrimaryFilters = ({
             MatrixKindList.filter(
               (matrixKind) =>
                 !filters.programmingPlanId ||
-                !filters.context ||
+                (filters.contexts ?? []).length === 0 ||
                 !prescriptions ||
                 prescriptions.find((p) => p.matrixKind === matrixKind)
             ),
@@ -83,7 +83,7 @@ const SamplePrimaryFilters = ({
             MatrixList.filter(
               (matrix) =>
                 (!filters.programmingPlanId ||
-                  !filters.context ||
+                  (filters.contexts ?? []).length === 0 ||
                   !prescriptions ||
                   prescriptions.find((p) =>
                     MatrixListByKind[p.matrixKind].includes(matrix)

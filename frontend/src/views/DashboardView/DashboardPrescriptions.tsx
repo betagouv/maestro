@@ -59,7 +59,7 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
   const findPrescriptionOptions = useMemo(
     () => ({
       programmingPlanId: programmingPlan.id,
-      context,
+      contexts: [context],
       region: Region.safeParse(regionFilter).success ? regionFilter : undefined
     }),
     [programmingPlan.id, context, regionFilter]

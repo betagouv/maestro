@@ -54,7 +54,7 @@ export const useOnLine = () => {
             ProgrammingPlanContextList.map(async (context) =>
               findPrescriptions({
                 programmingPlanId: programmingPlan.id,
-                context
+                contexts: [context]
               }).unwrap()
             )
           );

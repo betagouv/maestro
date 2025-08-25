@@ -238,7 +238,7 @@ describe('Regional prescriptions router', () => {
         .get(testRoute)
         .query({
           programmingPlanId: programmingPlanSubmitted.id,
-          context: 'Control'
+          contexts: 'Control'
         })
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
@@ -248,7 +248,7 @@ describe('Regional prescriptions router', () => {
         .get(testRoute)
         .query({
           programmingPlanId: fakerFR.string.alphanumeric(32),
-          context: 'Control'
+          contexts: 'Control'
         })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
@@ -259,7 +259,7 @@ describe('Regional prescriptions router', () => {
         .get(testRoute)
         .query({
           programmingPlanId: programmingPlanSubmitted.id,
-          context: 'invalid'
+          contexts: 'invalid'
         })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
@@ -271,7 +271,7 @@ describe('Regional prescriptions router', () => {
           .get(testRoute)
           .query({
             programmingPlanId: programmingPlanSubmitted.id,
-            context: 'Control'
+            contexts: 'Control'
           })
           .use(tokenProvider(user))
           .expect(constants.HTTP_STATUS_OK);
@@ -299,7 +299,7 @@ describe('Regional prescriptions router', () => {
           .get(testRoute)
           .query({
             programmingPlanId: programmingPlanSubmitted.id,
-            context: 'Control'
+            contexts: 'Control'
           })
           .use(tokenProvider(user))
           .expect(constants.HTTP_STATUS_OK);
@@ -323,7 +323,7 @@ describe('Regional prescriptions router', () => {
         .get(testRoute)
         .query({
           programmingPlanId: programmingPlanClosed.id,
-          context: 'Control',
+          contexts: 'Control',
           includes: 'comments,sampleCounts'
         })
         .use(tokenProvider(NationalCoordinator))

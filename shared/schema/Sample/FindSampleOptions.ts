@@ -18,7 +18,7 @@ export const SampleComplianceLabels = {
 export const FindSampleOptions = z
   .object({
     programmingPlanId: z.guid(),
-    context: Context.nullish(),
+    contexts: coerceToArray(z.array(Context)).nullish(),
     region: Region.nullish(),
     departments: coerceToArray(z.array(Department)).nullish(),
     status: z

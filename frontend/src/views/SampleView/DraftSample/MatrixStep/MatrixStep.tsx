@@ -22,6 +22,7 @@ import {
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
+import { toArray } from 'maestro-shared/utils/utils';
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -72,7 +73,9 @@ const MatrixStep = ({ partialSample }: Props) => {
   const { data: prescriptionsData } = apiClient.useFindPrescriptionsQuery(
     {
       programmingPlanId: partialSample.programmingPlanId as string,
-      context: ProgrammingPlanContext.safeParse(partialSample.context).data
+      contexts: toArray(
+        ProgrammingPlanContext.safeParse(partialSample.context).data
+      )
     },
     {
       skip: !partialSample.programmingPlanId
@@ -83,7 +86,9 @@ const MatrixStep = ({ partialSample }: Props) => {
     apiClient.useFindRegionalPrescriptionsQuery(
       {
         programmingPlanId: partialSample.programmingPlanId as string,
-        context: ProgrammingPlanContext.safeParse(partialSample.context).data,
+        contexts: toArray(
+          ProgrammingPlanContext.safeParse(partialSample.context).data
+        ),
         region: isCreatedPartialSample(partialSample)
           ? partialSample.region
           : user?.region

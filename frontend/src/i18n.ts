@@ -39,7 +39,10 @@ i18n.use(initReactI18next).init({
         residue_other: '{{count}} résidus',
         department_zero: 'Aucun département',
         department_one: 'Un département',
-        department_other: '{{count}} départements'
+        department_other: '{{count}} départements',
+        context_zero: 'Aucun contexte',
+        context_one: 'Un contexte',
+        context_other: '{{count}} contextes'
       }
     }
   }
