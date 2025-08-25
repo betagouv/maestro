@@ -12,15 +12,13 @@ describe('Parse correctement le fichier CSV', () => {
       `[Error: Aucune donnée trouvée dans le fichier de résultats]`
     );
     expect(() =>
-      extractAnalyzes([
-        { DEMANDE_NUMERO: 'test', unknownProps: 'unknownValue' }
-      ])
+      extractAnalyzes([{ LOT: 'test', unknownProps: 'unknownValue' }])
     ).toThrowError();
   });
 
   test("n'émet pas d'erreur si le fichier est correct", () => {
     const line = {
-      DEMANDE_NUMERO: '1',
+      LOT: '1',
       PARAMETRE_NOM: 'SAP00010',
       RESULTAT_VALTEXTE: 'nd',
       RESULTAT_VALNUM: '0',
@@ -48,7 +46,7 @@ describe('Parse correctement le fichier CSV', () => {
 
   test("la méthode d'analyse d'un calcul est récupérée sur le résidu précédent", () => {
     const defaultLine = {
-      DEMANDE_NUMERO: '1',
+      LOT: 'ARA-1234-333-1',
       PARAMETRE_NOM: 'SAP00010',
       RESULTAT_VALTEXTE: 'nd',
       RESULTAT_VALNUM: '0',
@@ -57,7 +55,7 @@ describe('Parse correctement le fichier CSV', () => {
       INCERTITUDE: '0',
       CAS_NUMBER: '135158-54-2',
       TECHNIQUE: 'MI MO-PC-077',
-      LMR_NUM: '0.01'
+      LMR_NUM: '0,01'
     };
 
     const lines = [
@@ -105,7 +103,7 @@ describe('Parse correctement le fichier CSV', () => {
               "result_kind": "ND",
             },
           ],
-          "sampleReference": "1",
+          "sampleReference": "ARA-1234-333",
         },
       ]
     `);
