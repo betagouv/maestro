@@ -229,15 +229,7 @@ const MatrixStep = ({ partialSample }: Props) => {
                   p.matrixKind === matrixKind
               )
             )
-          : MatrixKindList.filter(
-              (matrixKind) =>
-                !prescriptions?.some(
-                  (p) =>
-                    p.programmingPlanKind ===
-                      partialSample.specificData.programmingPlanKind &&
-                    p.matrixKind === matrixKind
-                )
-            ),
+          : MatrixKindList,
         {
           labels: MatrixKindLabels,
           withSort: true,
