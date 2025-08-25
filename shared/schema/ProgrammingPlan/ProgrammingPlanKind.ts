@@ -22,6 +22,8 @@ export const ProgrammingPlanKindLabels: Record<ProgrammingPlanKind, string> = {
   PPV: 'Production primaire végétale',
   PFAS_EGGS: 'PFAS - Oeuf à l’élevage ou en centre d’emballage',
   PFAS_MEAT: 'PFAS - Produit carné à l’abattoir',
-  DAOA_BREEDING: 'DAOA - Élevage',
-  DAOA_SLAUGHTER: 'DAOA - Abattage'
+  DAOA_BREEDING:
+    'Résidus de pesticides / Denrée d’origine animale / Abattoir / Foie de bovin',
+  DAOA_SLAUGHTER:
+    'Résidus de pesticides / Denrée d’origine animale / Abattoir / Viande de volaille'
 };
