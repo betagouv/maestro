@@ -14,6 +14,7 @@ import {
   cerecoUnknownReferences
 } from './cerecoReferential';
 
+const methodValidator = z.literal(['Multi-résidus', 'Mono résidus']).nullish();
 const fileValidator = z.array(
   z.object({
     'Sample Name': z.string().transform((l) => {
@@ -28,7 +29,8 @@ const fileValidator = z.array(
         return format(d, 'yyyy-MM-dd');
       })
       .pipe(maestroDate),
-    Méthode: z.literal(['Multi-résidus', 'Mono résidus']),
+    Méthode: methodValidator,
+    "Méthode d'analyse": methodValidator,
     Paramètre: z.string(),
     Résultat: z.string(),
     LMR: z.coerce.number().optional(),
@@ -56,6 +58,11 @@ const extractAnalyzes = async (
       sampleReference: data[0]['Sample Name'],
       notes: data[0].Conclusion,
       residues: data.map((d) => {
+        const analysisMethod = d['Méthode'] || d["Méthode d'analyse"];
+
+        if (!analysisMethod) {
+          throw new ExtractError("Méthode d'analyse introuvable");
+        }
         const commonData: Pick<
           ExportDataSubstance,
           | 'analysisMethod'
@@ -64,7 +71,7 @@ const extractAnalyzes = async (
           | 'label'
           | 'analysisDate'
         > = {
-          analysisMethod: d['Méthode'] === 'Mono résidus' ? 'Mono' : 'Multi',
+          analysisMethod: analysisMethod === 'Mono résidus' ? 'Mono' : 'Multi',
           codeSandre: null,
           casNumber: null,
           label: d.Paramètre,
@@ -89,12 +96,13 @@ const extractAnalyzes = async (
   ];
 };
 const exportDataFromEmail: ExportDataFromEmail = async (attachments) => {
-  const xlsFiles = attachments.filter(({ filename }) =>
-    (filename ?? '').endsWith('.xls')
+  const xlsFiles = attachments.filter(
+    ({ filename }) =>
+      (filename ?? '').endsWith('.xls') || (filename ?? '').endsWith('.xlt')
   );
 
   if (xlsFiles?.length !== 1) {
-    throw new ExtractError(`1 fichiers CSV doit être présent en PJ`);
+    throw new ExtractError(`1 fichiers XLS doit être présent en PJ`);
   }
 
   const analyzes = await extractAnalyzes(xlsFiles[0].content);
