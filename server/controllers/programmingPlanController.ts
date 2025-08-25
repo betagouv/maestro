@@ -3,7 +3,6 @@ import { intersection } from 'lodash-es';
 import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
 import { RegionList, Regions } from 'maestro-shared/referential/Region';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
-import { ProgrammingPlanContextList } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   NextProgrammingPlanStatus,
   ProgrammingPlanStatus,
@@ -311,51 +310,45 @@ export const programmingPlanRouter = {
 
       await programmingPlanRepository.insert(newProgrammingPlan);
 
+      const previousPrescriptions = await prescriptionRepository.findMany({
+        programmingPlanId: previousProgrammingPlan.id
+      });
+      const previousRegionalPrescriptions =
+        await regionalPrescriptionRepository.findMany({
+          programmingPlanId: previousProgrammingPlan.id
+        });
+
       await Promise.all(
-        ProgrammingPlanContextList.map(async (context) => {
-          const previousPrescriptions = await prescriptionRepository.findMany({
-            programmingPlanId: previousProgrammingPlan.id,
-            context
-          });
-          const previousRegionalPrescriptions =
-            await regionalPrescriptionRepository.findMany({
-              programmingPlanId: previousProgrammingPlan.id,
-              context
-            });
+        previousPrescriptions.map(async (prescription) => {
+          const newPrescription = {
+            ...prescription,
+            id: uuidv4(),
+            programmingPlanId: newProgrammingPlan.id
+          };
 
-          await Promise.all(
-            previousPrescriptions.map(async (prescription) => {
-              const newPrescription = {
-                ...prescription,
-                id: uuidv4(),
-                programmingPlanId: newProgrammingPlan.id
-              };
+          await prescriptionRepository.insert(newPrescription);
 
-              await prescriptionRepository.insert(newPrescription);
+          await regionalPrescriptionRepository.insertMany(
+            previousRegionalPrescriptions
+              .filter(
+                (regionalPrescription) =>
+                  regionalPrescription.prescriptionId === prescription.id
+              )
+              .map((regionalPrescription) => ({
+                ...regionalPrescription,
+                prescriptionId: newPrescription.id,
+                laboratoryId: null
+              }))
+          );
 
-              await regionalPrescriptionRepository.insertMany(
-                previousRegionalPrescriptions
-                  .filter(
-                    (regionalPrescription) =>
-                      regionalPrescription.prescriptionId === prescription.id
-                  )
-                  .map((regionalPrescription) => ({
-                    ...regionalPrescription,
-                    prescriptionId: newPrescription.id,
-                    laboratoryId: null
-                  }))
-              );
+          const previousPrescriptionSubstances =
+            await prescriptionSubstanceRepository.findMany(prescription.id);
 
-              const previousPrescriptionSubstances =
-                await prescriptionSubstanceRepository.findMany(prescription.id);
-
-              await prescriptionSubstanceRepository.insertMany(
-                previousPrescriptionSubstances.map((prescriptionSubstance) => ({
-                  ...prescriptionSubstance,
-                  prescriptionId: newPrescription.id
-                }))
-              );
-            })
+          await prescriptionSubstanceRepository.insertMany(
+            previousPrescriptionSubstances.map((prescriptionSubstance) => ({
+              ...prescriptionSubstance,
+              prescriptionId: newPrescription.id
+            }))
           );
         })
       );

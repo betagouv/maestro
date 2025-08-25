@@ -55,10 +55,9 @@ const exportPrescriptions = async (request: Request, response: Response) => {
     includes: ['comments', 'sampleCounts']
   });
 
-  const fileName = `prescriptions-${
-    findOptions.context &&
-    ContextLabels[findOptions.context].toLowerCase().replaceAll(' ', '-')
-  }.xlsx`;
+  const fileName = `prescriptions-${findOptions.contexts?.map((context) =>
+    ContextLabels[context].toLowerCase().replaceAll(' ', '-')
+  )}.xlsx`;
 
   const workbook = workbookUtils.init(fileName, response);
 
