@@ -29,7 +29,7 @@ const ProgrammingPlanCard = ({
   const { data: regionalPrescriptions } =
     apiClient.useFindRegionalPrescriptionsQuery({
       programmingPlanId: programmingPlan.id,
-      context,
+      contexts: [context],
       includes: ['sampleCounts']
     });
 
