@@ -10,7 +10,7 @@ import {
   ExportResultQuantifiable,
   LaboratoryConf
 } from './index';
-import { csvToJson } from './utils';
+import { csvToJson, frenchNumberStringValidator } from './utils';
 
 const unknownReferences = [
   'Cyprosulfamide',
@@ -209,6 +209,7 @@ const capinovReferential: Record<string, SSD2Id> = {
   'Atrazine-desisopropyl': 'RF-0481-001-PPP',
   Azaconazole: 'RF-0482-001-PPP',
   Azadirachtin: 'RF-0030-001-PPP',
+  Azamethiphos: 'RF-0484-001-PPP',
   Azimsulfuron: 'RF-0031-001-PPP',
   'Azinphos-ethyl': 'RF-0032-001-PPP',
   'Azinphos-methyl': 'RF-0033-001-PPP',
@@ -682,6 +683,7 @@ const capinovReferential: Record<string, SSD2Id> = {
   Thiabendazole: 'RF-0416-001-PPP',
   Thiacloprid: 'RF-0417-001-PPP',
   Thiamethoxam: 'RF-0418-001-PPP',
+  Thifluzamide: 'RF-0931-001-PPP',
   Clothianidin: 'RF-0101-001-PPP',
   'Thiencarbazone-methyl': 'RF-00002593-PAR',
   'Thifensulfuron-methyl': 'RF-0419-001-PPP',
@@ -789,30 +791,39 @@ const codeMethodsAnalyseMethod = {
   NF12393: 'Multi'
 } as const satisfies Record<(typeof codeMethods)[number], AnalysisMethod>;
 
+const capinovCodeEchantillonValidator = z.string().transform((l) => {
+  const result = l
+    .trim()
+    .substring(0, l.length - 2)
+    .trim()
+    .replaceAll(' ', '-');
+
+  if (result.endsWith('-')) {
+    return result.substring(0, result.length - 1);
+  }
+  return result;
+});
 // Visible for testing
 export const extractAnalyzes = (
   fileContent: Record<string, string>[]
 ): Omit<ExportAnalysis, 'pdfFile'>[] => {
   const fileValidator = z.array(
     z.object({
-      DEMANDE_NUMERO: z.string(),
+      LOT: capinovCodeEchantillonValidator,
       PARAMETRE_NOM: z.string(),
       RESULTAT_VALTEXTE: z.string(),
-      RESULTAT_VALNUM: z.coerce.number(),
+      RESULTAT_VALNUM: frenchNumberStringValidator,
       PARAMETRE_LIBELLE: z.string(),
       LIMITE_LQ: z.string(),
-      INCERTITUDE: z.string(),
       CAS_NUMBER: z.string().transform((r) => (r === '' ? null : r)),
       TECHNIQUE: z.enum([...codeMethods, 'Calcul']),
-      LMR_NUM: z.coerce.number()
+      LMR_NUM: frenchNumberStringValidator.nullish()
     })
   );
 
   const { data: resultatsData, error: resultatsError } =
     fileValidator.safeParse(
-      fileContent.filter(
-        (row) => row.DEMANDE_NUMERO !== '' && row.DEMANDE_NUMERO !== undefined
-      )
+      fileContent.filter((row) => row.LOT !== '' && row.LOT !== undefined)
     );
   if (resultatsError) {
     throw new ExtractError(
@@ -825,7 +836,7 @@ export const extractAnalyzes = (
     );
   }
 
-  const resultsBySample = groupBy(resultatsData, 'DEMANDE_NUMERO');
+  const resultsBySample = groupBy(resultatsData, 'LOT');
   const result: Omit<ExportAnalysis, 'pdfFile'>[] = [];
 
   for (const sampleReference in resultsBySample) {
@@ -849,7 +860,7 @@ export const extractAnalyzes = (
             : {
                 result_kind: 'Q',
                 result: residue.RESULTAT_VALNUM,
-                lmr: residue.LMR_NUM
+                lmr: residue.LMR_NUM ?? null
               };
       const previousResidu = analysis.residues[analysis.residues.length - 1];
       analysis.residues.push({
@@ -885,7 +896,7 @@ const exportDataFromEmail: ExportDataFromEmail = async (attachments) => {
     );
   }
 
-  const csvContent = csvToJson(csvFiles[0].content.toString(), ';');
+  const csvContent = csvToJson(csvFiles[0].content.toString('latin1'), ';');
   const analyzes = extractAnalyzes(csvContent);
 
   const analyzesWithPdf: ExportAnalysis[] = [];
