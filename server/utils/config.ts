@@ -74,7 +74,10 @@ const configValidator = z
     BROWSERLESS_URL: devDefaultValue(
       z.string(),
       'ws://localhost:3002?token=1234512345'
-    )
+    ),
+    KAFKA_URL: z.string().nullish(),
+    KAFKA_TOPIC_DAI: z.string().nullish(),
+    KAFKA_TOPIC_RAI: z.string().nullish()
   })
   .transform((c) => {
     return {
@@ -143,7 +146,12 @@ const configValidator = z
       },
       browserlessUrl: c.BROWSERLESS_URL,
       mattermostIncomingWebhook: c.MATTERMOST_INCOMING_WEBHOOK,
-      m2mBasicToken: c.M2M_BASIC_TOKEN
+      m2mBasicToken: c.M2M_BASIC_TOKEN,
+      kafka: {
+        url: c.KAFKA_URL,
+        topicDAI: c.KAFKA_TOPIC_DAI,
+        topicRAI: c.KAFKA_TOPIC_RAI
+      }
     };
   });
 

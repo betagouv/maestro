@@ -20,3 +20,14 @@ export const formatDateTime = (date: Date) =>
   format(date, 'dd MMMM yyyy à HH:mm', {
     locale: fr
   });
+
+export const toMaestroDate = (date: Date): MaestroDate => {
+  // Use the Sweden locale because it uses the ISO format
+  const dateString = date.toLocaleDateString('sv');
+  const parsedDate = maestroDate.safeParse(dateString);
+  if (parsedDate.success) {
+    return parsedDate.data;
+  }
+
+  throw new Error(`Shouldn't get here (invalid toDateStr provided): ${date}`);
+};
