@@ -22,6 +22,11 @@ const sachaDateTime = z
   .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/)
   .brand<'SachaDateTime'>();
 
+const booleanLabel = z.literal(['O', 'N']).transform((b) => b === 'O');
+
+const statusValidator = z.literal(['G', 'V']);
+const typeValidator = z.literal(['G', 'S']);
+
 const referenceEtablissement = z.object({
   SigleIdentifiant: z.string(),
   Identifiant: z.string(),
@@ -65,7 +70,7 @@ const referencePlanAnalyseEffectuer = z.object({
   LibelleDestinataireEchantillon: z.string().optional(),
   LigneBudgetaire: z.string().optional(),
   Commentaire: z.string().optional(),
-  PlanComplet: z.string().optional(),
+  PlanComplet: booleanLabel.optional(),
   DateModification: sachaDateTime.optional(),
   DateDebutExecution: sachaDate.optional(),
   DateFinExecution: sachaDate.optional()
@@ -99,8 +104,8 @@ const referenceMatricesGeneriques = z.object({
   Cle: z.string(),
   Sigle: z.string(),
   Libelle: z.string(),
-  Statut: z.string(),
-  Type: z.string(),
+  Statut: statusValidator,
+  Type: typeValidator,
   LibelleFamille: z.string(),
   LibelleEspece: z.string().optional(),
   CleRemplacement: z.string().optional(),
@@ -110,8 +115,8 @@ const referenceAnalytes = z.object({
   Cle: z.string(),
   Sigle: z.string(),
   Libelle: z.string(),
-  Statut: z.string(),
-  Type: z.string(),
+  Statut: statusValidator,
+  Type: typeValidator,
   LibelleFamille: z.string(),
   LibelleMaladie: z.string().optional(),
   CleRemplacement: z.string().optional(),
@@ -122,7 +127,7 @@ const referenceUnites = coerceToArray(
     Cle: z.string(),
     Sigle: z.string(),
     Libelle: z.string(),
-    Statut: z.string(),
+    Statut: statusValidator,
     CleRemplacement: z.string().optional(),
     Commentaire: z.string().optional()
   })
@@ -133,9 +138,9 @@ const referencePlanAnalyseContenu = z
       LibelleMatrice: z.string(),
       SigleAnalyte: z.string(),
       SigleMethodeSpecifique: z.string(),
-      Depistage: z.string(),
-      Confirmation: z.string(),
-      Statut: z.string(),
+      Depistage: booleanLabel,
+      Confirmation: booleanLabel,
+      Statut: statusValidator,
       Commentaire: z.string().optional()
     })
   )
@@ -144,8 +149,8 @@ const referenceMethodes = z.object({
   Cle: z.string(),
   Sigle: z.string(),
   Libelle: z.string(),
-  Statut: z.string(),
-  Type: z.string(),
+  Statut: statusValidator,
+  Type: typeValidator,
   LibelleFamille: z.string(),
   CleRemplacement: z.string().optional(),
   Commentaire: z.string().optional()
@@ -264,7 +269,7 @@ export const raiValidator = z.object({
               Cle: z.string(),
               Sigle: z.string(),
               Libelle: z.string(),
-              Statut: z.string(),
+              Statut: statusValidator,
               CleRemplacement: z.string().optional(),
               Commentaire: z.string().optional(),
               Unite: z.string().optional(),
@@ -288,7 +293,7 @@ export const raiValidator = z.object({
               Cle: z.string(),
               Sigle: z.string(),
               Libelle: z.string(),
-              Statut: z.string(),
+              Statut: statusValidator,
               Contact: z.string().optional(),
               TexteReference: z.string().optional(),
               NiveauInterpretation: z.string().optional(),
@@ -301,9 +306,9 @@ export const raiValidator = z.object({
                 LibelleMatrice: z.string().optional(),
                 SigleAnalyte: z.string(),
                 SigleMethodeSpecifique: z.string().optional(),
-                Depistage: z.string(),
-                Confirmation: z.string(),
-                Statut: z.string(),
+                Depistage: booleanLabel,
+                Confirmation: booleanLabel,
+                Statut: statusValidator,
                 NombreEchantillonParLot: z.coerce.number().int(),
                 SigleUnite: z.string().optional(),
                 SeuilConfirmationQuantitatif: z.coerce.number().optional(),
@@ -332,7 +337,7 @@ export const raiValidator = z.object({
               Cle: z.string(),
               Sigle: z.string(),
               Libelle: z.string(),
-              Statut: z.string(),
+              Statut: statusValidator,
               DateModification: sachaDateTime
             }),
             ReferenceCommemoratifsInterventionContexte: referenceCommemoratifs,
@@ -347,7 +352,7 @@ export const raiValidator = z.object({
             Cle: z.string(),
             Sigle: z.string(),
             Libelle: z.string(),
-            Statut: z.string()
+            Statut: statusValidator
           })
         ).optional()
       }),
@@ -373,7 +378,7 @@ export const raiValidator = z.object({
                 IdentifiantAtelier: z.string().optional(),
                 SigleContexteIntervention: z.string(),
                 IndicateurPrelevementPartiel: z.string(),
-                DossierComplet: z.string()
+                DossierComplet: booleanLabel
               })
             }),
             z.object({
@@ -383,7 +388,7 @@ export const raiValidator = z.object({
                 IdentifiantActeur: z.string(),
                 DateInterventionReelle: sachaDate,
                 IndicateurPrelevementPartiel: z.string(),
-                DossierComplet: z.string()
+                DossierComplet: booleanLabel
               })
             })
           ]),
@@ -406,7 +411,7 @@ export const raiValidator = z.object({
                       z.object({
                         IdentifiantLabo: z.string(),
                         NumeroDossierLIMS: z.string(),
-                        IndicateurAnalyseConfirmation: z.string().optional(),
+                        IndicateurAnalyseConfirmation: booleanLabel.optional(),
                         OperateurResultatQuantitatif: z.string().optional(),
                         ValeurResultatQuantitatif: z.coerce.number().optional(),
                         SigleValeurResultatQualitatif: z.string().optional(),
