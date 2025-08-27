@@ -1,3 +1,4 @@
+import { maestroDate } from 'maestro-shared/utils/date';
 import { z } from 'zod/v4';
 
 const coerceToArray = <Schema extends z.ZodObject>(
@@ -11,6 +12,15 @@ const coerceToArray = <Schema extends z.ZodObject>(
     }
   }, z.array(schema)) as unknown as z.ZodArray<Schema>;
 };
+
+// 1900-01-01
+const sachaDate = maestroDate;
+
+// 1900-01-01T00:00:00
+const sachaDateTime = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/)
+  .brand<'SachaDateTime'>();
 
 const referenceEtablissement = z.object({
   SigleIdentifiant: z.string(),
@@ -42,7 +52,7 @@ const dialogueEchantillonCommemoratifType = coerceToArray(
       IdentifiantLabo: z.string().optional(),
       NumeroLot: z.coerce.number().int().optional(),
       NumeroEtiquette: z.string().optional(),
-      DateRealisationPrelevement: z.any().optional(),
+      DateRealisationPrelevement: sachaDate.optional(),
       SigleMotifNonAnalysabilite: z.string().optional(),
       Commentaire: z.string().optional()
     }),
@@ -56,9 +66,9 @@ const referencePlanAnalyseEffectuer = z.object({
   LigneBudgetaire: z.string().optional(),
   Commentaire: z.string().optional(),
   PlanComplet: z.string().optional(),
-  DateModification: z.any().optional(),
-  DateDebutExecution: z.any().optional(),
-  DateFinExecution: z.any().optional()
+  DateModification: sachaDateTime.optional(),
+  DateDebutExecution: sachaDate.optional(),
+  DateFinExecution: sachaDate.optional()
 });
 const messageParametres = z.object({
   CodeScenario: z.string(),
@@ -170,8 +180,8 @@ export const raiValidator = z.object({
           DialogueDemandeIntervention: z.object({
             NumeroDAP: z.coerce.number().int(),
             SigleContexteIntervention: z.string(),
-            DateIntervention: z.any(),
-            DateModification: z.any()
+            DateIntervention: sachaDate,
+            DateModification: sachaDateTime
           }),
           DialogueCommemoratif: dialogueCommemoratif,
           ReferenceEtablissementType: z.object({
@@ -282,7 +292,7 @@ export const raiValidator = z.object({
               Contact: z.string().optional(),
               TexteReference: z.string().optional(),
               NiveauInterpretation: z.string().optional(),
-              DateModification: z.any()
+              DateModification: sachaDateTime
             }),
             ReferenceCommemoratifsAnalyse: referenceCommemoratifs,
             ReferencePlanAnalyseContenu: referencePlanAnalyseContenu,
@@ -323,7 +333,7 @@ export const raiValidator = z.object({
               Sigle: z.string(),
               Libelle: z.string(),
               Statut: z.string(),
-              DateModification: z.any()
+              DateModification: sachaDateTime
             }),
             ReferenceCommemoratifsInterventionContexte: referenceCommemoratifs,
             ReferenceCommemoratifsEchantillonContexte: referenceCommemoratifs,
@@ -356,7 +366,7 @@ export const raiValidator = z.object({
               DialogueRetourInterventionSansDAP: z.object({
                 SigleTypeIdentifiantActeur: z.string(),
                 IdentifiantActeur: z.string(),
-                DateInterventionReelle: z.any(),
+                DateInterventionReelle: sachaDate,
                 SigleTypeIdentifiantEtablissement: z.string(),
                 IdentifiantEtablissement: z.string(),
                 SigleTypeIdentifiantAtelier: z.string().optional(),
@@ -371,7 +381,7 @@ export const raiValidator = z.object({
                 NumeroDAP: z.coerce.number().int(),
                 SigleTypeIdentifiantActeur: z.string(),
                 IdentifiantActeur: z.string(),
-                DateInterventionReelle: z.any(),
+                DateInterventionReelle: sachaDate,
                 IndicateurPrelevementPartiel: z.string(),
                 DossierComplet: z.string()
               })
@@ -403,7 +413,7 @@ export const raiValidator = z.object({
                         SigleUnite: z.string().optional(),
                         SigleConclusionElementaire: z.string().optional(),
                         LibelleLaboratoireSousTraitant: z.string().optional(),
-                        DateValidation: z.any(),
+                        DateValidation: sachaDate,
                         Commentaire: z.string().optional(),
                         IncertitudePourcentage: z.coerce.number().optional(),
                         IncertitudeMini: z.coerce.number().optional(),
@@ -436,14 +446,14 @@ export const raiValidator = z.object({
         Emetteur: partenaire,
         Destinataire: partenaire,
         MessageAcquittement: coerceToArray(
-          z.object({ NomFichier: z.string(), DateAcquittement: z.any() })
+          z.object({ NomFichier: z.string(), DateAcquittement: sachaDateTime })
         ).optional(),
         MessageNonAcquittement: coerceToArray(
           z.object({
             NomFichier: z.string(),
             LibelleMotif: z.string(),
             TypeMotif: z.string().optional(),
-            DateNonAcquittement: z.any()
+            DateNonAcquittement: sachaDateTime
           })
         ).optional()
       }),
