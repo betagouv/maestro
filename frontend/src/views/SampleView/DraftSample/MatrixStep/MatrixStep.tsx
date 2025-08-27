@@ -14,10 +14,6 @@ import { FileInput } from 'maestro-shared/schema/File/FileInput';
 import { SampleDocumentTypeList } from 'maestro-shared/schema/File/FileType';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
-  DAOAKindList,
-  PFASKindList
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import {
   isCreatedPartialSample,
   isProgrammingPlanSample,
   PartialSample,
@@ -43,9 +39,7 @@ import { useAnalytics } from '../../../../hooks/useAnalytics';
 import { usePartialSample } from '../../../../hooks/usePartialSample';
 import { ApiClientContext } from '../../../../services/apiClient';
 import NextButton from '../NextButton';
-import MatrixStepDAOA, { PartialSampleDAOA } from './MatrixStepDAOA';
-import MatrixStepPFAS, { PartialSamplePFAS } from './MatrixStepPFAS';
-import MatrixStepPPV, { PartialSamplePPV } from './MatrixStepPPV';
+import MatrixStepGeneric from './MatrixStepGeneric';
 
 export type MatrixStepRef = {
   submit: () => Promise<void>;
@@ -276,54 +270,18 @@ const MatrixStep = ({ partialSample }: Props) => {
     <form data-testid="draft_sample_matrix_form" className="sample-form">
       <AppRequiredText />
 
-      {partialSample.specificData.programmingPlanKind === 'PPV' && (
-        <MatrixStepPPV
-          ref={stepRef}
-          partialSample={partialSample as PartialSamplePPV}
-          matrixKindOptions={matrixKindOptions}
-          stageOptions={stageOptions}
-          onSave={(sampleMatrixData) => save('DraftMatrix', sampleMatrixData)}
-          onSubmit={async () => {
-            isSubmittingRef.current = true;
-            await save('DraftItems');
-          }}
-          renderSampleAttachments={renderSampleAttachments}
-        />
-      )}
-
-      {PFASKindList.includes(
-        partialSample.specificData.programmingPlanKind
-      ) && (
-        <MatrixStepPFAS
-          ref={stepRef}
-          partialSample={partialSample as PartialSamplePFAS}
-          matrixKindOptions={matrixKindOptions}
-          stageOptions={stageOptions}
-          onSave={(sampleMatrixData) => save('DraftMatrix', sampleMatrixData)}
-          onSubmit={async () => {
-            isSubmittingRef.current = true;
-            await save('DraftItems');
-          }}
-          renderSampleAttachments={renderSampleAttachments}
-        />
-      )}
-
-      {DAOAKindList.includes(
-        partialSample.specificData.programmingPlanKind
-      ) && (
-        <MatrixStepDAOA
-          ref={stepRef}
-          partialSample={partialSample as PartialSampleDAOA}
-          matrixKindOptions={matrixKindOptions}
-          stageOptions={stageOptions}
-          onSave={(sampleMatrixData) => save('DraftMatrix', sampleMatrixData)}
-          onSubmit={async () => {
-            isSubmittingRef.current = true;
-            await save('DraftItems');
-          }}
-          renderSampleAttachments={renderSampleAttachments}
-        />
-      )}
+      <MatrixStepGeneric
+        ref={stepRef}
+        partialSample={partialSample}
+        matrixKindOptions={matrixKindOptions}
+        stageOptions={stageOptions}
+        onSave={(sampleMatrixData) => save('DraftMatrix', sampleMatrixData)}
+        onSubmit={async () => {
+          isSubmittingRef.current = true;
+          await save('DraftItems');
+        }}
+        renderSampleAttachments={renderSampleAttachments}
+      />
 
       <hr className={cx('fr-mx-0')} />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
