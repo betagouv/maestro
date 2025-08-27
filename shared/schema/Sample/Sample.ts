@@ -134,7 +134,7 @@ export const SampleMatrixSpecificDataDAOASlaughter =
     age: AnimalAge
   });
 
-const SampleMatrixSpecificData = z.discriminatedUnion(
+export const SampleMatrixSpecificData = z.discriminatedUnion(
   'programmingPlanKind',
   [
     SampleMatrixSpecificDataPPV,
