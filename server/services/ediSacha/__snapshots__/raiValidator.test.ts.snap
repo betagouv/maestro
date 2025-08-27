@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`import une RAI 1`] = `
+exports[`import une RAI example-rai-1.xml 1`] = `
 {
   "Resultats": {
     "Destinataire": {
@@ -2466,7 +2466,7 @@ exports[`import une RAI 1`] = `
 }
 `;
 
-exports[`import une RAI 2`] = `
+exports[`import une RAI example-rai-2.xml 1`] = `
 {
   "Resultats": {
     "Destinataire": {
