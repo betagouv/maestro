@@ -26,6 +26,7 @@ const booleanLabel = z.literal(['O', 'N']).transform((b) => b === 'O');
 
 const statusValidator = z.literal(['G', 'V']);
 const typeValidator = z.literal(['G', 'S']);
+const indicateurPrelevementPartielValidator = z.literal(['C', 'P', 'F']);
 
 const referenceEtablissement = z.object({
   SigleIdentifiant: z.string(),
@@ -66,7 +67,7 @@ const dialogueEchantillonCommemoratifType = coerceToArray(
 ).optional();
 const referencePlanAnalyseEffectuer = z.object({
   SiglePlanAnalyse: z.string(),
-  EditionRapports: z.string().optional(),
+  EditionRapports: z.literal(['A', 'T', 'P']).optional(),
   LibelleDestinataireEchantillon: z.string().optional(),
   LigneBudgetaire: z.string().optional(),
   Commentaire: z.string().optional(),
@@ -273,7 +274,7 @@ export const raiValidator = z.object({
               CleRemplacement: z.string().optional(),
               Commentaire: z.string().optional(),
               Unite: z.string().optional(),
-              TypeDonnee: z.string()
+              TypeDonnee: z.literal(['V', 'N', 'A', 'D'])
             }),
             ReferenceCommemoratifsValeurs: referenceUnites
           })
@@ -296,7 +297,9 @@ export const raiValidator = z.object({
               Statut: statusValidator,
               Contact: z.string().optional(),
               TexteReference: z.string().optional(),
-              NiveauInterpretation: z.string().optional(),
+              NiveauInterpretation: z
+                .literal(['AE', 'AL', 'PE', 'PL'])
+                .optional(),
               DateModification: sachaDateTime
             }),
             ReferenceCommemoratifsAnalyse: referenceCommemoratifs,
@@ -377,7 +380,8 @@ export const raiValidator = z.object({
                 SigleTypeIdentifiantAtelier: z.string().optional(),
                 IdentifiantAtelier: z.string().optional(),
                 SigleContexteIntervention: z.string(),
-                IndicateurPrelevementPartiel: z.string(),
+                IndicateurPrelevementPartiel:
+                  indicateurPrelevementPartielValidator,
                 DossierComplet: booleanLabel
               })
             }),
@@ -387,7 +391,8 @@ export const raiValidator = z.object({
                 SigleTypeIdentifiantActeur: z.string(),
                 IdentifiantActeur: z.string(),
                 DateInterventionReelle: sachaDate,
-                IndicateurPrelevementPartiel: z.string(),
+                IndicateurPrelevementPartiel:
+                  indicateurPrelevementPartielValidator,
                 DossierComplet: booleanLabel
               })
             })
@@ -412,7 +417,20 @@ export const raiValidator = z.object({
                         IdentifiantLabo: z.string(),
                         NumeroDossierLIMS: z.string(),
                         IndicateurAnalyseConfirmation: booleanLabel.optional(),
-                        OperateurResultatQuantitatif: z.string().optional(),
+                        OperateurResultatQuantitatif: z
+                          .literal([
+                            '>>',
+                            '>',
+                            '>=',
+                            '=',
+                            '<=',
+                            '<',
+                            '<<',
+                            '<>',
+                            'ne',
+                            ''
+                          ])
+                          .optional(),
                         ValeurResultatQuantitatif: z.coerce.number().optional(),
                         SigleValeurResultatQualitatif: z.string().optional(),
                         SigleUnite: z.string().optional(),
