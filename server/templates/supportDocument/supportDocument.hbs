@@ -62,7 +62,7 @@
                       Prélèvement
                       <b>{{reference}}</b>
                     </h2>
-                    {{#if sampledAt}}
+                    {{#if (and sampledAt fullVersion)}}
                       <span class='fr-text--sm'>
                       réalisé le
                         {{sampledAt}}
@@ -107,6 +107,21 @@
                           </div>
                         </div>
                       {{else}}
+                        <div class='sample-section-block'>
+                          <span class='fr-icon-seedling-line fr-icon--sm'></span>
+                          <div class='fr-container fr-pl-1w'>
+                            <div class='fr-grid-row fr-grid-row--gutters'>
+                              <div class='fr-col-6 sample-section-item'>
+                                <div class='label'>
+                                  Contexte du prélèvement
+                                </div>
+                                <div class='value'>
+                                  {{context}}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                         <div class='sample-section-block'>
                           <span class='fr-icon-time-line fr-icon--sm'></span>
                           <div class='fr-container fr-pl-1w'>
@@ -161,7 +176,7 @@
                               </div>
                             </div>
                             <div class='fr-col-12 fr-mt-0'>
-                              <div class='label'>
+                              <div class='notice'>
                                 habilitée(s) à procéder à l’inspection, et au contrôle tels que prévus aux articles R.206-1,
                                 R.206-2, R.250-1 et L.250-6 du code rural et de la pêche maritime
                               </div>
@@ -530,7 +545,7 @@
                     </div>
                     <div class='sample-section-body'>
                       <div class='sample-section-block'>
-                        <div class='label'>
+                        <div class='notice'>
                           En application de l’article R. 250-2 du code rural et
                           de la pêche maritime, l(es)‘échantillon(s) a (ont)
                           été placé(s) sous scellé(s). L'étiquette
@@ -546,8 +561,8 @@
                             livre et notamment en application du paragraphe 3 de l’article 35 du même règlement.
                             <br />
                             En application de l’article R.250-2 les échantillons prélevés ne donnent lieu à aucun remboursement.
+                            <br />
                           {{/if}}
-                          <br />
                           Dans le cas où un des échantillons a été remis au détenteur, ce dernier en a accepté le dépôt et s’est
                           engagé à le conserver sous température négative.
                         </div>
@@ -672,7 +687,7 @@
                           <div class='fr-container fr-pl-1w'>
                             <div class='fr-grid-row fr-grid-row--gutters'>
                               <div class='fr-col-12 sample-section-item'>
-                                <div class='label'>
+                                <div class='notice'>
                                   En application de l’article R. 250-2 les
                                   échantillons prélevés ne donnent lieu à aucun
                                   remboursement.

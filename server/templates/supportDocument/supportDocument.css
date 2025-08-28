@@ -125,6 +125,14 @@ main {
       }
     }
 
+    .notice {
+      margin-bottom: 0;
+      color: var(--text-disabled-grey);
+      font-weight: 500;
+      font-size: 0.65rem;
+      line-height: 1rem;
+    }
+
     .value {
       border-bottom-width: 1px;
       border-bottom-style: dashed;
