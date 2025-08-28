@@ -8,10 +8,13 @@ import { ProductionKindLabels } from 'maestro-shared/referential/ProductionKind'
 import { SeizureLabels } from 'maestro-shared/referential/Seizure';
 import { SpeciesLabels } from 'maestro-shared/referential/Species';
 import { TargetingCriteriaLabels } from 'maestro-shared/referential/TargetingCriteria';
-import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/Sample';
+import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 
-type UnionKeys<T> = T extends any ? keyof T : never;
-export type SampleMatrixSpecificDataKeys = UnionKeys<SampleMatrixSpecificData>;
+type UnionKeys<T, O extends string> = T extends any ? keyof Omit<T, O> : never;
+export type SampleMatrixSpecificDataKeys = UnionKeys<
+  SampleMatrixSpecificData,
+  'programmingPlanKind'
+>;
 
 export type SpecificDataFormInput = {
   label: string;
@@ -32,9 +35,9 @@ export type SpecificDataFormInput = {
     }
 );
 
-//TODO enlever le partial
-export const SpecificDataFormInputs: Partial<
-  Record<SampleMatrixSpecificDataKeys, SpecificDataFormInput>
+export const MatrixSpecificDataFormInputs: Record<
+  SampleMatrixSpecificDataKeys,
+  SpecificDataFormInput
 > = {
   matrixDetails: {
     inputType: 'text',

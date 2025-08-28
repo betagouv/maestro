@@ -17,9 +17,9 @@ import {
   PartialSampleToCreate,
   prescriptionSubstancesCheck,
   sampleMatrixCheck,
-  SampleMatrixData,
-  SampleMatrixSpecificData
+  SampleMatrixData
 } from 'maestro-shared/schema/Sample/Sample';
+import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import {
   forwardRef,
   Fragment,
@@ -41,12 +41,12 @@ import AppSearchInput from '../../../../components/_app/AppSearchInput/AppSearch
 import AppTextAreaInput from '../../../../components/_app/AppTextAreaInput/AppTextAreaInput';
 import SubstanceSearch from '../../../../components/SubstanceSearch/SubstanceSearch';
 import { useForm } from '../../../../hooks/useForm';
-import { MatrixStepRef } from './MatrixStep';
+import { MatrixSpecificDataForm } from './MatrixSpecificDataForm';
 import {
-  SampleMatrixSpecificDataKeys,
-  SpecificDataFormInput,
-  SpecificDataFormInputs
-} from './SpecificDataFormInputs';
+  MatrixSpecificDataFormInputs,
+  SampleMatrixSpecificDataKeys
+} from './MatrixSpecificDataFormInputs';
+import { MatrixStepRef } from './MatrixStep';
 
 const SampleMatrixBaseData = SampleMatrixData.omit({
   documentIds: true,
@@ -131,45 +131,16 @@ const MatrixStepGeneric = forwardRef<MatrixStepRef, Props>(
       }
     }));
 
-    const jsonSchemaWithFormInput = useMemo(() => {
-      const jsonSchema = z
-        .toJSONSchema(SampleMatrixSpecificData)
-        .anyOf?.find(
-          (schema) =>
-            (schema.properties?.programmingPlanKind as JSONSchema).const ===
-            specificData.programmingPlanKind
-        ) as JSONSchema;
-
-      return {
-        ...jsonSchema,
-        properties: (
-          Object.entries(jsonSchema?.properties ?? {}) as [
-            SampleMatrixSpecificDataKeys,
-            JSONSchema | undefined
-          ][]
-        ).reduce(
-          (acc, [key, property]) =>
-            property !== undefined
-              ? {
-                  ...acc,
-                  [key]: {
-                    ...(property.anyOf?.find((p) => p.type !== 'null') ??
-                      property),
-                    ...SpecificDataFormInputs[key]
-                  }
-                }
-              : acc,
-          {} as Record<
-            SampleMatrixSpecificDataKeys,
-            JSONSchema & SpecificDataFormInput
-          >
-        )
-      };
-    }, [specificData.programmingPlanKind]); //TODO verifier la cohérence des types et inputTypes
-
-    console.log(
-      'jsonSchemaWithFormInput.properties',
-      jsonSchemaWithFormInput.properties
+    const jsonSchema = useMemo(
+      () =>
+        z
+          .toJSONSchema(SampleMatrixSpecificData)
+          .anyOf?.find(
+            (schema) =>
+              (schema.properties?.programmingPlanKind as JSONSchema).const ===
+              specificData.programmingPlanKind
+          ) as JSONSchema,
+      [specificData.programmingPlanKind]
     );
 
     return (
@@ -276,11 +247,16 @@ const MatrixStepGeneric = forwardRef<MatrixStepRef, Props>(
           </div>
         </div>
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          {Object.entries(jsonSchemaWithFormInput.properties ?? {}).map(
-            ([key, schema]) => (
+          {(
+            Object.entries(
+              MatrixSpecificDataForm[specificData.programmingPlanKind]
+            ) as [SampleMatrixSpecificDataKeys, { order: number }][]
+          )
+            .sort((a, b) => a[1].order - b[1].order)
+            .map(([key]) => (
               <Fragment key={key}>
                 {(() => {
-                  switch (schema.inputType) {
+                  switch (MatrixSpecificDataFormInputs[key].inputType) {
                     case 'text':
                       return (
                         <div className={cx('fr-col-12')}>
@@ -295,16 +271,20 @@ const MatrixStepGeneric = forwardRef<MatrixStepRef, Props>(
                             inputForm={form}
                             inputKey="specificData"
                             inputPathFromKey={[key]}
-                            label={schema.label ?? key}
-                            hintText={schema.hintText}
+                            label={
+                              MatrixSpecificDataFormInputs[key].label ?? key
+                            }
+                            hintText={
+                              MatrixSpecificDataFormInputs[key].hintText
+                            }
                             whenValid={
-                              schema.whenValid ??
+                              MatrixSpecificDataFormInputs[key].whenValid ??
                               'Champ correctement renseigné.'
                             }
-                            required={jsonSchemaWithFormInput.required?.includes(
-                              key
-                            )}
-                            data-testid={schema.testId}
+                            required={jsonSchema.required?.includes(key)}
+                            data-testid={
+                              MatrixSpecificDataFormInputs[key].testId
+                            }
                           />
                         </div>
                       );
@@ -323,16 +303,20 @@ const MatrixStepGeneric = forwardRef<MatrixStepRef, Props>(
                             inputForm={form}
                             inputKey="specificData"
                             inputPathFromKey={[key]}
-                            label={schema.label ?? key}
-                            hintText={schema.hintText}
+                            label={
+                              MatrixSpecificDataFormInputs[key].label ?? key
+                            }
+                            hintText={
+                              MatrixSpecificDataFormInputs[key].hintText
+                            }
                             whenValid={
-                              schema.whenValid ??
+                              MatrixSpecificDataFormInputs[key].whenValid ??
                               'Champ correctement renseigné.'
                             }
-                            required={jsonSchemaWithFormInput.required?.includes(
-                              key
-                            )}
-                            data-testid={schema.testId}
+                            required={jsonSchema.required?.includes(key)}
+                            data-testid={
+                              MatrixSpecificDataFormInputs[key].testId
+                            }
                           />
                         </div>
                       );
@@ -343,10 +327,15 @@ const MatrixStepGeneric = forwardRef<MatrixStepRef, Props>(
                           <AppSelect
                             defaultValue={(specificData as any)[key] ?? ''}
                             options={selectOptionsFromList(
-                              (schema.enum as string[]) ?? [],
+                              ((jsonSchema.properties?.[key] as JSONSchema)
+                                .enum as string[]) ?? [],
                               {
-                                labels: schema.optionsLabels,
-                                defaultLabel: schema.defaultOptionLabel
+                                labels:
+                                  MatrixSpecificDataFormInputs[key]
+                                    .optionsLabels,
+                                defaultLabel:
+                                  MatrixSpecificDataFormInputs[key]
+                                    .defaultOptionLabel
                               }
                             )}
                             onChange={(e) =>
@@ -358,15 +347,17 @@ const MatrixStepGeneric = forwardRef<MatrixStepRef, Props>(
                             inputForm={form}
                             inputKey="specificData"
                             inputPathFromKey={[key]}
-                            label={schema.label ?? key}
+                            label={
+                              MatrixSpecificDataFormInputs[key].label ?? key
+                            }
                             whenValid={
-                              schema.whenValid ??
+                              MatrixSpecificDataFormInputs[key].whenValid ??
                               'Champ correctement renseigné.'
                             }
-                            required={jsonSchemaWithFormInput.required?.includes(
-                              key
-                            )}
-                            data-testid={schema.testId}
+                            required={jsonSchema.required?.includes(key)}
+                            data-testid={
+                              MatrixSpecificDataFormInputs[key].testId
+                            }
                           />
                         </div>
                       );
@@ -375,7 +366,9 @@ const MatrixStepGeneric = forwardRef<MatrixStepRef, Props>(
                       return (
                         <div className={cx('fr-col-12', 'fr-mt-2w')}>
                           <ToggleSwitch
-                            label={schema.label ?? key}
+                            label={
+                              MatrixSpecificDataFormInputs[key].label ?? key
+                            }
                             checked={Boolean((specificData as any)[key])}
                             onChange={(checked) =>
                               setSpecificData((prev) => ({
@@ -384,7 +377,9 @@ const MatrixStepGeneric = forwardRef<MatrixStepRef, Props>(
                               }))
                             }
                             showCheckedHint={false}
-                            data-testid={schema.testId}
+                            data-testid={
+                              MatrixSpecificDataFormInputs[key].testId
+                            }
                           />
                         </div>
                       );
@@ -393,16 +388,21 @@ const MatrixStepGeneric = forwardRef<MatrixStepRef, Props>(
                       return (
                         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
                           <AppRadioButtons
-                            legend={schema.label ?? key}
+                            legend={
+                              MatrixSpecificDataFormInputs[key].label ?? key
+                            }
                             options={
                               selectOptionsFromList(
-                                (schema.enum as string[]) ?? [],
+                                ((jsonSchema.properties?.[key] as JSONSchema)
+                                  .enum as string[]) ?? [],
                                 {
-                                  labels: schema.optionsLabels,
+                                  labels:
+                                    MatrixSpecificDataFormInputs[key]
+                                      .optionsLabels,
                                   withDefault: false
                                 }
                               ).map(({ label, value }) => ({
-                                key: `${schema.testId}-option-${value}`,
+                                key: `${MatrixSpecificDataFormInputs[key].testId}-option-${value}`,
                                 label,
                                 nativeInputProps: {
                                   checked: (specificData as any)[key] === value,
@@ -414,14 +414,14 @@ const MatrixStepGeneric = forwardRef<MatrixStepRef, Props>(
                                 }
                               })) ?? []
                             }
-                            colSm={schema.colSm}
+                            colSm={MatrixSpecificDataFormInputs[key].colSm}
                             inputForm={form}
                             inputKey="specificData"
                             inputPathFromKey={[key]}
-                            required={jsonSchemaWithFormInput.required?.includes(
-                              key
-                            )}
-                            data-testid={schema.testId}
+                            required={jsonSchema.required?.includes(key)}
+                            data-testid={
+                              MatrixSpecificDataFormInputs[key].testId
+                            }
                           />
                         </div>
                       );
@@ -431,8 +431,7 @@ const MatrixStepGeneric = forwardRef<MatrixStepRef, Props>(
                   }
                 })()}
               </Fragment>
-            )
-          )}
+            ))}
 
           {!isProgrammingPlanSample(partialSample) && (
             <>
