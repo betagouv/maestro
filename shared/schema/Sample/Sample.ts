@@ -2,7 +2,7 @@ import { isNil, uniqBy } from 'lodash-es';
 
 import { CheckFn } from 'zod/dist/types/v4/core';
 import { z } from 'zod/v4';
-import { AnimalKind } from '../../referential/AnimalKind';
+import { AnimalKind, AnimalKindAgeLimit } from '../../referential/AnimalKind';
 import { AnimalSex } from '../../referential/AnimalSex';
 import { BreedingMethod } from '../../referential/BreedingMethod';
 import { CultureKind } from '../../referential/CultureKind';
@@ -75,6 +75,27 @@ const AnimalAge = z.coerce
   .int()
   .nonnegative();
 
+type AnimalAge = z.infer<typeof AnimalAge>;
+
+export const animalKindAgeCheck: CheckFn<{
+  animalKind: AnimalKind;
+  age: AnimalAge;
+}> = (ctx) => {
+  const val = ctx.value;
+  const ageLimit = AnimalKindAgeLimit[val.animalKind];
+  if (
+    (ageLimit?.min && Number(val.age) < ageLimit.min) ||
+    (ageLimit?.max && Number(val.age) > ageLimit.max)
+  ) {
+    ctx.issues.push({
+      code: 'custom',
+      message: `Cet âge n'est pas autorisé pour le type d'animal sélectionné.`,
+      path: ['specificData', 'age'],
+      input: val
+    });
+  }
+};
+
 export const SampleMatrixSpecificDataPPV = z.object({
   programmingPlanKind: z.literal(ProgrammingPlanKind.enum.PPV),
   matrixDetails: z.string().nullish(),
@@ -83,21 +104,23 @@ export const SampleMatrixSpecificDataPPV = z.object({
   releaseControl: z.boolean().nullish()
 });
 
-const SampleMatrixSpecificDataPFAS = z.object({
-  programmingPlanKind: z
-    .literal(ProgrammingPlanKind.enum.PFAS_EGGS)
-    .or(z.literal(ProgrammingPlanKind.enum.PFAS_MEAT)),
-  species: Species,
-  targetingCriteria: TargetingCriteria,
-  notesOnTargetingCriteria: z.string().nullish(),
-  animalKind: AnimalKind,
-  animalIdentifier: AnimalIdentifier,
-  breedingMethod: BreedingMethod,
-  age: AnimalAge,
-  sex: AnimalSex,
-  seizure: Seizure.nullish(),
-  outdoorAccess: OutdoorAccess
-});
+const SampleMatrixSpecificDataPFAS = z
+  .object({
+    programmingPlanKind: z
+      .literal(ProgrammingPlanKind.enum.PFAS_EGGS)
+      .or(z.literal(ProgrammingPlanKind.enum.PFAS_MEAT)),
+    species: Species,
+    targetingCriteria: TargetingCriteria,
+    notesOnTargetingCriteria: z.string().nullish(),
+    animalKind: AnimalKind,
+    animalIdentifier: AnimalIdentifier,
+    breedingMethod: BreedingMethod,
+    age: AnimalAge,
+    sex: AnimalSex,
+    seizure: Seizure.nullish(),
+    outdoorAccess: OutdoorAccess
+  })
+  .check(animalKindAgeCheck);
 
 export const SampleMatrixSpecificDataPFASEggs =
   SampleMatrixSpecificDataPFAS.extend({
