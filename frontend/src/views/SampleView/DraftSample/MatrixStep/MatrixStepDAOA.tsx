@@ -26,12 +26,14 @@ import {
 import { Stage } from 'maestro-shared/referential/Stage';
 import {
   PartialSample,
-  PartialSampleMatrixSpecificData,
   PartialSampleToCreate,
-  SampleMatrixData,
+  SampleMatrixData
+} from 'maestro-shared/schema/Sample/Sample';
+import {
+  PartialSampleMatrixSpecificData,
   SampleMatrixSpecificDataDAOABreeding,
   SampleMatrixSpecificDataDAOASlaughter
-} from 'maestro-shared/schema/Sample/Sample';
+} from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import {
   forwardRef,
   ReactNode,

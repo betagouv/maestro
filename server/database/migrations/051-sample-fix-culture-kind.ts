@@ -1,5 +1,5 @@
 import { Knex } from 'knex';
-import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/Sample';
+import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import {
   RealizedStatusList,
   SampleStatus

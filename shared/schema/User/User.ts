@@ -34,8 +34,15 @@ export const User = BaseUser.superRefine((user, ctx) => {
   }
 });
 
+export const Sampler = BaseUser.pick({
+  id: true,
+  firstName: true,
+  lastName: true
+});
+
 export type BaseUser = z.infer<typeof BaseUser>;
 export type User = z.infer<typeof User>;
+export type Sampler = z.infer<typeof Sampler>;
 
 export const userRegions = (user?: User): Region[] =>
   user

@@ -24,13 +24,15 @@ import {
   isOutsideProgrammingPlanSample,
   isProgrammingPlanSample,
   PartialSample,
-  PartialSampleMatrixSpecificData,
   PartialSampleToCreate,
   prescriptionSubstancesCheck,
   sampleMatrixCheck,
-  SampleMatrixData,
-  SampleMatrixSpecificDataPPV
+  SampleMatrixData
 } from 'maestro-shared/schema/Sample/Sample';
+import {
+  PartialSampleMatrixSpecificData,
+  SampleMatrixSpecificDataPPV
+} from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import {
   forwardRef,
   ReactNode,

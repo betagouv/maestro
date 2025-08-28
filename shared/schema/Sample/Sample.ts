@@ -2,10 +2,6 @@ import { isNil, uniqBy } from 'lodash-es';
 
 import { CheckFn } from 'zod/dist/types/v4/core';
 import { z } from 'zod/v4';
-import { AnimalKind, AnimalKindAgeLimit } from '../../referential/AnimalKind';
-import { AnimalSex } from '../../referential/AnimalSex';
-import { BreedingMethod } from '../../referential/BreedingMethod';
-import { CultureKind } from '../../referential/CultureKind';
 import { Department } from '../../referential/Department';
 import { LegalContext } from '../../referential/LegalContext';
 import { Matrix, MatrixList } from '../../referential/Matrix/Matrix';
@@ -14,15 +10,9 @@ import {
   OtherMatrixKind
 } from '../../referential/Matrix/MatrixKind';
 import { MatrixLabels } from '../../referential/Matrix/MatrixLabels';
-import { MatrixPart } from '../../referential/Matrix/MatrixPart';
-import { OutdoorAccess } from '../../referential/OutdoorAccess';
-import { ProductionKind } from '../../referential/ProductionKind';
 import { Region } from '../../referential/Region';
 import { SSD2Id } from '../../referential/Residue/SSD2Id';
-import { Seizure } from '../../referential/Seizure';
-import { Species } from '../../referential/Species';
 import { Stage } from '../../referential/Stage';
-import { TargetingCriteria } from '../../referential/TargetingCriteria';
 import { isDefined } from '../../utils/utils';
 import { Company } from '../Company/Company';
 import {
@@ -30,9 +20,12 @@ import {
   OutsideProgrammingPlanContext,
   ProgrammingPlanContext
 } from '../ProgrammingPlan/Context';
-import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
-import { BaseUser } from '../User/User';
+import { Sampler } from '../User/User';
 import { PartialSampleItem, SampleItem } from './SampleItem';
+import {
+  PartialSampleMatrixSpecificData,
+  SampleMatrixSpecificData
+} from './SampleMatrixSpecificData';
 import { SampleStatus } from './SampleStatus';
 
 export const Geolocation = z.object(
@@ -45,153 +38,6 @@ export const Geolocation = z.object(
       isNil(issue.input)
         ? 'Veuillez renseigner la localisation.'
         : issue.message
-  }
-);
-
-const Sampler = BaseUser.pick({
-  id: true,
-  firstName: true,
-  lastName: true
-});
-
-const KillingCode = z
-  .string({
-    error: (issue) =>
-      isNil(issue.input) ? 'Veuillez renseigner le code tuerie.' : issue.message
-  })
-  .min(1, 'Veuillez renseigner le code tuerie.');
-
-const AnimalIdentifier = z
-  .string({
-    error: (issue) =>
-      isNil(issue.input)
-        ? "Veuillez renseigner l'identifiant du lot ou de l'animal."
-        : issue.message
-  })
-  .min(1, "Veuillez renseigner l'identifiant du lot ou de l'animal.");
-
-const AnimalAge = z.coerce
-  .number({ error: "Veuillez renseigner l'âge de l'animal." })
-  .int()
-  .nonnegative();
-
-type AnimalAge = z.infer<typeof AnimalAge>;
-
-export const animalKindAgeCheck: CheckFn<{
-  animalKind: AnimalKind;
-  age: AnimalAge;
-}> = (ctx) => {
-  const val = ctx.value;
-  const ageLimit = AnimalKindAgeLimit[val.animalKind];
-  if (
-    (ageLimit?.min && Number(val.age) < ageLimit.min) ||
-    (ageLimit?.max && Number(val.age) > ageLimit.max)
-  ) {
-    ctx.issues.push({
-      code: 'custom',
-      message: `Cet âge n'est pas autorisé pour le type d'animal sélectionné.`,
-      path: ['specificData', 'age'],
-      input: val
-    });
-  }
-};
-
-export const SampleMatrixSpecificDataPPV = z.object({
-  programmingPlanKind: z.literal(ProgrammingPlanKind.enum.PPV),
-  matrixDetails: z.string().nullish(),
-  matrixPart: MatrixPart,
-  cultureKind: CultureKind,
-  releaseControl: z.boolean().nullish()
-});
-
-const SampleMatrixSpecificDataPFAS = z
-  .object({
-    programmingPlanKind: z
-      .literal(ProgrammingPlanKind.enum.PFAS_EGGS)
-      .or(z.literal(ProgrammingPlanKind.enum.PFAS_MEAT)),
-    species: Species,
-    targetingCriteria: TargetingCriteria,
-    notesOnTargetingCriteria: z.string().nullish(),
-    animalKind: AnimalKind,
-    animalIdentifier: AnimalIdentifier,
-    breedingMethod: BreedingMethod,
-    age: AnimalAge,
-    sex: AnimalSex,
-    seizure: Seizure.nullish(),
-    outdoorAccess: OutdoorAccess
-  })
-  .check(animalKindAgeCheck);
-
-export const SampleMatrixSpecificDataPFASEggs =
-  SampleMatrixSpecificDataPFAS.extend({
-    programmingPlanKind: z.literal(ProgrammingPlanKind.enum.PFAS_EGGS)
-  });
-
-export const SampleMatrixSpecificDataPFASMeat =
-  SampleMatrixSpecificDataPFAS.extend({
-    programmingPlanKind: z.literal(ProgrammingPlanKind.enum.PFAS_MEAT),
-    killingCode: KillingCode,
-    productionKind: ProductionKind
-  });
-
-const SampleMatrixSpecificDataDAOA = z.object({
-  programmingPlanKind: z
-    .literal(ProgrammingPlanKind.enum.DAOA_SLAUGHTER)
-    .or(z.literal(ProgrammingPlanKind.enum.DAOA_BREEDING)),
-  killingCode: KillingCode,
-  animalIdentifier: AnimalIdentifier
-});
-
-export const SampleMatrixSpecificDataDAOABreeding =
-  SampleMatrixSpecificDataDAOA.extend({
-    programmingPlanKind: z.literal(ProgrammingPlanKind.enum.DAOA_BREEDING),
-    species: Species
-  });
-
-export const SampleMatrixSpecificDataDAOASlaughter =
-  SampleMatrixSpecificDataDAOA.extend({
-    programmingPlanKind: z.literal(ProgrammingPlanKind.enum.DAOA_SLAUGHTER),
-    animalKind: AnimalKind,
-    productionKind: ProductionKind,
-    sex: AnimalSex,
-    age: AnimalAge
-  });
-
-export const SampleMatrixSpecificData = z.discriminatedUnion(
-  'programmingPlanKind',
-  [
-    SampleMatrixSpecificDataPPV,
-    SampleMatrixSpecificDataPFASEggs,
-    SampleMatrixSpecificDataPFASMeat,
-    SampleMatrixSpecificDataDAOABreeding,
-    SampleMatrixSpecificDataDAOASlaughter
-  ],
-  {
-    error: () => 'Veuillez renseigner le type de plan.'
-  }
-);
-
-const PartialSampleMatrixSpecificData = z.discriminatedUnion(
-  'programmingPlanKind',
-  [
-    SampleMatrixSpecificDataPPV.partial().required({
-      programmingPlanKind: true
-    }),
-    SampleMatrixSpecificDataPFASEggs.partial().required({
-      programmingPlanKind: true
-    }),
-    SampleMatrixSpecificDataPFASMeat.partial().required({
-      programmingPlanKind: true
-    }),
-    SampleMatrixSpecificDataDAOABreeding.partial().required({
-      programmingPlanKind: true
-    }),
-    SampleMatrixSpecificDataDAOASlaughter.partial().required({
-      programmingPlanKind: true
-    })
-  ],
-  {
-    error: () => 'Veuillez renseigner le type de plan.'
   }
 );
 
@@ -380,7 +226,6 @@ export const Sample = SampleBase.check(
   sampleMatrixCheck
 );
 
-export type Sampler = z.infer<typeof Sampler>;
 export type Geolocation = z.infer<typeof Geolocation>;
 export type SampleContextData = z.infer<typeof SampleContextData>;
 export type SampleMatrixData = z.infer<typeof SampleMatrixData>;
@@ -392,10 +237,6 @@ export type PartialSample = z.infer<typeof PartialSample>;
 export type SampleToCreate = z.infer<typeof SampleToCreate>;
 export type SampleBase = z.infer<typeof SampleBase>;
 export type Sample = z.infer<typeof Sample>;
-export type SampleMatrixSpecificData = z.infer<typeof SampleMatrixSpecificData>;
-export type PartialSampleMatrixSpecificData = z.infer<
-  typeof PartialSampleMatrixSpecificData
->;
 
 export const isCreatedPartialSample = (
   partialSample?: PartialSample | PartialSampleToCreate
