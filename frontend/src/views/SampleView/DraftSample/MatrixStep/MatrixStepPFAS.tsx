@@ -47,13 +47,15 @@ import {
 } from 'maestro-shared/referential/TargetingCriteria';
 import {
   PartialSample,
-  PartialSampleMatrixSpecificData,
   PartialSampleToCreate,
   prescriptionSubstancesCheck,
-  SampleMatrixData,
+  SampleMatrixData
+} from 'maestro-shared/schema/Sample/Sample';
+import {
+  PartialSampleMatrixSpecificData,
   SampleMatrixSpecificDataPFASEggs,
   SampleMatrixSpecificDataPFASMeat
-} from 'maestro-shared/schema/Sample/Sample';
+} from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import {
   forwardRef,
   ReactNode,

@@ -2,11 +2,6 @@ import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import { isNil } from 'lodash-es';
-import {
-  CultureKind,
-  CultureKindLabels,
-  CultureKindList
-} from 'maestro-shared/referential/CultureKind';
 import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
 import {
   MatrixKind,
@@ -14,11 +9,6 @@ import {
 } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
-import {
-  MatrixPart,
-  MatrixPartLabels,
-  MatrixPartList
-} from 'maestro-shared/referential/Matrix/MatrixPart';
 import { Stage } from 'maestro-shared/referential/Stage';
 import {
   isOutsideProgrammingPlanSample,
@@ -29,12 +19,10 @@ import {
   sampleMatrixCheck,
   SampleMatrixData
 } from 'maestro-shared/schema/Sample/Sample';
-import {
-  PartialSampleMatrixSpecificData,
-  SampleMatrixSpecificDataPPV
-} from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
+import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import {
   forwardRef,
+  Fragment,
   ReactNode,
   useImperativeHandle,
   useMemo,
@@ -46,39 +34,37 @@ import {
   selectOptionsFromList
 } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
+import { JSONSchema } from 'zod/dist/types/v4/core/json-schema';
 import { unknown, z } from 'zod/v4';
+import AppRadioButtons from '../../../../components/_app/AppRadioButtons/AppRadioButtons';
 import AppSearchInput from '../../../../components/_app/AppSearchInput/AppSearchInput';
 import AppTextAreaInput from '../../../../components/_app/AppTextAreaInput/AppTextAreaInput';
 import SubstanceSearch from '../../../../components/SubstanceSearch/SubstanceSearch';
 import { useForm } from '../../../../hooks/useForm';
+import { MatrixSpecificDataForm } from './MatrixSpecificDataForm';
+import {
+  MatrixSpecificDataFormInputs,
+  SampleMatrixSpecificDataKeys
+} from './MatrixSpecificDataFormInputs';
 import { MatrixStepRef } from './MatrixStep';
 
-const SampleMatrixPPVData = SampleMatrixData.omit({
+const SampleMatrixBaseData = SampleMatrixData.omit({
   documentIds: true,
   laboratoryId: true
-}).extend({
-  specificData: SampleMatrixSpecificDataPPV
 });
 
-type SampleMatrixPPVData = z.infer<typeof SampleMatrixPPVData>;
-
-export type PartialSamplePPV = (PartialSample | PartialSampleToCreate) & {
-  specificData: Extract<
-    PartialSampleMatrixSpecificData,
-    { programmingPlanKind: 'PPV' }
-  >;
-};
+type SampleMatrixBaseData = z.infer<typeof SampleMatrixBaseData>;
 
 type Props = {
-  partialSample: PartialSamplePPV;
+  partialSample: PartialSample | PartialSampleToCreate;
   matrixKindOptions: AppSelectOption[];
   stageOptions: AppSelectOption[];
-  onSave: (sampleMatrixData: SampleMatrixPPVData) => Promise<void>;
+  onSave: (sampleMatrixFormData: SampleMatrixBaseData) => Promise<void>;
   onSubmit: () => Promise<void>;
   renderSampleAttachments?: () => ReactNode;
 };
 
-const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
+const MatrixStepGeneric = forwardRef<MatrixStepRef, Props>(
   (
     {
       partialSample,
@@ -96,19 +82,6 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
     const [notesOnMatrix, setNotesOnMatrix] = useState(
       partialSample.notesOnMatrix
     );
-
-    const [matrixDetails, setMatrixDetails] = useState(
-      partialSample.specificData.matrixDetails
-    );
-    const [matrixPart, setMatrixPart] = useState(
-      partialSample.specificData.matrixPart
-    );
-    const [cultureKind, setCultureKind] = useState(
-      partialSample.specificData.cultureKind
-    );
-    const [releaseControl, setReleaseControl] = useState(
-      partialSample.specificData.releaseControl
-    );
     const [monoSubstances, setMonoSubstances] = useState(
       partialSample.monoSubstances ?? null
     );
@@ -116,15 +89,8 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
       partialSample.multiSubstances ?? null
     );
 
-    const specificData = useMemo(
-      () => ({
-        programmingPlanKind: 'PPV',
-        matrixPart,
-        matrixDetails,
-        cultureKind,
-        releaseControl
-      }),
-      [matrixPart, matrixDetails, cultureKind, releaseControl]
+    const [specificData, setSpecificData] = useState(
+      partialSample.specificData
     );
 
     const save = async () =>
@@ -136,10 +102,13 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
         notesOnMatrix,
         monoSubstances,
         multiSubstances
-      } as SampleMatrixPPVData);
+      } as SampleMatrixBaseData);
 
     const form = useForm(
-      SampleMatrixPPVData.check(prescriptionSubstancesCheck, sampleMatrixCheck),
+      SampleMatrixBaseData.check(
+        prescriptionSubstancesCheck,
+        sampleMatrixCheck
+      ),
       {
         matrixKind,
         matrix,
@@ -161,6 +130,18 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
         });
       }
     }));
+
+    const jsonSchema = useMemo(
+      () =>
+        z
+          .toJSONSchema(SampleMatrixSpecificData)
+          .anyOf?.find(
+            (schema) =>
+              (schema.properties?.programmingPlanKind as JSONSchema).const ===
+              specificData.programmingPlanKind
+          ) as JSONSchema,
+      [specificData.programmingPlanKind]
+    );
 
     return (
       <>
@@ -266,61 +247,192 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
           </div>
         </div>
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={cx('fr-col-12')}>
-            <AppTextInput
-              defaultValue={matrixDetails ?? ''}
-              onChange={(e) => setMatrixDetails(e.target.value)}
-              inputForm={form}
-              inputKey="specificData"
-              inputPathFromKey={['matrixDetails']}
-              whenValid="Détail de la matrice correctement renseigné."
-              data-testid="matrixdetails-input"
-              label="Détail de la matrice"
-              hintText="Champ facultatif pour précisions supplémentaires"
-            />
-          </div>
-          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-            <AppSelect
-              defaultValue={cultureKind ?? ''}
-              options={selectOptionsFromList(CultureKindList, {
-                labels: CultureKindLabels,
-                defaultLabel: 'Sélectionner un type de culture'
-              })}
-              onChange={(e) => setCultureKind(e.target.value as CultureKind)}
-              inputForm={form}
-              inputKey="specificData"
-              inputPathFromKey={['cultureKind']}
-              whenValid="Type de culture correctement renseigné."
-              data-testid="culturekind-select"
-              label="Type de culture"
-              required
-            />
-          </div>
-          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-            <AppSelect
-              defaultValue={matrixPart ?? ''}
-              options={selectOptionsFromList(MatrixPartList, {
-                labels: MatrixPartLabels,
-                defaultLabel: 'Sélectionner une partie du végétal'
-              })}
-              onChange={(e) => setMatrixPart(e.target.value as MatrixPart)}
-              inputForm={form}
-              inputKey="specificData"
-              inputPathFromKey={['matrixPart']}
-              whenValid="Partie du végétal correctement renseignée."
-              data-testid="matrixpart-select"
-              label="LMR / Partie du végétal concernée"
-              required
-            />
-          </div>
-          <div className={cx('fr-col-12', 'fr-mt-2w')}>
-            <ToggleSwitch
-              label="Contrôle libératoire"
-              checked={releaseControl ?? false}
-              onChange={(checked) => setReleaseControl(checked)}
-              showCheckedHint={false}
-            />
-          </div>
+          {(
+            Object.entries(
+              MatrixSpecificDataForm[specificData.programmingPlanKind]
+            ) as [SampleMatrixSpecificDataKeys, { order: number }][]
+          )
+            .sort((a, b) => a[1].order - b[1].order)
+            .map(([key]) => (
+              <Fragment key={key}>
+                {(() => {
+                  switch (MatrixSpecificDataFormInputs[key].inputType) {
+                    case 'text':
+                      return (
+                        <div className={cx('fr-col-12')}>
+                          <AppTextInput
+                            defaultValue={(specificData as any)[key] ?? ''}
+                            onChange={(e) =>
+                              setSpecificData((prev) => ({
+                                ...prev,
+                                [key]: e.target.value
+                              }))
+                            }
+                            inputForm={form}
+                            inputKey="specificData"
+                            inputPathFromKey={[key]}
+                            label={
+                              MatrixSpecificDataFormInputs[key].label ?? key
+                            }
+                            hintText={
+                              MatrixSpecificDataFormInputs[key].hintText
+                            }
+                            whenValid={
+                              MatrixSpecificDataFormInputs[key].whenValid ??
+                              'Champ correctement renseigné.'
+                            }
+                            required={jsonSchema.required?.includes(key)}
+                            data-testid={
+                              MatrixSpecificDataFormInputs[key].testId
+                            }
+                          />
+                        </div>
+                      );
+
+                    case 'textarea':
+                      return (
+                        <div className={cx('fr-col-12')}>
+                          <AppTextAreaInput
+                            defaultValue={(specificData as any)[key] ?? ''}
+                            onChange={(e) =>
+                              setSpecificData((prev) => ({
+                                ...prev,
+                                [key]: e.target.value
+                              }))
+                            }
+                            inputForm={form}
+                            inputKey="specificData"
+                            inputPathFromKey={[key]}
+                            label={
+                              MatrixSpecificDataFormInputs[key].label ?? key
+                            }
+                            hintText={
+                              MatrixSpecificDataFormInputs[key].hintText
+                            }
+                            whenValid={
+                              MatrixSpecificDataFormInputs[key].whenValid ??
+                              'Champ correctement renseigné.'
+                            }
+                            required={jsonSchema.required?.includes(key)}
+                            data-testid={
+                              MatrixSpecificDataFormInputs[key].testId
+                            }
+                          />
+                        </div>
+                      );
+
+                    case 'select':
+                      return (
+                        <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+                          <AppSelect
+                            defaultValue={(specificData as any)[key] ?? ''}
+                            options={selectOptionsFromList(
+                              ((jsonSchema.properties?.[key] as JSONSchema)
+                                .enum as string[]) ?? [],
+                              {
+                                labels:
+                                  MatrixSpecificDataFormInputs[key]
+                                    .optionsLabels,
+                                defaultLabel:
+                                  MatrixSpecificDataFormInputs[key]
+                                    .defaultOptionLabel
+                              }
+                            )}
+                            onChange={(e) =>
+                              setSpecificData((prev) => ({
+                                ...prev,
+                                [key]: e.target.value
+                              }))
+                            }
+                            inputForm={form}
+                            inputKey="specificData"
+                            inputPathFromKey={[key]}
+                            label={
+                              MatrixSpecificDataFormInputs[key].label ?? key
+                            }
+                            whenValid={
+                              MatrixSpecificDataFormInputs[key].whenValid ??
+                              'Champ correctement renseigné.'
+                            }
+                            required={jsonSchema.required?.includes(key)}
+                            data-testid={
+                              MatrixSpecificDataFormInputs[key].testId
+                            }
+                          />
+                        </div>
+                      );
+
+                    case 'checkbox':
+                      return (
+                        <div className={cx('fr-col-12', 'fr-mt-2w')}>
+                          <ToggleSwitch
+                            label={
+                              MatrixSpecificDataFormInputs[key].label ?? key
+                            }
+                            checked={Boolean((specificData as any)[key])}
+                            onChange={(checked) =>
+                              setSpecificData((prev) => ({
+                                ...prev,
+                                [key]: checked
+                              }))
+                            }
+                            showCheckedHint={false}
+                            data-testid={
+                              MatrixSpecificDataFormInputs[key].testId
+                            }
+                          />
+                        </div>
+                      );
+
+                    case 'radio':
+                      return (
+                        <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+                          <AppRadioButtons
+                            legend={
+                              MatrixSpecificDataFormInputs[key].label ?? key
+                            }
+                            options={
+                              selectOptionsFromList(
+                                ((jsonSchema.properties?.[key] as JSONSchema)
+                                  .enum as string[]) ?? [],
+                                {
+                                  labels:
+                                    MatrixSpecificDataFormInputs[key]
+                                      .optionsLabels,
+                                  withDefault: false
+                                }
+                              ).map(({ label, value }) => ({
+                                key: `${MatrixSpecificDataFormInputs[key].testId}-option-${value}`,
+                                label,
+                                nativeInputProps: {
+                                  checked: (specificData as any)[key] === value,
+                                  onChange: () =>
+                                    setSpecificData((prev) => ({
+                                      ...prev,
+                                      [key]: value
+                                    }))
+                                }
+                              })) ?? []
+                            }
+                            colSm={MatrixSpecificDataFormInputs[key].colSm}
+                            inputForm={form}
+                            inputKey="specificData"
+                            inputPathFromKey={[key]}
+                            required={jsonSchema.required?.includes(key)}
+                            data-testid={
+                              MatrixSpecificDataFormInputs[key].testId
+                            }
+                          />
+                        </div>
+                      );
+
+                    default:
+                      return null;
+                  }
+                })()}
+              </Fragment>
+            ))}
+
           {!isProgrammingPlanSample(partialSample) && (
             <>
               <div className={cx('fr-col-12', 'fr-mt-2w', 'fr-pb-1v')}>
@@ -414,4 +526,4 @@ const MatrixStepPPV = forwardRef<MatrixStepRef, Props>(
   }
 );
 
-export default MatrixStepPPV;
+export default MatrixStepGeneric;

@@ -15,7 +15,7 @@ import { ResidueCompliance } from 'maestro-shared/schema/Analysis/Residue/Residu
 import { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 import { type DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/Sample';
+import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { MaestroDate } from 'maestro-shared/utils/date';
 

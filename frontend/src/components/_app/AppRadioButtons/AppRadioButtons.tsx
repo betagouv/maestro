@@ -1,6 +1,6 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import RadioButtons from '@codegouvfr/react-dsfr/RadioButtons';
-import { ComponentPropsWithoutRef } from 'react';
+import { ComponentPropsWithoutRef, useEffect } from 'react';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
 import { UseForm } from 'src/hooks/useForm';
 import { z, ZodObject } from 'zod/v4';
@@ -36,6 +36,13 @@ function AppRadioButtons<T extends ZodObject>(
     radioButtonsProps.options.find(
       (options) => options.illustration !== undefined
     ) !== undefined;
+
+  useEffect(() => {
+    if (radioButtonsProps.options.length === 1) {
+      // @ts-expect-error TS2345
+      radioButtonsProps.options[0].nativeInputProps?.onChange?.();
+    }
+  }, [radioButtonsProps.options]);
 
   return (
     <RadioButtons
