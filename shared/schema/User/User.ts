@@ -11,7 +11,7 @@ import {
   UserRolePermissions
 } from './UserRole';
 
-export const BaseUser = z.object({
+const BaseUser = z.object({
   id: z.guid(),
   email: z.string().email(),
   firstName: z.string(),
@@ -40,7 +40,6 @@ export const Sampler = BaseUser.pick({
   lastName: true
 });
 
-export type BaseUser = z.infer<typeof BaseUser>;
 export type User = z.infer<typeof User>;
 export type Sampler = z.infer<typeof Sampler>;
 

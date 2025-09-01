@@ -12,12 +12,6 @@ export type ProgrammingPlanKind = z.infer<typeof ProgrammingPlanKind>;
 export const ProgrammingPlanKindList: ProgrammingPlanKind[] =
   ProgrammingPlanKind.options;
 
-export const PFASKindList: ProgrammingPlanKind[] = ['PFAS_EGGS', 'PFAS_MEAT'];
-export const DAOAKindList: ProgrammingPlanKind[] = [
-  'DAOA_BREEDING',
-  'DAOA_SLAUGHTER'
-];
-
 export const ProgrammingPlanKindLabels: Record<ProgrammingPlanKind, string> = {
   PPV: 'Production primaire végétale',
   PFAS_EGGS: 'PFAS - Oeuf à l’élevage ou en centre d’emballage',

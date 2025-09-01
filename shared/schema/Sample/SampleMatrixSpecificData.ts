@@ -37,7 +37,7 @@ const AnimalAge = z.coerce
 
 type AnimalAge = z.infer<typeof AnimalAge>;
 
-export const animalKindAgeCheck: CheckFn<{
+const animalKindAgeCheck: CheckFn<{
   animalKind: AnimalKind;
   age: AnimalAge;
 }> = (ctx) => {
@@ -56,7 +56,7 @@ export const animalKindAgeCheck: CheckFn<{
   }
 };
 
-export const SampleMatrixSpecificDataPPV = z.object({
+const SampleMatrixSpecificDataPPV = z.object({
   programmingPlanKind: z.literal(ProgrammingPlanKind.enum.PPV),
   matrixDetails: z.string().nullish(),
   cultureKind: CultureKind,
@@ -82,17 +82,15 @@ const SampleMatrixSpecificDataPFAS = z
   })
   .check(animalKindAgeCheck);
 
-export const SampleMatrixSpecificDataPFASEggs =
-  SampleMatrixSpecificDataPFAS.extend({
-    programmingPlanKind: z.literal(ProgrammingPlanKind.enum.PFAS_EGGS)
-  });
+const SampleMatrixSpecificDataPFASEggs = SampleMatrixSpecificDataPFAS.extend({
+  programmingPlanKind: z.literal(ProgrammingPlanKind.enum.PFAS_EGGS)
+});
 
-export const SampleMatrixSpecificDataPFASMeat =
-  SampleMatrixSpecificDataPFAS.extend({
-    programmingPlanKind: z.literal(ProgrammingPlanKind.enum.PFAS_MEAT),
-    killingCode: KillingCode,
-    productionKind: ProductionKind
-  });
+const SampleMatrixSpecificDataPFASMeat = SampleMatrixSpecificDataPFAS.extend({
+  programmingPlanKind: z.literal(ProgrammingPlanKind.enum.PFAS_MEAT),
+  killingCode: KillingCode,
+  productionKind: ProductionKind
+});
 
 const SampleMatrixSpecificDataDAOA = z.object({
   programmingPlanKind: z
@@ -103,13 +101,13 @@ const SampleMatrixSpecificDataDAOA = z.object({
   productionMethod: ProductionMethod
 });
 
-export const SampleMatrixSpecificDataDAOABreeding =
+const SampleMatrixSpecificDataDAOABreeding =
   SampleMatrixSpecificDataDAOA.extend({
     programmingPlanKind: z.literal(ProgrammingPlanKind.enum.DAOA_BREEDING),
     species: Species
   });
 
-export const SampleMatrixSpecificDataDAOASlaughter =
+const SampleMatrixSpecificDataDAOASlaughter =
   SampleMatrixSpecificDataDAOA.extend({
     programmingPlanKind: z.literal(ProgrammingPlanKind.enum.DAOA_SLAUGHTER),
     animalKind: AnimalKind,
