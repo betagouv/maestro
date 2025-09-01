@@ -704,7 +704,8 @@ const girpaReferences: Record<string, SSD2Id> = {
   valifenalate: 'RF-1057-001-PPP',
   vamidothion: 'RF-0969-001-PPP',
   vinclozolin: 'RF-0450-003-PPP',
-  zoxamide: 'RF-0452-001-PPP'
+  zoxamide: 'RF-0452-001-PPP',
+  'zoxamide according reg.': 'RF-0452-001-PPP'
 };
 
 const codeMethods = ['M1', 'M26', 'M3', 'M18', 'M21', 'M23', 'M27'] as const;
