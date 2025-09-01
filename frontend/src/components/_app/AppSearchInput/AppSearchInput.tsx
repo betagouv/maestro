@@ -38,7 +38,7 @@ const AppSearchInput = ({
   inputProps
 }: Props) => {
   useEffect(() => {
-    if (options.length === 1) {
+    if (options.length === 1 && options[0].value !== value) {
       onSelect(options[0].value);
     }
   }, [options, onSelect]);

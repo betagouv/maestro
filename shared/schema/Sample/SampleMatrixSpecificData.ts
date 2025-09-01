@@ -8,6 +8,7 @@ import { CultureKind } from '../../referential/CultureKind';
 import { MatrixPart } from '../../referential/Matrix/MatrixPart';
 import { OutdoorAccess } from '../../referential/OutdoorAccess';
 import { ProductionKind } from '../../referential/ProductionKind';
+import { ProductionMethod } from '../../referential/ProductionMethod';
 import { Seizure } from '../../referential/Seizure';
 import { Species } from '../../referential/Species';
 import { TargetingCriteria } from '../../referential/TargetingCriteria';
@@ -98,7 +99,8 @@ const SampleMatrixSpecificDataDAOA = z.object({
     .literal(ProgrammingPlanKind.enum.DAOA_SLAUGHTER)
     .or(z.literal(ProgrammingPlanKind.enum.DAOA_BREEDING)),
   killingCode: KillingCode,
-  animalIdentifier: AnimalIdentifier
+  animalIdentifier: AnimalIdentifier,
+  productionMethod: ProductionMethod
 });
 
 export const SampleMatrixSpecificDataDAOABreeding =

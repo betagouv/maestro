@@ -135,19 +135,19 @@ const MatrixStepGeneric = forwardRef<MatrixStepRef, Props>(
       }
     }));
 
-    const jsonSchema = useMemo(
+    const requiredInputs = useMemo(
       () =>
-        z
-          .toJSONSchema(SampleMatrixSpecificData)
-          .anyOf?.find(
-            (schema) =>
-              (schema.properties?.programmingPlanKind as JSONSchema).const ===
-              specificData.programmingPlanKind
-          ) as JSONSchema,
+        (
+          z
+            .toJSONSchema(SampleMatrixSpecificData)
+            .anyOf?.find(
+              (schema) =>
+                (schema.properties?.programmingPlanKind as JSONSchema).const ===
+                specificData.programmingPlanKind
+            ) as JSONSchema
+        ).required ?? [],
       [specificData.programmingPlanKind]
     );
-
-    console.log('jsonSchema.properties', jsonSchema.properties);
 
     const renderFormInput = ({
       inputKey,
@@ -188,7 +188,7 @@ const MatrixStepGeneric = forwardRef<MatrixStepRef, Props>(
                       MatrixSpecificDataFormInputs[inputKey].whenValid ??
                       'Champ correctement renseigné.'
                     }
-                    required={jsonSchema.required?.includes(inputKey)}
+                    required={requiredInputs.includes(inputKey)}
                     data-testid={MatrixSpecificDataFormInputs[inputKey].testId}
                   />
                 </div>
@@ -217,7 +217,7 @@ const MatrixStepGeneric = forwardRef<MatrixStepRef, Props>(
                       MatrixSpecificDataFormInputs[inputKey].whenValid ??
                       'Champ correctement renseigné.'
                     }
-                    required={jsonSchema.required?.includes(inputKey)}
+                    required={requiredInputs.includes(inputKey)}
                     min={0}
                     data-testid={MatrixSpecificDataFormInputs[inputKey].testId}
                   />
@@ -251,7 +251,7 @@ const MatrixStepGeneric = forwardRef<MatrixStepRef, Props>(
                       MatrixSpecificDataFormInputs[inputKey].whenValid ??
                       'Champ correctement renseigné.'
                     }
-                    required={jsonSchema.required?.includes(inputKey)}
+                    required={requiredInputs.includes(inputKey)}
                     rows={MatrixSpecificDataFormInputs[inputKey].rows ?? 3}
                     data-testid={MatrixSpecificDataFormInputs[inputKey].testId}
                   />
@@ -269,12 +269,13 @@ const MatrixStepGeneric = forwardRef<MatrixStepRef, Props>(
                   <AppSelect
                     defaultValue={(specificData as any)[inputKey] ?? ''}
                     options={selectOptionsFromList(
-                      ((jsonSchema.properties?.[inputKey] as JSONSchema)
-                        ?.enum ??
-                        (
-                          jsonSchema.properties?.[inputKey] as JSONSchema
-                        )?.anyOf?.find((_) => !isNil(_.enum))?.enum ??
-                        []) as string[],
+                      Array.isArray(
+                        MatrixSpecificDataFormInputs[inputKey].optionsValues
+                      )
+                        ? MatrixSpecificDataFormInputs[inputKey].optionsValues
+                        : (MatrixSpecificDataFormInputs[inputKey].optionsValues[
+                            specificData.programmingPlanKind
+                          ] ?? []),
                       {
                         labels:
                           MatrixSpecificDataFormInputs[inputKey].optionsLabels,
@@ -299,7 +300,7 @@ const MatrixStepGeneric = forwardRef<MatrixStepRef, Props>(
                       MatrixSpecificDataFormInputs[inputKey].whenValid ??
                       'Champ correctement renseigné.'
                     }
-                    required={jsonSchema.required?.includes(inputKey)}
+                    required={requiredInputs.includes(inputKey)}
                     data-testid={MatrixSpecificDataFormInputs[inputKey].testId}
                   />
                 </div>
@@ -344,8 +345,14 @@ const MatrixStepGeneric = forwardRef<MatrixStepRef, Props>(
                     }
                     options={
                       selectOptionsFromList(
-                        ((jsonSchema.properties?.[inputKey] as JSONSchema)
-                          .enum as string[]) ?? [],
+                        Array.isArray(
+                          MatrixSpecificDataFormInputs[inputKey].optionsValues
+                        )
+                          ? MatrixSpecificDataFormInputs[inputKey].optionsValues
+                          : (MatrixSpecificDataFormInputs[inputKey]
+                              .optionsValues[
+                              specificData.programmingPlanKind
+                            ] ?? []),
                         {
                           labels:
                             MatrixSpecificDataFormInputs[inputKey]
@@ -369,7 +376,7 @@ const MatrixStepGeneric = forwardRef<MatrixStepRef, Props>(
                     inputForm={form}
                     inputKey="specificData"
                     inputPathFromKey={[inputKey]}
-                    required={jsonSchema.required?.includes(inputKey)}
+                    required={requiredInputs.includes(inputKey)}
                     data-testid={MatrixSpecificDataFormInputs[inputKey].testId}
                   />
                 </div>

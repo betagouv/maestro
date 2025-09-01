@@ -71,7 +71,8 @@ export const MatrixSpecificDataForm: {
   DAOA_BREEDING: {
     killingCode: { order: 1 },
     animalIdentifier: { order: 2 },
-    species: { order: 3 }
+    species: { order: 3 },
+    productionMethod: { order: 4 }
   },
   DAOA_SLAUGHTER: {
     killingCode: { order: 1 },
@@ -79,6 +80,7 @@ export const MatrixSpecificDataForm: {
     animalKind: { order: 3 },
     productionKind: { order: 4 },
     sex: { order: 5 },
-    age: { order: 6 }
+    productionMethod: { order: 6 },
+    age: { order: 7 }
   }
 };

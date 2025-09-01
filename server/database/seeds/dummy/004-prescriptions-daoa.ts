@@ -13,7 +13,7 @@ const foie_de_bovin = genPrescription({
   programmingPlanKind: 'DAOA_SLAUGHTER',
   context: 'Surveillance',
   matrixKind: 'TODO1',
-  stages: ['STADE13', 'STADE14', 'STADE15']
+  stages: ['STADE10']
 });
 const volaille = genPrescription({
   id: '608d0973-b472-4964-a8d7-246f91ad4d39',
@@ -21,7 +21,7 @@ const volaille = genPrescription({
   programmingPlanKind: 'DAOA_BREEDING',
   context: 'Surveillance',
   matrixKind: 'TODO2',
-  stages: ['STADE13', 'STADE14', 'STADE15']
+  stages: ['STADE10']
 });
 
 export const seed = async function () {

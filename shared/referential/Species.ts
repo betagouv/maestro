@@ -30,7 +30,7 @@ export const Species = z.enum(
 
 export type Species = z.infer<typeof Species>;
 
-//TODO mettre à jour la codification arpès ESP7
+//TODO mettre à jour la codification après ESP7
 export const SpeciesLabels: Record<Species, string> = {
   ESP1: 'Bovin',
   ESP2: 'Ovin',
