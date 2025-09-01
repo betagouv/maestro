@@ -128,6 +128,7 @@ export const analysisHandler = async (
   residues.forEach((r) => {
     if (
       r.result_kind !== 'ND' &&
+      !!r.ssd2Id &&
       !LmrIsValid({
         stage: sampleStage,
         specificData: sampleSpecificData,
@@ -136,7 +137,10 @@ export const analysisHandler = async (
         lmr: r.result_kind === 'Q' ? r.lmr : null
       })
     ) {
-      throw new ExtractError(`Le résidu ${r.ssd2Id} n'a pas de LMR`);
+      throw new ExtractError(
+        //@ts-expect-error TS7053
+        `Le résidu ${SSD2Referential[r.ssd2Id].name} ${r.ssd2Id} n'a pas de LMR`
+      );
     }
   });
 
