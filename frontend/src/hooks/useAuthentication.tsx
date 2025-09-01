@@ -84,7 +84,7 @@ export const useAuthentication = () => {
           hasUserPermission('administrationMaestro') ? 'AdminRoute' : undefined
         ].filter(isDefined)
       : ['LoginRoute', 'LoginCallbackRoute'];
-  }, [isAuthenticated, hasUserPermission]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, hasUserPermission]);
 
   return {
     user: authUser?.user,

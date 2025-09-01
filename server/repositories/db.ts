@@ -10,4 +10,3 @@ export const initKnex = () => {
   setKnexInstance(knex(cloneDeep(knexConfig)));
 };
 export { knexInstance };
-

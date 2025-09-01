@@ -3,7 +3,6 @@ import { RegionList } from 'maestro-shared/referential/Region';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import { genAuthUser } from 'maestro-shared/test/userFixtures';
 import { expect, fn, within } from 'storybook/test';
-import { undefined } from 'zod';
 import { MuiDsfrThemeProvider } from '../../App';
 import { getMockApi } from '../../services/mockApiClient';
 import Header from './Header';

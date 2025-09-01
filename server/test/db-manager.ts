@@ -53,8 +53,8 @@ class DbManager {
       }
     );
 
-    console.log(output.stdout); // eslint-disable-line no-console
-    console.log(output.stderr); // eslint-disable-line no-console
+    console.log(output.stdout);
+    console.log(output.stderr);
   }
 
   private getKnex(url: string): Knex {
