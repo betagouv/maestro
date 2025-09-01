@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AcquittementNonAcquittement schemavalidation="AcquittementNonAcquittement.xsd">
+  <MessageParametres>
+    <CodeScenario>E.D.I. SIGAL/LABOS</CodeScenario>
+    <VersionScenario>1.0.1</VersionScenario>
+    <TypeFichier>AN01</TypeFichier>
+    <NomFichier>AN011111</NomFichier>
+    <VersionReferenceStandardisees>DS01111</VersionReferenceStandardisees>
+    <VersionReferencePrescripteur>RP01111</VersionReferencePrescripteur>
+    <NomLogicielCreation>SIGAL</NomLogicielCreation>
+    <VersionLogicielCreation>4.0</VersionLogicielCreation>
+    <CodeReferentielPrescripteur>SIGAL</CodeReferentielPrescripteur>
+  </MessageParametres>
+  <Emetteur>
+    <Sigle>DD</Sigle>
+    <LibellePartenaire>DD</LibellePartenaire>
+    <EmailPartenaire>example@agriculture.gouv.fr</EmailPartenaire>
+  </Emetteur>
+  <Destinataire>
+    <Sigle>LPP</Sigle>
+    <LibellePartenaire>LLP</LibellePartenaire>
+    <EmailPartenaire>email@test.ts</EmailPartenaire>
+  </Destinataire>
+  <MessageAcquittement>
+    <NomFichier>RA01111</NomFichier>
+    <DateAcquittement>2023-01-05T21:21:34</DateAcquittement>
+  </MessageAcquittement>
+  <MessageAcquittement>
+    <NomFichier>RA01112</NomFichier>
+    <DateAcquittement>2023-01-05T21:21:33</DateAcquittement>
+  </MessageAcquittement>
+</AcquittementNonAcquittement>
+
