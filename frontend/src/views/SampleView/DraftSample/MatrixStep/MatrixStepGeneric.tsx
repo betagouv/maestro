@@ -1,6 +1,7 @@
 import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
+import clsx from 'clsx';
 import { isNil } from 'lodash-es';
 import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
 import {
@@ -41,7 +42,10 @@ import AppSearchInput from '../../../../components/_app/AppSearchInput/AppSearch
 import AppTextAreaInput from '../../../../components/_app/AppTextAreaInput/AppTextAreaInput';
 import SubstanceSearch from '../../../../components/SubstanceSearch/SubstanceSearch';
 import { useForm } from '../../../../hooks/useForm';
-import { MatrixSpecificDataForm } from './MatrixSpecificDataForm';
+import {
+  MatrixSpecificDataForm,
+  MatrixSpecificDataFormInputProps
+} from './MatrixSpecificDataForm';
 import {
   MatrixSpecificDataFormInputs,
   SampleMatrixSpecificDataKeys
@@ -143,9 +147,257 @@ const MatrixStepGeneric = forwardRef<MatrixStepRef, Props>(
       [specificData.programmingPlanKind]
     );
 
+    console.log('jsonSchema.properties', jsonSchema.properties);
+
+    const renderFormInput = ({
+      inputKey,
+      inputProps
+    }: {
+      inputKey: SampleMatrixSpecificDataKeys;
+      inputProps: MatrixSpecificDataFormInputProps;
+    }) => (
+      <Fragment key={inputKey}>
+        {inputProps.preTitle && (
+          <div className={cx('fr-col-12', 'fr-pt-3w', 'fr-pb-0')}>
+            <span className={cx('fr-text--md', 'fr-text--bold')}>
+              {inputProps.preTitle}
+            </span>
+          </div>
+        )}
+        {(() => {
+          switch (MatrixSpecificDataFormInputs[inputKey].inputType) {
+            case 'text':
+              return (
+                <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+                  <AppTextInput
+                    defaultValue={(specificData as any)[inputKey] ?? ''}
+                    onChange={(e) =>
+                      setSpecificData((prev) => ({
+                        ...prev,
+                        [inputKey]: e.target.value
+                      }))
+                    }
+                    inputForm={form}
+                    inputKey="specificData"
+                    inputPathFromKey={[inputKey]}
+                    label={
+                      MatrixSpecificDataFormInputs[inputKey].label ?? inputKey
+                    }
+                    hintText={MatrixSpecificDataFormInputs[inputKey].hintText}
+                    whenValid={
+                      MatrixSpecificDataFormInputs[inputKey].whenValid ??
+                      'Champ correctement renseigné.'
+                    }
+                    required={jsonSchema.required?.includes(inputKey)}
+                    data-testid={MatrixSpecificDataFormInputs[inputKey].testId}
+                  />
+                </div>
+              );
+
+            case 'number':
+              return (
+                <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+                  <AppTextInput
+                    type="number"
+                    defaultValue={(specificData as any)[inputKey] ?? ''}
+                    onChange={(e) =>
+                      setSpecificData((prev) => ({
+                        ...prev,
+                        [inputKey]: e.target.value
+                      }))
+                    }
+                    inputForm={form}
+                    inputKey="specificData"
+                    inputPathFromKey={[inputKey]}
+                    label={
+                      MatrixSpecificDataFormInputs[inputKey].label ?? inputKey
+                    }
+                    hintText={MatrixSpecificDataFormInputs[inputKey].hintText}
+                    whenValid={
+                      MatrixSpecificDataFormInputs[inputKey].whenValid ??
+                      'Champ correctement renseigné.'
+                    }
+                    required={jsonSchema.required?.includes(inputKey)}
+                    min={0}
+                    data-testid={MatrixSpecificDataFormInputs[inputKey].testId}
+                  />
+                </div>
+              );
+
+            case 'textarea':
+              return (
+                <div
+                  className={clsx(
+                    cx('fr-col-12', 'fr-col-sm-6'),
+                    inputProps.classes?.container
+                  )}
+                >
+                  <AppTextAreaInput
+                    defaultValue={(specificData as any)[inputKey] ?? ''}
+                    onChange={(e) =>
+                      setSpecificData((prev) => ({
+                        ...prev,
+                        [inputKey]: e.target.value
+                      }))
+                    }
+                    inputForm={form}
+                    inputKey="specificData"
+                    inputPathFromKey={[inputKey]}
+                    label={
+                      MatrixSpecificDataFormInputs[inputKey].label ?? inputKey
+                    }
+                    hintText={MatrixSpecificDataFormInputs[inputKey].hintText}
+                    whenValid={
+                      MatrixSpecificDataFormInputs[inputKey].whenValid ??
+                      'Champ correctement renseigné.'
+                    }
+                    required={jsonSchema.required?.includes(inputKey)}
+                    rows={MatrixSpecificDataFormInputs[inputKey].rows ?? 3}
+                    data-testid={MatrixSpecificDataFormInputs[inputKey].testId}
+                  />
+                </div>
+              );
+
+            case 'select':
+              return (
+                <div
+                  className={clsx(
+                    cx('fr-col-12', 'fr-col-sm-6'),
+                    inputProps.classes?.container
+                  )}
+                >
+                  <AppSelect
+                    defaultValue={(specificData as any)[inputKey] ?? ''}
+                    options={selectOptionsFromList(
+                      ((jsonSchema.properties?.[inputKey] as JSONSchema)
+                        ?.enum ??
+                        (
+                          jsonSchema.properties?.[inputKey] as JSONSchema
+                        )?.anyOf?.find((_) => !isNil(_.enum))?.enum ??
+                        []) as string[],
+                      {
+                        labels:
+                          MatrixSpecificDataFormInputs[inputKey].optionsLabels,
+                        defaultLabel:
+                          MatrixSpecificDataFormInputs[inputKey]
+                            .defaultOptionLabel
+                      }
+                    )}
+                    onChange={(e) =>
+                      setSpecificData((prev) => ({
+                        ...prev,
+                        [inputKey]: e.target.value
+                      }))
+                    }
+                    inputForm={form}
+                    inputKey="specificData"
+                    inputPathFromKey={[inputKey]}
+                    label={
+                      MatrixSpecificDataFormInputs[inputKey].label ?? inputKey
+                    }
+                    whenValid={
+                      MatrixSpecificDataFormInputs[inputKey].whenValid ??
+                      'Champ correctement renseigné.'
+                    }
+                    required={jsonSchema.required?.includes(inputKey)}
+                    data-testid={MatrixSpecificDataFormInputs[inputKey].testId}
+                  />
+                </div>
+              );
+
+            case 'checkbox':
+              return (
+                <div
+                  className={clsx(
+                    cx('fr-col-12', 'fr-col-sm-6', 'fr-mt-2w'),
+                    inputProps.classes?.container
+                  )}
+                >
+                  <ToggleSwitch
+                    label={
+                      MatrixSpecificDataFormInputs[inputKey].label ?? inputKey
+                    }
+                    checked={Boolean((specificData as any)[inputKey])}
+                    onChange={(checked) =>
+                      setSpecificData((prev) => ({
+                        ...prev,
+                        [inputKey]: checked
+                      }))
+                    }
+                    showCheckedHint={false}
+                    data-testid={MatrixSpecificDataFormInputs[inputKey].testId}
+                  />
+                </div>
+              );
+
+            case 'radio':
+              return (
+                <div
+                  className={clsx(
+                    cx('fr-col-12', 'fr-col-sm-6'),
+                    inputProps.classes?.container
+                  )}
+                >
+                  <AppRadioButtons
+                    legend={
+                      MatrixSpecificDataFormInputs[inputKey].label ?? inputKey
+                    }
+                    options={
+                      selectOptionsFromList(
+                        ((jsonSchema.properties?.[inputKey] as JSONSchema)
+                          .enum as string[]) ?? [],
+                        {
+                          labels:
+                            MatrixSpecificDataFormInputs[inputKey]
+                              .optionsLabels,
+                          withDefault: false
+                        }
+                      ).map(({ label, value }) => ({
+                        key: `${MatrixSpecificDataFormInputs[inputKey].testId}-option-${value}`,
+                        label,
+                        nativeInputProps: {
+                          checked: (specificData as any)[inputKey] === value,
+                          onChange: () =>
+                            setSpecificData((prev) => ({
+                              ...prev,
+                              [inputKey]: value
+                            }))
+                        }
+                      })) ?? []
+                    }
+                    colSm={MatrixSpecificDataFormInputs[inputKey].colSm}
+                    inputForm={form}
+                    inputKey="specificData"
+                    inputPathFromKey={[inputKey]}
+                    required={jsonSchema.required?.includes(inputKey)}
+                    data-testid={MatrixSpecificDataFormInputs[inputKey].testId}
+                  />
+                </div>
+              );
+
+            default:
+              return null;
+          }
+        })()}
+      </Fragment>
+    );
+
     return (
       <>
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+          {(
+            Object.entries(
+              MatrixSpecificDataForm[specificData.programmingPlanKind]
+            ) as [
+              SampleMatrixSpecificDataKeys,
+              MatrixSpecificDataFormInputProps
+            ][]
+          )
+            .filter(([_, inputProps]) => inputProps.position === 'pre')
+            .sort((a, b) => a[1].order - b[1].order)
+            .map(([inputKey, inputProps]) =>
+              renderFormInput({ inputKey, inputProps })
+            )}
           <div className={cx('fr-col-12', 'fr-col-sm-6')}>
             <AppSearchInput
               value={matrixKind ?? ''}
@@ -245,193 +497,19 @@ const MatrixStepGeneric = forwardRef<MatrixStepRef, Props>(
               required
             />
           </div>
-        </div>
-        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           {(
             Object.entries(
               MatrixSpecificDataForm[specificData.programmingPlanKind]
-            ) as [SampleMatrixSpecificDataKeys, { order: number }][]
+            ) as [
+              SampleMatrixSpecificDataKeys,
+              MatrixSpecificDataFormInputProps
+            ][]
           )
+            .filter(([_, inputProps]) => inputProps.position !== 'pre')
             .sort((a, b) => a[1].order - b[1].order)
-            .map(([key]) => (
-              <Fragment key={key}>
-                {(() => {
-                  switch (MatrixSpecificDataFormInputs[key].inputType) {
-                    case 'text':
-                      return (
-                        <div className={cx('fr-col-12')}>
-                          <AppTextInput
-                            defaultValue={(specificData as any)[key] ?? ''}
-                            onChange={(e) =>
-                              setSpecificData((prev) => ({
-                                ...prev,
-                                [key]: e.target.value
-                              }))
-                            }
-                            inputForm={form}
-                            inputKey="specificData"
-                            inputPathFromKey={[key]}
-                            label={
-                              MatrixSpecificDataFormInputs[key].label ?? key
-                            }
-                            hintText={
-                              MatrixSpecificDataFormInputs[key].hintText
-                            }
-                            whenValid={
-                              MatrixSpecificDataFormInputs[key].whenValid ??
-                              'Champ correctement renseigné.'
-                            }
-                            required={jsonSchema.required?.includes(key)}
-                            data-testid={
-                              MatrixSpecificDataFormInputs[key].testId
-                            }
-                          />
-                        </div>
-                      );
-
-                    case 'textarea':
-                      return (
-                        <div className={cx('fr-col-12')}>
-                          <AppTextAreaInput
-                            defaultValue={(specificData as any)[key] ?? ''}
-                            onChange={(e) =>
-                              setSpecificData((prev) => ({
-                                ...prev,
-                                [key]: e.target.value
-                              }))
-                            }
-                            inputForm={form}
-                            inputKey="specificData"
-                            inputPathFromKey={[key]}
-                            label={
-                              MatrixSpecificDataFormInputs[key].label ?? key
-                            }
-                            hintText={
-                              MatrixSpecificDataFormInputs[key].hintText
-                            }
-                            whenValid={
-                              MatrixSpecificDataFormInputs[key].whenValid ??
-                              'Champ correctement renseigné.'
-                            }
-                            required={jsonSchema.required?.includes(key)}
-                            data-testid={
-                              MatrixSpecificDataFormInputs[key].testId
-                            }
-                          />
-                        </div>
-                      );
-
-                    case 'select':
-                      return (
-                        <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-                          <AppSelect
-                            defaultValue={(specificData as any)[key] ?? ''}
-                            options={selectOptionsFromList(
-                              ((jsonSchema.properties?.[key] as JSONSchema)
-                                .enum as string[]) ?? [],
-                              {
-                                labels:
-                                  MatrixSpecificDataFormInputs[key]
-                                    .optionsLabels,
-                                defaultLabel:
-                                  MatrixSpecificDataFormInputs[key]
-                                    .defaultOptionLabel
-                              }
-                            )}
-                            onChange={(e) =>
-                              setSpecificData((prev) => ({
-                                ...prev,
-                                [key]: e.target.value
-                              }))
-                            }
-                            inputForm={form}
-                            inputKey="specificData"
-                            inputPathFromKey={[key]}
-                            label={
-                              MatrixSpecificDataFormInputs[key].label ?? key
-                            }
-                            whenValid={
-                              MatrixSpecificDataFormInputs[key].whenValid ??
-                              'Champ correctement renseigné.'
-                            }
-                            required={jsonSchema.required?.includes(key)}
-                            data-testid={
-                              MatrixSpecificDataFormInputs[key].testId
-                            }
-                          />
-                        </div>
-                      );
-
-                    case 'checkbox':
-                      return (
-                        <div className={cx('fr-col-12', 'fr-mt-2w')}>
-                          <ToggleSwitch
-                            label={
-                              MatrixSpecificDataFormInputs[key].label ?? key
-                            }
-                            checked={Boolean((specificData as any)[key])}
-                            onChange={(checked) =>
-                              setSpecificData((prev) => ({
-                                ...prev,
-                                [key]: checked
-                              }))
-                            }
-                            showCheckedHint={false}
-                            data-testid={
-                              MatrixSpecificDataFormInputs[key].testId
-                            }
-                          />
-                        </div>
-                      );
-
-                    case 'radio':
-                      return (
-                        <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-                          <AppRadioButtons
-                            legend={
-                              MatrixSpecificDataFormInputs[key].label ?? key
-                            }
-                            options={
-                              selectOptionsFromList(
-                                ((jsonSchema.properties?.[key] as JSONSchema)
-                                  .enum as string[]) ?? [],
-                                {
-                                  labels:
-                                    MatrixSpecificDataFormInputs[key]
-                                      .optionsLabels,
-                                  withDefault: false
-                                }
-                              ).map(({ label, value }) => ({
-                                key: `${MatrixSpecificDataFormInputs[key].testId}-option-${value}`,
-                                label,
-                                nativeInputProps: {
-                                  checked: (specificData as any)[key] === value,
-                                  onChange: () =>
-                                    setSpecificData((prev) => ({
-                                      ...prev,
-                                      [key]: value
-                                    }))
-                                }
-                              })) ?? []
-                            }
-                            colSm={MatrixSpecificDataFormInputs[key].colSm}
-                            inputForm={form}
-                            inputKey="specificData"
-                            inputPathFromKey={[key]}
-                            required={jsonSchema.required?.includes(key)}
-                            data-testid={
-                              MatrixSpecificDataFormInputs[key].testId
-                            }
-                          />
-                        </div>
-                      );
-
-                    default:
-                      return null;
-                  }
-                })()}
-              </Fragment>
-            ))}
+            .map(([inputKey, inputProps]) =>
+              renderFormInput({ inputKey, inputProps })
+            )}
 
           {!isProgrammingPlanSample(partialSample) && (
             <>

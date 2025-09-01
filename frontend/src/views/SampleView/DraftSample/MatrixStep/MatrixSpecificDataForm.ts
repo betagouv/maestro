@@ -1,3 +1,4 @@
+import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 
@@ -6,9 +7,18 @@ type ProgrammingPlanKeys<P extends ProgrammingPlanKind> = Exclude<
   'programmingPlanKind'
 >;
 
+export type MatrixSpecificDataFormInputProps = {
+  order: number;
+  preTitle?: string;
+  position?: 'pre' | 'post';
+  classes?: {
+    container?: string;
+  };
+};
+
 export const MatrixSpecificDataForm: {
   [P in ProgrammingPlanKind]: {
-    [K in ProgrammingPlanKeys<P>]: { order: number };
+    [K in ProgrammingPlanKeys<P>]: MatrixSpecificDataFormInputProps;
   };
 } = {
   PPV: {
@@ -18,10 +28,18 @@ export const MatrixSpecificDataForm: {
     releaseControl: { order: 4 }
   },
   PFAS_EGGS: {
-    species: { order: 1 },
+    species: {
+      order: 1,
+      position: 'pre',
+      classes: { container: cx('fr-col-offset-sm-6--right') }
+    },
     targetingCriteria: { order: 2 },
     notesOnTargetingCriteria: { order: 3 },
-    animalKind: { order: 4 },
+    animalKind: {
+      order: 4,
+      preTitle: 'Animal',
+      classes: { container: cx('fr-col-offset-sm-6--right') }
+    },
     animalIdentifier: { order: 5 },
     breedingMethod: { order: 6 },
     age: { order: 7 },
@@ -30,18 +48,25 @@ export const MatrixSpecificDataForm: {
     outdoorAccess: { order: 10 }
   },
   PFAS_MEAT: {
-    species: { order: 1 },
-    targetingCriteria: { order: 2 },
-    notesOnTargetingCriteria: { order: 3 },
-    animalKind: { order: 4 },
-    animalIdentifier: { order: 5 },
-    breedingMethod: { order: 6 },
-    age: { order: 7 },
-    sex: { order: 8 },
-    seizure: { order: 9 },
-    outdoorAccess: { order: 10 },
-    killingCode: { order: 11 },
-    productionKind: { order: 12 }
+    species: {
+      order: 1,
+      position: 'pre',
+      classes: { container: cx('fr-col-offset-sm-6--right') }
+    },
+    killingCode: { order: 2 },
+    targetingCriteria: { order: 3 },
+    notesOnTargetingCriteria: { order: 4 },
+    animalKind: {
+      order: 5,
+      preTitle: 'Animal'
+    },
+    productionKind: { order: 6 },
+    animalIdentifier: { order: 7 },
+    breedingMethod: { order: 8 },
+    age: { order: 9 },
+    sex: { order: 10 },
+    seizure: { order: 11 },
+    outdoorAccess: { order: 12 }
   },
   DAOA_BREEDING: {
     killingCode: { order: 1 },

@@ -21,7 +21,8 @@ export type SpecificDataFormInput = {
   whenValid: string;
   testId?: string;
 } & (
-  | { inputType: 'text' | 'textarea' | 'number'; hintText?: string }
+  | { inputType: 'text' | 'number'; hintText?: string }
+  | { inputType: 'textarea'; hintText?: string; rows?: number }
   | {
       inputType: 'select';
       optionsLabels?: Record<string, string>;
@@ -93,6 +94,7 @@ export const MatrixSpecificDataFormInputs: Record<
     inputType: 'textarea',
     label: 'Précisions critère de ciblage',
     whenValid: 'Précisions correctement renseignées.',
+    rows: 1,
     testId: 'notes-on-targeting-criteria-input'
   },
   animalKind: {
