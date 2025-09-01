@@ -1,6 +1,86 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`import une RAI example-rai-1.xml 1`] = `
+exports[`import un fichier de l'EDI Sacha RAI example-an-1.xml 1`] = `
+{
+  "AcquittementNonAcquittement": {
+    "Destinataire": {
+      "EmailPartenaire": "email@test.ts",
+      "LibellePartenaire": "LLP",
+      "Sigle": "LPP",
+    },
+    "Emetteur": {
+      "EmailPartenaire": "example@agriculture.gouv.fr",
+      "LibellePartenaire": "DD",
+      "Sigle": "DD",
+    },
+    "MessageAcquittement": [
+      {
+        "DateAcquittement": "2023-01-05T21:21:34",
+        "NomFichier": "RA01111",
+      },
+      {
+        "DateAcquittement": "2023-01-05T21:21:33",
+        "NomFichier": "RA01112",
+      },
+    ],
+    "MessageParametres": {
+      "CodeReferentielPrescripteur": "SIGAL",
+      "CodeScenario": "E.D.I. SIGAL/LABOS",
+      "NomFichier": "AN011111",
+      "NomLogicielCreation": "SIGAL",
+      "TypeFichier": "AN01",
+      "VersionLogicielCreation": "4.0",
+      "VersionReferencePrescripteur": "RP01111",
+      "VersionReferenceStandardisees": "DS01111",
+      "VersionScenario": "1.0.1",
+    },
+  },
+}
+`;
+
+exports[`import un fichier de l'EDI Sacha RAI example-an-2.xml 1`] = `
+{
+  "AcquittementNonAcquittement": {
+    "Destinataire": {
+      "EmailPartenaire": "email@test.ts",
+      "LibellePartenaire": "LVD",
+      "Sigle": "LVD",
+    },
+    "Emetteur": {
+      "EmailPartenaire": "example@agriculture.gouv.fr",
+      "LibellePartenaire": "DSEN",
+      "Sigle": "DSEN",
+    },
+    "MessageAcquittement": [
+      {
+        "DateAcquittement": "2023-01-20T09:22:53",
+        "NomFichier": "RA011111",
+      },
+    ],
+    "MessageNonAcquittement": [
+      {
+        "DateNonAcquittement": "2023-01-20T09:23:42",
+        "LibelleMotif": "Numéro DAP non défini en base. [1111]<DialogueResultatType><DialogueRetourInterventionAvecDAP><NumeroDAP>",
+        "NomFichier": "RA011112",
+        "TypeMotif": "INFO",
+      },
+    ],
+    "MessageParametres": {
+      "CodeReferentielPrescripteur": "SIGAL",
+      "CodeScenario": "E.D.I. SIGAL/LABOS",
+      "NomFichier": "AN011111",
+      "NomLogicielCreation": "SIGAL",
+      "TypeFichier": "AN01",
+      "VersionLogicielCreation": "4.0",
+      "VersionReferencePrescripteur": "RP011111",
+      "VersionReferenceStandardisees": "DS011111",
+      "VersionScenario": "1.0.1",
+    },
+  },
+}
+`;
+
+exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
 {
   "Resultats": {
     "Destinataire": {
@@ -2466,7 +2546,7 @@ exports[`import une RAI example-rai-1.xml 1`] = `
 }
 `;
 
-exports[`import une RAI example-rai-2.xml 1`] = `
+exports[`import un fichier de l'EDI Sacha RAI example-rai-2.xml 1`] = `
 {
   "Resultats": {
     "Destinataire": {

@@ -175,7 +175,7 @@ const referenceCommemoratifs = coerceToArray(
     Commentaire: z.string().optional()
   })
 ).optional();
-export const raiValidator = z.object({
+export const sachaValidator = z.object({
   DemandesAnalyses: z
     .intersection(
       z.object({
