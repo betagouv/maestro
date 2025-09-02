@@ -43,7 +43,7 @@ function AppSelect<T extends ZodObject>(props: AppSelectProps<T, UseForm<T>>) {
       } as unknown as React.ChangeEvent<HTMLSelectElement>;
       selectProps.onChange?.(event);
     }
-  }, [options, selectProps.onChange, selectProps.value]);
+  }, [options, selectProps]);
 
   return (
     <Select

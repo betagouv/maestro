@@ -310,7 +310,7 @@ const MatrixStep = ({ partialSample }: Props) => {
           defaultLabel: 'Sélectionner un stade'
         }
       ),
-    [partialSample, prescriptions]
+    [partialSample, prescriptions, specificData.programmingPlanKind, matrixKind]
   );
 
   return (

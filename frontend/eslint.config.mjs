@@ -5,7 +5,13 @@ import tseslint from 'typescript-eslint';
 import commonConfig from '../eslint.config.mjs';
 
 export default tseslint.config([
-  globalIgnores(['**/node_modules/', '**/build/', '**/public/', '**/dist/']),
+  globalIgnores([
+    '**/node_modules/',
+    '**/build/',
+    '**/public/',
+    '**/dist/',
+    '**/storybook-static/'
+  ]),
   commonConfig,
   reactHooks.configs['recommended-latest'],
   {
