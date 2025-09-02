@@ -8,6 +8,11 @@ export default tseslint.config([
   globalIgnores(['**/node_modules/', '**/build/', '**/public/', '**/dist/']),
   commonConfig,
   reactHooks.configs['recommended-latest'],
+  {
+    rules: {
+      'react-hooks/exhaustive-deps': 'error'
+    }
+  },
   ...storybook.configs['flat/recommended'],
   {
     rules: {
