@@ -8,7 +8,6 @@ type ProgrammingPlanKeys<P extends ProgrammingPlanKind> = Exclude<
 >;
 
 export type MatrixSpecificDataFormInputProps = {
-  order: number;
   preTitle?: string;
   position?: 'pre' | 'post';
   classes?: {
@@ -22,65 +21,61 @@ export const MatrixSpecificDataForm: {
   };
 } = {
   PPV: {
-    matrixDetails: { order: 1 },
-    cultureKind: { order: 2 },
-    matrixPart: { order: 3 },
-    releaseControl: { order: 4 }
+    matrixDetails: { classes: { container: cx('fr-col-sm-12', 'fr-pt-3w') } },
+    cultureKind: {},
+    matrixPart: {},
+    releaseControl: {}
   },
   PFAS_EGGS: {
     species: {
-      order: 1,
       position: 'pre',
       classes: { container: cx('fr-col-offset-sm-6--right') }
     },
-    targetingCriteria: { order: 2 },
-    notesOnTargetingCriteria: { order: 3 },
+    targetingCriteria: {},
+    notesOnTargetingCriteria: {},
     animalKind: {
-      order: 4,
       preTitle: 'Animal',
       classes: { container: cx('fr-col-offset-sm-6--right') }
     },
-    animalIdentifier: { order: 5 },
-    breedingMethod: { order: 6 },
-    age: { order: 7 },
-    sex: { order: 8 },
-    seizure: { order: 9 },
-    outdoorAccess: { order: 10 }
+    animalIdentifier: {},
+    breedingMethod: {},
+    age: {},
+    sex: {},
+    seizure: {},
+    outdoorAccess: {}
   },
   PFAS_MEAT: {
     species: {
-      order: 1,
       position: 'pre',
       classes: { container: cx('fr-col-offset-sm-6--right') }
     },
-    killingCode: { order: 2 },
-    targetingCriteria: { order: 3 },
-    notesOnTargetingCriteria: { order: 4 },
+    killingCode: {},
+    targetingCriteria: {},
+    notesOnTargetingCriteria: {},
     animalKind: {
-      order: 5,
       preTitle: 'Animal'
     },
-    productionKind: { order: 6 },
-    animalIdentifier: { order: 7 },
-    breedingMethod: { order: 8 },
-    age: { order: 9 },
-    sex: { order: 10 },
-    seizure: { order: 11 },
-    outdoorAccess: { order: 12 }
+    productionKind: {},
+    animalIdentifier: {},
+    breedingMethod: {},
+    age: {},
+    sex: {},
+    seizure: {},
+    outdoorAccess: {}
   },
   DAOA_BREEDING: {
-    killingCode: { order: 1 },
-    animalIdentifier: { order: 2 },
-    species: { order: 3 },
-    productionMethod: { order: 4 }
+    killingCode: {},
+    animalIdentifier: {},
+    species: {},
+    productionMethod: {}
   },
   DAOA_SLAUGHTER: {
-    killingCode: { order: 1 },
-    animalIdentifier: { order: 2 },
-    animalKind: { order: 3 },
-    productionKind: { order: 4 },
-    sex: { order: 5 },
-    productionMethod: { order: 6 },
-    age: { order: 7 }
+    killingCode: {},
+    animalIdentifier: {},
+    animalKind: {},
+    productionKind: {},
+    sex: {},
+    productionMethod: {},
+    age: {}
   }
 };
