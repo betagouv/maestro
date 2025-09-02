@@ -1,4 +1,3 @@
-import { fakerFR } from '@faker-js/faker';
 import { v4 as uuidv4 } from 'uuid';
 import { RegionList } from '../referential/Region';
 import { ProgrammingPlanContextList } from '../schema/ProgrammingPlan/Context';
@@ -13,7 +12,7 @@ export const genProgrammingPlan = (
   id: uuidv4(),
   kinds: ['PPV'],
   contexts: [oneOf(ProgrammingPlanContextList)],
-  samplesOutsidePlanAllowed: fakerFR.datatype.boolean(),
+  samplesOutsidePlanAllowed: true,
   createdAt: new Date(),
   createdBy: uuidv4(),
   regionalStatus: RegionList.map((region) => ({
