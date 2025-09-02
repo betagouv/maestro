@@ -38,7 +38,10 @@ function AppRadioButtons<T extends ZodObject>(
     ) !== undefined;
 
   useEffect(() => {
-    if (radioButtonsProps.options.length === 1) {
+    if (
+      radioButtonsProps.options.length === 1 &&
+      !radioButtonsProps.options[0].nativeInputProps.checked
+    ) {
       // @ts-expect-error TS2345
       radioButtonsProps.options[0].nativeInputProps?.onChange?.();
     }
