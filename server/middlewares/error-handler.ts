@@ -20,8 +20,6 @@ function respond(
   error: Error,
   _request: Request,
   response: Response,
-  // Needed because express bases itself on the number of arguments
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   next: Next
 ): void {
   if (response.headersSent) {

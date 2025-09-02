@@ -187,7 +187,7 @@ const ProgrammingPlanPrescriptionList = ({
       changePrescription(prescriptionId, {
         substances: prescriptionSubstances
       }),
-    [changePrescription] // eslint-disable-line react-hooks/exhaustive-deps
+    [changePrescription]
   );
 
   const updatePrescriptionStages = useCallback(
@@ -195,7 +195,7 @@ const ProgrammingPlanPrescriptionList = ({
       changePrescription(prescriptionId, {
         stages
       }),
-    [changePrescription] // eslint-disable-line react-hooks/exhaustive-deps
+    [changePrescription]
   );
 
   const updatePrescriptionNotes = useCallback(
@@ -203,7 +203,7 @@ const ProgrammingPlanPrescriptionList = ({
       changePrescription(prescriptionId, {
         notes
       }),
-    [changePrescription] // eslint-disable-line react-hooks/exhaustive-deps
+    [changePrescription]
   );
 
   const changeRegionalPrescription = useCallback(
@@ -229,7 +229,7 @@ const ProgrammingPlanPrescriptionList = ({
       changeRegionalPrescription(prescriptionId, region, {
         sampleCount: count
       }),
-    [changeRegionalPrescription] // eslint-disable-line react-hooks/exhaustive-deps
+    [changeRegionalPrescription]
   );
 
   const changeRegionalPrescriptionsLaboratory = useCallback(
@@ -243,7 +243,7 @@ const ProgrammingPlanPrescriptionList = ({
       );
       return;
     },
-    [changeRegionalPrescription, region] // eslint-disable-line react-hooks/exhaustive-deps
+    [changeRegionalPrescription, region]
   );
 
   return (

@@ -1,5 +1,5 @@
 import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
-import z from 'zod';
+import z from 'zod/v4';
 
 export const TrackEventCategory = z.enum([
   'geolocation',

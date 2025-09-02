@@ -47,7 +47,7 @@ const ProgrammingPlanPrescriptionTable = ({
         </div>
       ))
     ],
-    [] // eslint-disable-line react-hooks/exhaustive-deps
+    []
   );
 
   const prescriptionsData = useMemo(
