@@ -4,10 +4,7 @@ import {
   FindRegionalPrescriptionOptions,
   RegionalPrescriptionOptionsInclude
 } from 'maestro-shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
-import {
-  RegionalPrescription,
-  RegionalPrescriptionKey
-} from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
+import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import {
   InProgressStatusList,
   RealizedStatusList
@@ -21,14 +18,12 @@ const regionalPrescriptionsTable = 'regional_prescriptions';
 export const RegionalPrescriptions = () =>
   db<RegionalPrescription>(regionalPrescriptionsTable);
 
-const findUnique = async ({
-  prescriptionId,
-  region
-}: RegionalPrescriptionKey): Promise<RegionalPrescription | undefined> => {
-  console.info('Find regional prescription', prescriptionId, region);
+const findUnique = async (
+  id: string
+): Promise<RegionalPrescription | undefined> => {
+  console.info('Find regional prescription', id);
   return RegionalPrescriptions()
-    .where('prescriptionId', prescriptionId)
-    .where('region', region)
+    .where('id', id)
     .first()
     .then((_) => _ && RegionalPrescription.parse(omitBy(_, isNil)));
 };
@@ -102,20 +97,12 @@ const include = (opts?: FindRegionalPrescriptionOptions) => {
           )
         )
         .leftJoin(regionalPrescriptionCommentsTable, (query) =>
-          query
-            .on(
-              `${regionalPrescriptionCommentsTable}.prescription_id`,
-              `${regionalPrescriptionsTable}.prescription_id`
-            )
-            .andOn(
-              `${regionalPrescriptionCommentsTable}.region`,
-              `${regionalPrescriptionsTable}.region`
-            )
+          query.on(
+            `${regionalPrescriptionCommentsTable}.regional_prescription_id`,
+            `${regionalPrescriptionsTable}.id`
+          )
         )
-        .groupBy(
-          `${regionalPrescriptionsTable}.prescription_id`,
-          `${regionalPrescriptionsTable}.region`
-        );
+        .groupBy(`${regionalPrescriptionsTable}.id`);
     },
     sampleCounts: (query) => {
       query
@@ -169,8 +156,7 @@ const insertMany = async (regionalPrescriptions: RegionalPrescription[]) => {
 const update = async (regionalPrescription: RegionalPrescription) => {
   console.info('Update regional prescription', regionalPrescription);
   await RegionalPrescriptions()
-    .where('prescriptionId', regionalPrescription.prescriptionId)
-    .where('region', regionalPrescription.region)
+    .where('id', regionalPrescription.id)
     .update(regionalPrescription);
 };
 

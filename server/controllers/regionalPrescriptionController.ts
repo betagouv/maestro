@@ -5,6 +5,8 @@ import {
   RegionalPrescriptionRequest
 } from 'express-jwt';
 import { constants } from 'http2';
+import PrescriptionMissingError from 'maestro-shared/errors/prescriptionPlanMissingError';
+import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
 import {
   MatrixKind,
   MatrixKindLabels
@@ -13,7 +15,6 @@ import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks
 import { FindRegionalPrescriptionOptions } from 'maestro-shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import {
   hasRegionalPrescriptionPermission,
-  RegionalPrescriptionKey,
   RegionalPrescriptionUpdate
 } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import {
@@ -23,6 +24,8 @@ import {
 import { hasNationalRole } from 'maestro-shared/schema/User/User';
 import { isDefined } from 'maestro-shared/utils/utils';
 import { v4 as uuidv4 } from 'uuid';
+import prescriptionRepository from '../repositories/prescriptionRepository';
+import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import regionalPrescriptionCommentRepository from '../repositories/regionalPrescriptionCommentRepository';
 import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
 import { userRepository } from '../repositories/userRepository';
@@ -54,10 +57,9 @@ const updateRegionalPrescription = async (
   const { user } = request as AuthenticatedRequest;
   const { regionalPrescription } = request as RegionalPrescriptionRequest;
   const { programmingPlan } = request as PrescriptionRequest;
-  const { region, prescriptionId } = request.params as RegionalPrescriptionKey;
   const regionalPrescriptionUpdate = request.body as RegionalPrescriptionUpdate;
 
-  console.info('Update regional prescription', prescriptionId, region);
+  console.info('Update regional prescription', regionalPrescription.id);
 
   const canUpdateSampleCount = hasRegionalPrescriptionPermission(
     user,
@@ -97,14 +99,29 @@ const commentRegionalPrescription = async (
 ) => {
   const { user } = request as AuthenticatedRequest;
   const { regionalPrescription } = request as RegionalPrescriptionRequest;
-  const { prescription, programmingPlan } = request as PrescriptionRequest;
   const draftPrescriptionComment =
     request.body as RegionalPrescriptionCommentToCreate;
 
-  console.info(
-    'Comment regional prescription',
-    RegionalPrescriptionKey.parse(regionalPrescription)
+  console.info('Comment regional prescription', regionalPrescription.id);
+
+  const prescription = await prescriptionRepository.findUnique(
+    regionalPrescription.prescriptionId
   );
+
+  if (!prescription) {
+    throw new PrescriptionMissingError(regionalPrescription.prescriptionId);
+  }
+  const programmingPlan = await programmingPlanRepository.findUnique(
+    prescription.programmingPlanId
+  );
+
+  if (!programmingPlan) {
+    throw new ProgrammingPlanMissingError(prescription.programmingPlanId);
+  }
+
+  if (prescription.programmingPlanId !== programmingPlan.id) {
+    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+  }
 
   const canComment = hasRegionalPrescriptionPermission(
     user,
@@ -118,8 +135,7 @@ const commentRegionalPrescription = async (
 
   const prescriptionComment: RegionalPrescriptionComment = {
     id: uuidv4(),
-    prescriptionId: regionalPrescription.prescriptionId,
-    region: regionalPrescription.region,
+    regionalPrescriptionId: regionalPrescription.id,
     comment: draftPrescriptionComment.comment,
     createdAt: new Date(),
     createdBy: user.id

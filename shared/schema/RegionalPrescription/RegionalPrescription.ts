@@ -1,18 +1,22 @@
 import { sumBy } from 'lodash-es';
 import { z } from 'zod';
+import { Department } from '../../referential/Department';
 import { Region, RegionSort } from '../../referential/Region';
 import { Prescription } from '../Prescription/Prescription';
 import { ProgrammingPlan } from '../ProgrammingPlan/ProgrammingPlans';
 import { hasPermission, User, userRegions } from '../User/User';
 import { RegionalPrescriptionComment } from './RegionalPrescriptionComment';
 
-export const RegionalPrescriptionKey = z.object({
+export const RegionalPrescriptionUniqueKey = z.object({
   prescriptionId: z.guid(),
-  region: Region
+  region: Region,
+  department: Department.nullish()
 });
 
 export const RegionalPrescription = z.object({
-  ...RegionalPrescriptionKey.shape,
+  ...RegionalPrescriptionUniqueKey.shape,
+  id: z.guid(),
+  department: Department.nullish(),
   sampleCount: z.coerce.number(),
   laboratoryId: z.string().nullish(),
   comments: z
@@ -36,7 +40,9 @@ export const RegionalPrescriptionUpdate = RegionalPrescription.pick({
   .partial()
   .merge(Prescription.pick({ programmingPlanId: true }));
 
-export type RegionalPrescriptionKey = z.infer<typeof RegionalPrescriptionKey>;
+export type RegionalPrescriptionUniqueKey = z.infer<
+  typeof RegionalPrescriptionUniqueKey
+>;
 export type RegionalPrescription = z.infer<typeof RegionalPrescription>;
 export type RegionalPrescriptionUpdate = z.infer<
   typeof RegionalPrescriptionUpdate

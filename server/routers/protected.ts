@@ -36,7 +36,7 @@ protectedRouter.use('/documents', documentRouter);
 protectedRouter.use('/laboratories', laboratoryRouter);
 protectedRouter.use('/notifications', notificationRouter);
 protectedRouter.use('/prescriptions', prescriptionRouter);
-protectedRouter.use('/prescriptions', regionalPrescriptionRouter);
+protectedRouter.use('/prescriptions/regional', regionalPrescriptionRouter);
 protectedRouter.use('/users', userRouter);
 
 protectedRouter.get('/regions.geojson', (_req, res) => {

@@ -5,7 +5,7 @@ import { MatrixKindEffective } from 'maestro-shared/referential/Matrix/MatrixKin
 import { Region, RegionList } from 'maestro-shared/referential/Region';
 import {
   RegionalPrescription,
-  RegionalPrescriptionKey,
+  RegionalPrescriptionUniqueKey,
   RegionalPrescriptionUpdate
 } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import {
@@ -57,6 +57,21 @@ import { tokenProvider } from '../../test/testUtils';
 
 describe('Regional prescriptions router', () => {
   const { app } = createServer();
+
+  const getRegionalPrescription = (
+    regionalPrescriptions: RegionalPrescription[],
+    prescriptionId: string,
+    region: Region
+  ) =>
+    regionalPrescriptions.find((regionalPrescription) =>
+      isEqual(
+        RegionalPrescriptionUniqueKey.parse(regionalPrescription),
+        RegionalPrescriptionUniqueKey.parse({
+          prescriptionId,
+          region
+        })
+      )
+    ) as RegionalPrescription;
 
   const programmingPlanClosed = genProgrammingPlan({
     createdBy: NationalCoordinator.id,
@@ -142,16 +157,22 @@ describe('Regional prescriptions router', () => {
     }));
   const closedControlPrescriptionComment1: RegionalPrescriptionComment = {
     id: uuidv4(),
-    prescriptionId: closedControlPrescription.id,
-    region: RegionalCoordinator.region as Region,
+    regionalPrescriptionId: getRegionalPrescription(
+      closedControlRegionalPrescriptions,
+      closedControlPrescription.id,
+      RegionalCoordinator.region as Region
+    ).id,
     comment: fakerFR.string.alphanumeric(32),
     createdBy: RegionalCoordinator.id,
     createdAt: new Date()
   };
   const closedControlPrescriptionComment2: RegionalPrescriptionComment = {
     id: uuidv4(),
-    prescriptionId: closedControlPrescription.id,
-    region: RegionalCoordinator.region as Region,
+    regionalPrescriptionId: getRegionalPrescription(
+      closedControlRegionalPrescriptions,
+      closedControlPrescription.id,
+      RegionalCoordinator.region as Region
+    ).id,
     comment: fakerFR.string.alphanumeric(32),
     createdBy: NationalCoordinator.id,
     createdAt: new Date()
@@ -230,8 +251,8 @@ describe('Regional prescriptions router', () => {
     await Samples().delete().where('id', sample.id);
   });
 
-  describe('GET /prescriptions/regions', () => {
-    const testRoute = '/api/prescriptions/regions';
+  describe('GET /prescriptions/regional', () => {
+    const testRoute = '/api/prescriptions/regional';
 
     test('should fail if the user is not authenticated', async () => {
       await request(app)
@@ -333,30 +354,29 @@ describe('Regional prescriptions router', () => {
         expect.arrayContaining(
           closedControlRegionalPrescriptions.map((regionalPrescription) => ({
             ...regionalPrescription,
-            comments: isEqual(
-              RegionalPrescriptionKey.parse(regionalPrescription),
-              RegionalPrescriptionKey.parse(closedControlPrescriptionComment1)
-            )
-              ? expect.arrayContaining(
-                  [
-                    {
-                      id: closedControlPrescriptionComment1.id,
-                      comment: closedControlPrescriptionComment1.comment,
-                      createdBy: closedControlPrescriptionComment1.createdBy,
-                      createdAt: closedControlPrescriptionComment1.createdAt
-                    },
-                    {
-                      id: closedControlPrescriptionComment2.id,
-                      comment: closedControlPrescriptionComment2.comment,
-                      createdBy: closedControlPrescriptionComment2.createdBy,
-                      createdAt: closedControlPrescriptionComment2.createdAt
-                    }
-                  ].map(withISOStringDates)
-                )
-              : [],
+            comments:
+              regionalPrescription.id ===
+              closedControlPrescriptionComment1.regionalPrescriptionId
+                ? expect.arrayContaining(
+                    [
+                      {
+                        id: closedControlPrescriptionComment1.id,
+                        comment: closedControlPrescriptionComment1.comment,
+                        createdBy: closedControlPrescriptionComment1.createdBy,
+                        createdAt: closedControlPrescriptionComment1.createdAt
+                      },
+                      {
+                        id: closedControlPrescriptionComment2.id,
+                        comment: closedControlPrescriptionComment2.comment,
+                        createdBy: closedControlPrescriptionComment2.createdBy,
+                        createdAt: closedControlPrescriptionComment2.createdAt
+                      }
+                    ].map(withISOStringDates)
+                  )
+                : [],
             realizedSampleCount: isEqual(
-              RegionalPrescriptionKey.parse(regionalPrescription),
-              RegionalPrescriptionKey.parse(sample)
+              RegionalPrescriptionUniqueKey.parse(regionalPrescription),
+              RegionalPrescriptionUniqueKey.parse(sample)
             )
               ? 1
               : 0,
@@ -367,26 +387,20 @@ describe('Regional prescriptions router', () => {
     });
   });
 
-  describe('PUT /{prescriptionId}/regions/{region}', () => {
+  describe('PUT /prescriptions/regional', () => {
     const submittedRegionalPrescriptionUpdate: RegionalPrescriptionUpdate = {
       programmingPlanId: programmingPlanSubmitted.id,
       sampleCount: 10,
       laboratoryId: LaboratoryFixture.id
     };
-    const submittedRegionalPrescription =
-      submittedControlRegionalPrescriptions1.find((regionalPrescription) =>
-        isEqual(
-          RegionalPrescriptionKey.parse(regionalPrescription),
-          RegionalPrescriptionKey.parse({
-            prescriptionId: submittedControlPrescription1.id,
-            region: RegionalCoordinator.region as Region
-          })
-        )
-      ) as RegionalPrescription;
+    const submittedRegionalPrescription = getRegionalPrescription(
+      submittedControlRegionalPrescriptions1,
+      submittedControlPrescription1.id,
+      RegionalCoordinator.region as Region
+    );
     const testRoute = (
-      prescriptionId: string = submittedRegionalPrescription.prescriptionId,
-      region: string = submittedRegionalPrescription.region
-    ) => `/api/prescriptions/${prescriptionId}/regions/${region}`;
+      regionalPrescriptionId: string = submittedRegionalPrescription.id
+    ) => `/api/prescriptions/regional/${regionalPrescriptionId}`;
 
     test('should fail if the user is not authenticated', async () => {
       await request(app)
@@ -395,15 +409,9 @@ describe('Regional prescriptions router', () => {
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    test('should receive valid prescriptionId and region', async () => {
+    test('should receive valid regionalPrescriptionId ', async () => {
       await request(app)
         .put(testRoute(fakerFR.string.alphanumeric(32)))
-        .send(submittedRegionalPrescriptionUpdate)
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_BAD_REQUEST);
-
-      await request(app)
-        .put(testRoute(submittedControlPrescription1.id, 'invalid'))
         .send(submittedRegionalPrescriptionUpdate)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
@@ -463,13 +471,14 @@ describe('Regional prescriptions router', () => {
     });
 
     test('should fail if the programming plan is closed', async () => {
+      const closedRegionalPrescription = getRegionalPrescription(
+        closedControlRegionalPrescriptions,
+        closedControlPrescription.id,
+        RegionalCoordinator.region as Region
+      );
+
       await request(app)
-        .put(
-          testRoute(
-            closedControlPrescription.id,
-            RegionalCoordinator.region as string
-          )
-        )
+        .put(testRoute(closedRegionalPrescription.id))
         .send({
           ...submittedRegionalPrescriptionUpdate,
           programmingPlanId: programmingPlanClosed.id
@@ -492,11 +501,12 @@ describe('Regional prescriptions router', () => {
 
       await expect(
         RegionalPrescriptions()
-          .where(RegionalPrescriptionKey.parse(res.body))
+          .where('id', submittedRegionalPrescription.id)
           .first()
       ).resolves.toEqual({
         ...submittedRegionalPrescription,
-        sampleCount: submittedRegionalPrescriptionUpdate.sampleCount
+        sampleCount: submittedRegionalPrescriptionUpdate.sampleCount,
+        department: null
       });
 
       const res1 = await request(app)
@@ -515,16 +525,17 @@ describe('Regional prescriptions router', () => {
 
       await expect(
         RegionalPrescriptions()
-          .where(RegionalPrescriptionKey.parse(res.body))
+          .where('id', submittedRegionalPrescription.id)
           .first()
       ).resolves.toEqual({
         ...submittedRegionalPrescription,
-        sampleCount: 0
+        sampleCount: 0,
+        department: null
       });
 
       //Restore the initial value
       await RegionalPrescriptions()
-        .where(RegionalPrescriptionKey.parse(res.body))
+        .where('id', submittedRegionalPrescription.id)
         .update({ sampleCount: submittedRegionalPrescription.sampleCount });
     });
 
@@ -536,8 +547,8 @@ describe('Regional prescriptions router', () => {
       const validatedRegionalPrescription =
         validatedControlRegionalPrescriptions.find((regionalPrescription) =>
           isEqual(
-            RegionalPrescriptionKey.parse(regionalPrescription),
-            RegionalPrescriptionKey.parse({
+            RegionalPrescriptionUniqueKey.parse(regionalPrescription),
+            RegionalPrescriptionUniqueKey.parse({
               prescriptionId: validatedControlPrescription.id,
               region: RegionalCoordinator.region as Region
             })
@@ -545,12 +556,7 @@ describe('Regional prescriptions router', () => {
         ) as RegionalPrescription;
 
       const res = await request(app)
-        .put(
-          testRoute(
-            validatedRegionalPrescription.prescriptionId,
-            validatedRegionalPrescription.region
-          )
-        )
+        .put(testRoute(validatedRegionalPrescription.id))
         .send(validatedRegionalPrescriptionUpdate)
         .use(tokenProvider(RegionalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
@@ -562,26 +568,11 @@ describe('Regional prescriptions router', () => {
     });
   });
 
-  describe('POST /{prescriptionId}/regions/{region}/comments', () => {
+  describe('POST /prescriptions/regional/:regionalPrescriptionId/comments', () => {
     const validComment: RegionalPrescriptionCommentToCreate = {
       programmingPlanId: programmingPlanSubmitted.id,
       comment: fakerFR.string.alphanumeric(32)
     };
-
-    const getRegionalPrescription = (
-      regionalPrescriptions: RegionalPrescription[],
-      prescriptionId: string,
-      region: Region
-    ) =>
-      regionalPrescriptions.find((regionalPrescription) =>
-        isEqual(
-          RegionalPrescriptionKey.parse(regionalPrescription),
-          RegionalPrescriptionKey.parse({
-            prescriptionId,
-            region
-          })
-        )
-      ) as RegionalPrescription;
 
     const regionalSubmittedPrescription = getRegionalPrescription(
       submittedControlRegionalPrescriptions1,
@@ -590,9 +581,8 @@ describe('Regional prescriptions router', () => {
     );
 
     const testRoute = (
-      prescriptionId: string = regionalSubmittedPrescription.prescriptionId,
-      region: string = regionalSubmittedPrescription.region
-    ) => `/api/prescriptions/${prescriptionId}/regions/${region}/comments`;
+      regionalPrescriptionId: string = regionalSubmittedPrescription.id
+    ) => `/api/prescriptions/regional/${regionalPrescriptionId}/comments`;
 
     test('should fail if the user is not authenticated', async () => {
       await request(app)
@@ -617,7 +607,6 @@ describe('Regional prescriptions router', () => {
           .use(tokenProvider(RegionalCoordinator))
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
-      await badRequestTest();
       await badRequestTest({ programmingPlanId: undefined });
       await badRequestTest({
         programmingPlanId: fakerFR.string.alphanumeric(32)
@@ -650,8 +639,7 @@ describe('Regional prescriptions router', () => {
               submittedControlRegionalPrescriptions1,
               submittedControlPrescription1.id,
               Region2Fixture
-            ).prescriptionId,
-            Region2Fixture
+            ).id
           )
         )
         .send(validComment)
@@ -667,7 +655,7 @@ describe('Regional prescriptions router', () => {
               validatedControlRegionalPrescriptions,
               validatedControlPrescription.id,
               RegionalCoordinator.region as Region
-            ).prescriptionId
+            ).id
           )
         )
         .send({
@@ -687,8 +675,7 @@ describe('Regional prescriptions router', () => {
 
       expect(res.body).toMatchObject({
         id: expect.any(String),
-        prescriptionId: regionalSubmittedPrescription.prescriptionId,
-        region: regionalSubmittedPrescription.region,
+        regionalPrescriptionId: regionalSubmittedPrescription.id,
         comment: validComment.comment,
         createdBy: RegionalCoordinator.id,
         createdAt: expect.any(String)
@@ -696,12 +683,11 @@ describe('Regional prescriptions router', () => {
 
       await expect(
         RegionalPrescriptionComments()
-          .where(RegionalPrescriptionKey.parse(regionalSubmittedPrescription))
+          .where('regionalPrescriptionId', regionalSubmittedPrescription.id)
           .first()
       ).resolves.toMatchObject({
         id: res.body.id,
-        prescriptionId: res.body.prescriptionId,
-        region: res.body.region,
+        regionalPrescriptionId: regionalSubmittedPrescription.id,
         comment: validComment.comment,
         createdBy: RegionalCoordinator.id
       });
