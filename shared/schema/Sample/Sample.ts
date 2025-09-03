@@ -170,7 +170,7 @@ export const SampleOwnerData = z.object({
   notesOnOwnerAgreement: z.string().nullish()
 });
 
-export const PartialSampleMatrixData = z.object({
+const PartialSampleMatrixData = z.object({
   ...SampleMatrixData.partial().shape,
   matrixKind: z.union([MatrixKind, OtherMatrixKind]).nullish(),
   matrix: z.union([Matrix, z.string().nonempty()]).nullish(),
