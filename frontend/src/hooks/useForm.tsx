@@ -1,6 +1,6 @@
 import { isEqual } from 'lodash-es';
 import { useEffect, useState } from 'react';
-import { z, ZodObject } from 'zod/v4';
+import { z, ZodObject } from 'zod';
 
 type MessageType = 'error' | 'success' | 'default';
 

@@ -10,7 +10,7 @@ import {
   AppSelectOptionsGroup
 } from 'src/components/_app/AppSelect/AppSelectOption';
 import { UseForm } from 'src/hooks/useForm';
-import { z, ZodObject } from 'zod/v4';
+import { z, ZodObject } from 'zod';
 
 type AppSelectProps<T extends ZodObject, U extends UseForm<T>> = Partial<
   Pick<ComponentPropsWithoutRef<typeof Select>, 'label' | 'hint'>

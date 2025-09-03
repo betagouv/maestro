@@ -1,7 +1,7 @@
 import { isNil, uniqBy } from 'lodash-es';
 
-import { CheckFn } from 'zod/dist/types/v4/core';
-import { z } from 'zod/v4';
+import { z } from 'zod';
+import { CheckFn } from 'zod/v4/core';
 import { Department } from '../../referential/Department';
 import { LegalContext } from '../../referential/LegalContext';
 import { Matrix, MatrixList } from '../../referential/Matrix/Matrix';

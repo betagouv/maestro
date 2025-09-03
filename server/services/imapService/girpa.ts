@@ -2,7 +2,7 @@ import { XMLParser } from 'fast-xml-parser';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { maestroDate } from 'maestro-shared/utils/date';
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { ExtractError } from './extractError';
 import {
   ExportAnalysis,

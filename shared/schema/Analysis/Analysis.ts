@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { AnalysisStatus } from './AnalysisStatus';
 import { PartialResidue, Residue } from './Residue/Residue';
 

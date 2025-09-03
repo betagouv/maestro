@@ -7,7 +7,7 @@ import {
 import { User } from 'maestro-shared/schema/User/User';
 import { OmitDistributive } from 'maestro-shared/utils/typescript';
 import { v4 as uuidv4 } from 'uuid';
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import notificationRepository from '../repositories/notificationRepository';
 import config from '../utils/config';
 import { mailService } from './mailService';

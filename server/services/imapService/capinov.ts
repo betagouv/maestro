@@ -1,7 +1,7 @@
 import { groupBy } from 'lodash-es';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { ExtractError } from './extractError';
 import {
   ExportAnalysis,

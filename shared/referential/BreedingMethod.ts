@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 
 export const BreedingMethod = z.enum(['STAND', 'AUTREQUALIT', 'AGRIBIO'], {
   error: () => "Veuillez renseigner la méthode d'élevage."

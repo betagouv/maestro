@@ -3,7 +3,7 @@ import { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { PartialAnalyte } from 'maestro-shared/schema/Analysis/Analyte';
 import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { convertKeysToCamelCase } from 'maestro-shared/utils/utils';
-import z from 'zod/v4';
+import z from 'zod';
 import { knexInstance as db } from './db';
 import { kysely } from './kysely';
 import type { KyselyMaestro } from './kysely.type';

@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 
 export const ProgrammingPlanKind = z.enum(
   ['PPV', 'PFAS_EGGS', 'PFAS_MEAT', 'DAOA_BREEDING', 'DAOA_SLAUGHTER'],

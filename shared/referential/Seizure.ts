@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 
 export const Seizure = z.enum(['EMPTY', 'PARTIAL', 'TOTAL'], {
   error: () => 'Veuillez renseigner la saisie.'

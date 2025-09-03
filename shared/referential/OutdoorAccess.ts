@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 export const OutdoorAccess = z.enum(['PAT1', 'PAT0', 'PATINCO'], {
   error: () => "Veuillez renseigner l'accès à l'extérieur."
 });

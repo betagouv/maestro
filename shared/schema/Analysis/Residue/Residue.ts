@@ -1,6 +1,6 @@
 import { isNil } from 'lodash-es';
-import { CheckFn } from 'zod/dist/types/v4/core';
-import { z } from 'zod/v4';
+import { z } from 'zod';
+import { CheckFn } from 'zod/v4/core';
 import { OptionalBoolean } from '../../../referential/OptionnalBoolean';
 import { SSD2Id, SSD2Ids } from '../../../referential/Residue/SSD2Id';
 import { SSD2Referential } from '../../../referential/Residue/SSD2Referential';

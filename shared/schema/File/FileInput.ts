@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { FileType, FileTypeList } from './FileType';
 
 export const MaxFileSize = 20 * 1000 * 1000;

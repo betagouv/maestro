@@ -6,7 +6,7 @@ import {
 import { Brand } from 'maestro-shared/constants';
 import { User } from 'maestro-shared/schema/User/User';
 import { OpenAPIObject } from 'openapi3-ts/oas31';
-import { z } from 'zod/v4';
+import { z } from 'zod';
 
 extendZodWithOpenApi(z);
 

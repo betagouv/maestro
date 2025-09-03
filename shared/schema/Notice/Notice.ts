@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 
 export const Notice = z.object({
   type: z.enum(['root', 'dashboard']),

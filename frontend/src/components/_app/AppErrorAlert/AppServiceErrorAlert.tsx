@@ -1,7 +1,7 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { HttpError } from 'maestro-shared/errors/httpError';
-import { z } from 'zod/v4';
+import { z } from 'zod';
 
 type Props =
   | {

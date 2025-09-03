@@ -11,7 +11,7 @@ import {
   UnprotectedRoutes
 } from 'maestro-shared/routes/routes';
 import { User } from 'maestro-shared/schema/User/User';
-import z, { ZodObject, ZodRawShape, ZodType } from 'zod/v4';
+import z, { ZodObject, ZodRawShape, ZodType } from 'zod';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
 import validator, { body, query } from '../middlewares/validator';
 

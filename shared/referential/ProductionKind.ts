@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { ProgrammingPlanKind } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 
 export const ProductionKind = z.enum(['PROD_1', 'PROD_2', 'PROD_3', 'PROD_4'], {

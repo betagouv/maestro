@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { SSD2Id } from '../../referential/Residue/SSD2Id';
 import { ResultKind } from './Residue/ResultKind';
 

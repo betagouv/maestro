@@ -23,7 +23,7 @@ import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SampleItemDetails from 'src/views/SampleView/SampleItemDetails/SampleItemDetails';
 import SavedAlert from 'src/views/SampleView/SavedAlert';
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import AppServiceErrorAlert from '../../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import { useAnalytics } from '../../../../hooks/useAnalytics';
 import { ApiClientContext } from '../../../../services/apiClient';

@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { PartialSample } from '../schema/Sample/Sample';
 const CultureKindDeprecated = z.enum([
   'Z0211',

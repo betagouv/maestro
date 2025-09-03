@@ -41,7 +41,7 @@ import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SupportDocumentDownload from 'src/views/SampleView/DraftSample/SupportDocumentDownload';
 import SavedAlert from 'src/views/SampleView/SavedAlert';
-import { unknown, z } from 'zod/v4';
+import { unknown, z } from 'zod';
 import AppServiceErrorAlert from '../../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import AppSearchInput from '../../../../components/_app/AppSearchInput/AppSearchInput';
 import AppSelect from '../../../../components/_app/AppSelect/AppSelect';

@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
 import { maestroDate } from 'maestro-shared/utils/date';
 import XLSX, { WorkBook } from 'xlsx';
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { ExtractError } from '../extractError';
 import {
   ExportAnalysis,

@@ -15,7 +15,7 @@ import {
   SampleComplianceLabels
 } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { DepartmentsSelect } from '../../components/DepartmentsSelect/DepartmentsSelect';
 import { useAppSelector } from '../../hooks/useStore';
 

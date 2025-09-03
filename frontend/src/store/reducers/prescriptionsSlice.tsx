@@ -4,7 +4,7 @@ import { Region } from 'maestro-shared/referential/Region';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { RegionalPrescriptionComment } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionComment';
 import { PrescriptionListDisplay } from 'src/views/ProgrammingPlanView/ProgrammingPlanPrescriptionList/ProgrammingPlanPrescriptionList';
-import { z } from 'zod/v4';
+import { z } from 'zod';
 
 const PrescriptionCommentsData = z.discriminatedUnion('viewBy', [
   z.object({

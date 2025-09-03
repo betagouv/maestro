@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 
 export const AnalysisMethod = z.enum(['Mono', 'Multi'], {
   error: () => "Veuillez renseigner la méthode d'analyse."

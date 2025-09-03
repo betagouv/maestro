@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { DocumentKind } from './DocumentKind';
 export const FindDocumentOptions = z.object({
   kind: DocumentKind.nullish(),

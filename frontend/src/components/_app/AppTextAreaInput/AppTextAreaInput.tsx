@@ -2,7 +2,7 @@ import Input from '@codegouvfr/react-dsfr/Input';
 import { ComponentPropsWithoutRef, TextareaHTMLAttributes } from 'react';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
 import { UseForm } from 'src/hooks/useForm';
-import { z, ZodObject } from 'zod/v4';
+import { z, ZodObject } from 'zod';
 
 type AppTextInputProps<T extends ZodObject, U extends UseForm<T>> = Partial<
   Pick<

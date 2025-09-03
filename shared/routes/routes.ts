@@ -1,4 +1,4 @@
-import { ZodArray, ZodObject, ZodType } from 'zod/v4';
+import { ZodArray, ZodObject, ZodType } from 'zod';
 import { UserPermission } from '../schema/User/UserPermission';
 import { analysisRoutes } from './analysis.routes';
 import { noticesRoutes } from './notices.routes';

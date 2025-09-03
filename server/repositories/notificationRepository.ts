@@ -3,7 +3,7 @@ import { FindNotificationOptions } from 'maestro-shared/schema/Notification/Find
 import { Notification } from 'maestro-shared/schema/Notification/Notification';
 import { User } from 'maestro-shared/schema/User/User';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { knexInstance as db } from './db';
 import { usersTable } from './userRepository';
 const notificationTable = 'notifications';

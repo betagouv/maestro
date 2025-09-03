@@ -7,7 +7,7 @@ import {
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import { SampleListDisplay } from 'src/views/SampleListView/SampleListView';
-import { z } from 'zod/v4';
+import { z } from 'zod';
 
 const pendingSamples = JSON.parse(
   localStorage.getItem('pendingSamples') ?? '[]'

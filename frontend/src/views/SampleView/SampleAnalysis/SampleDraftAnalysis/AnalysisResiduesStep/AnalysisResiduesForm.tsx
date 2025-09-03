@@ -12,7 +12,7 @@ import {
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import React, { FunctionComponent, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { useForm } from '../../../../../hooks/useForm';
 import { AnalysisResidueForm } from './AnalysisResidueForm';
 
