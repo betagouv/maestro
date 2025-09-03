@@ -1,5 +1,5 @@
 import { intersection, isNil } from 'lodash-es';
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { Region, RegionList } from '../../referential/Region';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { UserPermission } from './UserPermission';

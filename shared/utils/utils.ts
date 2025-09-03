@@ -9,7 +9,7 @@ import {
   isDate,
   isPlainObject
 } from 'lodash-es';
-import { z } from 'zod/v4';
+import { z } from 'zod';
 
 export const isDefined = <A>(a: A | undefined): a is A => a !== undefined;
 

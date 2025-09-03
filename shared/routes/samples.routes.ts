@@ -1,4 +1,4 @@
-import z from 'zod/v4';
+import z from 'zod';
 import { FindSampleOptions } from '../schema/Sample/FindSampleOptions';
 import { PartialSample, PartialSampleToCreate } from '../schema/Sample/Sample';
 import { SubRoutes } from './routes';

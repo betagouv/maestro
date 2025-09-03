@@ -7,7 +7,7 @@ import { FileInput } from 'maestro-shared/schema/File/FileInput';
 import { useContext, useState } from 'react';
 import AppUpload from 'src/components/_app/AppUpload/AppUpload';
 import { useForm } from 'src/hooks/useForm';
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { ApiClientContext } from '../../services/apiClient';
 
 const AddDocument = () => {

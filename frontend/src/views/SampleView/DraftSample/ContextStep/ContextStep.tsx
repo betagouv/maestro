@@ -56,7 +56,7 @@ import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import SampleGeolocation from 'src/views/SampleView/DraftSample/ContextStep/SampleGeolocation';
 import SupportDocumentDownload from 'src/views/SampleView/DraftSample/SupportDocumentDownload';
 import { v4 as uuidv4 } from 'uuid';
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import AppServiceErrorAlert from '../../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import AppSelect from '../../../../components/_app/AppSelect/AppSelect';
 import { useAnalytics } from '../../../../hooks/useAnalytics';

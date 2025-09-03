@@ -4,7 +4,7 @@ import { defaultPerPage } from 'maestro-shared/schema/commons/Pagination';
 import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import { PartialSample, Sample } from 'maestro-shared/schema/Sample/Sample';
 import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
-import z from 'zod/v4';
+import z from 'zod';
 import { analysisResiduesTable, analysisTable } from './analysisRepository';
 import { companiesTable } from './companyRepository';
 import { knexInstance as db, knexInstance } from './db';

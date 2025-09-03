@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 
 export const TokenPayload = z.object({
   userId: z.guid().nullable(),

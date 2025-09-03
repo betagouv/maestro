@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { UserPermission } from '../User/UserPermission';
 
 export const ProgrammingPlanStatus = z.enum(

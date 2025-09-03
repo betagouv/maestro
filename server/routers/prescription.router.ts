@@ -4,7 +4,7 @@ import {
   PrescriptionToCreate,
   PrescriptionUpdate
 } from 'maestro-shared/schema/Prescription/Prescription';
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import prescriptionController from '../controllers/prescriptionController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
 import { prescriptionCheck } from '../middlewares/checks/prescriptionCheck';

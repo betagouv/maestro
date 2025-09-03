@@ -1,4 +1,4 @@
-import z from 'zod/v4';
+import z from 'zod';
 import { FindProgrammingPlanOptions } from '../schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import { ProgrammingPlanRegionalStatus } from '../schema/ProgrammingPlan/ProgrammingPlanRegionalStatus';
 import { ProgrammingPlan } from '../schema/ProgrammingPlan/ProgrammingPlans';

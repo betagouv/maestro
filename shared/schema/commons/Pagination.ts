@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 export const Pagination = z.object({
   page: z.coerce.number().int().positive(),
   perPage: z.coerce.number().int().positive()

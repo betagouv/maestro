@@ -1,5 +1,5 @@
 import { isNil } from 'lodash-es';
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { QuantityUnit } from '../../referential/QuantityUnit';
 import { SampleItemRecipientKind } from './SampleItemRecipientKind';
 

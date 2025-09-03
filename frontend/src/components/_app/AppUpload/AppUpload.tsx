@@ -10,7 +10,7 @@ import {
 import { ComponentPropsWithoutRef, useEffect, useRef, useState } from 'react';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
 import { UseForm } from 'src/hooks/useForm';
-import { z, ZodObject } from 'zod/v4';
+import { z, ZodObject } from 'zod';
 
 type AppUploadProps<T extends ZodObject, U extends UseForm<T>> = Partial<
   ComponentPropsWithoutRef<typeof Upload>

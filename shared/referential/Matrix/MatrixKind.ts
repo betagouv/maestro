@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { MatrixDeprecated } from './Matrix';
 import { MatrixLabels } from './MatrixLabels';
 

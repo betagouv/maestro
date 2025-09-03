@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { Region } from '../../referential/Region';
 import { ProgrammingPlanStatus } from './ProgrammingPlanStatus';
 

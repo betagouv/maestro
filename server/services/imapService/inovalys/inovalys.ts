@@ -1,6 +1,6 @@
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { maestroDate } from 'maestro-shared/utils/date';
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { ExtractError } from '../extractError';
 import type {
   ExportAnalysis,

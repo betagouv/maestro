@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 
 export const ResultKind = z.enum(['Q', 'NQ'], {
   error: () => 'Veuillez renseigner le type de résultat.'

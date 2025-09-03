@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { isDefined } from '../../utils/utils';
 import { CompanySearchResult } from './CompanySearchResult';
 export const Company = z.object(

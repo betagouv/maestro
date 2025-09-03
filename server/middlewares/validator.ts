@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { constants } from 'http2';
 import sanitizeHtml from 'sanitize-html';
-import { z, ZodArray, ZodObject } from 'zod/v4';
+import { z, ZodArray, ZodObject } from 'zod';
 export const body = (o: ZodObject | ZodArray<any>) =>
   z.object({
     body: o

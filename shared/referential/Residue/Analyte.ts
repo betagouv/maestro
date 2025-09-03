@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { SSD2Id } from './SSD2Id';
 
 export const Analyte = z.enum(

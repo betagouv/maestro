@@ -30,7 +30,7 @@ import {
 } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { UseForm, useForm } from 'src/hooks/useForm';
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import useWindowSize from '../../../hooks/useWindowSize';
 import { ApiClientContext } from '../../../services/apiClient';
 

@@ -1,5 +1,5 @@
 import { sumBy } from 'lodash-es';
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { Region, RegionSort } from '../../referential/Region';
 import { Prescription } from '../Prescription/Prescription';
 import { ProgrammingPlan } from '../ProgrammingPlan/ProgrammingPlans';

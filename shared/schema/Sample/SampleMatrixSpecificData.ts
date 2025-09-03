@@ -1,6 +1,6 @@
 import { isNil } from 'lodash-es';
-import { CheckFn } from 'zod/dist/types/v4/core';
-import { z } from 'zod/v4';
+import { z } from 'zod';
+import { CheckFn } from 'zod/v4/core';
 import { AnimalKind, AnimalKindAgeLimit } from '../../referential/AnimalKind';
 import { AnimalSex } from '../../referential/AnimalSex';
 import { BreedingMethod } from '../../referential/BreedingMethod';
@@ -82,15 +82,17 @@ const SampleMatrixSpecificDataPFAS = z
   })
   .check(animalKindAgeCheck);
 
-const SampleMatrixSpecificDataPFASEggs = SampleMatrixSpecificDataPFAS.extend({
-  programmingPlanKind: z.literal(ProgrammingPlanKind.enum.PFAS_EGGS)
-});
+const SampleMatrixSpecificDataPFASEggs =
+  SampleMatrixSpecificDataPFAS.safeExtend({
+    programmingPlanKind: z.literal(ProgrammingPlanKind.enum.PFAS_EGGS)
+  });
 
-const SampleMatrixSpecificDataPFASMeat = SampleMatrixSpecificDataPFAS.extend({
-  programmingPlanKind: z.literal(ProgrammingPlanKind.enum.PFAS_MEAT),
-  killingCode: KillingCode,
-  productionKind: ProductionKind
-});
+const SampleMatrixSpecificDataPFASMeat =
+  SampleMatrixSpecificDataPFAS.safeExtend({
+    programmingPlanKind: z.literal(ProgrammingPlanKind.enum.PFAS_MEAT),
+    killingCode: KillingCode,
+    productionKind: ProductionKind
+  });
 
 const SampleMatrixSpecificDataDAOA = z.object({
   programmingPlanKind: z

@@ -9,7 +9,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import AppUpload from 'src/components/_app/AppUpload/AppUpload';
 import { useForm } from 'src/hooks/useForm';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { ApiClientContext } from '../../../../../services/apiClient';
 import { AnalysisDocumentPreview } from '../../../components/AnalysisDocumentPreview';
 

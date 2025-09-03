@@ -31,18 +31,6 @@ export default tseslint.config([
           selector: 'Literal[value=/^Maestro/]',
           message: 'Use Brand instead.'
         }
-      ],
-
-      'no-restricted-imports': [
-        'error',
-        {
-          paths: [
-            {
-              name: 'zod',
-              message: 'Please use zod from zod/v4 instead'
-            }
-          ]
-        }
       ]
     }
   }

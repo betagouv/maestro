@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { PartialSample } from '../../schema/Sample/Sample';
 
 export const MatrixPart = z.enum(['PART1', 'PART2'], {

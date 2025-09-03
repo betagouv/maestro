@@ -1,5 +1,5 @@
 import { isNil } from 'lodash-es';
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { SSD2IdLabel, SSD2Referential } from './SSD2Referential';
 
 export const SSD2Ids = Object.keys(SSD2Referential);

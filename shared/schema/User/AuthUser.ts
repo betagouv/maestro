@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { User } from './User';
 
 export const AuthUser = z.object({

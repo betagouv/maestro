@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 
 //TODO
 export const ProductionMethod = z.enum(['PROD_1', 'PROD_2', 'PROD_3'], {

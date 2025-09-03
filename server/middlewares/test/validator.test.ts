@@ -4,7 +4,7 @@ import { constants } from 'http2';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { describe, test } from 'vitest';
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import validator from '../validator';
 
 describe('Validator middleware', () => {
