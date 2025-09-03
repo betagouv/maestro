@@ -37,7 +37,11 @@ function AppSelect<T extends ZodObject>(props: AppSelectProps<T, UseForm<T>>) {
   } = props;
 
   useEffect(() => {
-    if (options?.length === 1 && options[0].value !== selectProps.value) {
+    if (
+      options?.length === 1 &&
+      options[0].value !== '' &&
+      options[0].value !== selectProps.value
+    ) {
       const event = {
         target: { value: options[0].value }
       } as unknown as React.ChangeEvent<HTMLSelectElement>;

@@ -26,7 +26,6 @@ import {
   isOutsideProgrammingPlanSample,
   isProgrammingPlanSample,
   PartialSample,
-  PartialSampleMatrixData,
   PartialSampleToCreate,
   prescriptionSubstancesCheck,
   sampleMatrixCheck,
@@ -168,16 +167,16 @@ const MatrixStep = ({ partialSample }: Props) => {
     });
   };
 
-  const save = async (
-    status: SampleStatus = partialSample.status,
-    sampleMatrixData: Omit<
-      PartialSampleMatrixData,
-      'documentIds' | 'laboratoryId'
-    > = PartialSampleMatrixData.parse(partialSample)
-  ) => {
+  const save = async (status: SampleStatus = partialSample.status) => {
     await createOrUpdateSample({
       ...partialSample,
-      ...sampleMatrixData,
+      matrixKind,
+      matrix,
+      stage,
+      specificData,
+      notesOnMatrix,
+      monoSubstances,
+      multiSubstances,
       documentIds,
       status
     });
