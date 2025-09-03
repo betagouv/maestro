@@ -1,7 +1,7 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Autocomplete } from '@mui/material';
 import * as React from 'react';
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
 import { AppSelectOption } from 'src/components/_app/AppSelect/AppSelectOption';
 
@@ -37,6 +37,12 @@ const AppSearchInput = ({
   whenValid,
   inputProps
 }: Props) => {
+  useEffect(() => {
+    if (options.length === 1 && options[0].value !== value) {
+      onSelect(options[0].value);
+    }
+  }, [options, onSelect, value]);
+
   return (
     <div
       className={cx(

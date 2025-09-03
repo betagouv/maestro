@@ -11,7 +11,7 @@ import {
   UserRolePermissions
 } from './UserRole';
 
-export const BaseUser = z.object({
+const BaseUser = z.object({
   id: z.guid(),
   email: z.string().email(),
   firstName: z.string(),
@@ -34,8 +34,14 @@ export const User = BaseUser.superRefine((user, ctx) => {
   }
 });
 
-export type BaseUser = z.infer<typeof BaseUser>;
+export const Sampler = BaseUser.pick({
+  id: true,
+  firstName: true,
+  lastName: true
+});
+
 export type User = z.infer<typeof User>;
+export type Sampler = z.infer<typeof Sampler>;
 
 export const userRegions = (user?: User): Region[] =>
   user

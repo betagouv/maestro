@@ -1,5 +1,9 @@
 import Select from '@codegouvfr/react-dsfr/Select';
-import { ComponentPropsWithoutRef, InputHTMLAttributes } from 'react';
+import {
+  ComponentPropsWithoutRef,
+  InputHTMLAttributes,
+  useEffect
+} from 'react';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
 import {
   AppSelectOption,
@@ -31,6 +35,19 @@ function AppSelect<T extends ZodObject>(props: AppSelectProps<T, UseForm<T>>) {
     hint,
     ...selectProps
   } = props;
+
+  useEffect(() => {
+    if (
+      options?.length === 1 &&
+      options[0].value !== '' &&
+      options[0].value !== selectProps.value
+    ) {
+      const event = {
+        target: { value: options[0].value }
+      } as unknown as React.ChangeEvent<HTMLSelectElement>;
+      selectProps.onChange?.(event);
+    }
+  }, [options, selectProps]);
 
   return (
     <Select

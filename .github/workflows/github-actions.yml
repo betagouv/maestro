@@ -17,7 +17,7 @@ jobs:
       - name: Install
         run: npm ci
       - name: linter
-        run: npm run lint --workspaces
+        run: npm run lint --workspaces -- --max-warnings=0
       - name: Run Knip
         run: npm run knip
       - name: Prettify code

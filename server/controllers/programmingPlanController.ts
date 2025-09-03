@@ -301,6 +301,8 @@ export const programmingPlanRouter = {
         createdBy: user.id,
         kinds: previousProgrammingPlan.kinds,
         contexts: previousProgrammingPlan.contexts,
+        samplesOutsidePlanAllowed:
+          previousProgrammingPlan.samplesOutsidePlanAllowed,
         year,
         regionalStatus: RegionList.map((region) => ({
           region,

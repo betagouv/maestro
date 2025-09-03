@@ -25,12 +25,12 @@ import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/Programmi
 import {
   isOutsideProgrammingPlanSample,
   PartialSample,
-  PartialSampleMatrixSpecificData,
   PartialSampleToCreate,
-  SampleContextData,
-  Sampler
+  SampleContextData
 } from 'maestro-shared/schema/Sample/Sample';
+import { PartialSampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
+import { Sampler } from 'maestro-shared/schema/User/User';
 import {
   UserRoleList,
   UserRolePermissions
@@ -200,7 +200,12 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
     );
 
   const contextOptions = selectOptionsFromList(
-    [...(programmingPlan.contexts ?? []), 'OutsideProgrammingPlan'],
+    [
+      programmingPlan.contexts ?? [],
+      programmingPlan.samplesOutsidePlanAllowed
+        ? ['OutsideProgrammingPlan']
+        : []
+    ].flat(),
     {
       labels: {
         ...ContextLabels,
