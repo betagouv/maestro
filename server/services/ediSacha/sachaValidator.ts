@@ -1,5 +1,5 @@
 import { maestroDate } from 'maestro-shared/utils/date';
-import { z } from 'zod/v4';
+import { z } from 'zod';
 
 const coerceToArray = <Schema extends z.ZodObject>(
   schema: Schema
@@ -21,6 +21,17 @@ const sachaDateTime = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/)
   .brand<'SachaDateTime'>();
+
+export const toSachaDateTime = (date: Date): z.infer<typeof sachaDateTime> => {
+  // Use the Sweden locale because it uses the ISO format
+  const dateString = `${date.toLocaleDateString('sv')}T${date.toLocaleTimeString()}`;
+  const parsedDate = sachaDateTime.safeParse(dateString);
+  if (parsedDate.success) {
+    return parsedDate.data;
+  }
+
+  throw new Error(`Shouldn't get here (invalid toDateStr provided): ${date}`);
+};
 
 const booleanLabel = z.literal(['O', 'N']).transform((b) => b === 'O');
 
@@ -175,325 +186,304 @@ const referenceCommemoratifs = coerceToArray(
     Commentaire: z.string().optional()
   })
 ).optional();
-export const sachaValidator = z.object({
-  DemandesAnalyses: z
-    .intersection(
+
+export const resultatsValidator = z.object({
+  MessageParametres: messageParametres,
+  Emetteur: partenaire,
+  Destinataire: partenaire,
+  DialogueResultatType: z.intersection(
+    z.union([
       z.object({
-        MessageParametres: messageParametres,
-        Emetteur: partenaire,
-        Destinataire: partenaire,
-        DemandeType: z.object({
-          DialogueDemandeIntervention: z.object({
-            NumeroDAP: z.coerce.number().int(),
-            SigleContexteIntervention: z.string(),
-            DateIntervention: sachaDate,
-            DateModification: sachaDateTime
-          }),
-          DialogueCommemoratif: dialogueCommemoratif,
-          ReferenceEtablissementType: z.object({
-            ReferenceEtablissement: referenceEtablissement,
-            DialogueCommemoratif: dialogueCommemoratif,
-            ReferenceAtelierType: z
-              .object({
-                ReferenceAtelier: referenceEtablissement,
-                DialogueCommemoratif: dialogueCommemoratif
-              })
-              .optional()
-          }),
-          DialogueActeurType: z.object({
-            DialogueActeur: referenceEtablissement,
-            DialogueActeurRessource: z
-              .object({
-                NumeroIdentifiant: z.string(),
-                Libelle: z.string(),
-                Initiales: z.string().optional(),
-                Telephone: z.string().optional()
-              })
-              .optional()
-          }),
-          DialogueEchantillonCommemoratifType:
-            dialogueEchantillonCommemoratifType,
-          DialoguePrevisionnelEchantillon: coerceToArray(
-            z.object({
-              SigleMatriceSpecifique: z.string(),
-              Nombre: z.coerce.number().int()
-            })
-          ).optional(),
-          ReferencePlanAnalyseType: coerceToArray(
-            z.object({
-              ReferencePlanAnalyseEffectuer: coerceToArray(
-                referencePlanAnalyseEffectuer
-              ),
-              ReferencePlanAnalyseContenu: referencePlanAnalyseContenu,
-              DialogueEchantillonSimple: dialogueEchantillonSimple
-            })
-          ).optional(),
-          DialogueAnalyseType: dialogueAnalyseType
+        DialogueRetourInterventionSansDAP: z.object({
+          SigleTypeIdentifiantActeur: z.string(),
+          IdentifiantActeur: z.string(),
+          DateInterventionReelle: sachaDate,
+          SigleTypeIdentifiantEtablissement: z.string(),
+          IdentifiantEtablissement: z.string(),
+          SigleTypeIdentifiantAtelier: z.string().optional(),
+          IdentifiantAtelier: z.string().optional(),
+          SigleContexteIntervention: z.string(),
+          IndicateurPrelevementPartiel: indicateurPrelevementPartielValidator,
+          DossierComplet: booleanLabel
         })
       }),
-      z.object({ schemavalidation: z.string().optional() })
-    )
-    .optional(),
-  DonneesStandardisees: z
-    .intersection(
       z.object({
-        MessageParametres: messageParametres,
-        ReferenceMatricesType: coerceToArray(
-          z.object({
-            ReferenceMatricesGeneriques: referenceMatricesGeneriques,
-            ReferenceMatricesSpecifiques: coerceToArray(
-              referenceMatricesGeneriques
-            ).optional()
-          })
-        ).optional(),
-        ReferenceAnalytesType: coerceToArray(
-          z.object({
-            ReferenceAnalytesGeneriques: referenceAnalytes,
-            ReferenceAnalytesSpecifiques:
-              coerceToArray(referenceAnalytes).optional()
-          })
-        ).optional(),
-        ReferenceMethodesType: coerceToArray(
-          z.object({
-            ReferenceMethodesGeneriques: referenceMethodes,
-            ReferenceMethodesSpecifiques:
-              coerceToArray(referenceMethodes).optional()
-          })
-        ).optional(),
-        ReferenceUnites: referenceUnites,
-        ReferenceValeursInterpretation: referenceUnites,
-        ReferenceValeursPossiblesResultat: referenceUnites,
-        ReferenceCausesNonAnalysibilite: referenceUnites,
-        ReferenceCommemoratifType: coerceToArray(
-          z.object({
-            ReferenceCommemoratif: z.object({
-              Cle: z.string(),
-              Sigle: z.string(),
-              Libelle: z.string(),
-              Statut: statusValidator,
-              CleRemplacement: z.string().optional(),
-              Commentaire: z.string().optional(),
-              Unite: z.string().optional(),
-              TypeDonnee: z.literal(['V', 'N', 'A', 'D'])
-            }),
-            ReferenceCommemoratifsValeurs: referenceUnites
-          })
-        ).optional()
-      }),
-      z.object({ schemavalidation: z.string().optional() })
-    )
-    .optional(),
-  ReferentielPrescripteur: z
-    .intersection(
-      z.object({
-        MessageParametres: messageParametres,
-        Emetteur: partenaire,
-        ReferencePlanAnalyseType: coerceToArray(
-          z.object({
-            ReferencePlanAnalyse: z.object({
-              Cle: z.string(),
-              Sigle: z.string(),
-              Libelle: z.string(),
-              Statut: statusValidator,
-              Contact: z.string().optional(),
-              TexteReference: z.string().optional(),
-              NiveauInterpretation: z
-                .literal(['AE', 'AL', 'PE', 'PL'])
-                .optional(),
-              DateModification: sachaDateTime
-            }),
-            ReferenceCommemoratifsAnalyse: referenceCommemoratifs,
-            ReferencePlanAnalyseContenu: referencePlanAnalyseContenu,
-            ReferencePlanAnalyseInterpretation: coerceToArray(
-              z.object({
-                LibelleMatrice: z.string().optional(),
+        DialogueRetourInterventionAvecDAP: z.object({
+          NumeroDAP: z.coerce.number().int(),
+          SigleTypeIdentifiantActeur: z.string(),
+          IdentifiantActeur: z.string(),
+          DateInterventionReelle: sachaDate,
+          IndicateurPrelevementPartiel: indicateurPrelevementPartielValidator,
+          DossierComplet: booleanLabel
+        })
+      })
+    ]),
+    z.object({
+      DialogueCommemoratif: dialogueCommemoratif,
+      DialogueEchantillonCommemoratifType: dialogueEchantillonCommemoratifType,
+      DialoguePlanAnalyseType: coerceToArray(
+        z.object({
+          ReferencePlanAnalyseEffectuer: referencePlanAnalyseEffectuer,
+          DialogueAnalyseType: coerceToArray(
+            z.object({
+              DialogueAnalyse: z.object({
+                SigleMatriceSpecifique: z.string(),
                 SigleAnalyte: z.string(),
-                SigleMethodeSpecifique: z.string().optional(),
-                Depistage: booleanLabel,
-                Confirmation: booleanLabel,
-                Statut: statusValidator,
-                NombreEchantillonParLot: z.coerce.number().int(),
-                SigleUnite: z.string().optional(),
-                SeuilConfirmationQuantitatif: z.coerce.number().optional(),
-                SigleSeuilConfirmationQualitatif: z.string().optional(),
-                LibelleSeuil2: z.string().optional(),
-                Seuil2Qualitatif: z.string().optional(),
-                Seuil2Quantitatif: z.coerce.number().optional(),
-                LibelleSeuil1: z.string().optional(),
-                Seuil1Quantitatif: z.coerce.number().optional(),
-                SigleInterpretationInferieurSeuil1: z.string().optional(),
-                SigleInterpretationEntreSeuils: z.string().optional(),
-                SigleInterpretationSuperieurSeuil2: z.string().optional(),
-                NombreToleresSeuil2: z.coerce.number().int().optional(),
-                NombreToleresSuperieursSeuil2: z.coerce
-                  .number()
-                  .int()
-                  .optional(),
-                Commentaire: z.string().optional()
-              })
-            ).optional()
-          })
-        ).optional(),
-        ReferenceContextesType: coerceToArray(
-          z.object({
-            ReferenceContextesIntervention: z.object({
-              Cle: z.string(),
-              Sigle: z.string(),
-              Libelle: z.string(),
-              Statut: statusValidator,
-              DateModification: sachaDateTime
-            }),
-            ReferenceCommemoratifsInterventionContexte: referenceCommemoratifs,
-            ReferenceCommemoratifsEchantillonContexte: referenceCommemoratifs,
-            ReferencePlansAnalyseContexte: coerceToArray(
-              z.object({ SiglePlanAnalyse: z.string() })
-            ).optional()
-          })
-        ).optional(),
-        ReferenceTypesIdentifiants: coerceToArray(
-          z.object({
+                SigleMethodeSpecifique: z.string()
+              }),
+              DialogueCommemoratif: dialogueCommemoratif,
+              DialogueResultatEchantillonAnalyse: coerceToArray(
+                z.object({
+                  IdentifiantLabo: z.string(),
+                  NumeroDossierLIMS: z.string(),
+                  IndicateurAnalyseConfirmation: booleanLabel.optional(),
+                  OperateurResultatQuantitatif: z
+                    .literal([
+                      '>>',
+                      '>',
+                      '>=',
+                      '=',
+                      '<=',
+                      '<',
+                      '<<',
+                      '<>',
+                      'ne',
+                      ''
+                    ])
+                    .optional(),
+                  ValeurResultatQuantitatif: z.coerce.number().optional(),
+                  SigleValeurResultatQualitatif: z.string().optional(),
+                  SigleUnite: z.string().optional(),
+                  SigleConclusionElementaire: z.string().optional(),
+                  LibelleLaboratoireSousTraitant: z.string().optional(),
+                  DateValidation: sachaDate,
+                  Commentaire: z.string().optional(),
+                  IncertitudePourcentage: z.coerce.number().optional(),
+                  IncertitudeMini: z.coerce.number().optional(),
+                  IncertitudeMaxi: z.coerce.number().optional()
+                })
+              ).optional(),
+              DialogueResultatLotAnalyse: dialogueResultatLot
+            })
+          ).optional(),
+          DialogueResultatEchantillonPlan: coerceToArray(
+            z.object({
+              IdentifiantLabo: z.string(),
+              SigleConclusion: z.string()
+            })
+          ).optional(),
+          DialogueResultatLotPlan: dialogueResultatLot
+        })
+      ).optional(),
+      DialogueAnalyseType: dialogueAnalyseType
+    })
+  )
+});
+
+const demandesAnalysesValidator = z.object({
+  MessageParametres: messageParametres,
+  Emetteur: partenaire,
+  Destinataire: partenaire,
+  DemandeType: z.object({
+    DialogueDemandeIntervention: z.object({
+      NumeroDAP: z.coerce.number().int(),
+      SigleContexteIntervention: z.string(),
+      DateIntervention: sachaDate,
+      DateModification: sachaDateTime
+    }),
+    DialogueCommemoratif: dialogueCommemoratif,
+    ReferenceEtablissementType: z.object({
+      ReferenceEtablissement: referenceEtablissement,
+      DialogueCommemoratif: dialogueCommemoratif,
+      ReferenceAtelierType: z
+        .object({
+          ReferenceAtelier: referenceEtablissement,
+          DialogueCommemoratif: dialogueCommemoratif
+        })
+        .optional()
+    }),
+    DialogueActeurType: z.object({
+      DialogueActeur: referenceEtablissement,
+      DialogueActeurRessource: z
+        .object({
+          NumeroIdentifiant: z.string(),
+          Libelle: z.string(),
+          Initiales: z.string().optional(),
+          Telephone: z.string().optional()
+        })
+        .optional()
+    }),
+    DialogueEchantillonCommemoratifType: dialogueEchantillonCommemoratifType,
+    DialoguePrevisionnelEchantillon: coerceToArray(
+      z.object({
+        SigleMatriceSpecifique: z.string(),
+        Nombre: z.coerce.number().int()
+      })
+    ).optional(),
+    ReferencePlanAnalyseType: coerceToArray(
+      z.object({
+        ReferencePlanAnalyseEffectuer: coerceToArray(
+          referencePlanAnalyseEffectuer
+        ),
+        ReferencePlanAnalyseContenu: referencePlanAnalyseContenu,
+        DialogueEchantillonSimple: dialogueEchantillonSimple
+      })
+    ).optional(),
+    DialogueAnalyseType: dialogueAnalyseType
+  })
+});
+
+const acquittementValidator = z.object({
+  MessageParametres: messageParametres,
+  Emetteur: partenaire,
+  Destinataire: partenaire,
+  MessageAcquittement: coerceToArray(
+    z.object({ NomFichier: z.string(), DateAcquittement: sachaDateTime })
+  ).optional(),
+  MessageNonAcquittement: coerceToArray(
+    z.object({
+      NomFichier: z.string(),
+      LibelleMotif: z.string(),
+      TypeMotif: z.string().optional(),
+      DateNonAcquittement: sachaDateTime
+    })
+  ).optional()
+});
+export type Acquittement = z.infer<typeof acquittementValidator>;
+
+export const sachaValidator = z.object({
+  DemandesAnalyses: demandesAnalysesValidator.optional(),
+  DonneesStandardisees: z
+    .object({
+      MessageParametres: messageParametres,
+      ReferenceMatricesType: coerceToArray(
+        z.object({
+          ReferenceMatricesGeneriques: referenceMatricesGeneriques,
+          ReferenceMatricesSpecifiques: coerceToArray(
+            referenceMatricesGeneriques
+          ).optional()
+        })
+      ).optional(),
+      ReferenceAnalytesType: coerceToArray(
+        z.object({
+          ReferenceAnalytesGeneriques: referenceAnalytes,
+          ReferenceAnalytesSpecifiques:
+            coerceToArray(referenceAnalytes).optional()
+        })
+      ).optional(),
+      ReferenceMethodesType: coerceToArray(
+        z.object({
+          ReferenceMethodesGeneriques: referenceMethodes,
+          ReferenceMethodesSpecifiques:
+            coerceToArray(referenceMethodes).optional()
+        })
+      ).optional(),
+      ReferenceUnites: referenceUnites,
+      ReferenceValeursInterpretation: referenceUnites,
+      ReferenceValeursPossiblesResultat: referenceUnites,
+      ReferenceCausesNonAnalysibilite: referenceUnites,
+      ReferenceCommemoratifType: coerceToArray(
+        z.object({
+          ReferenceCommemoratif: z.object({
             Cle: z.string(),
             Sigle: z.string(),
             Libelle: z.string(),
-            Statut: statusValidator
-          })
-        ).optional()
-      }),
-      z.object({ schemavalidation: z.string().optional() })
-    )
+            Statut: statusValidator,
+            CleRemplacement: z.string().optional(),
+            Commentaire: z.string().optional(),
+            Unite: z.string().optional(),
+            TypeDonnee: z.literal(['V', 'N', 'A', 'D'])
+          }),
+          ReferenceCommemoratifsValeurs: referenceUnites
+        })
+      ).optional()
+    })
     .optional(),
-  Resultats: z
-    .intersection(
-      z.object({
-        MessageParametres: messageParametres,
-        Emetteur: partenaire,
-        Destinataire: partenaire,
-        DialogueResultatType: z.intersection(
-          z.union([
+  ReferentielPrescripteur: z
+    .object({
+      MessageParametres: messageParametres,
+      Emetteur: partenaire,
+      ReferencePlanAnalyseType: coerceToArray(
+        z.object({
+          ReferencePlanAnalyse: z.object({
+            Cle: z.string(),
+            Sigle: z.string(),
+            Libelle: z.string(),
+            Statut: statusValidator,
+            Contact: z.string().optional(),
+            TexteReference: z.string().optional(),
+            NiveauInterpretation: z
+              .literal(['AE', 'AL', 'PE', 'PL'])
+              .optional(),
+            DateModification: sachaDateTime
+          }),
+          ReferenceCommemoratifsAnalyse: referenceCommemoratifs,
+          ReferencePlanAnalyseContenu: referencePlanAnalyseContenu,
+          ReferencePlanAnalyseInterpretation: coerceToArray(
             z.object({
-              DialogueRetourInterventionSansDAP: z.object({
-                SigleTypeIdentifiantActeur: z.string(),
-                IdentifiantActeur: z.string(),
-                DateInterventionReelle: sachaDate,
-                SigleTypeIdentifiantEtablissement: z.string(),
-                IdentifiantEtablissement: z.string(),
-                SigleTypeIdentifiantAtelier: z.string().optional(),
-                IdentifiantAtelier: z.string().optional(),
-                SigleContexteIntervention: z.string(),
-                IndicateurPrelevementPartiel:
-                  indicateurPrelevementPartielValidator,
-                DossierComplet: booleanLabel
-              })
-            }),
-            z.object({
-              DialogueRetourInterventionAvecDAP: z.object({
-                NumeroDAP: z.coerce.number().int(),
-                SigleTypeIdentifiantActeur: z.string(),
-                IdentifiantActeur: z.string(),
-                DateInterventionReelle: sachaDate,
-                IndicateurPrelevementPartiel:
-                  indicateurPrelevementPartielValidator,
-                DossierComplet: booleanLabel
-              })
+              LibelleMatrice: z.string().optional(),
+              SigleAnalyte: z.string(),
+              SigleMethodeSpecifique: z.string().optional(),
+              Depistage: booleanLabel,
+              Confirmation: booleanLabel,
+              Statut: statusValidator,
+              NombreEchantillonParLot: z.coerce.number().int(),
+              SigleUnite: z.string().optional(),
+              SeuilConfirmationQuantitatif: z.coerce.number().optional(),
+              SigleSeuilConfirmationQualitatif: z.string().optional(),
+              LibelleSeuil2: z.string().optional(),
+              Seuil2Qualitatif: z.string().optional(),
+              Seuil2Quantitatif: z.coerce.number().optional(),
+              LibelleSeuil1: z.string().optional(),
+              Seuil1Quantitatif: z.coerce.number().optional(),
+              SigleInterpretationInferieurSeuil1: z.string().optional(),
+              SigleInterpretationEntreSeuils: z.string().optional(),
+              SigleInterpretationSuperieurSeuil2: z.string().optional(),
+              NombreToleresSeuil2: z.coerce.number().int().optional(),
+              NombreToleresSuperieursSeuil2: z.coerce.number().int().optional(),
+              Commentaire: z.string().optional()
             })
-          ]),
-          z.object({
-            DialogueCommemoratif: dialogueCommemoratif,
-            DialogueEchantillonCommemoratifType:
-              dialogueEchantillonCommemoratifType,
-            DialoguePlanAnalyseType: coerceToArray(
-              z.object({
-                ReferencePlanAnalyseEffectuer: referencePlanAnalyseEffectuer,
-                DialogueAnalyseType: coerceToArray(
-                  z.object({
-                    DialogueAnalyse: z.object({
-                      SigleMatriceSpecifique: z.string(),
-                      SigleAnalyte: z.string(),
-                      SigleMethodeSpecifique: z.string()
-                    }),
-                    DialogueCommemoratif: dialogueCommemoratif,
-                    DialogueResultatEchantillonAnalyse: coerceToArray(
-                      z.object({
-                        IdentifiantLabo: z.string(),
-                        NumeroDossierLIMS: z.string(),
-                        IndicateurAnalyseConfirmation: booleanLabel.optional(),
-                        OperateurResultatQuantitatif: z
-                          .literal([
-                            '>>',
-                            '>',
-                            '>=',
-                            '=',
-                            '<=',
-                            '<',
-                            '<<',
-                            '<>',
-                            'ne',
-                            ''
-                          ])
-                          .optional(),
-                        ValeurResultatQuantitatif: z.coerce.number().optional(),
-                        SigleValeurResultatQualitatif: z.string().optional(),
-                        SigleUnite: z.string().optional(),
-                        SigleConclusionElementaire: z.string().optional(),
-                        LibelleLaboratoireSousTraitant: z.string().optional(),
-                        DateValidation: sachaDate,
-                        Commentaire: z.string().optional(),
-                        IncertitudePourcentage: z.coerce.number().optional(),
-                        IncertitudeMini: z.coerce.number().optional(),
-                        IncertitudeMaxi: z.coerce.number().optional()
-                      })
-                    ).optional(),
-                    DialogueResultatLotAnalyse: dialogueResultatLot
-                  })
-                ).optional(),
-                DialogueResultatEchantillonPlan: coerceToArray(
-                  z.object({
-                    IdentifiantLabo: z.string(),
-                    SigleConclusion: z.string()
-                  })
-                ).optional(),
-                DialogueResultatLotPlan: dialogueResultatLot
-              })
-            ).optional(),
-            DialogueAnalyseType: dialogueAnalyseType
-          })
-        )
-      }),
-      z.object({ schemavalidation: z.string().optional() })
-    )
+          ).optional()
+        })
+      ).optional(),
+      ReferenceContextesType: coerceToArray(
+        z.object({
+          ReferenceContextesIntervention: z.object({
+            Cle: z.string(),
+            Sigle: z.string(),
+            Libelle: z.string(),
+            Statut: statusValidator,
+            DateModification: sachaDateTime
+          }),
+          ReferenceCommemoratifsInterventionContexte: referenceCommemoratifs,
+          ReferenceCommemoratifsEchantillonContexte: referenceCommemoratifs,
+          ReferencePlansAnalyseContexte: coerceToArray(
+            z.object({ SiglePlanAnalyse: z.string() })
+          ).optional()
+        })
+      ).optional(),
+      ReferenceTypesIdentifiants: coerceToArray(
+        z.object({
+          Cle: z.string(),
+          Sigle: z.string(),
+          Libelle: z.string(),
+          Statut: statusValidator
+        })
+      ).optional()
+    })
     .optional(),
-  AcquittementNonAcquittement: z
-    .intersection(
-      z.object({
-        MessageParametres: messageParametres,
-        Emetteur: partenaire,
-        Destinataire: partenaire,
-        MessageAcquittement: coerceToArray(
-          z.object({ NomFichier: z.string(), DateAcquittement: sachaDateTime })
-        ).optional(),
-        MessageNonAcquittement: coerceToArray(
-          z.object({
-            NomFichier: z.string(),
-            LibelleMotif: z.string(),
-            TypeMotif: z.string().optional(),
-            DateNonAcquittement: sachaDateTime
-          })
-        ).optional()
-      }),
-      z.object({ schemavalidation: z.string().optional() })
-    )
-    .optional(),
+  Resultats: resultatsValidator.optional(),
+  AcquittementNonAcquittement: acquittementValidator.optional(),
   DemandesDeDemande: z
-    .intersection(
-      z.object({
-        MessageParametres: messageParametres,
-        Emetteur: partenaire,
-        Destinataire: partenaire,
-        DialogueDemandeDeDemande: z
-          .array(z.object({ NumeroDAP: z.coerce.number().int() }))
-          .min(1)
-      }),
-      z.object({ schemavalidation: z.string().optional() })
-    )
+    .object({
+      MessageParametres: messageParametres,
+      Emetteur: partenaire,
+      Destinataire: partenaire,
+      DialogueDemandeDeDemande: z
+        .array(z.object({ NumeroDAP: z.coerce.number().int() }))
+        .min(1)
+    })
     .optional()
 });
+
+export type Sacha = z.infer<typeof sachaValidator>;
