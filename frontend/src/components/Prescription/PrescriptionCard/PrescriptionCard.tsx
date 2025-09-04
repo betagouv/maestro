@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import { t } from 'i18next';
 import { sumBy } from 'lodash-es';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
-import { Region, RegionList } from 'maestro-shared/referential/Region';
+import { RegionList } from 'maestro-shared/referential/Region';
 import { Stage } from 'maestro-shared/referential/Stage';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -23,8 +23,7 @@ interface Props {
   prescription: Prescription;
   regionalPrescriptions: RegionalPrescription[];
   onChangeRegionalPrescriptionCount: (
-    prescriptionId: string,
-    region: Region,
+    regionalPrescriptionId: string,
     value: number
   ) => void;
   onRemovePrescription: (prescriptionId: string) => Promise<void>;

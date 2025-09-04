@@ -167,6 +167,7 @@ const ProgrammingPlanCommentList = ({
                               regionalComments:
                                 prescription.regionalCommentedPrescriptions.map(
                                   (rcp) => ({
+                                    regionalPrescriptionId: rcp.id,
                                     region: rcp.region,
                                     comments: rcp.comments ?? []
                                   })
@@ -207,6 +208,7 @@ const ProgrammingPlanCommentList = ({
                                   regionalComments:
                                     prescription.regionalCommentedPrescriptions.map(
                                       (rcp) => ({
+                                        regionalPrescriptionId: rcp.id,
                                         region: rcp.region,
                                         comments: rcp.comments ?? []
                                       })

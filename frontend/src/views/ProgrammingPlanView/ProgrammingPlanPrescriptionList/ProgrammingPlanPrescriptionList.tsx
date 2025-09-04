@@ -122,10 +122,13 @@ const ProgrammingPlanPrescriptionList = ({
             viewBy: 'MatrixKind',
             prescriptionId: regionalPrescription.prescriptionId,
             matrixKind: prescription.matrixKind,
-            regionalComments: [regionalPrescription].map((rcp) => ({
-              region: rcp.region,
-              comments: rcp.comments ?? []
-            }))
+            regionalComments: [
+              {
+                regionalPrescriptionId: regionalPrescription.id,
+                region: regionalPrescription.region,
+                comments: regionalPrescription.comments ?? []
+              }
+            ]
           })
         );
       }
@@ -208,13 +211,11 @@ const ProgrammingPlanPrescriptionList = ({
 
   const changeRegionalPrescription = useCallback(
     async (
-      prescriptionId: string,
-      region: Region,
+      regionalPrescriptionId: string,
       prescriptionUpdate: Omit<RegionalPrescriptionUpdate, 'programmingPlanId'>
     ) => {
       await updateRegionalPrescription({
-        prescriptionId,
-        region,
+        regionalPrescriptionId,
         prescriptionUpdate: {
           programmingPlanId: programmingPlan.id,
           ...prescriptionUpdate
@@ -225,25 +226,25 @@ const ProgrammingPlanPrescriptionList = ({
   );
 
   const changeRegionalPrescriptionCount = useCallback(
-    async (prescriptionId: string, region: Region, count: number) =>
-      changeRegionalPrescription(prescriptionId, region, {
+    async (regionalPrescriptionId: string, count: number) =>
+      changeRegionalPrescription(regionalPrescriptionId, {
         sampleCount: count
       }),
     [changeRegionalPrescription]
   );
 
   const changeRegionalPrescriptionsLaboratory = useCallback(
-    async (prescriptionIds: string[], laboratoryId?: string) => {
+    async (regionalPrescriptionIds: string[], laboratoryId?: string) => {
       await Promise.all(
-        prescriptionIds.map((prescriptionId) =>
-          changeRegionalPrescription(prescriptionId, region as Region, {
+        regionalPrescriptionIds.map((regionalPrescriptionId) =>
+          changeRegionalPrescription(regionalPrescriptionId, {
             laboratoryId
           })
         )
       );
       return;
     },
-    [changeRegionalPrescription, region]
+    [changeRegionalPrescription]
   );
 
   return (

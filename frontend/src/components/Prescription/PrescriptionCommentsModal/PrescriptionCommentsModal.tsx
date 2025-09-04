@@ -8,7 +8,6 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, Regions } from 'maestro-shared/referential/Region';
-import { RegionalPrescriptionKey } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { RegionalPrescriptionCommentToCreate } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionComment';
 import { useEffect, useMemo, useState } from 'react';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
@@ -27,7 +26,7 @@ const prescriptionCommentsModal = createModal({
 
 interface Props {
   onSubmitRegionalPrescriptionComment: (
-    regionalPrescriptionKey: RegionalPrescriptionKey,
+    regionalPrescriptionId: string,
     comment: string
   ) => Promise<void>;
 }
@@ -112,10 +111,9 @@ const PrescriptionCommentsModal = ({
     ) {
       await form.validate(async () => {
         await onSubmitRegionalPrescriptionComment(
-          {
-            prescriptionId: prescriptionCommentsData.prescriptionId,
-            region: segment as Region
-          },
+          prescriptionCommentsData.regionalComments.find(
+            (rc) => rc.region === segment
+          )?.regionalPrescriptionId as string,
           comment
         );
         prescriptionCommentsModal.close();

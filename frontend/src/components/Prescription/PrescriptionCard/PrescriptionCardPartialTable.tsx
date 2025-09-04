@@ -1,7 +1,7 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
 import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
-import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
+import { RegionList, Regions } from 'maestro-shared/referential/Region';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   RegionalPrescription,
@@ -16,8 +16,7 @@ interface Props {
   matrixKind: MatrixKind;
   regionalPrescriptions: RegionalPrescription[];
   onChangeRegionalPrescriptionCount: (
-    prescriptionId: string,
-    region: Region,
+    regionalPrescriptionId: string,
     value: number
   ) => void;
   start: number;
@@ -60,8 +59,7 @@ const PrescriptionCardPartialTable = ({
               regionalPrescription={regionalPrescription}
               onChange={async (value) =>
                 onChangeRegionalPrescriptionCount(
-                  regionalPrescription.prescriptionId,
-                  regionalPrescription.region,
+                  regionalPrescription.id,
                   value
                 )
               }

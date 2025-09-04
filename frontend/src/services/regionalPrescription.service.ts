@@ -1,5 +1,4 @@
 import { isNil, omitBy } from 'lodash-es';
-import { Region } from 'maestro-shared/referential/Region';
 import { FindRegionalPrescriptionOptions } from 'maestro-shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import {
   RegionalPrescription,
@@ -18,55 +17,53 @@ const prescriptionApi = api.injectEndpoints({
       FindRegionalPrescriptionOptions
     >({
       query: (findOptions) => ({
-        url: 'prescriptions/regions',
+        url: 'prescriptions/regional',
         params: findOptions
       }),
       transformResponse: (response: any[]) =>
         response.map((_) => RegionalPrescription.parse(omitBy(_, isNil))),
       providesTags: (result) => [
         { type: 'RegionalPrescription', id: 'LIST' },
-        ...(result ?? []).map(({ prescriptionId }) => ({
+        ...(result ?? []).map(({ id }) => ({
           type: 'RegionalPrescription' as const,
-          id: prescriptionId
+          id
         }))
       ]
     }),
     updateRegionalPrescription: builder.mutation<
       RegionalPrescription,
       {
-        prescriptionId: string;
-        region: Region;
+        regionalPrescriptionId: string;
         prescriptionUpdate: RegionalPrescriptionUpdate;
       }
     >({
-      query: ({ prescriptionId, region, prescriptionUpdate }) => ({
-        url: `prescriptions/${prescriptionId}/regions/${region}`,
+      query: ({ regionalPrescriptionId, prescriptionUpdate }) => ({
+        url: `prescriptions/regional/${regionalPrescriptionId}`,
         method: 'PUT',
         body: prescriptionUpdate
       }),
-      invalidatesTags: (_result, _error, { prescriptionId }) => [
+      invalidatesTags: (_result, _error, { regionalPrescriptionId }) => [
         { type: 'RegionalPrescription', id: 'LIST' },
-        { type: 'RegionalPrescription', id: prescriptionId }
+        { type: 'RegionalPrescription', id: regionalPrescriptionId }
       ],
       transformResponse: (response) => RegionalPrescription.parse(response)
     }),
     commentRegionalPrescription: builder.mutation<
       RegionalPrescriptionComment,
       {
-        prescriptionId: string;
-        region: Region;
+        regionalPrescriptionId: string;
         commentToCreate: RegionalPrescriptionCommentToCreate;
       }
     >({
-      query: ({ prescriptionId, region, commentToCreate }) => ({
-        url: `prescriptions/${prescriptionId}/regions/${region}/comments`,
+      query: ({ regionalPrescriptionId, commentToCreate }) => ({
+        url: `prescriptions/regional/${regionalPrescriptionId}/comments`,
         method: 'POST',
         body: commentToCreate
       }),
       transformResponse: (response) =>
         RegionalPrescriptionComment.parse(response),
-      invalidatesTags: (_result, _error, { prescriptionId }) => [
-        { type: 'RegionalPrescription', id: prescriptionId }
+      invalidatesTags: (_result, _error, { regionalPrescriptionId }) => [
+        { type: 'RegionalPrescription', id: regionalPrescriptionId }
       ]
     })
   })

@@ -13,7 +13,6 @@ import {
   NextProgrammingPlanStatus,
   ProgrammingPlanStatus
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { RegionalPrescriptionKey } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { useCallback, useContext, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 import programmation from '../../assets/illustrations/programmation.svg';
@@ -95,13 +94,9 @@ const ProgrammingPlanView = () => {
   }, [searchParams, dispatch]);
 
   const submitRegionalPrescriptionComment = useCallback(
-    async (
-      regionalPrescriptionKey: RegionalPrescriptionKey,
-      comment: string
-    ) => {
+    async (regionalPrescriptionId: string, comment: string) => {
       await commentRegionalPrescription({
-        prescriptionId: regionalPrescriptionKey.prescriptionId,
-        region: regionalPrescriptionKey.region,
+        regionalPrescriptionId,
         commentToCreate: {
           programmingPlanId: programmingPlan?.id as string,
           comment

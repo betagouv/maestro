@@ -3,7 +3,7 @@ import Table from '@codegouvfr/react-dsfr/Table';
 import clsx from 'clsx';
 import { sumBy } from 'lodash-es';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
-import { Region, RegionList } from 'maestro-shared/referential/Region';
+import { RegionList } from 'maestro-shared/referential/Region';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
@@ -20,8 +20,7 @@ interface Props {
   prescriptions: Prescription[];
   regionalPrescriptions: RegionalPrescription[];
   onChangeRegionalPrescriptionCount: (
-    prescriptionId: string,
-    region: Region,
+    regionalPrescriptionId: string,
     count: number
   ) => void;
 }
@@ -96,8 +95,7 @@ const ProgrammingPlanPrescriptionTable = ({
                 regionalPrescription={regionalPrescription}
                 onChange={async (value) =>
                   onChangeRegionalPrescriptionCount(
-                    regionalPrescription.prescriptionId,
-                    regionalPrescription.region,
+                    regionalPrescription.id,
                     value
                   )
                 }

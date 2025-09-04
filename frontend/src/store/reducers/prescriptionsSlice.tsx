@@ -15,6 +15,7 @@ const PrescriptionCommentsData = z.discriminatedUnion('viewBy', [
     regionalComments: z.array(
       z.object({
         region: Region,
+        regionalPrescriptionId: true,
         comments: z
           .array(
             RegionalPrescriptionComment.pick({

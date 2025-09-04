@@ -63,10 +63,13 @@ const RegionalPrescriptionCountCell = ({
                     viewBy: 'MatrixKind',
                     prescriptionId: regionalPrescription.prescriptionId,
                     matrixKind,
-                    regionalComments: [regionalPrescription].map((rcp) => ({
-                      region: rcp.region,
-                      comments: rcp.comments ?? []
-                    }))
+                    regionalComments: [
+                      {
+                        regionalPrescriptionId: regionalPrescription.id,
+                        region: regionalPrescription.region,
+                        comments: regionalPrescription.comments ?? []
+                      }
+                    ]
                   })
                 )
               }
