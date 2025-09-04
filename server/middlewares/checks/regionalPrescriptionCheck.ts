@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import RegionalPrescriptionMissingError from 'maestro-shared/errors/regionalPrescriptionPlanMissingError';
-import { RegionalPrescriptionKey } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
+import { RegionalPrescriptionKey } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionKey';
 import regionalPrescriptionRepository from '../../repositories/regionalPrescriptionRepository';
 
 export const regionalPrescriptionCheck =

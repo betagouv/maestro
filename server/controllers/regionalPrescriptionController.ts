@@ -13,13 +13,13 @@ import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks
 import { FindRegionalPrescriptionOptions } from 'maestro-shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import {
   hasRegionalPrescriptionPermission,
-  RegionalPrescriptionKey,
   RegionalPrescriptionUpdate
 } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import {
   RegionalPrescriptionComment,
   RegionalPrescriptionCommentToCreate
 } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionComment';
+import { RegionalPrescriptionKey } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionKey';
 import { hasNationalRole } from 'maestro-shared/schema/User/User';
 import { isDefined } from 'maestro-shared/utils/utils';
 import { v4 as uuidv4 } from 'uuid';

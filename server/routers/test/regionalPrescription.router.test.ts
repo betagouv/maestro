@@ -5,13 +5,13 @@ import { MatrixKindEffective } from 'maestro-shared/referential/Matrix/MatrixKin
 import { Region, RegionList } from 'maestro-shared/referential/Region';
 import {
   RegionalPrescription,
-  RegionalPrescriptionKey,
   RegionalPrescriptionUpdate
 } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import {
   RegionalPrescriptionComment,
   RegionalPrescriptionCommentToCreate
 } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionComment';
+import { RegionalPrescriptionKey } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionKey';
 import { User } from 'maestro-shared/schema/User/User';
 import { CompanyFixture } from 'maestro-shared/test/companyFixtures';
 import {
@@ -47,7 +47,10 @@ import {
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
 import { RegionalPrescriptionComments } from '../../repositories/regionalPrescriptionCommentRepository';
-import { RegionalPrescriptions } from '../../repositories/regionalPrescriptionRepository';
+import {
+  formatRegionalPrescription,
+  RegionalPrescriptions
+} from '../../repositories/regionalPrescriptionRepository';
 import {
   formatPartialSample,
   Samples
@@ -202,7 +205,12 @@ describe('Regional prescriptions router', () => {
         ...validatedControlRegionalPrescriptions,
         ...submittedControlRegionalPrescriptions1,
         ...submittedControlRegionalPrescriptions2
-      ].map((_) => omit(_, ['realizedSampleCount', 'inProgressSampleCount']))
+      ].map((_) =>
+        omit(formatRegionalPrescription(_), [
+          'realizedSampleCount',
+          'inProgressSampleCount'
+        ])
+      )
     );
     await RegionalPrescriptionComments().insert([
       closedControlPrescriptionComment1,
@@ -496,6 +504,7 @@ describe('Regional prescriptions router', () => {
           .first()
       ).resolves.toEqual({
         ...submittedRegionalPrescription,
+        department: 'None',
         sampleCount: submittedRegionalPrescriptionUpdate.sampleCount
       });
 
@@ -519,6 +528,7 @@ describe('Regional prescriptions router', () => {
           .first()
       ).resolves.toEqual({
         ...submittedRegionalPrescription,
+        department: 'None',
         sampleCount: 0
       });
 
