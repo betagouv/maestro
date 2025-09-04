@@ -1,6 +1,7 @@
 import { groupBy } from 'lodash-es';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
+import { maestroDate } from 'maestro-shared/utils/date';
 import { z } from 'zod';
 import { ExtractError } from './extractError';
 import {
@@ -817,7 +818,16 @@ export const extractAnalyzes = (
       LIMITE_LQ: z.string(),
       CAS_NUMBER: z.string().transform((r) => (r === '' ? null : r)),
       TECHNIQUE: z.enum([...codeMethods, 'Calcul']),
-      LMR_NUM: frenchNumberStringValidator.nullish()
+      LMR_NUM: frenchNumberStringValidator.nullish(),
+      // 16/04/2025
+      ECHANT_DATE_DIFFUSION: z
+        .string()
+        .regex(/^\d{2}\/\d{2}\/\d{4}/)
+        .transform((date) => {
+          const [d, m, y] = date.substring(0, 10).split('/');
+          return `${y}-${m}-${d}`;
+        })
+        .pipe(maestroDate)
     })
   );
 
@@ -872,8 +882,7 @@ export const extractAnalyzes = (
             ? previousResidu.analysisMethod
             : codeMethodsAnalyseMethod[residue.TECHNIQUE],
         codeSandre: null,
-        //FIXME en attente Capinov
-        analysisDate: null
+        analysisDate: residue.ECHANT_DATE_DIFFUSION
       });
     }
 
@@ -903,9 +912,7 @@ const exportDataFromEmail: ExportDataFromEmail = async (attachments) => {
 
   for (const analysis of analyzes) {
     const pdfAttachment = attachments.find(
-      ({ contentType, filename }) =>
-        contentType === 'application/pdf' &&
-        filename?.startsWith(analysis.sampleReference)
+      ({ contentType }) => contentType === 'application/pdf'
     );
 
     if (pdfAttachment === undefined) {
@@ -924,8 +931,37 @@ const exportDataFromEmail: ExportDataFromEmail = async (attachments) => {
   return analyzesWithPdf;
 };
 
+export const getAnalysisKeyByFileName = (filename: string): string => {
+  if (filename.endsWith('.csv')) {
+    //  Example: Capinov_Export_MAESTRO 2025_6.8603.1 20250901
+    return filename.substring(
+      filename.indexOf(' ') + 1,
+      filename.lastIndexOf(' ')
+    );
+  }
+
+  if (filename.endsWith('.pdf')) {
+    const tokens = filename.split(' ');
+
+    //  Example: 2025_6 8603 1  ...
+    return `${tokens[0]}.${tokens[1]}.${tokens[2]}`;
+  }
+
+  return '';
+};
+
 export const capinovConf: LaboratoryConf = {
   exportDataFromEmail,
   ssd2IdByLabel: capinovReferential,
-  unknownReferences
+  unknownReferences,
+  getAnalysisKey: (email) => {
+    const attachment = email.attachments[0];
+
+    const filename = attachment.filename;
+    if (filename) {
+      return getAnalysisKeyByFileName(filename);
+    }
+
+    return '';
+  }
 };

@@ -6,3 +6,7 @@ export const assertUnreachable = (value: never): never => {
 export type OmitDistributive<T, K extends string> = T extends unknown
   ? Omit<T, K>
   : never;
+
+export const getRecordKeys = <T extends string>(
+  record: Record<T, unknown>
+): T[] => Object.keys(record) as T[];

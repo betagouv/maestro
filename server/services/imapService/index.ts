@@ -11,7 +11,10 @@ import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { MaestroDate } from 'maestro-shared/utils/date';
-import { OmitDistributive } from 'maestro-shared/utils/typescript';
+import {
+  getRecordKeys,
+  OmitDistributive
+} from 'maestro-shared/utils/typescript';
 import { Attachment, ParsedMail, simpleParser } from 'mailparser';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import config from '../../utils/config';
@@ -56,6 +59,7 @@ export type LaboratoryConf = {
   exportDataFromEmail: ExportDataFromEmail;
   ssd2IdByLabel: Record<string, SSD2Id>;
   unknownReferences: string[];
+  getAnalysisKey: (email: EmailWithMessageUid) => string;
 };
 
 export type LaboratoryWithConf = (typeof LaboratoryWithAutomation)[number];
@@ -103,6 +107,11 @@ const moveMessageToErrorbox = async (
   await mattermostService.send(error);
 };
 
+type EmailWithMessageUid = { messageUid: string } & Pick<
+  ParsedMail,
+  'subject' | 'attachments' | 'from'
+>;
+
 export const checkEmails = async () => {
   if (
     isNull(config.inbox.user) ||
@@ -133,13 +142,8 @@ export const checkEmails = async () => {
       if (client.mailbox.exists === 0) {
         console.log('Aucun email à traiter');
       } else {
-        const messagesBySubjectToRead: Record<
-          string,
-          {
-            messageUid: number;
-            laboratoryName: LaboratoryWithConf;
-          }[]
-        > = {};
+        const messagesByLaboratory: Record<LaboratoryWithConf, number[]> =
+          {} as Record<LaboratoryWithConf, number[]>;
 
         const messagesInError: {
           messageUid: string;
@@ -167,13 +171,10 @@ export const checkEmails = async () => {
             );
 
           if (laboratoryName !== null) {
-            if (!messagesBySubjectToRead[message.envelope.subject ?? '']) {
-              messagesBySubjectToRead[message.envelope.subject ?? ''] = [];
+            if (!messagesByLaboratory[laboratoryName]) {
+              messagesByLaboratory[laboratoryName] = [];
             }
-            messagesBySubjectToRead[message.envelope.subject ?? ''].push({
-              messageUid: message.uid,
-              laboratoryName
-            });
+            messagesByLaboratory[laboratoryName].push(message.uid);
             console.log('   =====>  ', laboratoryName);
           } else {
             messagesInError.push({
@@ -196,95 +197,94 @@ export const checkEmails = async () => {
         }
         const warnings = new Set<string>();
 
-        for (const messages of Object.values(messagesBySubjectToRead)) {
-          const parsedEmails: ParsedMail[] = [];
-          for (const message of messages) {
-            const messageUid: string = `${message.messageUid}`;
+        for (const laboratoryName of getRecordKeys(messagesByLaboratory)) {
+          const parsedEmails: EmailWithMessageUid[] = [];
+          for (const messageUid of messagesByLaboratory[laboratoryName]) {
             //undefined permet de récupérer tout l'email
             const downloadObject = await client.download(
-              messageUid,
+              `${messageUid}`,
               undefined,
               {
                 uid: true
               }
             );
             const parsed = await simpleParser(downloadObject.content);
-            parsedEmails.push(parsed);
+            parsedEmails.push({ ...parsed, messageUid: `${messageUid}` });
           }
 
-          const laboratoryName = messages[0].laboratoryName;
+          //certains laboratoires émettent plusieurs emails pour une analyse
+          const emailsByAnalysis: Record<string, EmailWithMessageUid[]> =
+            parsedEmails.reduce(
+              (acc, email) => {
+                const analysisKey =
+                  laboratoriesConf[laboratoryName].getAnalysisKey(email);
+                if (!acc[analysisKey]) {
+                  acc[analysisKey] = [];
+                }
+                acc[analysisKey].push(email);
+                return acc;
+              },
+              {} as Record<string, EmailWithMessageUid[]>
+            );
 
-          try {
-            const analyzes = await laboratoriesConf[
-              laboratoryName
-            ].exportDataFromEmail(parsedEmails.flatMap((p) => p.attachments));
+          for (const emails of Object.values(emailsByAnalysis)) {
+            try {
+              const analyzes = await laboratoriesConf[
+                laboratoryName
+              ].exportDataFromEmail(emails.flatMap((p) => p.attachments));
 
-            if (analyzes.length === 0) {
-              throw new ExtractError(
-                "Aucun résultat d'analyses trouvé dans cet email."
-              );
-            }
+              if (analyzes.length === 0) {
+                throw new ExtractError(
+                  "Aucun résultat d'analyses trouvé dans cet email."
+                );
+              }
 
-            for (const analysis of analyzes) {
-              const residues: (ExportDataSubstance & {
-                ssd2Id: SSD2Id | null;
-              })[] = analysis.residues.map((r) => {
-                return {
-                  ...r,
-                  ssd2Id:
-                    laboratoriesConf[laboratoryName].ssd2IdByLabel[r.label] ??
-                    null
-                };
-              });
+              for (const analysis of analyzes) {
+                const residues: (ExportDataSubstance & {
+                  ssd2Id: SSD2Id | null;
+                })[] = analysis.residues.map((r) => {
+                  return {
+                    ...r,
+                    ssd2Id:
+                      laboratoriesConf[laboratoryName].ssd2IdByLabel[r.label] ??
+                      null
+                  };
+                });
 
-              //On créer une liste de warnings avec les résidus introuvables dans SSD2
-              residues.forEach((r) => {
-                if (
-                  !laboratoriesConf[laboratoryName].unknownReferences.includes(
-                    r.label
-                  )
-                ) {
-                  if (r.codeSandre !== null) {
-                    if (SandreToSSD2[r.codeSandre] === undefined) {
-                      if (r.ssd2Id !== null) {
-                        warnings.add(
-                          `Nouveau code Sandre détecté : ${r.label} ${r.codeSandre} => ${r.ssd2Id}`
-                        );
-                      } else {
-                        warnings.add(
-                          `Nouveau code Sandre détecté : ${r.label} ${r.codeSandre}`
-                        );
+                //On créer une liste de warnings avec les résidus introuvables dans SSD2
+                residues.forEach((r) => {
+                  if (
+                    !laboratoriesConf[
+                      laboratoryName
+                    ].unknownReferences.includes(r.label)
+                  ) {
+                    if (r.codeSandre !== null) {
+                      if (SandreToSSD2[r.codeSandre] === undefined) {
+                        if (r.ssd2Id !== null) {
+                          warnings.add(
+                            `Nouveau code Sandre détecté : ${r.label} ${r.codeSandre} => ${r.ssd2Id}`
+                          );
+                        } else {
+                          warnings.add(
+                            `Nouveau code Sandre détecté : ${r.label} ${r.codeSandre}`
+                          );
+                        }
                       }
                     }
+                    if (r.ssd2Id === null) {
+                      const potentialSSD2Id = getSSD2Id(
+                        r.label,
+                        r.codeSandre,
+                        r.casNumber
+                      );
+                      warnings.add(
+                        `Impossible d'identifier le résidu : ${r.label} ${potentialSSD2Id !== null ? 'ssd2Id potentiel:' + potentialSSD2Id : ''}`
+                      );
+                    }
                   }
-                  if (r.ssd2Id === null) {
-                    const potentialSSD2Id = getSSD2Id(
-                      r.label,
-                      r.codeSandre,
-                      r.casNumber
-                    );
-                    warnings.add(
-                      `Impossible d'identifier le résidu : ${r.label} ${potentialSSD2Id !== null ? 'ssd2Id potentiel:' + potentialSSD2Id : ''}`
-                    );
-                  }
-                }
-              });
+                });
 
-              const residuesNotDeprecated = residues.filter((r) => {
-                const ssd2Id = r.ssd2Id;
-
-                if (ssd2Id === null) {
-                  return true;
-                }
-                const reference =
-                  SSD2Referential[ssd2Id as keyof typeof SSD2Referential];
-                return !('deprecated' in reference) || !reference.deprecated;
-              });
-
-              //On garde que les résidus intéressants
-              const interestingResidues = residuesNotDeprecated
-                .filter((r) => r.result_kind !== 'ND')
-                .filter((r) => {
+                const residuesNotDeprecated = residues.filter((r) => {
                   const ssd2Id = r.ssd2Id;
 
                   if (ssd2Id === null) {
@@ -295,70 +295,88 @@ export const checkEmails = async () => {
                   return !('deprecated' in reference) || !reference.deprecated;
                 });
 
-              //Erreur si un résidu intéressant n'a pas de SSD2Id
-              interestingResidues.forEach((r) => {
-                if (r.ssd2Id === null) {
-                  if (
-                    laboratoriesConf[laboratoryName].unknownReferences.includes(
-                      r.label
-                    ) &&
-                    r.result_kind === 'ND'
-                  ) {
-                    warnings.add(
-                      `Attention un résidu inconnu a été détecté, il a été ignoré : ${r.label}`
-                    );
-                  } else {
-                    throw new ExtractError(
-                      `Résidu non identifiable : ${r.label}`
-                    );
-                  }
-                }
-              });
+                //On garde que les résidus intéressants
+                const interestingResidues = residuesNotDeprecated
+                  .filter((r) => r.result_kind !== 'ND')
+                  .filter((r) => {
+                    const ssd2Id = r.ssd2Id;
 
-              const { sampleId, samplerId, samplerEmail } =
-                await analysisHandler({
-                  ...analysis,
-                  residues: residuesNotDeprecated.map(
-                    ({ casNumber, codeSandre, label, ...rest }) => {
-                      const unknownLabel = rest.ssd2Id === null ? label : null;
-                      return { ...rest, unknownLabel };
+                    if (ssd2Id === null) {
+                      return true;
                     }
-                  )
+                    const reference =
+                      SSD2Referential[ssd2Id as keyof typeof SSD2Referential];
+                    return (
+                      !('deprecated' in reference) || !reference.deprecated
+                    );
+                  });
+
+                //Erreur si un résidu intéressant n'a pas de SSD2Id
+                interestingResidues.forEach((r) => {
+                  if (r.ssd2Id === null) {
+                    if (
+                      laboratoriesConf[
+                        laboratoryName
+                      ].unknownReferences.includes(r.label) &&
+                      r.result_kind === 'ND'
+                    ) {
+                      warnings.add(
+                        `Attention un résidu inconnu a été détecté, il a été ignoré : ${r.label}`
+                      );
+                    } else {
+                      throw new ExtractError(
+                        `Résidu non identifiable : ${r.label}`
+                      );
+                    }
+                  }
                 });
 
-              await notificationService.sendNotification(
-                {
-                  category: 'AnalysisReviewTodo',
-                  link: AppRouteLinks.SampleRoute.link(sampleId)
-                },
-                [{ id: samplerId, email: samplerEmail }],
-                undefined
+                const { sampleId, samplerId, samplerEmail } =
+                  await analysisHandler({
+                    ...analysis,
+                    residues: residuesNotDeprecated.map(
+                      ({ casNumber, codeSandre, label, ...rest }) => {
+                        const unknownLabel =
+                          rest.ssd2Id === null ? label : null;
+                        return { ...rest, unknownLabel };
+                      }
+                    )
+                  });
+
+                await notificationService.sendNotification(
+                  {
+                    category: 'AnalysisReviewTodo',
+                    link: AppRouteLinks.SampleRoute.link(sampleId)
+                  },
+                  [{ id: samplerId, email: samplerEmail }],
+                  undefined
+                );
+              }
+              for (const message of emails) {
+                await client.messageMove(
+                  `${message.messageUid}`,
+                  config.inbox.successboxName,
+                  {
+                    uid: true
+                  }
+                );
+              }
+            } catch (e: any) {
+              console.error(e);
+              const parsed = parsedEmails[0];
+              await moveMessageToErrorbox(
+                parsed.subject ?? '',
+                parsed.from?.value[0].address ?? '',
+                e.message,
+                emails.map((message) => message.messageUid),
+                client
               );
-            }
-            for (const message of messages) {
-              await client.messageMove(
-                `${message.messageUid}`,
-                config.inbox.successboxName,
-                {
-                  uid: true
-                }
-              );
-            }
-          } catch (e: any) {
-            console.error(e);
-            const parsed = parsedEmails[0];
-            await moveMessageToErrorbox(
-              parsed.subject ?? '',
-              parsed.from?.value[0].address ?? '',
-              e.message,
-              messages.map((message) => `${message.messageUid}`),
-              client
-            );
-          } finally {
-            if (warnings.size > 0) {
-              const warningMessage = Array.from(warnings).join('\n -');
-              console.warn(warningMessage);
-              await mattermostService.send(warningMessage);
+            } finally {
+              if (warnings.size > 0) {
+                const warningMessage = Array.from(warnings).join('\n -');
+                console.warn(warningMessage);
+                await mattermostService.send(warningMessage);
+              }
             }
           }
         }
