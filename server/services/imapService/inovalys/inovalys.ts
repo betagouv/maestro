@@ -263,5 +263,6 @@ const exportDataFromEmail: ExportDataFromEmail = async (attachments) => {
 export const inovalysConf: LaboratoryConf = {
   exportDataFromEmail,
   ssd2IdByLabel: inovalysReferential,
-  unknownReferences: inovalysUnknownReferences
+  unknownReferences: inovalysUnknownReferences,
+  getAnalysisKey: (email) => email.subject ?? ''
 };

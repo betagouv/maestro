@@ -866,5 +866,6 @@ const exportDataFromEmail: ExportDataFromEmail = async (attachments) => {
 export const girpaConf: LaboratoryConf = {
   exportDataFromEmail,
   ssd2IdByLabel: girpaReferences,
-  unknownReferences: girpaUnknownReferences
+  unknownReferences: girpaUnknownReferences,
+  getAnalysisKey: (email) => email.messageUid
 };

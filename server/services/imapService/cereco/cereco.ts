@@ -134,5 +134,6 @@ const exportDataFromEmail: ExportDataFromEmail = async (attachments) => {
 export const cerecoConf: LaboratoryConf = {
   exportDataFromEmail,
   ssd2IdByLabel: cerecoReferential,
-  unknownReferences: cerecoUnknownReferences
+  unknownReferences: cerecoUnknownReferences,
+  getAnalysisKey: (email) => email.messageUid
 };

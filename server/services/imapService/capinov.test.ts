@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { extractAnalyzes } from './capinov';
+import { extractAnalyzes, getAnalysisKeyByFileName } from './capinov';
 
 describe('Parse correctement le fichier CSV', () => {
   test('émet une erreur si le fichier est incorrect ou vide', () => {
@@ -27,7 +27,8 @@ describe('Parse correctement le fichier CSV', () => {
       INCERTITUDE: '0',
       CAS_NUMBER: '135158-54-2',
       TECHNIQUE: 'MI MO-PC-077',
-      LMR_NUM: '0.01'
+      LMR_NUM: '0.01',
+      ECHANT_DATE_DIFFUSION: '16/04/2025'
     };
     expect(() => extractAnalyzes([line])).not.toThrowError();
     expect(() =>
@@ -55,7 +56,8 @@ describe('Parse correctement le fichier CSV', () => {
       INCERTITUDE: '0',
       CAS_NUMBER: '135158-54-2',
       TECHNIQUE: 'MI MO-PC-077',
-      LMR_NUM: '0,01'
+      LMR_NUM: '0,01',
+      ECHANT_DATE_DIFFUSION: '16/04/2025'
     };
 
     const lines = [
@@ -71,7 +73,7 @@ describe('Parse correctement le fichier CSV', () => {
           "notes": "",
           "residues": [
             {
-              "analysisDate": null,
+              "analysisDate": "2025-04-16",
               "analysisMethod": "Multi",
               "casNumber": "135158-54-2",
               "codeSandre": null,
@@ -79,7 +81,7 @@ describe('Parse correctement le fichier CSV', () => {
               "result_kind": "ND",
             },
             {
-              "analysisDate": null,
+              "analysisDate": "2025-04-16",
               "analysisMethod": "Multi",
               "casNumber": "135158-54-2",
               "codeSandre": null,
@@ -87,7 +89,7 @@ describe('Parse correctement le fichier CSV', () => {
               "result_kind": "ND",
             },
             {
-              "analysisDate": null,
+              "analysisDate": "2025-04-16",
               "analysisMethod": "Mono",
               "casNumber": "135158-54-2",
               "codeSandre": null,
@@ -95,7 +97,7 @@ describe('Parse correctement le fichier CSV', () => {
               "result_kind": "ND",
             },
             {
-              "analysisDate": null,
+              "analysisDate": "2025-04-16",
               "analysisMethod": "Mono",
               "casNumber": "135158-54-2",
               "codeSandre": null,
@@ -108,4 +110,17 @@ describe('Parse correctement le fichier CSV', () => {
       ]
     `);
   });
+});
+
+test('getAnalysisKeyByFileName', () => {
+  expect(
+    getAnalysisKeyByFileName(
+      'Capinov_Export_MAESTRO 2025_6.8603.1 20250901.csv'
+    )
+  ).toMatchInlineSnapshot(`"2025_6.8603.1"`);
+  expect(
+    getAnalysisKeyByFileName(
+      'Capinov_Export_MAESTRO 2025_6.8603.1 20250901.csv'
+    )
+  ).toBe(getAnalysisKeyByFileName('2025_6 8603 1  asenasen asen asne.pdf'));
 });
