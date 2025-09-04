@@ -1,36 +1,43 @@
 import { Knex } from 'knex';
 import { isArray, isNil, omit, omitBy, uniq } from 'lodash-es';
+import { Department } from 'maestro-shared/referential/Department';
 import {
   FindRegionalPrescriptionOptions,
   RegionalPrescriptionOptionsInclude
 } from 'maestro-shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
-import {
-  RegionalPrescription,
-  RegionalPrescriptionKey
-} from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
+import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
+import { RegionalPrescriptionKey } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionKey';
 import {
   InProgressStatusList,
   RealizedStatusList
 } from 'maestro-shared/schema/Sample/SampleStatus';
+import { z } from 'zod';
 import { knexInstance as db } from './db';
 import { prescriptionsTable } from './prescriptionRepository';
 import { regionalPrescriptionCommentsTable } from './regionalPrescriptionCommentRepository';
 import { samplesTable } from './sampleRepository';
 const regionalPrescriptionsTable = 'regional_prescriptions';
 
+const RegionalPrescriptionsDbo = z.object({
+  ...RegionalPrescription.shape,
+  department: z.union([Department, z.literal('None')])
+});
+
+type RegionalPrescriptionsDbo = z.infer<typeof RegionalPrescriptionsDbo>;
+
 export const RegionalPrescriptions = () =>
-  db<RegionalPrescription>(regionalPrescriptionsTable);
+  db<RegionalPrescriptionsDbo>(regionalPrescriptionsTable);
 
 const findUnique = async ({
   prescriptionId,
-  region
+  region,
+  department
 }: RegionalPrescriptionKey): Promise<RegionalPrescription | undefined> => {
   console.info('Find regional prescription', prescriptionId, region);
   return RegionalPrescriptions()
-    .where('prescriptionId', prescriptionId)
-    .where('region', region)
+    .where({ prescriptionId, region, department: department ?? 'None' })
     .first()
-    .then((_) => _ && RegionalPrescription.parse(omitBy(_, isNil)));
+    .then((_) => _ && parseRegionalPrescription(_));
 };
 
 const findMany = async (
@@ -73,9 +80,7 @@ const findMany = async (
     })
     .modify(include(findOptions))
     .then((regionalPrescriptions) =>
-      regionalPrescriptions.map((_: RegionalPrescription) =>
-        RegionalPrescription.parse(omitBy(_, isNil))
-      )
+      regionalPrescriptions.map(parseRegionalPrescription)
     );
 };
 
@@ -111,10 +116,15 @@ const include = (opts?: FindRegionalPrescriptionOptions) => {
               `${regionalPrescriptionCommentsTable}.region`,
               `${regionalPrescriptionsTable}.region`
             )
+            .andOn(
+              `${regionalPrescriptionCommentsTable}.department`,
+              `${regionalPrescriptionsTable}.department`
+            )
         )
         .groupBy(
           `${regionalPrescriptionsTable}.prescription_id`,
-          `${regionalPrescriptionsTable}.region`
+          `${regionalPrescriptionsTable}.region`,
+          `${regionalPrescriptionsTable}.department`
         );
     },
     sampleCounts: (query) => {
@@ -142,7 +152,8 @@ const include = (opts?: FindRegionalPrescriptionOptions) => {
         )
         .groupBy(
           `${regionalPrescriptionsTable}.prescription_id`,
-          `${regionalPrescriptionsTable}.region`
+          `${regionalPrescriptionsTable}.region`,
+          `${regionalPrescriptionsTable}.department`
         );
     }
   };
@@ -162,17 +173,45 @@ const include = (opts?: FindRegionalPrescriptionOptions) => {
 const insertMany = async (regionalPrescriptions: RegionalPrescription[]) => {
   console.info('Insert multiple regional prescriptions');
   if (regionalPrescriptions.length > 0) {
-    await RegionalPrescriptions().insert(regionalPrescriptions);
+    await RegionalPrescriptions().insert(
+      regionalPrescriptions.map(formatRegionalPrescription)
+    );
   }
 };
 
 const update = async (regionalPrescription: RegionalPrescription) => {
   console.info('Update regional prescription', regionalPrescription);
   await RegionalPrescriptions()
-    .where('prescriptionId', regionalPrescription.prescriptionId)
-    .where('region', regionalPrescription.region)
-    .update(regionalPrescription);
+    .where({
+      prescriptionId: regionalPrescription.prescriptionId,
+      region: regionalPrescription.region,
+      department: regionalPrescription.department ?? 'None'
+    })
+    .update(formatRegionalPrescription(regionalPrescription));
 };
+
+export const formatRegionalPrescription = (
+  regionalPrescription: RegionalPrescription
+): RegionalPrescriptionsDbo => ({
+  ...regionalPrescription,
+  department: regionalPrescription.department ?? 'None'
+});
+
+const parseRegionalPrescription = (
+  regionalPrescriptionDbo: RegionalPrescriptionsDbo
+): RegionalPrescription =>
+  RegionalPrescription.parse(
+    omitBy(
+      {
+        ...regionalPrescriptionDbo,
+        department:
+          regionalPrescriptionDbo.department === 'None'
+            ? undefined
+            : regionalPrescriptionDbo.department
+      },
+      isNil
+    )
+  );
 
 export default {
   findUnique,

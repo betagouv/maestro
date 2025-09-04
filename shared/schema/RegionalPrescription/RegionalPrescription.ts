@@ -5,11 +5,7 @@ import { Prescription } from '../Prescription/Prescription';
 import { ProgrammingPlan } from '../ProgrammingPlan/ProgrammingPlans';
 import { hasPermission, User, userRegions } from '../User/User';
 import { RegionalPrescriptionComment } from './RegionalPrescriptionComment';
-
-export const RegionalPrescriptionKey = z.object({
-  prescriptionId: z.guid(),
-  region: Region
-});
+import { RegionalPrescriptionKey } from './RegionalPrescriptionKey';
 
 export const RegionalPrescription = z.object({
   ...RegionalPrescriptionKey.shape,
@@ -29,14 +25,14 @@ export const RegionalPrescription = z.object({
   realizedSampleCount: z.coerce.number().nullish()
 });
 
-export const RegionalPrescriptionUpdate = RegionalPrescription.pick({
-  sampleCount: true,
-  laboratoryId: true
-})
-  .partial()
-  .merge(Prescription.pick({ programmingPlanId: true }));
+export const RegionalPrescriptionUpdate = z.object({
+  ...RegionalPrescription.pick({
+    sampleCount: true,
+    laboratoryId: true
+  }).partial().shape,
+  ...Prescription.pick({ programmingPlanId: true }).shape
+});
 
-export type RegionalPrescriptionKey = z.infer<typeof RegionalPrescriptionKey>;
 export type RegionalPrescription = z.infer<typeof RegionalPrescription>;
 export type RegionalPrescriptionUpdate = z.infer<
   typeof RegionalPrescriptionUpdate

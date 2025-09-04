@@ -1,6 +1,6 @@
 import { isNil } from 'lodash-es';
 import { z } from 'zod';
-import { Region } from '../../referential/Region';
+import { RegionalPrescriptionKey } from './RegionalPrescriptionKey';
 
 export const RegionalPrescriptionCommentToCreate = z.object({
   programmingPlanId: z.guid(),
@@ -15,9 +15,8 @@ export const RegionalPrescriptionCommentToCreate = z.object({
 });
 
 export const RegionalPrescriptionComment = z.object({
+  ...RegionalPrescriptionKey.shape,
   id: z.guid(),
-  prescriptionId: z.guid(),
-  region: Region,
   comment: z.string(),
   createdAt: z.coerce.date(),
   createdBy: z.string()

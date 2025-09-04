@@ -13,7 +13,7 @@ import {
   NextProgrammingPlanStatus,
   ProgrammingPlanStatus
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { RegionalPrescriptionKey } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
+import { RegionalPrescriptionKey } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionKey';
 import { useCallback, useContext, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 import programmation from '../../assets/illustrations/programmation.svg';

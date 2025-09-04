@@ -1,10 +1,8 @@
 import express from 'express';
 import { FindRegionalPrescriptionOptions } from 'maestro-shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
-import {
-  RegionalPrescriptionKey,
-  RegionalPrescriptionUpdate
-} from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
+import { RegionalPrescriptionUpdate } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { RegionalPrescriptionCommentToCreate } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionComment';
+import { RegionalPrescriptionKey } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionKey';
 import regionalPrescriptionController from '../controllers/regionalPrescriptionController';
 import { permissionsCheck } from '../middlewares/checks/authCheck';
 import { prescriptionCheck } from '../middlewares/checks/prescriptionCheck';
