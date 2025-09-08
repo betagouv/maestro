@@ -1,12 +1,12 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { useEffect, useRef, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import './Header.scss';
 
 interface Props {
   value?: string;
-  menuItems?: React.ReactNode[];
+  menuItems?: ReactNode[];
 }
 
 const HeaderMenu = ({ value, menuItems }: Props) => {
@@ -24,7 +24,7 @@ const HeaderMenu = ({ value, menuItems }: Props) => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [menuRef]); //eslint-disable-line react-hooks/exhaustive-deps
+  }, [menuRef]);
 
   return (
     <div className="header-menu" ref={menuRef}>
