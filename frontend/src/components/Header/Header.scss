@@ -1,0 +1,33 @@
+.header-menu {
+  position: relative;
+
+  .header-menu-button[aria-expanded='true'] {
+    color: var(--text-active-blue-france);
+    background-color: var(--background-open-blue-france);
+    --idle: transparent;
+    --hover: var(--background-open-blue-france-hover);
+    --active: var(--background-open-blue-france-active);
+  }
+
+  .fr-menu {
+    margin: -0.25rem -1rem 0;
+  }
+
+  .fr-menu__list {
+    width: auto;
+    padding: 0;
+  }
+
+  ul {
+    list-style-type: none !important;
+
+    button {
+      width: 100% !important;
+      margin: 0 !important;
+    }
+  }
+}
+
+li:has(> .header-menu):has(+ li) {
+  margin-right: 1rem;
+}
