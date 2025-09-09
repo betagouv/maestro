@@ -85,10 +85,10 @@ const ProgrammingPlanView = () => {
   );
 
   useEffect(() => {
-    if (searchParams.get('context')) {
+    if (searchParams.get('contexts')) {
       dispatch(
         prescriptionsSlice.actions.changeListContext(
-          searchParams.get('context') as ProgrammingPlanContext
+          searchParams.get('contexts') as ProgrammingPlanContext
         )
       );
     }
