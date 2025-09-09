@@ -42,7 +42,10 @@ test("Le fichier est updloadé sur le S3, n'est pas supprimé du S3 et est en bd
       }
     ]
   } as const satisfies AnalysisWithResidueWithSSD2Id;
-  const { analysisId } = await analysisHandler(analysisToSave);
+  const { analysisId } = await analysisHandler(
+    analysisToSave,
+    new Date(9999999)
+  );
 
   expect(spyUploadDocument).toHaveBeenCalledOnce();
   expect(spyDeleteDocument).toHaveBeenCalledTimes(0);
@@ -76,12 +79,15 @@ test("Retourne une erreur si l'upload a échoué", async () => {
     .spyOn(s3Service, 'uploadDocument')
     .mockResolvedValue({ error, valid: false });
   await expect(async () =>
-    analysisHandler({
-      notes: '',
-      pdfFile: new File([], 'fileName'),
-      sampleReference: Sample13Fixture.reference,
-      residues: []
-    })
+    analysisHandler(
+      {
+        notes: '',
+        pdfFile: new File([], 'fileName'),
+        sampleReference: Sample13Fixture.reference,
+        residues: []
+      },
+      new Date(9999999)
+    )
   ).rejects.toThrowError(
     `Impossible d'uploader le PDF sur le S3: HTTP ${error}`
   );
@@ -98,7 +104,7 @@ test("Permet d'ajouter une analyse à un échantillon avec déjà une analyse", 
     residues: []
   };
 
-  await analysisHandler(analysis);
+  await analysisHandler(analysis, new Date(9999999));
   expect(spyUploadDocument).toHaveBeenCalledTimes(1);
 
   spyUploadDocument.mockReset();
@@ -111,20 +117,23 @@ test("Si une erreur intervient après l'upload sur le S3, on supprime le documen
     .spyOn(s3Service, 'uploadDocument')
     .mockResolvedValue({ documentId: '', valid: true });
   await expect(async () =>
-    analysisHandler({
-      notes: '',
-      pdfFile: new File([], 'fileName'),
-      sampleReference: Sample13Fixture.reference,
-      residues: [
-        {
-          ssd2Id: 'RF-0002-001-PPP',
-          result_kind: 'NQ',
-          analysisMethod: 'Multi',
-          unknownLabel: null,
-          analysisDate: null
-        }
-      ]
-    })
+    analysisHandler(
+      {
+        notes: '',
+        pdfFile: new File([], 'fileName'),
+        sampleReference: Sample13Fixture.reference,
+        residues: [
+          {
+            ssd2Id: 'RF-0002-001-PPP',
+            result_kind: 'NQ',
+            analysisMethod: 'Multi',
+            unknownLabel: null,
+            analysisDate: null
+          }
+        ]
+      },
+      new Date(9999999)
+    )
   ).rejects.toThrowErrorMatchingInlineSnapshot(
     `[error: invalid input syntax for type uuid: ""]`
   );
@@ -135,20 +144,23 @@ test("Si une erreur intervient après l'upload sur le S3, on supprime le documen
 
 test("Impossible d'enregistrer l'analyse si on trouve un résidu complexe sans analyte", async () => {
   await expect(async () =>
-    analysisHandler({
-      notes: '',
-      pdfFile: new File([], 'fileName'),
-      sampleReference: Sample13Fixture.reference,
-      residues: [
-        {
-          ssd2Id: 'RF-0008-001-PPP',
-          result_kind: 'NQ',
-          analysisMethod: 'Multi',
-          unknownLabel: null,
-          analysisDate: null
-        }
-      ]
-    })
+    analysisHandler(
+      {
+        notes: '',
+        pdfFile: new File([], 'fileName'),
+        sampleReference: Sample13Fixture.reference,
+        residues: [
+          {
+            ssd2Id: 'RF-0008-001-PPP',
+            result_kind: 'NQ',
+            analysisMethod: 'Multi',
+            unknownLabel: null,
+            analysisDate: null
+          }
+        ]
+      },
+      new Date(9999999)
+    )
   ).rejects.toThrowErrorMatchingInlineSnapshot(
     `[Error: Le résidu complexe RF-0008-001-PPP 2,4-DB (sum of 2,4-DB, its salts, its esters and its conjugates, expressed as 2,4-DB) est présent, mais n'a aucune analyte]`
   );
@@ -187,7 +199,10 @@ test('Peut enregistrer une analyse avec un résidu complexe et ses analytes asso
     ]
   } as const satisfies AnalysisWithResidueWithSSD2Id;
 
-  const { analysisId } = await analysisHandler(analysisToSave);
+  const { analysisId } = await analysisHandler(
+    analysisToSave,
+    new Date(9999999)
+  );
 
   const analysisResidue = await kysely
     .selectFrom('analysisResidues')
@@ -242,7 +257,10 @@ test('Un résidu complexe Non Quantifiable est enregistré en Non détecté si t
     ]
   } as const satisfies AnalysisWithResidueWithSSD2Id;
 
-  const { analysisId } = await analysisHandler(analysisToSave);
+  const { analysisId } = await analysisHandler(
+    analysisToSave,
+    new Date(9999999)
+  );
 
   const analysisResidue = await kysely
     .selectFrom('analysisResidues')

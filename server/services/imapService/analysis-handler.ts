@@ -21,7 +21,8 @@ export type AnalysisWithResidueWithSSD2Id = Omit<ExportAnalysis, 'residues'> & {
   residues: ExportDataSubstanceWithSSD2Id[];
 };
 export const analysisHandler = async (
-  analyse: AnalysisWithResidueWithSSD2Id
+  analyse: AnalysisWithResidueWithSSD2Id,
+  emailReceivedAt: Date
 ): Promise<{
   samplerId: string;
   sampleId: string;
@@ -154,6 +155,7 @@ export const analysisHandler = async (
         status: 'Compliance',
         createdBy: null,
         createdAt: new Date(),
+        emailReceivedAt: emailReceivedAt,
 
         // Pour le moment on passe par une validation manuelle pour déterminer la conformité
         // compliance: true,
