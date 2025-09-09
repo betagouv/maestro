@@ -827,7 +827,8 @@ export const extractAnalyzes = (
           const [d, m, y] = date.substring(0, 10).split('/');
           return `${y}-${m}-${d}`;
         })
-        .pipe(maestroDate)
+        .pipe(maestroDate),
+      COMMENTAIRE: z.string().nullish()
     })
   );
 
@@ -852,7 +853,7 @@ export const extractAnalyzes = (
   for (const sampleReference in resultsBySample) {
     const analysis: Omit<ExportAnalysis, 'pdfFile'> = {
       sampleReference,
-      notes: '',
+      notes: resultatsData[0].COMMENTAIRE ?? '',
       residues: []
     };
 
