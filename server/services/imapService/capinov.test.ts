@@ -57,7 +57,8 @@ describe('Parse correctement le fichier CSV', () => {
       CAS_NUMBER: '135158-54-2',
       TECHNIQUE: 'MI MO-PC-077',
       LMR_NUM: '0,01',
-      ECHANT_DATE_DIFFUSION: '16/04/2025'
+      ECHANT_DATE_DIFFUSION: '16/04/2025',
+      COMMENTAIRE: 'Pas de problème'
     };
 
     const lines = [
@@ -70,7 +71,7 @@ describe('Parse correctement le fichier CSV', () => {
     expect(extractAnalyzes(lines)).toMatchInlineSnapshot(`
       [
         {
-          "notes": "",
+          "notes": "Pas de problème",
           "residues": [
             {
               "analysisDate": "2025-04-16",
