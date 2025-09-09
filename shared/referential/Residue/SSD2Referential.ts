@@ -11846,7 +11846,8 @@ export const SSD2Referential =
       name: 'Fosetyl',
       casNumber: '15845-66-6',
       otherNames: [],
-      reportable: true
+      reportable: true,
+      lmrCanBeOptional: true
     },
     'RF-1060-001-PPP': {
       reference: 'RF-1060-001-PPP',
