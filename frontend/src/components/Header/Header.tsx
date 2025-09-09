@@ -18,6 +18,7 @@ import { ApiClientContext } from '../../services/apiClient';
 import config from '../../utils/config';
 import { MascaradeButton } from '../Mascarade/MascaradeButton';
 import { MascaradeModal } from '../Mascarade/MascaradeModal';
+import HeaderMenu from './HeaderMenu';
 
 const mascaradeModal = createModal({
   id: `mascarade-modale-id`,
@@ -280,27 +281,23 @@ const Header = () => {
                     children={isMobile ? 'Notifications' : undefined}
                   />
                 </Badge>,
-                <div key="logout">
-                  <div>
+                <HeaderMenu
+                  key="userMenu"
+                  value={`${user?.firstName} ${user?.lastName}`}
+                  menuItems={[
+                    <MascaradeButton modal={mascaradeModal} />,
                     <Button
                       iconId="fr-icon-logout-box-r-line"
                       onClick={async () => {
                         const logoutRedirectUrl = await logout().unwrap();
                         window.location.href = logoutRedirectUrl.url;
                       }}
-                      className={cx('fr-mb-0')}
                     >
                       Se déconnecter
                     </Button>
-                    <MascaradeButton modal={mascaradeModal} />
-                  </div>
-                  {user?.role && (
-                    <div className={cx('fr-text--sm', 'fr-mr-2w')}>
-                      {user.lastName} {user.firstName}
-                    </div>
-                  )}
-                </div>
-              ]
+                  ]}
+                />
+              ].filter((_) => _ !== undefined)
             : [])
         ]}
       />
