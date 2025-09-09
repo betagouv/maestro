@@ -34,6 +34,7 @@ export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 export interface Analysis {
   compliance: boolean | null;
   createdAt: Generated<Timestamp | null>;
+  emailReceivedAt: Timestamp | null;
   createdBy: string | null;
   id: Generated<string>;
   notesOnCompliance: string | null;

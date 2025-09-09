@@ -109,7 +109,7 @@ const moveMessageToErrorbox = async (
 
 type EmailWithMessageUid = { messageUid: string } & Pick<
   ParsedMail,
-  'subject' | 'attachments' | 'from'
+  'subject' | 'attachments' | 'from' | 'date'
 >;
 
 export const checkEmails = async () => {
@@ -331,17 +331,25 @@ export const checkEmails = async () => {
                   }
                 });
 
+                const emailReceivedAt = new Date(
+                  Math.max(
+                    ...emails.map((e) => (e.date ?? new Date()).getTime())
+                  )
+                );
                 const { sampleId, samplerId, samplerEmail } =
-                  await analysisHandler({
-                    ...analysis,
-                    residues: residuesNotDeprecated.map(
-                      ({ casNumber, codeSandre, label, ...rest }) => {
-                        const unknownLabel =
-                          rest.ssd2Id === null ? label : null;
-                        return { ...rest, unknownLabel };
-                      }
-                    )
-                  });
+                  await analysisHandler(
+                    {
+                      ...analysis,
+                      residues: residuesNotDeprecated.map(
+                        ({ casNumber, codeSandre, label, ...rest }) => {
+                          const unknownLabel =
+                            rest.ssd2Id === null ? label : null;
+                          return { ...rest, unknownLabel };
+                        }
+                      )
+                    },
+                    emailReceivedAt
+                  );
 
                 await notificationService.sendNotification(
                   {
