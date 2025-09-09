@@ -12,8 +12,7 @@ export const genUser = (data?: Partial<User>): User => {
   return {
     id: uuidv4(),
     email: fakerFR.internet.email(),
-    firstName: fakerFR.person.firstName(),
-    lastName: fakerFR.person.lastName(),
+    name: fakerFR.person.fullName(),
     programmingPlanKinds: [oneOf(ProgrammingPlanKindList)],
     role,
     region: NationalUserRole.safeParse(role).success ? null : oneOf(RegionList),
@@ -30,8 +29,7 @@ export const Sampler1Fixture = genUser({
   id: '11111111-1111-1111-1111-111111111111',
   programmingPlanKinds: ['PPV'],
   region: Region1Fixture,
-  firstName: 'John',
-  lastName: 'Doe',
+  name: 'John Doe',
   email: 'john.doe@example.net'
 });
 export const Sampler2Fixture = genUser({
@@ -39,8 +37,7 @@ export const Sampler2Fixture = genUser({
   id: '22222222-2222-2222-2222-222222222222',
   programmingPlanKinds: ['PPV'],
   region: Region2Fixture,
-  firstName: 'Jane',
-  lastName: 'Austen',
+  name: 'Jane Austen',
   email: 'jane.austen@example.net'
 });
 export const SamplerDromFixture = genUser({
@@ -48,8 +45,7 @@ export const SamplerDromFixture = genUser({
   id: '66666666-6666-6666-6666-666666666666',
   programmingPlanKinds: ['PPV'],
   region: RegionDromFixture,
-  firstName: 'Jack',
-  lastName: 'Sparrow',
+  name: 'Jack Sparrow',
   email: 'jack.sparrow@example.net'
 });
 export const RegionalCoordinator = genUser({
@@ -57,8 +53,7 @@ export const RegionalCoordinator = genUser({
   id: '33333333-3333-3333-3333-333333333333',
   programmingPlanKinds: ['PPV'],
   region: Region1Fixture,
-  firstName: 'Alice',
-  lastName: 'Wonderland',
+  name: 'Alice Wonderland',
   email: 'alice.wonderland@example.net'
 });
 export const RegionalDromCoordinator = genUser({
@@ -66,8 +61,7 @@ export const RegionalDromCoordinator = genUser({
   id: '44444444-4444-4444-4444-444444444444',
   programmingPlanKinds: ['PPV'],
   region: RegionDromFixture,
-  firstName: 'Bob',
-  lastName: 'Marley',
+  name: 'Bob Marley',
   email: 'bob.marley@example.net'
 });
 export const NationalCoordinator = genUser({

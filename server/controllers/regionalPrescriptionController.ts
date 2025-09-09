@@ -151,7 +151,7 @@ const commentRegionalPrescription = async (
       matrix: MatrixKindLabels[prescription.matrixKind as MatrixKind],
       sampleCount: regionalPrescription.sampleCount,
       comment: draftPrescriptionComment.comment,
-      author: user ? `${user.firstName} ${user.lastName}` : 'Anonyme'
+      author: user ? `${user.name}` : 'Anonyme'
     }
   );
 

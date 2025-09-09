@@ -18,10 +18,7 @@ const PrescriptionCommentAuthor = ({ userId }: Props) => {
 
   return (
     <div className={cx('fr-text--sm', 'fr-mb-0')}>
-      <b>
-        {user.firstName} {user.lastName}
-      </b>{' '}
-      - {UserRoleLabels[user.role]}{' '}
+      <b>{user.name}</b> - {UserRoleLabels[user.role]}{' '}
       {user.region ? Regions[user.region].name : ''}
     </div>
   );

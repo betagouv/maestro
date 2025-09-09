@@ -277,8 +277,8 @@ const SamplerBlock = ({
     <span className="icon-text">
       <span className={cx('fr-icon-user-line', 'fr-icon--sm')}></span>
       {isCreatedPartialSample(sample)
-        ? `${sample.sampler.firstName} ${sample.sampler.lastName}`
-        : `${user?.firstName} ${user?.lastName}`}
+        ? `${sample.sampler.name}`
+        : `${user?.name}`}
     </span>
   );
 };

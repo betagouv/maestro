@@ -35,7 +35,7 @@ class OpenIdClientService implements AuthService {
       redirect_uris: [loginCallbackUrl],
       response_types: ['code'],
       id_token_signed_response_alg: config.auth.tokenAlgorithm,
-      userinfo_signed_response_alg: config.auth.tokenAlgorithm
+      userinfo_signed_response_alg: config.auth.userInfoAlgorithm ?? undefined
     });
 
     return new OpenIdClientService(client);
@@ -60,9 +60,7 @@ class OpenIdClientService implements AuthService {
 
   authenticate = async (
     authRedirectUrl: AuthRedirectUrl
-  ): Promise<
-    { idToken: string } & Pick<User, 'email' | 'firstName' | 'lastName'>
-  > => {
+  ): Promise<{ idToken: string } & Pick<User, 'email' | 'name'>> => {
     const params = this.client.callbackParams(authRedirectUrl.url);
     const tokenSet = await this.client.callback(loginCallbackUrl, params, {
       state: authRedirectUrl.state ?? '',
@@ -101,11 +99,16 @@ class OpenIdClientService implements AuthService {
       throw new Error('No email found in user info');
     }
 
+    let name = userInfo.name;
+    if (!name) {
+      // compatibilité avec ProConnect
+      name = `${userInfo.given_name ?? ''} ${userInfo.usual_name ?? ''}`;
+    }
+
     return {
       idToken,
       email: userInfo.email,
-      firstName: userInfo.given_name,
-      lastName: userInfo.usual_name
+      name
     };
   };
 

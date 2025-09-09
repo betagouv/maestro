@@ -13,7 +13,7 @@ const generateAnalysisRequestCsv = async (data: AnalysisRequestData) => {
   const rows = [
     `Donneur d'ordre;${escapeCsvValue(data.establishment.name)}`,
     `Adresse;${escapeCsvValue(data.establishment.fullAddress)}`,
-    `Préleveur;${escapeCsvValue(data.sampler.firstName)} ${escapeCsvValue(data.sampler.lastName)}`,
+    `Préleveur;${escapeCsvValue(data.sampler.name)}`,
     `Email;${escapeCsvValue(data.sampler.email)}`,
     `Date de prélèvement;${escapeCsvValue(data.sampledAtDate)}`,
     `Heure de prélèvement;${escapeCsvValue(data.sampledAtTime)}`,

@@ -49,8 +49,8 @@ const ContextStepSummary = ({
           Prélèvement réalisé par{' '}
           <b>
             {isCreatedPartialSample(sample)
-              ? `${sample.sampler.firstName} ${sample.sampler.lastName}`
-              : `${user?.firstName} ${user?.lastName}`}
+              ? `${sample.sampler.name}`
+              : `${user?.name}`}
           </b>
         </div>
       </div>

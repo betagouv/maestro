@@ -34,13 +34,11 @@ test("peut modifier le nom et le prénom d'un utilisateur", async () => {
   await kysely.insertInto('users').values(user1).execute();
   await kysely.insertInto('users').values(user2).execute();
 
-  const newLastName = 'newLastName';
-  const newFirstName = 'newFirstName';
+  const newName = 'fullName';
 
   await userRepository.update(
     {
-      lastName: newLastName,
-      firstName: newFirstName
+      name: newName
     },
     user1.id
   );
@@ -51,8 +49,7 @@ test("peut modifier le nom et le prénom d'un utilisateur", async () => {
     .where('email', '=', user1.email)
     .executeTakeFirst();
   expect(user1InDb).toMatchObject({
-    lastName: newLastName,
-    firstName: newFirstName
+    name: newName
   });
 
   const user2InDb = await kysely

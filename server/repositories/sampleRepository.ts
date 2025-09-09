@@ -39,8 +39,7 @@ const PartialSampleJoinedDbo = PartialSampleDbo.merge(
     companyCity: z.string().nullish(),
     companyNafCode: z.string().nullish(),
     samplerId: z.guid(),
-    samplerFirstName: z.string(),
-    samplerLastName: z.string()
+    samplerName: z.string()
   })
 );
 
@@ -62,8 +61,7 @@ const findUnique = async (id: string): Promise<PartialSample | undefined> => {
       `${companiesTable}.city as company_city`,
       `${companiesTable}.naf_code as company_naf_code`,
       `${usersTable}.id as sampler_id`,
-      `${usersTable}.first_name as sampler_first_name`,
-      `${usersTable}.last_name as sampler_last_name`,
+      `${usersTable}.name as sampler_name`,
       db.raw(
         `coalesce(array_agg(${sampleDocumentsTable}.document_id) filter (where ${sampleDocumentsTable}.document_id is not null), '{}') as document_ids`
       )
@@ -184,8 +182,7 @@ const findMany = async (
       `${companiesTable}.city as company_city`,
       `${companiesTable}.naf_code as company_naf_code`,
       `${usersTable}.id as sampler_id`,
-      `${usersTable}.first_name as sampler_first_name`,
-      `${usersTable}.last_name as sampler_last_name`,
+      `${usersTable}.name as sampler_name`,
       db.raw(
         `coalesce(array_agg(${sampleDocumentsTable}.document_id) filter (where ${sampleDocumentsTable}.document_id is not null), '{}') as document_ids`
       )
@@ -337,8 +334,7 @@ const parsePartialSample = (sample: PartialSampleJoinedDbo): PartialSample =>
       : undefined,
     sampler: {
       id: sample.samplerId,
-      firstName: sample.samplerFirstName,
-      lastName: sample.samplerLastName
+      name: sample.samplerName
     },
     specificData: omitBy(sample.specificData, isNil)
   });

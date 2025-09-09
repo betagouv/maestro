@@ -108,13 +108,11 @@ describe('Auth routes', () => {
     });
 
     test('should authenticate a user', async () => {
-      const newFirstname = 'newFirstname';
-      const newLastname = 'newLastname';
+      const newName = 'newName';
       const mockedAuthenticate = Promise.resolve({
         idToken: fakerFR.string.alphanumeric(32),
         email: Sampler1Fixture.email,
-        firstName: newFirstname,
-        lastName: newLastname
+        name: newName
       });
       mockAuthenticate.mockResolvedValueOnce(mockedAuthenticate);
       const res = await request(app)
@@ -132,8 +130,7 @@ describe('Auth routes', () => {
         .where('email', '=', Sampler1Fixture.email)
         .executeTakeFirst();
       expect(userInDb).toMatchObject({
-        lastName: newLastname,
-        firstName: newFirstname
+        name: newName
       });
     });
   });

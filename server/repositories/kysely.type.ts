@@ -218,9 +218,8 @@ export interface SampleSequenceNumbers {
 
 export interface Users {
   email: string;
-  firstName: string;
+  name: string;
   id: Generated<string>;
-  lastName: string;
   region: Region | null;
   role: UserRole;
   loggedSecrets: ColumnType<string[], string[] | null, string[]>;
