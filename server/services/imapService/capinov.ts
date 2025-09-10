@@ -53,6 +53,7 @@ const capinovReferential: Record<string, SSD2Id> = {
     'RF-0096-001-PPP',
   'Clodinafop (incl. S-clodinafop + sels)': 'RF-0097-001-PPP',
   Cloquintocet: 'RF-0568-001-PPP',
+  'Chlormequat (+salts expr. as chlormequat chloride)': 'RF-00005727-PAR',
   'Cyflufenamid (sum of E & Z isomers)': 'RF-0107-001-PPP',
   'Cyfluthrin (incl. cyfluthrin-beta - sum of isomers)': 'RF-0108-001-PPP',
   Cyhalofop: 'RF-00003378-PAR',
@@ -721,10 +722,17 @@ const capinovReferential: Record<string, SSD2Id> = {
   Vamidothion: 'RF-0969-001-PPP',
   Vinclozolin: 'RF-0450-003-PPP',
   'Warfarin (Coumaphene)': 'RF-1043-001-PPP',
-  Zoxamide: 'RF-0452-001-PPP'
+  Zoxamide: 'RF-0452-001-PPP',
+  'Aldicarb-metabolite (-sulfone expr. as aldicarb)': 'RF-0020-004-PPP',
+  'Aldicarb-metabolite (-sufloxide expr. as aldicarb)': 'RF-0020-003-PPP',
+  Glyphosate: 'RF-1020-001-PPP',
+  'Glyphosate-metabolite (AMPA)': 'RF-0471-001-PPP',
+  Ethephon: 'RF-0160-001-PPP'
 };
 
 const codeMethods = [
+  'LC/MS/MS',
+  'GC/MS/MS ou LC/MS/MS',
   'LC/MS/MS ou GC/MS/MS',
   'GC/MS/MS',
   'M.I. LC-MS/MS',
@@ -759,6 +767,8 @@ const codeMethods = [
 ] as const;
 
 const codeMethodsAnalyseMethod = {
+  'LC/MS/MS': 'Multi',
+  'GC/MS/MS ou LC/MS/MS': 'Multi',
   'LC/MS/MS ou GC/MS/MS': 'Multi',
   'GC/MS/MS': 'Multi',
   'M.I. LC-MS/MS': 'Multi',
@@ -807,9 +817,12 @@ const capinovCodeEchantillonValidator = z.string().transform((l) => {
 // Visible for testing
 export const extractAnalyzes = (
   fileContent: Record<string, string>[]
-): Omit<ExportAnalysis, 'pdfFile'>[] => {
+): (Omit<ExportAnalysis, 'pdfFile'> & { capinovRef: string })[] => {
   const fileValidator = z.array(
     z.object({
+      PREFIXE_NOM: z.string(),
+      DEMANDE_NUMERO: z.string(),
+      ECHANT_NUMERO: z.string(),
       LOT: capinovCodeEchantillonValidator,
       PARAMETRE_NOM: z.string(),
       RESULTAT_VALTEXTE: z.string(),
@@ -817,7 +830,9 @@ export const extractAnalyzes = (
       PARAMETRE_LIBELLE: z.string(),
       LIMITE_LQ: z.string(),
       CAS_NUMBER: z.string().transform((r) => (r === '' ? null : r)),
-      TECHNIQUE: z.enum([...codeMethods, 'Calcul']),
+      TECHNIQUE: z.enum([...codeMethods, 'Calcul'], {
+        error: (iss): string => `Received ${iss.input}`
+      }),
       LMR_NUM: frenchNumberStringValidator.nullish(),
       // 16/04/2025
       ECHANT_DATE_DIFFUSION: z
@@ -848,12 +863,14 @@ export const extractAnalyzes = (
   }
 
   const resultsBySample = groupBy(resultatsData, 'LOT');
-  const result: Omit<ExportAnalysis, 'pdfFile'>[] = [];
+  const result: ReturnType<typeof extractAnalyzes> = [];
 
   for (const sampleReference in resultsBySample) {
-    const analysis: Omit<ExportAnalysis, 'pdfFile'> = {
+    const firstLine = resultsBySample[sampleReference][0];
+    const analysis: (typeof result)[number] = {
       sampleReference,
-      notes: resultatsData[0].COMMENTAIRE ?? '',
+      capinovRef: `${firstLine.PREFIXE_NOM} ${firstLine.DEMANDE_NUMERO} ${firstLine.ECHANT_NUMERO}`,
+      notes: firstLine.COMMENTAIRE ?? '',
       residues: []
     };
 
@@ -913,7 +930,9 @@ const exportDataFromEmail: ExportDataFromEmail = async (attachments) => {
 
   for (const analysis of analyzes) {
     const pdfAttachment = attachments.find(
-      ({ contentType }) => contentType === 'application/pdf'
+      ({ contentType, filename }) =>
+        contentType === 'application/pdf' &&
+        filename?.startsWith(analysis.capinovRef)
     );
 
     if (pdfAttachment === undefined) {
