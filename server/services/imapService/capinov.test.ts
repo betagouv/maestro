@@ -18,6 +18,9 @@ describe('Parse correctement le fichier CSV', () => {
 
   test("n'émet pas d'erreur si le fichier est correct", () => {
     const line = {
+      PREFIXE_NOM: '2025',
+      DEMANDE_NUMERO: '0003',
+      ECHANT_NUMERO: '1',
       LOT: '1',
       PARAMETRE_NOM: 'SAP00010',
       RESULTAT_VALTEXTE: 'nd',
@@ -47,6 +50,9 @@ describe('Parse correctement le fichier CSV', () => {
 
   test("la méthode d'analyse d'un calcul est récupérée sur le résidu précédent", () => {
     const defaultLine = {
+      PREFIXE_NOM: '2025',
+      DEMANDE_NUMERO: '0003',
+      ECHANT_NUMERO: '1',
       LOT: 'ARA-1234-333-1',
       PARAMETRE_NOM: 'SAP00010',
       RESULTAT_VALTEXTE: 'nd',
@@ -71,6 +77,7 @@ describe('Parse correctement le fichier CSV', () => {
     expect(extractAnalyzes(lines)).toMatchInlineSnapshot(`
       [
         {
+          "capinovRef": "2025 0003 1",
           "notes": "Pas de problème",
           "residues": [
             {
