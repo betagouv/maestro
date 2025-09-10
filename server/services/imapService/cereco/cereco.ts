@@ -16,26 +16,38 @@ import {
 
 const methodValidator = z.literal(['Multi-résidus', 'Mono résidus']).nullish();
 const fileValidator = z.array(
-  z.object({
-    'Sample Name': z.string().transform((l) => {
-      return l
-        .substring(0, l.indexOf(':'))
-        .trim()
-        .substring(0, l.lastIndexOf('-'));
-    }),
-    "Date d'analyse": z
-      .date()
-      .transform((d) => {
-        return format(d, 'yyyy-MM-dd');
+  z
+    .looseObject({})
+    .transform((o) => {
+      // supprime les éventuels espaces dans les headers
+      const rawDataTrimed: Record<string, unknown> = {};
+      for (const key in o) {
+        rawDataTrimed[key.trim()] = o[key];
+      }
+      return rawDataTrimed;
+    })
+    .pipe(
+      z.object({
+        'Sample Name': z.string().transform((l) => {
+          return l
+            .substring(0, l.indexOf(':'))
+            .trim()
+            .substring(0, l.lastIndexOf('-'));
+        }),
+        "Date d'analyse": z
+          .date()
+          .transform((d) => {
+            return format(d, 'yyyy-MM-dd');
+          })
+          .pipe(maestroDate),
+        Méthode: methodValidator,
+        "Méthode d'analyse": methodValidator,
+        Paramètre: z.string(),
+        Résultat: z.string(),
+        LMR: z.coerce.number().optional(),
+        Conclusion: z.string()
       })
-      .pipe(maestroDate),
-    Méthode: methodValidator,
-    "Méthode d'analyse": methodValidator,
-    Paramètre: z.string(),
-    Résultat: z.string(),
-    LMR: z.coerce.number().optional(),
-    Conclusion: z.string()
-  })
+    )
 );
 
 const extractAnalyzes = async (
