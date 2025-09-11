@@ -15,7 +15,7 @@ package Gouvernement {
   OFF_APPLICATION_SERVER(Matomo, Matomo)
   OFF_APPLICATION_SERVER(Entreprise, API Entreprise)
   OFF_APPLICATION_SERVER(Adresse, API Adresse)
-  OFF_REVERSE_PROXY(ProConnect, ProConnect)
+  OFF_REVERSE_PROXY(EAP, EAP)
 }
 
 package Scalingo {
@@ -38,7 +38,7 @@ package Laboratoires {
 }
 
 Utilisateurs --> UI
-API <--> ProConnect: authentification
+API <--> EAP: authentification
 Utilisateurs --> Sentry: erreurs
 Utilisateurs --> Matomo: statistiques
 API --> Brevo: envoi mail

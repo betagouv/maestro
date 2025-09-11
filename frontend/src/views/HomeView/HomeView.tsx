@@ -5,8 +5,8 @@ import {
   useEffect
 } from 'react';
 
+import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import ProConnectButton from '@codegouvfr/react-dsfr/ProConnectButton';
 import clsx from 'clsx';
 import { Brand } from 'maestro-shared/constants';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
@@ -37,10 +37,23 @@ const HomeView = () => {
         Identifiez-vous pour accéder à votre espace {Brand}
       </h2>
       <div className={cx('fr-text--lg', 'fr-mb-5w')}>
-        ProConnect est la solution proposée par l’État pour sécuriser et
-        simplifier la connexion à vos services en ligne.
+        EAP est la solution proposée par le ministère de l'agriculture pour
+        sécuriser et simplifier la connexion à vos services en ligne.
       </div>
-      {authRedirectUrl && <ProConnectButton url={authRedirectUrl.url} />}
+      {authRedirectUrl && (
+        <Button
+          size="large"
+          iconId="fr-icon-user-line"
+          linkProps={{
+            href: authRedirectUrl.url,
+            target: '_blank',
+            rel: 'noopener',
+            title: `connexion avec EAP - nouvelle fenêtre`
+          }}
+        >
+          Connexion avec EAP
+        </Button>
+      )}
     </HomeViewContainer>
   );
 };
