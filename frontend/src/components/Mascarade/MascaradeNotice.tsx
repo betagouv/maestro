@@ -17,10 +17,7 @@ export const MascaradeNotice: FunctionComponent<Props> = ({ ..._rest }) => {
         <Notice
           title="Mode mascarade"
           description={
-            <>
-              Vous êtes actuellement connecté en tant que {user.firstName}{' '}
-              {user.lastName}.
-            </>
+            <>Vous êtes actuellement connecté en tant que {user.name}.</>
           }
           severity="cyberattack"
           iconDisplayed={true}

@@ -5,8 +5,7 @@ export interface AuthService {
   authenticate(authRedirectUrl: AuthRedirectUrl): Promise<{
     idToken: string;
     email: string;
-    firstName: string;
-    lastName: string;
+    name: string;
   }>;
   getLogoutUrl(idToken: string): AuthRedirectUrl;
 }

@@ -57,13 +57,9 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
               <span className="fr-icon-link-unlink fr-icon--sm fr-mr-1w"></span>
             )}
             {isCreatedPartialSample(sample) ? (
-              <>
-                {sample.sampler.firstName} {sample.sampler.lastName}
-              </>
+              <>{sample.sampler.name}</>
             ) : (
-              <>
-                {user?.firstName} {user?.lastName}
-              </>
+              <>{user?.name}</>
             )}
           </div>,
           sample.sampledAt ? format(sample.sampledAt, 'dd/MM/yyyy') : '',

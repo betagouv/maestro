@@ -14,8 +14,7 @@ import {
 const BaseUser = z.object({
   id: z.guid(),
   email: z.string().email(),
-  firstName: z.string(),
-  lastName: z.string(),
+  name: z.string(),
   programmingPlanKinds: z.array(ProgrammingPlanKind),
   role: UserRole,
   region: Region.nullish()
@@ -36,8 +35,7 @@ export const User = BaseUser.superRefine((user, ctx) => {
 
 export const Sampler = BaseUser.pick({
   id: true,
-  firstName: true,
-  lastName: true
+  name: true
 });
 
 export type User = z.infer<typeof User>;

@@ -87,8 +87,7 @@ describe('User router', () => {
         id: Sampler1Fixture.id,
         programmingPlanKinds: Sampler1Fixture.programmingPlanKinds,
         email: Sampler1Fixture.email,
-        firstName: Sampler1Fixture.firstName,
-        lastName: Sampler1Fixture.lastName,
+        name: Sampler1Fixture.name,
         role: Sampler1Fixture.role,
         region: Sampler1Fixture.region
       });

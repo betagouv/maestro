@@ -46,8 +46,7 @@ const filtersConfig = {
   },
   sampledBy: {
     prop: 'sampledBy',
-    getLabel: (_value, sampler) =>
-      sampler ? `${sampler.firstName} ${sampler.lastName}` : null
+    getLabel: (_value, sampler) => (sampler ? `${sampler.name}` : null)
   },
   sampledAt: {
     prop: 'sampledAt',

@@ -74,13 +74,11 @@ const UsersSearchInput: FunctionComponent<{
       {users && (
         <AppSearchInput
           options={selectOptionsFromList(
-            users
-              .filter(({ firstName }) => firstName !== '-')
-              .map(({ id }) => id),
+            users.filter(({ name }) => name !== '-').map(({ id }) => id),
             {
               labels: users.reduce(
                 (acc, u) => {
-                  let label = `${u.firstName} ${u.lastName} - ${UserRoleLabels[u.role]}`;
+                  let label = `${u.name} - ${UserRoleLabels[u.role]}`;
                   if (u.region) {
                     label += ` - ${Regions[u.region].name}`;
                   }

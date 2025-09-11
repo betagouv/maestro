@@ -403,8 +403,7 @@ describe('Sample router', () => {
             createdAt: expect.any(String),
             sampler: {
               id: sample.sampler.id,
-              firstName: sample.sampler.firstName,
-              lastName: sample.sampler.lastName
+              name: sample.sampler.name
             },
             reference: `${Regions[user.region as Region].shortName}-${format(new Date(), 'yy')}-000${expectedIncrement}`
           })

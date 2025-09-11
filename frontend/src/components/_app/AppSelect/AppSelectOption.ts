@@ -60,7 +60,7 @@ export const samplersOptions = (
   currentUserId?: string
 ): AppSelectOption[] =>
   (samplers ?? [])
-    .filter(({ firstName }) => firstName !== '-')
+    .filter(({ name }) => name !== '-')
     .sort((a, b) => {
       if (a.id === currentUserId) {
         return -1;
@@ -68,9 +68,9 @@ export const samplersOptions = (
       if (b.id === currentUserId) {
         return 1;
       }
-      return a.firstName.localeCompare(b.firstName);
+      return a.name.localeCompare(b.name);
     })
     .map((sampler) => ({
-      label: `${sampler.firstName} ${sampler.lastName}`,
+      label: sampler.name,
       value: sampler.id
     }));

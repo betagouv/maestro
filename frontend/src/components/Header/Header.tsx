@@ -283,7 +283,7 @@ const Header = () => {
                 </Badge>,
                 <HeaderMenu
                   key="userMenu"
-                  value={`${user?.firstName} ${user?.lastName}`}
+                  value={`${user?.name}`}
                   menuItems={[
                     <MascaradeButton modal={mascaradeModal} />,
                     <Button

@@ -44,6 +44,7 @@ interface Config {
     clientSecret: string | null;
     providerUrl: string | null;
     tokenAlgorithm: string;
+    userInfoAlgorithm: string | null;
   };
   databaseUrl: string;
   mail: {
@@ -160,6 +161,12 @@ const config = convict<Config>({
       env: 'AUTH_TOKEN_ALGORITHM',
       format: String,
       default: 'RS256'
+    },
+    userInfoAlgorithm: {
+      env: 'AUTH_USER_INFO_ALGORITHM',
+      format: String,
+      default: null,
+      nullable: true
     }
   },
   databaseUrl: {

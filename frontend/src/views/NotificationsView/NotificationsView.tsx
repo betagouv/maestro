@@ -183,8 +183,7 @@ const NotificationsView = () => {
                               </div>
                               <div>
                                 <div className={cx('fr-text--bold')}>
-                                  {notification.author.firstName}{' '}
-                                  {notification.author.lastName}
+                                  {notification.author.name}
                                 </div>
                                 <div
                                   className={clsx(

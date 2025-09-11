@@ -37,8 +37,7 @@ export const genSampleContextData = (
   sampledAt: new Date(),
   sampler: {
     id: uuidv4(),
-    firstName: fakerFR.person.firstName(),
-    lastName: fakerFR.person.lastName()
+    name: fakerFR.person.fullName()
   },
   geolocation: {
     x: 49.788805,
@@ -139,7 +138,7 @@ export const Sample11Fixture = genCreatedPartialSample({
   company: CompanyFixture,
   notesOnCreation: 'notes on creation',
   reference: 'GS-08-24-313-A',
-  sampler: pick(Sampler1Fixture, ['id', 'firstName', 'lastName']),
+  sampler: pick(Sampler1Fixture, ['id', 'name']),
   createdAt: new Date('2023-01-02'),
   lastUpdatedAt: new Date('2024-03-04'),
   status: 'DraftMatrix' as const,

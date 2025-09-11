@@ -14,8 +14,7 @@ import { COOKIE_MAESTRO_ACCESS_TOKEN } from '../utils/constants';
 
 const getAuthRedirectUrl = async (_request: Request, response: Response) => {
   const authService = await getAuthService;
-  //Prénom given_name
-  //Nom usual_name
+  // given_name et usual_name sont que pour ProConnect
   const authRedirectUrl = authService.getAuthorizationUrl(
     'openid profile email given_name usual_name'
   );
@@ -30,12 +29,12 @@ const authenticate = async (request: Request, response: Response) => {
   console.log('authenticate', authRedirectUrl);
 
   try {
-    const { idToken, email, firstName, lastName } =
+    const { idToken, email, name } =
       await authService.authenticate(authRedirectUrl);
 
     const user = await userRepository.findOne(email);
-    if (user && (user.firstName !== firstName || user.lastName !== lastName)) {
-      await userRepository.update({ firstName, lastName }, user.id);
+    if (user && user.name !== name) {
+      await userRepository.update({ name }, user.id);
     }
 
     const loggedSecret = uuidv4();

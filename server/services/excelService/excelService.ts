@@ -139,7 +139,7 @@ const generateSamplesExportExcel = async (
       const data: SamplesExportExcelData = {
         reference: sample.reference,
         department: sample.department,
-        sampler: `${sample.sampler.firstName} ${sample.sampler.lastName}`,
+        sampler: `${sample.sampler.name}`,
         sampledAt: sample.sampledAt
           ? formatWithTz(sample.sampledAt, 'dd/MM/yyyy HH:mm')
           : '',
