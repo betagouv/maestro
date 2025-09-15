@@ -264,5 +264,6 @@ export const inovalysConf: LaboratoryConf = {
   exportDataFromEmail,
   ssd2IdByLabel: inovalysReferential,
   unknownReferences: inovalysUnknownReferences,
-  getAnalysisKey: (email) => email.subject ?? ''
+  getAnalysisKey: (email) => email.subject ?? '',
+  emailCountByAnalysis: 2
 };

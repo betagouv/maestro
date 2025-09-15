@@ -60,6 +60,7 @@ export type LaboratoryConf = {
   ssd2IdByLabel: Record<string, SSD2Id>;
   unknownReferences: string[];
   getAnalysisKey: (email: EmailWithMessageUid) => string;
+  emailCountByAnalysis: number;
 };
 
 export type LaboratoryWithConf = (typeof LaboratoryWithAutomation)[number];
@@ -227,7 +228,20 @@ export const checkEmails = async () => {
               {} as Record<string, EmailWithMessageUid[]>
             );
 
-          for (const emails of Object.values(emailsByAnalysis)) {
+          //on vérifie que pour chaque analyses, on a reçu tous les emails
+          const emailsByAnalysisFull: Record<string, EmailWithMessageUid[]> =
+            {};
+          for (const emailsByAnalysisKey in emailsByAnalysis) {
+            if (
+              emailsByAnalysis[emailsByAnalysisKey].length ===
+              laboratoriesConf[laboratoryName].emailCountByAnalysis
+            ) {
+              emailsByAnalysisFull[emailsByAnalysisKey] =
+                emailsByAnalysis[emailsByAnalysisKey];
+            }
+          }
+
+          for (const emails of Object.values(emailsByAnalysisFull)) {
             try {
               const analyzes = await laboratoriesConf[
                 laboratoryName
@@ -371,7 +385,7 @@ export const checkEmails = async () => {
               }
             } catch (e: any) {
               console.error(e);
-              const parsed = parsedEmails[0];
+              const parsed = emails[0];
               await moveMessageToErrorbox(
                 parsed.subject ?? '',
                 parsed.from?.value[0].address ?? '',

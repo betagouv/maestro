@@ -867,5 +867,6 @@ export const girpaConf: LaboratoryConf = {
   exportDataFromEmail,
   ssd2IdByLabel: girpaReferences,
   unknownReferences: girpaUnknownReferences,
-  getAnalysisKey: (email) => email.messageUid
+  getAnalysisKey: (email) => email.messageUid,
+  emailCountByAnalysis: 1
 };
