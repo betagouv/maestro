@@ -46,9 +46,8 @@ const HomeView = () => {
           iconId="fr-icon-user-line"
           linkProps={{
             href: authRedirectUrl.url,
-            target: '_blank',
-            rel: 'noopener',
-            title: `connexion avec EAP - nouvelle fenêtre`
+            target: '_self',
+            title: `connexion avec EAP`
           }}
         >
           Connexion avec EAP
