@@ -983,5 +983,6 @@ export const capinovConf: LaboratoryConf = {
     }
 
     return '';
-  }
+  },
+  emailCountByAnalysis: 2
 };

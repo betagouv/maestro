@@ -147,5 +147,6 @@ export const cerecoConf: LaboratoryConf = {
   exportDataFromEmail,
   ssd2IdByLabel: cerecoReferential,
   unknownReferences: cerecoUnknownReferences,
-  getAnalysisKey: (email) => email.messageUid
+  getAnalysisKey: (email) => email.messageUid,
+  emailCountByAnalysis: 1
 };
