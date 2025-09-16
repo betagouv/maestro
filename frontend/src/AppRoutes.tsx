@@ -99,7 +99,10 @@ export type AuthenticatedAppRoutes = keyof typeof AuthenticatedAppRoutes;
 export const RedirectRoute: FunctionComponent = ({ ..._rest }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  if (window.location.pathname !== '/logout-callback') {
+  if (
+    window.location.pathname !== '/logout-callback' &&
+    window.location.pathname !== '/'
+  ) {
     sessionStorage.setItem(
       SESSION_STORAGE_REDIRECT_URL,
       window.location.pathname
