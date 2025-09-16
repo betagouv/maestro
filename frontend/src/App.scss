@@ -89,10 +89,16 @@ main {
   td {
     &:has(.border-left) {
       border-left: 1px solid var(--border-default-grey);
+      .border-left {
+        border-left: none;
+      }
     }
 
     &:has(.border-right) {
       border-right: 1px solid var(--border-default-grey);
+      .border-right {
+        border-right: none;
+      }
     }
   }
 

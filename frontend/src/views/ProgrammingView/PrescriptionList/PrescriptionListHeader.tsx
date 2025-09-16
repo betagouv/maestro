@@ -4,25 +4,25 @@ import Input from '@codegouvfr/react-dsfr/Input';
 import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import clsx from 'clsx';
 import { t } from 'i18next';
-import { uniq } from 'lodash-es';
 import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import React from 'react';
-import MatrixSelectModal from 'src/components/MatrixSelectModal/MatrixSelectModal';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import useWindowSize from 'src/hooks/useWindowSize';
 import { getPrescriptionsExportURL } from 'src/services/prescription.service';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
-import ProgrammingPlanPrescriptionListGroupedUpdate from 'src/views/ProgrammingPlanView/ProgrammingPlanPrescriptionList/ProgrammingPlanPrescriptionListGroupedUpdate';
-import './ProgrammingPlanPrescriptionList.scss';
+import PrescriptionListGroupedUpdate from 'src/views/ProgrammingView/PrescriptionList/PrescriptionListGroupedUpdate';
+import './PrescriptionList.scss';
 interface Props {
-  programmingPlan: ProgrammingPlan;
   findPrescriptionOptions: FindPrescriptionOptions;
   prescriptions: Prescription[];
-  addMatrixKind: (matrixKind: MatrixKind) => Promise<void>;
+  addMatrixKind: (
+    matrixKind: MatrixKind,
+    programmingPlan: ProgrammingPlan
+  ) => Promise<void>;
   sampleCount?: number;
   hasGroupedUpdatePermission?: boolean;
   selectedCount?: number;
@@ -30,8 +30,7 @@ interface Props {
   onSelectAll: () => void;
 }
 
-const ProgrammingPlanPrescriptionListHeader = ({
-  programmingPlan,
+const PrescriptionListHeader = ({
   findPrescriptionOptions,
   prescriptions,
   addMatrixKind,
@@ -58,14 +57,15 @@ const ProgrammingPlanPrescriptionListHeader = ({
         <h4 className={cx('fr-mb-0', 'fr-mr-3w')}>
           {t('plannedSample', { count: sampleCount ?? 0 })}
         </h4>
-        {hasUserPrescriptionPermission(programmingPlan)?.create && (
-          <MatrixSelectModal
-            excludedMatrixKindList={uniq(
-              prescriptions.map((p) => p.matrixKind)
-            )}
-            onSelect={addMatrixKind}
-          />
-        )}
+        {/*TODO*/}
+        {/*{hasUserPrescriptionPermission(programmingPlan)?.create && (*/}
+        {/*  <MatrixSelectModal*/}
+        {/*    excludedMatrixKindList={uniq(*/}
+        {/*      prescriptions.map((p) => p.matrixKind)*/}
+        {/*    )}*/}
+        {/*    onSelect={addMatrixKind}*/}
+        {/*  />*/}
+        {/*)}*/}
         <Input
           iconId="fr-icon-search-line"
           hideLabel
@@ -142,7 +142,7 @@ const ProgrammingPlanPrescriptionListHeader = ({
         />
       </div>
       {isGroupedUpdate && onGroupedUpdate && (
-        <ProgrammingPlanPrescriptionListGroupedUpdate
+        <PrescriptionListGroupedUpdate
           selectedCount={selectedCount ?? 0}
           totalCount={prescriptions.length}
           onSubmit={async (laboratoryId) => {
@@ -157,4 +157,4 @@ const ProgrammingPlanPrescriptionListHeader = ({
   );
 };
 
-export default ProgrammingPlanPrescriptionListHeader;
+export default PrescriptionListHeader;
