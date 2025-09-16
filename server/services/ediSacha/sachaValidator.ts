@@ -280,7 +280,7 @@ export const resultatsValidator = z.object({
   )
 });
 
-const demandesAnalysesValidator = z.object({
+export const demandesAnalysesValidator = z.object({
   MessageParametres: messageParametres,
   Emetteur: partenaire,
   Destinataire: partenaire,
@@ -333,7 +333,9 @@ const demandesAnalysesValidator = z.object({
   })
 });
 
-const acquittementValidator = z.object({
+export type DAI = z.infer<typeof demandesAnalysesValidator>;
+
+export const acquittementValidator = z.object({
   MessageParametres: messageParametres,
   Emetteur: partenaire,
   Destinataire: partenaire,
