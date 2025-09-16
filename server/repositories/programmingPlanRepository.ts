@@ -59,7 +59,7 @@ const findOne = async (
   kinds: ProgrammingPlanKind[],
   region?: Region | null
 ): Promise<ProgrammingPlan | undefined> => {
-  console.info('Find programming plan', year);
+  console.info('Find programming plan', year, kinds, region);
   return ProgrammingPlanQuery()
     .where({ year, kinds })
     .modify((builder) => {
@@ -76,10 +76,15 @@ const findMany = async (
 ): Promise<ProgrammingPlan[]> => {
   console.info('Find programming plans', omitBy(findOptions, isNil));
   return ProgrammingPlanQuery()
-    .where(omitBy(omit(findOptions, 'status'), isNil))
+    .where(omitBy(omit(findOptions, 'status', 'kinds'), isNil))
     .modify((builder) => {
       if (isArray(findOptions.status)) {
         builder.whereIn('status', findOptions.status);
+      }
+      if (isArray(findOptions.kinds)) {
+        builder.whereRaw(`${programmingPlansTable}.kinds && ?`, [
+          findOptions.kinds
+        ]);
       }
     })
     .then((programmingPlans) =>

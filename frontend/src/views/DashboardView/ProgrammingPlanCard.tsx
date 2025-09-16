@@ -91,7 +91,7 @@ const ProgrammingPlanCard = ({
             priority="tertiary no outline"
             iconId="fr-icon-bar-chart-box-line"
             linkProps={{
-              to: `${AuthenticatedAppRoutes.ProgrammationByYearRoute.link(programmingPlan.year)}?context=${context}`
+              to: `${AuthenticatedAppRoutes.ProgrammingRoute.link(programmingPlan.year)}?context=${context}`
             }}
           >
             {[ContextLabels[context], programmingPlan.year].join(' ')}

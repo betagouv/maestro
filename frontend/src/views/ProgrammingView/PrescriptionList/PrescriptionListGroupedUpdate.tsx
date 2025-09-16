@@ -13,7 +13,7 @@ import {
 } from 'src/components/_app/AppSelect/AppSelectOption';
 import { pluralize } from 'src/utils/stringUtils';
 import { ApiClientContext } from '../../../services/apiClient';
-import './ProgrammingPlanPrescriptionList.scss';
+import './PrescriptionList.scss';
 interface Props {
   selectedCount: number;
   totalCount: number;
@@ -22,7 +22,7 @@ interface Props {
   onSelectAll: () => void;
 }
 
-const ProgrammingPlanPrescriptionListGroupedUpdate = ({
+const PrescriptionListGroupedUpdate = ({
   selectedCount,
   totalCount,
   onSubmit,
@@ -110,4 +110,4 @@ const ProgrammingPlanPrescriptionListGroupedUpdate = ({
   );
 };
 
-export default ProgrammingPlanPrescriptionListGroupedUpdate;
+export default PrescriptionListGroupedUpdate;

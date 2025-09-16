@@ -116,7 +116,7 @@ const DashboardPriorityActions: FunctionComponent<Props> = ({
                     title="Editer la programmation"
                     badgeLabel="Programmation"
                     description="À compléter"
-                    to={AuthenticatedAppRoutes.ProgrammationByYearRoute.link(
+                    to={AuthenticatedAppRoutes.ProgrammingRoute.link(
                       nextProgrammingPlan.year
                     )}
                   />

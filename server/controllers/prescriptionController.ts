@@ -16,8 +16,6 @@ export const prescriptionsRouter = {
     get: async ({ query: findOptions }) => {
       console.info('Find prescriptions', findOptions);
 
-      await getAndCheckProgrammingPlan(findOptions.programmingPlanId);
-
       const prescriptions = await prescriptionRepository.findMany(findOptions);
 
       return { status: constants.HTTP_STATUS_OK, response: prescriptions };
@@ -60,7 +58,6 @@ export const prescriptionsRouter = {
   },
   '/prescriptions/export': {
     get: async ({ user, query: queryFindOptions }, _params, response) => {
-      await getAndCheckProgrammingPlan(queryFindOptions.programmingPlanId);
       const exportedRegion = user.region ?? undefined;
 
       const findOptions = {

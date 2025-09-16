@@ -42,7 +42,10 @@ i18n.use(initReactI18next).init({
         department_other: '{{count}} départements',
         context_zero: 'Aucun contexte',
         context_one: 'Un contexte',
-        context_other: '{{count}} contextes'
+        context_other: '{{count}} contextes',
+        plan_zero: 'Aucun plan',
+        plan_one: 'Un plan',
+        plan_other: '{{count}} plans'
       }
     }
   }

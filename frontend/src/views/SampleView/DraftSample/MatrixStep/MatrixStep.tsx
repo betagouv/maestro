@@ -100,7 +100,7 @@ const MatrixStep = ({ partialSample }: Props) => {
 
   const { data: prescriptionsData } = apiClient.useFindPrescriptionsQuery(
     {
-      programmingPlanId: partialSample.programmingPlanId as string,
+      programmingPlanIds: [partialSample.programmingPlanId as string],
       contexts: toArray(
         ProgrammingPlanContext.safeParse(partialSample.context).data
       )

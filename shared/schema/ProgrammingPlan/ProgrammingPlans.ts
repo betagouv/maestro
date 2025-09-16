@@ -1,12 +1,15 @@
 import { isNil } from 'lodash-es';
 import { z } from 'zod';
 import { ProgrammingPlanContext } from './Context';
+import { ProgrammingPlanDomain } from './ProgrammingPlanDomain';
 import { ProgrammingPlanKind } from './ProgrammingPlanKind';
 import { ProgrammingPlanRegionalStatus } from './ProgrammingPlanRegionalStatus';
 
 export const ProgrammingPlan = z
   .object({
     id: z.guid(),
+    domain: ProgrammingPlanDomain,
+    title: z.string().min(1, 'Veuillez renseigner le titre.'),
     kinds: z.array(ProgrammingPlanKind),
     contexts: z.array(ProgrammingPlanContext),
     samplesOutsidePlanAllowed: z.boolean(),

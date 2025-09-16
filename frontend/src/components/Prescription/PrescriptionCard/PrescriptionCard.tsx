@@ -15,27 +15,17 @@ import PrescriptionStages from 'src/components/Prescription/PrescriptionStages/P
 import PrescriptionSubstancesModalButtons from 'src/components/Prescription/PrescriptionSubstancesModal/PrescriptionSubstancesModalButtons';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { pluralize } from 'src/utils/stringUtils';
-import RemoveMatrix from 'src/views/ProgrammingPlanView/ProgrammingPlanPrescriptionList/RemoveMatrix';
+import RemoveMatrix from 'src/views/ProgrammingView/PrescriptionList/RemoveMatrix';
 import './PrescriptionCard.scss';
 
 interface Props {
   programmingPlan: ProgrammingPlan;
   prescription: Prescription;
   regionalPrescriptions: RegionalPrescription[];
-  onChangeRegionalPrescriptionCount: (
-    prescriptionId: string,
-    region: Region,
-    value: number
-  ) => void;
+  onChangeRegionalPrescriptionCount: (region: Region, value: number) => void;
   onRemovePrescription: (prescriptionId: string) => Promise<void>;
-  onChangePrescriptionStages: (
-    prescriptionId: string,
-    stages: Stage[]
-  ) => Promise<void>;
-  onChangePrescriptionNotes: (
-    prescriptionId: string,
-    note: string
-  ) => Promise<void>;
+  onChangePrescriptionStages: (stages: Stage[]) => Promise<void>;
+  onChangePrescriptionNotes: (note: string) => Promise<void>;
 }
 
 const PrescriptionCard = ({
@@ -81,9 +71,7 @@ const PrescriptionCard = ({
                         programmingPlan={programmingPlan}
                         prescription={prescription}
                         label={`${pluralize(prescription.stages.length)('Stade')} de prélèvement`}
-                        onChangeStages={(stages) =>
-                          onChangePrescriptionStages(prescription.id, stages)
-                        }
+                        onChangeStages={onChangePrescriptionStages}
                       />
                     )
                   },
@@ -97,9 +85,7 @@ const PrescriptionCard = ({
                       <PrescriptionNotes
                         programmingPlan={programmingPlan}
                         value={prescription.notes ?? ''}
-                        onSubmitNotes={(note) =>
-                          onChangePrescriptionNotes(prescription.id, note)
-                        }
+                        onSubmitNotes={onChangePrescriptionNotes}
                       />
                     )
                   }
@@ -128,9 +114,7 @@ const PrescriptionCard = ({
                 programmingPlan={programmingPlan}
                 matrixKind={prescription.matrixKind}
                 regionalPrescriptions={regionalPrescriptions}
-                onChangeRegionalPrescriptionCount={
-                  onChangeRegionalPrescriptionCount
-                }
+                onChangeRegionalCount={onChangeRegionalPrescriptionCount}
                 start={0}
                 end={RegionList.length / 2}
               />
@@ -138,9 +122,7 @@ const PrescriptionCard = ({
                 programmingPlan={programmingPlan}
                 matrixKind={prescription.matrixKind}
                 regionalPrescriptions={regionalPrescriptions}
-                onChangeRegionalPrescriptionCount={
-                  onChangeRegionalPrescriptionCount
-                }
+                onChangeRegionalCount={onChangeRegionalPrescriptionCount}
                 start={RegionList.length / 2}
               />
             </div>

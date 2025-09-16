@@ -3,8 +3,10 @@ import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import { skipToken } from '@reduxjs/toolkit/query';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
+import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { PrescriptionSubstance } from 'maestro-shared/schema/Prescription/PrescriptionSubstance';
-import { useCallback, useContext, useEffect } from 'react';
+import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { useCallback, useContext, useEffect, useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import { useAuthentication } from '../../../hooks/useAuthentication';
@@ -18,26 +20,27 @@ const prescriptionSubstancesModal = createModal({
 });
 
 interface Props {
+  programmingPlans: ProgrammingPlan[];
   onUpdatePrescriptionSubstances: (
-    prescriptionId: string,
+    prescription: Prescription,
     prescriptionSubstances: PrescriptionSubstance[]
   ) => Promise<void>;
 }
 
 const PrescriptionSubstancesModal = ({
+  programmingPlans,
   onUpdatePrescriptionSubstances
 }: Props) => {
   const apiClient = useContext(ApiClientContext);
   const dispatch = useAppDispatch();
   const { hasUserPrescriptionPermission } = useAuthentication();
-  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
-  const { prescriptionAnalysisEditId } = useAppSelector(
+  const { prescriptionAnalysisEdit: prescriptionAnalysisEdit } = useAppSelector(
     (state) => state.prescriptions
   );
 
   const { data: prescriptionSubstances } =
     apiClient.useGetPrescriptionSubstancesQuery(
-      prescriptionAnalysisEditId ?? skipToken
+      prescriptionAnalysisEdit?.id ?? skipToken
     );
 
   const getSubstancesByAnalysisMethod = useCallback(
@@ -48,19 +51,27 @@ const PrescriptionSubstancesModal = ({
     [prescriptionSubstances]
   );
 
+  const programmingPlan = useMemo(
+    () =>
+      programmingPlans.find(
+        (plan) => plan.id === prescriptionAnalysisEdit?.programmingPlanId
+      ),
+    [programmingPlans, prescriptionAnalysisEdit]
+  );
+
   useIsModalOpen(prescriptionSubstancesModal, {
     onConceal: () => {
       dispatch(
-        prescriptionsSlice.actions.setPrescriptionAnalysisEditId(undefined)
+        prescriptionsSlice.actions.setPrescriptionAnalysisEdit(undefined)
       );
     }
   });
 
   useEffect(() => {
-    if (prescriptionAnalysisEditId) {
+    if (prescriptionAnalysisEdit) {
       prescriptionSubstancesModal.open();
     }
-  }, [prescriptionAnalysisEditId]);
+  }, [prescriptionAnalysisEdit]);
 
   return (
     <div className="prescription-substances-modal">
@@ -70,7 +81,7 @@ const PrescriptionSubstancesModal = ({
         topAnchor
       >
         {programmingPlan &&
-          prescriptionAnalysisEditId &&
+          prescriptionAnalysisEdit &&
           prescriptionSubstances && (
             <>
               <SubstanceSearch
@@ -79,10 +90,10 @@ const PrescriptionSubstancesModal = ({
                   (_) => _.substance
                 )}
                 onChangeSubstances={(substances) =>
-                  onUpdatePrescriptionSubstances(prescriptionAnalysisEditId, [
+                  onUpdatePrescriptionSubstances(prescriptionAnalysisEdit, [
                     ...getSubstancesByAnalysisMethod('Multi'),
                     ...substances.map((substance) => ({
-                      prescriptionId: prescriptionAnalysisEditId,
+                      prescriptionId: prescriptionAnalysisEdit.id,
                       substance,
                       analysisMethod: 'Mono' as const
                     }))
@@ -99,10 +110,10 @@ const PrescriptionSubstancesModal = ({
                   (_) => _.substance
                 )}
                 onChangeSubstances={(substances) =>
-                  onUpdatePrescriptionSubstances(prescriptionAnalysisEditId, [
+                  onUpdatePrescriptionSubstances(prescriptionAnalysisEdit, [
                     ...getSubstancesByAnalysisMethod('Mono'),
                     ...substances.map((substance) => ({
-                      prescriptionId: prescriptionAnalysisEditId,
+                      prescriptionId: prescriptionAnalysisEdit.id,
                       substance,
                       analysisMethod: 'Multi' as const
                     }))

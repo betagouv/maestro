@@ -11,18 +11,27 @@ import {
   RegionalCoordinator
 } from 'maestro-shared/test/userFixtures';
 import { expect, userEvent, within } from 'storybook/test';
-import { AuthenticatedAppRoutes } from '../../../AppRoutes';
-import { getMockApi } from '../../../services/mockApiClient';
-import ProgrammingPlanView from '../ProgrammingPlanView';
+import { AuthenticatedAppRoutes } from '../../AppRoutes';
+import { getMockApi } from '../../services/mockApiClient';
+import ProgrammingView from './ProgrammingView';
 
 const meta = {
   title: 'Views/ProgrammingPlanView/ValidatedProgrammingPlan',
-  component: ProgrammingPlanView
-} satisfies Meta<typeof ProgrammingPlanView>;
+  component: ProgrammingView
+} satisfies Meta<typeof ProgrammingView>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const inProgressProgrammingPlan = {
+  ...genProgrammingPlan({
+    regionalStatus: RegionList.map((region) => ({
+      region,
+      status: 'InProgress'
+    })),
+    year: new Date().getFullYear() - 1
+  })
+};
 const programmingPlan = {
   ...genProgrammingPlan({
     regionalStatus: RegionList.map((region) => ({
@@ -45,13 +54,15 @@ const prescription2 = genPrescription({
 export const ForNationalCoordinator: Story = {
   parameters: {
     preloadedState: {
-      auth: { authUser: genAuthUser(NationalCoordinator) },
-      programmingPlan: { programmingPlan }
+      auth: { authUser: genAuthUser(NationalCoordinator) }
     },
     initialEntries: [
       `${AuthenticatedAppRoutes.SamplesByYearRoute.link(programmingPlan.year)}/?context=Control`
     ],
     apiClient: getMockApi({
+      useFindProgrammingPlansQuery: {
+        data: [inProgressProgrammingPlan, programmingPlan]
+      },
       useFindPrescriptionsQuery: { data: [prescription1, prescription2] },
       useFindRegionalPrescriptionsQuery: {
         data: RegionList.flatMap((region) => [

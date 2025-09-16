@@ -21,8 +21,6 @@ import { notificationService } from '../services/notificationService';
 export const regionalPrescriptionsRouter = {
   '/prescriptions/regions': {
     get: async ({ query: queryFindOptions, user }) => {
-      await getAndCheckProgrammingPlan(queryFindOptions.programmingPlanId);
-
       const findOptions = {
         ...queryFindOptions,
         region: hasNationalRole(user) ? queryFindOptions.region : user.region
@@ -139,9 +137,12 @@ export const regionalPrescriptionsRouter = {
         {
           category: prescription.context,
           author: user,
-          link: `${AppRouteLinks.ProgrammationByYearRoute.link(
-            programmingPlan.year
-          )}?context=${prescription.context}&prescriptionId=${prescription.id}&commentsRegion=${regionalPrescription.region}`
+          link: `${AppRouteLinks.ProgrammingRoute.link}?${new URLSearchParams({
+            year: programmingPlan.year.toString(),
+            context: prescription.context,
+            prescriptionId: prescription.id,
+            commentsRegion: regionalPrescription.region
+          }).toString()}`
         },
         recipients,
         {

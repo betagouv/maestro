@@ -16,18 +16,18 @@ import RegionalPrescriptionCountCell from 'src/components/Prescription/RegionalP
 import RegionHeaderCell from 'src/components/RegionHeaderCell/RegionHeaderCell';
 
 interface Props {
-  programmingPlan: ProgrammingPlan;
+  programmingPlans: ProgrammingPlan[];
   prescriptions: Prescription[];
   regionalPrescriptions: RegionalPrescription[];
   onChangeRegionalPrescriptionCount: (
-    prescriptionId: string,
+    prescription: Prescription,
     region: Region,
     count: number
   ) => void;
 }
 
-const ProgrammingPlanPrescriptionTable = ({
-  programmingPlan,
+const PrescriptionTable = ({
+  programmingPlans,
   prescriptions,
   regionalPrescriptions,
   onChangeRegionalPrescriptionCount
@@ -93,12 +93,16 @@ const ProgrammingPlanPrescriptionTable = ({
               key={`cell-${prescription.matrixKind}-${regionalPrescription.region}`}
             >
               <RegionalPrescriptionCountCell
-                programmingPlan={programmingPlan}
+                programmingPlan={
+                  programmingPlans.find(
+                    (p) => p.id === prescription.programmingPlanId
+                  ) as ProgrammingPlan
+                }
                 matrixKind={prescription.matrixKind}
                 regionalPrescription={regionalPrescription}
                 onChange={async (value) =>
                   onChangeRegionalPrescriptionCount(
-                    regionalPrescription.prescriptionId,
+                    prescription,
                     regionalPrescription.region,
                     value
                   )
@@ -127,8 +131,9 @@ const ProgrammingPlanPrescriptionTable = ({
               'sampleCount'
             )}
           </div>
-          {programmingPlan.regionalStatus.find((_) => _.region === region)
-            ?.status === 'Validated' && (
+          {programmingPlans
+            .flatMap((pp) => pp.regionalStatus)
+            .find((_) => _.region === region)?.status === 'Validated' && (
             <>
               <div>
                 {sumBy(
@@ -165,4 +170,4 @@ const ProgrammingPlanPrescriptionTable = ({
   );
 };
 
-export default ProgrammingPlanPrescriptionTable;
+export default PrescriptionTable;
