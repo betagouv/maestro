@@ -9,7 +9,7 @@ export const seed = async function () {
       id: uuidv4(),
       email: 'admin@maestro.beta.gouv.fr',
       name: fakerFR.person.fullName(),
-      programmingPlanKinds: ['PPV'],
+      programmingPlanKinds: [],
       role: 'Administrator'
     },
     {
