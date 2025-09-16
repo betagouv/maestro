@@ -298,19 +298,8 @@ export const checkEmails = async () => {
                   }
                 });
 
-                const residuesNotDeprecated = residues.filter((r) => {
-                  const ssd2Id = r.ssd2Id;
-
-                  if (ssd2Id === null) {
-                    return true;
-                  }
-                  const reference =
-                    SSD2Referential[ssd2Id as keyof typeof SSD2Referential];
-                  return !('deprecated' in reference) || !reference.deprecated;
-                });
-
                 //On garde que les résidus intéressants
-                const interestingResidues = residuesNotDeprecated
+                const interestingResidues = residues
                   .filter((r) => r.result_kind !== 'ND')
                   .filter((r) => {
                     const ssd2Id = r.ssd2Id;
@@ -354,7 +343,7 @@ export const checkEmails = async () => {
                   await analysisHandler(
                     {
                       ...analysis,
-                      residues: residuesNotDeprecated.map(
+                      residues: residues.map(
                         ({ casNumber, codeSandre, label, ...rest }) => {
                           const unknownLabel =
                             rest.ssd2Id === null ? label : null;
