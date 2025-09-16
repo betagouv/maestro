@@ -17,9 +17,40 @@ const findUnique = async (
 
   return kysely
     .selectFrom('users')
-    .selectAll()
+    .leftJoin('companies', 'users.companySiret', 'companies.siret')
     .where('id', '=', userId)
-    .executeTakeFirst();
+    .select([
+      'users.id',
+      'users.email',
+      'users.name',
+      'users.role',
+      'users.region',
+      'users.department',
+      'users.loggedSecrets',
+      'users.programmingPlanKinds',
+      'companies.siret as companySiret',
+      'companies.name as companyName',
+      'companies.kind as companyKind',
+      'companies.geolocation as companyGeolocation'
+    ])
+    .executeTakeFirst()
+    .then((user) =>
+      user
+        ? {
+            ...User.parse(user),
+            loggedSecrets: user.loggedSecrets ?? [],
+            company:
+              user.companySiret && user.companyName
+                ? {
+                    siret: user.companySiret,
+                    name: user.companyName,
+                    kind: user.companyKind,
+                    geolocation: user.companyGeolocation
+                  }
+                : null
+          }
+        : undefined
+    );
 };
 
 const findOne = async (email: string): Promise<User | undefined> => {
@@ -44,9 +75,26 @@ const findMany = async (findOptions: FindUserOptions): Promise<User[]> => {
           query = query.where('region', '=', findOptions.region);
         }
         break;
+      case 'department':
+        if (!isNil(findOptions.department)) {
+          query = query.where('department', '=', findOptions.department);
+        }
+        break;
       case 'roles':
         if (!isNil(findOptions.roles) && findOptions.roles.length > 0) {
           query = query.where('role', 'in', findOptions.roles);
+        }
+        break;
+      case 'programmingPlanKinds':
+        if (
+          !isNil(findOptions.programmingPlanKinds) &&
+          findOptions.programmingPlanKinds.length > 0
+        ) {
+          query = query.where(
+            sql<boolean>`
+              programming_plan_kinds && ${findOptions.programmingPlanKinds}::text[]
+            `
+          );
         }
         break;
       default:

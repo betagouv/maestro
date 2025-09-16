@@ -3,6 +3,7 @@ import { format } from 'date-fns';
 import highland from 'highland';
 import { isNil, sumBy } from 'lodash-es';
 import { getCultureKindLabel } from 'maestro-shared/referential/CultureKind';
+import { Department } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { getMatrixPartLabel } from 'maestro-shared/referential/Matrix/MatrixPart';
@@ -18,15 +19,16 @@ import { ResidueComplianceLabels } from 'maestro-shared/schema/Analysis/Residue/
 import { ResidueKindLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
 import { ResultKindLabels } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 import {
+  getCompletionRate,
+  LocalPrescription,
+  LocalPrescriptionSort
+} from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
+import {
   Prescription,
   PrescriptionSort
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import {
-  getCompletionRate,
-  RegionalPrescription,
-  RegionalPrescriptionSort
-} from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
+import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   getSampleMatrixLabel,
   PartialSample
@@ -39,7 +41,6 @@ import {
   isDefinedAndNotNull
 } from 'maestro-shared/utils/utils';
 import { analysisRepository } from '../../repositories/analysisRepository';
-import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import sampleItemRepository from '../../repositories/sampleItemRepository';
 import { Template, templatePath } from '../../templates/templates';
 
@@ -139,7 +140,7 @@ const optionalBooleanToString = (
 const generateSamplesExportExcel = async (
   samples: PartialSample[]
 ): Promise<Buffer> => {
-  const laboratories = await laboratoryRepository.findMany();
+  // const laboratories = await laboratoryRepository.findMany();
 
   return highland(samples)
     .flatMap((sample) =>
@@ -206,10 +207,11 @@ const generateSamplesExportExcel = async (
             [`recipient${index + 1}`]:
               item.recipientKind &&
               (item.recipientKind === 'Laboratory'
-                ? 'Laboratoire ' +
-                  laboratories.find((lab) => lab.id === sample.laboratoryId)
-                    ?.name
-                : SampleItemRecipientKindLabels[item.recipientKind]),
+                ? 'Laboratoire '
+                : // + TODO
+                  // laboratories.find((lab) => lab.id === sample.laboratoryId)
+                  //   ?.name
+                  SampleItemRecipientKindLabels[item.recipientKind]),
             [`compliance200263${index + 1}`]: item.compliance200263
               ? 'Oui'
               : 'Non'
@@ -309,115 +311,166 @@ const generateSamplesExportExcel = async (
 };
 
 const generatePrescriptionsExportExcel = async (
+  programmingPlan: ProgrammingPlan,
   prescriptions: Prescription[],
-  regionalPrescriptions: RegionalPrescription[],
-  exportedRegion: Region | undefined
+  localPrescriptions: LocalPrescription[],
+  exportedRegion: Region | undefined,
+  exportedDepartment: Department | undefined
 ): Promise<Buffer> => {
   const exportedRegions = exportedRegion ? [exportedRegion] : RegionList;
+  const exportedDepartments = exportedDepartment
+    ? [exportedDepartment]
+    : exportedRegion
+      ? Regions[exportedRegion].departments
+      : [];
 
-  const laboratories = exportedRegion
-    ? await laboratoryRepository.findMany()
-    : [];
+  // const laboratories = exportedRegion
+  //   ? await laboratoryRepository.findMany()
+  //   : [];
 
-  const columnTitles = [
-    !exportedRegion ? 'Total national Programmés' : undefined,
-    !exportedRegion ? 'Total national Réalisés' : undefined,
-    !exportedRegion ? 'Total national Taux de réalisation' : undefined,
-    ...exportedRegions.map((region) => [
-      `${Regions[region].shortName} Programmés`,
-      `${Regions[region].shortName} Réalisés`,
-      `${Regions[region].shortName} Taux de réalisation`
-    ]),
-    exportedRegion ? 'Laboratoire' : undefined
-  ]
-    .flat()
-    .filter(isDefined)
-    .map((v) => ({ value: v }));
+  console.log('Export prescriptions', exportedRegion, exportedDepartments);
+
+  const columnTitles: string[] = [];
+
+  if (!exportedRegion) {
+    columnTitles.push('Total national Programmés');
+    columnTitles.push('Total national Réalisés');
+    columnTitles.push('Total national Taux de réalisation');
+  }
+  if (!exportedDepartment) {
+    columnTitles.push(
+      ...exportedRegions.flatMap((region) => [
+        `Région ${Regions[region].shortName} - Programmés`,
+        `Région ${Regions[region].shortName} - Réalisés`,
+        `Région ${Regions[region].shortName} - Taux de réalisation`
+      ])
+    );
+  }
+  if (programmingPlan.distributionKind !== 'REGIONAL') {
+    columnTitles.push(
+      ...exportedDepartments.flatMap((department) => [
+        `Département ${department} - Programmés`,
+        `Département ${department} - Réalisés`,
+        `Département ${department} - Taux de réalisation`
+      ])
+    );
+  }
 
   return highland(prescriptions.toSorted(PrescriptionSort))
     .map((prescription) => ({
       prescription,
-      filteredRegionalPrescriptions: [
-        ...regionalPrescriptions.filter(
-          (r) => r.prescriptionId === prescription.id
+      filteredLocalPrescriptions: [
+        ...localPrescriptions.filter(
+          (_) => _.prescriptionId === prescription.id && isNil(_.companySiret)
         )
-      ].toSorted(RegionalPrescriptionSort)
+      ].toSorted(LocalPrescriptionSort)
     }))
-    .map(({ prescription, filteredRegionalPrescriptions }) => {
+    .map(({ prescription, filteredLocalPrescriptions }) => {
+      const columns = [];
+      if (!exportedRegion) {
+        columns.push(
+          sumBy(filteredLocalPrescriptions, 'sampleCount'),
+          sumBy(filteredLocalPrescriptions, 'realizedSampleCount') ?? 0,
+          getCompletionRate(filteredLocalPrescriptions)
+        );
+      }
+      columns.push(
+        ...filteredLocalPrescriptions.flatMap(
+          ({ sampleCount, realizedSampleCount, region }) => [
+            sampleCount,
+            realizedSampleCount ?? 0,
+            getCompletionRate(filteredLocalPrescriptions, region)
+          ]
+        )
+      );
       return {
         matrix: MatrixKindLabels[prescription.matrixKind],
         stages: prescription.stages
           .map((stage) => StageLabels[stage])
           .join(', '),
-        columns: [
-          !exportedRegion
-            ? sumBy(filteredRegionalPrescriptions, 'sampleCount')
-            : undefined,
-          !exportedRegion
-            ? sumBy(filteredRegionalPrescriptions, 'realizedSampleCount')
-            : undefined,
-          !exportedRegion
-            ? getCompletionRate(filteredRegionalPrescriptions)
-            : undefined,
-          ...filteredRegionalPrescriptions.reduce(
-            (acc, { sampleCount, realizedSampleCount, region }) => [
-              ...acc,
-              sampleCount,
-              realizedSampleCount ?? 0,
-              getCompletionRate(filteredRegionalPrescriptions, region)
-            ],
-            [] as number[]
-          ),
-          laboratories.find(
-            (laboratory) =>
-              laboratory.id === filteredRegionalPrescriptions[0]?.laboratoryId
-          )?.name
-        ]
-          .filter(isDefined)
-          .map((v) => ({ value: v }))
+        columns: columns.map((v) => ({ value: v }))
+        // laboratories.find(
+        //   (laboratory) =>
+        //     laboratory.id ===
+        //     filteredLocalPrescriptions[0]?.substanceKindsLaboratories?.[0]
+        //       ?.laboratoryId
+        // )?.name
+        //.map((v) => ({ value: v }))
       };
     })
     .collect()
-    .map((prescriptions) => {
+    .map((prescriptionsWithColumns) => {
+      const totalColums = [];
+      if (!exportedRegion) {
+        totalColums.push(
+          sumBy(localPrescriptions, 'sampleCount'),
+          sumBy(localPrescriptions, 'realizedSampleCount'),
+          getCompletionRate(localPrescriptions)
+        );
+      }
+      if (!exportedDepartment) {
+        totalColums.push(
+          ...exportedRegions.flatMap((region) => [
+            sumBy(
+              localPrescriptions.filter(
+                (_) => _.region === region && isNil(_.department)
+              ),
+              'sampleCount'
+            ),
+            sumBy(
+              localPrescriptions.filter(
+                (_) => _.region === region && isNil(_.department)
+              ),
+              'realizedSampleCount'
+            ),
+            getCompletionRate(
+              localPrescriptions.filter(
+                (_) => _.region === region && isNil(_.department)
+              ),
+              region
+            )
+          ])
+        );
+      }
+      if (programmingPlan.distributionKind !== 'REGIONAL') {
+        totalColums.push(
+          ...exportedDepartments.flatMap((dept) => [
+            sumBy(
+              localPrescriptions.filter(
+                (_) => _.department === dept && isNil(_.companySiret)
+              ),
+              'sampleCount'
+            ),
+            sumBy(
+              localPrescriptions.filter(
+                (_) => _.department === dept && isNil(_.companySiret)
+              ),
+              'realizedSampleCount'
+            ),
+            getCompletionRate(
+              localPrescriptions.filter(
+                (_) => _.department === dept && isNil(_.companySiret)
+              ),
+              undefined,
+              true
+            )
+          ])
+        );
+      }
+
       return carboneRender(
         'prescriptionsExport',
         {
-          columnTitles,
+          columnTitles: columnTitles
+            .flat()
+            .filter(isDefined)
+            .map((v) => ({ value: v })),
           prescriptions: [
-            ...prescriptions,
+            ...prescriptionsWithColumns,
             {
               matrix: 'Total',
-              columns: [
-                !exportedRegion
-                  ? sumBy(regionalPrescriptions, 'sampleCount')
-                  : undefined,
-                !exportedRegion
-                  ? sumBy(regionalPrescriptions, 'realizedSampleCount')
-                  : undefined,
-                !exportedRegion
-                  ? getCompletionRate(regionalPrescriptions)
-                  : undefined,
-                ...exportedRegions.reduce(
-                  (acc, region) => [
-                    ...acc,
-                    sumBy(
-                      regionalPrescriptions.filter((r) => r.region === region),
-                      'sampleCount'
-                    ),
-                    sumBy(
-                      regionalPrescriptions.filter((r) => r.region === region),
-                      'realizedSampleCount'
-                    ),
-                    getCompletionRate(
-                      regionalPrescriptions.filter((r) => r.region === region),
-                      region
-                    )
-                  ],
-                  [] as number[]
-                )
-              ]
-                .filter(isDefined)
-                .map((v) => ({ value: v }))
+              stages: '',
+              columns: totalColums.map((v) => ({ value: v }))
             }
           ]
         },

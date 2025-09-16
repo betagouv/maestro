@@ -1,4 +1,5 @@
 import Input from '@codegouvfr/react-dsfr/Input';
+import { isNil } from 'lodash-es';
 import { ComponentPropsWithoutRef, InputHTMLAttributes } from 'react';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
 import { UseForm } from 'src/hooks/useForm';
@@ -32,6 +33,16 @@ function AppTextInput<T extends ZodObject>(
     ...textInputProps
   } = props;
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = Number(e.target.value);
+
+    if (!isNil(props.max) && newValue > Number(props.max)) {
+      e.currentTarget.value = props.max.toString();
+    }
+
+    textInputProps.onChange?.(e);
+  };
+
   return (
     <Input
       {...textInputProps}
@@ -47,7 +58,8 @@ function AppTextInput<T extends ZodObject>(
       }
       nativeInputProps={{
         ...textInputProps,
-        placeholder
+        placeholder,
+        onChange: handleChange
       }}
       hintText={hintText}
       state={

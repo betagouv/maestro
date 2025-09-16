@@ -1,8 +1,16 @@
 import { z } from 'zod';
 import { UserPermission } from '../User/UserPermission';
+import { DistributionKind } from './DistributionKind';
 
 export const ProgrammingPlanStatus = z.enum(
-  ['InProgress', 'Submitted', 'Approved', 'Validated', 'Closed'],
+  [
+    'InProgress',
+    'SubmittedToRegion',
+    'SubmittedToDepartments',
+    'ApprovedByRegion',
+    'Validated',
+    'Closed'
+  ],
   {
     error: () => 'Statut non renseigné.'
   }
@@ -18,8 +26,9 @@ export const ProgrammingPlanStatusLabels: Record<
   string
 > = {
   InProgress: 'Programmation en cours',
-  Submitted: 'Soumis aux régions',
-  Approved: 'Approuvé par les régions',
+  SubmittedToRegion: 'Soumis à la région',
+  SubmittedToDepartments: 'Soumis aux départements',
+  ApprovedByRegion: 'Approuvé par la région',
   Validated: 'Campagne en cours',
   Closed: 'Campagne terminée'
 };
@@ -29,19 +38,31 @@ export const ProgrammingPlanStatusPermissions: Record<
   UserPermission
 > = {
   InProgress: 'readProgrammingPlansInProgress',
-  Submitted: 'readProgrammingPlanSubmitted',
-  Approved: 'readProgrammingPlanApproved',
+  SubmittedToRegion: 'readProgrammingPlanSubmittedToRegion',
+  SubmittedToDepartments: 'readProgrammingPlanSubmittedToDepartments',
+  ApprovedByRegion: 'readProgrammingPlanApprovedByRegion',
   Validated: 'readProgrammingPlanValidated',
   Closed: 'readProgrammingPlanClosed'
 };
 
-export const NextProgrammingPlanStatus: Record<
-  ProgrammingPlanStatus,
-  ProgrammingPlanStatus | null
-> = {
-  InProgress: 'Submitted',
-  Submitted: 'Approved',
-  Approved: 'Validated',
-  Validated: 'Closed',
-  Closed: null
-};
+export const NextProgrammingPlanStatus = {
+  REGIONAL: {
+    InProgress: 'SubmittedToRegion',
+    SubmittedToRegion: 'ApprovedByRegion',
+    ApprovedByRegion: 'Validated',
+    SubmittedToDepartments: null,
+    Validated: 'Closed',
+    Closed: null
+  },
+  SLAUGHTERHOUSE: {
+    InProgress: 'SubmittedToRegion',
+    SubmittedToRegion: 'SubmittedToDepartments',
+    ApprovedByRegion: null,
+    SubmittedToDepartments: 'Validated',
+    Validated: 'Closed',
+    Closed: null
+  }
+} satisfies Record<
+  DistributionKind,
+  Record<ProgrammingPlanStatus, ProgrammingPlanStatus | null>
+>;

@@ -23,7 +23,7 @@ const TemplateData = {
     subject: 'Plan de programmation validé',
     content: 'Le plan de programmation a été validé'
   },
-  NewRegionalPrescriptionCommentTemplate: {
+  NewLocalPrescriptionCommentTemplate: {
     subject: 'Nouveau commentaire',
     content: 'Un nouveau commentaire a été ajouté'
   },

@@ -39,7 +39,7 @@ const ProgrammingPlanClosing = ({ programmingPlan, render }: Props) => {
       <ConfirmationModal
         modal={closingConfirmationModal}
         title={`Clôture des prélèvements ${programmingPlan.year}`}
-        children={`Vous êtes sur le point de clôturer l’activité de prélèvements pour l’année ${programmingPlan.year}. Notez qu’une fois cette action, seule l’activité de consultation restera accessible aux utilisateurs.`}
+        children={`Vous êtes sur le point de clôturer l’activité de prélèvements pour l’année ${programmingPlan.year}. Notez qu’une fois cette action, seule l’activité de consultation restera accessible aux utilisateurs.`}
         onConfirm={closeProgrammingPlan}
         confirmLabel="Clôturer"
       />

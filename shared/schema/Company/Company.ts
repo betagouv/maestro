@@ -1,5 +1,7 @@
 import { z } from 'zod';
 import { isDefined } from '../../utils/utils';
+import { Geolocation } from '../Geolocation/Geolocation';
+import { CompanyKind } from './CompanyKind';
 import { CompanySearchResult } from './CompanySearchResult';
 export const Company = z.object(
   {
@@ -9,7 +11,9 @@ export const Company = z.object(
     address: z.string().nullish(),
     postalCode: z.string().nullish(),
     city: z.string().nullish(),
-    nafCode: z.string().nullish()
+    nafCode: z.string().nullish(),
+    kind: CompanyKind.nullish(),
+    geolocation: Geolocation.nullish()
   },
   {
     error: () => "Veuillez renseigner l'entité"

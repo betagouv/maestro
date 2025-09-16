@@ -1,8 +1,10 @@
 import { constants } from 'http2';
 import { intersection } from 'lodash-es';
 import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
-import { RegionList, Regions } from 'maestro-shared/referential/Region';
+import { Department } from 'maestro-shared/referential/Department';
+import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
+import { ProgrammingPlanKindList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   NextProgrammingPlanStatus,
   ProgrammingPlanStatus,
@@ -12,10 +14,10 @@ import {
 import { hasPermission, userRegions } from 'maestro-shared/schema/User/User';
 import { v4 as uuidv4 } from 'uuid';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
+import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
-import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
 import { userRepository } from '../repositories/userRepository';
 import { ProtectedSubRouter } from '../routers/routes.type';
 import { notificationService } from '../services/notificationService';
@@ -41,8 +43,12 @@ export const programmingPlanRouter = {
           findOptionsStatus,
           userStatusAuthorized
         ) as ProgrammingPlanStatus[],
-        kinds: user.programmingPlanKinds,
-        region: user.region || findOptions.region
+        kinds:
+          user?.role === 'Administrator'
+            ? ProgrammingPlanKindList
+            : user.programmingPlanKinds,
+        region: user.region || findOptions.region,
+        department: user.department
       });
 
       console.info('Found programmingPlans', programmingPlans);
@@ -104,9 +110,10 @@ export const programmingPlanRouter = {
       if (
         newProgrammingPlanStatus !== 'Closed' ||
         programmingPlan.regionalStatus.some(
-          (programmingPlanRegionalStatus) =>
-            NextProgrammingPlanStatus[programmingPlanRegionalStatus.status] !==
-            newProgrammingPlanStatus
+          (programmingPlanLocalStatus) =>
+            NextProgrammingPlanStatus[programmingPlan.distributionKind][
+              programmingPlanLocalStatus.status
+            ] !== newProgrammingPlanStatus
         )
       ) {
         return { status: constants.HTTP_STATUS_BAD_REQUEST };
@@ -114,7 +121,7 @@ export const programmingPlanRouter = {
 
       await Promise.all(
         RegionList.map((region) => {
-          programmingPlanRepository.updateRegionalStatus(programmingPlan.id, {
+          programmingPlanRepository.updateLocalStatus(programmingPlan.id, {
             region,
             status: newProgrammingPlanStatus
           });
@@ -137,9 +144,9 @@ export const programmingPlanRouter = {
       };
     }
   },
-  '/programming-plans/:programmingPlanId/regional-status': {
+  '/programming-plans/:programmingPlanId/local-status': {
     put: async (
-      { user, body: programmingPlanRegionalStatusList },
+      { user, body: programmingPlanLocalStatusList },
       { programmingPlanId }
     ) => {
       const programmingPlan =
@@ -148,87 +155,192 @@ export const programmingPlanRouter = {
       console.info(
         'Update programming plan regional status',
         programmingPlanId,
-        programmingPlanRegionalStatusList
+        programmingPlanLocalStatusList
       );
 
       if (
-        programmingPlanRegionalStatusList.some(
-          (programmingPlanRegionalStatus) =>
-            NextProgrammingPlanStatus[
-              programmingPlan.regionalStatus.find(
-                (_) => _.region === programmingPlanRegionalStatus.region
-              )?.status as ProgrammingPlanStatus
-            ] !== programmingPlanRegionalStatus.status
+        programmingPlanLocalStatusList.some(
+          (programmingPlanLocalStatus) =>
+            (programmingPlanLocalStatus.department
+              ? NextProgrammingPlanStatus[programmingPlan.distributionKind][
+                  programmingPlan.departmentalStatus?.find(
+                    (_) =>
+                      _.region === programmingPlanLocalStatus.region &&
+                      _.department === programmingPlanLocalStatus.department
+                  )?.status as ProgrammingPlanStatus
+                ]
+              : NextProgrammingPlanStatus[programmingPlan.distributionKind][
+                  programmingPlan.regionalStatus.find(
+                    (_) => _.region === programmingPlanLocalStatus.region
+                  )?.status as ProgrammingPlanStatus
+                ]) !== programmingPlanLocalStatus.status
         )
-      ) {
-        return { status: constants.HTTP_STATUS_BAD_REQUEST };
-      }
-
-      if (
-        hasPermission(user, 'approveProgrammingPlan') &&
-        !hasPermission(user, 'manageProgrammingPlan') &&
-        programmingPlanRegionalStatusList.some(
-          (programmingPlanRegionalStatus) =>
-            programmingPlanRegionalStatus.status !== 'Approved' ||
-            !userRegions(user).includes(programmingPlanRegionalStatus.region)
-        )
-      ) {
-        return { status: constants.HTTP_STATUS_FORBIDDEN };
-      }
+      )
+        if (
+          programmingPlanLocalStatusList.some(
+            (programmingPlanLocalStatus) =>
+              !userRegions(user).includes(programmingPlanLocalStatus.region) ||
+              (programmingPlanLocalStatus.department &&
+                !Regions[user.region as Region].departments.includes(
+                  programmingPlanLocalStatus.department
+                ))
+          )
+        ) {
+          return { status: constants.HTTP_STATUS_FORBIDDEN };
+        }
 
       await Promise.all(
-        programmingPlanRegionalStatusList.map(
-          async (programmingPlanRegionalStatus) => {
-            if (
-              ['Submitted', 'Validated'].includes(
-                programmingPlanRegionalStatus.status
-              )
-            ) {
-              const regionalCoordinators = await userRepository.findMany({
-                roles: ['RegionalCoordinator'],
-                region: programmingPlanRegionalStatus.region
+        programmingPlanLocalStatusList.map(
+          async (programmingPlanLocalStatus) => {
+            if (programmingPlanLocalStatus.department) {
+              //TODO ne notifier que les préleveurs des abattoires concernés par des prélevements
+              const samplers = await userRepository.findMany({
+                roles: ['Sampler'],
+                region: programmingPlanLocalStatus.region,
+                department: programmingPlanLocalStatus.department as Department,
+                programmingPlanKinds: programmingPlan.kinds
               });
-
-              const category =
-                programmingPlanRegionalStatus.status === 'Submitted'
-                  ? 'ProgrammingPlanSubmitted'
-                  : 'ProgrammingPlanValidated';
 
               await notificationService.sendNotification(
                 {
-                  category,
-                  link: AppRouteLinks.ProgrammationByYearRoute.link(
-                    programmingPlan.year
-                  )
+                  category: 'ProgrammingPlanValidated',
+                  link: `${AppRouteLinks.ProgrammingRoute.link}?${new URLSearchParams(
+                    {
+                      year: programmingPlan.year.toString(),
+                      planIds: programmingPlan.id
+                    }
+                  ).toString()}`
                 },
-                regionalCoordinators,
+                samplers,
                 undefined
               );
-            } else if (programmingPlanRegionalStatus.status === 'Approved') {
-              const nationalCoordinators = await userRepository.findMany({
-                roles: ['NationalCoordinator']
-              });
-
-              await notificationService.sendNotification(
-                {
-                  category: 'ProgrammingPlanApproved',
-                  link: AppRouteLinks.ProgrammationByYearRoute.link(
-                    programmingPlan.year
-                  )
-                },
-                nationalCoordinators,
-                {
-                  region: Regions[programmingPlanRegionalStatus.region].name
-                }
-              );
             } else {
-              return { status: constants.HTTP_STATUS_BAD_REQUEST };
+              if (
+                ['SubmittedToRegion', 'Validated'].includes(
+                  programmingPlanLocalStatus.status
+                )
+              ) {
+                const regionalCoordinators = await userRepository.findMany({
+                  roles: ['RegionalCoordinator'],
+                  region: programmingPlanLocalStatus.region,
+                  programmingPlanKinds: programmingPlan.kinds
+                });
+
+                const category =
+                  programmingPlanLocalStatus.status === 'SubmittedToRegion'
+                    ? 'ProgrammingPlanSubmittedToRegion'
+                    : 'ProgrammingPlanValidated';
+
+                await notificationService.sendNotification(
+                  {
+                    category,
+                    link: `${AppRouteLinks.ProgrammingRoute.link}?${new URLSearchParams(
+                      {
+                        year: programmingPlan.year.toString(),
+                        planIds: programmingPlan.id
+                      }
+                    ).toString()}`
+                  },
+                  regionalCoordinators,
+                  undefined
+                );
+              } else if (
+                programmingPlanLocalStatus.status === 'ApprovedByRegion'
+              ) {
+                const nationalCoordinators = await userRepository.findMany({
+                  roles: ['NationalCoordinator'],
+                  programmingPlanKinds: programmingPlan.kinds
+                });
+
+                await notificationService.sendNotification(
+                  {
+                    category: 'ProgrammingPlanApprovedByRegion',
+                    link: `${AppRouteLinks.ProgrammingRoute.link}?${new URLSearchParams(
+                      {
+                        year: programmingPlan.year.toString(),
+                        planIds: programmingPlan.id
+                      }
+                    ).toString()}`
+                  },
+                  nationalCoordinators,
+                  {
+                    region: Regions[programmingPlanLocalStatus.region].name
+                  }
+                );
+              } else if (
+                programmingPlanLocalStatus.status === 'SubmittedToDepartments'
+              ) {
+                await programmingPlanRepository.insertManyLocalStatus(
+                  programmingPlanId,
+                  Regions[programmingPlanLocalStatus.region].departments.map(
+                    (department) => ({
+                      region: programmingPlanLocalStatus.region,
+                      department,
+                      status: 'SubmittedToDepartments' as const
+                    })
+                  )
+                );
+
+                const departmentalCoordinators = await userRepository.findMany({
+                  roles: ['DepartmentalCoordinator'],
+                  region: programmingPlanLocalStatus.region,
+                  programmingPlanKinds: programmingPlan.kinds
+                });
+
+                await notificationService.sendNotification(
+                  {
+                    category: 'ProgrammingPlanSubmittedToDepartments',
+                    link: `${AppRouteLinks.ProgrammingRoute.link}?${new URLSearchParams(
+                      {
+                        year: programmingPlan.year.toString(),
+                        planIds: programmingPlan.id
+                      }
+                    ).toString()}`
+                  },
+                  departmentalCoordinators,
+                  undefined
+                );
+              } else {
+                return { status: constants.HTTP_STATUS_BAD_REQUEST };
+              }
             }
 
-            await programmingPlanRepository.updateRegionalStatus(
+            await programmingPlanRepository.updateLocalStatus(
               programmingPlanId,
-              programmingPlanRegionalStatus
+              programmingPlanLocalStatus
             );
+
+            //TODO notif + test
+            if (
+              programmingPlanLocalStatus.department &&
+              programmingPlanLocalStatus.status === 'Validated'
+            ) {
+              const updatedProgrammingPlan =
+                await programmingPlanRepository.findUnique(programmingPlanId);
+
+              if (updatedProgrammingPlan) {
+                const allDepartmentsApproved = Regions[
+                  programmingPlanLocalStatus.region
+                ].departments.every(
+                  (department) =>
+                    updatedProgrammingPlan.departmentalStatus?.find(
+                      (_) =>
+                        _.region === programmingPlanLocalStatus.region &&
+                        _.department === department
+                    )?.status === 'Validated'
+                );
+
+                if (allDepartmentsApproved) {
+                  await programmingPlanRepository.updateLocalStatus(
+                    programmingPlanId,
+                    {
+                      region: programmingPlanLocalStatus.region,
+                      status: 'Validated'
+                    }
+                  );
+                }
+              }
+            }
           }
         )
       );
@@ -299,15 +411,19 @@ export const programmingPlanRouter = {
         id: uuidv4(),
         createdAt: new Date(),
         createdBy: user.id,
+        title: previousProgrammingPlan.title,
+        domain: previousProgrammingPlan.domain,
         kinds: previousProgrammingPlan.kinds,
         contexts: previousProgrammingPlan.contexts,
         samplesOutsidePlanAllowed:
           previousProgrammingPlan.samplesOutsidePlanAllowed,
+        distributionKind: previousProgrammingPlan.distributionKind,
         year,
         regionalStatus: RegionList.map((region) => ({
           region,
           status: 'InProgress' as const
-        }))
+        })),
+        substanceKinds: previousProgrammingPlan.substanceKinds
       };
 
       await programmingPlanRepository.insert(newProgrammingPlan);
@@ -315,8 +431,8 @@ export const programmingPlanRouter = {
       const previousPrescriptions = await prescriptionRepository.findMany({
         programmingPlanId: previousProgrammingPlan.id
       });
-      const previousRegionalPrescriptions =
-        await regionalPrescriptionRepository.findMany({
+      const previousLocalPrescriptions =
+        await localPrescriptionRepository.findMany({
           programmingPlanId: previousProgrammingPlan.id
         });
 
@@ -330,14 +446,14 @@ export const programmingPlanRouter = {
 
           await prescriptionRepository.insert(newPrescription);
 
-          await regionalPrescriptionRepository.insertMany(
-            previousRegionalPrescriptions
+          await localPrescriptionRepository.insertMany(
+            previousLocalPrescriptions
               .filter(
-                (regionalPrescription) =>
-                  regionalPrescription.prescriptionId === prescription.id
+                (localPrescription) =>
+                  localPrescription.prescriptionId === prescription.id
               )
-              .map((regionalPrescription) => ({
-                ...regionalPrescription,
+              .map((localPrescription) => ({
+                ...localPrescription,
                 prescriptionId: newPrescription.id,
                 laboratoryId: null
               }))

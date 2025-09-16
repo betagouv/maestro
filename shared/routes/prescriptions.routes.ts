@@ -1,4 +1,14 @@
 import { z } from 'zod';
+import { FindLocalPrescriptionOptions } from '../schema/LocalPrescription/FindLocalPrescriptionOptions';
+import {
+  LocalPrescription,
+  LocalPrescriptionUpdate
+} from '../schema/LocalPrescription/LocalPrescription';
+import {
+  LocalPrescriptionComment,
+  LocalPrescriptionCommentToCreate
+} from '../schema/LocalPrescription/LocalPrescriptionComment';
+import { LocalPrescriptionKey } from '../schema/LocalPrescription/LocalPrescriptionKey';
 import { FindPrescriptionOptions } from '../schema/Prescription/FindPrescriptionOptions';
 import {
   Prescription,
@@ -6,16 +16,6 @@ import {
   PrescriptionUpdate
 } from '../schema/Prescription/Prescription';
 import { PrescriptionSubstance } from '../schema/Prescription/PrescriptionSubstance';
-import { FindRegionalPrescriptionOptions } from '../schema/RegionalPrescription/FindRegionalPrescriptionOptions';
-import {
-  RegionalPrescription,
-  RegionalPrescriptionUpdate
-} from '../schema/RegionalPrescription/RegionalPrescription';
-import {
-  RegionalPrescriptionComment,
-  RegionalPrescriptionCommentToCreate
-} from '../schema/RegionalPrescription/RegionalPrescriptionComment';
-import { RegionalPrescriptionKey } from '../schema/RegionalPrescription/RegionalPrescriptionKey';
 import { SubRoutes } from './routes';
 
 export const prescriptionsRoutes = {
@@ -43,25 +43,37 @@ export const prescriptionsRoutes = {
   '/prescriptions/regions': {
     params: undefined,
     get: {
-      query: FindRegionalPrescriptionOptions,
+      query: FindLocalPrescriptionOptions,
       permissions: ['readPrescriptions'],
-      response: z.array(RegionalPrescription)
+      response: z.array(LocalPrescription)
     }
   },
   '/prescriptions/:prescriptionId/regions/:region/comments': {
-    params: RegionalPrescriptionKey.shape,
+    params: LocalPrescriptionKey.shape,
     post: {
-      body: RegionalPrescriptionCommentToCreate,
+      body: LocalPrescriptionCommentToCreate,
       permissions: ['commentPrescription'],
-      response: RegionalPrescriptionComment
+      response: LocalPrescriptionComment
     }
   },
   '/prescriptions/:prescriptionId/regions/:region': {
-    params: RegionalPrescriptionKey.shape,
+    params: LocalPrescriptionKey.shape,
     put: {
-      body: RegionalPrescriptionUpdate,
-      permissions: ['updatePrescription', 'updatePrescriptionLaboratory'],
-      response: RegionalPrescription
+      body: LocalPrescriptionUpdate,
+      permissions: ['updatePrescription', 'updatePrescriptionLaboratories'],
+      response: LocalPrescription
+    }
+  },
+  '/prescriptions/:prescriptionId/regions/:region/departments/:department': {
+    params: LocalPrescriptionKey.shape,
+    put: {
+      body: LocalPrescriptionUpdate,
+      permissions: [
+        'distributePrescriptionToDepartments',
+        'distributePrescriptionToSlaughterhouses',
+        'updatePrescriptionLaboratories'
+      ],
+      response: LocalPrescription
     }
   },
   '/prescriptions/:prescriptionId': {

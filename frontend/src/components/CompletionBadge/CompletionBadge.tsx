@@ -2,28 +2,28 @@ import Badge from '@codegouvfr/react-dsfr/Badge';
 import { Region } from 'maestro-shared/referential/Region';
 import {
   getCompletionRate,
-  RegionalPrescription
-} from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
+  LocalPrescription
+} from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 
 interface Props {
-  regionalPrescriptions: RegionalPrescription | RegionalPrescription[];
+  localPrescriptions: LocalPrescription | LocalPrescription[];
   region?: Region;
 }
 
-const CompletionBadge = ({ regionalPrescriptions, region }: Props) => {
+const CompletionBadge = ({ localPrescriptions, region }: Props) => {
   return (
     <Badge
       noIcon
       severity={
-        getCompletionRate(regionalPrescriptions, region) === 100
+        getCompletionRate(localPrescriptions, region) === 100
           ? 'success'
-          : getCompletionRate(regionalPrescriptions, region) > 50
+          : getCompletionRate(localPrescriptions, region) > 50
             ? 'warning'
             : 'error'
       }
       className={'fr-px-1v'}
     >
-      {getCompletionRate(regionalPrescriptions, region)}%
+      {getCompletionRate(localPrescriptions, region)}%
     </Badge>
   );
 };

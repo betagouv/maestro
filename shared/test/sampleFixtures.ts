@@ -9,15 +9,16 @@ import { MatrixPartList } from '../referential/Matrix/MatrixPart';
 import { QuantityUnitList } from '../referential/QuantityUnit';
 import { Regions } from '../referential/Region';
 import { Company } from '../schema/Company/Company';
+import { Geolocation } from '../schema/Geolocation/Geolocation';
 import { ProgrammingPlanContextList } from '../schema/ProgrammingPlan/Context';
 import {
   CreatedSampleData,
-  Geolocation,
   PartialSample,
   Sample,
   SampleContextData
 } from '../schema/Sample/Sample';
 import { SampleItem } from '../schema/Sample/SampleItem';
+import { DummyLaboratoryIds } from '../schema/User/User';
 import { CompanyFixture, genCompany } from './companyFixtures';
 import { LaboratoryFixture } from './laboratoryFixtures';
 import { PrescriptionFixture } from './prescriptionFixtures';
@@ -84,7 +85,7 @@ export const genCreatedPartialSample = (
       releaseControl: fakerFR.datatype.boolean()
     },
     sampledAt: new Date(),
-    items: [genSampleItem({ sampleId: contextData.id, itemNumber: 1 })],
+    items: [genSampleItem({ sampleId: contextData.id, copyNumber: 1 })],
     ...data
   };
 };
@@ -97,7 +98,6 @@ export const genCreatedSample = (data?: Partial<Sample>): Sample => {
     matrixKind: sample.matrixKind as MatrixKind,
     matrix: sample.matrix as Matrix,
     prescriptionId: uuidv4(),
-    laboratoryId: uuidv4(),
     items: sample.items as SampleItem[],
     ownerAgreement: fakerFR.datatype.boolean(),
     ...data
@@ -105,22 +105,27 @@ export const genCreatedSample = (data?: Partial<Sample>): Sample => {
 };
 export const genSampleItem = (data?: Partial<SampleItem>): SampleItem => ({
   sampleId: uuidv4(),
-  itemNumber: fakerFR.number.int(99),
+  itemNumber: 1,
+  copyNumber: 1,
   quantity: fakerFR.number.int(999),
   quantityUnit: oneOf(QuantityUnitList),
   compliance200263: fakerFR.datatype.boolean(),
   sealId: fakerFR.string.alphanumeric(32),
   recipientKind: 'Laboratory',
+  laboratoryId: oneOf(DummyLaboratoryIds),
+  substanceKind: 'Any',
   ...data
 });
 const Sample11FixtureId = '11111111-1111-1111-1111-111111111111';
 export const Sample1Item1Fixture = genSampleItem({
   sampleId: Sample11FixtureId,
-  itemNumber: 1,
+  copyNumber: 1,
   quantity: 534,
   quantityUnit: 'G185A',
   compliance200263: true,
-  sealId: '123456'
+  sealId: '123456',
+  substanceKind: 'Any',
+  laboratoryId: LaboratoryFixture.id
 });
 export const Sample11Fixture = genCreatedPartialSample({
   id: Sample11FixtureId,
@@ -150,7 +155,6 @@ export const Sample11Fixture = genCreatedPartialSample({
     cultureKind: 'PD07A',
     releaseControl: false
   },
-  laboratoryId: LaboratoryFixture.id,
   prescriptionId: PrescriptionFixture.id,
   sampledAt: new Date('2025-05-06'),
   items: [Sample1Item1Fixture]

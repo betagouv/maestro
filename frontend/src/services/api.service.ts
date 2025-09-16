@@ -11,7 +11,7 @@ export const tagTypes = [
   'Prescription',
   'PrescriptionSubstance',
   'ProgrammingPlan',
-  'RegionalPrescription',
+  'LocalPrescription',
   'Regions',
   'Sample',
   'SampleAnalysis',

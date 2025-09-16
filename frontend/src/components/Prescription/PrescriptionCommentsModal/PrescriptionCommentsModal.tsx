@@ -8,8 +8,9 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, Regions } from 'maestro-shared/referential/Region';
-import { RegionalPrescriptionCommentToCreate } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionComment';
-import { RegionalPrescriptionKey } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionKey';
+import { LocalPrescriptionCommentToCreate } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
+import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
+import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useEffect, useMemo, useState } from 'react';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import PrescriptionCommentAuthor from 'src/components/Prescription/PrescriptionCommentsModal/PrescriptionCommentAuthor';
@@ -26,21 +27,21 @@ const prescriptionCommentsModal = createModal({
 });
 
 interface Props {
-  onSubmitRegionalPrescriptionComment: (
-    regionalPrescriptionKey: RegionalPrescriptionKey,
+  onSubmitLocalPrescriptionComment: (
+    programmingPlan: ProgrammingPlan,
+    localPrescriptionKey: LocalPrescriptionKey,
     comment: string
   ) => Promise<void>;
 }
 
 const PrescriptionCommentsModal = ({
-  onSubmitRegionalPrescriptionComment
+  onSubmitLocalPrescriptionComment
 }: Props) => {
   const dispatch = useAppDispatch();
-  const { hasUserRegionalPrescriptionPermission } = useAuthentication();
+  const { hasUserLocalPrescriptionPermission } = useAuthentication();
   const { prescriptionCommentsData } = useAppSelector(
     (state) => state.prescriptions
   );
-  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
 
   const [comment, setComment] = useState('');
   const [segment, setSegment] = useState(
@@ -49,7 +50,7 @@ const PrescriptionCommentsModal = ({
       : prescriptionCommentsData?.currentMatrixKind
   );
 
-  const Form = RegionalPrescriptionCommentToCreate.pick({
+  const Form = LocalPrescriptionCommentToCreate.pick({
     comment: true
   });
 
@@ -96,6 +97,16 @@ const PrescriptionCommentsModal = ({
     [segment, prescriptionCommentsData]
   );
 
+  const programmingPlan = useMemo(
+    () =>
+      prescriptionCommentsData?.viewBy === 'MatrixKind'
+        ? prescriptionCommentsData?.programmingPlan
+        : prescriptionCommentsData?.matrixKindsComments.find(
+            (_) => _.matrixKind === segment
+          )?.programmingPlan,
+    [segment, prescriptionCommentsData]
+  );
+
   const { commentsArray, hasComments } = useMemo(() => {
     const commentsArray = segmentedComments?.comments ?? [];
     const hasComments = commentsArray.length > 0;
@@ -111,7 +122,8 @@ const PrescriptionCommentsModal = ({
       Region.safeParse(segment).success
     ) {
       await form.validate(async () => {
-        await onSubmitRegionalPrescriptionComment(
+        await onSubmitLocalPrescriptionComment(
+          prescriptionCommentsData.programmingPlan,
           {
             prescriptionId: prescriptionCommentsData.prescriptionId,
             region: segment as Region
@@ -139,10 +151,8 @@ const PrescriptionCommentsModal = ({
       >
         {prescriptionCommentsData && (
           <div data-testid="prescription-comments-modal">
-            {(prescriptionCommentsData?.viewBy === 'MatrixKind'
-              ? prescriptionCommentsData.regionalComments
-              : prescriptionCommentsData.matrixKindsComments
-            ).length > 1 && (
+            {(prescriptionCommentsData?.viewBy === 'Region' ||
+              prescriptionCommentsData.regionalComments.length > 1) && (
               <SegmentedControl
                 hideLegend
                 legend="Région"
@@ -209,7 +219,7 @@ const PrescriptionCommentsModal = ({
             )}
             {programmingPlan &&
               Region.safeParse(segment).success &&
-              hasUserRegionalPrescriptionPermission(programmingPlan, {
+              hasUserLocalPrescriptionPermission(programmingPlan, {
                 region: segment as Region
               })?.comment && (
                 <div className={clsx(cx('fr-mt-2w'), 'd-flex-justify-center')}>

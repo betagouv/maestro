@@ -2,8 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import {
-  genPrescription,
-  genRegionalPrescription
+  genLocalPrescription,
+  genPrescription
 } from 'maestro-shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import {
@@ -52,10 +52,10 @@ const prescription2 = genPrescription({
   context: 'Control',
   matrixKind: 'A00TQ'
 });
-const regionalPrescription1 = genRegionalPrescription({
+const regionalPrescription1 = genLocalPrescription({
   prescriptionId: prescription1.id
 });
-const regionalPrescription2 = genRegionalPrescription({
+const regionalPrescription2 = genLocalPrescription({
   prescriptionId: prescription2.id
 });
 
@@ -63,7 +63,7 @@ const storyMockApi: Partial<MockApi> = {
   useFindPrescriptionsQuery: {
     data: [prescription1, prescription2]
   },
-  useFindRegionalPrescriptionsQuery: {
+  useFindLocalPrescriptionsQuery: {
     data: [regionalPrescription1, regionalPrescription2]
   }
 };

@@ -17,12 +17,18 @@ const RegionalUserRole = z.enum([
   'Sampler'
 ]);
 
+export const DepartmentalUserRole = z.enum([
+  'DepartmentalCoordinator',
+  'DepartmentalSampler'
+]);
+
 export const UserRole = z.enum(
   [
     ...NationalUserRole.options,
     ...RegionalAndNationUserRole.options,
-    ...RegionalUserRole.options
-  ],
+    ...RegionalUserRole.options,
+  ...DepartmentalUserRole.options
+],
   { error: 'Veuillez renseigner un rôle.' }
 );
 
@@ -54,8 +60,8 @@ const ObserverPermissionsList = [
   'downloadAnalysisRequestDocument',
   'readProgrammingPlans',
   'readProgrammingPlansInProgress',
-  'readProgrammingPlanSubmitted',
-  'readProgrammingPlanApproved',
+  'readProgrammingPlanSubmittedToRegion',
+  'readProgrammingPlanApprovedByRegion',
   'readProgrammingPlanValidated',
   'readProgrammingPlanClosed',
   'readPrescriptions',
@@ -67,10 +73,12 @@ const ObserverPermissionsList = [
 export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
   NationalCoordinator: [
     'manageProgrammingPlan',
+    'closeProgrammingPlan',
     'readProgrammingPlans',
     'readProgrammingPlansInProgress',
-    'readProgrammingPlanSubmitted',
-    'readProgrammingPlanApproved',
+    'readProgrammingPlanSubmittedToRegion',
+    'readProgrammingPlanApprovedByRegion',
+    'readProgrammingPlanSubmittedToDepartments',
     'readProgrammingPlanValidated',
     'readProgrammingPlanClosed',
     'createPrescription',
@@ -88,12 +96,13 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
   ],
   RegionalCoordinator: [
     ...UserSamplerPermissionsList,
-    'readProgrammingPlanSubmitted',
-    'readProgrammingPlanApproved',
+    'readProgrammingPlanSubmittedToRegion',
+    'readProgrammingPlanApprovedByRegion',
+    'readProgrammingPlanSubmittedToDepartments',
     'approveProgrammingPlan',
-    'closeProgrammingPlan',
-    'updatePrescriptionLaboratory',
+    'updatePrescriptionLaboratories',
     'commentPrescription',
+    'distributePrescriptionToDepartments',
     'deleteDocument'
   ],
   NationalObserver: ObserverPermissionsList,
@@ -103,6 +112,14 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     ...UserSamplerPermissionsList
   ],
   Sampler: UserSamplerPermissionsList,
+  DepartmentalSampler: UserSamplerPermissionsList,
+  DepartmentalCoordinator: [
+    ...UserSamplerPermissionsList,
+    'readProgrammingPlanSubmittedToDepartments',
+    'validateProgrammingPlan',
+    'updatePrescriptionLaboratories',
+    'distributePrescriptionToSlaughterhouses'
+  ],
   Administrator: [
     'administrationMaestro',
     'readSamples',
@@ -110,8 +127,9 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'downloadAnalysisRequestDocument',
     'readProgrammingPlans',
     'readProgrammingPlansInProgress',
-    'readProgrammingPlanSubmitted',
-    'readProgrammingPlanApproved',
+    'readProgrammingPlanSubmittedToRegion',
+    'readProgrammingPlanApprovedByRegion',
+    'readProgrammingPlanSubmittedToDepartments',
     'readProgrammingPlanValidated',
     'readProgrammingPlanClosed',
     'readPrescriptions',
@@ -129,8 +147,10 @@ export const UserRoleLabels: Record<UserRole, string> = {
   RegionalCoordinator: 'Coordinateur régional',
   NationalObserver: 'Suivi national',
   RegionalObserver: 'Suivi régional',
+  DepartmentalCoordinator: 'Coordinateur départemental',
   SamplerAndNationalObserver: 'Personne ressource',
   Sampler: 'Préleveur',
+  DepartmentalSampler: 'Préleveur',
   Administrator: 'Administrateur'
 };
 export const hasNationalRole = (user: Nullable<Pick<User, 'role'>>) =>

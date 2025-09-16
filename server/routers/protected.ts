@@ -3,14 +3,15 @@ import fs from 'fs';
 import { analysisRouter } from '../controllers/analysisController';
 import { analysisReportDocumentsRouter } from '../controllers/analysisReportDocumentsController';
 import { authProtectedRouter } from '../controllers/authController';
+import { companiesRouter } from '../controllers/companyController';
 import { documentsRouter } from '../controllers/documentController';
 import { laboratoriesRouter } from '../controllers/laboratoryController';
+import { localPrescriptionsRouter } from '../controllers/localPrescriptionController';
 import { mascaradeRouter } from '../controllers/mascaradeController';
 import { noticesProtectedRouter } from '../controllers/noticeController';
 import { notificationsRouter } from '../controllers/notificationController';
 import { prescriptionsRouter } from '../controllers/prescriptionController';
 import { programmingPlanRouter } from '../controllers/programmingPlanController';
-import { regionalPrescriptionsRouter } from '../controllers/regionalPrescriptionController';
 import { sampleRouter } from '../controllers/sampleController';
 import { usersRouter } from '../controllers/userController';
 import { jwtCheck, userCheck } from '../middlewares/checks/authCheck';
@@ -27,13 +28,14 @@ const router = {
   ...analysisRouter,
   ...analysisReportDocumentsRouter,
   ...authProtectedRouter,
+  ...companiesRouter,
   ...documentsRouter,
   ...laboratoriesRouter,
   ...mascaradeRouter,
   ...noticesProtectedRouter,
   ...notificationsRouter,
   ...prescriptionsRouter,
-  ...regionalPrescriptionsRouter,
+  ...localPrescriptionsRouter,
   ...programmingPlanRouter,
   ...sampleRouter,
   ...usersRouter

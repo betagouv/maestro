@@ -8,6 +8,10 @@ import { sumBy } from 'lodash-es';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
 import {
+  getCompletionRate,
+  LocalPrescription
+} from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
+import {
   Prescription,
   PrescriptionSort
 } from 'maestro-shared/schema/Prescription/Prescription';
@@ -16,10 +20,6 @@ import {
   ProgrammingPlanContextList
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import {
-  getCompletionRate,
-  RegionalPrescription
-} from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import {
   FunctionComponent,
   useContext,
@@ -70,7 +70,7 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
   );
 
   const { data: regionalPrescriptions } =
-    apiClient.useFindRegionalPrescriptionsQuery({
+    apiClient.useFindLocalPrescriptionsQuery({
       ...findPrescriptionOptions,
       includes: ['sampleCounts']
     });
@@ -315,7 +315,7 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
 const DashboardPrescriptionCard: FunctionComponent<{
   programmingPlan: ProgrammingPlan;
   prescription: Prescription;
-  regionalPrescriptions: RegionalPrescription[];
+  regionalPrescriptions: LocalPrescription[];
   region?: Region | null;
 }> = ({ programmingPlan, prescription, regionalPrescriptions, region }) => {
   const linkQuery = getURLQuery({

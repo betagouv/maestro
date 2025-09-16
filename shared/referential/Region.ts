@@ -29,8 +29,6 @@ export const Region = z.enum(
 
 export type Region = z.infer<typeof Region>;
 
-export const RegionList: Region[] = Region.options;
-
 export const Regions: Record<
   Region,
   {
@@ -487,6 +485,10 @@ export const Regions: Record<
     }
   }
 };
+
+export const RegionList: Region[] = Region.options.sort((a, b) => {
+  return Regions[a].name.localeCompare(Regions[b].name);
+});
 
 export const RegionSort = (a: Region, b: Region) => {
   return RegionList.indexOf(a) - RegionList.indexOf(b);

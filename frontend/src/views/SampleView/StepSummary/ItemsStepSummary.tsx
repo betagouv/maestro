@@ -7,7 +7,6 @@ import {
   SampleOwnerData,
   SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import { usePartialSample } from 'src/hooks/usePartialSample';
 import { pluralize, quote } from 'src/utils/stringUtils';
 import SampleItemDetails from 'src/views/SampleView/SampleItemDetails/SampleItemDetails';
 import StepSummary from 'src/views/SampleView/StepSummary/StepSummary';
@@ -18,8 +17,6 @@ interface Props {
 }
 
 const ItemsStepSummary = ({ sample, showLabel }: Props) => {
-  const { laboratory } = usePartialSample(sample);
-
   return (
     <StepSummary
       label={
@@ -49,7 +46,6 @@ const ItemsStepSummary = ({ sample, showLabel }: Props) => {
               partialSample={sample}
               item={item}
               itemIndex={itemIndex}
-              laboratory={laboratory}
             />
           </div>
         ))}

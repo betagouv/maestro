@@ -1,6 +1,6 @@
 import { isNil, omitBy } from 'lodash-es';
 import { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
-import { ProgrammingPlanRegionalStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanRegionalStatus';
+import { ProgrammingPlanLocalStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanLocalStatus';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { api } from 'src/services/api.service';
@@ -65,17 +65,17 @@ const programmingPlanApi = api.injectEndpoints({
         { type: 'ProgrammingPlan', id: 'LIST' }
       ]
     }),
-    updateProgrammingPlanRegionalStatus: builder.mutation<
+    updateProgrammingPlanLocalStatus: builder.mutation<
       ProgrammingPlan,
       {
         programmingPlanId: string;
-        programmingPlanRegionalStatusList: ProgrammingPlanRegionalStatus[];
+        programmingPlanLocalStatusList: ProgrammingPlanLocalStatus[];
       }
     >({
-      query: ({ programmingPlanId, programmingPlanRegionalStatusList }) => ({
-        url: `programming-plans/${programmingPlanId}/regional-status`,
+      query: ({ programmingPlanId, programmingPlanLocalStatusList }) => ({
+        url: `programming-plans/${programmingPlanId}/local-status`,
         method: 'PUT',
-        body: programmingPlanRegionalStatusList
+        body: programmingPlanLocalStatusList
       }),
       transformResponse: (response: any) =>
         ProgrammingPlan.parse(omitBy(response, isNil)),
@@ -93,5 +93,5 @@ export const {
   useGetProgrammingPlanByYearQuery,
   useCreateProgrammingPlanMutation,
   useUpdateProgrammingPlanStatusMutation,
-  useUpdateProgrammingPlanRegionalStatusMutation
+  useUpdateProgrammingPlanLocalStatusMutation
 } = programmingPlanApi;

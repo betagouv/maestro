@@ -59,7 +59,7 @@ const SampleListHeader = ({
             legend="Légende"
             segments={[
               {
-                label: 'Cartes',
+                label: 'Grille',
                 iconId: 'fr-icon-layout-grid-line',
                 nativeInputProps: {
                   checked: sampleListDisplay === 'cards',
