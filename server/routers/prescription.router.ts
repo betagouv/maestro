@@ -22,7 +22,6 @@ router.get(
   '',
   validator.validate(query(FindPrescriptionOptions)),
   permissionsCheck(['readPrescriptions']),
-  programmingPlanCheck(),
   prescriptionController.findPrescriptions
 );
 router.get(

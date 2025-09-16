@@ -53,7 +53,7 @@ export const useOnLine = () => {
           await Promise.all(
             ProgrammingPlanContextList.map(async (context) =>
               findPrescriptions({
-                programmingPlanId: programmingPlan.id,
+                programmingPlanIds: [programmingPlan.id],
                 contexts: [context]
               }).unwrap()
             )

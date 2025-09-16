@@ -142,7 +142,7 @@ const commentRegionalPrescription = async (
     {
       category: prescription.context,
       author: user,
-      link: `${AppRouteLinks.ProgrammationByYearRoute.link(
+      link: `${AppRouteLinks.ProgrammationRoute.link(
         programmingPlan.year
       )}?context=${prescription.context}&prescriptionId=${prescription.id}&commentsRegion=${regionalPrescription.region}`
     },

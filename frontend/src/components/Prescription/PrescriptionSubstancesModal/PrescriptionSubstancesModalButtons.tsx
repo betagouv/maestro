@@ -28,8 +28,8 @@ const PrescriptionSubstancesModalButtons = ({
         <Button
           onClick={() =>
             dispatch(
-              prescriptionsSlice.actions.setPrescriptionAnalysisEditId(
-                prescription.id
+              prescriptionsSlice.actions.setPrescriptionAnalysisEdit(
+                prescription
               )
             )
           }
@@ -48,8 +48,8 @@ const PrescriptionSubstancesModalButtons = ({
         <Button
           onClick={() =>
             dispatch(
-              prescriptionsSlice.actions.setPrescriptionAnalysisEditId(
-                prescription.id
+              prescriptionsSlice.actions.setPrescriptionAnalysisEdit(
+                prescription
               )
             )
           }

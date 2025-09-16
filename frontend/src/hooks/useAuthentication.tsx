@@ -74,7 +74,7 @@ export const useAuthentication = () => {
           'ApiDocsRoute',
           'LogoutCallbackRoute',
           hasUserPermission('readPrescriptions')
-            ? 'ProgrammationByYearRoute'
+            ? 'ProgrammingRoute'
             : undefined,
           hasUserPermission('readSamples') ? 'SamplesByYearRoute' : undefined,
           hasUserPermission('createSample') ? 'NewSampleRoute' : undefined,
