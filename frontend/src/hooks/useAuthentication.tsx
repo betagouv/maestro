@@ -1,10 +1,21 @@
+import { isNil } from 'lodash-es';
+import { Department } from 'maestro-shared/referential/Department';
 import { Region } from 'maestro-shared/referential/Region';
+import {
+  hasLocalPrescriptionPermission,
+  LocalPrescriptionPermission
+} from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import {
   hasPrescriptionPermission,
   PrescriptionPermission
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
+  hasDepartmentalRole,
+  hasNationalRole,
+  hasPermission,
+  hasRegionalRole
+} from 'maestro-shared/schema/User/User';
   hasRegionalPrescriptionPermission,
   RegionalPrescriptionPermission
 } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
@@ -37,26 +48,36 @@ export const useAuthentication = () => {
     return isAuthenticated && authUser && hasNationalRole(authUser.user);
   }, [authUser, isAuthenticated]);
 
+  const hasRegionalView = useMemo(() => {
+    return isAuthenticated && authUser && hasRegionalRole(authUser.user);
+  }, [authUser, isAuthenticated]);
+
+  const hasDepartmentalView = useMemo(() => {
+    return isAuthenticated && authUser && hasDepartmentalRole(authUser.user);
+  }, [authUser, isAuthenticated]);
+
   const hasUserPrescriptionPermission = useCallback(
     (
-      programmingPlan: ProgrammingPlan
+      programmingPlan?: ProgrammingPlan
     ): Record<PrescriptionPermission, boolean> | null =>
-      isDefined(authUser?.user)
+      !isNil(authUser?.user) && !isNil(programmingPlan)
         ? hasPrescriptionPermission(authUser?.user, programmingPlan)
         : null,
     [authUser]
   );
 
-  const hasUserRegionalPrescriptionPermission = useCallback(
+  const hasUserLocalPrescriptionPermission = useCallback(
     (
-      programmingPlan: ProgrammingPlan,
-      regionalPrescription: { region: Region }
-    ): Record<RegionalPrescriptionPermission, boolean> | null =>
-      isDefined(authUser?.user)
-        ? hasRegionalPrescriptionPermission(
+      programmingPlan?: ProgrammingPlan,
+      localPrescription?: { region: Region; department?: Department | null }
+    ): Record<LocalPrescriptionPermission, boolean> | null =>
+      !isNil(authUser?.user) &&
+      !isNil(localPrescription) &&
+      !isNil(programmingPlan)
+        ? hasLocalPrescriptionPermission(
             authUser.user,
             programmingPlan,
-            regionalPrescription
+            localPrescription
           )
         : null,
     [authUser]
@@ -71,7 +92,7 @@ export const useAuthentication = () => {
           'ApiDocsRoute',
           'LogoutCallbackRoute',
           hasUserPermission('readPrescriptions')
-            ? 'ProgrammationByYearRoute'
+            ? 'ProgrammingRoute'
             : undefined,
           hasUserPermission('readSamples') ? 'SamplesByYearRoute' : undefined,
           hasUserPermission('createSample') ? 'NewSampleRoute' : undefined,
@@ -89,9 +110,11 @@ export const useAuthentication = () => {
     isAuthenticated,
     hasUserPermission,
     hasUserPrescriptionPermission,
-    hasUserRegionalPrescriptionPermission,
+    hasUserLocalPrescriptionPermission,
     hasRole,
     hasNationalView,
+    hasRegionalView,
+    hasDepartmentalView,
     availableRoutes
   };
 };

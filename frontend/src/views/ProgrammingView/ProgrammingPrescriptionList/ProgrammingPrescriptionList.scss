@@ -1,0 +1,17 @@
+.grouped-update-container {
+  width: 100%;
+
+  .grouped-update-card {
+    background-color: var(--blue-france-975-75);
+    border: 1px solid var(--blue-ecume-950-100-hover);
+    display: flex;
+    & > div:has(h6) {
+      flex: 4;
+      white-space: nowrap;
+    }
+
+    & > div:not(:has(h6)) {
+      flex: 6;
+    }
+  }
+}

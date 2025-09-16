@@ -21,6 +21,7 @@ import {
 import { FileInput } from 'maestro-shared/schema/File/FileInput';
 import { SampleDocumentTypeList } from 'maestro-shared/schema/File/FileType';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   isCreatedPartialSample,
   isOutsideProgrammingPlanSample,
@@ -53,6 +54,7 @@ import SampleDocument from '../../../../components/SampleDocument/SampleDocument
 import SubstanceSearch from '../../../../components/SubstanceSearch/SubstanceSearch';
 import { useAnalytics } from '../../../../hooks/useAnalytics';
 import { usePartialSample } from '../../../../hooks/usePartialSample';
+import { useAppSelector } from '../../../../hooks/useStore';
 import { ApiClientContext } from '../../../../services/apiClient';
 import NextButton from '../NextButton';
 import {
@@ -73,6 +75,7 @@ const MatrixStep = ({ partialSample }: Props) => {
   const { readonly } = usePartialSample(partialSample);
   const { trackEvent } = useAnalytics();
 
+  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
   const isSubmittingRef = useRef<boolean>(false);
 
   const [matrixKind, setMatrixKind] = useState(partialSample.matrixKind);
@@ -110,27 +113,33 @@ const MatrixStep = ({ partialSample }: Props) => {
     }
   );
 
-  const { data: regionalPrescriptions } =
-    apiClient.useFindRegionalPrescriptionsQuery(
-      {
-        programmingPlanId: partialSample.programmingPlanId as string,
-        contexts: toArray(
-          ProgrammingPlanContext.safeParse(partialSample.context).data
-        ),
-        region: isCreatedPartialSample(partialSample)
-          ? partialSample.region
-          : user?.region
-      },
-      {
-        skip: !partialSample.programmingPlanId
-      }
-    );
+  const { data: localPrescriptions } = apiClient.useFindLocalPrescriptionsQuery(
+    {
+      programmingPlanId: partialSample.programmingPlanId as string,
+      contexts: toArray(
+        ProgrammingPlanContext.safeParse(partialSample.context).data
+      ),
+      region: isCreatedPartialSample(partialSample)
+        ? partialSample.region
+        : user?.region,
+      ...((programmingPlan as ProgrammingPlan).distributionKind ===
+      'SLAUGHTERHOUSE'
+        ? {
+            department: partialSample.department,
+            companySiret: partialSample.company?.siret
+          }
+        : {})
+    },
+    {
+      skip: !programmingPlan || !isProgrammingPlanSample(partialSample)
+    }
+  );
 
   const prescriptions = useMemo(() => {
     return prescriptionsData?.filter((p) =>
-      regionalPrescriptions?.find((rp) => rp.prescriptionId === p.id)
+      localPrescriptions?.find((rp) => rp.prescriptionId === p.id)
     );
-  }, [prescriptionsData, regionalPrescriptions]);
+  }, [prescriptionsData, localPrescriptions]);
 
   const FilesForm = z.object({
     files: FileInput(SampleDocumentTypeList, true)
@@ -184,8 +193,7 @@ const MatrixStep = ({ partialSample }: Props) => {
 
   const form = useForm(
     SampleMatrixData.omit({
-      documentIds: true,
-      laboratoryId: true
+      documentIds: true
     }).check(prescriptionSubstancesCheck, sampleMatrixCheck),
     {
       matrixKind,
@@ -539,7 +547,11 @@ const MatrixStep = ({ partialSample }: Props) => {
             whenValid="Note correctement renseignée."
             data-testid="notes-input"
             label="Note additionnelle"
-            hintText="Champ facultatif pour précisions supplémentaires (date de semis, précédent cultural, traitements faits, protocole de prélèvement et note inspecteur, etc.)"
+            hintText={
+              partialSample?.specificData.programmingPlanKind === 'PPV'
+                ? 'Champ facultatif pour précisions supplémentaires (date de semis, précédent cultural, traitements faits, protocole de prélèvement et note inspecteur, etc.)'
+                : ''
+            }
           />
         </div>
       </div>

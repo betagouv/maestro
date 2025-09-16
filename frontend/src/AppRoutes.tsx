@@ -27,9 +27,9 @@ export const AuthenticatedAppRoutes = {
     label: 'Notifications',
     key: 'notifications_route'
   },
-  ProgrammationByYearRoute: {
-    ...AppRouteLinks.ProgrammationByYearRoute,
-    path: '/programmation/:year',
+  ProgrammingRoute: {
+    ...AppRouteLinks.ProgrammingRoute,
+    path: '/programmation',
     label: 'Programmation',
     key: 'programmation_route'
   },

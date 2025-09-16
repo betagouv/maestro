@@ -22,14 +22,14 @@ import {
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+import { LocalPrescriptions } from '../../repositories/localPrescriptionRepository';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import { PrescriptionSubstances } from '../../repositories/prescriptionSubstanceRepository';
 import {
   formatProgrammingPlan,
-  ProgrammingPlanRegionalStatus,
+  ProgrammingPlanLocalStatus,
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
-import { RegionalPrescriptions } from '../../repositories/regionalPrescriptionRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 describe('Prescriptions router', () => {
@@ -47,7 +47,7 @@ describe('Prescriptions router', () => {
     createdBy: NationalCoordinator.id,
     regionalStatus: RegionList.map((region) => ({
       region,
-      status: 'Submitted'
+      status: 'SubmittedToRegion'
     })),
     year: 1821
   });
@@ -96,7 +96,7 @@ describe('Prescriptions router', () => {
         programmingPlanClosed
       ].map(formatProgrammingPlan)
     );
-    await ProgrammingPlanRegionalStatus().insert(
+    await ProgrammingPlanLocalStatus().insert(
       [
         programmingPlanSubmitted,
         programmingPlanInProgress,
@@ -301,7 +301,7 @@ describe('Prescriptions router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    test('should create the prescription and regional prescriptions', async () => {
+    test('should create the prescription and local prescriptions', async () => {
       const res = await request(app)
         .post(testRoute)
         .send(validBody)
@@ -321,7 +321,7 @@ describe('Prescriptions router', () => {
       });
 
       await expect(
-        RegionalPrescriptions()
+        LocalPrescriptions()
           .where({ prescriptionId: res.body.id })
           .count()
           .first()
@@ -336,7 +336,8 @@ describe('Prescriptions router', () => {
     const prescriptionUpdate: PrescriptionUpdate = {
       programmingPlanId: programmingPlanInProgress.id,
       stages: ['STADE7'],
-      notes: fakerFR.string.alphanumeric(32)
+      notes: fakerFR.string.alphanumeric(32),
+      programmingInstruction: fakerFR.string.alphanumeric(32)
     };
     const testRoute = (
       prescriptionId: string = inProgressControlPrescription.id
@@ -412,7 +413,7 @@ describe('Prescriptions router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    test('should update the stages of the prescription', async () => {
+    test('should update the prescription', async () => {
       const res = await request(app)
         .put(testRoute())
         .send(prescriptionUpdate)
@@ -422,7 +423,8 @@ describe('Prescriptions router', () => {
       expect(res.body).toMatchObject({
         ...inProgressControlPrescription,
         stages: prescriptionUpdate.stages,
-        notes: prescriptionUpdate.notes
+        notes: prescriptionUpdate.notes,
+        programmingInstruction: prescriptionUpdate.programmingInstruction
       });
 
       await expect(
@@ -430,7 +432,8 @@ describe('Prescriptions router', () => {
       ).resolves.toMatchObject({
         ...inProgressControlPrescription,
         stages: prescriptionUpdate.stages,
-        notes: prescriptionUpdate.notes
+        notes: prescriptionUpdate.notes,
+        programmingInstruction: prescriptionUpdate.programmingInstruction
       });
     });
   });
@@ -512,7 +515,7 @@ describe('Prescriptions router', () => {
       ).resolves.toBeUndefined();
 
       await expect(
-        RegionalPrescriptions()
+        LocalPrescriptions()
           .where({ prescriptionId: inProgressControlPrescription.id })
           .count()
           .first()

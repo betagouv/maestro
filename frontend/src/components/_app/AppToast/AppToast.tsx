@@ -6,15 +6,16 @@ interface Props {
   open: boolean;
   description: string;
   severity?: AlertProps.Severity;
+  onClose?: () => void;
 }
 
-const AppToast = ({ open, description, severity }: Props) => {
+const AppToast = ({ open, description, severity, onClose }: Props) => {
   if (!open) {
     return <></>;
   }
 
   return (
-    <AutoClose>
+    <AutoClose onClose={onClose}>
       <div className="toast">
         <Alert
           small

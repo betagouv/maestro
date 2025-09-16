@@ -173,20 +173,27 @@ const generateSampleSupportPDF = async (
     throw new UserMissingError(sample.sampler.id);
   }
 
-  const laboratory = sample.laboratoryId
-    ? await laboratoryRepository.findUnique(sample.laboratoryId)
-    : null;
-
-  const emptySampleItems: PartialSampleItem[] = new Array(3)
+  const emptySampleItems: PartialSampleItem[] = new Array(
+    programmingPlan.substanceKinds.length * 3
+  )
     .fill(null)
     .map((_, index) => ({
       sampleId: sample.id,
-      itemNumber: index + 1
+      itemNumber: (index % programmingPlan.substanceKinds.length) + 1,
+      copyNumber: Math.floor(index / programmingPlan.substanceKinds.length) + 1
     }));
 
   const sampleDocuments = await documentRepository.findMany({
     sampleId: sample.id
   });
+
+  const currentSampleItem = sampleItems.find(
+    (item) => item.itemNumber === itemNumber && item.copyNumber === 1
+  );
+
+  const laboratory = currentSampleItem?.laboratoryId
+    ? await laboratoryRepository.findUnique(currentSampleItem.laboratoryId)
+    : null;
 
   return generatePDF('supportDocument', {
     fullVersion,
@@ -197,7 +204,8 @@ const generateSampleSupportPDF = async (
         quantityUnit: sampleItem?.quantityUnit
           ? QuantityUnitLabels[sampleItem.quantityUnit]
           : '',
-        currentItem: sampleItem.itemNumber === itemNumber
+        currentItem:
+          sampleItem.itemNumber === itemNumber && sampleItem.copyNumber === 1
       })
     ),
     itemNumber,
@@ -214,7 +222,7 @@ const generateSampleSupportPDF = async (
     multiSubstances: sample.multiSubstances?.map(
       (substance) => SSD2IdLabel[substance]
     ),
-    reference: [sample.reference, itemNumber]
+    reference: [sample.reference, itemNumber] //TODO
       .filter(isDefinedAndNotNull)
       .join('-'),
     ...(sample.sampledAt

@@ -1,6 +1,6 @@
 import z from 'zod';
 import { FindProgrammingPlanOptions } from '../schema/ProgrammingPlan/FindProgrammingPlanOptions';
-import { ProgrammingPlanRegionalStatus } from '../schema/ProgrammingPlan/ProgrammingPlanRegionalStatus';
+import { ProgrammingPlanLocalStatus } from '../schema/ProgrammingPlan/ProgrammingPlanLocalStatus';
 import { ProgrammingPlan } from '../schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatus } from '../schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { SubRoutes } from './routes';
@@ -29,13 +29,18 @@ export const programmingPlansRoutes = {
       response: ProgrammingPlan
     }
   },
-  '/programming-plans/:programmingPlanId/regional-status': {
+  '/programming-plans/:programmingPlanId/local-status': {
     params: {
       programmingPlanId: z.guid()
     },
     put: {
-      permissions: ['manageProgrammingPlan', 'approveProgrammingPlan'],
-      body: z.array(ProgrammingPlanRegionalStatus),
+      permissions: [
+        'manageProgrammingPlan',
+        'approveProgrammingPlan',
+        'distributePrescriptionToDepartments',
+        'distributePrescriptionToSlaughterhouses'
+      ],
+      body: z.array(ProgrammingPlanLocalStatus),
       response: ProgrammingPlan
     }
   },
