@@ -1,7 +1,7 @@
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { maestroDate } from 'maestro-shared/utils/date';
 import { z } from 'zod';
-import { ExtractError } from '../extractError';
+import { ExtractBadFormatError, ExtractError } from '../extractError';
 import type {
   ExportAnalysis,
   ExportDataFromEmail,
@@ -93,9 +93,7 @@ export const extractAnalyzes = (
       sampleFile.content.filter((row) => row.Dossier !== '')
     );
   if (samplesError) {
-    throw new ExtractError(
-      `Impossible d'extraire les données du fichier de l'échantillion: ${samplesError}`
-    );
+    throw new ExtractBadFormatError(samplesError);
   }
   if (samplesData.length === 0) {
     throw new ExtractError(
@@ -150,9 +148,7 @@ export const extractAnalyzes = (
       )
     );
   if (resultatsError) {
-    throw new ExtractError(
-      `Impossible d'extraire les données du fichier des résultats: ${resultatsError}`
-    );
+    throw new ExtractBadFormatError(resultatsError);
   }
   if (resultatsData.length === 0) {
     throw new ExtractError(

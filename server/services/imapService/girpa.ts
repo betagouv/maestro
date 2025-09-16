@@ -3,7 +3,7 @@ import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { maestroDate } from 'maestro-shared/utils/date';
 import { z } from 'zod';
-import { ExtractError } from './extractError';
+import { ExtractBadFormatError, ExtractError } from './extractError';
 import {
   ExportAnalysis,
   ExportDataFromEmail,
@@ -780,7 +780,10 @@ export const extractAnalyzes = (obj: unknown): GirpaAnaysis[] => {
     })
   });
 
-  const result = validator.parse(obj);
+  const { data: result, error } = validator.safeParse(obj);
+  if (error) {
+    throw new ExtractBadFormatError(error);
+  }
 
   return result.Rapport.Echantillon.map((echantillon) => {
     const residues: ExportDataSubstance[] = echantillon.Analyse.filter(

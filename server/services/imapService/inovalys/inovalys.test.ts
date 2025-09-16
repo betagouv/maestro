@@ -1,6 +1,42 @@
 import { describe, expect, test } from 'vitest';
 import { extractAnalyzes, inovalysRefClientValidator } from './inovalys';
 
+test("Génère une erreur lisible si le format n'est pas respecté", () => {
+  expect(() =>
+    extractAnalyzes([
+      {
+        fileName: 'FILE_CO1.csv',
+        content: [
+          {
+            Dossier: 'Dossier1',
+            Echant: 'Echant1',
+            Famille: 'V26',
+            Produit: 'LES',
+            SousProd: '',
+            Libellé: 'Légumes secs',
+            'Réf Clint': 'Ref client',
+            Description: 'LENTILLES SECHE A LA RECOLTE',
+            Identification: '',
+            Motif: '',
+            'Date Prélèvement': '10/09/2020',
+            'Lieu Prélèvement': '418  RUE DE TOTO',
+            Commentaire:
+              'Respect de la Directive 2002/63 CE sur les quantités nécessaires ',
+            Conclusion: ''
+          }
+        ]
+      },
+      {
+        fileName: 'FILE_CO2.csv',
+
+        content: []
+      }
+    ])
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [Error: ✖ Invalid input: expected string, received undefined
+      → at [0]["Réf Client"]]
+  `);
+});
 describe('Parse correctement les fichiers CSV', () => {
   test('Vérifie la présence des fichiers CSV', () => {
     expect(() => extractAnalyzes([])).toThrowErrorMatchingInlineSnapshot(
