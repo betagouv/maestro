@@ -66,6 +66,14 @@ export const analysisHandler = async (
       ssd2Id: SSD2Id;
     } => r.ssd2Id !== null && isComplex(r.ssd2Id)
   );
+
+  //D'après le métier: il n'existe pas de limite de détection sur les résidus dont la définition est une somme.
+  for (const complexResidue of complexResidues) {
+    if (complexResidue.result_kind === 'NQ') {
+      complexResidue.result_kind = 'ND';
+    }
+  }
+
   const simpleResidues = analyse.residues.filter(
     ({ ssd2Id }) => ssd2Id === null || !isComplex(ssd2Id)
   );
@@ -91,6 +99,7 @@ export const analysisHandler = async (
       }
     >
   );
+
   for (const residue of simpleResidues) {
     const residueSSD2Id = residue.ssd2Id;
     const complexResidue =

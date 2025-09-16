@@ -152,7 +152,9 @@ test("Impossible d'enregistrer l'analyse si on trouve un résidu complexe sans a
         residues: [
           {
             ssd2Id: 'RF-0008-001-PPP',
-            result_kind: 'NQ',
+            result_kind: 'Q',
+            result: 2,
+            lmr: 3,
             analysisMethod: 'Multi',
             unknownLabel: null,
             analysisDate: null
@@ -166,6 +168,35 @@ test("Impossible d'enregistrer l'analyse si on trouve un résidu complexe sans a
   );
 
   expect(spyUploadDocument).toHaveBeenCalledTimes(0);
+  expect(spyDeleteDocument).toHaveBeenCalledTimes(0);
+});
+
+test('On peut enregistrer un résidu complexe sans analyte si il est Non Quantifié', async () => {
+  expect(
+    await analysisHandler(
+      {
+        notes: '',
+        pdfFile: new File([], 'fileName'),
+        sampleReference: Sample13Fixture.reference,
+        residues: [
+          {
+            ssd2Id: 'RF-0008-001-PPP',
+            result_kind: 'NQ',
+            analysisMethod: 'Multi',
+            unknownLabel: null,
+            analysisDate: null
+          }
+        ]
+      },
+      new Date(9999999)
+    )
+  ).toMatchObject({
+    sampleId: '11111111-3333-3333-3333-333333333333',
+    samplerEmail: 'john.doe@example.net',
+    samplerId: '11111111-1111-1111-1111-111111111111'
+  });
+
+  expect(spyUploadDocument).toHaveBeenCalledTimes(1);
   expect(spyDeleteDocument).toHaveBeenCalledTimes(0);
 });
 
