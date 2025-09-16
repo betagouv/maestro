@@ -2,7 +2,7 @@ import { format } from 'date-fns';
 import { maestroDate } from 'maestro-shared/utils/date';
 import XLSX, { WorkBook } from 'xlsx';
 import { z } from 'zod';
-import { ExtractError } from '../extractError';
+import { ExtractBadFormatError, ExtractError } from '../extractError';
 import {
   ExportAnalysis,
   ExportDataFromEmail,
@@ -61,9 +61,13 @@ const extractAnalyzes = async (
   const worksheet = workbook.Sheets[workbook.SheetNames[0]];
   const raw_data = XLSX.utils.sheet_to_json(worksheet);
 
-  const data = fileValidator
-    .parse(raw_data)
-    .filter((d) => !d.Paramètre.startsWith('Analyse'));
+  const { data: result, error } = fileValidator.safeParse(raw_data);
+
+  if (error) {
+    throw new ExtractBadFormatError(error);
+  }
+
+  const data = result.filter((d) => !d.Paramètre.startsWith('Analyse'));
 
   return [
     {

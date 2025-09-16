@@ -3,7 +3,7 @@ import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { maestroDate } from 'maestro-shared/utils/date';
 import { z } from 'zod';
-import { ExtractError } from './extractError';
+import { ExtractBadFormatError, ExtractError } from './extractError';
 import {
   ExportAnalysis,
   ExportDataFromEmail,
@@ -852,9 +852,7 @@ export const extractAnalyzes = (
       fileContent.filter((row) => row.LOT !== '' && row.LOT !== undefined)
     );
   if (resultatsError) {
-    throw new ExtractError(
-      `Impossible d'extraire les données du fichier des résultats: ${resultatsError}`
-    );
+    throw new ExtractBadFormatError(resultatsError);
   }
   if (resultatsData.length === 0) {
     throw new ExtractError(
