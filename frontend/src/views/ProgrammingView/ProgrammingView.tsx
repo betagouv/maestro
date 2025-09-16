@@ -1,4 +1,3 @@
-import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
@@ -9,7 +8,7 @@ import {
   omitBy,
   orderBy,
   pick,
-  sortBy,
+  uniq,
   uniqBy
 } from 'lodash-es';
 import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
@@ -33,6 +32,7 @@ import { ApiClientContext } from '../../services/apiClient';
 import prescriptionsSlice, {
   PrescriptionFilters
 } from '../../store/reducers/prescriptionsSlice';
+import { pluralize } from '../../utils/stringUtils';
 import PrescriptionPrimaryFilters from './PrescriptionFilters/PrescriptionPrimaryFilters';
 import PrescriptionSecondaryFilters from './PrescriptionFilters/PrescriptionSecondaryFilters';
 import PrescriptionList from './PrescriptionList/PrescriptionList';
@@ -53,11 +53,52 @@ const ProgrammingView = () => {
     status: ProgrammingPlanStatusList.filter((status) => status !== 'Closed')
   });
 
+  const domainOptions = useMemo(
+    () => uniq(programmingPlans?.map((_) => _.domain)),
+    [programmingPlans]
+  );
+  const programmingPlanOptions = useCallback(
+    (filters: Partial<PrescriptionFilters>) =>
+      (programmingPlans ?? []).filter((plan) =>
+        filters.domain ? plan.domain === filters.domain : true
+      ),
+    [programmingPlans]
+  );
+  const programmingPlanKindOptions = useCallback(
+    (filters: PrescriptionFilters) =>
+      uniq(
+        programmingPlans
+          ?.filter((plan) =>
+            filters.domain ? plan.domain === filters.domain : true
+          )
+          .filter((plan) =>
+            filters.planIds ? filters.planIds.includes(plan.id) : true
+          )
+          .flatMap((plan) => plan.kinds)
+      ),
+    [programmingPlans]
+  );
+  const contextOptions = useCallback(
+    (filters: PrescriptionFilters) =>
+      uniq(
+        programmingPlans
+          ?.filter((plan) =>
+            filters.domain ? plan.domain === filters.domain : true
+          )
+          .filter((plan) =>
+            filters.planIds ? filters.planIds.includes(plan.id) : true
+          )
+          .flatMap((plan) => plan.contexts)
+      ),
+    [programmingPlans]
+  );
+
   useEffect(() => {
     dispatch(
       prescriptionsSlice.actions.changePrescriptionFilters({
         year: Number(
-          searchParams.get('year') ?? sortBy(programmingPlans, 'year')[0]?.year
+          searchParams.get('year') ??
+            orderBy(programmingPlans, 'year', 'desc')[0]?.year
         ),
         domain:
           (searchParams.get('domain') as ProgrammingPlanDomain) ?? undefined,
@@ -111,16 +152,46 @@ const ProgrammingView = () => {
     apiClient.useCommentRegionalPrescriptionMutation();
 
   const changeFilter = (findFilter: Partial<PrescriptionFilters>) => {
-    const filteredParams = omitBy(
-      {
-        ...mapValues(prescriptionFilters, (value) => value?.toString()),
-        ...mapValues(findFilter, (value) => value?.toString())
-      },
-      isEmpty
-    );
+    const aggregatedFilters = {
+      ...prescriptionFilters,
+      ...findFilter
+    };
+
+    const domain = aggregatedFilters.domain;
+    const planIds =
+      aggregatedFilters?.planIds?.filter((id) =>
+        programmingPlanOptions({ domain }).some(
+          (planOption) => planOption.id === id
+        )
+      ) ?? undefined;
+    const kinds =
+      aggregatedFilters?.kinds?.filter((kind) =>
+        programmingPlanKindOptions({
+          domain,
+          planIds
+        }).some((kindOption) => kind === kindOption)
+      ) ?? undefined;
+    const contexts =
+      aggregatedFilters?.contexts?.filter((context) =>
+        contextOptions({
+          domain,
+          planIds,
+          kinds
+        }).some((contextOption) => context === contextOption)
+      ) ?? undefined;
+
+    const filteredParams = {
+      ...aggregatedFilters,
+      planIds,
+      kinds,
+      contexts
+    };
 
     const urlSearchParams = new URLSearchParams(
-      filteredParams as Record<string, string>
+      omitBy(
+        mapValues(filteredParams, (value) => value?.toString()),
+        isEmpty
+      ) as Record<string, string>
     );
 
     setSearchParams(urlSearchParams, { replace: true });
@@ -211,9 +282,12 @@ const ProgrammingView = () => {
               <div className="d-flex-align-start">
                 <div className={clsx('flex-grow-1')}>
                   <PrescriptionPrimaryFilters
-                    programmingPlans={(programmingPlans ?? []).filter(
-                      (plan) => plan.year === prescriptionFilters.year
-                    )}
+                    options={{
+                      domains: domainOptions,
+                      plans: programmingPlanOptions(prescriptionFilters),
+                      kinds: programmingPlanKindOptions(prescriptionFilters),
+                      contexts: contextOptions(prescriptionFilters)
+                    }}
                     filters={prescriptionFilters}
                     onChange={changeFilter}
                   />
@@ -227,38 +301,53 @@ const ProgrammingView = () => {
                     />
                   )}
                   <div className="d-flex-align-start" style={{ gap: '24px' }}>
-                    <FiltersTags
-                      key="domain-tags"
-                      title="Domaine"
-                      filters={pick(prescriptionFilters, ['domain'])}
-                      onChange={changeFilter}
-                    />
-                    <FiltersTags
-                      title="Plans"
-                      filters={pick(prescriptionFilters, ['planIds'])}
-                      onChange={changeFilter}
-                      programmingPlans={programmingPlans}
-                    />
-                    <FiltersTags
-                      title="Sous plan"
-                      filters={pick(prescriptionFilters, ['kinds'])}
-                      onChange={changeFilter}
-                    />
-                    <FiltersTags
-                      title="Contextes"
-                      filters={pick(prescriptionFilters, ['contexts'])}
-                      onChange={changeFilter}
-                    />
+                    {domainOptions.length > 1 && (
+                      <FiltersTags
+                        key="domain-tags"
+                        title={'Domaine'}
+                        filters={pick(prescriptionFilters, ['domain'])}
+                        onChange={changeFilter}
+                      />
+                    )}
+                    {programmingPlanOptions(prescriptionFilters).length > 1 && (
+                      <FiltersTags
+                        title={pluralize(
+                          prescriptionFilters.planIds?.length ?? 0
+                        )('Plan')}
+                        filters={pick(prescriptionFilters, ['planIds'])}
+                        onChange={changeFilter}
+                        programmingPlans={programmingPlans}
+                      />
+                    )}
+                    {programmingPlanKindOptions(prescriptionFilters).length >
+                      1 && (
+                      <FiltersTags
+                        title={pluralize(
+                          prescriptionFilters.kinds?.length ?? 0
+                        )('Sous-plan')}
+                        filters={pick(prescriptionFilters, ['kinds'])}
+                        onChange={changeFilter}
+                      />
+                    )}
+                    {contextOptions(prescriptionFilters).length > 1 && (
+                      <FiltersTags
+                        title={pluralize(
+                          prescriptionFilters.contexts?.length ?? 0
+                        )('Contexte')}
+                        filters={pick(prescriptionFilters, ['contexts'])}
+                        onChange={changeFilter}
+                      />
+                    )}
                   </div>
                 </div>
-                <Button
-                  onClick={() => setIsFilterExpanded(!isFilterExpanded)}
-                  priority="secondary"
-                  className={cx('fr-ml-3w', 'fr-mt-4w')}
-                  style={{ minWidth: '140px', justifyContent: 'center' }}
-                >
-                  {isFilterExpanded ? 'Fermer' : 'Plus de filtres'}
-                </Button>
+                {/*<Button*/}
+                {/*  onClick={() => setIsFilterExpanded(!isFilterExpanded)}*/}
+                {/*  priority="secondary"*/}
+                {/*  className={cx('fr-ml-3w', 'fr-mt-4w')}*/}
+                {/*  style={{ minWidth: '140px', justifyContent: 'center' }}*/}
+                {/*>*/}
+                {/*  {isFilterExpanded ? 'Fermer' : 'Plus de filtres'}*/}
+                {/*</Button>*/}
               </div>
             </div>
           )}

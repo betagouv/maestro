@@ -1,10 +1,9 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
 import { t } from 'i18next';
-import { uniq } from 'lodash-es';
 import {
-  Context,
-  ContextLabels
+  ContextLabels,
+  ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   ProgrammingPlanDomain,
@@ -15,89 +14,21 @@ import {
   ProgrammingPlanKindLabels
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { useEffect, useMemo } from 'react';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
-import { PrescriptionFilters } from './PrescriptionFilters';
+import { PrescriptionFilters } from '../../../store/reducers/prescriptionsSlice';
 
 interface Props {
-  programmingPlans: ProgrammingPlan[];
+  options: {
+    domains: ProgrammingPlanDomain[];
+    plans: ProgrammingPlan[];
+    kinds: ProgrammingPlanKind[];
+    contexts: ProgrammingPlanContext[];
+  };
   filters: Partial<PrescriptionFilters>;
   onChange: (filters: Partial<PrescriptionFilters>) => void;
 }
 
-const PrescriptionPrimaryFilters = ({
-  programmingPlans,
-  filters,
-  onChange
-}: Props) => {
-  const domainOptions = useMemo(
-    () => uniq(programmingPlans.map((_) => _.domain)),
-    [programmingPlans]
-  );
-
-  const programmingPlanOptions = useMemo(
-    () =>
-      programmingPlans.filter((plan) =>
-        filters.domain ? plan.domain === filters.domain : true
-      ),
-    [filters, programmingPlans]
-  );
-
-  const programmingPlanKindOptions = useMemo(
-    () =>
-      uniq(
-        programmingPlans
-          .filter((plan) =>
-            filters.domain ? plan.domain === filters.domain : true
-          )
-          .filter((plan) =>
-            filters.planIds ? filters.planIds.includes(plan.id) : true
-          )
-          .flatMap((plan) => plan.kinds)
-      ),
-    [filters, programmingPlans]
-  );
-
-  const contextOptions = useMemo(
-    () =>
-      uniq(
-        programmingPlans
-          .filter((plan) =>
-            filters.domain ? plan.domain === filters.domain : true
-          )
-          .filter((plan) =>
-            filters.planIds ? filters.planIds.includes(plan.id) : true
-          )
-          .flatMap((plan) => plan.contexts)
-      ),
-    [filters, programmingPlans]
-  );
-
-  useEffect(
-    () => {
-      if (domainOptions.length === 1 && !filters.domain) {
-        onChange({ domain: domainOptions[0] });
-      }
-      if (programmingPlanOptions.length === 1 && !filters.planIds?.length) {
-        onChange({ planIds: [programmingPlanOptions[0].id] });
-      }
-      if (programmingPlanKindOptions.length === 1 && !filters.kinds?.length) {
-        onChange({ kinds: [programmingPlanKindOptions[0]] });
-      }
-      if (contextOptions.length === 1 && !filters.contexts?.length) {
-        onChange({ contexts: [contextOptions[0]] });
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      domainOptions,
-      programmingPlanOptions,
-      programmingPlanKindOptions,
-      contextOptions,
-      filters
-    ]
-  );
-
+const PrescriptionPrimaryFilters = ({ options, filters, onChange }: Props) => {
   return (
     <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
       <div className={cx('fr-col-12', 'fr-col-md-3')}>
@@ -108,11 +39,13 @@ const PrescriptionPrimaryFilters = ({
             onChange: (e) =>
               onChange({ domain: e.target.value as ProgrammingPlanDomain })
           }}
+          disabled={options.domains.length <= 1}
         >
-          {selectOptionsFromList(domainOptions, {
+          {selectOptionsFromList(options.domains, {
             labels: ProgrammingPlanDomainLabels,
-            withDefault: domainOptions.length > 1,
-            withSort: true
+            withDefault: options.domains.length > 1,
+            withSort: true,
+            defaultLabel: 'Tous'
           }).map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
@@ -130,8 +63,9 @@ const PrescriptionPrimaryFilters = ({
                 planIds: [...(filters.planIds ?? []), e.target.value]
               })
           }}
+          disabled={options.plans.length <= 1}
         >
-          {programmingPlanOptions.length > 1 && (
+          {options.plans.length > 1 && (
             <option value="">
               {filters.planIds?.length
                 ? t('plan', {
@@ -140,10 +74,10 @@ const PrescriptionPrimaryFilters = ({
                 : 'Tous'}
             </option>
           )}
-          {programmingPlanOptions
+          {options.plans
             .filter(
               (plan) =>
-                programmingPlanOptions.length === 1 ||
+                options.plans.length === 1 ||
                 !filters.planIds?.includes(plan.id)
             )
             .map((plan) => (
@@ -166,8 +100,9 @@ const PrescriptionPrimaryFilters = ({
                 ]
               })
           }}
+          disabled={options.kinds.length <= 1}
         >
-          {programmingPlanKindOptions.length > 1 && (
+          {options.kinds.length > 1 && (
             <option value="">
               {filters.kinds?.length
                 ? t('plan', {
@@ -176,11 +111,10 @@ const PrescriptionPrimaryFilters = ({
                 : 'Tous'}
             </option>
           )}
-          {programmingPlanKindOptions
+          {options.kinds
             .filter(
               (kind) =>
-                programmingPlanKindOptions.length === 1 ||
-                !filters.kinds?.includes(kind)
+                options.kinds.length === 1 || !filters.kinds?.includes(kind)
             )
             .map((kind) => (
               <option key={`kind-${kind}`} value={kind}>
@@ -198,12 +132,13 @@ const PrescriptionPrimaryFilters = ({
               onChange({
                 contexts: [
                   ...(filters.contexts ?? []),
-                  e.target.value as Context
+                  e.target.value as ProgrammingPlanContext
                 ]
               })
           }}
+          disabled={options.contexts.length <= 1}
         >
-          {contextOptions.length > 1 && (
+          {options.contexts.length > 1 && (
             <option value="">
               {filters.contexts?.length
                 ? t('context', {
@@ -212,10 +147,10 @@ const PrescriptionPrimaryFilters = ({
                 : 'Tous'}
             </option>
           )}
-          {contextOptions
+          {options.contexts
             .filter(
               (context) =>
-                contextOptions.length === 1 ||
+                options.contexts.length === 1 ||
                 !filters.contexts?.includes(context)
             )
             .map((context) => (
