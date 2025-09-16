@@ -18,7 +18,7 @@ import { ProgrammingPlanDomain } from 'maestro-shared/schema/ProgrammingPlan/Pro
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlanStatusList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { RegionalPrescriptionKey } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionKey';
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 import programmation from '../../assets/illustrations/programmation.svg';
 import AppToast from '../../components/_app/AppToast/AppToast';
@@ -34,7 +34,6 @@ import prescriptionsSlice, {
 } from '../../store/reducers/prescriptionsSlice';
 import { pluralize } from '../../utils/stringUtils';
 import PrescriptionPrimaryFilters from './PrescriptionFilters/PrescriptionPrimaryFilters';
-import PrescriptionSecondaryFilters from './PrescriptionFilters/PrescriptionSecondaryFilters';
 import PrescriptionList from './PrescriptionList/PrescriptionList';
 
 const ProgrammingView = () => {
@@ -47,50 +46,39 @@ const ProgrammingView = () => {
   const { prescriptionFilters } = useAppSelector(
     (state) => state.prescriptions
   );
-  const [isFilterExpanded, setIsFilterExpanded] = useState(false);
+  // const [isFilterExpanded, setIsFilterExpanded] = useState(false);
 
   const { data: programmingPlans } = apiClient.useFindProgrammingPlansQuery({
     status: ProgrammingPlanStatusList.filter((status) => status !== 'Closed')
   });
 
   const domainOptions = useMemo(
-    () => uniq(programmingPlans?.map((_) => _.domain)),
-    [programmingPlans]
+    () =>
+      uniq(
+        (programmingPlans ?? [])
+          .filter((plan) => plan.year === prescriptionFilters.year)
+          ?.map((_) => _.domain)
+      ),
+    [programmingPlans, prescriptionFilters.year]
   );
   const programmingPlanOptions = useCallback(
     (filters: Partial<PrescriptionFilters>) =>
-      (programmingPlans ?? []).filter((plan) =>
-        filters.domain ? plan.domain === filters.domain : true
+      (programmingPlans ?? []).filter(
+        (plan) =>
+          plan.year === filters.year &&
+          (filters.domain ? plan.domain === filters.domain : true)
       ),
     [programmingPlans]
   );
   const programmingPlanKindOptions = useCallback(
     (filters: PrescriptionFilters) =>
-      uniq(
-        programmingPlans
-          ?.filter((plan) =>
-            filters.domain ? plan.domain === filters.domain : true
-          )
-          .filter((plan) =>
-            filters.planIds ? filters.planIds.includes(plan.id) : true
-          )
-          .flatMap((plan) => plan.kinds)
-      ),
-    [programmingPlans]
+      uniq(programmingPlanOptions(filters).flatMap((plan) => plan.kinds)),
+    [programmingPlanOptions]
   );
   const contextOptions = useCallback(
     (filters: PrescriptionFilters) =>
-      uniq(
-        programmingPlans
-          ?.filter((plan) =>
-            filters.domain ? plan.domain === filters.domain : true
-          )
-          .filter((plan) =>
-            filters.planIds ? filters.planIds.includes(plan.id) : true
-          )
-          .flatMap((plan) => plan.contexts)
-      ),
-    [programmingPlans]
+      uniq(programmingPlanOptions(filters).flatMap((plan) => plan.contexts)),
+    [programmingPlanOptions]
   );
 
   useEffect(() => {
@@ -157,16 +145,17 @@ const ProgrammingView = () => {
       ...findFilter
     };
 
-    const domain = aggregatedFilters.domain;
+    const { year, domain } = aggregatedFilters;
     const planIds =
       aggregatedFilters?.planIds?.filter((id) =>
-        programmingPlanOptions({ domain }).some(
+        programmingPlanOptions({ year, domain }).some(
           (planOption) => planOption.id === id
         )
       ) ?? undefined;
     const kinds =
       aggregatedFilters?.kinds?.filter((kind) =>
         programmingPlanKindOptions({
+          year,
           domain,
           planIds
         }).some((kindOption) => kind === kindOption)
@@ -174,6 +163,7 @@ const ProgrammingView = () => {
     const contexts =
       aggregatedFilters?.contexts?.filter((context) =>
         contextOptions({
+          year,
           domain,
           planIds,
           kinds
@@ -291,15 +281,15 @@ const ProgrammingView = () => {
                     filters={prescriptionFilters}
                     onChange={changeFilter}
                   />
-                  {isFilterExpanded && (
-                    <PrescriptionSecondaryFilters
-                      programmingPlans={(programmingPlans ?? []).filter(
-                        (plan) => plan.year === prescriptionFilters.year
-                      )}
-                      filters={prescriptionFilters}
-                      onChange={changeFilter}
-                    />
-                  )}
+                  {/*{isFilterExpanded && (*/}
+                  {/*  <PrescriptionSecondaryFilters*/}
+                  {/*    programmingPlans={(programmingPlans ?? []).filter(*/}
+                  {/*      (plan) => plan.year === prescriptionFilters.year*/}
+                  {/*    )}*/}
+                  {/*    filters={prescriptionFilters}*/}
+                  {/*    onChange={changeFilter}*/}
+                  {/*  />*/}
+                  {/*)}*/}
                   <div className="d-flex-align-start" style={{ gap: '24px' }}>
                     {domainOptions.length > 1 && (
                       <FiltersTags
