@@ -16,7 +16,7 @@ export const up = async (knex: Knex) => {
 };
 
 export const down = async (knex: Knex) => {
-  await knex.schema.alterTable('programming_plans', (table) => {
+  await knex.schema.alterTable('users', (table) => {
     table.dropColumn('name');
     table.string('first_name').defaultTo('-').notNullable();
     table.string('last_name').defaultTo('-').notNullable();
