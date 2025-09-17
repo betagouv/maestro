@@ -50,10 +50,15 @@ const generateAnalysisRequestCsv = async (data: AnalysisRequestData) => {
     `Note;${escapeCsvValue(data.notesOnItems)}`
   ];
 
-  const csvContent = rows.join('\n');
+  let csvContent = rows.join('\n');
+
+  if (data.laboratory.name === 'GIR 49') {
+    // UTF-8 BOM pour GIRPA
+    csvContent = '\ufeff' + csvContent;
+  }
   return Buffer.from(csvContent, 'utf-8');
 };
 
-export default {
+export const csvService = {
   generateAnalysisRequestCsv
 };

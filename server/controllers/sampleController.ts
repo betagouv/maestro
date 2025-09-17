@@ -32,7 +32,7 @@ import companyRepository from '../repositories/companyRepository';
 import { laboratoryRepository } from '../repositories/laboratoryRepository';
 import sampleItemRepository from '../repositories/sampleItemRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
-import csvService from '../services/csvService/csvService';
+import { csvService } from '../services/csvService/csvService';
 import { documentService } from '../services/documentService';
 import { excelService } from '../services/excelService/excelService';
 import { mailService } from '../services/mailService';
