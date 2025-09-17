@@ -6,9 +6,9 @@ export const genLaboratory = (data?: Partial<Laboratory>): Laboratory => ({
   id: uuidv4(),
   shortName: 'GIR 49',
   name: fakerFR.company.name(),
-  address: fakerFR.company.streetAddress(),
-  postalCode: fakerFR.company.zipCode('#####'),
-  city: fakerFR.company.city(),
+  address: fakerFR.location.streetAddress(),
+  postalCode: fakerFR.location.zipCode('#####'),
+  city: fakerFR.location.city(),
   emails: [fakerFR.internet.email()],
   ...data
 });
