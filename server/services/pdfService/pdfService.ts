@@ -204,7 +204,7 @@ const generateSampleSupportPDF = async (
     laboratory: !isNil(laboratory)
       ? {
           ...laboratory,
-          name: getLaboratoryFullName(laboratory)
+          fullName: getLaboratoryFullName(laboratory)
         }
       : null,
     monoSubstances: sample.monoSubstances?.map(

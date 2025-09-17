@@ -35,9 +35,12 @@
                   Étiquette du prélèvement
                 {{/if}}
               </b>
-              <br />
-              Prélèvement
-              <b>{{reference}}</b>
+              {{#if (and laboratory fullVersion)}}
+                <br />
+                A envoyer à <b>{{laboratory.name}}</b>
+                <br />
+                {{laboratory.address}} - {{laboratory.postalCode}} {{laboratory.city}}
+              {{/if}}
             </div>
           </div>
         </div>
@@ -413,7 +416,7 @@
                                 </div>
                                 <div class='value'>
                                   {{#if laboratory}}
-                                    {{laboratory.name}}
+                                    {{laboratory.fullName}}
                                   {{else}}
                                     &nbsp;
                                   {{/if}}
