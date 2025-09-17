@@ -336,7 +336,8 @@ describe('Prescriptions router', () => {
     const prescriptionUpdate: PrescriptionUpdate = {
       programmingPlanId: programmingPlanInProgress.id,
       stages: ['STADE7'],
-      notes: fakerFR.string.alphanumeric(32)
+      notes: fakerFR.string.alphanumeric(32),
+      programmingInstruction: fakerFR.string.alphanumeric(32)
     };
     const testRoute = (
       prescriptionId: string = inProgressControlPrescription.id
@@ -412,7 +413,7 @@ describe('Prescriptions router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    test('should update the stages of the prescription', async () => {
+    test('should update the prescription', async () => {
       const res = await request(app)
         .put(testRoute())
         .send(prescriptionUpdate)
@@ -422,7 +423,8 @@ describe('Prescriptions router', () => {
       expect(res.body).toMatchObject({
         ...inProgressControlPrescription,
         stages: prescriptionUpdate.stages,
-        notes: prescriptionUpdate.notes
+        notes: prescriptionUpdate.notes,
+        programmingInstruction: prescriptionUpdate.programmingInstruction
       });
 
       await expect(
@@ -430,7 +432,8 @@ describe('Prescriptions router', () => {
       ).resolves.toMatchObject({
         ...inProgressControlPrescription,
         stages: prescriptionUpdate.stages,
-        notes: prescriptionUpdate.notes
+        notes: prescriptionUpdate.notes,
+        programmingInstruction: prescriptionUpdate.programmingInstruction
       });
     });
   });

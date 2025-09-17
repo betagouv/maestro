@@ -13,6 +13,7 @@ export const ProgrammingPlan = z
     kinds: z.array(ProgrammingPlanKind),
     contexts: z.array(ProgrammingPlanContext),
     samplesOutsidePlanAllowed: z.boolean(),
+    additionalSubstances: z.array(z.string()).nullish(),
     createdAt: z.coerce.date(),
     createdBy: z.guid(),
     year: z.number(),
