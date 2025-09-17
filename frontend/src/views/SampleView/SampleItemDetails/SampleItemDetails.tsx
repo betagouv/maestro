@@ -209,7 +209,7 @@ const SampleItemDetails = ({
                   options={[
                     defaultAppSelectOption('Sélectionner un laboratoire'),
                     ...(laboratories ?? []).map((laboratory) => ({
-                      label: laboratory.name,
+                      label: laboratory.shortName,
                       value: laboratory.id
                     }))
                   ]}

@@ -38,7 +38,7 @@ const generateAnalysisRequestCsv = async (data: AnalysisRequestData) => {
     `Type de culture;${escapeCsvValue(data.cultureKind)}`,
     `Stade de prélèvement;${escapeCsvValue(data.stage)}`,
     `${data.specificData?.programmingPlanKind === 'PPV' && data.specificData?.releaseControl ? 'Type de contrôle;Contrôle libératoire' : ''}`,
-    `Laboratoire destinataire;${escapeCsvValue(data.laboratory?.name)}`,
+    `Laboratoire destinataire;${escapeCsvValue(data.laboratory?.shortName)}`,
     `Analyses mono-résidu;${data.monoSubstanceLabels.join(';')}`,
     `Analyses multi-résidus dont;${data.multiSubstanceLabels.join(';')}`,
     `Note additionnelle;${escapeCsvValue(data.notesOnMatrix)}`,

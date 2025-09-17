@@ -80,10 +80,13 @@ const getLaboratoryNameBySender = async (
     senderAddress.toLowerCase()
   );
 
-  const laboratoryName = laboratory?.name;
+  const laboratoryShortName = laboratory?.shortName;
 
-  if (laboratoryName !== undefined && laboratoryName in laboratoriesConf) {
-    return laboratoryName as LaboratoryWithConf;
+  if (
+    laboratoryShortName !== undefined &&
+    laboratoryShortName in laboratoriesConf
+  ) {
+    return laboratoryShortName as LaboratoryWithConf;
   }
 
   return null;
