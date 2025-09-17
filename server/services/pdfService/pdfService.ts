@@ -200,6 +200,7 @@ const generateSampleSupportPDF = async (
         currentItem: sampleItem.itemNumber === itemNumber
       })
     ),
+    itemNumber,
     sampler,
     laboratory: !isNil(laboratory)
       ? {

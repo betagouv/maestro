@@ -35,7 +35,7 @@
                 <b>{{reference}}</b>
               {{else}}
                 <b>Étiquette du prélèvement</b>
-                {{#if laboratory}}
+                {{#if (and laboratory (eq itemNumber 1))}}
                   <br />
                   A envoyer à <b>{{laboratory.name}}</b>
                   <br />
