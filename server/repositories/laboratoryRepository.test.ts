@@ -11,7 +11,7 @@ describe('findByEmailSender', async () => {
       .set({
         emailsAnalysisResult: [email]
       })
-      .where('name', '=', LaboratoryFixture.name)
+      .where('shortName', '=', LaboratoryFixture.shortName)
       .execute();
   });
 

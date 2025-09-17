@@ -26,7 +26,7 @@ const findMany = async (): Promise<Laboratory[]> => {
 const findByEmailSender = async (email_result_analysis: string) => {
   return kysely
     .selectFrom('laboratories')
-    .select('name')
+    .select('shortName')
     .where(({ eb, fn }) =>
       eb(sql.lit(email_result_analysis), '=', fn.any('emailsAnalysisResult'))
     )
