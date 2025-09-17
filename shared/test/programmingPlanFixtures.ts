@@ -79,6 +79,7 @@ export const DAOAValidatedProgrammingPlanFixture = genProgrammingPlan({
   title: "Denrées d'origine animale",
   kinds: ['DAOA_BREEDING', 'DAOA_SLAUGHTER'],
   contexts: ['Surveillance'],
+  additionalSubstances: ['Analyse des cuivres'],
   samplesOutsidePlanAllowed: false,
   createdAt: new Date(),
   createdBy: NationalCoordinator.id,

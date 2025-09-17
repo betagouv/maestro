@@ -4,6 +4,7 @@ export const up = async (knex: Knex) => {
   await knex.schema.alterTable('programming_plans', (table) => {
     table.string('title');
     table.string('domain');
+    table.specificType('additional_substances', 'text[]');
   });
 
   await knex('programming_plans')
@@ -24,7 +25,8 @@ export const up = async (knex: Knex) => {
     .whereRaw('kinds @> ?', [['DAOA_BREEDING', 'DAOA_SLAUGHTER']])
     .update({
       title: "Denrées d'origine animale",
-      domain: 'PESTICIDE_RESIDUE'
+      domain: 'PESTICIDE_RESIDUE',
+      additional_substances: ['Analyse des cuivres']
     });
 
   await knex.schema.alterTable('programming_plans', (table) => {
@@ -37,5 +39,6 @@ export const down = async (knex: Knex) => {
   await knex.schema.alterTable('programming_plans', (table) => {
     table.dropColumn('title');
     table.dropColumn('domain');
+    table.dropColumn('additional_substances');
   });
 };

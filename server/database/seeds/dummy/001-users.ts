@@ -16,7 +16,7 @@ export const seed = async function () {
       id: NationalCoordinator.id,
       email: 'coordinateur.national@maestro.beta.gouv.fr',
       name: fakerFR.person.fullName(),
-      programmingPlanKinds: ['PPV'],
+      programmingPlanKinds: ['PPV', 'DAOA_BREEDING', 'DAOA_SLAUGHTER'],
       role: 'NationalCoordinator'
     },
     {

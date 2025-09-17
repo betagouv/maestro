@@ -6,14 +6,12 @@ import {
   MatrixKindLabels
 } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region } from 'maestro-shared/referential/Region';
-import { Stage } from 'maestro-shared/referential/Stage';
 import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import {
   Prescription,
   PrescriptionSort,
   PrescriptionUpdate
 } from 'maestro-shared/schema/Prescription/Prescription';
-import { PrescriptionSubstance } from 'maestro-shared/schema/Prescription/PrescriptionSubstance';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -199,33 +197,6 @@ const PrescriptionList = ({ programmingPlans, region, ..._rest }: Props) => {
     [programmingPlans] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
-  const updatePrescriptionSubstances = useCallback(
-    async (
-      prescription: Prescription,
-      prescriptionSubstances: PrescriptionSubstance[]
-    ) =>
-      changePrescription(prescription, {
-        substances: prescriptionSubstances
-      }),
-    [changePrescription]
-  );
-
-  const updatePrescriptionStages = useCallback(
-    async (prescription: Prescription, stages: Stage[]) =>
-      changePrescription(prescription, {
-        stages
-      }),
-    [changePrescription]
-  );
-
-  const updatePrescriptionNotes = useCallback(
-    async (prescription: Prescription, notes: string) =>
-      changePrescription(prescription, {
-        notes
-      }),
-    [changePrescription]
-  );
-
   const changeRegionalPrescription = useCallback(
     async (
       prescription: Prescription,
@@ -354,10 +325,21 @@ const PrescriptionList = ({ programmingPlans, region, ..._rest }: Props) => {
                         }
                         onRemovePrescription={removePrescription}
                         onChangePrescriptionStages={(stages) =>
-                          updatePrescriptionStages(prescription, stages)
+                          changePrescription(prescription, {
+                            stages
+                          })
                         }
                         onChangePrescriptionNotes={(notes) =>
-                          updatePrescriptionNotes(prescription, notes)
+                          changePrescription(prescription, {
+                            notes
+                          })
+                        }
+                        onChangePrescriptionProgrammingInstruction={(
+                          programmingInstruction
+                        ) =>
+                          changePrescription(prescription, {
+                            programmingInstruction
+                          })
                         }
                       />
                     ))}
@@ -411,7 +393,11 @@ const PrescriptionList = ({ programmingPlans, region, ..._rest }: Props) => {
         )}
       <PrescriptionSubstancesModal
         programmingPlans={programmingPlans}
-        onUpdatePrescriptionSubstances={updatePrescriptionSubstances}
+        onUpdatePrescriptionSubstances={(prescription, substances) =>
+          changePrescription(prescription, {
+            substances
+          })
+        }
       />
     </>
   );
