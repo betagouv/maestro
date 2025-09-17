@@ -8,7 +8,6 @@ import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMi
 import UserMissingError from 'maestro-shared/errors/userMissingError';
 import { getCultureKindLabel } from 'maestro-shared/referential/CultureKind';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
-import { getLaboratoryFullname } from 'maestro-shared/referential/Laboratory';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { getMatrixPartLabel } from 'maestro-shared/referential/Matrix/MatrixPart';
@@ -16,6 +15,7 @@ import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
 import { Regions } from 'maestro-shared/referential/Region';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { StageLabels } from 'maestro-shared/referential/Stage';
+import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   getSampleMatrixLabel,
@@ -204,7 +204,7 @@ const generateSampleSupportPDF = async (
     laboratory: !isNil(laboratory)
       ? {
           ...laboratory,
-          name: getLaboratoryFullname(laboratory.name)
+          name: getLaboratoryFullName(laboratory)
         }
       : null,
     monoSubstances: sample.monoSubstances?.map(
