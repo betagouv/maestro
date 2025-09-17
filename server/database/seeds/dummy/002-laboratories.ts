@@ -24,37 +24,65 @@ export const seed = async function () {
   await Laboratories().insert([
     {
       id: SCL34Id,
-      name: 'SCL 34',
+      shortName: 'SCL 34',
+      name: 'SCL Montpellier',
+      address: '205, Rue de la Croix Verte',
+      postalCode: '34090',
+      city: 'Montpellier',
       emails: [EMAIL_SANBOX]
     },
     {
       id: LDA66Id,
-      name: 'LDA 66',
+      shortName: 'LDA 66',
+      name: 'CAMP',
+      address: '5002F, Rambla de la Thermodynamique',
+      postalCode: '66100',
+      city: 'Perpignan',
       emails: [EMAIL_SANBOX]
     },
     {
       id: LDA72Id,
-      name: 'LDA 72',
+      shortName: 'LDA 72',
+      name: 'Inovalys',
+      address: '128, rue de Beaugé',
+      postalCode: '72018',
+      city: 'LE MANS Cedex 2',
       emails: [EMAIL_SANBOX]
     },
     {
       id: SCL91Id,
-      name: 'SCL 91',
+      shortName: 'SCL 91',
+      name: "SCL d'Ile de France",
+      address: '25, avenue de la République',
+      postalCode: '91300',
+      city: 'MASSY',
       emails: [EMAIL_SANBOX]
     },
     {
       id: GIR49Id,
-      name: 'GIR 49',
+      shortName: 'GIR 49',
+      name: 'GIRPA',
+      address: "9, avenue du Bois l'Abbé",
+      postalCode: '49070',
+      city: 'Beaucouzé',
       emails: [EMAIL_SANBOX]
     },
     {
       id: CAP29Id,
-      name: 'CAP 29',
+      shortName: 'CAP 29',
+      name: 'Capinov',
+      address: 'ZI de Lanrinou',
+      postalCode: '29800',
+      city: 'Landerneau',
       emails: [EMAIL_SANBOX]
     },
     {
       id: CER30Id,
-      name: 'CER 30',
+      shortName: 'CER 30',
+      name: 'CERECO',
+      address: '3, rue Pierre Bautias ZA Aéropôle',
+      postalCode: '30128',
+      city: 'Garons',
       emails: [EMAIL_SANBOX]
     }
   ]);
