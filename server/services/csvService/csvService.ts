@@ -52,7 +52,7 @@ const generateAnalysisRequestCsv = async (data: AnalysisRequestData) => {
 
   let csvContent = rows.join('\n');
 
-  if (data.laboratory.name === 'GIR 49') {
+  if (data.laboratory.shortName === 'GIR 49') {
     // UTF-8 BOM pour GIRPA
     csvContent = '\ufeff' + csvContent;
   }

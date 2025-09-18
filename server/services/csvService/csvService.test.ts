@@ -19,7 +19,11 @@ const data: AnalysisRequestData = {
   laboratory: {
     emails: [''],
     id: '',
-    name: 'CAP 29'
+    name: 'Capinov',
+    address: '',
+    city: '',
+    postalCode: '',
+    shortName: 'CAP 29'
   },
   matrixLabel: '',
   matrixPart: '',
@@ -102,7 +106,7 @@ test('génère un CSV', async () => {
 test('génère un CSV avec le BOM pour Girpa', async () => {
   const csv = await csvService.generateAnalysisRequestCsv({
     ...data,
-    laboratory: { ...data.laboratory, name: 'GIR 49' }
+    laboratory: { ...data.laboratory, shortName: 'GIR 49', name: 'Girpa' }
   });
 
   expect(csv.toString()).toMatchInlineSnapshot(`
