@@ -1,14 +1,27 @@
 import { ZodArray, ZodObject, ZodType } from 'zod';
 import { UserPermission } from '../schema/User/UserPermission';
 import { analysisRoutes } from './analysis.routes';
+import { documentsRoutes } from './documents.routes';
+import { laboratoriesRoutes } from './laboratories.routes';
 import { noticesRoutes } from './notices.routes';
+import { notificationsRoutes } from './notifications.routes';
 import { programmingPlansRoutes } from './programmingPlans.routes';
 import { samplesRoutes } from './samples.routes';
+import { usersRoutes } from './users.routes';
 
 export const MaestroRoutes = [
   '/analysis',
   '/analysis/:analysisId',
   '/analysis/:analysisId/reportDocuments',
+  '/documents',
+  '/documents/:documentId',
+  '/documents/:documentId/download-signed-url',
+  '/documents/resources',
+  '/documents/upload-signed-url',
+  '/laboratories',
+  '/laboratories/:laboratoryId',
+  '/notifications',
+  '/notifications/:notificationId',
   '/notices/:type',
   '/programming-plans',
   '/programming-plans/:programmingPlanId',
@@ -19,14 +32,20 @@ export const MaestroRoutes = [
   '/samples/export',
   '/samples/:sampleId/document',
   '/samples/:sampleId/items/:itemNumber/document',
-  '/samples/:sampleId'
+  '/samples/:sampleId',
+  '/users',
+  '/users/:userId'
 ] as const;
 
 export const routes = {
   ...analysisRoutes,
+  ...documentsRoutes,
+  ...laboratoriesRoutes,
   ...noticesRoutes,
+  ...notificationsRoutes,
   ...programmingPlansRoutes,
-  ...samplesRoutes
+  ...samplesRoutes,
+  ...usersRoutes
 } as const satisfies {
   [path in MaestroRoutes]: { [method in RouteMethod]?: ToRoute } & {
     params?: ZodUrlParams<path>;
@@ -105,7 +124,7 @@ export type ToRoute = {
   | {
       unprotected: true;
     }
-  | { permissions: [UserPermission, ...UserPermission[]] }
+  | { permissions: [UserPermission, ...UserPermission[]] | 'NONE' }
 );
 
 type ZodParseUrlParams<url> = url extends `${infer start}/${infer rest}`
