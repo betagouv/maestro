@@ -128,7 +128,7 @@ export const generateRoutes = <
         if (toValidate !== null) {
           router[method](route, validator.validate(toValidate));
         }
-        if ('permissions' in conf) {
+        if ('permissions' in conf && conf.permissions !== 'NONE') {
           router[method](route, permissionsCheck(conf.permissions));
         }
         router[method](route, async (request, response) => {
