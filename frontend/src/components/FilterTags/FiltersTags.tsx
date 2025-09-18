@@ -41,6 +41,12 @@ interface Props {
   programmingPlans?: ProgrammingPlan[];
 }
 
+const tagProps = {
+  dismissible: true,
+  small: true,
+  className: clsx(cx('fr-mb-1v'), 'align-left')
+};
+
 const filtersConfig = {
   matrixKind: {
     prop: 'matrixKind',
@@ -71,8 +77,8 @@ const filtersConfig = {
     prop: 'region',
     getComponent: (value, onChange) => (
       <Tag
+        {...tagProps}
         key={`tag-region`}
-        dismissible
         nativeButtonProps={{
           onClick: () => onChange({ region: undefined, departments: undefined })
         }}
@@ -87,8 +93,8 @@ const filtersConfig = {
       <>
         {value.map((d) => (
           <Tag
+            {...tagProps}
             key={`tag-department-${d}`}
-            dismissible
             nativeButtonProps={{
               onClick: () =>
                 onChange({ departments: value.filter((v) => v !== d) })
@@ -106,8 +112,8 @@ const filtersConfig = {
       <Fragment key={`tag-contexts`}>
         {value.map((d) => (
           <Tag
+            {...tagProps}
             key={`tag-context-${d}`}
-            dismissible
             nativeButtonProps={{
               onClick: () =>
                 onChange({
@@ -141,12 +147,11 @@ const filtersConfig = {
       <Fragment key={`tag-kinds`}>
         {value.map((d) => (
           <Tag
+            {...tagProps}
             key={`tag-kind-${d}`}
-            dismissible
             nativeButtonProps={{
               onClick: () => onChange({ kinds: value.filter((v) => v !== d) })
             }}
-            className={cx('fr-mb-1w')}
           >
             {ProgrammingPlanKindLabels[d]}
           </Tag>
@@ -160,8 +165,8 @@ const filtersConfig = {
       <Fragment key={`tag-matrixKinds`}>
         {value.map((d) => (
           <Tag
+            {...tagProps}
             key={`tag-matrixKind-${d}`}
-            dismissible
             nativeButtonProps={{
               onClick: () =>
                 onChange({ matrixKinds: value.filter((v) => v !== d) })
@@ -179,8 +184,8 @@ const filtersConfig = {
       <Fragment key={`tag-planIds`}>
         {value.map((d) => (
           <Tag
+            {...tagProps}
             key={`tag-planId-${d}`}
-            dismissible
             nativeButtonProps={{
               onClick: () => onChange({ planIds: value.filter((v) => v !== d) })
             }}
@@ -262,7 +267,7 @@ const FiltersTags = ({
           {title}
         </span>
       )}
-      <div className={cx('fr-mt-3v')}>
+      <div className={cx('fr-mt-1v')}>
         {Object.values(filtersConfig).map((conf) => {
           const value = filters[conf.prop];
 
@@ -280,8 +285,8 @@ const FiltersTags = ({
               if (label) {
                 return (
                   <Tag
+                    {...tagProps}
                     key={conf.prop}
-                    dismissible
                     nativeButtonProps={{
                       onClick: () => onChange({ [conf.prop]: undefined })
                     }}

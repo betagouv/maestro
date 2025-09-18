@@ -1,6 +1,7 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
 import { t } from 'i18next';
+import { pick } from 'lodash-es';
 import {
   ContextLabels,
   ProgrammingPlanContext
@@ -15,7 +16,9 @@ import {
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
+import FiltersTags from '../../../components/FilterTags/FiltersTags';
 import { PrescriptionFilters } from '../../../store/reducers/prescriptionsSlice';
+import { pluralize } from '../../../utils/stringUtils';
 
 interface Props {
   options: {
@@ -24,11 +27,17 @@ interface Props {
     kinds: ProgrammingPlanKind[];
     contexts: ProgrammingPlanContext[];
   };
+  programmingPlans?: ProgrammingPlan[];
   filters: Partial<PrescriptionFilters>;
   onChange: (filters: Partial<PrescriptionFilters>) => void;
 }
 
-const PrescriptionPrimaryFilters = ({ options, filters, onChange }: Props) => {
+const ProgrammingPrescriptionFilters = ({
+  options,
+  programmingPlans,
+  filters,
+  onChange
+}: Props) => {
   return (
     <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
       <div className={cx('fr-col-12', 'fr-col-md-3')}>
@@ -52,6 +61,14 @@ const PrescriptionPrimaryFilters = ({ options, filters, onChange }: Props) => {
             </option>
           ))}
         </Select>
+        {options.domains.length > 1 && (
+          <FiltersTags
+            key="domain-tags"
+            title={'Domaine'}
+            filters={pick(filters, ['domain'])}
+            onChange={({ domain }) => onChange({ domain })}
+          />
+        )}
       </div>
       <div className={cx('fr-col-12', 'fr-col-md-3')}>
         <Select
@@ -68,7 +85,7 @@ const PrescriptionPrimaryFilters = ({ options, filters, onChange }: Props) => {
           {options.plans.length > 1 && (
             <option value="">
               {filters.planIds?.length
-                ? t('plan', {
+                ? t('select', {
                     count: filters.planIds?.length
                   })
                 : 'Tous'}
@@ -86,6 +103,18 @@ const PrescriptionPrimaryFilters = ({ options, filters, onChange }: Props) => {
               </option>
             ))}
         </Select>
+        {options.plans.length > 1 && (
+          <FiltersTags
+            title={pluralize(filters.planIds?.length ?? 0)('Plan')}
+            filters={pick(filters, ['planIds'])}
+            onChange={({ planIds }) =>
+              onChange({
+                planIds
+              })
+            }
+            programmingPlans={programmingPlans}
+          />
+        )}
       </div>
       <div className={cx('fr-col-12', 'fr-col-md-3')}>
         <Select
@@ -105,7 +134,7 @@ const PrescriptionPrimaryFilters = ({ options, filters, onChange }: Props) => {
           {options.kinds.length > 1 && (
             <option value="">
               {filters.kinds?.length
-                ? t('plan', {
+                ? t('select', {
                     count: filters.kinds?.length
                   })
                 : 'Tous'}
@@ -122,6 +151,13 @@ const PrescriptionPrimaryFilters = ({ options, filters, onChange }: Props) => {
               </option>
             ))}
         </Select>
+        {options.kinds.length > 1 && (
+          <FiltersTags
+            title={pluralize(filters.kinds?.length ?? 0)('Sous-plan')}
+            filters={pick(filters, ['kinds'])}
+            onChange={({ kinds }) => onChange({ kinds })}
+          />
+        )}
       </div>
       <div className={cx('fr-col-12', 'fr-col-md-3')}>
         <Select
@@ -159,9 +195,16 @@ const PrescriptionPrimaryFilters = ({ options, filters, onChange }: Props) => {
               </option>
             ))}
         </Select>
+        {options.contexts.length > 1 && (
+          <FiltersTags
+            title={pluralize(filters.contexts?.length ?? 0)('Contexte')}
+            filters={pick(filters, ['contexts'])}
+            onChange={({ contexts }) => onChange({ contexts })}
+          />
+        )}
       </div>
     </div>
   );
 };
 
-export default PrescriptionPrimaryFilters;
+export default ProgrammingPrescriptionFilters;

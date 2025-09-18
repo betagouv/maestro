@@ -12,9 +12,9 @@ import React from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import useWindowSize from 'src/hooks/useWindowSize';
-import { getPrescriptionsExportURL } from 'src/services/prescription.service';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import PrescriptionListGroupedUpdate from 'src/views/ProgrammingView/PrescriptionList/PrescriptionListGroupedUpdate';
+import { getPrescriptionsExportURL } from '../../../services/prescription.service';
 import './PrescriptionList.scss';
 interface Props {
   findPrescriptionOptions: FindPrescriptionOptions;
@@ -66,23 +66,33 @@ const PrescriptionListHeader = ({
         {/*    onSelect={addMatrixKind}*/}
         {/*  />*/}
         {/*)}*/}
-        <Input
-          iconId="fr-icon-search-line"
-          hideLabel
-          label="Matrice"
-          nativeInputProps={{
-            type: 'search',
-            placeholder: 'Matrice',
-            value: matrixQuery ?? '',
-            onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-              dispatch(
-                prescriptionsSlice.actions.changeMatrixQuery(e.target.value)
-              );
-            }
-          }}
-          className={cx('fr-my-0', 'fr-hidden', 'fr-unhidden-md')}
-        />
       </div>
+      <Button
+        iconId="fr-icon-file-download-line"
+        priority="secondary"
+        onClick={() =>
+          window.open(getPrescriptionsExportURL(findPrescriptionOptions))
+        }
+        title="Exporter"
+        children={isMobile ? undefined : 'Exporter'}
+        size={isMobile ? 'small' : 'medium'}
+      />
+      <Input
+        iconId="fr-icon-search-line"
+        hideLabel
+        label="Matrice"
+        nativeInputProps={{
+          type: 'search',
+          placeholder: 'Matrice',
+          value: matrixQuery ?? '',
+          onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+            dispatch(
+              prescriptionsSlice.actions.changeMatrixQuery(e.target.value)
+            );
+          }
+        }}
+        className={cx('fr-my-0', 'fr-hidden', 'fr-unhidden-md')}
+      />
       <div>
         {!isMobile && hasNationalView && (
           <SegmentedControl
@@ -130,16 +140,6 @@ const PrescriptionListHeader = ({
             onClick={() => setIsGroupedUpdate(true)}
           />
         )}
-        <Button
-          iconId="fr-icon-file-download-line"
-          priority="secondary"
-          onClick={() =>
-            window.open(getPrescriptionsExportURL(findPrescriptionOptions))
-          }
-          title="Exporter"
-          children={isMobile ? undefined : 'Exporter'}
-          size={isMobile ? 'small' : 'medium'}
-        />
       </div>
       {isGroupedUpdate && onGroupedUpdate && (
         <PrescriptionListGroupedUpdate

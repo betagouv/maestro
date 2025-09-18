@@ -2,15 +2,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import clsx from 'clsx';
-import {
-  isEmpty,
-  mapValues,
-  omitBy,
-  orderBy,
-  pick,
-  uniq,
-  uniqBy
-} from 'lodash-es';
+import { isEmpty, mapValues, omitBy, orderBy, uniq, uniqBy } from 'lodash-es';
 import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, Regions } from 'maestro-shared/referential/Region';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
@@ -22,7 +14,6 @@ import { useCallback, useContext, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 import programmation from '../../assets/illustrations/programmation.svg';
 import AppToast from '../../components/_app/AppToast/AppToast';
-import FiltersTags from '../../components/FilterTags/FiltersTags';
 import PrescriptionCommentsModal from '../../components/Prescription/PrescriptionCommentsModal/PrescriptionCommentsModal';
 import SectionHeader from '../../components/SectionHeader/SectionHeader';
 import { useAuthentication } from '../../hooks/useAuthentication';
@@ -32,9 +23,8 @@ import { ApiClientContext } from '../../services/apiClient';
 import prescriptionsSlice, {
   PrescriptionFilters
 } from '../../store/reducers/prescriptionsSlice';
-import { pluralize } from '../../utils/stringUtils';
-import PrescriptionPrimaryFilters from './PrescriptionFilters/PrescriptionPrimaryFilters';
 import PrescriptionList from './PrescriptionList/PrescriptionList';
+import ProgrammingPrescriptionFilters from './ProgrammingPrescriptionFilters/ProgrammingPrescriptionFilters';
 
 const ProgrammingView = () => {
   useDocumentTitle('Programmation');
@@ -46,7 +36,6 @@ const ProgrammingView = () => {
   const { prescriptionFilters } = useAppSelector(
     (state) => state.prescriptions
   );
-  // const [isFilterExpanded, setIsFilterExpanded] = useState(false);
 
   const { data: programmingPlans } = apiClient.useFindProgrammingPlansQuery({
     status: ProgrammingPlanStatusList.filter((status) => status !== 'Closed')
@@ -72,12 +61,20 @@ const ProgrammingView = () => {
   );
   const programmingPlanKindOptions = useCallback(
     (filters: PrescriptionFilters) =>
-      uniq(programmingPlanOptions(filters).flatMap((plan) => plan.kinds)),
+      uniq(
+        programmingPlanOptions(filters)
+          .filter((plan) => (filters.planIds ?? [plan.id]).includes(plan.id))
+          .flatMap((plan) => plan.kinds)
+      ),
     [programmingPlanOptions]
   );
   const contextOptions = useCallback(
     (filters: PrescriptionFilters) =>
-      uniq(programmingPlanOptions(filters).flatMap((plan) => plan.contexts)),
+      uniq(
+        programmingPlanOptions(filters)
+          .filter((plan) => (filters.planIds ?? [plan.id]).includes(plan.id))
+          .flatMap((plan) => plan.contexts)
+      ),
     [programmingPlanOptions]
   );
 
@@ -220,33 +217,31 @@ const ProgrammingView = () => {
             illustration={programmation}
             action={
               <>
-                {uniqBy(programmingPlans, 'year').length > 1 && (
-                  <SegmentedControl
-                    hideLegend
-                    legend="Année"
-                    segments={
-                      orderBy(
-                        uniqBy(programmingPlans, 'year'),
-                        'year',
-                        'desc'
-                      ).map(({ year }) => ({
-                        label: year,
-                        nativeInputProps: {
-                          checked: year === prescriptionFilters.year,
-                          onChange: () =>
-                            changeFilter({
-                              year,
-                              domain: undefined,
-                              planIds: undefined,
-                              kinds: undefined,
-                              contexts: undefined,
-                              matrixKinds: undefined
-                            })
-                        }
-                      })) as any
-                    }
-                  />
-                )}
+                <SegmentedControl
+                  hideLegend
+                  legend="Année"
+                  segments={
+                    orderBy(
+                      uniqBy(programmingPlans, 'year'),
+                      'year',
+                      'desc'
+                    ).map(({ year }) => ({
+                      label: year,
+                      nativeInputProps: {
+                        checked: year === prescriptionFilters.year,
+                        onChange: () =>
+                          changeFilter({
+                            year,
+                            domain: undefined,
+                            planIds: undefined,
+                            kinds: undefined,
+                            contexts: undefined,
+                            matrixKinds: undefined
+                          })
+                      }
+                    })) as any
+                  }
+                />
                 {/*{programmingPlan &&*/}
                 {/*  programmingPlan.regionalStatus.some(*/}
                 {/*    (regionalStatus) =>*/}
@@ -271,73 +266,18 @@ const ProgrammingView = () => {
             >
               <div className="d-flex-align-start">
                 <div className={clsx('flex-grow-1')}>
-                  <PrescriptionPrimaryFilters
+                  <ProgrammingPrescriptionFilters
                     options={{
                       domains: domainOptions,
                       plans: programmingPlanOptions(prescriptionFilters),
                       kinds: programmingPlanKindOptions(prescriptionFilters),
                       contexts: contextOptions(prescriptionFilters)
                     }}
+                    programmingPlans={filteredProgrammingPlans}
                     filters={prescriptionFilters}
                     onChange={changeFilter}
                   />
-                  {/*{isFilterExpanded && (*/}
-                  {/*  <PrescriptionSecondaryFilters*/}
-                  {/*    programmingPlans={(programmingPlans ?? []).filter(*/}
-                  {/*      (plan) => plan.year === prescriptionFilters.year*/}
-                  {/*    )}*/}
-                  {/*    filters={prescriptionFilters}*/}
-                  {/*    onChange={changeFilter}*/}
-                  {/*  />*/}
-                  {/*)}*/}
-                  <div className="d-flex-align-start" style={{ gap: '24px' }}>
-                    {domainOptions.length > 1 && (
-                      <FiltersTags
-                        key="domain-tags"
-                        title={'Domaine'}
-                        filters={pick(prescriptionFilters, ['domain'])}
-                        onChange={changeFilter}
-                      />
-                    )}
-                    {programmingPlanOptions(prescriptionFilters).length > 1 && (
-                      <FiltersTags
-                        title={pluralize(
-                          prescriptionFilters.planIds?.length ?? 0
-                        )('Plan')}
-                        filters={pick(prescriptionFilters, ['planIds'])}
-                        onChange={changeFilter}
-                        programmingPlans={programmingPlans}
-                      />
-                    )}
-                    {programmingPlanKindOptions(prescriptionFilters).length >
-                      1 && (
-                      <FiltersTags
-                        title={pluralize(
-                          prescriptionFilters.kinds?.length ?? 0
-                        )('Sous-plan')}
-                        filters={pick(prescriptionFilters, ['kinds'])}
-                        onChange={changeFilter}
-                      />
-                    )}
-                    {contextOptions(prescriptionFilters).length > 1 && (
-                      <FiltersTags
-                        title={pluralize(
-                          prescriptionFilters.contexts?.length ?? 0
-                        )('Contexte')}
-                        filters={pick(prescriptionFilters, ['contexts'])}
-                        onChange={changeFilter}
-                      />
-                    )}
-                  </div>
                 </div>
-                {/*<Button*/}
-                {/*  onClick={() => setIsFilterExpanded(!isFilterExpanded)}*/}
-                {/*  priority="secondary"*/}
-                {/*  className={cx('fr-ml-3w', 'fr-mt-4w')}*/}
-                {/*  style={{ minWidth: '140px', justifyContent: 'center' }}*/}
-                {/*>*/}
-                {/*  {isFilterExpanded ? 'Fermer' : 'Plus de filtres'}*/}
-                {/*</Button>*/}
               </div>
             </div>
           )}
