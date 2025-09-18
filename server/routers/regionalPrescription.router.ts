@@ -16,7 +16,6 @@ router.get(
   '/regions',
   validator.validate(query(FindRegionalPrescriptionOptions)),
   permissionsCheck(['readPrescriptions']),
-  programmingPlanCheck(),
   regionalPrescriptionController.findRegionalPrescriptions
 );
 router.put(

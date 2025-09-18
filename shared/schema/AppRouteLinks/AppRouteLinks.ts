@@ -9,8 +9,8 @@ export const AppRouteLinks = {
   NotificationsRoute: {
     link: '/notifications'
   },
-  ProgrammationByYearRoute: {
-    link: (year: number) => `/programmation/${year}`
+  ProgrammingRoute: {
+    link: `/programmation`
   },
   SamplesByYearRoute: {
     link: (year: number) => `/programmation/${year}/prelevements`

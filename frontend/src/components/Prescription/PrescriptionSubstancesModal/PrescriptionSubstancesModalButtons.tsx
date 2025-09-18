@@ -24,17 +24,25 @@ const PrescriptionSubstancesModalButtons = ({
 
   return (
     <div className="prescription-substance-button">
+      <div className={cx('fr-text--bold', 'fr-mb-1w', 'fr-ml-2w')}>
+        Au programme :
+      </div>
       <div>
         <Button
           onClick={() =>
             dispatch(
-              prescriptionsSlice.actions.setPrescriptionAnalysisEditId(
-                prescription.id
+              prescriptionsSlice.actions.setPrescriptionAnalysisEdit(
+                prescription
               )
             )
           }
           priority="tertiary no outline"
-          className={clsx(cx('fr-link--xs'), 'link-underline')}
+          iconId={
+            (prescription.monoAnalysisCount ?? 0) === 0
+              ? 'fr-icon-add-line'
+              : 'fr-icon-check-line'
+          }
+          className={clsx(cx('fr-text--regular'), 'link-underline')}
         >
           {hasUserPrescriptionPermission(programmingPlan)?.update &&
           (prescription.monoAnalysisCount ?? 0) === 0
@@ -48,13 +56,18 @@ const PrescriptionSubstancesModalButtons = ({
         <Button
           onClick={() =>
             dispatch(
-              prescriptionsSlice.actions.setPrescriptionAnalysisEditId(
-                prescription.id
+              prescriptionsSlice.actions.setPrescriptionAnalysisEdit(
+                prescription
               )
             )
           }
           priority="tertiary no outline"
-          className={clsx(cx('fr-link--xs'), 'link-underline')}
+          iconId={
+            (prescription.multiAnalysisCount ?? 0) === 0
+              ? 'fr-icon-add-line'
+              : 'fr-icon-check-line'
+          }
+          className={clsx(cx('fr-text--regular'), 'link-underline')}
         >
           {hasUserPrescriptionPermission(programmingPlan)?.update &&
           (prescription.multiAnalysisCount ?? 0) === 0
@@ -64,6 +77,17 @@ const PrescriptionSubstancesModalButtons = ({
               )('spécifiée')})`}
         </Button>
       </div>
+      {programmingPlan.additionalSubstances?.map((substance, index) => (
+        <div
+          key={`additionalSubstance-${index}`}
+          className={clsx(cx('fr-py-1w', 'fr-px-2w'), 'flex-align-center')}
+        >
+          <span
+            className={cx('fr-icon-check-line', 'fr-icon--sm', 'fr-mr-1w')}
+          />
+          {substance}
+        </div>
+      ))}
     </div>
   );
 };

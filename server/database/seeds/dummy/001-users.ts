@@ -9,14 +9,14 @@ export const seed = async function () {
       id: uuidv4(),
       email: 'admin@maestro.beta.gouv.fr',
       name: fakerFR.person.fullName(),
-      programmingPlanKinds: ['PPV'],
+      programmingPlanKinds: [],
       role: 'Administrator'
     },
     {
       id: NationalCoordinator.id,
       email: 'coordinateur.national@maestro.beta.gouv.fr',
       name: fakerFR.person.fullName(),
-      programmingPlanKinds: ['PPV'],
+      programmingPlanKinds: ['PPV', 'DAOA_BREEDING', 'DAOA_SLAUGHTER'],
       role: 'NationalCoordinator'
     },
     {

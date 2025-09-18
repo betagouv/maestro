@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { Stage } from '../../referential/Stage';
 import { coerceToArray } from '../../utils/utils';
 import { ProgrammingPlanContext } from '../ProgrammingPlan/Context';
+import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 
 export const PrescriptionOptionsInclude = z.enum(['substanceCount']);
 
@@ -10,7 +11,8 @@ export type PrescriptionOptionsInclude = z.infer<
 >;
 
 export const FindPrescriptionOptions = z.object({
-  programmingPlanId: z.guid(),
+  programmingPlanIds: coerceToArray(z.array(z.guid()).min(1)),
+  programmingPlanKinds: coerceToArray(z.array(ProgrammingPlanKind)).nullish(),
   contexts: coerceToArray(z.array(ProgrammingPlanContext)).nullish(),
   matrixKind: z.string().nullish(),
   stage: Stage.nullish(),
