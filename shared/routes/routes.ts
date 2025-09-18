@@ -3,6 +3,7 @@ import { UserPermission } from '../schema/User/UserPermission';
 import { analysisRoutes } from './analysis.routes';
 import { laboratoriesRoutes } from './laboratories.routes';
 import { noticesRoutes } from './notices.routes';
+import { notificationsRoutes } from './notifications.routes';
 import { programmingPlansRoutes } from './programmingPlans.routes';
 import { samplesRoutes } from './samples.routes';
 import { usersRoutes } from './users.routes';
@@ -13,6 +14,8 @@ export const MaestroRoutes = [
   '/analysis/:analysisId/reportDocuments',
   '/laboratories',
   '/laboratories/:laboratoryId',
+  '/notifications',
+  '/notifications/:notificationId',
   '/notices/:type',
   '/programming-plans',
   '/programming-plans/:programmingPlanId',
@@ -32,6 +35,7 @@ export const routes = {
   ...analysisRoutes,
   ...laboratoriesRoutes,
   ...noticesRoutes,
+  ...notificationsRoutes,
   ...programmingPlansRoutes,
   ...samplesRoutes,
   ...usersRoutes
