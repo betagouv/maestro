@@ -1,75 +1,66 @@
-import { Request, Response } from 'express';
-import { AuthenticatedRequest } from 'express-jwt';
 import { constants } from 'http2';
-import { FindNotificationOptions } from 'maestro-shared/schema/Notification/FindNotificationOptions';
-import { NotificationUpdate } from 'maestro-shared/schema/Notification/Notification';
 import notificationRepository from '../repositories/notificationRepository';
+import { ProtectedSubRouter } from '../routers/routes.type';
 
-const findNotifications = async (request: Request, response: Response) => {
-  const { user } = request as AuthenticatedRequest;
-  const findOptions = request.query as unknown as FindNotificationOptions;
+export const notificationsRouter = {
+  '/notifications': {
+    get: async ({ user, query }) => {
+      console.info('Find notifications');
 
-  console.info('Find notifications');
+      const notifications = await notificationRepository.findMany({
+        ...query,
+        recipientId: user.id
+      });
 
-  const notifications = await notificationRepository.findMany({
-    ...findOptions,
-    recipientId: user.id
-  });
+      return { status: constants.HTTP_STATUS_OK, response: notifications };
+    },
+    put: async ({ user, query, body }) => {
+      console.info('Update notifications');
 
-  response.status(constants.HTTP_STATUS_OK).send(notifications);
-};
+      const notifications = await notificationRepository.findMany({
+        ...query,
+        recipientId: user.id
+      });
 
-const updateNotification = async (request: Request, response: Response) => {
-  const { user } = request as AuthenticatedRequest;
-  const { notificationId } = request.params;
-  const notificationUpdate = request.body as NotificationUpdate;
+      const updatedNotifications = notifications.map((notification) => ({
+        ...notification,
+        ...body
+      }));
 
-  console.info('Update notification with id', notificationId);
+      await notificationRepository.updateMany(updatedNotifications);
 
-  const notification = await notificationRepository.findUnique(notificationId);
+      return {
+        status: constants.HTTP_STATUS_OK,
+        response: updatedNotifications
+      };
+    }
+  },
+  '/notifications/:notificationId': {
+    put: async ({ user, body }, { notificationId }) => {
+      console.info('Update notification with id', notificationId);
 
-  if (!notification) {
-    return response.sendStatus(constants.HTTP_STATUS_NOT_FOUND);
+      const notification =
+        await notificationRepository.findUnique(notificationId);
+
+      if (!notification) {
+        return { status: constants.HTTP_STATUS_NOT_FOUND };
+      }
+
+      if (notification.recipientId !== user.id) {
+        return { status: constants.HTTP_STATUS_FORBIDDEN };
+      }
+
+      const updatedNotification = {
+        ...notification,
+        ...body
+      };
+
+      await notificationRepository.update(updatedNotification);
+
+      return {
+        status: constants.HTTP_STATUS_OK,
+        response: updatedNotification
+      };
+    }
   }
-
-  if (notification.recipientId !== user.id) {
-    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
-  }
-
-  const updatedNotification = {
-    ...notification,
-    ...notificationUpdate
-  };
-
-  await notificationRepository.update(updatedNotification);
-
-  response.status(constants.HTTP_STATUS_OK).send(updatedNotification);
-};
-
-const updateNotifications = async (request: Request, response: Response) => {
-  const { user } = request as AuthenticatedRequest;
-  const findOptions = request.query as unknown as FindNotificationOptions;
-  const notificationUpdate = request.body as NotificationUpdate;
-
-  console.info('Update notifications');
-
-  const notifications = await notificationRepository.findMany({
-    ...findOptions,
-    recipientId: user.id
-  });
-
-  const updatedNotifications = notifications.map((notification) => ({
-    ...notification,
-    ...notificationUpdate
-  }));
-
-  await notificationRepository.updateMany(updatedNotifications);
-
-  response.status(constants.HTTP_STATUS_OK).send(updatedNotifications);
-};
-
-export default {
-  findNotifications,
-  updateNotification,
-  updateNotifications
-};
+} as const satisfies ProtectedSubRouter;
