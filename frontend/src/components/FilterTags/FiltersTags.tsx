@@ -246,7 +246,7 @@ const FiltersTags = ({
 
   const hasFilters = useMemo(
     () =>
-      Object.values(omit(filters, 'region')).some(
+      Object.values(omit(filters, 'region', 'page', 'perPage')).some(
         (value) => isDefinedAndNotNull(value) && value !== ''
       ) ||
       (filters.region && hasNationalView),
@@ -259,11 +259,13 @@ const FiltersTags = ({
 
   return (
     <div
-      className={clsx('d-flex-align-start', cx('fr-mt-3w'))}
+      className={clsx('d-flex-align-start')}
       style={{ flexDirection: 'column' }}
     >
       {title && (
-        <span className={cx('fr-text--light', 'fr-text--sm', 'fr-mb-0')}>
+        <span
+          className={cx('fr-text--light', 'fr-text--sm', 'fr-mb-0', 'fr-mt-3w')}
+        >
           {title}
         </span>
       )}

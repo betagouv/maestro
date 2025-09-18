@@ -45,7 +45,11 @@ const PrescriptionProgrammingInstruction = ({
           />
         </div>
       ) : (
-        <>{value}</>
+        <>
+          <span className={cx('fr-text--sm', 'fr-mb-1v')}>
+            {value || 'Aucune consigne de répartition'}
+          </span>
+        </>
       )}
     </>
   );

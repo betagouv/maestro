@@ -18,7 +18,6 @@ import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/Programmi
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import FiltersTags from '../../../components/FilterTags/FiltersTags';
 import { PrescriptionFilters } from '../../../store/reducers/prescriptionsSlice';
-import { pluralize } from '../../../utils/stringUtils';
 
 interface Props {
   options: {
@@ -48,6 +47,7 @@ const ProgrammingPrescriptionFilters = ({
             onChange: (e) =>
               onChange({ domain: e.target.value as ProgrammingPlanDomain })
           }}
+          className={cx('fr-mb-1v')}
           disabled={options.domains.length <= 1}
         >
           {selectOptionsFromList(options.domains, {
@@ -64,7 +64,6 @@ const ProgrammingPrescriptionFilters = ({
         {options.domains.length > 1 && (
           <FiltersTags
             key="domain-tags"
-            title={'Domaine'}
             filters={pick(filters, ['domain'])}
             onChange={({ domain }) => onChange({ domain })}
           />
@@ -80,6 +79,7 @@ const ProgrammingPrescriptionFilters = ({
                 planIds: [...(filters.planIds ?? []), e.target.value]
               })
           }}
+          className={cx('fr-mb-1v')}
           disabled={options.plans.length <= 1}
         >
           {options.plans.length > 1 && (
@@ -105,7 +105,6 @@ const ProgrammingPrescriptionFilters = ({
         </Select>
         {options.plans.length > 1 && (
           <FiltersTags
-            title={pluralize(filters.planIds?.length ?? 0)('Plan')}
             filters={pick(filters, ['planIds'])}
             onChange={({ planIds }) =>
               onChange({
@@ -129,6 +128,7 @@ const ProgrammingPrescriptionFilters = ({
                 ]
               })
           }}
+          className={cx('fr-mb-1v')}
           disabled={options.kinds.length <= 1}
         >
           {options.kinds.length > 1 && (
@@ -153,7 +153,6 @@ const ProgrammingPrescriptionFilters = ({
         </Select>
         {options.kinds.length > 1 && (
           <FiltersTags
-            title={pluralize(filters.kinds?.length ?? 0)('Sous-plan')}
             filters={pick(filters, ['kinds'])}
             onChange={({ kinds }) => onChange({ kinds })}
           />
@@ -172,6 +171,7 @@ const ProgrammingPrescriptionFilters = ({
                 ]
               })
           }}
+          className={cx('fr-mb-1v')}
           disabled={options.contexts.length <= 1}
         >
           {options.contexts.length > 1 && (
@@ -197,7 +197,6 @@ const ProgrammingPrescriptionFilters = ({
         </Select>
         {options.contexts.length > 1 && (
           <FiltersTags
-            title={pluralize(filters.contexts?.length ?? 0)('Contexte')}
             filters={pick(filters, ['contexts'])}
             onChange={({ contexts }) => onChange({ contexts })}
           />
