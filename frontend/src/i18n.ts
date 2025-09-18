@@ -43,9 +43,9 @@ i18n.use(initReactI18next).init({
         context_zero: 'Aucun contexte',
         context_one: 'Un contexte',
         context_other: '{{count}} contextes',
-        plan_zero: 'Aucun plan',
-        plan_one: 'Un plan',
-        plan_other: '{{count}} plans'
+        select_zero: 'Aucun sélectionné',
+        select_one: 'Un sélectionné',
+        select_other: '{{count}} sélectionnés'
       }
     }
   }
