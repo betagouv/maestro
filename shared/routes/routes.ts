@@ -4,6 +4,7 @@ import { analysisRoutes } from './analysis.routes';
 import { noticesRoutes } from './notices.routes';
 import { programmingPlansRoutes } from './programmingPlans.routes';
 import { samplesRoutes } from './samples.routes';
+import { usersRoutes } from './users.routes';
 
 export const MaestroRoutes = [
   '/analysis',
@@ -19,14 +20,17 @@ export const MaestroRoutes = [
   '/samples/export',
   '/samples/:sampleId/document',
   '/samples/:sampleId/items/:itemNumber/document',
-  '/samples/:sampleId'
+  '/samples/:sampleId',
+  '/users',
+  '/users/:userId'
 ] as const;
 
 export const routes = {
   ...analysisRoutes,
   ...noticesRoutes,
   ...programmingPlansRoutes,
-  ...samplesRoutes
+  ...samplesRoutes,
+  ...usersRoutes
 } as const satisfies {
   [path in MaestroRoutes]: { [method in RouteMethod]?: ToRoute } & {
     params?: ZodUrlParams<path>;
@@ -105,7 +109,7 @@ export type ToRoute = {
   | {
       unprotected: true;
     }
-  | { permissions: [UserPermission, ...UserPermission[]] }
+  | { permissions: [UserPermission, ...UserPermission[]] | 'NONE' }
 );
 
 type ZodParseUrlParams<url> = url extends `${infer start}/${infer rest}`
