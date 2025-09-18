@@ -11,7 +11,7 @@ describe('findByEmailSender', async () => {
       .set({
         emailsAnalysisResult: [email]
       })
-      .where('name', '=', LaboratoryFixture.name)
+      .where('shortName', '=', LaboratoryFixture.shortName)
       .execute();
   });
 
@@ -23,6 +23,6 @@ describe('findByEmailSender', async () => {
 
   test('found', async () => {
     const laboratory = await laboratoryRepository.findByEmailSender(email);
-    expect(laboratory?.name).toEqual(LaboratoryFixture.name);
+    expect(laboratory?.shortName).toEqual(LaboratoryFixture.shortName);
   });
 });

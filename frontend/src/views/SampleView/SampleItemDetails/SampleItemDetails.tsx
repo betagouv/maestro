@@ -1,14 +1,16 @@
 import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { getLaboratoryFullname } from 'maestro-shared/referential/Laboratory';
 import {
   PrimaryQuantityUnitList,
   QuantityUnit,
   QuantityUnitLabels,
   SecondaryQuantityUnitList
 } from 'maestro-shared/referential/QuantityUnit';
-import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
+import {
+  getLaboratoryFullName,
+  Laboratory
+} from 'maestro-shared/schema/Laboratory/Laboratory';
 import {
   isProgrammingPlanSample,
   PartialSample,
@@ -194,7 +196,7 @@ const SampleItemDetails = ({
                 <>
                   Laboratoire destinataire :{' '}
                   {laboratory ? (
-                    <b>{getLaboratoryFullname(laboratory.name)}</b>
+                    <b>{getLaboratoryFullName(laboratory)}</b>
                   ) : (
                     <span className="missing-data">
                       Information non disponible
@@ -207,7 +209,7 @@ const SampleItemDetails = ({
                   options={[
                     defaultAppSelectOption('Sélectionner un laboratoire'),
                     ...(laboratories ?? []).map((laboratory) => ({
-                      label: laboratory.name,
+                      label: laboratory.shortName,
                       value: laboratory.id
                     }))
                   ]}

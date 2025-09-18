@@ -2,7 +2,7 @@ import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { getLaboratoryFullname } from 'maestro-shared/referential/Laboratory';
+import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
 import { FunctionComponent, useContext, useState } from 'react';
@@ -56,7 +56,7 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
         <Alert
           severity="info"
           small
-          description={`Votre demande d’analyse a bien été transmise au laboratoire ${getLaboratoryFullname(laboratory.name)} par e-mail.`}
+          description={`Votre demande d’analyse a bien été transmise au laboratoire ${getLaboratoryFullName(laboratory)} par e-mail.`}
           className={cx('fr-mb-4w')}
         />
       )}

@@ -28,16 +28,20 @@
               </div>
             </div>
             <div class='document-title'>
-              <b>
-                {{#if fullVersion}}
-                  Procès verbal de prélèvement
-                {{else}}
-                  Étiquette du prélèvement
+              {{#if fullVersion}}
+                <b>Procès verbal de prélèvement</b>
+                <br />
+                Prélèvement
+                <b>{{reference}}</b>
+              {{else}}
+                <b>Étiquette du prélèvement</b>
+                {{#if (and laboratory (eq itemNumber 1))}}
+                  <br />
+                  A envoyer à <b>{{laboratory.name}}</b>
+                  <br />
+                  {{laboratory.address}} - {{laboratory.postalCode}} {{laboratory.city}}
                 {{/if}}
-              </b>
-              <br />
-              Prélèvement
-              <b>{{reference}}</b>
+              {{/if}}
             </div>
           </div>
         </div>
@@ -413,7 +417,7 @@
                                 </div>
                                 <div class='value'>
                                   {{#if laboratory}}
-                                    {{laboratory.name}}
+                                    {{laboratory.fullName}}
                                   {{else}}
                                     &nbsp;
                                   {{/if}}
@@ -617,7 +621,11 @@
                                         Destinataire de l'échantillon
                                       </div>
                                       <div class='value'>
-                                        Laboratoire
+                                        {{#if ../laboratory}}
+                                          Laboratoire {{../laboratory.name}}
+                                        {{else}}
+                                          Laboratoire
+                                        {{/if}}
                                       </div>
                                     {{/if}}
                                     {{#if (or (eq itemNumber 2) (eq itemNumber 3))}}

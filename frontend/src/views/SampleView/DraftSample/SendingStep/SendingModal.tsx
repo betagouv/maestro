@@ -2,11 +2,11 @@ import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { ModalProps } from '@codegouvfr/react-dsfr/Modal';
 import { Brand } from 'maestro-shared/constants';
+import { LaboratoryWithAutomation } from 'maestro-shared/referential/Laboratory';
 import {
-  getLaboratoryFullname,
-  LaboratoryWithAutomation
-} from 'maestro-shared/referential/Laboratory';
-import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
+  getLaboratoryFullName,
+  Laboratory
+} from 'maestro-shared/schema/Laboratory/Laboratory';
 import React, { useState } from 'react';
 interface Props {
   modal: {
@@ -57,7 +57,7 @@ const SendingModal = ({ modal, laboratory, onConfirm }: Props) => {
       ]}
     >
       La demande d’analyse va être envoyée au laboratoire{' '}
-      <b>{getLaboratoryFullname(laboratory.name)}</b> par e-mail à{' '}
+      <b>{getLaboratoryFullName(laboratory)}</b> par e-mail à{' '}
       {laboratory.emails.map((email, index) => (
         <span key={`email-${index}`}>
           <b>{email}</b>
@@ -65,7 +65,9 @@ const SendingModal = ({ modal, laboratory, onConfirm }: Props) => {
         </span>
       ))}
       .
-      {!(LaboratoryWithAutomation as string[]).includes(laboratory.name) && (
+      {!(LaboratoryWithAutomation as string[]).includes(
+        laboratory.shortName
+      ) && (
         <Alert
           className={cx('fr-mt-2w')}
           severity="info"
@@ -73,7 +75,7 @@ const SendingModal = ({ modal, laboratory, onConfirm }: Props) => {
           description={
             <>
               Le processus d’automatisation est en cours pour le laboratoire{' '}
-              <b>{getLaboratoryFullname(laboratory.name)}</b>. Les résultats
+              <b>{getLaboratoryFullName(laboratory)}</b>. Les résultats
               d’analyses restent à renseigner manuellement pour le moment dans{' '}
               {Brand}.
             </>

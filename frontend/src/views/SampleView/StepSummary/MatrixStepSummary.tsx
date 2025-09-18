@@ -4,7 +4,6 @@ import { AnimalKindLabels } from 'maestro-shared/referential/AnimalKind';
 import { AnimalSexLabels } from 'maestro-shared/referential/AnimalSex';
 import { BreedingMethodLabels } from 'maestro-shared/referential/BreedingMethod';
 import { CultureKindLabels } from 'maestro-shared/referential/CultureKind';
-import { getLaboratoryFullname } from 'maestro-shared/referential/Laboratory';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixPartLabels } from 'maestro-shared/referential/Matrix/MatrixPart';
 import { OutdoorAccessLabels } from 'maestro-shared/referential/OutdoorAccess';
@@ -22,6 +21,7 @@ import {
   SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 
+import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { usePartialSample } from 'src/hooks/usePartialSample';
 import { pluralize, quote } from 'src/utils/stringUtils';
 import StepSummary from 'src/views/SampleView/StepSummary/StepSummary';
@@ -169,7 +169,7 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
         <div>
           Laboratoire destinataire :{' '}
           {laboratory ? (
-            <b>{getLaboratoryFullname(laboratory.name)}</b>
+            <b>{getLaboratoryFullName(laboratory)}</b>
           ) : (
             <span className="missing-data">Information non disponible</span>
           )}

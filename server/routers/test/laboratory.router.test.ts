@@ -47,7 +47,7 @@ describe('Laboratory router', () => {
       expect(res.body).toEqual(
         expect.objectContaining({
           id: laboratory.id,
-          name: laboratory.name
+          shortName: laboratory.shortName
         })
       );
     });
@@ -72,7 +72,7 @@ describe('Laboratory router', () => {
         expect.arrayContaining([
           expect.objectContaining({
             id: laboratory.id,
-            name: laboratory.name
+            shortName: laboratory.shortName
           })
         ])
       );

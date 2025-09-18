@@ -4,7 +4,7 @@
  */
 
 import { ColumnType, type Kysely } from 'kysely';
-import { LaboratoryName } from 'maestro-shared/referential/Laboratory';
+import { LaboratoryShortName } from 'maestro-shared/referential/Laboratory';
 import { type Region } from 'maestro-shared/referential/Region';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { Stage } from 'maestro-shared/referential/Stage';
@@ -102,7 +102,11 @@ export interface KnexMigrations {
 export interface Laboratories {
   emails: string[];
   id: Generated<string>;
-  name: LaboratoryName;
+  shortName: LaboratoryShortName;
+  name: string;
+  address: string;
+  postalCode: string;
+  city: string;
   emailsAnalysisResult: string[];
 }
 

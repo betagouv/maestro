@@ -494,11 +494,12 @@ export const sampleRouter = {
                 substance: SSD2Id
               ): string => {
                 let laboratoryLabel: string | null = null;
-                if (laboratory.name in laboratoriesConf) {
-                  const laboratoryName = laboratory.name as LaboratoryWithConf;
+                if (laboratory.shortName in laboratoriesConf) {
+                  const laboratoryShortName =
+                    laboratory.shortName as LaboratoryWithConf;
                   laboratoryLabel =
                     Object.entries(
-                      laboratoriesConf[laboratoryName].ssd2IdByLabel
+                      laboratoriesConf[laboratoryShortName].ssd2IdByLabel
                     ).find(([_label, value]) => value === substance)?.[0] ??
                     null;
                 }
