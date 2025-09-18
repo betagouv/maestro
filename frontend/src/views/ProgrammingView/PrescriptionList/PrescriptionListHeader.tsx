@@ -53,93 +53,91 @@ const PrescriptionListHeader = ({
 
   return (
     <>
-      <div className={clsx('d-flex-align-center')}>
-        <h4 className={cx('fr-mb-0', 'fr-mr-3w')}>
-          {t('plannedSample', { count: sampleCount ?? 0 })}
-        </h4>
-        {/*TODO*/}
-        {/*{hasUserPrescriptionPermission(programmingPlan)?.create && (*/}
-        {/*  <MatrixSelectModal*/}
-        {/*    excludedMatrixKindList={uniq(*/}
-        {/*      prescriptions.map((p) => p.matrixKind)*/}
-        {/*    )}*/}
-        {/*    onSelect={addMatrixKind}*/}
-        {/*  />*/}
-        {/*)}*/}
-      </div>
-      <Button
-        iconId="fr-icon-file-download-line"
-        priority="secondary"
-        onClick={() =>
-          window.open(getPrescriptionsExportURL(findPrescriptionOptions))
-        }
-        title="Exporter"
-        children={isMobile ? undefined : 'Exporter'}
-        size={isMobile ? 'small' : 'medium'}
-      />
-      <Input
-        iconId="fr-icon-search-line"
-        hideLabel
-        label="Matrice"
-        nativeInputProps={{
-          type: 'search',
-          placeholder: 'Matrice',
-          value: matrixQuery ?? '',
-          onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-            dispatch(
-              prescriptionsSlice.actions.changeMatrixQuery(e.target.value)
-            );
+      <h4 className={clsx(cx('fr-mb-0'), 'flex-grow-1')}>
+        {t('plannedSample', { count: sampleCount ?? 0 })}
+      </h4>
+      {/*TODO*/}
+      {/*{hasUserPrescriptionPermission(programmingPlan)?.create && (*/}
+      {/*  <MatrixSelectModal*/}
+      {/*    excludedMatrixKindList={uniq(*/}
+      {/*      prescriptions.map((p) => p.matrixKind)*/}
+      {/*    )}*/}
+      {/*    onSelect={addMatrixKind}*/}
+      {/*  />*/}
+      {/*)}*/}
+      <div className="d-flex-align-center" style={{ gap: '1rem' }}>
+        <Button
+          iconId="fr-icon-file-download-line"
+          priority="secondary"
+          onClick={() =>
+            window.open(getPrescriptionsExportURL(findPrescriptionOptions))
           }
-        }}
-        className={cx('fr-my-0', 'fr-hidden', 'fr-unhidden-md')}
-      />
-      <div>
-        {!isMobile && hasNationalView && (
-          <SegmentedControl
-            hideLegend
-            legend="Légende"
-            segments={[
-              {
-                label: 'Cartes',
-                iconId: 'fr-icon-layout-grid-line',
-                nativeInputProps: {
-                  checked: prescriptionListDisplay === 'cards',
-                  onChange: () => {
-                    dispatch(
-                      prescriptionsSlice.actions.changeListDisplay('cards')
-                    );
-                  },
-                  'data-testid': 'prescriptions-cards-segment'
-                } as any
-              },
-              {
-                label: 'Tableau',
-                iconId: 'fr-icon-table-line',
-                nativeInputProps: {
-                  checked: prescriptionListDisplay === 'table',
-                  onChange: () => {
-                    dispatch(
-                      prescriptionsSlice.actions.changeListDisplay('table')
-                    );
-                  },
-                  'data-testid': 'prescriptions-table-segment'
-                } as any
-              }
-            ]}
-            className={cx('fr-mr-3w')}
-          />
-        )}
-        {hasGroupedUpdatePermission && (
-          <Button
-            iconId="fr-icon-list-ordered"
-            priority="secondary"
-            title="Action groupée"
-            children={isMobile ? undefined : 'Action groupée'}
-            size={isMobile ? 'small' : 'medium'}
-            className={cx('fr-mr-2w')}
-            onClick={() => setIsGroupedUpdate(true)}
-          />
-        )}
+          title="Exporter"
+          size={isMobile ? 'small' : 'medium'}
+        />
+        <Input
+          iconId="fr-icon-search-line"
+          hideLabel
+          label="Matrice"
+          nativeInputProps={{
+            type: 'search',
+            placeholder: 'Matrice',
+            value: matrixQuery ?? '',
+            onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+              dispatch(
+                prescriptionsSlice.actions.changeMatrixQuery(e.target.value)
+              );
+            }
+          }}
+          className={cx('fr-my-0', 'fr-hidden', 'fr-unhidden-md')}
+        />
+        <div>
+          {!isMobile && hasNationalView && (
+            <SegmentedControl
+              hideLegend
+              legend="Légende"
+              segments={[
+                {
+                  label: 'Cartes',
+                  iconId: 'fr-icon-layout-grid-line',
+                  nativeInputProps: {
+                    checked: prescriptionListDisplay === 'cards',
+                    onChange: () => {
+                      dispatch(
+                        prescriptionsSlice.actions.changeListDisplay('cards')
+                      );
+                    },
+                    'data-testid': 'prescriptions-cards-segment'
+                  } as any
+                },
+                {
+                  label: 'Tableau',
+                  iconId: 'fr-icon-table-line',
+                  nativeInputProps: {
+                    checked: prescriptionListDisplay === 'table',
+                    onChange: () => {
+                      dispatch(
+                        prescriptionsSlice.actions.changeListDisplay('table')
+                      );
+                    },
+                    'data-testid': 'prescriptions-table-segment'
+                  } as any
+                }
+              ]}
+            />
+          )}
+          {hasGroupedUpdatePermission && (
+            <Button
+              iconId="fr-icon-list-ordered"
+              priority="secondary"
+              title="Action groupée"
+              children={isMobile ? undefined : 'Action groupée'}
+              size={isMobile ? 'small' : 'medium'}
+              className={cx('fr-mr-2w')}
+              onClick={() => setIsGroupedUpdate(true)}
+            />
+          )}
+        </div>
       </div>
       {isGroupedUpdate && onGroupedUpdate && (
         <PrescriptionListGroupedUpdate
