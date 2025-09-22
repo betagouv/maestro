@@ -6,7 +6,7 @@ import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Co
 import { ProgrammingPlanDomain } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { RegionalPrescriptionComment } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionComment';
-import { PrescriptionListDisplay } from 'src/views/ProgrammingView/PrescriptionList/PrescriptionList';
+import { PrescriptionListDisplay } from 'src/views/ProgrammingView/ProgrammingPrescriptionList/ProgrammingPrescriptionList';
 import { z } from 'zod';
 
 export const PrescriptionFilters = z.object({
