@@ -8,49 +8,66 @@ import { t } from 'i18next';
 import { sumBy } from 'lodash-es';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
-import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { FindRegionalPrescriptionOptions } from 'maestro-shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import { ChangeEvent, useContext, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
-import { useAppDispatch } from '../../../hooks/useStore';
+import { useAppDispatch, useAppSelector } from '../../../hooks/useStore';
 import { ApiClientContext } from '../../../services/apiClient';
 import prescriptionsSlice from '../../../store/reducers/prescriptionsSlice';
 import { pluralize } from '../../../utils/stringUtils';
 
 interface Props {
-  programmingPlan: ProgrammingPlan;
-  context: ProgrammingPlanContext;
+  programmingPlans: ProgrammingPlan[];
 }
 
-const ProgrammingPlanCommentList = ({
-  programmingPlan,
-  context,
-  ..._rest
-}: Props) => {
+const ProgrammingCommentList = ({ programmingPlans, ..._rest }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
   const apiClient = useContext(ApiClientContext);
   const dispatch = useAppDispatch();
 
+  const { prescriptionFilters } = useAppSelector(
+    (state) => state.prescriptions
+  );
   const [matrixQuery, setMatrixQuery] = useState('');
   const [regionFilter, setRegionFilter] = useState<Region>();
 
   const findPrescriptionOptions = useMemo(
     () => ({
-      programmingPlanId: programmingPlan?.id as string,
-      contexts: [context]
+      programmingPlanIds: programmingPlans.map((pp) => pp.id),
+      programmingPlanKinds: prescriptionFilters.kinds,
+      contexts: prescriptionFilters.contexts,
+      matrixKinds: prescriptionFilters.matrixKinds,
+      includes: ['substanceCount' as const]
     }),
-    [programmingPlan, context]
+    [programmingPlans, prescriptionFilters]
   );
 
   const { data: allPrescriptions } = apiClient.useFindPrescriptionsQuery(
-    findPrescriptionOptions
+    findPrescriptionOptions,
+    {
+      skip: !FindPrescriptionOptions.safeParse(findPrescriptionOptions).success
+    }
+  );
+
+  const findRegionalPrescriptionOptions = useMemo(
+    () => ({
+      ...findPrescriptionOptions,
+      includes: ['comments' as const, 'sampleCounts' as const]
+    }),
+    [findPrescriptionOptions]
   );
 
   const { data: regionalPrescriptions } =
-    apiClient.useFindRegionalPrescriptionsQuery({
-      ...findPrescriptionOptions,
-      includes: ['comments']
-    });
+    apiClient.useFindRegionalPrescriptionsQuery(
+      findRegionalPrescriptionOptions,
+      {
+        skip: !FindRegionalPrescriptionOptions.safeParse(
+          findRegionalPrescriptionOptions
+        ).success
+      }
+    );
 
   const commentedPrescriptions = useMemo(
     () =>
@@ -234,4 +251,4 @@ const ProgrammingPlanCommentList = ({
   );
 };
 
-export default ProgrammingPlanCommentList;
+export default ProgrammingCommentList;

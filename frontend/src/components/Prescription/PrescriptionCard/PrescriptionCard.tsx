@@ -17,12 +17,12 @@ import PrescriptionStages from 'src/components/Prescription/PrescriptionStages/P
 import PrescriptionSubstancesModalButtons from 'src/components/Prescription/PrescriptionSubstancesModal/PrescriptionSubstancesModalButtons';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { pluralize } from 'src/utils/stringUtils';
-import RemoveMatrix from 'src/views/ProgrammingView/PrescriptionList/RemoveMatrix';
+import RemoveMatrix from 'src/views/ProgrammingView/ProgrammingPrescriptionList/RemoveMatrix';
 import PrescriptionProgrammingInstruction from '../PrescriptionProgrammingInstruction/PrescriptionProgrammingInstruction';
 import './PrescriptionCard.scss';
 
 interface Props {
-  programmingPlan: ProgrammingPlan;
+  programmingPlan?: ProgrammingPlan;
   prescription: Prescription;
   regionalPrescriptions: RegionalPrescription[];
   onChangeRegionalPrescriptionCount: (region: Region, value: number) => void;
@@ -45,6 +45,10 @@ const PrescriptionCard = ({
   onChangePrescriptionProgrammingInstruction
 }: Props) => {
   const { hasUserPrescriptionPermission } = useAuthentication();
+
+  if (!programmingPlan) {
+    return <></>;
+  }
 
   return (
     <div className={clsx(cx('fr-card', 'fr-card--sm'), 'prescription-card')}>

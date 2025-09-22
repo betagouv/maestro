@@ -26,7 +26,7 @@ interface Props {
   ) => void;
 }
 
-const PrescriptionTable = ({
+const ProgrammingPrescriptionTable = ({
   programmingPlans,
   prescriptions,
   regionalPrescriptions,
@@ -170,4 +170,4 @@ const PrescriptionTable = ({
   );
 };
 
-export default PrescriptionTable;
+export default ProgrammingPrescriptionTable;
