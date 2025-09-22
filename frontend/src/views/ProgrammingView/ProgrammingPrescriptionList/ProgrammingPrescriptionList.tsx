@@ -26,7 +26,8 @@ import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import ProgrammingPrescriptionListHeader from 'src/views/ProgrammingView/ProgrammingPrescriptionList/ProgrammingPrescriptionListHeader';
 import { assert, type Equals } from 'tsafe';
-import PrescriptionSubstancesModal from '../../../components/Prescription/PrescriptionSubstancesModal/PrescriptionSubstancesModal';
+import PrescriptionEditModal from '../../../components/Prescription/PrescriptionEditModal/PrescriptionEditModal';
+import RegionalPrescriptionCard from '../../../components/Prescription/RegionalPrescriptionCard/RegionalPrescriptionCard';
 import { ApiClientContext } from '../../../services/apiClient';
 import ProgrammingPrescriptionTable from './ProgrammingPrescriptionTable';
 
@@ -80,10 +81,12 @@ const ProgrammingPrescriptionList = ({
     [programmingPlans, prescriptionFilters, region]
   );
 
-  const { data: allPrescriptions, isFetching: isPrescriptionsFetching } =
-    apiClient.useFindPrescriptionsQuery(findPrescriptionOptions, {
+  const { data: allPrescriptions } = apiClient.useFindPrescriptionsQuery(
+    findPrescriptionOptions,
+    {
       skip: !FindPrescriptionOptions.safeParse(findPrescriptionOptions).success
-    });
+    }
+  );
 
   const prescriptions = useMemo(() => {
     return allPrescriptions
@@ -105,17 +108,15 @@ const ProgrammingPrescriptionList = ({
     [findPrescriptionOptions]
   );
 
-  const {
-    data: regionalPrescriptions,
-    isFetching: isRegionalPrescriptionsFetching
-  } = apiClient.useFindRegionalPrescriptionsQuery(
-    findRegionalPrescriptionOptions,
-    {
-      skip: !FindRegionalPrescriptionOptions.safeParse(
-        findRegionalPrescriptionOptions
-      ).success
-    }
-  );
+  const { data: regionalPrescriptions } =
+    apiClient.useFindRegionalPrescriptionsQuery(
+      findRegionalPrescriptionOptions,
+      {
+        skip: !FindRegionalPrescriptionOptions.safeParse(
+          findRegionalPrescriptionOptions
+        ).success
+      }
+    );
 
   useEffect(() => {
     if (
@@ -232,19 +233,19 @@ const ProgrammingPrescriptionList = ({
     [changeRegionalPrescription]
   );
 
-  // const changeRegionalPrescriptionsLaboratory = useCallback(
-  //   async (prescriptionIds: string[], laboratoryId?: string) => {
-  //     await Promise.all(
-  //       prescriptionIds.map((prescriptionId) =>
-  //         changeRegionalPrescription(prescriptionId, region as Region, {
-  //           laboratoryId
-  //         })
-  //       )
-  //     );
-  //     return;
-  //   },
-  //   [changeRegionalPrescription, region]
-  // );
+  const changeRegionalPrescriptionsLaboratory = useCallback(
+    async (prescriptions: Prescription[], laboratoryId?: string) => {
+      await Promise.all(
+        prescriptions.map((prescription) =>
+          changeRegionalPrescription(prescription, region as Region, {
+            laboratoryId
+          })
+        )
+      );
+      return;
+    },
+    [changeRegionalPrescription, region]
+  );
 
   return (
     <>
@@ -345,35 +346,37 @@ const ProgrammingPrescriptionList = ({
                 </div>
               ) : (
                 <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-                  {/*{prescriptions?.map((prescription) => (*/}
-                  {/*  <RegionalPrescriptionCard*/}
-                  {/*    key={`prescription_cards_${prescription.id}`}*/}
-                  {/*    programmingPlan={programmingPlan}*/}
-                  {/*    prescription={prescription}*/}
-                  {/*    regionalPrescription={regionalPrescriptions.find(*/}
-                  {/*      (regionalPrescription) =>*/}
-                  {/*        regionalPrescription.prescriptionId ===*/}
-                  {/*          prescription.id &&*/}
-                  {/*        regionalPrescription.region === region*/}
-                  {/*    )}*/}
-                  {/*    onChangeLaboratory={(laboratoryId) =>*/}
-                  {/*      changeRegionalPrescriptionsLaboratory(*/}
-                  {/*        [prescription.id],*/}
-                  {/*        laboratoryId*/}
-                  {/*      )*/}
-                  {/*    }*/}
-                  {/*    isSelected={selectedRegionalPrescriptionIds.includes(*/}
-                  {/*      prescription.id*/}
-                  {/*    )}*/}
-                  {/*    onToggleSelection={() => {*/}
-                  {/*      setSelectedRegionalPrescriptionIds((prevState) =>*/}
-                  {/*        prevState.includes(prescription.id)*/}
-                  {/*          ? prevState.filter((id) => id !== prescription.id)*/}
-                  {/*          : [...prevState, prescription.id]*/}
-                  {/*      );*/}
-                  {/*    }}*/}
-                  {/*  />*/}
-                  {/*))}*/}
+                  {prescriptions?.map((prescription) => (
+                    <RegionalPrescriptionCard
+                      key={`prescription_cards_${prescription.id}`}
+                      programmingPlan={programmingPlans.find(
+                        (pp) => pp.id === prescription.programmingPlanId
+                      )}
+                      prescription={prescription}
+                      regionalPrescription={regionalPrescriptions.find(
+                        (regionalPrescription) =>
+                          regionalPrescription.prescriptionId ===
+                            prescription.id &&
+                          regionalPrescription.region === region
+                      )}
+                      onChangeLaboratory={(laboratoryId) =>
+                        changeRegionalPrescriptionsLaboratory(
+                          [prescription],
+                          laboratoryId
+                        )
+                      }
+                      isSelected={selectedRegionalPrescriptionIds.includes(
+                        prescription.id
+                      )}
+                      onToggleSelection={() => {
+                        setSelectedRegionalPrescriptionIds((prevState) =>
+                          prevState.includes(prescription.id)
+                            ? prevState.filter((id) => id !== prescription.id)
+                            : [...prevState, prescription.id]
+                        );
+                      }}
+                    />
+                  ))}
                 </div>
               )}
             </>
@@ -390,8 +393,7 @@ const ProgrammingPrescriptionList = ({
           )}
         </>
       )}
-      <PrescriptionSubstancesModal
-        programmingPlans={programmingPlans}
+      <PrescriptionEditModal
         onUpdatePrescriptionSubstances={(prescription, substances) =>
           changePrescription(prescription, {
             substances
