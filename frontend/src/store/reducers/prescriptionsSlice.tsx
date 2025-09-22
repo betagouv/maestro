@@ -5,6 +5,7 @@ import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanDomain } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { RegionalPrescriptionComment } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionComment';
 import { PrescriptionListDisplay } from 'src/views/ProgrammingView/ProgrammingPrescriptionList/ProgrammingPrescriptionList';
 import { z } from 'zod';
@@ -62,13 +63,20 @@ const PrescriptionCommentsData = z.discriminatedUnion('viewBy', [
   })
 ]);
 
+const PrescriptionEditData = z.object({
+  mode: z.enum(['analysis', 'details', 'repartition']),
+  programmingPlan: ProgrammingPlan,
+  prescription: Prescription
+});
+
 type PrescriptionCommentsData = z.infer<typeof PrescriptionCommentsData>;
+type PrescriptionEditData = z.infer<typeof PrescriptionEditData>;
 
 type PrescriptionsState = {
   prescriptionFilters: PrescriptionFilters;
   prescriptionListDisplay: PrescriptionListDisplay;
   matrixQuery?: string;
-  prescriptionAnalysisEdit?: Prescription;
+  prescriptionEditData?: PrescriptionEditData;
   prescriptionCommentsData?: PrescriptionCommentsData;
 };
 const initialState: PrescriptionsState = {
@@ -97,11 +105,11 @@ const prescriptionsSlice = createSlice({
     changeMatrixQuery: (state, action: PayloadAction<string>) => {
       state.matrixQuery = action.payload;
     },
-    setPrescriptionAnalysisEdit: (
+    setPrescriptionEditData: (
       state,
-      action: PayloadAction<Prescription | undefined>
+      action: PayloadAction<PrescriptionEditData | undefined>
     ) => {
-      state.prescriptionAnalysisEdit = action.payload;
+      state.prescriptionEditData = action.payload;
     },
     setPrescriptionCommentsData: (
       state,

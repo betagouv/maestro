@@ -2,22 +2,21 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import clsx from 'clsx';
 import { t } from 'i18next';
-import { sumBy, uniq } from 'lodash-es';
+import { sumBy } from 'lodash-es';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, RegionList } from 'maestro-shared/referential/Region';
 import { Stage } from 'maestro-shared/referential/Stage';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
-import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
-import { ProgrammingPlanKindLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import PrescriptionCardPartialTable from 'src/components/Prescription/PrescriptionCard/PrescriptionCardPartialTable';
+import PrescriptionEditSubstancesButtons from 'src/components/Prescription/PrescriptionEditModal/PrescriptionEditSubstancesButtons';
 import PrescriptionNotes from 'src/components/Prescription/PrescriptionNotes/PrescriptionNotes';
 import PrescriptionStages from 'src/components/Prescription/PrescriptionStages/PrescriptionStages';
-import PrescriptionSubstancesModalButtons from 'src/components/Prescription/PrescriptionSubstancesModal/PrescriptionSubstancesModalButtons';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { pluralize } from 'src/utils/stringUtils';
 import RemoveMatrix from 'src/views/ProgrammingView/ProgrammingPrescriptionList/RemoveMatrix';
+import PrescriptionBreadcrumb from '../PrescriptionBreadcrumb/PrescriptionBreadcrumb';
 import PrescriptionProgrammingInstruction from '../PrescriptionProgrammingInstruction/PrescriptionProgrammingInstruction';
 import './PrescriptionCard.scss';
 
@@ -54,28 +53,10 @@ const PrescriptionCard = ({
     <div className={clsx(cx('fr-card', 'fr-card--sm'), 'prescription-card')}>
       <div className={cx('fr-card__body')}>
         <div className={cx('fr-card__content')}>
-          <div
-            className={clsx(
-              cx('fr-text--xs', 'fr-mb-1w'),
-              'd-flex-align-center'
-            )}
-          >
-            {uniq([
-              ProgrammingPlanDomainLabels[programmingPlan.domain],
-              programmingPlan.title,
-              ProgrammingPlanKindLabels[prescription.programmingPlanKind],
-              MatrixKindLabels[prescription.matrixKind]
-            ]).map((part, idx, arr) => (
-              <span key={idx}>
-                {part}
-                {idx < arr.length - 1 && (
-                  <span
-                    className={cx('fr-icon-arrow-right-s-line', 'fr-icon--sm')}
-                  ></span>
-                )}
-              </span>
-            ))}
-          </div>
+          <PrescriptionBreadcrumb
+            prescription={prescription}
+            programmingPlan={programmingPlan}
+          />
           <div className={clsx(cx('fr-mb-3w'), 'd-flex-align-center')}>
             <h3 className={cx('fr-card__title')}>
               {MatrixKindLabels[prescription.matrixKind]}
@@ -103,7 +84,7 @@ const PrescriptionCard = ({
                   {
                     label: 'Analyses',
                     content: (
-                      <PrescriptionSubstancesModalButtons
+                      <PrescriptionEditSubstancesButtons
                         programmingPlan={programmingPlan}
                         prescription={prescription}
                       />

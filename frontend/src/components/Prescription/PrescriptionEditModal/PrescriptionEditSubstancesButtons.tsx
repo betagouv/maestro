@@ -8,14 +8,14 @@ import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch } from 'src/hooks/useStore';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import { pluralize } from 'src/utils/stringUtils';
-import './PrescriptionSubstances.scss';
+import './PrescriptionEditModal.scss';
 
 interface Props {
   programmingPlan: ProgrammingPlan;
   prescription: Prescription;
 }
 
-const PrescriptionSubstancesModalButtons = ({
+const PrescriptionEditSubstancesButtons = ({
   programmingPlan,
   prescription
 }: Props) => {
@@ -31,9 +31,11 @@ const PrescriptionSubstancesModalButtons = ({
         <Button
           onClick={() =>
             dispatch(
-              prescriptionsSlice.actions.setPrescriptionAnalysisEdit(
+              prescriptionsSlice.actions.setPrescriptionEditData({
+                mode: 'analysis',
+                programmingPlan,
                 prescription
-              )
+              })
             )
           }
           priority="tertiary no outline"
@@ -56,9 +58,11 @@ const PrescriptionSubstancesModalButtons = ({
         <Button
           onClick={() =>
             dispatch(
-              prescriptionsSlice.actions.setPrescriptionAnalysisEdit(
+              prescriptionsSlice.actions.setPrescriptionEditData({
+                mode: 'analysis',
+                programmingPlan,
                 prescription
-              )
+              })
             )
           }
           priority="tertiary no outline"
@@ -92,4 +96,4 @@ const PrescriptionSubstancesModalButtons = ({
   );
 };
 
-export default PrescriptionSubstancesModalButtons;
+export default PrescriptionEditSubstancesButtons;
