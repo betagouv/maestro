@@ -7,21 +7,9 @@ export const body = (o: ZodObject | ZodArray<any>) =>
     body: o
   });
 
-export const params = (o: ZodObject) =>
-  z.object({
-    params: o
-  });
-
 export const query = (o: ZodObject) =>
   z.object({
     query: o
-  });
-
-export const uuidParam = (paramName: string) =>
-  z.object({
-    params: z.object({
-      [paramName]: z.guid()
-    })
   });
 
 const sanitizeObject = (obj: unknown): any => {

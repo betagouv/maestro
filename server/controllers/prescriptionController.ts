@@ -1,181 +1,180 @@
-import { Request, Response } from 'express';
-import {
-  AuthenticatedRequest,
-  PrescriptionRequest,
-  ProgrammingPlanRequest
-} from 'express-jwt';
 import { constants } from 'http2';
 import { RegionList } from 'maestro-shared/referential/Region';
-import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
-import {
-  hasPrescriptionPermission,
-  PrescriptionToCreate,
-  PrescriptionUpdate
-} from 'maestro-shared/schema/Prescription/Prescription';
+import { hasPrescriptionPermission } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { FindRegionalPrescriptionOptions } from 'maestro-shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
-import { hasNationalRole } from 'maestro-shared/schema/User/User';
 import { v4 as uuidv4 } from 'uuid';
+import { getAndCheckPrescription } from '../middlewares/checks/prescriptionCheck';
+import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
 import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
+import { ProtectedSubRouter } from '../routers/routes.type';
 import { excelService } from '../services/excelService/excelService';
-const findPrescriptions = async (request: Request, response: Response) => {
-  const findOptions = request.query as FindPrescriptionOptions;
 
-  console.info('Find prescriptions', findOptions);
+export const prescriptionsRouter = {
+  '/prescriptions': {
+    get: async ({ query: findOptions }) => {
+      console.info('Find prescriptions', findOptions);
 
-  const prescriptions = await prescriptionRepository.findMany(findOptions);
+      await getAndCheckProgrammingPlan(findOptions.programmingPlanId);
 
-  response.status(constants.HTTP_STATUS_OK).send(prescriptions);
-};
+      const prescriptions = await prescriptionRepository.findMany(findOptions);
 
-const exportPrescriptions = async (request: Request, response: Response) => {
-  const user = (request as AuthenticatedRequest).user;
-  const queryFindOptions = request.query as Omit<
-    FindRegionalPrescriptionOptions,
-    'includes'
-  >;
-  const exportedRegion =
-    (hasNationalRole(user) ? queryFindOptions.region : user.region) ??
-    undefined;
+      return { status: constants.HTTP_STATUS_OK, response: prescriptions };
+    },
+    post: async ({ user, body }) => {
+      const programmingPlan = await getAndCheckProgrammingPlan(
+        body.programmingPlanId
+      );
 
-  const findOptions = {
-    ...queryFindOptions,
-    region: exportedRegion
-  };
+      if (!hasPrescriptionPermission(user, programmingPlan).create) {
+        return { status: constants.HTTP_STATUS_FORBIDDEN };
+      }
 
-  console.info('Export prescriptions', user.id, findOptions);
+      console.info(
+        'Create prescriptions for programming plan with id',
+        programmingPlan.id
+      );
 
-  const prescriptions = await prescriptionRepository.findMany(queryFindOptions);
-  const regionalPrescriptions = await regionalPrescriptionRepository.findMany({
-    ...findOptions,
-    includes: ['comments', 'sampleCounts']
-  });
+      const createdPrescription = {
+        ...body,
+        id: uuidv4(),
+        programmingPlanId: programmingPlan.id
+      };
 
-  const fileName = `prescriptions-${findOptions.contexts?.map((context) =>
-    ContextLabels[context].toLowerCase().replaceAll(' ', '-')
-  )}.xlsx`;
+      await prescriptionRepository.insert(createdPrescription);
 
-  const buffer = await excelService.generatePrescriptionsExportExcel(
-    prescriptions,
-    regionalPrescriptions,
-    exportedRegion
-  );
+      await regionalPrescriptionRepository.insertMany(
+        RegionList.map((region) => ({
+          prescriptionId: createdPrescription.id,
+          region,
+          sampleCount: 0
+        }))
+      );
 
-  response.setHeader(
-    'Content-disposition',
-    `inline; filename=${encodeURIComponent(fileName)}`
-  );
-  response.setHeader(
-    'Content-Type',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-  );
-  response.setHeader('Content-Length', `${buffer.length}`);
+      return {
+        status: constants.HTTP_STATUS_CREATED,
+        response: createdPrescription
+      };
+    }
+  },
+  '/prescriptions/export': {
+    get: async ({ user, query: queryFindOptions }, _params, response) => {
+      await getAndCheckProgrammingPlan(
+        queryFindOptions.programmingPlanId
+      );
+      const exportedRegion = user.region ?? undefined;
 
-  response.status(constants.HTTP_STATUS_OK).send(buffer);
-};
+      const findOptions = {
+        ...queryFindOptions,
+        region: exportedRegion
+      };
 
-const createPrescription = async (request: Request, response: Response) => {
-  const user = (request as AuthenticatedRequest).user;
-  const programmingPlan = (request as ProgrammingPlanRequest).programmingPlan;
-  const prescriptionToCreate = request.body as PrescriptionToCreate;
+      console.info('Export prescriptions', user.id, findOptions);
 
-  if (!hasPrescriptionPermission(user, programmingPlan).create) {
-    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
+      const prescriptions =
+        await prescriptionRepository.findMany(queryFindOptions);
+      const regionalPrescriptions =
+        await regionalPrescriptionRepository.findMany({
+          ...findOptions,
+          includes: ['comments', 'sampleCounts']
+        });
+
+      const fileName = `prescriptions-${findOptions.contexts?.map((context) =>
+        ContextLabels[context].toLowerCase().replaceAll(' ', '-')
+      )}.xlsx`;
+
+      const buffer = await excelService.generatePrescriptionsExportExcel(
+        prescriptions,
+        regionalPrescriptions,
+        exportedRegion
+      );
+
+      response.setHeader(
+        'Content-disposition',
+        `inline; filename=${encodeURIComponent(fileName)}`
+      );
+      response.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      );
+      response.setHeader('Content-Length', `${buffer.length}`);
+
+      response.status(constants.HTTP_STATUS_OK).send(buffer);
+
+    }
+  },
+  '/prescriptions/:prescriptionId': {
+    put: async ({ user, body: prescriptionUpdate }, { prescriptionId }) => {
+      const programmingPlan = await getAndCheckProgrammingPlan(
+        prescriptionUpdate.programmingPlanId
+      );
+
+      if (!hasPrescriptionPermission(user, programmingPlan).update) {
+        return { status: constants.HTTP_STATUS_FORBIDDEN };
+      }
+
+      const { prescription } = await getAndCheckPrescription(
+        prescriptionId,
+        programmingPlan
+      );
+
+      console.info('Update prescription with id', prescription.id);
+
+      const updatedPrescription = {
+        ...prescription,
+        stages: prescriptionUpdate.stages ?? prescription.stages,
+        notes: prescriptionUpdate.notes ?? prescription.notes
+      };
+
+      await prescriptionRepository.update(updatedPrescription);
+
+      if (prescriptionUpdate.substances) {
+        const substances = prescriptionUpdate.substances.map((substance) => ({
+          prescriptionId: prescription.id,
+          ...substance
+        }));
+
+        await prescriptionSubstanceRepository.deleteMany(prescription.id);
+        await prescriptionSubstanceRepository.insertMany(substances);
+      }
+
+      return {
+        status: constants.HTTP_STATUS_OK,
+        response: updatedPrescription
+      };
+    },
+    delete: async ({ user }, { prescriptionId }) => {
+      console.info('Delete prescription with id', prescriptionId);
+
+      const { prescription, programmingPlan } = await getAndCheckPrescription(
+        prescriptionId,
+        undefined
+      );
+
+      if (!hasPrescriptionPermission(user, programmingPlan).delete) {
+        return { status: constants.HTTP_STATUS_FORBIDDEN };
+      }
+
+      await prescriptionRepository.deleteOne(prescription.id);
+
+      return { status: constants.HTTP_STATUS_NO_CONTENT };
+    }
+  },
+  '/prescriptions/:prescriptionId/substances': {
+    get: async (_, { prescriptionId }) => {
+      console.info('Get prescription substances', prescriptionId);
+
+      const { prescription } = await getAndCheckPrescription(
+        prescriptionId,
+        undefined
+      );
+
+      const substances = await prescriptionSubstanceRepository.findMany(
+        prescription.id
+      );
+
+      return { status: constants.HTTP_STATUS_OK, response: substances };
+    }
   }
-
-  console.info(
-    'Create prescriptions for programming plan with id',
-    programmingPlan.id
-  );
-
-  const createdPrescription = {
-    ...prescriptionToCreate,
-    id: uuidv4(),
-    programmingPlanId: programmingPlan.id
-  };
-
-  await prescriptionRepository.insert(createdPrescription);
-
-  await regionalPrescriptionRepository.insertMany(
-    RegionList.map((region) => ({
-      prescriptionId: createdPrescription.id,
-      region,
-      sampleCount: 0
-    }))
-  );
-
-  response.status(constants.HTTP_STATUS_CREATED).send(createdPrescription);
-};
-
-const updatePrescription = async (request: Request, response: Response) => {
-  const user = (request as AuthenticatedRequest).user;
-  const { prescription, programmingPlan } = request as PrescriptionRequest;
-  const prescriptionUpdate = request.body as PrescriptionUpdate;
-
-  if (!hasPrescriptionPermission(user, programmingPlan).update) {
-    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
-  }
-
-  console.info('Update prescription with id', prescription.id);
-
-  const updatedPrescription = {
-    ...prescription,
-    stages: prescriptionUpdate.stages ?? prescription.stages,
-    notes: prescriptionUpdate.notes ?? prescription.notes
-  };
-
-  await prescriptionRepository.update(updatedPrescription);
-
-  if (prescriptionUpdate.substances) {
-    const substances = prescriptionUpdate.substances.map((substance) => ({
-      prescriptionId: prescription.id,
-      ...substance
-    }));
-
-    await prescriptionSubstanceRepository.deleteMany(prescription.id);
-    await prescriptionSubstanceRepository.insertMany(substances);
-  }
-
-  response.status(constants.HTTP_STATUS_OK).send(updatedPrescription);
-};
-
-const deletePrescription = async (request: Request, response: Response) => {
-  const user = (request as AuthenticatedRequest).user;
-  const { prescription, programmingPlan } = request as PrescriptionRequest;
-
-  console.info('Delete prescription with id', prescription.id);
-
-  if (!hasPrescriptionPermission(user, programmingPlan).delete) {
-    return response.sendStatus(constants.HTTP_STATUS_FORBIDDEN);
-  }
-
-  await prescriptionRepository.deleteOne(prescription.id);
-
-  response.sendStatus(constants.HTTP_STATUS_NO_CONTENT);
-};
-
-const getPrescriptionSubstances = async (
-  request: Request,
-  response: Response
-) => {
-  const { prescription } = request as PrescriptionRequest;
-
-  console.info('Get prescription substances', prescription.id);
-
-  const substances = await prescriptionSubstanceRepository.findMany(
-    prescription.id
-  );
-
-  response.status(constants.HTTP_STATUS_OK).send(substances);
-};
-
-export default {
-  findPrescriptions,
-  exportPrescriptions,
-  createPrescription,
-  updatePrescription,
-  deletePrescription,
-  getPrescriptionSubstances
-};
+} as const satisfies ProtectedSubRouter;

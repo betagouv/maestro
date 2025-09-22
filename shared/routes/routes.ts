@@ -5,6 +5,7 @@ import { documentsRoutes } from './documents.routes';
 import { laboratoriesRoutes } from './laboratories.routes';
 import { noticesRoutes } from './notices.routes';
 import { notificationsRoutes } from './notifications.routes';
+import { prescriptionsRoutes } from './prescriptions.routes';
 import { programmingPlansRoutes } from './programmingPlans.routes';
 import { samplesRoutes } from './samples.routes';
 import { usersRoutes } from './users.routes';
@@ -14,19 +15,26 @@ export const MaestroRoutes = [
   '/analysis/:analysisId',
   '/analysis/:analysisId/reportDocuments',
   '/documents',
-  '/documents/:documentId',
-  '/documents/:documentId/download-signed-url',
   '/documents/resources',
   '/documents/upload-signed-url',
+  '/documents/:documentId',
+  '/documents/:documentId/download-signed-url',
   '/laboratories',
   '/laboratories/:laboratoryId',
   '/notifications',
   '/notifications/:notificationId',
   '/notices/:type',
+  '/prescriptions',
+  '/prescriptions/export',
+  '/prescriptions/regions',
+  '/prescriptions/:prescriptionId/regions/:region/comments',
+  '/prescriptions/:prescriptionId/regions/:region',
+  '/prescriptions/:prescriptionId/substances',
+  '/prescriptions/:prescriptionId',
   '/programming-plans',
+  '/programming-plans/years/:year',
   '/programming-plans/:programmingPlanId',
   '/programming-plans/:programmingPlanId/regional-status',
-  '/programming-plans/years/:year',
   '/samples',
   '/samples/count',
   '/samples/export',
@@ -43,6 +51,7 @@ export const routes = {
   ...laboratoriesRoutes,
   ...noticesRoutes,
   ...notificationsRoutes,
+  ...prescriptionsRoutes,
   ...programmingPlansRoutes,
   ...samplesRoutes,
   ...usersRoutes

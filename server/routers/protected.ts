@@ -6,14 +6,14 @@ import { documentsRouter } from '../controllers/documentController';
 import { laboratoriesRouter } from '../controllers/laboratoryController';
 import { noticesProtectedRouter } from '../controllers/noticeController';
 import { notificationsRouter } from '../controllers/notificationController';
+import { prescriptionsRouter } from '../controllers/prescriptionController';
 import { programmingPlanRouter } from '../controllers/programmingPlanController';
+import { regionalPrescriptionsRouter } from '../controllers/regionalPrescriptionController';
 import { sampleRouter } from '../controllers/sampleController';
 import { usersRouter } from '../controllers/userController';
 import { jwtCheck, userCheck } from '../middlewares/checks/authCheck';
 import addressRouter from './address.router';
 import companyRouter from './company.router';
-import prescriptionRouter from './prescription.router';
-import regionalPrescriptionRouter from './regionalPrescription.router';
 import { generateRoutes, ProtectedSubRouter } from './routes.type';
 
 export const protectedRouter = express.Router();
@@ -28,6 +28,8 @@ const router = {
   ...laboratoriesRouter,
   ...noticesProtectedRouter,
   ...notificationsRouter,
+  ...prescriptionsRouter,
+  ...regionalPrescriptionsRouter,
   ...programmingPlanRouter,
   ...sampleRouter,
   ...usersRouter
@@ -36,8 +38,6 @@ const router = {
 protectedRouter.use(generateRoutes(router, true));
 protectedRouter.use('/addresses', addressRouter);
 protectedRouter.use('/companies', companyRouter);
-protectedRouter.use('/prescriptions', prescriptionRouter);
-protectedRouter.use('/prescriptions', regionalPrescriptionRouter);
 
 protectedRouter.get('/regions.geojson', (_req, res) => {
   res.setHeader('Content-Type', 'application/json');

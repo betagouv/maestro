@@ -1,24 +1,20 @@
-import { NextFunction, Request, Response } from 'express';
 import RegionalPrescriptionMissingError from 'maestro-shared/errors/regionalPrescriptionPlanMissingError';
+import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { RegionalPrescriptionKey } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionKey';
 import regionalPrescriptionRepository from '../../repositories/regionalPrescriptionRepository';
 
-export const regionalPrescriptionCheck =
-  () => async (request: Request, _response: Response, next: NextFunction) => {
-    const { region, prescriptionId } =
-      request.params as RegionalPrescriptionKey;
+export const getAndCheckRegionalPrescription = async ({
+  prescriptionId,
+  region
+}: RegionalPrescriptionKey): Promise<RegionalPrescription> => {
+  const regionalPrescription = await regionalPrescriptionRepository.findUnique({
+    prescriptionId,
+    region
+  });
 
-    const regionalPrescription =
-      await regionalPrescriptionRepository.findUnique({
-        prescriptionId,
-        region
-      });
+  if (!regionalPrescription) {
+    throw new RegionalPrescriptionMissingError(prescriptionId, region);
+  }
 
-    if (!regionalPrescription) {
-      throw new RegionalPrescriptionMissingError(prescriptionId, region);
-    }
-
-    request.regionalPrescription = regionalPrescription;
-
-    next();
-  };
+  return regionalPrescription;
+};
