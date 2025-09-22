@@ -23,8 +23,9 @@ import { ApiClientContext } from '../../services/apiClient';
 import prescriptionsSlice, {
   PrescriptionFilters
 } from '../../store/reducers/prescriptionsSlice';
-import PrescriptionList from './PrescriptionList/PrescriptionList';
+import ProgrammingCommentList from './ProgrammingCommentList/ProgrammingCommentList';
 import ProgrammingPrescriptionFilters from './ProgrammingPrescriptionFilters/ProgrammingPrescriptionFilters';
+import ProgrammingPrescriptionList from './ProgrammingPrescriptionList/ProgrammingPrescriptionList';
 
 const ProgrammingView = () => {
   useDocumentTitle('Programmation');
@@ -307,36 +308,37 @@ const ProgrammingView = () => {
                       {
                         label: 'Programmation',
                         content: (
-                          <PrescriptionList
+                          <ProgrammingPrescriptionList
                             programmingPlans={filteredProgrammingPlans ?? []}
                             region={region ?? undefined}
                           />
                         )
-                      }
-                      // ...(hasNationalView
-                      //   ? [
-                      //       {
-                      //         label: 'Phase de consultation',
-                      //         content: (
-                      //           <ProgrammingPlanRegionalValidationList
-                      //             programmingPlan={programmingPlan}
-                      //             context={prescriptionListContext}
-                      //           />
-                      //         ),
-                      //         iconId: 'fr-icon-chat-check-line'
-                      //       },
-                      //       {
-                      //         label: 'Commentaires',
-                      //         content: (
-                      //           <ProgrammingPlanCommentList
-                      //             programmingPlan={programmingPlan}
-                      //             context={prescriptionListContext}
-                      //           />
-                      //         ),
-                      //         iconId: 'fr-icon-chat-3-line'
-                      //       }
-                      //     ]
-                      //   : [])
+                      },
+                      ...(hasNationalView
+                        ? [
+                            // {
+                            //   label: 'Phase de consultation',
+                            //   content: (
+                            //     <ProgrammingPlanRegionalValidationList
+                            //       programmingPlan={programmingPlan}
+                            //       context={prescriptionListContext}
+                            //     />
+                            //   ),
+                            //   iconId: 'fr-icon-chat-check-line'
+                            // },
+                            {
+                              label: 'Commentaires',
+                              content: (
+                                <ProgrammingCommentList
+                                  programmingPlans={
+                                    filteredProgrammingPlans ?? []
+                                  }
+                                />
+                              ),
+                              iconId: 'fr-icon-chat-3-line'
+                            }
+                          ]
+                        : [])
                     ] as any
                   }
                 />
