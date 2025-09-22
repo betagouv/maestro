@@ -1,12 +1,14 @@
 import carbone, { RenderOptions } from 'carbone';
 import { format } from 'date-fns';
 import highland from 'highland';
-import { isNil } from 'lodash-es';
+import { isNil, sumBy } from 'lodash-es';
 import { getCultureKindLabel } from 'maestro-shared/referential/CultureKind';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
+import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { getMatrixPartLabel } from 'maestro-shared/referential/Matrix/MatrixPart';
 import { OptionalBoolean } from 'maestro-shared/referential/OptionnalBoolean';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
+import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
 import { isComplex } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { StageLabels } from 'maestro-shared/referential/Stage';
@@ -15,14 +17,27 @@ import { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequ
 import { ResidueComplianceLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import { ResidueKindLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
 import { ResultKindLabels } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
+import {
+  Prescription,
+  PrescriptionSort
+} from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import {
+  getCompletionRate,
+  RegionalPrescription,
+  RegionalPrescriptionSort
+} from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import {
   getSampleMatrixLabel,
   PartialSample
 } from 'maestro-shared/schema/Sample/Sample';
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import { SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
-import { formatWithTz, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
+import {
+  formatWithTz,
+  isDefined,
+  isDefinedAndNotNull
+} from 'maestro-shared/utils/utils';
 import { analysisRepository } from '../../repositories/analysisRepository';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import sampleItemRepository from '../../repositories/sampleItemRepository';
@@ -293,6 +308,125 @@ const generateSamplesExportExcel = async (
     .toPromise(Promise);
 };
 
+const generatePrescriptionsExportExcel = async (
+  prescriptions: Prescription[],
+  regionalPrescriptions: RegionalPrescription[],
+  exportedRegion: Region | undefined
+): Promise<Buffer> => {
+  const exportedRegions = exportedRegion ? [exportedRegion] : RegionList;
+
+  const laboratories = exportedRegion
+    ? await laboratoryRepository.findMany()
+    : [];
+
+  const columnTitles = [
+    !exportedRegion ? 'Total national Programmés' : undefined,
+    !exportedRegion ? 'Total national Réalisés' : undefined,
+    !exportedRegion ? 'Total national Taux de réalisation' : undefined,
+    ...exportedRegions.map((region) => [
+      `${Regions[region].shortName} Programmés`,
+      `${Regions[region].shortName} Réalisés`,
+      `${Regions[region].shortName} Taux de réalisation`
+    ]),
+    exportedRegion ? 'Laboratoire' : undefined
+  ]
+    .flat()
+    .filter(isDefined)
+    .map((v) => ({ value: v }));
+
+  return highland(prescriptions.toSorted(PrescriptionSort))
+    .map((prescription) => ({
+      prescription,
+      filteredRegionalPrescriptions: [
+        ...regionalPrescriptions.filter(
+          (r) => r.prescriptionId === prescription.id
+        )
+      ].toSorted(RegionalPrescriptionSort)
+    }))
+    .map(({ prescription, filteredRegionalPrescriptions }) => {
+      return {
+        matrix: MatrixKindLabels[prescription.matrixKind],
+        stages: prescription.stages
+          .map((stage) => StageLabels[stage])
+          .join(', '),
+        columns: [
+          !exportedRegion
+            ? sumBy(filteredRegionalPrescriptions, 'sampleCount')
+            : undefined,
+          !exportedRegion
+            ? sumBy(filteredRegionalPrescriptions, 'realizedSampleCount')
+            : undefined,
+          !exportedRegion
+            ? getCompletionRate(filteredRegionalPrescriptions)
+            : undefined,
+          ...filteredRegionalPrescriptions.reduce(
+            (acc, { sampleCount, realizedSampleCount, region }) => [
+              ...acc,
+              sampleCount,
+              realizedSampleCount ?? 0,
+              getCompletionRate(filteredRegionalPrescriptions, region)
+            ],
+            [] as number[]
+          ),
+          laboratories.find(
+            (laboratory) =>
+              laboratory.id === filteredRegionalPrescriptions[0]?.laboratoryId
+          )?.name
+        ]
+          .filter(isDefined)
+          .map((v) => ({ value: v }))
+      };
+    })
+    .collect()
+    .map((prescriptions) => {
+      return carboneRender(
+        'prescriptionsExport',
+        {
+          columnTitles,
+          prescriptions: [
+            ...prescriptions,
+            {
+              matrix: 'Total',
+              columns: [
+                !exportedRegion
+                  ? sumBy(regionalPrescriptions, 'sampleCount')
+                  : undefined,
+                !exportedRegion
+                  ? sumBy(regionalPrescriptions, 'realizedSampleCount')
+                  : undefined,
+                !exportedRegion
+                  ? getCompletionRate(regionalPrescriptions)
+                  : undefined,
+                ...exportedRegions.reduce(
+                  (acc, region) => [
+                    ...acc,
+                    sumBy(
+                      regionalPrescriptions.filter((r) => r.region === region),
+                      'sampleCount'
+                    ),
+                    sumBy(
+                      regionalPrescriptions.filter((r) => r.region === region),
+                      'realizedSampleCount'
+                    ),
+                    getCompletionRate(
+                      regionalPrescriptions.filter((r) => r.region === region),
+                      region
+                    )
+                  ],
+                  [] as number[]
+                )
+              ]
+                .filter(isDefined)
+                .map((v) => ({ value: v }))
+            }
+          ]
+        },
+        {}
+      );
+    })
+    .toPromise(Promise);
+};
+
 const carboneRender = (
   template: Template,
   data: object,
@@ -310,5 +444,6 @@ const carboneRender = (
 
 export const excelService = {
   generateAnalysisRequestExcel,
-  generateSamplesExportExcel
+  generateSamplesExportExcel,
+  generatePrescriptionsExportExcel
 };
