@@ -1,4 +1,3 @@
-import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
@@ -9,16 +8,15 @@ import { useContext } from 'react';
 import check from '../../../assets/illustrations/check.svg';
 import dialog from '../../../assets/illustrations/dialog.svg';
 import { ApiClientContext } from '../../../services/apiClient';
-import ConfirmationModal from '../../ConfirmationModal/ConfirmationModal';
 import './ProgrammingPlanRegionalValidation.scss';
 
 interface Props {
-  programmingPlan: ProgrammingPlan;
+  programmingPlans: ProgrammingPlan[];
   region: Region;
 }
 
 const ProgrammingPlanRegionalValidation = ({
-  programmingPlan,
+  programmingPlans,
   region
 }: Props) => {
   const apiClient = useContext(ApiClientContext);
@@ -31,27 +29,28 @@ const ProgrammingPlanRegionalValidation = ({
   const [updateRegionalStatus] =
     apiClient.useUpdateProgrammingPlanRegionalStatusMutation();
 
-  const submit = async () => {
-    await updateRegionalStatus({
-      programmingPlanId: programmingPlan.id,
-      programmingPlanRegionalStatusList: [
-        {
-          region,
-          status: 'Approved'
-        }
-      ]
-    });
-  };
+  // const submit = async () => {
+  //   await updateRegionalStatus({
+  //     programmingPlanId: programmingPlan.id,
+  //     programmingPlanRegionalStatusList: [
+  //       {
+  //         region,
+  //         status: 'Approved'
+  //       }
+  //     ]
+  //   });
+  // };
+  //
+  // const status = programmingPlan.regionalStatus.find(
+  //   (status) => status.region === region
+  // )?.status;
+  //
+  // if (status && !['Submitted', 'Approved'].includes(status)) {
+  //   return <></>;
+  // }
 
-  const status = programmingPlan.regionalStatus.find(
-    (status) => status.region === region
-  )?.status;
-
-  if (status && !['Submitted', 'Approved'].includes(status)) {
-    return <></>;
-  }
-
-  return status === 'Submitted' ? (
+  // return status === 'Submitted' ? (
+  return (
     <>
       <div className={cx('fr-col-12', 'fr-col-sm-6')}>
         <div className={clsx('white-container', 'step-container', 'fr-p-4w')}>
@@ -92,27 +91,28 @@ const ProgrammingPlanRegionalValidation = ({
           </div>
         </div>
       </div>
-      <ConfirmationModal
-        modal={regionalValidationModal}
-        title="Veuillez confirmer cette action"
-        onConfirm={submit}
-        closeOnConfirm
-      >
-        Vous êtes sur le point de signaler à la coordination nationale que vous
-        avez bien pris connaissance, et commenté si besoin, la programmation de
-        prélèvements pour 2025.
-      </ConfirmationModal>
+      {/*<ConfirmationModal*/}
+      {/*  modal={regionalValidationModal}*/}
+      {/*  title="Veuillez confirmer cette action"*/}
+      {/*  onConfirm={submit}*/}
+      {/*  closeOnConfirm*/}
+      {/*>*/}
+      {/*  Vous êtes sur le point de signaler à la coordination nationale que vous*/}
+      {/*  avez bien pris connaissance, et commenté si besoin, la programmation de*/}
+      {/*  prélèvements pour 2025.*/}
+      {/*</ConfirmationModal>*/}
     </>
-  ) : (
-    <div className={cx('fr-col-12')}>
-      <Alert
-        severity="info"
-        small
-        title="Vous avez terminé la phase de consultation de la programmation."
-        description="La coordination nationale en a été notifiée. "
-      />
-    </div>
   );
+  // : (
+  //     <div className={cx('fr-col-12')}>
+  //       <Alert
+  //         severity="info"
+  //         small
+  //         title="Vous avez terminé la phase de consultation de la programmation."
+  //         description="La coordination nationale en a été notifiée. "
+  //       />
+  //     </div>
+  //   );
 };
 
 export default ProgrammingPlanRegionalValidation;
