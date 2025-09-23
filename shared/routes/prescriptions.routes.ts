@@ -37,7 +37,7 @@ export const prescriptionsRoutes = {
     get: {
       query: FindPrescriptionOptions.omit({ includes: true }),
       permissions: ['readPrescriptions'],
-      response: z.void()
+      response: z.custom<Buffer>()
     }
   },
   '/prescriptions/regions': {

@@ -60,9 +60,7 @@ export const prescriptionsRouter = {
   },
   '/prescriptions/export': {
     get: async ({ user, query: queryFindOptions }, _params, response) => {
-      await getAndCheckProgrammingPlan(
-        queryFindOptions.programmingPlanId
-      );
+      await getAndCheckProgrammingPlan(queryFindOptions.programmingPlanId);
       const exportedRegion = user.region ?? undefined;
 
       const findOptions = {
@@ -100,8 +98,7 @@ export const prescriptionsRouter = {
       );
       response.setHeader('Content-Length', `${buffer.length}`);
 
-      response.status(constants.HTTP_STATUS_OK).send(buffer);
-
+      return { status: constants.HTTP_STATUS_OK, response: buffer };
     }
   },
   '/prescriptions/:prescriptionId': {
