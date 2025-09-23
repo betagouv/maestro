@@ -1,17 +1,15 @@
 import express from 'express';
-import { AuthRedirectUrl } from 'maestro-shared/schema/Auth/AuthRedirectUrl';
 import authController from '../controllers/authController';
 import { jwtCheck } from '../middlewares/checks/authCheck';
-import validator, { body } from '../middlewares/validator';
 
 const authRouter = express.Router();
 
 authRouter.get('/redirect-url', authController.getAuthRedirectUrl);
 authRouter.post(
   '/',
-  validator.validate(body(AuthRedirectUrl), {
-    skipSanitization: true
-  }),
+  // validator.validate(body(AuthRedirectUrl), {
+  //   skipSanitization: true
+  // }),
   authController.authenticate
 );
 

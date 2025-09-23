@@ -1,11 +1,29 @@
 import bodyParser from 'body-parser';
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import { constants } from 'http2';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { describe, test } from 'vitest';
-import { z } from 'zod';
-import validator from '../validator';
+import { z, ZodObject } from 'zod';
+import { validateRequest } from '../validator';
+
+const validate =
+  (
+    schema: ZodObject,
+    options: { skipSanitization: boolean } = { skipSanitization: false }
+  ) =>
+    async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const parsedReq = await validateRequest(req, schema, options)
+
+          req.body = parsedReq.body
+        return next();
+      } catch (error) {
+        console.error(error);
+        return res.status(constants.HTTP_STATUS_BAD_REQUEST).json(error);
+      }
+    };
+
 
 describe('Validator middleware', () => {
   describe('Integration test', () => {
@@ -15,7 +33,7 @@ describe('Validator middleware', () => {
     app.use(bodyParser.urlencoded({ extended: true }));
     app.post(
       '/validate/:id',
-      validator.validate(
+      validate(
         z.object({
           body: z
             .object({

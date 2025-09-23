@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { Response } from 'express';
 import { constants } from 'http2';
 import {
   MaestroRouteProtectedMethod,
@@ -10,10 +10,11 @@ import {
   ToRoute,
   UnprotectedRoutes
 } from 'maestro-shared/routes/routes';
-import { User } from 'maestro-shared/schema/User/User';
+import { hasPermission, User } from 'maestro-shared/schema/User/User';
 import z, { ZodObject, ZodRawShape, ZodType } from 'zod';
-import { permissionsCheck } from '../middlewares/checks/authCheck';
-import validator, { body, query } from '../middlewares/validator';
+import { validateRequest } from '../middlewares/validator';
+import UserPermissionMissingError from 'maestro-shared/errors/userPermissionMissingError';
+import AuthenticationMissingError from 'maestro-shared/errors/authenticationMissingError';
 
 type MaestroResponse<
   key extends MaestroRoutes,
@@ -39,12 +40,10 @@ type MaestroRouteMethod<
   method extends keyof (typeof routes)[key],
   IsProtected extends boolean
 > = (
-  request: Request<
-    undefined,
-    undefined,
-    RouteValidator<key, method, 'body'>,
-    RouteValidator<key, method, 'query'>
-  > &
+  request: {
+    body: RouteValidator<key, method, 'body'>,
+    query: RouteValidator<key, method, 'query'>
+  } &
     (IsProtected extends true
       ? {
           user: User;
@@ -114,10 +113,22 @@ export const generateRoutes = <
 
         let toValidate: null | ZodObject<any> = null;
         if ('body' in conf && conf.body !== undefined) {
-          toValidate = body(conf.body);
+          toValidate = z.object({
+            body: conf.body
+          })
         }
         if ('query' in conf && conf.query !== undefined) {
-          const toValidateQuery = query(conf.query);
+          const toValidateQuery = z.object({
+            query: conf.query
+          });
+          if (toValidate === null) {
+            toValidate = toValidateQuery;
+          } else {
+            toValidate = toValidate.merge(toValidateQuery);
+          }
+        }
+        if ('params' in r && r.params !== undefined) {
+            const toValidateQuery = z.object({ params: z.object(r.params) })
           if (toValidate === null) {
             toValidate = toValidateQuery;
           } else {
@@ -125,22 +136,29 @@ export const generateRoutes = <
           }
         }
 
-        if (toValidate !== null) {
-          router[method](route, validator.validate(toValidate));
-        }
-        if ('permissions' in conf && conf.permissions !== 'NONE') {
-          router[method](route, permissionsCheck(conf.permissions));
-        }
         router[method](route, async (request, response) => {
-          let p = {};
-          if ('params' in r && r.params !== undefined) {
-            try {
-              p = z.object(r.params).parse(request.params);
-            } catch (error) {
-              console.error(error);
-              return response
-                .status(constants.HTTP_STATUS_BAD_REQUEST)
-                .json(error);
+
+          let validatedRequest =  {body: undefined, query: undefined, params: undefined}
+          try {
+            if (toValidate) {
+              // @ts-expect-error TS2739
+              validatedRequest = await validateRequest(request, toValidate)
+            }
+          }catch (error){
+            console.error(error);
+            return response
+              .status(constants.HTTP_STATUS_BAD_REQUEST)
+              .json(error);
+          }
+
+          if ('permissions' in conf) {
+            if (!request.user) {
+              throw new AuthenticationMissingError();
+            }
+            if (conf.permissions !== 'NONE') {
+              if (!hasPermission(request.user, ...conf.permissions)) {
+                throw new UserPermissionMissingError();
+              }
             }
           }
 
@@ -151,8 +169,8 @@ export const generateRoutes = <
 
           // @ts-expect-error TS2345 Impossible de faire mieux
           const result = await subRouter[route][method](
-            request,
-            p,
+            {...validatedRequest, user: request.user},
+            validatedRequest.params,
             responseMethods
           );
 
