@@ -40,7 +40,6 @@ const PrescriptionCommentsModal = ({
   const { prescriptionCommentsData } = useAppSelector(
     (state) => state.prescriptions
   );
-  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
 
   const [comment, setComment] = useState('');
   const [segment, setSegment] = useState(
@@ -207,11 +206,13 @@ const PrescriptionCommentsModal = ({
                 cette matrice.
               </div>
             )}
-            {programmingPlan &&
-              Region.safeParse(segment).success &&
-              hasUserRegionalPrescriptionPermission(programmingPlan, {
-                region: segment as Region
-              })?.comment && (
+            {
+              //TODO
+              // programmingPlan &&
+              Region.safeParse(segment).success && (
+                // hasUserRegionalPrescriptionPermission(programmingPlan, {
+                //   region: segment as Region
+                // })?.comment && (
                 <div className={clsx(cx('fr-mt-2w'), 'd-flex-justify-center')}>
                   <form id="login_form">
                     <AppTextAreaInput
@@ -232,7 +233,8 @@ const PrescriptionCommentsModal = ({
                     Envoyer
                   </Button>
                 </div>
-              )}
+              )
+            }
           </div>
         )}
       </prescriptionCommentsModal.Component>

@@ -17,6 +17,7 @@ import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/Progr
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { FindRegionalPrescriptionOptions } from 'maestro-shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import { RegionalPrescriptionUpdate } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
+import { RegionalPrescriptionKey } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionKey';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import AppToast from 'src/components/_app/AppToast/AppToast';
@@ -26,6 +27,7 @@ import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import ProgrammingPrescriptionListHeader from 'src/views/ProgrammingView/ProgrammingPrescriptionList/ProgrammingPrescriptionListHeader';
 import { assert, type Equals } from 'tsafe';
+import PrescriptionCommentsModal from '../../../components/Prescription/PrescriptionCommentsModal/PrescriptionCommentsModal';
 import PrescriptionEditModal from '../../../components/Prescription/PrescriptionEditModal/PrescriptionEditModal';
 import RegionalPrescriptionCard from '../../../components/Prescription/RegionalPrescriptionCard/RegionalPrescriptionCard';
 import { ApiClientContext } from '../../../services/apiClient';
@@ -68,6 +70,8 @@ const ProgrammingPrescriptionList = ({
     apiClient.useUpdateRegionalPrescriptionMutation();
   const [deletePrescription, { isSuccess: isDeleteSuccess }] =
     apiClient.useDeletePrescriptionMutation();
+  const [commentRegionalPrescription, { isSuccess: isCommentSuccess }] =
+    apiClient.useCommentRegionalPrescriptionMutation();
 
   const findPrescriptionOptions = useMemo(
     () => ({
@@ -247,6 +251,33 @@ const ProgrammingPrescriptionList = ({
     [changeRegionalPrescription, region]
   );
 
+  const submitRegionalPrescriptionComment = useCallback(
+    async (
+      regionalPrescriptionKey: RegionalPrescriptionKey,
+      comment: string
+    ) => {
+      const programmingPlan = programmingPlans?.find((plan) =>
+        prescriptions?.some(
+          (p) =>
+            p.id === regionalPrescriptionKey.prescriptionId &&
+            p.programmingPlanId === plan.id
+        )
+      );
+      console.log('programmingPlan', programmingPlan);
+      if (programmingPlan) {
+        await commentRegionalPrescription({
+          prescriptionId: regionalPrescriptionKey.prescriptionId,
+          region: regionalPrescriptionKey.region,
+          commentToCreate: {
+            programmingPlanId: programmingPlan.id,
+            comment
+          }
+        });
+      }
+    },
+    [programmingPlans, prescriptions] // eslint-disable-line react-hooks/exhaustive-deps
+  );
+
   return (
     <>
       <AppToast open={isAddSuccess} description="Matrice ajoutée" />
@@ -255,6 +286,7 @@ const ProgrammingPrescriptionList = ({
         description="Modification enregistrée"
       />
       <AppToast open={isDeleteSuccess} description="Matrice supprimée" />
+      <AppToast open={isCommentSuccess} description="Commentaire ajouté" />
 
       {prescriptions && regionalPrescriptions && (
         <>
@@ -399,6 +431,9 @@ const ProgrammingPrescriptionList = ({
             substances
           })
         }
+      />
+      <PrescriptionCommentsModal
+        onSubmitRegionalPrescriptionComment={submitRegionalPrescriptionComment}
       />
     </>
   );

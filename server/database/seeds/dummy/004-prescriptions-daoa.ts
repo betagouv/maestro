@@ -1,6 +1,6 @@
 import { RegionList } from 'maestro-shared/referential/Region';
 import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
-import { DAOAValidatedProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
+import { DAOAInProgressProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
 import { Prescriptions } from '../../../repositories/prescriptionRepository';
 import { ProgrammingPlans } from '../../../repositories/programmingPlanRepository';
@@ -9,7 +9,7 @@ import { DummyLaboratoryIds } from './002-laboratories';
 
 const foie_de_bovin = genPrescription({
   id: '177e280f-7fc5-499f-9dcb-4970dc00af36',
-  programmingPlanId: DAOAValidatedProgrammingPlanFixture.id,
+  programmingPlanId: DAOAInProgressProgrammingPlanFixture.id,
   programmingPlanKind: 'DAOA_SLAUGHTER',
   context: 'Surveillance',
   matrixKind: 'TODO1',
@@ -17,7 +17,7 @@ const foie_de_bovin = genPrescription({
 });
 const volaille = genPrescription({
   id: '608d0973-b472-4964-a8d7-246f91ad4d39',
-  programmingPlanId: DAOAValidatedProgrammingPlanFixture.id,
+  programmingPlanId: DAOAInProgressProgrammingPlanFixture.id,
   programmingPlanKind: 'DAOA_BREEDING',
   context: 'Surveillance',
   matrixKind: 'TODO2',
@@ -26,7 +26,7 @@ const volaille = genPrescription({
 
 export const seed = async function () {
   const validatedProgrammingPlan = await ProgrammingPlans()
-    .where({ id: DAOAValidatedProgrammingPlanFixture.id })
+    .where({ id: DAOAInProgressProgrammingPlanFixture.id })
     .first();
 
   if (!validatedProgrammingPlan) {

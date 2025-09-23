@@ -1,8 +1,8 @@
-import { RegionList } from 'maestro-shared/referential/Region';
 import {
-  DAOAValidatedProgrammingPlanFixture,
+  DAOAInProgressProgrammingPlanFixture,
   PFASValidatedProgrammingPlanFixture,
   PPVClosedProgrammingPlanFixture,
+  PPVInProgressProgrammingPlanFixture,
   PPVValidatedProgrammingPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
@@ -21,32 +21,22 @@ export const seed = async function () {
     return;
   }
 
-  await ProgrammingPlans().insert(
-    [
-      PPVClosedProgrammingPlanFixture,
-      PPVValidatedProgrammingPlanFixture,
-      PFASValidatedProgrammingPlanFixture,
-      DAOAValidatedProgrammingPlanFixture
-    ].map(formatProgrammingPlan)
-  );
+  const plans = [
+    PPVClosedProgrammingPlanFixture,
+    PPVValidatedProgrammingPlanFixture,
+    PPVInProgressProgrammingPlanFixture,
+    PFASValidatedProgrammingPlanFixture,
+    DAOAInProgressProgrammingPlanFixture
+  ];
+
+  await ProgrammingPlans().insert(plans.map(formatProgrammingPlan));
 
   await ProgrammingPlanRegionalStatus().insert(
-    RegionList.map((region) => ({
-      programmingPlanId: PPVClosedProgrammingPlanFixture.id,
-      region,
-      status: 'Closed'
-    }))
-  );
-  await ProgrammingPlanRegionalStatus().insert(
-    [
-      PPVValidatedProgrammingPlanFixture.id,
-      PFASValidatedProgrammingPlanFixture.id,
-      DAOAValidatedProgrammingPlanFixture.id
-    ].flatMap((id) =>
-      RegionList.map((region) => ({
-        programmingPlanId: id,
-        region,
-        status: 'Validated'
+    plans.flatMap((plan) =>
+      plan.regionalStatus.map((regionalStatus) => ({
+        programmingPlanId: plan.id,
+        region: regionalStatus.region,
+        status: regionalStatus.status
       }))
     )
   );

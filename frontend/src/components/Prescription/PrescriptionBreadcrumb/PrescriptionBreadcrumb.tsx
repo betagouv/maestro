@@ -13,7 +13,7 @@ interface Props {
 
 const PrescriptionBreadcrumb = ({ programmingPlan, prescription }: Props) => {
   return (
-    <div>
+    <div className={cx('fr-breadcrumb', 'fr-mt-0', 'fr-mb-1w')}>
       <ol className={cx('fr-breadcrumb__list')}>
         {uniq([
           ProgrammingPlanDomainLabels[programmingPlan.domain],

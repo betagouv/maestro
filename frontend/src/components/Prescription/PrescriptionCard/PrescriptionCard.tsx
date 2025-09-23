@@ -10,9 +10,9 @@ import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import PrescriptionCardPartialTable from 'src/components/Prescription/PrescriptionCard/PrescriptionCardPartialTable';
-import PrescriptionEditSubstancesButtons from 'src/components/Prescription/PrescriptionEditModal/PrescriptionEditSubstancesButtons';
 import PrescriptionNotes from 'src/components/Prescription/PrescriptionNotes/PrescriptionNotes';
 import PrescriptionStages from 'src/components/Prescription/PrescriptionStages/PrescriptionStages';
+import PrescriptionSubstances from 'src/components/Prescription/PrescriptionSubstances/PrescriptionSubstances';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { pluralize } from 'src/utils/stringUtils';
 import RemoveMatrix from 'src/views/ProgrammingView/ProgrammingPrescriptionList/RemoveMatrix';
@@ -84,9 +84,10 @@ const PrescriptionCard = ({
                   {
                     label: 'Analyses',
                     content: (
-                      <PrescriptionEditSubstancesButtons
+                      <PrescriptionSubstances
                         programmingPlan={programmingPlan}
                         prescription={prescription}
+                        renderMode="modal"
                       />
                     )
                   },
