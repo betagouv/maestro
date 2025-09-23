@@ -19,8 +19,7 @@ import { v4 as uuidv4 } from 'uuid';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
 import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
-import exportPrescriptionsService from '../services/exportService/exportPrescriptionsService';
-import workbookUtils from '../utils/workbookUtils';
+import { excelService } from '../services/excelService/excelService';
 const findPrescriptions = async (request: Request, response: Response) => {
   const findOptions = request.query as FindPrescriptionOptions;
 
@@ -32,7 +31,6 @@ const findPrescriptions = async (request: Request, response: Response) => {
 };
 
 const exportPrescriptions = async (request: Request, response: Response) => {
-  const programmingPlan = (request as ProgrammingPlanRequest).programmingPlan;
   const user = (request as AuthenticatedRequest).user;
   const queryFindOptions = request.query as Omit<
     FindRegionalPrescriptionOptions,
@@ -59,17 +57,23 @@ const exportPrescriptions = async (request: Request, response: Response) => {
     ContextLabels[context].toLowerCase().replaceAll(' ', '-')
   )}.xlsx`;
 
-  const workbook = workbookUtils.init(fileName, response);
-
-  await exportPrescriptionsService.writeToWorkbook(
-    {
-      prescriptions,
-      programmingPlan,
-      exportedRegion,
-      regionalPrescriptions
-    },
-    workbook
+  const buffer = await excelService.generatePrescriptionsExportExcel(
+    prescriptions,
+    regionalPrescriptions,
+    exportedRegion
   );
+
+  response.setHeader(
+    'Content-disposition',
+    `inline; filename=${encodeURIComponent(fileName)}`
+  );
+  response.setHeader(
+    'Content-Type',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  );
+  response.setHeader('Content-Length', `${buffer.length}`);
+
+  response.status(constants.HTTP_STATUS_OK).send(buffer);
 };
 
 const createPrescription = async (request: Request, response: Response) => {
