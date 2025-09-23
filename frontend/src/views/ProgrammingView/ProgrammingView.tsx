@@ -8,13 +8,16 @@ import { Region, Regions } from 'maestro-shared/referential/Region';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanDomain } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { ProgrammingPlanStatusList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { RegionalPrescriptionKey } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionKey';
+import {
+  NextProgrammingPlanStatus,
+  ProgrammingPlanStatus,
+  ProgrammingPlanStatusList
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { useCallback, useContext, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 import programmation from '../../assets/illustrations/programmation.svg';
-import AppToast from '../../components/_app/AppToast/AppToast';
-import PrescriptionCommentsModal from '../../components/Prescription/PrescriptionCommentsModal/PrescriptionCommentsModal';
+import ProgrammingPlanNationalValidation from '../../components/ProgrammingPlan/ProgrammingPlanNationalValidation/ProgrammingPlanNationalValidation';
+import ProgrammingPlanRegionalValidation from '../../components/ProgrammingPlan/ProgrammingPlanRegionalValidation/ProgrammingPlanRegionalValidation';
 import SectionHeader from '../../components/SectionHeader/SectionHeader';
 import { useAuthentication } from '../../hooks/useAuthentication';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
@@ -83,8 +86,7 @@ const ProgrammingView = () => {
     dispatch(
       prescriptionsSlice.actions.changePrescriptionFilters({
         year: Number(
-          searchParams.get('year') ??
-            orderBy(programmingPlans, 'year', 'desc')[0]?.year
+          searchParams.get('year') ?? new Date().getFullYear().toString()
         ),
         domain:
           (searchParams.get('domain') as ProgrammingPlanDomain) ?? undefined,
@@ -134,9 +136,6 @@ const ProgrammingView = () => {
     [hasNationalView, user, searchParams]
   );
 
-  const [commentRegionalPrescription, { isSuccess: isCommentSuccess }] =
-    apiClient.useCommentRegionalPrescriptionMutation();
-
   const changeFilter = (findFilter: Partial<PrescriptionFilters>) => {
     const aggregatedFilters = {
       ...prescriptionFilters,
@@ -185,48 +184,21 @@ const ProgrammingView = () => {
     setSearchParams(urlSearchParams, { replace: true });
   };
 
-  const submitRegionalPrescriptionComment = useCallback(
-    async (
-      regionalPrescriptionKey: RegionalPrescriptionKey,
-      comment: string
-    ) => {
-      const programmingPlan = programmingPlans?.find(
-        (plan) => plan.id === regionalPrescriptionKey.prescriptionId
-      );
-      if (programmingPlan) {
-        await commentRegionalPrescription({
-          prescriptionId: regionalPrescriptionKey.prescriptionId,
-          region: regionalPrescriptionKey.region,
-          commentToCreate: {
-            programmingPlanId: programmingPlan.id,
-            comment
-          }
-        });
-      }
-    },
-    [programmingPlans] // eslint-disable-line react-hooks/exhaustive-deps
-  );
-
   return (
-    <>
-      <AppToast open={isCommentSuccess} description="Commentaire ajouté" />
-      <section className={clsx('main-section')}>
-        <div className={cx('fr-container')}>
-          <SectionHeader
-            title="Programmation"
-            subtitle={Regions[region as Region]?.name}
-            illustration={programmation}
-            action={
-              <>
-                <SegmentedControl
-                  hideLegend
-                  legend="Année"
-                  segments={
-                    orderBy(
-                      uniqBy(programmingPlans, 'year'),
-                      'year',
-                      'desc'
-                    ).map(({ year }) => ({
+    <section className={clsx('main-section')}>
+      <div className={cx('fr-container')}>
+        <SectionHeader
+          title="Programmation"
+          subtitle={Regions[region as Region]?.name}
+          illustration={programmation}
+          action={
+            <>
+              <SegmentedControl
+                hideLegend
+                legend="Année"
+                segments={
+                  orderBy(uniqBy(programmingPlans, 'year'), 'year', 'desc').map(
+                    ({ year }) => ({
                       label: year,
                       nativeInputProps: {
                         checked: year === prescriptionFilters.year,
@@ -240,119 +212,115 @@ const ProgrammingView = () => {
                             matrixKinds: undefined
                           })
                       }
-                    })) as any
-                  }
+                    })
+                  ) as any
+                }
+              />
+              {programmingPlans
+                ?.flatMap((plan) => plan.regionalStatus)
+                .some(
+                  (regionalStatus) =>
+                    NextProgrammingPlanStatus[regionalStatus.status] &&
+                    ['Submitted', 'Validated'].includes(
+                      NextProgrammingPlanStatus[
+                        regionalStatus.status
+                      ] as ProgrammingPlanStatus
+                    )
+                ) && (
+                <ProgrammingPlanNationalValidation
+                  programmingPlans={programmingPlans}
                 />
-                {/*{programmingPlan &&*/}
-                {/*  programmingPlan.regionalStatus.some(*/}
-                {/*    (regionalStatus) =>*/}
-                {/*      NextProgrammingPlanStatus[regionalStatus.status] &&*/}
-                {/*      ['Submitted', 'Validated'].includes(*/}
-                {/*        NextProgrammingPlanStatus[*/}
-                {/*          regionalStatus.status*/}
-                {/*        ] as ProgrammingPlanStatus*/}
-                {/*      )*/}
-                {/*  ) && (*/}
-                {/*    <ProgrammingPlanNationalValidation*/}
-                {/*      programmingPlan={programmingPlan}*/}
-                {/*    />*/}
-                {/*  )}*/}
-              </>
-            }
-          />
+              )}
+            </>
+          }
+        />
 
-          {filteredProgrammingPlans && (
-            <div
-              className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}
-            >
-              <div className="d-flex-align-start">
-                <div className={clsx('flex-grow-1')}>
-                  <ProgrammingPrescriptionFilters
-                    options={{
-                      domains: domainOptions,
-                      plans: programmingPlanOptions(prescriptionFilters),
-                      kinds: programmingPlanKindOptions(prescriptionFilters),
-                      contexts: contextOptions(prescriptionFilters)
-                    }}
-                    programmingPlans={filteredProgrammingPlans}
-                    filters={prescriptionFilters}
-                    onChange={changeFilter}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {programmingPlans && (
-          <div className={cx('fr-container')}>
-            <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-              {/*{!hasNationalView &&*/}
-              {/*  programmingPlan.regionalStatus.some(*/}
-              {/*    (regionalStatus) =>*/}
-              {/*      regionalStatus.region === region &&*/}
-              {/*      ['Submitted', 'Approved'].includes(regionalStatus.status)*/}
-              {/*  ) && (*/}
-              {/*    <ProgrammingPlanRegionalValidation*/}
-              {/*      programmingPlan={programmingPlan}*/}
-              {/*      region={region as Region}*/}
-              {/*    />*/}
-              {/*  )}*/}
-              <div className={cx('fr-col-12')}>
-                <Tabs
-                  classes={{
-                    panel: 'white-container'
+        {filteredProgrammingPlans && (
+          <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
+            <div className="d-flex-align-start">
+              <div className={clsx('flex-grow-1')}>
+                <ProgrammingPrescriptionFilters
+                  options={{
+                    domains: domainOptions,
+                    plans: programmingPlanOptions(prescriptionFilters),
+                    kinds: programmingPlanKindOptions(prescriptionFilters),
+                    contexts: contextOptions(prescriptionFilters)
                   }}
-                  tabs={
-                    [
-                      {
-                        label: 'Programmation',
-                        content: (
-                          <ProgrammingPrescriptionList
-                            programmingPlans={filteredProgrammingPlans ?? []}
-                            region={region ?? undefined}
-                          />
-                        )
-                      },
-                      ...(hasNationalView
-                        ? [
-                            // {
-                            //   label: 'Phase de consultation',
-                            //   content: (
-                            //     <ProgrammingPlanRegionalValidationList
-                            //       programmingPlan={programmingPlan}
-                            //       context={prescriptionListContext}
-                            //     />
-                            //   ),
-                            //   iconId: 'fr-icon-chat-check-line'
-                            // },
-                            {
-                              label: 'Commentaires',
-                              content: (
-                                <ProgrammingCommentList
-                                  programmingPlans={
-                                    filteredProgrammingPlans ?? []
-                                  }
-                                />
-                              ),
-                              iconId: 'fr-icon-chat-3-line'
-                            }
-                          ]
-                        : [])
-                    ] as any
-                  }
+                  programmingPlans={filteredProgrammingPlans}
+                  filters={prescriptionFilters}
+                  onChange={changeFilter}
                 />
               </div>
             </div>
-            <PrescriptionCommentsModal
-              onSubmitRegionalPrescriptionComment={
-                submitRegionalPrescriptionComment
-              }
-            />
           </div>
         )}
-      </section>
-    </>
+      </div>
+
+      {programmingPlans && (
+        <div className={cx('fr-container')}>
+          <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+            {!hasNationalView &&
+              programmingPlans.flatMap((plan) =>
+                plan.regionalStatus.some(
+                  (regionalStatus) =>
+                    regionalStatus.region === region &&
+                    ['Submitted', 'Approved'].includes(regionalStatus.status)
+                )
+              ) && (
+                <ProgrammingPlanRegionalValidation
+                  programmingPlans={programmingPlans}
+                  region={region as Region}
+                />
+              )}
+            <div className={cx('fr-col-12')}>
+              <Tabs
+                classes={{
+                  panel: 'white-container'
+                }}
+                tabs={
+                  [
+                    {
+                      label: 'Programmation',
+                      content: (
+                        <ProgrammingPrescriptionList
+                          programmingPlans={filteredProgrammingPlans ?? []}
+                          region={region ?? undefined}
+                        />
+                      )
+                    },
+                    ...(hasNationalView
+                      ? [
+                          // {
+                          //   label: 'Phase de consultation',
+                          //   content: (
+                          //     <ProgrammingPlanRegionalValidationList
+                          //       programmingPlan={programmingPlan}
+                          //       context={prescriptionListContext}
+                          //     />
+                          //   ),
+                          //   iconId: 'fr-icon-chat-check-line'
+                          // },
+                          {
+                            label: 'Commentaires',
+                            content: (
+                              <ProgrammingCommentList
+                                programmingPlans={
+                                  filteredProgrammingPlans ?? []
+                                }
+                              />
+                            ),
+                            iconId: 'fr-icon-chat-3-line'
+                          }
+                        ]
+                      : [])
+                  ] as any
+                }
+              />
+            </div>
+          </div>
+        </div>
+      )}
+    </section>
   );
 };
 

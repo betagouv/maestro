@@ -5,40 +5,40 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import RadioButtons from '@codegouvfr/react-dsfr/RadioButtons';
+import Select from '@codegouvfr/react-dsfr/Select';
 import { Region, Regions, RegionSort } from 'maestro-shared/referential/Region';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   NextProgrammingPlanStatus,
   ProgrammingPlanStatus
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import React, { useCallback, useContext, useMemo, useState } from 'react';
+import { useCallback, useContext, useState } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch } from '../../../hooks/useStore';
 import { api } from '../../../services/api.service';
 import { ApiClientContext } from '../../../services/apiClient';
 import './ProgrammingPlanNationalValidation.scss';
 interface Props {
-  programmingPlan: ProgrammingPlan;
+  programmingPlans: ProgrammingPlan[];
 }
+const submissionModal = createModal({
+  id: `submission-modal`,
+  isOpenedByDefault: false
+});
 
-const ProgrammingPlanNationalValidation = ({ programmingPlan }: Props) => {
+const ProgrammingPlanNationalValidation = ({ programmingPlans }: Props) => {
   const dispatch = useAppDispatch();
   const apiClient = useContext(ApiClientContext);
   const { hasUserPermission } = useAuthentication();
-  const submissionModal = useMemo(
-    () =>
-      createModal({
-        id: `submission-modal-${programmingPlan.id}`,
-        isOpenedByDefault: false
-      }),
-    [programmingPlan]
-  );
 
   const [updateRegionalStatus] =
     apiClient.useUpdateProgrammingPlanRegionalStatusMutation();
 
   const [isSuccess, setIsSuccess] = useState(false);
   const [isError, setIsError] = useState(false);
+  const [programmingPlan, setProgrammingPlan] = useState<
+    ProgrammingPlan | undefined
+  >(programmingPlans.length === 1 ? programmingPlans[0] : undefined);
   const [status, setStatus] = useState<ProgrammingPlanStatus>('InProgress');
   const [regionsToNotify, setRegionsToNotify] = useState<Region[]>([]);
 
@@ -53,30 +53,32 @@ const ProgrammingPlanNationalValidation = ({ programmingPlan }: Props) => {
 
   const getRegionsByStatus = useCallback(
     (status: ProgrammingPlanStatus) =>
-      programmingPlan.regionalStatus
+      (programmingPlan?.regionalStatus || [])
         .filter((_) => _.status === status)
         .map((_) => _.region)
         .sort(RegionSort),
-    [programmingPlan.regionalStatus]
+    [programmingPlan]
   );
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     setIsError(false);
-    await updateRegionalStatus({
-      programmingPlanId: programmingPlan.id,
-      programmingPlanRegionalStatusList: regionsToNotify.map((region) => ({
-        region,
-        status: NextProgrammingPlanStatus[status] as ProgrammingPlanStatus
-      }))
-    })
-      .unwrap()
-      .then(() => {
-        setIsSuccess(true);
+    if (programmingPlan) {
+      await updateRegionalStatus({
+        programmingPlanId: programmingPlan.id,
+        programmingPlanRegionalStatusList: regionsToNotify.map((region) => ({
+          region,
+          status: NextProgrammingPlanStatus[status] as ProgrammingPlanStatus
+        }))
       })
-      .catch(() => {
-        setIsError(true);
-      });
+        .unwrap()
+        .then(() => {
+          setIsSuccess(true);
+        })
+        .catch(() => {
+          setIsError(true);
+        });
+    }
   };
 
   if (!hasUserPermission('manageProgrammingPlan')) {
@@ -130,6 +132,27 @@ const ProgrammingPlanNationalValidation = ({ programmingPlan }: Props) => {
           </>
         ) : (
           <>
+            <Select
+              label="Plan"
+              nativeSelectProps={{
+                value: programmingPlan?.id || '',
+                onChange: (e) =>
+                  setProgrammingPlan(
+                    programmingPlans.find(
+                      (plan) => plan.id === e.target.value
+                    ) as ProgrammingPlan
+                  )
+              }}
+              className={cx('fr-mb-1v')}
+              disabled={programmingPlans.length <= 1}
+            >
+              {programmingPlans.map((plan) => (
+                <option key={`plan-${plan.id}`} value={plan.id}>
+                  {plan.title}
+                </option>
+              ))}
+            </Select>
+            <hr className={cx('fr-my-2w')} />
             <RadioButtons
               legend="Action"
               options={[
@@ -157,9 +180,6 @@ const ProgrammingPlanNationalValidation = ({ programmingPlan }: Props) => {
                 }
               ]}
               orientation="horizontal"
-              classes={{
-                root: cx('fr-px-0', 'fr-my-0')
-              }}
             />
             <div className={cx('fr-mt-3w')}>
               {getRegionsByStatus(status).length > 0 ? (

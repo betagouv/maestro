@@ -57,6 +57,22 @@ export const PPVValidatedProgrammingPlanFixture = genProgrammingPlan({
   year: new Date().getFullYear()
 });
 
+export const PPVInProgressProgrammingPlanFixture = genProgrammingPlan({
+  id: 'bac693a5-9475-4e24-a775-5532b0117e5b',
+  domain: 'PESTICIDE_RESIDUE',
+  title: 'Production primaire végétale',
+  kinds: ['PPV'],
+  contexts: ['Control', 'Surveillance'],
+  samplesOutsidePlanAllowed: true,
+  createdAt: new Date(),
+  createdBy: NationalCoordinator.id,
+  regionalStatus: RegionList.map((region) => ({
+    region,
+    status: 'InProgress'
+  })),
+  year: new Date().getFullYear() + 1
+});
+
 export const PFASValidatedProgrammingPlanFixture = genProgrammingPlan({
   id: '95d0f5c9-8a48-4bfb-b896-08aae5a22be3',
   domain: 'CHEMICAL_CONTAMINANT',
@@ -73,7 +89,7 @@ export const PFASValidatedProgrammingPlanFixture = genProgrammingPlan({
   year: new Date().getFullYear()
 });
 
-export const DAOAValidatedProgrammingPlanFixture = genProgrammingPlan({
+export const DAOAInProgressProgrammingPlanFixture = genProgrammingPlan({
   id: 'fafc6f2e-aec5-4998-adeb-84090d971a90',
   domain: 'PESTICIDE_RESIDUE',
   title: "Denrées d'origine animale",
@@ -85,7 +101,7 @@ export const DAOAValidatedProgrammingPlanFixture = genProgrammingPlan({
   createdBy: NationalCoordinator.id,
   regionalStatus: RegionList.map((region) => ({
     region,
-    status: 'Validated'
+    status: 'InProgress'
   })),
   year: new Date().getFullYear()
 });
