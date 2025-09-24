@@ -8,7 +8,7 @@ import { useCallback, useContext } from 'react';
 import { useAuthentication } from '../../../hooks/useAuthentication';
 import { ApiClientContext } from '../../../services/apiClient';
 import SubstanceSearch from '../../SubstanceSearch/SubstanceSearch';
-import '../PrescriptionEditModal/PrescriptionEditModal.scss';
+import '../PrescriptionModal/PrescriptionModal.scss';
 
 interface Props {
   programmingPlan: ProgrammingPlan;

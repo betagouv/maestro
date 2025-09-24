@@ -201,12 +201,12 @@ export const programmingPlanRouter = {
               await notificationService.sendNotification(
                 {
                   category,
-                  link: `${AppRouteLinks.ProgrammingRoute}?${new URLSearchParams(
+                  link: `${AppRouteLinks.ProgrammingRoute.link}?${new URLSearchParams(
                     {
                       year: programmingPlan.year.toString(),
                       planIds: programmingPlan.id
                     }
-                  ).toString()}}`
+                  ).toString()}`
                 },
                 regionalCoordinators,
                 undefined
@@ -219,12 +219,12 @@ export const programmingPlanRouter = {
               await notificationService.sendNotification(
                 {
                   category: 'ProgrammingPlanApproved',
-                  link: `${AppRouteLinks.ProgrammingRoute}?${new URLSearchParams(
+                  link: `${AppRouteLinks.ProgrammingRoute.link}?${new URLSearchParams(
                     {
                       year: programmingPlan.year.toString(),
                       planIds: programmingPlan.id
                     }
-                  ).toString()}}`
+                  ).toString()}`
                 },
                 nationalCoordinators,
                 {

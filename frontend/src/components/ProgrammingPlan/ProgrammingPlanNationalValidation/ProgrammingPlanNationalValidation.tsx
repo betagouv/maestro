@@ -126,9 +126,14 @@ const ProgrammingPlanNationalValidation = ({ programmingPlans }: Props) => {
       >
         {isSuccess ? (
           <>
-            La programmation est désormais validée pour
+            {status === 'InProgress'
+              ? 'La soumission de la programmation a bien été envoyée pour'
+              : 'La programmation est désormais validée pour'}
             {regionsToNotify.length > 1 ? ' les régions ' : ' la région '}
-            {regionsToNotify.map((region) => Regions[region].name).join(', ')}.
+            <b>
+              {regionsToNotify.map((region) => Regions[region].name).join(', ')}
+              .
+            </b>
           </>
         ) : (
           <>

@@ -12,10 +12,10 @@ import PrescriptionEditSubstances from '../PrescriptionEditSubstances/Prescripti
 import PrescriptionNotes from '../PrescriptionNotes/PrescriptionNotes';
 import PrescriptionStages from '../PrescriptionStages/PrescriptionStages';
 import PrescriptionSubstances from '../PrescriptionSubstances/PrescriptionSubstances';
-import './PrescriptionEditModal.scss';
+import './PrescriptionModal.scss';
 
-const prescriptionEditModal = createModal({
-  id: `prescription-substances-modal`,
+const prescriptionModal = createModal({
+  id: `prescription-modal`,
   isOpenedByDefault: false
 });
 
@@ -26,33 +26,32 @@ interface Props {
   ) => Promise<void>;
 }
 
-const PrescriptionEditModal = ({ onUpdatePrescriptionSubstances }: Props) => {
+const PrescriptionModal = ({ onUpdatePrescriptionSubstances }: Props) => {
   const dispatch = useAppDispatch();
 
-  const { prescriptionEditData } = useAppSelector(
+  const { prescriptionModalData } = useAppSelector(
     (state) => state.prescriptions
   );
 
   const title = useMemo(() => {
-    if (prescriptionEditData?.mode === 'analysis') {
+    if (prescriptionModalData?.mode === 'analysis') {
       return 'Analyses mono-résidu et multi-résidus';
     }
-    if (prescriptionEditData?.mode === 'details') {
-      return `Plus de détails sur la matrice ${MatrixKindLabels[prescriptionEditData.prescription.matrixKind]}`;
+    if (prescriptionModalData?.mode === 'details') {
+      return `Plus de détails sur la matrice ${MatrixKindLabels[prescriptionModalData.prescription.matrixKind]}`;
     }
-  }, [prescriptionEditData]);
+  }, [prescriptionModalData]);
 
   useEffect(() => {
-    if (prescriptionEditData) {
-      prescriptionEditModal.open();
+    if (prescriptionModalData) {
+      prescriptionModal.open();
     }
-  }, [prescriptionEditData]);
+  }, [prescriptionModalData]);
 
   //Hack car la méthode "onConceal" de useIsModalOpen pose problème (ell est appelée lorsqu'on clique sur les tabs)
   const dialogParentRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     if (!dialogParentRef.current) {
-      console.log('no dialogParentRef');
       return;
     }
 
@@ -60,13 +59,14 @@ const PrescriptionEditModal = ({ onUpdatePrescriptionSubstances }: Props) => {
       'dialog'
     ) as HTMLDialogElement | null;
     if (!dialog) {
-      console.log('no dialog');
       return;
     }
 
     const mo = new MutationObserver(() => {
       if (!dialog.open) {
-        dispatch(prescriptionsSlice.actions.setPrescriptionEditData(undefined));
+        dispatch(
+          prescriptionsSlice.actions.setPrescriptionModalData(undefined)
+        );
       }
     });
     mo.observe(dialog, { attributes: true, attributeFilter: ['open'] });
@@ -78,11 +78,11 @@ const PrescriptionEditModal = ({ onUpdatePrescriptionSubstances }: Props) => {
 
   return (
     <div className="prescription-substances-modal" ref={dialogParentRef}>
-      <prescriptionEditModal.Component
+      <prescriptionModal.Component
         title={
           <>
-            {prescriptionEditData && (
-              <PrescriptionBreadcrumb {...prescriptionEditData} />
+            {prescriptionModalData && (
+              <PrescriptionBreadcrumb {...prescriptionModalData} />
             )}
             {title}
           </>
@@ -90,55 +90,55 @@ const PrescriptionEditModal = ({ onUpdatePrescriptionSubstances }: Props) => {
         topAnchor
       >
         <div className="prescription-edit-modal-content">
-          {prescriptionEditData?.mode === 'analysis' && (
+          {prescriptionModalData?.mode === 'analysis' && (
             <PrescriptionEditSubstances
-              programmingPlan={prescriptionEditData.programmingPlan!}
-              prescription={prescriptionEditData.prescription}
+              programmingPlan={prescriptionModalData.programmingPlan!}
+              prescription={prescriptionModalData.prescription}
               onUpdatePrescriptionSubstances={(prescriptionSubstances) =>
                 onUpdatePrescriptionSubstances(
-                  prescriptionEditData.prescription,
+                  prescriptionModalData.prescription,
                   prescriptionSubstances
                 )
               }
             />
           )}
-          {prescriptionEditData?.mode === 'details' && (
+          {prescriptionModalData?.mode === 'details' && (
             <Tabs
               tabs={[
                 {
                   label: 'Analyses',
                   content: (
                     <PrescriptionSubstances
-                      {...prescriptionEditData}
+                      {...prescriptionModalData}
                       renderMode="inline"
                     />
                   )
                 },
                 {
                   iconId:
-                    prescriptionEditData.prescription.stages.length > 0
+                    prescriptionModalData.prescription.stages.length > 0
                       ? 'fr-icon-check-line'
                       : undefined,
                   label: pluralize(
-                    prescriptionEditData.prescription.stages.length
+                    prescriptionModalData.prescription.stages.length
                   )('Stade'),
                   content: (
                     <PrescriptionStages
-                      {...prescriptionEditData}
-                      label={`${pluralize(prescriptionEditData.prescription.stages.length)('Stade')} de prélèvement`}
+                      {...prescriptionModalData}
+                      label={`${pluralize(prescriptionModalData.prescription.stages.length)('Stade')} de prélèvement`}
                     />
                   )
                 },
                 {
                   iconId:
-                    (prescriptionEditData.prescription.notes ?? '').length > 0
+                    (prescriptionModalData.prescription.notes ?? '').length > 0
                       ? 'fr-icon-quote-line'
                       : undefined,
                   label: 'Note',
                   content: (
                     <PrescriptionNotes
-                      programmingPlan={prescriptionEditData.programmingPlan}
-                      value={prescriptionEditData.prescription.notes ?? ''}
+                      programmingPlan={prescriptionModalData.programmingPlan}
+                      value={prescriptionModalData.prescription.notes ?? ''}
                     />
                   )
                 }
@@ -149,9 +149,9 @@ const PrescriptionEditModal = ({ onUpdatePrescriptionSubstances }: Props) => {
             />
           )}
         </div>
-      </prescriptionEditModal.Component>
+      </prescriptionModal.Component>
     </div>
   );
 };
 
-export default PrescriptionEditModal;
+export default PrescriptionModal;
