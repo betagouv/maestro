@@ -4,9 +4,7 @@ import { expressjwt } from 'express-jwt';
 import { constants } from 'http2';
 import AuthenticationMissingError from 'maestro-shared/errors/authenticationMissingError';
 import UserMissingError from 'maestro-shared/errors/userMissingError';
-import UserPermissionMissingError from 'maestro-shared/errors/userPermissionMissingError';
-import { hasPermission, User } from 'maestro-shared/schema/User/User';
-import { UserPermission } from 'maestro-shared/schema/User/UserPermission';
+import { User } from 'maestro-shared/schema/User/User';
 import { userRepository } from '../../repositories/userRepository';
 import config from '../../utils/config';
 
@@ -67,19 +65,6 @@ export const userCheck = (credentialsRequired: boolean) =>
         );
       }
     }
-    next();
-  };
-
-export const permissionsCheck = (permissions: UserPermission[]) =>
-  async function (request: Request, _response: Response, next: NextFunction) {
-    if (!request.user) {
-      throw new AuthenticationMissingError();
-    }
-
-    if (!hasPermission(request.user, ...permissions)) {
-      throw new UserPermissionMissingError();
-    }
-
     next();
   };
 

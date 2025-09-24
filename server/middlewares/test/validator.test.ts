@@ -12,18 +12,17 @@ const validate =
     schema: ZodObject,
     options: { skipSanitization: boolean } = { skipSanitization: false }
   ) =>
-    async (req: Request, res: Response, next: NextFunction) => {
-      try {
-        const parsedReq = await validateRequest(req, schema, options)
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const parsedReq = await validateRequest(req, schema, options);
 
-          req.body = parsedReq.body
-        return next();
-      } catch (error) {
-        console.error(error);
-        return res.status(constants.HTTP_STATUS_BAD_REQUEST).json(error);
-      }
-    };
-
+      req.body = parsedReq.body;
+      return next();
+    } catch (error) {
+      console.error(error);
+      return res.status(constants.HTTP_STATUS_BAD_REQUEST).json(error);
+    }
+  };
 
 describe('Validator middleware', () => {
   describe('Integration test', () => {

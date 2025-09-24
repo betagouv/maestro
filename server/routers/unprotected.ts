@@ -1,8 +1,8 @@
 import express from 'express';
 import { getOpenApiSchema } from '../apidoc/openapi-schema';
+import { authUnprotectedRouter } from '../controllers/authController';
 import { noticesUnprotectedRouter } from '../controllers/noticeController';
 import { jwtCheck, userCheck } from '../middlewares/checks/authCheck';
-import authRouter from './auth.router';
 import { generateRoutes, UnprotectedSubRouter } from './routes.type';
 
 const unprotectedRouter = express.Router();
@@ -15,9 +15,9 @@ unprotectedRouter.get('/api-docs', (_req, res) => {
 });
 
 const router = {
+  ...authUnprotectedRouter,
   ...noticesUnprotectedRouter
 } as const satisfies Required<UnprotectedSubRouter>;
 
 unprotectedRouter.use(generateRoutes(router, false));
-unprotectedRouter.use('/auth', authRouter);
 export default unprotectedRouter;

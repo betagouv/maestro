@@ -1,5 +1,7 @@
-import express, { Response } from 'express';
+import express, { CookieOptions, Response } from 'express';
 import { constants } from 'http2';
+import AuthenticationMissingError from 'maestro-shared/errors/authenticationMissingError';
+import UserPermissionMissingError from 'maestro-shared/errors/userPermissionMissingError';
 import {
   MaestroRouteProtectedMethod,
   MaestroRoutes,
@@ -10,11 +12,10 @@ import {
   ToRoute,
   UnprotectedRoutes
 } from 'maestro-shared/routes/routes';
+import { TokenPayload } from 'maestro-shared/schema/User/TokenPayload';
 import { hasPermission, User } from 'maestro-shared/schema/User/User';
 import z, { ZodObject, ZodRawShape, ZodType } from 'zod';
 import { validateRequest } from '../middlewares/validator';
-import UserPermissionMissingError from 'maestro-shared/errors/userPermissionMissingError';
-import AuthenticationMissingError from 'maestro-shared/errors/authenticationMissingError';
 
 type MaestroResponse<
   key extends MaestroRoutes,
@@ -34,21 +35,23 @@ type RouteValidator<
     : undefined
   : undefined;
 
-type ResponseMethods = Pick<Response, 'setHeader' | 'clearCookie'>;
+type ResponseMethods = Pick<Response, 'setHeader' | 'clearCookie'> & {
+  cookie: (name: string, val: string, options: CookieOptions) => Response;
+};
 type MaestroRouteMethod<
   key extends MaestroRoutes,
   method extends keyof (typeof routes)[key],
   IsProtected extends boolean
 > = (
   request: {
-    body: RouteValidator<key, method, 'body'>,
-    query: RouteValidator<key, method, 'query'>
-  } &
-    (IsProtected extends true
-      ? {
-          user: User;
-        }
-      : Record<never, never>),
+    body: RouteValidator<key, method, 'body'>;
+    query: RouteValidator<key, method, 'query'>;
+  } & (IsProtected extends true
+    ? {
+        user: User;
+        auth: TokenPayload;
+      }
+    : Record<never, never>),
   params: (typeof routes)[key] extends {
     params: infer P;
   }
@@ -115,7 +118,7 @@ export const generateRoutes = <
         if ('body' in conf && conf.body !== undefined) {
           toValidate = z.object({
             body: conf.body
-          })
+          });
         }
         if ('query' in conf && conf.query !== undefined) {
           const toValidateQuery = z.object({
@@ -128,7 +131,7 @@ export const generateRoutes = <
           }
         }
         if ('params' in r && r.params !== undefined) {
-            const toValidateQuery = z.object({ params: z.object(r.params) })
+          const toValidateQuery = z.object({ params: z.object(r.params) });
           if (toValidate === null) {
             toValidate = toValidateQuery;
           } else {
@@ -137,14 +140,19 @@ export const generateRoutes = <
         }
 
         router[method](route, async (request, response) => {
-
-          let validatedRequest =  {body: undefined, query: undefined, params: undefined}
+          let validatedRequest = {
+            body: undefined,
+            query: undefined,
+            params: undefined
+          };
           try {
             if (toValidate) {
               // @ts-expect-error TS2739
-              validatedRequest = await validateRequest(request, toValidate)
+              validatedRequest = await validateRequest(request, toValidate, {
+                skipSanitization: 'skipSanitization' in conf
+              });
             }
-          }catch (error){
+          } catch (error) {
             console.error(error);
             return response
               .status(constants.HTTP_STATUS_BAD_REQUEST)
@@ -156,7 +164,12 @@ export const generateRoutes = <
               throw new AuthenticationMissingError();
             }
             if (conf.permissions !== 'NONE') {
-              if (!hasPermission(request.user, ...conf.permissions)) {
+              if (
+                !hasPermission(
+                  request.user as unknown as User,
+                  ...conf.permissions
+                )
+              ) {
                 throw new UserPermissionMissingError();
               }
             }
@@ -164,12 +177,18 @@ export const generateRoutes = <
 
           const responseMethods: ResponseMethods = {
             setHeader: (key, value) => response.setHeader(key, value),
-            clearCookie: (key) => response.clearCookie(key)
+            clearCookie: (key) => response.clearCookie(key),
+            cookie: (name: string, val: string, options: CookieOptions) =>
+              response.cookie(name, val, options)
           };
 
           // @ts-expect-error TS2345 Impossible de faire mieux
           const result = await subRouter[route][method](
-            {...validatedRequest, user: request.user},
+            {
+              ...validatedRequest,
+              user: request.user,
+              auth: request.auth
+            },
             validatedRequest.params,
             responseMethods
           );

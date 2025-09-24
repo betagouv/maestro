@@ -2,6 +2,7 @@ import express from 'express';
 import fs from 'fs';
 import { analysisRouter } from '../controllers/analysisController';
 import { analysisReportDocumentsRouter } from '../controllers/analysisReportDocumentsController';
+import { authProtectedRouter } from '../controllers/authController';
 import { documentsRouter } from '../controllers/documentController';
 import { laboratoriesRouter } from '../controllers/laboratoryController';
 import { noticesProtectedRouter } from '../controllers/noticeController';
@@ -24,6 +25,7 @@ protectedRouter.use(userCheck(true));
 const router = {
   ...analysisRouter,
   ...analysisReportDocumentsRouter,
+  ...authProtectedRouter,
   ...documentsRouter,
   ...laboratoriesRouter,
   ...noticesProtectedRouter,

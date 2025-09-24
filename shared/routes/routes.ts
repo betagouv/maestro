@@ -1,6 +1,7 @@
 import { ZodArray, ZodObject, ZodType } from 'zod';
 import { UserPermission } from '../schema/User/UserPermission';
 import { analysisRoutes } from './analysis.routes';
+import { authRoutes } from './auth.routes';
 import { documentsRoutes } from './documents.routes';
 import { laboratoriesRoutes } from './laboratories.routes';
 import { noticesRoutes } from './notices.routes';
@@ -14,6 +15,9 @@ export const MaestroRoutes = [
   '/analysis',
   '/analysis/:analysisId',
   '/analysis/:analysisId/reportDocuments',
+  '/auth',
+  '/auth/logout',
+  '/auth/redirect-url',
   '/documents',
   '/documents/resources',
   '/documents/upload-signed-url',
@@ -47,6 +51,7 @@ export const MaestroRoutes = [
 
 export const routes = {
   ...analysisRoutes,
+  ...authRoutes,
   ...documentsRoutes,
   ...laboratoriesRoutes,
   ...noticesRoutes,
@@ -88,7 +93,7 @@ export type MaestroRouteUnprotectedMethod<T extends MaestroRoutes> =
 
 export type MaestroRouteProtectedMethod<T extends MaestroRoutes> = Exclude<
   keyof (typeof routes)[T],
-  MaestroRouteUnprotectedMethod<T>
+  MaestroRouteUnprotectedMethod<T> | 'params'
 >;
 
 type MaestroRouteHasUnprotectedMethod<T> = T extends MaestroRoutes
@@ -98,9 +103,9 @@ type MaestroRouteHasUnprotectedMethod<T> = T extends MaestroRoutes
   : false;
 
 type MaestroRouteHasProtectedMethod<T> = T extends MaestroRoutes
-  ? MaestroRouteProtectedMethod<T> extends Record<never, never>
-    ? true
-    : false
+  ? MaestroRouteProtectedMethod<T> extends never
+    ? false
+    : true
   : false;
 
 type FilterProtectedRoutes<R> =
@@ -129,6 +134,7 @@ export type ToRoute = {
   query?: ZodObject;
   body?: ZodObject | ZodArray;
   response: ZodType;
+  skipSanitization?: true;
 } & (
   | {
       unprotected: true;

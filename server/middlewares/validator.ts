@@ -29,20 +29,14 @@ const sanitizeObject = (obj: unknown): any => {
   return obj;
 };
 
-
-export  const validateRequest = async <T extends ZodObject>(
+export const validateRequest = async <T extends ZodObject>(
   req: Request,
   schema: T,
-  options: { skipSanitization: boolean } = { skipSanitization: false }
+  options: { skipSanitization: boolean }
 ): Promise<z.infer<T>> => {
-    return  schema.parseAsync({
-      body: options.skipSanitization ? req.body : sanitizeObject(req.body),
-      query: options.skipSanitization ? req.query : sanitizeObject(req.query),
-      params: options.skipSanitization
-        ? req.params
-        : sanitizeObject(req.params)
-    });
-
-
-}
-
+  return schema.parseAsync({
+    body: options.skipSanitization ? req.body : sanitizeObject(req.body),
+    query: options.skipSanitization ? req.query : sanitizeObject(req.query),
+    params: options.skipSanitization ? req.params : sanitizeObject(req.params)
+  });
+};
