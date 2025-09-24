@@ -802,17 +802,8 @@ const codeMethodsAnalyseMethod = {
   NF12393: 'Multi'
 } as const satisfies Record<(typeof codeMethods)[number], AnalysisMethod>;
 
-const capinovCodeEchantillonValidator = z.string().transform((l) => {
-  const result = l
-    .trim()
-    .substring(0, l.length - 2)
-    .trim()
-    .replaceAll(' ', '-');
-
-  if (result.endsWith('-')) {
-    return result.substring(0, result.length - 1);
-  }
-  return result;
+export const capinovCodeEchantillonValidator = z.string().transform((l) => {
+  return l.trim().split('-').slice(0, 3).join('-');
 });
 // Visible for testing
 export const extractAnalyzes = (

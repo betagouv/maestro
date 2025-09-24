@@ -1,5 +1,9 @@
 import { describe, expect, test } from 'vitest';
-import { extractAnalyzes, getAnalysisKeyByFileName } from './capinov';
+import {
+  capinovCodeEchantillonValidator,
+  extractAnalyzes,
+  getAnalysisKeyByFileName
+} from './capinov';
 
 describe('Parse correctement le fichier CSV', () => {
   test('émet une erreur si le fichier est incorrect ou vide', () => {
@@ -131,4 +135,11 @@ test('getAnalysisKeyByFileName', () => {
       'Capinov_Export_MAESTRO 2025_6.8603.1 20250901.csv'
     )
   ).toBe(getAnalysisKeyByFileName('2025_6 8603 1  asenasen asen asne.pdf'));
+});
+
+test.each<[string, string]>([
+  ['OCC-25-0007-01', 'OCC-25-0007'],
+  ['OCC-25-0007', 'OCC-25-0007']
+])('capinovCodeEchantillonValidator', (value, expected) => {
+  expect(capinovCodeEchantillonValidator.parse(value)).toBe(expected);
 });
