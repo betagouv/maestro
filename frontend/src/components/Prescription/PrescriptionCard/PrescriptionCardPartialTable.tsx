@@ -55,6 +55,7 @@ const PrescriptionCardPartialTable = ({
           .slice(start, end)
           .map((regionalPrescription) => (
             <RegionalPrescriptionCountCell
+              key={`${regionalPrescription.prescriptionId}-${regionalPrescription.region}`}
               programmingPlan={programmingPlan}
               matrixKind={matrixKind}
               regionalPrescription={regionalPrescription}

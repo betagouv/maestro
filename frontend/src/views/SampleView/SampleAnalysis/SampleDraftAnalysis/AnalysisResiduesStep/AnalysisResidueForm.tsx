@@ -139,6 +139,7 @@ export const AnalysisResidueForm: FunctionComponent<Props> = ({
                 )
               }
               renderOption={(props, option) => {
+                // eslint-disable-next-line react/prop-types
                 const { key, ...optionProps } = props;
                 return (
                   <Box

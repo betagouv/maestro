@@ -52,7 +52,7 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
         ...[
           isCreatedPartialSample(sample) ? sample.reference : '',
           getSampleMatrixLabel(sample),
-          <div className="d-flex-align-center">
+          <div className="d-flex-align-center" key={`${sample.id}-name`}>
             {pendingSamples[sample.id] && (
               <span className="fr-icon-link-unlink fr-icon--sm fr-mr-1w"></span>
             )}
@@ -66,9 +66,14 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
           sample.department,
           sample.company?.name ?? '',
           sample.context ? ContextLabels[sample.context] : '',
-          <SampleStatusBadge status={sample.status} sampleId={sample.id} />
-        ].map((cell) => (
+          <SampleStatusBadge
+            status={sample.status}
+            sampleId={sample.id}
+            key={`${sample.id}-badge`}
+          />
+        ].map((cell, index) => (
           <div
+            key={`${sample.id}-cell-${index}`}
             onClick={() => navigateToSample(sample.id)}
             style={{
               cursor: 'pointer'
@@ -77,7 +82,7 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
             {cell}
           </div>
         )),
-        <div className="actions">
+        <div className="actions" key={`${sample.id}-actions`}>
           <Button
             title="Voir le prélèvement"
             iconId={'fr-icon-eye-fill'}

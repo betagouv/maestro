@@ -100,22 +100,22 @@ const SampleCard = ({ sample, horizontal }: Props) => {
         <span className={cx('fr-text--xs', 'fr-mb-0')}>
           {horizontal ? (
             <>
-              <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-                <div className={cx('fr-col-6')}>
+              <span className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+                <span className={cx('fr-col-6')}>
                   <CompanyBlock sample={sample} />
-                </div>
-                <div className={cx('fr-col-6')}>
+                </span>
+                <span className={cx('fr-col-6')}>
                   <ContextBlock sample={sample} />
-                </div>
-              </div>
-              <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-                <div className={cx('fr-col-6')}>
+                </span>
+              </span>
+              <span className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+                <span className={cx('fr-col-6')}>
                   <SamplerBlock sample={sample} user={user} />
-                </div>
-                <div className={cx('fr-col-6')}>
+                </span>
+                <span className={cx('fr-col-6')}>
                   <MatrixBlock sample={sample} />
-                </div>
-              </div>
+                </span>
+              </span>
             </>
           ) : (
             <>
