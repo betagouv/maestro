@@ -406,7 +406,7 @@ export const sampleRouter = {
         !isNil(sampleUpdate.stage)
           ? await prescriptionRepository
               .findMany({
-                programmingPlanId: sampleUpdate.programmingPlanId,
+                programmingPlanIds: [sampleUpdate.programmingPlanId],
                 contexts: [sampleUpdate.context as ProgrammingPlanContext],
                 matrixKind: sampleUpdate.matrixKind,
                 stage: sampleUpdate.stage

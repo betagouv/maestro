@@ -91,6 +91,7 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'closeProgrammingPlan',
     'updatePrescriptionLaboratory',
     'commentPrescription',
+    'distributePrescriptionToDepartments',
     'deleteDocument'
   ],
   NationalObserver: ObserverPermissionsList,

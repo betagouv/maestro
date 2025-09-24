@@ -1,7 +1,11 @@
 import { RegionList } from 'maestro-shared/referential/Region';
 import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
-import { PPVValidatedProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
+import {
+  PPVInProgressProgrammingPlanFixture,
+  PPVValidatedProgrammingPlanFixture
+} from 'maestro-shared/test/programmingPlanFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
+import { v4 as uuidv4 } from 'uuid';
 import { Prescriptions } from '../../../repositories/prescriptionRepository';
 import { ProgrammingPlans } from '../../../repositories/programmingPlanRepository';
 import { RegionalPrescriptions } from '../../../repositories/regionalPrescriptionRepository';
@@ -301,7 +305,7 @@ export const seed = async function () {
       laboratoryId: oneOf(DummyLaboratoryIds)
     }));
 
-  await Prescriptions().insert([
+  const prescriptions = [
     abricotsEtSimilaires,
     avocats,
     avoineEtSimilaires,
@@ -335,7 +339,15 @@ export const seed = async function () {
     fevesDeSoja,
     graineDeTournesol1,
     graineDeTournesol2
-  ]);
+  ];
+
+  const inProgressPrescriptions = prescriptions.map((prescription) => ({
+    ...prescription,
+    id: uuidv4(),
+    programmingPlanId: PPVInProgressProgrammingPlanFixture.id
+  }));
+
+  await Prescriptions().insert([...prescriptions, ...inProgressPrescriptions]);
 
   await RegionalPrescriptions().insert([
     ...genRegionalPrescriptions(
@@ -469,6 +481,14 @@ export const seed = async function () {
     ...genRegionalPrescriptions(
       graineDeTournesol2.id,
       [12, 0, 0, 8, 0, 0, 0, 0, 0, 17, 13, 0, 0, 0, 0, 0, 0, 0]
+    ),
+    ...inProgressPrescriptions.flatMap((prescription) =>
+      genRegionalPrescriptions(
+        prescription.id,
+        Array(18)
+          .fill(0)
+          .map(() => (Math.random() < 0.5 ? 0 : Math.ceil(Math.random() * 10)))
+      )
     )
   ]);
 };

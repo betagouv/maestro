@@ -23,6 +23,8 @@ export const UserPermission = z.enum([
   'updatePrescriptionLaboratory',
   'deletePrescription',
   'commentPrescription',
+  'distributePrescriptionToDepartments',
+  'distributePrescriptionToSlaughterhouses',
   'createResource',
   'readDocuments',
   'deleteDocument',

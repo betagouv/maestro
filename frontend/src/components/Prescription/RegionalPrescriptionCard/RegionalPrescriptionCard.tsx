@@ -1,3 +1,4 @@
+import Button from '@codegouvfr/react-dsfr/Button';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
@@ -8,12 +9,12 @@ import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/Programmi
 import { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { isDefined } from 'maestro-shared/utils/utils';
-import { useCallback } from 'react';
+import { useCallback, useContext } from 'react';
 import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
-import RegionalPrescriptionLaboratory from 'src/components/Prescription/RegionalPrescriptionLaboratory/RegionalPrescriptionLaboratory';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { pluralize } from 'src/utils/stringUtils';
 import { useAppDispatch } from '../../../hooks/useStore';
+import { ApiClientContext } from '../../../services/apiClient';
 import prescriptionsSlice from '../../../store/reducers/prescriptionsSlice';
 import PrescriptionBreadcrumb from '../PrescriptionBreadcrumb/PrescriptionBreadcrumb';
 import './RegionalPrescriptionCard.scss';
@@ -22,7 +23,6 @@ interface Props {
   programmingPlan?: ProgrammingPlan;
   prescription: Prescription;
   regionalPrescription?: RegionalPrescription;
-  onChangeLaboratory: (laboratoryId: string) => Promise<void>;
   isSelected?: boolean;
   onToggleSelection?: () => void;
 }
@@ -31,12 +31,14 @@ const RegionalPrescriptionCard = ({
   programmingPlan,
   prescription,
   regionalPrescription,
-  onChangeLaboratory,
   isSelected,
   onToggleSelection
 }: Props) => {
+  const apiClient = useContext(ApiClientContext);
   const dispatch = useAppDispatch();
   const { hasUserRegionalPrescriptionPermission } = useAuthentication();
+
+  const { data: laboratories } = apiClient.useFindLaboratoriesQuery();
 
   const getComments = useCallback(
     (regionalPrescription: RegionalPrescription) => {
@@ -49,6 +51,10 @@ const RegionalPrescriptionCard = ({
     return <></>;
   }
 
+  const currentLaboratory = laboratories?.find(
+    (laboratory) => laboratory.id === regionalPrescription?.laboratoryId
+  );
+
   return (
     <div className={cx('fr-col-12', 'fr-col-md-6')}>
       <div
@@ -60,13 +66,12 @@ const RegionalPrescriptionCard = ({
       >
         <div className={cx('fr-card__body')}>
           <div className={cx('fr-card__content')}>
-            <PrescriptionBreadcrumb
-              prescription={prescription}
-              programmingPlan={programmingPlan}
-            />
-            <h3 className={clsx(cx('fr-card__title'), 'd-flex-align-center')}>
-              <div className="flex-grow-1">
-                {MatrixKindLabels[prescription.matrixKind]}
+            <div className="d-flex-align-start">
+              <div className={clsx(cx('fr-mr-2w'), 'flex-grow-1')}>
+                <PrescriptionBreadcrumb
+                  prescription={prescription}
+                  programmingPlan={programmingPlan}
+                />
               </div>
               {hasUserRegionalPrescriptionPermission(
                 programmingPlan,
@@ -82,22 +87,36 @@ const RegionalPrescriptionCard = ({
                       }
                     }
                   ]}
-                  classes={{
-                    content: 'fr-mt-1v'
-                  }}
+                  small
                 />
               )}
-            </h3>
+            </div>
+            <div className="d-flex-align-center">
+              <h3
+                className={clsx(cx('fr-card__title', 'fr-mb-0'), 'flex-grow-1')}
+              >
+                <div className="flex-grow-1">
+                  {MatrixKindLabels[prescription.matrixKind]}
+                </div>
+              </h3>
+              <Button
+                priority="tertiary"
+                size="small"
+                onClick={() =>
+                  dispatch(
+                    prescriptionsSlice.actions.setPrescriptionModalData({
+                      mode: 'details',
+                      programmingPlan,
+                      prescription
+                    })
+                  )
+                }
+                className="no-wrap"
+              >
+                Plus de détails
+              </Button>
+            </div>
             <div className="fr-card__end">
-              {hasUserRegionalPrescriptionPermission(
-                programmingPlan,
-                regionalPrescription
-              )?.updateLaboratory && (
-                <RegionalPrescriptionLaboratory
-                  regionalPrescription={regionalPrescription}
-                  onChangeLaboratory={onChangeLaboratory}
-                />
-              )}
               <div>
                 {['InProgress', 'Submitted'].includes(
                   programmingPlan.regionalStatus.find(
@@ -140,53 +159,85 @@ const RegionalPrescriptionCard = ({
           inlineLayoutWhen="always"
           className={cx('fr-m-0')}
           buttons={[
-            {
-              children: 'Détails',
-              priority: 'tertiary no outline',
-              onClick: () =>
-                dispatch(
-                  prescriptionsSlice.actions.setPrescriptionEditData({
-                    mode: 'details',
-                    programmingPlan,
-                    prescription
-                  })
-                ),
-              iconId: 'fr-icon-survey-line',
-              className: cx('fr-m-0')
-            },
-            {
-              children: 'Répartir',
-              priority: 'tertiary no outline',
-              onClick: () => {},
-              iconId: 'fr-icon-team-line',
-              className: cx('fr-m-0')
-            },
             hasUserRegionalPrescriptionPermission(
               programmingPlan,
               regionalPrescription
-            )?.comment
+            )?.distributeToDepartments
               ? {
-                  children:
-                    getComments(regionalPrescription).length > 0
-                      ? `${getComments(regionalPrescription).length} ${pluralize(getComments(regionalPrescription).length)('commentaire')}`
-                      : 'Échanger',
+                  children: 'Répartir',
+                  priority: 'tertiary no outline',
+                  onClick: () => {},
+                  iconId: 'fr-icon-team-line',
+                  className: cx('fr-m-0')
+                }
+              : undefined,
+            hasUserRegionalPrescriptionPermission(
+              programmingPlan,
+              regionalPrescription
+            )?.updateLaboratory
+              ? {
+                  children: (
+                    <span className="no-wrap">
+                      {currentLaboratory
+                        ? `Laboratoire ${currentLaboratory.name}`
+                        : 'Attribuer un laboratoire'}
+                    </span>
+                  ),
                   priority: 'tertiary no outline',
                   onClick: () =>
                     dispatch(
-                      prescriptionsSlice.actions.setPrescriptionCommentsData({
-                        viewBy: 'MatrixKind',
-                        prescriptionId: prescription.id,
-                        matrixKind: prescription.matrixKind,
-                        regionalComments: [regionalPrescription].map((rcp) => ({
-                          region: rcp.region,
-                          comments: getComments(rcp)
-                        }))
-                      })
+                      prescriptionsSlice.actions.setRegionalPrescriptionModalData(
+                        {
+                          mode: 'laboratory',
+                          programmingPlan,
+                          prescription,
+                          regionalPrescription
+                        }
+                      )
                     ),
-                  iconId: 'fr-icon-chat-3-line',
+                  iconId: currentLaboratory
+                    ? undefined
+                    : 'fr-icon-microscope-line',
                   className: cx('fr-m-0')
                 }
-              : undefined
+              : undefined,
+            {
+              children:
+                hasUserRegionalPrescriptionPermission(
+                  programmingPlan,
+                  regionalPrescription
+                )?.comment && getComments(regionalPrescription).length === 0 ? (
+                  'Commenter'
+                ) : (
+                  <span className="no-wrap">
+                    {getComments(regionalPrescription).length}{' '}
+                    {pluralize(getComments(regionalPrescription).length)(
+                      'commentaire'
+                    )}
+                  </span>
+                ),
+              disabled:
+                !hasUserRegionalPrescriptionPermission(
+                  programmingPlan,
+                  regionalPrescription
+                )?.comment && getComments(regionalPrescription).length === 0,
+              priority: 'tertiary no outline',
+              onClick: () =>
+                dispatch(
+                  prescriptionsSlice.actions.setPrescriptionCommentsData({
+                    viewBy: 'MatrixKind',
+                    programmingPlan,
+                    prescriptionId: prescription.id,
+                    matrixKind: prescription.matrixKind,
+                    regionalComments: [regionalPrescription].map((rcp) => ({
+                      region: rcp.region,
+                      comments: getComments(rcp)
+                    }))
+                  })
+                ),
+              iconId: 'fr-icon-chat-3-line',
+              className: cx('fr-m-0')
+            }
           ].filter(isDefined)}
         />
       </div>

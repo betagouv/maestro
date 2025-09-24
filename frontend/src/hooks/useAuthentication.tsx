@@ -52,10 +52,12 @@ export const useAuthentication = () => {
 
   const hasUserRegionalPrescriptionPermission = useCallback(
     (
-      programmingPlan: ProgrammingPlan,
-      regionalPrescription: { region: Region }
+      programmingPlan?: ProgrammingPlan,
+      regionalPrescription?: { region: Region }
     ): Record<RegionalPrescriptionPermission, boolean> | null =>
-      isDefined(authUser?.user)
+      isDefined(authUser?.user) &&
+      isDefined(regionalPrescription) &&
+      isDefined(programmingPlan)
         ? hasRegionalPrescriptionPermission(
             authUser.user,
             programmingPlan,

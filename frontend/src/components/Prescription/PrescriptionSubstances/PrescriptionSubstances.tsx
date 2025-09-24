@@ -14,7 +14,7 @@ import { useAppDispatch } from 'src/hooks/useStore';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import { pluralize } from 'src/utils/stringUtils';
 import { ApiClientContext } from '../../../services/apiClient';
-import '../PrescriptionEditModal/PrescriptionEditModal.scss';
+import '../PrescriptionModal/PrescriptionModal.scss';
 
 interface Props {
   programmingPlan: ProgrammingPlan;
@@ -77,7 +77,7 @@ const PrescriptionSubstances = ({
           <Button
             onClick={() =>
               dispatch(
-                prescriptionsSlice.actions.setPrescriptionEditData({
+                prescriptionsSlice.actions.setPrescriptionModalData({
                   mode: 'analysis',
                   programmingPlan,
                   prescription
@@ -128,7 +128,7 @@ const PrescriptionSubstances = ({
           <Button
             onClick={() =>
               dispatch(
-                prescriptionsSlice.actions.setPrescriptionEditData({
+                prescriptionsSlice.actions.setPrescriptionModalData({
                   mode: 'analysis',
                   programmingPlan,
                   prescription

@@ -169,7 +169,6 @@ const ProgrammingCommentList = ({ programmingPlans, ..._rest }: Props) => {
                 <div className={cx('fr-m-2w')}>
                   <div className={clsx('d-flex-align-center')}>
                     <h6 className="flex-grow-1">
-                      {' '}
                       {MatrixKindLabels[prescription.matrixKind]}
                     </h6>
                     <Button
@@ -179,6 +178,9 @@ const ProgrammingCommentList = ({ programmingPlans, ..._rest }: Props) => {
                           prescriptionsSlice.actions.setPrescriptionCommentsData(
                             {
                               viewBy: 'MatrixKind',
+                              programmingPlan: programmingPlans.find(
+                                (pp) => pp.id === prescription.programmingPlanId
+                              ) as ProgrammingPlan,
                               prescriptionId: prescription.id,
                               matrixKind: prescription.matrixKind,
                               regionalComments:
@@ -218,6 +220,10 @@ const ProgrammingCommentList = ({ programmingPlans, ..._rest }: Props) => {
                               prescriptionsSlice.actions.setPrescriptionCommentsData(
                                 {
                                   viewBy: 'MatrixKind',
+                                  programmingPlan: programmingPlans.find(
+                                    (pp) =>
+                                      pp.id === prescription.programmingPlanId
+                                  ) as ProgrammingPlan,
                                   prescriptionId: prescription.id,
                                   matrixKind: prescription.matrixKind,
                                   currentRegion: regionalPrescription.region,
