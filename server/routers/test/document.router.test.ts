@@ -236,12 +236,14 @@ describe('Document router', () => {
     test('should fail if the user is not authenticated', async () => {
       await request(app)
         .put(testRoute(analysisDocument.id))
+        .send({ legend: 'legend' })
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
     test('should fail if the user has not the right permissions', async () => {
       await request(app)
         .put(testRoute(analysisDocument.id))
+        .send({ legend: 'legend' })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
@@ -249,6 +251,7 @@ describe('Document router', () => {
     test('should get a valid document id', async () => {
       await request(app)
         .put(testRoute('invalid-id'))
+        .send({ legend: 'legend' })
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
@@ -256,8 +259,16 @@ describe('Document router', () => {
     test('should fail if the document is not a sample document', async () => {
       await request(app)
         .put(testRoute(resourceDocument.id))
+        .send({ legend: 'legend' })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should fail if no body', async () => {
+      await request(app)
+        .put(testRoute(sampleDocument.id))
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
     test('should update the document', async () => {
