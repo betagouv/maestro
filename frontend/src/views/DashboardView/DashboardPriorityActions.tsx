@@ -65,7 +65,7 @@ const DashboardPriorityActions: FunctionComponent<Props> = ({
             ) : (
               <>
                 {samplesInReview?.map((s) => (
-                  <SampleCard sample={s} horizontal />
+                  <SampleCard sample={s} horizontal key={s.id} />
                 ))}
                 <div className={clsx('more-actions-link')}>
                   <Link

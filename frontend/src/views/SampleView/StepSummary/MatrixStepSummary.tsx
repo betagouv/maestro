@@ -217,7 +217,7 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
         </>
       )}
       {sample.documentIds?.map((documentId) => (
-        <div className="summary-item icon-text">
+        <div className="summary-item icon-text" key={documentId}>
           <div className={cx('fr-icon-attachment-line')}></div>
           <div className={cx('fr-col')}>
             Pièces jointes :{' '}

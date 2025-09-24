@@ -39,8 +39,10 @@ const ProgrammingPlanPrescriptionTable = ({
 
   const headers = useMemo(
     () => [
-      <div>Matrice</div>,
-      <div className="border-left">Total</div>,
+      <div key={'matrice'}>Matrice</div>,
+      <div key={'total'} className="border-left">
+        Total
+      </div>,
       ...RegionList.map((region) => (
         <div className="border-left" key={`header-${region}`}>
           <RegionHeaderCell region={region} />
@@ -110,7 +112,8 @@ const ProgrammingPlanPrescriptionTable = ({
 
   const totalData = useMemo(
     () => [
-      <b>Total</b>,
+      <b key={'total'}>Total</b>,
+      // eslint-disable-next-line react/jsx-key
       <div className="border-left fr-text--bold">
         <div>{sumBy(regionalPrescriptions, 'sampleCount')}</div>
         <div>{sumBy(regionalPrescriptions, 'realizedSampleCount')}</div>

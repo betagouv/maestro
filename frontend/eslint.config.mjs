@@ -1,3 +1,4 @@
+import reactPlugin from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
 import storybook from 'eslint-plugin-storybook';
 import { globalIgnores } from 'eslint/config';
@@ -14,6 +15,20 @@ export default tseslint.config([
   ]),
   commonConfig,
   reactHooks.configs['recommended-latest'],
+  reactPlugin.configs.flat.recommended,
+  {
+    settings: {
+      react: {
+        version: 'detect'
+      }
+    },
+    rules: {
+      'react/no-children-prop': 'off',
+      'react/no-unescaped-entities': 'off',
+      'react/display-name': 'off'
+    }
+  },
+  reactPlugin.configs.flat['jsx-runtime'],
   {
     rules: {
       'react-hooks/exhaustive-deps': 'error'

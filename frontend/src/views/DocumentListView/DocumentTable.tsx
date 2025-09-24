@@ -32,7 +32,7 @@ const DocumentTable = ({ documents }: Props) => {
         noCaption
         headers={['', 'Nom', 'Date de création', '']}
         data={documents.map((document) => [
-          <div>
+          <div key={`${document.id}-remove`}>
             {hasUserPermission('deleteDocument') && (
               <RemoveDocument
                 document={document}
@@ -51,6 +51,7 @@ const DocumentTable = ({ documents }: Props) => {
             children="Consulter"
             iconId="fr-icon-arrow-right-line"
             iconPosition="right"
+            key={`${document.id}-open`}
           />
         ])}
       />

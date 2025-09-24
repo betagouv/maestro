@@ -285,13 +285,17 @@ const Header = () => {
                   key="userMenu"
                   value={`${user?.name}`}
                   menuItems={[
-                    <MascaradeButton modal={mascaradeModal} />,
+                    <MascaradeButton
+                      modal={mascaradeModal}
+                      key="mascarade-button"
+                    />,
                     <Button
                       iconId="fr-icon-logout-box-r-line"
                       onClick={async () => {
                         const logoutRedirectUrl = await logout().unwrap();
                         window.location.href = logoutRedirectUrl.url;
                       }}
+                      key="logout-button"
                     >
                       Se déconnecter
                     </Button>
