@@ -1,28 +1,6 @@
-import { NextFunction, Request, Response } from 'express';
-import { constants } from 'http2';
+import { Request } from 'express';
 import sanitizeHtml from 'sanitize-html';
-import { z, ZodArray, ZodObject } from 'zod';
-export const body = (o: ZodObject | ZodArray<any>) =>
-  z.object({
-    body: o
-  });
-
-export const params = (o: ZodObject) =>
-  z.object({
-    params: o
-  });
-
-export const query = (o: ZodObject) =>
-  z.object({
-    query: o
-  });
-
-export const uuidParam = (paramName: string) =>
-  z.object({
-    params: z.object({
-      [paramName]: z.guid()
-    })
-  });
+import { z, ZodObject } from 'zod';
 
 const sanitizeObject = (obj: unknown): any => {
   if (typeof obj === 'string') {
@@ -51,32 +29,14 @@ const sanitizeObject = (obj: unknown): any => {
   return obj;
 };
 
-const validate =
-  (
-    schema: ZodObject,
-    options: { skipSanitization: boolean } = { skipSanitization: false }
-  ) =>
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const parsedReq = await schema.parseAsync({
-        body: options.skipSanitization ? req.body : sanitizeObject(req.body),
-        query: options.skipSanitization ? req.query : sanitizeObject(req.query),
-        params: options.skipSanitization
-          ? req.params
-          : sanitizeObject(req.params)
-      });
-      ['body', 'cookies', 'headers', 'params', 'query'].forEach((location) => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        req[location] = parsedReq[location];
-      });
-      return next();
-    } catch (error) {
-      console.error(error);
-      return res.status(constants.HTTP_STATUS_BAD_REQUEST).json(error);
-    }
-  };
-
-export default {
-  validate
+export const validateRequest = async <T extends ZodObject>(
+  req: Request,
+  schema: T,
+  options: { skipSanitization: boolean }
+): Promise<z.infer<T>> => {
+  return schema.parseAsync({
+    body: options.skipSanitization ? req.body : sanitizeObject(req.body),
+    query: options.skipSanitization ? req.query : sanitizeObject(req.query),
+    params: options.skipSanitization ? req.params : sanitizeObject(req.params)
+  });
 };

@@ -1,32 +1,65 @@
 import { ZodArray, ZodObject, ZodType } from 'zod';
 import { UserPermission } from '../schema/User/UserPermission';
 import { analysisRoutes } from './analysis.routes';
+import { authRoutes } from './auth.routes';
+import { documentsRoutes } from './documents.routes';
+import { laboratoriesRoutes } from './laboratories.routes';
 import { noticesRoutes } from './notices.routes';
+import { notificationsRoutes } from './notifications.routes';
+import { prescriptionsRoutes } from './prescriptions.routes';
 import { programmingPlansRoutes } from './programmingPlans.routes';
 import { samplesRoutes } from './samples.routes';
+import { usersRoutes } from './users.routes';
 
 export const MaestroRoutes = [
   '/analysis',
   '/analysis/:analysisId',
   '/analysis/:analysisId/reportDocuments',
+  '/auth',
+  '/auth/logout',
+  '/auth/redirect-url',
+  '/documents',
+  '/documents/resources',
+  '/documents/upload-signed-url',
+  '/documents/:documentId',
+  '/documents/:documentId/download-signed-url',
+  '/laboratories',
+  '/laboratories/:laboratoryId',
+  '/notifications',
+  '/notifications/:notificationId',
   '/notices/:type',
+  '/prescriptions',
+  '/prescriptions/export',
+  '/prescriptions/regions',
+  '/prescriptions/:prescriptionId/regions/:region/comments',
+  '/prescriptions/:prescriptionId/regions/:region',
+  '/prescriptions/:prescriptionId/substances',
+  '/prescriptions/:prescriptionId',
   '/programming-plans',
+  '/programming-plans/years/:year',
   '/programming-plans/:programmingPlanId',
   '/programming-plans/:programmingPlanId/regional-status',
-  '/programming-plans/years/:year',
   '/samples',
   '/samples/count',
   '/samples/export',
   '/samples/:sampleId/document',
   '/samples/:sampleId/items/:itemNumber/document',
-  '/samples/:sampleId'
+  '/samples/:sampleId',
+  '/users',
+  '/users/:userId'
 ] as const;
 
 export const routes = {
   ...analysisRoutes,
+  ...authRoutes,
+  ...documentsRoutes,
+  ...laboratoriesRoutes,
   ...noticesRoutes,
+  ...notificationsRoutes,
+  ...prescriptionsRoutes,
   ...programmingPlansRoutes,
-  ...samplesRoutes
+  ...samplesRoutes,
+  ...usersRoutes
 } as const satisfies {
   [path in MaestroRoutes]: { [method in RouteMethod]?: ToRoute } & {
     params?: ZodUrlParams<path>;
@@ -60,7 +93,7 @@ export type MaestroRouteUnprotectedMethod<T extends MaestroRoutes> =
 
 export type MaestroRouteProtectedMethod<T extends MaestroRoutes> = Exclude<
   keyof (typeof routes)[T],
-  MaestroRouteUnprotectedMethod<T>
+  MaestroRouteUnprotectedMethod<T> | 'params'
 >;
 
 type MaestroRouteHasUnprotectedMethod<T> = T extends MaestroRoutes
@@ -70,9 +103,9 @@ type MaestroRouteHasUnprotectedMethod<T> = T extends MaestroRoutes
   : false;
 
 type MaestroRouteHasProtectedMethod<T> = T extends MaestroRoutes
-  ? MaestroRouteProtectedMethod<T> extends Record<never, never>
-    ? true
-    : false
+  ? MaestroRouteProtectedMethod<T> extends never
+    ? false
+    : true
   : false;
 
 type FilterProtectedRoutes<R> =
@@ -101,11 +134,12 @@ export type ToRoute = {
   query?: ZodObject;
   body?: ZodObject | ZodArray;
   response: ZodType;
+  skipSanitization?: true;
 } & (
   | {
       unprotected: true;
     }
-  | { permissions: [UserPermission, ...UserPermission[]] }
+  | { permissions: [UserPermission, ...UserPermission[]] | 'NONE' }
 );
 
 type ZodParseUrlParams<url> = url extends `${infer start}/${infer rest}`
