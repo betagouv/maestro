@@ -61,6 +61,7 @@ const RegionalPrescriptionCountCell = ({
                 dispatch(
                   prescriptionsSlice.actions.setPrescriptionCommentsData({
                     viewBy: 'MatrixKind',
+                    programmingPlan,
                     prescriptionId: regionalPrescription.prescriptionId,
                     matrixKind,
                     regionalComments: [regionalPrescription].map((rcp) => ({

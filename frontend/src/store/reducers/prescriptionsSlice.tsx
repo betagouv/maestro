@@ -6,6 +6,7 @@ import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Co
 import { ProgrammingPlanDomain } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { RegionalPrescriptionComment } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionComment';
 import { PrescriptionListDisplay } from 'src/views/ProgrammingView/ProgrammingPrescriptionList/ProgrammingPrescriptionList';
 import { z } from 'zod';
@@ -24,6 +25,7 @@ export type PrescriptionFilters = z.infer<typeof PrescriptionFilters>;
 const PrescriptionCommentsData = z.discriminatedUnion('viewBy', [
   z.object({
     viewBy: z.literal('MatrixKind'),
+    programmingPlan: ProgrammingPlan,
     prescriptionId: z.guid(),
     matrixKind: MatrixKind,
     currentRegion: Region.nullish(),
@@ -48,6 +50,7 @@ const PrescriptionCommentsData = z.discriminatedUnion('viewBy', [
     currentMatrixKind: MatrixKind.nullish(),
     matrixKindsComments: z.array(
       z.object({
+        programmingPlan: ProgrammingPlan,
         matrixKind: MatrixKind,
         comments: z
           .array(
@@ -63,20 +66,31 @@ const PrescriptionCommentsData = z.discriminatedUnion('viewBy', [
   })
 ]);
 
-const PrescriptionEditData = z.object({
-  mode: z.enum(['analysis', 'details', 'repartition']),
+const PrescriptionModalData = z.object({
+  mode: z.enum(['analysis', 'details']),
   programmingPlan: ProgrammingPlan,
   prescription: Prescription
 });
 
+const RegionalPrescriptionModalData = z.object({
+  mode: z.enum(['laboratory', 'distribution']),
+  programmingPlan: ProgrammingPlan,
+  prescription: Prescription,
+  regionalPrescription: RegionalPrescription
+});
+
 type PrescriptionCommentsData = z.infer<typeof PrescriptionCommentsData>;
-type PrescriptionEditData = z.infer<typeof PrescriptionEditData>;
+type PrescriptionModalData = z.infer<typeof PrescriptionModalData>;
+type RegionalPrescriptionModalData = z.infer<
+  typeof RegionalPrescriptionModalData
+>;
 
 type PrescriptionsState = {
   prescriptionFilters: PrescriptionFilters;
   prescriptionListDisplay: PrescriptionListDisplay;
   matrixQuery?: string;
-  prescriptionEditData?: PrescriptionEditData;
+  prescriptionModalData?: PrescriptionModalData;
+  regionalPrescriptionModalData?: RegionalPrescriptionModalData;
   prescriptionCommentsData?: PrescriptionCommentsData;
 };
 const initialState: PrescriptionsState = {
@@ -105,11 +119,17 @@ const prescriptionsSlice = createSlice({
     changeMatrixQuery: (state, action: PayloadAction<string>) => {
       state.matrixQuery = action.payload;
     },
-    setPrescriptionEditData: (
+    setPrescriptionModalData: (
       state,
-      action: PayloadAction<PrescriptionEditData | undefined>
+      action: PayloadAction<PrescriptionModalData | undefined>
     ) => {
-      state.prescriptionEditData = action.payload;
+      state.prescriptionModalData = action.payload;
+    },
+    setRegionalPrescriptionModalData: (
+      state,
+      action: PayloadAction<RegionalPrescriptionModalData | undefined>
+    ) => {
+      state.regionalPrescriptionModalData = action.payload;
     },
     setPrescriptionCommentsData: (
       state,
