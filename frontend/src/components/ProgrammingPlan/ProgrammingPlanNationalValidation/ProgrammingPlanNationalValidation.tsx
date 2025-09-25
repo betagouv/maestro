@@ -6,17 +6,19 @@ import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import RadioButtons from '@codegouvfr/react-dsfr/RadioButtons';
 import Select from '@codegouvfr/react-dsfr/Select';
+import clsx from 'clsx';
 import { Region, Regions, RegionSort } from 'maestro-shared/referential/Region';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   NextProgrammingPlanStatus,
   ProgrammingPlanStatus
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { useCallback, useContext, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch } from '../../../hooks/useStore';
 import { api } from '../../../services/api.service';
 import { ApiClientContext } from '../../../services/apiClient';
+import { pluralize } from '../../../utils/stringUtils';
 import './ProgrammingPlanNationalValidation.scss';
 interface Props {
   programmingPlans: ProgrammingPlan[];
@@ -39,17 +41,6 @@ const ProgrammingPlanNationalValidation = ({ programmingPlans }: Props) => {
   const [programmingPlan, setProgrammingPlan] = useState<
     ProgrammingPlan | undefined
   >(programmingPlans.length === 1 ? programmingPlans[0] : undefined);
-  const [status, setStatus] = useState<ProgrammingPlanStatus>('InProgress');
-  const [regionsToNotify, setRegionsToNotify] = useState<Region[]>([]);
-
-  useIsModalOpen(submissionModal, {
-    onConceal: () => {
-      setIsSuccess(false);
-      setIsError(false);
-      setStatus('InProgress');
-      setRegionsToNotify([]);
-    }
-  });
 
   const getRegionsByStatus = useCallback(
     (status: ProgrammingPlanStatus) =>
@@ -59,6 +50,20 @@ const ProgrammingPlanNationalValidation = ({ programmingPlans }: Props) => {
         .sort(RegionSort),
     [programmingPlan]
   );
+
+  const [status, setStatus] = useState<ProgrammingPlanStatus>('InProgress');
+  const [regionsToNotify, setRegionsToNotify] = useState<Region[]>(
+    getRegionsByStatus('InProgress')
+  );
+
+  useIsModalOpen(submissionModal, {
+    onConceal: () => {
+      setIsSuccess(false);
+      setIsError(false);
+      setStatus('InProgress');
+      setRegionsToNotify([]);
+    }
+  });
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
@@ -167,7 +172,7 @@ const ProgrammingPlanNationalValidation = ({ programmingPlans }: Props) => {
                     checked: status === 'InProgress',
                     onChange: () => {
                       setStatus('InProgress');
-                      setRegionsToNotify([]);
+                      setRegionsToNotify(getRegionsByStatus('InProgress'));
                     },
                     disabled: getRegionsByStatus('InProgress').length === 0
                   }
@@ -178,7 +183,7 @@ const ProgrammingPlanNationalValidation = ({ programmingPlans }: Props) => {
                     checked: status === 'Approved',
                     onChange: () => {
                       setStatus('Approved');
-                      setRegionsToNotify([]);
+                      setRegionsToNotify(getRegionsByStatus('Approved'));
                     },
                     disabled: getRegionsByStatus('Approved').length === 0
                   }
@@ -189,7 +194,32 @@ const ProgrammingPlanNationalValidation = ({ programmingPlans }: Props) => {
             <div className={cx('fr-mt-3w')}>
               {getRegionsByStatus(status).length > 0 ? (
                 <Checkbox
-                  legend="Régions"
+                  legend={
+                    <div className="d-flex-align-center">
+                      <span className="flex-grow-1">
+                        Régions ({regionsToNotify.length}{' '}
+                        {pluralize(regionsToNotify.length)('sélectionnée')})
+                      </span>
+                      <Button
+                        onClick={() =>
+                          setRegionsToNotify(
+                            regionsToNotify.length ===
+                              getRegionsByStatus(status).length
+                              ? []
+                              : getRegionsByStatus(status)
+                          )
+                        }
+                        priority="tertiary no outline"
+                        className={clsx(cx('fr-link--sm'), 'link-underline')}
+                      >
+                        Tout{' '}
+                        {getRegionsByStatus(status).length ===
+                        regionsToNotify.length
+                          ? 'désélectionner'
+                          : 'sélectionner'}
+                      </Button>
+                    </div>
+                  }
                   options={getRegionsByStatus(status).map((region) => ({
                     label: Regions[region].name,
                     nativeInputProps: {

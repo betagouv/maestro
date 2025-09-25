@@ -23,6 +23,7 @@ interface Props {
   programmingPlan?: ProgrammingPlan;
   prescription: Prescription;
   regionalPrescription?: RegionalPrescription;
+  departmentalPrescriptions?: RegionalPrescription[];
   isSelected?: boolean;
   onToggleSelection?: () => void;
 }
@@ -31,6 +32,7 @@ const RegionalPrescriptionCard = ({
   programmingPlan,
   prescription,
   regionalPrescription,
+  departmentalPrescriptions,
   isSelected,
   onToggleSelection
 }: Props) => {
@@ -113,7 +115,7 @@ const RegionalPrescriptionCard = ({
                 }
                 className="no-wrap"
               >
-                Plus de détails
+                Instructions
               </Button>
             </div>
             <div className="fr-card__end">
@@ -164,10 +166,22 @@ const RegionalPrescriptionCard = ({
               regionalPrescription
             )?.distributeToDepartments
               ? {
-                  children: 'Répartir',
+                  children: 'Répartir aux départements',
                   priority: 'tertiary no outline',
-                  onClick: () => {},
-                  iconId: 'fr-icon-team-line',
+                  onClick: () =>
+                    dispatch(
+                      prescriptionsSlice.actions.setRegionalPrescriptionModalData(
+                        {
+                          mode: 'distribution',
+                          programmingPlan,
+                          prescription,
+                          regionalPrescription,
+                          departmentalPrescriptions:
+                            departmentalPrescriptions || []
+                        }
+                      )
+                    ),
+                  iconId: 'fr-icon-road-map-line',
                   className: cx('fr-m-0')
                 }
               : undefined,

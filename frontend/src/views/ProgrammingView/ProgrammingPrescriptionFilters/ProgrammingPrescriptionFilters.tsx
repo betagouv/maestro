@@ -27,19 +27,28 @@ interface Props {
     contexts: ProgrammingPlanContext[];
   };
   programmingPlans?: ProgrammingPlan[];
-  filters: Partial<PrescriptionFilters>;
+  filters: PrescriptionFilters;
   onChange: (filters: Partial<PrescriptionFilters>) => void;
+  renderMode: 'inline' | 'modal';
+  multiSelect?: boolean;
 }
 
 const ProgrammingPrescriptionFilters = ({
   options,
   programmingPlans,
   filters,
-  onChange
+  onChange,
+  renderMode,
+  multiSelect
 }: Props) => {
   return (
     <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-      <div className={cx('fr-col-12', 'fr-col-md-3')}>
+      <div
+        className={cx(
+          'fr-col-12',
+          renderMode === 'inline' ? 'fr-col-md-3' : 'fr-col-md-6'
+        )}
+      >
         <Select
           label="Domaine"
           nativeSelectProps={{
@@ -54,14 +63,14 @@ const ProgrammingPrescriptionFilters = ({
             labels: ProgrammingPlanDomainLabels,
             withDefault: options.domains.length > 1,
             withSort: true,
-            defaultLabel: 'Tous'
+            defaultLabel: multiSelect ? 'Tous' : undefined
           }).map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>
           ))}
         </Select>
-        {options.domains.length > 1 && (
+        {multiSelect && options.domains.length > 1 && (
           <FiltersTags
             key="domain-tags"
             filters={pick(filters, ['domain'])}
@@ -69,14 +78,21 @@ const ProgrammingPrescriptionFilters = ({
           />
         )}
       </div>
-      <div className={cx('fr-col-12', 'fr-col-md-3')}>
+      <div
+        className={cx(
+          'fr-col-12',
+          renderMode === 'inline' ? 'fr-col-md-3' : 'fr-col-md-6'
+        )}
+      >
         <Select
           label="Plan"
           nativeSelectProps={{
             value: filters.planIds?.[0] ?? '',
             onChange: (e) =>
               onChange({
-                planIds: [...(filters.planIds ?? []), e.target.value]
+                planIds: multiSelect
+                  ? [...(filters.planIds ?? []), e.target.value]
+                  : [e.target.value as string]
               })
           }}
           className={cx('fr-mb-1v')}
@@ -84,17 +100,20 @@ const ProgrammingPrescriptionFilters = ({
         >
           {options.plans.length > 1 && (
             <option value="">
-              {filters.planIds?.length
+              {multiSelect && filters.planIds?.length
                 ? t('select', {
                     count: filters.planIds?.length
                   })
-                : 'Tous'}
+                : multiSelect
+                  ? 'Tous'
+                  : 'Sélectionner une valeur'}
             </option>
           )}
           {options.plans
             .filter(
               (plan) =>
                 options.plans.length === 1 ||
+                !multiSelect ||
                 !filters.planIds?.includes(plan.id)
             )
             .map((plan) => (
@@ -103,7 +122,7 @@ const ProgrammingPrescriptionFilters = ({
               </option>
             ))}
         </Select>
-        {options.plans.length > 1 && (
+        {multiSelect && options.plans.length > 1 && (
           <FiltersTags
             filters={pick(filters, ['planIds'])}
             onChange={({ planIds }) =>
@@ -115,17 +134,24 @@ const ProgrammingPrescriptionFilters = ({
           />
         )}
       </div>
-      <div className={cx('fr-col-12', 'fr-col-md-3')}>
+      <div
+        className={cx(
+          'fr-col-12',
+          renderMode === 'inline' ? 'fr-col-md-3' : 'fr-col-md-6'
+        )}
+      >
         <Select
           label="Sous-plan"
           nativeSelectProps={{
             value: filters.kinds?.[0] ?? '',
             onChange: (e) =>
               onChange({
-                kinds: [
-                  ...(filters.kinds ?? []),
-                  e.target.value as ProgrammingPlanKind
-                ]
+                kinds: multiSelect
+                  ? [
+                      ...(filters.kinds ?? []),
+                      e.target.value as ProgrammingPlanKind
+                    ]
+                  : [e.target.value as ProgrammingPlanKind]
               })
           }}
           className={cx('fr-mb-1v')}
@@ -133,17 +159,21 @@ const ProgrammingPrescriptionFilters = ({
         >
           {options.kinds.length > 1 && (
             <option value="">
-              {filters.kinds?.length
+              {multiSelect && filters.kinds?.length
                 ? t('select', {
                     count: filters.kinds?.length
                   })
-                : 'Tous'}
+                : multiSelect
+                  ? 'Tous'
+                  : 'Sélectionner une valeur'}
             </option>
           )}
           {options.kinds
             .filter(
               (kind) =>
-                options.kinds.length === 1 || !filters.kinds?.includes(kind)
+                options.kinds.length === 1 ||
+                !multiSelect ||
+                !filters.kinds?.includes(kind)
             )
             .map((kind) => (
               <option key={`kind-${kind}`} value={kind}>
@@ -151,24 +181,31 @@ const ProgrammingPrescriptionFilters = ({
               </option>
             ))}
         </Select>
-        {options.kinds.length > 1 && (
+        {multiSelect && options.kinds.length > 1 && (
           <FiltersTags
             filters={pick(filters, ['kinds'])}
             onChange={({ kinds }) => onChange({ kinds })}
           />
         )}
       </div>
-      <div className={cx('fr-col-12', 'fr-col-md-3')}>
+      <div
+        className={cx(
+          'fr-col-12',
+          renderMode === 'inline' ? 'fr-col-md-3' : 'fr-col-md-6'
+        )}
+      >
         <Select
           label="Contexte"
           nativeSelectProps={{
             value: filters.contexts?.[0] ?? '',
             onChange: (e) =>
               onChange({
-                contexts: [
-                  ...(filters.contexts ?? []),
-                  e.target.value as ProgrammingPlanContext
-                ]
+                contexts: multiSelect
+                  ? [
+                      ...(filters.contexts ?? []),
+                      e.target.value as ProgrammingPlanContext
+                    ]
+                  : [e.target.value as ProgrammingPlanContext]
               })
           }}
           className={cx('fr-mb-1v')}
@@ -176,17 +213,20 @@ const ProgrammingPrescriptionFilters = ({
         >
           {options.contexts.length > 1 && (
             <option value="">
-              {filters.contexts?.length
+              {multiSelect && filters.contexts?.length
                 ? t('context', {
                     count: filters.contexts?.length
                   })
-                : 'Tous'}
+                : multiSelect
+                  ? 'Tous'
+                  : 'Sélectionner une valeur'}
             </option>
           )}
           {options.contexts
             .filter(
               (context) =>
                 options.contexts.length === 1 ||
+                !multiSelect ||
                 !filters.contexts?.includes(context)
             )
             .map((context) => (
@@ -195,7 +235,7 @@ const ProgrammingPrescriptionFilters = ({
               </option>
             ))}
         </Select>
-        {options.contexts.length > 1 && (
+        {multiSelect && options.contexts.length > 1 && (
           <FiltersTags
             filters={pick(filters, ['contexts'])}
             onChange={({ contexts }) => onChange({ contexts })}
