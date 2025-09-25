@@ -8,8 +8,11 @@ import { User } from 'maestro-shared/schema/User/User';
 import { userRepository } from '../../repositories/userRepository';
 import config from '../../utils/config';
 
+import {
+  COOKIE_MAESTRO_ACCESS_TOKEN,
+  COOKIE_MAESTRO_MASCARADE
+} from 'maestro-shared/constants';
 import AuthenticationFailedError from 'maestro-shared/errors/authenticationFailedError';
-import { COOKIE_MAESTRO_ACCESS_TOKEN } from '../../utils/constants';
 
 export const jwtCheck = (credentialsRequired: boolean) =>
   expressjwt({
@@ -27,7 +30,7 @@ const setUser = async (
   user: User | undefined
 ): Promise<void> => {
   if (user?.role === 'Administrator') {
-    const mascaradeUserId = request.header('X-MASCARADE-ID');
+    const mascaradeUserId = request.cookies?.[COOKIE_MAESTRO_MASCARADE];
     if (mascaradeUserId !== undefined) {
       const mascaradeUser = await userRepository.findUnique(mascaradeUserId);
       if (mascaradeUser !== undefined) {

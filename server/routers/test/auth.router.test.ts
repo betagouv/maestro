@@ -6,6 +6,7 @@ import { createServer } from '../../server';
 
 import { fakerFR } from '@faker-js/faker';
 import jwt from 'jsonwebtoken';
+import { COOKIE_MAESTRO_ACCESS_TOKEN } from 'maestro-shared/constants';
 import { genAuthRedirectUrl } from 'maestro-shared/test/authFixtures';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { kysely } from '../../repositories/kysely';
@@ -16,7 +17,6 @@ import {
 } from '../../test/setupTests';
 import { tokenProvider } from '../../test/testUtils';
 import config from '../../utils/config';
-import { COOKIE_MAESTRO_ACCESS_TOKEN } from '../../utils/constants';
 
 describe('Auth routes', () => {
   const { app } = createServer();

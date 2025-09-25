@@ -86,7 +86,8 @@ export const getMockApi = (partialMock: Partial<MockApi>): ApiClient => {
       key.startsWith('useCreate') ||
       key.startsWith('useComment') ||
       key.startsWith('useUpdate') ||
-      key.startsWith('useDelete')
+      key.startsWith('useDelete') ||
+      key.startsWith('useMascarade')
     ) {
       // @ts-expect-error TS7053
       acc[key] = () => mockApi[key];
@@ -198,7 +199,9 @@ const defaultMockApiClientConf: MockApi = {
   useGetDashboardNoticeQuery: {
     data: { type: 'dashboard', title: 'titre', description: 'description' }
   },
-  useUpdateDashboardNoticeMutation: [async () => fn(), {}]
+  useUpdateDashboardNoticeMutation: [async () => fn(), {}],
+  useMascaradeStartMutation: [async () => fn(), {}],
+  useMascaradeStopMutation: [async () => fn(), {}]
 };
 
 export const mockApiClient = getMockApi({});

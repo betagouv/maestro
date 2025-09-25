@@ -10,8 +10,7 @@ import { useAuthentication } from '../../hooks/useAuthentication';
 import { ApiClientContext } from '../../services/apiClient';
 import AppSearchInput from '../_app/AppSearchInput/AppSearchInput';
 import { selectOptionsFromList } from '../_app/AppSelect/AppSelectOption';
-import { MascaradeContext } from './MascaradeContext';
-
+import { useMascarade } from './useMascarade';
 interface Props {
   modal: ReturnType<typeof createModal>;
 }
@@ -21,14 +20,16 @@ export const MascaradeModal = ({ modal, ..._rest }: Props) => {
 
   const { hasRole } = useAuthentication();
 
-  const { setMascaradeUserId } = useContext(MascaradeContext);
+  const { setMascaradeUserId } = useMascarade();
 
   const [userId, setUserId] = useState<string | null>(null);
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     modal.close();
-    setMascaradeUserId(userId);
+    if (userId) {
+      setMascaradeUserId(userId);
+    }
   };
 
   return (
@@ -79,6 +80,9 @@ const UsersSearchInput: FunctionComponent<{
               labels: users.reduce(
                 (acc, u) => {
                   let label = `${u.name} - ${UserRoleLabels[u.role]}`;
+                  if (u.programmingPlanKinds) {
+                    label += ` - ${u.programmingPlanKinds.join(',')}`;
+                  }
                   if (u.region) {
                     label += ` - ${Regions[u.region].name}`;
                   }

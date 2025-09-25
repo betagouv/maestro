@@ -5,6 +5,7 @@ import * as authApi from './auth.service';
 import * as companyApi from './company.service';
 import * as documentApi from './document.service';
 import * as laboratoryApi from './laboratory.service';
+import * as mascaradeApi from './mascarade.service';
 import * as noticeApi from './notice.service';
 import * as notificationApi from './notification.service';
 import * as prescriptionApi from './prescription.service';
@@ -20,6 +21,7 @@ export type ApiClient = typeof analysisApi &
   typeof companyApi &
   typeof documentApi &
   typeof laboratoryApi &
+  typeof mascaradeApi &
   typeof notificationApi &
   typeof prescriptionApi &
   typeof programmingPlanApi &
@@ -36,6 +38,7 @@ export const apiClient: ApiClient = {
   ...companyApi,
   ...documentApi,
   ...laboratoryApi,
+  ...mascaradeApi,
   ...notificationApi,
   ...prescriptionApi,
   ...programmingPlanApi,

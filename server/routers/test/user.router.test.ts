@@ -1,6 +1,7 @@
 import { fakerFR } from '@faker-js/faker';
 import { constants } from 'http2';
 import { Insertable, Selectable } from 'kysely';
+import { COOKIE_MAESTRO_ACCESS_TOKEN } from 'maestro-shared/constants';
 import { Region } from 'maestro-shared/referential/Region';
 import { User } from 'maestro-shared/schema/User/User';
 import {
@@ -16,7 +17,6 @@ import { describe, expect, test } from 'vitest';
 import { DB } from '../../repositories/kysely.type';
 import { createServer } from '../../server';
 import { accessTokenTest, tokenProvider } from '../../test/testUtils';
-import { COOKIE_MAESTRO_ACCESS_TOKEN } from '../../utils/constants';
 
 // Vérifie que le type généré par kysely correspond bien à notre type
 // À l'avenir mieux vaut utiliser vitest pour tester les types => https://vitest.dev/guide/testing-types.html

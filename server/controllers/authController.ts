@@ -1,5 +1,6 @@
 import { constants } from 'http2';
 import jwt from 'jsonwebtoken';
+import { COOKIE_MAESTRO_ACCESS_TOKEN } from 'maestro-shared/constants';
 import AuthenticationFailedError from 'maestro-shared/errors/authenticationFailedError';
 import { AuthMaybeUnknownUser } from 'maestro-shared/schema/User/AuthUser';
 import { TokenPayload } from 'maestro-shared/schema/User/TokenPayload';
@@ -11,7 +12,6 @@ import {
 } from '../routers/routes.type';
 import { getAuthService } from '../services/authService';
 import config from '../utils/config';
-import { COOKIE_MAESTRO_ACCESS_TOKEN } from '../utils/constants';
 
 export const authUnprotectedRouter = {
   '/auth/redirect-url': {
