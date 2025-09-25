@@ -15,11 +15,7 @@ interface Props {
   programmingPlan: ProgrammingPlan;
   matrixKind: MatrixKind;
   regionalPrescriptions: RegionalPrescription[];
-  onChangeRegionalPrescriptionCount: (
-    prescriptionId: string,
-    region: Region,
-    value: number
-  ) => void;
+  onChangeRegionalCount: (region: Region, value: number) => void;
   start: number;
   end?: number;
 }
@@ -28,7 +24,7 @@ const PrescriptionCardPartialTable = ({
   programmingPlan,
   matrixKind,
   regionalPrescriptions,
-  onChangeRegionalPrescriptionCount,
+  onChangeRegionalCount,
   start,
   end,
   ..._rest
@@ -51,6 +47,7 @@ const PrescriptionCardPartialTable = ({
       ))}
       data={[
         regionalPrescriptions
+          .filter((_) => !_.department)
           .sort(RegionalPrescriptionSort)
           .slice(start, end)
           .map((regionalPrescription) => (
@@ -60,16 +57,12 @@ const PrescriptionCardPartialTable = ({
               matrixKind={matrixKind}
               regionalPrescription={regionalPrescription}
               onChange={async (value) =>
-                onChangeRegionalPrescriptionCount(
-                  regionalPrescription.prescriptionId,
-                  regionalPrescription.region,
-                  value
-                )
+                onChangeRegionalCount(regionalPrescription.region, value)
               }
             />
           ))
       ]}
-      className={cx('fr-mb-0')}
+      className={cx('fr-mb-3w', 'fr-mt-1v')}
     />
   );
 };

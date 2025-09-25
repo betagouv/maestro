@@ -10,31 +10,26 @@ import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import PrescriptionCardPartialTable from 'src/components/Prescription/PrescriptionCard/PrescriptionCardPartialTable';
-import PrescriptionNotes from 'src/components/Prescription/PrescriptionNote/PrescriptionNotes';
+import PrescriptionNotes from 'src/components/Prescription/PrescriptionNotes/PrescriptionNotes';
 import PrescriptionStages from 'src/components/Prescription/PrescriptionStages/PrescriptionStages';
-import PrescriptionSubstancesModalButtons from 'src/components/Prescription/PrescriptionSubstancesModal/PrescriptionSubstancesModalButtons';
+import PrescriptionSubstances from 'src/components/Prescription/PrescriptionSubstances/PrescriptionSubstances';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { pluralize } from 'src/utils/stringUtils';
-import RemoveMatrix from 'src/views/ProgrammingPlanView/ProgrammingPlanPrescriptionList/RemoveMatrix';
+import RemoveMatrix from 'src/views/ProgrammingView/ProgrammingPrescriptionList/RemoveMatrix';
+import PrescriptionBreadcrumb from '../PrescriptionBreadcrumb/PrescriptionBreadcrumb';
+import PrescriptionProgrammingInstruction from '../PrescriptionProgrammingInstruction/PrescriptionProgrammingInstruction';
 import './PrescriptionCard.scss';
 
 interface Props {
-  programmingPlan: ProgrammingPlan;
+  programmingPlan?: ProgrammingPlan;
   prescription: Prescription;
   regionalPrescriptions: RegionalPrescription[];
-  onChangeRegionalPrescriptionCount: (
-    prescriptionId: string,
-    region: Region,
-    value: number
-  ) => void;
+  onChangeRegionalPrescriptionCount: (region: Region, value: number) => void;
   onRemovePrescription: (prescriptionId: string) => Promise<void>;
-  onChangePrescriptionStages: (
-    prescriptionId: string,
-    stages: Stage[]
-  ) => Promise<void>;
-  onChangePrescriptionNotes: (
-    prescriptionId: string,
-    note: string
+  onChangePrescriptionStages: (stages: Stage[]) => Promise<void>;
+  onChangePrescriptionNotes: (note: string) => Promise<void>;
+  onChangePrescriptionProgrammingInstruction: (
+    instruction: string
   ) => Promise<void>;
 }
 
@@ -45,28 +40,54 @@ const PrescriptionCard = ({
   onChangeRegionalPrescriptionCount,
   onRemovePrescription: removeMatrix,
   onChangePrescriptionStages,
-  onChangePrescriptionNotes
+  onChangePrescriptionNotes,
+  onChangePrescriptionProgrammingInstruction
 }: Props) => {
   const { hasUserPrescriptionPermission } = useAuthentication();
+
+  if (!programmingPlan) {
+    return <></>;
+  }
 
   return (
     <div className={clsx(cx('fr-card', 'fr-card--sm'), 'prescription-card')}>
       <div className={cx('fr-card__body')}>
         <div className={cx('fr-card__content')}>
+          <PrescriptionBreadcrumb
+            prescription={prescription}
+            programmingPlan={programmingPlan}
+          />
+          <div className={clsx(cx('fr-mb-3w'), 'd-flex-align-center')}>
+            <h3 className={cx('fr-card__title')}>
+              {MatrixKindLabels[prescription.matrixKind]}
+            </h3>
+            <span>
+              {t('plannedSample', {
+                count: sumBy(regionalPrescriptions, 'sampleCount')
+              })}
+            </span>
+            {hasUserPrescriptionPermission(programmingPlan)?.delete && (
+              <div className={cx('fr-ml-3w')}>
+                <RemoveMatrix
+                  matrixKind={prescription.matrixKind}
+                  stages={prescription.stages}
+                  onRemove={() => removeMatrix(prescription.id)}
+                />
+              </div>
+            )}
+          </div>
+          <hr className={cx('fr-mb-3w')} />
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             <div className={cx('fr-col-12', 'fr-col-md-5')}>
-              <h3 className={cx('fr-card__title')}>
-                {MatrixKindLabels[prescription.matrixKind]}
-              </h3>
-              <hr className={cx('fr-mt-2w', 'fr-mb-3w')} />
               <Tabs
                 tabs={[
                   {
                     label: 'Analyses',
                     content: (
-                      <PrescriptionSubstancesModalButtons
+                      <PrescriptionSubstances
                         programmingPlan={programmingPlan}
                         prescription={prescription}
+                        renderMode="modal"
                       />
                     )
                   },
@@ -81,9 +102,7 @@ const PrescriptionCard = ({
                         programmingPlan={programmingPlan}
                         prescription={prescription}
                         label={`${pluralize(prescription.stages.length)('Stade')} de prélèvement`}
-                        onChangeStages={(stages) =>
-                          onChangePrescriptionStages(prescription.id, stages)
-                        }
+                        onChangeStages={onChangePrescriptionStages}
                       />
                     )
                   },
@@ -97,9 +116,7 @@ const PrescriptionCard = ({
                       <PrescriptionNotes
                         programmingPlan={programmingPlan}
                         value={prescription.notes ?? ''}
-                        onSubmitNotes={(note) =>
-                          onChangePrescriptionNotes(prescription.id, note)
-                        }
+                        onSubmitNotes={onChangePrescriptionNotes}
                       />
                     )
                   }
@@ -110,27 +127,11 @@ const PrescriptionCard = ({
               />
             </div>
             <div className={cx('fr-col-12', 'fr-col-md-7')}>
-              <div className={clsx(cx('fr-mb-3w'), 'd-flex-align-center')}>
-                <span className="flex-grow-1">
-                  {t('plannedSample', {
-                    count: sumBy(regionalPrescriptions, 'sampleCount')
-                  })}
-                </span>
-                {hasUserPrescriptionPermission(programmingPlan)?.delete && (
-                  <RemoveMatrix
-                    matrixKind={prescription.matrixKind}
-                    stages={prescription.stages}
-                    onRemove={() => removeMatrix(prescription.id)}
-                  />
-                )}
-              </div>
               <PrescriptionCardPartialTable
                 programmingPlan={programmingPlan}
                 matrixKind={prescription.matrixKind}
                 regionalPrescriptions={regionalPrescriptions}
-                onChangeRegionalPrescriptionCount={
-                  onChangeRegionalPrescriptionCount
-                }
+                onChangeRegionalCount={onChangeRegionalPrescriptionCount}
                 start={0}
                 end={RegionList.length / 2}
               />
@@ -138,10 +139,13 @@ const PrescriptionCard = ({
                 programmingPlan={programmingPlan}
                 matrixKind={prescription.matrixKind}
                 regionalPrescriptions={regionalPrescriptions}
-                onChangeRegionalPrescriptionCount={
-                  onChangeRegionalPrescriptionCount
-                }
+                onChangeRegionalCount={onChangeRegionalPrescriptionCount}
                 start={RegionList.length / 2}
+              />
+              <PrescriptionProgrammingInstruction
+                programmingPlan={programmingPlan}
+                value={prescription.programmingInstruction ?? ''}
+                onSubmitInstruction={onChangePrescriptionProgrammingInstruction}
               />
             </div>
           </div>

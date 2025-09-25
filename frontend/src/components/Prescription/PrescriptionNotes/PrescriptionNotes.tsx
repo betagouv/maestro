@@ -8,7 +8,7 @@ import { useAuthentication } from 'src/hooks/useAuthentication';
 interface Props {
   programmingPlan: ProgrammingPlan;
   value: string;
-  onSubmitNotes: (notes: string) => Promise<void>;
+  onSubmitNotes?: (notes: string) => Promise<void>;
 }
 
 const PrescriptionNotes = ({
@@ -36,13 +36,15 @@ const PrescriptionNotes = ({
               width: '100%'
             }}
           />
-          <Button
-            title="Ajouter"
-            iconId="fr-icon-save-fill"
-            onClick={() => onSubmitNotes(notes)}
-            priority="secondary"
-            className={cx('fr-ml-1w', 'fr-mt-1w')}
-          />
+          {onSubmitNotes && (
+            <Button
+              title="Ajouter"
+              iconId="fr-icon-save-fill"
+              onClick={() => onSubmitNotes(notes)}
+              priority="secondary"
+              className={cx('fr-ml-1w', 'fr-mt-1w')}
+            />
+          )}
         </div>
       ) : (
         <>{value}</>

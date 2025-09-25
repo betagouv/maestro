@@ -5,24 +5,25 @@ import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import clsx from 'clsx';
 import { t } from 'i18next';
 import { uniq } from 'lodash-es';
-import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
-import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import {
+  NextProgrammingPlanStatus,
+  ProgrammingPlanStatus
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import React from 'react';
-import MatrixSelectModal from 'src/components/MatrixSelectModal/MatrixSelectModal';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import useWindowSize from 'src/hooks/useWindowSize';
-import { getPrescriptionsExportURL } from 'src/services/prescription.service';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
-import ProgrammingPlanPrescriptionListGroupedUpdate from 'src/views/ProgrammingPlanView/ProgrammingPlanPrescriptionList/ProgrammingPlanPrescriptionListGroupedUpdate';
-import './ProgrammingPlanPrescriptionList.scss';
+import ProgrammingPrescriptionListGroupedUpdate from 'src/views/ProgrammingView/ProgrammingPrescriptionList/ProgrammingPrescriptionListGroupedUpdate';
+import AddPrescriptionModal from '../../../components/Prescription/AddPrescriptionModal/AddPrescriptionModal';
+import ProgrammingPlanNationalValidation from '../../../components/ProgrammingPlan/ProgrammingPlanNationalValidation/ProgrammingPlanNationalValidation';
+import './ProgrammingPrescriptionList.scss';
 interface Props {
-  programmingPlan: ProgrammingPlan;
-  findPrescriptionOptions: FindPrescriptionOptions;
+  programmingPlans: ProgrammingPlan[];
   prescriptions: Prescription[];
-  addMatrixKind: (matrixKind: MatrixKind) => Promise<void>;
+  exportURL: string;
   sampleCount?: number;
   hasGroupedUpdatePermission?: boolean;
   selectedCount?: number;
@@ -30,11 +31,10 @@ interface Props {
   onSelectAll: () => void;
 }
 
-const ProgrammingPlanPrescriptionListHeader = ({
-  programmingPlan,
-  findPrescriptionOptions,
+const ProgrammingPrescriptionListHeader = ({
+  programmingPlans,
   prescriptions,
-  addMatrixKind,
+  exportURL,
   sampleCount,
   hasGroupedUpdatePermission,
   selectedCount,
@@ -53,37 +53,26 @@ const ProgrammingPlanPrescriptionListHeader = ({
   const [isGroupedUpdate, setIsGroupedUpdate] = React.useState(false);
 
   return (
-    <>
-      <div className={clsx('d-flex-align-center')}>
-        <h4 className={cx('fr-mb-0', 'fr-mr-3w')}>
+    <div className={cx('fr-mb-2w', 'fr-mb-md-5w', 'fr-px-0', 'fr-container')}>
+      <div className="d-flex-align-center" style={{ gap: '1rem' }}>
+        <h4 className={clsx(cx('fr-mb-0'), 'flex-grow-1')}>
           {t('plannedSample', { count: sampleCount ?? 0 })}
         </h4>
-        {hasUserPrescriptionPermission(programmingPlan)?.create && (
-          <MatrixSelectModal
-            excludedMatrixKindList={uniq(
-              prescriptions.map((p) => p.matrixKind)
-            )}
-            onSelect={addMatrixKind}
+        {programmingPlans
+          ?.flatMap((plan) => plan.regionalStatus)
+          .some(
+            (regionalStatus) =>
+              NextProgrammingPlanStatus[regionalStatus.status] &&
+              ['Submitted', 'Validated'].includes(
+                NextProgrammingPlanStatus[
+                  regionalStatus.status
+                ] as ProgrammingPlanStatus
+              )
+          ) && (
+          <ProgrammingPlanNationalValidation
+            programmingPlans={programmingPlans}
           />
         )}
-        <Input
-          iconId="fr-icon-search-line"
-          hideLabel
-          label="Matrice"
-          nativeInputProps={{
-            type: 'search',
-            placeholder: 'Matrice',
-            value: matrixQuery ?? '',
-            onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-              dispatch(
-                prescriptionsSlice.actions.changeMatrixQuery(e.target.value)
-              );
-            }
-          }}
-          className={cx('fr-my-0', 'fr-hidden', 'fr-unhidden-md')}
-        />
-      </div>
-      <div>
         {!isMobile && hasNationalView && (
           <SegmentedControl
             hideLegend
@@ -116,7 +105,6 @@ const ProgrammingPlanPrescriptionListHeader = ({
                 } as any
               }
             ]}
-            className={cx('fr-mr-3w')}
           />
         )}
         {hasGroupedUpdatePermission && (
@@ -133,16 +121,13 @@ const ProgrammingPlanPrescriptionListHeader = ({
         <Button
           iconId="fr-icon-file-download-line"
           priority="secondary"
-          onClick={() =>
-            window.open(getPrescriptionsExportURL(findPrescriptionOptions))
-          }
+          onClick={() => window.open(exportURL)}
           title="Exporter"
-          children={isMobile ? undefined : 'Exporter'}
           size={isMobile ? 'small' : 'medium'}
         />
       </div>
       {isGroupedUpdate && onGroupedUpdate && (
-        <ProgrammingPlanPrescriptionListGroupedUpdate
+        <ProgrammingPrescriptionListGroupedUpdate
           selectedCount={selectedCount ?? 0}
           totalCount={prescriptions.length}
           onSubmit={async (laboratoryId) => {
@@ -153,8 +138,40 @@ const ProgrammingPlanPrescriptionListHeader = ({
           onSelectAll={onSelectAll}
         />
       )}
-    </>
+      <hr className={cx('fr-my-3w')} />
+      <div className="d-flex-align-center">
+        <div className="flex-grow-1">
+          {programmingPlans.some(
+            (programmingPlan) =>
+              hasUserPrescriptionPermission(programmingPlan)?.create
+          ) && (
+            <AddPrescriptionModal
+              programmingPlans={programmingPlans}
+              excludedMatrixKindList={uniq(
+                prescriptions.map((p) => p.matrixKind)
+              )}
+            />
+          )}
+        </div>
+        <Input
+          iconId="fr-icon-search-line"
+          hideLabel
+          label="Matrice"
+          nativeInputProps={{
+            type: 'search',
+            placeholder: 'Matrice',
+            value: matrixQuery ?? '',
+            onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+              dispatch(
+                prescriptionsSlice.actions.changeMatrixQuery(e.target.value)
+              );
+            }
+          }}
+          className={cx('fr-my-0', 'fr-hidden', 'fr-unhidden-md')}
+        />
+      </div>
+    </div>
   );
 };
 
-export default ProgrammingPlanPrescriptionListHeader;
+export default ProgrammingPrescriptionListHeader;

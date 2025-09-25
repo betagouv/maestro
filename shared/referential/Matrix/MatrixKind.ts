@@ -102,5 +102,5 @@ export const MatrixKindLabels: Record<MatrixKind | OtherMatrixKind, string> = {
   A031E: 'Œufs et ovoproduits',
   Other: 'Autre',
   TODO1: 'Foie de bovin',
-  TODO2: 'Chaire de volaille'
+  TODO2: 'Chair de volaille'
 };

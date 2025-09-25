@@ -50,16 +50,19 @@ const PrescriptionStages = ({
             className={cx('fr-mb-1w')}
           >
             {selectOptionsFromList(
-              programmingPlan.kinds
-                .flatMap((_) => StagesByProgrammingPlanKind[_])
-                .filter((s) => !prescription.stages.includes(s)),
+              StagesByProgrammingPlanKind[
+                prescription.programmingPlanKind
+              ].filter((s) => !prescription.stages.includes(s)),
               {
                 defaultLabel: 'Sélectionner',
                 labels: StageLabels,
                 withSort: true
               }
             ).map((option) => (
-              <option key={option.value} value={option.value}>
+              <option
+                key={`prescription_${prescription.id}_stage_option_${option.value}`}
+                value={option.value}
+              >
                 {option.label}
               </option>
             ))}
