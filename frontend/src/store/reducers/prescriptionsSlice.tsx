@@ -12,9 +12,9 @@ import { PrescriptionListDisplay } from 'src/views/ProgrammingView/ProgrammingPr
 import { z } from 'zod';
 
 export const PrescriptionFilters = z.object({
-  year: z.coerce.number().int().nullish(),
+  year: z.coerce.number().int(),
   domain: ProgrammingPlanDomain.nullish(),
-  planIds: z.array(z.guid()),
+  planIds: z.array(z.guid()).nullish(),
   kinds: z.array(ProgrammingPlanKind).nullish(),
   contexts: z.array(ProgrammingPlanContext).nullish(),
   matrixKinds: z.array(MatrixKind).nullish()
@@ -72,12 +72,21 @@ const PrescriptionModalData = z.object({
   prescription: Prescription
 });
 
-const RegionalPrescriptionModalData = z.object({
-  mode: z.enum(['laboratory', 'distribution']),
-  programmingPlan: ProgrammingPlan,
-  prescription: Prescription,
-  regionalPrescription: RegionalPrescription
-});
+const RegionalPrescriptionModalData = z.discriminatedUnion('viewBy', [
+  z.object({
+    mode: z.literal('laboratory'),
+    programmingPlan: ProgrammingPlan,
+    prescription: Prescription,
+    regionalPrescription: RegionalPrescription
+  }),
+  z.object({
+    mode: z.literal('distribution'),
+    programmingPlan: ProgrammingPlan,
+    prescription: Prescription,
+    regionalPrescription: RegionalPrescription,
+    departmentalPrescriptions: z.array(RegionalPrescription)
+  })
+]);
 
 type PrescriptionCommentsData = z.infer<typeof PrescriptionCommentsData>;
 type PrescriptionModalData = z.infer<typeof PrescriptionModalData>;
@@ -95,6 +104,7 @@ type PrescriptionsState = {
 };
 const initialState: PrescriptionsState = {
   prescriptionFilters: {
+    year: new Date().getFullYear(),
     planIds: []
   },
   prescriptionListDisplay: 'cards'

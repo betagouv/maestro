@@ -47,6 +47,7 @@ const PrescriptionCardPartialTable = ({
       ))}
       data={[
         regionalPrescriptions
+          .filter((_) => !_.department)
           .sort(RegionalPrescriptionSort)
           .slice(start, end)
           .map((regionalPrescription) => (

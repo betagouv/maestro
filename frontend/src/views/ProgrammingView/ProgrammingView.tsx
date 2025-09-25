@@ -2,29 +2,25 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import clsx from 'clsx';
-import { isEmpty, mapValues, omitBy, orderBy, uniq, uniqBy } from 'lodash-es';
+import { isEmpty, mapValues, omitBy, orderBy, uniqBy } from 'lodash-es';
 import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, Regions } from 'maestro-shared/referential/Region';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanDomain } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import {
-  NextProgrammingPlanStatus,
-  ProgrammingPlanStatus,
-  ProgrammingPlanStatusList
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import { ProgrammingPlanStatusList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { RegionalPrescriptionKey } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionKey';
 import { useCallback, useContext, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 import programmation from '../../assets/illustrations/programmation.svg';
 import AppToast from '../../components/_app/AppToast/AppToast';
 import PrescriptionCommentsModal from '../../components/Prescription/PrescriptionCommentsModal/PrescriptionCommentsModal';
-import ProgrammingPlanNationalValidation from '../../components/ProgrammingPlan/ProgrammingPlanNationalValidation/ProgrammingPlanNationalValidation';
 import ProgrammingPlanRegionalValidation from '../../components/ProgrammingPlan/ProgrammingPlanRegionalValidation/ProgrammingPlanRegionalValidation';
 import SectionHeader from '../../components/SectionHeader/SectionHeader';
 import { useAuthentication } from '../../hooks/useAuthentication';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
+import { usePrescriptionFilters } from '../../hooks/usePrescriptionFilters';
 import { useAppDispatch, useAppSelector } from '../../hooks/useStore';
 import { ApiClientContext } from '../../services/apiClient';
 import prescriptionsSlice, {
@@ -51,42 +47,13 @@ const ProgrammingView = () => {
   const [commentRegionalPrescription, { isSuccess: isCommentSuccess }] =
     apiClient.useCommentRegionalPrescriptionMutation();
 
-  const domainOptions = useMemo(
-    () =>
-      uniq(
-        (programmingPlans ?? [])
-          .filter((plan) => plan.year === prescriptionFilters.year)
-          ?.map((_) => _.domain)
-      ),
-    [programmingPlans, prescriptionFilters.year]
-  );
-  const programmingPlanOptions = useCallback(
-    (filters: Partial<PrescriptionFilters>) =>
-      (programmingPlans ?? []).filter(
-        (plan) =>
-          plan.year === filters.year &&
-          (filters.domain ? plan.domain === filters.domain : true)
-      ),
-    [programmingPlans]
-  );
-  const programmingPlanKindOptions = useCallback(
-    (filters: PrescriptionFilters) =>
-      uniq(
-        programmingPlanOptions(filters)
-          .filter((plan) => (filters.planIds ?? [plan.id]).includes(plan.id))
-          .flatMap((plan) => plan.kinds)
-      ),
-    [programmingPlanOptions]
-  );
-  const contextOptions = useCallback(
-    (filters: PrescriptionFilters) =>
-      uniq(
-        programmingPlanOptions(filters)
-          .filter((plan) => (filters.planIds ?? [plan.id]).includes(plan.id))
-          .flatMap((plan) => plan.contexts)
-      ),
-    [programmingPlanOptions]
-  );
+  const {
+    domainOptions,
+    programmingPlanOptions,
+    programmingPlanKindOptions,
+    contextOptions,
+    reduceFilters
+  } = usePrescriptionFilters(programmingPlans);
 
   useEffect(() => {
     dispatch(
@@ -143,42 +110,7 @@ const ProgrammingView = () => {
   );
 
   const changeFilter = (findFilter: Partial<PrescriptionFilters>) => {
-    const aggregatedFilters = {
-      ...prescriptionFilters,
-      ...findFilter
-    };
-
-    const { year, domain } = aggregatedFilters;
-    const planIds =
-      aggregatedFilters?.planIds?.filter((id) =>
-        programmingPlanOptions({ year, domain }).some(
-          (planOption) => planOption.id === id
-        )
-      ) ?? undefined;
-    const kinds =
-      aggregatedFilters?.kinds?.filter((kind) =>
-        programmingPlanKindOptions({
-          year,
-          domain,
-          planIds
-        }).some((kindOption) => kind === kindOption)
-      ) ?? undefined;
-    const contexts =
-      aggregatedFilters?.contexts?.filter((context) =>
-        contextOptions({
-          year,
-          domain,
-          planIds,
-          kinds
-        }).some((contextOption) => context === contextOption)
-      ) ?? undefined;
-
-    const filteredParams = {
-      ...aggregatedFilters,
-      planIds,
-      kinds,
-      contexts
-    };
+    const filteredParams = reduceFilters(prescriptionFilters, findFilter);
 
     const urlSearchParams = new URLSearchParams(
       omitBy(
@@ -218,16 +150,12 @@ const ProgrammingView = () => {
             subtitle={Regions[region as Region]?.name}
             illustration={programmation}
             action={
-              <>
-                <SegmentedControl
-                  hideLegend
-                  legend="Année"
-                  segments={
-                    orderBy(
-                      uniqBy(programmingPlans, 'year'),
-                      'year',
-                      'desc'
-                    ).map(({ year }) => ({
+              <SegmentedControl
+                hideLegend
+                legend="Année"
+                segments={
+                  orderBy(uniqBy(programmingPlans, 'year'), 'year', 'desc').map(
+                    ({ year }) => ({
                       label: year,
                       nativeInputProps: {
                         checked: year === prescriptionFilters.year,
@@ -241,25 +169,10 @@ const ProgrammingView = () => {
                             matrixKinds: undefined
                           })
                       }
-                    })) as any
-                  }
-                />
-                {filteredProgrammingPlans
-                  ?.flatMap((plan) => plan.regionalStatus)
-                  .some(
-                    (regionalStatus) =>
-                      NextProgrammingPlanStatus[regionalStatus.status] &&
-                      ['Submitted', 'Validated'].includes(
-                        NextProgrammingPlanStatus[
-                          regionalStatus.status
-                        ] as ProgrammingPlanStatus
-                      )
-                  ) && (
-                  <ProgrammingPlanNationalValidation
-                    programmingPlans={filteredProgrammingPlans}
-                  />
-                )}
-              </>
+                    })
+                  ) as any
+                }
+              />
             }
           />
 
@@ -271,7 +184,7 @@ const ProgrammingView = () => {
                 <div className={clsx('flex-grow-1')}>
                   <ProgrammingPrescriptionFilters
                     options={{
-                      domains: domainOptions,
+                      domains: domainOptions(prescriptionFilters),
                       plans: programmingPlanOptions(prescriptionFilters),
                       kinds: programmingPlanKindOptions(prescriptionFilters),
                       contexts: contextOptions(prescriptionFilters)
@@ -279,6 +192,8 @@ const ProgrammingView = () => {
                     programmingPlans={filteredProgrammingPlans}
                     filters={prescriptionFilters}
                     onChange={changeFilter}
+                    renderMode="inline"
+                    multiSelect
                   />
                 </div>
               </div>
@@ -311,6 +226,7 @@ const ProgrammingView = () => {
                     [
                       {
                         label: 'Programmation',
+                        iconId: 'fr-icon-survey-line',
                         content: (
                           <ProgrammingPrescriptionList
                             programmingPlans={filteredProgrammingPlans ?? []}
