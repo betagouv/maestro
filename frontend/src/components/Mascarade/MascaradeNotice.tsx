@@ -1,19 +1,19 @@
 import Notice from '@codegouvfr/react-dsfr/Notice';
-import { FunctionComponent, useContext } from 'react';
+import { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { useAuthentication } from '../../hooks/useAuthentication';
-import { MascaradeContext } from './MascaradeContext';
+import { useMascarade } from './useMascarade';
 
 type Props = Record<never, never>;
 export const MascaradeNotice: FunctionComponent<Props> = ({ ..._rest }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  const { mascaradeUserId, setMascaradeUserId } = useContext(MascaradeContext);
+  const { mascaradeEnabled, disableMascarade } = useMascarade();
 
   const { user } = useAuthentication();
   return (
     <>
-      {user && mascaradeUserId && (
+      {user && mascaradeEnabled && (
         <Notice
           title="Mode mascarade"
           description={
@@ -23,7 +23,7 @@ export const MascaradeNotice: FunctionComponent<Props> = ({ ..._rest }) => {
           iconDisplayed={true}
           isClosable={true}
           onClose={() => {
-            setMascaradeUserId(null);
+            disableMascarade();
           }}
         />
       )}

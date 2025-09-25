@@ -5,6 +5,7 @@ import { analysisReportDocumentsRouter } from '../controllers/analysisReportDocu
 import { authProtectedRouter } from '../controllers/authController';
 import { documentsRouter } from '../controllers/documentController';
 import { laboratoriesRouter } from '../controllers/laboratoryController';
+import { mascaradeRouter } from '../controllers/mascaradeController';
 import { noticesProtectedRouter } from '../controllers/noticeController';
 import { notificationsRouter } from '../controllers/notificationController';
 import { prescriptionsRouter } from '../controllers/prescriptionController';
@@ -28,6 +29,7 @@ const router = {
   ...authProtectedRouter,
   ...documentsRouter,
   ...laboratoriesRouter,
+  ...mascaradeRouter,
   ...noticesProtectedRouter,
   ...notificationsRouter,
   ...prescriptionsRouter,
