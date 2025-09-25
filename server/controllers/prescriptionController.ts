@@ -1,5 +1,5 @@
 import { constants } from 'http2';
-import { RegionList } from 'maestro-shared/referential/Region';
+import { RegionList, Regions } from 'maestro-shared/referential/Region';
 import { hasPrescriptionPermission } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { v4 as uuidv4 } from 'uuid';
@@ -49,6 +49,23 @@ export const prescriptionsRouter = {
           sampleCount: 0
         }))
       );
+
+      if (
+        ['DEPARTMENTAL', 'SLAUGHTERHOUSE'].includes(
+          programmingPlan.distributionKind
+        )
+      ) {
+        await regionalPrescriptionRepository.insertMany(
+          RegionList.flatMap((region) =>
+            Regions[region].departments.map((department) => ({
+              prescriptionId: createdPrescription.id,
+              region,
+              department,
+              sampleCount: 0
+            }))
+          )
+        );
+      }
 
       return {
         status: constants.HTTP_STATUS_CREATED,

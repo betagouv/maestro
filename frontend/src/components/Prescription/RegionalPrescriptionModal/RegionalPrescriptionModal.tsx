@@ -2,12 +2,21 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import Select from '@codegouvfr/react-dsfr/Select';
+import Table from '@codegouvfr/react-dsfr/Table';
+import { t } from 'i18next';
 import { sortBy } from 'lodash-es';
+import {
+  DepartmentLabels,
+  DepartmentList
+} from 'maestro-shared/referential/Department';
+import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
+import { Regions } from 'maestro-shared/referential/Region';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import { ApiClientContext } from '../../../services/apiClient';
 import prescriptionsSlice from '../../../store/reducers/prescriptionsSlice';
+import RegionalPrescriptionCountCell from '../RegionalPrescriptionCountCell/RegionalPrescriptionCountCell';
 
 const regionalPrescriptionModal = createModal({
   id: `regional-prescription-modal`,
@@ -69,11 +78,36 @@ const RegionalPrescriptionModal = ({
     }
   }, [regionalPrescriptionModalData]);
 
+  const title = useMemo(() => {
+    if (regionalPrescriptionModalData?.mode === 'distribution') {
+      return `Répartition par département pour la matrice ${MatrixKindLabels[regionalPrescriptionModalData.prescription.matrixKind]}`;
+    }
+    if (regionalPrescriptionModalData?.mode === 'laboratory') {
+      return `Configuration de la matrice ${MatrixKindLabels[regionalPrescriptionModalData.prescription.matrixKind]}`;
+    }
+  }, [regionalPrescriptionModalData]);
+
+  const departmentList = useMemo(
+    () =>
+      regionalPrescriptionModalData
+        ? DepartmentList.filter((_) =>
+            Regions[
+              regionalPrescriptionModalData.regionalPrescription.region
+            ].departments.includes(_)
+          )
+        : [],
+    [regionalPrescriptionModalData]
+  );
+
   return (
     <regionalPrescriptionModal.Component
-      iconId="fr-icon-team-line"
-      title="Configuration de la matrice"
+      title={title}
       topAnchor
+      size={
+        regionalPrescriptionModalData?.mode === 'distribution'
+          ? 'large'
+          : 'medium'
+      }
       buttons={[
         {
           children: 'Annuler',
@@ -109,7 +143,59 @@ const RegionalPrescriptionModal = ({
             ))}
           </Select>
         )}
-        {regionalPrescriptionModalData?.mode === 'distribution' && <></>}
+        {regionalPrescriptionModalData?.mode === 'distribution' && (
+          <>
+            <span className={cx('fr-text--bold')}>
+              {t('sample', {
+                count:
+                  regionalPrescriptionModalData.regionalPrescription.sampleCount
+              })}{' '}
+            </span>
+            <div>
+              Départements
+              <Table
+                bordered={false}
+                noCaption
+                noScroll
+                fixed
+                headers={departmentList
+                  .slice(0, departmentList.length / 2)
+                  .map((department) => (
+                    <span
+                      key={`${Math.random()}_header_${department}`}
+                      className="no-wrap"
+                    >
+                      {department} - {DepartmentLabels[department]}
+                    </span>
+                  ))}
+                data={[
+                  regionalPrescriptionModalData.departmentalPrescriptions
+                    .slice(0, departmentList.length / 2)
+                    .map((regionalPrescription) => (
+                      <RegionalPrescriptionCountCell
+                        key={`${regionalPrescription.prescriptionId}-${regionalPrescription.region}`}
+                        programmingPlan={
+                          regionalPrescriptionModalData.programmingPlan
+                        }
+                        matrixKind={
+                          regionalPrescriptionModalData.prescription.matrixKind
+                        }
+                        regionalPrescription={regionalPrescription}
+                        onChange={
+                          async (value) => {}
+                          // onChangeRegionalCount(
+                          //   regionalPrescription.region,
+                          //   value
+                          // )
+                        }
+                      />
+                    ))
+                ]}
+                className={cx('fr-mb-3w', 'fr-mt-1v')}
+              />
+            </div>
+          </>
+        )}
       </div>
     </regionalPrescriptionModal.Component>
   );

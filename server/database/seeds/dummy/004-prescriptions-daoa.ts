@@ -33,6 +33,8 @@ export const seed = async function () {
     return;
   }
 
+  //TODO departmental prescriptions
+
   const genRegionalPrescriptions = (
     prescriptionId: string,
     quantities: number[]
