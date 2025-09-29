@@ -10,10 +10,11 @@ import {
   RegionalPrescription,
   RegionalPrescriptionSort
 } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
-import RegionalPrescriptionCountCell from 'src/components/Prescription/RegionalPrescriptionCountCell/RegionalPrescriptionCountCell';
+import DistributionCountCell from 'src/components/DistributionTable/DistributionCountCell/DistributionCountCell';
 import RegionHeaderCell from 'src/components/RegionHeaderCell/RegionHeaderCell';
+import { useAuthentication } from '../../../hooks/useAuthentication';
 
 interface Props {
   programmingPlans: ProgrammingPlan[];
@@ -32,6 +33,8 @@ const ProgrammingPrescriptionTable = ({
   regionalPrescriptions,
   onChangeRegionalPrescriptionCount
 }: Props) => {
+  const { hasUserRegionalPrescriptionPermission } = useAuthentication();
+
   const getRegionalPrescriptions = (prescriptionId: string) =>
     regionalPrescriptions
       .filter((r) => r.prescriptionId === prescriptionId)
@@ -50,6 +53,14 @@ const ProgrammingPrescriptionTable = ({
       ))
     ],
     []
+  );
+
+  const getProgrammingPlan = useCallback(
+    (prescription: Prescription) =>
+      programmingPlans.find(
+        (p) => p.id === prescription.programmingPlanId
+      ) as ProgrammingPlan,
+    [programmingPlans]
   );
 
   const prescriptionsData = useMemo(
@@ -92,14 +103,16 @@ const ProgrammingPrescriptionTable = ({
               data-testid={`cell-${prescription.matrixKind}`}
               key={`cell-${prescription.matrixKind}-${regionalPrescription.region}`}
             >
-              <RegionalPrescriptionCountCell
-                programmingPlan={
-                  programmingPlans.find(
-                    (p) => p.id === prescription.programmingPlanId
-                  ) as ProgrammingPlan
-                }
+              <DistributionCountCell
+                programmingPlan={getProgrammingPlan(prescription)}
                 matrixKind={prescription.matrixKind}
                 regionalPrescription={regionalPrescription}
+                isEditable={
+                  hasUserRegionalPrescriptionPermission(
+                    getProgrammingPlan(prescription),
+                    regionalPrescription
+                  )?.distributeToRegions
+                }
                 onChange={async (value) =>
                   onChangeRegionalPrescriptionCount(
                     prescription,

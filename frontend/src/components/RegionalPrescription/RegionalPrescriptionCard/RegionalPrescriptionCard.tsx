@@ -16,7 +16,7 @@ import { pluralize } from 'src/utils/stringUtils';
 import { useAppDispatch } from '../../../hooks/useStore';
 import { ApiClientContext } from '../../../services/apiClient';
 import prescriptionsSlice from '../../../store/reducers/prescriptionsSlice';
-import PrescriptionBreadcrumb from '../PrescriptionBreadcrumb/PrescriptionBreadcrumb';
+import PrescriptionBreadcrumb from '../../Prescription/PrescriptionBreadcrumb/PrescriptionBreadcrumb';
 import './RegionalPrescriptionCard.scss';
 
 interface Props {

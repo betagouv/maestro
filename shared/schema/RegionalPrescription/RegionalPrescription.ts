@@ -84,7 +84,7 @@ export const RegionalPrescriptionSort = (
 ) => RegionSort(a.region, b.region);
 
 const RegionalPrescriptionPermission = z.enum([
-  'updateSampleCount',
+  'distributeToRegions',
   'comment',
   'distributeToDepartments',
   'updateLaboratory'
@@ -99,18 +99,12 @@ export const hasRegionalPrescriptionPermission = (
   programmingPlan: ProgrammingPlan,
   regionalPrescription: { region: Region }
 ): Record<RegionalPrescriptionPermission, boolean> => ({
-  updateSampleCount:
+  distributeToRegions:
     hasPermission(user, 'updatePrescription') &&
     userRegions(user).includes(regionalPrescription.region) &&
     programmingPlan.regionalStatus.find(
       (regionStatus) => regionStatus.region === regionalPrescription.region
     )?.status !== 'Closed',
-  comment:
-    hasPermission(user, 'commentPrescription') &&
-    userRegions(user).includes(regionalPrescription.region) &&
-    programmingPlan.regionalStatus.find(
-      (regionStatus) => regionStatus.region === regionalPrescription.region
-    )?.status === 'Submitted',
   distributeToDepartments:
     hasPermission(user, 'distributePrescriptionToDepartments') &&
     userRegions(user).includes(regionalPrescription.region) &&
@@ -120,6 +114,12 @@ export const hasRegionalPrescriptionPermission = (
     ['DEPARTMENTAL', 'SLAUGHTERHOUSE'].includes(
       programmingPlan.distributionKind
     ),
+  comment:
+    hasPermission(user, 'commentPrescription') &&
+    userRegions(user).includes(regionalPrescription.region) &&
+    programmingPlan.regionalStatus.find(
+      (regionStatus) => regionStatus.region === regionalPrescription.region
+    )?.status === 'Submitted',
   updateLaboratory:
     hasPermission(user, 'updatePrescriptionLaboratory') &&
     userRegions(user).includes(regionalPrescription.region) &&

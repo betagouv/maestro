@@ -1,4 +1,5 @@
 import { isNil, omitBy } from 'lodash-es';
+import { Department } from 'maestro-shared/referential/Department';
 import { Region } from 'maestro-shared/referential/Region';
 import { FindRegionalPrescriptionOptions } from 'maestro-shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import {
@@ -36,11 +37,14 @@ const prescriptionApi = api.injectEndpoints({
       {
         prescriptionId: string;
         region: Region;
+        department?: Department;
         prescriptionUpdate: RegionalPrescriptionUpdate;
       }
     >({
-      query: ({ prescriptionId, region, prescriptionUpdate }) => ({
-        url: `prescriptions/${prescriptionId}/regions/${region}`,
+      query: ({ prescriptionId, region, department, prescriptionUpdate }) => ({
+        url: `prescriptions/${prescriptionId}/regions/${region}${
+          department ? `/departments/${department}` : ''
+        }`,
         method: 'PUT',
         body: prescriptionUpdate
       }),

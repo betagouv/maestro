@@ -9,7 +9,7 @@ import { Stage } from 'maestro-shared/referential/Stage';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
-import PrescriptionCardPartialTable from 'src/components/Prescription/PrescriptionCard/PrescriptionCardPartialTable';
+import PrescriptionDistributionTable from 'src/components/Prescription/PrescriptionDistributionTable/PrescriptionDistributionTable';
 import PrescriptionNotes from 'src/components/Prescription/PrescriptionNotes/PrescriptionNotes';
 import PrescriptionStages from 'src/components/Prescription/PrescriptionStages/PrescriptionStages';
 import PrescriptionSubstances from 'src/components/Prescription/PrescriptionSubstances/PrescriptionSubstances';
@@ -127,7 +127,7 @@ const PrescriptionCard = ({
               />
             </div>
             <div className={cx('fr-col-12', 'fr-col-md-7')}>
-              <PrescriptionCardPartialTable
+              <PrescriptionDistributionTable
                 programmingPlan={programmingPlan}
                 matrixKind={prescription.matrixKind}
                 regionalPrescriptions={regionalPrescriptions}
@@ -135,7 +135,7 @@ const PrescriptionCard = ({
                 start={0}
                 end={RegionList.length / 2}
               />
-              <PrescriptionCardPartialTable
+              <PrescriptionDistributionTable
                 programmingPlan={programmingPlan}
                 matrixKind={prescription.matrixKind}
                 regionalPrescriptions={regionalPrescriptions}
