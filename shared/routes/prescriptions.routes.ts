@@ -64,6 +64,14 @@ export const prescriptionsRoutes = {
       response: RegionalPrescription
     }
   },
+  '/prescriptions/:prescriptionId/regions/:region/departments/:department': {
+    params: RegionalPrescriptionKey.shape,
+    put: {
+      body: RegionalPrescriptionUpdate,
+      permissions: ['updatePrescription', 'updatePrescriptionLaboratory'],
+      response: RegionalPrescription
+    }
+  },
   '/prescriptions/:prescriptionId': {
     params: {
       prescriptionId: z.guid()

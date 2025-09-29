@@ -1,4 +1,4 @@
-import { RegionList } from 'maestro-shared/referential/Region';
+import { RegionList, Regions } from 'maestro-shared/referential/Region';
 import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
 import { DAOAInProgressProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
@@ -33,18 +33,25 @@ export const seed = async function () {
     return;
   }
 
-  //TODO departmental prescriptions
-
   const genRegionalPrescriptions = (
     prescriptionId: string,
     quantities: number[]
-  ) =>
-    quantities.map((quantity, index) => ({
+  ) => [
+    ...quantities.map((quantity, index) => ({
       prescriptionId,
       region: RegionList[index],
-      sampleCount: quantity,
-      laboratoryId: oneOf(DummyLaboratoryIds)
-    }));
+      sampleCount: quantity
+    })),
+    ...RegionList.flatMap((region) =>
+      Regions[region].departments.map((department) => ({
+        prescriptionId,
+        region,
+        department,
+        sampleCount: 0,
+        laboratoryId: oneOf(DummyLaboratoryIds)
+      }))
+    )
+  ];
 
   await Prescriptions().insert([foie_de_bovin, volaille]);
 

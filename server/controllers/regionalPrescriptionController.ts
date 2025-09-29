@@ -52,11 +52,11 @@ export const regionalPrescriptionsRouter = {
       const regionalPrescription =
         await getAndCheckRegionalPrescription(params);
 
-      const canUpdateSampleCount = hasRegionalPrescriptionPermission(
+      const canDistributeToRegions = hasRegionalPrescriptionPermission(
         user,
         programmingPlan,
         regionalPrescription
-      ).updateSampleCount;
+      ).distributeToRegions;
 
       const canUpdateLaboratory = hasRegionalPrescriptionPermission(
         user,
@@ -64,14 +64,67 @@ export const regionalPrescriptionsRouter = {
         regionalPrescription
       ).updateLaboratory;
 
-      if (!canUpdateSampleCount && !canUpdateLaboratory) {
+      if (!canDistributeToRegions && !canUpdateLaboratory) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 
       const updatedRegionalPrescription = {
         ...regionalPrescription,
         sampleCount:
-          canUpdateSampleCount &&
+          canDistributeToRegions &&
+          isDefined(regionalPrescriptionUpdate.sampleCount)
+            ? regionalPrescriptionUpdate.sampleCount
+            : regionalPrescription.sampleCount,
+        laboratoryId: canUpdateLaboratory
+          ? regionalPrescriptionUpdate.laboratoryId
+          : regionalPrescription.laboratoryId
+      };
+
+      await regionalPrescriptionRepository.update(updatedRegionalPrescription);
+      return {
+        status: constants.HTTP_STATUS_OK,
+        response: updatedRegionalPrescription
+      };
+    }
+  },
+  '/prescriptions/:prescriptionId/regions/:region/departments/:department': {
+    put: async ({ user, body: regionalPrescriptionUpdate }, params) => {
+      console.info(
+        'Update regional prescription for department',
+        params.prescriptionId,
+        params.region,
+        params.department
+      );
+
+      const programmingPlan = await getAndCheckProgrammingPlan(
+        regionalPrescriptionUpdate.programmingPlanId
+      );
+      await getAndCheckPrescription(params.prescriptionId, programmingPlan);
+      const regionalPrescription =
+        await getAndCheckRegionalPrescription(params);
+
+      // TODO: check department belongs to user region?
+
+      const canDistributeToDepartments = hasRegionalPrescriptionPermission(
+        user,
+        programmingPlan,
+        regionalPrescription
+      ).distributeToDepartments;
+
+      const canUpdateLaboratory = hasRegionalPrescriptionPermission(
+        user,
+        programmingPlan,
+        regionalPrescription
+      ).updateLaboratory;
+
+      if (!canDistributeToDepartments && !canUpdateLaboratory) {
+        return { status: constants.HTTP_STATUS_FORBIDDEN };
+      }
+
+      const updatedRegionalPrescription = {
+        ...regionalPrescription,
+        sampleCount:
+          canDistributeToDepartments &&
           isDefined(regionalPrescriptionUpdate.sampleCount)
             ? regionalPrescriptionUpdate.sampleCount
             : regionalPrescription.sampleCount,

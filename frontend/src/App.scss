@@ -85,6 +85,12 @@ main {
     padding-top: 0.675rem;
   }
 
+  th:has(.no-wrap) {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
   th,
   td {
     &:has(.border-left) {
@@ -268,6 +274,7 @@ h6,
 
 .no-wrap {
   white-space: nowrap;
+  overflow: hidden;
 }
 
 .fr-tag:not(:last-of-type) {

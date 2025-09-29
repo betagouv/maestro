@@ -5,11 +5,13 @@ import regionalPrescriptionRepository from '../../repositories/regionalPrescript
 
 export const getAndCheckRegionalPrescription = async ({
   prescriptionId,
-  region
+  region,
+  department
 }: RegionalPrescriptionKey): Promise<RegionalPrescription> => {
   const regionalPrescription = await regionalPrescriptionRepository.findUnique({
     prescriptionId,
-    region
+    region,
+    department
   });
 
   if (!regionalPrescription) {

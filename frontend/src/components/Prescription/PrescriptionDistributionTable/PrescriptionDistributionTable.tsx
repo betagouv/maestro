@@ -7,9 +7,9 @@ import {
   RegionalPrescription,
   RegionalPrescriptionSort
 } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
-import RegionalPrescriptionCountCell from 'src/components/Prescription/RegionalPrescriptionCountCell/RegionalPrescriptionCountCell';
+import DistributionCountCell from 'src/components/DistributionTable/DistributionCountCell/DistributionCountCell';
 import { assert, type Equals } from 'tsafe';
-import './PrescriptionCard.scss';
+import '../PrescriptionCard/PrescriptionCard.scss';
 
 interface Props {
   programmingPlan: ProgrammingPlan;
@@ -20,7 +20,7 @@ interface Props {
   end?: number;
 }
 
-const PrescriptionCardPartialTable = ({
+const PrescriptionDistributionTable = ({
   programmingPlan,
   matrixKind,
   regionalPrescriptions,
@@ -51,7 +51,7 @@ const PrescriptionCardPartialTable = ({
           .sort(RegionalPrescriptionSort)
           .slice(start, end)
           .map((regionalPrescription) => (
-            <RegionalPrescriptionCountCell
+            <DistributionCountCell
               key={`${regionalPrescription.prescriptionId}-${regionalPrescription.region}`}
               programmingPlan={programmingPlan}
               matrixKind={matrixKind}
@@ -67,4 +67,4 @@ const PrescriptionCardPartialTable = ({
   );
 };
 
-export default PrescriptionCardPartialTable;
+export default PrescriptionDistributionTable;

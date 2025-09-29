@@ -4,38 +4,33 @@ import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/Programmi
 import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
 import EditableNumberCell from 'src/components/EditableNumberCell/EditableNumberCell';
-import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch } from 'src/hooks/useStore';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import { assert, type Equals } from 'tsafe';
-import './RegionalPrescriptionCountCell.scss';
+import './DistributionCountCell.scss';
 interface Props {
   programmingPlan: ProgrammingPlan;
   matrixKind: MatrixKind;
   regionalPrescription: RegionalPrescription;
+  isEditable?: boolean;
   onChange: (value: number) => void;
 }
 
-const RegionalPrescriptionCountCell = ({
+const DistributionCountCell = ({
   programmingPlan,
   matrixKind,
   regionalPrescription,
+  isEditable,
   onChange,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
   const dispatch = useAppDispatch();
-  const { hasUserRegionalPrescriptionPermission } = useAuthentication();
 
   return (
     <EditableNumberCell
       initialValue={regionalPrescription.sampleCount}
-      isEditable={
-        hasUserRegionalPrescriptionPermission(
-          programmingPlan,
-          regionalPrescription
-        )?.updateSampleCount
-      }
+      isEditable={isEditable}
       onChange={(value) => onChange(value)}
       defaultContent={
         <div className="sample-count-container">
@@ -79,4 +74,4 @@ const RegionalPrescriptionCountCell = ({
   );
 };
 
-export default RegionalPrescriptionCountCell;
+export default DistributionCountCell;
