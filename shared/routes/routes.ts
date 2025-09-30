@@ -4,6 +4,7 @@ import { analysisRoutes } from './analysis.routes';
 import { authRoutes } from './auth.routes';
 import { documentsRoutes } from './documents.routes';
 import { laboratoriesRoutes } from './laboratories.routes';
+import { mascaradeRoutes } from './mascarade.routes';
 import { noticesRoutes } from './notices.routes';
 import { notificationsRoutes } from './notifications.routes';
 import { prescriptionsRoutes } from './prescriptions.routes';
@@ -25,6 +26,8 @@ export const MaestroRoutes = [
   '/documents/:documentId/download-signed-url',
   '/laboratories',
   '/laboratories/:laboratoryId',
+  '/mascarade/:userId',
+  '/mascarade',
   '/notifications',
   '/notifications/:notificationId',
   '/notices/:type',
@@ -54,6 +57,7 @@ export const routes = {
   ...authRoutes,
   ...documentsRoutes,
   ...laboratoriesRoutes,
+  ...mascaradeRoutes,
   ...noticesRoutes,
   ...notificationsRoutes,
   ...prescriptionsRoutes,

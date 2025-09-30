@@ -17,10 +17,6 @@ import { useAppSelector } from 'src/hooks/useStore';
 import './App.scss';
 import { AppRouteComponents } from './AppRouteComponents';
 import { AppRoutes, RedirectRoute } from './AppRoutes';
-import {
-  MascaradeContext,
-  useMascarade
-} from './components/Mascarade/MascaradeContext';
 import { MascaradeNotice } from './components/Mascarade/MascaradeNotice';
 import { RootNotice } from './components/RootNotice/RootNotice';
 import { apiClient, ApiClientContext } from './services/apiClient';
@@ -65,67 +61,61 @@ function App() {
 
   FetchInterceptor();
 
-  const { mascaradeUserId, setMascaradeUserId } = useMascarade();
-
   return (
     <React.Suspense fallback={<></>}>
-      <MascaradeContext.Provider
-        value={{ mascaradeUserId, setMascaradeUserId }}
-      >
-        <MascaradeNotice />
-        <Header />
-        <RootNotice />
-        {isSomeQueryPending && (
-          <div className="toast">Chargement en cours...</div>
-        )}
-        {!isOnline && (
-          <div className={cx('fr-badge--error')}>
-            <div
-              className={clsx(
-                cx('fr-container', 'fr-py-2w'),
-                'd-flex-align-center'
-              )}
-            >
-              <span className={cx('fr-icon-link-unlink', 'fr-mr-1w')}></span>
-              Votre connexion Internet est instable. Les données renseignées
-              sont conservées jusqu’au rétablissement de la connexion.
-            </div>
+      <MascaradeNotice />
+      <Header />
+      <RootNotice />
+      {isSomeQueryPending && (
+        <div className="toast">Chargement en cours...</div>
+      )}
+      {!isOnline && (
+        <div className={cx('fr-badge--error')}>
+          <div
+            className={clsx(
+              cx('fr-container', 'fr-py-2w'),
+              'd-flex-align-center'
+            )}
+          >
+            <span className={cx('fr-icon-link-unlink', 'fr-mr-1w')}></span>
+            Votre connexion Internet est instable. Les données renseignées sont
+            conservées jusqu’au rétablissement de la connexion.
           </div>
-        )}
+        </div>
+      )}
 
-        <main
-          className={clsx({ 'main-nologged': !isAuthenticated })}
-          style={{
-            minHeight: 'calc(100vh - 440px)'
-          }}
-        >
-          <Routes>
-            {[
-              ...availableRoutes.map((routeKey) => {
-                const route = {
-                  ...AppRoutes[routeKey as AppRouteKeys],
-                  component: AppRouteComponents[
-                    routeKey as AppRouteKeys
-                  ] as () => ReactElement
-                };
-                return (
-                  <Route
-                    path={route.path}
-                    element={<route.component />}
-                    key={route.key}
-                  />
-                );
-              }),
-              <Route
-                path="/*"
-                element={<RedirectRoute />}
-                key="redirection_route"
-              />
-            ]}
-          </Routes>
-        </main>
-        <Footer />
-      </MascaradeContext.Provider>
+      <main
+        className={clsx({ 'main-nologged': !isAuthenticated })}
+        style={{
+          minHeight: 'calc(100vh - 440px)'
+        }}
+      >
+        <Routes>
+          {[
+            ...availableRoutes.map((routeKey) => {
+              const route = {
+                ...AppRoutes[routeKey as AppRouteKeys],
+                component: AppRouteComponents[
+                  routeKey as AppRouteKeys
+                ] as () => ReactElement
+              };
+              return (
+                <Route
+                  path={route.path}
+                  element={<route.component />}
+                  key={route.key}
+                />
+              );
+            }),
+            <Route
+              path="/*"
+              element={<RedirectRoute />}
+              key="redirection_route"
+            />
+          ]}
+        </Routes>
+      </main>
+      <Footer />
     </React.Suspense>
   );
 }
