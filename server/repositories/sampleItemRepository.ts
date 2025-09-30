@@ -52,7 +52,10 @@ const updateMany = async (
     await SampleItems(transaction).where({ sampleId }).forUpdate();
     await SampleItems(transaction).where({ sampleId }).delete();
     if (partialSampleItems.length > 0) {
-      await SampleItems(transaction).insert(partialSampleItems);
+      const items = partialSampleItems
+        .toSorted((a, b) => a.itemNumber - b.itemNumber)
+        .map((item, index) => ({ ...item, itemNumber: index + 1 }));
+      await SampleItems(transaction).insert(items);
     }
   });
 };
