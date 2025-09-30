@@ -1,7 +1,6 @@
 import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Input from '@codegouvfr/react-dsfr/Input';
-import { format } from 'date-fns';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
@@ -52,13 +51,6 @@ const ContextStepSummary = ({
               ? `${sample.sampler.name}`
               : `${user?.name}`}
           </b>
-        </div>
-      </div>
-      <div className="summary-item icon-text">
-        <div className={cx('fr-icon-calendar-event-line')}></div>
-        <div>
-          Prélèvement réalisé le <b>{format(sample.sampledAt, 'dd/MM/yyyy')}</b>{' '}
-          à <b>{format(sample.sampledAt, "HH'h'mm")}</b>
         </div>
       </div>
       <div className="summary-item icon-text">

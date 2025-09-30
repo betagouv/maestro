@@ -42,7 +42,8 @@ const partialSample = {
   matrixKind: 'A0D9Y' as MatrixKind,
   prescriptionId: prescription1.id,
   programmingPlanId: programmingPlan.id,
-  status: 'DraftItems' as const
+  status: 'DraftItems' as const,
+  sampledAt: new Date()
 };
 
 export const OneItem: Story = {
@@ -60,6 +61,7 @@ export const OneItem: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
+    await expect(canvas.getAllByTestId('sampledAt-input')).toHaveLength(2);
     await expect(canvas.getAllByTestId('item-quantity-input-0')).toHaveLength(
       2
     );
@@ -221,6 +223,13 @@ export const SubmittingSuccess: Story = {
 
     await expect(mockCreateOrUpdateSample).toHaveBeenCalledWith(
       expect.objectContaining({
+        sampledAt: new Date(
+          partialSample.sampledAt.getFullYear(),
+          partialSample.sampledAt.getMonth(),
+          partialSample.sampledAt.getDate(),
+          partialSample.sampledAt.getHours(),
+          partialSample.sampledAt.getMinutes()
+        ),
         items: expect.arrayContaining([
           expect.objectContaining({
             quantity: 1,

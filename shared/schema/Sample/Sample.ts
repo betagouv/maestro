@@ -43,11 +43,6 @@ export const Geolocation = z.object(
 
 export const SampleContextData = z.object({
   id: z.guid(),
-  sampledAt: z.union([z.string(), z.date()]).pipe(
-    z.coerce.date({
-      error: () => 'La date de prélèvement est invalide.'
-    })
-  ),
   sampler: Sampler,
   geolocation: Geolocation.nullish(),
   department: Department.nullish(),
@@ -130,16 +125,35 @@ export const prescriptionSubstancesCheck: CheckFn<{
   }
 };
 
-const SampleItemsData = z.object({
-  items: z
-    .array(SampleItem)
-    .min(1, { message: 'Veuillez renseigner au moins un échantillon.' })
-    .refine(
-      (items) => uniqBy(items, (item) => item.sealId).length === items.length,
-      'Les numéros de scellés doivent être uniques.'
+export const uniqueSampleItemSealIdCheck: CheckFn<{
+  items: PartialSampleItem[];
+}> = (ctx) => {
+  if (
+    uniqBy(ctx.value.items, (item) => item.sealId).length !==
+    ctx.value.items.length
+  ) {
+    ctx.issues.push({
+      input: ctx.value,
+      code: 'custom',
+      message: 'Les numéros de scellés doivent être uniques.',
+      path: ['items']
+    });
+  }
+};
+
+export const SampleItemsData = z
+  .object({
+    sampledAt: z.union([z.string(), z.date()]).pipe(
+      z.coerce.date({
+        error: () => 'La date de prélèvement est invalide.'
+      })
     ),
-  notesOnItems: z.string().nullish()
-});
+    items: z
+      .array(SampleItem)
+      .min(1, { message: 'Veuillez renseigner au moins un échantillon.' }),
+    notesOnItems: z.string().nullish()
+  })
+  .check(uniqueSampleItemSealIdCheck);
 
 const SampleAdmissibilityData = z.object({
   sentAt: z.coerce.date().nullish(),
@@ -185,7 +199,6 @@ export const PartialSampleToCreate = z.object({
     status: true,
     sampler: true
   }).shape,
-  sampledAt: SampleContextData.shape.sampledAt.nullish(),
   ...PartialSampleMatrixData.shape,
   ...SampleItemsData.partial().shape,
   ...SampleAdmissibilityData.partial().shape,
@@ -229,6 +242,7 @@ export const Sample = SampleBase.check(
 export type Geolocation = z.infer<typeof Geolocation>;
 export type SampleContextData = z.infer<typeof SampleContextData>;
 export type SampleMatrixData = z.infer<typeof SampleMatrixData>;
+export type SampleItemsData = z.infer<typeof SampleItemsData>;
 export type SampleOwnerData = z.infer<typeof SampleOwnerData>;
 export type CreatedSampleData = z.infer<typeof CreatedSampleData>;
 export type PartialSampleToCreate = z.infer<typeof PartialSampleToCreate>;

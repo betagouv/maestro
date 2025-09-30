@@ -15,7 +15,9 @@ export const trackEventAction = {
     'push_offline',
     ...(SampleStatus.options.map(
       (status) => `submit_${status}`
-    ) as `submit_${SampleStatus}`[])
+    ) as `submit_${SampleStatus}`[]),
+    'change_default_sampled_at',
+    'change_sampled_at'
   ]),
   support_document: z.enum(
     SampleStatus.options.map((status) => `download_${status}`) as [

@@ -34,7 +34,6 @@ export const genSampleContextData = (
   data?: Partial<SampleContextData>
 ): SampleContextData => ({
   id: uuidv4(),
-  sampledAt: new Date(),
   sampler: {
     id: uuidv4(),
     name: fakerFR.person.fullName()
@@ -84,6 +83,7 @@ export const genCreatedPartialSample = (
       cultureKind: oneOf(CultureKindList),
       releaseControl: fakerFR.datatype.boolean()
     },
+    sampledAt: new Date(),
     items: [genSampleItem({ sampleId: contextData.id, itemNumber: 1 })],
     ...data
   };
@@ -124,7 +124,6 @@ export const Sample1Item1Fixture = genSampleItem({
 });
 export const Sample11Fixture = genCreatedPartialSample({
   id: Sample11FixtureId,
-  sampledAt: new Date('2025-05-06'),
   department: '08',
   region: '44',
   geolocation: {
@@ -153,6 +152,7 @@ export const Sample11Fixture = genCreatedPartialSample({
   },
   laboratoryId: LaboratoryFixture.id,
   prescriptionId: PrescriptionFixture.id,
+  sampledAt: new Date('2025-05-06'),
   items: [Sample1Item1Fixture]
 });
 export const Sample12Fixture = genCreatedPartialSample({

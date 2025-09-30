@@ -36,7 +36,6 @@ export const EmptyForm: Story = {
     await expect(
       canvas.getByTestId('draft_sample_creation_form')
     ).toBeInTheDocument();
-    await expect(canvas.getAllByTestId('sampledAt-input')).toHaveLength(2);
     await expect(canvas.getAllByTestId('geolocationX-input')).toHaveLength(2);
     await expect(canvas.getAllByTestId('geolocationY-input')).toHaveLength(2);
     await expect(canvas.getAllByTestId('parcel-input')).toHaveLength(2);
@@ -116,14 +115,7 @@ export const SubmittingSuccess: Story = {
     await expect(mockCreateOrUpdateSample).toHaveBeenCalledWith(
       expect.objectContaining({
         ...sampleContextData,
-        status: 'DraftMatrix',
-        sampledAt: new Date(
-          sampleContextData.sampledAt.getFullYear(),
-          sampleContextData.sampledAt.getMonth(),
-          sampleContextData.sampledAt.getDate(),
-          sampleContextData.sampledAt.getHours(),
-          sampleContextData.sampledAt.getMinutes()
-        )
+        status: 'DraftMatrix'
       })
     );
   }

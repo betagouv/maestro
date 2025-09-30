@@ -1,6 +1,7 @@
 import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
+import { format } from 'date-fns';
 import {
   Sample,
   SampleOwnerData,
@@ -28,6 +29,13 @@ const ItemsStepSummary = ({ sample, showLabel }: Props) => {
       }
       showLabel={showLabel}
     >
+      <div className="summary-item icon-text">
+        <div className={cx('fr-icon-calendar-event-line')}></div>
+        <div>
+          Prélèvement réalisé le <b>{format(sample.sampledAt, 'dd/MM/yyyy')}</b>{' '}
+          à <b>{format(sample.sampledAt, "HH'h'mm")}</b>
+        </div>
+      </div>
       <div className="sample-items">
         {sample.items?.map((item, itemIndex) => (
           <div
