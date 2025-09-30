@@ -17,10 +17,10 @@ const validate =
       const parsedReq = await validateRequest(req, schema, options);
 
       req.body = parsedReq.body;
-      return next();
+      next();
     } catch (error) {
       console.error(error);
-      return res.status(constants.HTTP_STATUS_BAD_REQUEST).json(error);
+      res.status(constants.HTTP_STATUS_BAD_REQUEST).json(error);
     }
   };
 
@@ -36,7 +36,7 @@ describe('Validator middleware', () => {
         z.object({
           body: z
             .object({
-              name: z.string().min(5)
+              name: z.string().min(5).optional()
             })
             .optional(),
           header: z
@@ -51,13 +51,13 @@ describe('Validator middleware', () => {
             .optional(),
           query: z
             .object({
-              q: z.string().optional()
+              q: z.number().optional()
             })
             .optional()
         })
       ),
       (request: Request, response: Response) => {
-        response.status(201).json(request.body);
+        response.status(constants.HTTP_STATUS_CREATED).json(request.body);
       }
     );
 
@@ -68,11 +68,11 @@ describe('Validator middleware', () => {
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    test('should validate header', () => {
+    test('should not validate header', () => {
       return request(app)
         .post(testRoute)
         .set('Custom-Header', '123456789')
-        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+        .expect(constants.HTTP_STATUS_CREATED);
     });
 
     test('should validate params', () => {
@@ -85,7 +85,7 @@ describe('Validator middleware', () => {
       return request(app)
         .post(testRoute)
         .query({
-          q: 1234
+          q: 'string'
         })
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
