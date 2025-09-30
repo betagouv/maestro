@@ -9,7 +9,7 @@ import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/Programmi
 import { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { isDefined } from 'maestro-shared/utils/utils';
-import { useCallback, useContext } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { pluralize } from 'src/utils/stringUtils';
@@ -55,6 +55,13 @@ const RegionalPrescriptionCard = ({
 
   const currentLaboratory = laboratories?.find(
     (laboratory) => laboratory.id === regionalPrescription?.laboratoryId
+  );
+
+  const departmentalPrescriptionsWithSamples = useMemo(
+    () =>
+      (departmentalPrescriptions ?? []).filter((dp) => dp.sampleCount > 0)
+        .length,
+    [departmentalPrescriptions]
   );
 
   return (
@@ -166,7 +173,10 @@ const RegionalPrescriptionCard = ({
               regionalPrescription
             )?.distributeToDepartments
               ? {
-                  children: 'Répartir aux départements',
+                  children:
+                    departmentalPrescriptionsWithSamples === 0
+                      ? 'Répartir aux départements'
+                      : `${departmentalPrescriptionsWithSamples} ${pluralize(departmentalPrescriptionsWithSamples)('département sélectionné')}`,
                   priority: 'tertiary no outline',
                   onClick: () =>
                     dispatch(
