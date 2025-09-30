@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { addDays, format } from 'date-fns';
 import { constants } from 'http2';
 import { omit } from 'lodash-es';
 import { MatrixEffective } from 'maestro-shared/referential/Matrix/Matrix';
@@ -585,6 +585,28 @@ describe('Sample router', () => {
       await successRequestTest(Sampler1Fixture);
       await successRequestTest(RegionalCoordinator);
       await successRequestTest(SamplerAndNationalObserver);
+    });
+
+    test('should be forbidden to send a sample with sampleAt in the future', async () => {
+      await Samples()
+        .where({
+          id: Sample11Fixture.id
+        })
+        .update({
+          status: 'Submitted',
+          ownerAgreement: true,
+          sentAt: null
+        });
+
+      await request(app)
+        .put(`${testRoute(Sample11Fixture.id)}`)
+        .send({
+          ...Sample11Fixture,
+          status: 'Sent',
+          sampledAt: addDays(new Date(), 1)
+        })
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     test('should update the sample send date when sending the sample', async () => {

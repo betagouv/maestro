@@ -96,6 +96,25 @@ export const sampleMatrixCheck: CheckFn<{
   }
 };
 
+export const sampleSendCheck: CheckFn<{
+  sampledAt?: Date | null;
+  sentAt?: Date | null;
+}> = (ctx) => {
+  if (
+    !isNil(ctx.value.sampledAt) &&
+    !isNil(ctx.value.sentAt) &&
+    ctx.value.sentAt < ctx.value.sampledAt
+  ) {
+    ctx.issues.push({
+      input: ctx.value,
+      code: 'custom',
+      message:
+        "La date de prélèvement ne peut pas être postérieure à la date d'envoi au laboratoire.",
+      path: ['sampledAt']
+    });
+  }
+};
+
 export const prescriptionSubstancesCheck: CheckFn<{
   prescriptionId?: string | null;
   monoSubstances?: SSD2Id[] | null;

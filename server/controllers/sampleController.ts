@@ -23,7 +23,8 @@ import {
   getSampleMatrixLabel,
   isProgrammingPlanSample,
   PartialSample,
-  Sample
+  Sample,
+  sampleSendCheck
 } from 'maestro-shared/schema/Sample/Sample';
 import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
@@ -367,6 +368,26 @@ export const sampleRouter = {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 
+      const mustBeSent =
+        sample.status === 'Submitted' && sampleUpdate.status === 'Sent';
+
+      if (
+        mustBeSent &&
+        !Sample.pick({
+          sampledAt: true,
+          sentAt: true
+        })
+          .check(sampleSendCheck)
+          .safeParse({
+            ...sampleUpdate,
+            sentAt: new Date()
+          }).success
+      ) {
+        return {
+          status: constants.HTTP_STATUS_FORBIDDEN
+        };
+      }
+
       if (
         sample.context !== sampleUpdate.context &&
         DraftStatusList.includes(sampleUpdate.status)
@@ -441,9 +462,6 @@ export const sampleRouter = {
           sampleUpdate.documentIds ?? []
         );
       }
-
-      const mustBeSent =
-        sample.status === 'Submitted' && sampleUpdate.status === 'Sent';
 
       const updatedPartialSample = {
         ...sample,
