@@ -3,18 +3,17 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { uniqBy } from 'lodash-es';
+import { format, parse } from 'date-fns';
 import {
   isProgrammingPlanSample,
   PartialSample,
-  PartialSampleToCreate
+  PartialSampleToCreate,
+  SampleItemsData,
+  uniqueSampleItemSealIdCheck
 } from 'maestro-shared/schema/Sample/Sample';
-import {
-  PartialSampleItem,
-  SampleItem
-} from 'maestro-shared/schema/Sample/SampleItem';
+import { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { isDefined, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import { useForm } from 'src/hooks/useForm';
@@ -25,6 +24,7 @@ import SampleItemDetails from 'src/views/SampleView/SampleItemDetails/SampleItem
 import SavedAlert from 'src/views/SampleView/SavedAlert';
 import { z } from 'zod';
 import AppServiceErrorAlert from '../../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
+import AppTextInput from '../../../../components/_app/AppTextInput/AppTextInput';
 import { useAnalytics } from '../../../../hooks/useAnalytics';
 import { ApiClientContext } from '../../../../services/apiClient';
 import NextButton from '../NextButton';
@@ -43,6 +43,9 @@ const ItemsStep = ({ partialSample }: Props) => {
 
   const isSubmittingRef = useRef<boolean>(false);
 
+  const [sampledAt, setSampledAt] = useState(
+    format(partialSample.sampledAt ?? new Date(), 'yyyy-MM-dd HH:mm')
+  );
   const [items, setItems] = useState<PartialSampleItem[]>(
     !isDefinedAndNotNull(partialSample.items) ||
       partialSample.items.length === 0
@@ -56,35 +59,51 @@ const ItemsStep = ({ partialSample }: Props) => {
       : partialSample.items
   );
   const [laboratoryId, setLaboratoryId] = useState(laboratory?.id);
-  const [notesOnItems, setNotesOnItems] = useState(partialSample?.notesOnItems);
+  const [notesOnItems, setNotesOnItems] = useState(partialSample.notesOnItems);
   const [isSaved, setIsSaved] = useState(false);
+
+  const { initialSampledAt, isDefaultSampledAt } = useMemo(
+    () =>
+      partialSample.sampledAt
+        ? {
+            initialSampledAt: format(
+              partialSample.sampledAt,
+              'yyyy-MM-dd HH:mm'
+            ),
+            isDefaultSampledAt: false
+          }
+        : {
+            initialSampledAt: format(new Date(), 'yyyy-MM-dd HH:mm'),
+            isDefaultSampledAt: true
+          },
+    [] // eslint-disable-line react-hooks/exhaustive-deps
+  );
 
   const [createOrUpdateSample, createOrUpdateSampleCall] =
     apiClient.useCreateOrUpdateSampleMutation();
 
   const Form = z.object({
-    items: z
-      .array(SampleItem)
-      .min(1, { message: 'Veuillez renseigner au moins un échantillon.' })
-      .refine(
-        (items) => uniqBy(items, (item) => item.sealId).length === items.length,
-        'Les numéros de scellés doivent être uniques.'
-      ),
-    notesOnItems: z.string().nullish(),
+    ...SampleItemsData.pick({
+      sampledAt: true,
+      notesOnItems: true,
+      items: true
+    }).shape,
     laboratoryId: z.guid().nullish()
   });
 
-  const FormRefinement = Form.check((ctx) => {
-    const laboratoryId = ctx.value.laboratoryId;
-    if (!isProgrammingPlanSample(partialSample) && !isDefined(laboratoryId)) {
-      ctx.issues.push({
-        code: 'custom',
-        path: ['laboratoryId'],
-        input: laboratoryId,
-        message: 'Veuillez sélectionner un laboratoire.'
-      });
+  const FormRefinement = Form.check(uniqueSampleItemSealIdCheck).check(
+    (ctx) => {
+      const laboratoryId = ctx.value.laboratoryId;
+      if (!isProgrammingPlanSample(partialSample) && !isDefined(laboratoryId)) {
+        ctx.issues.push({
+          code: 'custom',
+          path: ['laboratoryId'],
+          input: laboratoryId,
+          message: 'Veuillez sélectionner un laboratoire.'
+        });
+      }
     }
-  });
+  );
 
   useEffect(
     () => {
@@ -97,6 +116,15 @@ const ItemsStep = ({ partialSample }: Props) => {
             `submit_${partialSample.status}`,
             partialSample.id
           );
+          if (initialSampledAt !== sampledAt) {
+            trackEvent(
+              'sample',
+              isDefaultSampledAt
+                ? 'change_default_sampled_at'
+                : 'change_sampled_at',
+              partialSample.id
+            );
+          }
           navigateToSample(partialSample.id, 4);
         }
       }
@@ -119,6 +147,7 @@ const ItemsStep = ({ partialSample }: Props) => {
   const save = async (status = partialSample.status) => {
     await createOrUpdateSample({
       ...partialSample,
+      sampledAt: parse(sampledAt, 'yyyy-MM-dd HH:mm', new Date()),
       notesOnItems,
       items,
       laboratoryId,
@@ -135,6 +164,7 @@ const ItemsStep = ({ partialSample }: Props) => {
   const form = useForm(
     FormRefinement,
     {
+      sampledAt,
       items,
       notesOnItems,
       laboratoryId
@@ -145,6 +175,23 @@ const ItemsStep = ({ partialSample }: Props) => {
   return (
     <form data-testid="draft_sample_items_form" className="sample-form">
       <AppRequiredText />
+      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+        <div className={cx('fr-col-12')}>
+          <AppTextInput
+            type="datetime-local"
+            defaultValue={sampledAt}
+            onChange={(e) => setSampledAt(e.target.value.replace('T', ' '))}
+            inputForm={form}
+            inputKey="sampledAt"
+            whenValid="Date et heure de prélèvement correctement renseignés."
+            data-testid="sampledAt-input"
+            label="Date et heure de prélèvement"
+            hintText="Format attendu › JJ/MM/AAAA HH:MM"
+            required
+            disabled={readonly}
+          />
+        </div>
+      </div>
       <div className="sample-items">
         {items?.map((item, itemIndex) => (
           <div

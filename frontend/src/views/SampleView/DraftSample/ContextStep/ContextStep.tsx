@@ -3,7 +3,6 @@ import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Skeleton } from '@mui/material';
 import clsx from 'clsx';
-import { format, parse } from 'date-fns';
 import { isNil } from 'lodash-es';
 import {
   LegalContext,
@@ -103,9 +102,6 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
     partialSample?.geolocation?.y
   );
   const [isBrowserGeolocation, setIsBrowserGeolocation] = useState(false);
-  const [sampledAt, setSampledAt] = useState(
-    format(partialSample?.sampledAt ?? new Date(), 'yyyy-MM-dd HH:mm')
-  );
   const [sampler, setSampler] = useState<Sampler | undefined>(
     partialSample?.sampler ?? user
   );
@@ -252,7 +248,6 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
 
   const formData = {
     id,
-    sampledAt: parse(sampledAt, 'yyyy-MM-dd HH:mm', new Date()),
     sampler: sampler as Sampler,
     geolocation:
       geolocationX && geolocationY
@@ -334,7 +329,6 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
 
   const formInput = {
     id,
-    sampledAt,
     sampler,
     geolocationX,
     geolocationY,
@@ -366,22 +360,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
       )}
       <AppRequiredText />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={cx('fr-col-12', 'fr-col-sm-8')}>
-          <AppTextInput
-            type="datetime-local"
-            defaultValue={sampledAt}
-            onChange={(e) => setSampledAt(e.target.value.replace('T', ' '))}
-            inputForm={form}
-            inputKey="sampledAt"
-            whenValid="Date et heure de prélèvement correctement renseignés."
-            data-testid="sampledAt-input"
-            label="Date et heure de prélèvement"
-            hintText="Format attendu › JJ/MM/AAAA HH:MM"
-            required
-            disabled={readonly}
-          />
-        </div>
-        <div className={cx('fr-col-12', 'fr-col-sm-4')}>
+        <div className={cx('fr-col-12')}>
           <AppSelect
             defaultValue={partialSample?.sampler?.id || ''}
             options={samplersOptions(samplers, user?.id)}
