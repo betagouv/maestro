@@ -8,6 +8,7 @@ import {
   Sample,
   SampleBase,
   SampleOwnerData,
+  sampleSendCheck,
   SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import { isDefined } from 'maestro-shared/utils/utils';
@@ -53,6 +54,8 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
 
   const isSubmittingRef = useRef<boolean>(false);
 
+  const [sampledAt, _setSampledAt] = useState(sample.sampledAt);
+  const [sentAt, _setSentAt] = useState(new Date());
   const [resytalId, setResytalId] = useState(sample.resytalId);
   const [ownerFirstName, setOwnerFirstName] = useState(sample.ownerFirstName);
   const [ownerLastName, setOwnerLastName] = useState(sample.ownerLastName);
@@ -90,8 +93,10 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
     ownerLastName: true,
     ownerEmail: true,
     ownerAgreement: true,
-    notesOnOwnerAgreement: true
-  });
+    notesOnOwnerAgreement: true,
+    sampledAt: true,
+    sentAt: true
+  }).check(sampleSendCheck);
 
   useEffect(
     () => {
@@ -141,7 +146,9 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
       ownerLastName,
       ownerEmail,
       ownerAgreement,
-      notesOnOwnerAgreement
+      notesOnOwnerAgreement,
+      sampledAt,
+      sentAt
     },
     save
   );
@@ -319,6 +326,14 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
           />
         )}
         <AppServiceErrorAlert call={createOrUpdateSampleCall} />
+        {form.hasIssue('sampledAt') && (
+          <Alert
+            severity="error"
+            description={form.message('sampledAt') as string}
+            small
+            className={cx('fr-mb-4w')}
+          />
+        )}
         {!createOrUpdateSampleCall.isError && <hr className={cx('fr-mx-0')} />}
         {!readonly && <SupportDocumentDownload partialSample={sample} />}
         <div className="sample-actions">
