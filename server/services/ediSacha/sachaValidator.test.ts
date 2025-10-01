@@ -18,5 +18,5 @@ test.each([
   });
   const xmlToJson = parser.parse(content);
 
-  expect(sachaValidator.parse(xmlToJson)).toMatchSnapshot();
+  expect(sachaValidator.decode(xmlToJson)).toMatchSnapshot();
 });
