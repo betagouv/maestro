@@ -10,14 +10,14 @@ import {
   RegionalPrescription,
   RegionalPrescriptionSort
 } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
 import DistributionCountCell from 'src/components/DistributionTable/DistributionCountCell/DistributionCountCell';
 import RegionHeaderCell from 'src/components/RegionHeaderCell/RegionHeaderCell';
 import { useAuthentication } from '../../../hooks/useAuthentication';
 
 interface Props {
-  programmingPlans: ProgrammingPlan[];
+  programmingPlan: ProgrammingPlan;
   prescriptions: Prescription[];
   regionalPrescriptions: RegionalPrescription[];
   onChangeRegionalPrescriptionCount: (
@@ -28,7 +28,7 @@ interface Props {
 }
 
 const ProgrammingPrescriptionTable = ({
-  programmingPlans,
+  programmingPlan,
   prescriptions,
   regionalPrescriptions,
   onChangeRegionalPrescriptionCount
@@ -53,14 +53,6 @@ const ProgrammingPrescriptionTable = ({
       ))
     ],
     []
-  );
-
-  const getProgrammingPlan = useCallback(
-    (prescription: Prescription) =>
-      programmingPlans.find(
-        (p) => p.id === prescription.programmingPlanId
-      ) as ProgrammingPlan,
-    [programmingPlans]
   );
 
   const prescriptionsData = useMemo(
@@ -104,14 +96,14 @@ const ProgrammingPrescriptionTable = ({
               key={`cell-${prescription.matrixKind}-${regionalPrescription.region}`}
             >
               <DistributionCountCell
-                programmingPlan={getProgrammingPlan(prescription)}
+                programmingPlan={programmingPlan}
                 matrixKind={prescription.matrixKind}
                 regionalPrescription={regionalPrescription}
                 isEditable={
                   hasUserRegionalPrescriptionPermission(
-                    getProgrammingPlan(prescription),
+                    programmingPlan,
                     regionalPrescription
-                  )?.distributeToRegions
+                  )?.updateSampleCount
                 }
                 onChange={async (value) =>
                   onChangeRegionalPrescriptionCount(
@@ -144,9 +136,8 @@ const ProgrammingPrescriptionTable = ({
               'sampleCount'
             )}
           </div>
-          {programmingPlans
-            .flatMap((pp) => pp.regionalStatus)
-            .find((_) => _.region === region)?.status === 'Validated' && (
+          {programmingPlan.regionalStatus.find((_) => _.region === region)
+            ?.status === 'Validated' && (
             <>
               <div>
                 {sumBy(

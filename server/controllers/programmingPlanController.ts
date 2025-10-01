@@ -315,6 +315,7 @@ export const programmingPlanRouter = {
         contexts: previousProgrammingPlan.contexts,
         samplesOutsidePlanAllowed:
           previousProgrammingPlan.samplesOutsidePlanAllowed,
+        distributionKind: previousProgrammingPlan.distributionKind,
         year,
         regionalStatus: RegionList.map((region) => ({
           region,
@@ -325,11 +326,11 @@ export const programmingPlanRouter = {
       await programmingPlanRepository.insert(newProgrammingPlan);
 
       const previousPrescriptions = await prescriptionRepository.findMany({
-        programmingPlanIds: [previousProgrammingPlan.id]
+        programmingPlanId: previousProgrammingPlan.id
       });
       const previousRegionalPrescriptions =
         await regionalPrescriptionRepository.findMany({
-          programmingPlanIds: [previousProgrammingPlan.id]
+          programmingPlanId: previousProgrammingPlan.id
         });
 
       await Promise.all(

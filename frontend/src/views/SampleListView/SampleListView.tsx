@@ -115,7 +115,7 @@ const SampleListView = () => {
   );
   const { data: prescriptions } = apiClient.useFindPrescriptionsQuery(
     {
-      programmingPlanIds: [programmingPlan?.id as string],
+      programmingPlanId: programmingPlan?.id as string,
       contexts: findSampleOptions.contexts
         ? (findSampleOptions.contexts.filter(
             (context) => ProgrammingPlanContext.safeParse(context).success

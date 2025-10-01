@@ -6,13 +6,15 @@ interface EditableCellProps {
   isEditable?: boolean;
   onChange: (value: number) => void;
   defaultContent: ReactNode;
+  max?: number;
 }
 
 const EditableNumberCell = ({
   initialValue,
   isEditable,
   onChange,
-  defaultContent
+  defaultContent,
+  max
 }: EditableCellProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(initialValue);
@@ -34,6 +36,7 @@ const EditableNumberCell = ({
             value,
             autoFocus: true,
             min: 0,
+            max,
             onChange: (e) => setValue(Number(e.target.value)),
             onKeyDown: (e) => {
               if (e.key === 'Enter') {

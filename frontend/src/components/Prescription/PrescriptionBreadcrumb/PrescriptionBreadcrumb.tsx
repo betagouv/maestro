@@ -1,8 +1,6 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { uniq } from 'lodash-es';
-import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
-import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanKindLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 
@@ -16,10 +14,8 @@ const PrescriptionBreadcrumb = ({ programmingPlan, prescription }: Props) => {
     <div className={cx('fr-breadcrumb', 'fr-mt-0', 'fr-mb-1w')}>
       <ol className={cx('fr-breadcrumb__list')}>
         {uniq([
-          ProgrammingPlanDomainLabels[programmingPlan.domain],
           programmingPlan.title,
-          ProgrammingPlanKindLabels[prescription.programmingPlanKind],
-          MatrixKindLabels[prescription.matrixKind]
+          ProgrammingPlanKindLabels[prescription.programmingPlanKind]
         ]).map((part, idx) => (
           <li key={idx}>
             <span

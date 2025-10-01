@@ -50,11 +50,7 @@ export const prescriptionsRouter = {
         }))
       );
 
-      if (
-        ['DEPARTMENTAL', 'SLAUGHTERHOUSE'].includes(
-          programmingPlan.distributionKind
-        )
-      ) {
+      if (programmingPlan.distributionKind === 'SLAUGHTERHOUSE') {
         await regionalPrescriptionRepository.insertMany(
           RegionList.flatMap((region) =>
             Regions[region].departments.map((department) => ({

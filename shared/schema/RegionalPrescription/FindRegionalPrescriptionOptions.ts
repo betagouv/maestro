@@ -14,7 +14,7 @@ export type RegionalPrescriptionOptionsInclude = z.infer<
 >;
 
 export const FindRegionalPrescriptionOptions = z.object({
-  programmingPlanIds: coerceToArray(z.array(z.guid()).min(1)),
+  programmingPlanId: z.guid(),
   programmingPlanKinds: coerceToArray(z.array(ProgrammingPlanKind)).nullish(),
   contexts: coerceToArray(z.array(ProgrammingPlanContext)).nullish(),
   region: Region.nullish(),

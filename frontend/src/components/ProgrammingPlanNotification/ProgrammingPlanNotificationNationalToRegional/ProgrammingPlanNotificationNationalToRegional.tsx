@@ -19,16 +19,18 @@ import { useAppDispatch } from '../../../hooks/useStore';
 import { api } from '../../../services/api.service';
 import { ApiClientContext } from '../../../services/apiClient';
 import { pluralize } from '../../../utils/stringUtils';
-import './ProgrammingPlanNationalValidation.scss';
+import '../ProgrammingPlanNotification.scss';
 interface Props {
-  programmingPlans: ProgrammingPlan[];
+  programmingPlan: ProgrammingPlan;
 }
 const submissionModal = createModal({
   id: `submission-modal`,
   isOpenedByDefault: false
 });
 
-const ProgrammingPlanNationalValidation = ({ programmingPlans }: Props) => {
+const ProgrammingPlanNotificationNationalToRegional = ({
+  programmingPlan
+}: Props) => {
   const dispatch = useAppDispatch();
   const apiClient = useContext(ApiClientContext);
   const { hasUserPermission } = useAuthentication();
@@ -38,9 +40,6 @@ const ProgrammingPlanNationalValidation = ({ programmingPlans }: Props) => {
 
   const [isSuccess, setIsSuccess] = useState(false);
   const [isError, setIsError] = useState(false);
-  const [programmingPlan, setProgrammingPlan] = useState<
-    ProgrammingPlan | undefined
-  >(programmingPlans.length === 1 ? programmingPlans[0] : undefined);
 
   const getRegionsByStatus = useCallback(
     (status: ProgrammingPlanStatus) =>
@@ -92,16 +91,26 @@ const ProgrammingPlanNationalValidation = ({ programmingPlans }: Props) => {
 
   return (
     <>
-      <div className="notify-regions-menu">
-        <Button
-          iconId="fr-icon-send-plane-fill"
-          iconPosition="right"
-          id="notify-regions-button"
-          onClick={() => submissionModal.open()}
-        >
-          Notifier les régions
-        </Button>
-      </div>
+      {programmingPlan.regionalStatus.some(
+        (regionalStatus) =>
+          NextProgrammingPlanStatus[regionalStatus.status] &&
+          ['Submitted', 'Validated'].includes(
+            NextProgrammingPlanStatus[
+              regionalStatus.status
+            ] as ProgrammingPlanStatus
+          )
+      ) && (
+        <div className="notify-regions-menu">
+          <Button
+            iconId="fr-icon-send-plane-fill"
+            iconPosition="right"
+            id="notify-regions-button"
+            onClick={() => submissionModal.open()}
+          >
+            Notifier les régions
+          </Button>
+        </div>
+      )}
 
       <submissionModal.Component
         title={isSuccess ? 'Notification envoyée' : 'Notifier les régions'}
@@ -145,24 +154,18 @@ const ProgrammingPlanNationalValidation = ({ programmingPlans }: Props) => {
             <Select
               label="Plan"
               nativeSelectProps={{
-                value: programmingPlan?.id || '',
-                onChange: (e) =>
-                  setProgrammingPlan(
-                    programmingPlans.find(
-                      (plan) => plan.id === e.target.value
-                    ) as ProgrammingPlan
-                  )
+                value: programmingPlan.id
               }}
               className={cx('fr-mb-1v')}
-              disabled={programmingPlans.length <= 1}
+              disabled
             >
-              {programmingPlans.map((plan) => (
-                <option key={`plan-${plan.id}`} value={plan.id}>
-                  {plan.title}
-                </option>
-              ))}
+              <option
+                key={`plan-${programmingPlan.id}`}
+                value={programmingPlan.id}
+              >
+                {programmingPlan.title}
+              </option>
             </Select>
-            <hr className={cx('fr-my-2w')} />
             <RadioButtons
               legend="Action"
               options={[
@@ -190,7 +193,9 @@ const ProgrammingPlanNationalValidation = ({ programmingPlans }: Props) => {
                 }
               ]}
               orientation="horizontal"
+              className={cx('fr-mt-2w')}
             />
+            <hr className={cx('fr-my-2w')} />
             <div className={cx('fr-mt-3w')}>
               {getRegionsByStatus(status).length > 0 ? (
                 <Checkbox
@@ -255,4 +260,4 @@ const ProgrammingPlanNationalValidation = ({ programmingPlans }: Props) => {
   );
 };
 
-export default ProgrammingPlanNationalValidation;
+export default ProgrammingPlanNotificationNationalToRegional;

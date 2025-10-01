@@ -3,20 +3,23 @@ import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import clsx from 'clsx';
 import { isEmpty, mapValues, omitBy, orderBy, uniqBy } from 'lodash-es';
-import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, Regions } from 'maestro-shared/referential/Region';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { ProgrammingPlanDomain } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
+import {
+  ProgrammingPlanDomain,
+  ProgrammingPlanDomainLabels
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatusList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { RegionalPrescriptionKey } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionKey';
 import { useCallback, useContext, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
-import programmation from '../../assets/illustrations/programmation.svg';
+import programmation from '../../assets/illustrations/programmation-white.svg';
 import AppToast from '../../components/_app/AppToast/AppToast';
 import PrescriptionCommentsModal from '../../components/Prescription/PrescriptionCommentsModal/PrescriptionCommentsModal';
-import ProgrammingPlanRegionalValidation from '../../components/ProgrammingPlan/ProgrammingPlanRegionalValidation/ProgrammingPlanRegionalValidation';
+import ProgrammingPlanNotificationRegionalToDepartmental from '../../components/ProgrammingPlanNotification/ProgrammingPlanNotificationRegionalToDepartmental/ProgrammingPlanNotificationRegionalToDepartmental';
+import ProgrammingPlanNotificationRegionalToNational from '../../components/ProgrammingPlanNotification/ProgrammingPlanNotificationRegionalToNational/ProgrammingPlanNotificationRegionalToNational';
 import SectionHeader from '../../components/SectionHeader/SectionHeader';
 import { useAuthentication } from '../../hooks/useAuthentication';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
@@ -57,46 +60,29 @@ const ProgrammingView = () => {
 
   useEffect(() => {
     dispatch(
-      prescriptionsSlice.actions.changePrescriptionFilters({
-        year: Number(
-          searchParams.get('year') ?? new Date().getFullYear().toString()
-        ),
-        domain:
-          (searchParams.get('domain') as ProgrammingPlanDomain) ?? undefined,
-        planIds:
-          (searchParams.get('planIds')?.split(',') as string[]) ?? undefined,
-        kinds:
-          (searchParams.get('kinds')?.split(',') as ProgrammingPlanKind[]) ??
-          undefined,
-        contexts:
-          (searchParams
-            .get('contexts')
-            ?.split(',') as ProgrammingPlanContext[]) ?? undefined,
-        matrixKinds:
-          (searchParams.get('matrixKinds')?.split(',') as MatrixKind[]) ??
-          undefined
-      })
+      prescriptionsSlice.actions.changePrescriptionFilters(
+        reduceFilters(prescriptionFilters, {
+          year: Number(
+            searchParams.get('year') ?? new Date().getFullYear().toString()
+          ),
+          domain:
+            (searchParams.get('domain') as ProgrammingPlanDomain) ?? undefined,
+          planId: searchParams.get('planId'),
+          kinds:
+            (searchParams.get('kinds')?.split(',') as ProgrammingPlanKind[]) ??
+            undefined,
+          context:
+            (searchParams.get('context') as ProgrammingPlanContext) ?? undefined
+        })
+      )
     );
   }, [searchParams, programmingPlans]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const filteredProgrammingPlans = useMemo(
+  const programmingPlan = useMemo(
     () =>
-      (programmingPlans ?? [])
-        .filter((plan) =>
-          prescriptionFilters.year
-            ? plan.year === prescriptionFilters.year
-            : true
-        )
-        .filter((plan) =>
-          prescriptionFilters.domain
-            ? plan.domain === prescriptionFilters.domain
-            : true
-        )
-        .filter((plan) =>
-          prescriptionFilters.planIds
-            ? prescriptionFilters.planIds.includes(plan.id)
-            : true
-        ),
+      (programmingPlans ?? []).find(
+        (plan) => prescriptionFilters.planId === plan.id
+      ),
 
     [prescriptionFilters, programmingPlans]
   );
@@ -144,18 +130,30 @@ const ProgrammingView = () => {
     <>
       <AppToast open={isCommentSuccess} description="Commentaire ajouté" />
       <section className={clsx('main-section')}>
-        <div className={cx('fr-container')}>
-          <SectionHeader
-            title="Programmation"
-            subtitle={Regions[region as Region]?.name}
-            illustration={programmation}
-            action={
-              <SegmentedControl
-                hideLegend
-                legend="Année"
-                segments={
-                  orderBy(uniqBy(programmingPlans, 'year'), 'year', 'desc').map(
-                    ({ year }) => ({
+        <div className={clsx('green-container')}>
+          <div className={cx('fr-container')}>
+            <SectionHeader
+              title={
+                <>
+                  Programmation{' '}
+                  {prescriptionFilters.domain &&
+                    ProgrammingPlanDomainLabels[
+                      prescriptionFilters.domain
+                    ].toLowerCase()}
+                </>
+              }
+              subtitle={Regions[region as Region]?.name}
+              illustration={programmation}
+              action={
+                <SegmentedControl
+                  hideLegend
+                  legend="Année"
+                  segments={
+                    orderBy(
+                      uniqBy(programmingPlans, 'year'),
+                      'year',
+                      'desc'
+                    ).map(({ year }) => ({
                       label: year,
                       nativeInputProps: {
                         checked: year === prescriptionFilters.year,
@@ -163,20 +161,28 @@ const ProgrammingView = () => {
                           changeFilter({
                             year,
                             domain: undefined,
-                            planIds: undefined,
+                            planId: undefined,
                             kinds: undefined,
-                            contexts: undefined,
-                            matrixKinds: undefined
+                            context: undefined
                           })
                       }
-                    })
-                  ) as any
-                }
+                    })) as any
+                  }
+                />
+              }
+            />
+            {programmingPlan && (
+              <ProgrammingPlanNotificationRegionalToNational
+                programmingPlan={programmingPlan}
+                region={region as Region}
               />
-            }
-          />
-
-          {filteredProgrammingPlans && (
+            )}
+            {programmingPlan && (
+              <ProgrammingPlanNotificationRegionalToDepartmental
+                programmingPlan={programmingPlan}
+                region={region as Region}
+              />
+            )}
             <div
               className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}
             >
@@ -189,7 +195,6 @@ const ProgrammingView = () => {
                       kinds: programmingPlanKindOptions(prescriptionFilters),
                       contexts: contextOptions(prescriptionFilters)
                     }}
-                    programmingPlans={filteredProgrammingPlans}
                     filters={prescriptionFilters}
                     onChange={changeFilter}
                     renderMode="inline"
@@ -198,74 +203,63 @@ const ProgrammingView = () => {
                 </div>
               </div>
             </div>
-          )}
+          </div>
         </div>
 
-        {programmingPlans && (
-          <div className={cx('fr-container')}>
-            <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-              {!hasNationalView &&
-                programmingPlans.flatMap((plan) =>
-                  plan.regionalStatus.some(
-                    (regionalStatus) =>
-                      regionalStatus.region === region &&
-                      ['Submitted', 'Approved'].includes(regionalStatus.status)
-                  )
-                ) && (
-                  <ProgrammingPlanRegionalValidation
-                    programmingPlans={programmingPlans}
-                    region={region as Region}
-                  />
-                )}
-              <div className={cx('fr-col-12')}>
-                <Tabs
-                  classes={{
-                    panel: 'white-container'
-                  }}
-                  tabs={
-                    [
-                      {
-                        label: 'Programmation',
-                        iconId: 'fr-icon-survey-line',
-                        content: (
-                          <ProgrammingPrescriptionList
-                            programmingPlans={filteredProgrammingPlans ?? []}
-                            region={region ?? undefined}
-                          />
-                        )
-                      },
-                      ...(hasNationalView
-                        ? [
-                            // {
-                            //   label: 'Phase de consultation',
-                            //   content: (
-                            //     <ProgrammingPlanRegionalValidationList
-                            //       programmingPlan={programmingPlan}
-                            //       context={prescriptionListContext}
-                            //     />
-                            //   ),
-                            //   iconId: 'fr-icon-chat-check-line'
-                            // },
-                            {
-                              label: 'Commentaires',
-                              content: (
-                                <ProgrammingCommentList
-                                  programmingPlans={
-                                    filteredProgrammingPlans ?? []
-                                  }
-                                />
-                              ),
-                              iconId: 'fr-icon-chat-3-line'
-                            }
-                          ]
-                        : [])
-                    ] as any
-                  }
-                />
-              </div>
+        <div className={cx('fr-container')}>
+          <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+            <div className={cx('fr-col-12')}>
+              <Tabs
+                classes={{
+                  panel: 'white-container'
+                }}
+                tabs={
+                  [
+                    {
+                      label: 'Programmation',
+                      iconId: 'fr-icon-survey-line',
+                      content: programmingPlan ? (
+                        <ProgrammingPrescriptionList
+                          programmingPlan={programmingPlan}
+                          region={region ?? undefined}
+                        />
+                      ) : (
+                        <></>
+                      )
+                    },
+                    ...(hasNationalView
+                      ? [
+                          // {
+                          //   label: 'Phase de consultation',
+                          //   content: programmingPlan ? (
+                          //     <ProgrammingPlanRegionalValidationList
+                          //       programmingPlan={programmingPlan}
+                          //       context={prescriptionFilters.context}
+                          //     />
+                          //   ) : (
+                          //     <></>
+                          //   ),
+                          //   iconId: 'fr-icon-chat-check-line'
+                          // },
+                          {
+                            label: 'Commentaires',
+                            content: programmingPlan ? (
+                              <ProgrammingCommentList
+                                programmingPlan={programmingPlan}
+                              />
+                            ) : (
+                              <></>
+                            ),
+                            iconId: 'fr-icon-chat-3-line'
+                          }
+                        ]
+                      : [])
+                  ] as any
+                }
+              />
             </div>
           </div>
-        )}
+        </div>
       </section>
       <PrescriptionCommentsModal
         onSubmitRegionalPrescriptionComment={submitRegionalPrescriptionComment}

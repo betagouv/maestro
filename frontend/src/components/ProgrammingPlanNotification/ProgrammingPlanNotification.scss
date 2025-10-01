@@ -1,3 +1,22 @@
+.notify-regions-menu {
+  .fr-menu {
+    top: initial;
+  }
+
+  ul {
+    list-style-type: none !important;
+  }
+}
+
+.fr-fieldset__content .fr-checkbox-group:first-child {
+  margin-top: 0;
+}
+
+.fr-fieldset--inline .fr-checkbox-group {
+  width: 50%;
+  margin: 0 !important;
+}
+
 .step-container {
   display: flex;
   flex-direction: row;

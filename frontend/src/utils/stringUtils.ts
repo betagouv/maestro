@@ -1,14 +1,23 @@
 export function pluralize(
   count: number,
-  replacements?: { old: string; new: string }[]
+  options?: {
+    replacements?: { old: string; new: string }[];
+    preserveCount?: boolean;
+    ignores?: string[];
+  }
 ) {
   return (str: string): string =>
-    str
-      .split(' ')
-      .map((s) =>
-        count > 1 ? (replacements?.find((_) => _.old === s)?.new ?? `${s}s`) : s
-      )
-      .join(' ');
+    [
+      ...(options?.preserveCount ? [count] : []),
+      ...str
+        .split(' ')
+        .map((s) =>
+          count > 1
+            ? (options?.replacements?.find((_) => _.old === s)?.new ??
+              (options?.ignores?.includes(s) ? s : `${s}s`))
+            : s
+        )
+    ].join(' ');
 }
 
 export const quote = (str: string): string => `“ ${str} “`;

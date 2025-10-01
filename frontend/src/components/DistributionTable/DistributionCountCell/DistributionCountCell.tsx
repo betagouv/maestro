@@ -14,6 +14,7 @@ interface Props {
   regionalPrescription: RegionalPrescription;
   isEditable?: boolean;
   onChange: (value: number) => void;
+  max?: number;
 }
 
 const DistributionCountCell = ({
@@ -22,6 +23,7 @@ const DistributionCountCell = ({
   regionalPrescription,
   isEditable,
   onChange,
+  max,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -32,6 +34,7 @@ const DistributionCountCell = ({
       initialValue={regionalPrescription.sampleCount}
       isEditable={isEditable}
       onChange={(value) => onChange(value)}
+      max={max}
       defaultContent={
         <div className="sample-count-container">
           <div className="sample-count">
