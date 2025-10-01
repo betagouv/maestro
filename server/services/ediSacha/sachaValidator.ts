@@ -13,6 +13,25 @@ const coerceToArray = <Schema extends z.ZodObject>(
   }, z.array(schema)) as unknown as z.ZodArray<Schema>;
 };
 
+const coerceToTuple = <Schema extends z.ZodObject>(
+  schema: Schema
+): z.ZodTuple<[Schema], Schema> => {
+  return z.codec(
+    z.tuple([schema], schema).or(schema),
+    z.tuple([schema], schema),
+    {
+      encode: (value) => value,
+      decode: (value) => {
+        if (Array.isArray(value)) {
+          return value;
+        } else {
+          return [value];
+        }
+      }
+    }
+  ) as unknown as z.ZodTuple<[Schema], Schema>;
+};
+
 // 1900-01-01
 const sachaDate = maestroDate;
 
@@ -33,7 +52,10 @@ export const toSachaDateTime = (date: Date): z.infer<typeof sachaDateTime> => {
   throw new Error(`Shouldn't get here (invalid toDateStr provided): ${date}`);
 };
 
-const booleanLabel = z.literal(['O', 'N']).transform((b) => b === 'O');
+const booleanLabel = z.codec(z.literal(['O', 'N']), z.boolean(), {
+  decode: (b) => b === 'O',
+  encode: (b) => (b ? 'O' : 'N')
+});
 
 const statusValidator = z.literal(['G', 'V']);
 const typeValidator = z.literal(['G', 'S']);
@@ -144,19 +166,21 @@ const referenceUnites = coerceToArray(
     Commentaire: z.string().optional()
   })
 ).optional();
-const referencePlanAnalyseContenu = z
-  .array(
-    z.object({
-      LibelleMatrice: z.string(),
-      SigleAnalyte: z.string(),
-      SigleMethodeSpecifique: z.string(),
-      Depistage: booleanLabel,
-      Confirmation: booleanLabel,
-      Statut: statusValidator,
-      Commentaire: z.string().optional()
-    })
-  )
-  .min(1);
+
+const referencePlanAnalyseContenuValidator = z.object({
+  LibelleMatrice: z.string(),
+  SigleAnalyte: z.string(),
+  SigleMethodeSpecifique: z.string(),
+  Depistage: booleanLabel,
+  Confirmation: booleanLabel,
+  Statut: statusValidator,
+  Commentaire: z.string().optional()
+});
+const referencePlanAnalyseContenu = z.tuple(
+  [referencePlanAnalyseContenuValidator],
+  referencePlanAnalyseContenuValidator
+);
+
 const referenceMethodes = z.object({
   Cle: z.string(),
   Sigle: z.string(),
@@ -187,10 +211,14 @@ const referenceCommemoratifs = coerceToArray(
   })
 ).optional();
 
-export const resultatsValidator = z.object({
+export const baseValidator = z.object({
   MessageParametres: messageParametres,
   Emetteur: partenaire,
-  Destinataire: partenaire,
+  Destinataire: partenaire
+});
+
+export const resultatsValidator = z.object({
+  ...baseValidator.shape,
   DialogueResultatType: z.intersection(
     z.union([
       z.object({
@@ -281,9 +309,7 @@ export const resultatsValidator = z.object({
 });
 
 export const demandesAnalysesValidator = z.object({
-  MessageParametres: messageParametres,
-  Emetteur: partenaire,
-  Destinataire: partenaire,
+  ...baseValidator.shape,
   DemandeType: z.object({
     DialogueDemandeIntervention: z.object({
       NumeroDAP: z.coerce.number().int(),
@@ -336,9 +362,7 @@ export const demandesAnalysesValidator = z.object({
 export type DAI = z.infer<typeof demandesAnalysesValidator>;
 
 export const acquittementValidator = z.object({
-  MessageParametres: messageParametres,
-  Emetteur: partenaire,
-  Destinataire: partenaire,
+  ...baseValidator.shape,
   MessageAcquittement: coerceToArray(
     z.object({ NomFichier: z.string(), DateAcquittement: sachaDateTime })
   ).optional(),
@@ -478,12 +502,11 @@ export const sachaValidator = z.object({
   AcquittementNonAcquittement: acquittementValidator.optional(),
   DemandesDeDemande: z
     .object({
-      MessageParametres: messageParametres,
-      Emetteur: partenaire,
-      Destinataire: partenaire,
-      DialogueDemandeDeDemande: z
-        .array(z.object({ NumeroDAP: z.coerce.number().int() }))
-        .min(1)
+      ...baseValidator.shape,
+      DialogueDemandeDeDemande: z.tuple(
+        [z.object({ NumeroDAP: z.coerce.number().int() })],
+        z.object({ NumeroDAP: z.coerce.number().int() })
+      )
     })
     .optional()
 });
