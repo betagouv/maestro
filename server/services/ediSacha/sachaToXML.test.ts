@@ -17,7 +17,7 @@ test(`génère un XML d'acquittement`, () => {
     )
   ).toMatchInlineSnapshot(
     `
-    "<?xml encoding="UTF-8" version="1.0"?>
+    "<?xml version="1.0" encoding="UTF-8"?>
     <AcquittementNonAcquittement schemavalidation="AcquittementNonAcquittement.xsd">
       <MessageParametres>
         <CodeScenario>E.D.I. SIGAL/LABOS</CodeScenario>
@@ -28,22 +28,22 @@ test(`génère un XML d'acquittement`, () => {
         <VersionLogicielCreation>4.0</VersionLogicielCreation>
       </MessageParametres>
       <Emetteur>
-        <Nom>Maestro</Nom>
         <Sigle>Maestro</Sigle>
+        <Nom>Maestro</Nom>
+        <Telephone>Maestro</Telephone>
         <LibellePartenaire>Maestro</LibellePartenaire>
         <EmailPartenaire>Maestro</EmailPartenaire>
-        <Telephone>Maestro</Telephone>
       </Emetteur>
       <Destinataire>
-        <EmailPartenaire>LDA 72</EmailPartenaire>
-        <LibellePartenaire>LDA 72</LibellePartenaire>
-        <Nom>LDA 72</Nom>
         <Sigle>LDA 72</Sigle>
+        <Nom>LDA 72</Nom>
         <Telephone>LDA 72</Telephone>
+        <LibellePartenaire>LDA 72</LibellePartenaire>
+        <EmailPartenaire>LDA 72</EmailPartenaire>
       </Destinataire>
       <MessageAcquittement>
-        <DateAcquittement>1970-01-01T04:25:41</DateAcquittement>
         <NomFichier>RA01123123123123</NomFichier>
+        <DateAcquittement>1970-01-01T04:25:41</DateAcquittement>
       </MessageAcquittement>
     </AcquittementNonAcquittement>
     "
@@ -55,13 +55,6 @@ test(`génère un XML de DAI`, () => {
   expect(
     generateXMLDAI(
       {
-        DialogueActeurType: {
-          DialogueActeur: {
-            SigleIdentifiant: '',
-            Identifiant: '',
-            Nom: ''
-          }
-        },
         DialogueDemandeIntervention: {
           NumeroDAP: 0,
           SigleContexteIntervention: '',
@@ -74,12 +67,38 @@ test(`génère un XML de DAI`, () => {
             Identifiant: '',
             Nom: ''
           }
-        }
+        },
+        DialogueActeurType: {
+          DialogueActeur: {
+            SigleIdentifiant: '',
+            Identifiant: '',
+            Nom: ''
+          }
+        },
+        ReferencePlanAnalyseType: [
+          {
+            ReferencePlanAnalyseEffectuer: [
+              {
+                SiglePlanAnalyse: ''
+              }
+            ],
+            ReferencePlanAnalyseContenu: [
+              {
+                LibelleMatrice: '',
+                SigleAnalyte: '',
+                SigleMethodeSpecifique: '',
+                Depistage: false,
+                Confirmation: false,
+                Statut: 'G'
+              }
+            ]
+          }
+        ]
       },
       'LDA 72'
     )
   ).toMatchInlineSnapshot(`
-    "<?xml encoding="UTF-8" version="1.0"?>
+    "<?xml version="1.0" encoding="UTF-8"?>
     <DemandesAnalyses schemavalidation="DemandesAnalyses.xsd">
       <MessageParametres>
         <CodeScenario>E.D.I. SIGAL/LABOS</CodeScenario>
@@ -90,27 +109,20 @@ test(`génère un XML de DAI`, () => {
         <VersionLogicielCreation>4.0</VersionLogicielCreation>
       </MessageParametres>
       <Emetteur>
-        <Nom>Maestro</Nom>
         <Sigle>Maestro</Sigle>
+        <Nom>Maestro</Nom>
+        <Telephone>Maestro</Telephone>
         <LibellePartenaire>Maestro</LibellePartenaire>
         <EmailPartenaire>Maestro</EmailPartenaire>
-        <Telephone>Maestro</Telephone>
       </Emetteur>
       <Destinataire>
-        <EmailPartenaire>LDA 72</EmailPartenaire>
-        <LibellePartenaire>LDA 72</LibellePartenaire>
-        <Nom>LDA 72</Nom>
         <Sigle>LDA 72</Sigle>
+        <Nom>LDA 72</Nom>
         <Telephone>LDA 72</Telephone>
+        <LibellePartenaire>LDA 72</LibellePartenaire>
+        <EmailPartenaire>LDA 72</EmailPartenaire>
       </Destinataire>
       <DemandeType>
-        <DialogueActeurType>
-          <DialogueActeur>
-            <SigleIdentifiant></SigleIdentifiant>
-            <Identifiant></Identifiant>
-            <Nom></Nom>
-          </DialogueActeur>
-        </DialogueActeurType>
         <DialogueDemandeIntervention>
           <NumeroDAP>0</NumeroDAP>
           <SigleContexteIntervention></SigleContexteIntervention>
@@ -124,6 +136,26 @@ test(`génère un XML de DAI`, () => {
             <Nom></Nom>
           </ReferenceEtablissement>
         </ReferenceEtablissementType>
+        <DialogueActeurType>
+          <DialogueActeur>
+            <SigleIdentifiant></SigleIdentifiant>
+            <Identifiant></Identifiant>
+            <Nom></Nom>
+          </DialogueActeur>
+        </DialogueActeurType>
+        <ReferencePlanAnalyseType>
+          <ReferencePlanAnalyseEffectuer>
+            <SiglePlanAnalyse></SiglePlanAnalyse>
+          </ReferencePlanAnalyseEffectuer>
+          <ReferencePlanAnalyseContenu>
+            <LibelleMatrice></LibelleMatrice>
+            <SigleAnalyte></SigleAnalyte>
+            <SigleMethodeSpecifique></SigleMethodeSpecifique>
+            <Depistage>N</Depistage>
+            <Confirmation>N</Confirmation>
+            <Statut>G</Statut>
+          </ReferencePlanAnalyseContenu>
+        </ReferencePlanAnalyseType>
       </DemandeType>
     </DemandesAnalyses>
     "
