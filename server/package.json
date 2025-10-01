@@ -53,6 +53,7 @@
     "knex": "^2.4.2",
     "knex-stringcase": "^1.5.5",
     "kysely": "^0.27.4",
+    "libxml2-wasm": "^0.6.0",
     "maestro-shared": "^0.0.1",
     "mailparser": "^3.7.5",
     "nodemailer": "^7.0.10",
