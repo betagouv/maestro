@@ -1,10 +1,14 @@
 import { XMLBuilder } from 'fast-xml-parser';
+import { XmlDocument, XsdValidator } from 'libxml2-wasm';
 import { Brand } from 'maestro-shared/constants';
-import { LaboratoryName } from 'maestro-shared/referential/Laboratory';
+import { LaboratoryShortName } from 'maestro-shared/referential/Laboratory';
+import fs from 'node:fs';
+import path from 'path';
 import { z, ZodObject } from 'zod';
 import {
   Acquittement,
   acquittementValidator,
+  baseValidator,
   DAI,
   demandesAnalysesValidator
 } from './sachaValidator';
@@ -15,7 +19,7 @@ type Xml = z.infer<typeof xml>;
 export const generateXMLAcquitement = (
   messagesAcquittement: Acquittement['MessageAcquittement'],
   messagesNonAcquittement: Acquittement['MessageNonAcquittement'],
-  laboratory: LaboratoryName
+  laboratory: LaboratoryShortName
 ): Xml => {
   return generateXML(
     'AN',
@@ -29,7 +33,7 @@ export const generateXMLAcquitement = (
 
 export const generateXMLDAI = (
   dai: DAI['DemandeType'],
-  laboratory: LaboratoryName
+  laboratory: LaboratoryShortName
 ): Xml => {
   return generateXML(
     'DA',
@@ -69,7 +73,7 @@ const fileTypeConf = {
 const generateXML = <T extends FileType>(
   fileType: T,
   content: z.infer<(typeof fileTypeConf)[T]['content']>,
-  laboratory: LaboratoryName
+  laboratory: LaboratoryShortName
 ): Xml => {
   const builder = new XMLBuilder({
     ignoreAttributes: false,
@@ -77,13 +81,13 @@ const generateXML = <T extends FileType>(
   });
 
   const conf = fileTypeConf[fileType];
-  const xmlContent = builder.build({
-    '?xml': {
-      '@_encoding': 'UTF-8',
-      '@_version': '1.0'
-    },
-    [conf.name]: {
-      '@_schemavalidation': `${conf.name}.xsd`,
+
+  const toto = z
+    .object({
+      ...baseValidator.shape,
+      ...conf.content.shape
+    })
+    .encode({
       //FIXME
       MessageParametres: {
         CodeScenario: 'E.D.I. SIGAL/LABOS',
@@ -94,23 +98,43 @@ const generateXML = <T extends FileType>(
         VersionLogicielCreation: '4.0'
       },
       Emetteur: {
-        Nom: Brand,
         Sigle: Brand,
+        Nom: Brand,
+        Telephone: Brand,
         LibellePartenaire: Brand,
-        EmailPartenaire: Brand,
-        Telephone: Brand
+        EmailPartenaire: Brand
       },
       //FIXME
       Destinataire: {
-        EmailPartenaire: laboratory,
-        LibellePartenaire: laboratory,
-        Nom: laboratory,
         Sigle: laboratory,
-        Telephone: laboratory
+        Nom: laboratory,
+        Telephone: laboratory,
+        LibellePartenaire: laboratory,
+        EmailPartenaire: laboratory
       },
       ...content
+    });
+
+  const xmlContent = builder.build({
+    '?xml': {
+      '@_version': '1.0',
+      '@_encoding': 'UTF-8'
+    },
+    [conf.name]: {
+      '@_schemavalidation': `${conf.name}.xsd`,
+      ...toto
     }
   });
 
-  return xml.parse(xmlContent);
+  const xmlResult = xml.parse(xmlContent);
+
+  const xsd = path.join(import.meta.dirname, `./schema.xsd`);
+  const schema = XmlDocument.fromBuffer(fs.readFileSync(xsd));
+  const validator = XsdValidator.fromDoc(schema);
+
+  const xmlDocument = XmlDocument.fromString(xmlResult);
+  validator.validate(xmlDocument);
+
+  xmlDocument.dispose();
+  return xmlResult;
 };
