@@ -1,5 +1,6 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
+import { sumBy } from 'lodash-es';
 import {
   Department,
   DepartmentLabels,
@@ -10,9 +11,11 @@ import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { useMemo } from 'react';
+import { types } from 'sass';
 import DistributionCountCell from 'src/components/DistributionTable/DistributionCountCell/DistributionCountCell';
 import { assert, type Equals } from 'tsafe';
 import { useAuthentication } from '../../../hooks/useAuthentication';
+import Number = types.Number;
 
 interface Props {
   programmingPlan: ProgrammingPlan;
@@ -71,21 +74,25 @@ const RegionalPrescriptionDistributionTable = ({
       data={[
         departmentalPrescriptions
           .slice(start, end)
-          .map((regionalPrescription) => (
+          .map((departmentalPrescription) => (
             <DistributionCountCell
-              key={`${regionalPrescription.prescriptionId}-${regionalPrescription.region}`}
+              key={`${departmentalPrescription.prescriptionId}-${departmentalPrescription.region}`}
               programmingPlan={programmingPlan}
               matrixKind={prescription.matrixKind}
-              regionalPrescription={regionalPrescription}
+              regionalPrescription={departmentalPrescription}
+              max={
+                regionalPrescription.sampleCount -
+                sumBy(departmentalPrescriptions, 'sampleCount')
+              }
               isEditable={
                 hasUserRegionalPrescriptionPermission(
                   programmingPlan,
-                  regionalPrescription
+                  departmentalPrescription
                 )?.distributeToDepartments
               }
               onChange={async (value) =>
                 onChangeDepartmentalCount(
-                  regionalPrescription.department as Department,
+                  departmentalPrescription.department as Department,
                   value
                 )
               }

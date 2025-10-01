@@ -18,7 +18,7 @@ import { ApiClientContext } from '../../../services/apiClient';
 import { PrescriptionFilters } from '../../../store/reducers/prescriptionsSlice';
 import ProgrammingPrescriptionFilters from '../../../views/ProgrammingView/ProgrammingPrescriptionFilters/ProgrammingPrescriptionFilters';
 interface AddMatrixProps {
-  programmingPlans: ProgrammingPlan[];
+  programmingPlan: ProgrammingPlan;
   excludedMatrixKindList: MatrixKind[];
 }
 
@@ -28,7 +28,7 @@ const addPrescriptionModal = createModal({
 });
 
 const AddPrescriptionModal = ({
-  programmingPlans,
+  programmingPlan,
   excludedMatrixKindList
 }: AddMatrixProps) => {
   const apiClient = useContext(ApiClientContext);
@@ -39,7 +39,7 @@ const AddPrescriptionModal = ({
     programmingPlanKindOptions,
     contextOptions,
     reduceFilters
-  } = usePrescriptionFilters(programmingPlans);
+  } = usePrescriptionFilters([programmingPlan]);
 
   const isOpen = useIsModalOpen(addPrescriptionModal);
 
@@ -65,9 +65,9 @@ const AddPrescriptionModal = ({
 
   const formInput = useMemo(
     () => ({
-      programmingPlanId: prescriptionFilters.planIds?.[0],
+      programmingPlanId: prescriptionFilters.planId,
       programmingPlanKind: prescriptionFilters.kinds?.[0],
-      context: prescriptionFilters.contexts?.[0],
+      context: prescriptionFilters.context,
       matrixKind: selectedOption?.value,
       stages: []
     }),
@@ -124,7 +124,7 @@ const AddPrescriptionModal = ({
                 kinds: programmingPlanKindOptions(prescriptionFilters),
                 contexts: contextOptions(prescriptionFilters)
               }}
-              programmingPlans={programmingPlans}
+              programmingPlans={[programmingPlan]}
               filters={prescriptionFilters}
               onChange={(filters) =>
                 setPrescriptionFilters(

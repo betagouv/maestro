@@ -50,7 +50,7 @@ const findMany = async (
       omitBy(
         omit(
           findOptions,
-          'programmingPlanIds',
+          'programmingPlanId',
           'programmingPlanKinds',
           'context',
           'includes',
@@ -65,9 +65,9 @@ const findMany = async (
       `${regionalPrescriptionsTable}.prescription_id`,
       `${prescriptionsTable}.id`
     )
-    .whereIn(
+    .where(
       `${prescriptionsTable}.programming_plan_id`,
-      findOptions.programmingPlanIds
+      findOptions.programmingPlanId
     )
     .modify((builder) => {
       if (findOptions.contexts) {

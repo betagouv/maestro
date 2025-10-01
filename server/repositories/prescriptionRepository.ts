@@ -32,13 +32,11 @@ const findMany = async (
           'stage',
           'includes',
           'contexts',
-          'programmingPlanIds',
           'programmingPlanKinds'
         ),
         isNil
       )
     )
-    .whereIn('programming_plan_id', findOptions.programmingPlanIds)
     .modify((builder) => {
       if (findOptions.stage) {
         builder.where('stages', '@>', [findOptions.stage]);

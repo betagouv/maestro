@@ -19,10 +19,10 @@ import prescriptionsSlice from '../../../store/reducers/prescriptionsSlice';
 import { pluralize } from '../../../utils/stringUtils';
 
 interface Props {
-  programmingPlans: ProgrammingPlan[];
+  programmingPlan: ProgrammingPlan;
 }
 
-const ProgrammingCommentList = ({ programmingPlans, ..._rest }: Props) => {
+const ProgrammingCommentList = ({ programmingPlan, ..._rest }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
   const apiClient = useContext(ApiClientContext);
   const dispatch = useAppDispatch();
@@ -35,13 +35,14 @@ const ProgrammingCommentList = ({ programmingPlans, ..._rest }: Props) => {
 
   const findPrescriptionOptions = useMemo(
     () => ({
-      programmingPlanIds: programmingPlans.map((pp) => pp.id),
+      programmingPlanId: programmingPlan.id,
       programmingPlanKinds: prescriptionFilters.kinds,
-      contexts: prescriptionFilters.contexts,
-      matrixKinds: prescriptionFilters.matrixKinds,
+      contexts: prescriptionFilters.context
+        ? [prescriptionFilters.context]
+        : undefined,
       includes: ['substanceCount' as const]
     }),
-    [programmingPlans, prescriptionFilters]
+    [programmingPlan, prescriptionFilters]
   );
 
   const { data: allPrescriptions } = apiClient.useFindPrescriptionsQuery(
@@ -178,9 +179,7 @@ const ProgrammingCommentList = ({ programmingPlans, ..._rest }: Props) => {
                           prescriptionsSlice.actions.setPrescriptionCommentsData(
                             {
                               viewBy: 'MatrixKind',
-                              programmingPlan: programmingPlans.find(
-                                (pp) => pp.id === prescription.programmingPlanId
-                              ) as ProgrammingPlan,
+                              programmingPlan,
                               prescriptionId: prescription.id,
                               matrixKind: prescription.matrixKind,
                               regionalComments:
@@ -220,10 +219,7 @@ const ProgrammingCommentList = ({ programmingPlans, ..._rest }: Props) => {
                               prescriptionsSlice.actions.setPrescriptionCommentsData(
                                 {
                                   viewBy: 'MatrixKind',
-                                  programmingPlan: programmingPlans.find(
-                                    (pp) =>
-                                      pp.id === prescription.programmingPlanId
-                                  ) as ProgrammingPlan,
+                                  programmingPlan,
                                   prescriptionId: prescription.id,
                                   matrixKind: prescription.matrixKind,
                                   currentRegion: regionalPrescription.region,

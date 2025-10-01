@@ -28,7 +28,7 @@ export const usePrescriptionFilters = (
     (filters: PrescriptionFilters) =>
       uniq(
         programmingPlanOptions(filters)
-          .filter((plan) => (filters.planIds ?? [plan.id]).includes(plan.id))
+          .filter((plan) => !filters.planId || plan.id === filters.planId)
           .flatMap((plan) => plan.kinds)
       ),
     [programmingPlanOptions]
@@ -37,7 +37,7 @@ export const usePrescriptionFilters = (
     (filters: PrescriptionFilters) =>
       uniq(
         programmingPlanOptions(filters)
-          .filter((plan) => (filters.planIds ?? [plan.id]).includes(plan.id))
+          .filter((plan) => !filters.planId || plan.id === filters.planId)
           .flatMap((plan) => plan.contexts)
       ),
     [programmingPlanOptions]
@@ -58,58 +58,64 @@ export const usePrescriptionFilters = (
         return uniqArr.length === 1 ? uniqArr : undefined;
       };
 
-      const { year, domain } = aggregatedFilters;
-      const planIds =
-        aggregatedFilters?.planIds?.filter((id) =>
-          programmingPlanOptions({ year, domain }).some(
-            (planOption) => planOption.id === id
-          )
-        ) ??
-        getUniqOrUndefined(programmingPlanOptions({ year, domain }))?.map(
-          (_) => _.id
-        );
+      const { year } = aggregatedFilters;
+      const domain = domainOptions({ year }).some(
+        (domainOption) => domainOption === aggregatedFilters?.domain
+      )
+        ? aggregatedFilters?.domain
+        : getUniqOrUndefined(domainOptions({ year }))?.[0];
+      const planId = programmingPlanOptions({ year, domain }).some(
+        (planOption) => planOption.id === aggregatedFilters?.planId
+      )
+        ? aggregatedFilters?.planId
+        : getUniqOrUndefined(programmingPlanOptions({ year, domain }))?.[0].id;
       const kinds =
         aggregatedFilters?.kinds?.filter((kind) =>
           programmingPlanKindOptions({
             year,
             domain,
-            planIds
+            planId
           }).some((kindOption) => kind === kindOption)
         ) ??
         getUniqOrUndefined(
           programmingPlanKindOptions({
             year,
             domain,
-            planIds
+            planId
           })
         );
-      const contexts =
-        aggregatedFilters?.contexts?.filter((context) =>
-          contextOptions({
-            year,
-            domain,
-            planIds,
-            kinds
-          }).some((contextOption) => context === contextOption)
-        ) ??
-        getUniqOrUndefined(
-          contextOptions({
-            year,
-            domain,
-            planIds,
-            kinds
-          })
-        );
+      const context = contextOptions({
+        year,
+        domain,
+        planId,
+        kinds
+      }).some((contextOption) => aggregatedFilters?.context === contextOption)
+        ? aggregatedFilters?.context
+        : getUniqOrUndefined(
+            contextOptions({
+              year,
+              domain,
+              planId,
+              kinds
+            })
+          )?.[0];
 
-      const reducedFilters = {
+      console.log('planId', planId);
+
+      return {
         ...aggregatedFilters,
-        planIds,
+        domain,
+        planId,
         kinds,
-        contexts
+        context
       };
-      return reducedFilters;
     },
-    [programmingPlanOptions, programmingPlanKindOptions, contextOptions]
+    [
+      domainOptions,
+      programmingPlanOptions,
+      programmingPlanKindOptions,
+      contextOptions
+    ]
   );
 
   return {

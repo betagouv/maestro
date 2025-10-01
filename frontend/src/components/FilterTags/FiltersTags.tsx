@@ -67,7 +67,7 @@ const filtersConfig = {
   },
   sampledBy: {
     prop: 'sampledBy',
-    getLabel: (_value, sampler) => (sampler ? `${sampler.name}` : null)
+    getLabel: (_value, { sampler }) => (sampler ? `${sampler.name}` : null)
   },
   sampledAt: {
     prop: 'sampledAt',
@@ -129,6 +129,10 @@ const filtersConfig = {
       </Fragment>
     )
   },
+  context: {
+    prop: 'context',
+    getLabel: (value) => ContextLabels[value]
+  },
   compliance: {
     prop: 'compliance',
     getLabel: (value) => SampleComplianceLabels[value]
@@ -159,42 +163,9 @@ const filtersConfig = {
       </Fragment>
     )
   },
-  matrixKinds: {
-    prop: 'matrixKinds',
-    getComponent: (value, onChange) => (
-      <Fragment key={`tag-matrixKinds`}>
-        {value.map((d) => (
-          <Tag
-            {...tagProps}
-            key={`tag-matrixKind-${d}`}
-            nativeButtonProps={{
-              onClick: () =>
-                onChange({ matrixKinds: value.filter((v) => v !== d) })
-            }}
-          >
-            {MatrixKindLabels[d]}
-          </Tag>
-        ))}
-      </Fragment>
-    )
-  },
-  planIds: {
-    prop: 'planIds',
-    getComponent: (value, onChange, { programmingPlans }) => (
-      <Fragment key={`tag-planIds`}>
-        {value.map((d) => (
-          <Tag
-            {...tagProps}
-            key={`tag-planId-${d}`}
-            nativeButtonProps={{
-              onClick: () => onChange({ planIds: value.filter((v) => v !== d) })
-            }}
-          >
-            {programmingPlans?.find((plan) => plan.id === d)?.title || d}
-          </Tag>
-        ))}
-      </Fragment>
-    )
+  planId: {
+    prop: 'planId',
+    getLabel: (_value, { programmingPlan }) => programmingPlan?.title || null
   }
 } as const satisfies {
   [key in FilterableProp]: {
@@ -205,6 +176,7 @@ const filtersConfig = {
           value: NonNullable<FilterableType[key]>,
           data: {
             sampler?: User;
+            programmingPlan?: ProgrammingPlan;
           }
         ) => string | null;
         getComponent?: never;
@@ -212,10 +184,7 @@ const filtersConfig = {
     | {
         getComponent: (
           value: NonNullable<FilterableType[key]>,
-          onChange: (filters: Partial<FilterableType>) => void,
-          data: {
-            programmingPlans?: ProgrammingPlan[];
-          }
+          onChange: (filters: Partial<FilterableType>) => void
         ) => ReactNode;
         getLabel?: never;
       }
@@ -238,10 +207,9 @@ const FiltersTags = ({
     () => samplers?.find((user) => user.id === filters.sampledBy),
     [samplers, filters.sampledBy]
   );
-  const filteredProgrammingPlans = useMemo(
-    () =>
-      programmingPlans?.filter((plan) => filters.planIds?.includes(plan.id)),
-    [programmingPlans, filters.planIds]
+  const programmingPlan = useMemo(
+    () => programmingPlans?.find((plan) => filters.planId === plan.id),
+    [programmingPlans, filters.planId]
   );
 
   const hasFilters = useMemo(
@@ -276,13 +244,12 @@ const FiltersTags = ({
           if (value && (hasNationalView || conf.prop !== 'region')) {
             if ('getComponent' in conf) {
               // @ts-expect-error TS2345 il est perdu
-              return conf.getComponent(value, onChange, {
-                programmingPlans: filteredProgrammingPlans
-              });
+              return conf.getComponent(value, onChange);
             } else {
               // @ts-expect-error TS2345 il est perdu
               const label = conf.getLabel(value, {
-                sampler
+                sampler,
+                programmingPlan: programmingPlan
               });
               if (label) {
                 return (

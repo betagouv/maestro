@@ -41,8 +41,9 @@ const RegionalPrescriptionDepartmentalDistribution = ({
         })}
         {' • '}
         <Badge noIcon severity="success" className={'fr-px-1w'}>
-          {distributedSampleCount}{' '}
-          {pluralize(distributedSampleCount)('attribué')}
+          {pluralize(distributedSampleCount, {
+            preserveCount: true
+          })('attribué')}
         </Badge>
         <Badge noIcon severity="error" className={'fr-mx-1w'}>
           {regionalPrescription.sampleCount - distributedSampleCount} à assigner

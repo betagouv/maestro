@@ -10,10 +10,7 @@ import {
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { FindRegionalPrescriptionOptions } from 'maestro-shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
-import {
-  RegionalPrescription,
-  RegionalPrescriptionUpdate
-} from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
+import { RegionalPrescriptionUpdate } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import AppToast from 'src/components/_app/AppToast/AppToast';
@@ -33,12 +30,12 @@ import ProgrammingPrescriptionTable from './ProgrammingPrescriptionTable';
 export type PrescriptionListDisplay = 'table' | 'cards';
 
 interface Props {
-  programmingPlans: ProgrammingPlan[];
+  programmingPlan: ProgrammingPlan;
   region?: Region;
 }
 
 const ProgrammingPrescriptionList = ({
-  programmingPlans,
+  programmingPlan,
   region,
   ..._rest
 }: Props) => {
@@ -71,14 +68,15 @@ const ProgrammingPrescriptionList = ({
 
   const findPrescriptionOptions = useMemo(
     () => ({
-      programmingPlanIds: programmingPlans.map((pp) => pp.id),
+      programmingPlanId: programmingPlan.id,
       programmingPlanKinds: prescriptionFilters.kinds,
-      contexts: prescriptionFilters.contexts,
-      matrixKinds: prescriptionFilters.matrixKinds,
+      contexts: prescriptionFilters.context
+        ? [prescriptionFilters.context]
+        : undefined,
       region,
       includes: ['substanceCount' as const]
     }),
-    [programmingPlans, prescriptionFilters, region]
+    [programmingPlan, prescriptionFilters, region]
   );
 
   const { data: allPrescriptions } = apiClient.useFindPrescriptionsQuery(
@@ -118,18 +116,6 @@ const ProgrammingPrescriptionList = ({
       }
     );
 
-  const getRegionalPrescriptionProgrammingPlan = useCallback(
-    (regionalPrescription: RegionalPrescription) =>
-      programmingPlans.find((pp) =>
-        prescriptions?.some(
-          (p) =>
-            p.id === regionalPrescription.prescriptionId &&
-            p.programmingPlanId === pp.id
-        )
-      ),
-    [programmingPlans, prescriptions]
-  );
-
   useEffect(() => {
     if (
       searchParams.get('prescriptionId') &&
@@ -148,9 +134,7 @@ const ProgrammingPrescriptionList = ({
         dispatch(
           prescriptionsSlice.actions.setPrescriptionCommentsData({
             viewBy: 'MatrixKind',
-            programmingPlan: programmingPlans.find(
-              (pp) => pp.id === prescription.programmingPlanId
-            ) as ProgrammingPlan,
+            programmingPlan,
             prescriptionId: regionalPrescription.prescriptionId,
             matrixKind: prescription.matrixKind,
             regionalComments: [regionalPrescription].map((rcp) => ({
@@ -180,13 +164,7 @@ const ProgrammingPrescriptionList = ({
       prescription: Prescription,
       prescriptionUpdate: Omit<PrescriptionUpdate, 'programmingPlanId'>
     ) => {
-      const programmingPlan = programmingPlans.find(
-        (pp) => pp.id === prescription.programmingPlanId
-      );
-      if (
-        programmingPlan &&
-        hasUserPrescriptionPermission(programmingPlan)?.update
-      ) {
+      if (hasUserPrescriptionPermission(programmingPlan)?.update) {
         await updatePrescription({
           prescriptionId: prescription.id,
           prescriptionUpdate: {
@@ -196,7 +174,7 @@ const ProgrammingPrescriptionList = ({
         });
       }
     },
-    [programmingPlans] // eslint-disable-line react-hooks/exhaustive-deps
+    [programmingPlan] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const changeRegionalPrescription = useCallback(
@@ -205,21 +183,16 @@ const ProgrammingPrescriptionList = ({
       region: Region,
       prescriptionUpdate: Omit<RegionalPrescriptionUpdate, 'programmingPlanId'>
     ) => {
-      const programmingPlan = programmingPlans.find(
-        (pp) => pp.id === prescription.programmingPlanId
-      );
-      if (programmingPlan) {
-        await updateRegionalPrescription({
-          prescriptionId: prescription.id,
-          region,
-          prescriptionUpdate: {
-            programmingPlanId: programmingPlan.id,
-            ...prescriptionUpdate
-          }
-        });
-      }
+      await updateRegionalPrescription({
+        prescriptionId: prescription.id,
+        region,
+        prescriptionUpdate: {
+          programmingPlanId: programmingPlan.id,
+          ...prescriptionUpdate
+        }
+      });
     },
-    [programmingPlans] // eslint-disable-line react-hooks/exhaustive-deps
+    [programmingPlan] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const changeRegionalPrescriptionCount = useCallback(
@@ -257,16 +230,14 @@ const ProgrammingPrescriptionList = ({
         <>
           {
             <ProgrammingPrescriptionListHeader
-              programmingPlans={programmingPlans}
+              programmingPlan={programmingPlan}
               prescriptions={prescriptions}
               exportURL={getPrescriptionsExportURL(findPrescriptionOptions)}
               sampleCount={sumBy(regionalPrescriptions, 'sampleCount')}
               hasGroupedUpdatePermission={regionalPrescriptions.some(
                 (regionalPrescription) =>
                   hasUserRegionalPrescriptionPermission(
-                    getRegionalPrescriptionProgrammingPlan(
-                      regionalPrescription
-                    ),
+                    programmingPlan,
                     regionalPrescription
                   )?.updateLaboratory
               )}
@@ -294,9 +265,7 @@ const ProgrammingPrescriptionList = ({
                   {prescriptions?.map((prescription) => (
                     <PrescriptionCard
                       key={`prescription_cards_${prescription.id}`}
-                      programmingPlan={programmingPlans.find(
-                        (pp) => pp.id === prescription.programmingPlanId
-                      )}
+                      programmingPlan={programmingPlan}
                       prescription={prescription}
                       regionalPrescriptions={regionalPrescriptions.filter(
                         (rp) => rp.prescriptionId === prescription.id
@@ -344,9 +313,7 @@ const ProgrammingPrescriptionList = ({
                     .map((prescription) => (
                       <RegionalPrescriptionCard
                         key={`prescription_cards_${prescription.id}`}
-                        programmingPlan={programmingPlans.find(
-                          (pp) => pp.id === prescription.programmingPlanId
-                        )}
+                        programmingPlan={programmingPlan}
                         prescription={prescription}
                         regionalPrescription={regionalPrescriptions.find(
                           (regionalPrescription) =>
@@ -382,7 +349,7 @@ const ProgrammingPrescriptionList = ({
           )}
           {prescriptionListDisplay === 'table' && (
             <ProgrammingPrescriptionTable
-              programmingPlans={programmingPlans}
+              programmingPlan={programmingPlan}
               prescriptions={prescriptions}
               regionalPrescriptions={regionalPrescriptions}
               onChangeRegionalPrescriptionCount={

@@ -7,10 +7,6 @@ import { t } from 'i18next';
 import { uniq } from 'lodash-es';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import {
-  NextProgrammingPlanStatus,
-  ProgrammingPlanStatus
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import React from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
@@ -18,10 +14,10 @@ import useWindowSize from 'src/hooks/useWindowSize';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import ProgrammingPrescriptionListGroupedUpdate from 'src/views/ProgrammingView/ProgrammingPrescriptionList/ProgrammingPrescriptionListGroupedUpdate';
 import AddPrescriptionModal from '../../../components/Prescription/AddPrescriptionModal/AddPrescriptionModal';
-import ProgrammingPlanNationalValidation from '../../../components/ProgrammingPlan/ProgrammingPlanNationalValidation/ProgrammingPlanNationalValidation';
+import ProgrammingPlanNotificationNationalToRegional from '../../../components/ProgrammingPlanNotification/ProgrammingPlanNotificationNationalToRegional/ProgrammingPlanNotificationNationalToRegional';
 import './ProgrammingPrescriptionList.scss';
 interface Props {
-  programmingPlans: ProgrammingPlan[];
+  programmingPlan: ProgrammingPlan;
   prescriptions: Prescription[];
   exportURL: string;
   sampleCount?: number;
@@ -32,7 +28,7 @@ interface Props {
 }
 
 const ProgrammingPrescriptionListHeader = ({
-  programmingPlans,
+  programmingPlan,
   prescriptions,
   exportURL,
   sampleCount,
@@ -58,21 +54,25 @@ const ProgrammingPrescriptionListHeader = ({
         <h4 className={clsx(cx('fr-mb-0'), 'flex-grow-1')}>
           {t('plannedSample', { count: sampleCount ?? 0 })}
         </h4>
-        {programmingPlans
-          ?.flatMap((plan) => plan.regionalStatus)
-          .some(
-            (regionalStatus) =>
-              NextProgrammingPlanStatus[regionalStatus.status] &&
-              ['Submitted', 'Validated'].includes(
-                NextProgrammingPlanStatus[
-                  regionalStatus.status
-                ] as ProgrammingPlanStatus
-              )
-          ) && (
-          <ProgrammingPlanNationalValidation
-            programmingPlans={programmingPlans}
-          />
-        )}
+        <Input
+          iconId="fr-icon-search-line"
+          hideLabel
+          label="Matrice"
+          nativeInputProps={{
+            type: 'search',
+            placeholder: 'Matrice',
+            value: matrixQuery ?? '',
+            onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+              dispatch(
+                prescriptionsSlice.actions.changeMatrixQuery(e.target.value)
+              );
+            }
+          }}
+          className={cx('fr-my-0', 'fr-hidden', 'fr-unhidden-md')}
+          classes={{
+            wrap: cx('fr-mt-0')
+          }}
+        />
         {!isMobile && hasNationalView && (
           <SegmentedControl
             hideLegend
@@ -107,7 +107,30 @@ const ProgrammingPrescriptionListHeader = ({
             ]}
           />
         )}
-        {hasGroupedUpdatePermission && (
+        <Button
+          iconId="fr-icon-file-download-line"
+          priority="secondary"
+          onClick={() => window.open(exportURL)}
+          title="Exporter"
+          size={isMobile ? 'small' : 'medium'}
+        />
+        <ProgrammingPlanNotificationNationalToRegional
+          programmingPlan={programmingPlan}
+        />
+      </div>
+      <hr className={cx('fr-my-3w')} />
+      <div className="d-flex-align-center">
+        <div className="flex-grow-1">
+          {hasUserPrescriptionPermission(programmingPlan)?.create && (
+            <AddPrescriptionModal
+              programmingPlan={programmingPlan}
+              excludedMatrixKindList={uniq(
+                prescriptions.map((p) => p.matrixKind)
+              )}
+            />
+          )}
+        </div>
+        {hasGroupedUpdatePermission && !isGroupedUpdate && (
           <Button
             iconId="fr-icon-list-ordered"
             priority="secondary"
@@ -118,57 +141,18 @@ const ProgrammingPrescriptionListHeader = ({
             onClick={() => setIsGroupedUpdate(true)}
           />
         )}
-        <Button
-          iconId="fr-icon-file-download-line"
-          priority="secondary"
-          onClick={() => window.open(exportURL)}
-          title="Exporter"
-          size={isMobile ? 'small' : 'medium'}
-        />
-      </div>
-      {isGroupedUpdate && onGroupedUpdate && (
-        <ProgrammingPrescriptionListGroupedUpdate
-          selectedCount={selectedCount ?? 0}
-          totalCount={prescriptions.length}
-          onSubmit={async (laboratoryId) => {
-            await onGroupedUpdate(laboratoryId);
-            setIsGroupedUpdate(false);
-          }}
-          onCancel={() => setIsGroupedUpdate(false)}
-          onSelectAll={onSelectAll}
-        />
-      )}
-      <hr className={cx('fr-my-3w')} />
-      <div className="d-flex-align-center">
-        <div className="flex-grow-1">
-          {programmingPlans.some(
-            (programmingPlan) =>
-              hasUserPrescriptionPermission(programmingPlan)?.create
-          ) && (
-            <AddPrescriptionModal
-              programmingPlans={programmingPlans}
-              excludedMatrixKindList={uniq(
-                prescriptions.map((p) => p.matrixKind)
-              )}
-            />
-          )}
-        </div>
-        <Input
-          iconId="fr-icon-search-line"
-          hideLabel
-          label="Matrice"
-          nativeInputProps={{
-            type: 'search',
-            placeholder: 'Matrice',
-            value: matrixQuery ?? '',
-            onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-              dispatch(
-                prescriptionsSlice.actions.changeMatrixQuery(e.target.value)
-              );
-            }
-          }}
-          className={cx('fr-my-0', 'fr-hidden', 'fr-unhidden-md')}
-        />
+        {isGroupedUpdate && onGroupedUpdate && (
+          <ProgrammingPrescriptionListGroupedUpdate
+            selectedCount={selectedCount ?? 0}
+            totalCount={prescriptions.length}
+            onSubmit={async (laboratoryId) => {
+              await onGroupedUpdate(laboratoryId);
+              setIsGroupedUpdate(false);
+            }}
+            onCancel={() => setIsGroupedUpdate(false)}
+            onSelectAll={onSelectAll}
+          />
+        )}
       </div>
     </div>
   );

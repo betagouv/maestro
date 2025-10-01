@@ -28,7 +28,7 @@ interface Props {
   context: ProgrammingPlanContext;
 }
 
-const ProgrammingPlanApprovalList = ({
+const ProgrammingPlanRegionalValidationList = ({
   programmingPlan,
   context,
   ..._rest
@@ -294,4 +294,4 @@ const ProgrammingPlanApprovalList = ({
   );
 };
 
-export default ProgrammingPlanApprovalList;
+export default ProgrammingPlanRegionalValidationList;

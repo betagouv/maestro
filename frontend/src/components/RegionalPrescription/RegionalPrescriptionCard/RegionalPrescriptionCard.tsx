@@ -1,8 +1,10 @@
+import Badge from '@codegouvfr/react-dsfr/Badge';
 import Button from '@codegouvfr/react-dsfr/Button';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
+import { sumBy } from 'lodash-es';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -49,19 +51,19 @@ const RegionalPrescriptionCard = ({
     []
   );
 
+  const departmentalPrescriptionsWithSamplesCount = useMemo(
+    () =>
+      (departmentalPrescriptions ?? []).filter((dp) => dp.sampleCount > 0)
+        .length,
+    [departmentalPrescriptions]
+  );
+
   if (!programmingPlan || !regionalPrescription) {
     return <></>;
   }
 
   const currentLaboratory = laboratories?.find(
     (laboratory) => laboratory.id === regionalPrescription?.laboratoryId
-  );
-
-  const departmentalPrescriptionsWithSamples = useMemo(
-    () =>
-      (departmentalPrescriptions ?? []).filter((dp) => dp.sampleCount > 0)
-        .length,
-    [departmentalPrescriptions]
   );
 
   return (
@@ -132,12 +134,40 @@ const RegionalPrescriptionCard = ({
                     (_) => _.region === regionalPrescription.region
                   )?.status as ProgrammingPlanStatus
                 ) ? (
-                  <span>
-                    {regionalPrescription.sampleCount ?? 0}{' '}
-                    {pluralize(regionalPrescription.sampleCount ?? 0)(
-                      'prélèvement programmé'
+                  <>
+                    <span>
+                      {pluralize(regionalPrescription.sampleCount ?? 0, {
+                        preserveCount: true
+                      })('prélèvement programmé')}
+                    </span>
+                    {hasUserRegionalPrescriptionPermission(
+                      programmingPlan,
+                      regionalPrescription
+                    )?.distributeToDepartments && (
+                      <Badge
+                        noIcon
+                        severity={
+                          sumBy(departmentalPrescriptions, 'sampleCount') ===
+                          regionalPrescription.sampleCount
+                            ? 'success'
+                            : sumBy(
+                                  departmentalPrescriptions,
+                                  'sampleCount'
+                                ) === 0
+                              ? 'error'
+                              : 'new'
+                        }
+                        className={'fr-mx-1w'}
+                      >
+                        {pluralize(
+                          sumBy(departmentalPrescriptions, 'sampleCount'),
+                          {
+                            preserveCount: true
+                          }
+                        )('attribué')}
+                      </Badge>
                     )}
-                  </span>
+                  </>
                 ) : (
                   <>
                     <span className={cx('fr-text--bold')}>
@@ -174,9 +204,15 @@ const RegionalPrescriptionCard = ({
             )?.distributeToDepartments
               ? {
                   children:
-                    departmentalPrescriptionsWithSamples === 0
-                      ? 'Répartir aux départements'
-                      : `${departmentalPrescriptionsWithSamples} ${pluralize(departmentalPrescriptionsWithSamples)('département sélectionné')}`,
+                    departmentalPrescriptionsWithSamplesCount === 0 ? (
+                      'Répartir aux départements'
+                    ) : (
+                      <span className="no-wrap">
+                        {pluralize(departmentalPrescriptionsWithSamplesCount, {
+                          preserveCount: true
+                        })('département sélectionné')}
+                      </span>
+                    ),
                   priority: 'tertiary no outline',
                   onClick: () =>
                     dispatch(
@@ -225,43 +261,46 @@ const RegionalPrescriptionCard = ({
                   className: cx('fr-m-0')
                 }
               : undefined,
-            {
-              children:
-                hasUserRegionalPrescriptionPermission(
-                  programmingPlan,
-                  regionalPrescription
-                )?.comment && getComments(regionalPrescription).length === 0 ? (
-                  'Commenter'
-                ) : (
-                  <span className="no-wrap">
-                    {getComments(regionalPrescription).length}{' '}
-                    {pluralize(getComments(regionalPrescription).length)(
-                      'commentaire'
-                    )}
-                  </span>
-                ),
-              disabled:
-                !hasUserRegionalPrescriptionPermission(
-                  programmingPlan,
-                  regionalPrescription
-                )?.comment && getComments(regionalPrescription).length === 0,
-              priority: 'tertiary no outline',
-              onClick: () =>
-                dispatch(
-                  prescriptionsSlice.actions.setPrescriptionCommentsData({
-                    viewBy: 'MatrixKind',
-                    programmingPlan,
-                    prescriptionId: prescription.id,
-                    matrixKind: prescription.matrixKind,
-                    regionalComments: [regionalPrescription].map((rcp) => ({
-                      region: rcp.region,
-                      comments: getComments(rcp)
-                    }))
-                  })
-                ),
-              iconId: 'fr-icon-chat-3-line',
-              className: cx('fr-m-0')
-            }
+            programmingPlan.distributionKind === 'REGIONAL'
+              ? {
+                  children:
+                    hasUserRegionalPrescriptionPermission(
+                      programmingPlan,
+                      regionalPrescription
+                    )?.comment &&
+                    getComments(regionalPrescription).length === 0 ? (
+                      'Commenter'
+                    ) : (
+                      <span className="no-wrap">
+                        {pluralize(getComments(regionalPrescription).length, {
+                          preserveCount: true
+                        })('commentaire')}
+                      </span>
+                    ),
+                  disabled:
+                    !hasUserRegionalPrescriptionPermission(
+                      programmingPlan,
+                      regionalPrescription
+                    )?.comment &&
+                    getComments(regionalPrescription).length === 0,
+                  priority: 'tertiary no outline',
+                  onClick: () =>
+                    dispatch(
+                      prescriptionsSlice.actions.setPrescriptionCommentsData({
+                        viewBy: 'MatrixKind',
+                        programmingPlan,
+                        prescriptionId: prescription.id,
+                        matrixKind: prescription.matrixKind,
+                        regionalComments: [regionalPrescription].map((rcp) => ({
+                          region: rcp.region,
+                          comments: getComments(rcp)
+                        }))
+                      })
+                    ),
+                  iconId: 'fr-icon-chat-3-line',
+                  className: cx('fr-m-0')
+                }
+              : undefined
           ].filter(isDefined)}
         />
       </div>

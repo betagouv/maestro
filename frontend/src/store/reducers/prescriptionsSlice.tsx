@@ -14,10 +14,9 @@ import { z } from 'zod';
 export const PrescriptionFilters = z.object({
   year: z.coerce.number().int(),
   domain: ProgrammingPlanDomain.nullish(),
-  planIds: z.array(z.guid()).nullish(),
+  planId: z.guid().nullish(),
   kinds: z.array(ProgrammingPlanKind).nullish(),
-  contexts: z.array(ProgrammingPlanContext).nullish(),
-  matrixKinds: z.array(MatrixKind).nullish()
+  context: ProgrammingPlanContext.nullish()
 });
 
 export type PrescriptionFilters = z.infer<typeof PrescriptionFilters>;
@@ -104,8 +103,7 @@ type PrescriptionsState = {
 };
 const initialState: PrescriptionsState = {
   prescriptionFilters: {
-    year: new Date().getFullYear(),
-    planIds: []
+    year: new Date().getFullYear()
   },
   prescriptionListDisplay: 'cards'
 };

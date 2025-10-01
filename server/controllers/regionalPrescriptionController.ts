@@ -52,11 +52,11 @@ export const regionalPrescriptionsRouter = {
       const regionalPrescription =
         await getAndCheckRegionalPrescription(params);
 
-      const canDistributeToRegions = hasRegionalPrescriptionPermission(
+      const canUpdateSampleCount = hasRegionalPrescriptionPermission(
         user,
         programmingPlan,
         regionalPrescription
-      ).distributeToRegions;
+      ).updateSampleCount;
 
       const canUpdateLaboratory = hasRegionalPrescriptionPermission(
         user,
@@ -64,14 +64,14 @@ export const regionalPrescriptionsRouter = {
         regionalPrescription
       ).updateLaboratory;
 
-      if (!canDistributeToRegions && !canUpdateLaboratory) {
+      if (!canUpdateSampleCount && !canUpdateLaboratory) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 
       const updatedRegionalPrescription = {
         ...regionalPrescription,
         sampleCount:
-          canDistributeToRegions &&
+          canUpdateSampleCount &&
           isDefined(regionalPrescriptionUpdate.sampleCount)
             ? regionalPrescriptionUpdate.sampleCount
             : regionalPrescription.sampleCount,

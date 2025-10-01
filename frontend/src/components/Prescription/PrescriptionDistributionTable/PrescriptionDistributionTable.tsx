@@ -9,6 +9,7 @@ import {
 } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import DistributionCountCell from 'src/components/DistributionTable/DistributionCountCell/DistributionCountCell';
 import { assert, type Equals } from 'tsafe';
+import { useAuthentication } from '../../../hooks/useAuthentication';
 import '../PrescriptionCard/PrescriptionCard.scss';
 
 interface Props {
@@ -30,6 +31,8 @@ const PrescriptionDistributionTable = ({
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
+  const { hasUserRegionalPrescriptionPermission } = useAuthentication();
+
   if (!regionalPrescriptions) {
     return <></>;
   }
@@ -58,6 +61,12 @@ const PrescriptionDistributionTable = ({
               regionalPrescription={regionalPrescription}
               onChange={async (value) =>
                 onChangeRegionalCount(regionalPrescription.region, value)
+              }
+              isEditable={
+                hasUserRegionalPrescriptionPermission(
+                  programmingPlan,
+                  regionalPrescription
+                )?.updateSampleCount
               }
             />
           ))

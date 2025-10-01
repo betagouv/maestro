@@ -15,8 +15,38 @@ main {
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  padding-top: 2.5rem;
   padding-bottom: 5rem;
+
+  &:not(:has(.green-container)) {
+    padding-top: 2.5rem;
+  }
+
+  .green-container {
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
+    background-color: #3c6d4d;
+
+    h1,
+    .fr-hint-text {
+      color: #fff;
+    }
+
+    .fr-segmented__elements {
+      box-shadow: inset 0 0 0 1px var(--grey-975-75-active);
+
+      .fr-label {
+        color: var(--grey-975-75-active);
+      }
+
+      .fr-segmented__element input:checked + label {
+        box-shadow: inset 0 0 0 1px white;
+        color: white;
+      }
+      .fr-segmented__element input:not([disabled]):not(:checked) + label:hover {
+        background-color: #4b8c60;
+      }
+    }
+  }
 }
 
 .white-container {
@@ -274,7 +304,6 @@ h6,
 
 .no-wrap {
   white-space: nowrap;
-  overflow: hidden;
 }
 
 .fr-tag:not(:last-of-type) {
