@@ -163,7 +163,7 @@ export const documentsRouter = {
         throw new DocumentMissingError(documentId);
       }
       return {
-        status: constants.HTTP_STATUS_NO_CONTENT,
+        status: constants.HTTP_STATUS_OK,
         response: document
       };
     }

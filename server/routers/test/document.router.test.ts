@@ -294,4 +294,23 @@ describe('Document router', () => {
       });
     });
   });
+
+  describe('GET /documents/:documentId', () => {
+    const testRoute = (id: string) => `/api/documents/${id}`;
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .get(testRoute(analysisDocument.id))
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should get the document', async () => {
+      const res = await request(app)
+        .get(testRoute(sampleDocument.id))
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toMatchObject(withISOStringDates(sampleDocument));
+    });
+  });
 });
