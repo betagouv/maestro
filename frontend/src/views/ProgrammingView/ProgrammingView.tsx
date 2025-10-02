@@ -18,7 +18,6 @@ import { useSearchParams } from 'react-router';
 import programmation from '../../assets/illustrations/programmation-white.svg';
 import AppToast from '../../components/_app/AppToast/AppToast';
 import PrescriptionCommentsModal from '../../components/Prescription/PrescriptionCommentsModal/PrescriptionCommentsModal';
-import ProgrammingPlanNotificationRegionalToDepartmental from '../../components/ProgrammingPlanNotification/ProgrammingPlanNotificationRegionalToDepartmental/ProgrammingPlanNotificationRegionalToDepartmental';
 import ProgrammingPlanNotificationRegionalToNational from '../../components/ProgrammingPlanNotification/ProgrammingPlanNotificationRegionalToNational/ProgrammingPlanNotificationRegionalToNational';
 import SectionHeader from '../../components/SectionHeader/SectionHeader';
 import { useAuthentication } from '../../hooks/useAuthentication';
@@ -177,12 +176,12 @@ const ProgrammingView = () => {
                 region={region as Region}
               />
             )}
-            {programmingPlan && (
-              <ProgrammingPlanNotificationRegionalToDepartmental
-                programmingPlan={programmingPlan}
-                region={region as Region}
-              />
-            )}
+            {/*{programmingPlan && (*/}
+            {/*  <ProgrammingPlanNotificationRegionalToDepartmental*/}
+            {/*    programmingPlan={programmingPlan}*/}
+            {/*    region={region as Region}*/}
+            {/*  />*/}
+            {/*)}*/}
             <div
               className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}
             >
