@@ -74,9 +74,7 @@ const ProgrammingView = () => {
           ),
           domain:
             (searchParams.get('domain') as ProgrammingPlanDomain) ?? undefined,
-          programmingPlan: programmingPlans?.find(
-            (plan) => plan.id === searchParams.get('planId')
-          ),
+          programmingPlanId: searchParams.get('programmingPlanId'),
           kinds:
             (searchParams.get('kinds')?.split(',') as ProgrammingPlanKind[]) ??
             undefined,
@@ -86,6 +84,15 @@ const ProgrammingView = () => {
       )
     );
   }, [searchParams, programmingPlans]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const programmingPlan = useMemo(
+    () =>
+      (programmingPlans ?? []).find(
+        (plan) => prescriptionFilters.programmingPlanId === plan.id
+      ),
+
+    [prescriptionFilters, programmingPlans]
+  );
 
   const region = useMemo(
     () =>
@@ -161,7 +168,7 @@ const ProgrammingView = () => {
                           changeFilter({
                             year,
                             domain: undefined,
-                            programmingPlan: undefined,
+                            programmingPlanId: undefined,
                             kinds: undefined,
                             context: undefined
                           })
@@ -171,9 +178,9 @@ const ProgrammingView = () => {
                 />
               }
             />
-            {prescriptionFilters.programmingPlan && (
+            {programmingPlan && (
               <ProgrammingPlanNotificationRegionalToNational
-                programmingPlan={prescriptionFilters.programmingPlan}
+                programmingPlan={programmingPlan}
                 region={region as Region}
               />
             )}
@@ -240,22 +247,22 @@ const ProgrammingView = () => {
                   ] as any
                 }
               >
-                {prescriptionFilters.programmingPlan ? (
+                {programmingPlan ? (
                   <>
                     {selectedTabId === 'ProgrammationTab' && (
                       <ProgrammingPrescriptionList
-                        programmingPlan={prescriptionFilters.programmingPlan}
+                        programmingPlan={programmingPlan}
                         region={region ?? undefined}
                       />
                     )}
                     {selectedTabId === 'ConsultationTab' && (
                       <ProgrammingPlanRegionalValidationList
-                        programmingPlan={prescriptionFilters.programmingPlan}
+                        programmingPlan={programmingPlan}
                       />
                     )}
                     {selectedTabId === 'CommentsTab' && (
                       <ProgrammingCommentList
-                        programmingPlan={prescriptionFilters.programmingPlan}
+                        programmingPlan={programmingPlan}
                       />
                     )}
                   </>

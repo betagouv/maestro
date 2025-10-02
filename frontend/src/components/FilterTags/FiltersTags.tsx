@@ -162,10 +162,6 @@ const filtersConfig = {
         ))}
       </Fragment>
     )
-  },
-  planId: {
-    prop: 'planId',
-    getLabel: (_value, { programmingPlan }) => programmingPlan?.title || null
   }
 } as const satisfies {
   [key in FilterableProp]: {
@@ -208,8 +204,9 @@ const FiltersTags = ({
     [samplers, filters.sampledBy]
   );
   const programmingPlan = useMemo(
-    () => programmingPlans?.find((plan) => filters.planId === plan.id),
-    [programmingPlans, filters.planId]
+    () =>
+      programmingPlans?.find((plan) => filters.programmingPlanId === plan.id),
+    [programmingPlans, filters.programmingPlanId]
   );
 
   const hasFilters = useMemo(

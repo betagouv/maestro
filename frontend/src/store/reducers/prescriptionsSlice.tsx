@@ -14,7 +14,7 @@ import { z } from 'zod';
 export const PrescriptionFilters = z.object({
   year: z.coerce.number().int(),
   domain: ProgrammingPlanDomain.nullish(),
-  programmingPlan: ProgrammingPlan.nullish(),
+  programmingPlanId: z.guid().nullish(),
   kinds: z.array(ProgrammingPlanKind).nullish(),
   context: ProgrammingPlanContext.nullish()
 });

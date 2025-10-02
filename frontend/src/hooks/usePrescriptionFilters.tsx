@@ -30,8 +30,8 @@ export const usePrescriptionFilters = (
         programmingPlanOptions(filters)
           .filter(
             (plan) =>
-              !filters.programmingPlan?.id ||
-              plan.id === filters.programmingPlan.id
+              !filters.programmingPlanId ||
+              plan.id === filters.programmingPlanId
           )
           .flatMap((plan) => plan.kinds)
       ),
@@ -43,8 +43,8 @@ export const usePrescriptionFilters = (
         programmingPlanOptions(filters)
           .filter(
             (plan) =>
-              !filters.programmingPlan?.id ||
-              plan.id === filters.programmingPlan?.id
+              !filters.programmingPlanId ||
+              plan.id === filters.programmingPlanId
           )
           .flatMap((plan) => plan.contexts)
       ),
@@ -72,30 +72,30 @@ export const usePrescriptionFilters = (
       )
         ? aggregatedFilters?.domain
         : getUniqOrUndefined(domainOptions({ year }))?.[0];
-      const programmingPlan = programmingPlanOptions({ year, domain }).some(
-        (planOption) => planOption.id === aggregatedFilters?.programmingPlan?.id
+      const programmingPlanId = programmingPlanOptions({ year, domain }).some(
+        (planOption) => planOption.id === aggregatedFilters?.programmingPlanId
       )
-        ? aggregatedFilters?.programmingPlan
-        : getUniqOrUndefined(programmingPlanOptions({ year, domain }))?.[0];
+        ? aggregatedFilters?.programmingPlanId
+        : getUniqOrUndefined(programmingPlanOptions({ year, domain }))?.[0]?.id;
       const kinds =
         aggregatedFilters?.kinds?.filter((kind) =>
           programmingPlanKindOptions({
             year,
             domain,
-            programmingPlan
+            programmingPlanId
           }).some((kindOption) => kind === kindOption)
         ) ??
         getUniqOrUndefined(
           programmingPlanKindOptions({
             year,
             domain,
-            programmingPlan
+            programmingPlanId
           })
         );
       const context = contextOptions({
         year,
         domain,
-        programmingPlan,
+        programmingPlanId,
         kinds
       }).some((contextOption) => aggregatedFilters?.context === contextOption)
         ? aggregatedFilters?.context
@@ -103,7 +103,7 @@ export const usePrescriptionFilters = (
             contextOptions({
               year,
               domain,
-              programmingPlan,
+              programmingPlanId,
               kinds
             })
           )?.[0];
@@ -111,7 +111,7 @@ export const usePrescriptionFilters = (
       return {
         ...aggregatedFilters,
         domain,
-        programmingPlan,
+        programmingPlanId,
         kinds,
         context
       };
