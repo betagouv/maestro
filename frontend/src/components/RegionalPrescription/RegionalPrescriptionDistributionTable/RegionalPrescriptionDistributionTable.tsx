@@ -11,11 +11,9 @@ import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { useMemo } from 'react';
-import { types } from 'sass';
 import DistributionCountCell from 'src/components/DistributionTable/DistributionCountCell/DistributionCountCell';
 import { assert, type Equals } from 'tsafe';
 import { useAuthentication } from '../../../hooks/useAuthentication';
-import Number = types.Number;
 
 interface Props {
   programmingPlan: ProgrammingPlan;
