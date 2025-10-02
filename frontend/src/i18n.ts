@@ -42,7 +42,13 @@ i18n.use(initReactI18next).init({
         department_other: '{{count}} départements',
         context_zero: 'Aucun contexte',
         context_one: 'Un contexte',
-        context_other: '{{count}} contextes'
+        context_other: '{{count}} contextes',
+        select_zero: 'Aucun sélectionné',
+        select_one: 'Un sélectionné',
+        select_other: '{{count}} sélectionnés',
+        comment_zero: 'Aucun commentaire',
+        comment_one: 'Un commentaire',
+        comment_other: '{{count}} commentaires'
       }
     }
   }

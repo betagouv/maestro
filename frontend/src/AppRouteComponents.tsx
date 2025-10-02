@@ -9,14 +9,14 @@ import { LoginCallbackView } from './views/LoginCallbackView/LoginCallbackView';
 import { LogoutCallbackView } from './views/LogoutCallbackView/LogoutCallbackView';
 import NotificationsView from './views/NotificationsView/NotificationsView';
 import { OpenApiExplorerView } from './views/OpenApiExplorer/OpenApiExplorerView';
-import ProgrammingPlanView from './views/ProgrammingPlanView/ProgrammingPlanView';
+import ProgrammingView from './views/ProgrammingView/ProgrammingView';
 import SampleListView from './views/SampleListView/SampleListView';
 import SampleView from './views/SampleView/SampleView';
 
 export const AppRouteComponents = {
   DashboardRoute: DashboardView,
   NotificationsRoute: NotificationsView,
-  ProgrammationByYearRoute: () => <YearRoute element={ProgrammingPlanView} />,
+  ProgrammingRoute: ProgrammingView,
   SamplesByYearRoute: () => <YearRoute element={SampleListView} />,
   NewSampleRoute: () => <YearRoute element={SampleView} />,
   SampleRoute: SampleView,

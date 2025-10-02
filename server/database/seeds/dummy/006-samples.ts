@@ -1,6 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { Region, Regions } from 'maestro-shared/referential/Region';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
+import { DummyLaboratoryIds } from 'maestro-shared/schema/User/User';
 import { PPVValidatedProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
 import { genCreatedSample } from 'maestro-shared/test/sampleFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
@@ -13,7 +14,6 @@ import {
   Samples
 } from '../../../repositories/sampleRepository';
 import { Users } from '../../../repositories/userRepository';
-import { DummyLaboratoryIds } from './002-laboratories';
 import {
   abricotsEtSimilaires,
   avoineEtSimilaires,

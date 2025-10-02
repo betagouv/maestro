@@ -19,7 +19,8 @@ export const Prescription = z.object({
   stages: z.array(Stage),
   monoAnalysisCount: z.coerce.number().nullish(),
   multiAnalysisCount: z.coerce.number().nullish(),
-  notes: z.string().nullish()
+  notes: z.string().nullish(),
+  programmingInstruction: z.string().nullish()
 });
 
 export const PrescriptionToCreate = Prescription.omit({
@@ -28,7 +29,11 @@ export const PrescriptionToCreate = Prescription.omit({
 
 export const PrescriptionUpdate = z.object({
   programmingPlanId: z.guid(),
-  stages: z.array(Stage).nullish(),
+  ...Prescription.pick({
+    stages: true,
+    notes: true,
+    programmingInstruction: true
+  }).partial().shape,
   substances: z
     .array(
       PrescriptionSubstance.pick({
@@ -36,8 +41,7 @@ export const PrescriptionUpdate = z.object({
         substance: true
       })
     )
-    .nullish(),
-  notes: z.string().nullish()
+    .nullish()
 });
 
 export type Prescription = z.infer<typeof Prescription>;

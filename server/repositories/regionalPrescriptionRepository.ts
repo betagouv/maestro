@@ -51,6 +51,7 @@ const findMany = async (
         omit(
           findOptions,
           'programmingPlanId',
+          'programmingPlanKinds',
           'context',
           'includes',
           'region',
@@ -73,9 +74,18 @@ const findMany = async (
         builder.whereIn(`${prescriptionsTable}.context`, findOptions.contexts);
       }
       if (findOptions.region) {
-        builder
-          .where(`${regionalPrescriptionsTable}.region`, findOptions.region)
-          .andWhereNot(`${regionalPrescriptionsTable}.sampleCount`, 0);
+        builder.where(
+          `${regionalPrescriptionsTable}.region`,
+          findOptions.region
+        );
+      } else {
+        builder.where(`${regionalPrescriptionsTable}.department`, 'None');
+      }
+      if (findOptions.programmingPlanKinds) {
+        builder.whereIn(
+          `${prescriptionsTable}.programming_plan_kind`,
+          findOptions.programmingPlanKinds
+        );
       }
     })
     .modify(include(findOptions))

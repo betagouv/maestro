@@ -3,6 +3,7 @@ import { intersection } from 'lodash-es';
 import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
 import { RegionList, Regions } from 'maestro-shared/referential/Region';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
+import { ProgrammingPlanKindList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   NextProgrammingPlanStatus,
   ProgrammingPlanStatus,
@@ -41,7 +42,10 @@ export const programmingPlanRouter = {
           findOptionsStatus,
           userStatusAuthorized
         ) as ProgrammingPlanStatus[],
-        kinds: user.programmingPlanKinds,
+        kinds:
+          user?.role === 'Administrator'
+            ? ProgrammingPlanKindList
+            : user.programmingPlanKinds,
         region: user.region || findOptions.region
       });
 
@@ -197,9 +201,12 @@ export const programmingPlanRouter = {
               await notificationService.sendNotification(
                 {
                   category,
-                  link: AppRouteLinks.ProgrammationByYearRoute.link(
-                    programmingPlan.year
-                  )
+                  link: `${AppRouteLinks.ProgrammingRoute.link}?${new URLSearchParams(
+                    {
+                      year: programmingPlan.year.toString(),
+                      planIds: programmingPlan.id
+                    }
+                  ).toString()}`
                 },
                 regionalCoordinators,
                 undefined
@@ -212,9 +219,12 @@ export const programmingPlanRouter = {
               await notificationService.sendNotification(
                 {
                   category: 'ProgrammingPlanApproved',
-                  link: AppRouteLinks.ProgrammationByYearRoute.link(
-                    programmingPlan.year
-                  )
+                  link: `${AppRouteLinks.ProgrammingRoute.link}?${new URLSearchParams(
+                    {
+                      year: programmingPlan.year.toString(),
+                      planIds: programmingPlan.id
+                    }
+                  ).toString()}`
                 },
                 nationalCoordinators,
                 {
@@ -299,10 +309,13 @@ export const programmingPlanRouter = {
         id: uuidv4(),
         createdAt: new Date(),
         createdBy: user.id,
+        title: previousProgrammingPlan.title,
+        domain: previousProgrammingPlan.domain,
         kinds: previousProgrammingPlan.kinds,
         contexts: previousProgrammingPlan.contexts,
         samplesOutsidePlanAllowed:
           previousProgrammingPlan.samplesOutsidePlanAllowed,
+        distributionKind: previousProgrammingPlan.distributionKind,
         year,
         regionalStatus: RegionList.map((region) => ({
           region,

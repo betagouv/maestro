@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { Region } from '../../referential/Region';
 import { coerceToArray } from '../../utils/utils';
 import { ProgrammingPlanContext } from '../ProgrammingPlan/Context';
+import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 
 export const RegionalPrescriptionOptionsInclude = z.enum([
   'comments',
@@ -14,6 +15,7 @@ export type RegionalPrescriptionOptionsInclude = z.infer<
 
 export const FindRegionalPrescriptionOptions = z.object({
   programmingPlanId: z.guid(),
+  programmingPlanKinds: coerceToArray(z.array(ProgrammingPlanKind)).nullish(),
   contexts: coerceToArray(z.array(ProgrammingPlanContext)).nullish(),
   region: Region.nullish(),
   includes: z
