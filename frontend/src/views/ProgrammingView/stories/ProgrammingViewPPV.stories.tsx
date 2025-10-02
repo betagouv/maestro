@@ -11,12 +11,12 @@ import {
   RegionalCoordinator
 } from 'maestro-shared/test/userFixtures';
 import { expect, userEvent, within } from 'storybook/test';
-import { AuthenticatedAppRoutes } from '../../AppRoutes';
-import { getMockApi } from '../../services/mockApiClient';
-import ProgrammingView from './ProgrammingView';
+import { AuthenticatedAppRoutes } from '../../../AppRoutes';
+import { getMockApi } from '../../../services/mockApiClient';
+import ProgrammingView from '../ProgrammingView';
 
 const meta = {
-  title: 'Views/ProgrammingPlanView/ValidatedProgrammingPlan',
+  title: 'Views/ProgrammingPlanView/PPV',
   component: ProgrammingView
 } satisfies Meta<typeof ProgrammingView>;
 
@@ -51,7 +51,7 @@ const prescription2 = genPrescription({
   matrixKind: 'A0DQS'
 });
 
-export const ForNationalCoordinator: Story = {
+export const NationalCoordinatorView: Story = {
   parameters: {
     preloadedState: {
       auth: { authUser: genAuthUser(NationalCoordinator) }
@@ -106,7 +106,7 @@ export const ForNationalCoordinator: Story = {
   }
 };
 
-export const ForRegionalCoordinator: Story = {
+export const RegionalCoordinatorView: Story = {
   parameters: {
     preloadedState: {
       auth: { authUser: genAuthUser(RegionalCoordinator) },

@@ -1,5 +1,6 @@
 import { intersection, isNil } from 'lodash-es';
 import { z } from 'zod';
+import { Department } from '../../referential/Department';
 import { Region, RegionList } from '../../referential/Region';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { UserPermission } from './UserPermission';
@@ -17,7 +18,8 @@ const BaseUser = z.object({
   name: z.string(),
   programmingPlanKinds: z.array(ProgrammingPlanKind),
   role: UserRole,
-  region: Region.nullish()
+  region: Region.nullish(),
+  department: Department.nullish()
 });
 
 export const User = BaseUser.superRefine((user, ctx) => {
@@ -56,3 +58,6 @@ export const hasPermission = (user: User, ...permissions: UserPermission[]) =>
 export const hasNationalRole = (user: Pick<User, 'role'>) =>
   NationalUserRole.safeParse(user.role).success ||
   RegionalAndNationUserRole.safeParse(user.role).success;
+
+export const hasRegionalRole = (user: Pick<User, 'role' | 'department'>) =>
+  RegionalUserRole.safeParse(user.role).success && isNil(user.department);

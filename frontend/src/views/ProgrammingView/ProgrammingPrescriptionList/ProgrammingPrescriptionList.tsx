@@ -1,5 +1,4 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { sumBy } from 'lodash-es';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region } from 'maestro-shared/referential/Region';
 import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
@@ -101,9 +100,10 @@ const ProgrammingPrescriptionList = ({
   const findRegionalPrescriptionOptions = useMemo(
     () => ({
       ...findPrescriptionOptions,
+      region,
       includes: ['comments' as const, 'sampleCounts' as const]
     }),
-    [findPrescriptionOptions]
+    [findPrescriptionOptions, region]
   );
 
   const { data: regionalPrescriptions } =
@@ -232,8 +232,8 @@ const ProgrammingPrescriptionList = ({
             <ProgrammingPrescriptionListHeader
               programmingPlan={programmingPlan}
               prescriptions={prescriptions}
+              regionalPrescriptions={regionalPrescriptions}
               exportURL={getPrescriptionsExportURL(findPrescriptionOptions)}
-              sampleCount={sumBy(regionalPrescriptions, 'sampleCount')}
               hasGroupedUpdatePermission={regionalPrescriptions.some(
                 (regionalPrescription) =>
                   hasUserRegionalPrescriptionPermission(

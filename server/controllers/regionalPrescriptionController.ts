@@ -1,4 +1,5 @@
 import { constants } from 'http2';
+import { isNil } from 'lodash-es';
 import {
   MatrixKind,
   MatrixKindLabels
@@ -21,9 +22,13 @@ import { notificationService } from '../services/notificationService';
 export const regionalPrescriptionsRouter = {
   '/prescriptions/regions': {
     get: async ({ query: queryFindOptions, user }) => {
+      const region = hasNationalRole(user)
+        ? queryFindOptions.region
+        : user.region;
+
       const findOptions = {
         ...queryFindOptions,
-        region: hasNationalRole(user) ? queryFindOptions.region : user.region
+        region
       };
 
       console.info('Find regional prescriptions', user.id, findOptions);
@@ -31,9 +36,22 @@ export const regionalPrescriptionsRouter = {
       const regionalPrescriptions =
         await regionalPrescriptionRepository.findMany(findOptions);
 
+      const filterEmptyRegionalPrescriptions = region
+        ? regionalPrescriptions.filter((regionalPrescription) =>
+            isNil(regionalPrescription.department)
+              ? regionalPrescription.sampleCount > 0
+              : regionalPrescriptions.some(
+                  (_) =>
+                    _.region === regionalPrescription.region &&
+                    isNil(_.department) &&
+                    _.sampleCount > 0
+                )
+          )
+        : regionalPrescriptions;
+
       return {
         status: constants.HTTP_STATUS_OK,
-        response: regionalPrescriptions
+        response: filterEmptyRegionalPrescriptions
       };
     }
   },

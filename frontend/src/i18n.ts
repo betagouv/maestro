@@ -45,7 +45,10 @@ i18n.use(initReactI18next).init({
         context_other: '{{count}} contextes',
         select_zero: 'Aucun sélectionné',
         select_one: 'Un sélectionné',
-        select_other: '{{count}} sélectionnés'
+        select_other: '{{count}} sélectionnés',
+        comment_zero: 'Aucun commentaire',
+        comment_one: 'Un commentaire',
+        comment_other: '{{count}} commentaires'
       }
     }
   }

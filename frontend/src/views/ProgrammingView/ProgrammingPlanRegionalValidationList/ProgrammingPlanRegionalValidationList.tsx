@@ -1,62 +1,82 @@
-import Button from '@codegouvfr/react-dsfr/Button';
+import Badge from '@codegouvfr/react-dsfr/Badge';
+import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
 import { t } from 'i18next';
 import { sumBy } from 'lodash-es';
-import {
-  MatrixKind,
-  MatrixKindLabels
-} from 'maestro-shared/referential/Matrix/MatrixKind';
+import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
-import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   ProgrammingPlanStatus,
   ProgrammingPlanStatusLabels
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import { FindRegionalPrescriptionOptions } from 'maestro-shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import { useCallback, useContext, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
-import { useAppDispatch } from '../../../hooks/useStore';
+import { useAppDispatch, useAppSelector } from '../../../hooks/useStore';
 import { ApiClientContext } from '../../../services/apiClient';
 import prescriptionsSlice from '../../../store/reducers/prescriptionsSlice';
 import { pluralize } from '../../../utils/stringUtils';
 
 interface Props {
   programmingPlan: ProgrammingPlan;
-  context: ProgrammingPlanContext;
 }
 
 const ProgrammingPlanRegionalValidationList = ({
   programmingPlan,
-  context,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
   const dispatch = useAppDispatch();
   const apiClient = useContext(ApiClientContext);
 
+  const { prescriptionFilters } = useAppSelector(
+    (state) => state.prescriptions
+  );
   const [regionFilter, setRegionFilter] = useState<Region>();
   const [statusFilter, setStatusFilter] = useState<ProgrammingPlanStatus>();
 
   const findPrescriptionOptions = useMemo(
     () => ({
-      programmingPlanId: programmingPlan?.id as string,
-      contexts: [context]
+      programmingPlanId: programmingPlan.id,
+      contexts: prescriptionFilters.context
+        ? [prescriptionFilters.context]
+        : undefined
     }),
-    [programmingPlan, context]
+    [programmingPlan, prescriptionFilters]
   );
 
   const { data: allPrescriptions } = apiClient.useFindPrescriptionsQuery(
-    findPrescriptionOptions
+    findPrescriptionOptions,
+    {
+      skip: !FindPrescriptionOptions.safeParse(findPrescriptionOptions).success
+    }
+  );
+
+  const findRegionalPrescriptionOptions = useMemo(
+    () => ({
+      ...findPrescriptionOptions,
+      includes: ['comments' as const, 'sampleCounts' as const]
+    }),
+    [findPrescriptionOptions]
   );
 
   const { data: regionalPrescriptions } =
-    apiClient.useFindRegionalPrescriptionsQuery({
-      ...findPrescriptionOptions,
-      includes: ['comments']
-    });
+    apiClient.useFindRegionalPrescriptionsQuery(
+      {
+        ...findPrescriptionOptions,
+        includes: ['comments']
+      },
+      {
+        skip: !FindRegionalPrescriptionOptions.safeParse(
+          findRegionalPrescriptionOptions
+        ).success
+      }
+    );
 
   const regionalCommentedPrescriptions = useCallback(
     (region: Region) => {
@@ -183,92 +203,206 @@ const ProgrammingPlanRegionalValidationList = ({
             </Tag>
           )}
         </div>
-        <div className={clsx(cx('fr-mt-2w'), 'border')}>
+        <div
+          className={clsx(
+            cx('fr-grid-row', 'fr-grid-row--gutters'),
+            'fr-mt-2w'
+          )}
+        >
           {filteredRegions.map((region, regionIndex) => (
-            <div key={`region-${regionIndex}`}>
-              <div className={cx('fr-m-2w')}>
-                <div className={clsx('d-flex-align-center')}>
-                  <h6 className="flex-grow-1">
-                    {validatedRegions.some(
-                      (validatedRegion) => validatedRegion.region === region
-                    ) ? (
-                      <span
-                        className={cx(
-                          'fr-icon-checkbox-circle-line',
-                          'fr-label--success',
-                          'fr-mr-1w'
+            // <div key={`region-${regionIndex}`}>
+            //   <div className={cx('fr-m-2w')}>
+            //     <div className={clsx('d-flex-align-center')}>
+            //       <h6 className="flex-grow-1">
+            //         {validatedRegions.some(
+            //           (validatedRegion) => validatedRegion.region === region
+            //         ) ? (
+            //           <span
+            //             className={cx(
+            //               'fr-icon-checkbox-circle-line',
+            //               'fr-label--success',
+            //               'fr-mr-1w'
+            //             )}
+            //             aria-hidden="true"
+            //           ></span>
+            //         ) : (
+            //           <span
+            //             className={cx(
+            //               'fr-icon-time-line',
+            //               'fr-label--error',
+            //               'fr-mr-1w'
+            //             )}
+            //             aria-hidden="true"
+            //           ></span>
+            //         )}
+            //
+            //         {Regions[region].name}
+            //       </h6>
+            //       {sumBy(
+            //         regionalCommentedPrescriptions(region),
+            //         (rcp) => (rcp.comments ?? []).length
+            //       ) > 0 && (
+            //         <Button
+            //           priority="secondary"
+            //           onClick={() => {
+            //             dispatch(
+            //               prescriptionsSlice.actions.setPrescriptionCommentsData(
+            //                 {
+            //                   viewBy: 'Region',
+            //                   region,
+            //                   matrixKindsComments:
+            //                     regionalCommentedPrescriptions(region).map(
+            //                       (rcp) => ({
+            //                         programmingPlan,
+            //                         matrixKind: rcp.matrixKind as MatrixKind,
+            //                         comments: rcp.comments ?? []
+            //                       })
+            //                     )
+            //                 }
+            //               )
+            //             );
+            //           }}
+            //         >
+            //           {sumBy(
+            //             regionalCommentedPrescriptions(region),
+            //             (rcp) => (rcp.comments ?? []).length
+            //           )}{' '}
+            //           {pluralize(
+            //             sumBy(
+            //               regionalCommentedPrescriptions(region),
+            //               (rcp) => (rcp.comments ?? []).length
+            //             )
+            //           )('commentaire')}
+            //         </Button>
+            //       )}
+            //     </div>
+            //     <div>
+            //       {regionalCommentedPrescriptions(region).length === 0
+            //         ? 'Aucun commentaire'
+            //         : pluralize(regionalCommentedPrescriptions(region).length)(
+            //             'Matrice commentée'
+            //           )}
+            //       {regionalCommentedPrescriptions(region).map((rcp) => (
+            //         <Button
+            //           className={clsx('link-underline')}
+            //           key={`${rcp.matrixKind}-region-${rcp.region}`}
+            //           priority="tertiary no outline"
+            //           onClick={() => {
+            //             dispatch(
+            //               prescriptionsSlice.actions.setPrescriptionCommentsData(
+            //                 {
+            //                   viewBy: 'Region',
+            //                   region,
+            //                   currentMatrixKind: rcp.matrixKind,
+            //                   matrixKindsComments:
+            //                     regionalCommentedPrescriptions(region).map(
+            //                       (rcp) => ({
+            //                         programmingPlan,
+            //                         matrixKind: rcp.matrixKind as MatrixKind,
+            //                         comments: rcp.comments ?? []
+            //                       })
+            //                     )
+            //                 }
+            //               )
+            //             );
+            //           }}
+            //         >
+            //           {MatrixKindLabels[rcp.matrixKind as MatrixKind]}
+            //         </Button>
+            //       ))}
+            //     </div>
+            //   </div>
+            //   {regionIndex !== filteredRegions.length - 1 && <hr />}
+            // </div>
+            <div className={cx('fr-col-12', 'fr-col-md-6')} key={region}>
+              <div
+                className={clsx(cx('fr-card', 'fr-card--sm'), 'regional-card')}
+              >
+                <div className={cx('fr-card__body')}>
+                  <div className={cx('fr-card__content')}>
+                    <div className="d-flex-align-center">
+                      <h3
+                        className={clsx(
+                          cx('fr-card__title', 'fr-mb-0'),
+                          'flex-grow-1'
                         )}
-                        aria-hidden="true"
-                      ></span>
-                    ) : (
-                      <span
-                        className={cx(
-                          'fr-icon-time-line',
-                          'fr-label--error',
-                          'fr-mr-1w'
-                        )}
-                        aria-hidden="true"
-                      ></span>
-                    )}
-
-                    {Regions[region].name}
-                  </h6>
-                  {sumBy(
-                    regionalCommentedPrescriptions(region),
-                    (rcp) => (rcp.comments ?? []).length
-                  ) > 0 && (
-                    <Button
-                      priority="secondary"
-                      onClick={() => {
-                        dispatch(
-                          prescriptionsSlice.actions.setPrescriptionCommentsData(
-                            {
-                              viewBy: 'Region',
-                              region,
-                              matrixKindsComments:
-                                regionalCommentedPrescriptions(region).map(
-                                  (rcp) => ({
-                                    programmingPlan,
-                                    matrixKind: rcp.matrixKind as MatrixKind,
-                                    comments: rcp.comments ?? []
-                                  })
-                                )
-                            }
+                      >
+                        <div className="flex-grow-1">
+                          {Regions[region].name}
+                        </div>
+                      </h3>
+                    </div>
+                    <div className="fr-card__end">
+                      <div>
+                        {pluralize(
+                          regionalPrescriptions.filter(
+                            (rp) => rp.region === region
+                          ).length,
+                          { preserveCount: true }
+                        )('matrice')}
+                        {' • '}
+                        {pluralize(
+                          sumBy(
+                            regionalPrescriptions.filter(
+                              (rp) => rp.region === region
+                            ),
+                            'sampleCount'
+                          ),
+                          { preserveCount: true }
+                        )('prélèvement')}
+                        <Badge
+                          noIcon
+                          severity={
+                            validatedRegions.some(
+                              (validatedRegion) =>
+                                validatedRegion.region === region
+                            )
+                              ? 'success'
+                              : 'warning'
+                          }
+                          className={'fr-mx-1w'}
+                        >
+                          {validatedRegions.some(
+                            (validatedRegion) =>
+                              validatedRegion.region === region
                           )
-                        );
-                      }}
-                    >
-                      {sumBy(
-                        regionalCommentedPrescriptions(region),
-                        (rcp) => (rcp.comments ?? []).length
-                      )}{' '}
-                      {pluralize(
+                            ? 'Consultation terminée'
+                            : 'En attente'}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <ButtonsGroup
+                  buttonsEquisized
+                  buttonsSize="small"
+                  alignment="center"
+                  inlineLayoutWhen="always"
+                  className={cx('fr-m-0')}
+                  buttons={[
+                    {
+                      children: (
+                        <span className="no-wrap">
+                          {t('comment', {
+                            count: sumBy(
+                              regionalCommentedPrescriptions(region),
+                              (rcp) => (rcp.comments ?? []).length
+                            )
+                          })}
+                        </span>
+                      ),
+                      disabled:
                         sumBy(
                           regionalCommentedPrescriptions(region),
                           (rcp) => (rcp.comments ?? []).length
-                        )
-                      )('commentaire')}
-                    </Button>
-                  )}
-                </div>
-                <div>
-                  {regionalCommentedPrescriptions(region).length === 0
-                    ? 'Aucun commentaire'
-                    : pluralize(regionalCommentedPrescriptions(region).length)(
-                        'Matrice commentée'
-                      )}
-                  {regionalCommentedPrescriptions(region).map((rcp) => (
-                    <Button
-                      className={clsx('link-underline')}
-                      key={`${rcp.matrixKind}-region-${rcp.region}`}
-                      priority="tertiary no outline"
-                      onClick={() => {
+                        ) === 0,
+                      priority: 'tertiary no outline',
+                      onClick: () =>
                         dispatch(
                           prescriptionsSlice.actions.setPrescriptionCommentsData(
                             {
                               viewBy: 'Region',
                               region,
-                              currentMatrixKind: rcp.matrixKind,
                               matrixKindsComments:
                                 regionalCommentedPrescriptions(region).map(
                                   (rcp) => ({
@@ -279,15 +413,13 @@ const ProgrammingPlanRegionalValidationList = ({
                                 )
                             }
                           )
-                        );
-                      }}
-                    >
-                      {MatrixKindLabels[rcp.matrixKind as MatrixKind]}
-                    </Button>
-                  ))}
-                </div>
+                        ),
+                      iconId: 'fr-icon-chat-3-line',
+                      className: cx('fr-m-0')
+                    }
+                  ]}
+                />
               </div>
-              {regionIndex !== filteredRegions.length - 1 && <hr />}
             </div>
           ))}
         </div>

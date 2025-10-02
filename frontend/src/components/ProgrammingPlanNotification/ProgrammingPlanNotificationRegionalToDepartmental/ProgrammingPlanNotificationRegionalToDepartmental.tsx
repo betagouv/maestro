@@ -4,7 +4,6 @@ import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
-import RadioButtons from '@codegouvfr/react-dsfr/RadioButtons';
 import Select from '@codegouvfr/react-dsfr/Select';
 import clsx from 'clsx';
 import { Region, Regions, RegionSort } from 'maestro-shared/referential/Region';
@@ -13,6 +12,7 @@ import {
   NextProgrammingPlanStatus,
   ProgrammingPlanStatus
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import React, { useCallback, useContext, useState } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch } from '../../../hooks/useStore';
@@ -22,6 +22,7 @@ import { pluralize } from '../../../utils/stringUtils';
 import '../ProgrammingPlanNotification.scss';
 interface Props {
   programmingPlan: ProgrammingPlan;
+  regionalPrescriptions: RegionalPrescription[];
 }
 const submissionModal = createModal({
   id: `submission-modal`,
@@ -29,11 +30,12 @@ const submissionModal = createModal({
 });
 
 const ProgrammingPlanNotificationRegionalToDepartmental = ({
-  programmingPlan
+  programmingPlan,
+  regionalPrescriptions
 }: Props) => {
   const dispatch = useAppDispatch();
   const apiClient = useContext(ApiClientContext);
-  const { hasUserRegionalPrescriptionPermission } = useAuthentication();
+  const { user, hasUserRegionalPrescriptionPermission } = useAuthentication();
 
   const [updateRegionalStatus] =
     apiClient.useUpdateProgrammingPlanRegionalStatusMutation();
@@ -85,40 +87,33 @@ const ProgrammingPlanNotificationRegionalToDepartmental = ({
     }
   };
 
-  // if (
-  //   !hasUserRegionalPrescriptionPermission(
-  //     programmingPlan,
-  //     regionalPrescription
-  //   )?.distributeToDepartments
-  // ) {
-  //   return <> </>;
-  // }
+  if (
+    !regionalPrescriptions.some(
+      (regionalPrescription) =>
+        hasUserRegionalPrescriptionPermission(
+          programmingPlan,
+          regionalPrescription
+        )?.distributeToDepartments
+    )
+  ) {
+    return <> </>;
+  }
 
   return (
     <>
-      {programmingPlan.regionalStatus.some(
-        (regionalStatus) =>
-          NextProgrammingPlanStatus[regionalStatus.status] &&
-          ['Submitted', 'Validated'].includes(
-            NextProgrammingPlanStatus[
-              regionalStatus.status
-            ] as ProgrammingPlanStatus
-          )
-      ) && (
-        <div className="notify-regions-menu">
-          <Button
-            iconId="fr-icon-send-plane-fill"
-            iconPosition="right"
-            id="notify-regions-button"
-            onClick={() => submissionModal.open()}
-          >
-            Notifier les régions
-          </Button>
-        </div>
-      )}
+      <div className="notify-regions-menu">
+        <Button
+          iconId="fr-icon-send-plane-fill"
+          iconPosition="right"
+          id="notify-regions-button"
+          onClick={() => submissionModal.open()}
+        >
+          Notifier les départements
+        </Button>
+      </div>
 
       <submissionModal.Component
-        title={isSuccess ? 'Notification envoyée' : 'Notifier les régions'}
+        title={isSuccess ? 'Notification envoyée' : 'Notifier les départements'}
         buttons={
           isSuccess
             ? [
@@ -171,35 +166,6 @@ const ProgrammingPlanNotificationRegionalToDepartmental = ({
                 {programmingPlan.title}
               </option>
             </Select>
-            <RadioButtons
-              legend="Action"
-              options={[
-                {
-                  label: 'Soumettre la programmation',
-                  nativeInputProps: {
-                    checked: status === 'InProgress',
-                    onChange: () => {
-                      setStatus('InProgress');
-                      setRegionsToNotify(getRegionsByStatus('InProgress'));
-                    },
-                    disabled: getRegionsByStatus('InProgress').length === 0
-                  }
-                },
-                {
-                  label: 'Valider la programmation',
-                  nativeInputProps: {
-                    checked: status === 'Approved',
-                    onChange: () => {
-                      setStatus('Approved');
-                      setRegionsToNotify(getRegionsByStatus('Approved'));
-                    },
-                    disabled: getRegionsByStatus('Approved').length === 0
-                  }
-                }
-              ]}
-              orientation="horizontal"
-              className={cx('fr-mt-2w')}
-            />
             <hr className={cx('fr-my-2w')} />
             <div className={cx('fr-mt-3w')}>
               {getRegionsByStatus(status).length > 0 ? (
@@ -247,7 +213,7 @@ const ProgrammingPlanNotificationRegionalToDepartmental = ({
                   orientation="horizontal"
                 />
               ) : (
-                <i>Aucune région concernée</i>
+                <i>Aucun département concerné</i>
               )}
             </div>
           </>

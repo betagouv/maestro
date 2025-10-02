@@ -9,6 +9,7 @@ import { Stage } from 'maestro-shared/referential/Stage';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
+import { useState } from 'react';
 import PrescriptionDistributionTable from 'src/components/Prescription/PrescriptionDistributionTable/PrescriptionDistributionTable';
 import PrescriptionNotes from 'src/components/Prescription/PrescriptionNotes/PrescriptionNotes';
 import PrescriptionStages from 'src/components/Prescription/PrescriptionStages/PrescriptionStages';
@@ -33,6 +34,8 @@ interface Props {
   ) => Promise<void>;
 }
 
+type PrescriptionCardTab = 'AnalysesTab' | 'StagesTab' | 'NotesTab';
+
 const PrescriptionCard = ({
   programmingPlan,
   prescription,
@@ -44,6 +47,9 @@ const PrescriptionCard = ({
   onChangePrescriptionProgrammingInstruction
 }: Props) => {
   const { hasUserPrescriptionPermission } = useAuthentication();
+
+  const [selectedTabId, setSelectedTabId] =
+    useState<PrescriptionCardTab>('AnalysesTab');
 
   if (!programmingPlan) {
     return <></>;
@@ -80,16 +86,14 @@ const PrescriptionCard = ({
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             <div className={cx('fr-col-12', 'fr-col-md-5')}>
               <Tabs
+                selectedTabId={selectedTabId}
+                onTabChange={(tabId) =>
+                  setSelectedTabId(tabId as PrescriptionCardTab)
+                }
                 tabs={[
                   {
                     label: 'Analyses',
-                    content: (
-                      <PrescriptionSubstances
-                        programmingPlan={programmingPlan}
-                        prescription={prescription}
-                        renderMode="modal"
-                      />
-                    )
+                    tabId: 'AnalysesTab'
                   },
                   {
                     iconId:
@@ -97,14 +101,7 @@ const PrescriptionCard = ({
                         ? 'fr-icon-check-line'
                         : undefined,
                     label: pluralize(prescription.stages.length)('Stade'),
-                    content: (
-                      <PrescriptionStages
-                        programmingPlan={programmingPlan}
-                        prescription={prescription}
-                        label={`${pluralize(prescription.stages.length)('Stade')} de prélèvement`}
-                        onChangeStages={onChangePrescriptionStages}
-                      />
-                    )
+                    tabId: 'StagesTab'
                   },
                   {
                     iconId:
@@ -112,19 +109,36 @@ const PrescriptionCard = ({
                         ? 'fr-icon-quote-line'
                         : undefined,
                     label: 'Note',
-                    content: (
-                      <PrescriptionNotes
-                        programmingPlan={programmingPlan}
-                        value={prescription.notes ?? ''}
-                        onSubmitNotes={onChangePrescriptionNotes}
-                      />
-                    )
+                    tabId: 'NotesTab'
                   }
                 ]}
                 classes={{
                   panel: 'fr-p-3w'
                 }}
-              />
+              >
+                {selectedTabId === 'AnalysesTab' && (
+                  <PrescriptionSubstances
+                    programmingPlan={programmingPlan}
+                    prescription={prescription}
+                    renderMode="modal"
+                  />
+                )}
+                {selectedTabId === 'StagesTab' && (
+                  <PrescriptionStages
+                    programmingPlan={programmingPlan}
+                    prescription={prescription}
+                    label={`${pluralize(prescription.stages.length)('Stade')} de prélèvement`}
+                    onChangeStages={onChangePrescriptionStages}
+                  />
+                )}
+                {selectedTabId === 'NotesTab' && (
+                  <PrescriptionNotes
+                    programmingPlan={programmingPlan}
+                    value={prescription.notes ?? ''}
+                    onSubmitNotes={onChangePrescriptionNotes}
+                  />
+                )}
+              </Tabs>
             </div>
             <div className={cx('fr-col-12', 'fr-col-md-7')}>
               <PrescriptionDistributionTable
