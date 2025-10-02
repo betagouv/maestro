@@ -41,7 +41,7 @@ describe('parse correctement le XML', () => {
           "girpaReference": "La référence",
           "notes": "Une note",
           "residues": [],
-          "sampleReference": "La-référen",
+          "sampleReference": "Laréféren",
         },
       ]
     `);
@@ -79,7 +79,7 @@ describe('parse correctement le XML', () => {
               "result_kind": "Q",
             },
           ],
-          "sampleReference": "La-référen",
+          "sampleReference": "Laréféren",
         },
       ]
     `);
@@ -119,7 +119,7 @@ describe('parse correctement le XML', () => {
           {
             LMR: '-',
             Limite_de_quantification: '1',
-            Résultat: '8',
+            Résultat: 8,
             Substance_active_CAS: '?',
             Substance_active_anglais: 'fluxapyroxad',
             Code_méthode: 'M1',
