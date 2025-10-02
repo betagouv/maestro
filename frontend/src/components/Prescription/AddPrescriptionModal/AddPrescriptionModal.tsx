@@ -65,7 +65,7 @@ const AddPrescriptionModal = ({
 
   const formInput = useMemo(
     () => ({
-      programmingPlanId: prescriptionFilters.planId,
+      programmingPlanId: prescriptionFilters.programmingPlanId,
       programmingPlanKind: prescriptionFilters.kinds?.[0],
       context: prescriptionFilters.context,
       matrixKind: selectedOption?.value,

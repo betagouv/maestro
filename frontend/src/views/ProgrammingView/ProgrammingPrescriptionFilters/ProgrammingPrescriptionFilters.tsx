@@ -85,10 +85,10 @@ const ProgrammingPrescriptionFilters = ({
         <Select
           label="Plan"
           nativeSelectProps={{
-            value: filters.planId ?? '',
+            value: filters.programmingPlanId ?? '',
             onChange: (e) =>
               onChange({
-                planId: e.target.value as string
+                programmingPlanId: e.target.value as string
               })
           }}
           className={cx('fr-mb-1v')}
