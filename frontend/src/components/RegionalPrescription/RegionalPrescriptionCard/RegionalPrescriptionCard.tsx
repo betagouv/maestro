@@ -19,7 +19,6 @@ import { useAppDispatch } from '../../../hooks/useStore';
 import { ApiClientContext } from '../../../services/apiClient';
 import prescriptionsSlice from '../../../store/reducers/prescriptionsSlice';
 import PrescriptionBreadcrumb from '../../Prescription/PrescriptionBreadcrumb/PrescriptionBreadcrumb';
-import './RegionalPrescriptionCard.scss';
 
 interface Props {
   programmingPlan?: ProgrammingPlan;
@@ -189,10 +188,7 @@ const RegionalPrescriptionCard = ({
   return (
     <div className={cx('fr-col-12', 'fr-col-md-6')}>
       <div
-        className={clsx(
-          cx('fr-card', 'fr-card--sm'),
-          'regional-prescription-card'
-        )}
+        className={clsx(cx('fr-card', 'fr-card--sm'), 'regional-card')}
         data-testid={`card-${prescription.matrixKind}`}
       >
         <div className={cx('fr-card__body')}>
@@ -291,16 +287,17 @@ const RegionalPrescriptionCard = ({
                 ) : (
                   <>
                     <span className={cx('fr-text--bold')}>
-                      {regionalPrescription.realizedSampleCount ?? 0}{' '}
-                      {pluralize(regionalPrescription.realizedSampleCount ?? 0)(
-                        'prélèvement réalisé'
-                      )}
+                      {pluralize(
+                        regionalPrescription.realizedSampleCount ?? 0,
+                        {
+                          preserveCount: true
+                        }
+                      )('prélèvement réalisé')}
                     </span>
                     {' sur '}
-                    {regionalPrescription.sampleCount ?? 0}{' '}
-                    {pluralize(regionalPrescription.sampleCount ?? 0)(
-                      'programmé'
-                    )}
+                    {pluralize(regionalPrescription.sampleCount ?? 0, {
+                      preserveCount: true
+                    })('programmé')}
                     {' • '}
                     <CompletionBadge
                       regionalPrescriptions={regionalPrescription}

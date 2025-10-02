@@ -1,3 +1,4 @@
+import { isNil } from 'lodash-es';
 import { Region } from 'maestro-shared/referential/Region';
 import {
   hasPrescriptionPermission,
@@ -10,7 +11,8 @@ import {
 } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import {
   hasNationalRole,
-  hasPermission
+  hasPermission,
+  hasRegionalRole
 } from 'maestro-shared/schema/User/User';
 import { UserPermission } from 'maestro-shared/schema/User/UserPermission';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
@@ -40,11 +42,24 @@ export const useAuthentication = () => {
     return isAuthenticated && authUser && hasNationalRole(authUser.user);
   }, [authUser, isAuthenticated]);
 
+  const hasRegionalView = useMemo(() => {
+    return isAuthenticated && authUser && hasRegionalRole(authUser.user);
+  }, [authUser, isAuthenticated]);
+
+  const hasDepartmentalView = useMemo(() => {
+    return (
+      isAuthenticated &&
+      authUser &&
+      !hasNationalRole(authUser.user) &&
+      !hasRegionalRole(authUser.user)
+    );
+  }, [authUser, isAuthenticated]);
+
   const hasUserPrescriptionPermission = useCallback(
     (
-      programmingPlan: ProgrammingPlan
+      programmingPlan?: ProgrammingPlan
     ): Record<PrescriptionPermission, boolean> | null =>
-      isDefined(authUser?.user)
+      !isNil(authUser?.user) && !isNil(programmingPlan)
         ? hasPrescriptionPermission(authUser?.user, programmingPlan)
         : null,
     [authUser]
@@ -55,9 +70,9 @@ export const useAuthentication = () => {
       programmingPlan?: ProgrammingPlan,
       regionalPrescription?: { region: Region }
     ): Record<RegionalPrescriptionPermission, boolean> | null =>
-      isDefined(authUser?.user) &&
-      isDefined(regionalPrescription) &&
-      isDefined(programmingPlan)
+      !isNil(authUser?.user) &&
+      !isNil(regionalPrescription) &&
+      !isNil(programmingPlan)
         ? hasRegionalPrescriptionPermission(
             authUser.user,
             programmingPlan,
@@ -96,6 +111,8 @@ export const useAuthentication = () => {
     hasUserRegionalPrescriptionPermission,
     hasRole,
     hasNationalView,
+    hasRegionalView,
+    hasDepartmentalView,
     availableRoutes
   };
 };

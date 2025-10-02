@@ -73,6 +73,14 @@ const findMany = async (
       if (findOptions.contexts) {
         builder.whereIn(`${prescriptionsTable}.context`, findOptions.contexts);
       }
+      if (findOptions.region) {
+        builder.where(
+          `${regionalPrescriptionsTable}.region`,
+          findOptions.region
+        );
+      } else {
+        builder.where(`${regionalPrescriptionsTable}.department`, 'None');
+      }
       if (findOptions.programmingPlanKinds) {
         builder.whereIn(
           `${prescriptionsTable}.programming_plan_kind`,

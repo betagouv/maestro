@@ -151,10 +151,8 @@ const PrescriptionCommentsModal = ({
       >
         {prescriptionCommentsData && (
           <div data-testid="prescription-comments-modal">
-            {(prescriptionCommentsData?.viewBy === 'MatrixKind'
-              ? prescriptionCommentsData.regionalComments
-              : prescriptionCommentsData.matrixKindsComments
-            ).length > 1 && (
+            {(prescriptionCommentsData?.viewBy === 'Region' ||
+              prescriptionCommentsData.regionalComments.length > 1) && (
               <SegmentedControl
                 hideLegend
                 legend="Région"

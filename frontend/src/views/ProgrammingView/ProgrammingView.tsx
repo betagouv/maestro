@@ -13,7 +13,7 @@ import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/Progr
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatusList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { RegionalPrescriptionKey } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionKey';
-import { useCallback, useContext, useEffect, useMemo } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import programmation from '../../assets/illustrations/programmation-white.svg';
 import AppToast from '../../components/_app/AppToast/AppToast';
@@ -29,14 +29,22 @@ import prescriptionsSlice, {
   PrescriptionFilters
 } from '../../store/reducers/prescriptionsSlice';
 import ProgrammingCommentList from './ProgrammingCommentList/ProgrammingCommentList';
+import ProgrammingPlanRegionalValidationList from './ProgrammingPlanRegionalValidationList/ProgrammingPlanRegionalValidationList';
 import ProgrammingPrescriptionFilters from './ProgrammingPrescriptionFilters/ProgrammingPrescriptionFilters';
 import ProgrammingPrescriptionList from './ProgrammingPrescriptionList/ProgrammingPrescriptionList';
+
+type ProgrammingViewTab =
+  | 'ProgrammationTab'
+  | 'ConsultationTab'
+  | 'CommentsTab';
 
 const ProgrammingView = () => {
   useDocumentTitle('Programmation');
   const apiClient = useContext(ApiClientContext);
   const dispatch = useAppDispatch();
 
+  const [selectedTabId, setSelectedTabId] =
+    useState<ProgrammingViewTab>('ProgrammationTab');
   const [searchParams, setSearchParams] = useSearchParams();
   const { user, hasNationalView } = useAuthentication();
   const { prescriptionFilters } = useAppSelector(
@@ -66,7 +74,9 @@ const ProgrammingView = () => {
           ),
           domain:
             (searchParams.get('domain') as ProgrammingPlanDomain) ?? undefined,
-          planId: searchParams.get('planId'),
+          programmingPlan: programmingPlans?.find(
+            (plan) => plan.id === searchParams.get('planId')
+          ),
           kinds:
             (searchParams.get('kinds')?.split(',') as ProgrammingPlanKind[]) ??
             undefined,
@@ -76,15 +86,6 @@ const ProgrammingView = () => {
       )
     );
   }, [searchParams, programmingPlans]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const programmingPlan = useMemo(
-    () =>
-      (programmingPlans ?? []).find(
-        (plan) => prescriptionFilters.planId === plan.id
-      ),
-
-    [prescriptionFilters, programmingPlans]
-  );
 
   const region = useMemo(
     () =>
@@ -160,7 +161,7 @@ const ProgrammingView = () => {
                           changeFilter({
                             year,
                             domain: undefined,
-                            planId: undefined,
+                            programmingPlan: undefined,
                             kinds: undefined,
                             context: undefined
                           })
@@ -170,9 +171,9 @@ const ProgrammingView = () => {
                 />
               }
             />
-            {programmingPlan && (
+            {prescriptionFilters.programmingPlan && (
               <ProgrammingPlanNotificationRegionalToNational
-                programmingPlan={programmingPlan}
+                programmingPlan={prescriptionFilters.programmingPlan}
                 region={region as Region}
               />
             )}
@@ -204,11 +205,14 @@ const ProgrammingView = () => {
             </div>
           </div>
         </div>
-
         <div className={cx('fr-container')}>
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             <div className={cx('fr-col-12')}>
               <Tabs
+                selectedTabId={selectedTabId}
+                onTabChange={(tabId) =>
+                  setSelectedTabId(tabId as ProgrammingViewTab)
+                }
                 classes={{
                   panel: 'white-container'
                 }}
@@ -216,46 +220,49 @@ const ProgrammingView = () => {
                   [
                     {
                       label: 'Programmation',
-                      iconId: 'fr-icon-survey-line',
-                      content: programmingPlan ? (
-                        <ProgrammingPrescriptionList
-                          programmingPlan={programmingPlan}
-                          region={region ?? undefined}
-                        />
-                      ) : (
-                        <></>
-                      )
+                      tabId: 'ProgrammationTab',
+                      iconId: 'fr-icon-survey-line'
                     },
                     ...(hasNationalView
                       ? [
-                          // {
-                          //   label: 'Phase de consultation',
-                          //   content: programmingPlan ? (
-                          //     <ProgrammingPlanRegionalValidationList
-                          //       programmingPlan={programmingPlan}
-                          //       context={prescriptionFilters.context}
-                          //     />
-                          //   ) : (
-                          //     <></>
-                          //   ),
-                          //   iconId: 'fr-icon-chat-check-line'
-                          // },
+                          {
+                            label: 'Phase de consultation',
+                            tabId: 'ConsultationTab',
+                            iconId: 'fr-icon-chat-check-line'
+                          },
                           {
                             label: 'Commentaires',
-                            content: programmingPlan ? (
-                              <ProgrammingCommentList
-                                programmingPlan={programmingPlan}
-                              />
-                            ) : (
-                              <></>
-                            ),
+                            tabId: 'CommentsTab',
                             iconId: 'fr-icon-chat-3-line'
                           }
                         ]
                       : [])
                   ] as any
                 }
-              />
+              >
+                {prescriptionFilters.programmingPlan ? (
+                  <>
+                    {selectedTabId === 'ProgrammationTab' && (
+                      <ProgrammingPrescriptionList
+                        programmingPlan={prescriptionFilters.programmingPlan}
+                        region={region ?? undefined}
+                      />
+                    )}
+                    {selectedTabId === 'ConsultationTab' && (
+                      <ProgrammingPlanRegionalValidationList
+                        programmingPlan={prescriptionFilters.programmingPlan}
+                      />
+                    )}
+                    {selectedTabId === 'CommentsTab' && (
+                      <ProgrammingCommentList
+                        programmingPlan={prescriptionFilters.programmingPlan}
+                      />
+                    )}
+                  </>
+                ) : (
+                  'Veuillez sélectionner un plan de programmation'
+                )}
+              </Tabs>
             </div>
           </div>
         </div>

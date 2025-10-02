@@ -4,10 +4,11 @@ import Input from '@codegouvfr/react-dsfr/Input';
 import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import clsx from 'clsx';
 import { t } from 'i18next';
-import { uniq } from 'lodash-es';
+import { isNil, sumBy, uniq } from 'lodash-es';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import React from 'react';
+import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
+import React, { useMemo } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import useWindowSize from 'src/hooks/useWindowSize';
@@ -15,12 +16,13 @@ import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import ProgrammingPrescriptionListGroupedUpdate from 'src/views/ProgrammingView/ProgrammingPrescriptionList/ProgrammingPrescriptionListGroupedUpdate';
 import AddPrescriptionModal from '../../../components/Prescription/AddPrescriptionModal/AddPrescriptionModal';
 import ProgrammingPlanNotificationNationalToRegional from '../../../components/ProgrammingPlanNotification/ProgrammingPlanNotificationNationalToRegional/ProgrammingPlanNotificationNationalToRegional';
+import ProgrammingPlanNotificationRegionalToDepartmental from '../../../components/ProgrammingPlanNotification/ProgrammingPlanNotificationRegionalToDepartmental/ProgrammingPlanNotificationRegionalToDepartmental';
 import './ProgrammingPrescriptionList.scss';
 interface Props {
   programmingPlan: ProgrammingPlan;
   prescriptions: Prescription[];
+  regionalPrescriptions: RegionalPrescription[];
   exportURL: string;
-  sampleCount?: number;
   hasGroupedUpdatePermission?: boolean;
   selectedCount?: number;
   onGroupedUpdate?: (laboratoryId?: string) => Promise<void>;
@@ -30,8 +32,8 @@ interface Props {
 const ProgrammingPrescriptionListHeader = ({
   programmingPlan,
   prescriptions,
+  regionalPrescriptions,
   exportURL,
-  sampleCount,
   hasGroupedUpdatePermission,
   selectedCount,
   onGroupedUpdate,
@@ -47,6 +49,15 @@ const ProgrammingPrescriptionListHeader = ({
   );
 
   const [isGroupedUpdate, setIsGroupedUpdate] = React.useState(false);
+
+  const sampleCount = useMemo(
+    () =>
+      sumBy(
+        regionalPrescriptions.filter((_) => isNil(_.department)),
+        'sampleCount'
+      ),
+    [regionalPrescriptions] // eslint-disable-line react-hooks/exhaustive-deps
+  );
 
   return (
     <div className={cx('fr-mb-2w', 'fr-mb-md-5w', 'fr-px-0', 'fr-container')}>
@@ -116,6 +127,10 @@ const ProgrammingPrescriptionListHeader = ({
         />
         <ProgrammingPlanNotificationNationalToRegional
           programmingPlan={programmingPlan}
+        />
+        <ProgrammingPlanNotificationRegionalToDepartmental
+          programmingPlan={programmingPlan}
+          regionalPrescriptions={regionalPrescriptions}
         />
       </div>
       <hr className={cx('fr-my-3w')} />

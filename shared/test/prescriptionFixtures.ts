@@ -1,7 +1,8 @@
 import { fakerFR } from '@faker-js/faker';
+import { DummyLaboratoryIds } from 'maestro-server/database/seeds/dummy/002-laboratories';
 import { v4 as uuidv4 } from 'uuid';
 import { MatrixKindEffective } from '../referential/Matrix/MatrixKind';
-import { RegionList } from '../referential/Region';
+import { RegionList, Regions } from '../referential/Region';
 import { SSD2Ids } from '../referential/Residue/SSD2Id';
 import { StageList } from '../referential/Stage';
 import { AnalysisMethodList } from '../schema/Analysis/AnalysisMethod';
@@ -10,7 +11,10 @@ import { PrescriptionSubstance } from '../schema/Prescription/PrescriptionSubsta
 import { ProgrammingPlanContextList } from '../schema/ProgrammingPlan/Context';
 import { RegionalPrescription } from '../schema/RegionalPrescription/RegionalPrescription';
 import { LaboratoryFixture } from './laboratoryFixtures';
-import { PPVValidatedProgrammingPlanFixture } from './programmingPlanFixtures';
+import {
+  DAOAInProgressProgrammingPlanFixture,
+  PPVValidatedProgrammingPlanFixture
+} from './programmingPlanFixtures';
 import { oneOf } from './testFixtures';
 
 export const genPrescription = (
@@ -61,3 +65,49 @@ export const RegionalPrescriptionFixture = genRegionalPrescription({
   sampleCount: 1,
   laboratoryId: LaboratoryFixture.id
 });
+
+export const FoieDeBovinPrescriptionFixture = genPrescription({
+  id: '177e280f-7fc5-499f-9dcb-4970dc00af36',
+  programmingPlanId: DAOAInProgressProgrammingPlanFixture.id,
+  programmingPlanKind: 'DAOA_SLAUGHTER',
+  context: 'Surveillance',
+  matrixKind: 'TODO1',
+  stages: ['STADE10']
+});
+export const VolaillePrescriptionFixture = genPrescription({
+  id: '608d0973-b472-4964-a8d7-246f91ad4d39',
+  programmingPlanId: DAOAInProgressProgrammingPlanFixture.id,
+  programmingPlanKind: 'DAOA_BREEDING',
+  context: 'Surveillance',
+  matrixKind: 'TODO2',
+  stages: ['STADE10']
+});
+
+const genRegionalPrescriptions = (
+  prescriptionId: string,
+  quantities: number[]
+) => [
+  ...quantities.map((quantity, index) => ({
+    prescriptionId,
+    region: RegionList[index],
+    sampleCount: quantity
+  })),
+  ...RegionList.flatMap((region) =>
+    Regions[region].departments.map((department) => ({
+      prescriptionId,
+      region,
+      department,
+      sampleCount: 0,
+      laboratoryId: oneOf(DummyLaboratoryIds)
+    }))
+  )
+];
+export const FoieDeBovinRegionalPrescriptionFixture = genRegionalPrescriptions(
+  FoieDeBovinPrescriptionFixture.id,
+  [3, 2, 5, 8, 10, 1, 2, 10, 3, 3, 2, 9, 4, 4, 2, 1, 5, 6]
+);
+
+export const VolailleRegionalPrescriptionFixture = genRegionalPrescriptions(
+  VolaillePrescriptionFixture.id,
+  [2, 3, 8, 1, 9, 1, 11, 3, 2, 1, 1, 4, 6, 1, 5, 6, 3, 10]
+);
