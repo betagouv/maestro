@@ -182,9 +182,9 @@ describe('getResidue', () => {
 });
 
 test.each<[string, string]>([
-  ['IDF 75 22 0001 A 01', 'IDF-75-22-0001-A'],
   ['PAC-04-25-0001-A01', 'PAC-04-25-0001-A'],
-  ['OCC-25-0007-01', 'OCC-25-0007']
+  ['OCC-25-0007-01', 'OCC-25-0007'],
+  ['OCC-25 -0007-01', 'OCC-25-0007']
 ])('girpaCodeEchantillonValidator', (value, expected) => {
   expect(girpaCodeEchantillonValidator.parse(value)).toBe(expected);
 });

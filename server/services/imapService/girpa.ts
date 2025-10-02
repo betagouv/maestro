@@ -753,7 +753,7 @@ export const girpaCodeEchantillonValidator = z.string().transform((l) => {
     .trim()
     .substring(0, l.length - 2)
     .trim()
-    .replaceAll(' ', '-');
+    .replaceAll(' ', '');
 
   if (result.endsWith('-')) {
     return result.substring(0, result.length - 1);
