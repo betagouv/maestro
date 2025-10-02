@@ -228,6 +228,7 @@ const ProgrammingPlanRegionalValidationList = ({
                               matrixKindsComments:
                                 regionalCommentedPrescriptions(region).map(
                                   (rcp) => ({
+                                    programmingPlan,
                                     matrixKind: rcp.matrixKind as MatrixKind,
                                     comments: rcp.comments ?? []
                                   })
@@ -271,6 +272,7 @@ const ProgrammingPlanRegionalValidationList = ({
                               matrixKindsComments:
                                 regionalCommentedPrescriptions(region).map(
                                   (rcp) => ({
+                                    programmingPlan,
                                     matrixKind: rcp.matrixKind as MatrixKind,
                                     comments: rcp.comments ?? []
                                   })

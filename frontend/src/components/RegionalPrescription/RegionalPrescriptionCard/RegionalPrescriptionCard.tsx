@@ -1,5 +1,5 @@
 import Badge from '@codegouvfr/react-dsfr/Badge';
-import Button from '@codegouvfr/react-dsfr/Button';
+import Button, { ButtonProps } from '@codegouvfr/react-dsfr/Button';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
@@ -58,13 +58,133 @@ const RegionalPrescriptionCard = ({
     [departmentalPrescriptions]
   );
 
-  if (!programmingPlan || !regionalPrescription) {
-    return <></>;
-  }
-
   const currentLaboratory = laboratories?.find(
     (laboratory) => laboratory.id === regionalPrescription?.laboratoryId
   );
+
+  const buttons = useMemo(
+    (): ButtonProps[] =>
+      programmingPlan && regionalPrescription
+        ? ([
+            hasUserRegionalPrescriptionPermission(
+              programmingPlan,
+              regionalPrescription
+            )?.distributeToDepartments
+              ? {
+                  children:
+                    departmentalPrescriptionsWithSamplesCount === 0 ? (
+                      'Répartir aux départements'
+                    ) : (
+                      <span className="no-wrap">
+                        {pluralize(departmentalPrescriptionsWithSamplesCount, {
+                          preserveCount: true
+                        })('département sélectionné')}
+                      </span>
+                    ),
+                  priority: 'tertiary no outline',
+                  onClick: () =>
+                    dispatch(
+                      prescriptionsSlice.actions.setRegionalPrescriptionModalData(
+                        {
+                          mode: 'distribution',
+                          programmingPlan,
+                          prescription,
+                          regionalPrescription,
+                          departmentalPrescriptions:
+                            departmentalPrescriptions || []
+                        }
+                      )
+                    ),
+                  iconId: 'fr-icon-road-map-line',
+                  className: cx('fr-m-0')
+                }
+              : undefined,
+            hasUserRegionalPrescriptionPermission(
+              programmingPlan,
+              regionalPrescription
+            )?.updateLaboratory
+              ? {
+                  children: (
+                    <span className="no-wrap">
+                      {currentLaboratory
+                        ? `Laboratoire ${currentLaboratory.name}`
+                        : 'Attribuer un laboratoire'}
+                    </span>
+                  ),
+                  priority: 'tertiary no outline',
+                  onClick: () =>
+                    dispatch(
+                      prescriptionsSlice.actions.setRegionalPrescriptionModalData(
+                        {
+                          mode: 'laboratory',
+                          programmingPlan,
+                          prescription,
+                          regionalPrescription
+                        }
+                      )
+                    ),
+                  iconId: currentLaboratory
+                    ? undefined
+                    : 'fr-icon-microscope-line',
+                  className: cx('fr-m-0')
+                }
+              : undefined,
+            programmingPlan.distributionKind === 'REGIONAL'
+              ? {
+                  children:
+                    hasUserRegionalPrescriptionPermission(
+                      programmingPlan,
+                      regionalPrescription
+                    )?.comment &&
+                    getComments(regionalPrescription).length === 0 ? (
+                      'Commenter'
+                    ) : (
+                      <span className="no-wrap">
+                        {pluralize(getComments(regionalPrescription).length, {
+                          preserveCount: true
+                        })('commentaire')}
+                      </span>
+                    ),
+                  disabled:
+                    !hasUserRegionalPrescriptionPermission(
+                      programmingPlan,
+                      regionalPrescription
+                    )?.comment &&
+                    getComments(regionalPrescription).length === 0,
+                  priority: 'tertiary no outline',
+                  onClick: () =>
+                    dispatch(
+                      prescriptionsSlice.actions.setPrescriptionCommentsData({
+                        viewBy: 'MatrixKind',
+                        programmingPlan,
+                        prescriptionId: prescription.id,
+                        matrixKind: prescription.matrixKind,
+                        regionalComments: [regionalPrescription].map((rcp) => ({
+                          region: rcp.region,
+                          comments: getComments(rcp)
+                        }))
+                      })
+                    ),
+                  iconId: 'fr-icon-chat-3-line',
+                  className: cx('fr-m-0')
+                }
+              : undefined
+          ].filter(isDefined) as ButtonProps[])
+        : [],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      programmingPlan,
+      prescription,
+      regionalPrescription,
+      currentLaboratory,
+      departmentalPrescriptions,
+      departmentalPrescriptionsWithSamplesCount
+    ]
+  );
+
+  if (!programmingPlan || !regionalPrescription) {
+    return <></>;
+  }
 
   return (
     <div className={cx('fr-col-12', 'fr-col-md-6')}>
@@ -191,118 +311,16 @@ const RegionalPrescriptionCard = ({
             </div>
           </div>
         </div>
-        <ButtonsGroup
-          buttonsEquisized
-          buttonsSize="small"
-          alignment="center"
-          inlineLayoutWhen="always"
-          className={cx('fr-m-0')}
-          buttons={[
-            hasUserRegionalPrescriptionPermission(
-              programmingPlan,
-              regionalPrescription
-            )?.distributeToDepartments
-              ? {
-                  children:
-                    departmentalPrescriptionsWithSamplesCount === 0 ? (
-                      'Répartir aux départements'
-                    ) : (
-                      <span className="no-wrap">
-                        {pluralize(departmentalPrescriptionsWithSamplesCount, {
-                          preserveCount: true
-                        })('département sélectionné')}
-                      </span>
-                    ),
-                  priority: 'tertiary no outline',
-                  onClick: () =>
-                    dispatch(
-                      prescriptionsSlice.actions.setRegionalPrescriptionModalData(
-                        {
-                          mode: 'distribution',
-                          programmingPlan,
-                          prescription,
-                          regionalPrescription,
-                          departmentalPrescriptions:
-                            departmentalPrescriptions || []
-                        }
-                      )
-                    ),
-                  iconId: 'fr-icon-road-map-line',
-                  className: cx('fr-m-0')
-                }
-              : undefined,
-            hasUserRegionalPrescriptionPermission(
-              programmingPlan,
-              regionalPrescription
-            )?.updateLaboratory
-              ? {
-                  children: (
-                    <span className="no-wrap">
-                      {currentLaboratory
-                        ? `Laboratoire ${currentLaboratory.name}`
-                        : 'Attribuer un laboratoire'}
-                    </span>
-                  ),
-                  priority: 'tertiary no outline',
-                  onClick: () =>
-                    dispatch(
-                      prescriptionsSlice.actions.setRegionalPrescriptionModalData(
-                        {
-                          mode: 'laboratory',
-                          programmingPlan,
-                          prescription,
-                          regionalPrescription
-                        }
-                      )
-                    ),
-                  iconId: currentLaboratory
-                    ? undefined
-                    : 'fr-icon-microscope-line',
-                  className: cx('fr-m-0')
-                }
-              : undefined,
-            programmingPlan.distributionKind === 'REGIONAL'
-              ? {
-                  children:
-                    hasUserRegionalPrescriptionPermission(
-                      programmingPlan,
-                      regionalPrescription
-                    )?.comment &&
-                    getComments(regionalPrescription).length === 0 ? (
-                      'Commenter'
-                    ) : (
-                      <span className="no-wrap">
-                        {pluralize(getComments(regionalPrescription).length, {
-                          preserveCount: true
-                        })('commentaire')}
-                      </span>
-                    ),
-                  disabled:
-                    !hasUserRegionalPrescriptionPermission(
-                      programmingPlan,
-                      regionalPrescription
-                    )?.comment &&
-                    getComments(regionalPrescription).length === 0,
-                  priority: 'tertiary no outline',
-                  onClick: () =>
-                    dispatch(
-                      prescriptionsSlice.actions.setPrescriptionCommentsData({
-                        viewBy: 'MatrixKind',
-                        programmingPlan,
-                        prescriptionId: prescription.id,
-                        matrixKind: prescription.matrixKind,
-                        regionalComments: [regionalPrescription].map((rcp) => ({
-                          region: rcp.region,
-                          comments: getComments(rcp)
-                        }))
-                      })
-                    ),
-                  iconId: 'fr-icon-chat-3-line',
-                  className: cx('fr-m-0')
-                }
-              : undefined
-          ].filter(isDefined)}
-        />
+        {buttons.length > 0 && (
+          <ButtonsGroup
+            buttonsEquisized
+            buttonsSize="small"
+            alignment="center"
+            inlineLayoutWhen="always"
+            className={cx('fr-m-0')}
+            buttons={[buttons[0], ...buttons.slice(1)]}
+          />
+        )}
       </div>
     </div>
   );
