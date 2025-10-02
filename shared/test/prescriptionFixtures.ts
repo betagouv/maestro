@@ -1,5 +1,4 @@
 import { fakerFR } from '@faker-js/faker';
-import { DummyLaboratoryIds } from 'maestro-server/database/seeds/dummy/002-laboratories';
 import { v4 as uuidv4 } from 'uuid';
 import { MatrixKindEffective } from '../referential/Matrix/MatrixKind';
 import { RegionList, Regions } from '../referential/Region';
@@ -10,6 +9,7 @@ import { Prescription } from '../schema/Prescription/Prescription';
 import { PrescriptionSubstance } from '../schema/Prescription/PrescriptionSubstance';
 import { ProgrammingPlanContextList } from '../schema/ProgrammingPlan/Context';
 import { RegionalPrescription } from '../schema/RegionalPrescription/RegionalPrescription';
+import { DummyLaboratoryIds } from '../schema/User/User';
 import { LaboratoryFixture } from './laboratoryFixtures';
 import {
   DAOAInProgressProgrammingPlanFixture,

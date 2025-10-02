@@ -1,4 +1,5 @@
 import { intersection, isNil } from 'lodash-es';
+import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { Department } from '../../referential/Department';
 import { Region, RegionList } from '../../referential/Region';
@@ -61,3 +62,21 @@ export const hasNationalRole = (user: Pick<User, 'role'>) =>
 
 export const hasRegionalRole = (user: Pick<User, 'role' | 'department'>) =>
   RegionalUserRole.safeParse(user.role).success && isNil(user.department);
+
+export const SCL34Id = uuidv4();
+export const LDA66Id = uuidv4();
+export const LDA72Id = uuidv4();
+export const SCL91Id = uuidv4();
+export const GIR49Id = uuidv4();
+export const CAP29Id = uuidv4();
+export const CER30Id = uuidv4();
+
+export const DummyLaboratoryIds = [
+  SCL34Id,
+  LDA66Id,
+  LDA72Id,
+  SCL91Id,
+  GIR49Id,
+  CAP29Id,
+  CER30Id
+];
