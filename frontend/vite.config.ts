@@ -36,10 +36,10 @@ export default defineConfig(({ mode }) => {
         strategies: 'injectManifest',
         filename: 'serviceWorker.js',
         injectManifest: {
-          maximumFileSizeToCacheInBytes: 6 * 1024 * 1024
+          maximumFileSizeToCacheInBytes: 7 * 1024 * 1024
         },
         workbox: {
-          maximumFileSizeToCacheInBytes: 6 * 1024 * 1024
+          maximumFileSizeToCacheInBytes: 7 * 1024 * 1024
         }
       })
     ],
