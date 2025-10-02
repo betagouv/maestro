@@ -803,7 +803,7 @@ const codeMethodsAnalyseMethod = {
 } as const satisfies Record<(typeof codeMethods)[number], AnalysisMethod>;
 
 export const capinovCodeEchantillonValidator = z.string().transform((l) => {
-  return l.trim().split('-').slice(0, 3).join('-');
+  return l.trim().replaceAll(' ', '').split('-').slice(0, 3).join('-');
 });
 // Visible for testing
 export const extractAnalyzes = (

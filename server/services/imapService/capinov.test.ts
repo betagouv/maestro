@@ -139,7 +139,8 @@ test('getAnalysisKeyByFileName', () => {
 
 test.each<[string, string]>([
   ['OCC-25-0007-01', 'OCC-25-0007'],
-  ['OCC-25-0007', 'OCC-25-0007']
+  ['OCC-25-0007', 'OCC-25-0007'],
+  ['OCC - 25-0007', 'OCC-25-0007']
 ])('capinovCodeEchantillonValidator', (value, expected) => {
   expect(capinovCodeEchantillonValidator.parse(value)).toBe(expected);
 });
