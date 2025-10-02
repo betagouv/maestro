@@ -726,8 +726,8 @@ const residueCasNumberValidator = z.string().brand('CAS number');
 const residueEnglishNameValidator = z.string().brand('ResidueEnglishName');
 
 export const analyseXmlValidator = z.object({
-  Résultat: frenchNumberStringValidator,
-  Limite_de_quantification: frenchNumberStringValidator,
+  Résultat: frenchNumberStringValidator.or(z.number()),
+  Limite_de_quantification: frenchNumberStringValidator.or(z.number()),
   LMR: z
     .union([z.literal('-'), z.number(), frenchNumberStringValidator])
     .transform((a) => (a === '-' ? null : a)),
@@ -753,7 +753,7 @@ export const girpaCodeEchantillonValidator = z.string().transform((l) => {
     .trim()
     .substring(0, l.length - 2)
     .trim()
-    .replaceAll(' ', '-');
+    .replaceAll(' ', '');
 
   if (result.endsWith('-')) {
     return result.substring(0, result.length - 1);

@@ -41,7 +41,7 @@ describe('parse correctement le XML', () => {
           "girpaReference": "La référence",
           "notes": "Une note",
           "residues": [],
-          "sampleReference": "La-référen",
+          "sampleReference": "Laréféren",
         },
       ]
     `);
@@ -79,7 +79,7 @@ describe('parse correctement le XML', () => {
               "result_kind": "Q",
             },
           ],
-          "sampleReference": "La-référen",
+          "sampleReference": "Laréféren",
         },
       ]
     `);
@@ -119,7 +119,7 @@ describe('parse correctement le XML', () => {
           {
             LMR: '-',
             Limite_de_quantification: '1',
-            Résultat: '8',
+            Résultat: 8,
             Substance_active_CAS: '?',
             Substance_active_anglais: 'fluxapyroxad',
             Code_méthode: 'M1',
@@ -182,9 +182,9 @@ describe('getResidue', () => {
 });
 
 test.each<[string, string]>([
-  ['IDF 75 22 0001 A 01', 'IDF-75-22-0001-A'],
   ['PAC-04-25-0001-A01', 'PAC-04-25-0001-A'],
-  ['OCC-25-0007-01', 'OCC-25-0007']
+  ['OCC-25-0007-01', 'OCC-25-0007'],
+  ['OCC-25 -0007-01', 'OCC-25-0007']
 ])('girpaCodeEchantillonValidator', (value, expected) => {
   expect(girpaCodeEchantillonValidator.parse(value)).toBe(expected);
 });
