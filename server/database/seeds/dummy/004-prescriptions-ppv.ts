@@ -9,7 +9,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { Prescriptions } from '../../../repositories/prescriptionRepository';
 import { ProgrammingPlans } from '../../../repositories/programmingPlanRepository';
 import { RegionalPrescriptions } from '../../../repositories/regionalPrescriptionRepository';
-import { DummyLaboratoryIds } from './002-laboratories';
+
+import { DummyLaboratoryIds } from 'maestro-shared/schema/User/User';
 
 export const abricotsEtSimilaires = genPrescription({
   id: '02b1d919-f5e7-4d67-afa6-dc8e7e8f3687',

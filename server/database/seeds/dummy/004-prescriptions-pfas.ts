@@ -5,7 +5,8 @@ import { oneOf } from 'maestro-shared/test/testFixtures';
 import { Prescriptions } from '../../../repositories/prescriptionRepository';
 import { ProgrammingPlans } from '../../../repositories/programmingPlanRepository';
 import { RegionalPrescriptions } from '../../../repositories/regionalPrescriptionRepository';
-import { DummyLaboratoryIds } from './002-laboratories';
+
+import { DummyLaboratoryIds } from 'maestro-shared/schema/User/User';
 
 const bovin = genPrescription({
   id: '1ac599c4-1241-445e-a4eb-09d353810e10',
