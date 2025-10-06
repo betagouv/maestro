@@ -8919,7 +8919,8 @@ export const SSD2Referential =
       name: 'Diethyl-m-toluamid, N,N-',
       casNumber: '134-62-3',
       otherNames: [],
-      reportable: true
+      reportable: true,
+      lmrCanBeOptional: true
     },
     'RF-0617-001-PPP': {
       reference: 'RF-0617-001-PPP',
