@@ -1,6 +1,9 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import { isNil } from 'lodash-es';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region } from 'maestro-shared/referential/Region';
+import { FindLocalPrescriptionOptions } from 'maestro-shared/schema/LocalPrescription/FindLocalPrescriptionOptions';
+import { LocalPrescriptionUpdate } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import {
   Prescription,
@@ -8,8 +11,6 @@ import {
   PrescriptionUpdate
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { FindRegionalPrescriptionOptions } from 'maestro-shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
-import { RegionalPrescriptionUpdate } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import AppToast from 'src/components/_app/AppToast/AppToast';
@@ -49,7 +50,7 @@ const ProgrammingPrescriptionList = ({
   const {
     hasNationalView,
     hasUserPrescriptionPermission,
-    hasUserRegionalPrescriptionPermission
+    hasUserLocalPrescriptionPermission
   } = useAuthentication();
 
   const [selectedPrescriptions, setSelectedPrescriptions] = useState<
@@ -60,8 +61,8 @@ const ProgrammingPrescriptionList = ({
     apiClient.useAddPrescriptionMutation();
   const [updatePrescription, { isSuccess: isUpdateSuccess }] =
     apiClient.useUpdatePrescriptionMutation();
-  const [updateRegionalPrescription, { isSuccess: isUpdateRegionalSuccess }] =
-    apiClient.useUpdateRegionalPrescriptionMutation();
+  const [updateLocalPrescription, { isSuccess: isUpdateRegionalSuccess }] =
+    apiClient.useUpdateLocalPrescriptionMutation();
   const [deletePrescription, { isSuccess: isDeleteSuccess }] =
     apiClient.useDeletePrescriptionMutation();
 
@@ -97,7 +98,7 @@ const ProgrammingPrescriptionList = ({
       .sort(PrescriptionSort);
   }, [allPrescriptions, matrixQuery]);
 
-  const findRegionalPrescriptionOptions = useMemo(
+  const findLocalPrescriptionOptions = useMemo(
     () => ({
       ...findPrescriptionOptions,
       region,
@@ -106,15 +107,32 @@ const ProgrammingPrescriptionList = ({
     [findPrescriptionOptions, region]
   );
 
-  const { data: regionalPrescriptions } =
-    apiClient.useFindRegionalPrescriptionsQuery(
-      findRegionalPrescriptionOptions,
-      {
-        skip: !FindRegionalPrescriptionOptions.safeParse(
-          findRegionalPrescriptionOptions
-        ).success
-      }
-    );
+  const { data: localPrescriptions } = apiClient.useFindLocalPrescriptionsQuery(
+    findLocalPrescriptionOptions,
+    {
+      skip: !FindLocalPrescriptionOptions.safeParse(
+        findLocalPrescriptionOptions
+      ).success
+    }
+  );
+
+  const regionalPrescriptions = useMemo(
+    () =>
+      localPrescriptions?.filter((localPrescription) =>
+        isNil(localPrescription.department)
+      ),
+    [localPrescriptions]
+  );
+
+  const departmentalPrescriptions = useMemo(
+    () =>
+      localPrescriptions?.filter(
+        (localPrescription) =>
+          localPrescription.region === region &&
+          !isNil(localPrescription.department)
+      ),
+    [localPrescriptions, region]
+  );
 
   useEffect(() => {
     if (
@@ -177,13 +195,13 @@ const ProgrammingPrescriptionList = ({
     [programmingPlan] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
-  const changeRegionalPrescription = useCallback(
+  const changeLocalPrescription = useCallback(
     async (
       prescription: Prescription,
       region: Region,
-      prescriptionUpdate: Omit<RegionalPrescriptionUpdate, 'programmingPlanId'>
+      prescriptionUpdate: Omit<LocalPrescriptionUpdate, 'programmingPlanId'>
     ) => {
-      await updateRegionalPrescription({
+      await updateLocalPrescription({
         prescriptionId: prescription.id,
         region,
         prescriptionUpdate: {
@@ -195,26 +213,26 @@ const ProgrammingPrescriptionList = ({
     [programmingPlan] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
-  const changeRegionalPrescriptionCount = useCallback(
+  const changeLocalPrescriptionCount = useCallback(
     async (prescription: Prescription, region: Region, count: number) =>
-      changeRegionalPrescription(prescription, region, {
+      changeLocalPrescription(prescription, region, {
         sampleCount: count
       }),
-    [changeRegionalPrescription]
+    [changeLocalPrescription]
   );
 
-  const changeRegionalPrescriptionsLaboratory = useCallback(
+  const changeLocalPrescriptionsLaboratory = useCallback(
     async (prescriptions: Prescription[], laboratoryId?: string) => {
       await Promise.all(
         prescriptions.map((prescription) =>
-          changeRegionalPrescription(prescription, region as Region, {
+          changeLocalPrescription(prescription, region as Region, {
             laboratoryId
           })
         )
       );
       return;
     },
-    [changeRegionalPrescription, region]
+    [changeLocalPrescription, region]
   );
 
   return (
@@ -233,17 +251,18 @@ const ProgrammingPrescriptionList = ({
               programmingPlan={programmingPlan}
               prescriptions={prescriptions}
               regionalPrescriptions={regionalPrescriptions}
+              departmentalPrescriptions={departmentalPrescriptions ?? []}
               exportURL={getPrescriptionsExportURL(findPrescriptionOptions)}
               hasGroupedUpdatePermission={regionalPrescriptions.some(
                 (regionalPrescription) =>
-                  hasUserRegionalPrescriptionPermission(
+                  hasUserLocalPrescriptionPermission(
                     programmingPlan,
                     regionalPrescription
                   )?.updateLaboratory
               )}
               selectedCount={selectedPrescriptions.length}
               onGroupedUpdate={async (laboratoryId) => {
-                await changeRegionalPrescriptionsLaboratory(
+                await changeLocalPrescriptionsLaboratory(
                   selectedPrescriptions,
                   laboratoryId
                 );
@@ -270,8 +289,8 @@ const ProgrammingPrescriptionList = ({
                       regionalPrescriptions={regionalPrescriptions.filter(
                         (rp) => rp.prescriptionId === prescription.id
                       )}
-                      onChangeRegionalPrescriptionCount={(region, value) =>
-                        changeRegionalPrescriptionCount(
+                      onChangeLocalPrescriptionCount={(region, value) =>
+                        changeLocalPrescriptionCount(
                           prescription,
                           region,
                           value
@@ -318,16 +337,12 @@ const ProgrammingPrescriptionList = ({
                         regionalPrescription={regionalPrescriptions.find(
                           (regionalPrescription) =>
                             regionalPrescription.prescriptionId ===
-                              prescription.id &&
-                            regionalPrescription.region === region &&
-                            !regionalPrescription.department
+                            prescription.id
                         )}
-                        departmentalPrescriptions={regionalPrescriptions.filter(
-                          (regionalPrescription) =>
-                            regionalPrescription.prescriptionId ===
-                              prescription.id &&
-                            regionalPrescription.region === region &&
-                            regionalPrescription.department
+                        departmentalPrescriptions={departmentalPrescriptions?.filter(
+                          (departmentalPrescription) =>
+                            departmentalPrescription.prescriptionId ===
+                            prescription.id
                         )}
                         isSelected={selectedPrescriptions.some(
                           (_) => _.id === prescription.id
@@ -352,9 +367,7 @@ const ProgrammingPrescriptionList = ({
               programmingPlan={programmingPlan}
               prescriptions={prescriptions}
               regionalPrescriptions={regionalPrescriptions}
-              onChangeRegionalPrescriptionCount={
-                changeRegionalPrescriptionCount
-              }
+              onChangeLocalPrescriptionCount={changeLocalPrescriptionCount}
             />
           )}
         </>
@@ -368,7 +381,7 @@ const ProgrammingPrescriptionList = ({
       />
       <RegionalPrescriptionModal
         onChangePrescriptionLaboratory={(prescription, laboratoryId) =>
-          changeRegionalPrescriptionsLaboratory([prescription], laboratoryId)
+          changeLocalPrescriptionsLaboratory([prescription], laboratoryId)
         }
       />
     </>

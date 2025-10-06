@@ -5,7 +5,7 @@ export const SampleStatus = z.enum(
     'Draft',
     'DraftMatrix',
     'DraftItems',
-    'Submitted',
+    'SubmittedToRegion',
     'Sent',
     'NotAdmissible',
     'Analysis',
@@ -31,7 +31,7 @@ export const InProgressStatusList: SampleStatus[] = [
   'Draft',
   'DraftMatrix',
   'DraftItems',
-  'Submitted'
+  'SubmittedToRegion'
 ];
 
 export const RealizedStatusList: SampleStatus[] = [

@@ -15,10 +15,16 @@ export const RegionalUserRole = z.enum([
   'Sampler'
 ]);
 
+export const DepartmentalUserRole = z.enum([
+  'DepartmentalCoordinator',
+  'DepartmentalSampler'
+]);
+
 export const UserRole = z.enum([
   ...NationalUserRole.options,
   ...RegionalAndNationUserRole.options,
-  ...RegionalUserRole.options
+  ...RegionalUserRole.options,
+  ...DepartmentalUserRole.options
 ]);
 
 export type NationalUserRole = z.infer<typeof NationalUserRole>;
@@ -64,6 +70,7 @@ const ObserverPermissionsList = [
 export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
   NationalCoordinator: [
     'manageProgrammingPlan',
+    'closeProgrammingPlan',
     'readProgrammingPlans',
     'readProgrammingPlansInProgress',
     'readProgrammingPlanSubmitted',
@@ -88,7 +95,6 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'readProgrammingPlanSubmitted',
     'readProgrammingPlanApproved',
     'approveProgrammingPlan',
-    'closeProgrammingPlan',
     'updatePrescriptionLaboratory',
     'commentPrescription',
     'distributePrescriptionToDepartments',
@@ -101,6 +107,14 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     ...UserSamplerPermissionsList
   ],
   Sampler: UserSamplerPermissionsList,
+  DepartmentalSampler: UserSamplerPermissionsList,
+  DepartmentalCoordinator: [
+    ...UserSamplerPermissionsList,
+    'readProgrammingPlanApproved',
+    'validateProgrammingPlan',
+    'updatePrescriptionLaboratory',
+    'distributePrescriptionToSlaughterhouses'
+  ],
   Administrator: [
     'administrationMaestro',
     'readSamples',
@@ -127,7 +141,9 @@ export const UserRoleLabels: Record<UserRole, string> = {
   RegionalCoordinator: 'Coordinateur régional',
   NationalObserver: 'Suivi national',
   RegionalObserver: 'Suivi régional',
+  DepartmentalCoordinator: 'Coordinateur départemental',
   SamplerAndNationalObserver: 'Personne ressource',
   Sampler: 'Préleveur',
+  DepartmentalSampler: 'Préleveur',
   Administrator: 'Administrateur'
 };

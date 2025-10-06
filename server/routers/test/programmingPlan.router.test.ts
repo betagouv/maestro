@@ -4,8 +4,8 @@ import {
   Region,
   RegionList
 } from 'maestro-shared/referential/Region';
+import { ProgrammingPlanRegionalStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanRegionalStatus';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
@@ -23,7 +23,6 @@ import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import {
   formatProgrammingPlan,
-  ProgrammingPlanRegionalStatus,
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
 import { createServer } from '../../server';
@@ -37,7 +36,7 @@ describe('ProgrammingPlan router', () => {
     year: 2018,
     regionalStatus: RegionList.map((region) => ({
       region,
-      status: isDromRegion(region) ? 'Validated' : 'Submitted'
+      status: isDromRegion(region) ? 'Validated' : 'SubmittedToRegion'
     }))
   });
   const validatedProgrammingPlan = genProgrammingPlan({
@@ -55,7 +54,7 @@ describe('ProgrammingPlan router', () => {
     year: 2021,
     regionalStatus: RegionList.map((region) => ({
       region,
-      status: 'Submitted'
+      status: 'SubmittedToRegion'
     }))
   });
   const inProgressProgrammingPlan = genProgrammingPlan({
@@ -275,7 +274,7 @@ describe('ProgrammingPlan router', () => {
 
     test('should filter programming plans by status and user authorization', async () => {
       const res = await request(app)
-        .get(testRoute({ status: 'Submitted' }))
+        .get(testRoute({ status: 'SubmittedToRegion' }))
         .use(tokenProvider(RegionalDromCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
@@ -560,7 +559,7 @@ describe('ProgrammingPlan router', () => {
     test('should fail if the status update is forbidden', async () => {
       const badRequestTest = async (
         programmingPlan: ProgrammingPlan,
-        status: ProgrammingPlanStatus
+        status: ProgrammingPlanRegionalStatus
       ) =>
         request(app)
           .put(testRoute(programmingPlan.id))
@@ -569,17 +568,17 @@ describe('ProgrammingPlan router', () => {
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await badRequestTest(inProgressProgrammingPlan, 'InProgress');
-      await badRequestTest(inProgressProgrammingPlan, 'Approved');
+      await badRequestTest(inProgressProgrammingPlan, 'ApprovedByRegion');
       await badRequestTest(inProgressProgrammingPlan, 'Validated');
       await badRequestTest(inProgressProgrammingPlan, 'Closed');
-      await badRequestTest(submittedProgrammingPlan, 'Submitted');
+      await badRequestTest(submittedProgrammingPlan, 'SubmittedToRegion');
       await badRequestTest(submittedProgrammingPlan, 'InProgress');
       await badRequestTest(submittedProgrammingPlan, 'Validated');
       await badRequestTest(submittedProgrammingPlan, 'Closed');
       await badRequestTest(validatedProgrammingPlan, 'InProgress');
-      await badRequestTest(validatedProgrammingPlan, 'Submitted');
+      await badRequestTest(validatedProgrammingPlan, 'SubmittedToRegion');
       await badRequestTest(validatedProgrammingPlan, 'Validated');
-      await badRequestTest(validatedProgrammingPlan, 'Approved');
+      await badRequestTest(validatedProgrammingPlan, 'ApprovedByRegion');
     });
 
     test('should update a validated programming plan to closed', async () => {
@@ -627,14 +626,14 @@ describe('ProgrammingPlan router', () => {
       //Cleanup
       await ProgrammingPlanRegionalStatus()
         .where('programmingPlanId', submittedProgrammingPlan.id)
-        .update({ status: 'Submitted' });
+        .update({ status: 'SubmittedToRegion' });
     });
   });
 
   describe('PUT /programming-plans/:programmingPlanId/regional-status', () => {
     const programmingPlanRegionalStatusList = [
       {
-        status: 'Approved' as const,
+        status: 'ApprovedByRegion' as const,
         region: oneOf(RegionList)
       }
     ];
@@ -681,7 +680,7 @@ describe('ProgrammingPlan router', () => {
     test('should fail if the status update is forbidden', async () => {
       const badRequestTest = async (
         programmingPlan: ProgrammingPlan,
-        status: ProgrammingPlanStatus
+        status: ProgrammingPlanRegionalStatus
       ) =>
         request(app)
           .put(testRoute(programmingPlan.id))
@@ -690,15 +689,15 @@ describe('ProgrammingPlan router', () => {
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await badRequestTest(inProgressProgrammingPlan, 'InProgress');
-      await badRequestTest(inProgressProgrammingPlan, 'Approved');
+      await badRequestTest(inProgressProgrammingPlan, 'ApprovedByRegion');
       await badRequestTest(inProgressProgrammingPlan, 'Validated');
-      await badRequestTest(submittedProgrammingPlan, 'Submitted');
+      await badRequestTest(submittedProgrammingPlan, 'SubmittedToRegion');
       await badRequestTest(submittedProgrammingPlan, 'InProgress');
       await badRequestTest(submittedProgrammingPlan, 'Validated');
       await badRequestTest(validatedProgrammingPlan, 'InProgress');
-      await badRequestTest(validatedProgrammingPlan, 'Submitted');
+      await badRequestTest(validatedProgrammingPlan, 'SubmittedToRegion');
       await badRequestTest(validatedProgrammingPlan, 'Validated');
-      await badRequestTest(validatedProgrammingPlan, 'Approved');
+      await badRequestTest(validatedProgrammingPlan, 'ApprovedByRegion');
     });
 
     test('should update a Submitted programming plan to Approved', async () => {
@@ -731,13 +730,13 @@ describe('ProgrammingPlan router', () => {
           .first()
       ).resolves.toMatchObject({
         region: programmingPlanRegionalStatusList[0].region,
-        status: 'Approved'
+        status: 'ApprovedByRegion'
       });
 
       //Cleanup
       await ProgrammingPlanRegionalStatus()
         .where('programmingPlanId', submittedProgrammingPlan.id)
-        .update({ status: 'Submitted' });
+        .update({ status: 'SubmittedToRegion' });
     });
   });
 });

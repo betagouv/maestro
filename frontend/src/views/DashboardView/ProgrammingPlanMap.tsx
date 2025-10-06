@@ -1,12 +1,12 @@
 import type { FeatureCollection } from 'geojson';
 import { sumBy } from 'lodash-es';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
-import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   getCompletionRate,
-  RegionalPrescription
-} from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
+  LocalPrescription
+} from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
+import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import maplibregl, {
   MapGeoJSONFeature,
   Point,
@@ -29,7 +29,7 @@ import { getURLQuery } from '../../utils/fetchUtils';
 interface Props {
   programmingPlan: ProgrammingPlan;
   context: ProgrammingPlanContext;
-  regionalPrescriptions: RegionalPrescription[];
+  regionalPrescriptions: LocalPrescription[];
 }
 
 const ProgrammingPlanMap = ({

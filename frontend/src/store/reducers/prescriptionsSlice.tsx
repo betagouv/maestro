@@ -1,13 +1,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region } from 'maestro-shared/referential/Region';
+import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
+import { LocalPrescriptionComment } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanDomain } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
-import { RegionalPrescriptionComment } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionComment';
 import { PrescriptionListDisplay } from 'src/views/ProgrammingView/ProgrammingPrescriptionList/ProgrammingPrescriptionList';
 import { z } from 'zod';
 
@@ -33,7 +33,7 @@ const PrescriptionCommentsData = z.discriminatedUnion('viewBy', [
         region: Region,
         comments: z
           .array(
-            RegionalPrescriptionComment.pick({
+            LocalPrescriptionComment.pick({
               comment: true,
               createdAt: true,
               createdBy: true
@@ -53,7 +53,7 @@ const PrescriptionCommentsData = z.discriminatedUnion('viewBy', [
         matrixKind: MatrixKind,
         comments: z
           .array(
-            RegionalPrescriptionComment.pick({
+            LocalPrescriptionComment.pick({
               comment: true,
               createdAt: true,
               createdBy: true
@@ -76,14 +76,14 @@ const RegionalPrescriptionModalData = z.discriminatedUnion('viewBy', [
     mode: z.literal('laboratory'),
     programmingPlan: ProgrammingPlan,
     prescription: Prescription,
-    regionalPrescription: RegionalPrescription
+    regionalPrescription: LocalPrescription
   }),
   z.object({
     mode: z.literal('distribution'),
     programmingPlan: ProgrammingPlan,
     prescription: Prescription,
-    regionalPrescription: RegionalPrescription,
-    departmentalPrescriptions: z.array(RegionalPrescription)
+    regionalPrescription: LocalPrescription,
+    departmentalPrescriptions: z.array(LocalPrescription)
   })
 ]);
 

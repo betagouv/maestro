@@ -24,7 +24,7 @@ export const Templates = {
     })
   },
   ValidatedProgrammingPlanTemplate: { id: 4, params: z.undefined() },
-  NewRegionalPrescriptionCommentTemplate: {
+  NewLocalPrescriptionCommentTemplate: {
     id: 5,
     params: z.object({
       matrix: z.string(),

@@ -4,28 +4,28 @@ import { coerceToArray } from '../../utils/utils';
 import { ProgrammingPlanContext } from '../ProgrammingPlan/Context';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 
-export const RegionalPrescriptionOptionsInclude = z.enum([
+export const LocalPrescriptionOptionsInclude = z.enum([
   'comments',
   'sampleCounts'
 ]);
 
-export type RegionalPrescriptionOptionsInclude = z.infer<
-  typeof RegionalPrescriptionOptionsInclude
+export type LocalPrescriptionOptionsInclude = z.infer<
+  typeof LocalPrescriptionOptionsInclude
 >;
 
-export const FindRegionalPrescriptionOptions = z.object({
+export const FindLocalPrescriptionOptions = z.object({
   programmingPlanId: z.guid(),
   programmingPlanKinds: coerceToArray(z.array(ProgrammingPlanKind)).nullish(),
   contexts: coerceToArray(z.array(ProgrammingPlanContext)).nullish(),
   region: Region.nullish(),
   includes: z
     .union([
-      RegionalPrescriptionOptionsInclude,
-      coerceToArray(z.array(RegionalPrescriptionOptionsInclude))
+      LocalPrescriptionOptionsInclude,
+      coerceToArray(z.array(LocalPrescriptionOptionsInclude))
     ])
     .nullish()
 });
 
-export type FindRegionalPrescriptionOptions = z.infer<
-  typeof FindRegionalPrescriptionOptions
+export type FindLocalPrescriptionOptions = z.infer<
+  typeof FindLocalPrescriptionOptions
 >;

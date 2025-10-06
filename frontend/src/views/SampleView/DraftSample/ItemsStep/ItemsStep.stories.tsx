@@ -239,7 +239,7 @@ export const SubmittingSuccess: Story = {
             compliance200263: false
           })
         ]),
-        status: 'Submitted'
+        status: 'SubmittedToRegion'
       })
     );
   }

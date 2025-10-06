@@ -35,7 +35,7 @@ const prescriptionApi = api.injectEndpoints({
       }),
       invalidatesTags: [
         { type: 'Prescription', id: 'LIST' },
-        { type: 'RegionalPrescription', id: 'LIST' }
+        { type: 'LocalPrescription', id: 'LIST' }
       ],
       transformResponse: (response: any) =>
         Prescription.parse(omitBy(response, isNil))
@@ -66,7 +66,7 @@ const prescriptionApi = api.injectEndpoints({
       }),
       invalidatesTags: [
         { type: 'Prescription', id: 'LIST' },
-        { type: 'RegionalPrescription', id: 'LIST' }
+        { type: 'LocalPrescription', id: 'LIST' }
       ]
     }),
     getPrescriptionSubstances: builder.query<PrescriptionSubstance[], string>({

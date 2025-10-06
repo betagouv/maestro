@@ -5,21 +5,21 @@ import {
   MatrixKindLabels
 } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
-import { hasRegionalPrescriptionPermission } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
-import { RegionalPrescriptionComment } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionComment';
+import { hasLocalPrescriptionPermission } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
+import { LocalPrescriptionComment } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
 import { hasNationalRole } from 'maestro-shared/schema/User/User';
 import { isDefined } from 'maestro-shared/utils/utils';
 import { v4 as uuidv4 } from 'uuid';
+import { getAndCheckLocalPrescription } from '../middlewares/checks/localPrescriptionCheck';
 import { getAndCheckPrescription } from '../middlewares/checks/prescriptionCheck';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
-import { getAndCheckRegionalPrescription } from '../middlewares/checks/regionalPrescriptionCheck';
-import regionalPrescriptionCommentRepository from '../repositories/regionalPrescriptionCommentRepository';
-import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
+import localPrescriptionCommentRepository from '../repositories/localPrescriptionCommentRepository';
+import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
 import { userRepository } from '../repositories/userRepository';
 import { ProtectedSubRouter } from '../routers/routes.type';
 import { notificationService } from '../services/notificationService';
 
-export const regionalPrescriptionsRouter = {
+export const localPrescriptionsRouter = {
   '/prescriptions/regions': {
     get: async ({ query: queryFindOptions, user }) => {
       const region = hasNationalRole(user)
@@ -31,136 +31,133 @@ export const regionalPrescriptionsRouter = {
         region
       };
 
-      console.info('Find regional prescriptions', user.id, findOptions);
+      console.info('Find local prescriptions', user.id, findOptions);
 
-      const regionalPrescriptions =
-        await regionalPrescriptionRepository.findMany(findOptions);
+      const localPrescriptions =
+        await localPrescriptionRepository.findMany(findOptions);
 
-      const filterEmptyRegionalPrescriptions = region
-        ? regionalPrescriptions.filter((regionalPrescription) =>
-            isNil(regionalPrescription.department)
-              ? regionalPrescription.sampleCount > 0
-              : regionalPrescriptions.some(
+      const filterEmptyLocalPrescriptions = region
+        ? localPrescriptions.filter((localPrescription) =>
+            isNil(localPrescription.department)
+              ? localPrescription.sampleCount > 0
+              : localPrescriptions.some(
                   (_) =>
-                    _.region === regionalPrescription.region &&
+                    _.region === localPrescription.region &&
                     isNil(_.department) &&
                     _.sampleCount > 0
                 )
           )
-        : regionalPrescriptions;
+        : localPrescriptions;
 
       return {
         status: constants.HTTP_STATUS_OK,
-        response: filterEmptyRegionalPrescriptions
+        response: filterEmptyLocalPrescriptions
       };
     }
   },
   '/prescriptions/:prescriptionId/regions/:region': {
-    put: async ({ user, body: regionalPrescriptionUpdate }, params) => {
+    put: async ({ user, body: localPrescriptionUpdate }, params) => {
       console.info(
-        'Update regional prescription',
+        'Update local prescription',
         params.prescriptionId,
         params.region
       );
 
       const programmingPlan = await getAndCheckProgrammingPlan(
-        regionalPrescriptionUpdate.programmingPlanId
+        localPrescriptionUpdate.programmingPlanId
       );
       await getAndCheckPrescription(params.prescriptionId, programmingPlan);
-      const regionalPrescription =
-        await getAndCheckRegionalPrescription(params);
+      const localPrescription = await getAndCheckLocalPrescription(params);
 
-      const canUpdateSampleCount = hasRegionalPrescriptionPermission(
+      const canUpdateSampleCount = hasLocalPrescriptionPermission(
         user,
         programmingPlan,
-        regionalPrescription
+        localPrescription
       ).updateSampleCount;
 
-      const canUpdateLaboratory = hasRegionalPrescriptionPermission(
+      const canUpdateLaboratory = hasLocalPrescriptionPermission(
         user,
         programmingPlan,
-        regionalPrescription
+        localPrescription
       ).updateLaboratory;
 
       if (!canUpdateSampleCount && !canUpdateLaboratory) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 
-      const updatedRegionalPrescription = {
-        ...regionalPrescription,
+      const updatedLocalPrescription = {
+        ...localPrescription,
         sampleCount:
-          canUpdateSampleCount &&
-          isDefined(regionalPrescriptionUpdate.sampleCount)
-            ? regionalPrescriptionUpdate.sampleCount
-            : regionalPrescription.sampleCount,
+          canUpdateSampleCount && isDefined(localPrescriptionUpdate.sampleCount)
+            ? localPrescriptionUpdate.sampleCount
+            : localPrescription.sampleCount,
         laboratoryId: canUpdateLaboratory
-          ? regionalPrescriptionUpdate.laboratoryId
-          : regionalPrescription.laboratoryId
+          ? localPrescriptionUpdate.laboratoryId
+          : localPrescription.laboratoryId
       };
 
-      await regionalPrescriptionRepository.update(updatedRegionalPrescription);
+      await localPrescriptionRepository.update(updatedLocalPrescription);
       return {
         status: constants.HTTP_STATUS_OK,
-        response: updatedRegionalPrescription
+        response: updatedLocalPrescription
       };
     }
   },
   '/prescriptions/:prescriptionId/regions/:region/departments/:department': {
-    put: async ({ user, body: regionalPrescriptionUpdate }, params) => {
+    put: async ({ user, body: localPrescriptionUpdate }, params) => {
       console.info(
-        'Update regional prescription for department',
+        'Update local prescription for department',
         params.prescriptionId,
         params.region,
         params.department
       );
 
       const programmingPlan = await getAndCheckProgrammingPlan(
-        regionalPrescriptionUpdate.programmingPlanId
+        localPrescriptionUpdate.programmingPlanId
       );
       await getAndCheckPrescription(params.prescriptionId, programmingPlan);
-      const regionalPrescription =
-        await getAndCheckRegionalPrescription(params);
+      const localPrescription = await getAndCheckLocalPrescription(params);
 
       // TODO: check department belongs to user region?
 
-      const canDistributeToDepartments = hasRegionalPrescriptionPermission(
+      const canDistributeToDepartments = hasLocalPrescriptionPermission(
         user,
         programmingPlan,
-        regionalPrescription
+        localPrescription
       ).distributeToDepartments;
 
-      const canUpdateLaboratory = hasRegionalPrescriptionPermission(
+      const canUpdateLaboratory = hasLocalPrescriptionPermission(
         user,
         programmingPlan,
-        regionalPrescription
+        localPrescription
       ).updateLaboratory;
 
       if (!canDistributeToDepartments && !canUpdateLaboratory) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 
-      const updatedRegionalPrescription = {
-        ...regionalPrescription,
+      const updatedLocalPrescription = {
+        ...localPrescription,
         sampleCount:
           canDistributeToDepartments &&
-          isDefined(regionalPrescriptionUpdate.sampleCount)
-            ? regionalPrescriptionUpdate.sampleCount
-            : regionalPrescription.sampleCount,
+          isDefined(localPrescriptionUpdate.sampleCount)
+            ? localPrescriptionUpdate.sampleCount
+            : localPrescription.sampleCount,
         laboratoryId: canUpdateLaboratory
-          ? regionalPrescriptionUpdate.laboratoryId
-          : regionalPrescription.laboratoryId
+          ? localPrescriptionUpdate.laboratoryId
+          : localPrescription.laboratoryId
       };
 
-      await regionalPrescriptionRepository.update(updatedRegionalPrescription);
+      await localPrescriptionRepository.update(updatedLocalPrescription);
       return {
         status: constants.HTTP_STATUS_OK,
-        response: updatedRegionalPrescription
+        response: updatedLocalPrescription
       };
     }
   },
   '/prescriptions/:prescriptionId/regions/:region/comments': {
     post: async ({ user, body: draftPrescriptionComment }, params) => {
-      console.info('Comment regional prescription');
+      console.info('Comment local prescription');
 
       const programmingPlan = await getAndCheckProgrammingPlan(
         draftPrescriptionComment.programmingPlanId
@@ -169,35 +166,34 @@ export const regionalPrescriptionsRouter = {
         params.prescriptionId,
         programmingPlan
       );
-      const regionalPrescription =
-        await getAndCheckRegionalPrescription(params);
+      const localPrescription = await getAndCheckLocalPrescription(params);
 
-      const canComment = hasRegionalPrescriptionPermission(
+      const canComment = hasLocalPrescriptionPermission(
         user,
         programmingPlan,
-        regionalPrescription
+        localPrescription
       ).comment;
 
       if (!canComment) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 
-      const prescriptionComment: RegionalPrescriptionComment = {
+      const prescriptionComment: LocalPrescriptionComment = {
         id: uuidv4(),
-        prescriptionId: regionalPrescription.prescriptionId,
-        region: regionalPrescription.region,
+        prescriptionId: localPrescription.prescriptionId,
+        region: localPrescription.region,
         comment: draftPrescriptionComment.comment,
         createdAt: new Date(),
         createdBy: user.id
       };
 
-      await regionalPrescriptionCommentRepository.insert(prescriptionComment);
+      await localPrescriptionCommentRepository.insert(prescriptionComment);
 
       const recipients = await userRepository.findMany(
         user.role === 'NationalCoordinator'
           ? {
-              region: regionalPrescription.region,
-              roles: ['RegionalCoordinator']
+              region: localPrescription.region,
+              roles: ['LocalCoordinator']
             }
           : {
               roles: ['NationalCoordinator']
@@ -212,13 +208,13 @@ export const regionalPrescriptionsRouter = {
             year: programmingPlan.year.toString(),
             context: prescription.context,
             prescriptionId: prescription.id,
-            commentsRegion: regionalPrescription.region
+            commentsRegion: localPrescription.region
           }).toString()}`
         },
         recipients,
         {
           matrix: MatrixKindLabels[prescription.matrixKind as MatrixKind],
-          sampleCount: regionalPrescription.sampleCount,
+          sampleCount: localPrescription.sampleCount,
           comment: draftPrescriptionComment.comment,
           author: user ? `${user.name}` : 'Anonyme'
         }

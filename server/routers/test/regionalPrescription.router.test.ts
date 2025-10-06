@@ -4,14 +4,14 @@ import { isEqual, omit } from 'lodash-es';
 import { MatrixKindEffective } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, RegionList } from 'maestro-shared/referential/Region';
 import {
-  RegionalPrescription,
-  RegionalPrescriptionUpdate
-} from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
+  LocalPrescription,
+  LocalPrescriptionUpdate
+} from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import {
-  RegionalPrescriptionComment,
-  RegionalPrescriptionCommentToCreate
-} from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionComment';
-import { RegionalPrescriptionKey } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionKey';
+  LocalPrescriptionComment,
+  LocalPrescriptionCommentToCreate
+} from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
+import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import { User } from 'maestro-shared/schema/User/User';
 import { CompanyFixture } from 'maestro-shared/test/companyFixtures';
 import {
@@ -19,8 +19,8 @@ import {
   LaboratoryFixture
 } from 'maestro-shared/test/laboratoryFixtures';
 import {
-  genPrescription,
-  genRegionalPrescription
+  genLocalPrescription,
+  genPrescription
 } from 'maestro-shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import { genCreatedPartialSample } from 'maestro-shared/test/sampleFixtures';
@@ -40,17 +40,17 @@ import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { Laboratories } from '../../repositories/laboratoryRepository';
+import { LocalPrescriptionComments } from '../../repositories/localPrescriptionCommentRepository';
+import {
+  formatLocalPrescription,
+  LocalPrescriptions
+} from '../../repositories/localPrescriptionRepository';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import {
   formatProgrammingPlan,
   ProgrammingPlanRegionalStatus,
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
-import { RegionalPrescriptionComments } from '../../repositories/regionalPrescriptionCommentRepository';
-import {
-  formatRegionalPrescription,
-  RegionalPrescriptions
-} from '../../repositories/regionalPrescriptionRepository';
 import {
   formatPartialSample,
   Samples
@@ -81,7 +81,7 @@ describe('Regional prescriptions router', () => {
     createdBy: NationalCoordinator.id,
     regionalStatus: RegionList.map((region) => ({
       region,
-      status: 'Submitted'
+      status: 'SubmittedToRegion'
     })),
     year: 1921
   });
@@ -110,40 +110,41 @@ describe('Regional prescriptions router', () => {
     matrixKind: oneOf(MatrixKindEffective.options),
     stages: ['STADE5', 'STADE6', 'STADE8']
   });
-  const closedControlRegionalPrescriptions: RegionalPrescription[] =
-    RegionList.map((region) => ({
-      ...genRegionalPrescription({
+  const closedControlLocalPrescriptions: LocalPrescription[] = RegionList.map(
+    (region) => ({
+      ...genLocalPrescription({
         prescriptionId: closedControlPrescription.id,
         region,
         laboratoryId: laboratory.id
       })
-    }));
-  const validatedControlRegionalPrescriptions: RegionalPrescription[] =
+    })
+  );
+  const validatedControlLocalPrescriptions: LocalPrescription[] =
     RegionList.map((region) => ({
-      ...genRegionalPrescription({
+      ...genLocalPrescription({
         prescriptionId: validatedControlPrescription.id,
         region,
         laboratoryId: laboratory.id
       })
     }));
-  const submittedControlRegionalPrescriptions1: RegionalPrescription[] =
+  const submittedControlLocalPrescriptions1: LocalPrescription[] =
     RegionList.map((region) => ({
-      ...genRegionalPrescription({
+      ...genLocalPrescription({
         prescriptionId: submittedControlPrescription1.id,
         region,
         laboratoryId: laboratory.id
       })
     }));
-  const submittedControlRegionalPrescriptions2: RegionalPrescription[] =
+  const submittedControlLocalPrescriptions2: LocalPrescription[] =
     RegionList.map((region) => ({
-      ...genRegionalPrescription({
+      ...genLocalPrescription({
         prescriptionId: submittedControlPrescription2.id,
         region,
         laboratoryId: laboratory.id,
         sampleCount: 0
       })
     }));
-  const closedControlPrescriptionComment1: RegionalPrescriptionComment = {
+  const closedControlPrescriptionComment1: LocalPrescriptionComment = {
     id: uuidv4(),
     prescriptionId: closedControlPrescription.id,
     region: RegionalCoordinator.region as Region,
@@ -151,7 +152,7 @@ describe('Regional prescriptions router', () => {
     createdBy: RegionalCoordinator.id,
     createdAt: new Date()
   };
-  const closedControlPrescriptionComment2: RegionalPrescriptionComment = {
+  const closedControlPrescriptionComment2: LocalPrescriptionComment = {
     id: uuidv4(),
     prescriptionId: closedControlPrescription.id,
     region: RegionalCoordinator.region as Region,
@@ -199,20 +200,20 @@ describe('Regional prescriptions router', () => {
       submittedControlPrescription1,
       submittedControlPrescription2
     ]);
-    await RegionalPrescriptions().insert(
+    await LocalPrescriptions().insert(
       [
-        ...closedControlRegionalPrescriptions,
-        ...validatedControlRegionalPrescriptions,
-        ...submittedControlRegionalPrescriptions1,
-        ...submittedControlRegionalPrescriptions2
+        ...closedControlLocalPrescriptions,
+        ...validatedControlLocalPrescriptions,
+        ...submittedControlLocalPrescriptions1,
+        ...submittedControlLocalPrescriptions2
       ].map((_) =>
-        omit(formatRegionalPrescription(_), [
+        omit(formatLocalPrescription(_), [
           'realizedSampleCount',
           'inProgressSampleCount'
         ])
       )
     );
-    await RegionalPrescriptionComments().insert([
+    await LocalPrescriptionComments().insert([
       closedControlPrescriptionComment1,
       closedControlPrescriptionComment2
     ]);
@@ -273,7 +274,7 @@ describe('Regional prescriptions router', () => {
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    test('should find all the regional prescriptions for a national role', async () => {
+    test('should find all the local prescriptions for a national role', async () => {
       const successRequestTest = async (user: User) => {
         const res = await request(app)
           .get(testRoute)
@@ -284,14 +285,14 @@ describe('Regional prescriptions router', () => {
           .use(tokenProvider(user))
           .expect(constants.HTTP_STATUS_OK);
 
-        const expectRegionalPrescriptions = [
-          ...submittedControlRegionalPrescriptions1,
-          ...submittedControlRegionalPrescriptions2
+        const expectLocalPrescriptions = [
+          ...submittedControlLocalPrescriptions1,
+          ...submittedControlLocalPrescriptions2
         ].map((_) => omit(_, ['realizedSampleCount', 'inProgressSampleCount']));
 
-        expect(res.body).toHaveLength(expectRegionalPrescriptions.length);
+        expect(res.body).toHaveLength(expectLocalPrescriptions.length);
         expect(res.body).toEqual(
-          expect.arrayContaining(expectRegionalPrescriptions)
+          expect.arrayContaining(expectLocalPrescriptions)
         );
       };
 
@@ -301,7 +302,7 @@ describe('Regional prescriptions router', () => {
       await successRequestTest(AdminFixture);
     });
 
-    test('should find the non empty regional prescriptions of the programmingPlan with Control context for a regional role', async () => {
+    test('should find the non empty local prescriptions of the programmingPlan with Control context for a regional role', async () => {
       const successRequestTest = async (user: User) => {
         const res = await request(app)
           .get(testRoute)
@@ -313,7 +314,7 @@ describe('Regional prescriptions router', () => {
           .expect(constants.HTTP_STATUS_OK);
 
         expect(res.body).toEqual(
-          submittedControlRegionalPrescriptions1
+          submittedControlLocalPrescriptions1
             .filter(({ region }) => region === user.region)
             .map((_) =>
               omit(_, ['realizedSampleCount', 'inProgressSampleCount'])
@@ -339,11 +340,11 @@ describe('Regional prescriptions router', () => {
 
       expect(res.body).toEqual(
         expect.arrayContaining(
-          closedControlRegionalPrescriptions.map((regionalPrescription) => ({
-            ...regionalPrescription,
+          closedControlLocalPrescriptions.map((localPrescription) => ({
+            ...localPrescription,
             comments: isEqual(
-              RegionalPrescriptionKey.parse(regionalPrescription),
-              RegionalPrescriptionKey.parse(closedControlPrescriptionComment1)
+              LocalPrescriptionKey.parse(localPrescription),
+              LocalPrescriptionKey.parse(closedControlPrescriptionComment1)
             )
               ? expect.arrayContaining(
                   [
@@ -363,8 +364,8 @@ describe('Regional prescriptions router', () => {
                 )
               : [],
             realizedSampleCount: isEqual(
-              RegionalPrescriptionKey.parse(regionalPrescription),
-              RegionalPrescriptionKey.parse(sample)
+              LocalPrescriptionKey.parse(localPrescription),
+              LocalPrescriptionKey.parse(sample)
             )
               ? 1
               : 0,
@@ -376,43 +377,43 @@ describe('Regional prescriptions router', () => {
   });
 
   describe('PUT /{prescriptionId}/regions/{region}', () => {
-    const submittedRegionalPrescriptionUpdate: RegionalPrescriptionUpdate = {
+    const submittedLocalPrescriptionUpdate: LocalPrescriptionUpdate = {
       programmingPlanId: programmingPlanSubmitted.id,
       sampleCount: 10,
       laboratoryId: LaboratoryFixture.id
     };
-    const submittedRegionalPrescription =
-      submittedControlRegionalPrescriptions1.find((regionalPrescription) =>
+    const submittedLocalPrescription = submittedControlLocalPrescriptions1.find(
+      (localPrescription) =>
         isEqual(
-          RegionalPrescriptionKey.parse(regionalPrescription),
-          RegionalPrescriptionKey.parse({
+          LocalPrescriptionKey.parse(localPrescription),
+          LocalPrescriptionKey.parse({
             prescriptionId: submittedControlPrescription1.id,
             region: RegionalCoordinator.region as Region
           })
         )
-      ) as RegionalPrescription;
+    ) as LocalPrescription;
     const testRoute = (
-      prescriptionId: string = submittedRegionalPrescription.prescriptionId,
-      region: string = submittedRegionalPrescription.region
+      prescriptionId: string = submittedLocalPrescription.prescriptionId,
+      region: string = submittedLocalPrescription.region
     ) => `/api/prescriptions/${prescriptionId}/regions/${region}`;
 
     test('should fail if the user is not authenticated', async () => {
       await request(app)
         .put(testRoute())
-        .send(submittedRegionalPrescriptionUpdate)
+        .send(submittedLocalPrescriptionUpdate)
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
     test('should receive valid prescriptionId and region', async () => {
       await request(app)
         .put(testRoute(fakerFR.string.alphanumeric(32)))
-        .send(submittedRegionalPrescriptionUpdate)
+        .send(submittedLocalPrescriptionUpdate)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await request(app)
         .put(testRoute(submittedControlPrescription1.id, 'invalid'))
-        .send(submittedRegionalPrescriptionUpdate)
+        .send(submittedLocalPrescriptionUpdate)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
@@ -438,7 +439,7 @@ describe('Regional prescriptions router', () => {
     test('should fail if the prescription does not exist', async () => {
       await request(app)
         .put(testRoute(uuidv4()))
-        .send(submittedRegionalPrescriptionUpdate)
+        .send(submittedLocalPrescriptionUpdate)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
@@ -447,7 +448,7 @@ describe('Regional prescriptions router', () => {
       await request(app)
         .put(testRoute())
         .send({
-          ...submittedRegionalPrescriptionUpdate,
+          ...submittedLocalPrescriptionUpdate,
           programmingPlanId: programmingPlanClosed.id
         })
         .use(tokenProvider(NationalCoordinator))
@@ -458,7 +459,7 @@ describe('Regional prescriptions router', () => {
       const forbiddenRequestTest = async (user: User) =>
         request(app)
           .put(testRoute())
-          .send(submittedRegionalPrescriptionUpdate)
+          .send(submittedLocalPrescriptionUpdate)
           .use(tokenProvider(user))
           .expect(constants.HTTP_STATUS_FORBIDDEN);
 
@@ -479,7 +480,7 @@ describe('Regional prescriptions router', () => {
           )
         )
         .send({
-          ...submittedRegionalPrescriptionUpdate,
+          ...submittedLocalPrescriptionUpdate,
           programmingPlanId: programmingPlanClosed.id
         })
         .use(tokenProvider(NationalCoordinator))
@@ -489,128 +490,124 @@ describe('Regional prescriptions router', () => {
     test('should update the sample count of the prescription for a national coordinator', async () => {
       const res = await request(app)
         .put(testRoute())
-        .send(submittedRegionalPrescriptionUpdate)
+        .send(submittedLocalPrescriptionUpdate)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toEqual({
-        ...submittedRegionalPrescription,
-        sampleCount: submittedRegionalPrescriptionUpdate.sampleCount
+        ...submittedLocalPrescription,
+        sampleCount: submittedLocalPrescriptionUpdate.sampleCount
       });
 
       await expect(
-        RegionalPrescriptions()
-          .where(RegionalPrescriptionKey.parse(res.body))
-          .first()
+        LocalPrescriptions().where(LocalPrescriptionKey.parse(res.body)).first()
       ).resolves.toEqual({
-        ...submittedRegionalPrescription,
+        ...submittedLocalPrescription,
         department: 'None',
-        sampleCount: submittedRegionalPrescriptionUpdate.sampleCount
+        sampleCount: submittedLocalPrescriptionUpdate.sampleCount
       });
 
       const res1 = await request(app)
         .put(testRoute())
         .send({
-          ...submittedRegionalPrescriptionUpdate,
+          ...submittedLocalPrescriptionUpdate,
           sampleCount: 0
         })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res1.body).toEqual({
-        ...submittedRegionalPrescription,
+        ...submittedLocalPrescription,
         sampleCount: 0
       });
 
       await expect(
-        RegionalPrescriptions()
-          .where(RegionalPrescriptionKey.parse(res.body))
-          .first()
+        LocalPrescriptions().where(LocalPrescriptionKey.parse(res.body)).first()
       ).resolves.toEqual({
-        ...submittedRegionalPrescription,
+        ...submittedLocalPrescription,
         department: 'None',
         sampleCount: 0
       });
 
       //Restore the initial value
-      await RegionalPrescriptions()
-        .where(RegionalPrescriptionKey.parse(res.body))
-        .update({ sampleCount: submittedRegionalPrescription.sampleCount });
+      await LocalPrescriptions()
+        .where(LocalPrescriptionKey.parse(res.body))
+        .update({ sampleCount: submittedLocalPrescription.sampleCount });
     });
 
     test('should update the laboratory of the prescription for a regional coordinator', async () => {
-      const validatedRegionalPrescriptionUpdate: RegionalPrescriptionUpdate = {
+      const validatedLocalPrescriptionUpdate: LocalPrescriptionUpdate = {
         programmingPlanId: programmingPlanValidated.id,
         laboratoryId: laboratory.id
       };
-      const validatedRegionalPrescription =
-        validatedControlRegionalPrescriptions.find((regionalPrescription) =>
+      const validatedLocalPrescription =
+        validatedControlLocalPrescriptions.find((localPrescription) =>
           isEqual(
-            RegionalPrescriptionKey.parse(regionalPrescription),
-            RegionalPrescriptionKey.parse({
+            LocalPrescriptionKey.parse(localPrescription),
+            LocalPrescriptionKey.parse({
               prescriptionId: validatedControlPrescription.id,
               region: RegionalCoordinator.region as Region
             })
           )
-        ) as RegionalPrescription;
+        ) as LocalPrescription;
 
       const res = await request(app)
         .put(
           testRoute(
-            validatedRegionalPrescription.prescriptionId,
-            validatedRegionalPrescription.region
+            validatedLocalPrescription.prescriptionId,
+            validatedLocalPrescription.region
           )
         )
-        .send(validatedRegionalPrescriptionUpdate)
+        .send(validatedLocalPrescriptionUpdate)
         .use(tokenProvider(RegionalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toEqual({
-        ...validatedRegionalPrescription,
-        laboratoryId: validatedRegionalPrescriptionUpdate.laboratoryId
+        ...validatedLocalPrescription,
+        laboratoryId: validatedLocalPrescriptionUpdate.laboratoryId
       });
     });
   });
 
   //TODO
   describe('PUT /{prescriptionId}/regions/{region}/departments/{department}', () => {
-    const submittedRegionalPrescriptionUpdate: RegionalPrescriptionUpdate = {
+    const submittedLocalPrescriptionUpdate: LocalPrescriptionUpdate = {
       programmingPlanId: programmingPlanSubmitted.id,
       sampleCount: 10,
       laboratoryId: LaboratoryFixture.id
     };
-    const submittedRegionalPrescription =
-      submittedControlRegionalPrescriptions1.find((regionalPrescription) =>
+    const submittedLocalPrescription = submittedControlLocalPrescriptions1.find(
+      (localPrescription) =>
         isEqual(
-          RegionalPrescriptionKey.parse(regionalPrescription),
-          RegionalPrescriptionKey.parse({
+          LocalPrescriptionKey.parse(localPrescription),
+          LocalPrescriptionKey.parse({
             prescriptionId: submittedControlPrescription1.id,
             region: RegionalCoordinator.region as Region
           })
         )
-      ) as RegionalPrescription;
+    ) as LocalPrescription;
     const testRoute = (
-      prescriptionId: string = submittedRegionalPrescription.prescriptionId,
-      region: string = submittedRegionalPrescription.region
+      prescriptionId: string = submittedLocalPrescription.prescriptionId,
+      region: string = submittedLocalPrescription.region
     ) => `/api/prescriptions/${prescriptionId}/regions/${region}`;
 
     test('should fail if the user is not authenticated', async () => {
       await request(app)
         .put(testRoute())
-        .send(submittedRegionalPrescriptionUpdate)
+        .send(submittedLocalPrescriptionUpdate)
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
     test('should receive valid prescriptionId and region', async () => {
       await request(app)
         .put(testRoute(fakerFR.string.alphanumeric(32)))
-        .send(submittedRegionalPrescriptionUpdate)
+        .send(submittedLocalPrescriptionUpdate)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await request(app)
         .put(testRoute(submittedControlPrescription1.id, 'invalid'))
-        .send(submittedRegionalPrescriptionUpdate)
+        .send(submittedLocalPrescriptionUpdate)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
@@ -636,7 +633,7 @@ describe('Regional prescriptions router', () => {
     test('should fail if the prescription does not exist', async () => {
       await request(app)
         .put(testRoute(uuidv4()))
-        .send(submittedRegionalPrescriptionUpdate)
+        .send(submittedLocalPrescriptionUpdate)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
@@ -645,7 +642,7 @@ describe('Regional prescriptions router', () => {
       await request(app)
         .put(testRoute())
         .send({
-          ...submittedRegionalPrescriptionUpdate,
+          ...submittedLocalPrescriptionUpdate,
           programmingPlanId: programmingPlanClosed.id
         })
         .use(tokenProvider(NationalCoordinator))
@@ -656,7 +653,7 @@ describe('Regional prescriptions router', () => {
       const forbiddenRequestTest = async (user: User) =>
         request(app)
           .put(testRoute())
-          .send(submittedRegionalPrescriptionUpdate)
+          .send(submittedLocalPrescriptionUpdate)
           .use(tokenProvider(user))
           .expect(constants.HTTP_STATUS_FORBIDDEN);
 
@@ -677,7 +674,7 @@ describe('Regional prescriptions router', () => {
           )
         )
         .send({
-          ...submittedRegionalPrescriptionUpdate,
+          ...submittedLocalPrescriptionUpdate,
           programmingPlanId: programmingPlanClosed.id
         })
         .use(tokenProvider(NationalCoordinator))
@@ -687,112 +684,108 @@ describe('Regional prescriptions router', () => {
     test('should update the sample count of the prescription for a national coordinator', async () => {
       const res = await request(app)
         .put(testRoute())
-        .send(submittedRegionalPrescriptionUpdate)
+        .send(submittedLocalPrescriptionUpdate)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toEqual({
-        ...submittedRegionalPrescription,
-        sampleCount: submittedRegionalPrescriptionUpdate.sampleCount
+        ...submittedLocalPrescription,
+        sampleCount: submittedLocalPrescriptionUpdate.sampleCount
       });
 
       await expect(
-        RegionalPrescriptions()
-          .where(RegionalPrescriptionKey.parse(res.body))
-          .first()
+        LocalPrescriptions().where(LocalPrescriptionKey.parse(res.body)).first()
       ).resolves.toEqual({
-        ...submittedRegionalPrescription,
+        ...submittedLocalPrescription,
         department: 'None',
-        sampleCount: submittedRegionalPrescriptionUpdate.sampleCount
+        sampleCount: submittedLocalPrescriptionUpdate.sampleCount
       });
 
       const res1 = await request(app)
         .put(testRoute())
         .send({
-          ...submittedRegionalPrescriptionUpdate,
+          ...submittedLocalPrescriptionUpdate,
           sampleCount: 0
         })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res1.body).toEqual({
-        ...submittedRegionalPrescription,
+        ...submittedLocalPrescription,
         sampleCount: 0
       });
 
       await expect(
-        RegionalPrescriptions()
-          .where(RegionalPrescriptionKey.parse(res.body))
-          .first()
+        LocalPrescriptions().where(LocalPrescriptionKey.parse(res.body)).first()
       ).resolves.toEqual({
-        ...submittedRegionalPrescription,
+        ...submittedLocalPrescription,
         department: 'None',
         sampleCount: 0
       });
 
       //Restore the initial value
-      await RegionalPrescriptions()
-        .where(RegionalPrescriptionKey.parse(res.body))
-        .update({ sampleCount: submittedRegionalPrescription.sampleCount });
+      await LocalPrescriptions()
+        .where(LocalPrescriptionKey.parse(res.body))
+        .update({ sampleCount: submittedLocalPrescription.sampleCount });
     });
 
     test('should update the laboratory of the prescription for a regional coordinator', async () => {
-      const validatedRegionalPrescriptionUpdate: RegionalPrescriptionUpdate = {
+      const validatedLocalPrescriptionUpdate: LocalPrescriptionUpdate = {
         programmingPlanId: programmingPlanValidated.id,
         laboratoryId: laboratory.id
       };
-      const validatedRegionalPrescription =
-        validatedControlRegionalPrescriptions.find((regionalPrescription) =>
+      const validatedLocalPrescription =
+        validatedControlLocalPrescriptions.find((localPrescription) =>
           isEqual(
-            RegionalPrescriptionKey.parse(regionalPrescription),
-            RegionalPrescriptionKey.parse({
+            LocalPrescriptionKey.parse(localPrescription),
+            LocalPrescriptionKey.parse({
               prescriptionId: validatedControlPrescription.id,
               region: RegionalCoordinator.region as Region
             })
           )
-        ) as RegionalPrescription;
+        ) as LocalPrescription;
 
       const res = await request(app)
         .put(
           testRoute(
-            validatedRegionalPrescription.prescriptionId,
-            validatedRegionalPrescription.region
+            validatedLocalPrescription.prescriptionId,
+            validatedLocalPrescription.region
           )
         )
-        .send(validatedRegionalPrescriptionUpdate)
+        .send(validatedLocalPrescriptionUpdate)
         .use(tokenProvider(RegionalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toEqual({
-        ...validatedRegionalPrescription,
-        laboratoryId: validatedRegionalPrescriptionUpdate.laboratoryId
+        ...validatedLocalPrescription,
+        laboratoryId: validatedLocalPrescriptionUpdate.laboratoryId
       });
     });
   });
 
   describe('POST /{prescriptionId}/regions/{region}/comments', () => {
-    const validComment: RegionalPrescriptionCommentToCreate = {
+    const validComment: LocalPrescriptionCommentToCreate = {
       programmingPlanId: programmingPlanSubmitted.id,
       comment: fakerFR.string.alphanumeric(32)
     };
 
-    const getRegionalPrescription = (
-      regionalPrescriptions: RegionalPrescription[],
+    const getLocalPrescription = (
+      regionalPrescriptions: LocalPrescription[],
       prescriptionId: string,
       region: Region
     ) =>
-      regionalPrescriptions.find((regionalPrescription) =>
+      regionalPrescriptions.find((localPrescription) =>
         isEqual(
-          RegionalPrescriptionKey.parse(regionalPrescription),
-          RegionalPrescriptionKey.parse({
+          LocalPrescriptionKey.parse(localPrescription),
+          LocalPrescriptionKey.parse({
             prescriptionId,
             region
           })
         )
-      ) as RegionalPrescription;
+      ) as LocalPrescription;
 
-    const regionalSubmittedPrescription = getRegionalPrescription(
-      submittedControlRegionalPrescriptions1,
+    const regionalSubmittedPrescription = getLocalPrescription(
+      submittedControlLocalPrescriptions1,
       submittedControlPrescription1.id,
       RegionalCoordinator.region as Region
     );
@@ -854,8 +847,8 @@ describe('Regional prescriptions router', () => {
       await request(app)
         .post(
           testRoute(
-            getRegionalPrescription(
-              submittedControlRegionalPrescriptions1,
+            getLocalPrescription(
+              submittedControlLocalPrescriptions1,
               submittedControlPrescription1.id,
               Region2Fixture
             ).prescriptionId,
@@ -871,8 +864,8 @@ describe('Regional prescriptions router', () => {
       await request(app)
         .post(
           testRoute(
-            getRegionalPrescription(
-              validatedControlRegionalPrescriptions,
+            getLocalPrescription(
+              validatedControlLocalPrescriptions,
               validatedControlPrescription.id,
               RegionalCoordinator.region as Region
             ).prescriptionId
@@ -903,8 +896,8 @@ describe('Regional prescriptions router', () => {
       });
 
       await expect(
-        RegionalPrescriptionComments()
-          .where(RegionalPrescriptionKey.parse(regionalSubmittedPrescription))
+        LocalPrescriptionComments()
+          .where(LocalPrescriptionKey.parse(regionalSubmittedPrescription))
           .first()
       ).resolves.toMatchObject({
         id: res.body.id,

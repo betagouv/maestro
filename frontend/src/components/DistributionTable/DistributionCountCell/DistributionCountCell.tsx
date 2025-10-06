@@ -1,7 +1,7 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
+import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
 import EditableNumberCell from 'src/components/EditableNumberCell/EditableNumberCell';
 import { useAppDispatch } from 'src/hooks/useStore';
@@ -11,7 +11,7 @@ import './DistributionCountCell.scss';
 interface Props {
   programmingPlan: ProgrammingPlan;
   matrixKind: MatrixKind;
-  regionalPrescription: RegionalPrescription;
+  regionalPrescription: LocalPrescription;
   isEditable?: boolean;
   onChange: (value: number) => void;
   max?: number;

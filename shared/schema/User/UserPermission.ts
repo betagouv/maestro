@@ -10,6 +10,7 @@ export const UserPermission = z.enum([
   'downloadAnalysisRequestDocument',
   'manageProgrammingPlan',
   'approveProgrammingPlan',
+  'validateProgrammingPlan',
   'closeProgrammingPlan',
   'readProgrammingPlans',
   'readProgrammingPlansInProgress',

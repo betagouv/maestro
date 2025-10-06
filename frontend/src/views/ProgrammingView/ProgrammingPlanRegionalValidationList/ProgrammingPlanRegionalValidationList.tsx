@@ -8,13 +8,13 @@ import { t } from 'i18next';
 import { sumBy } from 'lodash-es';
 import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
+import { FindLocalPrescriptionOptions } from 'maestro-shared/schema/LocalPrescription/FindLocalPrescriptionOptions';
 import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   ProgrammingPlanStatus,
   ProgrammingPlanStatusLabels
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { FindRegionalPrescriptionOptions } from 'maestro-shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import { useCallback, useContext, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { useAppDispatch, useAppSelector } from '../../../hooks/useStore';
@@ -57,7 +57,7 @@ const ProgrammingPlanRegionalValidationList = ({
     }
   );
 
-  const findRegionalPrescriptionOptions = useMemo(
+  const findLocalPrescriptionOptions = useMemo(
     () => ({
       ...findPrescriptionOptions,
       includes: ['comments' as const, 'sampleCounts' as const]
@@ -66,14 +66,14 @@ const ProgrammingPlanRegionalValidationList = ({
   );
 
   const { data: regionalPrescriptions } =
-    apiClient.useFindRegionalPrescriptionsQuery(
+    apiClient.useFindLocalPrescriptionsQuery(
       {
         ...findPrescriptionOptions,
         includes: ['comments']
       },
       {
-        skip: !FindRegionalPrescriptionOptions.safeParse(
-          findRegionalPrescriptionOptions
+        skip: !FindLocalPrescriptionOptions.safeParse(
+          findLocalPrescriptionOptions
         ).success
       }
     );
@@ -104,7 +104,7 @@ const ProgrammingPlanRegionalValidationList = ({
     () =>
       programmingPlan.regionalStatus.filter(
         (regionalStatus) =>
-          !['InProgress', 'Submitted'].includes(regionalStatus.status)
+          !['InProgress', 'SubmittedToRegion'].includes(regionalStatus.status)
       ),
     [programmingPlan.regionalStatus]
   );
@@ -167,17 +167,16 @@ const ProgrammingPlanRegionalValidationList = ({
               }}
             >
               <option value="">Tous les status</option>
-              {['Submitted', 'Approved', 'Validated', 'Closed'].map(
-                (status) => (
-                  <option key={`select-status-${status}`} value={status}>
-                    {
-                      ProgrammingPlanStatusLabels[
-                        status as ProgrammingPlanStatus
-                      ]
-                    }
-                  </option>
-                )
-              )}
+              {[
+                'SubmittedToRegion',
+                'ApprovedByRegion',
+                'Validated',
+                'Closed'
+              ].map((status) => (
+                <option key={`select-status-${status}`} value={status}>
+                  {ProgrammingPlanStatusLabels[status as ProgrammingPlanStatus]}
+                </option>
+              ))}
             </Select>
           </div>
         </div>

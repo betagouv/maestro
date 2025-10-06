@@ -1,17 +1,17 @@
 import {
-  PrescriptionFixture,
-  RegionalPrescriptionFixture
+  LocalPrescriptionFixture,
+  PrescriptionFixture
 } from 'maestro-shared/test/prescriptionFixtures';
-import { Prescriptions } from '../../repositories/prescriptionRepository';
 import {
-  formatRegionalPrescription,
-  RegionalPrescriptions
-} from '../../repositories/regionalPrescriptionRepository';
+  formatLocalPrescription,
+  LocalPrescriptions
+} from '../../repositories/localPrescriptionRepository';
+import { Prescriptions } from '../../repositories/prescriptionRepository';
 
 export const seed = async (): Promise<void> => {
   await Prescriptions().insert(PrescriptionFixture);
 
-  await RegionalPrescriptions().insert(
-    formatRegionalPrescription(RegionalPrescriptionFixture)
+  await LocalPrescriptions().insert(
+    formatLocalPrescription(LocalPrescriptionFixture)
   );
 };

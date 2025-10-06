@@ -54,8 +54,8 @@ const RegionalPrescriptionModal = ({
   const [isUpdateSuccess, setIsUpdateSuccess] = useState(false);
 
   const { data: laboratories } = apiClient.useFindLaboratoriesQuery();
-  const [updateRegionalPrescription] =
-    apiClient.useUpdateRegionalPrescriptionMutation();
+  const [updateLocalPrescription] =
+    apiClient.useUpdateLocalPrescriptionMutation();
 
   const submitLaboratory = async () => {
     if (
@@ -87,7 +87,7 @@ const RegionalPrescriptionModal = ({
     if (regionalPrescriptionModalData?.mode === 'distribution') {
       await Promise.all(
         (departmentalPrescriptions ?? []).map((departmentalPrescription) =>
-          updateRegionalPrescription({
+          updateLocalPrescription({
             prescriptionId: regionalPrescriptionModalData.prescription.id,
             region: regionalPrescriptionModalData.regionalPrescription.region,
             department: departmentalPrescription.department as Department,
