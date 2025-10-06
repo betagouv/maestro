@@ -10,9 +10,9 @@ import { useContext, useEffect, useMemo, useState } from 'react';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import { ApiClientContext } from '../../../services/apiClient';
 import prescriptionsSlice from '../../../store/reducers/prescriptionsSlice';
-import RegionalPrescriptionDepartmentalDistribution from '../RegionalPrescriptionDepartmentalDistribution/RegionalPrescriptionDepartmentalDistribution';
+import LocalPrescriptionDepartmentalDistribution from '../LocalPrescriptionDepartmentalDistribution/LocalPrescriptionDepartmentalDistribution';
 
-const regionalPrescriptionModal = createModal({
+const localPrescriptionModal = createModal({
   id: `regional-prescription-modal`,
   isOpenedByDefault: false
 });
@@ -30,25 +30,27 @@ const RegionalPrescriptionModal = ({
   const apiClient = useContext(ApiClientContext);
   const dispatch = useAppDispatch();
 
-  useIsModalOpen(regionalPrescriptionModal, {
+  useIsModalOpen(localPrescriptionModal, {
     onConceal: () => {
       dispatch(
-        prescriptionsSlice.actions.setRegionalPrescriptionModalData(undefined)
+        prescriptionsSlice.actions.setLocalPrescriptionModalData(undefined)
       );
       setIsUpdateSuccess(false);
     }
   });
 
-  const { regionalPrescriptionModalData } = useAppSelector(
+  const { localPrescriptionModalData } = useAppSelector(
     (state) => state.prescriptions
   );
 
   const [laboratoryId, setLaboratoryId] = useState(
-    regionalPrescriptionModalData?.regionalPrescription.laboratoryId
+    localPrescriptionModalData?.mode === 'laboratory'
+      ? localPrescriptionModalData.localPrescription.laboratoryId
+      : undefined
   );
   const [departmentalPrescriptions, setDepartmentalPrescriptions] = useState(
-    regionalPrescriptionModalData?.mode === 'distribution'
-      ? regionalPrescriptionModalData.departmentalPrescriptions
+    localPrescriptionModalData?.mode === 'distribution'
+      ? localPrescriptionModalData.departmentalPrescriptions
       : undefined
   );
   const [isUpdateSuccess, setIsUpdateSuccess] = useState(false);
@@ -59,17 +61,16 @@ const RegionalPrescriptionModal = ({
 
   const submitLaboratory = async () => {
     if (
-      regionalPrescriptionModalData &&
+      localPrescriptionModalData?.mode === 'laboratory' &&
       laboratoryId &&
-      laboratoryId !==
-        regionalPrescriptionModalData.regionalPrescription.laboratoryId
+      laboratoryId !== localPrescriptionModalData.localPrescription.laboratoryId
     ) {
       await onChangePrescriptionLaboratory(
-        regionalPrescriptionModalData.prescription,
+        localPrescriptionModalData.prescription,
         laboratoryId
       );
     }
-    regionalPrescriptionModal.close();
+    localPrescriptionModal.close();
   };
 
   const changeDepartmentalCount = async (
@@ -84,16 +85,15 @@ const RegionalPrescriptionModal = ({
   };
 
   const submitDepartmentalDistribution = async () => {
-    if (regionalPrescriptionModalData?.mode === 'distribution') {
+    if (localPrescriptionModalData?.mode === 'distribution') {
       await Promise.all(
         (departmentalPrescriptions ?? []).map((departmentalPrescription) =>
           updateLocalPrescription({
-            prescriptionId: regionalPrescriptionModalData.prescription.id,
-            region: regionalPrescriptionModalData.regionalPrescription.region,
+            prescriptionId: localPrescriptionModalData.prescription.id,
+            region: localPrescriptionModalData.regionalPrescription.region,
             department: departmentalPrescription.department as Department,
             prescriptionUpdate: {
-              programmingPlanId:
-                regionalPrescriptionModalData.programmingPlan.id,
+              programmingPlanId: localPrescriptionModalData.programmingPlan.id,
               sampleCount: departmentalPrescription.sampleCount
             }
           })
@@ -104,39 +104,39 @@ const RegionalPrescriptionModal = ({
   };
 
   useEffect(() => {
-    if (regionalPrescriptionModalData) {
-      regionalPrescriptionModal.open();
+    if (localPrescriptionModalData) {
+      localPrescriptionModal.open();
       setLaboratoryId(
-        regionalPrescriptionModalData?.regionalPrescription.laboratoryId
+        localPrescriptionModalData.mode === 'laboratory'
+          ? localPrescriptionModalData?.localPrescription.laboratoryId
+          : undefined
       );
       setDepartmentalPrescriptions(
-        regionalPrescriptionModalData.mode === 'distribution'
-          ? regionalPrescriptionModalData.departmentalPrescriptions
+        localPrescriptionModalData.mode === 'distribution'
+          ? localPrescriptionModalData.departmentalPrescriptions
           : undefined
       );
     }
-  }, [regionalPrescriptionModalData]);
+  }, [localPrescriptionModalData]);
 
   const title = useMemo(() => {
     if (isUpdateSuccess) {
       return 'Répartition enregistrée';
     }
-    if (regionalPrescriptionModalData?.mode === 'distribution') {
-      return `Répartition par département pour la matrice ${MatrixKindLabels[regionalPrescriptionModalData.prescription.matrixKind]}`;
+    if (localPrescriptionModalData?.mode === 'distribution') {
+      return `Répartition par département pour la matrice ${MatrixKindLabels[localPrescriptionModalData.prescription.matrixKind]}`;
     }
-    if (regionalPrescriptionModalData?.mode === 'laboratory') {
-      return `Configuration de la matrice ${MatrixKindLabels[regionalPrescriptionModalData.prescription.matrixKind]}`;
+    if (localPrescriptionModalData?.mode === 'laboratory') {
+      return `Configuration de la matrice ${MatrixKindLabels[localPrescriptionModalData.prescription.matrixKind]}`;
     }
-  }, [isUpdateSuccess, regionalPrescriptionModalData]);
+  }, [isUpdateSuccess, localPrescriptionModalData]);
 
   return (
-    <regionalPrescriptionModal.Component
+    <localPrescriptionModal.Component
       title={title}
       topAnchor
       size={
-        regionalPrescriptionModalData?.mode === 'distribution'
-          ? 'large'
-          : 'medium'
+        localPrescriptionModalData?.mode === 'distribution' ? 'large' : 'medium'
       }
       buttons={
         isUpdateSuccess
@@ -155,7 +155,7 @@ const RegionalPrescriptionModal = ({
               {
                 children: 'Enregistrer',
                 onClick: () =>
-                  regionalPrescriptionModalData?.mode === 'laboratory'
+                  localPrescriptionModalData?.mode === 'laboratory'
                     ? submitLaboratory()
                     : submitDepartmentalDistribution(),
                 doClosesModal: false
@@ -171,7 +171,7 @@ const RegionalPrescriptionModal = ({
           </>
         ) : (
           <>
-            {regionalPrescriptionModalData?.mode === 'laboratory' && (
+            {localPrescriptionModalData?.mode === 'laboratory' && (
               <Select
                 label={undefined}
                 nativeSelectProps={{
@@ -192,9 +192,9 @@ const RegionalPrescriptionModal = ({
                 ))}
               </Select>
             )}
-            {regionalPrescriptionModalData?.mode === 'distribution' && (
-              <RegionalPrescriptionDepartmentalDistribution
-                {...regionalPrescriptionModalData}
+            {localPrescriptionModalData?.mode === 'distribution' && (
+              <LocalPrescriptionDepartmentalDistribution
+                {...localPrescriptionModalData}
                 departmentalPrescriptions={departmentalPrescriptions ?? []}
                 onChangeDepartmentalCount={changeDepartmentalCount}
               />
@@ -202,7 +202,7 @@ const RegionalPrescriptionModal = ({
           </>
         )}
       </div>
-    </regionalPrescriptionModal.Component>
+    </localPrescriptionModal.Component>
   );
 };
 

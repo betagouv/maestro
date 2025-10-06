@@ -593,7 +593,7 @@ describe('Sample router', () => {
           id: Sample11Fixture.id
         })
         .update({
-          status: 'SubmittedToRegion',
+          status: 'Submitted',
           ownerAgreement: true,
           sentAt: null
         });
@@ -616,7 +616,7 @@ describe('Sample router', () => {
             id: Sample11Fixture.id
           })
           .update({
-            status: 'SubmittedToRegion',
+            status: 'Submitted',
             ownerAgreement: true,
             sentAt: null
           });

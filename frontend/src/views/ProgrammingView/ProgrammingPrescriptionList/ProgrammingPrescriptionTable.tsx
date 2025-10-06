@@ -83,7 +83,7 @@ const ProgrammingPrescriptionTable = ({
           </div>
           <div>
             <CompletionBadge
-              regionalPrescriptions={getLocalPrescriptions(prescription.id)}
+              localPrescriptions={getLocalPrescriptions(prescription.id)}
             />
           </div>
         </div>,
@@ -98,7 +98,7 @@ const ProgrammingPrescriptionTable = ({
               <DistributionCountCell
                 programmingPlan={programmingPlan}
                 matrixKind={prescription.matrixKind}
-                regionalPrescription={regionalPrescription}
+                localPrescription={regionalPrescription}
                 isEditable={
                   hasUserLocalPrescriptionPermission(
                     programmingPlan,
@@ -126,7 +126,7 @@ const ProgrammingPrescriptionTable = ({
       <div className="border-left fr-text--bold">
         <div>{sumBy(regionalPrescriptions, 'sampleCount')}</div>
         <div>{sumBy(regionalPrescriptions, 'realizedSampleCount')}</div>
-        <CompletionBadge regionalPrescriptions={regionalPrescriptions} />
+        <CompletionBadge localPrescriptions={regionalPrescriptions} />
       </div>,
       ...RegionList.map((region) => [
         <div key={`total-${region}`} className="border-left fr-text--bold">
@@ -146,7 +146,7 @@ const ProgrammingPrescriptionTable = ({
                 )}
               </div>
               <CompletionBadge
-                regionalPrescriptions={regionalPrescriptions}
+                localPrescriptions={regionalPrescriptions}
                 region={region}
               />
             </>

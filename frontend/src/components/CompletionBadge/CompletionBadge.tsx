@@ -6,24 +6,24 @@ import {
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 
 interface Props {
-  regionalPrescriptions: LocalPrescription | LocalPrescription[];
+  localPrescriptions: LocalPrescription | LocalPrescription[];
   region?: Region;
 }
 
-const CompletionBadge = ({ regionalPrescriptions, region }: Props) => {
+const CompletionBadge = ({ localPrescriptions, region }: Props) => {
   return (
     <Badge
       noIcon
       severity={
-        getCompletionRate(regionalPrescriptions, region) === 100
+        getCompletionRate(localPrescriptions, region) === 100
           ? 'success'
-          : getCompletionRate(regionalPrescriptions, region) > 50
+          : getCompletionRate(localPrescriptions, region) > 50
             ? 'warning'
             : 'error'
       }
       className={'fr-px-1v'}
     >
-      {getCompletionRate(regionalPrescriptions, region)}%
+      {getCompletionRate(localPrescriptions, region)}%
     </Badge>
   );
 };

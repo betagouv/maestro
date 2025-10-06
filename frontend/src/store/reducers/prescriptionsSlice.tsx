@@ -71,12 +71,12 @@ const PrescriptionModalData = z.object({
   prescription: Prescription
 });
 
-const RegionalPrescriptionModalData = z.discriminatedUnion('viewBy', [
+const LocalPrescriptionModalData = z.discriminatedUnion('viewBy', [
   z.object({
     mode: z.literal('laboratory'),
     programmingPlan: ProgrammingPlan,
     prescription: Prescription,
-    regionalPrescription: LocalPrescription
+    localPrescription: LocalPrescription
   }),
   z.object({
     mode: z.literal('distribution'),
@@ -89,16 +89,14 @@ const RegionalPrescriptionModalData = z.discriminatedUnion('viewBy', [
 
 type PrescriptionCommentsData = z.infer<typeof PrescriptionCommentsData>;
 type PrescriptionModalData = z.infer<typeof PrescriptionModalData>;
-type RegionalPrescriptionModalData = z.infer<
-  typeof RegionalPrescriptionModalData
->;
+type LocalPrescriptionModalData = z.infer<typeof LocalPrescriptionModalData>;
 
 type PrescriptionsState = {
   prescriptionFilters: PrescriptionFilters;
   prescriptionListDisplay: PrescriptionListDisplay;
   matrixQuery?: string;
   prescriptionModalData?: PrescriptionModalData;
-  regionalPrescriptionModalData?: RegionalPrescriptionModalData;
+  localPrescriptionModalData?: LocalPrescriptionModalData;
   prescriptionCommentsData?: PrescriptionCommentsData;
 };
 const initialState: PrescriptionsState = {
@@ -133,11 +131,11 @@ const prescriptionsSlice = createSlice({
     ) => {
       state.prescriptionModalData = action.payload;
     },
-    setRegionalPrescriptionModalData: (
+    setLocalPrescriptionModalData: (
       state,
-      action: PayloadAction<RegionalPrescriptionModalData | undefined>
+      action: PayloadAction<LocalPrescriptionModalData | undefined>
     ) => {
-      state.regionalPrescriptionModalData = action.payload;
+      state.localPrescriptionModalData = action.payload;
     },
     setPrescriptionCommentsData: (
       state,

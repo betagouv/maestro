@@ -193,7 +193,7 @@ export const localPrescriptionsRouter = {
         user.role === 'NationalCoordinator'
           ? {
               region: localPrescription.region,
-              roles: ['LocalCoordinator']
+              roles: ['RegionalCoordinator']
             }
           : {
               roles: ['NationalCoordinator']

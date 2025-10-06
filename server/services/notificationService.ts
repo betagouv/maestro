@@ -32,7 +32,7 @@ const NotificationCategoryMessages = {
   ProgrammingPlanSubmittedToRegion: () => `
 ${Brand} vient d’être mis à jour !  
 
-Une proposition de programmation pour la prochaine campagne de surveillance / contrôle officielle a été déposée sur ${Brand}  par la coordination nationale.   
+Une proposition de programmation pour la prochaine campagne de surveillance / contrôle officielle a été déposée sur ${Brand}  par la coordination régionale.   
 
 Merci de prendre connaissance de ces nouveaux éléments et y réagir le cas échéant.`,
   ProgrammingPlanApprovedByRegion: ({ region }) => `

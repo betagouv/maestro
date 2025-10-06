@@ -29,7 +29,7 @@ const prescriptionCommentsModal = createModal({
 interface Props {
   onSubmitLocalPrescriptionComment: (
     programmingPlan: ProgrammingPlan,
-    regionalPrescriptionKey: LocalPrescriptionKey,
+    localPrescriptionKey: LocalPrescriptionKey,
     comment: string
   ) => Promise<void>;
 }

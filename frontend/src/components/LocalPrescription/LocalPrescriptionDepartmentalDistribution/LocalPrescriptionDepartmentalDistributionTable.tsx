@@ -24,7 +24,7 @@ interface Props {
   displayedPart: 'first' | 'second';
 }
 
-const RegionalPrescriptionDepartmentalDistributionTable = ({
+const LocalPrescriptionDepartmentalDistributionTable = ({
   programmingPlan,
   prescription,
   regionalPrescription,
@@ -77,7 +77,7 @@ const RegionalPrescriptionDepartmentalDistributionTable = ({
               key={`${departmentalPrescription.prescriptionId}-${departmentalPrescription.region}`}
               programmingPlan={programmingPlan}
               matrixKind={prescription.matrixKind}
-              regionalPrescription={departmentalPrescription}
+              localPrescription={departmentalPrescription}
               max={
                 regionalPrescription.sampleCount -
                 sumBy(departmentalPrescriptions, 'sampleCount')
@@ -102,4 +102,4 @@ const RegionalPrescriptionDepartmentalDistributionTable = ({
   );
 };
 
-export default RegionalPrescriptionDepartmentalDistributionTable;
+export default LocalPrescriptionDepartmentalDistributionTable;

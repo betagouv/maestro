@@ -146,14 +146,12 @@ const SampleCard = ({ sample, horizontal }: Props) => {
                 to: sampleLink(sample.id)
               }}
               priority={
-                [...DraftStatusList, 'SubmittedToRegion'].includes(
-                  sample.status
-                )
+                [...DraftStatusList, 'Submitted'].includes(sample.status)
                   ? 'primary'
                   : 'secondary'
               }
             >
-              {[...DraftStatusList, 'SubmittedToRegion'].includes(sample.status)
+              {[...DraftStatusList, 'Submitted'].includes(sample.status)
                 ? 'A compléter'
                 : 'Consulter'}
             </Button>

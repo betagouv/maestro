@@ -11,7 +11,7 @@ import './DistributionCountCell.scss';
 interface Props {
   programmingPlan: ProgrammingPlan;
   matrixKind: MatrixKind;
-  regionalPrescription: LocalPrescription;
+  localPrescription: LocalPrescription;
   isEditable?: boolean;
   onChange: (value: number) => void;
   max?: number;
@@ -20,7 +20,7 @@ interface Props {
 const DistributionCountCell = ({
   programmingPlan,
   matrixKind,
-  regionalPrescription,
+  localPrescription,
   isEditable,
   onChange,
   max,
@@ -31,24 +31,24 @@ const DistributionCountCell = ({
 
   return (
     <EditableNumberCell
-      initialValue={regionalPrescription.sampleCount}
+      initialValue={localPrescription.sampleCount}
       isEditable={isEditable}
       onChange={(value) => onChange(value)}
       max={max}
       defaultContent={
         <div className="sample-count-container">
           <div className="sample-count">
-            <div>{regionalPrescription.sampleCount}</div>
+            <div>{localPrescription.sampleCount}</div>
             {programmingPlan.regionalStatus.find(
-              (_) => _.region === regionalPrescription.region
+              (_) => _.region === localPrescription.region
             )?.status === 'Validated' && (
               <>
-                <div>{regionalPrescription.realizedSampleCount}</div>
-                <CompletionBadge regionalPrescriptions={regionalPrescription} />
+                <div>{localPrescription.realizedSampleCount}</div>
+                <CompletionBadge localPrescriptions={localPrescription} />
               </>
             )}
           </div>
-          {(regionalPrescription.comments ?? []).length > 0 && (
+          {(localPrescription.comments ?? []).length > 0 && (
             <Button
               title="Consulter les commentaires"
               iconId="fr-icon-question-answer-fill"
@@ -60,9 +60,9 @@ const DistributionCountCell = ({
                   prescriptionsSlice.actions.setPrescriptionCommentsData({
                     viewBy: 'MatrixKind',
                     programmingPlan,
-                    prescriptionId: regionalPrescription.prescriptionId,
+                    prescriptionId: localPrescription.prescriptionId,
                     matrixKind,
-                    regionalComments: [regionalPrescription].map((rcp) => ({
+                    regionalComments: [localPrescription].map((rcp) => ({
                       region: rcp.region,
                       comments: rcp.comments ?? []
                     }))

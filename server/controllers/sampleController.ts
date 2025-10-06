@@ -369,7 +369,7 @@ export const sampleRouter = {
       }
 
       const mustBeSent =
-        sample.status === 'SubmittedToRegion' && sampleUpdate.status === 'Sent';
+        sample.status === 'Submitted' && sampleUpdate.status === 'Sent';
 
       if (
         mustBeSent &&
