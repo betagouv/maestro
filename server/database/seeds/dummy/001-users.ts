@@ -95,6 +95,14 @@ export const seed = async function () {
     },
     {
       id: uuidv4(),
+      email: 'coordinateur.departemental.daoa@maestro.beta.gouv.fr',
+      name: `DAOA - ${fakerFR.person.fullName()}`,
+      programmingPlanKinds: ['DAOA_BREEDING', 'DAOA_SLAUGHTER'],
+      role: 'DepartmentalCoordinator',
+      region: '75'
+    },
+    {
+      id: uuidv4(),
       email: 'preleveur.daoa@maestro.beta.gouv.fr',
       name: `DAOA - ${fakerFR.person.fullName()}`,
       programmingPlanKinds: ['DAOA_BREEDING', 'DAOA_SLAUGHTER'],

@@ -38,9 +38,9 @@ export const ProgrammingPlanStatusPermissions: Record<
   UserPermission
 > = {
   InProgress: 'readProgrammingPlansInProgress',
-  SubmittedToRegion: 'readProgrammingPlanSubmitted',
-  SubmittedToDepartments: 'readProgrammingPlanSubmitted',
-  ApprovedByRegion: 'readProgrammingPlanApproved',
+  SubmittedToRegion: 'readProgrammingPlanSubmittedToRegion',
+  SubmittedToDepartments: 'readProgrammingPlanSubmittedToDepartments',
+  ApprovedByRegion: 'readProgrammingPlanApprovedByRegion',
   Validated: 'readProgrammingPlanValidated',
   Closed: 'readProgrammingPlanClosed'
 };

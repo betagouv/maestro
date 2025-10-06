@@ -43,7 +43,7 @@ const SampleView = () => {
 
   return (
     <>
-      {[...DraftStatusList, 'SubmittedToRegion'].includes(sample.status) ? (
+      {[...DraftStatusList, 'Submitted'].includes(sample.status) ? (
         <DraftSample sample={sample} />
       ) : (
         <SampleOverview sample={sample as Sample} />

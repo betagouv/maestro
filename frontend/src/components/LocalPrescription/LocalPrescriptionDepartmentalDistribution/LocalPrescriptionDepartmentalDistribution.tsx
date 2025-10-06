@@ -8,7 +8,7 @@ import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useMemo } from 'react';
 import { pluralize } from '../../../utils/stringUtils';
-import RegionalPrescriptionDepartmentalDistributionTable from '../RegionalPrescriptionDepartmentalDistributionTable/RegionalPrescriptionDepartmentalDistributionTable';
+import LocalPrescriptionDepartmentalDistributionTable from './LocalPrescriptionDepartmentalDistributionTable';
 
 interface Props {
   programmingPlan: ProgrammingPlan;
@@ -21,7 +21,7 @@ interface Props {
   ) => Promise<void>;
 }
 
-const RegionalPrescriptionDepartmentalDistribution = ({
+const LocalPrescriptionDepartmentalDistribution = ({
   programmingPlan,
   prescription,
   regionalPrescription,
@@ -51,7 +51,7 @@ const RegionalPrescriptionDepartmentalDistribution = ({
       </div>
       <div>
         Départements
-        <RegionalPrescriptionDepartmentalDistributionTable
+        <LocalPrescriptionDepartmentalDistributionTable
           programmingPlan={programmingPlan}
           prescription={prescription}
           regionalPrescription={regionalPrescription}
@@ -59,7 +59,7 @@ const RegionalPrescriptionDepartmentalDistribution = ({
           onChangeDepartmentalCount={onChangeDepartmentalCount}
           displayedPart="first"
         />
-        <RegionalPrescriptionDepartmentalDistributionTable
+        <LocalPrescriptionDepartmentalDistributionTable
           programmingPlan={programmingPlan}
           prescription={prescription}
           regionalPrescription={regionalPrescription}
@@ -72,4 +72,4 @@ const RegionalPrescriptionDepartmentalDistribution = ({
   );
 };
 
-export default RegionalPrescriptionDepartmentalDistribution;
+export default LocalPrescriptionDepartmentalDistribution;

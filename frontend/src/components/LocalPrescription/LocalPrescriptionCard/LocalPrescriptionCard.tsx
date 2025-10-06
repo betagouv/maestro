@@ -29,7 +29,7 @@ interface Props {
   onToggleSelection?: () => void;
 }
 
-const RegionalPrescriptionCard = ({
+const LocalPrescriptionCard = ({
   programmingPlan,
   prescription,
   regionalPrescription,
@@ -43,8 +43,8 @@ const RegionalPrescriptionCard = ({
 
   const { data: laboratories } = apiClient.useFindLaboratoriesQuery();
 
-  const getComments = useCallback((regionalPrescription: LocalPrescription) => {
-    return regionalPrescription?.comments || [];
+  const getComments = useCallback((localPrescription: LocalPrescription) => {
+    return localPrescription?.comments || [];
   }, []);
 
   const departmentalPrescriptionsWithSamplesCount = useMemo(
@@ -80,16 +80,14 @@ const RegionalPrescriptionCard = ({
                   priority: 'tertiary no outline',
                   onClick: () =>
                     dispatch(
-                      prescriptionsSlice.actions.setRegionalPrescriptionModalData(
-                        {
-                          mode: 'distribution',
-                          programmingPlan,
-                          prescription,
-                          regionalPrescription,
-                          departmentalPrescriptions:
-                            departmentalPrescriptions || []
-                        }
-                      )
+                      prescriptionsSlice.actions.setLocalPrescriptionModalData({
+                        mode: 'distribution',
+                        programmingPlan,
+                        prescription,
+                        regionalPrescription,
+                        departmentalPrescriptions:
+                          departmentalPrescriptions || []
+                      })
                     ),
                   iconId: 'fr-icon-road-map-line',
                   className: cx('fr-m-0')
@@ -110,14 +108,12 @@ const RegionalPrescriptionCard = ({
                   priority: 'tertiary no outline',
                   onClick: () =>
                     dispatch(
-                      prescriptionsSlice.actions.setRegionalPrescriptionModalData(
-                        {
-                          mode: 'laboratory',
-                          programmingPlan,
-                          prescription,
-                          regionalPrescription
-                        }
-                      )
+                      prescriptionsSlice.actions.setLocalPrescriptionModalData({
+                        mode: 'laboratory',
+                        programmingPlan,
+                        prescription,
+                        localPrescription: regionalPrescription
+                      })
                     ),
                   iconId: currentLaboratory
                     ? undefined
@@ -297,7 +293,7 @@ const RegionalPrescriptionCard = ({
                     })('programmé')}
                     {' • '}
                     <CompletionBadge
-                      regionalPrescriptions={regionalPrescription}
+                      localPrescriptions={regionalPrescription}
                     />
                   </>
                 )}
@@ -320,4 +316,4 @@ const RegionalPrescriptionCard = ({
   );
 };
 
-export default RegionalPrescriptionCard;
+export default LocalPrescriptionCard;

@@ -20,9 +20,9 @@ import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import ProgrammingPrescriptionListHeader from 'src/views/ProgrammingView/ProgrammingPrescriptionList/ProgrammingPrescriptionListHeader';
 import { assert, type Equals } from 'tsafe';
+import LocalPrescriptionCard from '../../../components/LocalPrescription/LocalPrescriptionCard/LocalPrescriptionCard';
+import RegionalPrescriptionModal from '../../../components/LocalPrescription/LocalPrescriptionModal/LocalPrescriptionModal';
 import PrescriptionModal from '../../../components/Prescription/PrescriptionModal/PrescriptionModal';
-import RegionalPrescriptionCard from '../../../components/RegionalPrescription/RegionalPrescriptionCard/RegionalPrescriptionCard';
-import RegionalPrescriptionModal from '../../../components/RegionalPrescription/RegionalPrescriptionModal/RegionalPrescriptionModal';
 import { ApiClientContext } from '../../../services/apiClient';
 import { getPrescriptionsExportURL } from '../../../services/prescription.service';
 import ProgrammingPrescriptionTable from './ProgrammingPrescriptionTable';
@@ -330,7 +330,7 @@ const ProgrammingPrescriptionList = ({
                       )
                     )
                     .map((prescription) => (
-                      <RegionalPrescriptionCard
+                      <LocalPrescriptionCard
                         key={`prescription_cards_${prescription.id}`}
                         programmingPlan={programmingPlan}
                         prescription={prescription}

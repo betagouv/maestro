@@ -140,7 +140,7 @@ const ItemsStep = ({ partialSample }: Props) => {
     e.preventDefault();
     await form.validate(async () => {
       isSubmittingRef.current = true;
-      await save('SubmittedToRegion');
+      await save('Submitted');
     });
   };
 

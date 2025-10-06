@@ -4,8 +4,8 @@ import {
   Region,
   RegionList
 } from 'maestro-shared/referential/Region';
-import { ProgrammingPlanRegionalStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanRegionalStatus';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
@@ -23,6 +23,7 @@ import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import {
   formatProgrammingPlan,
+  ProgrammingPlanRegionalStatus,
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
 import { createServer } from '../../server';
@@ -559,7 +560,7 @@ describe('ProgrammingPlan router', () => {
     test('should fail if the status update is forbidden', async () => {
       const badRequestTest = async (
         programmingPlan: ProgrammingPlan,
-        status: ProgrammingPlanRegionalStatus
+        status: ProgrammingPlanStatus
       ) =>
         request(app)
           .put(testRoute(programmingPlan.id))
@@ -680,7 +681,7 @@ describe('ProgrammingPlan router', () => {
     test('should fail if the status update is forbidden', async () => {
       const badRequestTest = async (
         programmingPlan: ProgrammingPlan,
-        status: ProgrammingPlanRegionalStatus
+        status: ProgrammingPlanStatus
       ) =>
         request(app)
           .put(testRoute(programmingPlan.id))

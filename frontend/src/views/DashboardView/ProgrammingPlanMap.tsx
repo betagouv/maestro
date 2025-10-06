@@ -29,13 +29,13 @@ import { getURLQuery } from '../../utils/fetchUtils';
 interface Props {
   programmingPlan: ProgrammingPlan;
   context: ProgrammingPlanContext;
-  regionalPrescriptions: LocalPrescription[];
+  localPrescriptions: LocalPrescription[];
 }
 
 const ProgrammingPlanMap = ({
   programmingPlan,
   context,
-  regionalPrescriptions
+  localPrescriptions
 }: Props) => {
   const apiClient = useContext(ApiClientContext);
   const ref = useRef<any>(undefined);
@@ -74,13 +74,13 @@ const ProgrammingPlanMap = ({
     return String(hoverInfo?.feature.id).padStart(2, '0') as Region;
   }, [hoverInfo]);
 
-  if (!regions || !regionalPrescriptions) {
+  if (!regions || !localPrescriptions) {
     return <></>;
   }
 
   const getSampleCount = (region: Region) =>
     sumBy(
-      regionalPrescriptions.filter(
+      localPrescriptions.filter(
         (regionalPrescription) => regionalPrescription.region === region
       ),
       'sampleCount'
@@ -88,7 +88,7 @@ const ProgrammingPlanMap = ({
 
   const getRealizedSampleCount = (region: Region) =>
     sumBy(
-      regionalPrescriptions.filter(
+      localPrescriptions.filter(
         (regionalPrescription) => regionalPrescription.region === region
       ),
       'realizedSampleCount'
@@ -107,7 +107,7 @@ const ProgrammingPlanMap = ({
               title: Regions[region].name,
               sampleCount: getSampleCount(region),
               realizedSampleCount: getRealizedSampleCount(region),
-              completionRate: getCompletionRate(regionalPrescriptions, region)
+              completionRate: getCompletionRate(localPrescriptions, region)
             }
           }
         : feature;
@@ -294,7 +294,7 @@ const ProgrammingPlanMap = ({
             <div>{getRealizedSampleCount(hoveredRegion)} réalisés</div>
             <div>
               Taux de réalisation :{' '}
-              {getCompletionRate(regionalPrescriptions, hoveredRegion)}%
+              {getCompletionRate(localPrescriptions, hoveredRegion)}%
             </div>
           </div>
         )}

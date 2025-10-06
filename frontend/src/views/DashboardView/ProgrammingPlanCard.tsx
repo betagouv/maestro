@@ -108,7 +108,7 @@ const ProgrammingPlanCard = ({
         <ProgrammingPlanMap
           programmingPlan={programmingPlan}
           context={context}
-          regionalPrescriptions={regionalPrescriptions ?? []}
+          localPrescriptions={regionalPrescriptions ?? []}
         />
       </div>
     </>

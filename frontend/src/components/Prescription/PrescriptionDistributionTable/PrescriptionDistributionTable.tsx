@@ -58,7 +58,7 @@ const PrescriptionDistributionTable = ({
               key={`${regionalPrescription.prescriptionId}-${regionalPrescription.region}`}
               programmingPlan={programmingPlan}
               matrixKind={matrixKind}
-              regionalPrescription={regionalPrescription}
+              localPrescription={regionalPrescription}
               onChange={async (value) =>
                 onChangeRegionalCount(regionalPrescription.region, value)
               }

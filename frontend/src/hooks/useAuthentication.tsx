@@ -68,15 +68,15 @@ export const useAuthentication = () => {
   const hasUserLocalPrescriptionPermission = useCallback(
     (
       programmingPlan?: ProgrammingPlan,
-      regionalPrescription?: { region: Region }
+      localPrescription?: { region: Region }
     ): Record<LocalPrescriptionPermission, boolean> | null =>
       !isNil(authUser?.user) &&
-      !isNil(regionalPrescription) &&
+      !isNil(localPrescription) &&
       !isNil(programmingPlan)
         ? hasLocalPrescriptionPermission(
             authUser.user,
             programmingPlan,
-            regionalPrescription
+            localPrescription
           )
         : null,
     [authUser]

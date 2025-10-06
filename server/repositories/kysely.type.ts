@@ -254,8 +254,8 @@ export interface DB {
   prescriptions: Prescriptions;
   prescriptionSubstances: PrescriptionSubstances;
   programmingPlans: ProgrammingPlans;
-  regionalPrescriptionComments: LocalPrescriptionComments;
-  regionalPrescriptions: LocalPrescriptions;
+  localPrescriptionComments: LocalPrescriptionComments;
+  localPrescriptions: LocalPrescriptions;
   residueAnalytes: ResidueAnalytes;
   sampleDocuments: SampleDocuments;
   sampleItems: SampleItems;
