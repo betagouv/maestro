@@ -11,19 +11,22 @@ const meta = {
       useLazySearchCompaniesQuery: [
         [
           {
-            siren: '',
+            siren: '12341234123421341234',
             nom_complet: 'Test 1',
             siege: {
-              activite_principale: '',
-              adresse: '',
-              code_postal: '',
+              activite_principale: '62.02A',
+              adresse: '12 RTE DE BEAUREGARD 21500 MONTVAL',
+              code_postal: '21500',
               commune: '',
               departement: '',
-              libelle_commune: '',
+              numero_voie: '12',
+              type_voie: 'RUE',
+              libelle_voie: 'DE BEAUREGARD',
+              libelle_commune: 'MONTVAL',
               region: '',
-              siret: ''
+              siret: '1234123412342134'
             },
-            activite_principale: ''
+            activite_principale: '01.15Z'
           }
         ],
         {}
