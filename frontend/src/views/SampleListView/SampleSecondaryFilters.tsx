@@ -44,11 +44,13 @@ const SampleSecondaryFilters = ({ filters, onChange }: Props) => {
             }}
           >
             <option value="">Toutes les régions</option>
-            {RegionList.map((region) => (
-              <option key={`region-${region}`} value={region}>
-                {Regions[region].name}
-              </option>
-            ))}
+            {[...RegionList]
+              .sort((a, b) => Regions[a].name.localeCompare(Regions[b].name))
+              .map((region) => (
+                <option key={`region-${region}`} value={region}>
+                  {Regions[region].name}
+                </option>
+              ))}
           </Select>
         </div>
       )}
