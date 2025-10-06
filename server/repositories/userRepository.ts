@@ -59,6 +59,15 @@ const findMany = async (findOptions: FindUserOptions): Promise<User[]> => {
   return users.map((_: User) => User.parse(_));
 };
 
+const insert = async (
+  user: Omit<KyselyUser, 'id' | 'loggedSecrets' | 'name'>
+): Promise<void> => {
+  await kysely
+    .insertInto('users')
+    .values({ ...user, name: '-' })
+    .execute();
+};
+
 const update = async (
   partialUser: Partial<Omit<KyselyUser, 'id' | 'loggedSecrets'>>,
   id: User['id']
@@ -98,6 +107,7 @@ export const userRepository = {
   findOne,
   findMany,
   update,
+  insert,
   addLoggedSecret,
   deleteLoggedSecret
 };
