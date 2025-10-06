@@ -98,7 +98,7 @@ export const getMockApi = (partialMock: Partial<MockApi>): ApiClient => {
 const defaultMockApiClientConf: MockApi = {
   useAddPrescriptionMutation: [async () => fn(), {}],
   useAuthenticateMutation: [async () => fn(), {}],
-  useCommentRegionalPrescriptionMutation: [async () => fn(), {}],
+  useCommentLocalPrescriptionMutation: [async () => fn(), {}],
   useCountSamplesQuery: {
     data: 0
   },
@@ -115,7 +115,7 @@ const defaultMockApiClientConf: MockApi = {
   useFindNotificationsQuery: { data: [] },
   useFindPrescriptionsQuery: { data: [] },
   useFindProgrammingPlansQuery: { data: [] },
-  useFindRegionalPrescriptionsQuery: { data: [] },
+  useFindLocalPrescriptionsQuery: { data: [] },
   useFindResourcesQuery: { data: [] },
   useFindSamplesQuery: { data: [] },
   useFindUsersQuery: { data: [] },
@@ -190,7 +190,7 @@ const defaultMockApiClientConf: MockApi = {
   useUpdatePrescriptionMutation: [async () => fn(), {}],
   useUpdateProgrammingPlanRegionalStatusMutation: [async () => fn(), {}],
   useUpdateProgrammingPlanStatusMutation: [async () => fn(), {}],
-  useUpdateRegionalPrescriptionMutation: [async () => fn(), {}],
+  useUpdateLocalPrescriptionMutation: [async () => fn(), {}],
   useUpdateSampleMutation: [async () => fn(), {}],
   useGetRootNoticeQuery: {
     data: { type: 'root', title: 'titre', description: 'description' }

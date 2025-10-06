@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { RegionList } from 'maestro-shared/referential/Region';
 import {
+  FoieDeBovinLocalPrescriptionFixture,
   FoieDeBovinPrescriptionFixture,
-  FoieDeBovinRegionalPrescriptionFixture,
-  VolaillePrescriptionFixture,
-  VolailleRegionalPrescriptionFixture
+  VolailleLocalPrescriptionFixture,
+  VolaillePrescriptionFixture
 } from 'maestro-shared/test/prescriptionFixtures';
 import { DAOAInProgressProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
 import {
@@ -32,8 +32,8 @@ const prescriptions = [
 ];
 
 const regionalPrescriptions = [
-  ...FoieDeBovinRegionalPrescriptionFixture,
-  ...VolailleRegionalPrescriptionFixture
+  ...FoieDeBovinLocalPrescriptionFixture,
+  ...VolailleLocalPrescriptionFixture
 ];
 
 export const NationalCoordinatorView: Story = {
@@ -49,7 +49,7 @@ export const NationalCoordinatorView: Story = {
         data: [inProgressProgrammingPlan]
       },
       useFindPrescriptionsQuery: { data: prescriptions },
-      useFindRegionalPrescriptionsQuery: {
+      useFindLocalPrescriptionsQuery: {
         data: regionalPrescriptions
       }
     })
@@ -95,7 +95,7 @@ export const NationalCoordinatorView: Story = {
 //       useFindPrescriptionsQuery: {
 //         data: prescriptions
 //       },
-//       useFindRegionalPrescriptionsQuery: {
+//       useFindLocalPrescriptionsQuery: {
 //         data: regionalPrescriptions
 //       }
 //     })

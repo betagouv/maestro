@@ -6,10 +6,10 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { sumBy } from 'lodash-es';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
+import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { isDefined } from 'maestro-shared/utils/utils';
 import { useCallback, useContext, useMemo } from 'react';
 import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
@@ -23,8 +23,8 @@ import PrescriptionBreadcrumb from '../../Prescription/PrescriptionBreadcrumb/Pr
 interface Props {
   programmingPlan?: ProgrammingPlan;
   prescription: Prescription;
-  regionalPrescription?: RegionalPrescription;
-  departmentalPrescriptions?: RegionalPrescription[];
+  regionalPrescription?: LocalPrescription;
+  departmentalPrescriptions?: LocalPrescription[];
   isSelected?: boolean;
   onToggleSelection?: () => void;
 }
@@ -39,16 +39,13 @@ const RegionalPrescriptionCard = ({
 }: Props) => {
   const apiClient = useContext(ApiClientContext);
   const dispatch = useAppDispatch();
-  const { hasUserRegionalPrescriptionPermission } = useAuthentication();
+  const { hasUserLocalPrescriptionPermission } = useAuthentication();
 
   const { data: laboratories } = apiClient.useFindLaboratoriesQuery();
 
-  const getComments = useCallback(
-    (regionalPrescription: RegionalPrescription) => {
-      return regionalPrescription?.comments || [];
-    },
-    []
-  );
+  const getComments = useCallback((regionalPrescription: LocalPrescription) => {
+    return regionalPrescription?.comments || [];
+  }, []);
 
   const departmentalPrescriptionsWithSamplesCount = useMemo(
     () =>
@@ -65,7 +62,7 @@ const RegionalPrescriptionCard = ({
     (): ButtonProps[] =>
       programmingPlan && regionalPrescription
         ? ([
-            hasUserRegionalPrescriptionPermission(
+            hasUserLocalPrescriptionPermission(
               programmingPlan,
               regionalPrescription
             )?.distributeToDepartments
@@ -98,7 +95,7 @@ const RegionalPrescriptionCard = ({
                   className: cx('fr-m-0')
                 }
               : undefined,
-            hasUserRegionalPrescriptionPermission(
+            hasUserLocalPrescriptionPermission(
               programmingPlan,
               regionalPrescription
             )?.updateLaboratory
@@ -131,7 +128,7 @@ const RegionalPrescriptionCard = ({
             programmingPlan.distributionKind === 'REGIONAL'
               ? {
                   children:
-                    hasUserRegionalPrescriptionPermission(
+                    hasUserLocalPrescriptionPermission(
                       programmingPlan,
                       regionalPrescription
                     )?.comment &&
@@ -145,7 +142,7 @@ const RegionalPrescriptionCard = ({
                       </span>
                     ),
                   disabled:
-                    !hasUserRegionalPrescriptionPermission(
+                    !hasUserLocalPrescriptionPermission(
                       programmingPlan,
                       regionalPrescription
                     )?.comment &&
@@ -200,7 +197,7 @@ const RegionalPrescriptionCard = ({
                   programmingPlan={programmingPlan}
                 />
               </div>
-              {hasUserRegionalPrescriptionPermission(
+              {hasUserLocalPrescriptionPermission(
                 programmingPlan,
                 regionalPrescription
               )?.updateLaboratory && (
@@ -245,7 +242,7 @@ const RegionalPrescriptionCard = ({
             </div>
             <div className="fr-card__end">
               <div>
-                {['InProgress', 'Submitted'].includes(
+                {['InProgress', 'SubmittedToRegion'].includes(
                   programmingPlan.regionalStatus.find(
                     (_) => _.region === regionalPrescription.region
                   )?.status as ProgrammingPlanStatus
@@ -256,7 +253,7 @@ const RegionalPrescriptionCard = ({
                         preserveCount: true
                       })('prélèvement programmé')}
                     </span>
-                    {hasUserRegionalPrescriptionPermission(
+                    {hasUserLocalPrescriptionPermission(
                       programmingPlan,
                       regionalPrescription
                     )?.distributeToDepartments && (

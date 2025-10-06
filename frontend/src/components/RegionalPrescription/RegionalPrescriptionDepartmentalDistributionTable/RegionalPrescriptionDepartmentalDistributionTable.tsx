@@ -7,9 +7,9 @@ import {
   DepartmentList
 } from 'maestro-shared/referential/Department';
 import { Regions } from 'maestro-shared/referential/Region';
+import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { useMemo } from 'react';
 import DistributionCountCell from 'src/components/DistributionTable/DistributionCountCell/DistributionCountCell';
 import { assert, type Equals } from 'tsafe';
@@ -18,13 +18,13 @@ import { useAuthentication } from '../../../hooks/useAuthentication';
 interface Props {
   programmingPlan: ProgrammingPlan;
   prescription: Prescription;
-  regionalPrescription: RegionalPrescription;
-  departmentalPrescriptions: RegionalPrescription[];
+  regionalPrescription: LocalPrescription;
+  departmentalPrescriptions: LocalPrescription[];
   onChangeDepartmentalCount: (department: Department, value: number) => void;
   displayedPart: 'first' | 'second';
 }
 
-const RegionalPrescriptionDistributionTable = ({
+const RegionalPrescriptionDepartmentalDistributionTable = ({
   programmingPlan,
   prescription,
   regionalPrescription,
@@ -34,7 +34,7 @@ const RegionalPrescriptionDistributionTable = ({
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
-  const { hasUserRegionalPrescriptionPermission } = useAuthentication();
+  const { hasUserLocalPrescriptionPermission } = useAuthentication();
 
   const departmentList = useMemo(
     () =>
@@ -83,7 +83,7 @@ const RegionalPrescriptionDistributionTable = ({
                 sumBy(departmentalPrescriptions, 'sampleCount')
               }
               isEditable={
-                hasUserRegionalPrescriptionPermission(
+                hasUserLocalPrescriptionPermission(
                   programmingPlan,
                   departmentalPrescription
                 )?.distributeToDepartments
@@ -102,4 +102,4 @@ const RegionalPrescriptionDistributionTable = ({
   );
 };
 
-export default RegionalPrescriptionDistributionTable;
+export default RegionalPrescriptionDepartmentalDistributionTable;

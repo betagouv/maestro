@@ -140,7 +140,7 @@ export interface ProgrammingPlans {
   year: number;
 }
 
-export interface RegionalPrescriptionComments {
+export interface LocalPrescriptionComments {
   comment: string;
   createdAt: Generated<Timestamp | null>;
   createdBy: string;
@@ -149,7 +149,7 @@ export interface RegionalPrescriptionComments {
   region: string;
 }
 
-export interface RegionalPrescriptions {
+export interface LocalPrescriptions {
   laboratoryId: string | null;
   prescriptionId: string;
   region: string;
@@ -254,8 +254,8 @@ export interface DB {
   prescriptions: Prescriptions;
   prescriptionSubstances: PrescriptionSubstances;
   programmingPlans: ProgrammingPlans;
-  regionalPrescriptionComments: RegionalPrescriptionComments;
-  regionalPrescriptions: RegionalPrescriptions;
+  regionalPrescriptionComments: LocalPrescriptionComments;
+  regionalPrescriptions: LocalPrescriptions;
   residueAnalytes: ResidueAnalytes;
   sampleDocuments: SampleDocuments;
   sampleItems: SampleItems;

@@ -41,7 +41,7 @@ const ProgrammingPlanNotificationRegionalToNational = ({
       programmingPlanRegionalStatusList: [
         {
           region,
-          status: 'Approved'
+          status: 'ApprovedByRegion'
         }
       ]
     });
@@ -53,12 +53,12 @@ const ProgrammingPlanNotificationRegionalToNational = ({
 
   if (
     hasNationalView ||
-    (status && !['Submitted', 'Approved'].includes(status))
+    (status && !['SubmittedToRegion', 'ApprovedByRegion'].includes(status))
   ) {
     return <></>;
   }
 
-  return status === 'Submitted' ? (
+  return status === 'SubmittedToRegion' ? (
     <div className={cx('fr-grid-row', 'fr-grid-row--gutters', 'fr-my-1w')}>
       {programmingPlan.distributionKind === 'REGIONAL' && (
         <>

@@ -18,15 +18,15 @@ import { ResidueComplianceLabels } from 'maestro-shared/schema/Analysis/Residue/
 import { ResidueKindLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
 import { ResultKindLabels } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 import {
+  getCompletionRate,
+  LocalPrescription,
+  LocalPrescriptionSort
+} from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
+import {
   Prescription,
   PrescriptionSort
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import {
-  getCompletionRate,
-  RegionalPrescription,
-  RegionalPrescriptionSort
-} from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import {
   getSampleMatrixLabel,
   PartialSample
@@ -310,7 +310,7 @@ const generateSamplesExportExcel = async (
 
 const generatePrescriptionsExportExcel = async (
   prescriptions: Prescription[],
-  regionalPrescriptions: RegionalPrescription[],
+  regionalPrescriptions: LocalPrescription[],
   exportedRegion: Region | undefined
 ): Promise<Buffer> => {
   const exportedRegions = exportedRegion ? [exportedRegion] : RegionList;
@@ -337,13 +337,13 @@ const generatePrescriptionsExportExcel = async (
   return highland(prescriptions.toSorted(PrescriptionSort))
     .map((prescription) => ({
       prescription,
-      filteredRegionalPrescriptions: [
+      filteredLocalPrescriptions: [
         ...regionalPrescriptions.filter(
           (r) => r.prescriptionId === prescription.id
         )
-      ].toSorted(RegionalPrescriptionSort)
+      ].toSorted(LocalPrescriptionSort)
     }))
-    .map(({ prescription, filteredRegionalPrescriptions }) => {
+    .map(({ prescription, filteredLocalPrescriptions }) => {
       return {
         matrix: MatrixKindLabels[prescription.matrixKind],
         stages: prescription.stages
@@ -351,26 +351,26 @@ const generatePrescriptionsExportExcel = async (
           .join(', '),
         columns: [
           !exportedRegion
-            ? sumBy(filteredRegionalPrescriptions, 'sampleCount')
+            ? sumBy(filteredLocalPrescriptions, 'sampleCount')
             : undefined,
           !exportedRegion
-            ? sumBy(filteredRegionalPrescriptions, 'realizedSampleCount')
+            ? sumBy(filteredLocalPrescriptions, 'realizedSampleCount')
             : undefined,
           !exportedRegion
-            ? getCompletionRate(filteredRegionalPrescriptions)
+            ? getCompletionRate(filteredLocalPrescriptions)
             : undefined,
-          ...filteredRegionalPrescriptions.reduce(
+          ...filteredLocalPrescriptions.reduce(
             (acc, { sampleCount, realizedSampleCount, region }) => [
               ...acc,
               sampleCount,
               realizedSampleCount ?? 0,
-              getCompletionRate(filteredRegionalPrescriptions, region)
+              getCompletionRate(filteredLocalPrescriptions, region)
             ],
             [] as number[]
           ),
           laboratories.find(
             (laboratory) =>
-              laboratory.id === filteredRegionalPrescriptions[0]?.laboratoryId
+              laboratory.id === filteredLocalPrescriptions[0]?.laboratoryId
           )?.name
         ]
           .filter(isDefined)

@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Region, RegionList } from 'maestro-shared/referential/Region';
 import {
-  genPrescription,
-  genRegionalPrescription
+  genLocalPrescription,
+  genPrescription
 } from 'maestro-shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import {
@@ -64,13 +64,13 @@ export const NationalCoordinatorView: Story = {
         data: [inProgressProgrammingPlan, programmingPlan]
       },
       useFindPrescriptionsQuery: { data: [prescription1, prescription2] },
-      useFindRegionalPrescriptionsQuery: {
+      useFindLocalPrescriptionsQuery: {
         data: RegionList.flatMap((region) => [
-          genRegionalPrescription({
+          genLocalPrescription({
             prescriptionId: prescription1.id,
             region
           }),
-          genRegionalPrescription({
+          genLocalPrescription({
             prescriptionId: prescription2.id,
             region
           })
@@ -118,13 +118,13 @@ export const RegionalCoordinatorView: Story = {
     apiClient: getMockApi({
       useFindProgrammingPlansQuery: { data: [programmingPlan] },
       useFindPrescriptionsQuery: { data: [prescription1, prescription2] },
-      useFindRegionalPrescriptionsQuery: {
+      useFindLocalPrescriptionsQuery: {
         data: [
-          genRegionalPrescription({
+          genLocalPrescription({
             prescriptionId: prescription1.id,
             region: RegionalCoordinator.region as Region
           }),
-          genRegionalPrescription({
+          genLocalPrescription({
             prescriptionId: prescription2.id,
             region: RegionalCoordinator.region as Region
           })

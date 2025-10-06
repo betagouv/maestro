@@ -5,9 +5,9 @@ import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import clsx from 'clsx';
 import { t } from 'i18next';
 import { isNil, sumBy, uniq } from 'lodash-es';
+import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import React, { useMemo } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
@@ -21,7 +21,8 @@ import './ProgrammingPrescriptionList.scss';
 interface Props {
   programmingPlan: ProgrammingPlan;
   prescriptions: Prescription[];
-  regionalPrescriptions: RegionalPrescription[];
+  regionalPrescriptions: LocalPrescription[];
+  departmentalPrescriptions: LocalPrescription[];
   exportURL: string;
   hasGroupedUpdatePermission?: boolean;
   selectedCount?: number;
@@ -33,6 +34,7 @@ const ProgrammingPrescriptionListHeader = ({
   programmingPlan,
   prescriptions,
   regionalPrescriptions,
+  departmentalPrescriptions,
   exportURL,
   hasGroupedUpdatePermission,
   selectedCount,
@@ -41,7 +43,7 @@ const ProgrammingPrescriptionListHeader = ({
 }: Props) => {
   const dispatch = useAppDispatch();
   const { isMobile } = useWindowSize();
-  const { hasUserPrescriptionPermission, hasNationalView } =
+  const { hasUserPrescriptionPermission, hasNationalView, hasRegionalView } =
     useAuthentication();
 
   const { prescriptionListDisplay, matrixQuery } = useAppSelector(
@@ -128,10 +130,13 @@ const ProgrammingPrescriptionListHeader = ({
         <ProgrammingPlanNotificationNationalToRegional
           programmingPlan={programmingPlan}
         />
-        <ProgrammingPlanNotificationRegionalToDepartmental
-          programmingPlan={programmingPlan}
-          regionalPrescriptions={regionalPrescriptions}
-        />
+        {hasRegionalView && (
+          <ProgrammingPlanNotificationRegionalToDepartmental
+            programmingPlan={programmingPlan}
+            regionalPrescriptions={regionalPrescriptions}
+            departmentalPrescriptions={departmentalPrescriptions}
+          />
+        )}
       </div>
       <hr className={cx('fr-my-3w')} />
       <div className="d-flex-align-center">

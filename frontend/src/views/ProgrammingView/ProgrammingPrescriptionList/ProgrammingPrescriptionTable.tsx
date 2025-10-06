@@ -4,12 +4,12 @@ import clsx from 'clsx';
 import { sumBy } from 'lodash-es';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, RegionList } from 'maestro-shared/referential/Region';
+import {
+  LocalPrescription,
+  LocalPrescriptionSort
+} from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import {
-  RegionalPrescription,
-  RegionalPrescriptionSort
-} from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { useMemo } from 'react';
 import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
 import DistributionCountCell from 'src/components/DistributionTable/DistributionCountCell/DistributionCountCell';
@@ -19,8 +19,8 @@ import { useAuthentication } from '../../../hooks/useAuthentication';
 interface Props {
   programmingPlan: ProgrammingPlan;
   prescriptions: Prescription[];
-  regionalPrescriptions: RegionalPrescription[];
-  onChangeRegionalPrescriptionCount: (
+  regionalPrescriptions: LocalPrescription[];
+  onChangeLocalPrescriptionCount: (
     prescription: Prescription,
     region: Region,
     count: number
@@ -31,11 +31,11 @@ const ProgrammingPrescriptionTable = ({
   programmingPlan,
   prescriptions,
   regionalPrescriptions,
-  onChangeRegionalPrescriptionCount
+  onChangeLocalPrescriptionCount
 }: Props) => {
-  const { hasUserRegionalPrescriptionPermission } = useAuthentication();
+  const { hasUserLocalPrescriptionPermission } = useAuthentication();
 
-  const getRegionalPrescriptions = (prescriptionId: string) =>
+  const getLocalPrescriptions = (prescriptionId: string) =>
     regionalPrescriptions
       .filter((r) => r.prescriptionId === prescriptionId)
       .sort((a, b) => a.region.localeCompare(b.region));
@@ -71,24 +71,24 @@ const ProgrammingPrescriptionTable = ({
         >
           <div>
             {sumBy(
-              getRegionalPrescriptions(prescription.id),
+              getLocalPrescriptions(prescription.id),
               ({ sampleCount }) => sampleCount
             )}
           </div>
           <div>
             {sumBy(
-              getRegionalPrescriptions(prescription.id),
+              getLocalPrescriptions(prescription.id),
               'realizedSampleCount'
             )}
           </div>
           <div>
             <CompletionBadge
-              regionalPrescriptions={getRegionalPrescriptions(prescription.id)}
+              regionalPrescriptions={getLocalPrescriptions(prescription.id)}
             />
           </div>
         </div>,
-        ...getRegionalPrescriptions(prescription.id)
-          .sort(RegionalPrescriptionSort)
+        ...getLocalPrescriptions(prescription.id)
+          .sort(LocalPrescriptionSort)
           .map((regionalPrescription) => (
             <div
               className="border-left"
@@ -100,13 +100,13 @@ const ProgrammingPrescriptionTable = ({
                 matrixKind={prescription.matrixKind}
                 regionalPrescription={regionalPrescription}
                 isEditable={
-                  hasUserRegionalPrescriptionPermission(
+                  hasUserLocalPrescriptionPermission(
                     programmingPlan,
                     regionalPrescription
                   )?.updateSampleCount
                 }
                 onChange={async (value) =>
-                  onChangeRegionalPrescriptionCount(
+                  onChangeLocalPrescriptionCount(
                     prescription,
                     regionalPrescription.region,
                     value

@@ -78,7 +78,7 @@ const sampleApi = api.injectEndpoints({
         { type: 'Sample', id: 'LIST' },
         { type: 'Sample', id },
         'SampleCount',
-        { type: 'RegionalPrescription', id: 'LIST' },
+        { type: 'LocalPrescription', id: 'LIST' },
         { type: 'Prescription', id: 'LIST' }
       ]
     }),
@@ -94,7 +94,7 @@ const sampleApi = api.injectEndpoints({
         { type: 'Sample', id: 'LIST' },
         { type: 'Sample', id },
         'SampleCount',
-        { type: 'RegionalPrescription', id: 'LIST' },
+        { type: 'LocalPrescription', id: 'LIST' },
         { type: 'Prescription', id: 'LIST' }
       ]
     }),
@@ -115,7 +115,7 @@ const sampleApi = api.injectEndpoints({
         { type: 'Sample', id: 'LIST' },
         { type: 'Sample', id },
         'SampleCount',
-        { type: 'RegionalPrescription', id: 'LIST' },
+        { type: 'LocalPrescription', id: 'LIST' },
         { type: 'Prescription', id: 'LIST' }
       ]
     })

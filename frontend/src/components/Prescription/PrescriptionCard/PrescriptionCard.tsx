@@ -6,9 +6,9 @@ import { sumBy } from 'lodash-es';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, RegionList } from 'maestro-shared/referential/Region';
 import { Stage } from 'maestro-shared/referential/Stage';
+import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { useState } from 'react';
 import PrescriptionDistributionTable from 'src/components/Prescription/PrescriptionDistributionTable/PrescriptionDistributionTable';
 import PrescriptionNotes from 'src/components/Prescription/PrescriptionNotes/PrescriptionNotes';
@@ -24,8 +24,8 @@ import './PrescriptionCard.scss';
 interface Props {
   programmingPlan?: ProgrammingPlan;
   prescription: Prescription;
-  regionalPrescriptions: RegionalPrescription[];
-  onChangeRegionalPrescriptionCount: (region: Region, value: number) => void;
+  regionalPrescriptions: LocalPrescription[];
+  onChangeLocalPrescriptionCount: (region: Region, value: number) => void;
   onRemovePrescription: (prescriptionId: string) => Promise<void>;
   onChangePrescriptionStages: (stages: Stage[]) => Promise<void>;
   onChangePrescriptionNotes: (note: string) => Promise<void>;
@@ -40,7 +40,7 @@ const PrescriptionCard = ({
   programmingPlan,
   prescription,
   regionalPrescriptions,
-  onChangeRegionalPrescriptionCount,
+  onChangeLocalPrescriptionCount,
   onRemovePrescription: removeMatrix,
   onChangePrescriptionStages,
   onChangePrescriptionNotes,
@@ -145,7 +145,7 @@ const PrescriptionCard = ({
                 programmingPlan={programmingPlan}
                 matrixKind={prescription.matrixKind}
                 regionalPrescriptions={regionalPrescriptions}
-                onChangeRegionalCount={onChangeRegionalPrescriptionCount}
+                onChangeRegionalCount={onChangeLocalPrescriptionCount}
                 start={0}
                 end={RegionList.length / 2}
               />
@@ -153,7 +153,7 @@ const PrescriptionCard = ({
                 programmingPlan={programmingPlan}
                 matrixKind={prescription.matrixKind}
                 regionalPrescriptions={regionalPrescriptions}
-                onChangeRegionalCount={onChangeRegionalPrescriptionCount}
+                onChangeRegionalCount={onChangeLocalPrescriptionCount}
                 start={RegionList.length / 2}
               />
               <PrescriptionProgrammingInstruction

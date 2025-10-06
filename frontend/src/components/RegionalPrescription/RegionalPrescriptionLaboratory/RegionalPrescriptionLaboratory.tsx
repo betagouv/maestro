@@ -6,7 +6,7 @@ import {
   getLaboratoryFullName,
   Laboratory
 } from 'maestro-shared/schema/Laboratory/Laboratory';
-import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
+import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { useContext, useState } from 'react';
 import {
   AppSelectOption,
@@ -15,11 +15,11 @@ import {
 import { ApiClientContext } from '../../../services/apiClient';
 
 interface Props {
-  regionalPrescription: RegionalPrescription;
+  regionalPrescription: LocalPrescription;
   onChangeLaboratory: (laboratoryId: string) => Promise<void>;
 }
 
-const RegionalPrescriptionLaboratory = ({
+const LocalPrescriptionLaboratory = ({
   regionalPrescription,
   onChangeLaboratory
 }: Props) => {
@@ -114,4 +114,4 @@ const RegionalPrescriptionLaboratory = ({
   );
 };
 
-export default RegionalPrescriptionLaboratory;
+export default LocalPrescriptionLaboratory;

@@ -5,10 +5,10 @@ import { RegionList, Regions } from '../referential/Region';
 import { SSD2Ids } from '../referential/Residue/SSD2Id';
 import { StageList } from '../referential/Stage';
 import { AnalysisMethodList } from '../schema/Analysis/AnalysisMethod';
+import { LocalPrescription } from '../schema/LocalPrescription/LocalPrescription';
 import { Prescription } from '../schema/Prescription/Prescription';
 import { PrescriptionSubstance } from '../schema/Prescription/PrescriptionSubstance';
 import { ProgrammingPlanContextList } from '../schema/ProgrammingPlan/Context';
-import { RegionalPrescription } from '../schema/RegionalPrescription/RegionalPrescription';
 import { DummyLaboratoryIds } from '../schema/User/User';
 import { LaboratoryFixture } from './laboratoryFixtures';
 import {
@@ -29,9 +29,9 @@ export const genPrescription = (
   ...data
 });
 
-export const genRegionalPrescription = (
-  data?: Partial<RegionalPrescription>
-): RegionalPrescription => ({
+export const genLocalPrescription = (
+  data?: Partial<LocalPrescription>
+): LocalPrescription => ({
   prescriptionId: uuidv4(),
   region: oneOf(RegionList),
   sampleCount: fakerFR.number.int({
@@ -59,7 +59,7 @@ export const PrescriptionFixture = genPrescription({
   stages: StageList
 });
 
-export const RegionalPrescriptionFixture = genRegionalPrescription({
+export const LocalPrescriptionFixture = genLocalPrescription({
   prescriptionId: PrescriptionFixture.id,
   region: '44',
   sampleCount: 1,
@@ -83,7 +83,7 @@ export const VolaillePrescriptionFixture = genPrescription({
   stages: ['STADE10']
 });
 
-const genRegionalPrescriptions = (
+const genLocalPrescriptions = (
   prescriptionId: string,
   quantities: number[]
 ) => [
@@ -102,12 +102,12 @@ const genRegionalPrescriptions = (
     }))
   )
 ];
-export const FoieDeBovinRegionalPrescriptionFixture = genRegionalPrescriptions(
+export const FoieDeBovinLocalPrescriptionFixture = genLocalPrescriptions(
   FoieDeBovinPrescriptionFixture.id,
   [3, 2, 5, 8, 10, 1, 2, 10, 3, 3, 2, 9, 4, 4, 2, 1, 5, 6]
 );
 
-export const VolailleRegionalPrescriptionFixture = genRegionalPrescriptions(
+export const VolailleLocalPrescriptionFixture = genLocalPrescriptions(
   VolaillePrescriptionFixture.id,
   [2, 3, 8, 1, 9, 1, 11, 3, 2, 1, 1, 4, 6, 1, 5, 6, 3, 10]
 );

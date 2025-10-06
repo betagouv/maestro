@@ -5,9 +5,9 @@ import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { v4 as uuidv4 } from 'uuid';
 import { getAndCheckPrescription } from '../middlewares/checks/prescriptionCheck';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
+import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
-import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
 import { ProtectedSubRouter } from '../routers/routes.type';
 import { excelService } from '../services/excelService/excelService';
 
@@ -42,7 +42,7 @@ export const prescriptionsRouter = {
 
       await prescriptionRepository.insert(createdPrescription);
 
-      await regionalPrescriptionRepository.insertMany(
+      await localPrescriptionRepository.insertMany(
         RegionList.map((region) => ({
           prescriptionId: createdPrescription.id,
           region,
@@ -51,7 +51,7 @@ export const prescriptionsRouter = {
       );
 
       if (programmingPlan.distributionKind === 'SLAUGHTERHOUSE') {
-        await regionalPrescriptionRepository.insertMany(
+        await localPrescriptionRepository.insertMany(
           RegionList.flatMap((region) =>
             Regions[region].departments.map((department) => ({
               prescriptionId: createdPrescription.id,
@@ -82,11 +82,10 @@ export const prescriptionsRouter = {
 
       const prescriptions =
         await prescriptionRepository.findMany(queryFindOptions);
-      const regionalPrescriptions =
-        await regionalPrescriptionRepository.findMany({
-          ...findOptions,
-          includes: ['comments', 'sampleCounts']
-        });
+      const regionalPrescriptions = await localPrescriptionRepository.findMany({
+        ...findOptions,
+        includes: ['comments', 'sampleCounts']
+      });
 
       const fileName = `prescriptions-${findOptions.contexts?.map((context) =>
         ContextLabels[context].toLowerCase().replaceAll(' ', '-')

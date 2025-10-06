@@ -3,18 +3,18 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { t } from 'i18next';
 import { sumBy } from 'lodash-es';
 import { Department } from 'maestro-shared/referential/Department';
+import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { useMemo } from 'react';
 import { pluralize } from '../../../utils/stringUtils';
-import RegionalPrescriptionDistributionTable from '../RegionalPrescriptionDistributionTable/RegionalPrescriptionDistributionTable';
+import RegionalPrescriptionDepartmentalDistributionTable from '../RegionalPrescriptionDepartmentalDistributionTable/RegionalPrescriptionDepartmentalDistributionTable';
 
 interface Props {
   programmingPlan: ProgrammingPlan;
   prescription: Prescription;
-  regionalPrescription: RegionalPrescription;
-  departmentalPrescriptions: RegionalPrescription[];
+  regionalPrescription: LocalPrescription;
+  departmentalPrescriptions: LocalPrescription[];
   onChangeDepartmentalCount: (
     department: Department,
     value: number
@@ -51,7 +51,7 @@ const RegionalPrescriptionDepartmentalDistribution = ({
       </div>
       <div>
         Départements
-        <RegionalPrescriptionDistributionTable
+        <RegionalPrescriptionDepartmentalDistributionTable
           programmingPlan={programmingPlan}
           prescription={prescription}
           regionalPrescription={regionalPrescription}
@@ -59,7 +59,7 @@ const RegionalPrescriptionDepartmentalDistribution = ({
           onChangeDepartmentalCount={onChangeDepartmentalCount}
           displayedPart="first"
         />
-        <RegionalPrescriptionDistributionTable
+        <RegionalPrescriptionDepartmentalDistributionTable
           programmingPlan={programmingPlan}
           prescription={prescription}
           regionalPrescription={regionalPrescription}

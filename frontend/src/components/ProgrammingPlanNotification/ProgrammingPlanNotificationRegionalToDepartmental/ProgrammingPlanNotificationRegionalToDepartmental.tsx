@@ -5,15 +5,13 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import Select from '@codegouvfr/react-dsfr/Select';
-import clsx from 'clsx';
-import { Region, Regions, RegionSort } from 'maestro-shared/referential/Region';
+import { sumBy } from 'lodash-es';
+import { DepartmentLabels } from 'maestro-shared/referential/Department';
+import { Region, Regions } from 'maestro-shared/referential/Region';
+import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import {
-  NextProgrammingPlanStatus,
-  ProgrammingPlanStatus
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { RegionalPrescription } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
-import React, { useCallback, useContext, useState } from 'react';
+import { NextProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import React, { useContext, useState } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch } from '../../../hooks/useStore';
 import { api } from '../../../services/api.service';
@@ -22,7 +20,8 @@ import { pluralize } from '../../../utils/stringUtils';
 import '../ProgrammingPlanNotification.scss';
 interface Props {
   programmingPlan: ProgrammingPlan;
-  regionalPrescriptions: RegionalPrescription[];
+  regionalPrescriptions: LocalPrescription[];
+  departmentalPrescriptions: LocalPrescription[];
 }
 const submissionModal = createModal({
   id: `submission-modal`,
@@ -31,11 +30,12 @@ const submissionModal = createModal({
 
 const ProgrammingPlanNotificationRegionalToDepartmental = ({
   programmingPlan,
-  regionalPrescriptions
+  regionalPrescriptions,
+  departmentalPrescriptions
 }: Props) => {
   const dispatch = useAppDispatch();
   const apiClient = useContext(ApiClientContext);
-  const { user, hasUserRegionalPrescriptionPermission } = useAuthentication();
+  const { user, hasUserLocalPrescriptionPermission } = useAuthentication();
 
   const [updateRegionalStatus] =
     apiClient.useUpdateProgrammingPlanRegionalStatusMutation();
@@ -43,26 +43,14 @@ const ProgrammingPlanNotificationRegionalToDepartmental = ({
   const [isSuccess, setIsSuccess] = useState(false);
   const [isError, setIsError] = useState(false);
 
-  const getRegionsByStatus = useCallback(
-    (status: ProgrammingPlanStatus) =>
-      (programmingPlan?.regionalStatus || [])
-        .filter((_) => _.status === status)
-        .map((_) => _.region)
-        .sort(RegionSort),
-    [programmingPlan]
-  );
-
-  const [status, setStatus] = useState<ProgrammingPlanStatus>('InProgress');
-  const [regionsToNotify, setRegionsToNotify] = useState<Region[]>(
-    getRegionsByStatus('InProgress')
+  const [departmentsToNotify, _] = useState(
+    Regions[user?.region as Region].departments
   );
 
   useIsModalOpen(submissionModal, {
     onConceal: () => {
       setIsSuccess(false);
       setIsError(false);
-      setStatus('InProgress');
-      setRegionsToNotify([]);
     }
   });
 
@@ -72,10 +60,15 @@ const ProgrammingPlanNotificationRegionalToDepartmental = ({
     if (programmingPlan) {
       await updateRegionalStatus({
         programmingPlanId: programmingPlan.id,
-        programmingPlanRegionalStatusList: regionsToNotify.map((region) => ({
-          region,
-          status: NextProgrammingPlanStatus[status] as ProgrammingPlanStatus
-        }))
+        programmingPlanRegionalStatusList: [
+          {
+            region: user?.region as Region,
+            status:
+              NextProgrammingPlanStatus[programmingPlan.distributionKind][
+                'SubmittedToRegion'
+              ]
+          }
+        ]
       })
         .unwrap()
         .then(() => {
@@ -87,30 +80,40 @@ const ProgrammingPlanNotificationRegionalToDepartmental = ({
     }
   };
 
-  if (
-    !regionalPrescriptions.some(
-      (regionalPrescription) =>
-        hasUserRegionalPrescriptionPermission(
-          programmingPlan,
-          regionalPrescription
-        )?.distributeToDepartments
-    )
-  ) {
-    return <> </>;
+  if (!user?.region) {
+    return <></>;
   }
 
   return (
     <>
-      <div className="notify-regions-menu">
-        <Button
-          iconId="fr-icon-send-plane-fill"
-          iconPosition="right"
-          id="notify-regions-button"
-          onClick={() => submissionModal.open()}
-        >
-          Notifier les départements
-        </Button>
-      </div>
+      {regionalPrescriptions.some(
+        (regionalPrescription) =>
+          hasUserLocalPrescriptionPermission(
+            programmingPlan,
+            regionalPrescription
+          )?.distributeToDepartments
+      ) && (
+        <div className="notify-regions-menu">
+          <Button
+            iconId="fr-icon-send-plane-fill"
+            iconPosition="right"
+            id="notify-regions-button"
+            onClick={() => submissionModal.open()}
+            disabled={regionalPrescriptions.some(
+              (regionalPrescription) =>
+                sumBy(
+                  departmentalPrescriptions.filter(
+                    (dp) =>
+                      dp.prescriptionId === regionalPrescription.prescriptionId
+                  ),
+                  'sampleCount'
+                ) < regionalPrescription.sampleCount
+            )}
+          >
+            Notifier les départements
+          </Button>
+        </div>
+      )}
 
       <submissionModal.Component
         title={isSuccess ? 'Notification envoyée' : 'Notifier les départements'}
@@ -133,19 +136,18 @@ const ProgrammingPlanNotificationRegionalToDepartmental = ({
                   children: 'Envoyer',
                   onClick: submit,
                   doClosesModal: false,
-                  disabled: regionsToNotify.length === 0
+                  disabled: departmentsToNotify.length === 0
                 }
               ]
         }
       >
         {isSuccess ? (
           <>
-            {status === 'InProgress'
-              ? 'La soumission de la programmation a bien été envoyée pour'
-              : 'La programmation est désormais validée pour'}
-            {regionsToNotify.length > 1 ? ' les régions ' : ' la région '}
+            La soumission de la programmation a bien été envoyée aux départments{' '}
             <b>
-              {regionsToNotify.map((region) => Regions[region].name).join(', ')}
+              {departmentsToNotify
+                .map((department) => DepartmentLabels[department])
+                .join(', ')}
               .
             </b>
           </>
@@ -168,53 +170,24 @@ const ProgrammingPlanNotificationRegionalToDepartmental = ({
             </Select>
             <hr className={cx('fr-my-2w')} />
             <div className={cx('fr-mt-3w')}>
-              {getRegionsByStatus(status).length > 0 ? (
-                <Checkbox
-                  legend={
-                    <div className="d-flex-align-center">
-                      <span className="flex-grow-1">
-                        Régions ({regionsToNotify.length}{' '}
-                        {pluralize(regionsToNotify.length)('sélectionnée')})
-                      </span>
-                      <Button
-                        onClick={() =>
-                          setRegionsToNotify(
-                            regionsToNotify.length ===
-                              getRegionsByStatus(status).length
-                              ? []
-                              : getRegionsByStatus(status)
-                          )
-                        }
-                        priority="tertiary no outline"
-                        className={clsx(cx('fr-link--sm'), 'link-underline')}
-                      >
-                        Tout{' '}
-                        {getRegionsByStatus(status).length ===
-                        regionsToNotify.length
-                          ? 'désélectionner'
-                          : 'sélectionner'}
-                      </Button>
-                    </div>
+              <Checkbox
+                legend={
+                  <div className="d-flex-align-center">
+                    <span className="flex-grow-1">
+                      Départements ({departmentsToNotify.length}{' '}
+                      {pluralize(departmentsToNotify.length)('sélectionnée')})
+                    </span>
+                  </div>
+                }
+                options={departmentsToNotify.map((department) => ({
+                  label: DepartmentLabels[department],
+                  nativeInputProps: {
+                    checked: true,
+                    disabled: true
                   }
-                  options={getRegionsByStatus(status).map((region) => ({
-                    label: Regions[region].name,
-                    nativeInputProps: {
-                      checked: regionsToNotify.includes(region),
-                      onChange: () =>
-                        setRegionsToNotify((prev) => {
-                          if (prev.includes(region)) {
-                            return prev.filter((_) => _ !== region);
-                          } else {
-                            return [...prev, region];
-                          }
-                        })
-                    }
-                  }))}
-                  orientation="horizontal"
-                />
-              ) : (
-                <i>Aucun département concerné</i>
-              )}
+                }))}
+                orientation="horizontal"
+              />
             </div>
           </>
         )}

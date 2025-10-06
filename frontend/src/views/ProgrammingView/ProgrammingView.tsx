@@ -4,6 +4,7 @@ import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import clsx from 'clsx';
 import { isEmpty, mapValues, omitBy, orderBy, uniqBy } from 'lodash-es';
 import { Region, Regions } from 'maestro-shared/referential/Region';
+import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   ProgrammingPlanDomain,
@@ -12,7 +13,6 @@ import {
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatusList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { RegionalPrescriptionKey } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionKey';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import programmation from '../../assets/illustrations/programmation-white.svg';
@@ -54,8 +54,8 @@ const ProgrammingView = () => {
   const { data: programmingPlans } = apiClient.useFindProgrammingPlansQuery({
     status: ProgrammingPlanStatusList.filter((status) => status !== 'Closed')
   });
-  const [commentRegionalPrescription, { isSuccess: isCommentSuccess }] =
-    apiClient.useCommentRegionalPrescriptionMutation();
+  const [commentLocalPrescription, { isSuccess: isCommentSuccess }] =
+    apiClient.useCommentLocalPrescriptionMutation();
 
   const {
     domainOptions,
@@ -115,13 +115,13 @@ const ProgrammingView = () => {
     setSearchParams(urlSearchParams, { replace: true });
   };
 
-  const submitRegionalPrescriptionComment = useCallback(
+  const submitLocalPrescriptionComment = useCallback(
     async (
       programmingPlan: ProgrammingPlan,
-      regionalPrescriptionKey: RegionalPrescriptionKey,
+      regionalPrescriptionKey: LocalPrescriptionKey,
       comment: string
     ) => {
-      await commentRegionalPrescription({
+      await commentLocalPrescription({
         prescriptionId: regionalPrescriptionKey.prescriptionId,
         region: regionalPrescriptionKey.region,
         commentToCreate: {
@@ -130,7 +130,7 @@ const ProgrammingView = () => {
         }
       });
     },
-    [commentRegionalPrescription]
+    [commentLocalPrescription]
   );
 
   return (
@@ -184,12 +184,6 @@ const ProgrammingView = () => {
                 region={region as Region}
               />
             )}
-            {/*{programmingPlan && (*/}
-            {/*  <ProgrammingPlanNotificationRegionalToDepartmental*/}
-            {/*    programmingPlan={programmingPlan}*/}
-            {/*    region={region as Region}*/}
-            {/*  />*/}
-            {/*)}*/}
             <div
               className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}
             >
@@ -275,7 +269,7 @@ const ProgrammingView = () => {
         </div>
       </section>
       <PrescriptionCommentsModal
-        onSubmitRegionalPrescriptionComment={submitRegionalPrescriptionComment}
+        onSubmitLocalPrescriptionComment={submitLocalPrescriptionComment}
       />
     </>
   );

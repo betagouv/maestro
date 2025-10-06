@@ -1,14 +1,14 @@
 import { isNil } from 'lodash-es';
 import { Region } from 'maestro-shared/referential/Region';
 import {
+  hasLocalPrescriptionPermission,
+  LocalPrescriptionPermission
+} from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
+import {
   hasPrescriptionPermission,
   PrescriptionPermission
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import {
-  hasRegionalPrescriptionPermission,
-  RegionalPrescriptionPermission
-} from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import {
   hasNationalRole,
   hasPermission,
@@ -65,15 +65,15 @@ export const useAuthentication = () => {
     [authUser]
   );
 
-  const hasUserRegionalPrescriptionPermission = useCallback(
+  const hasUserLocalPrescriptionPermission = useCallback(
     (
       programmingPlan?: ProgrammingPlan,
       regionalPrescription?: { region: Region }
-    ): Record<RegionalPrescriptionPermission, boolean> | null =>
+    ): Record<LocalPrescriptionPermission, boolean> | null =>
       !isNil(authUser?.user) &&
       !isNil(regionalPrescription) &&
       !isNil(programmingPlan)
-        ? hasRegionalPrescriptionPermission(
+        ? hasLocalPrescriptionPermission(
             authUser.user,
             programmingPlan,
             regionalPrescription
@@ -108,7 +108,7 @@ export const useAuthentication = () => {
     isAuthenticated,
     hasUserPermission,
     hasUserPrescriptionPermission,
-    hasUserRegionalPrescriptionPermission,
+    hasUserLocalPrescriptionPermission,
     hasRole,
     hasNationalView,
     hasRegionalView,

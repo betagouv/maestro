@@ -8,9 +8,9 @@ import { t } from 'i18next';
 import { sumBy } from 'lodash-es';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
+import { FindLocalPrescriptionOptions } from 'maestro-shared/schema/LocalPrescription/FindLocalPrescriptionOptions';
 import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { FindRegionalPrescriptionOptions } from 'maestro-shared/schema/RegionalPrescription/FindRegionalPrescriptionOptions';
 import { ChangeEvent, useContext, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { useAppDispatch, useAppSelector } from '../../../hooks/useStore';
@@ -52,7 +52,7 @@ const ProgrammingCommentList = ({ programmingPlan, ..._rest }: Props) => {
     }
   );
 
-  const findRegionalPrescriptionOptions = useMemo(
+  const findLocalPrescriptionOptions = useMemo(
     () => ({
       ...findPrescriptionOptions,
       includes: ['comments' as const, 'sampleCounts' as const]
@@ -61,14 +61,11 @@ const ProgrammingCommentList = ({ programmingPlan, ..._rest }: Props) => {
   );
 
   const { data: regionalPrescriptions } =
-    apiClient.useFindRegionalPrescriptionsQuery(
-      findRegionalPrescriptionOptions,
-      {
-        skip: !FindRegionalPrescriptionOptions.safeParse(
-          findRegionalPrescriptionOptions
-        ).success
-      }
-    );
+    apiClient.useFindLocalPrescriptionsQuery(findLocalPrescriptionOptions, {
+      skip: !FindLocalPrescriptionOptions.safeParse(
+        findLocalPrescriptionOptions
+      ).success
+    });
 
   const commentedPrescriptions = useMemo(
     () =>

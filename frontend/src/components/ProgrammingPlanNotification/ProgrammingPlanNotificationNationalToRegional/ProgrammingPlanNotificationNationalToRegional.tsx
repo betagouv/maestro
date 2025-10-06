@@ -72,7 +72,9 @@ const ProgrammingPlanNotificationNationalToRegional = ({
         programmingPlanId: programmingPlan.id,
         programmingPlanRegionalStatusList: regionsToNotify.map((region) => ({
           region,
-          status: NextProgrammingPlanStatus[status] as ProgrammingPlanStatus
+          status: NextProgrammingPlanStatus[programmingPlan.distributionKind][
+            status
+          ] as ProgrammingPlanStatus
         }))
       })
         .unwrap()
@@ -93,9 +95,11 @@ const ProgrammingPlanNotificationNationalToRegional = ({
     <>
       {programmingPlan.regionalStatus.some(
         (regionalStatus) =>
-          NextProgrammingPlanStatus[regionalStatus.status] &&
-          ['Submitted', 'Validated'].includes(
-            NextProgrammingPlanStatus[
+          NextProgrammingPlanStatus[programmingPlan.distributionKind][
+            regionalStatus.status
+          ] &&
+          ['SubmittedToRegion', 'Validated'].includes(
+            NextProgrammingPlanStatus[programmingPlan.distributionKind][
               regionalStatus.status
             ] as ProgrammingPlanStatus
           )
@@ -183,12 +187,15 @@ const ProgrammingPlanNotificationNationalToRegional = ({
                 {
                   label: 'Valider la programmation',
                   nativeInputProps: {
-                    checked: status === 'Approved',
+                    checked: status === 'ApprovedByRegion',
                     onChange: () => {
-                      setStatus('Approved');
-                      setRegionsToNotify(getRegionsByStatus('Approved'));
+                      setStatus('ApprovedByRegion');
+                      setRegionsToNotify(
+                        getRegionsByStatus('ApprovedByRegion')
+                      );
                     },
-                    disabled: getRegionsByStatus('Approved').length === 0
+                    disabled:
+                      getRegionsByStatus('ApprovedByRegion').length === 0
                   }
                 }
               ]}

@@ -13,10 +13,10 @@ import {
 import { hasPermission, userRegions } from 'maestro-shared/schema/User/User';
 import { v4 as uuidv4 } from 'uuid';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
+import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
-import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
 import { userRepository } from '../repositories/userRepository';
 import { ProtectedSubRouter } from '../routers/routes.type';
 import { notificationService } from '../services/notificationService';
@@ -109,8 +109,9 @@ export const programmingPlanRouter = {
         newProgrammingPlanStatus !== 'Closed' ||
         programmingPlan.regionalStatus.some(
           (programmingPlanRegionalStatus) =>
-            NextProgrammingPlanStatus[programmingPlanRegionalStatus.status] !==
-            newProgrammingPlanStatus
+            NextProgrammingPlanStatus[programmingPlan.distributionKind][
+              programmingPlanRegionalStatus.status
+            ] !== newProgrammingPlanStatus
         )
       ) {
         return { status: constants.HTTP_STATUS_BAD_REQUEST };
@@ -158,7 +159,7 @@ export const programmingPlanRouter = {
       if (
         programmingPlanRegionalStatusList.some(
           (programmingPlanRegionalStatus) =>
-            NextProgrammingPlanStatus[
+            NextProgrammingPlanStatus[programmingPlan.distributionKind][
               programmingPlan.regionalStatus.find(
                 (_) => _.region === programmingPlanRegionalStatus.region
               )?.status as ProgrammingPlanStatus
@@ -169,11 +170,8 @@ export const programmingPlanRouter = {
       }
 
       if (
-        hasPermission(user, 'approveProgrammingPlan') &&
-        !hasPermission(user, 'manageProgrammingPlan') &&
         programmingPlanRegionalStatusList.some(
           (programmingPlanRegionalStatus) =>
-            programmingPlanRegionalStatus.status !== 'Approved' ||
             !userRegions(user).includes(programmingPlanRegionalStatus.region)
         )
       ) {
@@ -184,7 +182,7 @@ export const programmingPlanRouter = {
         programmingPlanRegionalStatusList.map(
           async (programmingPlanRegionalStatus) => {
             if (
-              ['Submitted', 'Validated'].includes(
+              ['SubmittedToRegion', 'Validated'].includes(
                 programmingPlanRegionalStatus.status
               )
             ) {
@@ -194,8 +192,8 @@ export const programmingPlanRouter = {
               });
 
               const category =
-                programmingPlanRegionalStatus.status === 'Submitted'
-                  ? 'ProgrammingPlanSubmitted'
+                programmingPlanRegionalStatus.status === 'SubmittedToRegion'
+                  ? 'ProgrammingPlanSubmittedToRegion'
                   : 'ProgrammingPlanValidated';
 
               await notificationService.sendNotification(
@@ -211,14 +209,16 @@ export const programmingPlanRouter = {
                 regionalCoordinators,
                 undefined
               );
-            } else if (programmingPlanRegionalStatus.status === 'Approved') {
+            } else if (
+              programmingPlanRegionalStatus.status === 'ApprovedByRegion'
+            ) {
               const nationalCoordinators = await userRepository.findMany({
                 roles: ['NationalCoordinator']
               });
 
               await notificationService.sendNotification(
                 {
-                  category: 'ProgrammingPlanApproved',
+                  category: 'ProgrammingPlanApprovedByRegion',
                   link: `${AppRouteLinks.ProgrammingRoute.link}?${new URLSearchParams(
                     {
                       year: programmingPlan.year.toString(),
@@ -230,6 +230,27 @@ export const programmingPlanRouter = {
                 {
                   region: Regions[programmingPlanRegionalStatus.region].name
                 }
+              );
+            } else if (
+              programmingPlanRegionalStatus.status === 'SubmittedToDepartments'
+            ) {
+              const departmentalCoordinators = await userRepository.findMany({
+                roles: ['DepartmentalCoordinator'],
+                region: programmingPlanRegionalStatus.region
+              });
+
+              await notificationService.sendNotification(
+                {
+                  category: 'ProgrammingPlanSubmittedToDepartments',
+                  link: `${AppRouteLinks.ProgrammingRoute.link}?${new URLSearchParams(
+                    {
+                      year: programmingPlan.year.toString(),
+                      planIds: programmingPlan.id
+                    }
+                  ).toString()}`
+                },
+                departmentalCoordinators,
+                undefined
               );
             } else {
               return { status: constants.HTTP_STATUS_BAD_REQUEST };
@@ -328,8 +349,8 @@ export const programmingPlanRouter = {
       const previousPrescriptions = await prescriptionRepository.findMany({
         programmingPlanId: previousProgrammingPlan.id
       });
-      const previousRegionalPrescriptions =
-        await regionalPrescriptionRepository.findMany({
+      const previousLocalPrescriptions =
+        await localPrescriptionRepository.findMany({
           programmingPlanId: previousProgrammingPlan.id
         });
 
@@ -343,14 +364,14 @@ export const programmingPlanRouter = {
 
           await prescriptionRepository.insert(newPrescription);
 
-          await regionalPrescriptionRepository.insertMany(
-            previousRegionalPrescriptions
+          await localPrescriptionRepository.insertMany(
+            previousLocalPrescriptions
               .filter(
-                (regionalPrescription) =>
-                  regionalPrescription.prescriptionId === prescription.id
+                (localPrescription) =>
+                  localPrescription.prescriptionId === prescription.id
               )
-              .map((regionalPrescription) => ({
-                ...regionalPrescription,
+              .map((localPrescription) => ({
+                ...localPrescription,
                 prescriptionId: newPrescription.id,
                 laboratoryId: null
               }))

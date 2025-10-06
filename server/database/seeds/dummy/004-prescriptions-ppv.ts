@@ -6,9 +6,9 @@ import {
 } from 'maestro-shared/test/programmingPlanFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
 import { v4 as uuidv4 } from 'uuid';
+import { LocalPrescriptions } from '../../../repositories/localPrescriptionRepository';
 import { Prescriptions } from '../../../repositories/prescriptionRepository';
 import { ProgrammingPlans } from '../../../repositories/programmingPlanRepository';
-import { RegionalPrescriptions } from '../../../repositories/regionalPrescriptionRepository';
 
 import { DummyLaboratoryIds } from 'maestro-shared/schema/User/User';
 
@@ -295,7 +295,7 @@ export const seed = async function () {
     return;
   }
 
-  const genRegionalPrescriptions = (
+  const genLocalPrescriptions = (
     prescriptionId: string,
     quantities: number[]
   ) =>
@@ -350,141 +350,141 @@ export const seed = async function () {
 
   await Prescriptions().insert([...prescriptions, ...inProgressPrescriptions]);
 
-  await RegionalPrescriptions().insert([
-    ...genRegionalPrescriptions(
+  await LocalPrescriptions().insert([
+    ...genLocalPrescriptions(
       abricotsEtSimilaires.id,
       [14, 0, 0, 0, 3, 2, 0, 0, 0, 3, 12, 0, 6, 0, 0, 0, 0, 0]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       avocats.id,
       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 2, 3, 3, 2]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       avoineEtSimilaires.id,
       [5, 8, 5, 4, 0, 8, 3, 0, 4, 6, 6, 4, 0, 0, 0, 0, 0, 0]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       legumesFeuilles.id,
       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 2]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       carottes.id,
       [3, 3, 5, 3, 2, 6, 7, 3, 6, 9, 3, 4, 2, 0, 0, 0, 0, 0]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       celeris.id,
       [3, 0, 4, 0, 0, 6, 3, 0, 3, 5, 3, 4, 2, 0, 0, 0, 0, 0]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       cerisesEtSimilaires.id,
       [7, 0, 0, 0, 0, 3, 0, 0, 0, 3, 5, 0, 6, 0, 0, 0, 0, 0]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       chouxVertsEtSimilaires.id,
       [0, 0, 5, 0, 3, 6, 4, 0, 4, 3, 0, 3, 0, 2, 3, 2, 0, 5]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       chouxFleurs.id,
       [2, 0, 13, 0, 0, 0, 7, 0, 6, 5, 0, 0, 3, 0, 0, 0, 0, 0]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       endives.id,
       [0, 0, 5, 0, 0, 4, 6, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       fenouils.id,
       [4, 0, 3, 0, 0, 0, 0, 0, 0, 5, 0, 0, 4, 0, 0, 0, 0, 0]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       fevesNonEcossees.id,
       [0, 7, 0, 4, 0, 3, 4, 4, 4, 9, 5, 3, 0, 0, 0, 0, 0, 0]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       figues.id,
       [3, 0, 0, 0, 2, 0, 0, 0, 0, 0, 5, 0, 9, 0, 0, 0, 0, 0]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       jeunesPousses.id,
       [4, 0, 0, 2, 3, 4, 0, 5, 0, 0, 3, 4, 6, 3, 4, 2, 0, 0]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       fruitsACoques.id,
       [0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       houblon.id,
       [0, 0, 0, 0, 0, 6, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       laituesEtSimilaires.id,
       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 4, 3, 0, 4]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       legumesSecs.id,
       [6, 7, 6, 9, 2, 4, 9, 7, 6, 15, 10, 3, 0, 0, 0, 0, 0, 0]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       lentilles.id,
       [9, 5, 0, 5, 0, 3, 0, 0, 0, 6, 5, 0, 0, 0, 0, 0, 0, 0]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       litchis.id,
       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 6, 2]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       maches.id,
       [0, 0, 3, 0, 0, 0, 3, 0, 4, 4, 0, 5, 3, 0, 0, 0, 0, 0]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       mangues.id,
       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 3, 4, 2]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       navets.id,
       [3, 0, 6, 0, 0, 0, 5, 3, 4, 4, 0, 3, 3, 0, 0, 0, 0, 0]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       oignons.id,
       [6, 5, 0, 6, 4, 7, 6, 4, 3, 3, 5, 3, 0, 0, 0, 0, 0, 0]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       orgeEtSimilaires.id,
       [5, 6, 6, 5, 2, 8, 4, 3, 5, 8, 5, 7, 0, 0, 0, 0, 0, 0]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       patatesDouces.id,
       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 3, 5, 4, 4, 3, 0]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       pechesEtSimilaires.id,
       [6, 0, 0, 0, 5, 3, 0, 0, 0, 5, 10, 0, 7, 0, 0, 0, 0, 0]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       poireauxEtSimilaires.id,
       [6, 0, 3, 5, 0, 0, 4, 5, 6, 4, 3, 3, 0, 3, 0, 0, 0, 0]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       poires.id,
       [6, 0, 2, 2, 0, 3, 0, 0, 2, 4, 5, 7, 5, 0, 0, 0, 0, 0]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       rizEtSimilaires.id,
       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 8, 0, 0, 6, 0, 0]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       fevesDeSoja.id,
       [7, 8, 0, 4, 0, 6, 0, 2, 0, 11, 12, 0, 0, 0, 0, 0, 0, 0]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       graineDeTournesol1.id,
       [0, 6, 0, 0, 0, 4, 4, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       graineDeTournesol2.id,
       [12, 0, 0, 8, 0, 0, 0, 0, 0, 17, 13, 0, 0, 0, 0, 0, 0, 0]
     ),
     ...inProgressPrescriptions.flatMap((prescription) =>
-      genRegionalPrescriptions(
+      genLocalPrescriptions(
         prescription.id,
         Array(18)
           .fill(0)

@@ -22,6 +22,7 @@ import {
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+import { LocalPrescriptions } from '../../repositories/localPrescriptionRepository';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import { PrescriptionSubstances } from '../../repositories/prescriptionSubstanceRepository';
 import {
@@ -29,7 +30,6 @@ import {
   ProgrammingPlanRegionalStatus,
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
-import { RegionalPrescriptions } from '../../repositories/regionalPrescriptionRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 describe('Prescriptions router', () => {
@@ -47,7 +47,7 @@ describe('Prescriptions router', () => {
     createdBy: NationalCoordinator.id,
     regionalStatus: RegionList.map((region) => ({
       region,
-      status: 'Submitted'
+      status: 'SubmittedToRegion'
     })),
     year: 1821
   });
@@ -301,7 +301,7 @@ describe('Prescriptions router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    test('should create the prescription and regional prescriptions', async () => {
+    test('should create the prescription and local prescriptions', async () => {
       const res = await request(app)
         .post(testRoute)
         .send(validBody)
@@ -321,7 +321,7 @@ describe('Prescriptions router', () => {
       });
 
       await expect(
-        RegionalPrescriptions()
+        LocalPrescriptions()
           .where({ prescriptionId: res.body.id })
           .count()
           .first()
@@ -515,7 +515,7 @@ describe('Prescriptions router', () => {
       ).resolves.toBeUndefined();
 
       await expect(
-        RegionalPrescriptions()
+        LocalPrescriptions()
           .where({ prescriptionId: inProgressControlPrescription.id })
           .count()
           .first()

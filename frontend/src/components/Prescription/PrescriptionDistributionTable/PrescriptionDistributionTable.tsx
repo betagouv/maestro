@@ -2,11 +2,11 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
 import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
-  RegionalPrescription,
-  RegionalPrescriptionSort
-} from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
+  LocalPrescription,
+  LocalPrescriptionSort
+} from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
+import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import DistributionCountCell from 'src/components/DistributionTable/DistributionCountCell/DistributionCountCell';
 import { assert, type Equals } from 'tsafe';
 import { useAuthentication } from '../../../hooks/useAuthentication';
@@ -15,7 +15,7 @@ import '../PrescriptionCard/PrescriptionCard.scss';
 interface Props {
   programmingPlan: ProgrammingPlan;
   matrixKind: MatrixKind;
-  regionalPrescriptions: RegionalPrescription[];
+  regionalPrescriptions: LocalPrescription[];
   onChangeRegionalCount: (region: Region, value: number) => void;
   start: number;
   end?: number;
@@ -31,7 +31,7 @@ const PrescriptionDistributionTable = ({
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
-  const { hasUserRegionalPrescriptionPermission } = useAuthentication();
+  const { hasUserLocalPrescriptionPermission } = useAuthentication();
 
   if (!regionalPrescriptions) {
     return <></>;
@@ -51,7 +51,7 @@ const PrescriptionDistributionTable = ({
       data={[
         regionalPrescriptions
           .filter((_) => !_.department)
-          .sort(RegionalPrescriptionSort)
+          .sort(LocalPrescriptionSort)
           .slice(start, end)
           .map((regionalPrescription) => (
             <DistributionCountCell
@@ -63,7 +63,7 @@ const PrescriptionDistributionTable = ({
                 onChangeRegionalCount(regionalPrescription.region, value)
               }
               isEditable={
-                hasUserRegionalPrescriptionPermission(
+                hasUserLocalPrescriptionPermission(
                   programmingPlan,
                   regionalPrescription
                 )?.updateSampleCount
