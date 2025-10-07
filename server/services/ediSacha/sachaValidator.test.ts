@@ -14,7 +14,14 @@ test.each([
   const content = readFileSync(file);
 
   const parser = new XMLParser({
-    parseTagValue: false
+    parseTagValue: false,
+    isArray: (_tagName, path): boolean => {
+      return [
+        'Resultats.DialogueResultatType.DialoguePlanAnalyseType',
+        'Resultats.DialogueResultatType.DialoguePlanAnalyseType.DialogueAnalyseType',
+        'Resultats.DialogueResultatType.DialoguePlanAnalyseType.DialogueAnalyseType.DialogueResultatEchantillonAnalyse'
+      ].includes(path);
+    }
   });
   const xmlToJson = parser.parse(content);
 
