@@ -75,25 +75,19 @@ test(`génère un XML de DAI`, () => {
             Nom: ''
           }
         },
-        ReferencePlanAnalyseType: [
-          {
-            ReferencePlanAnalyseEffectuer: [
-              {
-                SiglePlanAnalyse: ''
-              }
-            ],
-            ReferencePlanAnalyseContenu: [
-              {
-                LibelleMatrice: '',
-                SigleAnalyte: '',
-                SigleMethodeSpecifique: '',
-                Depistage: false,
-                Confirmation: false,
-                Statut: 'G'
-              }
-            ]
+        ReferencePlanAnalyseType: {
+          ReferencePlanAnalyseEffectuer: {
+            SiglePlanAnalyse: ''
+          },
+          ReferencePlanAnalyseContenu: {
+            LibelleMatrice: '',
+            SigleAnalyte: '',
+            SigleMethodeSpecifique: '',
+            Depistage: false,
+            Confirmation: false,
+            Statut: 'G'
           }
-        ]
+        }
       },
       'LDA 72'
     )

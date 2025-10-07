@@ -82,7 +82,7 @@ const generateXML = <T extends FileType>(
 
   const conf = fileTypeConf[fileType];
 
-  const toto = z
+  const fullContent = z
     .object({
       ...baseValidator.shape,
       ...conf.content.shape
@@ -122,7 +122,7 @@ const generateXML = <T extends FileType>(
     },
     [conf.name]: {
       '@_schemavalidation': `${conf.name}.xsd`,
-      ...toto
+      ...fullContent
     }
   });
 
