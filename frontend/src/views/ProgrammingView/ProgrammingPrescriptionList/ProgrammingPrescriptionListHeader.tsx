@@ -4,7 +4,7 @@ import Input from '@codegouvfr/react-dsfr/Input';
 import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import clsx from 'clsx';
 import { t } from 'i18next';
-import { isNil, sumBy, uniq } from 'lodash-es';
+import { sumBy, uniq } from 'lodash-es';
 import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -21,8 +21,8 @@ import './ProgrammingPrescriptionList.scss';
 interface Props {
   programmingPlan: ProgrammingPlan;
   prescriptions: Prescription[];
-  regionalPrescriptions: LocalPrescription[];
-  departmentalPrescriptions: LocalPrescription[];
+  localPrescriptions: LocalPrescription[];
+  subLocalPrescriptions: LocalPrescription[];
   exportURL: string;
   hasGroupedUpdatePermission?: boolean;
   selectedCount?: number;
@@ -33,8 +33,8 @@ interface Props {
 const ProgrammingPrescriptionListHeader = ({
   programmingPlan,
   prescriptions,
-  regionalPrescriptions,
-  departmentalPrescriptions,
+  localPrescriptions,
+  subLocalPrescriptions,
   exportURL,
   hasGroupedUpdatePermission,
   selectedCount,
@@ -53,12 +53,8 @@ const ProgrammingPrescriptionListHeader = ({
   const [isGroupedUpdate, setIsGroupedUpdate] = React.useState(false);
 
   const sampleCount = useMemo(
-    () =>
-      sumBy(
-        regionalPrescriptions.filter((_) => isNil(_.department)),
-        'sampleCount'
-      ),
-    [regionalPrescriptions] // eslint-disable-line react-hooks/exhaustive-deps
+    () => sumBy(localPrescriptions, 'sampleCount'),
+    [localPrescriptions] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   return (
@@ -133,8 +129,8 @@ const ProgrammingPrescriptionListHeader = ({
         {hasRegionalView && (
           <ProgrammingPlanNotificationRegionalToDepartmental
             programmingPlan={programmingPlan}
-            regionalPrescriptions={regionalPrescriptions}
-            departmentalPrescriptions={departmentalPrescriptions}
+            regionalPrescriptions={localPrescriptions}
+            departmentalPrescriptions={subLocalPrescriptions}
           />
         )}
       </div>

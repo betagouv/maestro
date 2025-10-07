@@ -5,7 +5,8 @@ import { Region } from '../../referential/Region';
 export const LocalPrescriptionKey = z.object({
   prescriptionId: z.guid(),
   region: Region,
-  department: Department.nullish()
+  department: Department.nullish(),
+  companySiret: z.string().nullish()
 });
 
 export type LocalPrescriptionKey = z.infer<typeof LocalPrescriptionKey>;

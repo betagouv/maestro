@@ -2,6 +2,7 @@ import { ZodArray, ZodObject, ZodType } from 'zod';
 import { UserPermission } from '../schema/User/UserPermission';
 import { analysisRoutes } from './analysis.routes';
 import { authRoutes } from './auth.routes';
+import { companiesRoutes } from './companies.routes';
 import { documentsRoutes } from './documents.routes';
 import { laboratoriesRoutes } from './laboratories.routes';
 import { mascaradeRoutes } from './mascarade.routes';
@@ -19,6 +20,7 @@ export const MaestroRoutes = [
   '/auth',
   '/auth/logout',
   '/auth/redirect-url',
+  '/companies',
   '/documents',
   '/documents/resources',
   '/documents/upload-signed-url',
@@ -56,6 +58,7 @@ export const MaestroRoutes = [
 export const routes = {
   ...analysisRoutes,
   ...authRoutes,
+  ...companiesRoutes,
   ...documentsRoutes,
   ...laboratoriesRoutes,
   ...mascaradeRoutes,

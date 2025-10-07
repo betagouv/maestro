@@ -99,7 +99,8 @@ export const seed = async function () {
       name: `DAOA - ${fakerFR.person.fullName()}`,
       programmingPlanKinds: ['DAOA_BREEDING', 'DAOA_SLAUGHTER'],
       role: 'DepartmentalCoordinator',
-      region: '75'
+      region: '75',
+      department: '87'
     },
     {
       id: uuidv4(),

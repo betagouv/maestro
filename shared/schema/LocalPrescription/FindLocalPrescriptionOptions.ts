@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { Department } from '../../referential/Department';
 import { Region } from '../../referential/Region';
 import { coerceToArray } from '../../utils/utils';
 import { ProgrammingPlanContext } from '../ProgrammingPlan/Context';
@@ -18,6 +19,8 @@ export const FindLocalPrescriptionOptions = z.object({
   programmingPlanKinds: coerceToArray(z.array(ProgrammingPlanKind)).nullish(),
   contexts: coerceToArray(z.array(ProgrammingPlanContext)).nullish(),
   region: Region.nullish(),
+  department: Department.nullish(),
+  companySiret: z.guid().nullish(),
   includes: z
     .union([
       LocalPrescriptionOptionsInclude,

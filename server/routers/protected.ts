@@ -3,6 +3,7 @@ import fs from 'fs';
 import { analysisRouter } from '../controllers/analysisController';
 import { analysisReportDocumentsRouter } from '../controllers/analysisReportDocumentsController';
 import { authProtectedRouter } from '../controllers/authController';
+import { companiesRouter } from '../controllers/companyController';
 import { documentsRouter } from '../controllers/documentController';
 import { laboratoriesRouter } from '../controllers/laboratoryController';
 import { localPrescriptionsRouter } from '../controllers/localPrescriptionController';
@@ -27,6 +28,7 @@ const router = {
   ...analysisRouter,
   ...analysisReportDocumentsRouter,
   ...authProtectedRouter,
+  ...companiesRouter,
   ...documentsRouter,
   ...laboratoriesRouter,
   ...mascaradeRouter,

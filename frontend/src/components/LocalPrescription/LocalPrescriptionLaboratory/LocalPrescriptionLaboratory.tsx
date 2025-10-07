@@ -15,22 +15,22 @@ import {
 import { ApiClientContext } from '../../../services/apiClient';
 
 interface Props {
-  regionalPrescription: LocalPrescription;
+  localPrescription: LocalPrescription;
   onChangeLaboratory: (laboratoryId: string) => Promise<void>;
 }
 
 const LocalPrescriptionLaboratory = ({
-  regionalPrescription,
+  localPrescription,
   onChangeLaboratory
 }: Props) => {
   const apiClient = useContext(ApiClientContext);
   const [isEditing, setIsEditing] = useState(false);
-  const [value, setValue] = useState(regionalPrescription.laboratoryId);
+  const [value, setValue] = useState(localPrescription.laboratoryId);
 
   const { data: laboratories } = apiClient.useFindLaboratoriesQuery();
 
   const submit = () => {
-    if (value && value !== regionalPrescription.laboratoryId) {
+    if (value && value !== localPrescription.laboratoryId) {
       onChangeLaboratory(value);
     }
     setIsEditing(false);
@@ -47,7 +47,7 @@ const LocalPrescriptionLaboratory = ({
   ];
 
   const currentLaboratory = laboratories?.find(
-    (laboratory) => laboratory.id === regionalPrescription.laboratoryId
+    (laboratory) => laboratory.id === localPrescription.laboratoryId
   );
 
   return (
