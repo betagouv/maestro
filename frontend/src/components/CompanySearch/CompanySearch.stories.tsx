@@ -52,7 +52,9 @@ export const Default: Story = {
     await fireEvent.keyDown(select, { key: 'ArrowDown' });
     await fireEvent.keyDown(select, { key: 'Enter' });
 
-    await expect(canvas.queryByText('- Test 1')).toBeInTheDocument();
+    await expect(
+      canvas.queryByText('Test 1 • 1234123412342134')
+    ).toBeInTheDocument();
   }
 };
 

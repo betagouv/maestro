@@ -581,7 +581,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
             {companyOffline}
           </div>
         )}
-        <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+        <div className={cx('fr-col-12', 'fr-col-sm-8')}>
           {isOnline && !readonly ? (
             <CompanySearch
               initialCompany={company ?? undefined}
@@ -608,7 +608,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
             />
           )}
         </div>
-        <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+        <div className={cx('fr-col-12', 'fr-col-sm-4')}>
           <AppTextInput
             type="text"
             defaultValue={partialSample?.resytalId || ''}

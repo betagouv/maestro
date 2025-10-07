@@ -17,7 +17,8 @@ const companyApi = api.injectEndpoints({
           //"A" pour Active
           etat_administratif: 'A',
           //A - Agriculture, sylviculture et pêche,
-          section_activite_principale: 'A'
+          //I - Services d'hébergement et de restauration
+          section_activite_principale: 'A,I'
         }
       }),
       transformResponse: (response: { results: CompanySearchResult[] }) =>

@@ -1,6 +1,8 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import { Autocomplete, Box } from '@mui/material';
+import clsx from 'clsx';
+import { startCase } from 'lodash-es';
 import { Department } from 'maestro-shared/referential/Department';
 import {
   Company,
@@ -16,6 +18,7 @@ import {
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
 import { ApiClientContext } from '../../services/apiClient';
 import AppServiceErrorAlert from '../_app/AppErrorAlert/AppServiceErrorAlert';
+import './CompanySearch.scss';
 
 type Props = {
   initialCompany?: Company;
@@ -68,7 +71,19 @@ const nafCodeLabels: Record<string, string> = {
   '03.11Z': 'Pêche en mer',
   '03.12Z': 'Pêche en eau douce',
   '03.21Z': 'Aquaculture en mer',
-  '03.22Z': 'Aquaculture en eau douce'
+  '03.22Z': 'Aquaculture en eau douce',
+  '55.10Z': 'Hôtels et hébergement similaire',
+  '55.20Z': 'Hébergement touristique et autre hébergement de courte durée',
+  '55.30Z':
+    'Terrains de camping et parcs pour caravanes ou véhicules de loisirs',
+  '55.90Z': 'Autres hébergements',
+  '56.10A': 'Restauration traditionnelle',
+  '56.10B': 'Cafétérias et autres libres-services',
+  '56.10C': 'Restauration de type rapide',
+  '56.21Z': 'Services des traiteurs',
+  '56.29A': 'Restauration collective sous contrat',
+  '56.29B': 'Autres services de restauration n.c.a.',
+  '56.30Z': 'Débits de boissons'
 };
 
 const CompanySearch = ({
@@ -145,26 +160,37 @@ const CompanySearch = ({
           value={company}
           onInputChange={handleInputChange}
           renderOption={(props, option) => {
+            // eslint-disable-next-line react/prop-types
+            const { className, ...otherProps } = props;
             return (
               <Box
-                {...props}
+                {...otherProps}
                 component="li"
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'start',
-                  alignItems: 'start'
-                }}
+                className={clsx(className, 'option-container')}
               >
-                <Box>
-                  {option.name} ({option.siret})
-                </Box>
-                <Box>
-                  {option.address} {option.postalCode} {option.city}
+                <Box className={'name-container'}>
+                  <div>
+                    <span className={cx('fr-text--bold')}>{option.name}</span> •{' '}
+                    {option.siret}
+                  </div>
+                  <div>
+                    {startCase(option.address ?? undefined)} {option.postalCode}{' '}
+                    {option.city}
+                  </div>
                 </Box>
                 {option.nafCode && (
-                  <Box>
-                    {option.nafCode} {nafCodeLabels[option.nafCode] ?? ''}
+                  <Box
+                    className={clsx(
+                      cx('fr-text--sm', 'fr-m-0'),
+                      'naf-container'
+                    )}
+                  >
+                    <span className={cx('fr-text--bold', 'fr-mr-1w')}>
+                      {option.nafCode}
+                    </span>
+                    <span className={'naf-label'}>
+                      {nafCodeLabels[option.nafCode] ?? ''}
+                    </span>
                   </Box>
                 )}
               </Box>
@@ -190,7 +216,7 @@ const CompanySearch = ({
           loadingText={`Recherche en cours...`}
           filterOptions={(x) => x}
           options={companyResults}
-          getOptionLabel={(option) => [option.siret, option.name].join(' - ')}
+          getOptionLabel={(option) => [option.name, option.siret].join(' • ')}
           noOptionsText={
             searchQuery.length > 3
               ? 'Aucun résultat'
@@ -237,7 +263,7 @@ const CompanySearch = ({
               }
             }}
           >
-            {[company.siret, company.name].join(' - ')}
+            {[company.name, company.siret].join(' • ')}
           </Tag>
         </>
       )}
