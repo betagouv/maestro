@@ -13,7 +13,12 @@ const companyApi = api.injectEndpoints({
         url: 'companies/search',
         params: {
           departement: department,
-          q: query
+          q: query,
+          //"A" pour Active
+          etat_administratif: 'A',
+          //A - Agriculture, sylviculture et pêche,
+          //I - Services d'hébergement et de restauration
+          section_activite_principale: 'A,I'
         }
       }),
       transformResponse: (response: { results: CompanySearchResult[] }) =>
