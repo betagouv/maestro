@@ -604,5 +604,6 @@ export const inovalysReferential: Record<string, SSD2Id> = {
   Tolfenpyrad: 'RF-0943-001-PPP',
   Valifénalate: 'RF-1057-001-PPP',
   Glyphosate: 'RF-1020-001-PPP',
-  'Acide phosphoreux (+ sels)': 'RF-00004675-PAR'
+  'Acide phosphoreux (+ sels)': 'RF-00004675-PAR',
+  'Hydrazide maléique': 'RF-0267-001-PPP'
 };
