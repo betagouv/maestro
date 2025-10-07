@@ -4,32 +4,16 @@ import { z } from 'zod';
 const coerceToArray = <Schema extends z.ZodObject>(
   schema: Schema
 ): z.ZodArray<Schema> => {
-  return z.preprocess((obj) => {
-    if (Array.isArray(obj)) {
-      return obj;
-    } else {
-      return [obj];
-    }
-  }, z.array(schema)) as unknown as z.ZodArray<Schema>;
-};
-
-const coerceToTuple = <Schema extends z.ZodObject>(
-  schema: Schema
-): z.ZodTuple<[Schema], Schema> => {
-  return z.codec(
-    z.tuple([schema], schema).or(schema),
-    z.tuple([schema], schema),
-    {
-      encode: (value) => value,
-      decode: (value) => {
-        if (Array.isArray(value)) {
-          return value;
-        } else {
-          return [value];
-        }
+  return z.codec(z.array(schema).or(schema), z.array(schema), {
+    encode: (value) => value as z.infer<Schema>[],
+    decode: (value) => {
+      if (Array.isArray(value)) {
+        return value as z.input<Schema>[];
+      } else {
+        return [value] as z.input<Schema>[];
       }
     }
-  ) as unknown as z.ZodTuple<[Schema], Schema>;
+  }) as unknown as z.ZodArray<Schema>;
 };
 
 // 1900-01-01
@@ -167,7 +151,7 @@ const referenceUnites = coerceToArray(
   })
 ).optional();
 
-const referencePlanAnalyseContenuValidator = z.object({
+const referencePlanAnalyseContenu = z.object({
   LibelleMatrice: z.string(),
   SigleAnalyte: z.string(),
   SigleMethodeSpecifique: z.string(),
@@ -176,10 +160,6 @@ const referencePlanAnalyseContenuValidator = z.object({
   Statut: statusValidator,
   Commentaire: z.string().optional()
 });
-const referencePlanAnalyseContenu = z.tuple(
-  [referencePlanAnalyseContenuValidator],
-  referencePlanAnalyseContenuValidator
-);
 
 const referenceMethodes = z.object({
   Cle: z.string(),
@@ -346,15 +326,11 @@ export const demandesAnalysesValidator = z.object({
         Nombre: z.coerce.number().int()
       })
     ).optional(),
-    ReferencePlanAnalyseType: coerceToArray(
-      z.object({
-        ReferencePlanAnalyseEffectuer: coerceToArray(
-          referencePlanAnalyseEffectuer
-        ),
-        ReferencePlanAnalyseContenu: referencePlanAnalyseContenu,
-        DialogueEchantillonSimple: dialogueEchantillonSimple
-      })
-    ).optional(),
+    ReferencePlanAnalyseType: z.object({
+      ReferencePlanAnalyseEffectuer: referencePlanAnalyseEffectuer,
+      ReferencePlanAnalyseContenu: referencePlanAnalyseContenu,
+      DialogueEchantillonSimple: dialogueEchantillonSimple
+    }),
     DialogueAnalyseType: dialogueAnalyseType
   })
 });
