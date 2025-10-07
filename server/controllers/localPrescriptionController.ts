@@ -7,7 +7,10 @@ import {
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { hasLocalPrescriptionPermission } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { LocalPrescriptionComment } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
-import { hasNationalRole } from 'maestro-shared/schema/User/User';
+import {
+  hasNationalRole,
+  hasRegionalRole
+} from 'maestro-shared/schema/User/User';
 import { isDefined } from 'maestro-shared/utils/utils';
 import { v4 as uuidv4 } from 'uuid';
 import { getAndCheckLocalPrescription } from '../middlewares/checks/localPrescriptionCheck';
@@ -26,6 +29,10 @@ export const localPrescriptionsRouter = {
         ? queryFindOptions.region
         : user.region;
 
+      const department = hasRegionalRole(user)
+        ? queryFindOptions.department
+        : user.department;
+
       const findOptions = {
         ...queryFindOptions,
         region
@@ -36,18 +43,34 @@ export const localPrescriptionsRouter = {
       const localPrescriptions =
         await localPrescriptionRepository.findMany(findOptions);
 
-      const filterEmptyLocalPrescriptions = region
-        ? localPrescriptions.filter((localPrescription) =>
-            isNil(localPrescription.department)
+      console.log('Found local prescriptions', localPrescriptions.length);
+
+      const filterEmptyLocalPrescriptions = localPrescriptions.filter(
+        (localPrescription) => {
+          if (isNil(region)) {
+            return true;
+          }
+          if (isNil(department)) {
+            return isNil(localPrescription.department)
               ? localPrescription.sampleCount > 0
               : localPrescriptions.some(
                   (_) =>
                     _.region === localPrescription.region &&
                     isNil(_.department) &&
                     _.sampleCount > 0
-                )
-          )
-        : localPrescriptions;
+                );
+          }
+          return isNil(localPrescription.companySiret)
+            ? localPrescription.sampleCount > 0
+            : localPrescriptions.some(
+                (_) =>
+                  _.region === localPrescription.region &&
+                  _.department === localPrescription.department &&
+                  isNil(_.companySiret) &&
+                  _.sampleCount > 0
+              );
+        }
+      );
 
       return {
         status: constants.HTTP_STATUS_OK,
@@ -88,11 +111,12 @@ export const localPrescriptionsRouter = {
       const updatedLocalPrescription = {
         ...localPrescription,
         sampleCount:
-          canUpdateSampleCount && isDefined(localPrescriptionUpdate.sampleCount)
-            ? localPrescriptionUpdate.sampleCount
+          canUpdateSampleCount &&
+          isDefined(localPrescriptionUpdate.update.sampleCount)
+            ? localPrescriptionUpdate.update.sampleCount
             : localPrescription.sampleCount,
         laboratoryId: canUpdateLaboratory
-          ? localPrescriptionUpdate.laboratoryId
+          ? localPrescriptionUpdate.update.laboratoryId
           : localPrescription.laboratoryId
       };
 
@@ -126,13 +150,10 @@ export const localPrescriptionsRouter = {
         localPrescription
       ).distributeToDepartments;
 
-      const canUpdateLaboratory = hasLocalPrescriptionPermission(
-        user,
-        programmingPlan,
-        localPrescription
-      ).updateLaboratory;
-
-      if (!canDistributeToDepartments && !canUpdateLaboratory) {
+      if (
+        !isNil(localPrescription.sampleCount) &&
+        !canDistributeToDepartments
+      ) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 
@@ -140,12 +161,9 @@ export const localPrescriptionsRouter = {
         ...localPrescription,
         sampleCount:
           canDistributeToDepartments &&
-          isDefined(localPrescriptionUpdate.sampleCount)
+          !isNil(localPrescriptionUpdate.sampleCount)
             ? localPrescriptionUpdate.sampleCount
-            : localPrescription.sampleCount,
-        laboratoryId: canUpdateLaboratory
-          ? localPrescriptionUpdate.laboratoryId
-          : localPrescription.laboratoryId
+            : localPrescription.sampleCount
       };
 
       await localPrescriptionRepository.update(updatedLocalPrescription);
@@ -155,6 +173,53 @@ export const localPrescriptionsRouter = {
       };
     }
   },
+  '/prescriptions/:prescriptionId/regions/:region/departments/:department/slaughterhouses':
+    {
+      put: async ({ user, body: localPrescriptionUpdate }, params) => {
+        console.info(
+          'Update slaughterhouse prescriptions for department',
+          params.prescriptionId,
+          params.region,
+          params.department
+        );
+
+        const programmingPlan = await getAndCheckProgrammingPlan(
+          localPrescriptionUpdate.programmingPlanId
+        );
+        await getAndCheckPrescription(params.prescriptionId, programmingPlan);
+        const localPrescription = await getAndCheckLocalPrescription(params);
+
+        // TODO: check department belongs to user region?
+
+        const canDistributeToDepartments = hasLocalPrescriptionPermission(
+          user,
+          programmingPlan,
+          localPrescription
+        ).distributeToSlaughterhouses;
+
+        if (
+          !isNil(localPrescription.sampleCount) &&
+          !canDistributeToDepartments
+        ) {
+          return { status: constants.HTTP_STATUS_FORBIDDEN };
+        }
+
+        const updatedLocalPrescription = {
+          ...localPrescription,
+          sampleCount:
+            canDistributeToDepartments &&
+            !isNil(localPrescriptionUpdate.sampleCount)
+              ? localPrescriptionUpdate.sampleCount
+              : localPrescription.sampleCount
+        };
+
+        await localPrescriptionRepository.update(updatedLocalPrescription);
+        return {
+          status: constants.HTTP_STATUS_OK,
+          response: updatedLocalPrescription
+        };
+      }
+    },
   '/prescriptions/:prescriptionId/regions/:region/comments': {
     post: async ({ user, body: draftPrescriptionComment }, params) => {
       console.info('Comment local prescription');

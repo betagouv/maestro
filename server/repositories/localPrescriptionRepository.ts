@@ -20,7 +20,8 @@ const localPrescriptionsTable = 'local_prescriptions';
 
 const LocalPrescriptionsDbo = z.object({
   ...LocalPrescription.shape,
-  department: z.union([Department, z.literal('None')])
+  department: z.union([Department, z.literal('None')]),
+  companySiret: z.union([z.guid(), z.literal('None')])
 });
 
 type LocalPrescriptionsDbo = z.infer<typeof LocalPrescriptionsDbo>;
@@ -31,11 +32,17 @@ export const LocalPrescriptions = () =>
 const findUnique = async ({
   prescriptionId,
   region,
-  department
+  department,
+  companySiret
 }: LocalPrescriptionKey): Promise<LocalPrescription | undefined> => {
   console.info('Find local prescription', prescriptionId, region);
   return LocalPrescriptions()
-    .where({ prescriptionId, region, department: department ?? 'None' })
+    .where({
+      prescriptionId,
+      region,
+      department: department ?? 'None',
+      companySiret: companySiret ?? 'None'
+    })
     .first()
     .then((_) => _ && parseLocalPrescription(_));
 };
@@ -55,6 +62,7 @@ const findMany = async (
           'context',
           'includes',
           'region',
+          'department',
           'contexts'
         ),
         isNil
@@ -73,10 +81,20 @@ const findMany = async (
       if (findOptions.contexts) {
         builder.whereIn(`${prescriptionsTable}.context`, findOptions.contexts);
       }
-      if (findOptions.region) {
-        builder.where(`${localPrescriptionsTable}.region`, findOptions.region);
-      } else {
+
+      if (!findOptions.region) {
         builder.where(`${localPrescriptionsTable}.department`, 'None');
+        builder.where(`${localPrescriptionsTable}.companySiret`, 'None');
+      } else {
+        builder.where(`${localPrescriptionsTable}.region`, findOptions.region);
+        if (!findOptions.department) {
+          builder.where(`${localPrescriptionsTable}.companySiret`, 'None');
+        } else {
+          builder.where(
+            `${localPrescriptionsTable}.department`,
+            findOptions.department
+          );
+        }
       }
       if (findOptions.programmingPlanKinds) {
         builder.whereIn(
@@ -127,11 +145,16 @@ const include = (opts?: FindLocalPrescriptionOptions) => {
               `${localPrescriptionCommentsTable}.department`,
               `${localPrescriptionsTable}.department`
             )
+            .andOn(
+              `${localPrescriptionCommentsTable}.company_siret`,
+              `${localPrescriptionsTable}.companySiret`
+            )
         )
         .groupBy(
           `${localPrescriptionsTable}.prescription_id`,
           `${localPrescriptionsTable}.region`,
-          `${localPrescriptionsTable}.department`
+          `${localPrescriptionsTable}.department`,
+          `${localPrescriptionsTable}.companySiret`
         );
     },
     sampleCounts: (query) => {
@@ -160,7 +183,8 @@ const include = (opts?: FindLocalPrescriptionOptions) => {
         .groupBy(
           `${localPrescriptionsTable}.prescription_id`,
           `${localPrescriptionsTable}.region`,
-          `${localPrescriptionsTable}.department`
+          `${localPrescriptionsTable}.department`,
+          `${localPrescriptionsTable}.companySiret`
         );
     }
   };
@@ -192,7 +216,8 @@ const update = async (localPrescription: LocalPrescription) => {
     .where({
       prescriptionId: localPrescription.prescriptionId,
       region: localPrescription.region,
-      department: localPrescription.department ?? 'None'
+      department: localPrescription.department ?? 'None',
+      companySiret: localPrescription.companySiret ?? 'None'
     })
     .update(formatLocalPrescription(localPrescription));
 };
@@ -201,7 +226,8 @@ export const formatLocalPrescription = (
   localPrescription: LocalPrescription
 ): LocalPrescriptionsDbo => ({
   ...localPrescription,
-  department: localPrescription.department ?? 'None'
+  department: localPrescription.department ?? 'None',
+  companySiret: localPrescription.companySiret ?? 'None'
 });
 
 const parseLocalPrescription = (
@@ -214,7 +240,11 @@ const parseLocalPrescription = (
         department:
           localPrescriptionDbo.department === 'None'
             ? undefined
-            : localPrescriptionDbo.department
+            : localPrescriptionDbo.department,
+        companySiret:
+          localPrescriptionDbo.companySiret === 'None'
+            ? undefined
+            : localPrescriptionDbo.companySiret
       },
       isNil
     )

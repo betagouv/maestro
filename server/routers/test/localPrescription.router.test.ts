@@ -58,7 +58,7 @@ import {
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
-describe('Regional prescriptions router', () => {
+describe('Local prescriptions router', () => {
   const { app } = createServer();
 
   const programmingPlanClosed = genProgrammingPlan({

@@ -91,7 +91,12 @@ const ProgrammingPlanNotificationRegionalToDepartmental = ({
           hasUserLocalPrescriptionPermission(
             programmingPlan,
             regionalPrescription
-          )?.distributeToDepartments
+          )?.distributeToDepartments &&
+          programmingPlan.regionalStatus.some(
+            (regionalStatus) =>
+              regionalStatus.region === regionalPrescription.region &&
+              regionalStatus.status === 'SubmittedToRegion'
+          )
       ) && (
         <div className="notify-regions-menu">
           <Button

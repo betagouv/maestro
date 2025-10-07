@@ -1,5 +1,6 @@
 import { sumBy } from 'lodash-es';
 import { z } from 'zod';
+import { Department } from '../../referential/Department';
 import { Region, RegionSort } from '../../referential/Region';
 import { Prescription } from '../Prescription/Prescription';
 import { ProgrammingPlan } from '../ProgrammingPlan/ProgrammingPlans';
@@ -25,14 +26,31 @@ export const LocalPrescription = z.object({
   realizedSampleCount: z.coerce.number().nullish()
 });
 
+export const SlaughterhouseSampleCounts = z
+  .array(
+    LocalPrescription.pick({
+      companySiret: true,
+      sampleCount: true
+    })
+  )
+  .min(1, { message: 'Au moins un abattoir doit être renseigné.' });
+
 export const LocalPrescriptionUpdate = z.object({
-  ...LocalPrescription.pick({
-    sampleCount: true,
-    laboratoryId: true
-  }).partial().shape,
-  ...Prescription.pick({ programmingPlanId: true }).shape
+  ...Prescription.pick({ programmingPlanId: true }).shape,
+  update: z.union([
+    LocalPrescription.pick({
+      sampleCount: true
+    }),
+    LocalPrescription.pick({
+      laboratoryId: true
+    }),
+    SlaughterhouseSampleCounts
+  ])
 });
 
+export type SlaughterhouseSampleCounts = z.infer<
+  typeof SlaughterhouseSampleCounts
+>;
 export type LocalPrescription = z.infer<typeof LocalPrescription>;
 export type LocalPrescriptionUpdate = z.infer<typeof LocalPrescriptionUpdate>;
 
@@ -85,6 +103,7 @@ const LocalPrescriptionPermission = z.enum([
   'updateSampleCount',
   'comment',
   'distributeToDepartments',
+  'distributeToSlaughterhouses',
   'updateLaboratory'
 ]);
 
@@ -95,7 +114,7 @@ export type LocalPrescriptionPermission = z.infer<
 export const hasLocalPrescriptionPermission = (
   user: User,
   programmingPlan: ProgrammingPlan,
-  localPrescription: { region: Region }
+  localPrescription: { region: Region; department?: Department | null }
 ): Record<LocalPrescriptionPermission, boolean> => ({
   updateSampleCount:
     hasPermission(user, 'updatePrescription') &&
@@ -104,12 +123,20 @@ export const hasLocalPrescriptionPermission = (
       (regionStatus) => regionStatus.region === localPrescription.region
     )?.status !== 'Closed',
   distributeToDepartments:
+    programmingPlan.distributionKind === 'SLAUGHTERHOUSE' &&
     hasPermission(user, 'distributePrescriptionToDepartments') &&
     userRegions(user).includes(localPrescription.region) &&
     programmingPlan.regionalStatus.find(
       (regionStatus) => regionStatus.region === localPrescription.region
-    )?.status === 'SubmittedToRegion' &&
-    programmingPlan.distributionKind === 'SLAUGHTERHOUSE',
+    )?.status !== 'Closed',
+  distributeToSlaughterhouses:
+    programmingPlan.distributionKind === 'SLAUGHTERHOUSE' &&
+    hasPermission(user, 'distributePrescriptionToSlaughterhouses') &&
+    userRegions(user).includes(localPrescription.region) &&
+    user.department === localPrescription.department &&
+    programmingPlan.regionalStatus.find(
+      (regionStatus) => regionStatus.region === localPrescription.region
+    )?.status === 'SubmittedToDepartments',
   comment:
     hasPermission(user, 'commentPrescription') &&
     userRegions(user).includes(localPrescription.region) &&

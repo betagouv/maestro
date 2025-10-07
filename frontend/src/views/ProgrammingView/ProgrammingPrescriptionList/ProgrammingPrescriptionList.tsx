@@ -1,5 +1,6 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { isNil } from 'lodash-es';
+import { Department } from 'maestro-shared/referential/Department';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region } from 'maestro-shared/referential/Region';
 import { FindLocalPrescriptionOptions } from 'maestro-shared/schema/LocalPrescription/FindLocalPrescriptionOptions';
@@ -32,11 +33,13 @@ export type PrescriptionListDisplay = 'table' | 'cards';
 interface Props {
   programmingPlan: ProgrammingPlan;
   region?: Region;
+  department?: Department;
 }
 
 const ProgrammingPrescriptionList = ({
   programmingPlan,
   region,
+  department,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -102,12 +105,13 @@ const ProgrammingPrescriptionList = ({
     () => ({
       ...findPrescriptionOptions,
       region,
+      department,
       includes: ['comments' as const, 'sampleCounts' as const]
     }),
-    [findPrescriptionOptions, region]
+    [findPrescriptionOptions, region, department]
   );
 
-  const { data: localPrescriptions } = apiClient.useFindLocalPrescriptionsQuery(
+  const { data } = apiClient.useFindLocalPrescriptionsQuery(
     findLocalPrescriptionOptions,
     {
       skip: !FindLocalPrescriptionOptions.safeParse(
@@ -116,23 +120,29 @@ const ProgrammingPrescriptionList = ({
     }
   );
 
-  const regionalPrescriptions = useMemo(
+  const localPrescriptions = useMemo(
     () =>
-      localPrescriptions?.filter((localPrescription) =>
-        isNil(localPrescription.department)
+      data?.filter((_) =>
+        department
+          ? !isNil(_.department) && isNil(_.companySiret)
+          : isNil(_.department)
       ),
-    [localPrescriptions]
+    [data, department]
   );
 
-  const departmentalPrescriptions = useMemo(
+  const subLocalPrescriptions = useMemo(
     () =>
-      localPrescriptions?.filter(
-        (localPrescription) =>
-          localPrescription.region === region &&
-          !isNil(localPrescription.department)
+      data?.filter(
+        (_) =>
+          _.region === region &&
+          (department
+            ? !isNil(_.department) && !isNil(_.companySiret)
+            : !isNil(_.department))
       ),
-    [localPrescriptions, region]
+    [data, region, department]
   );
+
+  console.log('subLocalPrescriptions', subLocalPrescriptions);
 
   useEffect(() => {
     if (
@@ -142,7 +152,7 @@ const ProgrammingPrescriptionList = ({
       const prescription = (prescriptions ?? []).find(
         (prescription) => prescription.id === searchParams.get('prescriptionId')
       );
-      const regionalPrescription = regionalPrescriptions?.find(
+      const regionalPrescription = localPrescriptions?.find(
         (regionalPrescription) =>
           regionalPrescription.prescriptionId ===
             searchParams.get('prescriptionId') &&
@@ -168,7 +178,7 @@ const ProgrammingPrescriptionList = ({
         setSearchParams(searchParams, { replace: true });
       }, 1000);
     }
-  }, [searchParams, regionalPrescriptions]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [searchParams, localPrescriptions]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const removePrescription = useCallback(
     async (prescriptionId: string) => {
@@ -244,16 +254,16 @@ const ProgrammingPrescriptionList = ({
       />
       <AppToast open={isDeleteSuccess} description="Matrice supprimée" />
 
-      {prescriptions && regionalPrescriptions && (
+      {prescriptions && localPrescriptions && (
         <>
           {
             <ProgrammingPrescriptionListHeader
               programmingPlan={programmingPlan}
               prescriptions={prescriptions}
-              regionalPrescriptions={regionalPrescriptions}
-              departmentalPrescriptions={departmentalPrescriptions ?? []}
+              localPrescriptions={localPrescriptions}
+              subLocalPrescriptions={subLocalPrescriptions ?? []}
               exportURL={getPrescriptionsExportURL(findPrescriptionOptions)}
-              hasGroupedUpdatePermission={regionalPrescriptions.some(
+              hasGroupedUpdatePermission={localPrescriptions.some(
                 (regionalPrescription) =>
                   hasUserLocalPrescriptionPermission(
                     programmingPlan,
@@ -286,7 +296,7 @@ const ProgrammingPrescriptionList = ({
                       key={`prescription_cards_${prescription.id}`}
                       programmingPlan={programmingPlan}
                       prescription={prescription}
-                      regionalPrescriptions={regionalPrescriptions.filter(
+                      regionalPrescriptions={localPrescriptions.filter(
                         (rp) => rp.prescriptionId === prescription.id
                       )}
                       onChangeLocalPrescriptionCount={(region, value) =>
@@ -321,7 +331,7 @@ const ProgrammingPrescriptionList = ({
                 <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
                   {prescriptions
                     ?.filter((prescription) =>
-                      regionalPrescriptions.some(
+                      localPrescriptions.some(
                         (regionalPrescription) =>
                           regionalPrescription.prescriptionId ===
                             prescription.id &&
@@ -334,12 +344,12 @@ const ProgrammingPrescriptionList = ({
                         key={`prescription_cards_${prescription.id}`}
                         programmingPlan={programmingPlan}
                         prescription={prescription}
-                        regionalPrescription={regionalPrescriptions.find(
+                        localPrescription={localPrescriptions.find(
                           (regionalPrescription) =>
                             regionalPrescription.prescriptionId ===
                             prescription.id
                         )}
-                        departmentalPrescriptions={departmentalPrescriptions?.filter(
+                        subLocalPrescriptions={subLocalPrescriptions?.filter(
                           (departmentalPrescription) =>
                             departmentalPrescription.prescriptionId ===
                             prescription.id
@@ -366,7 +376,7 @@ const ProgrammingPrescriptionList = ({
             <ProgrammingPrescriptionTable
               programmingPlan={programmingPlan}
               prescriptions={prescriptions}
-              regionalPrescriptions={regionalPrescriptions}
+              regionalPrescriptions={localPrescriptions}
               onChangeLocalPrescriptionCount={changeLocalPrescriptionCount}
             />
           )}

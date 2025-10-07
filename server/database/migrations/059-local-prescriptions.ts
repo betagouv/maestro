@@ -41,6 +41,27 @@ export const up = async (knex: Knex) => {
      RENAME CONSTRAINT regional_prescription_comments_prescription_id_region_departmen
       TO local_prescription_comments_prescription_id_region_departmen`
   );
+
+  await knex.schema.alterTable('local_prescription_comments', (table) => {
+    table.dropForeign(
+      ['prescription_id', 'region', 'department'],
+      'local_prescription_comments_prescription_id_region_departmen'
+    );
+  });
+
+  await knex.schema.alterTable('local_prescriptions', (table) => {
+    table.dropPrimary('local_prescriptions_pkey');
+    table.string('company_siret').notNullable().defaultTo('None');
+    table.primary(['prescription_id', 'region', 'department', 'company_siret']);
+  });
+
+  await knex.schema.alterTable('local_prescription_comments', (table) => {
+    table.string('company_siret').notNullable().defaultTo('None');
+    table
+      .foreign(['prescription_id', 'region', 'department', 'company_siret'])
+      .references(['prescription_id', 'region', 'department', 'company_siret'])
+      .inTable('local_prescriptions');
+  });
 };
 
 export const down = async (knex: Knex) => {
@@ -81,7 +102,32 @@ export const down = async (knex: Knex) => {
   );
   await knex.raw(
     `ALTER TABLE regional_prescription_comments
-      RENAME CONSTRAINT local_prescription_comments_prescription_id_region_departmen
-      TO regional_prescription_comments_prescription_id_region_departmen`
+      RENAME CONSTRAINT local_prescription_comments_prescription_id_region_department_c
+      TO regional_prescription_comments_prescription_id_region_department_c`
   );
+
+  await knex('regional_prescriptions')
+    .whereNot('company_siret', 'None')
+    .delete();
+
+  await knex.schema.alterTable('regional_prescription_comments', (table) => {
+    table.dropForeign(
+      ['prescription_id', 'region', 'department', 'company_siret'],
+      'regional_prescription_comments_prescription_id_region_department_c'
+    );
+    table.dropColumn('company_siret');
+  });
+
+  await knex.schema.alterTable('regional_prescriptions', (table) => {
+    table.dropPrimary();
+    table.dropColumn('company_siret');
+    table.primary(['prescription_id', 'region', 'department']);
+  });
+
+  await knex.schema.alterTable('regional_prescription_comments', (table) => {
+    table
+      .foreign(['prescription_id', 'region', 'department'])
+      .references(['prescription_id', 'region', 'department'])
+      .inTable('regional_prescriptions');
+  });
 };

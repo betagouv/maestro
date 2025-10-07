@@ -247,6 +247,7 @@ const ProgrammingView = () => {
                       <ProgrammingPrescriptionList
                         programmingPlan={programmingPlan}
                         region={region ?? undefined}
+                        department={user?.department ?? undefined}
                       />
                     )}
                     {selectedTabId === 'ConsultationTab' && (
