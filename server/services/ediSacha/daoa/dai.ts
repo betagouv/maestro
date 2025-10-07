@@ -48,12 +48,19 @@ export const generateDAI = (
           }
         }
       ],
-      ReferencePlanAnalyseType: [
-        {
-          ReferencePlanAnalyseEffectuer: [],
-          ReferencePlanAnalyseContenu: []
+      ReferencePlanAnalyseType: {
+        ReferencePlanAnalyseEffectuer: {
+          SiglePlanAnalyse: ''
+        },
+        ReferencePlanAnalyseContenu: {
+          LibelleMatrice: '',
+          SigleAnalyte: '',
+          SigleMethodeSpecifique: '',
+          Depistage: false,
+          Confirmation: false,
+          Statut: 'G'
         }
-      ]
+      }
     };
 
     return generateXMLDAI(dai, 'CAP 29');
