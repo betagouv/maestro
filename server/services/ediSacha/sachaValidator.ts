@@ -1,6 +1,7 @@
 import { maestroDate } from 'maestro-shared/utils/date';
 import { z } from 'zod';
 
+// FIXME à supprimer et remplir correctement isArray de XMLParser
 const coerceToArray = <Schema extends z.ZodObject>(
   schema: Schema
 ): z.ZodArray<Schema> => {
@@ -229,60 +230,66 @@ export const resultatsValidator = z.object({
     z.object({
       DialogueCommemoratif: dialogueCommemoratif,
       DialogueEchantillonCommemoratifType: dialogueEchantillonCommemoratifType,
-      DialoguePlanAnalyseType: coerceToArray(
-        z.object({
-          ReferencePlanAnalyseEffectuer: referencePlanAnalyseEffectuer,
-          DialogueAnalyseType: coerceToArray(
-            z.object({
-              DialogueAnalyse: z.object({
-                SigleMatriceSpecifique: z.string(),
-                SigleAnalyte: z.string(),
-                SigleMethodeSpecifique: z.string()
-              }),
-              DialogueCommemoratif: dialogueCommemoratif,
-              DialogueResultatEchantillonAnalyse: coerceToArray(
+      DialoguePlanAnalyseType: z
+        .array(
+          z.object({
+            ReferencePlanAnalyseEffectuer: referencePlanAnalyseEffectuer,
+            DialogueAnalyseType: z
+              .array(
                 z.object({
-                  IdentifiantLabo: z.string(),
-                  NumeroDossierLIMS: z.string(),
-                  IndicateurAnalyseConfirmation: booleanLabel.optional(),
-                  OperateurResultatQuantitatif: z
-                    .literal([
-                      '>>',
-                      '>',
-                      '>=',
-                      '=',
-                      '<=',
-                      '<',
-                      '<<',
-                      '<>',
-                      'ne',
-                      ''
-                    ])
+                  DialogueAnalyse: z.object({
+                    SigleMatriceSpecifique: z.string(),
+                    SigleAnalyte: z.string(),
+                    SigleMethodeSpecifique: z.string()
+                  }),
+                  DialogueCommemoratif: dialogueCommemoratif,
+                  DialogueResultatEchantillonAnalyse: z
+                    .array(
+                      z.object({
+                        IdentifiantLabo: z.string(),
+                        NumeroDossierLIMS: z.string(),
+                        IndicateurAnalyseConfirmation: booleanLabel.optional(),
+                        OperateurResultatQuantitatif: z
+                          .literal([
+                            '>>',
+                            '>',
+                            '>=',
+                            '=',
+                            '<=',
+                            '<',
+                            '<<',
+                            '<>',
+                            'ne',
+                            ''
+                          ])
+                          .optional(),
+                        ValeurResultatQuantitatif: z.coerce.number().optional(),
+                        SigleValeurResultatQualitatif: z.string().optional(),
+                        SigleUnite: z.string().optional(),
+                        SigleConclusionElementaire: z.string().optional(),
+                        LibelleLaboratoireSousTraitant: z.string().optional(),
+                        DateValidation: sachaDate,
+                        Commentaire: z.string().optional(),
+                        IncertitudePourcentage: z.coerce.number().optional(),
+                        IncertitudeMini: z.coerce.number().optional(),
+                        IncertitudeMaxi: z.coerce.number().optional()
+                      })
+                    )
                     .optional(),
-                  ValeurResultatQuantitatif: z.coerce.number().optional(),
-                  SigleValeurResultatQualitatif: z.string().optional(),
-                  SigleUnite: z.string().optional(),
-                  SigleConclusionElementaire: z.string().optional(),
-                  LibelleLaboratoireSousTraitant: z.string().optional(),
-                  DateValidation: sachaDate,
-                  Commentaire: z.string().optional(),
-                  IncertitudePourcentage: z.coerce.number().optional(),
-                  IncertitudeMini: z.coerce.number().optional(),
-                  IncertitudeMaxi: z.coerce.number().optional()
+                  DialogueResultatLotAnalyse: dialogueResultatLot
                 })
-              ).optional(),
-              DialogueResultatLotAnalyse: dialogueResultatLot
-            })
-          ).optional(),
-          DialogueResultatEchantillonPlan: coerceToArray(
-            z.object({
-              IdentifiantLabo: z.string(),
-              SigleConclusion: z.string()
-            })
-          ).optional(),
-          DialogueResultatLotPlan: dialogueResultatLot
-        })
-      ).optional(),
+              )
+              .optional(),
+            DialogueResultatEchantillonPlan: coerceToArray(
+              z.object({
+                IdentifiantLabo: z.string(),
+                SigleConclusion: z.string()
+              })
+            ).optional(),
+            DialogueResultatLotPlan: dialogueResultatLot
+          })
+        )
+        .optional(),
       DialogueAnalyseType: dialogueAnalyseType
     })
   )
