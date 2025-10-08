@@ -4,7 +4,11 @@ import { RegionList, Regions } from '../referential/Region';
 import { ProgrammingPlanKindList } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 import { AuthUser } from '../schema/User/AuthUser';
 import { User } from '../schema/User/User';
-import { NationalUserRole, UserRoleList } from '../schema/User/UserRole';
+import {
+  DepartmentalUserRole,
+  NationalUserRole,
+  UserRoleList
+} from '../schema/User/UserRole';
 import { oneOf } from './testFixtures';
 
 export const genUser = (data?: Partial<User>): User => {
@@ -15,9 +19,10 @@ export const genUser = (data?: Partial<User>): User => {
     name: fakerFR.person.fullName(),
     programmingPlanKinds: [oneOf(ProgrammingPlanKindList)],
     role,
-    region: NationalUserRole.safeParse(role).success
-      ? undefined
-      : oneOf(RegionList),
+    region: NationalUserRole.safeParse(role).success ? null : oneOf(RegionList),
+    department: DepartmentalUserRole.safeParse(role).success
+      ? oneOf(Regions[data?.region ?? oneOf(RegionList)].departments)
+      : null,
     ...data
   };
 };

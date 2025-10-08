@@ -99,7 +99,7 @@ const parseNotification = (
         id: notification.notificationId,
         author: isDefinedAndNotNull(notification.authorId)
           ? User.parse({
-              ...omitBy(notification, isNil),
+              ...notification,
               id: notification.authorId
             })
           : undefined
