@@ -72,6 +72,11 @@ export const AuthenticatedAppRoutes = {
     ...AppRouteLinks.AdminRoute,
     path: '/admin',
     key: 'admin_route'
+  },
+  UsersRoute: {
+    ...AppRouteLinks.UsersRoute,
+    path: '/utilisateurs',
+    key: 'users_route'
   }
 } as const satisfies Partial<Record<AppRouteKeys, AppRoute>>;
 
