@@ -130,7 +130,10 @@ export const prescriptionsRouter = {
       const updatedPrescription = {
         ...prescription,
         stages: prescriptionUpdate.stages ?? prescription.stages,
-        notes: prescriptionUpdate.notes ?? prescription.notes
+        notes: prescriptionUpdate.notes ?? prescription.notes,
+        programmingInstruction:
+          prescriptionUpdate.programmingInstruction ??
+          prescription.programmingInstruction
       };
 
       await prescriptionRepository.update(updatedPrescription);

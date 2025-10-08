@@ -15,7 +15,9 @@ export const genUser = (data?: Partial<User>): User => {
     name: fakerFR.person.fullName(),
     programmingPlanKinds: [oneOf(ProgrammingPlanKindList)],
     role,
-    region: NationalUserRole.safeParse(role).success ? null : oneOf(RegionList),
+    region: NationalUserRole.safeParse(role).success
+      ? undefined
+      : oneOf(RegionList),
     ...data
   };
 };

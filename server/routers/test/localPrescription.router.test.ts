@@ -403,7 +403,6 @@ describe('Local prescriptions router', () => {
         .send(submittedLocalPrescriptionUpdate)
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
-
     test('should receive valid prescriptionId and region', async () => {
       await request(app)
         .put(testRoute(fakerFR.string.alphanumeric(32)))
@@ -504,6 +503,7 @@ describe('Local prescriptions router', () => {
       ).resolves.toEqual({
         ...submittedLocalPrescription,
         department: 'None',
+        companySiret: 'None',
         sampleCount: submittedLocalPrescriptionUpdate.sampleCount
       });
 
@@ -526,6 +526,7 @@ describe('Local prescriptions router', () => {
       ).resolves.toEqual({
         ...submittedLocalPrescription,
         department: 'None',
+        companySiret: 'None',
         sampleCount: 0
       });
 
@@ -571,199 +572,199 @@ describe('Local prescriptions router', () => {
   });
 
   //TODO
-  describe('PUT /{prescriptionId}/regions/{region}/departments/{department}', () => {
-    const submittedLocalPrescriptionUpdate: LocalPrescriptionUpdate = {
-      programmingPlanId: programmingPlanSubmitted.id,
-      key: 'sampleCount',
-      sampleCount: 10
-    };
-    const submittedLocalPrescription = submittedControlLocalPrescriptions1.find(
-      (localPrescription) =>
-        isEqual(
-          LocalPrescriptionKey.parse(localPrescription),
-          LocalPrescriptionKey.parse({
-            prescriptionId: submittedControlPrescription1.id,
-            region: RegionalCoordinator.region as Region
-          })
-        )
-    ) as LocalPrescription;
-    const testRoute = (
-      prescriptionId: string = submittedLocalPrescription.prescriptionId,
-      region: string = submittedLocalPrescription.region
-    ) => `/api/prescriptions/${prescriptionId}/regions/${region}`;
-
-    test('should fail if the user is not authenticated', async () => {
-      await request(app)
-        .put(testRoute())
-        .send(submittedLocalPrescriptionUpdate)
-        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
-    });
-
-    test('should receive valid prescriptionId and region', async () => {
-      await request(app)
-        .put(testRoute(fakerFR.string.alphanumeric(32)))
-        .send(submittedLocalPrescriptionUpdate)
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_BAD_REQUEST);
-
-      await request(app)
-        .put(testRoute(submittedControlPrescription1.id, 'invalid'))
-        .send(submittedLocalPrescriptionUpdate)
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_BAD_REQUEST);
-    });
-
-    test('should get a valid body', async () => {
-      const badRequestTest = async (payload?: Record<string, unknown>) =>
-        request(app)
-          .put(testRoute())
-          .send(payload)
-          .use(tokenProvider(NationalCoordinator))
-          .expect(constants.HTTP_STATUS_BAD_REQUEST);
-
-      await badRequestTest();
-      await badRequestTest({ programmingPlanId: undefined });
-      await badRequestTest({
-        programmingPlanId: fakerFR.string.alphanumeric(32)
-      });
-      await badRequestTest({ sampleCount: undefined });
-      await badRequestTest({ sampleCount: '' });
-      await badRequestTest({ sampleCount: 123 });
-    });
-
-    test('should fail if the prescription does not exist', async () => {
-      await request(app)
-        .put(testRoute(uuidv4()))
-        .send(submittedLocalPrescriptionUpdate)
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_NOT_FOUND);
-    });
-
-    test('should fail if the prescription does not belong to the programmingPlan', async () => {
-      await request(app)
-        .put(testRoute())
-        .send({
-          ...submittedLocalPrescriptionUpdate,
-          programmingPlanId: programmingPlanClosed.id
-        })
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
-    });
-
-    test('should fail if the user does not have the permission to update prescriptions', async () => {
-      const forbiddenRequestTest = async (user: User) =>
-        request(app)
-          .put(testRoute())
-          .send(submittedLocalPrescriptionUpdate)
-          .use(tokenProvider(user))
-          .expect(constants.HTTP_STATUS_FORBIDDEN);
-
-      await forbiddenRequestTest(Sampler1Fixture);
-      await forbiddenRequestTest(RegionalObserver);
-      await forbiddenRequestTest(RegionalCoordinator);
-      await forbiddenRequestTest(NationalObserver);
-      await forbiddenRequestTest(SamplerAndNationalObserver);
-      await forbiddenRequestTest(AdminFixture);
-    });
-
-    test('should fail if the programming plan is closed', async () => {
-      await request(app)
-        .put(
-          testRoute(
-            closedControlPrescription.id,
-            RegionalCoordinator.region as string
-          )
-        )
-        .send({
-          ...submittedLocalPrescriptionUpdate,
-          programmingPlanId: programmingPlanClosed.id
-        })
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
-    });
-
-    test('should update the sample count of the prescription for a national coordinator', async () => {
-      const res = await request(app)
-        .put(testRoute())
-        .send(submittedLocalPrescriptionUpdate)
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_OK);
-
-      expect(res.body).toEqual({
-        ...submittedLocalPrescription,
-        sampleCount: submittedLocalPrescriptionUpdate.sampleCount
-      });
-
-      await expect(
-        LocalPrescriptions().where(LocalPrescriptionKey.parse(res.body)).first()
-      ).resolves.toEqual({
-        ...submittedLocalPrescription,
-        department: 'None',
-        sampleCount: submittedLocalPrescriptionUpdate.sampleCount
-      });
-
-      const res1 = await request(app)
-        .put(testRoute())
-        .send({
-          ...submittedLocalPrescriptionUpdate,
-          sampleCount: 0
-        })
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_OK);
-
-      expect(res1.body).toEqual({
-        ...submittedLocalPrescription,
-        sampleCount: 0
-      });
-
-      await expect(
-        LocalPrescriptions().where(LocalPrescriptionKey.parse(res.body)).first()
-      ).resolves.toEqual({
-        ...submittedLocalPrescription,
-        department: 'None',
-        sampleCount: 0
-      });
-
-      //Restore the initial value
-      await LocalPrescriptions()
-        .where(LocalPrescriptionKey.parse(res.body))
-        .update({ sampleCount: submittedLocalPrescription.sampleCount });
-    });
-
-    test('should update the laboratory of the prescription for a regional coordinator', async () => {
-      const validatedLocalPrescriptionUpdate: LocalPrescriptionUpdate = {
-        programmingPlanId: programmingPlanValidated.id,
-        key: 'laboratory',
-        laboratoryId: laboratory.id
-      };
-      const validatedLocalPrescription =
-        validatedControlLocalPrescriptions.find((localPrescription) =>
-          isEqual(
-            LocalPrescriptionKey.parse(localPrescription),
-            LocalPrescriptionKey.parse({
-              prescriptionId: validatedControlPrescription.id,
-              region: RegionalCoordinator.region as Region
-            })
-          )
-        ) as LocalPrescription;
-
-      const res = await request(app)
-        .put(
-          testRoute(
-            validatedLocalPrescription.prescriptionId,
-            validatedLocalPrescription.region
-          )
-        )
-        .send(validatedLocalPrescriptionUpdate)
-        .use(tokenProvider(RegionalCoordinator))
-        .expect(constants.HTTP_STATUS_OK);
-
-      expect(res.body).toEqual({
-        ...validatedLocalPrescription,
-        laboratoryId: validatedLocalPrescriptionUpdate.laboratoryId
-      });
-    });
-  });
+  // describe('PUT /{prescriptionId}/regions/{region}/departments/{department}', () => {
+  //   const submittedLocalPrescriptionUpdate: LocalPrescriptionUpdate = {
+  //     programmingPlanId: programmingPlanSubmitted.id,
+  //     key: 'sampleCount',
+  //     sampleCount: 10
+  //   };
+  //   const submittedLocalPrescription = submittedControlLocalPrescriptions1.find(
+  //     (localPrescription) =>
+  //       isEqual(
+  //         LocalPrescriptionKey.parse(localPrescription),
+  //         LocalPrescriptionKey.parse({
+  //           prescriptionId: submittedControlPrescription1.id,
+  //           region: RegionalCoordinator.region as Region
+  //         })
+  //       )
+  //   ) as LocalPrescription;
+  //   const testRoute = (
+  //     prescriptionId: string = submittedLocalPrescription.prescriptionId,
+  //     region: string = submittedLocalPrescription.region
+  //   ) => `/api/prescriptions/${prescriptionId}/regions/${region}`;
+  //
+  //   test('should fail if the user is not authenticated', async () => {
+  //     await request(app)
+  //       .put(testRoute())
+  //       .send(submittedLocalPrescriptionUpdate)
+  //       .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+  //   });
+  //
+  //   test('should receive valid prescriptionId and region', async () => {
+  //     await request(app)
+  //       .put(testRoute(fakerFR.string.alphanumeric(32)))
+  //       .send(submittedLocalPrescriptionUpdate)
+  //       .use(tokenProvider(NationalCoordinator))
+  //       .expect(constants.HTTP_STATUS_BAD_REQUEST);
+  //
+  //     await request(app)
+  //       .put(testRoute(submittedControlPrescription1.id, 'invalid'))
+  //       .send(submittedLocalPrescriptionUpdate)
+  //       .use(tokenProvider(NationalCoordinator))
+  //       .expect(constants.HTTP_STATUS_BAD_REQUEST);
+  //   });
+  //
+  //   test('should get a valid body', async () => {
+  //     const badRequestTest = async (payload?: Record<string, unknown>) =>
+  //       request(app)
+  //         .put(testRoute())
+  //         .send(payload)
+  //         .use(tokenProvider(NationalCoordinator))
+  //         .expect(constants.HTTP_STATUS_BAD_REQUEST);
+  //
+  //     await badRequestTest();
+  //     await badRequestTest({ programmingPlanId: undefined });
+  //     await badRequestTest({
+  //       programmingPlanId: fakerFR.string.alphanumeric(32)
+  //     });
+  //     await badRequestTest({ sampleCount: undefined });
+  //     await badRequestTest({ sampleCount: '' });
+  //     await badRequestTest({ sampleCount: 123 });
+  //   });
+  //
+  //   test('should fail if the prescription does not exist', async () => {
+  //     await request(app)
+  //       .put(testRoute(uuidv4()))
+  //       .send(submittedLocalPrescriptionUpdate)
+  //       .use(tokenProvider(NationalCoordinator))
+  //       .expect(constants.HTTP_STATUS_NOT_FOUND);
+  //   });
+  //
+  //   test('should fail if the prescription does not belong to the programmingPlan', async () => {
+  //     await request(app)
+  //       .put(testRoute())
+  //       .send({
+  //         ...submittedLocalPrescriptionUpdate,
+  //         programmingPlanId: programmingPlanClosed.id
+  //       })
+  //       .use(tokenProvider(NationalCoordinator))
+  //       .expect(constants.HTTP_STATUS_FORBIDDEN);
+  //   });
+  //
+  //   test('should fail if the user does not have the permission to update prescriptions', async () => {
+  //     const forbiddenRequestTest = async (user: User) =>
+  //       request(app)
+  //         .put(testRoute())
+  //         .send(submittedLocalPrescriptionUpdate)
+  //         .use(tokenProvider(user))
+  //         .expect(constants.HTTP_STATUS_FORBIDDEN);
+  //
+  //     await forbiddenRequestTest(Sampler1Fixture);
+  //     await forbiddenRequestTest(RegionalObserver);
+  //     await forbiddenRequestTest(RegionalCoordinator);
+  //     await forbiddenRequestTest(NationalObserver);
+  //     await forbiddenRequestTest(SamplerAndNationalObserver);
+  //     await forbiddenRequestTest(AdminFixture);
+  //   });
+  //
+  //   test('should fail if the programming plan is closed', async () => {
+  //     await request(app)
+  //       .put(
+  //         testRoute(
+  //           closedControlPrescription.id,
+  //           RegionalCoordinator.region as string
+  //         )
+  //       )
+  //       .send({
+  //         ...submittedLocalPrescriptionUpdate,
+  //         programmingPlanId: programmingPlanClosed.id
+  //       })
+  //       .use(tokenProvider(NationalCoordinator))
+  //       .expect(constants.HTTP_STATUS_FORBIDDEN);
+  //   });
+  //
+  //   test('should update the sample count of the prescription for a national coordinator', async () => {
+  //     const res = await request(app)
+  //       .put(testRoute())
+  //       .send(submittedLocalPrescriptionUpdate)
+  //       .use(tokenProvider(NationalCoordinator))
+  //       .expect(constants.HTTP_STATUS_OK);
+  //
+  //     expect(res.body).toEqual({
+  //       ...submittedLocalPrescription,
+  //       sampleCount: submittedLocalPrescriptionUpdate.sampleCount
+  //     });
+  //
+  //     await expect(
+  //       LocalPrescriptions().where(LocalPrescriptionKey.parse(res.body)).first()
+  //     ).resolves.toEqual({
+  //       ...submittedLocalPrescription,
+  //       department: 'None',
+  //       sampleCount: submittedLocalPrescriptionUpdate.sampleCount
+  //     });
+  //
+  //     const res1 = await request(app)
+  //       .put(testRoute())
+  //       .send({
+  //         ...submittedLocalPrescriptionUpdate,
+  //         sampleCount: 0
+  //       })
+  //       .use(tokenProvider(NationalCoordinator))
+  //       .expect(constants.HTTP_STATUS_OK);
+  //
+  //     expect(res1.body).toEqual({
+  //       ...submittedLocalPrescription,
+  //       sampleCount: 0
+  //     });
+  //
+  //     await expect(
+  //       LocalPrescriptions().where(LocalPrescriptionKey.parse(res.body)).first()
+  //     ).resolves.toEqual({
+  //       ...submittedLocalPrescription,
+  //       department: 'None',
+  //       sampleCount: 0
+  //     });
+  //
+  //     //Restore the initial value
+  //     await LocalPrescriptions()
+  //       .where(LocalPrescriptionKey.parse(res.body))
+  //       .update({ sampleCount: submittedLocalPrescription.sampleCount });
+  //   });
+  //
+  //   test('should update the laboratory of the prescription for a regional coordinator', async () => {
+  //     const validatedLocalPrescriptionUpdate: LocalPrescriptionUpdate = {
+  //       programmingPlanId: programmingPlanValidated.id,
+  //       key: 'laboratory',
+  //       laboratoryId: laboratory.id
+  //     };
+  //     const validatedLocalPrescription =
+  //       validatedControlLocalPrescriptions.find((localPrescription) =>
+  //         isEqual(
+  //           LocalPrescriptionKey.parse(localPrescription),
+  //           LocalPrescriptionKey.parse({
+  //             prescriptionId: validatedControlPrescription.id,
+  //             region: RegionalCoordinator.region as Region
+  //           })
+  //         )
+  //       ) as LocalPrescription;
+  //
+  //     const res = await request(app)
+  //       .put(
+  //         testRoute(
+  //           validatedLocalPrescription.prescriptionId,
+  //           validatedLocalPrescription.region
+  //         )
+  //       )
+  //       .send(validatedLocalPrescriptionUpdate)
+  //       .use(tokenProvider(RegionalCoordinator))
+  //       .expect(constants.HTTP_STATUS_OK);
+  //
+  //     expect(res.body).toEqual({
+  //       ...validatedLocalPrescription,
+  //       laboratoryId: validatedLocalPrescriptionUpdate.laboratoryId
+  //     });
+  //   });
+  // });
 
   describe('POST /{prescriptionId}/regions/{region}/comments', () => {
     const validComment: LocalPrescriptionCommentToCreate = {
