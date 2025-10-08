@@ -71,11 +71,6 @@ const PrescriptionModalData = z.object({
   prescription: Prescription
 });
 
-export const DistributionMode = z.enum([
-  'distributionToDepartments',
-  'distributionToSlaughterhouses'
-]);
-
 const LocalPrescriptionModalData = z.discriminatedUnion('viewBy', [
   z.object({
     mode: z.literal('laboratory'),
@@ -95,7 +90,6 @@ const LocalPrescriptionModalData = z.discriminatedUnion('viewBy', [
   })
 ]);
 
-export type DistributionMode = z.infer<typeof DistributionMode>;
 type PrescriptionCommentsData = z.infer<typeof PrescriptionCommentsData>;
 type PrescriptionModalData = z.infer<typeof PrescriptionModalData>;
 type LocalPrescriptionModalData = z.infer<typeof LocalPrescriptionModalData>;

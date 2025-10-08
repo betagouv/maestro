@@ -9,9 +9,6 @@ export const ProgrammingPlanDomain = z.enum(
 
 export type ProgrammingPlanDomain = z.infer<typeof ProgrammingPlanDomain>;
 
-export const ProgrammingPlanDomainList: ProgrammingPlanDomain[] =
-  ProgrammingPlanDomain.options;
-
 export const ProgrammingPlanDomainLabels: Record<
   ProgrammingPlanDomain,
   string

@@ -12,7 +12,6 @@ import {
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import React, { useContext, useState } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import { useAppDispatch } from '../../../hooks/useStore';
 import { ApiClientContext } from '../../../services/apiClient';
 import '../ProgrammingPlanNotification.scss';
 interface Props {
@@ -30,7 +29,6 @@ const ProgrammingPlanNotificationDepartmentalToSampler = ({
   departmentalPrescriptions,
   companyPrescriptions
 }: Props) => {
-  const dispatch = useAppDispatch();
   const apiClient = useContext(ApiClientContext);
   const { user, hasUserLocalPrescriptionPermission } = useAuthentication();
 
