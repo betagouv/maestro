@@ -379,8 +379,8 @@ describe('Local prescriptions router', () => {
   describe('PUT /{prescriptionId}/regions/{region}', () => {
     const submittedLocalPrescriptionUpdate: LocalPrescriptionUpdate = {
       programmingPlanId: programmingPlanSubmitted.id,
-      sampleCount: 10,
-      laboratoryId: LaboratoryFixture.id
+      key: 'sampleCount',
+      sampleCount: 10
     };
     const submittedLocalPrescription = submittedControlLocalPrescriptions1.find(
       (localPrescription) =>
@@ -538,6 +538,7 @@ describe('Local prescriptions router', () => {
     test('should update the laboratory of the prescription for a regional coordinator', async () => {
       const validatedLocalPrescriptionUpdate: LocalPrescriptionUpdate = {
         programmingPlanId: programmingPlanValidated.id,
+        key: 'laboratory',
         laboratoryId: laboratory.id
       };
       const validatedLocalPrescription =
@@ -573,8 +574,8 @@ describe('Local prescriptions router', () => {
   describe('PUT /{prescriptionId}/regions/{region}/departments/{department}', () => {
     const submittedLocalPrescriptionUpdate: LocalPrescriptionUpdate = {
       programmingPlanId: programmingPlanSubmitted.id,
-      sampleCount: 10,
-      laboratoryId: LaboratoryFixture.id
+      key: 'sampleCount',
+      sampleCount: 10
     };
     const submittedLocalPrescription = submittedControlLocalPrescriptions1.find(
       (localPrescription) =>
@@ -732,6 +733,7 @@ describe('Local prescriptions router', () => {
     test('should update the laboratory of the prescription for a regional coordinator', async () => {
       const validatedLocalPrescriptionUpdate: LocalPrescriptionUpdate = {
         programmingPlanId: programmingPlanValidated.id,
+        key: 'laboratory',
         laboratoryId: laboratory.id
       };
       const validatedLocalPrescription =
