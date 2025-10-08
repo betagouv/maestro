@@ -482,7 +482,9 @@ describe('ProgrammingPlan router', () => {
             stages: controlPrescriptionValidatedPlan.stages,
             programmingPlanKind:
               controlPrescriptionValidatedPlan.programmingPlanKind,
-            notes: null
+            programmingInstruction:
+              controlPrescriptionValidatedPlan.programmingInstruction ?? null,
+            notes: controlPrescriptionValidatedPlan.notes ?? null
           }
         ])
       );
@@ -500,7 +502,9 @@ describe('ProgrammingPlan router', () => {
             stages: surveillancePrescriptionValidatedPlan.stages,
             programmingPlanKind:
               controlPrescriptionValidatedPlan.programmingPlanKind,
-            notes: null
+            programmingInstruction:
+              controlPrescriptionValidatedPlan.programmingInstruction ?? null,
+            notes: controlPrescriptionValidatedPlan.notes ?? null
           }
         ])
       );
