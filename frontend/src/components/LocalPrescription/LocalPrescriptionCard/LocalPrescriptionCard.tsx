@@ -39,7 +39,7 @@ const LocalPrescriptionCard = ({
 }: Props) => {
   const apiClient = useContext(ApiClientContext);
   const dispatch = useAppDispatch();
-  const { hasUserLocalPrescriptionPermission, hasUserPermission, user } =
+  const { hasUserLocalPrescriptionPermission, hasUserPermission } =
     useAuthentication();
 
   const { data: laboratories } = apiClient.useFindLaboratoriesQuery();

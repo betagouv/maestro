@@ -59,7 +59,7 @@ const ProgrammingPrescriptionListHeader = ({
 
   const sampleCount = useMemo(
     () => sumBy(localPrescriptions, 'sampleCount'),
-    [localPrescriptions] // eslint-disable-line react-hooks/exhaustive-deps
+    [localPrescriptions]
   );
 
   return (
