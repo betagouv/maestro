@@ -186,6 +186,8 @@ export const programmingPlanRouter = {
                 programmingPlanRegionalStatus.status
               )
             ) {
+              //TODO cas validation DAOA par département
+
               const regionalCoordinators = await userRepository.findMany({
                 roles: ['RegionalCoordinator'],
                 region: programmingPlanRegionalStatus.region

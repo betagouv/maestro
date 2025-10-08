@@ -6,6 +6,7 @@ import { Region, RegionList } from '../../referential/Region';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { UserPermission } from './UserPermission';
 import {
+  DepartmentalUserRole,
   NationalUserRole,
   RegionalAndNationUserRole,
   RegionalUserRole,
@@ -62,6 +63,9 @@ export const hasNationalRole = (user: Pick<User, 'role'>) =>
 
 export const hasRegionalRole = (user: Pick<User, 'role' | 'department'>) =>
   RegionalUserRole.safeParse(user.role).success && isNil(user.department);
+
+export const hasDepartmentalRole = (user: Pick<User, 'role' | 'department'>) =>
+  DepartmentalUserRole.safeParse(user.role).success && !isNil(user.department);
 
 export const SCL34Id = uuidv4();
 export const LDA66Id = uuidv4();

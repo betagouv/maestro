@@ -83,31 +83,39 @@ export const VolaillePrescriptionFixture = genPrescription({
   stages: ['STADE10']
 });
 
-const genLocalPrescriptions = (
+export const genLocalPrescriptions = (
   prescriptionId: string,
-  quantities: number[]
+  quantities: number[],
+  options?: {
+    withDepartment?: boolean;
+  }
 ) => [
   ...quantities.map((quantity, index) => ({
     prescriptionId,
     region: RegionList[index],
-    sampleCount: quantity
+    sampleCount: quantity,
+    department: undefined
   })),
-  ...RegionList.flatMap((region) =>
-    Regions[region].departments.map((department) => ({
-      prescriptionId,
-      region,
-      department,
-      sampleCount: 0,
-      laboratoryId: oneOf(DummyLaboratoryIds)
-    }))
-  )
+  ...(options?.withDepartment
+    ? RegionList.flatMap((region) =>
+        Regions[region].departments.map((department) => ({
+          prescriptionId,
+          region,
+          department,
+          sampleCount: 0,
+          laboratoryId: oneOf(DummyLaboratoryIds)
+        }))
+      )
+    : [])
 ];
 export const FoieDeBovinLocalPrescriptionFixture = genLocalPrescriptions(
   FoieDeBovinPrescriptionFixture.id,
-  [3, 2, 5, 8, 10, 1, 2, 10, 3, 3, 2, 9, 4, 4, 2, 1, 5, 6]
+  [3, 2, 5, 8, 10, 1, 2, 10, 3, 3, 2, 9, 4, 4, 2, 1, 5, 6],
+  { withDepartment: true }
 );
 
 export const VolailleLocalPrescriptionFixture = genLocalPrescriptions(
   VolaillePrescriptionFixture.id,
-  [2, 3, 8, 1, 9, 1, 11, 3, 2, 1, 1, 4, 6, 1, 5, 6, 3, 10]
+  [2, 3, 8, 1, 9, 1, 11, 3, 2, 1, 1, 4, 6, 1, 5, 6, 3, 10],
+  { withDepartment: true }
 );

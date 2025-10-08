@@ -39,7 +39,8 @@ const LocalPrescriptionCard = ({
 }: Props) => {
   const apiClient = useContext(ApiClientContext);
   const dispatch = useAppDispatch();
-  const { hasUserLocalPrescriptionPermission } = useAuthentication();
+  const { hasUserLocalPrescriptionPermission, hasUserPermission, user } =
+    useAuthentication();
 
   const { data: laboratories } = apiClient.useFindLaboratoriesQuery();
 
@@ -84,7 +85,7 @@ const LocalPrescriptionCard = ({
                         programmingPlan,
                         prescription,
                         localPrescription,
-                        subLocalPrescriptions
+                        subLocalPrescriptions: subLocalPrescriptions ?? []
                       })
                     ),
                   iconId: 'fr-icon-road-map-line',
@@ -96,16 +97,15 @@ const LocalPrescriptionCard = ({
               localPrescription
             )?.distributeToSlaughterhouses
               ? {
-                  children:
-                    subLocalPrescriptionsWithSamplesCount === 0 ? (
-                      'Répartir entre abatoirs'
-                    ) : (
-                      <span className="no-wrap">
-                        {pluralize(subLocalPrescriptionsWithSamplesCount, {
-                          preserveCount: true
-                        })('abatoir sélectionné')}
-                      </span>
-                    ),
+                  children: (
+                    <span className="no-wrap">
+                      {subLocalPrescriptionsWithSamplesCount === 0
+                        ? 'Répartir entre abatoirs'
+                        : pluralize(subLocalPrescriptionsWithSamplesCount, {
+                            preserveCount: true
+                          })('abattoir sélectionné')}
+                    </span>
+                  ),
                   priority: 'tertiary no outline',
                   onClick: () =>
                     dispatch(
@@ -114,7 +114,7 @@ const LocalPrescriptionCard = ({
                         programmingPlan,
                         prescription,
                         localPrescription,
-                        subLocalPrescriptions
+                        subLocalPrescriptions: subLocalPrescriptions ?? []
                       })
                     ),
                   iconId: 'fr-icon-road-map-line',
@@ -149,7 +149,8 @@ const LocalPrescriptionCard = ({
                   className: cx('fr-m-0')
                 }
               : undefined,
-            programmingPlan.distributionKind === 'REGIONAL'
+            programmingPlan.distributionKind === 'REGIONAL' &&
+            hasUserPermission('commentPrescription')
               ? {
                   children:
                     hasUserLocalPrescriptionPermission(
@@ -265,85 +266,11 @@ const LocalPrescriptionCard = ({
             </div>
             <div className="fr-card__end">
               <div>
-                {['InProgress', 'SubmittedToRegion'].includes(
-                  programmingPlan.regionalStatus.find(
-                    (_) => _.region === localPrescription.region
-                  )?.status as ProgrammingPlanStatus
-                ) && (
-                  <>
-                    <span>
-                      {pluralize(localPrescription.sampleCount ?? 0, {
-                        preserveCount: true
-                      })('prélèvement programmé')}
-                    </span>
-                    {hasUserLocalPrescriptionPermission(
-                      programmingPlan,
-                      localPrescription
-                    )?.distributeToDepartments && (
-                      <Badge
-                        noIcon
-                        severity={
-                          sumBy(subLocalPrescriptions, 'sampleCount') ===
-                          localPrescription.sampleCount
-                            ? 'success'
-                            : sumBy(subLocalPrescriptions, 'sampleCount') === 0
-                              ? 'error'
-                              : 'new'
-                        }
-                        className={'fr-mx-1w'}
-                      >
-                        {pluralize(
-                          sumBy(subLocalPrescriptions, 'sampleCount'),
-                          {
-                            preserveCount: true
-                          }
-                        )('attribué')}
-                      </Badge>
-                    )}
-                  </>
-                )}
-                {['SubmittedToDepartments'].includes(
-                  programmingPlan.regionalStatus.find(
-                    (_) => _.region === localPrescription.region
-                  )?.status as ProgrammingPlanStatus
-                ) && (
-                  <>
-                    <span>
-                      {pluralize(localPrescription.sampleCount ?? 0, {
-                        preserveCount: true
-                      })('prélèvement programmé')}
-                    </span>
-                    {hasUserLocalPrescriptionPermission(
-                      programmingPlan,
-                      localPrescription
-                    )?.distributeToDepartments && (
-                      <Badge
-                        noIcon
-                        severity={
-                          sumBy(subLocalPrescriptions, 'sampleCount') ===
-                          localPrescription.sampleCount
-                            ? 'success'
-                            : sumBy(subLocalPrescriptions, 'sampleCount') === 0
-                              ? 'error'
-                              : 'new'
-                        }
-                        className={'fr-mx-1w'}
-                      >
-                        {pluralize(
-                          sumBy(subLocalPrescriptions, 'sampleCount'),
-                          {
-                            preserveCount: true
-                          }
-                        )('attribué')}
-                      </Badge>
-                    )}
-                  </>
-                )}
                 {['Validated', 'Closed'].includes(
                   programmingPlan.regionalStatus.find(
                     (_) => _.region === localPrescription.region
                   )?.status as ProgrammingPlanStatus
-                ) && (
+                ) ? (
                   <>
                     <span className={cx('fr-text--bold')}>
                       {pluralize(localPrescription.realizedSampleCount ?? 0, {
@@ -356,6 +283,30 @@ const LocalPrescriptionCard = ({
                     })('programmé')}
                     {' • '}
                     <CompletionBadge localPrescriptions={localPrescription} />
+                  </>
+                ) : (
+                  <>
+                    <span>
+                      {pluralize(localPrescription.sampleCount ?? 0, {
+                        preserveCount: true
+                      })('prélèvement programmé')}
+                    </span>
+                    <Badge
+                      noIcon
+                      severity={
+                        sumBy(subLocalPrescriptions, 'sampleCount') ===
+                        localPrescription.sampleCount
+                          ? 'success'
+                          : sumBy(subLocalPrescriptions, 'sampleCount') === 0
+                            ? 'error'
+                            : 'new'
+                      }
+                      className={'fr-mx-1w'}
+                    >
+                      {pluralize(sumBy(subLocalPrescriptions, 'sampleCount'), {
+                        preserveCount: true
+                      })('attribué')}
+                    </Badge>
                   </>
                 )}
               </div>

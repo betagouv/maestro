@@ -37,7 +37,8 @@ export const programmingPlansRoutes = {
       permissions: [
         'manageProgrammingPlan',
         'approveProgrammingPlan',
-        'distributePrescriptionToDepartments'
+        'distributePrescriptionToDepartments',
+        'distributePrescriptionToSlaughterhouses'
       ],
       body: z.array(ProgrammingPlanRegionalStatus),
       response: ProgrammingPlan

@@ -1,16 +1,15 @@
-import { RegionList } from 'maestro-shared/referential/Region';
-import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
+import {
+  genLocalPrescriptions,
+  genPrescription
+} from 'maestro-shared/test/prescriptionFixtures';
 import {
   PPVInProgressProgrammingPlanFixture,
   PPVValidatedProgrammingPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
-import { oneOf } from 'maestro-shared/test/testFixtures';
 import { v4 as uuidv4 } from 'uuid';
 import { LocalPrescriptions } from '../../../repositories/localPrescriptionRepository';
 import { Prescriptions } from '../../../repositories/prescriptionRepository';
 import { ProgrammingPlans } from '../../../repositories/programmingPlanRepository';
-
-import { DummyLaboratoryIds } from 'maestro-shared/schema/User/User';
 
 export const abricotsEtSimilaires = genPrescription({
   id: '02b1d919-f5e7-4d67-afa6-dc8e7e8f3687',
@@ -294,17 +293,6 @@ export const seed = async function () {
   if (!validatedProgrammingPlan) {
     return;
   }
-
-  const genLocalPrescriptions = (
-    prescriptionId: string,
-    quantities: number[]
-  ) =>
-    quantities.map((quantity, index) => ({
-      prescriptionId,
-      region: RegionList[index],
-      sampleCount: quantity,
-      laboratoryId: oneOf(DummyLaboratoryIds)
-    }));
 
   const prescriptions = [
     abricotsEtSimilaires,

@@ -1,4 +1,4 @@
-import { ZodArray, ZodObject, ZodType } from 'zod';
+import { ZodArray, ZodDiscriminatedUnion, ZodObject, ZodType } from 'zod';
 import { UserPermission } from '../schema/User/UserPermission';
 import { analysisRoutes } from './analysis.routes';
 import { authRoutes } from './auth.routes';
@@ -39,6 +39,7 @@ export const MaestroRoutes = [
   '/prescriptions/:prescriptionId/regions/:region/comments',
   '/prescriptions/:prescriptionId/regions/:region',
   '/prescriptions/:prescriptionId/regions/:region/departments/:department',
+  '/prescriptions/:prescriptionId/regions/:region/departments/:department/slaughterhouses',
   '/prescriptions/:prescriptionId/substances',
   '/prescriptions/:prescriptionId',
   '/programming-plans',
@@ -140,7 +141,7 @@ export type UnprotectedRoutes = FilterUnprotectedRoutes<
 
 export type ToRoute = {
   query?: ZodObject;
-  body?: ZodObject | ZodArray;
+  body?: ZodObject | ZodDiscriminatedUnion | ZodArray;
   response: ZodType;
   skipSanitization?: true;
 } & (

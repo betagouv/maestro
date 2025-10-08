@@ -4,7 +4,7 @@ import { createServer } from '../../server';
 
 import {
   CompanyFixture,
-  SlaughterhouseCompanyFixture
+  SlaughterhouseCompanyFixture1
 } from 'maestro-shared/test/companyFixtures';
 import { NationalCoordinator } from 'maestro-shared/test/userFixtures';
 import { describe, expect, test } from 'vitest';
@@ -27,7 +27,7 @@ describe('Company Router', () => {
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toEqual([CompanyFixture, SlaughterhouseCompanyFixture]);
+      expect(res.body).toEqual([CompanyFixture, SlaughterhouseCompanyFixture1]);
     });
 
     test('should filter companies', async () => {
@@ -37,7 +37,7 @@ describe('Company Router', () => {
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res1.body).toEqual([SlaughterhouseCompanyFixture]);
+      expect(res1.body).toEqual([SlaughterhouseCompanyFixture1]);
 
       const res2 = await request(app)
         .get(testRoute)

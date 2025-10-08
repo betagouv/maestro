@@ -6,7 +6,7 @@ import { Department } from 'maestro-shared/referential/Department';
 import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { useMemo } from 'react';
+import { forwardRef, useImperativeHandle, useMemo, useState } from 'react';
 import { pluralize } from '../../../utils/stringUtils';
 import LocalPrescriptionDepartmentalDistributionTable from './LocalPrescriptionDepartmentalDistributionTable';
 
@@ -15,23 +15,38 @@ interface Props {
   prescription: Prescription;
   regionalPrescription: LocalPrescription;
   departmentalPrescriptions: LocalPrescription[];
-  onChangeDepartmentalCount: (
-    department: Department,
-    value: number
-  ) => Promise<void>;
+  onSubmit: (slaughterhousePrescriptions: LocalPrescription[]) => Promise<void>;
 }
+const LocalPrescriptionDepartmentalDistribution = forwardRef<
+  { submit: () => void },
+  Props
+>((props, ref) => {
+  const { programmingPlan, prescription, regionalPrescription, onSubmit } =
+    props;
 
-const LocalPrescriptionDepartmentalDistribution = ({
-  programmingPlan,
-  prescription,
-  regionalPrescription,
-  departmentalPrescriptions,
-  onChangeDepartmentalCount
-}: Props) => {
+  const [departmentalPrescriptions, setDepartmentalPrescriptions] = useState(
+    props.departmentalPrescriptions
+  );
+
   const distributedSampleCount = useMemo(
     () => sumBy(departmentalPrescriptions, 'sampleCount'),
     [departmentalPrescriptions]
   );
+
+  const changeDepartmentalCount = async (
+    department: Department,
+    sampleCount: number
+  ) => {
+    setDepartmentalPrescriptions((prev) =>
+      prev?.map((dp) =>
+        dp.department === department ? { ...dp, sampleCount } : dp
+      )
+    );
+  };
+
+  useImperativeHandle(ref, () => ({
+    submit: async () => onSubmit(departmentalPrescriptions)
+  }));
 
   return (
     <>
@@ -56,7 +71,7 @@ const LocalPrescriptionDepartmentalDistribution = ({
           prescription={prescription}
           regionalPrescription={regionalPrescription}
           departmentalPrescriptions={departmentalPrescriptions}
-          onChangeDepartmentalCount={onChangeDepartmentalCount}
+          onChangeDepartmentalCount={changeDepartmentalCount}
           displayedPart="first"
         />
         <LocalPrescriptionDepartmentalDistributionTable
@@ -64,12 +79,12 @@ const LocalPrescriptionDepartmentalDistribution = ({
           prescription={prescription}
           regionalPrescription={regionalPrescription}
           departmentalPrescriptions={departmentalPrescriptions}
-          onChangeDepartmentalCount={onChangeDepartmentalCount}
+          onChangeDepartmentalCount={changeDepartmentalCount}
           displayedPart="second"
         />
       </div>
     </>
   );
-};
+});
 
 export default LocalPrescriptionDepartmentalDistribution;

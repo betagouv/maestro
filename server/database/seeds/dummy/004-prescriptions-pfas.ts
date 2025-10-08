@@ -1,12 +1,11 @@
-import { RegionList } from 'maestro-shared/referential/Region';
-import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
+import {
+  genLocalPrescriptions,
+  genPrescription
+} from 'maestro-shared/test/prescriptionFixtures';
 import { PFASValidatedProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
-import { oneOf } from 'maestro-shared/test/testFixtures';
 import { LocalPrescriptions } from '../../../repositories/localPrescriptionRepository';
 import { Prescriptions } from '../../../repositories/prescriptionRepository';
 import { ProgrammingPlans } from '../../../repositories/programmingPlanRepository';
-
-import { DummyLaboratoryIds } from 'maestro-shared/schema/User/User';
 
 const bovin = genPrescription({
   id: '1ac599c4-1241-445e-a4eb-09d353810e10',
@@ -65,17 +64,6 @@ export const seed = async function () {
   if (!validatedProgrammingPlan) {
     return;
   }
-
-  const genLocalPrescriptions = (
-    prescriptionId: string,
-    quantities: number[]
-  ) =>
-    quantities.map((quantity, index) => ({
-      prescriptionId,
-      region: RegionList[index],
-      sampleCount: quantity,
-      laboratoryId: oneOf(DummyLaboratoryIds)
-    }));
 
   await Prescriptions().insert([bovin, caprin, ovin, porcin, volaille, oeufs]);
 

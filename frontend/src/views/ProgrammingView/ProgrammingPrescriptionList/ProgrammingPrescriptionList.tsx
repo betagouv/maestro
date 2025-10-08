@@ -142,8 +142,6 @@ const ProgrammingPrescriptionList = ({
     [data, region, department]
   );
 
-  console.log('subLocalPrescriptions', subLocalPrescriptions);
-
   useEffect(() => {
     if (
       searchParams.get('prescriptionId') &&
@@ -209,15 +207,12 @@ const ProgrammingPrescriptionList = ({
     async (
       prescription: Prescription,
       region: Region,
-      prescriptionUpdate: Omit<LocalPrescriptionUpdate, 'programmingPlanId'>
+      prescriptionUpdate: LocalPrescriptionUpdate
     ) => {
       await updateLocalPrescription({
         prescriptionId: prescription.id,
         region,
-        prescriptionUpdate: {
-          programmingPlanId: programmingPlan.id,
-          ...prescriptionUpdate
-        }
+        prescriptionUpdate
       });
     },
     [programmingPlan] // eslint-disable-line react-hooks/exhaustive-deps
@@ -226,9 +221,11 @@ const ProgrammingPrescriptionList = ({
   const changeLocalPrescriptionCount = useCallback(
     async (prescription: Prescription, region: Region, count: number) =>
       changeLocalPrescription(prescription, region, {
-        sampleCount: count
+        key: 'sampleCount',
+        sampleCount: count,
+        programmingPlanId: programmingPlan.id
       }),
-    [changeLocalPrescription]
+    [changeLocalPrescription, programmingPlan]
   );
 
   const changeLocalPrescriptionsLaboratory = useCallback(
@@ -236,13 +233,15 @@ const ProgrammingPrescriptionList = ({
       await Promise.all(
         prescriptions.map((prescription) =>
           changeLocalPrescription(prescription, region as Region, {
-            laboratoryId
+            key: 'laboratory',
+            laboratoryId,
+            programmingPlanId: programmingPlan.id
           })
         )
       );
       return;
     },
-    [changeLocalPrescription, region]
+    [changeLocalPrescription, region, programmingPlan]
   );
 
   return (

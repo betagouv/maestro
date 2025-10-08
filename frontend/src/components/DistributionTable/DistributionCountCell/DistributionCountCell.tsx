@@ -39,9 +39,11 @@ const DistributionCountCell = ({
         <div className="sample-count-container">
           <div className="sample-count">
             <div>{localPrescription.sampleCount}</div>
-            {programmingPlan.regionalStatus.find(
-              (_) => _.region === localPrescription.region
-            )?.status === 'Validated' && (
+            {programmingPlan.regionalStatus.some(
+              (_) =>
+                _.region === localPrescription.region &&
+                _.status === 'Validated'
+            ) && (
               <>
                 <div>{localPrescription.realizedSampleCount}</div>
                 <CompletionBadge localPrescriptions={localPrescription} />
