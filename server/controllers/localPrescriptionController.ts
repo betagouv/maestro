@@ -7,11 +7,11 @@ import {
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { hasLocalPrescriptionPermission } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { LocalPrescriptionComment } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
+import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import {
   hasNationalRole,
   hasRegionalRole
 } from 'maestro-shared/schema/User/User';
-import { isDefined } from 'maestro-shared/utils/utils';
 import { v4 as uuidv4 } from 'uuid';
 import { getAndCheckLocalPrescription } from '../middlewares/checks/localPrescriptionCheck';
 import { getAndCheckPrescription } from '../middlewares/checks/prescriptionCheck';
@@ -92,17 +92,13 @@ export const localPrescriptionsRouter = {
       await getAndCheckPrescription(params.prescriptionId, programmingPlan);
       const localPrescription = await getAndCheckLocalPrescription(params);
 
-      const canUpdateSampleCount = hasLocalPrescriptionPermission(
-        user,
-        programmingPlan,
-        localPrescription
-      ).updateSampleCount;
+      const canUpdateSampleCount =
+        hasLocalPrescriptionPermission(user, programmingPlan, localPrescription)
+          .updateSampleCount && localPrescriptionUpdate.key === 'sampleCount';
 
-      const canUpdateLaboratory = hasLocalPrescriptionPermission(
-        user,
-        programmingPlan,
-        localPrescription
-      ).updateLaboratory;
+      const canUpdateLaboratory =
+        hasLocalPrescriptionPermission(user, programmingPlan, localPrescription)
+          .updateLaboratory && localPrescriptionUpdate.key === 'laboratory';
 
       if (!canUpdateSampleCount && !canUpdateLaboratory) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
@@ -110,13 +106,11 @@ export const localPrescriptionsRouter = {
 
       const updatedLocalPrescription = {
         ...localPrescription,
-        sampleCount:
-          canUpdateSampleCount &&
-          isDefined(localPrescriptionUpdate.update.sampleCount)
-            ? localPrescriptionUpdate.update.sampleCount
-            : localPrescription.sampleCount,
+        sampleCount: canUpdateSampleCount
+          ? localPrescriptionUpdate.sampleCount
+          : localPrescription.sampleCount,
         laboratoryId: canUpdateLaboratory
-          ? localPrescriptionUpdate.update.laboratoryId
+          ? localPrescriptionUpdate.laboratoryId
           : localPrescription.laboratoryId
       };
 
@@ -144,26 +138,18 @@ export const localPrescriptionsRouter = {
 
       // TODO: check department belongs to user region?
 
-      const canDistributeToDepartments = hasLocalPrescriptionPermission(
-        user,
-        programmingPlan,
-        localPrescription
-      ).distributeToDepartments;
+      const canDistributeToDepartments =
+        hasLocalPrescriptionPermission(user, programmingPlan, localPrescription)
+          .distributeToDepartments &&
+        localPrescriptionUpdate.key === 'sampleCount';
 
-      if (
-        !isNil(localPrescription.sampleCount) &&
-        !canDistributeToDepartments
-      ) {
+      if (!canDistributeToDepartments) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 
       const updatedLocalPrescription = {
         ...localPrescription,
-        sampleCount:
-          canDistributeToDepartments &&
-          !isNil(localPrescriptionUpdate.sampleCount)
-            ? localPrescriptionUpdate.sampleCount
-            : localPrescription.sampleCount
+        sampleCount: localPrescriptionUpdate.sampleCount
       };
 
       await localPrescriptionRepository.update(updatedLocalPrescription);
@@ -191,32 +177,43 @@ export const localPrescriptionsRouter = {
 
         // TODO: check department belongs to user region?
 
-        const canDistributeToDepartments = hasLocalPrescriptionPermission(
-          user,
-          programmingPlan,
-          localPrescription
-        ).distributeToSlaughterhouses;
+        const canDistributePrescriptionToSlaughterhouses =
+          hasLocalPrescriptionPermission(
+            user,
+            programmingPlan,
+            localPrescription
+          ).distributeToSlaughterhouses &&
+          localPrescriptionUpdate.key === 'slaughterhouseSampleCounts';
 
         if (
-          !isNil(localPrescription.sampleCount) &&
-          !canDistributeToDepartments
+          isNil(localPrescription.department) ||
+          !canDistributePrescriptionToSlaughterhouses
         ) {
           return { status: constants.HTTP_STATUS_FORBIDDEN };
         }
 
-        const updatedLocalPrescription = {
-          ...localPrescription,
-          sampleCount:
-            canDistributeToDepartments &&
-            !isNil(localPrescriptionUpdate.sampleCount)
-              ? localPrescriptionUpdate.sampleCount
-              : localPrescription.sampleCount
-        };
+        const updatedSubLocalPrescriptions =
+          localPrescriptionUpdate.slaughterhouseSampleCounts.map(
+            (slaughterhouse) => ({
+              prescriptionId: localPrescription.prescriptionId,
+              region: localPrescription.region,
+              department: localPrescription.department,
+              companySiret: slaughterhouse.companySiret,
+              sampleCount: slaughterhouse.sampleCount
+            })
+          );
 
-        await localPrescriptionRepository.update(updatedLocalPrescription);
+        await localPrescriptionRepository.updateMany(
+          localPrescription as Omit<
+            Required<LocalPrescriptionKey>,
+            'companySiret'
+          >,
+          updatedSubLocalPrescriptions
+        );
+
         return {
           status: constants.HTTP_STATUS_OK,
-          response: updatedLocalPrescription
+          response: localPrescription
         };
       }
     },

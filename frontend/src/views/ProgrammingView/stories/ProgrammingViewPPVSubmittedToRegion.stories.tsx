@@ -1,80 +1,91 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Region, RegionList } from 'maestro-shared/referential/Region';
+import { RegionList } from 'maestro-shared/referential/Region';
 import {
   genLocalPrescription,
   genPrescription
 } from 'maestro-shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
+import { genLocalPrescriptionComment } from 'maestro-shared/test/regionalPrescriptionCommentFixture';
 import {
   genAuthUser,
   NationalCoordinator,
   RegionalCoordinator
 } from 'maestro-shared/test/userFixtures';
 import { expect, userEvent, within } from 'storybook/test';
-import { AuthenticatedAppRoutes } from '../../../AppRoutes';
 import { getMockApi } from '../../../services/mockApiClient';
 import ProgrammingView from '../ProgrammingView';
 
 const meta = {
-  title: 'Views/ProgrammingPlanView/PPV',
+  title: 'Views/ProgrammingPlanView/PPV/2 - SubmittedToRegions',
   component: ProgrammingView
 } satisfies Meta<typeof ProgrammingView>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const inProgressProgrammingPlan = {
+const programmingPlan = {
   ...genProgrammingPlan({
     regionalStatus: RegionList.map((region) => ({
       region,
-      status: 'InProgress'
-    })),
-    year: new Date().getFullYear() - 1
+      status: 'SubmittedToRegion'
+    }))
   })
 };
-const programmingPlan = {
+const pastProgrammingPlan = {
   ...genProgrammingPlan({
     regionalStatus: RegionList.map((region) => ({
       region,
       status: 'Validated'
     }))
-  })
+  }),
+  year: new Date().getFullYear() - 1
 };
 const prescription1 = genPrescription({
-  programmingPlanId: programmingPlan.id,
+  programmingPlanId: pastProgrammingPlan.id,
   context: 'Control',
   matrixKind: 'A0DEH'
 });
 const prescription2 = genPrescription({
-  programmingPlanId: programmingPlan.id,
+  programmingPlanId: pastProgrammingPlan.id,
   context: 'Control',
   matrixKind: 'A0DQS'
 });
+
+const programmingPlans = [programmingPlan, pastProgrammingPlan];
+
+const prescriptions = [prescription1, prescription2];
+
+const regionalPrescriptions = [
+  ...RegionList.flatMap((region) => [
+    genLocalPrescription({
+      prescriptionId: prescription1.id,
+      region,
+      comments: [
+        genLocalPrescriptionComment({
+          prescriptionId: prescription1.id,
+          region
+        })
+      ]
+    }),
+    genLocalPrescription({
+      prescriptionId: prescription2.id,
+      region
+    })
+  ])
+];
 
 export const NationalCoordinatorView: Story = {
   parameters: {
     preloadedState: {
       auth: { authUser: genAuthUser(NationalCoordinator) }
     },
-    initialEntries: [
-      `${AuthenticatedAppRoutes.SamplesByYearRoute.link(programmingPlan.year)}/?context=Control`
-    ],
     apiClient: getMockApi({
       useFindProgrammingPlansQuery: {
-        data: [inProgressProgrammingPlan, programmingPlan]
+        data: programmingPlans
       },
-      useFindPrescriptionsQuery: { data: [prescription1, prescription2] },
+      useFindPrescriptionsQuery: { data: prescriptions },
       useFindLocalPrescriptionsQuery: {
-        data: RegionList.flatMap((region) => [
-          genLocalPrescription({
-            prescriptionId: prescription1.id,
-            region
-          }),
-          genLocalPrescription({
-            prescriptionId: prescription2.id,
-            region
-          })
-        ])
+        data: regionalPrescriptions
       }
     })
   },
@@ -112,23 +123,15 @@ export const RegionalCoordinatorView: Story = {
       auth: { authUser: genAuthUser(RegionalCoordinator) },
       programmingPlan: { programmingPlan }
     },
-    initialEntries: [
-      `${AuthenticatedAppRoutes.SamplesByYearRoute.link(programmingPlan.year)}/?context=Control`
-    ],
     apiClient: getMockApi({
-      useFindProgrammingPlansQuery: { data: [programmingPlan] },
-      useFindPrescriptionsQuery: { data: [prescription1, prescription2] },
+      useFindProgrammingPlansQuery: {
+        data: programmingPlans
+      },
+      useFindPrescriptionsQuery: { data: prescriptions },
       useFindLocalPrescriptionsQuery: {
-        data: [
-          genLocalPrescription({
-            prescriptionId: prescription1.id,
-            region: RegionalCoordinator.region as Region
-          }),
-          genLocalPrescription({
-            prescriptionId: prescription2.id,
-            region: RegionalCoordinator.region as Region
-          })
-        ]
+        data: regionalPrescriptions.filter(
+          (_) => _.region === RegionalCoordinator.region
+        )
       }
     })
   },

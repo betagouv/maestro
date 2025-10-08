@@ -111,6 +111,7 @@ const defaultMockApiClientConf: MockApi = {
   useDeleteDocumentMutation: [async () => fn(), {}],
   useDeletePrescriptionMutation: [async () => fn(), {}],
   useDeleteSampleMutation: [async () => fn(), {}],
+  useFindCompaniesQuery: { data: [] },
   useFindLaboratoriesQuery: { data: [] },
   useFindNotificationsQuery: { data: [] },
   useFindPrescriptionsQuery: { data: [] },

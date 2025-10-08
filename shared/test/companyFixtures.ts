@@ -17,10 +17,18 @@ export const CompanyFixture = genCompany({
   postalCode: '87000'
 });
 
-export const SlaughterhouseCompanyFixture = genCompany({
+export const SlaughterhouseCompanyFixture1 = genCompany({
   siret: '22222222222222',
   name: 'Slaughterhouse Company',
   address: '2 avenue des Champs',
   postalCode: '69000',
+  kind: 'Slaughterhouse'
+});
+
+export const SlaughterhouseCompanyFixture2 = genCompany({
+  siret: '33333333333333',
+  name: 'Another Slaughterhouse Company',
+  address: '3 boulevard Saint-Michel',
+  postalCode: '75000',
   kind: 'Slaughterhouse'
 });

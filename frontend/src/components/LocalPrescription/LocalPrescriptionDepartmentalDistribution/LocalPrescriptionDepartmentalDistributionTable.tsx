@@ -80,7 +80,8 @@ const LocalPrescriptionDepartmentalDistributionTable = ({
               localPrescription={departmentalPrescription}
               max={
                 regionalPrescription.sampleCount -
-                sumBy(departmentalPrescriptions, 'sampleCount')
+                sumBy(departmentalPrescriptions, 'sampleCount') +
+                departmentalPrescription.sampleCount
               }
               isEditable={
                 hasUserLocalPrescriptionPermission(

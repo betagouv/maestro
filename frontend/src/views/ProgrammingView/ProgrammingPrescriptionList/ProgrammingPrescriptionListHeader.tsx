@@ -15,6 +15,7 @@ import useWindowSize from 'src/hooks/useWindowSize';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import ProgrammingPrescriptionListGroupedUpdate from 'src/views/ProgrammingView/ProgrammingPrescriptionList/ProgrammingPrescriptionListGroupedUpdate';
 import AddPrescriptionModal from '../../../components/Prescription/AddPrescriptionModal/AddPrescriptionModal';
+import ProgrammingPlanNotificationDepartmentalToSampler from '../../../components/ProgrammingPlanNotification/ProgrammingPlanNotificationDepartmentalToSampler/ProgrammingPlanNotificationDepartmentalToSampler';
 import ProgrammingPlanNotificationNationalToRegional from '../../../components/ProgrammingPlanNotification/ProgrammingPlanNotificationNationalToRegional/ProgrammingPlanNotificationNationalToRegional';
 import ProgrammingPlanNotificationRegionalToDepartmental from '../../../components/ProgrammingPlanNotification/ProgrammingPlanNotificationRegionalToDepartmental/ProgrammingPlanNotificationRegionalToDepartmental';
 import './ProgrammingPrescriptionList.scss';
@@ -43,8 +44,12 @@ const ProgrammingPrescriptionListHeader = ({
 }: Props) => {
   const dispatch = useAppDispatch();
   const { isMobile } = useWindowSize();
-  const { hasUserPrescriptionPermission, hasNationalView, hasRegionalView } =
-    useAuthentication();
+  const {
+    hasUserPrescriptionPermission,
+    hasNationalView,
+    hasRegionalView,
+    hasDepartmentalView
+  } = useAuthentication();
 
   const { prescriptionListDisplay, matrixQuery } = useAppSelector(
     (state) => state.prescriptions
@@ -131,6 +136,13 @@ const ProgrammingPrescriptionListHeader = ({
             programmingPlan={programmingPlan}
             regionalPrescriptions={localPrescriptions}
             departmentalPrescriptions={subLocalPrescriptions}
+          />
+        )}
+        {hasDepartmentalView && (
+          <ProgrammingPlanNotificationDepartmentalToSampler
+            programmingPlan={programmingPlan}
+            departmentalPrescriptions={localPrescriptions}
+            companyPrescriptions={subLocalPrescriptions}
           />
         )}
       </div>

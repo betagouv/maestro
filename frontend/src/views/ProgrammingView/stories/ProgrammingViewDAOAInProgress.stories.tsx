@@ -12,19 +12,18 @@ import {
   NationalCoordinator
 } from 'maestro-shared/test/userFixtures';
 import { expect, userEvent, within } from 'storybook/test';
-import { AuthenticatedAppRoutes } from '../../../AppRoutes';
 import { getMockApi } from '../../../services/mockApiClient';
 import ProgrammingView from '../ProgrammingView';
 
 const meta = {
-  title: 'Views/ProgrammingPlanView/DAOA',
+  title: 'Views/ProgrammingPlanView/DAOA/1 - InProgress',
   component: ProgrammingView
 } satisfies Meta<typeof ProgrammingView>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const inProgressProgrammingPlan = DAOAInProgressProgrammingPlanFixture;
+const programmingPlan = DAOAInProgressProgrammingPlanFixture;
 
 const prescriptions = [
   FoieDeBovinPrescriptionFixture,
@@ -41,12 +40,9 @@ export const NationalCoordinatorView: Story = {
     preloadedState: {
       auth: { authUser: genAuthUser(NationalCoordinator) }
     },
-    initialEntries: [
-      `${AuthenticatedAppRoutes.SamplesByYearRoute.link(inProgressProgrammingPlan.year)}/?context=Control`
-    ],
     apiClient: getMockApi({
       useFindProgrammingPlansQuery: {
-        data: [inProgressProgrammingPlan]
+        data: [programmingPlan]
       },
       useFindPrescriptionsQuery: { data: prescriptions },
       useFindLocalPrescriptionsQuery: {
@@ -78,40 +74,8 @@ export const NationalCoordinatorView: Story = {
       canvas.getAllByTestId(`cell-${FoieDeBovinPrescriptionFixture.matrixKind}`)
     ).toHaveLength(RegionList.length);
 
+    await userEvent.click(canvas.getByTestId('prescriptions-cards-segment'));
+
     await expect(canvas.getByTestId('add-matrix-button')).toBeInTheDocument();
   }
 };
-//
-// export const RegionalCoordinatorView: Story = {
-//   parameters: {
-//     preloadedState: {
-//       auth: { authUser: genAuthUser(RegionalCoordinator) }
-//     },
-//     initialEntries: [
-//       `${AuthenticatedAppRoutes.ProgrammingRoute.link}?year=${inProgressProgrammingPlan.year}`
-//     ],
-//     apiClient: getMockApi({
-//       useFindProgrammingPlansQuery: { data: [inProgressProgrammingPlan] },
-//       useFindPrescriptionsQuery: {
-//         data: prescriptions
-//       },
-//       useFindLocalPrescriptionsQuery: {
-//         data: regionalPrescriptions
-//       }
-//     })
-//   },
-//   play: async ({ canvasElement }) => {
-//     const canvas = within(canvasElement);
-//
-//     await expect(
-//       canvas.queryByTestId('prescriptions-cards-segment')
-//     ).not.toBeInTheDocument();
-//     await expect(
-//       canvas.queryByTestId('prescriptions-table-segment')
-//     ).not.toBeInTheDocument();
-//
-//     await expect(
-//       canvas.queryByTestId('add-matrix-button')
-//     ).not.toBeInTheDocument();
-//   }
-// };

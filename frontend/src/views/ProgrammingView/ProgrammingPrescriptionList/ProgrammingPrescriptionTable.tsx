@@ -75,17 +75,23 @@ const ProgrammingPrescriptionTable = ({
               ({ sampleCount }) => sampleCount
             )}
           </div>
-          <div>
-            {sumBy(
-              getLocalPrescriptions(prescription.id),
-              'realizedSampleCount'
-            )}
-          </div>
-          <div>
-            <CompletionBadge
-              localPrescriptions={getLocalPrescriptions(prescription.id)}
-            />
-          </div>
+          {programmingPlan.regionalStatus.some(
+            (_) => _.status === 'Validated'
+          ) && (
+            <>
+              <div>
+                {sumBy(
+                  getLocalPrescriptions(prescription.id),
+                  'realizedSampleCount'
+                )}
+              </div>
+              <div>
+                <CompletionBadge
+                  localPrescriptions={getLocalPrescriptions(prescription.id)}
+                />
+              </div>
+            </>
+          )}
         </div>,
         ...getLocalPrescriptions(prescription.id)
           .sort(LocalPrescriptionSort)
@@ -116,7 +122,7 @@ const ProgrammingPrescriptionTable = ({
             </div>
           ))
       ]),
-    [prescriptions, regionalPrescriptions] // eslint-disable-line react-hooks/exhaustive-deps
+    [programmingPlan, prescriptions, regionalPrescriptions] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const totalData = useMemo(
@@ -125,8 +131,15 @@ const ProgrammingPrescriptionTable = ({
       // eslint-disable-next-line react/jsx-key
       <div className="border-left fr-text--bold">
         <div>{sumBy(regionalPrescriptions, 'sampleCount')}</div>
-        <div>{sumBy(regionalPrescriptions, 'realizedSampleCount')}</div>
-        <CompletionBadge localPrescriptions={regionalPrescriptions} />
+
+        {programmingPlan.regionalStatus.some(
+          (_) => _.status === 'Validated'
+        ) && (
+          <>
+            <div>{sumBy(regionalPrescriptions, 'realizedSampleCount')}</div>
+            <CompletionBadge localPrescriptions={regionalPrescriptions} />
+          </>
+        )}
       </div>,
       ...RegionList.map((region) => [
         <div key={`total-${region}`} className="border-left fr-text--bold">
@@ -136,8 +149,9 @@ const ProgrammingPrescriptionTable = ({
               'sampleCount'
             )}
           </div>
-          {programmingPlan.regionalStatus.find((_) => _.region === region)
-            ?.status === 'Validated' && (
+          {programmingPlan.regionalStatus.some(
+            (_) => _.region === region && _.status === 'Validated'
+          ) && (
             <>
               <div>
                 {sumBy(
@@ -154,7 +168,7 @@ const ProgrammingPrescriptionTable = ({
         </div>
       ])
     ],
-    [regionalPrescriptions] // eslint-disable-line react-hooks/exhaustive-deps
+    [regionalPrescriptions, prescriptions, programmingPlan] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   if (!prescriptions) {

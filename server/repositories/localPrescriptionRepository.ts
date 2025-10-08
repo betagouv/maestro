@@ -26,8 +26,8 @@ const LocalPrescriptionsDbo = z.object({
 
 type LocalPrescriptionsDbo = z.infer<typeof LocalPrescriptionsDbo>;
 
-export const LocalPrescriptions = () =>
-  db<LocalPrescriptionsDbo>(localPrescriptionsTable);
+export const LocalPrescriptions = (transaction = db) =>
+  transaction<LocalPrescriptionsDbo>(localPrescriptionsTable);
 
 const findUnique = async ({
   prescriptionId,
@@ -222,6 +222,40 @@ const update = async (localPrescription: LocalPrescription) => {
     .update(formatLocalPrescription(localPrescription));
 };
 
+const updateMany = async (
+  localPrescription: Omit<Required<LocalPrescriptionKey>, 'companySiret'>,
+  subLocalPrescriptions: LocalPrescription[]
+): Promise<void> => {
+  console.info('Update local subprescriptions', localPrescription);
+  await db.transaction(async (transaction) => {
+    await LocalPrescriptions(transaction)
+      .where({
+        prescriptionId: localPrescription.prescriptionId,
+        region: localPrescription.region,
+        department: localPrescription.department as Department
+      })
+      .whereNot({
+        companySiret: 'None'
+      })
+      .forUpdate();
+    await LocalPrescriptions(transaction)
+      .where({
+        prescriptionId: localPrescription.prescriptionId,
+        region: localPrescription.region,
+        department: localPrescription.department as Department
+      })
+      .whereNot({
+        companySiret: 'None'
+      })
+      .delete();
+    if (subLocalPrescriptions.length > 0) {
+      await LocalPrescriptions(transaction).insert(
+        subLocalPrescriptions.map(formatLocalPrescription)
+      );
+    }
+  });
+};
+
 export const formatLocalPrescription = (
   localPrescription: LocalPrescription
 ): LocalPrescriptionsDbo => ({
@@ -254,5 +288,6 @@ export default {
   findUnique,
   findMany,
   insertMany,
-  update
+  update,
+  updateMany
 };

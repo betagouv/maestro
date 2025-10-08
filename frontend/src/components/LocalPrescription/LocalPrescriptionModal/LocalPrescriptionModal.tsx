@@ -5,9 +5,9 @@ import Select from '@codegouvfr/react-dsfr/Select';
 import { sortBy } from 'lodash-es';
 import { Department } from 'maestro-shared/referential/Department';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
-import { SlaughterhouseSampleCounts } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
+import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import { ApiClientContext } from '../../../services/apiClient';
 import prescriptionsSlice from '../../../store/reducers/prescriptionsSlice';
@@ -31,6 +31,9 @@ const RegionalPrescriptionModal = ({
 }: Props) => {
   const apiClient = useContext(ApiClientContext);
   const dispatch = useAppDispatch();
+  const modalContentRef = useRef<
+    (HTMLDivElement & { submit: () => Promise<boolean> }) | null
+  >(null);
 
   useIsModalOpen(localPrescriptionModal, {
     onConceal: () => {
@@ -48,12 +51,6 @@ const RegionalPrescriptionModal = ({
   const [laboratoryId, setLaboratoryId] = useState(
     localPrescriptionModalData?.mode === 'laboratory'
       ? localPrescriptionModalData.localPrescription.laboratoryId
-      : undefined
-  );
-  const [subLocalPrescriptions, setSubLocalPrescriptions] = useState(
-    localPrescriptionModalData?.mode === 'distributionToDepartments' ||
-      localPrescriptionModalData?.mode === 'distributionToSlaughterhouses'
-      ? localPrescriptionModalData.subLocalPrescriptions
       : undefined
   );
   const [isUpdateSuccess, setIsUpdateSuccess] = useState(false);
@@ -76,31 +73,9 @@ const RegionalPrescriptionModal = ({
     localPrescriptionModal.close();
   };
 
-  const changeDepartmentalCount = async (
-    department: Department,
-    sampleCount: number
+  const submitSubLocalDistribution = async (
+    subLocalPrescriptions: LocalPrescription[]
   ) => {
-    setSubLocalPrescriptions((prev) =>
-      prev?.map((dp) =>
-        dp.department === department ? { ...dp, sampleCount } : dp
-      )
-    );
-  };
-
-  const changeSlaughterhouseSampleCounts = async (
-    slaughterhouseSampleCounts: SlaughterhouseSampleCounts
-  ) => {
-    if (localPrescriptionModalData?.mode === 'distributionToSlaughterhouses') {
-      setSubLocalPrescriptions(
-        slaughterhouseSampleCounts.map((slaughterhouseSampleCount) => ({
-          ...localPrescriptionModalData?.localPrescription,
-          ...slaughterhouseSampleCount
-        }))
-      );
-    }
-  };
-
-  const submitSubLocalDistribution = async () => {
     if (localPrescriptionModalData?.mode === 'distributionToDepartments') {
       await Promise.all(
         (subLocalPrescriptions ?? []).map((departmentalPrescription) =>
@@ -109,8 +84,9 @@ const RegionalPrescriptionModal = ({
             region: localPrescriptionModalData.localPrescription.region,
             department: departmentalPrescription.department as Department,
             prescriptionUpdate: {
-              programmingPlanId: localPrescriptionModalData.programmingPlan.id,
-              sampleCount: departmentalPrescription.sampleCount
+              key: 'sampleCount',
+              sampleCount: departmentalPrescription.sampleCount,
+              programmingPlanId: localPrescriptionModalData.programmingPlan.id
             }
           })
         )
@@ -124,13 +100,9 @@ const RegionalPrescriptionModal = ({
         department: localPrescriptionModalData.localPrescription
           .department as Department,
         prescriptionUpdate: {
-          programmingPlanId: localPrescriptionModalData.programmingPlan.id,
-          slaughterhouseSampleCounts: (subLocalPrescriptions ?? []).map(
-            (slaughterhousePrescription) => ({
-              companySiret: slaughterhousePrescription.companySiret ?? '',
-              sampleCount: slaughterhousePrescription.sampleCount
-            })
-          )
+          key: 'slaughterhouseSampleCounts',
+          slaughterhouseSampleCounts: subLocalPrescriptions,
+          programmingPlanId: localPrescriptionModalData.programmingPlan.id
         }
       });
       setIsUpdateSuccess(true);
@@ -143,12 +115,6 @@ const RegionalPrescriptionModal = ({
       setLaboratoryId(
         localPrescriptionModalData.mode === 'laboratory'
           ? localPrescriptionModalData?.localPrescription.laboratoryId
-          : undefined
-      );
-      setSubLocalPrescriptions(
-        localPrescriptionModalData.mode === 'distributionToDepartments' ||
-          localPrescriptionModalData.mode === 'distributionToSlaughterhouses'
-          ? localPrescriptionModalData.subLocalPrescriptions
           : undefined
       );
     }
@@ -166,6 +132,16 @@ const RegionalPrescriptionModal = ({
       }
     }
   }, [isUpdateSuccess, localPrescriptionModalData]);
+
+  const successMessage = useMemo(() => {
+    if (localPrescriptionModalData?.mode === 'distributionToDepartments') {
+      return 'La répartition la programmation a bien été enregistrée pour ces départements.';
+    }
+    if (localPrescriptionModalData?.mode === 'distributionToSlaughterhouses') {
+      return 'La répartition la programmation a bien été enregistrée pour ces abattoirs.';
+    }
+    return 'Le laboratoire a bien été enregistré.';
+  }, [localPrescriptionModalData]);
 
   return (
     <localPrescriptionModal.Component
@@ -196,7 +172,7 @@ const RegionalPrescriptionModal = ({
                 onClick: () =>
                   localPrescriptionModalData?.mode === 'laboratory'
                     ? submitLaboratory()
-                    : submitSubLocalDistribution(),
+                    : modalContentRef.current?.submit(),
                 doClosesModal: false
               }
             ]
@@ -204,10 +180,7 @@ const RegionalPrescriptionModal = ({
     >
       <div className="prescription-edit-modal-content">
         {isUpdateSuccess ? (
-          <>
-            La répartition la programmation a bien été enregistrée pour ces
-            départements.
-          </>
+          successMessage
         ) : (
           <>
             {localPrescriptionModalData?.mode === 'laboratory' && (
@@ -234,40 +207,29 @@ const RegionalPrescriptionModal = ({
             {localPrescriptionModalData?.mode ===
               'distributionToDepartments' && (
               <LocalPrescriptionDepartmentalDistribution
+                ref={modalContentRef}
                 programmingPlan={localPrescriptionModalData.programmingPlan}
                 prescription={localPrescriptionModalData.prescription}
                 regionalPrescription={
                   localPrescriptionModalData.localPrescription
                 }
-                departmentalPrescriptions={subLocalPrescriptions ?? []}
-                onChangeDepartmentalCount={changeDepartmentalCount}
+                departmentalPrescriptions={
+                  localPrescriptionModalData.subLocalPrescriptions
+                }
+                onSubmit={submitSubLocalDistribution}
               />
             )}
             {localPrescriptionModalData?.mode ===
               'distributionToSlaughterhouses' && (
               <LocalPrescriptionSlaughterhouseDistribution
+                ref={modalContentRef}
                 departmentalPrescription={
                   localPrescriptionModalData.localPrescription
                 }
-                slaughterhouseSampleCounts={
-                  (subLocalPrescriptions ?? []).length > 0
-                    ? (subLocalPrescriptions ?? []).map(
-                        (slaughterhousePrescription) => ({
-                          companySiret:
-                            slaughterhousePrescription.companySiret ?? '',
-                          sampleCount: slaughterhousePrescription.sampleCount
-                        })
-                      )
-                    : [
-                        {
-                          companySiret: '',
-                          sampleCount: 0
-                        }
-                      ]
+                slaughterhousePrescriptions={
+                  localPrescriptionModalData.subLocalPrescriptions
                 }
-                onChangeSlaughterhouseSampleCounts={
-                  changeSlaughterhouseSampleCounts
-                }
+                onSubmit={submitSubLocalDistribution}
               />
             )}
           </>

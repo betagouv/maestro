@@ -35,18 +35,27 @@ export const SlaughterhouseSampleCounts = z
   )
   .min(1, { message: 'Au moins un abattoir doit être renseigné.' });
 
-export const LocalPrescriptionUpdate = z.object({
-  ...Prescription.pick({ programmingPlanId: true }).shape,
-  update: z.union([
-    LocalPrescription.pick({
+export const LocalPrescriptionUpdate = z.discriminatedUnion('key', [
+  z.object({
+    key: z.literal('sampleCount'),
+    ...LocalPrescription.pick({
       sampleCount: true
-    }),
-    LocalPrescription.pick({
+    }).shape,
+    ...Prescription.pick({ programmingPlanId: true }).shape
+  }),
+  z.object({
+    key: z.literal('laboratory'),
+    ...LocalPrescription.pick({
       laboratoryId: true
-    }),
-    SlaughterhouseSampleCounts
-  ])
-});
+    }).shape,
+    ...Prescription.pick({ programmingPlanId: true }).shape
+  }),
+  z.object({
+    key: z.literal('slaughterhouseSampleCounts'),
+    slaughterhouseSampleCounts: SlaughterhouseSampleCounts,
+    ...Prescription.pick({ programmingPlanId: true }).shape
+  })
+]);
 
 export type SlaughterhouseSampleCounts = z.infer<
   typeof SlaughterhouseSampleCounts

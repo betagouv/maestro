@@ -91,7 +91,7 @@ const LocalPrescriptionModalData = z.discriminatedUnion('viewBy', [
     programmingPlan: ProgrammingPlan,
     prescription: Prescription,
     localPrescription: LocalPrescription,
-    subLocalPrescriptions: z.array(LocalPrescription).nullish()
+    subLocalPrescriptions: z.array(LocalPrescription)
   })
 ]);
 
