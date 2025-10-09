@@ -52,6 +52,47 @@ describe('Parse correctement le fichier CSV', () => {
     ).not.toThrowError();
   });
 
+  test('d, NQ et < LQ sont équivalent', () => {
+    const line = {
+      PREFIXE_NOM: '2025',
+      DEMANDE_NUMERO: '0003',
+      ECHANT_NUMERO: '1',
+      LOT: '1',
+      PARAMETRE_NOM: 'SAP00010',
+      RESULTAT_VALTEXTE: 'd, NQ',
+      RESULTAT_VALNUM: '0',
+      PARAMETRE_LIBELLE: 'Acephate',
+      LIMITE_LQ: '0.01',
+      INCERTITUDE: '0',
+      CAS_NUMBER: '135158-54-2',
+      TECHNIQUE: 'MI MO-PC-077',
+      LMR_NUM: '0.01',
+      ECHANT_DATE_DIFFUSION: '16/04/2025'
+    };
+    expect(extractAnalyzes([line])).toMatchInlineSnapshot(`
+      [
+        {
+          "capinovRef": "2025 0003 1",
+          "notes": "",
+          "residues": [
+            {
+              "analysisDate": "2025-04-16",
+              "analysisMethod": "Multi",
+              "casNumber": "135158-54-2",
+              "codeSandre": null,
+              "label": "Acephate",
+              "result_kind": "NQ",
+            },
+          ],
+          "sampleReference": "1",
+        },
+      ]
+    `);
+    expect(extractAnalyzes([line])).toEqual(
+      extractAnalyzes([{ ...line, RESULTAT_VALTEXTE: '< LQ' }])
+    );
+  });
+
   test("la méthode d'analyse d'un calcul est récupérée sur le résidu précédent", () => {
     const defaultLine = {
       PREFIXE_NOM: '2025',
