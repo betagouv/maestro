@@ -28,6 +28,46 @@ export const seed = async function () {
       postalCode: '44260',
       city: 'Malville',
       nafCode: '01.30Z'
+    },
+    {
+      siret: '41483410100019',
+      name: 'VALLEGRAIN ABATTOIR',
+      tradeName: 'VALLEGRAIN ABATTOIR',
+      address: '33 RUE DE LA 2EME DB',
+      postalCode: '72170',
+      city: 'CHERANCE',
+      nafCode: '10.11A',
+      kind: 'Slaughterhouse'
+    },
+    {
+      siret: '50851378500115',
+      name: 'SOCOPA VIANDES',
+      tradeName: 'SOCOPA VIANDES',
+      address: 'LES BORDES CHERRE 3613 RTE DU MANS',
+      postalCode: '72400',
+      city: 'CHERRE AU',
+      nafCode: '10.11A',
+      kind: 'Slaughterhouse'
+    },
+    {
+      siret: '54695037900273',
+      name: 'CHARAL',
+      tradeName: 'CHARAL',
+      address: 'AV JEAN MONNET',
+      postalCode: '72300',
+      city: 'SABLE SUR SARTHE',
+      nafCode: '10.11A',
+      kind: 'Slaughterhouse'
+    },
+    {
+      siret: '87912629000011',
+      name: 'NEVEU SOPHIE',
+      tradeName: 'NEVEU SOPHIE',
+      address: 'LA HAIE',
+      postalCode: '72400',
+      city: 'VILLAINES-LA-GONAIS',
+      nafCode: '10.11A',
+      kind: 'Slaughterhouse'
     }
   ]);
 };

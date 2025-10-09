@@ -1,23 +1,13 @@
-import { v4 as uuidv4 } from 'uuid';
-import { Laboratories } from '../../../repositories/laboratoryRepository';
-
-const SCL34Id = uuidv4();
-const LDA66Id = uuidv4();
-const LDA72Id = uuidv4();
-const SCL91Id = uuidv4();
-const GIR49Id = uuidv4();
-const CAP29Id = uuidv4();
-const CER30Id = uuidv4();
-
-export const DummyLaboratoryIds = [
-  SCL34Id,
+import {
+  CAP29Id,
+  CER30Id,
+  GIR49Id,
   LDA66Id,
   LDA72Id,
-  SCL91Id,
-  GIR49Id,
-  CAP29Id,
-  CER30Id
-];
+  SCL34Id,
+  SCL91Id
+} from 'maestro-shared/schema/User/User';
+import { Laboratories } from '../../../repositories/laboratoryRepository';
 
 const EMAIL_SANBOX = 'preleveur@maestro.beta.gouv.fr';
 export const seed = async function () {

@@ -1,17 +1,39 @@
+import { omit } from 'lodash-es';
 import {
-  PrescriptionFixture,
-  RegionalPrescriptionFixture
+  LocalPrescriptionFixture,
+  PrescriptionFixture
 } from 'maestro-shared/test/prescriptionFixtures';
-import { Prescriptions } from '../../repositories/prescriptionRepository';
 import {
-  formatRegionalPrescription,
-  RegionalPrescriptions
-} from '../../repositories/regionalPrescriptionRepository';
+  formatLocalPrescription,
+  LocalPrescriptions
+} from '../../repositories/localPrescriptionRepository';
+import { LocalPrescriptionSubstanceKindsLaboratories } from '../../repositories/localPrescriptionSubstanceKindLaboratoryRepository';
+import { Prescriptions } from '../../repositories/prescriptionRepository';
 
 export const seed = async (): Promise<void> => {
   await Prescriptions().insert(PrescriptionFixture);
 
-  await RegionalPrescriptions().insert(
-    formatRegionalPrescription(RegionalPrescriptionFixture)
+  await LocalPrescriptions().insert(
+    [LocalPrescriptionFixture].map((_) =>
+      omit(formatLocalPrescription(_), [
+        'substanceKindsLaboratories',
+        'realizedSampleCount',
+        'inProgressSampleCount'
+      ])
+    )
+  );
+
+  await LocalPrescriptionSubstanceKindsLaboratories().insert(
+    [LocalPrescriptionFixture].flatMap((localPrescription) =>
+      (localPrescription.substanceKindsLaboratories ?? []).map(
+        (substanceKindLaboratory) => ({
+          prescriptionId: localPrescription.prescriptionId,
+          region: localPrescription.region,
+          department: localPrescription.department ?? 'None',
+          substanceKind: substanceKindLaboratory.substanceKind,
+          laboratoryId: substanceKindLaboratory.laboratoryId
+        })
+      )
+    )
   );
 };

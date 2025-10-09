@@ -1,11 +1,11 @@
-import { RegionList } from 'maestro-shared/referential/Region';
-import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
+import {
+  genLocalPrescriptions,
+  genPrescription
+} from 'maestro-shared/test/prescriptionFixtures';
 import { PFASValidatedProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
-import { oneOf } from 'maestro-shared/test/testFixtures';
+import { LocalPrescriptions } from '../../../repositories/localPrescriptionRepository';
 import { Prescriptions } from '../../../repositories/prescriptionRepository';
 import { ProgrammingPlans } from '../../../repositories/programmingPlanRepository';
-import { RegionalPrescriptions } from '../../../repositories/regionalPrescriptionRepository';
-import { DummyLaboratoryIds } from './002-laboratories';
 
 const bovin = genPrescription({
   id: '1ac599c4-1241-445e-a4eb-09d353810e10',
@@ -65,41 +65,30 @@ export const seed = async function () {
     return;
   }
 
-  const genRegionalPrescriptions = (
-    prescriptionId: string,
-    quantities: number[]
-  ) =>
-    quantities.map((quantity, index) => ({
-      prescriptionId,
-      region: RegionList[index],
-      sampleCount: quantity,
-      laboratoryId: oneOf(DummyLaboratoryIds)
-    }));
-
   await Prescriptions().insert([bovin, caprin, ovin, porcin, volaille, oeufs]);
 
-  await RegionalPrescriptions().insert([
-    ...genRegionalPrescriptions(
+  await LocalPrescriptions().insert([
+    ...genLocalPrescriptions(
       bovin.id,
       [3, 2, 5, 0, 0, 1, 2, 0, 3, 3, 2, 0, 4, 0, 0, 0, 0, 0]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       caprin.id,
       [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 1, 0, 0, 0, 0, 0, 0, 0]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       ovin.id,
       [1, 1, 2, 0, 0, 1, 0, 1, 6, 0, 6, 3, 2, 0, 0, 0, 0, 0]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       porcin.id,
       [2, 0, 14, 1, 0, 0, 1, 0, 2, 0, 1, 0, 2, 0, 0, 0, 1, 0]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       volaille.id,
       [2, 3, 8, 1, 0, 1, 0, 0, 2, 1, 1, 0, 6, 0, 0, 0, 0, 0]
     ),
-    ...genRegionalPrescriptions(
+    ...genLocalPrescriptions(
       oeufs.id,
       [12, 2, 54, 3, 0, 10, 15, 3, 11, 6, 4, 1, 27, 1, 0, 0, 1, 0]
     )

@@ -37,7 +37,7 @@ const DashboardView = () => {
 
   const { data: nextProgrammingPlans } = apiClient.useFindProgrammingPlansQuery(
     {
-      status: ['InProgress', 'Submitted']
+      status: ['InProgress', 'SubmittedToRegion']
     },
     {
       skip: !hasUserPermission('manageProgrammingPlan')

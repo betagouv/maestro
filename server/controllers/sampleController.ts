@@ -55,9 +55,9 @@ import {
   getAndCheckSample,
   getAndCheckSampleDepartement
 } from '../middlewares/checks/sampleCheck';
+import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
-import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
 import { ProtectedSubRouter } from '../routers/routes.type';
 import { laboratoriesConf, LaboratoryWithConf } from '../services/imapService';
 
@@ -414,10 +414,11 @@ export const sampleRouter = {
               .then((_) => _?.[0])
           : undefined;
 
-      const regionalPrescription = prescription
-        ? await regionalPrescriptionRepository.findUnique({
+      const localPrescription = prescription
+        ? await localPrescriptionRepository.findUnique({
             prescriptionId: prescription.id,
-            region: sampleUpdate.region
+            region: sampleUpdate.region,
+            includes: 'laboratories'
           })
         : undefined;
 
@@ -433,7 +434,10 @@ export const sampleRouter = {
         sample.context !== sampleUpdate.context
           ? {
               prescriptionId: prescription?.id || null,
-              laboratoryId: regionalPrescription?.laboratoryId || null,
+              laboratoryId:
+                localPrescription?.substanceKindsLaboratories?.find(
+                  (_) => _.substanceKind === 'Any'
+                )?.laboratoryId || null,
               monoSubstances:
                 prescriptionSubstances
                   ?.filter((substance) => substance.analysisMethod === 'Mono')

@@ -34,7 +34,12 @@ export const programmingPlansRoutes = {
       programmingPlanId: z.guid()
     },
     put: {
-      permissions: ['manageProgrammingPlan', 'approveProgrammingPlan'],
+      permissions: [
+        'manageProgrammingPlan',
+        'approveProgrammingPlan',
+        'distributePrescriptionToDepartments',
+        'distributePrescriptionToSlaughterhouses'
+      ],
       body: z.array(ProgrammingPlanRegionalStatus),
       response: ProgrammingPlan
     }

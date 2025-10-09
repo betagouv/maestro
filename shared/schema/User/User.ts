@@ -1,9 +1,12 @@
 import { intersection, isNil } from 'lodash-es';
+import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
+import { Department } from '../../referential/Department';
 import { Region, RegionList } from '../../referential/Region';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { UserPermission } from './UserPermission';
 import {
+  DepartmentalUserRole,
   NationalUserRole,
   RegionalAndNationUserRole,
   RegionalUserRole,
@@ -17,7 +20,8 @@ const BaseUser = z.object({
   name: z.string(),
   programmingPlanKinds: z.array(ProgrammingPlanKind),
   role: UserRole,
-  region: Region.nullish()
+  region: Region.nullish(),
+  department: Department.nullish()
 });
 
 export const User = BaseUser.superRefine((user, ctx) => {
@@ -56,3 +60,27 @@ export const hasPermission = (user: User, ...permissions: UserPermission[]) =>
 export const hasNationalRole = (user: Pick<User, 'role'>) =>
   NationalUserRole.safeParse(user.role).success ||
   RegionalAndNationUserRole.safeParse(user.role).success;
+
+export const hasRegionalRole = (user: Pick<User, 'role' | 'department'>) =>
+  RegionalUserRole.safeParse(user.role).success && isNil(user.department);
+
+export const hasDepartmentalRole = (user: Pick<User, 'role' | 'department'>) =>
+  DepartmentalUserRole.safeParse(user.role).success && !isNil(user.department);
+
+export const SCL34Id = uuidv4();
+export const LDA66Id = uuidv4();
+export const LDA72Id = uuidv4();
+export const SCL91Id = uuidv4();
+export const GIR49Id = uuidv4();
+export const CAP29Id = uuidv4();
+export const CER30Id = uuidv4();
+
+export const DummyLaboratoryIds = [
+  SCL34Id,
+  LDA66Id,
+  LDA72Id,
+  SCL91Id,
+  GIR49Id,
+  CAP29Id,
+  CER30Id
+];

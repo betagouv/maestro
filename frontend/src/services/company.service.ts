@@ -1,6 +1,8 @@
 import { isNil, omitBy } from 'lodash-es';
 import { Department } from 'maestro-shared/referential/Department';
+import { Company } from 'maestro-shared/schema/Company/Company';
 import { CompanySearchResult } from 'maestro-shared/schema/Company/CompanySearchResult';
+import { FindCompanyOptions } from 'maestro-shared/schema/Company/FindCompanyOptions';
 import { api } from 'src/services/api.service';
 
 const companyApi = api.injectEndpoints({
@@ -28,8 +30,24 @@ const companyApi = api.injectEndpoints({
       transformErrorResponse: () => {
         return [];
       }
+    }),
+    findCompanies: builder.query<Company[], FindCompanyOptions>({
+      query: (findOptions) => ({
+        url: `companies`,
+        params: findOptions
+      }),
+      transformResponse: (response: any[]) =>
+        response.map((_) => Company.parse(omitBy(_, isNil))),
+      providesTags: (result) => [
+        { type: 'Company', id: 'LIST' },
+        ...(result ?? []).map(({ siret }) => ({
+          type: 'Company' as const,
+          siret
+        }))
+      ]
     })
   })
 });
 
-export const { useLazySearchCompaniesQuery } = companyApi;
+export const { useLazySearchCompaniesQuery, useFindCompaniesQuery } =
+  companyApi;
