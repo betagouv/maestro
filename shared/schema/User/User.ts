@@ -13,11 +13,11 @@ import {
 
 const BaseUser = z.object({
   id: z.guid(),
-  email: z.string().email(),
+  email: z.email(),
   name: z.string(),
   programmingPlanKinds: z.array(ProgrammingPlanKind),
   role: UserRole,
-  region: Region.nullish()
+  region: Region.nullable()
 });
 
 export const User = BaseUser.superRefine((user, ctx) => {
@@ -32,6 +32,12 @@ export const User = BaseUser.superRefine((user, ctx) => {
     });
   }
 });
+
+export const UserToCreate = User.omit({ id: true, name: true });
+export type UserToCreate = z.infer<typeof UserToCreate>;
+
+export const UserToUpdate = User.omit({ name: true }).partial();
+export type UserToUpdate = z.infer<typeof UserToUpdate>;
 
 export const Sampler = BaseUser.pick({
   id: true,

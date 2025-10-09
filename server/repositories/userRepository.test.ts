@@ -7,11 +7,8 @@ import { userRepository } from './userRepository';
 test("impossible d'avoir 2 utilisateurs avec le même email", async () => {
   const email = 'email@email.fr';
 
-  await kysely.insertInto('users').values(genUser({ email })).execute();
-  await kysely
-    .insertInto('users')
-    .values(genUser({ email: 'anotheremail@email.fr' }))
-    .execute();
+  await userRepository.insert(genUser({ email }));
+  await userRepository.insert(genUser({ email: 'anotheremail@email.fr' }));
 
   await expect(async () =>
     kysely
@@ -31,8 +28,8 @@ test("peut modifier le nom et le prénom d'un utilisateur", async () => {
   const user1 = genUser();
   const user2 = genUser();
 
-  await kysely.insertInto('users').values(user1).execute();
-  await kysely.insertInto('users').values(user2).execute();
+  await userRepository.insert(user1);
+  await userRepository.insert(user2);
 
   const newName = 'fullName';
 
@@ -57,12 +54,12 @@ test("peut modifier le nom et le prénom d'un utilisateur", async () => {
     .selectAll()
     .where('email', '=', user2.email)
     .executeTakeFirst();
-  expect(user2InDb).toMatchObject(user2);
+  expect(user2InDb).toMatchObject({ ...user2, name: '-' });
 });
 test('peut ajouter et supprimer un logged secret', async () => {
   const user1 = genUser();
 
-  await kysely.insertInto('users').values(user1).execute();
+  await userRepository.insert(user1);
 
   const newSecret = uuidv4();
 

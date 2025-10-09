@@ -20,6 +20,17 @@ export const usersRouter = {
       }
 
       return { status: constants.HTTP_STATUS_OK, response: user };
+    },
+    put: async ({ body }, { userId }) => {
+      console.info('Update user', body);
+
+      const userToUpdate = await userRepository.findUnique(userId);
+      if (!userToUpdate) {
+        return { status: constants.HTTP_STATUS_NOT_FOUND };
+      }
+
+      await userRepository.update(body, userId);
+      return { status: constants.HTTP_STATUS_OK };
     }
   },
   '/users': {
@@ -34,6 +45,12 @@ export const usersRouter = {
       const users = await userRepository.findMany(findOptions);
 
       return { status: constants.HTTP_STATUS_OK, response: users };
+    },
+    post: async ({ body }) => {
+      console.info('Create user', body);
+
+      await userRepository.insert(body);
+      return { status: constants.HTTP_STATUS_CREATED };
     }
   }
 } as const satisfies ProtectedSubRouter;
