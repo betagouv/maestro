@@ -97,7 +97,7 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'readProgrammingPlanApprovedByRegion',
     'readProgrammingPlanSubmittedToDepartments',
     'approveProgrammingPlan',
-    'updatePrescriptionLaboratory',
+    'updatePrescriptionLaboratories',
     'commentPrescription',
     'distributePrescriptionToDepartments',
     'deleteDocument'
@@ -114,7 +114,7 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     ...UserSamplerPermissionsList,
     'readProgrammingPlanSubmittedToDepartments',
     'validateProgrammingPlan',
-    'updatePrescriptionLaboratory',
+    'updatePrescriptionLaboratories',
     'distributePrescriptionToSlaughterhouses'
   ],
   Administrator: [

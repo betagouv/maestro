@@ -52,6 +52,7 @@ const ProgrammingPrescriptionList = ({
   const [searchParams, setSearchParams] = useSearchParams();
   const {
     hasNationalView,
+    hasUserPermission,
     hasUserPrescriptionPermission,
     hasUserLocalPrescriptionPermission
   } = useAuthentication();
@@ -106,9 +107,17 @@ const ProgrammingPrescriptionList = ({
       ...findPrescriptionOptions,
       region,
       department,
-      includes: ['comments' as const, 'sampleCounts' as const]
+      includes: [
+        'sampleCounts' as const,
+        ...(hasUserPermission('commentPrescription')
+          ? ['comments' as const]
+          : []),
+        ...(hasUserPermission('updatePrescriptionLaboratories')
+          ? ['laboratories' as const]
+          : [])
+      ]
     }),
-    [findPrescriptionOptions, region, department]
+    [findPrescriptionOptions, region, department, hasUserPermission]
   );
 
   const { data } = apiClient.useFindLocalPrescriptionsQuery(
@@ -233,8 +242,15 @@ const ProgrammingPrescriptionList = ({
       await Promise.all(
         prescriptions.map((prescription) =>
           changeLocalPrescription(prescription, region as Region, {
-            key: 'laboratory',
-            laboratoryId,
+            key: 'laboratories',
+            substancesLaboratories: laboratoryId
+              ? [
+                  {
+                    substance: 'Any',
+                    laboratoryId
+                  }
+                ]
+              : [],
             programmingPlanId: programmingPlan.id
           })
         )
@@ -267,7 +283,7 @@ const ProgrammingPrescriptionList = ({
                   hasUserLocalPrescriptionPermission(
                     programmingPlan,
                     regionalPrescription
-                  )?.updateLaboratory
+                  )?.updateLaboratories
               )}
               selectedCount={selectedPrescriptions.length}
               onGroupedUpdate={async (laboratoryId) => {

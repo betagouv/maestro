@@ -18,6 +18,7 @@ import { getAndCheckPrescription } from '../middlewares/checks/prescriptionCheck
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
 import localPrescriptionCommentRepository from '../repositories/localPrescriptionCommentRepository';
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
+import localPrescriptionLaboratoryRepository from '../repositories/localPrescriptionSubstanceLaboratoryRepository';
 import { userRepository } from '../repositories/userRepository';
 import { ProtectedSubRouter } from '../routers/routes.type';
 import { notificationService } from '../services/notificationService';
@@ -96,25 +97,31 @@ export const localPrescriptionsRouter = {
         hasLocalPrescriptionPermission(user, programmingPlan, localPrescription)
           .updateSampleCount && localPrescriptionUpdate.key === 'sampleCount';
 
-      const canUpdateLaboratory =
+      const canUpdateLaboratories =
         hasLocalPrescriptionPermission(user, programmingPlan, localPrescription)
-          .updateLaboratory && localPrescriptionUpdate.key === 'laboratory';
+          .updateLaboratories && localPrescriptionUpdate.key === 'laboratories';
 
-      if (!canUpdateSampleCount && !canUpdateLaboratory) {
+      if (!canUpdateSampleCount && !canUpdateLaboratories) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 
-      const updatedLocalPrescription = {
-        ...localPrescription,
-        sampleCount: canUpdateSampleCount
-          ? localPrescriptionUpdate.sampleCount
-          : localPrescription.sampleCount,
-        laboratoryId: canUpdateLaboratory
-          ? localPrescriptionUpdate.laboratoryId
-          : localPrescription.laboratoryId
-      };
+      if (canUpdateSampleCount) {
+        await localPrescriptionRepository.update({
+          ...localPrescription,
+          sampleCount: localPrescriptionUpdate.sampleCount
+        });
+      }
 
-      await localPrescriptionRepository.update(updatedLocalPrescription);
+      if (canUpdateLaboratories) {
+        await localPrescriptionLaboratoryRepository.updateMany(
+          localPrescription,
+          localPrescriptionUpdate.substancesLaboratories
+        );
+      }
+
+      const updatedLocalPrescription =
+        await localPrescriptionRepository.findUnique(params);
+
       return {
         status: constants.HTTP_STATUS_OK,
         response: updatedLocalPrescription

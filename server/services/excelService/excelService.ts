@@ -310,7 +310,7 @@ const generateSamplesExportExcel = async (
 
 const generatePrescriptionsExportExcel = async (
   prescriptions: Prescription[],
-  regionalPrescriptions: LocalPrescription[],
+  localPrescriptions: LocalPrescription[],
   exportedRegion: Region | undefined
 ): Promise<Buffer> => {
   const exportedRegions = exportedRegion ? [exportedRegion] : RegionList;
@@ -338,7 +338,7 @@ const generatePrescriptionsExportExcel = async (
     .map((prescription) => ({
       prescription,
       filteredLocalPrescriptions: [
-        ...regionalPrescriptions.filter(
+        ...localPrescriptions.filter(
           (r) => r.prescriptionId === prescription.id
         )
       ].toSorted(LocalPrescriptionSort)
@@ -370,7 +370,9 @@ const generatePrescriptionsExportExcel = async (
           ),
           laboratories.find(
             (laboratory) =>
-              laboratory.id === filteredLocalPrescriptions[0]?.laboratoryId
+              laboratory.id ===
+              filteredLocalPrescriptions[0]?.substancesLaboratories?.[0]
+                ?.laboratoryId
           )?.name
         ]
           .filter(isDefined)
@@ -389,27 +391,27 @@ const generatePrescriptionsExportExcel = async (
               matrix: 'Total',
               columns: [
                 !exportedRegion
-                  ? sumBy(regionalPrescriptions, 'sampleCount')
+                  ? sumBy(localPrescriptions, 'sampleCount')
                   : undefined,
                 !exportedRegion
-                  ? sumBy(regionalPrescriptions, 'realizedSampleCount')
+                  ? sumBy(localPrescriptions, 'realizedSampleCount')
                   : undefined,
                 !exportedRegion
-                  ? getCompletionRate(regionalPrescriptions)
+                  ? getCompletionRate(localPrescriptions)
                   : undefined,
                 ...exportedRegions.reduce(
                   (acc, region) => [
                     ...acc,
                     sumBy(
-                      regionalPrescriptions.filter((r) => r.region === region),
+                      localPrescriptions.filter((r) => r.region === region),
                       'sampleCount'
                     ),
                     sumBy(
-                      regionalPrescriptions.filter((r) => r.region === region),
+                      localPrescriptions.filter((r) => r.region === region),
                       'realizedSampleCount'
                     ),
                     getCompletionRate(
-                      regionalPrescriptions.filter((r) => r.region === region),
+                      localPrescriptions.filter((r) => r.region === region),
                       region
                     )
                   ],

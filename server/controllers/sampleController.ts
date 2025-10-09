@@ -417,7 +417,8 @@ export const sampleRouter = {
       const localPrescription = prescription
         ? await localPrescriptionRepository.findUnique({
             prescriptionId: prescription.id,
-            region: sampleUpdate.region
+            region: sampleUpdate.region,
+            includes: 'laboratories'
           })
         : undefined;
 
@@ -433,7 +434,10 @@ export const sampleRouter = {
         sample.context !== sampleUpdate.context
           ? {
               prescriptionId: prescription?.id || null,
-              laboratoryId: localPrescription?.laboratoryId || null,
+              laboratoryId:
+                localPrescription?.substancesLaboratories?.find(
+                  (_) => _.substance === 'Any'
+                )?.laboratoryId || null,
               monoSubstances:
                 prescriptionSubstances
                   ?.filter((substance) => substance.analysisMethod === 'Mono')

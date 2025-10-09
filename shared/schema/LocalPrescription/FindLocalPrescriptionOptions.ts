@@ -7,7 +7,8 @@ import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 
 export const LocalPrescriptionOptionsInclude = z.enum([
   'comments',
-  'sampleCounts'
+  'sampleCounts',
+  'laboratories'
 ]);
 
 export type LocalPrescriptionOptionsInclude = z.infer<

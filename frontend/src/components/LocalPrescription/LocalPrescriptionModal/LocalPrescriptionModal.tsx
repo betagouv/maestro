@@ -50,7 +50,8 @@ const RegionalPrescriptionModal = ({
 
   const [laboratoryId, setLaboratoryId] = useState(
     localPrescriptionModalData?.mode === 'laboratory'
-      ? localPrescriptionModalData.localPrescription.laboratoryId
+      ? localPrescriptionModalData.localPrescription.substancesLaboratories?.[0]
+          ?.laboratoryId
       : undefined
   );
   const [isUpdateSuccess, setIsUpdateSuccess] = useState(false);
@@ -63,7 +64,9 @@ const RegionalPrescriptionModal = ({
     if (
       localPrescriptionModalData?.mode === 'laboratory' &&
       laboratoryId &&
-      laboratoryId !== localPrescriptionModalData.localPrescription.laboratoryId
+      laboratoryId !==
+        localPrescriptionModalData.localPrescription.substancesLaboratories?.[0]
+          ?.laboratoryId
     ) {
       await onChangePrescriptionLaboratory(
         localPrescriptionModalData.prescription,
@@ -114,7 +117,8 @@ const RegionalPrescriptionModal = ({
       localPrescriptionModal.open();
       setLaboratoryId(
         localPrescriptionModalData.mode === 'laboratory'
-          ? localPrescriptionModalData?.localPrescription.laboratoryId
+          ? localPrescriptionModalData?.localPrescription
+              .substancesLaboratories?.[0]?.laboratoryId
           : undefined
       );
     }

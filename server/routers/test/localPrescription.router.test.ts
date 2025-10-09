@@ -45,6 +45,7 @@ import {
   formatLocalPrescription,
   LocalPrescriptions
 } from '../../repositories/localPrescriptionRepository';
+import { LocalPrescriptionSubstancesLaboratories } from '../../repositories/localPrescriptionSubstanceLaboratoryRepository';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import {
   formatProgrammingPlan,
@@ -86,6 +87,12 @@ describe('Local prescriptions router', () => {
     year: 1921
   });
   const laboratory = genLaboratory();
+  const substancesLaboratories = [
+    {
+      substance: 'Any' as const,
+      laboratoryId: laboratory.id
+    }
+  ];
   const closedControlPrescription = genPrescription({
     programmingPlanId: programmingPlanClosed.id,
     context: 'Control',
@@ -114,8 +121,7 @@ describe('Local prescriptions router', () => {
     (region) => ({
       ...genLocalPrescription({
         prescriptionId: closedControlPrescription.id,
-        region,
-        laboratoryId: laboratory.id
+        region
       })
     })
   );
@@ -124,7 +130,7 @@ describe('Local prescriptions router', () => {
       ...genLocalPrescription({
         prescriptionId: validatedControlPrescription.id,
         region,
-        laboratoryId: laboratory.id
+        substancesLaboratories
       })
     }));
   const submittedControlLocalPrescriptions1: LocalPrescription[] =
@@ -132,7 +138,7 @@ describe('Local prescriptions router', () => {
       ...genLocalPrescription({
         prescriptionId: submittedControlPrescription1.id,
         region,
-        laboratoryId: laboratory.id
+        substancesLaboratories
       })
     }));
   const submittedControlLocalPrescriptions2: LocalPrescription[] =
@@ -140,7 +146,7 @@ describe('Local prescriptions router', () => {
       ...genLocalPrescription({
         prescriptionId: submittedControlPrescription2.id,
         region,
-        laboratoryId: laboratory.id,
+        substancesLaboratories,
         sampleCount: 0
       })
     }));
@@ -208,9 +214,28 @@ describe('Local prescriptions router', () => {
         ...submittedControlLocalPrescriptions2
       ].map((_) =>
         omit(formatLocalPrescription(_), [
+          'substancesLaboratories',
           'realizedSampleCount',
           'inProgressSampleCount'
         ])
+      )
+    );
+    await LocalPrescriptionSubstancesLaboratories().insert(
+      [
+        ...closedControlLocalPrescriptions,
+        ...validatedControlLocalPrescriptions,
+        ...submittedControlLocalPrescriptions1,
+        ...submittedControlLocalPrescriptions2
+      ].flatMap((localPrescription) =>
+        (localPrescription.substancesLaboratories ?? []).map(
+          (substanceLaboratory) => ({
+            prescriptionId: localPrescription.prescriptionId,
+            region: localPrescription.region,
+            department: localPrescription.department ?? 'None',
+            substance: substanceLaboratory.substance,
+            laboratoryId: substanceLaboratory.laboratoryId
+          })
+        )
       )
     );
     await LocalPrescriptionComments().insert([
@@ -288,7 +313,13 @@ describe('Local prescriptions router', () => {
         const expectLocalPrescriptions = [
           ...submittedControlLocalPrescriptions1,
           ...submittedControlLocalPrescriptions2
-        ].map((_) => omit(_, ['realizedSampleCount', 'inProgressSampleCount']));
+        ].map((_) =>
+          omit(_, [
+            'realizedSampleCount',
+            'inProgressSampleCount',
+            'substancesLaboratories'
+          ])
+        );
 
         expect(res.body).toHaveLength(expectLocalPrescriptions.length);
         expect(res.body).toEqual(
@@ -302,13 +333,14 @@ describe('Local prescriptions router', () => {
       await successRequestTest(AdminFixture);
     });
 
-    test('should find the non empty local prescriptions of the programmingPlan with Control context for a regional role', async () => {
+    test('should find the non empty local prescriptions with laboratories of the programmingPlan with Control context for a regional role', async () => {
       const successRequestTest = async (user: User) => {
         const res = await request(app)
           .get(testRoute)
           .query({
             programmingPlanId: programmingPlanSubmitted.id,
-            contexts: 'Control'
+            contexts: 'Control',
+            includes: 'laboratories'
           })
           .use(tokenProvider(user))
           .expect(constants.HTTP_STATUS_OK);
@@ -495,7 +527,8 @@ describe('Local prescriptions router', () => {
 
       expect(res.body).toEqual({
         ...submittedLocalPrescription,
-        sampleCount: submittedLocalPrescriptionUpdate.sampleCount
+        sampleCount: submittedLocalPrescriptionUpdate.sampleCount,
+        substancesLaboratories: undefined
       });
 
       await expect(
@@ -504,7 +537,8 @@ describe('Local prescriptions router', () => {
         ...submittedLocalPrescription,
         department: 'None',
         companySiret: 'None',
-        sampleCount: submittedLocalPrescriptionUpdate.sampleCount
+        sampleCount: submittedLocalPrescriptionUpdate.sampleCount,
+        substancesLaboratories: undefined
       });
 
       const res1 = await request(app)
@@ -518,7 +552,8 @@ describe('Local prescriptions router', () => {
 
       expect(res1.body).toEqual({
         ...submittedLocalPrescription,
-        sampleCount: 0
+        sampleCount: 0,
+        substancesLaboratories: undefined
       });
 
       await expect(
@@ -527,7 +562,8 @@ describe('Local prescriptions router', () => {
         ...submittedLocalPrescription,
         department: 'None',
         companySiret: 'None',
-        sampleCount: 0
+        sampleCount: 0,
+        substancesLaboratories: undefined
       });
 
       //Restore the initial value
@@ -536,12 +572,7 @@ describe('Local prescriptions router', () => {
         .update({ sampleCount: submittedLocalPrescription.sampleCount });
     });
 
-    test('should update the laboratory of the prescription for a regional coordinator', async () => {
-      const validatedLocalPrescriptionUpdate: LocalPrescriptionUpdate = {
-        programmingPlanId: programmingPlanValidated.id,
-        key: 'laboratory',
-        laboratoryId: laboratory.id
-      };
+    test('should update the substances laboratories of the prescription for a regional coordinator', async () => {
       const validatedLocalPrescription =
         validatedControlLocalPrescriptions.find((localPrescription) =>
           isEqual(
@@ -553,21 +584,55 @@ describe('Local prescriptions router', () => {
           )
         ) as LocalPrescription;
 
-      const res = await request(app)
+      await request(app)
         .put(
           testRoute(
             validatedLocalPrescription.prescriptionId,
             validatedLocalPrescription.region
           )
         )
-        .send(validatedLocalPrescriptionUpdate)
+        .send({
+          programmingPlanId: programmingPlanValidated.id,
+          key: 'laboratories',
+          substancesLaboratories: []
+        })
         .use(tokenProvider(RegionalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toEqual({
-        ...validatedLocalPrescription,
-        laboratoryId: validatedLocalPrescriptionUpdate.laboratoryId
-      });
+      await expect(
+        LocalPrescriptionSubstancesLaboratories().where(
+          LocalPrescriptionKey.parse(validatedLocalPrescription)
+        )
+      ).resolves.toEqual([]);
+
+      await request(app)
+        .put(
+          testRoute(
+            validatedLocalPrescription.prescriptionId,
+            validatedLocalPrescription.region
+          )
+        )
+        .send({
+          programmingPlanId: programmingPlanValidated.id,
+          key: 'laboratories',
+          substancesLaboratories
+        })
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      await expect(
+        LocalPrescriptionSubstancesLaboratories().where(
+          LocalPrescriptionKey.parse(validatedLocalPrescription)
+        )
+      ).resolves.toEqual([
+        {
+          prescriptionId: validatedLocalPrescription.prescriptionId,
+          region: validatedLocalPrescription.region,
+          department: 'None',
+          substance: 'Any',
+          laboratoryId: laboratory.id
+        }
+      ]);
     });
   });
 
