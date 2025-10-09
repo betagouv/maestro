@@ -180,6 +180,10 @@ const capinovReferential: Record<string, SSD2Id> = {
     'RF-0440-001-PPP',
   'Triflusulfuron (IN-M7222)': 'RF-00005716-PAR',
   'Tritosulfuron-metabolite (AMTT)': 'RF-00005711-PAR',
+  'Dithiocarbamates, LCMSMS method (mg CS2/kg)': 'RF-0151-001-PPP',
+  'Mepiquat (+salts expr. as mepiquat chloride)': 'RF-00005721-PAR',
+  'Triflumizole (+ Triflumizole-amino (FM6-1) expr. as triflumizole)':
+    'RF-0440-001-PPP',
 
   // Références associées automatiquement via le label ou le cas number
   'Avermectin B1a': 'RF-0011-003-PPP',
