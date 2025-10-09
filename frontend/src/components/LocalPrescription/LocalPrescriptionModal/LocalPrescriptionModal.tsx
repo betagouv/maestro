@@ -1,34 +1,24 @@
-import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
-import Select from '@codegouvfr/react-dsfr/Select';
-import { sortBy } from 'lodash-es';
 import { Department } from 'maestro-shared/referential/Department';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import { ApiClientContext } from '../../../services/apiClient';
 import prescriptionsSlice from '../../../store/reducers/prescriptionsSlice';
+import { pluralize } from '../../../utils/stringUtils';
 import LocalPrescriptionDepartmentalDistribution from '../LocalPrescriptionDepartmentalDistribution/LocalPrescriptionDepartmentalDistribution';
 import LocalPrescriptionSlaughterhouseDistribution from '../LocalPrescriptionSlaughterhouseDistribution/LocalPrescriptionSlaughterhouseDistribution';
+import LocalPrescriptionSubstanceKindsLaboratories from '../LocalPrescriptionSubstanceKindsLaboratories/LocalPrescriptionSubstanceKindsLaboratories';
 
 const localPrescriptionModal = createModal({
   id: `regional-prescription-modal`,
   isOpenedByDefault: false
 });
 
-interface Props {
-  onChangePrescriptionLaboratory: (
-    prescription: Prescription,
-    laboratoryId: string
-  ) => Promise<void>;
-}
-
-const RegionalPrescriptionModal = ({
-  onChangePrescriptionLaboratory
-}: Props) => {
+const RegionalPrescriptionModal = () => {
   const apiClient = useContext(ApiClientContext);
   const dispatch = useAppDispatch();
   const modalContentRef = useRef<
@@ -48,32 +38,33 @@ const RegionalPrescriptionModal = ({
     (state) => state.prescriptions
   );
 
-  const [laboratoryId, setLaboratoryId] = useState(
-    localPrescriptionModalData?.mode === 'laboratory'
-      ? localPrescriptionModalData.localPrescription.substancesLaboratories?.[0]
-          ?.laboratoryId
-      : undefined
-  );
   const [isUpdateSuccess, setIsUpdateSuccess] = useState(false);
-
-  const { data: laboratories } = apiClient.useFindLaboratoriesQuery();
   const [updateLocalPrescription] =
     apiClient.useUpdateLocalPrescriptionMutation();
 
-  const submitLaboratory = async () => {
-    if (
-      localPrescriptionModalData?.mode === 'laboratory' &&
-      laboratoryId &&
-      laboratoryId !==
-        localPrescriptionModalData.localPrescription.substancesLaboratories?.[0]
-          ?.laboratoryId
-    ) {
-      await onChangePrescriptionLaboratory(
-        localPrescriptionModalData.prescription,
-        laboratoryId
-      );
+  useEffect(() => {
+    if (localPrescriptionModalData) {
+      localPrescriptionModal.open();
     }
-    localPrescriptionModal.close();
+  }, [localPrescriptionModalData]);
+
+  const submitSubstanceKindsLaboratories = async (
+    substanceKindsLaboratories: SubstanceKindLaboratory[]
+  ) => {
+    if (localPrescriptionModalData?.mode === 'laboratory') {
+      await updateLocalPrescription({
+        prescriptionId: localPrescriptionModalData.prescription.id,
+        region: localPrescriptionModalData.localPrescription.region,
+        department: localPrescriptionModalData.localPrescription
+          .department as Department,
+        prescriptionUpdate: {
+          key: 'laboratories',
+          substanceKindsLaboratories,
+          programmingPlanId: localPrescriptionModalData.programmingPlan.id
+        }
+      });
+      setIsUpdateSuccess(true);
+    }
   };
 
   const submitSubLocalDistribution = async (
@@ -112,18 +103,6 @@ const RegionalPrescriptionModal = ({
     }
   };
 
-  useEffect(() => {
-    if (localPrescriptionModalData) {
-      localPrescriptionModal.open();
-      setLaboratoryId(
-        localPrescriptionModalData.mode === 'laboratory'
-          ? localPrescriptionModalData?.localPrescription
-              .substancesLaboratories?.[0]?.laboratoryId
-          : undefined
-      );
-    }
-  }, [localPrescriptionModalData]);
-
   const title = useMemo(() => {
     if (localPrescriptionModalData) {
       if (isUpdateSuccess) {
@@ -144,7 +123,21 @@ const RegionalPrescriptionModal = ({
     if (localPrescriptionModalData?.mode === 'distributionToSlaughterhouses') {
       return 'La répartition la programmation a bien été enregistrée pour ces abattoirs.';
     }
-    return 'Le laboratoire a bien été enregistré.';
+    return pluralize(
+      (
+        localPrescriptionModalData?.localPrescription
+          .substanceKindsLaboratories ?? []
+      ).length,
+      {
+        ignores: ['bien', 'été'],
+        replacements: [
+          {
+            old: 'a',
+            new: 'ont'
+          }
+        ]
+      }
+    )('Le laboratoire a bien été enregistré');
   }, [localPrescriptionModalData]);
 
   return (
@@ -173,10 +166,7 @@ const RegionalPrescriptionModal = ({
               },
               {
                 children: 'Enregistrer',
-                onClick: () =>
-                  localPrescriptionModalData?.mode === 'laboratory'
-                    ? submitLaboratory()
-                    : modalContentRef.current?.submit(),
+                onClick: () => modalContentRef.current?.submit(),
                 doClosesModal: false
               }
             ]
@@ -188,25 +178,12 @@ const RegionalPrescriptionModal = ({
         ) : (
           <>
             {localPrescriptionModalData?.mode === 'laboratory' && (
-              <Select
-                label={undefined}
-                nativeSelectProps={{
-                  value: laboratoryId ?? '',
-                  autoFocus: true,
-                  onChange: (e) => setLaboratoryId(e.target.value)
-                }}
-                hint="Définissez un laboratoire destinataire des prélèvements"
-                className={cx('fr-mb-0')}
-              >
-                <option value="" disabled>
-                  Sélectionner un laboratoire
-                </option>
-                {sortBy(laboratories ?? [], 'name').map((laboratory) => (
-                  <option key={laboratory.id} value={laboratory.id}>
-                    {laboratory.name}
-                  </option>
-                ))}
-              </Select>
+              <LocalPrescriptionSubstanceKindsLaboratories
+                ref={modalContentRef}
+                programmingPlan={localPrescriptionModalData.programmingPlan}
+                localPrescription={localPrescriptionModalData.localPrescription}
+                onSubmit={submitSubstanceKindsLaboratories}
+              />
             )}
             {localPrescriptionModalData?.mode ===
               'distributionToDepartments' && (

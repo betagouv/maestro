@@ -18,7 +18,7 @@ import { getAndCheckPrescription } from '../middlewares/checks/prescriptionCheck
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
 import localPrescriptionCommentRepository from '../repositories/localPrescriptionCommentRepository';
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
-import localPrescriptionLaboratoryRepository from '../repositories/localPrescriptionSubstanceLaboratoryRepository';
+import localPrescriptionLaboratoryRepository from '../repositories/localPrescriptionSubstanceKindLaboratoryRepository';
 import { userRepository } from '../repositories/userRepository';
 import { ProtectedSubRouter } from '../routers/routes.type';
 import { notificationService } from '../services/notificationService';
@@ -115,7 +115,7 @@ export const localPrescriptionsRouter = {
       if (canUpdateLaboratories) {
         await localPrescriptionLaboratoryRepository.updateMany(
           localPrescription,
-          localPrescriptionUpdate.substancesLaboratories
+          localPrescriptionUpdate.substanceKindsLaboratories
         );
       }
 
@@ -134,7 +134,8 @@ export const localPrescriptionsRouter = {
         'Update local prescription for department',
         params.prescriptionId,
         params.region,
-        params.department
+        params.department,
+        localPrescriptionUpdate
       );
 
       const programmingPlan = await getAndCheckProgrammingPlan(
@@ -150,55 +151,38 @@ export const localPrescriptionsRouter = {
           .distributeToDepartments &&
         localPrescriptionUpdate.key === 'sampleCount';
 
-      if (!canDistributeToDepartments) {
+      const canUpdateLaboratories =
+        hasLocalPrescriptionPermission(user, programmingPlan, localPrescription)
+          .updateLaboratories && localPrescriptionUpdate.key === 'laboratories';
+
+      const canDistributePrescriptionToSlaughterhouses =
+        hasLocalPrescriptionPermission(user, programmingPlan, localPrescription)
+          .distributeToSlaughterhouses &&
+        localPrescriptionUpdate.key === 'slaughterhouseSampleCounts';
+
+      if (
+        !canDistributeToDepartments &&
+        !canUpdateLaboratories &&
+        !canDistributePrescriptionToSlaughterhouses
+      ) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 
-      const updatedLocalPrescription = {
-        ...localPrescription,
-        sampleCount: localPrescriptionUpdate.sampleCount
-      };
+      if (canDistributeToDepartments) {
+        await localPrescriptionRepository.update({
+          ...localPrescription,
+          sampleCount: localPrescriptionUpdate.sampleCount
+        });
+      }
 
-      await localPrescriptionRepository.update(updatedLocalPrescription);
-      return {
-        status: constants.HTTP_STATUS_OK,
-        response: updatedLocalPrescription
-      };
-    }
-  },
-  '/prescriptions/:prescriptionId/regions/:region/departments/:department/slaughterhouses':
-    {
-      put: async ({ user, body: localPrescriptionUpdate }, params) => {
-        console.info(
-          'Update slaughterhouse prescriptions for department',
-          params.prescriptionId,
-          params.region,
-          params.department
+      if (canUpdateLaboratories) {
+        await localPrescriptionLaboratoryRepository.updateMany(
+          localPrescription,
+          localPrescriptionUpdate.substanceKindsLaboratories
         );
+      }
 
-        const programmingPlan = await getAndCheckProgrammingPlan(
-          localPrescriptionUpdate.programmingPlanId
-        );
-        await getAndCheckPrescription(params.prescriptionId, programmingPlan);
-        const localPrescription = await getAndCheckLocalPrescription(params);
-
-        // TODO: check department belongs to user region?
-
-        const canDistributePrescriptionToSlaughterhouses =
-          hasLocalPrescriptionPermission(
-            user,
-            programmingPlan,
-            localPrescription
-          ).distributeToSlaughterhouses &&
-          localPrescriptionUpdate.key === 'slaughterhouseSampleCounts';
-
-        if (
-          isNil(localPrescription.department) ||
-          !canDistributePrescriptionToSlaughterhouses
-        ) {
-          return { status: constants.HTTP_STATUS_FORBIDDEN };
-        }
-
+      if (canDistributePrescriptionToSlaughterhouses) {
         const updatedSubLocalPrescriptions =
           localPrescriptionUpdate.slaughterhouseSampleCounts.map(
             (slaughterhouse) => ({
@@ -210,6 +194,11 @@ export const localPrescriptionsRouter = {
             })
           );
 
+        console.log(
+          'updatedSubLocalPrescriptions',
+          updatedSubLocalPrescriptions
+        );
+
         await localPrescriptionRepository.updateMany(
           localPrescription as Omit<
             Required<LocalPrescriptionKey>,
@@ -217,13 +206,17 @@ export const localPrescriptionsRouter = {
           >,
           updatedSubLocalPrescriptions
         );
-
-        return {
-          status: constants.HTTP_STATUS_OK,
-          response: localPrescription
-        };
       }
-    },
+
+      const updatedLocalPrescription =
+        await localPrescriptionRepository.findUnique(params);
+
+      return {
+        status: constants.HTTP_STATUS_OK,
+        response: updatedLocalPrescription
+      };
+    }
+  },
   '/prescriptions/:prescriptionId/regions/:region/comments': {
     post: async ({ user, body: draftPrescriptionComment }, params) => {
       console.info('Comment local prescription');

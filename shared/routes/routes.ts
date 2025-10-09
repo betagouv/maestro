@@ -39,7 +39,6 @@ export const MaestroRoutes = [
   '/prescriptions/:prescriptionId/regions/:region/comments',
   '/prescriptions/:prescriptionId/regions/:region',
   '/prescriptions/:prescriptionId/regions/:region/departments/:department',
-  '/prescriptions/:prescriptionId/regions/:region/departments/:department/slaughterhouses',
   '/prescriptions/:prescriptionId/substances',
   '/prescriptions/:prescriptionId',
   '/programming-plans',

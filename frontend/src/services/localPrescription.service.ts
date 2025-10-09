@@ -43,9 +43,7 @@ const prescriptionApi = api.injectEndpoints({
     >({
       query: ({ prescriptionId, region, department, prescriptionUpdate }) => ({
         url: `prescriptions/${prescriptionId}/regions/${region}${
-          department
-            ? `/departments/${department}${prescriptionUpdate.key === 'slaughterhouseSampleCounts' ? '/slaughterhouses' : ''}`
-            : ''
+          department ? `/departments/${department}` : ''
         }`,
         method: 'PUT',
         body: prescriptionUpdate

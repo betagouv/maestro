@@ -7,7 +7,7 @@ import {
   formatLocalPrescription,
   LocalPrescriptions
 } from '../../repositories/localPrescriptionRepository';
-import { LocalPrescriptionSubstancesLaboratories } from '../../repositories/localPrescriptionSubstanceLaboratoryRepository';
+import { LocalPrescriptionSubstanceKindsLaboratories } from '../../repositories/localPrescriptionSubstanceKindLaboratoryRepository';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 
 export const seed = async (): Promise<void> => {
@@ -16,22 +16,22 @@ export const seed = async (): Promise<void> => {
   await LocalPrescriptions().insert(
     [LocalPrescriptionFixture].map((_) =>
       omit(formatLocalPrescription(_), [
-        'substancesLaboratories',
+        'substanceKindsLaboratories',
         'realizedSampleCount',
         'inProgressSampleCount'
       ])
     )
   );
 
-  await LocalPrescriptionSubstancesLaboratories().insert(
+  await LocalPrescriptionSubstanceKindsLaboratories().insert(
     [LocalPrescriptionFixture].flatMap((localPrescription) =>
-      (localPrescription.substancesLaboratories ?? []).map(
-        (substanceLaboratory) => ({
+      (localPrescription.substanceKindsLaboratories ?? []).map(
+        (substanceKindLaboratory) => ({
           prescriptionId: localPrescription.prescriptionId,
           region: localPrescription.region,
           department: localPrescription.department ?? 'None',
-          substance: substanceLaboratory.substance,
-          laboratoryId: substanceLaboratory.laboratoryId
+          substanceKind: substanceKindLaboratory.substanceKind,
+          laboratoryId: substanceKindLaboratory.laboratoryId
         })
       )
     )

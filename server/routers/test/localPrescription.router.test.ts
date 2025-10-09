@@ -45,7 +45,7 @@ import {
   formatLocalPrescription,
   LocalPrescriptions
 } from '../../repositories/localPrescriptionRepository';
-import { LocalPrescriptionSubstancesLaboratories } from '../../repositories/localPrescriptionSubstanceLaboratoryRepository';
+import { LocalPrescriptionSubstanceKindsLaboratories } from '../../repositories/localPrescriptionSubstanceKindLaboratoryRepository';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import {
   formatProgrammingPlan,
@@ -87,9 +87,9 @@ describe('Local prescriptions router', () => {
     year: 1921
   });
   const laboratory = genLaboratory();
-  const substancesLaboratories = [
+  const substanceKindsLaboratories = [
     {
-      substance: 'Any' as const,
+      substanceKind: 'Any' as const,
       laboratoryId: laboratory.id
     }
   ];
@@ -130,7 +130,7 @@ describe('Local prescriptions router', () => {
       ...genLocalPrescription({
         prescriptionId: validatedControlPrescription.id,
         region,
-        substancesLaboratories
+        substanceKindsLaboratories
       })
     }));
   const submittedControlLocalPrescriptions1: LocalPrescription[] =
@@ -138,7 +138,7 @@ describe('Local prescriptions router', () => {
       ...genLocalPrescription({
         prescriptionId: submittedControlPrescription1.id,
         region,
-        substancesLaboratories
+        substanceKindsLaboratories
       })
     }));
   const submittedControlLocalPrescriptions2: LocalPrescription[] =
@@ -146,7 +146,7 @@ describe('Local prescriptions router', () => {
       ...genLocalPrescription({
         prescriptionId: submittedControlPrescription2.id,
         region,
-        substancesLaboratories,
+        substanceKindsLaboratories,
         sampleCount: 0
       })
     }));
@@ -214,26 +214,26 @@ describe('Local prescriptions router', () => {
         ...submittedControlLocalPrescriptions2
       ].map((_) =>
         omit(formatLocalPrescription(_), [
-          'substancesLaboratories',
+          'substanceKindsLaboratories',
           'realizedSampleCount',
           'inProgressSampleCount'
         ])
       )
     );
-    await LocalPrescriptionSubstancesLaboratories().insert(
+    await LocalPrescriptionSubstanceKindsLaboratories().insert(
       [
         ...closedControlLocalPrescriptions,
         ...validatedControlLocalPrescriptions,
         ...submittedControlLocalPrescriptions1,
         ...submittedControlLocalPrescriptions2
       ].flatMap((localPrescription) =>
-        (localPrescription.substancesLaboratories ?? []).map(
-          (substanceLaboratory) => ({
+        (localPrescription.substanceKindsLaboratories ?? []).map(
+          (substanceKindLaboratory) => ({
             prescriptionId: localPrescription.prescriptionId,
             region: localPrescription.region,
             department: localPrescription.department ?? 'None',
-            substance: substanceLaboratory.substance,
-            laboratoryId: substanceLaboratory.laboratoryId
+            substanceKind: substanceKindLaboratory.substanceKind,
+            laboratoryId: substanceKindLaboratory.laboratoryId
           })
         )
       )
@@ -317,7 +317,7 @@ describe('Local prescriptions router', () => {
           omit(_, [
             'realizedSampleCount',
             'inProgressSampleCount',
-            'substancesLaboratories'
+            'substanceKindsLaboratories'
           ])
         );
 
@@ -528,7 +528,7 @@ describe('Local prescriptions router', () => {
       expect(res.body).toEqual({
         ...submittedLocalPrescription,
         sampleCount: submittedLocalPrescriptionUpdate.sampleCount,
-        substancesLaboratories: undefined
+        substanceKindsLaboratories: undefined
       });
 
       await expect(
@@ -538,7 +538,7 @@ describe('Local prescriptions router', () => {
         department: 'None',
         companySiret: 'None',
         sampleCount: submittedLocalPrescriptionUpdate.sampleCount,
-        substancesLaboratories: undefined
+        substanceKindsLaboratories: undefined
       });
 
       const res1 = await request(app)
@@ -553,7 +553,7 @@ describe('Local prescriptions router', () => {
       expect(res1.body).toEqual({
         ...submittedLocalPrescription,
         sampleCount: 0,
-        substancesLaboratories: undefined
+        substanceKindsLaboratories: undefined
       });
 
       await expect(
@@ -563,7 +563,7 @@ describe('Local prescriptions router', () => {
         department: 'None',
         companySiret: 'None',
         sampleCount: 0,
-        substancesLaboratories: undefined
+        substanceKindsLaboratories: undefined
       });
 
       //Restore the initial value
@@ -594,13 +594,13 @@ describe('Local prescriptions router', () => {
         .send({
           programmingPlanId: programmingPlanValidated.id,
           key: 'laboratories',
-          substancesLaboratories: []
+          substanceKindsLaboratories: []
         })
         .use(tokenProvider(RegionalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       await expect(
-        LocalPrescriptionSubstancesLaboratories().where(
+        LocalPrescriptionSubstanceKindsLaboratories().where(
           LocalPrescriptionKey.parse(validatedLocalPrescription)
         )
       ).resolves.toEqual([]);
@@ -615,13 +615,13 @@ describe('Local prescriptions router', () => {
         .send({
           programmingPlanId: programmingPlanValidated.id,
           key: 'laboratories',
-          substancesLaboratories
+          substanceKindsLaboratories
         })
         .use(tokenProvider(RegionalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       await expect(
-        LocalPrescriptionSubstancesLaboratories().where(
+        LocalPrescriptionSubstanceKindsLaboratories().where(
           LocalPrescriptionKey.parse(validatedLocalPrescription)
         )
       ).resolves.toEqual([
@@ -629,7 +629,7 @@ describe('Local prescriptions router', () => {
           prescriptionId: validatedLocalPrescription.prescriptionId,
           region: validatedLocalPrescription.region,
           department: 'None',
-          substance: 'Any',
+          substanceKind: 'Any',
           laboratoryId: laboratory.id
         }
       ]);

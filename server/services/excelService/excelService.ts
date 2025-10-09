@@ -371,7 +371,7 @@ const generatePrescriptionsExportExcel = async (
           laboratories.find(
             (laboratory) =>
               laboratory.id ===
-              filteredLocalPrescriptions[0]?.substancesLaboratories?.[0]
+              filteredLocalPrescriptions[0]?.substanceKindsLaboratories?.[0]
                 ?.laboratoryId
           )?.name
         ]

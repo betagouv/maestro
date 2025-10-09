@@ -8,9 +8,9 @@ import { hasPermission, User, userRegions } from '../User/User';
 import { LocalPrescriptionComment } from './LocalPrescriptionComment';
 import { LocalPrescriptionKey } from './LocalPrescriptionKey';
 import {
-  LocalPrescriptionLaboratory,
-  SubstanceLaboratory
-} from './LocalPrescriptionLaboratory';
+  LocalPrescriptionSubstanceKindLaboratory,
+  SubstanceKindLaboratory
+} from './LocalPrescriptionSubstanceKindLaboratory';
 
 export const LocalPrescription = z.object({
   ...LocalPrescriptionKey.shape,
@@ -25,11 +25,11 @@ export const LocalPrescription = z.object({
       })
     )
     .nullish(),
-  substancesLaboratories: z
+  substanceKindsLaboratories: z
     .array(
-      LocalPrescriptionLaboratory.pick({
+      LocalPrescriptionSubstanceKindLaboratory.pick({
         laboratoryId: true,
-        substance: true
+        substanceKind: true
       })
     )
     .nullish(),
@@ -56,7 +56,7 @@ export const LocalPrescriptionUpdate = z.discriminatedUnion('key', [
   }),
   z.object({
     key: z.literal('laboratories'),
-    substancesLaboratories: z.array(SubstanceLaboratory),
+    substanceKindsLaboratories: z.array(SubstanceKindLaboratory),
     ...Prescription.pick({ programmingPlanId: true }).shape
   }),
   z.object({
@@ -164,7 +164,20 @@ export const hasLocalPrescriptionPermission = (
   updateLaboratories:
     hasPermission(user, 'updatePrescriptionLaboratories') &&
     userRegions(user).includes(localPrescription.region) &&
-    programmingPlan.regionalStatus.find(
-      (regionStatus) => regionStatus.region === localPrescription.region
-    )?.status === 'Validated'
+    ((programmingPlan.distributionKind === 'REGIONAL' &&
+      programmingPlan.regionalStatus.some(
+        (regionStatus) =>
+          regionStatus.region === localPrescription.region &&
+          regionStatus.status === 'Validated'
+      )) ||
+      (programmingPlan.distributionKind === 'SLAUGHTERHOUSE' &&
+        user.department === localPrescription.department &&
+        programmingPlan.regionalStatus.some(
+          // todo departmental status
+          (regionStatus) =>
+            regionStatus.region === localPrescription.region &&
+            ['Validated', 'SubmittedToDepartments'].includes(
+              regionStatus.status
+            )
+        )))
 });

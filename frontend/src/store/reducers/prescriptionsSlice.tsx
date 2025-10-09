@@ -79,9 +79,9 @@ const LocalPrescriptionModalData = z.discriminatedUnion('viewBy', [
     localPrescription: LocalPrescription
   }),
   z.object({
-    mode: z.union([
-      z.literal('distributionToDepartments'),
-      z.literal('distributionToSlaughterhouses')
+    mode: z.enum([
+      'distributionToDepartments',
+      'distributionToSlaughterhouses'
     ]),
     programmingPlan: ProgrammingPlan,
     prescription: Prescription,

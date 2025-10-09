@@ -14,7 +14,7 @@ import {
 import { z } from 'zod';
 import { knexInstance as db } from './db';
 import { localPrescriptionCommentsTable } from './localPrescriptionCommentRepository';
-import { localPrescriptionSubstancesLaboratoriesTable } from './localPrescriptionSubstanceLaboratoryRepository';
+import { localPrescriptionSubstanceKindsLaboratoriesTable } from './localPrescriptionSubstanceKindLaboratoryRepository';
 import { prescriptionsTable } from './prescriptionRepository';
 import { samplesTable } from './sampleRepository';
 const localPrescriptionsTable = 'local_prescriptions';
@@ -128,15 +128,15 @@ const include = (opts?: Pick<FindLocalPrescriptionOptions, 'includes'>) => {
           db.raw(
             `case 
               when count(${localPrescriptionCommentsTable}.id) > 0 
-                then array_agg(
-                  json_build_object(
+                then jsonb_agg(distinct(
+                  jsonb_build_object(
                     'id', ${localPrescriptionCommentsTable}.id, 
                     'comment', ${localPrescriptionCommentsTable}.comment, 
                     'createdAt', ${localPrescriptionCommentsTable}.created_at, 
                     'createdBy', ${localPrescriptionCommentsTable}.created_by
                   )
-                ) 
-              else '{}' end as comments`
+                )) 
+              else '[]'::jsonb end as comments`
           )
         )
         .leftJoin(localPrescriptionCommentsTable, (query) =>
@@ -170,36 +170,38 @@ const include = (opts?: Pick<FindLocalPrescriptionOptions, 'includes'>) => {
         .select(
           db.raw(
             `case 
-              when count(${localPrescriptionSubstancesLaboratoriesTable}.prescription_id) > 0 
-                then array_agg(
-                  json_build_object(
-                    'substance', ${localPrescriptionSubstancesLaboratoriesTable}.substance, 
-                    'laboratoryId', ${localPrescriptionSubstancesLaboratoriesTable}.laboratory_id
+              when count(${localPrescriptionSubstanceKindsLaboratoriesTable}.prescription_id) > 0 
+                then jsonb_agg(distinct(
+                  jsonb_build_object(
+                    'substanceKind', ${localPrescriptionSubstanceKindsLaboratoriesTable}.substance_kind, 
+                    'laboratoryId', ${localPrescriptionSubstanceKindsLaboratoriesTable}.laboratory_id
                   )
-                ) 
-              else '{}' end as substances_laboratories`
+                )) 
+              else '[]'::jsonb end as substance_kinds_laboratories`
           )
         )
-        .leftJoin(localPrescriptionSubstancesLaboratoriesTable, (query) =>
+        .leftJoin(localPrescriptionSubstanceKindsLaboratoriesTable, (query) =>
           query
             .on(
-              `${localPrescriptionSubstancesLaboratoriesTable}.prescription_id`,
+              `${localPrescriptionSubstanceKindsLaboratoriesTable}.prescription_id`,
               `${localPrescriptionsTable}.prescription_id`
             )
             .andOn(
-              `${localPrescriptionSubstancesLaboratoriesTable}.region`,
+              `${localPrescriptionSubstanceKindsLaboratoriesTable}.region`,
               `${localPrescriptionsTable}.region`
             )
             .andOn(
-              `${localPrescriptionSubstancesLaboratoriesTable}.department`,
+              `${localPrescriptionSubstanceKindsLaboratoriesTable}.department`,
               `${localPrescriptionsTable}.department`
             )
+            .andOn(db.raw(`${localPrescriptionsTable}.company_siret = 'None'`))
         )
         .groupBy(
           `${localPrescriptionsTable}.prescription_id`,
           `${localPrescriptionsTable}.region`,
           `${localPrescriptionsTable}.department`,
-          `${localPrescriptionsTable}.companySiret`
+          `${localPrescriptionsTable}.companySiret`,
+          `${localPrescriptionsTable}.sampleCount`
         );
     },
     sampleCounts: (query) => {
@@ -294,6 +296,10 @@ const updateMany = async (
       })
       .delete();
     if (subLocalPrescriptions.length > 0) {
+      console.log(
+        'inserting',
+        subLocalPrescriptions.map(formatLocalPrescription)
+      );
       await LocalPrescriptions(transaction).insert(
         subLocalPrescriptions.map(formatLocalPrescription)
       );

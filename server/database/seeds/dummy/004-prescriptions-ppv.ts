@@ -1,3 +1,5 @@
+import { RegionList } from 'maestro-shared/referential/Region';
+import { DummyLaboratoryIds } from 'maestro-shared/schema/User/User';
 import {
   genLocalPrescriptions,
   genPrescription
@@ -6,8 +8,10 @@ import {
   PPVInProgressProgrammingPlanFixture,
   PPVValidatedProgrammingPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
+import { oneOf } from 'maestro-shared/test/testFixtures';
 import { v4 as uuidv4 } from 'uuid';
 import { LocalPrescriptions } from '../../../repositories/localPrescriptionRepository';
+import { LocalPrescriptionSubstanceKindsLaboratories } from '../../../repositories/localPrescriptionSubstanceKindLaboratoryRepository';
 import { Prescriptions } from '../../../repositories/prescriptionRepository';
 import { ProgrammingPlans } from '../../../repositories/programmingPlanRepository';
 
@@ -480,4 +484,16 @@ export const seed = async function () {
       )
     )
   ]);
+
+  await LocalPrescriptionSubstanceKindsLaboratories().insert(
+    prescriptions.flatMap((prescription) =>
+      RegionList.map((region) => ({
+        prescriptionId: prescription.id,
+        region,
+        department: 'None',
+        substanceKind: 'Any',
+        laboratoryId: oneOf(DummyLaboratoryIds)
+      }))
+    )
+  );
 };

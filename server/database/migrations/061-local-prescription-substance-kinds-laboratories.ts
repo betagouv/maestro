@@ -2,7 +2,7 @@ import { Knex } from 'knex';
 
 export const up = async (knex: Knex) => {
   await knex.schema.createTable(
-    'local_prescription_substances_laboratories',
+    'local_prescription_substance_kinds_laboratories',
     (table) => {
       table
         .uuid('prescription_id')
@@ -13,9 +13,14 @@ export const up = async (knex: Knex) => {
         .onDelete('CASCADE');
       table.string('region').notNullable();
       table.string('department').notNullable().defaultTo('None');
-      table.string('substance').notNullable();
+      table.string('substance_kind').notNullable();
       table.uuid('laboratory_id').references('id').inTable('laboratories');
-      table.primary(['prescription_id', 'region', 'department', 'substance']);
+      table.primary([
+        'prescription_id',
+        'region',
+        'department',
+        'substance_kind'
+      ]);
     }
   );
 
@@ -24,14 +29,14 @@ export const up = async (knex: Knex) => {
       'prescription_id',
       'region',
       'department',
-      knex.raw("'Any' as substance"),
+      knex.raw("'Any' as substance_kind"),
       'laboratory_id'
     )
     .from('local_prescriptions')
     .whereNotNull('laboratory_id');
 
   if (prescriptionLaboratories.length > 0) {
-    await knex('local_prescription_substances_laboratories').insert(
+    await knex('local_prescription_substance_kinds_laboratories').insert(
       prescriptionLaboratories
     );
   }
@@ -48,8 +53,8 @@ export const down = async (knex: Knex) => {
 
   const prescriptionLaboratories = await knex
     .select('prescription_id', 'region', 'department', 'laboratory_id')
-    .from('local_prescription_substances_laboratories')
-    .where('substance', 'Any');
+    .from('local_prescription_substance_kinds_laboratories')
+    .where('substance_kind', 'Any');
 
   await Promise.all(
     prescriptionLaboratories.map(async (prescriptionLaboratory) => {
@@ -66,5 +71,7 @@ export const down = async (knex: Knex) => {
     })
   );
 
-  await knex.schema.dropTable('local_prescription_substances_laboratories');
+  await knex.schema.dropTable(
+    'local_prescription_substance_kinds_laboratories'
+  );
 };

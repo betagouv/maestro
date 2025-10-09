@@ -46,14 +46,16 @@ const LocalPrescriptionDepartmentalDistributionTable = ({
 
   const start = useMemo(
     () =>
-      displayedPart === 'first' ? 0 : Math.ceil(departmentList.length / 2),
+      displayedPart === 'first'
+        ? 0
+        : Math.max(Math.ceil(departmentList.length / 2), 5),
     [displayedPart, departmentList]
   );
 
   const end = useMemo(
     () =>
       displayedPart === 'first'
-        ? Math.ceil(departmentList.length / 2)
+        ? Math.max(Math.ceil(departmentList.length / 2), 5)
         : departmentList.length,
     [displayedPart, departmentList]
   );
