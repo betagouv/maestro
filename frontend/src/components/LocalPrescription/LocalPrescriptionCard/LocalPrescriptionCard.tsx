@@ -57,7 +57,7 @@ const LocalPrescriptionCard = ({
   const currentLaboratory = laboratories?.find(
     (laboratory) =>
       laboratory.id ===
-      localPrescription?.substancesLaboratories?.[0]?.laboratoryId
+      localPrescription?.substanceKindsLaboratories?.[0]?.laboratoryId
   );
 
   const buttons = useMemo(
@@ -148,7 +148,10 @@ const LocalPrescriptionCard = ({
                   iconId: currentLaboratory
                     ? undefined
                     : 'fr-icon-microscope-line',
-                  className: cx('fr-m-0')
+                  className: cx('fr-m-0'),
+                  nativeButtonProps: {
+                    'data-testid': 'update-laboratory-button'
+                  }
                 }
               : undefined,
             programmingPlan.distributionKind === 'REGIONAL' &&

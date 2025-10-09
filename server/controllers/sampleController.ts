@@ -435,8 +435,8 @@ export const sampleRouter = {
           ? {
               prescriptionId: prescription?.id || null,
               laboratoryId:
-                localPrescription?.substancesLaboratories?.find(
-                  (_) => _.substance === 'Any'
+                localPrescription?.substanceKindsLaboratories?.find(
+                  (_) => _.substanceKind === 'Any'
                 )?.laboratoryId || null,
               monoSubstances:
                 prescriptionSubstances

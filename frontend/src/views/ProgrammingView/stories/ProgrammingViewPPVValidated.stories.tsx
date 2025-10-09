@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { RegionList } from 'maestro-shared/referential/Region';
+import { genLaboratory } from 'maestro-shared/test/laboratoryFixtures';
 import {
   genLocalPrescription,
   genPrescription
@@ -75,6 +76,8 @@ const regionalPrescriptions = [
   ])
 ];
 
+const laboratories = [genLaboratory(), genLaboratory(), genLaboratory()];
+
 export const NationalCoordinatorView: Story = {
   parameters: {
     preloadedState: {
@@ -114,6 +117,10 @@ export const NationalCoordinatorView: Story = {
       canvas.getAllByTestId(`cell-${prescription1.matrixKind}`)
     ).toHaveLength(RegionList.length);
 
+    await expect(
+      canvas.queryByTestId('update-laboratory-button')
+    ).not.toBeInTheDocument();
+
     await expect(canvas.getByTestId('add-matrix-button')).toBeInTheDocument();
   }
 };
@@ -133,7 +140,8 @@ export const RegionalCoordinatorView: Story = {
         data: regionalPrescriptions.filter(
           (_) => _.region === RegionalCoordinator.region
         )
-      }
+      },
+      useFindLaboratoriesQuery: { data: laboratories }
     })
   },
   play: async ({ canvasElement }) => {
@@ -149,6 +157,11 @@ export const RegionalCoordinatorView: Story = {
     await expect(
       canvas.queryByTestId('add-matrix-button')
     ).not.toBeInTheDocument();
+
+    await expect(canvas.getAllByTestId('update-laboratory-button').length).toBe(
+      regionalPrescriptions.filter((_) => _.region === Sampler1Fixture.region)
+        .length
+    );
   }
 };
 
@@ -182,6 +195,10 @@ export const SamplerView: Story = {
 
     await expect(
       canvas.queryByTestId('add-matrix-button')
+    ).not.toBeInTheDocument();
+
+    await expect(
+      canvas.queryByTestId('update-laboratory-button')
     ).not.toBeInTheDocument();
   }
 };

@@ -70,20 +70,12 @@ export const prescriptionsRoutes = {
       body: LocalPrescriptionUpdate,
       permissions: [
         'distributePrescriptionToDepartments',
+        'distributePrescriptionToSlaughterhouses',
         'updatePrescriptionLaboratories'
       ],
       response: LocalPrescription
     }
   },
-  '/prescriptions/:prescriptionId/regions/:region/departments/:department/slaughterhouses':
-    {
-      params: LocalPrescriptionKey.shape,
-      put: {
-        body: LocalPrescriptionUpdate,
-        permissions: ['distributePrescriptionToSlaughterhouses'],
-        response: LocalPrescription
-      }
-    },
   '/prescriptions/:prescriptionId': {
     params: {
       prescriptionId: z.guid()

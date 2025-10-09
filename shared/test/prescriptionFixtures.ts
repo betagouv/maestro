@@ -9,7 +9,6 @@ import { LocalPrescription } from '../schema/LocalPrescription/LocalPrescription
 import { Prescription } from '../schema/Prescription/Prescription';
 import { PrescriptionSubstance } from '../schema/Prescription/PrescriptionSubstance';
 import { ProgrammingPlanContextList } from '../schema/ProgrammingPlan/Context';
-import { DummyLaboratoryIds } from '../schema/User/User';
 import { LaboratoryFixture } from './laboratoryFixtures';
 import {
   DAOAInProgressProgrammingPlanFixture,
@@ -63,9 +62,9 @@ export const LocalPrescriptionFixture = genLocalPrescription({
   prescriptionId: PrescriptionFixture.id,
   region: '44',
   sampleCount: 1,
-  substancesLaboratories: [
+  substanceKindsLaboratories: [
     {
-      substance: 'Any',
+      substanceKind: 'Any',
       laboratoryId: LaboratoryFixture.id
     }
   ]
@@ -107,8 +106,7 @@ export const genLocalPrescriptions = (
           prescriptionId,
           region,
           department,
-          sampleCount: 0,
-          laboratoryId: oneOf(DummyLaboratoryIds)
+          sampleCount: 0
         }))
       )
     : [])

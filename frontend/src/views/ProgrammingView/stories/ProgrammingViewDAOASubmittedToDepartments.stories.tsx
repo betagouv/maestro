@@ -4,6 +4,7 @@ import {
   SlaughterhouseCompanyFixture1,
   SlaughterhouseCompanyFixture2
 } from 'maestro-shared/test/companyFixtures';
+import { genLaboratory } from 'maestro-shared/test/laboratoryFixtures';
 import {
   FoieDeBovinLocalPrescriptionFixture,
   FoieDeBovinPrescriptionFixture,
@@ -59,6 +60,8 @@ const companies = [
   SlaughterhouseCompanyFixture2
 ];
 
+const laboratories = [genLaboratory(), genLaboratory(), genLaboratory()];
+
 export const NationalCoordinatorView: Story = {
   parameters: {
     preloadedState: {
@@ -101,6 +104,10 @@ export const NationalCoordinatorView: Story = {
     await userEvent.click(canvas.getByTestId('prescriptions-cards-segment'));
 
     await expect(canvas.getByTestId('add-matrix-button')).toBeInTheDocument();
+
+    await expect(
+      canvas.queryByTestId('update-laboratory-button')
+    ).not.toBeInTheDocument();
   }
 };
 
@@ -139,6 +146,10 @@ export const RegionalCoordinatorView: Story = {
     await expect(
       canvas.queryByTestId('add-matrix-button')
     ).not.toBeInTheDocument();
+
+    await expect(
+      canvas.queryByTestId('update-laboratory-button')
+    ).not.toBeInTheDocument();
   }
 };
 
@@ -159,7 +170,8 @@ export const DepartmentalCoordinatorView: Story = {
           .filter((_) => _.department === DepartmentalCoordinator.department)
           .map((_, index) => ({ ..._, sampleCount: index + 5 }))
       },
-      useFindCompaniesQuery: { data: companies }
+      useFindCompaniesQuery: { data: companies },
+      useFindLaboratoriesQuery: { data: laboratories }
     })
   },
   play: async ({ canvasElement }) => {
@@ -175,5 +187,11 @@ export const DepartmentalCoordinatorView: Story = {
     await expect(
       canvas.queryByTestId('add-matrix-button')
     ).not.toBeInTheDocument();
+
+    await expect(canvas.getAllByTestId('update-laboratory-button').length).toBe(
+      regionalPrescriptions.filter(
+        (_) => _.department === DepartmentalCoordinator.department
+      ).length
+    );
   }
 };

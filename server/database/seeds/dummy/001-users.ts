@@ -91,7 +91,7 @@ export const seed = async function () {
       name: `DAOA - ${fakerFR.person.fullName()}`,
       programmingPlanKinds: ['DAOA_BREEDING', 'DAOA_SLAUGHTER'],
       role: 'RegionalCoordinator',
-      region: '75'
+      region: '52'
     },
     {
       id: uuidv4(),
@@ -99,8 +99,8 @@ export const seed = async function () {
       name: `DAOA - ${fakerFR.person.fullName()}`,
       programmingPlanKinds: ['DAOA_BREEDING', 'DAOA_SLAUGHTER'],
       role: 'DepartmentalCoordinator',
-      region: '75',
-      department: '87'
+      region: '52',
+      department: '85'
     },
     {
       id: uuidv4(),
@@ -108,7 +108,8 @@ export const seed = async function () {
       name: `DAOA - ${fakerFR.person.fullName()}`,
       programmingPlanKinds: ['DAOA_BREEDING', 'DAOA_SLAUGHTER'],
       role: 'Sampler',
-      region: '75'
+      region: '52',
+      department: '85'
     },
 
     //PFAS

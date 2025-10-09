@@ -108,5 +108,9 @@ export const NationalCoordinatorView: Story = {
     await userEvent.click(canvas.getByTestId('prescriptions-cards-segment'));
 
     await expect(canvas.getByTestId('add-matrix-button')).toBeInTheDocument();
+
+    await expect(
+      canvas.queryByTestId('update-laboratory-button')
+    ).not.toBeInTheDocument();
   }
 };

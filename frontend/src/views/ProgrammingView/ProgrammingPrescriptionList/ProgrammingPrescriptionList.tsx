@@ -22,7 +22,7 @@ import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import ProgrammingPrescriptionListHeader from 'src/views/ProgrammingView/ProgrammingPrescriptionList/ProgrammingPrescriptionListHeader';
 import { assert, type Equals } from 'tsafe';
 import LocalPrescriptionCard from '../../../components/LocalPrescription/LocalPrescriptionCard/LocalPrescriptionCard';
-import RegionalPrescriptionModal from '../../../components/LocalPrescription/LocalPrescriptionModal/LocalPrescriptionModal';
+import LocalPrescriptionModal from '../../../components/LocalPrescription/LocalPrescriptionModal/LocalPrescriptionModal';
 import PrescriptionModal from '../../../components/Prescription/PrescriptionModal/PrescriptionModal';
 import { ApiClientContext } from '../../../services/apiClient';
 import { getPrescriptionsExportURL } from '../../../services/prescription.service';
@@ -243,10 +243,10 @@ const ProgrammingPrescriptionList = ({
         prescriptions.map((prescription) =>
           changeLocalPrescription(prescription, region as Region, {
             key: 'laboratories',
-            substancesLaboratories: laboratoryId
+            substanceKindsLaboratories: laboratoryId
               ? [
                   {
-                    substance: 'Any',
+                    substanceKind: 'Any', //TODO
                     laboratoryId
                   }
                 ]
@@ -404,11 +404,7 @@ const ProgrammingPrescriptionList = ({
           })
         }
       />
-      <RegionalPrescriptionModal
-        onChangePrescriptionLaboratory={(prescription, laboratoryId) =>
-          changeLocalPrescriptionsLaboratory([prescription], laboratoryId)
-        }
-      />
+      <LocalPrescriptionModal />
     </>
   );
 };
