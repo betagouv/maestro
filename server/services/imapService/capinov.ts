@@ -874,7 +874,8 @@ export const extractAnalyzes = (
       const result: ExportResultQuantifiable | ExportResultNonQuantifiable =
         !isDetectable
           ? { result_kind: 'ND' }
-          : residue.RESULTAT_VALTEXTE === 'd, NQ'
+          : residue.RESULTAT_VALTEXTE === 'd, NQ' ||
+              residue.RESULTAT_VALTEXTE === '< LQ'
             ? {
                 result_kind: 'NQ'
               }
