@@ -60,7 +60,7 @@ export const prescriptionsRoutes = {
     params: LocalPrescriptionKey.shape,
     put: {
       body: LocalPrescriptionUpdate,
-      permissions: ['updatePrescription', 'updatePrescriptionLaboratory'],
+      permissions: ['updatePrescription', 'updatePrescriptionLaboratories'],
       response: LocalPrescription
     }
   },
@@ -70,7 +70,7 @@ export const prescriptionsRoutes = {
       body: LocalPrescriptionUpdate,
       permissions: [
         'distributePrescriptionToDepartments',
-        'updatePrescriptionLaboratory'
+        'updatePrescriptionLaboratories'
       ],
       response: LocalPrescription
     }

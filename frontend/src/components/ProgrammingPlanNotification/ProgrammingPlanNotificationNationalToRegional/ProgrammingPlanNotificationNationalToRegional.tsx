@@ -110,6 +110,7 @@ const ProgrammingPlanNotificationNationalToRegional = ({
             iconPosition="right"
             id="notify-regions-button"
             onClick={() => submissionModal.open()}
+            className="no-wrap"
           >
             Notifier les régions
           </Button>

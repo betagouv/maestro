@@ -63,7 +63,12 @@ export const LocalPrescriptionFixture = genLocalPrescription({
   prescriptionId: PrescriptionFixture.id,
   region: '44',
   sampleCount: 1,
-  laboratoryId: LaboratoryFixture.id
+  substancesLaboratories: [
+    {
+      substance: 'Any',
+      laboratoryId: LaboratoryFixture.id
+    }
+  ]
 });
 
 export const FoieDeBovinPrescriptionFixture = genPrescription({

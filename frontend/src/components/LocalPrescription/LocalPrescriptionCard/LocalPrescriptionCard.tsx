@@ -55,7 +55,9 @@ const LocalPrescriptionCard = ({
   );
 
   const currentLaboratory = laboratories?.find(
-    (laboratory) => laboratory.id === localPrescription?.laboratoryId
+    (laboratory) =>
+      laboratory.id ===
+      localPrescription?.substancesLaboratories?.[0]?.laboratoryId
   );
 
   const buttons = useMemo(
@@ -124,7 +126,7 @@ const LocalPrescriptionCard = ({
             hasUserLocalPrescriptionPermission(
               programmingPlan,
               localPrescription
-            )?.updateLaboratory
+            )?.updateLaboratories
               ? {
                   children: (
                     <span className="no-wrap">
@@ -224,7 +226,7 @@ const LocalPrescriptionCard = ({
               {hasUserLocalPrescriptionPermission(
                 programmingPlan,
                 localPrescription
-              )?.updateLaboratory && (
+              )?.updateLaboratories && (
                 <Checkbox
                   options={[
                     {

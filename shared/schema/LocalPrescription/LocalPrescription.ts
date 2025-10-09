@@ -7,11 +7,14 @@ import { ProgrammingPlan } from '../ProgrammingPlan/ProgrammingPlans';
 import { hasPermission, User, userRegions } from '../User/User';
 import { LocalPrescriptionComment } from './LocalPrescriptionComment';
 import { LocalPrescriptionKey } from './LocalPrescriptionKey';
+import {
+  LocalPrescriptionLaboratory,
+  SubstanceLaboratory
+} from './LocalPrescriptionLaboratory';
 
 export const LocalPrescription = z.object({
   ...LocalPrescriptionKey.shape,
   sampleCount: z.coerce.number(),
-  laboratoryId: z.string().nullish(),
   comments: z
     .array(
       LocalPrescriptionComment.pick({
@@ -19,6 +22,14 @@ export const LocalPrescription = z.object({
         comment: true,
         createdAt: true,
         createdBy: true
+      })
+    )
+    .nullish(),
+  substancesLaboratories: z
+    .array(
+      LocalPrescriptionLaboratory.pick({
+        laboratoryId: true,
+        substance: true
       })
     )
     .nullish(),
@@ -44,10 +55,8 @@ export const LocalPrescriptionUpdate = z.discriminatedUnion('key', [
     ...Prescription.pick({ programmingPlanId: true }).shape
   }),
   z.object({
-    key: z.literal('laboratory'),
-    ...LocalPrescription.pick({
-      laboratoryId: true
-    }).shape,
+    key: z.literal('laboratories'),
+    substancesLaboratories: z.array(SubstanceLaboratory),
     ...Prescription.pick({ programmingPlanId: true }).shape
   }),
   z.object({
@@ -113,7 +122,7 @@ const LocalPrescriptionPermission = z.enum([
   'comment',
   'distributeToDepartments',
   'distributeToSlaughterhouses',
-  'updateLaboratory'
+  'updateLaboratories'
 ]);
 
 export type LocalPrescriptionPermission = z.infer<
@@ -152,8 +161,8 @@ export const hasLocalPrescriptionPermission = (
     programmingPlan.regionalStatus.find(
       (regionStatus) => regionStatus.region === localPrescription.region
     )?.status === 'SubmittedToRegion',
-  updateLaboratory:
-    hasPermission(user, 'updatePrescriptionLaboratory') &&
+  updateLaboratories:
+    hasPermission(user, 'updatePrescriptionLaboratories') &&
     userRegions(user).includes(localPrescription.region) &&
     programmingPlan.regionalStatus.find(
       (regionStatus) => regionStatus.region === localPrescription.region

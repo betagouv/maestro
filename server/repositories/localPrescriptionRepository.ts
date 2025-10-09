@@ -14,6 +14,7 @@ import {
 import { z } from 'zod';
 import { knexInstance as db } from './db';
 import { localPrescriptionCommentsTable } from './localPrescriptionCommentRepository';
+import { localPrescriptionSubstancesLaboratoriesTable } from './localPrescriptionSubstanceLaboratoryRepository';
 import { prescriptionsTable } from './prescriptionRepository';
 import { samplesTable } from './sampleRepository';
 const localPrescriptionsTable = 'local_prescriptions';
@@ -33,16 +34,23 @@ const findUnique = async ({
   prescriptionId,
   region,
   department,
-  companySiret
-}: LocalPrescriptionKey): Promise<LocalPrescription | undefined> => {
+  companySiret,
+  includes
+}: LocalPrescriptionKey &
+  Pick<FindLocalPrescriptionOptions, 'includes'>): Promise<
+  LocalPrescription | undefined
+> => {
   console.info('Find local prescription', prescriptionId, region);
   return LocalPrescriptions()
-    .where({
-      prescriptionId,
-      region,
-      department: department ?? 'None',
-      companySiret: companySiret ?? 'None'
-    })
+    .select(`${localPrescriptionsTable}.*`)
+    .where(`${localPrescriptionsTable}.prescription_id`, prescriptionId)
+    .andWhere(`${localPrescriptionsTable}.region`, region)
+    .andWhere(`${localPrescriptionsTable}.department`, department ?? 'None')
+    .andWhere(
+      `${localPrescriptionsTable}.company_siret`,
+      companySiret ?? 'None'
+    )
+    .modify(include({ includes }))
     .first()
     .then((_) => _ && parseLocalPrescription(_));
 };
@@ -109,7 +117,7 @@ const findMany = async (
     );
 };
 
-const include = (opts?: FindLocalPrescriptionOptions) => {
+const include = (opts?: Pick<FindLocalPrescriptionOptions, 'includes'>) => {
   const joins: Record<
     LocalPrescriptionOptionsInclude,
     (query: Knex.QueryBuilder) => void
@@ -148,6 +156,43 @@ const include = (opts?: FindLocalPrescriptionOptions) => {
             .andOn(
               `${localPrescriptionCommentsTable}.company_siret`,
               `${localPrescriptionsTable}.companySiret`
+            )
+        )
+        .groupBy(
+          `${localPrescriptionsTable}.prescription_id`,
+          `${localPrescriptionsTable}.region`,
+          `${localPrescriptionsTable}.department`,
+          `${localPrescriptionsTable}.companySiret`
+        );
+    },
+    laboratories: (query) => {
+      query
+        .select(
+          db.raw(
+            `case 
+              when count(${localPrescriptionSubstancesLaboratoriesTable}.prescription_id) > 0 
+                then array_agg(
+                  json_build_object(
+                    'substance', ${localPrescriptionSubstancesLaboratoriesTable}.substance, 
+                    'laboratoryId', ${localPrescriptionSubstancesLaboratoriesTable}.laboratory_id
+                  )
+                ) 
+              else '{}' end as substances_laboratories`
+          )
+        )
+        .leftJoin(localPrescriptionSubstancesLaboratoriesTable, (query) =>
+          query
+            .on(
+              `${localPrescriptionSubstancesLaboratoriesTable}.prescription_id`,
+              `${localPrescriptionsTable}.prescription_id`
+            )
+            .andOn(
+              `${localPrescriptionSubstancesLaboratoriesTable}.region`,
+              `${localPrescriptionsTable}.region`
+            )
+            .andOn(
+              `${localPrescriptionSubstancesLaboratoriesTable}.department`,
+              `${localPrescriptionsTable}.department`
             )
         )
         .groupBy(
