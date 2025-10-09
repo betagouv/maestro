@@ -13,6 +13,7 @@ import {
   NextProgrammingPlanStatus,
   ProgrammingPlanStatus
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import { isDefined } from 'maestro-shared/utils/utils';
 import React, { useCallback, useContext, useState } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch } from '../../../hooks/useStore';
@@ -185,21 +186,23 @@ const ProgrammingPlanNotificationNationalToRegional = ({
                     disabled: getRegionsByStatus('InProgress').length === 0
                   }
                 },
-                {
-                  label: 'Valider la programmation',
-                  nativeInputProps: {
-                    checked: status === 'ApprovedByRegion',
-                    onChange: () => {
-                      setStatus('ApprovedByRegion');
-                      setRegionsToNotify(
-                        getRegionsByStatus('ApprovedByRegion')
-                      );
-                    },
-                    disabled:
-                      getRegionsByStatus('ApprovedByRegion').length === 0
-                  }
-                }
-              ]}
+                programmingPlan.distributionKind === 'REGIONAL'
+                  ? {
+                      label: 'Valider la programmation',
+                      nativeInputProps: {
+                        checked: status === 'ApprovedByRegion',
+                        onChange: () => {
+                          setStatus('ApprovedByRegion');
+                          setRegionsToNotify(
+                            getRegionsByStatus('ApprovedByRegion')
+                          );
+                        },
+                        disabled:
+                          getRegionsByStatus('ApprovedByRegion').length === 0
+                      }
+                    }
+                  : undefined
+              ].filter(isDefined)}
               orientation="horizontal"
               className={cx('fr-mt-2w')}
             />
