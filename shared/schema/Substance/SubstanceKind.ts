@@ -2,8 +2,6 @@ import { z } from 'zod';
 
 export const SubstanceKind = z.enum(['Any', 'Mono', 'Multi', 'Copper']);
 
-export const SubstanceKindList: SubstanceKind[] = SubstanceKind.options;
-
 export const SubstanceKindLabels: Record<SubstanceKind, string> = {
   Any: 'Toutes les analyses',
   Mono: 'Analyse mono-résidu',
