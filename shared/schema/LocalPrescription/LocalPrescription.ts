@@ -152,9 +152,12 @@ export const hasLocalPrescriptionPermission = (
     hasPermission(user, 'distributePrescriptionToSlaughterhouses') &&
     userRegions(user).includes(localPrescription.region) &&
     user.department === localPrescription.department &&
-    programmingPlan.regionalStatus.find(
-      (regionStatus) => regionStatus.region === localPrescription.region
-    )?.status === 'SubmittedToDepartments',
+    programmingPlan.regionalStatus.some(
+      // todo departmental status
+      (regionStatus) =>
+        regionStatus.region === localPrescription.region &&
+        ['Validated', 'SubmittedToDepartments'].includes(regionStatus.status)
+    ),
   comment:
     hasPermission(user, 'commentPrescription') &&
     userRegions(user).includes(localPrescription.region) &&
