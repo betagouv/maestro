@@ -14,7 +14,7 @@ import {
   ProgrammingPlanStatus
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { isDefined } from 'maestro-shared/utils/utils';
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch } from '../../../hooks/useStore';
 import { api } from '../../../services/api.service';
@@ -56,14 +56,17 @@ const ProgrammingPlanNotificationNationalToRegional = ({
     getRegionsByStatus('InProgress')
   );
 
-  useIsModalOpen(submissionModal, {
+  const isOpen = useIsModalOpen(submissionModal, {
     onConceal: () => {
       setIsSuccess(false);
       setIsError(false);
-      setStatus('InProgress');
-      setRegionsToNotify([]);
     }
   });
+
+  useEffect(() => {
+    setStatus('InProgress');
+    setRegionsToNotify(getRegionsByStatus('InProgress'));
+  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
