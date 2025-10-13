@@ -1,4 +1,5 @@
 import { fakerFR } from '@faker-js/faker';
+import { omit } from 'lodash-es';
 import { NationalCoordinator } from 'maestro-shared/test/userFixtures';
 import { v4 as uuidv4 } from 'uuid';
 import { Users } from '../../../repositories/userRepository';
@@ -129,7 +130,7 @@ export const seed = async function () {
     ].map(
       (user) =>
         ({
-          ...user,
+          ...omit(user, 'company'),
           companySiret: user.company?.siret || null
         }) as any
     )
