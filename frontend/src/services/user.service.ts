@@ -1,4 +1,3 @@
-import { isNil, omitBy } from 'lodash-es';
 import { FindUserOptions } from 'maestro-shared/schema/User/FindUserOptions';
 import {
   User,
@@ -20,7 +19,7 @@ const userApi = api.injectEndpoints({
         params: findOptions
       }),
       transformResponse: (response: any[]) =>
-        response.map((_) => User.parse(omitBy(_, isNil))),
+        response.map((_) => User.parse(_)),
       providesTags: (result) => [
         { type: 'User', id: 'LIST' },
         ...(result ?? []).map(({ id }) => ({

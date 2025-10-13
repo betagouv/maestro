@@ -1,42 +1,47 @@
 import { intersection, isNil } from 'lodash-es';
-import { z } from 'zod';
+import { RefinementCtx, z } from 'zod';
 import { Region, RegionList } from '../../referential/Region';
+import { Nullable } from '../../utils/typescript';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { UserPermission } from './UserPermission';
 import {
   NationalUserRole,
   RegionalAndNationUserRole,
-  RegionalUserRole,
   UserRole,
   UserRolePermissions
 } from './UserRole';
 
 const BaseUser = z.object({
   id: z.guid(),
-  email: z.email(),
+  email: z.email({ error: 'Veuillez renseigner un email valide.' }),
   name: z.string(),
   programmingPlanKinds: z.array(ProgrammingPlanKind),
   role: UserRole,
   region: Region.nullable()
 });
 
-export const User = BaseUser.superRefine((user, ctx) => {
-  if (
-    !user.region &&
-    (RegionalUserRole.safeParse(user.role).success ||
-      RegionalAndNationUserRole.safeParse(user.role).success)
-  ) {
+const regionCheck = <T extends Pick<User, 'region' | 'role'>>(
+  user: T,
+  ctx: RefinementCtx<T>
+) => {
+  if (!user.region && !hasNationalRole(user)) {
     ctx.addIssue({
+      key: 'region',
+      path: ['region'],
       code: 'custom',
-      message: 'La région est obligatoire pour ce rôle'
+      message: 'La région est obligatoire pour ce rôle.'
     });
   }
-});
+};
 
-export const UserToCreate = User.omit({ id: true, name: true });
+export const User = BaseUser.superRefine(regionCheck);
+
+export const UserToCreate = User.omit({ id: true, name: true }).superRefine(
+  regionCheck
+);
 export type UserToCreate = z.infer<typeof UserToCreate>;
 
-export const UserToUpdate = User.omit({ name: true }).partial();
+export const UserToUpdate = User.omit({ name: true }).superRefine(regionCheck);
 export type UserToUpdate = z.infer<typeof UserToUpdate>;
 
 export const Sampler = BaseUser.pick({
@@ -59,6 +64,6 @@ export const userRegions = (user?: User): Region[] =>
 export const hasPermission = (user: User, ...permissions: UserPermission[]) =>
   intersection(permissions, UserRolePermissions[user.role]).length > 0;
 
-export const hasNationalRole = (user: Pick<User, 'role'>) =>
+export const hasNationalRole = (user: Nullable<Pick<User, 'role'>>) =>
   NationalUserRole.safeParse(user.role).success ||
   RegionalAndNationUserRole.safeParse(user.role).success;

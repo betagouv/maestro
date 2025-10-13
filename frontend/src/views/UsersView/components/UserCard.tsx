@@ -32,7 +32,7 @@ export const UserCard: FunctionComponent<Props> = ({ user, ..._rest }) => {
       desc={
         <div className={clsx('user-card-desc')}>
           <span className={cx('fr-text--xl', 'fr-text--bold', 'fr-mb-0')}>
-            {user.name}
+            {user.name === '-' ? user.email : user.name}
           </span>
           <span className={clsx('user-card-region')}>
             <img src={franceSvg} height="100%" aria-hidden alt="" />

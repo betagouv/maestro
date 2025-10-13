@@ -15,11 +15,14 @@ export const RegionalUserRole = z.enum([
   'Sampler'
 ]);
 
-export const UserRole = z.enum([
-  ...NationalUserRole.options,
-  ...RegionalAndNationUserRole.options,
-  ...RegionalUserRole.options
-]);
+export const UserRole = z.enum(
+  [
+    ...NationalUserRole.options,
+    ...RegionalAndNationUserRole.options,
+    ...RegionalUserRole.options
+  ],
+  { error: 'Veuillez renseigner un rôle.' }
+);
 
 export type NationalUserRole = z.infer<typeof NationalUserRole>;
 export type RegionalUserRole = z.infer<typeof RegionalUserRole>;
