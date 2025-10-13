@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { Department } from '../../referential/Department';
 import { Region, RegionList } from '../../referential/Region';
+import { Company } from '../Company/Company';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { UserPermission } from './UserPermission';
 import {
@@ -16,12 +17,13 @@ import {
 
 const BaseUser = z.object({
   id: z.guid(),
-  email: z.string().email(),
+  email: z.email(),
   name: z.string(),
   programmingPlanKinds: z.array(ProgrammingPlanKind),
   role: UserRole,
   region: Region.nullish(),
-  department: Department.nullish()
+  department: Department.nullish(),
+  company: Company.nullish()
 });
 
 export const User = BaseUser.superRefine((user, ctx) => {

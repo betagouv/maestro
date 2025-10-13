@@ -7,8 +7,8 @@ import { useAuthentication } from 'src/hooks/useAuthentication';
 
 interface Props {
   programmingPlan: ProgrammingPlan;
-  value: string;
-  onSubmitInstruction: (instruction: string) => Promise<void>;
+  value?: string | null;
+  onSubmitInstruction?: (instruction: string) => Promise<void>;
 }
 
 const PrescriptionProgrammingInstruction = ({
@@ -17,40 +17,39 @@ const PrescriptionProgrammingInstruction = ({
   onSubmitInstruction
 }: Props) => {
   const { hasUserPrescriptionPermission } = useAuthentication();
-  const [instruction, setInstruction] = useState(value);
+  const [instruction, setInstruction] = useState(value || '');
 
   return (
     <>
-      {hasUserPrescriptionPermission(programmingPlan)?.update ? (
-        <div className="d-flex-align-center">
-          <Input
-            label="Consignes de répartition"
-            hintText="Complément d’information, répartition, etc."
-            textArea
-            nativeTextAreaProps={{
-              value: instruction,
-              onChange: (e) => setInstruction(e.target.value),
-              rows: 1
-            }}
-            style={{
-              width: '100%'
-            }}
-          />
-          <Button
-            title="Enregistrer"
-            iconId="fr-icon-save-line"
-            onClick={() => onSubmitInstruction(instruction)}
-            priority="secondary"
-            className={cx('fr-ml-1w', 'fr-mt-4w')}
-          />
-        </div>
-      ) : (
-        <>
-          <span className={cx('fr-text--sm', 'fr-mb-1v')}>
-            {value || 'Aucune consigne de répartition'}
-          </span>
-        </>
-      )}
+      <div className="d-flex-align-center">
+        <Input
+          label="Consignes de répartition"
+          hintText="Complément d’information, répartition, etc."
+          textArea
+          nativeTextAreaProps={{
+            value: instruction,
+            onChange: (e) => setInstruction(e.target.value),
+            rows: 1
+          }}
+          style={{
+            width: '100%'
+          }}
+          disabled={
+            !hasUserPrescriptionPermission(programmingPlan)?.update ||
+            !onSubmitInstruction
+          }
+        />
+        {hasUserPrescriptionPermission(programmingPlan)?.update &&
+          onSubmitInstruction && (
+            <Button
+              title="Enregistrer"
+              iconId="fr-icon-save-line"
+              onClick={() => onSubmitInstruction(instruction)}
+              priority="secondary"
+              className={cx('fr-ml-1w', 'fr-mt-4w')}
+            />
+          )}
+      </div>
     </>
   );
 };

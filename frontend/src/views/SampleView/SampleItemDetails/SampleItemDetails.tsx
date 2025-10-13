@@ -37,8 +37,7 @@ import useWindowSize from '../../../hooks/useWindowSize';
 import { ApiClientContext } from '../../../services/apiClient';
 
 const Form = z.object({
-  items: z.array(z.looseObject({})),
-  laboratoryId: z.guid().nullish()
+  items: z.array(z.looseObject({}))
 });
 
 interface Props {
@@ -49,7 +48,7 @@ interface Props {
   onChangeItem?: (item: PartialSampleItem, itemIndex: number) => void;
   onChangeLaboratory?: (laboratoryId: string) => void;
   itemsForm?: UseForm<typeof Form>;
-  laboratory?: Laboratory;
+  laboratory?: Laboratory | null;
   children?: React.ReactNode;
   readonly?: boolean;
 }
@@ -60,29 +59,36 @@ const SampleItemDetails = ({
   itemIndex,
   onRemoveItem,
   onChangeItem,
-  onChangeLaboratory,
   itemsForm,
-  laboratory,
   readonly: forceReadonly
 }: Props) => {
   const apiClient = useContext(ApiClientContext);
   const { isMobile } = useWindowSize();
 
   const fakeForm = useForm(Form, {
-    items: [],
-    laboratoryId: partialSample.laboratoryId
+    items: []
   });
 
   const form = itemsForm ?? fakeForm;
-
+  // const FormRefinement = Form.check(uniqueSampleItemSealIdCheck).check(
+  //   (ctx) => {
+  //     const laboratoryId = ctx.value.laboratoryId;
+  //     if (!isProgrammingPlanSample(partialSample) && !isDefined(laboratoryId)) {
+  //       ctx.issues.push({
+  //         code: 'custom',
+  //         path: ['laboratoryId'],
+  //         input: laboratoryId,
+  //         message: 'Veuillez sélectionner un laboratoire.'
+  //       });
+  //     }
+  //   }
+  // );
   const readonly = useMemo(
     () => !itemsForm || forceReadonly,
     [itemsForm, forceReadonly]
   );
 
-  const { data: laboratories } = apiClient.useFindLaboratoriesQuery(undefined, {
-    skip: isProgrammingPlanSample(partialSample)
-  });
+  const { data: laboratories } = apiClient.useFindLaboratoriesQuery();
 
   return (
     <>
@@ -195,8 +201,14 @@ const SampleItemDetails = ({
               {isProgrammingPlanSample(partialSample) ? (
                 <>
                   Laboratoire destinataire :{' '}
-                  {laboratory ? (
-                    <b>{getLaboratoryFullName(laboratory)}</b>
+                  {item.laboratoryId ? (
+                    <b>
+                      {getLaboratoryFullName(
+                        laboratories?.find(
+                          (lab) => lab.id === item.laboratoryId
+                        )
+                      )}
+                    </b>
                   ) : (
                     <span className="missing-data">
                       Information non disponible
@@ -205,7 +217,7 @@ const SampleItemDetails = ({
                 </>
               ) : (
                 <AppSelect
-                  value={laboratory?.id}
+                  value={item.laboratoryId ?? ''}
                   options={[
                     defaultAppSelectOption('Sélectionner un laboratoire'),
                     ...(laboratories ?? []).map((laboratory) => ({
@@ -213,9 +225,18 @@ const SampleItemDetails = ({
                       value: laboratory.id
                     }))
                   ]}
-                  onChange={(e) => onChangeLaboratory?.(e.target.value)}
+                  onChange={(e) =>
+                    onChangeItem?.(
+                      {
+                        ...item,
+                        laboratoryId: e.target.value
+                      },
+                      itemIndex
+                    )
+                  }
                   inputForm={form}
-                  inputKey="laboratoryId"
+                  inputKey="items"
+                  inputPathFromKey={[itemIndex, 'laboratoryId']}
                   whenValid="Laboratoire valide"
                   label="Laboratoire"
                   disabled={readonly}

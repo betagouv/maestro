@@ -2,7 +2,6 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import fs from 'fs';
 import handlebars from 'handlebars';
-import { isNil } from 'lodash-es';
 import PdfGenerationError from 'maestro-shared/errors/pdfGenerationError';
 import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
 import UserMissingError from 'maestro-shared/errors/userMissingError';
@@ -15,7 +14,6 @@ import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
 import { Regions } from 'maestro-shared/referential/Region';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { StageLabels } from 'maestro-shared/referential/Stage';
-import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   getSampleMatrixLabel,
@@ -25,7 +23,6 @@ import { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { formatWithTz, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import puppeteer from 'puppeteer-core';
 import { documentRepository } from '../../repositories/documentRepository';
-import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
 import { userRepository } from '../../repositories/userRepository';
 import {
@@ -173,9 +170,10 @@ const generateSampleSupportPDF = async (
     throw new UserMissingError(sample.sampler.id);
   }
 
-  const laboratory = sample.laboratoryId
-    ? await laboratoryRepository.findUnique(sample.laboratoryId)
-    : null;
+  //TODO
+  // const laboratory = sample.laboratoryId
+  //   ? await laboratoryRepository.findUnique(sample.laboratoryId)
+  //   : null;
 
   const emptySampleItems: PartialSampleItem[] = new Array(3)
     .fill(null)
@@ -202,12 +200,15 @@ const generateSampleSupportPDF = async (
     ),
     itemNumber,
     sampler,
-    laboratory: !isNil(laboratory)
-      ? {
-          ...laboratory,
-          fullName: getLaboratoryFullName(laboratory)
-        }
-      : null,
+    //TODO
+    laboratory:
+      // !isNil(laboratory)
+      // ? {
+      //     ...laboratory,
+      //     fullName: getLaboratoryFullName(laboratory)
+      //   }
+      // :
+      null,
     monoSubstances: sample.monoSubstances?.map(
       (substance) => SSD2IdLabel[substance]
     ),

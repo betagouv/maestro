@@ -1,4 +1,5 @@
 import Input from '@codegouvfr/react-dsfr/Input';
+import { isNil } from 'lodash-es';
 import { ReactNode, useState } from 'react';
 
 interface EditableCellProps {
@@ -26,6 +27,19 @@ const EditableNumberCell = ({
     setIsEditing(false);
   };
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = Number(e.target.value);
+
+    if (!isNil(max) && newValue > max) {
+      e.preventDefault();
+      return;
+    }
+
+    if (!isNaN(newValue)) {
+      setValue(newValue);
+    }
+  };
+
   return (
     <>
       {isEditing ? (
@@ -37,7 +51,7 @@ const EditableNumberCell = ({
             autoFocus: true,
             min: 0,
             max,
-            onChange: (e) => setValue(Number(e.target.value)),
+            onChange: handleChange,
             onKeyDown: (e) => {
               if (e.key === 'Enter') {
                 submitEdition();

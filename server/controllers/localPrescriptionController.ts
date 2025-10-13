@@ -34,17 +34,19 @@ export const localPrescriptionsRouter = {
         ? queryFindOptions.department
         : user.department;
 
+      const companySiret = user.company?.siret ?? queryFindOptions.companySiret;
+
       const findOptions = {
         ...queryFindOptions,
-        region
+        region,
+        department,
+        companySiret
       };
 
       console.info('Find local prescriptions', user.id, findOptions);
 
       const localPrescriptions =
         await localPrescriptionRepository.findMany(findOptions);
-
-      console.log('Found local prescriptions', localPrescriptions.length);
 
       const filterEmptyLocalPrescriptions = localPrescriptions.filter(
         (localPrescription) => {
@@ -61,15 +63,18 @@ export const localPrescriptionsRouter = {
                     _.sampleCount > 0
                 );
           }
-          return isNil(localPrescription.companySiret)
-            ? localPrescription.sampleCount > 0
-            : localPrescriptions.some(
-                (_) =>
-                  _.region === localPrescription.region &&
-                  _.department === localPrescription.department &&
-                  isNil(_.companySiret) &&
-                  _.sampleCount > 0
-              );
+          if (isNil(companySiret)) {
+            return isNil(localPrescription.companySiret)
+              ? localPrescription.sampleCount > 0
+              : localPrescriptions.some(
+                  (_) =>
+                    _.region === localPrescription.region &&
+                    _.department === localPrescription.department &&
+                    isNil(_.companySiret) &&
+                    _.sampleCount > 0
+                );
+          }
+          return localPrescription.sampleCount > 0;
         }
       );
 

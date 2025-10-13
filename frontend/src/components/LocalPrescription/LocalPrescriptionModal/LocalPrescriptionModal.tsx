@@ -118,10 +118,10 @@ const RegionalPrescriptionModal = () => {
 
   const successMessage = useMemo(() => {
     if (localPrescriptionModalData?.mode === 'distributionToDepartments') {
-      return 'La répartition la programmation a bien été enregistrée pour ces départements.';
+      return 'La répartition de la programmation a bien été enregistrée pour ces départements.';
     }
     if (localPrescriptionModalData?.mode === 'distributionToSlaughterhouses') {
-      return 'La répartition la programmation a bien été enregistrée pour ces abattoirs.';
+      return 'La répartition de la programmation a bien été enregistrée pour ces abattoirs.';
     }
     return pluralize(
       (
@@ -204,6 +204,8 @@ const RegionalPrescriptionModal = () => {
               'distributionToSlaughterhouses' && (
               <LocalPrescriptionSlaughterhouseDistribution
                 ref={modalContentRef}
+                programmingPlan={localPrescriptionModalData.programmingPlan}
+                prescription={localPrescriptionModalData.prescription}
                 departmentalPrescription={
                   localPrescriptionModalData.localPrescription
                 }

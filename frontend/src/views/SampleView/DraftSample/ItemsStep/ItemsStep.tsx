@@ -4,6 +4,10 @@ import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { format, parse } from 'date-fns';
+import { isNil } from 'lodash-es';
+import { Department } from 'maestro-shared/referential/Department';
+import { RegionList, Regions } from 'maestro-shared/referential/Region';
+import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   isProgrammingPlanSample,
   PartialSample,
@@ -12,7 +16,6 @@ import {
   uniqueSampleItemSealIdCheck
 } from 'maestro-shared/schema/Sample/Sample';
 import { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
-import { isDefined, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
@@ -22,10 +25,10 @@ import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SampleItemDetails from 'src/views/SampleView/SampleItemDetails/SampleItemDetails';
 import SavedAlert from 'src/views/SampleView/SavedAlert';
-import { z } from 'zod';
 import AppServiceErrorAlert from '../../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import AppTextInput from '../../../../components/_app/AppTextInput/AppTextInput';
 import { useAnalytics } from '../../../../hooks/useAnalytics';
+import { useAppSelector } from '../../../../hooks/useStore';
 import { ApiClientContext } from '../../../../services/apiClient';
 import NextButton from '../NextButton';
 
@@ -38,27 +41,17 @@ type Props = {
 const ItemsStep = ({ partialSample }: Props) => {
   const apiClient = useContext(ApiClientContext);
   const { navigateToSample } = useSamplesLink();
-  const { laboratory, readonly } = usePartialSample(partialSample);
+  const { readonly } = usePartialSample(partialSample);
   const { trackEvent } = useAnalytics();
+
+  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
 
   const isSubmittingRef = useRef<boolean>(false);
 
   const [sampledAt, setSampledAt] = useState(
     format(partialSample.sampledAt ?? new Date(), 'yyyy-MM-dd HH:mm')
   );
-  const [items, setItems] = useState<PartialSampleItem[]>(
-    !isDefinedAndNotNull(partialSample.items) ||
-      partialSample.items.length === 0
-      ? [
-          {
-            sampleId: partialSample.id,
-            itemNumber: 1,
-            recipientKind: 'Laboratory'
-          }
-        ]
-      : partialSample.items
-  );
-  const [laboratoryId, setLaboratoryId] = useState(laboratory?.id);
+  const [items, setItems] = useState(partialSample.items ?? []);
   const [notesOnItems, setNotesOnItems] = useState(partialSample.notesOnItems);
   const [isSaved, setIsSaved] = useState(false);
 
@@ -82,28 +75,57 @@ const ItemsStep = ({ partialSample }: Props) => {
   const [createOrUpdateSample, createOrUpdateSampleCall] =
     apiClient.useCreateOrUpdateSampleMutation();
 
-  const Form = z.object({
-    ...SampleItemsData.pick({
-      sampledAt: true,
-      notesOnItems: true,
-      items: true
-    }).shape,
-    laboratoryId: z.guid().nullish()
-  });
-
-  const FormRefinement = Form.check(uniqueSampleItemSealIdCheck).check(
-    (ctx) => {
-      const laboratoryId = ctx.value.laboratoryId;
-      if (!isProgrammingPlanSample(partialSample) && !isDefined(laboratoryId)) {
-        ctx.issues.push({
-          code: 'custom',
-          path: ['laboratoryId'],
-          input: laboratoryId,
-          message: 'Veuillez sélectionner un laboratoire.'
-        });
-      }
+  const { data: localPrescriptions } = apiClient.useFindLocalPrescriptionsQuery(
+    {
+      programmingPlanId: (programmingPlan as ProgrammingPlan).id,
+      prescriptionId: partialSample.prescriptionId,
+      region: RegionList.find((region) =>
+        Regions[region].departments.includes(
+          partialSample.department as Department
+        )
+      ),
+      department:
+        (programmingPlan as ProgrammingPlan).distributionKind ===
+        'SLAUGHTERHOUSE'
+          ? partialSample.department
+          : undefined,
+      companySiret:
+        (programmingPlan as ProgrammingPlan).distributionKind ===
+        'SLAUGHTERHOUSE'
+          ? partialSample.company?.siret
+          : undefined,
+      includes: 'laboratories'
+    },
+    {
+      skip: !isProgrammingPlanSample(partialSample) || !programmingPlan
     }
   );
+
+  useEffect(() => {
+    if (
+      (isNil(items) || items.length === 0) &&
+      localPrescriptions?.[0]?.substanceKindsLaboratories
+    ) {
+      setItems(
+        localPrescriptions?.[0].substanceKindsLaboratories?.map(
+          (substanceKindLaboratory, index) => ({
+            sampleId: partialSample.id,
+            itemNumber: index + 1,
+            recipientKind: 'Laboratory',
+            laboratoryId: substanceKindLaboratory.laboratoryId
+          })
+        )
+      );
+    }
+  }, [localPrescriptions]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const Form = SampleItemsData.pick({
+    sampledAt: true,
+    notesOnItems: true,
+    items: true
+  });
+
+  const FormRefinement = Form.check(uniqueSampleItemSealIdCheck);
 
   useEffect(
     () => {
@@ -150,7 +172,6 @@ const ItemsStep = ({ partialSample }: Props) => {
       sampledAt: parse(sampledAt, 'yyyy-MM-dd HH:mm', new Date()),
       notesOnItems,
       items,
-      laboratoryId,
       status
     });
   };
@@ -166,8 +187,7 @@ const ItemsStep = ({ partialSample }: Props) => {
     {
       sampledAt,
       items,
-      notesOnItems,
-      laboratoryId
+      notesOnItems
     },
     save
   );
@@ -211,9 +231,7 @@ const ItemsStep = ({ partialSample }: Props) => {
                 setItems(newItems);
               }}
               onChangeItem={changeItems}
-              onChangeLaboratory={setLaboratoryId}
               itemsForm={form}
-              laboratory={laboratory}
               readonly={readonly}
             />
           </div>

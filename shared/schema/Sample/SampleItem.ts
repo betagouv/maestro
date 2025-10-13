@@ -26,15 +26,17 @@ export const SampleItem = z.object({
         : issue.message
   }),
   supportDocumentId: z.guid().nullish(),
-  recipientKind: SampleItemRecipientKind
+  recipientKind: SampleItemRecipientKind,
+  laboratoryId: z.guid().nullish()
 });
 
-export const PartialSampleItem = SampleItem.partial().merge(
-  SampleItem.pick({
+export const PartialSampleItem = z.object({
+  ...SampleItem.partial().shape,
+  ...SampleItem.pick({
     sampleId: true,
     itemNumber: true
-  })
-);
+  }).shape
+});
 
 export type SampleItem = z.infer<typeof SampleItem>;
 export type PartialSampleItem = z.infer<typeof PartialSampleItem>;

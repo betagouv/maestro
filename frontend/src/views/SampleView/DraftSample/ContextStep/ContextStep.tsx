@@ -107,7 +107,9 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
   );
 
   const [parcel, setParcel] = useState(partialSample?.parcel);
-  const [company, setCompany] = useState(partialSample?.company);
+  const [company, setCompany] = useState(
+    user?.company ?? partialSample?.company
+  );
   const [companyOffline, setCompanyOffline] = useState(
     partialSample?.companyOffline
   );

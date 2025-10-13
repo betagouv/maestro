@@ -72,7 +72,6 @@ export const SampleMatrixData = z.object({
   stage: Stage,
   notesOnMatrix: z.string().nullish(),
   prescriptionId: z.guid().nullish(),
-  laboratoryId: z.guid().nullish(),
   monoSubstances: z.array(SSD2Id).nullish(),
   multiSubstances: z.array(SSD2Id).nullish(),
   documentIds: z.array(z.guid()).nullish(),
@@ -249,7 +248,6 @@ export const SampleBase = SampleToCreate.extend({
   geolocation: Geolocation,
   department: Department,
   company: Company,
-  laboratoryId: z.guid(),
   items: z.array(SampleItem)
 });
 

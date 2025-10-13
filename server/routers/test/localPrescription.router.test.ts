@@ -14,10 +14,7 @@ import {
 import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import { User } from 'maestro-shared/schema/User/User';
 import { CompanyFixture } from 'maestro-shared/test/companyFixtures';
-import {
-  genLaboratory,
-  LaboratoryFixture
-} from 'maestro-shared/test/laboratoryFixtures';
+import { genLaboratory } from 'maestro-shared/test/laboratoryFixtures';
 import {
   genLocalPrescription,
   genPrescription
@@ -172,7 +169,6 @@ describe('Local prescriptions router', () => {
     region: Sampler1Fixture.region as Region,
     company: CompanyFixture,
     sampler: Sampler1Fixture,
-    laboratoryId: LaboratoryFixture.id,
     status: 'Sent',
     specificData: {
       programmingPlanKind: 'PPV'

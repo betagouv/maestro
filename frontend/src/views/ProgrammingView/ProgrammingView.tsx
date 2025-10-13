@@ -2,7 +2,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import clsx from 'clsx';
-import { isEmpty, mapValues, omitBy, orderBy, uniqBy } from 'lodash-es';
+import { isEmpty, mapValues, max, omitBy, orderBy, uniqBy } from 'lodash-es';
 import { Region, Regions } from 'maestro-shared/referential/Region';
 import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
@@ -70,7 +70,8 @@ const ProgrammingView = () => {
       prescriptionsSlice.actions.changePrescriptionFilters(
         reduceFilters(prescriptionFilters, {
           year: Number(
-            searchParams.get('year') ?? new Date().getFullYear().toString()
+            searchParams.get('year') ??
+              max(programmingPlans?.map((plan) => plan.year))
           ),
           domain:
             (searchParams.get('domain') as ProgrammingPlanDomain) ?? undefined,
@@ -224,7 +225,8 @@ const ProgrammingView = () => {
                       tabId: 'ProgrammationTab',
                       iconId: 'fr-icon-survey-line'
                     },
-                    ...(hasNationalView
+                    ...(hasNationalView &&
+                    programmingPlan?.distributionKind === 'REGIONAL'
                       ? [
                           {
                             label: 'Phase de consultation',
@@ -248,6 +250,7 @@ const ProgrammingView = () => {
                         programmingPlan={programmingPlan}
                         region={region ?? undefined}
                         department={user?.department ?? undefined}
+                        companySiret={user?.company?.siret ?? undefined}
                       />
                     )}
                     {selectedTabId === 'ConsultationTab' && (

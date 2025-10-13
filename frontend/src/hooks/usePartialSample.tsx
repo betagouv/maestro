@@ -1,4 +1,3 @@
-import { skipToken } from '@reduxjs/toolkit/query';
 import {
   isCreatedPartialSample,
   PartialSample,
@@ -30,10 +29,6 @@ export const usePartialSample = (
     }
   );
 
-  const { data: laboratory } = apiClient.useGetLaboratoryQuery(
-    partialSample?.laboratoryId ?? skipToken
-  );
-
   useEffect(() => {
     if (programmingPlan) {
       dispatch(
@@ -49,6 +44,8 @@ export const usePartialSample = (
         partialSample.region !== user?.region),
     [hasUserPermission, partialSample, user?.region]
   );
+
+  const laboratory = null; //TODO à supprimer
 
   return {
     readonly,

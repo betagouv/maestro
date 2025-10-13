@@ -109,5 +109,5 @@ export const DAOAInProgressProgrammingPlanFixture = genProgrammingPlan({
     region,
     status: 'InProgress'
   })),
-  year: new Date().getFullYear()
+  year: new Date().getFullYear() + 1
 });

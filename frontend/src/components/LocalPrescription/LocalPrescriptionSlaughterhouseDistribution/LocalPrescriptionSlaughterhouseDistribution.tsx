@@ -8,6 +8,8 @@ import {
   LocalPrescription,
   SlaughterhouseSampleCounts
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
+import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   forwardRef,
   useContext,
@@ -21,8 +23,11 @@ import { ApiClientContext } from '../../../services/apiClient';
 import { pluralize } from '../../../utils/stringUtils';
 import AppSelect from '../../_app/AppSelect/AppSelect';
 import AppTextInput from '../../_app/AppTextInput/AppTextInput';
+import PrescriptionProgrammingInstruction from '../../Prescription/PrescriptionProgrammingInstruction/PrescriptionProgrammingInstruction';
 
 interface Props {
+  programmingPlan: ProgrammingPlan;
+  prescription: Prescription;
   departmentalPrescription: LocalPrescription;
   slaughterhousePrescriptions: LocalPrescription[];
   onSubmit: (slaughterhousePrescriptions: LocalPrescription[]) => Promise<void>;
@@ -33,7 +38,13 @@ const LocalPrescriptionSlaughterhouseDistribution = forwardRef<
   Props
 >(
   (
-    { departmentalPrescription, slaughterhousePrescriptions, onSubmit },
+    {
+      programmingPlan,
+      prescription,
+      departmentalPrescription,
+      slaughterhousePrescriptions,
+      onSubmit
+    },
     ref
   ) => {
     const apiClient = useContext(ApiClientContext);
@@ -111,7 +122,7 @@ const LocalPrescriptionSlaughterhouseDistribution = forwardRef<
             attribuer
           </Badge>
         </div>
-        <div className={clsx(cx('fr-p-3w'), 'white-container')}>
+        <div className={clsx(cx('fr-p-3w', 'fr-mb-3w'), 'white-container')}>
           {slaughterhouseSampleCounts.map(
             (slaughterhouseSampleCount, slaughterhouseSampleCountIndex) => (
               <div
@@ -229,6 +240,10 @@ const LocalPrescriptionSlaughterhouseDistribution = forwardRef<
               </Button>
             )}
         </div>
+        <PrescriptionProgrammingInstruction
+          programmingPlan={programmingPlan}
+          value={prescription.programmingInstruction}
+        />
       </>
     );
   }

@@ -65,13 +65,15 @@ const findMany = async (
       omitBy(
         omit(
           findOptions,
+          'prescriptionId',
           'programmingPlanId',
           'programmingPlanKinds',
           'context',
           'includes',
           'region',
           'department',
-          'contexts'
+          'contexts',
+          'companySiret'
         ),
         isNil
       )
@@ -86,6 +88,12 @@ const findMany = async (
       findOptions.programmingPlanId
     )
     .modify((builder) => {
+      if (findOptions.prescriptionId) {
+        builder.where(
+          `${localPrescriptionsTable}.prescription_id`,
+          findOptions.prescriptionId
+        );
+      }
       if (findOptions.contexts) {
         builder.whereIn(`${prescriptionsTable}.context`, findOptions.contexts);
       }
@@ -103,6 +111,12 @@ const findMany = async (
             findOptions.department
           );
         }
+      }
+      if (findOptions.companySiret) {
+        builder.where(
+          `${localPrescriptionsTable}.company_siret`,
+          findOptions.companySiret
+        );
       }
       if (findOptions.programmingPlanKinds) {
         builder.whereIn(

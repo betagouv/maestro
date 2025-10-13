@@ -34,12 +34,14 @@ interface Props {
   programmingPlan: ProgrammingPlan;
   region?: Region;
   department?: Department;
+  companySiret?: string;
 }
 
 const ProgrammingPrescriptionList = ({
   programmingPlan,
   region,
   department,
+  companySiret,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -131,24 +133,42 @@ const ProgrammingPrescriptionList = ({
 
   const localPrescriptions = useMemo(
     () =>
-      data?.filter((_) =>
-        department
-          ? !isNil(_.department) && isNil(_.companySiret)
-          : isNil(_.department)
-      ),
-    [data, department]
+      data?.filter((_) => {
+        if (companySiret) {
+          return (
+            _.region === region &&
+            _.department === department &&
+            _.companySiret === companySiret
+          );
+        }
+        if (department) {
+          return (
+            _.region === region &&
+            _.department === department &&
+            isNil(_.companySiret)
+          );
+        }
+        return isNil(_.department);
+      }),
+    [data, department, region, companySiret]
   );
 
   const subLocalPrescriptions = useMemo(
     () =>
-      data?.filter(
-        (_) =>
-          _.region === region &&
-          (department
-            ? !isNil(_.department) && !isNil(_.companySiret)
-            : !isNil(_.department))
-      ),
-    [data, region, department]
+      data?.filter((_) => {
+        if (companySiret) {
+          return false;
+        }
+        if (department) {
+          return (
+            _.region === region &&
+            _.department === department &&
+            !isNil(_.companySiret)
+          );
+        }
+        return _.region === region && !isNil(_.department);
+      }),
+    [data, department, region, companySiret]
   );
 
   useEffect(() => {
@@ -260,6 +280,19 @@ const ProgrammingPrescriptionList = ({
     [changeLocalPrescription, region, programmingPlan]
   );
 
+  const hasGroupedUpdatePermission = useMemo(
+    () =>
+      programmingPlan.distributionKind === 'REGIONAL' &&
+      localPrescriptions?.some(
+        (regionalPrescription) =>
+          hasUserLocalPrescriptionPermission(
+            programmingPlan,
+            regionalPrescription
+          )?.updateLaboratories
+      ),
+    [programmingPlan, localPrescriptions, hasUserLocalPrescriptionPermission]
+  );
+
   return (
     <>
       <AppToast open={isAddSuccess} description="Matrice ajoutée" />
@@ -278,13 +311,7 @@ const ProgrammingPrescriptionList = ({
               localPrescriptions={localPrescriptions}
               subLocalPrescriptions={subLocalPrescriptions ?? []}
               exportURL={getPrescriptionsExportURL(findPrescriptionOptions)}
-              hasGroupedUpdatePermission={localPrescriptions.some(
-                (regionalPrescription) =>
-                  hasUserLocalPrescriptionPermission(
-                    programmingPlan,
-                    regionalPrescription
-                  )?.updateLaboratories
-              )}
+              hasGroupedUpdatePermission={hasGroupedUpdatePermission}
               selectedCount={selectedPrescriptions.length}
               onGroupedUpdate={async (laboratoryId) => {
                 await changeLocalPrescriptionsLaboratory(
@@ -372,15 +399,20 @@ const ProgrammingPrescriptionList = ({
                         isSelected={selectedPrescriptions.some(
                           (_) => _.id === prescription.id
                         )}
-                        onToggleSelection={() => {
-                          setSelectedPrescriptions((prevState) =>
-                            prevState.some((_) => _.id === prescription.id)
-                              ? prevState.filter(
-                                  (_) => _.id !== prescription.id
+                        onToggleSelection={
+                          hasGroupedUpdatePermission
+                            ? () =>
+                                setSelectedPrescriptions((prevState) =>
+                                  prevState.some(
+                                    (_) => _.id === prescription.id
+                                  )
+                                    ? prevState.filter(
+                                        (_) => _.id !== prescription.id
+                                      )
+                                    : [...prevState, prescription]
                                 )
-                              : [...prevState, prescription]
-                          );
-                        }}
+                            : undefined
+                        }
                       />
                     ))}
                 </div>

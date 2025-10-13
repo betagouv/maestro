@@ -17,11 +17,12 @@ export type LocalPrescriptionOptionsInclude = z.infer<
 
 export const FindLocalPrescriptionOptions = z.object({
   programmingPlanId: z.guid(),
+  prescriptionId: z.guid().nullish(),
   programmingPlanKinds: coerceToArray(z.array(ProgrammingPlanKind)).nullish(),
   contexts: coerceToArray(z.array(ProgrammingPlanContext)).nullish(),
   region: Region.nullish(),
   department: Department.nullish(),
-  companySiret: z.guid().nullish(),
+  companySiret: z.string().nullish(),
   includes: z
     .union([
       LocalPrescriptionOptionsInclude,

@@ -18,8 +18,8 @@ import {
   SampleContextData
 } from '../schema/Sample/Sample';
 import { SampleItem } from '../schema/Sample/SampleItem';
+import { DummyLaboratoryIds } from '../schema/User/User';
 import { CompanyFixture, genCompany } from './companyFixtures';
-import { LaboratoryFixture } from './laboratoryFixtures';
 import { PrescriptionFixture } from './prescriptionFixtures';
 import { PPVValidatedProgrammingPlanFixture } from './programmingPlanFixtures';
 import { oneOf } from './testFixtures';
@@ -97,7 +97,6 @@ export const genCreatedSample = (data?: Partial<Sample>): Sample => {
     matrixKind: sample.matrixKind as MatrixKind,
     matrix: sample.matrix as Matrix,
     prescriptionId: uuidv4(),
-    laboratoryId: uuidv4(),
     items: sample.items as SampleItem[],
     ownerAgreement: fakerFR.datatype.boolean(),
     ...data
@@ -111,6 +110,7 @@ export const genSampleItem = (data?: Partial<SampleItem>): SampleItem => ({
   compliance200263: fakerFR.datatype.boolean(),
   sealId: fakerFR.string.alphanumeric(32),
   recipientKind: 'Laboratory',
+  laboratoryId: oneOf(DummyLaboratoryIds),
   ...data
 });
 const Sample11FixtureId = '11111111-1111-1111-1111-111111111111';
@@ -150,7 +150,6 @@ export const Sample11Fixture = genCreatedPartialSample({
     cultureKind: 'PD07A',
     releaseControl: false
   },
-  laboratoryId: LaboratoryFixture.id,
   prescriptionId: PrescriptionFixture.id,
   sampledAt: new Date('2025-05-06'),
   items: [Sample1Item1Fixture]

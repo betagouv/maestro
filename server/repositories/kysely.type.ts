@@ -4,6 +4,7 @@
  */
 
 import { ColumnType, type Kysely } from 'kysely';
+import { Department } from 'maestro-shared/referential/Department';
 import { LaboratoryShortName } from 'maestro-shared/referential/Laboratory';
 import { type Region } from 'maestro-shared/referential/Region';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
@@ -225,9 +226,11 @@ export interface Users {
   name: string;
   id: Generated<string>;
   region: Region | null;
+  department: Department | null;
   role: UserRole;
   loggedSecrets: ColumnType<string[], string[] | null, string[]>;
   programmingPlanKinds: ProgrammingPlanKind[];
+  companySiret: string | null;
 }
 
 export interface SampleDocuments {

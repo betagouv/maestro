@@ -60,6 +60,10 @@ const LocalPrescriptionDepartmentalDistributionTable = ({
     [displayedPart, departmentList]
   );
 
+  if (start >= end) {
+    return <></>;
+  }
+
   return (
     <Table
       bordered={false}

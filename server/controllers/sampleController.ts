@@ -55,7 +55,6 @@ import {
   getAndCheckSample,
   getAndCheckSampleDepartement
 } from '../middlewares/checks/sampleCheck';
-import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
 import { ProtectedSubRouter } from '../routers/routes.type';
@@ -414,30 +413,18 @@ export const sampleRouter = {
               .then((_) => _?.[0])
           : undefined;
 
-      const localPrescription = prescription
-        ? await localPrescriptionRepository.findUnique({
-            prescriptionId: prescription.id,
-            region: sampleUpdate.region,
-            includes: 'laboratories'
-          })
-        : undefined;
-
       const prescriptionSubstances = prescription
         ? await prescriptionSubstanceRepository.findMany(prescription.id)
         : undefined;
 
       const prescriptionData: Pick<
         PartialSample,
-        'prescriptionId' | 'laboratoryId' | 'monoSubstances' | 'multiSubstances'
+        'prescriptionId' | 'monoSubstances' | 'multiSubstances'
       > =
         isProgrammingPlanSample(sampleUpdate) ||
         sample.context !== sampleUpdate.context
           ? {
               prescriptionId: prescription?.id || null,
-              laboratoryId:
-                localPrescription?.substanceKindsLaboratories?.find(
-                  (_) => _.substanceKind === 'Any'
-                )?.laboratoryId || null,
               monoSubstances:
                 prescriptionSubstances
                   ?.filter((substance) => substance.analysisMethod === 'Mono')
@@ -457,6 +444,13 @@ export const sampleRouter = {
       }
 
       if (sampleUpdate.items) {
+        // const localPrescription = prescription
+        //   ? await localPrescriptionRepository.findUnique({
+        //     prescriptionId: prescription.id,
+        //     region: sampleUpdate.region,
+        //     includes: 'laboratories'
+        //   })
+        //   : undefined;
         await sampleItemRepository.updateMany(sample.id, sampleUpdate.items);
       }
 
@@ -490,7 +484,7 @@ export const sampleRouter = {
 
             if (sampleItem.itemNumber === 1) {
               const laboratory = (await laboratoryRepository.findUnique(
-                updatedSample.laboratoryId as string
+                sampleItem.laboratoryId as string
               )) as Laboratory;
 
               const establishment = {

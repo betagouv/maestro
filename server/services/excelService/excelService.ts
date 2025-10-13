@@ -139,7 +139,7 @@ const optionalBooleanToString = (
 const generateSamplesExportExcel = async (
   samples: PartialSample[]
 ): Promise<Buffer> => {
-  const laboratories = await laboratoryRepository.findMany();
+  // const laboratories = await laboratoryRepository.findMany();
 
   return highland(samples)
     .flatMap((sample) =>
@@ -206,10 +206,11 @@ const generateSamplesExportExcel = async (
             [`recipient${index + 1}`]:
               item.recipientKind &&
               (item.recipientKind === 'Laboratory'
-                ? 'Laboratoire ' +
-                  laboratories.find((lab) => lab.id === sample.laboratoryId)
-                    ?.name
-                : SampleItemRecipientKindLabels[item.recipientKind]),
+                ? 'Laboratoire '
+                : // + TODO
+                  // laboratories.find((lab) => lab.id === sample.laboratoryId)
+                  //   ?.name
+                  SampleItemRecipientKindLabels[item.recipientKind]),
             [`compliance200263${index + 1}`]: item.compliance200263
               ? 'Oui'
               : 'Non'

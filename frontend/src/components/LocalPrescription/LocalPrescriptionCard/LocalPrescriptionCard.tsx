@@ -4,19 +4,18 @@ import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { sumBy } from 'lodash-es';
+import { isNil, sumBy } from 'lodash-es';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { isDefined } from 'maestro-shared/utils/utils';
-import { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { pluralize } from 'src/utils/stringUtils';
 import { useAppDispatch } from '../../../hooks/useStore';
-import { ApiClientContext } from '../../../services/apiClient';
 import prescriptionsSlice from '../../../store/reducers/prescriptionsSlice';
 import PrescriptionBreadcrumb from '../../Prescription/PrescriptionBreadcrumb/PrescriptionBreadcrumb';
 
@@ -37,12 +36,9 @@ const LocalPrescriptionCard = ({
   isSelected,
   onToggleSelection
 }: Props) => {
-  const apiClient = useContext(ApiClientContext);
   const dispatch = useAppDispatch();
   const { hasUserLocalPrescriptionPermission, hasUserPermission } =
     useAuthentication();
-
-  const { data: laboratories } = apiClient.useFindLaboratoriesQuery();
 
   const getComments = useCallback((localPrescription: LocalPrescription) => {
     return localPrescription?.comments || [];
@@ -54,10 +50,14 @@ const LocalPrescriptionCard = ({
     [subLocalPrescriptions]
   );
 
-  const currentLaboratory = laboratories?.find(
-    (laboratory) =>
-      laboratory.id ===
-      localPrescription?.substanceKindsLaboratories?.[0]?.laboratoryId
+  const hasEmptySubstanceKindsLaboratory = useMemo(
+    () =>
+      !localPrescription?.substanceKindsLaboratories ||
+      localPrescription?.substanceKindsLaboratories.length === 0 ||
+      localPrescription.substanceKindsLaboratories?.some((_) =>
+        isNil(_.laboratoryId)
+      ),
+    [localPrescription]
   );
 
   const buttons = useMemo(
@@ -102,7 +102,7 @@ const LocalPrescriptionCard = ({
                   children: (
                     <span className="no-wrap">
                       {subLocalPrescriptionsWithSamplesCount === 0
-                        ? 'Répartir entre abatoirs'
+                        ? 'Répartir entre abattoirs'
                         : pluralize(subLocalPrescriptionsWithSamplesCount, {
                             preserveCount: true
                           })('abattoir sélectionné')}
@@ -130,9 +130,18 @@ const LocalPrescriptionCard = ({
               ? {
                   children: (
                     <span className="no-wrap">
-                      {currentLaboratory
-                        ? `Laboratoire ${currentLaboratory.name}`
-                        : 'Attribuer un laboratoire'}
+                      {hasEmptySubstanceKindsLaboratory
+                        ? `Attribuer ${pluralize(
+                            localPrescription?.substanceKindsLaboratories
+                              ?.length ?? 0
+                          )('le laboratoire')}`
+                        : pluralize(
+                            localPrescription?.substanceKindsLaboratories
+                              ?.length ?? 0,
+                            {
+                              preserveCount: true
+                            }
+                          )('laboratoire sélectionné')}
                     </span>
                   ),
                   priority: 'tertiary no outline',
@@ -145,9 +154,9 @@ const LocalPrescriptionCard = ({
                         localPrescription
                       })
                     ),
-                  iconId: currentLaboratory
-                    ? undefined
-                    : 'fr-icon-microscope-line',
+                  iconId: hasEmptySubstanceKindsLaboratory
+                    ? 'fr-icon-microscope-line'
+                    : 'fr-icon-checkbox-line',
                   className: cx('fr-m-0'),
                   nativeButtonProps: {
                     'data-testid': 'update-laboratory-button'
@@ -201,7 +210,6 @@ const LocalPrescriptionCard = ({
       programmingPlan,
       prescription,
       localPrescription,
-      currentLaboratory,
       subLocalPrescriptions,
       subLocalPrescriptionsWithSamplesCount
     ]
@@ -226,10 +234,7 @@ const LocalPrescriptionCard = ({
                   programmingPlan={programmingPlan}
                 />
               </div>
-              {hasUserLocalPrescriptionPermission(
-                programmingPlan,
-                localPrescription
-              )?.updateLaboratories && (
+              {onToggleSelection && (
                 <Checkbox
                   options={[
                     {

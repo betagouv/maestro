@@ -17,9 +17,36 @@ const findUnique = async (
 
   return kysely
     .selectFrom('users')
-    .selectAll()
+    .leftJoin('companies', 'users.companySiret', 'companies.siret')
     .where('id', '=', userId)
-    .executeTakeFirst();
+    .select([
+      'users.id',
+      'users.email',
+      'users.name',
+      'users.role',
+      'users.region',
+      'users.department',
+      'users.loggedSecrets',
+      'users.programmingPlanKinds',
+      'companies.siret as companySiret',
+      'companies.name as companyName'
+    ])
+    .executeTakeFirst()
+    .then((user) =>
+      user
+        ? {
+            ...User.parse(user),
+            loggedSecrets: user.loggedSecrets ?? [],
+            company:
+              user.companySiret && user.companyName
+                ? {
+                    siret: user.companySiret,
+                    name: user.companyName
+                  }
+                : null
+          }
+        : undefined
+    );
 };
 
 const findOne = async (email: string): Promise<User | undefined> => {

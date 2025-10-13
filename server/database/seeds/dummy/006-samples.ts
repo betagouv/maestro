@@ -1,7 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { Region, Regions } from 'maestro-shared/referential/Region';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
-import { DummyLaboratoryIds } from 'maestro-shared/schema/User/User';
 import { PPVValidatedProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
 import { genCreatedSample } from 'maestro-shared/test/sampleFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
@@ -22,7 +21,7 @@ import {
   fevesDeSoja,
   lentilles,
   oignons
-} from './004-prescriptions-ppv';
+} from './005-prescriptions-ppv';
 
 export const seed = async function () {
   const validatedProgrammingPlan = await ProgrammingPlans()
@@ -54,7 +53,6 @@ export const seed = async function () {
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
           prescriptionId: abricotsEtSimilaires.id,
-          laboratoryId: oneOf(DummyLaboratoryIds),
           region: sampler.region as Region
         }),
       { count: 2 }
@@ -71,7 +69,6 @@ export const seed = async function () {
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
           prescriptionId: avoineEtSimilaires.id,
-          laboratoryId: oneOf(DummyLaboratoryIds),
           region: sampler.region as Region
         }),
       { count: 8 }
@@ -88,7 +85,6 @@ export const seed = async function () {
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
           prescriptionId: carottes.id,
-          laboratoryId: oneOf(DummyLaboratoryIds),
           region: sampler.region as Region
         }),
       { count: 3 }
@@ -105,7 +101,6 @@ export const seed = async function () {
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
           prescriptionId: cerisesEtSimilaires.id,
-          laboratoryId: oneOf(DummyLaboratoryIds),
           region: sampler.region as Region
         }),
       { count: 4 }
@@ -122,7 +117,6 @@ export const seed = async function () {
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
           prescriptionId: oignons.id,
-          laboratoryId: oneOf(DummyLaboratoryIds),
           region: sampler.region as Region
         }),
       { count: 7 }
@@ -139,7 +133,6 @@ export const seed = async function () {
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
           prescriptionId: lentilles.id,
-          laboratoryId: oneOf(DummyLaboratoryIds),
           region: sampler.region as Region
         }),
       { count: 6 }
@@ -156,7 +149,6 @@ export const seed = async function () {
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
           prescriptionId: fevesDeSoja.id,
-          laboratoryId: oneOf(DummyLaboratoryIds),
           region: sampler.region as Region
         }),
       { count: 6 }

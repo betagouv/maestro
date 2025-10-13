@@ -10,7 +10,6 @@ import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/Programmi
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { forwardRef, useContext, useImperativeHandle, useState } from 'react';
 import { ApiClientContext } from '../../../services/apiClient';
-import { pluralize } from '../../../utils/stringUtils';
 
 interface Props {
   programmingPlan: ProgrammingPlan;
@@ -58,21 +57,22 @@ const LocalPrescriptionSubstanceKindsLaboratories = forwardRef<
   return (
     <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
       <div className={cx('fr-col-12')}>
-        Définissez{' '}
-        {pluralize(substanceKindsLaboratories.length)(
-          'le laboratoire destinataire'
-        )}{' '}
-        des prélèvements
+        Définissez le laboratoire destinataire des prélèvements
+        {substanceKindsLaboratories.length > 1 && <>par type d’analyse</>}
       </div>
       {[...substanceKindsLaboratories]
         .sort(SubstanceKindLaboratorySort)
-        .map((substanceKindLaboratory) => (
+        .map((substanceKindLaboratory, index) => (
           <div
             className={cx('fr-col-12')}
             key={`substanceKindLaboratory_${localPrescription.prescriptionId}_${substanceKindLaboratory.substanceKind}`}
           >
+            {index > 0 && <hr className={cx('fr-mb-2w')} />}
+            <div className={cx('fr-text--bold', 'fr-mb-2w')}>
+              {SubstanceKindLabels[substanceKindLaboratory.substanceKind]}
+            </div>
             <Select
-              label={SubstanceKindLabels[substanceKindLaboratory.substanceKind]}
+              label="Laboratoire"
               nativeSelectProps={{
                 value: substanceKindLaboratory.laboratoryId ?? '',
                 autoFocus: true,

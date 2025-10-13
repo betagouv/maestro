@@ -8,6 +8,7 @@ import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { forwardRef, useImperativeHandle, useMemo, useState } from 'react';
 import { pluralize } from '../../../utils/stringUtils';
+import PrescriptionProgrammingInstruction from '../../Prescription/PrescriptionProgrammingInstruction/PrescriptionProgrammingInstruction';
 import LocalPrescriptionDepartmentalDistributionTable from './LocalPrescriptionDepartmentalDistributionTable';
 
 interface Props {
@@ -64,8 +65,8 @@ const LocalPrescriptionDepartmentalDistribution = forwardRef<
           {regionalPrescription.sampleCount - distributedSampleCount} à assigner
         </Badge>
       </div>
+      <div className={cx('fr-mb-2w')}>Départements</div>
       <div>
-        Départements
         <LocalPrescriptionDepartmentalDistributionTable
           programmingPlan={programmingPlan}
           prescription={prescription}
@@ -83,6 +84,10 @@ const LocalPrescriptionDepartmentalDistribution = forwardRef<
           displayedPart="second"
         />
       </div>
+      <PrescriptionProgrammingInstruction
+        programmingPlan={programmingPlan}
+        value={prescription.programmingInstruction}
+      />
     </>
   );
 });
