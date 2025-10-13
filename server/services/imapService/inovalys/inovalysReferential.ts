@@ -107,6 +107,7 @@ export const inovalysReferential: Record<string, SSD2Id> = {
   '· Acide phosphoreux (= ac. phosphonique)': 'RF-00004675-PAR',
   '· Fosetyl Al': 'RF-1059-001-PPP',
   'Fosetyl (+ ac. phosphoreux)': 'RF-0225-001-PPP',
+  Fosetyl: 'RF-1059-001-PPP',
   '· TFNA': 'RF-00003348-PAR',
   '· TFNG': 'RF-00003349-PAR',
   'TFNA-AM': 'RF-00003347-PAR',

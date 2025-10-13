@@ -156,6 +156,7 @@ export const SandreToSSD2: Record<string, SSD2Id> = {
   '1797': 'RF-0301-001-PPP',
   '1807': 'RF-0020-004-PPP',
   '1809': 'RF-0690-004-PPP',
+  '1816': 'RF-1059-001-PPP',
   '1830': 'RF-0480-001-PPP',
   '1831': 'RF-0896-001-PPP',
   '1833': 'RF-0235-003-PPP',
