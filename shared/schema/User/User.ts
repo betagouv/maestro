@@ -14,7 +14,7 @@ import {
 const BaseUser = z.object({
   id: z.guid(),
   email: z.email({ error: 'Veuillez renseigner un email valide.' }),
-  name: z.string(),
+  name: z.string().nullable(),
   programmingPlanKinds: z.array(ProgrammingPlanKind),
   role: UserRole,
   region: Region.nullable()

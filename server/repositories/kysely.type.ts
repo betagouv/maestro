@@ -222,7 +222,7 @@ export interface SampleSequenceNumbers {
 
 export interface Users {
   email: string;
-  name: string;
+  name: string | null;
   id: Generated<string>;
   region: Region | null;
   role: UserRole;

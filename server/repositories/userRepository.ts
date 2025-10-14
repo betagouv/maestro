@@ -35,7 +35,7 @@ const findOne = async (email: string): Promise<User | undefined> => {
 
 const findMany = async (findOptions: FindUserOptions): Promise<User[]> => {
   console.log('Find users', findOptions);
-  let query = kysely.selectFrom('users').selectAll();
+  let query = kysely.selectFrom('users').selectAll().orderBy('name');
 
   for (const option of FindUserOptions.keyof().options) {
     switch (option) {
@@ -62,10 +62,7 @@ const findMany = async (findOptions: FindUserOptions): Promise<User[]> => {
 const insert = async (
   user: Omit<KyselyUser, 'id' | 'loggedSecrets' | 'name'>
 ): Promise<void> => {
-  await kysely
-    .insertInto('users')
-    .values({ ...user, name: '-' })
-    .execute();
+  await kysely.insertInto('users').values(user).execute();
 };
 
 const update = async (

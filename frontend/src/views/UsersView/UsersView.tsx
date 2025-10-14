@@ -2,7 +2,8 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
-import { useContext } from 'react';
+import { User } from 'maestro-shared/schema/User/User';
+import { useContext, useState } from 'react';
 import usersSvg from 'src/assets/illustrations/users.svg';
 import SectionHeader from '../../components/SectionHeader/SectionHeader';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
@@ -21,6 +22,12 @@ export const UsersView = () => {
   const apiClient = useContext(ApiClientContext);
 
   const { data: users } = apiClient.useFindUsersQuery({});
+  const [userToUpdate, setUserToUpdate] = useState<null | User>(null);
+
+  const onEdit = (userToEdit: User) => {
+    setUserToUpdate(userToEdit);
+    userFormModal.open();
+  };
 
   return (
     <>
@@ -32,6 +39,7 @@ export const UsersView = () => {
           action={
             <Button
               onClick={() => {
+                setUserToUpdate(null);
                 userFormModal.open();
               }}
               iconId="fr-icon-microscope-line"
@@ -58,13 +66,13 @@ export const UsersView = () => {
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             {users?.map((user) => (
               <div className={cx('fr-col-12', 'fr-col-md-4')} key={user.id}>
-                <UserCard user={user} />
+                <UserCard user={user} onEdit={() => onEdit(user)} />
               </div>
             ))}
           </div>
         </div>
       </section>
-      <UserModal modal={userFormModal} />
+      <UserModal modal={userFormModal} userToUpdate={userToUpdate} />
     </>
   );
 };
