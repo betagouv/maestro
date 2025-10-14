@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { SubstanceKind } from '../Substance/SubstanceKind';
 
 export const ProgrammingPlanKind = z.enum(
   ['PPV', 'PFAS_EGGS', 'PFAS_MEAT', 'DAOA_BREEDING', 'DAOA_SLAUGHTER'],
@@ -19,15 +18,4 @@ export const ProgrammingPlanKindLabels: Record<ProgrammingPlanKind, string> = {
   PFAS_MEAT: 'Produit carné à l’abattoir',
   DAOA_BREEDING: 'Abattoir / Viande de volaille',
   DAOA_SLAUGHTER: 'Abattoir / Foie de bovin'
-};
-
-export const ProgrammingPlanKindSubstanceKinds: Record<
-  ProgrammingPlanKind,
-  SubstanceKind[]
-> = {
-  PPV: ['Any'],
-  PFAS_EGGS: ['Any'],
-  PFAS_MEAT: ['Any'],
-  DAOA_BREEDING: ['Mono', 'Multi', 'Copper'],
-  DAOA_SLAUGHTER: ['Mono', 'Multi', 'Copper']
 };
