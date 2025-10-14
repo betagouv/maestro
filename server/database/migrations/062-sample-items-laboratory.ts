@@ -54,7 +54,7 @@ export const down = async (knex: Knex) => {
       laboratory_id: knex.ref('sample_items.laboratory_id')
     });
 
-  await knex('sample_items').whereRaw('copy_number > 1').delete();
+  await knex('sample_items').whereRaw('item_number > 1').delete();
   await knex('sample_items').update({
     item_number: knex.ref('copy_number')
   });
