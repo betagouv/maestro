@@ -7,7 +7,12 @@ import {
   getLaboratoryFullName,
   Laboratory
 } from 'maestro-shared/schema/Laboratory/Laboratory';
+import {
+  SubstanceKind,
+  SubstanceKindLabels
+} from 'maestro-shared/schema/Substance/SubstanceKind';
 import React, { useState } from 'react';
+import { pluralize } from '../../../../utils/stringUtils';
 interface Props {
   modal: {
     buttonProps: {
@@ -22,11 +27,18 @@ interface Props {
     isOpenedByDefault: boolean;
     id: string;
   };
-  laboratory: Laboratory;
+  substanceKindsLaboratories: {
+    substanceKind: SubstanceKind;
+    laboratory: Laboratory;
+  }[];
   onConfirm: () => Promise<void>;
 }
 
-const SendingModal = ({ modal, laboratory, onConfirm }: Props) => {
+const SendingModal = ({
+  modal,
+  substanceKindsLaboratories,
+  onConfirm
+}: Props) => {
   const [isConfirmationPending, setIsConfirmationPending] = useState(false);
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
@@ -39,7 +51,12 @@ const SendingModal = ({ modal, laboratory, onConfirm }: Props) => {
 
   return (
     <modal.Component
-      title="Vous vous apprêtez à envoyer un prélèvement"
+      title={`Vous vous apprêtez à envoyer ${pluralize(
+        substanceKindsLaboratories.length,
+        {
+          preserveCount: true
+        }
+      )('prélèvement')}`}
       concealingBackdrop={false}
       topAnchor
       buttons={[
@@ -56,32 +73,46 @@ const SendingModal = ({ modal, laboratory, onConfirm }: Props) => {
         }
       ]}
     >
-      La demande d’analyse va être envoyée au laboratoire{' '}
-      <b>{getLaboratoryFullName(laboratory)}</b> par e-mail à{' '}
-      {laboratory.emails.map((email, index) => (
-        <span key={`email-${index}`}>
-          <b>{email}</b>
-          {index < laboratory.emails.length - 1 ? ', ' : ''}
-        </span>
+      {substanceKindsLaboratories.map((substanceKindLaboratory, index) => (
+        <div key={substanceKindLaboratory.substanceKind}>
+          {index > 0 && <hr className={cx('fr-my-2w')} />}
+          La demande d’
+          {SubstanceKindLabels[
+            substanceKindLaboratory.substanceKind
+          ].toLowerCase()}{' '}
+          va être envoyée au laboratoire{' '}
+          <b>{getLaboratoryFullName(substanceKindLaboratory.laboratory)}</b> par
+          e-mail à{' '}
+          {substanceKindLaboratory.laboratory.emails.map((email, index) => (
+            <span key={`email-${index}`}>
+              <b>{email}</b>
+              {index < substanceKindLaboratory.laboratory.emails.length - 1
+                ? ', '
+                : ''}
+            </span>
+          ))}
+          .
+          {!(LaboratoryWithAutomation as string[]).includes(
+            substanceKindLaboratory.laboratory.shortName
+          ) && (
+            <Alert
+              className={cx('fr-mt-2w')}
+              severity="info"
+              small={true}
+              description={
+                <>
+                  Le processus d’automatisation est en cours pour le laboratoire{' '}
+                  <b>
+                    {getLaboratoryFullName(substanceKindLaboratory.laboratory)}
+                  </b>
+                  . Les résultats d’analyses restent à renseigner manuellement
+                  pour le moment dans {Brand}.
+                </>
+              }
+            />
+          )}
+        </div>
       ))}
-      .
-      {!(LaboratoryWithAutomation as string[]).includes(
-        laboratory.shortName
-      ) && (
-        <Alert
-          className={cx('fr-mt-2w')}
-          severity="info"
-          small={true}
-          description={
-            <>
-              Le processus d’automatisation est en cours pour le laboratoire{' '}
-              <b>{getLaboratoryFullName(laboratory)}</b>. Les résultats
-              d’analyses restent à renseigner manuellement pour le moment dans{' '}
-              {Brand}.
-            </>
-          }
-        />
-      )}
     </modal.Component>
   );
 };

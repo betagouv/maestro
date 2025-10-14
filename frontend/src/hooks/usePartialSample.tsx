@@ -3,7 +3,7 @@ import {
   PartialSample,
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import { useContext, useEffect, useMemo } from 'react';
+import { useCallback, useContext, useEffect, useMemo } from 'react';
 import { ApiClientContext } from '../services/apiClient';
 import programmingPlanSlice from '../store/reducers/programmingPlanSlice';
 import { useAuthentication } from './useAuthentication';
@@ -29,6 +29,10 @@ export const usePartialSample = (
     }
   );
 
+  const { data: laboratories } = apiClient.useFindLaboratoriesQuery(undefined, {
+    skip: (partialSample?.items ?? []).length === 0
+  });
+
   useEffect(() => {
     if (programmingPlan) {
       dispatch(
@@ -45,10 +49,22 @@ export const usePartialSample = (
     [hasUserPermission, partialSample, user?.region]
   );
 
-  const laboratory = null; //TODO à supprimer
+  const getSampleItemLaboratory = useCallback(
+    (itemNumber: number) => {
+      const item = partialSample?.items?.find(
+        (item) => item.itemNumber === itemNumber && item.copyNumber === 1
+      );
+      return item?.laboratoryId
+        ? (laboratories ?? []).find(
+            (laboratory) => laboratory.id === item.laboratoryId
+          )
+        : undefined;
+    },
+    [partialSample, laboratories]
+  );
 
   return {
     readonly,
-    laboratory
+    getSampleItemLaboratory
   };
 };

@@ -21,8 +21,6 @@ import {
   SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 
-import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
-import { usePartialSample } from 'src/hooks/usePartialSample';
 import { pluralize, quote } from 'src/utils/stringUtils';
 import StepSummary from 'src/views/SampleView/StepSummary/StepSummary';
 import SampleDocument from '../../../components/SampleDocument/SampleDocument';
@@ -32,8 +30,6 @@ interface Props {
   showLabel?: boolean;
 }
 const MatrixStepSummary = ({ sample, showLabel }: Props) => {
-  const { laboratory } = usePartialSample(sample);
-
   return (
     <StepSummary
       label={
@@ -164,17 +160,6 @@ const MatrixStepSummary = ({ sample, showLabel }: Props) => {
             </div>
           </div>
         )}
-      <div className="summary-item icon-text">
-        <div className={cx('fr-icon-mental-health-line')}></div>
-        <div>
-          Laboratoire destinataire :{' '}
-          {laboratory ? (
-            <b>{getLaboratoryFullName(laboratory)}</b>
-          ) : (
-            <span className="missing-data">Information non disponible</span>
-          )}
-        </div>
-      </div>
       {sample.specificData.programmingPlanKind === 'PPV' && (
         <>
           {isProgrammingPlanSample(sample) &&

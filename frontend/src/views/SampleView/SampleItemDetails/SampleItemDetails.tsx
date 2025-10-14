@@ -37,6 +37,7 @@ import {
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { UseForm, useForm } from 'src/hooks/useForm';
 import { z } from 'zod';
+import { usePartialSample } from '../../../hooks/usePartialSample';
 import useWindowSize from '../../../hooks/useWindowSize';
 import { ApiClientContext } from '../../../services/apiClient';
 
@@ -72,6 +73,8 @@ const SampleItemDetails = ({
   const fakeForm = useForm(Form, {
     items: []
   });
+
+  const { getSampleItemLaboratory } = usePartialSample(partialSample);
 
   const form = itemsForm ?? fakeForm;
   // const FormRefinement = Form.check(uniqueSampleItemSealIdCheck).check(
@@ -202,9 +205,7 @@ const SampleItemDetails = ({
                   {item.laboratoryId ? (
                     <b>
                       {getLaboratoryFullName(
-                        laboratories?.find(
-                          (lab) => lab.id === item.laboratoryId
-                        )
+                        getSampleItemLaboratory(item.itemNumber)
                       )}
                     </b>
                   ) : (

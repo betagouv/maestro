@@ -25,7 +25,7 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
   const apiClient = useContext(ApiClientContext);
   const { hasUserPermission } = useAuthentication();
 
-  const { laboratory } = usePartialSample(sample);
+  const { getSampleItemLaboratory } = usePartialSample(sample);
   const { navigateToSample } = useSamplesLink();
   const [updateSample, { isSuccess: isSendingSuccess }] =
     apiClient.useUpdateSampleMutation({
@@ -52,11 +52,26 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
 
   return (
     <div>
-      {isSendingSuccess && laboratory && sample.status !== 'InReview' && (
+      {isSendingSuccess && sample.status !== 'InReview' && (
         <Alert
           severity="info"
           small
-          description={`Votre demande d’analyse a bien été transmise au laboratoire ${getLaboratoryFullName(laboratory)} par e-mail.`}
+          description={
+            <>
+              Votre demande d’analyse a bien été transmise par email{' '}
+              <ul>
+                {sample.items
+                  .filter((item) => item.copyNumber === 1)
+                  .map((item) => (
+                    <li key={item.itemNumber}>
+                      {getLaboratoryFullName(
+                        getSampleItemLaboratory(item.itemNumber)
+                      )}
+                    </li>
+                  ))}
+              </ul>
+            </>
+          }
           className={cx('fr-mb-4w')}
         />
       )}
