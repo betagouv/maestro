@@ -122,19 +122,16 @@ const MatrixStep = ({ partialSample }: Props) => {
       region: isCreatedPartialSample(partialSample)
         ? partialSample.region
         : user?.region,
-      department:
-        (programmingPlan as ProgrammingPlan).distributionKind ===
-        'SLAUGHTERHOUSE'
-          ? partialSample.department
-          : undefined,
-      companySiret:
-        (programmingPlan as ProgrammingPlan).distributionKind ===
-        'SLAUGHTERHOUSE'
-          ? partialSample.company?.siret
-          : undefined
+      ...((programmingPlan as ProgrammingPlan).distributionKind ===
+      'SLAUGHTERHOUSE'
+        ? {
+            department: partialSample.department,
+            companySiret: partialSample.company?.siret
+          }
+        : {})
     },
     {
-      skip: !partialSample.programmingPlanId
+      skip: !programmingPlan || !isProgrammingPlanSample(partialSample)
     }
   );
 

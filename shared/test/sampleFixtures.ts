@@ -18,6 +18,7 @@ import {
   SampleContextData
 } from '../schema/Sample/Sample';
 import { SampleItem } from '../schema/Sample/SampleItem';
+import { SubstanceKindList } from '../schema/Substance/SubstanceKind';
 import { DummyLaboratoryIds } from '../schema/User/User';
 import { CompanyFixture, genCompany } from './companyFixtures';
 import { PrescriptionFixture } from './prescriptionFixtures';
@@ -84,7 +85,7 @@ export const genCreatedPartialSample = (
       releaseControl: fakerFR.datatype.boolean()
     },
     sampledAt: new Date(),
-    items: [genSampleItem({ sampleId: contextData.id, itemNumber: 1 })],
+    items: [genSampleItem({ sampleId: contextData.id, copyNumber: 1 })],
     ...data
   };
 };
@@ -104,19 +105,21 @@ export const genCreatedSample = (data?: Partial<Sample>): Sample => {
 };
 export const genSampleItem = (data?: Partial<SampleItem>): SampleItem => ({
   sampleId: uuidv4(),
-  itemNumber: fakerFR.number.int(99),
+  itemNumber: 1,
+  copyNumber: 1,
   quantity: fakerFR.number.int(999),
   quantityUnit: oneOf(QuantityUnitList),
   compliance200263: fakerFR.datatype.boolean(),
   sealId: fakerFR.string.alphanumeric(32),
   recipientKind: 'Laboratory',
   laboratoryId: oneOf(DummyLaboratoryIds),
+  substanceKind: oneOf(SubstanceKindList),
   ...data
 });
 const Sample11FixtureId = '11111111-1111-1111-1111-111111111111';
 export const Sample1Item1Fixture = genSampleItem({
   sampleId: Sample11FixtureId,
-  itemNumber: 1,
+  copyNumber: 1,
   quantity: 534,
   quantityUnit: 'G185A',
   compliance200263: true,

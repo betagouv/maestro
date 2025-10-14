@@ -179,7 +179,8 @@ const generateSampleSupportPDF = async (
     .fill(null)
     .map((_, index) => ({
       sampleId: sample.id,
-      itemNumber: index + 1
+      itemNumber: 1,
+      copyNumber: index + 1
     }));
 
   const sampleDocuments = await documentRepository.findMany({
@@ -195,7 +196,8 @@ const generateSampleSupportPDF = async (
         quantityUnit: sampleItem?.quantityUnit
           ? QuantityUnitLabels[sampleItem.quantityUnit]
           : '',
-        currentItem: sampleItem.itemNumber === itemNumber
+        currentItem:
+          sampleItem.itemNumber === itemNumber && sampleItem.copyNumber === 1
       })
     ),
     itemNumber,
@@ -215,7 +217,7 @@ const generateSampleSupportPDF = async (
     multiSubstances: sample.multiSubstances?.map(
       (substance) => SSD2IdLabel[substance]
     ),
-    reference: [sample.reference, itemNumber]
+    reference: [sample.reference, itemNumber] //TODO
       .filter(isDefinedAndNotNull)
       .join('-'),
     ...(sample.sampledAt

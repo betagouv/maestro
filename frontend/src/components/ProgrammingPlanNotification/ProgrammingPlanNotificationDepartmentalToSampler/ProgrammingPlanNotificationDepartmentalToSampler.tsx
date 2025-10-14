@@ -127,12 +127,13 @@ const ProgrammingPlanNotificationDepartmentalToSampler = ({
         ]}
       >
         <div>
-          Vous êtes sur le point de signaler à la coordination régionale que
-          vous avez terminé la phase de consultation et de paramètrage de la
-          programmation {programmingPlan.year}.
+          Vous êtes sur le point de signaler aux préleveurs des abattoirs ciblés
+          le lancement de la campagne de prélèvements pour l'année
+          {programmingPlan.year}.
           <br />
-          Les abattoirs ciblés seront également notifier de la future
-          programmation de prélèvements.
+          La coordination régionale sera également notifiée que vous avez
+          terminé la phase de consultation et de paramètrage de la future
+          programmation.
         </div>
         {isError && (
           <Alert

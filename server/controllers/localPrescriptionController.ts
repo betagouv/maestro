@@ -34,13 +34,10 @@ export const localPrescriptionsRouter = {
         ? queryFindOptions.department
         : user.department;
 
-      const companySiret = user.company?.siret ?? queryFindOptions.companySiret;
-
       const findOptions = {
         ...queryFindOptions,
         region,
-        department,
-        companySiret
+        department
       };
 
       console.info('Find local prescriptions', user.id, findOptions);
@@ -63,7 +60,7 @@ export const localPrescriptionsRouter = {
                     _.sampleCount > 0
                 );
           }
-          if (isNil(companySiret)) {
+          if (isNil(queryFindOptions.companySiret)) {
             return isNil(localPrescription.companySiret)
               ? localPrescription.sampleCount > 0
               : localPrescriptions.some(

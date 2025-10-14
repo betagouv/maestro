@@ -2,11 +2,13 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { QuantityUnitList } from 'maestro-shared/referential/QuantityUnit';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
+import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
 import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   genCreatedSampleData,
-  genSampleContextData
+  genSampleContextData,
+  genSampleItem
 } from 'maestro-shared/test/sampleFixtures';
 import { genAuthUser, Sampler1Fixture } from 'maestro-shared/test/userFixtures';
 import { expect, fn, userEvent, within } from 'storybook/test';
@@ -43,7 +45,8 @@ const partialSample = {
   prescriptionId: prescription1.id,
   programmingPlanId: programmingPlan.id,
   status: 'DraftItems' as const,
-  sampledAt: new Date()
+  sampledAt: new Date(),
+  items: [genSampleItem()]
 };
 
 export const OneItem: Story = {
@@ -142,8 +145,8 @@ export const RemoveItem: Story = {
 export const SubmittingErrors: Story = {
   args: {
     partialSample: {
-      ...genSampleContextData(),
-      ...genCreatedSampleData(),
+      ...partialSample,
+      items: [{}],
       status: 'DraftItems' as const
     } as Sample
   },
@@ -188,11 +191,14 @@ export const SubmittingSuccess: Story = {
         {
           sampleId: sampleContextData.id,
           itemNumber: 1,
+          copyNumber: 1,
           quantity: 1,
           quantityUnit: QuantityUnitList[0],
           sealId: '12a',
           recipientKind: 'Laboratory',
-          compliance200263: false
+          compliance200263: false,
+          laboratoryId: LaboratoryFixture.id,
+          substanceKind: 'Any'
         }
       ]
     } as Sample
@@ -236,7 +242,9 @@ export const SubmittingSuccess: Story = {
             sealId: '12a',
             quantityUnit: QuantityUnitList[0],
             recipientKind: 'Laboratory',
-            compliance200263: false
+            compliance200263: false,
+            laboratoryId: LaboratoryFixture.id,
+            substanceKind: 'Any'
           })
         ]),
         status: 'Submitted'

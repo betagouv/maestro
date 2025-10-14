@@ -20,7 +20,7 @@ type Props = {
 const SupportDocumentSelect = ({ label, sample, renderButtons }: Props) => {
   const { openDocument } = useDocument();
 
-  const [selectedItemNumber, setSelectedItemNumber] = useState(1);
+  const [selectedCopyNumber, setSelectedCopyNumber] = useState(1);
 
   if (sample.items.length === 0) {
     return <></>;
@@ -30,7 +30,7 @@ const SupportDocumentSelect = ({ label, sample, renderButtons }: Props) => {
     if (sampleItem.supportDocumentId) {
       await openDocument(sampleItem.supportDocumentId);
     } else {
-      window.open(getSupportDocumentURL(sample.id, sampleItem.itemNumber));
+      window.open(getSupportDocumentURL(sample.id, sampleItem.copyNumber));
     }
   };
 
@@ -48,21 +48,21 @@ const SupportDocumentSelect = ({ label, sample, renderButtons }: Props) => {
         label={label ?? "Document d'accompagnement"}
         nativeSelectProps={{
           onChange: (event) =>
-            setSelectedItemNumber(Number(event.target.value)),
-          value: selectedItemNumber
+            setSelectedCopyNumber(Number(event.target.value)),
+          value: selectedCopyNumber
         }}
       >
         {sample.items.map((item) => (
           <option
-            key={`sample-item-${item.itemNumber}`}
-            value={item.itemNumber}
-            label={`Echantillon n°${item.itemNumber}`}
+            key={`sample-item-${item.itemNumber}-${item.copyNumber}`}
+            value={item.copyNumber}
+            label={`Echantillon n°${item.copyNumber}`}
           >
-            {item.itemNumber}
+            {item.copyNumber}
           </option>
         ))}
       </Select>
-      {renderButtons(() => getDocument(sample.items[selectedItemNumber - 1]))}
+      {renderButtons(() => getDocument(sample.items[selectedCopyNumber - 1]))}
     </div>
   );
 };

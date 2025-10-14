@@ -21,6 +21,10 @@ import {
   SampleItemRecipientKind,
   SampleItemRecipientKindLabels
 } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
+import {
+  SubstanceKind,
+  SubstanceKindLabels
+} from 'maestro-shared/schema/Substance/SubstanceKind';
 import React, { useContext, useMemo } from 'react';
 import { Link } from 'react-router';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
@@ -44,8 +48,8 @@ interface Props {
   partialSample: PartialSample | PartialSampleToCreate;
   item: PartialSampleItem;
   itemIndex: number;
-  onRemoveItem?: (itemIndex: number) => void;
-  onChangeItem?: (item: PartialSampleItem, itemIndex: number) => void;
+  onRemoveItem?: (item: PartialSampleItem) => void;
+  onChangeItem?: (item: PartialSampleItem) => void;
   onChangeLaboratory?: (laboratoryId: string) => void;
   itemsForm?: UseForm<typeof Form>;
   laboratory?: Laboratory | null;
@@ -95,11 +99,11 @@ const SampleItemDetails = ({
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-8')}>
           <Badge noIcon severity="warning">
-            Echantillon {itemIndex + 1}
+            Echantillon {item.itemNumber} - Exemplaire {item.copyNumber}
           </Badge>
         </div>
         <div className={cx('fr-col-4')}>
-          {itemIndex > 0 && !readonly && (
+          {item.copyNumber > 1 && !readonly && (
             <AppResponsiveButton
               children="Supprimer"
               title="Supprimer"
@@ -108,7 +112,7 @@ const SampleItemDetails = ({
               size="small"
               onClick={(e) => {
                 e.preventDefault();
-                onRemoveItem?.(itemIndex);
+                onRemoveItem?.(item);
               }}
               className={clsx(cx('fr-mt-0'), 'float-right')}
               data-testid={`remove-item-button-${itemIndex}`}
@@ -121,10 +125,7 @@ const SampleItemDetails = ({
           <AppTextInput
             value={item.quantity ?? ''}
             onChange={(e) =>
-              onChangeItem?.(
-                { ...item, quantity: Number(e.target.value) },
-                itemIndex
-              )
+              onChangeItem?.({ ...item, quantity: Number(e.target.value) })
             }
             type="number"
             inputForm={form}
@@ -152,13 +153,10 @@ const SampleItemDetails = ({
               })
             ]}
             onChange={(e) =>
-              onChangeItem?.(
-                {
-                  ...item,
-                  quantityUnit: e.target.value as QuantityUnit
-                },
-                itemIndex
-              )
+              onChangeItem?.({
+                ...item,
+                quantityUnit: e.target.value as QuantityUnit
+              })
             }
             inputForm={form}
             inputKey="items"
@@ -174,13 +172,10 @@ const SampleItemDetails = ({
           <AppTextInput
             value={item.sealId ?? ''}
             onChange={(e) =>
-              onChangeItem?.(
-                {
-                  ...item,
-                  sealId: e.target.value
-                },
-                itemIndex
-              )
+              onChangeItem?.({
+                ...item,
+                sealId: e.target.value
+              })
             }
             inputForm={form}
             inputKey="items"
@@ -195,8 +190,11 @@ const SampleItemDetails = ({
         </div>
       </div>
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+        <div className={cx('fr-col-12', 'fr-text--bold')}>
+          {SubstanceKindLabels[item.substanceKind as SubstanceKind]}
+        </div>
         <div className={cx('fr-col-12')}>
-          {itemIndex === 0 ? (
+          {item.copyNumber === 1 ? (
             <>
               {isProgrammingPlanSample(partialSample) ? (
                 <>
@@ -226,13 +224,10 @@ const SampleItemDetails = ({
                     }))
                   ]}
                   onChange={(e) =>
-                    onChangeItem?.(
-                      {
-                        ...item,
-                        laboratoryId: e.target.value
-                      },
-                      itemIndex
-                    )
+                    onChangeItem?.({
+                      ...item,
+                      laboratoryId: e.target.value
+                    })
                   }
                   inputForm={form}
                   inputKey="items"
@@ -257,13 +252,10 @@ const SampleItemDetails = ({
                   nativeInputProps: {
                     checked: item.recipientKind === value,
                     onChange: () =>
-                      onChangeItem?.(
-                        {
-                          ...item,
-                          recipientKind: value as SampleItemRecipientKind
-                        },
-                        itemIndex
-                      )
+                      onChangeItem?.({
+                        ...item,
+                        recipientKind: value as SampleItemRecipientKind
+                      })
                   }
                 })) ?? []
               }
@@ -278,72 +270,64 @@ const SampleItemDetails = ({
           )}
         </div>
       </div>
-      {partialSample.specificData.programmingPlanKind === 'PPV' && (
-        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-            {itemsForm ? (
-              <AppRadioButtons
-                legend="Directive 2002/63"
-                options={[
-                  {
-                    label: 'Respectée',
-                    nativeInputProps: {
-                      checked: item.compliance200263 === true,
-                      onChange: () =>
-                        onChangeItem?.(
-                          { ...item, compliance200263: true },
-                          itemIndex
-                        )
-                    }
-                  },
-                  {
-                    label: 'Non respectée',
-                    nativeInputProps: {
-                      checked: item.compliance200263 === false,
-                      onChange: () =>
-                        onChangeItem?.(
-                          { ...item, compliance200263: false },
-                          itemIndex
-                        )
-                    }
+      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+        <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+          {itemsForm ? (
+            <AppRadioButtons
+              legend="Directive 2002/63"
+              options={[
+                {
+                  label: 'Respectée',
+                  nativeInputProps: {
+                    checked: item.compliance200263 === true,
+                    onChange: () =>
+                      onChangeItem?.({ ...item, compliance200263: true })
                   }
-                ]}
-                colSm={6}
-                inputForm={form}
-                inputKey="items"
-                inputPathFromKey={[itemIndex, 'compliance200263']}
-                whenValid="Directive 2002/63 correctement renseignée."
-                disabled={readonly}
-                required
+                },
+                {
+                  label: 'Non respectée',
+                  nativeInputProps: {
+                    checked: item.compliance200263 === false,
+                    onChange: () =>
+                      onChangeItem?.({ ...item, compliance200263: false })
+                  }
+                }
+              ]}
+              colSm={6}
+              inputForm={form}
+              inputKey="items"
+              inputPathFromKey={[itemIndex, 'compliance200263']}
+              whenValid="Directive 2002/63 correctement renseignée."
+              disabled={readonly}
+              required
+            />
+          ) : (
+            <div className="icon-text">
+              <div
+                className={cx('fr-icon-bookmark-fill', {
+                  'fr-label--error': !item.compliance200263,
+                  'fr-label--success': item.compliance200263
+                })}
               />
-            ) : (
-              <div className="icon-text">
-                <div
-                  className={cx('fr-icon-bookmark-fill', {
-                    'fr-label--error': !item.compliance200263,
-                    'fr-label--success': item.compliance200263
-                  })}
-                />
-                <div>
-                  Directive 2002/63{' '}
-                  <b> {!item.compliance200263 && 'non '}respectée</b>
-                </div>
+              <div>
+                Directive 2002/63{' '}
+                <b> {!item.compliance200263 && 'non '}respectée</b>
               </div>
-            )}
-          </div>
-          {itemsForm && (
-            <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-              <Link
-                to="https://eur-lex.europa.eu/legal-content/FR/TXT/HTML/?uri=CELEX:02002L0063-20020723"
-                className={clsx(cx('fr-link'), { 'float-right': !isMobile })}
-                target="_blank"
-              >
-                Directive 2002/63
-              </Link>
             </div>
           )}
         </div>
-      )}
+        {itemsForm && (
+          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+            <Link
+              to="https://eur-lex.europa.eu/legal-content/FR/TXT/HTML/?uri=CELEX:02002L0063-20020723"
+              className={clsx(cx('fr-link'), { 'float-right': !isMobile })}
+              target="_blank"
+            >
+              Directive 2002/63
+            </Link>
+          </div>
+        )}
+      </div>
     </>
   );
 };

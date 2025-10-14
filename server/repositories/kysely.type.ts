@@ -172,7 +172,7 @@ export interface ResidueAnalytes {
 
 export interface SampleItems {
   compliance200263: boolean | null;
-  itemNumber: number;
+  copyNumber: number;
   ownerEmail: string | null;
   ownerFirstName: string | null;
   ownerLastName: string | null;

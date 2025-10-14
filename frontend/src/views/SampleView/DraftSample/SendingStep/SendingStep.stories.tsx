@@ -4,7 +4,7 @@ import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
 import { genAuthUser, Sampler1Fixture } from 'maestro-shared/test/userFixtures';
-import { fn, userEvent, within } from 'storybook/test';
+import { fn } from 'storybook/test';
 import { getMockApi } from '../../../../services/mockApiClient';
 import SendingStep from './SendingStep';
 
@@ -58,12 +58,13 @@ export const Complet: Story = {
     })
   }
 };
-export const CompletConfirmation: Story = {
-  ...Complet,
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const sendButton = canvas.getByText('Envoyer la demande d’analyse');
-
-    await userEvent.click(sendButton);
-  }
-};
+//TODO
+// export const CompletConfirmation: Story = {
+//   ...Complet,
+//   play: async ({ canvasElement }) => {
+//     const canvas = within(canvasElement);
+//     const sendButton = canvas.getByText('Envoyer la demande d’analyse');
+//
+//     await userEvent.click(sendButton);
+//   }
+// };

@@ -49,7 +49,7 @@ export const MaestroRoutes = [
   '/samples/count',
   '/samples/export',
   '/samples/:sampleId/document',
-  '/samples/:sampleId/items/:itemNumber/document',
+  '/samples/:sampleId/items/:copyNumber/document',
   '/samples/:sampleId',
   '/users',
   '/users/:userId'

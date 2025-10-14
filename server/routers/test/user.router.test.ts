@@ -90,7 +90,8 @@ describe('User router', () => {
         name: Sampler1Fixture.name,
         role: Sampler1Fixture.role,
         region: Sampler1Fixture.region,
-        department: Sampler1Fixture.department || null
+        department: Sampler1Fixture.department || null,
+        company: Sampler1Fixture.company || null
       });
     });
   });

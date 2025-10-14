@@ -14,11 +14,11 @@ export const SampleItems = (transaction = db) =>
 
 const findUnique = async (
   sampleId: string,
-  itemNumber: number
+  copyNumber: number
 ): Promise<PartialSampleItem | undefined> => {
-  console.info('Find sampleItem', sampleId, itemNumber);
+  console.info('Find sampleItem', sampleId, copyNumber);
   return SampleItems()
-    .where({ sampleId, itemNumber })
+    .where({ sampleId, copyNumber })
     .first()
     .then((_) => _ && PartialSampleItem.parse(omitBy(_, isNil)));
 };
@@ -52,25 +52,22 @@ const updateMany = async (
     await SampleItems(transaction).where({ sampleId }).forUpdate();
     await SampleItems(transaction).where({ sampleId }).delete();
     if (partialSampleItems.length > 0) {
-      const items = partialSampleItems
-        .toSorted((a, b) => a.itemNumber - b.itemNumber)
-        .map((item, index) => ({ ...item, itemNumber: index + 1 }));
-      await SampleItems(transaction).insert(items);
+      await SampleItems(transaction).insert(partialSampleItems);
     }
   });
 };
 
 const update = async (
   sampleId: string,
-  itemNumber: number,
+  copyNumber: number,
   partialSampleItem: PartialSampleItem,
   trx: KyselyMaestro = kysely
 ): Promise<void> => {
-  console.info('Update sampleItem', sampleId, itemNumber, partialSampleItem);
+  console.info('Update sampleItem', sampleId, copyNumber, partialSampleItem);
   await trx
     .updateTable('sampleItems')
     .where('sampleId', '=', sampleId)
-    .where('itemNumber', '=', itemNumber)
+    .where('copyNumber', '=', copyNumber)
     .set(partialSampleItem)
     .execute();
 };

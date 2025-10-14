@@ -42,7 +42,7 @@ const generateAnalysisRequestCsv = async (data: AnalysisRequestData) => {
     `Analyses mono-résidu;${data.monoSubstanceLabels.join(';')}`,
     `Analyses multi-résidus dont;${data.multiSubstanceLabels.join(';')}`,
     `Note additionnelle;${escapeCsvValue(data.notesOnMatrix)}`,
-    `Échantillon n°;${escapeCsvValue(data.itemNumber)}`,
+    `Échantillon n°;${escapeCsvValue(data.copyNumber)}`,
     `Nombre;${escapeCsvValue(data.quantity)}`,
     `Unité de mesure;${escapeCsvValue(data.quantityUnit)}`,
     `Numéro de scellé;${escapeCsvValue(data.sealId)}`,

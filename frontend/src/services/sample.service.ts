@@ -122,8 +122,8 @@ const sampleApi = api.injectEndpoints({
   })
 });
 
-const supportDocumentURL = (sampleId: string, itemNumber?: number) => {
-  return `${config.apiEndpoint}/api/samples/${sampleId}${itemNumber ? `/items/${itemNumber}` : ''}/document`;
+const supportDocumentURL = (sampleId: string, copyNumber?: number) => {
+  return `${config.apiEndpoint}/api/samples/${sampleId}${copyNumber ? `/items/${copyNumber}` : ''}/document`;
 };
 
 const sampleListExportURL = (findOptions: FindSampleOptions) => {

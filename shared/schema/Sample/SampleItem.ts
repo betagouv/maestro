@@ -1,11 +1,13 @@
 import { isNil } from 'lodash-es';
 import { z } from 'zod';
 import { QuantityUnit } from '../../referential/QuantityUnit';
+import { SubstanceKind } from '../Substance/SubstanceKind';
 import { SampleItemRecipientKind } from './SampleItemRecipientKind';
 
 export const SampleItem = z.object({
   sampleId: z.guid(),
   itemNumber: z.number().int().positive(),
+  copyNumber: z.number().int().positive(),
   quantity: z
     .number({
       error: (issue) =>
@@ -27,14 +29,16 @@ export const SampleItem = z.object({
   }),
   supportDocumentId: z.guid().nullish(),
   recipientKind: SampleItemRecipientKind,
-  laboratoryId: z.guid().nullish()
+  laboratoryId: z.guid().nullish(),
+  substanceKind: SubstanceKind
 });
 
 export const PartialSampleItem = z.object({
   ...SampleItem.partial().shape,
   ...SampleItem.pick({
     sampleId: true,
-    itemNumber: true
+    itemNumber: true,
+    copyNumber: true
   }).shape
 });
 
@@ -42,4 +46,6 @@ export type SampleItem = z.infer<typeof SampleItem>;
 export type PartialSampleItem = z.infer<typeof PartialSampleItem>;
 
 export const SampleItemSort = (a: PartialSampleItem, b: PartialSampleItem) =>
-  a.itemNumber - b.itemNumber;
+  a.itemNumber === b.itemNumber
+    ? a.copyNumber - b.copyNumber
+    : a.itemNumber - b.itemNumber;

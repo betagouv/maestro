@@ -3,11 +3,13 @@ import { z } from 'zod';
 export const SubstanceKind = z.enum(['Any', 'Mono', 'Multi', 'Copper']);
 
 export const SubstanceKindLabels: Record<SubstanceKind, string> = {
-  Any: 'Toutes les analyses',
+  Any: 'Analyse mono-résidu et multi-résidus',
   Mono: 'Analyse mono-résidu',
   Multi: 'Analyse multi-résidus',
   Copper: 'Analyse des cuivres'
 };
+
+export const SubstanceKindList = SubstanceKind.options;
 
 export type SubstanceKind = z.infer<typeof SubstanceKind>;
 
