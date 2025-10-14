@@ -1,10 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
+import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
 import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
 import { genAuthUser, Sampler1Fixture } from 'maestro-shared/test/userFixtures';
-import { fn } from 'storybook/test';
+import { fn, userEvent, within } from 'storybook/test';
 import { getMockApi } from '../../../../services/mockApiClient';
 import SendingStep from './SendingStep';
 
@@ -30,6 +31,7 @@ const prescription1 = genPrescription({
   matrixKind: 'A001M',
   stages: ['STADE1', 'STADE5']
 });
+const laboratories = [LaboratoryFixture];
 
 export const Complet: Story = {
   args: {
@@ -54,17 +56,17 @@ export const Complet: Story = {
       }
     },
     apiClient: getMockApi({
-      useUpdateSampleMutation: [async () => fn(), { isSuccess: false }]
+      useUpdateSampleMutation: [async () => fn(), { isSuccess: false }],
+      useFindLaboratoriesQuery: { data: laboratories }
     })
   }
 };
-//TODO
-// export const CompletConfirmation: Story = {
-//   ...Complet,
-//   play: async ({ canvasElement }) => {
-//     const canvas = within(canvasElement);
-//     const sendButton = canvas.getByText('Envoyer la demande d’analyse');
-//
-//     await userEvent.click(sendButton);
-//   }
-// };
+export const CompletConfirmation: Story = {
+  ...Complet,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const sendButton = canvas.getByText('Envoyer la demande d’analyse');
+
+    await userEvent.click(sendButton);
+  }
+};

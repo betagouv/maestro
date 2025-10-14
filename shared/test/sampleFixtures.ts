@@ -21,6 +21,7 @@ import { SampleItem } from '../schema/Sample/SampleItem';
 import { SubstanceKindList } from '../schema/Substance/SubstanceKind';
 import { DummyLaboratoryIds } from '../schema/User/User';
 import { CompanyFixture, genCompany } from './companyFixtures';
+import { LaboratoryFixture } from './laboratoryFixtures';
 import { PrescriptionFixture } from './prescriptionFixtures';
 import { PPVValidatedProgrammingPlanFixture } from './programmingPlanFixtures';
 import { oneOf } from './testFixtures';
@@ -123,7 +124,9 @@ export const Sample1Item1Fixture = genSampleItem({
   quantity: 534,
   quantityUnit: 'G185A',
   compliance200263: true,
-  sealId: '123456'
+  sealId: '123456',
+  substanceKind: 'Any',
+  laboratoryId: LaboratoryFixture.id
 });
 export const Sample11Fixture = genCreatedPartialSample({
   id: Sample11FixtureId,
