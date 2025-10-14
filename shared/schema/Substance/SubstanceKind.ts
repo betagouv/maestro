@@ -9,7 +9,9 @@ export const SubstanceKindLabels: Record<SubstanceKind, string> = {
   Copper: 'Analyse des cuivres'
 };
 
-export const SubstanceKindList = SubstanceKind.options;
+export const AdditionalSubstanceKindList = SubstanceKind.options.filter(
+  (_) => !['Any', 'Mono', 'Multi'].includes(_)
+);
 
 export type SubstanceKind = z.infer<typeof SubstanceKind>;
 

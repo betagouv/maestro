@@ -18,7 +18,6 @@ import {
   SampleContextData
 } from '../schema/Sample/Sample';
 import { SampleItem } from '../schema/Sample/SampleItem';
-import { SubstanceKindList } from '../schema/Substance/SubstanceKind';
 import { DummyLaboratoryIds } from '../schema/User/User';
 import { CompanyFixture, genCompany } from './companyFixtures';
 import { LaboratoryFixture } from './laboratoryFixtures';
@@ -114,7 +113,7 @@ export const genSampleItem = (data?: Partial<SampleItem>): SampleItem => ({
   sealId: fakerFR.string.alphanumeric(32),
   recipientKind: 'Laboratory',
   laboratoryId: oneOf(DummyLaboratoryIds),
-  substanceKind: oneOf(SubstanceKindList),
+  substanceKind: 'Any',
   ...data
 });
 const Sample11FixtureId = '11111111-1111-1111-1111-111111111111';

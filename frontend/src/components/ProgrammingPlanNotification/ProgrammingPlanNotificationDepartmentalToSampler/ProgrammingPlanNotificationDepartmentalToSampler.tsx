@@ -97,14 +97,19 @@ const ProgrammingPlanNotificationDepartmentalToSampler = ({
             id="notify-regions-button"
             onClick={() => submissionModal.open()}
             disabled={departmentalPrescriptions.some(
-              (regionalPrescription) =>
+              (departmentalPrescription) =>
+                departmentalPrescription.substanceKindsLaboratories?.some(
+                  (substanceKindLaboratory) =>
+                    !substanceKindLaboratory.laboratoryId
+                ) ||
                 sumBy(
                   companyPrescriptions.filter(
                     (dp) =>
-                      dp.prescriptionId === regionalPrescription.prescriptionId
+                      dp.prescriptionId ===
+                      departmentalPrescription.prescriptionId
                   ),
                   'sampleCount'
-                ) < regionalPrescription.sampleCount
+                ) < departmentalPrescription.sampleCount
             )}
           >
             Notifier les préleveurs

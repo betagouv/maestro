@@ -4,7 +4,7 @@ export const up = async (knex: Knex) => {
   await knex.schema.alterTable('programming_plans', (table) => {
     table.string('title');
     table.string('domain');
-    table.specificType('additional_substances', 'text[]');
+    table.specificType('substance_kinds', 'text[]').defaultTo('{}');
     table.string('distribution_kind');
   });
 
@@ -13,6 +13,7 @@ export const up = async (knex: Knex) => {
     .update({
       title: 'Production primaire végétale',
       domain: 'PESTICIDE_RESIDUE',
+      substance_kinds: ['Any'],
       distribution_kind: 'REGIONAL'
     });
 
@@ -21,6 +22,7 @@ export const up = async (knex: Knex) => {
     .update({
       title: 'PFAS',
       domain: 'CHEMICAL_CONTAMINANT',
+      substance_kinds: ['Any'],
       distribution_kind: 'REGIONAL'
     });
 
@@ -29,7 +31,7 @@ export const up = async (knex: Knex) => {
     .update({
       title: "Denrées d'origine animale",
       domain: 'PESTICIDE_RESIDUE',
-      additional_substances: ['Analyse des cuivres'],
+      substance_kinds: ['Mono', 'Multi', 'Copper'],
       distribution_kind: 'SLAUGHTERHOUSE'
     });
 
@@ -45,6 +47,6 @@ export const down = async (knex: Knex) => {
     table.dropColumn('title');
     table.dropColumn('domain');
     table.dropColumn('distribution_kind');
-    table.dropColumn('additional_substances');
+    table.dropColumn('substance_kinds');
   });
 };

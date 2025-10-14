@@ -8,6 +8,10 @@ import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential'
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import {
+  AdditionalSubstanceKindList,
+  SubstanceKindLabels
+} from 'maestro-shared/schema/Substance/SubstanceKind';
 import { useCallback, useContext } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch } from 'src/hooks/useStore';
@@ -152,17 +156,19 @@ const PrescriptionSubstances = ({
           </Button>
         )}
       </div>
-      {programmingPlan.additionalSubstances?.map((substance, index) => (
-        <div
-          key={`additionalSubstance-${index}`}
-          className={clsx(cx('fr-py-1w', 'fr-px-2w'), 'flex-align-center')}
-        >
-          <span
-            className={cx('fr-icon-check-line', 'fr-icon--sm', 'fr-mr-1w')}
-          />
-          {substance}
-        </div>
-      ))}
+      {programmingPlan.substanceKinds
+        ?.filter((substance) => AdditionalSubstanceKindList.includes(substance))
+        .map((substance, index) => (
+          <div
+            key={`substanceKind-${index}`}
+            className={clsx(cx('fr-py-1w', 'fr-px-2w'), 'flex-align-center')}
+          >
+            <span
+              className={cx('fr-icon-check-line', 'fr-icon--sm', 'fr-mr-1w')}
+            />
+            {SubstanceKindLabels[substance]}
+          </div>
+        ))}
     </div>
   );
 };

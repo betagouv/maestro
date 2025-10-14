@@ -124,10 +124,7 @@ const RegionalPrescriptionModal = () => {
       return 'La répartition de la programmation a bien été enregistrée pour ces abattoirs.';
     }
     return pluralize(
-      (
-        localPrescriptionModalData?.localPrescription
-          .substanceKindsLaboratories ?? []
-      ).length,
+      (localPrescriptionModalData?.programmingPlan.substanceKinds ?? []).length,
       {
         ignores: ['bien', 'été'],
         replacements: [

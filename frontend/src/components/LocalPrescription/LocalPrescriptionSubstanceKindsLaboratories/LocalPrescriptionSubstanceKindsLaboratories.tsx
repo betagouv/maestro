@@ -29,23 +29,10 @@ const LocalPrescriptionSubstanceKindsLaboratories = forwardRef<
   >(
     (localPrescription.substanceKindsLaboratories ?? []).length > 0
       ? (localPrescription.substanceKindsLaboratories as SubstanceKindLaboratory[])
-      : programmingPlan.distributionKind === 'REGIONAL'
-        ? [
-            {
-              substanceKind: 'Any'
-            }
-          ]
-        : [
-            {
-              substanceKind: 'Mono'
-            },
-            {
-              substanceKind: 'Multi'
-            },
-            {
-              substanceKind: 'Copper' //TODO lien avec additionalSubstance
-            }
-          ]
+      : programmingPlan.substanceKinds.map((substanceKind) => ({
+          substanceKind,
+          laboratoryId: undefined
+        }))
   );
 
   const { data: laboratories } = apiClient.useFindLaboratoriesQuery();

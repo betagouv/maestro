@@ -610,20 +610,22 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
             />
           )}
         </div>
-        <div className={cx('fr-col-12', 'fr-col-sm-4')}>
-          <AppTextInput
-            type="text"
-            defaultValue={partialSample?.resytalId || ''}
-            onChange={(e) => setResytalId(e.target.value)}
-            inputForm={form}
-            inputKey="resytalId"
-            whenValid="Identifiant Resytal correctement renseigné."
-            data-testid="resytalId-input"
-            label="Identifiant Resytal"
-            disabled={readonly}
-            hintText="Format AA-XXXXXX"
-          />
-        </div>
+        {programmingPlanKind === 'PPV' && (
+          <div className={cx('fr-col-12', 'fr-col-sm-4')}>
+            <AppTextInput
+              type="text"
+              defaultValue={partialSample?.resytalId || ''}
+              onChange={(e) => setResytalId(e.target.value)}
+              inputForm={form}
+              inputKey="resytalId"
+              whenValid="Identifiant Resytal correctement renseigné."
+              data-testid="resytalId-input"
+              label="Identifiant Resytal"
+              disabled={readonly}
+              hintText="Format AA-XXXXXX"
+            />
+          </div>
+        )}
       </div>
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>

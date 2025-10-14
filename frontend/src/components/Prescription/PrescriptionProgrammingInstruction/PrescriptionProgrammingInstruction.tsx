@@ -24,7 +24,6 @@ const PrescriptionProgrammingInstruction = ({
       <div className="d-flex-align-center">
         <Input
           label="Consignes de répartition"
-          hintText="Complément d’information, répartition, etc."
           textArea
           nativeTextAreaProps={{
             value: instruction,
@@ -46,7 +45,7 @@ const PrescriptionProgrammingInstruction = ({
               iconId="fr-icon-save-line"
               onClick={() => onSubmitInstruction(instruction)}
               priority="secondary"
-              className={cx('fr-ml-1w', 'fr-mt-4w')}
+              className={cx('fr-ml-1w', 'fr-mt-1w')}
             />
           )}
       </div>

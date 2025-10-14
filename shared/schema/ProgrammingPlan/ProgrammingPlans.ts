@@ -1,5 +1,6 @@
 import { isNil } from 'lodash-es';
 import { z } from 'zod';
+import { SubstanceKind } from '../Substance/SubstanceKind';
 import { ProgrammingPlanContext } from './Context';
 import { DistributionKind } from './DistributionKind';
 import { ProgrammingPlanDomain } from './ProgrammingPlanDomain';
@@ -14,7 +15,7 @@ export const ProgrammingPlan = z
     kinds: z.array(ProgrammingPlanKind),
     contexts: z.array(ProgrammingPlanContext),
     samplesOutsidePlanAllowed: z.boolean(),
-    additionalSubstances: z.array(z.string()).nullish(),
+    substanceKinds: z.array(SubstanceKind),
     distributionKind: DistributionKind,
     createdAt: z.coerce.date(),
     createdBy: z.guid(),

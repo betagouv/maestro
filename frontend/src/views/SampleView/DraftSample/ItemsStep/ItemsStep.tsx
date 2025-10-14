@@ -124,21 +124,21 @@ const ItemsStep = ({ partialSample }: Props) => {
   );
 
   useEffect(() => {
-    //TODO cas ou un labo n'est pas renseigné
     if (
-      isNil(items) ||
-      (items.length === 0 &&
-        (localPrescription || !isProgrammingPlanSample(partialSample)))
+      programmingPlan &&
+      (isNil(items) ||
+        (items.length === 0 &&
+          (localPrescription || !isProgrammingPlanSample(partialSample))))
     ) {
       setItems(
         [
-          ...(localPrescription?.substanceKindsLaboratories ?? [
-            {
-              substanceKind: 'Any'
-            }
-          ])
+          ...(localPrescription?.substanceKindsLaboratories ??
+            programmingPlan.substanceKinds.map((substanceKind) => ({
+              substanceKind,
+              laboratoryId: undefined
+            })))
         ]
-          ?.sort(SubstanceKindLaboratorySort)
+          .sort(SubstanceKindLaboratorySort)
           .map((substanceKindLaboratory, index) => ({
             sampleId: partialSample.id,
             itemNumber: index + 1,
@@ -149,7 +149,7 @@ const ItemsStep = ({ partialSample }: Props) => {
           }))
       );
     }
-  }, [localPrescription]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [localPrescription, programmingPlan]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const Form = SampleItemsData.pick({
     sampledAt: true,
