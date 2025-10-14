@@ -3,13 +3,14 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
 import { User } from 'maestro-shared/schema/User/User';
-import { useContext, useState } from 'react';
+import { useCallback, useContext, useState } from 'react';
 import usersSvg from 'src/assets/illustrations/users.svg';
 import SectionHeader from '../../components/SectionHeader/SectionHeader';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { ApiClientContext } from '../../services/apiClient';
 import { UserCard } from './components/UserCard';
 import { UserModal } from './components/UserModal';
+import { FindUserOptions, UsersFilters } from './UsersFilters';
 
 const userFormModal = createModal({
   id: `user-form-modale-id`,
@@ -24,10 +25,47 @@ export const UsersView = () => {
   const { data: users } = apiClient.useFindUsersQuery({});
   const [userToUpdate, setUserToUpdate] = useState<null | User>(null);
 
+  const [usersFiltered, setUsersFiltered] = useState<User[]>(users ?? []);
+
   const onEdit = (userToEdit: User) => {
     setUserToUpdate(userToEdit);
     userFormModal.open();
   };
+
+  const updateUsersFiltered = useCallback(
+    (filters: FindUserOptions) => {
+      setUsersFiltered(
+        (users ?? []).filter((u) => {
+          if (
+            filters.label &&
+            filters.label !== '' &&
+            !u.name?.toLowerCase().includes(filters.label) &&
+            !u.email.toLowerCase().includes(filters.label)
+          ) {
+            return false;
+          }
+
+          if (filters.region && u.region !== filters.region) {
+            return false;
+          }
+
+          if (filters.role && u.role !== filters.role) {
+            return false;
+          }
+
+          if (
+            filters.programmingPlanKind &&
+            !u.programmingPlanKinds.includes(filters.programmingPlanKind)
+          ) {
+            return false;
+          }
+
+          return true;
+        })
+      );
+    },
+    [users]
+  );
 
   return (
     <>
@@ -50,7 +88,7 @@ export const UsersView = () => {
         />
 
         <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
-          <div className="d-flex-align-start"></div>
+          <UsersFilters onChange={updateUsersFiltered} />
         </div>
 
         <div
@@ -59,12 +97,8 @@ export const UsersView = () => {
             cx('fr-px-2w', 'fr-px-md-5w', 'fr-py-2w', 'fr-py-md-5w')
           )}
         >
-          <div
-            className={clsx(cx('fr-mb-2w', 'fr-mb-md-5w'), 'table-header')}
-          ></div>
-
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-            {users?.map((user) => (
+            {usersFiltered.map((user) => (
               <div className={cx('fr-col-12', 'fr-col-md-4')} key={user.id}>
                 <UserCard user={user} onEdit={() => onEdit(user)} />
               </div>
