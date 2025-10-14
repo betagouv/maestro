@@ -13,7 +13,8 @@ import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { FunctionComponent, useEffect, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { z } from 'zod';
-import { RegionsFilter } from '../../components/RegionsFilter/RegionsFilter';
+import { RegionsFilter } from '../../../components/RegionsFilter/RegionsFilter';
+import { UsersFilterTags } from './UsersFilterTags';
 
 const findUserOptions = z.object({
   region: Region.nullable(),
@@ -40,13 +41,14 @@ export const UsersFilters: FunctionComponent<Props> = ({
     label: null
   });
 
-  const hasFilter: boolean = useMemo(
-    () =>
-      Object.values(filters).some(
-        (value) => isDefinedAndNotNull(value) && value !== ''
-      ),
-    [filters]
-  );
+  const hasFilter: boolean = useMemo(() => {
+    const { label, ...rest } = filters;
+
+    return Object.values(rest).some(
+      // @ts-expect-error TS2367
+      (value) => isDefinedAndNotNull(value) && value !== ''
+    );
+  }, [filters]);
 
   const updateFilters = (newFilters: Partial<FindUserOptions>) => {
     setFilters((old) => ({ ...old, ...newFilters }));
@@ -68,11 +70,7 @@ export const UsersFilters: FunctionComponent<Props> = ({
             Filtres actifs
           </span>
           <div className={cx('fr-mt-3v')}>
-            {/*<SampleFiltersTags*/}
-            {/*  filters={findSampleOptions}*/}
-            {/*  samplers={samplers}*/}
-            {/*  onChange={changeFilter}*/}
-            {/*/>*/}
+            <UsersFilterTags filters={filters} onChange={updateFilters} />
           </div>
         </div>
       )}

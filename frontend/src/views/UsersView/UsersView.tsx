@@ -10,7 +10,7 @@ import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { ApiClientContext } from '../../services/apiClient';
 import { UserCard } from './components/UserCard';
 import { UserModal } from './components/UserModal';
-import { FindUserOptions, UsersFilters } from './UsersFilters';
+import { FindUserOptions, UsersFilters } from './components/UsersFilters';
 
 const userFormModal = createModal({
   id: `user-form-modale-id`,
