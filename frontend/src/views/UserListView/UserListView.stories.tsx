@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { MuiDsfrThemeProvider } from '../../App';
-import { UsersView } from './UsersView';
+import { UserListView } from './UserListView';
 
 const meta = {
   title: 'Views/Users',
-  component: UsersView,
+  component: UserListView,
   args: {},
   decorators: [
     (Story) => (
@@ -13,7 +13,7 @@ const meta = {
       </MuiDsfrThemeProvider>
     )
   ]
-} satisfies Meta<typeof UsersView>;
+} satisfies Meta<typeof UserListView>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

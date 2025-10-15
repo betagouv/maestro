@@ -17,7 +17,7 @@ const userFormModal = createModal({
   isOpenedByDefault: false
 });
 
-export const UsersView = () => {
+export const UserListView = () => {
   useDocumentTitle('Gestions des utilisateurs');
 
   const apiClient = useContext(ApiClientContext);
