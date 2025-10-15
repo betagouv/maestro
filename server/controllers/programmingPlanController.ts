@@ -343,7 +343,8 @@ export const programmingPlanRouter = {
         regionalStatus: RegionList.map((region) => ({
           region,
           status: 'InProgress' as const
-        }))
+        })),
+        substanceKinds: previousProgrammingPlan.substanceKinds
       };
 
       await programmingPlanRepository.insert(newProgrammingPlan);
