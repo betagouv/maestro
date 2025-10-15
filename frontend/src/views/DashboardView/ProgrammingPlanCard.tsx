@@ -2,12 +2,12 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { sumBy } from 'lodash-es';
+import { getCompletionRate } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import {
   ContextLabels,
   ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { getCompletionRate } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { useContext } from 'react';
 import { pluralize } from 'src/utils/stringUtils';
 import ProgrammingPlanMap from 'src/views/DashboardView/ProgrammingPlanMap';
@@ -27,7 +27,7 @@ const ProgrammingPlanCard = ({
   const apiClient = useContext(ApiClientContext);
 
   const { data: regionalPrescriptions } =
-    apiClient.useFindRegionalPrescriptionsQuery({
+    apiClient.useFindLocalPrescriptionsQuery({
       programmingPlanId: programmingPlan.id,
       contexts: [context],
       includes: ['sampleCounts']
@@ -91,7 +91,12 @@ const ProgrammingPlanCard = ({
             priority="tertiary no outline"
             iconId="fr-icon-bar-chart-box-line"
             linkProps={{
-              to: `${AuthenticatedAppRoutes.ProgrammationByYearRoute.link(programmingPlan.year)}?context=${context}`
+              to: `${AuthenticatedAppRoutes.ProgrammingRoute.link}?${new URLSearchParams(
+                {
+                  year: String(programmingPlan.year),
+                  context: context
+                }
+              ).toString()}`
             }}
           >
             {[ContextLabels[context], programmingPlan.year].join(' ')}
@@ -103,7 +108,7 @@ const ProgrammingPlanCard = ({
         <ProgrammingPlanMap
           programmingPlan={programmingPlan}
           context={context}
-          regionalPrescriptions={regionalPrescriptions ?? []}
+          localPrescriptions={regionalPrescriptions ?? []}
         />
       </div>
     </>

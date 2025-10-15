@@ -57,7 +57,6 @@ import {
 } from '../middlewares/checks/sampleCheck';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
-import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
 import { ProtectedSubRouter } from '../routers/routes.type';
 import { laboratoriesConf, LaboratoryWithConf } from '../services/imapService';
 
@@ -73,24 +72,24 @@ const streamToBase64 = async (stream: Readable): Promise<string> => {
 const generateAndStoreSampleSupportDocument = async (
   sample: Sample,
   sampleItems: SampleItem[],
-  itemNumber: number
+  copyNumber: number
 ) => {
   const pdfBuffer = await pdfService.generateSampleSupportPDF(
     sample,
     sampleItems,
-    itemNumber,
+    copyNumber,
     true
   );
 
-  const sampleItem = sampleItems.find((item) => item.itemNumber === itemNumber);
+  const sampleItem = sampleItems.find((item) => item.copyNumber === copyNumber);
 
   if (!sampleItem) {
-    throw new Error(`Sample item ${itemNumber} not found`);
+    throw new Error(`Sample item ${copyNumber} not found`);
   }
 
   if (sampleItem.supportDocumentId) {
     console.info('Delete previous document', sampleItem.supportDocumentId);
-    await sampleItemRepository.update(sample.id, sampleItem.itemNumber, {
+    await sampleItemRepository.update(sample.id, sampleItem.copyNumber, {
       ...sampleItem,
       supportDocumentId: null
     });
@@ -99,7 +98,7 @@ const generateAndStoreSampleSupportDocument = async (
 
   const file = new File(
     [pdfBuffer],
-    getSupportDocumentFilename(sample, sampleItem.itemNumber),
+    getSupportDocumentFilename(sample, sampleItem.copyNumber),
     { type: 'application/pdf' }
   );
 
@@ -110,7 +109,7 @@ const generateAndStoreSampleSupportDocument = async (
     (documentId, trx) =>
       sampleItemRepository.update(
         sample.id,
-        sampleItem.itemNumber,
+        sampleItem.copyNumber,
         {
           ...sampleItem,
           supportDocumentId: documentId
@@ -130,7 +129,7 @@ const generateAndStoreAnalysisRequestDocuments = async (
 
   const excelFilename = getAnalysisReportDocumentFilename(
     analysisRequestData,
-    analysisRequestData.itemNumber,
+    analysisRequestData.copyNumber,
     'xlsx'
   );
 
@@ -147,7 +146,7 @@ const generateAndStoreAnalysisRequestDocuments = async (
 
   const csvFilename = getAnalysisReportDocumentFilename(
     analysisRequestData,
-    analysisRequestData.itemNumber,
+    analysisRequestData.copyNumber,
     'csv'
   );
 
@@ -156,7 +155,7 @@ const generateAndStoreAnalysisRequestDocuments = async (
       [csvBuffer],
       getAnalysisReportDocumentFilename(
         analysisRequestData,
-        analysisRequestData.itemNumber,
+        analysisRequestData.copyNumber,
         'xlsx'
       ),
       { type: 'text/csv' }
@@ -279,11 +278,11 @@ export const sampleRouter = {
       const sampleItems = await sampleItemRepository.findMany(sample.id);
 
       const pdfBuffers = await Promise.all(
-        [1, 2, 3].map((itemNumber) =>
+        [1, 2, 3].map((copyNumber) =>
           pdfService.generateSampleSupportPDF(
             sample,
             sampleItems,
-            itemNumber,
+            copyNumber,
             false
           )
         )
@@ -311,8 +310,8 @@ export const sampleRouter = {
       return { status: constants.HTTP_STATUS_OK, response: pdfBuffer };
     }
   },
-  '/samples/:sampleId/items/:itemNumber/document': {
-    get: async ({ user }, { sampleId, itemNumber }, { setHeader }) => {
+  '/samples/:sampleId/items/:copyNumber/document': {
+    get: async ({ user }, { sampleId, copyNumber }, { setHeader }) => {
       const sample = await getAndCheckSample(sampleId, user);
 
       console.info('Get sample document', sample.id);
@@ -322,14 +321,14 @@ export const sampleRouter = {
       const pdfBuffer = await pdfService.generateSampleSupportPDF(
         sample,
         sampleItems,
-        itemNumber,
+        copyNumber,
         true
       );
 
       setHeader('Content-Type', 'application/pdf');
       setHeader(
         'Content-Disposition',
-        `inline; filename="${getSupportDocumentFilename(sample, itemNumber)}"`
+        `inline; filename="${getSupportDocumentFilename(sample, copyNumber)}"`
       );
       return { status: constants.HTTP_STATUS_OK, response: pdfBuffer };
     }
@@ -414,26 +413,18 @@ export const sampleRouter = {
               .then((_) => _?.[0])
           : undefined;
 
-      const regionalPrescription = prescription
-        ? await regionalPrescriptionRepository.findUnique({
-            prescriptionId: prescription.id,
-            region: sampleUpdate.region
-          })
-        : undefined;
-
       const prescriptionSubstances = prescription
         ? await prescriptionSubstanceRepository.findMany(prescription.id)
         : undefined;
 
       const prescriptionData: Pick<
         PartialSample,
-        'prescriptionId' | 'laboratoryId' | 'monoSubstances' | 'multiSubstances'
+        'prescriptionId' | 'monoSubstances' | 'multiSubstances'
       > =
         isProgrammingPlanSample(sampleUpdate) ||
         sample.context !== sampleUpdate.context
           ? {
               prescriptionId: prescription?.id || null,
-              laboratoryId: regionalPrescription?.laboratoryId || null,
               monoSubstances:
                 prescriptionSubstances
                   ?.filter((substance) => substance.analysisMethod === 'Mono')
@@ -453,6 +444,13 @@ export const sampleRouter = {
       }
 
       if (sampleUpdate.items) {
+        // const localPrescription = prescription
+        //   ? await localPrescriptionRepository.findUnique({
+        //     prescriptionId: prescription.id,
+        //     region: sampleUpdate.region,
+        //     includes: 'laboratories'
+        //   })
+        //   : undefined;
         await sampleItemRepository.updateMany(sample.id, sampleUpdate.items);
       }
 
@@ -481,12 +479,12 @@ export const sampleRouter = {
               await generateAndStoreSampleSupportDocument(
                 updatedSample,
                 sampleItems as SampleItem[],
-                sampleItem.itemNumber
+                sampleItem.copyNumber
               );
 
-            if (sampleItem.itemNumber === 1) {
+            if (sampleItem.copyNumber === 1) {
               const laboratory = (await laboratoryRepository.findUnique(
-                updatedSample.laboratoryId as string
+                sampleItem.laboratoryId as string
               )) as Laboratory;
 
               const establishment = {
@@ -537,7 +535,7 @@ export const sampleRouter = {
                   multiSubstanceLabels: (
                     updatedSample.multiSubstances ?? []
                   ).map((substance) => substanceToLaboratoryLabel(substance)),
-                  reference: [updatedSample.reference, sampleItem?.itemNumber]
+                  reference: [updatedSample.reference, sampleItem?.copyNumber]
                     .filter(isDefinedAndNotNull)
                     .join('-'),
                   sampledAt: format(
@@ -607,7 +605,7 @@ export const sampleRouter = {
                     ? {
                         name: `${getSupportDocumentFilename(
                           updatedSample,
-                          sampleItem.itemNumber
+                          sampleItem.copyNumber
                         )}`,
                         content: sampleSupportDoc.toString('base64')
                       }
@@ -628,7 +626,7 @@ export const sampleRouter = {
                   {
                     name: `${getSupportDocumentFilename(
                       updatedSample,
-                      sampleItem.itemNumber
+                      sampleItem.copyNumber
                     )}`,
                     content: sampleSupportDoc.toString('base64')
                   }

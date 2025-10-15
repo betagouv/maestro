@@ -37,10 +37,19 @@ const DashboardView = () => {
 
   const { data: nextProgrammingPlans } = apiClient.useFindProgrammingPlansQuery(
     {
-      status: ['InProgress', 'Submitted']
+      status: hasUserPermission('manageProgrammingPlan')
+        ? ['InProgress', 'SubmittedToRegion']
+        : hasUserPermission('distributePrescriptionToDepartments')
+          ? ['SubmittedToRegion']
+          : hasUserPermission('distributePrescriptionToSlaughterhouses')
+            ? ['SubmittedToDepartments']
+            : []
     },
     {
-      skip: !hasUserPermission('manageProgrammingPlan')
+      skip:
+        !hasUserPermission('manageProgrammingPlan') &&
+        !hasUserPermission('distributePrescriptionToDepartments') &&
+        !hasUserPermission('distributePrescriptionToSlaughterhouses')
     }
   );
   const nextProgrammingPlan = useMemo(
@@ -48,7 +57,7 @@ const DashboardView = () => {
     [nextProgrammingPlans]
   );
 
-  if (!user || !currentProgrammingPlan) {
+  if (!user) {
     return <></>;
   }
 
@@ -59,6 +68,7 @@ const DashboardView = () => {
         subtitle="Un rapide coup d’oeil sur votre activité"
         illustration={dashboard}
         action={
+          currentProgrammingPlan &&
           hasUserPermission('createSample') && (
             <Button
               size="large"
@@ -92,7 +102,7 @@ const DashboardView = () => {
           />
 
           {hasNationalView &&
-            currentProgrammingPlan.contexts.map((context) => (
+            currentProgrammingPlan?.contexts.map((context) => (
               <div
                 className={cx('fr-col-12', 'fr-col-md-6')}
                 key={`${currentProgrammingPlan.id}-${context}`}

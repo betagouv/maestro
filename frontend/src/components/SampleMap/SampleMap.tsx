@@ -1,4 +1,4 @@
-import { Geolocation } from 'maestro-shared/schema/Sample/Sample';
+import { Geolocation } from 'maestro-shared/schema/Geolocation/Geolocation';
 import maplibregl from 'maplibre-gl';
 import { FunctionComponent, useEffect, useState } from 'react';
 import {

@@ -35,7 +35,7 @@
                 <b>{{reference}}</b>
               {{else}}
                 <b>Étiquette du prélèvement</b>
-                {{#if (and laboratory (eq itemNumber 1))}}
+                {{#if (and laboratory (eq copyNumber 1))}}
                   <br />
                   A envoyer à <b>{{laboratory.name}}</b>
                   <br />
@@ -574,7 +574,7 @@
                         {{#if (or ../fullVersion currentItem)}}
                           <div class="sample-item {{#if currentItem}}current-item indent-back{{/if}}">
                             <div class='sample-section-subtitle'>
-                              <div>Échantillon n°{{itemNumber}}</div>
+                              <div>Échantillon n°{{copyNumber}}</div>
                             </div>
                             <div class='sample-section-block'>
                               <span
@@ -616,7 +616,7 @@
                               <div class='fr-container fr-pl-1w'>
                                 <div class='fr-grid-row fr-grid-row--gutters'>
                                   <div class='fr-col-6 sample-section-item'>
-                                    {{#if (eq itemNumber 1)}}
+                                    {{#if (eq copyNumber 1)}}
                                       <div class='label'>
                                         Destinataire de l'échantillon
                                       </div>
@@ -628,7 +628,7 @@
                                         {{/if}}
                                       </div>
                                     {{/if}}
-                                    {{#if (or (eq itemNumber 2) (eq itemNumber 3))}}
+                                    {{#if (or (eq copyNumber 2) (eq copyNumber 3))}}
                                       <fieldset class="fr-fieldset fr-px-1v">
                                         <legend class="fr-fieldset__legend fr-col-12 fr-pb-1w label">
                                           Destinataire de l'échantillon

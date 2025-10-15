@@ -10,8 +10,12 @@ export const genProgrammingPlan = (
   data?: Partial<ProgrammingPlan>
 ): ProgrammingPlan => ({
   id: uuidv4(),
+  domain: 'PESTICIDE_RESIDUE',
+  title: 'Production primaire végétale',
   kinds: ['PPV'],
+  distributionKind: 'REGIONAL',
   contexts: [oneOf(ProgrammingPlanContextList)],
+  substanceKinds: ['Any'],
   samplesOutsidePlanAllowed: true,
   createdAt: new Date(),
   createdBy: uuidv4(),
@@ -25,8 +29,12 @@ export const genProgrammingPlan = (
 
 export const PPVClosedProgrammingPlanFixture = genProgrammingPlan({
   id: 'f5d510ef-ab78-449a-acd6-392895a1994f',
+  domain: 'PESTICIDE_RESIDUE',
+  title: 'Production primaire végétale',
   kinds: ['PPV'],
+  distributionKind: 'REGIONAL',
   contexts: ['Control', 'Surveillance'],
+  substanceKinds: ['Any'],
   samplesOutsidePlanAllowed: true,
   createdAt: new Date(),
   createdBy: NationalCoordinator.id,
@@ -39,8 +47,12 @@ export const PPVClosedProgrammingPlanFixture = genProgrammingPlan({
 
 export const PPVValidatedProgrammingPlanFixture = genProgrammingPlan({
   id: 'd78fb3eb-1998-482b-9014-282d51ae30b8',
+  domain: 'PESTICIDE_RESIDUE',
+  title: 'Production primaire végétale',
   kinds: ['PPV'],
+  distributionKind: 'REGIONAL',
   contexts: ['Control', 'Surveillance'],
+  substanceKinds: ['Any'],
   samplesOutsidePlanAllowed: true,
   createdAt: new Date(),
   createdBy: NationalCoordinator.id,
@@ -51,9 +63,31 @@ export const PPVValidatedProgrammingPlanFixture = genProgrammingPlan({
   year: new Date().getFullYear()
 });
 
+export const PPVInProgressProgrammingPlanFixture = genProgrammingPlan({
+  id: 'bac693a5-9475-4e24-a775-5532b0117e5b',
+  domain: 'PESTICIDE_RESIDUE',
+  title: 'Production primaire végétale',
+  kinds: ['PPV'],
+  distributionKind: 'REGIONAL',
+  contexts: ['Control', 'Surveillance'],
+  substanceKinds: ['Any'],
+  samplesOutsidePlanAllowed: true,
+  createdAt: new Date(),
+  createdBy: NationalCoordinator.id,
+  regionalStatus: RegionList.map((region) => ({
+    region,
+    status: 'InProgress'
+  })),
+  year: new Date().getFullYear() + 1
+});
+
 export const PFASValidatedProgrammingPlanFixture = genProgrammingPlan({
   id: '95d0f5c9-8a48-4bfb-b896-08aae5a22be3',
+  domain: 'CHEMICAL_CONTAMINANT',
+  title: 'PFAS',
   kinds: ['PFAS_EGGS', 'PFAS_MEAT'],
+  substanceKinds: ['Any'],
+  distributionKind: 'REGIONAL',
   contexts: ['Control'],
   samplesOutsidePlanAllowed: true,
   createdAt: new Date(),
@@ -65,16 +99,20 @@ export const PFASValidatedProgrammingPlanFixture = genProgrammingPlan({
   year: new Date().getFullYear()
 });
 
-export const DAOAValidatedProgrammingPlanFixture = genProgrammingPlan({
+export const DAOAInProgressProgrammingPlanFixture = genProgrammingPlan({
   id: 'fafc6f2e-aec5-4998-adeb-84090d971a90',
+  domain: 'PESTICIDE_RESIDUE',
+  title: "Denrées d'origine animale",
   kinds: ['DAOA_BREEDING', 'DAOA_SLAUGHTER'],
+  distributionKind: 'SLAUGHTERHOUSE',
   contexts: ['Surveillance'],
+  substanceKinds: ['Mono', 'Multi', 'Copper'],
   samplesOutsidePlanAllowed: false,
   createdAt: new Date(),
   createdBy: NationalCoordinator.id,
   regionalStatus: RegionList.map((region) => ({
     region,
-    status: 'Validated'
+    status: 'InProgress'
   })),
-  year: new Date().getFullYear()
+  year: new Date().getFullYear() + 1
 });
