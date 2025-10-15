@@ -87,9 +87,7 @@ export const UsersView = () => {
           }
         />
 
-        <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
-          <UsersFilters onChange={updateUsersFiltered} />
-        </div>
+        <UsersFilters onChange={updateUsersFiltered} />
 
         <div
           className={clsx(

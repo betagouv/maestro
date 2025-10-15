@@ -1,3 +1,4 @@
+import Accordion from '@codegouvfr/react-dsfr/Accordion';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Input from '@codegouvfr/react-dsfr/Input';
 import Select from '@codegouvfr/react-dsfr/Select';
@@ -14,6 +15,7 @@ import { FunctionComponent, useEffect, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { z } from 'zod';
 import { RegionsFilter } from '../../../components/RegionsFilter/RegionsFilter';
+import useWindowSize from '../../../hooks/useWindowSize';
 import { UsersFilterTags } from './UsersFilterTags';
 
 const findUserOptions = z.object({
@@ -33,6 +35,7 @@ export const UsersFilters: FunctionComponent<Props> = ({
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
+  const { isMobile } = useWindowSize();
 
   const [filters, setFilters] = useState<FindUserOptions>({
     region: null,
@@ -59,22 +62,46 @@ export const UsersFilters: FunctionComponent<Props> = ({
   }, [onChange, filters]);
 
   return (
-    <div>
-      <Filters {...filters} onChange={updateFilters} />
-      {hasFilter && (
-        <div
-          className={clsx('d-flex-align-start', cx('fr-mt-3w'))}
-          style={{ flexDirection: 'column' }}
-        >
-          <span className={cx('fr-text--light', 'fr-text--sm', 'fr-mb-0')}>
-            Filtres actifs
-          </span>
-          <div className={cx('fr-mt-3v')}>
-            <UsersFilterTags filters={filters} onChange={updateFilters} />
+    <>
+      {isMobile ? (
+        <>
+          <Accordion
+            label="Filtrer les résultats"
+            className="sample-filters-accordion"
+          >
+            <div className={cx('fr-container')}>
+              <Filters {...filters} onChange={updateFilters} />
+            </div>
+          </Accordion>
+          {hasFilter && (
+            <div className="d-flex-align-center">
+              <UsersFilterTags filters={filters} onChange={updateFilters} />
+            </div>
+          )}
+        </>
+      ) : (
+        <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
+          <div>
+            <Filters {...filters} onChange={updateFilters} />
+            {hasFilter && (
+              <div
+                className={clsx('d-flex-align-start', cx('fr-mt-3w'))}
+                style={{ flexDirection: 'column' }}
+              >
+                <span
+                  className={cx('fr-text--light', 'fr-text--sm', 'fr-mb-0')}
+                >
+                  Filtres actifs
+                </span>
+                <div className={cx('fr-mt-3v')}>
+                  <UsersFilterTags filters={filters} onChange={updateFilters} />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 
