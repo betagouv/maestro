@@ -18,6 +18,7 @@ import { ApiClientContext } from '../../services/apiClient';
 import config from '../../utils/config';
 import { MascaradeButton } from '../Mascarade/MascaradeButton';
 import { MascaradeModal } from '../Mascarade/MascaradeModal';
+import { useMascarade } from '../Mascarade/useMascarade';
 import HeaderMenu from './HeaderMenu';
 
 const mascaradeModal = createModal({
@@ -31,6 +32,7 @@ const Header = () => {
   const apiClient = useContext(ApiClientContext);
 
   const { isAuthenticated, hasUserPermission, user } = useAuthentication();
+  const { mascaradeEnabled, disableMascarade } = useMascarade();
 
   const { data: programmingPlans } = apiClient.useFindProgrammingPlansQuery(
     {},
@@ -292,8 +294,12 @@ const Header = () => {
                     <Button
                       iconId="fr-icon-logout-box-r-line"
                       onClick={async () => {
-                        const logoutRedirectUrl = await logout().unwrap();
-                        window.location.href = logoutRedirectUrl.url;
+                        if (mascaradeEnabled) {
+                          await disableMascarade();
+                        } else {
+                          const logoutRedirectUrl = await logout().unwrap();
+                          window.location.href = logoutRedirectUrl.url;
+                        }
                       }}
                       key="logout-button"
                     >
