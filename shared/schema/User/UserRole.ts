@@ -1,13 +1,15 @@
 import { z } from 'zod';
+import { Nullable } from '../../utils/typescript';
+import { User } from './User';
 import { UserPermission } from './UserPermission';
 
-export const NationalUserRole = z.enum([
+const NationalUserRole = z.enum([
   'Administrator',
   'NationalCoordinator',
   'NationalObserver'
 ]);
 
-export const RegionalAndNationUserRole = z.enum(['SamplerAndNationalObserver']);
+const RegionalAndNationUserRole = z.enum(['SamplerAndNationalObserver']);
 
 const RegionalUserRole = z.enum([
   'RegionalCoordinator',
@@ -24,7 +26,6 @@ export const UserRole = z.enum(
   { error: 'Veuillez renseigner un rôle.' }
 );
 
-export type NationalUserRole = z.infer<typeof NationalUserRole>;
 export type UserRole = z.infer<typeof UserRole>;
 
 export const UserRoleList: UserRole[] = UserRole.options;
@@ -132,3 +133,6 @@ export const UserRoleLabels: Record<UserRole, string> = {
   Sampler: 'Préleveur',
   Administrator: 'Administrateur'
 };
+export const hasNationalRole = (user: Nullable<Pick<User, 'role'>>) =>
+  NationalUserRole.safeParse(user.role).success ||
+  RegionalAndNationUserRole.safeParse(user.role).success;

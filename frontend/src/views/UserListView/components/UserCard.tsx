@@ -5,8 +5,11 @@ import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
 import { Regions } from 'maestro-shared/referential/Region';
 import { ProgrammingPlanKindLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { hasNationalRole, User } from 'maestro-shared/schema/User/User';
-import { UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
+import { User } from 'maestro-shared/schema/User/User';
+import {
+  hasNationalRole,
+  UserRoleLabels
+} from 'maestro-shared/schema/User/UserRole';
 import { isNotEmpty } from 'maestro-shared/utils/typescript';
 import { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';

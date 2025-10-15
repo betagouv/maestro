@@ -1,15 +1,9 @@
 import { intersection, isNil } from 'lodash-es';
 import { RefinementCtx, z } from 'zod';
 import { Region, RegionList } from '../../referential/Region';
-import { Nullable } from '../../utils/typescript';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { UserPermission } from './UserPermission';
-import {
-  NationalUserRole,
-  RegionalAndNationUserRole,
-  UserRole,
-  UserRolePermissions
-} from './UserRole';
+import { hasNationalRole, UserRole, UserRolePermissions } from './UserRole';
 
 const BaseUser = z.object({
   id: z.guid(),
@@ -63,7 +57,3 @@ export const userRegions = (user?: User): Region[] =>
 
 export const hasPermission = (user: User, ...permissions: UserPermission[]) =>
   intersection(permissions, UserRolePermissions[user.role]).length > 0;
-
-export const hasNationalRole = (user: Nullable<Pick<User, 'role'>>) =>
-  NationalUserRole.safeParse(user.role).success ||
-  RegionalAndNationUserRole.safeParse(user.role).success;

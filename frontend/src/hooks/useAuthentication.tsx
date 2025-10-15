@@ -8,12 +8,9 @@ import {
   hasRegionalPrescriptionPermission,
   RegionalPrescriptionPermission
 } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
-import {
-  hasNationalRole,
-  hasPermission
-} from 'maestro-shared/schema/User/User';
+import { hasPermission } from 'maestro-shared/schema/User/User';
 import { UserPermission } from 'maestro-shared/schema/User/UserPermission';
-import { UserRole } from 'maestro-shared/schema/User/UserRole';
+import { hasNationalRole, UserRole } from 'maestro-shared/schema/User/UserRole';
 import { isDefined } from 'maestro-shared/utils/utils';
 import { useCallback, useMemo } from 'react';
 import { useAppSelector } from 'src/hooks/useStore';

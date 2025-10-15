@@ -2,12 +2,12 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
+import { User, UserToCreate } from 'maestro-shared/schema/User/User';
 import {
   hasNationalRole,
-  User,
-  UserToCreate
-} from 'maestro-shared/schema/User/User';
-import { UserRole, UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
+  UserRole,
+  UserRoleLabels
+} from 'maestro-shared/schema/User/UserRole';
 import { Nullable } from 'maestro-shared/utils/typescript';
 import React, { useContext, useEffect, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
