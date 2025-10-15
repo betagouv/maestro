@@ -316,7 +316,7 @@ export const formatPartialSample = (
 const parsePartialSample = (sample: PartialSampleJoinedDbo): PartialSample =>
   sample &&
   PartialSample.parse({
-    ...omit(omitBy(sample, isNil), ['companyId']),
+    ...omit(omitBy(sample, isNil), ['companySiret']),
     geolocation: sample.geolocation && {
       x: sample.geolocation.x,
       y: sample.geolocation.y

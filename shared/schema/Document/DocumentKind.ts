@@ -11,14 +11,14 @@ export const DocumentKind = z.enum([
 
 export const getSupportDocumentFilename = (
   sample: CreatedSampleData,
-  itemNumber: number
-) => `DAP-${sample.reference}-${itemNumber}.pdf`;
+  copyNumber: number
+) => `DAP-${sample.reference}-${copyNumber}.pdf`;
 
 export const getAnalysisReportDocumentFilename = (
   sample: Pick<CreatedSampleData, 'reference'>,
-  itemNumber: number,
+  copyNumber: number,
   extension: 'xlsx' | 'csv'
-) => `DAI-${sample.reference}-${itemNumber}.${extension}`;
+) => `DAI-${sample.reference}-${copyNumber}.${extension}`;
 
 export const DocumentKindList: DocumentKind[] = DocumentKind.options;
 

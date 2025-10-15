@@ -57,14 +57,6 @@ const Header = () => {
     [programmingPlans]
   );
 
-  const openedProgrammingPlans = useMemo(
-    () =>
-      programmingPlans?.filter((pp) =>
-        pp.regionalStatus.some((rs) => rs.status !== 'Closed')
-      ),
-    [programmingPlans]
-  );
-
   const closedProgrammingPlans = useMemo(
     () => programmingPlans?.filter(isClosed),
     [programmingPlans]
@@ -152,40 +144,14 @@ const Header = () => {
                         })
                   }
                 : undefined,
-              openedProgrammingPlans?.length
-                ? {
-                    isActive: openedProgrammingPlans?.some((programmingPlan) =>
-                      isActive(`/programmation/${programmingPlan.year}`, true)
-                    ),
-                    ...(openedProgrammingPlans?.length === 1
-                      ? {
-                          text: 'Programmation',
-                          linkProps: {
-                            to: AuthenticatedAppRoutes.ProgrammationByYearRoute.link(
-                              openedProgrammingPlans[0].year
-                            ),
-                            target: '_self'
-                          }
-                        }
-                      : {
-                          text: 'Programmation',
-                          menuLinks: (openedProgrammingPlans ?? []).map(
-                            (pp) => ({
-                              linkProps: {
-                                to: AuthenticatedAppRoutes.ProgrammationByYearRoute.link(
-                                  pp.year
-                                ),
-                                target: '_self'
-                              },
-                              text: `Campagne ${pp.year}`,
-                              isActive:
-                                isActive('/programmation') &&
-                                pp.id === programmingPlan?.id
-                            })
-                          )
-                        })
-                  }
-                : undefined,
+              {
+                isActive: isActive(`/programmation`, true),
+                text: 'Programmation',
+                linkProps: {
+                  to: AuthenticatedAppRoutes.ProgrammingRoute.link,
+                  target: '_self'
+                }
+              },
               closedProgrammingPlans?.length
                 ? {
                     isActive: closedProgrammingPlans?.some(
@@ -214,9 +180,7 @@ const Header = () => {
                       },
                       {
                         linkProps: {
-                          to: AuthenticatedAppRoutes.ProgrammationByYearRoute.link(
-                            pp.year
-                          ),
+                          to: AuthenticatedAppRoutes.ProgrammingRoute.link,
                           target: '_self'
                         },
                         text: `Programmation ${pp.year}`,

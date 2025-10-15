@@ -111,21 +111,6 @@ export const Authenticated: Story = {
 
     const programmingPlanMenu = within(navigation).getByText('Programmation');
     await expect(programmingPlanMenu).toBeInTheDocument();
-    await expect(
-      within(programmingPlanMenu.parentElement as HTMLElement).queryByText(
-        `Campagne ${closedProgrammingPlan.year}`
-      )
-    ).not.toBeInTheDocument();
-    await expect(
-      within(programmingPlanMenu.parentElement as HTMLElement).getByText(
-        `Campagne ${validatedProgrammingPlan.year}`
-      )
-    ).toBeInTheDocument();
-    await expect(
-      within(programmingPlanMenu.parentElement as HTMLElement).getByText(
-        `Campagne ${inProgressProgrammingPlan.year}`
-      )
-    ).toBeInTheDocument();
 
     await expect(
       within(navigation).getByText('Documents ressources')
@@ -136,7 +121,7 @@ export const Authenticated: Story = {
   }
 };
 
-export const Adiministrator: Story = {
+export const Administrator: Story = {
   args: {
     id: 'id',
     filters: {}
