@@ -3,8 +3,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { RegionList } from '../referential/Region';
 import { ProgrammingPlanKindList } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 import { AuthUser } from '../schema/User/AuthUser';
-import { User } from '../schema/User/User';
-import { NationalUserRole, UserRoleList } from '../schema/User/UserRole';
+import { hasNationalRole, User } from '../schema/User/User';
+import { UserRoleList } from '../schema/User/UserRole';
 import { oneOf } from './testFixtures';
 
 export const genUser = (data?: Partial<User>): User => {
@@ -15,7 +15,7 @@ export const genUser = (data?: Partial<User>): User => {
     name: fakerFR.person.fullName(),
     programmingPlanKinds: [oneOf(ProgrammingPlanKindList)],
     role,
-    region: NationalUserRole.safeParse(role).success ? null : oneOf(RegionList),
+    region: hasNationalRole({ role }) ? null : oneOf(RegionList),
     ...data
   };
 };

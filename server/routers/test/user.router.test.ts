@@ -159,7 +159,7 @@ describe('User router', () => {
     test('should fail if the user is not administrator', async () => {
       await request(app)
         .put(testRoute(NationalCoordinator.id))
-        .send({ role: 'Sampler' })
+        .send({ ...NationalCoordinator, role: 'Sampler', region: '01' })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
@@ -167,15 +167,23 @@ describe('User router', () => {
     test('should fail if the updated user is unknown', async () => {
       await request(app)
         .put(testRoute('55555555-5555-5555-5555-555555555550'))
-        .send({ role: 'Sampler' })
+        .send({ ...Sampler1Fixture, role: 'Sampler' })
         .use(tokenProvider(AdminFixture))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
+    });
+
+    test('the region is required for sampler', async () => {
+      await request(app)
+        .put(testRoute(NationalCoordinator.id))
+        .send({ ...NationalCoordinator, role: 'Sampler' })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
     test('should update an user', async () => {
       await request(app)
         .put(testRoute(NationalCoordinator.id))
-        .send({ role: 'Sampler' })
+        .send({ ...NationalCoordinator, role: 'Sampler', region: '01' })
         .use(tokenProvider(AdminFixture))
         .expect(constants.HTTP_STATUS_OK);
     });

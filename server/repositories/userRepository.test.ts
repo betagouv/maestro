@@ -54,7 +54,7 @@ test("peut modifier le nom et le prénom d'un utilisateur", async () => {
     .selectAll()
     .where('email', '=', user2.email)
     .executeTakeFirst();
-  expect(user2InDb).toMatchObject({ ...user2, name: '-' });
+  expect(user2InDb).toMatchObject(user2);
 });
 test('peut ajouter et supprimer un logged secret', async () => {
   const user1 = genUser();
