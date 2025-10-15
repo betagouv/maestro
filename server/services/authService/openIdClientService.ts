@@ -1,7 +1,6 @@
 import { decode } from 'jsonwebtoken';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { AuthRedirectUrl } from 'maestro-shared/schema/Auth/AuthRedirectUrl';
-import { User } from 'maestro-shared/schema/User/User';
 import { generators, Issuer } from 'openid-client';
 import config from '../../utils/config';
 import { AuthService } from './authService';
@@ -60,7 +59,7 @@ class OpenIdClientService implements AuthService {
 
   authenticate = async (
     authRedirectUrl: AuthRedirectUrl
-  ): Promise<{ idToken: string } & Pick<User, 'email' | 'name'>> => {
+  ): Promise<{ idToken: string; name: string; email: string }> => {
     const params = this.client.callbackParams(authRedirectUrl.url);
     const tokenSet = await this.client.callback(loginCallbackUrl, params, {
       state: authRedirectUrl.state ?? '',
@@ -99,11 +98,9 @@ class OpenIdClientService implements AuthService {
       throw new Error('No email found in user info');
     }
 
-    let name = userInfo.name;
-    if (!name) {
-      // compatibilité avec ProConnect
-      name = `${userInfo.given_name ?? ''} ${userInfo.usual_name ?? ''}`;
-    }
+    const name: string =
+      userInfo.name ??
+      `${userInfo.given_name ?? ''} ${userInfo.usual_name ?? ''}`;
 
     return {
       idToken,
