@@ -18,14 +18,14 @@ import { RegionsFilter } from '../../../components/RegionsFilter/RegionsFilter';
 import useWindowSize from '../../../hooks/useWindowSize';
 import { UsersFilterTags } from './UsersFilterTags';
 
-const findUserOptions = z.object({
+const _findUserOptions = z.object({
   region: Region.nullable(),
   role: UserRole.nullable(),
   programmingPlanKind: ProgrammingPlanKind.nullable(),
   label: z.string().nullable()
 });
 
-export type FindUserOptions = z.infer<typeof findUserOptions>;
+export type FindUserOptions = z.infer<typeof _findUserOptions>;
 
 type Props = {
   onChange: (options: FindUserOptions) => void;

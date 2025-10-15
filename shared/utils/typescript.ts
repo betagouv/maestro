@@ -15,11 +15,4 @@ type NonEmptyArray<T> = [T, ...T[]];
 export const isNotEmpty = <T>(array: T[]): array is NonEmptyArray<T> =>
   array.length > 0;
 
-export const mapNonEmptyArray = <T, U>(
-  nonEmptyArray: NonEmptyArray<T>,
-  func: (item: T) => U
-): NonEmptyArray<U> => {
-  return nonEmptyArray.map(func) as NonEmptyArray<U>;
-};
-
 export type Nullable<T> = { [K in keyof T]: T[K] | null };

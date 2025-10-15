@@ -9,7 +9,7 @@ export const NationalUserRole = z.enum([
 
 export const RegionalAndNationUserRole = z.enum(['SamplerAndNationalObserver']);
 
-export const RegionalUserRole = z.enum([
+const RegionalUserRole = z.enum([
   'RegionalCoordinator',
   'RegionalObserver',
   'Sampler'
@@ -25,7 +25,6 @@ export const UserRole = z.enum(
 );
 
 export type NationalUserRole = z.infer<typeof NationalUserRole>;
-export type RegionalUserRole = z.infer<typeof RegionalUserRole>;
 export type UserRole = z.infer<typeof UserRole>;
 
 export const UserRoleList: UserRole[] = UserRole.options;
