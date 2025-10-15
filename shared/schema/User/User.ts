@@ -69,20 +69,36 @@ export const hasRegionalRole = (user: Pick<User, 'role' | 'department'>) =>
 export const hasDepartmentalRole = (user: Pick<User, 'role' | 'department'>) =>
   DepartmentalUserRole.safeParse(user.role).success && !isNil(user.department);
 
-export const SCL34Id = uuidv4();
-export const LDA66Id = uuidv4();
-export const LDA72Id = uuidv4();
-export const SCL91Id = uuidv4();
-export const GIR49Id = uuidv4();
+export const ANS94ALnrEtmId = uuidv4();
+export const ANS94ALnrPestId = uuidv4();
 export const CAP29Id = uuidv4();
 export const CER30Id = uuidv4();
+export const GIR49Id = uuidv4();
+export const LDA17Id = uuidv4();
+export const LDA21Id = uuidv4();
+export const LDA22Id = uuidv4();
+export const LDA31Id = uuidv4();
+export const LDA66Id = uuidv4();
+export const LDA72Id = uuidv4();
+export const LDA85Id = uuidv4();
+export const LDA87Id = uuidv4();
+export const SCL34Id = uuidv4();
+export const SCL91Id = uuidv4();
 
 export const DummyLaboratoryIds = [
-  SCL34Id,
+  ANS94ALnrEtmId,
+  ANS94ALnrPestId,
+  CAP29Id,
+  CER30Id,
+  GIR49Id,
+  LDA17Id,
+  LDA21Id,
+  LDA22Id,
+  LDA31Id,
   LDA66Id,
   LDA72Id,
-  SCL91Id,
-  GIR49Id,
-  CAP29Id,
-  CER30Id
+  LDA85Id,
+  LDA87Id,
+  SCL34Id,
+  SCL91Id
 ];

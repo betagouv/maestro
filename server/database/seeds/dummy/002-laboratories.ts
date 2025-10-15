@@ -1,9 +1,17 @@
 import {
+  ANS94ALnrEtmId,
+  ANS94ALnrPestId,
   CAP29Id,
   CER30Id,
   GIR49Id,
+  LDA17Id,
+  LDA21Id,
+  LDA22Id,
+  LDA31Id,
   LDA66Id,
   LDA72Id,
+  LDA85Id,
+  LDA87Id,
   SCL34Id,
   SCL91Id
 } from 'maestro-shared/schema/User/User';
@@ -13,12 +21,84 @@ const EMAIL_SANBOX = 'preleveur@maestro.beta.gouv.fr';
 export const seed = async function () {
   await Laboratories().insert([
     {
-      id: SCL34Id,
-      shortName: 'SCL 34',
-      name: 'SCL Montpellier',
-      address: '205, Rue de la Croix Verte',
-      postalCode: '34090',
-      city: 'Montpellier',
+      id: ANS94ALnrEtmId,
+      shortName: 'ANS 94a - LNR ETM',
+      name: 'LNR ETM - Laboratoire de sécurité des aliments de Maisons-Alfort',
+      address: '14, rue Pierre et Marie Curie',
+      postalCode: '94701',
+      city: 'MAISONS-ALFORT Cedex',
+      emails: [EMAIL_SANBOX]
+    },
+    {
+      id: ANS94ALnrPestId,
+      shortName: 'ANS 94a - LNR PEST',
+      name: 'LNR PESTICIDES Laboratoire de sécurité des aliments de Maisons-Alfort',
+      address: '14, rue Pierre et Marie Curie',
+      postalCode: '94701',
+      city: 'MAISONS-ALFORT Cedex',
+      emails: [EMAIL_SANBOX]
+    },
+    {
+      id: CAP29Id,
+      shortName: 'CAP 29',
+      name: 'Capinov',
+      address: 'ZI de Lanrinou',
+      postalCode: '29800',
+      city: 'Landerneau',
+      emails: [EMAIL_SANBOX]
+    },
+    {
+      id: CER30Id,
+      shortName: 'CER 30',
+      name: 'CERECO',
+      address: '3, rue Pierre Bautias ZA Aéropôle',
+      postalCode: '30128',
+      city: 'Garons',
+      emails: [EMAIL_SANBOX]
+    },
+    {
+      id: GIR49Id,
+      shortName: 'GIR 49',
+      name: 'GIRPA',
+      address: "9, avenue du Bois l'Abbé",
+      postalCode: '49070',
+      city: 'Beaucouzé',
+      emails: [EMAIL_SANBOX]
+    },
+    {
+      id: LDA17Id,
+      shortName: 'LDA 17',
+      name: 'QUALYSE site de La Rochelle',
+      address: '5 allée de l’Océan',
+      postalCode: '17000',
+      city: 'LA ROCHELLE',
+      emails: [EMAIL_SANBOX]
+    },
+    {
+      id: LDA21Id,
+      shortName: 'LDA 21',
+      name: "Laboratoire Départemental de la Côte-d'Or",
+      address: '2 ter, rue Hoche BP 71778',
+      postalCode: '21017',
+      city: 'DIJON Cedex',
+      emails: [EMAIL_SANBOX]
+    },
+    {
+      id: LDA22Id,
+      shortName: 'LDA 22',
+      name: 'LABOCEA',
+      address: 'Zoopole 7, rue du Sabot  -  CS 30 054',
+      postalCode: '22440',
+      city: 'PLOUFRAGAN',
+      emails: [EMAIL_SANBOX]
+    },
+    {
+      id: LDA31Id,
+      shortName: 'LDA 31',
+      name: 'Laboratoire départemental Eau - Vétérinaire - Air LAUNAGUET',
+      address: '76, chemin Boudou CS 50013',
+      postalCode: '31140',
+      city: 'LAUNAGUET',
       emails: [EMAIL_SANBOX]
     },
     {
@@ -40,39 +120,39 @@ export const seed = async function () {
       emails: [EMAIL_SANBOX]
     },
     {
+      id: LDA85Id,
+      shortName: 'LDA 85',
+      name: "Laboratoire de l'Environnement et de l'Alimentation de la Vendée (LEAV)",
+      address: 'Rond Point Georges Duval CS 80802',
+      postalCode: '85021',
+      city: 'LA ROCHE SUR YON Cedex',
+      emails: [EMAIL_SANBOX]
+    },
+    {
+      id: LDA87Id,
+      shortName: 'LDA 87',
+      name: "Laboratoire Départemental d'Analyses et de Recherches de la Haute-Vienne",
+      address: 'Avenue du professeur Joseph Léobardy BP 50165',
+      postalCode: '87005',
+      city: 'LIMOGES Cedex',
+      emails: [EMAIL_SANBOX]
+    },
+    {
+      id: SCL34Id,
+      shortName: 'SCL 34',
+      name: 'SCL Montpellier',
+      address: '205, Rue de la Croix Verte',
+      postalCode: '34090',
+      city: 'Montpellier',
+      emails: [EMAIL_SANBOX]
+    },
+    {
       id: SCL91Id,
       shortName: 'SCL 91',
       name: "SCL d'Ile de France",
       address: '25, avenue de la République',
       postalCode: '91300',
       city: 'MASSY',
-      emails: [EMAIL_SANBOX]
-    },
-    {
-      id: GIR49Id,
-      shortName: 'GIR 49',
-      name: 'GIRPA',
-      address: "9, avenue du Bois l'Abbé",
-      postalCode: '49070',
-      city: 'Beaucouzé',
-      emails: [EMAIL_SANBOX]
-    },
-    {
-      id: CAP29Id,
-      shortName: 'CAP 29',
-      name: 'Capinov',
-      address: 'ZI de Lanrinou',
-      postalCode: '29800',
-      city: 'Landerneau',
-      emails: [EMAIL_SANBOX]
-    },
-    {
-      id: CER30Id,
-      shortName: 'CER 30',
-      name: 'CERECO',
-      address: '3, rue Pierre Bautias ZA Aéropôle',
-      postalCode: '30128',
-      city: 'Garons',
       emails: [EMAIL_SANBOX]
     }
   ]);
