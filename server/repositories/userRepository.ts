@@ -29,7 +29,9 @@ const findUnique = async (
       'users.loggedSecrets',
       'users.programmingPlanKinds',
       'companies.siret as companySiret',
-      'companies.name as companyName'
+      'companies.name as companyName',
+      'companies.kind as companyKind',
+      'companies.geolocation as companyGeolocation'
     ])
     .executeTakeFirst()
     .then((user) =>
@@ -41,7 +43,9 @@ const findUnique = async (
               user.companySiret && user.companyName
                 ? {
                     siret: user.companySiret,
-                    name: user.companyName
+                    name: user.companyName,
+                    kind: user.companyKind,
+                    geolocation: user.companyGeolocation
                   }
                 : null
           }

@@ -113,8 +113,7 @@ export const seed = async function () {
         region: '52',
         department: '85',
         company: {
-          siret: '54695037900273',
-          name: 'CHARAL'
+          siret: '54695037900216'
         }
       },
 

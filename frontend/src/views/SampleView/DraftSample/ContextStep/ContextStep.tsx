@@ -96,10 +96,10 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
   );
   const [legalContext, setLegalContext] = useState(partialSample?.legalContext);
   const [geolocationX, setGeolocationX] = useState(
-    partialSample?.geolocation?.x
+    partialSample?.geolocation?.x ?? user?.company?.geolocation?.x
   );
   const [geolocationY, setGeolocationY] = useState(
-    partialSample?.geolocation?.y
+    partialSample?.geolocation?.y ?? user?.company?.geolocation?.y
   );
   const [isBrowserGeolocation, setIsBrowserGeolocation] = useState(false);
   const [sampler, setSampler] = useState<Sampler | undefined>(
@@ -108,7 +108,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
 
   const [parcel, setParcel] = useState(partialSample?.parcel);
   const [company, setCompany] = useState(
-    user?.company ?? partialSample?.company
+    partialSample?.company ?? user?.company
   );
   const [companyOffline, setCompanyOffline] = useState(
     partialSample?.companyOffline

@@ -15,6 +15,7 @@ import { SSD2Id } from '../../referential/Residue/SSD2Id';
 import { Stage } from '../../referential/Stage';
 import { isDefined } from '../../utils/utils';
 import { Company } from '../Company/Company';
+import { Geolocation } from '../Geolocation/Geolocation';
 import {
   Context,
   OutsideProgrammingPlanContext,
@@ -27,19 +28,6 @@ import {
   SampleMatrixSpecificData
 } from './SampleMatrixSpecificData';
 import { SampleStatus } from './SampleStatus';
-
-export const Geolocation = z.object(
-  {
-    x: z.number(),
-    y: z.number()
-  },
-  {
-    error: (issue) =>
-      isNil(issue.input)
-        ? 'Veuillez renseigner la localisation.'
-        : issue.message
-  }
-);
 
 export const SampleContextData = z.object({
   id: z.guid(),
@@ -256,7 +244,6 @@ export const Sample = SampleBase.check(
   sampleMatrixCheck
 );
 
-export type Geolocation = z.infer<typeof Geolocation>;
 export type SampleContextData = z.infer<typeof SampleContextData>;
 export type SampleMatrixData = z.infer<typeof SampleMatrixData>;
 export type SampleItemsData = z.infer<typeof SampleItemsData>;

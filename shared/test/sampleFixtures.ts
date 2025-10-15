@@ -9,10 +9,10 @@ import { MatrixPartList } from '../referential/Matrix/MatrixPart';
 import { QuantityUnitList } from '../referential/QuantityUnit';
 import { Regions } from '../referential/Region';
 import { Company } from '../schema/Company/Company';
+import { Geolocation } from '../schema/Geolocation/Geolocation';
 import { ProgrammingPlanContextList } from '../schema/ProgrammingPlan/Context';
 import {
   CreatedSampleData,
-  Geolocation,
   PartialSample,
   Sample,
   SampleContextData

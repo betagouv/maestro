@@ -14,6 +14,7 @@ import { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
 import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { ResidueCompliance } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
+import { CompanyKind } from 'maestro-shared/schema/Company/CompanyKind';
 import { type DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
@@ -83,6 +84,8 @@ export interface Companies {
   postalCode: string | null;
   siret: string;
   tradeName: string | null;
+  kind: CompanyKind;
+  geolocation: Point | null;
 }
 
 export interface Documents {

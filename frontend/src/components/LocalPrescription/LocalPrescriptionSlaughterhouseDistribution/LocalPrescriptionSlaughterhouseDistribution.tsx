@@ -72,7 +72,8 @@ const LocalPrescriptionSlaughterhouseDistribution = forwardRef<
 
     const { data: companies } = apiClient.useFindCompaniesQuery({
       kind: 'Slaughterhouse',
-      region: departmentalPrescription.region
+      region: departmentalPrescription.region,
+      department: departmentalPrescription.department
     });
 
     const Form = z.object({
