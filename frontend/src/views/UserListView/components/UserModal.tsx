@@ -16,10 +16,6 @@ import { selectOptionsFromList } from '../../../components/_app/AppSelect/AppSel
 import AppTextInput from '../../../components/_app/AppTextInput/AppTextInput';
 import { useForm } from '../../../hooks/useForm';
 import { ApiClientContext } from '../../../services/apiClient';
-import {
-  ProgrammingPlanKind, ProgrammingPlanKindLabels,
-  ProgrammingPlanKindList
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 
 interface Props {
   userToUpdate: null | User;

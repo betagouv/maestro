@@ -31,21 +31,20 @@ export const UserCard: FunctionComponent<Props> = ({
   return (
     <Card
       title={
-      <div className={clsx('user-card-title')}>
-        <Tag as={'span'} small>
-          {UserRoleLabels[user.role]}
-        </Tag>
-        <Button
-          size="small"
-          className={clsx('fr-mr-2w')}
-          onClick={onEdit}
-          priority={'tertiary no outline'}
-          iconId={'fr-icon-edit-line'}
-        >
-          Éditer
-        </Button>
-      </div>
-
+        <div className={clsx('user-card-title')}>
+          <Tag as={'span'} small>
+            {UserRoleLabels[user.role]}
+          </Tag>
+          <Button
+            size="small"
+            className={clsx('fr-mr-2w')}
+            onClick={onEdit}
+            priority={'tertiary no outline'}
+            iconId={'fr-icon-edit-line'}
+          >
+            Éditer
+          </Button>
+        </div>
       }
       titleAs={'h6'}
       desc={

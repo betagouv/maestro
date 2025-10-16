@@ -173,8 +173,10 @@ const CompanySearch = ({
                     {option.siret}
                   </div>
                   <div>
-                    <span className={'address-container'}>{(option.address?.toLowerCase() ?? '')}</span> {option.postalCode}{' '}
-                    {option.city}
+                    <span className={'address-container'}>
+                      {option.address?.toLowerCase() ?? ''}
+                    </span>{' '}
+                    {option.postalCode} {option.city}
                   </div>
                 </Box>
                 {option.nafCode && (
