@@ -6,7 +6,7 @@ import {
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { hasRegionalPrescriptionPermission } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
 import { RegionalPrescriptionComment } from 'maestro-shared/schema/RegionalPrescription/RegionalPrescriptionComment';
-import { hasNationalRole } from 'maestro-shared/schema/User/User';
+import { hasNationalRole } from 'maestro-shared/schema/User/UserRole';
 import { isDefined } from 'maestro-shared/utils/utils';
 import { v4 as uuidv4 } from 'uuid';
 import { getAndCheckPrescription } from '../middlewares/checks/prescriptionCheck';

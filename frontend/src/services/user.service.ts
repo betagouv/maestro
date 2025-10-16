@@ -1,6 +1,9 @@
-import { isNil, omitBy } from 'lodash-es';
 import { FindUserOptions } from 'maestro-shared/schema/User/FindUserOptions';
-import { User } from 'maestro-shared/schema/User/User';
+import {
+  User,
+  UserToCreate,
+  UserToUpdate
+} from 'maestro-shared/schema/User/User';
 import { api } from 'src/services/api.service';
 
 const userApi = api.injectEndpoints({
@@ -16,7 +19,7 @@ const userApi = api.injectEndpoints({
         params: findOptions
       }),
       transformResponse: (response: any[]) =>
-        response.map((_) => User.parse(omitBy(_, isNil))),
+        response.map((_) => User.parse(_)),
       providesTags: (result) => [
         { type: 'User', id: 'LIST' },
         ...(result ?? []).map(({ id }) => ({
@@ -24,9 +27,33 @@ const userApi = api.injectEndpoints({
           id
         }))
       ]
+    }),
+    updateUser: builder.mutation<void, UserToUpdate>({
+      query: (user) => ({
+        url: `/users/${user.id}`,
+        method: 'PUT',
+        body: user
+      }),
+      invalidatesTags: (_result, _error, { id }) => [
+        { type: 'User', id: 'LIST' },
+        { type: 'User', id }
+      ]
+    }),
+    createUser: builder.mutation<void, UserToCreate>({
+      query: (user) => ({
+        url: `/users`,
+        method: 'POST',
+        body: user
+      }),
+      invalidatesTags: (_result, _error) => [{ type: 'User', id: 'LIST' }]
     })
   })
 });
 
-export const { useGetUserQuery, useFindUsersQuery, useLazyGetUserQuery } =
-  userApi;
+export const {
+  useGetUserQuery,
+  useFindUsersQuery,
+  useLazyGetUserQuery,
+  useCreateUserMutation,
+  useUpdateUserMutation
+} = userApi;

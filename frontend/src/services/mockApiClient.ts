@@ -201,7 +201,9 @@ const defaultMockApiClientConf: MockApi = {
   },
   useUpdateDashboardNoticeMutation: [async () => fn(), {}],
   useMascaradeStartMutation: [async () => fn(), {}],
-  useMascaradeStopMutation: [async () => fn(), {}]
+  useMascaradeStopMutation: [async () => fn(), {}],
+  useCreateUserMutation: [async () => fn(), {}],
+  useUpdateUserMutation: [async () => fn(), {}]
 };
 
 export const mockApiClient = getMockApi({});

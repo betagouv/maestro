@@ -5,6 +5,8 @@ import { COOKIE_MAESTRO_ACCESS_TOKEN } from 'maestro-shared/constants';
 import { Region } from 'maestro-shared/referential/Region';
 import { User } from 'maestro-shared/schema/User/User';
 import {
+  AdminFixture,
+  genUser,
   NationalCoordinator,
   RegionalCoordinator,
   Sampler1Fixture,
@@ -128,6 +130,62 @@ describe('User router', () => {
           SamplerDromFixture
         ])
       );
+    });
+  });
+
+  describe('POST /', () => {
+    const testRoute = () => `/api/users`;
+
+    test('should fail if the user is not administrator', async () => {
+      await request(app)
+        .post(testRoute())
+        .use(tokenProvider(NationalCoordinator))
+        .send(genUser())
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should create an user', async () => {
+      await request(app)
+        .post(testRoute())
+        .send(genUser())
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_CREATED);
+    });
+  });
+
+  describe('PUT /{userId}', () => {
+    const testRoute = (userId: string) => `/api/users/${userId}`;
+
+    test('should fail if the user is not administrator', async () => {
+      await request(app)
+        .put(testRoute(NationalCoordinator.id))
+        .send({ ...NationalCoordinator, role: 'Sampler', region: '01' })
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should fail if the updated user is unknown', async () => {
+      await request(app)
+        .put(testRoute('55555555-5555-5555-5555-555555555550'))
+        .send({ ...Sampler1Fixture, role: 'Sampler' })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_NOT_FOUND);
+    });
+
+    test('the region is required for sampler', async () => {
+      await request(app)
+        .put(testRoute(NationalCoordinator.id))
+        .send({ ...NationalCoordinator, role: 'Sampler' })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    test('should update an user', async () => {
+      await request(app)
+        .put(testRoute(NationalCoordinator.id))
+        .send({ ...NationalCoordinator, role: 'Sampler', region: '01' })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_OK);
     });
   });
 });

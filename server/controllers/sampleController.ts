@@ -45,10 +45,8 @@ import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { StageLabels } from 'maestro-shared/referential/Stage';
-import {
-  hasNationalRole,
-  hasPermission
-} from 'maestro-shared/schema/User/User';
+import { hasPermission } from 'maestro-shared/schema/User/User';
+import { hasNationalRole } from 'maestro-shared/schema/User/UserRole';
 import { Readable } from 'node:stream';
 import { PDFDocument } from 'pdf-lib';
 import {
