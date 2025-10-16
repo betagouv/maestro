@@ -31,9 +31,21 @@ export const UserCard: FunctionComponent<Props> = ({
   return (
     <Card
       title={
+      <div className={clsx('user-card-title')}>
         <Tag as={'span'} small>
           {UserRoleLabels[user.role]}
         </Tag>
+        <Button
+          size="small"
+          className={clsx('fr-mr-2w')}
+          onClick={onEdit}
+          priority={'tertiary no outline'}
+          iconId={'fr-icon-edit-line'}
+        >
+          Éditer
+        </Button>
+      </div>
+
       }
       titleAs={'h6'}
       desc={
@@ -48,25 +60,13 @@ export const UserCard: FunctionComponent<Props> = ({
           {isNotEmpty(user.programmingPlanKinds) && (
             <span>
               {user.programmingPlanKinds.map((p) => (
-                <Tag key={p} as={'span'}>
+                <Tag key={p} as={'span'} small={true}>
                   {ProgrammingPlanKindLabels[p]}
                 </Tag>
               ))}
             </span>
           )}
         </span>
-      }
-      end={
-        <div className={clsx('d-flex-align-center')}>
-          <Button
-            size="small"
-            className={clsx('fr-mr-2w')}
-            onClick={onEdit}
-            priority={'secondary'}
-          >
-            Éditer
-          </Button>
-        </div>
       }
     />
   );

@@ -16,6 +16,10 @@ import { selectOptionsFromList } from '../../../components/_app/AppSelect/AppSel
 import AppTextInput from '../../../components/_app/AppTextInput/AppTextInput';
 import { useForm } from '../../../hooks/useForm';
 import { ApiClientContext } from '../../../services/apiClient';
+import {
+  ProgrammingPlanKind, ProgrammingPlanKindLabels,
+  ProgrammingPlanKindList
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 
 interface Props {
   userToUpdate: null | User;
@@ -142,7 +146,7 @@ export const UserModal = ({ userToUpdate, modal, ..._rest }: Props) => {
           />
         )}
 
-        {/*  //FIXME PROGRAMMING PLAN KIND select multiple*/}
+        {/*  //TODO PROGRAMMING PLAN KIND select multiple, à récupérer sur la branche DAOA*/}
       </form>
     </modal.Component>
   );
