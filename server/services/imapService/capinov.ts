@@ -40,7 +40,7 @@ const capinovReferential: Record<string, SSD2Id> = {
   Bromuconazole: 'RF-0054-001-PPP',
   'Captan + tetrahydrophtaIimide expr. as captan': 'RF-00004681-PAR',
   Carbetamide: 'RF-00012044-PAR',
-  'Carbofuran (+ 3-hydroxy-carbofuran expr. as carbofuran)': 'RF-0065-002-PPP',
+  'Carbofuran (+ 3-hydroxy-carbofuran expr. as carbofuran)': 'RF-00003374-PAR',
   'Carboxin (+Carboxin-sulfoxide + carboxin-sulfone (Oxycarboxin) expr. as carboxin)':
     'RF-00011559-PAR',
   'Carfentrazone-ethyl (sum of carfentrazone-ethyl and carfentrazone, expr. as carfentrazone-ethyl)':
@@ -874,7 +874,8 @@ export const extractAnalyzes = (
       const result: ExportResultQuantifiable | ExportResultNonQuantifiable =
         !isDetectable
           ? { result_kind: 'ND' }
-          : residue.RESULTAT_VALTEXTE === 'd, NQ'
+          : residue.RESULTAT_VALTEXTE === 'd, NQ' ||
+              residue.RESULTAT_VALTEXTE === '< LQ'
             ? {
                 result_kind: 'NQ'
               }

@@ -322,7 +322,13 @@ export const SSD2Hierarchy: { [reference in SSD2Id]?: SSD2Id[] } =
       'RF-0662-001-PPP',
       'RF-0663-001-PPP'
     ],
-    'RF-1006-001-PPP': ['RF-0397-001-PPP']
+    'RF-1006-001-PPP': ['RF-0397-001-PPP'],
+    'RF-0396-001-PPP': [
+      'RF-00003330-PAR',
+      'RF-00003331-PAR',
+      'RF-00003332-PAR',
+      'RF-00003333-PAR'
+    ]
   };
 // ----- ne pas supprimer cette ligne : fin
 
