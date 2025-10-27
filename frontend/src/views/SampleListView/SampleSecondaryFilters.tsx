@@ -3,7 +3,6 @@ import Input from '@codegouvfr/react-dsfr/Input';
 import Select from '@codegouvfr/react-dsfr/Select';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import { t } from 'i18next';
-import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
 import {
   Context,
   ContextLabels,
@@ -17,6 +16,7 @@ import {
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { z } from 'zod';
 import { DepartmentsSelect } from '../../components/DepartmentsSelect/DepartmentsSelect';
+import { RegionsFilter } from '../../components/RegionsFilter/RegionsFilter';
 import { useAppSelector } from '../../hooks/useStore';
 
 interface Props {
@@ -32,26 +32,15 @@ const SampleSecondaryFilters = ({ filters, onChange }: Props) => {
     <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
       {hasNationalView && (
         <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
-          <Select
-            label="Région"
-            nativeSelectProps={{
-              value: filters.region || '',
-              onChange: (e) =>
-                onChange({
-                  region: e.target.value as Region,
-                  departments: undefined
-                })
+          <RegionsFilter
+            defaultValue={filters.region ?? null}
+            onChange={(region) => {
+              onChange({
+                region,
+                departments: undefined
+              });
             }}
-          >
-            <option value="">Toutes les régions</option>
-            {[...RegionList]
-              .sort((a, b) => Regions[a].name.localeCompare(Regions[b].name))
-              .map((region) => (
-                <option key={`region-${region}`} value={region}>
-                  {Regions[region].name}
-                </option>
-              ))}
-          </Select>
+          />
         </div>
       )}
       <div className={cx('fr-col-12', 'fr-col-md-3')}>

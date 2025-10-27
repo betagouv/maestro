@@ -38,6 +38,9 @@ export const AppRouteLinks = {
   },
   AdminRoute: {
     link: '/admin'
+  },
+  UsersRoute: {
+    link: '/utilisateurs'
   }
 } as const satisfies Record<string, AppRouteLink>;
 

@@ -2,7 +2,6 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import { Autocomplete, Box } from '@mui/material';
 import clsx from 'clsx';
-import { startCase } from 'lodash-es';
 import { Department } from 'maestro-shared/referential/Department';
 import {
   Company,
@@ -174,8 +173,10 @@ const CompanySearch = ({
                     {option.siret}
                   </div>
                   <div>
-                    {startCase(option.address ?? undefined)} {option.postalCode}{' '}
-                    {option.city}
+                    <span className={'address-container'}>
+                      {option.address?.toLowerCase() ?? ''}
+                    </span>{' '}
+                    {option.postalCode} {option.city}
                   </div>
                 </Box>
                 {option.nafCode && (

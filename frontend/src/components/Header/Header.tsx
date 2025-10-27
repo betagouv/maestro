@@ -233,7 +233,16 @@ const Header = () => {
                 text: 'Documents ressources',
                 isActive: location.pathname.startsWith('/documents')
               },
-
+              hasUserPermission('administrationMaestro')
+                ? {
+                    linkProps: {
+                      to: AuthenticatedAppRoutes.UsersRoute.link,
+                      target: '_self'
+                    },
+                    text: 'Utilisateurs',
+                    isActive: location.pathname.startsWith('/utilisateurs')
+                  }
+                : undefined,
               hasUserPermission('administrationMaestro')
                 ? {
                     linkProps: {

@@ -10,3 +10,9 @@ export type OmitDistributive<T, K extends string> = T extends unknown
 export const getRecordKeys = <T extends string>(
   record: Record<T, unknown>
 ): T[] => Object.keys(record) as T[];
+
+type NonEmptyArray<T> = [T, ...T[]];
+export const isNotEmpty = <T>(array: T[]): array is NonEmptyArray<T> =>
+  array.length > 0;
+
+export type Nullable<T> = { [K in keyof T]: T[K] | null };

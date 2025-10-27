@@ -12,6 +12,7 @@ import { OpenApiExplorerView } from './views/OpenApiExplorer/OpenApiExplorerView
 import ProgrammingPlanView from './views/ProgrammingPlanView/ProgrammingPlanView';
 import SampleListView from './views/SampleListView/SampleListView';
 import SampleView from './views/SampleView/SampleView';
+import { UserListView } from './views/UserListView/UserListView';
 
 export const AppRouteComponents = {
   DashboardRoute: DashboardView,
@@ -25,5 +26,6 @@ export const AppRouteComponents = {
   LogoutCallbackRoute: LogoutCallbackView,
   LoginRoute: HomeView,
   LoginCallbackRoute: LoginCallbackView,
-  AdminRoute: AdminView
+  AdminRoute: AdminView,
+  UsersRoute: UserListView
 } as const satisfies Record<AppRouteKeys, () => ReactElement>;
