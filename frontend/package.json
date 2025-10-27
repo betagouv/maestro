@@ -59,7 +59,7 @@
     "maestro-shared": "^0.0.1",
     "maplibre-gl": "^4.1.2",
     "openapi-explorer": "^2.2.734",
-    "playwright": "^1.50.1",
+    "playwright": "^1.56.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-i18next": "^14.0.5",
