@@ -95,6 +95,20 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
     partialSample?.specificData.programmingPlanKind ?? ''
   );
   const [legalContext, setLegalContext] = useState(partialSample?.legalContext);
+  //FIXME j'ai commenté les user.company, je ne vois pas comment ça peut marcher
+  // si je comprends bien c'est pour attribuer un abbatoir à un préleveur, mais je vois plusieurs pbs:
+  //     - un préleveur peut intervenir dans plusieurs abbatoirs
+  //     - dans notre table « companies » on a pas les abbatoirs, mais leur siège social
+  // const [geolocationX, setGeolocationX] = useState(
+  //   partialSample?.geolocation?.x ?? user?.company?.geolocation?.x
+  // );
+  // const [geolocationY, setGeolocationY] = useState(
+  //   partialSample?.geolocation?.y ?? user?.company?.geolocation?.y
+  // );
+  // const [company, setCompany] = useState(
+  //   partialSample?.company ?? user?.company
+  // );
+
   const [geolocationX, setGeolocationX] = useState(
     partialSample?.geolocation?.x
   );
@@ -608,20 +622,22 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
             />
           )}
         </div>
-        <div className={cx('fr-col-12', 'fr-col-sm-4')}>
-          <AppTextInput
-            type="text"
-            defaultValue={partialSample?.resytalId || ''}
-            onChange={(e) => setResytalId(e.target.value)}
-            inputForm={form}
-            inputKey="resytalId"
-            whenValid="Identifiant Resytal correctement renseigné."
-            data-testid="resytalId-input"
-            label="Identifiant Resytal"
-            disabled={readonly}
-            hintText="Format AA-XXXXXX"
-          />
-        </div>
+        {programmingPlanKind === 'PPV' && (
+          <div className={cx('fr-col-12', 'fr-col-sm-4')}>
+            <AppTextInput
+              type="text"
+              defaultValue={partialSample?.resytalId || ''}
+              onChange={(e) => setResytalId(e.target.value)}
+              inputForm={form}
+              inputKey="resytalId"
+              whenValid="Identifiant Resytal correctement renseigné."
+              data-testid="resytalId-input"
+              label="Identifiant Resytal"
+              disabled={readonly}
+              hintText="Format AA-XXXXXX"
+            />
+          </div>
+        )}
       </div>
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>

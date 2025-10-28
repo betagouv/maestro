@@ -7,7 +7,7 @@ import {
   SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useDocument } from 'src/hooks/useDocument';
 import { getSupportDocumentURL } from 'src/services/sample.service';
 import './SupportDocumentSelect.scss';
@@ -22,7 +22,12 @@ const SupportDocumentSelect = ({ label, sample, renderButtons }: Props) => {
 
   const [selectedItemNumber, setSelectedItemNumber] = useState(1);
 
-  if (sample.items.length === 0) {
+  const firstCopyItems = useMemo(
+    () => sample.items.filter((item) => item.copyNumber === 1),
+    [sample.items]
+  );
+
+  if (firstCopyItems.length === 0) {
     return <></>;
   }
 
@@ -34,12 +39,12 @@ const SupportDocumentSelect = ({ label, sample, renderButtons }: Props) => {
     }
   };
 
-  return sample.items.length === 1 ? (
+  return firstCopyItems.length === 1 ? (
     <div className="d-flex-align-center">
       {label && (
         <label className={clsx(cx('fr-label'), 'flex-grow-1')}>{label}</label>
       )}
-      {renderButtons(() => getDocument(sample.items[0]))}
+      {renderButtons(() => getDocument(firstCopyItems[0]))}
     </div>
   ) : (
     <div className="select-with-button">
@@ -52,9 +57,9 @@ const SupportDocumentSelect = ({ label, sample, renderButtons }: Props) => {
           value: selectedItemNumber
         }}
       >
-        {sample.items.map((item) => (
+        {firstCopyItems.map((item) => (
           <option
-            key={`sample-item-${item.itemNumber}`}
+            key={`sample-item-${item.itemNumber}-${item.itemNumber}`}
             value={item.itemNumber}
             label={`Echantillon n°${item.itemNumber}`}
           >
@@ -62,7 +67,7 @@ const SupportDocumentSelect = ({ label, sample, renderButtons }: Props) => {
           </option>
         ))}
       </Select>
-      {renderButtons(() => getDocument(sample.items[selectedItemNumber - 1]))}
+      {renderButtons(() => getDocument(firstCopyItems[selectedItemNumber - 1]))}
     </div>
   );
 };

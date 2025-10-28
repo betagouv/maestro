@@ -118,7 +118,7 @@ const CompanySearch = ({
   ) => {
     setSearchQuery(value);
 
-    if (value.length > 3) {
+    if (value.length > 1) {
       await search(value)
         .then((results) => {
           setCompanyResults(results);

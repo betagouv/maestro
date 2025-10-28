@@ -4,16 +4,31 @@ import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { format, parse } from 'date-fns';
+import { isNil, maxBy } from 'lodash-es';
+import { SubstanceKindLaboratorySort } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
+import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
+  isCreatedPartialSample,
   isProgrammingPlanSample,
   PartialSample,
   PartialSampleToCreate,
   SampleItemsData,
   uniqueSampleItemSealIdCheck
 } from 'maestro-shared/schema/Sample/Sample';
-import { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
-import { isDefined, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  PartialSampleItem,
+  SampleItemSort
+} from 'maestro-shared/schema/Sample/SampleItem';
+import { toArray } from 'maestro-shared/utils/utils';
+import React, {
+  Fragment,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import { useForm } from 'src/hooks/useForm';
@@ -22,14 +37,15 @@ import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SampleItemDetails from 'src/views/SampleView/SampleItemDetails/SampleItemDetails';
 import SavedAlert from 'src/views/SampleView/SavedAlert';
-import { z } from 'zod';
 import AppServiceErrorAlert from '../../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import AppTextInput from '../../../../components/_app/AppTextInput/AppTextInput';
 import { useAnalytics } from '../../../../hooks/useAnalytics';
+import { useAuthentication } from '../../../../hooks/useAuthentication';
+import { useAppSelector } from '../../../../hooks/useStore';
 import { ApiClientContext } from '../../../../services/apiClient';
 import NextButton from '../NextButton';
 
-const MaxItemCount = 3;
+const MaxCopyCount = 3;
 
 type Props = {
   partialSample: PartialSample | PartialSampleToCreate;
@@ -38,27 +54,18 @@ type Props = {
 const ItemsStep = ({ partialSample }: Props) => {
   const apiClient = useContext(ApiClientContext);
   const { navigateToSample } = useSamplesLink();
-  const { laboratory, readonly } = usePartialSample(partialSample);
+  const { readonly } = usePartialSample(partialSample);
   const { trackEvent } = useAnalytics();
+  const { user } = useAuthentication();
+
+  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
 
   const isSubmittingRef = useRef<boolean>(false);
 
   const [sampledAt, setSampledAt] = useState(
     format(partialSample.sampledAt ?? new Date(), 'yyyy-MM-dd HH:mm')
   );
-  const [items, setItems] = useState<PartialSampleItem[]>(
-    !isDefinedAndNotNull(partialSample.items) ||
-      partialSample.items.length === 0
-      ? [
-          {
-            sampleId: partialSample.id,
-            itemNumber: 1,
-            recipientKind: 'Laboratory'
-          }
-        ]
-      : partialSample.items
-  );
-  const [laboratoryId, setLaboratoryId] = useState(laboratory?.id);
+  const [items, setItems] = useState(partialSample.items ?? []);
   const [notesOnItems, setNotesOnItems] = useState(partialSample.notesOnItems);
   const [isSaved, setIsSaved] = useState(false);
 
@@ -82,28 +89,75 @@ const ItemsStep = ({ partialSample }: Props) => {
   const [createOrUpdateSample, createOrUpdateSampleCall] =
     apiClient.useCreateOrUpdateSampleMutation();
 
-  const Form = z.object({
-    ...SampleItemsData.pick({
-      sampledAt: true,
-      notesOnItems: true,
-      items: true
-    }).shape,
-    laboratoryId: z.guid().nullish()
-  });
-
-  const FormRefinement = Form.check(uniqueSampleItemSealIdCheck).check(
-    (ctx) => {
-      const laboratoryId = ctx.value.laboratoryId;
-      if (!isProgrammingPlanSample(partialSample) && !isDefined(laboratoryId)) {
-        ctx.issues.push({
-          code: 'custom',
-          path: ['laboratoryId'],
-          input: laboratoryId,
-          message: 'Veuillez sélectionner un laboratoire.'
-        });
-      }
+  const { data } = apiClient.useFindLocalPrescriptionsQuery(
+    {
+      programmingPlanId: partialSample.programmingPlanId as string,
+      prescriptionId: partialSample.prescriptionId,
+      contexts: toArray(
+        ProgrammingPlanContext.safeParse(partialSample.context).data
+      ),
+      region: isCreatedPartialSample(partialSample)
+        ? partialSample.region
+        : user?.region,
+      includes: 'laboratories',
+      ...((programmingPlan as ProgrammingPlan).distributionKind ===
+      'SLAUGHTERHOUSE'
+        ? {
+            department: partialSample.department
+          }
+        : {})
+    },
+    {
+      skip: !programmingPlan || !isProgrammingPlanSample(partialSample)
     }
   );
+
+  const localPrescription = useMemo(
+    () =>
+      data?.find((_) =>
+        (programmingPlan as ProgrammingPlan).distributionKind ===
+        'SLAUGHTERHOUSE'
+          ? isNil(_.companySiret)
+          : isNil(_.department)
+      ),
+    [data, programmingPlan]
+  );
+
+  useEffect(() => {
+    if (
+      programmingPlan &&
+      (isNil(items) ||
+        (items.length === 0 &&
+          (localPrescription || !isProgrammingPlanSample(partialSample))))
+    ) {
+      setItems(
+        [
+          ...(localPrescription?.substanceKindsLaboratories ??
+            programmingPlan.substanceKinds.map((substanceKind) => ({
+              substanceKind,
+              laboratoryId: undefined
+            })))
+        ]
+          .sort(SubstanceKindLaboratorySort)
+          .map((substanceKindLaboratory, index) => ({
+            sampleId: partialSample.id,
+            itemNumber: index + 1,
+            copyNumber: 1,
+            recipientKind: 'Laboratory',
+            laboratoryId: substanceKindLaboratory.laboratoryId,
+            substanceKind: substanceKindLaboratory.substanceKind
+          }))
+      );
+    }
+  }, [localPrescription, programmingPlan]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const Form = SampleItemsData.pick({
+    sampledAt: true,
+    notesOnItems: true,
+    items: true
+  });
+
+  const FormRefinement = Form.check(uniqueSampleItemSealIdCheck);
 
   useEffect(
     () => {
@@ -150,24 +204,25 @@ const ItemsStep = ({ partialSample }: Props) => {
       sampledAt: parse(sampledAt, 'yyyy-MM-dd HH:mm', new Date()),
       notesOnItems,
       items,
-      laboratoryId,
       status
     });
   };
 
-  const changeItems = (item: PartialSampleItem, index: number) => {
-    const newItems = [...items];
-    newItems[index] = item;
-    setItems(newItems);
-  };
+  const changeItems = (item: PartialSampleItem) =>
+    setItems(
+      items.map((_) =>
+        _.itemNumber === item.itemNumber && _.copyNumber === item.copyNumber
+          ? item
+          : _
+      )
+    );
 
   const form = useForm(
     FormRefinement,
     {
       sampledAt,
-      items,
-      notesOnItems,
-      laboratoryId
+      items: items,
+      notesOnItems
     },
     save
   );
@@ -193,55 +248,78 @@ const ItemsStep = ({ partialSample }: Props) => {
         </div>
       </div>
       <div className="sample-items">
-        {items?.map((item, itemIndex) => (
-          <div
-            className={clsx(
-              cx('fr-callout', 'fr-callout--pink-tuile', 'fr-mb-0', 'fr-pb-2w'),
-              'sample-callout'
-            )}
-            key={`item-${itemIndex}`}
-          >
-            <SampleItemDetails
-              partialSample={partialSample}
-              item={item}
-              itemIndex={itemIndex}
-              onRemoveItem={(index) => {
-                const newItems = [...items];
-                newItems.splice(index, 1);
-                setItems(newItems);
-              }}
-              onChangeItem={changeItems}
-              onChangeLaboratory={setLaboratoryId}
-              itemsForm={form}
-              laboratory={laboratory}
-              readonly={readonly}
-            />
-          </div>
-        ))}
-        {items.length < MaxItemCount && !readonly && (
-          <Button
-            iconId="fr-icon-add-line"
-            priority="secondary"
-            onClick={(e) => {
-              e.preventDefault();
-              setItems([
-                ...items,
-                {
-                  sampleId: partialSample.id,
-                  itemNumber: Math.max(...items.map((i) => i.itemNumber)) + 1,
-                  quantity: items[items.length - 1]?.quantity,
-                  quantityUnit: items[items.length - 1]?.quantityUnit
+        {[...items]?.sort(SampleItemSort).map((item, itemIndex) => (
+          <Fragment key={`item-${itemIndex}`}>
+            <div
+              className={clsx(
+                cx(
+                  'fr-callout',
+                  'fr-callout--pink-tuile',
+                  'fr-mb-0',
+                  'fr-pb-2w'
+                ),
+                'sample-callout'
+              )}
+            >
+              <SampleItemDetails
+                partialSample={partialSample}
+                item={item}
+                itemIndex={itemIndex}
+                onRemoveItem={(item: PartialSampleItem) =>
+                  setItems(
+                    items
+                      .filter((_) => _ !== item)
+                      .map((_) => ({
+                        ..._,
+                        copyNumber:
+                          _.itemNumber === item.itemNumber &&
+                          _.copyNumber > item.copyNumber
+                            ? _.copyNumber - 1
+                            : _.copyNumber
+                      }))
+                  )
                 }
-              ]);
-            }}
-            style={{
-              alignSelf: 'center'
-            }}
-            data-testid="add-item-button"
-          >
-            Ajouter un échantillon
-          </Button>
-        )}
+                onChangeItem={changeItems}
+                itemsForm={form}
+                readonly={readonly}
+              />
+            </div>
+            {item ===
+              maxBy(
+                items.filter((_) => _.itemNumber === item.itemNumber),
+                'copyNumber'
+              ) &&
+              item.copyNumber < MaxCopyCount &&
+              !readonly && (
+                <Button
+                  iconId="fr-icon-add-line"
+                  priority="secondary"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setItems(
+                      [
+                        ...items,
+                        {
+                          sampleId: partialSample.id,
+                          itemNumber: item.itemNumber,
+                          copyNumber: item.copyNumber + 1,
+                          quantity: item.quantity,
+                          quantityUnit: item.quantityUnit,
+                          substanceKind: item.substanceKind
+                        }
+                      ].sort(SampleItemSort)
+                    );
+                  }}
+                  style={{
+                    alignSelf: 'center'
+                  }}
+                  data-testid="add-item-button"
+                >
+                  Ajouter un exemplaire
+                </Button>
+              )}
+          </Fragment>
+        ))}
       </div>
       {form.hasIssue('items') && (
         <Alert

@@ -28,7 +28,8 @@ export const UserListView = () => {
   const [usersFiltered, setUsersFiltered] = useState<User[]>(users ?? []);
 
   const onEdit = (userToEdit: User) => {
-    setUserToUpdate(userToEdit);
+    // Déstructuration pour redéclencher le useEffect et mettre à jour le formulaire
+    setUserToUpdate({ ...userToEdit });
     userFormModal.open();
   };
 

@@ -3,6 +3,8 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
+import { isNil } from 'lodash-es';
+import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import {
   isCreatedPartialSample,
   Sample,
@@ -49,7 +51,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
   const apiClient = useContext(ApiClientContext);
   const { navigateToSample } = useSamplesLink();
   const { isOnline } = useOnLine();
-  const { laboratory, readonly } = usePartialSample(sample);
+  const { readonly, getSampleItemLaboratory } = usePartialSample(sample);
   const { trackEvent } = useAnalytics();
 
   const isSubmittingRef = useRef<boolean>(false);
@@ -378,28 +380,40 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
               />
             </li>
             <li>
-              {laboratory && !readonly && (
-                <Button
-                  iconId="fr-icon-send-plane-fill"
-                  iconPosition="right"
-                  priority="primary"
-                  onClick={async () => {
-                    await form.validate(async () => sendingSampleModal.open());
-                  }}
-                  disabled={!isSendable}
-                >
-                  Envoyer la demande d’analyse
-                </Button>
-              )}
+              {!sample.items.some(
+                (_) =>
+                  _.copyNumber === 1 &&
+                  isNil(getSampleItemLaboratory(_.itemNumber))
+              ) &&
+                !readonly && (
+                  <Button
+                    iconId="fr-icon-send-plane-fill"
+                    iconPosition="right"
+                    priority="primary"
+                    onClick={async () => {
+                      await form.validate(async () =>
+                        sendingSampleModal.open()
+                      );
+                    }}
+                    disabled={!isSendable}
+                  >
+                    Envoyer la demande d’analyse
+                  </Button>
+                )}
             </li>
           </ul>
         </div>
         <SavedAlert isOpen={isSaved} />
       </div>
-      {laboratory && (
+      {!readonly && (
         <SendingModal
           modal={sendingSampleModal}
-          laboratory={laboratory}
+          substanceKindsLaboratories={sample.items
+            .filter((_) => _.copyNumber === 1)
+            .map((item) => ({
+              substanceKind: item.substanceKind,
+              laboratory: getSampleItemLaboratory(item.itemNumber) as Laboratory
+            }))}
           onConfirm={submit}
         />
       )}

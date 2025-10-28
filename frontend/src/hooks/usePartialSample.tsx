@@ -1,10 +1,9 @@
-import { skipToken } from '@reduxjs/toolkit/query';
 import {
   isCreatedPartialSample,
   PartialSample,
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import { useContext, useEffect, useMemo } from 'react';
+import { useCallback, useContext, useEffect, useMemo } from 'react';
 import { ApiClientContext } from '../services/apiClient';
 import programmingPlanSlice from '../store/reducers/programmingPlanSlice';
 import { useAuthentication } from './useAuthentication';
@@ -30,9 +29,9 @@ export const usePartialSample = (
     }
   );
 
-  const { data: laboratory } = apiClient.useGetLaboratoryQuery(
-    partialSample?.laboratoryId ?? skipToken
-  );
+  const { data: laboratories } = apiClient.useFindLaboratoriesQuery(undefined, {
+    skip: (partialSample?.items ?? []).length === 0
+  });
 
   useEffect(() => {
     if (programmingPlan) {
@@ -50,8 +49,22 @@ export const usePartialSample = (
     [hasUserPermission, partialSample, user?.region]
   );
 
+  const getSampleItemLaboratory = useCallback(
+    (itemNumber: number) => {
+      const item = partialSample?.items?.find(
+        (item) => item.itemNumber === itemNumber && item.copyNumber === 1
+      );
+      return item?.laboratoryId
+        ? (laboratories ?? []).find(
+            (laboratory) => laboratory.id === item.laboratoryId
+          )
+        : undefined;
+    },
+    [partialSample, laboratories]
+  );
+
   return {
     readonly,
-    laboratory
+    getSampleItemLaboratory
   };
 };

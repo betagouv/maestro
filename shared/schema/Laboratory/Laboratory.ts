@@ -13,5 +13,7 @@ export const Laboratory = z.object({
 
 export type Laboratory = z.infer<typeof Laboratory>;
 
-export const getLaboratoryFullName = (laboratory: Laboratory): string =>
-  `${laboratory.shortName} - ${laboratory.name}`;
+export const getLaboratoryFullName = (laboratory?: Laboratory): string =>
+  laboratory
+    ? `${laboratory.shortName} - ${laboratory.name}`
+    : 'Information non disponible';

@@ -98,7 +98,7 @@ export const getMockApi = (partialMock: Partial<MockApi>): ApiClient => {
 const defaultMockApiClientConf: MockApi = {
   useAddPrescriptionMutation: [async () => fn(), {}],
   useAuthenticateMutation: [async () => fn(), {}],
-  useCommentRegionalPrescriptionMutation: [async () => fn(), {}],
+  useCommentLocalPrescriptionMutation: [async () => fn(), {}],
   useCountSamplesQuery: {
     data: 0
   },
@@ -111,11 +111,12 @@ const defaultMockApiClientConf: MockApi = {
   useDeleteDocumentMutation: [async () => fn(), {}],
   useDeletePrescriptionMutation: [async () => fn(), {}],
   useDeleteSampleMutation: [async () => fn(), {}],
+  useFindCompaniesQuery: { data: [] },
   useFindLaboratoriesQuery: { data: [] },
   useFindNotificationsQuery: { data: [] },
   useFindPrescriptionsQuery: { data: [] },
   useFindProgrammingPlansQuery: { data: [] },
-  useFindRegionalPrescriptionsQuery: { data: [] },
+  useFindLocalPrescriptionsQuery: { data: [] },
   useFindResourcesQuery: { data: [] },
   useFindSamplesQuery: { data: [] },
   useFindUsersQuery: { data: [] },
@@ -179,7 +180,7 @@ const defaultMockApiClientConf: MockApi = {
   useLazyGetPrescriptionSubstancesQuery: [[], {}],
   useLazyGetSampleAnalysisQuery: [genPartialAnalysis(), {}],
   useLazyGetSampleQuery: [genCreatedPartialSample(), {}],
-  useLazyGetUserQuery: [genUser(), {}],
+  useLazyGetUserQuery: [genUser({}), {}],
   useLazySearchAddressesQuery: [[], {}],
   useLazySearchCompaniesQuery: [[], {}],
   useLogoutMutation: [async () => fn(), {}],
@@ -188,9 +189,9 @@ const defaultMockApiClientConf: MockApi = {
   useUpdateNotificationMutation: [async () => fn(), {}],
   useUpdateNotificationsMutation: [async () => fn(), {}],
   useUpdatePrescriptionMutation: [async () => fn(), {}],
-  useUpdateProgrammingPlanRegionalStatusMutation: [async () => fn(), {}],
+  useUpdateProgrammingPlanLocalStatusMutation: [async () => fn(), {}],
   useUpdateProgrammingPlanStatusMutation: [async () => fn(), {}],
-  useUpdateRegionalPrescriptionMutation: [async () => fn(), {}],
+  useUpdateLocalPrescriptionMutation: [async () => fn(), {}],
   useUpdateSampleMutation: [async () => fn(), {}],
   useGetRootNoticeQuery: {
     data: { type: 'root', title: 'titre', description: 'description' }

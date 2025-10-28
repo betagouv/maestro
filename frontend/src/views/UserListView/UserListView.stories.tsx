@@ -9,7 +9,7 @@ const meta = {
   parameters: {
     apiClient: getMockApi({
       useFindUsersQuery: {
-        data: Array.from(Array(10).keys()).map(() => genUser())
+        data: Array.from(Array(10).keys()).map(() => genUser({}))
       }
     })
   }

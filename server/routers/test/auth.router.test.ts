@@ -21,7 +21,7 @@ import config from '../../utils/config';
 describe('Auth routes', () => {
   const { app } = createServer();
 
-  const user = genUser();
+  const user = genUser({});
 
   beforeAll(async () => {
     await Users().insert(user);

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { cropFileName } from './stringUtils';
+import { cropFileName, pluralize } from './stringUtils';
 
 describe('cropFileName', () => {
   test('returns the original file name if it is within the max length', () => {
@@ -25,4 +25,30 @@ describe('cropFileName', () => {
   test('handles file names with extensions longer than the max length', () => {
     expect(cropFileName('example.verylongextension', 5)).toBe('...on');
   });
+});
+
+test('pluralize', () => {
+  expect(pluralize(1)('prélèvement')).toBe('prélèvement');
+  expect(pluralize(2)('prélèvement')).toBe('prélèvements');
+  expect(pluralize(1)('prélèvement attribué')).toBe('prélèvement attribué');
+  expect(pluralize(2)('prélèvement attribué')).toBe('prélèvements attribués');
+  expect(pluralize(1, { preserveCount: true })('prélèvement attribué')).toBe(
+    '1 prélèvement attribué'
+  );
+  expect(pluralize(2, { preserveCount: true })('prélèvement attribué')).toBe(
+    '2 prélèvements attribués'
+  );
+  expect(
+    pluralize(1, {
+      replacements: [{ old: 'beau', new: 'beaux' }],
+      ignores: ['à', 'attribuer']
+    })('beau prélèvement à attribuer')
+  ).toBe('beau prélèvement à attribuer');
+  expect(
+    pluralize(2, {
+      preserveCount: true,
+      replacements: [{ old: 'beau', new: 'beaux' }],
+      ignores: ['à', 'attribuer']
+    })('beau prélèvement à attribuer')
+  ).toBe('2 beaux prélèvements à attribuer');
 });

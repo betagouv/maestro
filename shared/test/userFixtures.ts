@@ -1,13 +1,17 @@
 import { fakerFR } from '@faker-js/faker';
 import { v4 as uuidv4 } from 'uuid';
-import { RegionList } from '../referential/Region';
+import { RegionList, Regions } from '../referential/Region';
 import { ProgrammingPlanKindList } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 import { AuthUser } from '../schema/User/AuthUser';
 import { User } from '../schema/User/User';
-import { hasNationalRole, UserRoleList } from '../schema/User/UserRole';
+import {
+  DepartmentalUserRole,
+  hasNationalRole,
+  UserRoleList
+} from '../schema/User/UserRole';
 import { oneOf } from './testFixtures';
 
-export const genUser = (data?: Partial<User>): User => {
+export const genUser = <T extends Partial<User>>(data: T): User & T => {
   const role = data?.role ?? oneOf(UserRoleList);
   return {
     id: uuidv4(),
@@ -16,6 +20,10 @@ export const genUser = (data?: Partial<User>): User => {
     programmingPlanKinds: [oneOf(ProgrammingPlanKindList)],
     role,
     region: hasNationalRole({ role }) ? null : oneOf(RegionList),
+    department: DepartmentalUserRole.safeParse(role).success
+      ? oneOf(Regions[data?.region ?? oneOf(RegionList)].departments)
+      : null,
+    companySiret: null,
     ...data
   };
 };
@@ -87,7 +95,14 @@ export const SamplerAndNationalObserver = genUser({
   id: '10101010-1010-1010-1010-101010101010',
   region: Region1Fixture
 });
+export const DepartmentalCoordinator = genUser({
+  role: 'DepartmentalCoordinator',
+  id: '12121212-1212-1212-1212-121212121212',
+  programmingPlanKinds: ['DAOA_SLAUGHTER', 'DAOA_BREEDING'],
+  region: Region1Fixture,
+  department: Regions[Region1Fixture].departments[0]
+});
 
 export const genAuthUser = (data?: Partial<User>): AuthUser => ({
-  user: genUser(data)
+  user: genUser(data ?? {})
 });

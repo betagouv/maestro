@@ -1,13 +1,13 @@
 import { constants } from 'http2';
-import { RegionList } from 'maestro-shared/referential/Region';
+import { RegionList, Regions } from 'maestro-shared/referential/Region';
 import { hasPrescriptionPermission } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { v4 as uuidv4 } from 'uuid';
 import { getAndCheckPrescription } from '../middlewares/checks/prescriptionCheck';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
+import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
-import regionalPrescriptionRepository from '../repositories/regionalPrescriptionRepository';
 import { ProtectedSubRouter } from '../routers/routes.type';
 import { excelService } from '../services/excelService/excelService';
 
@@ -15,8 +15,6 @@ export const prescriptionsRouter = {
   '/prescriptions': {
     get: async ({ query: findOptions }) => {
       console.info('Find prescriptions', findOptions);
-
-      await getAndCheckProgrammingPlan(findOptions.programmingPlanId);
 
       const prescriptions = await prescriptionRepository.findMany(findOptions);
 
@@ -44,13 +42,26 @@ export const prescriptionsRouter = {
 
       await prescriptionRepository.insert(createdPrescription);
 
-      await regionalPrescriptionRepository.insertMany(
+      await localPrescriptionRepository.insertMany(
         RegionList.map((region) => ({
           prescriptionId: createdPrescription.id,
           region,
           sampleCount: 0
         }))
       );
+
+      if (programmingPlan.distributionKind === 'SLAUGHTERHOUSE') {
+        await localPrescriptionRepository.insertMany(
+          RegionList.flatMap((region) =>
+            Regions[region].departments.map((department) => ({
+              prescriptionId: createdPrescription.id,
+              region,
+              department,
+              sampleCount: 0
+            }))
+          )
+        );
+      }
 
       return {
         status: constants.HTTP_STATUS_CREATED,
@@ -60,32 +71,37 @@ export const prescriptionsRouter = {
   },
   '/prescriptions/export': {
     get: async ({ user, query: queryFindOptions }, _params, response) => {
-      await getAndCheckProgrammingPlan(queryFindOptions.programmingPlanId);
+      const programmingPlan = await getAndCheckProgrammingPlan(
+        queryFindOptions.programmingPlanId
+      );
       const exportedRegion = user.region ?? undefined;
+      const exportedDepartment = user.department ?? undefined;
 
       const findOptions = {
         ...queryFindOptions,
-        region: exportedRegion
+        region: exportedRegion,
+        department: exportedDepartment
       };
 
       console.info('Export prescriptions', user.id, findOptions);
 
       const prescriptions =
         await prescriptionRepository.findMany(queryFindOptions);
-      const regionalPrescriptions =
-        await regionalPrescriptionRepository.findMany({
-          ...findOptions,
-          includes: ['comments', 'sampleCounts']
-        });
+      const localPrescriptions = await localPrescriptionRepository.findMany({
+        ...findOptions,
+        includes: ['comments', 'sampleCounts']
+      });
 
       const fileName = `prescriptions-${findOptions.contexts?.map((context) =>
         ContextLabels[context].toLowerCase().replaceAll(' ', '-')
       )}.xlsx`;
 
       const buffer = await excelService.generatePrescriptionsExportExcel(
+        programmingPlan,
         prescriptions,
-        regionalPrescriptions,
-        exportedRegion
+        localPrescriptions,
+        exportedRegion,
+        exportedDepartment
       );
 
       response.setHeader(
@@ -121,7 +137,10 @@ export const prescriptionsRouter = {
       const updatedPrescription = {
         ...prescription,
         stages: prescriptionUpdate.stages ?? prescription.stages,
-        notes: prescriptionUpdate.notes ?? prescription.notes
+        notes: prescriptionUpdate.notes ?? prescription.notes,
+        programmingInstruction:
+          prescriptionUpdate.programmingInstruction ??
+          prescription.programmingInstruction
       };
 
       await prescriptionRepository.update(updatedPrescription);

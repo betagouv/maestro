@@ -7,7 +7,7 @@ const meta = {
   title: 'Views/Users/UserCard',
   component: UserCard,
   args: {
-    user: genUser(),
+    user: genUser({}),
     onEdit: fn()
   }
 } satisfies Meta<typeof UserCard>;
