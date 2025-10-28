@@ -1,21 +1,17 @@
 import { intersection, isNil } from 'lodash-es';
 import { v4 as uuidv4 } from 'uuid';
-import { z } from 'zod';
-import { Department } from '../../referential/Department';
 import { RefinementCtx, z } from 'zod';
+import { Department } from '../../referential/Department';
 import { Region, RegionList } from '../../referential/Region';
-import { Company } from '../Company/Company';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { UserPermission } from './UserPermission';
+
 import {
-  DepartmentalUserRole,
-  NationalUserRole,
-  RegionalAndNationUserRole,
-  RegionalUserRole,
+  hasNationalRole,
+  hasRegionalRole,
   UserRole,
   UserRolePermissions
 } from './UserRole';
-import { hasNationalRole, UserRole, UserRolePermissions } from './UserRole';
 
 const BaseUser = z.object({
   id: z.guid(),
@@ -24,18 +20,21 @@ const BaseUser = z.object({
   programmingPlanKinds: z.array(ProgrammingPlanKind),
   role: UserRole,
   region: Region.nullable(),
-  department: Department.nullish(),
-  company: Company.nullish(),
+  department: Department.nullable(),
+  companySiret: z.string().nullable()
 });
 
 const regionCheck = <T extends Pick<User, 'region' | 'role'>>(
   user: T,
   ctx: RefinementCtx<T>
 ) => {
-  if (!user.region && !hasNationalRole(user)) {
+  if (
+    !user.region &&
+    hasRegionalRole(user)
+    //FIXME c'est quoi ce rôle? ça devient tordu :-/
+    //  || RegionalAndNationUserRole.safeParse(user.role).success)
+  ) {
     ctx.addIssue({
-      key: 'region',
-      path: ['region'],
       code: 'custom',
       message: 'La région est obligatoire pour ce rôle.'
     });
@@ -44,12 +43,15 @@ const regionCheck = <T extends Pick<User, 'region' | 'role'>>(
 
 export const User = BaseUser.superRefine(regionCheck);
 
-export const UserToCreate = User.omit({ id: true, name: true }).superRefine(
-  regionCheck
-);
+export const UserToCreate = BaseUser.omit({
+  id: true,
+  name: true
+}).superRefine(regionCheck);
 export type UserToCreate = z.infer<typeof UserToCreate>;
 
-export const UserToUpdate = User.omit({ name: true }).superRefine(regionCheck);
+export const UserToUpdate = BaseUser.omit({
+  name: true
+}).superRefine(regionCheck);
 export type UserToUpdate = z.infer<typeof UserToUpdate>;
 
 export const Sampler = BaseUser.pick({
@@ -71,16 +73,6 @@ export const userRegions = (user?: User): Region[] =>
 
 export const hasPermission = (user: User, ...permissions: UserPermission[]) =>
   intersection(permissions, UserRolePermissions[user.role]).length > 0;
-
-export const hasNationalRole = (user: Pick<User, 'role'>) =>
-  NationalUserRole.safeParse(user.role).success ||
-  RegionalAndNationUserRole.safeParse(user.role).success;
-
-export const hasRegionalRole = (user: Pick<User, 'role' | 'department'>) =>
-  RegionalUserRole.safeParse(user.role).success && isNil(user.department);
-
-export const hasDepartmentalRole = (user: Pick<User, 'role' | 'department'>) =>
-  DepartmentalUserRole.safeParse(user.role).success && !isNil(user.department);
 
 export const ANS94ALnrEtmId = uuidv4();
 export const ANS94ALnrPestId = uuidv4();

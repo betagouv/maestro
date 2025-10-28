@@ -27,8 +27,8 @@ export const UserRole = z.enum(
     ...NationalUserRole.options,
     ...RegionalAndNationUserRole.options,
     ...RegionalUserRole.options,
-  ...DepartmentalUserRole.options
-],
+    ...DepartmentalUserRole.options
+  ],
   { error: 'Veuillez renseigner un rôle.' }
 );
 
@@ -156,3 +156,9 @@ export const UserRoleLabels: Record<UserRole, string> = {
 export const hasNationalRole = (user: Nullable<Pick<User, 'role'>>) =>
   NationalUserRole.safeParse(user.role).success ||
   RegionalAndNationUserRole.safeParse(user.role).success;
+
+export const hasRegionalRole = (user: Pick<User, 'role'>) =>
+  RegionalUserRole.safeParse(user.role).success;
+
+export const hasDepartmentalRole = (user: Pick<User, 'role'>) =>
+  DepartmentalUserRole.safeParse(user.role).success;

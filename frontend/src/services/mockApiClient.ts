@@ -180,7 +180,7 @@ const defaultMockApiClientConf: MockApi = {
   useLazyGetPrescriptionSubstancesQuery: [[], {}],
   useLazyGetSampleAnalysisQuery: [genPartialAnalysis(), {}],
   useLazyGetSampleQuery: [genCreatedPartialSample(), {}],
-  useLazyGetUserQuery: [genUser(), {}],
+  useLazyGetUserQuery: [genUser({}), {}],
   useLazySearchAddressesQuery: [[], {}],
   useLazySearchCompaniesQuery: [[], {}],
   useLogoutMutation: [async () => fn(), {}],
