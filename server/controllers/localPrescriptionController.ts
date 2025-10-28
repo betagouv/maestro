@@ -11,7 +11,7 @@ import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/Lo
 import {
   hasNationalRole,
   hasRegionalRole
-} from 'maestro-shared/schema/User/User';
+} from 'maestro-shared/schema/User/UserRole';
 import { v4 as uuidv4 } from 'uuid';
 import { getAndCheckLocalPrescription } from '../middlewares/checks/localPrescriptionCheck';
 import { getAndCheckPrescription } from '../middlewares/checks/prescriptionCheck';

@@ -259,7 +259,7 @@ const ProgrammingView = () => {
                         programmingPlan={programmingPlan}
                         region={region ?? undefined}
                         department={user?.department ?? undefined}
-                        companySiret={user?.company?.siret ?? undefined}
+                        companySiret={user?.companySiret ?? undefined}
                       />
                     )}
                     {selectedTabId === 'ConsultationTab' && hasNationalView && (

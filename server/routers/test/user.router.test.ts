@@ -93,7 +93,7 @@ describe('User router', () => {
         role: Sampler1Fixture.role,
         region: Sampler1Fixture.region,
         department: Sampler1Fixture.department || null,
-        company: Sampler1Fixture.company || null
+        companySiret: null
       });
     });
   });
@@ -145,14 +145,14 @@ describe('User router', () => {
       await request(app)
         .post(testRoute())
         .use(tokenProvider(NationalCoordinator))
-        .send(genUser())
+        .send(genUser({}))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     test('should create an user', async () => {
       await request(app)
         .post(testRoute())
-        .send(genUser())
+        .send(genUser({}))
         .use(tokenProvider(AdminFixture))
         .expect(constants.HTTP_STATUS_CREATED);
     });

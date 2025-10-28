@@ -95,11 +95,25 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
     partialSample?.specificData.programmingPlanKind ?? ''
   );
   const [legalContext, setLegalContext] = useState(partialSample?.legalContext);
+  //FIXME j'ai commenté les user.company, je ne vois pas comment ça peut marcher
+  // si je comprends bien c'est pour attribuer un abbatoir à un préleveur, mais je vois plusieurs pbs:
+  //     - un préleveur peut intervenir dans plusieurs abbatoirs
+  //     - dans notre table « companies » on a pas les abbatoirs, mais leur siège social
+  // const [geolocationX, setGeolocationX] = useState(
+  //   partialSample?.geolocation?.x ?? user?.company?.geolocation?.x
+  // );
+  // const [geolocationY, setGeolocationY] = useState(
+  //   partialSample?.geolocation?.y ?? user?.company?.geolocation?.y
+  // );
+  // const [company, setCompany] = useState(
+  //   partialSample?.company ?? user?.company
+  // );
+
   const [geolocationX, setGeolocationX] = useState(
-    partialSample?.geolocation?.x ?? user?.company?.geolocation?.x
+    partialSample?.geolocation?.x
   );
   const [geolocationY, setGeolocationY] = useState(
-    partialSample?.geolocation?.y ?? user?.company?.geolocation?.y
+    partialSample?.geolocation?.y
   );
   const [isBrowserGeolocation, setIsBrowserGeolocation] = useState(false);
   const [sampler, setSampler] = useState<Sampler | undefined>(
@@ -107,9 +121,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
   );
 
   const [parcel, setParcel] = useState(partialSample?.parcel);
-  const [company, setCompany] = useState(
-    partialSample?.company ?? user?.company
-  );
+  const [company, setCompany] = useState(partialSample?.company);
   const [companyOffline, setCompanyOffline] = useState(
     partialSample?.companyOffline
   );

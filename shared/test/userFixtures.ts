@@ -6,13 +6,12 @@ import { AuthUser } from '../schema/User/AuthUser';
 import { User } from '../schema/User/User';
 import {
   DepartmentalUserRole,
-  NationalUserRole,
+  hasNationalRole,
   UserRoleList
 } from '../schema/User/UserRole';
-import { hasNationalRole, UserRoleList } from '../schema/User/UserRole';
 import { oneOf } from './testFixtures';
 
-export const genUser = (data?: Partial<User>): User => {
+export const genUser = <T extends Partial<User>>(data: T): User & T => {
   const role = data?.role ?? oneOf(UserRoleList);
   return {
     id: uuidv4(),
@@ -24,6 +23,7 @@ export const genUser = (data?: Partial<User>): User => {
     department: DepartmentalUserRole.safeParse(role).success
       ? oneOf(Regions[data?.region ?? oneOf(RegionList)].departments)
       : null,
+    companySiret: null,
     ...data
   };
 };
@@ -104,5 +104,5 @@ export const DepartmentalCoordinator = genUser({
 });
 
 export const genAuthUser = (data?: Partial<User>): AuthUser => ({
-  user: genUser(data)
+  user: genUser(data ?? {})
 });

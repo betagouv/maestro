@@ -10,18 +10,14 @@ import {
   PrescriptionPermission
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { hasPermission } from 'maestro-shared/schema/User/User';
+import { UserPermission } from 'maestro-shared/schema/User/UserPermission';
 import {
   hasDepartmentalRole,
   hasNationalRole,
-  hasPermission,
-  hasRegionalRole
-} from 'maestro-shared/schema/User/User';
-  hasRegionalPrescriptionPermission,
-  RegionalPrescriptionPermission
-} from 'maestro-shared/schema/RegionalPrescription/RegionalPrescription';
-import { hasPermission } from 'maestro-shared/schema/User/User';
-import { UserPermission } from 'maestro-shared/schema/User/UserPermission';
-import { hasNationalRole, UserRole } from 'maestro-shared/schema/User/UserRole';
+  hasRegionalRole,
+  UserRole
+} from 'maestro-shared/schema/User/UserRole';
 import { isDefined } from 'maestro-shared/utils/utils';
 import { useCallback, useMemo } from 'react';
 import { useAppSelector } from 'src/hooks/useStore';
