@@ -14,7 +14,7 @@ import {
 } from './sachaValidator';
 
 const xml = z.string().brand('XML');
-type Xml = z.infer<typeof xml>;
+export type Xml = z.infer<typeof xml>;
 
 export const generateXMLAcquitement = (
   messagesAcquittement: Acquittement['MessageAcquittement'],
