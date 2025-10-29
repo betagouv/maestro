@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AcquittementNonAcquittement schemavalidation="AcquittementNonAcquittement.xsd">
+  <MessageParametres>
+    <CodeScenario>E.D.I. SIGAL/LABOS</CodeScenario>
+    <VersionScenario>1.0.1</VersionScenario>
+    <TypeFichier>AN01</TypeFichier>
+    <NomFichier>AN011111</NomFichier>
+    <VersionReferenceStandardisees>DS011111</VersionReferenceStandardisees>
+    <VersionReferencePrescripteur>RP011111</VersionReferencePrescripteur>
+    <NomLogicielCreation>SIGAL</NomLogicielCreation>
+    <VersionLogicielCreation>4.0</VersionLogicielCreation>
+    <CodeReferentielPrescripteur>SIGAL</CodeReferentielPrescripteur>
+  </MessageParametres>
+  <Emetteur>
+    <Sigle>DSEN</Sigle>
+    <LibellePartenaire>DSEN</LibellePartenaire>
+    <EmailPartenaire>example@agriculture.gouv.fr</EmailPartenaire>
+  </Emetteur>
+  <Destinataire>
+    <Sigle>LVD</Sigle>
+    <LibellePartenaire>LVD</LibellePartenaire>
+    <EmailPartenaire>email@test.ts</EmailPartenaire>
+  </Destinataire>
+  <MessageAcquittement>
+    <NomFichier>RA011111</NomFichier>
+    <DateAcquittement>2023-01-20T09:22:53</DateAcquittement>
+  </MessageAcquittement>
+  <MessageNonAcquittement>
+    <NomFichier>RA011112</NomFichier>
+    <LibelleMotif>Numéro DAP non défini en base. [1111]&lt;DialogueResultatType&gt;&lt;DialogueRetourInterventionAvecDAP&gt;&lt;NumeroDAP&gt;</LibelleMotif>
+    <TypeMotif>INFO</TypeMotif>
+    <DateNonAcquittement>2023-01-20T09:23:42</DateNonAcquittement>
+  </MessageNonAcquittement>
+</AcquittementNonAcquittement>
+
