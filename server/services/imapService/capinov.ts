@@ -795,11 +795,15 @@ export const extractAnalyzes = (
     };
 
     for (const residue of resultsBySample[sampleReference]) {
+      const isSumAndLessThanLQ: boolean =
+        residue.PARAMETRE_NOM.endsWith('_S') &&
+        residue.RESULTAT_VALTEXTE === '< LQ';
+
       const isDetectable =
         residue.RESULTAT_VALTEXTE !== 'nd' && residue.RESULTAT_VALTEXTE !== '0';
 
       const result: ExportResultQuantifiable | ExportResultNonQuantifiable =
-        !isDetectable
+        !isDetectable || isSumAndLessThanLQ
           ? { result_kind: 'ND' }
           : residue.RESULTAT_VALTEXTE === 'd, NQ' ||
               residue.RESULTAT_VALTEXTE === '< LQ'
