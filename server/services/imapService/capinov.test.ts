@@ -33,7 +33,7 @@ describe('Parse correctement le fichier CSV', () => {
       LIMITE_LQ: '0.01',
       INCERTITUDE: '0',
       CAS_NUMBER: '135158-54-2',
-      TECHNIQUE: 'MI MO-PC-077',
+      TECHNIQUE: 'Mono',
       LMR_NUM: '0.01',
       ECHANT_DATE_DIFFUSION: '16/04/2025'
     };
@@ -51,77 +51,6 @@ describe('Parse correctement le fichier CSV', () => {
       extractAnalyzes([{ ...line, LMR_NUM: '' }])
     ).not.toThrowError();
   });
-
-  test("la méthode d'analyse d'un calcul est récupérée sur le résidu précédent", () => {
-    const defaultLine = {
-      PREFIXE_NOM: '2025',
-      DEMANDE_NUMERO: '0003',
-      ECHANT_NUMERO: '1',
-      LOT: 'ARA-1234-333-1',
-      PARAMETRE_NOM: 'SAP00010',
-      RESULTAT_VALTEXTE: 'nd',
-      RESULTAT_VALNUM: '0',
-      PARAMETRE_LIBELLE: 'Acephate',
-      LIMITE_LQ: '0.01',
-      INCERTITUDE: '0',
-      CAS_NUMBER: '135158-54-2',
-      TECHNIQUE: 'MI MO-PC-077',
-      LMR_NUM: '0,01',
-      ECHANT_DATE_DIFFUSION: '16/04/2025',
-      COMMENTAIRE: 'Pas de problème'
-    };
-
-    const lines = [
-      { ...defaultLine, TECHNIQUE: 'MI GC-MS/MS' },
-      { ...defaultLine, TECHNIQUE: 'Calcul' },
-      { ...defaultLine, TECHNIQUE: 'MI HPLC/UV' },
-      { ...defaultLine, TECHNIQUE: 'Calcul' }
-    ];
-
-    expect(extractAnalyzes(lines)).toMatchInlineSnapshot(`
-      [
-        {
-          "capinovRef": "2025 0003 1",
-          "notes": "Pas de problème",
-          "residues": [
-            {
-              "analysisDate": "2025-04-16",
-              "analysisMethod": "Multi",
-              "casNumber": "135158-54-2",
-              "codeSandre": null,
-              "label": "Acephate",
-              "result_kind": "ND",
-            },
-            {
-              "analysisDate": "2025-04-16",
-              "analysisMethod": "Multi",
-              "casNumber": "135158-54-2",
-              "codeSandre": null,
-              "label": "Acephate",
-              "result_kind": "ND",
-            },
-            {
-              "analysisDate": "2025-04-16",
-              "analysisMethod": "Mono",
-              "casNumber": "135158-54-2",
-              "codeSandre": null,
-              "label": "Acephate",
-              "result_kind": "ND",
-            },
-            {
-              "analysisDate": "2025-04-16",
-              "analysisMethod": "Mono",
-              "casNumber": "135158-54-2",
-              "codeSandre": null,
-              "label": "Acephate",
-              "result_kind": "ND",
-            },
-          ],
-          "sampleReference": "ARA-1234-333",
-        },
-      ]
-    `);
-  });
 });
 
 test('<LQ et "d, NQ" sont équivalent', () => {
@@ -137,7 +66,7 @@ test('<LQ et "d, NQ" sont équivalent', () => {
     LIMITE_LQ: '0.01',
     INCERTITUDE: '0',
     CAS_NUMBER: '135158-54-2',
-    TECHNIQUE: 'MI MO-PC-077',
+    TECHNIQUE: 'Multi',
     LMR_NUM: '0,01',
     ECHANT_DATE_DIFFUSION: '16/04/2025',
     COMMENTAIRE: 'Pas de problème'
