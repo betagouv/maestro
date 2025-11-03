@@ -1,4 +1,5 @@
 import Button from '@codegouvfr/react-dsfr/Button';
+import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
 import clsx from 'clsx';
@@ -13,6 +14,7 @@ import {
 import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { isDefined } from 'maestro-shared/utils/utils';
 import { useCallback, useMemo } from 'react';
 import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
 import DistributionCountCell from 'src/components/DistributionCountCell/DistributionCountCell';
@@ -35,6 +37,8 @@ interface Props {
     key: LocalPrescriptionKey,
     count: number
   ) => void;
+  selectedPrescriptions: Prescription[];
+  onTogglePrescriptionSelection?: (prescription: Prescription) => void;
 }
 
 const ProgrammingLocalPrescriptionTable = ({
@@ -43,7 +47,9 @@ const ProgrammingLocalPrescriptionTable = ({
   localPrescriptions,
   subLocalPrescriptions,
   region,
-  onChangeLocalPrescriptionCount
+  onChangeLocalPrescriptionCount,
+  selectedPrescriptions,
+  onTogglePrescriptionSelection
 }: Props) => {
   const dispatch = useAppDispatch();
   const { hasUserLocalPrescriptionPermission, hasRegionalView } =
@@ -74,157 +80,202 @@ const ProgrammingLocalPrescriptionTable = ({
   );
 
   const headers = useMemo(
-    () => [
-      <div key={'matrice'}>Matrice</div>,
-      <div key={'total'} className="border-left">
-        Objectif
-      </div>,
-      ...departmentList.map((department) => (
-        <div className="border-left" key={`header-${department}`}>
-          <TableHeaderCell
-            name={DepartmentLabels[department]}
-            shortName={department}
-          />
+    () =>
+      [
+        onTogglePrescriptionSelection ? <div key={'select'}></div> : undefined,
+        <div
+          key={'matrice'}
+          className={clsx({ 'border-left': onTogglePrescriptionSelection })}
+        >
+          Matrice
+        </div>,
+        <div key={'total'} className="border-left">
+          Objectif
+        </div>,
+        ...departmentList.map((department) => (
+          <div className="border-left" key={`header-${department}`}>
+            <TableHeaderCell
+              name={DepartmentLabels[department]}
+              shortName={department}
+            />
+          </div>
+        )),
+        <div key={'actions'} className={clsx('border-left', 'align-right')}>
+          Actions
         </div>
-      )),
-      <div key={'actions'} className={clsx('border-left', 'align-right')}>
-        Actions
-      </div>
-    ],
-    [departmentList]
+      ].filter(isDefined),
+    [departmentList, onTogglePrescriptionSelection]
   );
 
   const prescriptionsData = useMemo(
     () =>
-      prescriptions.map((prescription) => [
-        <div
-          className={cx('fr-text--bold')}
-          data-testid={`matrix-${prescription.matrixKind}`}
-          key={`matrix-${prescription.matrixKind}`}
-        >
-          {MatrixKindLabels[prescription.matrixKind]}
-          <PrescriptionBreadcrumb
-            prescription={prescription}
-            programmingPlan={programmingPlan}
-          />
-        </div>,
-        <div
-          className={clsx(cx('fr-text--bold'), 'border-left', 'sample-count')}
-          key={`total-${prescription.matrixKind}`}
-        >
-          <div>
-            {pluralize(
-              getLocalPrescription(prescription.id)?.sampleCount ?? 0,
-              {
-                preserveCount: true
-              }
-            )('prélèvement programmé')}
-          </div>
-          <LocalPrescriptionDistributionBadge
-            localPrescription={getLocalPrescription(prescription.id)}
-            subLocalPrescriptions={getSubLocalPrescriptions(prescription.id)}
-          />
-          {programmingPlan.regionalStatus.some(
-            (_) => _.status === 'Validated'
-          ) && (
-            <>
-              <div>
-                {pluralize(
-                  getLocalPrescription(prescription.id)?.realizedSampleCount ??
-                    0,
+      prescriptions.map((prescription) =>
+        [
+          onTogglePrescriptionSelection ? (
+            <div key={`select-${prescription.matrixKind}`}>
+              <Checkbox
+                options={[
                   {
-                    preserveCount: true
+                    label: '',
+                    nativeInputProps: {
+                      checked: selectedPrescriptions.some(
+                        (p) => p.id === prescription.id
+                      ),
+                      onChange: () =>
+                        onTogglePrescriptionSelection(prescription)
+                    }
                   }
-                )('réalisé')}
-              </div>
-              <div>
-                <CompletionBadge localPrescriptions={localPrescriptions} />
-              </div>
-            </>
-          )}
-        </div>,
-        ...(hasRegionalView && programmingPlan.distributionKind !== 'REGIONAL'
-          ? getSubLocalPrescriptions(prescription.id).map(
-              (localPrescription) => (
-                <div
-                  className="border-left"
-                  data-testid={`cell-${prescription.matrixKind}`}
-                  key={`cell-${prescription.matrixKind}-${localPrescription.region}`}
-                >
-                  <DistributionCountCell
-                    programmingPlan={programmingPlan}
-                    matrixKind={prescription.matrixKind}
-                    localPrescription={localPrescription}
-                    isEditable={
-                      hasUserLocalPrescriptionPermission(
-                        programmingPlan,
-                        localPrescription
-                      )?.distributeToDepartments
-                    }
-                    max={
-                      (getLocalPrescription(prescription.id)?.sampleCount ??
-                        0) -
-                      sumBy(
-                        getSubLocalPrescriptions(prescription.id),
-                        'sampleCount'
-                      ) +
-                      localPrescription.sampleCount
-                    }
-                    onChange={async (value) =>
-                      onChangeLocalPrescriptionCount(
-                        {
-                          prescriptionId: localPrescription.prescriptionId,
-                          region: localPrescription.region,
-                          department: localPrescription.department
-                        },
-                        value
-                      )
-                    }
-                  />
-                </div>
-              )
-            )
-          : []),
-        <div
-          className={clsx('border-left', 'align-right')}
-          key={`actions-${prescription.matrixKind}`}
-        >
-          <Button
-            priority="tertiary"
-            size="small"
-            onClick={() =>
-              dispatch(
-                prescriptionsSlice.actions.setPrescriptionModalData({
-                  mode: 'details',
-                  programmingPlan,
-                  prescription
-                })
-              )
-            }
+                ]}
+                small
+              />
+            </div>
+          ) : undefined,
+          <div
+            className={clsx(cx('fr-text--bold'), {
+              'border-left': onTogglePrescriptionSelection
+            })}
+            data-testid={`matrix-${prescription.matrixKind}`}
+            key={`matrix-${prescription.matrixKind}`}
           >
-            Instructions
-          </Button>
-          <LocalPrescriptionButtons
-            programmingPlan={programmingPlan}
-            prescription={prescription}
-            localPrescription={
-              getLocalPrescription(prescription.id) as LocalPrescription
-            }
-            subLocalPrescriptions={getSubLocalPrescriptions(prescription.id)}
-            alignment="right"
-            noIcon
-            className={clsx(cx('fr-mt-1w'), 'link-underline')}
-          />
-        </div>
-      ]),
-    [programmingPlan, prescriptions, subLocalPrescriptions] // eslint-disable-line react-hooks/exhaustive-deps
+            {MatrixKindLabels[prescription.matrixKind]}
+            <PrescriptionBreadcrumb
+              prescription={prescription}
+              programmingPlan={programmingPlan}
+            />
+          </div>,
+          <div
+            className={clsx(cx('fr-text--bold'), 'border-left', 'sample-count')}
+            key={`total-${prescription.matrixKind}`}
+          >
+            <div>
+              {pluralize(
+                getLocalPrescription(prescription.id)?.sampleCount ?? 0,
+                {
+                  preserveCount: true
+                }
+              )('prélèvement programmé')}
+            </div>
+            <LocalPrescriptionDistributionBadge
+              localPrescription={getLocalPrescription(prescription.id)}
+              subLocalPrescriptions={getSubLocalPrescriptions(prescription.id)}
+            />
+            {programmingPlan.regionalStatus.some(
+              (_) => _.status === 'Validated'
+            ) && (
+              <>
+                <div>
+                  {pluralize(
+                    getLocalPrescription(prescription.id)
+                      ?.realizedSampleCount ?? 0,
+                    {
+                      preserveCount: true
+                    }
+                  )('réalisé')}
+                </div>
+                <div>
+                  <CompletionBadge localPrescriptions={localPrescriptions} />
+                </div>
+              </>
+            )}
+          </div>,
+          ...(hasRegionalView && programmingPlan.distributionKind !== 'REGIONAL'
+            ? getSubLocalPrescriptions(prescription.id).map(
+                (localPrescription) => (
+                  <div
+                    className="border-left"
+                    data-testid={`cell-${prescription.matrixKind}`}
+                    key={`cell-${prescription.matrixKind}-${localPrescription.region}`}
+                  >
+                    <DistributionCountCell
+                      programmingPlan={programmingPlan}
+                      matrixKind={prescription.matrixKind}
+                      localPrescription={localPrescription}
+                      isEditable={
+                        hasUserLocalPrescriptionPermission(
+                          programmingPlan,
+                          localPrescription
+                        )?.distributeToDepartments
+                      }
+                      max={
+                        (getLocalPrescription(prescription.id)?.sampleCount ??
+                          0) -
+                        sumBy(
+                          getSubLocalPrescriptions(prescription.id),
+                          'sampleCount'
+                        ) +
+                        localPrescription.sampleCount
+                      }
+                      onChange={async (value) =>
+                        onChangeLocalPrescriptionCount(
+                          {
+                            prescriptionId: localPrescription.prescriptionId,
+                            region: localPrescription.region,
+                            department: localPrescription.department
+                          },
+                          value
+                        )
+                      }
+                    />
+                  </div>
+                )
+              )
+            : []),
+          <div
+            className={clsx('border-left', 'align-right')}
+            key={`actions-${prescription.matrixKind}`}
+          >
+            <Button
+              priority="tertiary"
+              size="small"
+              onClick={() =>
+                dispatch(
+                  prescriptionsSlice.actions.setPrescriptionModalData({
+                    mode: 'details',
+                    programmingPlan,
+                    prescription
+                  })
+                )
+              }
+            >
+              Instructions
+            </Button>
+            <LocalPrescriptionButtons
+              programmingPlan={programmingPlan}
+              prescription={prescription}
+              localPrescription={
+                getLocalPrescription(prescription.id) as LocalPrescription
+              }
+              subLocalPrescriptions={getSubLocalPrescriptions(prescription.id)}
+              alignment="right"
+              noIcon
+              className={clsx(cx('fr-mt-1w'), 'link-underline')}
+            />
+          </div>
+        ].filter(isDefined)
+      ), // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      programmingPlan,
+      prescriptions,
+      subLocalPrescriptions,
+      selectedPrescriptions,
+      onTogglePrescriptionSelection
+    ]
   );
 
   const totalData = useMemo(
     () => [
-      <b key="total">Total</b>,
-      // eslint-disable-next-line react/jsx-key
-      <div className="border-left fr-text--bold">
+      onTogglePrescriptionSelection ? (
+        <div key="select-total" className={cx('fr-checkbox-group')}></div>
+      ) : undefined,
+      <div
+        key="matrix-total"
+        className={clsx(cx('fr-text--bold'), {
+          'border-left': onTogglePrescriptionSelection
+        })}
+      >
+        Total
+      </div>,
+      <div className="border-left fr-text--bold" key="total-total">
         <div>{sumBy(localPrescriptions, 'sampleCount')}</div>
 
         {programmingPlan.regionalStatus.some(

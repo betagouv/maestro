@@ -161,6 +161,10 @@ main {
     }
   }
 
+  td:has(.fr-checkbox-group) {
+    background-color: var(--background-contrast-grey);
+  }
+
   .editable-cell {
     padding: 1rem;
     cursor: pointer;

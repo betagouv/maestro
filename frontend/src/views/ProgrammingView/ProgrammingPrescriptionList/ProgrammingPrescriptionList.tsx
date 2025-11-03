@@ -464,6 +464,20 @@ const ProgrammingPrescriptionList = ({
                   localPrescriptions={localPrescriptions}
                   subLocalPrescriptions={subLocalPrescriptions ?? []}
                   onChangeLocalPrescriptionCount={changeLocalPrescriptionCount}
+                  selectedPrescriptions={selectedPrescriptions}
+                  onTogglePrescriptionSelection={
+                    hasGroupedUpdatePermission
+                      ? (prescription) => {
+                          setSelectedPrescriptions((prevState) =>
+                            prevState.some((_) => _.id === prescription.id)
+                              ? prevState.filter(
+                                  (_) => _.id !== prescription.id
+                                )
+                              : [...prevState, prescription]
+                          );
+                        }
+                      : undefined
+                  }
                 />
               )}
             </>
