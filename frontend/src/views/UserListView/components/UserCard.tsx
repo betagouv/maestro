@@ -30,6 +30,7 @@ export const UserCard: FunctionComponent<Props> = ({
 
   return (
     <Card
+      className={'user-list-item-card'}
       title={
         <div className={clsx('user-card-title')}>
           <Tag as={'span'} small>
