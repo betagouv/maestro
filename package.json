@@ -12,8 +12,7 @@
   ],
   "license": "AGPL-3.0",
   "engines": {
-    "node": "24",
-    "npm": "10"
+    "node": "24"
   },
   "scripts": {
     "build": "npm run build --workspaces",
