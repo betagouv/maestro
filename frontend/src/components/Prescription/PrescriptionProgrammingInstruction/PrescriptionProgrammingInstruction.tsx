@@ -30,11 +30,14 @@ const PrescriptionProgrammingInstruction = ({
   return (
     <>
       {isDisabled ? (
-        <span className={cx('fr-text--regular')}>
-          {isNil(instruction) || instruction.trim() === ''
-            ? 'Aucune consigne de répartition'
-            : 'Consignes de répartition : ' + instruction}
-        </span>
+        <div className={cx('fr-text--regular')}>
+          {!isNil(instruction) && instruction.trim() !== '' && (
+            <>
+              <span className={cx('fr-icon-chat-quote-line', 'fr-pr-2w')} />
+              {instruction}
+            </>
+          )}
+        </div>
       ) : (
         <div className="d-flex-align-center">
           <Input
