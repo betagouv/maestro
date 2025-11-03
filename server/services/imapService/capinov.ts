@@ -1,6 +1,5 @@
 import { groupBy } from 'lodash-es';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
-import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { maestroDate } from 'maestro-shared/utils/date';
 import { z } from 'zod';
 import { ExtractBadFormatError, ExtractError } from './extractError';
@@ -734,78 +733,6 @@ const capinovReferential: Record<string, SSD2Id> = {
   Ethephon: 'RF-0160-001-PPP'
 };
 
-const codeMethods = [
-  'LC/MS/MS',
-  'GC/MS/MS ou LC/MS/MS',
-  'LC/MS/MS ou GC/MS/MS',
-  'GC/MS/MS',
-  'M.I. LC-MS/MS',
-  'MI GC-MS/MS',
-  'MI HPLC/UV',
-  'MI LC-MS/MS',
-  'MI LC-MS/MS screening',
-  'MI M28 GC-MS/MS',
-  'MI MO-PC-003',
-  'MI MO-PC-019 LC-MS/MS',
-  'MI MO-PC-02',
-  'MI MO-PC-036',
-  'MI MO-PC-044 LC-MS/MS',
-  'MI MO-PC-047 LC-MS/MS',
-  'MI MO-PC-049 LC-MS/MS',
-  'MI MO-PC-058 LC-MS/MS',
-  'MI MO-PC-065 LC-MS/MS',
-  'MI MO-PC-067 LC-MS/MS',
-  'MI MO-PC-068 LC-MS/MS',
-  'MI MO-PC-073 LC-MS/MS',
-  'MI MO-PC-076',
-  'MI MO-PC-077',
-  'MI MO-PC-079',
-  'MI MO-PC-081 LC-MS/MS',
-  'MI MO-PC-083 LC-MS/MS',
-  'MI MO-PC-087 LC-MS/MS',
-  'MI MS/MS',
-  'NF EN 12393',
-  'NF EN 12396-1 (Keppel)',
-  'NF EN 12396-3',
-  'NF12393'
-] as const;
-
-const codeMethodsAnalyseMethod = {
-  'LC/MS/MS': 'Multi',
-  'GC/MS/MS ou LC/MS/MS': 'Multi',
-  'LC/MS/MS ou GC/MS/MS': 'Multi',
-  'GC/MS/MS': 'Multi',
-  'M.I. LC-MS/MS': 'Multi',
-  'MI GC-MS/MS': 'Multi',
-  'MI HPLC/UV': 'Mono',
-  'MI LC-MS/MS': 'Multi',
-  'MI LC-MS/MS screening': 'Multi',
-  'MI M28 GC-MS/MS': 'Mono',
-  'MI MO-PC-003': 'Multi',
-  'MI MO-PC-019 LC-MS/MS': 'Mono',
-  'MI MO-PC-02': 'Multi',
-  'MI MO-PC-036': 'Multi',
-  'MI MO-PC-044 LC-MS/MS': 'Mono',
-  'MI MO-PC-047 LC-MS/MS': 'Mono',
-  'MI MO-PC-049 LC-MS/MS': 'Mono',
-  'MI MO-PC-058 LC-MS/MS': 'Mono',
-  'MI MO-PC-065 LC-MS/MS': 'Multi',
-  'MI MO-PC-067 LC-MS/MS': 'Mono',
-  'MI MO-PC-068 LC-MS/MS': 'Mono',
-  'MI MO-PC-073 LC-MS/MS': 'Mono',
-  'MI MO-PC-076': 'Multi',
-  'MI MO-PC-077': 'Multi',
-  'MI MO-PC-079': 'Multi',
-  'MI MO-PC-081 LC-MS/MS': 'Mono',
-  'MI MO-PC-083 LC-MS/MS': 'Mono',
-  'MI MO-PC-087 LC-MS/MS': 'Mono',
-  'MI MS/MS': 'Multi',
-  'NF EN 12393': 'Multi',
-  'NF EN 12396-1 (Keppel)': 'Mono',
-  'NF EN 12396-3': 'Mono',
-  NF12393: 'Multi'
-} as const satisfies Record<(typeof codeMethods)[number], AnalysisMethod>;
-
 export const capinovCodeEchantillonValidator = z.string().transform((l) => {
   return l.trim().replaceAll(' ', '').split('-').slice(0, 3).join('-');
 });
@@ -825,7 +752,7 @@ export const extractAnalyzes = (
       PARAMETRE_LIBELLE: z.string(),
       LIMITE_LQ: z.string(),
       CAS_NUMBER: z.string().transform((r) => (r === '' ? null : r)),
-      TECHNIQUE: z.enum([...codeMethods, 'Calcul'], {
+      TECHNIQUE: z.enum(['Mono', 'Multi'], {
         error: (iss): string => `Received ${iss.input}`
       }),
       LMR_NUM: frenchNumberStringValidator.nullish(),
@@ -884,15 +811,11 @@ export const extractAnalyzes = (
                 result: residue.RESULTAT_VALNUM,
                 lmr: residue.LMR_NUM ?? null
               };
-      const previousResidu = analysis.residues[analysis.residues.length - 1];
       analysis.residues.push({
         ...result,
         label: residue.PARAMETRE_LIBELLE,
         casNumber: residue.CAS_NUMBER,
-        analysisMethod:
-          residue.TECHNIQUE === 'Calcul'
-            ? previousResidu.analysisMethod
-            : codeMethodsAnalyseMethod[residue.TECHNIQUE],
+        analysisMethod: residue.TECHNIQUE,
         codeSandre: null,
         analysisDate: residue.ECHANT_DATE_DIFFUSION
       });
