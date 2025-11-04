@@ -9,9 +9,7 @@ const NationalUserRole = z.enum([
   'NationalObserver'
 ]);
 
-export const RegionalAndNationalUserRole = z.enum([
-  'SamplerAndNationalObserver'
-]);
+const RegionalAndNationalUserRole = z.enum(['SamplerAndNationalObserver']);
 
 const RegionalUserRole = z.enum([
   'RegionalCoordinator',
