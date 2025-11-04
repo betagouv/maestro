@@ -452,7 +452,7 @@ const capinovReferential: Record<string, SSD2Id> = {
   Formothion: 'RF-0224-001-PPP',
   'Phosphonic acid': 'RF-00004675-PAR',
   'Fosetyl-Al (sum of fosetyl, phosphonic acid and their salts, expressed as fosetyl)':
-    'RF-0225-001-PPP',
+    'RF-1059-001-PPP',
   Fosthiazate: 'RF-0226-001-PPP',
   Fuberidazole: 'RF-0227-001-PPP',
   'Furathiocarb (expr. as carbofuran)': 'RF-0228-001-PPP',
