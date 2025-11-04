@@ -23,6 +23,7 @@ export const genProgrammingPlan = (
     region,
     status: oneOf(ProgrammingPlanStatusList)
   })),
+  departmentalStatus: [],
   year: new Date().getFullYear(),
   ...data
 });

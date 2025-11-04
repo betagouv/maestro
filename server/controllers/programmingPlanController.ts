@@ -423,6 +423,7 @@ export const programmingPlanRouter = {
           region,
           status: 'InProgress' as const
         })),
+        departmentalStatus: [],
         substanceKinds: previousProgrammingPlan.substanceKinds
       };
 

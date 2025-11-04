@@ -34,7 +34,6 @@ const AddPrescriptionModal = ({
   const apiClient = useContext(ApiClientContext);
 
   const {
-    domainOptions,
     programmingPlanOptions,
     programmingPlanKindOptions,
     contextOptions,
@@ -119,7 +118,6 @@ const AddPrescriptionModal = ({
           <>
             <ProgrammingPrescriptionFilters
               options={{
-                domains: domainOptions(prescriptionFilters),
                 plans: programmingPlanOptions(prescriptionFilters),
                 kinds: programmingPlanKindOptions(prescriptionFilters),
                 contexts: contextOptions(prescriptionFilters)
