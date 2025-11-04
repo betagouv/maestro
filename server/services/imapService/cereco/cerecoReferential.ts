@@ -211,6 +211,7 @@ export const cerecoReferential: Record<string, SSD2Id> = {
   cyhexatin: 'RF-0034-002-PPP',
   Cymiazol: 'RF-0586-001-PPP',
   Cymoxanil: 'RF-0111-001-PPP',
+  Cyflufenamide: 'RF-0107-001-PPP',
   Cypermethrin: 'RF-0112-004-PPP',
   Cyproconazole: 'RF-0113-001-PPP',
   Cyprodinil: 'RF-0114-001-PPP',

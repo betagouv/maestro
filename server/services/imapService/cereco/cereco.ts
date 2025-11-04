@@ -43,7 +43,7 @@ const fileValidator = z.array(
         Méthode: methodValidator,
         "Méthode d'analyse": methodValidator,
         Paramètre: z.string(),
-        Résultat: z.string(),
+        Résultat: z.coerce.string(),
         LMR: z.coerce.number().optional(),
         Conclusion: z.string()
       })
