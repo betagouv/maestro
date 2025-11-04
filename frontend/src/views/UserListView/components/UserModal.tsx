@@ -44,8 +44,7 @@ const userDefaultValue: Nullable<UserToCreate> = {
   role: null,
   programmingPlanKinds: ['PPV'],
   region: null,
-  department: null,
-  company: null
+  department: null
 };
 
 export const UserModal = ({ userToUpdate, modal, ..._rest }: Props) => {

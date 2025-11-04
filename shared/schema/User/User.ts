@@ -10,6 +10,7 @@ import { Company } from '../Company/Company';
 import {
   hasNationalRole,
   hasRegionalRole,
+  RegionalAndNationalUserRole,
   UserRole,
   UserRolePermissions
 } from './UserRole';
@@ -30,10 +31,8 @@ const regionCheck = <T extends Pick<User, 'region' | 'role'>>(
   ctx: RefinementCtx<T>
 ) => {
   if (
-    !user.region &&
-    hasRegionalRole(user)
-    //FIXME c'est quoi ce rôle? ça devient tordu :-/
-    //  || RegionalAndNationUserRole.safeParse(user.role).success)
+    (!user.region && hasRegionalRole(user)) ||
+    RegionalAndNationalUserRole.safeParse(user.role).success
   ) {
     ctx.addIssue({
       code: 'custom',

@@ -9,7 +9,9 @@ const NationalUserRole = z.enum([
   'NationalObserver'
 ]);
 
-const RegionalAndNationUserRole = z.enum(['SamplerAndNationalObserver']);
+export const RegionalAndNationalUserRole = z.enum([
+  'SamplerAndNationalObserver'
+]);
 
 const RegionalUserRole = z.enum([
   'RegionalCoordinator',
@@ -25,7 +27,7 @@ export const DepartmentalUserRole = z.enum([
 export const UserRole = z.enum(
   [
     ...NationalUserRole.options,
-    ...RegionalAndNationUserRole.options,
+    ...RegionalAndNationalUserRole.options,
     ...RegionalUserRole.options,
     ...DepartmentalUserRole.options
   ],
@@ -155,7 +157,7 @@ export const UserRoleLabels: Record<UserRole, string> = {
 };
 export const hasNationalRole = (user: Nullable<Pick<User, 'role'>>) =>
   NationalUserRole.safeParse(user.role).success ||
-  RegionalAndNationUserRole.safeParse(user.role).success;
+  RegionalAndNationalUserRole.safeParse(user.role).success;
 
 export const hasRegionalRole = (user: Pick<User, 'role'>) =>
   RegionalUserRole.safeParse(user.role).success;
