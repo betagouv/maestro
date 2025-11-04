@@ -12,7 +12,7 @@ import { PrescriptionListDisplay } from 'src/views/ProgrammingView/ProgrammingPr
 import { z } from 'zod';
 
 export const PrescriptionFilters = z.object({
-  year: z.coerce.number().int(),
+  year: z.coerce.number().int().nullish(),
   domain: ProgrammingPlanDomain.nullish(),
   programmingPlanId: z.guid().nullish(),
   kinds: z.array(ProgrammingPlanKind).nullish(),
@@ -106,7 +106,6 @@ type PrescriptionsState = {
 };
 const initialState: PrescriptionsState = {
   prescriptionFilters: {
-    year: new Date().getFullYear(),
     missingSlaughterhouse: false,
     missingLaboratory: false
   },

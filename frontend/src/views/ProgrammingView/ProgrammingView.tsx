@@ -2,14 +2,11 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import clsx from 'clsx';
-import { isEmpty, mapValues, max, omitBy, orderBy, uniqBy } from 'lodash-es';
+import { isEmpty, mapValues, max, omitBy } from 'lodash-es';
 import { Region, Regions } from 'maestro-shared/referential/Region';
 import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import {
-  ProgrammingPlanDomain,
-  ProgrammingPlanDomainLabels
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
+import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatusList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
@@ -59,7 +56,7 @@ const ProgrammingView = () => {
     apiClient.useCommentLocalPrescriptionMutation();
 
   const {
-    domainOptions,
+    yearOptions,
     programmingPlanOptions,
     programmingPlanKindOptions,
     contextOptions,
@@ -74,8 +71,6 @@ const ProgrammingView = () => {
             searchParams.get('year') ??
               max(programmingPlans?.map((plan) => plan.year))
           ),
-          domain:
-            (searchParams.get('domain') as ProgrammingPlanDomain) ?? undefined,
           programmingPlanId: searchParams.get('programmingPlanId'),
           kinds:
             (searchParams.get('kinds')?.split(',') as ProgrammingPlanKind[]) ??
@@ -158,21 +153,13 @@ const ProgrammingView = () => {
                   hideLegend
                   legend="Année"
                   segments={
-                    orderBy(
-                      uniqBy(programmingPlans, 'year'),
-                      'year',
-                      'desc'
-                    ).map(({ year }) => ({
+                    yearOptions(prescriptionFilters).map((year) => ({
                       label: year,
                       nativeInputProps: {
                         checked: year === prescriptionFilters.year,
                         onChange: () =>
                           changeFilter({
-                            year,
-                            domain: undefined,
-                            programmingPlanId: undefined,
-                            kinds: undefined,
-                            context: undefined
+                            year
                           })
                       }
                     })) as any
@@ -193,7 +180,6 @@ const ProgrammingView = () => {
                 <div className={clsx('flex-grow-1')}>
                   <ProgrammingPrescriptionFilters
                     options={{
-                      domains: domainOptions(prescriptionFilters),
                       plans: programmingPlanOptions(prescriptionFilters),
                       kinds: programmingPlanKindOptions(prescriptionFilters),
                       contexts: contextOptions(prescriptionFilters)

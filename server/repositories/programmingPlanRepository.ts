@@ -37,10 +37,10 @@ const ProgrammingPlanQuery = () =>
     .select(`${programmingPlansTable}.*`)
     .select(
       db.raw(
-        `array_agg(to_json(${programmingPlanLocalStatusTable}.*)) filter (where ${programmingPlanLocalStatusTable}.department = 'None') as "regional_status"`
+        `coalesce(array_agg(to_json(${programmingPlanLocalStatusTable}.*)) filter (where ${programmingPlanLocalStatusTable}.department = 'None'), '{}') as "regional_status"`
       ),
       db.raw(
-        `array_agg(to_json(${programmingPlanLocalStatusTable}.*)) filter (where ${programmingPlanLocalStatusTable}.department != 'None') as "departmental_status"`
+        `coalesce(array_agg(to_json(${programmingPlanLocalStatusTable}.*)) filter (where ${programmingPlanLocalStatusTable}.department != 'None'), '{}') as "departmental_status"`
       )
     )
     .join(

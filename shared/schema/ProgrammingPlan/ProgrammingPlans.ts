@@ -24,7 +24,7 @@ export const ProgrammingPlan = z
     createdBy: z.guid(),
     year: z.number(),
     regionalStatus: z.array(ProgrammingPlanRegionalStatus),
-    departmentalStatus: z.array(ProgrammingPlanDepartmentalStatus).nullish(),
+    departmentalStatus: z.array(ProgrammingPlanDepartmentalStatus),
     closedAt: z.coerce.date().nullish(),
     closedBy: z.guid().nullish()
   })

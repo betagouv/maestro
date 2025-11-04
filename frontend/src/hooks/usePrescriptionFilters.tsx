@@ -1,17 +1,21 @@
 import { uniq } from 'lodash-es';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { PrescriptionFilters } from '../store/reducers/prescriptionsSlice';
 
 export const usePrescriptionFilters = (
   programmingPlans?: ProgrammingPlan[]
 ) => {
-  const domainOptions = useCallback(
-    (filters: { year: number }) =>
+  const domainOptions = useMemo(
+    () => uniq((programmingPlans ?? [])?.map((_) => _.domain)),
+    [programmingPlans]
+  );
+  const yearOptions = useCallback(
+    (filters: PrescriptionFilters) =>
       uniq(
         (programmingPlans ?? [])
-          .filter((plan) => plan.year === filters.year)
-          ?.map((_) => _.domain)
+          .filter((plan) => plan.domain === filters.domain)
+          .map((plan) => plan.year)
       ),
     [programmingPlans]
   );
@@ -66,12 +70,19 @@ export const usePrescriptionFilters = (
         return uniqArr.length === 1 ? uniqArr : undefined;
       };
 
-      const { year } = aggregatedFilters;
-      const domain = domainOptions({ year }).some(
+      const domain = domainOptions.some(
         (domainOption) => domainOption === aggregatedFilters?.domain
       )
         ? aggregatedFilters?.domain
-        : getUniqOrUndefined(domainOptions({ year }))?.[0];
+        : getUniqOrUndefined(domainOptions)?.[0];
+      const year = domain
+        ? yearOptions({ domain }).some(
+            (yearOption) => yearOption === aggregatedFilters?.year
+          )
+          ? aggregatedFilters?.year
+          : getUniqOrUndefined(yearOptions({ domain }))?.[0]
+        : undefined;
+
       const programmingPlanId = programmingPlanOptions({ year, domain }).some(
         (planOption) => planOption.id === aggregatedFilters?.programmingPlanId
       )
@@ -111,6 +122,7 @@ export const usePrescriptionFilters = (
       return {
         ...aggregatedFilters,
         domain,
+        year,
         programmingPlanId,
         kinds,
         context
@@ -118,6 +130,7 @@ export const usePrescriptionFilters = (
     },
     [
       domainOptions,
+      yearOptions,
       programmingPlanOptions,
       programmingPlanKindOptions,
       contextOptions
@@ -126,6 +139,7 @@ export const usePrescriptionFilters = (
 
   return {
     domainOptions,
+    yearOptions,
     programmingPlanOptions,
     programmingPlanKindOptions,
     contextOptions,
