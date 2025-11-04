@@ -234,7 +234,6 @@ export interface Users {
   loggedSecrets: ColumnType<string[], string[] | null, string[]>;
   programmingPlanKinds: ProgrammingPlanKind[];
   companySiret: string | null;
-  company: null;
 }
 
 export interface SampleDocuments {

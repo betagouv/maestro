@@ -1,3 +1,4 @@
+import { omit } from 'lodash-es';
 import { genUser } from 'maestro-shared/test/userFixtures';
 import { v4 as uuidv4 } from 'uuid';
 import { expect, test } from 'vitest';
@@ -7,18 +8,19 @@ import { userRepository } from './userRepository';
 test("impossible d'avoir 2 utilisateurs avec le même email", async () => {
   const email = 'email@email.fr';
 
-  await userRepository.insert(genUser({ email, companySiret: null }));
-  await userRepository.insert(
-    genUser({ email: 'anotheremail@email.fr', companySiret: null })
-  );
+  await userRepository.insert(genUser({ email }));
+  await userRepository.insert(genUser({ email: 'anotheremail@email.fr' }));
 
   await expect(async () =>
     kysely
       .insertInto('users')
       .values(
-        genUser({
-          email
-        })
+        omit(
+          genUser({
+            email
+          }),
+          'company'
+        )
       )
       .execute()
   ).rejects.toThrowErrorMatchingInlineSnapshot(
@@ -27,8 +29,8 @@ test("impossible d'avoir 2 utilisateurs avec le même email", async () => {
 });
 
 test("peut modifier le nom et le prénom d'un utilisateur", async () => {
-  const user1 = genUser({ companySiret: null });
-  const user2 = genUser({ companySiret: null });
+  const user1 = genUser({});
+  const user2 = genUser({});
 
   await userRepository.insert(user1);
   await userRepository.insert(user2);
@@ -59,7 +61,7 @@ test("peut modifier le nom et le prénom d'un utilisateur", async () => {
   expect(user2InDb).toMatchObject(user2);
 });
 test('peut ajouter et supprimer un logged secret', async () => {
-  const user1 = genUser({ companySiret: null });
+  const user1 = genUser({});
 
   await userRepository.insert(user1);
 

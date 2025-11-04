@@ -51,7 +51,8 @@ export const UserToCreate = BaseUser.omit({
 export type UserToCreate = z.infer<typeof UserToCreate>;
 
 export const UserToUpdate = BaseUser.omit({
-  name: true
+  name: true,
+  company: true
 }).superRefine(regionCheck);
 export type UserToUpdate = z.infer<typeof UserToUpdate>;
 
