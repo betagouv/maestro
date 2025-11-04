@@ -12,7 +12,8 @@ export const inovalysUnknownReferences: string[] = [
   'Métaflumizone (somme des isomères)', // Je pensais que c'était RF-0280-001-PPP, mais dans le rapport d'Inovalys ce n'est pas un résidu complexe
   'Mevinphos (somme des isomères)', // idem  'RF-0302-001-PPP',
   'Pyréthrines', //idem 'RF-0374-001-PPP',
-  'Spinosad (A + D)' //idem 'RF-0393-001-PPP',
+  'Spinosad (A + D)', //idem 'RF-0393-001-PPP',
+  'Fosetyl (+ ac. phosphoreux)' // Ancien label, n'est plus utilisé
 ];
 
 export const inovalysReferential: Record<string, SSD2Id> = {
@@ -106,7 +107,7 @@ export const inovalysReferential: Record<string, SSD2Id> = {
   'Flonicamide (+ TFNA + TFNG)': 'RF-00004683-PAR',
   '· Acide phosphoreux (= ac. phosphonique)': 'RF-00004675-PAR',
   '· Fosetyl Al': 'RF-1059-001-PPP',
-  'Fosetyl (+ ac. phosphoreux)': 'RF-0225-001-PPP',
+  // 'Fosetyl (+ ac. phosphoreux)': 'RF-0225-001-PPP',
   Fosetyl: 'RF-1059-001-PPP',
   '· TFNA': 'RF-00003348-PAR',
   '· TFNG': 'RF-00003349-PAR',

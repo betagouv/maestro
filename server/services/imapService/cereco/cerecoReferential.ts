@@ -57,7 +57,7 @@ export const cerecoReferential: Record<string, SSD2Id> = {
   Acetochlor: 'RF-0015-001-PPP',
   'Acibenzolar s methyl': 'RF-0016-002-PPP',
   'acide gibbérellique': 'RF-0230-001-PPP',
-  'Acide phosphonique (somme)': 'RF-0225-001-PPP',
+  'Acide phosphonique (somme)': 'RF-00004675-PAR',
   Aclonifen: 'RF-0017-001-PPP',
   Acrinathrin: 'RF-0018-001-PPP',
   Alachlor: 'RF-0019-001-PPP',
