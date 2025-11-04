@@ -4,10 +4,12 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { t } from 'i18next';
 import { sumBy } from 'lodash-es';
+import { CompanyKindByMatrixKind } from 'maestro-shared/schema/Company/CompanyKind';
 import {
   LocalPrescription,
   SlaughterhouseSampleCounts
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
+import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import {
   forwardRef,
   useContext,
@@ -23,6 +25,7 @@ import AppSelect from '../../_app/AppSelect/AppSelect';
 import AppTextInput from '../../_app/AppTextInput/AppTextInput';
 
 interface Props {
+  prescription: Prescription;
   departmentalPrescription: LocalPrescription;
   slaughterhousePrescriptions: LocalPrescription[];
   onSubmit: (slaughterhousePrescriptions: LocalPrescription[]) => Promise<void>;
@@ -33,7 +36,12 @@ const LocalPrescriptionSlaughterhouseDistribution = forwardRef<
   Props
 >(
   (
-    { departmentalPrescription, slaughterhousePrescriptions, onSubmit },
+    {
+      prescription,
+      departmentalPrescription,
+      slaughterhousePrescriptions,
+      onSubmit
+    },
     ref
   ) => {
     const apiClient = useContext(ApiClientContext);
@@ -60,7 +68,7 @@ const LocalPrescriptionSlaughterhouseDistribution = forwardRef<
     );
 
     const { data: companies } = apiClient.useFindCompaniesQuery({
-      kind: 'Slaughterhouse',
+      kind: CompanyKindByMatrixKind[prescription.matrixKind],
       region: departmentalPrescription.region,
       department: departmentalPrescription.department
     });
@@ -134,7 +142,7 @@ const LocalPrescriptionSlaughterhouseDistribution = forwardRef<
                             )
                         )
                         .map((company) => ({
-                          label: company.name,
+                          label: `${company.name} • ${company.address}  - ${company.postalCode} ${company.city}`,
                           value: company.siret
                         }))
                     ]}

@@ -40,7 +40,7 @@ export const seed = async function () {
         postalCode: '72400',
         city: 'VILLAINES-LA-GONAIS',
         nafCode: '10.11A',
-        kind: 'Slaughterhouse'
+        kind: 'MEAT_SLAUGHTERHOUSE'
       },
       {
         siret: '54695037900216',
@@ -54,7 +54,7 @@ export const seed = async function () {
           y: -0.734475,
           x: 46.642117
         },
-        kind: 'Slaughterhouse'
+        kind: 'MEAT_SLAUGHTERHOUSE'
       },
       {
         siret: '34447746800120',
@@ -68,7 +68,7 @@ export const seed = async function () {
           y: -1.02761,
           x: 46.86651
         },
-        kind: 'Slaughterhouse'
+        kind: 'MEAT_SLAUGHTERHOUSE'
       },
       {
         siret: '50851378500206',
@@ -82,7 +82,7 @@ export const seed = async function () {
           y: -1.372955,
           x: 46.691626
         },
-        kind: 'Slaughterhouse'
+        kind: 'MEAT_SLAUGHTERHOUSE'
       },
       {
         siret: '92495996800018',
@@ -96,7 +96,7 @@ export const seed = async function () {
           y: -1.716831,
           x: 46.740073
         },
-        kind: 'Slaughterhouse'
+        kind: 'POULTRY_SLAUGHTERHOUSE'
       },
       {
         siret: '51747620600019',
@@ -110,7 +110,7 @@ export const seed = async function () {
           y: -1.896687,
           x: 46.947964
         },
-        kind: 'Slaughterhouse'
+        kind: 'POULTRY_SLAUGHTERHOUSE'
       },
       {
         siret: '45012154600011',
@@ -124,7 +124,7 @@ export const seed = async function () {
           y: -1.328166,
           x: 46.667725
         },
-        kind: 'Slaughterhouse'
+        kind: 'POULTRY_SLAUGHTERHOUSE'
       },
       {
         siret: '34761115400027',
@@ -138,7 +138,7 @@ export const seed = async function () {
           y: -1.849943,
           x: 46.832063
         },
-        kind: 'Slaughterhouse'
+        kind: 'POULTRY_SLAUGHTERHOUSE'
       },
       {
         siret: '40180086700012',
@@ -152,7 +152,21 @@ export const seed = async function () {
           y: -1.431468,
           x: 46.739556
         },
-        kind: 'Slaughterhouse'
+        kind: 'POULTRY_SLAUGHTERHOUSE'
+      },
+      {
+        siret: '54665036700040',
+        name: 'ARRIVE',
+        tradeName: 'ARRIVE',
+        address: 'BELLEVUE',
+        postalCode: '85140',
+        city: 'ESSARTS EN BOCAGE',
+        nafCode: '85.084.001',
+        geolocation: {
+          y: -1.22209,
+          x: 46.749416
+        },
+        kind: 'POULTRY_SLAUGHTERHOUSE'
       },
       {
         siret: '60165014600108',
@@ -166,7 +180,7 @@ export const seed = async function () {
           y: -1.040134,
           x: 46.858145
         },
-        kind: 'Slaughterhouse'
+        kind: 'POULTRY_SLAUGHTERHOUSE'
       },
       {
         siret: '31667398700012',
@@ -180,7 +194,7 @@ export const seed = async function () {
           y: -1.691395,
           x: 46.756547
         },
-        kind: 'Slaughterhouse'
+        kind: 'POULTRY_SLAUGHTERHOUSE'
       },
       {
         siret: '37840398400016',
@@ -194,7 +208,7 @@ export const seed = async function () {
           y: -1.125905,
           x: 46.799771
         },
-        kind: 'Slaughterhouse'
+        kind: 'POULTRY_SLAUGHTERHOUSE'
       },
       {
         siret: '47973740500015',
@@ -208,7 +222,119 @@ export const seed = async function () {
           y: -1.127975,
           x: 46.801677
         },
-        kind: 'Slaughterhouse'
+        kind: 'POULTRY_SLAUGHTERHOUSE'
+      },
+      {
+        siret: '64568002600202',
+        name: 'DELPEYRAT',
+        tradeName: 'DELPEYRAT',
+        address: 'ZONE INDUSTRIELLE VAL DE SEVRE',
+        postalCode: '85700',
+        city: 'SEVREMONT',
+        nafCode: '85.180.001',
+        geolocation: {
+          y: -0.769141,
+          x: 46.832502
+        },
+        kind: 'POULTRY_SLAUGHTERHOUSE'
+      },
+      {
+        siret: '38332052000026',
+        name: 'ABATTOIR CONDITIONNEMENT LAPINS VENDEE',
+        tradeName: 'ABATTOIR CONDITIONNEMENT LAPINS VENDEE',
+        address: '111 RUE JOSEPH CUGNOT',
+        postalCode: '85700',
+        city: 'POUZAUGES',
+        nafCode: '85.182.001',
+        geolocation: {
+          y: -0.844255,
+          x: 46.771781
+        },
+        kind: 'POULTRY_SLAUGHTERHOUSE'
+      },
+      {
+        siret: '48678011700017',
+        name: 'SAS DES VOLAILLES LEON DUPONT',
+        tradeName: 'SAS DES VOLAILLES LEON DUPONT',
+        address: '2315 RTE DES GARATERIES',
+        postalCode: '85270',
+        city: 'NOTRE DAME DE RIEZ',
+        nafCode: '85.189.001',
+        geolocation: {
+          y: -1.888032,
+          x: 46.764846
+        },
+        kind: 'POULTRY_SLAUGHTERHOUSE'
+      },
+      {
+        siret: '54665036700016',
+        name: 'ARRIVE',
+        tradeName: 'ARRIVE',
+        address: 'RUE DU STADE',
+        postalCode: '85250',
+        city: 'SAINT FULGENT',
+        nafCode: '85.215.001',
+        geolocation: {
+          y: -1.176081,
+          x: 46.861085
+        },
+        kind: 'POULTRY_SLAUGHTERHOUSE'
+      },
+      {
+        siret: '32822285600010',
+        name: 'ETS THOMAS ET FILS',
+        tradeName: 'ETS THOMAS ET FILS',
+        address: 'LD LA RIOLIERE',
+        postalCode: '85140',
+        city: 'SAINT MARTIN DES NOYERS',
+        nafCode: '85.246.002',
+        geolocation: {
+          y: -1.20793,
+          x: 46.724762
+        },
+        kind: 'POULTRY_SLAUGHTERHOUSE'
+      },
+      {
+        siret: '34056489700015',
+        name: 'BOILARD LES PIGEONS DU GRENIER',
+        tradeName: 'BOILARD LES PIGEONS DU GRENIER',
+        address: 'LA BRENAUDERIE',
+        postalCode: '85140',
+        city: 'SAINT MARTIN DES NOYERS',
+        nafCode: '85.246.003',
+        geolocation: {
+          y: -1.199816,
+          x: 46.721646
+        },
+        kind: 'POULTRY_SLAUGHTERHOUSE'
+      },
+      {
+        siret: '35166976700029',
+        name: 'FAVREAU COUTHOUIS',
+        tradeName: 'FAVREAU COUTHOUIS',
+        address: 'LES DUTTIERES',
+        postalCode: '85300',
+        city: 'SOULLANS',
+        nafCode: '85.284.001',
+        geolocation: {
+          y: -1.879417,
+          x: 46.783004
+        },
+        kind: 'POULTRY_SLAUGHTERHOUSE'
+      },
+      {
+        siret: '35166976700011',
+        name: 'FAVREAU COUTHOUIS',
+        tradeName: 'FAVREAU COUTHOUIS',
+        address: '27 LD LA GARE',
+        postalCode: '85300',
+        city: 'SOULLANS',
+        nafCode: '85.284.002',
+        geolocation: {
+          y: -1.903136,
+          x: 46.794292
+        },
+        kind: 'POULTRY_SLAUGHTERHOUSE'
       }
     ].map((company) => ({
       ...company,

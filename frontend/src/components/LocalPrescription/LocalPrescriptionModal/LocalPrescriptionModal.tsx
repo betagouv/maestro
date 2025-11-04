@@ -213,6 +213,7 @@ const RegionalPrescriptionModal = () => {
               'distributionToSlaughterhouses' && (
               <LocalPrescriptionSlaughterhouseDistribution
                 ref={modalContentRef}
+                prescription={localPrescriptionModalData.prescription}
                 departmentalPrescription={
                   localPrescriptionModalData.localPrescription
                 }
