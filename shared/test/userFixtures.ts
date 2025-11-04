@@ -23,7 +23,7 @@ export const genUser = <T extends Partial<User>>(data: T): User & T => {
     department: DepartmentalUserRole.safeParse(role).success
       ? oneOf(Regions[data?.region ?? oneOf(RegionList)].departments)
       : null,
-    companySiret: null,
+    company: null,
     ...data
   };
 };

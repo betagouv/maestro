@@ -45,7 +45,7 @@ const userDefaultValue: Nullable<UserToCreate> = {
   programmingPlanKinds: ['PPV'],
   region: null,
   department: null,
-  companySiret: null
+  company: null
 };
 
 export const UserModal = ({ userToUpdate, modal, ..._rest }: Props) => {
@@ -57,7 +57,9 @@ export const UserModal = ({ userToUpdate, modal, ..._rest }: Props) => {
 
   const [user, setUser] = useState<Nullable<UserToCreate>>(userDefaultValue);
 
-  const form = useForm(UserToCreate, user);
+  const form = useForm(UserToCreate, {
+    ...user
+  });
 
   useEffect(() => {
     if (userToUpdate) {
@@ -74,7 +76,7 @@ export const UserModal = ({ userToUpdate, modal, ..._rest }: Props) => {
   });
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
-    form.validate(async (n) => {
+    await form.validate(async (n) => {
       if (userToUpdate?.id) {
         await updateUser({ ...n, id: userToUpdate.id });
       } else {

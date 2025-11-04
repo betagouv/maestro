@@ -93,7 +93,7 @@ describe('User router', () => {
         role: Sampler1Fixture.role,
         region: Sampler1Fixture.region,
         department: Sampler1Fixture.department || null,
-        companySiret: null
+        company: Sampler1Fixture.company || null
       });
     });
   });

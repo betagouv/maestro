@@ -6,6 +6,7 @@ import { Region, RegionList } from '../../referential/Region';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { UserPermission } from './UserPermission';
 
+import { Company } from '../Company/Company';
 import {
   hasNationalRole,
   hasRegionalRole,
@@ -21,7 +22,7 @@ const BaseUser = z.object({
   role: UserRole,
   region: Region.nullable(),
   department: Department.nullable(),
-  companySiret: z.string().nullable()
+  company: Company.nullish()
 });
 
 const regionCheck = <T extends Pick<User, 'region' | 'role'>>(
@@ -45,7 +46,8 @@ export const User = BaseUser.superRefine(regionCheck);
 
 export const UserToCreate = BaseUser.omit({
   id: true,
-  name: true
+  name: true,
+  company: true
 }).superRefine(regionCheck);
 export type UserToCreate = z.infer<typeof UserToCreate>;
 
