@@ -160,7 +160,8 @@ export const hasNationalRole = (user: Nullable<Pick<User, 'role'>>) =>
   RegionalAndNationalUserRole.safeParse(user.role).success;
 
 export const hasRegionalRole = (user: Pick<User, 'role'>) =>
-  RegionalUserRole.safeParse(user.role).success;
+  RegionalUserRole.safeParse(user.role).success ||
+  RegionalAndNationalUserRole.safeParse(user.role).success;
 
 export const hasDepartmentalRole = (user: Pick<User, 'role'>) =>
   DepartmentalUserRole.safeParse(user.role).success;

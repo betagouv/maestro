@@ -10,7 +10,6 @@ import { Company } from '../Company/Company';
 import {
   hasNationalRole,
   hasRegionalRole,
-  RegionalAndNationalUserRole,
   UserRole,
   UserRolePermissions
 } from './UserRole';
@@ -30,10 +29,7 @@ const regionCheck = <T extends Pick<User, 'region' | 'role'>>(
   user: T,
   ctx: RefinementCtx<T>
 ) => {
-  if (
-    (!user.region && hasRegionalRole(user)) ||
-    RegionalAndNationalUserRole.safeParse(user.role).success
-  ) {
+  if (!user.region && hasRegionalRole(user)) {
     ctx.addIssue({
       code: 'custom',
       message: 'La région est obligatoire pour ce rôle.'

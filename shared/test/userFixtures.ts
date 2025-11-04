@@ -7,6 +7,7 @@ import { User } from '../schema/User/User';
 import {
   DepartmentalUserRole,
   hasNationalRole,
+  hasRegionalRole,
   UserRoleList
 } from '../schema/User/UserRole';
 import { oneOf } from './testFixtures';
@@ -19,7 +20,10 @@ export const genUser = <T extends Partial<User>>(data: T): User & T => {
     name: fakerFR.person.fullName(),
     programmingPlanKinds: [oneOf(ProgrammingPlanKindList)],
     role,
-    region: hasNationalRole({ role }) ? null : oneOf(RegionList),
+    region:
+      hasNationalRole({ role }) && !hasRegionalRole({ role })
+        ? null
+        : oneOf(RegionList),
     department: DepartmentalUserRole.safeParse(role).success
       ? oneOf(Regions[data?.region ?? oneOf(RegionList)].departments)
       : null,
