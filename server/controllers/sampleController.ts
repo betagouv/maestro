@@ -473,7 +473,10 @@ export const sampleRouter = {
         const updatedSample = Sample.parse(updatedPartialSample);
         const sampleItems = await sampleItemRepository.findMany(sample.id);
 
-        await Promise.all(
+        const attachments: ({
+          content: string;
+          name: string;
+        } | null)[] = await Promise.all(
           sampleItems.map(async (sampleItem) => {
             const sampleSupportDoc =
               await generateAndStoreSampleSupportDocument(
@@ -481,6 +484,16 @@ export const sampleRouter = {
                 sampleItems as SampleItem[],
                 sampleItem.itemNumber
               );
+
+            const sampleSupportAttachment = sampleSupportDoc
+              ? {
+                  name: `${getSupportDocumentFilename(
+                    updatedSample,
+                    sampleItem.itemNumber
+                  )}`,
+                  content: sampleSupportDoc.toString('base64')
+                }
+              : null;
 
             if (sampleItem.itemNumber === 1) {
               const laboratory = (await laboratoryRepository.findUnique(
@@ -601,40 +614,25 @@ export const sampleRouter = {
                         'base64'
                       )
                     })),
-                  sampleSupportDoc
-                    ? {
-                        name: `${getSupportDocumentFilename(
-                          updatedSample,
-                          sampleItem.itemNumber
-                        )}`,
-                        content: sampleSupportDoc.toString('base64')
-                      }
-                    : undefined
+                  sampleSupportAttachment
                 ].filter((_) => !isNil(_))
               });
             }
-
-            if (sample.ownerEmail) {
-              await mailService.send({
-                templateName: 'SupportDocumentCopyToOwnerTemplate',
-                recipients: [sample.ownerEmail],
-                params: {
-                  region: user.region ? Regions[user.region].name : undefined,
-                  sampledAt: format(updatedSample.sampledAt, 'dd/MM/yyyy')
-                },
-                attachment: [
-                  {
-                    name: `${getSupportDocumentFilename(
-                      updatedSample,
-                      sampleItem.itemNumber
-                    )}`,
-                    content: sampleSupportDoc.toString('base64')
-                  }
-                ]
-              });
-            }
+            return sampleSupportAttachment;
           })
         );
+
+        if (sample.ownerEmail) {
+          await mailService.send({
+            templateName: 'SupportDocumentCopyToOwnerTemplate',
+            recipients: [sample.ownerEmail],
+            params: {
+              region: user.region ? Regions[user.region].name : undefined,
+              sampledAt: format(updatedSample.sampledAt, 'dd/MM/yyyy')
+            },
+            attachment: attachments.filter((_) => !isNil(_))
+          });
+        }
       }
 
       await sampleRepository.update(updatedPartialSample);
