@@ -10,7 +10,7 @@ import { Users as KyselyUser } from './kysely.type';
 
 export const usersTable = 'users';
 
-export const userCompaniesTable = 'user_companies';
+const userCompaniesTable = 'user_companies';
 
 export const Users = () => db<User>(usersTable);
 
