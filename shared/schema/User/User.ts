@@ -22,7 +22,7 @@ const BaseUser = z.object({
   role: UserRole,
   region: Region.nullable(),
   department: Department.nullable(),
-  company: Company.nullish()
+  companies: z.array(Company).nullish()
 });
 
 const regionCheck = <T extends Pick<User, 'region' | 'role'>>(
@@ -42,13 +42,13 @@ export const User = BaseUser.superRefine(regionCheck);
 export const UserToCreate = BaseUser.omit({
   id: true,
   name: true,
-  company: true
+  companies: true
 }).superRefine(regionCheck);
 export type UserToCreate = z.infer<typeof UserToCreate>;
 
 export const UserToUpdate = BaseUser.omit({
   name: true,
-  company: true
+  companies: true
 }).superRefine(regionCheck);
 export type UserToUpdate = z.infer<typeof UserToUpdate>;
 

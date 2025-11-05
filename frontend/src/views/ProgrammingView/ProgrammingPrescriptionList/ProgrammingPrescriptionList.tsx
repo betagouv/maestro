@@ -4,6 +4,7 @@ import { isNil, sumBy } from 'lodash-es';
 import { Department } from 'maestro-shared/referential/Department';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region } from 'maestro-shared/referential/Region';
+import { Company } from 'maestro-shared/schema/Company/Company';
 import { FindLocalPrescriptionOptions } from 'maestro-shared/schema/LocalPrescription/FindLocalPrescriptionOptions';
 import { LocalPrescriptionUpdate } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
@@ -38,14 +39,14 @@ interface Props {
   programmingPlan: ProgrammingPlan;
   region?: Region;
   department?: Department;
-  companySiret?: string;
+  companies?: Company[];
 }
 
 const ProgrammingPrescriptionList = ({
   programmingPlan,
   region,
   department,
-  companySiret,
+  companies,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -170,11 +171,11 @@ const ProgrammingPrescriptionList = ({
   const localPrescriptions = useMemo(
     () =>
       allLocalPrescriptions?.filter((_) => {
-        if (companySiret) {
+        if (companies && companies.length > 0) {
           return (
             _.region === region &&
             _.department === department &&
-            _.companySiret === companySiret
+            companies.some((c) => c.siret === _.companySiret)
           );
         }
         if (department) {
@@ -186,7 +187,7 @@ const ProgrammingPrescriptionList = ({
         }
         return isNil(_.department);
       }),
-    [allLocalPrescriptions, department, region, companySiret]
+    [allLocalPrescriptions, department, region, companies]
   );
 
   const subLocalPrescriptions = useMemo(
@@ -194,7 +195,7 @@ const ProgrammingPrescriptionList = ({
       allLocalPrescriptions
         ?.filter((_) => prescriptions?.some((p) => p.id === _.prescriptionId))
         .filter((_) => {
-          if (companySiret) {
+          if (companies) {
             return false;
           }
           if (department) {
@@ -206,7 +207,7 @@ const ProgrammingPrescriptionList = ({
           }
           return _.region === region && !isNil(_.department);
         }),
-    [prescriptions, allLocalPrescriptions, department, region, companySiret]
+    [prescriptions, allLocalPrescriptions, department, region, companies]
   );
 
   useEffect(() => {

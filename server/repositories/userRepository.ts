@@ -3,13 +3,26 @@ import { isNil } from 'lodash-es';
 import { FindUserOptions } from 'maestro-shared/schema/User/FindUserOptions';
 import { User } from 'maestro-shared/schema/User/User';
 import { assertUnreachable } from 'maestro-shared/utils/typescript';
+import z from 'zod';
 import { knexInstance as db } from './db';
 import { kysely } from './kysely';
 import { Users as KyselyUser } from './kysely.type';
 
 export const usersTable = 'users';
 
+export const userCompaniesTable = 'user_companies';
+
 export const Users = () => db<User>(usersTable);
+
+const UserCompany = z.object({
+  userId: z.guid(),
+  companySiret: z.string()
+});
+
+type UserCompany = z.infer<typeof UserCompany>;
+
+export const UserCompanies = () => db<UserCompany>(userCompaniesTable);
+
 const findUnique = async (
   userId: string
 ): Promise<(User & { loggedSecrets: string[] }) | undefined> => {
@@ -17,8 +30,9 @@ const findUnique = async (
 
   return kysely
     .selectFrom('users')
-    .leftJoin('companies', 'users.companySiret', 'companies.siret')
-    .where('id', '=', userId)
+    .leftJoin('userCompanies', 'users.id', 'userCompanies.userId')
+    .leftJoin('companies', 'userCompanies.companySiret', 'companies.siret')
+    .where('users.id', '=', userId)
     .select([
       'users.id',
       'users.email',
@@ -28,26 +42,48 @@ const findUnique = async (
       'users.department',
       'users.loggedSecrets',
       'users.programmingPlanKinds',
-      'companies.siret as companySiret',
-      'companies.name as companyName',
-      'companies.kind as companyKind',
-      'companies.geolocation as companyGeolocation'
+      sql<any>`
+        case 
+          when count(companies.siret) = 0 then null
+          else array_agg(
+            json_build_object(
+              'siret', companies.siret,
+              'name', companies.name,
+              'tradeName', companies.trade_name,
+              'address' , companies.address,
+              'postalCode', companies.postal_code,
+              'city', companies.city,
+              'nafCode', companies.naf_code,
+              'kind', companies.kind,
+              'geolocation', case
+                when companies.geolocation is not null then
+                  json_build_object(
+                    'x', companies.geolocation[0],
+                    'y', companies.geolocation[1]
+                  )
+                else null
+              end
+            )
+          ) filter (where companies.siret is not null)
+        end
+      `.as('companies')
+    ])
+    .groupBy([
+      'users.id',
+      'users.email',
+      'users.name',
+      'users.role',
+      'users.region',
+      'users.department',
+      'users.loggedSecrets',
+      'users.programmingPlanKinds'
     ])
     .executeTakeFirst()
-    .then((user) =>
+    .then((user: any) =>
       user
         ? {
             ...User.parse(user),
-            loggedSecrets: user.loggedSecrets ?? [],
-            company:
-              user.companySiret && user.companyName
-                ? {
-                    siret: user.companySiret,
-                    name: user.companyName,
-                    kind: user.companyKind,
-                    geolocation: user.companyGeolocation
-                  }
-                : null
+            loggedSecrets: user.loggedSecrets ?? []
           }
         : undefined
     );
@@ -108,10 +144,7 @@ const findMany = async (findOptions: FindUserOptions): Promise<User[]> => {
 };
 
 const insert = async (
-  user: Omit<
-    KyselyUser,
-    'id' | 'loggedSecrets' | 'name' | 'company' | 'companySiret'
-  >
+  user: Omit<KyselyUser, 'id' | 'loggedSecrets' | 'name'>
 ): Promise<void> => {
   await kysely.insertInto('users').values(user).execute();
 };

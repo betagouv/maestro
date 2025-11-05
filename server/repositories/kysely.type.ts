@@ -233,7 +233,11 @@ export interface Users {
   role: UserRole;
   loggedSecrets: ColumnType<string[], string[] | null, string[]>;
   programmingPlanKinds: ProgrammingPlanKind[];
-  companySiret: string | null;
+}
+
+export interface UserCompanies {
+  companySiret: string;
+  userId: string;
 }
 
 export interface SampleDocuments {
@@ -268,5 +272,6 @@ export interface DB {
   samples: Samples;
   sampleSequenceNumbers: SampleSequenceNumbers;
   users: Users;
+  userCompanies: UserCompanies;
 }
 export type KyselyMaestro = Kysely<DB>;

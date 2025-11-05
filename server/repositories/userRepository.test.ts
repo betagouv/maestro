@@ -1,4 +1,3 @@
-import { omit } from 'lodash-es';
 import { genUser } from 'maestro-shared/test/userFixtures';
 import { v4 as uuidv4 } from 'uuid';
 import { expect, test } from 'vitest';
@@ -15,12 +14,9 @@ test("impossible d'avoir 2 utilisateurs avec le même email", async () => {
     kysely
       .insertInto('users')
       .values(
-        omit(
-          genUser({
-            email
-          }),
-          'company'
-        )
+        genUser({
+          email
+        })
       )
       .execute()
   ).rejects.toThrowErrorMatchingInlineSnapshot(

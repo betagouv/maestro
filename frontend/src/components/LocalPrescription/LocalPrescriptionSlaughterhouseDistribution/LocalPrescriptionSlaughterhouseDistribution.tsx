@@ -21,8 +21,8 @@ import { z } from 'zod';
 import { useForm } from '../../../hooks/useForm';
 import { ApiClientContext } from '../../../services/apiClient';
 import { pluralize } from '../../../utils/stringUtils';
-import AppSelect from '../../_app/AppSelect/AppSelect';
 import AppTextInput from '../../_app/AppTextInput/AppTextInput';
+import CompanySearch from '../../CompanySearch/CompanySearch';
 
 interface Props {
   prescription: Prescription;
@@ -128,44 +128,35 @@ const LocalPrescriptionSlaughterhouseDistribution = forwardRef<
                 key={`slaughterhousePrescription_${slaughterhouseSampleCountIndex}`}
               >
                 <div className={cx('fr-col-6')}>
-                  <AppSelect
-                    defaultValue={slaughterhouseSampleCount.companySiret ?? ''}
-                    options={[
-                      { label: 'Sélectionner un abattoir', value: '' },
-                      ...(companies ?? [])
-                        .filter(
-                          (company) =>
-                            !slaughterhouseSampleCounts.some(
-                              (_, i) =>
-                                _.companySiret === company.siret &&
-                                i !== slaughterhouseSampleCountIndex
-                            )
-                        )
-                        .map((company) => ({
-                          label: `${company.name} • ${company.address}  - ${company.postalCode} ${company.city}`,
-                          value: company.siret
-                        }))
-                    ]}
+                  <CompanySearch
                     label="Abattoir"
-                    onChange={(e) =>
+                    initialCompany={companies.find(
+                      (company) =>
+                        company.siret === slaughterhouseSampleCount.companySiret
+                    )}
+                    onSelectCompany={(result) => {
                       setSlaughterhouseSampleCounts(
                         slaughterhouseSampleCounts.map((sp, i) =>
                           i === slaughterhouseSampleCountIndex
                             ? {
                                 ...sp,
-                                companySiret: e.target.value
+                                companySiret: result?.siret ?? ''
                               }
                             : sp
                         )
-                      )
-                    }
-                    inputForm={form}
-                    inputPathFromKey={[
+                      );
+                    }}
+                    state={form.messageType('slaughterhouseSampleCounts', [
                       slaughterhouseSampleCountIndex,
                       'companySiret'
-                    ]}
-                    inputKey="slaughterhouseSampleCounts"
-                    required
+                    ])}
+                    stateRelatedMessage={
+                      form.message('slaughterhouseSampleCounts', [
+                        slaughterhouseSampleCountIndex,
+                        'companySiret'
+                      ]) ?? 'Abattoir correctement renseigné'
+                    }
+                    companies={companies}
                   />
                 </div>
                 <div className={cx('fr-col-6')}>

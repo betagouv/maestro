@@ -97,13 +97,20 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
   const [legalContext, setLegalContext] = useState(partialSample?.legalContext);
 
   const [geolocationX, setGeolocationX] = useState(
-    partialSample?.geolocation?.x ?? user?.company?.geolocation?.x
+    partialSample?.geolocation?.x ??
+      (user?.companies?.length === 1
+        ? user?.companies?.[0].geolocation?.x
+        : undefined)
   );
   const [geolocationY, setGeolocationY] = useState(
-    partialSample?.geolocation?.y ?? user?.company?.geolocation?.y
+    partialSample?.geolocation?.y ??
+      (user?.companies?.length === 1
+        ? user?.companies?.[0].geolocation?.y
+        : undefined)
   );
   const [company, setCompany] = useState(
-    partialSample?.company ?? user?.company
+    partialSample?.company ??
+      (user?.companies?.length === 1 ? user?.companies?.[0] : undefined)
   );
   const [isBrowserGeolocation, setIsBrowserGeolocation] = useState(false);
   const [sampler, setSampler] = useState<Sampler | undefined>(
@@ -595,6 +602,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
               stateRelatedMessage={
                 form.message('company') ?? 'Entité correctement renseignée'
               }
+              companies={user?.companies}
             />
           ) : (
             <AppTextInput
