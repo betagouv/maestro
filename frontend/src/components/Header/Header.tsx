@@ -286,7 +286,7 @@ const Header = () => {
                     children={isMobile ? 'Notifications' : undefined}
                   />
                 </Badge>,
-                prescriptionFilters?.domain && domainOptions.length > 1 ? (
+                prescriptionFilters?.domain && domainOptions.length > 0 ? (
                   <HeaderMenu
                     key="domainMenu"
                     ref={domainMenuRef}
