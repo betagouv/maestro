@@ -280,7 +280,7 @@ const CompanySearch = ({
       {company && (
         <>
           <div className={cx('fr-hint-text', 'fr-my-1w')}>
-            Entité sélectionnée
+            Valeur sélectionnée
           </div>
           <Tag
             dismissible
