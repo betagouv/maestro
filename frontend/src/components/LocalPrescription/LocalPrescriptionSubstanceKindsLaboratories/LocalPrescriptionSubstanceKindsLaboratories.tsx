@@ -37,7 +37,7 @@ const LocalPrescriptionSubstanceKindsLaboratories = forwardRef<
     return (
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>
-          Définissez le laboratoire destinataire des prélèvements
+          Définissez le laboratoire destinataire des prélèvements{' '}
           {substanceKindsLaboratories.length > 1 && <>par type d’analyse</>}
         </div>
         {[...substanceKindsLaboratories]

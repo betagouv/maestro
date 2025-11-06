@@ -136,7 +136,7 @@ const ProgrammingPlanNotificationDepartmentalToSampler = ({
       >
         <div>
           Vous êtes sur le point de signaler aux préleveurs des abattoirs ciblés
-          le lancement de la campagne de prélèvements pour l'année 
+          le lancement de la campagne de prélèvements pour l'année{' '}
           {programmingPlan.year}.
           <br />
           La coordination régionale sera également notifiée que vous avez
