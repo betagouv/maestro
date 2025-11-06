@@ -6,11 +6,13 @@ import { pluralize } from '../../../utils/stringUtils';
 interface Props {
   localPrescription?: LocalPrescription;
   subLocalPrescriptions?: LocalPrescription[];
+  small?: boolean;
 }
 
 const LocalPrescriptionDistributionBadge = ({
   localPrescription,
-  subLocalPrescriptions
+  subLocalPrescriptions,
+  small
 }: Props) => {
   if (!localPrescription) {
     return <></>;
@@ -19,7 +21,7 @@ const LocalPrescriptionDistributionBadge = ({
   return (
     <Badge
       noIcon
-      small
+      small={small}
       severity={
         sumBy(subLocalPrescriptions, 'sampleCount') ===
         localPrescription.sampleCount

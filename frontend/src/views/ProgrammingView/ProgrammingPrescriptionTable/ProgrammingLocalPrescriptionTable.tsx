@@ -158,6 +158,7 @@ const ProgrammingLocalPrescriptionTable = ({
             <LocalPrescriptionDistributionBadge
               localPrescription={getLocalPrescription(prescription.id)}
               subLocalPrescriptions={getSubLocalPrescriptions(prescription.id)}
+              small
             />
             {programmingPlan.regionalStatus.some(
               (_) => _.status === 'Validated'

@@ -127,6 +127,7 @@ const LocalPrescriptionCard = ({
                     <LocalPrescriptionDistributionBadge
                       localPrescription={localPrescription}
                       subLocalPrescriptions={subLocalPrescriptions}
+                      small
                     />
                   </>
                 )}

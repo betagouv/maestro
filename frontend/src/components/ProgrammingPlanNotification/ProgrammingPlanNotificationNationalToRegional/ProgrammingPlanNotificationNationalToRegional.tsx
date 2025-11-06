@@ -175,40 +175,40 @@ const ProgrammingPlanNotificationNationalToRegional = ({
                 {programmingPlan.title}
               </option>
             </Select>
-            <RadioButtons
-              legend="Action"
-              options={[
-                {
-                  label: 'Soumettre la programmation',
-                  nativeInputProps: {
-                    checked: status === 'InProgress',
-                    onChange: () => {
-                      setStatus('InProgress');
-                      setRegionsToNotify(getRegionsByStatus('InProgress'));
-                    },
-                    disabled: getRegionsByStatus('InProgress').length === 0
-                  }
-                },
-                programmingPlan.distributionKind === 'REGIONAL'
-                  ? {
-                      label: 'Valider la programmation',
-                      nativeInputProps: {
-                        checked: status === 'ApprovedByRegion',
-                        onChange: () => {
-                          setStatus('ApprovedByRegion');
-                          setRegionsToNotify(
-                            getRegionsByStatus('ApprovedByRegion')
-                          );
-                        },
-                        disabled:
-                          getRegionsByStatus('ApprovedByRegion').length === 0
-                      }
+            {programmingPlan.distributionKind === 'REGIONAL' && (
+              <RadioButtons
+                legend="Action"
+                options={[
+                  {
+                    label: 'Soumettre la programmation',
+                    nativeInputProps: {
+                      checked: status === 'InProgress',
+                      onChange: () => {
+                        setStatus('InProgress');
+                        setRegionsToNotify(getRegionsByStatus('InProgress'));
+                      },
+                      disabled: getRegionsByStatus('InProgress').length === 0
                     }
-                  : undefined
-              ].filter(isDefined)}
-              orientation="horizontal"
-              className={cx('fr-mt-2w')}
-            />
+                  },
+                  {
+                    label: 'Valider la programmation',
+                    nativeInputProps: {
+                      checked: status === 'ApprovedByRegion',
+                      onChange: () => {
+                        setStatus('ApprovedByRegion');
+                        setRegionsToNotify(
+                          getRegionsByStatus('ApprovedByRegion')
+                        );
+                      },
+                      disabled:
+                        getRegionsByStatus('ApprovedByRegion').length === 0
+                    }
+                  }
+                ].filter(isDefined)}
+                orientation="horizontal"
+                className={cx('fr-mt-2w')}
+              />
+            )}
             <hr className={cx('fr-my-2w')} />
             <div className={cx('fr-mt-3w')}>
               {getRegionsByStatus(status).length > 0 ? (
