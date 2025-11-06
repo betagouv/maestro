@@ -1,10 +1,10 @@
-import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Input from '@codegouvfr/react-dsfr/Input';
 import { isNil } from 'lodash-es';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useMemo, useState } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
+import { useAutoSave } from 'src/hooks/useAutoSave';
 
 interface Props {
   programmingPlan: ProgrammingPlan;
@@ -20,12 +20,22 @@ const PrescriptionProgrammingInstruction = ({
   const { hasUserPrescriptionPermission } = useAuthentication();
   const [instruction, setInstruction] = useState(value || '');
 
+  const { triggerSave } = useAutoSave({
+    onSave: (value) => onSubmitInstruction?.(value),
+    delay: 500
+  });
+
   const isDisabled = useMemo(
     () =>
       !hasUserPrescriptionPermission(programmingPlan)?.update ||
       !onSubmitInstruction,
     [programmingPlan, onSubmitInstruction, hasUserPrescriptionPermission]
   );
+
+  const handleInputChange = (newValue: string) => {
+    setInstruction(newValue);
+    triggerSave(newValue);
+  };
 
   return (
     <>
@@ -39,28 +49,19 @@ const PrescriptionProgrammingInstruction = ({
           )}
         </div>
       ) : (
-        <div className="d-flex-align-center">
-          <Input
-            label="Consignes de répartition"
-            textArea
-            nativeTextAreaProps={{
-              value: instruction,
-              onChange: (e) => setInstruction(e.target.value),
-              rows: 1,
-              placeholder: 'Ajouter des consignes...'
-            }}
-            style={{
-              width: '100%'
-            }}
-          />
-          <Button
-            title="Enregistrer"
-            iconId="fr-icon-save-line"
-            onClick={() => onSubmitInstruction?.(instruction)}
-            priority="secondary"
-            className={cx('fr-ml-1w', 'fr-mt-1w')}
-          />
-        </div>
+        <Input
+          label="Consignes de répartition"
+          textArea
+          nativeTextAreaProps={{
+            value: instruction,
+            onChange: (e) => handleInputChange(e.target.value),
+            rows: 1,
+            placeholder: 'Ajouter des consignes...'
+          }}
+          style={{
+            width: '100%'
+          }}
+        />
       )}
     </>
   );

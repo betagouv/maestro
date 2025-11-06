@@ -160,13 +160,20 @@ const ProgrammingPrescriptionList = ({
             )
           : true
       )
-      .filter((p) =>
-        allLocalPrescriptions?.some(
-          (_) => _.prescriptionId === p.id && _.sampleCount > 0
-        )
+      .filter(
+        (p) =>
+          hasNationalView ||
+          allLocalPrescriptions?.some(
+            (_) => _.prescriptionId === p.id && _.sampleCount > 0
+          )
       )
       .sort(PrescriptionSort);
-  }, [allPrescriptions, prescriptionFilters, allLocalPrescriptions]);
+  }, [
+    allPrescriptions,
+    prescriptionFilters,
+    allLocalPrescriptions,
+    hasNationalView
+  ]);
 
   const localPrescriptions = useMemo(
     () =>

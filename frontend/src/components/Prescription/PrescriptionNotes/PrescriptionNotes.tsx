@@ -1,9 +1,8 @@
-import Button from '@codegouvfr/react-dsfr/Button';
-import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Input from '@codegouvfr/react-dsfr/Input';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useState } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
+import { useAutoSave } from 'src/hooks/useAutoSave';
 
 interface Props {
   programmingPlan: ProgrammingPlan;
@@ -19,33 +18,32 @@ const PrescriptionNotes = ({
   const { hasUserPrescriptionPermission } = useAuthentication();
   const [notes, setNotes] = useState(value);
 
+  const { triggerSave } = useAutoSave({
+    onSave: (value) => onSubmitNotes?.(value),
+    delay: 500
+  });
+
+  const handleInputChange = (newValue: string) => {
+    setNotes(newValue);
+    triggerSave(newValue);
+  };
+
   return (
     <>
       {hasUserPrescriptionPermission(programmingPlan)?.update ? (
-        <div className="d-flex-align-center">
-          <Input
-            label="Note"
-            textArea
-            nativeTextAreaProps={{
-              value: notes,
-              onChange: (e) => setNotes(e.target.value),
-              placeholder: 'Ajouter une note',
-              rows: 1
-            }}
-            style={{
-              width: '100%'
-            }}
-          />
-          {onSubmitNotes && (
-            <Button
-              title="Ajouter"
-              iconId="fr-icon-save-fill"
-              onClick={() => onSubmitNotes(notes)}
-              priority="secondary"
-              className={cx('fr-ml-1w', 'fr-mt-1w')}
-            />
-          )}
-        </div>
+        <Input
+          label="Note"
+          textArea
+          nativeTextAreaProps={{
+            value: notes,
+            onChange: (e) => handleInputChange(e.target.value),
+            placeholder: 'Ajouter une note',
+            rows: 1
+          }}
+          style={{
+            width: '100%'
+          }}
+        />
       ) : (
         <>{value}</>
       )}
