@@ -240,7 +240,9 @@ const CompanySearch = ({
           loading={isLoading || isFetching}
           loadingText={`Recherche en cours...`}
           filterOptions={(x) => x}
-          options={companyResults}
+          options={[...companyResults].sort((a, b) =>
+            a.name.localeCompare(b.name)
+          )}
           getOptionLabel={(option) => [option.name, option.siret].join(' • ')}
           noOptionsText={
             companies
