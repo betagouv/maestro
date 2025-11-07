@@ -37,7 +37,6 @@ export const { MuiDsfrThemeProvider } = createMuiDsfrThemeProvider({
 
 function AppWrapper() {
   useMatomoTagManager();
-
   return (
     <MuiDsfrThemeProvider>
       <Provider store={store}>
