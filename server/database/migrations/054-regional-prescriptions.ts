@@ -21,6 +21,9 @@ export const up = async (knex: Knex) => {
 };
 
 export const down = async (knex: Knex) => {
+  await knex('regional_prescription_comments')
+    .whereNot('department', 'None')
+    .delete();
   await knex('regional_prescriptions').whereNot('department', 'None').delete();
 
   await knex.schema.alterTable('regional_prescription_comments', (table) => {

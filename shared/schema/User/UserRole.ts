@@ -118,7 +118,8 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'readProgrammingPlanSubmittedToDepartments',
     'validateProgrammingPlan',
     'updatePrescriptionLaboratories',
-    'distributePrescriptionToSlaughterhouses'
+    'distributePrescriptionToSlaughterhouses',
+    'commentPrescription'
   ],
   Administrator: [
     'administrationMaestro',

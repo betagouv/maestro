@@ -54,9 +54,7 @@ const LocalPrescriptionButtons = ({
         hasUserLocalPrescriptionPermission(programmingPlan, localPrescription)
           ?.distributeToDepartments
           ? {
-              children: (
-                <span className="no-wrap">Répartir aux départements</span>
-              ),
+              children: <span className="no-wrap">Départements</span>,
               priority: 'tertiary no outline',
               onClick: () =>
                 dispatch(
@@ -68,16 +66,17 @@ const LocalPrescriptionButtons = ({
                     subLocalPrescriptions: subLocalPrescriptions ?? []
                   })
                 ),
-              iconId: noIcon ? undefined : 'fr-icon-road-map-line',
+              iconId:
+                noIcon || hasEmptySubstanceKindsLaboratory
+                  ? undefined
+                  : 'fr-icon-check-line',
               className: cx('fr-m-0')
             }
           : undefined,
         hasUserLocalPrescriptionPermission(programmingPlan, localPrescription)
           ?.distributeToSlaughterhouses
           ? {
-              children: (
-                <span className="no-wrap">Répartir entre abattoirs</span>
-              ),
+              children: <span className="no-wrap">Abattoirs</span>,
               priority: 'tertiary no outline',
               onClick: () =>
                 dispatch(
@@ -98,9 +97,8 @@ const LocalPrescriptionButtons = ({
           ? {
               children: (
                 <span className="no-wrap">
-                  Attribuer{' '}
                   {pluralize(programmingPlan.substanceKinds.length ?? 0)(
-                    'le laboratoire'
+                    'Laboratoire'
                   )}
                 </span>
               ),
@@ -114,11 +112,10 @@ const LocalPrescriptionButtons = ({
                     localPrescription
                   })
                 ),
-              iconId: noIcon
-                ? undefined
-                : hasEmptySubstanceKindsLaboratory
-                  ? 'fr-icon-microscope-line'
-                  : 'fr-icon-checkbox-line',
+              iconId:
+                noIcon || hasEmptySubstanceKindsLaboratory
+                  ? undefined
+                  : 'fr-icon-check-line',
               className: cx('fr-m-0'),
               nativeButtonProps: {
                 'data-testid': 'update-laboratory-button'
@@ -153,10 +150,16 @@ const LocalPrescriptionButtons = ({
                     programmingPlan,
                     prescriptionId: prescription.id,
                     matrixKind: prescription.matrixKind,
-                    regionalComments: [localPrescription].map((rcp) => ({
-                      region: rcp.region,
-                      comments: getComments(rcp)
-                    }))
+                    regionalComments: [
+                      localPrescription,
+                      ...(subLocalPrescriptions ?? [])
+                    ]
+                      .filter((rcp) => getComments(rcp).length > 0)
+                      .map((rcp) => ({
+                        region: rcp.region,
+                        department: rcp.department,
+                        comments: getComments(rcp)
+                      }))
                   })
                 ),
               iconId: noIcon ? undefined : 'fr-icon-chat-3-line',

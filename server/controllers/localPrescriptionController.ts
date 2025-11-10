@@ -289,5 +289,82 @@ export const localPrescriptionsRouter = {
         response: prescriptionComment
       };
     }
-  }
+  },
+  '/prescriptions/:prescriptionId/regions/:region/departments/:department/comments':
+    {
+      post: async ({ user, body: draftPrescriptionComment }, params) => {
+        console.info('Comment local prescription');
+
+        const programmingPlan = await getAndCheckProgrammingPlan(
+          draftPrescriptionComment.programmingPlanId
+        );
+        const { prescription } = await getAndCheckPrescription(
+          params.prescriptionId,
+          programmingPlan
+        );
+        const localPrescription = await getAndCheckLocalPrescription(params);
+
+        const canComment = hasLocalPrescriptionPermission(
+          user,
+          programmingPlan,
+          localPrescription
+        ).comment;
+
+        if (!canComment) {
+          return { status: constants.HTTP_STATUS_FORBIDDEN };
+        }
+
+        const prescriptionComment: LocalPrescriptionComment = {
+          id: uuidv4(),
+          prescriptionId: localPrescription.prescriptionId,
+          region: localPrescription.region,
+          department: localPrescription.department,
+          comment: draftPrescriptionComment.comment,
+          createdAt: new Date(),
+          createdBy: user.id
+        };
+
+        await localPrescriptionCommentRepository.insert(prescriptionComment);
+
+        const recipients = await userRepository.findMany(
+          user.role === 'RegionalCoordinator'
+            ? {
+                region: localPrescription.region,
+                department: localPrescription.department,
+                roles: ['DepartmentalCoordinator']
+              }
+            : {
+                roles: ['RegionalCoordinator'],
+                region: localPrescription.region
+              }
+        );
+
+        await notificationService.sendNotification(
+          {
+            category: prescription.context,
+            author: user,
+            link: `${AppRouteLinks.ProgrammingRoute.link}?${new URLSearchParams(
+              {
+                year: programmingPlan.year.toString(),
+                context: prescription.context,
+                prescriptionId: prescription.id,
+                commentsRegion: localPrescription.region
+              }
+            ).toString()}`
+          },
+          recipients,
+          {
+            matrix: MatrixKindLabels[prescription.matrixKind as MatrixKind],
+            sampleCount: localPrescription.sampleCount,
+            comment: draftPrescriptionComment.comment,
+            author: user ? `${user.name}` : 'Anonyme'
+          }
+        );
+
+        return {
+          status: constants.HTTP_STATUS_CREATED,
+          response: prescriptionComment
+        };
+      }
+    }
 } as const satisfies ProtectedSubRouter;

@@ -38,7 +38,13 @@ const PrescriptionCommentsModal = ({
   onSubmitLocalPrescriptionComment
 }: Props) => {
   const dispatch = useAppDispatch();
-  const { hasUserLocalPrescriptionPermission } = useAuthentication();
+  const {
+    hasUserLocalPrescriptionPermission,
+    user,
+    hasNationalView,
+    hasRegionalView,
+    hasDepartmentalView
+  } = useAuthentication();
   const { prescriptionCommentsData } = useAppSelector(
     (state) => state.prescriptions
   );
@@ -67,6 +73,8 @@ const PrescriptionCommentsModal = ({
       );
     }
   });
+
+  console.log('prescriptionCommentsData', prescriptionCommentsData);
 
   useEffect(() => {
     if (prescriptionCommentsData) {
@@ -126,7 +134,8 @@ const PrescriptionCommentsModal = ({
           prescriptionCommentsData.programmingPlan,
           {
             prescriptionId: prescriptionCommentsData.prescriptionId,
-            region: segment as Region
+            region: segment as Region,
+            department: user?.department
           },
           comment
         );
@@ -212,15 +221,18 @@ const PrescriptionCommentsModal = ({
               </div>
             ) : (
               <div className={cx('fr-text--md', 'fr-mb-0')}>
-                Vous avez la possibilité d'échanger avec le coordinateur
-                national à propos de la programmation 2025 des prélèvements de
-                cette matrice.
+                Vous avez la possibilité d'échanger
+                {hasRegionalView && ' avec le coordinateur national'}
+                {hasDepartmentalView && ' avec le coordinateur régional'} à
+                propos de la programmation {programmingPlan?.year} des
+                prélèvements de cette matrice.
               </div>
             )}
             {programmingPlan &&
               Region.safeParse(segment).success &&
               hasUserLocalPrescriptionPermission(programmingPlan, {
-                region: segment as Region
+                region: segment as Region,
+                department: user?.department
               })?.comment && (
                 <div className={clsx(cx('fr-mt-2w'), 'd-flex-justify-center')}>
                   <form id="login_form">

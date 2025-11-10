@@ -56,6 +56,15 @@ export const prescriptionsRoutes = {
       response: LocalPrescriptionComment
     }
   },
+  '/prescriptions/:prescriptionId/regions/:region/departments/:department/comments':
+    {
+      params: LocalPrescriptionKey.shape,
+      post: {
+        body: LocalPrescriptionCommentToCreate,
+        permissions: ['commentPrescription'],
+        response: LocalPrescriptionComment
+      }
+    },
   '/prescriptions/:prescriptionId/regions/:region': {
     params: LocalPrescriptionKey.shape,
     put: {

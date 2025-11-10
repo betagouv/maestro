@@ -1,5 +1,4 @@
 import { isNil, omitBy } from 'lodash-es';
-import { Region } from 'maestro-shared/referential/Region';
 import { FindLocalPrescriptionOptions } from 'maestro-shared/schema/LocalPrescription/FindLocalPrescriptionOptions';
 import {
   LocalPrescription,
@@ -53,14 +52,14 @@ const prescriptionApi = api.injectEndpoints({
     }),
     commentLocalPrescription: builder.mutation<
       LocalPrescriptionComment,
-      {
-        prescriptionId: string;
-        region: Region;
+      LocalPrescriptionKey & {
         commentToCreate: LocalPrescriptionCommentToCreate;
       }
     >({
-      query: ({ prescriptionId, region, commentToCreate }) => ({
-        url: `prescriptions/${prescriptionId}/regions/${region}/comments`,
+      query: ({ prescriptionId, region, department, commentToCreate }) => ({
+        url: `prescriptions/${prescriptionId}/regions/${region}${
+          department ? `/departments/${department}` : ''
+        }/comments`,
         method: 'POST',
         body: commentToCreate
       }),
