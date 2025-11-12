@@ -50,6 +50,10 @@ export const UserListView = () => {
             return false;
           }
 
+          if (filters.department && u.department !== filters.department) {
+            return false;
+          }
+
           if (filters.role && u.role !== filters.role) {
             return false;
           }
