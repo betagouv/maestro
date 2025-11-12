@@ -1,4 +1,4 @@
-import Select from '@codegouvfr/react-dsfr/Select';
+import Select, { SelectProps } from '@codegouvfr/react-dsfr/Select';
 import {
   ComponentPropsWithoutRef,
   InputHTMLAttributes,
@@ -22,6 +22,9 @@ type AppSelectProps<T extends ZodObject, U extends UseForm<T>> = Partial<
     inputKey: keyof NoInfer<z.infer<U['schema']>>;
     inputPathFromKey?: (string | number)[];
     whenValid?: string;
+    nativeSelectProps?: SelectProps['nativeSelectProps'] & {
+      'data-testid'?: string;
+    };
   };
 
 function AppSelect<T extends ZodObject>(props: AppSelectProps<T, UseForm<T>>) {
@@ -33,6 +36,7 @@ function AppSelect<T extends ZodObject>(props: AppSelectProps<T, UseForm<T>>) {
     inputForm,
     whenValid,
     hint,
+    nativeSelectProps,
     ...selectProps
   } = props;
 
@@ -64,7 +68,8 @@ function AppSelect<T extends ZodObject>(props: AppSelectProps<T, UseForm<T>>) {
       }
       hint={hint}
       nativeSelectProps={{
-        ...selectProps
+        ...selectProps,
+        ...nativeSelectProps
       }}
       state={
         selectProps.required

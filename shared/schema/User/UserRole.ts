@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import { Department } from '../../referential/Department';
+import { Region } from '../../referential/Region';
 import { Nullable } from '../../utils/typescript';
 import { User } from './User';
 import { UserPermission } from './UserPermission';
@@ -17,7 +19,7 @@ const RegionalUserRole = z.enum([
   'Sampler'
 ]);
 
-export const DepartmentalUserRole = z.enum([
+const DepartmentalUserRole = z.enum([
   'DepartmentalCoordinator',
   'DepartmentalSampler'
 ]);
@@ -158,9 +160,21 @@ export const hasNationalRole = (user: Nullable<Pick<User, 'role'>>) =>
   NationalUserRole.safeParse(user.role).success ||
   RegionalAndNationalUserRole.safeParse(user.role).success;
 
-export const hasRegionalRole = (user: Pick<User, 'role'>) =>
+export const hasRegionalRole = (
+  user: Nullable<Pick<User, 'role'>>
+): user is {
+  role:
+    | z.infer<typeof RegionalUserRole>
+    | z.infer<typeof RegionalAndNationalUserRole>;
+  region: Region;
+} =>
   RegionalUserRole.safeParse(user.role).success ||
   RegionalAndNationalUserRole.safeParse(user.role).success;
 
-export const hasDepartmentalRole = (user: Pick<User, 'role'>) =>
-  DepartmentalUserRole.safeParse(user.role).success;
+export const hasDepartmentalRole = (
+  user: Nullable<Pick<User, 'role'>>
+): user is {
+  role: z.infer<typeof DepartmentalUserRole>;
+  region: Region;
+  department: Department;
+} => DepartmentalUserRole.safeParse(user.role).success;

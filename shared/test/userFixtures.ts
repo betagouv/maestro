@@ -5,8 +5,7 @@ import { ProgrammingPlanKindList } from '../schema/ProgrammingPlan/ProgrammingPl
 import { AuthUser } from '../schema/User/AuthUser';
 import { User } from '../schema/User/User';
 import {
-  DepartmentalUserRole,
-  hasNationalRole,
+  hasDepartmentalRole,
   hasRegionalRole,
   UserRoleList
 } from '../schema/User/UserRole';
@@ -14,19 +13,22 @@ import { oneOf } from './testFixtures';
 
 export const genUser = <T extends Partial<User>>(data: T): User & T => {
   const role = data?.role ?? oneOf(UserRoleList);
+
+  const region =
+    hasRegionalRole({ role }) || hasDepartmentalRole({ role })
+      ? oneOf(RegionList)
+      : null;
   return {
     id: uuidv4(),
     email: fakerFR.internet.email(),
     name: fakerFR.person.fullName(),
     programmingPlanKinds: [oneOf(ProgrammingPlanKindList)],
     role,
-    region:
-      hasNationalRole({ role }) && !hasRegionalRole({ role })
-        ? null
-        : oneOf(RegionList),
-    department: DepartmentalUserRole.safeParse(role).success
-      ? oneOf(Regions[data?.region ?? oneOf(RegionList)].departments)
-      : null,
+    region,
+    department:
+      region && hasDepartmentalRole({ role })
+        ? oneOf(Regions[region].departments)
+        : null,
     ...data
   };
 };

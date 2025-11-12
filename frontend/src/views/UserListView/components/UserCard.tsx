@@ -7,7 +7,8 @@ import { Regions } from 'maestro-shared/referential/Region';
 import { ProgrammingPlanKindLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { User } from 'maestro-shared/schema/User/User';
 import {
-  hasNationalRole,
+  hasDepartmentalRole,
+  hasRegionalRole,
   UserRoleLabels
 } from 'maestro-shared/schema/User/UserRole';
 import { isNotEmpty } from 'maestro-shared/utils/typescript';
@@ -15,6 +16,7 @@ import { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import './UserCard.scss';
 
+import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import franceSvg from '../../../assets/illustrations/france.svg';
 
 type Props = {
@@ -42,6 +44,7 @@ export const UserCard: FunctionComponent<Props> = ({
             onClick={onEdit}
             priority={'tertiary no outline'}
             iconId={'fr-icon-edit-line'}
+            data-testid={`user-edit-button-${user.id}`}
           >
             Éditer
           </Button>
@@ -55,7 +58,11 @@ export const UserCard: FunctionComponent<Props> = ({
           </span>
           <span className={clsx('user-card-region')}>
             <img src={franceSvg} height="100%" aria-hidden alt="" />
-            {hasNationalRole(user) ? 'France' : Regions[user.region!].name}
+            {hasDepartmentalRole(user)
+              ? `${Regions[user.region].name} - ${DepartmentLabels[user.department]}`
+              : hasRegionalRole(user)
+                ? Regions[user.region].name
+                : 'France'}
           </span>
           {isNotEmpty(user.programmingPlanKinds) && (
             <span>

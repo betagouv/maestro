@@ -2,15 +2,21 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import clsx from 'clsx';
+import {
+  Department,
+  DepartmentLabels
+} from 'maestro-shared/referential/Department';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
 import { User, UserToCreate } from 'maestro-shared/schema/User/User';
 import {
+  hasDepartmentalRole,
   hasNationalRole,
+  hasRegionalRole,
   UserRole,
   UserRoleLabels
 } from 'maestro-shared/schema/User/UserRole';
 import { Nullable } from 'maestro-shared/utils/typescript';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import AppSelect from '../../../components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from '../../../components/_app/AppSelect/AppSelectOption';
@@ -60,6 +66,17 @@ export const UserModal = ({ userToUpdate, modal, ..._rest }: Props) => {
     ...user
   });
 
+  const departmentOptions = useMemo(() => {
+    if (!user.region) {
+      return [];
+    }
+
+    return selectOptionsFromList(Regions[user.region].departments, {
+      labels: DepartmentLabels,
+      withSort: true
+    });
+  }, [user.region]);
+
   useEffect(() => {
     if (userToUpdate) {
       const { id, name, ...rest } = userToUpdate;
@@ -69,8 +86,10 @@ export const UserModal = ({ userToUpdate, modal, ..._rest }: Props) => {
 
   useIsModalOpen(modal, {
     onConceal: () => {
-      setUser(userDefaultValue);
       form.reset();
+      setTimeout(() => {
+        setUser(userDefaultValue);
+      }, 2);
     }
   });
 
@@ -105,7 +124,10 @@ export const UserModal = ({ userToUpdate, modal, ..._rest }: Props) => {
         }
       ]}
     >
-      <form className={clsx('bg-white', cx('fr-p-2w'))}>
+      <form
+        className={clsx('bg-white', cx('fr-p-2w'))}
+        data-testid={'user-edit-modal-form'}
+      >
         <AppTextInput
           onChange={(e) => setUser((u) => ({ ...u, email: e.target.value }))}
           inputForm={form}
@@ -127,14 +149,17 @@ export const UserModal = ({ userToUpdate, modal, ..._rest }: Props) => {
               }
             }
           }}
-          value={user.role ?? undefined}
+          value={user.role ?? ''}
           inputForm={form}
           inputKey={'role'}
           label="Rôle"
           options={userRoleOptions}
+          nativeSelectProps={{
+            'data-testid': 'user-form-role-select'
+          }}
           required
         />
-        {user.role && !hasNationalRole(user) && (
+        {user.role && (hasRegionalRole(user) || hasDepartmentalRole(user)) && (
           <AppSelect
             onChange={(e) => {
               const { data, success } = Region.safeParse(e.target.value);
@@ -142,11 +167,27 @@ export const UserModal = ({ userToUpdate, modal, ..._rest }: Props) => {
                 setUser((u) => ({ ...u, region: data }));
               }
             }}
-            value={user.region ?? undefined}
+            value={user.region ?? ''}
             inputForm={form}
             inputKey={'region'}
             label="Région"
             options={regionOptions}
+            required
+          />
+        )}
+        {user.role && hasDepartmentalRole(user) && (
+          <AppSelect
+            onChange={(e) => {
+              const { data, success } = Department.safeParse(e.target.value);
+              if (success) {
+                setUser((u) => ({ ...u, department: data }));
+              }
+            }}
+            value={user.department ?? ''}
+            inputForm={form}
+            inputKey={'department'}
+            label="Département"
+            options={departmentOptions}
             required
           />
         )}
