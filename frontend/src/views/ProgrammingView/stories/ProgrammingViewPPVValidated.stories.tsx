@@ -122,6 +122,8 @@ export const NationalCoordinatorView: Story = {
     ).not.toBeInTheDocument();
 
     await expect(canvas.getByTestId('add-matrix-button')).toBeInTheDocument();
+
+    await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
   }
 };
 
@@ -162,6 +164,8 @@ export const RegionalCoordinatorView: Story = {
       regionalPrescriptions.filter((_) => _.region === Sampler1Fixture.region)
         .length
     );
+
+    await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
   }
 };
 
@@ -200,5 +204,7 @@ export const SamplerView: Story = {
     await expect(
       canvas.queryByTestId('update-laboratory-button')
     ).not.toBeInTheDocument();
+
+    await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
   }
 };

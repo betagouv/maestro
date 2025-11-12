@@ -3,7 +3,8 @@ import ButtonsGroup, {
   ButtonsGroupProps
 } from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { isNil } from 'lodash-es';
+import clsx from 'clsx';
+import { isNil, sumBy } from 'lodash-es';
 import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -13,6 +14,7 @@ import { useAuthentication } from '../../../hooks/useAuthentication';
 import { useAppDispatch } from '../../../hooks/useStore';
 import prescriptionsSlice from '../../../store/reducers/prescriptionsSlice';
 import { pluralize } from '../../../utils/stringUtils';
+import './LocalPrescriptionButtons.scss';
 
 type Props = {
   programmingPlan: ProgrammingPlan;
@@ -42,6 +44,13 @@ const LocalPrescriptionButtons = ({
         isNil(_.laboratoryId)
       ),
     [localPrescription]
+  );
+
+  const hasUncompletedRepartition = useMemo(
+    () =>
+      localPrescription.sampleCount >
+      sumBy(subLocalPrescriptions, 'sampleCount'),
+    [subLocalPrescriptions, localPrescription]
   );
 
   const commentsCount = useMemo(
@@ -74,7 +83,7 @@ const LocalPrescriptionButtons = ({
                   })
                 ),
               iconId:
-                noIcon || hasEmptySubstanceKindsLaboratory
+                noIcon || hasUncompletedRepartition
                   ? undefined
                   : 'fr-icon-check-line',
               className: cx('fr-m-0')
@@ -95,7 +104,10 @@ const LocalPrescriptionButtons = ({
                     subLocalPrescriptions: subLocalPrescriptions ?? []
                   })
                 ),
-              iconId: noIcon ? undefined : 'fr-icon-road-map-line',
+              iconId:
+                noIcon || hasUncompletedRepartition
+                  ? undefined
+                  : 'fr-icon-check-line',
               className: cx('fr-m-0')
             }
           : undefined,
@@ -182,7 +194,7 @@ const LocalPrescriptionButtons = ({
       buttonsSize="small"
       alignment="center"
       inlineLayoutWhen="always"
-      className={cx('fr-m-0')}
+      className={clsx(cx('fr-m-0'), 'local-prescription-buttons')}
       {...buttonsGroupProps}
       buttons={[buttons[0], ...buttons.slice(1)]}
     />

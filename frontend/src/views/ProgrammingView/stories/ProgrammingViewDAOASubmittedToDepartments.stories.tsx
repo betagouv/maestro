@@ -115,6 +115,8 @@ export const NationalCoordinatorView: Story = {
     await expect(
       canvas.queryByTestId('update-laboratory-button')
     ).not.toBeInTheDocument();
+
+    await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
   }
 };
 
@@ -157,6 +159,8 @@ export const RegionalCoordinatorView: Story = {
     await expect(
       canvas.queryByTestId('update-laboratory-button')
     ).not.toBeInTheDocument();
+
+    await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
   }
 };
 
@@ -200,5 +204,7 @@ export const DepartmentalCoordinatorView: Story = {
         (_) => _.department === DepartmentalCoordinator.department
       ).length
     );
+
+    await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
   }
 };

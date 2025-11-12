@@ -8,6 +8,7 @@ import RadioButtons from '@codegouvfr/react-dsfr/RadioButtons';
 import Select from '@codegouvfr/react-dsfr/Select';
 import clsx from 'clsx';
 import { Region, Regions, RegionSort } from 'maestro-shared/referential/Region';
+import { DistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   NextProgrammingPlanStatus,
@@ -28,6 +29,14 @@ const submissionModal = createModal({
   id: `submission-modal`,
   isOpenedByDefault: false
 });
+
+const NotifiableStatusesByDistributionKind: Record<
+  DistributionKind,
+  ProgrammingPlanStatus[]
+> = {
+  REGIONAL: ['InProgress', 'SubmittedToRegion'],
+  SLAUGHTERHOUSE: ['InProgress']
+};
 
 const ProgrammingPlanNotificationNationalToRegional = ({
   programmingPlan
@@ -97,16 +106,10 @@ const ProgrammingPlanNotificationNationalToRegional = ({
 
   return (
     <>
-      {programmingPlan.regionalStatus.some(
-        (regionalStatus) =>
-          NextProgrammingPlanStatus[programmingPlan.distributionKind][
-            regionalStatus.status
-          ] &&
-          ['SubmittedToRegion', 'Validated'].includes(
-            NextProgrammingPlanStatus[programmingPlan.distributionKind][
-              regionalStatus.status
-            ] as ProgrammingPlanStatus
-          )
+      {programmingPlan.regionalStatus.some((regionalStatus) =>
+        NotifiableStatusesByDistributionKind[
+          programmingPlan.distributionKind
+        ].includes(regionalStatus.status as ProgrammingPlanStatus)
       ) && (
         <div className="notify-regions-menu">
           <Button
@@ -115,6 +118,7 @@ const ProgrammingPlanNotificationNationalToRegional = ({
             id="notify-regions-button"
             onClick={() => submissionModal.open()}
             className="no-wrap"
+            data-testid="notify-button"
           >
             Notifier les régions
           </Button>
