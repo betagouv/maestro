@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { RegionList } from 'maestro-shared/referential/Region';
+import { RegionList, Regions } from 'maestro-shared/referential/Region';
 import {
   SlaughterhouseCompanyFixture1,
   SlaughterhouseCompanyFixture2
@@ -42,7 +42,14 @@ const programmingPlan = {
   regionalStatus: RegionList.map((region) => ({
     region,
     status: 'SubmittedToDepartments' as const
-  }))
+  })),
+  departmentalStatus: RegionList.flatMap((region) =>
+    Regions[region].departments.map((department) => ({
+      region,
+      department,
+      status: 'SubmittedToDepartments' as const
+    }))
+  )
 };
 
 const prescriptions = [

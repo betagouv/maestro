@@ -20,6 +20,7 @@ import { Region, Regions } from 'maestro-shared/referential/Region';
 import { LocalPrescriptionCommentToCreate } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
 import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { useEffect, useMemo, useState } from 'react';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import PrescriptionCommentAuthor from 'src/components/Prescription/PrescriptionCommentsModal/PrescriptionCommentAuthor';
@@ -58,11 +59,13 @@ const PrescriptionCommentsModal = ({
     (state) => state.prescriptions
   );
 
-  const [comment, setComment] = useState('');
-  const [commentSegment, setSegment] = useState<
-    'National' | 'Regional' | 'Departmental' | null
-  >(
-    hasNationalView ? 'Regional' : hasRegionalView ? 'National' : 'Departmental'
+  const [newComment, setNewComment] = useState('');
+  const [recipientsSegment, setRecipientsSegment] = useState<UserRole | null>(
+    hasNationalView
+      ? 'RegionalCoordinator'
+      : hasRegionalView
+        ? 'NationalCoordinator'
+        : 'DepartmentalCoordinator'
   );
   const [currentTag, setCurrentTag] = useState<
     Region | Department | MatrixKind | null
@@ -77,12 +80,12 @@ const PrescriptionCommentsModal = ({
   });
 
   const form = useForm(Form, {
-    comment
+    comment: newComment
   });
 
   useIsModalOpen(prescriptionCommentsModal, {
     onConceal: () => {
-      setComment('');
+      setNewComment('');
       form.reset();
       dispatch(
         prescriptionsSlice.actions.setPrescriptionCommentsData(undefined)
@@ -114,14 +117,14 @@ const PrescriptionCommentsModal = ({
     () =>
       prescriptionCommentsData?.viewBy === 'MatrixKind'
         ? prescriptionCommentsData?.regionalComments.find((_) =>
-            commentSegment === 'Departmental'
+            recipientsSegment === 'DepartmentalCoordinator'
               ? _.department === currentTag
-              : isNil(_.department)
+              : isNil(_.department) && _.region === currentTag
           )
         : prescriptionCommentsData?.matrixKindsComments.find(
             (_) => _.matrixKind === currentTag
           ),
-    [currentTag, prescriptionCommentsData, commentSegment]
+    [currentTag, prescriptionCommentsData, recipientsSegment]
   );
 
   const programmingPlan = useMemo(
@@ -141,6 +144,20 @@ const PrescriptionCommentsModal = ({
     return { commentsArray, hasComments };
   }, [currentComments]);
 
+  const getLocalPrescriptionPartialKey = useMemo(
+    () => ({
+      region:
+        recipientsSegment === 'RegionalCoordinator'
+          ? (currentTag as Region)
+          : (user?.region as Region),
+      department:
+        recipientsSegment === 'DepartmentalCoordinator'
+          ? (currentTag as Department)
+          : user?.department
+    }),
+    [currentTag, recipientsSegment, user]
+  );
+
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
 
@@ -150,16 +167,9 @@ const PrescriptionCommentsModal = ({
           prescriptionCommentsData.programmingPlan,
           {
             prescriptionId: prescriptionCommentsData.prescriptionId,
-            region:
-              commentSegment === 'Regional'
-                ? (currentTag as Region)
-                : (user?.region as Region),
-            department:
-              commentSegment === 'Departmental'
-                ? (currentTag as Department)
-                : user?.department
+            ...getLocalPrescriptionPartialKey
           },
-          comment
+          newComment
         );
         prescriptionCommentsModal.close();
       });
@@ -184,16 +194,19 @@ const PrescriptionCommentsModal = ({
                     {
                       label: `Administration centrale`,
                       nativeInputProps: {
-                        checked: commentSegment === 'National',
-                        onChange: () => setSegment('National')
+                        checked: recipientsSegment === 'NationalCoordinator',
+                        onChange: () =>
+                          setRecipientsSegment('NationalCoordinator')
                       }
                     },
                     {
                       label: `Départements`,
                       // iconId: 'fr-icon-france-line',
                       nativeInputProps: {
-                        checked: commentSegment === 'Departmental',
-                        onChange: () => setSegment('Departmental')
+                        checked:
+                          recipientsSegment === 'DepartmentalCoordinator',
+                        onChange: () =>
+                          setRecipientsSegment('DepartmentalCoordinator')
                       }
                     }
                   ]}
@@ -218,7 +231,7 @@ const PrescriptionCommentsModal = ({
                     ? prescriptionCommentsData.regionalComments
                         .filter((regionalComment) =>
                           hasRegionalView
-                            ? commentSegment === 'National'
+                            ? recipientsSegment === 'NationalCoordinator'
                               ? false
                               : !isNil(regionalComment.department)
                             : true
@@ -295,21 +308,15 @@ const PrescriptionCommentsModal = ({
               </div>
             )}
             {programmingPlan &&
-              hasUserLocalPrescriptionPermission(programmingPlan, {
-                region:
-                  commentSegment === 'Regional'
-                    ? (currentTag as Region)
-                    : (user?.region as Region),
-                department:
-                  commentSegment === 'Departmental'
-                    ? (currentTag as Department)
-                    : user?.department
-              })?.comment && (
+              hasUserLocalPrescriptionPermission(
+                programmingPlan,
+                getLocalPrescriptionPartialKey
+              )?.comment && (
                 <div className={clsx(cx('fr-mt-2w'), 'd-flex-justify-center')}>
                   <form id="login_form">
                     <AppTextAreaInput
-                      value={comment}
-                      onChange={(e) => setComment(e.target.value)}
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
                       inputForm={form}
                       inputKey="comment"
                       whenValid="Commentaire correctement renseigné."
