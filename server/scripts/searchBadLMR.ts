@@ -1,6 +1,7 @@
 import { MatrixEffective } from 'maestro-shared/referential/Matrix/Matrix';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { SSD2Referential } from 'maestro-shared/referential/Residue/SSD2Referential';
+import { formatWithTz } from 'maestro-shared/utils/utils';
 import { initKysely, kysely } from '../repositories/kysely';
 import config from '../utils/config';
 
@@ -12,11 +13,18 @@ const searchBadLMR = async () => {
       .selectFrom('analysisResidues')
       .leftJoin('analysis', 'analysis.id', 'analysisResidues.analysisId')
       .leftJoin('samples', 'analysis.sampleId', 'samples.id')
+      .leftJoin('laboratories', 'samples.laboratoryId', 'laboratories.id')
       .select([
         'samples.matrix',
         'analysisResidues.reference',
         'analysisResidues.lmr',
-        'analysis.sampleId'
+        'analysis.sampleId',
+        'analysis.createdAt',
+        'laboratories.name'
+      ])
+      .where('analysisResidues.reference', 'not in', [
+        'RF-0225-001-PPP',
+        'RF-00004675-PAR'
       ])
       .where('matrix', '=', matrix)
       .execute();
@@ -53,7 +61,7 @@ const searchBadLMR = async () => {
             .filter((s) => !!s.lmr)
             .forEach((s) =>
               console.log(
-                `    - https://app.maestro.beta.gouv.fr/prelevements/${s.sampleId} ${s.lmr}`
+                `    - https://app.maestro.beta.gouv.fr/prelevements/${s.sampleId} | ${s.lmr} | ${formatWithTz(s.createdAt ?? new Date(), 'dd/MM/yyyy HH:mm')} | ${s.name}`
               )
             );
         }

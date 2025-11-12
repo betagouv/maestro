@@ -20,7 +20,7 @@ export default {
       entry: [
         'database/migrations/*.ts',
         'repositories/kysely.type.ts',
-        'scripts/searchBadLMR.ts'
+        'scripts/*'
       ]
     },
     frontend: {
