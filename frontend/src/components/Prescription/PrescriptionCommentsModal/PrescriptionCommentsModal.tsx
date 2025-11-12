@@ -119,7 +119,9 @@ const PrescriptionCommentsModal = ({
         ? prescriptionCommentsData?.regionalComments.find((_) =>
             recipientsSegment === 'DepartmentalCoordinator'
               ? _.department === currentTag
-              : isNil(_.department) && _.region === currentTag
+              : recipientsSegment === 'RegionalCoordinator'
+                ? isNil(_.department) && _.region === currentTag
+                : isNil(_.department)
           )
         : prescriptionCommentsData?.matrixKindsComments.find(
             (_) => _.matrixKind === currentTag
@@ -147,15 +149,17 @@ const PrescriptionCommentsModal = ({
   const getLocalPrescriptionPartialKey = useMemo(
     () => ({
       region:
-        recipientsSegment === 'RegionalCoordinator'
-          ? (currentTag as Region)
-          : (user?.region as Region),
+        prescriptionCommentsData?.viewBy === 'MatrixKind'
+          ? recipientsSegment === 'RegionalCoordinator'
+            ? (currentTag as Region)
+            : (user?.region as Region)
+          : (prescriptionCommentsData?.region as Region),
       department:
         recipientsSegment === 'DepartmentalCoordinator'
           ? (currentTag as Department)
           : user?.department
     }),
-    [currentTag, recipientsSegment, user]
+    [currentTag, recipientsSegment, user, prescriptionCommentsData]
   );
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
@@ -186,7 +190,11 @@ const PrescriptionCommentsModal = ({
             {prescriptionCommentsData?.viewBy === 'Region' &&
               `Région ${Regions[prescriptionCommentsData.region].name}`}
             {hasRegionalView &&
-              programmingPlan?.distributionKind === 'SLAUGHTERHOUSE' && (
+              prescriptionCommentsData?.viewBy === 'MatrixKind' &&
+              programmingPlan?.distributionKind === 'SLAUGHTERHOUSE' &&
+              prescriptionCommentsData.regionalComments.some(
+                (_) => !isNil(_.department)
+              ) && (
                 <SegmentedControl
                   hideLegend
                   legend="Destinataire"
@@ -258,8 +266,7 @@ const PrescriptionCommentsModal = ({
                         }))
                     : (prescriptionCommentsData.matrixKindsComments.map(
                         (matrixKindComment) => ({
-                          children:
-                            MatrixKindLabels[matrixKindComment.matrixKind],
+                          children: `${MatrixKindLabels[matrixKindComment.matrixKind]} (${matrixKindComment.comments.length})`,
                           pressed: currentTag === matrixKindComment.matrixKind,
                           nativeButtonProps: {
                             onClick: () =>
@@ -319,8 +326,14 @@ const PrescriptionCommentsModal = ({
                       onChange={(e) => setNewComment(e.target.value)}
                       inputForm={form}
                       inputKey="comment"
-                      whenValid="Commentaire correctement renseigné."
-                      label="Commentaire"
+                      whenValid="Message correctement renseigné."
+                      label={
+                        recipientsSegment === 'NationalCoordinator'
+                          ? 'Message au coordinateur national'
+                          : recipientsSegment === 'RegionalCoordinator'
+                            ? 'Message au coordinateur régional'
+                            : 'Message au coordinateur départemental'
+                      }
                       required
                     />
                   </form>

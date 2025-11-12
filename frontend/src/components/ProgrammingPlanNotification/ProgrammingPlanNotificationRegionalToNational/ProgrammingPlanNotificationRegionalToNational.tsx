@@ -176,7 +176,7 @@ const ProgrammingPlanNotificationRegionalToNational = ({
       >
         Vous êtes sur le point de signaler à la coordination nationale que vous
         avez bien pris connaissance, et commenté si besoin, la programmation de
-        prélèvements pour 2025.
+        prélèvements pour {programmingPlan.year}
       </ConfirmationModal>
     </div>
   ) : (

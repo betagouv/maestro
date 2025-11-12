@@ -13,6 +13,7 @@ import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/Find
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ChangeEvent, useContext, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
+import { useAuthentication } from '../../../hooks/useAuthentication';
 import { useAppDispatch, useAppSelector } from '../../../hooks/useStore';
 import { ApiClientContext } from '../../../services/apiClient';
 import prescriptionsSlice from '../../../store/reducers/prescriptionsSlice';
@@ -26,6 +27,7 @@ const ProgrammingCommentList = ({ programmingPlan, ..._rest }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
   const apiClient = useContext(ApiClientContext);
   const dispatch = useAppDispatch();
+  const { hasNationalView } = useAuthentication();
 
   const { prescriptionFilters } = useAppSelector(
     (state) => state.prescriptions
@@ -120,21 +122,23 @@ const ProgrammingCommentList = ({ programmingPlan, ..._rest }: Props) => {
               count: filteredPrescriptions.length
             })}
           </h4>
-          <Select
-            label="Région"
-            className={cx('fr-mr-2w')}
-            nativeSelectProps={{
-              value: regionFilter ?? '',
-              onChange: (e) => setRegionFilter(e.target.value as Region)
-            }}
-          >
-            <option value="">Toutes les régions</option>
-            {RegionList.map((region) => (
-              <option key={`select-region-${region}`} value={region}>
-                {Regions[region].name}
-              </option>
-            ))}
-          </Select>
+          {hasNationalView && (
+            <Select
+              label="Région"
+              className={cx('fr-mr-2w')}
+              nativeSelectProps={{
+                value: regionFilter ?? '',
+                onChange: (e) => setRegionFilter(e.target.value as Region)
+              }}
+            >
+              <option value="">Toutes les régions</option>
+              {RegionList.map((region) => (
+                <option key={`select-region-${region}`} value={region}>
+                  {Regions[region].name}
+                </option>
+              ))}
+            </Select>
+          )}
           <Input
             iconId="fr-icon-search-line"
             hideLabel
@@ -204,41 +208,43 @@ const ProgrammingCommentList = ({ programmingPlan, ..._rest }: Props) => {
                       )('commentaire')}
                     </Button>
                   </div>
-                  <div>
-                    Régions :
-                    {prescription.regionalCommentedPrescriptions.map(
-                      (regionalPrescription) => (
-                        <Button
-                          className={clsx('link-underline')}
-                          key={`${prescription.id}-region-${regionalPrescription.region}`}
-                          priority="tertiary no outline"
-                          onClick={() => {
-                            dispatch(
-                              prescriptionsSlice.actions.setPrescriptionCommentsData(
-                                {
-                                  viewBy: 'MatrixKind',
-                                  programmingPlan,
-                                  prescriptionId: prescription.id,
-                                  matrixKind: prescription.matrixKind,
-                                  currentRegion: regionalPrescription.region,
-                                  regionalComments:
-                                    prescription.regionalCommentedPrescriptions.map(
-                                      (rcp) => ({
-                                        region: rcp.region,
-                                        department: rcp.department,
-                                        comments: rcp.comments ?? []
-                                      })
-                                    )
-                                }
-                              )
-                            );
-                          }}
-                        >
-                          {Regions[regionalPrescription.region].name}
-                        </Button>
-                      )
-                    )}
-                  </div>
+                  {hasNationalView && (
+                    <div>
+                      Régions :
+                      {prescription.regionalCommentedPrescriptions.map(
+                        (regionalPrescription) => (
+                          <Button
+                            className={clsx('link-underline')}
+                            key={`${prescription.id}-region-${regionalPrescription.region}`}
+                            priority="tertiary no outline"
+                            onClick={() => {
+                              dispatch(
+                                prescriptionsSlice.actions.setPrescriptionCommentsData(
+                                  {
+                                    viewBy: 'MatrixKind',
+                                    programmingPlan,
+                                    prescriptionId: prescription.id,
+                                    matrixKind: prescription.matrixKind,
+                                    currentRegion: regionalPrescription.region,
+                                    regionalComments:
+                                      prescription.regionalCommentedPrescriptions.map(
+                                        (rcp) => ({
+                                          region: rcp.region,
+                                          department: rcp.department,
+                                          comments: rcp.comments ?? []
+                                        })
+                                      )
+                                  }
+                                )
+                              );
+                            }}
+                          >
+                            {Regions[regionalPrescription.region].name}
+                          </Button>
+                        )
+                      )}
+                    </div>
+                  )}
                 </div>
                 {prescriptionIndex !== filteredPrescriptions.length - 1 && (
                   <hr />
