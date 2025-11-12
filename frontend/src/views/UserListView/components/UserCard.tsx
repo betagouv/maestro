@@ -67,7 +67,12 @@ export const UserCard: FunctionComponent<Props> = ({
           {isNotEmpty(user.programmingPlanKinds) && (
             <span>
               {user.programmingPlanKinds.map((p) => (
-                <Tag key={p} as={'span'} small={true}>
+                <Tag
+                  key={p}
+                  as={'span'}
+                  small={true}
+                  className={clsx('fr-mb-1w')}
+                >
                   {ProgrammingPlanKindLabels[p]}
                 </Tag>
               ))}

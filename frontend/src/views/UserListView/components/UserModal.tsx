@@ -7,6 +7,7 @@ import {
   DepartmentLabels
 } from 'maestro-shared/referential/Department';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
+import { ProgrammingPlanKindLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { User, UserToCreate } from 'maestro-shared/schema/User/User';
 import {
   hasDepartmentalRole,
@@ -18,6 +19,7 @@ import {
 import { Nullable } from 'maestro-shared/utils/typescript';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
+import { AppMultiSelect } from '../../../components/_app/AppMultiSelect/AppMultiSelect';
 import AppSelect from '../../../components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from '../../../components/_app/AppSelect/AppSelectOption';
 import AppTextInput from '../../../components/_app/AppTextInput/AppTextInput';
@@ -48,7 +50,7 @@ const regionOptions = selectOptionsFromList(RegionList, {
 const userDefaultValue: Nullable<UserToCreate> = {
   email: null,
   role: null,
-  programmingPlanKinds: ['PPV'],
+  programmingPlanKinds: [],
   region: null,
   department: null
 };
@@ -191,8 +193,21 @@ export const UserModal = ({ userToUpdate, modal, ..._rest }: Props) => {
             required
           />
         )}
-
-        {/*  //TODO PROGRAMMING PLAN KIND select multiple, à récupérer sur la branche DAOA*/}
+        <AppMultiSelect
+          inputForm={form}
+          inputKey={'programmingPlanKinds'}
+          onChange={(v) =>
+            setUser((u) => ({
+              ...u,
+              programmingPlanKinds: v
+            }))
+          }
+          values={user.programmingPlanKinds ?? []}
+          keysWithLabels={ProgrammingPlanKindLabels}
+          defaultLabel={'plan sélectionné'}
+          label={'Plans'}
+          required
+        />
       </form>
     </modal.Component>
   );
