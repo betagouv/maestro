@@ -209,7 +209,6 @@ const PrescriptionCommentsModal = ({
                     },
                     {
                       label: `Départements`,
-                      // iconId: 'fr-icon-france-line',
                       nativeInputProps: {
                         checked:
                           recipientsSegment === 'DepartmentalCoordinator',
