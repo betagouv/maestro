@@ -118,10 +118,6 @@ const ProgrammingView = () => {
       regionalPrescriptionKey: LocalPrescriptionKey,
       comment: string
     ) => {
-      console.log(
-        'Submitting local prescription comment',
-        regionalPrescriptionKey
-      );
       await commentLocalPrescription({
         ...regionalPrescriptionKey,
         commentToCreate: {
