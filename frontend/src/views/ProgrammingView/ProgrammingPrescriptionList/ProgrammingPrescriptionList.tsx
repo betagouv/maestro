@@ -240,6 +240,7 @@ const ProgrammingPrescriptionList = ({
             matrixKind: prescription.matrixKind,
             regionalComments: [regionalPrescription].map((rcp) => ({
               region: rcp.region,
+              department: rcp.department,
               comments: rcp.comments ?? []
             }))
           })

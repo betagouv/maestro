@@ -183,6 +183,7 @@ const ProgrammingCommentList = ({ programmingPlan, ..._rest }: Props) => {
                                 prescription.regionalCommentedPrescriptions.map(
                                   (rcp) => ({
                                     region: rcp.region,
+                                    department: rcp.department,
                                     comments: rcp.comments ?? []
                                   })
                                 )
@@ -224,6 +225,7 @@ const ProgrammingCommentList = ({ programmingPlan, ..._rest }: Props) => {
                                     prescription.regionalCommentedPrescriptions.map(
                                       (rcp) => ({
                                         region: rcp.region,
+                                        department: rcp.department,
                                         comments: rcp.comments ?? []
                                       })
                                     )

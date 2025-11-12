@@ -8,7 +8,7 @@ import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/Local
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { isDefined } from 'maestro-shared/utils/utils';
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useAuthentication } from '../../../hooks/useAuthentication';
 import { useAppDispatch } from '../../../hooks/useStore';
 import prescriptionsSlice from '../../../store/reducers/prescriptionsSlice';
@@ -44,9 +44,16 @@ const LocalPrescriptionButtons = ({
     [localPrescription]
   );
 
-  const getComments = useCallback((localPrescription: LocalPrescription) => {
-    return localPrescription?.comments || [];
-  }, []);
+  const commentsCount = useMemo(
+    () =>
+      [
+        ...(localPrescription?.comments || []),
+        ...(subLocalPrescriptions ?? [])
+          .filter((_) => (_.comments || []).length > 0)
+          .flatMap((_) => _.comments || [])
+      ].length,
+    [localPrescription, subLocalPrescriptions]
+  );
 
   const buttons = useMemo(
     (): ButtonProps[] =>
@@ -54,7 +61,7 @@ const LocalPrescriptionButtons = ({
         hasUserLocalPrescriptionPermission(programmingPlan, localPrescription)
           ?.distributeToDepartments
           ? {
-              children: <span className="no-wrap">Départements</span>,
+              children: <span className="no-wrap">Répartition</span>,
               priority: 'tertiary no outline',
               onClick: () =>
                 dispatch(
@@ -124,24 +131,18 @@ const LocalPrescriptionButtons = ({
           : undefined,
         hasUserPermission('commentPrescription')
           ? {
-              children:
-                hasUserLocalPrescriptionPermission(
-                  programmingPlan,
-                  localPrescription
-                )?.comment && getComments(localPrescription).length === 0 ? (
-                  'Commenter'
-                ) : (
-                  <span className="no-wrap">
-                    {pluralize(getComments(localPrescription).length, {
-                      preserveCount: true
-                    })('commentaire')}
-                  </span>
-                ),
+              children: (
+                <span className="no-wrap">
+                  {pluralize(commentsCount, {
+                    preserveCount: true
+                  })('commentaire')}
+                </span>
+              ),
               disabled:
                 !hasUserLocalPrescriptionPermission(
                   programmingPlan,
                   localPrescription
-                )?.comment && getComments(localPrescription).length === 0,
+                )?.comment && commentsCount === 0,
               priority: 'tertiary no outline',
               onClick: () =>
                 dispatch(
@@ -152,14 +153,14 @@ const LocalPrescriptionButtons = ({
                     matrixKind: prescription.matrixKind,
                     regionalComments: [
                       localPrescription,
-                      ...(subLocalPrescriptions ?? [])
-                    ]
-                      .filter((rcp) => getComments(rcp).length > 0)
-                      .map((rcp) => ({
-                        region: rcp.region,
-                        department: rcp.department,
-                        comments: getComments(rcp)
-                      }))
+                      ...(subLocalPrescriptions ?? []).filter(
+                        (_) => (_.comments || []).length > 0
+                      )
+                    ].map((rcp) => ({
+                      region: rcp.region,
+                      department: rcp.department,
+                      comments: rcp.comments || []
+                    }))
                   })
                 ),
               iconId: noIcon ? undefined : 'fr-icon-chat-3-line',

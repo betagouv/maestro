@@ -66,6 +66,7 @@ const DistributionCountCell = ({
                     matrixKind,
                     regionalComments: [localPrescription].map((rcp) => ({
                       region: rcp.region,
+                      department: rcp.department,
                       comments: rcp.comments ?? []
                     }))
                   })

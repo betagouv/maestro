@@ -3,10 +3,19 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
+import TagsGroup from '@codegouvfr/react-dsfr/TagsGroup';
 import clsx from 'clsx';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
+import { isNil } from 'lodash-es';
+import {
+  Department,
+  DepartmentLabels
+} from 'maestro-shared/referential/Department';
+import {
+  MatrixKind,
+  MatrixKindLabels
+} from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, Regions } from 'maestro-shared/referential/Region';
 import { LocalPrescriptionCommentToCreate } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
 import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
@@ -50,10 +59,17 @@ const PrescriptionCommentsModal = ({
   );
 
   const [comment, setComment] = useState('');
-  const [segment, setSegment] = useState(
-    prescriptionCommentsData?.viewBy === 'MatrixKind'
+  const [commentSegment, setSegment] = useState<
+    'National' | 'Regional' | 'Departmental' | null
+  >(
+    hasNationalView ? 'Regional' : hasRegionalView ? 'National' : 'Departmental'
+  );
+  const [currentTag, setCurrentTag] = useState<
+    Region | Department | MatrixKind | null
+  >(
+    (prescriptionCommentsData?.viewBy === 'MatrixKind'
       ? prescriptionCommentsData.currentRegion
-      : prescriptionCommentsData?.currentMatrixKind
+      : prescriptionCommentsData?.currentMatrixKind) ?? null
   );
 
   const Form = LocalPrescriptionCommentToCreate.pick({
@@ -74,17 +90,18 @@ const PrescriptionCommentsModal = ({
     }
   });
 
-  console.log('prescriptionCommentsData', prescriptionCommentsData);
-
   useEffect(() => {
     if (prescriptionCommentsData) {
       if (prescriptionCommentsData.viewBy === 'MatrixKind') {
-        setSegment(
-          prescriptionCommentsData.currentRegion ??
+        setCurrentTag(
+          prescriptionCommentsData.regionalComments.find(
+            (_) => !isNil(_.department)
+          )?.department ??
+            prescriptionCommentsData.currentRegion ??
             prescriptionCommentsData.regionalComments[0].region
         );
       } else {
-        setSegment(
+        setCurrentTag(
           prescriptionCommentsData.currentMatrixKind ??
             prescriptionCommentsData.matrixKindsComments[0].matrixKind
         );
@@ -93,16 +110,18 @@ const PrescriptionCommentsModal = ({
     }
   }, [prescriptionCommentsData]);
 
-  const segmentedComments = useMemo(
+  const currentComments = useMemo(
     () =>
       prescriptionCommentsData?.viewBy === 'MatrixKind'
-        ? prescriptionCommentsData?.regionalComments.find(
-            (_) => _.region === segment
+        ? prescriptionCommentsData?.regionalComments.find((_) =>
+            commentSegment === 'Departmental'
+              ? _.department === currentTag
+              : isNil(_.department)
           )
         : prescriptionCommentsData?.matrixKindsComments.find(
-            (_) => _.matrixKind === segment
+            (_) => _.matrixKind === currentTag
           ),
-    [segment, prescriptionCommentsData]
+    [currentTag, prescriptionCommentsData, commentSegment]
   );
 
   const programmingPlan = useMemo(
@@ -110,32 +129,35 @@ const PrescriptionCommentsModal = ({
       prescriptionCommentsData?.viewBy === 'MatrixKind'
         ? prescriptionCommentsData?.programmingPlan
         : prescriptionCommentsData?.matrixKindsComments.find(
-            (_) => _.matrixKind === segment
+            (_) => _.matrixKind === currentTag
           )?.programmingPlan,
-    [segment, prescriptionCommentsData]
+    [currentTag, prescriptionCommentsData]
   );
 
   const { commentsArray, hasComments } = useMemo(() => {
-    const commentsArray = segmentedComments?.comments ?? [];
+    const commentsArray = currentComments?.comments ?? [];
     const hasComments = commentsArray.length > 0;
 
     return { commentsArray, hasComments };
-  }, [segmentedComments]);
+  }, [currentComments]);
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
 
-    if (
-      prescriptionCommentsData?.viewBy === 'MatrixKind' &&
-      Region.safeParse(segment).success
-    ) {
+    if (prescriptionCommentsData?.viewBy === 'MatrixKind') {
       await form.validate(async () => {
         await onSubmitLocalPrescriptionComment(
           prescriptionCommentsData.programmingPlan,
           {
             prescriptionId: prescriptionCommentsData.prescriptionId,
-            region: segment as Region,
-            department: user?.department
+            region:
+              commentSegment === 'Regional'
+                ? (currentTag as Region)
+                : (user?.region as Region),
+            department:
+              commentSegment === 'Departmental'
+                ? (currentTag as Department)
+                : user?.department
           },
           comment
         );
@@ -148,47 +170,91 @@ const PrescriptionCommentsModal = ({
     <>
       <prescriptionCommentsModal.Component
         title={
-          prescriptionCommentsData
-            ? prescriptionCommentsData.viewBy === 'MatrixKind'
-              ? MatrixKindLabels[prescriptionCommentsData.matrixKind]
-              : `Région ${Regions[prescriptionCommentsData.region].name}`
-            : ''
+          <>
+            {prescriptionCommentsData?.viewBy === 'MatrixKind' &&
+              MatrixKindLabels[prescriptionCommentsData.matrixKind]}
+            {prescriptionCommentsData?.viewBy === 'Region' &&
+              `Région ${Regions[prescriptionCommentsData.region].name}`}
+            {hasRegionalView &&
+              programmingPlan?.distributionKind === 'SLAUGHTERHOUSE' && (
+                <SegmentedControl
+                  hideLegend
+                  legend="Destinataire"
+                  segments={[
+                    {
+                      label: `Administration centrale`,
+                      nativeInputProps: {
+                        checked: commentSegment === 'National',
+                        onChange: () => setSegment('National')
+                      }
+                    },
+                    {
+                      label: `Départements`,
+                      // iconId: 'fr-icon-france-line',
+                      nativeInputProps: {
+                        checked: commentSegment === 'Departmental',
+                        onChange: () => setSegment('Departmental')
+                      }
+                    }
+                  ]}
+                  className={clsx(cx('fr-mb-2w'), 'float-right')}
+                />
+              )}
+          </>
         }
         concealingBackdrop={false}
         topAnchor
         className="prescription-comments-modal"
+        size="large"
       >
         {prescriptionCommentsData && (
           <div data-testid="prescription-comments-modal">
             {(prescriptionCommentsData?.viewBy === 'Region' ||
               prescriptionCommentsData.regionalComments.length > 1) && (
-              <SegmentedControl
-                hideLegend
-                legend="Région"
-                small
-                segments={
+              <TagsGroup
+                smallTags
+                tags={
                   prescriptionCommentsData?.viewBy === 'MatrixKind'
-                    ? prescriptionCommentsData.regionalComments.map(
-                        (regionalComment) => ({
-                          label: Regions[regionalComment.region].name,
-                          nativeInputProps: {
-                            checked: segment === regionalComment.region,
-                            onChange: () => setSegment(regionalComment.region)
+                    ? prescriptionCommentsData.regionalComments
+                        .filter((regionalComment) =>
+                          hasRegionalView
+                            ? commentSegment === 'National'
+                              ? false
+                              : !isNil(regionalComment.department)
+                            : true
+                        )
+                        .map((regionalComment) => ({
+                          children: `${
+                            isNil(regionalComment.department)
+                              ? Regions[regionalComment.region].name
+                              : DepartmentLabels[regionalComment.department]
+                          } (${regionalComment.comments.length})`,
+                          pressed:
+                            currentTag ===
+                            (isNil(regionalComment.department)
+                              ? regionalComment.region
+                              : regionalComment.department),
+                          nativeButtonProps: {
+                            onClick: () =>
+                              setCurrentTag(
+                                isNil(regionalComment.department)
+                                  ? regionalComment.region
+                                  : regionalComment.department
+                              )
                           }
-                        })
-                      )
+                        }))
                     : (prescriptionCommentsData.matrixKindsComments.map(
                         (matrixKindComment) => ({
-                          label: MatrixKindLabels[matrixKindComment.matrixKind],
-                          nativeInputProps: {
-                            checked: segment === matrixKindComment.matrixKind,
-                            onChange: () =>
-                              setSegment(matrixKindComment.matrixKind)
+                          children:
+                            MatrixKindLabels[matrixKindComment.matrixKind],
+                          pressed: currentTag === matrixKindComment.matrixKind,
+                          nativeButtonProps: {
+                            onClick: () =>
+                              setCurrentTag(matrixKindComment.matrixKind)
                           }
                         })
                       ) as any)
                 }
-                className={cx('fr-mb-2w')}
               />
             )}
             {hasComments ? (
@@ -229,10 +295,15 @@ const PrescriptionCommentsModal = ({
               </div>
             )}
             {programmingPlan &&
-              Region.safeParse(segment).success &&
               hasUserLocalPrescriptionPermission(programmingPlan, {
-                region: segment as Region,
-                department: user?.department
+                region:
+                  commentSegment === 'Regional'
+                    ? (currentTag as Region)
+                    : (user?.region as Region),
+                department:
+                  commentSegment === 'Departmental'
+                    ? (currentTag as Department)
+                    : user?.department
               })?.comment && (
                 <div className={clsx(cx('fr-mt-2w'), 'd-flex-justify-center')}>
                   <form id="login_form">

@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { Department } from 'maestro-shared/referential/Department';
 import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region } from 'maestro-shared/referential/Region';
 import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
@@ -34,6 +35,7 @@ const PrescriptionCommentsData = z.discriminatedUnion('viewBy', [
     regionalComments: z.array(
       z.object({
         region: Region,
+        department: Department.nullish(),
         comments: z
           .array(
             LocalPrescriptionComment.pick({
