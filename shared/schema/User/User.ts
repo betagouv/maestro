@@ -8,6 +8,7 @@ import { UserPermission } from './UserPermission';
 
 import { Company } from '../Company/Company';
 import {
+  hasDepartmentalRole,
   hasNationalRole,
   hasRegionalRole,
   UserRole,
@@ -18,14 +19,16 @@ const BaseUser = z.object({
   id: z.guid(),
   email: z.email({ error: 'Veuillez renseigner un email valide.' }),
   name: z.string().nullable(),
-  programmingPlanKinds: z.array(ProgrammingPlanKind),
+  programmingPlanKinds: z.array(ProgrammingPlanKind).min(1),
   role: UserRole,
   region: Region.nullable(),
   department: Department.nullable(),
   companies: z.array(Company).nullish()
 });
 
-const regionCheck = <T extends Pick<User, 'region' | 'role'>>(
+const localisationCheck = <
+  T extends Pick<User, 'region' | 'role' | 'department'>
+>(
   user: T,
   ctx: RefinementCtx<T>
 ) => {
@@ -35,21 +38,27 @@ const regionCheck = <T extends Pick<User, 'region' | 'role'>>(
       message: 'La région est obligatoire pour ce rôle.'
     });
   }
+  if (!user.department && hasDepartmentalRole(user)) {
+    ctx.addIssue({
+      code: 'custom',
+      message: 'Le departement est obligatoire pour ce rôle.'
+    });
+  }
 };
 
-export const User = BaseUser.superRefine(regionCheck);
+export const User = BaseUser.superRefine(localisationCheck);
 
 export const UserToCreate = BaseUser.omit({
   id: true,
   name: true,
   companies: true
-}).superRefine(regionCheck);
+}).superRefine(localisationCheck);
 export type UserToCreate = z.infer<typeof UserToCreate>;
 
 export const UserToUpdate = BaseUser.omit({
   name: true,
   companies: true
-}).superRefine(regionCheck);
+}).superRefine(localisationCheck);
 export type UserToUpdate = z.infer<typeof UserToUpdate>;
 
 export const Sampler = BaseUser.pick({

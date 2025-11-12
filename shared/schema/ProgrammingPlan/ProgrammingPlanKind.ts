@@ -19,3 +19,8 @@ export const ProgrammingPlanKindLabels: Record<ProgrammingPlanKind, string> = {
   DAOA_BREEDING: 'Abattoir / Viande de volaille',
   DAOA_SLAUGHTER: 'Abattoir / Foie de bovin'
 };
+export const ProgrammingPlanKindListSorted: ProgrammingPlanKind[] = [
+  ...ProgrammingPlanKind.options
+].sort((a, b) =>
+  ProgrammingPlanKindLabels[a].localeCompare(ProgrammingPlanKindLabels[b])
+);
