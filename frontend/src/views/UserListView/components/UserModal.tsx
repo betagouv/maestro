@@ -1,5 +1,6 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
+import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import clsx from 'clsx';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
 import { User, UserToCreate } from 'maestro-shared/schema/User/User';
@@ -38,6 +39,14 @@ const regionOptions = selectOptionsFromList(RegionList, {
   withSort: true
 });
 
+const userDefaultValue: Nullable<UserToCreate> = {
+  email: null,
+  role: null,
+  programmingPlanKinds: ['PPV'],
+  region: null,
+  department: null
+};
+
 export const UserModal = ({ userToUpdate, modal, ..._rest }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
 
@@ -45,28 +54,28 @@ export const UserModal = ({ userToUpdate, modal, ..._rest }: Props) => {
   const [createUser] = apiClient.useCreateUserMutation();
   const [updateUser] = apiClient.useUpdateUserMutation();
 
-  const [user, setUser] = useState<Nullable<UserToCreate>>({
-    email: null,
-    role: null,
-    programmingPlanKinds: ['PPV'],
-    region: null
+  const [user, setUser] = useState<Nullable<UserToCreate>>(userDefaultValue);
+
+  const form = useForm(UserToCreate, {
+    ...user
   });
 
   useEffect(() => {
-    setUser(
-      userToUpdate ?? {
-        email: null,
-        role: null,
-        programmingPlanKinds: ['PPV'],
-        region: null
-      }
-    );
+    if (userToUpdate) {
+      const { id, name, ...rest } = userToUpdate;
+      setUser(rest);
+    }
   }, [userToUpdate]);
 
-  const form = useForm(UserToCreate, user);
+  useIsModalOpen(modal, {
+    onConceal: () => {
+      setUser(userDefaultValue);
+      form.reset();
+    }
+  });
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
-    form.validate(async (n) => {
+    await form.validate(async (n) => {
       if (userToUpdate?.id) {
         await updateUser({ ...n, id: userToUpdate.id });
       } else {
@@ -103,7 +112,7 @@ export const UserModal = ({ userToUpdate, modal, ..._rest }: Props) => {
           inputKey="email"
           label="Courriel"
           type={'email'}
-          value={user.email ?? undefined}
+          value={user.email ?? ''}
           required
         />
         <AppSelect

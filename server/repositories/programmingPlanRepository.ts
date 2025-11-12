@@ -1,48 +1,52 @@
 import { isArray, isNil, omit, omitBy } from 'lodash-es';
+import { Department } from 'maestro-shared/referential/Department';
 import { Region } from 'maestro-shared/referential/Region';
 import { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { ProgrammingPlanRegionalStatus as ProgrammingPlanRegionalStatusType } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanRegionalStatus';
+import { ProgrammingPlanLocalStatus as ProgrammingPlanLocalStatusType } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanLocalStatus';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import z from 'zod';
 import { knexInstance as db } from './db';
 export const programmingPlansTable = 'programming_plans';
-const programmingPlanRegionalStatusTable = 'programming_plan_regional_status';
+const programmingPlanLocalStatusTable = 'programming_plan_local_status';
 
 const ProgrammingPlanDbo = ProgrammingPlan.omit({
-  regionalStatus: true
+  regionalStatus: true,
+  departmentalStatus: true
 });
 
 type ProgrammingPlanDbo = z.infer<typeof ProgrammingPlanDbo>;
 
-const ProgrammingPlanRegionalStatusDbo =
-  ProgrammingPlanRegionalStatusType.extend({
-    programmingPlanId: z.string()
-  });
+const ProgrammingPlanLocalStatusDbo = z.object({
+  ...ProgrammingPlanLocalStatusType.shape,
+  programmingPlanId: z.string(),
+  department: z.union([Department, z.literal('None')])
+});
 
-type ProgrammingPlanRegionalStatusDbo = z.infer<
-  typeof ProgrammingPlanRegionalStatusDbo
+type ProgrammingPlanLocalStatusDbo = z.infer<
+  typeof ProgrammingPlanLocalStatusDbo
 >;
 
 export const ProgrammingPlans = (transaction = db) =>
   transaction<ProgrammingPlanDbo>(programmingPlansTable);
-export const ProgrammingPlanRegionalStatus = (transaction = db) =>
-  transaction<ProgrammingPlanRegionalStatusDbo>(
-    programmingPlanRegionalStatusTable
-  );
+export const ProgrammingPlanLocalStatus = (transaction = db) =>
+  transaction<ProgrammingPlanLocalStatusDbo>(programmingPlanLocalStatusTable);
 
 const ProgrammingPlanQuery = () =>
   ProgrammingPlans()
     .select(`${programmingPlansTable}.*`)
     .select(
       db.raw(
-        `array_agg(to_json(${programmingPlanRegionalStatusTable}.*)) as regional_status`
+        `coalesce(array_agg(to_json(${programmingPlanLocalStatusTable}.*)) filter (where ${programmingPlanLocalStatusTable}.department = 'None'), '{}') as "regional_status"`
+      ),
+      db.raw(
+        `coalesce(array_agg(to_json(${programmingPlanLocalStatusTable}.*)) filter (where ${programmingPlanLocalStatusTable}.department != 'None'), '{}') as "departmental_status"`
       )
     )
     .join(
-      programmingPlanRegionalStatusTable,
+      programmingPlanLocalStatusTable,
       `${programmingPlansTable}.id`,
-      `${programmingPlanRegionalStatusTable}.programming_plan_id`
+      `${programmingPlanLocalStatusTable}.programming_plan_id`
     )
     .groupBy(`${programmingPlansTable}.id`);
 
@@ -59,7 +63,7 @@ const findOne = async (
   kinds: ProgrammingPlanKind[],
   region?: Region | null
 ): Promise<ProgrammingPlan | undefined> => {
-  console.info('Find programming plan', year);
+  console.info('Find programming plan', year, kinds, region);
   return ProgrammingPlanQuery()
     .where({ year, kinds })
     .modify((builder) => {
@@ -76,10 +80,21 @@ const findMany = async (
 ): Promise<ProgrammingPlan[]> => {
   console.info('Find programming plans', omitBy(findOptions, isNil));
   return ProgrammingPlanQuery()
-    .where(omitBy(omit(findOptions, 'status'), isNil))
+    .where(omitBy(omit(findOptions, 'status', 'kinds'), isNil))
     .modify((builder) => {
       if (isArray(findOptions.status)) {
-        builder.whereIn('status', findOptions.status);
+        if (findOptions.department) {
+          builder
+            .whereIn('status', findOptions.status)
+            .orWhere('department', 'None');
+        } else {
+          builder.whereIn('status', findOptions.status);
+        }
+      }
+      if (isArray(findOptions.kinds)) {
+        builder.whereRaw(`${programmingPlansTable}.kinds && ?`, [
+          findOptions.kinds
+        ]);
       }
     })
     .then((programmingPlans) =>
@@ -95,14 +110,15 @@ const insert = async (programmingPlan: ProgrammingPlan): Promise<void> => {
       formatProgrammingPlan(programmingPlan)
     );
 
-    await Promise.all(
-      programmingPlan.regionalStatus.map((regionalStatus) =>
-        transaction(programmingPlanRegionalStatusTable).insert({
+    if (programmingPlan.regionalStatus.length > 0) {
+      await ProgrammingPlanLocalStatus(transaction).insert(
+        programmingPlan.regionalStatus.map((regionalStatus) => ({
           ...regionalStatus,
-          programmingPlanId: programmingPlan.id
-        })
-      )
-    );
+          programmingPlanId: programmingPlan.id,
+          department: 'None'
+        }))
+      );
+    }
   });
 };
 
@@ -113,18 +129,42 @@ const update = async (programmingPlan: ProgrammingPlan): Promise<void> => {
     .update(formatProgrammingPlan(programmingPlan));
 };
 
-const updateRegionalStatus = async (
+const insertManyLocalStatus = async (
   programmingPlanId: string,
-  regionalStatus: ProgrammingPlanRegionalStatusType
+  localStatusList: ProgrammingPlanLocalStatusType[]
 ): Promise<void> => {
   console.info(
-    'Update programming plan regional status',
+    'Insert programming plan local status',
     programmingPlanId,
-    regionalStatus
+    localStatusList
   );
-  await ProgrammingPlanRegionalStatus()
-    .where({ programmingPlanId, region: regionalStatus.region })
-    .update(regionalStatus);
+  await ProgrammingPlanLocalStatus().insert(
+    localStatusList.map((localStatus) => ({
+      ...localStatus,
+      programmingPlanId,
+      department: localStatus.department ?? 'None'
+    }))
+  );
+};
+
+const updateLocalStatus = async (
+  programmingPlanId: string,
+  localStatus: ProgrammingPlanLocalStatusType
+): Promise<void> => {
+  console.info(
+    'Update programming plan local status',
+    programmingPlanId,
+    localStatus
+  );
+  await ProgrammingPlanLocalStatus()
+    .where({
+      programmingPlanId,
+      region: localStatus.region,
+      department: localStatus.department ?? 'None'
+    })
+    .update({
+      status: localStatus.status
+    });
 };
 
 export const formatProgrammingPlan = (
@@ -137,5 +177,6 @@ export default {
   findMany,
   insert,
   update,
-  updateRegionalStatus
+  insertManyLocalStatus,
+  updateLocalStatus
 };

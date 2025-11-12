@@ -16,7 +16,7 @@ import { ApiClientContext } from '../../services/apiClient';
 import ProgrammingPlanClosing from './ProgrammingPlanClosing';
 
 type Props = {
-  currentProgrammingPlan: ProgrammingPlan;
+  currentProgrammingPlan?: ProgrammingPlan;
   previousProgrammingPlan?: ProgrammingPlan;
   nextProgrammingPlan?: ProgrammingPlan;
   className: string;
@@ -34,17 +34,20 @@ const DashboardPriorityActions: FunctionComponent<Props> = ({
   const { user, hasUserPermission } = useAuthentication();
 
   const { useFindSamplesQuery } = useContext(ApiClientContext);
-  const { data: samplesInReview } = useFindSamplesQuery({
-    programmingPlanId: currentProgrammingPlan.id,
-    region: user?.region ?? undefined,
-    page: 1,
-    perPage: 2,
-    status: 'InReview'
-  });
+  const { data: samplesInReview } = useFindSamplesQuery(
+    {
+      programmingPlanId: currentProgrammingPlan?.id as string,
+      region: user?.region ?? undefined,
+      page: 1,
+      perPage: 2,
+      status: 'InReview'
+    },
+    { skip: !currentProgrammingPlan }
+  );
 
   const [createProgrammingPlan] = apiClient.useCreateProgrammingPlanMutation();
 
-  if (!samplesInReview) {
+  if (currentProgrammingPlan && !samplesInReview) {
     return <></>;
   }
 
@@ -57,10 +60,10 @@ const DashboardPriorityActions: FunctionComponent<Props> = ({
           cx('fr-px-4w', 'fr-py-3w')
         )}
       >
-        {hasUserPermission('updateSample') ? (
+        {currentProgrammingPlan && hasUserPermission('updateSample') ? (
           <>
             <h4 className={cx('fr-mb-1w')}>Rapports à terminer</h4>
-            {samplesInReview.length === 0 ? (
+            {(samplesInReview ?? []).length === 0 ? (
               <>Pas de rapports à terminer</>
             ) : (
               <>
@@ -116,14 +119,35 @@ const DashboardPriorityActions: FunctionComponent<Props> = ({
                     title="Editer la programmation"
                     badgeLabel="Programmation"
                     description="À compléter"
-                    to={AuthenticatedAppRoutes.ProgrammationByYearRoute.link(
-                      nextProgrammingPlan.year
-                    )}
+                    to={`${AuthenticatedAppRoutes.ProgrammingRoute.link}?${new URLSearchParams(
+                      {
+                        year: String(nextProgrammingPlan.year)
+                      }
+                    ).toString()}`}
                   />
                 )}
               </>
             ) : (
-              <>Pas d’actions prioritaires identifiées</>
+              <>
+                {(hasUserPermission('distributePrescriptionToDepartments') ||
+                  hasUserPermission(
+                    'distributePrescriptionToSlaughterhouses'
+                  )) &&
+                nextProgrammingPlan ? (
+                  <PriorityActionCard
+                    title="Editer la programmation"
+                    badgeLabel="Programmation"
+                    description="À compléter"
+                    to={`${AuthenticatedAppRoutes.ProgrammingRoute.link}?${new URLSearchParams(
+                      {
+                        year: String(nextProgrammingPlan.year)
+                      }
+                    ).toString()}`}
+                  />
+                ) : (
+                  <>Pas d’actions prioritaires identifiées</>
+                )}
+              </>
             )}
           </>
         )}

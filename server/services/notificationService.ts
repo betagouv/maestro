@@ -16,11 +16,12 @@ import { mattermostService } from './mattermostService';
 
 const categoryToEmailTemplate = {
   AnalysisReviewTodo: 'AnalysisReviewTodoTemplate',
-  ProgrammingPlanSubmitted: 'SubmittedProgrammingPlanTemplate',
-  ProgrammingPlanApproved: 'ApprovedProgrammingPlanTemplate',
+  ProgrammingPlanSubmittedToRegion: 'SubmittedProgrammingPlanTemplate',
+  ProgrammingPlanApprovedByRegion: 'ApprovedProgrammingPlanTemplate',
+  ProgrammingPlanSubmittedToDepartments: 'SubmittedProgrammingPlanTemplate',
   ProgrammingPlanValidated: 'ValidatedProgrammingPlanTemplate',
-  Control: 'NewRegionalPrescriptionCommentTemplate',
-  Surveillance: 'NewRegionalPrescriptionCommentTemplate'
+  Control: 'NewLocalPrescriptionCommentTemplate',
+  Surveillance: 'NewLocalPrescriptionCommentTemplate'
 } as const satisfies Record<NotificationCategory, TemplateName | null>;
 
 const NotificationCategoryMessages = {
@@ -28,15 +29,21 @@ const NotificationCategoryMessages = {
     `Nouveau commentaire sur la matrice **${matrix.toLowerCase()}**`,
   Surveillance: ({ matrix }) =>
     `Nouveau commentaire sur la matrice **${matrix.toLowerCase()}**`,
-  ProgrammingPlanSubmitted: () => `
+  ProgrammingPlanSubmittedToRegion: () => `
 ${Brand} vient d’être mis à jour !  
 
 Une proposition de programmation pour la prochaine campagne de surveillance / contrôle officielle a été déposée sur ${Brand}  par la coordination nationale.   
 
 Merci de prendre connaissance de ces nouveaux éléments et y réagir le cas échéant.`,
-  ProgrammingPlanApproved: ({ region }) => `
+  ProgrammingPlanApprovedByRegion: ({ region }) => `
 La programmation de prélèvements pour la prochaine campagne de surveillance / contrôle officielle a été approuvée par la région ${region}
   `,
+  ProgrammingPlanSubmittedToDepartments: () => `
+${Brand} vient d’être mis à jour !  
+
+Une proposition de programmation pour la prochaine campagne de surveillance / contrôle officielle a été déposée sur ${Brand}  par la coordination régionale.   
+
+Merci de prendre connaissance de ces nouveaux éléments.`,
   ProgrammingPlanValidated: () => `
 L’étape de programmation a été clôturée par la coordination nationale.  
 

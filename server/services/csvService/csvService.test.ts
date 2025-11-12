@@ -15,7 +15,9 @@ const data: AnalysisRequestData = {
     fullAddress: '',
     name: ''
   },
-  itemNumber: 0,
+  copyNumber: 1,
+  itemNumber: 1,
+  substanceKind: 'Any',
   laboratory: {
     emails: [''],
     id: '',
@@ -94,7 +96,7 @@ test('génère un CSV', async () => {
     Analyses mono-résidu;
     Analyses multi-résidus dont;
     Note additionnelle;
-    Échantillon n°;0
+    Échantillon n°;1
     Nombre;0
     Unité de mesure;
     Numéro de scellé;
@@ -137,7 +139,7 @@ test('génère un CSV avec le BOM pour Girpa', async () => {
     Analyses mono-résidu;
     Analyses multi-résidus dont;
     Note additionnelle;
-    Échantillon n°;0
+    Échantillon n°;1
     Nombre;0
     Unité de mesure;
     Numéro de scellé;

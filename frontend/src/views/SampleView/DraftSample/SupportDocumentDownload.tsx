@@ -54,8 +54,6 @@ const SupportDocumentDownload = ({ partialSample, alignRight }: Props) => {
         shouldProcessDownload ||
         (isSubmittingRef.current && !createOrUpdateSampleCall.isLoading)
       ) {
-        console.log('partialSample', partialSample.id);
-
         isSubmittingRef.current = false;
         setShouldProcessDownload(false);
 

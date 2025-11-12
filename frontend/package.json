@@ -33,7 +33,7 @@
     ]
   },
   "devDependencies": {
-    "@codegouvfr/react-dsfr": "^1.25.3",
+    "@codegouvfr/react-dsfr": "^1.28.0",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@mui/material": "^5.15.20",

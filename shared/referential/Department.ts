@@ -1,3 +1,4 @@
+import { isNil } from 'lodash-es';
 import { z } from 'zod';
 
 export const Department = z.enum(
@@ -217,3 +218,6 @@ export const DepartmentLabels: Record<Department, string> = {
   '974': 'La Réunion',
   '976': 'Mayotte'
 };
+
+export const DepartmentSort = (a?: Department | null, b?: Department | null) =>
+  isNil(a) ? (isNil(b) ? 0 : -1) : isNil(b) ? 1 : a.localeCompare(b);

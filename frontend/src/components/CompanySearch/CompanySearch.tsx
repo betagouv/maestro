@@ -7,7 +7,7 @@ import {
   Company,
   companyFromSearchResult
 } from 'maestro-shared/schema/Company/Company';
-import {
+import React, {
   ReactNode,
   SyntheticEvent,
   useCallback,
@@ -25,6 +25,8 @@ type Props = {
   onSelectCompany: (company?: Company) => void;
   state?: 'success' | 'error' | 'default';
   stateRelatedMessage?: ReactNode;
+  companies?: Company[] | null;
+  label?: string | React.ReactNode;
 };
 
 const nafCodeLabels: Record<string, string> = {
@@ -90,11 +92,15 @@ const CompanySearch = ({
   department,
   onSelectCompany,
   state,
-  stateRelatedMessage
+  stateRelatedMessage,
+  companies,
+  label
 }: Props) => {
   const apiClient = useContext(ApiClientContext);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [companyResults, setCompanyResults] = useState<Company[]>([]);
+  const [companyResults, setCompanyResults] = useState<Company[]>(
+    companies ?? []
+  );
   const [searchCompanies, { isLoading, isFetching, isError }] =
     apiClient.useLazySearchCompaniesQuery();
   const [company, setCompany] = useState<Company | null>(
@@ -102,14 +108,28 @@ const CompanySearch = ({
   );
 
   const search = useCallback(
-    async (value: string) =>
-      await searchCompanies({
-        query: value,
-        department
-      })
-        .unwrap()
-        .then((results) => results.map(companyFromSearchResult)),
-    [department, searchCompanies]
+    async (value: string) => {
+      if (companies) {
+        if (!value || value.length === 0) {
+          return companies;
+        }
+        const searchLower = value.toLowerCase();
+        return companies.filter(
+          (company) =>
+            company.name.toLowerCase().includes(searchLower) ||
+            company.siret.includes(value) ||
+            company.siret.replace(/\s/g, '').includes(value)
+        );
+      } else {
+        return await searchCompanies({
+          query: value,
+          department
+        })
+          .unwrap()
+          .then((results) => results.map(companyFromSearchResult));
+      }
+    },
+    [companies, department, searchCompanies]
   );
 
   const handleInputChange = async (
@@ -118,7 +138,7 @@ const CompanySearch = ({
   ) => {
     setSearchQuery(value);
 
-    if (value.length > 3) {
+    if (companies || value.length > 1) {
       await search(value)
         .then((results) => {
           setCompanyResults(results);
@@ -146,10 +166,14 @@ const CompanySearch = ({
       )}
     >
       <label className={cx('fr-label')}>
-        Entité contrôlée <AppRequiredInput />
-        <span className="fr-hint-text">
-          Commencez à saisir le nom, un SIRET ou un SIREN
-        </span>
+        {label ?? (
+          <>
+            Entité contrôlée <AppRequiredInput />
+            <span className="fr-hint-text">
+              Commencez à saisir le nom, un SIRET ou un SIREN
+            </span>
+          </>
+        )}
       </label>
       <div className="fr-input-wrap fr-icon-search-line">
         <Autocomplete
@@ -216,12 +240,16 @@ const CompanySearch = ({
           loading={isLoading || isFetching}
           loadingText={`Recherche en cours...`}
           filterOptions={(x) => x}
-          options={companyResults}
+          options={[...companyResults].sort((a, b) =>
+            a.name.localeCompare(b.name)
+          )}
           getOptionLabel={(option) => [option.name, option.siret].join(' • ')}
           noOptionsText={
-            searchQuery.length > 3
+            companies
               ? 'Aucun résultat'
-              : 'Saisir au moins 4 caractères'
+              : searchQuery.length > 3
+                ? 'Aucun résultat'
+                : 'Saisir au moins 4 caractères'
           }
           disabled={company !== null}
         />
@@ -243,7 +271,7 @@ const CompanySearch = ({
         </p>
       )}
       <>
-        {isError && (
+        {isError && !companies && (
           <AppServiceErrorAlert
             message={`L'API Recherche d'entreprises semble inaccessible. Veuillez réessayer ultérieurement.`}
           />
@@ -252,7 +280,7 @@ const CompanySearch = ({
       {company && (
         <>
           <div className={cx('fr-hint-text', 'fr-my-1w')}>
-            Entité sélectionnée
+            Valeur sélectionnée
           </div>
           <Tag
             dismissible

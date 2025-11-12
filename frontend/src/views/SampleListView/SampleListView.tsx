@@ -32,6 +32,7 @@ import {
 } from 'maestro-shared/utils/utils';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
+import FiltersTags from 'src/components/FilterTags/FiltersTags';
 import SampleCard from 'src/components/SampleCard/SampleCard';
 import SampleTable from 'src/components/SampleTable/SampleTable';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
@@ -42,7 +43,6 @@ import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import useWindowSize from 'src/hooks/useWindowSize';
 import samplesSlice from 'src/store/reducers/samplesSlice';
 import { getURLQuery } from 'src/utils/fetchUtils';
-import SampleFiltersTags from 'src/views/SampleListView/SampleFiltersTags';
 import SampleListHeader from 'src/views/SampleListView/SampleListHeader';
 import SamplePrimaryFilters from 'src/views/SampleListView/SamplePrimaryFilters';
 import SampleSecondaryFilters from 'src/views/SampleListView/SampleSecondaryFilters';
@@ -156,15 +156,6 @@ const SampleListView = () => {
     setSearchParams(urlSearchParams, { replace: true });
   };
 
-  const hasFilter = useMemo(
-    () =>
-      Object.values(omit(findSampleOptions, 'region', 'page', 'perPage')).some(
-        (value) => isDefinedAndNotNull(value) && value !== ''
-      ) ||
-      (findSampleOptions.region && hasNationalView),
-    [findSampleOptions, hasNationalView]
-  );
-
   const newPartialSampleId = useMemo(() => uuidv4(), []);
 
   if (!programmingPlan || !user) {
@@ -213,7 +204,7 @@ const SampleListView = () => {
       {isOnline ? (
         <>
           {isMobile ? (
-            <>
+            <div>
               <Accordion
                 label="Filtrer les résultats"
                 className="sample-filters-accordion"
@@ -230,27 +221,17 @@ const SampleListView = () => {
                     filters={findSampleOptions}
                     onChange={changeFilter}
                   />
-                  {hasFilter && (
-                    <div className="d-flex-align-center">
-                      <SampleFiltersTags
-                        filters={findSampleOptions}
-                        samplers={samplers}
-                        onChange={changeFilter}
-                      />
-                    </div>
-                  )}
                 </div>
               </Accordion>
-              {hasFilter && (
-                <div className="d-flex-align-center">
-                  <SampleFiltersTags
-                    filters={findSampleOptions}
-                    samplers={samplers}
-                    onChange={changeFilter}
-                  />
-                </div>
-              )}
-            </>
+              <div className={cx('fr-mx-2w')}>
+                <FiltersTags
+                  title="Filtres actifs"
+                  filters={findSampleOptions}
+                  samplers={samplers}
+                  onChange={changeFilter}
+                />
+              </div>
+            </div>
           ) : (
             <div
               className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}
@@ -270,29 +251,12 @@ const SampleListView = () => {
                       onChange={changeFilter}
                     />
                   )}
-                  {hasFilter && (
-                    <div
-                      className={clsx('d-flex-align-start', cx('fr-mt-3w'))}
-                      style={{ flexDirection: 'column' }}
-                    >
-                      <span
-                        className={cx(
-                          'fr-text--light',
-                          'fr-text--sm',
-                          'fr-mb-0'
-                        )}
-                      >
-                        Filtres actifs
-                      </span>
-                      <div className={cx('fr-mt-3v')}>
-                        <SampleFiltersTags
-                          filters={findSampleOptions}
-                          samplers={samplers}
-                          onChange={changeFilter}
-                        />
-                      </div>
-                    </div>
-                  )}
+                  <FiltersTags
+                    title="Filtres actifs"
+                    filters={findSampleOptions}
+                    samplers={samplers}
+                    onChange={changeFilter}
+                  />
                 </div>
                 <Button
                   onClick={() => setIsFilterExpanded(!isFilterExpanded)}

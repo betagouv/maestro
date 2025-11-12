@@ -1,19 +1,30 @@
 import { isNil } from 'lodash-es';
 import { z } from 'zod';
+import { SubstanceKind } from '../Substance/SubstanceKind';
 import { ProgrammingPlanContext } from './Context';
+import { DistributionKind } from './DistributionKind';
+import { ProgrammingPlanDomain } from './ProgrammingPlanDomain';
 import { ProgrammingPlanKind } from './ProgrammingPlanKind';
-import { ProgrammingPlanRegionalStatus } from './ProgrammingPlanRegionalStatus';
+import {
+  ProgrammingPlanDepartmentalStatus,
+  ProgrammingPlanRegionalStatus
+} from './ProgrammingPlanLocalStatus';
 
 export const ProgrammingPlan = z
   .object({
     id: z.guid(),
+    domain: ProgrammingPlanDomain,
+    title: z.string().min(1, 'Veuillez renseigner le titre.'),
     kinds: z.array(ProgrammingPlanKind),
     contexts: z.array(ProgrammingPlanContext),
     samplesOutsidePlanAllowed: z.boolean(),
+    substanceKinds: z.array(SubstanceKind),
+    distributionKind: DistributionKind,
     createdAt: z.coerce.date(),
     createdBy: z.guid(),
     year: z.number(),
     regionalStatus: z.array(ProgrammingPlanRegionalStatus),
+    departmentalStatus: z.array(ProgrammingPlanDepartmentalStatus),
     closedAt: z.coerce.date().nullish(),
     closedBy: z.guid().nullish()
   })

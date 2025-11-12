@@ -115,9 +115,9 @@ describe('Sample router', () => {
     });
   });
 
-  describe('GET /samples/{sampleId}/items/{itemNumber}/document', () => {
-    const testRoute = (sampleId: string, itemNumber: number) =>
-      `/api/samples/${sampleId}/items/${itemNumber}/document`;
+  describe('GET /samples/{sampleId}/items/{copyNumber}/document', () => {
+    const testRoute = (sampleId: string, copyNumber: number) =>
+      `/api/samples/${sampleId}/items/${copyNumber}/document`;
 
     test('should fail if the user is not authenticated', async () => {
       await request(app)
@@ -490,7 +490,7 @@ describe('Sample router', () => {
           {
             ...genSampleItem({
               sampleId: Sample11Fixture.id,
-              itemNumber: 1
+              copyNumber: 1
             }),
             quantity: '123'
           }
@@ -501,7 +501,7 @@ describe('Sample router', () => {
           {
             ...genSampleItem({
               sampleId: Sample11Fixture.id,
-              itemNumber: 1
+              copyNumber: 1
             }),
             quantityUnit: 123
           }
@@ -526,7 +526,7 @@ describe('Sample router', () => {
       items: [
         genSampleItem({
           sampleId: Sample11Fixture.id,
-          itemNumber: 1
+          copyNumber: 1
         })
       ]
     };
@@ -563,7 +563,6 @@ describe('Sample router', () => {
             stage: validBody.stage,
             items: validBody.items,
             prescriptionId: null,
-            laboratoryId: null,
             monoSubstances: null,
             multiSubstances: null
           })
@@ -577,7 +576,7 @@ describe('Sample router', () => {
 
         await expect(
           SampleItems()
-            .where({ sampleId: Sample11Fixture.id, itemNumber: 1 })
+            .where({ sampleId: Sample11Fixture.id, copyNumber: 1 })
             .first()
         ).resolves.toBeDefined();
       };

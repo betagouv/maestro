@@ -19,6 +19,7 @@
     "migrate-rollback-all": "NODE_OPTIONS='--enable-source-maps --import @swc-node/register/esm-register' knex migrate:rollback --all",
     "seed": "node --enable-source-maps --import @swc-node/register/esm-register database/seeds/dummy/index.ts",
     "seed:departments": "node --enable-source-maps --import @swc-node/register/esm-register database/seeds/departments/script.ts",
+    "seed:laboratories": "node --enable-source-maps --import @swc-node/register/esm-register database/seeds/laboratories/script.ts",
     "ssd2-generate": "node --enable-source-maps --import @swc-node/register/esm-register ./scripts/updateSSD2Referential.ts",
     "check:emails": "node --enable-source-maps --import @swc-node/register/esm-register ./services/imapService/script.ts"
   },

@@ -4,6 +4,7 @@
  */
 
 import { ColumnType, type Kysely } from 'kysely';
+import { Department } from 'maestro-shared/referential/Department';
 import { LaboratoryShortName } from 'maestro-shared/referential/Laboratory';
 import { type Region } from 'maestro-shared/referential/Region';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
@@ -13,6 +14,7 @@ import { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
 import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { ResidueCompliance } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
+import { CompanyKind } from 'maestro-shared/schema/Company/CompanyKind';
 import { type DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
@@ -82,6 +84,8 @@ export interface Companies {
   postalCode: string | null;
   siret: string;
   tradeName: string | null;
+  kind: CompanyKind;
+  geolocation: Point | null;
 }
 
 export interface Documents {
@@ -140,7 +144,7 @@ export interface ProgrammingPlans {
   year: number;
 }
 
-export interface RegionalPrescriptionComments {
+export interface LocalPrescriptionComments {
   comment: string;
   createdAt: Generated<Timestamp | null>;
   createdBy: string;
@@ -149,7 +153,7 @@ export interface RegionalPrescriptionComments {
   region: string;
 }
 
-export interface RegionalPrescriptions {
+export interface LocalPrescriptions {
   laboratoryId: string | null;
   prescriptionId: string;
   region: string;
@@ -171,7 +175,7 @@ export interface ResidueAnalytes {
 
 export interface SampleItems {
   compliance200263: boolean | null;
-  itemNumber: number;
+  copyNumber: number;
   ownerEmail: string | null;
   ownerFirstName: string | null;
   ownerLastName: string | null;
@@ -225,9 +229,15 @@ export interface Users {
   name: string | null;
   id: Generated<string>;
   region: Region | null;
+  department: Department | null;
   role: UserRole;
   loggedSecrets: ColumnType<string[], string[] | null, string[]>;
   programmingPlanKinds: ProgrammingPlanKind[];
+}
+
+export interface UserCompanies {
+  companySiret: string;
+  userId: string;
 }
 
 export interface SampleDocuments {
@@ -254,13 +264,14 @@ export interface DB {
   prescriptions: Prescriptions;
   prescriptionSubstances: PrescriptionSubstances;
   programmingPlans: ProgrammingPlans;
-  regionalPrescriptionComments: RegionalPrescriptionComments;
-  regionalPrescriptions: RegionalPrescriptions;
+  localPrescriptionComments: LocalPrescriptionComments;
+  localPrescriptions: LocalPrescriptions;
   residueAnalytes: ResidueAnalytes;
   sampleDocuments: SampleDocuments;
   sampleItems: SampleItems;
   samples: Samples;
   sampleSequenceNumbers: SampleSequenceNumbers;
   users: Users;
+  userCompanies: UserCompanies;
 }
 export type KyselyMaestro = Kysely<DB>;

@@ -91,7 +91,9 @@ describe('User router', () => {
         email: Sampler1Fixture.email,
         name: Sampler1Fixture.name,
         role: Sampler1Fixture.role,
-        region: Sampler1Fixture.region
+        region: Sampler1Fixture.region,
+        department: Sampler1Fixture.department || null,
+        companies: Sampler1Fixture.companies || null
       });
     });
   });
@@ -113,7 +115,10 @@ describe('User router', () => {
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toEqual(
-        expect.arrayContaining([Sampler1Fixture, RegionalCoordinator])
+        expect.arrayContaining([
+          expect.objectContaining(Sampler1Fixture),
+          expect.objectContaining(RegionalCoordinator)
+        ])
       );
     });
 
@@ -125,9 +130,9 @@ describe('User router', () => {
 
       expect(res.body).toEqual(
         expect.arrayContaining([
-          Sampler1Fixture,
-          Sampler2Fixture,
-          SamplerDromFixture
+          expect.objectContaining(Sampler1Fixture),
+          expect.objectContaining(Sampler2Fixture),
+          expect.objectContaining(SamplerDromFixture)
         ])
       );
     });
@@ -140,14 +145,14 @@ describe('User router', () => {
       await request(app)
         .post(testRoute())
         .use(tokenProvider(NationalCoordinator))
-        .send(genUser())
+        .send(genUser({}))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     test('should create an user', async () => {
       await request(app)
         .post(testRoute())
-        .send(genUser())
+        .send(genUser({}))
         .use(tokenProvider(AdminFixture))
         .expect(constants.HTTP_STATUS_CREATED);
     });

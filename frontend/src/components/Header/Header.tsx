@@ -3,18 +3,23 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Header as DSFRHeader } from '@codegouvfr/react-dsfr/Header';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { Badge } from '@mui/material';
+import clsx from 'clsx';
+import { uniq } from 'lodash-es';
 import { Brand } from 'maestro-shared/constants';
+import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { isClosed } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { isDefined } from 'maestro-shared/utils/utils';
-import { useContext, useMemo } from 'react';
+import { useContext, useEffect, useMemo, useRef } from 'react';
 import { useLocation } from 'react-router';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import { useAppSelector } from 'src/hooks/useStore';
+import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import { useLogoutMutation } from 'src/services/auth.service';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import logo from '../../assets/logo.svg';
+import { usePrescriptionFilters } from '../../hooks/usePrescriptionFilters';
 import useWindowSize from '../../hooks/useWindowSize';
 import { ApiClientContext } from '../../services/apiClient';
+import prescriptionsSlice from '../../store/reducers/prescriptionsSlice';
 import config from '../../utils/config';
 import { MascaradeButton } from '../Mascarade/MascaradeButton';
 import { MascaradeModal } from '../Mascarade/MascaradeModal';
@@ -29,10 +34,19 @@ const mascaradeModal = createModal({
 const Header = () => {
   const location = useLocation();
   const { isMobile } = useWindowSize();
+  const dispatch = useAppDispatch();
   const apiClient = useContext(ApiClientContext);
+
+  const domainMenuRef = useRef<
+    (HTMLDivElement & { closeMenu: () => Promise<boolean> }) | null
+  >(null);
 
   const { isAuthenticated, hasUserPermission, user } = useAuthentication();
   const { mascaradeEnabled, disableMascarade } = useMascarade();
+  const { prescriptionFilters } = useAppSelector(
+    (state) => state.prescriptions
+  );
+  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
 
   const { data: programmingPlans } = apiClient.useFindProgrammingPlansQuery(
     {},
@@ -49,28 +63,46 @@ const Header = () => {
   );
   const [logout] = useLogoutMutation();
 
-  const validatedProgrammingPlans = useMemo(
+  const { domainOptions, reduceFilters } =
+    usePrescriptionFilters(programmingPlans);
+
+  useEffect(() => {
+    if (!prescriptionFilters.domain && domainOptions.length > 0) {
+      dispatch(
+        prescriptionsSlice.actions.changePrescriptionFilters(
+          reduceFilters(prescriptionFilters, {
+            domain: domainOptions[0]
+          })
+        )
+      );
+    }
+  });
+
+  const inProgressYears = useMemo(
     () =>
-      programmingPlans?.filter((pp) =>
-        pp.regionalStatus.some((rs) => rs.status === 'Validated')
+      uniq(
+        programmingPlans
+          ?.filter(
+            (pp) =>
+              pp.domain === prescriptionFilters.domain &&
+              [...pp.regionalStatus, ...pp.departmentalStatus].some(
+                (rs) => rs.status === 'Validated'
+              )
+          )
+          .map((pp) => pp.year)
       ),
-    [programmingPlans]
+    [programmingPlans, prescriptionFilters.domain]
   );
 
-  const openedProgrammingPlans = useMemo(
+  const closedYears = useMemo(
     () =>
-      programmingPlans?.filter((pp) =>
-        pp.regionalStatus.some((rs) => rs.status !== 'Closed')
-      ),
-    [programmingPlans]
+      programmingPlans
+        ?.filter(
+          (pp) => pp.domain === prescriptionFilters.domain && isClosed(pp)
+        )
+        .map((pp) => pp.year),
+    [programmingPlans, prescriptionFilters.domain]
   );
-
-  const closedProgrammingPlans = useMemo(
-    () => programmingPlans?.filter(isClosed),
-    [programmingPlans]
-  );
-
-  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
 
   const isActive = (path: string, strictPath = false) =>
     strictPath
@@ -114,113 +146,75 @@ const Header = () => {
                     AuthenticatedAppRoutes.DashboardRoute.link ||
                   location.pathname.startsWith('/plans')
               },
-              hasUserPermission('readSamples') &&
-              validatedProgrammingPlans?.length
+              hasUserPermission('readSamples') && inProgressYears?.length
                 ? {
                     isActive:
-                      validatedProgrammingPlans?.some((programmingPlan) =>
-                        isActive(
-                          `/programmation/${programmingPlan.year}/prelevements`
-                        )
+                      inProgressYears?.some((year) =>
+                        isActive(`/programmation/${year}/prelevements`)
                       ) || isActive('/prelevements'),
-                    ...(validatedProgrammingPlans?.length === 1
+                    ...(inProgressYears?.length === 1
                       ? {
                           text: 'Prélèvements',
                           linkProps: {
                             to: AuthenticatedAppRoutes.SamplesByYearRoute.link(
-                              validatedProgrammingPlans[0].year
+                              inProgressYears[0]
                             ),
                             target: '_self'
                           }
                         }
                       : {
                           text: 'Prélèvements',
-                          menuLinks: (validatedProgrammingPlans ?? []).map(
-                            (pp) => ({
-                              linkProps: {
-                                to: AuthenticatedAppRoutes.SamplesByYearRoute.link(
-                                  pp.year
-                                ),
-                                target: '_self'
-                              },
-                              text: pp.year,
-                              isActive:
-                                isActive('/prelevements') &&
-                                pp.id === programmingPlan?.id
-                            })
-                          )
+                          menuLinks: (inProgressYears ?? []).map((year) => ({
+                            linkProps: {
+                              to: AuthenticatedAppRoutes.SamplesByYearRoute.link(
+                                year
+                              ),
+                              target: '_self'
+                            },
+                            text: year,
+                            isActive:
+                              isActive('/prelevements') &&
+                              year === programmingPlan?.year
+                          }))
                         })
                   }
                 : undefined,
-              openedProgrammingPlans?.length
+              {
+                isActive: isActive(`/programmation`, true),
+                text: 'Programmation',
+                linkProps: {
+                  to: AuthenticatedAppRoutes.ProgrammingRoute.link,
+                  target: '_self'
+                }
+              },
+              closedYears?.length
                 ? {
-                    isActive: openedProgrammingPlans?.some((programmingPlan) =>
-                      isActive(`/programmation/${programmingPlan.year}`, true)
-                    ),
-                    ...(openedProgrammingPlans?.length === 1
-                      ? {
-                          text: 'Programmation',
-                          linkProps: {
-                            to: AuthenticatedAppRoutes.ProgrammationByYearRoute.link(
-                              openedProgrammingPlans[0].year
-                            ),
-                            target: '_self'
-                          }
-                        }
-                      : {
-                          text: 'Programmation',
-                          menuLinks: (openedProgrammingPlans ?? []).map(
-                            (pp) => ({
-                              linkProps: {
-                                to: AuthenticatedAppRoutes.ProgrammationByYearRoute.link(
-                                  pp.year
-                                ),
-                                target: '_self'
-                              },
-                              text: `Campagne ${pp.year}`,
-                              isActive:
-                                isActive('/programmation') &&
-                                pp.id === programmingPlan?.id
-                            })
-                          )
-                        })
-                  }
-                : undefined,
-              closedProgrammingPlans?.length
-                ? {
-                    isActive: closedProgrammingPlans?.some(
-                      (programmingPlan) =>
-                        isActive(
-                          `/programmation/${programmingPlan.year}`,
-                          true
-                        ) ||
-                        isActive(
-                          `/programmation/${programmingPlan.year}/prelevements`
-                        )
+                    isActive: closedYears?.some(
+                      (year) =>
+                        isActive(`/programmation/${year}`, true) ||
+                        isActive(`/programmation/${year}/prelevements`)
                     ),
                     text: 'Historique',
-                    menuLinks: (closedProgrammingPlans ?? []).flatMap((pp) => [
+                    menuLinks: (closedYears ?? []).flatMap((year) => [
                       {
                         linkProps: {
                           to: AuthenticatedAppRoutes.SamplesByYearRoute.link(
-                            pp.year
+                            year
                           ),
                           target: '_self'
                         },
-                        text: `Prélèvements ${pp.year}`,
+                        text: `Prélèvements ${year}`,
                         isActive: isActive(
-                          `/programmation/${pp.year}/prelevements`
+                          `/programmation/${year}/prelevements`
                         )
                       },
                       {
                         linkProps: {
-                          to: AuthenticatedAppRoutes.ProgrammationByYearRoute.link(
-                            pp.year
-                          ),
+                          to: AuthenticatedAppRoutes.ProgrammingRoute.link,
                           target: '_self'
                         },
-                        text: `Programmation ${pp.year}`,
-                        isActive: isActive(`/programmation/${pp.year}`, true)
+                        text: `Programmation ${year}`,
+                        isActive: isActive(`/programmation/${year}`, true)
                       }
                     ])
                   }
@@ -292,6 +286,33 @@ const Header = () => {
                     children={isMobile ? 'Notifications' : undefined}
                   />
                 </Badge>,
+                prescriptionFilters?.domain && domainOptions.length > 0 ? (
+                  <HeaderMenu
+                    key="domainMenu"
+                    ref={domainMenuRef}
+                    value={
+                      ProgrammingPlanDomainLabels[prescriptionFilters.domain]
+                    }
+                    menuItems={domainOptions.map((domain) => (
+                      <Button
+                        key={`domain-menu-${domain}`}
+                        onClick={() => {
+                          dispatch(
+                            prescriptionsSlice.actions.changePrescriptionFilters(
+                              reduceFilters(prescriptionFilters, {
+                                domain
+                              })
+                            )
+                          );
+                          domainMenuRef.current?.closeMenu();
+                        }}
+                        className={clsx(cx('fr-m-0'), 'no-wrap')}
+                      >
+                        {ProgrammingPlanDomainLabels[domain]}
+                      </Button>
+                    ))}
+                  />
+                ) : undefined,
                 <HeaderMenu
                   key="userMenu"
                   value={`${user?.name}`}

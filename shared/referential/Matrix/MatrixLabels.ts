@@ -119,5 +119,5 @@ export const MatrixLabels: Record<Matrix, string> = {
   A031G: 'Oeuf de poule',
   A031K: 'Oeuf de caille',
   TODO1: 'Foie de bovin',
-  TODO2: 'Chaire de volaille'
+  TODO2: 'Chair de volaille'
 };

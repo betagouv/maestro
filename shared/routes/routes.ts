@@ -1,7 +1,8 @@
-import { ZodArray, ZodObject, ZodType } from 'zod';
+import { ZodArray, ZodDiscriminatedUnion, ZodObject, ZodType } from 'zod';
 import { UserPermission } from '../schema/User/UserPermission';
 import { analysisRoutes } from './analysis.routes';
 import { authRoutes } from './auth.routes';
+import { companiesRoutes } from './companies.routes';
 import { documentsRoutes } from './documents.routes';
 import { laboratoriesRoutes } from './laboratories.routes';
 import { mascaradeRoutes } from './mascarade.routes';
@@ -19,6 +20,7 @@ export const MaestroRoutes = [
   '/auth',
   '/auth/logout',
   '/auth/redirect-url',
+  '/companies',
   '/documents',
   '/documents/resources',
   '/documents/upload-signed-url',
@@ -36,17 +38,19 @@ export const MaestroRoutes = [
   '/prescriptions/regions',
   '/prescriptions/:prescriptionId/regions/:region/comments',
   '/prescriptions/:prescriptionId/regions/:region',
+  '/prescriptions/:prescriptionId/regions/:region/departments/:department/comments',
+  '/prescriptions/:prescriptionId/regions/:region/departments/:department',
   '/prescriptions/:prescriptionId/substances',
   '/prescriptions/:prescriptionId',
   '/programming-plans',
   '/programming-plans/years/:year',
   '/programming-plans/:programmingPlanId',
-  '/programming-plans/:programmingPlanId/regional-status',
+  '/programming-plans/:programmingPlanId/local-status',
   '/samples',
   '/samples/count',
   '/samples/export',
   '/samples/:sampleId/document',
-  '/samples/:sampleId/items/:itemNumber/document',
+  '/samples/:sampleId/items/:copyNumber/document',
   '/samples/:sampleId',
   '/users',
   '/users/:userId'
@@ -55,6 +59,7 @@ export const MaestroRoutes = [
 export const routes = {
   ...analysisRoutes,
   ...authRoutes,
+  ...companiesRoutes,
   ...documentsRoutes,
   ...laboratoriesRoutes,
   ...mascaradeRoutes,
@@ -136,7 +141,7 @@ export type UnprotectedRoutes = FilterUnprotectedRoutes<
 
 export type ToRoute = {
   query?: ZodObject;
-  body?: ZodObject | ZodArray;
+  body?: ZodObject | ZodDiscriminatedUnion | ZodArray;
   response: ZodType;
   skipSanitization?: true;
 } & (
