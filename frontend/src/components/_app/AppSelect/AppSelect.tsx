@@ -12,7 +12,7 @@ import {
 import { UseForm } from 'src/hooks/useForm';
 import { z, ZodObject } from 'zod';
 
-type AppSelectProps<T extends ZodObject, U extends UseForm<T>> = Partial<
+export type AppSelectProps<T extends ZodObject, U extends UseForm<T>> = Partial<
   Pick<ComponentPropsWithoutRef<typeof Select>, 'label' | 'hint'>
 > &
   InputHTMLAttributes<HTMLSelectElement> & {

@@ -156,6 +156,11 @@ export const UserRoleLabels: Record<UserRole, string> = {
   DepartmentalSampler: 'Préleveur',
   Administrator: 'Administrateur'
 };
+
+export const UserRoleSorted = [...UserRoleList].sort((a, b) =>
+  UserRoleLabels[a].localeCompare(UserRoleLabels[b])
+);
+
 export const hasNationalRole = (user: Nullable<Pick<User, 'role'>>) =>
   NationalUserRole.safeParse(user.role).success ||
   RegionalAndNationalUserRole.safeParse(user.role).success;

@@ -7,9 +7,13 @@ import { Region } from 'maestro-shared/referential/Region';
 import {
   ProgrammingPlanKind,
   ProgrammingPlanKindLabels,
-  ProgrammingPlanKindList
+  ProgrammingPlanKindListSorted
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { UserRole, UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
+import {
+  UserRole,
+  UserRoleLabels,
+  UserRoleSorted
+} from 'maestro-shared/schema/User/UserRole';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { FunctionComponent, useEffect, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
@@ -139,7 +143,7 @@ const Filters: FunctionComponent<
           }}
         >
           <option value="">Tous</option>
-          {UserRole.options.map((role) => (
+          {UserRoleSorted.map((role) => (
             <option key={`role-${role}`} value={role}>
               {UserRoleLabels[role]}
             </option>
@@ -164,7 +168,7 @@ const Filters: FunctionComponent<
           }}
         >
           <option value="">Tous</option>
-          {ProgrammingPlanKindList.map((plan) => (
+          {ProgrammingPlanKindListSorted.map((plan) => (
             <option key={`plan-${plan}`} value={plan}>
               {ProgrammingPlanKindLabels[plan]}
             </option>
