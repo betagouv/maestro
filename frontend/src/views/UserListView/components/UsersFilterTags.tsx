@@ -1,4 +1,5 @@
 import Tag from '@codegouvfr/react-dsfr/Tag';
+import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { Regions } from 'maestro-shared/referential/Region';
 import { ProgrammingPlanKindLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
@@ -16,6 +17,10 @@ const filtersConfig = {
   region: {
     prop: 'region',
     getLabel: (value) => Regions[value].name
+  },
+  department: {
+    prop: 'department',
+    getLabel: (value) => DepartmentLabels[value]
   },
   programmingPlanKind: {
     prop: 'programmingPlanKind',
