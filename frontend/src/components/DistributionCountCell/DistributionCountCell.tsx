@@ -38,7 +38,33 @@ const DistributionCountCell = ({
       defaultContent={
         <div className="sample-count-container">
           <div className="sample-count">
-            <div>{localPrescription.sampleCount}</div>
+            <div>
+              {localPrescription.sampleCount}
+              {(localPrescription.comments ?? []).length > 0 && (
+                <Button
+                  title="Consulter les commentaires"
+                  iconId="fr-icon-question-answer-fill"
+                  size="small"
+                  priority="tertiary no outline"
+                  className="comments-button"
+                  onClick={() =>
+                    dispatch(
+                      prescriptionsSlice.actions.setPrescriptionCommentsData({
+                        viewBy: 'MatrixKind',
+                        programmingPlan,
+                        prescriptionId: localPrescription.prescriptionId,
+                        matrixKind,
+                        regionalComments: [localPrescription].map((rcp) => ({
+                          region: rcp.region,
+                          department: rcp.department,
+                          comments: rcp.comments ?? []
+                        }))
+                      })
+                    )
+                  }
+                ></Button>
+              )}
+            </div>
             {programmingPlan.regionalStatus.some(
               (_) =>
                 _.region === localPrescription.region &&
@@ -50,30 +76,6 @@ const DistributionCountCell = ({
               </>
             )}
           </div>
-          {(localPrescription.comments ?? []).length > 0 && (
-            <Button
-              title="Consulter les commentaires"
-              iconId="fr-icon-question-answer-fill"
-              size="small"
-              priority="tertiary no outline"
-              className="comments-button"
-              onClick={() =>
-                dispatch(
-                  prescriptionsSlice.actions.setPrescriptionCommentsData({
-                    viewBy: 'MatrixKind',
-                    programmingPlan,
-                    prescriptionId: localPrescription.prescriptionId,
-                    matrixKind,
-                    regionalComments: [localPrescription].map((rcp) => ({
-                      region: rcp.region,
-                      department: rcp.department,
-                      comments: rcp.comments ?? []
-                    }))
-                  })
-                )
-              }
-            ></Button>
-          )}
         </div>
       }
     />
