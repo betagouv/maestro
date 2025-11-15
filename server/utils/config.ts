@@ -96,6 +96,11 @@ interface Config {
   m2mBasicToken: string;
   mattermostIncomingWebhook: string | null;
   browserlessUrl: string;
+  kafka: {
+    url: string;
+    topicDAI: string;
+    topicRAI: string;
+  };
 }
 
 const config = convict<Config>({
@@ -357,6 +362,27 @@ const config = convict<Config>({
     sensitive: true,
     nullable: false,
     default: isProduction ? null : 'ws://localhost:3002?token=1234512345'
+  },
+  kafka: {
+    url: {
+      env: 'KAFKA_URL',
+      format: String,
+      sensitive: true,
+      nullable: false,
+      default: isProduction ? null : 'localhost:9092'
+    },
+    topicDAI: {
+      env: 'KAFKA_TOPIC_DAI',
+      format: String,
+      nullable: false,
+      default: isProduction ? null : 'test-topic'
+    },
+    topicRAI: {
+      env: 'KAFKA_TOPIC_RAI',
+      format: String,
+      nullable: false,
+      default: isProduction ? null : 'test-topic'
+    }
   }
 })
   .validate({ allowed: 'strict' })
