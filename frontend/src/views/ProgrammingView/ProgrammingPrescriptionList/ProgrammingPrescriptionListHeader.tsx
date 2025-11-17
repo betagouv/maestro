@@ -51,7 +51,8 @@ const ProgrammingPrescriptionListHeader = ({
   const {
     hasUserPrescriptionPermission,
     hasRegionalView,
-    hasDepartmentalView
+    hasDepartmentalView,
+    hasUserPermission
   } = useAuthentication();
 
   const { prescriptionListDisplay, prescriptionFilters } = useAppSelector(
@@ -169,7 +170,7 @@ const ProgrammingPrescriptionListHeader = ({
               )}
             />
           )}
-          {hasDepartmentalView && (
+          {hasUserPermission('distributePrescriptionToSlaughterhouses') && (
             <ToggleSwitch
               label={<span className="no-wrap">Répartition à réaliser</span>}
               inputTitle="Filtrer les prélèvements avec répartition à réaliser"
@@ -185,24 +186,26 @@ const ProgrammingPrescriptionListHeader = ({
               showCheckedHint={false}
             />
           )}
-          {(hasDepartmentalView ||
-            (hasRegionalView &&
-              programmingPlan.distributionKind === 'REGIONAL')) && (
-            <ToggleSwitch
-              label={<span className="no-wrap">Laboratoire à attribuer</span>}
-              inputTitle="Filtrer les prélèvements avec laboratoire à attribuer"
-              checked={prescriptionFilters.missingLaboratory ?? false}
-              onChange={(checked) => {
-                dispatch(
-                  prescriptionsSlice.actions.changePrescriptionFilters({
-                    ...prescriptionFilters,
-                    missingLaboratory: checked
-                  })
-                );
-              }}
-              showCheckedHint={false}
-            />
-          )}
+          {hasUserPermission('updatePrescriptionLaboratories') &&
+            (hasDepartmentalView ||
+              (hasRegionalView &&
+                programmingPlan.distributionKind === 'REGIONAL')) && (
+              <ToggleSwitch
+                label={<span className="no-wrap">Laboratoire à attribuer</span>}
+                inputTitle="Filtrer les prélèvements avec laboratoire à attribuer"
+                checked={prescriptionFilters.missingLaboratory ?? false}
+                onChange={(checked) => {
+                  dispatch(
+                    prescriptionsSlice.actions.changePrescriptionFilters({
+                      ...prescriptionFilters,
+                      missingLaboratory: checked
+                    })
+                  );
+                }}
+                showCheckedHint={false}
+                data-testid="missing-laboratory-toggle"
+              />
+            )}
         </div>
         {hasGroupedUpdatePermission && !isGroupedUpdate && (
           <Button
