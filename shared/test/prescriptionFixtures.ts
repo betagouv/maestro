@@ -75,7 +75,7 @@ export const FoieDeBovinPrescriptionFixture = genPrescription({
   programmingPlanId: DAOAInProgressProgrammingPlanFixture.id,
   programmingPlanKind: 'DAOA_SLAUGHTER',
   context: 'Surveillance',
-  matrixKind: 'TODO1',
+  matrixKind: 'A01QX',
   stages: ['STADE10']
 });
 export const VolaillePrescriptionFixture = genPrescription({
@@ -83,7 +83,7 @@ export const VolaillePrescriptionFixture = genPrescription({
   programmingPlanId: DAOAInProgressProgrammingPlanFixture.id,
   programmingPlanKind: 'DAOA_BREEDING',
   context: 'Surveillance',
-  matrixKind: 'TODO2',
+  matrixKind: 'A01SN',
   stages: ['STADE10']
 });
 

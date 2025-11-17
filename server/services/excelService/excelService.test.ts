@@ -48,11 +48,11 @@ describe('generatePrescriptionsExportExcel', async () => {
     const csv = XLSX.utils.sheet_to_csv(worksheet, { FS: ';' });
 
     expect(csv.toString()).toMatchInlineSnapshot(`
-"Matrice;Stade(s) de prélèvement;Total national Programmés;Total national Réalisés;Total national Taux de réalisation;Région ARA - Programmés;Région ARA - Réalisés;Région ARA - Taux de réalisation;Région BFC - Programmés;Région BFC - Réalisés;Région BFC - Taux de réalisation;Région BRE - Programmés;Région BRE - Réalisés;Région BRE - Taux de réalisation;Région CVL - Programmés;Région CVL - Réalisés;Région CVL - Taux de réalisation;Région COR - Programmés;Région COR - Réalisés;Région COR - Taux de réalisation;Région GES - Programmés;Région GES - Réalisés;Région GES - Taux de réalisation;Région GUA - Programmés;Région GUA - Réalisés;Région GUA - Taux de réalisation;Région GUY - Programmés;Région GUY - Réalisés;Région GUY - Taux de réalisation;Région HDF - Programmés;Région HDF - Réalisés;Région HDF - Taux de réalisation;Région IDF - Programmés;Région IDF - Réalisés;Région IDF - Taux de réalisation;Région REU - Programmés;Région REU - Réalisés;Région REU - Taux de réalisation;Région MAR - Programmés;Région MAR - Réalisés;Région MAR - Taux de réalisation;Région MYT - Programmés;Région MYT - Réalisés;Région MYT - Taux de réalisation;Région NOR - Programmés;Région NOR - Réalisés;Région NOR - Taux de réalisation;Région NAQ - Programmés;Région NAQ - Réalisés;Région NAQ - Taux de réalisation;Région OCC - Programmés;Région OCC - Réalisés;Région OCC - Taux de réalisation;Région PDL - Programmés;Région PDL - Réalisés;Région PDL - Taux de réalisation;Région PAC - Programmés;Région PAC - Réalisés;Région PAC - Taux de réalisation
-Chair de volaille;Abattoir;77;0;0;2;0;0;3;0;0;8;0;0;1;0;0;9;0;0;1;0;0;11;0;0;3;0;0;2;0;0;1;0;0;1;0;0;4;0;0;6;0;0;1;0;0;5;0;0;6;0;0;3;0;0;10;0;0
-Foie de bovin;Abattoir;80;0;0;3;0;0;2;0;0;5;0;0;8;0;0;10;0;0;1;0;0;2;0;0;10;0;0;3;0;0;3;0;0;2;0;0;9;0;0;4;0;0;4;0;0;2;0;0;1;0;0;5;0;0;6;0;0
-Total;;157;;0;5;;0;5;;0;13;;0;9;;0;19;;0;2;;0;13;;0;13;;0;5;;0;4;;0;3;;0;13;;0;10;;0;5;;0;7;;0;7;;0;8;;0;16;;0"
-     `);
+      "Matrice;Stade(s) de prélèvement;Total national Programmés;Total national Réalisés;Total national Taux de réalisation;Région ARA - Programmés;Région ARA - Réalisés;Région ARA - Taux de réalisation;Région BFC - Programmés;Région BFC - Réalisés;Région BFC - Taux de réalisation;Région BRE - Programmés;Région BRE - Réalisés;Région BRE - Taux de réalisation;Région CVL - Programmés;Région CVL - Réalisés;Région CVL - Taux de réalisation;Région COR - Programmés;Région COR - Réalisés;Région COR - Taux de réalisation;Région GES - Programmés;Région GES - Réalisés;Région GES - Taux de réalisation;Région GUA - Programmés;Région GUA - Réalisés;Région GUA - Taux de réalisation;Région GUY - Programmés;Région GUY - Réalisés;Région GUY - Taux de réalisation;Région HDF - Programmés;Région HDF - Réalisés;Région HDF - Taux de réalisation;Région IDF - Programmés;Région IDF - Réalisés;Région IDF - Taux de réalisation;Région REU - Programmés;Région REU - Réalisés;Région REU - Taux de réalisation;Région MAR - Programmés;Région MAR - Réalisés;Région MAR - Taux de réalisation;Région MYT - Programmés;Région MYT - Réalisés;Région MYT - Taux de réalisation;Région NOR - Programmés;Région NOR - Réalisés;Région NOR - Taux de réalisation;Région NAQ - Programmés;Région NAQ - Réalisés;Région NAQ - Taux de réalisation;Région OCC - Programmés;Région OCC - Réalisés;Région OCC - Taux de réalisation;Région PDL - Programmés;Région PDL - Réalisés;Région PDL - Taux de réalisation;Région PAC - Programmés;Région PAC - Réalisés;Région PAC - Taux de réalisation
+      Viande bovine;Abattoir;80;0;0;3;0;0;2;0;0;5;0;0;8;0;0;10;0;0;1;0;0;2;0;0;10;0;0;3;0;0;3;0;0;2;0;0;9;0;0;4;0;0;4;0;0;2;0;0;1;0;0;5;0;0;6;0;0
+      Viande de volaille;Abattoir;77;0;0;2;0;0;3;0;0;8;0;0;1;0;0;9;0;0;1;0;0;11;0;0;3;0;0;2;0;0;1;0;0;1;0;0;4;0;0;6;0;0;1;0;0;5;0;0;6;0;0;3;0;0;10;0;0
+      Total;;157;;0;5;;0;5;;0;13;;0;9;;0;19;;0;2;;0;13;;0;13;;0;5;;0;4;;0;3;;0;13;;0;10;;0;5;;0;7;;0;7;;0;8;;0;16;;0"
+    `);
   });
 
   test('export prescription for regional coordinator', async () => {
@@ -79,10 +79,10 @@ Total;;157;;0;5;;0;5;;0;13;;0;9;;0;19;;0;2;;0;13;;0;13;;0;5;;0;4;;0;3;;0;13;;0;1
     const csv = XLSX.utils.sheet_to_csv(worksheet, { FS: ';' });
 
     expect(csv.toString()).toMatchInlineSnapshot(`
-"Matrice;Stade(s) de prélèvement;Région PDL - Programmés;Région PDL - Réalisés;Région PDL - Taux de réalisation;Département 44 - Programmés;Département 44 - Réalisés;Département 44 - Taux de réalisation;Département 49 - Programmés;Département 49 - Réalisés;Département 49 - Taux de réalisation;Département 53 - Programmés;Département 53 - Réalisés;Département 53 - Taux de réalisation;Département 72 - Programmés;Département 72 - Réalisés;Département 72 - Taux de réalisation;Département 85 - Programmés;Département 85 - Réalisés;Département 85 - Taux de réalisation
-Chair de volaille;Abattoir;3;0;0;8;0;0;13;0;0;8;0;0;9;0;0;13;0;0
-Foie de bovin;Abattoir;5;0;0;8;0;0;13;0;0;8;0;0;9;0;0;13;0;0
-Total;;8;;0;16;;0;26;;0;16;;0;18;;0;26;;0"
+      "Matrice;Stade(s) de prélèvement;Région PDL - Programmés;Région PDL - Réalisés;Région PDL - Taux de réalisation;Département 44 - Programmés;Département 44 - Réalisés;Département 44 - Taux de réalisation;Département 49 - Programmés;Département 49 - Réalisés;Département 49 - Taux de réalisation;Département 53 - Programmés;Département 53 - Réalisés;Département 53 - Taux de réalisation;Département 72 - Programmés;Département 72 - Réalisés;Département 72 - Taux de réalisation;Département 85 - Programmés;Département 85 - Réalisés;Département 85 - Taux de réalisation
+      Viande bovine;Abattoir;5;0;0;8;0;0;13;0;0;8;0;0;9;0;0;13;0;0
+      Viande de volaille;Abattoir;3;0;0;8;0;0;13;0;0;8;0;0;9;0;0;13;0;0
+      Total;;8;;0;16;;0;26;;0;16;;0;18;;0;26;;0"
     `);
   });
 
@@ -121,8 +121,8 @@ Total;;8;;0;16;;0;26;;0;16;;0;18;;0;26;;0"
 
     expect(csv.toString()).toMatchInlineSnapshot(`
       "Matrice;Stade(s) de prélèvement;Département 85 - Programmés;Département 85 - Réalisés;Département 85 - Taux de réalisation
-      Chair de volaille;Abattoir;13;0;0
-      Foie de bovin;Abattoir;13;0;0
+      Viande bovine;Abattoir;13;0;0
+      Viande de volaille;Abattoir;13;0;0
       Total;;26;;0"
     `);
   });

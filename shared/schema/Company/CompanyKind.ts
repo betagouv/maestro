@@ -10,6 +10,6 @@ export type CompanyKind = z.infer<typeof CompanyKind>;
 
 export const CompanyKindByMatrixKind: Partial<Record<MatrixKind, CompanyKind>> =
   {
-    TODO1: 'MEAT_SLAUGHTERHOUSE',
-    TODO2: 'POULTRY_SLAUGHTERHOUSE'
+    A01QX: 'MEAT_SLAUGHTERHOUSE',
+    A01SN: 'POULTRY_SLAUGHTERHOUSE'
   };

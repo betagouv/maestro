@@ -15,7 +15,6 @@ import { useSearchParams } from 'react-router';
 import programmation from '../../assets/illustrations/programmation-white.svg';
 import AppToast from '../../components/_app/AppToast/AppToast';
 import PrescriptionCommentsModal from '../../components/Prescription/PrescriptionCommentsModal/PrescriptionCommentsModal';
-import ProgrammingPlanNotificationRegionalToNational from '../../components/ProgrammingPlanNotification/ProgrammingPlanNotificationRegionalToNational/ProgrammingPlanNotificationRegionalToNational';
 import SectionHeader from '../../components/SectionHeader/SectionHeader';
 import { useAuthentication } from '../../hooks/useAuthentication';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
@@ -26,6 +25,7 @@ import prescriptionsSlice, {
   PrescriptionFilters
 } from '../../store/reducers/prescriptionsSlice';
 import ProgrammingCommentList from './ProgrammingCommentList/ProgrammingCommentList';
+import ProgrammingInstructions from './ProgrammingInstructions/ProgrammingInstructions';
 import ProgrammingPlanDepartmentalValidationList from './ProgrammingPlanDepartmentalValidationList/ProgrammingPlanDepartmentalValidationList';
 import ProgrammingPlanRegionalValidationList from './ProgrammingPlanRegionalValidationList/ProgrammingPlanRegionalValidationList';
 import ProgrammingPrescriptionFilters from './ProgrammingPrescriptionFilters/ProgrammingPrescriptionFilters';
@@ -167,10 +167,7 @@ const ProgrammingView = () => {
               }
             />
             {programmingPlan && (
-              <ProgrammingPlanNotificationRegionalToNational
-                programmingPlan={programmingPlan}
-                region={region as Region}
-              />
+              <ProgrammingInstructions programmingPlan={programmingPlan} />
             )}
             <div
               className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}

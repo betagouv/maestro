@@ -124,8 +124,7 @@ export const MatrixEffective = z.enum([
   'A01SN#F26.A07XE',
   'A031G',
   'A031K',
-  'TODO1',
-  'TODO2'
+  'A01XF#F28.A0C0S'
 ]);
 
 export const Matrix = z.enum(

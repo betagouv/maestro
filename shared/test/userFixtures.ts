@@ -105,6 +105,13 @@ export const DepartmentalCoordinator = genUser({
   region: Region1Fixture,
   department: Regions[Region1Fixture].departments[0]
 });
+export const SamplerDaoaFixture = genUser({
+  role: 'DepartmentalSampler',
+  id: '13131313-1313-1313-1313-131313131313',
+  programmingPlanKinds: ['DAOA_SLAUGHTER', 'DAOA_BREEDING'],
+  region: Region1Fixture,
+  department: Regions[Region1Fixture].departments[0]
+});
 
 export const genAuthUser = (data?: Partial<User>): AuthUser => ({
   user: genUser(data ?? {})
