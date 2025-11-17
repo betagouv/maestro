@@ -36,9 +36,7 @@ export const MatrixKindEffective = z.enum([
   'A01RL',
   'A01RG',
   'A01SN',
-  'A031E',
-  'TODO1',
-  'TODO2'
+  'A031E'
 ]);
 
 export const OtherMatrixKind = z.literal('Other');
@@ -100,7 +98,5 @@ export const MatrixKindLabels: Record<MatrixKind | OtherMatrixKind, string> = {
   A01RG: 'Viande porcine',
   A01SN: 'Viande de volaille',
   A031E: 'Œufs et ovoproduits',
-  Other: 'Autre',
-  TODO1: 'Foie de bovin',
-  TODO2: 'Chair de volaille'
+  Other: 'Autre'
 };
