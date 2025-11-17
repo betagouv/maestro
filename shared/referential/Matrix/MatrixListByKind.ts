@@ -78,6 +78,5 @@ export const MatrixListByKind: Record<MatrixKind, Matrix[]> = {
     'A01SQ#F28.A0C0S',
     'A01SN#F26.A07XE'
   ]).options,
-  A031E: Matrix.extract(['A031G', 'A031K']).options,
-  A01QX: Matrix.extract(['A01XF#F28.A0C0S']).options
+  A031E: Matrix.extract(['A031G', 'A031K']).options
 };
