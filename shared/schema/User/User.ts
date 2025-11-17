@@ -6,6 +6,7 @@ import { Region, RegionList, Regions } from '../../referential/Region';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { UserPermission } from './UserPermission';
 
+import { Nullable } from '../../utils/typescript';
 import { Company } from '../Company/Company';
 import {
   hasDepartmentalRole,
@@ -23,11 +24,16 @@ const BaseUser = z.object({
   role: UserRole,
   region: Region.nullable(),
   department: Department.nullable(),
-  companies: z.array(Company).nullish()
+  companies: z.array(Company).nullable()
 });
 
-const localisationCheck = <
-  T extends Pick<User, 'region' | 'role' | 'department'>
+const userChecks = <
+  T extends Pick<
+    User,
+    'region' | 'role' | 'department' | 'programmingPlanKinds'
+  > & {
+    companies: unknown[] | null;
+  }
 >(
   user: T,
   ctx: RefinementCtx<T>
@@ -44,21 +50,40 @@ const localisationCheck = <
       message: 'Le departement est obligatoire pour ce rôle.'
     });
   }
+  if (
+    (!user.companies || user.companies.length === 0) &&
+    companiesIsRequired(user)
+  ) {
+    ctx.addIssue({
+      code: 'custom',
+      message: 'Un abattoir est obligatoire pour ce rôle.'
+    });
+  }
 };
 
-export const User = BaseUser.superRefine(localisationCheck);
+export const User = BaseUser.superRefine(userChecks);
 
-export const UserToCreate = BaseUser.omit({
-  id: true,
-  name: true,
-  companies: true
-}).superRefine(localisationCheck);
+export const UserToCreate = z
+  .object({
+    ...BaseUser.shape,
+    companies: z.array(z.string()).nullable()
+  })
+  .omit({
+    id: true,
+    name: true
+  })
+  .superRefine(userChecks);
 export type UserToCreate = z.infer<typeof UserToCreate>;
 
-export const UserToUpdate = BaseUser.omit({
-  name: true,
-  companies: true
-}).superRefine(localisationCheck);
+export const UserToUpdate = z
+  .object({
+    ...BaseUser.shape,
+    companies: z.array(z.string()).nullable()
+  })
+  .omit({
+    name: true
+  })
+  .superRefine(userChecks);
 export type UserToUpdate = z.infer<typeof UserToUpdate>;
 
 export const Sampler = BaseUser.pick({
@@ -119,3 +144,11 @@ export const DummyLaboratoryIds = [
   SCL34Id,
   SCL91Id
 ];
+
+export const companiesIsRequired = (
+  user: Pick<Nullable<User>, 'programmingPlanKinds' | 'role'>
+): boolean =>
+  user.role === 'DepartmentalSampler' &&
+  (user.programmingPlanKinds?.includes('DAOA_BREEDING') ||
+    user.programmingPlanKinds?.includes('DAOA_SLAUGHTER') ||
+    false);

@@ -91,13 +91,14 @@ const findUnique = async (
 
 const findOne = async (email: string): Promise<User | undefined> => {
   console.log('Find user with email', email);
-  const user: User | undefined = await kysely
+  const user: Omit<User, 'companies'> | undefined = await kysely
     .selectFrom('users')
     .selectAll()
     .where('email', '=', email)
     .executeTakeFirst();
 
-  return User.optional().parse(user);
+  //FIXME load companies ?!
+  return User.optional().parse({ ...user, companies: null });
 };
 
 const findMany = async (findOptions: FindUserOptions): Promise<User[]> => {
@@ -138,9 +139,10 @@ const findMany = async (findOptions: FindUserOptions): Promise<User[]> => {
     }
   }
 
-  const users: User[] = await query.execute();
+  const users: Omit<User, 'companies'>[] = await query.execute();
 
-  return users.map((_: User) => User.parse(_));
+  //FIXME load companies !?!
+  return users.map((_) => User.parse({ ..._, companies: null }));
 };
 
 const insert = async (

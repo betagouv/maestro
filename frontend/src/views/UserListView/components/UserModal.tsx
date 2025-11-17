@@ -7,8 +7,13 @@ import {
   DepartmentLabels
 } from 'maestro-shared/referential/Department';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
+import { Company } from 'maestro-shared/schema/Company/Company';
 import { ProgrammingPlanKindLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { User, UserToCreate } from 'maestro-shared/schema/User/User';
+import {
+  companiesIsRequired,
+  User,
+  UserToCreate
+} from 'maestro-shared/schema/User/User';
 import {
   hasDepartmentalRole,
   hasNationalRole,
@@ -29,6 +34,7 @@ import { ApiClientContext } from '../../../services/apiClient';
 interface Props {
   userToUpdate: null | User;
   modal: ReturnType<typeof createModal>;
+  companies: Company[];
 }
 
 const userRoleOptions = selectOptionsFromList(UserRole.options, {
@@ -52,10 +58,16 @@ const userDefaultValue: Nullable<UserToCreate> = {
   role: null,
   programmingPlanKinds: [],
   region: null,
-  department: null
+  department: null,
+  companies: null
 };
 
-export const UserModal = ({ userToUpdate, modal, ..._rest }: Props) => {
+export const UserModal = ({
+  userToUpdate,
+  modal,
+  companies,
+  ..._rest
+}: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
 
   const apiClient = useContext(ApiClientContext);
@@ -81,8 +93,11 @@ export const UserModal = ({ userToUpdate, modal, ..._rest }: Props) => {
 
   useEffect(() => {
     if (userToUpdate) {
-      const { id, name, ...rest } = userToUpdate;
-      setUser(rest);
+      const { id, name, companies, ...rest } = userToUpdate;
+      setUser({
+        ...rest,
+        companies: companies?.map((c) => c.name) ?? null
+      });
     }
   }, [userToUpdate]);
 
@@ -109,7 +124,9 @@ export const UserModal = ({ userToUpdate, modal, ..._rest }: Props) => {
 
   return (
     <modal.Component
-      title="Nouvel utilisateur"
+      title={
+        !userToUpdate?.id ? 'Nouvel utilisateur' : "Modification d'utilisateur"
+      }
       concealingBackdrop={false}
       topAnchor
       buttons={[
@@ -208,6 +225,29 @@ export const UserModal = ({ userToUpdate, modal, ..._rest }: Props) => {
           label={'Plans'}
           required
         />
+        {companiesIsRequired(user) && (
+          <AppMultiSelect
+            inputForm={form}
+            inputKey={'companies'}
+            onChange={(v) =>
+              setUser((u) => ({
+                ...u,
+                companies: v
+              }))
+            }
+            values={user.companies ?? []}
+            keysWithLabels={companies.reduce(
+              (acc, c) => {
+                acc[c.siret] = c.name;
+                return acc;
+              },
+              {} as Record<string, string>
+            )}
+            defaultLabel={'abattoir sélectionné'}
+            label={'Abattoirs'}
+            required
+          />
+        )}
       </form>
     </modal.Component>
   );

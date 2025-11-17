@@ -23,6 +23,7 @@ export const UserListView = () => {
   const apiClient = useContext(ApiClientContext);
 
   const { data: users } = apiClient.useFindUsersQuery({});
+  const { data: companies } = apiClient.useFindCompaniesQuery({});
   const [userToUpdate, setUserToUpdate] = useState<null | User>(null);
 
   const [usersFiltered, setUsersFiltered] = useState<User[]>(users ?? []);
@@ -109,7 +110,11 @@ export const UserListView = () => {
           </div>
         </div>
       </section>
-      <UserModal modal={userFormModal} userToUpdate={userToUpdate} />
+      <UserModal
+        modal={userFormModal}
+        userToUpdate={userToUpdate}
+        companies={companies ?? []}
+      />
     </>
   );
 };

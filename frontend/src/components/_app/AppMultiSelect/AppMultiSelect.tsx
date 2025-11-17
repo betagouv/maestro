@@ -38,7 +38,7 @@ export const AppMultiSelect = <T extends ZodObject, U extends string>({
     <div>
       <AppSelect
         {...props}
-        className={clsx('fr-mb-1w')}
+        className={clsx(values.length > 0 ? 'fr-mb-1w' : 'fr-mb-3w')}
         options={options}
         onChange={(e) => {
           const { success } = props.inputForm.schema
@@ -51,7 +51,7 @@ export const AppMultiSelect = <T extends ZodObject, U extends string>({
         }}
       />
       {values.length > 0 && (
-        <div className={clsx()}>
+        <div className={clsx('fr-mb-3w')}>
           {values.map((value) => {
             const label = keysWithLabels[value] ?? '';
             return (

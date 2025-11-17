@@ -3,12 +3,13 @@ import { v4 as uuidv4 } from 'uuid';
 import { RegionList, Regions } from '../referential/Region';
 import { ProgrammingPlanKindList } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 import { AuthUser } from '../schema/User/AuthUser';
-import { User } from '../schema/User/User';
+import { companiesIsRequired, User } from '../schema/User/User';
 import {
   hasDepartmentalRole,
   hasRegionalRole,
   UserRoleList
 } from '../schema/User/UserRole';
+import { SlaughterhouseCompanyFixture1 } from './companyFixtures';
 import { oneOf } from './testFixtures';
 
 export const genUser = <T extends Partial<User>>(data: T): User & T => {
@@ -18,17 +19,25 @@ export const genUser = <T extends Partial<User>>(data: T): User & T => {
     hasRegionalRole({ role }) || hasDepartmentalRole({ role })
       ? oneOf(RegionList)
       : null;
+
+  const programmingPlanKind = oneOf(ProgrammingPlanKindList);
   return {
     id: uuidv4(),
     email: fakerFR.internet.email(),
     name: fakerFR.person.fullName(),
-    programmingPlanKinds: [oneOf(ProgrammingPlanKindList)],
+    programmingPlanKinds: [programmingPlanKind],
     role,
     region,
     department:
       region && hasDepartmentalRole({ role })
         ? oneOf(Regions[region].departments)
         : null,
+    companies: companiesIsRequired({
+      programmingPlanKinds: [programmingPlanKind],
+      role
+    })
+      ? [SlaughterhouseCompanyFixture1]
+      : null,
     ...data
   };
 };
