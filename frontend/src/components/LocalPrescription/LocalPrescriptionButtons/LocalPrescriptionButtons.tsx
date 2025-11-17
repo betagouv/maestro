@@ -21,7 +21,6 @@ type Props = {
   prescription: Prescription;
   localPrescription: LocalPrescription;
   subLocalPrescriptions?: LocalPrescription[];
-  noIcon?: boolean;
 } & Pick<ButtonsGroupProps, 'alignment' | 'className'>;
 
 const LocalPrescriptionButtons = ({
@@ -29,7 +28,6 @@ const LocalPrescriptionButtons = ({
   prescription,
   localPrescription,
   subLocalPrescriptions,
-  noIcon = false,
   ...buttonsGroupProps
 }: Props) => {
   const dispatch = useAppDispatch();
@@ -82,10 +80,7 @@ const LocalPrescriptionButtons = ({
                     subLocalPrescriptions: subLocalPrescriptions ?? []
                   })
                 ),
-              iconId:
-                noIcon || hasUncompletedRepartition
-                  ? undefined
-                  : 'fr-icon-check-line',
+              iconId: !hasUncompletedRepartition && 'fr-icon-check-line',
               className: cx('fr-m-0')
             }
           : undefined,
@@ -104,10 +99,7 @@ const LocalPrescriptionButtons = ({
                     subLocalPrescriptions: subLocalPrescriptions ?? []
                   })
                 ),
-              iconId:
-                noIcon || hasUncompletedRepartition
-                  ? undefined
-                  : 'fr-icon-check-line',
+              iconId: !hasUncompletedRepartition && 'fr-icon-check-line',
               className: cx('fr-m-0')
             }
           : undefined,
@@ -131,10 +123,7 @@ const LocalPrescriptionButtons = ({
                     localPrescription
                   })
                 ),
-              iconId:
-                noIcon || hasEmptySubstanceKindsLaboratory
-                  ? undefined
-                  : 'fr-icon-check-line',
+              iconId: !hasEmptySubstanceKindsLaboratory && 'fr-icon-check-line',
               className: cx('fr-m-0'),
               nativeButtonProps: {
                 'data-testid': 'update-laboratory-button'
@@ -175,7 +164,7 @@ const LocalPrescriptionButtons = ({
                     }))
                   })
                 ),
-              iconId: noIcon ? undefined : 'fr-icon-chat-3-line',
+              iconId: 'fr-icon-chat-3-line',
               className: cx('fr-m-0')
             }
           : undefined

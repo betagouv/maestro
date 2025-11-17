@@ -248,7 +248,6 @@ const ProgrammingLocalPrescriptionTable = ({
               }
               subLocalPrescriptions={getSubLocalPrescriptions(prescription.id)}
               alignment="right"
-              noIcon
               className={clsx(cx('fr-mt-1w'), 'link-underline')}
             />
           </div>
