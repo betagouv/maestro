@@ -245,11 +245,9 @@ export const SamplerView: Story = {
       canvas.queryByTestId('add-matrix-button')
     ).not.toBeInTheDocument();
 
-    await expect(canvas.getAllByTestId('update-laboratory-button').length).toBe(
-      regionalPrescriptions.filter(
-        (_) => _.department === DepartmentalCoordinator.department
-      ).length
-    );
+    await expect(
+      canvas.queryByTestId('update-laboratory-button')
+    ).not.toBeInTheDocument();
 
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
   }
