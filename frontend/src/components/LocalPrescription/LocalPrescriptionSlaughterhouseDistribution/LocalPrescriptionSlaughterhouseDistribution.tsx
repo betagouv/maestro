@@ -156,7 +156,14 @@ const LocalPrescriptionSlaughterhouseDistribution = forwardRef<
                         'companySiret'
                       ]) ?? 'Abattoir correctement renseigné'
                     }
-                    companies={companies}
+                    companies={companies.filter(
+                      (company) =>
+                        company.siret ===
+                          slaughterhouseSampleCount.companySiret ||
+                        !slaughterhouseSampleCounts.some(
+                          (_) => _.companySiret === company.siret
+                        )
+                    )}
                   />
                 </div>
                 <div className={cx('fr-col-6')}>
