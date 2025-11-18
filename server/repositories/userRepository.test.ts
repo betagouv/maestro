@@ -11,14 +11,7 @@ test("impossible d'avoir 2 utilisateurs avec le même email", async () => {
   await userRepository.insert(genUser({ email: 'anotheremail@email.fr' }));
 
   await expect(async () =>
-    kysely
-      .insertInto('users')
-      .values(
-        genUser({
-          email
-        })
-      )
-      .execute()
+    userRepository.insert(genUser({ email }))
   ).rejects.toThrowErrorMatchingInlineSnapshot(
     `[error: duplicate key value violates unique constraint "users_email_index"]`
   );
@@ -54,7 +47,8 @@ test("peut modifier le nom et le prénom d'un utilisateur", async () => {
     .selectAll()
     .where('email', '=', user2.email)
     .executeTakeFirst();
-  expect(user2InDb).toMatchObject(user2);
+  const { companies, ...user2WihoutCompanies } = user2;
+  expect(user2InDb).toMatchObject(user2WihoutCompanies);
 });
 test('peut ajouter et supprimer un logged secret', async () => {
   const user1 = genUser({});

@@ -97,8 +97,12 @@ const findOne = async (email: string): Promise<User | undefined> => {
     .where('email', '=', email)
     .executeTakeFirst();
 
-  //FIXME load companies ?!
-  return User.optional().parse({ ...user, companies: null });
+  if (user) {
+    //FIXME load companies ?!
+    return User.optional().parse({ ...user, companies: null });
+  }
+
+  return undefined;
 };
 
 const findMany = async (findOptions: FindUserOptions): Promise<User[]> => {
