@@ -57,7 +57,7 @@ const SampleView = ({ sample }: Props) => {
         )}
       >
         {!readonly && step && (
-          <div className="sample-stepper">
+          <div className="app-stepper">
             <img
               src={audit}
               height="100%"

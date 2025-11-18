@@ -6,7 +6,8 @@ export const DocumentKind = z.enum([
   'SupportDocument',
   'AnalysisReportDocument',
   'AnalysisRequestDocument',
-  'SampleDocument'
+  'SampleDocument',
+  'FicheDePlan'
 ]);
 
 export const getSupportDocumentFilename = (
@@ -29,3 +30,8 @@ export const UploadDocumentKindList: DocumentKind[] = [
 ];
 
 export type DocumentKind = z.infer<typeof DocumentKind>;
+
+export const DocumentKindLabels: Partial<Record<DocumentKind, string>> = {
+  Resource: 'Ressource',
+  FicheDePlan: 'Fiche de plan'
+};

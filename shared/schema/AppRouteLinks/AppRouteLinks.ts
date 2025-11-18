@@ -21,6 +21,12 @@ export const AppRouteLinks = {
   SampleRoute: {
     link: (sampleId: string) => `/prelevements/${sampleId}`
   },
+  NewDocumentRoute: {
+    link: '/documents/nouveau'
+  },
+  DocumentRoute: {
+    link: (documentId: string) => `/documents/${documentId}`
+  },
   DocumentsRoute: {
     link: '/documents'
   },

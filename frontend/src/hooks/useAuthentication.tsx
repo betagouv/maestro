@@ -87,6 +87,8 @@ export const useAuthentication = () => {
           'DocumentsRoute',
           'ApiDocsRoute',
           'LogoutCallbackRoute',
+          hasUserPermission('createResource') ? 'NewDocumentRoute' : undefined,
+          hasUserPermission('createResource') ? 'DocumentRoute' : undefined,
           hasUserPermission('readPrescriptions')
             ? 'ProgrammingRoute'
             : undefined,

@@ -5,15 +5,19 @@ export const Document = z.object({
   filename: z.string(),
   createdAt: z.coerce.date(),
   createdBy: z.guid().nullish(),
+  name: z.string().nullish(),
   kind: DocumentKind,
-  legend: z.string().nullish()
+  legend: z.string().nullish(),
+  notes: z.string().nullish()
 });
 
 export const DocumentToCreate = Document.pick({
   id: true,
   filename: true,
+  name: true,
   kind: true,
-  legend: true
+  legend: true,
+  notes: true
 });
 
 export const DocumentUpdate = Document.pick({
