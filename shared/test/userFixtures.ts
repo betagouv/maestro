@@ -3,13 +3,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { RegionList, Regions } from '../referential/Region';
 import { ProgrammingPlanKindList } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 import { AuthUser } from '../schema/User/AuthUser';
-import { companiesIsRequired, User } from '../schema/User/User';
+import { User } from '../schema/User/User';
 import {
   hasDepartmentalRole,
   hasRegionalRole,
   UserRoleList
 } from '../schema/User/UserRole';
-import { SlaughterhouseCompanyFixture1 } from './companyFixtures';
 import { oneOf } from './testFixtures';
 
 export const genUser = <T extends Partial<User>>(data: T): User & T => {
@@ -32,12 +31,13 @@ export const genUser = <T extends Partial<User>>(data: T): User & T => {
       region && hasDepartmentalRole({ role })
         ? oneOf(Regions[region].departments)
         : null,
-    companies: companiesIsRequired({
-      programmingPlanKinds: [programmingPlanKind],
-      role
-    })
-      ? [SlaughterhouseCompanyFixture1]
-      : null,
+    // companies: companiesIsRequired({
+    //   programmingPlanKinds: [programmingPlanKind],
+    //   role
+    // })
+    //   ? [SlaughterhouseCompanyFixture1]
+    //   : null,
+    companies: null,
     disabled: false,
     ...data
   };
@@ -118,7 +118,7 @@ export const DepartmentalCoordinator = genUser({
   department: Regions[Region1Fixture].departments[0]
 });
 export const SamplerDaoaFixture = genUser({
-  role: 'DepartmentalSampler',
+  role: 'Sampler',
   id: '13131313-1313-1313-1313-131313131313',
   programmingPlanKinds: ['DAOA_SLAUGHTER', 'DAOA_BREEDING'],
   region: Region1Fixture,

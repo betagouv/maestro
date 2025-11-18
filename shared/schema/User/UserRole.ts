@@ -19,10 +19,7 @@ const RegionalUserRole = z.enum([
   'Sampler'
 ]);
 
-const DepartmentalUserRole = z.enum([
-  'DepartmentalCoordinator',
-  'DepartmentalSampler'
-]);
+const DepartmentalUserRole = z.enum(['DepartmentalCoordinator']);
 
 export const UserRole = z.enum(
   [
@@ -114,7 +111,6 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     ...UserSamplerPermissionsList
   ],
   Sampler: UserSamplerPermissionsList,
-  DepartmentalSampler: UserSamplerPermissionsList,
   DepartmentalCoordinator: [
     ...UserSamplerPermissionsList,
     'readProgrammingPlanSubmittedToDepartments',
@@ -153,7 +149,6 @@ export const UserRoleLabels: Record<UserRole, string> = {
   DepartmentalCoordinator: 'Coordinateur départemental',
   SamplerAndNationalObserver: 'Personne ressource',
   Sampler: 'Préleveur',
-  DepartmentalSampler: 'Préleveur',
   Administrator: 'Administrateur'
 };
 

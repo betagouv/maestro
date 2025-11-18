@@ -137,7 +137,7 @@ export const DummyLaboratoryIds = [
 export const companiesIsRequired = (
   user: Pick<Nullable<User>, 'programmingPlanKinds' | 'role'>
 ): boolean =>
-  user.role === 'DepartmentalSampler' &&
+  user.role === 'Sampler' &&
   (user.programmingPlanKinds?.includes('DAOA_BREEDING') ||
     user.programmingPlanKinds?.includes('DAOA_SLAUGHTER') ||
     false);
