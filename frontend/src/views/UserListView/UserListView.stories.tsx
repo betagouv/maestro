@@ -30,11 +30,10 @@ export const Default: Story = {
     await userEvent.click(canvas.getByText('Enregistrer'));
     await userEvent.click(canvas.getByText('Ajouter un utilisateur'));
 
-    const dialog = canvas.getByTestId('user-edit-modal-form');
-    await expect(
-      within(dialog).getByTestId('user-form-role-select')
-    ).toHaveValue('');
+    //@ts-expect-error ...
+    const dialog = within(canvasElement.querySelector('#user-form-modale-id'));
+    await expect(dialog.getByTestId('user-form-role-select')).toHaveValue('');
 
-    await userEvent.click(canvas.getByText('Annuler'));
+    await userEvent.click(dialog.getByText('Annuler'));
   }
 };

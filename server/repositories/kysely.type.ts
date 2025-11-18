@@ -233,6 +233,7 @@ export interface Users {
   role: UserRole;
   loggedSecrets: ColumnType<string[], string[] | null, string[]>;
   programmingPlanKinds: ProgrammingPlanKind[];
+  disabled: boolean;
 }
 
 export interface UserCompanies {

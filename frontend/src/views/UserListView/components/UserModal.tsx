@@ -59,7 +59,8 @@ const userDefaultValue: Nullable<UserToCreate> = {
   programmingPlanKinds: [],
   region: null,
   department: null,
-  companies: null
+  companies: null,
+  disabled: false
 };
 
 export const UserModal = ({
@@ -93,11 +94,8 @@ export const UserModal = ({
 
   useEffect(() => {
     if (userToUpdate) {
-      const { id, name, companies, ...rest } = userToUpdate;
-      setUser({
-        ...rest,
-        companies: companies?.map((c) => c.name) ?? null
-      });
+      const { id, name, ...rest } = userToUpdate;
+      setUser(rest);
     }
   }, [userToUpdate]);
 
@@ -143,10 +141,7 @@ export const UserModal = ({
         }
       ]}
     >
-      <form
-        className={clsx('bg-white', cx('fr-p-2w'))}
-        data-testid={'user-edit-modal-form'}
-      >
+      <form className={clsx('bg-white', cx('fr-p-2w'))}>
         <AppTextInput
           onChange={(e) => setUser((u) => ({ ...u, email: e.target.value }))}
           inputForm={form}
@@ -232,10 +227,13 @@ export const UserModal = ({
             onChange={(v) =>
               setUser((u) => ({
                 ...u,
-                companies: v
+                companies: v.map((c) => ({
+                  siret: c,
+                  name: companies.find(({ siret }) => c === siret)?.name ?? ''
+                }))
               }))
             }
-            values={user.companies ?? []}
+            values={user.companies?.map(({ siret }) => siret) ?? []}
             keysWithLabels={companies.reduce(
               (acc, c) => {
                 acc[c.siret] = c.name;

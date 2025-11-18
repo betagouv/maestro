@@ -24,7 +24,8 @@ const BaseUser = z.object({
   role: UserRole,
   region: Region.nullable(),
   department: Department.nullable(),
-  companies: z.array(Company).nullable()
+  companies: z.array(Company).nullable(),
+  disabled: z.boolean()
 });
 
 const userChecks = <
@@ -50,40 +51,28 @@ const userChecks = <
       message: 'Le departement est obligatoire pour ce rôle.'
     });
   }
-  if (
-    (!user.companies || user.companies.length === 0) &&
-    companiesIsRequired(user)
-  ) {
-    ctx.addIssue({
-      code: 'custom',
-      message: 'Un abattoir est obligatoire pour ce rôle.'
-    });
-  }
+  // if (
+  //   (!user.companies || user.companies.length === 0) &&
+  //   companiesIsRequired(user)
+  // ) {
+  //   ctx.addIssue({
+  //     code: 'custom',
+  //     message: 'Un abattoir est obligatoire pour ce rôle.'
+  //   });
+  // }
 };
 
 export const User = BaseUser.superRefine(userChecks);
 
-export const UserToCreate = z
-  .object({
-    ...BaseUser.shape,
-    companies: z.array(z.string()).nullable()
-  })
-  .omit({
-    id: true,
-    name: true
-  })
-  .superRefine(userChecks);
+export const UserToCreate = BaseUser.omit({
+  id: true,
+  name: true
+}).superRefine(userChecks);
 export type UserToCreate = z.infer<typeof UserToCreate>;
 
-export const UserToUpdate = z
-  .object({
-    ...BaseUser.shape,
-    companies: z.array(z.string()).nullable()
-  })
-  .omit({
-    name: true
-  })
-  .superRefine(userChecks);
+export const UserToUpdate = BaseUser.omit({
+  name: true
+}).superRefine(userChecks);
 export type UserToUpdate = z.infer<typeof UserToUpdate>;
 
 export const Sampler = BaseUser.pick({

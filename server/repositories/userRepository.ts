@@ -6,7 +6,6 @@ import { assertUnreachable } from 'maestro-shared/utils/typescript';
 import z from 'zod';
 import { knexInstance as db } from './db';
 import { kysely } from './kysely';
-import { Users as KyselyUser } from './kysely.type';
 
 export const usersTable = 'users';
 
@@ -42,6 +41,7 @@ const findUnique = async (
       'users.department',
       'users.loggedSecrets',
       'users.programmingPlanKinds',
+      'users.disabled',
       sql<any>`
         case 
           when count(companies.siret) = 0 then null
@@ -79,7 +79,7 @@ const findUnique = async (
       'users.programmingPlanKinds'
     ])
     .executeTakeFirst()
-    .then((user: any) =>
+    .then((user: (User & { loggedSecrets: string[] }) | undefined) =>
       user
         ? {
             ...User.parse(user),
@@ -134,6 +134,11 @@ const findMany = async (findOptions: FindUserOptions): Promise<User[]> => {
           );
         }
         break;
+      case 'disabled':
+        if (findOptions.disabled === false || findOptions.disabled === true) {
+          query = query.where('disabled', 'is', findOptions.disabled);
+        }
+        break;
       default:
         assertUnreachable(option);
     }
@@ -146,20 +151,19 @@ const findMany = async (findOptions: FindUserOptions): Promise<User[]> => {
 };
 
 const insert = async (
-  user: Omit<KyselyUser, 'id' | 'loggedSecrets' | 'name'>
+  user: Omit<User, 'id' | 'loggedSecrets' | 'name'>
 ): Promise<void> => {
-  await kysely.insertInto('users').values(user).execute();
+  const { companies, ...rest } = user;
+
+  await kysely.insertInto('users').values(rest).execute();
 };
 
 const update = async (
-  partialUser: Partial<Omit<KyselyUser, 'id' | 'loggedSecrets'>>,
+  partialUser: Partial<Omit<User, 'id' | 'loggedSecrets'>>,
   id: User['id']
 ): Promise<void> => {
-  await kysely
-    .updateTable('users')
-    .set(partialUser)
-    .where('id', '=', id)
-    .execute();
+  const { companies, ...rest } = partialUser;
+  await kysely.updateTable('users').set(rest).where('id', '=', id).execute();
 };
 
 const addLoggedSecret = async (

@@ -59,6 +59,10 @@ export const userCheck = (credentialsRequired: boolean) =>
         throw new AuthenticationFailedError();
       }
 
+      if (user.disabled) {
+        throw new AuthenticationFailedError();
+      }
+
       await setUser(request, user);
     } else {
       if (request.auth && request.auth.userId) {

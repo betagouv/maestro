@@ -22,10 +22,12 @@ import franceSvg from '../../../assets/illustrations/france.svg';
 type Props = {
   user: User;
   onEdit: () => void;
+  onDisable: () => void;
 };
 export const UserCard: FunctionComponent<Props> = ({
   user,
   onEdit,
+  onDisable,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -38,16 +40,30 @@ export const UserCard: FunctionComponent<Props> = ({
           <Tag as={'span'} small>
             {UserRoleLabels[user.role]}
           </Tag>
-          <Button
-            size="small"
-            className={clsx('fr-mr-2w')}
-            onClick={onEdit}
-            priority={'tertiary no outline'}
-            iconId={'fr-icon-edit-line'}
-            data-testid={`user-edit-button-${user.id}`}
-          >
-            Éditer
-          </Button>
+          <div>
+            <Button
+              size="small"
+              className={clsx('fr-mr-1w')}
+              onClick={onEdit}
+              priority={'tertiary'}
+              iconId={'fr-icon-edit-line'}
+              title={'éditer'}
+              data-testid={`user-edit-button-${user.id}`}
+            >
+              {undefined}
+            </Button>
+            <Button
+              size="small"
+              className={clsx('')}
+              onClick={onDisable}
+              priority={'tertiary'}
+              title={'désactiver'}
+              iconId={'fr-icon-logout-box-r-line'}
+              data-testid={`user-disable-button-${user.id}`}
+            >
+              {undefined}
+            </Button>
+          </div>
         </div>
       }
       titleAs={'h6'}
