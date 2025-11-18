@@ -1,3 +1,4 @@
+import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Skeleton } from '@mui/material';
 import clsx from 'clsx';
@@ -10,7 +11,6 @@ import AppToast from 'src/components/_app/AppToast/AppToast';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useOnLine } from 'src/hooks/useOnLine';
-import AddDocument from 'src/views/DocumentListView/AddDocument';
 import DocumentTable from 'src/views/DocumentListView/DocumentTable';
 import { ApiClientContext } from '../../services/apiClient';
 const DocumentListView = () => {
@@ -36,6 +36,18 @@ const DocumentListView = () => {
         title="Ressources"
         subtitle={`Consultez les ressources mises à disposition des utilisateurs de ${Brand}`}
         illustration={ressources}
+        action={
+          hasUserPermission('createResource') && (
+            <Button
+              linkProps={{
+                to: '/documents/nouveau'
+              }}
+              priority="secondary"
+            >
+              Ajouter un document
+            </Button>
+          )
+        }
       />
 
       {isOnline ? (
@@ -49,11 +61,6 @@ const DocumentListView = () => {
                 <DocumentTable documents={resources} />
               )}
             </div>
-            {hasUserPermission('createResource') && (
-              <div className={cx('fr-col-4')}>
-                <AddDocument key={`add-document-${isCreateSuccess}`} />
-              </div>
-            )}
           </div>
         </div>
       ) : (

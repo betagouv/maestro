@@ -57,6 +57,18 @@ export const AuthenticatedAppRoutes = {
     label: 'Documents ressources',
     key: 'documents_route'
   },
+  NewDocumentRoute: {
+    ...AppRouteLinks.NewDocumentRoute,
+    path: '/documents/nouveau',
+    label: 'Nouveau document ressource',
+    key: 'new_document_route'
+  },
+  DocumentRoute: {
+    ...AppRouteLinks.DocumentRoute,
+    path: '/documents/:documentId',
+    label: 'Document ressource',
+    key: 'document_route'
+  },
   ApiDocsRoute: {
     ...AppRouteLinks.ApiDocsRoute,
     path: '/api-docs',
