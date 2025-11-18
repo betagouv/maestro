@@ -5,7 +5,7 @@ import { ProgrammingPlanKindList } from '../schema/ProgrammingPlan/ProgrammingPl
 import { AuthUser } from '../schema/User/AuthUser';
 import { User } from '../schema/User/User';
 import {
-  hasDepartmentalRole,
+  canHaveDepartement,
   hasRegionalRole,
   UserRoleList
 } from '../schema/User/UserRole';
@@ -15,7 +15,7 @@ export const genUser = <T extends Partial<User>>(data: T): User & T => {
   const role = data?.role ?? oneOf(UserRoleList);
 
   const region =
-    hasRegionalRole({ role }) || hasDepartmentalRole({ role })
+    hasRegionalRole({ role }) || canHaveDepartement({ role })
       ? oneOf(RegionList)
       : null;
 
@@ -28,7 +28,7 @@ export const genUser = <T extends Partial<User>>(data: T): User & T => {
     role,
     region,
     department:
-      region && hasDepartmentalRole({ role })
+      region && canHaveDepartement({ role }) && fakerFR.datatype.boolean()
         ? oneOf(Regions[region].departments)
         : null,
     // companies: companiesIsRequired({

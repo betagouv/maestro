@@ -15,7 +15,7 @@ import {
   UserToCreate
 } from 'maestro-shared/schema/User/User';
 import {
-  hasDepartmentalRole,
+  canHaveDepartement,
   hasNationalRole,
   hasRegionalRole,
   UserRole,
@@ -173,7 +173,7 @@ export const UserModal = ({
           }}
           required
         />
-        {user.role && (hasRegionalRole(user) || hasDepartmentalRole(user)) && (
+        {user.role && (hasRegionalRole(user) || canHaveDepartement(user)) && (
           <AppSelect
             onChange={(e) => {
               const { data, success } = Region.safeParse(e.target.value);
@@ -189,7 +189,7 @@ export const UserModal = ({
             required
           />
         )}
-        {user.role && hasDepartmentalRole(user) && (
+        {user.role && canHaveDepartement(user) && (
           <AppSelect
             onChange={(e) => {
               const { data, success } = Department.safeParse(e.target.value);
@@ -202,7 +202,6 @@ export const UserModal = ({
             inputKey={'department'}
             label="Département"
             options={departmentOptions}
-            required
           />
         )}
         <AppMultiSelect

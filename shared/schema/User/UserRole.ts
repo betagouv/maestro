@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { Department } from '../../referential/Department';
 import { Region } from '../../referential/Region';
 import { Nullable } from '../../utils/typescript';
 import { User } from './User';
@@ -171,10 +170,10 @@ export const hasRegionalRole = (
   RegionalUserRole.safeParse(user.role).success ||
   RegionalAndNationalUserRole.safeParse(user.role).success;
 
-export const hasDepartmentalRole = (
+export const canHaveDepartement = (
   user: Nullable<Pick<User, 'role'>>
 ): user is {
   role: z.infer<typeof DepartmentalUserRole>;
   region: Region;
-  department: Department;
-} => DepartmentalUserRole.safeParse(user.role).success;
+} =>
+  DepartmentalUserRole.safeParse(user.role).success || user.role === 'Sampler';

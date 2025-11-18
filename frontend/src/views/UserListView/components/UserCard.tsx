@@ -7,7 +7,7 @@ import { Regions } from 'maestro-shared/referential/Region';
 import { ProgrammingPlanKindLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { User } from 'maestro-shared/schema/User/User';
 import {
-  hasDepartmentalRole,
+  canHaveDepartement,
   hasRegionalRole,
   UserRoleLabels
 } from 'maestro-shared/schema/User/UserRole';
@@ -74,8 +74,8 @@ export const UserCard: FunctionComponent<Props> = ({
           </span>
           <span className={clsx('user-card-region')}>
             <img src={franceSvg} height="100%" aria-hidden alt="" />
-            {hasDepartmentalRole(user)
-              ? `${Regions[user.region].name} - ${DepartmentLabels[user.department]}`
+            {canHaveDepartement(user)
+              ? `${Regions[user.region].name}${user.department ? ` - ${DepartmentLabels[user.department]}` : ''}`
               : hasRegionalRole(user)
                 ? Regions[user.region].name
                 : 'France'}

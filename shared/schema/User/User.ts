@@ -9,7 +9,7 @@ import { UserPermission } from './UserPermission';
 import { Nullable } from '../../utils/typescript';
 import { Company } from '../Company/Company';
 import {
-  hasDepartmentalRole,
+  canHaveDepartement,
   hasNationalRole,
   hasRegionalRole,
   UserRole,
@@ -45,10 +45,10 @@ const userChecks = <
       message: 'La région est obligatoire pour ce rôle.'
     });
   }
-  if (!user.department && hasDepartmentalRole(user)) {
+  if (user.department && !canHaveDepartement(user)) {
     ctx.addIssue({
       code: 'custom',
-      message: 'Le departement est obligatoire pour ce rôle.'
+      message: 'Ce rôle ne peut pas être lié à un département.'
     });
   }
   // if (
