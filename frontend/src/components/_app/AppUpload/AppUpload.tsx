@@ -23,6 +23,7 @@ type AppUploadProps<T extends ZodObject, U extends UseForm<T>> = Partial<
   maxSize?: number;
   required?: boolean;
   withPhoto?: boolean;
+  buttonLabel?: string;
 };
 
 function AppUpload<T extends ZodObject>(props: AppUploadProps<T, UseForm<T>>) {
@@ -40,6 +41,7 @@ function AppUpload<T extends ZodObject>(props: AppUploadProps<T, UseForm<T>>) {
     nativeInputProps,
     required,
     withPhoto,
+    buttonLabel,
     ...uploadProps
   } = props;
 
@@ -133,7 +135,7 @@ function AppUpload<T extends ZodObject>(props: AppUploadProps<T, UseForm<T>>) {
           fileInputRef.current?.click();
         }}
       >
-        Ajouter un fichier
+        {buttonLabel ?? 'Ajouter un fichier'}
       </Button>
     </div>
   );

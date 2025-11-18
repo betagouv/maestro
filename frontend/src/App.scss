@@ -376,3 +376,23 @@ h6,
 .fr-toggle + .fr-toggle {
   margin-left: 4rem;
 }
+
+.app-stepper {
+  display: flex;
+  border-bottom: 1px solid var(--border-default-grey);
+  padding-left: 1rem;
+  padding-right: 1rem;
+  margin-bottom: 1.5rem;
+  gap: 1.5rem;
+
+  @media (min-width: constants.$breakpoint-md) {
+    padding-left: 4.375rem;
+    padding-right: 12.75rem;
+    margin-bottom: 2rem;
+    gap: 3.5rem;
+  }
+
+  .fr-stepper {
+    flex: 1;
+  }
+}
