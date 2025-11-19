@@ -7,7 +7,8 @@ import { Regions } from 'maestro-shared/referential/Region';
 import { ProgrammingPlanKindLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { User } from 'maestro-shared/schema/User/User';
 import {
-  hasNationalRole,
+  canHaveDepartment,
+  hasRegionalRole,
   UserRoleLabels
 } from 'maestro-shared/schema/User/UserRole';
 import { isNotEmpty } from 'maestro-shared/utils/typescript';
@@ -15,15 +16,17 @@ import { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import './UserCard.scss';
 
-import franceSvg from '../../../assets/illustrations/france.svg';
+import { DepartmentLabels } from 'maestro-shared/referential/Department';
 
 type Props = {
   user: User;
   onEdit: () => void;
+  onDisable: () => void;
 };
 export const UserCard: FunctionComponent<Props> = ({
   user,
   onEdit,
+  onDisable,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -36,15 +39,26 @@ export const UserCard: FunctionComponent<Props> = ({
           <Tag as={'span'} small>
             {UserRoleLabels[user.role]}
           </Tag>
-          <Button
-            size="small"
-            className={clsx('fr-mr-2w')}
-            onClick={onEdit}
-            priority={'tertiary no outline'}
-            iconId={'fr-icon-edit-line'}
-          >
-            Éditer
-          </Button>
+          <div>
+            <Button
+              size="small"
+              className={clsx('fr-mr-1w')}
+              onClick={onEdit}
+              priority={'tertiary'}
+              iconId={'fr-icon-edit-line'}
+              title={'éditer'}
+              data-testid={`user-edit-button-${user.id}`}
+            />
+            <Button
+              size="small"
+              className={clsx('')}
+              onClick={onDisable}
+              priority={'tertiary'}
+              title={'désactiver'}
+              iconId={'fr-icon-logout-box-r-line'}
+              data-testid={`user-disable-button-${user.id}`}
+            />
+          </div>
         </div>
       }
       titleAs={'h6'}
@@ -54,13 +68,25 @@ export const UserCard: FunctionComponent<Props> = ({
             {user.name ?? user.email}
           </span>
           <span className={clsx('user-card-region')}>
-            <img src={franceSvg} height="100%" aria-hidden alt="" />
-            {hasNationalRole(user) ? 'France' : Regions[user.region!].name}
+            <span
+              className={cx('fr-icon-france-line', 'fr-icon--sm')}
+              aria-hidden="true"
+            />
+            {canHaveDepartment(user)
+              ? `${Regions[user.region].name}${user.department ? ` - ${DepartmentLabels[user.department]}` : ''}`
+              : hasRegionalRole(user)
+                ? Regions[user.region].name
+                : 'France'}
           </span>
           {isNotEmpty(user.programmingPlanKinds) && (
             <span>
               {user.programmingPlanKinds.map((p) => (
-                <Tag key={p} as={'span'} small={true}>
+                <Tag
+                  key={p}
+                  as={'span'}
+                  small={true}
+                  className={clsx('fr-mb-1w')}
+                >
                   {ProgrammingPlanKindLabels[p]}
                 </Tag>
               ))}

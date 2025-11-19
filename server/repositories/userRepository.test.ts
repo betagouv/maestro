@@ -1,7 +1,7 @@
+import { SlaughterhouseCompanyFixture1 } from 'maestro-shared/test/companyFixtures';
 import { genUser } from 'maestro-shared/test/userFixtures';
 import { v4 as uuidv4 } from 'uuid';
 import { expect, test } from 'vitest';
-import { kysely } from './kysely';
 import { userRepository } from './userRepository';
 
 test("impossible d'avoir 2 utilisateurs avec le même email", async () => {
@@ -11,14 +11,7 @@ test("impossible d'avoir 2 utilisateurs avec le même email", async () => {
   await userRepository.insert(genUser({ email: 'anotheremail@email.fr' }));
 
   await expect(async () =>
-    kysely
-      .insertInto('users')
-      .values(
-        genUser({
-          email
-        })
-      )
-      .execute()
+    userRepository.insert(genUser({ email }))
   ).rejects.toThrowErrorMatchingInlineSnapshot(
     `[error: duplicate key value violates unique constraint "users_email_index"]`
   );
@@ -40,22 +33,37 @@ test("peut modifier le nom et le prénom d'un utilisateur", async () => {
     user1.id
   );
 
-  const user1InDb = await kysely
-    .selectFrom('users')
-    .selectAll()
-    .where('email', '=', user1.email)
-    .executeTakeFirst();
+  const user1InDb = await userRepository.findOne(user1.email);
   expect(user1InDb).toMatchObject({
     name: newName
   });
 
-  const user2InDb = await kysely
-    .selectFrom('users')
-    .selectAll()
-    .where('email', '=', user2.email)
-    .executeTakeFirst();
+  const user2InDb = await userRepository.findOne(user2.email);
   expect(user2InDb).toMatchObject(user2);
 });
+
+test('peut ajouter une entreprise à un utilisateur', async () => {
+  const user1 = genUser({});
+
+  await userRepository.insert(user1);
+
+  let user1InDb = await userRepository.findOne(user1.email);
+  expect(user1InDb?.companies).toHaveLength(0);
+
+  await userRepository.update(
+    {
+      companies: [SlaughterhouseCompanyFixture1]
+    },
+    user1.id
+  );
+
+  user1InDb = await userRepository.findOne(user1.email);
+  expect(user1InDb?.companies).toHaveLength(1);
+  expect(user1InDb?.companies?.[0]?.siret).toEqual(
+    SlaughterhouseCompanyFixture1.siret
+  );
+});
+
 test('peut ajouter et supprimer un logged secret', async () => {
   const user1 = genUser({});
 

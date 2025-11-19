@@ -1,12 +1,13 @@
-import { sql } from 'kysely';
+import { Expression, ExpressionBuilder, sql } from 'kysely';
+import { jsonArrayFrom } from 'kysely/helpers/postgres';
 import { isNil } from 'lodash-es';
 import { FindUserOptions } from 'maestro-shared/schema/User/FindUserOptions';
 import { User } from 'maestro-shared/schema/User/User';
 import { assertUnreachable } from 'maestro-shared/utils/typescript';
 import z from 'zod';
 import { knexInstance as db } from './db';
-import { kysely } from './kysely';
-import { Users as KyselyUser } from './kysely.type';
+import { executeTransaction, kysely } from './kysely';
+import { DB } from './kysely.type';
 
 export const usersTable = 'users';
 
@@ -30,79 +31,46 @@ const findUnique = async (
 
   return kysely
     .selectFrom('users')
-    .leftJoin('userCompanies', 'users.id', 'userCompanies.userId')
-    .leftJoin('companies', 'userCompanies.companySiret', 'companies.siret')
-    .where('users.id', '=', userId)
-    .select([
-      'users.id',
-      'users.email',
-      'users.name',
-      'users.role',
-      'users.region',
-      'users.department',
-      'users.loggedSecrets',
-      'users.programmingPlanKinds',
-      sql<any>`
-        case 
-          when count(companies.siret) = 0 then null
-          else array_agg(
-            json_build_object(
-              'siret', companies.siret,
-              'name', companies.name,
-              'tradeName', companies.trade_name,
-              'address' , companies.address,
-              'postalCode', companies.postal_code,
-              'city', companies.city,
-              'nafCode', companies.naf_code,
-              'kind', companies.kind,
-              'geolocation', case
-                when companies.geolocation is not null then
-                  json_build_object(
-                    'x', companies.geolocation[0],
-                    'y', companies.geolocation[1]
-                  )
-                else null
-              end
-            )
-          ) filter (where companies.siret is not null)
-        end
-      `.as('companies')
-    ])
-    .groupBy([
-      'users.id',
-      'users.email',
-      'users.name',
-      'users.role',
-      'users.region',
-      'users.department',
-      'users.loggedSecrets',
-      'users.programmingPlanKinds'
-    ])
-    .executeTakeFirst()
-    .then((user: any) =>
-      user
-        ? {
-            ...User.parse(user),
-            loggedSecrets: user.loggedSecrets ?? []
-          }
-        : undefined
-    );
+    .selectAll()
+    .where('id', '=', userId)
+    .select((eb) => [companies(eb.ref('users.id'), eb).as('companies')])
+    .executeTakeFirst();
 };
 
 const findOne = async (email: string): Promise<User | undefined> => {
   console.log('Find user with email', email);
-  const user: User | undefined = await kysely
+  return kysely
     .selectFrom('users')
     .selectAll()
     .where('email', '=', email)
+    .select((eb) => [companies(eb.ref('users.id'), eb).as('companies')])
     .executeTakeFirst();
+};
 
-  return User.optional().parse(user);
+const companies = (
+  userId: Expression<string>,
+  db: ExpressionBuilder<DB, 'users'>
+) => {
+  return jsonArrayFrom(
+    db
+      .selectFrom('companies')
+      .leftJoin(
+        'userCompanies',
+        'companies.siret',
+        'userCompanies.companySiret'
+      )
+      .selectAll('companies')
+      .whereRef('userCompanies.userId', '=', userId)
+  );
 };
 
 const findMany = async (findOptions: FindUserOptions): Promise<User[]> => {
   console.log('Find users', findOptions);
-  let query = kysely.selectFrom('users').selectAll().orderBy('name');
+  let query = kysely
+    .selectFrom('users')
+    .selectAll()
+    .select((eb) => [companies(eb.ref('users.id'), eb).as('companies')])
+    .orderBy('name');
 
   for (const option of FindUserOptions.keyof().options) {
     switch (option) {
@@ -133,6 +101,11 @@ const findMany = async (findOptions: FindUserOptions): Promise<User[]> => {
           );
         }
         break;
+      case 'disabled':
+        if (findOptions.disabled === false || findOptions.disabled === true) {
+          query = query.where('disabled', 'is', findOptions.disabled);
+        }
+        break;
       default:
         assertUnreachable(option);
     }
@@ -140,24 +113,52 @@ const findMany = async (findOptions: FindUserOptions): Promise<User[]> => {
 
   const users: User[] = await query.execute();
 
-  return users.map((_: User) => User.parse(_));
+  return users.map((u) => User.parse(u));
 };
 
 const insert = async (
-  user: Omit<KyselyUser, 'id' | 'loggedSecrets' | 'name'>
+  user: Omit<User, 'id' | 'loggedSecrets' | 'name'>
 ): Promise<void> => {
-  await kysely.insertInto('users').values(user).execute();
+  const { companies, ...rest } = user;
+
+  await executeTransaction(async (trx) => {
+    const result = await trx
+      .insertInto('users')
+      .values(rest)
+      .returning('id')
+      .executeTakeFirst();
+
+    if (result && companies && companies.length > 0) {
+      await trx
+        .insertInto('userCompanies')
+        .values(
+          companies.map((c) => ({ userId: result.id, companySiret: c.siret }))
+        )
+        .execute();
+    }
+  });
 };
 
 const update = async (
-  partialUser: Partial<Omit<KyselyUser, 'id' | 'loggedSecrets'>>,
+  partialUser: Partial<Omit<User, 'id' | 'loggedSecrets'>>,
   id: User['id']
 ): Promise<void> => {
-  await kysely
-    .updateTable('users')
-    .set(partialUser)
-    .where('id', '=', id)
-    .execute();
+  const { companies, ...rest } = partialUser;
+
+  await executeTransaction(async (trx) => {
+    if (companies !== undefined) {
+      await trx.deleteFrom('userCompanies').where('userId', '=', id).execute();
+      if (companies && companies.length > 0) {
+        await trx
+          .insertInto('userCompanies')
+          .values(companies.map((c) => ({ userId: id, companySiret: c.siret })))
+          .execute();
+      }
+    }
+    if (Object.keys(rest).length) {
+      await trx.updateTable('users').set(rest).where('id', '=', id).execute();
+    }
+  });
 };
 
 const addLoggedSecret = async (
@@ -183,6 +184,7 @@ const deleteLoggedSecret = async (
     .where('id', '=', id)
     .execute();
 };
+
 export const userRepository = {
   findUnique,
   findOne,

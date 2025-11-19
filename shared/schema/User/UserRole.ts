@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { Region } from '../../referential/Region';
 import { Nullable } from '../../utils/typescript';
 import { User } from './User';
 import { UserPermission } from './UserPermission';
@@ -17,17 +18,12 @@ const RegionalUserRole = z.enum([
   'Sampler'
 ]);
 
-export const DepartmentalUserRole = z.enum([
-  'DepartmentalCoordinator',
-  'DepartmentalSampler'
-]);
-
 export const UserRole = z.enum(
   [
     ...NationalUserRole.options,
     ...RegionalAndNationalUserRole.options,
     ...RegionalUserRole.options,
-    ...DepartmentalUserRole.options
+    'DepartmentalCoordinator'
   ],
   { error: 'Veuillez renseigner un rôle.' }
 );
@@ -112,7 +108,6 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     ...UserSamplerPermissionsList
   ],
   Sampler: UserSamplerPermissionsList,
-  DepartmentalSampler: UserSamplerPermissionsList,
   DepartmentalCoordinator: [
     ...UserSamplerPermissionsList,
     'readProgrammingPlanSubmittedToDepartments',
@@ -151,16 +146,31 @@ export const UserRoleLabels: Record<UserRole, string> = {
   DepartmentalCoordinator: 'Coordinateur départemental',
   SamplerAndNationalObserver: 'Personne ressource',
   Sampler: 'Préleveur',
-  DepartmentalSampler: 'Préleveur',
   Administrator: 'Administrateur'
 };
+
+export const UserRoleSorted = [...UserRoleList].sort((a, b) =>
+  UserRoleLabels[a].localeCompare(UserRoleLabels[b])
+);
+
 export const hasNationalRole = (user: Nullable<Pick<User, 'role'>>) =>
   NationalUserRole.safeParse(user.role).success ||
   RegionalAndNationalUserRole.safeParse(user.role).success;
 
-export const hasRegionalRole = (user: Pick<User, 'role'>) =>
+export const hasRegionalRole = (
+  user: Nullable<Pick<User, 'role'>>
+): user is {
+  role:
+    | z.infer<typeof RegionalUserRole>
+    | z.infer<typeof RegionalAndNationalUserRole>;
+  region: Region;
+} =>
   RegionalUserRole.safeParse(user.role).success ||
   RegionalAndNationalUserRole.safeParse(user.role).success;
 
-export const hasDepartmentalRole = (user: Pick<User, 'role'>) =>
-  DepartmentalUserRole.safeParse(user.role).success;
+export const canHaveDepartment = (
+  user: Nullable<Pick<User, 'role'>>
+): user is {
+  role: 'DepartmentalCoordinator' | 'Sampler';
+  region: Region;
+} => user.role === 'DepartmentalCoordinator' || user.role === 'Sampler';

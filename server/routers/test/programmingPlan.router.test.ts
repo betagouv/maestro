@@ -246,8 +246,8 @@ describe('ProgrammingPlan router', () => {
         res1.body,
         [
           validatedProgrammingPlan,
-          inProgressProgrammingPlan,
-          submittedProgrammingPlan
+          submittedProgrammingPlan,
+          inProgressProgrammingPlan
         ],
         SamplerDromFixture.region
       );

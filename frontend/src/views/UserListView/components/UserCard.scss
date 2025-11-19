@@ -2,12 +2,14 @@
   .user-card-title {
     display: flex;
     flex-direction: row;
+    align-items: center;
     justify-content: space-between;
     width: 100%;
 
     button {
       font-size: 0.875rem;
       font-weight: 500;
+      padding: 0.25rem 0.75rem
     }
   }
 

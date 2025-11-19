@@ -1,17 +1,31 @@
-import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
-import clsx from 'clsx';
-import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
-import { User, UserToCreate } from 'maestro-shared/schema/User/User';
 import {
+  Department,
+  DepartmentLabels
+} from 'maestro-shared/referential/Department';
+import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
+import { Company } from 'maestro-shared/schema/Company/Company';
+import {
+  ProgrammingPlanKindLabels,
+  ProgrammingPlanKindList
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import {
+  companiesIsRequired,
+  User,
+  UserToCreate
+} from 'maestro-shared/schema/User/User';
+import {
+  canHaveDepartment,
   hasNationalRole,
+  hasRegionalRole,
   UserRole,
   UserRoleLabels
 } from 'maestro-shared/schema/User/UserRole';
 import { Nullable } from 'maestro-shared/utils/typescript';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
+import { AppMultiSelect } from '../../../components/_app/AppMultiSelect/AppMultiSelect';
 import AppSelect from '../../../components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from '../../../components/_app/AppSelect/AppSelectOption';
 import AppTextInput from '../../../components/_app/AppTextInput/AppTextInput';
@@ -21,6 +35,7 @@ import { ApiClientContext } from '../../../services/apiClient';
 interface Props {
   userToUpdate: null | User;
   modal: ReturnType<typeof createModal>;
+  companies: Company[];
 }
 
 const userRoleOptions = selectOptionsFromList(UserRole.options, {
@@ -42,12 +57,19 @@ const regionOptions = selectOptionsFromList(RegionList, {
 const userDefaultValue: Nullable<UserToCreate> = {
   email: null,
   role: null,
-  programmingPlanKinds: ['PPV'],
+  programmingPlanKinds: [],
   region: null,
-  department: null
+  department: null,
+  companies: [],
+  disabled: false
 };
 
-export const UserModal = ({ userToUpdate, modal, ..._rest }: Props) => {
+export const UserModal = ({
+  userToUpdate,
+  modal,
+  companies,
+  ..._rest
+}: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
 
   const apiClient = useContext(ApiClientContext);
@@ -60,6 +82,17 @@ export const UserModal = ({ userToUpdate, modal, ..._rest }: Props) => {
     ...user
   });
 
+  const departmentOptions = useMemo(() => {
+    if (!user.region) {
+      return [];
+    }
+
+    return selectOptionsFromList(Regions[user.region].departments, {
+      labels: DepartmentLabels,
+      withSort: true
+    });
+  }, [user.region]);
+
   useEffect(() => {
     if (userToUpdate) {
       const { id, name, ...rest } = userToUpdate;
@@ -69,8 +102,10 @@ export const UserModal = ({ userToUpdate, modal, ..._rest }: Props) => {
 
   useIsModalOpen(modal, {
     onConceal: () => {
-      setUser(userDefaultValue);
       form.reset();
+      setTimeout(() => {
+        setUser(userDefaultValue);
+      }, 2);
     }
   });
 
@@ -88,7 +123,9 @@ export const UserModal = ({ userToUpdate, modal, ..._rest }: Props) => {
 
   return (
     <modal.Component
-      title="Nouvel utilisateur"
+      title={
+        !userToUpdate?.id ? 'Nouvel utilisateur' : "Modification d'utilisateur"
+      }
       concealingBackdrop={false}
       topAnchor
       buttons={[
@@ -105,7 +142,7 @@ export const UserModal = ({ userToUpdate, modal, ..._rest }: Props) => {
         }
       ]}
     >
-      <form className={clsx('bg-white', cx('fr-p-2w'))}>
+      <form>
         <AppTextInput
           onChange={(e) => setUser((u) => ({ ...u, email: e.target.value }))}
           inputForm={form}
@@ -127,14 +164,17 @@ export const UserModal = ({ userToUpdate, modal, ..._rest }: Props) => {
               }
             }
           }}
-          value={user.role ?? undefined}
+          value={user.role ?? ''}
           inputForm={form}
           inputKey={'role'}
           label="Rôle"
           options={userRoleOptions}
+          nativeSelectProps={{
+            'data-testid': 'user-form-role-select'
+          }}
           required
         />
-        {user.role && !hasNationalRole(user) && (
+        {user.role && (hasRegionalRole(user) || canHaveDepartment(user)) && (
           <AppSelect
             onChange={(e) => {
               const { data, success } = Region.safeParse(e.target.value);
@@ -142,7 +182,7 @@ export const UserModal = ({ userToUpdate, modal, ..._rest }: Props) => {
                 setUser((u) => ({ ...u, region: data }));
               }
             }}
-            value={user.region ?? undefined}
+            value={user.region ?? ''}
             inputForm={form}
             inputKey={'region'}
             label="Région"
@@ -150,8 +190,62 @@ export const UserModal = ({ userToUpdate, modal, ..._rest }: Props) => {
             required
           />
         )}
-
-        {/*  //TODO PROGRAMMING PLAN KIND select multiple, à récupérer sur la branche DAOA*/}
+        {user.role && user.region && canHaveDepartment(user) && (
+          <AppSelect
+            onChange={(e) => {
+              const { data, success } = Department.safeParse(e.target.value);
+              if (success) {
+                setUser((u) => ({ ...u, department: data }));
+              }
+            }}
+            value={user.department ?? ''}
+            inputForm={form}
+            inputKey={'department'}
+            label="Département"
+            options={departmentOptions}
+          />
+        )}
+        <AppMultiSelect
+          inputForm={form}
+          inputKey={'programmingPlanKinds'}
+          items={ProgrammingPlanKindList}
+          onChange={(v) =>
+            setUser((u) => ({
+              ...u,
+              programmingPlanKinds: v
+            }))
+          }
+          values={user.programmingPlanKinds ?? []}
+          keysWithLabels={ProgrammingPlanKindLabels}
+          defaultLabel={'plan sélectionné'}
+          label={'Plans'}
+          required
+        />
+        {companiesIsRequired(user) && (
+          <AppMultiSelect
+            inputForm={form}
+            inputKey={'companies'}
+            items={companies}
+            idKey={'siret'}
+            onChange={(v) => {
+              setUser((u) => ({
+                ...u,
+                companies: v
+              }));
+            }}
+            values={user.companies ?? []}
+            keysWithLabels={companies.reduce(
+              (acc, c) => {
+                acc[c.siret] = c.name;
+                return acc;
+              },
+              {} as Record<string, string>
+            )}
+            defaultLabel={'abattoir sélectionné'}
+            label={'Abattoirs'}
+            required
+          />
+        )}
       </form>
     </modal.Component>
   );

@@ -5,6 +5,10 @@ import {
 } from '@reduxjs/toolkit/dist/query/react';
 import { User } from 'maestro-shared/schema/User/User';
 import { genPartialAnalysis } from 'maestro-shared/test/analysisFixtures';
+import {
+  SlaughterhouseCompanyFixture1,
+  SlaughterhouseCompanyFixture2
+} from 'maestro-shared/test/companyFixtures';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
@@ -111,7 +115,9 @@ const defaultMockApiClientConf: MockApi = {
   useDeleteDocumentMutation: [async () => fn(), {}],
   useDeletePrescriptionMutation: [async () => fn(), {}],
   useDeleteSampleMutation: [async () => fn(), {}],
-  useFindCompaniesQuery: { data: [] },
+  useFindCompaniesQuery: {
+    data: [SlaughterhouseCompanyFixture1, SlaughterhouseCompanyFixture2]
+  },
   useFindLaboratoriesQuery: { data: [] },
   useFindNotificationsQuery: { data: [] },
   useFindPrescriptionsQuery: { data: [] },

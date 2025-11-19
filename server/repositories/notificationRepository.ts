@@ -1,7 +1,6 @@
 import { isNil, omitBy } from 'lodash-es';
 import { FindNotificationOptions } from 'maestro-shared/schema/Notification/FindNotificationOptions';
 import { Notification } from 'maestro-shared/schema/Notification/Notification';
-import { User } from 'maestro-shared/schema/User/User';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { z } from 'zod';
 import { knexInstance as db } from './db';
@@ -98,10 +97,11 @@ const parseNotification = (
         ...notification,
         id: notification.notificationId,
         author: isDefinedAndNotNull(notification.authorId)
-          ? User.parse({
+          ? {
               ...notification,
-              id: notification.authorId
-            })
+              id: notification.authorId,
+              companies: []
+            }
           : undefined
       },
       isNil

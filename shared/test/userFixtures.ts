@@ -3,30 +3,44 @@ import { v4 as uuidv4 } from 'uuid';
 import { RegionList, Regions } from '../referential/Region';
 import { ProgrammingPlanKindList } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 import { AuthUser } from '../schema/User/AuthUser';
-import { User } from '../schema/User/User';
+import { companiesIsRequired, User } from '../schema/User/User';
 import {
-  DepartmentalUserRole,
-  hasNationalRole,
+  canHaveDepartment,
   hasRegionalRole,
   UserRoleList
 } from '../schema/User/UserRole';
+import { SlaughterhouseCompanyFixture1 } from './companyFixtures';
 import { oneOf } from './testFixtures';
 
 export const genUser = <T extends Partial<User>>(data: T): User & T => {
   const role = data?.role ?? oneOf(UserRoleList);
+
+  const region =
+    hasRegionalRole({ role }) || canHaveDepartment({ role })
+      ? (data?.region ?? oneOf(RegionList))
+      : null;
+
+  const programmingPlanKinds = data?.programmingPlanKinds ?? [
+    oneOf(ProgrammingPlanKindList)
+  ];
   return {
     id: uuidv4(),
     email: fakerFR.internet.email(),
     name: fakerFR.person.fullName(),
-    programmingPlanKinds: [oneOf(ProgrammingPlanKindList)],
+    programmingPlanKinds,
     role,
-    region:
-      hasNationalRole({ role }) && !hasRegionalRole({ role })
-        ? null
-        : oneOf(RegionList),
-    department: DepartmentalUserRole.safeParse(role).success
-      ? oneOf(Regions[data?.region ?? oneOf(RegionList)].departments)
-      : null,
+    region,
+    department:
+      region && canHaveDepartment({ role }) && fakerFR.datatype.boolean()
+        ? oneOf(Regions[region].departments)
+        : null,
+    companies: companiesIsRequired({
+      programmingPlanKinds,
+      role
+    })
+      ? [SlaughterhouseCompanyFixture1]
+      : [],
+    disabled: false,
     ...data
   };
 };
@@ -56,6 +70,9 @@ export const SamplerDromFixture = genUser({
   id: '66666666-6666-6666-6666-666666666666',
   programmingPlanKinds: ['PPV'],
   region: RegionDromFixture,
+  //Si on met le département, un test échoue!!!
+  //department: '971',
+  department: null,
   name: 'Jack Sparrow',
   email: 'jack.sparrow@example.net'
 });
@@ -106,7 +123,7 @@ export const DepartmentalCoordinator = genUser({
   department: Regions[Region1Fixture].departments[0]
 });
 export const SamplerDaoaFixture = genUser({
-  role: 'DepartmentalSampler',
+  role: 'Sampler',
   id: '13131313-1313-1313-1313-131313131313',
   programmingPlanKinds: ['DAOA_SLAUGHTER', 'DAOA_BREEDING'],
   region: Region1Fixture,

@@ -68,7 +68,7 @@ const UsersSearchInput: FunctionComponent<{
   assert<Equals<keyof typeof _rest, never>>();
   const apiClient = useContext(ApiClientContext);
 
-  const { data: users } = apiClient.useFindUsersQuery({});
+  const { data: users } = apiClient.useFindUsersQuery({ disabled: false });
 
   return (
     <>

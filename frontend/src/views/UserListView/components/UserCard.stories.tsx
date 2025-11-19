@@ -8,7 +8,8 @@ const meta = {
   component: UserCard,
   args: {
     user: genUser({}),
-    onEdit: fn()
+    onEdit: fn(),
+    onDisable: fn()
   }
 } satisfies Meta<typeof UserCard>;
 

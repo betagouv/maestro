@@ -21,9 +21,10 @@ import { createServer } from '../../server';
 import { accessTokenTest, tokenProvider } from '../../test/testUtils';
 
 // Vérifie que le type généré par kysely correspond bien à notre type
-// À l'avenir mieux vaut utiliser vitest pour tester les types => https://vitest.dev/guide/testing-types.html
 const userShareToKysely = (v: User): Insertable<DB['users']> => v;
-const userKyselyToShare = (v: Selectable<DB['users']>): User => v;
+const userKyselyToShare = (
+  v: Selectable<DB['users']>
+): Omit<User, 'companies'> => v;
 console.log(userShareToKysely);
 console.log(userKyselyToShare);
 
@@ -93,7 +94,8 @@ describe('User router', () => {
         role: Sampler1Fixture.role,
         region: Sampler1Fixture.region,
         department: Sampler1Fixture.department || null,
-        companies: Sampler1Fixture.companies || null
+        companies: Sampler1Fixture.companies || null,
+        disabled: false
       });
     });
   });
@@ -124,15 +126,15 @@ describe('User router', () => {
 
     test('should filter users by role', async () => {
       const res = await request(app)
-        .get(testRoute({ role: 'Sampler' }))
+        .get(testRoute({ roles: 'Sampler' }))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toEqual(
         expect.arrayContaining([
-          expect.objectContaining(Sampler1Fixture),
+          expect.objectContaining(SamplerDromFixture),
           expect.objectContaining(Sampler2Fixture),
-          expect.objectContaining(SamplerDromFixture)
+          expect.objectContaining(Sampler1Fixture)
         ])
       );
     });

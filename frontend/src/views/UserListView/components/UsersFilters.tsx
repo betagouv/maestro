@@ -3,13 +3,23 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Input from '@codegouvfr/react-dsfr/Input';
 import Select from '@codegouvfr/react-dsfr/Select';
 import clsx from 'clsx';
-import { Region } from 'maestro-shared/referential/Region';
+import {
+  Department,
+  DepartmentLabels,
+  DepartmentList,
+  DepartmentSort
+} from 'maestro-shared/referential/Department';
+import { Region, Regions } from 'maestro-shared/referential/Region';
 import {
   ProgrammingPlanKind,
   ProgrammingPlanKindLabels,
-  ProgrammingPlanKindList
+  ProgrammingPlanKindListSorted
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { UserRole, UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
+import {
+  UserRole,
+  UserRoleLabels,
+  UserRoleSorted
+} from 'maestro-shared/schema/User/UserRole';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { FunctionComponent, useEffect, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
@@ -20,6 +30,7 @@ import { UsersFilterTags } from './UsersFilterTags';
 
 const _findUserOptions = z.object({
   region: Region.nullable(),
+  department: Department.nullable(),
   role: UserRole.nullable(),
   programmingPlanKind: ProgrammingPlanKind.nullable(),
   label: z.string().nullable()
@@ -40,6 +51,7 @@ export const UsersFilters: FunctionComponent<Props> = ({
   const [filters, setFilters] = useState<FindUserOptions>({
     region: null,
     role: null,
+    department: null,
     programmingPlanKind: null,
     label: null
   });
@@ -107,8 +119,24 @@ export const UsersFilters: FunctionComponent<Props> = ({
 
 const Filters: FunctionComponent<
   FindUserOptions & { onChange: (options: Partial<FindUserOptions>) => void }
-> = ({ region, role, programmingPlanKind, label, onChange, ..._rest }) => {
+> = ({
+  region,
+  department,
+  role,
+  programmingPlanKind,
+  label,
+  onChange,
+  ..._rest
+}) => {
   assert<Equals<keyof typeof _rest, never>>();
+
+  const departmentOptions = useMemo(() => {
+    let departments = DepartmentList;
+    if (region) {
+      departments = Regions[region].departments;
+    }
+    return departments.sort(DepartmentSort);
+  }, [region]);
 
   return (
     <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
@@ -139,7 +167,7 @@ const Filters: FunctionComponent<
           }}
         >
           <option value="">Tous</option>
-          {UserRole.options.map((role) => (
+          {UserRoleSorted.map((role) => (
             <option key={`role-${role}`} value={role}>
               {UserRoleLabels[role]}
             </option>
@@ -149,8 +177,25 @@ const Filters: FunctionComponent<
       <div className={cx('fr-col-12', 'fr-col-md-3')}>
         <RegionsFilter
           defaultValue={region}
-          onChange={(r) => onChange({ region: r })}
+          onChange={(r) => onChange({ region: r, department: null })}
         />
+      </div>
+      <div className={cx('fr-col-12', 'fr-col-md-3')}>
+        <Select
+          label="Département"
+          nativeSelectProps={{
+            value: department || '',
+            onChange: (e) =>
+              onChange({ department: e.target.value as Department })
+          }}
+        >
+          <option value="">Tous</option>
+          {departmentOptions.map((department) => (
+            <option key={`department-${department}`} value={department}>
+              {`${department} - ${DepartmentLabels[department]}`}
+            </option>
+          ))}
+        </Select>
       </div>
       <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
         <Select
@@ -164,7 +209,7 @@ const Filters: FunctionComponent<
           }}
         >
           <option value="">Tous</option>
-          {ProgrammingPlanKindList.map((plan) => (
+          {ProgrammingPlanKindListSorted.map((plan) => (
             <option key={`plan-${plan}`} value={plan}>
               {ProgrammingPlanKindLabels[plan]}
             </option>

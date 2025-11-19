@@ -13,7 +13,19 @@ export const Company = z.object(
     city: z.string().nullish(),
     nafCode: z.string().nullish(),
     kind: CompanyKind.nullish(),
-    geolocation: Geolocation.nullish()
+    geolocation: z
+      .union([
+        z.string().transform((s) => {
+          const split = s.substring(1, s.length - 1).split(',');
+          return {
+            x: Number.parseFloat(split[0]),
+            y: Number.parseFloat(split[1])
+          };
+        }),
+        Geolocation
+      ])
+      .pipe(Geolocation)
+      .nullish()
   },
   {
     error: () => "Veuillez renseigner l'entité"

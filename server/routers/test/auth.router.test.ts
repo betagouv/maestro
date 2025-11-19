@@ -1,7 +1,7 @@
 import { constants } from 'http2';
 import { genUser, Sampler1Fixture } from 'maestro-shared/test/userFixtures';
 import request from 'supertest';
-import { Users } from '../../repositories/userRepository';
+import { userRepository, Users } from '../../repositories/userRepository';
 import { createServer } from '../../server';
 
 import { fakerFR } from '@faker-js/faker';
@@ -24,7 +24,7 @@ describe('Auth routes', () => {
   const user = genUser({});
 
   beforeAll(async () => {
-    await Users().insert(user);
+    await userRepository.insert(user);
   });
 
   afterAll(async () => {

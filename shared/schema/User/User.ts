@@ -6,8 +6,10 @@ import { Region, RegionList, Regions } from '../../referential/Region';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { UserPermission } from './UserPermission';
 
+import { Nullable } from '../../utils/typescript';
 import { Company } from '../Company/Company';
 import {
+  canHaveDepartment,
   hasNationalRole,
   hasRegionalRole,
   UserRole,
@@ -18,38 +20,62 @@ const BaseUser = z.object({
   id: z.guid(),
   email: z.email({ error: 'Veuillez renseigner un email valide.' }),
   name: z.string().nullable(),
-  programmingPlanKinds: z.array(ProgrammingPlanKind),
+  programmingPlanKinds: z.array(ProgrammingPlanKind).min(1),
   role: UserRole,
   region: Region.nullable(),
   department: Department.nullable(),
-  companies: z.array(Company).nullish()
+  companies: z.array(Company),
+  disabled: z.boolean()
 });
 
-const regionCheck = <T extends Pick<User, 'region' | 'role'>>(
+const userChecks = <
+  T extends Pick<
+    User,
+    'region' | 'role' | 'department' | 'companies' | 'programmingPlanKinds'
+  >
+>(
   user: T,
   ctx: RefinementCtx<T>
 ) => {
   if (!user.region && hasRegionalRole(user)) {
     ctx.addIssue({
       code: 'custom',
+      path: ['region'],
       message: 'La région est obligatoire pour ce rôle.'
+    });
+  }
+  if (user.department && !canHaveDepartment(user)) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['department'],
+      message: 'Ce rôle ne peut pas être lié à un département.'
+    });
+  }
+
+  if (
+    (!user.companies || user.companies.length === 0) &&
+    companiesIsRequired(user)
+  ) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['companies'],
+      message: 'Un abattoir est obligatoire pour ce rôle.'
     });
   }
 };
 
-export const User = BaseUser.superRefine(regionCheck);
+export const User = BaseUser.superRefine(userChecks);
 
 export const UserToCreate = BaseUser.omit({
   id: true,
-  name: true,
-  companies: true
-}).superRefine(regionCheck);
+  name: true
+}).superRefine(userChecks);
 export type UserToCreate = z.infer<typeof UserToCreate>;
 
 export const UserToUpdate = BaseUser.omit({
-  name: true,
-  companies: true
-}).superRefine(regionCheck);
+  name: true
+}).superRefine(userChecks);
+
 export type UserToUpdate = z.infer<typeof UserToUpdate>;
 
 export const Sampler = BaseUser.pick({
@@ -110,3 +136,11 @@ export const DummyLaboratoryIds = [
   SCL34Id,
   SCL91Id
 ];
+
+export const companiesIsRequired = (
+  user: Pick<Nullable<User>, 'programmingPlanKinds' | 'role'>
+): boolean =>
+  user.role === 'Sampler' &&
+  (user.programmingPlanKinds?.includes('DAOA_BREEDING') ||
+    user.programmingPlanKinds?.includes('DAOA_SLAUGHTER') ||
+    false);
