@@ -25,7 +25,7 @@ export const documentsRoutes = {
     },
     put: {
       body: DocumentUpdate,
-      permissions: ['createSample'],
+      permissions: ['createSample', 'createResource'],
       response: Document
     },
     delete: {

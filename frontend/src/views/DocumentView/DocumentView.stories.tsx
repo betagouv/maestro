@@ -3,7 +3,6 @@ import {
   genAuthUser,
   NationalCoordinator
 } from 'maestro-shared/test/userFixtures';
-import { within } from 'storybook/test';
 import { getMockApi } from '../../services/mockApiClient';
 import DocumentView from './DocumentView';
 
@@ -21,8 +20,8 @@ export const NewDocument: Story = {
       auth: { authUser: genAuthUser(NationalCoordinator) }
     },
     apiClient: getMockApi({})
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
   }
+  // play: async ({ canvasElement }) => {
+  //   const canvas = within(canvasElement);
+  // }
 };

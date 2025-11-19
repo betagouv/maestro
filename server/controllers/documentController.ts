@@ -1,9 +1,13 @@
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl as getS3SignedUrl } from '@aws-sdk/s3-request-presigner';
 import { constants } from 'http2';
+import { isNil } from 'lodash-es';
 import DocumentMissingError from 'maestro-shared/errors/documentMissingError';
 import { Document } from 'maestro-shared/schema/Document/Document';
-import { UploadDocumentKindList } from 'maestro-shared/schema/Document/DocumentKind';
+import {
+  ResourceDocumentKindList,
+  UploadDocumentKindList
+} from 'maestro-shared/schema/Document/DocumentKind';
 import { hasPermission } from 'maestro-shared/schema/User/User';
 import { documentRepository } from '../repositories/documentRepository';
 import { ProtectedSubRouter } from '../routers/routes.type';
@@ -65,7 +69,7 @@ export const documentsRouter = {
       console.info('Find documents');
 
       const documents = await documentRepository.findMany({
-        kind: 'Resource'
+        kinds: ResourceDocumentKindList
       });
       return {
         status: constants.HTTP_STATUS_OK,
@@ -99,8 +103,12 @@ export const documentsRouter = {
       const document = await documentRepository.findUnique(documentId);
 
       if (
-        document?.kind !== 'SampleDocument' ||
-        !hasPermission(user, 'updateSample')
+        isNil(document) ||
+        !UploadDocumentKindList.includes(document.kind) ||
+        (document.kind === 'SampleDocument' &&
+          !hasPermission(user, 'updateSample')) ||
+        (ResourceDocumentKindList.includes(document.kind) &&
+          !hasPermission(user, 'createResource'))
       ) {
         return {
           status: constants.HTTP_STATUS_FORBIDDEN

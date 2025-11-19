@@ -24,7 +24,6 @@ const findMany = async (
   console.info('Find documents', omitBy(omit(findOptions, 'sampleId'), isNil));
   return Documents()
     .select(`${documentsTable}.*`)
-    .where(omitBy(findOptions, isNil))
     .modify((query) => {
       if (findOptions.sampleId) {
         query
@@ -34,6 +33,9 @@ const findMany = async (
             `${sampleDocumentsTable}.document_id`
           )
           .where('sample_id', '=', findOptions.sampleId);
+      }
+      if (findOptions.kinds) {
+        query.whereIn('kind', findOptions.kinds);
       }
     })
     .then((documents) =>

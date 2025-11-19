@@ -11,7 +11,7 @@ interface Props {
   title: ReactNode;
   children?: ReactNode;
   confirmLabel?: string;
-  onConfirm: () => Promise<void>;
+  onConfirm?: () => Promise<void>;
   closeOnConfirm?: boolean;
 }
 
@@ -25,7 +25,7 @@ const ConfirmationModal = ({
 }: Props) => {
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
-    await onConfirm();
+    await onConfirm?.();
     if (closeOnConfirm) {
       modal.close();
     }

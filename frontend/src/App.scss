@@ -335,6 +335,10 @@ h6,
   text-decoration: underline;
 }
 
+.d-none {
+  display: none;
+}
+
 .d-sm-none {
   @media (max-width: constants.$breakpoint-md) {
     display: none;

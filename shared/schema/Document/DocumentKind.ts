@@ -7,7 +7,8 @@ export const DocumentKind = z.enum([
   'AnalysisReportDocument',
   'AnalysisRequestDocument',
   'SampleDocument',
-  'FicheDePlan'
+  'FicheDePlan',
+  'InstructionTechnique'
 ]);
 
 export const getSupportDocumentFilename = (
@@ -26,12 +27,22 @@ export const DocumentKindList: DocumentKind[] = DocumentKind.options;
 export const UploadDocumentKindList: DocumentKind[] = [
   'Resource',
   'AnalysisReportDocument',
-  'SampleDocument'
+  'SampleDocument',
+  'FicheDePlan',
+  'InstructionTechnique'
 ];
 
 export type DocumentKind = z.infer<typeof DocumentKind>;
 
 export const DocumentKindLabels: Partial<Record<DocumentKind, string>> = {
-  Resource: 'Ressource',
-  FicheDePlan: 'Fiche de plan'
+  FicheDePlan: 'Fiche de plan',
+  InstructionTechnique: 'Instruction technique'
 };
+
+export const ResourceDocumentKindList: DocumentKind[] = (
+  ['FicheDePlan', 'InstructionTechnique'] as DocumentKind[]
+).sort((a, b) => {
+  return (DocumentKindLabels[a as DocumentKind] || a).localeCompare(
+    DocumentKindLabels[b as DocumentKind] || b
+  );
+});
