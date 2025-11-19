@@ -103,7 +103,7 @@ const findMany = async (findOptions: FindUserOptions): Promise<User[]> => {
 
   const users: Omit<User, 'companies'>[] = await query.execute();
 
-  return users.map((_) => User.parse({ ..._, companies: null }));
+  return users.map((_) => User.parse({ ..._, companies: [] }));
 };
 
 const insert = async (

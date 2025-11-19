@@ -100,7 +100,7 @@ const parseNotification = (
           ? {
               ...notification,
               id: notification.authorId,
-              companies: null
+              companies: []
             }
           : undefined
       },

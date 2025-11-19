@@ -126,15 +126,15 @@ describe('User router', () => {
 
     test('should filter users by role', async () => {
       const res = await request(app)
-        .get(testRoute({ role: 'Sampler' }))
+        .get(testRoute({ roles: 'Sampler' }))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toEqual(
         expect.arrayContaining([
-          expect.objectContaining(Sampler1Fixture),
+          expect.objectContaining(SamplerDromFixture),
           expect.objectContaining(Sampler2Fixture),
-          expect.objectContaining(SamplerDromFixture)
+          expect.objectContaining(Sampler1Fixture)
         ])
       );
     });

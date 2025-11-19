@@ -7,7 +7,7 @@ import { UserRole } from './UserRole';
 export const FindUserOptions = z.object({
   region: Region.nullish(),
   department: Department.nullish(),
-  roles: z.union([UserRole, coerceToArray(z.array(UserRole))]).nullish(),
+  roles: coerceToArray(z.array(UserRole)).nullish(),
   programmingPlanKinds: z
     .union([ProgrammingPlanKind, coerceToArray(z.array(ProgrammingPlanKind))])
     .nullish(),

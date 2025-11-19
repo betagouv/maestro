@@ -31,12 +31,6 @@ export const genUser = <T extends Partial<User>>(data: T): User & T => {
       region && canHaveDepartement({ role }) && fakerFR.datatype.boolean()
         ? oneOf(Regions[region].departments)
         : null,
-    // companies: companiesIsRequired({
-    //   programmingPlanKinds: [programmingPlanKind],
-    //   role
-    // })
-    //   ? [SlaughterhouseCompanyFixture1]
-    //   : null,
     companies: [],
     disabled: false,
     ...data
