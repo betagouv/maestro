@@ -24,17 +24,15 @@ const BaseUser = z.object({
   role: UserRole,
   region: Region.nullable(),
   department: Department.nullable(),
-  companies: z.array(Company).nullable(),
+  companies: z.array(Company),
   disabled: z.boolean()
 });
 
-const locationChecks = <
+const userChecks = <
   T extends Pick<
     User,
-    'region' | 'role' | 'department' | 'programmingPlanKinds'
-  > & {
-    companies: unknown[] | null;
-  }
+    'region' | 'role' | 'department' | 'companies' | 'programmingPlanKinds'
+  >
 >(
   user: T,
   ctx: RefinementCtx<T>
@@ -53,19 +51,7 @@ const locationChecks = <
       message: 'Ce rôle ne peut pas être lié à un département.'
     });
   }
-};
 
-const companiesCheck = <
-  T extends Pick<
-    User,
-    'region' | 'role' | 'department' | 'programmingPlanKinds'
-  > & {
-    companies: unknown[] | null;
-  }
->(
-  user: T,
-  ctx: RefinementCtx<T>
-) => {
   if (
     (!user.companies || user.companies.length === 0) &&
     companiesIsRequired(user)
@@ -78,21 +64,17 @@ const companiesCheck = <
   }
 };
 
-export const User = BaseUser.superRefine(locationChecks);
+export const User = BaseUser.superRefine(userChecks);
 
 export const UserToCreate = BaseUser.omit({
   id: true,
   name: true
-})
-  .superRefine(locationChecks)
-  .superRefine(companiesCheck);
+}).superRefine(userChecks);
 export type UserToCreate = z.infer<typeof UserToCreate>;
 
 export const UserToUpdate = BaseUser.omit({
   name: true
-})
-  .superRefine(locationChecks)
-  .superRefine(companiesCheck);
+}).superRefine(userChecks);
 
 export type UserToUpdate = z.infer<typeof UserToUpdate>;
 

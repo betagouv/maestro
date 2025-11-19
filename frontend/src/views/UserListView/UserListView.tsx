@@ -30,7 +30,6 @@ export const UserListView = () => {
   const apiClient = useContext(ApiClientContext);
 
   const { data: users } = apiClient.useFindUsersQuery({ disabled: false });
-  const [getUser] = apiClient.useLazyGetUserQuery();
   const [updateUser] = apiClient.useUpdateUserMutation();
   const { data: companies } = apiClient.useFindCompaniesQuery({});
   const [userToUpdate, setUserToUpdate] = useState<null | User>(null);
@@ -39,11 +38,8 @@ export const UserListView = () => {
   const [usersFiltered, setUsersFiltered] = useState<User[]>(users ?? []);
 
   const onEdit = async (userToEdit: User) => {
-    const user = await getUser(userToEdit.id).unwrap();
-    if (user) {
-      setUserToUpdate({ ...user });
-      userFormModal.open();
-    }
+    setUserToUpdate({ ...userToEdit });
+    userFormModal.open();
   };
 
   const onDisable = (userToDisable: User) => {

@@ -1,4 +1,5 @@
-import { sql } from 'kysely';
+import { Expression, ExpressionBuilder, sql } from 'kysely';
+import { jsonArrayFrom } from 'kysely/helpers/postgres';
 import { isNil } from 'lodash-es';
 import { FindUserOptions } from 'maestro-shared/schema/User/FindUserOptions';
 import { User } from 'maestro-shared/schema/User/User';
@@ -6,6 +7,7 @@ import { assertUnreachable } from 'maestro-shared/utils/typescript';
 import z from 'zod';
 import { knexInstance as db } from './db';
 import { executeTransaction, kysely } from './kysely';
+import { DB } from './kysely.type';
 
 export const usersTable = 'users';
 
@@ -27,40 +29,48 @@ const findUnique = async (
 ): Promise<(User & { loggedSecrets: string[] }) | undefined> => {
   console.log('Get User with id', userId);
 
-  const user = await kysely
+  return kysely
     .selectFrom('users')
     .selectAll()
     .where('id', '=', userId)
+    .select((eb) => [companies(eb.ref('users.id'), eb).as('companies')])
     .executeTakeFirst();
-
-  if (!user) {
-    return undefined;
-  }
-
-  const companies = await getCompaniesByUserId(userId);
-
-  return { ...user, companies };
 };
 
 const findOne = async (email: string): Promise<User | undefined> => {
   console.log('Find user with email', email);
-  const user: Omit<User, 'companies'> | undefined = await kysely
+  return kysely
     .selectFrom('users')
     .selectAll()
     .where('email', '=', email)
+    .select((eb) => [companies(eb.ref('users.id'), eb).as('companies')])
     .executeTakeFirst();
+};
 
-  if (user) {
-    const companies = await getCompaniesByUserId(user.id);
-    return { ...user, companies };
-  }
-
-  return undefined;
+const companies = (
+  userId: Expression<string>,
+  db: ExpressionBuilder<DB, 'users'>
+) => {
+  return jsonArrayFrom(
+    db
+      .selectFrom('companies')
+      .leftJoin(
+        'userCompanies',
+        'companies.siret',
+        'userCompanies.companySiret'
+      )
+      .selectAll('companies')
+      .whereRef('userCompanies.userId', '=', userId)
+  );
 };
 
 const findMany = async (findOptions: FindUserOptions): Promise<User[]> => {
   console.log('Find users', findOptions);
-  let query = kysely.selectFrom('users').selectAll().orderBy('name');
+  let query = kysely
+    .selectFrom('users')
+    .selectAll()
+    .select((eb) => [companies(eb.ref('users.id'), eb).as('companies')])
+    .orderBy('name');
 
   for (const option of FindUserOptions.keyof().options) {
     switch (option) {
@@ -101,9 +111,9 @@ const findMany = async (findOptions: FindUserOptions): Promise<User[]> => {
     }
   }
 
-  const users: Omit<User, 'companies'>[] = await query.execute();
+  const users: User[] = await query.execute();
 
-  return users.map((_) => User.parse({ ..._, companies: [] }));
+  return users.map((u) => User.parse(u));
 };
 
 const insert = async (
@@ -136,12 +146,14 @@ const update = async (
   const { companies, ...rest } = partialUser;
 
   await executeTransaction(async (trx) => {
-    await trx.deleteFrom('userCompanies').where('userId', '=', id).execute();
-    if (companies && companies.length > 0) {
-      await trx
-        .insertInto('userCompanies')
-        .values(companies.map((c) => ({ userId: id, companySiret: c.siret })))
-        .execute();
+    if (companies !== undefined) {
+      await trx.deleteFrom('userCompanies').where('userId', '=', id).execute();
+      if (companies && companies.length > 0) {
+        await trx
+          .insertInto('userCompanies')
+          .values(companies.map((c) => ({ userId: id, companySiret: c.siret })))
+          .execute();
+      }
     }
     if (Object.keys(rest).length) {
       await trx.updateTable('users').set(rest).where('id', '=', id).execute();
@@ -170,15 +182,6 @@ const deleteLoggedSecret = async (
       loggedSecrets: sql`array_remove(logged_secrets, '${sql.raw(secret)}')`
     })
     .where('id', '=', id)
-    .execute();
-};
-
-const getCompaniesByUserId = async (userId: string) => {
-  return kysely
-    .selectFrom('companies')
-    .leftJoin('userCompanies', 'companies.siret', 'userCompanies.companySiret')
-    .selectAll('companies')
-    .where('userCompanies.userId', '=', userId)
     .execute();
 };
 

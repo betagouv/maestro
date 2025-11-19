@@ -3,12 +3,13 @@ import { v4 as uuidv4 } from 'uuid';
 import { RegionList, Regions } from '../referential/Region';
 import { ProgrammingPlanKindList } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 import { AuthUser } from '../schema/User/AuthUser';
-import { User } from '../schema/User/User';
+import { companiesIsRequired, User } from '../schema/User/User';
 import {
   canHaveDepartement,
   hasRegionalRole,
   UserRoleList
 } from '../schema/User/UserRole';
+import { SlaughterhouseCompanyFixture1 } from './companyFixtures';
 import { oneOf } from './testFixtures';
 
 export const genUser = <T extends Partial<User>>(data: T): User & T => {
@@ -31,7 +32,12 @@ export const genUser = <T extends Partial<User>>(data: T): User & T => {
       region && canHaveDepartement({ role }) && fakerFR.datatype.boolean()
         ? oneOf(Regions[region].departments)
         : null,
-    companies: [],
+    companies: companiesIsRequired({
+      programmingPlanKinds: [programmingPlanKind],
+      role
+    })
+      ? [SlaughterhouseCompanyFixture1]
+      : [],
     disabled: false,
     ...data
   };

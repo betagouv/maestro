@@ -1,7 +1,5 @@
-import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
-import clsx from 'clsx';
 import {
   Department,
   DepartmentLabels
@@ -62,7 +60,7 @@ const userDefaultValue: Nullable<UserToCreate> = {
   programmingPlanKinds: [],
   region: null,
   department: null,
-  companies: null,
+  companies: [],
   disabled: false
 };
 
@@ -144,7 +142,7 @@ export const UserModal = ({
         }
       ]}
     >
-      <form className={clsx('bg-white', cx('fr-p-2w'))}>
+      <form>
         <AppTextInput
           onChange={(e) => setUser((u) => ({ ...u, email: e.target.value }))}
           inputForm={form}
@@ -192,7 +190,7 @@ export const UserModal = ({
             required
           />
         )}
-        {user.role && canHaveDepartement(user) && (
+        {user.role && user.region && canHaveDepartement(user) && (
           <AppSelect
             onChange={(e) => {
               const { data, success } = Department.safeParse(e.target.value);
