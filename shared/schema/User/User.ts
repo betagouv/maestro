@@ -9,7 +9,7 @@ import { UserPermission } from './UserPermission';
 import { Nullable } from '../../utils/typescript';
 import { Company } from '../Company/Company';
 import {
-  canHaveDepartement,
+  canHaveDepartment,
   hasNationalRole,
   hasRegionalRole,
   UserRole,
@@ -44,7 +44,7 @@ const userChecks = <
       message: 'La région est obligatoire pour ce rôle.'
     });
   }
-  if (user.department && !canHaveDepartement(user)) {
+  if (user.department && !canHaveDepartment(user)) {
     ctx.addIssue({
       code: 'custom',
       path: ['department'],

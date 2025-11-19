@@ -5,7 +5,7 @@ import { ProgrammingPlanKindList } from '../schema/ProgrammingPlan/ProgrammingPl
 import { AuthUser } from '../schema/User/AuthUser';
 import { companiesIsRequired, User } from '../schema/User/User';
 import {
-  canHaveDepartement,
+  canHaveDepartment,
   hasRegionalRole,
   UserRoleList
 } from '../schema/User/UserRole';
@@ -16,24 +16,26 @@ export const genUser = <T extends Partial<User>>(data: T): User & T => {
   const role = data?.role ?? oneOf(UserRoleList);
 
   const region =
-    hasRegionalRole({ role }) || canHaveDepartement({ role })
-      ? oneOf(RegionList)
+    hasRegionalRole({ role }) || canHaveDepartment({ role })
+      ? (data?.region ?? oneOf(RegionList))
       : null;
 
-  const programmingPlanKind = oneOf(ProgrammingPlanKindList);
+  const programmingPlanKinds = data?.programmingPlanKinds ?? [
+    oneOf(ProgrammingPlanKindList)
+  ];
   return {
     id: uuidv4(),
     email: fakerFR.internet.email(),
     name: fakerFR.person.fullName(),
-    programmingPlanKinds: [programmingPlanKind],
+    programmingPlanKinds,
     role,
     region,
     department:
-      region && canHaveDepartement({ role }) && fakerFR.datatype.boolean()
+      region && canHaveDepartment({ role }) && fakerFR.datatype.boolean()
         ? oneOf(Regions[region].departments)
         : null,
     companies: companiesIsRequired({
-      programmingPlanKinds: [programmingPlanKind],
+      programmingPlanKinds,
       role
     })
       ? [SlaughterhouseCompanyFixture1]
@@ -68,6 +70,9 @@ export const SamplerDromFixture = genUser({
   id: '66666666-6666-6666-6666-666666666666',
   programmingPlanKinds: ['PPV'],
   region: RegionDromFixture,
+  //Si on met le département, un test échoue!!!
+  //department: '971',
+  department: null,
   name: 'Jack Sparrow',
   email: 'jack.sparrow@example.net'
 });

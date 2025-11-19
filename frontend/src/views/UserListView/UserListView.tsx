@@ -20,7 +20,7 @@ const userFormModal = createModal({
   isOpenedByDefault: false
 });
 
-const confirmDisabingUserModal = createModal({
+const confirmDisablingUserModal = createModal({
   id: `user-confirm-disabling-modale-id`,
   isOpenedByDefault: false
 });
@@ -51,7 +51,7 @@ export const UserListView = () => {
 
   const onDisable = (userToDisable: User) => {
     setUserToDisable(userToDisable);
-    confirmDisabingUserModal.open();
+    confirmDisablingUserModal.open();
   };
 
   const onConfirmDisable = async () => {
@@ -147,7 +147,7 @@ export const UserListView = () => {
         companies={companies ?? []}
       />
       <ConfirmationModal
-        modal={confirmDisabingUserModal}
+        modal={confirmDisablingUserModal}
         title="Veuillez confirmer cette action"
         onConfirm={() => onConfirmDisable()}
         closeOnConfirm

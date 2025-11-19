@@ -18,14 +18,12 @@ const RegionalUserRole = z.enum([
   'Sampler'
 ]);
 
-const DepartmentalUserRole = z.enum(['DepartmentalCoordinator']);
-
 export const UserRole = z.enum(
   [
     ...NationalUserRole.options,
     ...RegionalAndNationalUserRole.options,
     ...RegionalUserRole.options,
-    ...DepartmentalUserRole.options
+    'DepartmentalCoordinator'
   ],
   { error: 'Veuillez renseigner un rôle.' }
 );
@@ -170,10 +168,9 @@ export const hasRegionalRole = (
   RegionalUserRole.safeParse(user.role).success ||
   RegionalAndNationalUserRole.safeParse(user.role).success;
 
-export const canHaveDepartement = (
+export const canHaveDepartment = (
   user: Nullable<Pick<User, 'role'>>
 ): user is {
-  role: z.infer<typeof DepartmentalUserRole>;
+  role: 'DepartmentalCoordinator' | 'Sampler';
   region: Region;
-} =>
-  DepartmentalUserRole.safeParse(user.role).success || user.role === 'Sampler';
+} => user.role === 'DepartmentalCoordinator' || user.role === 'Sampler';

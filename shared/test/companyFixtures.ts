@@ -7,6 +7,11 @@ export const genCompany = (data?: Partial<Company>): Company => ({
   name: fakerFR.company.name(),
   address: faker.location.streetAddress({ useFullAddress: true }),
   postalCode: faker.location.zipCode(),
+  city: null,
+  tradeName: null,
+  geolocation: null,
+  nafCode: null,
+  kind: null,
   ...data
 });
 

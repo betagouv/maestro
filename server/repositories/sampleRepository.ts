@@ -325,11 +325,13 @@ const parsePartialSample = (sample: PartialSampleJoinedDbo): PartialSample =>
       ? {
           siret: sample.companySiret,
           name: sample.companyName,
-          tradeName: sample.companyTradeName ?? undefined,
-          address: sample.companyAddress ?? undefined,
-          postalCode: sample.companyPostalCode ?? undefined,
-          city: sample.companyCity ?? undefined,
-          nafCode: sample.companyNafCode ?? undefined
+          tradeName: sample.companyTradeName ?? null,
+          address: sample.companyAddress ?? null,
+          postalCode: sample.companyPostalCode ?? null,
+          city: sample.companyCity ?? null,
+          nafCode: sample.companyNafCode ?? null,
+          geolocation: null,
+          kind: null
         }
       : undefined,
     sampler: {

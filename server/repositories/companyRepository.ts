@@ -76,7 +76,7 @@ const findMany = async (
 
   const companies: Company[] = await query.execute();
 
-  return companies.map((_: any) => Company.parse(omitBy(_, isNil)));
+  return companies.map((_: any) => Company.parse(_));
 };
 
 const upsert = async (company: Company): Promise<Company> => {

@@ -13,7 +13,7 @@ import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/Programmi
 import { hasPermission } from 'maestro-shared/schema/User/User';
 import { UserPermission } from 'maestro-shared/schema/User/UserPermission';
 import {
-  canHaveDepartement,
+  canHaveDepartment,
   hasNationalRole,
   hasRegionalRole,
   UserRole
@@ -49,7 +49,7 @@ export const useAuthentication = () => {
   }, [authUser, isAuthenticated]);
 
   const hasDepartmentalView = useMemo(() => {
-    return isAuthenticated && authUser && canHaveDepartement(authUser.user);
+    return isAuthenticated && authUser && canHaveDepartment(authUser.user);
   }, [authUser, isAuthenticated]);
 
   const hasUserPrescriptionPermission = useCallback(

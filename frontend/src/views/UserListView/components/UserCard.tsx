@@ -7,7 +7,7 @@ import { Regions } from 'maestro-shared/referential/Region';
 import { ProgrammingPlanKindLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { User } from 'maestro-shared/schema/User/User';
 import {
-  canHaveDepartement,
+  canHaveDepartment,
   hasRegionalRole,
   UserRoleLabels
 } from 'maestro-shared/schema/User/UserRole';
@@ -17,7 +17,6 @@ import { assert, type Equals } from 'tsafe';
 import './UserCard.scss';
 
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
-import franceSvg from '../../../assets/illustrations/france.svg';
 
 type Props = {
   user: User;
@@ -49,9 +48,7 @@ export const UserCard: FunctionComponent<Props> = ({
               iconId={'fr-icon-edit-line'}
               title={'éditer'}
               data-testid={`user-edit-button-${user.id}`}
-            >
-              {undefined}
-            </Button>
+            />
             <Button
               size="small"
               className={clsx('')}
@@ -60,9 +57,7 @@ export const UserCard: FunctionComponent<Props> = ({
               title={'désactiver'}
               iconId={'fr-icon-logout-box-r-line'}
               data-testid={`user-disable-button-${user.id}`}
-            >
-              {undefined}
-            </Button>
+            />
           </div>
         </div>
       }
@@ -73,8 +68,11 @@ export const UserCard: FunctionComponent<Props> = ({
             {user.name ?? user.email}
           </span>
           <span className={clsx('user-card-region')}>
-            <img src={franceSvg} height="100%" aria-hidden alt="" />
-            {canHaveDepartement(user)
+            <span
+              className={cx('fr-icon-france-line', 'fr-icon--sm')}
+              aria-hidden="true"
+            />
+            {canHaveDepartment(user)
               ? `${Regions[user.region].name}${user.department ? ` - ${DepartmentLabels[user.department]}` : ''}`
               : hasRegionalRole(user)
                 ? Regions[user.region].name
