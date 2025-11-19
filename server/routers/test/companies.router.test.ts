@@ -33,7 +33,7 @@ describe('Company Router', () => {
     test('should filter companies', async () => {
       const res1 = await request(app)
         .get(testRoute)
-        .query({ kind: 'MEAT_SLAUGHTERHOUSE' })
+        .query({ kinds: ['MEAT_SLAUGHTERHOUSE'] })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 

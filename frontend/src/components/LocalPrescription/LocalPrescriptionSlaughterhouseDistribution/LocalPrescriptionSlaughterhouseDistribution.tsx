@@ -68,7 +68,9 @@ const LocalPrescriptionSlaughterhouseDistribution = forwardRef<
     );
 
     const { data: companies } = apiClient.useFindCompaniesQuery({
-      kind: CompanyKindByMatrixKind[prescription.matrixKind],
+      kinds: [CompanyKindByMatrixKind[prescription.matrixKind]].filter(
+        (k) => !!k
+      ),
       region: departmentalPrescription.region,
       department: departmentalPrescription.department
     });

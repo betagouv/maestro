@@ -8,6 +8,7 @@ import { useCallback, useContext, useState } from 'react';
 import usersSvg from 'src/assets/illustrations/users.svg';
 import ConfirmationModal from '../../components/ConfirmationModal/ConfirmationModal';
 import SectionHeader from '../../components/SectionHeader/SectionHeader';
+import { useAuthentication } from '../../hooks/useAuthentication';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { ApiClientContext } from '../../services/apiClient';
 import { UserCard } from './components/UserCard';
@@ -28,10 +29,16 @@ export const UserListView = () => {
   useDocumentTitle('Gestions des utilisateurs');
 
   const apiClient = useContext(ApiClientContext);
+  const { user } = useAuthentication();
 
   const { data: users } = apiClient.useFindUsersQuery({ disabled: false });
   const [updateUser] = apiClient.useUpdateUserMutation();
-  const { data: companies } = apiClient.useFindCompaniesQuery({});
+  const { data: companies } = apiClient.useFindCompaniesQuery({
+    kinds: ['MEAT_SLAUGHTERHOUSE', 'POULTRY_SLAUGHTERHOUSE'],
+    region: user?.region ?? undefined,
+    department: user?.department ?? undefined
+  });
+
   const [userToUpdate, setUserToUpdate] = useState<null | User>(null);
   const [userToDisable, setUserToDisable] = useState<null | User>(null);
 
