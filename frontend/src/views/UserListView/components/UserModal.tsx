@@ -12,6 +12,7 @@ import {
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   companiesIsRequired,
+  programmingPlanKindsIsRequired,
   User,
   UserToCreate
 } from 'maestro-shared/schema/User/User';
@@ -219,7 +220,7 @@ export const UserModal = ({
           keysWithLabels={ProgrammingPlanKindLabels}
           defaultLabel={'plan sélectionné'}
           label={'Plans'}
-          required
+          required={programmingPlanKindsIsRequired(user)}
         />
         {companiesIsRequired(user) && (
           <AppMultiSelect
