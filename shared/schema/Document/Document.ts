@@ -21,7 +21,10 @@ export const DocumentToCreate = Document.pick({
 });
 
 export const DocumentUpdate = Document.pick({
-  legend: true
+  name: true,
+  legend: true,
+  kind: true,
+  notes: true
 });
 
 export type Document = z.infer<typeof Document>;
