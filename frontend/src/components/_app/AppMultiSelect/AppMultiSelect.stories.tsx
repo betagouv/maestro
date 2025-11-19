@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Department } from 'maestro-shared/referential/Department';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
 import { useState } from 'react';
 import { expect, userEvent, within } from 'storybook/test';
@@ -19,7 +18,7 @@ export const Default: Story = {
   args: {} as unknown as Story['args'],
   decorators: [
     (Story) => {
-      const form = useForm(z.object({ departments: z.array(Department) }), {});
+      const form = useForm(z.object({ region: z.array(Region) }), {});
 
       const [regions, setRegions] = useState<Region[]>([]);
 
@@ -33,9 +32,10 @@ export const Default: Story = {
 
       const args: Story['args'] = {
         label: 'Régions',
+        items: Region.options,
         values: regions,
         inputForm: form,
-        inputKey: 'departments',
+        inputKey: 'region',
         keysWithLabels,
         defaultLabel: 'région sélectionnée',
         onChange: (r) => setRegions(r as Region[])

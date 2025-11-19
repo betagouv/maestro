@@ -5,7 +5,7 @@ import { User } from 'maestro-shared/schema/User/User';
 import { assertUnreachable } from 'maestro-shared/utils/typescript';
 import z from 'zod';
 import { knexInstance as db } from './db';
-import { kysely } from './kysely';
+import { executeTransaction, kysely } from './kysely';
 
 export const usersTable = 'users';
 
@@ -27,66 +27,19 @@ const findUnique = async (
 ): Promise<(User & { loggedSecrets: string[] }) | undefined> => {
   console.log('Get User with id', userId);
 
-  return kysely
+  const user = await kysely
     .selectFrom('users')
-    .leftJoin('userCompanies', 'users.id', 'userCompanies.userId')
-    .leftJoin('companies', 'userCompanies.companySiret', 'companies.siret')
-    .where('users.id', '=', userId)
-    .select([
-      'users.id',
-      'users.email',
-      'users.name',
-      'users.role',
-      'users.region',
-      'users.department',
-      'users.loggedSecrets',
-      'users.programmingPlanKinds',
-      'users.disabled',
-      sql<any>`
-        case 
-          when count(companies.siret) = 0 then null
-          else array_agg(
-            json_build_object(
-              'siret', companies.siret,
-              'name', companies.name,
-              'tradeName', companies.trade_name,
-              'address' , companies.address,
-              'postalCode', companies.postal_code,
-              'city', companies.city,
-              'nafCode', companies.naf_code,
-              'kind', companies.kind,
-              'geolocation', case
-                when companies.geolocation is not null then
-                  json_build_object(
-                    'x', companies.geolocation[0],
-                    'y', companies.geolocation[1]
-                  )
-                else null
-              end
-            )
-          ) filter (where companies.siret is not null)
-        end
-      `.as('companies')
-    ])
-    .groupBy([
-      'users.id',
-      'users.email',
-      'users.name',
-      'users.role',
-      'users.region',
-      'users.department',
-      'users.loggedSecrets',
-      'users.programmingPlanKinds'
-    ])
-    .executeTakeFirst()
-    .then((user: (User & { loggedSecrets: string[] }) | undefined) =>
-      user
-        ? {
-            ...User.parse(user),
-            loggedSecrets: user.loggedSecrets ?? []
-          }
-        : undefined
-    );
+    .selectAll()
+    .where('id', '=', userId)
+    .executeTakeFirst();
+
+  if (!user) {
+    return undefined;
+  }
+
+  const companies = await getCompaniesByUserId(userId);
+
+  return { ...user, companies };
 };
 
 const findOne = async (email: string): Promise<User | undefined> => {
@@ -98,8 +51,8 @@ const findOne = async (email: string): Promise<User | undefined> => {
     .executeTakeFirst();
 
   if (user) {
-    //FIXME load companies ?!
-    return User.optional().parse({ ...user, companies: null });
+    const companies = await getCompaniesByUserId(user.id);
+    return { ...user, companies };
   }
 
   return undefined;
@@ -150,7 +103,6 @@ const findMany = async (findOptions: FindUserOptions): Promise<User[]> => {
 
   const users: Omit<User, 'companies'>[] = await query.execute();
 
-  //FIXME load companies !?!
   return users.map((_) => User.parse({ ..._, companies: null }));
 };
 
@@ -159,7 +111,22 @@ const insert = async (
 ): Promise<void> => {
   const { companies, ...rest } = user;
 
-  await kysely.insertInto('users').values(rest).execute();
+  await executeTransaction(async (trx) => {
+    const result = await trx
+      .insertInto('users')
+      .values(rest)
+      .returning('id')
+      .executeTakeFirst();
+
+    if (result && companies && companies.length > 0) {
+      await trx
+        .insertInto('userCompanies')
+        .values(
+          companies.map((c) => ({ userId: result.id, companySiret: c.siret }))
+        )
+        .execute();
+    }
+  });
 };
 
 const update = async (
@@ -167,7 +134,19 @@ const update = async (
   id: User['id']
 ): Promise<void> => {
   const { companies, ...rest } = partialUser;
-  await kysely.updateTable('users').set(rest).where('id', '=', id).execute();
+
+  await executeTransaction(async (trx) => {
+    await trx.deleteFrom('userCompanies').where('userId', '=', id).execute();
+    if (companies && companies.length > 0) {
+      await trx
+        .insertInto('userCompanies')
+        .values(companies.map((c) => ({ userId: id, companySiret: c.siret })))
+        .execute();
+    }
+    if (Object.keys(rest).length) {
+      await trx.updateTable('users').set(rest).where('id', '=', id).execute();
+    }
+  });
 };
 
 const addLoggedSecret = async (
@@ -193,6 +172,16 @@ const deleteLoggedSecret = async (
     .where('id', '=', id)
     .execute();
 };
+
+const getCompaniesByUserId = async (userId: string) => {
+  return kysely
+    .selectFrom('companies')
+    .leftJoin('userCompanies', 'companies.siret', 'userCompanies.companySiret')
+    .selectAll('companies')
+    .where('userCompanies.userId', '=', userId)
+    .execute();
+};
+
 export const userRepository = {
   findUnique,
   findOne,

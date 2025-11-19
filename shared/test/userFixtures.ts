@@ -37,7 +37,7 @@ export const genUser = <T extends Partial<User>>(data: T): User & T => {
     // })
     //   ? [SlaughterhouseCompanyFixture1]
     //   : null,
-    companies: null,
+    companies: [],
     disabled: false,
     ...data
   };

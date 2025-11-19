@@ -28,7 +28,7 @@ const BaseUser = z.object({
   disabled: z.boolean()
 });
 
-const userChecks = <
+const locationChecks = <
   T extends Pick<
     User,
     'region' | 'role' | 'department' | 'programmingPlanKinds'
@@ -42,37 +42,58 @@ const userChecks = <
   if (!user.region && hasRegionalRole(user)) {
     ctx.addIssue({
       code: 'custom',
+      path: ['region'],
       message: 'La région est obligatoire pour ce rôle.'
     });
   }
   if (user.department && !canHaveDepartement(user)) {
     ctx.addIssue({
       code: 'custom',
+      path: ['department'],
       message: 'Ce rôle ne peut pas être lié à un département.'
     });
   }
-  // if (
-  //   (!user.companies || user.companies.length === 0) &&
-  //   companiesIsRequired(user)
-  // ) {
-  //   ctx.addIssue({
-  //     code: 'custom',
-  //     message: 'Un abattoir est obligatoire pour ce rôle.'
-  //   });
-  // }
 };
 
-export const User = BaseUser.superRefine(userChecks);
+const companiesCheck = <
+  T extends Pick<
+    User,
+    'region' | 'role' | 'department' | 'programmingPlanKinds'
+  > & {
+    companies: unknown[] | null;
+  }
+>(
+  user: T,
+  ctx: RefinementCtx<T>
+) => {
+  if (
+    (!user.companies || user.companies.length === 0) &&
+    companiesIsRequired(user)
+  ) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['companies'],
+      message: 'Un abattoir est obligatoire pour ce rôle.'
+    });
+  }
+};
+
+export const User = BaseUser.superRefine(locationChecks);
 
 export const UserToCreate = BaseUser.omit({
   id: true,
   name: true
-}).superRefine(userChecks);
+})
+  .superRefine(locationChecks)
+  .superRefine(companiesCheck);
 export type UserToCreate = z.infer<typeof UserToCreate>;
 
 export const UserToUpdate = BaseUser.omit({
   name: true
-}).superRefine(userChecks);
+})
+  .superRefine(locationChecks)
+  .superRefine(companiesCheck);
+
 export type UserToUpdate = z.infer<typeof UserToUpdate>;
 
 export const Sampler = BaseUser.pick({

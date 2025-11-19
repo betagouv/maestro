@@ -8,7 +8,10 @@ import {
 } from 'maestro-shared/referential/Department';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
 import { Company } from 'maestro-shared/schema/Company/Company';
-import { ProgrammingPlanKindLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import {
+  ProgrammingPlanKindLabels,
+  ProgrammingPlanKindList
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   companiesIsRequired,
   User,
@@ -207,6 +210,7 @@ export const UserModal = ({
         <AppMultiSelect
           inputForm={form}
           inputKey={'programmingPlanKinds'}
+          items={ProgrammingPlanKindList}
           onChange={(v) =>
             setUser((u) => ({
               ...u,
@@ -223,16 +227,15 @@ export const UserModal = ({
           <AppMultiSelect
             inputForm={form}
             inputKey={'companies'}
-            onChange={(v) =>
+            items={companies}
+            idKey={'siret'}
+            onChange={(v) => {
               setUser((u) => ({
                 ...u,
-                companies: v.map((c) => ({
-                  siret: c,
-                  name: companies.find(({ siret }) => c === siret)?.name ?? ''
-                }))
-              }))
-            }
-            values={user.companies?.map(({ siret }) => siret) ?? []}
+                companies: v
+              }));
+            }}
+            values={user.companies ?? []}
             keysWithLabels={companies.reduce(
               (acc, c) => {
                 acc[c.siret] = c.name;
