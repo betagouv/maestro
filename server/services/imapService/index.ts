@@ -1,5 +1,5 @@
 import { ImapFlow } from 'imapflow';
-import { isNull } from 'lodash-es';
+import { isNil } from 'lodash-es';
 import { LaboratoryWithAutomation } from 'maestro-shared/referential/Laboratory';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import {
@@ -118,9 +118,9 @@ type EmailWithMessageUid = { messageUid: string } & Pick<
 
 export const checkEmails = async () => {
   if (
-    isNull(config.inbox.user) ||
-    isNull(config.inbox.host) ||
-    isNull(config.inbox.password)
+    isNil(config.inbox.user) ||
+    isNil(config.inbox.host) ||
+    isNil(config.inbox.password)
   ) {
     console.warn(
       "Impossible d'accéder à la boite email car les variables INBOX ne sont pas définies"
