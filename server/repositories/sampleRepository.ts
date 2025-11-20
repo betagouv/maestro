@@ -38,6 +38,7 @@ const PartialSampleJoinedDbo = PartialSampleDbo.merge(
     companyPostalCode: z.string().nullish(),
     companyCity: z.string().nullish(),
     companyNafCode: z.string().nullish(),
+    companyKinds: z.array(z.string()).nullish(),
     samplerId: z.guid(),
     samplerName: z.string()
   })
@@ -60,6 +61,7 @@ const findUnique = async (id: string): Promise<PartialSample | undefined> => {
       `${companiesTable}.postal_code as company_postal_code`,
       `${companiesTable}.city as company_city`,
       `${companiesTable}.naf_code as company_naf_code`,
+      `${companiesTable}.kinds as company_kinds`,
       `${usersTable}.id as sampler_id`,
       `${usersTable}.name as sampler_name`,
       db.raw(
@@ -330,6 +332,7 @@ const parsePartialSample = (sample: PartialSampleJoinedDbo): PartialSample =>
           postalCode: sample.companyPostalCode ?? null,
           city: sample.companyCity ?? null,
           nafCode: sample.companyNafCode ?? null,
+          kinds: sample.companyKinds ?? null,
           geolocation: null,
           kind: null
         }

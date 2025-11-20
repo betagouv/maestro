@@ -11,7 +11,7 @@ export const genCompany = (data?: Partial<Company>): Company => ({
   tradeName: null,
   geolocation: null,
   nafCode: null,
-  kind: null,
+  kinds: null,
   ...data
 });
 
@@ -27,7 +27,7 @@ export const SlaughterhouseCompanyFixture1 = genCompany({
   name: 'Slaughterhouse Company',
   address: '2 avenue des Champs',
   postalCode: '69000',
-  kind: 'MEAT_SLAUGHTERHOUSE'
+  kinds: ['MEAT_SLAUGHTERHOUSE']
 });
 
 export const SlaughterhouseCompanyFixture2 = genCompany({
@@ -35,5 +35,5 @@ export const SlaughterhouseCompanyFixture2 = genCompany({
   name: 'Another Slaughterhouse Company',
   address: '3 boulevard Saint-Michel',
   postalCode: '75000',
-  kind: 'MEAT_SLAUGHTERHOUSE'
+  kinds: ['MEAT_SLAUGHTERHOUSE']
 });

@@ -202,9 +202,6 @@ const ProgrammingPrescriptionList = ({
       allLocalPrescriptions
         ?.filter((_) => prescriptions?.some((p) => p.id === _.prescriptionId))
         .filter((_) => {
-          if (companies) {
-            return false;
-          }
           if (department) {
             return (
               _.region === region &&
@@ -214,7 +211,7 @@ const ProgrammingPrescriptionList = ({
           }
           return _.region === region && !isNil(_.department);
         }),
-    [prescriptions, allLocalPrescriptions, department, region, companies]
+    [prescriptions, allLocalPrescriptions, department, region]
   );
 
   useEffect(() => {

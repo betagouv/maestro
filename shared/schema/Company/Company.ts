@@ -12,7 +12,7 @@ export const Company = z.object(
     postalCode: z.string().nullish(),
     city: z.string().nullish(),
     nafCode: z.string().nullish(),
-    kind: CompanyKind.nullish(),
+    kinds: z.array(CompanyKind).nullish(),
     geolocation: z
       .union([
         z.string().transform((s) => {

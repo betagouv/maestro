@@ -40,7 +40,7 @@ export const seed = async function () {
         postalCode: '72400',
         city: 'VILLAINES-LA-GONAIS',
         nafCode: '10.11A',
-        kind: 'MEAT_SLAUGHTERHOUSE'
+        kinds: ['MEAT_SLAUGHTERHOUSE']
       },
       {
         siret: '54695037900216',
@@ -54,7 +54,7 @@ export const seed = async function () {
           y: -0.734475,
           x: 46.642117
         },
-        kind: 'MEAT_SLAUGHTERHOUSE'
+        kinds: ['MEAT_SLAUGHTERHOUSE']
       },
       {
         siret: '34447746800120',
@@ -68,7 +68,7 @@ export const seed = async function () {
           y: -1.02761,
           x: 46.86651
         },
-        kind: 'MEAT_SLAUGHTERHOUSE'
+        kinds: ['MEAT_SLAUGHTERHOUSE']
       },
       {
         siret: '50851378500206',
@@ -82,7 +82,7 @@ export const seed = async function () {
           y: -1.372955,
           x: 46.691626
         },
-        kind: 'MEAT_SLAUGHTERHOUSE'
+        kinds: ['MEAT_SLAUGHTERHOUSE']
       },
       {
         siret: '92495996800018',
@@ -96,7 +96,7 @@ export const seed = async function () {
           y: -1.716831,
           x: 46.740073
         },
-        kind: 'POULTRY_SLAUGHTERHOUSE'
+        kinds: ['POULTRY_SLAUGHTERHOUSE']
       },
       {
         siret: '51747620600019',
@@ -110,7 +110,7 @@ export const seed = async function () {
           y: -1.896687,
           x: 46.947964
         },
-        kind: 'POULTRY_SLAUGHTERHOUSE'
+        kinds: ['POULTRY_SLAUGHTERHOUSE']
       },
       {
         siret: '45012154600011',
@@ -124,7 +124,7 @@ export const seed = async function () {
           y: -1.328166,
           x: 46.667725
         },
-        kind: 'POULTRY_SLAUGHTERHOUSE'
+        kinds: ['POULTRY_SLAUGHTERHOUSE']
       },
       {
         siret: '34761115400027',
@@ -138,7 +138,7 @@ export const seed = async function () {
           y: -1.849943,
           x: 46.832063
         },
-        kind: 'POULTRY_SLAUGHTERHOUSE'
+        kinds: ['POULTRY_SLAUGHTERHOUSE']
       },
       {
         siret: '40180086700012',
@@ -152,7 +152,7 @@ export const seed = async function () {
           y: -1.431468,
           x: 46.739556
         },
-        kind: 'POULTRY_SLAUGHTERHOUSE'
+        kinds: ['POULTRY_SLAUGHTERHOUSE']
       },
       {
         siret: '54665036700040',
@@ -166,7 +166,7 @@ export const seed = async function () {
           y: -1.22209,
           x: 46.749416
         },
-        kind: 'POULTRY_SLAUGHTERHOUSE'
+        kinds: ['POULTRY_SLAUGHTERHOUSE']
       },
       {
         siret: '60165014600108',
@@ -180,7 +180,7 @@ export const seed = async function () {
           y: -1.040134,
           x: 46.858145
         },
-        kind: 'POULTRY_SLAUGHTERHOUSE'
+        kinds: ['POULTRY_SLAUGHTERHOUSE']
       },
       {
         siret: '31667398700012',
@@ -194,7 +194,7 @@ export const seed = async function () {
           y: -1.691395,
           x: 46.756547
         },
-        kind: 'POULTRY_SLAUGHTERHOUSE'
+        kinds: ['POULTRY_SLAUGHTERHOUSE']
       },
       {
         siret: '37840398400016',
@@ -208,7 +208,7 @@ export const seed = async function () {
           y: -1.125905,
           x: 46.799771
         },
-        kind: 'POULTRY_SLAUGHTERHOUSE'
+        kinds: ['POULTRY_SLAUGHTERHOUSE']
       },
       {
         siret: '47973740500015',
@@ -222,7 +222,7 @@ export const seed = async function () {
           y: -1.127975,
           x: 46.801677
         },
-        kind: 'POULTRY_SLAUGHTERHOUSE'
+        kinds: ['POULTRY_SLAUGHTERHOUSE']
       },
       {
         siret: '64568002600202',
@@ -236,7 +236,7 @@ export const seed = async function () {
           y: -0.769141,
           x: 46.832502
         },
-        kind: 'POULTRY_SLAUGHTERHOUSE'
+        kinds: ['POULTRY_SLAUGHTERHOUSE']
       },
       {
         siret: '38332052000026',
@@ -250,7 +250,7 @@ export const seed = async function () {
           y: -0.844255,
           x: 46.771781
         },
-        kind: 'POULTRY_SLAUGHTERHOUSE'
+        kinds: ['POULTRY_SLAUGHTERHOUSE']
       },
       {
         siret: '48678011700017',
@@ -264,7 +264,7 @@ export const seed = async function () {
           y: -1.888032,
           x: 46.764846
         },
-        kind: 'POULTRY_SLAUGHTERHOUSE'
+        kinds: ['POULTRY_SLAUGHTERHOUSE']
       },
       {
         siret: '54665036700016',
@@ -278,7 +278,7 @@ export const seed = async function () {
           y: -1.176081,
           x: 46.861085
         },
-        kind: 'POULTRY_SLAUGHTERHOUSE'
+        kinds: ['POULTRY_SLAUGHTERHOUSE']
       },
       {
         siret: '32822285600010',
@@ -292,7 +292,7 @@ export const seed = async function () {
           y: -1.20793,
           x: 46.724762
         },
-        kind: 'POULTRY_SLAUGHTERHOUSE'
+        kinds: ['POULTRY_SLAUGHTERHOUSE']
       },
       {
         siret: '34056489700015',
@@ -306,7 +306,7 @@ export const seed = async function () {
           y: -1.199816,
           x: 46.721646
         },
-        kind: 'POULTRY_SLAUGHTERHOUSE'
+        kinds: ['POULTRY_SLAUGHTERHOUSE']
       },
       {
         siret: '35166976700029',
@@ -320,7 +320,7 @@ export const seed = async function () {
           y: -1.879417,
           x: 46.783004
         },
-        kind: 'POULTRY_SLAUGHTERHOUSE'
+        kinds: ['POULTRY_SLAUGHTERHOUSE']
       },
       {
         siret: '35166976700011',
@@ -334,11 +334,11 @@ export const seed = async function () {
           y: -1.903136,
           x: 46.794292
         },
-        kind: 'POULTRY_SLAUGHTERHOUSE'
+        kinds: ['POULTRY_SLAUGHTERHOUSE']
       }
     ].map((company) => ({
       ...company,
-      kind: company.kind as CompanyKind,
+      kinds: company.kinds as CompanyKind[],
       geolocation: company.geolocation
         ? db.raw('Point(?, ?)', [company.geolocation.x, company.geolocation.y])
         : null

@@ -84,7 +84,7 @@ export interface Companies {
   postalCode: string | null;
   siret: string;
   tradeName: string | null;
-  kind: CompanyKind;
+  kinds: CompanyKind[];
   geolocation: Point | null;
 }
 
