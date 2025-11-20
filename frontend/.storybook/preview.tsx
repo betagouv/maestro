@@ -7,6 +7,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router';
 import '../src/App.scss';
+import '../src/i18n';
 import { ApiClientContext } from '../src/services/apiClient';
 import { mockApiClient } from '../src/services/mockApiClient';
 import { applicationReducer } from '../src/store/store';
