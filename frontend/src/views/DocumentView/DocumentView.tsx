@@ -148,7 +148,7 @@ const DocumentView = () => {
             <h3>
               {document
                 ? 'Téléversez une nouvelle version du document'
-                : 'Commencez par téléverser le document relatif à la fiche de plan'}
+                : 'Commencez par téléverser le document'}
             </h3>
             {document ? (
               <>
