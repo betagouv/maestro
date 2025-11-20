@@ -1,6 +1,5 @@
 import {
   DAOAInProgressProgrammingPlanFixture,
-  PFASValidatedProgrammingPlanFixture,
   PPVClosedProgrammingPlanFixture,
   PPVInProgressProgrammingPlanFixture,
   PPVValidatedProgrammingPlanFixture
@@ -25,7 +24,6 @@ export const seed = async function () {
     PPVClosedProgrammingPlanFixture,
     PPVValidatedProgrammingPlanFixture,
     PPVInProgressProgrammingPlanFixture,
-    PFASValidatedProgrammingPlanFixture,
     DAOAInProgressProgrammingPlanFixture
   ];
 

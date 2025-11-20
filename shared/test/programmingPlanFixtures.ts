@@ -82,24 +82,6 @@ export const PPVInProgressProgrammingPlanFixture = genProgrammingPlan({
   year: new Date().getFullYear() + 1
 });
 
-export const PFASValidatedProgrammingPlanFixture = genProgrammingPlan({
-  id: '95d0f5c9-8a48-4bfb-b896-08aae5a22be3',
-  domain: 'CHEMICAL_CONTAMINANT',
-  title: 'PFAS',
-  kinds: ['PFAS_EGGS', 'PFAS_MEAT'],
-  substanceKinds: ['Any'],
-  distributionKind: 'REGIONAL',
-  contexts: ['Control'],
-  samplesOutsidePlanAllowed: true,
-  createdAt: new Date(),
-  createdBy: NationalCoordinator.id,
-  regionalStatus: RegionList.map((region) => ({
-    region,
-    status: 'Validated'
-  })),
-  year: new Date().getFullYear()
-});
-
 export const DAOAInProgressProgrammingPlanFixture = genProgrammingPlan({
   id: 'fafc6f2e-aec5-4998-adeb-84090d971a90',
   domain: 'PESTICIDE_RESIDUE',

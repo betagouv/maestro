@@ -56,8 +56,6 @@ export const SpeciesLabels: Record<Species, string> = {
 export const SpeciesByProgrammingPlanKind: Partial<
   Record<ProgrammingPlanKind, Species[]>
 > = {
-  [ProgrammingPlanKind.enum.PFAS_MEAT]: ['ESP1', 'ESP2', 'ESP3', 'ESP4'],
-  [ProgrammingPlanKind.enum.PFAS_EGGS]: ['ESP5', 'ESP6'],
   [ProgrammingPlanKind.enum.DAOA_BREEDING]: [
     'ESP7',
     'ESP8',

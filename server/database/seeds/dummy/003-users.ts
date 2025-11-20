@@ -112,16 +112,6 @@ export const seed = async function () {
       role: 'Sampler',
       region: '52',
       department: '85'
-    },
-
-    //PFAS
-    {
-      id: uuidv4(),
-      email: 'preleveur-pfas@maestro.beta.gouv.fr',
-      name: `PFAS - ${fakerFR.person.fullName()}`,
-      programmingPlanKinds: ['PFAS_EGGS', 'PFAS_MEAT'],
-      role: 'Sampler',
-      region: '84'
     }
   ]);
 
