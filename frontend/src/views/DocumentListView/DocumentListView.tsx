@@ -8,7 +8,7 @@ import { Brand } from 'maestro-shared/constants';
 import { Document } from 'maestro-shared/schema/Document/Document';
 import {
   DocumentKindLabels,
-  ResourceDocumentKindList
+  SortedResourceDocumentKindList
 } from 'maestro-shared/schema/Document/DocumentKind';
 import { useContext, useState } from 'react';
 import ressources from 'src/assets/illustrations/ressources.svg';
@@ -113,7 +113,7 @@ const DocumentListView = () => {
               />
             )
           },
-          ...ResourceDocumentKindList.map((kind) => ({
+          ...SortedResourceDocumentKindList.map((kind) => ({
             label: DocumentKindLabels[kind],
             content: (
               <DocumentListTabContent

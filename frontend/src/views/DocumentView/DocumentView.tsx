@@ -11,7 +11,8 @@ import {
 } from 'maestro-shared/schema/Document/Document';
 import {
   DocumentKind,
-  DocumentKindLabels
+  DocumentKindLabels,
+  ResourceDocumentKindList
 } from 'maestro-shared/schema/Document/DocumentKind';
 import { FileInput } from 'maestro-shared/schema/File/FileInput';
 import { useContext, useEffect, useMemo, useState } from 'react';
@@ -261,7 +262,7 @@ const DocumentView = () => {
             />
             <AppSelect
               value={kind || ''}
-              options={selectOptionsFromList(['Resource', 'FicheDePlan'], {
+              options={selectOptionsFromList(ResourceDocumentKindList, {
                 labels: DocumentKindLabels
               })}
               onChange={(e) => setKind(e.target.value as DocumentKind)}
