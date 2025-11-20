@@ -25,6 +25,10 @@ const filtersConfig = {
   programmingPlanKind: {
     prop: 'programmingPlanKind',
     getLabel: (value) => ProgrammingPlanKindLabels[value]
+  },
+  onlyDisabled: {
+    prop: 'onlyDisabled',
+    getLabel: () => 'Seulement les désactivés'
   }
 } as const satisfies {
   [key in FilterableProp]: {

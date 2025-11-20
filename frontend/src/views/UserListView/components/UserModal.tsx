@@ -37,6 +37,7 @@ interface Props {
   userToUpdate: null | User;
   modal: ReturnType<typeof createModal>;
   companies: Company[];
+  setAlertMessage: (message: string) => void;
 }
 
 const userRoleOptions = selectOptionsFromList(UserRole.options, {
@@ -69,6 +70,7 @@ export const UserModal = ({
   userToUpdate,
   modal,
   companies,
+  setAlertMessage,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -114,8 +116,12 @@ export const UserModal = ({
     await form.validate(async (n) => {
       if (userToUpdate?.id) {
         await updateUser({ ...n, id: userToUpdate.id });
+        setAlertMessage(
+          `L'utilisateur ${userToUpdate.name} a bien été modifié.`
+        );
       } else {
         await createUser(n);
+        setAlertMessage(`L'utilisateur ${n.email} a bien été créé.`);
       }
       e.preventDefault();
       modal.close();
