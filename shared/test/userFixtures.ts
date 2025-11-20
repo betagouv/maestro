@@ -3,7 +3,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { RegionList, Regions } from '../referential/Region';
 import { ProgrammingPlanKindList } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 import { AuthUser } from '../schema/User/AuthUser';
-import { companiesIsRequired, User } from '../schema/User/User';
+import {
+  companiesIsRequired,
+  programmingPlanKindsIsRequired,
+  User
+} from '../schema/User/User';
 import {
   canHaveDepartment,
   hasRegionalRole,
@@ -20,9 +24,9 @@ export const genUser = <T extends Partial<User>>(data: T): User & T => {
       ? (data?.region ?? oneOf(RegionList))
       : null;
 
-  const programmingPlanKinds = data?.programmingPlanKinds ?? [
-    oneOf(ProgrammingPlanKindList)
-  ];
+  const programmingPlanKinds = programmingPlanKindsIsRequired({ role })
+    ? (data?.programmingPlanKinds ?? [oneOf(ProgrammingPlanKindList)])
+    : [];
   return {
     id: uuidv4(),
     email: fakerFR.internet.email(),

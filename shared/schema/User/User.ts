@@ -20,7 +20,7 @@ const BaseUser = z.object({
   id: z.guid(),
   email: z.email({ error: 'Veuillez renseigner un email valide.' }),
   name: z.string().nullable(),
-  programmingPlanKinds: z.array(ProgrammingPlanKind).min(1),
+  programmingPlanKinds: z.array(ProgrammingPlanKind),
   role: UserRole,
   region: Region.nullable(),
   department: Department.nullable(),
@@ -37,6 +37,16 @@ const userChecks = <
   user: T,
   ctx: RefinementCtx<T>
 ) => {
+  if (
+    user.programmingPlanKinds.length === 0 &&
+    programmingPlanKindsIsRequired(user)
+  ) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['programmingPlanKinds'],
+      message: 'Au moins un plan est obligatoire pour ce rôle.'
+    });
+  }
   if (!user.region && hasRegionalRole(user)) {
     ctx.addIssue({
       code: 'custom',
@@ -144,3 +154,7 @@ export const companiesIsRequired = (
   (user.programmingPlanKinds?.includes('DAOA_BREEDING') ||
     user.programmingPlanKinds?.includes('DAOA_SLAUGHTER') ||
     false);
+
+export const programmingPlanKindsIsRequired = (
+  user: Pick<Nullable<User>, 'role'>
+): boolean => user.role !== 'Administrator';
