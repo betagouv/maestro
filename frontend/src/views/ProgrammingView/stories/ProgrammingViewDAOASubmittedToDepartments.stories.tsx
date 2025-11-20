@@ -18,20 +18,13 @@ import {
   NationalCoordinator,
   RegionalCoordinator
 } from 'maestro-shared/test/userFixtures';
-import { I18nextProvider } from 'react-i18next';
 import { expect, userEvent, within } from 'storybook/test';
-import i18n from '../../../i18n';
 import { getMockApi } from '../../../services/mockApiClient';
 import ProgrammingView from '../ProgrammingView';
 
 const meta = {
   title: 'Views/ProgrammingPlanView/DAOA/3 - SubmittedToDepartments',
-  component: ProgrammingView,
-  decorators: (Story) => (
-    <I18nextProvider i18n={i18n}>
-      <Story />
-    </I18nextProvider>
-  )
+  component: ProgrammingView
 } satisfies Meta<typeof ProgrammingView>;
 
 export default meta;
