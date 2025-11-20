@@ -42,29 +42,6 @@ export const AnimalKindLabels: Record<AnimalKind, string> = {
   TYPEA14: 'Poule - Gallus gallus'
 };
 
-export const AnimalKindAgeLimit: Record<
-  AnimalKind,
-  {
-    min?: number;
-    max?: number;
-  }
-> = {
-  TYPEA1: { max: 5 },
-  TYPEA2: { min: 6, max: 24 },
-  TYPEA3: { min: 25 },
-  TYPEA4: {},
-  TYPEA5: { max: 3 },
-  TYPEA6: { min: 4 },
-  TYPEA7: { max: 2 },
-  TYPEA8: { min: 3, max: 12 },
-  TYPEA9: { min: 13 },
-  TYPEA10: {},
-  TYPEA11: {},
-  TYPEA12: {},
-  TYPEA13: {},
-  TYPEA14: {}
-};
-
 export const AnimalKindsByProgrammingPlanKind: Partial<
   Record<ProgrammingPlanKind, AnimalKind[]>
 > = {

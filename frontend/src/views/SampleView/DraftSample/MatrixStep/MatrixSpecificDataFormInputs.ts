@@ -6,10 +6,7 @@ import {
   AnimalSexLabels,
   AnimalSexList
 } from 'maestro-shared/referential/AnimalSex';
-import {
-  BreedingMethodLabels,
-  BreedingMethodList
-} from 'maestro-shared/referential/BreedingMethod';
+
 import {
   CultureKindLabels,
   CultureKindList
@@ -18,10 +15,7 @@ import {
   MatrixPartLabels,
   MatrixPartList
 } from 'maestro-shared/referential/Matrix/MatrixPart';
-import {
-  OutdoorAccessLabels,
-  OutdoorAccessList
-} from 'maestro-shared/referential/OutdoorAccess';
+
 import {
   ProductionKindLabels,
   ProductionKindsByProgrammingPlanKind
@@ -30,15 +24,10 @@ import {
   ProductionMethodLabels,
   ProductionMethodList
 } from 'maestro-shared/referential/ProductionMethod';
-import { SeizureLabels, SeizureList } from 'maestro-shared/referential/Seizure';
 import {
   SpeciesByProgrammingPlanKind,
   SpeciesLabels
 } from 'maestro-shared/referential/Species';
-import {
-  TargetingCriteriaLabels,
-  TargetingCriteriaList
-} from 'maestro-shared/referential/TargetingCriteria';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 
@@ -119,22 +108,6 @@ export const MatrixSpecificDataFormInputs: Record<
     whenValid: 'Code tuerie correctement renseigné.',
     testId: 'killing-code-input'
   },
-  targetingCriteria: {
-    inputType: 'select',
-    label: 'Critère de ciblage',
-    whenValid: 'Critère de ciblage correctement renseigné.',
-    optionsValues: TargetingCriteriaList,
-    optionsLabels: TargetingCriteriaLabels,
-    defaultOptionLabel: 'Sélectionner un critère de ciblage',
-    testId: 'targeting-criteria-select'
-  },
-  notesOnTargetingCriteria: {
-    inputType: 'textarea',
-    label: 'Précisions critère de ciblage',
-    whenValid: 'Précisions correctement renseignées.',
-    rows: 1,
-    testId: 'notes-on-targeting-criteria-input'
-  },
   animalKind: {
     inputType: 'select',
     label: "Type d'animal",
@@ -159,15 +132,6 @@ export const MatrixSpecificDataFormInputs: Record<
     whenValid: 'Identifiant correctement renseigné.',
     testId: 'animal-identifier-input'
   },
-  breedingMethod: {
-    inputType: 'select',
-    label: "Mode d'élevage",
-    whenValid: "Mode d'élevage correctement renseigné.",
-    optionsValues: BreedingMethodList,
-    optionsLabels: BreedingMethodLabels,
-    defaultOptionLabel: 'Sélectionner un mode d’élevage',
-    testId: 'breeding-method-select'
-  },
   productionMethod: {
     inputType: 'select',
     label: 'Mode de production',
@@ -191,23 +155,5 @@ export const MatrixSpecificDataFormInputs: Record<
     optionsLabels: AnimalSexLabels,
     defaultOptionLabel: 'Sélectionner un sexe',
     testId: 'sex-select'
-  },
-  seizure: {
-    inputType: 'select',
-    label: 'Saisie',
-    whenValid: 'Saisie correctement renseignée.',
-    optionsValues: SeizureList,
-    optionsLabels: SeizureLabels,
-    defaultOptionLabel: 'Sélectionner une saisie',
-    testId: 'seizure-select'
-  },
-  outdoorAccess: {
-    inputType: 'radio',
-    label: "Accès à l'extérieur des animaux de l'élevage",
-    whenValid: "Accès à l'extérieur correctement renseigné.",
-    testId: 'outdoor-access-radio',
-    optionsValues: OutdoorAccessList,
-    optionsLabels: OutdoorAccessLabels,
-    colSm: 4
   }
 };

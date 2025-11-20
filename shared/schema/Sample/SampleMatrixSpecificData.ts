@@ -1,7 +1,6 @@
 import { isNil } from 'lodash-es';
 import { z } from 'zod';
-import { CheckFn } from 'zod/v4/core';
-import { AnimalKind, AnimalKindAgeLimit } from '../../referential/AnimalKind';
+import { AnimalKind } from '../../referential/AnimalKind';
 import { AnimalSex } from '../../referential/AnimalSex';
 import { CultureKind } from '../../referential/CultureKind';
 import { MatrixPart } from '../../referential/Matrix/MatrixPart';
@@ -30,27 +29,6 @@ const AnimalAge = z.coerce
   .number({ error: "Veuillez renseigner l'âge de l'animal." })
   .int()
   .nonnegative();
-
-type AnimalAge = z.infer<typeof AnimalAge>;
-
-const animalKindAgeCheck: CheckFn<{
-  animalKind: AnimalKind;
-  age: AnimalAge;
-}> = (ctx) => {
-  const val = ctx.value;
-  const ageLimit = AnimalKindAgeLimit[val.animalKind];
-  if (
-    (ageLimit?.min && Number(val.age) < ageLimit.min) ||
-    (ageLimit?.max && Number(val.age) > ageLimit.max)
-  ) {
-    ctx.issues.push({
-      code: 'custom',
-      message: `Cet âge n'est pas autorisé pour le type d'animal sélectionné.`,
-      path: ['specificData', 'age'],
-      input: val
-    });
-  }
-};
 
 const SampleMatrixSpecificDataPPV = z.object({
   programmingPlanKind: z.literal(ProgrammingPlanKind.enum.PPV),
