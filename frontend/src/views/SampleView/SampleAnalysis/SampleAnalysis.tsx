@@ -9,12 +9,12 @@ import { FunctionComponent, useContext, useState } from 'react';
 import { SampleStatusBadge } from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import { usePartialSample } from 'src/hooks/usePartialSample';
 import SampleAdmissibility from 'src/views/SampleView/SampleAnalysis/SampleAdmissibility/SampleAdmissibility';
-import SampleAnalysisOverview from 'src/views/SampleView/SampleAnalysis/SampleAnalysisOverview/SampleAnalysisOverview';
 import SampleDraftAnalysis from 'src/views/SampleView/SampleAnalysis/SampleDraftAnalysis/SampleDraftAnalysis';
 import UserFeedback from '../../../components/UserFeedback/UserFeedback';
 import { useAuthentication } from '../../../hooks/useAuthentication';
 import { useSamplesLink } from '../../../hooks/useSamplesLink';
 import { ApiClientContext } from '../../../services/apiClient';
+import { SampleAnalysisOverview } from './SampleAnalysisOverview/SampleAnalysisOverview';
 import { SampleAnalysisReview } from './SampleAnalysisReview/SampleAnalysisReview';
 
 type Props = {
