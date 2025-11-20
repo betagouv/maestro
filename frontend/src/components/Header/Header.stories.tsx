@@ -52,7 +52,7 @@ const inProgressProgrammingPlan = {
   })
 };
 
-export const programmingPlans = [
+export const ProgrammingPlans = [
   closedProgrammingPlan,
   validatedProgrammingPlan,
   inProgressProgrammingPlan
@@ -93,7 +93,7 @@ export const NationalCoordinator: Story = {
     },
     apiClient: getMockApi({
       useFindProgrammingPlansQuery: {
-        data: programmingPlans
+        data: ProgrammingPlans
       }
     })
   },
@@ -146,7 +146,7 @@ export const Administrator: Story = {
     },
     apiClient: getMockApi({
       useFindProgrammingPlansQuery: {
-        data: programmingPlans
+        data: ProgrammingPlans
       }
     })
   },
@@ -199,7 +199,7 @@ export const LaboratoryUser: Story = {
     },
     apiClient: getMockApi({
       useFindProgrammingPlansQuery: {
-        data: programmingPlans
+        data: ProgrammingPlans
       }
     })
   },
