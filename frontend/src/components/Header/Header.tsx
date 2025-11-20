@@ -179,14 +179,18 @@ const Header = () => {
                         })
                   }
                 : undefined,
-              {
-                isActive: isActive(`/programmation`, true),
-                text: 'Programmation',
-                linkProps: {
-                  to: AuthenticatedAppRoutes.ProgrammingRoute.link,
-                  target: '_self'
-                }
-              },
+              hasUserPermission('readProgrammingPlans')
+                ? {
+                    isActive: isActive(`/programmation`, true),
+                    text: 'Programmation',
+                    linkProps: {
+                      to: AuthenticatedAppRoutes.ProgrammingRoute.link,
+                      target: '_self'
+                    }
+                  }
+                : undefined,
+              (hasUserPermission('readProgrammingPlans') ||
+                hasUserPermission('readSamples')) &&
               closedYears?.length
                 ? {
                     isActive: closedYears?.some(

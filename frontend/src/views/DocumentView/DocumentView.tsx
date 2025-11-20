@@ -6,13 +6,14 @@ import { skipToken } from '@reduxjs/toolkit/query';
 import clsx from 'clsx';
 import { isNil } from 'lodash-es';
 import {
+  documentChecks,
   DocumentToCreate,
   DocumentUpdate
 } from 'maestro-shared/schema/Document/Document';
 import {
   DocumentKind,
   DocumentKindLabels,
-  ResourceDocumentKindList
+  SortedResourceDocumentKindList
 } from 'maestro-shared/schema/Document/DocumentKind';
 import { FileInput } from 'maestro-shared/schema/File/FileInput';
 import { useContext, useEffect, useMemo, useState } from 'react';
@@ -74,15 +75,17 @@ const DocumentView = () => {
     }
   }, [document]);
 
-  const Form = document
-    ? z.object({
-        ...DocumentUpdate.shape,
-        file: FileInput().nullish()
-      })
-    : z.object({
-        ...DocumentToCreate.omit({ id: true, filename: true }).shape,
-        file: FileInput()
-      });
+  const Form = (
+    document
+      ? z.object({
+          ...DocumentUpdate.shape,
+          file: FileInput().nullish()
+        })
+      : z.object({
+          ...DocumentToCreate.omit({ id: true, filename: true }).shape,
+          file: FileInput()
+        })
+  ).check(documentChecks);
 
   const formData = {
     file,
@@ -262,7 +265,7 @@ const DocumentView = () => {
             />
             <AppSelect
               value={kind || ''}
-              options={selectOptionsFromList(ResourceDocumentKindList, {
+              options={selectOptionsFromList(SortedResourceDocumentKindList, {
                 labels: DocumentKindLabels
               })}
               onChange={(e) => setKind(e.target.value as DocumentKind)}
