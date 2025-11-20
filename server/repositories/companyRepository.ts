@@ -66,7 +66,7 @@ const findMany = async (
         break;
       case 'kinds':
         if (!isNil(findOptions.kinds) && findOptions.kinds.length > 0) {
-          query = query.where('kind', 'in', findOptions.kinds);
+          query = query.where('kinds', '@>', [findOptions.kinds]);
         }
         break;
       default:
