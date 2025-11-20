@@ -24,7 +24,7 @@ export const documentsRouter = {
         };
       }
       if (
-        documentToCreate.kind === 'Resource' &&
+        ResourceDocumentKindList.includes(documentToCreate.kind) &&
         !hasPermission(user, 'createResource')
       ) {
         return {
@@ -79,7 +79,10 @@ export const documentsRouter = {
   },
   '/documents/upload-signed-url': {
     post: async ({ user, body }) => {
-      if (body.kind === 'Resource' && !hasPermission(user, 'createResource')) {
+      if (
+        ResourceDocumentKindList.includes(body.kind) &&
+        !hasPermission(user, 'createResource')
+      ) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
       if (
@@ -104,7 +107,9 @@ export const documentsRouter = {
 
       if (
         isNil(document) ||
-        !UploadDocumentKindList.includes(document.kind) ||
+        ![...ResourceDocumentKindList, 'SampleDocument'].includes(
+          document.kind
+        ) ||
         (document.kind === 'SampleDocument' &&
           !hasPermission(user, 'updateSample')) ||
         (ResourceDocumentKindList.includes(document.kind) &&
@@ -139,7 +144,7 @@ export const documentsRouter = {
       }
 
       if (
-        document?.kind === 'Resource' &&
+        ResourceDocumentKindList.includes(document.kind) &&
         !hasPermission(user, 'deleteDocument')
       ) {
         return {
