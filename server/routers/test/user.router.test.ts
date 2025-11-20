@@ -13,6 +13,7 @@ import {
   Sampler2Fixture,
   SamplerDromFixture
 } from 'maestro-shared/test/userFixtures';
+import { expectArrayToContainElements } from 'maestro-shared/test/utils';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { describe, expect, test } from 'vitest';
@@ -116,12 +117,10 @@ describe('User router', () => {
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining(Sampler1Fixture),
-          expect.objectContaining(RegionalCoordinator)
-        ])
-      );
+      expectArrayToContainElements(res.body, [
+        expect.objectContaining(Sampler1Fixture),
+        expect.objectContaining(RegionalCoordinator)
+      ]);
     });
 
     test('should filter users by role', async () => {
@@ -130,13 +129,11 @@ describe('User router', () => {
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining(SamplerDromFixture),
-          expect.objectContaining(Sampler2Fixture),
-          expect.objectContaining(Sampler1Fixture)
-        ])
-      );
+      expectArrayToContainElements(res.body, [
+        expect.objectContaining(SamplerDromFixture),
+        expect.objectContaining(Sampler1Fixture),
+        expect.objectContaining(Sampler2Fixture)
+      ]);
     });
   });
 

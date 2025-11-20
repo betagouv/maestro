@@ -37,6 +37,7 @@ import {
   Sampler2Fixture,
   SamplerAndNationalObserver
 } from 'maestro-shared/test/userFixtures';
+import { expectArrayToContainElements } from 'maestro-shared/test/utils';
 import { withISOStringDates } from 'maestro-shared/utils/utils';
 import { beforeAll, describe, expect, test } from 'vitest';
 import { departmentsSeed } from '../../database/seeds/departments/departmentsSeed';
@@ -209,7 +210,7 @@ describe('Sample router', () => {
           })
         ].map(withISOStringDates);
         expect(res.body).toHaveLength(expectedSamples.length);
-        expect(res.body).toEqual(expect.arrayContaining(expectedSamples));
+        expectArrayToContainElements(res.body, expectedSamples);
       };
 
       await successRequestTest(Sampler1Fixture);
@@ -245,7 +246,7 @@ describe('Sample router', () => {
           })
         ].map(withISOStringDates);
         expect(res.body).toHaveLength(expectedSamples.length);
-        expect(res.body).toEqual(expect.arrayContaining(expectedSamples));
+        expectArrayToContainElements(res.body, expectedSamples);
       };
 
       await successRequestTest(NationalCoordinator);

@@ -58,6 +58,7 @@ export const Sampler1Fixture = genUser({
   id: '11111111-1111-1111-1111-111111111111',
   programmingPlanKinds: ['PPV'],
   region: Region1Fixture,
+  department: null,
   name: 'John Doe',
   email: 'john.doe@example.net'
 });
@@ -66,6 +67,7 @@ export const Sampler2Fixture = genUser({
   id: '22222222-2222-2222-2222-222222222222',
   programmingPlanKinds: ['PPV'],
   region: Region2Fixture,
+  department: null,
   name: 'Jane Austen',
   email: 'jane.austen@example.net'
 });
@@ -74,8 +76,6 @@ export const SamplerDromFixture = genUser({
   id: '66666666-6666-6666-6666-666666666666',
   programmingPlanKinds: ['PPV'],
   region: RegionDromFixture,
-  //Si on met le département, un test échoue!!!
-  //department: '971',
   department: null,
   name: 'Jack Sparrow',
   email: 'jack.sparrow@example.net'
