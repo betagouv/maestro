@@ -22,11 +22,13 @@ type Props = {
   user: User;
   onEdit: () => void;
   onDisable: () => void;
+  onEnable: () => void;
 };
 export const UserCard: FunctionComponent<Props> = ({
   user,
   onEdit,
   onDisable,
+  onEnable,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -49,15 +51,24 @@ export const UserCard: FunctionComponent<Props> = ({
               title={'éditer'}
               data-testid={`user-edit-button-${user.id}`}
             />
-            <Button
-              size="small"
-              className={clsx('')}
-              onClick={onDisable}
-              priority={'tertiary'}
-              title={'désactiver'}
-              iconId={'fr-icon-logout-box-r-line'}
-              data-testid={`user-disable-button-${user.id}`}
-            />
+            {!user.disabled ? (
+              <Button
+                size="small"
+                onClick={onDisable}
+                priority={'tertiary'}
+                title={'désactiver'}
+                iconId={'fr-icon-logout-box-r-line'}
+                data-testid={`user-disable-button-${user.id}`}
+              />
+            ) : (
+              <Button
+                size="small"
+                onClick={onEnable}
+                priority={'tertiary'}
+                title={'activer'}
+                iconId={'fr-icon-user-add-line'}
+              />
+            )}
           </div>
         </div>
       }

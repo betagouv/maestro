@@ -9,7 +9,8 @@ const meta = {
   args: {
     user: genUser({}),
     onEdit: fn(),
-    onDisable: fn()
+    onDisable: fn(),
+    onEnable: fn()
   }
 } satisfies Meta<typeof UserCard>;
 

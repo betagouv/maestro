@@ -2,6 +2,7 @@ import Accordion from '@codegouvfr/react-dsfr/Accordion';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Input from '@codegouvfr/react-dsfr/Input';
 import Select from '@codegouvfr/react-dsfr/Select';
+import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
 import {
   Department,
@@ -33,7 +34,8 @@ const _findUserOptions = z.object({
   department: Department.nullable(),
   role: UserRole.nullable(),
   programmingPlanKind: ProgrammingPlanKind.nullable(),
-  label: z.string().nullable()
+  label: z.string().nullable(),
+  onlyDisabled: z.boolean().nullable()
 });
 
 export type FindUserOptions = z.infer<typeof _findUserOptions>;
@@ -53,7 +55,8 @@ export const UsersFilters: FunctionComponent<Props> = ({
     role: null,
     department: null,
     programmingPlanKind: null,
-    label: null
+    label: null,
+    onlyDisabled: null
   });
 
   const hasFilter: boolean = useMemo(() => {
@@ -125,6 +128,7 @@ const Filters: FunctionComponent<
   role,
   programmingPlanKind,
   label,
+  onlyDisabled,
   onChange,
   ..._rest
 }) => {
@@ -215,6 +219,18 @@ const Filters: FunctionComponent<
             </option>
           ))}
         </Select>
+      </div>
+
+      <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
+        <ToggleSwitch
+          label="Seulement les désactivés"
+          labelPosition="left"
+          inputTitle="affiche seulement les utilisateurs désactivés"
+          defaultChecked={onlyDisabled ?? false}
+          onChange={(checked) =>
+            onChange({ onlyDisabled: checked || undefined })
+          }
+        />
       </div>
     </div>
   );
