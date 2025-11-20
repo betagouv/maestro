@@ -43,7 +43,9 @@ test("peut modifier le nom et le prénom d'un utilisateur", async () => {
 });
 
 test('peut ajouter une entreprise à un utilisateur', async () => {
-  const user1 = genUser({});
+  const user1 = genUser({
+    companies: []
+  });
 
   await userRepository.insert(user1);
 

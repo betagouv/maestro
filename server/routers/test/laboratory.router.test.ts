@@ -7,6 +7,7 @@ import { tokenProvider } from '../../test/testUtils';
 
 import { fakerFR } from '@faker-js/faker';
 import { NationalCoordinator } from 'maestro-shared/test/userFixtures';
+import { expectArrayToContainElements } from 'maestro-shared/test/utils';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 describe('Laboratory router', () => {
   const { app } = createServer();
@@ -68,14 +69,12 @@ describe('Laboratory router', () => {
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            id: laboratory.id,
-            shortName: laboratory.shortName
-          })
-        ])
-      );
+      expectArrayToContainElements(res.body, [
+        expect.objectContaining({
+          id: laboratory.id,
+          shortName: laboratory.shortName
+        })
+      ]);
     });
   });
 });

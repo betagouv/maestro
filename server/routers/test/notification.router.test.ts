@@ -5,6 +5,7 @@ import {
   RegionalCoordinator,
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
+import { expectArrayToContainElements } from 'maestro-shared/test/utils';
 import { withISOStringDates } from 'maestro-shared/utils/utils';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
@@ -69,12 +70,10 @@ describe('Notification router', () => {
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res1.body).toMatchObject(
-        expect.arrayContaining([
-          withISOStringDates(notification1),
-          withISOStringDates(notification2)
-        ])
-      );
+      expectArrayToContainElements(res1.body, [
+        withISOStringDates(notification1),
+        withISOStringDates(notification2)
+      ]);
 
       const res2 = await request(app)
         .get(testRoute)
@@ -170,12 +169,10 @@ describe('Notification router', () => {
         .send({ read: true })
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toMatchObject(
-        expect.arrayContaining([
-          withISOStringDates({ ...notification1, read: true }),
-          withISOStringDates({ ...notification2, read: true })
-        ])
-      );
+      expectArrayToContainElements(res.body, [
+        withISOStringDates({ ...notification1, read: true }),
+        withISOStringDates({ ...notification2, read: true })
+      ]);
     });
   });
 });

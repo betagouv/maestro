@@ -32,6 +32,7 @@ import {
   Sampler1Fixture,
   SamplerAndNationalObserver
 } from 'maestro-shared/test/userFixtures';
+import { expectArrayToContainElements } from 'maestro-shared/test/utils';
 import { withISOStringDates } from 'maestro-shared/utils/utils';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
@@ -318,9 +319,7 @@ describe('Local prescriptions router', () => {
         );
 
         expect(res.body).toHaveLength(expectLocalPrescriptions.length);
-        expect(res.body).toEqual(
-          expect.arrayContaining(expectLocalPrescriptions)
-        );
+        expectArrayToContainElements(res.body, expectLocalPrescriptions);
       };
 
       await successRequestTest(NationalCoordinator);
@@ -366,40 +365,39 @@ describe('Local prescriptions router', () => {
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toEqual(
-        expect.arrayContaining(
-          closedControlLocalPrescriptions.map((localPrescription) => ({
-            ...localPrescription,
-            comments: isEqual(
-              LocalPrescriptionKey.parse(localPrescription),
-              LocalPrescriptionKey.parse(closedControlPrescriptionComment1)
-            )
-              ? expect.arrayContaining(
-                  [
-                    {
-                      id: closedControlPrescriptionComment1.id,
-                      comment: closedControlPrescriptionComment1.comment,
-                      createdBy: closedControlPrescriptionComment1.createdBy,
-                      createdAt: closedControlPrescriptionComment1.createdAt
-                    },
-                    {
-                      id: closedControlPrescriptionComment2.id,
-                      comment: closedControlPrescriptionComment2.comment,
-                      createdBy: closedControlPrescriptionComment2.createdBy,
-                      createdAt: closedControlPrescriptionComment2.createdAt
-                    }
-                  ].map(withISOStringDates)
-                )
-              : [],
-            realizedSampleCount: isEqual(
-              LocalPrescriptionKey.parse(localPrescription),
-              LocalPrescriptionKey.parse(sample)
-            )
-              ? 1
-              : 0,
-            inProgressSampleCount: 0
-          }))
-        )
+      expectArrayToContainElements(
+        res.body,
+        closedControlLocalPrescriptions.map((localPrescription) => ({
+          ...localPrescription,
+          comments: isEqual(
+            LocalPrescriptionKey.parse(localPrescription),
+            LocalPrescriptionKey.parse(closedControlPrescriptionComment1)
+          )
+            ? expect.arrayContaining(
+                [
+                  {
+                    id: closedControlPrescriptionComment1.id,
+                    comment: closedControlPrescriptionComment1.comment,
+                    createdBy: closedControlPrescriptionComment1.createdBy,
+                    createdAt: closedControlPrescriptionComment1.createdAt
+                  },
+                  {
+                    id: closedControlPrescriptionComment2.id,
+                    comment: closedControlPrescriptionComment2.comment,
+                    createdBy: closedControlPrescriptionComment2.createdBy,
+                    createdAt: closedControlPrescriptionComment2.createdAt
+                  }
+                ].map(withISOStringDates)
+              )
+            : [],
+          realizedSampleCount: isEqual(
+            LocalPrescriptionKey.parse(localPrescription),
+            LocalPrescriptionKey.parse(sample)
+          )
+            ? 1
+            : 0,
+          inProgressSampleCount: 0
+        }))
       );
     });
   });
