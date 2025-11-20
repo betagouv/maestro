@@ -157,4 +157,4 @@ export const companiesIsRequired = (
 
 export const programmingPlanKindsIsRequired = (
   user: Pick<Nullable<User>, 'role'>
-): boolean => user.role !== 'Administrator';
+): boolean => user.role !== 'Administrator' && user.role !== 'LaboratoryUser';
