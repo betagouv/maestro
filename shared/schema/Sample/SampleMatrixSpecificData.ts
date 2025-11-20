@@ -1,17 +1,12 @@
 import { isNil } from 'lodash-es';
 import { z } from 'zod';
-import { CheckFn } from 'zod/v4/core';
-import { AnimalKind, AnimalKindAgeLimit } from '../../referential/AnimalKind';
+import { AnimalKind } from '../../referential/AnimalKind';
 import { AnimalSex } from '../../referential/AnimalSex';
-import { BreedingMethod } from '../../referential/BreedingMethod';
 import { CultureKind } from '../../referential/CultureKind';
 import { MatrixPart } from '../../referential/Matrix/MatrixPart';
-import { OutdoorAccess } from '../../referential/OutdoorAccess';
 import { ProductionKind } from '../../referential/ProductionKind';
 import { ProductionMethod } from '../../referential/ProductionMethod';
-import { Seizure } from '../../referential/Seizure';
 import { Species } from '../../referential/Species';
-import { TargetingCriteria } from '../../referential/TargetingCriteria';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 
 const KillingCode = z
@@ -35,27 +30,6 @@ const AnimalAge = z.coerce
   .int()
   .nonnegative();
 
-type AnimalAge = z.infer<typeof AnimalAge>;
-
-const animalKindAgeCheck: CheckFn<{
-  animalKind: AnimalKind;
-  age: AnimalAge;
-}> = (ctx) => {
-  const val = ctx.value;
-  const ageLimit = AnimalKindAgeLimit[val.animalKind];
-  if (
-    (ageLimit?.min && Number(val.age) < ageLimit.min) ||
-    (ageLimit?.max && Number(val.age) > ageLimit.max)
-  ) {
-    ctx.issues.push({
-      code: 'custom',
-      message: `Cet âge n'est pas autorisé pour le type d'animal sélectionné.`,
-      path: ['specificData', 'age'],
-      input: val
-    });
-  }
-};
-
 const SampleMatrixSpecificDataPPV = z.object({
   programmingPlanKind: z.literal(ProgrammingPlanKind.enum.PPV),
   matrixDetails: z.string().nullish(),
@@ -63,36 +37,6 @@ const SampleMatrixSpecificDataPPV = z.object({
   matrixPart: MatrixPart,
   releaseControl: z.boolean().nullish()
 });
-
-const SampleMatrixSpecificDataPFAS = z
-  .object({
-    programmingPlanKind: z
-      .literal(ProgrammingPlanKind.enum.PFAS_EGGS)
-      .or(z.literal(ProgrammingPlanKind.enum.PFAS_MEAT)),
-    species: Species,
-    targetingCriteria: TargetingCriteria,
-    notesOnTargetingCriteria: z.string().nullish(),
-    animalKind: AnimalKind,
-    animalIdentifier: AnimalIdentifier,
-    breedingMethod: BreedingMethod,
-    age: AnimalAge,
-    sex: AnimalSex,
-    seizure: Seizure.nullish(),
-    outdoorAccess: OutdoorAccess
-  })
-  .check(animalKindAgeCheck);
-
-const SampleMatrixSpecificDataPFASEggs =
-  SampleMatrixSpecificDataPFAS.safeExtend({
-    programmingPlanKind: z.literal(ProgrammingPlanKind.enum.PFAS_EGGS)
-  });
-
-const SampleMatrixSpecificDataPFASMeat =
-  SampleMatrixSpecificDataPFAS.safeExtend({
-    programmingPlanKind: z.literal(ProgrammingPlanKind.enum.PFAS_MEAT),
-    killingCode: KillingCode,
-    productionKind: ProductionKind
-  });
 
 const SampleMatrixSpecificDataDAOA = z.object({
   programmingPlanKind: z
@@ -122,8 +66,6 @@ export const SampleMatrixSpecificData = z.discriminatedUnion(
   'programmingPlanKind',
   [
     SampleMatrixSpecificDataPPV,
-    SampleMatrixSpecificDataPFASEggs,
-    SampleMatrixSpecificDataPFASMeat,
     SampleMatrixSpecificDataDAOABreeding,
     SampleMatrixSpecificDataDAOASlaughter
   ],
@@ -136,12 +78,6 @@ export const PartialSampleMatrixSpecificData = z.discriminatedUnion(
   'programmingPlanKind',
   [
     SampleMatrixSpecificDataPPV.partial().required({
-      programmingPlanKind: true
-    }),
-    SampleMatrixSpecificDataPFASEggs.partial().required({
-      programmingPlanKind: true
-    }),
-    SampleMatrixSpecificDataPFASMeat.partial().required({
       programmingPlanKind: true
     }),
     SampleMatrixSpecificDataDAOABreeding.partial().required({

@@ -26,43 +26,6 @@ export const MatrixSpecificDataForm: {
     matrixPart: {},
     releaseControl: {}
   },
-  PFAS_EGGS: {
-    species: {
-      position: 'pre',
-      classes: { container: cx('fr-col-offset-sm-6--right') }
-    },
-    targetingCriteria: {},
-    notesOnTargetingCriteria: {},
-    animalKind: {
-      preTitle: 'Animal',
-      classes: { container: cx('fr-col-offset-sm-6--right') }
-    },
-    animalIdentifier: {},
-    breedingMethod: {},
-    age: {},
-    sex: {},
-    seizure: {},
-    outdoorAccess: {}
-  },
-  PFAS_MEAT: {
-    species: {
-      position: 'pre',
-      classes: { container: cx('fr-col-offset-sm-6--right') }
-    },
-    killingCode: {},
-    targetingCriteria: {},
-    notesOnTargetingCriteria: {},
-    animalKind: {
-      preTitle: 'Animal'
-    },
-    productionKind: {},
-    animalIdentifier: {},
-    breedingMethod: {},
-    age: {},
-    sex: {},
-    seizure: {},
-    outdoorAccess: {}
-  },
   DAOA_BREEDING: {
     killingCode: {},
     animalIdentifier: {},
