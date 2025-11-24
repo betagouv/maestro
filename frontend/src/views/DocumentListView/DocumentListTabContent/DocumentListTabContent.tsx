@@ -87,19 +87,20 @@ const DocumentListTabContent = ({
         </div>
       </div>
       {documentListDisplay === 'cards' && (
-        <>
-          <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-            {filteredResources?.map((resource) => (
-              <div className={cx('fr-col-12', 'fr-col-md-4')} key={resource.id}>
-                <DocumentCard
-                  document={resource}
-                  onViewNotes={onViewDocumentNotes}
-                  onRemove={onRemoveDocument}
-                />
-              </div>
-            ))}
-          </div>
-        </>
+        <div
+          className={cx('fr-grid-row', 'fr-grid-row--gutters')}
+          data-testid={`document-list-${documentKind || 'all'}-cards`}
+        >
+          {filteredResources?.map((resource) => (
+            <div className={cx('fr-col-12', 'fr-col-md-4')} key={resource.id}>
+              <DocumentCard
+                document={resource}
+                onViewNotes={onViewDocumentNotes}
+                onRemove={onRemoveDocument}
+              />
+            </div>
+          ))}
+        </div>
       )}
       {documentListDisplay === 'table' && (
         <DocumentTable
