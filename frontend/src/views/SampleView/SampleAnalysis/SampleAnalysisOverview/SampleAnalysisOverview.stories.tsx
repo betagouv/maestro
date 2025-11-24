@@ -18,7 +18,23 @@ const meta = {
   args: {
     sample: Sample11Fixture as Sample,
     analysis: genPartialAnalysis({
-      residues: [genPartialResidue()]
+      residues: [
+        genPartialResidue({
+          reference: 'RF-00000010-MCG',
+          residueNumber: 1,
+          compliance: 'Compliant'
+        }),
+        genPartialResidue({
+          reference: 'RF-00000010-PAR',
+          residueNumber: 2,
+          compliance: 'NonCompliant'
+        }),
+        genPartialResidue({
+          reference: 'RF-00000012-PAR',
+          residueNumber: 3,
+          compliance: 'Other'
+        })
+      ]
     }) as Analysis
   },
   parameters: {
