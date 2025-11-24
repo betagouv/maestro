@@ -45,7 +45,8 @@ const UserSamplerPermissionsList = [
   'readCompanies',
   'createAnalysis',
   'readAnalysis',
-  'deleteSampleDocument'
+  'deleteSampleDocument',
+  'viewDashboard'
 ] as const satisfies UserPermission[];
 
 const ObserverPermissionsList = [
@@ -61,7 +62,8 @@ const ObserverPermissionsList = [
   'readPrescriptions',
   'readDocuments',
   'readCompanies',
-  'readAnalysis'
+  'readAnalysis',
+  'viewDashboard'
 ] as const satisfies UserPermission[];
 
 export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
@@ -86,7 +88,8 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'readDocuments',
     'deleteDocument',
     'readCompanies',
-    'readAnalysis'
+    'readAnalysis',
+    'viewDashboard'
   ],
   RegionalCoordinator: [
     ...UserSamplerPermissionsList,
@@ -132,7 +135,8 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'deleteDocument',
     'readCompanies',
     'readAnalysis',
-    'restoreSampleToReview'
+    'restoreSampleToReview',
+    'viewDashboard'
   ],
   LaboratoryUser: ['readDocuments']
 };
