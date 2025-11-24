@@ -2,7 +2,9 @@ import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl as getS3SignedUrl } from '@aws-sdk/s3-request-presigner';
 import { constants } from 'http2';
 import { isNil } from 'lodash-es';
+import { Brand } from 'maestro-shared/constants';
 import DocumentMissingError from 'maestro-shared/errors/documentMissingError';
+import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { Document } from 'maestro-shared/schema/Document/Document';
 import {
   ResourceDocumentKindList,
@@ -10,8 +12,10 @@ import {
 } from 'maestro-shared/schema/Document/DocumentKind';
 import { hasPermission } from 'maestro-shared/schema/User/User';
 import { documentRepository } from '../repositories/documentRepository';
+import { userRepository } from '../repositories/userRepository';
 import { ProtectedSubRouter } from '../routers/routes.type';
 import { documentService } from '../services/documentService';
+import { notificationService } from '../services/notificationService';
 import { s3Service } from '../services/s3Service';
 import config from '../utils/config';
 
@@ -57,6 +61,25 @@ export const documentsRouter = {
       };
 
       await documentRepository.insert(document);
+
+      const laboratoryUsers = await userRepository.findMany({
+        roles: ['LaboratoryUser']
+      });
+
+      if (ResourceDocumentKindList.includes(documentToCreate.kind)) {
+        await notificationService.sendNotification(
+          {
+            category: 'ResourceDocumentUploaded',
+            author: user,
+            link: `${AppRouteLinks.DocumentsRoute.link}?documentId=${document.id}`
+          },
+          laboratoryUsers,
+          {
+            object: 'Nouveau document disponible',
+            content: `Le document suivant a été déposé sur ${Brand} : ${document.name}. Veuillez en prendre connaissance.`
+          }
+        );
+      }
 
       return {
         status: constants.HTTP_STATUS_CREATED,

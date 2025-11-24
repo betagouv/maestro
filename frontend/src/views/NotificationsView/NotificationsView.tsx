@@ -86,7 +86,8 @@ const NotificationsView = () => {
     ProgrammingPlanApprovedByRegion: 'fr-icon-line-chart-fill',
     ProgrammingPlanSubmittedToDepartments: 'fr-icon-line-chart-fill',
     ProgrammingPlanValidated: 'fr-icon-line-chart-fill',
-    AnalysisReviewTodo: 'fr-icon-edit-box-line'
+    AnalysisReviewTodo: 'fr-icon-edit-box-line',
+    ResourceDocumentUploaded: 'fr-icon-article-line'
   };
 
   return (

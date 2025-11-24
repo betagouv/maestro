@@ -82,7 +82,7 @@ export const useAuthentication = () => {
   const availableRoutes = useMemo(() => {
     return isAuthenticated
       ? [
-          'DashboardRoute',
+          hasUserPermission('viewDashboard') ? 'DashboardRoute' : undefined,
           'NotificationsRoute',
           'DocumentsRoute',
           'ApiDocsRoute',

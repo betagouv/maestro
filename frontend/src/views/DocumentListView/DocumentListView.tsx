@@ -10,7 +10,8 @@ import {
   DocumentKindLabels,
   SortedResourceDocumentKindList
 } from 'maestro-shared/schema/Document/DocumentKind';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router';
 import ressources from 'src/assets/illustrations/ressources.svg';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import AppToast from 'src/components/_app/AppToast/AppToast';
@@ -34,6 +35,7 @@ const DocumentListView = () => {
   const apiClient = useContext(ApiClientContext);
   useDocumentTitle('Liste des documents ressources');
 
+  const [searchParams] = useSearchParams();
   const { hasUserPermission } = useAuthentication();
 
   const { data: resources } = apiClient.useFindResourcesQuery();
@@ -68,6 +70,16 @@ const DocumentListView = () => {
   useIsModalOpen(removeModal, {
     onConceal: () => setCurrentDocument(undefined)
   });
+
+  useEffect(() => {
+    if (searchParams.get('documentId')) {
+      const documentId = searchParams.get('documentId') as string;
+      const document = resources?.find((doc) => doc.id === documentId);
+      if (document && document.notes) {
+        onViewNotes(document);
+      }
+    }
+  }, [searchParams, resources]);
 
   return (
     <section className={clsx(cx('fr-container'), 'main-section')}>

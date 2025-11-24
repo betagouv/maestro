@@ -124,7 +124,9 @@ const Header = () => {
           </>
         }
         homeLinkProps={{
-          to: AuthenticatedAppRoutes.DashboardRoute.link,
+          to: hasUserPermission('viewDashboard')
+            ? AuthenticatedAppRoutes.DashboardRoute.link
+            : AuthenticatedAppRoutes.DocumentsRoute.link,
           title: 'Accueil'
         }}
         id="header"
@@ -135,17 +137,19 @@ const Header = () => {
         }}
         navigation={(isAuthenticated
           ? [
-              {
-                linkProps: {
-                  to: AuthenticatedAppRoutes.DashboardRoute.link,
-                  target: '_self'
-                },
-                text: 'Tableau de bord',
-                isActive:
-                  location.pathname ===
-                    AuthenticatedAppRoutes.DashboardRoute.link ||
-                  location.pathname.startsWith('/plans')
-              },
+              hasUserPermission('viewDashboard')
+                ? {
+                    linkProps: {
+                      to: AuthenticatedAppRoutes.DashboardRoute.link,
+                      target: '_self'
+                    },
+                    text: 'Tableau de bord',
+                    isActive:
+                      location.pathname ===
+                        AuthenticatedAppRoutes.DashboardRoute.link ||
+                      location.pathname.startsWith('/plans')
+                  }
+                : undefined,
               hasUserPermission('readSamples') && inProgressYears?.length
                 ? {
                     isActive:
