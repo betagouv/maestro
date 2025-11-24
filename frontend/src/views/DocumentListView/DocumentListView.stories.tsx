@@ -33,8 +33,7 @@ export const DocumentListViewForNationalCoordinator: Story = {
     const canvas = within(canvasElement);
 
     await expect(canvas.getByText('Ressources')).toBeInTheDocument();
-    await expect(canvas.getByTestId('document-table')).toBeInTheDocument();
-    await expect(canvas.getByText(document.filename)).toBeInTheDocument();
+    await expect(canvas.getByText(document.name as string)).toBeInTheDocument();
     await expect(canvas.getByTestId('add-document')).toBeInTheDocument();
   }
 };
@@ -52,8 +51,7 @@ export const DocumentListViewForSampler: Story = {
     const canvas = within(canvasElement);
 
     await expect(canvas.getByText('Ressources')).toBeInTheDocument();
-    await expect(canvas.getByTestId('document-table')).toBeInTheDocument();
-    await expect(canvas.getByText(document.filename)).toBeInTheDocument();
+    await expect(canvas.getByText(document.name as string)).toBeInTheDocument();
     await expect(canvas.queryByTestId('add-document')).not.toBeInTheDocument();
   }
 };
