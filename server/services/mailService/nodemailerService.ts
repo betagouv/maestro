@@ -30,6 +30,10 @@ const TemplateData = {
   AnalysisReviewTodoTemplate: {
     subject: "Rapport d'analyse reçu",
     content: "Un de vos rapports d'analyse vient d'être reçu"
+  },
+  GenericTemplate: {
+    subject: 'Nouveau message',
+    content: 'Vous avez reçu un nouveau message'
   }
 } as const satisfies Record<
   TemplateName,
