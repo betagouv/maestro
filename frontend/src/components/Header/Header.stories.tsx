@@ -210,8 +210,8 @@ export const LaboratoryUser: Story = {
     await expect(navigation).toBeInTheDocument();
 
     await expect(
-      within(navigation).getByText('Tableau de bord')
-    ).toBeInTheDocument();
+      within(navigation).queryByText('Tableau de bord')
+    ).not.toBeInTheDocument();
 
     await expect(
       within(navigation).queryByText('Prélèvements')
