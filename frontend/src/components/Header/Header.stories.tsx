@@ -221,8 +221,8 @@ export const LaboratoryUser: Story = {
     await expect(programmingPlanMenu).not.toBeInTheDocument();
 
     await expect(
-      within(navigation).queryByText('Documents ressources')
-    ).not.toBeInTheDocument();
+      within(navigation).getByText('Documents ressources')
+    ).toBeInTheDocument();
 
     await expect(
       within(navigation).queryByText('Utilisateurs')
