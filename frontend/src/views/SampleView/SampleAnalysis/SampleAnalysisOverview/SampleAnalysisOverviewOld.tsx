@@ -15,7 +15,7 @@ import close from '../../../../assets/illustrations/close.svg';
 import { useAuthentication } from '../../../../hooks/useAuthentication';
 import { ApiClientContext } from '../../../../services/apiClient';
 import { AnalysisDocumentPreview } from '../../components/AnalysisDocumentPreview';
-import { ResidueResultOverview } from './ResidueResultOverview';
+import { ResidueResultOverviewOld } from './ResidueResultOverviewOld';
 import './SampleAnalysisOverviewOld.scss';
 
 interface Props {
@@ -110,7 +110,10 @@ const SampleAnalysisOverviewOld = ({ sample }: Props) => {
       </div>
       {analysis.residues?.map((residue, residueIndex) => (
         <div key={`residue-${residueIndex}`}>
-          <ResidueResultOverview residueIndex={residueIndex} residue={residue}>
+          <ResidueResultOverviewOld
+            residueIndex={residueIndex}
+            residue={residue}
+          >
             <div className={clsx(cx('fr-mt-4w'), 'overview-container')}>
               <div className="overview-header">
                 <div className="bullet" />
@@ -214,7 +217,7 @@ const SampleAnalysisOverviewOld = ({ sample }: Props) => {
                 )}
               </div>
             </div>
-          </ResidueResultOverview>
+          </ResidueResultOverviewOld>
         </div>
       ))}
       <hr />

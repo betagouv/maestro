@@ -1,6 +1,6 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { t } from 'i18next';
+import clsx from 'clsx';
 import { Analysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { FunctionComponent, useContext, useMemo } from 'react';
@@ -9,9 +9,10 @@ import check from '../../../../assets/illustrations/check.svg';
 import close from '../../../../assets/illustrations/close.svg';
 import { useAuthentication } from '../../../../hooks/useAuthentication';
 import { ApiClientContext } from '../../../../services/apiClient';
-import { pluralize, quote } from '../../../../utils/stringUtils';
+import { quote } from '../../../../utils/stringUtils';
 import { AnalysisDocumentPreview } from '../../components/AnalysisDocumentPreview';
 import { ResidueListResultOverview } from './ResidueListResultOverview';
+import { ResiduesSummary } from './ResiduesSummary';
 import './SampleAnalysisOverview.scss';
 
 type Props = {
@@ -60,10 +61,9 @@ export const SampleAnalysisOverview: FunctionComponent<Props> = ({
           />
 
           <div>
-            <h5 className="d-flex-align-center">
+            <h5 className={clsx('d-flex-align-center', cx('fr-m-0'))}>
               <div className="flex-grow-1">
-                {t('residue', { count: analysis.residues?.length || 0 })}
-                {pluralize(analysis.residues?.length || 0)(' identifié')}
+                <ResiduesSummary residues={analysis.residues ?? []} />
               </div>
               {!readonly && (
                 <Button

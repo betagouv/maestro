@@ -9,7 +9,7 @@ import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
-import { ResidueResultOverview } from '../SampleAnalysisOverview/ResidueResultOverview';
+import { ResidueResultOverviewOld } from '../SampleAnalysisOverview/ResidueResultOverviewOld';
 import { useResiduesForm } from '../SampleDraftAnalysis/AnalysisResiduesStep/AnalysisResiduesForm';
 import { ResidueInterpretationForm } from '../SampleDraftAnalysis/AnalysisResiduesStep/ResidueInterpretationForm';
 
@@ -45,7 +45,7 @@ export const ReviewWithResidues: FunctionComponent<Props> = ({
       <div className={clsx('analysis-container', 'residue-container')}>
         {residues.map((residue, residueIndex) => (
           <div key={`residue-${residueIndex}`} className={clsx('residue-form')}>
-            <ResidueResultOverview
+            <ResidueResultOverviewOld
               residue={residue}
               residueIndex={residueIndex}
             />
