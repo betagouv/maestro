@@ -84,7 +84,7 @@ export const SampleAnalysisOverview: FunctionComponent<Props> = ({
           </div>
 
           {analysis.residues?.length && (
-            <ResidueListResultOverview></ResidueListResultOverview>
+            <ResidueListResultOverview residues={analysis.residues} />
           )}
 
           <div>
