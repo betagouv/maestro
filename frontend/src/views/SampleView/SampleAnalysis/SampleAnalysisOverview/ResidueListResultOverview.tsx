@@ -3,25 +3,12 @@ import { FunctionComponent, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import type {
-  FrClassName,
-  FrIconClassName
-} from '@codegouvfr/react-dsfr/fr/generatedFromCss/classNames';
 import { ClassValue } from 'clsx/clsx';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { Residue } from 'maestro-shared/schema/Analysis/Residue/Residue';
-import { ResidueCompliance } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
+import { ResidueComplianceIcon } from './ResidueComplianceIcon';
 import './ResidueListResultOverview.scss';
 import { ResidueResultOverview } from './ResidueResultOverview';
-
-const ComplianceIcon: Record<
-  ResidueCompliance,
-  [FrIconClassName, FrClassName]
-> = {
-  Compliant: ['fr-icon-success-line', 'fr-label--success'],
-  NonCompliant: ['fr-icon-close-line', 'fr-label--error'],
-  Other: ['fr-icon-alert-line', 'fr-message']
-};
 
 type Props = {
   residues: Residue[];
@@ -43,7 +30,6 @@ export const ResidueListResultOverview: FunctionComponent<Props> = ({
             key={r.reference}
             residue={r}
             className={[
-              i === residues.length - 1 ? undefined : 'border-bottom',
               selectedResidue.residueNumber === r.residueNumber
                 ? 'current-residue'
                 : undefined
@@ -69,24 +55,25 @@ const ResidueMenuItem: FunctionComponent<{
     <button
       className={clsx(
         'residues-side-menu-item-container',
+        'border-bottom',
         cx('fr-p-2w'),
         ...className
       )}
       onClick={onClick}
     >
       <div className={'residue-item-number'}>
-        <span
-          className={cx(
-            ComplianceIcon[residue.compliance],
-            'fr-icon--sm',
-            'fr-pr-1w'
-          )}
-        ></span>
+        <ResidueComplianceIcon
+          compliance={residue.compliance}
+          className={['fr-pr-1w']}
+        />
+
         <div className={cx('fr-text--heavy')}>
           Résidu n°{residue.residueNumber}
         </div>
       </div>
-      <div className={clsx('residue-item-reference', cx('fr-text--sm'))}>
+      <div
+        className={clsx('residue-item-reference', cx('fr-text--sm', 'fr-m-0'))}
+      >
         {SSD2IdLabel[residue.reference]}
       </div>
     </button>
@@ -100,11 +87,7 @@ const ResidueItem: FunctionComponent<{
 
   return (
     <div className={clsx(cx('fr-p-3w'), 'residue-detail', 'border-left')}>
-      {residue.residueNumber}
-      <ResidueResultOverview
-        residueIndex={residue.residueNumber}
-        residue={residue}
-      />
+      <ResidueResultOverview residue={residue} />
     </div>
   );
 };

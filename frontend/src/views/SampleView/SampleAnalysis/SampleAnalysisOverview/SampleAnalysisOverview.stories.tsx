@@ -6,6 +6,7 @@ import { Analysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import {
   genPartialAnalysis,
+  genPartialAnalyte,
   genPartialResidue
 } from 'maestro-shared/test/analysisFixtures';
 import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
@@ -22,17 +23,45 @@ const meta = {
         genPartialResidue({
           reference: 'RF-00000010-MCG',
           residueNumber: 1,
-          compliance: 'Compliant'
+          compliance: 'Compliant',
+          resultKind: 'Q',
+          result: 3.23,
+          lmr: 5
         }),
         genPartialResidue({
-          reference: 'RF-00000010-PAR',
+          reference: 'RF-0034-001-PPP',
           residueNumber: 2,
-          compliance: 'NonCompliant'
+          compliance: 'Compliant',
+          resultKind: 'NQ',
+          analytes: [
+            genPartialAnalyte({
+              reference: 'RF-0034-002-PPP',
+              analyteNumber: 1,
+              resultKind: 'NQ'
+            }),
+            genPartialAnalyte({
+              reference: 'RF-0034-003-PPP',
+              analyteNumber: 2,
+              resultKind: 'Q',
+              result: 3
+            })
+          ]
+        }),
+        genPartialResidue({
+          reference: 'RF-1057-001-PPP',
+          residueNumber: 3,
+          compliance: 'NonCompliant',
+          result: 5,
+          resultKind: 'Q',
+          lmr: 3,
+          notesOnPollutionRisk: 'peut-être un risque de pollution'
         }),
         genPartialResidue({
           reference: 'RF-00000012-PAR',
-          residueNumber: 3,
-          compliance: 'Other'
+          residueNumber: 4,
+          compliance: 'Other',
+          resultKind: 'NQ',
+          otherCompliance: "c'est presque conforme mais c'est pas Non conforme"
         })
       ]
     }) as Analysis
@@ -45,14 +74,7 @@ const meta = {
   decorators: [
     (Story) => (
       <div className={clsx(cx('fr-container'))}>
-        <div
-          className={clsx(
-            cx('fr-callout', 'fr-callout--green-emeraude'),
-            'sample-callout',
-            'analysis-container',
-            'fr-mx-5w'
-          )}
-        >
+        <div className={clsx('analysis-container')}>
           <Story />
         </div>
       </div>
