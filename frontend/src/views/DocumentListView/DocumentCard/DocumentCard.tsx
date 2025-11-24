@@ -7,6 +7,7 @@ import clsx from 'clsx';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Document } from 'maestro-shared/schema/Document/Document';
+import { DocumentKindLabels } from 'maestro-shared/schema/Document/DocumentKind';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocument } from 'src/hooks/useDocument';
 import DocumentLink from '../../../components/DocumentLink/DocumentLink';
@@ -28,7 +29,7 @@ const DocumentCard = ({ document, onViewNotes, onRemove }: Props) => {
         start={
           <div className={clsx('d-flex-align-start')}>
             <div className="flex-grow-1">
-              <Tag>{document.name}</Tag>
+              <Tag>{DocumentKindLabels[document.kind]}</Tag>
             </div>
             {hasUserPermission('createResource') && (
               <Button

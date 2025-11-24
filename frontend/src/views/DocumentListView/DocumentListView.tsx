@@ -94,6 +94,7 @@ const DocumentListView = () => {
                 to: '/documents/nouveau'
               }}
               priority="secondary"
+              data-testid="add-document"
             >
               Ajouter un document
             </Button>
