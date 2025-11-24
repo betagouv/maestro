@@ -1,0 +1,43 @@
+.residue-list-container{
+
+  display: flex;
+  flex-direction: row;
+
+  .residues-side-menu{
+
+    width: 200px;
+
+    .residues-side-menu-item-container{
+      width: 100%;
+      background-color: var(--background-default-grey);
+
+      --hover: var(--background-alt-blue-france-hover);
+    }
+
+    .current-residue{
+      background-color: var(--background-alt-blue-france);
+
+      .residue-item-number{
+        color: var(--text-active-blue-france)
+      }
+    }
+
+    .residue-item-number{
+      display: flex;
+      align-items: center;
+      flex-direction: row;
+    }
+
+    .residue-item-reference{
+      text-align: start;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+  }
+  .residue-detail{
+    flex: 1;
+
+
+  }
+}
