@@ -182,8 +182,8 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
               ) : (
                 <SampleDraftAnalysis sample={sample} />
               )}
-              {sample.status === 'Completed' && (
-                <SampleAnalysisOverview sample={sample} />
+              {sample.status === 'Completed' && analysis && (
+                <SampleAnalysisOverview sample={sample} analysis={analysis} />
               )}
             </div>
           )}

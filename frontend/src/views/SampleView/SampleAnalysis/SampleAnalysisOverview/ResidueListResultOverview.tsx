@@ -5,13 +5,13 @@ import { assert, type Equals } from 'tsafe';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { ClassValue } from 'clsx/clsx';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
-import { Residue } from 'maestro-shared/schema/Analysis/Residue/Residue';
+import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { ResidueComplianceIcon } from './ResidueComplianceIcon';
 import './ResidueListResultOverview.scss';
 import { ResidueResultOverview } from './ResidueResultOverview';
 
 type Props = {
-  residues: Residue[];
+  residues: PartialResidue[];
 };
 
 export const ResidueListResultOverview: FunctionComponent<Props> = ({
@@ -20,7 +20,9 @@ export const ResidueListResultOverview: FunctionComponent<Props> = ({
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  const [selectedResidue, setSelectedResidue] = useState<Residue>(residues[0]);
+  const [selectedResidue, setSelectedResidue] = useState<PartialResidue>(
+    residues[0]
+  );
 
   return (
     <div className={clsx('residue-list-container', 'border')}>
@@ -45,7 +47,7 @@ export const ResidueListResultOverview: FunctionComponent<Props> = ({
 };
 
 const ResidueMenuItem: FunctionComponent<{
-  residue: Residue;
+  residue: PartialResidue;
   className: ClassValue[];
   onClick: () => void;
 }> = ({ residue, className, onClick, ..._rest }) => {
@@ -62,10 +64,12 @@ const ResidueMenuItem: FunctionComponent<{
       onClick={onClick}
     >
       <div className={'residue-item-number'}>
-        <ResidueComplianceIcon
-          compliance={residue.compliance}
-          className={['fr-pr-1w']}
-        />
+        {residue.compliance && (
+          <ResidueComplianceIcon
+            compliance={residue.compliance}
+            className={['fr-pr-1w']}
+          />
+        )}
 
         <div className={cx('fr-text--heavy')}>
           Résidu n°{residue.residueNumber}
@@ -74,14 +78,14 @@ const ResidueMenuItem: FunctionComponent<{
       <div
         className={clsx('residue-item-reference', cx('fr-text--sm', 'fr-m-0'))}
       >
-        {SSD2IdLabel[residue.reference]}
+        {residue.reference ? SSD2IdLabel[residue.reference] : null}
       </div>
     </button>
   );
 };
 
 const ResidueItem: FunctionComponent<{
-  residue: Residue;
+  residue: PartialResidue;
 }> = ({ residue, ..._rest }) => {
   assert<Equals<keyof typeof _rest, never>>();
 

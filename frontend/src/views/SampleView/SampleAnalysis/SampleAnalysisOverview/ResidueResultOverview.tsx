@@ -49,7 +49,7 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
             <span
               className={clsx(
                 ResidueComplianceColor[residue.compliance],
-                cx('fr-text--sm', 'fr-m-0')
+                cx('fr-text--sm', 'fr-m-0', 'fr-text--heavy')
               )}
             >
               {ResidueComplianceLabels[residue.compliance]}

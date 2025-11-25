@@ -1,11 +1,10 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { t } from 'i18next';
-import { Residue } from 'maestro-shared/schema/Analysis/Residue/Residue';
+import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import {
   ResidueCompliance,
-  ResidueComplianceLabels,
-  ResidueComplianceList
+  ResidueComplianceLabels
 } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
@@ -13,7 +12,7 @@ import { pluralize } from '../../../../utils/stringUtils';
 import { ResidueComplianceIcon } from './ResidueComplianceIcon';
 
 type Props = {
-  residues: Pick<Residue, 'compliance'>[];
+  residues: Pick<PartialResidue, 'compliance'>[];
 };
 export const ResiduesSummary: FunctionComponent<Props> = ({
   residues,
@@ -23,6 +22,10 @@ export const ResiduesSummary: FunctionComponent<Props> = ({
 
   const countByCompliance: Record<ResidueCompliance, number> = residues.reduce(
     (acc, r) => {
+      if (!r.compliance) {
+        return acc;
+      }
+
       acc[r.compliance]++;
 
       return acc;
@@ -30,12 +33,17 @@ export const ResiduesSummary: FunctionComponent<Props> = ({
     { Compliant: 0, NonCompliant: 0, Other: 0 }
   );
 
+  const compliancesToShow: ResidueCompliance[] = ['Compliant', 'NonCompliant'];
+  if (countByCompliance['Other']) {
+    compliancesToShow.push('Other');
+  }
+
   return (
     <>
       {t('residue', { count: residues.length || 0 })}
       {pluralize(residues.length || 0)(' identifié')}
       <div className={clsx('d-flex-align-center')} style={{ gap: '1rem' }}>
-        {ResidueComplianceList.map((c) => (
+        {compliancesToShow.map((c) => (
           <div key={c} className={clsx('d-flex-align-center')}>
             <ResidueComplianceIcon compliance={c} />
             <span
