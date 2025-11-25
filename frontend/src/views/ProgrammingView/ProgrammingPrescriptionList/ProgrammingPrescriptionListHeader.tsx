@@ -10,7 +10,7 @@ import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/Local
 import { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import React, { useMemo, useState } from 'react';
+import React, { type ComponentProps, useMemo, useState } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import useWindowSize from 'src/hooks/useWindowSize';
@@ -116,7 +116,7 @@ const ProgrammingPrescriptionListHeader = ({
                     );
                   },
                   'data-testid': 'prescriptions-cards-segment'
-                } as any
+                } as ComponentProps<'input'>
               },
               {
                 label: 'Tableau',
@@ -129,7 +129,7 @@ const ProgrammingPrescriptionListHeader = ({
                     );
                   },
                   'data-testid': 'prescriptions-table-segment'
-                } as any
+                } as ComponentProps<'input'>
               }
             ]}
           />

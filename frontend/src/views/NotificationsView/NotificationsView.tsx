@@ -1,7 +1,7 @@
 import { FrIconClassName } from '@codegouvfr/react-dsfr';
 import Badge from '@codegouvfr/react-dsfr/Badge';
 import Button from '@codegouvfr/react-dsfr/Button';
-import { cx, FrCxArg } from '@codegouvfr/react-dsfr/fr/cx';
+import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tile from '@codegouvfr/react-dsfr/Tile';
 import { Badge as MuiBadge } from '@mui/material';
 import clsx from 'clsx';
@@ -16,6 +16,7 @@ import {
   NotificationCategoryTitles
 } from 'maestro-shared/schema/Notification/NotificationCategory';
 import { UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
+import { formatDate } from 'maestro-shared/utils/date';
 import { useContext, useMemo, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useNavigate } from 'react-router';
@@ -49,13 +50,7 @@ const NotificationsView = () => {
     () =>
       notifications?.reduce(
         (acc, notification) => {
-          const notificationDate = format(
-            notification.createdAt,
-            'eeee dd MMMM yyyy',
-            {
-              locale: fr
-            }
-          );
+          const notificationDate = formatDate(notification.createdAt);
           if (!acc[notificationDate]) {
             acc[notificationDate] = [];
           }
@@ -142,7 +137,7 @@ const NotificationsView = () => {
                           className={cx(
                             'fr-icon--xs',
                             'fr-mr-1v',
-                            Icon[notification.category] as FrCxArg
+                            Icon[notification.category] as FrIconClassName
                           )}
                         />
                         {NotificationCategoryTitles[notification.category]}

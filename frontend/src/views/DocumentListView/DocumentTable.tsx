@@ -1,10 +1,9 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
 import { Document } from 'maestro-shared/schema/Document/Document';
 import { DocumentKindLabels } from 'maestro-shared/schema/Document/DocumentKind';
+import { formatDate } from 'maestro-shared/utils/date';
 import { useDocument } from 'src/hooks/useDocument';
 import DocumentLink from '../../components/DocumentLink/DocumentLink';
 import { useAuthentication } from '../../hooks/useAuthentication';
@@ -37,10 +36,7 @@ const DocumentTable = ({
           <div key={`${document.id}-name`}>
             {document.filename}
             <div className={cx('fr-hint-text')}>
-              Version du{' '}
-              {format(document.createdAt, 'dd MMMM yyyy', {
-                locale: fr
-              })}
+              Version du {formatDate(document.createdAt)}
             </div>
           </div>,
           <div

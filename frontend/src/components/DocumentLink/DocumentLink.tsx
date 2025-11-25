@@ -1,4 +1,5 @@
-import { cx, FrCxArg } from '@codegouvfr/react-dsfr/fr/cx';
+import { FrIconClassName } from '@codegouvfr/react-dsfr';
+import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { skipToken } from '@reduxjs/toolkit/query';
 import { useContext } from 'react';
 import { Link } from 'react-router';
@@ -7,7 +8,7 @@ import { ApiClientContext } from '../../services/apiClient';
 
 interface Props {
   documentId?: string;
-  iconId?: FrCxArg;
+  iconId?: FrIconClassName;
 }
 
 const DocumentLink = ({ documentId, iconId }: Props) => {
