@@ -602,7 +602,11 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
               stateRelatedMessage={
                 form.message('company') ?? 'Entité correctement renseignée'
               }
-              companies={user?.companies}
+              companies={
+                programmingPlan.distributionKind === 'SLAUGHTERHOUSE'
+                  ? user?.companies
+                  : undefined
+              }
             />
           ) : (
             <AppTextInput

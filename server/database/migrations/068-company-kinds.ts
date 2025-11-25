@@ -5,7 +5,11 @@ export const up = async (knex: Knex) => {
     table.specificType('kinds', 'text[]');
   });
 
-  await knex('companies').update({ kinds: knex.raw('ARRAY[kind]::text[]') });
+  await knex('companies').update({
+    kinds: knex.raw(
+      "CASE WHEN kind IS NULL THEN '{}' ELSE ARRAY[kind]::text[] END"
+    )
+  });
 
   await knex.schema.alterTable('companies', (table) => {
     table.dropColumn('kind');
