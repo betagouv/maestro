@@ -4,10 +4,9 @@ import Card from '@codegouvfr/react-dsfr/Card';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
 import { Document } from 'maestro-shared/schema/Document/Document';
 import { DocumentKindLabels } from 'maestro-shared/schema/Document/DocumentKind';
+import { formatDate } from 'maestro-shared/utils/date';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocument } from 'src/hooks/useDocument';
 import DocumentLink from '../../../components/DocumentLink/DocumentLink';
@@ -59,10 +58,7 @@ const DocumentCard = ({ document, onViewNotes, onRemove }: Props) => {
         desc={
           <>
             <span className={cx('fr-hint-text', 'fr-pb-2w', 'fr-pt-1w')}>
-              Version du{' '}
-              {format(document.createdAt, 'dd MMMM yyyy', {
-                locale: fr
-              })}
+              Version du {formatDate(document.createdAt)}
             </span>
             <div className={cx('fr-text--regular')}>
               <DocumentLink
