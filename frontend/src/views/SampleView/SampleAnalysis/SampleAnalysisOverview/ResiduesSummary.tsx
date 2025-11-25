@@ -42,22 +42,24 @@ export const ResiduesSummary: FunctionComponent<Props> = ({
     <>
       {t('residue', { count: residues.length || 0 })}
       {pluralize(residues.length || 0)(' identifié')}
-      <div className={clsx('d-flex-align-center')} style={{ gap: '1rem' }}>
-        {compliancesToShow.map((c) => (
-          <div key={c} className={clsx('d-flex-align-center')}>
-            <ResidueComplianceIcon compliance={c} />
-            <span
-              className={clsx(
-                cx('fr-text--sm', 'fr-text--regular', 'fr-m-0', 'fr-pl-1v')
-              )}
-            >
-              {pluralize(countByCompliance[c], { preserveCount: true })(
-                ResidueComplianceLabels[c].toLowerCase()
-              )}
-            </span>
-          </div>
-        ))}
-      </div>
+      {residues.length && (
+        <div className={clsx('d-flex-align-center')} style={{ gap: '1rem' }}>
+          {compliancesToShow.map((c) => (
+            <div key={c} className={clsx('d-flex-align-center')}>
+              <ResidueComplianceIcon compliance={c} />
+              <span
+                className={clsx(
+                  cx('fr-text--sm', 'fr-text--regular', 'fr-m-0', 'fr-pl-1v')
+                )}
+              >
+                {pluralize(countByCompliance[c], { preserveCount: true })(
+                  ResidueComplianceLabels[c].toLowerCase()
+                )}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </>
   );
 };

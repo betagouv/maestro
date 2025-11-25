@@ -31,6 +31,7 @@ export const ResidueListResultOverview: FunctionComponent<Props> = ({
           <ResidueMenuItem
             key={r.reference}
             residue={r}
+            residueIndex={i + 1}
             className={[
               selectedResidue.residueNumber === r.residueNumber
                 ? 'current-residue'
@@ -48,9 +49,10 @@ export const ResidueListResultOverview: FunctionComponent<Props> = ({
 
 const ResidueMenuItem: FunctionComponent<{
   residue: PartialResidue;
+  residueIndex: number;
   className: ClassValue[];
   onClick: () => void;
-}> = ({ residue, className, onClick, ..._rest }) => {
+}> = ({ residue, residueIndex, className, onClick, ..._rest }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
   return (
@@ -71,9 +73,7 @@ const ResidueMenuItem: FunctionComponent<{
           />
         )}
 
-        <div className={cx('fr-text--heavy')}>
-          Résidu n°{residue.residueNumber}
-        </div>
+        <div className={cx('fr-text--heavy')}>Résidu n°{residueIndex}</div>
       </div>
       <div
         className={clsx('residue-item-reference', cx('fr-text--sm', 'fr-m-0'))}

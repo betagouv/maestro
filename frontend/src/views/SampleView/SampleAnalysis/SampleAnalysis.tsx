@@ -160,19 +160,7 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
       ) : (
         <>
           {['Analysis', 'InReview', 'Completed'].includes(sample.status) && (
-            <div
-              className={clsx(
-                cx(
-                  'fr-callout',
-                  ['Completed', 'InReview'].includes(sample.status)
-                    ? 'fr-callout--green-emeraude'
-                    : 'fr-callout--pink-tuile'
-                ),
-                'sample-callout',
-                'analysis-container',
-                'fr-mt-5w'
-              )}
-            >
+            <div className={clsx('analysis-container', 'fr-mt-5w')}>
               {sample.status === 'InReview' && analysis !== undefined ? (
                 <SampleAnalysisReview
                   sample={sample}

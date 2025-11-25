@@ -50,12 +50,16 @@ const SampleDraftAnalysis = ({ sample }: Props) => {
 
   return (
     <>
-      <h4 className={cx('fr-mb-0')}>
-        Saisie des résultats d’analyse
-        <div className={cx('fr-text--md', 'fr-text--regular')}>
-          Renseignez les résultats du rapport d’analyse
-        </div>
-      </h4>
+      {partialAnalysis?.status !== 'Completed' ? (
+        <h4 className={cx('fr-mb-0')}>
+          Saisie des résultats d’analyse
+          <div className={cx('fr-text--md', 'fr-text--regular')}>
+            Renseignez les résultats du rapport d’analyse
+          </div>
+        </h4>
+      ) : (
+        <h4 className={cx('fr-mb-0')}>Résultats d’analyse</h4>
+      )}
       {step && (
         <>
           <Stepper
