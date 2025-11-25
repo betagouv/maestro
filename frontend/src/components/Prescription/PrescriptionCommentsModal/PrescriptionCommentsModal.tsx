@@ -6,8 +6,6 @@ import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import { TagProps } from '@codegouvfr/react-dsfr/Tag';
 import TagsGroup from '@codegouvfr/react-dsfr/TagsGroup';
 import clsx from 'clsx';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
 import { isNil } from 'lodash-es';
 import {
   Department,
@@ -28,6 +26,7 @@ import {
 } from 'maestro-shared/schema/Prescription/PrescriptionComments';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
+import { formatDateTime } from 'maestro-shared/utils/date';
 import { useEffect, useMemo, useState } from 'react';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import PrescriptionCommentAuthor from 'src/components/Prescription/PrescriptionCommentsModal/PrescriptionCommentAuthor';
@@ -372,10 +371,7 @@ const PrescriptionCommentsModal = ({
                           'fr-mb-0'
                         )}
                       >
-                        Posté le{' '}
-                        {format(comment.createdAt, 'dd MMMM yyyy à HH:mm', {
-                          locale: fr
-                        })}
+                        Posté le {formatDateTime(comment.createdAt)}
                       </div>
                     </div>
                   </div>

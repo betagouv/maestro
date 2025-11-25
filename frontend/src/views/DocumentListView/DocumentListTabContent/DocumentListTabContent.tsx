@@ -80,7 +80,7 @@ const DocumentListTabContent = ({
                 nativeInputProps: {
                   checked: documentListDisplay === 'table',
                   onChange: () => setDocumentListDisplay('table')
-                } as any
+                }
               }
             ]}
           />
