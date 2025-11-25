@@ -1,25 +1,23 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
-import {
-  MatrixKind,
-  MatrixKindLabels
-} from 'maestro-shared/referential/Matrix/MatrixKind';
-import { Stage, StageLabels } from 'maestro-shared/referential/Stage';
+import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
+import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+import { StageLabels } from 'maestro-shared/referential/Stage';
+import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import React, { useMemo } from 'react';
-interface RemoveMatrixProps {
-  matrixKind: MatrixKind;
-  stages: Stage[];
+interface Props {
+  prescription: Prescription;
   onRemove: () => Promise<void>;
 }
 
-const RemoveMatrix = ({ matrixKind, stages, onRemove }: RemoveMatrixProps) => {
+const RemovePrescriptionModal = ({ prescription, onRemove }: Props) => {
   const removeModal = useMemo(
     () =>
       createModal({
-        id: `remove-modal-${matrixKind}-${stages}`,
+        id: `remove-modal-${prescription.id}`,
         isOpenedByDefault: false
       }),
-    [matrixKind, stages]
+    [prescription]
   );
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
@@ -38,7 +36,7 @@ const RemoveMatrix = ({ matrixKind, stages, onRemove }: RemoveMatrixProps) => {
         onClick={removeModal.open}
       />
       <removeModal.Component
-        title="Supprimer une matrice"
+        title="Supprimer une programmation"
         buttons={[
           {
             children: 'Annuler',
@@ -54,11 +52,17 @@ const RemoveMatrix = ({ matrixKind, stages, onRemove }: RemoveMatrixProps) => {
         Êtes-vous sûr de vouloir supprimer cette ligne ?
         <ul>
           <li>
-            <b>Matrice</b> : {MatrixKindLabels[matrixKind]}
+            <b>Catégorie de matrice</b> :{' '}
+            {MatrixKindLabels[prescription.matrixKind]}
           </li>
+          {prescription.matrix && (
+            <li>
+              <b>Matrice</b> : {MatrixLabels[prescription.matrix]}
+            </li>
+          )}
           <li>
             <b>Stade(s) de prélèvement</b> :{' '}
-            {stages.map((stage) => StageLabels[stage]).join(', ')}
+            {prescription.stages.map((stage) => StageLabels[stage]).join(', ')}
           </li>
         </ul>
       </removeModal.Component>
@@ -66,4 +70,4 @@ const RemoveMatrix = ({ matrixKind, stages, onRemove }: RemoveMatrixProps) => {
   );
 };
 
-export default RemoveMatrix;
+export default RemovePrescriptionModal;

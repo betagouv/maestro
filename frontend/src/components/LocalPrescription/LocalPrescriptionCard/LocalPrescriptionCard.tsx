@@ -2,9 +2,11 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import {
+  getPrescriptionTitle,
+  Prescription
+} from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
@@ -76,7 +78,7 @@ const LocalPrescriptionCard = ({
                 className={clsx(cx('fr-card__title', 'fr-mb-0'), 'flex-grow-1')}
               >
                 <div className="flex-grow-1">
-                  {MatrixKindLabels[prescription.matrixKind]}
+                  {getPrescriptionTitle(prescription)}
                 </div>
               </h3>
               <Button

@@ -189,7 +189,7 @@ const ProgrammingLocalPrescriptionTable = ({
                   >
                     <DistributionCountCell
                       programmingPlan={programmingPlan}
-                      matrixKind={prescription.matrixKind}
+                      prescription={prescription}
                       localPrescription={localPrescription}
                       isEditable={
                         hasUserLocalPrescriptionPermission(

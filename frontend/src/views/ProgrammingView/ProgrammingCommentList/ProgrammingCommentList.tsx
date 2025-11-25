@@ -10,6 +10,7 @@ import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
 import { FindLocalPrescriptionOptions } from 'maestro-shared/schema/LocalPrescription/FindLocalPrescriptionOptions';
 import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
+import { getPrescriptionTitle } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ChangeEvent, useContext, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
@@ -171,7 +172,7 @@ const ProgrammingCommentList = ({ programmingPlan, ..._rest }: Props) => {
                 <div className={cx('fr-m-2w')}>
                   <div className={clsx('d-flex-align-center')}>
                     <h6 className="flex-grow-1">
-                      {MatrixKindLabels[prescription.matrixKind]}
+                      {getPrescriptionTitle(prescription)}
                     </h6>
                     <Button
                       priority="secondary"
@@ -179,11 +180,10 @@ const ProgrammingCommentList = ({ programmingPlan, ..._rest }: Props) => {
                         dispatch(
                           prescriptionsSlice.actions.setPrescriptionCommentsData(
                             {
-                              viewBy: 'MatrixKind',
+                              viewBy: 'Prescription',
                               programmingPlan,
-                              prescriptionId: prescription.id,
-                              matrixKind: prescription.matrixKind,
-                              regionalComments:
+                              prescription,
+                              regionalCommentsList:
                                 prescription.regionalCommentedPrescriptions.map(
                                   (rcp) => ({
                                     region: rcp.region,
@@ -221,12 +221,11 @@ const ProgrammingCommentList = ({ programmingPlan, ..._rest }: Props) => {
                               dispatch(
                                 prescriptionsSlice.actions.setPrescriptionCommentsData(
                                   {
-                                    viewBy: 'MatrixKind',
+                                    viewBy: 'Prescription',
                                     programmingPlan,
-                                    prescriptionId: prescription.id,
-                                    matrixKind: prescription.matrixKind,
+                                    prescription,
                                     currentRegion: regionalPrescription.region,
-                                    regionalComments:
+                                    regionalCommentsList:
                                       prescription.regionalCommentedPrescriptions.map(
                                         (rcp) => ({
                                           region: rcp.region,

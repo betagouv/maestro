@@ -106,7 +106,7 @@ const ProgrammingRegionalPrescriptionTable = ({
             >
               <DistributionCountCell
                 programmingPlan={programmingPlan}
-                matrixKind={prescription.matrixKind}
+                prescription={prescription}
                 localPrescription={regionalPrescription}
                 isEditable={
                   hasUserLocalPrescriptionPermission(
