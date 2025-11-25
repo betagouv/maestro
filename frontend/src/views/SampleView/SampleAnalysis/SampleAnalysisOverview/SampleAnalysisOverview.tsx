@@ -42,22 +42,7 @@ export const SampleAnalysisOverview: FunctionComponent<Props> = ({
           <AnalysisDocumentPreview
             analysisId={analysis.id}
             sampleId={sample.id}
-            readonly={readonly}
-            button={
-              <Button
-                priority="secondary"
-                iconId="fr-icon-edit-line"
-                className={cx('fr-mt-0')}
-                size="small"
-                onClick={() => {
-                  //FIXME
-                  // setEditingStatus('Report');
-                  // editingConfirmationModal.open();
-                }}
-              >
-                Corriger
-              </Button>
-            }
+            readonly={true}
           />
 
           <div>
