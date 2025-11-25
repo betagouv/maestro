@@ -50,7 +50,7 @@ export const SampleAnalysisOverview: FunctionComponent<Props> = ({
               </div>
               {!readonly && (
                 <Button
-                  priority="secondary"
+                  priority="primary"
                   iconId="fr-icon-edit-line"
                   className={cx('fr-mt-0')}
                   size="small"
