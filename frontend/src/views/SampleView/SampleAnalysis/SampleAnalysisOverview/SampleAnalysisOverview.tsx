@@ -1,14 +1,13 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { Analysis } from 'maestro-shared/schema/Analysis/Analysis';
+import { type PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
-import { FunctionComponent, useContext, useMemo } from 'react';
+import { FunctionComponent, useMemo } from 'react';
 import { assert, type Equals } from 'tsafe';
 import check from '../../../../assets/illustrations/check.svg';
 import close from '../../../../assets/illustrations/close.svg';
 import { useAuthentication } from '../../../../hooks/useAuthentication';
-import { ApiClientContext } from '../../../../services/apiClient';
 import { quote } from '../../../../utils/stringUtils';
 import { AnalysisDocumentPreview } from '../../components/AnalysisDocumentPreview';
 import { ResidueListResultOverview } from './ResidueListResultOverview';
@@ -17,7 +16,7 @@ import './SampleAnalysisOverview.scss';
 
 type Props = {
   sample: Sample;
-  analysis: Analysis;
+  analysis: PartialAnalysis;
 };
 export const SampleAnalysisOverview: FunctionComponent<Props> = ({
   sample,
@@ -26,7 +25,6 @@ export const SampleAnalysisOverview: FunctionComponent<Props> = ({
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  const apiClient = useContext(ApiClientContext);
   const { hasUserPermission, user } = useAuthentication();
 
   const readonly = useMemo(
