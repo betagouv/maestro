@@ -39,11 +39,13 @@ export const ResiduesSummary: FunctionComponent<Props> = ({
   }
 
   return (
-    <>
-      {t('residue', { count: residues.length || 0 })}
-      {pluralize(residues.length || 0)(' identifié')}
+    <div className={clsx('d-flex-column')}>
+      <h5 className={clsx(cx('fr-m-0'))}>
+        {t('residue', { count: residues.length || 0 })}
+        {pluralize(residues.length || 0)(' identifié')}
+      </h5>
       {residues.length ? (
-        <div className={clsx('d-flex-align-center')} style={{ gap: '1rem' }}>
+        <div className={clsx('d-flex-justify-center')} style={{ gap: '1rem' }}>
           {compliancesToShow.map((c) => (
             <div key={c} className={clsx('d-flex-align-center')}>
               <ResidueComplianceIcon compliance={c} />
@@ -60,6 +62,6 @@ export const ResiduesSummary: FunctionComponent<Props> = ({
           ))}
         </div>
       ) : null}
-    </>
+    </div>
   );
 };

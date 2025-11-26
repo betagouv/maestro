@@ -10,8 +10,10 @@ import close from '../../../../assets/illustrations/close.svg';
 import { useAuthentication } from '../../../../hooks/useAuthentication';
 import { quote } from '../../../../utils/stringUtils';
 import { AnalysisDocumentPreview } from '../../components/AnalysisDocumentPreview';
-import { ResidueListResultOverview } from './ResidueListResultOverview';
+import { ResidueListResult } from './ResidueListResult';
+import { ResidueResultOverview } from './ResidueResultOverview';
 import { ResiduesSummary } from './ResiduesSummary';
+
 type Props = {
   sample: Sample;
   analysis: PartialAnalysis;
@@ -41,31 +43,33 @@ export const SampleAnalysisOverview: FunctionComponent<Props> = ({
             readonly={true}
           />
 
-          <div>
-            <h5 className={clsx('d-flex-align-center', cx('fr-m-0'))}>
-              <div className="flex-grow-1">
-                <ResiduesSummary residues={analysis.residues ?? []} />
-              </div>
-              {!readonly && (
-                <Button
-                  priority="primary"
-                  iconId="fr-icon-edit-line"
-                  className={cx('fr-mt-0')}
-                  size="small"
-                  onClick={() => {
-                    //FIXME
-                    //setEditingStatus('Residues');
-                    //editingConfirmationModal.open();
-                  }}
-                >
-                  Corriger
-                </Button>
-              )}
-            </h5>
+          <div className={clsx('d-flex-align-center', cx('fr-m-0'))}>
+            <ResiduesSummary residues={analysis.residues ?? []} />
+
+            {!readonly && (
+              <Button
+                priority="primary"
+                iconId="fr-icon-edit-line"
+                className={cx('fr-mt-0', 'fr-ml-auto')}
+                size="small"
+                onClick={() => {
+                  //FIXME
+                  //setEditingStatus('Residues');
+                  //editingConfirmationModal.open();
+                }}
+              >
+                Corriger
+              </Button>
+            )}
           </div>
 
           {analysis.residues?.length && (
-            <ResidueListResultOverview residues={analysis.residues} />
+            <ResidueListResult
+              residues={analysis.residues}
+              residuePanel={(residue) => (
+                <ResidueResultOverview residue={residue} />
+              )}
+            />
           )}
 
           <div

@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { FunctionComponent, useState } from 'react';
+import { FunctionComponent, ReactNode, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
@@ -8,14 +8,15 @@ import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential'
 import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { ResidueComplianceIcon } from './ResidueComplianceIcon';
 import './ResidueListResultOverview.scss';
-import { ResidueResultOverview } from './ResidueResultOverview';
 
 type Props = {
   residues: PartialResidue[];
+  residuePanel: (residue: PartialResidue) => ReactNode;
 };
 
-export const ResidueListResultOverview: FunctionComponent<Props> = ({
+export const ResidueListResult: FunctionComponent<Props> = ({
   residues,
+  residuePanel,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -41,8 +42,9 @@ export const ResidueListResultOverview: FunctionComponent<Props> = ({
           />
         ))}
       </div>
-
-      <ResidueItem residue={selectedResidue} />
+      <div className={clsx(cx('fr-p-3w'), 'residue-detail', 'border-left')}>
+        {residuePanel(selectedResidue)}
+      </div>
     </div>
   );
 };
@@ -81,17 +83,5 @@ const ResidueMenuItem: FunctionComponent<{
         {residue.reference ? SSD2IdLabel[residue.reference] : null}
       </div>
     </button>
-  );
-};
-
-const ResidueItem: FunctionComponent<{
-  residue: PartialResidue;
-}> = ({ residue, ..._rest }) => {
-  assert<Equals<keyof typeof _rest, never>>();
-
-  return (
-    <div className={clsx(cx('fr-p-3w'), 'residue-detail', 'border-left')}>
-      <ResidueResultOverview residue={residue} />
-    </div>
   );
 };
