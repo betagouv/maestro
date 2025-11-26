@@ -17,6 +17,7 @@ import {
   Sample11Fixture
 } from 'maestro-shared/test/sampleFixtures';
 import {
+  DepartmentalCoordinator,
   genUser,
   NationalCoordinator,
   RegionalCoordinator,
@@ -170,7 +171,8 @@ const defaultMockApiClientConf: MockApi = {
       Sample11Fixture,
       Sampler2Fixture,
       NationalCoordinator,
-      RegionalCoordinator
+      RegionalCoordinator,
+      DepartmentalCoordinator
     ].find((_) => _.id === id) ??
       genUser({
         id

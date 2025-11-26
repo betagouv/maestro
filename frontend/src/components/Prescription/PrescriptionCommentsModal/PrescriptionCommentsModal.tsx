@@ -70,14 +70,6 @@ const PrescriptionCommentsModal = ({
     (state) => state.prescriptions
   );
 
-  // Debug log
-  useEffect(() => {
-    console.log(
-      '[MODAL DEBUG] prescriptionCommentsData changed:',
-      prescriptionCommentsData
-    );
-  }, [prescriptionCommentsData]);
-
   const [newComment, setNewComment] = useState('');
   const [recipientsSegment, setRecipientsSegment] = useState<UserRole | null>(
     hasRegionalView ? 'NationalCoordinator' : 'RegionalCoordinator'
@@ -118,12 +110,7 @@ const PrescriptionCommentsModal = ({
   });
 
   useEffect(() => {
-    console.log(
-      '[MODAL DEBUG] useEffect triggered with prescriptionCommentsData:',
-      prescriptionCommentsData
-    );
     if (prescriptionCommentsData) {
-      console.log('[MODAL DEBUG] Opening modal...');
       if (prescriptionCommentsData.viewBy === 'Prescription') {
         setCurrentTag(
           prescriptionCommentsData.regionalCommentsList.find(
@@ -143,9 +130,10 @@ const PrescriptionCommentsModal = ({
         );
       }
       setVisibleCommentsCount(DefaultVisibleCount);
-      console.log('[MODAL DEBUG] Calling prescriptionCommentsModal.open()');
-      prescriptionCommentsModal.open();
-      console.log('[MODAL DEBUG] Modal open() called');
+
+      setTimeout(() => {
+        prescriptionCommentsModal.open();
+      }, 1);
     }
   }, [prescriptionCommentsData]);
 
