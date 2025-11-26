@@ -33,45 +33,9 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  const kind: ResidueKind =
-    residue.reference !== undefined && isComplex(residue.reference)
-      ? 'Complex'
-      : 'Simple';
   return (
     <div className={clsx('residue-detail-container')}>
-      <div>
-        {residue.compliance && (
-          <div className={'d-flex-align-center'}>
-            <ResidueComplianceIcon
-              compliance={residue.compliance}
-              className={['fr-pr-1v']}
-            />
-            <span
-              className={clsx(
-                ResidueComplianceColor[residue.compliance],
-                cx('fr-text--sm', 'fr-m-0', 'fr-text--heavy')
-              )}
-            >
-              {ResidueComplianceLabels[residue.compliance]}
-            </span>
-          </div>
-        )}
-        <span>
-          {residue.otherCompliance && (
-            <div className={cx('fr-text--xs', 'fr-m-0')}>
-              {quote(residue.otherCompliance)}
-            </div>
-          )}
-        </span>
-        <h6 className={clsx('d-flex-align-center', cx('fr-m-0'))}>
-          {residue.reference
-            ? SSD2IdLabel[residue.reference]
-            : `Résidu n°${residue.residueNumber}`}
-        </h6>
-        <Badge noIcon severity="info" small={true} className={cx('fr-mt-1w')}>
-          {ResidueKindLabels[kind]}
-        </Badge>
-      </div>
+      <ResidueHeader residue={residue} />
       <hr />
       <div className={clsx('result-detail-bloc')}>
         <div className="result-header">
@@ -204,5 +168,49 @@ const ResidueValueLabel = ({ residue }: Pick<Props, 'residue'>) => {
         </>
       )}
     </>
+  );
+};
+
+export const ResidueHeader = ({ residue }: Pick<Props, 'residue'>) => {
+  const kind: ResidueKind =
+    residue.reference !== undefined && isComplex(residue.reference)
+      ? 'Complex'
+      : 'Simple';
+  return (
+    <div>
+      {residue.compliance && (
+        <div className={'d-flex-align-center'}>
+          <ResidueComplianceIcon
+            compliance={residue.compliance}
+            className={['fr-pr-1v']}
+          />
+          <span
+            className={clsx(
+              ResidueComplianceColor[residue.compliance],
+              cx('fr-text--sm', 'fr-m-0', 'fr-text--heavy')
+            )}
+          >
+            {ResidueComplianceLabels[residue.compliance]}
+          </span>
+        </div>
+      )}
+      <span>
+        {residue.otherCompliance && (
+          <div className={cx('fr-text--xs', 'fr-m-0')}>
+            {quote(residue.otherCompliance)}
+          </div>
+        )}
+      </span>
+      <h6 className={clsx('d-flex-align-center', cx('fr-m-0'))}>
+        {residue.reference
+          ? SSD2IdLabel[residue.reference]
+          : `Résidu n°${residue.residueNumber}`}
+      </h6>
+      {residue.reference ? (
+        <Badge noIcon severity="info" small={true} className={cx('fr-mt-1w')}>
+          {ResidueKindLabels[kind]}
+        </Badge>
+      ) : null}
+    </div>
   );
 };
