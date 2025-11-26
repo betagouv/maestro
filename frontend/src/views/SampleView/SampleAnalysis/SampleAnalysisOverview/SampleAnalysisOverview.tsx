@@ -33,6 +33,8 @@ export const SampleAnalysisOverview: FunctionComponent<Props> = ({
     [hasUserPermission, sample, user?.region]
   );
 
+  const residues = analysis.residues;
+
   return (
     <>
       {analysis && (
@@ -63,11 +65,11 @@ export const SampleAnalysisOverview: FunctionComponent<Props> = ({
             )}
           </div>
 
-          {analysis.residues?.length && (
+          {residues?.length && (
             <ResidueListResult
-              residues={analysis.residues}
-              residuePanel={(residue) => (
-                <ResidueResultOverview residue={residue} />
+              residues={residues}
+              residuePanel={(i) => (
+                <ResidueResultOverview residue={residues[i]} />
               )}
             />
           )}

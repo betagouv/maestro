@@ -21,9 +21,6 @@
       background-color: var(--background-alt-blue-france);
 
       &:before {
-        --idle:transparent;
-        --hover:var(--border-active-blue-france-hover);
-        --active:var(--border-active-blue-france-active);
         background-color:var(--border-active-blue-france);
         bottom:.75rem;
         content:"";

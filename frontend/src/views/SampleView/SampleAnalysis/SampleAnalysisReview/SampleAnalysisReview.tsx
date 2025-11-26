@@ -116,7 +116,7 @@ export const SampleAnalysisReview: FunctionComponent<Props> = ({
 
   return (
     <>
-      <SampleAnalysisForm analysis={partialAnalysis} sample={sample} />
+      <SampleAnalysisForm partialAnalysis={partialAnalysis} sample={sample} />
       {/*<AnalysisDocumentPreview*/}
       {/*  analysisId={analysis.id}*/}
       {/*  sampleId={sample.id}*/}
