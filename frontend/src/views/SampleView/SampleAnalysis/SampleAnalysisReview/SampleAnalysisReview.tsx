@@ -1,4 +1,3 @@
-import clsx from 'clsx';
 import {
   Analysis,
   PartialAnalysis
@@ -14,13 +13,9 @@ import {
 } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { ApiClientContext } from '../../../../services/apiClient';
-import { AnalysisDocumentPreview } from '../../components/AnalysisDocumentPreview';
 import '../../SampleView.scss';
-import { AnalysisComplianceForm } from '../SampleDraftAnalysis/AnalysisComplianceStep/AnalysisComplianceForm';
-import { AnalysisResiduesForm } from '../SampleDraftAnalysis/AnalysisResiduesStep/AnalysisResiduesForm';
+import { SampleAnalysisForm } from '../SampleAnalysisForm/SampleAnalysisForm';
 import '../SampleDraftAnalysis/SampleDraftAnalysis.scss';
-import { ReviewWithoutResidu } from './ReviewWithoutResidu';
-import { ReviewWithResidues } from './ReviewWithResidues';
 
 type Props = {
   sample: Sample;
@@ -120,45 +115,46 @@ export const SampleAnalysisReview: FunctionComponent<Props> = ({
   };
 
   return (
-    <div className={clsx('analysis-container')} ref={containerRef}>
-      <AnalysisDocumentPreview
-        analysisId={analysis.id}
-        sampleId={sample.id}
-        readonly={true}
-      />
-      {reviewState === 'Review' &&
-        (hasResidues ? (
-          <ReviewWithResidues
-            sample={sample}
-            analysis={analysis}
-            onCorrectAnalysis={onCorrectAnalysis}
-            onGoToInterpretation={onValidateCorrection}
-          />
-        ) : (
-          <ReviewWithoutResidu
-            partialAnalysis={partialAnalysis}
-            onValidateAnalysis={onValidateAnalysis}
-            onCorrectAnalysis={onCorrectAnalysis}
-          />
-        ))}
-      {reviewState === 'Interpretation' && (
-        <AnalysisComplianceForm
-          onBack={onBackToFirstStep}
-          onSave={onValidateInterpretation}
-          partialAnalysis={{
-            compliance: undefined,
-            notesOnCompliance: partialAnalysis.notesOnCompliance
-          }}
-        />
-      )}
-      {reviewState === 'Correction' && (
-        <AnalysisResiduesForm
-          sample={sample}
-          onBack={onBackToFirstStep}
-          onValidate={onValidateCorrection}
-          partialAnalysis={analysis}
-        />
-      )}
-    </div>
+    <>
+      <SampleAnalysisForm analysis={partialAnalysis} sample={sample} />
+      {/*<AnalysisDocumentPreview*/}
+      {/*  analysisId={analysis.id}*/}
+      {/*  sampleId={sample.id}*/}
+      {/*  readonly={true}*/}
+      {/*/>*/}
+      {/*{reviewState === 'Review' &&*/}
+      {/*  (hasResidues ? (*/}
+      {/*    <ReviewWithResidues*/}
+      {/*      sample={sample}*/}
+      {/*      analysis={analysis}*/}
+      {/*      onCorrectAnalysis={onCorrectAnalysis}*/}
+      {/*      onGoToInterpretation={onValidateCorrection}*/}
+      {/*    />*/}
+      {/*  ) : (*/}
+      {/*    <ReviewWithoutResidu*/}
+      {/*      partialAnalysis={partialAnalysis}*/}
+      {/*      onValidateAnalysis={onValidateAnalysis}*/}
+      {/*      onCorrectAnalysis={onCorrectAnalysis}*/}
+      {/*    />*/}
+      {/*  ))}*/}
+      {/*{reviewState === 'Interpretation' && (*/}
+      {/*  <AnalysisComplianceForm*/}
+      {/*    onBack={onBackToFirstStep}*/}
+      {/*    onSave={onValidateInterpretation}*/}
+      {/*    partialAnalysis={{*/}
+      {/*      compliance: undefined,*/}
+      {/*      notesOnCompliance: partialAnalysis.notesOnCompliance*/}
+      {/*    }}*/}
+      {/*  />*/}
+      {/*)}*/}
+      {/*{reviewState === 'Correction' && (*/}
+      {/*  <AnalysisResiduesForm*/}
+      {/*    sample={sample}*/}
+      {/*    onBack={onBackToFirstStep}*/}
+      {/*    onValidate={onValidateCorrection}*/}
+      {/*    partialAnalysis={analysis}*/}
+      {/*  />*/}
+      {/*)}*/}
+    </>
   );
 };

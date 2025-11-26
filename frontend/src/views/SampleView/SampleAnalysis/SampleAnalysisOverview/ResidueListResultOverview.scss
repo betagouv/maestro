@@ -8,14 +8,30 @@
     width: 200px;
 
     .residues-side-menu-item-container{
+      position:relative;
       width: 100%;
       background-color: var(--background-default-grey);
 
       --hover: var(--background-alt-blue-france-hover);
+
+
     }
 
     .current-residue{
       background-color: var(--background-alt-blue-france);
+
+      &:before {
+        --idle:transparent;
+        --hover:var(--border-active-blue-france-hover);
+        --active:var(--border-active-blue-france-active);
+        background-color:var(--border-active-blue-france);
+        bottom:.75rem;
+        content:"";
+        left:0;
+        position:absolute;
+        top:.75rem;
+        width:2px
+      }
 
       .residue-item-number{
         color: var(--text-active-blue-france)
