@@ -43,13 +43,18 @@ const prescriptionCommentsModal = createModal({
   isOpenedByDefault: false
 });
 
-interface Props {
+export interface Props {
   onSubmitLocalPrescriptionComment: (
     programmingPlan: ProgrammingPlan,
     localPrescriptionKey: LocalPrescriptionKey,
     comment: string
   ) => Promise<void>;
 }
+
+const getPrescriptionTag = (prescription: Prescription) =>
+  prescription.matrix ?? prescription.matrixKind;
+
+const DefaultVisibleCount = 3;
 
 const PrescriptionCommentsModal = ({
   onSubmitLocalPrescriptionComment
@@ -65,13 +70,20 @@ const PrescriptionCommentsModal = ({
     (state) => state.prescriptions
   );
 
-  const getPrescriptionTag = (prescription: Prescription) =>
-    prescription.matrix ?? prescription.matrixKind;
+  // Debug log
+  useEffect(() => {
+    console.log(
+      '[MODAL DEBUG] prescriptionCommentsData changed:',
+      prescriptionCommentsData
+    );
+  }, [prescriptionCommentsData]);
 
   const [newComment, setNewComment] = useState('');
   const [recipientsSegment, setRecipientsSegment] = useState<UserRole | null>(
     hasRegionalView ? 'NationalCoordinator' : 'RegionalCoordinator'
   );
+  const [visibleCommentsCount, setVisibleCommentsCount] =
+    useState(DefaultVisibleCount);
   const [currentTag, setCurrentTag] = useState<
     Region | Department | MatrixKind | Matrix | null
   >(() => {
@@ -98,6 +110,7 @@ const PrescriptionCommentsModal = ({
     onConceal: () => {
       setNewComment('');
       form.reset();
+      setVisibleCommentsCount(DefaultVisibleCount);
       dispatch(
         prescriptionsSlice.actions.setPrescriptionCommentsData(undefined)
       );
@@ -105,7 +118,12 @@ const PrescriptionCommentsModal = ({
   });
 
   useEffect(() => {
+    console.log(
+      '[MODAL DEBUG] useEffect triggered with prescriptionCommentsData:',
+      prescriptionCommentsData
+    );
     if (prescriptionCommentsData) {
+      console.log('[MODAL DEBUG] Opening modal...');
       if (prescriptionCommentsData.viewBy === 'Prescription') {
         setCurrentTag(
           prescriptionCommentsData.regionalCommentsList.find(
@@ -124,9 +142,16 @@ const PrescriptionCommentsModal = ({
           )
         );
       }
+      setVisibleCommentsCount(DefaultVisibleCount);
+      console.log('[MODAL DEBUG] Calling prescriptionCommentsModal.open()');
       prescriptionCommentsModal.open();
+      console.log('[MODAL DEBUG] Modal open() called');
     }
   }, [prescriptionCommentsData]);
+
+  useEffect(() => {
+    setVisibleCommentsCount(DefaultVisibleCount);
+  }, [currentTag]);
 
   const currentComments = useMemo(
     () =>
@@ -159,14 +184,22 @@ const PrescriptionCommentsModal = ({
     [prescriptionCommentsData, currentComments]
   );
 
-  const { commentsArray, hasComments } = useMemo(() => {
+  const { visibleComments, hasComments, hasMoreComments } = useMemo(() => {
     const commentsArray = [...(currentComments?.comments ?? [])].sort(
       (c1, c2) => c1.createdAt.getTime() - c2.createdAt.getTime()
     );
     const hasComments = commentsArray.length > 0;
+    const totalComments = commentsArray.length;
+    const startIndex = Math.max(0, totalComments - visibleCommentsCount);
+    const visibleComments = commentsArray.slice(startIndex);
+    const hasMoreComments = startIndex > 0;
 
-    return { commentsArray, hasComments };
-  }, [currentComments]);
+    return {
+      visibleComments,
+      hasComments,
+      hasMoreComments
+    };
+  }, [currentComments, visibleCommentsCount]);
 
   const getLocalPrescriptionPartialKey = useMemo(
     () => ({
@@ -185,32 +218,27 @@ const PrescriptionCommentsModal = ({
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
 
-    if (prescriptionCommentsData?.viewBy === 'Prescription') {
-      await form.validate(async () => {
-        await onSubmitLocalPrescriptionComment(
-          prescriptionCommentsData.programmingPlan,
-          {
-            prescriptionId: prescriptionCommentsData.prescription.id,
-            ...getLocalPrescriptionPartialKey
-          },
-          newComment
-        );
-        prescriptionCommentsModal.close();
-      });
-    } else {
-      await form.validate(async () => {
-        await onSubmitLocalPrescriptionComment(
-          programmingPlan as ProgrammingPlan,
-          {
-            prescriptionId: (currentComments as PrescriptionComments)
-              .prescription.id,
-            ...getLocalPrescriptionPartialKey
-          },
-          newComment
-        );
-        prescriptionCommentsModal.close();
-      });
-    }
+    await form.validate(async () => {
+      const prescriptionId =
+        prescriptionCommentsData?.viewBy === 'Prescription'
+          ? prescriptionCommentsData.prescription.id
+          : (currentComments as PrescriptionComments).prescription.id;
+
+      const plan =
+        prescriptionCommentsData?.viewBy === 'Prescription'
+          ? prescriptionCommentsData.programmingPlan
+          : (programmingPlan as ProgrammingPlan);
+
+      await onSubmitLocalPrescriptionComment(
+        plan,
+        {
+          prescriptionId,
+          ...getLocalPrescriptionPartialKey
+        },
+        newComment
+      );
+      prescriptionCommentsModal.close();
+    });
   };
 
   return (
@@ -319,9 +347,26 @@ const PrescriptionCommentsModal = ({
             )}
             {hasComments ? (
               <div className="comments-container">
-                {commentsArray.map((comment, index) => (
+                {hasMoreComments && (
                   <div
-                    key={`comment-${index}`}
+                    className={clsx('prescription-comment', 'more-comments')}
+                  >
+                    <Button
+                      priority="tertiary no outline"
+                      size="small"
+                      onClick={() =>
+                        setVisibleCommentsCount(
+                          (prev) => prev + DefaultVisibleCount
+                        )
+                      }
+                    >
+                      Messages précédents
+                    </Button>
+                  </div>
+                )}
+                {visibleComments.map((comment) => (
+                  <div
+                    key={`${comment.createdBy}-${comment.createdAt.getTime()}`}
                     className="prescription-comment"
                   >
                     <PrescriptionCommentAuthor userId={comment.createdBy} />
@@ -379,7 +424,7 @@ const PrescriptionCommentsModal = ({
                   </form>
                   <Button
                     priority="secondary"
-                    className={cx('fr-ml-2w')}
+                    className="submit-button"
                     onClick={submit}
                   >
                     Envoyer
