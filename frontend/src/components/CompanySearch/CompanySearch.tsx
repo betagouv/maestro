@@ -109,7 +109,7 @@ const CompanySearch = ({
 
   const search = useCallback(
     async (value: string) => {
-      if (companies) {
+      if (companies?.length) {
         if (!value || value.length === 0) {
           return companies;
         }
