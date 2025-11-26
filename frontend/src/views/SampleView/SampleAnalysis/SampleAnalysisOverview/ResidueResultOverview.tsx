@@ -123,15 +123,17 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
 
       <div className="result-detail-bloc">
         <h6 className={cx('fr-m-0')}>Interprétation du résultat</h6>
-        <div className="d-flex-align-center">
-          Résultat brut supérieur à l'Arfd ?
-          <b className={'margin-left-auto'}>
-            {residue.resultHigherThanArfd
-              ? OptionalBooleanLabels[residue.resultHigherThanArfd]
-              : 'Non renseigné'}
-          </b>
+        <div className={'result-with-comment'}>
+          <div className="d-flex-align-center">
+            Résultat brut supérieur à l'Arfd ?
+            <b className={'margin-left-auto'}>
+              {residue.resultHigherThanArfd
+                ? OptionalBooleanLabels[residue.resultHigherThanArfd]
+                : 'Non renseigné'}
+            </b>
+          </div>
+          {residue.notesOnResult && <i>{quote(residue.notesOnResult)}</i>}
         </div>
-        {residue.notesOnResult && <i>{quote(residue.notesOnResult)}</i>}
         <div className="d-flex-align-center">
           Substance approuvée dans l'UE
           <b className={'margin-left-auto'}>
@@ -148,26 +150,28 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
               : 'Non renseigné'}
           </b>
         </div>
-        {residue.pollutionRisk && (
-          <>
-            <div className="d-flex-align-center">
-              Pollution environnementale probable
-              <b className={'margin-left-auto'}>
-                {OptionalBooleanLabels[residue.pollutionRisk]}
-              </b>
-            </div>
-            {residue.pollutionRisk === 'true' && (
-              <Alert
-                severity="warning"
-                small
-                description="Alerte risque consommateur"
-              />
-            )}
-          </>
-        )}
-        {residue.notesOnPollutionRisk && (
-          <i>{quote(residue.notesOnPollutionRisk)}</i>
-        )}
+        <div className={'result-with-comment'}>
+          {residue.pollutionRisk && (
+            <>
+              <div className="d-flex-align-center">
+                Pollution environnementale probable
+                <b className={'margin-left-auto'}>
+                  {OptionalBooleanLabels[residue.pollutionRisk]}
+                </b>
+              </div>
+              {residue.pollutionRisk === 'true' && (
+                <Alert
+                  severity="warning"
+                  small
+                  description="Alerte risque consommateur"
+                />
+              )}
+            </>
+          )}
+          {residue.notesOnPollutionRisk && (
+            <i>{quote(residue.notesOnPollutionRisk)}</i>
+          )}
+        </div>
       </div>
     </div>
   );

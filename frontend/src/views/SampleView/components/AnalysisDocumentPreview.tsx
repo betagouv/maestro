@@ -66,19 +66,13 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
   );
 
   return (
-    <div className={clsx(cx('fr-py-4w', 'fr-px-5w'), 'border')}>
-      <h6 className="d-flex-align-center">
-        <span
-          className={clsx(
-            cx('fr-icon-newspaper-line', 'fr-mr-1w'),
-            'icon-grey'
-          )}
-        ></span>
+    <div className={clsx(cx('fr-pt-3w', 'fr-pb-1w', 'fr-px-5w'), 'border')}>
+      <h6 className={clsx('d-flex-align-center', cx('fr-pl-1w'))}>
         <div className="flex-grow-1">Document du rapport d’analyse</div>
         {!readonly ? actionButton : <></>}
       </h6>
       {reportDocumentIds && (
-        <div className={cx('fr-pl-4w')}>
+        <div className={cx('fr-pl-1w')}>
           {reportDocumentIds.length === 1 ? (
             <DocumentLink documentId={reportDocumentIds[0]} />
           ) : (

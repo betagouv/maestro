@@ -12,8 +12,6 @@ import { quote } from '../../../../utils/stringUtils';
 import { AnalysisDocumentPreview } from '../../components/AnalysisDocumentPreview';
 import { ResidueListResultOverview } from './ResidueListResultOverview';
 import { ResiduesSummary } from './ResiduesSummary';
-import './SampleAnalysisOverview.scss';
-
 type Props = {
   sample: Sample;
   analysis: PartialAnalysis;
@@ -70,7 +68,17 @@ export const SampleAnalysisOverview: FunctionComponent<Props> = ({
             <ResidueListResultOverview residues={analysis.residues} />
           )}
 
-          <div>
+          <div
+            className={clsx(
+              cx('fr-callout'),
+              analysis.compliance
+                ? 'fr-callout--green-emeraude'
+                : 'fr-callout--pink-tuile',
+              'bg-white',
+              'border',
+              'border-bottom'
+            )}
+          >
             <h4 className="d-flex-align-center">
               <div className="flex-grow-1">
                 Conformité globale de l'échantillon
@@ -78,20 +86,20 @@ export const SampleAnalysisOverview: FunctionComponent<Props> = ({
             </h4>
             <div>
               {analysis.compliance ? (
-                <h6 className={cx('fr-mb-0')}>
+                <h5 className={clsx('d-flex-align-center', cx('fr-mb-0'))}>
                   <img src={check} alt="" className={cx('fr-mr-2w')} />
                   Échantillon conforme
-                </h6>
+                </h5>
               ) : (
-                <h6 className={cx('fr-mb-0')}>
+                <h5 className={clsx('d-flex-align-center', cx('fr-mb-0'))}>
                   <img src={close} alt="" className={cx('fr-mr-2w')} />
                   Échantillon non conforme
-                </h6>
+                </h5>
               )}
               {analysis.notesOnCompliance && (
                 <div className={cx('fr-pl-9w', 'fr-text--lead')}>
                   <div>Note additionnelle</div>
-                  <b>{quote(analysis.notesOnCompliance)}</b>
+                  <i>{quote(analysis.notesOnCompliance)}</i>
                 </div>
               )}
             </div>

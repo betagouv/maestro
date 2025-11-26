@@ -42,7 +42,7 @@ export const ResiduesSummary: FunctionComponent<Props> = ({
     <>
       {t('residue', { count: residues.length || 0 })}
       {pluralize(residues.length || 0)(' identifié')}
-      {residues.length && (
+      {residues.length ? (
         <div className={clsx('d-flex-align-center')} style={{ gap: '1rem' }}>
           {compliancesToShow.map((c) => (
             <div key={c} className={clsx('d-flex-align-center')}>
@@ -59,7 +59,7 @@ export const ResiduesSummary: FunctionComponent<Props> = ({
             </div>
           ))}
         </div>
-      )}
+      ) : null}
     </>
   );
 };

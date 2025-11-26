@@ -19,6 +19,8 @@ const meta = {
   args: {
     sample: Sample11Fixture as Sample,
     analysis: genPartialAnalysis({
+      compliance: true,
+      notesOnCompliance: 'Super conforme, cool !!!',
       residues: [
         genPartialResidue({
           reference: 'RF-00000010-MCG',
