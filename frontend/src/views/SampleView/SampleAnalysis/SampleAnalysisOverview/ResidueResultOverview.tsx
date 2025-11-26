@@ -109,7 +109,7 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
               <span>
                 {analyte.reference ? SSD2IdLabel[analyte.reference] : ''}
               </span>
-              <div className="margin-left-auto"></div>
+              <div className="fr-ml-auto"></div>
               {analyte.resultKind === 'Q' ? (
                 <>{analyte.result} mg/kg</>
               ) : (
@@ -126,7 +126,7 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
         <div className={'result-with-comment'}>
           <div className="d-flex-align-center">
             Résultat brut supérieur à l'Arfd ?
-            <b className={'margin-left-auto'}>
+            <b className={'fr-ml-auto'}>
               {residue.resultHigherThanArfd
                 ? OptionalBooleanLabels[residue.resultHigherThanArfd]
                 : 'Non renseigné'}
@@ -136,7 +136,7 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
         </div>
         <div className="d-flex-align-center">
           Substance approuvée dans l'UE
-          <b className={'margin-left-auto'}>
+          <b className={'fr-ml-auto'}>
             {residue.substanceApproved
               ? OptionalBooleanLabels[residue.substanceApproved]
               : 'Non renseigné'}
@@ -144,7 +144,7 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
         </div>
         <div className="d-flex-align-center">
           Substance autorisée pour l'usage
-          <b className={'margin-left-auto'}>
+          <b className={'fr-ml-auto'}>
             {residue.substanceAuthorised
               ? OptionalBooleanLabels[residue.substanceAuthorised]
               : 'Non renseigné'}
@@ -155,7 +155,7 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
             <>
               <div className="d-flex-align-center">
                 Pollution environnementale probable
-                <b className={'margin-left-auto'}>
+                <b className={'fr-ml-auto'}>
                   {OptionalBooleanLabels[residue.pollutionRisk]}
                 </b>
               </div>
@@ -184,11 +184,11 @@ const ResidueValueLabel = ({ residue }: Pick<Props, 'residue'>) => {
         <>
           <div className="d-flex-align-center">
             Valeur du résultat
-            <b className={'margin-left-auto'}>{residue.result} mg/kg</b>
+            <b className={'fr-ml-auto'}>{residue.result} mg/kg</b>
           </div>
           <div className="d-flex-align-center">
             Valeur de la LMR
-            <b className={'margin-left-auto'}>{residue.lmr} mg/kg</b>
+            <b className={'fr-ml-auto'}>{residue.lmr} mg/kg</b>
           </div>
           <ResidueResultAlert result={residue.result} lmr={residue.lmr} />
         </>
@@ -197,7 +197,7 @@ const ResidueValueLabel = ({ residue }: Pick<Props, 'residue'>) => {
         <>
           <div className="d-flex-align-center">
             Valeur du résultat
-            <b className={clsx('margin-left-auto', 'align-right')}>
+            <b className={clsx('fr-ml-auto', 'align-right')}>
               Détecté, non quantifié
             </b>
           </div>

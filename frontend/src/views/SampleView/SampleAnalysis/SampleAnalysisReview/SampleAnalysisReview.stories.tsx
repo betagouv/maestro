@@ -20,14 +20,7 @@ const meta = {
   decorators: [
     (Story) => (
       <div className={clsx(cx('fr-container'))}>
-        <div
-          className={clsx(
-            cx('fr-callout', 'fr-callout--green-emeraude'),
-            'sample-callout',
-            'analysis-container',
-            'fr-mx-5w'
-          )}
-        >
+        <div className={clsx('analysis-container')}>
           <Story />
         </div>
       </div>
