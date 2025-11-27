@@ -70,6 +70,9 @@ const AddPrescriptionModal = ({
       setPrescriptionFilters({
         year: prescriptionFilters.year
       });
+      setMatrixKindValue(null);
+      setWithMatrix(false);
+      setMatrixValue(null);
     }
   });
 
