@@ -28,7 +28,7 @@ describe('Document router', () => {
 
   const resourceDocument = genDocument({
     createdBy: NationalCoordinator.id,
-    kind: 'Resource' as const
+    kind: 'TechnicalInstruction' as const
   });
 
   const sampleDocument = genDocument({
@@ -86,7 +86,8 @@ describe('Document router', () => {
     const testRoute = '/api/documents';
     const validResourceBody = {
       ...genDocumentToCreate(),
-      kind: 'Resource'
+      kind: 'TechnicalInstruction',
+      name: 'Resource Document'
     };
 
     test('should fail if the user is not authenticated', async () => {
@@ -155,7 +156,7 @@ describe('Document router', () => {
         ...validResourceBody,
         createdAt: expect.any(String),
         createdBy: NationalCoordinator.id,
-        kind: 'Resource'
+        kind: 'TechnicalInstruction'
       });
 
       await expect(
@@ -164,8 +165,9 @@ describe('Document router', () => {
         ...validResourceBody,
         createdAt: expect.any(Date),
         createdBy: NationalCoordinator.id,
-        kind: 'Resource',
-        legend: null
+        kind: 'TechnicalInstruction',
+        legend: null,
+        notes: null
       });
     });
 
@@ -195,7 +197,9 @@ describe('Document router', () => {
         createdAt: expect.any(Date),
         createdBy: Sampler1Fixture.id,
         kind: 'AnalysisReportDocument',
-        legend: null
+        legend: null,
+        name: null,
+        notes: null
       });
     });
 
@@ -225,7 +229,9 @@ describe('Document router', () => {
         createdAt: expect.any(Date),
         createdBy: Sampler1Fixture.id,
         kind: 'SampleDocument',
-        legend: null
+        legend: null,
+        name: null,
+        notes: null
       });
     });
   });
@@ -243,7 +249,7 @@ describe('Document router', () => {
     test('should fail if the user has not the right permissions', async () => {
       await request(app)
         .put(testRoute(analysisDocument.id))
-        .send({ legend: 'legend' })
+        .send({ kind: 'SampleDocument', legend: 'legend' })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
@@ -256,10 +262,10 @@ describe('Document router', () => {
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    test('should fail if the document is not a sample document', async () => {
+    test('should fail if the document is not an updatable document', async () => {
       await request(app)
-        .put(testRoute(resourceDocument.id))
-        .send({ legend: 'legend' })
+        .put(testRoute(analysisDocument.id))
+        .send({ kind: 'SampleDocument', legend: 'legend' })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
@@ -275,7 +281,7 @@ describe('Document router', () => {
       const updatedLegend = 'test';
       const res = await request(app)
         .put(testRoute(sampleDocument.id))
-        .send({ legend: updatedLegend })
+        .send({ kind: 'SampleDocument', legend: updatedLegend })
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
@@ -290,7 +296,8 @@ describe('Document router', () => {
         Documents().where({ id: sampleDocument.id }).first()
       ).resolves.toEqual({
         ...sampleDocument,
-        legend: updatedLegend
+        legend: updatedLegend,
+        notes: null
       });
     });
   });

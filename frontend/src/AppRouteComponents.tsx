@@ -4,6 +4,7 @@ import YearRoute from './components/YearRoute/YearRoute';
 import { AdminView } from './views/AdminView/AdminView';
 import DashboardView from './views/DashboardView/DashboardView';
 import DocumentListView from './views/DocumentListView/DocumentListView';
+import DocumentView from './views/DocumentView/DocumentView';
 import HomeView from './views/HomeView/HomeView';
 import { LoginCallbackView } from './views/LoginCallbackView/LoginCallbackView';
 import { LogoutCallbackView } from './views/LogoutCallbackView/LogoutCallbackView';
@@ -22,6 +23,8 @@ export const AppRouteComponents = {
   NewSampleRoute: () => <YearRoute element={SampleView} />,
   SampleRoute: SampleView,
   DocumentsRoute: DocumentListView,
+  DocumentRoute: DocumentView,
+  NewDocumentRoute: DocumentView,
   ApiDocsRoute: OpenApiExplorerView,
   LogoutCallbackRoute: LogoutCallbackView,
   LoginRoute: HomeView,

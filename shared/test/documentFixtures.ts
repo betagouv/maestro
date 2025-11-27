@@ -15,6 +15,7 @@ export const genDocument = (data?: Partial<Document>): Document => ({
   filename: fakerFR.string.alphanumeric(32),
   createdAt: new Date(),
   createdBy: uuidv4(),
+  name: fakerFR.string.alphanumeric(32),
   kind: oneOf(DocumentKindList),
   ...data
 });
