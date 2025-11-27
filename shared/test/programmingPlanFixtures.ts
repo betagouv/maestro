@@ -85,7 +85,7 @@ export const PPVInProgressProgrammingPlanFixture = genProgrammingPlan({
 export const DAOAInProgressProgrammingPlanFixture = genProgrammingPlan({
   id: 'fafc6f2e-aec5-4998-adeb-84090d971a90',
   domain: 'PESTICIDE_RESIDUE',
-  title: "Denrées d'origine animale",
+  title: "Produit carné à l'abattoir",
   kinds: ['DAOA_BREEDING', 'DAOA_SLAUGHTER'],
   distributionKind: 'SLAUGHTERHOUSE',
   contexts: ['Surveillance'],
