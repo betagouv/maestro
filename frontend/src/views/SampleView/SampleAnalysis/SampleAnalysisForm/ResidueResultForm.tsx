@@ -80,90 +80,95 @@ export const ResidueResultForm: FunctionComponent<Props> = ({
         />
       </div>
       <hr />
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={cx('fr-col-12')}>
-          <AppRadioButtons
-            legend="Méthode d’analyse"
-            options={selectOptionsFromList(AnalysisMethodList, {
-              labels: AnalysisMethodLabels,
-              withDefault: false
-            }).map(({ label, value }) => ({
-              key: `residue-${residue.residueNumber}-analysisMethod-option-${value}`,
-              label,
-              nativeInputProps: {
-                checked: residue.analysisMethod === value,
-                onChange: () => {
-                  onChange(
-                    {
-                      ...residue,
-                      analysisMethod: value as AnalysisMethod
-                    },
-                    residueIndex
-                  );
+      <div className={clsx('result-detail-bloc')}>
+        <h6 className={cx('fr-mb-0')}>Analyse</h6>
+        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+          <div className={cx('fr-col-12')}>
+            <AppRadioButtons
+              legend="Méthode d’analyse"
+              options={selectOptionsFromList(AnalysisMethodList, {
+                labels: AnalysisMethodLabels,
+                withDefault: false
+              }).map(({ label, value }) => ({
+                key: `residue-${residue.residueNumber}-analysisMethod-option-${value}`,
+                label,
+                nativeInputProps: {
+                  checked: residue.analysisMethod === value,
+                  onChange: () => {
+                    onChange(
+                      {
+                        ...residue,
+                        analysisMethod: value as AnalysisMethod
+                      },
+                      residueIndex
+                    );
+                  }
                 }
-              }
-            }))}
-            colSm={6}
-            inputForm={form}
-            inputKey="residues"
-            inputPathFromKey={[residueIndex, 'analysisMethod']}
-            whenValid="Méthode d’analyse correctement renseignée"
-            required
-          />
+              }))}
+              colSm={6}
+              inputForm={form}
+              inputKey="residues"
+              inputPathFromKey={[residueIndex, 'analysisMethod']}
+              whenValid="Méthode d’analyse correctement renseignée"
+              required
+            />
+          </div>
         </div>
-      </div>
 
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={cx('fr-col-12')}>
-          <AppSearchInput
-            options={selectOptionsFromList(references, {
-              labels: SSD2IdLabel,
-              withSort: true,
-              withDefault: false
-            })}
-            value={residue.reference ?? ''}
-            state={form.messageType('residues', [residueIndex, 'reference'])}
-            stateRelatedMessage={form.message('residues', [
-              residueIndex,
-              'reference'
-            ])}
-            onSelect={(value) =>
-              onChange(
-                {
-                  ...residue,
-                  reference: value as SSD2Id
-                },
-                residueIndex
-              )
-            }
-            renderOption={(props, option) => {
-              // eslint-disable-next-line react/prop-types
-              const { key, ...optionProps } = props;
-              return (
-                <Box
-                  key={key}
-                  component="li"
-                  style={{ display: 'flex' }}
-                  {...optionProps}
-                >
-                  <span>{option.label}</span>
-                  <Tag
-                    className={cx('fr-text--regular')}
-                    style={{ marginLeft: 'auto', flexShrink: 0 }}
+        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+          <div className={cx('fr-col-12')}>
+            <AppSearchInput
+              options={selectOptionsFromList(references, {
+                labels: SSD2IdLabel,
+                withSort: true,
+                withDefault: false
+              })}
+              value={residue.reference ?? ''}
+              state={form.messageType('residues', [residueIndex, 'reference'])}
+              stateRelatedMessage={form.message('residues', [
+                residueIndex,
+                'reference'
+              ])}
+              onSelect={(value) =>
+                onChange(
+                  {
+                    ...residue,
+                    reference: value as SSD2Id
+                  },
+                  residueIndex
+                )
+              }
+              renderOption={(props, option) => {
+                // eslint-disable-next-line react/prop-types
+                const { key, ...optionProps } = props;
+                return (
+                  <Box
+                    key={key}
+                    component="li"
+                    style={{ display: 'flex' }}
+                    {...optionProps}
                   >
-                    {
-                      ResidueKindLabels[
-                        isComplex(option.value as SSD2Id) ? 'Complex' : 'Simple'
-                      ]
-                    }
-                  </Tag>
-                </Box>
-              );
-            }}
-            label="Résidu"
-            whenValid={`Résidu correctement renseigné`}
-            required
-          />
+                    <span>{option.label}</span>
+                    <Tag
+                      className={cx('fr-text--regular')}
+                      style={{ marginLeft: 'auto', flexShrink: 0 }}
+                    >
+                      {
+                        ResidueKindLabels[
+                          isComplex(option.value as SSD2Id)
+                            ? 'Complex'
+                            : 'Simple'
+                        ]
+                      }
+                    </Tag>
+                  </Box>
+                );
+              }}
+              label="Résidu"
+              whenValid={`Résidu correctement renseigné`}
+              required
+            />
+          </div>
         </div>
       </div>
       {residue.reference !== undefined ? (
@@ -192,7 +197,7 @@ export const ResidueResultForm: FunctionComponent<Props> = ({
               residue={residue}
               residueIndex={residueIndex}
             />
-          )}{' '}
+          )}
         </>
       ) : null}
     </div>

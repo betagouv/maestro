@@ -22,6 +22,7 @@ import { selectOptionsFromList } from '../../../../../components/_app/AppSelect/
 import AppTextAreaInput from '../../../../../components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from '../../../../../components/_app/AppTextInput/AppTextInput';
 import { UseForm } from '../../../../../hooks/useForm';
+import { ResidueComplianceIcon } from '../../SampleAnalysisOverview/ResidueComplianceIcon';
 import { AnalysisResiduesValidator } from './AnalysisResiduesForm';
 
 type Props = {
@@ -47,14 +48,11 @@ export const ResidueInterpretationForm: FunctionComponent<Props> = ({
   assert<Equals<keyof typeof _rest, never>>();
   return (
     <>
-      <div className={clsx(cx('fr-mt-4w'), 'overview-container')}>
-        <div className="overview-header">
-          <div className="bullet" />
-          <h6 className={cx('fr-mb-0', 'fr-ml-3w')}>
-            Interprétation du résultat
-          </h6>
-        </div>
-        <div className={clsx('overview-content', 'border-left')}>
+      <hr />
+      <div className={clsx('result-detail-bloc')}>
+        <h6 className={cx('fr-mb-0')}>Interprétation du résultat</h6>
+
+        <div className={clsx('overview-content')}>
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             <div className={cx('fr-col-12', 'fr-col-sm-6')}>
               <AppSelect
@@ -184,12 +182,10 @@ export const ResidueInterpretationForm: FunctionComponent<Props> = ({
           </div>
         </div>
       </div>
-      <div className={clsx(cx('fr-mt-4w'), 'overview-container')}>
-        <div className="overview-header">
-          <div className="bullet" />
-          <h6 className={cx('fr-mb-0', 'fr-ml-3w')}>Conformité</h6>
-        </div>
-        <div className={clsx('overview-content')}>
+      <hr />
+      <div className={clsx('result-detail-bloc')}>
+        <h6 className={cx('fr-mb-0')}>Conformité</h6>
+        <div>
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             <div className={cx('fr-col-12')}>
               <AppRadioButtons
@@ -214,14 +210,9 @@ export const ResidueInterpretationForm: FunctionComponent<Props> = ({
                       )
                   },
                   illustration: (
-                    <img
-                      src={
-                        ResidueComplianceIllustrations[
-                          value as ResidueCompliance
-                        ]
-                      }
-                      alt=""
-                      aria-hidden
+                    <ResidueComplianceIcon
+                      compliance={value as ResidueCompliance}
+                      className={['fr-icon--lg']}
                     />
                   )
                 }))}

@@ -1,19 +1,35 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
+import {
+  Analysis,
+  PartialAnalysis
+} from 'maestro-shared/schema/Analysis/Analysis';
+import {
+  PartialResidue,
+  ResidueLmrCheck
+} from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { FunctionComponent, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
+import { z } from 'zod';
+import { useForm } from '../../../../hooks/useForm';
 import { AnalysisDocumentPreview } from '../../components/AnalysisDocumentPreview';
 import { ResidueListResult } from '../SampleAnalysisOverview/ResidueListResult';
 import { ResiduesSummary } from '../SampleAnalysisOverview/ResiduesSummary';
-import { useResiduesForm } from '../SampleDraftAnalysis/AnalysisResiduesStep/AnalysisResiduesForm';
+import { AnalysisComplianceForm } from './AnalysisComplianceForm';
 import { ResidueResultForm } from './ResidueResultForm';
 
 type Props = {
   sample: Sample;
   partialAnalysis: PartialAnalysis;
 };
+
+const analysisResiduesValidator = z.object({
+  ...Analysis.shape,
+  residues: z.array(ResidueLmrCheck)
+});
+
+type AnalysisResidues = z.infer<typeof analysisResiduesValidator>;
 export const SampleAnalysisForm: FunctionComponent<Props> = ({
   sample,
   partialAnalysis,
@@ -21,27 +37,36 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  const [analysis, setAnalysis] = useState(
-    PartialAnalysis.parse({
-      ...partialAnalysis,
-      residues: partialAnalysis.residues ?? []
-    })
-  );
+  const [analysis, setAnalysis] = useState({
+    partialAnalysis
+  });
 
-  const { residues, setResidues, form, changeResidue } = useResiduesForm(
-    partialAnalysis,
-    sample
-  );
+  const [residues, setResidues] = useState(partialAnalysis.residues ?? []);
 
-  const addResidue = () =>
-    setResidues((currentResidues) => {
-      const newResidueNumber = currentResidues.length
-        ? Math.max(
-            ...currentResidues.map(({ residueNumber }) => residueNumber)
-          ) + 1
+  const changeResidue = (residue: PartialResidue, index: number) => {
+    setResidues((r) => {
+      const newResidues = [...r];
+      newResidues[index] = residue;
+
+      return newResidues;
+    });
+  };
+
+  const form = useForm(analysisResiduesValidator, {
+    ...analysis,
+    residues: residues.map((residue) => ({
+      ...sample,
+      ...residue
+    }))
+  });
+
+  const addResidue = () => {
+    setResidues((r) => {
+      const newResidueNumber = r.length
+        ? Math.max(...residues.map(({ residueNumber }) => residueNumber)) + 1
         : 1;
       return [
-        ...currentResidues,
+        ...r,
         {
           analysisId: partialAnalysis.id,
           residueNumber: newResidueNumber,
@@ -49,6 +74,7 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
         }
       ];
     });
+  };
 
   const removeResidue = (i: number) => () =>
     setResidues((currentResidues) => {
@@ -59,7 +85,7 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
       {analysis && (
         <>
           <AnalysisDocumentPreview
-            analysisId={analysis.id}
+            analysisId={partialAnalysis.id}
             sampleId={sample.id}
             readonly={true}
           />
@@ -82,7 +108,7 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
             onAddResidue={addResidue}
           />
 
-          <div>TODO</div>
+          <AnalysisComplianceForm partialAnalysis={analysis} />
         </>
       )}
     </>

@@ -67,7 +67,8 @@ function AppRadioButtons<T extends ZodObject>(
         inputGroup: cx('fr-col-12', {
           'fr-col-sm-6': colSm === 6,
           'fr-col-sm-4': colSm === 4,
-          'fr-py-0': !isRichRadio
+          'fr-py-0': !isRichRadio,
+          'fr-my-0': isRichRadio
         }),
         content: cx('fr-grid-row', 'fr-grid-row--gutters', 'fr-mx-0'),
         root: cx('fr-px-0', 'fr-my-0'),
