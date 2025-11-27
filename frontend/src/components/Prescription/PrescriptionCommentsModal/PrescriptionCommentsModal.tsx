@@ -43,6 +43,9 @@ const prescriptionCommentsModal = createModal({
   isOpenedByDefault: false
 });
 
+/**
+ * @public - Used in Storybook
+ */
 export interface Props {
   onSubmitLocalPrescriptionComment: (
     programmingPlan: ProgrammingPlan,

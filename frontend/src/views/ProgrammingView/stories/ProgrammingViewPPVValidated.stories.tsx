@@ -108,13 +108,13 @@ export const NationalCoordinatorView: Story = {
     await expect(canvas.getByTestId('prescription-table')).toBeInTheDocument();
 
     await expect(
-      canvas.getByTestId(`matrix-${prescription1.matrixKind}`)
+      canvas.getByTestId(`matrix-${prescription1.id}`)
     ).toBeInTheDocument();
     await expect(
-      canvas.getByTestId(`matrix-${prescription2.matrixKind}`)
+      canvas.getByTestId(`matrix-${prescription2.id}`)
     ).toBeInTheDocument();
     await expect(
-      canvas.getAllByTestId(`cell-${prescription1.matrixKind}`)
+      canvas.getAllByTestId(`cell-${prescription1.id}`)
     ).toHaveLength(RegionList.length);
 
     await expect(
@@ -122,6 +122,9 @@ export const NationalCoordinatorView: Story = {
     ).not.toBeInTheDocument();
 
     await expect(canvas.getByTestId('add-matrix-button')).toBeInTheDocument();
+
+    await expect(canvas.getByText('Phase de consultation')).toBeInTheDocument();
+    await expect(canvas.getByText('Commentaires')).toBeInTheDocument();
 
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
   }
@@ -165,6 +168,11 @@ export const RegionalCoordinatorView: Story = {
         .length
     );
 
+    await expect(
+      canvas.queryByText('Phase de consultation')
+    ).not.toBeInTheDocument();
+    await expect(canvas.getByText('Commentaires')).toBeInTheDocument();
+
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
   }
 };
@@ -204,6 +212,11 @@ export const SamplerView: Story = {
     await expect(
       canvas.queryByTestId('update-laboratory-button')
     ).not.toBeInTheDocument();
+
+    await expect(
+      canvas.queryByText('Phase de consultation')
+    ).not.toBeInTheDocument();
+    await expect(canvas.queryByText('Commentaires')).not.toBeInTheDocument();
 
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
   }

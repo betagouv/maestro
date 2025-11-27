@@ -166,7 +166,9 @@ const ProgrammingPrescriptionListHeader = ({
             <AddPrescriptionModal
               programmingPlan={programmingPlan}
               excludedMatrixKindList={uniq(
-                prescriptions.map((p) => p.matrixKind)
+                prescriptions
+                  .filter((p) => isNil(p.matrix))
+                  .map((p) => p.matrixKind)
               )}
               excludedMatrixList={uniq(
                 prescriptions.map((p) => p.matrix).filter((_) => !isNil(_))

@@ -1,7 +1,9 @@
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
-import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
-import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import {
+  getPrescriptionTitle,
+  Prescription
+} from 'maestro-shared/schema/Prescription/Prescription';
 import { PrescriptionSubstance } from 'maestro-shared/schema/Prescription/PrescriptionSubstance';
 import { useEffect, useMemo, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
@@ -38,7 +40,7 @@ const PrescriptionModal = ({ onUpdatePrescriptionSubstances }: Props) => {
       return 'Analyses mono-résidu et multi-résidus';
     }
     if (prescriptionModalData?.mode === 'details') {
-      return `Instructions sur la matrice ${MatrixKindLabels[prescriptionModalData.prescription.matrixKind]}`;
+      return `Instructions sur la matrice ${getPrescriptionTitle(prescriptionModalData.prescription)}`;
     }
   }, [prescriptionModalData]);
 

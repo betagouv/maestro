@@ -47,7 +47,7 @@ const LocalPrescriptionCard = ({
     <div className={cx('fr-col-12', 'fr-col-md-6')}>
       <div
         className={clsx(cx('fr-card', 'fr-card--sm'), 'regional-card')}
-        data-testid={`card-${prescription.matrixKind}`}
+        data-testid={`card-${prescription.id}`}
       >
         <div className={cx('fr-card__body')}>
           <div className={cx('fr-card__content')}>

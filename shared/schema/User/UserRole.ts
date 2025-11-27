@@ -12,18 +12,15 @@ const NationalUserRole = z.enum([
 
 const RegionalAndNationalUserRole = z.enum(['SamplerAndNationalObserver']);
 
-const RegionalUserRole = z.enum([
-  'RegionalCoordinator',
-  'RegionalObserver',
-  'Sampler'
-]);
+const RegionalUserRole = z.enum(['RegionalCoordinator', 'RegionalObserver']);
 
 export const UserRole = z.enum(
   [
     ...NationalUserRole.options,
     ...RegionalAndNationalUserRole.options,
     ...RegionalUserRole.options,
-    'DepartmentalCoordinator'
+    'DepartmentalCoordinator',
+    'Sampler'
   ],
   { error: 'Veuillez renseigner un rôle.' }
 );

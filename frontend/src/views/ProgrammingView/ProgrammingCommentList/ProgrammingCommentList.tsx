@@ -6,7 +6,6 @@ import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
 import { t } from 'i18next';
 import { sumBy } from 'lodash-es';
-import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
 import { FindLocalPrescriptionOptions } from 'maestro-shared/schema/LocalPrescription/FindLocalPrescriptionOptions';
 import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
@@ -91,7 +90,7 @@ const ProgrammingCommentList = ({ programmingPlan, ..._rest }: Props) => {
 
   const filteredPrescriptions = commentedPrescriptions
     .filter((prescription) =>
-      MatrixKindLabels[prescription.matrixKind]
+      getPrescriptionTitle(prescription)
         .toLowerCase()
         .includes(matrixQuery.toLowerCase())
     )

@@ -84,7 +84,7 @@ const PrescriptionStages = ({
       )}
       {prescription.stages.map((stage) => (
         <Tag
-          key={`prescription_${prescription.matrixKind}_stage_${stage}`}
+          key={`prescription_${prescription.id}_stage_${stage}`}
           dismissible={hasUserPrescriptionPermission(programmingPlan)?.update}
           small
           nativeButtonProps={

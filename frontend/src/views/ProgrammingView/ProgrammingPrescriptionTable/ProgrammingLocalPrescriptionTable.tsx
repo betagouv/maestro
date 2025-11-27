@@ -5,14 +5,16 @@ import Table from '@codegouvfr/react-dsfr/Table';
 import clsx from 'clsx';
 import { sumBy } from 'lodash-es';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
-import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, Regions } from 'maestro-shared/referential/Region';
 import {
   LocalPrescription,
   LocalPrescriptionSort
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
-import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import {
+  getPrescriptionTitle,
+  Prescription
+} from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { isDefined } from 'maestro-shared/utils/utils';
 import { useCallback, useMemo } from 'react';
@@ -52,7 +54,7 @@ const ProgrammingLocalPrescriptionTable = ({
   onTogglePrescriptionSelection
 }: Props) => {
   const dispatch = useAppDispatch();
-  const { hasUserLocalPrescriptionPermission, hasRegionalView } =
+  const { user, hasUserLocalPrescriptionPermission, hasRegionalView } =
     useAuthentication();
 
   const getLocalPrescription = useCallback(
@@ -74,9 +76,11 @@ const ProgrammingLocalPrescriptionTable = ({
   const departmentList = useMemo(
     () =>
       hasRegionalView && programmingPlan.distributionKind !== 'REGIONAL'
-        ? Regions[region].departments
+        ? user?.department
+          ? [user.department]
+          : Regions[region].departments
         : [],
-    [region, programmingPlan.distributionKind, hasRegionalView]
+    [region, programmingPlan.distributionKind, hasRegionalView, user]
   );
 
   const headers = useMemo(
@@ -112,7 +116,7 @@ const ProgrammingLocalPrescriptionTable = ({
       prescriptions.map((prescription) =>
         [
           onTogglePrescriptionSelection ? (
-            <div key={`select-${prescription.matrixKind}`}>
+            <div key={`select-${prescription.id}`}>
               <Checkbox
                 options={[
                   {
@@ -134,10 +138,10 @@ const ProgrammingLocalPrescriptionTable = ({
             className={clsx(cx('fr-text--bold'), {
               'border-left': onTogglePrescriptionSelection
             })}
-            data-testid={`matrix-${prescription.matrixKind}`}
-            key={`matrix-${prescription.matrixKind}`}
+            data-testid={`matrix-${prescription.id}`}
+            key={`matrix-${prescription.id}`}
           >
-            {MatrixKindLabels[prescription.matrixKind]}
+            {getPrescriptionTitle(prescription)}
             <PrescriptionBreadcrumb
               prescription={prescription}
               programmingPlan={programmingPlan}
@@ -145,7 +149,7 @@ const ProgrammingLocalPrescriptionTable = ({
           </div>,
           <div
             className={clsx(cx('fr-text--bold'), 'border-left', 'sample-count')}
-            key={`total-${prescription.matrixKind}`}
+            key={`total-${prescription.id}`}
           >
             <div>
               {pluralize(
@@ -184,8 +188,8 @@ const ProgrammingLocalPrescriptionTable = ({
                 (localPrescription) => (
                   <div
                     className="border-left"
-                    data-testid={`cell-${prescription.matrixKind}`}
-                    key={`cell-${prescription.matrixKind}-${localPrescription.region}`}
+                    data-testid={`cell-${prescription.id}`}
+                    key={`cell-${prescription.id}-${localPrescription.region}`}
                   >
                     <DistributionCountCell
                       programmingPlan={programmingPlan}
@@ -223,7 +227,7 @@ const ProgrammingLocalPrescriptionTable = ({
             : []),
           <div
             className={clsx('border-left', 'align-right')}
-            key={`actions-${prescription.matrixKind}`}
+            key={`actions-${prescription.id}`}
           >
             <Button
               priority="tertiary"
@@ -263,58 +267,66 @@ const ProgrammingLocalPrescriptionTable = ({
   );
 
   const totalData = useMemo(
-    () => [
-      onTogglePrescriptionSelection ? (
-        <div key="select-total" className={cx('fr-checkbox-group')}></div>
-      ) : undefined,
-      <div
-        key="matrix-total"
-        className={clsx(cx('fr-text--bold'), {
-          'border-left': onTogglePrescriptionSelection
-        })}
-      >
-        Total
-      </div>,
-      <div className="border-left fr-text--bold" key="total-total">
-        <div>{sumBy(localPrescriptions, 'sampleCount')}</div>
+    () =>
+      [
+        onTogglePrescriptionSelection ? (
+          <div key="select-total" className={cx('fr-checkbox-group')}></div>
+        ) : undefined,
+        <div
+          key="matrix-total"
+          className={clsx(cx('fr-text--bold'), {
+            'border-left': onTogglePrescriptionSelection
+          })}
+        >
+          Total
+        </div>,
+        <div className="border-left fr-text--bold" key="total-total">
+          <div>{sumBy(localPrescriptions, 'sampleCount')}</div>
 
-        {programmingPlan.regionalStatus.some(
-          (_) => _.status === 'Validated'
-        ) && (
-          <>
-            <div>{sumBy(localPrescriptions, 'realizedSampleCount')}</div>
-            <CompletionBadge localPrescriptions={localPrescriptions} />
-          </>
-        )}
-      </div>,
-      ...departmentList.map((department) => [
-        <div key={`total-${department}`} className="border-left fr-text--bold">
-          <div>
-            {sumBy(
-              subLocalPrescriptions.filter((r) => r.department === department),
-              'sampleCount'
-            )}
-          </div>
           {programmingPlan.regionalStatus.some(
-            (_) => _.region === department && _.status === 'Validated'
+            (_) => _.status === 'Validated'
           ) && (
             <>
-              <div>
-                {sumBy(
-                  subLocalPrescriptions.filter((r) => r.region === department),
-                  'realizedSampleCount'
-                )}
-              </div>
-              <CompletionBadge
-                localPrescriptions={subLocalPrescriptions}
-                region={region}
-              />
+              <div>{sumBy(localPrescriptions, 'realizedSampleCount')}</div>
+              <CompletionBadge localPrescriptions={localPrescriptions} />
             </>
           )}
-        </div>
-      ]),
-      <div key="actions-total" className={clsx('border-left')}></div>
-    ],
+        </div>,
+        ...departmentList.map((department) => [
+          <div
+            key={`total-${department}`}
+            className="border-left fr-text--bold"
+          >
+            <div>
+              {sumBy(
+                subLocalPrescriptions.filter(
+                  (r) => r.department === department
+                ),
+                'sampleCount'
+              )}
+            </div>
+            {programmingPlan.regionalStatus.some(
+              (_) => _.region === department && _.status === 'Validated'
+            ) && (
+              <>
+                <div>
+                  {sumBy(
+                    subLocalPrescriptions.filter(
+                      (r) => r.region === department
+                    ),
+                    'realizedSampleCount'
+                  )}
+                </div>
+                <CompletionBadge
+                  localPrescriptions={subLocalPrescriptions}
+                  region={region}
+                />
+              </>
+            )}
+          </div>
+        ]),
+        <div key="actions-total" className={clsx('border-left')}></div>
+      ].filter(isDefined),
     [subLocalPrescriptions, prescriptions, programmingPlan] // eslint-disable-line react-hooks/exhaustive-deps
   );
 

@@ -99,13 +99,13 @@ export const NationalCoordinatorView: Story = {
     await expect(canvas.getByTestId('prescription-table')).toBeInTheDocument();
 
     await expect(
-      canvas.getByTestId(`matrix-${FoieDeBovinPrescriptionFixture.matrixKind}`)
+      canvas.getByTestId(`matrix-${FoieDeBovinPrescriptionFixture.id}`)
     ).toBeInTheDocument();
     await expect(
-      canvas.getByTestId(`matrix-${VolaillePrescriptionFixture.matrixKind}`)
+      canvas.getByTestId(`matrix-${VolaillePrescriptionFixture.id}`)
     ).toBeInTheDocument();
     await expect(
-      canvas.getAllByTestId(`cell-${FoieDeBovinPrescriptionFixture.matrixKind}`)
+      canvas.getAllByTestId(`cell-${FoieDeBovinPrescriptionFixture.id}`)
     ).toHaveLength(RegionList.length);
 
     await userEvent.click(canvas.getByTestId('prescriptions-cards-segment'));
