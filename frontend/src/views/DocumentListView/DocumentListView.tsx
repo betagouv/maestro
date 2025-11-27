@@ -57,7 +57,7 @@ const DocumentListView = () => {
 
   const onViewNotes = (document: Document) => {
     setCurrentDocument(document);
-    noteModal.open();
+    setTimeout(() => noteModal.open(), 100);
   };
   const onRemove = (document: Document) => {
     setCurrentDocument(document);
