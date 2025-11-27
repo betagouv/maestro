@@ -3,6 +3,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
+import { TagProps } from '@codegouvfr/react-dsfr/Tag';
 import TagsGroup from '@codegouvfr/react-dsfr/TagsGroup';
 import clsx from 'clsx';
 import { format } from 'date-fns';
@@ -12,13 +13,19 @@ import {
   Department,
   DepartmentLabels
 } from 'maestro-shared/referential/Department';
-import {
-  MatrixKind,
-  MatrixKindLabels
-} from 'maestro-shared/referential/Matrix/MatrixKind';
+import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
+import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, Regions } from 'maestro-shared/referential/Region';
 import { LocalPrescriptionCommentToCreate } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
 import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
+import {
+  getPrescriptionTitle,
+  Prescription
+} from 'maestro-shared/schema/Prescription/Prescription';
+import {
+  PrescriptionComments,
+  PrescriptionCommentSort
+} from 'maestro-shared/schema/Prescription/PrescriptionComments';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { useEffect, useMemo, useState } from 'react';
@@ -36,13 +43,21 @@ const prescriptionCommentsModal = createModal({
   isOpenedByDefault: false
 });
 
-interface Props {
+/**
+ * @public - Used in Storybook
+ */
+export interface Props {
   onSubmitLocalPrescriptionComment: (
     programmingPlan: ProgrammingPlan,
     localPrescriptionKey: LocalPrescriptionKey,
     comment: string
   ) => Promise<void>;
 }
+
+const getPrescriptionTag = (prescription: Prescription) =>
+  prescription.matrix ?? prescription.matrixKind;
+
+const DefaultVisibleCount = 3;
 
 const PrescriptionCommentsModal = ({
   onSubmitLocalPrescriptionComment
@@ -51,7 +66,6 @@ const PrescriptionCommentsModal = ({
   const {
     hasUserLocalPrescriptionPermission,
     user,
-    hasNationalView,
     hasRegionalView,
     hasDepartmentalView
   } = useAuthentication();
@@ -61,19 +75,23 @@ const PrescriptionCommentsModal = ({
 
   const [newComment, setNewComment] = useState('');
   const [recipientsSegment, setRecipientsSegment] = useState<UserRole | null>(
-    hasNationalView
-      ? 'RegionalCoordinator'
-      : hasRegionalView
-        ? 'NationalCoordinator'
-        : 'DepartmentalCoordinator'
+    hasRegionalView ? 'NationalCoordinator' : 'RegionalCoordinator'
   );
+  const [visibleCommentsCount, setVisibleCommentsCount] =
+    useState(DefaultVisibleCount);
   const [currentTag, setCurrentTag] = useState<
-    Region | Department | MatrixKind | null
-  >(
-    (prescriptionCommentsData?.viewBy === 'MatrixKind'
-      ? prescriptionCommentsData.currentRegion
-      : prescriptionCommentsData?.currentMatrixKind) ?? null
-  );
+    Region | Department | MatrixKind | Matrix | null
+  >(() => {
+    if (!prescriptionCommentsData) {
+      return null;
+    }
+    if (prescriptionCommentsData.viewBy === 'Prescription') {
+      return prescriptionCommentsData.currentRegion ?? null;
+    }
+    return prescriptionCommentsData.currentPrescription
+      ? getPrescriptionTag(prescriptionCommentsData.currentPrescription)
+      : null;
+  });
 
   const Form = LocalPrescriptionCommentToCreate.pick({
     comment: true
@@ -87,6 +105,7 @@ const PrescriptionCommentsModal = ({
     onConceal: () => {
       setNewComment('');
       form.reset();
+      setVisibleCommentsCount(DefaultVisibleCount);
       dispatch(
         prescriptionsSlice.actions.setPrescriptionCommentsData(undefined)
       );
@@ -95,64 +114,89 @@ const PrescriptionCommentsModal = ({
 
   useEffect(() => {
     if (prescriptionCommentsData) {
-      if (prescriptionCommentsData.viewBy === 'MatrixKind') {
+      if (prescriptionCommentsData.viewBy === 'Prescription') {
         setCurrentTag(
-          prescriptionCommentsData.regionalComments.find(
+          prescriptionCommentsData.regionalCommentsList.find(
             (_) => !isNil(_.department)
           )?.department ??
             prescriptionCommentsData.currentRegion ??
-            prescriptionCommentsData.regionalComments[0].region
+            prescriptionCommentsData.regionalCommentsList[0].region
         );
       } else {
         setCurrentTag(
-          prescriptionCommentsData.currentMatrixKind ??
-            prescriptionCommentsData.matrixKindsComments[0].matrixKind
+          getPrescriptionTag(
+            prescriptionCommentsData.currentPrescription ??
+              [...prescriptionCommentsData.prescriptionCommentsList].sort(
+                PrescriptionCommentSort
+              )[0].prescription
+          )
         );
       }
-      prescriptionCommentsModal.open();
+      setVisibleCommentsCount(DefaultVisibleCount);
+
+      setTimeout(() => {
+        prescriptionCommentsModal.open();
+      }, 1);
     }
   }, [prescriptionCommentsData]);
 
+  useEffect(() => {
+    setVisibleCommentsCount(DefaultVisibleCount);
+  }, [currentTag]);
+
   const currentComments = useMemo(
     () =>
-      prescriptionCommentsData?.viewBy === 'MatrixKind'
-        ? prescriptionCommentsData?.regionalComments.find((_) =>
-            recipientsSegment === 'DepartmentalCoordinator'
+      prescriptionCommentsData?.viewBy === 'Prescription'
+        ? prescriptionCommentsData?.regionalCommentsList.find((_) =>
+            recipientsSegment === 'DepartmentalCoordinator' ||
+            hasDepartmentalView
               ? _.department === currentTag
               : recipientsSegment === 'RegionalCoordinator'
                 ? isNil(_.department) && _.region === currentTag
                 : isNil(_.department)
           )
-        : prescriptionCommentsData?.matrixKindsComments.find(
-            (_) => _.matrixKind === currentTag
+        : prescriptionCommentsData?.prescriptionCommentsList.find(
+            ({ prescription }) =>
+              getPrescriptionTag(prescription) === currentTag
           ),
-    [currentTag, prescriptionCommentsData, recipientsSegment]
+    [
+      currentTag,
+      hasDepartmentalView,
+      prescriptionCommentsData,
+      recipientsSegment
+    ]
   );
 
   const programmingPlan = useMemo(
     () =>
-      prescriptionCommentsData?.viewBy === 'MatrixKind'
+      prescriptionCommentsData?.viewBy === 'Prescription'
         ? prescriptionCommentsData?.programmingPlan
-        : prescriptionCommentsData?.matrixKindsComments.find(
-            (_) => _.matrixKind === currentTag
-          )?.programmingPlan,
-    [currentTag, prescriptionCommentsData]
+        : (currentComments as PrescriptionComments)?.programmingPlan,
+    [prescriptionCommentsData, currentComments]
   );
 
-  const { commentsArray, hasComments } = useMemo(() => {
-    const commentsArray = currentComments?.comments ?? [];
+  const { visibleComments, hasComments, hasMoreComments } = useMemo(() => {
+    const commentsArray = [...(currentComments?.comments ?? [])].sort(
+      (c1, c2) => c1.createdAt.getTime() - c2.createdAt.getTime()
+    );
     const hasComments = commentsArray.length > 0;
+    const totalComments = commentsArray.length;
+    const startIndex = Math.max(0, totalComments - visibleCommentsCount);
+    const visibleComments = commentsArray.slice(startIndex);
+    const hasMoreComments = startIndex > 0;
 
-    return { commentsArray, hasComments };
-  }, [currentComments]);
+    return {
+      visibleComments,
+      hasComments,
+      hasMoreComments
+    };
+  }, [currentComments, visibleCommentsCount]);
 
   const getLocalPrescriptionPartialKey = useMemo(
     () => ({
       region:
-        prescriptionCommentsData?.viewBy === 'MatrixKind'
-          ? recipientsSegment === 'RegionalCoordinator'
-            ? (currentTag as Region)
-            : (user?.region as Region)
+        prescriptionCommentsData?.viewBy === 'Prescription'
+          ? (Region.safeParse(currentTag).data ?? (user?.region as Region))
           : (prescriptionCommentsData?.region as Region),
       department:
         recipientsSegment === 'DepartmentalCoordinator'
@@ -165,19 +209,27 @@ const PrescriptionCommentsModal = ({
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
 
-    if (prescriptionCommentsData?.viewBy === 'MatrixKind') {
-      await form.validate(async () => {
-        await onSubmitLocalPrescriptionComment(
-          prescriptionCommentsData.programmingPlan,
-          {
-            prescriptionId: prescriptionCommentsData.prescriptionId,
-            ...getLocalPrescriptionPartialKey
-          },
-          newComment
-        );
-        prescriptionCommentsModal.close();
-      });
-    }
+    await form.validate(async () => {
+      const prescriptionId =
+        prescriptionCommentsData?.viewBy === 'Prescription'
+          ? prescriptionCommentsData.prescription.id
+          : (currentComments as PrescriptionComments).prescription.id;
+
+      const plan =
+        prescriptionCommentsData?.viewBy === 'Prescription'
+          ? prescriptionCommentsData.programmingPlan
+          : (programmingPlan as ProgrammingPlan);
+
+      await onSubmitLocalPrescriptionComment(
+        plan,
+        {
+          prescriptionId,
+          ...getLocalPrescriptionPartialKey
+        },
+        newComment
+      );
+      prescriptionCommentsModal.close();
+    });
   };
 
   return (
@@ -185,14 +237,14 @@ const PrescriptionCommentsModal = ({
       <prescriptionCommentsModal.Component
         title={
           <>
-            {prescriptionCommentsData?.viewBy === 'MatrixKind' &&
-              MatrixKindLabels[prescriptionCommentsData.matrixKind]}
+            {prescriptionCommentsData?.viewBy === 'Prescription' &&
+              getPrescriptionTitle(prescriptionCommentsData.prescription)}
             {prescriptionCommentsData?.viewBy === 'Region' &&
               `Région ${Regions[prescriptionCommentsData.region].name}`}
             {hasRegionalView &&
-              prescriptionCommentsData?.viewBy === 'MatrixKind' &&
+              prescriptionCommentsData?.viewBy === 'Prescription' &&
               programmingPlan?.distributionKind === 'SLAUGHTERHOUSE' &&
-              prescriptionCommentsData.regionalComments.some(
+              prescriptionCommentsData.regionalCommentsList.some(
                 (_) => !isNil(_.department)
               ) && (
                 <SegmentedControl
@@ -230,12 +282,12 @@ const PrescriptionCommentsModal = ({
         {prescriptionCommentsData && (
           <div data-testid="prescription-comments-modal">
             {(prescriptionCommentsData?.viewBy === 'Region' ||
-              prescriptionCommentsData.regionalComments.length > 1) && (
+              prescriptionCommentsData.regionalCommentsList.length > 1) && (
               <TagsGroup
                 smallTags
                 tags={
-                  prescriptionCommentsData?.viewBy === 'MatrixKind'
-                    ? prescriptionCommentsData.regionalComments
+                  (prescriptionCommentsData?.viewBy === 'Prescription'
+                    ? prescriptionCommentsData.regionalCommentsList
                         .filter((regionalComment) =>
                           hasRegionalView
                             ? recipientsSegment === 'NationalCoordinator'
@@ -263,24 +315,49 @@ const PrescriptionCommentsModal = ({
                               )
                           }
                         }))
-                    : (prescriptionCommentsData.matrixKindsComments.map(
-                        (matrixKindComment) => ({
-                          children: `${MatrixKindLabels[matrixKindComment.matrixKind]} (${matrixKindComment.comments.length})`,
-                          pressed: currentTag === matrixKindComment.matrixKind,
+                    : [...prescriptionCommentsData.prescriptionCommentsList]
+                        .sort(PrescriptionCommentSort)
+                        .map((prescriptionComment) => ({
+                          children: `${getPrescriptionTitle(prescriptionComment.prescription)} (${prescriptionComment.comments.length})`,
+                          pressed:
+                            currentTag ===
+                            getPrescriptionTag(
+                              prescriptionComment.prescription
+                            ),
                           nativeButtonProps: {
                             onClick: () =>
-                              setCurrentTag(matrixKindComment.matrixKind)
+                              setCurrentTag(
+                                getPrescriptionTag(
+                                  prescriptionComment.prescription
+                                )
+                              )
                           }
-                        })
-                      ) as any)
+                        }))) as unknown as [TagProps, ...TagProps[]]
                 }
               />
             )}
             {hasComments ? (
               <div className="comments-container">
-                {commentsArray.map((comment, index) => (
+                {hasMoreComments && (
                   <div
-                    key={`comment-${index}`}
+                    className={clsx('prescription-comment', 'more-comments')}
+                  >
+                    <Button
+                      priority="tertiary no outline"
+                      size="small"
+                      onClick={() =>
+                        setVisibleCommentsCount(
+                          (prev) => prev + DefaultVisibleCount
+                        )
+                      }
+                    >
+                      Messages précédents
+                    </Button>
+                  </div>
+                )}
+                {visibleComments.map((comment) => (
+                  <div
+                    key={`${comment.createdBy}-${comment.createdAt.getTime()}`}
                     className="prescription-comment"
                   >
                     <PrescriptionCommentAuthor userId={comment.createdBy} />
@@ -338,7 +415,7 @@ const PrescriptionCommentsModal = ({
                   </form>
                   <Button
                     priority="secondary"
-                    className={cx('fr-ml-2w')}
+                    className="submit-button"
                     onClick={submit}
                   >
                     Envoyer

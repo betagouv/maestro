@@ -44,7 +44,8 @@ const ProgrammingView = () => {
   const [selectedTabId, setSelectedTabId] =
     useState<ProgrammingViewTab>('ProgrammationTab');
   const [searchParams, setSearchParams] = useSearchParams();
-  const { user, hasNationalView, hasRegionalView } = useAuthentication();
+  const { user, hasNationalView, hasRegionalView, hasUserPermission } =
+    useAuthentication();
   const { prescriptionFilters, prescriptionListDisplay } = useAppSelector(
     (state) => state.prescriptions
   );
@@ -211,9 +212,9 @@ const ProgrammingView = () => {
                       tabId: 'ProgrammationTab',
                       iconId: 'fr-icon-survey-line'
                     },
-                    ...(hasNationalView ||
-                    (hasRegionalView &&
-                      programmingPlan?.distributionKind !== 'REGIONAL')
+                    ...(hasUserPermission('manageProgrammingPlan') ||
+                    (programmingPlan?.distributionKind === 'SLAUGHTERHOUSE' &&
+                      hasUserPermission('distributePrescriptionToDepartments'))
                       ? [
                           {
                             label: 'Phase de consultation',
@@ -222,7 +223,7 @@ const ProgrammingView = () => {
                           }
                         ]
                       : []),
-                    ...(hasNationalView || hasRegionalView
+                    ...(hasUserPermission('commentPrescription')
                       ? [
                           {
                             label: 'Commentaires',

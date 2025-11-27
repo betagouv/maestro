@@ -29,7 +29,7 @@ export const up = async (knex: Knex) => {
   await knex('programming_plans')
     .whereRaw('kinds @> ?', [['DAOA_BREEDING', 'DAOA_SLAUGHTER']])
     .update({
-      title: "Denrées d'origine animale",
+      title: "Produit carné à l'abattoir",
       domain: 'PESTICIDE_RESIDUE',
       substance_kinds: ['Mono', 'Multi', 'Copper'],
       distribution_kind: 'SLAUGHTERHOUSE'

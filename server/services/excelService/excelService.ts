@@ -5,7 +5,6 @@ import { isNil, sumBy } from 'lodash-es';
 import { getCultureKindLabel } from 'maestro-shared/referential/CultureKind';
 import { Department } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
-import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { getMatrixPartLabel } from 'maestro-shared/referential/Matrix/MatrixPart';
 import { OptionalBoolean } from 'maestro-shared/referential/OptionnalBoolean';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
@@ -24,6 +23,7 @@ import {
   LocalPrescriptionSort
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import {
+  getPrescriptionTitle,
   Prescription,
   PrescriptionSort
 } from 'maestro-shared/schema/Prescription/Prescription';
@@ -384,7 +384,7 @@ const generatePrescriptionsExportExcel = async (
         )
       );
       return {
-        matrix: MatrixKindLabels[prescription.matrixKind],
+        matrix: getPrescriptionTitle(prescription),
         stages: prescription.stages
           .map((stage) => StageLabels[stage])
           .join(', '),

@@ -47,7 +47,7 @@ const userChecks = <
       message: 'Au moins un plan est obligatoire pour ce rôle.'
     });
   }
-  if (!user.region && hasRegionalRole(user)) {
+  if (!user.region && (hasRegionalRole(user) || canHaveDepartment(user))) {
     ctx.addIssue({
       code: 'custom',
       path: ['region'],

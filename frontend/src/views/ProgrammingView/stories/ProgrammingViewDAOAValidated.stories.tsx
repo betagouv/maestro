@@ -100,13 +100,13 @@ export const NationalCoordinatorView: Story = {
     await expect(canvas.getByTestId('prescription-table')).toBeInTheDocument();
 
     await expect(
-      canvas.getByTestId(`matrix-${FoieDeBovinPrescriptionFixture.matrixKind}`)
+      canvas.getByTestId(`matrix-${FoieDeBovinPrescriptionFixture.id}`)
     ).toBeInTheDocument();
     await expect(
-      canvas.getByTestId(`matrix-${VolaillePrescriptionFixture.matrixKind}`)
+      canvas.getByTestId(`matrix-${VolaillePrescriptionFixture.id}`)
     ).toBeInTheDocument();
     await expect(
-      canvas.getAllByTestId(`cell-${FoieDeBovinPrescriptionFixture.matrixKind}`)
+      canvas.getAllByTestId(`cell-${FoieDeBovinPrescriptionFixture.id}`)
     ).toHaveLength(RegionList.length);
 
     await userEvent.click(canvas.getByTestId('prescriptions-cards-segment'));
@@ -116,6 +116,9 @@ export const NationalCoordinatorView: Story = {
     await expect(
       canvas.queryByTestId('update-laboratory-button')
     ).not.toBeInTheDocument();
+
+    await expect(canvas.getByText('Phase de consultation')).toBeInTheDocument();
+    await expect(canvas.getByText('Commentaires')).toBeInTheDocument();
 
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
   }
@@ -160,6 +163,9 @@ export const RegionalCoordinatorView: Story = {
     await expect(
       canvas.queryByTestId('update-laboratory-button')
     ).not.toBeInTheDocument();
+
+    await expect(canvas.getByText('Phase de consultation')).toBeInTheDocument();
+    await expect(canvas.getByText('Commentaires')).toBeInTheDocument();
 
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
   }
@@ -206,6 +212,11 @@ export const DepartmentalCoordinatorView: Story = {
       ).length
     );
 
+    await expect(
+      canvas.queryByText('Phase de consultation')
+    ).not.toBeInTheDocument();
+    await expect(canvas.getByText('Commentaires')).toBeInTheDocument();
+
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
   }
 };
@@ -248,6 +259,11 @@ export const SamplerView: Story = {
     await expect(
       canvas.queryByTestId('update-laboratory-button')
     ).not.toBeInTheDocument();
+
+    await expect(
+      canvas.queryByText('Phase de consultation')
+    ).not.toBeInTheDocument();
+    await expect(canvas.queryByText('Commentaires')).not.toBeInTheDocument();
 
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
   }

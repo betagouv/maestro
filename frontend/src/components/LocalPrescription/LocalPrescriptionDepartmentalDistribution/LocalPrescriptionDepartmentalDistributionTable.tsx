@@ -84,7 +84,7 @@ const LocalPrescriptionDepartmentalDistributionTable = ({
             <DistributionCountCell
               key={`${departmentalPrescription.prescriptionId}-${departmentalPrescription.region}`}
               programmingPlan={programmingPlan}
-              matrixKind={prescription.matrixKind}
+              prescription={prescription}
               localPrescription={departmentalPrescription}
               max={
                 regionalPrescription.sampleCount -

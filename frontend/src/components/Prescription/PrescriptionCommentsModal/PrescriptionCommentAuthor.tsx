@@ -1,4 +1,5 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { Regions } from 'maestro-shared/referential/Region';
 import { UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
 import { useContext } from 'react';
@@ -19,7 +20,11 @@ const PrescriptionCommentAuthor = ({ userId }: Props) => {
   return (
     <div className={cx('fr-text--sm', 'fr-mb-0')}>
       <b>{user.name}</b> - {UserRoleLabels[user.role]}{' '}
-      {user.region ? Regions[user.region].name : ''}
+      {user.department
+        ? DepartmentLabels[user.department]
+        : user.region
+          ? Regions[user.region].name
+          : ''}
     </div>
   );
 };

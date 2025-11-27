@@ -231,11 +231,10 @@ const ProgrammingPrescriptionList = ({
       if (prescription && regionalPrescription) {
         dispatch(
           prescriptionsSlice.actions.setPrescriptionCommentsData({
-            viewBy: 'MatrixKind',
+            viewBy: 'Prescription',
             programmingPlan,
-            prescriptionId: regionalPrescription.prescriptionId,
-            matrixKind: prescription.matrixKind,
-            regionalComments: [regionalPrescription].map((rcp) => ({
+            prescription,
+            regionalCommentsList: [regionalPrescription].map((rcp) => ({
               region: rcp.region,
               department: rcp.department,
               comments: rcp.comments ?? []

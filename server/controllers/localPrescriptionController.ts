@@ -1,13 +1,10 @@
 import { constants } from 'http2';
 import { isNil } from 'lodash-es';
-import {
-  MatrixKind,
-  MatrixKindLabels
-} from 'maestro-shared/referential/Matrix/MatrixKind';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { hasLocalPrescriptionPermission } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { LocalPrescriptionComment } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
 import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
+import { getPrescriptionTitle } from 'maestro-shared/schema/Prescription/Prescription';
 import {
   hasNationalRole,
   hasRegionalRole
@@ -277,7 +274,7 @@ export const localPrescriptionsRouter = {
         },
         recipients,
         {
-          matrix: MatrixKindLabels[prescription.matrixKind as MatrixKind],
+          matrix: getPrescriptionTitle(prescription),
           sampleCount: localPrescription.sampleCount,
           comment: draftPrescriptionComment.comment,
           author: user ? `${user.name}` : 'Anonyme'
@@ -354,7 +351,7 @@ export const localPrescriptionsRouter = {
           },
           recipients,
           {
-            matrix: MatrixKindLabels[prescription.matrixKind as MatrixKind],
+            matrix: getPrescriptionTitle(prescription),
             sampleCount: localPrescription.sampleCount,
             comment: draftPrescriptionComment.comment,
             author: user ? `${user.name}` : 'Anonyme'

@@ -5,13 +5,13 @@ import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import Tooltip from '@codegouvfr/react-dsfr/Tooltip';
 import clsx from 'clsx';
 import { sumBy } from 'lodash-es';
-import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
 import {
   getCompletionRate,
   LocalPrescription
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import {
+  getPrescriptionTitle,
   Prescription,
   PrescriptionSort
 } from 'maestro-shared/schema/Prescription/Prescription';
@@ -336,7 +336,7 @@ const DashboardPrescriptionCard: FunctionComponent<{
       background
       border
       enlargeLink
-      title={MatrixKindLabels[prescription.matrixKind]}
+      title={getPrescriptionTitle(prescription)}
       size="small"
       end={
         <>

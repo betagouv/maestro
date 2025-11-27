@@ -480,6 +480,7 @@ describe('ProgrammingPlan router', () => {
             context: 'Control',
             programmingPlanId: res.body.id,
             matrixKind: controlPrescriptionValidatedPlan.matrixKind,
+            matrix: null,
             stages: controlPrescriptionValidatedPlan.stages,
             programmingPlanKind:
               controlPrescriptionValidatedPlan.programmingPlanKind,
@@ -500,6 +501,7 @@ describe('ProgrammingPlan router', () => {
             context: 'Surveillance',
             programmingPlanId: res.body.id,
             matrixKind: surveillancePrescriptionValidatedPlan.matrixKind,
+            matrix: null,
             stages: surveillancePrescriptionValidatedPlan.stages,
             programmingPlanKind:
               controlPrescriptionValidatedPlan.programmingPlanKind,

@@ -6,10 +6,10 @@ import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
 import { t } from 'i18next';
 import { sumBy } from 'lodash-es';
-import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
 import { FindLocalPrescriptionOptions } from 'maestro-shared/schema/LocalPrescription/FindLocalPrescriptionOptions';
 import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
+import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   ProgrammingPlanStatus,
@@ -91,10 +91,10 @@ const ProgrammingPlanRegionalValidationList = ({
         )
         .map((regionalPrescription) => ({
           ...regionalPrescription,
-          ...allPrescriptions.find(
+          prescription: allPrescriptions.find(
             (allPrescription) =>
               allPrescription.id === regionalPrescription.prescriptionId
-          )
+          ) as Prescription
         }));
     },
     [allPrescriptions, regionalPrescriptions]
@@ -298,11 +298,11 @@ const ProgrammingPlanRegionalValidationList = ({
                             {
                               viewBy: 'Region',
                               region,
-                              matrixKindsComments:
+                              prescriptionCommentsList:
                                 regionalCommentedPrescriptions(region).map(
                                   (rcp) => ({
                                     programmingPlan,
-                                    matrixKind: rcp.matrixKind as MatrixKind,
+                                    prescription: rcp.prescription,
                                     comments: rcp.comments ?? []
                                   })
                                 )

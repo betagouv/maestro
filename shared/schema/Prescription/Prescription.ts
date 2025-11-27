@@ -1,8 +1,10 @@
 import { z } from 'zod';
+import { Matrix } from '../../referential/Matrix/Matrix';
 import {
   MatrixKind,
   MatrixKindLabels
 } from '../../referential/Matrix/MatrixKind';
+import { MatrixLabels } from '../../referential/Matrix/MatrixLabels';
 import { Stage, StageLabels } from '../../referential/Stage';
 import { ProgrammingPlanContext } from '../ProgrammingPlan/Context';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
@@ -16,6 +18,7 @@ export const Prescription = z.object({
   programmingPlanKind: ProgrammingPlanKind,
   context: ProgrammingPlanContext,
   matrixKind: MatrixKind,
+  matrix: Matrix.nullish(),
   stages: z.array(Stage),
   monoAnalysisCount: z.coerce.number().nullish(),
   multiAnalysisCount: z.coerce.number().nullish(),
@@ -87,3 +90,8 @@ export const hasPrescriptionPermission = (
       (regionalStatus) => regionalStatus.status !== 'Closed'
     )
 });
+
+export const getPrescriptionTitle = (prescription: Prescription) =>
+  prescription.matrix
+    ? MatrixLabels[prescription.matrix]
+    : MatrixKindLabels[prescription.matrixKind];

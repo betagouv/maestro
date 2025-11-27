@@ -3,20 +3,22 @@ import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import clsx from 'clsx';
 import { t } from 'i18next';
 import { sumBy } from 'lodash-es';
-import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, RegionList } from 'maestro-shared/referential/Region';
 import { Stage } from 'maestro-shared/referential/Stage';
 import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import {
+  getPrescriptionTitle,
+  Prescription
+} from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useState } from 'react';
 import PrescriptionDistributionTable from 'src/components/Prescription/PrescriptionDistributionTable/PrescriptionDistributionTable';
 import PrescriptionNotes from 'src/components/Prescription/PrescriptionNotes/PrescriptionNotes';
 import PrescriptionStages from 'src/components/Prescription/PrescriptionStages/PrescriptionStages';
 import PrescriptionSubstances from 'src/components/Prescription/PrescriptionSubstances/PrescriptionSubstances';
+import RemovePrescriptionModal from 'src/components/Prescription/RemovePrescriptionModal/RemovePrescriptionModal';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { pluralize } from 'src/utils/stringUtils';
-import RemoveMatrix from 'src/views/ProgrammingView/ProgrammingPrescriptionList/RemoveMatrix';
 import PrescriptionBreadcrumb from '../PrescriptionBreadcrumb/PrescriptionBreadcrumb';
 import PrescriptionProgrammingInstruction from '../PrescriptionProgrammingInstruction/PrescriptionProgrammingInstruction';
 import './PrescriptionCard.scss';
@@ -65,7 +67,7 @@ const PrescriptionCard = ({
           />
           <div className={clsx(cx('fr-mb-3w'), 'd-flex-align-center')}>
             <h3 className={cx('fr-card__title')}>
-              {MatrixKindLabels[prescription.matrixKind]}
+              {getPrescriptionTitle(prescription)}
             </h3>
             <span>
               {t('plannedSample', {
@@ -74,9 +76,8 @@ const PrescriptionCard = ({
             </span>
             {hasUserPrescriptionPermission(programmingPlan)?.delete && (
               <div className={cx('fr-ml-3w')}>
-                <RemoveMatrix
-                  matrixKind={prescription.matrixKind}
-                  stages={prescription.stages}
+                <RemovePrescriptionModal
+                  prescription={prescription}
                   onRemove={() => removeMatrix(prescription.id)}
                 />
               </div>
@@ -143,7 +144,7 @@ const PrescriptionCard = ({
             <div className={cx('fr-col-12', 'fr-col-md-7')}>
               <PrescriptionDistributionTable
                 programmingPlan={programmingPlan}
-                matrixKind={prescription.matrixKind}
+                prescription={prescription}
                 regionalPrescriptions={regionalPrescriptions}
                 onChangeRegionalCount={onChangeLocalPrescriptionCount}
                 start={0}
@@ -151,7 +152,7 @@ const PrescriptionCard = ({
               />
               <PrescriptionDistributionTable
                 programmingPlan={programmingPlan}
-                matrixKind={prescription.matrixKind}
+                prescription={prescription}
                 regionalPrescriptions={regionalPrescriptions}
                 onChangeRegionalCount={onChangeLocalPrescriptionCount}
                 start={RegionList.length / 2}
