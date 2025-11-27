@@ -35,7 +35,7 @@ const DocumentListView = () => {
   const apiClient = useContext(ApiClientContext);
   useDocumentTitle('Liste des documents ressources');
 
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { hasUserPermission } = useAuthentication();
 
   const { data: resources } = apiClient.useFindResourcesQuery();
@@ -77,9 +77,11 @@ const DocumentListView = () => {
       const document = resources?.find((doc) => doc.id === documentId);
       if (document && document.notes) {
         onViewNotes(document);
+        searchParams.delete('documentId');
+        setSearchParams(searchParams);
       }
     }
-  }, [searchParams, resources]);
+  }, [searchParams, resources]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <section className={clsx(cx('fr-container'), 'main-section')}>
