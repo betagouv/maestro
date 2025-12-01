@@ -1,9 +1,9 @@
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import { Department } from 'maestro-shared/referential/Department';
-import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
+import { getPrescriptionTitle } from 'maestro-shared/schema/Prescription/Prescription';
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import { ApiClientContext } from '../../../services/apiClient';
@@ -109,9 +109,9 @@ const RegionalPrescriptionModal = () => {
         return 'Attribution enregistrée';
       }
       if (localPrescriptionModalData?.mode === 'distributionToDepartments') {
-        return `Répartition par département pour la matrice ${MatrixKindLabels[localPrescriptionModalData.prescription.matrixKind]}`;
+        return `Répartition par département pour la matrice ${getPrescriptionTitle(localPrescriptionModalData.prescription).toLowerCase()}`;
       } else {
-        return `Configuration de la matrice ${MatrixKindLabels[localPrescriptionModalData.prescription.matrixKind]}`;
+        return `Configuration de la matrice ${getPrescriptionTitle(localPrescriptionModalData.prescription).toLowerCase()}`;
       }
     }
   }, [isUpdateSuccess, localPrescriptionModalData]);

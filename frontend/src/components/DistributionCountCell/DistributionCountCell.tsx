@@ -1,6 +1,6 @@
 import Button from '@codegouvfr/react-dsfr/Button';
-import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
+import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
 import EditableNumberCell from 'src/components/EditableNumberCell/EditableNumberCell';
@@ -10,7 +10,7 @@ import { assert, type Equals } from 'tsafe';
 import './DistributionCountCell.scss';
 interface Props {
   programmingPlan: ProgrammingPlan;
-  matrixKind: MatrixKind;
+  prescription: Prescription;
   localPrescription: LocalPrescription;
   isEditable?: boolean;
   onChange: (value: number) => void;
@@ -19,7 +19,7 @@ interface Props {
 
 const DistributionCountCell = ({
   programmingPlan,
-  matrixKind,
+  prescription,
   localPrescription,
   isEditable,
   onChange,
@@ -50,15 +50,17 @@ const DistributionCountCell = ({
                   onClick={() =>
                     dispatch(
                       prescriptionsSlice.actions.setPrescriptionCommentsData({
-                        viewBy: 'MatrixKind',
+                        viewBy: 'Prescription',
                         programmingPlan,
-                        prescriptionId: localPrescription.prescriptionId,
-                        matrixKind,
-                        regionalComments: [localPrescription].map((rcp) => ({
-                          region: rcp.region,
-                          department: rcp.department,
-                          comments: rcp.comments ?? []
-                        }))
+                        prescription,
+                        currentRegion: localPrescription.region,
+                        regionalCommentsList: [localPrescription].map(
+                          (rcp) => ({
+                            region: rcp.region,
+                            department: rcp.department,
+                            comments: rcp.comments ?? []
+                          })
+                        )
                       })
                     )
                   }

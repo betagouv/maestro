@@ -5,7 +5,7 @@ import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
 import { t } from 'i18next';
-import { sumBy, uniq } from 'lodash-es';
+import { isNil, sumBy, uniq } from 'lodash-es';
 import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
@@ -166,7 +166,12 @@ const ProgrammingPrescriptionListHeader = ({
             <AddPrescriptionModal
               programmingPlan={programmingPlan}
               excludedMatrixKindList={uniq(
-                prescriptions.map((p) => p.matrixKind)
+                prescriptions
+                  .filter((p) => isNil(p.matrix))
+                  .map((p) => p.matrixKind)
+              )}
+              excludedMatrixList={uniq(
+                prescriptions.map((p) => p.matrix).filter((_) => !isNil(_))
               )}
             />
           )}

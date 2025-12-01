@@ -148,11 +148,11 @@ const LocalPrescriptionButtons = ({
               onClick: () =>
                 dispatch(
                   prescriptionsSlice.actions.setPrescriptionCommentsData({
-                    viewBy: 'MatrixKind',
+                    viewBy: 'Prescription',
                     programmingPlan,
-                    prescriptionId: prescription.id,
-                    matrixKind: prescription.matrixKind,
-                    regionalComments: [
+                    prescription,
+                    currentRegion: localPrescription.region,
+                    regionalCommentsList: [
                       localPrescription,
                       ...(subLocalPrescriptions ?? []).filter(
                         (_) => (_.comments || []).length > 0

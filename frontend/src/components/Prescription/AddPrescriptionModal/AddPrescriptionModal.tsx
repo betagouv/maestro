@@ -1,16 +1,20 @@
 import Button from '@codegouvfr/react-dsfr/Button';
+import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import { Autocomplete } from '@mui/material';
+import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
 import {
   MatrixKind,
   MatrixKindLabels,
   MatrixKindList
 } from 'maestro-shared/referential/Matrix/MatrixKind';
+import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
 import { PrescriptionToCreate } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { useContext, useMemo, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import { useForm } from '../../../hooks/useForm';
 import { usePrescriptionFilters } from '../../../hooks/usePrescriptionFilters';
 import { useAppSelector } from '../../../hooks/useStore';
@@ -20,6 +24,7 @@ import ProgrammingPrescriptionFilters from '../../../views/ProgrammingView/Progr
 interface AddMatrixProps {
   programmingPlan: ProgrammingPlan;
   excludedMatrixKindList: MatrixKind[];
+  excludedMatrixList: Matrix[];
 }
 
 const addPrescriptionModal = createModal({
@@ -29,7 +34,8 @@ const addPrescriptionModal = createModal({
 
 const AddPrescriptionModal = ({
   programmingPlan,
-  excludedMatrixKindList
+  excludedMatrixKindList,
+  excludedMatrixList
 }: AddMatrixProps) => {
   const apiClient = useContext(ApiClientContext);
 
@@ -48,9 +54,14 @@ const AddPrescriptionModal = ({
 
   const [prescriptionFilters, setPrescriptionFilters] =
     useState<PrescriptionFilters>(statePrescriptionFilters);
-  const [selectedOption, setSelectedOption] = useState<{
+  const [matrixKindValue, setMatrixKindValue] = useState<{
     label: string;
     value: MatrixKind;
+  } | null>(null);
+  const [withMatrix, setWithMatrix] = useState(false);
+  const [matrixValue, setMatrixValue] = useState<{
+    label: string;
+    value: Matrix;
   } | null>(null);
   const [addPrescription] = apiClient.useAddPrescriptionMutation();
 
@@ -59,6 +70,9 @@ const AddPrescriptionModal = ({
       setPrescriptionFilters({
         year: prescriptionFilters.year
       });
+      setMatrixKindValue(null);
+      setWithMatrix(false);
+      setMatrixValue(null);
     }
   });
 
@@ -67,10 +81,11 @@ const AddPrescriptionModal = ({
       programmingPlanId: prescriptionFilters.programmingPlanId,
       programmingPlanKind: prescriptionFilters.kinds?.[0],
       context: prescriptionFilters.context,
-      matrixKind: selectedOption?.value,
+      matrixKind: matrixKindValue?.value,
+      matrix: withMatrix ? matrixValue?.value : undefined,
       stages: []
     }),
-    [prescriptionFilters, selectedOption]
+    [prescriptionFilters, matrixKindValue, matrixValue, withMatrix]
   );
 
   const form = useForm(PrescriptionToCreate, formInput);
@@ -96,10 +111,10 @@ const AddPrescriptionModal = ({
         className={cx('fr-mr-3w')}
         data-testid="add-matrix-button"
       >
-        Ajouter une matrice
+        Ajouter une programmation
       </Button>
       <addPrescriptionModal.Component
-        title="Ajouter une matrice"
+        title="Nouvelle programmation"
         size="large"
         buttons={[
           {
@@ -132,51 +147,101 @@ const AddPrescriptionModal = ({
               renderMode="modal"
               multiSelect={false}
             />
-            <div className={cx('fr-mt-3w')}>
-              <label className={cx('fr-label', 'fr-mb-1w')}>
-                Libellé de la matrice
-              </label>
+            <div
+              className={cx('fr-mt-3v', 'fr-grid-row', 'fr-grid-row--gutters')}
+            >
+              <div className={cx('fr-col-12', 'fr-col-md-6')}>
+                <label className={cx('fr-label', 'fr-mb-1w')}>
+                  Catégorie de matrice
+                </label>
 
-              <Autocomplete
-                fullWidth
-                autoComplete
-                includeInputInList
-                filterSelectedOptions
-                value={selectedOption}
-                isOptionEqualToValue={(option, value) => {
-                  return option.value === value.value;
-                }}
-                onChange={(_, value) => {
-                  if (value) {
-                    setSelectedOption(
-                      value as { label: string; value: MatrixKind }
-                    );
-                  }
-                }}
-                renderInput={(params) => (
-                  <div ref={params.InputProps.ref}>
-                    <input
-                      {...params.inputProps}
-                      className="fr-input"
-                      type="text"
-                      placeholder={'Rechercher par libellé'}
-                    />
-                  </div>
-                )}
-                getOptionKey={(option) => option.value}
-                options={MatrixKindList.map((matrixKind) => ({
-                  label: `${MatrixKindLabels[matrixKind]}`,
-                  value: matrixKind
-                }))
-                  .flat()
-                  .filter(
-                    (option) => !excludedMatrixKindList.includes(option.value)
-                  )
-                  .sort((a, b) => a.label.localeCompare(b.label))}
-                loadingText={`Recherche en cours...`}
-                getOptionLabel={(option) => option.label}
-                noOptionsText="Aucun résultat"
-              />
+                <Autocomplete
+                  fullWidth
+                  value={matrixKindValue}
+                  onChange={(_, value) => {
+                    if (value) {
+                      setMatrixKindValue(value);
+                    }
+                  }}
+                  renderInput={(params) => (
+                    <div ref={params.InputProps.ref}>
+                      <input
+                        {...params.inputProps}
+                        className="fr-input"
+                        type="text"
+                        placeholder={'Rechercher par libellé'}
+                      />
+                    </div>
+                  )}
+                  getOptionKey={(option) => option.value}
+                  options={MatrixKindList.map((matrixKind) => ({
+                    label: `${MatrixKindLabels[matrixKind]}`,
+                    value: matrixKind
+                  }))
+                    .flat()
+                    .filter(
+                      (option) => !excludedMatrixKindList.includes(option.value)
+                    )
+                    .sort((a, b) => a.label.localeCompare(b.label))}
+                  loadingText={`Recherche en cours...`}
+                  noOptionsText="Aucun résultat"
+                />
+              </div>
+              <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-mt-5w')}>
+                <Checkbox
+                  options={[
+                    {
+                      label: 'Définir une matrice',
+                      nativeInputProps: {
+                        checked: withMatrix,
+                        onChange: (e) => {
+                          setWithMatrix(e.target.checked);
+                          if (e.target.checked) {
+                            setMatrixValue(null);
+                          }
+                        },
+                        disabled: !matrixKindValue
+                      }
+                    }
+                  ]}
+                />
+              </div>
+              {withMatrix && matrixKindValue && (
+                <div className={cx('fr-col-12', 'fr-col-md-6')}>
+                  <Autocomplete
+                    fullWidth
+                    value={matrixValue}
+                    onChange={(_, value) => {
+                      if (value) {
+                        setMatrixValue(value);
+                      }
+                    }}
+                    renderInput={(params) => (
+                      <div ref={params.InputProps.ref}>
+                        <input
+                          {...params.inputProps}
+                          className="fr-input"
+                          type="text"
+                          placeholder={'Rechercher par libellé'}
+                        />
+                      </div>
+                    )}
+                    getOptionKey={(option) => option.value}
+                    options={MatrixListByKind[matrixKindValue?.value]
+                      .map((matrix) => ({
+                        label: `${MatrixLabels[matrix]}`,
+                        value: matrix
+                      }))
+                      .flat()
+                      .filter(
+                        (option) => !excludedMatrixList.includes(option.value)
+                      )
+                      .sort((a, b) => a.label.localeCompare(b.label))}
+                    loadingText={`Recherche en cours...`}
+                    noOptionsText="Aucun résultat"
+                  />
+                </div>
+              )}
             </div>
           </>
         )}

@@ -2,14 +2,16 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
 import clsx from 'clsx';
 import { sumBy } from 'lodash-es';
-import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { RegionList, Regions } from 'maestro-shared/referential/Region';
 import {
   LocalPrescription,
   LocalPrescriptionSort
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
-import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import {
+  getPrescriptionTitle,
+  Prescription
+} from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useMemo } from 'react';
 import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
@@ -63,14 +65,14 @@ const ProgrammingRegionalPrescriptionTable = ({
       prescriptions.map((prescription) => [
         <div
           className={cx('fr-text--bold')}
-          data-testid={`matrix-${prescription.matrixKind}`}
-          key={`matrix-${prescription.matrixKind}`}
+          data-testid={`matrix-${prescription.id}`}
+          key={`matrix-${prescription.id}`}
         >
-          {MatrixKindLabels[prescription.matrixKind]}
+          {getPrescriptionTitle(prescription)}
         </div>,
         <div
           className={clsx(cx('fr-text--bold'), 'border-left', 'sample-count')}
-          key={`total-${prescription.matrixKind}`}
+          key={`total-${prescription.id}`}
         >
           <div>
             {sumBy(
@@ -101,12 +103,12 @@ const ProgrammingRegionalPrescriptionTable = ({
           .map((regionalPrescription) => (
             <div
               className="border-left"
-              data-testid={`cell-${prescription.matrixKind}`}
-              key={`cell-${prescription.matrixKind}-${regionalPrescription.region}`}
+              data-testid={`cell-${prescription.id}`}
+              key={`cell-${prescription.id}-${regionalPrescription.region}`}
             >
               <DistributionCountCell
                 programmingPlan={programmingPlan}
-                matrixKind={prescription.matrixKind}
+                prescription={prescription}
                 localPrescription={regionalPrescription}
                 isEditable={
                   hasUserLocalPrescriptionPermission(

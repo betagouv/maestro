@@ -36,6 +36,7 @@ export default {
         //Je ne comprends pas le problème avec ces fichiers
         'referential/Matrix/MatrixListByKind.ts',
         'schema/Address/AddressSearchResult.ts',
+        'schema/Prescription/PrescriptionComments.ts',
         'test/regionalPrescriptionCommentFixture.ts'
       ]
     }

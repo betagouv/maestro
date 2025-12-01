@@ -1,11 +1,11 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
-import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
 import {
   LocalPrescription,
   LocalPrescriptionSort
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
+import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import DistributionCountCell from 'src/components/DistributionCountCell/DistributionCountCell';
 import { assert, type Equals } from 'tsafe';
@@ -14,7 +14,7 @@ import '../PrescriptionCard/PrescriptionCard.scss';
 
 interface Props {
   programmingPlan: ProgrammingPlan;
-  matrixKind: MatrixKind;
+  prescription: Prescription;
   regionalPrescriptions: LocalPrescription[];
   onChangeRegionalCount: (region: Region, value: number) => void;
   start: number;
@@ -23,7 +23,7 @@ interface Props {
 
 const PrescriptionDistributionTable = ({
   programmingPlan,
-  matrixKind,
+  prescription,
   regionalPrescriptions,
   onChangeRegionalCount,
   start,
@@ -57,7 +57,7 @@ const PrescriptionDistributionTable = ({
             <DistributionCountCell
               key={`${regionalPrescription.prescriptionId}-${regionalPrescription.region}`}
               programmingPlan={programmingPlan}
-              matrixKind={matrixKind}
+              prescription={prescription}
               localPrescription={regionalPrescription}
               onChange={async (value) =>
                 onChangeRegionalCount(regionalPrescription.region, value)

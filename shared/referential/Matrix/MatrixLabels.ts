@@ -108,7 +108,7 @@ export const MatrixLabels: Record<Matrix, string> = {
   A000L: 'Sarrasin/Quinoa',
   A00HQ: 'Tomates',
   A00HY: 'Tomates cerises',
-  'A01QV#F28.A0C0S': 'Viande de bovin  non transformée',
+  'A01QV#F28.A0C0S': 'Viande de bovin non transformée',
   'A01RJ#F28.A0C0S': "Viande d'ovin non transformée",
   'A01RL#F28.A0C0S': 'Viande de caprin non transformée',
   'A01RG#F28.A0C0S': 'Viande de porcin non transformée',

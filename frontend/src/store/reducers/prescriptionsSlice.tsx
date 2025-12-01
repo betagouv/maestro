@@ -1,10 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Department } from 'maestro-shared/referential/Department';
-import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region } from 'maestro-shared/referential/Region';
 import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { LocalPrescriptionComment } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import { PrescriptionComments } from 'maestro-shared/schema/Prescription/PrescriptionComments';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanDomain } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
@@ -27,12 +27,11 @@ export type PrescriptionFilters = z.infer<typeof PrescriptionFilters>;
 
 const PrescriptionCommentsData = z.discriminatedUnion('viewBy', [
   z.object({
-    viewBy: z.literal('MatrixKind'),
+    viewBy: z.literal('Prescription'),
     programmingPlan: ProgrammingPlan,
-    prescriptionId: z.guid(),
-    matrixKind: MatrixKind,
+    prescription: Prescription,
     currentRegion: Region.nullish(),
-    regionalComments: z.array(
+    regionalCommentsList: z.array(
       z.object({
         region: Region,
         department: Department.nullish(),
@@ -51,22 +50,8 @@ const PrescriptionCommentsData = z.discriminatedUnion('viewBy', [
   z.object({
     viewBy: z.literal('Region'),
     region: Region,
-    currentMatrixKind: MatrixKind.nullish(),
-    matrixKindsComments: z.array(
-      z.object({
-        programmingPlan: ProgrammingPlan,
-        matrixKind: MatrixKind,
-        comments: z
-          .array(
-            LocalPrescriptionComment.pick({
-              comment: true,
-              createdAt: true,
-              createdBy: true
-            })
-          )
-          .min(1)
-      })
-    )
+    currentPrescription: Prescription.nullish(),
+    prescriptionCommentsList: z.array(PrescriptionComments)
   })
 ]);
 
