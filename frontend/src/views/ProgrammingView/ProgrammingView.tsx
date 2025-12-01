@@ -223,7 +223,8 @@ const ProgrammingView = () => {
                           }
                         ]
                       : []),
-                    ...(hasUserPermission('commentPrescription')
+                    ...(programmingPlan?.distributionKind === 'REGIONAL' &&
+                    hasUserPermission('commentPrescription')
                       ? [
                           {
                             label: 'Commentaires',

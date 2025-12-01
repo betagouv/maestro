@@ -130,7 +130,8 @@ const LocalPrescriptionButtons = ({
               }
             }
           : undefined,
-        hasUserPermission('commentPrescription')
+        hasUserLocalPrescriptionPermission(programmingPlan, localPrescription)
+          ?.comment
           ? {
               children: (
                 <span className="no-wrap">

@@ -118,7 +118,7 @@ export const NationalCoordinatorView: Story = {
     ).not.toBeInTheDocument();
 
     await expect(canvas.getByText('Phase de consultation')).toBeInTheDocument();
-    await expect(canvas.getByText('Commentaires')).toBeInTheDocument();
+    await expect(canvas.queryByTestId('Commentaires')).not.toBeInTheDocument();
 
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
   }
@@ -165,7 +165,7 @@ export const RegionalCoordinatorView: Story = {
     ).not.toBeInTheDocument();
 
     await expect(canvas.getByText('Phase de consultation')).toBeInTheDocument();
-    await expect(canvas.getByText('Commentaires')).toBeInTheDocument();
+    await expect(canvas.queryByTestId('Commentaires')).not.toBeInTheDocument();
 
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
   }
@@ -215,7 +215,7 @@ export const DepartmentalCoordinatorView: Story = {
     await expect(
       canvas.queryByText('Phase de consultation')
     ).not.toBeInTheDocument();
-    await expect(canvas.getByText('Commentaires')).toBeInTheDocument();
+    await expect(canvas.queryByTestId('Commentaires')).not.toBeInTheDocument();
 
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
   }
