@@ -40,7 +40,7 @@ const PrescriptionModal = ({ onUpdatePrescriptionSubstances }: Props) => {
       return 'Analyses mono-résidu et multi-résidus';
     }
     if (prescriptionModalData?.mode === 'details') {
-      return `Instructions sur la matrice ${getPrescriptionTitle(prescriptionModalData.prescription)}`;
+      return `Info prélèvement sur la matrice ${getPrescriptionTitle(prescriptionModalData.prescription)}`;
     }
   }, [prescriptionModalData]);
 

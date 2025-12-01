@@ -242,7 +242,7 @@ const ProgrammingLocalPrescriptionTable = ({
                 )
               }
             >
-              Instructions
+              Info prélèvement
             </Button>
             <LocalPrescriptionButtons
               programmingPlan={programmingPlan}
