@@ -98,29 +98,36 @@ const SampleItemDetails = ({
   const { data: laboratories } = apiClient.useFindLaboratoriesQuery();
 
   return (
-    <>
+    <div className={cx('fr-py-4w', 'fr-px-5w')}>
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={cx('fr-col-8')}>
-          <Badge noIcon severity="warning">
-            Echantillon {item.itemNumber} - Exemplaire {item.copyNumber}
-          </Badge>
-        </div>
-        <div className={cx('fr-col-4')}>
-          {item.copyNumber > 1 && !readonly && (
-            <AppResponsiveButton
-              children="Supprimer"
-              title="Supprimer"
-              iconId="fr-icon-delete-line"
-              priority="tertiary"
-              size="small"
-              onClick={(e) => {
-                e.preventDefault();
-                onRemoveItem?.(item);
-              }}
-              className={clsx(cx('fr-mt-0'), 'float-right')}
-              data-testid={`remove-item-button-${itemIndex}`}
-            />
-          )}
+        <div
+          className={clsx(cx('fr-col-12', 'fr-mb-3w'), 'd-flex-align-center')}
+        >
+          <div className={clsx('flex-grow-1', 'd-flex-align-center')}>
+            <Badge
+              className={cx('fr-badge--yellow-tournesol')}
+              noIcon
+              severity="info"
+            >
+              Exemplaire n°{item.copyNumber}
+            </Badge>
+            {item.copyNumber > 1 && !readonly && (
+              <AppResponsiveButton
+                title="Supprimer"
+                iconId="fr-icon-delete-line"
+                priority="tertiary no outline"
+                size="small"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onRemoveItem?.(item);
+                }}
+                data-testid={`remove-item-button-${itemIndex}`}
+              />
+            )}
+          </div>
+          <div className={clsx(cx('fr-text--bold'))}>
+            {SubstanceKindLabels[item.substanceKind as SubstanceKind]}
+          </div>
         </div>
       </div>
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
@@ -193,9 +200,6 @@ const SampleItemDetails = ({
         </div>
       </div>
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={cx('fr-col-12', 'fr-text--bold')}>
-          {SubstanceKindLabels[item.substanceKind as SubstanceKind]}
-        </div>
         <div className={cx('fr-col-12')}>
           {item.copyNumber === 1 ? (
             <>
@@ -329,7 +333,7 @@ const SampleItemDetails = ({
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 };
 

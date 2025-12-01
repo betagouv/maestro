@@ -591,7 +591,23 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
             {companyOffline}
           </div>
         )}
-        <div className={cx('fr-col-12', 'fr-col-sm-8')}>
+        {programmingPlanKind === 'PPV' && (
+          <div className={cx('fr-col-12')}>
+            <AppTextInput
+              type="text"
+              defaultValue={partialSample?.resytalId || ''}
+              onChange={(e) => setResytalId(e.target.value)}
+              inputForm={form}
+              inputKey="resytalId"
+              whenValid="Identifiant Resytal correctement renseigné."
+              data-testid="resytalId-input"
+              label="Identifiant Resytal"
+              disabled={readonly}
+              hintText="Format AA-XXXXXX"
+            />
+          </div>
+        )}
+        <div className={cx('fr-col-12')}>
           {isOnline && !readonly ? (
             <CompanySearch
               initialCompany={company ?? undefined}
@@ -623,22 +639,6 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
             />
           )}
         </div>
-        {programmingPlanKind === 'PPV' && (
-          <div className={cx('fr-col-12', 'fr-col-sm-4')}>
-            <AppTextInput
-              type="text"
-              defaultValue={partialSample?.resytalId || ''}
-              onChange={(e) => setResytalId(e.target.value)}
-              inputForm={form}
-              inputKey="resytalId"
-              whenValid="Identifiant Resytal correctement renseigné."
-              data-testid="resytalId-input"
-              label="Identifiant Resytal"
-              disabled={readonly}
-              hintText="Format AA-XXXXXX"
-            />
-          </div>
-        )}
       </div>
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>

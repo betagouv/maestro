@@ -322,7 +322,21 @@ const MatrixStep = ({ partialSample }: Props) => {
 
   return (
     <form data-testid="draft_sample_matrix_form" className="sample-form">
-      <AppRequiredText />
+      <div>
+        <Button
+          {...PreviousButton({
+            sampleId: partialSample.id,
+            currentStep: 2,
+            onSave: readonly ? undefined : () => save('Draft')
+          })}
+          size="small"
+          priority="tertiary no outline"
+          className={cx('fr-pl-0', 'fr-mb-1v')}
+        >
+          Étape précédente
+        </Button>
+        <AppRequiredText />
+      </div>
 
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         {(
@@ -344,6 +358,11 @@ const MatrixStep = ({ partialSample }: Props) => {
               onChange={setSpecificData}
             />
           ))}
+        <div className={cx('fr-col-12', 'fr-pb-0')}>
+          <span className={cx('fr-text--md', 'fr-text--bold')}>
+            La matrice à prélever
+          </span>
+        </div>
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
           <AppSearchInput
             value={matrixKind ?? ''}
@@ -529,11 +548,11 @@ const MatrixStep = ({ partialSample }: Props) => {
                 {form.message('substances')}
               </div>
             )}
-            <div className={cx('fr-col-12')}>
-              <hr />
-            </div>
           </>
         )}
+      </div>
+      <div className={cx('fr-col-12')}>
+        <hr />
       </div>
       {renderSampleAttachments?.()}
       <hr />

@@ -229,7 +229,21 @@ const ItemsStep = ({ partialSample }: Props) => {
 
   return (
     <form data-testid="draft_sample_items_form" className="sample-form">
-      <AppRequiredText />
+      <div>
+        <Button
+          {...PreviousButton({
+            sampleId: partialSample.id,
+            currentStep: 2,
+            onSave: readonly ? undefined : () => save('Draft')
+          })}
+          size="small"
+          priority="tertiary no outline"
+          className={cx('fr-pl-0', 'fr-mb-1v')}
+        >
+          Étape précédente
+        </Button>
+        <AppRequiredText />
+      </div>
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>
           <AppTextInput
@@ -247,20 +261,14 @@ const ItemsStep = ({ partialSample }: Props) => {
           />
         </div>
       </div>
-      <div className="sample-items">
-        {[...items]?.sort(SampleItemSort).map((item, itemIndex) => (
-          <Fragment key={`item-${itemIndex}`}>
-            <div
-              className={clsx(
-                cx(
-                  'fr-callout',
-                  'fr-callout--pink-tuile',
-                  'fr-mb-0',
-                  'fr-pb-2w'
-                ),
-                'sample-callout'
-              )}
-            >
+      <div className={cx('fr-col-12')}>
+        <hr />
+      </div>
+      <div>
+        <h5>Échantillons</h5>
+        <div className={clsx('sample-items')}>
+          {[...items]?.sort(SampleItemSort).map((item, itemIndex) => (
+            <Fragment key={`item-${itemIndex}`}>
               <SampleItemDetails
                 partialSample={partialSample}
                 item={item}
@@ -283,50 +291,53 @@ const ItemsStep = ({ partialSample }: Props) => {
                 itemsForm={form}
                 readonly={readonly}
               />
-            </div>
-            {item ===
-              maxBy(
-                items.filter((_) => _.itemNumber === item.itemNumber),
-                'copyNumber'
-              ) &&
-              item.copyNumber < MaxCopyCount &&
-              !readonly && (
-                <Button
-                  iconId="fr-icon-add-line"
-                  priority="secondary"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setItems(
-                      [
-                        ...items,
-                        {
-                          sampleId: partialSample.id,
-                          itemNumber: item.itemNumber,
-                          copyNumber: item.copyNumber + 1,
-                          quantity: item.quantity,
-                          quantityUnit: item.quantityUnit,
-                          substanceKind: item.substanceKind
-                        }
-                      ].sort(SampleItemSort)
-                    );
-                  }}
-                  style={{
-                    alignSelf: 'center'
-                  }}
-                  data-testid="add-item-button"
-                >
-                  Ajouter un exemplaire
-                </Button>
+              {item.copyNumber < MaxCopyCount && !readonly && (
+                <hr className={cx('fr-mx-0')} />
               )}
-          </Fragment>
-        ))}
+              {item ===
+                maxBy(
+                  items.filter((_) => _.itemNumber === item.itemNumber),
+                  'copyNumber'
+                ) &&
+                item.copyNumber < MaxCopyCount &&
+                !readonly && (
+                  <Button
+                    priority="tertiary no outline"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setItems(
+                        [
+                          ...items,
+                          {
+                            sampleId: partialSample.id,
+                            itemNumber: item.itemNumber,
+                            copyNumber: item.copyNumber + 1,
+                            quantity: item.quantity,
+                            quantityUnit: item.quantityUnit,
+                            substanceKind: item.substanceKind
+                          }
+                        ].sort(SampleItemSort)
+                      );
+                    }}
+                    className={cx('fr-my-1w')}
+                    size="small"
+                    style={{
+                      alignSelf: 'center'
+                    }}
+                    data-testid="add-item-button"
+                  >
+                    Ajouter un exemplaire
+                  </Button>
+                )}
+            </Fragment>
+          ))}
+        </div>
       </div>
       {form.hasIssue('items') && (
         <Alert
           severity="error"
           description={form.message('items') as string}
           small
-          className={cx('fr-mb-4w')}
         />
       )}
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
@@ -390,7 +401,7 @@ const ItemsStep = ({ partialSample }: Props) => {
             <li>
               {!readonly ? (
                 <Button
-                  children="Continuer"
+                  children="Récapitulatif"
                   onClick={submit}
                   iconId="fr-icon-arrow-right-line"
                   iconPosition="right"
