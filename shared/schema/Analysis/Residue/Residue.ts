@@ -2,6 +2,7 @@ import { isNil } from 'lodash-es';
 import { z } from 'zod';
 import { CheckFn } from 'zod/v4/core';
 import { OptionalBoolean } from '../../../referential/OptionnalBoolean';
+import { isComplex } from '../../../referential/Residue/SSD2Hierarchy';
 import { SSD2Id, SSD2Ids } from '../../../referential/Residue/SSD2Id';
 import { SSD2Referential } from '../../../referential/Residue/SSD2Referential';
 import { maestroDate } from '../../../utils/date';
@@ -50,6 +51,18 @@ export const Residue = ResidueBase.check((ctx) => {
         path: ['result']
       });
     }
+  }
+
+  if (
+    isComplex(ctx.value.reference) &&
+    (!ctx.value.analytes || ctx.value.analytes.length === 0)
+  ) {
+    ctx.issues.push({
+      input: ctx.value,
+      code: 'custom',
+      message: 'Veuillez préciser au moins une analyte pour ce résidu complexe',
+      path: ['analytes']
+    });
   }
 });
 
