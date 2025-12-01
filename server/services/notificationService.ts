@@ -20,6 +20,7 @@ const categoryToEmailTemplate = {
   ProgrammingPlanApprovedByRegion: 'ApprovedProgrammingPlanTemplate',
   ProgrammingPlanSubmittedToDepartments: 'SubmittedProgrammingPlanTemplate',
   ProgrammingPlanValidated: 'ValidatedProgrammingPlanTemplate',
+  ResourceDocumentUploaded: 'GenericTemplate',
   Control: 'NewLocalPrescriptionCommentTemplate',
   Surveillance: 'NewLocalPrescriptionCommentTemplate'
 } as const satisfies Record<NotificationCategory, TemplateName | null>;
@@ -51,7 +52,8 @@ En tant que coordinateur régional, vous pouvez dorénavant vous connecter à ${
 
 Une fois le/les laboratoires attribués, la campagne sera officiellement lancée et les inspecteurs/préleveurs de vos régions pourront initier leurs prélèvements.`,
   AnalysisReviewTodo: () =>
-    `Un rapport d'analyse de l'un de vos prélèvements vient d'être reçu par ${Brand}. Veuillez-vous connecter, faire la vérification des données issues de celui-ci et réaliser l'interprétation globale pour finaliser vos actions sur ce prélèvement.`
+    `Un rapport d'analyse de l'un de vos prélèvements vient d'être reçu par ${Brand}. Veuillez-vous connecter, faire la vérification des données issues de celui-ci et réaliser l'interprétation globale pour finaliser vos actions sur ce prélèvement.`,
+  ResourceDocumentUploaded: ({ content }) => content
 } as const satisfies {
   [category in NotificationCategory]: (
     params: TemplateParams<category>

@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { ResourceDocumentKindList } from 'maestro-shared/schema/Document/DocumentKind';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
+import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
   genAuthUser,
   NationalCoordinator,
@@ -17,7 +19,8 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const document = genDocument({
-  createdBy: NationalCoordinator.id
+  createdBy: NationalCoordinator.id,
+  kind: oneOf(ResourceDocumentKindList)
 });
 
 export const DocumentListViewForNationalCoordinator: Story = {
@@ -33,9 +36,21 @@ export const DocumentListViewForNationalCoordinator: Story = {
     const canvas = within(canvasElement);
 
     await expect(canvas.getByText('Ressources')).toBeInTheDocument();
-    await expect(canvas.getByTestId('document-table')).toBeInTheDocument();
-    await expect(canvas.getByText(document.filename)).toBeInTheDocument();
     await expect(canvas.getByTestId('add-document')).toBeInTheDocument();
+
+    const documentList = canvas.getByTestId('document-list-all-cards');
+    await expect(documentList).toBeInTheDocument();
+    await expect(
+      within(documentList).getByText(document.name as string)
+    ).toBeInTheDocument();
+
+    const documentKindList = canvas.getByTestId(
+      `document-list-${document.kind}-cards`
+    );
+    await expect(documentKindList).toBeInTheDocument();
+    await expect(
+      within(documentKindList).getByText(document.name as string)
+    ).toBeInTheDocument();
   }
 };
 
@@ -50,10 +65,19 @@ export const DocumentListViewForSampler: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-
-    await expect(canvas.getByText('Ressources')).toBeInTheDocument();
-    await expect(canvas.getByTestId('document-table')).toBeInTheDocument();
-    await expect(canvas.getByText(document.filename)).toBeInTheDocument();
     await expect(canvas.queryByTestId('add-document')).not.toBeInTheDocument();
+    const documentList = canvas.getByTestId('document-list-all-cards');
+    await expect(documentList).toBeInTheDocument();
+    await expect(
+      within(documentList).getByText(document.name as string)
+    ).toBeInTheDocument();
+
+    const documentKindList = canvas.getByTestId(
+      `document-list-${document.kind}-cards`
+    );
+    await expect(documentKindList).toBeInTheDocument();
+    await expect(
+      within(documentKindList).getByText(document.name as string)
+    ).toBeInTheDocument();
   }
 };

@@ -1,3 +1,5 @@
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 import { z } from 'zod';
 
 export const maestroDate = z
@@ -9,3 +11,12 @@ export const maestroDate = z
   });
 
 export type MaestroDate = z.infer<typeof maestroDate>;
+
+export const formatDate = (date: Date) =>
+  format(date, 'dd MMMM yyyy', {
+    locale: fr
+  });
+export const formatDateTime = (date: Date) =>
+  format(date, 'dd MMMM yyyy à HH:mm', {
+    locale: fr
+  });

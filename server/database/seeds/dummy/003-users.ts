@@ -14,6 +14,13 @@ export const seed = async function () {
       programmingPlanKinds: [],
       role: 'Administrator'
     },
+    {
+      id: uuidv4(),
+      email: 'laboratory@maestro.beta.gouv.fr',
+      name: `Laboratoire - ${fakerFR.person.fullName()}`,
+      programmingPlanKinds: [],
+      role: 'LaboratoryUser'
+    },
 
     //PPV
     {
