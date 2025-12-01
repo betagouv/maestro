@@ -22,7 +22,6 @@
   }
 }
 
-.sample-callout,
 .sample-form {
   .fr-radio-group {
     margin-bottom: 0 !important;
@@ -37,7 +36,7 @@
 .sample-items {
   display: flex;
   flex-direction: column;
-  gap: 2.25rem;
+  border: 1px solid var(--border-default-grey);
 
   .fr-label {
     text-wrap: nowrap;
