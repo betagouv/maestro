@@ -38,7 +38,7 @@ export const AnalysisComplianceForm: FunctionComponent<Props> = ({
     <div
       className={clsx(
         cx('fr-grid-row'),
-        cx('fr-callout'),
+        cx('fr-callout', 'fr-m-0'),
         partialAnalysis.compliance
           ? 'fr-callout--green-emeraude'
           : partialAnalysis.compliance === false
@@ -87,6 +87,7 @@ export const AnalysisComplianceForm: FunctionComponent<Props> = ({
         whenValid="Note additionnelle correctement renseignée"
         label="Note additionnelle"
         hintText="Champ facultatif pour précisions supplémentaires"
+        style={{ width: '100%' }}
         rows={5}
       />
     </div>

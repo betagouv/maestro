@@ -32,7 +32,7 @@ const ResidueBase = z.object({
   analytes: z.array(Analyte).nullish()
 });
 
-export const Residue = ResidueBase.check((ctx) => {
+const sampleResidueCheck: CheckFn<Residue> = (ctx) => {
   if (ctx.value.compliance === 'Other' && !ctx.value.otherCompliance) {
     ctx.issues.push({
       input: ctx.value,
@@ -64,37 +64,20 @@ export const Residue = ResidueBase.check((ctx) => {
       path: ['analytes']
     });
   }
-});
+};
 
+export const Residue = ResidueBase.check(sampleResidueCheck);
 const sampleResidueLmrCheck: CheckFn<
   Pick<Sample, 'stage' | 'specificData'> &
     Pick<Residue, 'resultKind' | 'lmr' | 'reference'>
 > = (ctx) => {
-  let lmrCanBeOptional: boolean = false;
-  if (ctx.value.reference && SSD2Ids.includes(ctx.value.reference)) {
-    lmrCanBeOptional =
-      'lmrCanBeOptional' in
-      SSD2Referential[ctx.value.reference as keyof typeof SSD2Referential];
-  }
-  // La LMR est obligatoire lorsque les inspecteurs ont saisi dans la description du prélèvement:
-  // - Le résultat est quantifiable
-  // - Stade de prélèvement -> n'est pas « en cours de culture » (uniquement pour la PPV donc)
-  // - Et LMR / Partie du végétal concernée -> n'est pas « Partie non LMR »
-  if (
-    ctx.value.resultKind === 'Q' &&
-    ctx.value.specificData.programmingPlanKind === 'PPV' &&
-    ctx.value.specificData.matrixPart === 'PART1' &&
-    ctx.value.stage !== 'STADE2' &&
-    !lmrCanBeOptional
-  ) {
-    if (isNil(ctx.value.lmr) || ctx.value.lmr === 0) {
-      ctx.issues.push({
-        input: ctx.value,
-        code: 'custom',
-        message: 'Veuillez préciser la LMR',
-        path: ['lmr']
-      });
-    }
+  if (!LmrIsValid(ctx.value)) {
+    ctx.issues.push({
+      input: ctx.value,
+      code: 'custom',
+      message: 'Veuillez préciser la LMR',
+      path: ['lmr']
+    });
   }
 };
 
@@ -112,8 +95,30 @@ const LmrCheck = z
   })
   .check(sampleResidueLmrCheck);
 
-export const LmrIsValid = (sample: z.infer<typeof LmrCheck>): boolean =>
-  LmrCheck.safeParse(sample).success;
+export const LmrIsValid = (sample: z.infer<typeof LmrCheck>): boolean => {
+  let lmrCanBeOptional: boolean = false;
+  if (sample.reference && SSD2Ids.includes(sample.reference)) {
+    lmrCanBeOptional =
+      'lmrCanBeOptional' in
+      SSD2Referential[sample.reference as keyof typeof SSD2Referential];
+  }
+  // La LMR est obligatoire lorsque les inspecteurs ont saisi dans la description du prélèvement:
+  // - Le résultat est quantifiable
+  // - Stade de prélèvement -> n'est pas « en cours de culture » (uniquement pour la PPV donc)
+  // - Et LMR / Partie du végétal concernée -> n'est pas « Partie non LMR »
+  if (
+    sample.resultKind === 'Q' &&
+    sample.specificData.programmingPlanKind === 'PPV' &&
+    sample.specificData.matrixPart === 'PART1' &&
+    sample.stage !== 'STADE2' &&
+    !lmrCanBeOptional
+  ) {
+    if (isNil(sample.lmr) || sample.lmr === 0) {
+      return false;
+    }
+  }
+  return true;
+};
 
 export const PartialResidue = z.object({
   ...ResidueBase.partial().shape,
@@ -131,6 +136,7 @@ export const ResidueLmrCheck = z
     ...Residue.shape,
     ...LmrCheck.shape
   })
+  .check(sampleResidueCheck)
   .check(sampleResidueLmrCheck);
 
 export type Residue = z.infer<typeof Residue>;

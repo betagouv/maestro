@@ -11,7 +11,10 @@ import { assert, type Equals } from 'tsafe';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { ClassValue } from 'clsx/clsx';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
-import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
+import {
+  PartialResidue,
+  ResidueLmrCheck
+} from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { ResidueComplianceIcon } from './ResidueComplianceIcon';
 import './ResidueListResultOverview.scss';
 
@@ -89,6 +92,8 @@ const ResidueMenuItem: FunctionComponent<{
 }> = ({ residue, residueIndex, className, onClick, ..._rest }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
+  const hasIssue = !ResidueLmrCheck.safeParse(residue).success;
+
   return (
     <button
       className={clsx(
@@ -114,6 +119,16 @@ const ResidueMenuItem: FunctionComponent<{
       >
         {residue.reference ? SSD2IdLabel[residue.reference] : null}
       </div>
+      {hasIssue && (
+        <div
+          className={clsx(
+            'residue-item-reference',
+            cx('fr-text--sm', 'fr-m-0', 'fr-label--error')
+          )}
+        >
+          Incomplet
+        </div>
+      )}
     </button>
   );
 };
