@@ -18,6 +18,7 @@ import {
 } from 'maestro-shared/schema/Sample/Sample';
 import {
   PartialSampleItem,
+  SampleItemMaxCopyCount,
   SampleItemSort
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { toArray } from 'maestro-shared/utils/utils';
@@ -44,8 +45,6 @@ import { useAuthentication } from '../../../../hooks/useAuthentication';
 import { useAppSelector } from '../../../../hooks/useStore';
 import { ApiClientContext } from '../../../../services/apiClient';
 import NextButton from '../NextButton';
-
-const MaxCopyCount = 3;
 
 type Props = {
   partialSample: PartialSample | PartialSampleToCreate;
@@ -291,7 +290,7 @@ const ItemsStep = ({ partialSample }: Props) => {
                 itemsForm={form}
                 readonly={readonly}
               />
-              {item.copyNumber < MaxCopyCount && !readonly && (
+              {item.copyNumber < SampleItemMaxCopyCount && !readonly && (
                 <hr className={cx('fr-mx-0')} />
               )}
               {item ===
@@ -299,7 +298,7 @@ const ItemsStep = ({ partialSample }: Props) => {
                   items.filter((_) => _.itemNumber === item.itemNumber),
                   'copyNumber'
                 ) &&
-                item.copyNumber < MaxCopyCount &&
+                item.copyNumber < SampleItemMaxCopyCount &&
                 !readonly && (
                   <Button
                     priority="tertiary no outline"
