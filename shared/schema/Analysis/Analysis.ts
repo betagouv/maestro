@@ -14,16 +14,16 @@ export const PartialAnalysis = z.object({
     .boolean({
       message: "Veuillez renseigner la conformité de l'échantillon."
     })
-    .optional(),
-  notesOnCompliance: z.string().nullish()
+    .nullable(),
+  notesOnCompliance: z.string().nullable()
 });
 
 export const Analysis = z.object({
   ...PartialAnalysis.shape,
-  ...PartialAnalysis.pick({
-    status: true,
-    compliance: true
-  }).required().shape,
+  compliance: z.boolean({
+    message: "Veuillez renseigner la conformité de l'échantillon."
+  }),
+  notesOnCompliance: z.string().nullable(),
   residues: z.array(Residue)
 });
 

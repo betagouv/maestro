@@ -129,15 +129,15 @@ export const ResidueResultForm: FunctionComponent<Props> = ({
                 residueIndex,
                 'reference'
               ])}
-              onSelect={(value) =>
+              onSelect={(value) => {
                 onChange(
                   {
                     ...residue,
                     reference: value as SSD2Id
                   },
                   residueIndex
-                )
-              }
+                );
+              }}
               renderOption={(props, option) => {
                 // eslint-disable-next-line react/prop-types
                 const { key, ...optionProps } = props;
