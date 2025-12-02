@@ -233,8 +233,8 @@ const ItemsStep = ({ partialSample }: Props) => {
         <Button
           {...PreviousButton({
             sampleId: partialSample.id,
-            currentStep: 2,
-            onSave: readonly ? undefined : () => save('Draft')
+            currentStep: 3,
+            onSave: readonly ? undefined : () => save('DraftMatrix')
           })}
           size="small"
           priority="tertiary no outline"

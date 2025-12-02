@@ -101,7 +101,7 @@ const SampleItemDetails = ({
     <div className={cx('fr-py-4w', 'fr-px-5w')}>
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div
-          className={clsx(cx('fr-col-12', 'fr-mb-3w'), 'd-flex-align-center')}
+          className={clsx(cx('fr-col-12', 'fr-mb-2w'), 'd-flex-align-center')}
         >
           <div className={clsx('flex-grow-1', 'd-flex-align-center')}>
             <Badge
@@ -198,8 +198,6 @@ const SampleItemDetails = ({
             required
           />
         </div>
-      </div>
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>
           {item.copyNumber === 1 ? (
             <>
@@ -274,8 +272,6 @@ const SampleItemDetails = ({
             />
           )}
         </div>
-      </div>
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
           {itemsForm ? (
             <AppRadioButtons
