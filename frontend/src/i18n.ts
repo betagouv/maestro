@@ -21,12 +21,15 @@ if (!i18n.isInitialized) {
           region_has_validated_one: 'Une région a terminé la consultation',
           region_has_validated_other:
             '{{count}} régions ont terminé la consultation',
-          department_has_validated_zero:
-            'Aucun département n’a validé la programmation',
-          department_has_validated_one:
-            'Un département a validé la programmation',
-          department_has_validated_other:
-            '{{count}} départements ont validé la programmation',
+          region_has_sent_zero: 'Aucune région n’a diffusé la programmation',
+          region_has_sent_one: 'Une région a diffusé la programmation',
+          region_has_sent_other:
+            '{{count}} régions ont diffusé la programmation',
+          department_has_sent_zero:
+            'Aucun département n’a diffusé la programmation',
+          department_has_sent_one: 'Un département a diffusé la programmation',
+          department_has_sent_other:
+            '{{count}} départements ont diffusé la programmation',
           matrix_zero: 'Aucune matrice',
           matrix_one: 'Une matrice',
           matrix_other: '{{count}} matrices',

@@ -117,7 +117,7 @@ export const NationalCoordinatorView: Story = {
       canvas.queryByTestId('update-laboratory-button')
     ).not.toBeInTheDocument();
 
-    await expect(canvas.getByText('Phase de consultation')).toBeInTheDocument();
+    await expect(canvas.getByText('Statut par région')).toBeInTheDocument();
     await expect(canvas.queryByTestId('Commentaires')).not.toBeInTheDocument();
 
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
@@ -164,7 +164,9 @@ export const RegionalCoordinatorView: Story = {
       canvas.queryByTestId('update-laboratory-button')
     ).not.toBeInTheDocument();
 
-    await expect(canvas.getByText('Phase de consultation')).toBeInTheDocument();
+    await expect(
+      canvas.getByText('Statut par département')
+    ).toBeInTheDocument();
     await expect(canvas.queryByTestId('Commentaires')).not.toBeInTheDocument();
 
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
@@ -212,9 +214,7 @@ export const DepartmentalCoordinatorView: Story = {
       ).length
     );
 
-    await expect(
-      canvas.queryByText('Phase de consultation')
-    ).not.toBeInTheDocument();
+    await expect(canvas.queryByText(/Statut/)).not.toBeInTheDocument();
     await expect(canvas.queryByTestId('Commentaires')).not.toBeInTheDocument();
 
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
@@ -260,9 +260,7 @@ export const SamplerView: Story = {
       canvas.queryByTestId('update-laboratory-button')
     ).not.toBeInTheDocument();
 
-    await expect(
-      canvas.queryByText('Phase de consultation')
-    ).not.toBeInTheDocument();
+    await expect(canvas.queryByText(/Statut/)).not.toBeInTheDocument();
     await expect(canvas.queryByText('Commentaires')).not.toBeInTheDocument();
 
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();

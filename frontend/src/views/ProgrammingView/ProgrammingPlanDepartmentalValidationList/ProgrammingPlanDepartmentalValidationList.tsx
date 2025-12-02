@@ -124,7 +124,7 @@ const ProgrammingPlanDepartmentalValidationList = ({
       >
         <div className={clsx('d-flex-align-center')}>
           <h4 className={clsx(cx('fr-mb-0', 'fr-mr-3w'), 'flex-grow-1')}>
-            {t('department_has_validated', {
+            {t('department_has_sent', {
               count: validatedDepartments.length
             })}
           </h4>
@@ -149,25 +149,19 @@ const ProgrammingPlanDepartmentalValidationList = ({
           </div>
           <div>
             <Select
-              label="Status"
+              label="Statut"
               nativeSelectProps={{
                 value: statusFilter ?? '',
                 onChange: (e) =>
                   setStatusFilter(e.target.value as ProgrammingPlanStatus)
               }}
             >
-              <option value="">Tous les status</option>
-              {['SubmittedToDepartments', 'Validated', 'Closed'].map(
-                (status) => (
-                  <option key={`select-status-${status}`} value={status}>
-                    {
-                      ProgrammingPlanStatusLabels[
-                        status as ProgrammingPlanStatus
-                      ]
-                    }
-                  </option>
-                )
-              )}
+              <option value="">Tous les statuts</option>
+              {['SubmittedToDepartments', 'Validated'].map((status) => (
+                <option key={`select-status-${status}`} value={status}>
+                  {ProgrammingPlanStatusLabels[status as ProgrammingPlanStatus]}
+                </option>
+              ))}
             </Select>
           </div>
         </div>
@@ -237,26 +231,27 @@ const ProgrammingPlanDepartmentalValidationList = ({
                           ),
                           { preserveCount: true }
                         )('prélèvement')}
-                        <Badge
-                          noIcon
-                          severity={
-                            validatedDepartments.some(
-                              (validatedDepartment) =>
-                                validatedDepartment.department === department
-                            )
-                              ? 'success'
-                              : 'warning'
-                          }
-                          className={'fr-mx-1w'}
-                        >
-                          {validatedDepartments.some(
+                      </div>
+                      <Badge
+                        noIcon
+                        severity={
+                          validatedDepartments.some(
                             (validatedDepartment) =>
                               validatedDepartment.department === department
                           )
-                            ? 'Consultation terminée'
-                            : 'En attente'}
-                        </Badge>
-                      </div>
+                            ? 'success'
+                            : 'warning'
+                        }
+                        className={'fr-my-1w'}
+                      >
+                        {
+                          ProgrammingPlanStatusLabels[
+                            programmingPlan.departmentalStatus.find(
+                              (ds) => ds.department === department
+                            )?.status as ProgrammingPlanStatus
+                          ]
+                        }
+                      </Badge>
                     </div>
                   </div>
                 </div>

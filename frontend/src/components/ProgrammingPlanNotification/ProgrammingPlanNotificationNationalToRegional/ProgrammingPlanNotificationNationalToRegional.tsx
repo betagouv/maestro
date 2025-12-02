@@ -120,13 +120,13 @@ const ProgrammingPlanNotificationNationalToRegional = ({
             className="no-wrap"
             data-testid="notify-button"
           >
-            Notifier les régions
+            Envoyer aux régions
           </Button>
         </div>
       )}
 
       <submissionModal.Component
-        title={isSuccess ? 'Notification envoyée' : 'Notifier les régions'}
+        title={isSuccess ? 'Programmation envoyée' : 'Envoyer aux régions'}
         buttons={
           isSuccess
             ? [

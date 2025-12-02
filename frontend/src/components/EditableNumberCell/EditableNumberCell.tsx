@@ -19,14 +19,13 @@ const EditableNumberCell = ({
   max
 }: EditableCellProps) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [value, setValue] = useState(initialValue);
+  // const [value, setValue] = useState(initialValue);
   const [isEditingError, setIsEditingError] = useState(false);
 
-  const submitEdition = () => {
+  const submitEdition = (value: number) => {
     if (value !== initialValue) {
       onChange(value);
     }
-    setIsEditing(false);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,7 +39,7 @@ const EditableNumberCell = ({
     }
 
     if (!isNaN(newValue)) {
-      setValue(newValue);
+      submitEdition(newValue);
     }
   };
 
@@ -49,7 +48,7 @@ const EditableNumberCell = ({
       <AppToast
         open={isEditingError}
         severity={'error'}
-        description="Nombre maximum de prélèvement atteint"
+        description="Nombre maximum de prélèvements atteint"
         onClose={() => setIsEditingError(false)}
       />
       {isEditing ? (
@@ -57,16 +56,11 @@ const EditableNumberCell = ({
           label={undefined}
           nativeInputProps={{
             type: 'number',
-            value,
+            value: initialValue,
             autoFocus: true,
             min: 0,
             onChange: handleChange,
-            onKeyDown: (e) => {
-              if (e.key === 'Enter') {
-                submitEdition();
-              }
-            },
-            onBlur: submitEdition
+            onBlur: () => setIsEditing(false)
           }}
         />
       ) : (

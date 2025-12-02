@@ -116,13 +116,13 @@ const ProgrammingPlanNotificationRegionalToDepartmental = ({
             )}
             className="no-wrap"
           >
-            Notifier les départements
+            Envoyer aux départements
           </Button>
         </div>
       )}
 
       <submissionModal.Component
-        title={isSuccess ? 'Notification envoyée' : 'Notifier les départements'}
+        title={isSuccess ? 'Programmation envoyée' : 'Envoyer aux départements'}
         buttons={
           isSuccess
             ? [
