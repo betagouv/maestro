@@ -9,7 +9,6 @@ import check from '../../../../assets/illustrations/check.svg';
 import close from '../../../../assets/illustrations/close.svg';
 import { useAuthentication } from '../../../../hooks/useAuthentication';
 import { quote } from '../../../../utils/stringUtils';
-import { AnalysisDocumentPreview } from '../../components/AnalysisDocumentPreview';
 import { ResidueListResult } from './ResidueListResult';
 import { ResidueResultOverview } from './ResidueResultOverview';
 import { ResiduesSummary } from './ResiduesSummary';
@@ -39,12 +38,6 @@ export const SampleAnalysisOverview: FunctionComponent<Props> = ({
     <>
       {analysis && (
         <>
-          <AnalysisDocumentPreview
-            analysisId={analysis.id}
-            sampleId={sample.id}
-            readonly={true}
-          />
-
           <div className={clsx('d-flex-align-center', cx('fr-m-0'))}>
             <ResiduesSummary residues={analysis.residues ?? []} />
 
