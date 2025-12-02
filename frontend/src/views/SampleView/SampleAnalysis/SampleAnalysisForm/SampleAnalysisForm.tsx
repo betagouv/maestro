@@ -1,4 +1,4 @@
-import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
+import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import {
@@ -74,7 +74,8 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
           ...sample,
           analysisId: partialAnalysis.id,
           residueNumber: newResidueNumber,
-          resultKind: 'Q'
+          resultKind: 'Q',
+          result: null
         }
       ];
     });
@@ -121,28 +122,14 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
             }
           />
 
-          <div className={cx('fr-col-12')}>
-            <ButtonsGroup
-              inlineLayoutWhen="sm and up"
-              alignment="between"
-              buttons={[
-                {
-                  priority: 'tertiary',
-                  onClick: async (e) => {
-                    e.preventDefault();
-                    onDone();
-                  },
-                  title: 'Retour',
-                  iconId: 'fr-icon-arrow-left-line'
-                },
-                {
-                  children: "Valider l'interprétation",
-                  iconId: 'fr-icon-check-line',
-                  onClick: onSubmit
-                }
-              ]}
-            />
-          </div>
+          <Button
+            children="Enregistrer"
+            iconId="fr-icon-save-line"
+            onClick={onSubmit}
+            style={{
+              alignSelf: 'center'
+            }}
+          />
         </>
       )}
     </>
