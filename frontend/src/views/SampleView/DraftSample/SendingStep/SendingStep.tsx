@@ -158,21 +158,67 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
   return (
     <>
       <div data-testid="sample_data" className="sample-form">
-        <h3 className={cx('fr-m-0')}>
-          Récapitulatif du prélèvement{' '}
-          {isCreatedPartialSample(sample) && sample.reference}
-          {!readonly && (
-            <div className={cx('fr-text--md', 'fr-text--regular', 'fr-m-0')}>
-              Vérifiez l’ensemble des informations avant de finaliser votre
-              envoi
-            </div>
-          )}
-        </h3>
-        <ContextStepSummary sample={sample} onChangeResytalId={setResytalId} />
+        <div>
+          <Button
+            {...PreviousButton({
+              sampleId: sample.id,
+              currentStep: 4,
+              onSave: readonly ? undefined : () => save('DraftItems')
+            })}
+            size="small"
+            priority="tertiary no outline"
+            className={cx('fr-pl-0', 'fr-mb-1v')}
+          >
+            Étape précédente
+          </Button>
+          <h3 className={cx('fr-m-0')}>
+            Récapitulatif du prélèvement{' '}
+            {isCreatedPartialSample(sample) && sample.reference}
+            {!readonly && (
+              <div className={cx('fr-text--md', 'fr-text--regular', 'fr-m-0')}>
+                Vérifiez l’ensemble des informations avant de finaliser votre
+                envoi
+              </div>
+            )}
+          </h3>
+        </div>
+        <hr />
+        <ContextStepSummary
+          sample={sample}
+          onChangeResytalId={setResytalId}
+          onEdit={
+            !readonly
+              ? async () => {
+                  await save('Draft');
+                  navigateToSample(sample.id, 1);
+                }
+              : undefined
+          }
+        />
         <hr className={cx('fr-mx-0', 'fr-hidden', 'fr-unhidden-sm')} />
-        <MatrixStepSummary sample={sample} />
+        <MatrixStepSummary
+          sample={sample}
+          onEdit={
+            !readonly
+              ? async () => {
+                  await save('DraftMatrix');
+                  navigateToSample(sample.id, 2);
+                }
+              : undefined
+          }
+        />
         <hr className={cx('fr-mx-0', 'fr-hidden', 'fr-unhidden-sm')} />
-        <ItemsStepSummary sample={sample} />
+        <ItemsStepSummary
+          sample={sample}
+          onEdit={
+            !readonly
+              ? async () => {
+                  await save('DraftItems');
+                  navigateToSample(sample.id, 3);
+                }
+              : undefined
+          }
+        />
         <hr className={cx('fr-mx-0', 'fr-hidden', 'fr-unhidden-sm')} />
         <h3 className={cx('fr-m-0')}>Consentement par le détenteur</h3>
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
@@ -217,6 +263,9 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
             />
           </div>
         </div>
+
+        <hr className={cx('fr-mx-0', 'fr-hidden', 'fr-unhidden-sm')} />
+        <h3 className={cx('fr-m-0')}>Procès-verbal</h3>
         {isOnline ? (
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             <div className={cx('fr-col-12')}>
