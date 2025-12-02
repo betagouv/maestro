@@ -31,8 +31,7 @@ const LocalPrescriptionButtons = ({
   ...buttonsGroupProps
 }: Props) => {
   const dispatch = useAppDispatch();
-  const { hasUserLocalPrescriptionPermission, hasUserPermission } =
-    useAuthentication();
+  const { hasUserLocalPrescriptionPermission } = useAuthentication();
 
   const hasEmptySubstanceKindsLaboratory = useMemo(
     () =>
