@@ -9,13 +9,14 @@ import { FunctionComponent, useContext, useState } from 'react';
 import { SampleStatusBadge } from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import { usePartialSample } from 'src/hooks/usePartialSample';
 import SampleAdmissibility from 'src/views/SampleView/SampleAnalysis/SampleAdmissibility/SampleAdmissibility';
-import SampleDraftAnalysis from 'src/views/SampleView/SampleAnalysis/SampleDraftAnalysis/SampleDraftAnalysis';
 import UserFeedback from '../../../components/UserFeedback/UserFeedback';
 import { useAuthentication } from '../../../hooks/useAuthentication';
 import { useSamplesLink } from '../../../hooks/useSamplesLink';
 import { ApiClientContext } from '../../../services/apiClient';
+import { SampleAnalysisForm } from './SampleAnalysisForm/SampleAnalysisForm';
 import { SampleAnalysisOverview } from './SampleAnalysisOverview/SampleAnalysisOverview';
-import { SampleAnalysisReview } from './SampleAnalysisReview/SampleAnalysisReview';
+
+import './SampleAnalysis.scss';
 
 type Props = {
   sample: Sample;
@@ -47,8 +48,6 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
   const [receivedAt] = useState(
     sample.receivedAt ? dateFormat.format(sample.receivedAt) : undefined
   );
-
-  const [continueToAnalysis, setContinueToAnalysis] = useState(false);
 
   return (
     <div>
@@ -148,36 +147,22 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
       {sample.status !== 'InReview' ? (
         <SampleAdmissibility sample={sample} />
       ) : null}
-      {sample.status === 'Analysis' && !analysis && !continueToAnalysis ? (
-        <Button
-          iconId="fr-icon-arrow-down-line"
-          iconPosition="right"
-          className="fr-m-0"
-          onClick={() => setContinueToAnalysis(true)}
-        >
-          Saisir le résultat
-        </Button>
-      ) : (
-        <>
-          {['Analysis', 'InReview', 'Completed'].includes(sample.status) && (
-            <div className={clsx('analysis-container', 'fr-mt-4w')}>
-              {sample.status === 'InReview' && analysis !== undefined ? (
-                <SampleAnalysisReview
-                  sample={sample}
-                  partialAnalysis={analysis}
-                  onReviewDone={() => navigateToSample(sample.id)}
-                />
-              ) : (
-                <SampleDraftAnalysis sample={sample} />
-              )}
-              {sample.status === 'Completed' && analysis && (
-                <SampleAnalysisOverview sample={sample} analysis={analysis} />
-              )}
-            </div>
-          )}
-          {sample.status === 'InReview' && <UserFeedback />}
-        </>
-      )}
+      TODO FICHIER
+      {['Analysis', 'InReview', 'Completed'].includes(sample.status) &&
+        analysis && (
+          <div className={clsx('analysis-container', 'fr-mt-4w')}>
+            {sample.status === 'Completed' ? (
+              <SampleAnalysisOverview sample={sample} analysis={analysis} />
+            ) : (
+              <SampleAnalysisForm
+                partialAnalysis={analysis}
+                sample={sample}
+                onDone={() => navigateToSample(sample.id)}
+              />
+            )}
+          </div>
+        )}
+      {sample.status === 'InReview' && <UserFeedback />}
     </div>
   );
 };

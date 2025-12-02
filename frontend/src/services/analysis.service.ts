@@ -14,8 +14,7 @@ const analysisApi = api.injectEndpoints({
         url: 'analysis',
         params: { sampleId }
       }),
-      transformResponse: (response: any) =>
-        PartialAnalysis.parse(omitBy(response, isNil)),
+      transformResponse: (response: any) => PartialAnalysis.parse(response),
       providesTags: (_result, _error, sampleId) => [
         { type: 'SampleAnalysis', id: sampleId }
       ]

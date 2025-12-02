@@ -4,20 +4,21 @@ import {
   Analysis,
   PartialAnalysis
 } from 'maestro-shared/schema/Analysis/Analysis';
-import { FunctionComponent, useState } from 'react';
+import { FunctionComponent } from 'react';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import { assert, type Equals } from 'tsafe';
-import check from '../../../../../assets/illustrations/check.svg';
-import close from '../../../../../assets/illustrations/close.svg';
+import check from '../../../../assets/illustrations/check.svg';
+import close from '../../../../assets/illustrations/close.svg';
 import AppRadioButtons from '../../../../components/_app/AppRadioButtons/AppRadioButtons';
-import { useForm } from '../../../../hooks/useForm';
+import { UseForm } from '../../../../hooks/useForm';
 
 type Props = {
   partialAnalysis: Pick<PartialAnalysis, 'compliance' | 'notesOnCompliance'>;
+  form: UseForm<typeof Form>;
   onUpdate: ({
     compliance,
     notesOnCompliance
-  }: Pick<Analysis, 'compliance' | 'notesOnCompliance'>) => Promise<void>;
+  }: Pick<PartialAnalysis, 'compliance' | 'notesOnCompliance'>) => void;
 };
 
 const Form = Analysis.pick({
@@ -28,28 +29,19 @@ const Form = Analysis.pick({
 export const AnalysisComplianceForm: FunctionComponent<Props> = ({
   partialAnalysis,
   onUpdate,
+  form,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
-
-  const [compliance, setCompliance] = useState(partialAnalysis.compliance);
-  const [notesOnCompliance, setNotesOnCompliance] = useState(
-    partialAnalysis.notesOnCompliance
-  );
-
-  const form = useForm(Form, {
-    compliance,
-    notesOnCompliance
-  });
 
   return (
     <div
       className={clsx(
         cx('fr-grid-row'),
         cx('fr-callout'),
-        compliance
+        partialAnalysis.compliance
           ? 'fr-callout--green-emeraude'
-          : compliance === false
+          : partialAnalysis.compliance === false
             ? 'fr-callout--pink-tuile'
             : undefined,
         'bg-white',
@@ -64,16 +56,17 @@ export const AnalysisComplianceForm: FunctionComponent<Props> = ({
           {
             label: 'Échantillon conforme',
             nativeInputProps: {
-              checked: compliance === true,
-              onChange: () => setCompliance(true)
+              checked: partialAnalysis.compliance === true,
+              onChange: () => onUpdate({ ...partialAnalysis, compliance: true })
             },
             illustration: <img src={check} alt="" aria-hidden />
           },
           {
             label: 'Échantillon non conforme',
             nativeInputProps: {
-              checked: compliance === false,
-              onChange: () => setCompliance(false)
+              checked: partialAnalysis.compliance === false,
+              onChange: () =>
+                onUpdate({ ...partialAnalysis, compliance: false })
             },
             illustration: <img src={close} alt="" aria-hidden />
           }
@@ -85,8 +78,10 @@ export const AnalysisComplianceForm: FunctionComponent<Props> = ({
         required
       />
       <AppTextAreaInput
-        value={notesOnCompliance ?? ''}
-        onChange={(e) => setNotesOnCompliance(e.target.value)}
+        value={partialAnalysis.notesOnCompliance ?? ''}
+        onChange={(e) =>
+          onUpdate({ ...partialAnalysis, notesOnCompliance: e.target.value })
+        }
         inputForm={form}
         inputKey="notesOnCompliance"
         whenValid="Note additionnelle correctement renseignée"
