@@ -1,4 +1,3 @@
-import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { CultureKindLabels } from 'maestro-shared/referential/CultureKind';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
@@ -14,23 +13,19 @@ import {
 } from 'maestro-shared/schema/Sample/Sample';
 
 import { pluralize, quote } from 'src/utils/stringUtils';
-import StepSummary from 'src/views/SampleView/StepSummary/StepSummary';
+import StepSummary, {
+  StepSummaryMode
+} from 'src/views/SampleView/StepSummary/StepSummary';
 import SampleDocument from '../../../components/SampleDocument/SampleDocument';
 
 interface Props {
   sample: (Sample | SampleToCreate) & Partial<SampleOwnerData>;
-  showLabel?: boolean;
+  mode?: StepSummaryMode;
+  onEdit?: () => void;
 }
-const MatrixStepSummary = ({ sample, showLabel }: Props) => {
+const MatrixStepSummary = ({ sample, mode = 'section', onEdit }: Props) => {
   return (
-    <StepSummary
-      label={
-        <Badge className={cx('fr-badge--green-menthe')}>
-          La matrice contrôlée
-        </Badge>
-      }
-      showLabel={showLabel}
-    >
+    <StepSummary title="Matrice contrôlée" onEdit={onEdit} mode={mode}>
       <div className="summary-item icon-text">
         <div className={cx('fr-icon-restaurant-line')}></div>
         <div>
