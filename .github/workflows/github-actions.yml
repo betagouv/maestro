@@ -21,7 +21,7 @@ jobs:
       - name: Run Knip
         run: npm run knip
       - name: Prettify code
-        uses: creyD/prettier_action@v4.3
+        uses: creyD/prettier_action@v4.6
         with:
           prettier_options: --write .
           only_changed: True
