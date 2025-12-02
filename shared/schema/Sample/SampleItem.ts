@@ -1,7 +1,9 @@
 import { isNil } from 'lodash-es';
 import { z } from 'zod';
 import { QuantityUnit } from '../../referential/QuantityUnit';
+import { isDefinedAndNotNull } from '../../utils/utils';
 import { SubstanceKind } from '../Substance/SubstanceKind';
+import { Sample } from './Sample';
 import { SampleItemRecipientKind } from './SampleItemRecipientKind';
 
 export const SampleItem = z.object({
@@ -49,3 +51,14 @@ export const SampleItemSort = (a: PartialSampleItem, b: PartialSampleItem) =>
   a.itemNumber === b.itemNumber
     ? a.copyNumber - b.copyNumber
     : a.itemNumber - b.itemNumber;
+
+export const SampleItemMaxCopyCount = 3;
+
+export const getSampleItemReference = (
+  sample: Pick<Sample, 'reference'>,
+  itemNumber: number,
+  copyNumber: number
+) =>
+  [sample.reference, String.fromCharCode(64 + itemNumber), copyNumber]
+    .filter(isDefinedAndNotNull)
+    .join('-');

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { CreatedSampleData } from '../Sample/Sample';
+import { getSampleItemReference } from '../Sample/SampleItem';
 
 export const DocumentKind = z.enum([
   'SupportDocument',
@@ -13,14 +14,17 @@ export const DocumentKind = z.enum([
 
 export const getSupportDocumentFilename = (
   sample: CreatedSampleData,
+  itemNumber: number,
   copyNumber: number
-) => `DAP-${sample.reference}-${copyNumber}.pdf`;
+) => `DAP-${getSampleItemReference(sample, itemNumber, copyNumber)}.pdf`;
 
 export const getAnalysisReportDocumentFilename = (
   sample: Pick<CreatedSampleData, 'reference'>,
+  itemNumber: number,
   copyNumber: number,
   extension: 'xlsx' | 'csv'
-) => `DAI-${sample.reference}-${copyNumber}.${extension}`;
+) =>
+  `DAI-${getSampleItemReference(sample, itemNumber, copyNumber)}.${extension}`;
 
 export const DocumentKindList: DocumentKind[] = DocumentKind.options;
 
