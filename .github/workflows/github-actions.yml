@@ -23,6 +23,7 @@ jobs:
         with:
           prettier_options: --write .
           only_changed: True
+          clean_node_folder: false
       - name: linter
         run: npm run lint --workspaces -- --max-warnings=0
       - name: Run Knip
