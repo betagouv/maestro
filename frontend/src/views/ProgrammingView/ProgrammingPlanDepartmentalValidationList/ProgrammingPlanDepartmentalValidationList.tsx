@@ -246,9 +246,9 @@ const ProgrammingPlanDepartmentalValidationList = ({
                       >
                         {
                           ProgrammingPlanStatusLabels[
-                            programmingPlan.departmentalStatus.find(
+                            (programmingPlan.departmentalStatus.find(
                               (ds) => ds.department === department
-                            )?.status as ProgrammingPlanStatus
+                            )?.status ?? 'InProgress') as ProgrammingPlanStatus
                           ]
                         }
                       </Badge>
