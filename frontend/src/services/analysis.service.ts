@@ -42,8 +42,7 @@ const analysisApi = api.injectEndpoints({
         method: 'PUT',
         body: partialAnalysis
       }),
-      transformResponse: (response: any) =>
-        PartialAnalysis.parse(omitBy(response, isNil)),
+      transformResponse: (response: any) => PartialAnalysis.parse(response),
       invalidatesTags: (_result, _error, draft) => [
         { type: 'SampleAnalysis', id: draft.sampleId },
         { type: 'Sample' as const, id: draft.sampleId },

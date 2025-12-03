@@ -18,6 +18,7 @@ import { SampleAnalysisOverview } from './SampleAnalysisOverview/SampleAnalysisO
 
 import { useLocation } from 'react-router';
 import './SampleAnalysis.scss';
+import { AnalysisReportStep } from './SampleDraftAnalysis/AnalysisReportStep/AnalysisReportStep';
 
 type Props = {
   sample: Sample;
@@ -159,7 +160,9 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
       {sample.status !== 'InReview' ? (
         <SampleAdmissibility sample={sample} />
       ) : null}
-      TODO FICHIER
+
+      <AnalysisReportStep partialAnalysis={analysis} sampleId={sample.id} />
+
       {['Analysis', 'InReview', 'Completed'].includes(sample.status) &&
         analysis && (
           <div className={clsx('analysis-container', 'fr-mt-4w')}>
