@@ -66,7 +66,9 @@ const meta = {
           otherCompliance: "c'est presque conforme mais c'est pas Non conforme"
         })
       ]
-    }) as Analysis
+    }) as Analysis,
+    readonly: true,
+    onEdit: () => ({})
   },
   parameters: {
     preloadedState: {

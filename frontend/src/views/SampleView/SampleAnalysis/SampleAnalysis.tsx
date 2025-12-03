@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
-import { FunctionComponent, useContext, useState } from 'react';
+import { FunctionComponent, useContext, useMemo, useState } from 'react';
 import { SampleStatusBadge } from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import { usePartialSample } from 'src/hooks/usePartialSample';
 import SampleAdmissibility from 'src/views/SampleView/SampleAnalysis/SampleAdmissibility/SampleAdmissibility';
@@ -16,6 +16,7 @@ import { ApiClientContext } from '../../../services/apiClient';
 import { SampleAnalysisForm } from './SampleAnalysisForm/SampleAnalysisForm';
 import { SampleAnalysisOverview } from './SampleAnalysisOverview/SampleAnalysisOverview';
 
+import { useLocation } from 'react-router';
 import './SampleAnalysis.scss';
 
 type Props = {
@@ -24,10 +25,11 @@ type Props = {
 
 const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
   const apiClient = useContext(ApiClientContext);
-  const { hasUserPermission } = useAuthentication();
+  const { hasUserPermission, user } = useAuthentication();
+  const location = useLocation();
 
   const { getSampleItemLaboratory } = usePartialSample(sample);
-  const { navigateToSample } = useSamplesLink();
+  const { navigateToSample, navigateToSampleEdit } = useSamplesLink();
   const [updateSample, { isSuccess: isSendingSuccess }] =
     apiClient.useUpdateSampleMutation({
       fixedCacheKey: `sending-sample-${sample.id}`
@@ -48,6 +50,16 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
   const [receivedAt] = useState(
     sample.receivedAt ? dateFormat.format(sample.receivedAt) : undefined
   );
+
+  const readonly = useMemo(
+    () =>
+      !hasUserPermission('createAnalysis') || sample.region !== user?.region,
+    [hasUserPermission, sample, user?.region]
+  );
+
+  const isEditing: boolean =
+    !readonly &&
+    (location.pathname.endsWith('/edit') || analysis?.status !== 'Completed');
 
   return (
     <div>
@@ -151,8 +163,13 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
       {['Analysis', 'InReview', 'Completed'].includes(sample.status) &&
         analysis && (
           <div className={clsx('analysis-container', 'fr-mt-4w')}>
-            {sample.status === 'Completed' ? (
-              <SampleAnalysisOverview sample={sample} analysis={analysis} />
+            {!isEditing ? (
+              <SampleAnalysisOverview
+                sample={sample}
+                analysis={analysis}
+                readonly={readonly}
+                onEdit={() => navigateToSampleEdit(sample.id)}
+              />
             ) : (
               <SampleAnalysisForm
                 partialAnalysis={analysis}

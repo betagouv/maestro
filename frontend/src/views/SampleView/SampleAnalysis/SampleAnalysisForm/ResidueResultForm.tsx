@@ -133,7 +133,16 @@ export const ResidueResultForm: FunctionComponent<Props> = ({
                 onChange(
                   {
                     ...residue,
-                    reference: value as SSD2Id
+                    reference: value as SSD2Id,
+                    analytes: isComplex(value as SSD2Id)
+                      ? [
+                          {
+                            analysisId: residue.analysisId,
+                            residueNumber: residueIndex,
+                            analyteNumber: 1
+                          }
+                        ]
+                      : undefined
                   },
                   residueIndex
                 );
