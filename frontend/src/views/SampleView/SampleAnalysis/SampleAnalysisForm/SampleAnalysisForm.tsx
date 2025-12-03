@@ -21,7 +21,7 @@ import { AnalysisComplianceForm } from './AnalysisComplianceForm';
 import { ResidueResultForm } from './ResidueResultForm';
 
 type Props = {
-  sample: Sample;
+  sample: Omit<Sample, 'reference'>;
   partialAnalysis: PartialAnalysis;
   onDone: () => void;
 };
@@ -87,7 +87,8 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
           analysisId: partialAnalysis.id,
           residueNumber: newResidueNumber,
           resultKind: 'Q',
-          result: null
+          result: null,
+          reference: undefined
         }
       ];
     });

@@ -65,13 +65,13 @@ function ResidueComplexForm({
   return (
     <>
       {residue.analytes?.map((analyte, analyteIndex) => (
-        <div key={`analyte-${analyteIndex}`} className="analyte-form">
-          <div className="d-flex-align-center">
+        <div key={`analyte-${analyteIndex}`}>
+          <div className={clsx(cx('fr-mb-2w'), 'd-flex-align-center')}>
             <Badge severity="warning" noIcon>
               Analyte n°{analyteIndex + 1} du résidu complexe
             </Badge>
             <div className="border-middle"></div>
-            {analyteIndex > 0 && (
+            {(residue.analytes?.length ?? 0) > 1 && (
               <Button
                 iconId="fr-icon-delete-line"
                 onClick={() => removeAnalyte(analyteIndex)}
@@ -188,7 +188,7 @@ function ResidueComplexForm({
         >
           Ajouter un analyte
         </Button>
-        <div className="border-middle"></div>
+        <div className={clsx('border-middle', cx('fr-my-0'))}></div>
       </div>
       <h6 className={cx('fr-mb-0')}>
         <span

@@ -77,6 +77,7 @@ export const ResidueResultForm: FunctionComponent<Props> = ({
           priority={'secondary'}
           onClick={onDelete}
           className={cx('fr-ml-auto')}
+          style={{ flexShrink: 0 }}
         />
       </div>
       <hr />
