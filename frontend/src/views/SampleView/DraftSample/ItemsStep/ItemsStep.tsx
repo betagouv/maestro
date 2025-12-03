@@ -4,7 +4,7 @@ import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { format, parse } from 'date-fns';
-import { isNil, maxBy } from 'lodash-es';
+import { isNil } from 'lodash-es';
 import { SubstanceKindLaboratorySort } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -16,30 +16,19 @@ import {
   SampleItemsData,
   uniqueSampleItemSealIdCheck
 } from 'maestro-shared/schema/Sample/Sample';
-import {
-  PartialSampleItem,
-  SampleItemMaxCopyCount,
-  SampleItemSort
-} from 'maestro-shared/schema/Sample/SampleItem';
+import { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { toArray } from 'maestro-shared/utils/utils';
-import React, {
-  Fragment,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState
-} from 'react';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import { useForm } from 'src/hooks/useForm';
 import { usePartialSample } from 'src/hooks/usePartialSample';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
-import SampleItemDetails from 'src/views/SampleView/SampleItemDetails/SampleItemDetails';
 import SavedAlert from 'src/views/SampleView/SavedAlert';
 import AppServiceErrorAlert from '../../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import AppTextInput from '../../../../components/_app/AppTextInput/AppTextInput';
+import SampleItems from '../../../../components/SampleItems/SampleItems';
 import { useAnalytics } from '../../../../hooks/useAnalytics';
 import { useAuthentication } from '../../../../hooks/useAuthentication';
 import { useAppSelector } from '../../../../hooks/useStore';
@@ -125,9 +114,8 @@ const ItemsStep = ({ partialSample }: Props) => {
   useEffect(() => {
     if (
       programmingPlan &&
-      (isNil(items) ||
-        (items.length === 0 &&
-          (localPrescription || !isProgrammingPlanSample(partialSample))))
+      !items?.length &&
+      (localPrescription || !isProgrammingPlanSample(partialSample))
     ) {
       setItems(
         [
@@ -207,7 +195,7 @@ const ItemsStep = ({ partialSample }: Props) => {
     });
   };
 
-  const changeItems = (item: PartialSampleItem) =>
+  const changeItem = (item: PartialSampleItem) =>
     setItems(
       items.map((_) =>
         _.itemNumber === item.itemNumber && _.copyNumber === item.copyNumber
@@ -215,6 +203,21 @@ const ItemsStep = ({ partialSample }: Props) => {
           : _
       )
     );
+
+  const addItem = (item: PartialSampleItem) => {
+    setItems([...items, item]);
+  };
+
+  const removeItem = (item: PartialSampleItem) => {
+    setItems(
+      items.filter(
+        (_) =>
+          !(
+            _.itemNumber === item.itemNumber && _.copyNumber === item.copyNumber
+          )
+      )
+    );
+  };
 
   const form = useForm(
     FormRefinement,
@@ -260,78 +263,17 @@ const ItemsStep = ({ partialSample }: Props) => {
           />
         </div>
       </div>
-      <div className={cx('fr-col-12')}>
-        <hr />
-      </div>
-      <div>
-        <h5>Échantillons</h5>
-        <div className={clsx('sample-items')}>
-          {[...items]?.sort(SampleItemSort).map((item, itemIndex) => (
-            <Fragment key={`item-${itemIndex}`}>
-              <SampleItemDetails
-                partialSample={partialSample}
-                item={item}
-                itemIndex={itemIndex}
-                onRemoveItem={(item: PartialSampleItem) =>
-                  setItems(
-                    items
-                      .filter((_) => _ !== item)
-                      .map((_) => ({
-                        ..._,
-                        copyNumber:
-                          _.itemNumber === item.itemNumber &&
-                          _.copyNumber > item.copyNumber
-                            ? _.copyNumber - 1
-                            : _.copyNumber
-                      }))
-                  )
-                }
-                onChangeItem={changeItems}
-                itemsForm={form}
-                readonly={readonly}
-              />
-              {item.copyNumber < SampleItemMaxCopyCount && !readonly && (
-                <hr className={cx('fr-mx-0')} />
-              )}
-              {item ===
-                maxBy(
-                  items.filter((_) => _.itemNumber === item.itemNumber),
-                  'copyNumber'
-                ) &&
-                item.copyNumber < SampleItemMaxCopyCount &&
-                !readonly && (
-                  <Button
-                    priority="tertiary no outline"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setItems(
-                        [
-                          ...items,
-                          {
-                            sampleId: partialSample.id,
-                            itemNumber: item.itemNumber,
-                            copyNumber: item.copyNumber + 1,
-                            quantity: item.quantity,
-                            quantityUnit: item.quantityUnit,
-                            substanceKind: item.substanceKind
-                          }
-                        ].sort(SampleItemSort)
-                      );
-                    }}
-                    className={cx('fr-my-1w')}
-                    size="small"
-                    style={{
-                      alignSelf: 'center'
-                    }}
-                    data-testid="add-item-button"
-                  >
-                    Ajouter un exemplaire
-                  </Button>
-                )}
-            </Fragment>
-          ))}
-        </div>
-      </div>
+      <hr />
+      <SampleItems
+        partialSample={partialSample}
+        items={items}
+        onChangeItem={changeItem}
+        onAddItem={addItem}
+        onRemoveItem={removeItem}
+        readonly={readonly}
+        form={form}
+      />
+
       {form.hasIssue('items') && (
         <Alert
           severity="error"

@@ -29,7 +29,7 @@ export const selectOptionsFromList = (
   list: string[],
   config: {
     labels?: Record<string, string>;
-    withDefault?: boolean;
+    withDefault?: boolean | 'auto';
     withSort?: boolean;
     defaultLabel?: string;
   } = {
@@ -42,7 +42,8 @@ export const selectOptionsFromList = (
     ...config
   };
   return [
-    ...(selectConfig.withDefault
+    ...(selectConfig.withDefault === true ||
+    (selectConfig.withDefault === 'auto' && list.length > 1)
       ? [defaultAppSelectOption(selectConfig.defaultLabel)]
       : []),
     ...list

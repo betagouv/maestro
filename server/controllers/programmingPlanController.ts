@@ -11,7 +11,15 @@ import {
   ProgrammingPlanStatusList,
   ProgrammingPlanStatusPermissions
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { hasPermission, userRegions } from 'maestro-shared/schema/User/User';
+import {
+  hasPermission,
+  userDepartments,
+  userRegions
+} from 'maestro-shared/schema/User/User';
+import {
+  hasNationalRole,
+  hasRegionalRole
+} from 'maestro-shared/schema/User/UserRole';
 import { v4 as uuidv4 } from 'uuid';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
@@ -67,8 +75,6 @@ export const programmingPlanRouter = {
         throw new ProgrammingPlanMissingError(programmingPlanId);
       }
 
-      console.info('Found programming plan', programmingPlan);
-
       if (!intersection(user.programmingPlanKinds, programmingPlan.kinds)) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
@@ -79,11 +85,19 @@ export const programmingPlanRouter = {
         .filter(([, permission]) => hasPermission(user, permission))
         .map(([status]) => status);
 
-      const filterProgrammingPlanStatus = programmingPlan.regionalStatus.filter(
-        (_) =>
-          userStatusAuthorized.includes(_.status) &&
-          userRegions(user).includes(_.region)
-      );
+      const filterProgrammingPlanStatus =
+        hasNationalRole(user) || hasRegionalRole(user)
+          ? programmingPlan.regionalStatus.filter(
+              (_) =>
+                userStatusAuthorized.includes(_.status) &&
+                userRegions(user).includes(_.region)
+            )
+          : programmingPlan.departmentalStatus.filter(
+              (_) =>
+                userStatusAuthorized.includes(_.status) &&
+                userRegions(user).includes(_.region) &&
+                userDepartments(user).includes(_.department)
+            );
       if (filterProgrammingPlanStatus.length === 0) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
