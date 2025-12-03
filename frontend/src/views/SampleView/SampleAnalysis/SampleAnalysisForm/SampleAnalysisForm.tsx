@@ -26,10 +26,15 @@ type Props = {
   onDone: () => void;
 };
 
-const analysisResiduesValidator = z.object({
-  ...Analysis.shape,
+const residuesValidator = z.object({
   residues: z.array(ResidueLmrCheck)
 });
+const analysisResiduesValidator = z.object({
+  ...Analysis.shape,
+  ...residuesValidator.shape
+});
+
+export type ResiduesLmrValidator = typeof residuesValidator;
 
 export const SampleAnalysisForm: FunctionComponent<Props> = ({
   sample,
