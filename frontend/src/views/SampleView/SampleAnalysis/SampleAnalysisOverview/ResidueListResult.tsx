@@ -17,7 +17,7 @@ import {
 } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { ResidueComplianceIcon } from './ResidueComplianceIcon';
-import './ResidueListResultOverview.scss';
+import './ResidueListResult.scss';
 
 type Props = {
   residues: (PartialResidue & Sample)[];
