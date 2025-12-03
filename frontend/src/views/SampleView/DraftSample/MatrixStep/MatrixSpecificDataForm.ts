@@ -27,13 +27,19 @@ export const MatrixSpecificDataForm: {
     releaseControl: {}
   },
   DAOA_BREEDING: {
-    killingCode: {},
+    killingCode: {
+      preTitle: 'Animal',
+      classes: { container: cx('fr-col-offset-sm-6--right') }
+    },
     animalIdentifier: {},
     species: {},
     productionMethod: {}
   },
   DAOA_SLAUGHTER: {
-    killingCode: {},
+    killingCode: {
+      preTitle: 'Animal',
+      classes: { container: cx('fr-col-offset-sm-6--right') }
+    },
     animalIdentifier: {},
     animalKind: {},
     productionKind: {},
