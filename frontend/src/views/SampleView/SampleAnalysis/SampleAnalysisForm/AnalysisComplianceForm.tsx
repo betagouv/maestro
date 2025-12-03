@@ -90,6 +90,7 @@ export const AnalysisComplianceForm: FunctionComponent<Props> = ({
         hintText="Champ facultatif pour précisions supplémentaires"
         style={{ width: '100%' }}
         rows={5}
+        className={clsx(cx('fr-mt-2w'))}
       />
     </div>
   );

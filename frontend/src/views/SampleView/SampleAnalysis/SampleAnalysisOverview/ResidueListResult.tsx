@@ -20,7 +20,7 @@ import { ResidueComplianceIcon } from './ResidueComplianceIcon';
 import './ResidueListResult.scss';
 
 type Props = {
-  residues: (PartialResidue & Sample)[];
+  residues: (PartialResidue & Omit<Sample, 'reference'>)[];
   residuePanel: (i: number) => ReactNode;
   onAddResidue?: () => void;
 };
@@ -50,7 +50,7 @@ export const ResidueListResult: FunctionComponent<Props> = ({
       <div className={clsx('residues-side-menu')}>
         {residues.map((r, i) => (
           <ResidueMenuItem
-            key={r.residueNumber}
+            key={`${r.reference}_${i}`}
             residue={r}
             residueIndex={i + 1}
             className={[selectedIndex === i ? 'current-residue' : undefined]}
