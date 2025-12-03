@@ -96,10 +96,15 @@ const generateAndStoreSampleSupportDocument = async (
 
   if (sampleItem.supportDocumentId) {
     console.info('Delete previous document', sampleItem.supportDocumentId);
-    await sampleItemRepository.update(sample.id, sampleItem.copyNumber, {
-      ...sampleItem,
-      supportDocumentId: null
-    });
+    await sampleItemRepository.update(
+      sample.id,
+      sampleItem.itemNumber,
+      sampleItem.copyNumber,
+      {
+        ...sampleItem,
+        supportDocumentId: null
+      }
+    );
     await documentService.deleteDocument(sampleItem.supportDocumentId);
   }
 
@@ -120,6 +125,7 @@ const generateAndStoreSampleSupportDocument = async (
     (documentId, trx) =>
       sampleItemRepository.update(
         sample.id,
+        sampleItem.itemNumber,
         sampleItem.copyNumber,
         {
           ...sampleItem,
