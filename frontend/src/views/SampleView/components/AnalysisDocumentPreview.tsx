@@ -15,7 +15,7 @@ import DocumentLink from '../../../components/DocumentLink/DocumentLink';
 import { ApiClientContext } from '../../../services/apiClient';
 
 type Props = {
-  analysisId: string;
+  analysisId: string | undefined;
   sampleId: string;
 } & (
   | {
@@ -34,11 +34,32 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
+  return (
+    <div className={clsx(cx('fr-pt-3w', 'fr-pb-1w', 'fr-px-5w'), 'border')}>
+      <h6 className={clsx('d-flex-align-center', cx('fr-pl-1w'))}>
+        <div className="flex-grow-1">Document du rapport d’analyse</div>
+        {!readonly ? actionButton : <></>}
+      </h6>
+      {!!analysisId && (
+        <ReportDocumentList
+          sampleId={sampleId}
+          readonly={readonly}
+          analysisId={analysisId}
+        />
+      )}
+    </div>
+  );
+};
+
+const ReportDocumentList = ({
+  sampleId,
+  readonly,
+  analysisId
+}: Omit<Props, 'analysisId' | 'button'> & { analysisId: string }) => {
   const {
     useGetAnalysisReportDocumentIdsQuery,
     useDeleteAnalysisReportDocumentMutation
   } = useContext(ApiClientContext);
-
   const { data: reportDocumentIds } =
     useGetAnalysisReportDocumentIdsQuery(analysisId);
 
@@ -66,12 +87,8 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
   );
 
   return (
-    <div className={clsx(cx('fr-pt-3w', 'fr-pb-1w', 'fr-px-5w'), 'border')}>
-      <h6 className={clsx('d-flex-align-center', cx('fr-pl-1w'))}>
-        <div className="flex-grow-1">Document du rapport d’analyse</div>
-        {!readonly ? actionButton : <></>}
-      </h6>
-      {reportDocumentIds && (
+    <>
+      {!!reportDocumentIds?.length && (
         <div className={cx('fr-pl-1w')}>
           {reportDocumentIds.length === 1 ? (
             <DocumentLink documentId={reportDocumentIds[0]} />
@@ -138,6 +155,6 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
           )}
         </div>
       )}
-    </div>
+    </>
   );
 };
