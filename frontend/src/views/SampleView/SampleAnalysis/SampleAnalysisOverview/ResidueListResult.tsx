@@ -15,11 +15,12 @@ import {
   PartialResidue,
   ResidueLmrCheck
 } from 'maestro-shared/schema/Analysis/Residue/Residue';
+import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { ResidueComplianceIcon } from './ResidueComplianceIcon';
 import './ResidueListResultOverview.scss';
 
 type Props = {
-  residues: PartialResidue[];
+  residues: (PartialResidue & Sample)[];
   residuePanel: (i: number) => ReactNode;
   onAddResidue?: () => void;
 };
