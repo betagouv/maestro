@@ -7,6 +7,8 @@ concurrency:
 jobs:
   prettier:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v6
         with:
@@ -24,22 +26,12 @@ jobs:
           prettier_options: --write .
           only_changed: True
           clean_node_folder: false
-      - name: Run Knip
-        run: npm run knip
-  lint:
-    needs: prettier
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - name: Use Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 'lts/*'
-          cache: npm
-      - name: Install
-        run: npm ci
+          dry: false
+          no_commit: false
       - name: linter
         run: npm run lint --workspaces -- --max-warnings=0
+      - name: Run Knip
+        run: npm run knip
   build:
     runs-on: ubuntu-latest
     steps:
