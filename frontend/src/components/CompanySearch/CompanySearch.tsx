@@ -12,6 +12,7 @@ import React, {
   SyntheticEvent,
   useCallback,
   useContext,
+  useEffect,
   useState
 } from 'react';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
@@ -107,6 +108,16 @@ const CompanySearch = ({
     initialCompany ?? null
   );
 
+  useEffect(() => {
+    if (companies) {
+      setCompanyResults(companies);
+    }
+  }, [companies]);
+
+  useEffect(() => {
+    setCompany(initialCompany ?? null);
+  }, [initialCompany]);
+
   const search = useCallback(
     async (value: string) => {
       if (companies) {
@@ -184,9 +195,10 @@ const CompanySearch = ({
           onInputChange={handleInputChange}
           renderOption={(props, option) => {
             // eslint-disable-next-line react/prop-types
-            const { className, ...otherProps } = props;
+            const { key, className, ...otherProps } = props;
             return (
               <Box
+                key={key}
                 {...otherProps}
                 component="li"
                 className={clsx(className, 'option-container')}

@@ -7,10 +7,10 @@ import {
   SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import { pluralize, quote } from 'src/utils/stringUtils';
-import SampleItemDetails from 'src/views/SampleView/SampleItemDetails/SampleItemDetails';
 import StepSummary, {
   StepSummaryMode
 } from 'src/views/SampleView/StepSummary/StepSummary';
+import SampleItems from '../../../components/SampleItems/SampleItems';
 
 interface Props {
   sample: (Sample | SampleToCreate) & Partial<SampleOwnerData>;
@@ -34,20 +34,7 @@ const ItemsStepSummary = ({ sample, mode = 'section', onEdit }: Props) => {
           à <b>{format(sample.sampledAt, "HH'h'mm")}</b>
         </div>
       </div>
-      <div className="sample-items">
-        {sample.items?.map((item, itemIndex) => (
-          <div key={`item-${itemIndex}`}>
-            <SampleItemDetails
-              partialSample={sample}
-              item={item}
-              itemIndex={itemIndex}
-            />
-            {itemIndex < sample.items.length - 1 && (
-              <hr className={cx('fr-mx-0')} />
-            )}
-          </div>
-        ))}
-      </div>
+      <SampleItems partialSample={sample} items={sample.items} readonly />
       {sample.notesOnItems && (
         <div className="summary-item icon-text">
           <div className={cx('fr-icon-quote-line')}></div>

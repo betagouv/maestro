@@ -53,6 +53,7 @@ import { hasPermission } from 'maestro-shared/schema/User/User';
 import { hasNationalRole } from 'maestro-shared/schema/User/UserRole';
 import { Readable } from 'node:stream';
 import { PDFDocument } from 'pdf-lib';
+import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
 import {
   getAndCheckSample,
   getAndCheckSampleDepartement
@@ -286,24 +287,26 @@ export const sampleRouter = {
   '/samples/:sampleId/document': {
     get: async ({ user }, { sampleId }, { setHeader }) => {
       const sample = await getAndCheckSample(sampleId, user);
+      const programmingPlan = await getAndCheckProgrammingPlan(
+        sample.programmingPlanId
+      );
       console.info('Get sample document', sample.id);
 
       const sampleItems = await sampleItemRepository.findMany(sample.id);
 
-      console.log('sampleItems', sampleItems);
-
       const pdfBuffers = await Promise.all(
         (sampleItems?.length
           ? [...sampleItems].sort(SampleItemSort)
-          : [1] //TODO suivant le sample ou le plan...
-              .flatMap((itemNumber) =>
-                Array.from(Array(SampleItemMaxCopyCount).keys()).map(
-                  (copyNumber) => ({
-                    itemNumber,
-                    copyNumber: copyNumber + 1
-                  })
-                )
+          : Array.from(
+              Array(programmingPlan.substanceKinds.length).keys()
+            ).flatMap((itemNumber) =>
+              Array.from(Array(SampleItemMaxCopyCount).keys()).map(
+                (copyNumber) => ({
+                  itemNumber: itemNumber + 1,
+                  copyNumber: copyNumber + 1
+                })
               )
+            )
         ).map(({ itemNumber, copyNumber }) =>
           pdfService.generateSampleSupportPDF(
             sample,
