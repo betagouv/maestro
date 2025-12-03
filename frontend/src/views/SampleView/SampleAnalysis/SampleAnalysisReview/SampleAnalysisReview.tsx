@@ -14,7 +14,6 @@ import {
 import { assert, type Equals } from 'tsafe';
 import { ApiClientContext } from '../../../../services/apiClient';
 import '../../SampleView.scss';
-import { SampleAnalysisForm } from '../SampleAnalysisForm/SampleAnalysisForm';
 import '../SampleDraftAnalysis/SampleDraftAnalysis.scss';
 
 type Props = {
@@ -116,7 +115,6 @@ export const SampleAnalysisReview: FunctionComponent<Props> = ({
 
   return (
     <>
-      <SampleAnalysisForm partialAnalysis={partialAnalysis} sample={sample} />
       {/*<AnalysisDocumentPreview*/}
       {/*  analysisId={analysis.id}*/}
       {/*  sampleId={sample.id}*/}

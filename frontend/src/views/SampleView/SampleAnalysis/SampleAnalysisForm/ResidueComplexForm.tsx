@@ -17,18 +17,19 @@ import AppSearchInput from 'src/components/_app/AppSearchInput/AppSearchInput';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
-import { Props as AnalysisResidueForm } from './AnalysisResidueForm';
-import SimpleResidueForm from './SimpleResidueForm';
+import { UseForm } from '../../../../hooks/useForm';
+import { AnalysisResiduesValidator } from '../SampleDraftAnalysis/AnalysisResiduesStep/AnalysisResiduesForm';
+import ResidueSimpleForm from './ResidueSimpleForm';
 
 interface Props {
-  form: AnalysisResidueForm['form'];
+  form: UseForm<AnalysisResiduesValidator>;
   residue: Omit<PartialResidue, 'reference'>;
   residueIndex: number;
   residueReference: SSD2Id;
   changeResidue: (residue: Props['residue'], residueIndex: number) => void;
 }
 
-function ComplexResidueForm({
+function ResidueComplexForm({
   form,
   residue,
   residueIndex,
@@ -198,7 +199,7 @@ function ComplexResidueForm({
         ></span>
         Somme des analytes
       </h6>
-      <SimpleResidueForm
+      <ResidueSimpleForm
         form={form}
         residue={residue}
         residueIndex={residueIndex}
@@ -208,4 +209,4 @@ function ComplexResidueForm({
   );
 }
 
-export default ComplexResidueForm;
+export default ResidueComplexForm;
