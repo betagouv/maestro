@@ -10,10 +10,11 @@ import {
   ResidueLmrCheck
 } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent, useContext, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { z } from 'zod';
 import { useForm } from '../../../../hooks/useForm';
+import { ApiClientContext } from '../../../../services/apiClient';
 import { ResidueListResult } from '../SampleAnalysisOverview/ResidueListResult';
 import { ResiduesSummary } from '../SampleAnalysisOverview/ResiduesSummary';
 import { AnalysisComplianceForm } from './AnalysisComplianceForm';
@@ -37,6 +38,12 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
+
+  const apiClient = useContext(ApiClientContext);
+
+  const [updateAnalysis] = apiClient.useUpdateAnalysisMutation({
+    fixedCacheKey: `review-analysis-${sample.id}`
+  });
 
   const [analysis, setAnalysis] = useState<PartialAnalysis>({
     ...partialAnalysis
@@ -89,7 +96,8 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
   const onSubmit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     await form.validate(async (validInput) => {
-      console.log(validInput);
+      await updateAnalysis({ ...validInput, status: 'Completed' });
+      onDone();
     });
   };
   return (

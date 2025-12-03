@@ -32,7 +32,7 @@ export const SampleAnalysisOverview: FunctionComponent<Props> = ({
     [hasUserPermission, sample, user?.region]
   );
 
-  const residues = analysis.residues;
+  const residues = analysis.residues?.map((r) => ({ ...sample, ...r }));
 
   return (
     <>
