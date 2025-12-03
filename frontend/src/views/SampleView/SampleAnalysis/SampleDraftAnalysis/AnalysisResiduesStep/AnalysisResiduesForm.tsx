@@ -14,7 +14,6 @@ import React, { FunctionComponent, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { z } from 'zod';
 import { useForm } from '../../../../../hooks/useForm';
-import { AnalysisResidueForm } from './AnalysisResidueForm';
 
 type Props = {
   sample: Sample;
@@ -103,15 +102,10 @@ export const AnalysisResiduesForm: FunctionComponent<Props> = ({
       {residues.length > 0 && (
         <>
           {residues?.map((residue, residueIndex) => (
-            <div key={`residue-${residueIndex}`} className="residue-container">
-              <AnalysisResidueForm
-                changeResidue={changeResidue}
-                onDeleteResidue={() => onDeleteResidue(residueIndex)}
-                residue={residue}
-                residueIndex={residueIndex}
-                form={form}
-              />
-            </div>
+            <div
+              key={`residue-${residueIndex}`}
+              className="residue-container"
+            ></div>
           ))}
         </>
       )}

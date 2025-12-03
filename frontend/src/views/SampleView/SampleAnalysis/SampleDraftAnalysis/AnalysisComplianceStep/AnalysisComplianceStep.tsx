@@ -5,7 +5,6 @@ import {
 import { useContext } from 'react';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import { ApiClientContext } from '../../../../../services/apiClient';
-import { AnalysisComplianceForm } from './AnalysisComplianceForm';
 
 interface Props {
   partialAnalysis: PartialAnalysis;
@@ -40,13 +39,7 @@ const AnalysisComplianceStep = ({ partialAnalysis }: Props) => {
     navigateToSample(partialAnalysis.sampleId, 2);
   };
 
-  return (
-    <AnalysisComplianceForm
-      partialAnalysis={partialAnalysis}
-      onSave={onSave}
-      onBack={onBack}
-    />
-  );
+  return null;
 };
 
 export default AnalysisComplianceStep;
