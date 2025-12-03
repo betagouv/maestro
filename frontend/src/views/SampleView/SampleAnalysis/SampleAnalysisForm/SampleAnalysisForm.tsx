@@ -109,24 +109,36 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
     <>
       {analysis && (
         <>
-          <h5 className={clsx('d-flex-align-center', cx('fr-m-0'))}>
-            <ResiduesSummary residues={residues ?? []} />
-          </h5>
-
-          <ResidueListResult
-            residues={residues}
-            residuePanel={(i) => (
-              <ResidueResultForm
-                residue={residues[i]}
-                residueIndex={i}
-                form={form}
-                onDelete={removeResidue(i)}
-                onChange={changeResidue}
-              />
+          <div className={clsx('d-flex-align-center')}>
+            <h5 className={clsx('d-flex-align-center', cx('fr-m-0'))}>
+              <ResiduesSummary residues={residues ?? []} />
+            </h5>
+            {!residues.length && (
+              <Button
+                iconId={'fr-icon-add-line'}
+                priority="secondary"
+                onClick={addResidue}
+                className={cx('fr-ml-auto')}
+              >
+                Ajouter un résidu
+              </Button>
             )}
-            onAddResidue={addResidue}
-          />
-
+          </div>
+          {!!residues.length && (
+            <ResidueListResult
+              residues={residues}
+              residuePanel={(i) => (
+                <ResidueResultForm
+                  residue={residues[i]}
+                  residueIndex={i}
+                  form={form}
+                  onDelete={removeResidue(i)}
+                  onChange={changeResidue}
+                />
+              )}
+              onAddResidue={addResidue}
+            />
+          )}
           <AnalysisComplianceForm
             partialAnalysis={analysis}
             form={form}
