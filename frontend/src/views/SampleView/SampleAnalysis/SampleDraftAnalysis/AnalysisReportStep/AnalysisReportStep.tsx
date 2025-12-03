@@ -100,12 +100,12 @@ const AnalysisReportStep = ({ sampleId, partialAnalysis }: Props) => {
             documentId: reportDocumentId,
             sampleId
           });
-          await updateAnalysis({
-            ...partialAnalysis,
-            id: analysisId,
-            sampleId,
-            status: 'Residues'
-          });
+          // await updateAnalysis({
+          //   ...partialAnalysis,
+          //   id: analysisId,
+          //   sampleId,
+          //   status: 'Residues'
+          // });
         }
       }
 

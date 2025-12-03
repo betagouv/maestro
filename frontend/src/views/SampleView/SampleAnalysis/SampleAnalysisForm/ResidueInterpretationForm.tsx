@@ -13,29 +13,20 @@ import {
 } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
-import check from '../../../../../assets/illustrations/check.svg';
-import close from '../../../../../assets/illustrations/close.svg';
-import warning from '../../../../../assets/illustrations/warning.svg';
-import AppRadioButtons from '../../../../../components/_app/AppRadioButtons/AppRadioButtons';
-import AppSelect from '../../../../../components/_app/AppSelect/AppSelect';
-import { selectOptionsFromList } from '../../../../../components/_app/AppSelect/AppSelectOption';
-import AppTextAreaInput from '../../../../../components/_app/AppTextAreaInput/AppTextAreaInput';
-import AppTextInput from '../../../../../components/_app/AppTextInput/AppTextInput';
-import { UseForm } from '../../../../../hooks/useForm';
-import { ResidueComplianceIcon } from '../../SampleAnalysisOverview/ResidueComplianceIcon';
-import { AnalysisResiduesValidator } from './AnalysisResiduesForm';
+import AppRadioButtons from '../../../../components/_app/AppRadioButtons/AppRadioButtons';
+import AppSelect from '../../../../components/_app/AppSelect/AppSelect';
+import { selectOptionsFromList } from '../../../../components/_app/AppSelect/AppSelectOption';
+import AppTextAreaInput from '../../../../components/_app/AppTextAreaInput/AppTextAreaInput';
+import AppTextInput from '../../../../components/_app/AppTextInput/AppTextInput';
+import { UseForm } from '../../../../hooks/useForm';
+import { ResidueComplianceIcon } from '../SampleAnalysisOverview/ResidueComplianceIcon';
+import { AnalysisResiduesValidator } from '../SampleDraftAnalysis/AnalysisResiduesStep/AnalysisResiduesForm';
 
 type Props = {
   form: UseForm<AnalysisResiduesValidator>;
   residue: PartialResidue;
   residueIndex: number;
   onChangeResidue: (residue: PartialResidue, index: number) => void;
-};
-
-const ResidueComplianceIllustrations: Record<ResidueCompliance, any> = {
-  Compliant: check,
-  NonCompliant: close,
-  Other: warning
 };
 
 export const ResidueInterpretationForm: FunctionComponent<Props> = ({

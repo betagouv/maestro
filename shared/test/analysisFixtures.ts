@@ -29,6 +29,8 @@ export const genPartialAnalysis = (
   createdAt: new Date(),
   createdBy: uuidv4(),
   status: oneOf(AnalysisStatusList),
+  compliance: null,
+  notesOnCompliance: null,
   ...data
 });
 

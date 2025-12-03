@@ -28,9 +28,9 @@ import { UseForm } from '../../../../hooks/useForm';
 import { ResidueHeader } from '../SampleAnalysisOverview/ResidueResultOverview';
 import '../SampleAnalysisOverview/ResidueResultOverview.scss';
 import { AnalysisResiduesValidator } from '../SampleDraftAnalysis/AnalysisResiduesStep/AnalysisResiduesForm';
-import ComplexResidueForm from '../SampleDraftAnalysis/AnalysisResiduesStep/ComplexResidueForm';
-import { ResidueInterpretationForm } from '../SampleDraftAnalysis/AnalysisResiduesStep/ResidueInterpretationForm';
-import SimpleResidueForm from '../SampleDraftAnalysis/AnalysisResiduesStep/SimpleResidueForm';
+import ResidueComplexForm from './ResidueComplexForm';
+import { ResidueInterpretationForm } from './ResidueInterpretationForm';
+import ResidueSimpleForm from './ResidueSimpleForm';
 
 type Props = {
   residue: PartialResidue | undefined;
@@ -174,7 +174,7 @@ export const ResidueResultForm: FunctionComponent<Props> = ({
       {residue.reference !== undefined ? (
         <>
           {kind === 'Simple' && (
-            <SimpleResidueForm
+            <ResidueSimpleForm
               form={form}
               residue={residue}
               residueIndex={residueIndex}
@@ -182,7 +182,7 @@ export const ResidueResultForm: FunctionComponent<Props> = ({
             />
           )}
           {kind === 'Complex' && (
-            <ComplexResidueForm
+            <ResidueComplexForm
               form={form}
               residue={residue}
               residueReference={residue.reference}
