@@ -21,6 +21,7 @@ type Props = {
   }: Pick<PartialAnalysis, 'compliance' | 'notesOnCompliance'>) => void;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const Form = Analysis.pick({
   compliance: true,
   notesOnCompliance: true

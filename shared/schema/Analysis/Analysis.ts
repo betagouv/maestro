@@ -38,18 +38,7 @@ export const AnalysisToUpdate = PartialAnalysis.omit({
   createdBy: true
 });
 
-export const CreatedAnalysis = z.object({
-  ...AnalysisToCreate.shape,
-  ...Analysis.pick({
-    id: true,
-    createdAt: true,
-    createdBy: true,
-    status: true
-  }).shape
-});
-
 export type Analysis = z.infer<typeof Analysis>;
 export type AnalysisToCreate = z.infer<typeof AnalysisToCreate>;
 export type AnalysisToUpdate = z.infer<typeof AnalysisToUpdate>;
-export type CreatedAnalysis = z.infer<typeof CreatedAnalysis>;
 export type PartialAnalysis = z.infer<typeof PartialAnalysis>;
