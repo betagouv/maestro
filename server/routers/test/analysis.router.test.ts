@@ -59,7 +59,8 @@ describe('Analysis router', () => {
   });
   const analysisWithResidues = genPartialAnalysis({
     sampleId: Sample2Fixture.id,
-    createdBy: Sampler1Fixture.id
+    createdBy: Sampler1Fixture.id,
+    emailReceivedAt: null
   });
   const residues = [
     genPartialResidue({
