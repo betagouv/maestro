@@ -13,7 +13,9 @@ describe('update', () => {
     analysis = {
       sampleId: Sample13Fixture.id,
       status: 'Completed',
-      createdAt: new Date()
+      createdAt: new Date(),
+      compliance: null,
+      notesOnCompliance: null
     };
   });
   test("don't delete the ND residues", async () => {

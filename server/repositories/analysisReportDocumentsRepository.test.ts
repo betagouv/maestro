@@ -20,7 +20,9 @@ describe('analysisReportDocuments', () => {
     const analysisId = await analysisRepository.insert({
       sampleId: Sample13Fixture.id,
       status: 'Completed',
-      createdAt: new Date()
+      createdAt: new Date(),
+      compliance: null,
+      notesOnCompliance: null
     });
     await kysely.deleteFrom('analysisReportDocuments').execute();
     await analysisReportDocumentsRepository.insert(analysisId, document.id);
