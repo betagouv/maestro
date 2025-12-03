@@ -3,11 +3,10 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { type PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
-import { FunctionComponent, useMemo } from 'react';
+import { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import check from '../../../../assets/illustrations/check.svg';
 import close from '../../../../assets/illustrations/close.svg';
-import { useAuthentication } from '../../../../hooks/useAuthentication';
 import { quote } from '../../../../utils/stringUtils';
 import { ResidueListResult } from './ResidueListResult';
 import { ResidueResultOverview } from './ResidueResultOverview';
@@ -16,21 +15,17 @@ import { ResiduesSummary } from './ResiduesSummary';
 type Props = {
   sample: Sample;
   analysis: PartialAnalysis;
+  readonly: boolean;
+  onEdit: () => void;
 };
 export const SampleAnalysisOverview: FunctionComponent<Props> = ({
   sample,
   analysis,
+  readonly,
+  onEdit,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
-
-  const { hasUserPermission, user } = useAuthentication();
-
-  const readonly = useMemo(
-    () =>
-      !hasUserPermission('createAnalysis') || sample.region !== user?.region,
-    [hasUserPermission, sample, user?.region]
-  );
 
   const residues = analysis.residues?.map((r) => ({ ...sample, ...r }));
 
@@ -47,11 +42,7 @@ export const SampleAnalysisOverview: FunctionComponent<Props> = ({
                 iconId="fr-icon-edit-line"
                 className={cx('fr-mt-0', 'fr-ml-auto')}
                 size="small"
-                onClick={() => {
-                  //FIXME
-                  //setEditingStatus('Residues');
-                  //editingConfirmationModal.open();
-                }}
+                onClick={onEdit}
               >
                 Corriger
               </Button>
