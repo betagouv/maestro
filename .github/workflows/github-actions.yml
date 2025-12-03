@@ -5,14 +5,10 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 jobs:
-  prettier:
+  lint:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
       - name: Use Node.js
         uses: actions/setup-node@v6
         with:
@@ -20,14 +16,6 @@ jobs:
           cache: npm
       - name: Install
         run: npm ci
-      - name: Prettify code
-        uses: creyD/prettier_action@v4.6
-        with:
-          prettier_options: --write .
-          only_changed: True
-          clean_node_folder: false
-          dry: false
-          no_commit: false
       - name: linter
         run: npm run lint --workspaces -- --max-warnings=0
       - name: Run Knip
