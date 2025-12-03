@@ -18,11 +18,11 @@ import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { UseForm } from '../../../../hooks/useForm';
-import { AnalysisResiduesValidator } from '../SampleDraftAnalysis/AnalysisResiduesStep/AnalysisResiduesForm';
 import ResidueSimpleForm from './ResidueSimpleForm';
+import { ResiduesLmrValidator } from './SampleAnalysisForm';
 
 interface Props {
-  form: UseForm<AnalysisResiduesValidator>;
+  form: UseForm<ResiduesLmrValidator>;
   residue: Omit<PartialResidue, 'reference'>;
   residueIndex: number;
   residueReference: SSD2Id;

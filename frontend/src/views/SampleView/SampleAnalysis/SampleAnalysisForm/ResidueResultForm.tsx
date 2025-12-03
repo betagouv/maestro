@@ -27,15 +27,15 @@ import { selectOptionsFromList } from '../../../../components/_app/AppSelect/App
 import { UseForm } from '../../../../hooks/useForm';
 import { ResidueHeader } from '../SampleAnalysisOverview/ResidueResultOverview';
 import '../SampleAnalysisOverview/ResidueResultOverview.scss';
-import { AnalysisResiduesValidator } from '../SampleDraftAnalysis/AnalysisResiduesStep/AnalysisResiduesForm';
 import ResidueComplexForm from './ResidueComplexForm';
 import { ResidueInterpretationForm } from './ResidueInterpretationForm';
 import ResidueSimpleForm from './ResidueSimpleForm';
+import { ResiduesLmrValidator } from './SampleAnalysisForm';
 
 type Props = {
   residue: PartialResidue | undefined;
   residueIndex: number;
-  form: UseForm<AnalysisResiduesValidator>;
+  form: UseForm<ResiduesLmrValidator>;
   onDelete: () => void;
   onChange: (residue: PartialResidue, index: number) => void;
 };

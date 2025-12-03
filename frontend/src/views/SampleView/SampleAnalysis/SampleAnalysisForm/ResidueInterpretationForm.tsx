@@ -20,10 +20,10 @@ import AppTextAreaInput from '../../../../components/_app/AppTextAreaInput/AppTe
 import AppTextInput from '../../../../components/_app/AppTextInput/AppTextInput';
 import { UseForm } from '../../../../hooks/useForm';
 import { ResidueComplianceIcon } from '../SampleAnalysisOverview/ResidueComplianceIcon';
-import { AnalysisResiduesValidator } from '../SampleDraftAnalysis/AnalysisResiduesStep/AnalysisResiduesForm';
+import { ResiduesLmrValidator } from './SampleAnalysisForm';
 
 type Props = {
-  form: UseForm<AnalysisResiduesValidator>;
+  form: UseForm<ResiduesLmrValidator>;
   residue: PartialResidue;
   residueIndex: number;
   onChangeResidue: (residue: PartialResidue, index: number) => void;
