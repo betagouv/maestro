@@ -215,7 +215,7 @@ describe('findUnique', () => {
           analysisMethod: 'Mono',
           lmr: 10,
           reference: 'RF-00000010-PAR',
-          residueNumber: 3,
+          residueNumber: 2,
           result: 1
         }
       ],
