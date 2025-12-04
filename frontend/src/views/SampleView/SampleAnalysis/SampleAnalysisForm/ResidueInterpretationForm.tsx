@@ -19,7 +19,6 @@ import { selectOptionsFromList } from '../../../../components/_app/AppSelect/App
 import AppTextAreaInput from '../../../../components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from '../../../../components/_app/AppTextInput/AppTextInput';
 import { UseForm } from '../../../../hooks/useForm';
-import { ResidueComplianceIcon } from '../SampleAnalysisOverview/ResidueComplianceIcon';
 import { ResiduesLmrValidator } from './SampleAnalysisForm';
 
 type Props = {
@@ -177,68 +176,56 @@ export const ResidueInterpretationForm: FunctionComponent<Props> = ({
       <div className={clsx('result-detail-bloc')}>
         <h6 className={cx('fr-mb-0')}>Conformité</h6>
         <div>
-          <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-            <div className={cx('fr-col-12')}>
-              <AppRadioButtons
-                legend="Conformité pour le résidu"
-                options={selectOptionsFromList(ResidueComplianceList, {
-                  labels: ResidueComplianceLabels,
-                  withDefault: false,
-                  withSort: false
-                }).map(({ label, value }) => ({
-                  key: `residue-${residueIndex}-compliance-option-${value}`,
-                  label,
-                  nativeInputProps: {
-                    checked: residue.compliance === value,
-                    onChange: () =>
-                      onChangeResidue(
-                        {
-                          ...residue,
-                          compliance: value as ResidueCompliance,
-                          otherCompliance: null
-                        },
-                        residueIndex
-                      )
-                  },
-                  illustration: (
-                    <ResidueComplianceIcon
-                      compliance={value as ResidueCompliance}
-                      className={['fr-icon--lg']}
-                    />
+          <AppRadioButtons
+            legend="Conformité pour le résidu"
+            options={selectOptionsFromList(ResidueComplianceList, {
+              labels: ResidueComplianceLabels,
+              withDefault: false,
+              withSort: false
+            }).map(({ label, value }) => ({
+              key: `residue-${residueIndex}-compliance-option-${value}`,
+              label,
+              nativeInputProps: {
+                checked: residue.compliance === value,
+                onChange: () =>
+                  onChangeResidue(
+                    {
+                      ...residue,
+                      compliance: value as ResidueCompliance,
+                      otherCompliance: null
+                    },
+                    residueIndex
                   )
-                }))}
-                colSm={6}
-                inputForm={form}
-                inputKey="residues"
-                inputPathFromKey={[residueIndex, 'compliance']}
-                whenValid="Conformité correctement renseignée"
-                required
-              />
-            </div>
-            {residue.compliance === 'Other' && (
-              <div className={cx('fr-col-12')}>
-                <AppTextAreaInput
-                  defaultValue={residue.otherCompliance ?? ''}
-                  onChange={(e) =>
-                    onChangeResidue(
-                      {
-                        ...residue,
-                        otherCompliance: e.target.value
-                      },
-                      residueIndex
-                    )
-                  }
-                  inputForm={form}
-                  inputKey="residues"
-                  inputPathFromKey={[residueIndex, 'otherCompliance']}
-                  whenValid="Valeur correctement renseignée"
-                  label="Précisions supplémentaires"
-                  hintText="Champ obligatoire pour expliquer la conformité “Autre”"
-                  required
-                />
-              </div>
-            )}
-          </div>
+              }
+            }))}
+            inputForm={form}
+            inputKey="residues"
+            inputPathFromKey={[residueIndex, 'compliance']}
+            whenValid="Conformité correctement renseignée"
+            required
+          />
+          {residue.compliance === 'Other' && (
+            <AppTextAreaInput
+              className={cx('fr-mt-2w')}
+              defaultValue={residue.otherCompliance ?? ''}
+              onChange={(e) =>
+                onChangeResidue(
+                  {
+                    ...residue,
+                    otherCompliance: e.target.value
+                  },
+                  residueIndex
+                )
+              }
+              inputForm={form}
+              inputKey="residues"
+              inputPathFromKey={[residueIndex, 'otherCompliance']}
+              whenValid="Valeur correctement renseignée"
+              label="Précisions supplémentaires"
+              hintText="Champ obligatoire pour expliquer la conformité “Autre”"
+              required
+            />
+          )}
         </div>
       </div>
     </>
