@@ -133,7 +133,11 @@ const ItemsStep = ({ partialSample }: Props) => {
             copyNumber: 1,
             recipientKind: 'Laboratory',
             laboratoryId: substanceKindLaboratory.laboratoryId,
-            substanceKind: substanceKindLaboratory.substanceKind
+            substanceKind: substanceKindLaboratory.substanceKind,
+            compliance200263:
+              partialSample.specificData.programmingPlanKind === 'PPV'
+                ? undefined
+                : true
           }))
       );
     }
@@ -224,7 +228,7 @@ const ItemsStep = ({ partialSample }: Props) => {
     FormRefinement,
     {
       sampledAt,
-      items: items,
+      items,
       notesOnItems
     },
     save
@@ -301,6 +305,7 @@ const ItemsStep = ({ partialSample }: Props) => {
                 severity="error"
                 description={`La saisie de l'échantillon n°${_.itemNumber} est incorrecte`}
                 key={`item-error-${_.itemNumber}-${_.copyNumber}`}
+                small
               />
             ))}
         </div>
