@@ -8,6 +8,7 @@ import {
 } from 'react';
 import { assert, type Equals } from 'tsafe';
 
+import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { ClassValue } from 'clsx/clsx';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
@@ -16,6 +17,7 @@ import {
   ResidueLmrCheck
 } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
+import useWindowSize from '../../../../hooks/useWindowSize';
 import { ResidueComplianceIcon } from './ResidueComplianceIcon';
 import './ResidueListResult.scss';
 
@@ -33,6 +35,8 @@ export const ResidueListResult: FunctionComponent<Props> = ({
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
+  const { isDesktop } = useWindowSize();
+
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const oldResiduesLength = useRef(residues.length);
 
@@ -45,7 +49,7 @@ export const ResidueListResult: FunctionComponent<Props> = ({
     oldResiduesLength.current = residues.length;
   }, [residues]);
 
-  return (
+  return isDesktop ? (
     <div className={clsx('residue-list-container', 'border')}>
       <div className={clsx('residues-side-menu')}>
         {residues.map((r, i) => (
@@ -82,6 +86,26 @@ export const ResidueListResult: FunctionComponent<Props> = ({
         {residuePanel(selectedIndex)}
       </div>
     </div>
+  ) : (
+    <>
+      {residues.map((r, i) => (
+        <div
+          key={`${r.reference}_${i}`}
+          className={clsx(cx('fr-p-3w'), 'residue-detail', 'border')}
+        >
+          {residuePanel(i)}
+        </div>
+      ))}
+      {onAddResidue ? (
+        <Button
+          className={clsx()}
+          onClick={onAddResidue}
+          priority={'secondary'}
+        >
+          Ajouter un résidu
+        </Button>
+      ) : null}
+    </>
   );
 };
 
