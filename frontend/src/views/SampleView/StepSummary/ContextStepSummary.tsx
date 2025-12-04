@@ -15,7 +15,7 @@ import { quote } from 'src/utils/stringUtils';
 import StepSummary, {
   StepSummaryMode
 } from 'src/views/SampleView/StepSummary/StepSummary';
-import { SampleMap } from '../../../components/SampleMap/SampleMap';
+import { SampleMap } from '../../../components/Sample/SampleMap/SampleMap';
 import { usePartialSample } from '../../../hooks/usePartialSample';
 import { useAppSelector } from '../../../hooks/useStore';
 

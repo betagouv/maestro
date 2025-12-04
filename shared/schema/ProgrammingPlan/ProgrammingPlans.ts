@@ -1,5 +1,6 @@
 import { isNil } from 'lodash-es';
 import { z } from 'zod';
+import { LegalContext } from '../../referential/LegalContext';
 import { SubstanceKind } from '../Substance/SubstanceKind';
 import { ProgrammingPlanContext } from './Context';
 import { DistributionKind } from './DistributionKind';
@@ -15,8 +16,15 @@ export const ProgrammingPlan = z
     id: z.guid(),
     domain: ProgrammingPlanDomain,
     title: z.string().min(1, 'Veuillez renseigner le titre.'),
-    kinds: z.array(ProgrammingPlanKind),
-    contexts: z.array(ProgrammingPlanContext),
+    kinds: z
+      .array(ProgrammingPlanKind)
+      .min(1, 'Veuillez renseigner au moins un type de plan.'),
+    contexts: z
+      .array(ProgrammingPlanContext)
+      .min(1, 'Veuillez renseigner au moins un contexte.'),
+    legalContexts: z
+      .array(LegalContext)
+      .min(1, 'Veuillez renseigner au moins un cadre juridique.'),
     samplesOutsidePlanAllowed: z.boolean(),
     substanceKinds: z.array(SubstanceKind),
     distributionKind: DistributionKind,

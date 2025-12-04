@@ -50,7 +50,8 @@ import { selectOptionsFromList } from '../../../../components/_app/AppSelect/App
 import AppTextAreaInput from '../../../../components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from '../../../../components/_app/AppTextInput/AppTextInput';
 import AppUpload from '../../../../components/_app/AppUpload/AppUpload';
-import SampleDocument from '../../../../components/SampleDocument/SampleDocument';
+import SampleDocument from '../../../../components/Sample/SampleDocument/SampleDocument';
+import SampleProcedure from '../../../../components/Sample/SampleProcedure/SampleProcedure';
 import SubstanceSearch from '../../../../components/SubstanceSearch/SubstanceSearch';
 import { useAnalytics } from '../../../../hooks/useAnalytics';
 import { usePartialSample } from '../../../../hooks/usePartialSample';
@@ -475,60 +476,9 @@ const MatrixStep = ({ partialSample }: Props) => {
             required
           />
         </div>
-        {partialSample?.specificData.programmingPlanKind ===
-          'DAOA_SLAUGHTER' && (
-          <div className={cx('fr-col-12')}>
-            <div
-              className={clsx(
-                cx(
-                  'fr-callout',
-                  'fr-callout--beige-gris-galet',
-                  'fr-px-4w',
-                  'fr-py-3w'
-                ),
-                'white-container'
-              )}
-            >
-              <h6 className="d-flex-align-center">
-                <span
-                  className={clsx(
-                    cx('fr-icon-archive-line', 'fr-mr-1w'),
-                    'icon-grey'
-                  )}
-                ></span>
-                Modalités d'échantillonnage
-              </h6>
-              <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-                <div className={cx('fr-col-12', 'fr-col-md-6')}>
-                  <div className={cx('fr-my-1v')}>
-                    Contenant : <b>Papier d'aluminium</b>
-                  </div>
-                  <div className={cx('fr-my-1v')}>
-                    Température : <b>-18° </b>
-                  </div>
-                  <div className={cx('fr-my-1v')}>
-                    Délais max. avant analyse : <b>30 jours</b>
-                  </div>
-                </div>
-                <div
-                  className={clsx(
-                    cx('fr-col-12', 'fr-col-md-6'),
-                    'border-left'
-                  )}
-                >
-                  <div className={cx('fr-my-1v')}>
-                    Matière prélevée : <b>Foie de bovin</b>
-                  </div>
-                  <div className={cx('fr-my-1v')}>
-                    Quantité par échantillon : <b>200 grammes</b>
-                  </div>
-                </div>
-              </div>
-              <hr className={cx('fr-my-3w')} />
-              Analyses prévues Mono-résidus Multi-résidus Cuivre
-            </div>
-          </div>
-        )}
+      </div>
+      <SampleProcedure partialSample={partialSample} />
+      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         {(
           Object.entries(
             MatrixSpecificDataForm[specificData.programmingPlanKind]

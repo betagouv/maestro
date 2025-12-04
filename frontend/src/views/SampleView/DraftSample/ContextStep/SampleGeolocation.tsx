@@ -4,7 +4,7 @@ import { Geolocation } from 'maestro-shared/schema/Geolocation/Geolocation';
 import { useMemo, useState } from 'react';
 import { MarkerDragEvent } from 'react-map-gl/maplibre';
 import AddressSearch from 'src/components/AddressSearch/AddressSearch';
-import { SampleMap } from '../../../../components/SampleMap/SampleMap';
+import { SampleMap } from '../../../../components/Sample/SampleMap/SampleMap';
 
 interface Props {
   location?: Geolocation;

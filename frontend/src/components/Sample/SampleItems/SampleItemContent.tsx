@@ -37,9 +37,9 @@ import {
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { UseForm, useForm } from 'src/hooks/useForm';
 import { z } from 'zod';
-import { usePartialSample } from '../../hooks/usePartialSample';
-import useWindowSize from '../../hooks/useWindowSize';
-import { ApiClientContext } from '../../services/apiClient';
+import { usePartialSample } from '../../../hooks/usePartialSample';
+import useWindowSize from '../../../hooks/useWindowSize';
+import { ApiClientContext } from '../../../services/apiClient';
 
 const Form = z.object({
   items: z.array(z.looseObject({}))
@@ -165,7 +165,7 @@ const SampleItemContent = ({
             onChange={(e) =>
               onChangeItem?.({
                 ...item,
-                quantityUnit: e.target.value as QuantityUnit
+                quantityUnit: QuantityUnit.safeParse(e.target.value).data
               })
             }
             inputForm={form}

@@ -9,7 +9,7 @@ import {
   NavigationControl
 } from 'react-map-gl/maplibre';
 import { assert, type Equals } from 'tsafe';
-import config from '../../utils/config';
+import config from '../../../utils/config';
 
 type ViewStyle = 'map' | 'satellite';
 

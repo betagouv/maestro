@@ -4,8 +4,8 @@ import Input from '@codegouvfr/react-dsfr/Input';
 import clsx from 'clsx';
 import { useContext } from 'react';
 import { Link } from 'react-router';
-import { ApiClientContext } from '../../services/apiClient';
-import { cropFileName, quote } from '../../utils/stringUtils';
+import { ApiClientContext } from '../../../services/apiClient';
+import { cropFileName, quote } from '../../../utils/stringUtils';
 interface Props {
   documentId: string;
   readonly?: boolean;

@@ -23,12 +23,14 @@ export const SampleItem = z.object({
         ? "Veuillez renseigner si l'échantillon respecte la directive 2002/63"
         : issue.message
   }),
-  sealId: z.string({
-    error: (issue) =>
-      isNil(issue.input)
-        ? 'Veuillez renseigner le numéro de scellé.'
-        : issue.message
-  }),
+  sealId: z
+    .string({
+      error: (issue) =>
+        isNil(issue.input)
+          ? 'Veuillez renseigner le numéro de scellé.'
+          : issue.message
+    })
+    .min(1, 'Veuillez renseigner le numéro de scellé.'),
   supportDocumentId: z.guid().nullish(),
   recipientKind: SampleItemRecipientKind,
   laboratoryId: z.guid().nullish(),
@@ -41,7 +43,8 @@ export const PartialSampleItem = z.object({
     sampleId: true,
     itemNumber: true,
     copyNumber: true
-  }).shape
+  }).shape,
+  sealId: z.string().nullish()
 });
 
 export type SampleItem = z.infer<typeof SampleItem>;
