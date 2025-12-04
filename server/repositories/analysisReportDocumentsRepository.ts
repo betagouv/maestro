@@ -34,8 +34,10 @@ const findByAnalysisId = async (
 ): Promise<string[]> => {
   const result = await trx
     .selectFrom('analysisReportDocuments')
+    .leftJoin('documents', 'documentId', 'documents.id')
     .select('documentId')
     .where('analysisId', '=', analysisId)
+    .orderBy('documents.createdAt asc')
     .execute();
 
   return result.map(({ documentId }) => documentId);
