@@ -58,7 +58,7 @@ interface Props {
   readonly?: boolean;
 }
 
-const SampleItemDetails = ({
+const SampleItemContent = ({
   partialSample,
   item,
   itemIndex,
@@ -98,29 +98,36 @@ const SampleItemDetails = ({
   const { data: laboratories } = apiClient.useFindLaboratoriesQuery();
 
   return (
-    <>
+    <div className={cx('fr-py-4w', 'fr-px-5w')}>
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={cx('fr-col-8')}>
-          <Badge noIcon severity="warning">
-            Echantillon {item.itemNumber} - Exemplaire {item.copyNumber}
-          </Badge>
-        </div>
-        <div className={cx('fr-col-4')}>
-          {item.copyNumber > 1 && !readonly && (
-            <AppResponsiveButton
-              children="Supprimer"
-              title="Supprimer"
-              iconId="fr-icon-delete-line"
-              priority="tertiary"
-              size="small"
-              onClick={(e) => {
-                e.preventDefault();
-                onRemoveItem?.(item);
-              }}
-              className={clsx(cx('fr-mt-0'), 'float-right')}
-              data-testid={`remove-item-button-${itemIndex}`}
-            />
-          )}
+        <div
+          className={clsx(cx('fr-col-12', 'fr-mb-2w'), 'd-flex-align-center')}
+        >
+          <div className={clsx('flex-grow-1', 'd-flex-align-center')}>
+            <Badge
+              className={cx('fr-badge--yellow-tournesol')}
+              noIcon
+              severity="info"
+            >
+              Exemplaire n°{item.copyNumber}
+            </Badge>
+            {item.copyNumber > 1 && !readonly && (
+              <AppResponsiveButton
+                title="Supprimer"
+                iconId="fr-icon-delete-line"
+                priority="tertiary no outline"
+                size="small"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onRemoveItem?.(item);
+                }}
+                data-testid={`remove-item-button-${itemIndex}`}
+              />
+            )}
+          </div>
+          <div className={clsx(cx('fr-text--bold'))}>
+            {SubstanceKindLabels[item.substanceKind as SubstanceKind]}
+          </div>
         </div>
       </div>
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
@@ -158,7 +165,7 @@ const SampleItemDetails = ({
             onChange={(e) =>
               onChangeItem?.({
                 ...item,
-                quantityUnit: e.target.value as QuantityUnit
+                quantityUnit: QuantityUnit.safeParse(e.target.value).data
               })
             }
             inputForm={form}
@@ -190,11 +197,6 @@ const SampleItemDetails = ({
             disabled={readonly}
             required
           />
-        </div>
-      </div>
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={cx('fr-col-12', 'fr-text--bold')}>
-          {SubstanceKindLabels[item.substanceKind as SubstanceKind]}
         </div>
         <div className={cx('fr-col-12')}>
           {item.copyNumber === 1 ? (
@@ -270,67 +272,69 @@ const SampleItemDetails = ({
             />
           )}
         </div>
-      </div>
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-          {itemsForm ? (
-            <AppRadioButtons
-              legend="Directive 2002/63"
-              options={[
-                {
-                  label: 'Respectée',
-                  nativeInputProps: {
-                    checked: item.compliance200263 === true,
-                    onChange: () =>
-                      onChangeItem?.({ ...item, compliance200263: true })
-                  }
-                },
-                {
-                  label: 'Non respectée',
-                  nativeInputProps: {
-                    checked: item.compliance200263 === false,
-                    onChange: () =>
-                      onChangeItem?.({ ...item, compliance200263: false })
-                  }
-                }
-              ]}
-              colSm={6}
-              inputForm={form}
-              inputKey="items"
-              inputPathFromKey={[itemIndex, 'compliance200263']}
-              whenValid="Directive 2002/63 correctement renseignée."
-              disabled={readonly}
-              required
-            />
-          ) : (
-            <div className="icon-text">
-              <div
-                className={cx('fr-icon-bookmark-fill', {
-                  'fr-label--error': !item.compliance200263,
-                  'fr-label--success': item.compliance200263
-                })}
-              />
-              <div>
-                Directive 2002/63{' '}
-                <b> {!item.compliance200263 && 'non '}respectée</b>
-              </div>
+        {partialSample?.specificData.programmingPlanKind === 'PPV' && (
+          <>
+            <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+              {itemsForm ? (
+                <AppRadioButtons
+                  legend="Directive 2002/63"
+                  options={[
+                    {
+                      label: 'Respectée',
+                      nativeInputProps: {
+                        checked: item.compliance200263 === true,
+                        onChange: () =>
+                          onChangeItem?.({ ...item, compliance200263: true })
+                      }
+                    },
+                    {
+                      label: 'Non respectée',
+                      nativeInputProps: {
+                        checked: item.compliance200263 === false,
+                        onChange: () =>
+                          onChangeItem?.({ ...item, compliance200263: false })
+                      }
+                    }
+                  ]}
+                  colSm={6}
+                  inputForm={form}
+                  inputKey="items"
+                  inputPathFromKey={[itemIndex, 'compliance200263']}
+                  whenValid="Directive 2002/63 correctement renseignée."
+                  disabled={readonly}
+                  required
+                />
+              ) : (
+                <div className="icon-text">
+                  <div
+                    className={cx('fr-icon-bookmark-fill', {
+                      'fr-label--error': !item.compliance200263,
+                      'fr-label--success': item.compliance200263
+                    })}
+                  />
+                  <div>
+                    Directive 2002/63{' '}
+                    <b> {!item.compliance200263 && 'non '}respectée</b>
+                  </div>
+                </div>
+              )}
             </div>
-          )}
-        </div>
-        {itemsForm && (
-          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-            <Link
-              to="https://eur-lex.europa.eu/legal-content/FR/TXT/HTML/?uri=CELEX:02002L0063-20020723"
-              className={clsx(cx('fr-link'), { 'float-right': !isMobile })}
-              target="_blank"
-            >
-              Directive 2002/63
-            </Link>
-          </div>
+            {itemsForm && (
+              <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+                <Link
+                  to="https://eur-lex.europa.eu/legal-content/FR/TXT/HTML/?uri=CELEX:02002L0063-20020723"
+                  className={clsx(cx('fr-link'), { 'float-right': !isMobile })}
+                  target="_blank"
+                >
+                  Directive 2002/63
+                </Link>
+              </div>
+            )}
+          </>
         )}
       </div>
-    </>
+    </div>
   );
 };
 
-export default SampleItemDetails;
+export default SampleItemContent;

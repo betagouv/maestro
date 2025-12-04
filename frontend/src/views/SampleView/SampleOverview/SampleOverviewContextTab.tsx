@@ -30,7 +30,7 @@ const SampleOverviewContextTab = ({ sample }: Props) => {
     <>
       <ContextStepSummary
         sample={sample}
-        showLabel={false}
+        mode="tab"
         onChangeResytalId={setResytalId}
       />
       {!readonly && (

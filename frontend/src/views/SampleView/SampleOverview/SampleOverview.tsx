@@ -69,13 +69,13 @@ const SampleOverview = ({ sample }: Props) => {
           },
           {
             label: SampleStepTitles(sample)[1],
-            content: <MatrixStepSummary sample={sample} showLabel={false} />
+            content: <MatrixStepSummary sample={sample} mode="tab" />
           },
           {
             label: SampleStepTitles(sample)[2],
             content: (
               <>
-                <ItemsStepSummary sample={sample} showLabel={false} />
+                <ItemsStepSummary sample={sample} mode="tab" />
                 <hr />
                 <h3 className={cx('fr-m-0')}>Consentement par le détenteur</h3>
                 <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
@@ -170,9 +170,6 @@ const SampleOverview = ({ sample }: Props) => {
             )
           }
         ]}
-        classes={{
-          panel: 'white-container'
-        }}
       />
       <div className="back">
         <Button

@@ -1,4 +1,3 @@
-import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Input from '@codegouvfr/react-dsfr/Input';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
@@ -13,35 +12,32 @@ import {
 } from 'maestro-shared/schema/Sample/Sample';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { quote } from 'src/utils/stringUtils';
-import StepSummary from 'src/views/SampleView/StepSummary/StepSummary';
-import { SampleMap } from '../../../components/SampleMap/SampleMap';
+import StepSummary, {
+  StepSummaryMode
+} from 'src/views/SampleView/StepSummary/StepSummary';
+import { SampleMap } from '../../../components/Sample/SampleMap/SampleMap';
 import { usePartialSample } from '../../../hooks/usePartialSample';
 import { useAppSelector } from '../../../hooks/useStore';
 
 interface Props {
   sample: (Sample | SampleToCreate) & Partial<SampleOwnerData>;
-  showLabel?: boolean;
+  mode?: StepSummaryMode;
   onChangeResytalId: (resytalId: string) => void;
+  onEdit?: () => void;
 }
 
 const ContextStepSummary = ({
   sample,
-  showLabel,
-  onChangeResytalId
+  mode = 'section',
+  onChangeResytalId,
+  onEdit
 }: Props) => {
   const { user } = useAuthentication();
   const { readonly } = usePartialSample(sample);
   const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
 
   return (
-    <StepSummary
-      label={
-        <Badge className={cx('fr-badge--green-menthe')}>
-          Le contexte du prélèvement
-        </Badge>
-      }
-      showLabel={showLabel}
-    >
+    <StepSummary title="Contexte du prélèvement" onEdit={onEdit} mode={mode}>
       <div className="summary-item icon-text">
         <div className={cx('fr-icon-user-line')}></div>
         <div>
