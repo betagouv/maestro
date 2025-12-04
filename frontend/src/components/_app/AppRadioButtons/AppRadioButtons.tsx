@@ -1,5 +1,6 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import RadioButtons from '@codegouvfr/react-dsfr/RadioButtons';
+import clsx from 'clsx';
 import { ComponentPropsWithoutRef, useEffect } from 'react';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
 import { UseForm } from 'src/hooks/useForm';
@@ -71,7 +72,10 @@ function AppRadioButtons<T extends ZodObject>(
           'fr-my-0': isRichRadio
         }),
         content: cx('fr-grid-row', 'fr-grid-row--gutters', 'fr-mx-0'),
-        root: cx('fr-px-0', 'fr-my-0'),
+        root: clsx(
+          cx('fr-px-0', 'fr-my-0'),
+          !isRichRadio ? 'maestro-radio-group-inline' : undefined
+        ),
         legend: cx('fr-col-12', 'fr-mx-0')
       }}
     />
