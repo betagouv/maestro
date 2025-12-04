@@ -4,7 +4,7 @@ import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { format, parse } from 'date-fns';
-import { isNil } from 'lodash-es';
+import { isNil, uniq } from 'lodash-es';
 import { SubstanceKindLaboratorySort } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -294,17 +294,17 @@ const ItemsStep = ({ partialSample }: Props) => {
         partial: true
       }) && (
         <div>
-          {items
-            .filter((_) =>
-              form.hasIssue('items', [_.itemNumber - 1], {
+          {uniq(items.map((_) => _.itemNumber))
+            .filter((itemNumber) =>
+              form.hasIssue('items', [itemNumber - 1], {
                 partial: true
               })
             )
-            .map((_) => (
+            .map((itemNumber) => (
               <Alert
                 severity="error"
-                description={`La saisie de l'échantillon n°${_.itemNumber} est incorrecte`}
-                key={`item-error-${_.itemNumber}-${_.copyNumber}`}
+                description={`La saisie de l'échantillon n°${itemNumber} est incorrecte`}
+                key={`item-error-${itemNumber}`}
                 small
               />
             ))}
