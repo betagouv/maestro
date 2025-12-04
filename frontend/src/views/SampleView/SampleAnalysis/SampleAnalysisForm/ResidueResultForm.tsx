@@ -68,12 +68,12 @@ export const ResidueResultForm: FunctionComponent<Props> = ({
   return (
     <div className={clsx('residue-detail-container')}>
       <div className={clsx('d-flex-align-center')}>
-        <ResidueHeader residue={residue} />
+        <ResidueHeader residue={residue} residueIndex={residueIndex} />
         <Button
           iconId={'fr-icon-delete-line'}
           size={'small'}
           type={'button'}
-          title={`supprimer le résidu numéro ${residue.residueNumber}`}
+          title={`supprimer le résidu numéro ${residueIndex}`}
           priority={'secondary'}
           onClick={onDelete}
           className={cx('fr-ml-auto')}

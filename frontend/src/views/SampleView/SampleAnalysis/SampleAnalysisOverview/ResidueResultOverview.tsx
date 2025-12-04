@@ -35,7 +35,7 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
 
   return (
     <div className={clsx('residue-detail-container')}>
-      <ResidueHeader residue={residue} />
+      <ResidueHeader residue={residue} residueIndex={1} />
       <hr />
       <div className={clsx('result-detail-bloc')}>
         <div className="result-header">
@@ -171,7 +171,10 @@ const ResidueValueLabel = ({ residue }: Pick<Props, 'residue'>) => {
   );
 };
 
-export const ResidueHeader = ({ residue }: Pick<Props, 'residue'>) => {
+export const ResidueHeader = ({
+  residue,
+  residueIndex
+}: Pick<Props, 'residue'> & { residueIndex: number }) => {
   const kind: ResidueKind =
     residue.reference !== undefined && isComplex(residue.reference)
       ? 'Complex'
@@ -204,7 +207,7 @@ export const ResidueHeader = ({ residue }: Pick<Props, 'residue'>) => {
       <h6 className={clsx('d-flex-align-center', cx('fr-m-0'))}>
         {residue.reference
           ? SSD2IdLabel[residue.reference]
-          : `Résidu n°${residue.residueNumber}`}
+          : `Résidu n°${residueIndex + 1}`}
       </h6>
       {residue.reference ? (
         <Badge noIcon severity="info" small={true} className={cx('fr-mt-1w')}>
