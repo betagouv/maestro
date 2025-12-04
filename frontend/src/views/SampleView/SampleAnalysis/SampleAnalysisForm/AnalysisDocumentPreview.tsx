@@ -1,3 +1,4 @@
+import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
@@ -103,6 +104,7 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
         }
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fileInput]);
 
   return (
@@ -145,6 +147,15 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
             whenValid="fichier valide"
             acceptFileTypes={acceptFileTypes}
           />
+
+          {isCreateError && (
+            <Alert
+              className={cx('fr-mb-2w')}
+              description={<>Le dépôt de fichier a échoué.</>}
+              severity="error"
+              small
+            />
+          )}
         </div>
       )}
     </div>
