@@ -99,7 +99,7 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
         <div style={{ flex: 1 }}>
           <h3>
             <div className="sample-status">
-              <div>Suivi du prélèvement</div>
+              <div>Suivi des résultats</div>
               <div>
                 {sample.status === 'Completed' &&
                   hasUserPermission('restoreSampleToReview') && (

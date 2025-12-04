@@ -60,7 +60,7 @@ const SampleOverview = ({ sample }: Props) => {
       <Tabs
         tabs={[
           {
-            label: 'Suivi du prélèvement',
+            label: 'Suivi des résultats',
             content: <SampleAnalysis sample={sample} />
           },
           {
