@@ -42,134 +42,129 @@ export const ResidueInterpretationForm: FunctionComponent<Props> = ({
       <div className={clsx('result-detail-bloc')}>
         <h6 className={cx('fr-mb-0')}>Interprétation du résultat</h6>
 
-        <div className={clsx('overview-content')}>
-          <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-            <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-              <AppSelect
-                value={residue.resultHigherThanArfd ?? ''}
-                options={selectOptionsFromList(OptionalBooleanList, {
-                  labels: OptionalBooleanLabels
-                })}
-                onChange={(e) =>
-                  onChangeResidue(
-                    {
-                      ...residue,
-                      resultHigherThanArfd: e.target.value as OptionalBoolean
-                    },
-                    residueIndex
-                  )
-                }
-                inputForm={form}
-                inputKey="residues"
-                inputPathFromKey={[residueIndex, 'resultHigherThanArfd']}
-                whenValid="Valeur correctement renseignée"
-                label="Résultat brut supérieur à l'Arfd ?"
-              />
-            </div>
-            <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-              <AppTextInput
-                value={residue.notesOnResult ?? ''}
-                onChange={(e) =>
-                  onChangeResidue(
-                    { ...residue, notesOnResult: e.target.value },
-                    residueIndex
-                  )
-                }
-                inputForm={form}
-                inputKey="residues"
-                inputPathFromKey={[residueIndex, 'notesOnResult']}
-                whenValid="Note interne correctement renseignée"
-                label="Note interne"
-              />
-            </div>
-            <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-              <AppSelect
-                value={residue.substanceApproved ?? ''}
-                options={selectOptionsFromList(OptionalBooleanList, {
-                  labels: OptionalBooleanLabels
-                })}
-                onChange={(e) =>
-                  onChangeResidue(
-                    {
-                      ...residue,
-                      substanceApproved: e.target.value as OptionalBoolean
-                    },
-                    residueIndex
-                  )
-                }
-                inputForm={form}
-                inputKey="residues"
-                inputPathFromKey={[residueIndex, 'substanceApproved']}
-                whenValid="Valeur correctement renseignée"
-                label="Substance approuvée dans l'UE"
-                required
-              />
-            </div>
-            <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-              <AppSelect
-                value={residue.substanceAuthorised ?? ''}
-                options={selectOptionsFromList(OptionalBooleanList, {
-                  labels: OptionalBooleanLabels
-                })}
-                onChange={(e) =>
-                  onChangeResidue(
-                    {
-                      ...residue,
-                      substanceAuthorised: e.target.value as OptionalBoolean
-                    },
-                    residueIndex
-                  )
-                }
-                inputForm={form}
-                inputKey="residues"
-                inputPathFromKey={[residueIndex, 'substanceAuthorised']}
-                whenValid="Valeur correctement renseignée"
-                label="Substance autorisée pour l'usage"
-                required
-              />
-            </div>
-            <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-              <AppSelect
-                value={residue.pollutionRisk ?? ''}
-                options={selectOptionsFromList(OptionalBooleanList, {
-                  labels: OptionalBooleanLabels
-                })}
-                onChange={(e) =>
-                  onChangeResidue(
-                    {
-                      ...residue,
-                      pollutionRisk: e.target.value as OptionalBoolean
-                    },
-                    residueIndex
-                  )
-                }
-                inputForm={form}
-                inputKey="residues"
-                inputPathFromKey={[residueIndex, 'pollutionRisk']}
-                whenValid="Valeur correctement renseignée"
-                label="Pollution environnementale probable"
-              />
-            </div>
-            <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-              <AppTextInput
-                value={residue.notesOnPollutionRisk ?? ''}
-                onChange={(e) =>
-                  onChangeResidue(
-                    {
-                      ...residue,
-                      notesOnPollutionRisk: e.target.value
-                    },
-                    residueIndex
-                  )
-                }
-                inputForm={form}
-                inputKey="residues"
-                inputPathFromKey={[residueIndex, 'notesOnPollutionRisk']}
-                whenValid="Note interne correctement renseignée"
-                label="Note interne"
-              />
-            </div>
-          </div>
+        <div className={clsx('result-detail-bloc')}>
+          <AppSelect
+            className={cx('fr-mb-0')}
+            value={residue.resultHigherThanArfd ?? ''}
+            options={selectOptionsFromList(OptionalBooleanList, {
+              labels: OptionalBooleanLabels
+            })}
+            onChange={(e) =>
+              onChangeResidue(
+                {
+                  ...residue,
+                  resultHigherThanArfd: e.target.value as OptionalBoolean
+                },
+                residueIndex
+              )
+            }
+            inputForm={form}
+            inputKey="residues"
+            inputPathFromKey={[residueIndex, 'resultHigherThanArfd']}
+            whenValid="Valeur correctement renseignée"
+            label="Résultat brut supérieur à l'Arfd ?"
+          />
+          <AppTextInput
+            className={cx('fr-mb-0')}
+            value={residue.notesOnResult ?? ''}
+            onChange={(e) =>
+              onChangeResidue(
+                { ...residue, notesOnResult: e.target.value },
+                residueIndex
+              )
+            }
+            inputForm={form}
+            inputKey="residues"
+            inputPathFromKey={[residueIndex, 'notesOnResult']}
+            whenValid="Note interne correctement renseignée"
+            label="Note interne"
+          />
+          <hr />
+          <AppSelect
+            className={cx('fr-mb-0')}
+            value={residue.substanceApproved ?? ''}
+            options={selectOptionsFromList(OptionalBooleanList, {
+              labels: OptionalBooleanLabels
+            })}
+            onChange={(e) =>
+              onChangeResidue(
+                {
+                  ...residue,
+                  substanceApproved: e.target.value as OptionalBoolean
+                },
+                residueIndex
+              )
+            }
+            inputForm={form}
+            inputKey="residues"
+            inputPathFromKey={[residueIndex, 'substanceApproved']}
+            whenValid="Valeur correctement renseignée"
+            label="Substance approuvée dans l'UE"
+            required
+          />
+          <hr />
+          <AppSelect
+            className={cx('fr-mb-0')}
+            value={residue.substanceAuthorised ?? ''}
+            options={selectOptionsFromList(OptionalBooleanList, {
+              labels: OptionalBooleanLabels
+            })}
+            onChange={(e) =>
+              onChangeResidue(
+                {
+                  ...residue,
+                  substanceAuthorised: e.target.value as OptionalBoolean
+                },
+                residueIndex
+              )
+            }
+            inputForm={form}
+            inputKey="residues"
+            inputPathFromKey={[residueIndex, 'substanceAuthorised']}
+            whenValid="Valeur correctement renseignée"
+            label="Substance autorisée pour l'usage"
+            required
+          />
+          <hr />
+          <AppSelect
+            className={cx('fr-mb-0')}
+            value={residue.pollutionRisk ?? ''}
+            options={selectOptionsFromList(OptionalBooleanList, {
+              labels: OptionalBooleanLabels
+            })}
+            onChange={(e) =>
+              onChangeResidue(
+                {
+                  ...residue,
+                  pollutionRisk: e.target.value as OptionalBoolean
+                },
+                residueIndex
+              )
+            }
+            inputForm={form}
+            inputKey="residues"
+            inputPathFromKey={[residueIndex, 'pollutionRisk']}
+            whenValid="Valeur correctement renseignée"
+            label="Pollution environnementale probable"
+          />
+          <AppTextInput
+            className={cx('fr-mb-0')}
+            value={residue.notesOnPollutionRisk ?? ''}
+            onChange={(e) =>
+              onChangeResidue(
+                {
+                  ...residue,
+                  notesOnPollutionRisk: e.target.value
+                },
+                residueIndex
+              )
+            }
+            inputForm={form}
+            inputKey="residues"
+            inputPathFromKey={[residueIndex, 'notesOnPollutionRisk']}
+            whenValid="Note interne correctement renseignée"
+            label="Note interne"
+          />
         </div>
       </div>
       <hr />
