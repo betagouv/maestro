@@ -10,7 +10,7 @@ import { pluralize, quote } from 'src/utils/stringUtils';
 import StepSummary, {
   StepSummaryMode
 } from 'src/views/SampleView/StepSummary/StepSummary';
-import SampleItems from '../../../components/SampleItems/SampleItems';
+import SampleItems from '../../../components/Sample/SampleItems/SampleItems';
 
 interface Props {
   sample: (Sample | SampleToCreate) & Partial<SampleOwnerData>;

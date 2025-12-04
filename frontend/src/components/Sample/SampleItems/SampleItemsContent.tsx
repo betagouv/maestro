@@ -9,7 +9,7 @@ import {
   SampleItemMaxCopyCount
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { Fragment } from 'react';
-import { UseForm } from '../../hooks/useForm';
+import { UseForm } from '../../../hooks/useForm';
 import SampleItemContent from './SampleItemContent';
 
 interface Props {
